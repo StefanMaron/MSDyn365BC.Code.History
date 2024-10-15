@@ -1,4 +1,4 @@
-#if not CLEAN19
+﻿#if not CLEAN19
 codeunit 5600 "FA Insert Ledger Entry"
 {
     Permissions = TableData "FA Ledger Entry" = rim,
@@ -94,6 +94,7 @@ codeunit 5600 "FA Insert Ledger Entry"
         then
             CheckFADocNo(FALedgEntry);
         FALedgEntry.Insert(true);
+        FeatureTelemetry.LogUsage('0000H4F', 'Fixed Asset', 'Insert FA Ledger Entry');
 
         if ErrorEntryNo > 0 then begin
             if not FALedgEntry2.Get(ErrorEntryNo) then

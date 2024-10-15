@@ -1,4 +1,4 @@
-#if CLEAN18
+﻿#if CLEAN18
 codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
 {
     Permissions = TableData Item = rm,
@@ -1869,7 +1869,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
                 ItemJnlLine."Posting Date" := "Posting Date"
             else
                 ItemJnlLine."Posting Date" := PostingDateForClosedPeriod;
-            OnPostItemJnlLineOnAfterSetPostingDate(ItemJnlLine, OrigValueEntry, PostingDateForClosedPeriod);
+            OnPostItemJnlLineOnAfterSetPostingDate(ItemJnlLine, OrigValueEntry, PostingDateForClosedPeriod, Item);
 
             ItemJnlLine."Entry Type" := "Item Ledger Entry Type";
             ItemJnlLine."Document No." := "Document No.";
@@ -2959,7 +2959,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostItemJnlLineOnAfterSetPostingDate(var ItemJournalLine: Record "Item Journal Line"; ValueEntry: Record "Value Entry"; PostingDateForClosedPeriod: Date)
+    local procedure OnPostItemJnlLineOnAfterSetPostingDate(var ItemJournalLine: Record "Item Journal Line"; ValueEntry: Record "Value Entry"; PostingDateForClosedPeriod: Date; var Item: Record Item)
     begin
     end;
 

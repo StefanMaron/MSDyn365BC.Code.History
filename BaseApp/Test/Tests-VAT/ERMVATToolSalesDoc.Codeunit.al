@@ -2604,7 +2604,10 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         // Quantity Shipped/Received = 0 and new Posting Groups.
         with SalesLn2 do begin
             TestField(Quantity, SalesLn1.Quantity);
-            TestField("Qty. to Ship", SalesLn1."Qty. to Ship");
+            if SalesLn2."Document Type" = SalesLn2."Document Type"::"Blanket Order" then
+                TestField("Qty. to Ship", 0)
+            else
+                TestField("Qty. to Ship", SalesLn1."Qty. to Ship");
             TestField("Return Qty. to Receive", SalesLn1."Return Qty. to Receive");
             TestField("Dimension Set ID", SalesLn1."Dimension Set ID");
             TestField("Blanket Order No.", SalesLn1."Blanket Order No.");

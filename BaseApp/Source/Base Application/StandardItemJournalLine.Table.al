@@ -880,8 +880,11 @@ table 753 "Standard Item Journal Line"
 
     local procedure GetItem()
     begin
-        if Item."No." <> "Item No." then
-            Item.Get("Item No.");
+        if Item."No." = "Item No." then
+            exit;
+
+        Item.Get("Item No.");
+        OnAfterGetItem(Item, Rec);
     end;
 
     local procedure UpdateAmount()
@@ -911,6 +914,8 @@ table 753 "Standard Item Journal Line"
         else
             if Item."Costing Method" <> Item."Costing Method"::Standard then
                 UnitCost := Round(UnitCost, GLSetup."Unit-Amount Rounding Precision");
+
+        OnAfterRetriveCosts(Rec, Item, SKU, UnitCost);
     end;
 
     local procedure GetSKU() Result: Boolean
@@ -1041,6 +1046,11 @@ table 753 "Standard Item Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetItem(var Item: Record Item; var StandardItemJournalLine: Record "Standard Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetSKU(StandardItemJournalLine: Record "Standard Item Journal Line"; var Result: Boolean)
     begin
     end;
@@ -1057,6 +1067,11 @@ table 753 "Standard Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDim(var StandardItemJournalLine: Record "Standard Item Journal Line"; CallingFieldNo: Integer);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRetriveCosts(var StandardItemJournalLine: Record "Standard Item Journal Line"; Item: Record Item; StockkeepingUnit: Record "Stockkeeping Unit"; var UnitCost: Decimal)
     begin
     end;
 

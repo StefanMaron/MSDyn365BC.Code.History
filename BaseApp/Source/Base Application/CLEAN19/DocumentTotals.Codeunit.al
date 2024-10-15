@@ -1,4 +1,4 @@
-#if CLEAN19
+﻿#if CLEAN19
 codeunit 57 "Document Totals"
 {
 
@@ -273,8 +273,15 @@ codeunit 57 "Document Totals"
             ClearSalesAmounts(TotalsSalesLine, VATAmount);
     end;
 
-    local procedure SalesUpdateTotals(var SalesHeader: Record "Sales Header"; CurrentSalesLine: Record "Sales Line"; var TotalsSalesLine: Record "Sales Line"; var VATAmount: Decimal): Boolean
+    local procedure SalesUpdateTotals(var SalesHeader: Record "Sales Header"; CurrentSalesLine: Record "Sales Line"; var TotalsSalesLine: Record "Sales Line"; var VATAmount: Decimal) Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesUpdateTotals(SalesHeader, PreviousTotalSalesHeader, ForceTotalsRecalculation, PreviousTotalSalesVATDifference, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         SalesHeader.CalcFields(Amount, "Amount Including VAT", "Invoice Discount Amount");
 
         if SalesHeader."No." <> PreviousTotalSalesHeader."No." then
@@ -969,6 +976,11 @@ codeunit 57 "Document Totals"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesDeltaUpdateTotals(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; var TotalSalesLine: Record "Sales Line"; var VATAmount: Decimal; var InvoiceDiscountAmount: Decimal; var InvoiceDiscountPct: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesUpdateTotals(var SalesHeader: Record "Sales Header"; PreviousTotalSalesHeader: Record "Sales Header"; var ForceTotalsRecalculation: Boolean; PreviousTotalSalesVATDifference: Decimal; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

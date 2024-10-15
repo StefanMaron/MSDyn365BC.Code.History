@@ -1,4 +1,4 @@
-#if CLEAN19
+﻿#if CLEAN19
 codeunit 7600 "Calendar Management"
 {
 
@@ -145,34 +145,42 @@ codeunit 7600 "Calendar Management"
         exit(NormalDate(Date."Period End"));
     end;
 
-    procedure IsNonworkingDay(TargetDate: date; var CustomizedCalendarChange: Record "Customized Calendar Change"): Boolean;
+    procedure IsNonworkingDay(TargetDate: Date; var CustomizedCalendarChange: Record "Customized Calendar Change"): Boolean;
     begin
+        OnBeforeIsNonworkingDay(TargetDate, CustomizedCalendarChange);
         CustomizedCalendarChange.Date := TargetDate;
         CheckDateStatus(CustomizedCalendarChange);
-        EXIT(CustomizedCalendarChange.Nonworking);
+        exit(CustomizedCalendarChange.Nonworking);
     end;
 
     procedure CheckDateStatus(var TargetCustomizedCalendarChange: Record "Customized Calendar Change")
+    var
+        IsHandled: Boolean;
     begin
-        CombineChanges(TargetCustomizedCalendarChange, TempCustChange);
-        OnCheckDateStatusOnAfterCombineChanges(TargetCustomizedCalendarChange, TempCustChange);
+        IsHandled := false;
+        OnBeforeCheckDateStatus(TargetCustomizedCalendarChange, IsHandled);
+        if not IsHandled then begin
+            CombineChanges(TargetCustomizedCalendarChange, TempCustChange);
+            OnCheckDateStatusOnAfterCombineChanges(TargetCustomizedCalendarChange, TempCustChange);
 
-        TargetCustomizedCalendarChange.Description := '';
-        TargetCustomizedCalendarChange.Nonworking := false;
-        if CurrCustomizedCalendarChange.IsBlankSource() then
-            exit;
+            TargetCustomizedCalendarChange.Description := '';
+            TargetCustomizedCalendarChange.Nonworking := false;
+            if CurrCustomizedCalendarChange.IsBlankSource() then
+                exit;
 
-        TempCustChange.Reset();
-        TempCustChange.SetCurrentKey("Entry No.");
-        if TempCustChange.FindSet() then
-            repeat
-                if TempCustChange.IsDateCustomized(TargetCustomizedCalendarChange.Date) then begin
-                    TargetCustomizedCalendarChange.Description := TempCustChange.Description;
-                    TargetCustomizedCalendarChange.Nonworking := TempCustChange.Nonworking;
-                    OnCheckDateStatusAfterDateCustomized(TargetCustomizedCalendarChange, TempCustChange);
-                    exit;
-                end;
-            until TempCustChange.Next() = 0;
+            TempCustChange.Reset();
+            TempCustChange.SetCurrentKey("Entry No.");
+            if TempCustChange.FindSet() then
+                repeat
+                    if TempCustChange.IsDateCustomized(TargetCustomizedCalendarChange.Date) then begin
+                        TargetCustomizedCalendarChange.Description := TempCustChange.Description;
+                        TargetCustomizedCalendarChange.Nonworking := TempCustChange.Nonworking;
+                        OnCheckDateStatusAfterDateCustomized(TargetCustomizedCalendarChange, TempCustChange);
+                        exit;
+                    end;
+                until TempCustChange.Next() = 0;
+        end;
+        OnAfterCheckDateStatus(TargetCustomizedCalendarChange);
     end;
 
     local procedure CombineChanges(NewCustomizedCalendarChange: Record "Customized Calendar Change"; var TempCustomizedCalendarChange: record "Customized Calendar Change" temporary)
@@ -651,7 +659,22 @@ codeunit 7600 "Calendar Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckDateStatus(var CustomizedCalendarChange: Record "Customized Calendar Change")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcTimeSubtract(SubstractTime: Time; SubstractValue: Integer; var Result: Time; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDateStatus(var CustomizedCalendarChange: Record "Customized Calendar Change"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsNonworkingDay(var TargetDate: Date; var CustomizedCalendarChange: Record "Customized Calendar Change")
     begin
     end;
 

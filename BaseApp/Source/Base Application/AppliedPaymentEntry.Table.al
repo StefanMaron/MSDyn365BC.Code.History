@@ -417,6 +417,7 @@
 #if not CLEAN19
         BankAccReconLine.Validate("Applied Amount (LCY)", NewAppliedAmtLCY); // NAVCZ
 #endif
+        OnUpdateParentBankAccReconLineOnBeforeBankAccReconLineModify(Rec, BankAccReconLine, IsDelete);
         BankAccReconLine.Modify();
     end;
 
@@ -1481,6 +1482,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcAmountToApply(var AppliedPaymentEntry: Record "Applied Payment Entry"; PostingDate: Date; var AmountToApply: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateParentBankAccReconLineOnBeforeBankAccReconLineModify(var AppliedPaymentEntry: Record "Applied Payment Entry"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; IsDelete: Boolean)
     begin
     end;
 }

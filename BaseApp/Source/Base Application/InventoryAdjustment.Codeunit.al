@@ -1,4 +1,4 @@
-#if not CLEAN18
+﻿#if not CLEAN18
 codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
 {
     Permissions = TableData Item = rm,
@@ -123,20 +123,32 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
 
         InvtSetup.Get();
         GLSetup.Get();
-        PostingDateForClosedPeriod := GLSetup.FirstAllowedPostingDate;
+        PostingDateForClosedPeriod := GLSetup.FirstAllowedPostingDate();
+
+	ReassignPostingDateForClosedPeriod();
+
+        GetAddReportingCurrency();
+
+        SourceCodeSetup.Get();
+
+        ItemCostMgt.SetProperties(true, 0);
+        TempJobToAdjustBuf.DeleteAll();
+    end;
+
+    local procedure ReassignPostingDateForClosedPeriod()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeReassignPostingDateForClosedPeriod(PostingDateForClosedPeriod, RoundingDate, IsHandled);
+        if IsHandled then
+            exit;
 
         // NAVCZ
         GLSetup.TestField("Closed Period Entry Pos.Date");
         PostingDateForClosedPeriod := GLSetup."Closed Period Entry Pos.Date";
         RoundingDate := GLSetup."Rounding Date";
         // NAVCZ
-
-        GetAddReportingCurrency;
-
-        SourceCodeSetup.Get();
-
-        ItemCostMgt.SetProperties(true, 0);
-        TempJobToAdjustBuf.DeleteAll();
     end;
 
     local procedure FinalizeAdjmt()
@@ -1898,7 +1910,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
 
             // NAVCZ
 
-            OnPostItemJnlLineOnAfterSetPostingDate(ItemJnlLine, OrigValueEntry, PostingDateForClosedPeriod);
+            OnPostItemJnlLineOnAfterSetPostingDate(ItemJnlLine, OrigValueEntry, PostingDateForClosedPeriod, Item);
 
             ItemJnlLine."Entry Type" := "Item Ledger Entry Type";
             ItemJnlLine."Document No." := "Document No.";
@@ -2922,6 +2934,12 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
     begin
     end;
 
+    [Obsolete('This localized codeunit will be removed in next major version, so this event will be removed too', '21.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeReassignPostingDateForClosedPeriod(var PostingDateForClosedPeriod: Date; var RoundingDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenWindow(var IsHandled: Boolean)
     begin
@@ -3003,7 +3021,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostItemJnlLineOnAfterSetPostingDate(var ItemJournalLine: Record "Item Journal Line"; ValueEntry: Record "Value Entry"; PostingDateForClosedPeriod: Date)
+    local procedure OnPostItemJnlLineOnAfterSetPostingDate(var ItemJournalLine: Record "Item Journal Line"; ValueEntry: Record "Value Entry"; PostingDateForClosedPeriod: Date; var Item: Record Item)
     begin
     end;
 

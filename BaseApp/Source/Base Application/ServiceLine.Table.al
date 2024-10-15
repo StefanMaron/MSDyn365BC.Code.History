@@ -1,4 +1,4 @@
-table 5902 "Service Line"
+﻿table 5902 "Service Line"
 {
     Caption = 'Service Line';
     DrillDownPageID = "Service Line List";
@@ -2860,6 +2860,7 @@ table 5902 "Service Line"
         Text017: Label 'You cannot ship more than %1 base units.';
         Text018: Label '%1 %2 is greater than %3 and was adjusted to %4.';
         CompAlreadyReplacedErr: Label 'The component that you selected has already been replaced in service line %1.', Comment = '%1 = Line No.';
+        SalesSetup: Record "Sales & Receivables Setup";
         ServMgtSetup: Record "Service Mgt. Setup";
         ServiceLine: Record "Service Line";
         ServHeader: Record "Service Header";
@@ -3497,7 +3498,6 @@ table 5902 "Service Line"
 
     local procedure NotifyOnMissingSetup(FieldNumber: Integer)
     var
-        SalesSetup: Record "Sales & Receivables Setup";
         DiscountNotificationMgt: Codeunit "Discount Notification Mgt.";
     begin
         if CurrFieldNo = 0 then
@@ -4016,7 +4016,7 @@ table 5902 "Service Line"
         end else begin
             ServItem.CalcFields("Service Item Components");
             if ServItem."Service Item Components" and not HideReplacementDialog then begin
-                Select := StrMenu(Text006, 3);
+                Select := StrMenu(Text006, GetStrMenuDefaultValue());
                 case Select of
                     1:
                         begin
@@ -4049,6 +4049,12 @@ table 5902 "Service Line"
         end;
 
         OnAfterAssignServItemValues(Rec, ServItem, ServItemComponent, HideReplacementDialog);
+    end;
+
+    local procedure GetStrMenuDefaultValue() DefaultValue: Integer
+    begin
+        DefaultValue := 3;
+        OnAfterGetStrMenuDefaultValue(DefaultValue);
     end;
 
     local procedure CopyFromResource()
@@ -4696,13 +4702,10 @@ table 5902 "Service Line"
 
     procedure CalcVATAmountLines(QtyType: Option General,Invoicing,Shipping,Consuming; var ServHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var VATAmountLine: Record "VAT Amount Line"; isShip: Boolean)
     var
-        Cust: Record Customer;
-        CustPostingGroup: Record "Customer Posting Group";
 #if not CLEAN18
         PrevVatAmountLine: Record "VAT Amount Line";
 #endif
         Currency: Record Currency;
-        SalesSetup: Record "Sales & Receivables Setup";
 #if not CLEAN18
         TempServiceLine: Record "Service Line" temporary;
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
@@ -4727,15 +4730,10 @@ table 5902 "Service Line"
             SetRange("Document No.", ServHeader."No.");
             SetFilter(Type, '>0');
             SetFilter(Quantity, '<>0');
-            SalesSetup.Get();
-            if SalesSetup."Invoice Rounding" then begin
-                Cust.Get(ServHeader."Bill-to Customer No.");
-                CustPostingGroup.Get(Cust."Customer Posting Group");
-            end;
             if FindSet() then
                 repeat
                     if Type = Type::"G/L Account" then
-                        RoundingLineInserted := ("No." = CustPostingGroup."Invoice Rounding Account") or RoundingLineInserted;
+                        RoundingLineInserted := ("No." = GetCPGInvRoundAcc(ServHeader)) or RoundingLineInserted;
                     if "VAT Calculation Type" in
                        ["VAT Calculation Type"::"Reverse Charge VAT", "VAT Calculation Type"::"Sales Tax"]
                     then
@@ -6273,6 +6271,25 @@ table 5902 "Service Line"
         exit(10000);
     end;
 
+    procedure GetCPGInvRoundAcc(ServiceHeader: Record "Service Header") AccountNo: Code[20]
+    var
+        Customer: Record Customer;
+        CustomerPostingGroup: Record "Customer Posting Group";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetCPGInvRoundAcc(ServiceHeader, AccountNo, IsHandled);
+        if IsHandled then
+            exit(AccountNo);
+
+        SalesSetup.GetRecordOnce();
+        if SalesSetup."Invoice Rounding" and (ServiceHeader."Bill-to Customer No." <> '') then begin
+            Customer.Get(ServiceHeader."Bill-to Customer No.");
+            CustomerPostingGroup.Get(Customer."Customer Posting Group");
+            exit(CustomerPostingGroup."Invoice Rounding Account");
+        end;
+    end;
+
     procedure DeleteWithAttachedLines()
     begin
         SetRange("Document Type", "Document Type");
@@ -6624,6 +6641,11 @@ table 5902 "Service Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSKU(ServiceLine: Record "Service Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetStrMenuDefaultValue(var DefaultValue: Integer)
     begin
     end;
 
@@ -7095,6 +7117,11 @@ table 5902 "Service Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateAmountsOnAfterCalcShouldCheckCrLimit(var ServiceLine: Record "Service Line"; IsCustCrLimitChecked: Boolean; CurrentFieldNo: Integer; var ShouldCheckCrLimit: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCPGInvRoundAcc(ServiceHeader: Record "Service Header"; var AccountNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

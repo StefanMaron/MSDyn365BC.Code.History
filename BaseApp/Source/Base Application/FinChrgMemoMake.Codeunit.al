@@ -60,7 +60,7 @@ codeunit 394 "FinChrgMemo-Make"
                 CustLedgEntry2.CopyFilters(CustLedgEntry);
                 CustLedgEntry.SetCurrentKey("Customer No.");
                 CustLedgEntry.SetRange("Customer No.", "No.");
-                OnCodeOnAfterCustLedgEntrySetFilters(CustLedgEntry);
+                OnCodeOnAfterCustLedgEntrySetFilters(CustLedgEntry, FinChrgMemoHeaderReq, Cust);
                 if CustLedgEntry.Find('-') then
                     repeat
                         if CustLedgEntry."On Hold" = '' then begin
@@ -145,13 +145,14 @@ codeunit 394 "FinChrgMemo-Make"
                 FinChrgMemoHeader.SetCurrentKey("Customer No.", "Currency Code");
                 FinChrgMemoHeader.SetRange("Customer No.", "No.");
                 FinChrgMemoHeader.SetRange("Currency Code", CurrencyCode);
-                OnMakeHeaderOnAfterSetFilters(FinChrgMemoHeader);
+                OnMakeHeaderOnAfterSetFilters(FinChrgMemoHeader, FinChrgMemoHeaderReq, FinChrgTerms, Cust);
                 if FinChrgMemoHeader.FindFirst() then
                     exit(false);
             end;
             FinChrgMemoHeader.Init();
             FinChrgMemoHeader."No." := '';
             FinChrgMemoHeader."Posting Date" := FinChrgMemoHeaderReq."Posting Date";
+            OnMakeHeaderOnBeforeInsert(FinChrgMemoHeader, FinChrgMemoHeaderReq, FinChrgTerms, Cust, Checking);
             if not Checking then
                 FinChrgMemoHeader.Insert(true);
             FinChrgMemoHeader.Validate("Customer No.", "No.");
@@ -276,7 +277,7 @@ codeunit 394 "FinChrgMemo-Make"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCodeOnAfterCustLedgEntrySetFilters(var CustLedgEntry: Record "Cust. Ledger Entry")
+    local procedure OnCodeOnAfterCustLedgEntrySetFilters(var CustLedgEntry: Record "Cust. Ledger Entry"; FinanceChargeMemoHeaderReq: Record "Finance Charge Memo Header"; Customer: Record Customer)
     begin
     end;
 
@@ -286,7 +287,12 @@ codeunit 394 "FinChrgMemo-Make"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnMakeHeaderOnAfterSetFilters(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header")
+    local procedure OnMakeHeaderOnAfterSetFilters(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; FinanceChargeMemoHeaderReq: Record "Finance Charge Memo Header"; FinanceChargeTerms: Record "Finance Charge Terms"; Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMakeHeaderOnBeforeInsert(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; FinanceChargeMemoHeaderReq: Record "Finance Charge Memo Header"; FinanceChargeTerms: Record "Finance Charge Terms"; Customer: Record Customer; Checking: Boolean)
     begin
     end;
 

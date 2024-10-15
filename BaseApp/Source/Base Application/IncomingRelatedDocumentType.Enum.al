@@ -12,14 +12,14 @@ enum 141 "Incoming Related Document Type"
     value(5; " ") { Caption = ' '; }
     value(6; "Sales Advance")
     {
-        Caption = 'Sales Advance';
+        Caption = 'Sales Advance (Obsolete)';
         ObsoleteState = Pending;
         ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
         ObsoleteTag = '19.0';
     }
     value(7; "Purchase Advance")
     {
-        Caption = 'Purchase Advance';
+        Caption = 'Purchase Advance (Obsolete)';
         ObsoleteState = Pending;
         ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
         ObsoleteTag = '19.0';
@@ -27,7 +27,7 @@ enum 141 "Incoming Related Document Type"
 #if not CLEAN18
     value(8; "Credit")
     {
-        Caption = 'Credit';
+        Caption = 'Credit (Obsolete)';
         ObsoleteState = Pending;
         ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
         ObsoleteTag = '18.0';

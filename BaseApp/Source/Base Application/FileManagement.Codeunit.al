@@ -300,6 +300,16 @@ codeunit 419 "File Management"
         exit(Result);
     end;
 
+    procedure GetPathWithSafeFileName(InFilePath: Text): Text
+    var
+        FileDirectory: Text;
+        FileName: Text;
+    begin
+        FileDirectory := GetDirectoryName(InFilePath);
+        FileName := GetSafeFileName(GetFileName(InFilePath));
+        exit(CombinePath(FileDirectory, FileName));
+    end;
+
     procedure GetFileNameWithoutExtension(FilePath: Text): Text
     begin
         exit(PathHelper.GetFileNameWithoutExtension(FilePath));

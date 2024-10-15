@@ -237,8 +237,11 @@ page 7015 "Sales Price Lists"
         CurrRec: Record "Price List Header";
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        [InDataSet]
         CRMIntegrationAllowed: Boolean;
+        [InDataSet]
         CRMIntegrationEnabled: Boolean;
+        [InDataSet]
         CRMIsCoupledToRecord: Boolean;
         StatusActiveFilterApplied: Boolean;
 

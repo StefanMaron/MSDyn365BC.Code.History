@@ -583,8 +583,10 @@ table 130 "Incoming Document"
     procedure CreateManually()
     var
         RelatedRecord: Variant;
-        DocumentTypeOption: Integer;
+        DocumentTypeOption, DocumentTypeEnum : Integer;
         IsHandled: Boolean;
+        CreatedDocumentType: Dictionary of [Integer, Integer];
+        CreatedDocumentStrMenu: Text;
     begin
         IsHandled := false;
         OnBeforeCreateManually(Rec, IsHandled);
@@ -594,17 +596,20 @@ table 130 "Incoming Document"
         if GetRecord(RelatedRecord) then
             Error(DocAlreadyCreatedErr);
 
-        DocumentTypeOption :=
-            StrMenu(
-                StrSubstNo(
-                    '%1,%2,%3,%4,%5', JournalTxt, SalesInvoiceTxt, SalesCreditMemoTxt, PurchaseInvoiceTxt, PurchaseCreditMemoTxt), 1);
+        CreatedDocumentType.Add(1, "Document Type"::Journal.AsInteger());
+        CreatedDocumentType.Add(2, "Document Type"::"Sales Invoice".AsInteger());
+        CreatedDocumentType.Add(3, "Document Type"::"Sales Credit Memo".AsInteger());
+        CreatedDocumentType.Add(4, "Document Type"::"Purchase Invoice".AsInteger());
+        CreatedDocumentType.Add(5, "Document Type"::"Purchase Credit Memo".AsInteger());
+        CreatedDocumentStrMenu := StrSubstNo('%1,%2,%3,%4,%5', JournalTxt, SalesInvoiceTxt, SalesCreditMemoTxt, PurchaseInvoiceTxt, PurchaseCreditMemoTxt);
+        OnAfterSetCreatedDocumentType(CreatedDocumentType, CreatedDocumentStrMenu);
 
+        DocumentTypeOption := StrMenu(CreatedDocumentStrMenu, 1);
         if DocumentTypeOption < 1 then
             exit;
 
-        DocumentTypeOption -= 1;
-
-        case DocumentTypeOption of
+        DocumentTypeEnum := CreatedDocumentType.Get(DocumentTypeOption);
+        case DocumentTypeEnum of
             "Document Type"::"Purchase Invoice".AsInteger():
                 CreatePurchInvoice();
             "Document Type"::"Purchase Credit Memo".AsInteger():
@@ -615,6 +620,8 @@ table 130 "Incoming Document"
                 CreateSalesCreditMemo();
             "Document Type"::Journal.AsInteger():
                 CreateGenJnlLine();
+            else
+                OnAfterCreateDocumentType(Rec, DocumentTypeEnum);
         end;
 
         OnAfterCreateManually(Rec);
@@ -804,7 +811,7 @@ table 130 "Incoming Document"
         CopyFilters(IncomingDocument);
     end;
 
-    local procedure TestIfAlreadyExists()
+    procedure TestIfAlreadyExists()
     var
         GenJnlLine: Record "Gen. Journal Line";
         SalesHeader: Record "Sales Header";
@@ -829,6 +836,8 @@ table 130 "Incoming Document"
                     if PurchaseHeader.FindFirst() then
                         Error(AlreadyUsedInDocHdrErr, PurchaseHeader."Document Type", PurchaseHeader."No.", PurchaseHeader.TableCaption);
                 end;
+            else
+                OnTestIfAlreadyExists("Document Type", "Entry No.");
         end;
     end;
 
@@ -870,7 +879,14 @@ table 130 "Incoming Document"
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         GLEntry: Record "G/L Entry";
+        IncomingRelatedDocumentType: Enum "Incoming Related Document Type";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetRelatedDocType(PostingDate, DocNo, IsPosted, IncomingRelatedDocumentType, IsHandled);
+        if IsHandled then
+            exit(IncomingRelatedDocumentType);
+
         IsPosted := true;
         case true of
             ((PostingDate = 0D) or (DocNo = '')):
@@ -996,6 +1012,8 @@ table 130 "Incoming Document"
                     PurchaseHeader.SetRange("Incoming Document Entry No.", "Entry No.");
                     PurchaseHeader.ModifyAll("Incoming Document Entry No.", 0, true);
                 end;
+            else
+                OnAfterClearRelatedRecords("Document Type", "Entry No.");
         end;
     end;
 
@@ -1120,7 +1138,7 @@ table 130 "Incoming Document"
             PurchaseHeader.AddLink(GetURL, Description);
     end;
 
-    local procedure DocLinkExists(RecVar: Variant): Boolean
+    procedure DocLinkExists(RecVar: Variant): Boolean
     var
         RecordLink: Record "Record Link";
         RecRef: RecordRef;
@@ -2222,6 +2240,31 @@ table 130 "Incoming Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnRemoveReferenceToWorkingDocumentOnBeforeModify(var IncomingDocument: Record "Incoming Document")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCreatedDocumentType(var CreatedDocumentType: Dictionary of [Integer, Integer]; var CreatedDocumentStrMenu: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDocumentType(var IncomingDocument: Record "Incoming Document"; DocumentTypeEnum: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestIfAlreadyExists(IncomingRelatedDocumentType: Enum "Incoming Related Document Type"; EntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetRelatedDocType(PostingDate: Date; DocNo: Code[20]; var IsPosted: Boolean; var IncomingRelatedDocumentType: Enum "Incoming Related Document Type"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterClearRelatedRecords(IncomingRelatedDocumentType: Enum "Incoming Related Document Type"; EntryNo: Integer)
     begin
     end;
 }

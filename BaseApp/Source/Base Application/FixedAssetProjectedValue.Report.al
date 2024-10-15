@@ -773,7 +773,7 @@ report 5607 "Fixed Asset - Projected Value"
     local procedure TransferValues()
     begin
         with FADeprBook do begin
-            CalcFields("Book Value", Depreciation, "Custom 1");
+            CalcFields("Book Value", "Custom 1");
             DateFromProjection := 0D;
             EntryAmounts[1] := "Book Value";
             EntryAmounts[2] := "Custom 1";

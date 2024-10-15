@@ -165,7 +165,7 @@ codeunit 240 ItemJnlManagement
     var
         ItemJnlBatch: Record "Item Journal Batch";
     begin
-        OnBeforeCheckTemplateName(CurrentJnlTemplateName, CurrentJnlBatchName);
+        OnBeforeCheckTemplateName(CurrentJnlTemplateName, CurrentJnlBatchName, ItemJnlBatch);
         ItemJnlBatch.SetRange("Journal Template Name", CurrentJnlTemplateName);
         if not ItemJnlBatch.Get(CurrentJnlTemplateName, CurrentJnlBatchName) then begin
             if not ItemJnlBatch.FindFirst() then begin
@@ -304,7 +304,7 @@ codeunit 240 ItemJnlManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckTemplateName(CurrentJnlTemplateName: Code[10]; var CurrentJnlBatchName: Code[10])
+    local procedure OnBeforeCheckTemplateName(CurrentJnlTemplateName: Code[10]; var CurrentJnlBatchName: Code[10]; var ItemJournalBatch: Record "Item Journal Batch")
     begin
     end;
 

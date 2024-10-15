@@ -21,12 +21,10 @@ codeunit 137275 "SCM Inventory Journals"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryRandom: Codeunit "Library - Random";
-        SerialNoListPageCaption: Label 'Serial No. Information List';
-        ValidationError: Label 'Caption must be same.';
-        SerialNoError: Label 'Serial No. %1 is already on inventory.';
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
-        Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        Assert: Codeunit Assert;
+        ItemLedgerEntryType: Enum "Item Ledger Entry Type";
         isInitialized: Boolean;
         GlobalNewSerialNo: Code[50];
         GlobalNewLotNo: Code[50];
@@ -36,6 +34,9 @@ codeunit 137275 "SCM Inventory Journals"
         GlobalExpirationDate: Date;
         GlobalDescription: Text[50];
         GlobalComment: Text[80];
+        SerialNoListPageCaption: Label 'Serial No. Information List';
+        ValidationError: Label 'Caption must be same.';
+        SerialNoError: Label 'Serial No. %1 is already on inventory.';
         AvailabilityWarning: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
         SerialNoConfirmaton: Label 'Do you want to overwrite the existing information?';
         LotNoListPageCaption: Label 'Lot No. Information List';
@@ -54,6 +55,7 @@ codeunit 137275 "SCM Inventory Journals"
         NotOnInventoryError: Label 'You have insufficient quantity of Item %1 on inventory.';
         ValueNotMatchedError: Label 'Value must be same.';
         ItemJournalLineNotExistErr: Label '%1 with Variant %2, Location %3, Bin %4 is not exist.';
+        ItemJournalLineExistsErr: Label '%1 with Variant %2, Location %3, Bin %4 should be empty.';
         QtyCalculatedErr: Label 'Qty. Calculated is not correct for %1 with Variant %2, Location %3, Bin %4.';
         ItemExistErr: Label 'Item No. must have a value';
         ItemJournalLineDimErr: Label 'Dimensions on Item Journal Line should be same as on Item Ledger Entry if Calculate Inventory using By Dimensions';
@@ -1071,7 +1073,7 @@ codeunit 137275 "SCM Inventory Journals"
           ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo[1], ItemVariant.Code, Location.Code, '', Qty);
 
         // [WHEN] Create phys. inventory journal and calculate inventory with "Include items without transaction" option for both "I1" and "I2".
-        CalculateInventoryWithItemFilters(StrSubstNo('%1|%2', ItemNo[1], ItemNo[2]), Location.Code, '');
+        CalculateInventoryWithItemFilters(StrSubstNo('%1|%2', ItemNo[1], ItemNo[2]), Location.Code, '', true, true);
 
         // [THEN] Two lines are created - the first is with item "I1" and variant "V1", the second is with item "I2" and no variant code.
         VerifyItemJournalLine(ItemNo[1], ItemVariant.Code, Location.Code, '', Qty);
@@ -1102,7 +1104,7 @@ codeunit 137275 "SCM Inventory Journals"
         ItemNoFilter := CopyStr(ItemNoFilter, 2);
 
         // [WHEN] Create phys. inventory journal and calculate inventory with "Include items without transaction" option for items "I1", "I2", "I3" and variant filter "<>''" (not blank).
-        CalculateInventoryWithItemFilters(ItemNoFilter, '', StrSubstNo('<>%1', ''''''));
+        CalculateInventoryWithItemFilters(ItemNoFilter, '', StrSubstNo('<>%1', ''''''), true, true);
 
         // [THEN] Nine (3 * 3) lines are created - one per each variant (3) of each item (3).
         for i := 1 to ArrayLen(ItemNo) do
@@ -1144,7 +1146,7 @@ codeunit 137275 "SCM Inventory Journals"
         ItemNoFilter := CopyStr(ItemNoFilter, 2);
 
         // [WHEN] Create phys. inventory journal and calculate inventory with "Include items without transaction" option for items "I1", "I2", "I3", location filter "L1|L2|L3" and variant filter "<>''" (not blank).
-        CalculateInventoryWithItemFilters(ItemNoFilter, LocationFilter, StrSubstNo('<>%1', ''''''));
+        CalculateInventoryWithItemFilters(ItemNoFilter, LocationFilter, StrSubstNo('<>%1', ''''''), true, true);
 
         // [THEN] Twenty seven (3 * 3 * 3) lines are created - one per each combination of location (3), item (3) and variant (3).
         for k := 1 to ArrayLen(Location) do
@@ -1251,6 +1253,364 @@ codeunit 137275 "SCM Inventory Journals"
         until ItemJournalLine.Next() = 0;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalculateInventoryWithZeroQtyFalse_PositiveAmount()
+    var
+        ItemVariant: Array[2] of Record "Item Variant";
+        Location: Record Location;
+        StockKeepingUnit: Record "Stockkeeping Unit";
+        ItemNo: Code[20];
+        Qty: array[3] of Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Physical Inventory] [Item Variant]
+        // [SCENARIO 439359] Run calculate inventory with "Items not on inventory" = false for Item with existings quantity on inventory.
+        Initialize();
+
+
+        // [GIVEN] Location "L".
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Item "I" exists with 2 Variants: "V1" and "V2"
+        ItemNo := CreateItemWith2Variants(ItemVariant);
+
+        // [GIVEN] Stockkeeping Unit for Item Variant "V1" exists
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockKeepingUnit, Location.Code, ItemNo, ItemVariant[1].Code);
+
+        // [GIVEN] Positive adjustments for I-V1, I-V2 and I are posted.
+        for i := 1 to 3 do
+            Qty[i] := LibraryRandom.RandInt(10);
+        CreateAndPostItemJournal(ItemLedgerEntryType::"Positive Adjmt.", ItemNo, ItemVariant[1].Code, Location.Code, '', Qty[1]);
+        CreateAndPostItemJournal(ItemLedgerEntryType::"Positive Adjmt.", ItemNo, ItemVariant[2].Code, Location.Code, '', Qty[2]);
+        CreateAndPostItemJournal(ItemLedgerEntryType::"Positive Adjmt.", ItemNo, '', Location.Code, '', Qty[3]);
+
+        // [WHEN] Run "Calculate Inventory" for Item "I" with "Items not on inventory" = false
+        CalculateInventoryWithItemFilters(ItemNo, '', '', false, false);
+
+        // [THEN] Line for Item "I" variant "V1" was created with positive quantity
+        VerifyItemJournalLine(ItemNo, ItemVariant[1].Code, Location.Code, '', Qty[1]);
+
+        // [THEN] Line for Item "I" variant "V2" was created with positive quantity
+        VerifyItemJournalLine(ItemNo, ItemVariant[2].Code, Location.Code, '', Qty[2]);
+
+        // [THEN] Line for Item "I" with no variant was created with positive quantity
+        VerifyItemJournalLine(ItemNo, '', Location.Code, '', Qty[3]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalculateInventoryWithZeroQtyFalse_ZeroAmount()
+    var
+        ItemVariant: Array[2] of Record "Item Variant";
+        Location: Record Location;
+        StockKeepingUnit: Record "Stockkeeping Unit";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Physical Inventory] [Item Variant]
+        // [SCENARIO 439359] Run calculate inventory with "Items not on inventory" = false for Item with existings transactions, but 0 quantity on inventory.
+        Initialize();
+
+        // [GIVEN] Location "L".
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Item "I" exists with 2 Variants: "V1" and "V2"
+        ItemNo := CreateItemWith2Variants(ItemVariant);
+
+        // [GIVEN] Stockkeeping Unit for Item Variant "V1" exists
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockKeepingUnit, Location.Code, ItemNo, ItemVariant[1].Code);
+
+        // [GIVEN] Each combination (I-V1, I-V2 and I-"") has two transactions of +X and -X, so total inventory is 0
+        PostTwoSymmetricAdjustments(ItemNo, ItemVariant[1].Code, Location.Code);
+        PostTwoSymmetricAdjustments(ItemNo, ItemVariant[2].Code, Location.Code);
+        PostTwoSymmetricAdjustments(ItemNo, '', Location.Code);
+
+        // [WHEN] Run "Calculate Inventory" for Item "I" with "Items not on inventory" = false
+        CalculateInventoryWithItemFilters(ItemNo, '', '', false, false);
+
+        // [THEN] Line for Item "I" variant "V1" was NOT created
+        VerifyNoItemJournalLineExists(ItemNo, ItemVariant[1].Code, Location.Code);
+
+        // [THEN] Line for Item "I" variant "V2" was NOT created
+        VerifyNoItemJournalLineExists(ItemNo, ItemVariant[2].Code, Location.Code);
+
+        // [THEN] Line for Item "I" with no variant was NOT created
+        VerifyNoItemJournalLineExists(ItemNo, '', Location.Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalculateInventoryWithZeroQtyFalse_NoTransactions()
+    var
+        ItemVariant: Array[2] of Record "Item Variant";
+        Location: Record Location;
+        StockKeepingUnit: Record "Stockkeeping Unit";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Physical Inventory] [Item Variant]
+        // [SCENARIO 439359] Run calculate inventory with "Items not on inventory" = false for Item with no existings transactions.
+        Initialize();
+
+        // [GIVEN] Location "L".
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Item "I" exists with 2 Variants: "V1" and "V2"
+        ItemNo := CreateItemWith2Variants(ItemVariant);
+
+        // [GIVEN] Stockkeeping Unit for Item Variant "V1" exists
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockKeepingUnit, Location.Code, ItemNo, ItemVariant[1].Code);
+
+        // [WHEN] Run "Calculate Inventory" for Item "I" with "Items not on inventory" = false
+        CalculateInventoryWithItemFilters(ItemNo, '', '', false, false);
+
+        // [THEN] Line for Item "I" variant "V1" was NOT created
+        VerifyNoItemJournalLineExists(ItemNo, ItemVariant[1].Code, Location.Code);
+
+        // [THEN] Line for Item "I" variant "V2" was NOT created
+        VerifyNoItemJournalLineExists(ItemNo, ItemVariant[2].Code, Location.Code);
+
+        // [THEN] Line for Item "I" with no variant was NOT created
+        VerifyNoItemJournalLineExists(ItemNo, '', Location.Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalculateInventoryWithZeroQtyTrue_PositiveAmount()
+    var
+        ItemVariant: Array[2] of Record "Item Variant";
+        Location: Record Location;
+        StockKeepingUnit: Record "Stockkeeping Unit";
+        ItemNo: Code[20];
+        Qty: array[3] of Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Physical Inventory] [Item Variant]
+        // [SCENARIO 439359] Run calculate inventory with "Items not on inventory" = true, "Items without Transactions" = false for Item with existings quantity on inventory.
+        Initialize();
+
+        // [GIVEN] Location "L".
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Item "I" exists with 2 Variants: "V1" and "V2"
+        ItemNo := CreateItemWith2Variants(ItemVariant);
+
+        // [GIVEN] Stockkeeping Unit for Item Variant "V1" exists
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockKeepingUnit, Location.Code, ItemNo, ItemVariant[1].Code);
+
+        // [GIVEN] Positive adjustments for I-V1, I-V2 and I are posted.
+        for i := 1 to 3 do
+            Qty[i] := LibraryRandom.RandInt(10);
+        CreateAndPostItemJournal(ItemLedgerEntryType::"Positive Adjmt.", ItemNo, ItemVariant[1].Code, Location.Code, '', Qty[1]);
+        CreateAndPostItemJournal(ItemLedgerEntryType::"Positive Adjmt.", ItemNo, ItemVariant[2].Code, Location.Code, '', Qty[2]);
+        CreateAndPostItemJournal(ItemLedgerEntryType::"Positive Adjmt.", ItemNo, '', Location.Code, '', Qty[3]);
+
+        // [WHEN] Run "Calculate Inventory" for Item "I" with "Items not on inventory" = true, "Items with no transactions" = false
+        CalculateInventoryWithItemFilters(ItemNo, '', '', true, false);
+
+        // [THEN] Line for Item "I" variant "V1" was created with positive quantity
+        VerifyItemJournalLine(ItemNo, ItemVariant[1].Code, Location.Code, '', Qty[1]);
+
+        // [THEN] Line for Item "I" variant "V2" was created with positive quantity
+        VerifyItemJournalLine(ItemNo, ItemVariant[2].Code, Location.Code, '', Qty[2]);
+
+        // [THEN] Line for Item "I" with no variant was created with positive quantity
+        VerifyItemJournalLine(ItemNo, '', Location.Code, '', Qty[3]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalculateInventoryWithZeroQtyTrue_ZeroAmount()
+    var
+        ItemVariant: Array[2] of Record "Item Variant";
+        Location: Record Location;
+        StockKeepingUnit: Record "Stockkeeping Unit";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Physical Inventory] [Item Variant]
+        // [SCENARIO 439359] Run calculate inventory with "Items not on inventory" = true, "Items without Transactions" = false for Item with existings transactions, but 0 quantity on inventory.
+        Initialize();
+
+        // [GIVEN] Location "L".
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Item "I" exists with 2 Variants: "V1" and "V2"
+        ItemNo := CreateItemWith2Variants(ItemVariant);
+
+        // [GIVEN] Stockkeeping Unit for Item Variant "V1" exists
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockKeepingUnit, Location.Code, ItemNo, ItemVariant[1].Code);
+
+        // [GIVEN] Each combination (I-V1, I-V2 and I-"") has two transactions of +X and -X, so total inventory is 0
+        PostTwoSymmetricAdjustments(ItemNo, ItemVariant[1].Code, Location.Code);
+        PostTwoSymmetricAdjustments(ItemNo, ItemVariant[2].Code, Location.Code);
+        PostTwoSymmetricAdjustments(ItemNo, '', Location.Code);
+
+        // [WHEN] Run "Calculate Inventory" for Item "I" with "Items not on inventory" = true, "Items with no transactions" = false
+        CalculateInventoryWithItemFilters(ItemNo, '', '', true, false);
+
+        // [THEN] Line for Item "I" variant "V1" was created with quantity = 0
+        VerifyItemJournalLine(ItemNo, ItemVariant[1].Code, Location.Code, '', 0);
+
+        // [THEN] Line for Item "I" variant "V2" was created with quantity = 0
+        VerifyItemJournalLine(ItemNo, ItemVariant[2].Code, Location.Code, '', 0);
+
+        // [THEN] Line for Item "I" no variant was created with quantity = 0
+        VerifyItemJournalLine(ItemNo, '', Location.Code, '', 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalculateInventoryWithZeroQtyTrue_NoTransactions()
+    var
+        ItemVariant: Array[2] of Record "Item Variant";
+        Location: Record Location;
+        StockKeepingUnit: Record "Stockkeeping Unit";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Physical Inventory] [Item Variant]
+        // [SCENARIO 439359] Run calculate inventory with "Items not on inventory" = true, "Items without Transactions" = false for Item with no transactions.
+        Initialize();
+
+        // [GIVEN] Location "L".
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Item "I" exists with 2 Variants: "V1" and "V2"
+        ItemNo := CreateItemWith2Variants(ItemVariant);
+
+        // [GIVEN] Stockkeeping Unit for Item Variant "V1" exists
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockKeepingUnit, Location.Code, ItemNo, ItemVariant[1].Code);
+
+        // [WHEN] Run "Calculate Inventory" for Item "I" with "Items not on inventory" = true, "Items with no transactions" = false
+        CalculateInventoryWithItemFilters(ItemNo, '', '', true, false);
+
+        // [THEN] Line for Item "I" variant "V1" was created with quantity = 0 because of existing SKU
+        VerifyItemJournalLine(ItemNo, ItemVariant[1].Code, Location.Code, '', 0);
+
+        // [THEN] Line for Item "I" variant "V2" was NOT created
+        VerifyNoItemJournalLineExists(ItemNo, ItemVariant[2].Code, Location.Code);
+
+        // [THEN] Line for Item "I" with no variant was NOT created
+        VerifyNoItemJournalLineExists(ItemNo, '', Location.Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalculateInventoryWithNoTransactionsTrue_PositiveAmount()
+    var
+        ItemVariant: Array[2] of Record "Item Variant";
+        Location: Record Location;
+        StockKeepingUnit: Record "Stockkeeping Unit";
+        ItemNo: Code[20];
+        Qty: array[3] of Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Physical Inventory] [Item Variant]
+        // [SCENARIO 439359] Run calculate inventory with "Items without Transactions" = true for Item with existings quantity on inventory.
+        Initialize();
+
+        // [GIVEN] Location "L".
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Item "I" exists with 2 Variants: "V1" and "V2"
+        ItemNo := CreateItemWith2Variants(ItemVariant);
+
+        // [GIVEN] Stockkeeping Unit for Item Variant "V1" exists
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockKeepingUnit, Location.Code, ItemNo, ItemVariant[1].Code);
+
+        // [GIVEN] Positive adjustments for I-V1, I-V2 and I are posted.
+        for i := 1 to 3 do
+            Qty[i] := LibraryRandom.RandInt(10);
+        CreateAndPostItemJournal(ItemLedgerEntryType::"Positive Adjmt.", ItemNo, ItemVariant[1].Code, Location.Code, '', Qty[1]);
+        CreateAndPostItemJournal(ItemLedgerEntryType::"Positive Adjmt.", ItemNo, ItemVariant[2].Code, Location.Code, '', Qty[2]);
+        CreateAndPostItemJournal(ItemLedgerEntryType::"Positive Adjmt.", ItemNo, '', Location.Code, '', Qty[3]);
+
+        // [WHEN] Run "Calculate Inventory" for Item "I" with "Items not on inventory" = true, "Items with no transactions" = true
+        CalculateInventoryWithItemFilters(ItemNo, '', '', true, true);
+
+        // [THEN] Line for Item "I" variant "V1" was created with positive quantity
+        VerifyItemJournalLine(ItemNo, ItemVariant[1].Code, Location.Code, '', Qty[1]);
+
+        // [THEN] Line for Item "I" variant "V2" was created with positive quantity
+        VerifyItemJournalLine(ItemNo, ItemVariant[2].Code, Location.Code, '', Qty[2]);
+
+        // [THEN] Line for Item "I" with no variant was created with positive quantity
+        VerifyItemJournalLine(ItemNo, '', Location.Code, '', Qty[3]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalculateInventoryWithNoTransactionsTrue_ZeroAmount()
+    var
+        ItemVariant: Array[2] of Record "Item Variant";
+        Location: Record Location;
+        StockKeepingUnit: Record "Stockkeeping Unit";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Physical Inventory] [Item Variant]
+        // [SCENARIO 439359] Run calculate inventory with "Items without Transactions" = true for Item with existings transactions, but 0 quantity on inventory.
+        Initialize();
+
+        // [GIVEN] Location "L".
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Item "I" exists with 2 Variants: "V1" and "V2"
+        ItemNo := CreateItemWith2Variants(ItemVariant);
+
+        // [GIVEN] Stockkeeping Unit for Item Variant "V1" exists
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockKeepingUnit, Location.Code, ItemNo, ItemVariant[1].Code);
+
+        // [GIVEN] Each combination (I-V1, I-V2 and I-"") has two transactions of +X and -X, so total inventory is 0
+        PostTwoSymmetricAdjustments(ItemNo, ItemVariant[1].Code, Location.Code);
+        PostTwoSymmetricAdjustments(ItemNo, ItemVariant[2].Code, Location.Code);
+        PostTwoSymmetricAdjustments(ItemNo, '', Location.Code);
+
+        // [WHEN] Run "Calculate Inventory" for Item "I" with "Items not on inventory" = true, "Items with no transactions" = true
+        CalculateInventoryWithItemFilters(ItemNo, '', '', true, true);
+
+        // [THEN] Line for Item "I" variant "V1" was created with quantity = 0
+        VerifyItemJournalLine(ItemNo, ItemVariant[1].Code, Location.Code, '', 0);
+
+        // [THEN] Line for Item "I" variant "V2" was created with quantity = 0
+        VerifyItemJournalLine(ItemNo, ItemVariant[2].Code, Location.Code, '', 0);
+
+        // [THEN] Line for Item "I" no variant was created with quantity = 0
+        VerifyItemJournalLine(ItemNo, '', Location.Code, '', 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalculateInventoryWithNoTransactionsTrue_NoTransactions()
+    var
+        ItemVariant: Array[2] of Record "Item Variant";
+        Location: Record Location;
+        StockKeepingUnit: Record "Stockkeeping Unit";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Physical Inventory] [Item Variant]
+        // [SCENARIO 439359] Run calculate inventory with "Items without Transactions" = true for Item with no transactions.
+        Initialize();
+
+        // [GIVEN] Location "L".
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Item "I" exists with 2 Variants: "V1" and "V2"
+        ItemNo := CreateItemWith2Variants(ItemVariant);
+
+        // [GIVEN] Stockkeeping Unit for Item Variant "V1" exists
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockKeepingUnit, Location.Code, ItemNo, ItemVariant[1].Code);
+
+        // [WHEN] Run "Calculate Inventory" for Item "I" with "Items not on inventory" = true, "Items with no transactions" = true
+        CalculateInventoryWithItemFilters(ItemNo, '', '', true, true);
+
+        // [THEN] Line for Item "I" variant "V1" was created with quantity = 0 because of existing SKU
+        VerifyItemJournalLine(ItemNo, ItemVariant[1].Code, Location.Code, '', 0);
+
+        // [THEN] Line for Item "I" variant "V2" was NOT created
+        VerifyNoItemJournalLineExists(ItemNo, ItemVariant[2].Code, Location.Code);
+
+        // [THEN] Line for Item "I" with no variant was created with quantity = 0
+        VerifyItemJournalLine(ItemNo, '', '', '', 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1310,7 +1670,7 @@ codeunit 137275 "SCM Inventory Journals"
         LocationCode[2] := PhysInvJournal."Location Code".Value;
     end;
 
-    local procedure CalculateInventoryWithItemFilters(ItemNoFilter: Text; LocationFilter: Text; VariantFilter: Text)
+    local procedure CalculateInventoryWithItemFilters(ItemNoFilter: Text; LocationFilter: Text; VariantFilter: Text; ItemsNotOnInvt: Boolean; ItemsWithNoTransactions: Boolean)
     var
         Item: Record Item;
         ItemJournalBatch: Record "Item Journal Batch";
@@ -1323,7 +1683,7 @@ codeunit 137275 "SCM Inventory Journals"
         ItemJournalLine.Init();
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
-        LibraryInventory.CalculateInventory(ItemJournalLine, Item, WorkDate, true, true);
+        LibraryInventory.CalculateInventory(ItemJournalLine, Item, WorkDate(), ItemsNotOnInvt, ItemsWithNoTransactions);
     end;
 
     local procedure ClearGlobalVariable()
@@ -1461,6 +1821,13 @@ codeunit 137275 "SCM Inventory Journals"
             Validate("New Bin Code", BinCode);
             Modify(true);
         end;
+    end;
+
+    local procedure CreateItemWith2Variants(var ItemVariant: Array[2] of Record "Item Variant") ItemNo: Code[20]
+    begin
+        ItemNo := LibraryInventory.CreateItemNo();
+        LibraryInventory.CreateItemVariant(ItemVariant[1], ItemNo);
+        LibraryInventory.CreateItemVariant(ItemVariant[2], ItemNo);
     end;
 
     local procedure CreateLocationAndBin(var Location: Record Location): Code[10]
@@ -1608,6 +1975,15 @@ codeunit 137275 "SCM Inventory Journals"
         GlobalItemTrackingAction := ItemTrackingAction2;
         PurchaseLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+    end;
+
+    local procedure PostTwoSymmetricAdjustments(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10])
+    var
+        Qty: Integer;
+    begin
+        Qty := LibraryRandom.RandInt(10);
+        CreateAndPostItemJournal(ItemLedgerEntryType::"Positive Adjmt.", ItemNo, VariantCode, LocationCode, '', Qty);
+        CreateAndPostItemJournal(ItemLedgerEntryType::"Negative Adjmt.", ItemNo, VariantCode, LocationCode, '', Qty);
     end;
 
     local procedure ReclassificationJournalSetup()
@@ -1853,6 +2229,14 @@ codeunit 137275 "SCM Inventory Journals"
         Assert.AreEqual(
           QtyCalculated, ItemJournalLine."Qty. (Calculated)",
           StrSubstNo(QtyCalculatedErr, ItemJournalLine.TableCaption, VariantCode, LocationCode, BinCode))
+    end;
+
+    local procedure VerifyNoItemJournalLineExists(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[20])
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        FilterItemJournalLine(ItemJournalLine, ItemNo, VariantCode, LocationCode, '');
+        Assert.IsFalse(ItemJournalLine.FindFirst(), StrSubstNo(ItemJournalLineExistsErr, ItemJournalLine.TableCaption(), VariantCode, LocationCode, ''));
     end;
 
     [ModalPageHandler]

@@ -17,6 +17,7 @@ codeunit 393 "Reminder-Issue"
         BankOperationsFunctions: Codeunit "Bank Operations Functions";
 #endif
         IsHandled: Boolean;
+        ShouldInsertReminderEntry: Boolean;
     begin
         IsHandled := false;
         OnBeforeIssueReminder(ReminderHeader, ReplacePostingDate, PostingDate, IsHandled, IssuedReminderHeader);
@@ -148,9 +149,10 @@ codeunit 393 "Reminder-Issue"
             ReminderLine.SetRange("Detailed Interest Rates Entry");
             if ReminderLine.FindSet() then
                 repeat
-                    if (ReminderLine.Type = ReminderLine.Type::"Customer Ledger Entry") and
-                       (ReminderLine."Entry No." <> 0) and (not ReminderLine."Detailed Interest Rates Entry")
-                    then begin
+                    ShouldInsertReminderEntry := (ReminderLine.Type = ReminderLine.Type::"Customer Ledger Entry") and
+                                                 (ReminderLine."Entry No." <> 0) and (not ReminderLine."Detailed Interest Rates Entry");
+                    OnRunOnAfterCalcShouldInsertReminderEntry(ReminderHeader, ReminderLine, ShouldInsertReminderEntry);
+                    if ShouldInsertReminderEntry then begin
                         InsertReminderEntry(ReminderHeader, ReminderLine);
                         NextEntryNo := NextEntryNo + 1;
                     end;
@@ -718,6 +720,11 @@ codeunit 393 "Reminder-Issue"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnAfterGenJnlLineInsertPostInterest(var GenJnlLine: Record "Gen. Journal Line"; var ReminderHeader: Record "Reminder Header"; var ReminderLine: Record "Reminder Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterCalcShouldInsertReminderEntry(ReminderHeader: Record "Reminder Header"; ReminderLine: Record "Reminder Line"; var ShouldInsertReminderEntry: Boolean)
     begin
     end;
 

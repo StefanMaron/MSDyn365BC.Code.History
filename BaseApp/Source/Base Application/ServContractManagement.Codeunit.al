@@ -483,11 +483,11 @@ codeunit 5940 ServContractManagement
 
         ServHeader2."Your Reference" := ServContract2."Your Reference";
         SetSalespersonCode(ServContract2."Salesperson Code", ServHeader2."Salesperson Code");
+        ServHeader2.Validate("Location Code",
+          UserMgt.GetLocation(2, Cust."Location Code", ServContract2."Responsibility Center"));
         ServHeader2."Shortcut Dimension 1 Code" := ServContract2."Shortcut Dimension 1 Code";
         ServHeader2."Shortcut Dimension 2 Code" := ServContract2."Shortcut Dimension 2 Code";
         ServHeader2."Dimension Set ID" := ServContract2."Dimension Set ID";
-        ServHeader2.Validate("Location Code",
-          UserMgt.GetLocation(2, Cust."Location Code", ServContract2."Responsibility Center"));
         OnBeforeServHeaderModify(ServHeader2, ServContract2);
         ServHeader2.Modify();
         RecordLinkManagement.CopyLinks(ServContract2, ServHeader2);

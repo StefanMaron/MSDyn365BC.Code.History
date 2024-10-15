@@ -693,7 +693,7 @@ table 5991 "Service Shipment Line"
             ServiceLine."Shipment Line No." := "Line No.";
 
             if not ExtTextLine then
-                ValidateServiceLineAmounts(ServiceLine, ServiceOrderLine);
+                ValidateServiceLineAmounts(ServiceLine, ServiceOrderLine, ServiceInvHeader);
 
             ServiceLine."Attached to Line No." :=
               TransferOldExtLines.TransferExtendedText(
@@ -707,7 +707,7 @@ table 5991 "Service Shipment Line"
 
             OnBeforeServiceInvLineInsert(ServiceLine, ServiceOrderLine, Rec);
             ServiceLine.Insert();
-            OnAfterServiceInvLineInsert(ServiceLine, ServiceOrderLine, Rec);
+            OnAfterServiceInvLineInsert(ServiceLine, ServiceOrderLine, Rec, NextLineNo);
 
             if (ServiceLine."Contract No." <> '') and (ServiceLine.Type <> ServiceLine.Type::" ") then
                 case ServiceLine."Document Type" of
@@ -732,7 +732,7 @@ table 5991 "Service Shipment Line"
             ServiceOrderHeader.Modify();
     end;
 
-    local procedure ValidateServiceLineAmounts(var ServiceLine: Record "Service Line"; ServiceOrderLine: Record "Service Line")
+    local procedure ValidateServiceLineAmounts(var ServiceLine: Record "Service Line"; ServiceOrderLine: Record "Service Line"; ServiceInvHeader: Record "Service Header")
     begin
         ServiceLine.Validate(Quantity, Quantity - "Quantity Invoiced" - "Quantity Consumed");
         ServiceLine.Validate("Unit Price", ServiceOrderLine."Unit Price");
@@ -740,7 +740,7 @@ table 5991 "Service Shipment Line"
         ServiceLine."Allow Invoice Disc." := ServiceOrderLine."Allow Invoice Disc.";
         ServiceLine.Validate("Line Discount %", ServiceOrderLine."Line Discount %");
 
-        OnAfterValidateServiceLineAmounts(ServiceLine, ServiceOrderLine);
+        OnAfterValidateServiceLineAmounts(ServiceLine, ServiceOrderLine, ServiceInvHeader);
     end;
 
     local procedure GetServInvLines(var TempServInvLine: Record "Service Invoice Line" temporary)
@@ -835,12 +835,12 @@ table 5991 "Service Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterServiceInvLineInsert(var ToServiceLine: Record "Service Line"; FromServiceLine: Record "Service Line"; ServiceShipmentLine: Record "Service Shipment Line")
+    local procedure OnAfterServiceInvLineInsert(var ToServiceLine: Record "Service Line"; FromServiceLine: Record "Service Line"; ServiceShipmentLine: Record "Service Shipment Line"; var NextLineNo: Integer)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterValidateServiceLineAmounts(var ServiceLine: Record "Service Line"; ServiceOrderLine: Record "Service Line")
+    local procedure OnAfterValidateServiceLineAmounts(var ServiceLine: Record "Service Line"; ServiceOrderLine: Record "Service Line"; ServiceInvHeader: Record "Service Header")
     begin
     end;
 

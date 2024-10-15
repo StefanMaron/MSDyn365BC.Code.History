@@ -128,11 +128,11 @@ codeunit 841 "Cash Flow Management"
             CFWorksheetLine."Source Type"::"Azure AI":
                 ShowAzureAIForecast;
             else begin
-                    IsHandled := false;
-                    OnShowSourceLocalSourceTypeCase(SourceType, SourceNo, ShowDocument, DocumentNo, DocumentDate, BudgetName, IsHandled);
-                    if not IsHandled then
-                        Error(SourceTypeNotSupportedErr);
-                end;
+                IsHandled := false;
+                OnShowSourceLocalSourceTypeCase(SourceType, SourceNo, ShowDocument, DocumentNo, DocumentDate, BudgetName, IsHandled);
+                if not IsHandled then
+                    Error(SourceTypeNotSupportedErr);
+            end;
         end;
     end;
 
@@ -270,12 +270,26 @@ codeunit 841 "Cash Flow Management"
     begin
     end;
 
+#if not CLEAN21
+    [Obsolete('Replaced with CashFlowNameFullLength.', '21.0')]
     procedure CashFlowName(CashFlowNo: Code[20]): Text[50]
     var
         CashFlowForecast: Record "Cash Flow Forecast";
     begin
         if CashFlowForecast.Get(CashFlowNo) then
+            exit(CopyStr(CashFlowForecast.Description, 1, 50));
+
+        exit('')
+    end;
+#endif
+
+    procedure CashFlowNameFullLength(CashFlowNo: Code[20]): Text[100]
+    var
+        CashFlowForecast: Record "Cash Flow Forecast";
+    begin
+        if CashFlowForecast.Get(CashFlowNo) then
             exit(CashFlowForecast.Description);
+
         exit('')
     end;
 
@@ -580,7 +594,7 @@ codeunit 841 "Cash Flow Management"
             CreateCashFlowChartSetupForUser(UserId)
         else
             repeat
-                CreateCashFlowChartSetupForUser(User."User Name");
+                    CreateCashFlowChartSetupForUser(User."User Name");
             until User.Next() = 0;
     end;
 
@@ -760,10 +774,11 @@ codeunit 841 "Cash Flow Management"
         exit(VATAmount);
     end;
 
-    procedure GetTotalAmountFromSalesOrder(SalesHeader: Record "Sales Header"): Decimal
+    procedure GetTotalAmountFromSalesOrder(SalesHeader: Record "Sales Header") Result: Decimal
     begin
         SalesHeader.CalcFields("Amount Including VAT");
-        exit(SalesHeader."Amount Including VAT");
+        Result := SalesHeader."Amount Including VAT";
+        OnAfterGetTotalAmountFromSalesOrder(SalesHeader, Result);
     end;
 
     procedure GetTotalAmountFromPurchaseOrder(PurchaseHeader: Record "Purchase Header"): Decimal
@@ -806,6 +821,10 @@ codeunit 841 "Cash Flow Management"
     local procedure OnAfterSetViewOnVATEntryForTaxCalc(var VATEntry: Record "VAT Entry"; TaxPaymentDueDate: Date; DummyDate: Date)
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetTotalAmountFromSalesOrder(SalesHeader: Record "Sales Header"; var Result: Decimal)
+    begin
+    end;
+}
 #endif

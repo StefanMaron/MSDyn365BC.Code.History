@@ -835,6 +835,7 @@ codeunit 1521 "Workflow Response Handling"
     local procedure PostDocument(Variant: Variant)
     var
         RecRef: RecordRef;
+        IsHandled: Boolean;
     begin
         RecRef.GetTable(Variant);
 
@@ -843,8 +844,12 @@ codeunit 1521 "Workflow Response Handling"
                 CODEUNIT.Run(CODEUNIT::"Purch.-Post", Variant);
             DATABASE::"Sales Header":
                 CODEUNIT.Run(CODEUNIT::"Sales-Post", Variant);
-            else
-                Error(UnsupportedRecordTypeErr, RecRef.Caption);
+            else begin
+                    IsHandled := false;
+                    OnPostDocumentOnCaseElse(RecRef, IsHandled);
+                    if not IsHandled then
+                        Error(UnsupportedRecordTypeErr, RecRef.Caption);
+                end;
         end;
     end;
 
@@ -1302,6 +1307,11 @@ codeunit 1521 "Workflow Response Handling"
 
     [IntegrationEvent(false, false)]
     local procedure OnOpenDocument(RecRef: RecordRef; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDocumentOnCaseElse(RecRef: RecordRef; var IsHandled: Boolean)
     begin
     end;
 

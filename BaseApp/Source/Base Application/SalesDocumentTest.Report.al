@@ -1,4 +1,4 @@
-#if not CLEAN18
+﻿#if not CLEAN18
 report 202 "Sales Document - Test"
 {
     DefaultLayout = RDLC;
@@ -2110,11 +2110,11 @@ report 202 "Sales Document - Test"
 
     local procedure CheckSalesLine(SalesLine2: Record "Sales Line")
     var
-        ErrorText: Text[250];
+        ErrorTextLocal: Text[250];
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckSalesLine(SalesLine2, IsHandled);
+        OnBeforeCheckSalesLine(SalesLine2, IsHandled, ErrorCounter, ErrorText);
         if IsHandled then
             exit;
 
@@ -2229,9 +2229,9 @@ report 202 "Sales Document - Test"
                                     FA.TableCaption, "No."));
                     end;
                 else begin
-                        OnCheckSalesLineCaseTypeElse(Type.AsInteger(), "No.", ErrorText);
-                        if ErrorText <> '' then
-                            AddError(ErrorText);
+                        OnCheckSalesLineCaseTypeElse(Type.AsInteger(), "No.", ErrorTextLocal);
+                        if ErrorTextLocal <> '' then
+                            AddError(ErrorTextLocal);
                     end;
             end;
     end;
@@ -2386,7 +2386,7 @@ report 202 "Sales Document - Test"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckSalesLine(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckSalesLine(SalesLine: Record "Sales Line"; var IsHandled: Boolean; var ErrorCounter: Integer; var ErrorText: array[99] of Text[250])
     begin
     end;
 

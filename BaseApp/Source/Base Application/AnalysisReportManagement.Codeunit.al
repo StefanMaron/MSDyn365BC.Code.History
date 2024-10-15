@@ -1051,13 +1051,14 @@ codeunit 7110 "Analysis Report Management"
                 exit("Standard Cost");
     end;
 
-    local procedure CalcIndirectCost(var ItemStatisticsBuf: Record "Item Statistics Buffer"): Decimal
+    local procedure CalcIndirectCost(var ItemStatisticsBuf: Record "Item Statistics Buffer") Result: Decimal
     var
         Item: Record Item;
     begin
         with Item do
             if Get(CopyStr(ItemStatisticsBuf.GetFilter("Item Filter"), 1, MaxStrLen("No."))) then
-                exit("Indirect Cost %");
+                Result := "Indirect Cost %";
+        OnAfterCalcIndirectCost(ItemStatisticsBuf, Item, Result);
     end;
 
     local procedure CalcUnitCost(var ItemStatisticsBuf: Record "Item Statistics Buffer"): Decimal
@@ -1811,6 +1812,11 @@ codeunit 7110 "Analysis Report Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcItemStatistics(var ItemStatisticsBuf: Record "Item Statistics Buffer"; var AnalysisLine: Record "Analysis Line"; var AnalysisColumn: Record "Analysis Column"; DrillDown: Boolean; var ColValue: Decimal);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcIndirectCost(var ItemStatisticsBuffer: Record "Item Statistics Buffer"; Item: Record Item; var Result: Decimal)
     begin
     end;
 

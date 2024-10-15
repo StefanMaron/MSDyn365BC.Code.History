@@ -939,6 +939,7 @@
 
         ReminderLevel.SetRange("Reminder Terms Code", ReminderHeader."Reminder Terms Code");
         ReminderLevel.SetRange("No.", 1, ReminderHeader."Reminder Level");
+        OnInsertEndTextsOnAfterReminderLevelSetFilters(ReminderLevel, ReminderHeader);
         if ReminderLevel.FindLast() then begin
             ReminderText.SetRange(
               "Reminder Terms Code", ReminderHeader."Reminder Terms Code");
@@ -1550,6 +1551,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertEndTextsOnAfterReminderLineSetFilters(var ReminderLine: Record "Reminder Line"; ReminderHeader: Record "Reminder Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertEndTextsOnAfterReminderLevelSetFilters(var ReminderLevel: Record "Reminder Level"; ReminderHeader: Record "Reminder Header");
     begin
     end;
 

@@ -1646,7 +1646,6 @@ codeunit 5988 "Serv-Documents Mgt."
             end;
 
             OnBeforeModifyServiceDocNoSeries(ServHeader, PServHeader, ModifyHeader);
-            Modify;
 
             if ModifyHeader then begin
                 PServHeader."Shipping No." := "Shipping No.";

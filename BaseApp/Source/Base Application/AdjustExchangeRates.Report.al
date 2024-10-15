@@ -859,7 +859,6 @@ report 595 "Adjust Exchange Rates"
             end;
             GLSetup.Get();
             IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
-            TestMode := true;
             if not SummarizeEntries then
                 PostingDescription := TextCZ001Txt;
             // NAVCZ

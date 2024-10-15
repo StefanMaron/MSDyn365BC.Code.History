@@ -534,6 +534,7 @@ codeunit 5703 "Catalog Item Management"
     procedure CreateNewItem(ItemNo: Code[20]; NonstockItem: Record "Nonstock Item")
     var
         Item: Record Item;
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
     begin
         Item.Init();
 
@@ -557,6 +558,7 @@ codeunit 5703 "Catalog Item Management"
         Item."Created From Nonstock Item" := true;
         OnCreateNewItemOnBeforeItemInsert(Item, NonstockItem);
         Item.Insert();
+        ItemTemplMgt.InsertDimensions(Item."No.", NonstockItem."Item Templ. Code", Database::Item, Database::"Item Templ.");
 
         OnAfterCreateNewItem(Item, NonstockItem);
     end;
