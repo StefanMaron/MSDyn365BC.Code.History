@@ -2353,9 +2353,9 @@
         with SalesHeader do
             if Invoice and ("Posting No." = '') then begin
                 if ("No. Series" <> '') or
-                   ("Document Type" in ["Document Type"::Order, "Document Type"::"Return Order"])
+                   ("Document Type" in ["Document Type"::Order, "Document Type"::"Return Order", "Document Type"::"Credit Memo"])
                 then begin
-                    if "Document Type" in ["Document Type"::"Return Order"] then
+                    if "Document Type" in ["Document Type"::"Return Order", "Document Type"::"Credit Memo"] then
                         ResetPostingNoSeriesFromSetup("Posting No. Series", SalesSetup."Posted Credit Memo Nos.")
                     else
                         ResetPostingNoSeriesFromSetup("Posting No. Series", SalesSetup."Posted Invoice Nos.");

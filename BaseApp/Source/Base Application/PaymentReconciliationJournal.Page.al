@@ -376,6 +376,8 @@ page 1290 "Payment Reconciliation Journal"
 
                         group("Number of Lines")
                         {
+                            Caption = 'Number of Lines';
+
                             field(TotalLines; TotalLinesCount)
                             {
                                 Visible = not PreviousUXExperienceActive;
@@ -437,6 +439,8 @@ page 1290 "Payment Reconciliation Journal"
                         Visible = not PreviousUXExperienceActive;
                         group("Transaction Total")
                         {
+                            Caption = 'Transaction Total';
+
                             field(TotalTransactionAmountFixedLayout; BankAccReconciliation."Total Transaction Amount")
                             {
                                 ApplicationArea = Basic, Suite;

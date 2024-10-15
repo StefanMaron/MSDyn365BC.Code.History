@@ -98,7 +98,9 @@ codeunit 104000 "Upgrade - BaseApp"
         BinContentBuffer: Record "Bin Content Buffer";
         DocumentEntry: Record "Document Entry";
         EntrySummary: Record "Entry Summary";
+#if not CLEAN20
         InvoicePostBuffer: Record "Invoice Post. Buffer";
+#endif
         ItemTrackingSetup: Record "Item Tracking Setup";
         OptionLookupBuffer: Record "Option Lookup Buffer";
         ParallelSessionEntry: Record "Parallel Session Entry";
@@ -117,9 +119,10 @@ codeunit 104000 "Upgrade - BaseApp"
         EntrySummary.Reset();
         EntrySummary.DeleteAll();
 
+#if not CLEAN20
         InvoicePostBuffer.Reset();
         InvoicePostBuffer.DeleteAll();
-
+#endif
         ItemTrackingSetup.Reset();
         ItemTrackingSetup.DeleteAll();
 

@@ -972,7 +972,7 @@
 
             trigger OnValidate()
             begin
-                if ("Applies-to ID" <> xRec."Applies-to ID") and (xRec."Applies-to ID" <> '') then
+                if ("Applies-to ID" <> xRec."Applies-to ID") and (xRec."Applies-to ID" <> '') and HasNoMultipleLine() then
                     ClearCustVendApplnEntry;
                 SetJournalLineFieldsFromApplication;
             end;
@@ -2943,7 +2943,7 @@
         if not IsHandled then
             TestField("Check Printed", false);
 
-        if ("Applies-to ID" = '') and (xRec."Applies-to ID" <> '') then
+        if ("Applies-to ID" = '') and (xRec."Applies-to ID" <> '') and HasNoMultipleLine() then
             ClearCustVendApplnEntry;
     end;
 
@@ -3334,6 +3334,7 @@
         TempFirstDocNo: Code[20];
         First: Boolean;
         IsHandled: Boolean;
+        PrevPostingDate: Date;
     begin
         IsHandled := false;
         OnBeforeRenumberDocNoOnLines(DocNo, GenJnlLine2, IsHandled);
@@ -3362,11 +3363,14 @@
                     if "Document No." = FirstDocNo then
                         exit;
                     if not First and
-                        (("Document No." <> PrevDocNo) or (("Bal. Account No." <> '') and ("Document No." = ''))) and
+                        (("Document No." <> PrevDocNo) or
+                          ("Posting Date" <> PrevPostingDate) or
+                        (("Bal. Account No." <> '') and ("Document No." = ''))) and
                         not LastGenJnlLine.EmptyLine
                     then
                         DocNo := IncStr(DocNo);
                     PrevDocNo := "Document No.";
+                    PrevPostingDate := "Posting Date";
                     if "Document No." <> '' then begin
                         if "Applies-to ID" = "Document No." then
                             RenumberAppliesToID(GenJnlLine2, "Document No.", DocNo);
@@ -5961,6 +5965,7 @@
         Prepayment := true;
         "Due Date" := PurchHeader."Prepayment Due Date";
         "Payment Terms Code" := PurchHeader."Payment Terms Code";
+        "Payment Method Code" := PurchHeader."Payment Method Code"; 
         if UsePmtDisc then begin
             "Pmt. Discount Date" := PurchHeader."Prepmt. Pmt. Discount Date";
             "Payment Discount %" := PurchHeader."Prepmt. Payment Discount %";
@@ -6058,6 +6063,7 @@
         Prepayment := true;
         "Due Date" := SalesHeader."Prepayment Due Date";
         "Payment Terms Code" := SalesHeader."Prepmt. Payment Terms Code";
+        "Payment Method Code" := SalesHeader."Payment Method Code"; 
         if UsePmtDisc then begin
             "Pmt. Discount Date" := SalesHeader."Prepmt. Pmt. Discount Date";
             "Payment Discount %" := SalesHeader."Prepmt. Payment Discount %";
@@ -7107,6 +7113,20 @@
         if "Bal. Account No." <> '' then
             if not ("Bal. Account Type" in ["Bal. Account Type"::"G/L Account", "Bal. Account Type"::"Bank Account"]) then
                 Error(Text016, FieldCaption("Bal. Account Type"));
+    end;
+
+    local procedure HasNoMultipleLine(): Boolean
+    var
+        GenJnlLine2: Record "Gen. Journal Line";
+    begin
+        GenJnlLine2.SetRange("Journal Template Name", "Journal Template Name");
+        GenJnlLine2.SetRange("Journal Batch Name", "Journal Batch Name");
+        GenJnlLine2.SetRange("Document No.", "Document No.");
+        GenJnlLine2.SetRange("Account No.", xRec."Account No.");
+        GenJnlLine2.SetRange("Applies-to ID", xRec."Applies-to ID");
+        GenJnlLine2.SetFilter("Line No.", '<>%1', "Line No.");
+        If GenJnlLine2.Count = 0 then
+            exit(true);
     end;
 
     [IntegrationEvent(false, false)]
@@ -8417,6 +8437,13 @@
             exit("VAT Amount");
 
         LCYCurrency.InitRoundingPrecision();
+
+        "VAT Difference" :=
+            "VAT Amount" -
+            Round(
+                Amount * "VAT %" / (100 + "VAT %"),
+                LCYCurrency."Amount Rounding Precision", LCYCurrency.VATRoundingDirection());
+
         if "VAT Difference" = 0 then
             VATAmountLCY := Round("Amount (LCY)" * "VAT %" / (100 + "VAT %"), LCYCurrency."Amount Rounding Precision", LCYCurrency.VATRoundingDirection())
         else
