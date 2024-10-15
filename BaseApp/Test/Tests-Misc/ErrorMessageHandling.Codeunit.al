@@ -1243,7 +1243,7 @@ codeunit 132500 "Error Message Handling"
         Assert.IsTrue(ForwardLinks.Description.Editable, 'Description should be editable');
         Assert.IsTrue(ForwardLinks.Link.Editable, 'Link should be editable');
         asserterror ForwardLinks.New;
-        Assert.ExpectedError('Insert is not allowed. Page = Edit - Forward Links, Id = 1431.');
+        Assert.ExpectedError('Insert is not allowed. Page = Forward Links, Id = 1431.');
     end;
 
     [Test]

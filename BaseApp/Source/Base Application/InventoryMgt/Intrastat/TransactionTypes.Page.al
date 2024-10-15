@@ -1,3 +1,9 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Intrastat;
+
 page 308 "Transaction Types"
 {
     ApplicationArea = BasicEU, BasicNO;
@@ -13,7 +19,7 @@ page 308 "Transaction Types"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = BasicEU, BasicNO;
                     ToolTip = 'Specifies a code for the transaction.';

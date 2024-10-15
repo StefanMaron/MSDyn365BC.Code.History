@@ -1,38 +1,44 @@
+namespace Microsoft.Finance.FinancialReports;
+
+using Microsoft.Finance.Analysis;
+using Microsoft.Finance.GeneralLedger.Account;
+using System.Visualization;
+
 codeunit 436 "Acc. Sched. BarChart DrillDown"
 {
     TableNo = "Bar Chart Buffer";
 
     trigger OnRun()
     begin
-        AccSchedLine."Schedule Name" := DelChr(CopyStr(Tag, 1, 10), '>');
-        case "Series No." of
+        AccSchedLine."Schedule Name" := DelChr(CopyStr(Rec.Tag, 1, 10), '>');
+        case Rec."Series No." of
             1:
-                Evaluate(AccSchedLine."Line No.", DelChr(CopyStr(Tag, 11, 8), '>'));
+                Evaluate(AccSchedLine."Line No.", DelChr(CopyStr(Rec.Tag, 11, 8), '>'));
             2:
-                Evaluate(AccSchedLine."Line No.", DelChr(CopyStr(Tag, 19, 8), '>'));
+                Evaluate(AccSchedLine."Line No.", DelChr(CopyStr(Rec.Tag, 19, 8), '>'));
             3:
-                Evaluate(AccSchedLine."Line No.", DelChr(CopyStr(Tag, 27, 8), '>'));
+                Evaluate(AccSchedLine."Line No.", DelChr(CopyStr(Rec.Tag, 27, 8), '>'));
         end;
         AccSchedLine.Find();
-        ColumnLayout."Column Layout Name" := DelChr(CopyStr(Tag, 35, 10), '>');
-        Evaluate(ColumnLayout."Line No.", DelChr(CopyStr(Tag, 45, 8), '>'));
+        ColumnLayout."Column Layout Name" := DelChr(CopyStr(Rec.Tag, 35, 10), '>');
+        Evaluate(ColumnLayout."Line No.", DelChr(CopyStr(Rec.Tag, 45, 8), '>'));
         ColumnLayout.Find();
-        s := DelChr(CopyStr(Tag, 53, 20), '>');
+        s := DelChr(CopyStr(Rec.Tag, 53, 20), '>');
         if s <> '' then
             AccSchedLine.SetFilter("Date Filter", s);
-        s := DelChr(CopyStr(Tag, 73, 10), '>');
+        s := DelChr(CopyStr(Rec.Tag, 73, 10), '>');
         if s <> '' then
             AccSchedLine.SetFilter("G/L Budget Filter", s);
-        s := DelChr(CopyStr(Tag, 83, 42), '>');
+        s := DelChr(CopyStr(Rec.Tag, 83, 42), '>');
         if s <> '' then
             AccSchedLine.SetFilter("Dimension 1 Filter", s);
-        s := DelChr(CopyStr(Tag, 125, 42), '>');
+        s := DelChr(CopyStr(Rec.Tag, 125, 42), '>');
         if s <> '' then
             AccSchedLine.SetFilter("Dimension 2 Filter", s);
-        s := DelChr(CopyStr(Tag, 167, 42), '>');
+        s := DelChr(CopyStr(Rec.Tag, 167, 42), '>');
         if s <> '' then
             AccSchedLine.SetFilter("Dimension 3 Filter", s);
-        s := DelChr(CopyStr(Tag, 209, 42), '>');
+        s := DelChr(CopyStr(Rec.Tag, 209, 42), '>');
         if s <> '' then
             AccSchedLine.SetFilter("Dimension 4 Filter", s);
 

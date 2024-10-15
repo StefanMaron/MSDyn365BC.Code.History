@@ -1,3 +1,5 @@
+namespace Microsoft.Utilities;
+
 enum 1670 "Option Lookup Type"
 {
     Extensible = true;

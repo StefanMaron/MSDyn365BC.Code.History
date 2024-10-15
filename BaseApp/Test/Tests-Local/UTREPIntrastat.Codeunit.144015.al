@@ -1,3 +1,4 @@
+﻿#if not CLEAN22
 codeunit 144015 "UT REP Intrastat"
 {
     // [FEATURE] [Intrastat] [Report]
@@ -12,6 +13,11 @@ codeunit 144015 "UT REP Intrastat"
 
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteState = Pending;
+#pragma warning disable AS0072
+    ObsoleteTag = '22.0';
+#pragma warning restore AS0072
+    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
 
     trigger OnRun()
     begin
@@ -49,58 +55,6 @@ codeunit 144015 "UT REP Intrastat"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('PrintJnlLines', true);
         LibraryReportDataset.AssertElementWithValueExists('TotalWt_IntrastatJnlLine', TotalWtIntrastatJnlLine);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CreateIntrastatFileLongDocumentNo()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        FileName: Text;
-    begin
-        // [FEATURE]
-        // [SCENARIO 232831] Stan can create Intrastat Reporting file, if "Document No." value of "Intrastat Journal Line" record is longer than 10 characters.
-        // Posted Shipment No. Series is longer than 10 characters. Stan post Sales Invoice with Item, Sales Shipment is created. Stan creates Intrastat Journal Line based on the Sales Shipment.
-        // Then he run the report "Intrastat - Make Disk Tax Auth" and Intrastat Report file is created.
-        Initialize();
-
-        // [GIVEN] Intrastat Journal Line with "Document No." value length more than 10 characters.
-        CreateIntrastatJournalLine(IntrastatJnlLine);
-        IntrastatJnlLine."Document No." := CopyStr(LibraryRandom.RandText(20), 1, 20);
-        IntrastatJnlLine.Modify();
-
-        // [WHEN] Run report "Intrastat - Make Disk Tax Auth".
-        FileName := FileManagement.ServerTempFileName('txt');
-        RunIntrastatMakeDiskTaxAuth(
-          IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name", IntrastatJnlLine.Type, FileName);
-
-        // [THEN] Report creates text file.
-        Assert.IsTrue(FileManagement.ServerFileExists(FileName), FileNotCreatedErr);
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure TotalWeightRounding()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        FileName: Text;
-    begin
-        // [SCENARIO 292570] Exported "Total Wheight" should be rounded up to the next whole value
-        Initialize();
-
-        // [GIVEN] Create intrastat journal line with "Total Wheight" = 1.01
-        CreateIntrastatJournalLine(IntrastatJnlLine);
-        IntrastatJnlLine."Total Weight" := 1.01;
-        IntrastatJnlLine.Modify();
-
-        // [WHEN] Run report "Intrastat - Make Disk Tax Auth".
-        FileName := FileManagement.ServerTempFileName('txt');
-        RunIntrastatMakeDiskTaxAuth(
-          IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name", IntrastatJnlLine.Type, FileName);
-
-        // [THEN] Exported value of "Total Weight" = 2
-        VerifyExportedTotalWeight(FileName, 2);
     end;
 
     local procedure Initialize()
@@ -150,20 +104,6 @@ codeunit 144015 "UT REP Intrastat"
         Assert.IsTrue(Evaluate(TotalWeight, TotalWeightAsText), 'Cannot evaluate text to decimal');
     end;
 
-    local procedure RunIntrastatMakeDiskTaxAuth(JnlTemplateName: Code[10]; JnlBatchName: Code[10]; IntrastatJnlLineType: Option; Filename: Text)
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        IntrastatMakeDiskTaxAuth: Report "Intrastat - Make Disk Tax Auth";
-    begin
-        IntrastatJnlLine.SetRange("Journal Template Name", JnlTemplateName);
-        IntrastatJnlLine.SetRange("Journal Batch Name", JnlBatchName);
-        IntrastatJnlLine.SetRange(Type, IntrastatJnlLineType);
-        IntrastatMakeDiskTaxAuth.InitializeRequest(Filename);
-        IntrastatMakeDiskTaxAuth.UseRequestPage(false);
-        IntrastatMakeDiskTaxAuth.SetTableView(IntrastatJnlLine);
-        IntrastatMakeDiskTaxAuth.RunModal();
-    end;
-
     local procedure VerifyExportedTotalWeight(FileName: Text; ExpectedTotalWeight: Decimal)
     var
         File: File;
@@ -191,4 +131,4 @@ codeunit 144015 "UT REP Intrastat"
         IntrastatCheckList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
-
+#endif

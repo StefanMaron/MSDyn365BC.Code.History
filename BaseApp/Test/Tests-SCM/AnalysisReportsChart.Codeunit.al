@@ -30,7 +30,7 @@ codeunit 137409 "Analysis Reports Chart"
         RowFormulaMSG: Label 'Row formula: %1';
         FormulaDrillDownERR: Label 'Incorrect %1 Formula message.';
         DrillDownValERR: Label 'DrillDown page Sales Amount does not match the expected value for Analysis Line %1,Analysis Column %2, Date Filter %3. ';
-        MeasureTXT: Label '%1 %2';
+        MeasureTXT: Label '%1 %2', Locked = true;
         IncorrectAnalysisReportAmtErr: Label 'Incorrent analysis report amount.';
         IncorrectColumnsErr: Label 'Incorect columns in Analysis Report Chart Matrix.', Locked = true;
 
@@ -1292,14 +1292,14 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisLine.FindSet();
         case AnalysisReportChartSetup."Base X-Axis on" of
             AnalysisReportChartSetup."Base X-Axis on"::Period:
-            repeat
-                AnalysisColumn.FindSet();
                 repeat
-                    MeasureName := StrSubstNo(MeasureTXT, AnalysisLine.Description, AnalysisColumn."Column Header");
-                    CreateOnePerfIndSetupLine(AnalysisReportChartSetup, AnalysisLine."Line No.", AnalysisColumn."Line No.", MeasureName,
-                      Format(AnalysisLine."Line No.") + ' ' + Format(AnalysisColumn."Line No."), LibraryRandom.RandIntInRange(1, 3));
-                until AnalysisColumn.Next() = 0;
-            until AnalysisLine.Next() = 0;
+                    AnalysisColumn.FindSet();
+                    repeat
+                        MeasureName := StrSubstNo(MeasureTXT, AnalysisLine.Description, AnalysisColumn."Column Header");
+                        CreateOnePerfIndSetupLine(AnalysisReportChartSetup, AnalysisLine."Line No.", AnalysisColumn."Line No.", MeasureName,
+                          Format(AnalysisLine."Line No.") + ' ' + Format(AnalysisColumn."Line No."), LibraryRandom.RandIntInRange(1, 3));
+                    until AnalysisColumn.Next() = 0;
+                until AnalysisLine.Next() = 0;
             AnalysisReportChartSetup."Base X-Axis on"::Line,
             AnalysisReportChartSetup."Base X-Axis on"::Column:
                 begin

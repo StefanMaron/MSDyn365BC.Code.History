@@ -1,7 +1,15 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.SyncEngine;
+
+using System.Reflection;
+
 page 5363 "Match Based Coupling Criteria"
 {
     Caption = 'Select Coupling Criteria';
-    DataCaptionExpression = "Integration Table Mapping Name";
+    DataCaptionExpression = Rec."Integration Table Mapping Name";
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Card;
@@ -199,8 +207,8 @@ page 5363 "Match Based Coupling Criteria"
 
     local procedure GetFieldCaptions()
     begin
-        NAVFieldName := GetFieldCaption(IntegrationTableMapping."Table ID", "Field No.");
-        CRMFieldName := GetFieldCaption(IntegrationTableMapping."Integration Table ID", "Integration Table Field No.");
+        NAVFieldName := GetFieldCaption(IntegrationTableMapping."Table ID", Rec."Field No.");
+        CRMFieldName := GetFieldCaption(IntegrationTableMapping."Integration Table ID", Rec."Integration Table Field No.");
     end;
 
     local procedure GetFieldCaption(TableID: Integer; FieldID: Integer): Text

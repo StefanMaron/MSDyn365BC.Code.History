@@ -545,6 +545,33 @@ codeunit 137928 "SCM Assembly UT"
     end;
 
     [Test]
+    procedure CannotCreateAssembleOrderForBlockedItemVariant()
+    var
+        ItemVariant: Record "Item Variant";
+        AssemblyHeader: Record "Assembly Header";
+        BlockedItemErr: Label 'Blocked must be equal to ''No''';
+    begin
+        // [SCENARIO] Assembly order cannot be created when item variant is blocked.
+
+        // [GIVEN] Blocked Item Variant 
+        LibraryInventory.CreateItemVariant(ItemVariant, LibraryInventory.CreateItemNo());
+        ItemVariant.Validate(Blocked, true);
+        ItemVariant.Modify(true);
+
+        // [GIVEN] Assembly Header
+        AssemblyHeader.Init();
+        WarningForDueDateWhenEndDateChangeMakeATSSetup(AssemblyHeader);
+        AssemblyHeader.Validate("Item No.", ItemVariant."Item No.");
+
+        // [WHEN] Blocked Variant Code is insert to variant code        
+        asserterror AssemblyHeader.Validate("Variant Code", ItemVariant.Code);
+
+        // [THEN] Error 'Blocked must be No' is shown
+        Assert.ExpectedError(BlockedItemErr);
+    end;
+
+
+    [Test]
     [Scope('OnPrem')]
     procedure AssemblyBOMYesForItemWithAssemblyBOMItem()
     var
@@ -798,6 +825,27 @@ codeunit 137928 "SCM Assembly UT"
 
         WhseItemTrackingLine.SetRecFilter();
         Assert.RecordIsEmpty(WhseItemTrackingLine);
+    end;
+
+    [Test]
+    procedure ForceRereadAssemblyHeaderBeforeCheckStatus()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+    begin
+        // [FEATURE] [Assembly Header] [Assembly Line] [Status]
+        // [SCENARIO 478238] Force reread of assembly header before checking status of assembly line.
+        Initialize();
+        LibraryAssembly.SetStockoutWarning(false);
+
+        LibraryAssembly.CreateAssemblyOrder(AssemblyHeader, LibraryRandom.RandDate(30), '', 1);
+        FindAssemblyLine(AssemblyLine, AssemblyHeader);
+        AssemblyLine.TestStatusOpen();
+        LibraryAssembly.ReleaseAO(AssemblyHeader);
+
+        asserterror AssemblyLine.TestStatusOpen();
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError('Status');
     end;
 
     local procedure Initialize()

@@ -1,3 +1,12 @@
+namespace System.Security.AccessControl;
+
+using System.Reflection;
+using System.Apps;
+using System.Environment.Configuration;
+using System.Tooling;
+using System.Diagnostics;
+using Microsoft;
+
 permissionset 6948 "D365 FULL ACCESS"
 {
     Access = Public;
@@ -21,7 +30,9 @@ permissionset 6948 "D365 FULL ACCESS"
                   tabledata "NAV App Tenant Add-In" = Rimd,
                   tabledata "NAV App Tenant Operation" = RIMD,
                   tabledata "Profile Configuration Symbols" = IMD,
+#pragma warning disable AL0432
                   tabledata "Tenant Profile" = IMD,
+#pragma warning restore AL0432
                   tabledata "Tenant Profile Extension" = IMD,
                   tabledata "Tenant Profile Page Metadata" = IMD,
                   tabledata "Tenant Profile Setting" = IMD,
@@ -34,5 +45,6 @@ permissionset 6948 "D365 FULL ACCESS"
                   tabledata "User Group Access Control" = IMD,
                   tabledata "User Group Permission Set" = IMD,
 #endif
-                  tabledata "Support Contact Information" = imd;
+                  tabledata "Support Contact Information" = imd,
+                  system "Add Table Field To Page" = X;
 }

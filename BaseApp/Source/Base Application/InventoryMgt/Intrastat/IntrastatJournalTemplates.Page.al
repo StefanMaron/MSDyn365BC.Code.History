@@ -1,4 +1,12 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 #if not CLEAN22
+namespace Microsoft.Inventory.Intrastat;
+
+using System.Reflection;
+
 page 325 "Intrastat Journal Templates"
 {
     ApplicationArea = BasicEU;
@@ -86,7 +94,7 @@ page 325 "Intrastat Journal Templates"
                     Caption = 'Batches';
                     Image = Description;
                     RunObject = Page "Intrastat Jnl. Batches";
-                    RunPageLink = "Journal Template Name" = FIELD(Name);
+                    RunPageLink = "Journal Template Name" = field(Name);
                     ToolTip = 'View or edit multiple journals for a specific template. You can use batches when you need multiple journals of a certain type.';
                     Scope = Repeater;
                 }

@@ -1,3 +1,7 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Warehouse.ADCS;
+
 permissionset 7685 "ADCS - Read"
 {
     Access = Public;

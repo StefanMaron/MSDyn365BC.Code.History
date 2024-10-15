@@ -1,3 +1,41 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Projects.Project.Planning;
+using Microsoft.Projects.Project.Setup;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.Analysis;
+using Microsoft.Sales.Customer;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Bank.Ledger;
+using Microsoft.Bank.Check;
+using Microsoft.Integration.D365Sales;
+using Microsoft.Sales.Reminder;
+using Microsoft.Sales.Receivables;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.CRM.Interaction;
+using Microsoft.Inventory.Item;
+using Microsoft.Purchases.Document;
+using System.Environment.Configuration;
+using Microsoft.Inventory.Availability;
+using Microsoft.Inventory.Costing;
+using Microsoft.Warehouse.History;
+using Microsoft.Pricing.Asset;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Pricing.PriceList;
+using Microsoft.Pricing.Source;
+using Microsoft.Pricing.Worksheet;
+using Microsoft.Purchases.History;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Inventory.Location;
+using Microsoft.Warehouse.Request;
+using Microsoft.Foundation.BatchProcessing;
+using Microsoft.Sales.Document;
+using Microsoft.Finance.VAT.Registration;
+using Microsoft.Finance.VAT.Calculation;
+
 permissionset 9977 "D365 SALES DOC, POST"
 {
     Access = Public;

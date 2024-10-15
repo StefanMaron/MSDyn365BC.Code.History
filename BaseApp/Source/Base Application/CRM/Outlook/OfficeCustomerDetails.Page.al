@@ -1,3 +1,7 @@
+namespace Microsoft.CRM.Outlook;
+
+using Microsoft.Sales.Customer;
+
 page 1611 "Office Customer Details"
 {
     Caption = 'Details';
@@ -15,7 +19,7 @@ page 1611 "Office Customer Details"
 
                 trigger OnDrillDown()
                 begin
-                    OpenCustomerLedgerEntries(false);
+                    Rec.OpenCustomerLedgerEntries(false);
                 end;
             }
             field("Past Due"; PastDue)
@@ -48,7 +52,7 @@ page 1611 "Office Customer Details"
 
     trigger OnAfterGetRecord()
     begin
-        PastDue := CalcOverdueBalance();
+        PastDue := Rec.CalcOverdueBalance();
     end;
 
     var
@@ -57,12 +61,12 @@ page 1611 "Office Customer Details"
 
     local procedure GetTotalSales(): Decimal
     begin
-        exit(CustomerMgt.GetTotalSales("No."));
+        exit(CustomerMgt.GetTotalSales(Rec."No."));
     end;
 
     local procedure GetYTDSales(): Decimal
     begin
-        exit(CustomerMgt.GetYTDSales("No."));
+        exit(CustomerMgt.GetYTDSales(Rec."No."));
     end;
 }
 

@@ -1,3 +1,5 @@
+namespace System.Security.AccessControl;
+
 permissionset 2913 "D365 FIN. & PURCH."
 {
     Assignable = true;

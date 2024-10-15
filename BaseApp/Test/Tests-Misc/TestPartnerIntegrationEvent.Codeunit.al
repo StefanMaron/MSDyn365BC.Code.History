@@ -172,7 +172,7 @@ codeunit 134299 "Test Partner Integration Event"
                     InactiveSubscribers += StrSubstNo(' %1.%2', "Subscriber Codeunit ID", "Subscriber Function");
                 until Next = 0;
             if InactiveEventsCounter > 0 then
-                Error(StrSubstNo(InactiveEventSuscriptionErr, InactiveEventsCounter, InactiveSubscribers));
+                Error(InactiveEventSuscriptionErr, InactiveEventsCounter, InactiveSubscribers);
         end;
     end;
 
@@ -193,7 +193,7 @@ codeunit 134299 "Test Partner Integration Event"
                     SubscribersWithError += StrSubstNo(' %1.%2="%3"', "Subscriber Codeunit ID", "Subscriber Function", "Error Information");
                 until Next = 0;
             if ErrorEventsCounter > 0 then
-                Error(StrSubstNo(ErrorEventSuscriptionErr, ErrorEventsCounter, SubscribersWithError));
+                Error(ErrorEventSuscriptionErr, ErrorEventsCounter, SubscribersWithError);
         end;
     end;
 
@@ -2251,7 +2251,8 @@ codeunit 134299 "Test Partner Integration Event"
     begin
         InsertDataTypeBuffer(OnAfterUpdatePostingNosTxt);
     end;
-#if not CLEAN20
+
+#if not CLEAN23
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforePostBalancingEntry', '', false, false)]
     local procedure OnBeforePostBalancingEntrySalesDoc(var GenJnlLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header"; var TotalSalesLine: Record "Sales Line"; var TotalSalesLineLCY: Record "Sales Line")
     begin
@@ -2360,7 +2361,7 @@ codeunit 134299 "Test Partner Integration Event"
         InsertDataTypeBuffer(OnAfterUpdatePostingNosTxt);
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePostBalancingEntry', '', false, false)]
     local procedure OnBeforePostBalancingEntryPurchDoc(var GenJnlLine: Record "Gen. Journal Line"; var PurchHeader: Record "Purchase Header"; var TotalPurchLine: Record "Purchase Line"; var TotalPurchLineLCY: Record "Purchase Line")
     begin

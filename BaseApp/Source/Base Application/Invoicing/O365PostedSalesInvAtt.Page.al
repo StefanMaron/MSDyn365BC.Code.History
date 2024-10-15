@@ -20,8 +20,8 @@ page 2121 "O365 Posted Sales Inv. Att."
                 ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Attachments';
                 ShowFilter = false;
-                SubPageLink = "Posting Date" = FIELD("Posting Date"),
-                              "Document No." = FIELD("No.");
+                SubPageLink = "Posting Date" = field("Posting Date"),
+                              "Document No." = field("No.");
                 Visible = IsPhone;
             }
             part(WebIncomingDocAttachFactBox; "BC O365 Inc. Doc. Attch. List")
@@ -29,8 +29,8 @@ page 2121 "O365 Posted Sales Inv. Att."
                 ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Attachments';
                 ShowFilter = false;
-                SubPageLink = "Posting Date" = FIELD("Posting Date"),
-                              "Document No." = FIELD("No.");
+                SubPageLink = "Posting Date" = field("Posting Date"),
+                              "Document No." = field("No.");
                 Visible = NOT IsPhone;
             }
         }

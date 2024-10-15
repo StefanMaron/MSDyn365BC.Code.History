@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.Currency;
+
 page 483 "Currency Exchange Rates"
 {
     Caption = 'Currency Exchange Rates';
@@ -81,9 +83,9 @@ page 483 "Currency Exchange Rates"
         if not BelowxRec then begin
             CurrExchRate.CopyFilters(Rec);
             if CurrExchRate.Next(-1) <> 0 then
-                TransferFields(CurrExchRate, false)
+                Rec.TransferFields(CurrExchRate, false)
         end else
-            TransferFields(CurrExchRate, false)
+            Rec.TransferFields(CurrExchRate, false)
     end;
 }
 

@@ -129,6 +129,7 @@ codeunit 134103 "ERM Prepayment IV"
         GLAccountNo: Code[20];
         DocumentNo: Code[20];
         PrepaymentPct: Decimal;
+        FirstPrePaymentPct: Decimal;
         SalesPrepmtAccount: Code[20];
     begin
         // Check Prepayment Amount on GL Entry after Posting Partial Shipment and Modify Prepayment % on Sales Header.
@@ -142,10 +143,11 @@ codeunit 134103 "ERM Prepayment IV"
         // Modify Sales Header for Prepayment % with Greater Random Value.
         PrepaymentPct := LibraryRandom.RandIntInRange(10, 40);
         LibrarySales.ReopenSalesDocument(SalesHeader);
+        FirstPrePaymentPct := SalesHeader."Prepayment %";
         ModifySalesHeaderForPrepaymentPct(SalesHeader, SalesHeader."Prepayment %" + PrepaymentPct);
 
         SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", SalesLine."Line No.");
-        Amount := Round((SalesLine.Quantity * SalesLine."Unit Price") * PrepaymentPct / 100);
+        Amount := Round(((Salesline.Quantity - SalesLine."Quantity Invoiced") * SalesLine."Unit Price") * (SalesHeader."Prepayment %" - FirstPrePaymentPct) / 100);
         DocumentNo := GetPostedDocumentNo(SalesHeader."Prepayment No. Series");
 
         // Exercise: Post Prepayment Invoice through Page.
@@ -270,6 +272,7 @@ codeunit 134103 "ERM Prepayment IV"
         DocumentNo: Code[20];
         PurchasePrepmtAccount: Code[20];
         PrepaymentPct: Decimal;
+        FirstPrePaymentPct: Decimal;
     begin
         // Check Prepayment Amount on GL Entry after Posting Partial Receive and Modify Prepayment % on Purchase Header.
 
@@ -284,12 +287,15 @@ codeunit 134103 "ERM Prepayment IV"
         // Modify Purchase Header for Prepayment % with Greater Random Value.
         PrepaymentPct := LibraryRandom.RandIntInRange(10, 40);
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
+        FirstPrePaymentPct := PurchaseHeader."Prepayment %";
         PurchaseHeader.Validate("Prepayment %", PurchaseHeader."Prepayment %" + PrepaymentPct);
         PurchaseHeader.Modify(true);
 
         // Update Purchase Line with Modified Prepayment %.
+        PurchaseLine.get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
         DocumentNo := GetPostedDocumentNo(PurchaseHeader."Prepayment No. Series");
         Amount := Round(PurchaseLine."Line Amount" * PrepaymentPct / 100);
+        Amount := Round(((PurchaseLine.Quantity - PurchaseLine."Quantity Invoiced") * PurchaseLine."Direct Unit Cost") * (PurchaseHeader."Prepayment %" - FirstPrePaymentPct) / 100);
         ModifyVendorInvoiceNoOnPurchaseHeader(PurchaseHeader);
 
         // Exercise: Post Prepayment Invoice through Page.
@@ -1183,6 +1189,7 @@ codeunit 134103 "ERM Prepayment IV"
         CurrencyCode := UpdateAdditionalReportingCurrency;
 
         // 2. Exercise: Create and Post Sales Prepayment Invoice with CurrencyExchangeRate.
+        LibraryERM.FindGLAccount(GLAccount);
         PrepaymentAmountInLCY := CreateAndPostSalesPrepaymentInvoiceWithCurrency(GLAccount, SalesHeader, CurrencyCode);
 
         // 3. Verify: Verify Prepayment Amount on G/L Entry after posting Prepayment.
@@ -1205,6 +1212,7 @@ codeunit 134103 "ERM Prepayment IV"
         // 1. Setup: Create Prepayment Account and Post Purchase Prepayment Invoice.
         Initialize();
         CurrencyCode := UpdateAdditionalReportingCurrency;
+        FindGLAcountNotInGeneralPostingSetupSalesAcc(GLAccount);
         PrepaymentAmountInLCY := CreateAndPostSalesPrepaymentInvoiceWithCurrency(GLAccount, SalesHeader, CurrencyCode);
 
         // 2. Exercise: Post Purchase Invoice.
@@ -3788,7 +3796,7 @@ codeunit 134103 "ERM Prepayment IV"
         PostPurchasePrepaymentInvoice(PurchaseHeader);
     end;
 
-    local procedure CreateAndPostSalesPrepaymentInvoiceWithCurrency(var GLAccount: Record "G/L Account"; var SalesHeader: Record "Sales Header"; CurrencyCode: Code[10]) PrepaymentAmount: Decimal
+    local procedure CreateAndPostSalesPrepaymentInvoiceWithCurrency(GLAccount: Record "G/L Account"; var SalesHeader: Record "Sales Header"; CurrencyCode: Code[10]) PrepaymentAmount: Decimal
     var
         SalesLine: Record "Sales Line";
     begin
@@ -3796,7 +3804,6 @@ codeunit 134103 "ERM Prepayment IV"
           CreateSalesDocumentWithCurrency(
             SalesHeader, SalesLine, CurrencyCode, CreateCustomerWithCurrencyAndPrepaymentPct(CurrencyCode),
             SalesHeader."Document Type"::Order);
-        LibraryERM.FindGLAccount(GLAccount);
         UpdateSalesPrepmtAccount(GLAccount."No.", SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
         PostSalesPrepaymentInvoice(SalesHeader);
     end;
@@ -4637,6 +4644,21 @@ codeunit 134103 "ERM Prepayment IV"
     procedure PrepaymentConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    local procedure FindGLAcountNotInGeneralPostingSetupSalesAcc(var GLAccount: Record "G/L Account"): Code[20]
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        LibraryERM.SetGLAccountDirectPostingFilter(GLAccount);
+        LibraryERM.SetGLAccountNotBlankGroupsFilter(GLAccount);
+
+        if GLAccount.FindSet() then
+            repeat
+                GeneralPostingSetup.SetRange("Sales Account", GLAccount."No.");
+                if GeneralPostingSetup.IsEmpty() then
+                    exit(GLAccount."No.");
+            until GLAccount.Next() = 0;
     end;
 }
 

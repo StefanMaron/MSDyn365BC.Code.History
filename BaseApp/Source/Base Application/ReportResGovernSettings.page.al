@@ -1,3 +1,9 @@
+namespace System.Environment.Configuration;
+
+using System.Apps;
+using System.Globalization;
+using System.Reflection;
+
 page 9882 "Report Res. Govern. Settings"
 {
     Caption = 'Report Limits and Settings';

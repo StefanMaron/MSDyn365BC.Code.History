@@ -1,3 +1,8 @@
+namespace Microsoft.Service.Document;
+
+using Microsoft.Sales.Customer;
+using Microsoft.Service.History;
+
 page 5968 "Service Document Registers"
 {
     Caption = 'Service Document Registers';
@@ -120,24 +125,24 @@ page 5968 "Service Document Registers"
 
     trigger OnAfterGetRecord()
     begin
-        case "Destination Document Type" of
-            "Destination Document Type"::Invoice:
-                if ServHeader.Get(ServHeader."Document Type"::Invoice, "Destination Document No.") then begin
+        case Rec."Destination Document Type" of
+            Rec."Destination Document Type"::Invoice:
+                if ServHeader.Get(ServHeader."Document Type"::Invoice, Rec."Destination Document No.") then begin
                     CustNo := ServHeader."Bill-to Customer No.";
                     CustName := ServHeader."Bill-to Name";
                 end;
-            "Destination Document Type"::"Credit Memo":
-                if ServHeader.Get(ServHeader."Document Type"::"Credit Memo", "Destination Document No.") then begin
+            Rec."Destination Document Type"::"Credit Memo":
+                if ServHeader.Get(ServHeader."Document Type"::"Credit Memo", Rec."Destination Document No.") then begin
                     CustNo := ServHeader."Bill-to Customer No.";
                     CustName := ServHeader."Bill-to Name";
                 end;
-            "Destination Document Type"::"Posted Invoice":
-                if ServInvHeader.Get("Destination Document No.") then begin
+            Rec."Destination Document Type"::"Posted Invoice":
+                if ServInvHeader.Get(Rec."Destination Document No.") then begin
                     CustNo := ServInvHeader."Bill-to Customer No.";
                     CustName := ServInvHeader."Bill-to Name";
                 end;
-            "Destination Document Type"::"Posted Credit Memo":
-                if ServCrMemoHeader.Get("Destination Document No.") then begin
+            Rec."Destination Document Type"::"Posted Credit Memo":
+                if ServCrMemoHeader.Get(Rec."Destination Document No.") then begin
                     CustNo := ServCrMemoHeader."Bill-to Customer No.";
                     CustName := ServCrMemoHeader."Bill-to Name";
                 end;
@@ -153,25 +158,25 @@ page 5968 "Service Document Registers"
 
     local procedure OpenRelatedCard()
     begin
-        case "Destination Document Type" of
-            "Destination Document Type"::Invoice:
+        case Rec."Destination Document Type" of
+            Rec."Destination Document Type"::Invoice:
                 begin
-                    ServHeader.Get(ServHeader."Document Type"::Invoice, "Destination Document No.");
+                    ServHeader.Get(ServHeader."Document Type"::Invoice, Rec."Destination Document No.");
                     PAGE.Run(PAGE::"Service Invoice", ServHeader);
                 end;
-            "Destination Document Type"::"Credit Memo":
+            Rec."Destination Document Type"::"Credit Memo":
                 begin
-                    ServHeader.Get(ServHeader."Document Type"::"Credit Memo", "Destination Document No.");
+                    ServHeader.Get(ServHeader."Document Type"::"Credit Memo", Rec."Destination Document No.");
                     PAGE.Run(PAGE::"Service Credit Memo", ServHeader);
                 end;
-            "Destination Document Type"::"Posted Invoice":
+            Rec."Destination Document Type"::"Posted Invoice":
                 begin
-                    ServInvHeader.Get("Destination Document No.");
+                    ServInvHeader.Get(Rec."Destination Document No.");
                     PAGE.Run(PAGE::"Posted Service Invoice", ServInvHeader);
                 end;
-            "Destination Document Type"::"Posted Credit Memo":
+            Rec."Destination Document Type"::"Posted Credit Memo":
                 begin
-                    ServCrMemoHeader.Get("Destination Document No.");
+                    ServCrMemoHeader.Get(Rec."Destination Document No.");
                     PAGE.Run(PAGE::"Posted Service Credit Memo", ServCrMemoHeader);
                 end;
         end;

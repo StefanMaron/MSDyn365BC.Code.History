@@ -2053,7 +2053,7 @@ codeunit 136110 "Service Management Setup"
     begin
         // Handle Message.
         if (StrPos(Message, ServiceInvoiceMassage) = 0) and (StrPos(Message, ZeroOrderCreated) = 0) then
-            Error(StrSubstNo(UnexpectedMessage, Message));
+            Error(UnexpectedMessage, Message);
     end;
 
     [ModalPageHandler]

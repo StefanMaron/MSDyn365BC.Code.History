@@ -1,3 +1,15 @@
+namespace Microsoft.Warehouse.CrossDock;
+
+using Microsoft.Assembly.Document;
+using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Inventory.Transfer;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Sales.Document;
+using Microsoft.Warehouse.Document;
+
 table 5768 "Whse. Cross-Dock Opportunity"
 {
     Caption = 'Whse. Cross-Dock Opportunity';
@@ -104,13 +116,13 @@ table 5768 "Whse. Cross-Dock Opportunity"
         {
             Caption = 'Variant Code';
             Editable = false;
-            TableRelation = "Item Variant".Code WHERE("Item No." = FIELD("Item No."));
+            TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
         }
         field(19; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
             Editable = false;
-            TableRelation = "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."));
+            TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
         }
         field(20; "Qty. per Unit of Measure"; Decimal)
         {
@@ -165,10 +177,10 @@ table 5768 "Whse. Cross-Dock Opportunity"
         }
         field(28; "Qty. Cross-Docked (Base)"; Decimal)
         {
-            CalcFormula = Sum("Whse. Cross-Dock Opportunity"."Qty. to Cross-Dock (Base)" WHERE("Source Template Name" = FIELD("Source Template Name"),
-                                                                                                "Source Name/No." = FIELD("Source Name/No."),
-                                                                                                "Source Line No." = FIELD("Source Line No."),
-                                                                                                "Location Code" = FIELD("Location Code")));
+            CalcFormula = sum("Whse. Cross-Dock Opportunity"."Qty. to Cross-Dock (Base)" where("Source Template Name" = field("Source Template Name"),
+                                                                                                "Source Name/No." = field("Source Name/No."),
+                                                                                                "Source Line No." = field("Source Line No."),
+                                                                                                "Location Code" = field("Location Code")));
             Caption = 'Qty. Cross-Docked (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -176,21 +188,21 @@ table 5768 "Whse. Cross-Dock Opportunity"
         }
         field(29; "Total Qty. Needed (Base)"; Decimal)
         {
-            CalcFormula = Sum("Whse. Cross-Dock Opportunity"."Qty. Needed (Base)" WHERE("Source Template Name" = FIELD("Source Template Name"),
-                                                                                         "Source Name/No." = FIELD("Source Name/No."),
-                                                                                         "Source Line No." = FIELD("Source Line No."),
-                                                                                         "Location Code" = FIELD("Location Code")));
+            CalcFormula = sum("Whse. Cross-Dock Opportunity"."Qty. Needed (Base)" where("Source Template Name" = field("Source Template Name"),
+                                                                                         "Source Name/No." = field("Source Name/No."),
+                                                                                         "Source Line No." = field("Source Line No."),
+                                                                                         "Location Code" = field("Location Code")));
             Caption = 'Total Qty. Needed (Base)';
             FieldClass = FlowField;
         }
         field(36; "Reserved Quantity"; Decimal)
         {
-            CalcFormula = - Sum("Reservation Entry".Quantity WHERE("Source ID" = FIELD("To Source No."),
-                                                                   "Source Ref. No." = FIELD("To Source Line No."),
-                                                                   "Source Type" = FIELD("To Source Type"),
-                                                                   "Source Subtype" = FIELD("To Source Subtype"),
-                                                                   "Source Prod. Order Line" = FIELD("To Source Subline No."),
-                                                                   "Reservation Status" = CONST(Reservation)));
+            CalcFormula = - sum("Reservation Entry".Quantity where("Source ID" = field("To Source No."),
+                                                                   "Source Ref. No." = field("To Source Line No."),
+                                                                   "Source Type" = field("To Source Type"),
+                                                                   "Source Subtype" = field("To Source Subtype"),
+                                                                   "Source Prod. Order Line" = field("To Source Subline No."),
+                                                                   "Reservation Status" = const(Reservation)));
             Caption = 'Reserved Quantity';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -198,12 +210,12 @@ table 5768 "Whse. Cross-Dock Opportunity"
         }
         field(37; "Reserved Qty. (Base)"; Decimal)
         {
-            CalcFormula = - Sum("Reservation Entry".Quantity WHERE("Source ID" = FIELD("To Source No."),
-                                                                   "Source Ref. No." = FIELD("To Source Line No."),
-                                                                   "Source Type" = FIELD("To Source Type"),
-                                                                   "Source Subtype" = FIELD("To Source Subtype"),
-                                                                   "Source Prod. Order Line" = FIELD("To Source Subline No."),
-                                                                   "Reservation Status" = CONST(Reservation)));
+            CalcFormula = - sum("Reservation Entry".Quantity where("Source ID" = field("To Source No."),
+                                                                   "Source Ref. No." = field("To Source Line No."),
+                                                                   "Source Type" = field("To Source Type"),
+                                                                   "Source Subtype" = field("To Source Subtype"),
+                                                                   "Source Prod. Order Line" = field("To Source Subline No."),
+                                                                   "Reservation Status" = const(Reservation)));
             Caption = 'Reserved Qty. (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -213,7 +225,7 @@ table 5768 "Whse. Cross-Dock Opportunity"
         {
             Caption = 'To-Src. Unit of Measure Code';
             Editable = false;
-            TableRelation = "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."));
+            TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
         }
         field(40; "To-Src. Qty. per Unit of Meas."; Decimal)
         {

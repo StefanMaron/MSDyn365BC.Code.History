@@ -1,4 +1,271 @@
-﻿codeunit 1751 "Data Classification Eval. Data"
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Utilities;
+
+using Microsoft;
+using Microsoft.AccountantPortal;
+using Microsoft.API;
+using Microsoft.Assembly.Comment;
+using Microsoft.Assembly.Document;
+using Microsoft.Assembly.History;
+using Microsoft.Assembly.Setup;
+using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.Check;
+using Microsoft.Bank.DirectDebit;
+using Microsoft.Bank.Ledger;
+using Microsoft.Bank.Payment;
+using Microsoft.Bank.PositivePay;
+using Microsoft.Bank.Reconciliation;
+using Microsoft.Bank.Setup;
+using Microsoft.Bank.Statement;
+using Microsoft.Booking;
+using Microsoft.CashFlow.Account;
+using Microsoft.CashFlow.Comment;
+using Microsoft.CashFlow.Forecast;
+using Microsoft.CashFlow.Setup;
+using Microsoft.CashFlow.Worksheet;
+using Microsoft.CostAccounting.Account;
+using Microsoft.CostAccounting.Allocation;
+using Microsoft.CostAccounting.Budget;
+using Microsoft.CostAccounting.Journal;
+using Microsoft.CostAccounting.Ledger;
+using Microsoft.CostAccounting.Setup;
+using Microsoft.CRM.Analysis;
+using Microsoft.CRM.BusinessRelation;
+using Microsoft.CRM.Campaign;
+using Microsoft.CRM.Comment;
+using Microsoft.CRM.Contact;
+using Microsoft.CRM.Duplicates;
+using Microsoft.CRM.Interaction;
+using Microsoft.CRM.Opportunity;
+using Microsoft.CRM.Outlook;
+using Microsoft.CRM.Profiling;
+using Microsoft.CRM.RoleCenters;
+using Microsoft.CRM.Segment;
+using Microsoft.CRM.Setup;
+using Microsoft.CRM.Task;
+using Microsoft.CRM.Team;
+using Microsoft.EServices.EDocument;
+using Microsoft.EServices.OnlineMap;
+using Microsoft.Finance.AllocationAccount;
+using Microsoft.Finance.Analysis;
+using Microsoft.Finance.Consolidation;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.Deferral;
+using Microsoft.Finance.Dimension.Correction;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.FinancialReports;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Budget;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Reversal;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.ReceivablesPayables;
+using Microsoft.Finance.Payroll;
+using Microsoft.Finance.RoleCenters;
+using Microsoft.Finance.SalesTax;
+using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Finance.VAT.Clause;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Finance.VAT.Registration;
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.FixedAssets.Depreciation;
+using Microsoft.FixedAssets.FixedAsset;
+using Microsoft.FixedAssets.Insurance;
+using Microsoft.FixedAssets.Journal;
+using Microsoft.FixedAssets.Ledger;
+using Microsoft.FixedAssets.Maintenance;
+using Microsoft.FixedAssets.Posting;
+using Microsoft.FixedAssets.Setup;
+using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Attachment;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.BatchProcessing;
+using Microsoft.Foundation.Calendar;
+using Microsoft.Foundation.Comment;
+using Microsoft.Foundation.Company;
+using Microsoft.Foundation.ExtendedText;
+using Microsoft.Foundation.Navigate;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Foundation.Period;
+using Microsoft.Foundation.Reporting;
+using Microsoft.Foundation.Shipping;
+using Microsoft.Foundation.Task;
+using Microsoft.Foundation.UOM;
+using Microsoft.HumanResources.Absence;
+using Microsoft.HumanResources.Comment;
+using Microsoft.HumanResources.Employee;
+using Microsoft.HumanResources.Setup;
+using Microsoft.Integration.D365Sales;
+using Microsoft.Integration.Dataverse;
+using Microsoft.Integration.Entity;
+using Microsoft.Integration.Graph;
+using Microsoft.Integration.SyncEngine;
+using Microsoft.Intercompany.BankAccount;
+using Microsoft.Intercompany.Comment;
+using Microsoft.Intercompany.DataExchange;
+using Microsoft.Intercompany.Dimension;
+using Microsoft.Intercompany.GLAccount;
+using Microsoft.Intercompany.Inbox;
+using Microsoft.Intercompany.Outbox;
+using Microsoft.Intercompany.Partner;
+using Microsoft.Intercompany.Setup;
+using Microsoft.Inventory.Analysis;
+using Microsoft.Inventory.Availability;
+using Microsoft.Inventory.BOM.Tree;
+using Microsoft.Inventory.BOM;
+using Microsoft.Inventory.Comment;
+using Microsoft.Inventory.Costing;
+using Microsoft.Inventory.Counting.Comment;
+using Microsoft.Inventory.Counting.Document;
+using Microsoft.Inventory.Counting.History;
+using Microsoft.Inventory.Counting.Journal;
+using Microsoft.Inventory.Counting.Recording;
+using Microsoft.Inventory.Counting.Tracking;
+using Microsoft.Inventory.Document;
+using Microsoft.Inventory.History;
+using Microsoft.Inventory.Intrastat;
+using Microsoft.Inventory.Item.Attribute;
+using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Inventory.Item.Picture;
+using Microsoft.Inventory.Item.Substitution;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Planning;
+using Microsoft.Inventory.Reconciliation;
+using Microsoft.Inventory.Requisition;
+using Microsoft.Inventory.Setup;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Inventory.Transfer;
+using Microsoft.Manufacturing.Capacity;
+using Microsoft.Manufacturing.Comment;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Manufacturing.Family;
+using Microsoft.Manufacturing.Forecast;
+using Microsoft.Manufacturing.MachineCenter;
+using Microsoft.Manufacturing.Routing;
+using Microsoft.Manufacturing.Setup;
+using Microsoft.Manufacturing.ProductionBOM;
+using Microsoft.Manufacturing.RoleCenters;
+using Microsoft.Manufacturing.StandardCost;
+using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Pricing.Asset;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Pricing.PriceList;
+using Microsoft.Pricing.Source;
+using Microsoft.Pricing.Worksheet;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Projects.Project.Journal;
+using Microsoft.Projects.Project.Ledger;
+using Microsoft.Projects.Project.Planning;
+#if not CLEAN21
+using Microsoft.Projects.Project.Pricing;
+#endif
+using Microsoft.Projects.Project.Setup;
+using Microsoft.Projects.Project.WIP;
+using Microsoft.Projects.Resources.Journal;
+using Microsoft.Projects.Resources.Ledger;
+#if not CLEAN21
+using Microsoft.Projects.Resources.Pricing;
+#endif
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Projects.Resources.Setup;
+using Microsoft.Projects.RoleCenters;
+using Microsoft.Projects.TimeSheet;
+using Microsoft.Purchases.Archive;
+using Microsoft.Purchases.Comment;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Payables;
+#if not CLEAN21
+using Microsoft.Purchases.Pricing;
+#endif
+using Microsoft.Purchases.Remittance;
+using Microsoft.Purchases.RoleCenters;
+using Microsoft.Purchases.Setup;
+using Microsoft.Purchases.Vendor;
+using Microsoft.RoleCenters;
+using Microsoft.Sales.Analysis;
+using Microsoft.Sales.Archive;
+using Microsoft.Sales.Comment;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.FinanceCharge;
+using Microsoft.Sales.History;
+using Microsoft.Sales.Pricing;
+using Microsoft.Sales.Receivables;
+using Microsoft.Sales.Reminder;
+using Microsoft.Sales.RoleCenters;
+using Microsoft.Sales.Setup;
+using Microsoft.Service.Comment;
+using Microsoft.Service.Contract;
+using Microsoft.Service.Document;
+using Microsoft.Service.Email;
+using Microsoft.Service.History;
+using Microsoft.Service.Item;
+using Microsoft.Service.Ledger;
+using Microsoft.Service.Loaner;
+using Microsoft.Service.Maintenance;
+using Microsoft.Service.Pricing;
+using Microsoft.Service.Resources;
+using Microsoft.Service.RoleCenters;
+using Microsoft.Service.Setup;
+using Microsoft.Warehouse.Activity.History;
+using Microsoft.Warehouse.Activity;
+using Microsoft.Warehouse.ADCS;
+using Microsoft.Warehouse.Comment;
+using Microsoft.Warehouse.CrossDock;
+using Microsoft.Warehouse.Document;
+using Microsoft.Warehouse.History;
+using Microsoft.Warehouse.InternalDocument;
+using Microsoft.Warehouse.InventoryDocument;
+using Microsoft.Warehouse.Journal;
+using Microsoft.Warehouse.Ledger;
+using Microsoft.Warehouse.Request;
+using Microsoft.Warehouse.RoleCenters;
+using Microsoft.Warehouse.Setup;
+using Microsoft.Warehouse.Structure;
+using Microsoft.Warehouse.Tracking;
+using Microsoft.Warehouse.Worksheet;
+using System.AI;
+using System.Apps;
+using System.Automation;
+using System.Azure.Identity;
+using System.DataAdministration;
+using System.Device;
+using System.Diagnostics;
+using System.Reflection;
+using System.EMail;
+using System.Environment;
+using System.Environment.Configuration;
+using System.Integration;
+using System.Integration.PowerBI;
+using System.IO;
+using System.Privacy;
+using System.Globalization;
+using System.Security;
+using System.Security.AccessControl;
+using System.Security.Authentication;
+using System.Security.Encryption;
+using System.Security.User;
+using System.TestTools;
+using System.TestTools.TestRunner;
+using System.Text;
+using System.Threading;
+using System.Tooling;
+using System.Visualization;
+using System.Utilities;
+using System.Xml;
+
+codeunit 1751 "Data Classification Eval. Data"
 {
     procedure CreateEvaluationData()
     var
@@ -370,14 +637,12 @@
         ClassifyParallelSessionEntry();
         ClassifyWorkflowsEntriesBuffer();
         ClassifyRecordSetTree();
-#if not CLEAN20
-        ClassifyExtraSettings();
-#endif
         ClassifyApplicationUserSettings();
         ClassifyPermissionSetInPlan();
         ClassifyFinancialReports();
         ClassifyRemitToAddress();
         ClassifyICBankAccount();
+        ClassifyAllocationAccounts();
     end;
 
     local procedure ClassifyFinancialReports()
@@ -577,24 +842,11 @@
         SetTableFieldsToNormal(DATABASE::"VAT Registration No. Format");
         SetTableFieldsToNormal(DATABASE::"Dimension Translation");
         SetTableFieldsToNormal(DATABASE::"Availability at Date");
-#if not CLEAN20
-        SetTableFieldsToNormal(DATABASE::"XBRL Taxonomy");
-        SetTableFieldsToNormal(DATABASE::"XBRL Taxonomy Line");
-        SetTableFieldsToNormal(DATABASE::"XBRL Comment Line");
-        SetTableFieldsToNormal(DATABASE::"XBRL G/L Map Line");
-        SetTableFieldsToNormal(DATABASE::"XBRL Rollup Line");
-        SetTableFieldsToNormal(DATABASE::"XBRL Schema");
-        SetTableFieldsToNormal(DATABASE::"XBRL Linkbase");
-        SetTableFieldsToNormal(DATABASE::"XBRL Taxonomy Label");
-#endif
         SetTableFieldsToNormal(DATABASE::"Change Log Setup");
         SetTableFieldsToNormal(DATABASE::"Change Log Setup (Table)");
         SetTableFieldsToNormal(DATABASE::"Change Log Setup (Field)");
 #if not CLEAN21
         SetTableFieldsToNormal(DATABASE::"Graph Mail Setup");
-#endif
-#if not CLEAN20
-        SetTableFieldsToNormal(DATABASE::"XBRL Line Constant");
 #endif
         SetTableFieldsToNormal(DATABASE::"IC G/L Account");
         SetTableFieldsToNormal(DATABASE::"IC Dimension");
@@ -779,6 +1031,9 @@
         SetTableFieldsToNormal(DATABASE::"Business Unit Setup");
         SetTableFieldsToNormal(DATABASE::"Business Unit Information");
         SetTableFieldsToNormal(DATABASE::"Consolidation Account");
+        SetTableFieldsToNormal(Database::"Consolidation Process");
+        SetTableFieldsToNormal(Database::"Bus. Unit In Cons. Process");
+        SetTableFieldsToNormal(Database::"Consolidation Setup");
         SetTableFieldsToNormal(3700); // "Manual Setup" table
         SetTableFieldsToNormal(1876); // "Business Setup Icon" table
         SetTableFieldsToNormal(DATABASE::"VAT Setup Posting Groups");
@@ -820,9 +1075,6 @@
         SetTableFieldsToNormal(DATABASE::"O365 Sales Graph");
         SetTableFieldsToNormal(DATABASE::"O365 Sales Invoice Document");
 #endif
-#if not CLEAN20
-        SetTableFieldsToNormal(DATABASE::"Native - Export Invoices");
-#endif
         SetTableFieldsToNormal(Database::"Customer Templ.");
         SetTableFieldsToNormal(Database::"Item Templ.");
         SetTableFieldsToNormal(Database::"Vendor Templ.");
@@ -831,10 +1083,6 @@
 
     local procedure ClassifyTablesToNormalPart5()
     begin
-#if not CLEAN20
-        SetTableFieldsToNormal(DATABASE::"Native - Payment");
-        SetTableFieldsToNormal(DATABASE::"Native - API Tax Setup");
-#endif
         SetTableFieldsToNormal(DATABASE::"Contact Alt. Addr. Date Range");
         SetTableFieldsToNormal(DATABASE::"Business Relation");
         SetTableFieldsToNormal(DATABASE::"Contact Business Relation");
@@ -877,9 +1125,6 @@
         SetTableFieldsToNormal(DATABASE::"RM Matrix Management");
         SetTableFieldsToNormal(DATABASE::"Interaction Tmpl. Language");
         SetTableFieldsToNormal(DATABASE::"Segment Interaction Language");
-#if not CLEAN20
-        SetTableFieldsToNormal(DATABASE::"Customer Template");
-#endif
         SetTableFieldsToNormal(DATABASE::Rating);
         SetTableFieldsToNormal(DATABASE::"Interaction Template Setup");
         SetTableFieldsToNormal(DATABASE::"Current Salesperson");
@@ -965,10 +1210,6 @@
         SetTableFieldsToNormal(DATABASE::"Prod. Order Comp. Cmt Line");
         SetTableFieldsToNormal(DATABASE::"Planning Error Log");
         SetTableFieldsToNormal(DATABASE::"API Entities Setup");
-#if not CLEAN20
-        SetTableFieldsToNormal(DATABASE::"Graph Subscription");
-        SetTableFieldsToNormal(DATABASE::"Graph Business Setting");
-#endif
         SetTableFieldsToNormal(DATABASE::"Sales Invoice Line Aggregate");
         SetTableFieldsToNormal(DATABASE::"Purch. Inv. Line Aggregate");
         SetTableFieldsToNormal(DATABASE::"Aged Report Entity");
@@ -1184,6 +1425,10 @@
         SetTableFieldsToNormal(DATABASE::"Whse. Worksheet Template");
         SetTableFieldsToNormal(DATABASE::"Whse. Internal Put-away Line");
         SetTableFieldsToNormal(DATABASE::"Whse. Internal Pick Line");
+        SetTableFieldsToNormal(DATABASE::"Allocation Policy");
+        SetTableFieldsToNormal(DATABASE::"Reservation Wksh. Batch");
+        SetTableFieldsToNormal(DATABASE::"Reservation Wksh. Line");
+        SetTableFieldsToNormal(DATABASE::"Reservation Worksheet Log");
         SetTableFieldsToNormal(DATABASE::"Bin Template");
         SetTableFieldsToNormal(DATABASE::"Bin Creation Wksh. Template");
         SetTableFieldsToNormal(DATABASE::"Bin Creation Wksh. Name");
@@ -1235,9 +1480,6 @@
         SetTableFieldsToNormal(DATABASE::"User Group Permission Set");
         SetTableFieldsToNormal(DATABASE::"User Group Plan");
 #endif
-#if not CLEAN20
-        SetTableFieldsToNormal(DATABASE::"Plan Permission Set");
-#endif
         SetTableFieldsToNormal(9020); // Security Group
         SetTableFieldsToNormal(DATABASE::"Team Member Cue");
         SetTableFieldsToNormal(DATABASE::"Warehouse Basic Cue");
@@ -1254,7 +1496,7 @@
         SetTableFieldsToNormal(DATABASE::"RapidStart Services Cue");
         SetTableFieldsToNormal(DATABASE::"User Security Status");
         SetTableFieldsToNormal(DATABASE::"Relationship Mgmt. Cue");
-#if not CLEAN20
+#if not CLEAN21
         SetTableFieldsToNormal(DATABASE::"O365 Sales Cue");
 #endif
     end;
@@ -1410,17 +1652,21 @@
         SetTableFieldsToNormal(DATABASE::"Post Value Entry to G/L");
         SetTableFieldsToNormal(DATABASE::"Inventory Report Entry");
         SetTableFieldsToNormal(DATABASE::"Inventory Adjmt. Entry (Order)");
-        SetTableFieldsToNormal(DATABASE::"Power BI User Configuration");
 #if not CLEAN21
         SetTableFieldsToNormal(DATABASE::"Power BI Report Buffer");
 #endif
-        SetTableFieldsToNormal(DATABASE::"Power BI Selection Element");
-        SetTableFieldsToNormal(DATABASE::"Power BI Report Configuration");
-        SetTableFieldsToNormal(DATABASE::"Power BI Report Uploads");
-        SetTableFieldsToNormal(DATABASE::"Power BI User Status");
 #if not CLEAN22
         SetTableFieldsToNormal(DATABASE::"Power BI Service Status Setup");
 #endif
+#if not CLEAN23
+        SetTableFieldsToNormal(DATABASE::"Power BI User Configuration");
+        SetTableFieldsToNormal(DATABASE::"Power BI Report Configuration");
+        SetTableFieldsToNormal(DATABASE::"Power BI User Status");
+#endif
+        SetTableFieldsToNormal(DATABASE::"Power BI Selection Element");
+        SetTableFieldsToNormal(DATABASE::"Power BI Displayed Element");
+        SetTableFieldsToNormal(DATABASE::"Power BI Report Uploads");
+        SetTableFieldsToNormal(DATABASE::"Power BI Context Settings");
         SetTableFieldsToNormal(DATABASE::"Power BI Customer Reports");
         SetTableFieldsToNormal(DATABASE::"Power BI Blob");
         SetTableFieldsToNormal(DATABASE::"Power BI Default Selection");
@@ -1491,6 +1737,17 @@
         SetTableFieldsToNormal(Database::"IC Setup");
         SetTableFieldsToNormal(Database::"Net Balances Parameters");
         SetTableFieldsToNormal(9017); // Database::"Plan Configuration"
+        SetTableFieldsToNormal(Database::"Buffer IC Comment Line");
+        SetTableFieldsToNormal(Database::"Buffer IC Document Dimension");
+        SetTableFieldsToNormal(Database::"Buffer IC Inbox Jnl. Line");
+        SetTableFieldsToNormal(Database::"Buffer IC Inbox Purch Header");
+        SetTableFieldsToNormal(Database::"Buffer IC Inbox Purchase Line");
+        SetTableFieldsToNormal(Database::"Buffer IC Inbox Sales Header");
+        SetTableFieldsToNormal(Database::"Buffer IC Inbox Sales Line");
+        SetTableFieldsToNormal(Database::"Buffer IC Inbox Transaction");
+        SetTableFieldsToNormal(Database::"Buffer IC InOut Jnl. Line Dim.");
+        SetTableFieldsToNormal(Database::"IC Incoming Notification");
+        SetTableFieldsToNormal(Database::"IC Outgoing Notification");
     end;
 
     procedure SetTableFieldsToNormal(TableNo: Integer)
@@ -1550,6 +1807,14 @@
         TableNo := DATABASE::"CRM Annotation Coupling";
         SetTableFieldsToNormal(TableNo);
         SetFieldToCompanyConfidential(TableNo, DummyCRMAnnotationCoupling.FieldNo("Record Link Record ID"));
+    end;
+
+    local procedure ClassifyAllocationAccounts()
+    begin
+        SetTableFieldsToNormal(DATABASE::"Alloc. Acc. Manual Override");
+        SetTableFieldsToNormal(DATABASE::"Alloc. Account Distribution");
+        SetTableFieldsToNormal(DATABASE::"Allocation Account");
+        SetTableFieldsToNormal(DATABASE::"Allocation Line");
     end;
 
     local procedure ClassifyCRMPostBuffer()
@@ -2466,18 +2731,6 @@
         SetFieldToPersonal(TableNo, DummyAADApplication.FieldNo("User ID"));
     end;
 
-#if not CLEAN20
-    local procedure ClassifyExtraSettings()
-    var
-        TableNo: Integer;
-    begin
-        // Cannot reference Internal table through DATABASE::<Table name>
-        TableNo := 9173; // Extra Settings
-        SetTableFieldsToNormal(TableNo);
-        SetFieldToPersonal(TableNo, 1); // User Security ID
-    end;
-#endif
-
     local procedure ClassifyApplicationUserSettings()
     var
         TableNo: Integer;
@@ -3354,9 +3607,6 @@
         TableNo := DATABASE::"Job Queue Log Entry";
         SetTableFieldsToNormal(TableNo);
         SetFieldToCompanyConfidential(TableNo, DummyJobQueueLogEntry.FieldNo("Job Queue Category Code"));
-#if not CLEAN20
-        SetFieldToPersonal(TableNo, DummyJobQueueLogEntry.FieldNo("Processed by User ID"));
-#endif
         SetFieldToCompanyConfidential(TableNo, DummyJobQueueLogEntry.FieldNo("Error Message"));
         SetFieldToCompanyConfidential(TableNo, DummyJobQueueLogEntry.FieldNo(Description));
         SetFieldToCompanyConfidential(TableNo, DummyJobQueueLogEntry.FieldNo(Status));

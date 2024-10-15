@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.Deferral;
+
 page 1706 "Deferral Schedule Archive"
 {
     Caption = 'Deferral Schedule Archive';
@@ -18,12 +20,12 @@ page 1706 "Deferral Schedule Archive"
             part("<Deferral Sched. Arch. Subform>"; "Deferral Sched. Arch. Subform")
             {
                 ApplicationArea = Suite;
-                SubPageLink = "Deferral Doc. Type" = FIELD("Deferral Doc. Type"),
-                              "Document Type" = FIELD("Document Type"),
-                              "Document No." = FIELD("Document No."),
-                              "Line No." = FIELD("Line No."),
-                              "Doc. No. Occurrence" = FIELD("Doc. No. Occurrence"),
-                              "Version No." = FIELD("Version No.");
+                SubPageLink = "Deferral Doc. Type" = field("Deferral Doc. Type"),
+                              "Document Type" = field("Document Type"),
+                              "Document No." = field("Document No."),
+                              "Line No." = field("Line No."),
+                              "Doc. No. Occurrence" = field("Doc. No. Occurrence"),
+                              "Version No." = field("Version No.");
             }
         }
     }

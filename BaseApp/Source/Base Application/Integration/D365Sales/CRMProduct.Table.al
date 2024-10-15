@@ -1,3 +1,9 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.D365Sales;
+
 table 5348 "CRM Product"
 {
     // Dynamics CRM Version: 7.1.0.2040
@@ -252,7 +258,7 @@ table 5348 "CRM Product"
         }
         field(31; DefaultUoMIdName; Text[100])
         {
-            CalcFormula = Lookup ("CRM Uom".Name WHERE(UoMId = FIELD(DefaultUoMId)));
+            CalcFormula = Lookup("CRM Uom".Name where(UoMId = field(DefaultUoMId)));
             Caption = 'DefaultUoMIdName';
             ExternalAccess = Read;
             ExternalName = 'defaultuomidname';
@@ -261,7 +267,7 @@ table 5348 "CRM Product"
         }
         field(32; DefaultUoMScheduleIdName; Text[200])
         {
-            CalcFormula = Lookup ("CRM Uomschedule".Name WHERE(UoMScheduleId = FIELD(DefaultUoMScheduleId)));
+            CalcFormula = Lookup("CRM Uomschedule".Name where(UoMScheduleId = field(DefaultUoMScheduleId)));
             Caption = 'DefaultUoMScheduleIdName';
             ExternalAccess = Read;
             ExternalName = 'defaultuomscheduleidname';
@@ -270,7 +276,7 @@ table 5348 "CRM Product"
         }
         field(33; PriceLevelIdName; Text[100])
         {
-            CalcFormula = Lookup ("CRM Pricelevel".Name WHERE(PriceLevelId = FIELD(PriceLevelId)));
+            CalcFormula = Lookup("CRM Pricelevel".Name where(PriceLevelId = field(PriceLevelId)));
             Caption = 'PriceLevelIdName';
             ExternalAccess = Read;
             ExternalName = 'pricelevelidname';
@@ -279,7 +285,7 @@ table 5348 "CRM Product"
         }
         field(34; CreatedByName; Text[200])
         {
-            CalcFormula = Lookup ("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(CreatedBy)));
+            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedBy)));
             Caption = 'CreatedByName';
             ExternalAccess = Read;
             ExternalName = 'createdbyname';
@@ -288,7 +294,7 @@ table 5348 "CRM Product"
         }
         field(35; ModifiedByName; Text[200])
         {
-            CalcFormula = Lookup ("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(ModifiedBy)));
+            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedBy)));
             Caption = 'ModifiedByName';
             ExternalAccess = Read;
             ExternalName = 'modifiedbyname';
@@ -297,7 +303,7 @@ table 5348 "CRM Product"
         }
         field(36; OrganizationIdName; Text[160])
         {
-            CalcFormula = Lookup ("CRM Organization".Name WHERE(OrganizationId = FIELD(OrganizationId)));
+            CalcFormula = Lookup("CRM Organization".Name where(OrganizationId = field(OrganizationId)));
             Caption = 'OrganizationIdName';
             ExternalAccess = Read;
             ExternalName = 'organizationidname';
@@ -354,7 +360,7 @@ table 5348 "CRM Product"
         }
         field(43; TransactionCurrencyIdName; Text[100])
         {
-            CalcFormula = Lookup ("CRM Transactioncurrency".CurrencyName WHERE(TransactionCurrencyId = FIELD(TransactionCurrencyId)));
+            CalcFormula = Lookup("CRM Transactioncurrency".CurrencyName where(TransactionCurrencyId = field(TransactionCurrencyId)));
             Caption = 'TransactionCurrencyIdName';
             ExternalAccess = Read;
             ExternalName = 'transactioncurrencyidname';
@@ -396,7 +402,7 @@ table 5348 "CRM Product"
         }
         field(48; CreatedOnBehalfByName; Text[200])
         {
-            CalcFormula = Lookup ("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(CreatedOnBehalfBy)));
+            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedOnBehalfBy)));
             Caption = 'CreatedOnBehalfByName';
             ExternalAccess = Read;
             ExternalName = 'createdonbehalfbyname';
@@ -414,7 +420,7 @@ table 5348 "CRM Product"
         }
         field(50; ModifiedOnBehalfByName; Text[200])
         {
-            CalcFormula = Lookup ("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(ModifiedOnBehalfBy)));
+            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedOnBehalfBy)));
             Caption = 'ModifiedOnBehalfByName';
             ExternalAccess = Read;
             ExternalName = 'modifiedonbehalfbyname';
@@ -454,7 +460,7 @@ table 5348 "CRM Product"
         }
         field(55; ParentProductIdName; Text[100])
         {
-            CalcFormula = Lookup ("CRM Product".Name WHERE(ProductId = FIELD(ParentProductId)));
+            CalcFormula = Lookup("CRM Product".Name where(ProductId = field(ParentProductId)));
             Caption = 'ParentProductIdName';
             ExternalAccess = Read;
             ExternalName = 'parentproductidname';

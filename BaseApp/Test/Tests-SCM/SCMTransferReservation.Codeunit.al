@@ -1464,7 +1464,7 @@ codeunit 137269 "SCM Transfer Reservation"
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingLinesPageHandler')]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,ConfirmCloseWithQtyZero')]
     [Scope('OnPrem')]
     procedure DeleteItemTrackingOnPurchLineDeletesTrackingInTransferViaOrderToOrderBinding()
     var
@@ -2830,6 +2830,13 @@ codeunit 137269 "SCM Transfer Reservation"
     procedure CounterOfConfirmsHandler(Question: Text; var Reply: Boolean)
     begin
         CounterOfConfirms += 1;
+        Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmCloseWithQtyZero(Question: Text[1024]; var Reply: Boolean)
+    begin
         Reply := true;
     end;
 

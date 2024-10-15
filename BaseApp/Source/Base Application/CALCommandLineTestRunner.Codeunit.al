@@ -1,3 +1,7 @@
+namespace System.TestTools.TestRunner;
+
+using System.TestTools.CodeCoverage;
+
 codeunit 130402 "CAL Command Line Test Runner"
 {
     Subtype = TestRunner;

@@ -1,3 +1,12 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.D365Sales;
+
+using Microsoft.CRM.Opportunity;
+using Microsoft.Integration.Dataverse;
+
 page 5343 "CRM Opportunity List"
 {
     ApplicationArea = Suite;
@@ -9,7 +18,7 @@ page 5343 "CRM Opportunity List"
     ModifyAllowed = false;
     PageType = List;
     SourceTable = "CRM Opportunity";
-    SourceTableView = SORTING(Name);
+    SourceTableView = sorting(Name);
     UsageCategory = Lists;
 
     layout
@@ -18,14 +27,14 @@ page 5343 "CRM Opportunity List"
         {
             repeater(Group)
             {
-                field(StateCode; StateCode)
+                field(StateCode; Rec.StateCode)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Status';
                     OptionCaption = 'Open,Won,Lost';
                     ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
                 }
-                field(StatusCode; StatusCode)
+                field(StatusCode; Rec.StatusCode)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Status Reason';
@@ -39,50 +48,50 @@ page 5343 "CRM Opportunity List"
                     StyleExpr = FirstColumnStyle;
                     ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
                 }
-                field(EstimatedCloseDate; EstimatedCloseDate)
+                field(EstimatedCloseDate; Rec.EstimatedCloseDate)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Est. Close Date';
                     ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
                 }
-                field(EstimatedValue; EstimatedValue)
+                field(EstimatedValue; Rec.EstimatedValue)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Est. Revenue';
                     ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
                 }
-                field(TotalAmount; TotalAmount)
+                field(TotalAmount; Rec.TotalAmount)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Total Amount';
                     ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
                 }
-                field(ParentContactIdName; ParentContactIdName)
+                field(ParentContactIdName; Rec.ParentContactIdName)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Contact Name';
                     ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
                 }
-                field(ParentAccountIdName; ParentAccountIdName)
+                field(ParentAccountIdName; Rec.ParentAccountIdName)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Account Name';
                     ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
                 }
-                field(CloseProbability; CloseProbability)
+                field(CloseProbability; Rec.CloseProbability)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Probability';
                     ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
                 }
-                field(OpportunityRatingCode; OpportunityRatingCode)
+                field(OpportunityRatingCode; Rec.OpportunityRatingCode)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Rating';
                     OptionCaption = 'Hot,Warm,Cold';
                     ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
                 }
-                field(Need; Need)
+                field(Need; Rec.Need)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Need';
@@ -117,7 +126,7 @@ page 5343 "CRM Opportunity List"
                     var
                         CRMIntegrationManagement: Codeunit "CRM Integration Management";
                     begin
-                        HyperLink(CRMIntegrationManagement.GetCRMEntityUrlFromCRMID(DATABASE::"CRM Opportunity", OpportunityId));
+                        HyperLink(CRMIntegrationManagement.GetCRMEntityUrlFromCRMID(DATABASE::"CRM Opportunity", Rec.OpportunityId));
                     end;
                 }
             }
@@ -149,7 +158,7 @@ page 5343 "CRM Opportunity List"
 
                 trigger OnAction()
                 begin
-                    MarkedOnly(true);
+                    Rec.MarkedOnly(true);
                 end;
             }
             action(ShowAll)
@@ -161,7 +170,7 @@ page 5343 "CRM Opportunity List"
 
                 trigger OnAction()
                 begin
-                    MarkedOnly(false);
+                    Rec.MarkedOnly(false);
                 end;
             }
         }
@@ -206,20 +215,20 @@ page 5343 "CRM Opportunity List"
         CRMIntegrationRecord: Record "CRM Integration Record";
         RecordID: RecordID;
     begin
-        if CRMIntegrationRecord.FindRecordIDFromID(OpportunityId, DATABASE::Opportunity, RecordID) then
-            if CurrentlyCoupledCRMOpportunity.OpportunityId = OpportunityId then begin
+        if CRMIntegrationRecord.FindRecordIDFromID(Rec.OpportunityId, DATABASE::Opportunity, RecordID) then
+            if CurrentlyCoupledCRMOpportunity.OpportunityId = Rec.OpportunityId then begin
                 Coupled := 'Current';
                 FirstColumnStyle := 'Strong';
-                Mark(true);
+                Rec.Mark(true);
             end else begin
                 Coupled := 'Yes';
                 FirstColumnStyle := 'Subordinate';
-                Mark(false);
+                Rec.Mark(false);
             end
         else begin
             Coupled := 'No';
             FirstColumnStyle := 'None';
-            Mark(true);
+            Rec.Mark(true);
         end;
     end;
 
@@ -232,9 +241,9 @@ page 5343 "CRM Opportunity List"
     var
         LookupCRMTables: Codeunit "Lookup CRM Tables";
     begin
-        FilterGroup(4);
-        SetView(LookupCRMTables.GetIntegrationTableMappingView(DATABASE::"CRM Opportunity"));
-        FilterGroup(0);
+        Rec.FilterGroup(4);
+        Rec.SetView(LookupCRMTables.GetIntegrationTableMappingView(DATABASE::"CRM Opportunity"));
+        Rec.FilterGroup(0);
     end;
 
     var

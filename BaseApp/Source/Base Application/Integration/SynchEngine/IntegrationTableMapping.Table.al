@@ -1,3 +1,18 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.SyncEngine;
+
+using Microsoft.CRM.Opportunity;
+using Microsoft.Integration.D365Sales;
+using Microsoft.Integration.Dataverse;
+using Microsoft.Sales.Document;
+using System.IO;
+using System.Reflection;
+using System.Telemetry;
+using System.Threading;
+
 table 5335 "Integration Table Mapping"
 {
     Caption = 'Integration Table Mapping';
@@ -54,12 +69,12 @@ table 5335 "Integration Table Mapping"
         field(8; "Table Config Template Code"; Code[10])
         {
             Caption = 'Table Config Template Code';
-            TableRelation = "Config. Template Header".Code WHERE("Table ID" = FIELD("Table ID"));
+            TableRelation = "Config. Template Header".Code where("Table ID" = field("Table ID"));
         }
         field(9; "Int. Tbl. Config Template Code"; Code[10])
         {
             Caption = 'Int. Tbl. Config Template Code';
-            TableRelation = "Config. Template Header".Code WHERE("Table ID" = FIELD("Integration Table ID"));
+            TableRelation = "Config. Template Header".Code where("Table ID" = field("Integration Table ID"));
         }
         field(10; Direction; Option)
         {
@@ -73,6 +88,7 @@ table 5335 "Integration Table Mapping"
                 IntegrationFieldMapping: Record "Integration Field Mapping";
                 CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
                 JobQueueEntry: Record "Job Queue Entry";
+                NoEnabledFieldMappingsExist: Boolean;
             begin
                 if "Int. Table UID Field Type" = Field.Type::Option then
                     if Direction = Direction::Bidirectional then
@@ -97,7 +113,24 @@ table 5335 "Integration Table Mapping"
                                     JobQueueEntry.Modify();
                                 end;
                         end;
-                    end;
+                    end
+                else begin
+                    IntegrationFieldMapping.SetRange("Integration Table Mapping Name", Rec.Name);
+                    IntegrationFieldMapping.SetRange(Status, IntegrationFieldMapping.Status::Enabled);
+                    NoEnabledFieldMappingsExist := IntegrationFieldMapping.IsEmpty();
+                    IntegrationFieldMapping.SetRange(Direction, Rec.Direction);
+                    if not NoEnabledFieldMappingsExist then
+                        if IntegrationFieldMapping.IsEmpty() then
+                            if GuiAllowed() then
+                                Error(DirectionFieldsErr, Format(Rec.Direction))
+                            else
+                                Error(DirectionFieldsNoUIHintErr, Format(Rec.Direction))
+                end;
+
+                if Rec.Direction <> Rec.Direction::FromIntegrationTable then
+                    if Rec."Multi Company Synch. Enabled" then
+                        Message(ChangeDirectionMultiCompanyMsg);
+
             end;
         }
         field(11; "Int. Tbl. Caption Prefix"; Text[30])
@@ -220,6 +253,22 @@ table 5335 "Integration Table Mapping"
                     Error('');
             end;
         }
+        field(34; "Multi Company Synch. Enabled"; Boolean)
+        {
+            Caption = 'Multi-Company Synchronization Enabled';
+
+            trigger OnValidate()
+            var
+                FeatureTelemetry: Codeunit "Feature Telemetry";
+            begin
+                FeatureTelemetry.LogUptake('0000LCM', 'Dataverse Multi-Company Synch', Enum::"Feature Uptake Status"::Discovered);
+                FeatureTelemetry.LogUptake('0000LCN', 'Dataverse Multi-Company Synch', Enum::"Feature Uptake Status"::"Set up");
+                if Rec."Multi Company Synch. Enabled" then
+                    Rec.EnableMultiCompanySynchronization()
+                else
+                    Rec.DisableMultiCompanySynchronization();
+            end;
+        }
         field(100; "Full Sync is Running"; Boolean)
         {
             Caption = 'Full Sync is Running';
@@ -285,6 +334,18 @@ table 5335 "Integration Table Mapping"
         CompanyIdFieldNameTxt: Label 'CompanyId', Locked = true;
         DisableEventDrivenReshedulingQst: Label 'This will disable the event-based rescheduling of synchronization jobs for this table. \\The frequency of the synchronization job runs is specified in the Inactivity Timeout Period field on the corresponding job queue entry. \\Do you want to continue?';
         EnableEventDrivenReshedulingQst: Label 'This will enable the event-based rescheduling of synchronization jobs for this table. \\The synchronization job will be rescheduled within 30-60 seconds after an insertion, change or deletion on the corresponding table. \\In case of no changes during a long period, the synchronization job will be rescheduled as specified in the Inactivity Timeout Period field on the corresponding job queue entry. \\Do you want to continue?';
+        CompanyFilterRemovedQst: Label 'This will remove the company field filter from Integration Table Filter and make the synchronization engine process %1 entities regardless of their Company field value. Do you want to continue?', Comment = '%1 - a table caption';
+        CompanyFilterRemovedExtendedMsg: Label '%1 entities will be synchronized regardless of their Company field value. To control which entities get synchronized to this company, set the Integration Table Filter on other fields. We strongly recommend to set the direction of this mapping to ''From Integration''. \\If you set it up to synchronize bidirectionally or to synchronize ''To Integration'', to avoid duplicates being created, use match-based coupling or consolidated filtering across companies instead of just unchecking the Synch. Only Coupled Records checkbox. \\If your number series do not guarantee uniqueness of primary key values across multiple companies, then use a transformation rule in the direction ''To Integration'' to add a prefix to primary key values, to ensure their uniqueness in Dataverse.', Comment = '%1 - a table caption';
+        CompanyFilterRemovedShortMsg: Label '%1 entities will be synchronized regardless of their Company field value. To control which entities get synchronized to this company, set the Integration Table Filter on other fields.', Comment = '%1 - a table caption';
+        CompanyFilterResetMsg: Label 'The company field filter on the Integration Table Filter is reset to default.';
+        CompanyFilterStrengthenedQst: Label 'This will remove the company field filter from Integration Table Filter and make the synchronization engine process only %1 entities that correspond to this company. Do you want to continue?', Comment = '%1 - a table caption';
+        CompanyFilterResetToDefaultQst: Label 'This will reset the company field filter from Integration Table Filter to the default. Do you want to continue?';
+        CompanyFilterStrengthenedMsg: Label 'The synchronization will consider only %1 entities that correspond to this company. \\To make Business Central process %1 entities that are originally created in Dynamics 365 Sales, the Dynamics 365 Sales users must set their Company value to match the company %2.', Comment = '%1 - a table caption; %2 - current company name';
+        InstallLatestSolutionConfirmLbl: Label 'This functionality requires the latest integration solution to be imported on your Dataverse environment. You will be prompted to sign in with your Dataverse administrator account credentials. Do you want to continue?';
+        OrTok: Label '%1|%2', Locked = true;
+        ChangeDirectionMultiCompanyMsg: Label 'This mapping is set up for multi-company synchronization. We strongly recommend to set the direction of this mapping to ''From Integration''. \\If you set it up to synchronize bidirectionally or to synchronize ''To Integration'', to avoid duplicates being created, use match-based coupling or consolidated filtering across companies instead of just unchecking the Synch. Only Coupled Records checkbox. \\If your number series do not guarantee uniqueness of primary key values across multiple companies, then use a Transformation Rule in the direction ''To Integration'' to add a prefix to primary key values, to ensure their uniqueness in Dataverse.';
+        DirectionFieldsErr: Label 'You must set the direction of at least one enabled integration field mapping to ''%1''. Choose the Fields action to edit the integration field mappings.', Comment = '%1 - an option value';
+        DirectionFieldsNoUIHintErr: Label 'You must set the direction of at least one enabled integration field mapping to ''%1''.', Comment = '%1 - an option value';
 
     procedure FindFilteredRec(RecordRef: RecordRef; var OutOfMapFilter: Boolean) Found: Boolean
     var
@@ -860,6 +921,120 @@ table 5335 "Integration Table Mapping"
         exit(false)
     end;
 
+    internal procedure EnableMultiCompanySynchronization()
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        CDSCompany: Record "CDS Company";
+        CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
+        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+        CRMSetupDefaults: Codeunit "CRM Setup Defaults";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        IntegrationRecordRef: RecordRef;
+        CompanyIdFieldRef: FieldRef;
+        IsHandled: Boolean;
+    begin
+        OnEnableMultiCompanySynchronization(Rec, IsHandled);
+        if (IsHandled) then
+            exit;
+
+        if Rec.Type <> Rec.Type::Dataverse then
+            exit;
+
+        Codeunit.Run(Codeunit::"CRM Integration Management");
+
+        if CRMIntegrationManagement.IsCRMIntegrationEnabled() then
+            if CRMIntegrationManagement.CheckSolutionVersionOutdated() then
+                if CRMConnectionSetup.Get() then
+                    if GuiAllowed() then
+                        if Confirm(InstallLatestSolutionConfirmLbl) then
+                            CRMConnectionSetup.DeployCRMSolution(true)
+                        else
+                            Error('');
+
+        case Rec."Table ID" of
+            Database::"Sales Header",
+            Database::Opportunity:
+                begin
+                    IntegrationRecordRef.Open(Rec."Integration Table ID");
+
+                    if not CDSIntegrationImpl.FindCompanyIdField(IntegrationRecordRef, CompanyIdFieldRef) then
+                        exit;
+
+                    if not CDSIntegrationMgt.GetCDSCompany(CDSCompany) then
+                        exit;
+
+                    if GuiAllowed() then
+                        if not Confirm(StrSubstNo(CompanyFilterStrengthenedQst, IntegrationRecordRef.Caption())) then
+                            Error('');
+
+                    IntegrationRecordRef.SetView(Rec.GetIntegrationTableFilter());
+                    CompanyIdFieldRef.SetRange(CDSCompany.CompanyId);
+                    Rec.SetIntegrationTableFilter(CRMSetupDefaults.GetTableFilterFromView(Rec."Integration Table ID", IntegrationRecordRef.Caption(), IntegrationRecordRef.GetView()));
+                    if Rec.Modify() then
+                        if GuiAllowed() then
+                            Message(StrSubstNo(CompanyFilterStrengthenedMsg, IntegrationRecordRef.Caption(), CompanyName()));
+                end;
+            else begin
+                IntegrationRecordRef.Open(Rec."Integration Table ID");
+
+                if not CDSIntegrationImpl.FindCompanyIdField(IntegrationRecordRef, CompanyIdFieldRef) then
+                    exit;
+
+                if GuiAllowed() then
+                    if not Confirm(StrSubstNo(CompanyFilterRemovedQst, IntegrationRecordRef.Caption())) then
+                        Error('');
+                IntegrationRecordRef.SetView(Rec.GetIntegrationTableFilter());
+                CompanyIdFieldRef.SetRange();
+                Rec.SetIntegrationTableFilter(CRMSetupDefaults.GetTableFilterFromView(Rec."Integration Table ID", IntegrationRecordRef.Caption(), IntegrationRecordRef.GetView()));
+                if Rec.Modify() then
+                    if GuiAllowed() then
+                        if Rec.Direction = Rec.Direction::FromIntegrationTable then
+                            Message(StrSubstNo(CompanyFilterRemovedShortMsg, IntegrationRecordRef.Caption()))
+                        else
+                            Message(StrSubstNo(CompanyFilterRemovedExtendedMsg, IntegrationRecordRef.Caption()));
+            end;
+        end;
+    end;
+
+    internal procedure DisableMultiCompanySynchronization()
+    var
+        CDSCompany: Record "CDS Company";
+        CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
+        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+        CRMSetupDefaults: Codeunit "CRM Setup Defaults";
+        IntegrationRecordRef: RecordRef;
+        CompanyIdFieldRef: FieldRef;
+        IsHandled: Boolean;
+        EmptyGuid: Guid;
+    begin
+        OnDisableMultiCompanySynchronization(Rec, IsHandled);
+        if (IsHandled) then
+            exit;
+
+        if Rec.Type <> Rec.Type::Dataverse then
+            exit;
+
+        Codeunit.Run(Codeunit::"CRM Integration Management");
+        IntegrationRecordRef.Open(Rec."Integration Table ID");
+
+        if not CDSIntegrationImpl.FindCompanyIdField(IntegrationRecordRef, CompanyIdFieldRef) then
+            exit;
+
+        if not CDSIntegrationMgt.GetCDSCompany(CDSCompany) then
+            exit;
+
+        if GuiAllowed() then
+            if not Confirm(StrSubstNo(CompanyFilterResetToDefaultQst)) then
+                Error('');
+
+        IntegrationRecordRef.SetView(Rec.GetIntegrationTableFilter());
+        CompanyIdFieldRef.SetFilter(StrSubstno(OrTok, CDSCompany.CompanyId, EmptyGuid));
+        Rec.SetIntegrationTableFilter(CRMSetupDefaults.GetTableFilterFromView(Rec."Integration Table ID", IntegrationRecordRef.Caption(), IntegrationRecordRef.GetView()));
+        if Rec.Modify() then
+            if GuiAllowed() then
+                Message(CompanyFilterResetMsg);
+    end;
+
     local procedure OneDayInMiliseconds(): Integer
     begin
         exit(24 * 60 * 60 * 1000)
@@ -872,6 +1047,16 @@ table 5335 "Integration Table Mapping"
 
     [IntegrationEvent(false, false)]
     local procedure OnSynchronizeNow(var IntegrationTableMapping: Record "Integration Table Mapping"; ResetLastSynchModifiedOnDateTime: Boolean; ResetSynchonizationTimestampOnRecords: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    internal procedure OnEnableMultiCompanySynchronization(var IntegrationTableMapping: Record "Integration Table Mapping"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    internal procedure OnDisableMultiCompanySynchronization(var IntegrationTableMapping: Record "Integration Table Mapping"; var IsHandled: Boolean)
     begin
     end;
 

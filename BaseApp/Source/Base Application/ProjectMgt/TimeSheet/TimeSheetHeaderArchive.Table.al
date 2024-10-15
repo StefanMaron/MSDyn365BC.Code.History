@@ -1,3 +1,12 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.TimeSheet;
+
+using Microsoft.Projects.Resources.Resource;
+using System.Security.User;
+
 table 954 "Time Sheet Header Archive"
 {
     Caption = 'Time Sheet Header Archive';
@@ -40,27 +49,27 @@ table 954 "Time Sheet Header Archive"
         }
         field(11; "Unit of Measure"; Code[10])
         {
-            CalcFormula = Lookup(Resource."Base Unit of Measure" WHERE("No." = FIELD("Resource No.")));
+            CalcFormula = Lookup(Resource."Base Unit of Measure" where("No." = field("Resource No.")));
             Caption = 'Unit of Measure';
             FieldClass = FlowField;
             Editable = false;
         }
         field(20; Quantity; Decimal)
         {
-            CalcFormula = Sum("Time Sheet Detail Archive".Quantity WHERE("Time Sheet No." = FIELD("No."),
-                                                                          Status = FIELD("Status Filter"),
-                                                                          "Job No." = FIELD("Job No. Filter"),
-                                                                          "Job Task No." = FIELD("Job Task No. Filter"),
-                                                                          Date = FIELD("Date Filter"),
-                                                                          Posted = FIELD("Posted Filter"),
-                                                                          Type = FIELD("Type Filter")));
+            CalcFormula = sum("Time Sheet Detail Archive".Quantity where("Time Sheet No." = field("No."),
+                                                                          Status = field("Status Filter"),
+                                                                          "Job No." = field("Job No. Filter"),
+                                                                          "Job Task No." = field("Job Task No. Filter"),
+                                                                          Date = field("Date Filter"),
+                                                                          Posted = field("Posted Filter"),
+                                                                          Type = field("Type Filter")));
             Caption = 'Quantity';
             FieldClass = FlowField;
         }
         field(26; Comment; Boolean)
         {
-            CalcFormula = Exist("Time Sheet Comment Line" WHERE("No." = FIELD("No."),
-                                                                 "Time Sheet Line No." = CONST(0)));
+            CalcFormula = exist("Time Sheet Comment Line" where("No." = field("No."),
+                                                                 "Time Sheet Line No." = const(0)));
             Caption = 'Comment';
             Editable = false;
             FieldClass = FlowField;

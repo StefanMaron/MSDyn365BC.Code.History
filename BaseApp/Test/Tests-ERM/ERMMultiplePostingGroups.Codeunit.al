@@ -509,6 +509,86 @@ codeunit 134195 "ERM Multiple Posting Groups"
 
     [Test]
     [Scope('OnPrem')]
+    procedure CheckSalesInvoiceApplyUnapplyMultiplePostingGroups()
+    var
+        Customer: Record Customer;
+        CustomerPostingGroup: Record "Customer Posting Group";
+        CustomerPostingGroup2: Record "Customer Posting Group";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GLEntry: Record "G/L Entry";
+        GLRegister: Record "G/L Register";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        InvoiceNo: Code[20];
+        PaymentNo: Code[20];
+        TotalAmount: Decimal;
+        LastGLRegNo: Integer;
+    begin
+        Initialize();
+
+        SetSalesAllowMultiplePostingGroups(true);
+
+        // Create sales invoice, change customer posting group and post
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Allow Multiple Posting Groups", true);
+        Customer.Modify();
+        CustomerPostingGroup.Get(Customer."Customer Posting Group");
+        LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, "Sales Document Type"::Invoice, Customer."No.", '', 1, '', 0D);
+        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup2);
+        LibrarySales.CreateAltCustomerPostingGroup(Customer."Customer Posting Group", CustomerPostingGroup2.Code);
+        SalesHeader.Validate("Customer Posting Group", CustomerPostingGroup2.Code);
+        SalesHeader.Modify();
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+        SalesLine.Modify();
+        SalesHeader.CalcFields("Amount Including VAT");
+        TotalAmount := SalesHeader."Amount Including VAT";
+
+        InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        GLRegister.FindLast();
+        LastGLRegNo := GLRegister."No.";
+
+        // Create payment with default customer posting group and post
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Customer, Customer."No.", -TotalAmount);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        GenJournalLine.Modify();
+        PaymentNo := GenJournalLine."Document No.";
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        GLRegister.FindLast();
+        LastGLRegNo := GLRegister."No.";
+
+        // Apply payment to invoice - should post 2 G/L entries between Receivables accounts
+        ApplyAndPostCustomerEntry(PaymentNo, InvoiceNo, -TotalAmount, "Gen. Journal Document Type"::Payment, "Gen. Journal Document Type"::Invoice);
+
+        // Verify posted apply G/L entries
+        GLRegister.Get(LastGLRegNo + 1);
+        GLEntry.Reset();
+        GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
+        Assert.AreEqual(2, GLEntry.Count(), 'application G/L entry for invoice not found');
+        VerifyGLEntryForGLAccount(GLEntry, CustomerPostingGroup2."Receivables Account", -TotalAmount);
+        VerifyGLEntryForGLAccount(GLEntry, CustomerPostingGroup."Receivables Account", TotalAmount);
+
+        // Unapply payment - should post 2 reversal G/L entries between Receivables accounts
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, "Gen. Journal Document Type"::Payment, PaymentNo);
+        LibraryERM.UnapplyCustomerLedgerEntry(CustLedgerEntry);
+
+        // Verify posted unapply G/L entries
+        GLRegister.Get(LastGLRegNo + 2);
+        GLEntry.Reset();
+        GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
+        Assert.AreEqual(2, GLEntry.Count(), 'application G/L entry for invoice not found');
+        VerifyGLEntryForGLAccount(GLEntry, CustomerPostingGroup2."Receivables Account", TotalAmount);
+        VerifyGLEntryForGLAccount(GLEntry, CustomerPostingGroup."Receivables Account", -TotalAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure PostSalesInvoiceWithAlternativeCustomerPostingGroup()
     var
         Customer: Record Customer;
@@ -566,6 +646,86 @@ codeunit 134195 "ERM Multiple Posting Groups"
 
     [Test]
     [Scope('OnPrem')]
+    procedure CheckPurchInvoiceApplyUnapplyMultiplePostingGroups()
+    var
+        Vendor: Record Vendor;
+        VendorPostingGroup: Record "Vendor Posting Group";
+        VendorPostingGroup2: Record "Vendor Posting Group";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GLEntry: Record "G/L Entry";
+        GLRegister: Record "G/L Register";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        InvoiceNo: Code[20];
+        PaymentNo: Code[20];
+        TotalAmount: Decimal;
+        LastGLRegNo: Integer;
+    begin
+        Initialize();
+
+        SetPurchAllowMultiplePostingGroups(true);
+
+        // Create purchase invoice, change vendor posting group and post
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Allow Multiple Posting Groups", true);
+        Vendor.Modify();
+        VendorPostingGroup.Get(Vendor."Vendor Posting Group");
+        LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, "Purchase Document Type"::Invoice, Vendor."No.", '', 1, '', 0D);
+        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup2);
+        LibraryPurchase.CreateAltVendorPostingGroup(Vendor."Vendor Posting Group", VendorPostingGroup2.Code);
+        PurchaseHeader.Validate("Vendor Posting Group", VendorPostingGroup2.Code);
+        PurchaseHeader.Modify();
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
+        PurchaseLine.Modify();
+        PurchaseHeader.CalcFields("Amount Including VAT");
+        TotalAmount := PurchaseHeader."Amount Including VAT";
+
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        GLRegister.FindLast();
+        LastGLRegNo := GLRegister."No.";
+
+        // Create payment with default vendor posting group and post
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Vendor, Vendor."No.", TotalAmount);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        GenJournalLine.Modify();
+        PaymentNo := GenJournalLine."Document No.";
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        GLRegister.FindLast();
+        LastGLRegNo := GLRegister."No.";
+
+        // Apply payment to invoice - should post 2 G/L entries between Payables accounts
+        ApplyAndPostVendorEntry(PaymentNo, InvoiceNo, TotalAmount, "Gen. Journal Document Type"::Payment, "Gen. Journal Document Type"::Invoice);
+
+        // Verify posted apply G/L entries
+        GLRegister.Get(LastGLRegNo + 1);
+        GLEntry.Reset();
+        GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
+        Assert.AreEqual(2, GLEntry.Count(), 'application G/L entry for invoice not found');
+        VerifyGLEntryForGLAccount(GLEntry, VendorPostingGroup2."Payables Account", TotalAmount);
+        VerifyGLEntryForGLAccount(GLEntry, VendorPostingGroup."Payables Account", -TotalAmount);
+
+        // Unapply payment - should post 2 reversal G/L entries between Payables accounts
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, "Gen. Journal Document Type"::Payment, PaymentNo);
+        LibraryERM.UnapplyVendorLedgerEntry(VendorLedgerEntry);
+
+        // Verify posted unapply G/L entries
+        GLRegister.Get(LastGLRegNo + 2);
+        GLEntry.Reset();
+        GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
+        Assert.AreEqual(2, GLEntry.Count(), 'application G/L entry for invoice not found');
+        VerifyGLEntryForGLAccount(GLEntry, VendorPostingGroup2."Payables Account", -TotalAmount);
+        VerifyGLEntryForGLAccount(GLEntry, VendorPostingGroup."Payables Account", TotalAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure CheckPostPurchaseInvoiceWithAnotherVendorPostingGroup()
     var
         Vendor: Record Vendor;
@@ -579,7 +739,7 @@ codeunit 134195 "ERM Multiple Posting Groups"
 
         SetPurchAllowMultiplePostingGroups(true);
 
-        // Create sales invoice, change customer posting group and post
+        // Create purchase invoice, change vendor posting group and post
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Allow Multiple Posting Groups", true);
         Vendor.Modify();
@@ -772,5 +932,51 @@ codeunit 134195 "ERM Multiple Posting Groups"
         SalesInvoiceHeader.FindFirst();
         exit(SalesInvoiceHeader."No.");
     end;
+
+    local procedure ApplyAndPostCustomerEntry(DocumentNo: Code[20]; DocumentNo2: Code[20]; AmountToApply: Decimal; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type")
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustLedgerEntry2: Record "Cust. Ledger Entry";
+    begin
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
+        LibraryERM.SetApplyCustomerEntry(CustLedgerEntry, AmountToApply);
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry2, DocumentType2, DocumentNo2);
+        CustLedgerEntry2.FindSet();
+        repeat
+            CustLedgerEntry2.CalcFields("Remaining Amount");
+            CustLedgerEntry2.Validate("Amount to Apply", CustLedgerEntry2."Remaining Amount");
+            CustLedgerEntry2.Modify(true);
+        until CustLedgerEntry2.Next() = 0;
+
+        LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry2);
+        LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
+    end;
+
+    local procedure ApplyAndPostVendorEntry(DocumentNo: Code[20]; DocumentNo2: Code[20]; AmountToApply: Decimal; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type")
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VendorLedgerEntry2: Record "Vendor Ledger Entry";
+    begin
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocumentType, DocumentNo);
+        LibraryERM.SetApplyVendorEntry(VendorLedgerEntry, AmountToApply);
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry2, DocumentType2, DocumentNo2);
+        VendorLedgerEntry2.FindSet();
+        repeat
+            VendorLedgerEntry2.CalcFields("Remaining Amount");
+            VendorLedgerEntry2.Validate("Amount to Apply", VendorLedgerEntry2."Remaining Amount");
+            VendorLedgerEntry2.Modify(true);
+        until VendorLedgerEntry2.Next() = 0;
+
+        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry2);
+        LibraryERM.PostVendLedgerApplication(VendorLedgerEntry);
+    end;
+
+    local procedure VerifyGLEntryForGLAccount(var GLEntry: Record "G/L Entry"; AccountNo: Code[20]; Amount: Decimal)
+    begin
+        GLEntry.SetRange("G/L Account No.", AccountNo);
+        GLEntry.FindFirst();
+        Assert.AreEqual(Amount, GLEntry.Amount, StrSubstNo('G/L entry amount %1 for posting group %2 is not correct', GLEntry.Amount, AccountNo));
+    end;
 }
+
 

@@ -1,10 +1,78 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Utilities;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
+using Microsoft.CRM.Team;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Inventory.Location;
+using Microsoft.Foundation.Reporting;
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Projects.Project.Ledger;
+using Microsoft.Projects.Project.Planning;
+using Microsoft.Projects.Project.Posting;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.UOM;
+using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Warehouse.Structure;
+using Microsoft.Inventory.BOM;
+using Microsoft.CRM.Campaign;
+using Microsoft.Foundation.Comment;
+using Microsoft.CRM.Contact;
+using Microsoft.Service.Contract;
+using Microsoft.Foundation.Address;
+using Microsoft.Finance.Currency;
+using Microsoft.Sales.Receivables;
+using Microsoft.Finance.Dimension;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Pricing.PriceList;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Foundation.ExtendedText;
+using Microsoft.Service.Maintenance;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.CRM.Interaction;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Item.Substitution;
+using Microsoft.Service.Loaner;
+using Microsoft.Manufacturing.Setup;
+using Microsoft.Bank.BankAccount;
+using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Inventory.Planning;
+using Microsoft.Pricing.Asset;
+using Microsoft.Pricing.Source;
+using Microsoft.Pricing.Worksheet;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Purchases.Document;
+using Microsoft.Projects.Resources.Resource;
+#if not CLEAN21
+using Microsoft.Projects.Resources.Pricing;
+#endif
+using Microsoft.Service.Resources;
+using Microsoft.Sales.History;
+using Microsoft.Sales.Pricing;
+using Microsoft.CRM.Segment;
+using Microsoft.Service.Pricing;
+using Microsoft.Service.Comment;
+using Microsoft.Service.Document;
+using Microsoft.Service.Email;
+using Microsoft.Service.History;
+using Microsoft.Service.Item;
+using Microsoft.Service.Ledger;
+using Microsoft.Service.Setup;
+using Microsoft.Finance.SalesTax;
+using Microsoft.Inventory.Transfer;
+using System.Security.User;
+
 permissionset 8611 "Service Documents - Edit"
 {
     Access = Public;
     Assignable = false;
     Caption = 'Create orders,quotes,etc.';
-
-    IncludedPermissionSets = "Language - Read";
 
     Permissions = tabledata "Alt. Customer Posting Group" = R,
                   tabledata Bin = R,

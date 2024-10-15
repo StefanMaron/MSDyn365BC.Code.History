@@ -1,3 +1,21 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Service.Contract;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Pricing.PriceList;
+using Microsoft.Pricing.Asset;
+using Microsoft.Pricing.Source;
+using Microsoft.Pricing.Worksheet;
+using Microsoft.Service.Pricing;
+using Microsoft.Service.Comment;
+using Microsoft.Service.History;
+using Microsoft.Service.Document;
+using Microsoft.Service.Email;
+using Microsoft.Service.Item;
+using Microsoft.Service.Ledger;
+using Microsoft.Service.Setup;
+using Microsoft.Service.Posting;
+
 permissionset 460 "D365PREM SMG, VIEW"
 {
     Assignable = true;

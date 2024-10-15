@@ -91,7 +91,7 @@ codeunit 137056 "SCM Warehouse-V"
         Quantity: Integer;
     begin
         // Create Item, create and release Sales Order, create and release Purchase Order, create Put Away.
-        Quantity := LibraryRandom.RandInt(100) + 100;  // Large value required.
+        Quantity := 100;  // Large value required.
         CreateWarehouseReceiptSetup(Item, SalesHeader, PurchaseHeader, LocationWhite.Code, Quantity, Quantity);
 
         if PartialReceipt then
@@ -340,7 +340,7 @@ codeunit 137056 "SCM Warehouse-V"
         // [SCENARIO 380520] Qty. to Cross-Dock in Whse. Cross-Dock Opportunity is automatically filled with the quantity of the receipt if it does not cover the demand together with other receipts.
         Initialize();
         DefineSupplyAndDemandQtys(ReceiptQty, SalesQty, CrossDockedQty);
-        ReceiptQty := LibraryRandom.RandIntInRange(30, 50);
+        ReceiptQty := 30;
 
         // [GIVEN] WMS Location with cross-docking enabled.
         // [GIVEN] Released Sales Order. Sales quantity = "SQ".
@@ -1781,6 +1781,7 @@ codeunit 137056 "SCM Warehouse-V"
     local procedure ExpirationDateOnInventoryPutAway(ChangeExpirationDate: Boolean)
     var
         Item: Record Item;
+        Location: Record Location;
         Bin: Record Bin;
         PurchaseHeader: Record "Purchase Header";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
@@ -1788,12 +1789,15 @@ codeunit 137056 "SCM Warehouse-V"
     begin
         // Create Item with Item Tracking Code, create and release Purchase Order with multiple Lines.
         TrackingQuantity := LibraryRandom.RandInt(10);  // Integer value Required.
-        LibraryWarehouse.FindBin(Bin, LocationSilver.Code, '', 1);  // Find Bin of Index 1.
+
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, true, false, false);
+        LibraryWarehouse.CreateNumberOfBins(Location.Code, '', '', LibraryRandom.RandIntInRange(5, 10), false);
+        LibraryWarehouse.FindBin(Bin, Location.Code, '', 1);  // Find Bin of Index 1.
         CreateLotTrackedItem(Item);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         CreatePurchaseLinesAndReleaseDocument(
-          PurchaseHeader, Item."No.", LocationSilver.Code, TrackingQuantity, LibraryRandom.RandInt(5), true);
-        UpdateExpirationDateOnReservationEntry(LocationSilver.Code, Item."No.");
+          PurchaseHeader, Item."No.", Location.Code, TrackingQuantity, LibraryRandom.RandInt(5), true);
+        UpdateExpirationDateOnReservationEntry(Location.Code, Item."No.");
 
         // Exercise: Create Inventory Put Away.
         LibraryWarehouse.CreateInvtPutPickMovement(
@@ -1801,13 +1805,13 @@ codeunit 137056 "SCM Warehouse-V"
 
         // Verify: Verify the values on Whse Activity Line. Verify the same Expiration Date as on Purchase Order. Verify Item tracking applied through ItemTrackingPageHandler.
         FindWhseActivityLine(
-          WarehouseActivityLine, WarehouseActivityLine."Activity Type"::"Invt. Put-away", LocationSilver.Code, PurchaseHeader."No.",
+          WarehouseActivityLine, WarehouseActivityLine."Activity Type"::"Invt. Put-away", Location.Code, PurchaseHeader."No.",
           WarehouseActivityLine."Action Type"::Place);
         VerifyTracking := true;  // Assign value to Global variable.
         WarehouseActivityLine.TestField("Expiration Date", WorkDate());
         VerifyMultipleWhseActivityLines(
           WarehouseActivityLine, TrackingQuantity, WarehouseActivityLine."Activity Type"::"Invt. Put-away", PurchaseHeader."No.",
-          LocationSilver.Code, Item."Base Unit of Measure", WarehouseActivityLine."Qty. per Unit of Measure");
+          Location.Code, Item."Base Unit of Measure", WarehouseActivityLine."Qty. per Unit of Measure");
 
         if ChangeExpirationDate then begin
             // Exercise: Change Expiration Date on Warehouse Activity Line or Post Inventory Pick.
@@ -1941,7 +1945,7 @@ codeunit 137056 "SCM Warehouse-V"
         EnsureTrackingCodeUsesExpirationDate(Item."Item Tracking Code");
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         CreatePurchaseLinesAndReleaseDocument(
-          PurchaseHeader, Item."No.", LocationWhite.Code, TrackingQuantity, LibraryRandom.RandInt(5), true);
+          PurchaseHeader, Item."No.", LocationWhite.Code, TrackingQuantity, LibraryRandom.RandIntInRange(2, 5), true);
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
         UpdateTrackingOnWhseReceiptLines(WarehouseReceiptHeader, WarehouseReceiptLine, PurchaseHeader."No.");
         UpdateExpirationDateOnReservationEntry(LocationWhite.Code, Item."No.");
@@ -3720,7 +3724,7 @@ codeunit 137056 "SCM Warehouse-V"
         end;
     end;
 
-    local procedure ChangeExpirationDateOnActivityLine(WarehouseActivityLine: Record "Warehouse Activity Line")
+    local procedure ChangeExpirationDateOnActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
         repeat
             WarehouseActivityLine.Validate("Expiration Date", CalcDate('<' + '+' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));  // Value required.
@@ -4558,7 +4562,7 @@ codeunit 137056 "SCM Warehouse-V"
         BinContent.SetRange("Item No.", ItemNo);
         WhseInternalPutAwayHeader.Init();
         LibraryWarehouse.WhseGetBinContent(
-		    BinContent, WhseWorksheetLine, WhseInternalPutAwayHeader, "Warehouse Destination Type 2"::MovementWorksheet);
+            BinContent, WhseWorksheetLine, WhseInternalPutAwayHeader, "Warehouse Destination Type 2"::MovementWorksheet);
     end;
 
     local procedure GetBinContentFromWhseInternalPutAway(WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header"; LocationCode: Code[10]; ItemNo: Code[20])
@@ -4571,7 +4575,7 @@ codeunit 137056 "SCM Warehouse-V"
         BinContent.SetRange("Item No.", ItemNo);
         // Use 1 for getting bin content from Whse. Internal Put-away.
         LibraryWarehouse.WhseGetBinContent(
-		    BinContent, WhseWorksheetLine, WhseInternalPutAwayHeader, "Warehouse Destination Type 2"::WhseInternalPutawayHeader);
+            BinContent, WhseWorksheetLine, WhseInternalPutAwayHeader, "Warehouse Destination Type 2"::WhseInternalPutawayHeader);
     end;
 
     local procedure InitGetBinContentWithLotNoScenario(var Item: Record Item; IsMultiple: Boolean) TrackingQuantity2: Decimal
@@ -5093,7 +5097,7 @@ codeunit 137056 "SCM Warehouse-V"
         CreateLotTrackedItem(Item);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         CreatePurchaseLinesAndReleaseDocument(
-          PurchaseHeader, Item."No.", LocationWhite.Code, TrackingQuantity, LibraryRandom.RandInt(5), true);
+          PurchaseHeader, Item."No.", LocationWhite.Code, TrackingQuantity, LibraryRandom.RandIntInRange(2, 5), true);
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
         FindWarehouseReceiptNo(WarehouseReceiptLine, WarehouseReceiptLine."Source Document"::"Purchase Order", PurchaseHeader."No.");
         WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");

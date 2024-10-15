@@ -1,3 +1,18 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.EServices.EDocument;
+
+using Microsoft.Bank.Reconciliation;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Foundation.Navigate;
+using System.Automation;
+using System.Device;
+using System.Environment;
+using System.IO;
+using System.Utilities;
+
 page 190 "Incoming Documents"
 {
     AdditionalSearchTerms = 'electronic document,e-invoice,ocr,ecommerce,document exchange,import invoice';
@@ -85,7 +100,7 @@ page 190 "Incoming Documents"
                     var
                         ErrorMessage: Record "Error Message";
                     begin
-                        ErrorMessage.SetContext(RecordId);
+                        ErrorMessage.SetContext(Rec.RecordId);
                         ErrorMessage.ShowErrorMessages(false);
                     end;
                 }
@@ -190,7 +205,7 @@ page 190 "Incoming Documents"
             {
                 ApplicationArea = Basic, Suite;
                 ShowFilter = false;
-                SubPageLink = "Incoming Document Entry No." = FIELD("Entry No.");
+                SubPageLink = "Incoming Document Entry No." = field("Entry No.");
             }
             systempart(Control19; Notes)
             {
@@ -278,7 +293,7 @@ page 190 "Incoming Documents"
                         PAGE.RunModal(PAGE::"OCR Service Setup");
                         CurrPage.Update();
                         if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Web then
-                            if OCRIsEnabled() then begin
+                            if Rec.OCRIsEnabled() then begin
                                 OnCloseIncomingDocumentsFromActions(Rec);
                                 CurrPage.Close();
                             end;
@@ -297,7 +312,7 @@ page 190 "Incoming Documents"
                 var
                     ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                 begin
-                    ApprovalsMgmt.OpenApprovalEntriesPage(RecordId);
+                    ApprovalsMgmt.OpenApprovalEntriesPage(Rec.RecordId);
                 end;
             }
         }
@@ -778,7 +793,7 @@ page 190 "Incoming Documents"
 
     trigger OnAfterGetCurrRecord()
     begin
-        IsDataExchTypeEditable := not (Status in [Status::Created, Status::Posted]);
+        IsDataExchTypeEditable := not (Rec.Status in [Rec.Status::Created, Rec.Status::Posted]);
         StatusStyleText := Rec.GetStatusStyleText();
         SetControlVisibility();
         CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromIncomingDocument(Rec);
@@ -813,7 +828,6 @@ page 190 "Incoming Documents"
         IncomingDocumentsSetup: Record "Incoming Documents Setup";
         ClientTypeManagement: Codeunit "Client Type Management";
         Camera: Codeunit Camera;
-        [InDataSet]
         HasCamera: Boolean;
         StatusStyleText: Text;
         MultiSelectAction: Enum "Incoming Doc. Selection Action";
@@ -839,40 +853,40 @@ page 190 "Incoming Documents"
 
         CurrPage.SetSelectionFilter(IncomingDocument);
         if IncomingDocument.FindSet() then
-                repeat
-                    case ActionName of
-                        "Incoming Doc. Selection Action"::CreateDocument:
-                            IncomingDocument.CreateDocumentWithDataExchange();
-                        "Incoming Doc. Selection Action"::CreateManually:
-                            IncomingDocument.CreateManually();
-                        "Incoming Doc. Selection Action"::CreateGenJnlLine:
-                            IncomingDocument.CreateGenJnlLine();
-                        "Incoming Doc. Selection Action"::CreateGenJnlLineWithDataExchange:
-                            IncomingDocument.CreateGeneralJournalLineWithDataExchange();
-                        "Incoming Doc. Selection Action"::CreatePurchInvoice:
-                            IncomingDocument.CreatePurchInvoice();
-                        "Incoming Doc. Selection Action"::CreatePurchCreditMemo:
-                            IncomingDocument.CreatePurchCreditMemo();
-                        "Incoming Doc. Selection Action"::CreateSalesInvoice:
-                            IncomingDocument.CreateSalesInvoice();
-                        "Incoming Doc. Selection Action"::CreateSalesCreditMemo:
-                            IncomingDocument.CreateSalesCreditMemo();
-                        "Incoming Doc. Selection Action"::Release:
-                            ReleaseIncomingDocument.PerformManualRelease(IncomingDocument);
-                        "Incoming Doc. Selection Action"::Reopen:
-                            ReleaseIncomingDocument.PerformManualReopen(IncomingDocument);
-                        "Incoming Doc. Selection Action"::Reject:
-                            ReleaseIncomingDocument.PerformManualReject(IncomingDocument);
-                        "Incoming Doc. Selection Action"::SetReadyForOcr:
-                            IncomingDocument.SendToJobQueue(false);
-                        "Incoming Doc. Selection Action"::UndoReadyForOcr:
-                            IncomingDocument.RemoveFromJobQueue(false);
-                        "Incoming Doc. Selection Action"::SendToOcr:
-                            IncomingDocument.SendToOCR(false);
-                        else
-                            OnRunIncomingDocumentMultiSelectActionOnCaseElse(IncomingDocument, ActionName);
-                    end;
-                until IncomingDocument.Next() = 0;
+            repeat
+                case ActionName of
+                    "Incoming Doc. Selection Action"::CreateDocument:
+                        IncomingDocument.CreateDocumentWithDataExchange();
+                    "Incoming Doc. Selection Action"::CreateManually:
+                        IncomingDocument.CreateManually();
+                    "Incoming Doc. Selection Action"::CreateGenJnlLine:
+                        IncomingDocument.CreateGenJnlLine();
+                    "Incoming Doc. Selection Action"::CreateGenJnlLineWithDataExchange:
+                        IncomingDocument.CreateGeneralJournalLineWithDataExchange();
+                    "Incoming Doc. Selection Action"::CreatePurchInvoice:
+                        IncomingDocument.CreatePurchInvoice();
+                    "Incoming Doc. Selection Action"::CreatePurchCreditMemo:
+                        IncomingDocument.CreatePurchCreditMemo();
+                    "Incoming Doc. Selection Action"::CreateSalesInvoice:
+                        IncomingDocument.CreateSalesInvoice();
+                    "Incoming Doc. Selection Action"::CreateSalesCreditMemo:
+                        IncomingDocument.CreateSalesCreditMemo();
+                    "Incoming Doc. Selection Action"::Release:
+                        ReleaseIncomingDocument.PerformManualRelease(IncomingDocument);
+                    "Incoming Doc. Selection Action"::Reopen:
+                        ReleaseIncomingDocument.PerformManualReopen(IncomingDocument);
+                    "Incoming Doc. Selection Action"::Reject:
+                        ReleaseIncomingDocument.PerformManualReject(IncomingDocument);
+                    "Incoming Doc. Selection Action"::SetReadyForOcr:
+                        IncomingDocument.SendToJobQueue(false);
+                    "Incoming Doc. Selection Action"::UndoReadyForOcr:
+                        IncomingDocument.RemoveFromJobQueue(false);
+                    "Incoming Doc. Selection Action"::SendToOcr:
+                        IncomingDocument.SendToOCR(false);
+                    else
+                        OnRunIncomingDocumentMultiSelectActionOnCaseElse(IncomingDocument, ActionName);
+                end;
+            until IncomingDocument.Next() = 0;
 
 #if not CLEAN21
         OnAfterIncomingDocumentMultiSelectAction(IncomingDocument, ActionName.AsInteger());
@@ -906,10 +920,10 @@ page 190 "Incoming Documents"
     var
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
-        OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
+        OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(Rec.RecordId);
         EnableReceiveFromOCR := Rec.WaitingToReceiveFromOCR();
         UpdateOCRSetupVisibility();
-        CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
+        CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(Rec.RecordId);
         AutomaticCreationActionsAreEnabled := Rec."Data Exchange Type" <> '';
     end;
 

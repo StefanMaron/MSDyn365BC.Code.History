@@ -1,3 +1,10 @@
+namespace Microsoft.Finance.VAT.Reporting;
+
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.Company;
+using System;
+using System.Xml;
+
 codeunit 141 "EC Sales List Populate XML"
 {
 

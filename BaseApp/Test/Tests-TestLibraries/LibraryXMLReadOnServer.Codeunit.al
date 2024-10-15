@@ -127,7 +127,7 @@ codeunit 131341 "Library - XML Read OnServer"
     begin
         NodesCount := GetNodeListByElementName(NodeName, NodeList);
         if (Index < 0) or (Index >= NodesCount) then
-            Error(StrSubstNo(NodeIndexOutOfBoundsErr, NodeName, Index, NodesCount));
+            Error(NodeIndexOutOfBoundsErr, NodeName, Index, NodesCount);
         XMLNode := NodeList.Item(Index);
         exit(CopyStr(XMLNode.InnerText, 1, 1024));
     end;

@@ -21,7 +21,7 @@ page 2134 "O365 Import Export Settings"
             repeater(Control2)
             {
                 ShowCaption = false;
-                field(Title; Title)
+                field(Title; Rec.Title)
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                 }
@@ -49,7 +49,7 @@ page 2134 "O365 Import Export Settings"
 
                 trigger OnAction()
                 begin
-                    OpenPage();
+                    Rec.OpenPage();
                 end;
             }
         }
@@ -74,16 +74,16 @@ page 2134 "O365 Import Export Settings"
         DummyItem: Record Item;
         ClientTypeManagement: Codeunit "Client Type Management";
     begin
-        InsertPageMenuItem(PAGE::"O365 Export Invoices", ExportTitleLbl, ExportDescriptionLbl);
+        Rec.InsertPageMenuItem(PAGE::"O365 Export Invoices", ExportTitleLbl, ExportDescriptionLbl);
         OnInsertMenuItems(Rec);
 
         if ClientTypeManagement.GetCurrentClientType() <> CLIENTTYPE::Phone then begin
-            InsertPageWithParameterMenuItem(
+            Rec.InsertPageWithParameterMenuItem(
               PAGE::"O365 Import from Excel Wizard",
               DummyCustomer.TableName,
               ImportCustomersTieleLbl,
               ImportCustomersDesriptionLbl);
-            InsertPageWithParameterMenuItem(
+            Rec.InsertPageWithParameterMenuItem(
               PAGE::"O365 Import from Excel Wizard",
               DummyItem.TableName,
               ImportItemsTieleLbl,

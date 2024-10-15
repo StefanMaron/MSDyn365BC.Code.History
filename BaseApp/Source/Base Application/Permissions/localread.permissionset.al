@@ -1,3 +1,12 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Bank.Ledger;
+using Microsoft.Sales.FinanceCharge;
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Finance.Analysis;
+using Microsoft.Foundation.Address;
+
 permissionset 1002 "LOCAL READ"
 {
     Access = Public;

@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.FinancialReports;
+
 page 196 "Acc. Sched. KPI Web Srv. Lines"
 {
     Caption = 'Financial Report KPI Web Service Setup';

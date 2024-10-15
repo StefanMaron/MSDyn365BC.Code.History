@@ -1,3 +1,8 @@
+namespace Microsoft.Service.Contract;
+
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Ledger;
+
 page 6052 "Service Contract Subform"
 {
     AutoSplitKey = true;
@@ -7,7 +12,7 @@ page 6052 "Service Contract Subform"
     MultipleNewLines = true;
     PageType = ListPart;
     SourceTable = "Service Contract Line";
-    SourceTableView = WHERE("Contract Type" = FILTER(Contract));
+    SourceTableView = where("Contract Type" = filter(Contract));
 
     layout
     {
@@ -27,7 +32,7 @@ page 6052 "Service Contract Subform"
                     begin
                         OnBeforeServiceItemNoLookup();
                         ServContractMgt.LookupServItemNo(Rec);
-                        if xRec.Get("Contract Type", "Contract No.", "Line No.") then;
+                        if xRec.Get(Rec."Contract Type", Rec."Contract No.", Rec."Line No.") then;
                     end;
                 }
                 field(Description; Rec.Description)
@@ -54,9 +59,9 @@ page 6052 "Service Contract Subform"
                     trigger OnAssistEdit()
                     begin
                         Clear(ItemLedgerEntry);
-                        ItemLedgerEntry.SetRange("Item No.", "Item No.");
-                        ItemLedgerEntry.SetRange("Variant Code", "Variant Code");
-                        ItemLedgerEntry.SetRange("Serial No.", "Serial No.");
+                        ItemLedgerEntry.SetRange("Item No.", Rec."Item No.");
+                        ItemLedgerEntry.SetRange("Variant Code", Rec."Variant Code");
+                        ItemLedgerEntry.SetRange("Serial No.", Rec."Serial No.");
                         PAGE.Run(PAGE::"Item Ledger Entries", ItemLedgerEntry);
                     end;
                 }
@@ -70,8 +75,8 @@ page 6052 "Service Contract Subform"
                     var
                         Item: Record "Item";
                     begin
-                        if "Variant Code" = '' then
-                            VariantCodeMandatory := Item.IsVariantMandatory(true, "Item No.");
+                        if Rec."Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(true, Rec."Item No.");
                     end;
                 }
                 field("Variant Code"; Rec."Variant Code")
@@ -85,8 +90,8 @@ page 6052 "Service Contract Subform"
                     var
                         Item: Record "Item";
                     begin
-                        if "Variant Code" = '' then
-                            VariantCodeMandatory := Item.IsVariantMandatory(true, "Item No.");
+                        if Rec."Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(true, Rec."Item No.");
                     end;
                 }
                 field("Response Time (Hours)"; Rec."Response Time (Hours)")
@@ -120,7 +125,7 @@ page 6052 "Service Contract Subform"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
                 }
-                field(Profit; Profit)
+                field(Profit; Rec.Profit)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the profit, expressed as the difference between the Line Amount and Line Cost fields on the service contract line.';
@@ -168,7 +173,7 @@ page 6052 "Service Contract Subform"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when you can create a credit memo for the service item that needs to be removed from the service contract.';
                 }
-                field(Credited; Credited)
+                field(Credited; Rec.Credited)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies if the service contract line has been credited.';
@@ -200,7 +205,7 @@ page 6052 "Service Contract Subform"
 
                     trigger OnAction()
                     begin
-                        ShowComments();
+                        Rec.ShowComments();
                     end;
                 }
             }
@@ -209,7 +214,7 @@ page 6052 "Service Contract Subform"
 
     trigger OnDeleteRecord(): Boolean
     begin
-        if "Contract Status" = "Contract Status"::Signed then begin
+        if Rec."Contract Status" = Rec."Contract Status"::Signed then begin
             ServContractLine.CopyFilters(Rec);
             CurrPage.SetSelectionFilter(ServContractLine);
             NoOfSelectedLines := ServContractLine.Count();
@@ -220,15 +225,15 @@ page 6052 "Service Contract Subform"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetUpNewLine();
+        Rec.SetUpNewLine();
     end;
 
     trigger OnAfterGetRecord()
     var
         Item: Record Item;
     begin
-        if "Variant Code" = '' then
-            VariantCodeMandatory := Item.IsVariantMandatory(true, "Item No.");
+        if Rec."Variant Code" = '' then
+            VariantCodeMandatory := Item.IsVariantMandatory(true, Rec."Item No.");
     end;
 
     var

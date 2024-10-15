@@ -1,3 +1,20 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.EServices.EDocument;
+
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.History;
+using Microsoft.Sales.Document;
+using System;
+using System.IO;
+using Microsoft.Utilities;
+using System.Reflection;
+using System.Utilities;
+using System.Xml;
+
 table 133 "Incoming Document Attachment"
 {
     Caption = 'Incoming Document Attachment';
@@ -338,19 +355,24 @@ table 133 "Incoming Document Attachment"
     begin
         OnBeforeExport(Rec);
 
-        if "Incoming Document Entry No." = 0 then
-            exit;
-        CalcFields(Content);
-        if not Content.HasValue() then
+        if not GetContent(TempBlob) then
             exit;
 
         if DefaultFileName = '' then
             DefaultFileName := Name + '.' + "File Extension";
 
+        exit(FileMgt.BLOBExport(TempBlob, DefaultFileName, ShowFileDialog));
+    end;
+
+    procedure GetContent(var TempBlob: Codeunit "Temp Blob"): Boolean
+    begin
+        if "Incoming Document Entry No." = 0 then
+            exit(false);
+
         OnGetBinaryContent(TempBlob, "Incoming Document Entry No.");
         if not TempBlob.HasValue() then
             TempBlob.FromRecord(Rec, FieldNo(Content));
-        exit(FileMgt.BLOBExport(TempBlob, DefaultFileName, ShowFileDialog));
+        exit(TempBlob.HasValue());
     end;
 
     procedure DeleteAttachment()
@@ -465,7 +487,7 @@ table 133 "Incoming Document Attachment"
         TempBlob.CreateInStream(InStream);
         if not XMLDOMManagement.LoadXMLNodeFromInStream(InStream, XMLRootNode) then
             exit;
-        if not IncomingDocument.Get("Incoming Document Entry No.") then
+        if not IncomingDocument.Get(Rec."Incoming Document Entry No.") then
             exit;
         ExtractHeaderFields(XMLRootNode, IncomingDocument);
     end;

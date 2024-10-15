@@ -1,3 +1,42 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using Microsoft.Bank.Payment;
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Finance.VAT.Registration;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.AllocationAccount;
+using Microsoft.Finance.Analysis;
+using Microsoft.Bank.Reconciliation;
+using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.Ledger;
+using Microsoft.Bank.Statement;
+using Microsoft.Bank.Setup;
+using Microsoft.Finance.Consolidation;
+using Microsoft.Bank.Check;
+using Microsoft.Foundation.Comment;
+using Microsoft.Finance.Currency;
+using Microsoft.Sales.Receivables;
+using System.IO;
+using Microsoft.Purchases.Payables;
+using Microsoft.HumanResources.Payables;
+using Microsoft.HumanResources.Employee;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Budget;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Journal;
+using System.Xml;
+using Microsoft.Finance.SalesTax;
+using System.Security.User;
+using Microsoft.Foundation.Period;
+using Microsoft.Foundation.BatchProcessing;
+
 permissionset 6720 "General Ledger - Edit"
 {
     Access = Public;
@@ -5,6 +44,10 @@ permissionset 6720 "General Ledger - Edit"
     Caption = 'G/L periodic activities';
 
     Permissions = tabledata "Accounting Period" = RIMD,
+                  tabledata "Alloc. Acc. Manual Override" = RIMD,
+                  tabledata "Alloc. Account Distribution" = RIMD,
+                  tabledata "Allocation Account" = RIMD,
+                  tabledata "Allocation Line" = RIMD,
                   tabledata "Analysis View" = RIMD,
                   tabledata "Analysis View Budget Entry" = RIMD,
                   tabledata "Analysis View Entry" = RIMD,
@@ -72,9 +115,6 @@ permissionset 6720 "General Ledger - Edit"
                   tabledata "General Posting Setup" = R,
                   tabledata "Intermediate Data Import" = Rimd,
                   tabledata "Ledger Entry Matching Buffer" = RIMD,
-#if not CLEAN20
-                  tabledata "Native - Payment" = RIMD,
-#endif
                   tabledata "Outstanding Bank Transaction" = RIMD,
                   tabledata "Payment Application Proposal" = RIMD,
                   tabledata "Payment Export Data" = Rimd,

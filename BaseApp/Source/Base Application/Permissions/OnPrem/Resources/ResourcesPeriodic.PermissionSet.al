@@ -1,3 +1,20 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Finance.Currency;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Pricing.PriceList;
+using Microsoft.Pricing.Asset;
+using Microsoft.Pricing.Source;
+using Microsoft.Pricing.Worksheet;
+using Microsoft.Projects.Resources.Ledger;
+using Microsoft.Projects.Resources.Resource;
+#if not CLEAN21
+using Microsoft.Projects.Resources.Pricing;
+#endif
+using Microsoft.Foundation.Period;
+using Microsoft.Utilities;
+using Microsoft.Foundation.AuditCodes;
+
 permissionset 9338 "Resources - Periodic"
 {
     Access = Public;

@@ -42,6 +42,7 @@
         NonzeroACYErr: Label 'Non-zero Additional-Currency Amount in G/L Entry.';
         GLEntryCntErr: Label 'Wrong count of created G/L Entries.';
         DimBalanceErr: Label 'Wrong balance by Dimension.';
+        OptionValue: Integer;
 
     [Test]
     [Scope('OnPrem')]
@@ -733,7 +734,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('ApplyVendorEntriesPageHandler')]
+    [HandlerFunctions('ApplyVendorEntriesPageHandler,PaymentToleranceWarning')]
     [Scope('OnPrem')]
     procedure ApplyAndUnapplyPaymentJournal()
     var
@@ -1171,7 +1172,7 @@
           VendorLedgerEntry."Document Type"::Payment, DocumentNo[2], 0);
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('UnapplyVendorEntriesPageHandler,ConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -1350,7 +1351,7 @@
         VATEntry.TestField("Additional-Currency Amount");
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
@@ -2864,6 +2865,15 @@
           0, PageControlValue, ApplyVendorEntries.ControlBalance.Caption);
 
         ApplyVendorEntries.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PaymentToleranceWarning(var PaymentToleranceWarning: Page "Payment Tolerance Warning"; var Response: Action)
+    begin
+        // Modal Page Handler for Payment Tolerance Warning.
+        PaymentToleranceWarning.InitializeOption(OptionValue);
+        Response := ACTION::Yes
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Exch. Rate Adjmt. Run Handler", 'OnBeforeRunVendExchRateAdjustment', '', false, false)]

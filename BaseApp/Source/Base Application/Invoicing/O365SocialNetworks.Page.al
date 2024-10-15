@@ -22,7 +22,7 @@ page 2162 "O365 Social Networks"
                     Editable = false;
                     ToolTip = 'Specifies the name.';
                 }
-                field(URL; URL)
+                field(URL; Rec.URL)
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                 }

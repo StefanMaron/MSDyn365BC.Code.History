@@ -9,7 +9,7 @@ page 134093 "Table With Link To G/L Account"
         {
             repeater(Group)
             {
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = All;
                 }

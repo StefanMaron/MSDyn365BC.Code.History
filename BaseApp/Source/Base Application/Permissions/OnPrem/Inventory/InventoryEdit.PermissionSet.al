@@ -1,10 +1,81 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Purchases.Vendor;
+using Microsoft.Inventory.Intrastat;
+using Microsoft.Sales.Document;
+using Microsoft.Manufacturing.Capacity;
+using Microsoft.Inventory.Location;
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Projects.Project.Journal;
+using Microsoft.Projects.Project.Ledger;
+using Microsoft.Projects.Project.Planning;
+using Microsoft.Foundation.UOM;
+using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Warehouse.Structure;
+using Microsoft.Inventory.BOM;
+using Microsoft.Foundation.Comment;
+using Microsoft.Foundation.Address;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.Dimension;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Pricing.PriceList;
+using Microsoft.Foundation.ExtendedText;
+using Microsoft.Service.Contract;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Analysis;
+using Microsoft.Purchases.Document;
+using Microsoft.Warehouse.ADCS;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Inventory.Item.Substitution;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Service.Loaner;
+using Microsoft.Inventory.Counting.Journal;
+using Microsoft.Inventory.Planning;
+using Microsoft.Warehouse.History;
+using Microsoft.Pricing.Asset;
+using Microsoft.Pricing.Source;
+using Microsoft.Pricing.Worksheet;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Manufacturing.ProductionBOM;
+using Microsoft.Manufacturing.Forecast;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Pricing;
+using Microsoft.Warehouse.Activity;
+using Microsoft.Warehouse.Activity.History;
+using Microsoft.Inventory.Requisition;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Service.Resources;
+using Microsoft.Sales.History;
+using Microsoft.Manufacturing.Routing;
+using Microsoft.Sales.Pricing;
+using Microsoft.Service.Pricing;
+using Microsoft.Service.History;
+using Microsoft.Service.Item;
+using Microsoft.Service.Document;
+using Microsoft.Service.Ledger;
+using Microsoft.Warehouse.Setup;
+using Microsoft.Inventory.Transfer;
+using Microsoft.Service.Maintenance;
+using Microsoft.Warehouse.Ledger;
+using Microsoft.Warehouse.Journal;
+using Microsoft.Warehouse.Document;
+using Microsoft.Warehouse.Request;
+using Microsoft.Warehouse.CrossDock;
+using Microsoft.Warehouse.Worksheet;
+using Microsoft.Inventory.Costing;
+using Microsoft.Inventory.MarketingText;
+
 permissionset 8562 "Inventory - Edit"
 {
     Access = Public;
     Assignable = false;
     Caption = 'Edit items/BOMs/SKUs';
-
-    IncludedPermissionSets = "Language - Read";
 
     Permissions = tabledata "Avg. Cost Adjmt. Entry Point" = r,
                   tabledata "Bin Content" = Rd,

@@ -68,9 +68,9 @@ page 2340 "BC O365 No. Series Card"
         LocalNoSeries: Code[20];
     begin
         if SalesReceivablesSetup.Get() then;
-        if Code = SalesReceivablesSetup."Posted Invoice Nos." then
+        if Rec.Code = SalesReceivablesSetup."Posted Invoice Nos." then
             IsPostedInvoiceNoSeries := true;
-        LocalNoSeries := NoSeriesManagement.ClearStateAndGetNextNo(Code);
+        LocalNoSeries := NoSeriesManagement.ClearStateAndGetNextNo(Rec.Code);
         Confirmed := true;
         if StrLen(LocalNoSeries) <= MaxStrLen(NextNoSeries) then
             NextNoSeries := CopyStr(LocalNoSeries, 1, MaxStrLen(NextNoSeries));
@@ -83,11 +83,11 @@ page 2340 "BC O365 No. Series Card"
         if NextNoSeries = '' then
             exit;
 
-        if NextNoSeries = NoSeriesManagement.ClearStateAndGetNextNo(Code) then
+        if NextNoSeries = NoSeriesManagement.ClearStateAndGetNextNo(Rec.Code) then
             exit;
 
         if IncStr(NextNoSeries) = '' then
-            Error(StrSubstNo(UnincrementableStringErr, NextNumberTxt));
+            Error(UnincrementableStringErr, NextNumberTxt);
 
         if IsPostedInvoiceNoSeries then
             Confirmed := Confirm(ConfirmNewInvoiceNoSeriesQst);
@@ -95,7 +95,7 @@ page 2340 "BC O365 No. Series Card"
         if Confirmed then begin
             NoSeriesLine.Reset();
             NoSeriesLine.SetCurrentKey("Series Code", "Starting Date");
-            NoSeriesLine.SetRange("Series Code", Code);
+            NoSeriesLine.SetRange("Series Code", Rec.Code);
             NoSeriesLine.SetRange("Starting Date", 0D, WorkDate());
             if NoSeriesLine.FindLast() then begin
                 NoSeriesLine.Init();
@@ -103,8 +103,8 @@ page 2340 "BC O365 No. Series Card"
                 NoSeriesLine.Modify(true);
             end else begin
                 NoSeriesLine.Init();
-                NoSeriesLine.Validate("Series Code", Code);
-                NoSeriesLine.Validate("Line No.", GetNextLineNo(Code));
+                NoSeriesLine.Validate("Series Code", Rec.Code);
+                NoSeriesLine.Validate("Line No.", GetNextLineNo(Rec.Code));
                 NoSeriesLine.Validate("Starting No.", NextNoSeries);
                 NoSeriesLine.Insert(true);
             end;
@@ -118,8 +118,8 @@ page 2340 "BC O365 No. Series Card"
     begin
         if SalesReceivablesSetup.Get() then;
 
-        if Code = SalesReceivablesSetup."Quote Nos." then
-            NoSeriesDescription := Description
+        if Rec.Code = SalesReceivablesSetup."Quote Nos." then
+            NoSeriesDescription := Rec.Description
         else
             NoSeriesDescription := InvoiceDocTypeTxt;
     end;

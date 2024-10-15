@@ -1,9 +1,18 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.PowerBI;
+
+using System.Environment;
+using System.Utilities;
+
 page 6313 "PBI WorkDate Calc."
 {
     Caption = 'PBI WorkDate Calc.';
     PageType = List;
     SourceTable = "Integer";
-    SourceTableView = WHERE(Number = CONST(1));
+    SourceTableView = where(Number = const(1));
 
     layout
     {

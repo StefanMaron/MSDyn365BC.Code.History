@@ -1,3 +1,11 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.TimeSheet;
+
+using System.Security.User;
+
 page 960 "Time Sheet Archive List"
 {
     ApplicationArea = Jobs;
@@ -6,7 +14,7 @@ page 960 "Time Sheet Archive List"
     ModifyAllowed = false;
     PageType = List;
     SourceTable = "Time Sheet Header Archive";
-    SourceTableView = SORTING("Resource No.", "Starting Date") order(descending);
+    SourceTableView = sorting("Resource No.", "Starting Date") order(descending);
     UsageCategory = History;
 
     layout
@@ -75,8 +83,8 @@ page 960 "Time Sheet Archive List"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Time Sheet Arc. Comment Sheet";
-                    RunPageLink = "No." = FIELD("No."),
-                                  "Time Sheet Line No." = CONST(0);
+                    RunPageLink = "No." = field("No."),
+                                  "Time Sheet Line No." = const(0);
                     ToolTip = 'View or add comments for the record.';
                 }
             }
@@ -98,7 +106,7 @@ page 960 "Time Sheet Archive List"
     begin
         if UserSetup.Get(UserId) then
             CurrPage.Editable := UserSetup."Time Sheet Admin.";
-        TimeSheetMgt.FilterTimeSheetsArchive(Rec, FieldNo("Owner User ID"));
+        TimeSheetMgt.FilterTimeSheetsArchive(Rec, Rec.FieldNo("Owner User ID"));
         OnAfterOnOpenPage(Rec);
     end;
 
@@ -114,7 +122,7 @@ page 960 "Time Sheet Archive List"
     begin
 #if not CLEAN22
         if not TimeSheetMgt.TimeSheetV2Enabled() then begin
-            TimeSheetMgt.SetTimeSheetArchiveNo("No.", TimeSheetLineArchive);
+            TimeSheetMgt.SetTimeSheetArchiveNo(Rec."No.", TimeSheetLineArchive);
             Page.Run(Page::"Time Sheet Archive", TimeSheetLineArchive);
             exit;
         end;

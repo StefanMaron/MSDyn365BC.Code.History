@@ -1,3 +1,14 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.Dimension;
+
+using Microsoft.CashFlow.Account;
+using Microsoft.CashFlow.Forecast;
+using Microsoft.Finance.Consolidation;
+using Microsoft.Finance.GeneralLedger.Account;
+
 page 564 "Dimension Selection-Level"
 {
     Caption = 'Dimension Selection';
@@ -14,7 +25,7 @@ page 564 "Dimension Selection-Level"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Level; Level)
+                field(Level; Rec.Level)
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the level for the selected dimension.';
@@ -24,20 +35,20 @@ page 564 "Dimension Selection-Level"
                         DimSelectBuffer: Record "Dimension Selection Buffer";
                         LevelExists: Boolean;
                     begin
-                        if Level <> Level::" " then begin
+                        if Rec.Level <> Rec.Level::" " then begin
                             DimSelectBuffer.Copy(Rec);
-                            Reset();
-                            SetFilter(Code, '<>%1', DimSelectBuffer.Code);
-                            SetRange(Level, DimSelectBuffer.Level);
-                            LevelExists := not IsEmpty();
-                            Copy(DimSelectBuffer);
+                            Rec.Reset();
+                            Rec.SetFilter(Code, '<>%1', DimSelectBuffer.Code);
+                            Rec.SetRange(Level, DimSelectBuffer.Level);
+                            LevelExists := not Rec.IsEmpty();
+                            Rec.Copy(DimSelectBuffer);
 
                             if LevelExists then
-                                Error(Text000, FieldCaption(Level));
+                                Error(Text000, Rec.FieldCaption(Level));
                         end;
                     end;
                 }
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
@@ -68,11 +79,11 @@ page 564 "Dimension Selection-Level"
     procedure GetDimSelBuf(var TheDimSelectionBuf: Record "Dimension Selection Buffer")
     begin
         TheDimSelectionBuf.DeleteAll();
-        if Find('-') then
+        if Rec.Find('-') then
             repeat
                 TheDimSelectionBuf := Rec;
                 TheDimSelectionBuf.Insert();
-            until Next() = 0;
+            until Rec.Next() = 0;
     end;
 
     procedure InsertDimSelBuf(NewSelected: Boolean; NewCode: Text[30]; NewDescription: Text[30]; NewDimValueFilter: Text[250]; NewLevel: Option)
@@ -87,25 +98,25 @@ page 564 "Dimension Selection-Level"
             if Dim.Get(NewCode) then
                 NewDescription := Dim.GetMLName(GlobalLanguage);
 
-        Init();
-        Selected := NewSelected;
-        Code := NewCode;
-        Description := NewDescription;
+        Rec.Init();
+        Rec.Selected := NewSelected;
+        Rec.Code := NewCode;
+        Rec.Description := NewDescription;
         if NewSelected then begin
-            "Dimension Value Filter" := NewDimValueFilter;
-            Level := NewLevel;
+            Rec."Dimension Value Filter" := NewDimValueFilter;
+            Rec.Level := NewLevel;
         end;
-        case Code of
+        case Rec.Code of
             GLAcc.TableCaption:
-                "Filter Lookup Table No." := DATABASE::"G/L Account";
+                Rec."Filter Lookup Table No." := Database::"G/L Account";
             BusinessUnit.TableCaption:
-                "Filter Lookup Table No." := DATABASE::"Business Unit";
+                Rec."Filter Lookup Table No." := Database::"Business Unit";
             CFAcc.TableCaption:
-                "Filter Lookup Table No." := DATABASE::"Cash Flow Account";
+                Rec."Filter Lookup Table No." := Database::"Cash Flow Account";
             CashFlowForecast.TableCaption:
-                "Filter Lookup Table No." := DATABASE::"Cash Flow Forecast";
+                Rec."Filter Lookup Table No." := Database::"Cash Flow Forecast";
         end;
-        Insert();
+        Rec.Insert();
     end;
 }
 
