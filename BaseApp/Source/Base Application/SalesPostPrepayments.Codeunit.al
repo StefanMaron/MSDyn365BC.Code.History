@@ -844,7 +844,7 @@
                         OnUpdateVATOnLinesOnAfterVATAmountLineGet(VATAmountLine);
                         if VATAmountLine.Modified then begin
                             RemainderExists :=
-                            	TempVATAmountLineRemainder.Get(
+                                TempVATAmountLineRemainder.Get(
                                     "Prepayment VAT Identifier", "Prepmt. VAT Calc. Type", "Prepayment Tax Group Code", "Prepayment Tax Area Code",
                                     false, PrepmtAmt >= 0);
                             OnUpdateVATOnLinesOnAfterGetRemainder(TempVATAmountLineRemainder, RemainderExists);
@@ -1067,6 +1067,7 @@
 
     procedure PrepmtAmount(SalesLine: Record "Sales Line"; DocumentType: Option Invoice,"Credit Memo",Statistic; IncludeTax: Boolean): Decimal
     var
+        CurrencyLocal: Record Currency;
         PrepmtAmt: Decimal;
     begin
         with SalesLine do begin
@@ -1078,11 +1079,10 @@
                 else
                     PrepmtAmt := "Prepmt. Amt. Inv." - "Prepmt Amt Deducted";
             end;
-            if IncludeTax then
-                if ("Prepayment %" = 100) and (PrepmtAmt <> 0) then
-                    PrepmtAmt := "Amount Including VAT"
-                else
-                    PrepmtAmt := CalcAmountIncludingTax(PrepmtAmt);
+            if IncludeTax and (Amount <> 0) then begin
+                CurrencyLocal.Initialize("Currency Code");
+                PrepmtAmt := Round("Amount Including VAT" * PrepmtAmt / Amount, CurrencyLocal."Amount Rounding Precision");
+            end;
             exit(PrepmtAmt);
         end;
     end;
@@ -1559,7 +1559,6 @@
         if TaxArea."Use External Tax Engine" then
             SalesTaxCalculate.CallExternalTaxEngineForSales(SalesHeader, true)
         else begin
-            SalesTaxCalculate.SetPrepmtPosting(true);
             with SalesLine do begin
                 SetRange("Document Type", SalesHeader."Document Type");
                 SetRange("Document No.", SalesHeader."No.");

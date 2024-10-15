@@ -808,6 +808,18 @@
                     ToolTip = 'Specifies the line number.';
                     Visible = false;
                 }
+                field("Retention Attached to Line No."; "Retention Attached to Line No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number of the sales order line that the record is linked to.';
+                    Visible = false;
+                }
+                field("Retention VAT %"; "Retention VAT %")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the retention VAT percentage that is used in the line.';
+                    Visible = false;
+                }
             }
             group(Control51)
             {

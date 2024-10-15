@@ -559,6 +559,18 @@
                         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 8);
                     end;
                 }
+                field("Retention Attached to Line No."; "Retention Attached to Line No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number of the sales credit memo line that the record is linked to.';
+                    Visible = false;
+                }
+                field("Retention VAT %"; "Retention VAT %")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the retention VAT percentage that is used in the line.';
+                    Visible = false;
+                }
             }
             group(Control39)
             {
