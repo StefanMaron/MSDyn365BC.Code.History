@@ -19,7 +19,7 @@
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>18.28552cm</Width>
+                  <Width>18.11797cm</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
@@ -4826,25 +4826,25 @@ Cstr(Fields!VATNoText.Value)
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>2.68282cm</Width>
+                                    <Width>2.64921cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>2.76802cm</Width>
+                                    <Width>2.73441cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.98818cm</Width>
+                                    <Width>1.95457cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>2.3148cm</Width>
+                                    <Width>2.28119cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>2.3148cm</Width>
+                                    <Width>2.28119cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>4.18981cm</Width>
+                                    <Width>4.1562cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.89997cm</Width>
+                                    <Width>1.86636cm</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
@@ -5411,7 +5411,7 @@ Cstr(Fields!VATNoText.Value)
                               <Top>10.75353cm</Top>
                               <Left>0.12712cm</Left>
                               <Height>2.11666cm</Height>
-                              <Width>18.1584cm</Width>
+                              <Width>17.92316cm</Width>
                               <ZIndex>6</ZIndex>
                               <Visibility>
                                 <Hidden>=(Fields!VATClausesCaption.Value = "")</Hidden>
@@ -6926,7 +6926,7 @@ Cstr(Fields!VATNoText.Value)
             <DataSetName>DataSet_Result</DataSetName>
             <Left>0.03748cm</Left>
             <Height>22.13162cm</Height>
-            <Width>18.28552cm</Width>
+            <Width>18.11797cm</Width>
             <Style>
               <FontSize>9pt</FontSize>
             </Style>
@@ -6935,7 +6935,7 @@ Cstr(Fields!VATNoText.Value)
         <Height>22.13162cm</Height>
         <Style />
       </Body>
-      <Width>19cm</Width>
+      <Width>18.15545cm</Width>
       <Page>
         <PageHeader>
           <Height>310.76004pt</Height>
@@ -8197,7 +8197,7 @@ Cstr(Fields!VATNoText.Value)
                 </Image>
               </ReportItems>
               <KeepTogether>true</KeepTogether>
-              <Left>7.5cm</Left>
+              <Left>7cm</Left>
               <Height>14mm</Height>
               <Width>40mm</Width>
               <ZIndex>46</ZIndex>
@@ -8250,7 +8250,7 @@ Cstr(Fields!VATNoText.Value)
                 </Image>
               </ReportItems>
               <KeepTogether>true</KeepTogether>
-              <Left>15cm</Left>
+              <Left>14cm</Left>
               <Height>14mm</Height>
               <Width>40mm</Width>
               <ZIndex>48</ZIndex>

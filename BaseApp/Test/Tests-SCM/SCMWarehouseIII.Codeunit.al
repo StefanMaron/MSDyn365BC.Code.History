@@ -3832,6 +3832,60 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('PickSelectionPageHandler')]
+    [Scope('OnPrem')]
+    procedure CreatePickFromPickWkshWhenSalesUoMNotMatchBaseUoM()
+    var
+        Location: Record Location;
+        Bin: array[2] of Record Bin;
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        QtyItemStock: Integer;
+        QtyToSell: Integer;
+    begin
+        // [FEATURE] [Unit of Measure] [Bin] [Pick] [Worksheet]
+        // [SCENARIO 327633] Create Pick from Pick Worksheet for an Item which has Sales Unit of Measure <> Base Unit of Measure
+        // [SCENARIO 327633] And item Location has Bins
+        QtyItemStock := 1;
+        QtyToSell := 2;
+
+        // [GIVEN] Location with Bin Mandatory enabled
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, true);
+        LibraryWarehouse.CreateNumberOfBins(Location.Code, '', '', ArrayLen(Bin), false);
+        LibraryWarehouse.FindBin(Bin[1], Location.Code, '', 1);
+        LibraryWarehouse.FindBin(Bin[2], Location.Code, '', 2);
+        Location.Validate("Receipt Bin Code", Bin[1].Code);
+        Location.Validate("Shipment Bin Code", Bin[2].Code);
+        Location.Modify(true);
+
+        // [GIVEN] Item had Base Unit of Measure = PALLET and Sales Unit of Measure BOX (BOX = 1/10 PALLET)
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 0.1);
+        Item.Validate("Sales Unit of Measure", ItemUnitOfMeasure.Code);
+        Item.Modify(true);
+
+        // [GIVEN] Item had stock of 1 PALLET in WMS Location with Breakbulk allowed
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, Item."No.", Location.Code, Location."Receipt Bin Code", QtyItemStock);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Released Sales Order with 2 BOX of the Item and released Warehouse Shipment
+        PrepareSalesOrderWithWhseShipment(SalesHeader, WarehouseShipmentHeader, Item."No.", Location.Code, QtyToSell);
+        WarehouseShipmentNo := WarehouseShipmentHeader."No.";
+        LocationCode := Location.Code;
+
+        // [WHEN] Create Pick from Pick Worksheet
+        CreatePickFromPickWorksheet(Location.Code, QtyToSell);
+
+        // [THEN] Pick is created with 2 BOX of the Item
+        VerifyWhseActivityLine(WarehouseActivityLine, QtyToSell, SalesHeader."No.", Location.Code);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

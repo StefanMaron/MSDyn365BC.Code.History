@@ -5,7 +5,7 @@ page 20017 "APIV1 - Employees"
     DelayedInsert = true;
     EntityName = 'employee';
     EntitySetName = 'employees';
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = 5200;
     Extensible = false;
@@ -16,7 +16,7 @@ page 20017 "APIV1 - Employees"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'id', Locked = true;
@@ -156,7 +156,7 @@ page 20017 "APIV1 - Employees"
                     Caption = 'picture';
                     EntityName = 'picture';
                     EntitySetName = 'picture';
-                    SubPageLink = Id = FIELD(Id);
+                    SubPageLink = Id = FIELD(SystemId);
                 }
                 part(defaultDimensions; 5509)
                 {
@@ -164,7 +164,7 @@ page 20017 "APIV1 - Employees"
                     Caption = 'Default Dimensions', Locked = true;
                     EntityName = 'defaultDimensions';
                     EntitySetName = 'defaultDimensions';
-                    SubPageLink = ParentId = FIELD(Id);
+                    SubPageLink = ParentId = FIELD(SystemId);
                 }
                 part(timeRegistrationEntries; 20041)
                 {
@@ -172,7 +172,7 @@ page 20017 "APIV1 - Employees"
                     Caption = 'timeRegistrationEntries', Locked = true;
                     EntityName = 'timeRegistrationEntry';
                     EntitySetName = 'timeRegistrationEntries';
-                    SubPageLink = "Employee Id" = FIELD(Id);
+                    SubPageLink = "Employee Id" = FIELD(SystemId);
                 }
             }
         }
@@ -210,12 +210,8 @@ page 20017 "APIV1 - Employees"
     var
         Employee: Record "Employee";
         GraphMgtEmployee: Codeunit "Graph Mgt - Employee";
-        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        IF xRec.Id <> Id THEN
-            GraphMgtGeneralTools.ErrorIdImmutable();
-        Employee.SETRANGE(Id, Id);
-        Employee.FINDFIRST();
+        Employee.GetBySystemId(SystemId);
 
         GraphMgtEmployee.ProcessComplexTypes(Rec, PostalAddressJSON);
 
@@ -257,7 +253,7 @@ page 20017 "APIV1 - Employees"
 
     local procedure ClearCalculatedFields()
     begin
-        CLEAR(Id);
+        CLEAR(SystemId);
         CLEAR(PostalAddressJSON);
         TempFieldSet.DELETEALL();
     end;

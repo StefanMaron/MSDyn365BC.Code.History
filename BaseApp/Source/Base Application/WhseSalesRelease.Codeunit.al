@@ -64,9 +64,7 @@ codeunit 5771 "Whse.-Sales Release"
             WhseRqst.Reset;
             WhseRqst.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
             WhseRqst.SetRange(Type, WhseRqst.Type);
-            WhseRqst.SetRange("Source Type", DATABASE::"Sales Line");
-            WhseRqst.SetRange("Source Subtype", "Document Type");
-            WhseRqst.SetRange("Source No.", "No.");
+            WhseRqst.SetSourceFilter(DATABASE::"Sales Line", "Document Type", "No.");
             WhseRqst.SetRange("Document Status", Status::Open);
             if not WhseRqst.IsEmpty then
                 WhseRqst.DeleteAll(true);
@@ -85,20 +83,12 @@ codeunit 5771 "Whse.-Sales Release"
         with SalesHeader do begin
             IsHandled := false;
             OnBeforeReopenSetWhseRequestSourceDocument(SalesHeader, WhseRqst, IsHandled);
-            if not IsHandled then
-                case "Document Type" of
-                    "Document Type"::Order:
-                        WhseRqst.Type := WhseRqst.Type::Outbound;
-                    "Document Type"::"Return Order":
-                        WhseRqst.Type := WhseRqst.Type::Inbound;
-                end;
 
             WhseRqst.Reset;
             WhseRqst.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
-            WhseRqst.SetRange(Type, WhseRqst.Type);
-            WhseRqst.SetRange("Source Type", DATABASE::"Sales Line");
-            WhseRqst.SetRange("Source Subtype", "Document Type");
-            WhseRqst.SetRange("Source No.", "No.");
+            if IsHandled then
+                WhseRqst.SetRange(Type, WhseRqst.Type);
+            WhseRqst.SetSourceFilter(DATABASE::"Sales Line", "Document Type", "No.");
             WhseRqst.SetRange("Document Status", Status::Released);
             WhseRqst.LockTable;
             if not WhseRqst.IsEmpty then
@@ -106,6 +96,19 @@ codeunit 5771 "Whse.-Sales Release"
         end;
 
         OnAfterReopen(SalesHeader);
+    end;
+
+    [Scope('OnPrem')]
+    procedure UpdateExternalDocNoForReleasedOrder(SalesHeader: Record "Sales Header")
+    begin
+        with SalesHeader do begin
+            WhseRqst.Reset;
+            WhseRqst.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
+            WhseRqst.SetSourceFilter(DATABASE::"Sales Line", "Document Type", "No.");
+            WhseRqst.SetRange("Document Status", Status::Released);
+            if not WhseRqst.IsEmpty then
+                WhseRqst.ModifyAll("External Document No.", "External Document No.");
+        end;
     end;
 
     local procedure CreateWhseRqst(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; WhseType: Option Inbound,Outbound)

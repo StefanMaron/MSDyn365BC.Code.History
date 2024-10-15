@@ -666,6 +666,41 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         LibraryReportDataset.AssertElementTagWithValueExists('GlobalDim2CodeCaption', Dimension."Code Caption");
     end;
 
+    [Test]
+    [HandlerFunctions('FixedAssetListRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure FAListReportOnlyOneGlobalDimension()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FADepreciationBook: Record "FA Depreciation Book";
+        Dimension: Record Dimension;
+        DimensionCode: Code[20];
+    begin
+        // [FEATURE] [Fixed Asset - List]
+        // [SCENARIO 325988] "Fixed Asset - List" runs correctly with GeneralLedgerSetup."Global Dimension 2 Code" = ''
+        Initialize;
+        // [GIVEN] GeneralLedgerSetup."Global Dimension 2 Code" = ''
+        DimensionCode := LibraryERM.GetGlobalDimensionCode(2);
+        LibraryERM.SetGlobalDimensionCode(2, '');
+
+        // [WHEN] Run "Fixed Asset - List" with some FA No. = "X"
+        CreateAndModifyFixedAsset(FixedAsset);
+        CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook);
+        EnqueueValuesForFixedAssetListReport(FADepreciationBook."Depreciation Book Code", false, FixedAsset."No.");
+        Commit;
+        REPORT.Run(REPORT::"Fixed Asset - List");
+
+        // [THEN] Report terminates successfully and contains "X"
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists(FANoCaption, FADepreciationBook."FA No.");
+        Dimension.Get(LibraryERM.GetGlobalDimensionCode(1));
+        LibraryReportDataset.AssertElementTagWithValueExists('GlobalDim1CodeCaption', Dimension."Code Caption");
+        LibraryReportDataset.AssertElementTagWithValueExists('GlobalDim2CodeCaption', '');
+
+        // tear down
+        LibraryERM.SetGlobalDimensionCode(2, DimensionCode);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -82,12 +82,14 @@ page 1350 "Posted Sales Shipment - Update"
     var
         xSalesShipmentHeader: Record "Sales Shipment Header";
 
-    local procedure RecordChanged(): Boolean
+    local procedure RecordChanged() IsChanged : Boolean
     begin
-        exit(
+        IsChanged :=
           ("Shipping Agent Code" <> xSalesShipmentHeader."Shipping Agent Code") or
           ("Package Tracking No." <> xSalesShipmentHeader."Package Tracking No.") or
-          ("Shipping Agent Service Code" <> xSalesShipmentHeader."Shipping Agent Service Code"));
+          ("Shipping Agent Service Code" <> xSalesShipmentHeader."Shipping Agent Service Code");
+
+        OnAfterRecordChanged(Rec, xRec, IsChanged);
     end;
 
     [Scope('OnPrem')]
@@ -95,6 +97,11 @@ page 1350 "Posted Sales Shipment - Update"
     begin
         Rec := SalesShipmentHeader;
         Insert;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRecordChanged(var SalesShipmentHeader: Record "Sales Shipment Header"; xSalesShipmentHeader: Record "Sales Shipment Header"; var IsChanged: Boolean)
+    begin
     end;
 }
 

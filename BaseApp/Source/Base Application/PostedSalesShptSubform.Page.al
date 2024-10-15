@@ -406,10 +406,13 @@
     local procedure UndoShipmentPosting()
     var
         SalesShptLine: Record "Sales Shipment Line";
+        IsHandled: Boolean;
     begin
         SalesShptLine.Copy(Rec);
         CurrPage.SetSelectionFilter(SalesShptLine);
-        CODEUNIT.Run(CODEUNIT::"Undo Sales Shipment Line", SalesShptLine);
+        OnBeforeUndoShipmentPosting(SalesShptLine, IsHandled);
+        if not IsHandled then
+            CODEUNIT.Run(CODEUNIT::"Undo Sales Shipment Line", SalesShptLine);
     end;
 
     local procedure PageShowItemSalesInvLines()
@@ -456,6 +459,11 @@
         ShipmentInvoiced.SetRange("Shipment No.", "Document No.");
         ShipmentInvoiced.SetRange("Shipment Line No.", "Line No.");
         PAGE.RunModal(PAGE::"Invoices bound by Shipment", ShipmentInvoiced);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUndoShipmentPosting(SalesShipmentLine: Record "Sales Shipment Line"; var IsHandled: Boolean)
+    begin
     end;
 }
 

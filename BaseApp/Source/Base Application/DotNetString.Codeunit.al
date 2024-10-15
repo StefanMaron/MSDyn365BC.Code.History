@@ -121,5 +121,26 @@ codeunit 3007 DotNet_String
         DotNet_ArrayTrimChars.GetArray(DotNetArray);
         exit(DotNetString.TrimEnd(DotNetArray));
     end;
+
+    procedure Normalize(DotNet_NormalizationForm: Codeunit DotNet_NormalizationForm): Text
+    var
+        DotNetNormalizationForm: DotNet NormalizationForm;
+    begin
+        DotNet_NormalizationForm.GetNormalizationForm(DotNetNormalizationForm);
+        exit(DotNetString.Normalize(DotNetNormalizationForm));
+    end;
+
+    procedure Normalize(): Text
+    begin
+        exit(DotNetString.Normalize());
+    end;
+
+    procedure IsNormalized(DotNet_NormalizationForm: Codeunit DotNet_NormalizationForm): Boolean
+    var
+        DotNetNormalizationForm: DotNet NormalizationForm;
+    begin
+        DotNet_NormalizationForm.GetNormalizationForm(DotNetNormalizationForm);
+        exit(DotNetString.IsNormalized(DotNetNormalizationForm));
+    end;
 }
 

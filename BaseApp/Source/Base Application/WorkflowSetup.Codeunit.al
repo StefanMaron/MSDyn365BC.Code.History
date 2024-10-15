@@ -314,7 +314,7 @@ codeunit 1502 "Workflow Setup"
         InsertEventArgument(DocErrorEventID, BuildIncomingDocumentTypeConditions(IncomingDocument.Status::Failed));
         NotifyResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode, DocErrorEventID);
 
-        InsertNotificationArgument(NotifyResponseID, '', PAGE::"Incoming Document", '');
+        InsertNotificationArgument(NotifyResponseID, false, '', PAGE::"Incoming Document", '');
     end;
 
     local procedure InsertIncomingDocumentToGenJnlLineOCRWorkflowTemplate()
@@ -355,7 +355,7 @@ codeunit 1502 "Workflow Setup"
         CreateGenJnlLineFailResponseID :=
           InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode, GenJnlLineFailEventID);
 
-        InsertNotificationArgument(CreateGenJnlLineFailResponseID, '', PAGE::"Incoming Document", '');
+        InsertNotificationArgument(CreateGenJnlLineFailResponseID, false, '', PAGE::"Incoming Document", '');
     end;
 
     local procedure InsertIncomingDocumentDocExchWorkflowTemplate()
@@ -399,7 +399,7 @@ codeunit 1502 "Workflow Setup"
         InsertEventArgument(DocErrorEventID, BuildIncomingDocumentTypeConditions(IncomingDocument.Status::Failed));
         NotifyResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode, DocErrorEventID);
 
-        InsertNotificationArgument(NotifyResponseID, '', PAGE::"Incoming Document", '');
+        InsertNotificationArgument(NotifyResponseID, false, '', PAGE::"Incoming Document", '');
     end;
 
     local procedure InsertPurchaseInvoiceWorkflowTemplate()
@@ -447,7 +447,7 @@ codeunit 1502 "Workflow Setup"
         InsertEventArgument(JournalLineCreatedEventID, BuildGeneralJournalLineTypeConditions(GenJournalLine));
 
         NotifyResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode, JournalLineCreatedEventID);
-        InsertNotificationArgument(NotifyResponseID, '', PAGE::"Payment Journal", '');
+        InsertNotificationArgument(NotifyResponseID, false, '', PAGE::"Payment Journal", '');
     end;
 
     procedure InsertIncomingDocumentApprovalWorkflowTemplate()
@@ -899,7 +899,7 @@ codeunit 1502 "Workflow Setup"
         SendApprovalRequestResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
             CreateApprovalRequestResponseID);
 
-        InsertNotificationArgument(SendApprovalRequestResponseID, '', 0, '');
+        InsertNotificationArgument(SendApprovalRequestResponseID, false, '', 0, '');
 
         OnAllRequestsApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode,
             SendApprovalRequestResponseID);
@@ -920,7 +920,7 @@ codeunit 1502 "Workflow Setup"
             SendApprovalRequestResponseID);
         RejectAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.RejectAllApprovalRequestsCode,
             OnRequestRejectedEventID);
-        InsertNotificationArgument(RejectAllApprovalsResponseID, '', WorkflowStepArgument."Link Target Page", '');
+        InsertNotificationArgument(RejectAllApprovalsResponseID, true, '', WorkflowStepArgument."Link Target Page", '');
         InsertResponseStep(Workflow, WorkflowResponseHandling.OpenDocumentCode, RejectAllApprovalsResponseID);
 
         OnRequestCanceledEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnCancelSalesApprovalRequestCode,
@@ -928,7 +928,7 @@ codeunit 1502 "Workflow Setup"
         InsertEventArgument(OnRequestCanceledEventID, DocCanceledConditionString);
         CancelAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CancelAllApprovalRequestsCode,
             OnRequestCanceledEventID);
-        InsertNotificationArgument(CancelAllApprovalsResponseID, '', WorkflowStepArgument."Link Target Page", '');
+        InsertNotificationArgument(CancelAllApprovalsResponseID, false, '', WorkflowStepArgument."Link Target Page", '');
         AllowRecordUsageResponseID :=
           InsertResponseStep(Workflow, WorkflowResponseHandling.AllowRecordUsageCode, CancelAllApprovalsResponseID);
         OpenDocumentResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.OpenDocumentCode, AllowRecordUsageResponseID);
@@ -1369,7 +1369,7 @@ codeunit 1502 "Workflow Setup"
           WorkflowStepArgument."Due Date Formula", ShowConfirmationMessage);
         SendApprovalRequestResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
             CreateApprovalRequestResponseID);
-        InsertNotificationArgument(SendApprovalRequestResponseID, '', 0, '');
+        InsertNotificationArgument(SendApprovalRequestResponseID, false, '', 0, '');
 
         OnAllRequestsApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode,
             SendApprovalRequestResponseID);
@@ -1390,7 +1390,7 @@ codeunit 1502 "Workflow Setup"
             SendApprovalRequestResponseID);
         RejectAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.RejectAllApprovalRequestsCode,
             OnRequestRejectedEventID);
-        InsertNotificationArgument(RejectAllApprovalsResponseID, '', WorkflowStepArgument."Link Target Page", '');
+        InsertNotificationArgument(RejectAllApprovalsResponseID, true, '', WorkflowStepArgument."Link Target Page", '');
         InsertResponseStep(Workflow, WorkflowResponseHandling.OpenDocumentCode, RejectAllApprovalsResponseID);
 
         OnRequestCanceledEventID := InsertEventStep(Workflow, DocCanceledEventCode,
@@ -1398,7 +1398,7 @@ codeunit 1502 "Workflow Setup"
         InsertEventArgument(OnRequestCanceledEventID, DocCanceledConditionString);
         CancelAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CancelAllApprovalRequestsCode,
             OnRequestCanceledEventID);
-        InsertNotificationArgument(CancelAllApprovalsResponseID, '', WorkflowStepArgument."Link Target Page", '');
+        InsertNotificationArgument(CancelAllApprovalsResponseID, false, '', WorkflowStepArgument."Link Target Page", '');
         AllowRecordUsageResponseID :=
           InsertResponseStep(Workflow, WorkflowResponseHandling.AllowRecordUsageCode, CancelAllApprovalsResponseID);
         OpenDocumentResponceID := InsertResponseStep(Workflow, WorkflowResponseHandling.OpenDocumentCode, AllowRecordUsageResponseID);
@@ -1445,7 +1445,7 @@ codeunit 1502 "Workflow Setup"
           WorkflowStepArgument."Due Date Formula", ShowConfirmationMessage);
         SendApprovalRequestResponseID := InsertResponseStep(Workflow, RecSendApprovalRequestForApprovalCode,
             CreateApprovalRequestResponseID);
-        InsertNotificationArgument(SendApprovalRequestResponseID, '', 0, '');
+        InsertNotificationArgument(SendApprovalRequestResponseID, false, '', 0, '');
 
         OnAllRequestsApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode,
             SendApprovalRequestResponseID);
@@ -1464,12 +1464,12 @@ codeunit 1502 "Workflow Setup"
             SendApprovalRequestResponseID);
         RejectAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.RejectAllApprovalRequestsCode,
             OnRequestRejectedEventID);
-        InsertNotificationArgument(RejectAllApprovalsResponseID, '', WorkflowStepArgument."Link Target Page", '');
+        InsertNotificationArgument(RejectAllApprovalsResponseID, true, '', WorkflowStepArgument."Link Target Page", '');
 
         OnRequestCanceledEventID := InsertEventStep(Workflow, RecCanceledEventCode, SendApprovalRequestResponseID);
         CancelAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CancelAllApprovalRequestsCode,
             OnRequestCanceledEventID);
-        InsertNotificationArgument(CancelAllApprovalsResponseID, '', WorkflowStepArgument."Link Target Page", '');
+        InsertNotificationArgument(CancelAllApprovalsResponseID, false, '', WorkflowStepArgument."Link Target Page", '');
 
         TempResponseResponseID := CancelAllApprovalsResponseID;
         if RemoveRestrictionOnCancel then begin
@@ -1520,7 +1520,7 @@ codeunit 1502 "Workflow Setup"
           WorkflowStepArgument."Approver User ID", WorkflowStepArgument."Due Date Formula", false);
         SendApprovalRequestResponseID := InsertResponseStep(Workflow, RecSendApprovalRequestForApprovalCode,
             CreateApprovalRequestResponseID);
-        InsertNotificationArgument(SendApprovalRequestResponseID, '', 0, '');
+        InsertNotificationArgument(SendApprovalRequestResponseID, false, '', 0, '');
         ShowMessageResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.ShowMessageCode,
             SendApprovalRequestResponseID);
         InsertMessageArgument(ShowMessageResponseID, CopyStr(RecordChangeApprovalMsg, 1, 250));
@@ -1546,7 +1546,7 @@ codeunit 1502 "Workflow Setup"
             OnRequestRejectedEventID);
         RejectAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.RejectAllApprovalRequestsCode,
             DiscardNewValuesResponseID);
-        InsertNotificationArgument(RejectAllApprovalsResponseID, '', WorkflowStepArgument."Link Target Page", '');
+        InsertNotificationArgument(RejectAllApprovalsResponseID, true, '', WorkflowStepArgument."Link Target Page", '');
 
         OnRequestDelegatedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnDelegateApprovalRequestCode,
             ShowMessageResponseID);
@@ -1595,7 +1595,7 @@ codeunit 1502 "Workflow Setup"
           WorkflowStepArgument."Due Date Formula", ShowConfirmationMessage);
         SendApprovalRequestResponseID := InsertResponseStep(Workflow, RecSendApprovalRequestForApprovalCode,
             CreateApprovalRequestResponseID);
-        InsertNotificationArgument(SendApprovalRequestResponseID, '', 0, '');
+        InsertNotificationArgument(SendApprovalRequestResponseID, false, '', 0, '');
 
         OnAllRequestsApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode,
             SendApprovalRequestResponseID);
@@ -1614,12 +1614,12 @@ codeunit 1502 "Workflow Setup"
             SendApprovalRequestResponseID);
         RejectAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.RejectAllApprovalRequestsCode,
             OnRequestRejectedEventID);
-        InsertNotificationArgument(RejectAllApprovalsResponseID, '', WorkflowStepArgument."Link Target Page", '');
+        InsertNotificationArgument(RejectAllApprovalsResponseID, true, '', WorkflowStepArgument."Link Target Page", '');
 
         OnRequestCanceledEventID := InsertEventStep(Workflow, RecCanceledEventCode, SendApprovalRequestResponseID);
         CancelAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CancelAllApprovalRequestsCode,
             OnRequestCanceledEventID);
-        InsertNotificationArgument(CancelAllApprovalsResponseID, '', WorkflowStepArgument."Link Target Page", '');
+        InsertNotificationArgument(CancelAllApprovalsResponseID, false, '', WorkflowStepArgument."Link Target Page", '');
         ShowMessageResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.ShowMessageCode, CancelAllApprovalsResponseID);
         InsertMessageArgument(ShowMessageResponseID, ApprovalRequestCanceledMsg);
 
@@ -1883,13 +1883,14 @@ codeunit 1502 "Workflow Setup"
         WorkflowRule.Insert(true);
     end;
 
-    local procedure InsertNotificationArgument(WorkflowStepID: Integer; NotifUserID: Code[50]; LinkTargetPage: Integer; CustomLink: Text[250])
+    local procedure InsertNotificationArgument(WorkflowStepID: Integer; NotifySender: Boolean; NotifUserID: Code[50]; LinkTargetPage: Integer; CustomLink: Text[250])
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
         InsertStepArgument(WorkflowStepArgument, WorkflowStepID);
 
         WorkflowStepArgument."Notification User ID" := NotifUserID;
+        WorkflowStepArgument.Validate("Notify Sender", NotifySender);
         WorkflowStepArgument."Link Target Page" := LinkTargetPage;
         WorkflowStepArgument."Custom Link" := CustomLink;
         WorkflowStepArgument.Modify(true);
@@ -2000,7 +2001,7 @@ codeunit 1502 "Workflow Setup"
         if WorkflowStep.FindSet then
             repeat
                 if not WorkflowStepArgument.Get(WorkflowStep.Argument) then
-                    InsertNotificationArgument(WorkflowStep.ID, '', 0, '');
+                    InsertNotificationArgument(WorkflowStep.ID, false, '', 0, '');
             until WorkflowStep.Next = 0;
     end;
 

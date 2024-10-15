@@ -14,6 +14,8 @@ codeunit 9800 "Log Table Permissions"
 
     procedure Start()
     begin
+        OnBeforeStart(SessionId());
+
         TempTablePermissionBuffer.DeleteAll;
         if IsNull(EventReceiver) then
             EventReceiver := EventReceiver.NavPermissionEventReceiver(SessionId);
@@ -116,6 +118,11 @@ codeunit 9800 "Log Table Permissions"
                         LogUsage(e.ObjectType, e.ObjectId, e.Permissions, e.IndirectPermissionsFromCaller);
                 end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeStart(SessionID: Integer)
+    begin
     end;
 }
 

@@ -410,8 +410,10 @@ codeunit 144076 "SEPA.03 CT Functional Test"
         CompanyInformation: Record "Company Information";
     begin
         CompanyInformation.Get;
-        VerifyCompanyNameAndPostalAddress(CompanyInformation, 'InitgPty');
+        LibraryXMLRead.VerifyNodeValueInSubtree('InitgPty', 'Nm', CompanyInformation.Name);
         LibraryXMLRead.VerifyNodeValueInSubtree('InitgPty', 'Id', CompanyInformation."VAT Registration No.");
+        // TFSID: 327225 Removal of 'PstlAdr' tag since the scheme has been changed
+        LibraryXMLRead.VerifyNodeAbsenceInSubtree('InitgPty','PstlAdr');
     end;
 
     local procedure VerifyPaymentInformationHeader(PaymentLine: Record "Payment Line")
