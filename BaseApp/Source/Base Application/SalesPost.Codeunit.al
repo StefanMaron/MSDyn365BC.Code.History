@@ -6568,10 +6568,10 @@
                 else
                     exit(SalesHeader."Sell-to Country/Region Code");
             end else begin
-                if (SalesHeader."Ship-to Country/Region Code" = '') and (SalesHeader."Rcvd-from Country/Region Code" = '') then
+                if (SalesHeader."Ship-to Country/Region Code" = '') and (SalesHeader."Rcvd.-from Count./Region Code" = '') then
                     exit(SalesHeader."Sell-to Country/Region Code");
-                if SalesHeader."Rcvd-from Country/Region Code" <> '' then
-                    exit(SalesHeader."Rcvd-from Country/Region Code");
+                if SalesHeader."Rcvd.-from Count./Region Code" <> '' then
+                    exit(SalesHeader."Rcvd.-from Count./Region Code");
                 exit(SalesHeader."Ship-to Country/Region Code");
             end;
         end else begin
