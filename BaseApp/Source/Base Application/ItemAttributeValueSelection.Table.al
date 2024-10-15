@@ -242,6 +242,11 @@ table 7504 "Item Attribute Value Selection"
             Error(AttributeValueTypeMismatchErr, ValueToValidate, ItemAttribute.Type);
     end;
 
+    procedure FindItemAttributeByName(var ItemAttribute: Record "Item Attribute")
+    begin
+        FindItemAttributeCaseInsensitive(ItemAttribute);
+    end;
+
     local procedure FindItemAttributeCaseInsensitive(var ItemAttribute: Record "Item Attribute")
     var
         AttributeName: Text[250];
