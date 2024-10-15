@@ -2261,6 +2261,7 @@
 
     local procedure CreateXMLDocument33(var TempDocumentHeader: Record "Document Header" temporary; var TempDocumentLine: Record "Document Line" temporary; var TempDocumentLineRetention: Record "Document Line" temporary; var TempCFDIRelationDocument: Record "CFDI Relation Document" temporary; var TempVATAmountLine: Record "VAT Amount Line" temporary; DateTimeFirstReqSent: Text[50]; SignedString: Text; Certificate: Text; CertificateSerialNo: Text[250]; IsCredit: Boolean; var XMLDoc: DotNet XmlDocument; SubTotal: Decimal; TotalTax: Decimal; TotalRetention: Decimal; TotalDiscount: Decimal)
     var
+        TempDocumentLineCCE: Record "Document Line" temporary;
         SATUtilities: Codeunit "SAT Utilities";
         XMLCurrNode: DotNet XmlNode;
         XMLNewChild: DotNet XmlNode;
@@ -2365,6 +2366,8 @@
                     end;
 
                     XMLCurrNode := XMLCurrNode.ParentNode;
+
+                    CalcComercioExteriorLine(TempDocumentLineCCE, TempDocumentLine, "Foreign Trade");
                 until TempDocumentLine.Next() = 0;
             XMLCurrNode := XMLCurrNode.ParentNode;
 
@@ -2373,7 +2376,7 @@
               TempVATAmountLine, XMLDoc, XMLCurrNode, XMLNewChild, TotalTax, TotalRetention);
 
             // ComercioExterior
-            AddNodeComercioExterior(TempDocumentLine, TempDocumentHeader, XMLDoc, XMLCurrNode, XMLNewChild);
+            AddNodeComercioExterior(TempDocumentLineCCE, TempDocumentHeader, XMLDoc, XMLCurrNode, XMLNewChild);
         end;
     end;
 
@@ -3009,6 +3012,7 @@
 
     local procedure CreateOriginalStr33Document(var TempDocumentHeader: Record "Document Header" temporary; var TempDocumentLine: Record "Document Line" temporary; var TempDocumentLineRetention: Record "Document Line" temporary; var TempCFDIRelationDocument: Record "CFDI Relation Document" temporary; var TempVATAmountLine: Record "VAT Amount Line" temporary; DateTimeFirstReqSent: Text; IsCredit: Boolean; var TempBlob: Codeunit "Temp Blob"; SubTotal: Decimal; TotalTax: Decimal; TotalRetention: Decimal; TotalDiscount: Decimal)
     var
+        TempDocumentLineCCE: Record "Document Line" temporary;
         SATUtilities: Codeunit "SAT Utilities";
         OutStream: OutStream;
     begin
@@ -3084,13 +3088,14 @@
                     AddStrImpuestoPerLine(TempDocumentLine, TempDocumentLineRetention, OutStream);
 
                     WriteOutStr(OutStream, RemoveInvalidChars(FormatNumeroPedimento(TempDocumentLine)) + '|'); // NumeroPedimento
+                    CalcComercioExteriorLine(TempDocumentLineCCE, TempDocumentLine, "Foreign Trade");
                 until TempDocumentLine.Next() = 0;
 
             CreateOriginalStr33TaxAmountLines(
               TempVATAmountLine, OutStream, TotalTax, TotalRetention);
 
             // ComercioExterior
-            AddStrComercioExterior(TempDocumentLine, TempDocumentHeader, OutStream);
+            AddStrComercioExterior(TempDocumentLineCCE, TempDocumentHeader, OutStream);
 
             WriteOutStrAllowOneCharacter(OutStream, '|');
         end;
@@ -3919,6 +3924,38 @@
         TempDocumentLine.SetRange("Retention Attached to Line No.", 0);
     end;
 
+    local procedure FilterSalesInvoiceLines(var SalesInvoiceLine: Record "Sales Invoice Line"; DocumentNo: Code[20])
+    begin
+        SalesInvoiceLine.Reset();
+        SalesInvoiceLine.SetRange("Document No.", DocumentNo);
+        SalesInvoiceLine.SetFilter(Type, '<>%1', SalesInvoiceLine.Type::" ");
+        SalesInvoiceLine.SetFilter(Quantity, '<>0');
+    end;
+
+    local procedure FilterSalesCrMemoLines(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; DocumentNo: Code[20])
+    begin
+        SalesCrMemoLine.Reset();
+        SalesCrMemoLine.SetRange("Document No.", DocumentNo);
+        SalesCrMemoLine.SetFilter(Type, '<>%1', SalesCrMemoLine.Type::" ");
+        SalesCrMemoLine.SetFilter(Quantity, '<>0');
+    end;
+
+    local procedure FilterServiceInvoiceLines(var ServiceInvoiceLine: Record "Service Invoice Line"; DocumentNo: Code[20])
+    begin
+        ServiceInvoiceLine.Reset();
+        ServiceInvoiceLine.SetRange("Document No.", DocumentNo);
+        ServiceInvoiceLine.SetFilter(Type, '<>%1', ServiceInvoiceLine.Type::" ");
+        ServiceInvoiceLine.SetFilter(Quantity, '<>0');
+    end;
+
+    local procedure FilterServiceCrMemoLines(var ServiceCrMemoLine: Record "Service Cr.Memo Line"; DocumentNo: Code[20])
+    begin
+        ServiceCrMemoLine.Reset();
+        ServiceCrMemoLine.SetRange("Document No.", DocumentNo);
+        ServiceCrMemoLine.SetFilter(Type, '<>%1', ServiceCrMemoLine.Type::" ");
+        ServiceCrMemoLine.SetFilter(Quantity, '<>0');
+    end;
+
     local procedure RemoveInvalidChars(PassedStr: Text): Text
     begin
         PassedStr := DelChr(PassedStr, '=', '|');
@@ -4309,9 +4346,7 @@
                     TempDocumentHeader."Amount Including VAT" := SalesInvoiceHeader."Amount Including VAT";
                     TempDocumentHeader.Insert();
 
-                    SalesInvoiceLine.Reset();
-                    SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
-                    SalesInvoiceLine.SetFilter(Type, '<>%1', SalesInvoiceLine.Type::" ");
+                    FilterSalesInvoiceLines(SalesInvoiceLine, SalesInvoiceHeader."No.");
                     if AdvanceSettle then
                         SalesInvoiceLine.SetFilter("Prepayment Line", '=0');
 
@@ -4343,9 +4378,7 @@
                     TempDocumentHeader."Amount Including VAT" := SalesCrMemoHeader."Amount Including VAT";
                     TempDocumentHeader.Insert();
 
-                    SalesCrMemoLine.Reset();
-                    SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
-                    SalesCrMemoLine.SetFilter(Type, '<>%1', SalesCrMemoLine.Type::" ");
+                    FilterSalesCrMemoLines(SalesCrMemoLine, SalesCrMemoHeader."No.");
                     if SalesCrMemoLine.FindSet() then begin
                         repeat
                             TempDocumentLine.TransferFields(SalesCrMemoLine);
@@ -4374,9 +4407,7 @@
                     TempDocumentHeader."Amount Including VAT" := ServiceInvoiceHeader."Amount Including VAT";
                     TempDocumentHeader.Insert();
 
-                    ServiceInvoiceLine.Reset();
-                    ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
-                    ServiceInvoiceLine.SetFilter(Type, '<>%1', ServiceInvoiceLine.Type::" ");
+                    FilterServiceInvoiceLines(ServiceInvoiceLine, ServiceInvoiceHeader."No.");
                     if ServiceInvoiceLine.FindSet() then begin
                         repeat
                             TempDocumentLine.TransferFields(ServiceInvoiceLine);
@@ -4406,9 +4437,7 @@
                     TempDocumentHeader."Amount Including VAT" := ServiceCrMemoHeader."Amount Including VAT";
                     TempDocumentHeader.Insert();
 
-                    ServiceCrMemoLine.Reset();
-                    ServiceCrMemoLine.SetRange("Document No.", ServiceCrMemoHeader."No.");
-                    ServiceCrMemoLine.SetFilter(Type, '<>%1', ServiceCrMemoLine.Type::" ");
+                    FilterServiceCrMemoLines(ServiceCrMemoLine, ServiceCrMemoHeader."No.");
                     if ServiceCrMemoLine.FindSet() then begin
                         repeat
                             TempDocumentLine.TransferFields(ServiceCrMemoLine);
@@ -5588,9 +5617,8 @@
             DATABASE::"Sales Invoice Header":
                 begin
                     SalesInvoiceHeader.Get(DocumentNo);
+                    FilterSalesInvoiceLines(SalesInvoiceLine, SalesInvoiceHeader."No.");
                     SalesInvoiceLine.SetRange("Retention Attached to Line No.", 0);
-                    SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
-                    SalesInvoiceLine.SetFilter(Type, '<>%1', SalesInvoiceLine.Type::" ");
                     SalesInvoiceLine.FindSet();
                     repeat
                         TempDocumentLine.TransferFields(SalesInvoiceLine);
@@ -5604,9 +5632,8 @@
             DATABASE::"Sales Cr.Memo Header":
                 begin
                     SalesCrMemoHeader.Get(DocumentNo);
+                    FilterSalesCrMemoLines(SalesCrMemoLine, SalesCrMemoHeader."No.");
                     SalesCrMemoLine.SetRange("Retention Attached to Line No.", 0);
-                    SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
-                    SalesCrMemoLine.SetFilter(Type, '<>%1', SalesCrMemoLine.Type::" ");
                     SalesCrMemoLine.FindSet();
                     repeat
                         TempDocumentLine.TransferFields(SalesCrMemoLine);
@@ -5620,8 +5647,7 @@
             DATABASE::"Service Invoice Header":
                 begin
                     ServiceInvoiceHeader.Get(DocumentNo);
-                    ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
-                    ServiceInvoiceLine.SetFilter(Type, '<>%1', ServiceInvoiceLine.Type::" ");
+                    FilterServiceInvoiceLines(ServiceInvoiceLine, ServiceInvoiceHeader."No.");
                     ServiceInvoiceLine.FindSet();
                     repeat
                         TempDocumentLine.TransferFields(ServiceInvoiceLine);
@@ -5635,8 +5661,7 @@
             DATABASE::"Service Cr.Memo Header":
                 begin
                     ServiceCrMemoHeader.Get(DocumentNo);
-                    ServiceCrMemoLine.SetRange("Document No.", ServiceCrMemoHeader."No.");
-                    ServiceCrMemoLine.SetFilter(Type, '<>%1', ServiceCrMemoLine.Type::" ");
+                    FilterServiceCrMemoLines(ServiceCrMemoLine, ServiceCrMemoHeader."No.");
                     ServiceCrMemoLine.FindSet();
                     repeat
                         TempDocumentLine.TransferFields(ServiceCrMemoLine);
@@ -5934,12 +5959,16 @@ IsVATExemptLine(TempDocumentLine));
             WriteOutStr(OutStr, 'Exento' + '|'); // TipoFactor
     end;
 
-    local procedure AddNodeComercioExterior(var TempDocumentLine: Record "Document Line" temporary; DocumentHeader: Record "Document Header"; var XMLDoc: DotNet XmlDocument; XMLCurrNode: DotNet XmlNode; XMLNewChild: DotNet XmlNode)
+    local procedure AddNodeComercioExterior(var TempDocumentLineCCE: Record "Document Line" temporary; DocumentHeader: Record "Document Header"; var XMLDoc: DotNet XmlDocument; XMLCurrNode: DotNet XmlNode; XMLNewChild: DotNet XmlNode)
     var
         Location: Record Location;
         Item: Record Item;
         UnitOfMeasure: Record "Unit of Measure";
+        SATUtilities: Codeunit "SAT Utilities";
         CurrencyFactor: Decimal;
+        LineCount: Integer;
+        LineNo: Integer;
+        SumAmountUSD: Decimal;
     begin
         if not DocumentHeader."Foreign Trade" then
             exit;
@@ -5961,9 +5990,7 @@ IsVATExemptLine(TempDocumentLine));
         CurrencyFactor :=
           Round(1 / DocumentHeader."Currency Factor", 0.000001) / DocumentHeader."Exchange Rate USD";
         AddAttribute(XMLDoc, XMLCurrNode, 'TipoCambioUSD', FormatDecimal(DocumentHeader."Exchange Rate USD", 6));
-        AddAttribute(
-          XMLDoc, XMLCurrNode, 'TotalUSD',
-          FormatDecimal(DocumentHeader.Amount * CurrencyFactor, 2));
+        AddAttribute(XMLDoc, XMLCurrNode, 'TotalUSD', FormatDecimal(DocumentHeader.Amount * CurrencyFactor, 2));
 
         AddElementCCE(XMLCurrNode, 'Emisor', '', DocNameSpace, XMLNewChild);
         XMLCurrNode := XMLNewChild;
@@ -5976,6 +6003,8 @@ IsVATExemptLine(TempDocumentLine));
 
         AddElementCCE(XMLCurrNode, 'Receptor', '', DocNameSpace, XMLNewChild);
         XMLCurrNode := XMLNewChild;
+        if (SATUtilities.GetSATCountryCode(Customer."Country/Region Code") <> 'MEX') and (Customer."RFC No." = GetForeignRFCNo()) then
+            AddAttribute(XMLDoc, XMLCurrNode, 'NumRegIdTrib', Customer."VAT Registration No.");
         AddElementCCE(XMLCurrNode, 'Domicilio', '', DocNameSpace, XMLNewChild);
         XMLCurrNode := XMLNewChild;
         Location.Get(DocumentHeader."Transit-to Location");
@@ -5986,36 +6015,48 @@ IsVATExemptLine(TempDocumentLine));
         // Mercancias
         AddElementCCE(XMLCurrNode, 'Mercancias', '', DocNameSpace, XMLNewChild);
         XMLCurrNode := XMLNewChild;
-        TempDocumentLine.FindSet();
+        LineCount := TempDocumentLineCCE.Count();
+        TempDocumentLineCCE.FindSet();
         repeat
+            LineNo += 1;
             AddElementCCE(XMLCurrNode, 'Mercancia', '', DocNameSpace, XMLNewChild);
             XMLCurrNode := XMLNewChild;
-            AddAttribute(XMLDoc, XMLCurrNode, 'NoIdentificacion', TempDocumentLine."No.");
-            Item.Get(TempDocumentLine."No.");
+            AddAttribute(XMLDoc, XMLCurrNode, 'NoIdentificacion', TempDocumentLineCCE."No.");
+            Item.Get(TempDocumentLineCCE."No.");
             AddAttribute(XMLDoc, XMLCurrNode, 'FraccionArancelaria', DelChr(Item."Tariff No."));
-            AddAttribute(XMLDoc, XMLCurrNode, 'CantidadAduana', Format(TempDocumentLine.Quantity, 0, 9));
-            UnitOfMeasure.Get(TempDocumentLine."Unit of Measure Code");
+            AddAttribute(XMLDoc, XMLCurrNode, 'CantidadAduana', Format(TempDocumentLineCCE.Quantity, 0, 9));
+            UnitOfMeasure.Get(TempDocumentLineCCE."Unit of Measure Code");
             AddAttribute(XMLDoc, XMLCurrNode, 'UnidadAduana', UnitOfMeasure."SAT Customs Unit");
             AddAttribute(
-              XMLDoc, XMLCurrNode, 'ValorDolares',
-              FormatDecimal(Round(TempDocumentLine.Amount * CurrencyFactor, 0.000001), 2));
-            AddAttribute(
               XMLDoc, XMLCurrNode, 'ValorUnitarioAduana',
-              FormatDecimal(Round(TempDocumentLine."Unit Price/Direct Unit Cost" * CurrencyFactor, 0.000001), 2));
+              FormatDecimal(Round(TempDocumentLineCCE.Amount / TempDocumentLineCCE.Quantity * CurrencyFactor, 0.01, '<'), 2));
+            if LineNo <> LineCount then begin
+                AddAttribute(
+                  XMLDoc, XMLCurrNode, 'ValorDolares',
+                  FormatDecimal(Round(TempDocumentLineCCE.Amount * CurrencyFactor, 0.01), 2));
+                SumAmountUSD += Round(TempDocumentLineCCE.Amount * CurrencyFactor, 0.01);
+            end else
+                AddAttribute(
+                  XMLDoc, XMLCurrNode, 'ValorDolares',
+                  FormatDecimal(Round(DocumentHeader.Amount * CurrencyFactor, 0.01) - SumAmountUSD, 2));
             XMLCurrNode := XMLCurrNode.ParentNode; // Mercancia
-        until TempDocumentLine.Next() = 0;
+        until TempDocumentLineCCE.Next() = 0;
         XMLCurrNode := XMLCurrNode.ParentNode; // Mercancias
 
         XMLCurrNode := XMLCurrNode.ParentNode; // ComercioExterior
         XMLCurrNode := XMLCurrNode.ParentNode; // Complemento
     end;
 
-    local procedure AddStrComercioExterior(var TempDocumentLine: Record "Document Line" temporary; DocumentHeader: Record "Document Header"; var OutStr: OutStream)
+    local procedure AddStrComercioExterior(var TempDocumentLineCCE: Record "Document Line" temporary; DocumentHeader: Record "Document Header"; var OutStr: OutStream)
     var
         Location: Record Location;
         Item: Record Item;
         UnitOfMeasure: Record "Unit of Measure";
+        SATUtilities: Codeunit "SAT Utilities";
         CurrencyFactor: Decimal;
+        LineCount: Integer;
+        LineNo: Integer;
+        SumAmountUSD: Decimal;
     begin
         if not DocumentHeader."Foreign Trade" then
             exit;
@@ -6038,23 +6079,33 @@ IsVATExemptLine(TempDocumentLine));
         AddStrDomicilio(Location, OutStr);
 
         // Receptor/Domicilio
+        if (SATUtilities.GetSATCountryCode(Customer."Country/Region Code") <> 'MEX') and (Customer."RFC No." = GetForeignRFCNo()) then
+            WriteOutStr(OutStr, Customer."VAT Registration No." + '|'); // NumRegIdTrib
         Location.Get(DocumentHeader."Transit-to Location");
         AddStrDomicilio(Location, OutStr);
 
         // Mercancias
-        TempDocumentLine.FindSet();
+        LineCount := TempDocumentLineCCE.Count();
+        TempDocumentLineCCE.FindSet();
         repeat
-            WriteOutStr(OutStr, TempDocumentLine."No." + '|'); // NoIdentificacion
-            Item.Get(TempDocumentLine."No.");
+            LineNo += 1;
+            WriteOutStr(OutStr, TempDocumentLineCCE."No." + '|'); // NoIdentificacion
+            Item.Get(TempDocumentLineCCE."No.");
             WriteOutStr(OutStr, DelChr(Item."Tariff No.") + '|'); // FraccionArancelaria
-            WriteOutStr(OutStr, Format(TempDocumentLine.Quantity, 0, 9) + '|'); // CantidadAduana
-            UnitOfMeasure.Get(TempDocumentLine."Unit of Measure Code");
+            WriteOutStr(OutStr, Format(TempDocumentLineCCE.Quantity, 0, 9) + '|'); // CantidadAduana
+            UnitOfMeasure.Get(TempDocumentLineCCE."Unit of Measure Code");
             WriteOutStr(OutStr, UnitOfMeasure."SAT Customs Unit" + '|'); // UnidadAduana
-            WriteOutStr(OutStr, 
-              FormatDecimal(Round(TempDocumentLine.Amount * CurrencyFactor, 0.000001), 2) + '|'); // ValorDolares
-            WriteOutStr(OutStr, 
-              FormatDecimal(Round(TempDocumentLine."Unit Price/Direct Unit Cost" * CurrencyFactor, 0.000001), 2) + '|'); // ValorUnitarioAduana
-        until TempDocumentLine.Next() = 0;
+            WriteOutStr(OutStr,
+              FormatDecimal(
+                Round(TempDocumentLineCCE.Amount / TempDocumentLineCCE.Quantity * CurrencyFactor, 0.01, '<'), 2) + '|'); // ValorUnitarioAduana
+            if LineNo <> LineCount then begin
+                WriteOutStr(OutStr,
+                  FormatDecimal(Round(TempDocumentLineCCE.Amount * CurrencyFactor, 0.01), 2) + '|'); // ValorDolares
+                SumAmountUSD += Round(TempDocumentLineCCE.Amount * CurrencyFactor, 0.01);
+            end else
+                WriteOutStr(OutStr,
+                    FormatDecimal(Round(DocumentHeader.Amount * CurrencyFactor, 0.01) - SumAmountUSD, 2) + '|'); // ValorDolares
+        until TempDocumentLineCCE.Next() = 0;
     end;
 
     local procedure AddNodeCartaPorteUbicacion(TipoUbicacion: Text; RFCNo: Text; LocationCode: Code[10]; LocationPrefix: Text[2]; FechaHoraSalidaLlegada: Text; DistanciaRecorrida: Text; ForeignTrade: Boolean; var XMLDoc: DotNet XmlDocument; XMLCurrNode: DotNet XmlNode; XMLNewChild: DotNet XmlNode)
@@ -6432,6 +6483,11 @@ IsVATExemptLine(TempDocumentLine));
         exit('02');
     end;
 
+    local procedure GetForeignRFCNo(): Code[13]
+    begin
+        exit('XEXX010101000');
+    end;
+
     local procedure GetTaxCategoryExempt(): Code[10]
     begin
         exit('E');
@@ -6608,7 +6664,7 @@ IsVATExemptLine(TempDocumentLine));
             exit;
 
         if TempDocumentLine."Retention Attached to Line No." = 0 then
-            VATIdentifier := VATPostingSetup."VAT Identifier"
+            VATIdentifier := CopyStr(Format(TempDocumentLine."VAT %"), 1, MaxStrLen(TempVATAmountLine."VAT Identifier"))
         else
             VATIdentifier := CopyStr(Format(TempDocumentLine."Retention VAT %"), 1, MaxStrLen(TempVATAmountLine."VAT Identifier"));
         if not TempVATAmountLine.Get(
@@ -6617,7 +6673,7 @@ IsVATExemptLine(TempDocumentLine));
             TempVATAmountLine.Init();
             TempVATAmountLine."VAT Identifier" := VATIdentifier;
             TempVATAmountLine."VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
-            TempVATAmountLine.Positive := TempDocumentLine.Amount > 0;
+            TempVATAmountLine.Positive := TempDocumentLine.Amount >= 0;
             TempVATAmountLine.Insert();
         end;
 
@@ -7180,6 +7236,24 @@ IsVATExemptLine(TempDocumentLine));
             LogIfEmpty(Location, Location.FieldNo("SAT Suburb ID"), "Message Type"::Error);
             LogIfEmpty(Location, Location.FieldNo(Address), "Message Type"::Warning);
         end;
+    end;
+
+    local procedure CalcComercioExteriorLine(var TempDocumentLineCCE: Record "Document Line" temporary; TempDocumentLine: Record "Document Line" temporary; IsForeignTrade: Boolean)
+    begin
+        if not IsForeignTrade then
+            exit;
+
+        TempDocumentLineCCE.SetRange("Document No.", TempDocumentLine."Document No.");
+        TempDocumentLineCCE.SetRange("No.", TempDocumentLine."No.");
+        if not TempDocumentLineCCE.FindFirst() then begin
+            TempDocumentLineCCE := TempDocumentLine;
+            TempDocumentLineCCE.Insert();
+        end else begin
+            TempDocumentLineCCE.Quantity += TempDocumentLine.Quantity;
+            TempDocumentLineCCE.Amount += TempDocumentLine.Amount;
+            TempDocumentLineCCE.Modify();
+        end;
+        TempDocumentLineCCE.SetRange("No.");
     end;
 
     local procedure CancellationReasonRequired(ReasonCode: Code[10]): Boolean
