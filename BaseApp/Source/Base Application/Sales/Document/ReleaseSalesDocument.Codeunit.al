@@ -174,13 +174,15 @@ codeunit 414 "Release Sales Document"
         SalesLine.SetRange(Type, SalesLine.Type::Item);
         if SalesLine.FindSet() then
             repeat
-                if InvtSetup."Location Mandatory" then
-                    if SalesLine.IsInventoriableItem() then begin
+                if SalesLine.IsInventoriableItem() then begin
+                    if InvtSetup."Location Mandatory" then begin
                         IsHandled := false;
                         OnCodeOnBeforeSalesLineCheck(SalesLine, IsHandled);
                         if not IsHandled then
                             SalesLine.TestField("Location Code");
                     end;
+                    SalesLine.TestField("Unit of Measure Code");
+                end;
                 if Item.Get(SalesLine."No.") then
                     if Item.IsVariantMandatory() then
                         SalesLine.TestField("Variant Code");
