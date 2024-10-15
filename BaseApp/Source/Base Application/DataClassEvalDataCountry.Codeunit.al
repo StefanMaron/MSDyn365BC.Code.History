@@ -31,6 +31,7 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales VAT Advance Notification");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Transmission Log Entry");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Electronic VAT Decl. Setup");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Electronic VAT Decl. Buffer");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::Certificate);
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Key Buffer");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Number Series Buffer");
