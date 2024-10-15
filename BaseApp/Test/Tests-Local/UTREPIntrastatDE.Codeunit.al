@@ -391,6 +391,7 @@ codeunit 142039 "UT REP Intrastat DE"
     var
         Item: Record Item;
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        CountryRegion: Record "Country/Region";
     begin
         // [FEATURE] [Intrastat - Form DE] [Shipment]
         // [SCENARIO 258143] Origin country "Intrastat Code" when run REP 11012 "Intrastat - Form DE" for the Intrastat Journal Shipment line
@@ -402,8 +403,10 @@ codeunit 142039 "UT REP Intrastat DE"
         // [WHEN] Run Report 11012 "Intrastat - Form DE"
         RunIntrastatFormDEReport(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
 
-        // [THEN] Origin Country Intrastat Code = ""
-        VerifyIntrastatReport('OriginCountry__Intrastat_Code_', '');
+        // [THEN] Origin Country Intrastat Code = "Y"
+        // TFS ID 437356: Intrastat Form DE shows the Country Of Origin Code from the Intrastat Journal Line
+        CountryRegion.Get(IntrastatJnlLine."Country/Region of Origin Code");
+        VerifyIntrastatReport('OriginCountry__Intrastat_Code_', CountryRegion."Intrastat Code");
     end;
 
     [Test]

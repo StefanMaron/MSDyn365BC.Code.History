@@ -67,12 +67,12 @@ page 328 "Intrastat Setup"
                 field("Default Transaction Type"; "Default Trans. - Purchase")
                 {
                     ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the default transaction type for regular sales shipments, service shipments, and purchase receipts.';
+                    ToolTip = 'Specifies the default transaction type for regular sales shipments and service shipments, and purchase receipts.';
                 }
                 field("Default Trans. Type - Returns"; "Default Trans. - Return")
                 {
                     ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the default transaction type for sales returns, service returns, and purchase returns';
+                    ToolTip = 'Specifies the default transaction type for sales returns and service returns, and purchase returns';
                 }
             }
         }

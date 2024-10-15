@@ -216,10 +216,7 @@ report 11012 "Intrastat - Form DE"
 
                     Country.Get("Country/Region Code");
                     Country.TestField("Intrastat Code");
-                    if Type = Type::Receipt then
-                        OriginCountryIntrastatCode := IntrastatExportMgtDACH.GetOriginCountryCode("Country/Region of Origin Code")
-                    else
-                        OriginCountryIntrastatCode := '';
+                    OriginCountryIntrastatCode := "Country/Region of Origin Code";
 
                     if ("Intrastat Jnl. Line"."Journal Template Name" <> IntrastatJnlLine1."Journal Template Name") or
                        ("Intrastat Jnl. Line"."Journal Batch Name" <> IntrastatJnlLine1."Journal Batch Name") or
@@ -301,7 +298,6 @@ report 11012 "Intrastat - Form DE"
         IntrastatSetup: Record "Intrastat Setup";
 #endif
         IntraJnlManagement: Codeunit IntraJnlManagement;
-        IntrastatExportMgtDACH: Codeunit "Intrastat - Export Mgt. DACH";
         IntraJnlLineFilter: Text;
         HeaderText: Text[30];
         NoOfRecords: Integer;
@@ -321,7 +317,7 @@ report 11012 "Intrastat - Form DE"
         Intrastat_Jnl__Line__Total_Weight_CaptionLbl: Label 'Total Weight';
         OriginCountry__Intrastat_Code_CaptionLbl: Label 'Country of Origin Code';
         Intrastat_Jnl__Line__Total__Caption_Control1140036Lbl: Label 'Total';
-        NoOfRecordsCaptionLbl: Label 'No. of Entries';
+        NoOfRecordsCaptionLbl: Label 'No. of Combined Entries';
         TranstotalRounded: Integer;
 }
 
