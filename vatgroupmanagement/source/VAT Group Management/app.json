@@ -2,7 +2,7 @@
     "id":  "c50a4bf0-db51-4ad2-88d5-fe2287da0eb8",
     "name":  "VAT Group Management",
     "publisher":  "Microsoft",
-    "version":  "21.3.51409.51464",
+    "version":  "21.3.51409.52692",
     "brief":  "The VAT Group Management extension makes it easy to be part of a VAT group.",
     "description":  "This app defines member and representative companies in the VAT group. Group members submit VAT returns to the group representative, who then submits the aggregated return for all member companies to the tax authorities.",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
