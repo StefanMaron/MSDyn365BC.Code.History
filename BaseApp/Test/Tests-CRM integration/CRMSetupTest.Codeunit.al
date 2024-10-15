@@ -1531,36 +1531,38 @@ codeunit 139160 "CRM Setup Test"
     [Test]
     [HandlerFunctions('ConfirmYes')]
     [Scope('OnPrem')]
-    procedure ConnectionSetupDefaultSDKVersion9()
+    procedure ConnectionSetupDefaultSDKVersion()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
         CRMConnectionSetupPage: TestPage "CRM Connection Setup";
+        LatestSDKVersion: Integer;
     begin
         // [FEATURE] [Multiple SDK]
         // [SCENARIO 234755] Connection Setup has SDK Version 9 by default
         Initialize;
+        LatestSDKVersion := LibraryCRMIntegration.GetLastestSDKVersion();
 
         // [WHEN] Connection Setup page opened first time
         CRMConnectionSetupPage.OpenEdit;
 
-        // [THEN] SDK Version = 9 by default
-        CRMConnectionSetupPage.SDKVersion.AssertEquals(9);
+        // [THEN] The latest SDK proxy version is by default
+        CRMConnectionSetupPage.SDKVersion.AssertEquals(LatestSDKVersion);
 
         // [WHEN] Server address in entered and page closed
         CRMConnectionSetupPage."Server Address".SetValue('https://test.dynamics.com');
         CRMConnectionSetupPage.Close;
 
-        // [THEN] CRM Connection Setup record has Proxy Version = 9
-        CRMConnectionSetup.Get;
-        CRMConnectionSetup.TestField("Proxy Version", 9);
+        // [THEN] CRM Connection Setup record has the latest SDK proxy version
+        CRMConnectionSetup.Get();
+        CRMConnectionSetup.TestField("Proxy Version", LatestSDKVersion);
 
         // [WHEN] CRM Connection Setup record has Proxy Version = 0 and CRM Connection Setup page is opened
         CRMConnectionSetup.Validate("Proxy Version", 0);
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
         CRMConnectionSetupPage.OpenEdit;
 
-        // [THEN] SDK Version = 9 by default
-        CRMConnectionSetupPage.SDKVersion.AssertEquals(9);
+        // [THEN] The latest SDK proxy version is by default
+        CRMConnectionSetupPage.SDKVersion.AssertEquals(LatestSDKVersion);
     end;
 
     [Test]

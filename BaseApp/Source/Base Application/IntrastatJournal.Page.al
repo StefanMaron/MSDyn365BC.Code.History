@@ -190,11 +190,20 @@ page 311 "Intrastat Journal"
                     ToolTip = 'Specifies a code for the country/region where the item was produced or processed.';
                     Visible = false;
                 }
+                field("Partner VAT ID"; "Partner VAT ID")
+                {
+                    ApplicationArea = BasicEU;
+                    ToolTip = 'Specifies the counter party''s VAT number.';
+                    Visible = false;
+                }
                 field("Partner ID"; "Partner ID")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the counter party''s VAT number.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Merged to W1';
+                    ObsoleteTag = '18.0';
                 }
             }
             group(Control40)
