@@ -62,7 +62,6 @@ codeunit 99000854 "Inventory Profile Offsetting"
         NextStateTxt: Label 'StartOver,MatchDates,MatchQty,CreateSupply,ReduceSupply,CloseDemand,CloseSupply,CloseLoop';
         NextState: Option StartOver,MatchDates,MatchQty,CreateSupply,ReduceSupply,CloseDemand,CloseSupply,CloseLoop;
         LotAccumulationPeriodStartDate: Date;
-        PlanningPeriodRightMargin: Date;
 
     procedure CalculatePlanFromWorksheet(var Item: Record Item; ManufacturingSetup2: Record "Manufacturing Setup"; TemplateName: Code[10]; WorksheetName: Code[10]; OrderDate: Date; ToDate: Date; MRPPlanning: Boolean; RespectPlanningParm: Boolean)
     var
@@ -1374,8 +1373,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
                         if LastProjectedInventory + SupplyWithinLeadtime <= TempSKU."Reorder Point" then begin
                             InitSupply(SupplyInvtProfile, 0, 0D, 0T);
                             CreateSupplyForward(
-                              SupplyInvtProfile, DemandInvtProfile, PlanningStartDate, LastProjectedInventory, NewSupplyHasTakenOver,
-                              DemandInvtProfile."Due Date");
+                              SupplyInvtProfile, DemandInvtProfile, TempReminderInvtProfile,
+                              PlanningStartDate, LastProjectedInventory, NewSupplyHasTakenOver, DemandInvtProfile."Due Date");
 
                             NeedOfPublishSurplus := SupplyInvtProfile."Due Date" > ToDate;
                         end;
@@ -1537,8 +1536,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
               TempReminderInvtProfile, ToDate, LastProjectedInventory, LatestBucketStartDate, ROPHasBeenCrossed);
         if ROPHasBeenCrossed then begin
             CreateSupplyForward(
-              SupplyInvtProfile, DemandInvtProfile, LatestBucketStartDate, LastProjectedInventory, NewSupplyHasTakenOver,
-              DemandInvtProfile."Due Date");
+              SupplyInvtProfile, DemandInvtProfile, TempReminderInvtProfile,
+              LatestBucketStartDate, LastProjectedInventory, NewSupplyHasTakenOver, DemandInvtProfile."Due Date");
             SupplyExists := true;
             NextState := NextState::StartOver;
         end else
@@ -1575,11 +1574,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                     Track(SupplyInvtProfile, DemandInvtProfile, false, false, SupplyInvtProfile.Binding)
                 else
                     Track(SupplyInvtProfile, DemandInvtProfile, true, false, SupplyInvtProfile.Binding::" ");
-            if (SupplyInvtProfile."Due Date" < PlanningPeriodRightMargin) and
-               (SupplyInvtProfile."Planning Flexibility" = SupplyInvtProfile."Planning Flexibility"::"Reduce Only") or
-               (SupplyInvtProfile."Planning Flexibility" <> SupplyInvtProfile."Planning Flexibility"::"Reduce Only")
-            then
-                SupplyInvtProfile.Delete;
+            SupplyInvtProfile.Delete;
 
             // Planning Transparency
             if DemandExists then begin
@@ -1621,8 +1616,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
             MaintainProjectedInventory(
               TempReminderInvtProfile, NewSupplyDate, LastProjectedInventory, LatestBucketStartDate, ROPHasBeenCrossed);
         if ROPHasBeenCrossed then begin
-            CreateSupplyForward(SupplyInvtProfile, DemandInvtProfile, LatestBucketStartDate, LastProjectedInventory,
-              NewSupplyHasTakenOver, DemandInvtProfile."Due Date");
+            CreateSupplyForward(SupplyInvtProfile, DemandInvtProfile, TempReminderInvtProfile,
+              LatestBucketStartDate, LastProjectedInventory, NewSupplyHasTakenOver, DemandInvtProfile."Due Date");
             if NewSupplyHasTakenOver then begin
                 SupplyExists := true;
                 WeAreSureThatDatesMatch := false;
@@ -1681,8 +1676,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
             MaintainProjectedInventory(
               TempReminderInvtProfile, NewSupplyDate, LastProjectedInventory, LatestBucketStartDate, ROPHasBeenCrossed);
             if ROPHasBeenCrossed then begin
-                CreateSupplyForward(SupplyInvtProfile, DemandInvtProfile, LatestBucketStartDate,
-                  LastProjectedInventory, NewSupplyHasTakenOver, DemandInvtProfile."Due Date");
+                CreateSupplyForward(SupplyInvtProfile, DemandInvtProfile, TempReminderInvtProfile,
+                  LatestBucketStartDate, LastProjectedInventory, NewSupplyHasTakenOver, DemandInvtProfile."Due Date");
                 if NewSupplyHasTakenOver then begin
                     WeAreSureThatDatesMatch := false;
                     NextState := NextState::MatchDates;
@@ -1733,8 +1728,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
         NewSupplyHasTakenOver := false;
         if ROPHasBeenCrossed then begin
             CreateSupplyForward(
-              SupplyInvtProfile, DemandInvtProfile, LatestBucketStartDate, LastProjectedInventory, NewSupplyHasTakenOver,
-              SupplyInvtProfile."Due Date");
+              SupplyInvtProfile, DemandInvtProfile, TempReminderInvtProfile,
+              LatestBucketStartDate, LastProjectedInventory, NewSupplyHasTakenOver, SupplyInvtProfile."Due Date");
             if NewSupplyHasTakenOver then begin
                 if DemandExists then
                     NextState := NextState::MatchDates
@@ -3119,11 +3114,6 @@ codeunit 99000854 "Inventory Profile Offsetting"
                 LatestBucketStartDate := FindNextBucketStartDate(TempReminderInvtProfile, AtDate, LatestBucketStartDate);
             NextBucketEndDate := LatestBucketStartDate + BucketSizeInDays - 1;
         end;
-
-        if AtDate <= LatestBucketStartDate then
-            PlanningPeriodRightMargin := LatestBucketStartDate
-        else
-            PlanningPeriodRightMargin := AtDate;
     end;
 
     local procedure FindNextBucketStartDate(var TempReminderInvtProfile: Record "Inventory Profile" temporary; AtDate: Date; LatestBucketStartDate: Date) NextBucketStartDate: Date
@@ -3381,7 +3371,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         if InventoryProfile.Get(InventoryProfile."Line No.") then;
     end;
 
-    local procedure CreateSupplyForward(var SupplyInvtProfile: Record "Inventory Profile"; DemandInvtProfile: Record "Inventory Profile"; AtDate: Date; ProjectedInventory: Decimal; var NewSupplyHasTakenOver: Boolean; CurrDueDate: Date)
+    local procedure CreateSupplyForward(var SupplyInvtProfile: Record "Inventory Profile"; DemandInvtProfile: Record "Inventory Profile"; var TempReminderInvtProfile: Record "Inventory Profile" temporary; AtDate: Date; ProjectedInventory: Decimal; var NewSupplyHasTakenOver: Boolean; CurrDueDate: Date)
     var
         TempSupplyInvtProfile: Record "Inventory Profile" temporary;
         CurrSupplyInvtProfile: Record "Inventory Profile";
@@ -3411,7 +3401,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
         LeadTimeEndDate := TempSupplyInvtProfile."Due Date";
 
         // Find supply within leadtime, returns a qty
-        SupplyWithinLeadtime := SumUpProjectedSupply(SupplyInvtProfile, AtDate, LeadTimeEndDate);
+        TempReminderInvtProfile.SetRange(IsSupply, true);
+        SupplyWithinLeadtime :=
+          SumUpProjectedSupply(SupplyInvtProfile, AtDate, LeadTimeEndDate) +
+          QtyFromPendingReminders(TempReminderInvtProfile, LeadTimeEndDate, AtDate);
+        TempReminderInvtProfile.SetRange(IsSupply);
         FutureSupplyWithinLeadtime := SupplyWithinLeadtime;
 
         // If found supply + projinvlevel covers ROP then the situation has already been taken care of: roll back and (exit)

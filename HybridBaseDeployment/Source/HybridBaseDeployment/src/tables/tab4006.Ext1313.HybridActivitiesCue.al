@@ -10,6 +10,7 @@ tableextension 4006 "Hybrid Activites Cue" extends "Activities Cue"
             DataClassification = SystemMetadata;
             ObsoleteState = Pending;
             ObsoleteReason = 'Moved to a variable on the page instead.';
+            ObsoleteTag = '15.4';
         }
     }
 }

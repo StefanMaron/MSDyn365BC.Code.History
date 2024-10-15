@@ -36,29 +36,11 @@ page 786 "Vendor Picture"
                 Visible = CameraAvailable;
 
                 trigger OnAction()
-                var
-                    InStream: InStream;
                 begin
                     TestField("No.");
                     TestField(Name);
 
-                    if not CameraAvailable then
-                        exit;
-
-                    Camera.RunModal();
-
-                    if Image.HasValue then
-                        if not Confirm(OverrideImageQst) then
-                            exit;
-
-                    Camera.GetPicture(Instream);
-
-                    Clear(Image);
-                    Image.ImportStream(Instream, 'Vendor Picture');
-                    if not Modify(true) then
-                        Insert(true);
-
-                    Clear(Camera);
+                    Camera.AddPicture(Rec, Rec.FieldNo(Image));
                 end;
             }
             action(ImportPicture)
@@ -151,7 +133,7 @@ page 786 "Vendor Picture"
     end;
 
     var
-        Camera: Page Camera;
+        Camera: Codeunit Camera;
         [InDataSet]
         CameraAvailable: Boolean;
         OverrideImageQst: Label 'The existing picture will be replaced. Do you want to continue?';
