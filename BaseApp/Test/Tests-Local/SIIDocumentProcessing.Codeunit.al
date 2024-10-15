@@ -679,8 +679,11 @@ codeunit 147522 "SII Document Processing"
           SIIDocUploadState."Document Source"::"Vendor Ledger",
           SIIDocUploadState."Document Type"::Invoice, PurchInvHeader."No.");
 
-        PurchInvHeader.CalcFields("SII Status");
+        PurchInvHeader.CalcFields("SII Status", "Sent to SII");
         PurchInvHeader.TestField("SII Status", PurchInvHeader."SII Status"::Incorrect);
+
+        // TFS ID 351319: A document sent to sii has value "Sent to SII"
+        PurchInvHeader.TestField("Sent to SII");
     end;
 
     [Test]
@@ -703,8 +706,11 @@ codeunit 147522 "SII Document Processing"
           SIIDocUploadState."Document Source"::"Customer Ledger",
           SIIDocUploadState."Document Type"::Invoice, SalesInvoiceHeader."No.");
 
-        SalesInvoiceHeader.CalcFields("SII Status");
+        SalesInvoiceHeader.CalcFields("SII Status", "Sent to SII");
         SalesInvoiceHeader.TestField("SII Status", SalesInvoiceHeader."SII Status"::Incorrect);
+
+        // TFS ID 351319: A document sent to sii has value "Sent to SII"
+        SalesInvoiceHeader.TestField("Sent to SII");
     end;
 
     [Test]
@@ -727,8 +733,11 @@ codeunit 147522 "SII Document Processing"
           SIIDocUploadState."Document Source"::"Customer Ledger",
           SIIDocUploadState."Document Type"::Invoice, ServiceInvoiceHeader."No.");
 
-        ServiceInvoiceHeader.CalcFields("SII Status");
+        ServiceInvoiceHeader.CalcFields("SII Status", "Sent to SII");
         ServiceInvoiceHeader.TestField("SII Status", ServiceInvoiceHeader."SII Status"::Incorrect);
+
+        // TFS ID 351319: A document sent to sii has value "Sent to SII"
+        ServiceInvoiceHeader.TestField("Sent to SII");
     end;
 
     [Test]
@@ -751,8 +760,11 @@ codeunit 147522 "SII Document Processing"
           SIIDocUploadState."Document Source"::"Vendor Ledger",
           SIIDocUploadState."Document Type"::"Credit Memo", PurchCrMemoHdr."No.");
 
-        PurchCrMemoHdr.CalcFields("SII Status");
+        PurchCrMemoHdr.CalcFields("SII Status", "Sent to SII");
         PurchCrMemoHdr.TestField("SII Status", PurchCrMemoHdr."SII Status"::Incorrect);
+
+        // TFS ID 351319: A document sent to sii has value "Sent to SII"
+        PurchCrMemoHdr.TestField("Sent to SII");
     end;
 
     [Test]
@@ -775,8 +787,11 @@ codeunit 147522 "SII Document Processing"
           SIIDocUploadState."Document Source"::"Customer Ledger",
           SIIDocUploadState."Document Type"::"Credit Memo", SalesCrMemoHeader."No.");
 
-        SalesCrMemoHeader.CalcFields("SII Status");
+        SalesCrMemoHeader.CalcFields("SII Status", "Sent to SII");
         SalesCrMemoHeader.TestField("SII Status", SalesCrMemoHeader."SII Status"::Incorrect);
+
+        // TFS ID 351319: A document sent to sii has value "Sent to SII"
+        SalesCrMemoHeader.TestField("Sent to SII");
     end;
 
     [Test]
@@ -799,8 +814,11 @@ codeunit 147522 "SII Document Processing"
           SIIDocUploadState."Document Source"::"Customer Ledger",
           SIIDocUploadState."Document Type"::"Credit Memo", ServiceCrMemoHeader."No.");
 
-        ServiceCrMemoHeader.CalcFields("SII Status");
+        ServiceCrMemoHeader.CalcFields("SII Status", "Sent to SII");
         ServiceCrMemoHeader.TestField("SII Status", ServiceCrMemoHeader."SII Status"::Incorrect);
+
+        // TFS ID 351319: A document sent to sii has value "Sent to SII"
+        ServiceCrMemoHeader.TestField("Sent to SII");
     end;
 
     [Test]

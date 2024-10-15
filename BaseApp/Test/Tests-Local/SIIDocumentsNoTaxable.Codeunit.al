@@ -443,6 +443,87 @@ codeunit 147524 "SII Documents No Taxable"
 
     [Test]
     [Scope('OnPrem')]
+    procedure SalesDomesticInvoiceWithNormalAndNoTaxableLinesXml()
+    var
+        SalesHeader: Record "Sales Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Invoice]
+        // [SCENARIO 352183] XML has correct sequence of normal and non taxable nodes when export Sales Invoice with domestic customer
+
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with two lines
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Invoice Type", SalesHeader."Invoice Type"::"F2 Simplified Invoice");
+        SalesHeader.Modify(true);
+
+        // [GIVEN] 1st line where "VAT Calculation Type" = "Normal VAT"
+        LibrarySII.CreateSalesLineWithUnitPrice(
+          SalesHeader, LibrarySII.CreateItemWithSpecificVATSetup(SalesHeader."VAT Bus. Posting Group", LibraryRandom.RandIntInRange(10, 25)));
+
+        // [GIVEN] 2nd line where "VAT Calculation Type" = "No Taxable VAT"
+        ItemNo :=
+          LibrarySII.CreateItemNoWithSpecificVATSetup(
+            LibrarySII.CreateSpecificNoTaxableVATSetup(SalesHeader."VAT Bus. Posting Group", false, 0));
+        LibrarySII.CreateSalesLineWithUnitPrice(SalesHeader, ItemNo);
+
+        CustLedgerEntry.SetRange("Sell-to Customer No.", SalesHeader."Bill-to Customer No.");
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, LibrarySales.PostSalesDocument(SalesHeader, false, false));
+
+        // [WHEN] Create xml for Posted Sales Invoice
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file has the following nodes under sii:DesgloseFactura in the following order: sii:Sujeta, sii:NoSujeta
+        LibrarySII.VerifySequenceOfTwoChildNodes(XMLDoc, 'sii:DesgloseFactura', 'sii:Sujeta', 'sii:NoSujeta');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesDomesticEUServiceInvoiceWithNormalAndNoTaxableLinesXml()
+    var
+        SalesHeader: Record "Sales Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Invoice]
+        // [SCENARIO 352183] XML has correct sequence of normal and non taxable nodes when export Sales Invoice with domestic customer and EU Service
+
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with two lines
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Invoice Type", SalesHeader."Invoice Type"::"F2 Simplified Invoice");
+        SalesHeader.Modify(true);
+
+        // [GIVEN] 1st line where "VAT Calculation Type" = "Normal VAT", "EU Service" = TRUE
+        LibrarySII.CreateSalesLineWithUnitPrice(
+          SalesHeader, LibrarySII.CreateItemWithSpecificVATSetupEUService(
+            SalesHeader."VAT Bus. Posting Group", LibraryRandom.RandIntInRange(10, 25), true));
+
+        // [GIVEN] 2nd line where "VAT Calculation Type" = "No Taxable VAT", "EU Service" = TRUE
+        ItemNo :=
+          LibrarySII.CreateItemNoWithSpecificVATSetup(
+            LibrarySII.CreateSpecificNoTaxableVATSetup(SalesHeader."VAT Bus. Posting Group", true, 0));
+        LibrarySII.CreateSalesLineWithUnitPrice(SalesHeader, ItemNo);
+
+        CustLedgerEntry.SetRange("Sell-to Customer No.", SalesHeader."Bill-to Customer No.");
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, LibrarySales.PostSalesDocument(SalesHeader, false, false));
+
+        // [WHEN] Create xml for Posted Sales Invoice
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file has the following nodes under sii:DesgloseFactura in the following order: sii:Sujeta, sii:NoSujeta
+        LibrarySII.VerifySequenceOfTwoChildNodes(XMLDoc, 'sii:DesgloseFactura', 'sii:Sujeta', 'sii:NoSujeta');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure SalesCrMemoWithNormalAndNoTaxableLinesXml()
     var
         Customer: Record Customer;
@@ -496,6 +577,87 @@ codeunit 147524 "SII Documents No Taxable"
         LibrarySII.ValidateElementByName(
           XMLDoc, 'sii:ImporteTotal',
           SIIXMLCreator.FormatNumber(-GetVATEntryTotalAmount(CustLedgerEntry."Document Type", CustLedgerEntry."Document No.")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesDomesticCrMemoWithNormalAndNoTaxableLinesXml()
+    var
+        SalesHeader: Record "Sales Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Credit Memo]
+        // [SCENARIO 352183] XML has correct sequence of normal and non taxable nodes when export Sales Credit Memo with domestic customer
+
+        Initialize();
+
+        // [GIVEN] Posted Sales Credit Memo with two lines
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Invoice Type", SalesHeader."Invoice Type"::"F2 Simplified Invoice");
+        SalesHeader.Modify(true);
+
+        // [GIVEN] 1st line where "VAT Calculation Type" = "Normal VAT"
+        LibrarySII.CreateSalesLineWithUnitPrice(
+          SalesHeader, LibrarySII.CreateItemWithSpecificVATSetup(SalesHeader."VAT Bus. Posting Group", LibraryRandom.RandIntInRange(10, 25)));
+
+        // [GIVEN] 2nd line where "VAT Calculation Type" = "No Taxable VAT"
+        ItemNo :=
+          LibrarySII.CreateItemNoWithSpecificVATSetup(
+            LibrarySII.CreateSpecificNoTaxableVATSetup(SalesHeader."VAT Bus. Posting Group", false, 0));
+        LibrarySII.CreateSalesLineWithUnitPrice(SalesHeader, ItemNo);
+
+        CustLedgerEntry.SetRange("Sell-to Customer No.", SalesHeader."Bill-to Customer No.");
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", LibrarySales.PostSalesDocument(SalesHeader, false, false));
+
+        // [WHEN] Create xml for Posted Sales Credit Memo
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file has the following nodes under sii:DesgloseFactura in the following order: sii:Sujeta, sii:NoSujeta
+        LibrarySII.VerifySequenceOfTwoChildNodes(XMLDoc, 'sii:DesgloseFactura', 'sii:Sujeta', 'sii:NoSujeta');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesDomesticEUServiceCrMemoWithNormalAndNoTaxableLinesXml()
+    var
+        SalesHeader: Record "Sales Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Credit Memo]
+        // [SCENARIO 352183] XML has correct sequence of normal and non taxable nodes when export Sales Credit Memo with domestic customer and EU Service
+
+        Initialize();
+
+        // [GIVEN] Posted Sales Credit Memo with two lines
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Invoice Type", SalesHeader."Invoice Type"::"F2 Simplified Invoice");
+        SalesHeader.Modify(true);
+
+        // [GIVEN] 1st line where "VAT Calculation Type" = "Normal VAT", "EU Service" = TRUE
+        LibrarySII.CreateSalesLineWithUnitPrice(
+          SalesHeader, LibrarySII.CreateItemWithSpecificVATSetupEUService(
+            SalesHeader."VAT Bus. Posting Group", LibraryRandom.RandIntInRange(10, 25), true));
+
+        // [GIVEN] 2nd line where "VAT Calculation Type" = "No Taxable VAT", "EU Service" = TRUE
+        ItemNo :=
+          LibrarySII.CreateItemNoWithSpecificVATSetup(
+            LibrarySII.CreateSpecificNoTaxableVATSetup(SalesHeader."VAT Bus. Posting Group", true, 0));
+        LibrarySII.CreateSalesLineWithUnitPrice(SalesHeader, ItemNo);
+
+        CustLedgerEntry.SetRange("Sell-to Customer No.", SalesHeader."Bill-to Customer No.");
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", LibrarySales.PostSalesDocument(SalesHeader, false, false));
+
+        // [WHEN] Create xml for Posted Sales Credit Memo
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file has the following nodes under sii:DesgloseFactura in the following order: sii:Sujeta, sii:NoSujeta
+        LibrarySII.VerifySequenceOfTwoChildNodes(XMLDoc, 'sii:DesgloseFactura', 'sii:Sujeta', 'sii:NoSujeta');
     end;
 
     [Test]
@@ -2221,6 +2383,113 @@ codeunit 147524 "SII Documents No Taxable"
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, StrSubstNo(XPathEUSalesNoTaxTok, 'sii:Entrega'), '',
           SIIXMLCreator.FormatNumber(Abs(InvNonTaxableAmount - CrMemoNonTaxableAmount)));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchInvWithNormalAndNegativeTaxableLinesXml()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+        ItemNo: Code[20];
+        NormalAmount: Decimal;
+        VATRate: Decimal;
+        VendNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Invoice]
+        // [SCENARIO 353654] XML has no non taxable node if it has negative amount in Purchase Invoice
+
+        Initialize();
+
+        // [GIVEN] Posted Purchase Invoice with two lines
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        VendNo := LibrarySII.CreateVendWithVATSetup(VATBusinessPostingGroup.Code);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendNo);
+        PurchaseHeader.Validate("Invoice Type", PurchaseHeader."Invoice Type"::"F2 Simplified Invoice");
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] 1st line where "VAT Calculation Type" = "Normal VAT", "VAT %" = 21 and Amount = 1000
+        LibrarySII.CreatePurchLineWithSetup(
+          VATRate, NormalAmount, PurchaseHeader, VATBusinessPostingGroup, PurchaseLine."VAT Calculation Type"::"Normal VAT");
+
+        // [GIVEN] 2nd line where "VAT Calculation Type" = "No Taxable VAT", "VAT %" = 0 and Amount = -500
+        ItemNo :=
+          LibrarySII.CreateItemNoWithSpecificVATSetup(
+            LibrarySII.CreateSpecificNoTaxableVATSetup(VATBusinessPostingGroup.Code, false, 0));
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, -LibraryRandom.RandInt(100));
+        LibrarySII.UpdateDirectUnitCostPurchaseLine(PurchaseLine, LibraryRandom.RandInt(100));
+
+        VendorLedgerEntry.SetRange("Buy-from Vendor No.", VendNo);
+        LibraryERM.FindVendorLedgerEntry(
+          VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice,
+          LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false));
+
+        // [WHEN] Create xml for Posted Purchase Invoice
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file has just one sii:BaseImponible node for normal VAT amount
+        LibrarySII.VerifyCountOfElements(XMLDoc, 'sii:BaseImponible', 1);
+
+        // [THEN] XML file has ImporteTotal node with only normal amount
+        LibrarySII.ValidateElementByName(
+          XMLDoc, 'sii:ImporteTotal',
+          SIIXMLCreator.FormatNumber(GetVATEntryTotalAmount(VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchCrMemoWithNormalAndNegativeNoTaxableLinesXml()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+        ItemNo: Code[20];
+        NormalAmount: Decimal;
+        VATRate: Decimal;
+        VendNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Credit Memo]
+        // [SCENARIO 353654] XML has no non taxable node if it has negative amount in Purchase Credit Memo
+        Initialize();
+
+        // [GIVEN] Posted Purchase Cr Memo with two lines
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        VendNo := LibrarySII.CreateVendWithVATSetup(VATBusinessPostingGroup.Code);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendNo);
+
+        // [GIVEN] 1st line where "VAT Calculation Type" = "Normal VAT", "VAT %" = 21 and Amount = 1000
+        LibrarySII.CreatePurchLineWithSetup(
+          VATRate, NormalAmount, PurchaseHeader, VATBusinessPostingGroup, PurchaseLine."VAT Calculation Type"::"Normal VAT");
+
+        // [GIVEN] 2nd line where "VAT Calculation Type" = "No Taxable VAT", "VAT %" = 0 and Amount = -500
+        ItemNo :=
+          LibrarySII.CreateItemNoWithSpecificVATSetup(
+            LibrarySII.CreateSpecificNoTaxableVATSetup(VATBusinessPostingGroup.Code, false, 0));
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, -LibraryRandom.RandInt(100));
+        LibrarySII.UpdateDirectUnitCostPurchaseLine(PurchaseLine, LibraryRandom.RandInt(100));
+
+        VendorLedgerEntry.SetRange("Buy-from Vendor No.", VendNo);
+        LibraryERM.FindVendorLedgerEntry(
+          VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo",
+          LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false));
+
+        // [WHEN] Create xml for Posted Purchase Credit Memo
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file has just one sii:BaseImponible node for normal VAT amount
+        LibrarySII.VerifyCountOfElements(XMLDoc, 'sii:BaseImponible', 1);
+
+        // [THEN] XML file has ImporteTotal node with only normal amount
+        LibrarySII.ValidateElementByName(
+          XMLDoc, 'sii:ImporteTotal',
+          SIIXMLCreator.FormatNumber(GetVATEntryTotalAmount(VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.")));
     end;
 
     local procedure Initialize()

@@ -406,6 +406,12 @@ report 1307 "Standard Sales - Credit Memo"
                 column(ItemNo_Line_Lbl; FieldCaption("No."))
                 {
                 }
+                column(CrossReferenceNo_Line; "Cross-Reference No.")
+                {
+                }
+                column(CrossReferenceNo_Line_Lbl; FieldCaption("Cross-Reference No."))
+                {
+                }
                 column(ShipmentDate_Line; Format("Shipment Date"))
                 {
                 }

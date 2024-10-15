@@ -706,13 +706,14 @@ codeunit 10740 "No Taxable Mgt."
         NoTaxableEntry: Record "No Taxable Entry";
     begin
         with VendorLedgerEntry do begin
+            if not Vendor.Get("Vendor No.") then
+                exit;
             if CreateNoTaxableEntriesPurchInvoiceFromVendEntry(VendorLedgerEntry) then
                 exit;
             if CreateNoTaxableEntriesPurchCreditMemoFromVendEntry(VendorLedgerEntry) then
                 exit;
 
             CalcFields(Amount);
-            Vendor.Get("Vendor No.");
             NoTaxableEntry.InitFromVendorEntry(VendorLedgerEntry, Vendor."Country/Region Code", false, Vendor."VAT Registration No.");
             NoTaxableEntry.Type := NoTaxableEntry.Type::Purchase;
             InsertNoTaxableEntriesFromGenLedgEntry(NoTaxableEntry, Amount, 1);
@@ -726,6 +727,8 @@ codeunit 10740 "No Taxable Mgt."
         Customer: Record Customer;
     begin
         with CustLedgerEntry do begin
+            if not Customer.Get("Customer No.") then
+                exit;
             if CreateNoTaxableEntriesSalesInvoiceFromCustEntry(CustLedgerEntry) then
                 exit;
             if CreateNoTaxableEntriesSalesCreditMemoFromCustEntry(CustLedgerEntry) then
@@ -736,7 +739,6 @@ codeunit 10740 "No Taxable Mgt."
                 exit;
 
             CalcFields(Amount);
-            Customer.Get("Customer No.");
             NoTaxableEntry.InitFromCustomerEntry(CustLedgerEntry, Customer."Country/Region Code", false, Customer."VAT Registration No.");
             NoTaxableEntry.Type := NoTaxableEntry.Type::Sale;
             InsertNoTaxableEntriesFromGenLedgEntry(NoTaxableEntry, Amount, -1);

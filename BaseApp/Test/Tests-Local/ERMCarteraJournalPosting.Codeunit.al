@@ -36,6 +36,7 @@ codeunit 144013 "ERM Cartera Journal Posting"
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
         ValueMustBeEqualMsg: Label 'Value Must Be Equal.';
         WrongNoOfCustLedgEntryErr: Label 'Wrong number of Customer Ledger Entry.';
 
@@ -185,6 +186,48 @@ codeunit 144013 "ERM Cartera Journal Posting"
         // Verify.
         VerifyBillCount(CustomerNo, 2);
         UpdateGeneralLedgerSetup(OldCurrencyCode);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TheFieldCustVendorBankWasAddedToReceivableCarteraDocs()
+    var
+        ReceivablesCarteraDocs: TestPage "Receivables Cartera Docs";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO] Open page "Receivables Cartera Docs" and ckeck visibility of "Cust./Vendor Bank Acc. Code" variable
+
+        // [GIVEN] Enabled foundation setup   
+        LibraryApplicationArea.EnableFoundationSetup();
+
+        // [WHEN] Page "Receivables Cartera Docs" is opened
+        ReceivablesCarteraDocs.OpenEdit();
+
+        // [THEN] The variable "Cust./Vendor Bank Acc. Code" is visible
+        Assert.IsTrue(ReceivablesCarteraDocs."Cust./Vendor Bank Acc. Code".Visible, '');
+        ReceivablesCarteraDocs.Close();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TheFieldCustVendorBankWasAddedToPayableCarteraDocs()
+    var
+        PayablesCarteraDocs: TestPage "Payables Cartera Docs";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO] Open page "Payables Cartera Docs" and ckeck visibility of "Cust./Vendor Bank Acc. Code" variable
+
+        // [GIVEN] Enabled foundation setup   
+        LibraryApplicationArea.EnableFoundationSetup();
+        
+        // [WHEN] Page "Payables Cartera Docs" is opened
+        PayablesCarteraDocs.OpenEdit();
+
+        // [THEN] The variable "Cust./Vendor Bank Acc. Code" is visible
+        Assert.IsTrue(PayablesCarteraDocs."Cust./Vendor Bank Acc. Code".Visible, '');
+        PayablesCarteraDocs.Close();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     local procedure ApplyPaymentToSalesInvoice(DocumentNo: Code[20]; AmountToApply: Decimal)

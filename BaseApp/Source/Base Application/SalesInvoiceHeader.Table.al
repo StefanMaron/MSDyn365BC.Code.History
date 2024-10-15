@@ -564,6 +564,10 @@ table 112 "Sales Invoice Header"
             Caption = 'Payment Instructions Name';
             DataClassification = CustomerContent;
         }
+        field(180; "Payment Reference"; Code[50])
+        {
+            Caption = 'Payment Reference';
+        }
         field(200; "Work Description"; BLOB)
         {
             Caption = 'Work Description';
@@ -770,6 +774,14 @@ table 112 "Sales Invoice Header"
             Caption = 'ID Type';
             OptionCaption = ' ,02-VAT Registration No.,03-Passport,04-ID Document,05-Certificate Of Residence,06-Other Probative Document,07-Not On The Census';
             OptionMembers = " ","02-VAT Registration No.","03-Passport","04-ID Document","05-Certificate Of Residence","06-Other Probative Document","07-Not On The Census";
+        }
+        field(10723; "Sent to SII"; Boolean)
+        {
+            CalcFormula = Exist ("SII Doc. Upload State" WHERE ("Document Source" = CONST ("Customer Ledger"),
+                                                               "Document Type" = CONST (Invoice),
+                                                               "Document No." = FIELD ("No.")));
+            Editable = false;
+            FieldClass = FlowField;
         }
         field(7000000; "Applies-to Bill No."; Code[20])
         {

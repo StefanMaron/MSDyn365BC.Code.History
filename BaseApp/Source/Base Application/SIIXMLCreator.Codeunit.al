@@ -474,14 +474,16 @@ codeunit 10750 "SII XML Creator"
             end;
 
             XMLDOMManagement.AddElementWithPrefix(XMLNode, 'TipoDesglose', '', 'sii', SiiTxt, XMLNode);
-            GenerateNodeForServicesOrGoods(
-              TempServVATEntryCalcNonExempt, XMLNode, DesgloseFacturaXMLNode, DomesticXMLNode, DesgloseTipoOperacionXMLNode,
-              EUServiceXMLNode, NonEUServiceXMLNode, ExemptionCausePresent[1], ExemptionBaseAmounts[1],
-              NonExemptTransactionType[1], ExemptExists[1], CustLedgerEntry, true, DomesticCustomer, RegimeCode);
-            GenerateNodeForServicesOrGoods(
-              TempGoodsVATEntryCalcNonExempt, XMLNode, DesgloseFacturaXMLNode, DomesticXMLNode, DesgloseTipoOperacionXMLNode,
-              EUServiceXMLNode, NonEUServiceXMLNode, ExemptionCausePresent[2], ExemptionBaseAmounts[2],
-              NonExemptTransactionType[2], ExemptExists[2], CustLedgerEntry, false, DomesticCustomer, RegimeCode);
+            if DomesticCustomer then
+                GenerateNodeForServicesOrGoodsDomesticCustomer(
+                  TempGoodsVATEntryCalcNonExempt, TempServVATEntryCalcNonExempt, XMLNode, DesgloseFacturaXMLNode, DomesticXMLNode,
+                  DesgloseTipoOperacionXMLNode, EUServiceXMLNode, NonEUServiceXMLNode, ExemptionCausePresent, ExemptionBaseAmounts,
+                  NonExemptTransactionType, ExemptExists, CustLedgerEntry, DomesticCustomer, RegimeCode)
+            else
+                GenerateNodeForServicesOrGoodsForeignCustomer(
+                  TempGoodsVATEntryCalcNonExempt, TempServVATEntryCalcNonExempt, XMLNode, DesgloseFacturaXMLNode, DomesticXMLNode,
+                  DesgloseTipoOperacionXMLNode, EUServiceXMLNode, NonEUServiceXMLNode, ExemptionCausePresent, ExemptionBaseAmounts,
+                  NonExemptTransactionType, ExemptExists, CustLedgerEntry, DomesticCustomer, RegimeCode);
             exit(true);
         end;
 
@@ -904,6 +906,30 @@ codeunit 10750 "SII XML Creator"
         end;
     end;
 
+    local procedure GenerateNodeForServicesOrGoodsDomesticCustomer(var TempGoodsVATEntryCalcNonExempt: Record "VAT Entry" temporary; var TempServVATEntryCalcNonExempt: Record "VAT Entry" temporary; var XMLNode: DotNet XmlNode; var DesgloseFacturaXMLNode: DotNet XmlNode; var DomesticXMLNode: DotNet XmlNode; var DesgloseTipoOperacionXMLNode: DotNet XmlNode; var EUServiceXMLNode: DotNet XmlNode; var NonEUServiceXMLNode: DotNet XmlNode; ExemptionCausePresent: array[2, 10] of Boolean; ExemptionBaseAmounts: array[2, 10] of Decimal; NonExemptTransactionType: array[2] of Option S1,S2,S3,Initial; ExemptExists: array[2] of Boolean; CustLedgerEntry: Record "Cust. Ledger Entry"; DomesticCustomer: Boolean; RegimeCode: Code[2])
+    begin
+        GenerateNodeForServicesOrGoods(
+          TempGoodsVATEntryCalcNonExempt, XMLNode, DesgloseFacturaXMLNode, DomesticXMLNode, DesgloseTipoOperacionXMLNode,
+          EUServiceXMLNode, NonEUServiceXMLNode, ExemptionCausePresent[2], ExemptionBaseAmounts[2],
+          NonExemptTransactionType[2], ExemptExists[2], CustLedgerEntry, false, DomesticCustomer, RegimeCode);
+        GenerateNodeForServicesOrGoods(
+          TempServVATEntryCalcNonExempt, XMLNode, DesgloseFacturaXMLNode, DomesticXMLNode, DesgloseTipoOperacionXMLNode,
+          EUServiceXMLNode, NonEUServiceXMLNode, ExemptionCausePresent[1], ExemptionBaseAmounts[1],
+          NonExemptTransactionType[1], ExemptExists[1], CustLedgerEntry, true, DomesticCustomer, RegimeCode);
+    end;
+
+    local procedure GenerateNodeForServicesOrGoodsForeignCustomer(var TempGoodsVATEntryCalcNonExempt: Record "VAT Entry" temporary; var TempServVATEntryCalcNonExempt: Record "VAT Entry" temporary; var XMLNode: DotNet XmlNode; var DesgloseFacturaXMLNode: DotNet XmlNode; var DomesticXMLNode: DotNet XmlNode; var DesgloseTipoOperacionXMLNode: DotNet XmlNode; var EUServiceXMLNode: DotNet XmlNode; var NonEUServiceXMLNode: DotNet XmlNode; ExemptionCausePresent: array[2, 10] of Boolean; ExemptionBaseAmounts: array[2, 10] of Decimal; NonExemptTransactionType: array[2] of Option S1,S2,S3,Initial; ExemptExists: array[2] of Boolean; CustLedgerEntry: Record "Cust. Ledger Entry"; DomesticCustomer: Boolean; RegimeCode: Code[2])
+    begin
+        GenerateNodeForServicesOrGoods(
+          TempServVATEntryCalcNonExempt, XMLNode, DesgloseFacturaXMLNode, DomesticXMLNode, DesgloseTipoOperacionXMLNode,
+          EUServiceXMLNode, NonEUServiceXMLNode, ExemptionCausePresent[1], ExemptionBaseAmounts[1],
+          NonExemptTransactionType[1], ExemptExists[1], CustLedgerEntry, true, DomesticCustomer, RegimeCode);
+        GenerateNodeForServicesOrGoods(
+          TempGoodsVATEntryCalcNonExempt, XMLNode, DesgloseFacturaXMLNode, DomesticXMLNode, DesgloseTipoOperacionXMLNode,
+          EUServiceXMLNode, NonEUServiceXMLNode, ExemptionCausePresent[2], ExemptionBaseAmounts[2],
+          NonExemptTransactionType[2], ExemptExists[2], CustLedgerEntry, false, DomesticCustomer, RegimeCode);
+    end;
+
     local procedure GenerateNodeForServicesOrGoods(var TempVATEntryCalculatedNonExempt: Record "VAT Entry" temporary; var TipoDesgloseXMLNode: DotNet XmlNode; var DesgloseFacturaXMLNode: DotNet XmlNode; var DomesticXMLNode: DotNet XmlNode; var DesgloseTipoOperacionXMLNode: DotNet XmlNode; var EUServiceXMLNode: DotNet XmlNode; var NonEUServiceXMLNode: DotNet XmlNode; ExemptionCausePresent: array[10] of Boolean; ExemptionBaseAmounts: array[10] of Decimal; NonExemptTransactionType: Option S1,S2,S3,Initial; ExemptExists: Boolean; CustLedgerEntry: Record "Cust. Ledger Entry"; IsService: Boolean; DomesticCustomer: Boolean; RegimeCode: Code[2])
     var
         SIIInitialDocUpload: Codeunit "SII Initial Doc. Upload";
@@ -974,7 +1000,10 @@ codeunit 10750 "SII XML Creator"
         NonTaxableAmount: Decimal;
     begin
         NonTaxableAmount := CalculateNonTaxableAmountVendor(VendLedgEntry);
-        if NonTaxableAmount = 0 then
+        if (NonTaxableAmount = 0) or
+           ((VendLedgEntry."Document Type" = VendLedgEntry."Document Type"::Invoice) and (NonTaxableAmount < 0)) or
+           ((VendLedgEntry."Document Type" = VendLedgEntry."Document Type"::"Credit Memo") and (NonTaxableAmount > 0))
+        then
             exit;
 
         TempVATEntryCalculated.Reset;
@@ -1569,7 +1598,8 @@ codeunit 10750 "SII XML Creator"
                 TotalBaseAmount += VATEntry.Base;
                 if VATEntry."VAT %" <> 0 then
                     TotalNonExemptVATBaseAmount += VATEntry.Base;
-                TotalVATAmount += VATEntry.Amount;
+                if VATEntry."VAT Calculation Type" <> VATEntry."VAT Calculation Type"::"Reverse Charge VAT" then
+                    TotalVATAmount += VATEntry.Amount;
             until VATEntry.Next = 0;
         end;
     end;

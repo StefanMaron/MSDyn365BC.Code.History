@@ -216,6 +216,13 @@ table 1208 "Direct Debit Collection Entry"
             OptionCaption = 'New,Canceled,File Created,Posted,Closed';
             OptionMembers = New,Canceled,"File Created",Posted,Closed;
         }
+        field(22; "Payment Reference"; Code[50])
+        {
+            CalcFormula = Lookup ("Cust. Ledger Entry"."Payment Reference" WHERE("Entry No." = FIELD("Applies-to Entry No.")));
+            Caption = 'Payment Reference';
+            Editable = false;
+            FieldClass = FlowField;
+        }
     }
 
     keys

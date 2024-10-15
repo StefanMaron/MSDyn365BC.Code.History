@@ -287,6 +287,12 @@ codeunit 143006 "Library - SII"
 
     [Scope('OnPrem')]
     procedure CreateSpecificVATSetup(VATBusPostGroupCode: Code[20]; VATPct: Decimal): Code[20]
+    begin
+        exit(CreateSpecificVATSetupEUService(VATBusPostGroupCode, VATPct, false));
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateSpecificVATSetupEUService(VATBusPostGroupCode: Code[20]; VATPct: Decimal; EUService: Boolean): Code[20]
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -299,6 +305,7 @@ codeunit 143006 "Library - SII"
           LibraryUtility.GenerateRandomCode(VATPostingSetup.FieldNo("VAT Identifier"), DATABASE::"VAT Posting Setup"));
         VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
         VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("EU Service", EUService);
         VATPostingSetup.Modify(true);
 
         exit(VATProductPostingGroup.Code);
@@ -311,6 +318,20 @@ codeunit 143006 "Library - SII"
         VATProductPostingGroupCode: Code[20];
     begin
         VATProductPostingGroupCode := CreateSpecificVATSetup(VATBusPostGroupCode, VATPct);
+
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("VAT Prod. Posting Group", VATProductPostingGroupCode);
+        Item.Modify(true);
+        exit(Item."No.");
+    end;
+
+    [Scope('Internal')]
+    procedure CreateItemWithSpecificVATSetupEUService(VATBusPostGroupCode: Code[20]; VATPct: Decimal; EUService: Boolean): Code[20]
+    var
+        Item: Record Item;
+        VATProductPostingGroupCode: Code[20];
+    begin
+        VATProductPostingGroupCode := CreateSpecificVATSetupEUService(VATBusPostGroupCode, VATPct, EUService);
 
         LibraryInventory.CreateItem(Item);
         Item.Validate("VAT Prod. Posting Group", VATProductPostingGroupCode);

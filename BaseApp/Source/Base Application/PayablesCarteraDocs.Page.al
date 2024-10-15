@@ -151,6 +151,11 @@ page 7000002 "Payables Cartera Docs"
                     Editable = false;
                     ToolTip = 'Specifies the ledger entry number associated with the posting of this document.';
                 }
+                field("Cust./Vendor Bank Acc. Code"; "Cust./Vendor Bank Acc. Code")
+                {
+                    ApplicationArea = Basic, Suite;
+		            ToolTip = 'Specifies the bank account code of the customer/vendor associated with this document.';
+                }
             }
             group(Control49)
             {

@@ -231,6 +231,12 @@
                         SIIManagement.SIIStateDrilldown(SIIDocUploadState);
                     end;
                 }
+                field("Sent to SII"; "Sent to SII")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that the document has been sent to the Immediate Information Supply system.';
+                    Visible = SIIStateVisible;
+                }
                 field("Document Date"; "Document Date")
                 {
                     ApplicationArea = Basic, Suite;

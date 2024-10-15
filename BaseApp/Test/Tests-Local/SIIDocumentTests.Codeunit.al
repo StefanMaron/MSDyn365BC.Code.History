@@ -832,8 +832,8 @@ codeunit 147520 SIIDocumentTests
         Initialize;
 
         // [GIVEN] Posted Purchase Invoice with two Purchase Lines where
-        // [GIVEN] 1st line is calculated as Reverse Charge VAT with Amount = "AmntRC"
-        // [GIVEN] 2nd line is calculated as Normal VAT with Amount = "Amnt"
+        // [GIVEN] 1st line is calculated as Reverse Charge VAT with Base = 100, Amount = 12
+        // [GIVEN] 2nd line is calculated as Normal VAT with Base = 100, Amount = 21
         CreatePurchDocWithNormalAndReverseChargeVAT(
           PurchaseHeader, VATRate, VATRateReverseCharge, Amount, AmountReverseCharge, PurchaseHeader."Document Type"::Invoice);
         PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true));
@@ -843,10 +843,15 @@ codeunit 147520 SIIDocumentTests
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
 
         // [THEN] 'sii:DesgloseFactura' has subtrees:
-        // [THEN] 'sii:InversionSujetoPasivo' created for Reverse Charge VAT with Amount = "AmntRC"
-        // [THEN] 'sii:DesgloseIVA' created for Normal VAT with Amount = "Amnt"
-        // [THEN] 'sii:CuotaDeducible' has value = "AmntRC" + "Amnt"
+        // [THEN] 'sii:InversionSujetoPasivo' created for Reverse Charge VAT with Amount = 12
+        // [THEN] 'sii:DesgloseIVA' created for Normal VAT with Amount = 21
+        // [THEN] 'sii:CuotaDeducible' has value = 33
         LibrarySII.VerifyXMLWithNormalAndReverseChargeVAT(XMLDoc, VATRate, VATRateReverseCharge, Amount, AmountReverseCharge);
+
+        // [THEN] 'sii:ImporteTotal' = 221
+        // TFS ID: 348379: Only VAT Base amount consideres for ImporteTotal xml node in case of Reverse Charge VAT
+        LibrarySII.ValidateElementByName(
+          XMLDoc, 'sii:ImporteTotal', SIIXMLCreator.FormatNumber(GetVATTotalAmountExceptRevChargeAmount(VendorLedgerEntry)));
     end;
 
     [Test]
@@ -883,6 +888,11 @@ codeunit 147520 SIIDocumentTests
         // [THEN] 'sii:DesgloseIVA' created for Normal VAT with Amount = "Amnt"
         // [THEN] 'sii:CuotaDeducible' has value = "AmntRC" + "Amnt"
         LibrarySII.VerifyXMLWithNormalAndReverseChargeVAT(XMLDoc, VATRate, VATRateReverseCharge, -Amount, -AmountReverseCharge);
+
+        // [THEN] 'sii:ImporteTotal' = 221
+        // TFS ID: 348379: Only VAT Base amount consideres for ImporteTotal xml node in case of Reverse Charge VAT
+        LibrarySII.ValidateElementByName(
+          XMLDoc, 'sii:ImporteTotal', SIIXMLCreator.FormatNumber(GetVATTotalAmountExceptRevChargeAmount(VendorLedgerEntry)));
     end;
 
     [Test]
@@ -2101,6 +2111,22 @@ codeunit 147520 SIIDocumentTests
         CustLedgerEntry.FindFirst;
     end;
 
+    local procedure GetVATTotalAmountExceptRevChargeAmount(VendorLedgerEntry: Record "Vendor Ledger Entry") TotalAmount: Decimal
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.SetRange("Document Type", VendorLedgerEntry."Document Type");
+        VATEntry.SetRange("Document No.", VendorLedgerEntry."Document No.");
+        VATEntry.SetRange("Posting Date", VendorLedgerEntry."Posting Date");
+        VATEntry.SetRange("VAT Calculation Type", VATEntry."VAT Calculation Type"::"Normal VAT");
+        VATEntry.CalcSums(Base, Amount);
+        TotalAmount += VATEntry.Base + VATEntry.Amount;
+        VATEntry.SetRange("VAT Calculation Type", VATEntry."VAT Calculation Type"::"Reverse Charge VAT");
+        VATEntry.CalcSums(Base);
+        TotalAmount += VATEntry.Base;
+        exit(TotalAmount);
+    end;
+
     local procedure CreateCountryRegionCode(): Code[10]
     var
         CountryRegion: Record "Country/Region";
@@ -2430,6 +2456,8 @@ codeunit 147520 SIIDocumentTests
     begin
         LibraryERM.CreateCountryRegion(CountryRegion);
         LibrarySII.CreatePurchHeaderWithSetup(PurchaseHeader, VATBusinessPostingGroup, DocType, CountryRegion.Code);
+        PurchaseHeader.Validate("Special Scheme Code", PurchaseHeader."Special Scheme Code"::"03 Special System"); // in order to have ImporteTotal node in the XML doc
+        PurchaseHeader.Modify(true);
         LibrarySII.CreatePurchLineWithSetup(
           VATRate, Amount, PurchaseHeader, VATBusinessPostingGroup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibrarySII.CreatePurchLineWithSetup(

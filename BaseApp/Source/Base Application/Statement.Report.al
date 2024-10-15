@@ -897,7 +897,7 @@ report 116 Statement
         StatementNoCaptionLbl: Label 'Statement No';
         PostingDateCaptionLbl: Label 'Posting Date';
         DueDateCaptionLbl: Label 'Due Date';
-        BalanceCaptionLbl: Label 'Balance';
+        BalanceCaptionLbl: Label 'Running Total';
         TotalCaptionLbl: Label 'Total';
         beforeCaptionLbl: Label '..before';
         isInitialized: Boolean;

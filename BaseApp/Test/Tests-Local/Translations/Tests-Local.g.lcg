@@ -4424,6 +4424,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Field name;%2 = Field value]D;]A;(LookupHint=Codeunit SII Update Doc. Info - NamedType IncorrectFieldErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 54073366 - NamedType 2332186252" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to change]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Update Doc. Info - NamedType ChangeQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1267841523 - NamedType 3869335335" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The VAT Cash Regime flag was not transferred to the VAT Entry table]]></Val>

@@ -18,6 +18,7 @@ codeunit 147552 "SII Update Doc. Info"
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
         LibrarySII: Codeunit "Library - SII";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
         IncorrectXMLDocErr: Label 'The XML document was not generated properly.';
         XPathSalesFacturaExpedidaTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasEmitidas/siiRL:RegistroLRFacturasEmitidas/siiRL:FacturaExpedida/';
@@ -26,6 +27,7 @@ codeunit 147552 "SII Update Doc. Info"
         XPathPurchFacturaRecibidaTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasRecibidas/siiRL:RegistroLRFacturasRecibidas/siiRL:FacturaRecibida/';
         IncorrectFieldErr: Label '%1 must be equal to ''%2''', Comment = '%1 = Field name;%2 = Field value';
         UploadTypeGlb: Option Regular,Intracommunity,RetryAccepted;
+        ChangeQst: Label 'Do you want to change';
 
     [Test]
     [Scope('OnPrem')]
@@ -932,6 +934,60 @@ codeunit 147552 "SII Update Doc. Info"
           "Purch. Special Scheme Code", SIIDocUploadState."Purch. Special Scheme Code"::"02 Special System Activities");
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure SpecialSchemeCodeChangesOnBillToCustValidationSales()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Special Scheme Code] [UT]
+        // [SCENARIO 352810] "Special Scheme Code" changes when different "Bill-To Customer No." selects in the sales document
+
+        Initialize();
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        LibraryVariableStorage.Enqueue(ChangeQst);
+        SalesHeader.Validate("Bill-to Customer No.", CreateForeignCustomer());
+        SalesHeader.TestField("Special Scheme Code", SalesHeader."Special Scheme Code"::"02 Export");
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure SpecialSchemeCodeChangesOnBillToCustValidationService()
+    var
+        ServiceHeader: Record "Service Header";
+    begin
+        // [FEATURE] [Special Scheme Code] [UT]
+        // [SCENARIO 352810] "Special Scheme Code" changes when different "Bill-To Customer No." selects in the service document
+
+        Initialize;
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        LibraryVariableStorage.Enqueue(ChangeQst);
+        ServiceHeader.Validate("Bill-to Customer No.", CreateForeignCustomer());
+        ServiceHeader.TestField("Special Scheme Code", ServiceHeader."Special Scheme Code"::"02 Export");
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure SpecialSchemeCodeChangesOnPayToVendValidation()
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Special Scheme Code] [UT]
+        // [SCENARIO 352810] "Special Scheme Code" changes when different "Pay-To Vendor No." selects in the purchase document
+
+        Initialize();
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        LibraryVariableStorage.Enqueue(ChangeQst);
+        PurchaseHeader.Validate("Pay-to Vendor No.", CreateIntracommunityVendor());
+        PurchaseHeader.TestField("Special Scheme Code", PurchaseHeader."Special Scheme Code"::"09 Intra-Community Acquisition");
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         if IsInitialized then
@@ -941,6 +997,32 @@ codeunit 147552 "SII Update Doc. Info"
         LibrarySII.BindSubscriptionJobQueue;
 
         IsInitialized := true;
+    end;
+
+    local procedure CreateForeignCustomer(): Code[20]
+    var
+        Customer: Record Customer;
+        CountryRegion: Record "Country/Region";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        Customer.Validate("Country/Region Code", CountryRegion.Code);
+        Customer.Modify(true);
+        exit(Customer."No.");
+    end;
+
+    local procedure CreateIntracommunityVendor(): Code[20]
+    var
+        Vendor: Record Vendor;
+        CountryRegion: Record "Country/Region";
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        CountryRegion.Validate("EU Country/Region Code", CountryRegion.Code);
+        CountryRegion.Modify(true);
+        Vendor.Validate("Country/Region Code", CountryRegion.Code);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure PostSalesDocWithInvOrCrMemoType(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; CorrType: Option)
@@ -1055,6 +1137,14 @@ codeunit 147552 "SII Update Doc. Info"
     begin
         Assert.ExpectedError(StrSubstNo(IncorrectFieldErr, FieldName, Value));
         Assert.ExpectedErrorCode('TestField');
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text; var Reply: Boolean)
+    begin
+        Assert.IsTrue(StrPos(Question, LibraryVariableStorage.DequeueText()) <> 0, 'Incorrect text');
+        Reply := true;
     end;
 }
 

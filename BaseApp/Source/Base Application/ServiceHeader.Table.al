@@ -241,6 +241,7 @@ table 5900 "Service Header"
                     UpdateBillToCont("Bill-to Customer No.");
 
                 Validate("ID Type", SIIManagement.GetSalesIDType("Bill-to Customer No.", "Correction Type", "Corrected Invoice No."));
+                SIIManagement.UpdateSIIInfoInServiceDoc(Rec);
             end;
         }
         field(5; "Bill-to Name"; Text[100])
@@ -2941,11 +2942,12 @@ table 5900 "Service Header"
         TempServLine: Record "Service Line" temporary;
         ServDocReg: Record "Service Document Register";
         TempServDocReg: Record "Service Document Register" temporary;
+        TempServiceCommentLine: Record "Service Comment Line" temporary;
         ConfirmManagement: Codeunit "Confirm Management";
         ExtendedTextAdded: Boolean;
         IsHandled: Boolean;
     begin
-        if ServLineExists then begin
+        if ServLineExists() then begin
             if HideValidationDialog then
                 Confirmed := true
             else
@@ -2993,6 +2995,7 @@ table 5900 "Service Header"
                                 TempServDocReg.Insert();
                             until ServDocReg.Next() = 0;
                     end;
+                    StoreServiceCommentLineToTemp(TempServiceCommentLine);
                     ServLine.DeleteAll(true);
 
                     if "Document Type" = "Document Type"::Invoice then begin
@@ -3004,12 +3007,41 @@ table 5900 "Service Header"
                     end;
 
                     CreateServiceLines(TempServLine, ExtendedTextAdded);
+                    RestoreServiceCommentLineFromTemp(TempServiceCommentLine);
                     TempServLine.SetRange(Type);
                     TempServLine.DeleteAll;
                 end;
             end else
                 Error('');
         end;
+    end;
+
+    local procedure StoreServiceCommentLineToTemp(var TempServiceCommentLine: Record "Service Comment Line" temporary)
+    var
+        ServiceCommentLine: Record "Service Comment Line";
+    begin
+        ServiceCommentLine.SetRange("Table Name", ServiceCommentLine."Table Name"::"Service Header");
+        ServiceCommentLine.SetRange("Table Subtype", "Document Type");
+        ServiceCommentLine.SetRange("No.", "No.");
+        if ServiceCommentLine.FindSet() then
+            repeat
+                TempServiceCommentLine := ServiceCommentLine;
+                TempServiceCommentLine.Insert();
+            until ServiceCommentLine.Next() = 0;
+    end;
+
+    local procedure RestoreServiceCommentLineFromTemp(var TempServiceCommentLine: Record "Service Comment Line" temporary)
+    var
+        ServiceCommentLine: Record "Service Comment Line";
+    begin
+        TempServiceCommentLine.SetRange("Table Name", TempServiceCommentLine."Table Name"::"Service Header");
+        TempServiceCommentLine.SetRange("Table Subtype", "Document Type");
+        TempServiceCommentLine.SetRange("No.", "No.");
+        if TempServiceCommentLine.FindSet() then
+            repeat
+                ServiceCommentLine := TempServiceCommentLine;
+                ServiceCommentLine.Insert();
+            until TempServiceCommentLine.Next() = 0;
     end;
 
     local procedure ConfirmUpdateCurrencyFactor()
@@ -3572,6 +3604,8 @@ table 5900 "Service Header"
     end;
 
     procedure InitRecord()
+    var
+        SIIManagement: Codeunit "SII Management";
     begin
         case "Document Type" of
             "Document Type"::Quote, "Document Type"::Order:
@@ -3632,8 +3666,8 @@ table 5900 "Service Header"
         else
             "Responsibility Center" := UserSetupMgt.GetServiceFilter;
 
+        SIIManagement.UpdateSIIInfoInServiceDoc(Rec);
         OnAfterInitRecord(Rec);
-        InitSii;
     end;
 
     local procedure InitRecordFromContact()
@@ -4328,22 +4362,6 @@ table 5900 "Service Header"
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var ServiceHeader: Record "Service Header"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
-    end;
-
-    local procedure InitSii()
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        SIIManagement: Codeunit "SII Management";
-    begin
-        GeneralLedgerSetup.Get;
-        if GeneralLedgerSetup."VAT Cash Regime" then begin
-            "Special Scheme Code" := "Special Scheme Code"::"07 Special Cash";
-            exit;
-        end;
-        if SIIManagement.CountryIsLocal("VAT Country/Region Code") then
-            "Special Scheme Code" := "Special Scheme Code"::"01 General"
-        else
-            "Special Scheme Code" := "Special Scheme Code"::"02 Export";
     end;
 
     [IntegrationEvent(false, false)]

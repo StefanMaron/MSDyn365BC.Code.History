@@ -1267,9 +1267,11 @@ codeunit 137831 "SCM - Warehouse UT"
         ReservationEntry: Record "Reservation Entry";
         TransferLineReserve: Codeunit "Transfer Line-Reserve";
         Qty: Decimal;
+        BinCode: Code[20];
     begin
         // [FEATURE] [Transfer] [Warehouse Shipment] [Reservation] [UT]
         // [SCENARIO 253142] Reserved quantity on item journal line generated to post whse. shipment from transfer does not exceed quantity to handle defined on item tracking.
+        // [SCENARIO 349173] Bin code on item journal line generated to post whse. shipment from transfer is taken from Whse. Shipment Line
 
         Qty := LibraryRandom.RandInt(10);
 
@@ -1283,14 +1285,14 @@ codeunit 137831 "SCM - Warehouse UT"
           ReservationEntry,
           DATABASE::"Transfer Line", TransferLine."Document No.", TransferLine."Item No.", TransferLine."Variant Code",
           TransferLine."Transfer-from Code", -Qty);
-        MockWarehouseShipment(
+        BinCode := MockWarehouseShipment(
           WarehouseShipmentHeader,
           DATABASE::"Transfer Line", TransferLine."Document No.", TransferLine."Item No.", TransferLine."Variant Code",
           TransferLine."Transfer-from Code", TransferLine.Quantity);
         MockWarehouseEntry(
           WarehouseEntry,
           DATABASE::"Transfer Line", TransferLine."Document No.", WarehouseEntry."Whse. Document Type"::Shipment,
-          WarehouseShipmentHeader."No.", WarehouseShipmentHeader."Bin Code", LibraryRandom.RandInt(50));
+          WarehouseShipmentHeader."No.", BinCode, LibraryRandom.RandInt(50));
 
         TransferLineReserve.TransferWhseShipmentToItemJnlLine(TransferLine, ItemJournalLine, WarehouseShipmentHeader, 2 * Qty);
 
@@ -1354,29 +1356,29 @@ codeunit 137831 "SCM - Warehouse UT"
 
         // [GIVEN] Warehouse Activity Line 1 had Variant Code = "V1" and Serial No = "S1"
         with WarehouseActivityLine1 do begin
-          Init;
-          "Activity Type" := "Activity Type"::Pick;
-          "No." := LibraryUtility.GenerateGUID;
-          "Line No." := LibraryUtility.GetNewRecNo(WarehouseActivityLine1,FieldNo("Line No."));
-          "Item No." := CreateItemWithSNWhseTracking;
-          "Serial No." := LibraryUtility.GenerateGUID;
-          "Variant Code" := LibraryUtility.GenerateGUID;
-          Insert;
+            Init;
+            "Activity Type" := "Activity Type"::Pick;
+            "No." := LibraryUtility.GenerateGUID;
+            "Line No." := LibraryUtility.GetNewRecNo(WarehouseActivityLine1, FieldNo("Line No."));
+            "Item No." := CreateItemWithSNWhseTracking;
+            "Serial No." := LibraryUtility.GenerateGUID;
+            "Variant Code" := LibraryUtility.GenerateGUID;
+            Insert;
         end;
 
         // [GIVEN] Warehouse Activity Line 2 copied from Line 1 had Variant Code = "V2"
         WarehouseActivityLine2 := WarehouseActivityLine1;
         with WarehouseActivityLine2 do begin
-          "Line No." := LibraryUtility.GetNewRecNo(WarehouseActivityLine2,FieldNo("Line No."));
-          "Variant Code" := LibraryUtility.GenerateGUID;
-          Insert;
+            "Line No." := LibraryUtility.GetNewRecNo(WarehouseActivityLine2, FieldNo("Line No."));
+            "Variant Code" := LibraryUtility.GenerateGUID;
+            Insert;
         end;
 
         // [WHEN] Validate "Serial No." = "S1" in Warehouse Activity Line 2
-        WarehouseActivityLine2.Validate("Serial No.",WarehouseActivityLine1."Serial No.");
+        WarehouseActivityLine2.Validate("Serial No.", WarehouseActivityLine1."Serial No.");
 
         // [THEN] Warehouse Activity Line 2 has "Serial No." = "S1"
-        WarehouseActivityLine2.TestField("Serial No.",WarehouseActivityLine1."Serial No.");
+        WarehouseActivityLine2.TestField("Serial No.", WarehouseActivityLine1."Serial No.");
     end;
 
     local procedure CreateItemWithSNWhseTracking(): Code[20]
@@ -1385,11 +1387,11 @@ codeunit 137831 "SCM - Warehouse UT"
         ItemTrackingCode: Record "Item Tracking Code";
     begin
         LibraryInventory.CreateItemTrackingCode(ItemTrackingCode);
-        ItemTrackingCode.Validate("SN Specific Tracking",true);
-        ItemTrackingCode.Validate("SN Warehouse Tracking",true);
+        ItemTrackingCode.Validate("SN Specific Tracking", true);
+        ItemTrackingCode.Validate("SN Warehouse Tracking", true);
         ItemTrackingCode.Modify(true);
         LibraryInventory.CreateItem(Item);
-        Item.Validate("Item Tracking Code",ItemTrackingCode.Code);
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
         Item.Modify(true);
         exit(Item."No.");
     end;
@@ -1875,7 +1877,7 @@ codeunit 137831 "SCM - Warehouse UT"
         end;
     end;
 
-    local procedure MockWarehouseShipment(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SourceType: Integer; SourceNo: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; Qty: Decimal)
+    local procedure MockWarehouseShipment(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SourceType: Integer; SourceNo: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; Qty: Decimal): Code[20]
     var
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
@@ -1883,7 +1885,6 @@ codeunit 137831 "SCM - Warehouse UT"
             Init;
             "No." := LibraryUtility.GenerateGUID;
             "Location Code" := LocationCode;
-            "Bin Code" := LibraryUtility.GenerateGUID;
             Insert;
         end;
 
@@ -1894,9 +1895,12 @@ codeunit 137831 "SCM - Warehouse UT"
             "Source No." := SourceNo;
             "Item No." := ItemNo;
             "Variant Code" := VariantCode;
+            "Bin Code" := LibraryUtility.GenerateGUID;
             Quantity := Qty;
             Insert;
         end;
+
+        exit(WarehouseShipmentLine."Bin Code")
     end;
 
     local procedure MockWarehouseEntry(var WarehouseEntry: Record "Warehouse Entry"; SourceType: Integer; SourceNo: Code[20]; WhseDocType: Option; WhseDocNo: Code[20]; BinCode: Code[20]; Qty: Decimal)
