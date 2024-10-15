@@ -17,7 +17,7 @@ page 27044 "SAT Country Codes"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for this entry according to the SAT country code definition.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description for this entry according to the SAT country code definition.';

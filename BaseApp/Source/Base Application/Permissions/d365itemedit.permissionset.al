@@ -23,9 +23,6 @@ permissionset 5947 "D365 ITEM, EDIT"
                   tabledata "Item Category" = R,
                   tabledata "Item Charge Assignment (Purch)" = r,
                   tabledata "Item Charge Assignment (Sales)" = r,
-#if not CLEAN19
-                  tabledata "Item Cross Reference" = RIMD,
-#endif
                   tabledata "Item Discount Group" = RIMD,
                   tabledata "Item Identifier" = RIMD,
                   tabledata "Item Journal Line" = RIMD,

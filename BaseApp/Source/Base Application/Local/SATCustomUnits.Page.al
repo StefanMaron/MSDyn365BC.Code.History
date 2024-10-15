@@ -14,7 +14,7 @@ page 27046 "SAT Custom Units"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for this entry according to the SAT custom units definition.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description for this entry according to the SAT custom units definition.';

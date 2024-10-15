@@ -47,7 +47,7 @@ page 10060 "Sales Tax Lines Serv. Subform"
                     AutoFormatType = 1;
                     ToolTip = 'Specifies the net amount (excluding tax) for sales or purchase lines.';
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ToolTip = 'Specifies the sum of quantities from sales or purchase lines matching the combination of Tax Area Code and Tax Group Code found on this line.';
                     Visible = false;

@@ -2266,145 +2266,6 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure T150_MergeCustomers_IntegrationDisabled()
-    var
-        Customer: array[2] of Record Customer;
-        TempMergeDuplicatesBuffer: Record "Merge Duplicates Buffer" temporary;
-        GenJournalLine: Record "Gen. Journal Line";
-#if not CLEAN21
-        O365CouponClaim: Record "O365 Coupon Claim";
-        O365PostedCouponClaim: Record "O365 Posted Coupon Claim";
-#endif
-#if not CLEAN20
-        NativePayment: Record "Native - Payment";
-#endif
-        SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
-        SalesOrderEntityBuffer: Record "Sales Order Entity Buffer";
-        SalesQuoteEntityBuffer: Record "Sales Quote Entity Buffer";
-        SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
-        DefaultDimension: Record "Default Dimension";
-        DimensionValue: Record "Dimension Value";
-    begin
-        // [FEATURE] [Customer]
-        // [SCENARIO 314793] Action 'Merge Duplicate' removes one of customers when Integration Service is disabled.
-        Initialize();
-        // [GIVEN] Intergration services disabled, Integraion Record table has been cleared.
-        GenJournalLine.DeleteAll();
-        DisableIntegration;
-        // [GIVEN] Customers 'A' (ID = '0') and 'B' (ID = '0')
-        LibrarySales.CreateCustomer(Customer[1]);
-        LibrarySales.CreateCustomer(Customer[2]);
-        AssertIntegrationRecordNotFound(Customer[1].SystemId);
-        AssertIntegrationRecordNotFound(Customer[2].SystemId);
-
-        // [GIVEN] Journal Line, where "Account No." is 'A', "Bal. Account No." is 'B', "Customer Id" is '0'
-        GenJournalLine.Init();
-        GenJournalLine."Account Type" := GenJournalLine."Account Type"::Customer;
-        GenJournalLine.Validate("Account No.", Customer[1]."No.");
-        GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::Customer;
-        GenJournalLine.Validate("Bal. Account No.", Customer[2]."No.");
-        GenJournalLine.Insert();
-        GenJournalLine.TestField("Customer Id", Customer[1].SystemId);
-#if not CLEAN21
-        // [GIVEN] O365CouponClaim, where "Customer Id" is '0'
-        O365CouponClaim."Claim ID" := LibraryUtility.GenerateGUID();
-        O365CouponClaim."Customer Id" := Customer[1].SystemId;
-        O365CouponClaim.Insert();
-        // [GIVEN] O365CouponClaim, where "Customer Id" is '0'
-        O365PostedCouponClaim."Claim ID" := LibraryUtility.GenerateGUID();
-        O365PostedCouponClaim."Customer Id" := Customer[1].SystemId;
-        O365PostedCouponClaim.Insert();
-#endif
-#if not CLEAN20
-        // [GIVEN] Native Payment, where "Customer No." is 'A', "Customer Id" is '0'
-        NativePayment."Applies-to Invoice Id" := CreateGuid();
-        NativePayment.Validate("Customer No.", Customer[1]."No.");
-        NativePayment.Insert();
-#endif
-        // [GIVEN] SalesInvoiceEntityAggregate, where "Sell-to Customer No." is 'A', "Customer Id" is '0'
-        SalesInvoiceEntityAggregate."No." := LibraryUtility.GenerateGUID();
-        SalesInvoiceEntityAggregate.Validate("Sell-to Customer No.", Customer[1]."No.");
-        SalesInvoiceEntityAggregate.Insert();
-        // [GIVEN] SalesOrderEntityBuffer, where "Sell-to Customer No." is 'A', "Customer Id" is '0'
-        SalesOrderEntityBuffer."No." := LibraryUtility.GenerateGUID();
-        SalesOrderEntityBuffer.Validate("Sell-to Customer No.", Customer[1]."No.");
-        SalesOrderEntityBuffer.Insert();
-        // [GIVEN] SalesQuoteEntityBuffer, where "Sell-to Customer No." is 'A', "Customer Id" is '0'
-        SalesQuoteEntityBuffer."No." := LibraryUtility.GenerateGUID();
-        SalesQuoteEntityBuffer.Validate("Sell-to Customer No.", Customer[1]."No.");
-        SalesQuoteEntityBuffer.Insert();
-        // [GIVEN] SalesCrMemoEntityBuffer, where "Sell-to Customer No." is 'A', "Customer Id" is '0'
-        SalesCrMemoEntityBuffer."No." := LibraryUtility.GenerateGUID();
-        SalesCrMemoEntityBuffer.Validate("Sell-to Customer No.", Customer[1]."No.");
-        SalesCrMemoEntityBuffer.Insert();
-        // [GIVEN] Default Dimension, where "Table ID" is '18', "No." is 'A', ParentID is '0'
-        DimensionValue.FindFirst();
-        LibraryDimension.CreateDefaultDimensionCustomer(
-          DefaultDimension, Customer[1]."No.", DimensionValue."Dimension Code", DimensionValue.Code);
-        DefaultDimension.TestField(ParentId, Customer[1].SystemId);
-
-        // [WHEN] Merge 'A' to 'B'
-        TempMergeDuplicatesBuffer."Table ID" := DATABASE::Customer;
-        TempMergeDuplicatesBuffer.Duplicate := Customer[1]."No.";
-        TempMergeDuplicatesBuffer.Current := Customer[2]."No.";
-        TempMergeDuplicatesBuffer.Insert();
-        LibraryVariableStorage.Enqueue(true); // Reply for ConfirmHandler
-        TempMergeDuplicatesBuffer.Merge;
-        Assert.ExpectedMessage(ConfirmMergeTxt, LibraryVariableStorage.DequeueText);
-
-        // [THEN] Customer 'A' does not exist,
-        Assert.IsFalse(Customer[1].Find, 'Customer A must not exist');
-
-        // [THEN] Customer 'B' does exist, where Name = 'B', ID is '0'
-        Assert.IsTrue(Customer[2].Find, 'Customer B must exist');
-        Customer[2].TestField(Name, Customer[2].Name);
-
-        // [THEN] Journal Line, where "Account No." is 'B', "Bal. Account No." is 'B', "Customer Id" is '0'
-        GenJournalLine.Find();
-        GenJournalLine.TestField("Bal. Account No.", Customer[2]."No.");
-        GenJournalLine.TestField("Account No.", Customer[2]."No.");
-        GenJournalLine.TestField("Customer Id", Customer[2].SystemId);
-#if not CLEAN21
-        // [THEN] O365CouponClaim, where "Customer Id" is '0'
-        O365CouponClaim.Find();
-        O365CouponClaim.TestField("Customer Id", Customer[2].SystemId);
-        // [THEN] O365PostedCouponClaim, where "Customer Id" is '0'
-        O365PostedCouponClaim.Find();
-        O365PostedCouponClaim.TestField("Customer Id", Customer[2].SystemId);
-#endif
-#if not CLEAN20
-        // [THEN] Native Payment, where "Customer No." is 'B', "Customer Id" is '0'
-        NativePayment.Find();
-        NativePayment.TestField("Customer No.", Customer[2]."No.");
-        NativePayment.TestField("Customer Id", Customer[2].SystemId);
-#endif
-        // [THEN] SalesInvoiceEntityAggregate, where "Sell-to Customer No." is 'B', "Customer Id" is '0'
-        SalesInvoiceEntityAggregate.Find();
-        SalesInvoiceEntityAggregate.TestField("Sell-to Customer No.", Customer[2]."No.");
-        SalesInvoiceEntityAggregate.TestField("Customer Id", Customer[2].SystemId);
-        // [THEN] SalesOrderEntityBuffer, where "Sell-to Customer No." is 'B', "Customer Id" is '0'
-        SalesOrderEntityBuffer.Find();
-        SalesOrderEntityBuffer.TestField("Sell-to Customer No.", Customer[2]."No.");
-        SalesOrderEntityBuffer.TestField("Customer Id", Customer[2].SystemId);
-        // [THEN] SalesQuoteEntityBuffer, where "Sell-to Customer No." is 'B', "Customer Id" is '0'
-        SalesQuoteEntityBuffer.Find();
-        SalesQuoteEntityBuffer.TestField("Sell-to Customer No.", Customer[2]."No.");
-        SalesQuoteEntityBuffer.TestField("Customer Id", Customer[2].SystemId);
-        // [THEN] SalesCrMemoEntityBuffer, where "Sell-to Customer No." is 'B', "Customer Id" is '0'
-        SalesCrMemoEntityBuffer.Find();
-        SalesCrMemoEntityBuffer.TestField("Sell-to Customer No.", Customer[2]."No.");
-        SalesCrMemoEntityBuffer.TestField("Customer Id", Customer[2].SystemId);
-        // [THEN] Default Dimension, where "Table ID" is '18', "No." is 'B', ParentID is '0'
-        DefaultDimension.SetRange("No.", Customer[2]."No.");
-        DefaultDimension.FindFirst();
-        DefaultDimension.TestField(ParentId, Customer[2].SystemId);
-
-        LibraryVariableStorage.AssertEmpty;
-    end;
-
-    [Test]
     [HandlerFunctions('ConfirmYesHandler')]
     [Scope('OnPrem')]
     procedure MergeContactsAndVerifyBussRelation()
@@ -2456,8 +2317,6 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test Merge Duplicates");
         LibraryApplicationArea.EnableEssentialSetup;
-
-        ForceIntegrationActivated;
 
         IsInitialized := true;
         Commit();
@@ -2651,34 +2510,6 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         ODataEdmType.Insert();
     end;
 
-    local procedure ForceIntegrationActivated()
-    var
-        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
-        IntegrationManagement: Codeunit "Integration Management";
-    begin
-        InsertODataEdmTypeEntry;
-        GraphMgtGeneralTools.APISetupIfEnabled;
-    end;
-
-    local procedure DisableIntegration()
-    var
-        ODataEdmType: Record "OData Edm Type";
-        IntegrationRecord: Record "Integration Record";
-        IntegrationManagement: Codeunit "Integration Management";
-        APIMockEvents: Codeunit "API Mock Events";
-    begin
-        ODataEdmType.DeleteAll();
-        IntegrationRecord.DeleteAll();
-        IntegrationManagement.ResetIntegrationActivated();
-        APIMockEvents.SetIsAPIEnabled(false);
-        BindSubscription(APIMockEvents);
-        Assert.IsFalse(IntegrationManagement.IsIntegrationActivated, 'Integration must be disabled with mock.');
-        UnbindSubscription(APIMockEvents);
-        Assert.IsFalse(IntegrationManagement.IsIntegrationActivated, 'Integration must be disabled without mock.');
-        Assert.RecordIsEmpty(IntegrationRecord);
-        Assert.RecordIsEmpty(ODataEdmType);
-    end;
-
     local procedure VerifyFieldDuplicateValueEditable(var MergeDuplicatePage: TestPage "Merge Duplicate"; FieldNo: Integer; IsEditable: Boolean)
     begin
         MergeDuplicatePage.Fields.FindFirstField(ID, FieldNo);
@@ -2693,15 +2524,6 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         Assert.AreEqual(
           IsEditable, MergeDuplicatePage.Fields.Override.Editable,
           'Override.EDITABLE for field ' + Format(FieldNo));
-    end;
-
-    local procedure AssertIntegrationRecordNotFound(IntegrationID: Guid)
-    var
-        IntegrationRecord: Record "Integration Record";
-    begin
-        Assert.IsFalse(
-          IntegrationRecord.FindByIntegrationId(IntegrationID),
-          StrSubstNo('Integration record %1 must not be found', IntegrationID));
     end;
 
     [ConfirmHandler]

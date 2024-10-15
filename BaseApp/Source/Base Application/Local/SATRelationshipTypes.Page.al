@@ -17,7 +17,7 @@ page 27041 "SAT Relationship Types"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for this entry according to the SAT relationship type definition.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description for this entry according to the SAT relationship type definition.';

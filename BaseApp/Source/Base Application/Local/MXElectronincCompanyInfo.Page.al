@@ -11,7 +11,7 @@ page 10458 "MX Electroninc - CompanyInfo"
             group(Control1310004)
             {
                 ShowCaption = false;
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

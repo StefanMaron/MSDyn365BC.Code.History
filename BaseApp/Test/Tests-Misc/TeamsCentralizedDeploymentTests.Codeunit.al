@@ -80,11 +80,18 @@ codeunit 139321 "Teams Centralized Depl. Tests"
             Assert.IsFalse(ActionDone.Visible, 'Done is visible');
             Assert.IsFalse(ActionOkay.Visible, 'Okay is visible');
             ActionNext.Invoke();
+            Assert.IsTrue(ActionNext.Visible, 'Next is not visible');
+            Assert.IsTrue(ActionBack.Visible, 'Back is not visible');
+            Assert.IsTrue(ActionBack.Enabled, 'Back is not enabled');
+            Assert.IsFalse(ActionDone.Visible, 'Done is visible');
+            Assert.IsFalse(ActionOkay.Visible, 'Okay is visible');
+            ActionNext.Invoke();
             Assert.IsFalse(ActionNext.Visible, 'Next is visible');
             Assert.IsTrue(ActionBack.Visible, 'Back is not visible');
             Assert.IsTrue(ActionBack.Enabled, 'Back is not enabled');
             Assert.IsTrue(ActionDone.Visible, 'Done is not visible');
             Assert.IsFalse(ActionOkay.Visible, 'Okay is visible');
+            
         end;
         TeamsCentralizedDeployment.ActionDone.Invoke();
 

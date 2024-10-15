@@ -499,7 +499,7 @@ report 10121 "Purchase Invoice NA"
 
         trigger OnOpenPage()
         begin
-            LogInteraction := SegManagement.FindInteractTmplCode(14) <> '';
+            LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Purch. Inv.") <> '';
             LogInteractionEnable := LogInteraction;
         end;
     }

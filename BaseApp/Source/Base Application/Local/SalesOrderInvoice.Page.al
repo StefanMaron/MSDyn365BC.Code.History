@@ -85,7 +85,7 @@ page 10028 "Sales Order Invoice"
                         Clear(ChangeExchangeRate);
                     end;
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the document.';

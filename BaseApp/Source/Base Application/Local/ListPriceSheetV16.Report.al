@@ -304,7 +304,7 @@ report 10165 "List Price Sheet V16"
     {
     }
 
-#if not CLEAN19
+#if not CLEAN21
     trigger OnInitReport()
     var
         FeaturePriceCalculation: Codeunit "Feature - Price Calculation";

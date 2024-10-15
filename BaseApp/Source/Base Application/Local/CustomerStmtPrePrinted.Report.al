@@ -582,7 +582,7 @@ report 10071 "Customer Stmt. (Pre-Printed)"
             if (not AllHavingEntries) and (not AllHavingBalance) then
                 AllHavingBalance := true;
 
-            LogInteraction := SegManagement.FindInteractTmplCode(7) <> '';
+            LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Sales Stmnt.") <> '';
             LogInteractionEnable := LogInteraction;
         end;
     }

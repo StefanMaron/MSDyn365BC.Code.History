@@ -1,4 +1,4 @@
-﻿codeunit 134123 "Price List Line UT"
+codeunit 134123 "Price List Line UT"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -3386,7 +3386,7 @@
         // [THEN] Verify Variant Code is automatically inserted in second line
         SalesPriceList.Lines."Variant Code".AssertEquals(ItemVariant.Code);
 
-        // [WHEN] Create New Price Line from Action        
+        // [WHEN] Create New Price Line from Action                
         CreateNewSalesPriceListLine(SalesPriceList, Item2."No.", '');
 
         // [THEN] Verify Product No., and Variant Code is empty

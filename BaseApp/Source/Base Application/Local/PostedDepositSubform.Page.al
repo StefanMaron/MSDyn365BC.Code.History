@@ -23,7 +23,7 @@ page 10144 "Posted Deposit Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the account number from which the deposit was received.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the transaction on the deposit line.';
@@ -43,7 +43,7 @@ page 10144 "Posted Deposit Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the document (usually a check) that was deposited.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the item, such as a check, that was deposited.';

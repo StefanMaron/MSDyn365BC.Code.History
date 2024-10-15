@@ -17,7 +17,7 @@ page 10456 "PAC Web Service Details"
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies if the web service is for a test environment or a production environment.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies if the web service is for requesting digital stamps or for canceling signed invoices.';

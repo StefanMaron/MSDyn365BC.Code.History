@@ -14,7 +14,7 @@ page 27045 "SAT International Trade Terms"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for this entry according to the SAT internatoinal trade terms definition.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description for this entry according to the SAT internatoinal trade terms definition.';

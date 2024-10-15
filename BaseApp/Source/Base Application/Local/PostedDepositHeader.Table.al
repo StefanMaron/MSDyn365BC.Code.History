@@ -3,6 +3,9 @@ table 10143 "Posted Deposit Header"
     Caption = 'Posted Deposit Header';
     DataCaptionFields = "No.";
     LookupPageID = "Posted Deposit List";
+    ObsoleteReason = 'Deposits are now on the extension "Bank Deposit". Use/extend Posted Bank Deposit Header. Posted deposits will be kept just for querying historical information.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
 
     fields
     {

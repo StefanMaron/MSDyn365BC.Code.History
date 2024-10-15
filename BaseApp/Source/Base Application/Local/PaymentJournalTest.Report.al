@@ -1931,7 +1931,6 @@ report 10089 "Payment Journal - Test"
     procedure CheckICDocument()
     var
         GenJnlLine4: Record "Gen. Journal Line";
-        "IC G/L Account": Record "IC G/L Account";
     begin
         with "Gen. Journal Line" do
             if GenJnlTemplate.Type = GenJnlTemplate.Type::Intercompany then begin
@@ -1947,52 +1946,93 @@ report 10089 "Payment Journal - Test"
                     else
                         CurrentICPartner := '';
                 end;
-                if (CurrentICPartner <> '') and ("IC Direction" = "IC Direction"::Outgoing) then begin
-                    if ("Account Type" in ["Account Type"::"G/L Account", "Account Type"::"Bank Account"]) and
-                       ("Bal. Account Type" in ["Bal. Account Type"::"G/L Account", "Account Type"::"Bank Account"]) and
-                       ("Account No." <> '') and
-                       ("Bal. Account No." <> '')
-                    then begin
-                        AddError(
-                          StrSubstNo(
-                            Text066, FieldCaption("Account No."), FieldCaption("Bal. Account No.")));
-                    end else begin
-                        if (("Account Type" in ["Account Type"::"G/L Account", "Account Type"::"Bank Account"]) and ("Account No." <> '')) xor
-                           (("Bal. Account Type" in ["Bal. Account Type"::"G/L Account", "Account Type"::"Bank Account"]) and
-                            ("Bal. Account No." <> ''))
-                        then begin
-                            if "IC Partner G/L Acc. No." = '' then
-                                AddError(
-                                  StrSubstNo(
-                                    Text002, FieldCaption("IC Partner G/L Acc. No.")))
-                            else begin
-                                if "IC G/L Account".Get("IC Partner G/L Acc. No.") then
-                                    if "IC G/L Account".Blocked then
-                                        AddError(
-                                          StrSubstNo(
-                                            Text032,
-                                            "IC G/L Account".FieldCaption(Blocked), false, FieldCaption("IC Partner G/L Acc. No."),
-                                            "IC Partner G/L Acc. No."
-                                            ));
-                            end;
-                        end else
-                            if "IC Partner G/L Acc. No." <> '' then
-                                AddError(
-                                  StrSubstNo(
-                                    Text009, FieldCaption("IC Partner G/L Acc. No.")));
-                    end;
-                end else
-                    if "IC Partner G/L Acc. No." <> '' then begin
-                        if "IC Direction" = "IC Direction"::Incoming then
-                            AddError(
-                              StrSubstNo(
-                                Text069, FieldCaption("IC Partner G/L Acc. No."), FieldCaption("IC Direction"), Format("IC Direction")));
-                        if CurrentICPartner = '' then
-                            AddError(
-                              StrSubstNo(
-                                Text070, FieldCaption("IC Partner G/L Acc. No.")));
-                    end;
+                CheckICAccountNo();
             end;
+    end;
+
+    local procedure CheckICAccountNo()
+    var
+        ICGLAccount: Record "IC G/L Account";
+        ICBankAccount: Record "IC Bank Account";
+    begin
+#if not CLEAN22
+        with "Gen. Journal Line" do
+            if (CurrentICPartner <> '') and ("IC Direction" = "IC Direction"::Outgoing) then begin
+                if ("Account Type" in ["Account Type"::"G/L Account", "Account Type"::"Bank Account"]) and
+                   ("Bal. Account Type" in ["Bal. Account Type"::"G/L Account", "Account Type"::"Bank Account"]) and
+                   ("Account No." <> '') and
+                   ("Bal. Account No." <> '')
+                then
+                    AddError(StrSubstNo(Text066, FieldCaption("Account No."), FieldCaption("Bal. Account No.")))
+                else
+                    if (("Account Type" in ["Account Type"::"G/L Account", "Account Type"::"Bank Account"]) and ("Account No." <> '')) xor
+                       (("Bal. Account Type" in ["Bal. Account Type"::"G/L Account", "Account Type"::"Bank Account"]) and
+                        ("Bal. Account No." <> ''))
+                    then begin
+                        if "IC Partner G/L Acc. No." = '' then
+                            AddError(StrSubstNo(Text002, FieldCaption("IC Partner G/L Acc. No.")))
+                        else begin
+                            if ICGLAccount.Get("IC Partner G/L Acc. No.") then
+                                if ICGLAccount.Blocked then
+                                    AddError(StrSubstNo(Text032, ICGLAccount.FieldCaption(Blocked), false,
+                                        FieldCaption("IC Partner G/L Acc. No."), "IC Partner G/L Acc. No."));
+
+                            if "IC Account Type" = "IC Journal Account Type"::"Bank Account" then
+                                if ICBankAccount.Get("IC Account No.", CurrentICPartner) then
+                                    if ICBankAccount.Blocked then
+                                        AddError(StrSubstNo(Text032, ICGLAccount.FieldCaption(Blocked), false,
+                                            FieldCaption("IC Account No."), "IC Account No."));
+                        end;
+                    end else
+                        if "IC Partner G/L Acc. No." <> '' then
+                            AddError(StrSubstNo(Text009, FieldCaption("IC Partner G/L Acc. No.")));
+            end else
+                if "IC Partner G/L Acc. No." <> '' then begin
+                    if "IC Direction" = "IC Direction"::Incoming then
+                        AddError(StrSubstNo(Text069, FieldCaption("IC Partner G/L Acc. No."), FieldCaption("IC Direction"), Format("IC Direction")));
+                    if CurrentICPartner = '' then
+                        AddError(StrSubstNo(Text070, FieldCaption("IC Partner G/L Acc. No.")));
+                end;
+#else
+        with "Gen. Journal Line" do
+            if (CurrentICPartner <> '') and ("IC Direction" = "IC Direction"::Outgoing) then begin
+                if ("Account Type" in ["Account Type"::"G/L Account", "Account Type"::"Bank Account"]) and
+                   ("Bal. Account Type" in ["Bal. Account Type"::"G/L Account", "Account Type"::"Bank Account"]) and
+                   ("Account No." <> '') and
+                   ("Bal. Account No." <> '')
+                then
+                    AddError(StrSubstNo(Text066, FieldCaption("Account No."), FieldCaption("Bal. Account No.")))
+                else
+                    if (("Account Type" in ["Account Type"::"G/L Account", "Account Type"::"Bank Account"]) and ("Account No." <> '')) xor
+                       (("Bal. Account Type" in ["Bal. Account Type"::"G/L Account", "Account Type"::"Bank Account"]) and
+                        ("Bal. Account No." <> ''))
+                    then
+                        if "IC Account No." = '' then
+                            AddError(StrSubstNo(Text002, FieldCaption("IC Account No.")))
+                        else begin
+                            if "IC Account Type" = "IC Journal Account Type"::"G/L Account" then
+                                if ICGLAccount.Get("IC Account No.") then
+                                    if ICGLAccount.Blocked then
+                                        AddError(StrSubstNo(Text032, ICGLAccount.FieldCaption(Blocked), false,
+                                            FieldCaption("IC Account No."), "IC Account No."));
+
+                            if "IC Account Type" = "IC Journal Account Type"::"Bank Account" then
+                                if ICBankAccount.Get("IC Account No.", CurrentICPartner) then
+                                    if ICBankAccount.Blocked then
+                                        AddError(StrSubstNo(Text032, ICGLAccount.FieldCaption(Blocked), false,
+                                            FieldCaption("IC Account No."), "IC Account No."));
+                        end
+                    else
+                        if "IC Account No." <> '' then
+                            AddError(StrSubstNo(Text009, FieldCaption("IC Account No.")));
+            end else
+                if "IC Account No." <> '' then begin
+                    if "IC Direction" = "IC Direction"::Incoming then
+                        AddError(StrSubstNo(Text069, FieldCaption("IC Account No."), FieldCaption("IC Direction"), Format("IC Direction")));
+                    if CurrentICPartner = '' then
+                        AddError(StrSubstNo(Text070, FieldCaption("IC Account No.")));
+                end;
+#endif
     end;
 }
 

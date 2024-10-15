@@ -26,7 +26,7 @@ codeunit 135153 "Data Classs Demo Data Tests"
         // [SCENARIO] EUII EUPI fields are classified as Personal
         // [SCENARIO] Master Tables contain Personal fields
         // [SCENARIO] Documents and Document Lines Contain Personal Fields
-
+        // If this test fails, you should make sure that your fields are correctly classified in <App\Layers\W1\BaseApp\DataClassificationEvalData.Codeunit.al>.
         // [GIVEN] DataSensitivity Table is empty
         DataSensitivity.DeleteAll();
 

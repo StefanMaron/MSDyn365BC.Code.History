@@ -55,7 +55,7 @@ table 1314 "User Tours"
     begin
         if not Get(UserId, TourID) then begin
             Init();
-            "User ID" := UserId;
+            "User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
             "Tour ID" := TourID;
             Insert();
         end;

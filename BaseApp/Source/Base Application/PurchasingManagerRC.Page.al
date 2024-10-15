@@ -241,7 +241,7 @@ page 8905 "Purchasing Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'List Price Sheet';
-#if not CLEAN19
+#if not CLEAN21
                         RunPageView = WHERE("Object Type" = CONST(Report), "Object ID" = CONST(10148)); // "List Price Sheet"
                         RunObject = Page "Role Center Page Dispatcher";
 #else

@@ -18,7 +18,7 @@ page 10 "Countries/Regions"
                     ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';

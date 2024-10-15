@@ -53,12 +53,12 @@ page 36723 "Bank Rec. Adj. Lines"
                         AccountNoOnAfterValidate();
                     end;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the transaction on the bank reconciliation line.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the item, such as a check, that was deposited.';

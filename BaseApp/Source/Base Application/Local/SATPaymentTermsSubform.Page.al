@@ -17,7 +17,7 @@ page 27011 "SAT Payment Terms Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for the SAT payment term.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the SAT payment term.';

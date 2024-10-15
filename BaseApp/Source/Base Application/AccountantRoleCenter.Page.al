@@ -19,6 +19,10 @@ page 9027 "Accountant Role Center"
             {
                 ApplicationArea = Suite;
             }
+            part("Intercompany Activities"; "Intercompany Activities")
+            {
+                ApplicationArea = Intercompany;
+            }
             part("User Tasks Activities"; "User Tasks Activities")
             {
                 ApplicationArea = Suite;
@@ -389,6 +393,7 @@ page 9027 "Accountant Role Center"
                     RunObject = Page "VAT Statement Names";
                     ToolTip = 'View a statement of posted VAT amounts, calculate your VAT settlement amount for a certain period, such as a quarter, and prepare to send the settlement to the tax authorities.';
                 }
+#if not CLEAN22
                 action("Intrastat Journals")
                 {
                     ApplicationArea = BasicEU;
@@ -397,7 +402,11 @@ page 9027 "Accountant Role Center"
                     PromotedCategory = Process;
                     RunObject = Page "Intrastat Jnl. Batches";
                     ToolTip = 'Summarize the value of your purchases and sales with business partners in the EU for statistical purposes and prepare to send it to the relevant authority.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '22.0';
+                    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
                 }
+#endif
                 action("Analysis Views")
                 {
                     ApplicationArea = Basic, Suite;
@@ -460,30 +469,6 @@ page 9027 "Accountant Role Center"
                     RunObject = Page "IC Dimensions";
                     ToolTip = 'Enable companies within a group to exchange transactions with dimensions and to perform financial analysis by dimensions across the group. The parent company of the group can create a simplified version of their own set of dimensions and export them to an XML file that each subsidiary can import into the intercompany Dimensions window and then map them to their own dimensions.';
                 }
-#if not CLEAN19
-                action(Action38)
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Currencies';
-                    Image = Currency;
-                    RunObject = Page Currencies;
-                    ToolTip = 'View the different currencies that you trade in or update the exchange rates by getting the latest rates from an external service provider.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Duplicated action use action(Currencies)';
-                    ObsoleteTag = '19.0';
-                }
-                action(Action144)
-                {
-                    ApplicationArea = BasicHR;
-                    Caption = 'Employees';
-                    Visible = false;
-                    RunObject = Page "Employee List";
-                    ToolTip = 'Manage employees'' details and related information, such as qualifications and pictures, or register and analyze employee absence. Keeping up-to-date records about your employees simplifies personnel tasks. For example, if an employee''s address changes, you register this on the employee card.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Duplicated action use action(Employees)';
-                    ObsoleteTag = '19.0';
-                }
-#endif                
                 action("Accounting Periods")
                 {
                     ApplicationArea = Basic, Suite;
@@ -499,18 +484,6 @@ page 9027 "Accountant Role Center"
                     RunObject = Page "No. Series";
                     ToolTip = 'View or edit the number series that are used to organize transactions';
                 }
-#if not CLEAN19
-                action(Action116)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'G/L Account Categories';
-                    RunObject = Page "G/L Account Categories";
-                    ToolTip = 'Personalize the structure of your financial statements by mapping general ledger accounts to account categories. You can create category groups by indenting subcategories under them. Each grouping shows a total balance. When you choose the Generate Account Schedules action, the account schedules for the underlying financial reports are updated. The next time you run one of these reports, such as the balance statement, new totals and subentries are added, based on your changes.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Duplicated action use action("G/L Account Categories")';
-                    ObsoleteTag = '19.0';
-                }
-#endif
                 action("Bank Account Posting Groups")
                 {
                     ApplicationArea = Basic, Suite;
@@ -667,21 +640,6 @@ page 9027 "Accountant Role Center"
                     RunObject = Page "Pmt. Reconciliation Journals";
                     ToolTip = 'Reconcile unpaid documents automatically with their related bank transactions by importing a bank statement feed or file. In the payment reconciliation journal, incoming or outgoing payments on your bank are automatically, or semi-automatically, applied to their related open customer or vendor ledger entries. Any open bank account ledger entries related to the applied customer or vendor ledger entries will be closed when you choose the Post Payments and Reconcile Bank Account action. This means that the bank account is automatically reconciled for payments that you post with the journal.';
                 }
-#if not CLEAN19
-                action("Bank Acc. Statements")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Bank Acc. Statements';
-                    Image = BankAccountStatement;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    RunObject = Page "Bank Account Statement List";
-                    ToolTip = 'View statements for selected bank accounts. For each bank transaction, the report shows a description, an applied amount, a statement amount, and other information.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The action is already available in the Posted Documents group.';
-                    ObsoleteTag = '19.0';
-                }
-#endif
                 action("Payment Terms")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1190,96 +1148,6 @@ page 9027 "Accountant Role Center"
                     ToolTip = 'Run the Consolidation report.';
                 }
             }
-#if not CLEAN19
-            group(Setup)
-            {
-                Caption = 'Setup';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Setup is no longer shown in this page.';
-                ObsoleteTag = '19.0';
-
-                action(Action112)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Assisted Setup';
-                    Image = QuestionaireSetup;
-                    RunObject = Page "Assisted Setup";
-                    ToolTip = 'Set up core functionality such as sales tax, sending documents as email, and approval workflow by running through a few pages that guide you through the information.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Setup is no longer shown in this page.';
-                    ObsoleteTag = '19.0';
-                }
-                action("Accounting /Periods")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Accounting /Periods';
-                    Image = AccountingPeriods;
-                    RunObject = Page "Accounting Periods";
-                    ToolTip = 'Set up the number of accounting periods, such as 12 monthly periods, within the fiscal year and specify which period is the start of the new fiscal year.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Setup is no longer shown in this page.';
-#pragma warning disable AS0072
-                    ObsoleteTag = '19.0';
-#pragma warning restore
-                }
-                action("General &Ledger Setup")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'General &Ledger Setup';
-                    Image = Setup;
-                    RunObject = Page "General Ledger Setup";
-                    ToolTip = 'Define your general accounting policies, such as the allowed posting period and how payments are processed. Set up your default dimensions for financial analysis.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Setup is no longer shown in this page.';
-                    ObsoleteTag = '19.0';
-                }
-                action("&Sales && Receivables Setup")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = '&Sales && Receivables Setup';
-                    Image = Setup;
-                    RunObject = Page "Sales & Receivables Setup";
-                    ToolTip = 'Define your general policies for sales invoicing and returns, such as when to show credit and stockout warnings and how to post sales discounts. Set up your number series for creating customers and different sales documents.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Setup is no longer shown in this page.';
-                    ObsoleteTag = '19.0';
-                }
-                action("&Purchases && Payables Setup")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = '&Purchases && Payables Setup';
-                    Image = Setup;
-                    RunObject = Page "Purchases & Payables Setup";
-                    ToolTip = 'Define your general policies for purchase invoicing and returns, such as whether to require vendor invoice numbers and how to post purchase discounts. Set up your number series for creating vendors and different purchase documents.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Setup is no longer shown in this page.';
-                    ObsoleteTag = '19.0';
-                }
-                action("Cost Accounting Setup")
-                {
-                    ApplicationArea = CostAccounting;
-                    Caption = 'Cost Accounting Setup';
-                    Image = CostAccountingSetup;
-                    RunObject = Page "Cost Accounting Setup";
-                    ToolTip = 'Specify how you transfer general ledger entries to cost accounting, how you link dimensions to cost centers and cost objects, and how you handle the allocation ID and allocation document number.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Setup is no longer shown in this page.';
-                    ObsoleteTag = '19.0';
-                }
-                action("Business Units")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Business Units';
-                    Image = Setup;
-                    RunObject = Page "Business Unit List";
-                    ToolTip = 'Set up Business Units that you need to consolidate into this company.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Setup is no longer shown in this page.';
-                    ObsoleteTag = '19.0';
-                }
-            }
-#endif
             group(History)
             {
                 Caption = 'History';
@@ -1293,9 +1161,14 @@ page 9027 "Accountant Role Center"
                     ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                 }
             }
+#if not CLEAN22
             group(Flow)
             {
                 Caption = 'Flow';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This funcionality has been moved to Power Automate menu';
+                ObsoleteTag = '22.0';
                 action("Manage Flows")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1303,8 +1176,13 @@ page 9027 "Accountant Role Center"
                     Image = Flow;
                     RunObject = Page "Flow Selector";
                     ToolTip = 'Set up events and responses to connect users or tasks in workflows. ';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This funcionality has been moved to Power Automate menu';
+                    ObsoleteTag = '22.0';
                 }
             }
+#endif
         }
     }
 }

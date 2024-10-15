@@ -24,7 +24,7 @@ page 36630 "Customer List - Credit Mgmt."
                     Editable = false;
                     ToolTip = 'Specifies the number of the record.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -365,7 +365,7 @@ page 36630 "Customer List - Credit Mgmt."
         {
             group(Category_New)
             {
-                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 0.';
+                Caption = 'New';
             }
             group(Category_Process)
             {

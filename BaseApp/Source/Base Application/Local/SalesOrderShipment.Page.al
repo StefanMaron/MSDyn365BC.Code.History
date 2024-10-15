@@ -109,7 +109,7 @@ page 10026 "Sales Order Shipment"
                     Editable = false;
                     ToolTip = 'Specifies the dimension value code that the sales line is associated with.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

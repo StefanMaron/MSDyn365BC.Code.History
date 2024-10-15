@@ -269,10 +269,9 @@ table 10807 "Sales Tax Setup Wizard"
     local procedure GenerateTaxJurisdictionCode() JurisdictionCode: Code[10]
     var
         TaxJurisdiction: Record "Tax Jurisdiction";
-        TypeHelper: Codeunit "Type Helper";
     begin
         repeat
-            JurisdictionCode := CopyStr(TypeHelper.GetGuidAsString(CreateGuid()), 1, MaxStrLen(JurisdictionCode));
+            JurisdictionCode := CopyStr(LowerCase(Format(CreateGuid(), 0, 4)), 1, MaxStrLen(JurisdictionCode));
         until not TaxJurisdiction.Get(JurisdictionCode);
     end;
 

@@ -1911,10 +1911,16 @@ codeunit 1450 "MS - Yodlee Service Mgt."
         GLBDisableRethrowException := NewSetting;
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Service Connection", 'OnRegisterServiceConnection', '', false, false)]
+#if not CLEAN22
 #pragma warning disable AA0207
+    [Obsolete('The procedure will be made local.', '22.0')]
+    [EventSubscriber(ObjectType::Table, Database::"Service Connection", 'OnRegisterServiceConnection', '', false, false)]
     procedure HandleVANRegisterServiceConnection(var ServiceConnection: Record 1400)
-#pragma warning restore
+#pragma warning restore AA0207
+#else
+    [EventSubscriber(ObjectType::Table, Database::"Service Connection", 'OnRegisterServiceConnection', '', false, false)]
+    local procedure HandleVANRegisterServiceConnection(var ServiceConnection: Record 1400)
+#endif
     var
         MSYodleeBankServiceSetup: Record "MS - Yodlee Bank Service Setup";
         RecRef: RecordRef;
@@ -1935,6 +1941,44 @@ codeunit 1450 "MS - Yodlee Service Mgt."
         ServiceConnection.InsertServiceConnection(
           ServiceConnection, RecRef.RECORDID(), YodleeServiceNameTxt,
           MSYodleeBankServiceSetup."Service URL", PAGE::"MS - Yodlee Bank Service Setup");
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Process Bank Acc. Rec Lines", 'OnLogTelemetryAfterImportBankStatement', '', false, false)]
+    local procedure HandleOnLogTelemetryAfterImportBankStatement(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; NumberOfLinesImported: Integer);
+    var
+        BankAccount: Record "Bank Account";
+        MSYodleeBankServiceSetup: Record "MS - Yodlee Bank Service Setup";
+        MSYodleeBankAccLink: Record "MS - Yodlee Bank Acc. Link";
+        EnvironmentInformation: Codeunit "Environment Information";
+        Dimensions: Dictionary of [Text, Text];
+        AccountNode: XmlNode;
+        ProviderName: Text;
+    begin
+        if not MSYodleeBankServiceSetup.Get() then
+            exit;
+
+        if not MSYodleeBankServiceSetup.Enabled then
+            exit;
+
+        if not EnvironmentInformation.IsSaaS() then
+            exit;
+
+        if not BankAccount.Get(BankAccReconciliation."Bank Account No.") then
+            exit;
+
+        if not IsLinkedToYodleeService(BankAccount) then
+            exit;
+
+        if not MSYodleeBankAccLink.Get(BankAccount."No.") then
+            exit;
+
+        GetLinkedBankAccount(MSYodleeBankAccLink."Online Bank Account ID", AccountNode);
+        ProviderName := FindNodeText(AccountNode, '/root/root/account/providerName');
+        Dimensions.Add('Category', YodleeTelemetryCategoryTok);
+        Dimensions.Add('Bank Name', ProviderName);
+        Dimensions.Add('ProviderAccountId', MSYodleeBankAccLink."Online Bank Account ID");
+        Dimensions.Add('NumberOfTransactionsImported', Format(NumberOfLinesImported));
+        Session.LogMessage('0000JQ5', Format(NumberOfLinesImported), Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, Dimensions);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::Video, 'OnRegisterVideo', '', false, false)]
@@ -2718,18 +2762,32 @@ codeunit 1450 "MS - Yodlee Service Mgt."
     begin
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Environment Cleanup", 'OnClearCompanyConfig', '', false, false)]
+    local procedure HandleOnClearCompanyConfig(CompanyName: Text; SourceEnv: Enum "Environment Type"; DestinationEnv: Enum "Environment Type")
+    begin
+        CleanupYodleeSetup(CompanyName);
+    end;
+
     [EventSubscriber(ObjectType::Report, Report::"Copy Company", 'OnAfterCreatedNewCompanyByCopyCompany', '', false, false)]
     local procedure HandleOnAfterCreatedNewCompanyByCopyCompany(NewCompanyName: Text[30])
+    begin
+        CleanupYodleeSetup(NewCompanyName);
+    end;
+
+    local procedure CleanupYodleeSetup(SetupCompanyName: Text[30])
     var
         MSYodleeBankServiceSetup: Record "MS - Yodlee Bank Service Setup";
         MSYodleeBankAccLink: Record "MS - Yodlee Bank Acc. Link";
         MSYodleeBankSession: Record "MS - Yodlee Bank Session";
     begin
-        MSYodleeBankServiceSetup.ChangeCompany(NewCompanyName);
+        if SetupCompanyName <> CompanyName() then begin
+            MSYodleeBankServiceSetup.ChangeCompany(SetupCompanyName);
+            MSYodleeBankAccLink.ChangeCompany(SetupCompanyName);
+            MSYodleeBankSession.ChangeCompany(SetupCompanyName);
+        end;
+
         MSYodleeBankServiceSetup.DeleteAll();
-        MSYodleeBankAccLink.ChangeCompany(NewCompanyName);
         MSYodleeBankAccLink.DeleteAll();
-        MSYodleeBankSession.ChangeCompany(NewCompanyName);
         MSYodleeBankSession.DeleteAll();
     end;
 

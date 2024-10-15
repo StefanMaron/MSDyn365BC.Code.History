@@ -143,6 +143,7 @@ page 10038 "Sales Order Stats."
                 }
                 field("TotalSalesLine[1].""Gross Weight"""; TotalSalesLine[1]."Gross Weight")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Gross Weight';
                     DecimalPlaces = 0 : 5;
                     Editable = false;
@@ -151,6 +152,7 @@ page 10038 "Sales Order Stats."
                 }
                 field("TotalSalesLine[1].""Unit Volume"""; TotalSalesLine[1]."Unit Volume")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Volume';
                     DecimalPlaces = 0 : 5;
                     Editable = false;
