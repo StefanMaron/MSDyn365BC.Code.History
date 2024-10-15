@@ -662,6 +662,8 @@ page 9231 "Items by Location Matrix"
         TempItem.CalcFields(Inventory);
         MATRIX_CellData[ColumnID] := TempItem.Inventory;
         SetVisible;
+
+        OnAfterMATRIX_OnAfterGetRecord(MATRIX_CellData, MatrixRecords, TempItem, ColumnID);
     end;
 
     procedure Load(MatrixColumns1: array[32] of Text[1024]; var MatrixRecords1: array[32] of Record Location; var MatrixRecord1: Record Location; CurrSetLength: Integer)
@@ -716,6 +718,11 @@ page 9231 "Items by Location Matrix"
         Field30Visible := MATRIX_CurrSetLength > 29;
         Field31Visible := MATRIX_CurrSetLength > 30;
         Field32Visible := MATRIX_CurrSetLength > 31;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterMATRIX_OnAfterGetRecord(var MATRIX_CellData: array[32] of Decimal; var MatrixRecords: array[32] of Record Location; var TempItem: Record Item temporary; ColumnID: Integer)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

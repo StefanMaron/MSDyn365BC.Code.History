@@ -623,7 +623,7 @@
     var
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-        OnBeforePreReport("VAT Posting Setup");
+        OnBeforePreReport("VAT Posting Setup", PostSettlement, GLAccSettle);
 
         if PostingDate = 0D then
             Error(Text000);
@@ -855,7 +855,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePreReport(var VATPostingSetup: Record "VAT Posting Setup")
+    local procedure OnBeforePreReport(var VATPostingSetup: Record "VAT Posting Setup"; PostSettlement: Boolean; GLAccountSettle: Record "G/L Account")
     begin
     end;
 

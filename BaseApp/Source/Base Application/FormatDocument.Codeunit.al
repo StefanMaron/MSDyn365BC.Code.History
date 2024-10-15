@@ -1,4 +1,4 @@
-codeunit 368 "Format Document"
+﻿codeunit 368 "Format Document"
 {
 
     trigger OnRun()
@@ -290,11 +290,11 @@ codeunit 368 "Format Document"
         end;
         OnAfterSetSalesPurchaseLine(
           Quantity, UnitPrice, VATPercentage, LineAmount, CurrencyCode,
-          FormattedQuantity, FormattedUnitPrice, FormattedVATPercentage, FormattedLineAmount);
+          FormattedQuantity, FormattedUnitPrice, FormattedVATPercentage, FormattedLineAmount, CommentLine);
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetSalesPurchaseLine(Quantity: Decimal; UnitPrice: Decimal; VATPercentage: Decimal; LineAmount: Decimal; CurrencyCode: Code[10]; var FormattedQuantity: Text; var FormattedUnitPrice: Text; var FormattedVATPercentage: Text; var FormattedLineAmount: Text)
+    local procedure OnAfterSetSalesPurchaseLine(Quantity: Decimal; UnitPrice: Decimal; VATPercentage: Decimal; LineAmount: Decimal; CurrencyCode: Code[10]; var FormattedQuantity: Text; var FormattedUnitPrice: Text; var FormattedVATPercentage: Text; var FormattedLineAmount: Text; CommentLine: Boolean)
     begin
     end;
 

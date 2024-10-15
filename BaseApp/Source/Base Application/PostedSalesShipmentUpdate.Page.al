@@ -60,6 +60,20 @@ page 1350 "Posted Sales Shipment - Update"
                     ToolTip = 'Specifies the shipping agent''s package number.';
                 }
             }
+            group("Electronic Document")
+            {
+                Caption = 'Electronic Document';
+                field("CFDI Cancellation Reason Code"; "CFDI Cancellation Reason Code")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the reason for the cancellation as a code.';
+                }
+                field("Substitution Document No."; "Substitution Document No.")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the document number that replaces the canceled one. It is required when the cancellation reason is 01.';
+                }
+            }
         }
     }
 
@@ -87,7 +101,9 @@ page 1350 "Posted Sales Shipment - Update"
         IsChanged :=
           ("Shipping Agent Code" <> xSalesShipmentHeader."Shipping Agent Code") or
           ("Package Tracking No." <> xSalesShipmentHeader."Package Tracking No.") or
-          ("Shipping Agent Service Code" <> xSalesShipmentHeader."Shipping Agent Service Code");
+          ("Shipping Agent Service Code" <> xSalesShipmentHeader."Shipping Agent Service Code") or
+          ("CFDI Cancellation Reason Code" <> xSalesShipmentHeader."CFDI Cancellation Reason Code") or
+          ("Substitution Document No." <> xSalesShipmentHeader."Substitution Document No.");
 
         OnAfterRecordChanged(Rec, xSalesShipmentHeader, IsChanged);
     end;

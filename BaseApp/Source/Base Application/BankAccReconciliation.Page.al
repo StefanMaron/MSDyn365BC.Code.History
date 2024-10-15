@@ -477,7 +477,7 @@ page 379 "Bank Acc. Reconciliation"
         ListEmptyMsg: Label 'No bank statement lines exist. Choose the Import Bank Statement action to fill in the lines from a file, or enter lines manually.';
         ImportedLinesAfterStatementDateMsg: Label 'Imported bank statement has lines dated after the statement date.';
         StatementDateEmptyMsg: Label 'Statement date is empty. The latest bank statement line is %1. Do you want to set the statement date to this date?', Comment = '%1 - statement date';
-        NoBankAccReconcilliationLineWithDiffSellectedErr: Label 'There are no Bank Acc. Reconciliation Lines with difference selcted.';
+        NoBankAccReconcilliationLineWithDiffSellectedErr: Label 'Select the bank statement lines that have differences to transfer to the general journal.';
         UpdatedBankAccountLESubpageStementDate: Date;
         UpdatedBankAccountLESystemId: Guid;
 }

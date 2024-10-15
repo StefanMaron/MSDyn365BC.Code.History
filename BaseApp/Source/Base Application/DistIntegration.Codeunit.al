@@ -1,4 +1,4 @@
-codeunit 5702 "Dist. Integration"
+﻿codeunit 5702 "Dist. Integration"
 {
 
     trigger OnRun()
@@ -478,12 +478,8 @@ codeunit 5702 "Dist. Integration"
 
             SalesHeader.TestField("Document Type", SalesHeader."Document Type"::Order);
             TestField("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-            if "Ship-to Code" <> '' then
-                TestField("Ship-to Code", SalesHeader."Ship-to Code");
-            if SpecialOrderExists(SalesHeader) then begin
-                Validate("Location Code", SalesHeader."Location Code");
-                AddSpecialOrderToAddress(SalesHeader, true);
-            end;
+            CheckShipToCode(PurchHeader, SalesHeader);
+            CheckAddSpecialOrderToAddress(PurchHeader, SalesHeader);
 
             if Vendor.Get("Buy-from Vendor No.") then
                 Validate("Shipment Method Code", Vendor."Shipment Method Code");
@@ -527,6 +523,34 @@ codeunit 5702 "Dist. Integration"
 
             Modify; // Only version check
             SalesHeader.Modify(); // Only version check
+        end;
+    end;
+
+    local procedure CheckShipToCode(var PurchHeader: Record "Purchase Header"; SalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckShipToCode(PurchHeader, SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        if PurchHeader."Ship-to Code" <> '' then
+            PurchHeader.TestField("Ship-to Code", SalesHeader."Ship-to Code");
+    end;
+
+    local procedure CheckAddSpecialOrderToAddress(var PurchHeader: Record "Purchase Header"; SalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckAddSpecialOrderToAddress(PurchHeader, SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        if PurchHeader.SpecialOrderExists(SalesHeader) then begin
+            PurchHeader.Validate("Location Code", SalesHeader."Location Code");
+            PurchHeader.AddSpecialOrderToAddress(SalesHeader, true);
         end;
     end;
 
@@ -614,6 +638,16 @@ codeunit 5702 "Dist. Integration"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSalesLineModify(var SalesLine: Record "Sales Line"; PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckShipToCode(var PurchaseHeader: Record "Purchase Header"; SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAddSpecialOrderToAddress(var PurchaseHeader: Record "Purchase Header"; SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 

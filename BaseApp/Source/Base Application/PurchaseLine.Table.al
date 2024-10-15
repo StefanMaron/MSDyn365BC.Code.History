@@ -435,6 +435,7 @@
                 FindRecordMgt: Codeunit "Find Record Management";
                 ReturnValue: Text[50];
                 IsHandled: Boolean;
+                ShouldErrorForFindDescription: Boolean;
             begin
                 IsHandled := false;
                 OnBeforeValidateDescription(Rec, xRec, CurrFieldNo, IsHandled);
@@ -459,10 +460,10 @@
                         end;
                 end;
 
-                if ("No." = '') and GuiAllowed then
-                    if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                        if "Document Type" in ["Document Type"::Order] then
-                            Error(CannotFindDescErr, Type, Description);
+                ShouldErrorForFindDescription := ("No." = '') and GuiAllowed() and ApplicationAreaMgmtFacade.IsFoundationEnabled() and ("Document Type" = "Document Type"::Order);
+                OnValidateDescriptionOnAfterCalcShouldErrorForFindDescription(Rec, xRec, ShouldErrorForFindDescription);
+                if ShouldErrorForFindDescription then
+                    Error(CannotFindDescErr, Type, Description);
             end;
         }
         field(12; "Description 2"; Text[50])
@@ -1617,13 +1618,7 @@
                 "Line Amount" := Round("Line Amount", Currency."Amount Rounding Precision");
                 MaxLineAmount := Round(Quantity * "Direct Unit Cost", Currency."Amount Rounding Precision");
 
-                if "Line Amount" < 0 then
-                    if "Line Amount" < MaxLineAmount then
-                        Error(LineAmountInvalidErr);
-
-                if "Line Amount" > 0 then
-                    if "Line Amount" > MaxLineAmount then
-                        Error(LineAmountInvalidErr);
+                CheckLineAmount(MaxLineAmount);
 
                 Validate("Line Discount Amount", MaxLineAmount - "Line Amount");
             end;
@@ -2253,7 +2248,9 @@
                     JobPlanningLine.TestField("Usage Link", true);
                     JobPlanningLine.TestField("System-Created Entry", false);
                     "Job Line Type" := JobPlanningLine.ConvertToJobLineType();
-                    Validate("Job Remaining Qty.", JobPlanningLine."Remaining Qty." - "Qty. to Invoice");
+                    Validate(
+                        "Job Remaining Qty.",
+                        JobPlanningLine."Remaining Qty." - UOMMgt.CalcQtyFromBase("Qty. to Invoice (Base)", JobPlanningLine."Qty. per Unit of Measure"))
                 end else
                     Validate("Job Remaining Qty.", 0);
             end;
@@ -2282,7 +2279,7 @@
                     end;
                 end;
                 "Job Remaining Qty." := UOMMgt.RoundAndValidateQty("Job Remaining Qty.", "Qty. Rounding Precision", FieldCaption("Job Remaining Qty."));
-                "Job Remaining Qty. (Base)" := CalcBaseQty("Job Remaining Qty.", FieldCaption("Job Remaining Qty."), FieldCaption("Job Remaining Qty. (Base)"));
+                "Job Remaining Qty. (Base)" := CalcBaseQtyForJobPlanningLine("Job Remaining Qty.", FieldCaption("Job Remaining Qty."), FieldCaption("Job Remaining Qty. (Base)"), JobPlanningLine);
             end;
         }
         field(1031; "Job Remaining Qty. (Base)"; Decimal)
@@ -4206,6 +4203,24 @@
         OnAfterCalcLineAmount(Rec, LineAmount);
     end;
 
+    local procedure CheckLineAmount(MaxLineAmount: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckLineAmount(Rec, MaxLineAmount, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Line Amount" < 0 then
+            if "Line Amount" < MaxLineAmount then
+                Error(LineAmountInvalidErr);
+
+        if "Line Amount" > 0 then
+            if "Line Amount" > MaxLineAmount then
+                Error(LineAmountInvalidErr);
+    end;
+
     local procedure CheckLineTypeOnIndirectCostPercentUpdate()
     var
         IsHandled: Boolean;
@@ -5043,6 +5058,7 @@
                                 (TotalAmount + Amount) * (1 - PurchHeader."VAT Base Discount %" / 100) * "VAT %" / 100,
                                 Currency."Amount Rounding Precision", Currency.VATRoundingDirection) -
                               TotalAmountInclVAT + TotalVATDifference;
+                            OnUpdateVATAmountsOnAfterCalcNormalVATAmountsForPricesExcludingVAT(Rec, PurchHeader, Currency, TotalAmount, TotalAmountInclVAT);
                         end;
                     "VAT Calculation Type"::"Full VAT":
                         begin
@@ -5229,9 +5245,21 @@
         "Posting Group" := FADeprBook."FA Posting Group";
         "Gen. Prod. Posting Group" := LocalGLAcc."Gen. Prod. Posting Group";
         "Tax Group Code" := LocalGLAcc."Tax Group Code";
-        Validate("VAT Prod. Posting Group", LocalGLAcc."VAT Prod. Posting Group");
+        ValidateVATProdPostingGroupFromGLAcc(LocalGLAcc);
 
         OnAfterGetFAPostingGroup(Rec, LocalGLAcc);
+    end;
+
+    local procedure ValidateVATProdPostingGroupFromGLAcc(GLAccount: Record "G/L Account")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateVATProdPostingGroupFromGLAcc(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        Validate("VAT Prod. Posting Group", GLAccount."VAT Prod. Posting Group");
     end;
 
     local procedure FindDefaultFADeprBook() Result: Boolean
@@ -5777,7 +5805,7 @@
         ItemChargeAssgnts.RunModal();
 
         CalcFields("Qty. to Assign");
-        OnAfterShowItemChargeAssgnt(Rec, ItemChargeAssgntPurch);
+        OnAfterShowItemChargeAssgnt(Rec, ItemChargeAssgntPurch, ItemChargeAssgnts);
     end;
 
     procedure UpdateItemChargeAssgnt()
@@ -6255,10 +6283,11 @@
                             "VAT %" := 0;
                         if not VATAmountLine.Get(
                              "VAT Identifier", "VAT Calculation Type", "Tax Group Code", "Tax Area Code", "Use Tax", "Line Amount" >= 0)
-                        then
+                        then begin
                             VATAmountLine.InsertNewLine(
                               "VAT Identifier", "VAT Calculation Type", "Tax Group Code", "Tax Area Code", "Use Tax", "VAT %", "Line Amount" >= 0, false);
-
+                            OnCalcVATAmountLinesAfterVATAmountLineInsertNewLine(PurchLine, VATAmountLine);
+                        end;
                         case QtyType of
                             QtyType::General:
                                 begin
@@ -8276,6 +8305,12 @@
             "No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
 
+    local procedure CalcBaseQtyForJobPlanningLine(Qty: Decimal; FromFieldName: Text; ToFieldName: Text; JobPlanningLine: Record "Job Planning Line"): Decimal
+    begin
+        exit(UOMMgt.CalcBaseQty(
+            JobPlanningLine."No.", JobPlanningLine."Variant Code", JobPlanningLine."Unit of Measure Code", Qty, JobPlanningLine."Qty. per Unit of Measure", JobPlanningLine."Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterAddItem(var PurchaseLine: Record "Purchase Line"; LastPurchaseLine: Record "Purchase Line")
     begin
@@ -8572,7 +8607,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterShowItemChargeAssgnt(var PurchaseLine: Record "Purchase Line"; var ItemChargeAssgnmtPurch: Record "Item Charge Assignment (Purch)")
+    local procedure OnAfterShowItemChargeAssgnt(var PurchaseLine: Record "Purchase Line"; var ItemChargeAssgnmtPurch: Record "Item Charge Assignment (Purch)"; var ItemChargeAssignmentPurchPage: Page "Item Charge Assignment (Purch)")
     begin
     end;
 
@@ -9000,6 +9035,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateVATProdPostingGroupFromGLAcc(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateLeadTimeCalculation(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer; var InHandled: Boolean);
     begin
     end;
@@ -9075,6 +9115,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckLineAmount(var PurchaseLine: Record "Purchase Line"; MaxLineAmount: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckLineTypeOnIndirectCostPercentUpdate(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
@@ -9101,6 +9146,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcVATAmountLinesOnAfterCalcLineTotals(var VATAmountLine: Record "VAT Amount Line"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; Currency: Record Currency; QtyType: Option General,Invoicing,Shipping; var TotalVATAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcVATAmountLinesAfterVATAmountLineInsertNewLine(var PurchaseLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line")
     begin
     end;
 
@@ -9265,6 +9315,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateJobNoOnBeforeGetJob(var PurchLine: Record "Purchase Line"; var xPurchLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateDescriptionOnAfterCalcShouldErrorForFindDescription(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; var ShouldErrorForFindDescription: Boolean)
     begin
     end;
 
@@ -9598,7 +9653,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateVATAmountsOnAfterCalcNormalVATAmountsForPricesIncludingVAT(var PurchaseLine: Record "Purchase Line"; PurchHeader: record "Purchase Header"; Currency: record Currency; TotalAmount: Decimal; TotalAmountInclVAT: Decimal)
+    local procedure OnUpdateVATAmountsOnAfterCalcNormalVATAmountsForPricesIncludingVAT(var PurchaseLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header"; Currency: Record Currency; TotalAmount: Decimal; TotalAmountInclVAT: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateVATAmountsOnAfterCalcNormalVATAmountsForPricesExcludingVAT(var PurchaseLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header"; Currency: Record Currency; TotalAmount: Decimal; TotalAmountInclVAT: Decimal)
     begin
     end;
 

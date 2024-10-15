@@ -101,6 +101,8 @@ xmlport 1220 "Data Exch. Import - CSV"
     local procedure InitializeGlobals()
     var
         DataExchDef: Record "Data Exch. Def";
+        TypeHelper: Codeunit "Type Helper";
+        CRLF: Text[2];
     begin
         DataExchEntryNo := "Data Exch.".GetRangeMin("Entry No.");
         "Data Exch.".Get(DataExchEntryNo);
@@ -124,6 +126,14 @@ xmlport 1220 "Data Exch. Import - CSV"
                 currXMLport.TextEncoding(TEXTENCODING::UTF16);
             DataExchDef."File Encoding"::WINDOWS:
                 currXMLport.TextEncoding(TEXTENCODING::Windows);
+        end;
+
+        CRLF := TypeHelper.CRLFSeparator();
+        case DataExchDef."Line Separator" of
+            DataExchDef."Line Separator"::CR:
+                currXMLport.RecordSeparator := CRLF[1];
+            DataExchDef."Line Separator"::LF:
+                currXMLport.RecordSeparator := CRLF[2];
         end;
     end;
 

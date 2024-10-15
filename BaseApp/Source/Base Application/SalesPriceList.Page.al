@@ -494,6 +494,8 @@ page 7016 "Sales Price List"
                     IsJobGroup := true;
                     JobSourceType := "Job Price Source Type".FromInteger(Rec."Source Type".AsInteger());
                 end;
+            else
+                OnUpdateSourceTypeOnCaseElse(Rec, SourceType, IsJobGroup);
         end;
     end;
 
@@ -535,5 +537,10 @@ page 7016 "Sales Price List"
         Rec.Validate("Source Type", SourceType);
         SetSourceNoEnabled();
         CurrPage.SaveRecord();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateSourceTypeOnCaseElse(PriceListHeader: Record "Price List Header"; var SourceType: Enum "Sales Price Source Type"; var IsJobGroup: Boolean)
+    begin
     end;
 }

@@ -118,53 +118,58 @@
         [SecurityFiltering(SecurityFilter::Filtered)]
         GenJnlLine: Record "Gen. Journal Line";
         JnlSelected: Boolean;
+        IsHandled: Boolean;
     begin
-        if GenJnlBatch.GetFilter("Journal Template Name") <> '' then
-            exit;
-        GenJnlBatch.FilterGroup(2);
-        if GenJnlBatch.GetFilter("Journal Template Name") <> '' then begin
-            GenJnlBatch.FilterGroup(0);
-            exit;
-        end;
-        GenJnlBatch.FilterGroup(0);
-
-        if not GenJnlBatch.Find('-') then
-            for GenJnlTemplate.Type := GenJnlTemplate.Type::General to GenJnlTemplate.Type::Jobs do begin
-                GenJnlTemplate.SetRange(Type, GenJnlTemplate.Type);
-                if not GenJnlTemplate.FindFirst then
-                    TemplateSelection(0, GenJnlTemplate.Type, false, GenJnlLine, JnlSelected);
-                if GenJnlTemplate.FindFirst then
-                    CheckTemplateName(GenJnlTemplate.Name, GenJnlBatch.Name);
-                if GenJnlTemplate.Type = GenJnlTemplate.Type::General then begin
-                    GenJnlTemplate.SetRange(Recurring, true);
-                    if not GenJnlTemplate.FindFirst then
-                        TemplateSelection(0, GenJnlTemplate.Type, true, GenJnlLine, JnlSelected);
-                    if GenJnlTemplate.FindFirst then
-                        CheckTemplateName(GenJnlTemplate.Name, GenJnlBatch.Name);
-                    GenJnlTemplate.SetRange(Recurring);
-                end;
+        IsHandled := false;
+        OnBeforeOpenJnlBatch(GenJnlBatch, IsHandled);
+        if not IsHandled then begin
+            if GenJnlBatch.GetFilter("Journal Template Name") <> '' then
+                exit;
+            GenJnlBatch.FilterGroup(2);
+            if GenJnlBatch.GetFilter("Journal Template Name") <> '' then begin
+                GenJnlBatch.FilterGroup(0);
+                exit;
             end;
+            GenJnlBatch.FilterGroup(0);
 
-        GenJnlBatch.Find('-');
-        JnlSelected := true;
-        GenJnlBatch.CalcFields("Template Type", Recurring);
-        GenJnlTemplate.SetRange(Recurring, GenJnlBatch.Recurring);
-        if not GenJnlBatch.Recurring then
-            GenJnlTemplate.SetRange(Type, GenJnlBatch."Template Type");
-        if GenJnlBatch.GetFilter("Journal Template Name") <> '' then
-            GenJnlTemplate.SetRange(Name, GenJnlBatch.GetFilter("Journal Template Name"));
-        case GenJnlTemplate.Count of
-            1:
-                GenJnlTemplate.FindFirst;
-            else
-                JnlSelected := PAGE.RunModal(0, GenJnlTemplate) = ACTION::LookupOK;
+            if not GenJnlBatch.Find('-') then
+                for GenJnlTemplate.Type := GenJnlTemplate.Type::General to GenJnlTemplate.Type::Jobs do begin
+                    GenJnlTemplate.SetRange(Type, GenJnlTemplate.Type);
+                    if not GenJnlTemplate.FindFirst() then
+                        TemplateSelection(0, GenJnlTemplate.Type, false, GenJnlLine, JnlSelected);
+                    if GenJnlTemplate.FindFirst() then
+                        CheckTemplateName(GenJnlTemplate.Name, GenJnlBatch.Name);
+                    if GenJnlTemplate.Type = GenJnlTemplate.Type::General then begin
+                        GenJnlTemplate.SetRange(Recurring, true);
+                        if not GenJnlTemplate.FindFirst() then
+                            TemplateSelection(0, GenJnlTemplate.Type, true, GenJnlLine, JnlSelected);
+                        if GenJnlTemplate.FindFirst() then
+                            CheckTemplateName(GenJnlTemplate.Name, GenJnlBatch.Name);
+                        GenJnlTemplate.SetRange(Recurring);
+                    end;
+                end;
+
+            GenJnlBatch.Find('-');
+            JnlSelected := true;
+            GenJnlBatch.CalcFields("Template Type", Recurring);
+            GenJnlTemplate.SetRange(Recurring, GenJnlBatch.Recurring);
+            if not GenJnlBatch.Recurring then
+                GenJnlTemplate.SetRange(Type, GenJnlBatch."Template Type");
+            if GenJnlBatch.GetFilter("Journal Template Name") <> '' then
+                GenJnlTemplate.SetRange(Name, GenJnlBatch.GetFilter("Journal Template Name"));
+            case GenJnlTemplate.Count of
+                1:
+                    GenJnlTemplate.FindFirst();
+                else
+                    JnlSelected := PAGE.RunModal(0, GenJnlTemplate) = ACTION::LookupOK;
+            end;
+            if not JnlSelected then
+                Error('');
+
+            GenJnlBatch.FilterGroup(0);
+            GenJnlBatch.SetRange("Journal Template Name", GenJnlTemplate.Name);
+            GenJnlBatch.FilterGroup(2);
         end;
-        if not JnlSelected then
-            Error('');
-
-        GenJnlBatch.FilterGroup(0);
-        GenJnlBatch.SetRange("Journal Template Name", GenJnlTemplate.Name);
-        GenJnlBatch.FilterGroup(2);
 
         OnAfterOpenJournalBatch(GenJnlBatch, GenJnlTemplate);
     end;
@@ -527,6 +532,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenJnl(var CurrentJnlBatchName: Code[10]; var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenJnlBatch(var GenJnlBatch: Record "Gen. Journal Batch"; var IsHandled: Boolean)
     begin
     end;
 

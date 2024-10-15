@@ -616,8 +616,8 @@
         field(10044; "Transport Operators"; Integer)
         {
             Caption = 'Transport Operators';
-            CalcFormula = Count ("CFDI Transport Operator" WHERE ("Document Table ID" = CONST (5740),
-                                                                 "Document No." = FIELD ("No.")));
+            CalcFormula = Count("CFDI Transport Operator" WHERE("Document Table ID" = CONST(5740),
+                                                                 "Document No." = FIELD("No.")));
             FieldClass = FlowField;
         }
         field(10045; "Transit-from Date/Time"; DateTime)
@@ -652,12 +652,12 @@
         field(10052; "Trailer 1"; Code[20])
         {
             Caption = 'Trailer 1';
-            TableRelation = "Fixed Asset" WHERE ("SAT Trailer Type" = FILTER (<> ''));
+            TableRelation = "Fixed Asset" WHERE("SAT Trailer Type" = FILTER(<> ''));
         }
         field(10053; "Trailer 2"; Code[20])
         {
             Caption = 'Trailer 2';
-            TableRelation = "Fixed Asset" WHERE ("SAT Trailer Type" = FILTER (<> ''));
+            TableRelation = "Fixed Asset" WHERE("SAT Trailer Type" = FILTER(<> ''));
         }
         field(10056; "Medical Insurer Name"; Text[50])
         {
@@ -671,6 +671,11 @@
         {
             Caption = 'SAT Weight Unit Of Measure';
             TableRelation = "SAT Weight Unit of Measure";
+        }
+        field(27004; "CFDI Export Code"; Code[10])
+        {
+            Caption = 'CFDI Export Code';
+            TableRelation = "CFDI Export Code";
         }
     }
 

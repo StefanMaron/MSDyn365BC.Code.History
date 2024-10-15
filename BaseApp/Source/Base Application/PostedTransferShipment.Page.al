@@ -323,6 +323,11 @@
             group(ElectronicDocument)
             {
                 Caption = 'Electronic Document';
+                field("CFDI Export Code"; "CFDI Export Code")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies a code to indicate if the document is used for exports to other countries.';
+                }
                 field("Transport Operators"; "Transport Operators")
                 {
                     ApplicationArea = Location, BasicMX;
@@ -540,6 +545,26 @@
                 trigger OnAction()
                 begin
                     Navigate;
+                end;
+            }
+            action("Update Document")
+            {
+                ApplicationArea = Location;
+                Caption = 'Update Document';
+                Image = Edit;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                ToolTip = 'Add new information that is relevant to the document. You can only edit a few fields because the document has already been posted.';
+
+                trigger OnAction()
+                var
+                    PostedTransferShptUpdate: Page "Posted Transfer Shpt. - Update";
+                begin
+                    PostedTransferShptUpdate.LookupMode := true;
+                    PostedTransferShptUpdate.SetRec(Rec);
+                    PostedTransferShptUpdate.RunModal();
                 end;
             }
             group("&Electronic Document")

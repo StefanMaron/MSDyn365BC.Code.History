@@ -60,6 +60,20 @@ page 1354 "Pstd. Sales Cr. Memo - Update"
                     ToolTip = 'Specifies the shipping agent''s package number.';
                 }
             }
+            group("Electronic Document")
+            {
+                Caption = 'Electronic Document';
+                field("CFDI Cancellation Reason Code"; "CFDI Cancellation Reason Code")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the reason for the cancellation as a code.';
+                }
+                field("Substitution Document No."; "Substitution Document No.")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the document number that replaces the canceled one. It is required when the cancellation reason is 01.';
+                }
+            }
         }
     }
 
@@ -87,7 +101,9 @@ page 1354 "Pstd. Sales Cr. Memo - Update"
         IsChanged :=
           ("Shipping Agent Code" <> xSalesCrMemoHeader."Shipping Agent Code") or
           ("Shipping Agent Service Code" <> xSalesCrMemoHeader."Shipping Agent Service Code") or
-          ("Package Tracking No." <> xSalesCrMemoHeader."Package Tracking No.");
+          ("Package Tracking No." <> xSalesCrMemoHeader."Package Tracking No.") or
+          ("CFDI Cancellation Reason Code" <> xSalesCrMemoHeader."CFDI Cancellation Reason Code") or
+          ("Substitution Document No." <> xSalesCrMemoHeader."Substitution Document No.");
 
         OnAfterRecordChanged(Rec, xSalesCrMemoHeader, IsChanged);
     end;

@@ -1189,7 +1189,7 @@ codeunit 144001 "MX CFDI"
         PaymentNo: Code[20];
     begin
         // [FEATURE] [Sales]
-        // [SCENARIO 366659] Request stamp for FCY payment applied to FCY invoice
+        // [SCENARIO 425045] Request stamp for FCY payment applied to FCY invoice
         Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Amount Including VAT" = 1000 in foreign currency "USD"
@@ -1214,15 +1214,19 @@ codeunit 144001 "MX CFDI"
         ExportPaymentToServerFile(CustLedgerEntry, FileName, CustLedgerEntry."Document Type"::Payment, PaymentNo);
 
         // [THEN] 'Complemento' node created with attribute 'MonedaP' = 'USD'
-        // [THEN] 'DoctoRelacionado' node has attribute 'TipoCambioDR' is not exported, 'MonedaDR' = 'USD'
+        // [THEN] 'DoctoRelacionado' node has attribute 'TipoCambioDR' is exported from the invoice, 'MonedaDR' = 'USD'
+        CustLedgerEntry.CalcFields(Amount);
         LibraryXPathXMLReader.Initialize(FileName, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
         LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
         LibraryXPathXMLReader.AddAdditionalNamespace('pago10', 'http://www.sat.gob.mx/Pagos');
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:Complemento/pago10:Pagos/pago10:Pago', 'MonedaP', Customer."Currency Code");
-        LibraryXPathXMLReader.VerifyAttributeAbsence(
-          'cfdi:Complemento/pago10:Pagos/pago10:Pago/pago10:DoctoRelacionado', 'TipoCambioDR');
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/pago10:Pagos/pago10:Pago', 'Monto', FormatDecimal(abs(CustLedgerEntry.Amount), 2));
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/pago10:Pagos/pago10:Pago/pago10:DoctoRelacionado', 'TipoCambioDR',
+          FormatDecimal(1 / SalesInvoiceHeader."Currency Factor", 6));
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:Complemento/pago10:Pagos/pago10:Pago/pago10:DoctoRelacionado', 'MonedaDR', Customer."Currency Code");
 
@@ -1234,7 +1238,12 @@ codeunit 144001 "MX CFDI"
         Assert.AreEqual(
           Customer."Currency Code", SelectStr(25, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'MonedaP', OriginalStr));
         Assert.AreEqual(
+          FormatDecimal(abs(CustLedgerEntry.Amount), 2), SelectStr(27, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Monto', OriginalStr));
+        Assert.AreEqual(
           Customer."Currency Code", SelectStr(29, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'MonedaDR', OriginalStr));
+        Assert.AreEqual(
+          FormatDecimal(1 / SalesInvoiceHeader."Currency Factor", 6),
+          SelectStr(30, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TipoCambioDR', OriginalStr));
     end;
 
     [Test]
