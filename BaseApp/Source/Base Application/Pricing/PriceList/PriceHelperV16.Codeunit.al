@@ -118,6 +118,8 @@ codeunit 7006 "Price Helper - V16"
         PriceListLine: Record "Price List Line";
         PriceWorksheetLine: Record "Price Worksheet Line";
     begin
+        OnBeforeDeletePrices(SourceType, SourceNo, ParentSourceNo);
+
         PriceListHeader.SetRange("Source Type", SourceType);
         PriceListHeader.SetRange("Parent Source No.", ParentSourceNo);
         PriceListHeader.SetRange("Source No.", SourceNo);
@@ -135,6 +137,8 @@ codeunit 7006 "Price Helper - V16"
         PriceWorksheetLine.SetRange("Source No.", SourceNo);
         if not PriceWorksheetLine.IsEmpty() then
             PriceWorksheetLine.DeleteAll();
+
+        OnAfterDeletePrices(SourceType, SourceNo, ParentSourceNo);
     end;
 
     local procedure DeletePriceLines(AssetType: Enum "Price Asset Type"; AssetNo: Code[20]; VariantCode: Code[10])
@@ -780,5 +784,15 @@ codeunit 7006 "Price Helper - V16"
     local procedure BeforeCopyJobPrices(var SourceJob: Record Job; var TargetJob: Record Job);
     begin
         CopyJobPrices(SourceJob, TargetJob);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeletePrices(SourceType: Enum "Price Source Type"; SourceNo: Code[20]; ParentSourceNo: Code[20]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDeletePrices(SourceType: Enum "Price Source Type"; SourceNo: Code[20]; ParentSourceNo: Code[20]);
+    begin
     end;
 }

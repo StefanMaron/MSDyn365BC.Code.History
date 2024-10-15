@@ -622,8 +622,13 @@ table 36 "Sales Header"
             Caption = 'Shipment Date';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                UpdateSalesLinesByFieldNo(FieldNo("Shipment Date"), CurrFieldNo <> 0);
+                IsHandled := false;
+                OnBeforeValidateShipmentDate(Rec, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    UpdateSalesLinesByFieldNo(FieldNo("Shipment Date"), CurrFieldNo <> 0);
             end;
         }
         field(22; "Posting Description"; Text[100])
@@ -3994,13 +3999,15 @@ table 36 "Sales Header"
     procedure ConfirmCurrencyFactorUpdate()
     var
         IsHandled: Boolean;
+        ForceConfirm: Boolean;
     begin
         IsHandled := false;
-        OnBeforeConfirmUpdateCurrencyFactor(Rec, HideValidationDialog, xRec, IsHandled);
+        ForceConfirm := false;
+        OnBeforeConfirmUpdateCurrencyFactor(Rec, HideValidationDialog, xRec, IsHandled, ForceConfirm);
         if IsHandled then
             exit;
 
-        if GetHideValidationDialog() or not GuiAllowed() then
+        if GetHideValidationDialog() or not GuiAllowed() or ForceConfirm then
             Confirmed := true
         else
             Confirmed := Confirm(Text021, false);
@@ -7505,7 +7512,7 @@ table 36 "Sales Header"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeShouldSearchForCustomerByName(CustomerNo, Result, IsHandled, CurrFieldNo, Rec);
+        OnBeforeShouldSearchForCustomerByName(CustomerNo, Result, IsHandled, CurrFieldNo, Rec, xRec);
         if IsHandled then
             exit(Result);
 
@@ -8438,7 +8445,7 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeConfirmUpdateCurrencyFactor(var SalesHeader: Record "Sales Header"; var HideValidationDialog: Boolean; var xSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnBeforeConfirmUpdateCurrencyFactor(var SalesHeader: Record "Sales Header"; var HideValidationDialog: Boolean; var xSalesHeader: Record "Sales Header"; var IsHandled: Boolean; var ForceConfirm: Boolean)
     begin
     end;
 
@@ -8706,7 +8713,7 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShouldSearchForCustomerByName(CustomerNo: Code[20]; var Result: Boolean; var IsHandled: Boolean; var CallingFieldNo: Integer; var SalesHeader: Record "Sales Header")
+    local procedure OnBeforeShouldSearchForCustomerByName(CustomerNo: Code[20]; var Result: Boolean; var IsHandled: Boolean; var CallingFieldNo: Integer; var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -9847,6 +9854,11 @@ table 36 "Sales Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetShipToAddress(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShipmentDate(var SalesHeader: Record "Sales Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

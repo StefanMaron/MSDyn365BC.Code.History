@@ -219,7 +219,7 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
 
     local procedure GetDocumentDate() DocumentDate: Date;
     begin
-        DocumentDate := SalesLine.GetDateForCalculations();
+        DocumentDate := SalesLine.GetDateForCalculations(SalesHeader);
         OnAfterGetDocumentDate(DocumentDate, SalesHeader, SalesLine);
     end;
 

@@ -752,6 +752,8 @@ page 5522 "Order Planning"
         ReqLine.Get(Rec."Worksheet Template Name", Rec."Journal Batch Name", Rec."Line No.");
         ReqLine.TransferFields(Rec, false);
         ReqLine.Modify(true);
+
+        CurrPage.Update(false);
     end;
 
     trigger OnOpenPage()

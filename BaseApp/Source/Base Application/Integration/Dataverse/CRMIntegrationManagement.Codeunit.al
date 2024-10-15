@@ -3080,27 +3080,29 @@ codeunit 5330 "CRM Integration Management"
             IsHandled := false;
             OnGetIntegrationTableMappingFromCRMIDOnBeforeFindTableID(IntegrationTableMapping, TableID, CRMID, IsHandled);
             if not IsHandled then begin
-                if (TableID = DATABASE::Vendor) or (TableID = DATABASE::Customer) then begin
+                if (TableID = Database::Vendor) or (TableID = Database::Customer) then begin
                     CRMAccount.SetRange(AccountId, CRMID);
-                    if CRMAccount.FindFirst() then begin
-                        if CRMAccount.CustomerTypeCode = CRMAccount.CustomerTypeCode::Vendor then
-                            TableID := DATABASE::Vendor;
-                        if CRMAccount.CustomerTypeCode = CRMAccount.CustomerTypeCode::Customer then
-                            TableID := DATABASE::Customer
-                        else
-                            Error(AccountRelationshipTypeNotSupportedErr);
-                    end;
+                    if CRMAccount.FindFirst() then
+                        case CRMAccount.CustomerTypeCode of
+                            CRMAccount.CustomerTypeCode::Customer:
+                                TableID := Database::Customer;
+                            CRMAccount.CustomerTypeCode::Vendor:
+                                TableID := Database::Vendor;
+                            else
+                                Error(AccountRelationshipTypeNotSupportedErr);
+                        end;
                 end;
-                if (TableID = DATABASE::Item) or (TableID = DATABASE::Resource) then begin
+                if (TableID = Database::Item) or (TableID = Database::Resource) then begin
                     CRMProduct.SetRange(ProductId, CRMID);
-                    if CRMProduct.FindFirst() then begin
-                        if CRMProduct.ProductTypeCode = CRMProduct.ProductTypeCode::Services then
-                            TableID := DATABASE::Resource;
-                        if CRMProduct.ProductTypeCode = CRMProduct.ProductTypeCode::SalesInventory then
-                            TableID := DATABASE::Item
-                        else
-                            Error(ProductTypeNotSupportedErr);
-                    end;
+                    if CRMProduct.FindFirst() then
+                        case CRMProduct.ProductTypeCode of
+                            CRMProduct.ProductTypeCode::Services:
+                                TableID := Database::Resource;
+                            CRMProduct.ProductTypeCode::SalesInventory:
+                                TableID := Database::Item;
+                            else
+                                Error(ProductTypeNotSupportedErr);
+                        end;
                 end;
             end;
             IntegrationTableMapping.SetRange("Table ID", TableID);

@@ -389,6 +389,8 @@ table 80 "Gen. Journal Template"
             GLAcc.CheckGLAcc();
             GLAcc.TestField("Direct Posting", true);
         end;
+
+        OnAfterCheckGLAcc(Rec, GLAcc);
     end;
 
     [IntegrationEvent(false, false)]
@@ -398,6 +400,11 @@ table 80 "Gen. Journal Template"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeNoSeriesValidate(var GenJournalTemplate: Record "Gen. Journal Template"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckGLAcc(var GenJournalTemplate: Record "Gen. Journal Template"; GLAccount: Record "G/L Account")
     begin
     end;
 }
