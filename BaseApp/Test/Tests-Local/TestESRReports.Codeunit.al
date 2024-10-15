@@ -11,11 +11,13 @@ codeunit 144353 "Test ESR Reports"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryService: Codeunit "Library - Service";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
+        LibraryReportValidation: Codeunit "Library - Report Validation";
         LibrarySales: Codeunit "Library - Sales";
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
-        Assert: Codeunit Assert;
+        LibraryUtility: Codeunit "Library - Utility";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        Assert: Codeunit Assert;
         isInitialized: Boolean;
 
     [Test]
@@ -98,23 +100,6 @@ codeunit 144353 "Test ESR Reports"
         ESRServiceCouponReportTest(ESRSystem::ESR);
     end;
 
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure ServiceInvoiceESRHandler(var ServiceInvoice: TestRequestPage "Service - Invoice ESR")
-    var
-        ShowInternal: Variant;
-        ESRSystem: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(ShowInternal);
-        LibraryVariableStorage.Dequeue(ESRSystem);
-
-        ServiceInvoice.ShowInternalInfo.SetValue(ShowInternal);
-        ServiceInvoice.EsrType.SetValue(ESRSystem);
-
-        LibraryReportDataset.Reset;
-        ServiceInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
-    end;
-
     local procedure ServiceInvoiceESRReportTest(ShowInternal: Boolean; ESRSystem: Option "Based on ESR Bank",ESR,"ESR+")
     var
         ServiceInvoiceHeader: Record "Service Invoice Header";
@@ -146,23 +131,6 @@ codeunit 144353 "Test ESR Reports"
         LibraryReportDataset.AssertElementWithValueExists('No_ServiceInvLine', ServiceInvoiceLine."No.");
         LibraryReportDataset.AssertElementWithValueExists('UnitPrice_ServiceInvLine', ServiceInvoiceLine."Unit Price");
         LibraryReportDataset.AssertElementWithValueExists('Qty_ServiceInvLine', ServiceInvoiceLine.Quantity);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesInvoiceESRHandler(var SalesInvoice: TestRequestPage "Sales Invoice ESR")
-    var
-        LogInteraction: Variant;
-        ESRSystem: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(LogInteraction);
-        LibraryVariableStorage.Dequeue(ESRSystem);
-
-        SalesInvoice.LogInteraction.SetValue(LogInteraction);
-        SalesInvoice.EsrType.SetValue(ESRSystem);
-
-        LibraryReportDataset.Reset;
-        SalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
     end;
 
     local procedure SalesInvoiceESRReportTest(LogInteraction: Boolean; ESRSystem: Option "Based on ESR Bank",ESR,"ESR+")
@@ -200,20 +168,6 @@ codeunit 144353 "Test ESR Reports"
         LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_Line', SalesInvoiceLine.Quantity);
     end;
 
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure ESRCouponHandler(var ESRCoupon: TestRequestPage "ESR Coupon")
-    var
-        ESRSystem: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(ESRSystem);
-
-        ESRCoupon.EsrType.SetValue(ESRSystem);
-
-        LibraryReportDataset.Reset;
-        ESRCoupon.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
-    end;
-
     local procedure ESRCouponReportTest(ESRSystem: Option "Based on ESR Bank",ESR,"ESR+")
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -245,20 +199,6 @@ codeunit 144353 "Test ESR Reports"
         LibraryReportDataset.AssertCurrentRowValueEquals('EsrSetupESRMemberName1', ESRSetup."ESR Member Name 1");
         LibraryReportDataset.AssertCurrentRowValueEquals('EsrSetupESRMemberName2', ESRSetup."ESR Member Name 2");
         LibraryReportDataset.AssertCurrentRowValueEquals('EsrSetupESRMemberName3', ESRSetup."ESR Member Name 3");
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure ESRServiceCouponHandler(var ESRCoupon: TestRequestPage "Service - ESR Coupon")
-    var
-        ESRSystem: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(ESRSystem);
-
-        ESRCoupon.EsrType.SetValue(ESRSystem);
-
-        LibraryReportDataset.Reset;
-        ESRCoupon.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
     end;
 
     local procedure ESRServiceCouponReportTest(ESRSystem: Option "Based on ESR Bank",ESR,"ESR+")
@@ -378,6 +318,30 @@ codeunit 144353 "Test ESR Reports"
         VATEntry.TestField("Currency Factor", 1);
     end;
 
+    [Test]
+    [HandlerFunctions('ServiceInvoiceESRToExcelRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ServiceInvoiceESRSaveToExcel()
+    var
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+    begin
+        // [SCENARIO 337173] Run report "Service - Invoice ESR" with saving results to Excel file.
+        Initialize;
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+
+        // [GIVEN] Posted Service Invoice.
+        CreateAndPostServiceInvoice(ServiceInvoiceHeader);
+
+        // [WHEN] Run report "Service - Invoice ESR", save report output to Excel file.
+        ServiceInvoiceHeader.SetRecFilter();
+        REPORT.Run(REPORT::"Service - Invoice ESR", true, false, ServiceInvoiceHeader);
+
+        // [THEN] Report output is saved to Excel file.
+        LibraryReportValidation.OpenExcelFile();
+        LibraryReportValidation.VerifyCellValue(1, 28, '1'); // page number
+        Assert.AreNotEqual(0, LibraryReportValidation.FindColumnNoFromColumnCaption('Service - Invoice'), '');
+    end;
+
     local procedure Initialize()
     var
         ServiceMgtSetup: Record "Service Mgt. Setup";
@@ -487,6 +451,75 @@ codeunit 144353 "Test ESR Reports"
     begin
         ServiceLine.Validate(Quantity, LibraryRandom.RandDecInRange(10, 20, 2));  // Use Random because value is not important.
         ServiceLine.Modify(true);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ServiceInvoiceESRHandler(var ServiceInvoice: TestRequestPage "Service - Invoice ESR")
+    var
+        ShowInternal: Variant;
+        ESRSystem: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(ShowInternal);
+        LibraryVariableStorage.Dequeue(ESRSystem);
+
+        ServiceInvoice.ShowInternalInfo.SetValue(ShowInternal);
+        ServiceInvoice.EsrType.SetValue(ESRSystem);
+
+        LibraryReportDataset.Reset;
+        ServiceInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ServiceInvoiceESRToExcelRequestPageHandler(var ServiceInvoiceESR: TestRequestPage "Service - Invoice ESR")
+    begin
+        ServiceInvoiceESR.SaveAsExcel(LibraryReportValidation.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceESRHandler(var SalesInvoice: TestRequestPage "Sales Invoice ESR")
+    var
+        LogInteraction: Variant;
+        ESRSystem: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(LogInteraction);
+        LibraryVariableStorage.Dequeue(ESRSystem);
+
+        SalesInvoice.LogInteraction.SetValue(LogInteraction);
+        SalesInvoice.EsrType.SetValue(ESRSystem);
+
+        LibraryReportDataset.Reset;
+        SalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ESRCouponHandler(var ESRCoupon: TestRequestPage "ESR Coupon")
+    var
+        ESRSystem: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(ESRSystem);
+
+        ESRCoupon.EsrType.SetValue(ESRSystem);
+
+        LibraryReportDataset.Reset;
+        ESRCoupon.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ESRServiceCouponHandler(var ESRCoupon: TestRequestPage "Service - ESR Coupon")
+    var
+        ESRSystem: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(ESRSystem);
+
+        ESRCoupon.EsrType.SetValue(ESRSystem);
+
+        LibraryReportDataset.Reset;
+        ESRCoupon.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
     end;
 }
 

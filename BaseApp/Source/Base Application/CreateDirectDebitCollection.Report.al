@@ -42,7 +42,7 @@ report 1200 "Create Direct Debit Collection"
                     if CHMgt.IsSwissSEPADDExport(DirectDebitCollection."No.") then
                         SetFilter("Currency Code", '%1|%2', 'EUR', GLSetup.GetCurrencyCode('CHF'))
                     else
-                        SetRange("Currency Code", GLSetup.GetCurrencyCode('EUR'));
+                        SetFilter("Currency Code", BankAccount."Currency Code");
                 end;
             }
 

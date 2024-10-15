@@ -262,7 +262,7 @@ page 9033 "Invite External Accountant"
         EmailClosingTxt: Label 'Best Regards,';
         SaaSOnlyErrorErr: Label 'This functionality is not intended for on premises.';
         InviteProgress: Text;
-        InvitationErrorTxt: Label 'Inviting external accountant failed while doing the %1.  %2', Comment = '%1=part of the invite process, e.g. invite, profile update, license assignment.  %2 =the error message.';
+        InvitationErrorTxt: Label 'Inviting the external accountant failed while doing the %1.\\You can invite accountant manually instead. For more information, see this Help article:\https://go.microsoft.com/fwlink/?linkid=2114063', Comment = '%1=part of the invite process, e.g. invite, profile update, license assignment.';
         InviteTxt: Label 'invite';
         ProfileUpdateTxt: Label 'profile update';
         LicenseAssignmentTxt: Label 'license assignment';
@@ -349,14 +349,16 @@ page 9033 "Invite External Accountant"
              NewUserEmailAddress, GetWebClientUrl, InvitedUserId, InviteRedeemUrl, ErrorMessage)
         then begin
             InvitationResult := FailureTxt;
-            InviteProgress := StrSubstNo(InvitationErrorTxt, InviteTxt, ErrorMessage);
+            InviteProgress := StrSubstNo(InvitationErrorTxt, InviteTxt);
+            InviteExternalAccountant.SendTelemetryForWizardFailure(InviteTxt, ErrorMessage);
             ProgressWindow.Close;
             exit;
         end;
 
         if not InviteExternalAccountant.TryGetGuestGraphUser(InvitedUserId, GuestGraphUser) then begin
             InvitationResult := FailureTxt;
-            InviteProgress := StrSubstNo(InvitationErrorTxt, InviteTxt, ErrorMessage);
+            InviteProgress := StrSubstNo(InvitationErrorTxt, InviteTxt);
+            InviteExternalAccountant.SendTelemetryForWizardFailure(InviteTxt, ErrorMessage);
             ProgressWindow.Close;
             exit;
         end;
@@ -367,25 +369,31 @@ page 9033 "Invite External Accountant"
              TenantDetail.CountryLetterCode, ErrorMessage)
         then begin
             InvitationResult := FailureTxt;
-            InviteProgress := StrSubstNo(InvitationErrorTxt, ProfileUpdateTxt, ErrorMessage);
+            InviteProgress := StrSubstNo(InvitationErrorTxt, ProfileUpdateTxt);
+            InviteExternalAccountant.SendTelemetryForWizardFailure(ProfileUpdateTxt, ErrorMessage);
             ProgressWindow.Close;
             exit;
         end;
 
         if not InviteExternalAccountant.InvokeUserAssignLicenseRequest(GuestGraphUser, TargetLicense, ErrorMessage) then begin
             InvitationResult := FailureTxt;
-            InviteProgress := StrSubstNo(InvitationErrorTxt, LicenseAssignmentTxt, ErrorMessage);
+            InviteProgress := StrSubstNo(InvitationErrorTxt, LicenseAssignmentTxt);
+            InviteExternalAccountant.SendTelemetryForWizardFailure(LicenseAssignmentTxt, ErrorMessage);
             ProgressWindow.Close;
             exit;
         end;
 
+        InviteExternalAccountant.CreateNewUser(InvitedUserId);
+
         SendToList.Add(NewUserEmailAddress);
 
         SMTPMail.CreateMessage('', MailManagement.GetSenderEmailAddress, SendToList,
-          StrSubstNo(EmailSubjectTxt, PRODUCTNAME.Marketing), DefineFullEmailBody(NewUserWelcomeEmail));
+          StrSubstNo(EmailSubjectTxt, PRODUCTNAME.Marketing), DefineFullEmailBody(NewUserWelcomeEmail), true);
+
         if not SMTPMail.Send then begin
             InvitationResult := FailureTxt;
-            InviteProgress := StrSubstNo(InvitationErrorTxt, EmailTxt, EmailErrorTxt);
+            InviteProgress := StrSubstNo(InvitationErrorTxt, EmailTxt);
+            InviteExternalAccountant.SendTelemetryForWizardFailure(EmailTxt, EmailErrorTxt);
             ProgressWindow.Close;
             exit;
         end;
@@ -395,21 +403,18 @@ page 9033 "Invite External Accountant"
         InvitationResult := SuccessTxt;
         WasInvitationSuccessful := true;
         InviteProgress := StrSubstNo(InvitationSuccessTxt, NewFirstName, NewLastName);
-        CurrPage.Update(false);
         InviteExternalAccountant.UpdateAssistedSetup;
-        InviteExternalAccountant.CreateNewUser(InvitedUserId);
+
+        CurrPage.Update(false);
     end;
 
     local procedure ResetControls()
     begin
         FirstStepVisible := false;
         DefineInformationStepVisible := false;
-        NextActionEnabled := false;
+        NextActionEnabled := DataPrivacyAccepted;
 
         BackActionEnabled := true;
-
-        if DataPrivacyAccepted then
-            NextActionEnabled := true;
 
         CloseActionVisible := false;
     end;

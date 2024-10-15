@@ -45,6 +45,10 @@ table 11003 "Data Export Record Definition"
         {
             Caption = 'DTD File';
         }
+        field(7; "File Encoding"; Enum "Data Export File Encoding")
+        {
+            Caption = 'File Encoding';
+        }
     }
 
     keys

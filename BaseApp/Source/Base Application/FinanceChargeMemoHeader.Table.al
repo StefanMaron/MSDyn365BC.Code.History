@@ -436,11 +436,11 @@ table 302 "Finance Charge Memo Header"
         end;
         "Posting Description" := StrSubstNo(Text000, "No.");
         if ("No. Series" <> '') and
-           (SalesSetup."Fin. Chrg. Memo Nos." = SalesSetup."Issued Fin. Chrg. M. Nos.")
+           (SalesSetup."Fin. Chrg. Memo Nos." = GetIssuingNoSeriesCode())
         then
             "Issuing No. Series" := "No. Series"
         else
-            NoSeriesMgt.SetDefaultSeries("Issuing No. Series", SalesSetup."Issued Fin. Chrg. M. Nos.");
+            NoSeriesMgt.SetDefaultSeries("Issuing No. Series", GetIssuingNoSeriesCode());
 
         if "Posting Date" = 0D then
             "Posting Date" := WorkDate;

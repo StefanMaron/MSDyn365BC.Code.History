@@ -2255,6 +2255,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit VAT - Vies Declaration XML - NamedType XMLErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1309639922 - NamedType 286416220" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[XML file contains unexpected value: %1 %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit VAT - Vies Declaration XML - NamedType XMLHasElementErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1309639922 - NamedType 2434162507" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Name - LabÔÇÜ]]></Val>

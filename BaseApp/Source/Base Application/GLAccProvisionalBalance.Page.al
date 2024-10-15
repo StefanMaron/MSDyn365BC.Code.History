@@ -239,14 +239,14 @@ page 11500 "G/L Acc. Provisional Balance"
         Bank: Record "Bank Account";
         GLSetup: Record "General Ledger Setup";
         AccNumber: Code[20];
-        AccName: Text[30];
+        AccName: Text[100];
         AccBalance: Decimal;
         AccBalanceFC: Decimal;
         AccNotPosted: Decimal;
         AccNotPostedFC: Decimal;
         AccCurrency: Code[10];
         BalAccNo: Code[20];
-        BalAccName: Text[30];
+        BalAccName: Text[100];
         BalAccBalance: Decimal;
         BalAccBalanceFC: Decimal;
         BalAccNotPosted: Decimal;

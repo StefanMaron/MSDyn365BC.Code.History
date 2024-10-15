@@ -165,8 +165,6 @@ codeunit 444 "Purchase-Post Prepayments"
                         Window.Update(1, StrSubstNo(Text011, "Document Type", "No.", PurchCrMemoHeader."No."));
                     end;
             end;
-            if PurchSetup."Copy Comments Order to Invoice" then
-                CopyCommentLines("No.", PostedDocTabNo, GenJnlLineDocNo);
             // Reverse old lines
             if DocumentType = DocumentType::Invoice then begin
                 GetPurchLinesToDeduct(PurchHeader, TempPurchLines);
@@ -191,12 +189,12 @@ codeunit 444 "Purchase-Post Prepayments"
                 case DocumentType of
                     DocumentType::Invoice:
                         begin
-                            InsertPurchInvLine(PurchInvHeader, LineNo, TempPrepmtInvLineBuffer);
+                            InsertPurchInvLine(PurchInvHeader, LineNo, TempPrepmtInvLineBuffer, PurchHeader);
                             PostedDocTabNo := DATABASE::"Purch. Inv. Line";
                         end;
                     DocumentType::"Credit Memo":
                         begin
-                            InsertPurchCrMemoLine(PurchCrMemoHeader, LineNo, TempPrepmtInvLineBuffer);
+                            InsertPurchCrMemoLine(PurchCrMemoHeader, LineNo, TempPrepmtInvLineBuffer, PurchHeader);
                             PostedDocTabNo := DATABASE::"Purch. Cr. Memo Line";
                         end;
                 end;
@@ -204,6 +202,8 @@ codeunit 444 "Purchase-Post Prepayments"
                 InsertExtendedText(
                   PostedDocTabNo, GenJnlLineDocNo, TempPrepmtInvLineBuffer."G/L Account No.", "Document Date", "Language Code", PrevLineNo);
             until TempPrepmtInvLineBuffer.Next = 0;
+
+            OnAfterCreateLinesOnBeforeGLPosting(PurchHeader, PurchInvHeader, PurchCrMemoHeader, TempPrepmtInvLineBuffer, DocumentType, LineNo);
 
             // G/L Posting
             LineCount := 0;
@@ -943,16 +943,35 @@ codeunit 444 "Purchase-Post Prepayments"
             end;
     end;
 
-    local procedure CopyCommentLines(FromNumber: Code[20]; ToDocType: Integer; ToNumber: Code[20])
+    local procedure CopyHeaderCommentLines(FromNumber: Code[20]; ToDocType: Integer; ToNumber: Code[20])
     var
         PurchCommentLine: Record "Purch. Comment Line";
     begin
+        if not PurchSetup."Copy Comments Order to Invoice" then
+            exit;
+
         with PurchCommentLine do
             case ToDocType of
                 DATABASE::"Purch. Inv. Header":
-                    CopyComments("Document Type"::Order, "Document Type"::"Posted Invoice", FromNumber, ToNumber);
+                    CopyHeaderComments("Document Type"::Order, "Document Type"::"Posted Invoice", FromNumber, ToNumber);
                 DATABASE::"Purch. Cr. Memo Hdr.":
-                    CopyComments("Document Type"::Order, "Document Type"::"Posted Credit Memo", FromNumber, ToNumber);
+                    CopyHeaderComments("Document Type"::Order, "Document Type"::"Posted Credit Memo", FromNumber, ToNumber);
+            end;
+    end;
+
+    local procedure CopyLineCommentLines(FromNumber: Code[20]; ToDocType: Integer; ToNumber: Code[20]; FromLineNo: Integer; ToLineNo: Integer)
+    var
+        PurchCommentLine: Record "Purch. Comment Line";
+    begin
+        if not PurchSetup."Copy Comments Order to Invoice" then
+            exit;
+
+        with PurchCommentLine do
+            case ToDocType of
+                DATABASE::"Purch. Inv. Header":
+                    CopyLineComments("Document Type"::Order, "Document Type"::"Posted Invoice", FromNumber, ToNumber, FromLineNo, ToLineNo);
+                DATABASE::"Purch. Cr. Memo Hdr.":
+                    CopyLineComments("Document Type"::Order, "Document Type"::"Posted Credit Memo", FromNumber, ToNumber, FromLineNo, ToLineNo);
             end;
     end;
 
@@ -1284,6 +1303,7 @@ codeunit 444 "Purchase-Post Prepayments"
             PurchInvHeader."No. Series" := PostingNoSeriesCode;
             OnBeforePurchInvHeaderInsert(PurchInvHeader, PurchHeader, SuppressCommit);
             PurchInvHeader.Insert;
+            CopyHeaderCommentLines("No.", DATABASE::"Purch. Inv. Header", GenJnlLineDocNo);
             OnAfterPurchInvHeaderInsert(PurchInvHeader, PurchHeader, SuppressCommit);
         end;
     end;
@@ -1313,6 +1333,7 @@ codeunit 444 "Purchase-Post Prepayments"
             PurchCrMemoHdr."No. Series" := PostingNoSeriesCode;
             OnBeforePurchCrMemoHeaderInsert(PurchCrMemoHdr, PurchHeader, SuppressCommit);
             PurchCrMemoHdr.Insert;
+            CopyHeaderCommentLines("No.", DATABASE::"Purch. Cr. Memo Hdr.", GenJnlLineDocNo);
             OnAfterPurchCrMemoHeaderInsert(PurchCrMemoHdr, PurchHeader, SuppressCommit);
         end;
     end;
@@ -1327,7 +1348,7 @@ codeunit 444 "Purchase-Post Prepayments"
         exit(PaymentTerms."Calc. Pmt. Disc. on Cr. Memos");
     end;
 
-    local procedure InsertPurchInvLine(PurchInvHeader: Record "Purch. Inv. Header"; LineNo: Integer; PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer")
+    local procedure InsertPurchInvLine(PurchInvHeader: Record "Purch. Inv. Header"; LineNo: Integer; PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; PurchaseHeader: Record "Purchase Header")
     var
         PurchInvLine: Record "Purch. Inv. Line";
     begin
@@ -1367,11 +1388,13 @@ codeunit 444 "Purchase-Post Prepayments"
             PurchInvLine."Job Task No." := "Job Task No.";
             OnBeforePurchInvLineInsert(PurchInvLine, PurchInvHeader, PrepmtInvLineBuffer, SuppressCommit);
             PurchInvLine.Insert;
+            CopyLineCommentLines(
+              PurchaseHeader."No.", DATABASE::"Purch. Inv. Header", PurchInvHeader."No.", "Line No.", LineNo);
             OnAfterPurchInvLineInsert(PurchInvLine, PurchInvHeader, PrepmtInvLineBuffer, SuppressCommit);
         end;
     end;
 
-    local procedure InsertPurchCrMemoLine(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; LineNo: Integer; PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer")
+    local procedure InsertPurchCrMemoLine(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; LineNo: Integer; PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; PurchaseHeader: Record "Purchase Header")
     var
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
     begin
@@ -1411,6 +1434,8 @@ codeunit 444 "Purchase-Post Prepayments"
             PurchCrMemoLine."Job Task No." := "Job Task No.";
             OnBeforePurchCrMemoLineInsert(PurchCrMemoLine, PurchCrMemoHdr, PrepmtInvLineBuffer, SuppressCommit);
             PurchCrMemoLine.Insert;
+            CopyLineCommentLines(
+              PurchaseHeader."No.", DATABASE::"Purch. Cr. Memo Hdr.", PurchCrMemoHdr."No.", "Line No.", LineNo);
             OnAfterPurchCrMemoLineInsert(PurchCrMemoLine, PurchCrMemoHdr, PrepmtInvLineBuffer, SuppressCommit);
         end;
     end;
@@ -1452,6 +1477,11 @@ codeunit 444 "Purchase-Post Prepayments"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateLinesOnBeforeGLPosting(var PurchaseHeader: Record "Purchase Header"; PurchInvHeader: Record "Purch. Inv. Header"; PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; var TempPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer" temporary; DocumentType: Option; var LastLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterFillInvLineBuffer(var PrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer"; PurchLine: Record "Purchase Line"; CommitIsSuppressed: Boolean)
     begin
     end;
@@ -1463,6 +1493,11 @@ codeunit 444 "Purchase-Post Prepayments"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostPrepayments(var PurchHeader: Record "Purchase Header"; DocumentType: Option Invoice,"Credit Memo"; CommitIsSuppressed: Boolean; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostPrepaymentsOnBeforeThrowPreviewModeError(var PurchaseHeader: Record "Purchase Header"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 

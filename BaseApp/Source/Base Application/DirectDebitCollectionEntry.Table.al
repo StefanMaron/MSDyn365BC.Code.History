@@ -316,6 +316,15 @@ table 1208 "Direct Debit Collection Entry"
         GenJnlLine.InsertPaymentFileError(Text);
     end;
 
+    [Scope('OnPrem')]
+    procedure InsertPaymentFileErrorWithDetails(ErrorText: Text; AddnlInfo: Text)
+    var
+        GenJnlLine: Record "Gen. Journal Line";
+    begin
+        TransferPKToGenJnlLine(GenJnlLine);
+        GenJnlLine.InsertPaymentFileErrorWithDetails(ErrorText, AddnlInfo, '');
+    end;
+
     procedure Reject()
     var
         SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
@@ -358,6 +367,22 @@ table 1208 "Direct Debit Collection Entry"
                     AmountAlreadyInCollection += DirectDebitCollectionEntry."Transfer Amount";
             until DirectDebitCollectionEntry.Next = 0;
         exit(AmountAlreadyInCollection);
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetTodayAsTransferDateForOverdueEnries()
+    var
+        DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
+    begin
+        DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", "Direct Debit Collection No.");
+        DirectDebitCollectionEntry.SetRange(Status, DirectDebitCollectionEntry.Status::New);
+        DirectDebitCollectionEntry.SetFilter("Transfer Date", '<%1', Today);
+        if DirectDebitCollectionEntry.FindSet(true) then
+            repeat
+                DirectDebitCollectionEntry.Validate("Transfer Date", Today);
+                DirectDebitCollectionEntry.Modify(true);
+                Codeunit.Run(Codeunit::"SEPA DD-Check Line", DirectDebitCollectionEntry);
+            until DirectDebitCollectionEntry.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

@@ -263,8 +263,8 @@ report 11504 "Import Bank Directory"
 
             trigger OnPreDataItem()
             begin
-                if ServerFileName <> '' then
-                    BankDirectory.ImportBankDirectoryDirect(ServerFileName, NoOfRecsRead, NoOfRecsWritten);
+                if FileName <> '' then
+                    BankDirectory.ImportBankDirectoryFromTempBlob(TempBlob, NoOfRecsRead, NoOfRecsWritten);
             end;
         }
     }
@@ -281,16 +281,18 @@ report 11504 "Import Bank Directory"
                     Caption = 'Options';
                     field(FileName; FileName)
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'File Name';
                         ToolTip = 'Specifies the name of the file to be imported.';
 
                         trigger OnAssistEdit()
+                        var
+                            IsHandled: Boolean;
                         begin
-                            FileName := FileMgt.OpenFileDialog(Text009, '', Text008);
-                            if not FileMgt.IsLocalFileSystemAccessible then begin
-                                ServerFileName := FileName;
-                                FileName := CopyStr(FileMgt.GetFileName(ServerFileName), 1, MaxStrLen(FileName));
-                            end;
+                            OnImportFile(TempBlob, FileName, IsHandled);
+                            if IsHandled then
+                                exit;
+                            FileName := FileMgt.BLOBImportWithFilter(TempBlob, Text009, FileName, Text008, '*.*')
                         end;
                     }
                     field(AutoUpdate; AutoUpdate)
@@ -319,30 +321,15 @@ report 11504 "Import Bank Directory"
     {
     }
 
-    trigger OnPostReport()
-    begin
-        if Exists(ServerFileName) then
-            Erase(ServerFileName);
-    end;
-
-    trigger OnPreReport()
-    begin
-        if FileMgt.IsLocalFileSystemAccessible then
-            ServerFileName := CopyStr(FileMgt.UploadFileToServer(FileName), 1, 1024);
-
-        if ServerFileName = '' then
-            CurrReport.Quit;
-    end;
-
     var
         BankDirectory: Record "Bank Directory";
         VendorBankAccount2: Record "Vendor Bank Account";
         FileMgt: Codeunit "File Management";
+        TempBlob: Codeunit "Temp Blob";
         NoOfRecsRead: Integer;
         NoOfRecsWritten: Integer;
         AutoUpdate: Boolean;
-        FileName: Text[1024];
-        ServerFileName: Text[1024];
+        FileName: Text;
         ReadRec: Text[80];
         WriteRec: Text[80];
         ImportText: Text[80];
@@ -379,5 +366,10 @@ report 11504 "Import Bank Directory"
         TableCaptionLbl: Label 'Table';
         FieldCaptionLbl: Label 'Field';
         EntryCaptionLbl: Label 'Entry';
+
+    [IntegrationEvent(false, false)]
+    local procedure OnImportFile(var TempBlob: Codeunit "Temp Blob"; var FileName: Text; var IsHandled: Boolean)
+    begin
+    end;
 }
 

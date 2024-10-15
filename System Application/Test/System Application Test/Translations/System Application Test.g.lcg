@@ -554,13 +554,13 @@
       <Cmt Name="Dev"><![CDATA[%1 = Secret Name.]D;]A;(LookupHint=Codeunit Azure Key Vault Test - NamedType SecretNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3306136526 - NamedType 3846200897" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3306136526 - NamedType 417027945" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Initialization of allowed secret names failed]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Azure Key Vault Test - NamedType SecretNotInitialized)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Azure Key Vault Test - NamedType SecretNotInitializedTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3306136526 - NamedType 3165082674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -572,40 +572,40 @@
       <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Azure Key Vault Test - NamedType AllowedApplicationSecretsSecretNameTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4258932546 - NamedType 1428468645" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 4258932546 - NamedType 3203398082" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Base64 Convert Test - NamedType SampleText)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Base64 Convert Test - NamedType SampleTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4258932546 - NamedType 3532535584" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 4258932546 - NamedType 3950778939" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdCwgc2VkIGRvIGVpdXNtb2QgdGVtcG9yIGluY2lkaWR1bnQgdXQgbGFib3JlIGV0IGRvbG9yZSBtYWduYSBhbGlxdWEu]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Base64 Convert Test - NamedType Base64SampleText)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Base64 Convert Test - NamedType Base64SampleTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4258932546 - NamedType 3041079261" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 4258932546 - NamedType 1216969362" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Incorrect conversion to base-64 string.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Base64 Convert Test - NamedType ConvertionToBase64Error)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Base64 Convert Test - NamedType ConvertionToBase64Err)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4258932546 - NamedType 1873198522" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 4258932546 - NamedType 3161041701" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Incorrect conversion from base-64 string.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Base64 Convert Test - NamedType ConvertionFromBase64Error)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Base64 Convert Test - NamedType ConvertionFromBase64Err)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1462087357 - NamedType 1429723890" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -862,7 +862,7 @@
   </Item>
   <Item ItemId=";Codeunit 3984922275 - NamedType 1394149075" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Some Password 2]]></Val>
+      <Val><![CDATA[Some Password 2!]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -885,6 +885,33 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Password Dialog Test - NamedType AnotherPasswordTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 653607395 - NamedType 1993947940" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The password must contain at least %1 characters.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = the number of characters]D;]A;(LookupHint=Codeunit Password Handler Test - NamedType InsufficientPassLngthErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 653607395 - NamedType 2166694890" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The generated password must be strong.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Password Handler Test - NamedType PasswordIsNotStrongErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 653607395 - NamedType 1690025925" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The generated password must not be strong.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Password Handler Test - NamedType PasswordIsStrongErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2212788945 - NamedType 2441545831" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1002,6 +1029,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Translation Tests - NamedType Text4Txt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1483780530 - NamedType 3311440572" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Translation 5]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Translation Tests - NamedType Text5Txt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3358963001 - NamedType 1200477291" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1146,6 +1182,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 1150498218)(LookupHint=EnumExtension Assisted Setup Test Group - EnumValue WithoutLinks - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";EnumExtension 2341160244 - EnumValue 3918162612 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Last group alphabetically]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 1150498218)(LookupHint=EnumExtension Assisted Setup Test Group - EnumValue ZZ - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

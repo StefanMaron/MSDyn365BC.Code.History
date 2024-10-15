@@ -31,6 +31,7 @@ codeunit 142077 "VAT - Vies Declaration XML"
         LibraryRandom: Codeunit "Library - Random";
         XMLDOMManagement: Codeunit "XML DOM Management";
         XmlDoc: DotNet XmlDocument;
+        XMLHasElementErr: Label 'XML file contains unexpected value: %1 %2.';
         InvalidCompanyNameTok: Label 'Name - LabÔÇÜ';
         ValidCompanyNameTok: Label 'Name - Labe';
         CustomerXmlNodeTok: Label 'KUNDENINFO', Comment = 'KUNDENINFO';
@@ -53,7 +54,8 @@ codeunit 142077 "VAT - Vies Declaration XML"
 
         // Verify.
         XMLDOMManagement.LoadXMLDocumentFromFile(ExportedFileName, XmlDoc);
-        Assert.IsTrue(VerifyElementInXMLDoc('DREIECK', ''), StrSubstNo(XMLErr, 'DREIECK', ''));
+        // TFS ID 340090: DREIECK node should not be exported blank
+        Assert.IsTrue(VerifyElementDoesNotExistInXMLDoc('DREIECK', ''), StrSubstNo(XMLHasElementErr, 'DREIECK', ''));
         Assert.IsTrue(VerifyElementInXMLDoc('DREIECK', '1'), StrSubstNo(XMLErr, 'DREIECK', '1'));
         Assert.IsTrue(VerifyElementInXMLDoc('SOLEI', '1'), StrSubstNo(XMLErr, 'SOLEI', '1'));
     end;
@@ -262,6 +264,16 @@ codeunit 142077 "VAT - Vies Declaration XML"
     end;
 
     local procedure VerifyElementInXMLDoc(ElementName: Text; ExpectedValue: Text): Boolean
+    begin
+        exit(VerifyElementExistanceInXMLDoc(ElementName, ExpectedValue, true));
+    end;
+
+    local procedure VerifyElementDoesNotExistInXMLDoc(ElementName: Text; ExpectedValue: Text): Boolean
+    begin
+        exit(VerifyElementExistanceInXMLDoc(ElementName, ExpectedValue, false));
+    end;
+
+    local procedure VerifyElementExistanceInXMLDoc(ElementName: Text; ExpectedValue: Text; Exists: Boolean): Boolean
     var
         XmlNodeList: DotNet XmlNodeList;
         XmlNode: DotNet XmlNode;
@@ -274,10 +286,10 @@ codeunit 142077 "VAT - Vies Declaration XML"
         for Counter := 0 to ListCount - 1 do begin
             XmlNode := XmlNodeList.Item(Counter);
             ElementText := XmlNode.InnerText;
-            if (ElementText = ExpectedValue) then
-                exit(true);
+            if ElementText = ExpectedValue then
+                exit(Exists);
         end;
-        exit(false);
+        exit(not Exists);
     end;
 
     [RequestPageHandler]

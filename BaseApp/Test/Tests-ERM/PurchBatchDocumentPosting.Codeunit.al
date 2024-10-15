@@ -172,9 +172,50 @@ codeunit 134892 "Purch. Batch Document Posting"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure ErrorMessagesPagePurchasePostBatchMgtRunWithUIPostsFilteredOutRecords()
+    var
+        PurchaseHeader: array[3] of Record "Purchase Header";
+        PurchaseHeaderCreated: Record "Purchase Header";
+        PurchaseHeaderToPost: Record "Purchase Header";
+        PurchaseBatchPostMgt: Codeunit "Purchase Batch Post Mgt.";
+        ErrorMessages: TestPage "Error Messages";
+        ErrorCount: Integer;
+    begin
+        // [SCENARIO] Cassie can't post selected invoices with 0 amounts and gets error message pages with wrong documents
+        Initialize;
+        LibraryPurchase.SetPostWithJobQueue(false);
+
+        // [GIVEN] Invoices "X", "Y" and "Z" for with Amount = 0 each
+        // [GIVEN] Cassie selects "X" and "Y" invoices to post
+        // [WHEN] Cassie confirms she wants to post 2 out 3 invoices
+        // [THEN] "X", "Y" and "Z" are not posted and system shows messages 'One or more of the documents could not be posted.'
+        // [THEN] Error Messages page opened with 2 entries.
+        CreateThreeDocuments(
+          PurchaseHeader, PurchaseHeaderCreated, PurchaseHeader[1]."Document Type"::Invoice, 0);
+
+        MarkDocumentsToPost(PurchaseHeaderToPost, PurchaseHeader, PurchaseHeaderCreated);
+
+        LibraryVariableStorage.Enqueue(ReadyToPostTwoInvoicesQst);
+
+        ErrorMessages.Trap;
+        PurchaseBatchPostMgt.RunWithUI(PurchaseHeaderToPost, PurchaseHeaderCreated.Count, ReadyToPostInvoicesTemplateTok);
+
+        repeat
+            ErrorCount += 1;
+            ErrorMessages.Description.AssertEquals(PostingErrorMsg);
+        until not ErrorMessages.Next;
+
+        Assert.AreEqual(PurchaseHeaderToPost.Count, ErrorCount, 'Unexpected error count');
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmHandlerYes,MessageHandler')]
     [Scope('OnPrem')]
-    procedure PurchasePostBatchMgtRunWithUIPostsFilteredOutRecords()
+    procedure PurchasePostBatchMgtRunWithUIPostsFilteredOutRecordsBackground()
     var
         PurchaseHeader: array[3] of Record "Purchase Header";
         PurchaseHeaderCreated: Record "Purchase Header";
@@ -182,8 +223,9 @@ codeunit 134892 "Purch. Batch Document Posting"
         PurchaseBatchPostMgt: Codeunit "Purchase Batch Post Mgt.";
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
-        // [SCENARIO] Cassie can post selected only invoices
+        // [SCENARIO] Cassie can post selected only invoices in background
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 

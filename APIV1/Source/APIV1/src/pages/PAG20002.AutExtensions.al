@@ -13,7 +13,10 @@ page 20002 "APIV1 - Aut. Extensions"
     ODataKeyFields = "Package ID";
     PageType = API;
     SourceTable = 2000000160;
-    SourceTableView = SORTING(Name) WHERE(Name = FILTER(<> '_Exclude_*'), "Package Type" = FILTER(= 0 | 2));  //TODO
+    SourceTableView = SORTING(Name)
+                      WHERE(Name = FILTER(<> '_Exclude_*'),
+                            "Tenant Visible" = CONST(true),
+                            "Package Type" = FILTER(= 0 | 2));
     Extensible = false;
 
     layout
@@ -97,9 +100,7 @@ page 20002 "APIV1 - Aut. Extensions"
 
         FILTERGROUP(2);
         IF EnvironmentInfo.IsSaas() THEN
-            SETFILTER("PerTenant Or Installed", '%1', TRUE)
-        ELSE
-            SETFILTER("Tenant Visible", '%1', TRUE);
+            SETFILTER("PerTenant Or Installed", '%1', TRUE);
         FILTERGROUP(0);
     end;
 

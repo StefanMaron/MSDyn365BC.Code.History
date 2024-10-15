@@ -44,7 +44,7 @@ codeunit 9701 "Cues And KPIs"
     /// The computed cue style is returned by var.
     /// </summary>
     /// <param name="TableID">The ID of the table containing the field for which the style is wanted.</param>
-    /// <param name="FieldID">The ID of the field for which the style is wanted</param.>
+    /// <param name="FieldID">The ID of the field for which the style is wanted.</param>
     /// <param name="Amount">The amount for which the style will be calculated based on the threshold values of the setup.</param>
     /// <param name="FinalStyle">The amount for which the style will be calculated based on the threshold values of the setup</param>
     procedure SetCueStyle(TableID: Integer; FieldID: Integer; Amount: Decimal; var FinalStyle: enum "Cues And KPIs Style")
@@ -67,7 +67,7 @@ codeunit 9701 "Cues And KPIs"
     /// Inserts cue setup data. The entries inserted via this method will have no value for the userid field.
     /// </summary>
     /// <param name="TableID">The ID of the table where the cue is defined.</param>
-    /// <param name="FieldID">The ID of the field which the cue is based on.</param.>
+    /// <param name="FieldID">The ID of the field which the cue is based on.</param>
     /// <param name="LowRangeStyle">A Cues And KPIs Style enum representing the style that cues which have a value under threshold 1 will take.</param>
     /// <param name="Threshold1">The lower amount which defines which style cues get based on their value</param>
     /// <param name="MiddleRangeStyle">A Cues And KPIs Style enum representing the style that cues which have a value over threshold 1 but under threshold 2 will take.</param>

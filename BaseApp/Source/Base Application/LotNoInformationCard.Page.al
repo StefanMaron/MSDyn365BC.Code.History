@@ -201,7 +201,7 @@ page 6505 "Lot No. Information Card"
 
     trigger OnOpenPage()
     begin
-        SetRange("Date Filter", DMY2Date(1, 1, 0), WorkDate);
+        SetFilter("Date Filter", '..%1', WorkDate);
         if ShowButtonFunctions then
             ButtonFunctionsVisible := true;
     end;

@@ -316,6 +316,7 @@ codeunit 5944 SignServContractDoc
         ServContractLine.SetRange("Contract No.", FromServContractHeader."Contract No.");
         ServContractLine.SetRange("New Line", true);
         StartingDate := WorkDate;
+        OnAddendumToContractOnAfterSetStartingDate(FromServContractHeader, StartingDate);
         if ServContractLine.FindSet then
             repeat
                 if ServMgtSetup."Contract Rsp. Time Mandatory" then
@@ -949,6 +950,11 @@ codeunit 5944 SignServContractDoc
         FromServHour.SetRange("Service Contract Type", FromServHour."Service Contract Type"::Quote);
         FromServHour.SetRange("Service Contract No.", FromServContractHeader."Contract No.");
         FromServHour.DeleteAll;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddendumToContractOnAfterSetStartingDate(FromServContractHeader: Record "Service Contract Header"; var StartingDate: Date)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

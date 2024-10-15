@@ -1142,6 +1142,8 @@
         then
             CurrPage.SaveRecord;
 
+        OnAfterNoOnAfterValidate(Rec, xRec);
+
         SaveAndAutoAsmToOrder;
     end;
 
@@ -1236,11 +1238,8 @@
     procedure DeltaUpdateTotals()
     begin
         DocumentTotals.SalesDeltaUpdateTotals(Rec, xRec, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
-        if "Line Amount" <> xRec."Line Amount" then begin
-            CurrPage.SaveRecord;
+        if "Line Amount" <> xRec."Line Amount" then
             SendLineInvoiceDiscountResetNotification;
-            CurrPage.Update(false);
-        end;
     end;
 
     procedure RedistributeTotalsOnAfterValidate()
@@ -1298,6 +1297,11 @@
         AssembleToOrderLink.UpdateAsmDimFromSalesLine(Rec);
 
         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, DimIndex);
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnAfterNoOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

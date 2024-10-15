@@ -10,6 +10,7 @@ codeunit 144016 "Test Import Bank Directory"
 
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -24,12 +25,14 @@ codeunit 144016 "Test Import Bank Directory"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibraryPurchase: Codeunit "Library - Purchase";
+        FileNameForHandler: Text;
 
     [Test]
     [HandlerFunctions('ImportHandler')]
     [Scope('OnPrem')]
     procedure ImportBankDirectory()
     var
+        TestImportBankDirectory: Codeunit "Test Import Bank Directory";
         NumberOfImportedRows: Integer;
         UpdateClearingNumbers: Boolean;
     begin
@@ -40,6 +43,8 @@ codeunit 144016 "Test Import Bank Directory"
         LibraryVariableStorage.Enqueue(UpdateClearingNumbers);
 
         CreateBankDirectoryImportFile;
+        BindSubscription(TestImportBankDirectory);
+        TestImportBankDirectory.SetFileName(FileNameForHandler);
 
         // Exercise
         REPORT.Run(REPORT::"Import Bank Directory", true, false);
@@ -117,6 +122,7 @@ codeunit 144016 "Test Import Bank Directory"
     procedure ImportBankDirectoryEncodingUT()
     var
         BankDirectory: Record "Bank Directory";
+        TestImportBankDirectory: Codeunit "Test Import Bank Directory";
         UpdateClearingNumbers: Boolean;
     begin
         // [FEATURE] [UT]
@@ -127,6 +133,8 @@ codeunit 144016 "Test Import Bank Directory"
         UpdateClearingNumbers := false;
         LibraryVariableStorage.Enqueue(UpdateClearingNumbers);
         CreateBankDirectoryImportFile;
+        BindSubscription(TestImportBankDirectory);
+        TestImportBankDirectory.SetFileName(FileNameForHandler);
 
         // [WHEN] Run report Import Bank Directory
         REPORT.Run(REPORT::"Import Bank Directory", true, false);
@@ -145,6 +153,11 @@ codeunit 144016 "Test Import Bank Directory"
         LibraryVariableStorage.Clear;
         BankDirectory.DeleteAll;
         Commit;
+    end;
+
+    procedure SetFileName(FileName: Text)
+    begin
+        FileNameForHandler := FileName;
     end;
 
     local procedure ImportBankDirectoryWithCustomerBankAccount(UpdateClearingNumbers: Boolean)
@@ -237,9 +250,12 @@ codeunit 144016 "Test Import Bank Directory"
 
     local procedure ImportBankDirectoryWithClearingNumbers(BranchNo1: Code[5]; BranchNo2: Code[5]; BranchNo3: Code[5])
     var
+        TestImportBankDirectory: Codeunit "Test Import Bank Directory";
         NumberOfImportedRows: Integer;
     begin
         NumberOfImportedRows := WriteBankDirectoryFile(BranchNo1, BranchNo2, BranchNo3, BranchNo2);
+        BindSubscription(TestImportBankDirectory);
+        TestImportBankDirectory.SetFileName(FileNameForHandler);
 
         // run the report
         REPORT.Run(REPORT::"Import Bank Directory", true, false);
@@ -296,12 +312,9 @@ codeunit 144016 "Test Import Bank Directory"
     end;
 
     local procedure CreateBankDirectoryImportFile()
-    var
-        FileName: Text;
     begin
-        FileName := FileManagement.ServerTempFileName('txt');
-        WriteFileContent(FileName);
-        LibraryVariableStorage.Enqueue(FileName);
+        FileNameForHandler := FileManagement.ServerTempFileName('txt');
+        WriteFileContent(FileNameForHandler);
     end;
 
     local procedure WriteFileContent(FileName: Text)
@@ -373,10 +386,9 @@ codeunit 144016 "Test Import Bank Directory"
     var
         TmpStream: OutStream;
         FileHdl: File;
-        FileName: Text;
     begin
-        FileName := FileManagement.ServerTempFileName('txt');
-        FileHdl.Create(FileName);
+        FileNameForHandler := FileManagement.ServerTempFileName('txt');
+        FileHdl.Create(FileNameForHandler);
         FileHdl.CreateOutStream(TmpStream);
         WriteLine(TmpStream, '04' + PadStr(ClearingBranchNo1, 5) +
           '0000' + PadStr(NewClearingBranchNo1, 5) + '0400354835 120061020111CS             ' +
@@ -395,7 +407,6 @@ codeunit 144016 "Test Import Bank Directory"
           '8022      Zürich                             044 631 31 11                              30-5-5      SNBZCHZZXXX   ');
 
         FileHdl.Close;
-        LibraryVariableStorage.Enqueue(FileName);
         RecordCount := 3;
     end;
 
@@ -407,10 +418,8 @@ codeunit 144016 "Test Import Bank Directory"
         UpdateClearingNumbers: Variant;
     begin
         LibraryVariableStorage.Dequeue(UpdateClearingNumbers);
-        LibraryVariableStorage.Dequeue(FileName);
-
-        ImportBankDirectory.FileName.SetValue(FileName);
         ImportBankDirectory.AutoUpdate.SetValue(UpdateClearingNumbers);
+        ImportBankDirectory.FileName.AssistEdit();
 
         ImportBankDirectory.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
@@ -452,5 +461,16 @@ codeunit 144016 "Test Import Bank Directory"
         end;
         Commit;
     end;
+
+    [EventSubscriber(ObjectType::Report, Report::"Import Bank Directory", 'OnImportFile', '', false, false)]
+    local procedure OnImportFile(var TempBlob: Codeunit "Temp Blob"; var FileName: Text; var IsHandled: Boolean);
+    var
+        FileManagement: Codeunit "File Management";
+    begin
+        FileName := FileNameForHandler;
+        FileManagement.BLOBImportFromServerFile(TempBlob, FileName);
+        IsHandled := true;
+    end;
+
 }
 

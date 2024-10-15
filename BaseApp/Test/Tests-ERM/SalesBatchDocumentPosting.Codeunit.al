@@ -162,6 +162,47 @@ codeunit 134891 "Sales Batch Document Posting"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure ErrorMessagesPageSalesPostBatchMgtRunWithUIPostsFilteredOutRecords()
+    var
+        SalesHeader: array[3] of Record "Sales Header";
+        SalesHeaderCreated: Record "Sales Header";
+        SalesHeaderToPost: Record "Sales Header";
+        SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt.";
+        ErrorMessages: TestPage "Error Messages";
+        ErrorCount: Integer;
+    begin
+        // [SCENARIO] Cassie can't post selected invoices with 0 amounts and gets error message pages with wrong documents
+        Initialize;
+        LibrarySales.SetPostWithJobQueue(false);
+
+        // [GIVEN] Invoices "X", "Y" and "Z" for Customer "C" with Amount = 0 each
+        // [GIVEN] Cassie selects invoice "X" and "Z" invoices to post
+        // [WHEN] Cassie confirms she wants to post 2 out 3 invoices
+        // [THEN] "X", "Y" and "Z" are not posted and system shows message 'One or more of the documents could not be posted.'
+        // [THEN] Error message page for "X" and "Y" opened
+        CreateThreeDocuments(
+          SalesHeader, SalesHeaderCreated, SalesHeader[1]."Document Type"::Invoice, 0);
+
+        MarkDocumentsToPost(SalesHeaderToPost, SalesHeader, SalesHeaderCreated);
+
+        LibraryVariableStorage.Enqueue(ReadyToPostTwoInvoicesQst);
+
+        ErrorMessages.Trap;
+        SalesBatchPostMgt.RunWithUI(SalesHeaderToPost, SalesHeaderCreated.Count, ReadyToPostInvoicesTemplateTok);
+
+        repeat
+            ErrorCount += 1;
+            ErrorMessages.Description.AssertEquals(PostingErrorMsg);
+        until not ErrorMessages.Next;
+
+        Assert.AreEqual(SalesHeaderToPost.Count, ErrorCount, 'Unexpected error count');
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmHandlerYes,MessageHandler')]
     [Scope('OnPrem')]
     procedure SalesPostBatchMgtRunWithUIPostsFilteredOutRecords()
@@ -172,8 +213,9 @@ codeunit 134891 "Sales Batch Document Posting"
         SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt.";
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
-        // [SCENARIO] Cassie can post selected only invoices
+        // [SCENARIO] Cassie can post selected only invoices in background
         Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 

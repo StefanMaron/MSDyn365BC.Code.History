@@ -1,7 +1,5 @@
 codeunit 1373 "Batch Posting Print Mgt."
 {
-    EventSubscriberInstance = Manual;
-
     trigger OnRun()
     begin
     end;
@@ -49,15 +47,17 @@ codeunit 1373 "Batch Posting Print Mgt."
                             SalesShipmentHeader."No." := "Last Shipping No.";
                             SalesShipmentHeader.SetRecFilter;
                             PrintDocument(
-                              ReportSelections.Usage::"S.Shipment", SalesShipmentHeader,
-                              SalesReceivablesSetup."Report Output Type");
+                                ReportSelections.Usage::"S.Shipment", SalesShipmentHeader,
+                                SalesReceivablesSetup."Post & Print with Job Queue",
+                                SalesReceivablesSetup."Report Output Type");
                         end;
                         if Invoice then begin
                             SalesInvoiceHeader."No." := "Last Posting No.";
                             SalesInvoiceHeader.SetRecFilter;
                             PrintDocument(
-                              ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader,
-                              SalesReceivablesSetup."Report Output Type");
+                                ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader,
+                                SalesReceivablesSetup."Post & Print with Job Queue",
+                                SalesReceivablesSetup."Report Output Type");
                         end;
                     end;
                 "Document Type"::Invoice:
@@ -68,8 +68,9 @@ codeunit 1373 "Batch Posting Print Mgt."
                             SalesInvoiceHeader."No." := "Last Posting No.";
                         SalesInvoiceHeader.SetRecFilter;
                         PrintDocument(
-                          ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader,
-                          SalesReceivablesSetup."Report Output Type");
+                            ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader,
+                            SalesReceivablesSetup."Post & Print with Job Queue",
+                            SalesReceivablesSetup."Report Output Type");
                     end;
                 "Document Type"::"Credit Memo":
                     begin
@@ -79,8 +80,9 @@ codeunit 1373 "Batch Posting Print Mgt."
                             SalesCrMemoHeader."No." := "Last Posting No.";
                         SalesCrMemoHeader.SetRecFilter;
                         PrintDocument(
-                          ReportSelections.Usage::"S.Cr.Memo", SalesCrMemoHeader,
-                          SalesReceivablesSetup."Report Output Type");
+                            ReportSelections.Usage::"S.Cr.Memo", SalesCrMemoHeader,
+                            SalesReceivablesSetup."Post & Print with Job Queue",
+                            SalesReceivablesSetup."Report Output Type");
                     end;
             end;
 
@@ -113,15 +115,17 @@ codeunit 1373 "Batch Posting Print Mgt."
                             PurchRcptHeader."No." := "Last Receiving No.";
                             PurchRcptHeader.SetRecFilter;
                             PrintDocument(
-                              ReportSelections.Usage::"P.Receipt", PurchRcptHeader,
-                              PurchasesPayablesSetup."Report Output Type");
+                                ReportSelections.Usage::"P.Receipt", PurchRcptHeader,
+                                PurchasesPayablesSetup."Post & Print with Job Queue",
+                                PurchasesPayablesSetup."Report Output Type");
                         end;
                         if Invoice then begin
                             PurchInvHeader."No." := "Last Posting No.";
                             PurchInvHeader.SetRecFilter;
                             PrintDocument(
-                              ReportSelections.Usage::"P.Invoice", PurchInvHeader,
-                              PurchasesPayablesSetup."Report Output Type");
+                                ReportSelections.Usage::"P.Invoice", PurchInvHeader,
+                                PurchasesPayablesSetup."Post & Print with Job Queue",
+                                PurchasesPayablesSetup."Report Output Type");
                         end;
                     end;
                 "Document Type"::Invoice:
@@ -132,8 +136,9 @@ codeunit 1373 "Batch Posting Print Mgt."
                             PurchInvHeader."No." := "Last Posting No.";
                         PurchInvHeader.SetRecFilter;
                         PrintDocument(
-                          ReportSelections.Usage::"P.Invoice", PurchInvHeader,
-                          PurchasesPayablesSetup."Report Output Type");
+                            ReportSelections.Usage::"P.Invoice", PurchInvHeader,
+                            PurchasesPayablesSetup."Post & Print with Job Queue",
+                            PurchasesPayablesSetup."Report Output Type");
                     end;
                 "Document Type"::"Credit Memo":
                     begin
@@ -143,8 +148,9 @@ codeunit 1373 "Batch Posting Print Mgt."
                             PurchCrMemoHdr."No." := "Last Posting No.";
                         PurchCrMemoHdr.SetRecFilter;
                         PrintDocument(
-                          ReportSelections.Usage::"P.Cr.Memo", PurchCrMemoHdr,
-                          PurchasesPayablesSetup."Report Output Type");
+                            ReportSelections.Usage::"P.Cr.Memo", PurchCrMemoHdr,
+                            PurchasesPayablesSetup."Post & Print with Job Queue",
+                            PurchasesPayablesSetup."Report Output Type");
                     end;
             end;
 
@@ -197,7 +203,7 @@ codeunit 1373 "Batch Posting Print Mgt."
             end;
     end;
 
-    local procedure PrintDocument(ReportUsage: Option; RecVar: Variant; ReportOutputType: Option)
+    local procedure PrintDocument(ReportUsage: Option; RecVar: Variant; PrintViaJobQueue: Boolean; ReportOutputType: Option)
     var
         ReportSelections: Record "Report Selections";
         IsHandled: Boolean;
@@ -212,7 +218,10 @@ codeunit 1373 "Batch Posting Print Mgt."
         ReportSelections.FindSet;
         repeat
             ReportSelections.TestField("Report ID");
-            SchedulePrintJobQueueEntry(RecVar, ReportSelections."Report ID", ReportOutputType);
+            if PrintViaJobQueue then
+                SchedulePrintJobQueueEntry(RecVar, ReportSelections."Report ID", ReportOutputType)
+            else
+                REPORT.Run(ReportSelections."Report ID", false, false, RecVar);
         until ReportSelections.Next = 0;
     end;
 

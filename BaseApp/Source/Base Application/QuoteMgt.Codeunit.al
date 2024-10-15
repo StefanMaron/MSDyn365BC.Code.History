@@ -19,7 +19,6 @@ codeunit 3010801 QuoteMgt
         Text012: Label 'There must be the same number of being-totals as end-totals. \Missing: %1 end-total(s).';
         Text014: Label '%1 recalculated.';
 
-    [Scope('OnPrem')]
     procedure ReCalc(SalesHeader: Record "Sales Header"; ShowMessage: Boolean)
     var
         SalesLine: Record "Sales Line";
@@ -162,26 +161,25 @@ codeunit 3010801 QuoteMgt
     end;
 
     [Scope('OnPrem')]
-    procedure CalcOutline(_Level: Integer; _Title: array[99] of Integer; var _Outline: Code[20])
+    procedure CalcOutline(Level: Integer; Title: array[99] of Integer; var Outline: Code[20])
     var
         i: Integer;
     begin
-        _Outline := '';
-        for i := 1 to _Level do
-            _Outline := _Outline + StrSubstNo('%1.', _Title[i]);
+        Outline := '';
+        for i := 1 to Level do
+            Outline := Outline + StrSubstNo('%1.', Title[i]);
 
-        if _Level > 1 then
-            _Outline := DelChr(_Outline, '>', '.');
+        if Level > 1 then
+            Outline := DelChr(Outline, '>', '.');
     end;
 
     [Scope('OnPrem')]
-    procedure CalcTitle(_Level: Integer; _Title: array[99] of Integer; var TitleNo: Integer)
+    procedure CalcTitle(Level: Integer; Title: array[99] of Integer; var TitleNo: Integer)
     begin
-        if _Level > 1 then
-            TitleNo := _Title[_Level - 1];
+        if Level > 1 then
+            TitleNo := Title[Level - 1];
     end;
 
-    [Scope('OnPrem')]
     procedure RecalcPostedInvoice(SalesInvHeader: Record "Sales Invoice Header")
     var
         PostedInvLine: Record "Sales Invoice Line";
@@ -318,7 +316,6 @@ codeunit 3010801 QuoteMgt
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure RecalcPostedCreditMemo(SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     var
         PostedCredMemoLine: Record "Sales Cr.Memo Line";
@@ -454,7 +451,6 @@ codeunit 3010801 QuoteMgt
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure RecalcDocOnPrinting(SalesHeader: Record "Sales Header")
     var
         SalesSetup: Record "Sales & Receivables Setup";

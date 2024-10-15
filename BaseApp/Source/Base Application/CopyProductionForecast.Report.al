@@ -27,6 +27,7 @@ report 99003803 "Copy Production Forecast"
                     ProdForecastEntry2."Forecast Date" := CalcDate(ChangeDateExpression, "Forecast Date");
 
                 ProdForecastEntry2."Entry No." := NextEntryNo;
+                OnBeforeProdForecastEntryInsert(ProdForecastEntry2, ToProdForecastEntry);
                 ProdForecastEntry2.Insert;
                 NextEntryNo := NextEntryNo + 1;
             end;
@@ -121,5 +122,10 @@ report 99003803 "Copy Production Forecast"
         ChangeDateExpression: DateFormula;
         LastEntryNo: Integer;
         NextEntryNo: Integer;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProdForecastEntryInsert(var ProdForecastEntry: Record "Production Forecast Entry"; ToProdForecastEntry: Record "Production Forecast Entry")
+    begin
+    end;
 }
 

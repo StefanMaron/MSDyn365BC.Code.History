@@ -158,6 +158,8 @@ table 7342 "Posted Invt. Pick Header"
         PostedInvtPickLine: Record "Posted Invt. Pick Line";
         WhseCommentLine: Record "Warehouse Comment Line";
     begin
+        CheckLocation();
+
         PostedInvtPickLine.SetRange("No.", "No.");
         PostedInvtPickLine.DeleteAll;
 
@@ -180,6 +182,14 @@ table 7342 "Posted Invt. Pick Header"
     var
         InvtSetup: Record "Inventory Setup";
         NoSeriesMgt: Codeunit NoSeriesManagement;
+
+    local procedure CheckLocation()
+    var
+        Location: Record Location;
+    begin
+        Location.Get("Location Code");
+        Location.TestField("Bin Mandatory", false);
+    end;
 
     local procedure GetNoSeriesCode(): Code[20]
     begin

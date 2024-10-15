@@ -139,20 +139,19 @@ table 11500 "Bank Directory"
         Text009: Label 'Number of recs    #2####';
         PostCode: Record "Post Code";
         BankDirectory2: Record "Bank Directory";
+        Window: Dialog;
         Txt1: Text[250];
         Txt2: Text[250];
 
     [Scope('OnPrem')]
     procedure ImportBankDirectoryDirect(Filename: Text[1024]; var NoOfRecsRead: Integer; var NoOfRecsWritten: Integer)
     var
-        Window: Dialog;
         f: File;
         Byte: Char;
         i: Integer;
         FileMgt: Codeunit "File Management";
     begin
-        ModifyAll("Import from File", false);
-        ModifyAll("No of Outlets", 0);
+        InitImport();
 
         f.TextMode(false);
         if not f.Open(Filename, TEXTENCODING::Windows) then
@@ -162,32 +161,35 @@ table 11500 "Bank Directory"
           Text008 + // Clearing no #1
           Text009);  // No of recs #2
 
-        while f.Read(Byte) <> 0 do begin
-            i := i + 1;
-
-            if i <= 248 then
-                Txt1 := Txt1 + Format(Byte)
-            else
-                Txt2 := Txt2 + Format(Byte);
-
-            // Record length 298 + CR/LF
-            if i = 300 then begin
-                WriteBankRecord(NoOfRecsRead, NoOfRecsWritten);
-
-                Txt1 := '';
-                Txt2 := '';
-                i := 0;
-
-                if (NoOfRecsRead mod 100) = 0 then begin
-                    Window.Update(1, "Clearing No.");
-                    Window.Update(2, NoOfRecsRead);
-                end;
-
-            end;
-        end;
+        while f.Read(Byte) <> 0 do
+            HandleChar(i, NoOfRecsRead, NoOfRecsWritten, Byte);
 
         Window.Close;
         f.Close;
+    end;
+
+    [Scope('OnPrem')]
+    procedure ImportBankDirectoryFromTempBlob(TempBlob: Codeunit "Temp Blob"; var NoOfRecsRead: Integer; var NoOfRecsWritten: Integer)
+    var
+        FileInStream: InStream;
+        Byte: Char;
+        i: Integer;
+    begin
+        InitImport();
+
+        TempBlob.CreateInStream(FileInStream, TEXTENCODING::Windows);
+
+        Window.Open(
+          Text007 +
+          Text008 +
+          Text009);
+
+        while not FileInStream.EOS() do begin
+            FileInStream.Read(Byte, 1);
+            HandleChar(i, NoOfRecsRead, NoOfRecsWritten, Byte);
+        end;
+
+        Window.Close();
     end;
 
     [Scope('OnPrem')]
@@ -323,6 +325,36 @@ table 11500 "Bank Directory"
             BankDirectory2.Get("Clearing No.");
             BankDirectory2."No of Outlets" := BankDirectory2."No of Outlets" + 1;
             BankDirectory2.Modify;
+        end;
+    end;
+
+    local procedure InitImport()
+    begin
+        ModifyAll("Import from File", false);
+        ModifyAll("No of Outlets", 0);
+    end;
+
+    local procedure HandleChar(var i: Integer; var NoOfRecsRead: Integer; var NoOfRecsWritten: Integer; Byte: Char)
+    begin
+        i := i + 1;
+
+        if i <= 248 then
+            Txt1 := Txt1 + Format(Byte)
+        else
+            Txt2 := Txt2 + Format(Byte);
+
+        // Record length 298 + CR/LF
+        if i = 300 then begin
+            WriteBankRecord(NoOfRecsRead, NoOfRecsWritten);
+
+            Txt1 := '';
+            Txt2 := '';
+            i := 0;
+
+            if (NoOfRecsRead mod 100) = 0 then begin
+                Window.Update(1, "Clearing No.");
+                Window.Update(2, NoOfRecsRead);
+            end;
         end;
     end;
 }

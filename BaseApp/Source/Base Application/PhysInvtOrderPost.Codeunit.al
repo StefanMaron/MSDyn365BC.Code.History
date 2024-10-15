@@ -14,6 +14,8 @@ codeunit 5884 "Phys. Invt. Order-Post"
         PhysInvtOrderHeader.Copy(Rec);
         Code;
         Rec := PhysInvtOrderHeader;
+
+        OnAfterOnRun(Rec,PstdPhysInvtOrderHdr);
     end;
 
     var
@@ -302,6 +304,8 @@ codeunit 5884 "Phys. Invt. Order-Post"
             "Phys Invt Counting Period Code" := PhysInvtOrderLine."Phys Invt Counting Period Code";
             "Phys Invt Counting Period Type" := PhysInvtOrderLine."Phys Invt Counting Period Type";
             PhysInvtTrackingMgt.TransferResEntryToItemJnlLine(PhysInvtOrderLine, ItemJnlLine, Qty, Positive);
+
+            OnBeforeItemJnlPostLine(ItemJnlLine,PhysInvtOrderLine);
             ItemJnlPostLine.RunWithCheck(ItemJnlLine);
         end;
     end;
@@ -500,6 +504,16 @@ codeunit 5884 "Phys. Invt. Order-Post"
                       ItemJnlLine, OriginalQuantityBase, OriginalQuantityBase, false); // Negative
             end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnRun(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeItemJnlPostLine(var ItemJournalLine: Record "Item Journal Line"; PhysInvtOrderLine: Record "Phys. Invt. Order Line");
+    begin
     end;
 
     [IntegrationEvent(false, false)]

@@ -88,6 +88,11 @@ codeunit 5402 "Unit of Measure Management"
         exit(Round(Qty, QtyRndPrecision));
     end;
 
+    procedure RoundToItemRndPrecision(Qty: Decimal; ItemRndPrecision: Decimal): Decimal
+    begin
+        exit(Round(RoundQty(Qty), ItemRndPrecision, '>'));
+    end;
+
     procedure QtyRndPrecision(): Decimal
     var
         RoundingPrecision: Decimal;

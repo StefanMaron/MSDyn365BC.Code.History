@@ -87,21 +87,40 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
         ServerReceiptsInStream: InStream;
         ServerZipArchiveOutStream: OutStream;
         ServerZipArchiveName: Text;
+        ReceiptsFileExists: Boolean;
+        ShipmentsFileExists: Boolean;
     begin
+        ReceiptsFileExists := FileMgt.ServerFileExists(ServerFileReceipts);
+        ShipmentsFileExists := FileMgt.ServerFileExists(ServerFileShipments);
+
+        if not ReceiptsFileExists and not ShipmentsFileExists then
+            exit;
+
+        if FormatType = FormatType::XML then
+            if not ShipmentsFileExists then
+                exit;
+
         ServerZipArchiveName := FileMgt.ServerTempFileName('zip');
         ServerZipArchive.Create(ServerZipArchiveName);
         ServerZipArchive.CreateOutStream(ServerZipArchiveOutStream);
         DataCompression.CreateZipArchive;
-        FileMgt.BLOBImportFromServerFile(ServerShipmentsTempBlob, ServerFileShipments);
-        ServerShipmentsTempBlob.CreateInStream(ServerShipmentsInStream);
         if FormatType = FormatType::ASCII then begin
             VerifyCompanyInformation;
-            FileMgt.BLOBImportFromServerFile(ServerReceiptsTempBlob, ServerFileReceipts);
-            ServerReceiptsTempBlob.CreateInStream(ServerReceiptsInStream);
-            DataCompression.AddEntry(ServerReceiptsInStream, GetAuthorizedNo(ExportTypeGlb::Receipt) + '.ASC');
-            DataCompression.AddEntry(ServerShipmentsInStream, GetAuthorizedNo(ExportTypeGlb::Shipment) + '.ASC');
-        end else
+            if ReceiptsFileExists then begin
+                FileMgt.BLOBImportFromServerFile(ServerReceiptsTempBlob, ServerFileReceipts);
+                ServerReceiptsTempBlob.CreateInStream(ServerReceiptsInStream);
+                DataCompression.AddEntry(ServerReceiptsInStream, GetAuthorizedNo(ExportTypeGlb::Receipt) + '.ASC');
+            end;
+            if ShipmentsFileExists then begin
+                FileMgt.BLOBImportFromServerFile(ServerShipmentsTempBlob, ServerFileShipments);
+                ServerShipmentsTempBlob.CreateInStream(ServerShipmentsInStream);
+                DataCompression.AddEntry(ServerShipmentsInStream, GetAuthorizedNo(ExportTypeGlb::Shipment) + '.ASC');
+            end;
+        end else begin
+            FileMgt.BLOBImportFromServerFile(ServerShipmentsTempBlob, ServerFileShipments);
+            ServerShipmentsTempBlob.CreateInStream(ServerShipmentsInStream);
             DataCompression.AddEntry(ServerShipmentsInStream, MessageID + '.XML');
+        end;
         DataCompression.SaveZipArchive(ServerZipArchiveOutStream);
         DataCompression.CloseZipArchive;
         ServerZipArchive.Close;

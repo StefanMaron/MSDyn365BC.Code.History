@@ -22,6 +22,7 @@ codeunit 7317 "Whse. Integration Management"
         Location: Record Location;
         Bin: Record Bin;
         ServiceLine: Record "Service Line";
+        IsHandled: Boolean;
     begin
         Location.Get(LocationCode);
         Location.TestField("Bin Mandatory");
@@ -31,6 +32,11 @@ codeunit 7317 "Whse. Integration Management"
 
         if BinCode = Location."Adjustment Bin Code" then
             Error(Text000, BinCodeFieldCaption, LocationCode);
+
+        IsHandled := false;
+        OnBeforeCheckBinTypeCode(SourceTable, BinCodeFieldCaption, LocationCode, BinCode, AdditionalIdentifier, IsHandled);
+        if IsHandled then
+            exit;
 
         Bin.Get(LocationCode, BinCode);
         Bin.TestField("Bin Type Code");
@@ -195,6 +201,11 @@ codeunit 7317 "Whse. Integration Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAllowPutawayOrQCBinsOnly(var BinType: Record "Bin Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBinTypeCode(SourceTable: Integer; BinCodeFieldCaption: Text[30]; LocationCode: Code[10]; BinCode: Code[20]; AdditionalIdentifier: Option; var IsHandled: Boolean);
     begin
     end;
 

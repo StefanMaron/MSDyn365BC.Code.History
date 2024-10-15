@@ -477,6 +477,7 @@ codeunit 134920 "ERM General Journal UT"
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure NoRenumberDocNoWithoutNoSeries()
     var
@@ -502,6 +503,7 @@ codeunit 134920 "ERM General Journal UT"
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure RenumberDocNoOneLine()
     var
@@ -529,6 +531,7 @@ codeunit 134920 "ERM General Journal UT"
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure RenumberDocNoMultipleLines()
     var
@@ -569,6 +572,7 @@ codeunit 134920 "ERM General Journal UT"
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure RenumberDocNoMultipleLinesWithSameDocNo()
     var
@@ -609,6 +613,7 @@ codeunit 134920 "ERM General Journal UT"
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure RenumberDocNoMultipleLinesWithBalanceLine()
     var
@@ -652,6 +657,7 @@ codeunit 134920 "ERM General Journal UT"
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure RenumberDocNoMultipleLinesWithFilter()
     var
@@ -694,6 +700,7 @@ codeunit 134920 "ERM General Journal UT"
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure RenumberDocNoWithFilterError()
     var
@@ -720,6 +727,7 @@ codeunit 134920 "ERM General Journal UT"
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure RenumberDocNoOneLineWithAppliesToIdVendor()
     var
@@ -745,6 +753,7 @@ codeunit 134920 "ERM General Journal UT"
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure RenumberDocNoMultipleLinesWithAppliesToIdVendor()
     var
@@ -778,6 +787,7 @@ codeunit 134920 "ERM General Journal UT"
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure RenumberDocNoOneLineWithAppliesToIdCustomer()
     var
@@ -803,6 +813,7 @@ codeunit 134920 "ERM General Journal UT"
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure RenumberDocNoMultipleLinesWithAppliesToIdCustomer()
     var
@@ -836,6 +847,7 @@ codeunit 134920 "ERM General Journal UT"
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure RenumberDocNoOneLineWithAppliesToDocNo()
     var
@@ -873,6 +885,7 @@ codeunit 134920 "ERM General Journal UT"
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure RenumberDocNoMultipleLinesWithAppliesToDocNo()
     var
@@ -925,6 +938,7 @@ codeunit 134920 "ERM General Journal UT"
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure RenumberDocNoWithSortingOnDocNo()
     var
@@ -969,6 +983,7 @@ codeunit 134920 "ERM General Journal UT"
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure RenumberDocNoWithSortingOnDate()
     var
@@ -1011,6 +1026,7 @@ codeunit 134920 "ERM General Journal UT"
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure RenumberDocNoMultipleLinesWhenGenJnlLineDeleted()
     var
@@ -1248,6 +1264,7 @@ codeunit 134920 "ERM General Journal UT"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('YesConfirmHandler')]
     procedure RenumberingOfEntriesWithoutDocNo()
     var
         GenJournalLine: array[2] of Record "Gen. Journal Line";
@@ -1281,6 +1298,7 @@ codeunit 134920 "ERM General Journal UT"
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure NoRenumberingForPrintedDoc()
     var
@@ -1362,6 +1380,7 @@ codeunit 134920 "ERM General Journal UT"
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure NoRenumberWithJobQueueStatusScheduledOrPosting()
     var
@@ -1419,6 +1438,7 @@ codeunit 134920 "ERM General Journal UT"
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure RenumberingGenJournalLinesWithBalAccount()
     var
@@ -5315,6 +5335,13 @@ codeunit 134920 "ERM General Journal UT"
     begin
         LibraryVariableStorage.Enqueue(GeneralJournal.CurrentJnlBatchName.Value);
         GeneralJournal.OK.Invoke;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure YesConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 

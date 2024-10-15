@@ -951,11 +951,8 @@
     local procedure DeltaUpdateTotals()
     begin
         DocumentTotals.SalesDeltaUpdateTotals(Rec, xRec, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
-        if "Line Amount" <> xRec."Line Amount" then begin
-            CurrPage.SaveRecord;
+        if "Line Amount" <> xRec."Line Amount" then
             SendLineInvoiceDiscountResetNotification;
-            CurrPage.Update(false);
-        end;
     end;
 
     local procedure UpdateEditableOnRow()
@@ -1074,6 +1071,8 @@
         InsertExtendedText(false);
 
         SaveAndAutoAsmToOrder;
+
+        OnAfterNoOnAfterValidate(Rec, xRec);
     end;
 
     local procedure LocationCodeOnAfterValidate()
@@ -1177,6 +1176,11 @@
     begin
         if (Type = Type::"End-Total") and ("Subtotal Net" <> 0) then
             "Line Amount" := "Subtotal Net";
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnAfterNoOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

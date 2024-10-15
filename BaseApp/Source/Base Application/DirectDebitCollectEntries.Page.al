@@ -202,6 +202,23 @@ page 1208 "Direct Debit Collect. Entries"
                     PostDirectDebitCollection.Run;
                 end;
             }
+            action(ResetTransferDate)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Reset Transfer Date';
+                Image = ChangeDates;
+                Promoted = true;
+                PromotedCategory = Process;
+                ToolTip = 'Insert today''s date in the Transfer Date field on overdue entries with the status New.';
+
+                trigger OnAction()
+                var
+                    ConfirmMgt: Codeunit "Confirm Management";
+                begin
+                    if ConfirmMgt.GetResponse(ResetTransferDateQst, false) then
+                        SetTodayAsTransferDateForOverdueEnries();
+                end;
+            }
         }
     }
 
@@ -225,11 +242,16 @@ page 1208 "Direct Debit Collect. Entries"
     end;
 
     trigger OnModifyRecord(): Boolean
+    var
+        IsHandled: Boolean;
     begin
         TestField(Status, Status::New);
         CalcFields("Direct Debit Collection Status");
         TestField("Direct Debit Collection Status", "Direct Debit Collection Status"::New);
-        CODEUNIT.Run(CODEUNIT::"SEPA DD-Check Line", Rec);
+        IsHandled := false;
+        OnBeforeRunSEPACheckLine(Rec, IsHandled);
+        if not IsHandled then
+            CODEUNIT.Run(CODEUNIT::"SEPA DD-Check Line", Rec);
         HasLineErrors := HasPaymentFileErrors;
     end;
 
@@ -250,5 +272,12 @@ page 1208 "Direct Debit Collect. Entries"
         [InDataSet]
         HasLineErrors: Boolean;
         LineIsEditable: Boolean;
+        ResetTransferDateQst: Label 'Do you want to insert today''s date in the Transfer Date field on all overdue entries?';
+
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunSEPACheckLine(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var IsHandled: Boolean)
+    begin
+    end;
 }
 

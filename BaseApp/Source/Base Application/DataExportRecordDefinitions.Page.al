@@ -34,6 +34,12 @@ page 11003 "Data Export Record Definitions"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the DTD file that is required for digital audit.';
                 }
+                field("File Encoding"; "File Encoding")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'File Encoding';
+                    ToolTip = 'Specifies the encoding of the data files to be imported.';
+                }
             }
         }
     }

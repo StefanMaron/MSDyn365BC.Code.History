@@ -58,7 +58,7 @@ codeunit 1223 "SEPA CT-Check Line"
             if Amount <= 0 then
                 InsertPaymentFileError(MustBePositiveErr);
 
-            if not SwissExport and ("Currency Code" <> GLSetup.GetCurrencyCode('EUR')) then begin
+            if (not SwissExport) and ("Currency Code" <> GLSetup.GetCurrencyCode('EUR')) and (not GLSetup."SEPA Non-Euro Export") then begin
                 BankAccount.Get("Bal. Account No.");
                 InsertPaymentFileError(StrSubstNo(EuroCurrErr, "Bal. Account No.", BankAccount."Payment Export Format"));
             end;
