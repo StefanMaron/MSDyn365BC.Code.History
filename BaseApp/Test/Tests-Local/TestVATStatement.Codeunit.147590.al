@@ -1384,6 +1384,241 @@ codeunit 147590 "Test VAT Statement"
         LibraryReportDataset.AssertElementWithValueExists(TotalECAmtTok, -ECAmount);
     end;
 
+    [Test]
+    [HandlerFunctions('TemplateSelectionModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure TestVATStatementPreviewNoTaxableClosed()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeader1: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        VATStatementName: Record "VAT Statement Name";
+        VATStatementLine: Record "VAT Statement Line";
+        NoTaxableEntry: Record "No Taxable Entry";
+        VATStatement: TestPage "VAT Statement";
+        VATStatementPreview: TestPage "VAT Statement Preview";
+        NoTaxableEntries: TestPage "No Taxable Entries";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [No Taxable] [UI] [Sales]
+        // [SCENARIO 437076] Drilldown closed No Taxable entries from VAT Statement Preview
+        Initialize();
+
+        // [GIVEN] Two sales invoices with No Taxable VAT and amount of 100 (closed) and 200 (open)
+        CreateVATPostingSetupNoTaxable(VATPostingSetup);
+        DocumentNo := CreatePostSalesInvoice(SalesHeader1, VATPostingSetup);
+        CreatePostSalesInvoice(SalesHeader2, VATPostingSetup);
+        NoTaxableEntry.SetRange("Document No.", DocumentNo);
+        NoTaxableEntry.FindFirst();
+        NoTaxableEntry.Closed := true;
+        NoTaxableEntry.Modify();
+
+        // [GIVEN] VAT Statement Line for No Taxable VAT Posting Setup with Amount type = Base
+        CreateVATStatement(VATStatementName);
+        CreateVATStatementLineVATTotalling(
+          VATStatementLine, VATStatementName, '1', VATPostingSetup,
+          VATStatementLine."Gen. Posting Type"::Sale, VATStatementLine."Amount Type"::Base, '');
+
+        // [GIVEN] VAT Statement Preview shows -100 in VAT Statement Line for Include VAT Entries: Closed
+        LibraryVariableStorage.Enqueue(VATStatementName."Statement Template Name");
+        VATStatementPreview.Trap();
+        NoTaxableEntries.Trap();
+        VATStatement.OpenEdit();
+        VATStatement."P&review".Invoke();
+        VATStatementPreview.Selection.SetValue(1); // Closed
+        VATStatementPreview.VATStatementLineSubForm.ColumnValue.AssertEquals(-SalesHeader1.Amount);
+
+        // [WHEN] Drill Down on Column Value of 'Base' line
+        VATStatementPreview.VATStatementLineSubForm.ColumnValue.DrillDown();
+
+        // [THEN] No Taxable Entries show line for first invoice of amount = -100
+        NoTaxableEntries.Base.AssertEquals(-SalesHeader1.Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('TemplateSelectionModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure TestVATStatementPreviewNoTaxableOpenedAndClosed()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeader1: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        VATStatementName: Record "VAT Statement Name";
+        VATStatementLine: Record "VAT Statement Line";
+        NoTaxableEntry: Record "No Taxable Entry";
+        VATStatement: TestPage "VAT Statement";
+        VATStatementPreview: TestPage "VAT Statement Preview";
+        NoTaxableEntries: TestPage "No Taxable Entries";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [No Taxable] [UI] [Sales]
+        // [SCENARIO 437076] Drilldown opened and closed No Taxable entries from VAT Statement Preview
+        Initialize();
+
+        // [GIVEN] Two sales invoices with No Taxable VAT and amount of 100 (closed) and 200 (open)
+        CreateVATPostingSetupNoTaxable(VATPostingSetup);
+        DocumentNo := CreatePostSalesInvoice(SalesHeader1, VATPostingSetup);
+        CreatePostSalesInvoice(SalesHeader2, VATPostingSetup);
+        NoTaxableEntry.SetRange("Document No.", DocumentNo);
+        NoTaxableEntry.FindFirst();
+        NoTaxableEntry.Closed := true;
+        NoTaxableEntry.Modify();
+
+        // [GIVEN] VAT Statement Line for No Taxable VAT Posting Setup with Amount type = Base
+        CreateVATStatement(VATStatementName);
+        CreateVATStatementLineVATTotalling(
+          VATStatementLine, VATStatementName, '1', VATPostingSetup,
+          VATStatementLine."Gen. Posting Type"::Sale, VATStatementLine."Amount Type"::Base, '');
+
+        // [GIVEN] VAT Statement Preview shows -300 in VAT Statement Line for Include VAT Entries: Closed
+        LibraryVariableStorage.Enqueue(VATStatementName."Statement Template Name");
+        VATStatementPreview.Trap();
+        NoTaxableEntries.Trap();
+        VATStatement.OpenEdit();
+        VATStatement."P&review".Invoke();
+        VATStatementPreview.Selection.SetValue(2); // Opened and Closed
+        VATStatementPreview.VATStatementLineSubForm.ColumnValue.AssertEquals(-SalesHeader1.Amount - SalesHeader2.Amount);
+
+        // [WHEN] Drill Down on Column Value of 'Base' line
+        VATStatementPreview.VATStatementLineSubForm.ColumnValue.DrillDown;
+
+        // [THEN] No Taxable Entries show line for first invoice of amount = -100 and for second invoice = -200
+        NoTaxableEntries.Base.AssertEquals(-SalesHeader1.Amount);
+        NoTaxableEntries.Next();
+        NoTaxableEntries.Base.AssertEquals(-SalesHeader2.Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('VATStatementRequestPageHandlerDefault')]
+    [Scope('OnPrem')]
+    procedure TestVATStatementReportNoTaxableOpened()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeader1: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        VATStatementName: Record "VAT Statement Name";
+        VATStatementLine: Record "VAT Statement Line";
+        NoTaxableEntry: Record "No Taxable Entry";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [No Taxable]
+        // [FEATURE] [UI] [Sales]
+        // [SCENARIO 437076] VAT Statement report for closed No Taxable entries
+        Initialize();
+
+        // [GIVEN] Two sales invoices with No Taxable VAT and amount of 100 (closed) and 200 (open)
+        CreateVATPostingSetupNoTaxable(VATPostingSetup);
+        DocumentNo := CreatePostSalesInvoice(SalesHeader1, VATPostingSetup);
+        CreatePostSalesInvoice(SalesHeader2, VATPostingSetup);
+        NoTaxableEntry.SetRange("Document No.", DocumentNo);
+        NoTaxableEntry.FindFirst();
+        NoTaxableEntry.Closed := true;
+        NoTaxableEntry.Modify();
+
+        // [GIVEN] VAT Statement Line for No Taxable VAT Posting Setup with Amount type = Base
+        CreateVATStatementNameWithTemplateType(VATStatementName, VATStatementName."Template Type"::"Two Columns Report");
+        CreateVATStatementLineVATTotalling(
+          VATStatementLine, VATStatementName, '1', VATPostingSetup,
+          VATStatementLine."Gen. Posting Type"::Sale, VATStatementLine."Amount Type"::Amount, '');
+        CreateVATStatementLineVATTotalling(
+          VATStatementLine, VATStatementName, '2', VATPostingSetup,
+          VATStatementLine."Gen. Posting Type"::Sale, VATStatementLine."Amount Type"::Base, '');
+        Commit;
+
+        // [WHEN] Run VAT Statement report with open entries
+        RunVatStatementReportAndLoad(VATStatementLine, VATStatementName);
+
+        // [THEN] VAT Statement Line is exported with Base = 200 for the second document
+        LibraryReportDataset.AssertElementWithValueExists(TotalAmtTok, 0);
+        LibraryReportDataset.AssertElementWithValueExists(TotalBaseTok, -SalesHeader2.Amount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCalcAndPostVATSettlementNoTaxable()
+    var
+        VATPostingSetup1: Record "VAT Posting Setup";
+        VATPostingSetup2: Record "VAT Posting Setup";
+        SalesHeader1: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        PurchaseHeader1: Record "Purchase Header";
+        PurchaseHeader2: Record "Purchase Header";
+        CalcAndPostVATSettlement: Report "Calc. and Post VAT Settlement";
+    begin
+        // [FEATURE] [No Taxable] [Sales] [Purchase]
+        // [SCENARIO 437076] Stan can close the No Taxable Entries with the "Calc. and Post VAT Settlement" batch job
+        Initialize();
+
+        // [GIVEN] Two sales invoices with different No Taxable VAT "NT1" and "NT2" of amounts 100 and 200
+        CreateVATPostingSetupNoTaxable(VATPostingSetup1);
+        CreateVATPostingSetupNoTaxable(VATPostingSetup2);
+        CreatePostSalesInvoice(SalesHeader1, VATPostingSetup1);
+        CreatePostSalesInvoice(SalesHeader2, VATPostingSetup2);
+        // [GIVEN] Two purchase invoices with different No Taxable VAT "NT1" and "NT2" of amounts 300 and 400
+        CreatePostPurchInvoice(PurchaseHeader1, VATPostingSetup1);
+        CreatePostPurchInvoice(PurchaseHeader2, VATPostingSetup2);
+
+        // [WHEN] Run Calc and Post VAT Settlement report for VAT Posting Group "NT1" with Post = Yes
+        VATPostingSetup1.SetRecFilter();
+        CalcAndPostVATSettlement.SetTableView(VATPostingSetup1);
+        CalcAndPostVATSettlement.InitializeRequest(
+          WorkDate, WorkDate, WorkDate, LibraryUtility.GenerateGUID(), LibraryERM.CreateGLAccountNo(), false, true);
+        CalcAndPostVATSettlement.UseRequestPage(false);
+        CalcAndPostVATSettlement.SaveAsXml(FileManagement.ServerTempFileName('xml'));
+
+        // [THEN] No Taxable Entries are closed for VAT Posting Group "NT1"
+        VerifyNoTaxableCount(VATPostingSetup1."VAT Bus. Posting Group", true, 2);
+        // [THEN] No Taxable Entries are open for VAT Posting Group "NT2"
+        VerifyNoTaxableCount(VATPostingSetup2."VAT Bus. Posting Group", false, 2);
+    end;
+
+    [Test]
+    [HandlerFunctions('CalcPostVATSettlemetRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure TestCalcAndPostVATSettlementNoTaxableDataset()
+    var
+        VATPostingSetup1: Record "VAT Posting Setup";
+        VATPostingSetup2: Record "VAT Posting Setup";
+        SalesHeader1: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        PurchaseHeader1: Record "Purchase Header";
+        PurchaseHeader2: Record "Purchase Header";
+        SalesDoc1: Code[20];
+        SalesDoc2: Code[20];
+        PurchDoc1: Code[20];
+        PurchDoc2: Code[20];
+        RequestPageXML: Text;
+    begin
+        // [FEATURE] [No Taxable] [Report]
+        // [SCENARIO 437076] "Calc. and Post VAT Settlement" report prints the No Taxable Entries
+        Initialize();
+
+        // [GIVEN] Two sales invoices with different No Taxable VAT "NT1" and "NT2" of amounts 100 and 200
+        CreateVATPostingSetupNoTaxable(VATPostingSetup1);
+        CreateVATPostingSetupNoTaxable(VATPostingSetup2);
+        SalesDoc1 := CreatePostSalesInvoice(SalesHeader1, VATPostingSetup1);
+        SalesDoc2 := CreatePostSalesInvoice(SalesHeader2, VATPostingSetup2);
+        // [GIVEN] Two purchase invoices with different No Taxable VAT "NT1" and "NT2" of amounts 300 and 400
+        PurchDoc1 := CreatePostPurchInvoice(PurchaseHeader1, VATPostingSetup1);
+        PurchDoc2 := CreatePostPurchInvoice(PurchaseHeader2, VATPostingSetup2);
+
+        // [WHEN] Run Calc and Post VAT Settlement report for VAT Posting Group "NT1" with "Print VAT Entries" = true
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
+        LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNo);
+        Commit;
+        VATPostingSetup1.SetRecFilter();
+        RequestPageXML := Report.RunRequestPage(Report::"Calc. and Post VAT Settlement");
+        LibraryReportDataset.RunReportAndLoad(Report::"Calc. and Post VAT Settlement", VATPostingSetup1, RequestPageXML);
+
+        // [THEN] No Taxable VAT Entries are exported for documents with No Taxable VAT "NT1" with amounts 100 and 300
+        LibraryReportDataset.AssertElementWithValueNotExist('DocumentNo_NoTaxableEntry', SalesDoc2);
+        LibraryReportDataset.AssertElementWithValueNotExist('DocumentNo_NoTaxableEntry', PurchDoc2);
+        LibraryReportDataset.AssertElementWithValueExists('DocumentNo_NoTaxableEntry', SalesDoc1);
+        LibraryReportDataset.AssertElementWithValueExists('DocumentNo_NoTaxableEntry', PurchDoc1);
+        LibraryReportDataset.AssertElementWithValueExists('Base_NoTaxableEntry', -SalesHeader1.Amount);
+        LibraryReportDataset.AssertElementWithValueExists('Base_NoTaxableEntry', PurchaseHeader1.Amount);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1855,6 +2090,9 @@ codeunit 147590 "Test VAT Statement"
     begin
         CreateVATEntry(VATEntry, VATAmount, VATBase, VATCalculationType);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group");
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure CreateVATStatementNameWithTemplateType(var VATStatementName: Record "VAT Statement Name"; TemplateType: Option)
@@ -1881,7 +2119,7 @@ codeunit 147590 "Test VAT Statement"
         end;
     end;
 
-    local procedure CreatePostPurchInvoice(var PurchaseHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup")
+    local procedure CreatePostPurchInvoice(var PurchaseHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup"): Code[20]
     var
         PurchaseLine: Record "Purchase Line";
         GLAccount: Record "G/L Account";
@@ -1896,10 +2134,10 @@ codeunit 147590 "Test VAT Statement"
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(10, 20));
         PurchaseLine.Modify(true);
         PurchaseHeader.CalcFields(Amount, "Amount Including VAT");
-        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure CreatePostSalesInvoice(var SalesHeader: Record "Sales Header"; VATPostingSetup: Record "VAT Posting Setup")
+    local procedure CreatePostSalesInvoice(var SalesHeader: Record "Sales Header"; VATPostingSetup: Record "VAT Posting Setup"): Code[20]
     var
         SalesLine: Record "Sales Line";
         GLAccount: Record "G/L Account";
@@ -1914,7 +2152,7 @@ codeunit 147590 "Test VAT Statement"
         SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(10, 20));
         SalesLine.Modify(true);
         SalesHeader.CalcFields(Amount);
-        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
     local procedure RunVatStatementReport(VATStatementLine: Record "VAT Statement Line"; VATStatementName: Record "VAT Statement Name")
@@ -1932,6 +2170,15 @@ codeunit 147590 "Test VAT Statement"
         VATStatementLine.SetRange("Statement Name", VATStatementName.Name);
         RequestPageXML := Report.RunRequestPage(Report::"VAT Statement");
         LibraryReportDataset.RunReportAndLoad(Report::"VAT Statement", VATStatementLine, RequestPageXML);
+    end;
+
+    local procedure VerifyNoTaxableCount(VATBusPostGr: Code[20]; IsClosed: Boolean; Qty: Integer)
+    var
+        NoTaxableEntry: Record "No Taxable Entry";
+    begin
+        NoTaxableEntry.SetRange("VAT Bus. Posting Group", VATBusPostGr);
+        NoTaxableEntry.SetRange(Closed, IsClosed);
+        Assert.RecordCount(NoTaxableEntry, Qty);
     end;
 
     local procedure VerifyVATStatementLineForRow(TotalAmount: Decimal; TotalBase: Decimal; RowNo: Variant)
@@ -2071,6 +2318,20 @@ codeunit 147590 "Test VAT Statement"
     [Scope('OnPrem')]
     procedure VATStatementRequestPageHandlerDefault(var VATStatement: TestRequestPage "VAT Statement")
     begin
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CalcPostVATSettlemetRequestPageHandler(var CalcAndPostVATSettlement: TestRequestPage "Calc. and Post VAT Settlement")
+    begin
+        CalcAndPostVATSettlement.StartingDate.SetValue(WorkDate);
+        CalcAndPostVATSettlement.EndingDate.SetValue(WorkDate);
+        CalcAndPostVATSettlement.PostingDt.SetValue(WorkDate);
+        CalcAndPostVATSettlement.ShowVATEntries.SetValue(true);
+        CalcAndPostVATSettlement.Post.SetValue(false);
+        CalcAndPostVATSettlement.DocumentNo.SetValue(LibraryVariableStorage.DequeueText);
+        CalcAndPostVATSettlement.SettlementAcc.SetValue(LibraryVariableStorage.DequeueText);
+        CalcAndPostVATSettlement.OK().Invoke();
     end;
 }
 

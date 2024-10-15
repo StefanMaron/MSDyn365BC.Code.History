@@ -82,6 +82,14 @@ page 475 "VAT Statement Preview Line"
                                         NoTaxableEntry.SetRange("Posting Date", 0D, GetRangeMax("Date Filter"))
                                     else
                                         CopyFilter("Date Filter", NoTaxableEntry."Posting Date");
+                                case Selection of
+                                    Selection::Open:
+                                        NoTaxableEntry.SetRange(Closed, false);
+                                    Selection::Closed:
+                                        NoTaxableEntry.SetRange(Closed, true);
+                                    Selection::"Open and Closed":
+                                        NoTaxableEntry.SetRange(Closed);
+                                end;
                                 PAGE.Run(PAGE::"No Taxable Entries", NoTaxableEntry);
                                 exit;
                             end;

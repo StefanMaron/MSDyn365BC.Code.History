@@ -108,6 +108,12 @@
             column(PageCaption; PageCaptionLbl)
             {
             }
+            column(VatEntriesCaption; VATEntriesLbl)
+            {
+            }
+            column(NoTaxableEntriesCaption; NoTaxableEntriesLbl)
+            {
+            }
             dataitem("Closing G/L and VAT Entry"; "Integer")
             {
                 DataItemTableView = SORTING(Number);
@@ -478,6 +484,86 @@
                     FindFirstEntry := true;
                 end;
             }
+            dataitem(NoTaxableEntryType; "Integer")
+            {
+                DataItemTableView = sorting(Number) where(Number = FILTER(1 .. 2));
+                dataitem("No Taxable Entry"; "No Taxable Entry")
+                {
+                    DataItemTableView = sorting(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date");
+                    column(SourceNoCaption;
+                    SourceNoCaptionLbl)
+                    {
+                    }
+                    column(VATBusGroup_NoTaxableEntry; "VAT Bus. Posting Group")
+                    {
+                    }
+                    column(VATProdGroup_NoTaxableEntry; "VAT Prod. Posting Group")
+                    {
+                    }
+                    column(PostingDate_NoTaxableEntry; Format("Posting Date"))
+                    {
+                    }
+                    column(DocumentNo_NoTaxableEntry; "Document No.")
+                    {
+                    }
+                    column(DocumentType_NoTaxableEntry; "Document Type")
+                    {
+                    }
+                    column(Type_NoTaxableEntry; Type)
+                    {
+                    }
+                    column(Base_NoTaxableEntry; Base)
+                    {
+                    }
+                    column(Amount_NoTaxableEntry; NoTaxableAmount)
+                    {
+                        AutoFormatExpression = GetCurrency();
+                        AutoFormatType = 1;
+                    }
+                    column(CalType_NoTaxableEntry; "VAT Calculation Type")
+                    {
+                    }
+                    column(SourceNo_NoTaxableEntry; "Source No.")
+                    {
+                    }
+                    column(EntryNo_NoTaxableEntry; "Entry No.")
+                    {
+                    }
+                    column(CurrencyAmt_NoTaxableEntry; NoTaxableAmount)
+                    {
+                        AutoFormatExpression = GetCurrency();
+                        AutoFormatType = 1;
+                    }
+                    column(CurrencyBase_NoTaxableEntry; "Base (ACY)")
+                    {
+                        AutoFormatExpression = GetCurrency();
+                        AutoFormatType = 1;
+                    }
+
+                    trigger OnAfterGetRecord()
+                    begin
+                        if not PrintVATEntries then
+                            CurrReport.Skip();
+                    end;
+
+                    trigger OnPreDataItem()
+                    begin
+                        Reset();
+                        SetRange(Type, NoTaxableEntryType.Number);
+                        SetRange(Closed, false);
+                        SetFilter("Posting Date", VATDateFilter);
+                        SetRange("VAT Bus. Posting Group", "VAT Posting Setup"."VAT Bus. Posting Group");
+                        SetRange("VAT Prod. Posting Group", "VAT Posting Setup"."VAT Prod. Posting Group");
+                    end;
+
+                    trigger OnPostDataItem()
+                    begin
+                        if PostSettlement then
+                            ModifyAll(Closed, true);
+                    end;
+
+                }
+            }
 
             trigger OnPostDataItem()
             begin
@@ -588,7 +674,7 @@
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Show VAT Entries';
-                        ToolTip = 'Specifies if you want the report that is printed during the batch job to contain the individual VAT entries. If you do not choose to print the VAT entries, the settlement amount is shown only for each VAT posting group.';
+                        ToolTip = 'Specifies if you want the report that is printed during the batch job to contain the individual VAT entries and No Taxable entries. If you do not choose to print the VAT entries, the settlement amount is shown only for each VAT posting group.';
                     }
                     field(Post; PostSettlement)
                     {
@@ -702,6 +788,10 @@
         VATAmtCaptionLbl: Label 'Total';
         PageCaptionLbl: Label 'Page';
         GenJnlLineVATBaseAmtCaptionLbl: Label 'Settlement';
+        NoTaxableAmount: Decimal;
+        SourceNoCaptionLbl: Label 'Source No.';
+        VATEntriesLbl: Label 'VAT Entries';
+        NoTaxableEntriesLbl: Label 'No Taxable Entries';
 
     protected var
         GLAccSettle: Record "G/L Account";

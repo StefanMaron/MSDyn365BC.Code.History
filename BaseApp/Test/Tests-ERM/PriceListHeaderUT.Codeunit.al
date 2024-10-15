@@ -1902,6 +1902,9 @@ codeunit 134118 "Price List Header UT"
 
         // [THEN] Price list headers and lines for Job 'A' are modified to 'X', for Job 'B' are not deleted
         VerifyPricesRenamed("Price Source Type"::Job, '', Job[1]."No.", OldNo, Job[2]."No.");
+
+        // [THEN] Verify Price list header fields for for Job 'X'
+        VerifyPricesFieldsRenamedForJob("Price Source Type"::Job, '', Job[1]."No.", OldNo, Job[2]."No.");
     end;
 
     [Test]
@@ -1983,6 +1986,8 @@ codeunit 134118 "Price List Header UT"
         NewPriceListHeader.SetRange("Source No.", NewJobNo);
         Assert.RecordCount(NewPriceListHeader, 1);
         NewPriceListHeader.FindFirst();
+        NewPriceListHeader.TestField("Filter Source No.", NewJobNo);
+        NewPriceListHeader.TestField("Assign-to No.", NewJobNo);
         NewPriceListHeader.TestField(Description, PriceListHeader[1].Description);
         NewPriceListHeader.TestField("Currency Code", PriceListHeader[1]."Currency Code");
         NewPriceListHeader.TestField("Starting Date", PriceListHeader[1]."Starting Date");
@@ -2001,6 +2006,9 @@ codeunit 134118 "Price List Header UT"
         NewPriceListHeader.SetRange("Source No.", JobTask."Job Task No.");
         Assert.RecordCount(NewPriceListHeader, 1);
         NewPriceListHeader.FindFirst();
+        NewPriceListHeader.TestField("Filter Source No.", NewJobNo);
+        NewPriceListHeader.TestField("Assign-to Parent No.", NewJobNo);
+        NewPriceListHeader.TestField("Assign-to No.", JobTask."Job Task No.");
         NewPriceListHeader.TestField(Description, PriceListHeader[2].Description);
         NewPriceListHeader.TestField("Currency Code", PriceListHeader[2]."Currency Code");
         NewPriceListHeader.TestField("Starting Date", PriceListHeader[2]."Starting Date");
@@ -2570,6 +2578,20 @@ codeunit 134118 "Price List Header UT"
         Assert.RecordIsNotEmpty(PriceListLine);
         PriceListLine.SetRange("Source No.", SourceNo);
         Assert.RecordIsNotEmpty(PriceListLine);
+    end;
+
+    local procedure VerifyPricesFieldsRenamedForJob(SourceType: Enum "Price Source Type"; ParentSourceNo: Code[20]; NewSourceNo: Code[20]; RenamedSourceNo: Code[20]; SourceNo: Code[20])
+    var
+        PriceListHeader: Record "Price List Header";
+    begin
+        PriceListHeader.SetRange("Source Type", SourceType);
+        PriceListHeader.SetRange("Parent Source No.", ParentSourceNo);
+        PriceListHeader.SetRange("Source No.", NewSourceNo);
+        if PriceListHeader.FindSet() then
+            repeat
+                PriceListHeader.TestField("Filter Source No.", NewSourceNo);
+                PriceListHeader.TestField("Assign-to No.", NewSourceNo);
+            Until PriceListHeader.Next() = 0;
     end;
 
     [ModalPageHandler]

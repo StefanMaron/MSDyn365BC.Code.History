@@ -657,6 +657,14 @@
                 NoTaxableEntry.SetRange("Posting Date", 0D, "VAT Statement Line".GetRangeMax("Date Filter"))
             else
                 "VAT Statement Line".CopyFilter("Date Filter", NoTaxableEntry."Posting Date");
+        case Selection of
+            Selection::Open:
+                NoTaxableEntry.SetRange(Closed, false);
+            Selection::Closed:
+                NoTaxableEntry.SetRange(Closed, true);
+            else
+                NoTaxableEntry.SetRange(Closed);
+        end;
         if NoTaxableEntry.IsEmpty then
             exit(0);
 
