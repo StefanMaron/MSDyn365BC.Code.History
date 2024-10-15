@@ -438,7 +438,6 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
-                    Visible = false;
                 }
                 field("Sales/Purch. (LCY)"; "Sales/Purch. (LCY)")
                 {

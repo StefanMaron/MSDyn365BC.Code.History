@@ -244,7 +244,6 @@
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
-                    Visible = false;
                 }
                 field("Job Queue Status"; "Job Queue Status")
                 {
@@ -406,6 +405,11 @@
                         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
                             SalesCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
                     end;
+                }
+                field("Fattura Document Type"; "Fattura Document Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the value to export in TipoDocument XML node of the Fattura document.';
                 }
                 field("Fattura Project Code"; "Fattura Project Code")
                 {

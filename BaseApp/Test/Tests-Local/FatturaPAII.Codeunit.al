@@ -45,7 +45,7 @@ codeunit 144202 "FatturaPA II"
         // [FEATURE] [Sales] [Invoice] [Shipment]
         // [SCENARIO 284632] DatiGenerali has node DatiDDT with information about shipment lines after posting Sales Invoice
         Initialize;
-        CustomerNo := CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer;
 
         // [GIVEN] Posted shipments "A" and "B" coming from separate Sales Orders where first sales order has one lines and second sales order has three lines
         // [GIVEN] "SO1" has one Sales Line, "SO2" has two Sales Lines.
@@ -78,7 +78,7 @@ codeunit 144202 "FatturaPA II"
         // [FEATURE] [Service] [Invoice] [Shipment]
         // [SCENARIO 284632] DatiGenerali has node DatiDDT with information about shipment lines after posting Service Invoice
         Initialize;
-        CustomerNo := CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer;
 
         // [GIVEN] Posted shipments "A" and "B" coming from separate Service Orders where first service order has "X" lines and second sales order has "Y" lines
         // [GIVEN] "SO1" has one Service Line, "SO2" has two Service Lines.
@@ -111,7 +111,7 @@ codeunit 144202 "FatturaPA II"
         // [SCENARIO 288977] DatiGenerali has node DatiDDT with information about shipment lines after posting Sales Order
 
         Initialize;
-        CustomerNo := CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer;
 
         // [GIVEN] Sales Order with "X" lines posted as Ship and Invoice
         CreateAndPostSalesOrder(CustomerNo, LibraryRandom.RandInt(5), true, true);
@@ -139,7 +139,7 @@ codeunit 144202 "FatturaPA II"
         // [SCENARIO 284632] DatiGenerali has node DatiDDT with information about shipment lines after posting Service Order
 
         Initialize;
-        CustomerNo := CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer;
 
         // [GIVEN] Service Order with "X" lines posted as Ship and Invoice
         CreateAndPostServOrder(CustomerNo, LibraryRandom.RandInt(5), true, true);
@@ -167,7 +167,7 @@ codeunit 144202 "FatturaPA II"
         // [SCENARIO 288977] DatiOrdineAcquisto node has information about first shipment after posting Sales Order
 
         Initialize;
-        CustomerNo := CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer;
 
         // [GIVEN] Sales order with "X" lines shipped twice and invoice once
         PostSalesOrderSomeLinesShipped(CustomerNo);
@@ -195,7 +195,7 @@ codeunit 144202 "FatturaPA II"
         // [SCENARIO 288977] DatiOrdineAcquisto node has information about first shipment after posting Service Order
 
         Initialize;
-        CustomerNo := CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer;
 
         // [GIVEN] Service order with "X" lines shipped twice and invoice once
         PostServOrderSomeLinesShipped(CustomerNo);
@@ -326,7 +326,7 @@ codeunit 144202 "FatturaPA II"
         // [GIVEN] Line 1 has "VAT %" = 10, "VAT Amount" = 20
         // [GIVEN] Line 2 has "VAT %" = 10, "VAT Amount" = 30
         // [GIVEN] Line 3 has "VAT %" = 15, "VAT Amount" = 60
-        CustomerNo := CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer;
         CreateSalesDocument(
           SalesHeader, CreatePaymentMethod, CreatePaymentTerms, CustomerNo, SalesHeader."Document Type"::Invoice);
         FindSalesLine(SalesLine, SalesHeader);
@@ -367,7 +367,7 @@ codeunit 144202 "FatturaPA II"
         Initialize;
 
         // [GIVEN] Posted Sales Invoice with VAT Posting Setup with "VAT %" = 0 and "VAT Nature" = "X"
-        CustomerNo := CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer;
         CreateSalesDocWithVATTransNatureAndZeroVATRate(SalesHeader, SalesLine, VATPostingSetup, CustomerNo);
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
@@ -397,7 +397,7 @@ codeunit 144202 "FatturaPA II"
         Initialize;
 
         // [GIVEN] Sales Order posted as shipment
-        CustomerNo := CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer;
         CreateAndPostSalesOrder(CustomerNo, 1, true, false);
 
         // [GIVEN] Sales invoice with shipment lines from sales order and "Customer Purchase Order No." = "X"
@@ -428,7 +428,7 @@ codeunit 144202 "FatturaPA II"
         Initialize;
 
         // [GIVEN] Service Order posted as shipment
-        CustomerNo := CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer;
         CreateAndPostServOrder(CustomerNo, 1, true, false);
 
         // [GIVEN] Service invoice with shipment lines from service order and "Customer Purchase Order No." = "X"
@@ -633,7 +633,7 @@ codeunit 144202 "FatturaPA II"
 
         // [GIVEN] Item with 3 extended texts, each text has length 100
         ItemNo := CreateItemWithMultipleExtendedText;
-        CustomerNo := CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer;
 
         // [GIVEN] Posted Service invoice with two lines - Item and standard text "Y1"
         CreateServDocWithItemAndStandardText(StandardText, ServiceHeader."Document Type"::Invoice, CustomerNo, ItemNo);
@@ -668,7 +668,7 @@ codeunit 144202 "FatturaPA II"
 
         // [GIVEN] Item with 3 extended texts, each text has length 100
         ItemNo := CreateItemWithMultipleExtendedText;
-        CustomerNo := CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer;
 
         // [GIVEN] Posted Service Credit Memo with two lines - Item and standard text "Y1"
         CreateServDocWithItemAndStandardText(StandardText, ServiceHeader."Document Type"::"Credit Memo", CustomerNo, ItemNo);
@@ -705,7 +705,7 @@ codeunit 144202 "FatturaPA II"
         LibraryITLocalization.UpdatePaidInCapitalInCompanyInformation(PaidInCapital);
 
         // [GIVEN] Posted Sales Invoice
-        CustomerNo := CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer;
         CreateSalesDocument(
           SalesHeader, CreatePaymentMethod, CreatePaymentTerms, CustomerNo, SalesHeader."Document Type"::Invoice);
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -928,7 +928,7 @@ codeunit 144202 "FatturaPA II"
         Initialize;
 
         // [GIVEN] Posted Sales Invoice with VAT Posting Setup with "VAT %" = 0 and "VAT Identifier" with description "X"
-        CustomerNo := CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer;
         CreateSalesDocWithVATTransNatureAndZeroVATRate(SalesHeader, SalesLine, VATPostingSetup, CustomerNo);
         SetVATIdentifierInSalesLine(SalesLine);
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -969,7 +969,7 @@ codeunit 144202 "FatturaPA II"
         UpdatePurchasesPayablesSetupVATExemptionNos(LibraryERM.CreateNoSeriesCode);
 
         // [GIVEN] Posted Sales Invoice with VAT Posting Setup with "VAT %" = 0, "VAT Identifier" with description "X", "VAT Exemption No." = "Y" and "VAT Exemption Date" = 01.02.2019 (dd.mm.yyyy format)
-        CustomerNo := CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer;
         CreateVATExemptionForCustomer(VATExemption, CustomerNo);
         CreateSalesDocWithVATTransNatureAndZeroVATRate(SalesHeader, SalesLine, VATPostingSetup, CustomerNo);
         SetVATIdentifierInSalesLine(SalesLine);
@@ -1020,7 +1020,7 @@ codeunit 144202 "FatturaPA II"
         UpdatePurchasesPayablesSetupVATExemptionNos(LibraryERM.CreateNoSeriesCode);
 
         // [GIVEN] Posted Sales Invoice with VAT Posting Setup with "VAT %" = 0, "VAT Identifier" with description "X", "VAT Exemption No." = "Y", "Consecutive VAT Exempt. No." = "001" and "VAT Exemption Date" = 01.02.2019 (dd.mm.yyyy format)
-        CustomerNo := CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer;
         CreateVATExemptionForCustomer(VATExemption, CustomerNo);
         VATExemption.Validate("Consecutive VAT Exempt. No.", LibraryUtility.GenerateGUID);
         VATExemption.Modify(true);
@@ -1104,7 +1104,7 @@ codeunit 144202 "FatturaPA II"
         Initialize;
 
         // [GIVEN] Item with multiple extended texts
-        CustomerNo := CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer;
         ItemNo := CreateItemWithMultipleExtendedText;
 
         // [GIVEN] Posted Service Order with Item and extended texts as Shipment
@@ -1173,7 +1173,7 @@ codeunit 144202 "FatturaPA II"
         // [SCENARIO 295878] No DatiOrdineAcquisto node if only one shipment was posted
 
         Initialize;
-        CustomerNo := CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer;
 
         // [GIVEN] Sales order with one line shipped
         PostSalesOrderOneLineShipped(CustomerNo);
@@ -1204,7 +1204,7 @@ codeunit 144202 "FatturaPA II"
         Initialize;
 
         // [GIVEN] Posted sales invoice with two lines with Amounts 100, -100 (total zero)
-        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer);
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibraryITLocalization.CreateCustomer);
         LineAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
         CreateSalesLine(SalesLine[1], SalesHeader, LineAmount);
         CreateSalesLine(SalesLine[2], SalesHeader, -LineAmount);
@@ -1243,7 +1243,7 @@ codeunit 144202 "FatturaPA II"
 
         ItemNo := CreateItemWithMultipleExtendedText;
 
-        // [GIVEN] Posted Sales invoice with standard text containing '¬' character
+        // [GIVEN] Posted Sales invoice with standard text containing 'ú' character
         CreateSalesDocWithItemAndExtendedText(SalesHeader, SalesHeader."Document Type"::Invoice, ItemNo);
         CreateStandardText(StandardText);
         EuroChar := 8364;
@@ -1389,7 +1389,7 @@ codeunit 144202 "FatturaPA II"
         Initialize;
 
         // [GIVEN] Posted Sales Invoice with Quantity = 2.33333
-        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer);
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibraryITLocalization.CreateCustomer);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(100, 5));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
@@ -1566,6 +1566,69 @@ codeunit 144202 "FatturaPA II"
         VerifyImponibileImportoNodes(ServerFileName, VATAmount);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure RiferimentoNumeroLineaNodeDoesNotExistUnderSalesDatiDDTNodeWithSingleShipment()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ElectronicDocumentFormat: Record "Electronic Document Format";
+        PostedInvNo: Code[20];
+        CustomerNo: Code[20];
+        ServerFileName: Text[250];
+        ClientFileName: Text[250];
+    begin
+        // [FEATURE] [Sales] [Invoice] [Shipment]
+        // [SCENARIO 355434] RiferimentoNumeroLinea xml node does not exist under the DatiDDT xml node after posting Sales Invoice with the single shipment
+
+        Initialize();
+        CustomerNo := LibraryITLocalization.CreateCustomer();
+
+        // [GIVEN] Posted sales order posted as shipment
+        CreateAndPostSalesOrder(CustomerNo, 1, true, false);
+
+        // [GIVEN] Posted sales Invoice with shipment
+        PostedInvNo := CreateSalesInvFromShipment(CustomerNo);
+
+        // [WHEN] The document is exported to FatturaPA.
+        SalesInvoiceHeader.SetRange("No.", PostedInvNo);
+        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+          ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] RiferimentoNumeroLinea does not exist in the exported file
+        VerifyNoRiferimentoNumeroLineaNodeExists(ServerFileName);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RiferimentoNumeroLineaNodeDoesNotExistUnderServDatiDDTNodeWithSingleShipment()
+    var
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        ElectronicDocumentFormat: Record "Electronic Document Format";
+        CustomerNo: Code[20];
+        ServerFileName: Text[250];
+        ClientFileName: Text[250];
+    begin
+        // [FEATURE] [Service] [Invoice] [Shipment]
+        // [SCENARIO 355434] RiferimentoNumeroLinea xml node does not exist under the DatiDDT xml node after posting Service Invoice with the single shipment
+
+        Initialize();
+        CustomerNo := LibraryITLocalization.CreateCustomer();
+
+        // [GIVEN] Posted service order posted as shipment
+        CreateAndPostServOrder(CustomerNo, 1, true, false);
+
+        // [GIVEN] Posted service Invoice with shipment"
+        CreateServInvFromShipment(ServiceInvoiceHeader, CustomerNo);
+
+        // [WHEN] The document is exported to FatturaPA.
+        ServiceInvoiceHeader.SetRange("No.", ServiceInvoiceHeader."No.");
+        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+          ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] RiferimentoNumeroLinea does not exist in the exported file
+        VerifyNoRiferimentoNumeroLineaNodeExists(ServerFileName);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -1592,7 +1655,7 @@ codeunit 144202 "FatturaPA II"
         SalesHeader: Record "Sales Header";
         CustomerNo: Code[20];
     begin
-        CustomerNo := CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer;
         CreateSalesDocument(
           SalesHeader, PaymentMethodCode, PaymentTermsCode, CustomerNo, SalesHeader."Document Type"::Invoice);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
@@ -1626,7 +1689,7 @@ codeunit 144202 "FatturaPA II"
         SalesLine: Record "Sales Line";
         TransferExtendedText: Codeunit "Transfer Extended Text";
     begin
-        CreateSalesHeader(SalesHeader, DocType, CreateCustomer);
+        CreateSalesHeader(SalesHeader, DocType, LibraryITLocalization.CreateCustomer);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(100));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
@@ -1653,7 +1716,7 @@ codeunit 144202 "FatturaPA II"
         VATProductPostingGroup: Record "VAT Product Posting Group";
         i: Integer;
     begin
-        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer);
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibraryITLocalization.CreateCustomer);
         for i := 1 to ArrayLen(VATPostingSetup) do begin
             LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
             LibraryERM.CreateVATPostingSetup(VATPostingSetup[1], SalesHeader."VAT Bus. Posting Group", VATProductPostingGroup.Code);
@@ -1675,7 +1738,7 @@ codeunit 144202 "FatturaPA II"
         SalesLine: Record "Sales Line";
         TransferExtendedText: Codeunit "Transfer Extended Text";
     begin
-        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibraryITLocalization.CreateCustomer);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(100));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
@@ -1696,7 +1759,7 @@ codeunit 144202 "FatturaPA II"
         SalesLine: Record "Sales Line";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        CreateSalesHeader(SalesHeader, DocType, CreateCustomer);
+        CreateSalesHeader(SalesHeader, DocType, LibraryITLocalization.CreateCustomer);
         LibraryInventory.CreateItem(Item);
         VATPostingSetup.Get(SalesHeader."VAT Bus. Posting Group", Item."VAT Prod. Posting Group");
         VATPostingSetup.Validate("VAT %", 22);
@@ -1777,7 +1840,7 @@ codeunit 144202 "FatturaPA II"
         VATPostingSetup: Record "VAT Posting Setup";
         ServiceItem: Record "Service Item";
     begin
-        CreateServiceHeader(ServiceHeader, DocType, CreateCustomer);
+        CreateServiceHeader(ServiceHeader, DocType, LibraryITLocalization.CreateCustomer);
         LibraryInventory.CreateItem(Item);
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         VATPostingSetup.Get(ServiceHeader."VAT Bus. Posting Group", Item."VAT Prod. Posting Group");
@@ -1849,21 +1912,11 @@ codeunit 144202 "FatturaPA II"
         LibraryService.PostServiceOrder(ServiceHeader, Ship, false, Invoice);
     end;
 
-    local procedure CreateCustomer(): Code[20]
-    var
-        Customer: Record Customer;
-    begin
-        // Public Company Customer
-        exit(
-          LibraryITLocalization.CreateFatturaCustomerNo(
-            CopyStr(LibraryUtility.GenerateRandomCode(Customer.FieldNo("PA Code"), DATABASE::Customer), 1, 6)));
-    end;
-
     local procedure CreateCustomerWithPmtSetup(): Code[20]
     var
         Customer: Record Customer;
     begin
-        Customer.Get(CreateCustomer);
+        Customer.Get(LibraryITLocalization.CreateCustomer);
         Customer.Validate("Payment Method Code", CreatePaymentMethod);
         Customer.Validate("Payment Terms Code", CreatePaymentTerms);
         Customer.Modify(true);
@@ -2160,7 +2213,7 @@ codeunit 144202 "FatturaPA II"
         UnitPrice: Decimal;
     begin
         CreateSalesDocument(
-          SalesHeader, CreatePaymentMethod, CreatePaymentTerms, CreateCustomer, DocType);
+          SalesHeader, CreatePaymentMethod, CreatePaymentTerms, LibraryITLocalization.CreateCustomer, DocType);
         FindSalesLine(SalesLine, SalesHeader);
         VATAmount[1] := SalesLine.Amount;
         UnitPrice := SalesLine."Unit Price";
@@ -2476,6 +2529,16 @@ codeunit 144202 "FatturaPA II"
         AssertElementValue(TempXMLBuffer, 'NumeroDDT', ShipmentNo);
         AssertElementValue(TempXMLBuffer, 'DataDDT', FormatDate(ShipmentDate));
         AssertElementValue(TempXMLBuffer, 'RiferimentoNumeroLinea', Format(LineNumber));
+    end;
+
+    local procedure VerifyNoRiferimentoNumeroLineaNodeExists(ServerFileName: Text[250])
+    var
+        TempXMLBuffer: Record "XML Buffer" temporary;
+    begin
+        TempXMLBuffer.Load(ServerFileName);
+        TempXMLBuffer.FindNodesByXPath(
+          TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiDDT/RiferimentoNumeroLinea');
+        Assert.IsTrue(TempXMLBuffer.IsEmpty(), 'RiferimentoNumeroLinea xml node exists');
     end;
 
     local procedure VerifyIDCodiceNode(ServerFileName: Text[250]; ExpectedValue: Text)

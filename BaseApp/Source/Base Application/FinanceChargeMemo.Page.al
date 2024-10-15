@@ -87,7 +87,6 @@
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
-                    Visible = false;
                 }
             }
             part(FinChrgMemoLines; "Finance Charge Memo Lines")

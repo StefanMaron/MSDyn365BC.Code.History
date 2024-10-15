@@ -1,5 +1,6 @@
 codeunit 144016 "IT - SEPA.03 CT Unit Test"
 {
+    EventSubscriberInstance = Manual;
     Subtype = Test;
     TestPermissions = Disabled;
 
@@ -16,6 +17,8 @@ codeunit 144016 "IT - SEPA.03 CT Unit Test"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+        FileManagement: Codeunit "File Management";
+        LibraryTextFileValidation: Codeunit "Library - Text File Validation";
         PaymentExportSetupCode: Code[20];
         FieldBlankErr: Label 'The Recipient Bank Account field must be filled.', Comment = '%1=table name, %2=field name. Example: Customer must have a value in Name.';
         LegacyExpError: Label 'The value "" can''t be evaluated into type Integer.';
@@ -341,6 +344,68 @@ codeunit 144016 "IT - SEPA.03 CT Unit Test"
         VerifyPmtExportRmtText(TempPaymentExportData, ExpectedText);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure ReportVendorBillsFloppyPrintVendorsName()
+    var
+        BankExportImportSetup: Record "Bank Export/Import Setup";
+        VendorBillHeader: Record "Vendor Bill Header";
+        TempVendorBillLine: Record "Vendor Bill Line" temporary;
+        BankAccount: Record "Bank Account";
+        Vendor: Record Vendor;
+        ABICABCodes: Record "ABI/CAB Codes";
+        VendorBankAccount: Record "Vendor Bank Account";
+        VendorBillsFloppy: Report "Vendor Bills Floppy";
+        ITSEPA03CTUnitTest: Codeunit "IT - SEPA.03 CT Unit Test";
+        FileName: Text;
+        DirectoryPath: Text;
+        TextLine: Text;
+        Name1: Text;
+        Name2: Text;
+    begin
+        // [GIVEN] Vendor Bill with Bank Import/Export Setup = Codeunit::"Vendor Bills Floppy"
+        CreateBankExportImportSetup(BankExportImportSetup, CODEUNIT::"Vendor Bills Floppy", 0);
+        CreateVendorBill(VendorBillHeader, TempVendorBillLine, BankExportImportSetup.Code, false);
+
+        // [GIVEN] Setup ABI, CAB and IBAN for Banc Account
+        BankAccount.Get(VendorBillHeader."Bank Account No.");
+        CreateAbiCabCode(ABICABCodes);
+        BankAccount.Validate(ABI, ABICABCodes.ABI);
+        BankAccount.Validate(CAB, ABICABCodes.CAB);
+        BankAccount.Validate(IBAN, LibraryUtility.GenerateGUID);
+        BankAccount.Modify(true);
+
+        // [GIVEN] Setup ABI, CAB and IBAN for Vendor Banc Account
+        VendorBankAccount.Get(TempVendorBillLine."Vendor No.", TempVendorBillLine."Vendor Bank Acc. No.");
+        VendorBankAccount.Validate(ABI, ABICABCodes.ABI);
+        VendorBankAccount.Validate(CAB, ABICABCodes.CAB);
+        VendorBankAccount.Validate(IBAN, LibraryUtility.GenerateGUID);
+        VendorBankAccount.Modify(true);
+
+        // [GIVEN] Setup Name and Name2 for Vendor
+        Name1 := LibraryRandom.RandText(30);
+        Name2 := LibraryRandom.RandText(30);
+        Vendor.Get(TempVendorBillLine."Vendor No.");
+        Vendor.Validate(Name, Format(Name1, 30));
+        Vendor.Validate("Name 2", Format(Name2, 30));
+        Vendor.Modify(true);
+
+        // [WHEN] Run report 12175 "Vendor Bills Floppy"
+        BindSubscription(ITSEPA03CTUnitTest);
+        VendorBillHeader.SetRecFilter();
+        VendorBillsFloppy.UseRequestPage := false;
+        VendorBillsFloppy.SetTableView(VendorBillHeader);
+        VendorBillsFloppy.Run();
+        ITSEPA03CTUnitTest.DequeueFileName(FileName);
+
+        // [THEN] SixthLine of created file contain Vendor.Name and Vendor."Name 2"
+        TextLine := LibraryTextFileValidation.FindLineWithValue(FileName, 11, 30, Vendor.Name);
+        Assert.AreEqual(CopyStr(TextLine, 11, 30), Vendor.Name, '');
+        Assert.AreEqual(CopyStr(TextLine, 41, 30), Vendor."Name 2", '');
+        ITSEPA03CTUnitTest.AssertVariableStorageIsEmpty();
+    end;
+
     local procedure FillExportBuffer(PaymentDocNo: Code[20]; var PaymentExportData: Record "Payment Export Data")
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -428,6 +493,24 @@ codeunit 144016 "IT - SEPA.03 CT Unit Test"
         BankExportImportSetup.Insert;
     end;
 
+    local procedure CreateAbiCabCode(var ABICABCodes: Record "ABI/CAB Codes")
+    begin
+        ABICABCodes.Init;
+        ABICABCodes.Validate(ABI, LibraryUtility.GenerateRandomCode(ABICABCodes.FieldNo(ABI), DATABASE::"ABI/CAB Codes"));
+        ABICABCodes.Validate(CAB, LibraryUtility.GenerateRandomCode(ABICABCodes.FieldNo(CAB), DATABASE::"ABI/CAB Codes"));
+        ABICABCodes.Insert(true);
+    end;
+
+    procedure DequeueFileName(var FileName: Text)
+    begin
+        FileName := LibraryVariableStorage.DequeueText;
+    end;
+
+    procedure AssertVariableStorageIsEmpty()
+    begin
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     [Normal]
     local procedure VerifyPaymentExportData(var TempVendorBillLine: Record "Vendor Bill Line" temporary; PaymentExportData: Record "Payment Export Data"; VendorBillHeader: Record "Vendor Bill Header")
     begin
@@ -473,6 +556,20 @@ codeunit 144016 "IT - SEPA.03 CT Unit Test"
         PaymentExportData.GetRemittanceTexts(TempPaymentExportRemittanceText);
         TempPaymentExportRemittanceText.FindFirst;
         Assert.ExpectedMessage(ExpectedText, TempPaymentExportRemittanceText.Text);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, 419, 'OnBeforeDownloadHandler', '', false, false)]
+    local procedure SetFileNameOnBeforeDownloadHandler(var ToFolder: Text; ToFileName: Text; FromFileName: Text; var IsHandled: Boolean)
+    begin
+        LibraryVariableStorage.Enqueue(FromFileName);
+        IsHandled := true;
     end;
 }
 

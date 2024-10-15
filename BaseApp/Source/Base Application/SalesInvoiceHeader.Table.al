@@ -797,6 +797,11 @@ table 112 "Sales Invoice Header"
         {
             Caption = 'Fattura Stamp Amount';
         }
+        field(12187; "Fattura Document Type"; Code[20])
+        {
+            Caption = 'Fattura Document Type';
+            TableRelation = "Fattura Document Type";
+        }
         field(12190; "Document Remaining Amount"; Decimal)
         {
             AutoFormatExpression = "Currency Code";

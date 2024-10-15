@@ -21,11 +21,11 @@ report 12177 "Suggest Vendor Bills"
                 if UseSameABICode then begin
                     if "Recipient Bank Account" <> '' then begin
                         VendBankAcc.Get("Vendor No.", "Recipient Bank Account");
-                        if BankAccount.ABI = VendBankAcc.ABI then;
-                        CreateLine;
+                        if BankAccount.ABI = VendBankAcc.ABI then
+                            CreateLine();
                     end
                 end else
-                    CreateLine;
+                    CreateLine();
             end;
 
             trigger OnPreDataItem()

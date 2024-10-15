@@ -111,6 +111,7 @@ page 1560 "Report Settings"
                 trigger OnAction()
                 var
                     ObjectOptions: Record "Object Options";
+                    CustomLayoutReporting: Codeunit "Custom Layout Reporting";
                     PickReport: Page "Pick Report";
                     OptionDataTxt: Text;
                 begin
@@ -119,6 +120,7 @@ page 1560 "Report Settings"
                         exit;
 
                     PickReport.GetObjectOptions(ObjectOptions);
+                    OptionDataTxt := CustomLayoutReporting.GetReportRequestPageParameters(ObjectOptions."Object ID");
                     OptionDataTxt := REPORT.RunRequestPage(ObjectOptions."Object ID", OptionDataTxt);
                     if OptionDataTxt <> '' then begin
                         UpdateOptionData(ObjectOptions, OptionDataTxt);

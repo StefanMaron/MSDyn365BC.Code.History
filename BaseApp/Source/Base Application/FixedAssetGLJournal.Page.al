@@ -390,7 +390,6 @@
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
-                    Visible = false;
                 }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {

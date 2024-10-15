@@ -12,8 +12,8 @@ codeunit 12182 "Datifattura Export"
         ErrorMessage.SetContext(Rec);
         ErrorMessage.ClearLog;
 
-        CompanyInfo.Get;
-        VATReportSetup.Get;
+        CompanyInfo.Get();
+        VATReportSetup.Get();
 
         case "VAT Report Type" of
             "VAT Report Type"::Standard:
@@ -132,8 +132,9 @@ codeunit 12182 "Datifattura Export"
         CessionarioCommittenteDTELoop: Integer;
         PrevDocumentType: Option;
         PrevDocumentNo: Code[20];
+        PrevBillToPayToNo: Code[20];
     begin
-        VATReportLine.SetCurrentKey("Document Type", "Document No.");
+        VATReportLine.SetCurrentKey("Document Type", "Document No.", "Bill-to/Pay-to No.");
         VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
         VATReportLine.SetRange("Incl. in Report", true);
 
@@ -150,11 +151,15 @@ codeunit 12182 "Datifattura Export"
                 ExportCompInfo(XMLRootNode, 'CedentePrestatoreDTE', 'DTE');
                 PrevDocumentType := VATReportLine."Document Type"::" ";
                 PrevDocumentNo := '';
+                PrevBillToPayToNo := '';
                 repeat
                     // CessionarioCommittenteDTE node
-                    if (VATReportLine."Document Type" <> PrevDocumentType) or (VATReportLine."Document No." <> PrevDocumentNo) then begin
+                    if (VATReportLine."Document Type" <> PrevDocumentType) or (VATReportLine."Document No." <> PrevDocumentNo) or
+                       (VATReportLine."Bill-to/Pay-to No." <> PrevBillToPayToNo)
+                    then begin
                         PrevDocumentType := VATReportLine."Document Type";
                         PrevDocumentNo := VATReportLine."Document No.";
+                        PrevBillToPayToNo := VATReportLine."Bill-to/Pay-to No.";
                         CessionarioCommittenteDTECount += 1;
                         ExportSaleInvoiceCustAndInvInfo(VATReportLine, XMLRootNode, DatiFatturaBodyDTEXmlNode);
                     end;
@@ -179,11 +184,15 @@ codeunit 12182 "Datifattura Export"
                 ExportCompInfo(XMLRootNode, 'CessionarioCommittenteDTR', 'DTR');
                 PrevDocumentType := VATReportLine."Document Type"::" ";
                 PrevDocumentNo := '';
+                PrevBillToPayToNo := '';
                 repeat
                     // CessionarioCommittenteDTE node
-                    if (VATReportLine."Document Type" <> PrevDocumentType) or (VATReportLine."Document No." <> PrevDocumentNo) then begin
+                    if (VATReportLine."Document Type" <> PrevDocumentType) or (VATReportLine."Document No." <> PrevDocumentNo) or
+                       (VATReportLine."Bill-to/Pay-to No." <> PrevBillToPayToNo)
+                    then begin
                         PrevDocumentType := VATReportLine."Document Type";
                         PrevDocumentNo := VATReportLine."Document No.";
+                        PrevBillToPayToNo := VATReportLine."Bill-to/Pay-to No.";
                         CessionarioCommittenteDTECount += 1;
                         ExportPurchInvoiceVendAndInvInfo(VATReportLine, XMLRootNode, DatiFatturaBodyDTEXmlNode);
                     end;

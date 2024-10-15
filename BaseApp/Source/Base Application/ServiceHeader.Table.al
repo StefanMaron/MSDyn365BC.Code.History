@@ -163,6 +163,7 @@ table 5900 "Service Header"
                 CustBankAccount: Record "Customer Bank Account";
                 CustCheckCrLimit: Codeunit "Cust-Check Cr. Limit";
                 ConfirmManagement: Codeunit "Confirm Management";
+                FatturaDocHelper: Codeunit "Fattura Doc. Helper";
                 IsHandled: Boolean;
             begin
                 if (xRec."Bill-to Customer No." <> "Bill-to Customer No.") and
@@ -244,6 +245,8 @@ table 5900 "Service Header"
                     "Bank Account" := CustBankAccount.Code
                 else
                     "Bank Account" := '';
+
+                FatturaDocHelper.UpdateFatturaDocTypeInServDoc(Rec);
             end;
         }
         field(5; "Bill-to Name"; Text[100])
@@ -2615,6 +2618,11 @@ table 5900 "Service Header"
         field(12186; "Fattura Stamp Amount"; Decimal)
         {
             Caption = 'Fattura Stamp Amount';
+        }
+        field(12187; "Fattura Document Type"; Code[20])
+        {
+            Caption = 'Fattura Document Type';
+            TableRelation = "Fattura Document Type";
         }
     }
 

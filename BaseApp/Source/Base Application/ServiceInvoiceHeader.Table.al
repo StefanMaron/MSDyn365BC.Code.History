@@ -848,6 +848,11 @@ table 5992 "Service Invoice Header"
         {
             Caption = 'Fattura Stamp Amount';
         }
+        field(12187; "Fattura Document Type"; Code[20])
+        {
+            Caption = 'Fattura Document Type';
+            TableRelation = "Fattura Document Type";
+        }
     }
 
     keys

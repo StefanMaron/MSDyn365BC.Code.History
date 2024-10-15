@@ -136,7 +136,6 @@ page 12152 "Subcontracting Order"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
-                    Visible = false;
                 }
                 field("Check Total"; "Check Total")
                 {

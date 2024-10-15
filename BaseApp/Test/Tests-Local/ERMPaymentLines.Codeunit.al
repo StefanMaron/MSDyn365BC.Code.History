@@ -1359,6 +1359,75 @@ codeunit 144164 "ERM Payment Lines"
         VerifyRemainingAmountOnSalesInvoice(SalesInvoiceHeader."No.", DocumentAmount + PaymentAmount);
     end;
 
+    [Test]
+    [HandlerFunctions('SuggestVendorBillsRPH,ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure SuggestVendorBillsRespectsUseSameCode()
+    var
+        Bill: Record Bill;
+        PaymentMethod: Record "Payment Method";
+        PurchaseHeader: Record "Purchase Header";
+        Vendor: array[2] of Record Vendor;
+        VendorBillHeader: Record "Vendor Bill Header";
+        VendorBillLine: Record "Vendor Bill Line";
+        SuggestVendorBills: Report "Suggest Vendor Bills";
+        ABICodes: array[2] of Code[5];
+        BankAccountNo: Code[20];
+        i: Integer;
+    begin
+        // [FEATURE] [Invoice] [Bill]
+        // [SCENARIO 352490] When "Use same ABI code" option is selected on Suggest Vendor Bills it only works for vendors with same ABI code
+        Initialize;
+
+        // [GIVEN] Two ABI Codes "C1" and "C2"
+        ABICodes[1] := CreateABICodeInRange(10000, 20000);
+        ABICodes[2] := CreateABICodeInRange(30000, 40000);
+
+        // [GIVEN] Bank "B1" with ABI Code "C1"
+        BankAccountNo := CreateBankAccountWithABICode(ABICodes[1]);
+
+        // [GIVEN] Payment Method with Bill code was created
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+        LibraryITLocalization.CreateBill(Bill);
+        PaymentMethod.Validate("Bill Code", Bill.Code);
+        PaymentMethod.Modify(true);
+
+        // [GIVEN] Vendor "V1" with Bank "B2" with ABI Code "C1"
+        CreateVendorWithABICodeAndPaymentMethod(Vendor[1], ABICodes[1], PaymentMethod.Code);
+
+        // [GIVEN] Vendor "V2" with Bank "B3" with ABI Code "C2"
+        CreateVendorWithABICodeAndPaymentMethod(Vendor[2], ABICodes[2], PaymentMethod.Code);
+
+        // [GIVEN] Purchase invoices posted for both vendors
+        for i := 1 to ArrayLen(Vendor) do begin
+            LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, Vendor[i]."No.");
+            LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+        end;
+
+        // [GIVEN] Vendor bill header with payment code for Bank "B1" was created
+        CreateVendorBillHeader(VendorBillHeader, PaymentMethod.Code);
+        VendorBillHeader.Validate("Bank Account No.", BankAccountNo);
+        VendorBillHeader.Modify(true);
+
+        // [WHEN] Suggest Vendor Bills report is ran for Vendor bill header with "Use same ABI code" = TRUE
+        SuggestVendorBills.InitValues(VendorBillHeader);
+        LibraryVariableStorage.Enqueue(true);
+        Commit;
+        SuggestVendorBills.Run;
+        // UI handled by SuggestVendorBillsUIHandler
+
+        // [THEN] Vendor bill line for "V1" exists
+        VendorBillLine.SetRange("Vendor Bill List No.", VendorBillHeader."No.");
+        VendorBillLine.SetRange("Vendor No.", Vendor[1]."No.");
+        Assert.RecordIsNotEmpty(VendorBillLine);
+
+        // [THEN] Vendor bill line for "V2" does not exist
+        VendorBillLine.SetRange("Vendor No.", Vendor[2]."No.");
+        Assert.RecordIsEmpty(VendorBillLine);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -1521,11 +1590,34 @@ codeunit 144164 "ERM Payment Lines"
         exit(GLAccount."No.");
     end;
 
+    local procedure CreateABICodeInRange("Min": Integer; "Max": Integer): Code[5]
+    var
+        ABICodes: Record "ABI/CAB Codes";
+        ABICode: Code[5];
+    begin
+        ABICode := Format(LibraryRandom.RandIntInRange(Min, Max));
+        ABICodes.Init;
+        ABICodes.ABI := ABICode;
+        ABICodes.CAB := ABICode;
+        if ABICodes.Insert then;
+        exit(ABICode);
+    end;
+
     local procedure CreateBankAccount(): Code[20]
     var
         BankAccount: Record "Bank Account";
     begin
         LibraryERM.CreateBankAccount(BankAccount);
+        exit(BankAccount."No.");
+    end;
+
+    local procedure CreateBankAccountWithABICode(ABICode: Code[5]): Code[20]
+    var
+        BankAccount: Record "Bank Account";
+    begin
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount.Validate(ABI, ABICode);
+        BankAccount.Modify(true);
         exit(BankAccount."No.");
     end;
 
@@ -1622,6 +1714,18 @@ codeunit 144164 "ERM Payment Lines"
         ServiceLine.Validate(Quantity, LibraryRandom.RandDecInRange(100, 500, 2));  // Use Random value for Quantity
         ServiceLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 500, 2));  // Use Random value for Unit Price
         ServiceLine.Modify(true);
+    end;
+
+    local procedure CreateVendorWithABICodeAndPaymentMethod(var Vendor: Record Vendor; ABICode: Code[5]; PaymentMethodCode: Code[10])
+    var
+        VendorBankAccount: Record "Vendor Bank Account";
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
+        VendorBankAccount.Validate(ABI, ABICode);
+        VendorBankAccount.Modify(true);
+        Vendor.Validate("Payment Method Code", PaymentMethodCode);
+        Vendor.Modify(true);
     end;
 
     local procedure CreateVendorBillHeader(var VendorBillHeader: Record "Vendor Bill Header"; PaymentMethodCode: Code[10])
@@ -1998,6 +2102,14 @@ codeunit 144164 "ERM Payment Lines"
     procedure RecallNotificationHandler(var TheNotification: Notification): Boolean
     begin
         exit(true);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SuggestVendorBillsRPH(var SuggestVendorBills: TestRequestPage "Suggest Vendor Bills")
+    begin
+        SuggestVendorBills.UseSameABICode.SetValue(LibraryVariableStorage.DequeueBoolean);
+        SuggestVendorBills.OK.Invoke;
     end;
 }
 

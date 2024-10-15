@@ -986,7 +986,7 @@ codeunit 333 "Req. Wksh.-Make Order"
               "Worksheet Template Name", "Journal Batch Name", "Vendor No.",
               "Sell-to Customer No.", "Ship-to Code", "Order Address Code", "Currency Code",
               "Ref. Order Type", "Ref. Order Status", "Ref. Order No.",
-              "Location Code", "Transfer-from Code", "Purchasing Code");
+              "Transfer-from Code", "Purchasing Code");
     end;
 
     local procedure CheckAddressDetails(SalesOrderNo: Code[20]; SalesLineNo: Integer; UpdateAddressDetails: Boolean) Result: Boolean

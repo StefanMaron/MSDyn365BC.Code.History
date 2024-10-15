@@ -109,7 +109,7 @@ report 12175 "Vendor Bills Floppy"
     trigger OnPostReport()
     begin
         OutFile.Close;
-        Download(FileName, '', 'C:', '', ToFile);
+        RBMgt.DownloadHandler(FileName, '', 'C:', '', ToFile);
     end;
 
     trigger OnPreReport()
@@ -342,8 +342,7 @@ report 12175 "Vendor Bills Floppy"
         with Lines do begin
             OutText := ' 30' + ConvertStr(Format(TransfProgr, 7), ' ', '0');
 
-            OutText := OutText +
-              CopyStr(Dummy, 11, 90);
+            OutText := OutText + Format(Vendor.Name, 30) + Format(Vendor."Name 2", 30) + CopyStr(Dummy, 71, 30);
 
             if Vendor."VAT Registration No." <> '' then
                 OutText := OutText + Format(Vendor."VAT Registration No.", 16)

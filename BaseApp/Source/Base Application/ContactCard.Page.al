@@ -37,10 +37,9 @@ page 5050 "Contact Card"
                     var
                         Contact: Record Contact;
                     begin
-                        if "No." = '' then begin
-                            Insert(true);
-                            Commit();
-                        end;
+                        CurrPage.SaveRecord();
+                        Commit();
+
                         Contact := Rec;
                         Contact.SetRecFilter;
                         if Contact.Type = Contact.Type::Person then begin
@@ -84,7 +83,10 @@ page 5050 "Contact Card"
 
                     trigger OnAssistEdit()
                     begin
-                        LookupCompany;
+                        CurrPage.SaveRecord();
+                        Commit();
+                        LookupCompany();
+                        CurrPage.Update(false);
                     end;
                 }
                 field(IntegrationCustomerNo; IntegrationCustomerNo)

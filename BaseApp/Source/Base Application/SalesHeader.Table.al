@@ -151,6 +151,8 @@ table 36 "Sales Header"
             TableRelation = Customer;
 
             trigger OnValidate()
+            var
+                FatturaDocHelper: Codeunit "Fattura Doc. Helper";
             begin
                 TestStatusOpen;
                 BilltoCustomerNoChanged := xRec."Bill-to Customer No." <> "Bill-to Customer No.";
@@ -237,6 +239,8 @@ table 36 "Sales Header"
                    (xRec."Bill-to Customer No." <> "Bill-to Customer No.")
                 then
                     SetOperationType;
+
+                FatturaDocHelper.UpdateFatturaDocTypeInSalesDoc(Rec);
             end;
         }
         field(5; "Bill-to Name"; Text[100])
@@ -2889,6 +2893,11 @@ table 36 "Sales Header"
         {
             Caption = 'Fattura Stamp Amount';
         }
+        field(12187; "Fattura Document Type"; Code[20])
+        {
+            Caption = 'Fattura Document Type';
+            TableRelation = "Fattura Document Type";
+        }
     }
 
     keys
@@ -3177,6 +3186,7 @@ table 36 "Sales Header"
         StatusCheckSuspended: Boolean;
         ConfirmEmptyEmailQst: Label 'Contact %1 has no email address specified. The value in the Email field on the sales order, %2, will be deleted. Do you want to continue?', Comment = '%1 - Contact No., %2 - Email';
         FullSalesTypesTxt: Label 'Sales Quote,Sales Order,Sales Invoice,Sales Credit Memo,Sales Blanket Order,Sales Return Order';
+        RecreateSalesLinesCancelErr: Label 'You must delete the existing sales lines before you can change %1.', Comment = '%1 - Field Name, Sample: You must delete the existing sales lines before you can change Currency Code.';
 
     procedure InitInsert()
     var
@@ -3619,7 +3629,7 @@ table 36 "Sales Header"
                 TempItemChargeAssgntSales.DeleteAll;
             end;
         end else
-            Rec := xRec;
+            Error(RecreateSalesLinesCancelErr, ChangedFieldName);
 
         SalesLine.BlockDynamicTracking(false);
     end;

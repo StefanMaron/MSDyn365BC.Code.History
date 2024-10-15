@@ -213,7 +213,6 @@
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
-                    Visible = false;
                 }
                 field("Check Total"; "Check Total")
                 {

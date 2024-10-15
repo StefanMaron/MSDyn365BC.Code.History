@@ -109,6 +109,7 @@ codeunit 86 "Sales-Quote to Order"
             if SalesOrderHeader."Document Date" > SalesOrderHeader."Posting Date" then
                 Error(Text1130000, FieldCaption("Document Date"), FieldCaption("Posting Date"));
             SalesOrderHeader.Validate("Operation Type", "Operation Type");
+            SalesOrderHeader."Fattura Document Type" := "Fattura Document Type";
             SalesOrderHeader."Outbound Whse. Handling Time" := "Outbound Whse. Handling Time";
             SalesOrderHeader.Reserve := Reserve;
 

@@ -800,6 +800,11 @@ table 5994 "Service Cr.Memo Header"
         {
             Caption = 'Fattura Stamp Amount';
         }
+        field(12187; "Fattura Document Type"; Code[20])
+        {
+            Caption = 'Fattura Document Type';
+            TableRelation = "Fattura Document Type";
+        }
     }
 
     keys

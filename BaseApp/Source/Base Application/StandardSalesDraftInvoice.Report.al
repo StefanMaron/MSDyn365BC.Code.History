@@ -669,7 +669,8 @@ report 1303 "Standard Sales - Draft Invoice"
             }
             dataitem(VATClauseLine; "VAT Amount Line")
             {
-                UseTemporary = true;
+                DataItemTableView = SORTING("VAT Identifier", "VAT Calculation Type", "Tax Group Code", "Use Tax", Positive);
+				UseTemporary = true;
                 column(VATClausesHeader; VATClausesText)
                 {
                 }

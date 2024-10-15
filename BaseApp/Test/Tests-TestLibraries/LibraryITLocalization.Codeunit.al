@@ -256,6 +256,16 @@ codeunit 143000 "Library - IT Localization"
         exit(PaymentTerms.Code);
     end;
 
+    procedure CreateCustomer(): Code[20]
+    var
+        Customer: Record Customer;
+    begin
+        // Public Company Customer
+        exit(
+          CreateFatturaCustomerNo(
+            CopyStr(LibraryUtility.GenerateRandomCode(Customer.FieldNo("PA Code"), DATABASE::Customer), 1, 6)));
+    end;
+
     procedure CreateFatturaCustomerNo(PACode: Code[7]): Code[20]
     var
         Customer: Record Customer;

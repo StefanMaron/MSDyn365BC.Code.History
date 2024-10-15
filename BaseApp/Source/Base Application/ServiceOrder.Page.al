@@ -195,7 +195,6 @@
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
-                    Visible = false;
                 }
                 field("Assigned User ID"; "Assigned User ID")
                 {
@@ -422,6 +421,11 @@
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the customer''s purchase order.';
+                }
+                field("Fattura Document Type"; "Fattura Document Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the value to export in TipoDocument XML node of the Fattura document.';
                 }
                 field("Fattura Stamp"; "Fattura Stamp")
                 {

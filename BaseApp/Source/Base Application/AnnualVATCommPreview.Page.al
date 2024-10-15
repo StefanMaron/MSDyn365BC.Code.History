@@ -29,7 +29,6 @@ page 12127 "Annual VAT Comm. Preview"
                     Caption = 'Activity Code';
                     TableRelation = "Activity Code".Code;
                     ToolTip = 'Specifies a code that describes a primary activity for the company.';
-                    Visible = false;
 
                     trigger OnValidate()
                     begin

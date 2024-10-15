@@ -165,7 +165,6 @@ page 315 "VAT Entries"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
-                    Visible = false;
                 }
                 field("Service Tariff No."; "Service Tariff No.")
                 {

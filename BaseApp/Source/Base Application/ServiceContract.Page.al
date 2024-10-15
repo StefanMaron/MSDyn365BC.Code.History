@@ -170,7 +170,6 @@ page 6050 "Service Contract"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
-                    Visible = false;
                 }
             }
             part(ServContractLines; "Service Contract Subform")

@@ -36,7 +36,7 @@ codeunit 12179 "Export FatturaPA Document"
         CompanyInformation: Record "Company Information";
         TempXMLBuffer: Record "XML Buffer" temporary;
         FatturaDocHelper: Codeunit "Fattura Doc. Helper";
-        YesTok: Label 'Si', Locked = true;
+        YesTok: Label 'SI', Locked = true;
 
     [Scope('OnPrem')]
     procedure GenerateXMLFile(var TempFatturaLine: Record "Fattura Line" temporary; TempFatturaHeader: Record "Fattura Header" temporary; ClientFileName: Text[250]): Text[250]
@@ -507,7 +507,8 @@ codeunit 12179 "Export FatturaPA Document"
                 AddGroupElement('DatiDDT');
                 AddNonEmptyElement('NumeroDDT', TempFatturaLine."Document No.");
                 AddNonEmptyElement('DataDDT', FormatDate(TempFatturaLine."Posting Date"));
-                AddNonEmptyElement('RiferimentoNumeroLinea', Format(TempFatturaLine."Related Line No."));
+                if TempFatturaLine."Related Line No." <> 0 then
+                    AddNonEmptyElement('RiferimentoNumeroLinea', Format(TempFatturaLine."Related Line No."));
                 GetParent;
             until TempFatturaLine.Next = 0;
         end;

@@ -221,7 +221,6 @@
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
-                    Visible = false;
                 }
                 field("Job Queue Status"; "Job Queue Status")
                 {

@@ -173,7 +173,6 @@
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
-                    Visible = false;
                 }
                 field(Status; Status)
                 {
