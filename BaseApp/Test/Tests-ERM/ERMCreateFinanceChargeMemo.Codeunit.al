@@ -435,6 +435,58 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerVerifyMsg,IssuedFinChargeMemosRPH')]
+    [Scope('OnPrem')]
+    procedure IssueFinChargeMemoWithNegInvRounding()
+    var
+        FinanceChargeTerm: Record "Finance Charge Terms";
+        FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
+        FinanceChargeMemoLine: Record "Finance Charge Memo Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        InvRoundingAmountAmount: Decimal;
+        FinChargeMemoNo: Code[20];
+    begin
+        // [SCENARIO 437580] Issue Finance Charge Memo with Negative Invoice Rounding
+        Initialize();
+
+        // [GIVEN] Amount Rounding Precision = 0.01, Invoice Rounding Precision =1 in G/L Setup
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Inv. Rounding Precision (LCY)", 1.00);
+        GeneralLedgerSetup.Modify();
+
+        // [GIVEN] UPdate Finance Charge Term with Interest Rate 6 and Minimum Amount (LCY)=100
+        FinanceChargeTerm.Get(CreateFinanceChargeTerms(1));
+        FinanceChargeTerm."Minimum Amount (LCY)" := 100;
+        FinanceChargeTerm."Interest Rate" := 6;
+        FinanceChargeTerm.Modify();
+
+        // [GIVEN] Create Finance Charge Memo 
+        LibraryERM.CreateFinanceChargeMemoHeader(
+          FinanceChargeMemoHeader, CreateCustomerWithFinanceChargeTerms(FinanceChargeTerm.Code));
+        CreateFinChargeMemoLineForInvRounding(
+          FinanceChargeMemoLine, FinanceChargeMemoHeader, GeneralLedgerSetup."Amount Rounding Precision");
+        FinChargeMemoNo := FinanceChargeMemoHeader."No.";
+
+        //[THEN] Calculate Invoice Rounding Amount
+        FinanceChargeMemoHeader.CalcFields("Additional Fee", "Interest Amount");
+        InvRoundingAmountAmount := FinanceChargeMemoHeader."Additional Fee" + FinanceChargeMemoHeader."Interest Amount";
+        InvRoundingAmountAmount :=
+          Round(InvRoundingAmountAmount, GeneralLedgerSetup."Inv. Rounding Precision (LCY)") - InvRoundingAmountAmount;
+        Commit();
+
+        // [WHEN] Confirm 'Yes' when issue Finance Charge Memo
+        LibraryVariableStorage.Enqueue(ProceedOnIssuingWithInvRoundingQst);
+        LibraryVariableStorage.Enqueue(true);
+        LibraryERM.IssueFinanceChargeMemo(FinanceChargeMemoHeader);
+
+        // [VERIFY] Finance Charge Memo Issue when negative Invoice Rounding.
+        asserterror Error('');
+        asserterror FinanceChargeMemoHeader.Get(FinChargeMemoNo);
+        Assert.AssertRecordNotFound;
+
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
