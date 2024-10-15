@@ -3569,6 +3569,8 @@
     local procedure UpdateLinkedValuationDate(FromValuationDate: Date; FromItemledgEntryNo: Integer; FromInbound: Boolean)
     var
         ToItemApplnEntry: Record "Item Application Entry";
+        ValuationDate: Date;
+        ValuationDateFound: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -3589,8 +3591,12 @@
             if FindSet() then
                 repeat
                     if FromInbound or ("Inbound Item Entry No." <> 0) then begin
-                        GetLastDirectCostValEntry("Inbound Item Entry No.");
-                        if DirCostValueEntry."Valuation Date" < FromValuationDate then begin
+                        if not ValuationDateFound then begin
+                            GetLastDirectCostValEntry("Inbound Item Entry No.");
+                            ValuationDate := DirCostValueEntry."Valuation Date";
+                            ValuationDateFound := true;
+                        end;
+                        if ValuationDate < FromValuationDate then begin
                             UpdateValuationDate(FromValuationDate, "Item Ledger Entry No.", FromInbound);
                             UpdateLinkedValuationDate(FromValuationDate, "Item Ledger Entry No.", not FromInbound);
                         end;
