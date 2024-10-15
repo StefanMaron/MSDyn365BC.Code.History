@@ -23,15 +23,6 @@
       <Cmt Name="Dev"><![CDATA[Locked]D;]A;(LookupHint=Codeunit EHF Reminder - NamedType ProfileIDTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 54708175 - NamedType 2582613147" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must have a value in]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 fieldcaption]D;]A;(LookupHint=Codeunit EHF Reminder - NamedType FieldMustHaveValueErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1262872403 - NamedType 13901620" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Successfully created ]]></Val>

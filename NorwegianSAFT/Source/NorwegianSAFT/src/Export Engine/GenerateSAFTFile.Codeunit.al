@@ -45,6 +45,7 @@ codeunit 10673 "Generate SAF-T File"
         ExportingDimensionsTxt: Label 'Exporting Dimensions...';
         ExportingGLEntriesTxt: Label 'Exporting G/L entries...';
         SkatteetatenMsg: Label 'Skatteetaten', Locked = true;
+        BlankTxt: Label 'Blank';
 
     local procedure ExportHeaderWithMasterFiles(SAFTExportHeader: Record "SAF-T Export Header")
     begin
@@ -99,7 +100,7 @@ codeunit 10673 "Generate SAF-T File"
     begin
         SAFTXMLHelper.AddNewXMLNode(ParentNodeName, '');
         CompanyInformation.get();
-        SAFTXMLHelper.AppendXMLNode('RegistrationNumber', CompanyInformation."VAT Registration No.");
+        SAFTXMLHelper.AppendXMLNode('RegistrationNumber', CompanyInformation."Registration No.");
         SAFTXMLHelper.AppendXMLNode('Name', CombineWithSpace(CompanyInformation.Name, CompanyInformation."Name 2"));
         ExportAddress(
             CombineWithSpace(CompanyInformation.Address, CompanyInformation."Address 2"), CompanyInformation.City, CompanyInformation."Post Code",
@@ -666,6 +667,7 @@ codeunit 10673 "Generate SAF-T File"
     local procedure ExportGLEntryTransactionInfo(GLEntry: Record "G/L Entry")
     var
         SystemEntryDate: Date;
+        TransactionTypeValue: Text;
     begin
         SAFTXMLHelper.AddNewXMLNode('Transaction', '');
         SAFTXMLHelper.AppendXMLNode('TransactionID', format(GLEntry."Document No."));
@@ -673,7 +675,13 @@ codeunit 10673 "Generate SAF-T File"
         SAFTXMLHelper.AppendXMLNode('PeriodYear', format(Date2DMY(GLEntry."Posting Date", 3)));
         SAFTXMLHelper.AppendXMLNode('TransactionDate', FormatDate(GLEntry."Document Date"));
         SAFTXMLHelper.AppendXMLNode('SourceID', GetSAFTMiddle1Text(GLEntry."User ID"));
+        if GLEntry."Document Type" = 0 then
+            TransactionTypeValue := BlankTxt
+        else
+            TransactionTypeValue := Format(GLEntry."Document Type");
+        SAFTXMLHelper.AppendXMLNode('TransactionType', TransactionTypeValue);
         SAFTXMLHelper.AppendXMLNode('Description', GLEntry.Description);
+        SAFTXMLHelper.AppendXMLNode('BatchID', Format(GLEntry."Transaction No."));
         if GLEntry."Last Modified DateTime" = 0DT then
             SystemEntryDate := GLEntry."Posting Date"
         else

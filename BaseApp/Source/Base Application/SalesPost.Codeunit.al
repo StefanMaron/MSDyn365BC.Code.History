@@ -184,6 +184,7 @@
         Item: Record Item;
         SalesSetup: Record "Sales & Receivables Setup";
         GLSetup: Record "General Ledger Setup";
+        [SecurityFiltering(SecurityFilter::Ignored)]
         GLEntry: Record "G/L Entry";
         TempSalesLineGlobal: Record "Sales Line" temporary;
         xSalesLine: Record "Sales Line";
@@ -574,8 +575,11 @@
         IsHandled: Boolean;
     begin
         with SalesLine do begin
-            if Type = Type::Item then
+            if Type = Type::Item then begin
                 CostBaseAmount := "Line Amount";
+                if "No." <> '' then
+                    TestField("Unit of Measure Code");
+            end;
             if "Qty. per Unit of Measure" = 0 then
                 "Qty. per Unit of Measure" := 1;
 
@@ -4164,7 +4168,7 @@
         with TempPrepmtDeductLCYSalesLine do
             if SalesLine."Prepayment %" = 100 then
                 if Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.") then
-                    exit("Prepmt Amt to Deduct" + "Inv. Discount Amount" - "Line Amount");
+                    exit("Prepmt Amt to Deduct" + "Inv. Disc. Amount to Invoice" - "Line Amount");
         exit(0);
     end;
 

@@ -206,6 +206,7 @@ codeunit 148099 "SAF-T Test Helper"
         GLEntry."Entry No." := LibraryUtility.GetNewRecNo(GLEntry, GLEntry.FieldNo("Entry No."));
         GLEntry."Posting Date" := PostingDate;
         GLEntry."Document Date" := PostingDate;
+        GLEntry."Document Type" := GLEntry."Document Type"::Invoice;
         GLEntry."Document No." := DocNo;
         GLEntry."G/L Account No." := GLAccNo;
         GLEntry."Transaction No." := TransactionNo;
@@ -337,6 +338,7 @@ codeunit 148099 "SAF-T Test Helper"
         CompanyInformation.Validate("Address 2", LibraryUtility.GenerateGUID());
         CompanyInformation.Validate("SAF-T Contact No.", Employee."No.");
         CompanyInformation."VAT Registration No." := LibraryUtility.GenerateGUID();
+        CompanyInformation."Registration No." := LibraryUtility.GenerateGUID();
         CompanyInformation.Modify(true);
 
         LibraryERM.CreatePostCode(PostCode);

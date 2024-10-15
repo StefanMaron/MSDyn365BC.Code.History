@@ -870,7 +870,7 @@ codeunit 148103 "SAF-T XML Tests"
         Employee: Record Employee;
         BankAccount: Record "Bank Account";
     begin
-        SAFTTestHelper.AssertElementValue(TempXMLBuffer, 'n1:RegistrationNumber', CompanyInformation."VAT Registration No.");
+        SAFTTestHelper.AssertElementValue(TempXMLBuffer, 'n1:RegistrationNumber', CompanyInformation."Registration No.");
         SAFTTestHelper.AssertElementValue(
             TempXMLBuffer, 'n1:Name', SAFTTestHelper.CombineWithSpace(CompanyInformation.Name, CompanyInformation."Name 2"));
         VerifyAddress(
@@ -1015,7 +1015,9 @@ codeunit 148103 "SAF-T XML Tests"
             SAFTTestHelper.AssertElementValue(
                 TempXMLBuffer, 'n1:TransactionDate', SAFTTestHelper.FormatDate(GLEntry."Document Date"));
             SAFTTestHelper.AssertElementValue(TempXMLBuffer, 'n1:SourceID', GLEntry."User ID");
+            SAFTTestHelper.AssertElementValue(TempXMLBuffer, 'n1:TransactionType', Format(GLEntry."Document Type"));
             SAFTTestHelper.AssertElementValue(TempXMLBuffer, 'n1:Description', GLEntry.Description);
+            SAFTTestHelper.AssertElementValue(TempXMLBuffer, 'n1:BatchID', Format(GLEntry."Transaction No."));
             SAFTTestHelper.AssertElementValue(
                 TempXMLBuffer, 'n1:SystemEntryDate', SAFTTestHelper.FormatDate(DT2Date(GLEntry."Last Modified DateTime")));
             SAFTTestHelper.AssertElementValue(
