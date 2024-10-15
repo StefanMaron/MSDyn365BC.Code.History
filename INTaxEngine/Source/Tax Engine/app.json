@@ -2,7 +2,7 @@
     "id":  "c1eafb3f-e397-468e-bdb4-ecc5c317ca00",
     "name":  "Tax Engine",
     "publisher":  "Microsoft",
-    "version":  "22.14.64410.0",
+    "version":  "22.14.64503.0",
     "brief":  "Provides features for calculating tax based on use cases. Intended for use only in India.",
     "description":  "The Tax Engine extension calculates tax based on use cases that can be attached to a predefined business event. If the event meets the conditions of the rules, the Tax Engine runs the use case.",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
