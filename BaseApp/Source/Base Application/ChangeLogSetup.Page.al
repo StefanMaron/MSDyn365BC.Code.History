@@ -16,16 +16,50 @@ page 592 "Change Log Setup"
             group(General)
             {
                 Caption = 'General';
-                field("Change Log Activated"; "Change Log Activated")
+                grid(GeneralGrid)
                 {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies that the change log is active.';
+                    group(GeneralColumn)
+                    {
+                        ShowCaption = false;
+                        field("Change Log Activated"; "Change Log Activated")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            ToolTip = 'Specifies that the change log is active.';
+                            Caption = 'Change Log Activated';
 
-                    trigger OnValidate()
-                    begin
-                        ConfirmActivationOfChangeLog;
-                        ChangeLogSettingsUpdated := true;
-                    end;
+                            trigger OnValidate()
+                            begin
+                                ConfirmActivationOfChangeLog;
+                                ChangeLogSettingsUpdated := true;
+                            end;
+                        }
+                        label(ChangeLogWarning)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'IMPORTANT';
+                            Style = Strong;
+                        }
+                        label(ChangeLogWarningDescription)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Tracking changes can impact performance, which can cost you time, and increase the size of your database, which might cost you money. To reduce those costs, consider the following:';
+                        }
+                        label(ChangeLogWarningDescPt1)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = '- Use caution when choosing the tables and operations.';
+                        }
+                        label(ChangeLogWarningDescPt2)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = '- Do not add ledger entries and posted documents. Instead, prioritize system fields such as Created By and Created Date.';
+                        }
+                        label(ChangeLogWarningDescPt3)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = '- Do not use the All Fields tracking type. Instead, choose Some Fields and track only the most important fields.';
+                        }
+                    }
                 }
             }
         }

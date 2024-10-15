@@ -32,7 +32,7 @@ codeunit 1650 "Office Add-in Web Service"
         if OfficeAddIn.Find('-') then
             repeat
                 AddinDeploymentHelper.DeployManifest(OfficeAddIn);
-            until OfficeAddIn.Next = 0;
+            until OfficeAddIn.Next() = 0;
     end;
 }
 

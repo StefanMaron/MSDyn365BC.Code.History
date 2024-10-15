@@ -355,7 +355,7 @@ codeunit 135301 "O365 Sales Item Charge Tests"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange(Type, SalesLine.Type::"Charge (Item)");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             SalesLine.CalcFields("Qty. to Assign");
             Assert.AreEqual(SalesLine.Quantity, SalesLine."Qty. to Assign", IncorrectCreditMemoQtyAssignmentErr);
@@ -372,14 +372,14 @@ codeunit 135301 "O365 Sales Item Charge Tests"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange(Type, SalesLine.Type::"Charge (Item)");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             SalesLine.CalcFields("Qty. to Assign");
             Assert.IsTrue(SalesLine."Qty. to Assign" = 0, IncorrectCreditMemoQtyAssignmentErr);
         until SalesLine.Next = 0;
     end;
 
-    local procedure VerifySalesAmountOnValueEntries(var Item: array[4] of Record Item; SalesLine: Record "Sales Line"; ValueEntryDocumentType: Option; Sign: Integer)
+    local procedure VerifySalesAmountOnValueEntries(var Item: array[4] of Record Item; SalesLine: Record "Sales Line"; ValueEntryDocumentType: Enum "Item Ledger Document Type"; Sign: Integer)
     var
         ValueEntry: Record "Value Entry";
         Index: Integer;

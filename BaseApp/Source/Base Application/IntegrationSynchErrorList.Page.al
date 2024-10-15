@@ -138,7 +138,7 @@ page 5339 "Integration Synch. Error List"
                         LocalRecordID: RecordID;
                         SynchronizeHandled: Boolean;
                     begin
-                        if IsEmpty then
+                        if IsEmpty() then
                             exit;
 
                         GetRecordID(LocalRecordID);
@@ -164,7 +164,7 @@ page 5339 "Integration Synch. Error List"
 
                         CalcFields("Exception Detail");
                         "Exception Detail".CreateInStream(CallStackInStream, TEXTENCODING::Windows);
-                        Message(TypeHelper.ReadAsTextWithSeparator(CallStackInStream, TypeHelper.LFSeparator()));
+                        Message(TypeHelper.ReadAsTextWithSeparator(CallStackInStream, TypeHelper.LFSeparator));
                     end;
                 }
                 group(Coupling)
@@ -172,8 +172,7 @@ page 5339 "Integration Synch. Error List"
                     Caption = 'Coupling', Comment = 'Coupling is a noun';
                     Image = LinkAccount;
                     ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Dataverse record.';
-                    Visible = ShowD365SIntegrationActions;
-
+                    Visible = ShowCDSIntegrationActions;
                     action(ManageCRMCoupling)
                     {
                         ApplicationArea = Suite;
@@ -181,14 +180,13 @@ page 5339 "Integration Synch. Error List"
                         Enabled = HasRecords;
                         Image = LinkAccount;
                         ToolTip = 'Create or modify the coupling to a Dataverse entity.';
-                        Visible = ShowD365SIntegrationActions;
+                        Visible = ShowCDSIntegrationActions;
 
                         trigger OnAction()
                         var
-                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
                             LocalRecordID: RecordID;
                         begin
-                            if IsEmpty then
+                            if IsEmpty() then
                                 exit;
 
                             GetRecordID(LocalRecordID);
@@ -202,7 +200,7 @@ page 5339 "Integration Synch. Error List"
                         Enabled = HasRecords;
                         Image = UnLinkAccount;
                         ToolTip = 'Delete the coupling to a Dataverse entity.';
-                        Visible = ShowD365SIntegrationActions;
+                        Visible = ShowCDSIntegrationActions;
 
                         trigger OnAction()
                         var
@@ -238,15 +236,18 @@ page 5339 "Integration Synch. Error List"
     end;
 
     trigger OnOpenPage()
+    var
+        CRMIntegrationEnabled: Boolean;
+        CDSIntegrationEnabled: Boolean;
     begin
         SetDataIntegrationUIElementsVisible(ShowDataIntegrationActions);
-        if CRMConnectionSetup.IsEnabled then
-            CRMConnectionSetup.RegisterUserConnection();
-        ShowD365SIntegrationActions := CRMConnectionSetup.IsEnabled;
+        CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
+        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
+        ShowCDSIntegrationActions := CDSIntegrationEnabled or CRMIntegrationEnabled;
     end;
 
     var
-        CRMConnectionSetup: Record "CRM Connection Setup";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         InvalidOrMissingSourceErr: Label 'The source record was not found.';
         InvalidOrMissingDestinationErr: Label 'The destination record was not found.';
         OpenSourcePageTxt: Text;
@@ -259,7 +260,7 @@ page 5339 "Integration Synch. Error List"
         FixPermissionsUrlTxt: Label 'https://docs.microsoft.com/en-us/power-platform/admin/troubleshooting-user-needs-read-write-access-organization#user-doesnt-have-sufficient-permissions', Locked = true;
         HasRecords: Boolean;
         ShowDataIntegrationActions: Boolean;
-        ShowD365SIntegrationActions: Boolean;
+        ShowCDSIntegrationActions: Boolean;
 
     local procedure GetRecordID(var LocalRecordID: RecordID)
     begin

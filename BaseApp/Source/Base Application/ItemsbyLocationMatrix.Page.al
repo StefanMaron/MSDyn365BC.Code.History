@@ -535,7 +535,7 @@ page 9231 "Items by Location Matrix"
             repeat
                 MATRIX_CurrentColumnOrdinal := MATRIX_CurrentColumnOrdinal + 1;
                 MATRIX_OnAfterGetRecord(MATRIX_CurrentColumnOrdinal);
-            until (TempMatrixLocation.Next = 0) or (MATRIX_CurrentColumnOrdinal = MATRIX_NoOfMatrixColumns);
+            until (TempMatrixLocation.Next() = 0) or (MATRIX_CurrentColumnOrdinal = MATRIX_NoOfMatrixColumns);
     end;
 
     trigger OnInit()

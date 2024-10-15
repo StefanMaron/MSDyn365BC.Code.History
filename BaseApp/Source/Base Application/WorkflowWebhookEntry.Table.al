@@ -112,7 +112,7 @@ table 467 "Workflow Webhook Entry"
                         if GetResponseUserIdFromArgument(WorkflowWebhookEntry."Response Argument", ResponseUserID) then
                             if ResponseUserID = UserId then
                                 WorkflowWebhookEntry.Mark(true);
-                until WorkflowWebhookEntry.Next = 0;
+                until WorkflowWebhookEntry.Next() = 0;
             WorkflowWebhookEntry.MarkedOnly(true);
         end;
     end;

@@ -90,7 +90,7 @@ codeunit 213 "Res. Jnl.-Post Batch"
                 Window.Update(2, LineCount);
                 CheckRecurringLine(ResJnlLine);
                 ResJnlCheckLine.RunCheck(ResJnlLine);
-                if Next = 0 then
+                if Next() = 0 then
                     Find('-');
             until "Line No." = StartLineNo;
             NoOfRecords := LineCount;
@@ -145,7 +145,7 @@ codeunit 213 "Res. Jnl.-Post Batch"
                             LastPostedDocNo := "Document No.";
                         end;
                 ResJnlPostLine.RunWithCheck(ResJnlLine);
-            until Next = 0;
+            until Next() = 0;
 
             OnCodeOnAfterPostJnlLines(ResJnlBatch, ResJnlLine, ResRegNo);
 
@@ -177,7 +177,7 @@ codeunit 213 "Res. Jnl.-Post Batch"
                             ResJnlLine2."Total Price" := 0;
                         end;
                         ResJnlLine2.Modify();
-                    until ResJnlLine2.Next = 0;
+                    until ResJnlLine2.Next() = 0;
                 end else begin
                     // Not a recurring journal
                     ResJnlLine2.CopyFilters(ResJnlLine);
@@ -214,7 +214,7 @@ codeunit 213 "Res. Jnl.-Post Batch"
                 repeat
                     Evaluate(PostingNoSeriesNo, NoSeries.Description);
                     NoSeriesMgt2[PostingNoSeriesNo].SaveNoSeries;
-                until NoSeries.Next = 0;
+                until NoSeries.Next() = 0;
 
             Commit();
         end;

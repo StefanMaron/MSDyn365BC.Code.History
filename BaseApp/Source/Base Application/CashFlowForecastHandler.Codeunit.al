@@ -91,7 +91,7 @@ codeunit 850 "Cash Flow Forecast Handler"
                 repeat
                     CalcFields("Amount (LCY)");
                     Total := Total + "Amount (LCY)";
-                until Next = 0;
+                until Next() = 0;
             exit(Abs(Round(Total, 0.01)));
         end
     end;
@@ -111,7 +111,7 @@ codeunit 850 "Cash Flow Forecast Handler"
                 repeat
                     CalcFields("Amount (LCY)");
                     Total := Total + "Amount (LCY)";
-                until Next = 0;
+                until Next() = 0;
             exit(Abs(Round(Total, 0.01)));
         end
     end;
@@ -137,7 +137,7 @@ codeunit 850 "Cash Flow Forecast Handler"
             if FindSet then
                 repeat
                     Total := Total + Amount;
-                until Next = 0;
+                until Next() = 0;
             exit(Abs(Round(Total, 0.01)));
         end
     end;
@@ -170,7 +170,7 @@ codeunit 850 "Cash Flow Forecast Handler"
                     else
                         AmountValue := CashFlowManagement.GetTotalAmountFromSalesOrder(SalesHeader);
                     Total := Total + AmountValue;
-                until Next = 0;
+                until Next() = 0;
             if Total < 0 then
                 Total := 0;
             exit(Abs(Round(Total, 0.01)));
@@ -206,7 +206,7 @@ codeunit 850 "Cash Flow Forecast Handler"
                     else
                         AmountValue := CashFlowManagement.GetTotalAmountFromPurchaseOrder(PurchaseHeader);
                     Total := Total - AmountValue;
-                until Next = 0;
+                until Next() = 0;
             if Total > 0 then
                 Total := 0;
             exit(Abs(Round(Total, 0.01)));
@@ -323,7 +323,7 @@ codeunit 850 "Cash Flow Forecast Handler"
                   PeriodType,
                   TimeSeriesBuffer."Period No."
                   );
-            until TimeSeriesBuffer.Next = 0;
+            until TimeSeriesBuffer.Next() = 0;
 
         AggregateTaxRecordsToTaxablePeriod(TimeSeriesForecast, XTAXPAYABLESTxt);
         AggregateTaxRecordsToTaxablePeriod(TimeSeriesForecast, XTAXRECEIVABLESTxt);
@@ -373,7 +373,7 @@ codeunit 850 "Cash Flow Forecast Handler"
                                 end;
                         end;
                     end;
-            until TimeSeriesForecast.Next = 0;
+            until TimeSeriesForecast.Next() = 0;
     end;
 
     local procedure ClearCashFlowAzureAIBuffer()
@@ -413,7 +413,7 @@ codeunit 850 "Cash Flow Forecast Handler"
             repeat
                 TempTimeSeriesBuffer.Value := TempTimeSeriesBuffer.Value + TempCreditMemoTimeSeriesBuffer.Value;
                 TempTimeSeriesBuffer.Modify();
-            until (TempTimeSeriesBuffer.Next = 0) and (TempCreditMemoTimeSeriesBuffer.Next = 0);
+            until (TempTimeSeriesBuffer.Next() = 0) and (TempCreditMemoTimeSeriesBuffer.Next() = 0);
     end;
 
     local procedure TimeSeriesPrepareAndGetData(var TempTimeSeriesBuffer: Record "Time Series Buffer" temporary; RecordVariant: Variant; GroupIdFieldNo: Integer; DateFieldNo: Integer; ValueFieldNo: Integer)
@@ -444,7 +444,7 @@ codeunit 850 "Cash Flow Forecast Handler"
                     TargetTimeSeriesBuffer.Validate("Group ID", Label);
                     TargetTimeSeriesBuffer.Insert();
                 end;
-            until SourceTimeSeriesBuffer.Next = 0;
+            until SourceTimeSeriesBuffer.Next() = 0;
     end;
 
     [NonDebuggable]
@@ -733,12 +733,12 @@ codeunit 850 "Cash Flow Forecast Handler"
                     CurrentSum := 0;
                 end else
                     TimeSeriesForecast.Delete();
-            until (TimeSeriesForecast.Next = 0);
+            until (TimeSeriesForecast.Next() = 0);
         end;
         TimeSeriesForecast.SetRange("Group ID");
     end;
 
-    [EventSubscriber(ObjectType::Page, 869, 'OnOpenPageEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Cash Flow Forecast Chart", 'OnOpenPageEvent', '', false, false)]
     local procedure OnOpenCashFlowForecastChart(var Rec: Record "Business Chart Buffer")
     begin
         CreateSetupNotification;

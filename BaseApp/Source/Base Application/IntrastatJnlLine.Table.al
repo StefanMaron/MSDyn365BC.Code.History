@@ -215,8 +215,6 @@ table 263 "Intrastat Jnl. Line"
                 OnBeforeValidateCountryRegionOfOriginCode(Rec, IsHandled);
                 if IsHandled then
                     exit;
-
-                TestField(Type, Type::Receipt);
             end;
         }
         field(26; "Entry/Exit Point"; Code[10])
@@ -242,6 +240,11 @@ table 263 "Intrastat Jnl. Line"
         field(30; "Partner VAT ID"; Text[50])
         {
             Caption = 'Partner VAT ID';
+            trigger OnValidate()
+            begin
+                if "Partner VAT ID" <> '' then
+                    TestField(Type, Type::Shipment);
+            end;
         }
         field(31;"Location Code";Code[10])
         {

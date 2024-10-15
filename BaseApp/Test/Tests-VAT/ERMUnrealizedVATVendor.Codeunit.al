@@ -1197,7 +1197,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         PurchInvLine: Record "Purch. Inv. Line";
     begin
         PurchInvLine.SetRange("Document No.", DocumentNo);
-        PurchInvLine.FindSet;
+        PurchInvLine.FindSet();
         repeat
             Amount += PurchInvLine.Amount;
         until PurchInvLine.Next = 0;
@@ -1405,7 +1405,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
-        VendorLedgerEntry.FindSet;
+        VendorLedgerEntry.FindSet();
         repeat
             VendorLedgerEntry.CalcFields("Remaining Amount");
             VendorLedgerEntry.TestField("Remaining Amount", 0);
@@ -1482,7 +1482,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
             SetRange("Bill-to/Pay-to No.", CVNo);
             SetRange("Document Type", "Document Type"::Invoice);
             SetRange("Document No.", InvoiceNo);
-            FindSet;
+            FindSet();
             for i := ArrayLen(PurchaseLine) downto 1 do begin
                 VerifyUnrealizedVATEntryAmounts(
                   VATEntry, PurchaseLine[i].Amount, PurchaseLine[i]."Amount Including VAT" - PurchaseLine[i].Amount, 0, 0);
@@ -1502,7 +1502,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
             SetRange("Bill-to/Pay-to No.", CVNo);
             SetRange("Document Type", "Document Type"::Payment);
             SetRange("Document No.", PaymentNo);
-            FindSet;
+            FindSet();
             for i := ArrayLen(PurchaseLine) downto 1 do begin
                 Assert.AreEqual(
                   UnrealVATEntryNo[ArrayLen(PurchaseLine) - i + 1],

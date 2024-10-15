@@ -433,7 +433,7 @@ codeunit 144061 "Intrastat AT"
         PrepareIntrastatBatch(IntrastatJnlBatch);
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
         IntrastatJnlLine.SetFilter("Tariff No.", '<%1', Item."Tariff No.");
-        if not IntrastatJnlLine.IsEmpty then
+        if not IntrastatJnlLine.IsEmpty() then
             IntrastatJnlLine.DeleteAll();
         Commit();
         GetIntrastatFilenames(Filepath, FilenameSales, FilenamePurchase, IntrastatJnlBatch);
@@ -496,7 +496,7 @@ codeunit 144061 "Intrastat AT"
 
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
         IntrastatJnlLine.SetFilter("Tariff No.", '<>%1&<>%2', ItemSupp."Tariff No.", ItemNoSupp."Tariff No.");
-        if not IntrastatJnlLine.IsEmpty then
+        if not IntrastatJnlLine.IsEmpty() then
             IntrastatJnlLine.DeleteAll();
 
         LibraryERM.SetMandatoryFieldsOnIntrastatJnlLines(
@@ -622,7 +622,7 @@ codeunit 144061 "Intrastat AT"
     begin
         with IntrastatJnlLine do begin
             SetCurrentKey("Internal Ref. No.");
-            FindSet;
+            FindSet();
             repeat
                 if InternalRefNo <> "Internal Ref. No." then begin
                     InternalRefNo := "Internal Ref. No.";
@@ -812,7 +812,7 @@ codeunit 144061 "Intrastat AT"
     begin
         TariffNumber.FindFirst;
         Item.SetRange("Tariff No.", '');
-        if not Item.IsEmpty then
+        if not Item.IsEmpty() then
             Item.ModifyAll("Tariff No.", TariffNumber."No.");
     end;
 

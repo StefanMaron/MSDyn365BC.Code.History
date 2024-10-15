@@ -504,7 +504,7 @@ page 5540 "Item Availability by Timeline"
             IgnoreChanges := true;
             repeat
                 CurrPage.Visualization.DeleteTransaction(TempTimelineEventChange."Reference No.");
-            until TempTimelineEventChange.Next = 0;
+            until TempTimelineEventChange.Next() = 0;
             ImportChangesFromTimeline;
             IgnoreChanges := false;
             if (State = State::"Unsaved Changes") and (Count = 0) then

@@ -19,7 +19,7 @@ page 5005270 "Delivery Reminder"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Vendor No."; "Vendor No.")

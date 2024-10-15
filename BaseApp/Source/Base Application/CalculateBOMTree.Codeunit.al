@@ -81,7 +81,7 @@ codeunit 5870 "Calculate BOM Tree"
                     i += 1;
                     UpdateWindow(Round(i / NoOfRecords * 10000, 1));
                     GenerateTreeForItemLocal(ParentItem, BOMBuffer, DemandDate, TreeType);
-                until Next = 0;
+                until Next() = 0;
         end;
 
         ParentItem.Copy(ItemFilter);
@@ -232,7 +232,7 @@ codeunit 5870 "Calculate BOM Tree"
                         if Type = Type::Item then
                             GenerateItemSubTree("No.", BOMBuffer);
                     end;
-                until Next = 0;
+                until Next() = 0;
                 BOMBuffer := ParentBOMBuffer;
 
                 exit(true);
@@ -330,7 +330,7 @@ codeunit 5870 "Calculate BOM Tree"
                                         OnAfterGenerateProdCompSubTree(ParentItem, BOMBuffer);
                                     end;
                             end;
-                until Next = 0;
+                until Next() = 0;
                 FoundSubTree := true;
             end;
         end;
@@ -362,7 +362,7 @@ codeunit 5870 "Calculate BOM Tree"
                             end;
                             OnGenerateProdCompSubTreeOnAfterBOMBufferModify(BOMBuffer, RoutingLine, LotSize, ParentItem, ParentBOMBuffer);
                         end;
-                    until Next = 0;
+                    until Next() = 0;
                     FoundSubTree := true;
                 end;
 
@@ -390,7 +390,7 @@ codeunit 5870 "Calculate BOM Tree"
                         BOMBuffer.TransferFromAsmLine(EntryNo, AsmLine);
                         GenerateItemSubTree("No.", BOMBuffer);
                     end;
-                until Next = 0;
+                until Next() = 0;
                 BOMBuffer := ParentBOMBuffer;
 
                 exit(true);
@@ -420,7 +420,7 @@ codeunit 5870 "Calculate BOM Tree"
                         BOMBuffer.TransferFromProdOrderComp(EntryNo, ProdOrderComp);
                         GenerateItemSubTree("Item No.", BOMBuffer);
                     end;
-                until Next = 0;
+                until Next() = 0;
                 BOMBuffer := ParentBOMBuffer;
 
                 exit(true);
@@ -503,7 +503,7 @@ codeunit 5870 "Calculate BOM Tree"
 
                     Modify;
                 end;
-            until (Next = 0) or (Indentation <= ParentBOMBuffer.Indentation);
+            until (Next() = 0) or (Indentation <= ParentBOMBuffer.Indentation);
         BOMBuffer := ParentBOMBuffer;
         BOMBuffer.Find;
     end;
@@ -530,7 +530,7 @@ codeunit 5870 "Calculate BOM Tree"
                             DistributeRemainingAvail(BOMBuffer);
                         TraverseTree(BOMBuffer, AvailToUse::QtyAvail);
                     end;
-                until Next = 0;
+                until Next() = 0;
             SetRange("Inventoriable");
             Copy(CopyOfBOMBuffer);
         end;
@@ -575,7 +575,7 @@ codeunit 5870 "Calculate BOM Tree"
                 repeat
                     if Indentation = 0 then
                         TraverseCostTree(BOMBuffer);
-                until Next = 0;
+                until Next() = 0;
             Copy(CopyOfBOMBuffer);
         end;
     end;
@@ -773,7 +773,7 @@ codeunit 5870 "Calculate BOM Tree"
                         "Updated Available Qty" := "Available Qty";
                         Modify;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -795,7 +795,7 @@ codeunit 5870 "Calculate BOM Tree"
                             "Updated Available Qty" := 0;
                         Modify;
                     end;
-                until Next = 0;
+                until Next() = 0;
             SetRange("Item No.");
             SetRange("Variant Code");
             SetRange("Location Code");
@@ -835,7 +835,7 @@ codeunit 5870 "Calculate BOM Tree"
                           TempItemAvailByDate."Updated Available Qty");
                         TempItemAvailByDate := CurrItemAvailByDate;
                     end;
-                until TempItemAvailByDate.Next = 0;
+                until TempItemAvailByDate.Next() = 0;
             Copy(CopyOfBOMBuffer);
             Find;
         end;

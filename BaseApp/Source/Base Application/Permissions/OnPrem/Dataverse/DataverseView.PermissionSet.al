@@ -1,0 +1,23 @@
+permissionset 8783 "Dataverse - View"
+{
+    Access = Public;
+    Assignable = false;
+    Caption = 'MS DATAVERSE Integration';
+
+    Permissions = tabledata "CDS Company" = R,
+                  tabledata "CDS Connection Setup" = R,
+                  tabledata "CDS Coupled Business Unit" = R,
+                  tabledata "CDS Environment" = RIMD,
+                  tabledata "CDS Solution" = R,
+                  tabledata "CDS Teamroles" = R,
+                  tabledata "CRM Account" = R,
+                  tabledata "CRM Businessunit" = R,
+                  tabledata "CRM Contact" = R,
+                  tabledata "CRM Customeraddress" = R,
+                  tabledata "CRM Organization" = R,
+                  tabledata "CRM Role" = R,
+                  tabledata "CRM Systemuser" = R,
+                  tabledata "CRM Systemuserroles" = R,
+                  tabledata "CRM Team" = R,
+                  tabledata "CRM Transactioncurrency" = R;
+}

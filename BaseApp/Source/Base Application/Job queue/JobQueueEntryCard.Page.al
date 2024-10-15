@@ -83,6 +83,11 @@ page 673 "Job Queue Entry Card"
                     Importance = Additional;
                     ToolTip = 'Specifies the date and time when the job queue entry is to expire, after which the job queue entry will not be run.';
                 }
+                field("Timeout"; "Job Timeout")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the maximum time that the job queue entry is allowed to run.';
+                }
                 field(Status; Status)
                 {
                     ApplicationArea = Basic, Suite;
@@ -289,6 +294,22 @@ page 673 "Job Queue Entry Card"
                         Restart;
                     end;
                 }
+                action(RunInForeground)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Run once (foreground)';
+                    Image = DebugNext;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    ToolTip = 'Run a copy of this job once in foreground.';
+
+                    trigger OnAction()
+                    var
+                        JobQueueManagement: Codeunit "Job Queue Management";
+                    begin
+                        JobQueueManagement.RunJobQueueEntryOnce(Rec);
+                    end;
+                }
             }
         }
         area(navigation)
@@ -349,6 +370,9 @@ page 673 "Job Queue Entry Card"
     begin
         ID := CreateGuid;
         Status := Status::"On Hold";
+
+        // Until Modern Dev decided to support InitValue on Duration we have to do it this way.
+        Rec."Job Timeout" := Rec.DefaultJobTimeout();
     end;
 
     var

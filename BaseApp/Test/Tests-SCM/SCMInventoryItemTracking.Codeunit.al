@@ -28,7 +28,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         isInitialized: Boolean;
         RegisterJournalLine: Label 'Do you want to register the journal lines?';
         RegisterWhseMessage: Label 'The journal lines were successfully registered.You are now';
-        AvailabilityWarining: Label 'There are availability warnings on one or more lines.';
+        AvailabilityWarining: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
         ITConfirmMessage: Label 'Item tracking is defined for item';
         DeletedSalesLineError: Label 'The Sales Line does not exist.';
         DeletionMessage: Label 'Do you want to delete it anyway?';
@@ -1219,7 +1219,6 @@ codeunit 137260 "SCM Inventory Item Tracking"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
-        OrderStatus: Option ItemOrder,ProjectOrder;
         LotNo: Code[20];
     begin
         // [FEATURE] [Item Tracking]
@@ -1237,7 +1236,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         LibraryVariableStorage.Enqueue(ProdOrderCreatedMsg); // Enqueue value for MessagePageHandler.
 
         // [GIVEN] Create Produciton Order from Sales Order.
-        LibraryManufacturing.CreateProductionOrderFromSalesOrder(SalesHeader, ProductionOrder.Status::Released, OrderStatus::ItemOrder);
+        LibraryManufacturing.CreateProductionOrderFromSalesOrder(SalesHeader, ProductionOrder.Status::Released, "Create Production Order Type"::ItemOrder);
 
         // [GIVEN] Post production with two lines of quantities X, assign different lots.
         LotNo := PostProductionOutputWithIT(Item."No.", SalesLine.Quantity / 3, SalesLine.Quantity / 3);
@@ -1996,7 +1995,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         // [GIVEN] Set "Qty. to Handle" on the pick lines to 20.
         FindWhseActivityHeaderBySalesHeader(WarehouseActivityHeader, SalesHeader);
         WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         repeat
             WarehouseActivityLine.Validate("Lot No.", LotNo);
             WarehouseActivityLine.Validate("Qty. to Handle", WarehouseActivityLine.Quantity / 2);
@@ -2869,7 +2868,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
     begin
         FindWhseActivityLine(WarehouseActivityLine, WarehouseShipmentHeader);
         with WarehouseActivityLine do begin
-            FindSet;
+            FindSet();
             repeat
                 Validate("Qty. to Handle", QtyToSet);
                 Modify(true);
@@ -2960,7 +2959,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
     begin
         WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
         WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityHeader.Type);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         repeat
             WarehouseActivityLine.Validate("Lot No.", LotNo);
             WarehouseActivityLine.Modify(true);
@@ -3152,7 +3151,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
     begin
         Bin.SetRange("Location Code", LocationCode);
         Bin.SetRange("Bin Type Code", BinTypeCode);
-        Bin.FindSet;
+        Bin.FindSet();
         BinCode[1] := Bin.Code;
         Bin.Next;
         BinCode[2] := Bin.Code;
@@ -3187,7 +3186,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         with WarehouseActivityLine do begin
             SetRange("Whse. Document Type", "Whse. Document Type"::Shipment);
             SetRange("Whse. Document No.", WarehouseShipmentHeader."No.");
-            FindSet;
+            FindSet();
         end;
     end;
 

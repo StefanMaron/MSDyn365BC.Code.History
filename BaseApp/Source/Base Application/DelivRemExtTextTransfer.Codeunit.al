@@ -74,7 +74,7 @@ codeunit 5005272 "Deliv.-Rem. Ext. Text Transfer"
                 ForDeliveryReminderLine.Description := TmpExtTextLine.Text;
                 ForDeliveryReminderLine."Attached to Line No." := DeliveryReminderLine."Line No.";
                 ForDeliveryReminderLine.Insert();
-            until TmpExtTextLine.Next = 0;
+            until TmpExtTextLine.Next() = 0;
             MakeUpdateRequired := true;
         end;
         TmpExtTextLine.DeleteAll();
@@ -91,7 +91,7 @@ codeunit 5005272 "Deliv.-Rem. Ext. Text Transfer"
         if DeliveryReminderLine2.Find('>') then begin
             repeat
                 DeliveryReminderLine2.Delete();
-            until DeliveryReminderLine2.Next = 0;
+            until DeliveryReminderLine2.Next() = 0;
             exit(true);
         end;
     end;
@@ -133,7 +133,7 @@ codeunit 5005272 "Deliv.-Rem. Ext. Text Transfer"
             repeat
                 TmpExtTextLine := ExtTextLine;
                 TmpExtTextLine.Insert();
-            until ExtTextLine.Next = 0;
+            until ExtTextLine.Next() = 0;
             exit(true);
         end;
     end;

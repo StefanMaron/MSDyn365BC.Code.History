@@ -82,6 +82,11 @@ table 1382 "Item Templ."
         {
             Caption = 'Automatic Ext. Texts';
         }
+        field(97; "No. Series"; Code[20])
+        {
+            Caption = 'No. Series';
+            TableRelation = "No. Series";
+        }
         field(98; "Tax Group Code"; Code[20])
         {
             Caption = 'Tax Group Code';

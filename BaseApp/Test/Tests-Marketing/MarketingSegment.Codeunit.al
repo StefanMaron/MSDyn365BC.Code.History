@@ -389,8 +389,8 @@ codeunit 136213 "Marketing Segment"
         // [SCENARIO 295002] When validate Interaction Template Code in Segment Header then Segment Line inherits header Attachment
         // [SCENARIO 295002] if Attachment has not been set in the line
         Initialize;
-        LanguageCode1 := LibraryERM.CreateLanguage;
-        LanguageCode2 := LibraryERM.CreateLanguage;
+        LanguageCode1 := 'ENU';
+        LanguageCode2 := LibraryERM.GetAnyLanguageDifferentFromCurrent();
 
         // [GIVEN] Interaction Template Code 'ABSTRACT' with Language Code (Default) = 'ENU' and Attachment
         // [GIVEN] Interaction Template Code 'BUS' with other Language Code (Default) and other Attachment
@@ -454,7 +454,7 @@ codeunit 136213 "Marketing Segment"
         TempBlob.CreateOutStream(OutStream);
         OutStream.WriteText(ReportId);
         Attachment.SetAttachmentFileFromBlob(TempBlob);
-        Attachment."Storage Type" := Attachment."Storage Type"::"Disk File";
+        Attachment."Storage Type" := "Attachment Storage Type"::"Disk File";
         Attachment."File Extension" := 'HTML';
         Attachment.Insert(true);
 

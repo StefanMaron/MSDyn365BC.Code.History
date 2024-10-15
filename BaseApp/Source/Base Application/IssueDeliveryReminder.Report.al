@@ -85,7 +85,7 @@ report 5005341 "Issue Delivery Reminder"
             if IssuedDeliveryReminderHeader.Find('-') then
                 repeat
                     PrintDocumentProfessional.IssuedDeliveryRemindPrint(IssuedDeliveryReminderHeader, false);
-                until IssuedDeliveryReminderHeader.Next = 0;
+                until IssuedDeliveryReminderHeader.Next() = 0;
         end;
 
         Commit();

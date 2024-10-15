@@ -509,7 +509,7 @@ codeunit 144004 "Intrastat Exchange"
     begin
         IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
-        IntrastatJnlLine.FindSet;
+        IntrastatJnlLine.FindSet();
         repeat
             IntrastatJnlLine.Validate("Transport Method", TransportMethod);
             IntrastatJnlLine.Validate("Transaction Type", TransactionType);
@@ -620,7 +620,7 @@ codeunit 144004 "Intrastat Exchange"
     begin
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatchName);
         IntrastatJnlLine.SetFilter("Tariff No.", '<>%1', TariffNo);
-        if not IntrastatJnlLine.IsEmpty then
+        if not IntrastatJnlLine.IsEmpty() then
             IntrastatJnlLine.DeleteAll();
     end;
 
@@ -704,7 +704,7 @@ codeunit 144004 "Intrastat Exchange"
     begin
         IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
-        IntrastatJnlLine.FindSet;
+        IntrastatJnlLine.FindSet();
         repeat
             IntrastatJnlLine.Validate("Transaction Type", TransactionType);
             IntrastatJnlLine.Validate("Transport Method", TransportMethod);

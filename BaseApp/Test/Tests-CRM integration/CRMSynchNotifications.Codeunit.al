@@ -1896,13 +1896,13 @@ codeunit 139185 "CRM Synch. Notifications"
         LibraryVariableStorage.Enqueue(Notification.Message);
     end;
 
-    [EventSubscriber(ObjectType::Table, 5348, 'OnBeforeModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"CRM Product", 'OnBeforeModifyEvent', '', false, false)]
     local procedure FailOnModifyCRMProduct(var Rec: Record "CRM Product"; var xRec: Record "CRM Product"; RunTrigger: Boolean)
     begin
         Error(CRMProductOnModifyErr);
     end;
 
-    [EventSubscriber(ObjectType::Table, 27, 'OnBeforeModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Item", 'OnBeforeModifyEvent', '', false, false)]
     local procedure FailOnModifyItem(var Rec: Record Item; var xRec: Record Item; RunTrigger: Boolean)
     begin
         Error(ItemOnModifyErr);

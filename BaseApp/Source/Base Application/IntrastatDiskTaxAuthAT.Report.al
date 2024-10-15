@@ -92,7 +92,7 @@ report 11106 "Intrastat - Disk Tax Auth AT"
                             IntraJnlLineTest."Country/Region of Origin Code" := IntrastatJnlLineBuf."Country/Region of Origin Code";
                             IntraJnlLineTest."Internal Ref. No." := IntrastatJnlLineBuf."Internal Ref. No.";
                             IntraJnlLineTest.Modify();
-                        until IntrastatJnlLineBuf.Next = 0;
+                        until IntrastatJnlLineBuf.Next() = 0;
                 end;
 
                 trigger OnPreDataItem()
@@ -869,7 +869,7 @@ report 11106 "Intrastat - Disk Tax Auth AT"
             repeat
                 if DelChr(TariffNumber."No.") = TariffNo then
                     exit(Abs(Qty));
-            until TariffNumber.Next = 0;
+            until TariffNumber.Next() = 0;
     end;
 }
 

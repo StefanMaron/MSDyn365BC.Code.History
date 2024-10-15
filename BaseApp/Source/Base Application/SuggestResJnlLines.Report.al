@@ -66,8 +66,8 @@ report 951 "Suggest Res. Jnl. Lines"
                                     OnBeforeResJnlLineInsert(ResJnlLine, TimeSheetHeader, TempTimeSheetLine, TimeSheetDetail, ResJnlTemplate, ResJnlBatch);
                                     ResJnlLine.Insert();
                                 end;
-                            until TimeSheetDetail.Next = 0;
-                    until TempTimeSheetLine.Next = 0;
+                            until TimeSheetDetail.Next() = 0;
+                    until TempTimeSheetLine.Next() = 0;
                 end;
             end;
 
@@ -164,8 +164,8 @@ report 951 "Suggest Res. Jnl. Lines"
                     repeat
                         TempTimeSheetLine := TimeSheetLine;
                         TempTimeSheetLine.Insert();
-                    until TimeSheetLine.Next = 0;
-            until TimeSheetHeader.Next = 0;
+                    until TimeSheetLine.Next() = 0;
+            until TimeSheetHeader.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

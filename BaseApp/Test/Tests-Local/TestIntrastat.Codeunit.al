@@ -494,7 +494,7 @@ codeunit 134153 "Test Intrastat"
     begin
         TariffNumber.FindFirst;
         Item.SetRange("Tariff No.", '');
-        if not Item.IsEmpty then
+        if not Item.IsEmpty() then
             Item.ModifyAll("Tariff No.", TariffNumber."No.");
     end;
 

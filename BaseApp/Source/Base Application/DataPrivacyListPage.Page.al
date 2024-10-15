@@ -64,7 +64,7 @@ page 1181 "Data Privacy ListPage"
         Clear(Rec);
         Reset;
         DeleteAll();
-        CurrPage.Update;
+        CurrPage.Update();
 
         if ConfigPackage.Get(PackageCode) then begin
             ConfigPackageTable.SetRange("Package Code", ConfigPackage.Code);
@@ -93,10 +93,10 @@ page 1181 "Data Privacy ListPage"
                                             Counter := Counter + 1;
                                             ID := Counter;
                                         until Insert;
-                                until ConfigPackageField.Next = 0;
-                        until RecRef.Next = 0;
+                                until ConfigPackageField.Next() = 0;
+                        until RecRef.Next() = 0;
                     RecRef.Close;
-                until ConfigPackageTable.Next = 0;
+                until ConfigPackageTable.Next() = 0;
             ConfigProgressBar.Close;
         end;
     end;

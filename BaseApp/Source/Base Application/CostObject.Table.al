@@ -194,7 +194,7 @@ table 1113 "Cost Object"
                     CostEntry.SetRange("Cost Object Code", CostObject.Code);
                     EntriesFound := not CostEntry.IsEmpty;
                 end;
-            until (CostObject.Next = 0) or EntriesFound;
+            until (CostObject.Next() = 0) or EntriesFound;
     end;
 
     procedure ConfirmDeleteIfEntriesExist(var CostObject: Record "Cost Object"; CalledFromOnInsert: Boolean)

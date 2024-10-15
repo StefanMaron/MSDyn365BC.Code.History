@@ -216,7 +216,7 @@ report 205 "Order Confirmation"
                                     Continue := true;
                                     exit;
                                 end;
-                            until DimSetEntry1.Next = 0;
+                            until DimSetEntry1.Next() = 0;
                         end;
 
                         trigger OnPreDataItem()
@@ -485,7 +485,7 @@ report 205 "Order Confirmation"
                                         Continue := true;
                                         exit;
                                     end;
-                                until DimSetEntry2.Next = 0;
+                                until DimSetEntry2.Next() = 0;
                             end;
 
                             trigger OnPreDataItem()
@@ -1055,7 +1055,7 @@ report 205 "Order Confirmation"
                                         Continue := true;
                                         exit;
                                     end;
-                                until TempPrepmtDimSetEntry.Next = 0;
+                                until TempPrepmtDimSetEntry.Next() = 0;
                             end;
                         }
 
@@ -1065,7 +1065,7 @@ report 205 "Order Confirmation"
                                 if not PrepmtInvBuf.Find('-') then
                                     CurrReport.Break();
                             end else
-                                if PrepmtInvBuf.Next = 0 then
+                                if PrepmtInvBuf.Next() = 0 then
                                     CurrReport.Break();
 
                             if ShowInternalInfo then
@@ -1239,9 +1239,9 @@ report 205 "Order Confirmation"
                     PrepmtInvBuf.DeleteAll();
                     SalesPostPrepmt.GetSalesLines("Sales Header", 0, PrepmtSalesLine);
 
-                    if not PrepmtSalesLine.IsEmpty then begin
+                    if not PrepmtSalesLine.IsEmpty() then begin
                         SalesPostPrepmt.GetSalesLinesToDeduct("Sales Header", TempSalesLine);
-                        if not TempSalesLine.IsEmpty then
+                        if not TempSalesLine.IsEmpty() then
                             SalesPostPrepmt.CalcVATAmountLines("Sales Header", TempSalesLine, PrepmtVATAmountLineDeduct, 1);
                     end;
                     SalesPostPrepmt.CalcVATAmountLines("Sales Header", PrepmtSalesLine, PrepmtVATAmountLine, 0);
@@ -1440,7 +1440,7 @@ report 205 "Order Confirmation"
                           "Sales Header"."No. of Archived Versions", DATABASE::Customer, "Sales Header"."Bill-to Customer No.",
                           "Sales Header"."Salesperson Code", "Sales Header"."Campaign No.", "Sales Header"."Posting Description",
                           "Sales Header"."Opportunity No.");
-                until "Sales Header".Next = 0;
+                until "Sales Header".Next() = 0;
     end;
 
     trigger OnPreReport()

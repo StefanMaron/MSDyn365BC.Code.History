@@ -1,4 +1,4 @@
-﻿report 202 "Sales Document - Test"
+report 202 "Sales Document - Test"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './SalesDocumentTest.rdlc';
@@ -438,7 +438,7 @@
                                 Continue := true;
                                 exit;
                             end;
-                        until DimSetEntry1.Next = 0;
+                        until DimSetEntry1.Next() = 0;
                     end;
 
                     trigger OnPreDataItem()
@@ -705,7 +705,7 @@
                                         Continue := true;
                                         exit;
                                     end;
-                                until DimSetEntry2.Next = 0;
+                                until DimSetEntry2.Next() = 0;
                             end;
 
                             trigger OnPostDataItem()
@@ -1429,13 +1429,13 @@
                         Invoice := false;
                         repeat
                             Invoice := (SalesLine."Quantity Shipped" - SalesLine."Quantity Invoiced") <> 0;
-                        until Invoice or (SalesLine.Next = 0);
+                        until Invoice or (SalesLine.Next() = 0);
                     end else
                         if Invoice and (not Receive) and ("Document Type" = "Document Type"::"Return Order") then begin
                             Invoice := false;
                             repeat
                                 Invoice := (SalesLine."Return Qty. Received" - SalesLine."Quantity Invoiced") <> 0;
-                            until Invoice or (SalesLine.Next = 0);
+                            until Invoice or (SalesLine.Next() = 0);
                         end;
                 end;
 
@@ -1517,7 +1517,7 @@
                                             Text013,
                                             PurchOrderHeader.FieldCaption("Receiving No. Series")));
                             end;
-                        until SalesLine.Next = 0;
+                        until SalesLine.Next() = 0;
 
                 if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice] then
                     if SalesSetup."Ext. Doc. No. Mandatory" and ("External Document No." = '') then
@@ -1900,7 +1900,7 @@
                         SaleShptLine."Quantity Invoiced" := SaleShptLine."Quantity Invoiced" - QtyToBeInvoiced;
                         SaleShptLine."Qty. Shipped Not Invoiced" :=
                           SaleShptLine.Quantity - SaleShptLine."Quantity Invoiced"
-                    until (SaleShptLine.Next = 0) or (Abs(RemQtyToBeInvoiced) <= Abs("Qty. to Ship"))
+                    until (SaleShptLine.Next() = 0) or (Abs(RemQtyToBeInvoiced) <= Abs("Qty. to Ship"))
                 else
                     AddError(
                       StrSubstNo(
@@ -1994,7 +1994,7 @@
                         ReturnRcptLine."Quantity Invoiced" := ReturnRcptLine."Quantity Invoiced" + QtyToBeInvoiced;
                         ReturnRcptLine."Return Qty. Rcd. Not Invd." :=
                           ReturnRcptLine.Quantity - ReturnRcptLine."Quantity Invoiced";
-                    until (ReturnRcptLine.Next = 0) or (Abs(RemQtyToBeInvoiced) <= Abs("Return Qty. to Receive"))
+                    until (ReturnRcptLine.Next() = 0) or (Abs(RemQtyToBeInvoiced) <= Abs("Return Qty. to Receive"))
                 else
                     AddError(
                       StrSubstNo(
@@ -2020,21 +2020,21 @@
             SalesLine.SetRange("Document Type", "Document Type");
             SalesLine.SetRange("Document No.", "No.");
             SalesLine.SetFilter(Type, '%1|%2', SalesLine.Type::Item, SalesLine.Type::"Charge (Item)");
-            if SalesLine.IsEmpty then
+            if SalesLine.IsEmpty() then
                 exit(false);
             if Ship then begin
                 SalesLine.SetFilter("Qty. to Ship", '<>%1', 0);
-                if not SalesLine.IsEmpty then
+                if not SalesLine.IsEmpty() then
                     exit(true);
             end;
             if Receive then begin
                 SalesLine.SetFilter("Return Qty. to Receive", '<>%1', 0);
-                if not SalesLine.IsEmpty then
+                if not SalesLine.IsEmpty() then
                     exit(true);
             end;
             if Invoice then begin
                 SalesLine.SetFilter("Qty. to Invoice", '<>%1', 0);
-                if not SalesLine.IsEmpty then
+                if not SalesLine.IsEmpty() then
                     exit(true);
             end;
         end;

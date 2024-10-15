@@ -70,13 +70,13 @@ report 11517 "Inventory Value (Help Report)"
                 ItemLedgEntry.SetFilter("Global Dimension 1 Code", GetFilter("Global Dimension 1 Filter"));
                 ItemLedgEntry.SetFilter("Global Dimension 2 Code", GetFilter("Global Dimension 2 Filter"));
 
-                if ItemLedgEntry.IsEmpty then
+                if ItemLedgEntry.IsEmpty() then
                     CurrReport.Skip();
 
                 if ItemLedgEntry.FindSet then
                     repeat
                         CalcInventoryValue(ItemLedgEntry);
-                    until ItemLedgEntry.Next = 0;
+                    until ItemLedgEntry.Next() = 0;
             end;
         }
         dataitem("Integer"; "Integer")
@@ -101,7 +101,7 @@ report 11517 "Inventory Value (Help Report)"
             trigger OnAfterGetRecord()
             begin
                 if not FirstLoop then
-                    if TempItemStatisticsBuffer.Next = 0 then
+                    if TempItemStatisticsBuffer.Next() = 0 then
                         CurrReport.Break();
 
                 FirstLoop := false;

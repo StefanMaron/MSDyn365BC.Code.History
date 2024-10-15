@@ -25,7 +25,6 @@ codeunit 435 "IC Inbox Import"
         FileName: Text;
         FromICPartnerCode: Code[20];
         NewTableID: Integer;
-        ChooseFileTitleMsg: Label 'Choose the file to upload.';
     begin
         CompanyInfo.Get();
         CompanyInfo.TestField("IC Partner Code");
@@ -61,8 +60,8 @@ codeunit 435 "IC Inbox Import"
                             repeat
                                 ICInboxOutboxMgt.OutboxJnlLineDimToInbox(
                                   ICInboxJnlLine, TempICInboxOutboxJnlLineDim, ICInboxOutboxJnlLineDim, DATABASE::"IC Inbox Jnl. Line");
-                            until TempICInboxOutboxJnlLineDim.Next = 0;
-                    until TempICOutboxJnlLine.Next = 0;
+                            until TempICInboxOutboxJnlLineDim.Next() = 0;
+                    until TempICOutboxJnlLine.Next() = 0;
 
                 TempICOutboxSalesHeader.SetRange("IC Transaction No.", TempICOutboxTrans."Transaction No.");
                 TempICOutboxSalesHeader.SetRange("IC Partner Code", TempICOutboxTrans."IC Partner Code");
@@ -70,7 +69,7 @@ codeunit 435 "IC Inbox Import"
                 if TempICOutboxSalesHeader.Find('-') then
                     repeat
                         ICInboxOutboxMgt.OutboxSalesHdrToInbox(Rec, TempICOutboxSalesHeader, ICInboxPurchaseHeader);
-                    until TempICOutboxSalesHeader.Next = 0;
+                    until TempICOutboxSalesHeader.Next() = 0;
 
                 TempICOutboxSalesLine.SetRange("IC Transaction No.", TempICOutboxTrans."Transaction No.");
                 TempICOutboxSalesLine.SetRange("IC Partner Code", TempICOutboxTrans."IC Partner Code");
@@ -78,7 +77,7 @@ codeunit 435 "IC Inbox Import"
                 if TempICOutboxSalesLine.Find('-') then
                     repeat
                         ICInboxOutboxMgt.OutboxSalesLineToInbox(Rec, TempICOutboxSalesLine, ICInboxPurchaseLine);
-                    until TempICOutboxSalesLine.Next = 0;
+                    until TempICOutboxSalesLine.Next() = 0;
 
                 TempICOutboxPurchaseHeader.SetRange("IC Transaction No.", TempICOutboxTrans."Transaction No.");
                 TempICOutboxPurchaseHeader.SetRange("IC Partner Code", TempICOutboxTrans."IC Partner Code");
@@ -86,7 +85,7 @@ codeunit 435 "IC Inbox Import"
                 if TempICOutboxPurchaseHeader.Find('-') then
                     repeat
                         ICInboxOutboxMgt.OutboxPurchHdrToInbox(Rec, TempICOutboxPurchaseHeader, ICInboxSalesHeader);
-                    until TempICOutboxPurchaseHeader.Next = 0;
+                    until TempICOutboxPurchaseHeader.Next() = 0;
 
                 TempICOutboxPurchaseLine.SetRange("IC Transaction No.", TempICOutboxTrans."Transaction No.");
                 TempICOutboxPurchaseLine.SetRange("IC Partner Code", TempICOutboxTrans."IC Partner Code");
@@ -94,7 +93,7 @@ codeunit 435 "IC Inbox Import"
                 if TempICOutboxPurchaseLine.Find('-') then
                     repeat
                         ICInboxOutboxMgt.OutboxPurchLineToInbox(Rec, TempICOutboxPurchaseLine, ICInboxSalesLine);
-                    until TempICOutboxPurchaseLine.Next = 0;
+                    until TempICOutboxPurchaseLine.Next() = 0;
 
                 TempICDocDim.SetRange("Transaction No.", TempICOutboxTrans."Transaction No.");
                 TempICDocDim.SetRange("IC Partner Code", TempICOutboxTrans."IC Partner Code");
@@ -113,14 +112,15 @@ codeunit 435 "IC Inbox Import"
                         end;
                         ICInboxOutboxMgt.OutboxDocDimToInbox(
                           TempICDocDim, ICInboxDocDim, NewTableID, FromICPartnerCode, "Transaction Source");
-                    until TempICDocDim.Next = 0;
-            until TempICOutboxTrans.Next = 0;
+                    until TempICDocDim.Next() = 0;
+            until TempICOutboxTrans.Next() = 0;
 
     end;
 
     var
         WrongCompanyErr: Label 'The selected xml file contains data sent to %1 %2. Current company''s %3 is %4.', Comment = 'The selected xml file contains data sent to IC Partner 001. Current company''s IC Partner Code is 002.';
         EnterFileNameErr: Label 'Enter the file name.';
+        ChooseFileTitleMsg: Label 'Choose the file to upload.';
         ClientFileName: Text;
 
 #if not CLEAN17

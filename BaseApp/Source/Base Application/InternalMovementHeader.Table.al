@@ -108,7 +108,7 @@ table 7346 "Internal Movement Header"
                                 BinType.TestField(Receive, false);
                     end;
                     InternalMovementLine.SetRange("No.", "No.");
-                    if not InternalMovementLine.IsEmpty then
+                    if not InternalMovementLine.IsEmpty() then
                         Message(Text004, FieldCaption("To Bin Code"), TableCaption);
                 end;
             end;
@@ -205,7 +205,7 @@ table 7346 "Internal Movement Header"
                 InternalMovementLine."Sorting Sequence No." := SequenceNo;
                 InternalMovementLine.Modify();
                 SequenceNo := SequenceNo + 10000;
-            until InternalMovementLine.Next = 0;
+            until InternalMovementLine.Next() = 0;
         end;
     end;
 
@@ -249,7 +249,7 @@ table 7346 "Internal Movement Header"
             exit;
 
         WhseEmployee.SetRange("Location Code", InternalMovementHeader."Location Code");
-        if not WhseEmployee.IsEmpty then
+        if not WhseEmployee.IsEmpty() then
             CurrentLocationCode := InternalMovementHeader."Location Code"
         else
             CurrentLocationCode := GetDefaultOrFirstAllowedLocation;

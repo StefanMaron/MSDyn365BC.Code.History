@@ -24,7 +24,7 @@ report 1143 "Import Cost Budget from Excel"
                     CostBudgetEntry.SetRange("Cost Type No.", "Cost Type No.");
                     CostBudgetEntry.SetRange(Date, Date);
                     CostBudgetEntry.SetFilter("Entry No.", '<=%1', LastEntryNoBeforeImport);
-                    if not CostBudgetEntry.IsEmpty then
+                    if not CostBudgetEntry.IsEmpty() then
                         CostBudgetEntry.DeleteAll(true);
                 end;
 
@@ -146,7 +146,7 @@ report 1143 "Import Cost Budget from Excel"
                 TempCostType.Init();
                 TempCostType := CostType;
                 TempCostType.Insert();
-            until CostType.Next = 0;
+            until CostType.Next() = 0;
         end;
 
         ExcelBuffer.LockTable();
@@ -311,7 +311,7 @@ report 1143 "Import Cost Budget from Excel"
                                 end;
                         end;
                 end;
-            until ExcelBuffer.Next = 0;
+            until ExcelBuffer.Next() = 0;
         end;
 
         Window.Close;

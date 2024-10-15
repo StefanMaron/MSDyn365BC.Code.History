@@ -207,7 +207,7 @@ report 11015 "Export Business Data"
                     InsertFilesExportBuffer(DataExportRecordSource, LastStreamNo);
 
                     TotalNoOfRecords += CountRecords(TempDataExportRecordSource);
-                until Next = 0;
+                until Next() = 0;
             StepValue := TotalNoOfRecords div 100;
             if GuiAllowed then
                 Window.Update(1, '');
@@ -288,7 +288,7 @@ report 11015 "Export Business Data"
                         NoOfDefinedTables += 1;
                     CalcFields("Table Name");
                     WriteLineToOutStream(FileWriteStream, StrSubstNo(LogEntryMsg, "Table Name", NoOfRecordsArr[Indentation], "Export File Name"));
-                until Next = 0;
+                until Next() = 0;
             end;
         end;
         WriteLineToOutStream(FileWriteStream, StrSubstNo(NoOfDefinedTablesMsg, NoOfDefinedTables));
@@ -316,7 +316,7 @@ report 11015 "Export Business Data"
                     WriteTable(TempDataExportRecordSource, RecRef);
                     RecRef.Close;
                     Copy(CurrTempDataExportRecordSource);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -334,7 +334,7 @@ report 11015 "Export Business Data"
                     WriteRecord(DataExportRecordSource, RecRefToExport);
                     UpdateProgressBar;
                     WriteRelatedRecords(DataExportRecordSource, RecRefToExport);
-                until RecRef.Next = 0;
+                until RecRef.Next() = 0;
             end;
     end;
 
@@ -392,7 +392,7 @@ report 11015 "Export Business Data"
                             ParentFieldRef := ParentRecRef.Field(DataExportTableRelation."From Field No.");
                             RelatedFieldRef := RelatedRecRef.Field(DataExportTableRelation."To Field No.");
                             RelatedFieldRef.SetRange(ParentFieldRef.Value);
-                        until DataExportTableRelation.Next = 0;
+                        until DataExportTableRelation.Next() = 0;
 
                         WriteTable(TempDataExportRecordSource, RelatedRecRef);
 
@@ -403,7 +403,7 @@ report 11015 "Export Business Data"
                         CalcFields("Table Name");
                         Error(DefineTableRelationErr, DataExportTableRelation.TableCaption, "Table Name");
                     end;
-                until Next = 0;
+                until Next() = 0;
             end;
         end;
     end;
@@ -430,7 +430,7 @@ report 11015 "Export Business Data"
                   GetDataExportRecFieldValue(
                     DataExportRecordField, DataExportRecordSource."Date Filter Field No.", RecRef);
                 RecordText += FieldValue + ';';
-            until DataExportRecordField.Next = 0;
+            until DataExportRecordField.Next() = 0;
             RecordText := CopyStr(RecordText, 1, StrLen(RecordText) - 1);
             DotNet_StreamWriterArr[DataExportRecordSource.Indentation].WriteLine(RecordText);
         end else
@@ -524,9 +524,9 @@ report 11015 "Export Business Data"
                                     then
                                         Error('');
                             end;
-                        until FieldMismatch or (DataExportRecordField.Next = 0);
+                        until FieldMismatch or (DataExportRecordField.Next() = 0);
                 RecRef.Close;
-            until FieldMismatch or (DataExportRecordSource.Next = 0);
+            until FieldMismatch or (DataExportRecordSource.Next() = 0);
     end;
 
     [Scope('OnPrem')]
@@ -568,7 +568,7 @@ report 11015 "Export Business Data"
             if Field.FindSet then
                 repeat
                     SetFlowFilter(Field."No.", DataExportRecordField."Date Filter Handling", RecRef)
-                until Field.Next = 0;
+                until Field.Next() = 0;
         end;
     end;
 

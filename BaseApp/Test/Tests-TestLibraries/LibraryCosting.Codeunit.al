@@ -141,7 +141,7 @@ codeunit 132200 "Library - Costing"
         PeriodStartDate: Date;
     begin
         AvgCostAdjmtEntryPoint.SetRange("Item No.", Item."No.");
-        AvgCostAdjmtEntryPoint.FindSet;
+        AvgCostAdjmtEntryPoint.FindSet();
         ValueEntry.SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code");
         ValueEntry.SetRange("Item No.", Item."No.");
         repeat
@@ -421,7 +421,7 @@ codeunit 132200 "Library - Costing"
     begin
         ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntryNo);
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
         repeat
             if (ValueEntry."Item Ledger Entry Quantity" <> 0) and
                ((FirstEntryNo = 0) or (FirstEntryNo > ValueEntry."Entry No."))
@@ -438,7 +438,7 @@ codeunit 132200 "Library - Costing"
     begin
         ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntryNo);
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
         repeat
             if LastValuationDate < ValueEntry."Valuation Date" then
                 LastValuationDate := ValueEntry."Valuation Date";

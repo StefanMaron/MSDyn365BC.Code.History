@@ -1,4 +1,4 @@
-﻿page 475 "VAT Statement Preview Line"
+page 475 "VAT Statement Preview Line"
 {
     Caption = 'Lines';
     Editable = false;
@@ -187,7 +187,7 @@
         UseAmtsInAddCurr := NewUseAmtsInAddCurr;
         VATStatementGermany.InitializeRequest(VATStmtName, Rec, Selection, PeriodSelection, false, UseAmtsInAddCurr);
         OnUpdateFormOnBeforePageUpdate(VATStmtName, Rec, Selection, PeriodSelection, false, UseAmtsInAddCurr);
-        CurrPage.Update;
+        CurrPage.Update();
 
         OnAfterUpdateForm();
     end;

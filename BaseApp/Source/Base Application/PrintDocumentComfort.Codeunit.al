@@ -22,7 +22,7 @@ codeunit 5005396 "Print Document Comfort"
         DACHReportSelections.Find('-');
         repeat
             REPORT.RunModal(DACHReportSelections."Report ID", true, false, DeliveryReminderHeader)
-        until DACHReportSelections.Next = 0;
+        until DACHReportSelections.Next() = 0;
     end;
 
     procedure IssuedDeliveryRemindPrint(IssuedDeliveryReminderHeader: Record "Issued Deliv. Reminder Header"; ShowRequestForm: Boolean)
@@ -41,7 +41,7 @@ codeunit 5005396 "Print Document Comfort"
         DACHReportSelections.Find('-');
         repeat
             REPORT.RunModal(DACHReportSelections."Report ID", ShowRequestForm, false, IssuedDeliveryReminderHeader)
-        until DACHReportSelections.Next = 0;
+        until DACHReportSelections.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

@@ -640,7 +640,7 @@ codeunit 136105 "Service - Price Management"
         ServiceLine.SetRange("Document Type", ServiceItemLine2."Document Type");
         ServiceLine.SetRange("Document No.", ServiceItemLine2."Document No.");
         ServiceLine.SetRange("Service Item Line No.", ServiceItemLine2."Line No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             TempServiceLine := ServiceLine;
             TempServiceLine.Insert();
@@ -661,7 +661,7 @@ codeunit 136105 "Service - Price Management"
     [Normal]
     local procedure CalculateTotalAmount(var TempServiceLine: Record "Service Line" temporary; IncludingVAT: Boolean) TotalAmount: Decimal
     begin
-        TempServiceLine.FindSet;
+        TempServiceLine.FindSet();
         TempServiceLine.CalcSums("Amount Including VAT", Amount);
         if IncludingVAT then
             TotalAmount := TempServiceLine."Amount Including VAT"
@@ -692,7 +692,7 @@ codeunit 136105 "Service - Price Management"
         ServiceLine.SetRange("Document Type", ServiceItemLine2."Document Type");
         ServiceLine.SetRange("Document No.", ServiceItemLine2."Document No.");
         ServiceLine.SetRange("Service Item Line No.", ServiceItemLine2."Line No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
     end;
 
     [Normal]
@@ -753,7 +753,7 @@ codeunit 136105 "Service - Price Management"
         ServiceLine.SetRange("Document Type", ServiceItemLine2."Document Type");
         ServiceLine.SetRange("Document No.", ServiceItemLine2."Document No.");
         ServiceLine.SetRange("Service Item Line No.", ServiceItemLine2."Line No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.TestField("No.", TempServiceLine."No.");
             ServiceLine.TestField("Unit Price", TempServiceLine."Unit Price");

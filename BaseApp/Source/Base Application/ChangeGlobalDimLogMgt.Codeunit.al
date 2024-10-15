@@ -58,19 +58,19 @@ codeunit 484 "Change Global Dim. Log Mgt."
         ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry";
     begin
         ClearBuffer;
-        if ChangeGlobalDimLogEntry.IsEmpty then
+        if ChangeGlobalDimLogEntry.IsEmpty() then
             exit(false);
-        ChangeGlobalDimLogEntry.FindSet;
+        ChangeGlobalDimLogEntry.FindSet();
         repeat
             TempChangeGlobalDimLogEntry := ChangeGlobalDimLogEntry;
             TempChangeGlobalDimLogEntry.Insert();
-        until ChangeGlobalDimLogEntry.Next = 0;
+        until ChangeGlobalDimLogEntry.Next() = 0;
         TempChangeGlobalDimLogEntry.SetRange("Total Records", 0);
         TempChangeGlobalDimLogEntry.DeleteAll();
         exit(not IsBufferClear);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5150, 'OnGetIntegrationDisabled', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Management", 'OnGetIntegrationDisabled', '', false, false)]
     local procedure OnGetIntegrationDisabledHandler(var IsSyncDisabled: Boolean)
     begin
         IsSyncDisabled := true

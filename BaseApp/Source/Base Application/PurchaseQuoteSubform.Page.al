@@ -42,8 +42,8 @@ page 97 "Purchase Quote Subform"
 
                     trigger OnValidate()
                     begin
-                        if TempOptionLookupBuffer.AutoCompleteOption(TypeAsText, TempOptionLookupBuffer."Lookup Type"::Purchases) then
-                            Validate(Type, TempOptionLookupBuffer.ID);
+                        if TempOptionLookupBuffer.AutoCompleteLookup(TypeAsText, "Option Lookup Type"::Purchases) then
+                            Rec.Validate(Type, TempOptionLookupBuffer.ID);
                         TempOptionLookupBuffer.ValidateOption(TypeAsText);
                         UpdateEditableOnRow();
                         UpdateTypeText();
@@ -67,6 +67,7 @@ page 97 "Purchase Quote Subform"
                         CurrPage.Update();
                     end;
                 }
+#if not CLEAN17
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
                     ApplicationArea = Suite;
@@ -89,6 +90,7 @@ page 97 "Purchase Quote Subform"
                         DeltaUpdateTotals();
                     end;
                 }
+#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     ApplicationArea = Suite;
@@ -665,6 +667,17 @@ page 97 "Purchase Quote Subform"
                             ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByLocation)
                         end;
                     }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
+                    }
                     action("BOM Level")
                     {
                         AccessByPermission = TableData "BOM Buffer" = R;
@@ -799,13 +812,13 @@ page 97 "Purchase Quote Subform"
 
     trigger OnDeleteRecord(): Boolean
     var
-        ReservePurchLine: Codeunit "Purch. Line-Reserve";
+        PurchLineReserve: Codeunit "Purch. Line-Reserve";
     begin
         if (Quantity <> 0) and ItemExists("No.") then begin
             Commit();
-            if not ReservePurchLine.DeleteLineConfirm(Rec) then
+            if not PurchLineReserve.DeleteLineConfirm(Rec) then
                 exit(false);
-            ReservePurchLine.DeleteLine(Rec);
+            PurchLineReserve.DeleteLine(Rec);
         end;
         DocumentTotals.PurchaseDocTotalsNotUpToDate();
     end;
@@ -821,7 +834,7 @@ page 97 "Purchase Quote Subform"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         PurchasesPayablesSetup.Get();
-        TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Purchases);
+        TempOptionLookupBuffer.FillLookupBuffer("Option Lookup Type"::Purchases);
         IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled();
         Currency.InitRoundingPrecision();
     end;
@@ -852,8 +865,6 @@ page 97 "Purchase Quote Subform"
     end;
 
     var
-        TotalPurchaseHeader: Record "Purchase Header";
-        TotalPurchaseLine: Record "Purchase Line";
         Currency: Record Currency;
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
@@ -863,9 +874,6 @@ page 97 "Purchase Quote Subform"
         CannotUseBOMErr: Label 'You cannot use the Explode BOM function because a prepayment of the related purchase order has been invoiced.';
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         DocumentTotals: Codeunit "Document Totals";
-        VATAmount: Decimal;
-        InvoiceDiscountAmount: Decimal;
-        InvoiceDiscountPct: Decimal;
         AmountWithDiscountAllowed: Decimal;
         TypeAsText: Text[30];
         ItemChargeStyleExpression: Text;
@@ -880,7 +888,12 @@ page 97 "Purchase Quote Subform"
         ItemReferenceVisible: Boolean;
 
     protected var
+        TotalPurchaseHeader: Record "Purchase Header";
+        TotalPurchaseLine: Record "Purchase Line";
         ShortcutDimCode: array[8] of Code[20];
+        InvoiceDiscountAmount: Decimal;
+        InvoiceDiscountPct: Decimal;
+        VATAmount: Decimal;
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;
@@ -974,7 +987,7 @@ page 97 "Purchase Quote Subform"
         DocumentTotals.GetTotalPurchaseHeaderAndCurrency(Rec, TotalPurchaseHeader, Currency);
     end;
 
-    local procedure CalculateTotals()
+    procedure CalculateTotals()
     begin
         if SuppressTotals then
             exit;
@@ -1112,10 +1125,12 @@ page 97 "Purchase Quote Subform"
     begin
     end;
 
+#if not CLEAN17
     [IntegrationEvent(false, false)]
     local procedure OnCrossReferenceNoOnLookup(var PurchaseLine: Record "Purchase Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnItemReferenceNoOnLookup(var PurchaseLine: Record "Purchase Line")

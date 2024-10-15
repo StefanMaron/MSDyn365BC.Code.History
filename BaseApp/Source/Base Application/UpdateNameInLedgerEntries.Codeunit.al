@@ -114,7 +114,7 @@ codeunit 104 "Update Name In Ledger Entries"
         FieldRef.SetFilter(StrSubstNo('<>'''''));
         FieldRef := RecRef.Field(FieldNo);
         FieldRef.SetRange('');
-        if RecRef.IsEmpty then
+        if RecRef.IsEmpty() then
             Result := 0;
         Result := RecRef.Count();
         RecRef.Close;
@@ -180,7 +180,7 @@ codeunit 104 "Update Name In Ledger Entries"
                         "Customer Name" := Customer.Name;
                         Modify;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -210,7 +210,7 @@ codeunit 104 "Update Name In Ledger Entries"
                             Description := ItemVariant.Description;
                         Modify;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -232,7 +232,7 @@ codeunit 104 "Update Name In Ledger Entries"
                             Description := ItemVariant.Description;
                         Modify;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -254,7 +254,7 @@ codeunit 104 "Update Name In Ledger Entries"
                             Description := ItemVariant.Description;
                         Modify;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -274,7 +274,7 @@ codeunit 104 "Update Name In Ledger Entries"
                         "Vendor Name" := Vendor.Name;
                         Modify;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 }

@@ -178,7 +178,7 @@ page 9845 "Event Recorder"
                                 Init;
                                 Rec := TempRecordedEventBuffer;
                                 Insert;
-                            until TempRecordedEventBuffer.Next = 0;
+                            until TempRecordedEventBuffer.Next() = 0;
                         end;
                     end;
                 }

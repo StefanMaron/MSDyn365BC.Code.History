@@ -103,7 +103,7 @@ table 7506 "Filter Item Attributes Buffer"
             repeat
                 if LowerCase(ItemAttribute.Name) = AttributeName then
                     exit(true);
-            until ItemAttribute.Next = 0;
+            until ItemAttribute.Next() = 0;
 
         exit(false);
     end;
@@ -123,7 +123,7 @@ table 7506 "Filter Item Attributes Buffer"
             repeat
                 if LowerCase(ItemAttributeValue.Value) = AttributeValue then
                     exit(true);
-            until ItemAttributeValue.Next = 0;
+            until ItemAttributeValue.Next() = 0;
         end;
         exit(false);
     end;
@@ -133,7 +133,7 @@ table 7506 "Filter Item Attributes Buffer"
         TempFilterItemAttributesBuffer: Record "Filter Item Attributes Buffer" temporary;
         AttributeName: Text[250];
     begin
-        if IsEmpty then
+        if IsEmpty() then
             exit;
         AttributeName := LowerCase(Attribute);
         TempFilterItemAttributesBuffer.Copy(Rec, true);
@@ -142,7 +142,7 @@ table 7506 "Filter Item Attributes Buffer"
                 if TempFilterItemAttributesBuffer.ID <> ID then
                     if LowerCase(TempFilterItemAttributesBuffer.Attribute) = AttributeName then
                         Error(AttributeValueAlreadySpecifiedErr, Attribute);
-            until TempFilterItemAttributesBuffer.Next = 0;
+            until TempFilterItemAttributesBuffer.Next() = 0;
     end;
 
     local procedure AdjustAttributeName(var ItemAttribute: Record "Item Attribute")

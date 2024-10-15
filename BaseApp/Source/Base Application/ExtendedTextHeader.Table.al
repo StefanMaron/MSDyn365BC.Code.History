@@ -274,7 +274,7 @@ table 279 "Extended Text Header"
                 TmpExtTextLine."Text No." := "Text No.";
                 TmpExtTextLine."Language Code" := "Language Code";
                 TmpExtTextLine.Insert();
-            until ExtTextLine.Next = 0;
+            until ExtTextLine.Next() = 0;
 
         ExtTextLine.DeleteAll();
     end;

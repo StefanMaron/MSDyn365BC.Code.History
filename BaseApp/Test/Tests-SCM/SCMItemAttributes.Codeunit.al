@@ -2598,7 +2598,7 @@ codeunit 137413 "SCM Item Attributes"
         ItemAttributes.GotoRecord(ItemAttribute);
         ItemAttributeCard.OpenView;
         ItemAttributeCard.GotoRecord(ItemAttribute);
-        ItemAttributeValue.FindSet;
+        ItemAttributeValue.FindSet();
         repeat
             if expectedValue <> '' then
                 expectedValue += ',';

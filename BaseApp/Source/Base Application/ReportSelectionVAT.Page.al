@@ -86,7 +86,7 @@ page 26101 "Report Selection - VAT"
 
     local procedure ReportUsage2OnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

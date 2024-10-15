@@ -81,11 +81,11 @@ table 9000 "User Group"
         UserGroupPlan: Record "User Group Plan";
     begin
         UserGroupMember.SetRange("User Group Code", Code);
-        if not UserGroupMember.IsEmpty then
+        if not UserGroupMember.IsEmpty() then
             Error(HasMembersErr);
 
         UserGroupPlan.SetRange("User Group Code", Code);
-        if not UserGroupPlan.IsEmpty then
+        if not UserGroupPlan.IsEmpty() then
             Error(PartOfPlansErr);
     end;
 

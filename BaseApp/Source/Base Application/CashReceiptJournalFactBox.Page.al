@@ -318,6 +318,7 @@ page 35516 "Cash Receipt Journal FactBox"
               ExchRate.ExchangeAmtFCYToFCY("Posting Date", CustLedgEntry."Currency Code",
                 "Currency Code", CustLedgEntry."Remaining Pmt. Disc. Possible");
             CurrPMTDiscount := Round(CurrPMTDiscount, Currency."Amount Rounding Precision");
+            OnUpdateInfoBoxOnAfterCalcCurrPMTDiscount("Posting Date", PostingDate, CustLedgEntry, PmtDiscDate, DueDate, AgeDays, PaymDiscDays, DueDays);
 
             // calculate FC-amount of open entries and remaining amount
             if CustLedgEntry."Currency Code" <> "Currency Code" then begin
@@ -368,7 +369,12 @@ page 35516 "Cash Receipt Journal FactBox"
             AcceptedPaymentTol += CurrAcceptedPaymentTol;
             RemainAfterPayment += CurrRemainAfterPayment;
             RemainAfterPaymentText := Format(RemainAfterPayment, 0, Text002);
-        until CustLedgEntry.Next = 0;
+        until CustLedgEntry.Next() = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateInfoBoxOnAfterCalcCurrPMTDiscount(PostingDateField: Date; PostingDate: Date; CustLedgEntry: Record "Cust. Ledger Entry"; PmtDiscDate: Date; DueDate: Date; AgeDays: Integer; PaymDiscDays: Integer; DueDays: Integer)
+    begin
     end;
 }
 

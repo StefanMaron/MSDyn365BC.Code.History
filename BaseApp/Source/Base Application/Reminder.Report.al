@@ -44,6 +44,24 @@ report 117 Reminder
             column(ShowMIRLines; ShowMIRLines)
             {
             }
+            column(ContactPhoneNoLbl; ContactPhoneNoLbl)
+            {
+            }
+            column(ContactMobilePhoneNoLbl; ContactMobilePhoneNoLbl)
+            {
+            }
+            column(ContactEmailLbl; ContactEmailLbl)
+            {
+            }
+            column(ContactPhoneNo; PrimaryContact."Phone No.")
+            {
+            }
+            column(ContactMobilePhoneNo; PrimaryContact."Mobile Phone No.")
+            {
+            }
+            column(ContactEmail; PrimaryContact."E-mail")
+            {
+            }
             dataitem("Integer"; "Integer")
             {
                 DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
@@ -218,7 +236,7 @@ report 117 Reminder
                                 Continue := true;
                                 exit;
                             end;
-                        until DimSetEntry.Next = 0;
+                        until DimSetEntry.Next() = 0;
                     end;
 
                     trigger OnPreDataItem()
@@ -375,7 +393,7 @@ report 117 Reminder
                             repeat
                                 Continue := Type = Type::" ";
                                 StartLineNo := "Line No.";
-                            until (Next = 0) or not Continue;
+                            until (Next() = 0) or not Continue;
                         end;
                         Clear(CompanyInfo.Picture);
                         Clear(CompanyInfo1.Picture);
@@ -648,6 +666,7 @@ report 117 Reminder
                 if not IsReportInPreviewMode then
                     IncrNoPrinted;
 
+                Customer.GetPrimaryContact("Customer No.", PrimaryContact);
                 CalcFields("Additional Fee");
                 CustPostingGroup.Get("Customer Posting Group");
                 if GLAcc.Get(CustPostingGroup."Additional Fee Account") then begin
@@ -786,12 +805,14 @@ report 117 Reminder
                     SegManagement.LogDocument(
                       8, "Issued Reminder Header"."No.", 0, 0, DATABASE::Customer, "Issued Reminder Header"."Customer No.",
                       '', '', "Issued Reminder Header"."Posting Description", '');
-                until "Issued Reminder Header".Next = 0;
+                until "Issued Reminder Header".Next() = 0;
     end;
 
     var
         Text000: Label 'Total %1';
         Text001: Label 'Total %1 Incl. VAT';
+        PrimaryContact: Record Contact;
+        Customer: Record Customer;
         CustEntry: Record "Cust. Ledger Entry";
         GLSetup: Record "General Ledger Setup";
         CompanyInfo: Record "Company Information";
@@ -875,6 +896,9 @@ report 117 Reminder
         BodyLbl: Label 'If you have already made the payment, please disregard this email. Thank you for your business.';
         ClosingLbl: Label 'Sincerely';
         DescriptionLbl: Label 'Description';
+        ContactPhoneNoLbl: Label 'Contact Phone No.';
+        ContactMobilePhoneNoLbl: Label 'Contact Mobile Phone No.';
+        ContactEmailLbl: Label 'Contact E-Mail';
         AmtDueTxt: Text;
         RemainingAmt: Text;
         TotalRemAmt: Decimal;

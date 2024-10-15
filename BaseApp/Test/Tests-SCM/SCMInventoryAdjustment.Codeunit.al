@@ -277,7 +277,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         ReleasedProductionOrderSetup(TempItem, PurchaseHeader, ProductionOrder, CostingMethod, 2, true);
 
         // Calculate Consumption Quantity for Item Ledger Entry.
-        TempItem.FindSet;
+        TempItem.FindSet();
         ItemConsumptionQuantity := SelectItemConsumptionQuantity(ProductionOrder.Quantity, TempItem."No.");
         TempItem.Next;
         ItemConsumptionQuantity2 := SelectItemConsumptionQuantity(ProductionOrder.Quantity, TempItem."No.");
@@ -312,7 +312,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         ReleasedProductionOrderSetup(TempItem, PurchaseHeader, ProductionOrder, CostingMethod, 2, true);
 
         // Calculate Expected Consumption Cost Amount and Component Consumption Quantity.
-        TempItem.FindSet;
+        TempItem.FindSet();
         ChildItemNo := TempItem."No.";
         ItemConsumptionQuantity := SelectItemConsumptionQuantity(ProductionOrder.Quantity, ChildItemNo);
         TempItem.Next;
@@ -378,7 +378,7 @@ codeunit 137037 "SCM Inventory Adjustment"
 
         // Verify: Verification of Consumption Quantity and Cost Amount(Actual) in Item Ledger Entry.
         // Calculate Expected Consumption Cost Amount and Component Consumption Quantity.
-        TempItem.FindSet;
+        TempItem.FindSet();
         LastDirectCost := SelectItemCost(TempItem."No.", Item.FieldNo("Last Direct Cost"));
         ItemConsumptionQuantity := SelectItemConsumptionQuantity(ProductionOrder.Quantity, TempItem."No.");
         TempItem.Next;
@@ -603,7 +603,7 @@ codeunit 137037 "SCM Inventory Adjustment"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        TempItem.FindSet;
+        TempItem.FindSet();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         UpdateVendorInvoiceNo(PurchaseHeader);
         repeat
@@ -621,7 +621,7 @@ codeunit 137037 "SCM Inventory Adjustment"
     begin
         // Random values not important.
         ManufacturingSetup.Get();
-        TempItem.FindSet;
+        TempItem.FindSet();
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, TempItem."Base Unit of Measure");
         repeat
             LibraryManufacturing.CreateProductionBOMLine(
@@ -665,7 +665,7 @@ codeunit 137037 "SCM Inventory Adjustment"
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
     end;
 
     local procedure SelectProdBOMLine(var ProductionBOMLine: Record "Production BOM Line"; ItemNo: Code[20])
@@ -674,7 +674,7 @@ codeunit 137037 "SCM Inventory Adjustment"
     begin
         Item.Get(ItemNo);
         ProductionBOMLine.SetRange("Production BOM No.", Item."Production BOM No.");
-        ProductionBOMLine.FindSet;
+        ProductionBOMLine.FindSet();
     end;
 
     local procedure SelectBOMLineQuantityPer(var TempItem: Record Item temporary; ItemCostingMethod: Enum "Costing Method"): Integer
@@ -740,7 +740,7 @@ codeunit 137037 "SCM Inventory Adjustment"
     begin
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
     end;
 
     local procedure SelectItemCost(ItemNo: Code[20]; FieldNo: Integer) CurrentValue: Decimal
@@ -760,7 +760,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         Counter: Integer;
         ItemString: Text[250];
     begin
-        TempItem.FindSet;
+        TempItem.FindSet();
         for Counter := 1 to TempItem.Count do begin
             ItemString := ItemString + TempItem."No." + '|';
             TempItem.Next;
@@ -822,7 +822,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         ItemJournalLine.Reset();
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Order No.", ProductionOrderNo);
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
 
         // Post Production Journal lines with modified Consumption Quantity.
         repeat
@@ -845,7 +845,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         ItemJournalLine.Reset();
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Order No.", ProductionOrderNo);
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
 
         // Post Production Journal lines with modified Consumption Quantity.
         repeat
@@ -861,7 +861,7 @@ codeunit 137037 "SCM Inventory Adjustment"
     begin
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Order No.", ProductionOrderNo);
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
 
         // Post Production Journal lines.
         repeat

@@ -190,12 +190,12 @@ codeunit 142078 "Test Vat VIES Declaration"
     begin
         CompanyInformation.Get();
         CountryRegion.SetFilter("EU Country/Region Code", '<>'''' & <>''%1''', CompanyInformation."Country/Region Code");
-        CountryRegion.FindSet;
+        CountryRegion.FindSet();
 
         repeat
             Clear(Customer);
             Customer.SetRange("Country/Region Code", CountryRegion.Code);
-            if not Customer.IsEmpty then begin
+            if not Customer.IsEmpty() then begin
                 Customer.FindFirst;
                 exit;
             end

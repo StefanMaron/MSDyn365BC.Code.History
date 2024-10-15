@@ -2,8 +2,8 @@ table 7827 "MS-QBO Failed Syncs"
 {
     Caption = 'MS-QBO Failed Syncs';
     ObsoleteReason = 'replacing burntIn Extension tables with V2 Extension';
-    ObsoleteState = Pending;
-    ObsoleteTag = '15.0';
+    ObsoleteState = Removed;
+    ObsoleteTag = '18.0';
 
     fields
     {

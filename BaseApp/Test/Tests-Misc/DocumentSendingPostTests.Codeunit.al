@@ -3209,7 +3209,7 @@ codeunit 139197 DocumentSendingPostTests
 
         FormatCode := LibraryUtility.GenerateGUID;
         with ElectronicDocumentFormat do begin
-            for UsageOption := Usage::"Sales Invoice" to Usage::"Job Quote" do begin
+            for UsageOption := Usage::"Sales Invoice".AsInteger() to Usage::"Job Quote".AsInteger() do begin
                 InsertElectronicFormat(FormatCode, '', 0, 0, UsageOption);
                 Get(FormatCode, UsageOption);
             end;
@@ -3406,7 +3406,7 @@ codeunit 139197 DocumentSendingPostTests
         ReportLayoutSelection.Insert();
     end;
 
-    local procedure InitializeDocumentSendingProfile(var DocumentSendingProfile: Record "Document Sending Profile"; EmailAttachmentType: Option; Printer: Option; Email: Option)
+    local procedure InitializeDocumentSendingProfile(var DocumentSendingProfile: Record "Document Sending Profile"; EmailAttachmentType: Enum "Document Sending Profile Attachment Type"; Printer: Option; Email: Option)
     var
         ElectronicDocumentFormat: Record "Electronic Document Format";
     begin
@@ -3900,27 +3900,27 @@ codeunit 139197 DocumentSendingPostTests
         ElectronicDocumentFormat.DeleteAll;
         ElectronicDocumentFormat.InsertElectronicFormat(
           PeppolFormatNameTxt, PeppolFormatNameTxt, CODEUNIT::"Exp. Sales Inv. PEPPOL BIS3.0", 0,
-          ElectronicDocumentFormat.Usage::"Sales Invoice");
+          ElectronicDocumentFormat.Usage::"Sales Invoice".AsInteger());
 
         ElectronicDocumentFormat.InsertElectronicFormat(
           PeppolFormatNameTxt, PeppolFormatNameTxt, CODEUNIT::"Exp. Sales CrM. PEPPOL BIS3.0", 0,
-          ElectronicDocumentFormat.Usage::"Sales Credit Memo");
+          ElectronicDocumentFormat.Usage::"Sales Credit Memo".AsInteger());
 
         ElectronicDocumentFormat.InsertElectronicFormat(
           PeppolFormatNameTxt, PeppolFormatNameTxt, CODEUNIT::"Exp. Serv.Inv. PEPPOL BIS3.0", 0,
-          ElectronicDocumentFormat.Usage::"Service Invoice");
+          ElectronicDocumentFormat.Usage::"Service Invoice".AsInteger());
 
         ElectronicDocumentFormat.InsertElectronicFormat(
           PeppolFormatNameTxt, PeppolFormatNameTxt, CODEUNIT::"Exp. Serv.CrM. PEPPOL BIS3.0", 0,
-          ElectronicDocumentFormat.Usage::"Service Credit Memo");
+          ElectronicDocumentFormat.Usage::"Service Credit Memo".AsInteger());
 
         ElectronicDocumentFormat.InsertElectronicFormat(
           PeppolFormatNameTxt, PeppolFormatNameTxt, CODEUNIT::"PEPPOL Validation", 0,
-          ElectronicDocumentFormat.Usage::"Sales Validation");
+          ElectronicDocumentFormat.Usage::"Sales Validation".AsInteger());
 
         ElectronicDocumentFormat.InsertElectronicFormat(
           PeppolFormatNameTxt, PeppolFormatNameTxt, CODEUNIT::"PEPPOL Service Validation", 0,
-          ElectronicDocumentFormat.Usage::"Service Validation");
+          ElectronicDocumentFormat.Usage::"Service Validation".AsInteger());
 
         with CountryRegion do begin
             SetRange("VAT Scheme", '');

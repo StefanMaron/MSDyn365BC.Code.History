@@ -1828,14 +1828,14 @@ codeunit 136601 "ERM RS Data Templates"
         InputTableInConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Item);
         LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplateHeader.Code);
         InputFieldInConfigTemplateLine(
-            ConfigTemplateLine, Item.FieldNo("Replenishment System"),
-            Item.FieldName("Replenishment System"), Format(Item."Replenishment System"::Assembly), false);
+          ConfigTemplateLine, Item.FieldNo("Replenishment System"),
+          Item.FieldName("Replenishment System"), Format(Item."Replenishment System"::Assembly), false);
         LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplateHeader.Code);
 
         // [WHEN] Line 2 "Default Value" is validated with "Assemble-to-Order".
         InputFieldInConfigTemplateLine(
-            ConfigTemplateLine, Item.FieldNo("Assembly Policy"),
-            Item.FieldName("Assembly Policy"), Format(Item."Assembly Policy"::"Assemble-to-Order"), false);
+          ConfigTemplateLine, Item.FieldNo("Assembly Policy"),
+          Item.FieldName("Assembly Policy"), Format(Item."Assembly Policy"::"Assemble-to-Order"), false);
 
         // [THEN] Line 2 "Default Value" = "Assemble-to-Order".
         ConfigTemplateLine.TestField("Default Value", Format(Item."Assembly Policy"::"Assemble-to-Order"));

@@ -20,6 +20,24 @@ codeunit 132802 "Upgrade Test Data Setup"
         TableMapping.Add(Database::"CRM Connection Setup", Database::"UPG - CRM Connection Setup")
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Test Data Setup Mgt.", 'OnGetTablesToBackupPerCompany', '', false, false)]
+    local procedure BackupIntegrationTableMapping(TableMapping: Dictionary of [Integer, Integer])
+    var
+        UPGIntegrationTableMapping: Record "UPG-Integration Table Mapping";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        OpportunityTableFilter: Text;
+    begin
+        IntegrationTableMapping.SetRange(Name, 'OPPORTUNITY');
+        IntegrationTableMapping.SetRange("Table ID", Database::Opportunity);
+        IntegrationTableMapping.SetRange("Integration Table ID", Database::"CRM Opportunity");
+        if IntegrationTableMapping.FindFirst() then begin
+            OpportunityTableFilter := IntegrationTableMapping.GetTableFilter();
+            UPGIntegrationTableMapping.Name := IntegrationTableMapping.Name;
+            UPGIntegrationTableMapping.SetTableFilter(OpportunityTableFilter);
+            UPGIntegrationTableMapping.Insert();
+        end;
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Test Data Setup Mgt.", 'OnGetTablesToBackupPerDatabase', '', false, false)]
     local procedure BackupUpgradeTags(TableMapping: Dictionary of [Integer, Integer])
     begin

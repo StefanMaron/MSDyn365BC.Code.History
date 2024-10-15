@@ -143,7 +143,7 @@ page 5005271 "Delivery Reminder Sub."
             TransferExtendedDelivRemText.DelivReminInsertExtendedText(Rec);
         end;
         if TransferExtendedDelivRemText.MakeUpdate then
-            CurrPage.Update;
+            CurrPage.Update();
     end;
 
     local procedure NoOnAfterValidate()

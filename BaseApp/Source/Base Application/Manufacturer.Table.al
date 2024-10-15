@@ -26,6 +26,9 @@ table 5720 Manufacturer
 
     fieldgroups
     {
+        fieldgroup(DropDown; "Code", Name)
+        {
+        }
     }
 }
 

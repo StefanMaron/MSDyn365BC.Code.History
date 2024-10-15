@@ -59,19 +59,19 @@ codeunit 347 "Amount Auto Format"
         AmountRoundingPrecision := GLSetup."Amount Rounding Precision";
     end;
 
-    [EventSubscriber(ObjectType::Table, 98, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"General Ledger Setup", 'OnAfterDeleteEvent', '', false, false)]
     local procedure ResetGLSetupReadOnGLSetupDelete()
     begin
         GLSetupRead := false;
     end;
 
-    [EventSubscriber(ObjectType::Table, 98, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"General Ledger Setup", 'OnAfterInsertEvent', '', false, false)]
     local procedure ResetGLSetupReadOnGLSetupInsert()
     begin
         GLSetupRead := false;
     end;
 
-    [EventSubscriber(ObjectType::Table, 98, 'OnAfterModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"General Ledger Setup", 'OnAfterModifyEvent', '', false, false)]
     local procedure ResetGLSetupReadOnGLSetupModify()
     begin
         GLSetupRead := false;

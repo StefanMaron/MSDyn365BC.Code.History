@@ -244,7 +244,7 @@ report 1011 "Job Suggested Billing"
                     if not JobBuffer[1].Find('-') then
                         CurrReport.Break();
                 end else
-                    if JobBuffer[1].Next = 0 then
+                    if JobBuffer[1].Next() = 0 then
                         CurrReport.Break();
                 Clear(Cust);
                 Clear(TotalAmt);

@@ -250,9 +250,6 @@ codeunit 138913 "O365 Verify Visibility"
         LibraryLowerPermissions.SetInvoiceApp;
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
-        // [GIVEN] #Invoicing app area enabled
-        LibraryApplicationArea.EnableInvoicingSetup;
-
         // [WHEN] Countries\Regions page is being opened
         CountriesRegions.OpenEdit;
 
@@ -276,9 +273,6 @@ codeunit 138913 "O365 Verify Visibility"
         // [SCENARIO 197381] Invoicing related fields of Item Card page are visible
         LibraryLowerPermissions.SetInvoiceApp;
         LibraryApplicationArea.DisableApplicationAreaSetup;
-
-        // [GIVEN] #Invoicing app area enabled
-        LibraryApplicationArea.EnableInvoicingSetup;
 
         // [WHEN] Item Card page is being opened
         ItemCard.OpenEdit;
@@ -316,8 +310,6 @@ codeunit 138913 "O365 Verify Visibility"
         LibraryLowerPermissions.SetInvoiceApp;
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
-        // [GIVEN] #Invoicing app area enabled
-        LibraryApplicationArea.EnableInvoicingSetup;
         CreateItemWithPage;
 
         // [WHEN] Item List page is being opened
@@ -346,9 +338,6 @@ codeunit 138913 "O365 Verify Visibility"
         LibraryLowerPermissions.SetInvoiceApp;
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
-        // [GIVEN] #Invoicing app area enabled
-        LibraryApplicationArea.EnableInvoicingSetup;
-
         // [WHEN] SMTP User-Specified Address page is being opened
         SMTPUserSpecifiedAddress.OpenEdit;
 
@@ -370,9 +359,6 @@ codeunit 138913 "O365 Verify Visibility"
         InitializeVAT;
         LibraryLowerPermissions.SetInvoiceApp;
         LibraryApplicationArea.DisableApplicationAreaSetup;
-
-        // [GIVEN] #Invoicing app area enabled
-        LibraryApplicationArea.EnableInvoicingSetup;
 
         // [GIVEN] Customer created with page
         // [WHEN] Sales invoice created with page

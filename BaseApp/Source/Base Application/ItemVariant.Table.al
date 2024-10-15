@@ -82,7 +82,9 @@ table 5401 "Item Variant"
         ItemTranslation: Record "Item Translation";
         SKU: Record "Stockkeeping Unit";
         ItemIdent: Record "Item Identifier";
+#if not CLEAN16
         ItemCrossReference: Record "Item Cross Reference";
+#endif
         ItemReference: Record "Item Reference";
         BOMComp: Record "BOM Component";
         ItemJnlLine: Record "Item Journal Line";
@@ -110,7 +112,7 @@ table 5401 "Item Variant"
         BOMComp.SetRange(Type, BOMComp.Type::Item);
         BOMComp.SetRange("No.", "Item No.");
         BOMComp.SetRange("Variant Code", Code);
-        if not BOMComp.IsEmpty then
+        if not BOMComp.IsEmpty() then
             Error(Text001, Code, BOMComp.TableCaption);
 
         ProdBOMLine.Reset();
@@ -118,14 +120,14 @@ table 5401 "Item Variant"
         ProdBOMLine.SetRange(Type, ProdBOMLine.Type::Item);
         ProdBOMLine.SetRange("No.", "Item No.");
         ProdBOMLine.SetRange("Variant Code", Code);
-        if not ProdBOMLine.IsEmpty then
+        if not ProdBOMLine.IsEmpty() then
             Error(Text001, Code, ProdBOMLine.TableCaption);
 
         ProdOrderComp.Reset();
         ProdOrderComp.SetCurrentKey(Status, "Item No.");
         ProdOrderComp.SetRange("Item No.", "Item No.");
         ProdOrderComp.SetRange("Variant Code", Code);
-        if not ProdOrderComp.IsEmpty then
+        if not ProdOrderComp.IsEmpty() then
             Error(Text001, Code, ProdOrderComp.TableCaption);
 
         if ProdOrderExist then
@@ -135,28 +137,28 @@ table 5401 "Item Variant"
         AssemblyHeader.SetCurrentKey("Document Type", "Item No.");
         AssemblyHeader.SetRange("Item No.", "Item No.");
         AssemblyHeader.SetRange("Variant Code", Code);
-        if not AssemblyHeader.IsEmpty then
+        if not AssemblyHeader.IsEmpty() then
             Error(Text001, Code, AssemblyHeader.TableCaption);
 
         AssemblyLine.Reset();
         AssemblyLine.SetCurrentKey("Document Type", Type, "No.");
         AssemblyLine.SetRange("No.", "Item No.");
         AssemblyLine.SetRange("Variant Code", Code);
-        if not AssemblyLine.IsEmpty then
+        if not AssemblyLine.IsEmpty() then
             Error(Text001, Code, AssemblyLine.TableCaption);
 
         BinContent.Reset();
         BinContent.SetCurrentKey("Item No.");
         BinContent.SetRange("Item No.", "Item No.");
         BinContent.SetRange("Variant Code", Code);
-        if not BinContent.IsEmpty then
+        if not BinContent.IsEmpty() then
             Error(Text001, Code, BinContent.TableCaption);
 
         TransLine.Reset();
         TransLine.SetCurrentKey("Item No.");
         TransLine.SetRange("Item No.", "Item No.");
         TransLine.SetRange("Variant Code", Code);
-        if not TransLine.IsEmpty then
+        if not TransLine.IsEmpty() then
             Error(Text001, Code, TransLine.TableCaption);
 
         RequisitionLine.Reset();
@@ -164,7 +166,7 @@ table 5401 "Item Variant"
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", "Item No.");
         RequisitionLine.SetRange("Variant Code", Code);
-        if not RequisitionLine.IsEmpty then
+        if not RequisitionLine.IsEmpty() then
             Error(Text001, Code, RequisitionLine.TableCaption);
 
         PurchOrderLine.Reset();
@@ -172,7 +174,7 @@ table 5401 "Item Variant"
         PurchOrderLine.SetRange(Type, PurchOrderLine.Type::Item);
         PurchOrderLine.SetRange("No.", "Item No.");
         PurchOrderLine.SetRange("Variant Code", Code);
-        if not PurchOrderLine.IsEmpty then
+        if not PurchOrderLine.IsEmpty() then
             Error(Text001, Code, PurchOrderLine.TableCaption);
 
         SalesOrderLine.Reset();
@@ -180,14 +182,14 @@ table 5401 "Item Variant"
         SalesOrderLine.SetRange(Type, SalesOrderLine.Type::Item);
         SalesOrderLine.SetRange("No.", "Item No.");
         SalesOrderLine.SetRange("Variant Code", Code);
-        if not SalesOrderLine.IsEmpty then
+        if not SalesOrderLine.IsEmpty() then
             Error(Text001, Code, SalesOrderLine.TableCaption);
 
         ServiceItem.Reset();
         ServiceItem.SetCurrentKey("Item No.", "Serial No.");
         ServiceItem.SetRange("Item No.", "Item No.");
         ServiceItem.SetRange("Variant Code", Code);
-        if not ServiceItem.IsEmpty then
+        if not ServiceItem.IsEmpty() then
             Error(Text001, Code, ServiceItem.TableCaption);
 
         ServiceLine.Reset();
@@ -195,13 +197,13 @@ table 5401 "Item Variant"
         ServiceLine.SetRange(Type, ServiceLine.Type::Item);
         ServiceLine.SetRange("No.", "Item No.");
         ServiceLine.SetRange("Variant Code", Code);
-        if not ServiceLine.IsEmpty then
+        if not ServiceLine.IsEmpty() then
             Error(Text001, Code, ServiceLine.TableCaption);
 
         ServiceContractLine.Reset();
         ServiceContractLine.SetRange("Item No.", "Item No.");
         ServiceContractLine.SetRange("Variant Code", Code);
-        if not ServiceContractLine.IsEmpty then
+        if not ServiceContractLine.IsEmpty() then
             Error(Text001, Code, ServiceContractLine.TableCaption);
 
         ServiceItemComponent.Reset();
@@ -214,21 +216,21 @@ table 5401 "Item Variant"
         ItemJnlLine.SetCurrentKey("Item No.");
         ItemJnlLine.SetRange("Item No.", "Item No.");
         ItemJnlLine.SetRange("Variant Code", Code);
-        if not ItemJnlLine.IsEmpty then
+        if not ItemJnlLine.IsEmpty() then
             Error(Text001, Code, ItemJnlLine.TableCaption);
 
         ItemLedgerEntry.Reset();
         ItemLedgerEntry.SetCurrentKey("Item No.");
         ItemLedgerEntry.SetRange("Item No.", "Item No.");
         ItemLedgerEntry.SetRange("Variant Code", Code);
-        if not ItemLedgerEntry.IsEmpty then
+        if not ItemLedgerEntry.IsEmpty() then
             Error(Text001, Code, ItemLedgerEntry.TableCaption);
 
         ValueEntry.Reset();
         ValueEntry.SetCurrentKey("Item No.");
         ValueEntry.SetRange("Item No.", "Item No.");
         ValueEntry.SetRange("Variant Code", Code);
-        if not ValueEntry.IsEmpty then
+        if not ValueEntry.IsEmpty() then
             Error(Text001, Code, ValueEntry.TableCaption);
 
         ItemTranslation.SetRange("Item No.", "Item No.");
@@ -241,9 +243,11 @@ table 5401 "Item Variant"
         ItemIdent.SetRange("Variant Code", Code);
         ItemIdent.DeleteAll();
 
+#if not CLEAN16
         ItemCrossReference.SetRange("Item No.", "Item No.");
         ItemCrossReference.SetRange("Variant Code", Code);
         ItemCrossReference.DeleteAll();
+#endif
 
         ItemReference.SetRange("Item No.", "Item No.");
         ItemReference.SetRange("Variant Code", Code);
@@ -283,7 +287,7 @@ table 5401 "Item Variant"
         ProdOrderLine.SetCurrentKey(Status, "Item No.");
         ProdOrderLine.SetRange("Item No.", "Item No.");
         ProdOrderLine.SetRange("Variant Code", Code);
-        if not ProdOrderLine.IsEmpty then
+        if not ProdOrderLine.IsEmpty() then
             exit(true);
 
         exit(false);

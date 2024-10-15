@@ -447,7 +447,7 @@ report 6521 "Item Tracking Appendix"
     begin
         TrackingSpecBuffer2 := TrackingSpecBuffer;
         SourceRef := TrackingSpecBuffer2."Source Ref. No.";
-        if TrackingSpecBuffer.Next = 0 then begin
+        if TrackingSpecBuffer.Next() = 0 then begin
             TrackingSpecBuffer := TrackingSpecBuffer2;
             exit(true);
         end;

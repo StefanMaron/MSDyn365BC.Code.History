@@ -361,7 +361,7 @@ codeunit 134490 "ERM Matrix Management"
         Step := Count div DimensionValueCount;
 
         DimensionValue.SetRange("Dimension Code", DimensionCode);
-        DimensionValue.FindSet;
+        DimensionValue.FindSet();
 
         FirstDimValue := DimensionValue.Name;
 
@@ -380,7 +380,7 @@ codeunit 134490 "ERM Matrix Management"
         DimensionValue: Record "Dimension Value";
     begin
         DimensionValue.SetRange("Dimension Code", DimensionCode);
-        DimensionValue.FindSet;
+        DimensionValue.FindSet();
         ExpectedCaptionRange := DimensionValue.Name;
         DimensionValue.Next(ArrayLen(CaptionSet) - 1);
         ExpectedCaptionRange += '..' + DimensionValue.Name;

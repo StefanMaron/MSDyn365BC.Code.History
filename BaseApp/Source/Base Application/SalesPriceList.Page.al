@@ -221,13 +221,31 @@ page 7016 "Sales Price List"
                     PriceListManagement.CopyLines(Rec);
                 end;
             }
+            action(VerifyLines)
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = PriceListIsEditable and (Rec.Status = Rec.Status::Active);
+                Ellipsis = true;
+                Image = CheckDuplicates;
+                Promoted = true;
+                PromotedCategory = Process;
+                Caption = 'Verify Lines';
+                ToolTip = 'Checks data consistency in the new and modified price list lines. Finds the duplicate price lines and suggests the resolution of the line conflicts.';
+
+                trigger OnAction()
+                var
+                    PriceListManagement: Codeunit "Price List Management";
+                begin
+                    PriceListManagement.ActivateDraftLines(Rec);
+                end;
+            }
         }
         area(navigation)
         {
             group(ActionGroupCRM)
             {
                 Caption = 'Dynamics 365 Sales';
-                Enabled = ((StatusActiveFilterApplied and (Rec.Status = Rec.Status::Active)) or not StatusActiveFilterApplied) and not Rec."Allow Updating Defaults";
+                Enabled = CRMIntegrationAllowed;
                 Visible = CRMIntegrationEnabled;
                 action(CRMGoToPricelevel)
                 {
@@ -338,7 +356,10 @@ page 7016 "Sales Price List"
     end;
 
     trigger OnAfterGetCurrRecord()
+    var
+        PriceListManagement: Codeunit "Price List Management";
     begin
+        CRMIntegrationAllowed := Rec.IsCRMIntegrationAllowed(StatusActiveFilterApplied);
         CRMIsCoupledToRecord := CRMIntegrationEnabled;
         if CRMIsCoupledToRecord then
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(Rec.RecordId);
@@ -349,6 +370,8 @@ page 7016 "Sales Price List"
             ViewGroupIsVisible := true
         else
             ViewGroupIsVisible := not PriceUXManagement.IsAmountTypeFiltered(Rec);
+        if Rec.HasDraftLines() then
+            PriceListManagement.SendVerifyLinesNotification(Rec);
 
         CurrPage.Lines.Page.SetHeader(Rec);
     end;
@@ -362,6 +385,17 @@ page 7016 "Sales Price List"
         if PriceUXManagement.IsAmountTypeFiltered(Rec, DefaultAmountType) then
             Rec."Amount Type" := DefaultAmountType;
         SetSourceNoEnabled();
+    end;
+
+    trigger OnQueryClosePage(CloseAction: Action): Boolean;
+    var
+        PriceListManagement: Codeunit "Price List Management";
+    begin
+        if Rec.HasDraftLines() then begin
+            PriceListManagement.SendVerifyLinesNotification(Rec);
+            exit(false);
+        end;
+        exit(true)
     end;
 
     trigger OnClosePage()
@@ -393,6 +427,7 @@ page 7016 "Sales Price List"
         PriceUXManagement: Codeunit "Price UX Management";
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        CRMIntegrationAllowed: Boolean;
         CRMIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
         StatusActiveFilterApplied: Boolean;

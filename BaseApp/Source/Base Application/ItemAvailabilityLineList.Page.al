@@ -92,9 +92,9 @@ page 99000902 "Item Availability Line List"
                       Item."Qty. on Job Order");
                     InsertEntry(
                       DATABASE::"Prod. Order Component",
-                      Item.FieldNo("Scheduled Need (Qty.)"),
+                      Item.FieldNo("Qty. on Component Lines"),
                       ProdOrderComp.TableCaption,
-                      Item."Scheduled Need (Qty.)");
+                      Item."Qty. on Component Lines");
                     InsertEntry(
                       DATABASE::"Planning Component",
                       Item.FieldNo("Planning Issues (Qty.)"),
@@ -205,7 +205,7 @@ page 99000902 "Item Availability Line List"
               "Qty. on Job Order",
               "Net Change",
               "Scheduled Receipt (Qty.)",
-              "Scheduled Need (Qty.)",
+              "Qty. on Component Lines",
               "Planned Order Receipt (Qty.)",
               "FP Order Receipt (Qty.)",
               "Rel. Order Receipt (Qty.)",

@@ -11,7 +11,7 @@ codeunit 9150 "My Records Filter Sub."
         MyVendorsTxt: Label 'MYVENDORS', Comment = 'Must be uppercase';
         OverflowMsg: Label 'The filter contains more than 2000 numbers and has been truncated.';
 
-    [EventSubscriber(ObjectType::Codeunit, 41, 'OnResolveTextFilterToken', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Filter Tokens", 'OnResolveTextFilterToken', '', false, false)]
     local procedure DoOnResolveTextFilterToken(TextToken: Text; var TextFilter: Text; var Handled: Boolean)
     begin
         case TextToken of
@@ -60,7 +60,7 @@ codeunit 9150 "My Records Filter Sub."
                 FieldRef := RecRef.Field(2);
                 AddToFilter(TextFilterText, Format(FieldRef.Value));
                 NoOfValues += 1;
-            until (RecRef.Next = 0) or (NoOfValues > 2000);
+            until (RecRef.Next() = 0) or (NoOfValues > 2000);
         RecRef.Close;
 
         if NoOfValues > 2000 then

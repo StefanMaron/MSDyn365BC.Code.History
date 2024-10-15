@@ -45,19 +45,10 @@ codeunit 134611 "Test Nav App Permissions"
               UserGroup, LibraryUtility.GenerateRandomCode(UserGroup.FieldNo(Code), DATABASE::"User Group"));
 
         // Set up 2 system permission sets
-        for i := 1 to 2 do begin
-            PermissionRoles[i] := LibraryUtility.GenerateRandomCode(PermissionSet.FieldNo("Role ID"), DATABASE::"Permission Set");
-            LibraryPermissions.CreatePermissionSet(PermissionSet, PermissionRoles[i]);
-        end;
-
-        // Add permissions to the new permission sets
-        PermissionSet.Find('-');
-        LibraryPermissions.AddPermission(PermissionRoles[1], Permission."Object Type"::Report, REPORT::Statement);
-        LibraryPermissions.AddPermission(PermissionRoles[1], Permission."Object Type"::Report, REPORT::"Standard Statement");
-
-        PermissionSet.Next;
-        LibraryPermissions.AddPermission(PermissionRoles[2], Permission."Object Type"::Report, REPORT::"Sales - Quote");
-        LibraryPermissions.AddPermission(PermissionRoles[2], Permission."Object Type"::Report, REPORT::"Standard Sales - Quote");
+        PermissionSet.FindFirst();
+        PermissionRoles[1] := PermissionSet."Role ID";
+        PermissionSet.Next();
+        PermissionRoles[2] := PermissionSet."Role ID";
 
         // Set up 2 tenant permission sets (non-app)
         for i := 1 to 2 do begin
@@ -67,12 +58,10 @@ codeunit 134611 "Test Nav App Permissions"
         end;
 
         // Add permissions to the new permission sets
-        TenantPermissionSet.Find('-');
-        LibraryPermissions.AddPermission(TenantPermissionRoles[1], Permission."Object Type"::Table, DATABASE::Customer);
-        LibraryPermissions.AddPermission(TenantPermissionRoles[1], Permission."Object Type"::Table, DATABASE::Vendor);
-        TenantPermissionSet.Next;
-        LibraryPermissions.AddPermission(TenantPermissionRoles[2], Permission."Object Type"::Table, DATABASE::"Sales Header");
-        LibraryPermissions.AddPermission(TenantPermissionRoles[2], Permission."Object Type"::Table, DATABASE::"Sales Invoice Header");
+        LibraryPermissions.AddTenantPermission(NullGuid, TenantPermissionRoles[1], Permission."Object Type"::Table, DATABASE::Customer);
+        LibraryPermissions.AddTenantPermission(NullGuid, TenantPermissionRoles[1], Permission."Object Type"::Table, DATABASE::Vendor);
+        LibraryPermissions.AddTenantPermission(NullGuid, TenantPermissionRoles[2], Permission."Object Type"::Table, DATABASE::"Sales Header");
+        LibraryPermissions.AddTenantPermission(NullGuid, TenantPermissionRoles[2], Permission."Object Type"::Table, DATABASE::"Sales Invoice Header");
 
         // Set up 2 Nav App permission sets
         for i := 1 to 2 do begin
@@ -95,12 +84,10 @@ codeunit 134611 "Test Nav App Permissions"
         PublishedApplication.Insert();
 
         // Add permissions to the new permission sets
-        AppPermissionSet.Get(AppGUIDs[1], AppPermissionRoles[1]);
-        LibraryPermissions.AddPermission(AppPermissionRoles[1], Permission."Object Type"::Table, PAGE::"Customer Card");
-        LibraryPermissions.AddPermission(AppPermissionRoles[1], Permission."Object Type"::Table, PAGE::"Vendor Card");
-        AppPermissionSet.Next;
-        LibraryPermissions.AddPermission(AppPermissionRoles[2], Permission."Object Type"::Table, PAGE::"Customer Statistics");
-        LibraryPermissions.AddPermission(AppPermissionRoles[2], Permission."Object Type"::Table, PAGE::"Vendor Statistics");
+        LibraryPermissions.AddTenantPermission(AppGUIDs[1], AppPermissionRoles[1], Permission."Object Type"::Table, PAGE::"Customer Card");
+        LibraryPermissions.AddTenantPermission(AppGUIDs[1], AppPermissionRoles[1], Permission."Object Type"::Table, PAGE::"Vendor Card");
+        LibraryPermissions.AddTenantPermission(AppGUIDs[2], AppPermissionRoles[2], Permission."Object Type"::Table, PAGE::"Customer Statistics");
+        LibraryPermissions.AddTenantPermission(AppGUIDs[2], AppPermissionRoles[2], Permission."Object Type"::Table, PAGE::"Vendor Statistics");
     end;
 
     local procedure CreateSuperUser(): Guid

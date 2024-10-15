@@ -1072,7 +1072,7 @@ codeunit 136112 "Working On Service Orders"
         ServOrderManagement: Codeunit ServOrderManagement;
         DocumentNo: Code[20];
         NewDocumentNo: Code[20];
-        NewTableNameOption: Integer;
+        NewTableNameOption: Enum "Service Comment Table Name";
         CommentTxt: Text[80];
     begin
         // [FEATURE] [UT] [Service] [Comments]
@@ -1088,8 +1088,8 @@ codeunit 136112 "Working On Service Orders"
         NewTableNameOption := ServiceCommentLine."Table Name"::"Service Cr.Memo Header";
 
         ServOrderManagement.CopyCommentLines(
-          ServiceCommentLine."Table Name"::"Service Header",
-          NewTableNameOption, DocumentNo, NewDocumentNo);
+          ServiceCommentLine."Table Name"::"Service Header".AsInteger(),
+          NewTableNameOption.AsInteger(), DocumentNo, NewDocumentNo);
 
         VerifyServiceCommentLineExists(NewTableNameOption, 0, NewDocumentNo, CommentTxt);
     end;
@@ -1103,7 +1103,7 @@ codeunit 136112 "Working On Service Orders"
         ServOrderManagement: Codeunit ServOrderManagement;
         DocumentNo: Code[20];
         NewDocumentNo: Code[20];
-        NewTableNameOption: Integer;
+        NewTableNameOption: Enum "Service Comment Table Name";
         CommentTxt: Text[80];
     begin
         // [FEATURE] [UT] [Service] [Comments]
@@ -1119,8 +1119,8 @@ codeunit 136112 "Working On Service Orders"
         NewTableNameOption := ServiceCommentLine."Table Name"::"Service Shipment Header";
 
         ServOrderManagement.CopyCommentLines(
-          ServiceCommentLine."Table Name"::"Service Header",
-          NewTableNameOption, DocumentNo, NewDocumentNo);
+          ServiceCommentLine."Table Name"::"Service Header".AsInteger(),
+          NewTableNameOption.AsInteger(), DocumentNo, NewDocumentNo);
 
         VerifyServiceCommentLineExists(NewTableNameOption, 0, NewDocumentNo, CommentTxt);
     end;
@@ -1134,7 +1134,7 @@ codeunit 136112 "Working On Service Orders"
         ServOrderManagement: Codeunit ServOrderManagement;
         DocumentNo: Code[20];
         NewDocumentNo: Code[20];
-        NewTableNameOption: Integer;
+        NewTableNameOption: Enum "Service Comment Table Name";
         CommentTxt: Text[80];
     begin
         // [FEATURE] [UT] [Service] [Comments]
@@ -1150,8 +1150,8 @@ codeunit 136112 "Working On Service Orders"
         NewTableNameOption := ServiceCommentLine."Table Name"::"Service Invoice Header";
 
         ServOrderManagement.CopyCommentLinesWithSubType(
-          ServiceCommentLine."Table Name"::"Service Header",
-          NewTableNameOption, DocumentNo, NewDocumentNo,
+          ServiceCommentLine."Table Name"::"Service Header".AsInteger(),
+          NewTableNameOption.AsInteger(), DocumentNo, NewDocumentNo,
           ServiceCommentLine."Table Subtype"::"1");
 
         VerifyServiceCommentLineExists(NewTableNameOption, 0, NewDocumentNo, CommentTxt);
@@ -1166,7 +1166,7 @@ codeunit 136112 "Working On Service Orders"
         ServOrderManagement: Codeunit ServOrderManagement;
         DocumentNo: Code[20];
         NewDocumentNo: Code[20];
-        NewTableNameOption: Integer;
+        NewTableNameOption: Enum "Service Comment Table Name";
         CommentTxt: Text[80];
     begin
         // [FEATURE] [UT] [Service] [Comments]
@@ -1182,8 +1182,8 @@ codeunit 136112 "Working On Service Orders"
         NewTableNameOption := ServiceCommentLine."Table Name"::"Service Invoice Header";
 
         ServOrderManagement.CopyCommentLinesWithSubType(
-          ServiceCommentLine."Table Name"::"Service Header",
-          NewTableNameOption, DocumentNo, NewDocumentNo,
+          ServiceCommentLine."Table Name"::"Service Header".AsInteger(),
+          NewTableNameOption.AsInteger(), DocumentNo, NewDocumentNo,
           ServiceCommentLine."Table Subtype"::"2");
 
         VerifyServiceCommentLineExists(NewTableNameOption, 0, NewDocumentNo, CommentTxt);
@@ -1291,7 +1291,7 @@ codeunit 136112 "Working On Service Orders"
         CreateServiceLineReplacement(ServiceLine, ServiceHeader);
         ServiceItemLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceItemLine.FindSet;
+        ServiceItemLine.FindSet();
         ServiceItemNoForReplacement := ServiceItemLine."Service Item No.";
         ParentServiceItemNo := ServiceItemLine."Service Item No.";
         UpdateQuantityOnServiceLine(ServiceLine, ServiceItemLine."Line No.");
@@ -1442,7 +1442,7 @@ codeunit 136112 "Working On Service Orders"
     begin
         ServiceItemLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceItemLine.FindSet;
+        ServiceItemLine.FindSet();
         repeat
             LibraryService.CreateCommentLineForServHeader(ServiceCommentLine, ServiceItemLine, ServiceCommentLine.Type::Fault);
             LibraryService.CreateCommentLineForServHeader(ServiceCommentLine, ServiceItemLine, ServiceCommentLine.Type::Resolution);
@@ -1599,7 +1599,7 @@ codeunit 136112 "Working On Service Orders"
     begin
         ServiceItemLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceItemLine.FindSet;
+        ServiceItemLine.FindSet();
         repeat
             LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItem(Item));
             ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
@@ -1614,7 +1614,7 @@ codeunit 136112 "Working On Service Orders"
     begin
         ServiceItemLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceItemLine.FindSet;
+        ServiceItemLine.FindSet();
         repeat
             ServItemManagement.CreateServItemOnServItemLine(ServiceItemLine);
         until ServiceItemLine.Next = 0;
@@ -1628,7 +1628,7 @@ codeunit 136112 "Working On Service Orders"
     begin
         ServiceItemLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceItemLine.FindSet;
+        ServiceItemLine.FindSet();
         ServiceItemNo := ServiceItemLine."Service Item No.";
         ServiceItemLine.Next;
         repeat
@@ -1711,7 +1711,7 @@ codeunit 136112 "Working On Service Orders"
         ServiceCommentLine.SetRange("Table Name", ServiceCommentLine."Table Name"::"Service Header");
         ServiceCommentLine.SetRange("Table Subtype", ServiceHeader."Document Type");
         ServiceCommentLine.SetRange("No.", ServiceHeader."No.");
-        ServiceCommentLine.FindSet;
+        ServiceCommentLine.FindSet();
         repeat
             TempServiceCommentLine := ServiceCommentLine;
             TempServiceCommentLine.Insert();
@@ -1733,7 +1733,7 @@ codeunit 136112 "Working On Service Orders"
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Use Random because value is not important.
             ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
@@ -1782,7 +1782,7 @@ codeunit 136112 "Working On Service Orders"
         end;
         ServiceItemLine.SetRange("Document Type", ServiceItemLine."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceItemLine."Document No.");
-        ServiceItemLine.FindSet;
+        ServiceItemLine.FindSet();
         repeat
             ServiceItemLine.Validate("Repair Status Code", RepairStatus.Code);
             ServiceItemLine.Modify(true);
@@ -1801,7 +1801,7 @@ codeunit 136112 "Working On Service Orders"
         end;
         ServiceItemLine.SetRange("Document Type", ServiceItemLine."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceItemLine."Document No.");
-        ServiceItemLine.FindSet;
+        ServiceItemLine.FindSet();
         repeat
             ServiceItemLine.Validate("Repair Status Code", RepairStatus.Code);
             ServiceItemLine.Modify(true);
@@ -1820,7 +1820,7 @@ codeunit 136112 "Working On Service Orders"
         end;
         ServiceItemLine.SetRange("Document Type", ServiceItemLine."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceItemLine."Document No.");
-        ServiceItemLine.FindSet;
+        ServiceItemLine.FindSet();
         repeat
             ServiceItemLine.Validate("Repair Status Code", RepairStatus.Code);
             ServiceItemLine.Modify(true);
@@ -1831,7 +1831,7 @@ codeunit 136112 "Working On Service Orders"
     begin
         ServiceItemLine.SetRange("Document Type", ServiceItemLine."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceItemLine."Document No.");
-        ServiceItemLine.FindSet;
+        ServiceItemLine.FindSet();
         repeat
             ServiceItemLine.Validate("Repair Status Code", '');
             ServiceItemLine.Modify(true);
@@ -1850,7 +1850,7 @@ codeunit 136112 "Working On Service Orders"
         end;
         ServiceItemLine.SetRange("Document Type", ServiceItemLine."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceItemLine."Document No.");
-        ServiceItemLine.FindSet;
+        ServiceItemLine.FindSet();
         repeat
             ServiceItemLine.Validate("Repair Status Code", RepairStatus.Code);
             ServiceItemLine.Modify(true);
@@ -1927,10 +1927,10 @@ codeunit 136112 "Working On Service Orders"
     begin
         ServiceShipmentHeader.SetRange("Order No.", TempServiceCommentLine."No.");
         ServiceShipmentHeader.FindFirst;
-        TempServiceCommentLine.FindSet;
+        TempServiceCommentLine.FindSet();
         ServiceCommentLine.SetRange("Table Name", ServiceCommentLine."Table Name"::"Service Shipment Header");
         ServiceCommentLine.SetRange("No.", ServiceShipmentHeader."No.");
-        ServiceCommentLine.FindSet;
+        ServiceCommentLine.FindSet();
         repeat
             ServiceCommentLine.TestField("Table Line No.", TempServiceCommentLine."Table Line No.");
             ServiceCommentLine.TestField("Line No.", TempServiceCommentLine."Line No.");
@@ -1947,10 +1947,10 @@ codeunit 136112 "Working On Service Orders"
     begin
         ServiceInvoiceHeader.SetRange("Order No.", TempServiceCommentLine."No.");
         ServiceInvoiceHeader.FindFirst;
-        TempServiceCommentLine.FindSet;
+        TempServiceCommentLine.FindSet();
         ServiceCommentLine.SetRange("Table Name", ServiceCommentLine."Table Name"::"Service Invoice Header");
         ServiceCommentLine.SetRange("No.", ServiceInvoiceHeader."No.");
-        ServiceCommentLine.FindSet;
+        ServiceCommentLine.FindSet();
         repeat
             ServiceCommentLine.TestField("Table Line No.", TempServiceCommentLine."Table Line No.");
             ServiceCommentLine.TestField("Line No.", TempServiceCommentLine."Line No.");
@@ -2037,7 +2037,7 @@ codeunit 136112 "Working On Service Orders"
         Assert.RecordIsEmpty(ServiceHeader);
     end;
 
-    local procedure VerifyServiceCommentLineExists(TableNameOption: Option; TableSubtype: Option; DocumentNo: Code[20]; CommentTxt: Text[80])
+    local procedure VerifyServiceCommentLineExists(TableNameOption: Enum "Service Comment Table Name"; TableSubtype: Option; DocumentNo: Code[20]; CommentTxt: Text[80])
     var
         ServiceCommentLine: Record "Service Comment Line";
     begin
@@ -2054,7 +2054,7 @@ codeunit 136112 "Working On Service Orders"
     begin
         ServiceLine2.SetRange("Document Type", ServiceLine."Document Type");
         ServiceLine2.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine2.FindSet;
+        ServiceLine2.FindSet();
         repeat
             ServiceLine2.TestField(Type, ServiceLine.Type);
             ServiceLine2.TestField("No.", ServiceLine."No.");
@@ -2066,7 +2066,7 @@ codeunit 136112 "Working On Service Orders"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             asserterror ServiceLine.SplitResourceLine;
             Assert.AreEqual(
@@ -2081,7 +2081,7 @@ codeunit 136112 "Working On Service Orders"
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.TestField("Unit Price", UnitPrice);
             ServiceLine.TestField(Quantity, Quantity / 2);
@@ -2098,7 +2098,7 @@ codeunit 136112 "Working On Service Orders"
         with ServiceLine do begin
             SetRange("Document Type", "Document Type"::Order);
             SetFilter("Document No.", '%1|%2', No1, No2);
-            FindSet;
+            FindSet();
             repeat
                 Validate("Location Code", Location.Code);
                 Modify;

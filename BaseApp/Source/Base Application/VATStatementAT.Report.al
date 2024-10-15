@@ -398,7 +398,7 @@ report 11110 "VAT Statement AT"
                         repeat
                             GLAcc.CalcFields("Net Change", "Additional-Currency Net Change");
                             Amount := Amount + GLAcc."Net Change";
-                        until GLAcc.Next = 0;
+                        until GLAcc.Next() = 0;
                     CalcTotalAmount(VATStmtLine2, TotalAmount);
                 end;
             VATStmtLine2.Type::"VAT Entry Totaling":
@@ -470,7 +470,7 @@ report 11110 "VAT Statement AT"
                                 ErrorText := ErrorText + '...';
                                 VATStmtLine2.FieldError("Row No.", ErrorText);
                             end;
-                        until VATStmtLine2.Next = 0;
+                        until VATStmtLine2.Next() = 0;
                 end;
             VATStmtLine2.Type::Description:
                 ;

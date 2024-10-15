@@ -766,7 +766,7 @@ codeunit 142059 "UT REP FIXEDASSET"
         with GenJournalLine do begin
             SetRange("Journal Template Name", FAJournalSetup."Gen. Jnl. Template Name");
             SetRange("Journal Batch Name", FAJournalSetup."Gen. Jnl. Batch Name");
-            FindSet;
+            FindSet();
             repeat
                 GenJournalLine.Validate("Document No.", DocumentNo);
                 GenJournalLine.Modify(true);

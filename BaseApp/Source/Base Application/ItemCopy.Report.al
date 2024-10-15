@@ -436,7 +436,7 @@ report 11511 "Item Copy"
                 CommentLine.Insert();
                 CommentLine."No." := FromItemNo;
                 UpdateDialog;
-            until CommentLine.Next = 0;
+            until CommentLine.Next() = 0;
             EndDialog;
         end;
     end;
@@ -454,7 +454,7 @@ report 11511 "Item Copy"
                     ItemUnitOfMeasure.Insert();
                     ItemUnitOfMeasure."Item No." := FromItem."No.";
                     UpdateDialog;
-                until ItemUnitOfMeasure.Next = 0;
+                until ItemUnitOfMeasure.Next() = 0;
                 EndDialog;
             end;
         end else
@@ -482,7 +482,7 @@ report 11511 "Item Copy"
                 ItemVariant.Insert();
                 ItemVariant."Item No." := FromItemNo;
                 UpdateDialog;
-            until ItemVariant.Next = 0;
+            until ItemVariant.Next() = 0;
             EndDialog;
         end;
     end;
@@ -502,7 +502,7 @@ report 11511 "Item Copy"
                 ItemTranslation.Insert();
                 ItemTranslation."Item No." := FromItemNo;
                 UpdateDialog;
-            until ItemTranslation.Next = 0;
+            until ItemTranslation.Next() = 0;
             EndDialog;
         end;
     end;
@@ -529,13 +529,13 @@ report 11511 "Item Copy"
                         ExtendedTextLine."No." := ToItemNo;
                         ExtendedTextLine.Insert();
                         ExtendedTextLine."No." := FromItemNo;
-                    until ExtendedTextLine.Next = 0;
+                    until ExtendedTextLine.Next() = 0;
 
                 ExtendedTextHeader."No." := ToItemNo;
                 ExtendedTextHeader.Insert();
                 ExtendedTextHeader."No." := FromItemNo;
                 UpdateDialog;
-            until ExtendedTextHeader.Next = 0;
+            until ExtendedTextHeader.Next() = 0;
             EndDialog;
         end;
 
@@ -557,7 +557,7 @@ report 11511 "Item Copy"
                 BOMComponent.Insert();
                 BOMComponent."Parent Item No." := FromItemNo;
                 UpdateDialog;
-            until BOMComponent.Next = 0;
+            until BOMComponent.Next() = 0;
             EndDialog;
         end;
     end;
@@ -577,7 +577,7 @@ report 11511 "Item Copy"
                 ItemVendor.Insert();
                 ItemVendor."Item No." := FromItemNo;
                 UpdateDialog;
-            until ItemVendor.Next = 0;
+            until ItemVendor.Next() = 0;
             EndDialog;
         end;
     end;
@@ -596,7 +596,7 @@ report 11511 "Item Copy"
                     DefaultDim.Insert();
                     DefaultDim."No." := FromItem."No.";
                     UpdateDialog;
-                until DefaultDim.Next = 0;
+                until DefaultDim.Next() = 0;
                 EndDialog;
             end;
             ToItem."Global Dimension 1 Code" := FromItem."Global Dimension 1 Code";
@@ -626,7 +626,7 @@ report 11511 "Item Copy"
                 TroubleshootingSetup.Insert();
                 TroubleshootingSetup."No." := FromItemNo;
                 UpdateDialog;
-            until TroubleshootingSetup.Next = 0;
+            until TroubleshootingSetup.Next() = 0;
             EndDialog;
         end;
     end;
@@ -647,7 +647,7 @@ report 11511 "Item Copy"
                 ResourceSkill.Insert();
                 ResourceSkill."No." := FromItemNo;
                 UpdateDialog;
-            until ResourceSkill.Next = 0;
+            until ResourceSkill.Next() = 0;
             EndDialog;
         end;
     end;
@@ -667,7 +667,7 @@ report 11511 "Item Copy"
                 SalesPrice.Insert();
                 SalesPrice."Item No." := FromItemNo;
                 UpdateDialog;
-            until SalesPrice.Next = 0;
+            until SalesPrice.Next() = 0;
         end;
     end;
 
@@ -687,7 +687,7 @@ report 11511 "Item Copy"
                 SalesLineDiscount.Insert();
                 SalesLineDiscount.Code := FromItemNo;
                 UpdateDialog;
-            until SalesLineDiscount.Next = 0;
+            until SalesLineDiscount.Next() = 0;
         end;
     end;
 
@@ -706,7 +706,7 @@ report 11511 "Item Copy"
                 PurchasePrice.Insert();
                 PurchasePrice."Item No." := FromItemNo;
                 UpdateDialog;
-            until PurchasePrice.Next = 0;
+            until PurchasePrice.Next() = 0;
         end;
     end;
 
@@ -725,7 +725,7 @@ report 11511 "Item Copy"
                 PurchLineDiscount.Insert();
                 PurchLineDiscount."Item No." := FromItemNo;
                 UpdateDialog;
-            until PurchLineDiscount.Next = 0;
+            until PurchLineDiscount.Next() = 0;
         end;
     end;
 
@@ -744,7 +744,7 @@ report 11511 "Item Copy"
                 NewItemAttributeValueMapping := ItemAttributeValueMapping;
                 NewItemAttributeValueMapping."No." := ToItemNo;
                 NewItemAttributeValueMapping.Insert();
-            until ItemAttributeValueMapping.Next = 0;
+            until ItemAttributeValueMapping.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

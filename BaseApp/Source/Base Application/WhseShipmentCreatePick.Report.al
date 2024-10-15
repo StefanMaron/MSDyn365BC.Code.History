@@ -112,7 +112,7 @@ report 7318 "Whse.-Shipment - Create Pick"
                 if TempWhseItemTrkgLine.Find('-') then
                     repeat
                         ItemTrackingMgt.CalcWhseItemTrkgLine(TempWhseItemTrkgLine);
-                    until TempWhseItemTrkgLine.Next = 0;
+                    until TempWhseItemTrkgLine.Next() = 0;
             end;
 
             trigger OnPreDataItem()
@@ -231,7 +231,7 @@ report 7318 "Whse.-Shipment - Create Pick"
             repeat
                 if SortActivity <> SortActivity::None then
                     WhseActivHeader.SortWhseDoc;
-            until WhseActivHeader.Next = 0;
+            until WhseActivHeader.Next() = 0;
 
             if PrintDoc then begin
                 // new pick has been created - in order to run a report to print it, a COMMIT is needed.

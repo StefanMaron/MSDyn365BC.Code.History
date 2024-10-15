@@ -143,7 +143,7 @@ codeunit 5005271 "Create Delivery Reminder"
             repeat
                 if DeliveryReminderLine."Reminder Level" > DeliveryReminderHeader."Reminder Level" then
                     DeliveryReminderHeader."Reminder Level" := DeliveryReminderLine."Reminder Level";
-            until DeliveryReminderLine.Next = 0;
+            until DeliveryReminderLine.Next() = 0;
         DeliveryReminderHeader.Validate("Reminder Level");
         DeliveryReminderHeader.Modify();
     end;
@@ -176,8 +176,8 @@ codeunit 5005271 "Create Delivery Reminder"
                         if Remind(PurchLine, DeliveryReminderTerms, DeliveryReminderLevel, DateOfTheCurrentDay) then
                             CreateDelivRemindLine(DeliveryReminderHeader, PurchHeader, PurchLine, DeliveryReminderTerms, DeliveryReminderLevel,
                               DateOfTheCurrentDay);
-                    until PurchLine.Next = 0;
-            until PurchHeader.Next = 0;
+                    until PurchLine.Next() = 0;
+            until PurchHeader.Next() = 0;
 
         HeaderReminderLevelRefresh(DeliveryReminderHeader);
         InsertBeginTexts(DeliveryReminderHeader);
@@ -279,7 +279,7 @@ codeunit 5005271 "Create Delivery Reminder"
                     MaxStrLen(DeliveryReminderLine.Description));
                 OnBeforeDeliveryReminderTextLineInsert(DeliveryReminderLine);
                 DeliveryReminderLine.Insert();
-            until DeliveryReminderText.Next = 0;
+            until DeliveryReminderText.Next() = 0;
             if DeliveryReminderText.Position = DeliveryReminderText.Position::Beginning then
                 InsertBlankLine;
         end;

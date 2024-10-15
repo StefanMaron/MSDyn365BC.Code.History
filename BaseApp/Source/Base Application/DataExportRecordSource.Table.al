@@ -256,7 +256,7 @@ table 11004 "Data Export Record Source"
                 repeat
                     if not DoesExistDuplicateSourceLine then
                         DataExportTableRelation.Delete();
-                until DataExportTableRelation.Next = 0;
+                until DataExportTableRelation.Next() = 0;
         end;
 
         DataExportRecordSource.Reset();
@@ -318,13 +318,13 @@ table 11004 "Data Export Record Source"
         if not DataExportRecordSource.FindSet then
             exit("Export Table Name");
         DataExportRecordSource.SetFilter("Export Table Name", "Export Table Name" + '*');
-        DataExportRecordSource.FindSet;
+        DataExportRecordSource.FindSet();
         LargestPostfix := 0;
         repeat
             Postfix := DelStr(DataExportRecordSource."Export Table Name", 1, StrLen("Export Table Name"));
             if Evaluate(PostfixInt, Postfix) and (PostfixInt > LargestPostfix) then
                 LargestPostfix := PostfixInt;
-        until DataExportRecordSource.Next = 0;
+        until DataExportRecordSource.Next() = 0;
         exit(StrSubstNo('%1%2', "Export Table Name", LargestPostfix + 1));
     end;
 
@@ -340,7 +340,7 @@ table 11004 "Data Export Record Source"
             exit("Export File Name");
         "Export File Name" := DelStr("Export File Name", StrPos("Export File Name", '.'));
         DataExportRecordSource.SetFilter("Export File Name", "Export File Name" + '*');
-        DataExportRecordSource.FindSet;
+        DataExportRecordSource.FindSet();
         LargestPostfix := 0;
         repeat
             Postfix := DelStr(DataExportRecordSource."Export File Name", 1, StrLen("Export File Name"));
@@ -348,7 +348,7 @@ table 11004 "Data Export Record Source"
                 Postfix := DelStr(Postfix, StrPos(Postfix, '.'));
             if Evaluate(PostfixInt, Postfix) and (PostfixInt > LargestPostfix) then
                 LargestPostfix := PostfixInt;
-        until DataExportRecordSource.Next = 0;
+        until DataExportRecordSource.Next() = 0;
         exit(StrSubstNo('%1%2.txt', "Export File Name", LargestPostfix + 1));
     end;
 

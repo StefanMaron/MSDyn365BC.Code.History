@@ -1501,7 +1501,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         VerifyLinesMatch(SalesLine, SalesCrMemoEntityBuffer);
     end;
 
-    local procedure VerifyBufferTableIsUpdatedForPostedCrMemo(DocumentNo: Text; ExpectedStatus: Option)
+    local procedure VerifyBufferTableIsUpdatedForPostedCrMemo(DocumentNo: Text; ExpectedStatus: Enum "Sales Cr. Memo Entity Buffer Status")
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
