@@ -43,7 +43,7 @@ codeunit 134059 "ERM VAT Reporting - Pages"
     end;
 
     [Test]
-    [HandlerFunctions('NoSeriesListHandler')]
+    [HandlerFunctions('NoSeriesHandler')]
     [Scope('OnPrem')]
     procedure VATReportNo_OnAssistEdit()
     var
@@ -163,9 +163,9 @@ codeunit 134059 "ERM VAT Reporting - Pages"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure NoSeriesListHandler(var NoSeriesListPage: TestPage "No. Series")
+    procedure NoSeriesHandler(var NoSeriesPage: TestPage "No. Series")
     begin
-        NoSeriesListPage.OK.Invoke;
+        NoSeriesPage.OK().Invoke();
     end;
 }
 

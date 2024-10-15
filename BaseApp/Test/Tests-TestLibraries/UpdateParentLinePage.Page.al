@@ -15,7 +15,7 @@ page 139142 "Update Parent Line Page"
                 field("Line Id"; "Line Id")
                 {
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
 
                     trigger OnValidate()
@@ -23,7 +23,7 @@ page 139142 "Update Parent Line Page"
                         DoUpdate(UpdateParentRegisterLine.Method::Validate);
                     end;
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
 
                     trigger OnValidate()

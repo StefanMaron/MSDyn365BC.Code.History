@@ -370,9 +370,9 @@ report 11005 "VAT Statement Germany"
                     else
                         EndDate := EndDateReq;
                     if PeriodSelection = PeriodSelection::"Before and Within Period" then
-                        GLAcc.SetRange("Date Filter", 0D, EndDate)
+                        GLAcc.SetRange("VAT Reporting Date Filter", 0D, EndDate)
                     else
-                        GLAcc.SetRange("Date Filter", StartDate, EndDate);
+                        GLAcc.SetRange("VAT Reporting Date Filter", StartDate, EndDate);
                     Amount := 0;
                     if GLAcc.FindSet() and (VATStmtLine2."Account Totaling" <> '') then
                         repeat
@@ -505,7 +505,7 @@ report 11005 "VAT Statement Germany"
 
 #if not CLEAN22
     [Scope('OnPrem')]
-    [Obsolete('Replaced by InitializeRequest without VAT Date parameter.','22.0')]
+    [Obsolete('Replaced by InitializeRequest without VAT Date parameter.', '22.0')]
     procedure InitializeRequest(var NewVATStatementName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewVATDateType: Enum "VAT Date Type"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean)
     begin
         "VAT Statement Name".Copy(NewVATStatementName);

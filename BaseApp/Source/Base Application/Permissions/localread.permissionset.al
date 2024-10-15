@@ -4,8 +4,12 @@ permissionset 1002 "LOCAL READ"
     Assignable = true;
     Caption = 'Country/region-specific read only access.';
 
+#if not CLEAN22
     Permissions = tabledata Certificate = R,
                   tabledata "DACH Report Selections" = R,
+#else
+    Permissions = tabledata "DACH Report Selections" = R,
+#endif
                   tabledata "Data Exp. Primary Key Buffer" = R,
                   tabledata "Data Export" = R,
                   tabledata "Data Export Buffer" = R,

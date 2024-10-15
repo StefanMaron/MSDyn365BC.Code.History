@@ -1,13 +1,15 @@
-#if not CLEAN21
-// table "Electronic VAT Decl. Buffer" will be cleaned after CLEAN21, afterwards the permissionset from DACH is the same
 permissionset 1001 "LOCAL"
 {
     Access = Public;
     Assignable = true;
     Caption = 'Country/region-specific func.';
 
+#if not CLEAN22
     Permissions = tabledata Certificate = RIMD,
                   tabledata "DACH Report Selections" = RIMD,
+#else
+    Permissions = tabledata "DACH Report Selections" = RIMD,
+#endif
                   tabledata "Data Exp. Primary Key Buffer" = RIMD,
                   tabledata "Data Export" = RIMD,
                   tabledata "Data Export Buffer" = RIMD,
@@ -24,7 +26,9 @@ permissionset 1001 "LOCAL"
                   tabledata "Delivery Reminder Line" = RIMD,
                   tabledata "Delivery Reminder Term" = RIMD,
                   tabledata "Delivery Reminder Text" = RIMD,
+#if not CLEAN21
                   tabledata "Electronic VAT Decl. Buffer" = RIMD,
+#endif
                   tabledata "Electronic VAT Decl. Setup" = RIMD,
                   tabledata "Expect. Phys. Inv. Track. Line" = RIMD,
                   tabledata "Issued Deliv. Reminder Header" = RIMD,
@@ -49,4 +53,3 @@ permissionset 1001 "LOCAL"
                   tabledata "Sales VAT Advance Notification" = RIMD,
                   tabledata "Transmission Log Entry" = RIMD;
 }
-#endif

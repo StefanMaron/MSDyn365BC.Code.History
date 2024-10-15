@@ -35,11 +35,5 @@ pagecustomization "Business Manager Evaluation RC" customizes "Business Manager 
 
     actions
     {
-#if not CLEAN19        
-        modify(Setup)
-        {
-            Visible = false;
-        }
-#endif
     }
 }

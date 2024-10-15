@@ -6,7 +6,6 @@ permissionset 2911 "D365 ACCOUNTANTS"
 
     IncludedPermissionSets = "LOGIN",
                              "Metadata - Read",
-                             "User Login Times - View",
                              "User Personalization - Edit",
                              "Webhook - Edit";
 
@@ -21,9 +20,6 @@ permissionset 2911 "D365 ACCOUNTANTS"
                   tabledata Customer = RIMD,
                   tabledata "Customer Bank Account" = RD,
                   tabledata "Customer Templ." = RIMD,
-#if not CLEAN19
-                  tabledata "Customer Template" = RIMD,
-#endif
                   tabledata "Item Reference" = RD,
                   tabledata "Reminder/Fin. Charge Entry" = Rm,
                   tabledata "Sales Cr.Memo Header" = R,

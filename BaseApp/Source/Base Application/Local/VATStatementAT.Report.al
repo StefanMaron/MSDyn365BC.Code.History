@@ -391,8 +391,8 @@ report 11110 "VAT Statement AT"
 
     local procedure CreateVATDateFilter(var VATStatementLine: Record "VAT Statement Line"; var VATEntries: Record "VAT Entry")
     begin
-        case VATDateType of 
-            VATDateType::"VAT Reporting Date": 
+        case VATDateType of
+            VATDateType::"VAT Reporting Date":
                 if PeriodSelection = PeriodSelection::"Before and Within Period" then
                     VATEntries.SetRange("VAT Reporting Date", 0D, VATStatementLine.GetRangeMax("Date Filter"))
                 else
@@ -412,10 +412,13 @@ report 11110 "VAT Statement AT"
 
     local procedure SetVATEntryVATKey(var VATEntries: Record "VAT Entry")
     begin
-        case VATDateType of 
-            VATDateType::"VAT Reporting Date": VATEntries.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Jurisdiction Code", "Use Tax", "VAT Reporting Date");
-            VATDateType::"Posting Date": VATEntries.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Jurisdiction Code", "Use Tax", "Posting Date");
-            VATDateType::"Document Date": VATEntries.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Jurisdiction Code", "Use Tax", "Document Date");
+        case VATDateType of
+            VATDateType::"VAT Reporting Date":
+                VATEntries.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Jurisdiction Code", "Use Tax", "VAT Reporting Date");
+            VATDateType::"Posting Date":
+                VATEntries.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Jurisdiction Code", "Use Tax", "Posting Date");
+            VATDateType::"Document Date":
+                VATEntries.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Jurisdiction Code", "Use Tax", "Document Date");
         end
     end;
 
@@ -429,7 +432,7 @@ report 11110 "VAT Statement AT"
             VATStmtLine2.Type::"Account Totaling":
                 begin
                     GLAcc.SetFilter("No.", VATStmtLine2."Account Totaling");
-                    "VAT Statement Line".CopyFilter("Date Filter", GLAcc."Date Filter");
+                    "VAT Statement Line".CopyFilter("Date Filter", GLAcc."VAT Reporting Date Filter");
                     Amount := 0;
                     if GLAcc.FindSet() and (VATStmtLine2."Account Totaling" <> '') then
                         repeat
@@ -450,7 +453,7 @@ report 11110 "VAT Statement AT"
                     VATEntries.SetRange("Use Tax", VATStmtLine2."Use Tax");
                     if "VAT Statement Line".GetFilter("Date Filter") <> '' then
                         CreateVATDateFilter("VAT Statement Line", VATEntries);
-                        
+
                     case Selection of
                         Selection::Open:
                             VATEntries.SetRange(Closed, false);

@@ -190,26 +190,7 @@ report 11012 "Intrastat - Form DE"
 
                     OldTariffNo := "Tariff No.";
                     "Tariff No." := DelChr("Tariff No.");
-#if CLEAN19
                     IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Form DE", true);
-#else
-                    if IntrastatSetup."Use Advanced Checklist" then
-                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Form DE", true)
-                    else begin
-                        TestField("Tariff No.");
-                        TestField("Country/Region Code");
-                        TestField("Transaction Type");
-                        if CompanyInfo."Check Transport Method" then
-                            TestField("Transport Method");
-                        TestField(Area);
-                        if CompanyInfo."Check Transaction Specific." then
-                            TestField("Transaction Specification");
-                        if Type = Type::Receipt then
-                            TestField("Country/Region of Origin Code");
-                        if "Supplementary Units" then
-                            TestField(Quantity)
-                    end;
-#endif
                     if not "Supplementary Units" then
                         Quantity := 0;
                     "Tariff No." := OldTariffNo;
@@ -283,9 +264,6 @@ report 11012 "Intrastat - Form DE"
 
         CompanyInfo.Get();
         VATIDNo := CopyStr(DelChr(UpperCase(CompanyInfo."Registration No."), '=', Text1140000), 1, 11);
-#if not CLEAN19
-        if IntrastatSetup.Get() then;
-#endif
     end;
 
     var
@@ -296,9 +274,6 @@ report 11012 "Intrastat - Form DE"
         Country: Record "Country/Region";
         GLSetup: Record "General Ledger Setup";
         IntrastatJnlLine1: Record "Intrastat Jnl. Line";
-#if not CLEAN19
-        IntrastatSetup: Record "Intrastat Setup";
-#endif
         IntraJnlManagement: Codeunit IntraJnlManagement;
         IntraJnlLineFilter: Text;
         HeaderText: Text[30];

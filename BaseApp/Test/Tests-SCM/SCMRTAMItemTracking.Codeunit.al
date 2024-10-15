@@ -3115,7 +3115,9 @@ codeunit 137052 "SCM RTAM Item Tracking"
     local procedure ItemTrackingCodeSetup()
     begin
         CreateItemTrackingCode(ItemTrackingCodeSerialSpecific, ItemTrackingCodeSerialSpecific.FieldNo("SN Specific Tracking"), true);  // Tracking for SN Specific Tracking.
+        UpdateItemTrackingCode(ItemTrackingCodeSerialSpecific, ItemTrackingCodeSerialSpecific.FieldNo("SN Warehouse Tracking"), false);
         CreateItemTrackingCode(ItemTrackingCodeLotSpecific, ItemTrackingCodeLotSpecific.FieldNo("Lot Specific Tracking"), true);  // Tracking for Lot Specific Tracking.
+        UpdateItemTrackingCode(ItemTrackingCodeLotSpecific, ItemTrackingCodeLotSpecific.FieldNo("Lot Warehouse Tracking"), false);
     end;
 
     local procedure CreateItemTrackingCode(var ItemTrackingCode: Record "Item Tracking Code"; FieldNo: Integer; Value: Boolean)

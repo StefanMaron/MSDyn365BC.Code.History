@@ -3040,7 +3040,6 @@ codeunit 139197 DocumentSendingPostTests
         LibraryVariableStorage.AssertEmpty;
     end;
 
-#if FIX_UNSTABLEREPORTTEST_VSO416487
     [Test]
     [HandlerFunctions('ConfirmPerDocProfileSelectionMethodAndCloseEmailStrMenuHandler,VerifySelectSendingOptionHandler,PrintInvoiceHandler,EmailDialogHandlerNo')]
     [Scope('OnPrem')]
@@ -3132,7 +3131,6 @@ codeunit 139197 DocumentSendingPostTests
         // Verify in EmailDialogHandlerNo
         LibraryVariableStorage.AssertEmpty;
     end;
-#endif
 
     [Test]
     [HandlerFunctions('ConfirmPerDocProfileSelectionMethodStrMenuHandler,VerifyAndCancelSelectSendingOptionHandler')]

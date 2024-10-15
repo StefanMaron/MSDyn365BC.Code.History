@@ -1889,12 +1889,6 @@ codeunit 134167 "Copy Price Data Test"
     begin
         FeatureDataUpdateStatus."Feature Key" := 'SalesPrices';
         Assert.IsTrue(FeatureDataUpdateMgt.FeatureKeyMatches(FeatureDataUpdateStatus, Enum::"Feature To Update"::SalesPrices), 'SalesPrices');
-
-        FeatureDataUpdateStatus."Feature Key" := 'ItemReference';
-        Assert.IsFalse(FeatureDataUpdateMgt.FeatureKeyMatches(FeatureDataUpdateStatus, Enum::"Feature To Update"::SalesPrices), 'SalesPrices vs ItemReference');
-
-        FeatureDataUpdateStatus."Feature Key" := 'ItemReference';
-        Assert.IsTrue(FeatureDataUpdateMgt.FeatureKeyMatches(FeatureDataUpdateStatus, Enum::"Feature To Update"::ItemReference), 'ItemReference');
     end;
 
     [Test]

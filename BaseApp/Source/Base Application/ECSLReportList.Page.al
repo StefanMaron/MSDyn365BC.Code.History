@@ -42,7 +42,7 @@ page 323 "ECSL Report List"
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the last date of the EC sales list report.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = VAT;
                 }

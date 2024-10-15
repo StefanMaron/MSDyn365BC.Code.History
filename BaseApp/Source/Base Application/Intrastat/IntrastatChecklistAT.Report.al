@@ -1,8 +1,12 @@
+#if not CLEAN22
 report 11105 "Intrastat - Checklist AT"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './Intrastat/IntrastatChecklistAT.rdlc';
     Caption = 'Intrastat - Checklist AT';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
+    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
 
     dataset
     {
@@ -308,25 +312,7 @@ report 11105 "Intrastat - Checklist AT"
                     OldTariffNo := "Tariff No.";
                     "Tariff No." := DelChr("Tariff No.");
 
-#if CLEAN19
                     IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Checklist AT", true);
-#else
-                    if IntrastatSetup."Use Advanced Checklist" then
-                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Checklist AT", true)
-                    else begin
-                        TestField("Tariff No.");
-                        TestField("Country/Region Code");
-                        TestField("Transaction Type");
-                        if CompanyInfo."Check Transport Method" then
-                            TestField("Transport Method");
-                        if CompanyInfo."Check Transaction Specific." then
-                            TestField("Transaction Specification");
-                        if Type = Type::Receipt then
-                            TestField("Country/Region of Origin Code");
-                        if "Supplementary Units" then
-                            TestField(Quantity);
-                    end;
-#endif
 
                     if Type = Type::Receipt then begin
                         OriginCountry.Get("Country/Region of Origin Code");
@@ -387,9 +373,6 @@ report 11105 "Intrastat - Checklist AT"
             GLSetup.TestField("LCY Code");
             HeaderText := StrSubstNo(Text002, GLSetup."LCY Code");
         end;
-#if not CLEAN19
-        if IntrastatSetup.Get() then;
-#endif
         IntraJnlManagement.ChecklistClearBatchErrors("Intrastat Jnl. Batch");
     end;
 
@@ -401,9 +384,6 @@ report 11105 "Intrastat - Checklist AT"
         Country: Record "Country/Region";
         GLSetup: Record "General Ledger Setup";
         OriginCountry: Record "Country/Region";
-#if not CLEAN19
-        IntrastatSetup: Record "Intrastat Setup";
-#endif
         IntraJnlManagement: Codeunit IntraJnlManagement;
         NoOfRecords: Integer;
         PrintJnlLines: Boolean;
@@ -437,4 +417,4 @@ report 11105 "Intrastat - Checklist AT"
         TotalCaption_Control55Lbl: Label 'Total';
         NoOfRecords_Control62CaptionLbl: Label 'No. of Entries';
 }
-
+#endif

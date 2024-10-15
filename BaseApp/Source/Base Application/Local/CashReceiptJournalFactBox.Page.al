@@ -304,7 +304,7 @@ page 35516 "Cash Receipt Journal FactBox"
             exit;
 
         if Currency.ReadPermission then
-            if Currency.Get("Currency Code") then
+            if not Currency.Get("Currency Code") then
                 Currency.InitRoundingPrecision();
 
         if not Cust.Get(CustLedgEntry."Customer No.") then;

@@ -18,7 +18,7 @@ page 5005274 "Issued Delivery Reminder Sub"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value of the same field in the original delivery reminder.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value of the same field in the original delivery reminder.';
@@ -34,12 +34,12 @@ page 5005274 "Issued Delivery Reminder Sub"
                     ToolTip = 'Specifies the number of the vendor who you want to post a delivery reminder for.';
                     Visible = false;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the same field in the original delivery reminder.';
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;

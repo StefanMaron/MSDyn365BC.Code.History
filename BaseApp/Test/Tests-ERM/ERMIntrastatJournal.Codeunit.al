@@ -1,7 +1,11 @@
-﻿codeunit 134150 "ERM Intrastat Journal"
+﻿#if not CLEAN22
+codeunit 134150 "ERM Intrastat Journal"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
+    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
 
     trigger OnRun()
     begin
@@ -78,6 +82,7 @@
         CreateAndVerifyIntrastatLine(DocumentNo, PurchaseLine."No.", PurchaseLine.Quantity, IntrastatJnlLine.Type::Receipt);
     end;
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure NoIntrastatLineForPurchase()
@@ -95,6 +100,7 @@
         // [THEN] Verify that no Intrastat Journal Lines exist for Posted Purchase Order.
         DeleteAndVerifyNoIntrastatLine;
     end;
+#endif
 
     [Test]
     [HandlerFunctions('UndoDocumentConfirmHandler')]
@@ -186,6 +192,7 @@
         CreateAndVerifyIntrastatLine(DocumentNo, SalesLine."No.", SalesLine.Quantity, IntrastatJnlLine.Type::Shipment);
     end;
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure NoIntrastatLineForSales()
@@ -203,6 +210,7 @@
         // [THEN] Verify that no lines exist for Posted Sales Order.
         DeleteAndVerifyNoIntrastatLine;
     end;
+#endif
 
     [Test]
     [HandlerFunctions('UndoDocumentConfirmHandler')]
@@ -2929,6 +2937,7 @@
         FindItemLedgerEntry(ItemLedgerEntry, ServiceHeader."Customer No.", ItemNo);
     end;
 
+#if not CLEAN22
     local procedure DeleteAndVerifyNoIntrastatLine()
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
@@ -2945,6 +2954,7 @@
         // Verify.
         VerifyNoIntrastatLineExist(IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
     end;
+#endif
 
     local procedure GetCountryRegionCode(): Code[10]
     var
@@ -3421,4 +3431,4 @@
         IntrastatMakeDiskTaxAuth.Cancel.Invoke();
     end;
 }
-
+#endif

@@ -16,7 +16,7 @@ Page 1 "Company Information"
             group(General)
             {
                 Caption = 'General';
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
@@ -419,40 +419,6 @@ Page 1 "Company Information"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number issued by the Federal Office of Statistics if it is an Intrastat special agreement.';
                 }
-#if not CLEAN19
-                field("Check Transport Method"; Rec."Check Transport Method")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies to place a checkmark when the transport method should be checked for Intrastat reporting.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '19.0';
-                    ObsoleteReason = 'Replaced by Advanced Intrastat Checklist';
-                }
-                field("Check Transaction Specific."; Rec."Check Transaction Specific.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies to place a checkmark when the transaction specification should be checked for Intrastat reporting.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '19.0';
-                    ObsoleteReason = 'Replaced by Advanced Intrastat Checklist';
-                }
-                field("Check for Partner VAT ID"; Rec."Check for Partner VAT ID")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if you want to check the partner VAT ID for shipments in the Intrastat report.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '19.0';
-                    ObsoleteReason = 'Replaced by Advanced Intrastat Checklist';
-                }
-                field("Check for Country of Origin"; Rec."Check for Country of Origin")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the country of origin must be checked for shipments in the Intrastat report.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '19.0';
-                    ObsoleteReason = 'Replaced by Advanced Intrastat Checklist';
-                }
-#endif
                 field("Sales Authorized No."; Rec."Sales Authorized No.")
                 {
                     ApplicationArea = Basic, Suite;
