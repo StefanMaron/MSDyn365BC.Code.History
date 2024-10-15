@@ -84,6 +84,7 @@ page 1312 "Office 365 Credentials"
         StatusText: Text;
         WhySignInIsNeededLbl: Label 'Why do I have to sign in to Office 365 now?';
         WhySignInIsNeededDescriptionMsg: Label 'To set up the Business Inbox in Outlook, we need your permission to install two add-ins in Office 365.';
+        [NonDebuggable]
         PasswordText: Text;
 }
 

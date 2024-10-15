@@ -1242,6 +1242,11 @@ page 95 "Sales Quote Subform"
             SendLineInvoiceDiscountResetNotification;
     end;
 
+    procedure ForceTotalsCalculation()
+    begin
+        DocumentTotals.SalesDocTotalsNotUpToDate();
+    end;
+
     procedure RedistributeTotalsOnAfterValidate()
     var
         SalesHeader: Record "Sales Header";

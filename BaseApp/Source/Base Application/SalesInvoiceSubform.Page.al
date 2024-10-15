@@ -1263,6 +1263,11 @@ page 47 "Sales Invoice Subform"
             SendLineInvoiceDiscountResetNotification;
     end;
 
+    procedure ForceTotalsCalculation()
+    begin
+        DocumentTotals.SalesDocTotalsNotUpToDate();
+    end;
+
     local procedure DescriptionOnFormat()
     begin
         if Level > 0 then

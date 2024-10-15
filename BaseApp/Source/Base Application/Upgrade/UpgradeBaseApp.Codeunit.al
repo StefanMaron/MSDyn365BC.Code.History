@@ -45,6 +45,7 @@
         UpgradeAPIs();
         UpgradePurchaseRcptLineOverReceiptCode();
         UpgradeIntrastatJnlLine();
+        UpdateJobPlanningLinePlanningDueDate();
     end;
 
     local procedure UpdateDefaultDimensionsReferencedIds()
@@ -125,6 +126,24 @@
                 END;
             UNTIL Job.NEXT = 0;
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetAddingIDToJobsUpgradeTag());
+    end;
+            
+    local procedure UpdateJobPlanningLinePlanningDueDate()
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetJobPlanningLinePlanningDueDateUpgradeTag()) then
+            exit;
+
+        if JobPlanningLine.FindSet() then
+            repeat
+                JobPlanningLine.UpdatePlannedDueDate();
+                JobPlanningLine.Modify();
+            until JobPlanningLine.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetJobPlanningLinePlanningDueDateUpgradeTag());
     end;
 
     local procedure CreateWorkflowWebhookWebServices()

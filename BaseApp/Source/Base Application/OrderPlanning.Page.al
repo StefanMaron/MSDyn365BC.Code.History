@@ -601,7 +601,8 @@ page 5522 "Order Planning"
     begin
         if ReqLine.Get("Worksheet Template Name", "Journal Batch Name", "Line No.") then begin
             Rec := ReqLine;
-            Modify
+            Modify;
+            OnUpdateReqLineOnAfterGetCurrRecord(Rec);
         end else
             if Get("Worksheet Template Name", "Journal Batch Name", "Line No.") then
                 Delete;
@@ -1188,6 +1189,11 @@ page 5522 "Order Planning"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDemandTypeTextOnFormat(var RequisitionLine: Record "Requisition Line"; var Text: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateReqLineOnAfterGetCurrRecord(var TempRequisitionLine: Record "Requisition Line" temporary)
     begin
     end;
 
