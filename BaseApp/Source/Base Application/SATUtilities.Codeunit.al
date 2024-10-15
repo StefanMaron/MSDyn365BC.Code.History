@@ -7,6 +7,12 @@
     begin
     end;
 
+    var
+        PACWebServiceTxt: Label 'PAC', Locked = true;
+        PACWebServiceDetailTypeRequestStampTxt: Label 'GeneraTimbre', Locked = true;
+        PACWebServiceDetailTypeCancelTxt: Label 'CancelaTimbre', Locked = true;
+        PACWebServiceDetailTypeCancelRequestTxt: Label 'ConsultaEstatusCancelacion', Locked = true;
+
     [Scope('OnPrem')]
     procedure GetSATUnitofMeasure(UofM: Code[10]): Code[10]
     var
@@ -292,6 +298,58 @@
         UnitOfMeasure."SAT Customs Unit" := SATCustomsCode;
     end;
 
+    procedure PopulatePACWebServiceData()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        PACWebService: Record "PAC Web Service";
+        PACWebServiceDetail: Record "PAC Web Service Detail";
+        PACCode: Code[10];
+    begin
+        if not GeneralLedgerSetup.Get() then
+            exit;
+
+        PACCode := GeneralLedgerSetup."PAC Code";
+        if PACCode = '' then
+            PACCode := PACWebServiceTxt;
+
+        if not PACWebService.Get(PACCode) then begin
+            PACWebService.Init();
+            PACWebService.Code := PACCode;
+            PACWebService.Name := PACCode;
+            PACWebService.Insert();
+        end;
+
+        if GeneralLedgerSetup."PAC Code" = '' then begin
+            GeneralLedgerSetup.Validate("PAC Code", PACCode);
+            GeneralLedgerSetup.Modify(true);
+        end;
+
+        CreatePACWebServiceDetail(
+          PACCode, PACWebServiceDetail.Environment::Production, PACWebServiceDetail.Type::"Request Stamp",
+          PACWebServiceDetailTypeRequestStampTxt);
+        CreatePACWebServiceDetail(
+          PACCode, PACWebServiceDetail.Environment::Production, PACWebServiceDetail.Type::Cancel,
+          PACWebServiceDetailTypeCancelTxt);
+        CreatePACWebServiceDetail(
+          PACCode, PACWebServiceDetail.Environment::Production, PACWebServiceDetail.Type::CancelRequest,
+          PACWebServiceDetailTypeCancelRequestTxt);
+    end;
+
+    local procedure CreatePACWebServiceDetail(PACCode: Code[10]; Environment: Option; MethodType: Option; MethodName: Text[50])
+    var
+        PACWebServiceDetail: Record "PAC Web Service Detail";
+    begin
+        if PACWebServiceDetail.Get(PACCode, Environment, MethodType) then
+            exit;
+
+        PACWebServiceDetail.Init();
+        PACWebServiceDetail."PAC Code" := PACCode;
+        PACWebServiceDetail.Environment := Environment;
+        PACWebServiceDetail.Type := MethodType;
+        PACWebServiceDetail."Method Name" := MethodName;
+        PACWebServiceDetail.Insert();
+    end;
+
     [Scope('OnPrem')]
     procedure PopulateSATInformation()
     var
@@ -431,7 +489,7 @@
                 CFDISubjectToTaxPort.SetSource(IStr);
                 CFDISubjectToTaxPort.Import();
             end;
-	    
+
         if SATInternationalTradeTerm.IsEmpty() then
             if MediaResources.Get('SATIncoterms.xml') then begin
                 MediaResources.CalcFields(Blob);

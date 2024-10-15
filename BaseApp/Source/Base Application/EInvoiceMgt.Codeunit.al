@@ -4134,7 +4134,7 @@
         Response := IWebServiceInvoker.InvokeMethodWithCertificate(PACWebServiceDetail.Address,
             PACWebServiceDetail."Method Name", CertificateManagement.GetCertAsBase64String(IsolatedCertificate), SecureStringPassword);
         Session.LogMessage('0000C7W', StrSubstNo(InvokeMethodSuccessMsg, MethodType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
-        if MethodType = MethodType::Cancel then
+        if MethodType in [MethodType::Cancel, MethodType::CancelRequest] then
             Response := DelChr(Response, '=', SpecialCharsTxt);
         exit(Response)
     end;

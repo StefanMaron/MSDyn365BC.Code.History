@@ -18,7 +18,7 @@ table 10001 "PAC Web Service Detail"
         field(3; Type; Option)
         {
             Caption = 'Type';
-            OptionCaption = 'Request Stamp,Cancel';
+            OptionCaption = 'Request Stamp,Cancel,Cancel Request';
             OptionMembers = "Request Stamp",Cancel,CancelRequest;
         }
         field(21; "Method Name"; Text[50])
