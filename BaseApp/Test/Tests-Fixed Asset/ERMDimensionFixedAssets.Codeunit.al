@@ -22,6 +22,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         DepreciationBookError: Label 'The %1 does not exist.';
         LinesMustNotBeCreated: Label 'Lines must not be created for Fixed Asset %1. ';
         DimensionValueError: Label 'A dimension used in %1 %2, %3, %4 has caused an error. Select a %5 for the %6 %7 for %8 %9.', Comment = '%1: Table Caption1,%2: Field Value1,%3: Field Value2,%4: Field Value3,%5:Field Caption1,%6:Field Caption2,%7:Field Value4,%8: Table Caption2,%9: Field Value5.';
+        DimensionValueError2: Label 'Select a %1 for the %2 %3 for %4 %5.', Comment = '%1: Table Caption1,%2: Field Value1,%3: Field Value2,%4: Field Value3,%5:Field Caption1,%6:Field Caption2,%7:Field Value4,%8: Table Caption2,%9: Field Value5.';
         CheckDimValueInGenJournalErr: Label 'Wrong %1 in Dimension Set for Gen. Journal Line. Document No. = %2, Account No. = %3, Batch Name = %4.';
         CompletionStatsTok: Label 'The depreciation has been calculated.';
 
@@ -852,9 +853,9 @@ codeunit 134478 "ERM Dimension Fixed Assets"
 
         // 3. Verify: Verify Error Message.
         Assert.ExpectedError(
-          StrSubstNo(DimensionValueError, FAAllocation.TableCaption, FAAllocation.Code, FAAllocation."Allocation Type",
-            FAAllocation."Line No.", DefaultDimension.FieldCaption("Dimension Value Code"),
-            DefaultDimension.FieldCaption("Dimension Code"), DefaultDimension."Dimension Code", GLAccount.TableCaption,
+          StrSubstNo(DimensionValueError2,
+            DefaultDimension.FieldCaption("Dimension Value Code"),
+            DefaultDimension.FieldCaption("Dimension Code"), DefaultDimension."Dimension Code", GLAccount.TableCaption(),
             DefaultDimension."No."));
     end;
 
@@ -1149,6 +1150,99 @@ codeunit 134478 "ERM Dimension Fixed Assets"
 
         // [THEN] "FA Journal Line"."Shortcut Dimension 2 Code" = "GD2C"
         FAJournalLine.TestField("Shortcut Dimension 2 Code", FALedgerEntry."Global Dimension 2 Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('DepreciationCalcConfirmHandler')]
+    procedure CalcDeprOnFixedAssetWithDeprAllocAndDimMandatory()
+    var
+        DefaultDimension: Record "Default Dimension";
+        FAAllocation: Record "FA Allocation";
+        FADepreciationBook: Record "FA Depreciation Book";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        FAJournalSetup: Record "FA Journal Setup";
+        GLAccount: Record "G/L Account";
+    begin
+        // [SCENARIO 432878] Calculate depreciation task should create journal lines when dimension value on depreciation FA allocation dimension account is blank and Code Mandatory.
+        Initialize();
+
+        // [GIVEN] Acquired fixed asset with depreciation FA allocation with G/L account with mandatory dimension
+        LibraryERM.CreateGLAccount(GLAccount);
+        CreateGLAccountWithDimension(DefaultDimension);
+        CreateFixedAssetDepreciation(FADepreciationBook);
+        CreateAndAttachDimensionOnFAAllocation(FAAllocation, FADepreciationBook."FA Posting Group", FAAllocation."Allocation Type"::Depreciation);
+        UpdateAccountNoInFAAllocation(FAAllocation, DefaultDimension."No.");
+        CreateGenJournalBatch(GenJournalBatch);
+        CreateGeneralJournalLine(
+          GenJournalLine, GenJournalBatch, FADepreciationBook."FA No.", GenJournalLine."FA Posting Type"::"Acquisition Cost",
+          GLAccount."No.", LibraryRandom.RandDec(100, 2));
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [WHEN] Calculate depreciation
+        if not FAJournalSetup.Get(FADepreciationBook."Depreciation Book Code", UserId) then
+            FAJournalSetup.Get(FADepreciationBook."Depreciation Book Code", '');
+        GenJournalLine.SetRange("Journal Template Name", FAJournalSetup."Gen. Jnl. Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", FAJournalSetup."Gen. Jnl. Batch Name");
+        GenJournalLine.DeleteAll();
+        RunCalculateDepreciation(FADepreciationBook."FA No.", FADepreciationBook."Depreciation Book Code", true);
+
+        // [THEN] Depreciation calculated, general journal line created
+        GenJournalLine.SetRange("Journal Template Name", FAJournalSetup."Gen. Jnl. Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", FAJournalSetup."Gen. Jnl. Batch Name");
+        GenJournalLine.FindSet();
+        GenJournalLine.TestField("FA Posting Type", GenJournalLine."FA Posting Type"::Depreciation);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('DepreciationCalcConfirmHandler')]
+    procedure CalcDeprAndPostOnFixedAssetWithDeprAllocAndDimMandatory()
+    var
+        DefaultDimension: Record "Default Dimension";
+        FAAllocation: Record "FA Allocation";
+        FADepreciationBook: Record "FA Depreciation Book";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        FAJournalSetup: Record "FA Journal Setup";
+        GLAccount: Record "G/L Account";
+    begin
+        // [SCENARIO 432878] Calculate and post depreciation should give an error when dimension value on depreciation FA allocation dimension account is blank and Code Mandatory.
+        Initialize();
+
+        // [GIVEN] Acquired fixed asset with depreciation FA allocation with G/L account with mandatory dimension
+        LibraryERM.CreateGLAccount(GLAccount);
+        CreateGLAccountWithDimension(DefaultDimension);
+        CreateFixedAssetDepreciation(FADepreciationBook);
+        CreateAndAttachDimensionOnFAAllocation(FAAllocation, FADepreciationBook."FA Posting Group", FAAllocation."Allocation Type"::Depreciation);
+        UpdateAccountNoInFAAllocation(FAAllocation, DefaultDimension."No.");
+        CreateGenJournalBatch(GenJournalBatch);
+        CreateGeneralJournalLine(
+          GenJournalLine, GenJournalBatch, FADepreciationBook."FA No.", GenJournalLine."FA Posting Type"::"Acquisition Cost",
+          GLAccount."No.", LibraryRandom.RandDec(100, 2));
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Calculated depreciation
+        if not FAJournalSetup.Get(FADepreciationBook."Depreciation Book Code", UserId) then
+            FAJournalSetup.Get(FADepreciationBook."Depreciation Book Code", '');
+        GenJournalLine.SetRange("Journal Template Name", FAJournalSetup."Gen. Jnl. Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", FAJournalSetup."Gen. Jnl. Batch Name");
+        GenJournalLine.DeleteAll();
+        RunCalculateDepreciation(FADepreciationBook."FA No.", FADepreciationBook."Depreciation Book Code", true);
+
+        // [WHEN] Post depreciation
+        GenJournalLine.SetRange("Journal Template Name", FAJournalSetup."Gen. Jnl. Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", FAJournalSetup."Gen. Jnl. Batch Name");
+        GenJournalLine.FindSet();
+        GenJournalLine.ModifyAll(Description, 'depreciation');
+        asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Error message (dimension value required) is thrown
+        Assert.ExpectedError(
+            StrSubstNo(
+                DimensionValueError2, DefaultDimension.FieldCaption("Dimension Value Code"), DefaultDimension.FieldCaption("Dimension Code"),
+                DefaultDimension."Dimension Code", GLAccount.TableCaption(), DefaultDimension."No."));
     end;
 
     local procedure Initialize()
