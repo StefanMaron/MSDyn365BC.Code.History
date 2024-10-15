@@ -60,13 +60,8 @@
         {
             Caption = 'CD No.';
             ObsoleteReason = 'Replaced by field Package No.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
     }
 
@@ -90,7 +85,7 @@
 
     procedure InitFromTrackingSpec(TrackingSpecification: Record "Tracking Specification")
     begin
-        Init;
+        Init();
         "Item Entry No." := TrackingSpecification."Entry No.";
         "Serial No." := TrackingSpecification."Serial No.";
         "Lot No." := TrackingSpecification."Lot No.";

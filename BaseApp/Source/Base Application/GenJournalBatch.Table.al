@@ -30,7 +30,7 @@ table 232 "Gen. Journal Batch"
             begin
                 if "Reason Code" <> xRec."Reason Code" then begin
                     ModifyLines(FieldNo("Reason Code"));
-                    Modify;
+                    Modify();
                 end;
             end;
         }
@@ -63,10 +63,10 @@ table 232 "Gen. Journal Batch"
             begin
                 if "Bal. Account Type" = "Bal. Account Type"::"G/L Account" then begin
                     CheckGLAcc("Bal. Account No.");
-                    UpdateBalAccountId;
+                    UpdateBalAccountId();
                 end;
-                CheckJnlIsNotRecurring;
-                UpdateBalAccountId;
+                CheckJnlIsNotRecurring();
+                UpdateBalAccountId();
             end;
         }
         field(7; "No. Series"; Code[20])
@@ -104,7 +104,7 @@ table 232 "Gen. Journal Batch"
                 if ("Posting No. Series" = "No. Series") and ("Posting No. Series" <> '') then
                     FieldError("Posting No. Series", StrSubstNo(Text001, "Posting No. Series"));
                 ModifyLines(FieldNo("Posting No. Series"));
-                Modify;
+                Modify();
             end;
         }
         field(9; "Copy VAT Setup to Jnl. Lines"; Boolean)
@@ -254,29 +254,30 @@ table 232 "Gen. Journal Batch"
             "Copy VAT Setup to Jnl. Lines" := false;
         "Allow Payment Export" := GenJnlTemplate.Type = GenJnlTemplate.Type::Payments;
 
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     trigger OnModify()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     trigger OnRename()
     begin
         ApprovalsMgmt.OnRenameRecordInApprovalRequest(xRec.RecordId, RecordId);
 
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     var
-        Text000: Label 'Only the %1 field can be filled in on recurring journals.';
-        Text001: Label 'must not be %1';
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlAlloc: Record "Gen. Jnl. Allocation";
-        BankStmtImpFormatBalAccErr: Label 'must be blank. When Bal. Account Type = Bank Account, then Bank Statement Import Format on the Bank Account card will be used', Comment = 'FIELDERROR ex: Bank Statement Import Format must be blank. When Bal. Account Type = Bank Account, then Bank Statement Import Format on the Bank Account card will be used in Gen. Journal Batch Journal Template Name=''GENERAL'',Name=''CASH''.';
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+
+        Text000: Label 'Only the %1 field can be filled in on recurring journals.';
+        Text001: Label 'must not be %1';
+        BankStmtImpFormatBalAccErr: Label 'must be blank. When Bal. Account Type = Bank Account, then Bank Statement Import Format on the Bank Account card will be used', Comment = 'FIELDERROR ex: Bank Statement Import Format must be blank. When Bal. Account Type = Bank Account, then Bank Statement Import Format on the Bank Account card will be used in Gen. Journal Batch Journal Template Name=''GENERAL'',Name=''CASH''.';
         CannotBeSpecifiedForRecurrJnlErr: Label 'cannot be specified when using recurring journals';
         BalAccountIdDoesNotMatchAGLAccountErr: Label 'The "balancingAccountNumber" does not match to a G/L Account.', Locked = true;
 
@@ -308,7 +309,7 @@ table 232 "Gen. Journal Batch"
     begin
         if AccNo <> '' then begin
             GLAcc.Get(AccNo);
-            GLAcc.CheckGLAcc;
+            GLAcc.CheckGLAcc();
             GLAcc.TestField("Direct Posting", true);
         end;
     end;
@@ -375,12 +376,12 @@ table 232 "Gen. Journal Batch"
 
     procedure CheckBalance() Balance: Decimal
     begin
-        Balance := GetBalance;
+        Balance := GetBalance();
 
         if Balance = 0 then
-            OnGeneralJournalBatchBalanced
+            OnGeneralJournalBatchBalanced()
         else
-            OnGeneralJournalBatchNotBalanced;
+            OnGeneralJournalBatchNotBalanced();
     end;
 
     [IntegrationEvent(TRUE, false)]

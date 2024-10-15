@@ -22,7 +22,7 @@ page 1279 "Service Connections"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the service. The description is based on the name of the setup page that opens when you choose the Setup.';
                 }
-                field("Host Name"; "Host Name")
+                field("Host Name"; Rec."Host Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the web service. This is typically a URL.';
@@ -48,17 +48,25 @@ page 1279 "Service Connections"
                 Caption = 'Setup';
                 Enabled = SetupActive;
                 Image = Setup;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
                 Scope = Repeater;
                 ShortCutKey = 'Return';
                 ToolTip = 'Get a connection to a service up and running or manage an connection that is already working.';
 
                 trigger OnAction()
                 begin
-                    CallSetup;
+                    CallSetup();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Setup_Promoted; Setup)
+                {
+                }
             }
         }
     }
@@ -69,16 +77,16 @@ page 1279 "Service Connections"
     begin
         RefreshPressed := CurrRecordNo = "No.";
         if RefreshPressed then
-            Refresh
+            Refresh()
         else
             CurrRecordNo := "No.";
         SetupActive := "Page ID" <> 0;
-        SetStyle;
+        SetStyle();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        SetStyle;
+        SetStyle();
     end;
 
     trigger OnInit()
@@ -92,7 +100,7 @@ page 1279 "Service Connections"
 
     trigger OnOpenPage()
     begin
-        ReloadServiceConnections;
+        ReloadServiceConnections();
     end;
 
     var
@@ -104,8 +112,8 @@ page 1279 "Service Connections"
     var
         GuidedExperience: Codeunit "Guided Experience";
         GuidedExperienceType: Enum "Guided Experience Type";
-        RecordRefVariant: Variant;
         RecordRef: RecordRef;
+        RecordRefVariant: Variant;
         DummyRecordID: RecordID;
         CurrentRecordId: RecordID;
     begin
@@ -129,7 +137,7 @@ page 1279 "Service Connections"
                     Page.RunModal("Page ID", RecordRefVariant);
                 end;
         end;
-        ReloadServiceConnections;
+        ReloadServiceConnections();
         if Get(xRec."No.") then;
         CurrPage.Update(false);
     end;
@@ -148,7 +156,7 @@ page 1279 "Service Connections"
 
     local procedure Refresh()
     begin
-        ReloadServiceConnections;
+        ReloadServiceConnections();
         CurrRecordNo := Format(CreateGuid());
         if Get(xRec."No.") then;
         CurrPage.Activate(true);

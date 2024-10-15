@@ -503,7 +503,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         // [FEATURE] [Purchase]
         // [SCENARIO 378466] Payment document no. and date are exported in column 11 in case of VAT Agent payment after manual VAT Settlement
         Initialize();
-        DeleteVATEntriesOnDate(WorkDate - 1, WorkDate + 1);
+        DeleteVATEntriesOnDate(WorkDate() - 1, WorkDate + 1);
 
         // [GIVEN] VAT Agent vendor with manual VAT Settlement VAT Posting Setup
         CreatePurchaseInvoiceVendorVATAgent(PurchaseHeader);
@@ -535,7 +535,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         // [FEATURE] [Purchase] [Prepayment]
         // [SCENARIO 378466] Prepayment document no. and date are exported in column 11 in case of VAT Agent prepayment after manual VAT Settlement
         Initialize();
-        DeleteVATEntriesOnDate(WorkDate - 1, WorkDate + 1);
+        DeleteVATEntriesOnDate(WorkDate() - 1, WorkDate + 1);
 
         // [GIVEN] VAT Agent vendor with manual VAT Settlement VAT Posting Setup
         CreatePurchaseInvoiceVendorVATAgent(PurchaseHeader);
@@ -619,7 +619,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         FileName: Text[1024];
     begin
         VATLedgerCode :=
-          LibrarySales.CreateSalesVATLedger(LibraryRandom.RandDate(-2), LibraryRandom.RandDateFromInRange(WorkDate, 5, 10), CustomerNo);
+          LibrarySales.CreateSalesVATLedger(LibraryRandom.RandDate(-2), LibraryRandom.RandDateFromInRange(WorkDate(), 5, 10), CustomerNo);
         if AddSheet then
             LibrarySales.CreateSalesVATLedgerAddSheet(VATLedgerCode);
         UpdateVATLedgerLineWithRandomCDNoAndTariffNo(VATLedgerCode, CustomerNo);
@@ -720,7 +720,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Payment, AccountType, AccountNo, LineAmount);
-        GenJournalLine.Validate("Posting Date", WorkDate - 1);
+        GenJournalLine.Validate("Posting Date", WorkDate() - 1);
         GenJournalLine.Validate("Initial Document No.", InitDocNo);
         GenJournalLine.Validate("External Document No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
@@ -778,7 +778,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         with SalesReceivablesSetup do begin
-            Get;
+            Get();
             Validate("Credit Warnings", "Credit Warnings"::"No Warning");
             "Stockout Warning" := false;
             Modify(true);

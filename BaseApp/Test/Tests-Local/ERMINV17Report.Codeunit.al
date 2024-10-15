@@ -90,9 +90,9 @@ codeunit 144704 "ERM INV-17 Report"
     local procedure MockInvActHeader(var InvtActHeader: Record "Invent. Act Header")
     begin
         with InvtActHeader do begin
-            Init;
+            Init();
             Insert(true);
-            Validate("Inventory Date", WorkDate);
+            Validate("Inventory Date", WorkDate());
             Validate("Reason Document No.", LibraryUtility.GenerateGUID());
             Validate("Reason Document Date", CalcDate('<1D>', "Inventory Date"));
             Validate("Act Date", CalcDate('<1D>', "Reason Document Date"));
@@ -117,9 +117,9 @@ codeunit 144704 "ERM INV-17 Report"
                 MockGroupInvtActLine(
                   TempInvtActLine, ActNo, TempInvtActLine."Contractor Type"::Customer, Customer."No.", GLAccount."No.",
                   CustomerPostingGroup.Code);
-                CustomerPostingGroup.Next;
+                CustomerPostingGroup.Next();
             end;
-            Customer.Next;
+            Customer.Next();
         end;
     end;
 
@@ -140,9 +140,9 @@ codeunit 144704 "ERM INV-17 Report"
                 MockGroupInvtActLine(
                   TempInvtActLine, ActNo, TempInvtActLine."Contractor Type"::Vendor, Vendor."No.", GLAccount."No.",
                   VendorPostingGroup.Code);
-                VendorPostingGroup.Next;
+                VendorPostingGroup.Next();
             end;
-            Vendor.Next;
+            Vendor.Next();
         end;
     end;
 
@@ -171,7 +171,7 @@ codeunit 144704 "ERM INV-17 Report"
     local procedure MockInvActLine(var InvtActLine: Record "Invent. Act Line"; ActNo: Code[20]; ContractorType: Option; ContractorNo: Code[20]; GLAccNo: Code[20]; PostingGroup: Code[20]; CategoryType: Option)
     begin
         with InvtActLine do begin
-            Init;
+            Init();
             Validate("Act No.", ActNo);
             Validate("Contractor Type", ContractorType);
             Validate("Contractor No.", ContractorNo);
@@ -294,7 +294,7 @@ codeunit 144704 "ERM INV-17 Report"
     local procedure MockCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; EntryNo: Integer; CustNo: Code[20]; CustPostGroupCode: Code[20]; PostingDate: Date; AgreementNo: Code[20])
     begin
         with CustLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := EntryNo;
             "Customer No." := CustNo;
             "Customer Posting Group" := CustPostGroupCode;
@@ -302,20 +302,20 @@ codeunit 144704 "ERM INV-17 Report"
             "Document Type" := "Document Type"::Invoice;
             "Document No." := LibraryUtility.GenerateGUID();
             "Agreement No." := AgreementNo;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure MockDtldCustLedgEntry(var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; EntryNo: Integer; CustLedgEntryNo: Integer; DtldEntryPostingDate: Date; EntryAmount: Decimal)
     begin
         with DtldCustLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := EntryNo;
             "Cust. Ledger Entry No." := CustLedgEntryNo;
             "Entry Type" := "Entry Type"::"Initial Entry";
             "Posting Date" := DtldEntryPostingDate;
             "Amount (LCY)" := EntryAmount;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -348,7 +348,7 @@ codeunit 144704 "ERM INV-17 Report"
     local procedure MockVendLedgEntry(var VendLedgEntry: Record "Vendor Ledger Entry"; EntryNo: Integer; VendNo: Code[20]; VendPostGroupCode: Code[20]; PostingDate: Date; AgreementNo: Code[20])
     begin
         with VendLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := EntryNo;
             "Vendor No." := VendNo;
             "Vendor Posting Group" := VendPostGroupCode;
@@ -356,20 +356,20 @@ codeunit 144704 "ERM INV-17 Report"
             "Document Type" := "Document Type"::Invoice;
             "Document No." := LibraryUtility.GenerateGUID();
             "Agreement No." := AgreementNo;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure MockDtldVendLedgEntry(var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; EntryNo: Integer; VendLedgEntryNo: Integer; DtldEntryPostingDate: Date; EntryAmount: Decimal)
     begin
         with DtldVendLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := EntryNo;
             "Vendor Ledger Entry No." := VendLedgEntryNo;
             "Entry Type" := "Entry Type"::"Initial Entry";
             "Posting Date" := DtldEntryPostingDate;
             "Amount (LCY)" := EntryAmount;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -454,7 +454,7 @@ codeunit 144704 "ERM INV-17 Report"
             "Confirmed Amount" += FromInvActLine."Confirmed Amount";
             "Not Confirmed Amount" += FromInvActLine."Not Confirmed Amount";
             "Overdue Amount" += FromInvActLine."Overdue Amount";
-            Modify;
+            Modify();
         end;
     end;
 
@@ -463,7 +463,7 @@ codeunit 144704 "ERM INV-17 Report"
         InvActRep: Report "Invent. Act INV-17";
     begin
         LibraryReportValidation.SetFileName(InvtActHeader."No.");
-        InvtActHeader.SetRecFilter;
+        InvtActHeader.SetRecFilter();
         InvActRep.SetFileNameSilent(LibraryReportValidation.GetFileName);
         InvActRep.SetTableView(InvtActHeader);
         InvActRep.UseRequestPage(false);
@@ -475,7 +475,7 @@ codeunit 144704 "ERM INV-17 Report"
         SupplementInvActRep: Report "Supplement to INV-17";
     begin
         LibraryReportValidation.SetFileName(InvtActHeader."No.");
-        InvtActHeader.SetRecFilter;
+        InvtActHeader.SetRecFilter();
         SupplementInvActRep.SetFileNameSilent(LibraryReportValidation.GetFileName);
         SupplementInvActRep.SetTableView(InvtActHeader);
         SupplementInvActRep.UseRequestPage(false);
@@ -488,7 +488,7 @@ codeunit 144704 "ERM INV-17 Report"
         StdRepMgt: Codeunit "Local Report Management";
     begin
         CompanyInfo.Get();
-        LibraryReportValidation.VerifyCellValue(7, 1, StdRepMgt.GetCompanyName);
+        LibraryReportValidation.VerifyCellValue(7, 1, StdRepMgt.GetCompanyName());
         LibraryReportValidation.VerifyCellValue(7, 22, CompanyInfo."OKPO Code");
         LibraryReportValidation.VerifyCellValue(12, 22, ReasonDocNo);
         LibraryReportValidation.VerifyCellValue(13, 22, Format(ReasonDocDate));

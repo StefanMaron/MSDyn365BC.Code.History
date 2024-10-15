@@ -3,10 +3,11 @@ codeunit 229 "Document-Print"
     Permissions = tabledata "Document Print Buffer" = rimd;
 
     var
-        Text001: Label '%1 is missing for %2 %3.';
-        Text002: Label '%1 for %2 is missing in %3.';
         SalesSetup: Record "Sales & Receivables Setup";
         PurchSetup: Record "Purchases & Payables Setup";
+
+        Text001: Label '%1 is missing for %2 %3.';
+        Text002: Label '%1 for %2 is missing in %3.';
 
     procedure EmailSalesHeader(SalesHeader: Record "Sales Header")
     begin
@@ -164,7 +165,7 @@ codeunit 229 "Document-Print"
 
         if SendAsEmail then
             ReportSelections.SendEmailToCust(
-                ReportUsage.AsInteger(), SalesHeader, SalesHeader."No.", SalesHeader.GetDocTypeTxt, true, SalesHeader.GetBillToNo, 0)
+                ReportUsage.AsInteger(), SalesHeader, SalesHeader."No.", SalesHeader.GetDocTypeTxt(), true, SalesHeader.GetBillToNo())
         else
             ReportSelections.PrintForCust(ReportUsage, SalesHeader, SalesHeader.FieldNo("Bill-to Customer No."));
     end;
@@ -179,7 +180,7 @@ codeunit 229 "Document-Print"
     begin
         with SalesInvHeader do begin
             Copy(SalesInvoiceHeader);
-            SetRecFilter;
+            SetRecFilter();
 
             InsertDocPrintBuffer(DocPrintBuffer, DATABASE::"Sales Invoice Header", 0, "No.");
 
@@ -241,7 +242,7 @@ codeunit 229 "Document-Print"
         ReportSelections: Record "Report Selections";
         IsPrinted: Boolean;
     begin
-        BankAccStmt.SetRecFilter;
+        BankAccStmt.SetRecFilter();
         OnBeforePrintBankAccStmt(BankAccStmt, IsPrinted);
         if IsPrinted then
             exit;
@@ -254,7 +255,7 @@ codeunit 229 "Document-Print"
         ReportSelections: Record "Report Selections";
         IsPrinted: Boolean;
     begin
-        PostedPaymentReconHdr.SetRecFilter;
+        PostedPaymentReconHdr.SetRecFilter();
         OnBeforePrintPostedPaymentReconciliation(PostedPaymentReconHdr, IsPrinted);
         if IsPrinted then
             exit;
@@ -274,7 +275,7 @@ codeunit 229 "Document-Print"
             exit;
 
         GenJnlLine.Copy(NewGenJnlLine);
-        GenJnlLine.OnCheckGenJournalLinePrintCheckRestrictions;
+        GenJnlLine.OnCheckGenJournalLinePrintCheckRestrictions();
         IsPrinted := false;
         OnBeforePrintCheck(GenJnlLine, IsPrinted);
         if IsPrinted then
@@ -288,7 +289,7 @@ codeunit 229 "Document-Print"
         ReportSelections: Record "Report Selections";
         IsPrinted: Boolean;
     begin
-        TransHeader.SetRecFilter;
+        TransHeader.SetRecFilter();
         OnBeforePrintTransferHeader(TransHeader, IsPrinted);
         if IsPrinted then
             exit;
@@ -312,7 +313,7 @@ codeunit 229 "Document-Print"
         ReportSelection.Reset();
         ReportSelection.SetRange(Usage, ReportUsage);
         if ReportSelection.IsEmpty() then
-            Error(Text001, ReportSelection.TableCaption, Format(ServiceContract."Contract Type"), ServiceContract."Contract No.");
+            Error(Text001, ReportSelection.TableCaption(), Format(ServiceContract."Contract Type"), ServiceContract."Contract No.");
 
         ReportSelection.PrintForCust(ReportUsage, ServiceContract, ServiceContract.FieldNo("Bill-to Customer No."));
     end;
@@ -334,7 +335,7 @@ codeunit 229 "Document-Print"
         ReportSelection.Reset();
         ReportSelection.SetRange(Usage, ReportUsage);
         if ReportSelection.IsEmpty() then
-            Error(Text002, ReportSelection.FieldCaption("Report ID"), ServiceHeader.TableCaption, ReportSelection.TableCaption);
+            Error(Text002, ReportSelection.FieldCaption("Report ID"), ServiceHeader.TableCaption(), ReportSelection.TableCaption());
 
         ReportSelection.PrintForCust(ReportUsage, ServiceHeader, ServiceHeader.FieldNo("Customer No."));
     end;
@@ -430,7 +431,7 @@ codeunit 229 "Document-Print"
         ReportSelections: Record "Report Selections";
         IsPrinted: Boolean;
     begin
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         OnBeforePrintProformaSalesInvoice(SalesHeader, ReportSelections.Usage::"Pro Forma S. Invoice".AsInteger(), IsPrinted);
         if IsPrinted then
             exit;
@@ -513,7 +514,7 @@ codeunit 229 "Document-Print"
         ReportSelection: Record "Report Selections";
     begin
         PurchHeader.Copy(NewPurchHeader);
-        PurchHeader.SetRecFilter;
+        PurchHeader.SetRecFilter();
         ReportSelection.PrintWithDialogWithCheckForVend(
           ReportSelection.Usage::UAS, PurchHeader, true, PurchHeader.FieldNo("Buy-from Vendor No."));
     end;
@@ -644,26 +645,26 @@ codeunit 229 "Document-Print"
     procedure InsertDocPrintBuffer(var DocPrintBuffer: Record "Document Print Buffer"; TableID: Integer; DocType: Option; DocNo: Code[20])
     begin
         with DocPrintBuffer do begin
-            Init;
+            Init();
             "User ID" := UserId;
             "Table ID" := TableID;
             "Document Type" := DocType;
             "Document No." := DocNo;
-            if not Modify then
-                Insert;
+            if not Modify() then
+                Insert();
         end;
     end;
 
     local procedure InsertJournalPrintBuffer(var DocPrintBuffer: Record "Document Print Buffer"; TableID: Integer; JnlTemplate: Code[10]; JnlBatch: Code[10])
     begin
         with DocPrintBuffer do begin
-            Init;
+            Init();
             "User ID" := UserId;
             "Table ID" := TableID;
             "Journal Template Name" := JnlTemplate;
             "Journal Batch Name" := JnlBatch;
-            if not Modify then
-                Insert;
+            if not Modify() then
+                Insert();
         end;
     end;
 

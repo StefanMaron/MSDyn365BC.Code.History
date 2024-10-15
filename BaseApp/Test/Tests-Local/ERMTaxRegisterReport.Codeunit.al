@@ -58,12 +58,12 @@ codeunit 144721 "ERM Tax Register Report"
     local procedure MockTaxRegister(var TaxRegister: Record "Tax Register")
     begin
         with TaxRegister do begin
-            Init;
+            Init();
             "Section Code" := MockTaxRegSection;
             "No." := LibraryUtility.GenerateGUID();
             Description := "No.";
             "Table ID" := DATABASE::"Tax Register Item Entry";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -73,16 +73,16 @@ codeunit 144721 "ERM Tax Register Report"
         RecRef: RecordRef;
     begin
         with TaxRegAccum do begin
-            Init;
+            Init();
             RecRef.GetTable(TaxRegAccum);
             "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
             "Section Code" := TaxRegister."Section Code";
             "Tax Register No." := TaxRegister."No.";
-            "Starting Date" := WorkDate;
+            "Starting Date" := WorkDate();
             "Ending Date" := CalcDate('<1D>', "Starting Date");
             Description := LibraryUtility.GenerateGUID();
             Amount := LibraryRandom.RandDec(100, 2);
-            Insert;
+            Insert();
             exit(Amount);
         end;
     end;
@@ -92,23 +92,23 @@ codeunit 144721 "ERM Tax Register Report"
         RecRef: RecordRef;
     begin
         with TaxRegtemEntry do begin
-            Init;
+            Init();
             RecRef.GetTable(TaxRegtemEntry);
             "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
             "Section Code" := TaxRegister."Section Code";
             "Where Used Register IDs" := TaxRegister."No.";
             // Outside of period entry that should not be print.
-            "Starting Date" := CalcDate('<CM+1M>', WorkDate);
+            "Starting Date" := CalcDate('<CM+1M>', WorkDate());
             "Ending Date" := CalcDate('<1D>', "Starting Date");
             "Amount (Document)" := TotalAmount;
             "Document No." := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
 
             // Inside of period.
             "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Starting Date" := WorkDate;
+            "Starting Date" := WorkDate();
             "Ending Date" := CalcDate('<1D>', "Starting Date");
-            Insert;
+            Insert();
         end;
     end;
 
@@ -116,9 +116,9 @@ codeunit 144721 "ERM Tax Register Report"
     var
         TaxRegisterRep: Report "Tax Register";
     begin
-        TaxRegister.SetRecFilter;
+        TaxRegister.SetRecFilter();
         TaxRegister.SetFilter(
-          "Date Filter", '%1..%2', CalcDate('<-CM>', WorkDate), CalcDate('<CM>', WorkDate));
+          "Date Filter", '%1..%2', CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         with TaxRegisterRep do begin

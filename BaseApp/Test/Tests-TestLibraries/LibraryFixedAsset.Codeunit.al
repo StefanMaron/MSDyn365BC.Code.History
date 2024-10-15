@@ -600,7 +600,7 @@ codeunit 131330 "Library - Fixed Asset"
                 repeat
                     GenJnlPostLine.RunWithCheck(GenJournalLine);
                     DeprAmount := GenJournalLine.Amount;
-                until GenJournalLine.Next = 0;
+                until GenJournalLine.Next() = 0;
                 GenJournalLine.DeleteAll();
             end;
 
@@ -610,7 +610,7 @@ codeunit 131330 "Library - Fixed Asset"
                 repeat
                     FAJnlPostLine.FAJnlPostLine(FAJournalLine, true);
                     DeprAmount := FAJournalLine.Amount;
-                until FAJournalLine.Next = 0;
+                until FAJournalLine.Next() = 0;
                 FAJournalLine.DeleteAll();
             end;
         end;
@@ -642,7 +642,7 @@ codeunit 131330 "Library - Fixed Asset"
             Assert.IsTrue(
               GLEntry."FA Entry No." in [FARegister."From Entry No." .. FARegister."To Entry No."],
               FARegisterGLRegisterErr);
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     procedure VerifyMaintenanceLastFARegisterGLRegisterOneToOneRelation()
@@ -662,7 +662,7 @@ codeunit 131330 "Library - Fixed Asset"
             Assert.IsTrue(
               GLEntry."FA Entry No." in [FARegister."From Maintenance Entry No." .. FARegister."To Maintenance Entry No."],
               FARegisterGLRegisterErr);
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 }
 

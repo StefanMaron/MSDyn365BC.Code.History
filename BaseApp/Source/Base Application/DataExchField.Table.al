@@ -75,13 +75,13 @@ table 1221 "Data Exch. Field"
 
     procedure InsertRec(DataExchNo: Integer; LineNo: Integer; ColumnNo: Integer; NewValue: Text; DataExchLineDefCode: Code[20])
     begin
-        Init;
+        Init();
         Validate("Data Exch. No.", DataExchNo);
         Validate("Line No.", LineNo);
         Validate("Column No.", ColumnNo);
         SetValueWithoutModifying(NewValue);
         Validate("Data Exch. Line Def Code", DataExchLineDefCode);
-        Insert;
+        Insert();
     end;
 
     procedure InsertRecXMLField(DataExchNo: Integer; LineNo: Integer; ColumnNo: Integer; NodeId: Text[250]; NodeValue: Text; DataExchLineDefCode: Code[20])
@@ -91,7 +91,7 @@ table 1221 "Data Exch. Field"
 
     procedure InsertRecXMLFieldWithParentNodeID(DataExchNo: Integer; LineNo: Integer; ColumnNo: Integer; NodeId: Text[250]; ParentNodeId: Text[250]; NodeValue: Text; DataExchLineDefCode: Code[20])
     begin
-        Init;
+        Init();
         Validate("Data Exch. No.", DataExchNo);
         Validate("Line No.", LineNo);
         Validate("Column No.", ColumnNo);
@@ -99,7 +99,7 @@ table 1221 "Data Exch. Field"
         SetValueWithoutModifying(NodeValue);
         Validate("Parent Node ID", ParentNodeId);
         Validate("Data Exch. Line Def Code", DataExchLineDefCode);
-        Insert;
+        Insert();
     end;
 
     procedure InsertRecXMLFieldDefinition(DataExchNo: Integer; LineNo: Integer; NodeId: Text[250]; ParentNodeId: Text[250]; NewValue: Text[250]; DataExchLineDefCode: Code[20])
@@ -134,17 +134,17 @@ table 1221 "Data Exch. Field"
         TypeHelper: Codeunit "Type Helper";
         InStream: InStream;
     begin
-        if not "Value BLOB".HasValue then
+        if not "Value BLOB".HasValue() then
             exit(Value);
         CalcFields("Value BLOB");
         "Value BLOB".CreateInStream(InStream, TEXTENCODING::Windows);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator));
+        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
     end;
 
     procedure SetValue(NewValue: Text)
     begin
         SetValueWithoutModifying(NewValue);
-        Modify;
+        Modify();
     end;
 
     procedure SetValueWithoutModifying(NewValue: Text)

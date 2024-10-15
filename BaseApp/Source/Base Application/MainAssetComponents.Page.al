@@ -13,13 +13,13 @@ page 5658 "Main Asset Components"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Main Asset No."; "Main Asset No.")
+                field("Main Asset No."; Rec."Main Asset No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of the main asset. This is the asset for which components can be set up.';
                     Visible = false;
                 }
-                field("FA No."; "FA No.")
+                field("FA No."; Rec."FA No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of the related fixed asset. ';
@@ -34,7 +34,7 @@ page 5658 "Main Asset Components"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the quantity of the component that is used for the main asset.';
                 }
-                field("Apply After Disassembly"; "Apply After Disassembly")
+                field("Apply After Disassembly"; Rec."Apply After Disassembly")
                 {
                     ToolTip = 'Specifies if the component was applied after disassembly of the main asset.';
                 }

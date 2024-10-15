@@ -16,7 +16,7 @@ report 1013 "Items per Job"
             column(TodayFormatted; Format(Today))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(JobTableCaptionJobFilter; TableCaption + ': ' + JobFilter)
@@ -37,10 +37,10 @@ report 1013 "Items per Job"
             column(Description_Job; Description)
             {
             }
-            column(Amount3_JobBuffer; JobBuffer."Amount 3")
+            column(Amount3_JobBuffer; TempJobBuffer."Amount 3")
             {
             }
-            column(Amount1_JobBuffer; JobBuffer."Amount 2")
+            column(Amount1_JobBuffer; TempJobBuffer."Amount 2")
             {
             }
             column(ItemsperJobCaption; ItemsperJobCaptionLbl)
@@ -76,16 +76,16 @@ report 1013 "Items per Job"
             dataitem("Integer"; "Integer")
             {
                 DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 ..));
-                column(ActNo1_JobBuffer; JobBuffer."Account No. 1")
+                column(ActNo1_JobBuffer; TempJobBuffer."Account No. 1")
                 {
                 }
-                column(Description_JobBuffer; JobBuffer.Description)
+                column(Description_JobBuffer; TempJobBuffer.Description)
                 {
                 }
-                column(ActNo2_JobBuffer; JobBuffer."Account No. 2")
+                column(ActNo2_JobBuffer; TempJobBuffer."Account No. 2")
                 {
                 }
-                column(Amount2_JobBuffer; JobBuffer."Amount 1")
+                column(Amount2_JobBuffer; TempJobBuffer."Amount 1")
                 {
                     DecimalPlaces = 0 : 5;
                 }
@@ -96,17 +96,17 @@ report 1013 "Items per Job"
                 trigger OnAfterGetRecord()
                 begin
                     if Number = 1 then begin
-                        if not JobBuffer.Find('-') then
+                        if not TempJobBuffer.Find('-') then
                             CurrReport.Break();
                     end else
-                        if JobBuffer.Next() = 0 then
+                        if TempJobBuffer.Next() = 0 then
                             CurrReport.Break();
                 end;
             }
 
             trigger OnAfterGetRecord()
             begin
-                JobBuffer2.ReportJobItem(Job, Item, JobBuffer);
+                TempJobBuffer2.ReportJobItem(Job, Item, TempJobBuffer);
             end;
         }
         dataitem(Item2; Item)
@@ -139,14 +139,14 @@ report 1013 "Items per Job"
     trigger OnPreReport()
     begin
         Item.CopyFilters(Item2);
-        JobFilter := Job.GetFilters;
-        ItemFilter := Item.GetFilters;
+        JobFilter := Job.GetFilters();
+        ItemFilter := Item.GetFilters();
     end;
 
     var
         Item: Record Item;
-        JobBuffer2: Record "Job Buffer" temporary;
-        JobBuffer: Record "Job Buffer" temporary;
+        TempJobBuffer2: Record "Job Buffer" temporary;
+        TempJobBuffer: Record "Job Buffer" temporary;
         JobFilter: Text;
         ItemFilter: Text;
         Text000: Label 'Total for';

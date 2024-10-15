@@ -852,7 +852,7 @@ codeunit 144015 "ERM RU Void Check"
     begin
         LibraryVariableStorage.Enqueue(VoidType);
         CheckManagement.FinancialVoidCheck(CheckLedgerEntry);
-        CheckLedgerEntry.Find;
+        CheckLedgerEntry.Find();
     end;
 
     local procedure IsGenJnlLineCashIngoing(GenJournalLine: Record "Gen. Journal Line"): Boolean
@@ -871,7 +871,7 @@ codeunit 144015 "ERM RU Void Check"
             PrintCashIngoingOrder(GenJournalLine)
         else
             PrintCashOutgoingOrder(GenJournalLine);
-        GenJournalLine.Find;
+        GenJournalLine.Find();
     end;
 
     local procedure PrintCashOutgoingOrder(GenJournalLine: Record "Gen. Journal Line")
@@ -879,7 +879,7 @@ codeunit 144015 "ERM RU Void Check"
         CashOutgoingOrder: Report "Cash Outgoing Order";
     begin
         CashOutgoingOrder.SetFileNameSilent(LibraryReportValidation.GetFileName);
-        GenJournalLine.SetRecFilter;
+        GenJournalLine.SetRecFilter();
         CashOutgoingOrder.SetTableView(GenJournalLine);
         CashOutgoingOrder.UseRequestPage(false);
         CashOutgoingOrder.Run();
@@ -890,7 +890,7 @@ codeunit 144015 "ERM RU Void Check"
         CashIngoingOrder: Report "Cash Ingoing Order";
     begin
         CashIngoingOrder.SetFileNameSilent(LibraryReportValidation.GetFileName);
-        GenJournalLine.SetRecFilter;
+        GenJournalLine.SetRecFilter();
         CashIngoingOrder.SetTableView(GenJournalLine);
         CashIngoingOrder.UseRequestPage(false);
         CashIngoingOrder.Run();
@@ -930,7 +930,7 @@ codeunit 144015 "ERM RU Void Check"
         repeat
             Assert.IsTrue(GLEntry."Debit Amount" <= 0, ExpectedCorrectionEntriesErr);
             Assert.IsTrue(GLEntry."Credit Amount" <= 0, ExpectedCorrectionEntriesErr);
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyLastRegisterIsNotCorrectionEntry()
@@ -943,7 +943,7 @@ codeunit 144015 "ERM RU Void Check"
         repeat
             Assert.IsTrue(GLEntry."Debit Amount" >= 0, ExpectedNotCorrectionEntriesErr);
             Assert.IsTrue(GLEntry."Credit Amount" >= 0, ExpectedNotCorrectionEntriesErr);
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyCheckLedgerEntry(CheckLedgerEntry: Record "Check Ledger Entry"; ExpectedEntryStatus: Option; ExpectedOriginalEntryStatus: Option; ExpectedStatementStatus: Option)

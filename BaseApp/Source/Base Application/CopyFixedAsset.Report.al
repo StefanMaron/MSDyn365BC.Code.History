@@ -83,7 +83,7 @@ report 5685 "Copy Fixed Asset"
         FADeprBook.LockTable();
         FA.LockTable();
         if FANo = '' then
-            Error(Text000, FA.TableCaption, FA.FieldCaption("No."));
+            Error(Text000, FA.TableCaption(), FA.FieldCaption("No."));
         if (FirstFANo = '') and not UseFANoSeries then
             Error(Text001);
         FA.Get(FANo);
@@ -114,7 +114,7 @@ report 5685 "Copy Fixed Asset"
                 if NumberofCopies > 1 then
                     FirstFANo := IncStr(FirstFANo);
                 if FA2."No." = '' then
-                    Error(Text002, FA.TableCaption, FA.FieldCaption("No."));
+                    Error(Text002, FA.TableCaption(), FA.FieldCaption("No."));
                 FA2.Insert(true);
             end;
             if DefaultDim.Find('-') then
@@ -133,7 +133,7 @@ report 5685 "Copy Fixed Asset"
                     if not FADeprBook2.Insert(true) then
                         FADeprBook2.Modify(true);
                 until FADeprBook.Next() = 0;
-            if FA2.Find then begin
+            if FA2.Find() then begin
                 FA2."Last Date Modified" := 0D;
                 FA2.Modify();
             end;

@@ -63,8 +63,8 @@ codeunit 147124 "ERM VAT Lists Reporting"
         // Create and Post Sales Invoice (01.01.10, 80001, 1500.00)
         Initialize();
 
-        Period."Period Start" := CalcDate('<-CM>', WorkDate);
-        Period."Period End" := CalcDate('<+CM>', WorkDate);
+        Period."Period Start" := CalcDate('<-CM>', WorkDate());
+        Period."Period End" := CalcDate('<+CM>', WorkDate());
         OrderDate := Period."Period Start";
         ShipmentDate := OrderDate + 3;
 
@@ -104,8 +104,8 @@ codeunit 147124 "ERM VAT Lists Reporting"
         // Create and Post Credit Memo(02.01.10) applied to Invoice Above - full reverse.
         Initialize();
 
-        Period."Period Start" := CalcDate('<-CM>', WorkDate);
-        Period."Period End" := CalcDate('<+CM>', WorkDate);
+        Period."Period Start" := CalcDate('<-CM>', WorkDate());
+        Period."Period End" := CalcDate('<+CM>', WorkDate());
         OrderDate := Period."Period Start";
         ShipmentDate := OrderDate + 3;
 
@@ -144,8 +144,8 @@ codeunit 147124 "ERM VAT Lists Reporting"
         // Create and Post Credit Memo(02.01.10) applied to Invoice Above - partial reverse.
         Initialize();
 
-        Period."Period Start" := CalcDate('<-CM>', WorkDate);
-        Period."Period End" := CalcDate('<+CM>', WorkDate);
+        Period."Period Start" := CalcDate('<-CM>', WorkDate());
+        Period."Period End" := CalcDate('<+CM>', WorkDate());
         OrderDate := Period."Period Start";
         ShipmentDate := OrderDate + 3;
         CrMemoDate := OrderDate + 2;
@@ -190,8 +190,8 @@ codeunit 147124 "ERM VAT Lists Reporting"
         // Create and Post Credit Memo(02.01.10, Include in Purch. VAT Ledger = True) applied to Invoice Above - full reverse.
         Initialize();
 
-        Period."Period Start" := CalcDate('<-CM>', WorkDate);
-        Period."Period End" := CalcDate('<+CM>', WorkDate);
+        Period."Period Start" := CalcDate('<-CM>', WorkDate());
+        Period."Period End" := CalcDate('<+CM>', WorkDate());
         OrderDate := Period."Period Start";
         ShipmentDate := OrderDate + 3;
         CrMemoDate := OrderDate + 2;
@@ -239,8 +239,8 @@ codeunit 147124 "ERM VAT Lists Reporting"
         // Create and Post Credit Memo(02.01.10 Include in Purch. VAT Ledger=True ) applied to Invoice Above - partial reverse.
         Initialize();
 
-        Period."Period Start" := CalcDate('<-CM>', WorkDate);
-        Period."Period End" := CalcDate('<+CM>', WorkDate);
+        Period."Period Start" := CalcDate('<-CM>', WorkDate());
+        Period."Period End" := CalcDate('<+CM>', WorkDate());
         OrderDate := Period."Period Start";
         ShipmentDate := OrderDate + 3;
         CrMemoDate := OrderDate + 2;
@@ -303,8 +303,8 @@ codeunit 147124 "ERM VAT Lists Reporting"
         // Create and Post Credit Memo(02.01.10 Include in Purch. VAT Ledger=True ) applied to Invoice Above - partial reverse.
         Initialize();
 
-        Period."Period Start" := CalcDate('<-CM>', WorkDate);
-        Period."Period End" := CalcDate('<+CM>', WorkDate);
+        Period."Period Start" := CalcDate('<-CM>', WorkDate());
+        Period."Period End" := CalcDate('<+CM>', WorkDate());
         OrderDate1 := Period."Period Start";
         ShipmentDate1 := OrderDate1 + 3;
         OrderDate2 := OrderDate1 + 4;
@@ -387,8 +387,8 @@ codeunit 147124 "ERM VAT Lists Reporting"
         SalesReceivablesSetup.Validate("Posted PD Doc. Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Modify();
 
-        Period."Period Start" := CalcDate('<-CM>', WorkDate);
-        Period."Period End" := CalcDate('<+CM>', WorkDate);
+        Period."Period Start" := CalcDate('<-CM>', WorkDate());
+        Period."Period End" := CalcDate('<+CM>', WorkDate());
         OrderDate := Period."Period Start" + 10;
         ShipmentDate := OrderDate + 3;
         PrepaymentDate := Period."Period Start";
@@ -493,7 +493,7 @@ codeunit 147124 "ERM VAT Lists Reporting"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         with SalesInvoiceHeader do begin
-            Init;
+            Init();
             SetRange("Pre-Assigned No.", SalesInvoiceNo);
             FindFirst();
             exit("No.");

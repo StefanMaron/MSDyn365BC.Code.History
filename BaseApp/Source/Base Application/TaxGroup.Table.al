@@ -49,17 +49,17 @@ table 321 "Tax Group"
 
     trigger OnInsert()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     trigger OnModify()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     trigger OnRename()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     var
@@ -67,10 +67,10 @@ table 321 "Tax Group"
 
     procedure CreateTaxGroup(NewTaxGroupCode: Code[20])
     begin
-        Init;
+        Init();
         Code := NewTaxGroupCode;
         Description := NewTaxGroupCode;
-        Insert;
+        Insert();
     end;
 
     local procedure SetLastModifiedDateTime()

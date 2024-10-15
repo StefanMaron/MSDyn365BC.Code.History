@@ -291,7 +291,7 @@
                 EnvironmentInformation: Codeunit "Environment Information";
             begin
                 if "Report Output Type" = "Report Output Type"::Print then
-                    if EnvironmentInformation.IsSaaS then
+                    if EnvironmentInformation.IsSaaS() then
                         TestField("Report Output Type", "Report Output Type"::PDF);
             end;
         }
@@ -316,6 +316,14 @@
         field(53; "Archive Orders"; Boolean)
         {
             Caption = 'Archive Orders';
+
+            trigger OnValidate()
+            var
+                CRMConnectionSetup: Record "CRM Connection Setup";
+            begin
+                if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
+                    Error(CRMBidirectionalSalesOrderIntEnabledErr);
+            end;
         }
         field(54; "Archive Blanket Orders"; Boolean)
         {
@@ -890,12 +898,13 @@
         MultiplePostingGroupsNotAllowedErr: Label 'Use of multiple posting groups in production environment is currently not allowed.';
 #endif
         RecordHasBeenRead: Boolean;
+        CRMBidirectionalSalesOrderIntEnabledErr: Label 'You cannot disable Archive Orders when Dynamics 365 Sales connection and Bidirectional Sales Order Integration are enabled.';
 
     procedure GetRecordOnce()
     begin
         if RecordHasBeenRead then
             exit;
-        Get;
+        Get();
         RecordHasBeenRead := true;
     end;
 
@@ -906,14 +915,14 @@
 
     procedure JobQueueActive(): Boolean
     begin
-        Get;
+        Get();
         exit("Post with Job Queue" or "Post & Print with Job Queue");
     end;
 
     [Scope('OnPrem')]
     procedure GetTaxDimValue(CorrType: Option Loss,Gain; DimType: Option Condition,Kind; PrepAdjmt: Boolean) DimValue: Code[20]
     begin
-        Get;
+        Get();
         case DimType of
             DimType::Condition:
                 case CorrType of
@@ -949,7 +958,7 @@
     begin
         if AccNo <> '' then begin
             GLAcc.Get(AccNo);
-            GLAcc.CheckGLAcc;
+            GLAcc.CheckGLAcc();
             GLAcc.TestField("Gen. Prod. Posting Group");
         end;
     end;

@@ -12,8 +12,8 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         TaxonomyNode: DotNet XmlNode;
     begin
         CalcFields(XSD);
-        if not XSD.HasValue then
-            Error(Text002, TableCaption, "Line No.");
+        if not XSD.HasValue() then
+            Error(Text002, TableCaption(), "Line No.");
 
         XBRLSchema := Rec;
 
@@ -26,7 +26,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
 
         TaxonomyNode := TaxonomyDocument.DocumentElement;
         if not TaxonomyNode.HasChildNodes then
-            Error(Text005, TableCaption, "Line No.");
+            Error(Text005, TableCaption(), "Line No.");
 
         DocumentPrefix := GetDocumentPreFix(TaxonomyNode);
         targetNamespace := GetAttribute('targetNamespace', TaxonomyNode);
@@ -43,7 +43,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                 Description := CopyStr(Description, 1, StrLen(Description) - 1);
         end;
 
-        Modify;
+        Modify();
         XBRLSchema := Rec;
 
         GetCommonXmnsPrefixes(TaxonomyNode);
@@ -52,9 +52,9 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
 
         case "xmlns:xbrli" of
             'http://www.xbrl.org/2001/instance': // spec. 2.0
-                HandleDocument;
+                HandleDocument();
             'http://www.xbrl.org/2003/instance': // spec. 2.1
-                HandleDocument;
+                HandleDocument();
             else
                 Error(Text018, "xmlns:xbrli");
         end;
@@ -123,8 +123,8 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
             if XBRLTaxonomy."xmlns:xbrli" <> XBRLSchema."xmlns:xbrli" then
                 if not ConfirmManagement.GetResponseOrDefault(
                      StrSubstNo(
-                       Text017, XBRLSchema.TableCaption, XBRLSchema.Description,
-                       XBRLTaxonomy.TableCaption, XBRLSchema."XBRL Taxonomy Name"), false)
+                       Text017, XBRLSchema.TableCaption(), XBRLSchema.Description,
+                       XBRLTaxonomy.TableCaption(), XBRLSchema."XBRL Taxonomy Name"), false)
                 then
                     exit;
         XBRLLine.LockTable();
@@ -426,20 +426,20 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         XBRLSchema.Get(XBRLLinkbase."XBRL Taxonomy Name", XBRLLinkbase."XBRL Schema Line No.");
         Window.Open(
           StrSubstNo(
-            Text013, XBRLSchema.TableCaption, XBRLSchema.Description, XBRLLinkbase.TableCaption));
+            Text013, XBRLSchema.TableCaption(), XBRLSchema.Description, XBRLLinkbase.TableCaption()));
         Window.Update(4, XBRLLinkbase.Type);
         Window.Update(5, XBRLLinkbase.Description);
 
         with XBRLLinkbase do begin
             TestField(Type, Type::Label);
             CalcFields(XML);
-            if not XML.HasValue then
-                Error(Text012, TableCaption, "Line No.");
+            if not XML.HasValue() then
+                Error(Text012, TableCaption(), "Line No.");
             XML.CreateInStream(InStr);
         end;
         XMLDOMManagement.LoadXMLDocumentFromInStream(InStr, LinkbaseDocument);
         LinkbaseDocNode := LinkbaseDocument.FirstChild;
-        while LowerCase(LinkbaseDocNode.NodeType.ToString) in ['xmldeclaration', 'processinginstruction', 'comment'] do
+        while LowerCase(LinkbaseDocNode.NodeType.ToString()) in ['xmldeclaration', 'processinginstruction', 'comment'] do
             LinkbaseDocNode := LinkbaseDocNode.NextSibling;
         Schemalocation := GetAttribute('xsi:schemaLocation', LinkbaseDocNode);
         if Schemalocation = '' then
@@ -493,7 +493,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                     end;
                 end;
             until XBRLTaxonomyLine.Next() = 0;
-        Window.Close;
+        Window.Close();
         Message(StrSubstNo(InsertedLabelsMsg, Counter));
     end;
 
@@ -556,7 +556,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         XBRLSchema.Get(XBRLLinkbase."XBRL Taxonomy Name", XBRLLinkbase."XBRL Schema Line No.");
         Window.Open(
           StrSubstNo(
-            Text013, XBRLSchema.TableCaption, XBRLSchema.Description, XBRLLinkbase.TableCaption));
+            Text013, XBRLSchema.TableCaption(), XBRLSchema.Description, XBRLLinkbase.TableCaption()));
         Window.Update(4, XBRLLinkbase.Type);
         Window.Update(5, XBRLLinkbase.Description);
 
@@ -674,7 +674,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         SortPresentationOrder(0, 0, '');
         SaveTaxonomyLines(TempXBRLLine);
 
-        Window.Close;
+        Window.Close();
         Message(StrSubstNo(InsertedPresentationsMsg, Counter));
     end;
 
@@ -708,20 +708,20 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         XBRLSchema.Get(XBRLLinkbase."XBRL Taxonomy Name", XBRLLinkbase."XBRL Schema Line No.");
         Window.Open(
           StrSubstNo(
-            Text013, XBRLSchema.TableCaption, XBRLSchema.Description, XBRLLinkbase.TableCaption));
+            Text013, XBRLSchema.TableCaption(), XBRLSchema.Description, XBRLLinkbase.TableCaption()));
         Window.Update(4, XBRLLinkbase.Type);
         Window.Update(5, XBRLLinkbase.Description);
 
         with XBRLLinkbase do begin
             TestField(Type, Type::Calculation);
             CalcFields(XML);
-            if not XML.HasValue then
-                Error(Text012, TableCaption, "Line No.");
+            if not XML.HasValue() then
+                Error(Text012, TableCaption(), "Line No.");
             XML.CreateInStream(InStr);
         end;
         XMLDOMManagement.LoadXMLDocumentFromInStream(InStr, LinkbaseDocument);
         LinkbaseDocNode := LinkbaseDocument.FirstChild;
-        while LowerCase(LinkbaseDocNode.NodeType.ToString) in ['xmldeclaration', 'processinginstruction', 'comment'] do
+        while LowerCase(LinkbaseDocNode.NodeType.ToString()) in ['xmldeclaration', 'processinginstruction', 'comment'] do
             LinkbaseDocNode := LinkbaseDocNode.NextSibling;
         Schemalocation := GetAttribute('xsi:schemaLocation', LinkbaseDocNode);
         if Schemalocation = '' then
@@ -826,7 +826,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                     end;
                 end;
             until XBRLTaxonomyLine.Next() = 0;
-        Window.Close;
+        Window.Close();
         Message(StrSubstNo(InsertedCalculationsMsg, Counter));
     end;
 
@@ -854,20 +854,20 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         XBRLSchema.Get(XBRLLinkbase."XBRL Taxonomy Name", XBRLLinkbase."XBRL Schema Line No.");
         Window.Open(
           StrSubstNo(
-            Text013, XBRLSchema.TableCaption, XBRLSchema.Description, XBRLLinkbase.TableCaption));
+            Text013, XBRLSchema.TableCaption(), XBRLSchema.Description, XBRLLinkbase.TableCaption()));
         Window.Update(4, XBRLLinkbase.Type);
         Window.Update(5, XBRLLinkbase.Description);
 
         with XBRLLinkbase do begin
             TestField(Type, Type::Reference);
             CalcFields(XML);
-            if not XML.HasValue then
-                Error(Text012, TableCaption, "Line No.");
+            if not XML.HasValue() then
+                Error(Text012, TableCaption(), "Line No.");
             XML.CreateInStream(InStr);
         end;
         XMLDOMManagement.LoadXMLDocumentFromInStream(InStr, LinkbaseDocument);
         LinkbaseDocNode := LinkbaseDocument.FirstChild;
-        while LowerCase(LinkbaseDocNode.NodeType.ToString) in ['xmldeclaration', 'processinginstruction', 'comment'] do
+        while LowerCase(LinkbaseDocNode.NodeType.ToString()) in ['xmldeclaration', 'processinginstruction', 'comment'] do
             LinkbaseDocNode := LinkbaseDocNode.NextSibling;
         Schemalocation := GetAttribute('xsi:schemaLocation', LinkbaseDocNode);
         if Schemalocation = '' then
@@ -944,7 +944,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                     end;
                 end;
             until XBRLTaxonomyLine.Next() = 0;
-        Window.Close;
+        Window.Close();
         Message(StrSubstNo(InsertedReferencesMsg, Counter));
     end;
 
@@ -1251,7 +1251,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                 TransferFields(XBRLTaxonomyLine);
                 "Presentation Linkbase Line No." := 0;
                 "Line No." := XBRLLineNo;
-                Insert;
+                Insert();
 
                 CopyRelatedXBRLSetup(TaxonomyName, XBRLTaxonomyLine."Line No.", XBRLLineNo, DATABASE::"XBRL Taxonomy Label");
                 CopyRelatedXBRLSetup(TaxonomyName, XBRLTaxonomyLine."Line No.", XBRLLineNo, DATABASE::"XBRL Comment Line");
@@ -1275,7 +1275,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         FilterFieldRef.SetRange(FromTaxonomyLineNo);
         if FromRecRef.FindSet() then
             repeat
-                ToRecRef := FromRecRef.Duplicate;
+                ToRecRef := FromRecRef.Duplicate();
                 NewLineNoFieldRef := ToRecRef.Field(2);
                 NewLineNoFieldRef.Value := ToTaxonomyLineNo;
                 ToRecRef.Insert();
@@ -1289,8 +1289,8 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         with XBRLLinkbase do begin
             TestField(Type, Type::Presentation);
             CalcFields(XML);
-            if not XML.HasValue then
-                Error(Text012, TableCaption, "Line No.");
+            if not XML.HasValue() then
+                Error(Text012, TableCaption(), "Line No.");
             XML.CreateInStream(InStr);
         end;
         XMLDOMManagement.LoadXMLDocumentFromInStream(InStr, LinkbaseDocument);
@@ -1299,7 +1299,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
     local procedure FindLinkbaseDocNode(var LinkbaseDocument: DotNet XmlDocument; var LinkbaseDocNode: DotNet XmlNode)
     begin
         LinkbaseDocNode := LinkbaseDocument.FirstChild;
-        while LowerCase(LinkbaseDocNode.NodeType.ToString) in ['xmldeclaration', 'processinginstruction', 'comment'] do
+        while LowerCase(LinkbaseDocNode.NodeType.ToString()) in ['xmldeclaration', 'processinginstruction', 'comment'] do
             LinkbaseDocNode := LinkbaseDocNode.NextSibling;
     end;
 
@@ -1314,9 +1314,9 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                     SetRange("XBRL Taxonomy Name", "XBRL Taxonomy Name");
                     SetRange("Line No.", "Line No.");
                     if IsEmpty() then
-                        Insert
+                        Insert()
                     else
-                        Modify;
+                        Modify();
                 end;
             until TempXBRLTaxonomyLine.Next() = 0;
     end;

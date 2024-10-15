@@ -40,7 +40,7 @@ codeunit 136400 "Resource Employee"
 
         // 1. Setup: Get next employee no from No Series.
         Initialize();
-        NextEmployeeNo := NoSeriesManagement.GetNextNo(LibraryHumanResource.SetupEmployeeNumberSeries, WorkDate, false);
+        NextEmployeeNo := NoSeriesManagement.GetNextNo(LibraryHumanResource.SetupEmployeeNumberSeries, WorkDate(), false);
 
         // 2. Exercise:  Create new Employee.
         CreateEmployee(Employee);
@@ -85,7 +85,7 @@ codeunit 136400 "Resource Employee"
         Employee.Delete(true);
 
         // 3. Verify: Try to get the Employee and make sure that it cannot be found.
-        Assert.IsFalse(Employee.Get(EmployeeNo), StrSubstNo(ValidationErr, Employee.TableCaption, EmployeeNo));
+        Assert.IsFalse(Employee.Get(EmployeeNo), StrSubstNo(ValidationErr, Employee.TableCaption(), EmployeeNo));
     end;
 
     [Test]
@@ -283,7 +283,7 @@ codeunit 136400 "Resource Employee"
         Initialize();
 
         // 2. Exercise: Open Post Codes Page in View mode.
-        PostCodes.OpenView;
+        PostCodes.OpenView();
 
         // 3. Verify: Verify Post Codes Page is non editable.
         // As the fields are non editable so Pages is also non editable.
@@ -437,8 +437,8 @@ codeunit 136400 "Resource Employee"
         EmployeeCard.OK.Invoke;
 
         // [THEN] Resource "R" has County = "COUNTY"
-        Employee.Find;
-        Resource.Find;
+        Employee.Find();
+        Resource.Find();
         Resource.TestField(County, Employee.County);
     end;
 
@@ -468,8 +468,8 @@ codeunit 136400 "Resource Employee"
         EmployeeCard.OK.Invoke;
 
         // [THEN] Resource "R" has City = "S"
-        Employee.Find;
-        Resource.Find;
+        Employee.Find();
+        Resource.Find();
         Resource.TestField(City, Employee.City);
     end;
 
@@ -499,7 +499,7 @@ codeunit 136400 "Resource Employee"
         EmployeeCard.OK.Invoke;
 
         // [THEN] Resource "R" has "Country/Region Code" = "CR"
-        Resource.Find;
+        Resource.Find();
         Resource.TestField("Country/Region Code", CountryRegion.Code);
     end;
 
@@ -538,7 +538,7 @@ codeunit 136400 "Resource Employee"
         Employee.Modify(true);
 
         // [THEN] Field Name or resource "R" is updated
-        Resource.Find;
+        Resource.Find();
         Resource.TestField(Name, ExpectedResourceName);
     end;
 
@@ -570,8 +570,8 @@ codeunit 136400 "Resource Employee"
     local procedure CreateEmployee(var Employee: Record Employee)
     begin
         LibraryHumanResource.CreateEmployee(Employee);
-        Employee."Employment Date" := WorkDate;
-        Employee.Validate("Alt. Address Start Date", WorkDate);
+        Employee."Employment Date" := WorkDate();
+        Employee.Validate("Alt. Address Start Date", WorkDate());
         Employee.Modify(true);
     end;
 
@@ -584,7 +584,7 @@ codeunit 136400 "Resource Employee"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure NoSeriesListModalHandler(var NoSeriesList: TestPage "No. Series List")
+    procedure NoSeriesListModalHandler(var NoSeriesList: TestPage "No. Series")
     var
         visible: Boolean;
     begin

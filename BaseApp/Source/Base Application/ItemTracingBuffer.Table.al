@@ -199,13 +199,8 @@ table 6520 "Item Tracing Buffer"
             Caption = 'CD No.';
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Replaced by field Package No.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
     }
 

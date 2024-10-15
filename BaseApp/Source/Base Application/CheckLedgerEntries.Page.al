@@ -7,7 +7,6 @@ page 374 "Check Ledger Entries"
     Editable = false;
     InsertAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Entry';
     SourceTable = "Check Ledger Entry";
     SourceTableView = SORTING("Bank Account No.", "Check Date")
                       ORDER(Descending);
@@ -20,17 +19,17 @@ page 374 "Check Ledger Entries"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Check Date"; "Check Date")
+                field("Check Date"; Rec."Check Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the check date if a check is printed.';
                 }
-                field("Check No."; "Check No.")
+                field("Check No."; Rec."Check No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the check number if a check is printed.';
                 }
-                field("Bank Account No."; "Bank Account No.")
+                field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the bank account used for the check ledger entry.';
@@ -45,54 +44,54 @@ page 374 "Check Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount on the check ledger entry.';
                 }
-                field("Bal. Account Type"; "Bal. Account Type")
+                field("Bal. Account Type"; Rec."Bal. Account Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of account that a balancing entry is posted to, such as BANK for a cash account.';
                     Visible = false;
                 }
-                field("Bal. Account No."; "Bal. Account No.")
+                field("Bal. Account No."; Rec."Bal. Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the general ledger, customer, vendor, or bank account that the balancing entry is posted to, such as a cash account for cash purchases.';
                     Visible = false;
                 }
-                field("Entry Status"; "Entry Status")
+                field("Entry Status"; Rec."Entry Status")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the printing (and posting) status of the check ledger entry.';
                 }
-                field("Original Entry Status"; "Original Entry Status")
+                field("Original Entry Status"; Rec."Original Entry Status")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the entry before you changed it.';
                     Visible = false;
                 }
-                field("Bank Payment Type"; "Bank Payment Type")
+                field("Bank Payment Type"; Rec."Bank Payment Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the payment type to be used for the entry on the journal line.';
                     Visible = false;
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting date of the check ledger entry.';
                     Visible = false;
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document type linked to the check ledger entry. For example, Payment.';
                     Visible = false;
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document number on the check ledger entry.';
                     Visible = false;
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
@@ -127,8 +126,6 @@ page 374 "Check Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Void Check';
                     Image = VoidCheck;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Void the check if, for example, the check is not cashed by the bank.';
 
                     trigger OnAction()
@@ -147,8 +144,6 @@ page 374 "Check Ledger Entries"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Category4;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
@@ -170,8 +165,6 @@ page 374 "Check Ledger Entries"
             {
                 Caption = '&Print';
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -193,6 +186,32 @@ page 374 "Check Ledger Entries"
                             end;
                     end;
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+                actionref("Void Check_Promoted"; "Void Check")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Entry', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
             }
         }
     }

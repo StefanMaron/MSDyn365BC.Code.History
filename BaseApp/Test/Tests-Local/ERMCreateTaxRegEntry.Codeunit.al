@@ -41,7 +41,7 @@ codeunit 144516 "ERM Create Tax Reg. Entry"
             UpdateTaxRegSetupFA;
             SetupTaxRegisterFA(TaxRegTemplate, SumFieldNoArray[I]);
 
-            CreateTaxRegisterFAEntry(TaxRegTemplate."Section Code", WorkDate);
+            CreateTaxRegisterFAEntry(TaxRegTemplate."Section Code", WorkDate());
 
             VerifyTaxRegisterFAEntry(TaxRegTemplate);
         end;
@@ -58,7 +58,7 @@ codeunit 144516 "ERM Create Tax Reg. Entry"
             UpdateTaxRegSetupFE;
             SetupTaxRegisterFE(TaxRegTemplate, SumFieldNoArray[I]);
 
-            CreateTaxRegisterFEEntry(TaxRegTemplate."Section Code", WorkDate);
+            CreateTaxRegisterFEEntry(TaxRegTemplate."Section Code", WorkDate());
 
             VerifyTaxRegisterFEEntry(TaxRegTemplate);
         end;
@@ -120,7 +120,7 @@ codeunit 144516 "ERM Create Tax Reg. Entry"
                         Quantity := 1;
                     end;
             end;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -139,7 +139,7 @@ codeunit 144516 "ERM Create Tax Reg. Entry"
                 72:
                     "FA Posting Type" := "FA Posting Type"::Depreciation;
             end;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -206,7 +206,7 @@ codeunit 144516 "ERM Create Tax Reg. Entry"
         SetupTaxRegister(TaxRegTemplate, DATABASE::"Tax Register FA Entry");
         UpdateTaxRegTemplateFA(TaxRegTemplate, SumFieldNo, TaxRegSetup."Tax Depreciation Book");
         CreateFALedgerEntryFA(
-          LibraryTaxAcc.CreateFAWithTaxFADeprBook, TaxRegSetup."Tax Depreciation Book", WorkDate, SumFieldNo);
+          LibraryTaxAcc.CreateFAWithTaxFADeprBook, TaxRegSetup."Tax Depreciation Book", WorkDate(), SumFieldNo);
     end;
 
     local procedure SetupTaxRegisterFE(var TaxRegTemplate: Record "Tax Register Template"; SumFieldNo: Integer)
@@ -217,7 +217,7 @@ codeunit 144516 "ERM Create Tax Reg. Entry"
         SetupTaxRegister(TaxRegTemplate, DATABASE::"Tax Register FE Entry");
         UpdateTaxRegTemplateFE(TaxRegTemplate, SumFieldNo, TaxRegSetup."Future Exp. Depreciation Book");
         CreateFALedgerEntryFE(
-          LibraryTaxAcc.CreateFEWithTaxFADeprBook, TaxRegSetup."Future Exp. Depreciation Book", WorkDate, SumFieldNo);
+          LibraryTaxAcc.CreateFEWithTaxFADeprBook, TaxRegSetup."Future Exp. Depreciation Book", WorkDate(), SumFieldNo);
     end;
 
     local procedure UpdateTaxRegSetupFA()
@@ -227,7 +227,7 @@ codeunit 144516 "ERM Create Tax Reg. Entry"
     begin
         LibraryTaxAcc.CreateTaxAccDeprBook(DeprBook);
         with TaxRegSetup do begin
-            Get;
+            Get();
             Validate("Tax Depreciation Book", DeprBook.Code);
             Validate("Create Data for Printing Forms", true);
             Modify(true);
@@ -241,7 +241,7 @@ codeunit 144516 "ERM Create Tax Reg. Entry"
     begin
         LibraryTaxAcc.CreateTaxAccDeprBook(DeprBook);
         with TaxRegSetup do begin
-            Get;
+            Get();
             Validate("Future Exp. Depreciation Book", DeprBook.Code);
             Modify(true);
         end;
@@ -297,7 +297,7 @@ codeunit 144516 "ERM Create Tax Reg. Entry"
             Assert.AreEqual(TaxRegTemplate."Sum Field No.", Abs(TaxRegAccum.Amount), TaxRegAccumErr);
 
         TaxRegFAEntry.SetRange("Section Code", TaxRegTemplate."Section Code");
-        Assert.AreEqual(1, TaxRegFAEntry.Count, StrSubstNo(TaxRegEntryErr, TaxRegFAEntry.TableCaption));
+        Assert.AreEqual(1, TaxRegFAEntry.Count, StrSubstNo(TaxRegEntryErr, TaxRegFAEntry.TableCaption()));
     end;
 
     local procedure VerifyTaxRegisterFEEntry(var TaxRegTemplate: Record "Tax Register Template")
@@ -309,7 +309,7 @@ codeunit 144516 "ERM Create Tax Reg. Entry"
         Assert.AreEqual(TaxRegTemplate."Sum Field No.", Abs(TaxRegAccum.Amount), TaxRegAccumErr);
 
         TaxRegFEEntry.SetRange("Section Code", TaxRegTemplate."Section Code");
-        Assert.AreEqual(1, TaxRegFEEntry.Count, StrSubstNo(TaxRegEntryErr, TaxRegFEEntry.TableCaption));
+        Assert.AreEqual(1, TaxRegFEEntry.Count, StrSubstNo(TaxRegEntryErr, TaxRegFEEntry.TableCaption()));
     end;
 }
 

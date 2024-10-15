@@ -7,7 +7,6 @@ page 207 "Resource Journal"
     DataCaptionFields = "Journal Batch Name";
     DelayedInsert = true;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Page,Post/Print,Line,Resource,Page';
     SaveValues = true;
     SourceTable = "Res. Journal Line";
     UsageCategory = Tasks;
@@ -25,7 +24,7 @@ page 207 "Resource Journal"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     ResJnlManagement.LookupName(CurrentJnlBatchName, Rec);
                     SetControlAppearanceFromBatch();
                     CurrPage.Update(false);
@@ -34,41 +33,41 @@ page 207 "Resource Journal"
                 trigger OnValidate()
                 begin
                     ResJnlManagement.CheckName(CurrentJnlBatchName, Rec);
-                    CurrentJnlBatchNameOnAfterVali;
+                    CurrentJnlBatchNameOnAfterVali();
                 end;
             }
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the date when you want to assign.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
-                field("Entry Type"; "Entry Type")
+                field("Entry Type"; Rec."Entry Type")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies an entry type for each line.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies a document number for the journal line.';
                     ShowMandatory = true;
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                     Visible = false;
                 }
-                field("Resource No."; "Resource No.")
+                field("Resource No."; Rec."Resource No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the resource that you want to post an entry for.';
@@ -79,7 +78,7 @@ page 207 "Resource Journal"
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
-                field("Resource Group No."; "Resource Group No.")
+                field("Resource Group No."; Rec."Resource Group No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the resource group that this resource is assigned to.';
@@ -95,18 +94,18 @@ page 207 "Resource Journal"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the description or name of the resource you chose in the Resource No. field.';
                 }
-                field("Work Type Code"; "Work Type Code")
+                field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies which work type the resource applies to. Prices are updated based on this entry.';
                 }
-                field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
+                field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the vendor''s or customer''s trade type to link transactions made for this business partner with the appropriate general ledger account according to the general posting setup.';
                     Visible = false;
                 }
-                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
@@ -117,67 +116,67 @@ page 207 "Resource Journal"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of units of the item or resource specified on the line.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Direct Unit Cost"; "Direct Unit Cost")
+                field("Direct Unit Cost"; Rec."Direct Unit Cost")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the cost of one unit of the selected item or resource.';
                 }
-                field("Unit Cost"; "Unit Cost")
+                field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                 }
-                field("Total Cost"; "Total Cost")
+                field("Total Cost"; Rec."Total Cost")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the total cost for this journal line.';
                 }
-                field("Unit Price"; "Unit Price")
+                field("Unit Price"; Rec."Unit Price")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the price of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
                 }
-                field("Total Price"; "Total Price")
+                field("Total Price"; Rec."Total Price")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the total price on the journal line.';
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
                     Visible = false;
                 }
-                field("Time Sheet No."; "Time Sheet No.")
+                field("Time Sheet No."; Rec."Time Sheet No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of a time sheet.';
                     Visible = false;
                 }
-                field("Time Sheet Line No."; "Time Sheet Line No.")
+                field("Time Sheet Line No."; Rec."Time Sheet Line No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the line number for a time sheet.';
                     Visible = false;
                 }
-                field("Time Sheet Date"; "Time Sheet Date")
+                field("Time Sheet Date"; Rec."Time Sheet Date")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the date when a time sheet is created.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = DimVisible1;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -337,15 +336,13 @@ page 207 "Resource Journal"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
             }
@@ -358,8 +355,6 @@ page 207 "Resource Journal"
                     ApplicationArea = Jobs;
                     Caption = 'Card';
                     Image = EditLines;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     RunObject = Page "Resource Card";
                     RunPageLink = "No." = FIELD("Resource No.");
                     ShortCutKey = 'Shift+F7';
@@ -370,8 +365,6 @@ page 207 "Resource Journal"
                     ApplicationArea = Jobs;
                     Caption = 'Ledger E&ntries';
                     Image = ResourceLedger;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     RunObject = Page "Resource Ledger Entries";
                     RunPageLink = "Resource No." = FIELD("Resource No.");
                     RunPageView = SORTING("Resource No.");
@@ -404,9 +397,6 @@ page 207 "Resource Journal"
                     ApplicationArea = Jobs;
                     Caption = 'P&ost';
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
@@ -422,9 +412,6 @@ page 207 "Resource Journal"
                     ApplicationArea = Jobs;
                     Caption = 'Post and &Print';
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
@@ -446,8 +433,6 @@ page 207 "Resource Journal"
                     Caption = 'Suggest Lines from Time Sheets';
                     Ellipsis = true;
                     Image = SuggestLines;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Fill the journal with lines that exist in the time sheets.';
 
                     trigger OnAction()
@@ -467,10 +452,6 @@ page 207 "Resource Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Edit in Excel';
                     Image = Excel;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
                     Visible = IsSaaSExcelAddinEnabled;
                     AccessByPermission = System "Allow Action Export To Excel" = X;
@@ -492,8 +473,6 @@ page 207 "Resource Journal"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Show Lines with Issues';
                         Image = Error;
-                        Promoted = true;
-                        PromotedCategory = Category7;
                         Visible = BackgroundErrorCheck;
                         Enabled = not ShowAllLinesEnabled;
                         ToolTip = 'View a list of journal lines that have issues before you post the journal.';
@@ -508,8 +487,6 @@ page 207 "Resource Journal"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Show All Lines';
                         Image = ExpandAll;
-                        Promoted = true;
-                        PromotedCategory = Category7;
                         Visible = BackgroundErrorCheck;
                         Enabled = ShowAllLinesEnabled;
                         ToolTip = 'View all journal lines, including lines with and without issues.';
@@ -520,6 +497,69 @@ page 207 "Resource Journal"
                         end;
                     }
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(SuggestLinesFromTimeSheets_Promoted; SuggestLinesFromTimeSheets)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Page', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(EditInExcel_Promoted; EditInExcel)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Post/Print', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(Post_Promoted; Post)
+                {
+                }
+                actionref("Post and &Print_Promoted"; "Post and &Print")
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Resource', Comment = 'Generated from the PromotedActionCategories property index 6.';
+
+                actionref(ShowLinesWithErrors_Promoted; ShowLinesWithErrors)
+                {
+                }
+                actionref(ShowAllLines_Promoted; ShowAllLines)
+                {
+                }
+                actionref(Card_Promoted; Card)
+                {
+                }
+                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
+                {
+                }
+            }
+            group(Category_Category8)
+            {
+                Caption = 'Page', Comment = 'Generated from the PromotedActionCategories property index 7.';
             }
         }
     }
@@ -546,12 +586,12 @@ page 207 "Resource Journal"
         JnlSelected: Boolean;
     begin
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
-        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
             exit;
 
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
 
-        if IsOpenedFromBatch then begin
+        if IsOpenedFromBatch() then begin
             CurrentJnlBatchName := "Journal Batch Name";
             ResJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
             SetControlAppearanceFromBatch();
@@ -588,7 +628,7 @@ page 207 "Resource Journal"
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         ResJnlManagement.SetName(CurrentJnlBatchName, Rec);
         SetControlAppearanceFromBatch();
         CurrPage.Update(false);

@@ -81,7 +81,7 @@ page 5985 "Service Item Replacement"
                                 if not ItemVariant.FindFirst() then
                                     Error(
                                       Text000,
-                                      ItemVariant.TableCaption, ItemNo, VariantCode);
+                                      ItemVariant.TableCaption(), ItemNo, VariantCode);
                             end;
                         end;
                     }
@@ -121,7 +121,7 @@ page 5985 "Service Item Replacement"
                                         Error(
                                           Text002,
                                           Item.FieldCaption("Assembly BOM"),
-                                          Item.TableCaption,
+                                          Item.TableCaption(),
                                           Item.FieldCaption("No."),
                                           Item."No.");
                                 CopyComponentsFrom::"Old Service Item",
@@ -130,7 +130,7 @@ page 5985 "Service Item Replacement"
                                         Error(
                                           Text002,
                                           ServItem.FieldCaption("Service Item Components"),
-                                          ServItem.TableCaption,
+                                          ServItem.TableCaption(),
                                           ServItem.FieldCaption("No."),
                                           ServItem."No.")
                             end;
@@ -170,14 +170,15 @@ page 5985 "Service Item Replacement"
     end;
 
     var
-        Text000: Label 'The %1 %2,%3 does not exists.', Comment = 'The Item Variant LS-10PC , LS-10PC-B does not exists.';
         Item: Record Item;
         ServItem: Record "Service Item";
         ItemVariant: Record "Item Variant";
         ServItemVariantCode: Code[10];
-        Text002: Label 'There is no %1 in the %2 %3 %4.', Comment = 'There is no Assembly BOM in the Item No. 1002';
         [InDataSet]
         CopyComponentsEnable: Boolean;
+
+        Text000: Label 'The %1 %2,%3 does not exists.', Comment = 'The Item Variant LS-10PC , LS-10PC-B does not exists.';
+        Text002: Label 'There is no %1 in the %2 %3 %4.', Comment = 'There is no Assembly BOM in the Item No. 1002';
 
     protected var
         CopyComponentsFrom: Option "None","Item BOM","Old Service Item","Old Service Item w/o Serial No.";
@@ -215,7 +216,7 @@ page 5985 "Service Item Replacement"
         exit(CopyComponentsFrom);
     end;
 
-    procedure SetParameters(VariantCodeFrom: Code[10]; NewSerialNoFrom: Code[20]; NewCopyComponentsFrom: Option; ReplacementFrom: Option)
+    procedure SetParameters(VariantCodeFrom: Code[10]; NewSerialNoFrom: Code[50]; NewCopyComponentsFrom: Option; ReplacementFrom: Option)
     begin
         VariantCode := VariantCodeFrom;
         NewSerialNo := NewSerialNoFrom;

@@ -60,13 +60,8 @@ table 6521 "Item Tracing History Buffer"
             Caption = 'CD No. Filter';
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Replaced by W1 field Package No. Filter.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
     }
 

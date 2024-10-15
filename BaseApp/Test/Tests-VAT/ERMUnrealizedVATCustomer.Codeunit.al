@@ -571,7 +571,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         FindSalesInvoiceLine(SalesInvoiceLine, DocumentNo);
         AdditionalCurrencyBaseAmount :=
-          LibraryERM.ConvertCurrency(SalesInvoiceLine."Line Amount", '', CurrencyExchangeRate."Currency Code", WorkDate);
+          LibraryERM.ConvertCurrency(SalesInvoiceLine."Line Amount", '', CurrencyExchangeRate."Currency Code", WorkDate());
         AdditionalCurrencyVATAmount := Round(AdditionalCurrencyBaseAmount * SalesInvoiceLine."VAT %" / 100);
 
         // 2. Exercise: Create and Post General Journal for Payment with and apply it on Invoice.
@@ -1077,7 +1077,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
 
         // [GIVEN] Currency with exch. rate 100/60 and adjustment exch. rate 100/65
         ExchangeRate := LibraryRandom.RandIntInRange(2, 5);
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchangeRate + 1, ExchangeRate);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchangeRate + 1, ExchangeRate);
 
         // [GIVEN] Posted Sales Invoice with Amount = 600, VAT Amount = 60 in LCY, 1000 and 100 in FCY respectively
         CustomerNo := CreateCustomerWithCurrency(VATPostingSetup."VAT Bus. Posting Group", CurrencyCode);
@@ -1140,7 +1140,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         isInitialized := true;
         Commit();
 
@@ -1177,7 +1177,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
         EnableUnrealVATSetupWithGivenPct(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Percentage, false, false, VATPct);
         CustomerNo := LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
         GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" ");
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchangeRate, 1);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchangeRate, 1);
 
         InvoiceNo := CreatePostSalesInvoiceForGivenCustomer(CustomerNo, GLAccountNo, CurrencyCode, InvoiceAmount);
         PaymentNo := CreateAndPostPaymentJnlLine(CustomerNo, CurrencyCode, -PaymentAmount);
@@ -1251,7 +1251,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
                  (CurrencyExchangeRate."Relational Exch. Rate Amount" / CurrencyExchangeRate."Exchange Rate Amount") *
                  Abs(RefundAmountLCY) /
                  (Abs(Round(SalesLine.Quantity * SalesLine."Unit Price" * (1 + SalesLine."VAT %" / 100),
-                      Currency."Amount Rounding Precision", Currency.InvoiceRoundingDirection) *
+                      Currency."Amount Rounding Precision", Currency.InvoiceRoundingDirection()) *
                     CurrencyExchangeRate."Relational Exch. Rate Amount" / CurrencyExchangeRate."Exchange Rate Amount") -
                   (Abs(GenJournalLine."Amount (LCY)") - Abs(RefundAmountLCY))) *
                  SalesLine."VAT %" / 100)
@@ -1379,7 +1379,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
     begin
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.SetCurrencyGainLossAccounts(Currency);
-        CreateExchangeRate(CurrencyExchangeRate, Currency.Code, WorkDate);
+        CreateExchangeRate(CurrencyExchangeRate, Currency.Code, WorkDate());
     end;
 
     local procedure CreateAndPostSalesInvoice(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup"; CurrencyCode: Code[10])
@@ -1482,7 +1482,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
         LibrarySales.CreateSalesHeader(
           SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer(VATPostingSetup."VAT Bus. Posting Group"));
         CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(VATPostingSetup."VAT Prod. Posting Group"));
-        DocumentNo := NoSeriesManagement.GetNextNo(SalesHeader."Posting No. Series", WorkDate, false);
+        DocumentNo := NoSeriesManagement.GetNextNo(SalesHeader."Posting No. Series", WorkDate(), false);
     end;
 
     local procedure CreateSalesInvoiceWithCurrency(var SalesHeader: Record "Sales Header"; VATBusPostingGroup: Code[20]; CurrencyCode: Code[10])
@@ -1548,7 +1548,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
         with GenJournalLine do begin
             LibraryJournals.CreateGenJournalLineWithBatch(
               GenJournalLine, "Document Type"::Refund, "Account Type"::Customer, AccountNo, LibraryRandom.RandDec(100, 2));
-            Validate("Posting Date", CalcDate('<' + Format(PostingDaysAdded) + 'M>', WorkDate));
+            Validate("Posting Date", CalcDate('<' + Format(PostingDaysAdded) + 'M>', WorkDate()));
             Validate("Currency Code", CurrencyCode);
             Modify(true);
         end;
@@ -1890,7 +1890,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
         repeat
             CustLedgerEntry.CalcFields("Remaining Amount");
             CustLedgerEntry.TestField("Remaining Amount", 0);
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyCustomerLedgerEntryAmounts(CustomerNo: Code[20]; DocumentNo: Code[20]; ExpectedAmount: Decimal; ExpectedRemAmount: Decimal)

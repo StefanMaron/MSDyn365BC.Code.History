@@ -16,26 +16,26 @@ page 1351 "Posted Purch. Invoice - Update"
         {
             group(General)
             {
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the posted invoice number.';
                 }
-                field("Buy-from Vendor Name"; "Buy-from Vendor Name")
+                field("Buy-from Vendor Name"; Rec."Buy-from Vendor Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Vendor';
                     Editable = false;
                     ToolTip = 'Specifies the name of the vendor who shipped the items.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the date the purchase header was posted.';
                 }
-                field("Posting Description"; "Posting Description")
+                field("Posting Description"; Rec."Posting Description")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = true;
@@ -45,18 +45,18 @@ page 1351 "Posted Purch. Invoice - Update"
             group("Invoice Details")
             {
                 Caption = 'Invoice Details';
-                field("Payment Reference"; "Payment Reference")
+                field("Payment Reference"; Rec."Payment Reference")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = true;
                     ToolTip = 'Specifies the payment of the purchase invoice.';
                 }
-                field("Payment Method Code"; "Payment Method Code")
+                field("Payment Method Code"; Rec."Payment Method Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
                 }
-                field("Creditor No."; "Creditor No.")
+                field("Creditor No."; Rec."Creditor No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = true;
@@ -66,7 +66,7 @@ page 1351 "Posted Purch. Invoice - Update"
             group(Shipping)
             {
                 Caption = 'Shipping';
-                field("Ship-to Code"; "Ship-to Code")
+                field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Ship-to Address Code';
@@ -89,7 +89,7 @@ page 1351 "Posted Purch. Invoice - Update"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction = ACTION::LookupOK then
-            if RecordChanged then
+            if RecordChanged() then
                 CODEUNIT.Run(CODEUNIT::"Purch. Inv. Header - Edit", Rec);
     end;
 
@@ -112,7 +112,7 @@ page 1351 "Posted Purch. Invoice - Update"
     procedure SetRec(PurchInvHeader: Record "Purch. Inv. Header")
     begin
         Rec := PurchInvHeader;
-        Insert;
+        Insert();
     end;
 
     [IntegrationEvent(false, false)]

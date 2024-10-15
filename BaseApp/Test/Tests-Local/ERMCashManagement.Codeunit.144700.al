@@ -141,14 +141,14 @@ codeunit 144700 "ERM Cash Management"
         Initialize();
         FindGenJournalLine(GenJnlLine);
         with CheckLedgerEntry do begin
-            Init;
+            Init();
             RecRef.GetTable(CheckLedgerEntry);
             "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
             "Bank Payment Type" := "Bank Payment Type"::"Computer Check";
             "Bank Account Type" := "Bank Account Type"::"Bank Account";
             "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
             Amount := LibraryRandom.RandDec(1000, 2);
-            Insert;
+            Insert();
             Commit();
         end;
 
@@ -157,7 +157,7 @@ codeunit 144700 "ERM Cash Management"
         CopyPayDocument.SetJournalLine(GenJnlLine);
         CopyPayDocument.Run();
 
-        GenJnlLine.Next;
+        GenJnlLine.Next();
         VerifyGenJnlLine(GenJnlLine, CheckLedgerEntry);
     end;
 
@@ -406,7 +406,7 @@ codeunit 144700 "ERM Cash Management"
               "Document Type"::Payment, AccountType, AccountNo, AmountSign * LibraryRandom.RandDecInRange(100, 1000, 2));
             Validate("Bal. Account Type", BalAccType);
             Validate("Bal. Account No.", BalAccNo);
-            Validate("Document No.", NoSeriesMgt.GetNextNo(SeriesNo, WorkDate, true));
+            Validate("Document No.", NoSeriesMgt.GetNextNo(SeriesNo, WorkDate(), true));
             Validate("Bank Payment Type", BankPaymType);
             Modify(true);
         end;
@@ -518,7 +518,7 @@ codeunit 144700 "ERM Cash Management"
             Validate("Payment Code", LibraryUtility.GenerateRandomText(MaxStrLen("Payment Code")));
             Validate("Line Status", "Line Status"::"Contractor Confirmed");
             Validate("Statement Amount", LibraryRandom.RandInt(100));
-            "Transaction Date" := WorkDate;
+            "Transaction Date" := WorkDate();
             Modify(true);
             PaymentCode := "Payment Code";
         end;
@@ -605,13 +605,13 @@ codeunit 144700 "ERM Cash Management"
         GenJnlLineArchive.FindFirst();
         Assert.AreEqual(
           PaymentCode, GenJnlLineArchive."Payment Code",
-          StrSubstNo(PaymentCodeErr, GenJnlLineArchive.TableCaption));
+          StrSubstNo(PaymentCodeErr, GenJnlLineArchive.TableCaption()));
 
         CheckLedgerEntry.SetRange("Document No.", DocNo);
         CheckLedgerEntry.FindFirst();
         Assert.AreEqual(
           PaymentCode, CheckLedgerEntry."Payment Code",
-          StrSubstNo(PaymentCodeErr, CheckLedgerEntry.TableCaption));
+          StrSubstNo(PaymentCodeErr, CheckLedgerEntry.TableCaption()));
     end;
 
     local procedure TestIfCheckLedgEntryIsCreated(BankAccountNo: Code[20])
@@ -655,7 +655,7 @@ codeunit 144700 "ERM Cash Management"
     [Scope('OnPrem')]
     procedure GeneralJournalPageHandler(var GeneralJournal: TestPage "General Journal")
     begin
-        GeneralJournal.Close;
+        GeneralJournal.Close();
     end;
 }
 

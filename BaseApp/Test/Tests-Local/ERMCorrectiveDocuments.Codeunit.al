@@ -29,7 +29,7 @@ codeunit 144017 "ERM Corrective Documents"
         Initialize();
         with PurchHeader do begin
             // [GIVEN] "Posting Date" = "X"
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             // [WHEN] "Vend. VAT Invoice Date" = "X" - 1
             Validate("Vendor VAT Invoice Date", "Posting Date" - 1);
 
@@ -51,7 +51,7 @@ codeunit 144017 "ERM Corrective Documents"
         Initialize();
         with PurchHeader do begin
             // [GIVEN] "Posting Date" = "X"
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             // [WHEN] "Vend. VAT Invoice Rcvd Date" = "X" - 1
             Validate("Vendor VAT Invoice Rcvd Date", "Posting Date" - 1);
 
@@ -77,7 +77,7 @@ codeunit 144017 "ERM Corrective Documents"
         InvoiceNo := PostSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
 
         // [GIVEN] Sales Corrective Credit Memo for Posted Invoice with equal quantities and prices at lines
-        CreateSalesCorrectiveCreditMemoForInvoice(SalesHeader, SalesHeader."Sell-to Customer No.", InvoiceNo, 0, WorkDate);
+        CreateSalesCorrectiveCreditMemoForInvoice(SalesHeader, SalesHeader."Sell-to Customer No.", InvoiceNo, 0, WorkDate());
 
         // [GIVEN] "Quantity (After)" changed on first line
         DecreaseQtyAfterAtFirstLine(SalesHeader, SalesLine);
@@ -105,7 +105,7 @@ codeunit 144017 "ERM Corrective Documents"
         InvoiceNo := PostSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
 
         // [GIVEN] Sales Corrective Invoice for Posted Invoice with equal quantities and prices at lines
-        CreateSalesCorrectiveInvoiceForInvoice(SalesHeader, SalesHeader."Sell-to Customer No.", InvoiceNo, 0, WorkDate);
+        CreateSalesCorrectiveInvoiceForInvoice(SalesHeader, SalesHeader."Sell-to Customer No.", InvoiceNo, 0, WorkDate());
 
         // [GIVEN] "Quantity (After)" changed on first line
         IncreaseQtyAfterAtFirstLine(SalesHeader, SalesLine);
@@ -133,7 +133,7 @@ codeunit 144017 "ERM Corrective Documents"
         CreditMemoNo := PostSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
 
         // [GIVEN] Sales Corrective Credit Memo for Posted Credit Memo with equal quantities and prices at lines
-        CreateSalesCorrectiveCreditMemoForCreditMemo(SalesHeader, SalesHeader."Sell-to Customer No.", CreditMemoNo, 0, WorkDate);
+        CreateSalesCorrectiveCreditMemoForCreditMemo(SalesHeader, SalesHeader."Sell-to Customer No.", CreditMemoNo, 0, WorkDate());
 
         // [GIVEN] "Quantity (After)" changed on first line
         DecreaseQtyAfterAtFirstLine(SalesHeader, SalesLine);
@@ -161,7 +161,7 @@ codeunit 144017 "ERM Corrective Documents"
         CreditMemoNo := PostSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
 
         // [GIVEN] Sales Corrective Invoice for Posted Credit Memo with equal quantities and prices at lines
-        CreateSalesCorrectiveInvoiceForCreditMemo(SalesHeader, SalesHeader."Sell-to Customer No.", CreditMemoNo, 0, WorkDate);
+        CreateSalesCorrectiveInvoiceForCreditMemo(SalesHeader, SalesHeader."Sell-to Customer No.", CreditMemoNo, 0, WorkDate());
 
         // [GIVEN] "Quantity (After)" changed on first line
         IncreaseQtyAfterAtFirstLine(SalesHeader, SalesLine);
@@ -189,7 +189,7 @@ codeunit 144017 "ERM Corrective Documents"
         InvoiceNo := PostSalesDocumentWithItemCharge(SalesHeader, SalesHeader."Document Type"::Invoice);
 
         // [GIVEN] Sales Corrective Credit Memo for Posted Invoice with equal quantities and prices at lines
-        CreateSalesCorrectiveCreditMemoForInvoice(SalesHeader, SalesHeader."Sell-to Customer No.", InvoiceNo, 1, WorkDate);
+        CreateSalesCorrectiveCreditMemoForInvoice(SalesHeader, SalesHeader."Sell-to Customer No.", InvoiceNo, 1, WorkDate());
 
         // [GIVEN] "Unit Price (After)" changed on first line
         DecreasePriceAfterAtFirstLine(SalesHeader, SalesLine);
@@ -217,7 +217,7 @@ codeunit 144017 "ERM Corrective Documents"
         InvoiceNo := PostSalesDocumentWithItemCharge(SalesHeader, SalesHeader."Document Type"::Invoice);
 
         // [GIVEN] Sales Corrective Invoice for Posted Invoice with equal quantities and prices at lines
-        CreateSalesCorrectiveInvoiceForInvoice(SalesHeader, SalesHeader."Sell-to Customer No.", InvoiceNo, 1, WorkDate);
+        CreateSalesCorrectiveInvoiceForInvoice(SalesHeader, SalesHeader."Sell-to Customer No.", InvoiceNo, 1, WorkDate());
 
         // [GIVEN] "Unit Price (After)" changed on first line
         IncreasePriceAfterAtFirstLine(SalesHeader, SalesLine);
@@ -245,7 +245,7 @@ codeunit 144017 "ERM Corrective Documents"
         CreditMemoNo := PostSalesDocumentWithItemCharge(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
 
         // [GIVEN] Sales Corrective Credit Memo for Posted Credit Memo with equal quantities and prices at lines
-        CreateSalesCorrectiveCreditMemoForCreditMemo(SalesHeader, SalesHeader."Sell-to Customer No.", CreditMemoNo, 1, WorkDate);
+        CreateSalesCorrectiveCreditMemoForCreditMemo(SalesHeader, SalesHeader."Sell-to Customer No.", CreditMemoNo, 1, WorkDate());
 
         // [GIVEN] "Unit Price (After)" changed on first line
         DecreasePriceAfterAtFirstLine(SalesHeader, SalesLine);
@@ -273,7 +273,7 @@ codeunit 144017 "ERM Corrective Documents"
         CreditMemoNo := PostSalesDocumentWithItemCharge(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
 
         // [GIVEN] Sales Corrective Invoice for Posted Credit Memo with equal quantities and prices at lines
-        CreateSalesCorrectiveInvoiceForCreditMemo(SalesHeader, SalesHeader."Sell-to Customer No.", CreditMemoNo, 1, WorkDate);
+        CreateSalesCorrectiveInvoiceForCreditMemo(SalesHeader, SalesHeader."Sell-to Customer No.", CreditMemoNo, 1, WorkDate());
 
         // [GIVEN] "Unit Price (After)" changed on first line
         IncreasePriceAfterAtFirstLine(SalesHeader, SalesLine);
@@ -535,7 +535,7 @@ codeunit 144017 "ERM Corrective Documents"
         FindSalesLine(SalesLine, SalesHeader);
         SalesLine.Validate("Unit Price (After)", SalesLine."Unit Price (Before)" * 2);
         SalesLine.Modify(true);
-        SalesLine.Next;
+        SalesLine.Next();
     end;
 
     local procedure DecreasePriceAfterAtFirstLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
@@ -543,7 +543,7 @@ codeunit 144017 "ERM Corrective Documents"
         FindSalesLine(SalesLine, SalesHeader);
         SalesLine.Validate("Unit Price (After)", SalesLine."Unit Price (Before)" / 2);
         SalesLine.Modify(true);
-        SalesLine.Next;
+        SalesLine.Next();
     end;
 
     local procedure IncreaseQtyAfterAtFirstLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
@@ -551,7 +551,7 @@ codeunit 144017 "ERM Corrective Documents"
         FindSalesLine(SalesLine, SalesHeader);
         SalesLine.Validate("Quantity (After)", SalesLine."Quantity (Before)" + 1);
         SalesLine.Modify(true);
-        SalesLine.Next;
+        SalesLine.Next();
     end;
 
     local procedure DecreaseQtyAfterAtFirstLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
@@ -559,7 +559,7 @@ codeunit 144017 "ERM Corrective Documents"
         FindSalesLine(SalesLine, SalesHeader);
         SalesLine.Validate("Quantity (After)", SalesLine."Quantity (Before)" - 1);
         SalesLine.Modify(true);
-        SalesLine.Next;
+        SalesLine.Next();
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
@@ -575,7 +575,7 @@ codeunit 144017 "ERM Corrective Documents"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, DocumentType,
-          LibrarySales.CreateCustomerNo, '', LibraryRandom.RandInt(10), '', WorkDate);
+          LibrarySales.CreateCustomerNo, '', LibraryRandom.RandInt(10), '', WorkDate());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, SalesLine."No.", LibraryRandom.RandInt(10));
         exit(LibrarySales.PostSalesDocument(SalesHeader, false, false));
     end;
@@ -587,7 +587,7 @@ codeunit 144017 "ERM Corrective Documents"
     begin
         LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, LibraryRandom.RandDec(1000, 2), LibraryRandom.RandDec(1000, 2));
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, DocumentType,
-          LibrarySales.CreateCustomerNo, Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
+          LibrarySales.CreateCustomerNo, Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
         UpdateSalesCorrDocChargeForItem(SalesLine."No.");
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, SalesLine."No.", LibraryRandom.RandInt(10));
         exit(LibrarySales.PostSalesDocument(SalesHeader, false, false));

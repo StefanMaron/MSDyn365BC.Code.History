@@ -237,7 +237,7 @@ codeunit 144707 "ERM Advance Statement"
         AdvanceStatement: Report "Advance Statement";
     begin
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        PurchaseHeader.SetRecFilter;
+        PurchaseHeader.SetRecFilter();
         AdvanceStatement.SetTableView(PurchaseHeader);
         AdvanceStatement.SetFileNameSilent(LibraryReportValidation.GetFileName);
         AdvanceStatement.UseRequestPage(false);

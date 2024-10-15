@@ -276,13 +276,8 @@ table 99000853 "Inventory Profile"
         {
             Caption = 'CD No.';
             ObsoleteReason = 'Replaced by field Package No.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
     }
 
@@ -308,8 +303,9 @@ table 99000853 "Inventory Profile"
     }
 
     var
-        Text000: Label 'Tab99000853, TransferToTrackingEntry: Illegal Source Type: %1.';
         UOMMgt: Codeunit "Unit of Measure Management";
+
+        Text000: Label 'Tab99000853, TransferToTrackingEntry: Illegal Source Type: %1.';
 
     procedure TransferFromItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; var TrackingReservEntry: Record "Reservation Entry")
     var
@@ -335,7 +331,7 @@ table 99000853 "Inventory Profile"
         IsSupply := ItemLedgerEntry.Positive;
         "Due Date" := ItemLedgerEntry."Posting Date";
         CopyTrackingFromItemLedgEntry(ItemLedgerEntry);
-        if TrackingExists then
+        if TrackingExists() then
             "Tracking Reference" := "Line No.";
         "Planning Flexibility" := "Planning Flexibility"::None;
 
@@ -369,7 +365,7 @@ table 99000853 "Inventory Profile"
         "Unit of Measure Code" := SalesLine."Unit of Measure Code";
         "Qty. per Unit of Measure" := SalesLine."Qty. per Unit of Measure";
         if SalesLine."Document Type" = SalesLine."Document Type"::"Return Order" then
-            ChangeSign;
+            ChangeSign();
         IsSupply := "Untracked Quantity" < 0;
         "Due Date" := SalesLine."Shipment Date";
         "Planning Flexibility" := "Planning Flexibility"::None;
@@ -565,7 +561,7 @@ table 99000853 "Inventory Profile"
         "Unit of Measure Code" := PurchaseLine."Unit of Measure Code";
         "Qty. per Unit of Measure" := PurchaseLine."Qty. per Unit of Measure";
         if PurchaseLine."Document Type" = PurchaseLine."Document Type"::"Return Order" then begin
-            ChangeSign;
+            ChangeSign();
             "Planning Flexibility" := "Planning Flexibility"::None;
         end else
             "Planning Flexibility" := PurchaseLine."Planning Flexibility";
@@ -735,7 +731,7 @@ table 99000853 "Inventory Profile"
     procedure TransferFromOutboundTransfer(var TransLine: Record "Transfer Line"; var TrackingEntry: Record "Reservation Entry")
     var
         ReservEntry: Record "Reservation Entry";
-        DummyTempTrackingEntry: Record "Reservation Entry" temporary;
+        TempReservationEntry: Record "Reservation Entry" temporary;
         CrntInvProfile: Record "Inventory Profile";
         TransferDirection: Enum "Transfer Direction";
         AutoReservedQty: Decimal;
@@ -754,7 +750,7 @@ table 99000853 "Inventory Profile"
 
         CrntInvProfile := Rec;
         TransLine.SetReservationFilters(ReservEntry, TransferDirection::Inbound);
-        AutoReservedQty := TransferBindings(ReservEntry, DummyTempTrackingEntry);
+        AutoReservedQty := TransferBindings(ReservEntry, TempReservationEntry);
         MinQtyInbnd := TransLine."Reserved Qty. Inbnd. (Base)" - AutoReservedQty;
         Rec := CrntInvProfile;
 
@@ -781,7 +777,7 @@ table 99000853 "Inventory Profile"
     procedure TransferFromInboundTransfer(var TransLine: Record "Transfer Line"; var TrackingReservEntry: Record "Reservation Entry")
     var
         ReservEntry: Record "Reservation Entry";
-        DummyTempTrackingEntry: Record "Reservation Entry" temporary;
+        TempReservationEntry: Record "Reservation Entry" temporary;
         CrntInvProfile: Record "Inventory Profile";
         TransferDirection: Enum "Transfer Direction";
         AutoReservedQty: Decimal;
@@ -800,7 +796,7 @@ table 99000853 "Inventory Profile"
 
         CrntInvProfile := Rec;
         TransLine.SetReservationFilters(ReservEntry, TransferDirection::Outbound);
-        AutoReservedQty := -TransferBindings(ReservEntry, DummyTempTrackingEntry);
+        AutoReservedQty := -TransferBindings(ReservEntry, TempReservationEntry);
         MinQtyOutbnd := TransLine."Reserved Qty. Outbnd. (Base)" - AutoReservedQty;
         Rec := CrntInvProfile;
 
@@ -898,7 +894,7 @@ table 99000853 "Inventory Profile"
                 InsertTracking := not
                   ((ReservEntry."Reservation Status" = ReservEntry."Reservation Status"::Reservation) and
                    (ReservEntry.Binding = ReservEntry.Binding::" "));
-                if InsertTracking and ReservEntry.TrackingExists and
+                if InsertTracking and ReservEntry.TrackingExists() and
                    (ReservEntry."Source Type" <> DATABASE::"Item Ledger Entry")
                 then begin
                     TrackingEntry := ReservEntry;
@@ -950,7 +946,7 @@ table 99000853 "Inventory Profile"
         "Remaining Quantity (Base)" := ItemTrackingEntry."Quantity (Base)";
         "Untracked Quantity" := ItemTrackingEntry."Quantity (Base)";
         if not IsSupply then
-            ChangeSign;
+            ChangeSign();
     end;
 
     procedure ReduceQtyByItemTracking(var NewInvProfile: Record "Inventory Profile")
@@ -1079,7 +1075,7 @@ table 99000853 "Inventory Profile"
             TrkgReservEntry."Quantity (Base)" := -"Untracked Quantity";
 
         TrkgReservEntry.Quantity :=
-          Round(TrkgReservEntry."Quantity (Base)" / TrkgReservEntry."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+          Round(TrkgReservEntry."Quantity (Base)" / TrkgReservEntry."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
         TrkgReservEntry.Positive := TrkgReservEntry."Quantity (Base)" > 0;
 
         if TrkgReservEntry."Reservation Status" <> TrkgReservEntry."Reservation Status"::Surplus then
@@ -1091,11 +1087,11 @@ table 99000853 "Inventory Profile"
                 TrkgReservEntry."Reservation Status" := TrkgReservEntry."Reservation Status"::Tracking;
 
         if TrkgReservEntry."Quantity (Base)" = 0 then begin
-            TrkgReservEntry."Expected Receipt Date" := GetExpectedReceiptDate;
+            TrkgReservEntry."Expected Receipt Date" := GetExpectedReceiptDate();
             TrkgReservEntry."Shipment Date" := "Due Date";
         end else
             if TrkgReservEntry.Positive then
-                TrkgReservEntry."Expected Receipt Date" := GetExpectedReceiptDate
+                TrkgReservEntry."Expected Receipt Date" := GetExpectedReceiptDate()
             else
                 TrkgReservEntry."Shipment Date" := "Due Date";
 

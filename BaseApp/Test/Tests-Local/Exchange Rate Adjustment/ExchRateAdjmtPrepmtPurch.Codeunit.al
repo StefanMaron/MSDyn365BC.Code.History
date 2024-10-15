@@ -180,7 +180,7 @@
         ExpectedDocNo := GetGenJnlTemplateNextNo(AdjPostingDate);
         PostInvAndPrepmtWithCurrency(
           InvNo, PmtNo, EntryAmount, CurrencyCode, true, true);
-        AdjPostingDate := CalcDate('<1M+CM>', WorkDate);
+        AdjPostingDate := CalcDate('<1M+CM>', WorkDate());
         RunExchRateAdjustment(CurrencyCode, AdjPostingDate, GetVendNoFromVendLedgEntry(InvNo));
         VerifyEmptyGLEntries(ExpectedDocNo, CurrencyCode);
     end;
@@ -404,12 +404,12 @@
 
         // [GIVEN] Purchase order for 10 pcs of item "I" with "Direct Unit Cost" = 100 EUR on 16.03. Post receipt.
         CreateItemPurchDocWithCurrency(
-          PurchaseHeader, OrderPurchaseLine, PurchaseHeader."Document Type"::Order, CalcDate('<1M>', WorkDate), SourceCurrencyCode);
+          PurchaseHeader, OrderPurchaseLine, PurchaseHeader."Document Type"::Order, CalcDate('<1M>', WorkDate()), SourceCurrencyCode);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [GIVEN] Create a separate invoice on 16.04 and get lines from the posted receipt. Post invoice.
         CreatePurchHeaderWithCurrency(
-          PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CalcDate('<2M>', WorkDate),
+          PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CalcDate('<2M>', WorkDate()),
           SourceCurrencyCode, PurchaseHeader."Buy-from Vendor No.");
         GetPurchaseReceiptLine(PurchaseHeader);
         PostedInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
@@ -417,7 +417,7 @@
         // [GIVEN] Post prepayment to vendor on 16.02
         PaymentNo :=
           CreatePostPrepayment(
-            WorkDate, PurchaseHeader."Buy-from Vendor No.", SourceCurrencyCode, OrderPurchaseLine."Amount Including VAT");
+            WorkDate(), PurchaseHeader."Buy-from Vendor No.", SourceCurrencyCode, OrderPurchaseLine."Amount Including VAT");
 
         // [WHEN] Apply prepayment to invoice
         ApplyVendorPaymentToInvoice(PaymentNo, PostedInvoiceNo);
@@ -512,7 +512,7 @@
     begin
         UpdateGLSetup(IsCancelPrepmt);
         SetupExchRateAmount(ExchRateAmount, IsRaise);
-        exit(CreateCurrencyWithExchRates(WorkDate, ExchRateAmount));
+        exit(CreateCurrencyWithExchRates(WorkDate(), ExchRateAmount));
     end;
 
     local procedure UpdateGLSetup(NewCancelCurrAdjmtPrepmt: Boolean)
@@ -520,7 +520,7 @@
         GLSetup: Record "General Ledger Setup";
     begin
         with GLSetup do begin
-            Get;
+            Get();
             Validate("Enable Russian Tax Accounting", true);
             Validate("Cancel Curr. Prepmt. Adjmt.", NewCancelCurrAdjmtPrepmt);
             Validate("Currency Adjmt with Correction", false);
@@ -567,7 +567,7 @@
         GLSetup: Record "General Ledger Setup";
     begin
         with GLSetup do begin
-            Get;
+            Get();
             "Cancel Curr. Prepmt. Adjmt." := CancelCurrPrepmtAdjmt;
             "Cancel Prepmt. Adjmt. in TA" := CancelPrepmtAdjmtInTA;
             Modify(true);
@@ -619,7 +619,7 @@
           InvNo, PmtNo, EntryAmount, CurrencyCode, IsRaise, IsCancelPrepmt);
         ApplyVendorPaymentToInvoice(PmtNo, InvNo);
         RefundAmount := Round(EntryAmount[EntryType::Prepayment] / 3, 1);
-        PostingDate := CalcDate('<2M>', WorkDate);
+        PostingDate := CalcDate('<2M>', WorkDate());
         RefundNo := PostApplyRefundToPrepayment(PostingDate, PmtNo, CurrencyCode, RefundAmount);
         CalcAndVerifyCorrEntries(
           CurrencyCode, PostingDate, IsRaise, IsCancelPrepmt, PmtNo, RefundNo, RefundAmount, 1);
@@ -698,7 +698,7 @@
           InvNo, PmtNo, EntryAmount, CurrencyCode, IsRaise, IsCancelPrepmt);
         ApplyVendorPaymentToInvoice(PmtNo, InvNo);
         RefundAmount := Round(EntryAmount[EntryType::Prepayment] / 3, 1);
-        PostingDate := CalcDate('<2M>', WorkDate);
+        PostingDate := CalcDate('<2M>', WorkDate());
         RefundNo := PostApplyRefundToPrepayment(PostingDate, PmtNo, CurrencyCode, RefundAmount);
         UnApplyVendorRefund(RefundNo);
         VerifyUnappliedLedgerEntry(VendLedgEntry."Document Type"::Refund, RefundNo);
@@ -742,7 +742,7 @@
         ExpectedDocNo := GetGenJnlTemplateNextNo(AdjPostingDate);
         PostInvAndPrepmtWithCurrency(
           InvNo, PmtNo, EntryAmount, CurrencyCode, IsRaise, IsCancelPrepmt);
-        AdjPostingDate := CalcDate('<1M+CM>', WorkDate);
+        AdjPostingDate := CalcDate('<1M+CM>', WorkDate());
         RunExchRateAdjustment(CurrencyCode, AdjPostingDate, GetVendNoFromVendLedgEntry(InvNo));
         VerifyAdjGLEntries(
           ExpectedDocNo, CurrencyCode, IsRaise, IsCancelPrepmt, EntryAmount[EntryType::Invoice] - EntryAmount[EntryType::Prepayment]);
@@ -757,10 +757,10 @@
         Initialize();
         SourceCurrencyCode := PrepareSetup(IsCancelPrepmt, ExchRateAmount, IsRaise);
         LibraryPurchase.CreateFCYPurchInvoiceWithGLAcc(
-          PurchaseHeader, PurchLine, '', '', CalcDate('<1M>', WorkDate), SourceCurrencyCode);
+          PurchaseHeader, PurchLine, '', '', CalcDate('<1M>', WorkDate()), SourceCurrencyCode);
         CalculateEntryAmount(EntryAmount, ExchRateAmount, PurchLine."Amount Including VAT");
         PmtNo :=
-          CreatePostPrepayment(WorkDate, PurchaseHeader."Buy-from Vendor No.", '', EntryAmount[EntryType::Invoice]);
+          CreatePostPrepayment(WorkDate(), PurchaseHeader."Buy-from Vendor No.", '', EntryAmount[EntryType::Invoice]);
         InvNo := PostInvoice(PurchLine);
     end;
 
@@ -772,10 +772,10 @@
     begin
         SourceCurrencyCode := PrepareSetup(IsCancelPrepmt, ExchRateAmount, IsRaise);
         LibraryPurchase.CreateFCYPurchInvoiceWithGLAcc(
-          PurchaseHeader, PurchLine, '', '', CalcDate('<1M>', WorkDate), SourceCurrencyCode);
+          PurchaseHeader, PurchLine, '', '', CalcDate('<1M>', WorkDate()), SourceCurrencyCode);
         CalculateEntryAmount(EntryAmount, ExchRateAmount, PurchLine."Amount Including VAT");
         PmtNo :=
-          CreatePostPrepayment(WorkDate, PurchaseHeader."Buy-from Vendor No.", SourceCurrencyCode, PurchLine."Amount Including VAT");
+          CreatePostPrepayment(WorkDate(), PurchaseHeader."Buy-from Vendor No.", SourceCurrencyCode, PurchLine."Amount Including VAT");
         InvNo := PostInvoice(PurchLine);
     end;
 
@@ -789,9 +789,9 @@
     begin
         SourceCurrencyCode := PrepareSetup(IsCancelPrepmt, ExchRateAmount, IsRaise);
         CreateItemPurchDocWithCurrency(
-          PurchaseHeader, PurchLine, PurchaseHeader."Document Type"::Invoice, CalcDate('<1M>', WorkDate), SourceCurrencyCode);
+          PurchaseHeader, PurchLine, PurchaseHeader."Document Type"::Invoice, CalcDate('<1M>', WorkDate()), SourceCurrencyCode);
         PmtAmount := Round(PurchLine."Amount Including VAT" / 3, 1);
-        PmtNo := CreatePostPrepayment(WorkDate, PurchaseHeader."Buy-from Vendor No.", SourceCurrencyCode, PmtAmount);
+        PmtNo := CreatePostPrepayment(WorkDate(), PurchaseHeader."Buy-from Vendor No.", SourceCurrencyCode, PmtAmount);
         InvNo := PostInvoice(PurchLine);
         VendorNo := PurchaseHeader."Buy-from Vendor No.";
         ItemNo := PurchLine."No.";
@@ -807,11 +807,11 @@
         Initialize();
         SourceCurrencyCode := PrepareSetup(IsCancelPrepmt, ExchRateAmount, IsRaise);
         LibraryPurchase.CreateFCYPurchInvoiceWithGLAcc(
-          PurchaseHeader, PurchLine, '', '', CalcDate('<1M>', WorkDate), SourceCurrencyCode);
+          PurchaseHeader, PurchLine, '', '', CalcDate('<1M>', WorkDate()), SourceCurrencyCode);
         CalculateEntryAmount(EntryAmount, ExchRateAmount, PurchLine."Amount Including VAT");
         EntryAmount[EntryType::Invoice] := Round(EntryAmount[EntryType::Invoice] * 3, 1);
         PmtNo :=
-          CreatePostPrepayment(WorkDate, PurchaseHeader."Buy-from Vendor No.", SourceCurrencyCode, EntryAmount[EntryType::Invoice]);
+          CreatePostPrepayment(WorkDate(), PurchaseHeader."Buy-from Vendor No.", SourceCurrencyCode, EntryAmount[EntryType::Invoice]);
         InvNo := PostInvoice(PurchLine);
     end;
 
@@ -825,12 +825,12 @@
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibraryPurchase.CreatePurchaseInvoiceWithGLAcc(PurchaseHeader, PurchaseLine, '', '');
         PurchaseHeader.SetHideValidationDialog(true);
-        PurchaseHeader.Validate("Posting Date", CalcDate('<1M>', WorkDate));
+        PurchaseHeader.Validate("Posting Date", CalcDate('<1M>', WorkDate()));
         PurchaseHeader.Modify(true);
         CreateUnrealVATPostingSetup(VATPostingSetup);
         SetUnrealVATSetupOnSalesPrepmtAccount(PurchaseLine."Pay-to Vendor No.", VATPostingSetup);
         PmtNo :=
-          CreatePostPrepayment(WorkDate, PurchaseHeader."Pay-to Vendor No.", '', PurchaseLine."Amount Including VAT");
+          CreatePostPrepayment(WorkDate(), PurchaseHeader."Pay-to Vendor No.", '', PurchaseLine."Amount Including VAT");
         InvNo := PostInvoice(PurchaseLine);
         exit(PurchaseLine."Amount Including VAT");
     end;
@@ -1080,7 +1080,7 @@
     begin
         PurchPayablesSetup.Get();
         PurchPayablesSetup.TestField("Posted Invoice Nos.");
-        exit(NoSeriesManagement.GetNextNo(PurchPayablesSetup."Posted Invoice Nos.", WorkDate, false));
+        exit(NoSeriesManagement.GetNextNo(PurchPayablesSetup."Posted Invoice Nos.", WorkDate(), false));
     end;
 
     local procedure GetReceiptDocNo(VendorNo: Code[20]; ItemNo: Code[20]): Code[20]
@@ -1149,7 +1149,7 @@
         ExpectedAmount: Decimal;
     begin
         ExpectedAmount :=
-          Round(CorrAmount * GetExchRateDiff(CurrencyCode, WorkDate, PostingDate));
+          Round(CorrAmount * GetExchRateDiff(CurrencyCode, WorkDate(), PostingDate));
         if IsCancelPrepmt then begin
             ExpectedDocType := VendLedgEntry."Document Type"::Refund;
             ExpectedDocNo := RefundNo;
@@ -1197,7 +1197,7 @@
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.TestField("Posted Invoice Nos.");
         InvNo :=
-          NoSeriesManagement.GetNextNo(PurchasesPayablesSetup."Posted Invoice Nos.", WorkDate, false);
+          NoSeriesManagement.GetNextNo(PurchasesPayablesSetup."Posted Invoice Nos.", WorkDate(), false);
 
         LibraryERM.FindVendorLedgerEntry(VendLedgEntry, DocType, DocNo);
         Vendor.Get(VendLedgEntry."Vendor No.");
@@ -1246,8 +1246,8 @@
     begin
         LibraryVariableStorage.Dequeue(VendVATInvNo);
         VendorVATInvoiceReportHandler.InvoiceNo.SetValue(VendVATInvNo); // Vendor VAT Invoice No.
-        VendorVATInvoiceReportHandler.InvoiceDate.SetValue(WorkDate);  // Vendor VAT Invoice Date
-        VendorVATInvoiceReportHandler.InvoiceRcvdDate.SetValue(WorkDate);  // Vendor VAT Invoice Rcvd Date
+        VendorVATInvoiceReportHandler.InvoiceDate.SetValue(WorkDate());  // Vendor VAT Invoice Date
+        VendorVATInvoiceReportHandler.InvoiceRcvdDate.SetValue(WorkDate());  // Vendor VAT Invoice Rcvd Date
         VendorVATInvoiceReportHandler.OK.Invoke;
     end;
 
@@ -1259,9 +1259,9 @@
         with VendLedgEntry do begin
             CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
             Assert.AreEqual(
-              0, "Remaining Amount", StrSubstNo(WrongValueErr, TableCaption, FieldCaption("Remaining Amount"), "Entry No."));
+              0, "Remaining Amount", StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Remaining Amount"), "Entry No."));
             Assert.AreEqual(
-              0, "Remaining Amt. (LCY)", StrSubstNo(WrongValueErr, TableCaption, FieldCaption("Remaining Amt. (LCY)"), "Entry No."));
+              0, "Remaining Amt. (LCY)", StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Remaining Amt. (LCY)"), "Entry No."));
         end;
     end;
 
@@ -1273,9 +1273,9 @@
         with VendLedgEntry do begin
             CalcFields(Amount, "Amount (LCY)", "Remaining Amount", "Remaining Amt. (LCY)");
             Assert.AreEqual(
-              "Remaining Amount", Amount, StrSubstNo(WrongValueErr, TableCaption, FieldCaption(Amount), "Entry No."));
+              "Remaining Amount", Amount, StrSubstNo(WrongValueErr, TableCaption(), FieldCaption(Amount), "Entry No."));
             Assert.AreEqual(
-              "Remaining Amt. (LCY)", "Amount (LCY)", StrSubstNo(WrongValueErr, TableCaption, FieldCaption("Amount (LCY)"), "Entry No."));
+              "Remaining Amt. (LCY)", "Amount (LCY)", StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Amount (LCY)"), "Entry No."));
         end;
     end;
 
@@ -1300,9 +1300,9 @@
         FindDtldVendLedgEntry(DtldVendLedgEntry, DocType, DocNo, GetEntryType(IsLoss));
         with DtldVendLedgEntry do begin
             Assert.AreEqual(
-              0, Amount, StrSubstNo(WrongValueErr, TableCaption, FieldCaption(Amount), "Entry No."));
+              0, Amount, StrSubstNo(WrongValueErr, TableCaption(), FieldCaption(Amount), "Entry No."));
             Assert.AreEqual(
-              ExpectedAmount, "Amount (LCY)", StrSubstNo(WrongValueErr, TableCaption, FieldCaption("Amount (LCY)"), "Entry No."));
+              ExpectedAmount, "Amount (LCY)", StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Amount (LCY)"), "Entry No."));
         end;
     end;
 
@@ -1317,10 +1317,10 @@
             SetRange("Vendor Ledger Entry No.", VendLedgEntry."Entry No.");
             SetRange("Prepmt. Diff.", true);
             Assert.IsTrue(
-              FindLast, StrSubstNo(EntryDoesNotExistErr, TableCaption, GetFilters));
+              FindLast, StrSubstNo(EntryDoesNotExistErr, TableCaption(), GetFilters));
             Assert.AreEqual(
               ExpectedAmount, "Amount (LCY)",
-              StrSubstNo(WrongValueErr, TableCaption, FieldCaption("Amount (LCY)"), "Entry No."));
+              StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Amount (LCY)"), "Entry No."));
         end;
     end;
 
@@ -1336,7 +1336,7 @@
             SetRange("Prepmt. Diff.", true);
             SetRange(Unapplied, true);
             Assert.IsTrue(
-              FindLast, StrSubstNo(EntryDoesNotExistErr, TableCaption, GetFilters));
+              FindLast, StrSubstNo(EntryDoesNotExistErr, TableCaption(), GetFilters));
             VendPostingGroup.Get(VendLedgEntry."Vendor Posting Group");
             VerifyGLEntry(
               DocType, DocNo, VendPostingGroup."Payables Account", "Amount (LCY)");
@@ -1374,7 +1374,7 @@
         with GLEntry do begin
             FindGLEntry(GLEntry, DocType, DocNo, GLAccNo);
             Assert.AreEqual(
-              ExpectedAmount, Amount, StrSubstNo(WrongValueErr, TableCaption, FieldCaption(Amount), "Entry No."));
+              ExpectedAmount, Amount, StrSubstNo(WrongValueErr, TableCaption(), FieldCaption(Amount), "Entry No."));
         end;
     end;
 
@@ -1409,7 +1409,7 @@
             SetRange("Document Type", DocType);
             SetRange("Document No.", DocNo);
             SetRange("G/L Account No.", GLAccNo);
-            Assert.IsTrue(IsEmpty, StrSubstNo(EntryExistsErr, TableCaption, GetFilters));
+            Assert.IsTrue(IsEmpty, StrSubstNo(EntryExistsErr, TableCaption(), GetFilters));
         end;
     end;
 

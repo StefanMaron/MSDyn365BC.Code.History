@@ -54,7 +54,7 @@
                 if "Use Expiration Dates" then
                     exit;
 
-                ValidateUseExpirationDates;
+                ValidateUseExpirationDates();
             end;
         }
         field(11; "SN Specific Tracking"; Boolean)
@@ -625,25 +625,15 @@
         {
             Caption = 'CD Specific Tracking';
             ObsoleteReason = 'Replaced by field Package Specific Tracking.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
         field(14913; "CD Warehouse Tracking"; Boolean)
         {
             Caption = 'CD Warehouse Tracking';
             ObsoleteReason = 'Replaced by field Package Warehouse Tracking.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
     }
 
@@ -661,7 +651,7 @@
 
     trigger OnDelete()
     begin
-        TestDelete;
+        TestDelete();
     end;
 
     var
@@ -685,8 +675,8 @@
 
         // join with item ledger entries for these items that have an expiration date
         ItemsWithExpirationDate.SetFilter(Expiration_Date, '<>%1', 0D);
-        if ItemsWithExpirationDate.Open then
-            if ItemsWithExpirationDate.Read then // found some problematic data
+        if ItemsWithExpirationDate.Open() then
+            if ItemsWithExpirationDate.Read() then // found some problematic data
                 Error(IgnoreExpirationDateErr, ItemsWithExpirationDate.Item_No);
     end;
 
@@ -757,17 +747,17 @@
         Item.Reset();
         Item.SetRange("Item Tracking Code", Code);
         if not Item.IsEmpty() then
-            Error(Text002, TableCaption, Code);
+            Error(Text002, TableCaption(), Code);
     end;
 
     local procedure ValidateUseExpirationDates()
     begin
         // 1. check if it is possible to ignore expiration dates
-        EnsureNoExpirationDatesExistInRelatedItemLedgerEntries;
+        EnsureNoExpirationDatesExistInRelatedItemLedgerEntries();
 
         // 2. Check for inconsistencies that may be fixed
         // a. Items with expiration calculation not empty, suggesting these items expire
-        EnsureRelatedItemsHaveNoExpirationDate;
+        EnsureRelatedItemsHaveNoExpirationDate();
 
         // b. Manual expiration date entry is required, which implies items using this tracking code should expire
         if "Man. Expir. Date Entry Reqd." then

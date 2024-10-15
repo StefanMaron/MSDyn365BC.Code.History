@@ -259,13 +259,8 @@ table 7319 "Posted Whse. Receipt Line"
         {
             Caption = 'CD No.';
             ObsoleteReason = 'Replaced by field Package No.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
     }
 
@@ -342,13 +337,12 @@ table 7319 "Posted Whse. Receipt Line"
             exit;
 
         GetLocation(PostedWhseRcptLine."Location Code");
-        if not Location."Require Put-away" then begin
+        if not Location."Require Put-away" then
             if Location.Code = '' then begin
                 WhseSetup.Get();
                 WhseSetup.TestField("Require Put-away");
             end else
                 Location.TestField("Require Put-away");
-        end;
         PostedWhseRcptLine.SetFilter(Quantity, '>0');
         PostedWhseRcptLine.SetFilter(
           Status, '<>%1', PostedWhseRcptLine.Status::"Completely Put Away");

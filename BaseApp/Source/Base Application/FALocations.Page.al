@@ -24,17 +24,17 @@ page 5617 "FA Locations"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the name of the fixed asset location.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies where the fixed asset is located.';
                 }
-                field("Employee No."; "Employee No.")
+                field("Employee No."; Rec."Employee No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of the involved employee.';
                 }
-                field("OKATO Code"; "OKATO Code")
+                field("OKATO Code"; Rec."OKATO Code")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the OKATO code associated with the fixed asset location.';

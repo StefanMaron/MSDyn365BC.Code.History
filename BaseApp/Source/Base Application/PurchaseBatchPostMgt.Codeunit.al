@@ -52,7 +52,7 @@ codeunit 1372 "Purchase Batch Post Mgt."
         PurchaseBatchPostMgt.SetBatchProcessor(BatchProcessingMgt);
         Commit();
         if PurchaseBatchPostMgt.Run(PurchaseHeader) then;
-        BatchProcessingMgt.ResetBatchID;
+        BatchProcessingMgt.ResetBatchID();
         if GuiAllowed then begin
             BatchProcessingMgt.GetErrorMessages(TempErrorMessage);
 
@@ -80,10 +80,10 @@ codeunit 1372 "Purchase Batch Post Mgt."
         PurchaseBatchPostMgt.SetBatchProcessor(BatchProcessingMgt);
         Commit();
         if PurchaseBatchPostMgt.Run(PurchaseHeader) then;
-        BatchProcessingMgt.ResetBatchID;
+        BatchProcessingMgt.ResetBatchID();
 
-        if ErrorMessageMgt.GetLastErrorID > 0 then
-            ErrorMessageHandler.ShowErrors;
+        if ErrorMessageMgt.GetLastErrorID() > 0 then
+            ErrorMessageHandler.ShowErrors();
     end;
 
     procedure GetBatchProcessor(var ResultBatchProcessingMgt: Codeunit "Batch Processing Mgt.")
@@ -165,7 +165,7 @@ codeunit 1372 "Purchase Batch Post Mgt."
         if not CheckApprovalWorkflow(PurchaseHeader) then
             exit(false);
 
-        if not PurchaseHeader.IsApprovedForPostingBatch then
+        if not PurchaseHeader.IsApprovedForPostingBatch() then
             exit(false);
 
         exit(true);
@@ -230,7 +230,7 @@ codeunit 1372 "Purchase Batch Post Mgt."
                     SkippedRecordExists := true;
                     if GetLastErrorText <> '' then begin
                         ErrorMessageManagement.LogError(PurchaseHeader.RecordId, GetLastErrorText, '');
-                        ClearLastError;
+                        ClearLastError();
                     end;
                 end;
             until PurchaseHeader.Next() = 0;

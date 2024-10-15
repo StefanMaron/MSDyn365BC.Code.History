@@ -8,7 +8,7 @@
                   TableData "Service Item" = rm,
                   TableData "Price List Header" = rd,
                   TableData "Price List Line" = rd,
-#if not CLEAN19
+#if not CLEAN21
                   TableData "Purchase Price" = rd,
                   TableData "Purchase Line Discount" = rd,
 #endif
@@ -77,10 +77,13 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                OnBeforeValidateCity(Rec, PostCode);
-
-                PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
 
                 OnAfterValidateCity(Rec, xRec);
             end;
@@ -104,7 +107,7 @@
                     if Cont.Get("Primary Contact No.") then;
                 if PAGE.RunModal(0, Cont) = ACTION::LookupOK then begin
                     TempVend.Copy(Rec);
-                    Find;
+                    Find();
                     TransferFields(TempVend, false);
                     Validate("Primary Contact No.", Cont."No.");
                 end;
@@ -112,10 +115,10 @@
 
             trigger OnValidate()
             begin
-                if RMSetup.Get then
+                if RMSetup.Get() then
                     if RMSetup."Bus. Rel. Code for Vendors" <> '' then begin
                         if (xRec.Contact = '') and (xRec."Primary Contact No." = '') and (Contact <> '') then begin
-                            Modify;
+                            Modify();
                             UpdateContFromVend.OnModify(Rec);
                             UpdateContFromVend.InsertNewContactPerson(Rec, false);
                             Modify(true);
@@ -194,7 +197,7 @@
 
             trigger OnValidate()
             begin
-                UpdateCurrencyId;
+                UpdateCurrencyId();
             end;
         }
         field(24; "Language Code"; Code[10])
@@ -213,7 +216,7 @@
 
             trigger OnValidate()
             begin
-                UpdatePaymentTermsId;
+                UpdatePaymentTermsId();
             end;
         }
         field(28; "Fin. Charge Terms Code"; Code[10])
@@ -228,7 +231,7 @@
 
             trigger OnValidate()
             begin
-                ValidatePurchaserCode;
+                ValidatePurchaserCode();
             end;
         }
         field(30; "Shipment Method Code"; Code[10])
@@ -302,7 +305,7 @@
 
             trigger OnValidate()
             begin
-                UpdatePaymentMethodId;
+                UpdatePaymentMethodId();
             end;
         }
         field(53; "Last Modified Date Time"; DateTime)
@@ -643,7 +646,7 @@
                     exit;
                 "VAT Registration No." := UpperCase("VAT Registration No.");
                 if "VAT Registration No." <> xRec."VAT Registration No." then
-                    VATRegistrationValidation;
+                    VATRegistrationValidation();
             end;
         }
         field(88; "Gen. Bus. Posting Group"; Code[20])
@@ -697,10 +700,13 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                OnBeforeValidatePostCode(Rec, PostCode);
-
-                PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
 
                 OnAfterValidatePostCode(Rec, xRec);
             end;
@@ -951,7 +957,7 @@
                 if "IC Partner Code" <> '' then begin
                     ICPartner.Get("IC Partner Code");
                     if (ICPartner."Vendor No." <> '') and (ICPartner."Vendor No." <> "No.") then
-                        Error(Text008, FieldCaption("IC Partner Code"), "IC Partner Code", TableCaption, ICPartner."Vendor No.");
+                        Error(Text008, FieldCaption("IC Partner Code"), "IC Partner Code", TableCaption(), ICPartner."Vendor No.");
                     ICPartner."Vendor No." := "No.";
                     ICPartner.Modify();
                 end;
@@ -1136,7 +1142,7 @@
                     if Cont.Get("Primary Contact No.") then;
                 if PAGE.RunModal(0, Cont) = ACTION::LookupOK then begin
                     TempVend.Copy(Rec);
-                    Find;
+                    Find();
                     TransferFields(TempVend, false);
                     Validate("Primary Contact No.", Cont."No.");
                 end;
@@ -1415,7 +1421,7 @@
 
             trigger OnValidate()
             begin
-                UpdateCurrencyCode;
+                UpdateCurrencyCode();
             end;
         }
         field(8002; "Payment Terms Id"; Guid)
@@ -1425,7 +1431,7 @@
 
             trigger OnValidate()
             begin
-                UpdatePaymentTermsCode;
+                UpdatePaymentTermsCode();
             end;
         }
         field(8003; "Payment Method Id"; Guid)
@@ -1435,7 +1441,7 @@
 
             trigger OnValidate()
             begin
-                UpdatePaymentMethodCode;
+                UpdatePaymentMethodCode();
             end;
         }
         field(8510; "Over-Receipt Code"; Code[20])
@@ -1825,29 +1831,29 @@
             UpdateContFromVend.OnInsert(Rec);
 
         if "Purchaser Code" = '' then
-            SetDefaultPurchaser;
+            SetDefaultPurchaser();
 
         DimMgt.UpdateDefaultDim(
           DATABASE::Vendor, "No.",
           "Global Dimension 1 Code", "Global Dimension 2 Code");
 
-        UpdateReferencedIds;
-        SetLastModifiedDateTime;
+        UpdateReferencedIds();
+        SetLastModifiedDateTime();
 
         OnAfterOnInsert(Rec);
     end;
 
     trigger OnModify()
     begin
-        UpdateReferencedIds;
-        SetLastModifiedDateTime;
+        UpdateReferencedIds();
+        SetLastModifiedDateTime();
 
-        if IsContactUpdateNeeded then begin
-            Modify;
+        if IsContactUpdateNeeded() then begin
+            Modify();
             UpdateContFromVend.OnModify(Rec);
-            if not Find then begin
-                Reset;
-                if Find then;
+            if not Find() then begin
+                Reset();
+                if Find() then;
             end;
         end;
     end;
@@ -1865,7 +1871,7 @@
         DimMgt.RenameDefaultDim(DATABASE::Vendor, xRec."No.", "No.");
         CommentLine.RenameCommentLine(CommentLine."Table Name"::Vendor, xRec."No.", "No.");
 
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
         if xRec."Invoice Disc. Code" = xRec."No." then
             "Invoice Disc. Code" := "No.";
 
@@ -1873,8 +1879,6 @@
     end;
 
     var
-        Text000: Label 'You cannot delete %1 %2 because there is at least one outstanding Purchase %3 for this vendor.';
-        Text003: Label 'Do you wish to create a contact for %1 %2?';
         PurchSetup: Record "Purchases & Payables Setup";
         CommentLine: Record "Comment Line";
         PostCode: Record "Post Code";
@@ -1895,6 +1899,9 @@
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         CalendarManagement: Codeunit "Calendar Management";
         InsertFromContact: Boolean;
+
+        Text000: Label 'You cannot delete %1 %2 because there is at least one outstanding Purchase %3 for this vendor.';
+        Text003: Label 'Do you wish to create a contact for %1 %2?';
         Text004: Label 'Contact %1 %2 is not related to vendor %3 %4.';
         Text005: Label 'post';
         Text006: Label 'create';
@@ -1946,7 +1953,7 @@
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
         if not IsTemporary then begin
             DimMgt.SaveDefaultDim(DATABASE::Vendor, "No.", FieldNumber, ShortcutDimCode);
-            Modify;
+            Modify();
         end;
 
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
@@ -1973,7 +1980,7 @@
             ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Vendor);
             ContBusRel.SetRange("No.", "No.");
             if not ContBusRel.FindFirst() then begin
-                if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text003, TableCaption, "No."), true) then
+                if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text003, TableCaption(), "No."), true) then
                     exit;
                 UpdateContFromVend.InsertNewContact(Rec, false);
                 ContBusRel.FindFirst();
@@ -2127,7 +2134,7 @@
     begin
         OnLineMapSetup.SetRange(Enabled, true);
         if OnLineMapSetup.FindFirst() then
-            OnlineMapManagement.MakeSelection(DATABASE::Vendor, GetPosition)
+            OnlineMapManagement.MakeSelection(DATABASE::Vendor, GetPosition())
         else
             Message(OnLineMapMustBeFilledMsg);
     end;
@@ -2145,10 +2152,10 @@
 
         VendLedgEntryRemainAmtQuery.SetRange(Vendor_No, "No.");
         VendLedgEntryRemainAmtQuery.SetRange(IsOpen, true);
-        VendLedgEntryRemainAmtQuery.SetFilter(Due_Date, '<%1', WorkDate);
-        VendLedgEntryRemainAmtQuery.Open;
+        VendLedgEntryRemainAmtQuery.SetFilter(Due_Date, '<%1', WorkDate());
+        VendLedgEntryRemainAmtQuery.Open();
 
-        if VendLedgEntryRemainAmtQuery.Read then
+        if VendLedgEntryRemainAmtQuery.Read() then
             OverDueBalance := -VendLedgEntryRemainAmtQuery.Sum_Remaining_Amt_LCY;
     end;
 
@@ -2193,7 +2200,7 @@
 
         exit(
           "Balance (LCY)" + "Outstanding Orders (LCY)" +
-          "Amt. Rcd. Not Invoiced (LCY)" + "Outstanding Invoices (LCY)" - GetInvoicedPrepmtAmountLCY);
+          "Amt. Rcd. Not Invoiced (LCY)" + "Outstanding Invoices (LCY)" - GetInvoicedPrepmtAmountLCY());
     end;
 
     [Scope('OnPrem')]
@@ -2403,7 +2410,7 @@
                 if Abs(VendorTextLenght - StrLen(Vendor.Name)) <= Treshold then
                     if TypeHelper.TextDistance(UpperCase(VendorText), UpperCase(Vendor.Name)) <= Treshold then
                         Vendor.Mark(true);
-            until Vendor.Mark or (Vendor.Next() = 0) or (VendorCount > 1000);
+            until Vendor.Mark() or (Vendor.Next() = 0) or (VendorCount > 1000);
         Vendor.MarkedOnly(true);
     end;
 
@@ -2429,7 +2436,7 @@
             exit(Vendor."No.");
         Vendor.SetRange("No.", Vendor."No.");
         VendorCard.SetTableView(Vendor);
-        if not (VendorCard.RunModal = ACTION::OK) then
+        if not (VendorCard.RunModal() = ACTION::OK) then
             Error(SelectVendorErr);
 
         exit(Vendor."No.");
@@ -2445,7 +2452,7 @@
         VendorList.SetTableView(Vendor);
         VendorList.SetRecord(Vendor);
         VendorList.LookupMode := true;
-        if VendorList.RunModal = ACTION::LookupOK then
+        if VendorList.RunModal() = ACTION::LookupOK then
             VendorList.GetRecord(Vendor)
         else
             Clear(Vendor);
@@ -2467,7 +2474,7 @@
         VendorLookup.SetTableView(Vendor);
         VendorLookup.SetRecord(Vendor);
         VendorLookup.LookupMode := true;
-        Result := VendorLookup.RunModal = ACTION::LookupOK;
+        Result := VendorLookup.RunModal() = ACTION::LookupOK;
         if Result then
             VendorLookup.GetRecord(Vendor)
         else
@@ -2620,7 +2627,7 @@
             ApplicableCountryCode := "Country/Region Code";
             if ApplicableCountryCode = '' then
                 ApplicableCountryCode := VATRegistrationNoFormat."Country/Region Code";
-            if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then begin
+            if VATRegNoSrvConfig.VATRegNoSrvIsEnabled() then begin
                 LogNotVerified := false;
                 VATRegistrationLogMgt.ValidateVATRegNoWithVIES(
                     ResultRecordRef, Rec, "No.", VATRegistrationLog."Account Type"::Vendor.AsInteger(), ApplicableCountryCode);
@@ -2729,15 +2736,15 @@
         if IsTemporary then
             exit;
 
-        if not GraphMgtGeneralTools.IsApiEnabled then
+        if not GraphMgtGeneralTools.IsApiEnabled() then
             exit;
 
         if Rec."Currency Code" <> PrevVendor."Currency Code" then
-            UpdateCurrencyId;
+            UpdateCurrencyId();
         if Rec."Payment Terms Code" <> PrevVendor."Payment Terms Code" then
-            UpdatePaymentTermsId;
+            UpdatePaymentTermsId();
         if Rec."Payment Method Code" <> PrevVendor."Payment Method Code" then
-            UpdatePaymentMethodId;
+            UpdatePaymentMethodId();
     end;
 
     procedure GetReferencedIds(var TempField: Record "Field" temporary)
@@ -2868,12 +2875,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateCity(var Vendor: Record Vendor; var PostCodeRec: Record "Post Code")
+    local procedure OnBeforeValidateCity(var Vendor: Record Vendor; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidatePostCode(var Vendor: Record Vendor; var PostCodeRec: Record "Post Code")
+    local procedure OnBeforeValidatePostCode(var Vendor: Record Vendor; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -2932,7 +2939,7 @@
     begin
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     [Scope('OnPrem')]
     procedure ValidatePricesIncludingVATOnAfterGetVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")

@@ -411,7 +411,7 @@
                 ItemLedgEntry.TestField("Variant Code", "Variant Code");
                 ItemLedgEntry.TestTrackingEqualToTrackingSpec(Rec);
 
-                OnAfterValidateApplFromItemEntry(Rec, ItemLedgEntry, IsReclass);
+                OnAfterValidateApplFromItemEntry(Rec, ItemLedgEntry, IsReclass());
             end;
         }
         field(5817; Correction; Boolean)
@@ -468,25 +468,15 @@
         {
             Caption = 'CD No.';
             ObsoleteReason = 'Replaced by field Package No.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
         field(14901; "New CD No."; Code[30])
         {
             Caption = 'New CD No.';
             ObsoleteReason = 'Replaced by field New Package No.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
     }
 
@@ -532,16 +522,17 @@
     end;
 
     var
-        Text000: Label 'You cannot invoice more than %1 units.';
-        Text001: Label 'You cannot handle more than %1 units.';
-        Text002: Label 'must not be less than %1';
-        Text003: Label '%1 must be -1, 0 or 1 when %2 is stated.';
-        Text004: Label 'Expiration date has been established by existing entries and cannot be changed.';
         CachedItem: Record Item;
         CachedItemTrackingCode: Record "Item Tracking Code";
         WMSManagement: Codeunit "WMS Management";
         UOMMgt: Codeunit "Unit of Measure Management";
         SkipSerialNoQtyValidation: Boolean;
+
+        Text000: Label 'You cannot invoice more than %1 units.';
+        Text001: Label 'You cannot handle more than %1 units.';
+        Text002: Label 'must not be less than %1';
+        Text003: Label '%1 must be -1, 0 or 1 when %2 is stated.';
+        Text004: Label 'Expiration date has been established by existing entries and cannot be changed.';
         RemainingQtyErr: Label 'The %1 in item ledger entry %2 is too low to cover quantity available to handle.';
         WrongQtyForItemErr: Label '%1 in the item tracking assigned to the document line for item %2 is currently %3. It must be %4.\\Check the assignment for serial number %5, lot number %6.', Comment = '%1 - Qty. to Handle or Qty. to Invoice, %2 - Item No., %3 - actual value, %4 - expected value, %5 - Serial No., %6 - Lot No.';
 
@@ -655,6 +646,21 @@
         OnAfterInitFromJobJnlLine(Rec, JobJnlLine);
     end;
 
+    procedure InitFromJobPlanningLine(var JobPlanningLine: Record "Job Planning Line")
+    begin
+        Init();
+        SetItemData(
+            JobPlanningLine."No.", JobPlanningLine.Description, JobPlanningLine."Location Code", JobPlanningLine."Variant Code",
+            JobPlanningLine."Bin Code", JobPlanningLine."Qty. per Unit of Measure", JobPlanningLine."Qty. Rounding Precision (Base)");
+        SetSource(
+            DATABASE::"Job Planning Line", JobPlanningLine.Status.AsInteger(), JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.", '', 0);
+        SetQuantities(
+            JobPlanningLine."Remaining Qty. (Base)", JobPlanningLine."Remaining Qty.", JobPlanningLine."Remaining Qty. (Base)",
+            JobPlanningLine."Remaining Qty.", JobPlanningLine."Remaining Qty. (Base)",
+            JobPlanningLine."Quantity" - JobPlanningLine."Remaining Qty.",
+            JobPlanningLine."Quantity (Base)" - JobPlanningLine."Remaining Qty. (Base)");
+    end;
+
     procedure InitFromPurchLine(PurchLine: Record "Purchase Line")
     begin
         Init();
@@ -663,7 +669,7 @@
           PurchLine."Qty. per Unit of Measure", PurchLine."Qty. Rounding Precision (Base)");
         SetSource(
           DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No.", '', 0);
-        if PurchLine.IsCreditDocType then
+        if PurchLine.IsCreditDocType() then
             SetQuantities(
               PurchLine."Quantity (Base)", PurchLine."Return Qty. to Ship", PurchLine."Return Qty. to Ship (Base)",
               PurchLine."Qty. to Invoice", PurchLine."Qty. to Invoice (Base)", PurchLine."Return Qty. Shipped (Base)",
@@ -722,7 +728,7 @@
         SetSource(DATABASE::"Planning Component", 0, PlanningComponent."Worksheet Template Name", PlanningComponent."Line No.",
           PlanningComponent."Worksheet Batch Name", PlanningComponent."Worksheet Line No.");
         NetQuantity :=
-          Round(PlanningComponent."Net Quantity (Base)" / PlanningComponent."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+          Round(PlanningComponent."Net Quantity (Base)" / PlanningComponent."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
         SetQuantities(
           PlanningComponent."Net Quantity (Base)", NetQuantity, PlanningComponent."Net Quantity (Base)", NetQuantity,
           PlanningComponent."Net Quantity (Base)", 0, 0);
@@ -751,7 +757,7 @@
           SalesLine."Qty. per Unit of Measure", SalesLine."Qty. Rounding Precision (Base)");
         SetSource(
           DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", '', 0);
-        if SalesLine.IsCreditDocType then
+        if SalesLine.IsCreditDocType() then
             SetQuantities(
               SalesLine."Quantity (Base)", SalesLine."Return Qty. to Receive", SalesLine."Return Qty. to Receive (Base)",
               SalesLine."Qty. to Invoice", SalesLine."Qty. to Invoice (Base)", SalesLine."Return Qty. Received (Base)",
@@ -861,7 +867,7 @@
     begin
         if "Qty. per Unit of Measure" = 0 then
             "Qty. per Unit of Measure" := 1;
-        exit(Round(BaseQty / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
+        exit(Round(BaseQty / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
     end;
 
     procedure CopySpecification(var TempTrackingSpecification: Record "Tracking Specification" temporary)

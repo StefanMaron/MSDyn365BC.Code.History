@@ -84,6 +84,25 @@ codeunit 130512 "Library - Purchase"
         OrderAddress.Insert(true);
     end;
 
+    procedure CreateRemitToAddress(var RemitToAddress: Record "Remit Address"; VendorNo: Code[20])
+    var
+        PostCode: Record "Post Code";
+    begin
+        LibraryERM.CreatePostCode(PostCode);
+        RemitToAddress.Init();
+        RemitToAddress.Validate("Vendor No.", VendorNo);
+        RemitToAddress.Validate(
+          Code,
+          CopyStr(
+            LibraryUtility.GenerateRandomCode(RemitToAddress.FieldNo(Code), DATABASE::"Remit Address"),
+            1,
+            LibraryUtility.GetFieldLength(DATABASE::"Remit Address", RemitToAddress.FieldNo(Code))));
+        RemitToAddress.Validate(Name, LibraryUtility.GenerateRandomText(MaxStrLen(RemitToAddress.Name)));
+        RemitToAddress.Validate(Address, LibraryUtility.GenerateRandomText(MaxStrLen(RemitToAddress.Address)));
+        RemitToAddress.Validate("Post Code", PostCode.Code);
+        RemitToAddress.Insert(true);
+    end;
+
     procedure CreatePrepaymentVATSetup(var LineGLAccount: Record "G/L Account"; VATCalculationType: Enum "Tax Calculation Type"): Code[20]
     var
         PrepmtGLAccount: Record "G/L Account";
@@ -241,17 +260,12 @@ codeunit 130512 "Library - Purchase"
     end;
 
     procedure CreatePurchaseQuote(var PurchaseHeader: Record "Purchase Header")
-    begin
-        CreatePurchaseQuoteForVendor(PurchaseHeader, CreateVendorNo());
-    end;
-
-    procedure CreatePurchaseQuoteForVendor(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
     begin
-        CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Quote, VendorNo);
+        CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Quote, CreateVendorNo);
         CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 99, 2));
@@ -274,15 +288,10 @@ codeunit 130512 "Library - Purchase"
     end;
 
     procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header")
-    begin
-        CreatePurchaseOrderForVendorNo(PurchaseHeader, CreateVendorNo());
-    end;
-
-    procedure CreatePurchaseOrderForVendorNo(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
+        CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendorNo);
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 100, 2));
         PurchaseLine.Modify(true);
@@ -580,7 +589,7 @@ codeunit 130512 "Library - Purchase"
     begin
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         CurrencyFactor := LibraryRandom.RandInt(100);
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(CalcDate('<-1Y>', WorkDate), CurrencyFactor, CurrencyFactor);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(CalcDate('<-1Y>', WorkDate()), CurrencyFactor, CurrencyFactor);
         CreateVendor(Vendor);
         with Vendor do begin
             Validate("Currency Code", CurrencyCode);
@@ -621,7 +630,7 @@ codeunit 130512 "Library - Purchase"
     procedure CreatePurchaseHeaderPostingJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; PurchaseHeader: Record "Purchase Header")
     begin
         JobQueueEntry.Init();
-        JobQueueEntry.ID := CreateGuid;
+        JobQueueEntry.ID := CreateGuid();
         JobQueueEntry."Earliest Start Date/Time" := CreateDateTime(Today, 0T);
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := CODEUNIT::"Purchase Post via Job Queue";
@@ -1045,7 +1054,7 @@ codeunit 130512 "Library - Purchase"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         with PurchasesPayablesSetup do begin
-            Get;
+            Get();
             Validate("Order Nos.", LibraryERM.CreateNoSeriesCode);
             Modify(true);
         end;
@@ -1054,7 +1063,7 @@ codeunit 130512 "Library - Purchase"
     procedure SetPostedNoSeriesInSetup()
     begin
         with PurchasesPayablesSetup do begin
-            Get;
+            Get();
             Validate("Posted Invoice Nos.", LibraryERM.CreateNoSeriesCode);
             Validate("Posted Receipt Nos.", LibraryERM.CreateNoSeriesCode);
             Validate("Posted Credit Memo Nos.", LibraryERM.CreateNoSeriesCode);
@@ -1065,7 +1074,7 @@ codeunit 130512 "Library - Purchase"
     procedure SetQuoteNoSeriesInSetup()
     begin
         with PurchasesPayablesSetup do begin
-            Get;
+            Get();
             Validate("Quote Nos.", LibraryERM.CreateNoSeriesCode);
             Modify(true);
         end;
@@ -1074,7 +1083,7 @@ codeunit 130512 "Library - Purchase"
     procedure SetReturnOrderNoSeriesInSetup()
     begin
         with PurchasesPayablesSetup do begin
-            Get;
+            Get();
             Validate("Return Order Nos.", LibraryERM.CreateNoSeriesCode);
             Validate("Posted Return Shpt. Nos.", LibraryERM.CreateNoSeriesCode);
             Modify(true);
@@ -1084,7 +1093,7 @@ codeunit 130512 "Library - Purchase"
     procedure SetCopyCommentsOrderToInvoiceInSetup(CopyCommentsOrderToInvoice: Boolean)
     begin
         with PurchasesPayablesSetup do begin
-            Get;
+            Get();
             Validate("Copy Comments Order to Invoice", CopyCommentsOrderToInvoice);
             Modify(true);
         end;
@@ -1116,7 +1125,7 @@ codeunit 130512 "Library - Purchase"
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
-        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.ShowPostedConfirmationMessageCode);
+        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.ShowPostedConfirmationMessageCode());
     end;
 
     procedure DisableWarningOnCloseUnreleasedDoc()
@@ -1128,7 +1137,7 @@ codeunit 130512 "Library - Purchase"
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
-        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
+        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode());
     end;
 
     procedure EnablePurchSetupIgnoreUpdatedAddresses()
@@ -1168,7 +1177,7 @@ codeunit 130512 "Library - Purchase"
         VATLedger.Validate("End Date", EndDate);
         VATLedger.Insert(true);
 
-        VATLedger.SetRecFilter;
+        VATLedger.SetRecFilter();
         CreateVATPurchaseLedger.SetTableView(VATLedger);
         CreateVATPurchaseLedger.UseRequestPage(false);
         CreateVATPurchaseLedger.SetParameters(VendFilter, '', '', 0, UseExtDocNo, false, 0, 0, true, true, true, ShowCustomerPrepayments);
@@ -1190,7 +1199,7 @@ codeunit 130512 "Library - Purchase"
         VATLedger.SetRange(Code, VATLedgerCode);
         VATLedger.FindFirst();
 
-        VATLedger.SetRecFilter;
+        VATLedger.SetRecFilter();
 
         VATPurchaseLedgerCard.Trap;
 
@@ -1221,7 +1230,7 @@ codeunit 130512 "Library - Purchase"
         VATLedger.SetRange(Code, VATLedgerCode);
         VATLedger.FindFirst();
 
-        VATLedger.SetRecFilter;
+        VATLedger.SetRecFilter();
         VATLedgerExport.InitializeReport(VATLedger.Type::Purchase, VATLedgerCode, AddSheet);
         VATLedgerExport.SetFileNameSilent(FileName);
         VATLedgerExport.SetTableView(VATLedger);

@@ -150,8 +150,6 @@ page 99000921 "Demand Forecast Names"
                 ApplicationArea = Planning;
                 Caption = 'Edit Demand Forecast';
                 Image = EditForecast;
-                Promoted = true;
-                PromotedCategory = Process;
                 ShortCutKey = 'Return';
                 ToolTip = 'Open the related demand forecast.';
 
@@ -181,8 +179,6 @@ page 99000921 "Demand Forecast Names"
                 Caption = 'Copy Demand Forecast Entries';
                 Ellipsis = true;
                 Image = CopyForecast;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Report "Copy Production Forecast";
                 ToolTip = 'Copy an existing demand forecast to quickly create a similar forecast.';
             }
@@ -194,12 +190,27 @@ page 99000921 "Demand Forecast Names"
                 ApplicationArea = Planning;
                 Caption = 'Demand Forecast Entries';
                 Image = Forecast;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Demand Forecast Entries";
                 RunPageMode = View;
                 RunPageLink = "Production Forecast Name" = field(Name);
                 ToolTip = 'Opens a page with the demand forecast entries for the specified production forecast.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Edit Demand Forecast_Promoted"; "Edit Demand Forecast")
+                {
+                }
+                actionref("Copy Demand Forecast_Promoted"; "Copy Demand Forecast")
+                {
+                }
+                actionref("Demand Forecast Entries_Promoted"; "Demand Forecast Entries")
+                {
+                }
             }
         }
     }

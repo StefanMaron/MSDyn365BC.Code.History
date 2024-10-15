@@ -107,7 +107,7 @@ codeunit 144722 "ERM Bill of Lading Report"
         with SalesHeader do begin
             "Location Code" := CreateLocationCode;
             "Shipping Agent Code" := CreateShippingAgentCode;
-            Modify;
+            Modify();
         end;
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
@@ -123,7 +123,7 @@ codeunit 144722 "ERM Bill of Lading Report"
             City := LibraryUtility.GenerateGUID();
             Address := LibraryUtility.GenerateGUID();
             "Address 2" := LibraryUtility.GenerateGUID();
-            Modify;
+            Modify();
             exit(Code);
         end;
     end;
@@ -135,7 +135,7 @@ codeunit 144722 "ERM Bill of Lading Report"
         LibraryERM.CreateCountryRegion(CountryRegion);
         with CountryRegion do begin
             "Local Name" := LibraryUtility.GenerateGUID();
-            Modify;
+            Modify();
             exit(Code);
         end;
     end;
@@ -147,7 +147,7 @@ codeunit 144722 "ERM Bill of Lading Report"
         LibraryInventory.CreateShippingAgent(ShippingAgent);
         with ShippingAgent do begin
             Name := LibraryUtility.GenerateGUID();
-            Modify;
+            Modify();
             exit(Code);
         end;
     end;

@@ -28,7 +28,7 @@ table 337 "Reservation Entry"
 
             trigger OnValidate()
             begin
-                Quantity := CalcReservationQuantity;
+                Quantity := CalcReservationQuantity();
                 "Qty. to Handle (Base)" := "Quantity (Base)";
                 "Qty. to Invoice (Base)" := "Quantity (Base)";
             end;
@@ -124,7 +124,7 @@ table 337 "Reservation Entry"
 
             trigger OnValidate()
             begin
-                Quantity := Round("Quantity (Base)" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                Quantity := Round("Quantity (Base)" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
             end;
         }
         field(30; Quantity; Decimal)
@@ -244,25 +244,15 @@ table 337 "Reservation Entry"
         {
             Caption = 'CD No.';
             ObsoleteReason = 'Replaced by field Package No.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
         field(14901; "New CD No."; Code[30])
         {
             Caption = 'New CD No.';
             ObsoleteReason = 'Replaced by field New Package No.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
     }
 
@@ -313,7 +303,7 @@ table 337 "Reservation Entry"
         }
         key(Key11; "Serial No.", "Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line")
         {
-            SumIndexFields = "Quantity (Base)";
+            IncludedFields = "Quantity (Base)";
         }
     }
 
@@ -334,9 +324,10 @@ table 337 "Reservation Entry"
     end;
 
     var
+        UOMMgt: Codeunit "Unit of Measure Management";
+
         Text001: Label 'Line';
         Text004: Label 'Codeunit 99000845: Illegal FieldFilter parameter';
-        UOMMgt: Codeunit "Unit of Measure Management";
 
     procedure GetLastEntryNo(): Integer;
     var
@@ -347,7 +338,7 @@ table 337 "Reservation Entry"
 
     procedure InitSortingAndFilters(SetFilters: Boolean)
     begin
-        Reset;
+        Reset();
         SetCurrentKey(
           "Source ID", "Source Ref. No.", "Source Type", "Source Subtype",
           "Source Batch Name", "Source Prod. Order Line", "Reservation Status",
@@ -414,7 +405,7 @@ table 337 "Reservation Entry"
         end;
     end;
 
-    procedure HasSamePointer(ReservEntry: Record "Reservation Entry"): Boolean
+    procedure HasSamePointer(var ReservEntry: Record "Reservation Entry"): Boolean
     begin
         exit(
           ("Source Type" = ReservEntry."Source Type") and
@@ -425,7 +416,7 @@ table 337 "Reservation Entry"
           ("Source Ref. No." = ReservEntry."Source Ref. No."));
     end;
 
-    procedure HasSamePointerWithSpec(TrackingSpecification: Record "Tracking Specification"): Boolean
+    procedure HasSamePointerWithSpec(var TrackingSpecification: Record "Tracking Specification"): Boolean
     begin
         exit(
           ("Source Type" = TrackingSpecification."Source Type") and
@@ -915,16 +906,16 @@ table 337 "Reservation Entry"
                     ActionMessageEntry2.TransferFromReservEntry(Rec);
                     ActionMessageEntry2.Modify();
                 until ActionMessageEntry.Next() = 0;
-            Modify;
+            Modify();
         end else
             if OldReservEntry2.Get(OldReservEntry."Entry No.", not OldReservEntry.Positive) then begin
                 if HasSamePointer(OldReservEntry2) then begin
                     OldReservEntry2.Delete();
-                    Delete;
+                    Delete();
                 end else
-                    Modify;
+                    Modify();
             end else
-                Modify;
+                Modify();
     end;
 
     procedure ClearItemTrackingFields()
@@ -950,7 +941,7 @@ table 337 "Reservation Entry"
         ReservEntry.SetRange("Reservation Status", "Reservation Status"::Reservation);
         ReservEntry.CalcSums("Quantity (Base)", Quantity);
         exit(
-          Round((ReservEntry."Quantity (Base)" + "Quantity (Base)") / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision) -
+          Round((ReservEntry."Quantity (Base)" + "Quantity (Base)") / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()) -
           ReservEntry.Quantity);
     end;
 

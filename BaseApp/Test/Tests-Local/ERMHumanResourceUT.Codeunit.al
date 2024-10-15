@@ -30,7 +30,7 @@ codeunit 147202 "ERM Human Resource UT"
         MockVendorWithPurchInvHeader(Vendor, PurchInvHeader);
         UpdateVendorWithPurchInvoicHeaderForResponsibleEmployee(Vendor, PurchInvHeader);
 
-        Vendor.SetRecFilter;
+        Vendor.SetRecFilter();
 
         ResponsibleEmployees.OpenView;
         ResponsibleEmployees.GotoRecord(Vendor);
@@ -55,7 +55,7 @@ codeunit 147202 "ERM Human Resource UT"
 
         MockVendorWithPurchInvHeader(Vendor, PurchInvHeader);
 
-        Vendor.SetRecFilter;
+        Vendor.SetRecFilter();
         Vendors.OpenView;
         Vendors.GotoRecord(Vendor);
         Vendors.Control1903435607.CuePostedInvoices.DrillDown;
@@ -72,16 +72,16 @@ codeunit 147202 "ERM Human Resource UT"
     local procedure MockVendorWithPurchInvHeader(var Vendor: Record Vendor; var PurchInvHeader: Record "Purch. Inv. Header")
     begin
         with Vendor do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
         end;
 
         with PurchInvHeader do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateGUID();
             "Buy-from Vendor No." := Vendor."No.";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -106,7 +106,7 @@ codeunit 147202 "ERM Human Resource UT"
     begin
         LibraryVariableStorage.Enqueue(Format(PostedPurchAdvanceReports."No.".Value));
         LibraryVariableStorage.Enqueue(Format(PostedPurchAdvanceReports."Buy-from Vendor No.".Value));
-        PostedPurchAdvanceReports.Close;
+        PostedPurchAdvanceReports.Close();
     end;
 
     [PageHandler]
@@ -115,7 +115,7 @@ codeunit 147202 "ERM Human Resource UT"
     begin
         LibraryVariableStorage.Enqueue(Format(PostedPurchaseInvoices."No.".Value));
         LibraryVariableStorage.Enqueue(Format(PostedPurchaseInvoices."Buy-from Vendor No.".Value));
-        PostedPurchaseInvoices.Close;
+        PostedPurchaseInvoices.Close();
     end;
 }
 

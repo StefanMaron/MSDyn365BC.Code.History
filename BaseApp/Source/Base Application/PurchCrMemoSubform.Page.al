@@ -51,13 +51,15 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
                     ShowMandatory = Type <> Type::" ";
                     ToolTip = 'Specifies the number of a general ledger account, an item, an additional cost or a fixed asset, depending on what you selected in the Type field.';
 
                     trigger OnValidate()
+                    var
+                        Item: Record "Item";
                     begin
                         ShowShortcutDimCode(ShortcutDimCode);
                         NoOnAfterValidate();
@@ -65,13 +67,17 @@
 
                         UpdateTypeText();
                         DeltaUpdateTotals();
+                        if "Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
                     end;
                 }
-                field("Item Reference No."; "Item Reference No.")
+                field("Item Reference No."; Rec."Item Reference No.")
                 {
                     AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
+                    QuickEntry = false;
                     ToolTip = 'Specifies the referenced item number.';
+                    Visible = ItemReferenceVisible;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -92,33 +98,38 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("IC Partner Code"; "IC Partner Code")
+                field("IC Partner Code"; Rec."IC Partner Code")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the code of the intercompany partner that the transaction is related to if the entry was created from an intercompany transaction.';
                     Visible = false;
                 }
-                field("IC Partner Ref. Type"; "IC Partner Ref. Type")
+                field("IC Partner Ref. Type"; Rec."IC Partner Ref. Type")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the item or account in your IC partner''s company that corresponds to the item or account on the line.';
                     Visible = false;
                 }
-                field("IC Partner Reference"; "IC Partner Reference")
+                field("IC Partner Reference"; Rec."IC Partner Reference")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the IC partner. If the line is being sent to one of your intercompany partners, this field is used together with the IC Partner Ref. Type field to indicate the item or account in your partner''s company that corresponds to the line.';
                     Visible = false;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
+                    ShowMandatory = VariantCodeMandatory;
 
                     trigger OnValidate()
+                    var
+                        Item: Record "Item";
                     begin
                         DeltaUpdateTotals();
+                        if "Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
                     end;
                 }
                 field(Nonstock; Nonstock)
@@ -127,7 +138,7 @@
                     ToolTip = 'Specifies that this item is a catalog item.';
                     Visible = false;
                 }
-                field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
+                field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vendor''s or customer''s trade type to link transactions made for this business partner with the appropriate general ledger account according to the general posting setup.';
@@ -138,7 +149,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
@@ -149,7 +160,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
+                field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vendor''s VAT specification to link transactions made for this vendor with the appropriate general ledger account according to the VAT posting setup.';
@@ -160,7 +171,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
+                field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT product posting group. Links business transactions made for the item, resource, or G/L account with the general ledger, to account for VAT amounts resulting from trade with that record.';
@@ -205,20 +216,20 @@
                         Rec.SaveLookupSelection(Selected);
                     end;
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies information in addition to the description.';
                     Visible = false;
                 }
-                field("Return Reason Code"; "Return Reason Code")
+                field("Return Reason Code"; Rec."Return Reason Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code explaining why the item was returned.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     Editable = NOT IsBlankNumber;
@@ -230,13 +241,13 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin where the items are picked or put away.';
                     Visible = false;
                 }
-                field("Employee No."; "Employee No.")
+                field("Employee No."; Rec."Employee No.")
                 {
                     ToolTip = 'Specifies the number of the involved employee.';
                     Visible = false;
@@ -257,7 +268,7 @@
                             CurrPage.Update(false);
                     end;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = UnitofMeasureCodeIsChangeable;
@@ -269,13 +280,13 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Unit of Measure"; "Unit of Measure")
+                field("Unit of Measure"; Rec."Unit of Measure")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the name of the unit of measure for the item, such as 1 bottle or 1 piece.';
                     Visible = false;
                 }
-                field("Direct Unit Cost"; "Direct Unit Cost")
+                field("Direct Unit Cost"; Rec."Direct Unit Cost")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -289,32 +300,32 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Indirect Cost %"; "Indirect Cost %")
+                field("Indirect Cost %"; Rec."Indirect Cost %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the percentage of the item''s last purchase cost that includes indirect costs, such as freight that is associated with the purchase of the item.';
                     Visible = false;
                 }
-                field("Unit Cost (LCY)"; "Unit Cost (LCY)")
+                field("Unit Cost (LCY)"; Rec."Unit Cost (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the unit cost of the item on the line.';
                     Visible = false;
                 }
-                field("Unit Price (LCY)"; "Unit Price (LCY)")
+                field("Unit Price (LCY)"; Rec."Unit Price (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the price for one unit of the item.';
                     Visible = false;
                 }
-                field("Tax Liable"; "Tax Liable")
+                field("Tax Liable"; Rec."Tax Liable")
                 {
                     ApplicationArea = SalesTax;
                     Editable = false;
                     ToolTip = 'Specifies if the customer or vendor is liable for sales tax.';
                     Visible = false;
                 }
-                field("Tax Area Code"; "Tax Area Code")
+                field("Tax Area Code"; Rec."Tax Area Code")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
@@ -324,7 +335,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Tax Group Code"; "Tax Group Code")
+                field("Tax Group Code"; Rec."Tax Group Code")
                 {
                     ApplicationArea = SalesTax;
                     Editable = NOT IsCommentLine;
@@ -337,13 +348,13 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Use Tax"; "Use Tax")
+                field("Use Tax"; Rec."Use Tax")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies that the purchase is subject to use tax. Use tax is a sales tax that is paid on items that are purchased by a company and are used by that company instead of being sold to a customer.';
                     Visible = false;
                 }
-                field("Line Discount %"; "Line Discount %")
+                field("Line Discount %"; Rec."Line Discount %")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -356,7 +367,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Line Amount"; "Line Amount")
+                field("Line Amount"; Rec."Line Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -369,7 +380,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Line Discount Amount"; "Line Discount Amount")
+                field("Line Discount Amount"; Rec."Line Discount Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -382,7 +393,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Allow Invoice Disc."; "Allow Invoice Disc.")
+                field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the invoice line is included when the invoice discount is calculated.';
@@ -393,7 +404,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Inv. Discount Amount"; "Inv. Discount Amount")
+                field("Inv. Discount Amount"; Rec."Inv. Discount Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the invoice discount amount for the line.';
@@ -404,13 +415,13 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Allow Item Charge Assignment"; "Allow Item Charge Assignment")
+                field("Allow Item Charge Assignment"; Rec."Allow Item Charge Assignment")
                 {
                     ApplicationArea = ItemCharges;
                     ToolTip = 'Specifies that you can assign item charges to this line.';
                     Visible = false;
                 }
-                field("Qty. to Assign"; "Qty. to Assign")
+                field("Qty. to Assign"; Rec."Qty. to Assign")
                 {
                     ApplicationArea = ItemCharges;
                     StyleExpr = ItemChargeStyleExpression;
@@ -423,7 +434,7 @@
                         UpdateForm(false);
                     end;
                 }
-                field("Qty. Assigned"; "Qty. Assigned")
+                field("Qty. Assigned"; Rec."Qty. Assigned")
                 {
                     ApplicationArea = ItemCharges;
                     BlankZero = true;
@@ -436,7 +447,7 @@
                         UpdateForm(false);
                     end;
                 }
-                field("Job No."; "Job No.")
+                field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the related job. If you fill in this field and the Job Task No. field, then a job ledger entry will be posted together with the purchase line.';
@@ -447,7 +458,7 @@
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
-                field("Job Task No."; "Job Task No.")
+                field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the related job task.';
@@ -458,133 +469,133 @@
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
-                field("Job Line Type"; "Job Line Type")
+                field("Job Line Type"; Rec."Job Line Type")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the type of planning line that was created when the job ledger entry is posted from the purchase line. If the field is empty, no planning lines were created for this entry.';
                     Visible = false;
                 }
-                field("Job Planning Line No."; "Job Planning Line No.")
+                field("Job Planning Line No."; Rec."Job Planning Line No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the job planning line number to which the usage should be linked when the Job Journal is posted. You can only link to Job Planning Lines that have the Apply Usage Link option enabled.';
                     Visible = false;
                 }
-                field("Job Unit Price"; "Job Unit Price")
+                field("Job Unit Price"; Rec."Job Unit Price")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the sales price per unit that applies to the item or general ledger expense that will be posted.';
                     Visible = false;
                 }
-                field("Job Line Amount"; "Job Line Amount")
+                field("Job Line Amount"; Rec."Job Line Amount")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the line amount of the job ledger entry that is related to the purchase line.';
                     Visible = false;
                 }
-                field("Job Line Discount Amount"; "Job Line Discount Amount")
+                field("Job Line Discount Amount"; Rec."Job Line Discount Amount")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the line discount amount of the job ledger entry that is related to the purchase line.';
                     Visible = false;
                 }
-                field("Job Line Discount %"; "Job Line Discount %")
+                field("Job Line Discount %"; Rec."Job Line Discount %")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the line discount percentage of the job ledger entry that is related to the purchase line.';
                     Visible = false;
                 }
-                field("Job Total Price"; "Job Total Price")
+                field("Job Total Price"; Rec."Job Total Price")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the gross amount of the line that the purchase line applies to.';
                     Visible = false;
                 }
-                field("Job Unit Price (LCY)"; "Job Unit Price (LCY)")
+                field("Job Unit Price (LCY)"; Rec."Job Unit Price (LCY)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the sales price per unit that applies to the item or general ledger expense that will be posted.';
                     Visible = false;
                 }
-                field("Job Total Price (LCY)"; "Job Total Price (LCY)")
+                field("Job Total Price (LCY)"; Rec."Job Total Price (LCY)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the gross amount of the line, in the local currency.';
                     Visible = false;
                 }
-                field("Job Line Amount (LCY)"; "Job Line Amount (LCY)")
+                field("Job Line Amount (LCY)"; Rec."Job Line Amount (LCY)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the line amount of the job ledger entry that is related to the purchase line.';
                     Visible = false;
                 }
-                field("Job Line Disc. Amount (LCY)"; "Job Line Disc. Amount (LCY)")
+                field("Job Line Disc. Amount (LCY)"; Rec."Job Line Disc. Amount (LCY)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the line discount amount of the job ledger entry that is related to the purchase line.';
                     Visible = false;
                 }
-                field("Prod. Order No."; "Prod. Order No.")
+                field("Prod. Order No."; Rec."Prod. Order No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the related production order.';
                     Visible = false;
                 }
-                field("Insurance No."; "Insurance No.")
+                field("Insurance No."; Rec."Insurance No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies an insurance number if you have selected the Acquisition Cost option in the FA Posting Type field.';
                     Visible = false;
                 }
-                field("Budgeted FA No."; "Budgeted FA No.")
+                field("Budgeted FA No."; Rec."Budgeted FA No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of a fixed asset with the Budgeted Asset check box selected. When you post the journal or document line, an additional entry is created for the budgeted fixed asset where the amount has the opposite sign.';
                     Visible = false;
                 }
-                field("FA Posting Type"; "FA Posting Type")
+                field("FA Posting Type"; Rec."FA Posting Type")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the FA posting type if you have selected Fixed Asset in the Type field for this line.';
                     Visible = false;
                 }
-                field("Depr. until FA Posting Date"; "Depr. until FA Posting Date")
+                field("Depr. until FA Posting Date"; Rec."Depr. until FA Posting Date")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies if depreciation was calculated until the FA posting date of the line.';
                     Visible = false;
                 }
-                field("Depreciation Book Code"; "Depreciation Book Code")
+                field("Depreciation Book Code"; Rec."Depreciation Book Code")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the code for the depreciation book to which the line will be posted if you have selected Fixed Asset in the Type field for this line.';
                     Visible = false;
                 }
-                field("Depr. Acquisition Cost"; "Depr. Acquisition Cost")
+                field("Depr. Acquisition Cost"; Rec."Depr. Acquisition Cost")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies if, when this line was posted, the additional acquisition cost posted on the line was depreciated in proportion to the amount by which the fixed asset had already been depreciated.';
                     Visible = false;
                 }
-                field("Blanket Order No."; "Blanket Order No.")
+                field("Blanket Order No."; Rec."Blanket Order No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the blanket order that the record originates from.';
                     Visible = false;
                 }
-                field("Blanket Order Line No."; "Blanket Order Line No.")
+                field("Blanket Order Line No."; Rec."Blanket Order Line No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the blanket order line that the record originates from.';
                     Visible = false;
                 }
-                field("Appl.-to Item Entry"; "Appl.-to Item Entry")
+                field("Appl.-to Item Entry"; Rec."Appl.-to Item Entry")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied -to.';
                     Visible = false;
                 }
-                field("Deferral Code"; "Deferral Code")
+                field("Deferral Code"; Rec."Deferral Code")
                 {
                     ApplicationArea = Suite;
                     Enabled = (Type <> Type::"Fixed Asset") AND (Type <> Type::" ");
@@ -599,13 +610,13 @@
                         ShowDeferralSchedule();
                     end;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = DimVisible1;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -707,38 +718,38 @@
                         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 8);
                     end;
                 }
-                field("Gross Weight"; "Gross Weight")
+                field("Gross Weight"; Rec."Gross Weight")
                 {
                     Caption = 'Unit Gross Weight';
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the gross weight of one unit of the item. In the purchase statistics window, the gross weight on the line is included in the total gross weight of all the lines for the particular purchase document.';
                     Visible = false;
                 }
-                field("Net Weight"; "Net Weight")
+                field("Net Weight"; Rec."Net Weight")
                 {
                     Caption = 'Unit Net Weight';
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the net weight of one unit of the item. In the purchase statistics window, the net weight on the line is included in the total net weight of all the lines for the particular purchase document.';
                     Visible = false;
                 }
-                field("Unit Volume"; "Unit Volume")
+                field("Unit Volume"; Rec."Unit Volume")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the volume of one unit of the item. In the purchase statistics window, the volume of one unit of the item on the line is included in the total volume of all the lines for the particular purchase document.';
                     Visible = false;
                 }
-                field("Units per Parcel"; "Units per Parcel")
+                field("Units per Parcel"; Rec."Units per Parcel")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of units per parcel of the item. In the purchase statistics window, the number of units per parcel on the line helps to determine the total number of units for all the lines for the particular purchase document.';
                     Visible = false;
                 }
-                field("FA Charge No."; "FA Charge No.")
+                field("FA Charge No."; Rec."FA Charge No.")
                 {
                     ToolTip = 'Specifies the fixed asset charge number associated with the purchase line.';
                     Visible = false;
                 }
-                field("Tax Difference Code"; "Tax Difference Code")
+                field("Tax Difference Code"; Rec."Tax Difference Code")
                 {
                     ToolTip = 'Specifies the tax difference code associated with the purchase line.';
                     Visible = false;
@@ -773,7 +784,7 @@
                         trigger OnValidate()
                         begin
                             ValidateInvoiceDiscountAmount();
-                            DocumentTotals.PurchaseDocTotalsNotUpToDate;
+                            DocumentTotals.PurchaseDocTotalsNotUpToDate();
                         end;
                     }
                     field("Invoice Disc. Pct."; InvoiceDiscountPct)
@@ -928,7 +939,7 @@
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByEvent)
+                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByEvent())
                         end;
                     }
                     action(Period)
@@ -940,7 +951,7 @@
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByPeriod)
+                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByPeriod())
                         end;
                     }
                     action(Variant)
@@ -952,7 +963,7 @@
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByVariant)
+                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByVariant())
                         end;
                     }
                     action(Location)
@@ -965,7 +976,7 @@
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByLocation)
+                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByLocation())
                         end;
                     }
                     action(Lot)
@@ -989,7 +1000,7 @@
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByBOM)
+                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByBOM())
                         end;
                     }
                 }
@@ -1099,11 +1110,15 @@
     end;
 
     trigger OnAfterGetRecord()
+    var
+        Item: Record Item;
     begin
         ShowShortcutDimCode(ShortcutDimCode);
         Clear(DocumentTotals);
         UpdateTypeText();
         SetItemChargeFieldsStyle();
+        if "Variant Code" = '' then
+            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1152,6 +1167,7 @@
         SetOpenPage();
 
         SetDimensionsVisibility();
+        SetItemReferenceVisibility();
     end;
 
     var
@@ -1165,6 +1181,7 @@
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         Text000: Label 'Unable to run this function while in View mode.';
         AmountWithDiscountAllowed: Decimal;
+        VariantCodeMandatory: Boolean;
         InvDiscAmountEditable: Boolean;
         UpdateAllowedVar: Boolean;
         BackgroundErrorCheck: Boolean;
@@ -1194,6 +1211,8 @@
         [InDataSet]
         IsCommentLine: Boolean;
         UnitofMeasureCodeIsChangeable: Boolean;
+        [InDataSet]
+        ItemReferenceVisible: Boolean;
 
     local procedure SetOpenPage()
     var
@@ -1215,11 +1234,11 @@
         ConfirmManagement: Codeunit "Confirm Management";
     begin
         PurchaseHeader.Get("Document Type", "Document No.");
-        if PurchaseHeader.InvoicedLineExists then
+        if PurchaseHeader.InvoicedLineExists() then
             if not ConfirmManagement.GetResponseOrDefault(UpdateInvDiscountQst, true) then
                 exit;
 
-        DocumentTotals.PurchaseDocTotalsNotUpToDate;
+        DocumentTotals.PurchaseDocTotalsNotUpToDate();
         PurchCalcDiscByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, PurchaseHeader);
         CurrPage.Update(false);
     end;
@@ -1227,19 +1246,19 @@
     procedure CalcInvDisc()
     begin
         CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", Rec);
-        DocumentTotals.PurchaseDocTotalsNotUpToDate;
+        DocumentTotals.PurchaseDocTotalsNotUpToDate();
     end;
 
     procedure ExplodeBOM()
     begin
         CODEUNIT.Run(CODEUNIT::"Purch.-Explode BOM", Rec);
-        DocumentTotals.PurchaseDocTotalsNotUpToDate;
+        DocumentTotals.PurchaseDocTotalsNotUpToDate();
     end;
 
     procedure GetReturnShipment()
     begin
         CODEUNIT.Run(CODEUNIT::"Purch.-Get Return Shipments", Rec);
-        DocumentTotals.PurchaseDocTotalsNotUpToDate;
+        DocumentTotals.PurchaseDocTotalsNotUpToDate();
     end;
 
     procedure InsertExtendedText(Unconditionally: Boolean)
@@ -1252,10 +1271,10 @@
             exit;
 
         if TransferExtendedText.PurchCheckIfAnyExtText(Rec, Unconditionally) then begin
-            CurrPage.SaveRecord;
+            CurrPage.SaveRecord();
             TransferExtendedText.InsertPurchExtText(Rec);
         end;
-        if TransferExtendedText.MakeUpdate then
+        if TransferExtendedText.MakeUpdate() then
             UpdateForm(true);
     end;
 
@@ -1284,14 +1303,14 @@
         if (Type = Type::"Charge (Item)") and ("No." <> xRec."No.") and
            (xRec."No." <> '')
         then
-            CurrPage.SaveRecord;
+            CurrPage.SaveRecord();
 
         OnAfterNoOnAfterValidate(Rec, xRec);
     end;
 
     procedure RedistributeTotalsOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
 
         DocumentTotals.PurchaseRedistributeInvoiceDiscountAmounts(Rec, VATAmount, TotalPurchaseLine);
         CurrPage.Update(false);
@@ -1330,7 +1349,7 @@
     procedure UpdateEditableOnRow()
     begin
         if Type <> Type::" " then
-            UnitofMeasureCodeIsChangeable := CanEditUnitOfMeasureCode
+            UnitofMeasureCodeIsChangeable := CanEditUnitOfMeasureCode()
         else
             UnitofMeasureCodeIsChangeable := false;
 
@@ -1361,8 +1380,15 @@
     local procedure SetItemChargeFieldsStyle()
     begin
         ItemChargeStyleExpression := '';
-        if AssignedItemCharge then
+        if AssignedItemCharge() then
             ItemChargeStyleExpression := 'Unfavorable';
+    end;
+
+    local procedure SetItemReferenceVisibility()
+    var
+        ItemReference: Record "Item Reference";
+    begin
+        ItemReferenceVisible := not ItemReference.IsEmpty();
     end;
 
     local procedure SetDimensionsVisibility()

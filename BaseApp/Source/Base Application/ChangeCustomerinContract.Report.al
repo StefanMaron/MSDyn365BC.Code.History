@@ -218,17 +218,16 @@ report 6037 "Change Customer in Contract"
             Error(Text011);
 
         if not ConfirmManagement.GetResponseOrDefault(Text002, true) then
-            CurrReport.Quit;
+            CurrReport.Quit();
 
         if TempServContract.Count > 1 then
             if not ConfirmManagement.GetResponseOrDefault(
                  StrSubstNo(Text009, TempServContract.Count, TempServItem.Count), true)
             then
-                CurrReport.Quit;
+                CurrReport.Quit();
     end;
 
     var
-        Text000: Label 'You must fill in the New Customer No. field.';
         ServContract: Record "Service Contract Header";
         Cust: Record Customer;
         ShipToAddr: Record "Ship-to Address";
@@ -239,10 +238,12 @@ report 6037 "Change Customer in Contract"
         ContractNo: Code[20];
         NewCustomerNo: Code[20];
         NewShiptoCode: Code[10];
-        Text002: Label 'If you change the customer number or the ship-to code, the related service orders and sales invoices will not be updated.\\Do you want to continue?';
-        Text004: Label '(Multiple)';
         ContractNoText: Text[20];
         ServiceItemNoText: Text[20];
+
+        Text000: Label 'You must fill in the New Customer No. field.';
+        Text002: Label 'If you change the customer number or the ship-to code, the related service orders and sales invoices will not be updated.\\Do you want to continue?';
+        Text004: Label '(Multiple)';
         Text005: Label 'Updating related objects...\\';
         Text006: Label 'Contract     ';
         Text007: Label ' from ';

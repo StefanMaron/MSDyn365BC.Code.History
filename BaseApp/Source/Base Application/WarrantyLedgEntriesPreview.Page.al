@@ -14,72 +14,72 @@ page 163 "Warranty Ledg. Entries Preview"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the document number of this entry.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the posting date on the service line linked to this entry.';
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the customer on the service order linked to this entry.';
                 }
-                field("Ship-to Code"; "Ship-to Code")
+                field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
                 }
-                field("Bill-to Customer No."; "Bill-to Customer No.")
+                field("Bill-to Customer No."; Rec."Bill-to Customer No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the customer that you send or sent the invoice or credit memo to.';
                 }
-                field("Item No. (Serviced)"; "Item No. (Serviced)")
+                field("Item No. (Serviced)"; Rec."Item No. (Serviced)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the serviced item linked to this entry.';
                 }
-                field("Serial No. (Serviced)"; "Serial No. (Serviced)")
+                field("Serial No. (Serviced)"; Rec."Serial No. (Serviced)")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the serial number of the serviced item linked to this entry.';
                 }
-                field("Service Item Group (Serviced)"; "Service Item Group (Serviced)")
+                field("Service Item Group (Serviced)"; Rec."Service Item Group (Serviced)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service item group code of the serviced item linked to this entry.';
                 }
-                field("Service Order No."; "Service Order No.")
+                field("Service Order No."; Rec."Service Order No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service order linked to this entry.';
                 }
-                field("Service Contract No."; "Service Contract No.")
+                field("Service Contract No."; Rec."Service Contract No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service contract linked to this entry.';
                 }
-                field("Fault Reason Code"; "Fault Reason Code")
+                field("Fault Reason Code"; Rec."Fault Reason Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the fault reason code of the service line linked to this entry.';
                 }
-                field("Fault Code"; "Fault Code")
+                field("Fault Code"; Rec."Fault Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the fault code of the service line linked to this entry.';
                 }
-                field("Symptom Code"; "Symptom Code")
+                field("Symptom Code"; Rec."Symptom Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the symptom code of the service line linked to this entry.';
                 }
-                field("Resolution Code"; "Resolution Code")
+                field("Resolution Code"; Rec."Resolution Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the resolution code of the service line linked to this entry.';
@@ -89,7 +89,7 @@ page 163 "Warranty Ledg. Entries Preview"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the type of the service line linked to this entry.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -99,12 +99,12 @@ page 163 "Warranty Ledg. Entries Preview"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of item units, resource hours, or cost of the service line linked to this entry.';
                 }
-                field("Work Type Code"; "Work Type Code")
+                field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the work type code of the service line linked to this entry.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
@@ -119,13 +119,13 @@ page 163 "Warranty Ledg. Entries Preview"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the description of the item on this line.';
                 }
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = Dim1Visible;
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
@@ -136,58 +136,58 @@ page 163 "Warranty Ledg. Entries Preview"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the warranty ledger entry is open.';
                 }
-                field("Vendor No."; "Vendor No.")
+                field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the vendor number of the serviced item linked to this entry.';
                 }
-                field("Vendor Item No."; "Vendor Item No.")
+                field("Vendor Item No."; Rec."Vendor Item No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number that the vendor uses for this item.';
                 }
-                field("Dimension Set ID"; "Dimension Set ID")
+                field("Dimension Set ID"; Rec."Dimension Set ID")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a reference to a combination of dimension values. The actual values are stored in the Dimension Set Entry table.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 3 Code"; "Shortcut Dimension 3 Code")
+                field("Shortcut Dimension 3 Code"; Rec."Shortcut Dimension 3 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 3, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim3Visible;
                 }
-                field("Shortcut Dimension 4 Code"; "Shortcut Dimension 4 Code")
+                field("Shortcut Dimension 4 Code"; Rec."Shortcut Dimension 4 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 4, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim4Visible;
                 }
-                field("Shortcut Dimension 5 Code"; "Shortcut Dimension 5 Code")
+                field("Shortcut Dimension 5 Code"; Rec."Shortcut Dimension 5 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 5, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim5Visible;
                 }
-                field("Shortcut Dimension 6 Code"; "Shortcut Dimension 6 Code")
+                field("Shortcut Dimension 6 Code"; Rec."Shortcut Dimension 6 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 6, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim6Visible;
                 }
-                field("Shortcut Dimension 7 Code"; "Shortcut Dimension 7 Code")
+                field("Shortcut Dimension 7 Code"; Rec."Shortcut Dimension 7 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 7, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim7Visible;
                 }
-                field("Shortcut Dimension 8 Code"; "Shortcut Dimension 8 Code")
+                field("Shortcut Dimension 8 Code"; Rec."Shortcut Dimension 8 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
@@ -230,7 +230,7 @@ page 163 "Warranty Ledg. Entries Preview"
 
                     trigger OnAction()
                     begin
-                        SetFilter("Dimension Set ID", DimensionSetIDFilter.LookupFilter);
+                        SetFilter("Dimension Set ID", DimensionSetIDFilter.LookupFilter());
                     end;
                 }
             }

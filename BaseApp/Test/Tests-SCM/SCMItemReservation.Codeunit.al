@@ -105,7 +105,7 @@ codeunit 137406 "SCM Item Reservation"
 
         // [WHEN] Run Adjust Cost Item Entries and Post Inventory Cost to General Ledger.
         LibraryCosting.AdjustCostItemEntries(ItemNo, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // [THEN] Verify G/L Entry.
         VerifyGLEntry(ProductionOrderNo, -Quantity * ProductionBOMLine."Quantity per" * ItemJournalLine."Unit Amount");
@@ -519,8 +519,8 @@ codeunit 137406 "SCM Item Reservation"
         SelectRequisitionTemplate(ReqWkshTemplate);
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
         LibraryPlanning.CalculatePlanForReqWksh(
-          Item, ReqWkshTemplate.Name, RequisitionWkshName.Name, WorkDate,
-          CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandInt(3)), WorkDate));
+          Item, ReqWkshTemplate.Name, RequisitionWkshName.Name, WorkDate(),
+          CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandInt(3)), WorkDate()));
     end;
 
     local procedure CreateAndPostItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; Quantity: Decimal)
@@ -813,7 +813,7 @@ codeunit 137406 "SCM Item Reservation"
     begin
         CreateSalesOrder(SalesLine, ItemNo, Quantity);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
-        SalesHeader.Validate("Shipment Date", CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(10)), WorkDate));
+        SalesHeader.Validate("Shipment Date", CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(10)), WorkDate()));
         SalesHeader.Modify(true);
         LibrarySales.AutoReserveSalesLine(SalesLine);
     end;
@@ -987,7 +987,7 @@ codeunit 137406 "SCM Item Reservation"
         repeat
             WarehouseActivityLine.TestField("Item No.", ItemNo);
             WarehouseActivityLine.TestField(Quantity, Quantity);
-        until WarehouseActivityLine.Next = 0;
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure VerifyWareHouseShipmentLine(ItemNo: Code[20]; SourceNo: Code[20]; Quantity: Decimal; PurchaseQuantity: Decimal)

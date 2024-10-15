@@ -112,7 +112,7 @@ codeunit 144512 "ERM Calculate VAT per Lines"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         with SalesReceivablesSetup do begin
-            Get;
+            Get();
             Validate("Calc. VAT per Line", true);
             Modify(true);
         end;
@@ -259,7 +259,7 @@ codeunit 144512 "ERM Calculate VAT per Lines"
     begin
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.SetCurrencyGainLossAccounts(Currency);
-        CreateExchangeRate(Currency.Code, WorkDate);
+        CreateExchangeRate(Currency.Code, WorkDate());
         exit(Currency.Code);
     end;
 
@@ -360,7 +360,7 @@ codeunit 144512 "ERM Calculate VAT per Lines"
         if CurrencyCode = '' then
             exit;
         Currency.Get(CurrencyCode);
-        CurrencyExchangeRate.Get(CurrencyCode, WorkDate);
+        CurrencyExchangeRate.Get(CurrencyCode, WorkDate());
         VATAmount :=
           Round(VATAmount * CurrencyExchangeRate."Relational Exch. Rate Amount", Currency."Amount Rounding Precision");
         TotalInclVAT :=

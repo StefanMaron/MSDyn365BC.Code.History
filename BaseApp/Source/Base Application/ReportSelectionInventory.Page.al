@@ -76,6 +76,7 @@ page 5754 "Report Selection - Inventory"
 
     trigger OnOpenPage()
     begin
+        InitUsageFilter();
         SetUsageFilter(false);
     end;
 
@@ -126,8 +127,59 @@ page 5754 "Report Selection - Inventory"
         CurrPage.Update();
     end;
 
+    local procedure InitUsageFilter()
+    var
+        NewReportUsage: Enum "Report Selection Usage";
+    begin
+        if Rec.GetFilter(Usage) <> '' then begin
+            if Evaluate(NewReportUsage, Rec.GetFilter(Usage)) then
+                case NewReportUsage of
+                    "Report Selection Usage"::"Inv1":
+                        ReportUsage2 := "Report Selection Usage Inventory"::"Transfer Order";
+                    "Report Selection Usage"::"Inv2":
+                        ReportUsage2 := "Report Selection Usage Inventory"::"Transfer Shipment";
+                    "Report Selection Usage"::"Inv3":
+                        ReportUsage2 := "Report Selection Usage Inventory"::"Transfer Receipt";
+                    "Report Selection Usage"::"Invt.Period Test":
+                        ReportUsage2 := "Report Selection Usage Inventory"::"Inventory Period Test";
+                    "Report Selection Usage"::"Asm.Order":
+                        ReportUsage2 := "Report Selection Usage Inventory"::"Assembly Order";
+                    "Report Selection Usage"::"P.Asm.Order":
+                        ReportUsage2 := "Report Selection Usage Inventory"::"Posted Assembly Order";
+                    "Report Selection Usage"::"Phys.Invt.Order":
+                        ReportUsage2 := "Report Selection Usage Inventory"::"Phys. Invt. Order";
+                    "Report Selection Usage"::"Phys.Invt.Order Test":
+                        ReportUsage2 := "Report Selection Usage Inventory"::"Phys. Invt. Order Test";
+                    "Report Selection Usage"::"Phys.Invt.Rec.":
+                        ReportUsage2 := "Report Selection Usage Inventory"::"Phys. Invt. Recording";
+                    "Report Selection Usage"::"P.Phys.Invt.Order":
+                        ReportUsage2 := "Report Selection Usage Inventory"::"Posted Phys. Invt. Order";
+                    "Report Selection Usage"::"P.Phys.Invt.Rec.":
+                        ReportUsage2 := "Report Selection Usage Inventory"::"Posted Phys. Invt. Recording";
+                    "Report Selection Usage"::"P.Direct Transfer":
+                        ReportUsage2 := "Report Selection Usage Inventory"::"Direct Transfer";
+                    "Report Selection Usage"::"Inventory Receipt":
+                        ReportUsage2 := "Report Selection Usage Inventory"::"Inventory Receipt";
+                    "Report Selection Usage"::"Inventory Shipment":
+                        ReportUsage2 := "Report Selection Usage Inventory"::"Inventory Shipment";
+                    "Report Selection Usage"::"P.Inventory Receipt":
+                        ReportUsage2 := "Report Selection Usage Inventory"::"Posted Inventory Receipt";
+                    "Report Selection Usage"::"P.Inventory Shipment":
+                        ReportUsage2 := "Report Selection Usage Inventory"::"Posted Inventory Shipment";
+                    else
+                        OnInitUsageFilterOnElseCase(NewReportUsage, ReportUsage2);
+                end;
+            Rec.SetRange(Usage);
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnSetUsageFilterOnAfterSetFiltersByReportUsage(var Rec: Record "Report Selections"; ReportUsage2: Enum "Report Selection Usage Inventory")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitUsageFilterOnElseCase(ReportUsage: Enum "Report Selection Usage"; var ReportUsage2: Enum "Report Selection Usage Inventory")
     begin
     end;
 }

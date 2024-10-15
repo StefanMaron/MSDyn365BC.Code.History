@@ -10,6 +10,7 @@ permissionset 7012 "Dataverse - Edit"
                   tabledata "CDS Environment" = RIMD,
                   tabledata "CDS Solution" = RIMD,
                   tabledata "CDS Teamroles" = RIMD,
+                  tabledata "Dataverse Entity Change" = RID,
                   tabledata "CRM Account" = RIMD,
                   tabledata "CRM Businessunit" = RIMD,
                   tabledata "CRM Contact" = RIMD,

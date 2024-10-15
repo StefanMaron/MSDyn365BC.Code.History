@@ -117,7 +117,7 @@ codeunit 5604 "Make FA Ledger Entry"
             if "Employee No." = '' then
                 "Employee No." := FA."Responsible Employee";
             "Location Code" := FA."Location Code";
-            "FA Exchange Rate" := FADeprBook.GetExchangeRate;
+            "FA Exchange Rate" := FADeprBook.GetExchangeRate();
             "Depreciation Method" := FADeprBook."Depreciation Method";
             "Depreciation Starting Date" := FADeprBook."Depreciation Starting Date";
             "Depreciation Ending Date" := FADeprBook."Depreciation Ending Date";
@@ -144,7 +144,7 @@ codeunit 5604 "Make FA Ledger Entry"
     procedure CopyFromFADocLine(var FALedgEntry: Record "FA Ledger Entry"; var FADocLine: Record "FA Document Line")
     begin
         with FALedgEntry do begin
-            Init;
+            Init();
             "User ID" := UserId;
             "G/L Entry No." := 0;
             "Depreciation Book Code" := FADocLine."Depreciation Book Code";

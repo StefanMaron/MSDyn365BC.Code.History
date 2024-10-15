@@ -310,7 +310,7 @@ codeunit 134930 "ERM Applies-To Doc. No."
         CustLedgerEntry."External Document No." := CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLength), 1, MaxStrLength);
 
         // [WHEN] Calling SetValues on Post Application page with External Doc No of max size
-        PostApplicationPage.SetValues(LibraryUtility.GenerateGUID, WorkDate, CustLedgerEntry."External Document No.");
+        PostApplicationPage.SetValues(LibraryUtility.GenerateGUID, WorkDate(), CustLedgerEntry."External Document No.");
 
         // [THEN] No error and the value is set correctly
         PostApplicationPage.GetValues(DocumentNo, PostingDate, ExternalDocNo);

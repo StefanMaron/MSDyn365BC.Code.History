@@ -7,7 +7,7 @@ page 1264 "Change User"
     {
         area(content)
         {
-            field("User ID"; "User ID")
+            field("User ID"; Rec."User ID")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'User assigned to the certificate';

@@ -538,7 +538,7 @@ codeunit 144705 "ERM Shipment Request M-11"
 
         Assert.AreEqual(
           DimensionValue.Code, LineBuffer."Shortcut Dimension 2 Code",
-          StrSubstNo(IncorrectDimValueErr, TransferHeader.TableCaption));
+          StrSubstNo(IncorrectDimValueErr, TransferHeader.TableCaption()));
     end;
 
     local procedure CheckDimensionInTransferShipment(AnotherDimValue: Boolean)
@@ -558,7 +558,7 @@ codeunit 144705 "ERM Shipment Request M-11"
 
         Assert.AreEqual(
           DimensionValue.Code, LineBuffer."Shortcut Dimension 2 Code",
-          StrSubstNo(IncorrectDimValueErr, TransferShipmentHeader.TableCaption));
+          StrSubstNo(IncorrectDimValueErr, TransferShipmentHeader.TableCaption()));
     end;
 
     local procedure CheckDimensionInTransferReceipt(AnotherDimValue: Boolean)
@@ -578,7 +578,7 @@ codeunit 144705 "ERM Shipment Request M-11"
 
         Assert.AreEqual(
           DimensionValue.Code, LineBuffer."Shortcut Dimension 2 Code",
-          StrSubstNo(IncorrectDimValueErr, TransferReceiptHeader.TableCaption));
+          StrSubstNo(IncorrectDimValueErr, TransferReceiptHeader.TableCaption()));
     end;
 
     local procedure CheckDimensionInItemJnlLine(AnotherDimValue: Boolean)
@@ -598,7 +598,7 @@ codeunit 144705 "ERM Shipment Request M-11"
 
         Assert.AreEqual(
           DimensionValue.Code, LineBuffer."Shortcut Dimension 2 Code",
-          StrSubstNo(IncorrectDimValueErr, ItemJnlLine.TableCaption));
+          StrSubstNo(IncorrectDimValueErr, ItemJnlLine.TableCaption()));
     end;
 
     local procedure CreateTransferOrderWithDimension(var TransferHeader: Record "Transfer Header"; var DimensionValue: Record "Dimension Value")
@@ -615,7 +615,7 @@ codeunit 144705 "ERM Shipment Request M-11"
             "Document No." := TransferHeader."No.";
             "Item No." := LibraryRUReports.CreateItemWithCost;
             "Dimension Set ID" := LibraryDimension.CreateDimSet(0, DimensionValue."Dimension Code", DimensionValue.Code);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -633,7 +633,7 @@ codeunit 144705 "ERM Shipment Request M-11"
             "Document No." := TransferShipmentHeader."No.";
             "Item No." := LibraryRUReports.CreateItemWithCost;
             "Dimension Set ID" := LibraryDimension.CreateDimSet(0, DimensionValue."Dimension Code", DimensionValue.Code);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -651,7 +651,7 @@ codeunit 144705 "ERM Shipment Request M-11"
             "Document No." := TransferReceiptHeader."No.";
             "Item No." := LibraryRUReports.CreateItemWithCost;
             "Dimension Set ID" := LibraryDimension.CreateDimSet(0, DimensionValue."Dimension Code", DimensionValue.Code);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -663,7 +663,7 @@ codeunit 144705 "ERM Shipment Request M-11"
             "Journal Template Name" := LibraryUtility.GenerateGUID();
             "Item No." := LibraryRUReports.CreateItemWithCost;
             "Dimension Set ID" := LibraryDimension.CreateDimSet(0, DimensionValue."Dimension Code", DimensionValue.Code);
-            Insert;
+            Insert();
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", '');
         end;

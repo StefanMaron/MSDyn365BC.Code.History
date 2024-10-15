@@ -17,9 +17,9 @@ report 1497 "Trans. Bank Rec. to Gen. Jnl."
                 var
                     SourceCodeSetup: Record "Source Code Setup";
                 begin
-                    if (Difference = 0) or (Type > Type::"Bank Account Ledger Entry") then
+                    if Difference = 0 then
                         CurrReport.Skip();
-                    if not TempBankAccReconciliationLine.IsEmpty then
+                    if not TempBankAccReconciliationLine.IsEmpty() then
                         if not TempBankAccReconciliationLine.get(
                             "Bank Acc. Reconciliation Line"."Statement Type",
                             "Bank Acc. Reconciliation Line"."Bank Account No.",

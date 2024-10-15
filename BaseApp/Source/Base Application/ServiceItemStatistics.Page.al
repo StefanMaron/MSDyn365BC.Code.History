@@ -327,7 +327,7 @@ page 5982 "Service Item Statistics"
 
     trigger OnAfterGetRecord()
     begin
-        ClearAll;
+        ClearAll();
 
         for i := 1 to 4 do begin
             if i = "Type Filter"::"Service Cost".AsInteger() then

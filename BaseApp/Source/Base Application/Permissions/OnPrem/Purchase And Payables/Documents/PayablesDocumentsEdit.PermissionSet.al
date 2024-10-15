@@ -79,12 +79,13 @@ permissionset 7946 "Payables Documents - Edit"
                   tabledata "Purchase Header Archive" = RIMD,
                   tabledata "Purchase Line" = RIMD,
                   tabledata "Purchase Line Archive" = RIMD,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Purchase Line Discount" = R,
                   tabledata "Purchase Price" = R,
 #endif
                   tabledata "Purchase Price Access" = R,
                   tabledata "Reason Code" = R,
+                  tabledata "Remit Address" = R,
                   tabledata "Report Selections" = R,
                   tabledata "Requisition Line" = Rim,
                   tabledata "Reservation Entry" = Rimd,

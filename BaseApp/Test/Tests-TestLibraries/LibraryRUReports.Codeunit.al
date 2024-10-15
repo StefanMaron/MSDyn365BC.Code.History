@@ -373,7 +373,7 @@ codeunit 143016 "Library RU Reports"
         VATSettlementType: Option ,Purchase,Sale,"Fixed Asset","Future Expense";
     begin
         TempVATDocEntryBuffer.SetRange("CV No.", VendorNo);
-        TempVATDocEntryBuffer.SetRange("Date Filter", 0D, WorkDate);
+        TempVATDocEntryBuffer.SetRange("Date Filter", 0D, WorkDate());
         VATSettlementMgt.Generate(TempVATDocEntryBuffer, VATSettlementType::Purchase);
         VATSettlementMgt.CopyToJnl(TempVATDocEntryBuffer, VATEntry);
 
@@ -399,9 +399,9 @@ codeunit 143016 "Library RU Reports"
         DepreciationCode: Record "Depreciation Code";
     begin
         with DepreciationCode do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -412,9 +412,9 @@ codeunit 143016 "Library RU Reports"
         DepreciationGroup: Record "Depreciation Group";
     begin
         with DepreciationGroup do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -436,7 +436,7 @@ codeunit 143016 "Library RU Reports"
             Validate("Initial Acquisition Cost", LibraryRandom.RandDec(100, 2));
             Validate("Acquisition Cost", LibraryRandom.RandDec(100, 2));
             Validate(Depreciation, LibraryRandom.RandDec(100, 2));
-            Modify;
+            Modify();
         end;
     end;
 
@@ -446,9 +446,9 @@ codeunit 143016 "Library RU Reports"
         FALocation: Record "FA Location";
     begin
         with FALocation do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -459,10 +459,10 @@ codeunit 143016 "Library RU Reports"
         FAPostingGroup: Record "FA Posting Group";
     begin
         with FAPostingGroup do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateGUID();
             "Acquisition Cost Account" := MockGLAccount;
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -473,9 +473,9 @@ codeunit 143016 "Library RU Reports"
         GLAccount: Record "G/L Account";
     begin
         with GLAccount do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
             exit("No.");
         end;
     end;
@@ -486,12 +486,12 @@ codeunit 143016 "Library RU Reports"
         MainAssetComponent: Record "Main Asset Component";
     begin
         with MainAssetComponent do begin
-            Init;
+            Init();
             "Main Asset No." := FANo;
             "FA No." := LibraryUtility.GenerateGUID();
             Description := "FA No.";
             Quantity := LibraryRandom.RandInt(100);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -501,13 +501,13 @@ codeunit 143016 "Library RU Reports"
         ItemFAPreciousMetal: Record "Item/FA Precious Metal";
     begin
         with ItemFAPreciousMetal do begin
-            Init;
+            Init();
             "Item Type" := "Item Type"::FA;
             "No." := FANo;
             "Precious Metals Code" := MockPreciousMetal;
             Quantity := LibraryRandom.RandInt(100);
             Mass := LibraryRandom.RandDec(100, 2);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -516,10 +516,10 @@ codeunit 143016 "Library RU Reports"
         PreciousMetal: Record "Precious Metal";
     begin
         with PreciousMetal do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateGUID();
             Name := Code;
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -622,7 +622,7 @@ codeunit 143016 "Library RU Reports"
 
     local procedure GetRandomDate(): Date
     begin
-        exit(CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));
+        exit(CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));
     end;
 
     [Scope('OnPrem')]
@@ -721,10 +721,10 @@ codeunit 143016 "Library RU Reports"
     procedure CreateStatutoryReport(var StatutoryReport: Record "Statutory Report")
     begin
         with StatutoryReport do begin
-            Init;
+            Init();
             Code :=
               LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Statutory Report");
-            Insert;
+            Insert();
         end;
     end;
 
@@ -734,13 +734,13 @@ codeunit 143016 "Library RU Reports"
         CompanyInformation: Record "Company Information";
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             Validate(Name, LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Name), 0));
             Validate("Name 2", LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Name 2"), 0));
             Validate("Full Name", LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Full Name"), 0));
             "VAT Registration No." := LibraryERM.GenerateVATRegistrationNo("Country/Region Code");
             Validate("KPP Code", LibraryUtility.GenerateGUID());
-            Modify;
+            Modify();
         end;
     end;
 
@@ -751,7 +751,7 @@ codeunit 143016 "Library RU Reports"
         CompanyType: Option Person,Organization;
     begin
         with CompanyInfo do begin
-            Get;
+            Get();
             case Type of
                 CompanyType::Organization:
                     Validate("KPP Code", CopyStr(LibraryUtility.GenerateRandomXMLText(9), 1, 9));
@@ -832,9 +832,9 @@ codeunit 143016 "Library RU Reports"
     begin
         Evaluate(DateFormula, PostingDateCalcFormula);
         with SalesHeader do begin
-            Validate("Posting Date", CalcDate(DateFormula, WorkDate));
+            Validate("Posting Date", CalcDate(DateFormula, WorkDate()));
             Validate("Additional VAT Ledger Sheet", true);
-            Validate("Corrected Document Date", WorkDate);
+            Validate("Corrected Document Date", WorkDate());
             Modify(true);
         end;
     end;
@@ -846,11 +846,11 @@ codeunit 143016 "Library RU Reports"
     begin
         Evaluate(DateFormula, PostingDateCalcFormula);
         with PurchaseHeader do begin
-            Validate("Posting Date", CalcDate(DateFormula, WorkDate));
+            Validate("Posting Date", CalcDate(DateFormula, WorkDate()));
             Validate("Additional VAT Ledger Sheet", true);
-            Validate("Corrected Document Date", WorkDate);
+            Validate("Corrected Document Date", WorkDate());
             Modify(true);
-            UpdatePurchaseHeaderWithVendorVATInvoiceInfo(PurchaseHeader, '', WorkDate);
+            UpdatePurchaseHeaderWithVendorVATInvoiceInfo(PurchaseHeader, '', WorkDate());
         end;
     end;
 

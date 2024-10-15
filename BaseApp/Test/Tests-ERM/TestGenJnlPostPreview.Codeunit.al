@@ -1,4 +1,4 @@
-codeunit 134760 "Test Gen. Jnl. Post Preview"
+﻿codeunit 134760 "Test Gen. Jnl. Post Preview"
 {
     EventSubscriberInstance = Manual;
     Subtype = Test;
@@ -12,12 +12,12 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
 
     var
         GenJournalLine: Record "Gen. Journal Line";
+        JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         LibraryJournals: Codeunit "Library - Journals";
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        NothingToPostErr: Label 'There is nothing to post.';
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         UnexpectedMessageErr: Label 'Unexpected message: %1.', Comment = '%1 = Error message';
@@ -88,12 +88,12 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         asserterror GenJnlPost.Preview(GenJournalLine);
         VerifyEmptyPreviewError;
         VerifyGLEntries(Amount, GLPostingPreview);
-        GLPostingPreview.Close;
+        GLPostingPreview.Close();
 
         // Verify
 
         // Cleanup
-        if GenJournalLine.Find then
+        if GenJournalLine.Find() then
             GenJournalLine.Delete();
         GLAccount.Delete();
     end;
@@ -156,7 +156,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         VerifyEmptyPreviewError;
         // Verify
         VerifyGLEntries(Amount, GLPostingPreview);
-        GLPostingPreview.Close;
+        GLPostingPreview.Close();
 
         // Cleanup
         if GenJournalTemplate.Get(GenJournalBatch."Journal Template Name") then
@@ -164,7 +164,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
 
         GenJournalBatch.Delete();
 
-        if GenJournalLine.Find then
+        if GenJournalLine.Find() then
             GenJournalLine.Delete();
         ICGLAccount.Delete();
         GLAccount.Delete();
@@ -196,7 +196,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         VerifyEmptyPreviewError;
         // Verify
         VerifyCustomerEntries(Amount, GLPostingPreview);
-        GLPostingPreview.Close;
+        GLPostingPreview.Close();
 
         // Cleanup
         GenJournalLine.Delete();
@@ -241,7 +241,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         VerifyEmptyPreviewError;
         // Verify
         VerifyForeignCustomerEntries(Amount1, Amount2, GLPostingPreview);
-        GLPostingPreview.Close;
+        GLPostingPreview.Close();
 
         // Cleanup
         GenJournalLine.Delete();
@@ -287,7 +287,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         VerifyEmptyPreviewError;
         // Verify
         VerifyVendorEntries(Amount1, Amount2, GLPostingPreview);
-        GLPostingPreview.Close;
+        GLPostingPreview.Close();
 
         // Cleanup
         GenJournalLine.Delete();
@@ -321,7 +321,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         VerifyEmptyPreviewError;
         // Verification done in BankAccountEntriesPreviewHandler
         VerifyBankAccountEntries(Amount, GLPostingPreview);
-        GLPostingPreview.Close;
+        GLPostingPreview.Close();
 
         // Cleanup
         GenJournalLine.Delete();
@@ -395,9 +395,9 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         asserterror GenJnlPost.Preview(GenJournalLine);
         // [THEN] GETLASTERRORTEXT should be null
         Assert.AreEqual('', GetLastErrorText, 'Expected empty error from Preview. Actual error: ' + GetLastErrorText);
-        GLPostingPreview.Close;
+        GLPostingPreview.Close();
 
-        ClearLastError;
+        ClearLastError();
         Clear(GenJnlPost);
 
         ExpectedErrorMessage := StrSubstNo(RecordRestrictedTxt,
@@ -410,7 +410,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         Assert.AreEqual(ExpectedErrorMessage, ActualErrorMessage, 'Unexpected error message.');
 
         // Cleanup
-        if GenJournalLine.Find then
+        if GenJournalLine.Find() then
             GenJournalLine.Delete();
         GLAccount.Delete();
     end;
@@ -447,7 +447,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         VerifyGLEntryWithRegister(GenJournalLine."Account No.", GenJournalLine.Amount);
 
         // [THEN] General journal line was removed after posting
-        GenJournalLine.SetRecFilter;
+        GenJournalLine.SetRecFilter();
         GenJournalLine.SetRange("Account No.", GenJournalLine."Account No.");
         Assert.RecordIsEmpty(GenJournalLine);
 
@@ -713,7 +713,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         // Verify
         GLEntriesPreview.First;
         GLEntriesPreview.Amount.AssertEquals(Amount);
-        GLEntriesPreview.Next;
+        GLEntriesPreview.Next();
         GLEntriesPreview.Amount.AssertEquals(-Amount);
         GLEntriesPreview.OK.Invoke;
     end;
@@ -769,7 +769,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         CustLedgEntriesPreview.OriginalAmountFCY.AssertEquals(Amount1);
         CustLedgEntriesPreview.RemainingAmountFCY.AssertEquals(Amount1);
 
-        CustLedgEntriesPreview.Next;
+        CustLedgEntriesPreview.Next();
         CustLedgEntriesPreview.AmountFCY.AssertEquals(Amount2);
         CustLedgEntriesPreview.OriginalAmountFCY.AssertEquals(Amount2);
         CustLedgEntriesPreview.RemainingAmountFCY.AssertEquals(Amount2);
@@ -791,7 +791,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         VendLedgEntriesPreview.OriginalAmountFCY.AssertEquals(Amount1);
         VendLedgEntriesPreview.RemainingAmountFCY.AssertEquals(Amount1);
 
-        VendLedgEntriesPreview.Next;
+        VendLedgEntriesPreview.Next();
         VendLedgEntriesPreview.AmountFCY.AssertEquals(Amount2);
         VendLedgEntriesPreview.OriginalAmountFCY.AssertEquals(Amount2);
         VendLedgEntriesPreview.RemainingAmountFCY.AssertEquals(Amount2);
@@ -835,7 +835,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
     [Scope('OnPrem')]
     procedure NothingToPostMessageHandler(Message: Text[1024])
     begin
-        if Message <> NothingToPostErr then
+        if Message <> JournalErrorsMgt.GetNothingToPostErrorMsg() then
             Error(UnexpectedMessageErr, Message);
     end;
 

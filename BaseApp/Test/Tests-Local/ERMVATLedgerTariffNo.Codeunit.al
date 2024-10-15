@@ -276,7 +276,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         VATLedgerMgt.InsertVATLedgerLineTariffNoList(VATLedgerLine);
 
         // [THEN] "VAT Ledger Line"."Tariff No." = ""
-        VATLedgerLine.Find;
+        VATLedgerLine.Find();
         Assert.AreEqual('', VATLedgerLine."Tariff No.", VATLedgerLine.FieldCaption("Tariff No."));
 
         // [THEN] There is no related "VAT Ledger Line Tariff No." record
@@ -309,7 +309,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         VATLedgerMgt.InsertVATLedgerLineTariffNoList(VATLedgerLine);
 
         // [THEN] "VAT Ledger Line"."Tariff No." = "X"
-        VATLedgerLine.Find;
+        VATLedgerLine.Find();
         Assert.AreEqual(TariffNo, VATLedgerLine."Tariff No.", VATLedgerLine.FieldCaption("Tariff No."));
 
         // [THEN] "VAT Ledger Line Tariff No." record has been created with "Tariff No." = "X"
@@ -343,7 +343,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         VATLedgerMgt.InsertVATLedgerLineTariffNoList(VATLedgerLine);
 
         // [THEN] "VAT Ledger Line"."Tariff No." = "DIFFERENT" (const text)
-        VATLedgerLine.Find;
+        VATLedgerLine.Find();
         Assert.AreEqual(DIFFERENTTxt, VATLedgerLine."Tariff No.", VATLedgerLine.FieldCaption("Tariff No."));
 
         // [THEN] There are two related "VAT Ledger Line Tariff No." records have been created, one with "Tariff No." = "X", another with "Tariff No." = "Y"
@@ -376,7 +376,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         VATLedgerMgt.InsertVATLedgerLineTariffNoList(VATLedgerLine);
 
         // [THEN] "VAT Ledger Line"."Tariff No." = "X"
-        VATLedgerLine.Find;
+        VATLedgerLine.Find();
         Assert.AreEqual(TariffNo, VATLedgerLine."Tariff No.", VATLedgerLine.FieldCaption("Tariff No."));
 
         // [THEN] One "VAT Ledger Line Tariff No." record has been created with "Tariff No." = "X"
@@ -412,7 +412,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         VATLedgerMgt.InsertVATLedgerLineTariffNoList(VATLedgerLine);
 
         // [THEN] "VAT Ledger Line"."Tariff No." = "DIFFERENT" (const text)
-        VATLedgerLine.Find;
+        VATLedgerLine.Find();
         Assert.AreEqual(DIFFERENTTxt, VATLedgerLine."Tariff No.", VATLedgerLine.FieldCaption("Tariff No."));
 
         // [THEN] There are two related "VAT Ledger Line Tariff No." records have been created, one with "Tariff No." = "X", another with "Tariff No." = "Y"
@@ -1122,7 +1122,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         TariffNo: array[2] of Code[20];
     begin
         TariffNo[1] := VATLedgerLineTariffNo."Tariff No.".Value;
-        VATLedgerLineTariffNo.Next;
+        VATLedgerLineTariffNo.Next();
         TariffNo[2] := VATLedgerLineTariffNo."Tariff No.".Value;
         Assert.IsFalse(VATLedgerLineTariffNo.Next, '');
         VerifyTwoVATLedgerLineTariffNo(VATLedgerLine, TariffNo);

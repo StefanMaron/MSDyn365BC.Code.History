@@ -1,6 +1,6 @@
 report 26 "Copy Account Schedule"
 {
-    Caption = 'Copy Account Schedule';
+    Caption = 'Copy Rows';
     ProcessingOnly = true;
 
     dataset
@@ -26,9 +26,9 @@ report 26 "Copy Account Schedule"
 
             trigger OnPreDataItem()
             begin
-                AssertNewAccountScheduleNameNotEmpty;
-                AssertNewAccountScheduleNameNotExisting;
-                AssertSourceAccountScheduleNameNotEmpty;
+                AssertNewAccountScheduleNameNotEmpty();
+                AssertNewAccountScheduleNameNotExisting();
+                AssertSourceAccountScheduleNameNotEmpty();
                 AssertSourceAccountScheduleNameExists(SourceAccScheduleName);
             end;
         }
@@ -47,17 +47,17 @@ report 26 "Copy Account Schedule"
                     field(NewAccountScheduleName; NewAccScheduleName)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'New Account Schedule Name';
+                        Caption = 'New Rows Definition Name';
                         NotBlank = true;
-                        ToolTip = 'Specifies the name of the new account schedule after copying.';
+                        ToolTip = 'Specifies the name of the new rows definition after copying.';
                     }
                     field(SourceAccountScheduleName; CopySourceAccScheduleName)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Source Account Schedule Name';
+                        Caption = 'Source Rows Definition Name';
                         Enabled = false;
                         NotBlank = true;
-                        ToolTip = 'Specifies the name of the existing account schedule to copy from.';
+                        ToolTip = 'Specifies the name of the existing rows definition to copy from.';
                     }
                 }
             }
@@ -87,13 +87,13 @@ report 26 "Copy Account Schedule"
 
     var
         NewAccScheduleName: Code[10];
-        CopySuccessMsg: Label 'The new account schedule has been created successfully.';
-        MissingSourceErr: Label 'Could not find an account schedule with the specified name to copy from.';
-        NewNameExistsErr: Label 'The new account schedule already exists.';
-        NewNameMissingErr: Label 'You must specify a name for the new account schedule.';
+        CopySuccessMsg: Label 'The new rows definition has been created successfully.';
+        MissingSourceErr: Label 'Could not find a rows definition with the specified name to copy from.';
+        NewNameExistsErr: Label 'The new rows definition already exists.';
+        NewNameMissingErr: Label 'You must specify a name for the new rows definition.';
         CopySourceAccScheduleName: Code[10];
-        CopySourceNameMissingErr: Label 'You must specify a valid name for the source account schedule to copy from.';
-        MultipleSourcesErr: Label 'You can only copy one account schedule at a time.';
+        CopySourceNameMissingErr: Label 'You must specify a valid name for the source rows definition to copy from.';
+        MultipleSourcesErr: Label 'You can only copy one rows definition at a time.';
 
     procedure GetNewAccountScheduleName(): Code[10]
     begin

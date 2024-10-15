@@ -38,7 +38,7 @@ codeunit 144518 "ERM Tax Dimension Mgt."
         Assert.AreEqual(
           DimValue.Code,
           TaxRegGLEntry.GetFilter("Dimension 1 Value Code"),
-          StrSubstNo(WrongFilterValueErr, TaxRegGLEntry.FieldCaption("Dimension 1 Value Code"), TaxRegGLEntry.TableCaption));
+          StrSubstNo(WrongFilterValueErr, TaxRegGLEntry.FieldCaption("Dimension 1 Value Code"), TaxRegGLEntry.TableCaption()));
     end;
 
     [Test]
@@ -55,7 +55,7 @@ codeunit 144518 "ERM Tax Dimension Mgt."
         Assert.AreEqual(
           DimValue.Code,
           TaxRegItemEntry.GetFilter("Dimension 1 Value Code"),
-          StrSubstNo(WrongFilterValueErr, TaxRegItemEntry.FieldCaption("Dimension 1 Value Code"), TaxRegItemEntry.TableCaption));
+          StrSubstNo(WrongFilterValueErr, TaxRegItemEntry.FieldCaption("Dimension 1 Value Code"), TaxRegItemEntry.TableCaption()));
     end;
 
     [Test]
@@ -318,11 +318,11 @@ codeunit 144518 "ERM Tax Dimension Mgt."
         TaxRegSection: Record "Tax Register Section";
     begin
         with TaxRegSection do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateGUID();
             "Dimension 1 Code" := DimValue[1]."Dimension Code";
             "Dimension 2 Code" := DimValue[2]."Dimension Code";
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -344,7 +344,7 @@ codeunit 144518 "ERM Tax Dimension Mgt."
         TaxRegDimFilter: Record "Tax Register Dim. Filter";
     begin
         with TaxRegDimFilter do begin
-            Init;
+            Init();
             "Section Code" := SectionCode;
             "Tax Register No." := TaxRegisterNo;
             Define := Define::Template;
@@ -352,7 +352,7 @@ codeunit 144518 "ERM Tax Dimension Mgt."
             "Dimension Code" := DimValue."Dimension Code";
             "Dimension Value Filter" := DimValue.Code;
             "Entry No." := 1;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -370,19 +370,19 @@ codeunit 144518 "ERM Tax Dimension Mgt."
     local procedure CreateTaxRegDimCorrFilter(var TaxRegDimCorrFilter: Record "Tax Register Dim. Corr. Filter"; SectionCode: Code[10]; ConnectionType: Option)
     begin
         with TaxRegDimCorrFilter do begin
-            Init;
+            Init();
             "Section Code" := SectionCode;
             "G/L Corr. Entry No." := 1;
             "Connection Type" := ConnectionType;
             "Connection Entry No." := 1;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure CreateTaxRegDimComb(var TaxRegDimComb: Record "Tax Register Dim. Comb."; TaxRegister: Record "Tax Register"; DimValue: array[2] of Record "Dimension Value"; CombinationRestiction: Option; ConnectionEntryNo: Integer)
     begin
         with TaxRegDimComb do begin
-            Init;
+            Init();
             "Section Code" := TaxRegister."Section Code";
             "Tax Register No." := TaxRegister."No.";
             "Line No." := 10000;
@@ -390,7 +390,7 @@ codeunit 144518 "ERM Tax Dimension Mgt."
             "Dimension 2 Code" := DimValue[2]."Dimension Code";
             "Combination Restriction" := CombinationRestiction;
             "Entry No." := ConnectionEntryNo;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -405,7 +405,7 @@ codeunit 144518 "ERM Tax Dimension Mgt."
             "Dimension 1 Value Code" := DimValue[1].Code;
             "Dimension 2 Value Code" := DimValue[2].Code;
             "Type Limit" := "Type Limit"::Blocked;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -421,7 +421,7 @@ codeunit 144518 "ERM Tax Dimension Mgt."
             "Dimension 1 Value Code" := TaxRegDimValueComb."Dimension 1 Value Code";
             "Dimension 2 Code" := TaxRegDimValueComb."Dimension 2 Code";
             "Dimension 2 Value Code" := TaxRegDimValueComb."Dimension 2 Value Code";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -435,7 +435,7 @@ codeunit 144518 "ERM Tax Dimension Mgt."
             "Line No." := 0;
             "Dimension Code" := DimValue."Dimension Code";
             "Dimension Value" := DimValue.Code;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -473,11 +473,11 @@ codeunit 144518 "ERM Tax Dimension Mgt."
     local procedure CreateDimensionCombination(var DimComb: Record "Dimension Combination"; DimValue: array[2] of Record "Dimension Value")
     begin
         with DimComb do begin
-            Init;
+            Init();
             "Dimension 1 Code" := DimValue[1]."Dimension Code";
             "Dimension 2 Code" := DimValue[2]."Dimension Code";
             "Combination Restriction" := "Combination Restriction"::Blocked;
-            Insert;
+            Insert();
         end;
     end;
 

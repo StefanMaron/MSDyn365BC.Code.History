@@ -137,7 +137,7 @@ codeunit 1315 "Chart Management"
         InsertChartDefinition(CODEUNIT::"Acc. Sched. Chart Management", XIncomeAndExpenseChartNameTxt);
         InsertChartDefinition(CODEUNIT::"Acc. Sched. Chart Management", XCashCycleChartNameTxt);
 
-        OnAfterPopulateChartDefinitionTable;
+        OnAfterPopulateChartDefinitionTable();
     end;
 
     procedure SelectChart(var BusinessChartBuffer: Record "Business Chart Buffer"; var ChartDefinition: Record "Chart Definition")
@@ -146,13 +146,13 @@ codeunit 1315 "Chart Management"
     begin
         if ChartDefinition.IsEmpty() then
             if ChartDefinition.WritePermission then begin
-                PopulateChartDefinitionTable;
+                PopulateChartDefinitionTable();
                 Commit();
             end else
                 Error(ChartDefinitionMissingErr);
         ChartList.LookupMode(true);
 
-        if ChartList.RunModal = ACTION::LookupOK then begin
+        if ChartList.RunModal() = ACTION::LookupOK then begin
             ChartList.GetRecord(ChartDefinition);
             SetDefaultPeriodLength(ChartDefinition, BusinessChartBuffer);
             UpdateChart(ChartDefinition, BusinessChartBuffer, Period::" ");
@@ -206,7 +206,7 @@ codeunit 1315 "Chart Management"
                         NewStartDate :=
                           CalcDate(
                             StrSubstNo(
-                              '<-%1%2>', AccountSchedulesChartSetup."No. of Periods", BusChartBuf.GetPeriodLength),
+                              '<-%1%2>', AccountSchedulesChartSetup."No. of Periods", BusChartBuf.GetPeriodLength()),
                             GetBaseDate(BusChartBuf, IsInitState));
                     if AccountSchedulesChartSetup."Start Date" <> NewStartDate then begin
                         AccountSchedulesChartSetup.Validate("Start Date", NewStartDate);
@@ -244,13 +244,13 @@ codeunit 1315 "Chart Management"
                 end;
             CODEUNIT::"Aged Acc. Receivable":
                 begin
-                    BusinessChartBuffer."Period Filter Start Date" := WorkDate;
+                    BusinessChartBuffer."Period Filter Start Date" := WorkDate();
                     AgedAccReceivable.UpdateDataPerGroup(BusinessChartBuffer, TempEntryNoAmountBuf);
                     AgedAccReceivable.SaveSettings(BusinessChartBuffer);
                 end;
             CODEUNIT::"Aged Acc. Payable":
                 begin
-                    BusinessChartBuffer."Period Filter Start Date" := WorkDate;
+                    BusinessChartBuffer."Period Filter Start Date" := WorkDate();
                     AgedAccPayable.UpdateData(BusinessChartBuffer, TempEntryNoAmountBuf);
                     AgedAccPayable.SaveSettings(BusinessChartBuffer)
                 end;
@@ -319,13 +319,13 @@ codeunit 1315 "Chart Management"
                 if ("Code Unit ID" <> ChartDefinition."Code Unit ID") or ("Chart Name" <> ChartDefinition."Chart Name") then begin
                     Validate("Code Unit ID", ChartDefinition."Code Unit ID");
                     Validate("Chart Name", ChartDefinition."Chart Name");
-                    Modify;
+                    Modify();
                 end;
             end else begin
                 Validate(UID, UserId);
                 Validate("Code Unit ID", ChartDefinition."Code Unit ID");
                 Validate("Chart Name", ChartDefinition."Chart Name");
-                Insert;
+                Insert();
             end;
     end;
 
@@ -379,14 +379,14 @@ codeunit 1315 "Chart Management"
             ColumnIndex := AccountSchedulesChartSetup."No. of Periods" - 1;
 
         if IsInitState then
-            exit(WorkDate);
+            exit(WorkDate());
 
         BusChartBuf.GetPeriodFromMapColumn(ColumnIndex, StartDate, EndDate);
 
         if AccountSchedulesChartSetup."Look Ahead" then
             exit(StartDate);
 
-        exit(CalcDate(StrSubstNo('<1%1>', GetPeriodLength), EndDate));
+        exit(CalcDate(StrSubstNo('<1%1>', GetPeriodLength()), EndDate));
     end;
 
     procedure AgedAccReceivableName(): Text[60]

@@ -58,11 +58,11 @@ table 5219 "HR Confidential Comment Line"
         HRConfCommentLine: Record "HR Confidential Comment Line";
     begin
         HRConfCommentLine := Rec;
-        HRConfCommentLine.SetRecFilter;
+        HRConfCommentLine.SetRecFilter();
         HRConfCommentLine.SetRange("Line No.");
-        HRConfCommentLine.SetRange(Date, WorkDate);
+        HRConfCommentLine.SetRange(Date, WorkDate());
         if not HRConfCommentLine.FindFirst() then
-            Date := WorkDate;
+            Date := WorkDate();
 
         OnAfterSetUpNewLine(Rec, HRConfCommentLine);
     end;

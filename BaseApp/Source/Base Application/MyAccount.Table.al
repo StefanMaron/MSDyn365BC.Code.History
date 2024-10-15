@@ -21,7 +21,7 @@ table 9153 "My Account"
 
             trigger OnValidate()
             begin
-                SetAccountFields;
+                SetAccountFields();
             end;
         }
         field(3; Name; Text[100])
@@ -31,7 +31,7 @@ table 9153 "My Account"
         }
         field(4; Balance; Decimal)
         {
-            CalcFormula = Sum ("G/L Entry".Amount WHERE("G/L Account No." = FIELD("Account No.")));
+            CalcFormula = Sum("G/L Entry".Amount WHERE("G/L Account No." = FIELD("Account No.")));
             Caption = 'Balance';
             Editable = false;
             FieldClass = FlowField;

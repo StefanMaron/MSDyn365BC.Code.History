@@ -26,7 +26,7 @@ codeunit 143015 "Library - Tax Accounting"
     begin
         LibraryERM.CreateGenJournalTemplate(GenJnlTemplate);
         with TaxDiffJnlTemplate do begin
-            Init;
+            Init();
             Validate(Name, GenJnlTemplate.Name);
             Validate(Description, Name);
             Insert(true);
@@ -37,7 +37,7 @@ codeunit 143015 "Library - Tax Accounting"
     procedure CreateTaxDiffJnlBatch(var TaxDiffJnlBatch: Record "Tax Diff. Journal Batch"; TaxDiffJnlTemplateName: Code[10])
     begin
         with TaxDiffJnlBatch do begin
-            Init;
+            Init();
             Validate("Journal Template Name", TaxDiffJnlTemplateName);
             Validate(Name, GenerateRandomCode(DATABASE::"Tax Diff. Journal Batch", FieldNo(Name)));
             Validate(Description, Name);
@@ -82,7 +82,7 @@ codeunit 143015 "Library - Tax Accounting"
     procedure CreateTaxDifference(var TaxDifference: Record "Tax Difference")
     begin
         with TaxDifference do begin
-            Init;
+            Init();
             Validate(Code, GenerateRandomCode(DATABASE::"Tax Difference", FieldNo(Code)));
             Validate("Source Code Mandatory", true);
             Insert(true);
@@ -93,7 +93,7 @@ codeunit 143015 "Library - Tax Accounting"
     procedure CreateTaxDiffPostingGroup(var TaxDiffPostingGroup: Record "Tax Diff. Posting Group")
     begin
         with TaxDiffPostingGroup do begin
-            Init;
+            Init();
             Validate(Code, GenerateRandomCode(DATABASE::"Tax Diff. Posting Group", FieldNo(Code)));
             Validate("CTA Tax Account", LibraryERM.CreateGLAccountNo);
             Validate("CTL Tax Account", LibraryERM.CreateGLAccountNo);
@@ -248,7 +248,7 @@ codeunit 143015 "Library - Tax Accounting"
     procedure CreateTaxCalcSection(var TaxCalcSection: Record "Tax Calc. Section"; StartingDate: Date; EndingDate: Date)
     begin
         with TaxCalcSection do begin
-            Init;
+            Init();
             Validate(Code, GenerateRandomCode(DATABASE::"Tax Calc. Section", FieldNo(Code)));
             Validate(Description, Code);
             Validate(Status, Status::Blocked);
@@ -263,7 +263,7 @@ codeunit 143015 "Library - Tax Accounting"
     procedure CreateTaxCalcHeader(var TaxCalcHeader: Record "Tax Calc. Header"; TaxCalcSectionCode: Code[10]; TableID: Integer)
     begin
         with TaxCalcHeader do begin
-            Init;
+            Init();
             Validate("Section Code", TaxCalcSectionCode);
             Validate("No.", GenerateRandomCode(DATABASE::"Tax Calc. Header", FieldNo("No.")));
             Validate(Description, "No.");
@@ -290,7 +290,7 @@ codeunit 143015 "Library - Tax Accounting"
     procedure CreateTaxCalcLine(var TaxCalcLine: Record "Tax Calc. Line"; ExpressionType: Option; TaxCalcSectionCode: Code[10]; TaxCalcHeaderNo: Code[10])
     begin
         with TaxCalcLine do begin
-            Init;
+            Init();
             Validate("Section Code", TaxCalcSectionCode);
             Validate(Code, TaxCalcHeaderNo);
             Validate("Line No.", GetLastTaxCalcLineNo(TaxCalcSectionCode, TaxCalcHeaderNo) + 10000);
@@ -318,7 +318,7 @@ codeunit 143015 "Library - Tax Accounting"
     procedure CreateTaxCalcSelectionSetup(var TaxCalcSelectionSetup: Record "Tax Calc. Selection Setup"; TaxCalcSectionCode: Code[10]; TaxCalcHeaderNo: Code[10])
     begin
         with TaxCalcSelectionSetup do begin
-            Init;
+            Init();
             Validate("Section Code", TaxCalcSectionCode);
             Validate("Register No.", TaxCalcHeaderNo);
             Validate("Line No.", GetLastTaxCalcSelectionSetupLineNo(TaxCalcSectionCode, TaxCalcHeaderNo) + 10000);
@@ -331,12 +331,12 @@ codeunit 143015 "Library - Tax Accounting"
     procedure CreateTaxRegSection(var TaxRegSection: Record "Tax Register Section")
     begin
         with TaxRegSection do begin
-            Init;
+            Init();
             Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Tax Register Section"));
             Validate(Description, Code);
             Insert(true);
-            Validate("Starting Date", CalcDate('<-CM>', WorkDate));
-            Validate("Ending Date", CalcDate('<CM>', WorkDate));
+            Validate("Starting Date", CalcDate('<-CM>', WorkDate()));
+            Validate("Ending Date", CalcDate('<CM>', WorkDate()));
             Validate(Status, Status::Open);
             Modify(true);
         end;
@@ -346,7 +346,7 @@ codeunit 143015 "Library - Tax Accounting"
     procedure CreateTaxReg(var TaxReg: Record "Tax Register"; TaxRegSectionCode: Code[10]; TableId: Integer; StoringMethod: Option)
     begin
         with TaxReg do begin
-            Init;
+            Init();
             Validate("Section Code", TaxRegSectionCode);
             Validate("No.", LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Tax Register"));
             Validate(Description, "No.");
@@ -363,7 +363,7 @@ codeunit 143015 "Library - Tax Accounting"
         RecRef: RecordRef;
     begin
         with TaxRegTemplate do begin
-            Init;
+            Init();
             Validate("Section Code", TaxRegSectionCode);
             Validate(Code, TaxRegNo);
             RecRef.GetTable(TaxRegTemplate);
@@ -379,7 +379,7 @@ codeunit 143015 "Library - Tax Accounting"
     procedure CreateTaxRegTerm(var TaxRegTerm: Record "Tax Register Term"; SectionCode: Code[10]; ExpressionType: Option)
     begin
         with TaxRegTerm do begin
-            Init;
+            Init();
             Validate("Section Code", SectionCode);
             Validate("Term Code",
               LibraryUtility.GenerateRandomCode(FieldNo("Term Code"), DATABASE::"Tax Register Term"));
@@ -394,7 +394,7 @@ codeunit 143015 "Library - Tax Accounting"
         RecRef: RecordRef;
     begin
         with TaxRegTermFormula do begin
-            Init;
+            Init();
             Validate("Section Code", SectionCode);
             Validate("Term Code", TermCode);
             RecRef.GetTable(TaxRegTermFormula);
@@ -414,14 +414,14 @@ codeunit 143015 "Library - Tax Accounting"
         RecRef: RecordRef;
     begin
         with FALedgerEntry do begin
-            Init;
+            Init();
             RecRef.GetTable(FALedgerEntry);
             "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
             "FA No." := FANo;
             "Depreciation Book Code" := DeprBookCode;
             "Posting Date" := PostingDate;
             "FA Posting Date" := PostingDate;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -436,10 +436,10 @@ codeunit 143015 "Library - Tax Accounting"
 
         CreateSimpleFA(FixedAsset);
         with FADeprBook do begin
-            Init;
+            Init();
             "FA No." := FixedAsset."No.";
             "Depreciation Book Code" := TaxRegSetup."Tax Depreciation Book";
-            Insert;
+            Insert();
         end;
         exit(FixedAsset."No.");
     end;
@@ -455,10 +455,10 @@ codeunit 143015 "Library - Tax Accounting"
 
         CreateSimpleFA(FixedAsset);
         with FADeprBook do begin
-            Init;
+            Init();
             "FA No." := FixedAsset."No.";
             "Depreciation Book Code" := TaxRegSetup."Future Exp. Depreciation Book";
-            Insert;
+            Insert();
         end;
         exit(FixedAsset."No.");
     end;
@@ -475,7 +475,7 @@ codeunit 143015 "Library - Tax Accounting"
     procedure FindCalendarPeriod(var CalendarPeriod: Record Date; StartDate: Date)
     begin
         with CalendarPeriod do begin
-            Reset;
+            Reset();
             SetRange("Period Type", "Period Type"::Month);
             SetFilter("Period Start", '..%1', StartDate);
             SetFilter("Period End", '%1..', StartDate);
@@ -489,7 +489,7 @@ codeunit 143015 "Library - Tax Accounting"
         with EntryNoAmountBuffer do begin
             "Entry No." := LineNo;
             Amount := LibraryRandom.RandDec(100, 2);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -499,13 +499,13 @@ codeunit 143015 "Library - Tax Accounting"
         RecordRef: RecordRef;
     begin
         with TaxDiffJnlLine do begin
-            Init;
+            Init();
             "Journal Template Name" := JnlTemplateName;
             "Journal Batch Name" := JnlBatchName;
             RecordRef.GetTable(TaxDiffJnlLine);
             "Line No." :=
               LibraryUtility.GetNewLineNo(RecordRef, FieldNo("Line No."));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -516,8 +516,8 @@ codeunit 143015 "Library - Tax Accounting"
         TaxDiffPostingGroup: Record "Tax Diff. Posting Group";
     begin
         with TaxDiffJnlLine do begin
-            Init;
-            "Posting Date" := WorkDate;
+            Init();
+            "Posting Date" := WorkDate();
             "Document No." := LibraryUtility.GenerateGUID();
             CreateTaxDifference(TaxDifference);
             "Tax Diff. Code" := TaxDifference.Code;
@@ -535,7 +535,7 @@ codeunit 143015 "Library - Tax Accounting"
         RecRef: RecordRef;
     begin
         with TaxRegDimFilter do begin
-            Init;
+            Init();
             "Section Code" := SectionCode;
             "Tax Register No." := TaxRegisterNo;
             Define := DefineType;
@@ -544,7 +544,7 @@ codeunit 143015 "Library - Tax Accounting"
               LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
             "Dimension Code" := DimensionCode;
             "Dimension Value Filter" := DimValueCode;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -554,7 +554,7 @@ codeunit 143015 "Library - Tax Accounting"
         TaxCalcDimFilter: Record "Tax Calc. Dim. Filter";
     begin
         with TaxCalcDimFilter do begin
-            Init;
+            Init();
             "Section Code" := SectionCode;
             "Register No." := TaxRegisterNo;
             Define := Define::Template;
@@ -562,7 +562,7 @@ codeunit 143015 "Library - Tax Accounting"
             "Dimension Code" := DimValue."Dimension Code";
             "Dimension Value Filter" := DimValue.Code;
             "Entry No." := 1;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -582,11 +582,11 @@ codeunit 143015 "Library - Tax Accounting"
     procedure CreateTaxCalcDimCorrFilter(var TaxCalcDimCorrFilter: Record "Tax Calc. Dim. Corr. Filter"; SectionCode: Code[10])
     begin
         with TaxCalcDimCorrFilter do begin
-            Init;
+            Init();
             "Section Code" := SectionCode;
             "Corresp. Entry No." := 1;
             "Connection Entry No." := 1;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -594,7 +594,7 @@ codeunit 143015 "Library - Tax Accounting"
     procedure CreateTaxRegNormJurisdiction(var TaxRegNormJurisdiction: Record "Tax Register Norm Jurisdiction")
     begin
         with TaxRegNormJurisdiction do begin
-            Init;
+            Init();
             Validate(Code,
               GenerateRandomCode(DATABASE::"Tax Register Norm Jurisdiction", FieldNo(Code)));
             Insert(true);
@@ -605,7 +605,7 @@ codeunit 143015 "Library - Tax Accounting"
     procedure CreateTaxRegNormGroup(var TaxRegNormGroup: Record "Tax Register Norm Group"; TaxNormJurisdictionCode: Code[10])
     begin
         with TaxRegNormGroup do begin
-            Init;
+            Init();
             Validate("Norm Jurisdiction Code", TaxNormJurisdictionCode);
             Validate(Code,
               GenerateRandomCode(DATABASE::"Tax Register Norm Group", FieldNo(Code)));
@@ -617,7 +617,7 @@ codeunit 143015 "Library - Tax Accounting"
     procedure CreateTaxRegNormDetail(var TaxRegNormDetail: Record "Tax Register Norm Detail"; TaxNormJurisdictionCode: Code[10]; TaxNormGroupCode: Code[10]; NormType: Option; EffectiveDate: Date)
     begin
         with TaxRegNormDetail do begin
-            Init;
+            Init();
             Validate("Norm Jurisdiction Code", TaxNormJurisdictionCode);
             Validate("Norm Group Code", TaxNormGroupCode);
             Validate("Norm Type", NormType);
@@ -632,12 +632,12 @@ codeunit 143015 "Library - Tax Accounting"
         RecRef: RecordRef;
     begin
         with TaxCalcAccum do begin
-            Init;
+            Init();
             RecRef.GetTable(TaxCalcAccum);
             "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
             "Section Code" := SectionCode;
             "Starting Date" := StartingDate;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -652,10 +652,10 @@ codeunit 143015 "Library - Tax Accounting"
 
         CreateSimpleFA(FixedAsset);
         with FADeprBook do begin
-            Init;
+            Init();
             "FA No." := FixedAsset."No.";
             "Depreciation Book Code" := FASetup."Release Depr. Book";
-            Insert;
+            Insert();
         end;
         exit(FixedAsset."No.");
     end;

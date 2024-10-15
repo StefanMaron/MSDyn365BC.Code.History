@@ -17,7 +17,7 @@
             column(Name_GenJnlBatch; Name)
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(GeneralJnlTestCaption; GeneralJnlTestLbl)
@@ -305,12 +305,12 @@
                         if "Currency Code" = '' then
                             "Amount (LCY)" := Amount;
 
-                        UpdateLineBalance;
+                        UpdateLineBalance();
 
                         AccName := '';
                         BalAccName := '';
 
-                        if not EmptyLine then begin
+                        if not EmptyLine() then begin
                             MakeRecurringTexts("Gen. Journal Line");
 
                             AmountError := false;
@@ -322,7 +322,7 @@
                                    ("Bal. Account Type" <> "Bal. Account Type"::"Fixed Asset")
                                 then
                                     TestFixedAssetFields("Gen. Journal Line");
-                            CheckICDocument;
+                            CheckICDocument();
                             OnAfterGetGenJnlLineAccount("Gen. Journal Line");
                             OnAfterGetGenJnlLineBalanceAccount("Gen. Journal Line");
 
@@ -388,7 +388,7 @@
                             end;
 
                             if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                                AddError(DimMgt.GetDimCombErr);
+                                AddError(DimMgt.GetDimCombErr());
 
                             TableID[1] := DimMgt.TypeToTableID1("Account Type".AsInteger());
                             No[1] := "Account No.";
@@ -401,10 +401,10 @@
                             TableID[5] := DATABASE::Campaign;
                             No[5] := "Campaign No.";
                             if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                                AddError(DimMgt.GetDimValuePostingErr);
+                                AddError(DimMgt.GetDimValuePostingErr());
                         end;
 
-                        CheckBalance;
+                        CheckBalance();
                         AmountLCY += "Amount (LCY)";
                         BalanceLCY += "Balance (LCY)";
                     end;
@@ -412,7 +412,7 @@
                     trigger OnPreDataItem()
                     begin
                         CopyFilter("Journal Batch Name", "Gen. Journal Batch".Name);
-                        GenJnlLineFilter := GetFilters;
+                        GenJnlLineFilter := GetFilters();
 
                         GenJnlTemplate.Get("Gen. Journal Batch"."Journal Template Name");
                         if GenJnlTemplate.Recurring then begin
@@ -421,13 +421,13 @@
                                   StrSubstNo(
                                     Text000Txt,
                                     FieldCaption("Posting Date")));
-                            SetRange("Posting Date", 0D, WorkDate);
+                            SetRange("Posting Date", 0D, WorkDate());
                             if GetFilter("Expiration Date") <> '' then
                                 AddError(
                                   StrSubstNo(
                                     Text000Txt,
                                     FieldCaption("Expiration Date")));
-                            SetFilter("Expiration Date", '%1 | %2..', 0D, WorkDate);
+                            SetFilter("Expiration Date", '%1 | %2..', 0D, WorkDate());
                         end;
 
                         if "Gen. Journal Batch"."No. Series" <> '' then begin
@@ -482,7 +482,7 @@
                         if Number = 1 then
                             TempGLAccNetChange.Find('-')
                         else
-                            TempGLAccNetChange.Next;
+                            TempGLAccNetChange.Next();
                     end;
 
                     trigger OnPostDataItem()
@@ -539,64 +539,6 @@
     }
 
     var
-        Text000Txt: Label '%1 cannot be filtered when you post recurring journals.', Comment = '%1=Posting or Expiration Date';
-        Text001Txt: Label '%1 or %2 must be specified.', Comment = '%1=Account Number, %2=Balance Account Number';
-        Text002Txt: Label '%1 must be specified.', Comment = '%1=Gen. Posting Type';
-        Text003Txt: Label '%1 + %2 must be %3.', Comment = '%1=VAT Amount, %2=VAT Base Amount, %3=Amont';
-        Text004Txt: Label '%1 must be " " when %2 is %3.', Comment = '%1=Gen. Posting Type field caption, %2=Account Type field caption, %3=Account Type';
-        Text005Txt: Label '%1, %2, %3 or %4 must not be completed when %5 is %6.', Comment = '%1=Gen. Bus. Posting Group field caption, %2=Gen. Bus. Posting Group field caption, %3=VAT Bus. Posting Group field caption, %4=VAT Bus. Posting Group field caption, %5=Account Type field caption, %6=Account Type';
-        Text006Txt: Label '%1 must be negative.', Comment = '%1=GenJnlLine Amount field caption';
-        Text007Txt: Label '%1 must be positive.', Comment = '%1=GenJnlLine Amount field caption';
-        Text008Txt: Label '%1 must have the same sign as %2.', Comment = '%1=Amount LCY, %2=Amount';
-        Text009Txt: Label '%1 cannot be specified.', Comment = '%1=Job No.';
-        Text010Txt: Label '%1 must be Yes.', Comment = '%1=Check Printed';
-        Text011Txt: Label '%1 + %2 must be -%3.', Comment = '%1=Bal. VAT Amount, %2=Bal. VAT Base Amount, %3=Amont';
-        Text012Txt: Label '%1 must have a different sign than %2.', Comment = '%1=Sales/Purch. LCY, %2=Amount';
-        Text013Txt: Label '%1 must only be a closing date for G/L entries.', Comment = '%1=Posting or Document Date';
-        Text014Txt: Label '%1 is not within your allowed range of posting dates.', Comment = '%1=Posting Date';
-        Text015Txt: Label 'The lines are not listed according to Posting Date because they were not entered in that order.';
-        Text016Txt: Label 'There is a gap in the number series.';
-        Text017Txt: Label '%1 or %2 must be G/L Account or Bank Account.', Comment = '%1=Account Type, %2=Bal. Account Type';
-        Text018Txt: Label '%1 must be 0.', Comment = '%1=Payment Discount Percent';
-        Text019Txt: Label '%1 cannot be specified when using recurring journals.', Comment = '%1=Bal. Account No.';
-        Text020Txt: Label '%1 must not be %2 when %3 = %4.', Comment = '%1=Recurring Method field caption, %2=Recurring Method, %3=Bal. Account Type field caption, %4=Bal. Account Type';
-        Text021Txt: Label 'Allocations can only be used with recurring journals.';
-        Text022Txt: Label 'Specify %1 in the %2 allocation lines.', Comment = '%1=GenJnlAlloc. Account No. field caption, %2=GenJnlAlloc. Count';
-        Text024Txt: Label '%1 %2 posted on %3, must be separated by an empty line.', Comment = '%1 - document type, %2 - document number, %3 - posting date';
-        Text025Txt: Label '%1 %2 is out of balance by %3.', Comment = '%1=LastDocType, %2=LastDocNo, %3=DocBalance';
-        Text026Txt: Label 'The reversing entries for %1 %2 are out of balance by %3.', Comment = '%1=LastDocType, %2=LastDocNo, %3=DocBalanceReverse';
-        Text027Txt: Label 'As of %1, the lines are out of balance by %2.', Comment = '%1=LastDate, %2=DateBalance';
-        Text028Txt: Label 'As of %1, the reversing entries are out of balance by %2.', Comment = '%1=LastDate, %2=DateBalanceReverse';
-        Text029Txt: Label 'The total of the lines is out of balance by %1.', Comment = '%1=TotalBalance';
-        Text030Txt: Label 'The total of the reversing entries is out of balance by %1.', Comment = '%1=TotalBalance';
-        Text031Txt: Label '%1 %2 does not exist.', Comment = '%1=GLAcc.TABLECAPTION, %2=Account No.';
-        Text032Txt: Label '%1 must be %2 for %3 %4.', Comment = '%1=GLAcc. Account Type field caption, %2=GLAcc.Account Type, %3=GLAcc. table caption, %4=Account No.';
-        Text036Txt: Label '%1 %2 %3 does not exist.', Comment = '%1=VATPostingSetup table caption, %2=VAT Bus. Posting Group, %3=VAT Prod. Posting Group';
-        Text037Txt: Label '%1 must be %2.', Comment = '%1=VAT Calculation Type field caption, %2=VATPostingSetup.VAT Calculation Type';
-        Text038Txt: Label 'The currency %1 cannot be found. Check the currency table.', Comment = '%1=Currency Code';
-        Text039Txt: Label 'Sales %1 %2 already exists.', Comment = '%1=Document Type, %2=Document No.';
-        Text040Txt: Label 'Purchase %1 %2 already exists.', Comment = '%1=Document Type, %2=Document No.';
-        Text041Txt: Label '%1 must be entered.', Comment = '%1=External Document No. field caption';
-        Text042Txt: Label '%1 must not be filled when %2 is different in %3 and %4.', Comment = '%1=Bank Payment Type, %2=Currency Code, %3=TABLECAPTION, %4= BankAcc. Table caption';
-        Text043Txt: Label '%1 %2 must not have %3 = %4.', Comment = '%1=FA.TABLECAPTION, %2=Account No., %3=FA.Budgeted Asset field caption, %4=TRUE';
-        Text044Txt: Label '%1 must not be specified in fixed asset journal lines.', Comment = '%1=Job No. field caption';
-        Text045Txt: Label '%1 must be specified in fixed asset journal lines.', Comment = '%1=FA Posting Type field caption';
-        Text046Txt: Label '%1 must be different than %2.', Comment = '%1=Depreciation Book Code field caption, %2=Duplicate in Depreciation Book field caption';
-        Text047Txt: Label '%1 and %2 must not both be %3.', Comment = '%1=Account Type field caption, %2=Bal. Account Type field caption, %3=Account Type';
-        Text049Txt: Label '%1 must not be specified when %2 = %3.', Comment = '%1=Gen. Posting Type field caption, 2%=FA Posting Type field caption, %3=FA Posting Type';
-        Text050Txt: Label 'must not be specified together with %1 = %2.', Comment = '%1=FA Posting Type field caption, %2=FA Posting Type';
-        Text051Txt: Label '%1 must be identical to %2.', Comment = '%1=Posting Date field caption,%2=FA Posting Date';
-        Text052Txt: Label '%1 cannot be a closing date.', Comment = '%1=FA Posting Date field caption';
-        Text053Txt: Label '%1 is not within your range of allowed posting dates.', Comment = '%1=FA Posting Date field caption';
-        Text054Txt: Label 'Insurance integration is not activated for %1 %2.', Comment = '%1=Depreciation Book Code field caption,%2=Depreciation Book Code';
-        Text055Txt: Label 'must not be specified when %1 is specified.', Comment = '%1=FA Error Entry No. field caption';
-        Text056Txt: Label 'When G/L integration is not activated, %1 must not be posted in the general journal.', Comment = '%1=FA Posting Type';
-        Text057Txt: Label 'When G/L integration is not activated, %1 must not be specified in the general journal.', Comment = '%1=Depr. until FA Posting Date field caption';
-        Text058Txt: Label '%1 must not be specified.', Comment = '%1=FA Posting Type field caption';
-        Text059Txt: Label 'The combination of Customer and Gen. Posting Type Purchase is not allowed.';
-        Text060Txt: Label 'The combination of Vendor and Gen. Posting Type Sales is not allowed.';
-        Text061Txt: Label 'The Balance and Reversing Balance recurring methods can be used only with Allocations.';
-        Text062Txt: Label '%1 must not be 0.', Comment = '%1=GenJnlLine  Amount';
         GLSetup: Record "General Ledger Setup";
         SalesSetup: Record "Sales & Receivables Setup";
         PurchSetup: Record "Purchases & Payables Setup";
@@ -659,9 +601,68 @@
         AllocationDimText: Text[75];
         ShowDim: Boolean;
         Continue: Boolean;
+        CurrentICPartner: Code[20];
+
+        Text000Txt: Label '%1 cannot be filtered when you post recurring journals.', Comment = '%1=Posting or Expiration Date';
+        Text001Txt: Label '%1 or %2 must be specified.', Comment = '%1=Account Number, %2=Balance Account Number';
+        Text002Txt: Label '%1 must be specified.', Comment = '%1=Gen. Posting Type';
+        Text003Txt: Label '%1 + %2 must be %3.', Comment = '%1=VAT Amount, %2=VAT Base Amount, %3=Amont';
+        Text004Txt: Label '%1 must be " " when %2 is %3.', Comment = '%1=Gen. Posting Type field caption, %2=Account Type field caption, %3=Account Type';
+        Text005Txt: Label '%1, %2, %3 or %4 must not be completed when %5 is %6.', Comment = '%1=Gen. Bus. Posting Group field caption, %2=Gen. Bus. Posting Group field caption, %3=VAT Bus. Posting Group field caption, %4=VAT Bus. Posting Group field caption, %5=Account Type field caption, %6=Account Type';
+        Text006Txt: Label '%1 must be negative.', Comment = '%1=GenJnlLine Amount field caption';
+        Text007Txt: Label '%1 must be positive.', Comment = '%1=GenJnlLine Amount field caption';
+        Text008Txt: Label '%1 must have the same sign as %2.', Comment = '%1=Amount LCY, %2=Amount';
+        Text009Txt: Label '%1 cannot be specified.', Comment = '%1=Job No.';
+        Text010Txt: Label '%1 must be Yes.', Comment = '%1=Check Printed';
+        Text011Txt: Label '%1 + %2 must be -%3.', Comment = '%1=Bal. VAT Amount, %2=Bal. VAT Base Amount, %3=Amont';
+        Text012Txt: Label '%1 must have a different sign than %2.', Comment = '%1=Sales/Purch. LCY, %2=Amount';
+        Text013Txt: Label '%1 must only be a closing date for G/L entries.', Comment = '%1=Posting or Document Date';
+        Text014Txt: Label '%1 is not within your allowed range of posting dates.', Comment = '%1=Posting Date';
+        Text015Txt: Label 'The lines are not listed according to Posting Date because they were not entered in that order.';
+        Text016Txt: Label 'There is a gap in the number series.';
+        Text017Txt: Label '%1 or %2 must be G/L Account or Bank Account.', Comment = '%1=Account Type, %2=Bal. Account Type';
+        Text018Txt: Label '%1 must be 0.', Comment = '%1=Payment Discount Percent';
+        Text019Txt: Label '%1 cannot be specified when using recurring journals.', Comment = '%1=Bal. Account No.';
+        Text020Txt: Label '%1 must not be %2 when %3 = %4.', Comment = '%1=Recurring Method field caption, %2=Recurring Method, %3=Bal. Account Type field caption, %4=Bal. Account Type';
+        Text021Txt: Label 'Allocations can only be used with recurring journals.';
+        Text022Txt: Label 'Specify %1 in the %2 allocation lines.', Comment = '%1=GenJnlAlloc. Account No. field caption, %2=GenJnlAlloc. Count';
+        Text024Txt: Label '%1 %2 posted on %3, must be separated by an empty line.', Comment = '%1 - document type, %2 - document number, %3 - posting date';
+        Text025Txt: Label '%1 %2 is out of balance by %3.', Comment = '%1=LastDocType, %2=LastDocNo, %3=DocBalance';
+        Text026Txt: Label 'The reversing entries for %1 %2 are out of balance by %3.', Comment = '%1=LastDocType, %2=LastDocNo, %3=DocBalanceReverse';
+        Text027Txt: Label 'As of %1, the lines are out of balance by %2.', Comment = '%1=LastDate, %2=DateBalance';
+        Text028Txt: Label 'As of %1, the reversing entries are out of balance by %2.', Comment = '%1=LastDate, %2=DateBalanceReverse';
+        Text029Txt: Label 'The total of the lines is out of balance by %1.', Comment = '%1=TotalBalance';
+        Text030Txt: Label 'The total of the reversing entries is out of balance by %1.', Comment = '%1=TotalBalance';
+        Text031Txt: Label '%1 %2 does not exist.', Comment = '%1=GLAcc.TableCaption(), %2=Account No.';
+        Text032Txt: Label '%1 must be %2 for %3 %4.', Comment = '%1=GLAcc. Account Type field caption, %2=GLAcc.Account Type, %3=GLAcc. table caption, %4=Account No.';
+        Text036Txt: Label '%1 %2 %3 does not exist.', Comment = '%1=VATPostingSetup table caption, %2=VAT Bus. Posting Group, %3=VAT Prod. Posting Group';
+        Text037Txt: Label '%1 must be %2.', Comment = '%1=VAT Calculation Type field caption, %2=VATPostingSetup.VAT Calculation Type';
+        Text038Txt: Label 'The currency %1 cannot be found. Check the currency table.', Comment = '%1=Currency Code';
+        Text039Txt: Label 'Sales %1 %2 already exists.', Comment = '%1=Document Type, %2=Document No.';
+        Text040Txt: Label 'Purchase %1 %2 already exists.', Comment = '%1=Document Type, %2=Document No.';
+        Text041Txt: Label '%1 must be entered.', Comment = '%1=External Document No. field caption';
+        Text042Txt: Label '%1 must not be filled when %2 is different in %3 and %4.', Comment = '%1=Bank Payment Type, %2=Currency Code, %3=TABLECAPTION, %4= BankAcc. Table caption';
+        Text043Txt: Label '%1 %2 must not have %3 = %4.', Comment = '%1=FA.TableCaption(), %2=Account No., %3=FA.Budgeted Asset field caption, %4=TRUE';
+        Text044Txt: Label '%1 must not be specified in fixed asset journal lines.', Comment = '%1=Job No. field caption';
+        Text045Txt: Label '%1 must be specified in fixed asset journal lines.', Comment = '%1=FA Posting Type field caption';
+        Text046Txt: Label '%1 must be different than %2.', Comment = '%1=Depreciation Book Code field caption, %2=Duplicate in Depreciation Book field caption';
+        Text047Txt: Label '%1 and %2 must not both be %3.', Comment = '%1=Account Type field caption, %2=Bal. Account Type field caption, %3=Account Type';
+        Text049Txt: Label '%1 must not be specified when %2 = %3.', Comment = '%1=Gen. Posting Type field caption, 2%=FA Posting Type field caption, %3=FA Posting Type';
+        Text050Txt: Label 'must not be specified together with %1 = %2.', Comment = '%1=FA Posting Type field caption, %2=FA Posting Type';
+        Text051Txt: Label '%1 must be identical to %2.', Comment = '%1=Posting Date field caption,%2=FA Posting Date';
+        Text052Txt: Label '%1 cannot be a closing date.', Comment = '%1=FA Posting Date field caption';
+        Text053Txt: Label '%1 is not within your range of allowed posting dates.', Comment = '%1=FA Posting Date field caption';
+        Text054Txt: Label 'Insurance integration is not activated for %1 %2.', Comment = '%1=Depreciation Book Code field caption,%2=Depreciation Book Code';
+        Text055Txt: Label 'must not be specified when %1 is specified.', Comment = '%1=FA Error Entry No. field caption';
+        Text056Txt: Label 'When G/L integration is not activated, %1 must not be posted in the general journal.', Comment = '%1=FA Posting Type';
+        Text057Txt: Label 'When G/L integration is not activated, %1 must not be specified in the general journal.', Comment = '%1=Depr. until FA Posting Date field caption';
+        Text058Txt: Label '%1 must not be specified.', Comment = '%1=FA Posting Type field caption';
+        Text059Txt: Label 'The combination of Customer and Gen. Posting Type Purchase is not allowed.';
+        Text060Txt: Label 'The combination of Vendor and Gen. Posting Type Sales is not allowed.';
+        Text061Txt: Label 'The Balance and Reversing Balance recurring methods can be used only with Allocations.';
+        Text062Txt: Label '%1 must not be 0.', Comment = '%1=GenJnlLine  Amount';
         Text064Txt: Label '%1 %2 is already used in line %3 (%4 %5).', Comment = '%1=GenJnlLine External Document No. field caption, %2=GenJnlLine External Document No., %3=TempGenJnlLine Line No., %4=GenJnlLine Document No.field caption, %5=TempGenJnlLine Document No.';
         Text065Txt: Label '%1 must not be blocked with type %2 when %3 is %4.', Comment = '%1=Account Type, %2=Cust.Blocked, %3=Document Type field caption, %4=Document Type';
-        CurrentICPartner: Code[20];
         Text066Txt: Label 'You cannot enter G/L Account or Bank Account in both %1 and %2.', Comment = '%1=Account No. field caption, %2=Bal. Account No. field caption';
         Text067Txt: Label '%1 %2 is linked to %3 %4.', Comment = '%1=Customer table caption, %2=Account No., %3=ICPartner table caption, %4=IC Partner Code';
         Text069Txt: Label '%1 must not be specified when %2 is %3.', Comment = '%1=IC Partner G/L Acc. No. field caption, %2=IC Direction field caption, %3=IC Direction';
@@ -785,7 +786,7 @@
         if NextGenJnlLine.Next() = 0 then;
         MakeRecurringTexts(NextGenJnlLine);
         with GenJnlLine do
-            if not EmptyLine then begin
+            if not EmptyLine() then begin
                 DocBalance := DocBalance + "Balance (LCY)";
                 DateBalance := DateBalance + "Balance (LCY)";
                 TotalBalance := TotalBalance + "Balance (LCY)";
@@ -929,7 +930,7 @@
                 AddError(
                   StrSubstNo(
                     Text031Txt,
-                    GLAcc.TableCaption, "Account No."))
+                    GLAcc.TableCaption(), "Account No."))
             else begin
                 AccName := GLAcc.Name;
 
@@ -937,13 +938,13 @@
                     AddError(
                       StrSubstNo(
                         Text032Txt,
-                        GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption, "Account No."));
+                        GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption(), "Account No."));
                 if GLAcc."Account Type" <> GLAcc."Account Type"::Posting then begin
                     GLAcc."Account Type" := GLAcc."Account Type"::Posting;
                     AddError(
                       StrSubstNo(
                         Text032Txt,
-                        GLAcc.FieldCaption("Account Type"), GLAcc."Account Type", GLAcc.TableCaption, "Account No."));
+                        GLAcc.FieldCaption("Account Type"), GLAcc."Account Type", GLAcc.TableCaption(), "Account No."));
                 end;
                 if not "System-Created Entry" then
                     if "Posting Date" = NormalDate("Posting Date") then
@@ -951,7 +952,7 @@
                             AddError(
                               StrSubstNo(
                                 Text032Txt,
-                                GLAcc.FieldCaption("Direct Posting"), true, GLAcc.TableCaption, "Account No."));
+                                GLAcc.FieldCaption("Direct Posting"), true, GLAcc.TableCaption(), "Account No."));
 
                 if "Gen. Posting Type" <> "Gen. Posting Type"::" " then begin
                     case "Gen. Posting Type" of
@@ -960,13 +961,13 @@
                         "Gen. Posting Type"::Purchase:
                             PurchPostingType := true;
                     end;
-                    TestPostingType;
+                    TestPostingType();
 
                     if not VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
                         AddError(
                           StrSubstNo(
                             Text036Txt,
-                            VATPostingSetup.TableCaption, "VAT Bus. Posting Group", "VAT Prod. Posting Group"))
+                            VATPostingSetup.TableCaption(), "VAT Bus. Posting Group", "VAT Prod. Posting Group"))
                     else
                         if "VAT Calculation Type" <> VATPostingSetup."VAT Calculation Type" then
                             AddError(
@@ -987,7 +988,7 @@
                 AddError(
                   StrSubstNo(
                     Text031Txt,
-                    Cust.TableCaption, "Account No."))
+                    Cust.TableCaption(), "Account No."))
             else begin
                 AccName := Cust.Name;
                 if Cust."Privacy Blocked" then
@@ -1015,22 +1016,22 @@
                                 '%1 %2',
                                 StrSubstNo(
                                   Text067Txt,
-                                  Cust.TableCaption, "Account No.", ICPartner.TableCaption, "IC Partner Code"),
+                                  Cust.TableCaption(), "Account No.", ICPartner.TableCaption(), "IC Partner Code"),
                                 StrSubstNo(
                                   Text032Txt,
-                                  ICPartner.FieldCaption(Blocked), false, ICPartner.TableCaption, Cust."IC Partner Code")));
+                                  ICPartner.FieldCaption(Blocked), false, ICPartner.TableCaption(), Cust."IC Partner Code")));
                     end else
                         AddError(
                           StrSubstNo(
                             '%1 %2',
                             StrSubstNo(
                               Text067Txt,
-                              Cust.TableCaption, "Account No.", ICPartner.TableCaption, Cust."IC Partner Code"),
+                              Cust.TableCaption(), "Account No.", ICPartner.TableCaption(), Cust."IC Partner Code"),
                             StrSubstNo(
                               Text031Txt,
-                              ICPartner.TableCaption, Cust."IC Partner Code")));
+                              ICPartner.TableCaption(), Cust."IC Partner Code")));
                 CustPosting := true;
-                TestPostingType;
+                TestPostingType();
 
                 if "Recurring Method" = "Gen. Journal Recurring Method"::" " then
                     if "Document Type" in
@@ -1077,7 +1078,7 @@
                 AddError(
                   StrSubstNo(
                     Text031Txt,
-                    Vend.TableCaption, "Account No."))
+                    Vend.TableCaption(), "Account No."))
             else begin
                 AccName := Vend.Name;
                 if Vend."Privacy Blocked" then
@@ -1105,22 +1106,22 @@
                                 '%1 %2',
                                 StrSubstNo(
                                   Text067Txt,
-                                  Vend.TableCaption, "Account No.", ICPartner.TableCaption, Vend."IC Partner Code"),
+                                  Vend.TableCaption(), "Account No.", ICPartner.TableCaption(), Vend."IC Partner Code"),
                                 StrSubstNo(
                                   Text032Txt,
-                                  ICPartner.FieldCaption(Blocked), false, ICPartner.TableCaption, Vend."IC Partner Code")));
+                                  ICPartner.FieldCaption(Blocked), false, ICPartner.TableCaption(), Vend."IC Partner Code")));
                     end else
                         AddError(
                           StrSubstNo(
                             '%1 %2',
                             StrSubstNo(
                               Text067Txt,
-                              Vend.TableCaption, "Account No.", ICPartner.TableCaption, "IC Partner Code"),
+                              Vend.TableCaption(), "Account No.", ICPartner.TableCaption(), "IC Partner Code"),
                             StrSubstNo(
                               Text031Txt,
-                              ICPartner.TableCaption, Vend."IC Partner Code")));
+                              ICPartner.TableCaption(), Vend."IC Partner Code")));
                 VendPosting := true;
-                TestPostingType;
+                TestPostingType();
 
                 if "Recurring Method" = "Gen. Journal Recurring Method"::" " then
                     if "Document Type" in
@@ -1168,7 +1169,7 @@
                 AddError(
                   StrSubstNo(
                     Text031Txt,
-                    BankAcc.TableCaption, "Account No."))
+                    BankAcc.TableCaption(), "Account No."))
             else begin
                 AccName := BankAcc.Name;
 
@@ -1176,7 +1177,7 @@
                     AddError(
                       StrSubstNo(
                         Text032Txt,
-                        BankAcc.FieldCaption(Blocked), false, BankAcc.TableCaption, "Account No."));
+                        BankAcc.FieldCaption(Blocked), false, BankAcc.TableCaption(), "Account No."));
                 if ("Currency Code" <> BankAcc."Currency Code") and (BankAcc."Currency Code" <> '') then
                     AddError(
                       StrSubstNo(
@@ -1197,7 +1198,7 @@
                               StrSubstNo(
                                 Text042Txt,
                                 FieldCaption("Bank Payment Type"), FieldCaption("Currency Code"),
-                                TableCaption, BankAcc.TableCaption));
+                                TableCaption, BankAcc.TableCaption()));
 
                 if BankAccPostingGr.Get(BankAcc."Bank Acc. Posting Group") then
                     if BankAccPostingGr."G/L Account No." <> '' then
@@ -1214,36 +1215,36 @@
                 AddError(
                   StrSubstNo(
                     Text031Txt,
-                    FA.TableCaption, "Account No."))
+                    FA.TableCaption(), "Account No."))
             else begin
                 AccName := FA.Description;
                 if FA.Blocked then
                     AddError(
                       StrSubstNo(
                         Text032Txt,
-                        FA.FieldCaption(Blocked), false, FA.TableCaption, "Account No."));
+                        FA.FieldCaption(Blocked), false, FA.TableCaption(), "Account No."));
                 if FA.Inactive then
                     AddError(
                       StrSubstNo(
                         Text032Txt,
-                        FA.FieldCaption(Inactive), false, FA.TableCaption, "Account No."));
+                        FA.FieldCaption(Inactive), false, FA.TableCaption(), "Account No."));
                 if FA."Budgeted Asset" then
                     AddError(
                       StrSubstNo(
                         Text043Txt,
-                        FA.TableCaption, "Account No.", FA.FieldCaption("Budgeted Asset"), true));
+                        FA.TableCaption(), "Account No.", FA.FieldCaption("Budgeted Asset"), true));
                 if DeprBook.Get("Depreciation Book Code") then
                     CheckFAIntegration(GenJnlLine)
                 else
                     AddError(
                       StrSubstNo(
                         Text031Txt,
-                        DeprBook.TableCaption, "Depreciation Book Code"));
+                        DeprBook.TableCaption(), "Depreciation Book Code"));
                 if not FADeprBook.Get(FA."No.", "Depreciation Book Code") then
                     AddError(
                       StrSubstNo(
                         Text036Txt,
-                        FADeprBook.TableCaption, FA."No.", "Depreciation Book Code"));
+                        FADeprBook.TableCaption(), FA."No.", "Depreciation Book Code"));
             end;
     end;
 
@@ -1254,14 +1255,14 @@
                 AddError(
                   StrSubstNo(
                     Text031Txt,
-                    ICPartner.TableCaption, "Account No."))
+                    ICPartner.TableCaption(), "Account No."))
             else begin
                 AccName := ICPartner.Name;
                 if ICPartner.Blocked then
                     AddError(
                       StrSubstNo(
                         Text032Txt,
-                        ICPartner.FieldCaption(Blocked), false, ICPartner.TableCaption, "Account No."));
+                        ICPartner.FieldCaption(Blocked), false, ICPartner.TableCaption(), "Account No."));
             end;
     end;
 
@@ -1475,6 +1476,7 @@
         TempGenJnlLine.Reset();
         TempGenJnlLine.SetRange("External Document No.", GenJnlLine."External Document No.");
 
+        i := 0;
         while (i < 2) and not ErrorFound do begin
             i := i + 1;
             if i = 1 then begin
@@ -1568,24 +1570,24 @@
             if ("Job No." = '') or ("Account Type" <> "Account Type"::"G/L Account") then
                 exit;
             if not Job.Get("Job No.") then
-                AddError(StrSubstNo(Text071Txt, Job.TableCaption, "Job No."))
+                AddError(StrSubstNo(Text071Txt, Job.TableCaption(), "Job No."))
             else
                 if Job.Blocked <> Job.Blocked::" " then
                     AddError(
                       StrSubstNo(
-                        Text072Txt, Job.FieldCaption(Blocked), Job.Blocked, Job.TableCaption, "Job No."));
+                        Text072Txt, Job.FieldCaption(Blocked), Job.Blocked, Job.TableCaption(), "Job No."));
 
             if "Job Task No." = '' then
                 AddError(StrSubstNo(Text002Txt, FieldCaption("Job Task No.")))
             else
                 if not JobTask.Get("Job No.", "Job Task No.") then
-                    AddError(StrSubstNo(Text071Txt, JobTask.TableCaption, "Job Task No."))
+                    AddError(StrSubstNo(Text071Txt, JobTask.TableCaption(), "Job Task No."))
         end;
     end;
 
     local procedure CheckFADocNo(GenJnlLine: Record "Gen. Journal Line")
     var
-        DeprBook: Record "Depreciation Book";
+        DepreciationBook2: Record "Depreciation Book";
         FAJnlLine: Record "FA Journal Line";
         OldFALedgEntry: Record "FA Ledger Entry";
         OldMaintenanceLedgEntry: Record "Maintenance Ledger Entry";
@@ -1602,9 +1604,9 @@
                ("Document No." = '')
             then
                 exit;
-            if not DeprBook.Get("Depreciation Book Code") then
+            if not DepreciationBook2.Get("Depreciation Book Code") then
                 exit;
-            if DeprBook."Allow Identical Document No." then
+            if DepreciationBook2."Allow Identical Document No." then
                 exit;
 
             FAJnlLine."FA Posting Type" := "FA Journal Line FA Posting Type".FromInteger("FA Posting Type".AsInteger() - 1);
@@ -1616,22 +1618,16 @@
                 OldFALedgEntry.SetRange("FA Posting Category", OldFALedgEntry."FA Posting Category"::" ");
                 OldFALedgEntry.SetRange("FA Posting Type", FAJnlLine.ConvertToLedgEntry(FAJnlLine));
                 OldFALedgEntry.SetRange("Document No.", "Document No.");
-                if OldFALedgEntry.FindFirst() then
-                    AddError(
-                      StrSubstNo(
-                        Text073Txt,
-                        FieldCaption("Document No."), "Document No."));
+                if not OldFALedgEntry.IsEmpty() then
+                    AddError(StrSubstNo(Text073Txt, FieldCaption("Document No."), "Document No."));
             end else begin
                 OldMaintenanceLedgEntry.SetCurrentKey(
                   "FA No.", "Depreciation Book Code", "Document No.");
                 OldMaintenanceLedgEntry.SetRange("FA No.", FANo);
                 OldMaintenanceLedgEntry.SetRange("Depreciation Book Code", "Depreciation Book Code");
                 OldMaintenanceLedgEntry.SetRange("Document No.", "Document No.");
-                if OldMaintenanceLedgEntry.FindFirst() then
-                    AddError(
-                      StrSubstNo(
-                        Text073Txt,
-                        FieldCaption("Document No."), "Document No."));
+                if not OldMaintenanceLedgEntry.IsEmpty() then
+                    AddError(StrSubstNo(Text073Txt, FieldCaption("Document No."), "Document No."));
             end;
         end;
     end;
@@ -1822,10 +1818,9 @@
                         begin
                             if ("Gen. Bus. Posting Group" <> '') or ("Gen. Prod. Posting Group" <> '') or
                                ("VAT Bus. Posting Group" <> '') or ("VAT Prod. Posting Group" <> '')
-                            then begin
+                            then
                                 if "Gen. Posting Type" = "Gen. Posting Type"::" " then
                                     AddError(StrSubstNo(Text002Txt, FieldCaption("Gen. Posting Type")));
-                            end;
                             if ("Gen. Posting Type" <> "Gen. Posting Type"::" ") and
                                ("VAT Posting" = "VAT Posting"::"Automatic VAT Entry")
                             then begin
@@ -1860,7 +1855,7 @@
                                     FieldCaption("VAT Bus. Posting Group"), FieldCaption("VAT Prod. Posting Group"),
                                     FieldCaption("Account Type"), "Account Type"));
 
-                            if "Document Type" <> "Document Type"::" " then begin
+                            if "Document Type" <> "Document Type"::" " then
                                 if "Account Type" = "Account Type"::Customer then
                                     case "Document Type" of
                                         "Document Type"::"Credit Memo":
@@ -1892,8 +1887,7 @@
                                             WarningIfPositiveAmt("Gen. Journal Line");
                                         else
                                             WarningIfPositiveAmt("Gen. Journal Line");
-                                    end
-                            end;
+                                    end;
 
                             if Amount * "Sales/Purch. (LCY)" < 0 then
                                 AddError(
@@ -1940,10 +1934,9 @@
                         begin
                             if ("Bal. Gen. Bus. Posting Group" <> '') or ("Bal. Gen. Prod. Posting Group" <> '') or
                                ("Bal. VAT Bus. Posting Group" <> '') or ("Bal. VAT Prod. Posting Group" <> '')
-                            then begin
+                            then
                                 if "Bal. Gen. Posting Type" = "Bal. Gen. Posting Type"::" " then
                                     AddError(StrSubstNo(Text002Txt, FieldCaption("Bal. Gen. Posting Type")));
-                            end;
                             if ("Bal. Gen. Posting Type" <> "Bal. Gen. Posting Type"::" ") and
                                ("VAT Posting" = "VAT Posting"::"Automatic VAT Entry")
                             then begin
@@ -1977,14 +1970,14 @@
                                     FieldCaption("Bal. VAT Bus. Posting Group"), FieldCaption("Bal. VAT Prod. Posting Group"),
                                     FieldCaption("Bal. Account Type"), "Bal. Account Type"));
 
-                            if "Document Type" <> "Document Type"::" " then begin
+                            if "Document Type" <> "Document Type"::" " then
                                 if ("Bal. Account Type" = "Bal. Account Type"::Customer) =
                                    ("Document Type" in ["Document Type"::Payment, "Document Type"::"Credit Memo"])
                                 then
                                     WarningIfNegativeAmt("Gen. Journal Line")
                                 else
-                                    WarningIfPositiveAmt("Gen. Journal Line")
-                            end;
+                                    WarningIfPositiveAmt("Gen. Journal Line");
+
                             if Amount * "Sales/Purch. (LCY)" > 0 then
                                 AddError(
                                   StrSubstNo(

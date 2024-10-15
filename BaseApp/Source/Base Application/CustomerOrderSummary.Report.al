@@ -14,7 +14,7 @@ report 107 "Customer - Order Summary"
             DataItemTableView = SORTING("No.");
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.", "Search Name", "Customer Posting Group", "Currency Filter", "Agreement Filter";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(PrintAmountsInLCY; PrintAmountsInLCY)
@@ -155,7 +155,7 @@ report 107 "Customer - Order Summary"
                     while "Shipment Date" >= PeriodStartDate[PeriodNo] do
                         PeriodNo := PeriodNo + 1;
 
-                    Currency.InitRoundingPrecision;
+                    Currency.InitRoundingPrecision();
                     if "VAT Calculation Type" in ["VAT Calculation Type"::"Normal VAT", "VAT Calculation Type"::"Reverse Charge VAT"] then
                         SalesOrderAmount :=
                           Round(
@@ -179,7 +179,7 @@ report 107 "Customer - Order Summary"
                             SalesOrderAmountLCY :=
                               Round(
                                 CurrExchRate.ExchangeAmtFCYToLCY(
-                                  WorkDate, SalesHeader."Currency Code",
+                                  WorkDate(), SalesHeader."Currency Code",
                                   SalesOrderAmount, SalesHeader."Currency Factor"));
                     end;
 
@@ -203,7 +203,7 @@ report 107 "Customer - Order Summary"
 
             trigger OnPreDataItem()
             begin
-                ClearAmounts;
+                ClearAmounts();
             end;
         }
     }
@@ -243,7 +243,7 @@ report 107 "Customer - Order Summary"
         trigger OnOpenPage()
         begin
             if PeriodStartDate[1] = 0D then
-                PeriodStartDate[1] := WorkDate;
+                PeriodStartDate[1] := WorkDate();
         end;
     }
 

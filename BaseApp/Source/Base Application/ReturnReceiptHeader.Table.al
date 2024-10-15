@@ -47,12 +47,6 @@ table 6660 "Return Receipt Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCode.ValidateCity(
-                  "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
-            end;
         }
         field(10; "Bill-to Contact"; Text[100])
         {
@@ -92,12 +86,6 @@ table 6660 "Return Receipt Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCode.ValidateCity(
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
-            end;
         }
         field(18; "Ship-to Contact"; Text[100])
         {
@@ -309,12 +297,6 @@ table 6660 "Return Receipt Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCode.ValidateCity(
-                  "Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
-            end;
         }
         field(84; "Sell-to Contact"; Text[100])
         {
@@ -329,12 +311,6 @@ table 6660 "Return Receipt Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCode.ValidatePostCode(
-                  "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
-            end;
         }
         field(86; "Bill-to County"; Text[30])
         {
@@ -355,12 +331,6 @@ table 6660 "Return Receipt Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCode.ValidatePostCode(
-                  "Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
-            end;
         }
         field(89; "Sell-to County"; Text[30])
         {
@@ -381,12 +351,6 @@ table 6660 "Return Receipt Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCode.ValidatePostCode(
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
-            end;
         }
         field(92; "Ship-to County"; Text[30])
         {
@@ -610,7 +574,6 @@ table 6660 "Return Receipt Header"
     var
         ReturnRcptHeader: Record "Return Receipt Header";
         SalesCommentLine: Record "Sales Comment Line";
-        PostCode: Record "Post Code";
         DimMgt: Codeunit DimensionManagement;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         UserSetupMgt: Codeunit "User Setup Management";
@@ -693,7 +656,7 @@ table 6660 "Return Receipt Header"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 - %3', TableCaption, "No.", Text001));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 - %3', TableCaption(), "No.", Text001));
     end;
 
     procedure SetSecurityFilterOnRespCenter()
@@ -705,9 +668,9 @@ table 6660 "Return Receipt Header"
         if IsHandled then
             exit;
 
-        if UserSetupMgt.GetSalesFilter <> '' then begin
+        if UserSetupMgt.GetSalesFilter() <> '' then begin
             FilterGroup(2);
-            SetRange("Responsibility Center", UserSetupMgt.GetSalesFilter);
+            SetRange("Responsibility Center", UserSetupMgt.GetSalesFilter());
             FilterGroup(0);
         end;
     end;

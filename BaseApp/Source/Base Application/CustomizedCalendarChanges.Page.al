@@ -1,7 +1,7 @@
 page 7603 "Customized Calendar Changes"
 {
     Caption = 'Customized Calendar Changes';
-    DataCaptionExpression = GetCaption;
+    DataCaptionExpression = GetCaption();
     PageType = List;
     SourceTable = "Customized Calendar Change";
 
@@ -12,25 +12,25 @@ page 7603 "Customized Calendar Changes"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Source Type"; "Source Type")
+                field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the source type, such as company, for this entry.';
                     Visible = false;
                 }
-                field("Source Code"; "Source Code")
+                field("Source Code"; Rec."Source Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the source code that specifies where the entry was created.';
                     Visible = false;
                 }
-                field("Base Calendar Code"; "Base Calendar Code")
+                field("Base Calendar Code"; Rec."Base Calendar Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies which base calendar was used as the basis for this customized calendar.';
                     Visible = false;
                 }
-                field("Recurring System"; "Recurring System")
+                field("Recurring System"; Rec."Recurring System")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Recurring System';

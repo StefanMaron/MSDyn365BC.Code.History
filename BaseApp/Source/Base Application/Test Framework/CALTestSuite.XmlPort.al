@@ -70,9 +70,9 @@ xmlport 130400 "CAL Test Suite"
                                ("<CAL Test Line>"."Function" = '')
                             then begin
                                 CopyOfCALTestLine.Copy("<CAL Test Line>");
-                                "<CAL Test Line>".SetRecFilter;
+                                "<CAL Test Line>".SetRecFilter();
 
-                                CALTestMgt.SETPUBLISHMODE;
+                                CALTestMgt.SETPUBLISHMODE();
                                 CODEUNIT.Run(CODEUNIT::"CAL Test Runner", "<CAL Test Line>");
 
                                 "<CAL Test Line>".Copy(CopyOfCALTestLine);

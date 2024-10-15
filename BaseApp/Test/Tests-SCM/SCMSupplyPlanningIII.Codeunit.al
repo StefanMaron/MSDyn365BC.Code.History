@@ -253,9 +253,9 @@
             SelectRequisitionLine(RequisitionLine, Item."No.");
             VerifyRequisitionLine(RequisitionLine, Item."Reorder Quantity", 0, RequisitionLine."Ref. Order Type"::Purchase);
         end else begin
-            VerifyRequisitionLineWithDueDate(Item."No.", AdjustmentQuantity, SelectDateWithSafetyLeadTime(WorkDate, -1));
-            VerifyRequisitionLineWithDueDate(Item."No.", Item."Safety Stock Quantity", WorkDate);
-            VerifyRequisitionLineWithDueDate(Item."No.", Item."Reorder Quantity", SelectDateWithSafetyLeadTime(WorkDate, 1));
+            VerifyRequisitionLineWithDueDate(Item."No.", AdjustmentQuantity, SelectDateWithSafetyLeadTime(WorkDate(), -1));
+            VerifyRequisitionLineWithDueDate(Item."No.", Item."Safety Stock Quantity", WorkDate());
+            VerifyRequisitionLineWithDueDate(Item."No.", Item."Reorder Quantity", SelectDateWithSafetyLeadTime(WorkDate(), 1));
         end;
     end;
 
@@ -279,8 +279,8 @@
         CalculatePlanForRequisitionWorksheet(Item);
 
         // Verify: Verify Requisition Worksheet lines.
-        VerifyRequisitionLineWithDueDate(Item."No.", Item."Reorder Quantity", SelectDateWithSafetyLeadTime(WorkDate, 1));
-        VerifyRequisitionLineWithDueDate(Item."No.", SalesQty + Item."Safety Stock Quantity", WorkDate);
+        VerifyRequisitionLineWithDueDate(Item."No.", Item."Reorder Quantity", SelectDateWithSafetyLeadTime(WorkDate(), 1));
+        VerifyRequisitionLineWithDueDate(Item."No.", SalesQty + Item."Safety Stock Quantity", WorkDate());
     end;
 
     [Test]
@@ -302,8 +302,8 @@
         CalculatePlanForRequisitionWorksheet(Item);
 
         // Verify: Verify Requisition Worksheet lines.
-        VerifyRequisitionLineWithDueDate(Item."No.", Item."Safety Stock Quantity", WorkDate);
-        VerifyRequisitionLineWithDueDate(Item."No.", Item."Reorder Quantity", SelectDateWithSafetyLeadTime(WorkDate, 1));
+        VerifyRequisitionLineWithDueDate(Item."No.", Item."Safety Stock Quantity", WorkDate());
+        VerifyRequisitionLineWithDueDate(Item."No.", Item."Reorder Quantity", SelectDateWithSafetyLeadTime(WorkDate(), 1));
     end;
 
     [Test]
@@ -343,8 +343,8 @@
         CalculatePlanForRequisitionWorksheet(Item);
 
         // Verify: Verify Requisition Worksheet lines.
-        VerifyRequisitionLineWithDueDate(Item."No.", SalesQty, WorkDate);
-        VerifyRequisitionLineWithDueDate(Item."No.", Item."Maximum Inventory", SelectDateWithSafetyLeadTime(WorkDate, 1));
+        VerifyRequisitionLineWithDueDate(Item."No.", SalesQty, WorkDate());
+        VerifyRequisitionLineWithDueDate(Item."No.", Item."Maximum Inventory", SelectDateWithSafetyLeadTime(WorkDate(), 1));
     end;
 
     [Test]
@@ -396,11 +396,11 @@
         CalcRegenPlanForPlanWkshPage(Item."No.", ChildItem."No.");
 
         // Verify: Verify Requisition Worksheet lines generated separately - for different forecasts and derived component demands.
-        VerifyRequisitionLineWithDueDate(Item."No.", ForecastQty, WorkDate);
-        NewPurchOrderDate := SelectDateWithSafetyLeadTime(WorkDate, 1);
+        VerifyRequisitionLineWithDueDate(Item."No.", ForecastQty, WorkDate());
+        NewPurchOrderDate := SelectDateWithSafetyLeadTime(WorkDate(), 1);
         VerifyRequisitionLineWithDueDate(Item."No.", ForecastQty, CalcDate('<1D>', NewPurchOrderDate));
-        VerifyRequisitionLineWithDueDate(ChildItem."No.", ProdBOMQtyPer * ForecastQty, SelectDateWithSafetyLeadTime(WorkDate, -1));
-        VerifyRequisitionLineWithDueDate(ChildItem."No.", ProdBOMQtyPer * ForecastQty, SelectDateWithSafetyLeadTime(WorkDate, 1));
+        VerifyRequisitionLineWithDueDate(ChildItem."No.", ProdBOMQtyPer * ForecastQty, SelectDateWithSafetyLeadTime(WorkDate(), -1));
+        VerifyRequisitionLineWithDueDate(ChildItem."No.", ProdBOMQtyPer * ForecastQty, SelectDateWithSafetyLeadTime(WorkDate(), 1));
 
         // Teardown.
         UpdateManufacturingSetup(OldCombinedMPSMRPCalculation);
@@ -429,19 +429,19 @@
         SalesQty := LibraryRandom.RandInt(10);
         CreateSalesOrder(SalesHeader, Item."No.", SalesQty);
         CreateSalesOrder(SalesHeader2, Item."No.", SalesQty);
-        UpdateShipmentDateOnSalesLine(SalesHeader2."No.", GetRequiredDate(1, 1, WorkDate));  // Second Sales Order Shipment date close to WORKDATE.
+        UpdateShipmentDateOnSalesLine(SalesHeader2."No.", GetRequiredDate(1, 1, WorkDate()));  // Second Sales Order Shipment date close to WORKDATE.
 
         // Exercise: Calculate regenerative Plan from Planning Worksheet for both parent and child items.
         Item.SetFilter("No.", ItemFilterTxt, Item."No.", ChildItem."No.");  // Filter Required for two Items.
-        EndDate := GetRequiredDate(10, 30, WorkDate);  // End Date relative to Workdate.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, EndDate);
+        EndDate := GetRequiredDate(10, 30, WorkDate());  // End Date relative to Workdate.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), EndDate);
 
         // Verify: Verify Requisition Worksheet lines generated separately - for different Sales orders and derived component demands.
-        VerifyRequisitionLineWithDueDate(Item."No.", SalesQty, WorkDate);
-        NewPurchOrderDate := SelectDateWithSafetyLeadTime(WorkDate, 1);
+        VerifyRequisitionLineWithDueDate(Item."No.", SalesQty, WorkDate());
+        NewPurchOrderDate := SelectDateWithSafetyLeadTime(WorkDate(), 1);
         VerifyRequisitionLineWithDueDate(Item."No.", SalesQty, CalcDate('<1D>', NewPurchOrderDate));
-        VerifyRequisitionLineWithDueDate(ChildItem."No.", ProdBOMQtyPer * SalesQty, SelectDateWithSafetyLeadTime(WorkDate, -1));
-        VerifyRequisitionLineWithDueDate(ChildItem."No.", ProdBOMQtyPer * SalesQty, SelectDateWithSafetyLeadTime(WorkDate, 1));
+        VerifyRequisitionLineWithDueDate(ChildItem."No.", ProdBOMQtyPer * SalesQty, SelectDateWithSafetyLeadTime(WorkDate(), -1));
+        VerifyRequisitionLineWithDueDate(ChildItem."No.", ProdBOMQtyPer * SalesQty, SelectDateWithSafetyLeadTime(WorkDate(), 1));
 
         // Teardown.
         UpdateManufacturingSetup(OldCombinedMPSMRPCalculation);
@@ -465,16 +465,16 @@
         // Create Sales Order with two lines. Create second Sales Line with same Sales Qty but with Different Shipment date.
         SalesQty := LibraryRandom.RandDec(10, 2) + 100;
         CreateSalesOrder(SalesHeader, Item."No.", SalesQty);
-        NewShipmentDate := GetRequiredDate(1, 1, WorkDate);  // Shipment Date relative to Work Date.
+        NewShipmentDate := GetRequiredDate(1, 1, WorkDate());  // Shipment Date relative to Work Date.
         LibrarySales.CreateSalesLineWithShipmentDate(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", NewShipmentDate, SalesQty);
 
         // Exercise: Calculate Regenerative Plan for the item.
         CalcRegenPlanForPlanWksh(Item."No.");
 
         // Verify: Verify Requisition Worksheet lines suggests required planning lines which respect Maximum inventory value with respect to dates.
-        VerifyRequisitionLineWithDueDate(Item."No.", Item."Maximum Inventory", SelectDateWithSafetyLeadTime(WorkDate, 1));
-        VerifyRequisitionLineWithDueDate(Item."No.", SalesQty, WorkDate);
-        NewPurchOrderDate := SelectDateWithSafetyLeadTime(WorkDate, 1);
+        VerifyRequisitionLineWithDueDate(Item."No.", Item."Maximum Inventory", SelectDateWithSafetyLeadTime(WorkDate(), 1));
+        VerifyRequisitionLineWithDueDate(Item."No.", SalesQty, WorkDate());
+        NewPurchOrderDate := SelectDateWithSafetyLeadTime(WorkDate(), 1);
         VerifyRequisitionLineWithDueDate(Item."No.", SalesQty - Item."Maximum Inventory", CalcDate('<1D>', NewPurchOrderDate));
         NewPurchOrderDate := SelectDateWithSafetyLeadTime(NewPurchOrderDate, 1);
         VerifyRequisitionLineWithDueDate(
@@ -559,7 +559,7 @@
 
         // Create Sales Order. Update Shipment date on Sales Line. Assign Lot Specific Tracking on Sales Line.Page Handler - AssignLotTrackingAndCheckTrackingQtyPageHandler.
         CreateSalesOrder(SalesHeader, Item."No.", LibraryRandom.RandDec(10, 2));
-        ShipmentDate := GetRequiredDate(10, 30, WorkDate);
+        ShipmentDate := GetRequiredDate(10, 30, WorkDate());
         UpdateShipmentDateOnSalesLine(SalesHeader."No.", ShipmentDate);
         AssignTrackingOnSalesLine(SalesLine, SalesHeader."No.");
 
@@ -569,7 +569,7 @@
         // Verify: Verify Quantity and Tracking assigned on Requisition Line. Verified in AssignLotTrackingAndCheckTrackingQtyPageHandler.
         VerifyTrackingOnRequisitionLine(Item."No.", SalesLine.Quantity);
         VerifyRequisitionLineWithDueDate(Item."No.", SalesLine.Quantity, SalesLine."Shipment Date");
-        VerifyRequisitionLineWithDueDate(Item."No.", ForecastQty - SalesLine.Quantity, WorkDate);
+        VerifyRequisitionLineWithDueDate(Item."No.", ForecastQty - SalesLine.Quantity, WorkDate());
     end;
 
     [Test]
@@ -596,7 +596,7 @@
 
         // Create Sales Order. Update Shipment date on Sales Line. Assign Lot Specific Tracking on Sales Line.Page Handler -  AssignLotTrackingAndCheckTrackingQtyPageHandler.
         CreateSalesOrder(SalesHeader, Item."No.", LibraryRandom.RandDec(10, 2));
-        ShipmentDate := GetRequiredDate(10, 30, WorkDate);
+        ShipmentDate := GetRequiredDate(10, 30, WorkDate());
         UpdateShipmentDateOnSalesLine(SalesHeader."No.", ShipmentDate);
         AssignTrackingOnSalesLine(SalesLine, SalesHeader."No.");
 
@@ -605,8 +605,8 @@
 
         // Verify: Verify Quantity and Tracking assigned on Requisition Line. Verified in AssignLotTrackingAndCheckTrackingQtyPageHandler.
         VerifyTrackingOnRequisitionLine(Item."No.", 0);
-        VerifyRequisitionLineWithDueDate(Item."No.", ForecastQty, WorkDate);
-        VerifyRequisitionLineWithDueDate(Item."No.", Item."Maximum Inventory", SelectDateWithSafetyLeadTime(WorkDate, 1));
+        VerifyRequisitionLineWithDueDate(Item."No.", ForecastQty, WorkDate());
+        VerifyRequisitionLineWithDueDate(Item."No.", Item."Maximum Inventory", SelectDateWithSafetyLeadTime(WorkDate(), 1));
     end;
 
     [Test]
@@ -628,18 +628,18 @@
         CreateTransferOrderWithTransferRoute(TransferLine, Item."No.", LocationYellow.Code, LocationRed.Code, TransferQty);
 
         // Exercise: Calculate regenerative Plan for Planning Worksheet.
-        EndDate := GetRequiredDate(10, 20, WorkDate);  // End Date relative to Workdate.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, EndDate);
+        EndDate := GetRequiredDate(10, 20, WorkDate());  // End Date relative to Workdate.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), EndDate);
 
         // Verify: Verify lines in Planning Worksheet.
         with RequisitionLine do begin
             VerifyRequisitionLineWithLocationActionAndRefOrderType(
-              Item."No.", "Ref. Order Type"::Transfer, LocationRed.Code, "Action Message"::Cancel, 0, TransferQty, WorkDate);
+              Item."No.", "Ref. Order Type"::Transfer, LocationRed.Code, "Action Message"::Cancel, 0, TransferQty, WorkDate());
             VerifyRequisitionLineWithLocationActionAndRefOrderType(
               Item."No.", "Ref. Order Type"::Purchase, '', "Action Message"::New, Item."Reorder Quantity", 0,
-              SelectDateWithSafetyLeadTime(WorkDate, 1));
+              SelectDateWithSafetyLeadTime(WorkDate(), 1));
             VerifyRequisitionLineWithLocationActionAndRefOrderType(
-              Item."No.", "Ref. Order Type"::Purchase, '', "Action Message"::New, Item."Safety Stock Quantity", 0, WorkDate);
+              Item."No.", "Ref. Order Type"::Purchase, '', "Action Message"::New, Item."Safety Stock Quantity", 0, WorkDate());
         end;
     end;
 
@@ -662,16 +662,16 @@
         CreateTransferOrderWithTransferRoute(TransferLine, Item."No.", LocationYellow.Code, LocationRed.Code, TransferQty);
 
         // Exercise: Calculate regenerative Plan for Planning Worksheet.
-        EndDate := GetRequiredDate(10, 20, WorkDate);  // End Date relative to Workdate.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, EndDate);
+        EndDate := GetRequiredDate(10, 20, WorkDate());  // End Date relative to Workdate.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), EndDate);
 
         // Verify: Verify lines in Planning Worksheet.
         with RequisitionLine do begin
             VerifyRequisitionLineWithLocationActionAndRefOrderType(
-              Item."No.", "Ref. Order Type"::Transfer, LocationRed.Code, "Action Message"::Cancel, 0, TransferQty, WorkDate);
+              Item."No.", "Ref. Order Type"::Transfer, LocationRed.Code, "Action Message"::Cancel, 0, TransferQty, WorkDate());
             VerifyRequisitionLineWithLocationActionAndRefOrderType(
               Item."No.", "Ref. Order Type"::Purchase, '', "Action Message"::New, Item."Maximum Inventory", 0,
-              SelectDateWithSafetyLeadTime(WorkDate, 1));
+              SelectDateWithSafetyLeadTime(WorkDate(), 1));
         end;
     end;
 
@@ -692,8 +692,8 @@
           TransferLine, Item."No.", LocationYellow.Code, LocationRed.Code, LibraryRandom.RandInt(10));
 
         // Exercise: Calculate regenerative Plan for Planning Worksheet.
-        EndDate := GetRequiredDate(10, 20, WorkDate);  // End Date relative to Workdate.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, EndDate);
+        EndDate := GetRequiredDate(10, 20, WorkDate());  // End Date relative to Workdate.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), EndDate);
 
         // Verify: Verify no requisition Line created in Planning Worksheet after running regenerative plan.
         VerifyEmptyRequisitionLine(Item."No.");
@@ -719,8 +719,8 @@
         UpdateSalesHeaderOrderDate(SalesHeader);
 
         // Exercise: Calculate regenerative Plan from Planning Worksheet.
-        EndDate := GetRequiredDate(10, 20, WorkDate);  // End Date relative to Workdate.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, EndDate);
+        EndDate := GetRequiredDate(10, 20, WorkDate());  // End Date relative to Workdate.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), EndDate);
 
         // Verify: Verify Requisition line Due date is not the same as Order date from Sales Line.
         SelectRequisitionLine(RequisitionLine, Item."No.");
@@ -746,7 +746,7 @@
         CalculatePlanForRequisitionWorksheet(Item);
 
         // Verify: Verify Requisition Worksheet lines.
-        VerifyRequisitionLineWithDueDate(Item."No.", AdjustmentQuantity, WorkDate);
+        VerifyRequisitionLineWithDueDate(Item."No.", AdjustmentQuantity, WorkDate());
     end;
 
     [Test]
@@ -826,7 +826,7 @@
         CalcPlanForPlanAndReqWksh(Item, CalcPlanPlanWksh);
 
         // Verify: Verify Requisition Worksheet lines at the required Location.
-        VerifyRequisitionLineWithDueDate(Item."No.", SalesQty, WorkDate);
+        VerifyRequisitionLineWithDueDate(Item."No.", SalesQty, WorkDate());
         VerifyLocationOnRequisitionLine(Item."No.", LocationBlue.Code);
     end;
 
@@ -1083,11 +1083,11 @@
             SalesHeader, "Production Order Status"::"Firm Planned", "Create Production Order Type"::ItemOrder);
 
         SelectProdOrderLine(ProdOrderLine, Item."No.");
-        ProdOrderLine.Validate("Due Date", CalcDate('<-2D>', WorkDate)); // Change Due Date on Firmed Prod Order Line.
+        ProdOrderLine.Validate("Due Date", CalcDate('<-2D>', WorkDate())); // Change Due Date on Firmed Prod Order Line.
         ProdOrderLine.Modify(true);
 
         ProductionOrder.Get(ProductionOrder.Status::"Firm Planned", ProdOrderLine."Prod. Order No.");
-        ProductionOrder.Validate("Due Date", CalcDate('<-2D>', WorkDate)); // Change Due Date on Firmed Prod Order Header.
+        ProductionOrder.Validate("Due Date", CalcDate('<-2D>', WorkDate())); // Change Due Date on Firmed Prod Order Header.
         ProductionOrder.Modify(true);
 
         // Exercise: Calculate Regenerative Plan from Planning Worksheet after changed Due Date on Production Order.
@@ -1231,7 +1231,7 @@
         CreatePurchaseOrderWithLocation(Item."No.", Item.Inventory, LocationYellow.Code);
 
         // Exercise: Calculate Regenerative Plan in Planning Worksheet
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, CalcDate('<CY>', WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), CalcDate('<CY>', WorkDate()));
 
         // Verify: A requisition line generated for cancel purchase replenishment
         SelectRequisitionLineForActionMessage(RequisitionLine, Item."No.", RequisitionLine."Action Message"::Cancel);
@@ -1262,7 +1262,7 @@
         CreateSalesOrder(SalesHeader, Item."No.", 2 * (MOQ + Delta));
 
         // [WHEN] Calculating Regenerative Plan
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CM>', WorkDate), CalcDate('<CY>', WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CM>', WorkDate()), CalcDate('<CY>', WorkDate()));
 
         // [THEN] No Requisition Line is created
         VerifyEmptyRequisitionLine(Item."No.");
@@ -1419,22 +1419,22 @@
         CreateItem(Item, Item."Reordering Policy"::Order, Item."Replenishment System"::Purchase);
         // [GIVEN] Blanket sales order with 2 lines: 1 - "Shipment Date" = WORKDATE, 2 - "Shipment Date" = WORKDATE + 1, Quantity = "X" in both lines
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", LibrarySales.CreateCustomerNo);
-        LibrarySales.CreateSalesLineWithShipmentDate(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", WorkDate, Qty);
+        LibrarySales.CreateSalesLineWithShipmentDate(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", WorkDate(), Qty);
         LibrarySales.CreateSalesLineWithShipmentDate(
-          SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", CalcDate('<1D>', WorkDate), Qty);
+          SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", CalcDate('<1D>', WorkDate()), Qty);
 
         // [GIVEN] Second blanket sales order. 1 line: Quantity = "X", "Shipment Date" = WORKDATE
         SalesHeader.Init();
         SalesHeader."No." := '';
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", SalesHeader."Sell-to Customer No.");
-        LibrarySales.CreateSalesLineWithShipmentDate(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", WorkDate, Qty);
+        LibrarySales.CreateSalesLineWithShipmentDate(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", WorkDate(), Qty);
 
         // [WHEN] Claculate regenerative plan from planning worksheet
         CalcRegenPlanForPlanWksh(Item."No.");
 
         // [THEN] 2 purchase orders are planned: 2 * "X" pcs are planned on WORKDATE, "X" pcs on WORKDATE + 1
-        VerifyRequisitionLineWithDueDate(Item."No.", Qty * 2, WorkDate);
-        VerifyRequisitionLineWithDueDate(Item."No.", Qty, CalcDate('<1D>', WorkDate));
+        VerifyRequisitionLineWithDueDate(Item."No.", Qty * 2, WorkDate());
+        VerifyRequisitionLineWithDueDate(Item."No.", Qty, CalcDate('<1D>', WorkDate()));
     end;
 
     [Test]
@@ -1554,7 +1554,7 @@
         UpdateManufacturingSetupComponentsAtLocation(Location.Code);
 
         // [WHEN] Calculate regenerative plan from planning worksheet
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // [THEN] Requisition line is created: "Q" pcs of item "I"
         SelectRequisitionLine(RequisitionLine, Item."No.");
@@ -1593,7 +1593,7 @@
         UpdateManufacturingSetupComponentsAtLocation(Location.Code);
 
         // [WHEN] Calculate regenerative plan from planning worksheet
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // [THEN] Requisition line is created: "Q" pcs of item "I"
         SelectRequisitionLine(RequisitionLine, Item."No.");
@@ -1710,7 +1710,7 @@
         Initialize();
 
         // [GIVEN] "Starting Date" "SD" for regenerative plan calculating.
-        StartingDate := CalcDate('<CM + 1M +1D>', WorkDate);
+        StartingDate := CalcDate('<CM + 1M +1D>', WorkDate());
         NWDates := LibraryRandom.RandInt(5);
 
         // [GIVEN] Base Calendar "BC" with "ND" Nonworking Days in "BC" before "SD" including "SD".
@@ -1759,7 +1759,7 @@
         // [GIVEN] Sales Order "SO" for "I0" at Location "L" with "Shipment Date" SD as a demand;
         // [GIVEN] Calculate Regenerative Plan for "I0", "I1", "I2" at "L" and Carry Out Messages = new to create Production Order "PO" as a supply;
         CreateSalesOrderAndFirmPlannedProductionOrderAsDemandAndSupply(
-          TopLevelItem, Level1Item, Level2Item, SalesHeader, LibraryRandom.RandDateFromInRange(WorkDate, 7, 14), '<1Y>');
+          TopLevelItem, Level1Item, Level2Item, SalesHeader, LibraryRandom.RandDateFromInRange(WorkDate(), 7, 14), '<1Y>');
 
         // [GIVEN] Update "PO" "Due Date" backward (inside "LAP" and "RP") and refresh "PO";
         UpdateItemFirmPlannedProductionOrderDueDate(TopLevelItem."No.", -LibraryRandom.RandInt(5));
@@ -1768,7 +1768,7 @@
         // [WHEN] Carry Out Messages
         PlanWrkShtCalcRegenPlanAndCarryOutActionMessage(
           StrSubstNo('%1|%2|%3', TopLevelItem."No.", Level1Item."No.", Level2Item."No."),
-          CalcDate('<-CY>', WorkDate), CalcDate('<CY>', SalesHeader."Shipment Date"), RequisitionLine."Action Message"::Reschedule);
+          CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', SalesHeader."Shipment Date"), RequisitionLine."Action Message"::Reschedule);
 
         // [THEN] "I1" and "I2" each have 2 "Reservation Entry" with "Reservation Status" = Reservation at "L", "Source Type" "Prod. Order Line" or "Prod. Order Component".
         VerifyReservationEntryPairInsideProductionOrder(Level1Item."No.", Level2Item."No.", SalesHeader."Location Code");
@@ -1799,7 +1799,7 @@
         // [GIVEN] Sales Order "SO" for "I0" at Location "L" with "Shipment Date" SD as a demand;
         // [GIVEN] Calculate Regenerative Plan for "I0", "I1", "I2" at "L" and Carry Out Messages = new to create Production Order "PO" as a supply;
         CreateSalesOrderAndFirmPlannedProductionOrderAsDemandAndSupply(
-          TopLevelItem, Level1Item, Level2Item, SalesHeader, LibraryRandom.RandDateFromInRange(WorkDate, 7, 14), '<1Y>');
+          TopLevelItem, Level1Item, Level2Item, SalesHeader, LibraryRandom.RandDateFromInRange(WorkDate(), 7, 14), '<1Y>');
 
         // [GIVEN] Update "PO" "Due Date" forward (inside "LAP" and "RP") and refresh "PO";
         UpdatedDueDate := UpdateItemFirmPlannedProductionOrderDueDate(TopLevelItem."No.", LibraryRandom.RandInt(5));
@@ -1808,7 +1808,7 @@
         // [WHEN] Carry Out Messages
         PlanWrkShtCalcRegenPlanAndCarryOutActionMessage(
           StrSubstNo('%1|%2|%3', TopLevelItem."No.", Level1Item."No.", Level2Item."No."),
-          CalcDate('<-CY>', WorkDate), CalcDate('<CY>', UpdatedDueDate), RequisitionLine."Action Message"::Reschedule);
+          CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', UpdatedDueDate), RequisitionLine."Action Message"::Reschedule);
 
         // [THEN] "I1" and "I2" each have 2 "Reservation Entry" with "Reservation Status" = Reservation at "L", "Source Type" "Prod. Order Line" or "Prod. Order Component".
         VerifyReservationEntryPairInsideProductionOrder(Level1Item."No.", Level2Item."No.", SalesHeader."Location Code");
@@ -1838,7 +1838,7 @@
         // [GIVEN] Sales Order "SO" for "I0" at Location "L" with "Shipment Date" SD as a demand;
         // [GIVEN] Calculate Regenerative Plan for "I0", "I1", "I2" at "L" and Carry Out Messages = new to create Production Order "PO" as a supply;
         CreateSalesOrderAndFirmPlannedProductionOrderAsDemandAndSupply(
-          TopLevelItem, Level1Item, Level2Item, SalesHeader, LibraryRandom.RandDateFromInRange(WorkDate, 7, 14), '<1Y>');
+          TopLevelItem, Level1Item, Level2Item, SalesHeader, LibraryRandom.RandDateFromInRange(WorkDate(), 7, 14), '<1Y>');
 
         // [GIVEN] Update "SO" "Shipment Date" backward (inside "LAP" and "RP");
         SavedShipmentDate := SalesHeader."Shipment Date";
@@ -1848,7 +1848,7 @@
         // [WHEN] Carry Out Messages
         PlanWrkShtCalcRegenPlanAndCarryOutActionMessage(
           StrSubstNo('%1|%2|%3', TopLevelItem."No.", Level1Item."No.", Level2Item."No."),
-          CalcDate('<-CY>', WorkDate), CalcDate('<CY>', SavedShipmentDate), RequisitionLine."Action Message"::Reschedule);
+          CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', SavedShipmentDate), RequisitionLine."Action Message"::Reschedule);
 
         // [THEN] "I1" and "I2" each have 2 "Reservation Entry" with "Reservation Status" = Reservation at "L", "Source Type" "Prod. Order Line" or "Prod. Order Component".
         VerifyReservationEntryPairInsideProductionOrder(Level1Item."No.", Level2Item."No.", SalesHeader."Location Code");
@@ -1877,7 +1877,7 @@
         // [GIVEN] Sales Order "SO" for "I0" at Location "L" with "Shipment Date" SD as a demand;
         // [GIVEN] Calculate Regenerative Plan for "I0", "I1", "I2" at "L" and Carry Out Messages = new to create Production Order "PO" as a supply;
         CreateSalesOrderAndFirmPlannedProductionOrderAsDemandAndSupply(
-          TopLevelItem, Level1Item, Level2Item, SalesHeader, LibraryRandom.RandDateFromInRange(WorkDate, 7, 14), '<1Y>');
+          TopLevelItem, Level1Item, Level2Item, SalesHeader, LibraryRandom.RandDateFromInRange(WorkDate(), 7, 14), '<1Y>');
 
         // [GIVEN] Update "SO" "Shipment Date" forward (inside "LAP" and "RP");
         UpdateSalesHeaderShipmentDate(SalesHeader, LibraryRandom.RandInt(5));
@@ -1886,7 +1886,7 @@
         // [WHEN] Carry Out Messages
         PlanWrkShtCalcRegenPlanAndCarryOutActionMessage(
           StrSubstNo('%1|%2|%3', TopLevelItem."No.", Level1Item."No.", Level2Item."No."),
-          CalcDate('<-CY>', WorkDate), CalcDate('<CY>', SalesHeader."Shipment Date"), RequisitionLine."Action Message"::Reschedule);
+          CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', SalesHeader."Shipment Date"), RequisitionLine."Action Message"::Reschedule);
 
         // [THEN] "I1" and "I2" each have 2 "Reservation Entry" with "Reservation Status" = Reservation at "L", "Source Type" "Prod. Order Line" or "Prod. Order Component".
         VerifyReservationEntryPairInsideProductionOrder(Level1Item."No.", Level2Item."No.", SalesHeader."Location Code");
@@ -2043,7 +2043,7 @@
         LibraryInventory.CreateItem(ChildItem);
         CreateAndCertifyProductionBOM(ProductionBOMHeader, ChildItem."No.");
         CreateProductionBOMVersionWithStartingDate(
-          ProductionBOMVersion, ProductionBOMHeader."No.", ChildItem."Base Unit of Measure", CalcDate('<-1Y>', WorkDate));
+          ProductionBOMVersion, ProductionBOMHeader."No.", ChildItem."Base Unit of Measure", CalcDate('<-1Y>', WorkDate()));
 
         LibraryVariableStorage.Enqueue(VersionsWillBeClosedMsg); // Enqueue for ConfirmHandlerTRUE
 
@@ -2059,10 +2059,10 @@
         // [GIVEN] Sales Order "SO" of "I" with Quantity "Q"
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
-          ParentItem."No.", LibraryRandom.RandInt(5), '', WorkDate);
+          ParentItem."No.", LibraryRandom.RandInt(5), '', WorkDate());
 
         // [WHEN] Calculate regenerative plan for "I"
-        LibraryPlanning.CalcRegenPlanForPlanWksh(ParentItem, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(ParentItem, WorkDate(), WorkDate());
 
         // [THEN] "Requisition Line" "R" with "I" exists and has the same Quantity "Q"
         RequisitionLine.SetRange("No.", ParentItem."No.");
@@ -2096,7 +2096,7 @@
 
         // [GIVEN] Calculate regenerative plan for items "A" and "B".
         ItemToPlan.SetFilter("No.", '%1|%2', Item[1]."No.", Item[2]."No.");
-        LibraryPlanning.CalcRegenPlanForPlanWksh(ItemToPlan, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(ItemToPlan, WorkDate(), WorkDate());
 
         // [GIVEN] Make sure that planning lines are created for both items.
         ItemToPlan.CopyFilter("No.", RequisitionLine."No.");
@@ -2111,7 +2111,7 @@
         PlanningComponent.Modify(true);
 
         // [WHEN] Calculate net change plan in the planning worksheet for items "A" and "B".
-        LibraryPlanning.CalcNetChangePlanForPlanWksh(ItemToPlan, WorkDate, WorkDate, false);
+        LibraryPlanning.CalcNetChangePlanForPlanWksh(ItemToPlan, WorkDate(), WorkDate, false);
 
         // [THEN] No error is raised.
         // [THEN] Requisition line is deleted for item "B", because its demand will be supplied by the planning component in "A".
@@ -2205,7 +2205,7 @@
         // [GIVEN] Item "I" with "Lot Accumulation Period" = 2W and "Maximum Order Quantity" = 2000
         // [GIVEN] Sales Orders "S1", "S2", "S3" with shipment dates "D1", "D2", "D3" of "I"
         // [GIVEN] Each "SX" has quantity = 1500, "S1"."Shipment Date" = WORKDATE, "S1"."Shipment Date" < "S2"."Shipment Date" < "S3"."Shipment Date"
-        DemandDate[1] := WorkDate;
+        DemandDate[1] := WorkDate();
         DemandDate[2] := DemandDate[1] + LibraryRandom.RandInt(20);
         DemandDate[3] := DemandDate[2] + LibraryRandom.RandInt(20);
 
@@ -2225,12 +2225,12 @@
               SalesHeader[i], SalesLine[i], SalesHeader[i]."Document Type"::Order, '', Item."No.", DemandLineQuantity, '', DemandDate[i]);
 
         // [WHEN] Calculate regenerative plan
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, DemandDate[3]);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), DemandDate[3]);
 
         // [THEN] 3 "Requisition Line" "R1", "R2", "R3" are created, each "RX"."Due Date" = WORKDATE, "R1".Quantity = "R2".Quantity = 2000, "R3".Quantity = 500
         RecordCount := Round(DemandLineQuantity * 3 / MaximumOrderQuantity, 1, '>');
         RequisitionLine.SetRange("No.", Item."No.");
-        RequisitionLine.SetRange("Due Date", WorkDate);
+        RequisitionLine.SetRange("Due Date", WorkDate());
         Assert.RecordCount(RequisitionLine, RecordCount);
 
         RequisitionLine.SetRange(Quantity, MaximumOrderQuantity);
@@ -2423,15 +2423,15 @@
         CarryOutAction: Codeunit "Carry Out Action";
     begin
         // [FEATURE] [UT] [Production Order]
-        // [SCENARIO 277381] Codeunit 99000813 InsertProdOrder() on Reqisition Line with "Gen. Business Posting Group" <> '' doesn't fill "Gen. Business Posting Group" in Production Order
+        // [SCENARIO 277381] Codeunit 99000813 InsertProductionOrder() on Reqisition Line with "Gen. Business Posting Group" <> '' doesn't fill "Gen. Business Posting Group" in Production Order
         Initialize();
 
         // [GIVEN] Mock Requisition Line
         CreateReqLine(RequisitionLine);
         RequisitionLine.TestField("Gen. Business Posting Group");
 
-        // [WHEN] Call CarryOutAction.InsertProdOrder()
-        CarryOutAction.InsertProdOrder(RequisitionLine, 1);
+        // [WHEN] Call CarryOutAction.InsertProductionOrder()
+        CarryOutAction.InsertProductionOrder(RequisitionLine, "Planning Create Prod. Order"::Planned);
 
         // [THEN] "Gen. Bus. Posting Group" = blank in created Production order
         ProductionOrder.SetRange(Status, ProductionOrder.Status::Planned);
@@ -2449,15 +2449,15 @@
         CarryOutAction: Codeunit "Carry Out Action";
     begin
         // [FEATURE] [Production Order] [Item Variant]
-        // [SCENARIO 388994] Codeunit 99000813 InsertProdOrder() on Reqisition Line with Variant Code fill "Variant Code" in Production Order
+        // [SCENARIO 388994] Codeunit 99000813 InsertProductrionOrder() on Reqisition Line with Variant Code fill "Variant Code" in Production Order
         Initialize();
 
         // [GIVEN] Mock Requisition Line
         CreateReqLine(RequisitionLine);
         RequisitionLine.TestField("Gen. Business Posting Group");
 
-        // [WHEN] Call CarryOutAction.InsertProdOrder()
-        CarryOutAction.InsertProdOrder(RequisitionLine, 1);
+        // [WHEN] Call CarryOutAction.InsertProductionOrder()
+        CarryOutAction.InsertProductionOrder(RequisitionLine, "Planning Create Prod. Order"::Planned);
 
         // [THEN] "Gen. Bus. Posting Group" = blank in created Production order
         ProductionOrder.SetRange(Status, ProductionOrder.Status::Planned);
@@ -3105,7 +3105,7 @@
 
         PlanWrkShtCalcRegenPlanAndCarryOutActionMessage(
           StrSubstNo('%1|%2|%3', TopLevelItem."No.", Level1Item."No.", Level2Item."No."),
-          CalcDate('<-CY>', WorkDate), CalcDate('<CY>', ShipmentDate), RequisitionLine."Action Message"::New);
+          CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', ShipmentDate), RequisitionLine."Action Message"::New);
     end;
 
     local procedure CreateItem(var Item: Record Item; ReorderingPolicy: Enum "Reordering Policy"; ReplenishmentSystem: Enum "Replenishment System")
@@ -3487,8 +3487,8 @@
         EndDate: Date;
     begin
         Item.Get(ItemNo);
-        EndDate := GetRequiredDate(10, 30, WorkDate);  // End Date relative to Workdate.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, EndDate);
+        EndDate := GetRequiredDate(10, 30, WorkDate());  // End Date relative to Workdate.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), EndDate);
     end;
 
     local procedure CalcRegenPlanForItemsRespectPlanningParamsFromNowToDate(ItemFilter: Text; ToDate: Date)
@@ -3496,7 +3496,7 @@
         Item: Record Item;
     begin
         Item.SetFilter("No.", ItemFilter);
-        LibraryPlanning.CalcRegenPlanForPlanWkshPlanningParams(Item, WorkDate, ToDate, true);
+        LibraryPlanning.CalcRegenPlanForPlanWkshPlanningParams(Item, WorkDate(), ToDate, true);
     end;
 
     local procedure CalcNetChangePlanForPlanWksh(ItemNo: Code[20])
@@ -3505,8 +3505,8 @@
         EndDate: Date;
     begin
         Item.Get(ItemNo);
-        EndDate := GetRequiredDate(10, 30, WorkDate);  // End Date relative to Workdate.
-        LibraryPlanning.CalcNetChangePlanForPlanWksh(Item, WorkDate, EndDate, false);
+        EndDate := GetRequiredDate(10, 30, WorkDate());  // End Date relative to Workdate.
+        LibraryPlanning.CalcNetChangePlanForPlanWksh(Item, WorkDate(), EndDate, false);
     end;
 
     local procedure SelectItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10])
@@ -3590,7 +3590,7 @@
         repeat
             TempRequisitionLine := RequisitionLine;
             TempRequisitionLine.Insert();
-        until RequisitionLine.Next = 0;
+        until RequisitionLine.Next() = 0;
     end;
 
     local procedure AcceptActionMessage(ItemNo: Code[20])
@@ -3601,7 +3601,7 @@
         repeat
             RequisitionLine.Validate("Accept Action Message", true);
             RequisitionLine.Modify(true);
-        until RequisitionLine.Next = 0;
+        until RequisitionLine.Next() = 0;
     end;
 
     local procedure CarryOutActionMessage(ItemNo: Code[20])
@@ -3745,8 +3745,8 @@
     begin
         SelectRequisitionTemplate(ReqWkshTemplate, ReqWkshTemplate.Type::"Req.");
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
-        EndDate := GetRequiredDate(10, 30, WorkDate);  // End Date relative to Workdate.
-        LibraryPlanning.CalculatePlanForReqWksh(Item, ReqWkshTemplate.Name, RequisitionWkshName.Name, WorkDate, EndDate);
+        EndDate := GetRequiredDate(10, 30, WorkDate());  // End Date relative to Workdate.
+        LibraryPlanning.CalculatePlanForReqWksh(Item, ReqWkshTemplate.Name, RequisitionWkshName.Name, WorkDate(), EndDate);
     end;
 
     local procedure SelectDateWithSafetyLeadTime(DateValue: Date; SignFactor: Integer): Date
@@ -3785,9 +3785,9 @@
         LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
         UpdateForecastOnManufacturingSetup(ProductionForecastName.Name);
         ForecastQty := LibraryRandom.RandInt(10) + 100;   // Large Random Quantity Required.
-        CreateAndUpdateProductionForecast(ProductionForecastName.Name, WorkDate, ItemNo, ForecastQty);
+        CreateAndUpdateProductionForecast(ProductionForecastName.Name, WorkDate(), ItemNo, ForecastQty);
         if MultipleLines then
-            CreateAndUpdateProductionForecast(ProductionForecastName.Name, GetRequiredDate(1, 1, WorkDate), ItemNo, ForecastQty);
+            CreateAndUpdateProductionForecast(ProductionForecastName.Name, GetRequiredDate(1, 1, WorkDate()), ItemNo, ForecastQty);
     end;
 
     local procedure CreateProductionForecastSetupAtDate(var ProductionForecastName: Record "Production Forecast Name"; ItemNo: Code[20]; ForecastEntryDate: Date) ForecastQty: Integer
@@ -3923,7 +3923,7 @@
     var
         NewOrderDate: Date;
     begin
-        NewOrderDate := GetRequiredDate(10, 10, WorkDate);
+        NewOrderDate := GetRequiredDate(10, 10, WorkDate());
         SalesHeader.Validate("Order Date", NewOrderDate);
         SalesHeader.Modify(true);
     end;
@@ -4038,10 +4038,10 @@
         CalculateBOMTree: Codeunit "Calculate BOM Tree";
         TreeType: Option " ",Availability,Cost;
     begin
-        Item.SetRange("Date Filter", 0D, WorkDate);
+        Item.SetRange("Date Filter", 0D, WorkDate());
         CalculateBOMTree.SetShowTotalAvailability(true);
         CalculateBOMTree.GenerateTreeForItems(Item, BOMBuffer, TreeType::Availability);
-        BOMBuffer.Find;
+        BOMBuffer.Find();
     end;
 
     local procedure UpdateManufacturingSetupComponentsAtLocation(NewComponentsAtLocation: Code[10])
@@ -4182,7 +4182,7 @@
         D: Date;
         i: Integer;
     begin
-        D := WorkDate;
+        D := WorkDate();
         for i := 1 to ArrayLen(Dates) do begin
             D += LibraryRandom.RandIntInRange(3, 6);
             Dates[i] := D;
@@ -4194,7 +4194,7 @@
         D: Date;
         i: Integer;
     begin
-        D := WorkDate;
+        D := WorkDate();
         for i := 1 to ArrayLen(Dates) do begin
             D := CalcDate('<1M>', D) + LibraryRandom.RandIntInRange(3, 6);
             Dates[i] := D;
@@ -4206,7 +4206,7 @@
         D: Date;
         i: Integer;
     begin
-        D := WorkDate;
+        D := WorkDate();
         for i := 1 to 2 do begin
             D += LibraryRandom.RandIntInRange(15, 30);
             Dates[i] := D;
@@ -4256,7 +4256,7 @@
         StockkeepingUnit.Validate("Routing No.", RoutingHeader."No.");
         StockkeepingUnit.Modify();
 
-        LibraryPlanning.CalculatePlanForReqWksh(Item, ReqWkshTemplate.Name, RequisitionWkshName.Name, WorkDate, WorkDate);
+        LibraryPlanning.CalculatePlanForReqWksh(Item, ReqWkshTemplate.Name, RequisitionWkshName.Name, WorkDate(), WorkDate());
 
         ReqLine.SetRange(Type, ReqLine.Type::Item);
         ReqLine.SetRange("No.", Item."No.");
@@ -4483,9 +4483,9 @@
         // Calculate Regenerative Plan using page. Required where Forecast is used.
         LibraryVariableStorage.Dequeue(ItemNo);
         LibraryVariableStorage.Dequeue(ItemNo2);
-        EndDate := GetRequiredDate(10, 30, WorkDate);  // End Date relative to Workdate.
+        EndDate := GetRequiredDate(10, 30, WorkDate());  // End Date relative to Workdate.
         CalculatePlanPlanWksh.Item.SetFilter("No.", StrSubstNo(ItemFilterTxt, ItemNo, ItemNo2));
-        CalculatePlanPlanWksh.StartingDate.SetValue(WorkDate);
+        CalculatePlanPlanWksh.StartingDate.SetValue(WorkDate());
         CalculatePlanPlanWksh.EndingDate.SetValue(EndDate);
         CalculatePlanPlanWksh.OK.Invoke;
     end;
@@ -4614,8 +4614,8 @@
     begin
         CalculatePlanPlanWksh.MPS.SetValue(true);
         CalculatePlanPlanWksh.MRP.SetValue(false);
-        CalculatePlanPlanWksh.StartingDate.SetValue(CalcDate('<-CY>', WorkDate));
-        CalculatePlanPlanWksh.EndingDate.SetValue(CalcDate('<CY>', WorkDate));
+        CalculatePlanPlanWksh.StartingDate.SetValue(CalcDate('<-CY>', WorkDate()));
+        CalculatePlanPlanWksh.EndingDate.SetValue(CalcDate('<CY>', WorkDate()));
 
         CalculatePlanPlanWksh.OK.Invoke;
     end;

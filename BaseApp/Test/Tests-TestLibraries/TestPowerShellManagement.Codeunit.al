@@ -94,9 +94,9 @@ codeunit 130550 TestPowerShellManagement
         Command: DotNet "System.Management.Automation.Runspaces.Command";
         i: Integer;
     begin
-        Enumerator := FromCommandsCollection.GetEnumerator;
+        Enumerator := FromCommandsCollection.GetEnumerator();
         for i := 1 to FromCommandsCollection.Count do begin
-            Enumerator.MoveNext;
+            Enumerator.MoveNext();
             Command := Enumerator.Current;
             ToCommandsCollection.Add(Command)
         end

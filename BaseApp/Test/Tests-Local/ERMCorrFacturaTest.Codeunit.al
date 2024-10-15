@@ -283,7 +283,7 @@ codeunit 144718 "ERM Corr. Factura Test"
         SalesCorrFacturaInvoice: Report "Sales Corr. Factura-Invoice";
     begin
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        CorrSalesHeader.SetRecFilter;
+        CorrSalesHeader.SetRecFilter();
         SalesCorrFacturaInvoice.SetFileNameSilent(LibraryReportValidation.GetFileName);
         SalesCorrFacturaInvoice.SetTableView(CorrSalesHeader);
         SalesCorrFacturaInvoice.UseRequestPage(false);
@@ -342,7 +342,7 @@ codeunit 144718 "ERM Corr. Factura Test"
     begin
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, 100);
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
-        SalesHeader.Find;
+        SalesHeader.Find();
         LibrarySales.PostSalesPrepaymentCrMemo(SalesHeader);
         SalesCrMemoHeader.SetRange("Prepayment Order No.", SalesHeader."No.");
         SalesCrMemoHeader.SetRange("Bill-to Customer No.", SalesHeader."Bill-to Customer No.");
@@ -417,10 +417,10 @@ codeunit 144718 "ERM Corr. Factura Test"
         TariffNumber: Record "Tariff Number";
     begin
         with TariffNumber do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Tariff Number");
             Description := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
             exit("No.");
         end;
     end;
@@ -443,7 +443,7 @@ codeunit 144718 "ERM Corr. Factura Test"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         with SalesReceivablesSetup do begin
-            Get;
+            Get();
             Validate("Credit Warnings", "Credit Warnings"::"No Warning");
             Validate("Stockout Warning", false);
             Modify(true);
@@ -609,7 +609,7 @@ codeunit 144718 "ERM Corr. Factura Test"
         FileName: Text;
     begin
         FileName := LibraryReportValidation.GetFileName;
-        LibraryRUReports.VerifyCorrFactura_CompanyName(FileName, LocalReportMgt.GetCompanyName);
+        LibraryRUReports.VerifyCorrFactura_CompanyName(FileName, LocalReportMgt.GetCompanyName());
         LibraryRUReports.VerifyCorrFactura_CompanyAddress(FileName, LocalReportMgt.GetLegalAddress);
 
         CompanyInformation.Get();

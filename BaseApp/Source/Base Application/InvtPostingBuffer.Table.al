@@ -2,6 +2,13 @@ table 48 "Invt. Posting Buffer"
 {
     Caption = 'Invt. Posting Buffer';
     ReplicateData = false;
+#if CLEAN21
+    TableType = Temporary;
+#else
+    ObsoleteReason = 'This table will be marked as temporary. Make sure you are not using this table to store records.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
+#endif
 
     fields
     {

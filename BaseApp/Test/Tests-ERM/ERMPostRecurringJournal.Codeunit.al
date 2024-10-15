@@ -77,7 +77,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         repeat
             Loop += 1;
             GenJournalLine.TestField("Posting Date", PostingDate[Loop]);
-        until (GenJournalLine.Next = 0);
+        until (GenJournalLine.Next() = 0);
     end;
 
     [Test]
@@ -101,7 +101,7 @@ codeunit 134227 "ERM PostRecurringJournal"
 
         // Verify: Verify Posting Error on Recurring Journal.
         Assert.AreEqual(
-          StrSubstNo(PostingErr, GenJournalLine.FieldCaption(Amount), GenJournalLine.TableCaption,
+          StrSubstNo(PostingErr, GenJournalLine.FieldCaption(Amount), GenJournalLine.TableCaption(),
             GenJournalLine.FieldCaption("Journal Template Name"), GenJournalLine."Journal Template Name",
             GenJournalLine.FieldCaption("Journal Batch Name"), GenJournalLine."Journal Batch Name",
             GenJournalLine.FieldCaption("Line No."), GenJournalLine."Line No."), GetLastErrorText, ErrorMustMatchErr);
@@ -279,7 +279,7 @@ codeunit 134227 "ERM PostRecurringJournal"
 
         // [THEN] The 1st and the 2nd lines were successfully posted
         // Checked in Message Handler
-        RecurringGeneralJournal.Close;
+        RecurringGeneralJournal.Close();
 
         // [THEN] Posting Date is changed in posted entries only
         GenJournalLine.Reset();
@@ -289,12 +289,12 @@ codeunit 134227 "ERM PostRecurringJournal"
 
         repeat
             if GenJournalLine.Amount = 0 then
-                Assert.AreEqual(WorkDate, GenJournalLine."Posting Date", '')
+                Assert.AreEqual(WorkDate(), GenJournalLine."Posting Date", '')
             else
                 Assert.AreEqual(
-                  CalcDate(GenJournalLine."Recurring Frequency", WorkDate),
+                  CalcDate(GenJournalLine."Recurring Frequency", WorkDate()),
                   GenJournalLine."Posting Date", '');
-        until GenJournalLine.Next = 0;
+        until GenJournalLine.Next() = 0;
     end;
 
     [Test]
@@ -365,7 +365,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         CreateRecurringTemplateWithoutForceDocBalance(GenJnlTemplate);
         for i := 1 to 2 do begin
             LibraryERM.CreateRecurringBatchName(GenJnlBatch, GenJnlTemplate.Name);
-            GenJnlBatch.SetRecFilter;
+            GenJnlBatch.SetRecFilter();
             CreateBalancedRecurringJnlLines(GenJnlLine, GenJnlBatch);
         end;
         Commit();
@@ -377,8 +377,8 @@ codeunit 134227 "ERM PostRecurringJournal"
         // [THEN] G/L Entry is created with "Posting Date" = "X"
         GenJnlBatch.FindSet();
         for i := 1 to 2 do begin
-            VerifyGLEntryExists(GenJnlBatch.Name, WorkDate);
-            GenJnlBatch.Next;
+            VerifyGLEntryExists(GenJnlBatch.Name, WorkDate());
+            GenJnlBatch.Next();
         end;
     end;
 
@@ -397,7 +397,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         // [GIVEN] Recurring General Journal Line
         CreateRecurringTemplateWithoutForceDocBalance(GenJnlTemplate);
         LibraryERM.CreateRecurringBatchName(GenJnlBatch, GenJnlTemplate.Name);
-        GenJnlBatch.SetRecFilter;
+        GenJnlBatch.SetRecFilter();
         CreateBalancedRecurringJnlLines(GenJnlLine, GenJnlBatch);
         Commit();
         LibraryVariableStorage.Enqueue(GenJnlBatch."Journal Template Name");
@@ -406,13 +406,13 @@ codeunit 134227 "ERM PostRecurringJournal"
         RecurringGeneralJournal.OpenEdit;
         RecurringGeneralJournal.CurrentJnlBatchName.SetValue(GenJnlBatch.Name);
         RecurringGeneralJournal.Last;
-        RecurringGeneralJournal.Next;
+        RecurringGeneralJournal.Next();
 
         // [WHEN] Press "Post" on Recurring Journal page
         RecurringGeneralJournal.Post.Invoke;
 
         // [THEN] G/L Entry is created
-        VerifyGLEntryExists(GenJnlBatch.Name, WorkDate);
+        VerifyGLEntryExists(GenJnlBatch.Name, WorkDate());
     end;
 
     [Test]
@@ -463,9 +463,9 @@ codeunit 134227 "ERM PostRecurringJournal"
         // [THEN] Recurring Journal Line[2]."Posting Date" = 01/02/2017 (1st February 2017)
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
         GenJournalLine.FindFirst();
-        GenJournalLine.TestField("Posting Date", CalcDate(GenJournalLine."Recurring Frequency", WorkDate));
-        GenJournalLine.Next;
-        GenJournalLine.TestField("Posting Date", CalcDate(GenJournalLine."Recurring Frequency", WorkDate));
+        GenJournalLine.TestField("Posting Date", CalcDate(GenJournalLine."Recurring Frequency", WorkDate()));
+        GenJournalLine.Next();
+        GenJournalLine.TestField("Posting Date", CalcDate(GenJournalLine."Recurring Frequency", WorkDate()));
         Assert.RecordCount(GenJournalLine, 2);
     end;
 
@@ -838,7 +838,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         for Index := 1 to ArrayLen(GenJournalLine) do begin
             AllocAmt[Index] := LibraryRandom.RandDecInRange(1000, 2000, 2);
             CreateGeneralJournalLine(
-              GenJournalLine[Index], GenJournalBatch, RecurringMethod[Index], 0, CreateGLAccountWithBalanceAtDate(WorkDate, AllocAmt[Index]));
+              GenJournalLine[Index], GenJournalBatch, RecurringMethod[Index], 0, CreateGLAccountWithBalanceAtDate(WorkDate(), AllocAmt[Index]));
             AllocLineNo[Index] := CreateGenJnlAllocationWithAccountAndAllocPct(GenJournalLine[Index], LibraryERM.CreateGLAccountNo, 100.0);
         end;
 
@@ -1243,7 +1243,7 @@ codeunit 134227 "ERM PostRecurringJournal"
             CreateGeneralJournalLine(
               GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", LibraryRandom.RandDec(100, 2),
               GLAccount."No.");
-            GLAccount.Next;
+            GLAccount.Next();
             RecurringFrequency[Counter] := GenJournalLine."Recurring Frequency";
         end;
         CreateAllocationLine(GenJournalLine);
@@ -1265,7 +1265,7 @@ codeunit 134227 "ERM PostRecurringJournal"
     var
         InitialAmount: Decimal;
     begin
-        CreateRecurringJnlLine(GenJnlLine, GenJnlBatch, WorkDate, WorkDate);
+        CreateRecurringJnlLine(GenJnlLine, GenJnlBatch, WorkDate(), WorkDate());
         InitialAmount := GenJnlLine.Amount;
         GenJnlLine."Line No." := LibraryUtility.GetNewRecNo(GenJnlLine, GenJnlLine.FieldNo("Line No."));
         GenJnlLine.Validate(Amount, -InitialAmount);
@@ -1300,7 +1300,7 @@ codeunit 134227 "ERM PostRecurringJournal"
             GenJnlAllocation.Validate("Account No.", GLAccount."No.");
             GenJnlAllocation.Validate("Allocation %", 100);  // Using complete allocation for the Allocation Line.
             GenJnlAllocation.Modify(true);
-        until GenJournalLine.Next = 0;
+        until GenJournalLine.Next() = 0;
     end;
 
     local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; RecurringMethod: Enum "Gen. Journal Recurring Method"; Amount: Decimal; AccountNo: Code[20])
@@ -1446,7 +1446,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         GLEntry.SetFilter("Document Date", '<>%1', GLEntry."Posting Date");
         if not GLEntry.IsEmpty() then
             Error(
-              StrSubstNo(DocumentDateErr, GLEntry.FieldCaption("Document Date"), GLEntry.FieldCaption("Posting Date"), GLEntry.TableCaption));
+              StrSubstNo(DocumentDateErr, GLEntry.FieldCaption("Document Date"), GLEntry.FieldCaption("Posting Date"), GLEntry.TableCaption()));
     end;
 
     local procedure VerifyGLEntryExists(JournalBatchName: Code[10]; PostingDate: Date)

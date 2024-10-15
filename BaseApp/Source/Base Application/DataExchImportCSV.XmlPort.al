@@ -1,4 +1,4 @@
-xmlport 1220 "Data Exch. Import - CSV"
+﻿xmlport 1220 "Data Exch. Import - CSV"
 {
     Caption = 'Data Exch. Import - CSV';
     Direction = Import;
@@ -25,7 +25,7 @@ xmlport 1220 "Data Exch. Import - CSV"
                     trigger OnAfterAssignVariable()
                     begin
                         ColumnNo := 1;
-                        CheckLineType;
+                        CheckLineType();
                         if not ColumnsAsRows then
                             InsertColumn(ColumnNo, col1);
                     end;
@@ -54,7 +54,7 @@ xmlport 1220 "Data Exch. Import - CSV"
 
                 trigger OnBeforeInsertRecord()
                 begin
-                    ValidateHeaderTag;
+                    ValidateHeaderTag();
                 end;
             }
         }
@@ -81,7 +81,7 @@ xmlport 1220 "Data Exch. Import - CSV"
 
     trigger OnPreXmlPort()
     begin
-        InitializeGlobals;
+        InitializeGlobals();
     end;
 
     var
@@ -126,7 +126,7 @@ xmlport 1220 "Data Exch. Import - CSV"
         HeaderLineCount := 0;
         CurrentLineType := LineType::Unknown;
         FullHeaderLine := '';
-        currXMLport.FieldSeparator(DataExchDef.ColumnSeparatorChar);
+        currXMLport.FieldSeparator(DataExchDef.ColumnSeparatorChar());
         case DataExchDef."File Encoding" of
             DataExchDef."File Encoding"::"MS-DOS":
                 currXMLport.TextEncoding(TEXTENCODING::MSDos);
@@ -153,9 +153,9 @@ xmlport 1220 "Data Exch. Import - CSV"
 
     local procedure CheckLineType()
     begin
-        IdentifyLineType;
-        ValidateNonDataLine;
-        TrackNonDataLines;
+        IdentifyLineType();
+        ValidateNonDataLine();
+        TrackNonDataLines();
         SkipLine := CurrentLineType <> LineType::Data;
 
         if not SkipLine then begin
@@ -176,13 +176,13 @@ xmlport 1220 "Data Exch. Import - CSV"
         case true of
             FileLineNo <= HeaderLines:
                 CurrentLineType := LineType::Header;
-            (HeaderTag <> '') and (StrLen(col1) <= HeaderTagLength) and (StrPos(HeaderTag, col1) = 1):
+            (HeaderTag <> '') and (StrLen(col1) <= HeaderTagLength()) and (StrPos(HeaderTag, col1) = 1):
                 CurrentLineType := LineType::Header;
-            (FooterTag <> '') and (StrLen(col1) <= FooterTagLength) and (StrPos(FooterTag, col1) = 1):
+            (FooterTag <> '') and (StrLen(col1) <= FooterTagLength()) and (StrPos(FooterTag, col1) = 1):
                 CurrentLineType := LineType::Footer;
             else begin
                     if ColumnsAsRows then
-                        IdentifyLineTypeByColumnName
+                        IdentifyLineTypeByColumnName()
                     else
                         CurrentLineType := LineType::Data;
                 end;
@@ -191,10 +191,9 @@ xmlport 1220 "Data Exch. Import - CSV"
 
     local procedure ValidateNonDataLine()
     begin
-        if CurrentLineType = LineType::Header then begin
-            if (HeaderTag <> '') and (StrLen(col1) <= HeaderTagLength) and (StrPos(HeaderTag, col1) = 0) then
+        if CurrentLineType = LineType::Header then
+            if (HeaderTag <> '') and (StrLen(col1) <= HeaderTagLength()) and (StrPos(HeaderTag, col1) = 0) then
                 Error(WrongHeaderErr);
-        end;
     end;
 
     local procedure TrackNonDataLines()

@@ -16,18 +16,18 @@ page 1160 "Sales Documents"
         {
             repeater(Group)
             {
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = All;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies when the sales documents are due.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the type of sales document.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = All;
                     StyleExpr = StyleTxt;
@@ -39,7 +39,7 @@ page 1160 "Sales Documents"
                     Caption = 'Customer Name';
                     ToolTip = 'Specifies customer name.';
                 }
-                field("Remaining Amount"; "Remaining Amount")
+                field("Remaining Amount"; Rec."Remaining Amount")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the amount that remains to be paid on the sales documents.';
@@ -77,7 +77,7 @@ page 1160 "Sales Documents"
     begin
         Customer.Get("Customer No.");
         CustomerName := Customer.Name;
-        StyleTxt := SetStyle;
+        StyleTxt := SetStyle();
 
         OnAfterOnAfterGetRecord(Rec, StyleTxt);
     end;
@@ -86,7 +86,7 @@ page 1160 "Sales Documents"
     begin
         SetRange("Document Type", "Document Type"::Invoice);
         SetRange(Open, true);
-        SetFilter("Due Date", '<%1', WorkDate);
+        SetFilter("Due Date", '<%1', WorkDate());
         SetFilter("Remaining Amt. (LCY)", '<>0');
         SetCurrentKey("Remaining Amt. (LCY)");
         Ascending := false;
@@ -99,10 +99,10 @@ page 1160 "Sales Documents"
 
     procedure SetFilterForOverdueSalesInvoiceAmount()
     begin
-        Reset;
+        Reset();
         SetRange("Document Type", "Document Type"::Invoice);
         SetRange(Open, true);
-        SetFilter("Due Date", '<%1', WorkDate);
+        SetFilter("Due Date", '<%1', WorkDate());
         SetFilter("Remaining Amt. (LCY)", '<>0');
         SetCurrentKey("Remaining Amt. (LCY)");
         Ascending := false;
@@ -111,9 +111,9 @@ page 1160 "Sales Documents"
 
     procedure SetFilterForSalesDocsDueToday()
     begin
-        Reset;
+        Reset();
         SetFilter("Document Type", 'Invoice|Credit Memo');
-        SetFilter("Due Date", '<=%1', WorkDate);
+        SetFilter("Due Date", '<=%1', WorkDate());
         SetRange(Open, true);
         Ascending := false;
         CurrPage.Update();
@@ -121,9 +121,9 @@ page 1160 "Sales Documents"
 
     procedure SetFilterForSalesDocsDueNextWeek()
     begin
-        Reset;
+        Reset();
         SetFilter("Document Type", 'Invoice|Credit Memo');
-        SetFilter("Due Date", '%1..%2', CalcDate('<1D>', WorkDate), CalcDate('<1W>', WorkDate));
+        SetFilter("Due Date", '%1..%2', CalcDate('<1D>', WorkDate()), CalcDate('<1W>', WorkDate()));
         SetRange(Open, true);
         Ascending := false;
         CurrPage.Update();

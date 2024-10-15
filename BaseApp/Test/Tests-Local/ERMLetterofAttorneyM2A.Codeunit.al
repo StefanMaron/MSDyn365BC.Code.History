@@ -42,7 +42,7 @@ codeunit 144713 "ERM Letter of Attorney M-2A"
         PurchaseSetup.Get();
         Assert.AreEqual(
           NoBefore,
-          NoSeriesManagement.GetNextNo(PurchaseSetup."Released Letter of Attor. Nos.", WorkDate, false),
+          NoSeriesManagement.GetNextNo(PurchaseSetup."Released Letter of Attor. Nos.", WorkDate(), false),
           NoSeriesChangedErr);
     end;
 
@@ -66,7 +66,7 @@ codeunit 144713 "ERM Letter of Attorney M-2A"
         PurchaseSetup.Get();
         Assert.AreNotEqual(
           NoBefore,
-          NoSeriesManagement.GetNextNo(PurchaseSetup."Released Letter of Attor. Nos.", WorkDate, false),
+          NoSeriesManagement.GetNextNo(PurchaseSetup."Released Letter of Attor. Nos.", WorkDate(), false),
           NoSeriesNotChangedErr);
     end;
 
@@ -111,7 +111,7 @@ codeunit 144713 "ERM Letter of Attorney M-2A"
     begin
         Initialize();
         PurchaseSetup.Get();
-        NoSeriesBefore := NoSeriesManagement.GetNextNo(PurchaseSetup."Released Letter of Attor. Nos.", WorkDate, false);
+        NoSeriesBefore := NoSeriesManagement.GetNextNo(PurchaseSetup."Released Letter of Attor. Nos.", WorkDate(), false);
         CreateLetterOfAttorneyAndPrint(Preview);
     end;
 
@@ -137,7 +137,7 @@ codeunit 144713 "ERM Letter of Attorney M-2A"
         Vendor: Record Vendor;
     begin
         with LetterOfAttorneyHeader do begin
-            Init;
+            Init();
             "No." :=
               LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Letter of Attorney Header");
             Validate(

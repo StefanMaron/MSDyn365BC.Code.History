@@ -147,7 +147,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
 
         // Verify: Verify User gets error message about associated unrealized VAT entry
         Assert.AreEqual(
-          StrSubstNo(UnrealizedVATReverseErr, VATEntry.TableCaption, VATEntry."Entry No."),
+          StrSubstNo(UnrealizedVATReverseErr, VATEntry.TableCaption(), VATEntry."Entry No."),
           GetLastErrorText, ErrorsMustMatchTxt);
 
         ResetUnrealizedVATType;
@@ -177,7 +177,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
 
         // Verify: Verify User gets error message about associated unrealized VAT entry
         Assert.AreEqual(
-          StrSubstNo(UnrealizedVATReverseErr, VATEntry.TableCaption, VATEntry."Entry No."),
+          StrSubstNo(UnrealizedVATReverseErr, VATEntry.TableCaption(), VATEntry."Entry No."),
           GetLastErrorText, ErrorsMustMatchTxt);
 
         ResetUnrealizedVATType;
@@ -347,14 +347,14 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         Initialize();
         // [GIVEN] Post simple General Journal Line on date "D1"
         // [GIVEN] Set General Ledger Setup: "Allow Period From" = "D2" (where "D2" > "D1")
-        ReverseAllowPeriodSetup(GLAccountNo, AllowPostingFrom, AllowPostingTo, CalcDate('<-1D>', WorkDate));
+        ReverseAllowPeriodSetup(GLAccountNo, AllowPostingFrom, AllowPostingTo, CalcDate('<-1D>', WorkDate()));
 
         // [WHEN] Run "Reverse on Date" and set "Posting Date" = "D2"
         GLRegister.FindLast();
         ReversalEntry.ReverseRegister(GLRegister."No.");
 
         // [THEN] Last G/L Entry is posted on date "D2"
-        VerifyPostingDateInLastGLEntry(GLAccountNo, WorkDate);
+        VerifyPostingDateInLastGLEntry(GLAccountNo, WorkDate());
 
         // Tear Down.
         UpdateGeneralLedgerSetup(AllowPostingFrom, AllowPostingTo);
@@ -579,7 +579,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         GLEntry.FindSet();
         repeat
             Assert.AreEqual(true, GLEntry.Reversed, ReverseSignErr);
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyGLRegister(GLRegisterNo: Integer)
@@ -601,7 +601,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         BankAccountLedgerEntry.FindSet();
         repeat
             Assert.AreEqual(true, BankAccountLedgerEntry.Reversed, ReverseSignErr);
-        until BankAccountLedgerEntry.Next = 0;
+        until BankAccountLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyVATEntry(DocumentNo: Code[20])
@@ -614,7 +614,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         VATEntry.FindSet();
         repeat
             Assert.AreEqual(true, VATEntry.Reversed, ReverseSignErr);
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
     end;
 
     local procedure VerifyUnapplyCustLedgEntry(DocumentNo: Code[20])
@@ -637,7 +637,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         CustLedgerEntry.FindSet();
         repeat
             Assert.AreEqual(true, CustLedgerEntry.Reversed, ReverseSignErr);
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyUnapplyVendLedgEntry(DocumentNo: Code[20])
@@ -660,7 +660,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         VendorLedgerEntry.FindSet();
         repeat
             Assert.AreEqual(true, VendorLedgerEntry.Reversed, ReverseSignErr);
-        until VendorLedgerEntry.Next = 0;
+        until VendorLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyGLEntryReversed(DocumentNo: Code[20])
@@ -869,7 +869,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
           GLAccountNo, LibraryRandom.RandInt(100)); // Using RANDOM for Amount field.
         UpdateGeneralJournalLine(GenJournalLine, PostingDate);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        UpdateGeneralLedgerSetup(WorkDate, WorkDate);
+        UpdateGeneralLedgerSetup(WorkDate(), WorkDate());
         exit(GenJournalLine."Document No.");
     end;
 
@@ -953,7 +953,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
     [Scope('OnPrem')]
     procedure VATReverseDateHandler(var VATReversalOnDate: TestPage "VAT Reversal on Date")
     begin
-        VATReversalOnDate.PostingDate.SetValue(WorkDate);
+        VATReversalOnDate.PostingDate.SetValue(WorkDate());
         VATReversalOnDate.Yes.Invoke;
     end;
 }

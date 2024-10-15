@@ -62,14 +62,14 @@ codeunit 144715 "ERM FA-3 Report Test"
         FixedAsset: Record "Fixed Asset";
     begin
         with FixedAsset do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
             Description := LibraryUtility.GenerateGUID();
             "Inventory Number" := LibraryUtility.GenerateGUID();
             "Passport No." := LibraryUtility.GenerateGUID();
             "Factory No." := LibraryUtility.GenerateGUID();
-            Modify;
+            Modify();
             InitFADeprBooks("No.");
             exit("No.");
         end;
@@ -87,14 +87,14 @@ codeunit 144715 "ERM FA-3 Report Test"
     local procedure MockFAHeader(var FADocHeader: Record "FA Document Header")
     begin
         with FADocHeader do begin
-            Init;
+            Init();
             "Document Type" := "Document Type"::Movement;
             "No." := LibraryUtility.GenerateGUID();
-            Insert;
-            "Posting Date" := WorkDate;
+            Insert();
+            "Posting Date" := WorkDate();
             "FA Location Code" := LibraryRUReports.MockFALocation;
             "New FA Location Code" := LibraryRUReports.MockFALocation;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -104,18 +104,18 @@ codeunit 144715 "ERM FA-3 Report Test"
         RecRef: RecordRef;
     begin
         with FADocLine do begin
-            Init;
+            Init();
             "Document Type" := FADocHeader."Document Type";
             "Document No." := FADocHeader."No.";
             RecRef.GetTable(FADocLine);
             "Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
-            Insert;
+            Insert();
             Description := LibraryUtility.GenerateGUID();
             "FA No." := FANo;
             "Depreciation Book Code" := LibraryRUReports.GetFirstFADeprBook("FA No.");
             "FA Posting Group" := LibraryRUReports.MockFAPostingGroup;
             Amount := LibraryRandom.RandDec(100, 2);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -131,14 +131,14 @@ codeunit 144715 "ERM FA-3 Report Test"
     local procedure MockPostedFAHeader(var PostedFADocHeader: Record "Posted FA Doc. Header")
     begin
         with PostedFADocHeader do begin
-            Init;
+            Init();
             "Document Type" := "Document Type"::Movement;
             "No." := LibraryUtility.GenerateGUID();
-            Insert;
-            "Posting Date" := WorkDate;
+            Insert();
+            "Posting Date" := WorkDate();
             "FA Location Code" := LibraryRUReports.MockFALocation;
             "New FA Location Code" := LibraryRUReports.MockFALocation;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -148,17 +148,17 @@ codeunit 144715 "ERM FA-3 Report Test"
         RecRef: RecordRef;
     begin
         with PostedFADocLine do begin
-            Init;
+            Init();
             "Document Type" := PostedFADocHeader."Document Type";
             "Document No." := PostedFADocHeader."No.";
             RecRef.GetTable(PostedFADocLine);
             "Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
-            Insert;
+            Insert();
             "FA No." := FANo;
             "Depreciation Book Code" := LibraryRUReports.GetFirstFADeprBook("FA No.");
             "FA Posting Group" := LibraryRUReports.MockFAPostingGroup;
             Amount := LibraryRandom.RandDec(100, 2);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -167,7 +167,7 @@ codeunit 144715 "ERM FA-3 Report Test"
         FAMovementRep: Report "FA Movement FA-3";
     begin
         LibraryReportValidation.SetFileName(FADocHeader."No.");
-        FADocHeader.SetRecFilter;
+        FADocHeader.SetRecFilter();
         with FAMovementRep do begin
             SetFileNameSilent(LibraryReportValidation.GetFileName);
             SetTableView(FADocHeader);
@@ -181,7 +181,7 @@ codeunit 144715 "ERM FA-3 Report Test"
         PostedFAMovementRep: Report "FA Posted Movement FA-3";
     begin
         LibraryReportValidation.SetFileName(PostedFADocHeader."No.");
-        PostedFADocHeader.SetRecFilter;
+        PostedFADocHeader.SetRecFilter();
         with PostedFAMovementRep do begin
             SetFileNameSilent(LibraryReportValidation.GetFileName);
             SetTableView(PostedFADocHeader);

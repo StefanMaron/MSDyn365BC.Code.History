@@ -32,7 +32,7 @@ codeunit 144509 "ERM FA Depreciation Groups"
     begin
         Initialize();
 
-        OldWorkDate := WorkDate;
+        OldWorkDate := WorkDate();
         WorkDate := CalcDate('<9M-10D>', OldWorkDate);
         ReleaseDeprBookCode := GetReleaseDeprBookCode;
         CreateReleaseCalculateFAGroup(FADeprGroupCode, NoOfFA, DeprDate, DocumentNo, true, false);
@@ -44,7 +44,7 @@ codeunit 144509 "ERM FA Depreciation Groups"
         repeat
             VerifyFAGLJournal(
               DeprDate, DocumentNo, FixedAsset."No.", ReleaseDeprBookCode, CalcFADeprBookAmount(FixedAsset, ReleaseDeprBookCode));
-        until FixedAsset.Next = 0;
+        until FixedAsset.Next() = 0;
         WorkDate := OldWorkDate;
     end;
 
@@ -63,7 +63,7 @@ codeunit 144509 "ERM FA Depreciation Groups"
     begin
         Initialize();
 
-        OldWorkDate := WorkDate;
+        OldWorkDate := WorkDate();
         WorkDate := CalcDate('<9M-10D>', OldWorkDate);
         ReleaseDeprBookCode := GetReleaseDeprBookCode;
         CreateReleaseCalculateFAGroup(FADeprGroupCode, NoOfFA, DeprDate, DocumentNo, true, true);
@@ -77,7 +77,7 @@ codeunit 144509 "ERM FA Depreciation Groups"
         repeat
             VerifyFALedgerEntry(
               DeprDate, DocumentNo, FixedAsset."No.", ReleaseDeprBookCode, CalcFADeprBookAmount(FixedAsset, ReleaseDeprBookCode));
-        until FixedAsset.Next = 0;
+        until FixedAsset.Next() = 0;
         WorkDate := OldWorkDate;
     end;
 
@@ -111,7 +111,7 @@ codeunit 144509 "ERM FA Depreciation Groups"
         FADeprGroupCode := CreateFADeprGroup;
         NoOfFA := LibraryRandom.RandIntInRange(5, 10);
         CreateCustFAPostDepr(GroupAmount, FADeprGroupCode, NoOfFA);
-        DeprDate := CalcDate('<CM+2M>', WorkDate);
+        DeprDate := CalcDate('<CM+2M>', WorkDate());
         if BalanceCompliant then
             SetMinGroupBalanceValue(GroupAmount)
         else
@@ -158,7 +158,7 @@ codeunit 144509 "ERM FA Depreciation Groups"
         DeprBook.Validate("Control FA Acquis. Cost", false);
         DeprBook.Modify(true);
 
-        TaxRegisterSetup.Validate("Use Group Depr. Method from", DMY2Date(1, 1, Date2DMY(WorkDate, 3)));
+        TaxRegisterSetup.Validate("Use Group Depr. Method from", DMY2Date(1, 1, Date2DMY(WorkDate(), 3)));
         TaxRegisterSetup.Modify(true);
 
         DeprBook.Get(GetTaxDeprBookCode);
@@ -197,12 +197,12 @@ codeunit 144509 "ERM FA Depreciation Groups"
         Counter: Integer;
         AcqCostAmount: Decimal;
     begin
-        FAReleaseDate := CalcDate('<CM+1M>', WorkDate);
+        FAReleaseDate := CalcDate('<CM+1M>', WorkDate());
         LibraryPurchase.CreateVendor(Vendor);
         for Counter := 1 to NoOfFA do begin
             FixedAssetNo := CreateFA(FADeprGroupCode);
             AcqCostAmount := LibraryRandom.RandDec(10000, 2);
-            CreatePostAddFAAcqCost(FixedAssetNo, WorkDate, AcqCostAmount);
+            CreatePostAddFAAcqCost(FixedAssetNo, WorkDate(), AcqCostAmount);
             GroupAmount += AcqCostAmount;
             CreateAndPostFAReleaseDoc(FixedAssetNo, FAReleaseDate);
         end;
@@ -213,10 +213,10 @@ codeunit 144509 "ERM FA Depreciation Groups"
         FADeprGroup: Record "Depreciation Group";
     begin
         with FADeprGroup do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Depreciation Group");
             "Tax Depreciation Rate" := LibraryRandom.RandDec(10, 2);
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -266,7 +266,7 @@ codeunit 144509 "ERM FA Depreciation Groups"
         TaxRegsterSetup: Record "Tax Register Setup";
     begin
         with TaxRegsterSetup do begin
-            Get;
+            Get();
             Validate("Min. Group Balance", MinGroupBalance);
             Modify(true);
         end;
@@ -300,7 +300,7 @@ codeunit 144509 "ERM FA Depreciation Groups"
                 repeat
                     GenJnlPostLine.RunWithCheck(GenJournalLine);
                     DeprAmount := GenJournalLine.Amount;
-                until GenJournalLine.Next = 0;
+                until GenJournalLine.Next() = 0;
                 GenJournalLine.DeleteAll();
             end;
 
@@ -310,7 +310,7 @@ codeunit 144509 "ERM FA Depreciation Groups"
                 repeat
                     FAJnlPostLine.FAJnlPostLine(FAJournalLine, true);
                     DeprAmount := FAJournalLine.Amount;
-                until FAJournalLine.Next = 0;
+                until FAJournalLine.Next() = 0;
                 FAJournalLine.DeleteAll();
             end;
         end;

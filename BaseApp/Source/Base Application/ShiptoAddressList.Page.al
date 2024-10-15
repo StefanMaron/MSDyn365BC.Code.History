@@ -30,13 +30,13 @@ page 301 "Ship-to Address List"
                     ToolTip = 'Specifies the ship-to address.';
                     Visible = false;
                 }
-                field("Address 2"; "Address 2")
+                field("Address 2"; Rec."Address 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies additional address information.';
                     Visible = false;
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code.';
@@ -47,19 +47,19 @@ page 301 "Ship-to Address List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the city the items are being shipped to.';
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
                     Visible = false;
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the recipient''s telephone number.';
                     Visible = false;
                 }
-                field("Fax No."; "Fax No.")
+                field("Fax No."; Rec."Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the recipient''s fax number.';
@@ -77,12 +77,12 @@ page 301 "Ship-to Address List"
                     ToolTip = 'Specifies the recipient''s GLN code.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location code to be used for the recipient.';
                 }
-                field("KPP Code"; "KPP Code")
+                field("KPP Code"; Rec."KPP Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the company registration associated with the ship-to address.';
@@ -121,7 +121,7 @@ page 301 "Ship-to Address List"
 
                     trigger OnAction()
                     begin
-                        DisplayMap;
+                        DisplayMap();
                     end;
                 }
             }

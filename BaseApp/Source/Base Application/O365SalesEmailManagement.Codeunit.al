@@ -1,5 +1,9 @@
+#if not CLEAN21
 codeunit 2151 "O365 Sales Email Management"
 {
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     trigger OnRun()
     begin
@@ -88,10 +92,10 @@ codeunit 2151 "O365 Sales Email Management"
 
         O365SalesEmailDialog.SetValues(DocumentRecordVariant, TempEmailItem);
         if DocumentType = DocumentType::Quote then
-            O365SalesEmailDialog.SetNameEstimate
+            O365SalesEmailDialog.SetNameEstimate()
         else
-            O365SalesEmailDialog.SetNameInvoice;
-        HasBeenSent := O365SalesEmailDialog.RunModal = ACTION::OK;
+            O365SalesEmailDialog.SetNameInvoice();
+        HasBeenSent := O365SalesEmailDialog.RunModal() = ACTION::OK;
 
         O365SalesEmailDialog.GetRecord(TempEmailItem);
         if EmailAddress <> TempEmailItem."Send to" then
@@ -168,7 +172,7 @@ codeunit 2151 "O365 Sales Email Management"
     begin
         if IsTestInvoice then
             exit(TestInvoiceTxt);
-        exit(SalesInvoiceHeader.GetDefaultEmailDocumentName);
+        exit(SalesInvoiceHeader.GetDefaultEmailDocumentName());
     end;
 
 #if not CLEAN20
@@ -211,18 +215,18 @@ codeunit 2151 "O365 Sales Email Management"
                 SalesHeader."Document Type"::Invoice:
                     begin
                         RecordVariant := SalesHeader;
-                        DocumentName := SalesHeader.GetDocTypeTxt;
+                        DocumentName := SalesHeader.GetDocTypeTxt();
                         DocumentNo := SalesHeader."No.";
                         CustomerNo := SalesHeader."Sell-to Customer No.";
-                        ReportUsage := NativeReports.DraftSalesInvoiceReportId;
+                        ReportUsage := NativeReports.DraftSalesInvoiceReportId();
                     end;
                 SalesHeader."Document Type"::Quote:
                     begin
                         RecordVariant := SalesHeader;
-                        DocumentName := SalesHeader.GetDocTypeTxt;
+                        DocumentName := SalesHeader.GetDocTypeTxt();
                         DocumentNo := SalesHeader."No.";
                         CustomerNo := SalesHeader."Sell-to Customer No.";
-                        ReportUsage := NativeReports.SalesQuoteReportId;
+                        ReportUsage := NativeReports.SalesQuoteReportId();
                     end;
                 else
                     Error(CannotFindDocumentErr, DocumentId);
@@ -233,11 +237,11 @@ codeunit 2151 "O365 Sales Email Management"
                 Error(CannotFindDocumentErr, DocumentId);
             Cancelled := IsSalesInvoiceHeaderCancelled(SalesInvoiceHeader);
             if not Cancelled then begin
-                DocumentName := SalesInvoiceHeader.GetDefaultEmailDocumentName;
+                DocumentName := SalesInvoiceHeader.GetDefaultEmailDocumentName();
                 RecordVariant := SalesInvoiceHeader;
                 DocumentNo := SalesInvoiceHeader."No.";
                 CustomerNo := SalesInvoiceHeader."Sell-to Customer No.";
-                ReportUsage := NativeReports.PostedSalesInvoiceReportId;
+                ReportUsage := NativeReports.PostedSalesInvoiceReportId();
             end;
         end;
 
@@ -338,4 +342,5 @@ codeunit 2151 "O365 Sales Email Management"
     end;
 #endif
 }
+#endif
 

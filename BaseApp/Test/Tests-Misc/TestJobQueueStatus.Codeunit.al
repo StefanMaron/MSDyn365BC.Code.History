@@ -553,7 +553,7 @@ codeunit 139033 "Test Job Queue Status"
     local procedure CreateJobQueueEntryWithStatus(var JobQueueEntry: Record "Job Queue Entry"; Status: Option; StatusMessage: Text)
     begin
         JobQueueEntry.Init();
-        JobQueueEntry.ID := CreateGuid;
+        JobQueueEntry.ID := CreateGuid();
 
         JobQueueEntry.Status := Status;
         if Status = JobQueueEntry.Status::Error then

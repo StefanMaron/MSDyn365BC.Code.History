@@ -59,7 +59,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         // Setup: Create a Customer with Currency and Reminder Terms attached to it. Create and Post Sales Invoice for the Customer with
         // Currency selected. Create Reminder for the Customer through batch job on a Date after Grace Period.
         AdditionalFee := SetupAndPostSalesInvoice(Customer, DocumentDate, CurrencyCode, CurrencyCode2);
-        Amount := Round(LibraryERM.ConvertCurrency(AdditionalFee, '', CurrencyCode2, WorkDate));
+        Amount := Round(LibraryERM.ConvertCurrency(AdditionalFee, '', CurrencyCode2, WorkDate()));
         CreateReminder(Customer."No.", DocumentDate, false); // "Use Header Level" = FALSE
 
         // Exercise: Issue the Reminder.
@@ -118,7 +118,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         // a new Currency. Again post a Sales Invoice with Customer Currency and Create Reminder after Grace Period Date.
         AdditionalFee := SetupAndPostSalesInvoice(Customer, DocumentDate, CreateCurrency, FindCurrency);
         CreateAndPostSalesInvoice(Customer."No.", Customer."Currency Code");
-        Amount := Round(LibraryERM.ConvertCurrency(AdditionalFee, '', Customer."Currency Code", WorkDate));
+        Amount := Round(LibraryERM.ConvertCurrency(AdditionalFee, '', Customer."Currency Code", WorkDate()));
         CreateSuggestReminderManually(Customer."No.", Customer."Currency Code", DocumentDate);
 
         // Exercise: Issue the Reminder.
@@ -141,7 +141,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
 
         // Exercise: Run Suggest Reminder Lines report with Random Document Date.
         CreateSuggestReminderManually(
-          Customer."No.", Customer."Currency Code", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate));
+          Customer."No.", Customer."Currency Code", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()));
 
         // Verify: Verify Reminder Line must be created.
         FindReminderLine(GetReminderNo(Customer."No."));
@@ -159,7 +159,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         CreateAndPostGenJournalLine(Customer);
 
         // Exercise: Run Create Reminders report with Random Document Date.
-        CreateReminder(Customer."No.", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate), false); // "Use Header Level" = FALSE
+        CreateReminder(Customer."No.", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()), false); // "Use Header Level" = FALSE
 
         // Verify: Verify Reminder Line must be created.
         FindReminderLine(GetReminderNo(Customer."No."));
@@ -386,7 +386,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         // [GIVEN] Created Reminder for the Customer after Grace Period Date.
         CurrencyCode := CreateCurrency;
         AdditionalFee := SetupAndPostSalesInvoice(Customer, DocumentDate, CurrencyCode, CurrencyCode);
-        Amount := Round(LibraryERM.ConvertCurrency(AdditionalFee, '', CurrencyCode, WorkDate));
+        Amount := Round(LibraryERM.ConvertCurrency(AdditionalFee, '', CurrencyCode, WorkDate()));
 
         // [GIVEN] Created Reminder "REM01" for the Customer after Grace Period Date.
         CreateReminder(Customer."No.", DocumentDate, false);
@@ -476,8 +476,8 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         // [THEN] Reminder No. field is not automatically inserted
         Assert.AreEqual(Reminder."No.".Value, '', 'Reminder."No."');
 
-        Reminder.Close;
-        CustomerList.Close;
+        Reminder.Close();
+        CustomerList.Close();
     end;
 
     [Test]
@@ -637,7 +637,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
     local procedure CreateFinanceChargeInterestRates(var FinanceChargeInterestRate: Record "Finance Charge Interest Rate"; FinanceChargeTermsCode: Code[10]; StartDate: Date)
     begin
         with FinanceChargeInterestRate do begin
-            Init;
+            Init();
             Validate("Fin. Charge Terms Code", FinanceChargeTermsCode);
             Validate("Start Date", StartDate);
             Validate("Interest Rate", LibraryRandom.RandInt(10));
@@ -790,7 +790,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         ReminderIssue.Set(ReminderHeader, false, ReminderHeader."Document Date");
-        IssuedReminderNo := NoSeriesManagement.GetNextNo(ReminderHeader."Issuing No. Series", WorkDate, false);
+        IssuedReminderNo := NoSeriesManagement.GetNextNo(ReminderHeader."Issuing No. Series", WorkDate(), false);
         LibraryERM.RunReminderIssue(ReminderIssue);
     end;
 
@@ -806,7 +806,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         NoSeriesLine.SetRange("Series Code", SalesAndReceivablesSetup."Reminder Nos.");
         NoSeriesLine.FindFirst();
         ReminderHeader.FindLast();
-        IssuedReminderNo := NoSeriesManagement.GetNextNo(ReminderHeader."Issuing No. Series", WorkDate, false);
+        IssuedReminderNo := NoSeriesManagement.GetNextNo(ReminderHeader."Issuing No. Series", WorkDate(), false);
         ReminderIssue.Set(ReminderHeader, false, DocumentDate);
         LibraryERM.RunReminderIssue(ReminderIssue);
     end;
@@ -819,7 +819,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         Commit();
         IssuedReminderHeader.Get(IssuedReminderNo);
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        IssuedReminderHeader.SetRecFilter;
+        IssuedReminderHeader.SetRecFilter();
         Reminder.SetTableView(IssuedReminderHeader);
         Reminder.SaveAsExcel(LibraryReportValidation.GetFileName);
         LibraryReportValidation.OpenExcelFile;
@@ -934,7 +934,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         ReminderLine.FindSet();
         repeat
             Amount += (ReminderLine."Remaining Amount" + ReminderLine.Amount) * (1 + (ReminderLine."VAT %" / 100));
-        until ReminderLine.Next = 0;
+        until ReminderLine.Next() = 0;
         Assert.AreEqual(
           StrSubstNo(ReminderLineDescription, Format(Amount, 0, '<Precision,2><Standard Format,0>')), ReminderLine.Description,
           ErrorMustMatch);

@@ -100,7 +100,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         Clear(FixedAssetAnalysis);
 
         // Using the Random Number for the Day.
-        FixedAssetAnalysis.SetMandatoryFields('', CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate), WorkDate);
+        FixedAssetAnalysis.SetMandatoryFields('', CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()), WorkDate());
         FixedAssetAnalysis.GetFASetup;
         LibraryReportValidation.SetFileName(FixedAsset.TableCaption + FixedAsset."No.");
 
@@ -165,7 +165,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
     begin
         FixedAsset.SetRange("No.");
         FixedAssetAnalysis.SetTableView(FixedAsset);
-        FixedAssetAnalysis.SetMandatoryFields('', WorkDate, WorkDate);
+        FixedAssetAnalysis.SetMandatoryFields('', WorkDate(), WorkDate());
         FixedAssetAnalysis.SetPostingType(PostingType, '', '');
         FixedAssetAnalysis.GetFASetup;
         LibraryReportValidation.SetFileName(FixedAsset.TableCaption + FixedAsset."No.");
@@ -262,7 +262,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
         FAJournalLineAmount :=
           CreateAndPostFAJournalLine(
-            FixedAsset."No.", FAJournalLine."FA Posting Type"::"Acquisition Cost", DepreciationBook.Code, WorkDate);
+            FixedAsset."No.", FAJournalLine."FA Posting Type"::"Acquisition Cost", DepreciationBook.Code, WorkDate());
     end;
 
     [Test]
@@ -311,7 +311,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         AcquireNewFixedAssetUsingFAJournal(FixedAsset, DepreciationBook, FADepreciationBook, FAJournalLine, FAJournalLineAmount);
         FAJournalLineAmount2 :=
           CreateAndPostFAJournalLine(
-            FixedAsset."No.", FAJournalLine."FA Posting Type"::Appreciation, DepreciationBook.Code, WorkDate);
+            FixedAsset."No.", FAJournalLine."FA Posting Type"::Appreciation, DepreciationBook.Code, WorkDate());
         Clear(FixedAssetAnalysis);
         FixedAssetAnalysis.GetFASetup;
 
@@ -384,7 +384,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         AcquireNewFixedAssetUsingFAJournal(FixedAsset, DepreciationBook, FADepreciationBook, FAJournalLine, FAJournalLineAmount);
         FAJournalLineAmount2 :=
           CreateAndPostFAJournalLine(
-            FixedAsset."No.", FAJournalLine."FA Posting Type"::Appreciation, DepreciationBook.Code, WorkDate);
+            FixedAsset."No.", FAJournalLine."FA Posting Type"::Appreciation, DepreciationBook.Code, WorkDate());
         Clear(FixedAssetAnalysis);
         FixedAssetAnalysis.GetFASetup;
     end;
@@ -408,7 +408,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         AcquireNewFixedAssetUsingFAJournal(FixedAsset, DepreciationBook, FADepreciationBook, FAJournalLine, FAJournalLineAmount);
         FAJournalLineAmount2 :=
           CreateAndPostFAJournalLine(
-            FixedAsset."No.", FAJournalLine."FA Posting Type"::Appreciation, DepreciationBook.Code, WorkDate);
+            FixedAsset."No.", FAJournalLine."FA Posting Type"::Appreciation, DepreciationBook.Code, WorkDate());
         Clear(FixedAssetAnalysis);
         FixedAssetAnalysis.GetFASetup;
 
@@ -440,7 +440,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         AcquireNewFixedAssetUsingFAJournal(FixedAsset, DepreciationBook, FADepreciationBook, FAJournalLine, FAJournalLineAmount);
         FAJournalLineAmount2 :=
           CreateAndPostFAJournalLine(
-            FixedAsset."No.", FAJournalLine."FA Posting Type"::Appreciation, DepreciationBook.Code, WorkDate);
+            FixedAsset."No.", FAJournalLine."FA Posting Type"::Appreciation, DepreciationBook.Code, WorkDate());
         Clear(FixedAssetAnalysis);
         FixedAssetAnalysis.GetFASetup;
 
@@ -521,7 +521,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         AcquireNewFixedAssetUsingFAJournal(FixedAsset, DepreciationBook, FADepreciationBook, FAJournalLine, FAJournalLineAmount);
         FAJournalLineAmount2 :=
           CreateAndPostFAJournalLine(
-            FixedAsset."No.", FAJournalLine."FA Posting Type"::Appreciation, DepreciationBook.Code, WorkDate);
+            FixedAsset."No.", FAJournalLine."FA Posting Type"::Appreciation, DepreciationBook.Code, WorkDate());
         Clear(FixedAssetAnalysis);
         FixedAssetAnalysis.GetFASetup;
         DeprBookCode := DepreciationBook.Code;
@@ -547,7 +547,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         AcquireNewFixedAssetUsingFAJournal(FixedAsset, DepreciationBook, FADepreciationBook, FAJournalLine, FAJournalLineAmount);
         FAJournalLineAmount2 :=
           CreateAndPostFAJournalLine(
-            FixedAsset."No.", FAJournalLine."FA Posting Type"::Appreciation, DepreciationBook.Code, WorkDate);
+            FixedAsset."No.", FAJournalLine."FA Posting Type"::Appreciation, DepreciationBook.Code, WorkDate());
         Clear(FixedAssetAnalysis);
         FixedAssetAnalysis.GetFASetup;
 
@@ -586,13 +586,13 @@ codeunit 134978 "ERM Fixed Assets Reports"
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
         CreateFixedAsset(FixedAsset2, FixedAsset."FA Posting Group");
         CreateFADepreciationBook(FADepreciationBook2, FixedAsset2."No.", FixedAsset2."FA Posting Group", DepreciationBook.Code);
-        FAJournalLineAmount := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        FAJournalLineAmount := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
         FAJournalLineAmount2 :=
           CreateAndPostFAJournalLine(
-            FixedAsset."No.", FAJournalLine."FA Posting Type"::Appreciation, DepreciationBook.Code, WorkDate);
+            FixedAsset."No.", FAJournalLine."FA Posting Type"::Appreciation, DepreciationBook.Code, WorkDate());
         FAJournalLineAmount3 :=
           CreateAndPostFAJournalLine(
-            FixedAsset2."No.", FAJournalLine."FA Posting Type"::Appreciation, DepreciationBook.Code, WorkDate);
+            FixedAsset2."No.", FAJournalLine."FA Posting Type"::Appreciation, DepreciationBook.Code, WorkDate());
         Clear(FixedAssetAnalysis);
         FixedAssetAnalysis.GetFASetup;
 
@@ -627,10 +627,10 @@ codeunit 134978 "ERM Fixed Assets Reports"
         AcquireNewFixedAssetUsingFAJournal(FixedAsset, DepreciationBook, FADepreciationBook, FAJournalLine, FAJournalLineAmount);
         FAJournalLineAmount2 :=
           CreateAndPostFAJournalLine(
-            FixedAsset."No.", FAJournalLine."FA Posting Type"::Appreciation, DepreciationBook.Code, WorkDate);
+            FixedAsset."No.", FAJournalLine."FA Posting Type"::Appreciation, DepreciationBook.Code, WorkDate());
         FAJournalLineAmount3 :=
           CreateAndPostFAJournalLine(
-            FixedAsset."No.", FAJournalLine."FA Posting Type"::Appreciation, DepreciationBook.Code, WorkDate);
+            FixedAsset."No.", FAJournalLine."FA Posting Type"::Appreciation, DepreciationBook.Code, WorkDate());
         Clear(FixedAssetAnalysis);
         FixedAssetAnalysis.GetFASetup;
 
@@ -697,7 +697,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         CreateDepreciationJournalSetup(DepreciationBook);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
-        CreateAndPostFAJournalLine(FixedAsset."No.", FAJournalLine."FA Posting Type"::"Acquisition Cost", DepreciationBook.Code, WorkDate);
+        CreateAndPostFAJournalLine(FixedAsset."No.", FAJournalLine."FA Posting Type"::"Acquisition Cost", DepreciationBook.Code, WorkDate());
         CreateDisposalFAJournalLine(FAJournalLine, FixedAsset."No.", FAJournalLine."FA Posting Type"::Disposal, DepreciationBook.Code);
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
         Clear(FixedAssetAnalysis);
@@ -721,7 +721,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         FixedAssetBookValue01.UseRequestPage(false);
         FixedAssetBookValue01.SetMandatoryFields('', 0D, 0D);
         FixedAssetBookValue01.GetDepreciationBookCode;
-        LibraryReportValidation.SetFileName(FixedAsset.TableCaption);
+        LibraryReportValidation.SetFileName(FixedAsset.TableCaption());
         asserterror FixedAssetBookValue01.SaveAsExcel(LibraryReportValidation.GetFileName);
 
         // 3. Verify: Verify "You must specify the Starting Date and the Ending Date" error occurs.
@@ -747,7 +747,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         // Using Random Number for the Day.
         FixedAssetBookValue01.SetMandatoryFields(
-          DepreciationBook.Code, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate), WorkDate);
+          DepreciationBook.Code, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()), WorkDate());
         LibraryReportValidation.SetFileName(DepreciationBook.Code);
         asserterror FixedAssetBookValue01.SaveAsExcel(LibraryReportValidation.GetFileName);
 
@@ -770,12 +770,12 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // 2. Exercise: Run Fixed Asset Book Value 01 Report without Depreciation Book Code.
         LibraryLowerPermissions.SetO365FAView;
         FixedAssetBookValue01.UseRequestPage(false);
-        FixedAssetBookValue01.SetMandatoryFields('', WorkDate, WorkDate);
-        LibraryReportValidation.SetFileName(DepreciationBook.TableCaption);
+        FixedAssetBookValue01.SetMandatoryFields('', WorkDate(), WorkDate());
+        LibraryReportValidation.SetFileName(DepreciationBook.TableCaption());
         asserterror FixedAssetBookValue01.SaveAsExcel(LibraryReportValidation.GetFileName);
 
         // 3. Verify: Verify "Depreciation Book Code does not exist" error occurs.
-        Assert.ExpectedError(StrSubstNo(DepreciationBookErr, DepreciationBook.TableCaption));
+        Assert.ExpectedError(StrSubstNo(DepreciationBookErr, DepreciationBook.TableCaption()));
     end;
 
     [Test]
@@ -806,12 +806,12 @@ codeunit 134978 "ERM Fixed Assets Reports"
         CreateFADepreciationBook(FADepreciationBook, FixedAsset2."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
 
         // Using the Random Number for the Day.
-        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         AcquisitionCostAmount := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
         DepreciationCostAmount := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
-        PostDisposalDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
+        PostDisposalDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 01 Report with Group Total as FA Posting Group.
         LibraryLowerPermissions.SetO365FAView;
@@ -859,12 +859,12 @@ codeunit 134978 "ERM Fixed Assets Reports"
         CreateFADepreciationBook(FADepreciationBook, FixedAsset2."No.", '', DepreciationBook.Code);
 
         // Using the Random Number for the Day.
-        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         AcquisitionCostAmount := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
         DepreciationCostAmount := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
-        PostDisposalDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
+        PostDisposalDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 01 Report with Group Total as FA Class.
         LibraryLowerPermissions.SetO365FAView;
@@ -910,12 +910,12 @@ codeunit 134978 "ERM Fixed Assets Reports"
         CreateFADepreciationBook(FADepreciationBook, FixedAsset2."No.", '', DepreciationBook.Code);
 
         // Using the Random Number for the Day.
-        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         AcquisitionCostAmount := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
         DepreciationCostAmount := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
-        PostDisposalDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
+        PostDisposalDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 01 Report with Group Total as FA Subclass.
         LibraryLowerPermissions.SetO365FAView;
@@ -961,12 +961,12 @@ codeunit 134978 "ERM Fixed Assets Reports"
         CreateFADepreciationBook(FADepreciationBook, FixedAsset2."No.", '', DepreciationBook.Code);
 
         // Using the Random Number for the Day.
-        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         AcquisitionCostAmount := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
         DepreciationCostAmount := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
-        PostDisposalDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
+        PostDisposalDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 01 Report with Group Total as FA Location.
         LibraryLowerPermissions.SetO365FAView;
@@ -1014,12 +1014,12 @@ codeunit 134978 "ERM Fixed Assets Reports"
         CreateFADepreciationBook(FADepreciationBook, FixedAsset2."No.", '', DepreciationBook.Code);
 
         // Using the Random Number for the Day.
-        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         AcquisitionCostAmount := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
         DepreciationCostAmount := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
-        PostDisposalDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
+        PostDisposalDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 01 Report with Group Total as Global Dimension 1.
         LibraryLowerPermissions.SetO365FAView;
@@ -1067,12 +1067,12 @@ codeunit 134978 "ERM Fixed Assets Reports"
         CreateFADepreciationBook(FADepreciationBook, FixedAsset2."No.", '', DepreciationBook.Code);
 
         // Using the Random Number for the Day.
-        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         AcquisitionCostAmount := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
         DepreciationCostAmount := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
-        PostDisposalDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
+        PostDisposalDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 01 Report with Group Total as Global Dimension 2.
         LibraryLowerPermissions.SetO365FAView;
@@ -1120,12 +1120,12 @@ codeunit 134978 "ERM Fixed Assets Reports"
         CreateFADepreciationBook(FADepreciationBook, FixedAsset3."No.", '', DepreciationBook.Code);
 
         // Using the Random Number for the Day.
-        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         AcquisitionCostAmount := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
         DepreciationCostAmount := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
-        PostDisposalDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
+        PostDisposalDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 01 Report with Group Total as Main Asset.
         LibraryLowerPermissions.SetO365FAView;
@@ -1166,18 +1166,18 @@ codeunit 134978 "ERM Fixed Assets Reports"
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
 
         // Using the Random Number for the Day.
-        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         AcquisitionCostAmount :=
           CreateAndPostFAJournalLine(
             FixedAsset."No.", FAJournalLine."FA Posting Type"::"Acquisition Cost", DepreciationBook.Code, PostingDate);
         AcquisitionCostAmount2 :=
           CreateAndPostFAJournalLine(
-            FixedAsset."No.", FAJournalLine."FA Posting Type"::"Acquisition Cost", DepreciationBook.Code, WorkDate);
+            FixedAsset."No.", FAJournalLine."FA Posting Type"::"Acquisition Cost", DepreciationBook.Code, WorkDate());
         DepreciationCostAmount :=
           PostDisposalFAJournalLine(FixedAsset."No.", FAJournalLine."FA Posting Type"::Depreciation, DepreciationBook.Code, PostingDate);
         DepreciationCostAmount2 :=
-          PostDisposalFAJournalLine(FixedAsset."No.", FAJournalLine."FA Posting Type"::Depreciation, DepreciationBook.Code, WorkDate);
-        PostDisposalFAJournalLine(FixedAsset."No.", FAJournalLine."FA Posting Type"::Disposal, DepreciationBook.Code, WorkDate);
+          PostDisposalFAJournalLine(FixedAsset."No.", FAJournalLine."FA Posting Type"::Depreciation, DepreciationBook.Code, WorkDate());
+        PostDisposalFAJournalLine(FixedAsset."No.", FAJournalLine."FA Posting Type"::Disposal, DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 01 Report with Print Details as True.
         LibraryLowerPermissions.SetO365FAView;
@@ -1218,12 +1218,12 @@ codeunit 134978 "ERM Fixed Assets Reports"
         CreateFADepreciationBook(FADepreciationBook, FixedAsset2."No.", '', DepreciationBook.Code);
 
         // Using the Random Number for the Day.
-        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         AcquisitionCostAmount := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
         DepreciationCostAmount := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
-        PostDisposalDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
+        PostDisposalDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 01 Report with Print Details as True.
         LibraryLowerPermissions.SetO365FAView;
@@ -1255,7 +1255,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
-        CreateAndPostFAJournalLine(FixedAsset."No.", FAJournalLine."FA Posting Type"::"Acquisition Cost", DepreciationBook.Code, WorkDate);
+        CreateAndPostFAJournalLine(FixedAsset."No.", FAJournalLine."FA Posting Type"::"Acquisition Cost", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 01 Report with Budget Report as True.
         LibraryLowerPermissions.SetO365FAView;
@@ -1288,7 +1288,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         UpdateCustom1Depreciation(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
-        CreateAndPostFAJournalLine(FixedAsset."No.", FAJournalLine."FA Posting Type"::"Acquisition Cost", DepreciationBook.Code, WorkDate);
+        CreateAndPostFAJournalLine(FixedAsset."No.", FAJournalLine."FA Posting Type"::"Acquisition Cost", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 01 Report with Budget Report as True.
         LibraryLowerPermissions.SetO365FAView;
@@ -1319,7 +1319,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         FixedAssetBookValue02.UseRequestPage(false);
         FixedAssetBookValue02.SetMandatoryFields('', 0D, 0D);
         FixedAssetBookValue02.GetDepreciationBookCode;
-        LibraryReportValidation.SetFileName(FixedAsset.TableCaption);
+        LibraryReportValidation.SetFileName(FixedAsset.TableCaption());
         asserterror FixedAssetBookValue02.SaveAsExcel(LibraryReportValidation.GetFileName);
 
         // 3. Verify: Verify "You must specify the Starting Date and the Ending Date" error occurs.
@@ -1346,7 +1346,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         // Using Random Number for the Day.
         FixedAssetBookValue02.SetMandatoryFields(
-          DepreciationBook.Code, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate), WorkDate);
+          DepreciationBook.Code, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()), WorkDate());
         LibraryReportValidation.SetFileName(DepreciationBook.Code);
         asserterror FixedAssetBookValue02.SaveAsExcel(LibraryReportValidation.GetFileName);
 
@@ -1370,12 +1370,12 @@ codeunit 134978 "ERM Fixed Assets Reports"
         LibraryLowerPermissions.SetO365FAView;
         Clear(FixedAssetBookValue02);
         FixedAssetBookValue02.UseRequestPage(false);
-        FixedAssetBookValue02.SetMandatoryFields('', WorkDate, WorkDate);
-        LibraryReportValidation.SetFileName(DepreciationBook.TableCaption);
+        FixedAssetBookValue02.SetMandatoryFields('', WorkDate(), WorkDate());
+        LibraryReportValidation.SetFileName(DepreciationBook.TableCaption());
         asserterror FixedAssetBookValue02.SaveAsExcel(LibraryReportValidation.GetFileName);
 
         // 3. Verify: Verify "Depreciation Book Code does not exist" error occurs.
-        Assert.ExpectedError(StrSubstNo(DepreciationBookErr, DepreciationBook.TableCaption));
+        Assert.ExpectedError(StrSubstNo(DepreciationBookErr, DepreciationBook.TableCaption()));
     end;
 
     [Test]
@@ -1396,7 +1396,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
-        CreateAndPostFAJournalLine(FixedAsset."No.", FAJournalLine."FA Posting Type"::"Acquisition Cost", DepreciationBook.Code, WorkDate);
+        CreateAndPostFAJournalLine(FixedAsset."No.", FAJournalLine."FA Posting Type"::"Acquisition Cost", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report with Budget Report as True.
         LibraryLowerPermissions.SetO365FAView;
@@ -1429,7 +1429,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         UpdateCustom1Depreciation(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
-        CreateAndPostFAJournalLine(FixedAsset."No.", FAJournalLine."FA Posting Type"::"Acquisition Cost", DepreciationBook.Code, WorkDate);
+        CreateAndPostFAJournalLine(FixedAsset."No.", FAJournalLine."FA Posting Type"::"Acquisition Cost", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report with Budget Report as True.
         LibraryLowerPermissions.SetO365FAView;
@@ -1470,11 +1470,11 @@ codeunit 134978 "ERM Fixed Assets Reports"
         CreateFADepreciationBook(FADepreciationBook, FixedAsset2."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
 
         // Using the Random Number for the Day.
-        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         AcquisitionCostAmount := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
         DepreciationCostAmount := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report with Group Total as FA Posting Group.
         LibraryLowerPermissions.SetO365FAView;
@@ -1511,9 +1511,9 @@ codeunit 134978 "ERM Fixed Assets Reports"
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset2."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
 
-        AcquisitionCostAmount := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        AcquisitionCostAmount := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
         DepreciationCostAmount :=
-          PostDisposalFAJournalLine(FixedAsset2."No.", FAJournalLine."FA Posting Type"::Depreciation, DepreciationBook.Code, WorkDate);
+          PostDisposalFAJournalLine(FixedAsset2."No.", FAJournalLine."FA Posting Type"::Depreciation, DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report with Group Total as FA Posting Group.
         LibraryLowerPermissions.SetO365FAView;
@@ -1555,11 +1555,11 @@ codeunit 134978 "ERM Fixed Assets Reports"
         CreateFADepreciationBook(FADepreciationBook, FixedAsset2."No.", '', DepreciationBook.Code);
 
         // Using the Random Number for the Day.
-        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         AcquisitionCostAmount := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
         DepreciationCostAmount := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report with Group Total as FA Class.
         LibraryLowerPermissions.SetO365FAView;
@@ -1602,11 +1602,11 @@ codeunit 134978 "ERM Fixed Assets Reports"
         CreateFADepreciationBook(FADepreciationBook, FixedAsset2."No.", '', DepreciationBook.Code);
 
         // Using the Random Number for the Day.
-        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         AcquisitionCostAmount := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
         DepreciationCostAmount := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report with Group Total as FA Subclass.
         LibraryLowerPermissions.SetO365FAView;
@@ -1649,11 +1649,11 @@ codeunit 134978 "ERM Fixed Assets Reports"
         CreateFADepreciationBook(FADepreciationBook, FixedAsset2."No.", '', DepreciationBook.Code);
 
         // Using the Random Number for the Day.
-        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         AcquisitionCostAmount := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
         DepreciationCostAmount := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report with Group Total as FA Location.
         LibraryLowerPermissions.SetO365FAView;
@@ -1698,11 +1698,11 @@ codeunit 134978 "ERM Fixed Assets Reports"
         CreateFADepreciationBook(FADepreciationBook, FixedAsset2."No.", '', DepreciationBook.Code);
 
         // Using the Random Number for the Day.
-        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         AcquisitionCostAmount := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
         DepreciationCostAmount := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report with Group Total as Global Dimension 1.
         LibraryLowerPermissions.SetO365FAView;
@@ -1747,11 +1747,11 @@ codeunit 134978 "ERM Fixed Assets Reports"
         CreateFADepreciationBook(FADepreciationBook, FixedAsset2."No.", '', DepreciationBook.Code);
 
         // Using the Random Number for the Day.
-        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         AcquisitionCostAmount := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
         DepreciationCostAmount := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report with Group Total as Global Dimension 2.
         LibraryLowerPermissions.SetO365FAView;
@@ -1796,11 +1796,11 @@ codeunit 134978 "ERM Fixed Assets Reports"
         CreateFADepreciationBook(FADepreciationBook, FixedAsset3."No.", '', DepreciationBook.Code);
 
         // Using the Random Number for the Day.
-        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         AcquisitionCostAmount := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        AcquisitionCostAmount2 := PostAcquisitionDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
         DepreciationCostAmount := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, PostingDate);
-        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate);
+        DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report with Group Total as Main Asset.
         LibraryLowerPermissions.SetO365FAView;
@@ -1837,17 +1837,17 @@ codeunit 134978 "ERM Fixed Assets Reports"
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
 
         // Using the Random Number for the Day.
-        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         AcquisitionCostAmount :=
           CreateAndPostFAJournalLine(
             FixedAsset."No.", FAJournalLine."FA Posting Type"::"Acquisition Cost", DepreciationBook.Code, PostingDate);
         AcquisitionCostAmount2 :=
           CreateAndPostFAJournalLine(
-            FixedAsset."No.", FAJournalLine."FA Posting Type"::"Acquisition Cost", DepreciationBook.Code, WorkDate);
+            FixedAsset."No.", FAJournalLine."FA Posting Type"::"Acquisition Cost", DepreciationBook.Code, WorkDate());
         DepreciationCostAmount :=
           PostDisposalFAJournalLine(FixedAsset."No.", FAJournalLine."FA Posting Type"::Depreciation, DepreciationBook.Code, PostingDate);
         DepreciationCostAmount2 :=
-          PostDisposalFAJournalLine(FixedAsset."No.", FAJournalLine."FA Posting Type"::Depreciation, DepreciationBook.Code, WorkDate);
+          PostDisposalFAJournalLine(FixedAsset."No.", FAJournalLine."FA Posting Type"::Depreciation, DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report with Print Details as True.
         LibraryLowerPermissions.SetO365FAView;
@@ -2063,10 +2063,10 @@ codeunit 134978 "ERM Fixed Assets Reports"
     begin
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FANo, DepreciationBookCode);
         FADepreciationBook.Validate("FA Posting Group", FAPostingGroup);
-        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate);
+        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate());
 
         // Depreciation Ending Date greater than Depreciation Starting Date, Using the Random Number for the Year.
-        FADepreciationBook.Validate("Depreciation Ending Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate));
+        FADepreciationBook.Validate("Depreciation Ending Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate()));
         FADepreciationBook.Modify(true);
     end;
 
@@ -2152,7 +2152,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
     local procedure CreateDisposalFAJournalLine(var FAJournalLine: Record "FA Journal Line"; FANo: Code[20]; FAPostingType: Enum "FA Journal Line FA Posting Type"; DepreciationBookCode: Code[10])
     begin
-        CreateFAJournalLine(FAJournalLine, FANo, DepreciationBookCode, FAPostingType, WorkDate);
+        CreateFAJournalLine(FAJournalLine, FANo, DepreciationBookCode, FAPostingType, WorkDate());
         FAJournalLine.Validate(Amount, -FAJournalLine.Amount);
         FAJournalLine.Modify(true);
     end;
@@ -2237,9 +2237,9 @@ codeunit 134978 "ERM Fixed Assets Reports"
         Clear(FixedAssetBookValue01);
         FixedAssetBookValue01.SetTableView(FixedAsset);
         FixedAssetBookValue01.UseRequestPage(false);
-        FixedAssetBookValue01.SetMandatoryFields(DepreciationBookCode, WorkDate, WorkDate);
+        FixedAssetBookValue01.SetMandatoryFields(DepreciationBookCode, WorkDate(), WorkDate());
         FixedAssetBookValue01.SetTotalFields(GroupTotals, PrintTotal, BudgetReport);
-        LibraryReportValidation.SetFileName(CreateGuid);
+        LibraryReportValidation.SetFileName(CreateGuid());
         FixedAssetBookValue01.SaveAsExcel(LibraryReportValidation.GetFileName);
         LibraryReportValidation.DownloadFile;
     end;
@@ -2251,9 +2251,9 @@ codeunit 134978 "ERM Fixed Assets Reports"
         Clear(FixedAssetBookValue02);
         FixedAssetBookValue02.SetTableView(FixedAsset);
         FixedAssetBookValue02.UseRequestPage(false);
-        FixedAssetBookValue02.SetMandatoryFields(DepreciationBookCode, WorkDate, WorkDate);
+        FixedAssetBookValue02.SetMandatoryFields(DepreciationBookCode, WorkDate(), WorkDate());
         FixedAssetBookValue02.SetTotalFields(GroupTotals, PrintTotal, BudgetReport, Reclassify);
-        LibraryReportValidation.SetFileName(CreateGuid);
+        LibraryReportValidation.SetFileName(CreateGuid());
         FixedAssetBookValue02.SaveAsExcel(LibraryReportValidation.GetFileName);
         LibraryReportValidation.DownloadFile;
     end;
@@ -2278,13 +2278,13 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         // Using Random Number Generator for Date.
         FixedAssetAnalysis.SetMandatoryFields(
-          FADepreciationBook."Depreciation Book Code", WorkDate, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+          FADepreciationBook."Depreciation Book Code", WorkDate(), CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
         FixedAssetAnalysis.SetDateType(AcquisitionDateTxt, '');
         FixedAssetAnalysis.SetPostingType(AcquisitionCostTxt, PostingType, '');
         FixedAssetAnalysis.SetPeriod(PeriodValue, PeriodValue, Period::"before Starting Date");
         FixedAssetAnalysis.SetTotalFields(GroupTotals::"FA Posting Group", PrintDetails, false, false);
 
-        LibraryReportValidation.SetFileName(CreateGuid);
+        LibraryReportValidation.SetFileName(CreateGuid());
         FixedAssetAnalysis.SaveAsExcel(LibraryReportValidation.GetFileName);
         LibraryReportValidation.DownloadFile;
     end;
@@ -2298,13 +2298,13 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         // Using Random Number Generator for Date.
         FixedAssetAnalysis.SetMandatoryFields(
-          DepreciationBookCode, WorkDate, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+          DepreciationBookCode, WorkDate(), CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
         FixedAssetAnalysis.SetDateType('', AcquisitionDateTxt);
         FixedAssetAnalysis.SetPostingType('', AcquisitionCostTxt, AppreciationTxt);
         FixedAssetAnalysis.SetPeriod(Period::"before Starting Date", PeriodValue, PeriodValue);
         FixedAssetAnalysis.SetTotalFields(GroupTotals::"FA Posting Group", PrintDetails, false, false);
 
-        LibraryReportValidation.SetFileName(CreateGuid);
+        LibraryReportValidation.SetFileName(CreateGuid());
         FixedAssetAnalysis.SaveAsExcel(LibraryReportValidation.GetFileName);
         LibraryReportValidation.DownloadFile;
     end;
@@ -2320,13 +2320,13 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         // Using Random Number Generator for Date.
         FixedAssetAnalysis.SetMandatoryFields(
-          FADepreciationBook."Depreciation Book Code", WorkDate, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+          FADepreciationBook."Depreciation Book Code", WorkDate(), CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
         FixedAssetAnalysis.SetDateType(AcquisitionDateTxt, '');
         FixedAssetAnalysis.SetPostingType(BookValueTxt, '', '');
         FixedAssetAnalysis.SetPeriod(Period::"Net Change", Period::"before Starting Date", Period::"before Starting Date");
         FixedAssetAnalysis.SetTotalFields(GroupTotals::"FA Posting Group", true, SalesReport, BudgetReport);
 
-        LibraryReportValidation.SetFileName(CreateGuid);
+        LibraryReportValidation.SetFileName(CreateGuid());
         FixedAssetAnalysis.SaveAsExcel(LibraryReportValidation.GetFileName);
         LibraryReportValidation.DownloadFile;
     end;
@@ -2349,14 +2349,14 @@ codeunit 134978 "ERM Fixed Assets Reports"
         GenJournalBatch.Get(FAJournalSetup."Gen. Jnl. Template Name", FAJournalSetup."Gen. Jnl. Batch Name");
         if GenJournalBatch."No. Series" = '' then
             GenJournalBatch."No. Series" := LibraryUtility.GetGlobalNoSeriesCode;
-        DocumentNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate, false);
+        DocumentNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate(), false);
         GenJournalLine.SetRange("Journal Template Name", FAJournalSetup."Gen. Jnl. Template Name");
         GenJournalLine.SetRange("Journal Batch Name", FAJournalSetup."Gen. Jnl. Batch Name");
         GenJournalLine.FindSet();
         repeat
             GenJournalLine.Validate("Document No.", DocumentNo);
             GenJournalLine.Modify(true);
-        until GenJournalLine.Next = 0;
+        until GenJournalLine.Next() = 0;
     end;
 
     local procedure UpdateFAClassCode(FixedAsset: Record "Fixed Asset"; FAClassCode: Code[10])
@@ -2383,7 +2383,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
     local procedure UpdateFAReclassJournal(var FAReclassJournalLine: Record "FA Reclass. Journal Line"; FANo: Code[20]; NewFANo: Code[20])
     begin
-        FAReclassJournalLine.Validate("FA Posting Date", WorkDate);
+        FAReclassJournalLine.Validate("FA Posting Date", WorkDate());
         FAReclassJournalLine.Validate(
           "Document No.",
           CopyStr(
@@ -2445,7 +2445,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         LibraryReportValidation.OpenFile;
         LibraryReportValidation.SetRange(FixedAsset.FieldCaption("No."), SetRangeValue);
         LibraryReportValidation.SetColumn(ColumnValue);
-        Evaluate(AmountValue, LibraryReportValidation.GetValue);
+        Evaluate(AmountValue, LibraryReportValidation.GetValue());
         Assert.AreEqual(FAJournalLineAmount, AmountValue, ErrorMessage);
     end;
 
@@ -2454,7 +2454,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         ActualAmount: Decimal;
     begin
         LibraryReportValidation.SetColumn(ColumnCaption);
-        Evaluate(ActualAmount, LibraryReportValidation.GetValue);
+        Evaluate(ActualAmount, LibraryReportValidation.GetValue());
         Assert.AreEqual(ExpectedAmount, ActualAmount, StrSubstNo(ValueMismatchErr, ColumnCaption, ExpectedAmount));
     end;
 
@@ -2486,9 +2486,9 @@ codeunit 134978 "ERM Fixed Assets Reports"
         VerifyBookValue(DepreciationCostAmount2, DepreciationInPeriodTxt);
 
         // Use 1 because it used as in Report for creating Header Line.
-        VerifyBookValue(AcquisitionCostAmount, AcquisitionCostTxt + ' ' + Format(CalcDate('<-1D>', WorkDate)));
-        VerifyBookValue(DepreciationCostAmount, StrSubstNo(DepreciationTxt, CalcDate('<-1D>', WorkDate)));
-        VerifyBookValue(AcquisitionCostAmount + DepreciationCostAmount, BookValueTxt + ' ' + Format(CalcDate('<-1D>', WorkDate)));
+        VerifyBookValue(AcquisitionCostAmount, AcquisitionCostTxt + ' ' + Format(CalcDate('<-1D>', WorkDate())));
+        VerifyBookValue(DepreciationCostAmount, StrSubstNo(DepreciationTxt, CalcDate('<-1D>', WorkDate())));
+        VerifyBookValue(AcquisitionCostAmount + DepreciationCostAmount, BookValueTxt + ' ' + Format(CalcDate('<-1D>', WorkDate())));
     end;
 
     local procedure VerifyTotalExistenceOnReport(FieldCaption: Text[30]; FieldValue: Text[50])
@@ -2507,9 +2507,9 @@ codeunit 134978 "ERM Fixed Assets Reports"
     begin
         DepriciationBookCode := LibraryVariableStorage.DequeueText;
         FixedAssetBookValue02.DeprBookCode.SetValue(DepriciationBookCode);
-        FixedAssetBookValue02.StartingDate.SetValue(WorkDate);
-        FixedAssetBookValue02.EndingDate.SetValue(WorkDate);
-        LibraryReportValidation.SetFileName(CreateGuid);
+        FixedAssetBookValue02.StartingDate.SetValue(WorkDate());
+        FixedAssetBookValue02.EndingDate.SetValue(WorkDate());
+        LibraryReportValidation.SetFileName(CreateGuid());
         FixedAssetBookValue02.SaveAsExcel(LibraryReportValidation.GetFileName);
         Sleep(200);
     end;
@@ -2520,7 +2520,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
     begin
         FixedAssetList.DeprBookCode.SetValue(LibraryVariableStorage.DequeueText);  // Setting Depreciation Book Code.
         FixedAssetList."Fixed Asset".SetFilter("No.", LibraryVariableStorage.DequeueText);
-        LibraryReportValidation.SetFileName(CreateGuid);
+        LibraryReportValidation.SetFileName(CreateGuid());
         FixedAssetList.SaveAsExcel(LibraryReportValidation.GetFileName);
         Sleep(200);
     end;

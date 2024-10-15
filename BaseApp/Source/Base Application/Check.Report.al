@@ -433,7 +433,7 @@
                         Decimals: Decimal;
                         CheckLedgEntryAmount: Decimal;
                     begin
-                        if not TestPrint then begin
+                        if not TestPrint then
                             with GenJnlLine do begin
                                 CheckLedgEntry.Init();
                                 CheckLedgEntry."Bank Account No." := BankAcc2."No.";
@@ -463,7 +463,7 @@
                                     if BankAcc2."Currency Code" <> '' then
                                         Currency.Get(BankAcc2."Currency Code")
                                     else
-                                        Currency.InitRoundingPrecision;
+                                        Currency.InitRoundingPrecision();
                                     CheckLedgEntryAmount := CheckLedgEntry.Amount;
                                     Decimals := CheckLedgEntry.Amount - Round(CheckLedgEntry.Amount, 1, '<');
                                     if StrLen(Format(Decimals)) < StrLen(Format(Currency."Amount Rounding Precision")) then
@@ -486,8 +486,8 @@
                                     DescriptionLine[2] := DescriptionLine[1];
                                     VoidText := Text022;
                                 end;
-                            end;
-                        end else
+                            end
+                        else
                             with GenJnlLine do begin
                                 CheckLedgEntry.Init();
                                 CheckLedgEntry."Bank Account No." := BankAcc2."No.";
@@ -626,6 +626,8 @@
             }
 
             trigger OnAfterGetRecord()
+            var
+                RemitAddress: Record "Remit Address";
             begin
                 if OneCheckPrVendor and ("Currency Code" <> '') and
                    ("Currency Code" <> Currency.Code)
@@ -693,7 +695,7 @@
                                     Error(Cust.GetPrivacyBlockedGenericErrorText(Cust));
 
                                 if Cust.Blocked = Cust.Blocked::All then
-                                    Error(Text064, Cust.FieldCaption(Blocked), Cust.Blocked, Cust.TableCaption, Cust."No.");
+                                    Error(Text064, Cust.FieldCaption(Blocked), Cust.Blocked, Cust.TableCaption(), Cust."No.");
                                 Cust.Contact := '';
                                 FormatAddr.Customer(CheckToAddr, Cust);
                                 if BankAcc2."Currency Code" <> "Currency Code" then
@@ -708,9 +710,16 @@
                                     Error(Vend.GetPrivacyBlockedGenericErrorText(Vend));
 
                                 if Vend.Blocked in [Vend.Blocked::All, Vend.Blocked::Payment] then
-                                    Error(Text064, Vend.FieldCaption(Blocked), Vend.Blocked, Vend.TableCaption, Vend."No.");
+                                    Error(Text064, Vend.FieldCaption(Blocked), Vend.Blocked, Vend.TableCaption(), Vend."No.");
                                 Vend.Contact := '';
-                                FormatAddr.Vendor(CheckToAddr, Vend);
+
+                                if GenJnlLine."Remit-to Code" = '' then
+                                    FormatAddr.Vendor(CheckToAddr, Vend)
+                                else begin
+                                    RemitAddress.Get(GenJnlLine."Remit-to Code", GenJnlLine."Account No.");
+                                    FormatAddr.VendorRemitToAddress(CheckToAddr, RemitAddress);
+                                end;
+
                                 if BankAcc2."Currency Code" <> "Currency Code" then
                                     Error(Text005);
                                 if Vend."Purchaser Code" <> '' then
@@ -791,7 +800,7 @@
 
                         trigger OnValidate()
                         begin
-                            InputBankAccount;
+                            InputBankAccount();
                         end;
                     }
                     field(LastCheckNo; UseCheckNo)
@@ -851,10 +860,66 @@
 
     trigger OnPreReport()
     begin
-        InitTextVariable;
+        InitTextVariable();
     end;
 
     var
+        CompanyInfo: Record "Company Information";
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        SalesPurchPerson: Record "Salesperson/Purchaser";
+        GenJnlLine2: Record "Gen. Journal Line";
+        GenJnlLine3: Record "Gen. Journal Line";
+        Cust: Record Customer;
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        Vend: Record Vendor;
+        VendLedgEntry: Record "Vendor Ledger Entry";
+        BankAcc: Record "Bank Account";
+        BankAcc2: Record "Bank Account";
+        CheckLedgEntry: Record "Check Ledger Entry";
+        Currency: Record Currency;
+        GLSetup: Record "General Ledger Setup";
+        FormatAddr: Codeunit "Format Address";
+        CheckManagement: Codeunit CheckManagement;
+        CompanyAddr: array[8] of Text[100];
+        CheckToAddr: array[8] of Text[100];
+        OnesText: array[20] of Text[30];
+        TensText: array[10] of Text[30];
+        ExponentText: array[5] of Text[30];
+        BalancingType: Enum "Gen. Journal Account Type";
+        BalancingNo: Code[20];
+        CheckNoText: Text[30];
+        CheckDateText: Text[30];
+        CheckAmountText: Text[30];
+        DescriptionLine: array[2] of Text[80];
+        DocNo: Text[30];
+        ExtDocNo: Text[35];
+        VoidText: Text[30];
+        LineAmount: Decimal;
+        LineDiscount: Decimal;
+        TotalLineAmount: Decimal;
+        TotalLineDiscount: Decimal;
+        RemainingAmount: Decimal;
+        CurrentLineAmount: Decimal;
+        UseCheckNo: Code[20];
+        FoundLast: Boolean;
+        ReprintChecks: Boolean;
+        TestPrint: Boolean;
+        FirstPage: Boolean;
+        OneCheckPrVendor: Boolean;
+        FoundNegative: Boolean;
+        AddedRemainingAmount: Boolean;
+        ApplyMethod: Option Payment,OneLineOneEntry,OneLineID,MoreLinesOneEntry;
+        ChecksPrinted: Integer;
+        HighestLineNo: Integer;
+        PreprintedStub: Boolean;
+        TotalText: Text[10];
+        DocDate: Date;
+        JournalPostingDate: Date;
+        i: Integer;
+        CurrencyCode2: Code[10];
+        NetAmount: Text[30];
+        LineAmount2: Decimal;
+
         Text000: Label 'Preview is not allowed.';
         Text001: Label 'Last Check No. must be filled in.';
         Text002: Label 'Filters on %1 and %2 are not allowed.';
@@ -911,61 +976,6 @@
         Text059: Label 'THOUSAND';
         Text060: Label 'MILLION';
         Text061: Label 'BILLION';
-        CompanyInfo: Record "Company Information";
-        CurrencyExchangeRate: Record "Currency Exchange Rate";
-        SalesPurchPerson: Record "Salesperson/Purchaser";
-        GenJnlLine2: Record "Gen. Journal Line";
-        GenJnlLine3: Record "Gen. Journal Line";
-        Cust: Record Customer;
-        CustLedgEntry: Record "Cust. Ledger Entry";
-        Vend: Record Vendor;
-        VendLedgEntry: Record "Vendor Ledger Entry";
-        BankAcc: Record "Bank Account";
-        BankAcc2: Record "Bank Account";
-        CheckLedgEntry: Record "Check Ledger Entry";
-        Currency: Record Currency;
-        GLSetup: Record "General Ledger Setup";
-        FormatAddr: Codeunit "Format Address";
-        CheckManagement: Codeunit CheckManagement;
-        CompanyAddr: array[8] of Text[100];
-        CheckToAddr: array[8] of Text[100];
-        OnesText: array[20] of Text[30];
-        TensText: array[10] of Text[30];
-        ExponentText: array[5] of Text[30];
-        BalancingType: Enum "Gen. Journal Account Type";
-        BalancingNo: Code[20];
-        CheckNoText: Text[30];
-        CheckDateText: Text[30];
-        CheckAmountText: Text[30];
-        DescriptionLine: array[2] of Text[80];
-        DocNo: Text[30];
-        ExtDocNo: Text[35];
-        VoidText: Text[30];
-        LineAmount: Decimal;
-        LineDiscount: Decimal;
-        TotalLineAmount: Decimal;
-        TotalLineDiscount: Decimal;
-        RemainingAmount: Decimal;
-        CurrentLineAmount: Decimal;
-        UseCheckNo: Code[20];
-        FoundLast: Boolean;
-        ReprintChecks: Boolean;
-        TestPrint: Boolean;
-        FirstPage: Boolean;
-        OneCheckPrVendor: Boolean;
-        FoundNegative: Boolean;
-        AddedRemainingAmount: Boolean;
-        ApplyMethod: Option Payment,OneLineOneEntry,OneLineID,MoreLinesOneEntry;
-        ChecksPrinted: Integer;
-        HighestLineNo: Integer;
-        PreprintedStub: Boolean;
-        TotalText: Text[10];
-        DocDate: Date;
-        JournalPostingDate: Date;
-        i: Integer;
-        CurrencyCode2: Code[10];
-        NetAmount: Text[30];
-        LineAmount2: Decimal;
         Text063: Label 'Net Amount %1';
         Text064: Label '%1 must not be %2 for %3 %4.';
         Text065: Label 'Subtotal';
@@ -1020,7 +1030,7 @@
             end;
 
         AddToNoText(NoText, NoTextIndex, PrintExponent, Text028);
-        DecimalPosition := GetAmtDecimalPosition;
+        DecimalPosition := GetAmtDecimalPosition();
         AddToNoText(NoText, NoTextIndex, PrintExponent, (Format(No * DecimalPosition) + '/' + Format(DecimalPosition)));
 
         if CurrencyCode <> '' then
@@ -1236,7 +1246,7 @@
         Currency: Record Currency;
     begin
         if GenJnlLine."Currency Code" = '' then
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         else begin
             Currency.Get(GenJnlLine."Currency Code");
             Currency.TestField("Amount Rounding Precision");
@@ -1354,6 +1364,5 @@
     local procedure OnAfterAssignGenJnlLineDocNoAndAccountType(var GenJnlLine: Record "Gen. Journal Line"; PreviousDocumentNo: Code[20]; ApplyMethod: Option)
     begin
     end;
-
 }
 

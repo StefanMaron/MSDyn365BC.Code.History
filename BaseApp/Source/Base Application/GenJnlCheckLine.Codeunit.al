@@ -9,6 +9,21 @@
     end;
 
     var
+        GLSetup: Record "General Ledger Setup";
+        GenJnlTemplate: Record "Gen. Journal Template";
+        GenJnlBatch: Record "Gen. Journal Batch";
+        CostAccSetup: Record "Cost Accounting Setup";
+        TempErrorMessage: Record "Error Message" temporary;
+        DimMgt: Codeunit DimensionManagement;
+        CostAccMgt: Codeunit "Cost Account Mgt";
+        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        SkipFiscalYearCheck: Boolean;
+        GenJnlTemplateFound: Boolean;
+        OverrideDimErr: Boolean;
+        LogErrorMode: Boolean;
+        IsBatchMode: Boolean;
+
         Text000: Label 'can only be a closing date for G/L entries';
         Text001: Label 'is not within your range of allowed posting dates';
         Text002: Label '%1 or %2 must be G/L Account or Bank Account.';
@@ -23,24 +38,10 @@
         Text011: Label 'The combination of dimensions used in %1 %2, %3, %4 is blocked. %5';
         Text012: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5';
         SpecifyGenPostingTypeErr: Label 'Posting to Account %1 must either be of type Purchase or Sale (see %2), because there are specified values in one of the following fields: %3, %4 , %5, or %6', comment = '%1 an G/L Account number;%2 = Gen. Posting Type; %3 = Gen. Bus. Posting Group; %4 = Gen. Prod. Posting Group; %5 = VAT Bus. Posting Group, %6 = VAT Prod. Posting Group';
-        GLSetup: Record "General Ledger Setup";
-        GenJnlTemplate: Record "Gen. Journal Template";
-        GenJnlBatch: Record "Gen. Journal Batch";
-        CostAccSetup: Record "Cost Accounting Setup";
-        TempErrorMessage: Record "Error Message" temporary;
-        DimMgt: Codeunit DimensionManagement;
-        CostAccMgt: Codeunit "Cost Account Mgt";
-        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
-        ErrorMessageMgt: Codeunit "Error Message Management";
-        SkipFiscalYearCheck: Boolean;
-        GenJnlTemplateFound: Boolean;
-        OverrideDimErr: Boolean;
-        LogErrorMode: Boolean;
         SalesDocAlreadyExistsErr: Label 'Sales %1 %2 already exists.', Comment = '%1 = Document Type; %2 = Document No.';
         PurchDocAlreadyExistsErr: Label 'Purchase %1 %2 already exists.', Comment = '%1 = Document Type; %2 = Document No.';
         Text12400: Label 'Include in Other VAT Entry and Additional VAT Ledger List are forbidden together.';
         Text12401: Label 'is not within agreement range of allowed posting dates.';
-        IsBatchMode: Boolean;
 
     procedure RunCheck(var GenJnlLine: Record "Gen. Journal Line")
     var
@@ -57,7 +58,7 @@
 
         GLSetup.Get();
         with GenJnlLine do begin
-            if EmptyLine then
+            if EmptyLine() then
                 exit;
 
             if not GenJnlTemplateFound then begin
@@ -149,10 +150,7 @@
                 TestField("Payment Discount %", 0, ErrorInfo.Create());
             end;
 
-            if (("Account Type" = "Account Type"::"G/L Account") and
-                ("Bal. Account Type" = "Bal. Account Type"::"G/L Account")) or
-               ("Applies-to Doc. No." <> '')
-            then
+            if "Applies-to Doc. No." <> '' then
                 TestField("Applies-to ID", '', ErrorInfo.Create());
 
             if ("Account Type" <> "Account Type"::"Bank Account") and
@@ -185,7 +183,7 @@
                 FieldError("Export Status", ErrorInfo.Create());
         end;
 
-        if CostAccSetup.Get then
+        if CostAccSetup.Get() then
             CostAccMgt.CheckValidCCAndCOInGLEntry(GenJnlLine."Dimension Set ID");
 
         OnAfterCheckGenJnlLine(GenJnlLine, ErrorMessageMgt);
@@ -464,7 +462,7 @@
                 "Account Type"::"IC Partner":
                     begin
                         ICPartner.Get("Account No.");
-                        ICPartner.CheckICPartner;
+                        ICPartner.CheckICPartner();
                         if "Journal Template Name" <> '' then begin
                             GenJournalTemplate.Get("Journal Template Name");
                             if GenJnlTemplate.Type <> GenJnlTemplate.Type::Intercompany then
@@ -491,7 +489,7 @@
                     begin
                         if (("Bal. Gen. Bus. Posting Group" <> '') or ("Bal. Gen. Prod. Posting Group" <> '') or
                             ("Bal. VAT Bus. Posting Group" <> '') or ("Bal. VAT Prod. Posting Group" <> '')) and
-                           not ApplicationAreaMgmt.IsSalesTaxEnabled
+                           not ApplicationAreaMgmt.IsSalesTaxEnabled()
                         then
                             TestField("Bal. Gen. Posting Type", ErrorInfo.Create());
 
@@ -553,7 +551,7 @@
                 "Bal. Account Type"::"IC Partner":
                     begin
                         ICPartner.Get("Bal. Account No.");
-                        ICPartner.CheckICPartner;
+                        ICPartner.CheckICPartner();
                         if GenJnlTemplate.Type <> GenJnlTemplate.Type::Intercompany then
                             FieldError("Bal. Account Type", ErrorInfo.Create());
                     end;
@@ -780,7 +778,7 @@
 
         with GenJnlLine do begin
             if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                ThrowGenJnlLineError(GenJnlLine, Text011, DimMgt.GetDimCombErr);
+                ThrowGenJnlLineError(GenJnlLine, Text011, DimMgt.GetDimCombErr());
 
             TableID[1] := DimMgt.TypeToTableID1("Account Type".AsInteger());
             No[1] := "Account No.";
@@ -798,7 +796,7 @@
 
             if not CheckDone then
                 if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                    ThrowGenJnlLineError(GenJnlLine, Text012, DimMgt.GetDimValuePostingErr);
+                    ThrowGenJnlLineError(GenJnlLine, Text012, DimMgt.GetDimValuePostingErr());
         end;
     end;
 
@@ -811,7 +809,7 @@
         if IsHandled then
             exit;
 
-        if GenJnlLine.NeedCheckZeroAmount and not (GenJnlLine.IsRecurring and IsBatchMode) then
+        if GenJnlLine.NeedCheckZeroAmount() and not (GenJnlLine.IsRecurring() and IsBatchMode) then
             GenJnlLine.TestField(Amount, ErrorInfo.Create());
     end;
 
@@ -1029,6 +1027,7 @@
             exit;
 
         GenJnlLine.TestField("Applies-to Doc. No.", '', ErrorInfo.Create());
+        GenJnlLine.TestField("Applies-to ID", '', ErrorInfo.Create());
     end;
 
     [IntegrationEvent(true, false)]

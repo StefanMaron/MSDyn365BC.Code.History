@@ -57,10 +57,6 @@ page 9177 "Allowed Companies"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Create New Company';
                 Image = Company;
-                Promoted = true;
-                PromotedCategory = New;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Get assistance with creating a new company.';
                 Visible = SoftwareAsAService;
 
@@ -70,6 +66,17 @@ page 9177 "Allowed Companies"
                     // as this page is part of the Cloud Manager.
                     Initialize();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New';
+
+                actionref("Create New Company_Promoted"; "Create New Company")
+                {
+                }
             }
         }
     }

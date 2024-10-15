@@ -37,7 +37,7 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
 
             SetInvtDocumentLineFiltersFromDocument(InvtDocLine, InvtDocHeader);
             if not InvtDocLine.Find('-') then
-                Error(NothingToPostErr);
+                Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 
             GetLocation("Location Code");
             if Location."Require Pick" or Location."Require Shipment" then
@@ -211,13 +211,13 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
         DocSign: Record "Document Signature";
         WMSMgmt: Codeunit "WMS Management";
         WhseJnlPostLine: Codeunit "Whse. Jnl.-Register Line";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         DimMgt: Codeunit DimensionManagement;
         ReserveInvtDocLine: Codeunit "Invt. Doc. Line-Reserve";
         DocSignMgt: Codeunit "Doc. Signature Management";
         SourceCode: Code[10];
         HideValidationDialog: Boolean;
-        NothingToPostErr: Label 'There is nothing to post.';
         WarehouseHandlingRequiredErr: Label 'Warehouse handling is required for Location Code %1.', Comment = '%1 - location code';
         PostingLinesMsg: Label 'Posting item shipment lines     #2######', Comment = '#2 - line counter';
         PostingDocumentTxt: Label 'Item Shipment %1', Comment = '%1 - document number';

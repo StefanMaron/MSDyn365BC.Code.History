@@ -32,16 +32,16 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
-        CreateInvoice(SalesHeader, WorkDate, CustNo);
+        CreateInvoice(SalesHeader, WorkDate(), CustNo);
         CreateSalesLine(SalesHeader, GLAccountNo, UnitPrice);
         PostedDocNo := PostSalesDoc(SalesHeader);
 
-        CreateInvoice(SalesHeader, CalcDate('<CQ-1D>', WorkDate), CustNo);
+        CreateInvoice(SalesHeader, CalcDate('<CQ-1D>', WorkDate()), CustNo);
         UpdateCorrectionInfo(SalesHeader, SalesHeader."Corrected Doc. Type"::Invoice, PostedDocNo);
         CreateSalesCorrLine(SalesHeader);
         PostSalesDoc(SalesHeader);
 
-        StartDate := CalcDate('<-CQ>', WorkDate);
+        StartDate := CalcDate('<-CQ>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
 
         VATLedgerCode := LibrarySales.CreateSalesVATLedger(StartDate, EndDate, CustNo);
@@ -63,17 +63,17 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
-        CreateInvoice(SalesHeader, WorkDate, CustNo);
+        CreateInvoice(SalesHeader, WorkDate(), CustNo);
         CreateSalesLine(SalesHeader, GLAccountNo, UnitPrice);
         PostedDocNo := PostSalesDoc(SalesHeader);
 
-        CreateCrMemo(SalesHeader, CalcDate('<CQ-1D>', WorkDate), CustNo);
+        CreateCrMemo(SalesHeader, CalcDate('<CQ-1D>', WorkDate()), CustNo);
         UpdateInclInPurchVATLedger(SalesHeader, true);
         UpdateCorrectionInfo(SalesHeader, SalesHeader."Corrected Doc. Type"::Invoice, PostedDocNo);
         CreateSalesCorrLine(SalesHeader);
         PostSalesDoc(SalesHeader);
 
-        StartDate := CalcDate('<-CQ>', WorkDate);
+        StartDate := CalcDate('<-CQ>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
 
         VATLedgerCode := LibrarySales.CreateSalesVATLedger(StartDate, EndDate, CustNo);
@@ -98,21 +98,21 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
-        CreateInvoice(SalesHeader, WorkDate, CustNo);
+        CreateInvoice(SalesHeader, WorkDate(), CustNo);
         CreateSalesLine(SalesHeader, GLAccountNo, UnitPrice);
         PostedDocNo := PostSalesDoc(SalesHeader);
 
-        CreateInvoice(SalesHeader, CalcDate('<CQ+1D>', WorkDate), CustNo);
+        CreateInvoice(SalesHeader, CalcDate('<CQ+1D>', WorkDate()), CustNo);
         UpdateCorrectionInfo(SalesHeader, SalesHeader."Corrected Doc. Type"::Invoice, PostedDocNo);
         CreateSalesCorrLine(SalesHeader);
         PostSalesDoc(SalesHeader);
 
-        StartDate := CalcDate('<-CQ>', WorkDate);
+        StartDate := CalcDate('<-CQ>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
         VATLedgerCode := LibrarySales.CreateSalesVATLedger(StartDate, EndDate, CustNo);
         VerifySalesVATLedgerLineCnt(VATLedgerCode, CustNo, 1);
 
-        StartDate := CalcDate('<-CQ>', CalcDate('<CQ+1D>', WorkDate));
+        StartDate := CalcDate('<-CQ>', CalcDate('<CQ+1D>', WorkDate()));
         EndDate := CalcDate('<CQ>', StartDate);
         VATLedgerCode := LibrarySales.CreateSalesVATLedger(StartDate, EndDate, CustNo);
         VerifySalesVATLedgerLineCnt(VATLedgerCode, CustNo, 1);
@@ -133,22 +133,22 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
-        CreateInvoice(SalesHeader, WorkDate, CustNo);
+        CreateInvoice(SalesHeader, WorkDate(), CustNo);
         CreateSalesLine(SalesHeader, GLAccountNo, UnitPrice);
         PostedDocNo := PostSalesDoc(SalesHeader);
 
-        CreateCrMemo(SalesHeader, CalcDate('<CQ+1D>', WorkDate), CustNo);
+        CreateCrMemo(SalesHeader, CalcDate('<CQ+1D>', WorkDate()), CustNo);
         UpdateInclInPurchVATLedger(SalesHeader, true);
         UpdateCorrectionInfo(SalesHeader, SalesHeader."Corrected Doc. Type"::Invoice, PostedDocNo);
         CreateSalesCorrLine(SalesHeader);
         PostSalesDoc(SalesHeader);
 
-        StartDate := CalcDate('<-CQ>', WorkDate);
+        StartDate := CalcDate('<-CQ>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
         VATLedgerCode := LibrarySales.CreateSalesVATLedger(StartDate, EndDate, CustNo);
         VerifySalesVATLedgerLineCnt(VATLedgerCode, CustNo, 1);
 
-        StartDate := CalcDate('<-CQ>', CalcDate('<CQ+1D>', WorkDate));
+        StartDate := CalcDate('<-CQ>', CalcDate('<CQ+1D>', WorkDate()));
         EndDate := CalcDate('<CQ>', StartDate);
         VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(StartDate, EndDate, '', false, true);
         VerifyPurchVATLedgerLineCnt(VATLedgerCode, CustNo, 1);
@@ -169,21 +169,21 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
-        CreateInvoice(SalesHeader, WorkDate, CustNo);
+        CreateInvoice(SalesHeader, WorkDate(), CustNo);
         CreateSalesLine(SalesHeader, GLAccountNo, UnitPrice);
         PostedDocNo := PostSalesDoc(SalesHeader);
 
-        CreateInvoice(SalesHeader, CalcDate('<1D>', WorkDate), CustNo);
+        CreateInvoice(SalesHeader, CalcDate('<1D>', WorkDate()), CustNo);
         UpdateCorrectionInfo(SalesHeader, SalesHeader."Corrected Doc. Type"::Invoice, PostedDocNo);
         CreateSalesCorrLine(SalesHeader);
         PostedDocNo := PostSalesDoc(SalesHeader);
 
-        CreateInvoice(SalesHeader, CalcDate('<10D>', WorkDate), CustNo);
+        CreateInvoice(SalesHeader, CalcDate('<10D>', WorkDate()), CustNo);
         UpdateCorrectionInfo(SalesHeader, SalesHeader."Corrected Doc. Type"::Invoice, PostedDocNo);
         CreateSalesCorrLine(SalesHeader);
         PostSalesDoc(SalesHeader);
 
-        StartDate := CalcDate('<-CQ>', WorkDate);
+        StartDate := CalcDate('<-CQ>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
         VATLedgerCode := LibrarySales.CreateSalesVATLedger(StartDate, EndDate, CustNo);
         VerifySalesVATLedgerLineCnt(VATLedgerCode, CustNo, 3);
@@ -204,23 +204,23 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
-        CreateInvoice(SalesHeader, WorkDate, CustNo);
+        CreateInvoice(SalesHeader, WorkDate(), CustNo);
         CreateSalesLine(SalesHeader, GLAccountNo, UnitPrice);
         PostedDocNo := PostSalesDoc(SalesHeader);
 
-        CreateCrMemo(SalesHeader, CalcDate('<1D>', WorkDate), CustNo);
+        CreateCrMemo(SalesHeader, CalcDate('<1D>', WorkDate()), CustNo);
         UpdateInclInPurchVATLedger(SalesHeader, true);
         UpdateCorrectionInfo(SalesHeader, SalesHeader."Corrected Doc. Type"::Invoice, PostedDocNo);
         CreateSalesCorrLine(SalesHeader);
         PostedDocNo := PostSalesDoc(SalesHeader);
 
-        CreateCrMemo(SalesHeader, CalcDate('<10D>', WorkDate), CustNo);
+        CreateCrMemo(SalesHeader, CalcDate('<10D>', WorkDate()), CustNo);
         UpdateInclInPurchVATLedger(SalesHeader, true);
         UpdateCorrectionInfo(SalesHeader, SalesHeader."Corrected Doc. Type"::"Credit Memo", PostedDocNo);
         CreateSalesCorrLine(SalesHeader);
         PostSalesDoc(SalesHeader);
 
-        StartDate := CalcDate('<-CQ>', WorkDate);
+        StartDate := CalcDate('<-CQ>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
 
         VATLedgerCode := LibrarySales.CreateSalesVATLedger(StartDate, EndDate, CustNo);
@@ -245,22 +245,22 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
-        CreateInvoice(SalesHeader, WorkDate, CustNo);
+        CreateInvoice(SalesHeader, WorkDate(), CustNo);
         CreateSalesLine(SalesHeader, GLAccountNo, UnitPrice);
         PostedDocNo := PostSalesDoc(SalesHeader);
 
-        CreateInvoice(SalesHeader, CalcDate('<1D>', WorkDate), CustNo);
+        CreateInvoice(SalesHeader, CalcDate('<1D>', WorkDate()), CustNo);
         UpdateCorrectionInfo(SalesHeader, SalesHeader."Corrected Doc. Type"::Invoice, PostedDocNo);
         CreateSalesCorrLine(SalesHeader);
         PostedDocNo := PostSalesDoc(SalesHeader);
 
-        CreateCrMemo(SalesHeader, CalcDate('<10D>', WorkDate), CustNo);
+        CreateCrMemo(SalesHeader, CalcDate('<10D>', WorkDate()), CustNo);
         UpdateInclInPurchVATLedger(SalesHeader, true);
         UpdateCorrectionInfo(SalesHeader, SalesHeader."Corrected Doc. Type"::Invoice, PostedDocNo);
         CreateSalesCorrLine(SalesHeader);
         PostSalesDoc(SalesHeader);
 
-        StartDate := CalcDate('<-CQ>', WorkDate);
+        StartDate := CalcDate('<-CQ>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
 
         VATLedgerCode := LibrarySales.CreateSalesVATLedger(StartDate, EndDate, CustNo);
@@ -285,27 +285,27 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
-        CreateInvoice(SalesHeader, WorkDate, CustNo);
+        CreateInvoice(SalesHeader, WorkDate(), CustNo);
         CreateSalesLine(SalesHeader, GLAccountNo, UnitPrice);
         PostedDocNo := PostSalesDoc(SalesHeader);
 
-        CreateInvoice(SalesHeader, CalcDate('<1D>', WorkDate), CustNo);
+        CreateInvoice(SalesHeader, CalcDate('<1D>', WorkDate()), CustNo);
         UpdateCorrectionInfo(SalesHeader, SalesHeader."Corrected Doc. Type"::Invoice, PostedDocNo);
         CreateSalesCorrLine(SalesHeader);
         PostedDocNo := PostSalesDoc(SalesHeader);
 
-        CreateCrMemo(SalesHeader, CalcDate('<CQ+1D>', WorkDate), CustNo);
+        CreateCrMemo(SalesHeader, CalcDate('<CQ+1D>', WorkDate()), CustNo);
         UpdateInclInPurchVATLedger(SalesHeader, true);
         UpdateCorrectionInfo(SalesHeader, SalesHeader."Corrected Doc. Type"::Invoice, PostedDocNo);
         CreateSalesCorrLine(SalesHeader);
         PostSalesDoc(SalesHeader);
 
-        StartDate := CalcDate('<-CQ>', WorkDate);
+        StartDate := CalcDate('<-CQ>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
         VATLedgerCode := LibrarySales.CreateSalesVATLedger(StartDate, EndDate, CustNo);
         VerifySalesVATLedgerLineCnt(VATLedgerCode, CustNo, 2);
 
-        StartDate := CalcDate('<CQ+1D>', WorkDate);
+        StartDate := CalcDate('<CQ+1D>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
         VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(StartDate, EndDate, '', false, true);
         VerifyPurchVATLedgerLineCnt(VATLedgerCode, CustNo, 1);
@@ -326,22 +326,22 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
-        CreateInvoice(SalesHeader, WorkDate, CustNo);
+        CreateInvoice(SalesHeader, WorkDate(), CustNo);
         CreateSalesLine(SalesHeader, GLAccountNo, UnitPrice);
         PostedDocNo := PostSalesDoc(SalesHeader);
 
-        CreateCrMemo(SalesHeader, CalcDate('<1D>', WorkDate), CustNo);
+        CreateCrMemo(SalesHeader, CalcDate('<1D>', WorkDate()), CustNo);
         UpdateInclInPurchVATLedger(SalesHeader, true);
         UpdateCorrectionInfo(SalesHeader, SalesHeader."Corrected Doc. Type"::Invoice, PostedDocNo);
         CreateSalesCorrLine(SalesHeader);
         PostedDocNo := PostSalesDoc(SalesHeader);
 
-        CreateInvoice(SalesHeader, CalcDate('<CQ+1D>', WorkDate), CustNo);
+        CreateInvoice(SalesHeader, CalcDate('<CQ+1D>', WorkDate()), CustNo);
         UpdateCorrectionInfo(SalesHeader, SalesHeader."Corrected Doc. Type"::"Credit Memo", PostedDocNo);
         CreateSalesCorrLine(SalesHeader);
         PostSalesDoc(SalesHeader);
 
-        StartDate := CalcDate('<-CQ>', WorkDate);
+        StartDate := CalcDate('<-CQ>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
 
         VATLedgerCode := LibrarySales.CreateSalesVATLedger(StartDate, EndDate, CustNo);
@@ -350,7 +350,7 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(StartDate, EndDate, '', false, true);
         VerifyPurchVATLedgerLineCnt(VATLedgerCode, CustNo, 1);
 
-        StartDate := CalcDate('<CQ+1D>', WorkDate);
+        StartDate := CalcDate('<CQ+1D>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
         VATLedgerCode := LibrarySales.CreateSalesVATLedger(StartDate, EndDate, CustNo);
         VerifySalesVATLedgerLineCnt(VATLedgerCode, CustNo, 1);
@@ -371,18 +371,18 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
-        CreateInvoice(SalesHeader, WorkDate, CustNo);
+        CreateInvoice(SalesHeader, WorkDate(), CustNo);
         CreateSalesLine(SalesHeader, GLAccountNo, UnitPrice);
         PostedDocNo := PostSalesDoc(SalesHeader);
 
-        CreateCrMemo(SalesHeader, CalcDate('<CQ+1D>', WorkDate), CustNo);
+        CreateCrMemo(SalesHeader, CalcDate('<CQ+1D>', WorkDate()), CustNo);
         UpdateAddVATLedgSheet(SalesHeader, true);
-        UpdateCorrDocDate(SalesHeader, WorkDate);
+        UpdateCorrDocDate(SalesHeader, WorkDate());
         UpdateCorrectionInfo(SalesHeader, SalesHeader."Corrected Doc. Type"::Invoice, PostedDocNo);
         CreateSalesCorrLine(SalesHeader);
         PostSalesDoc(SalesHeader);
 
-        StartDate := CalcDate('<-CQ>', WorkDate);
+        StartDate := CalcDate('<-CQ>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
 
         VATLedgerCode := LibrarySales.CreateSalesVATLedger(StartDate, EndDate, CustNo);
@@ -407,26 +407,26 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
-        CreateInvoice(SalesHeader, WorkDate, CustNo);
+        CreateInvoice(SalesHeader, WorkDate(), CustNo);
         CreateSalesLine(SalesHeader, GLAccountNo, UnitPrice);
         PostedDocNo := PostSalesDoc(SalesHeader);
 
-        CreateCrMemo(SalesHeader, CalcDate('<CQ-1D>', WorkDate), CustNo);
+        CreateCrMemo(SalesHeader, CalcDate('<CQ-1D>', WorkDate()), CustNo);
         UpdateRevisionInfo(SalesHeader, true, PostedDocNo, 'CrMemoRev1');
         CreateSalesLine(SalesHeader, GLAccountNo, UnitPrice / 2);
         PostSalesDoc(SalesHeader);
 
-        CreateInvoice(SalesHeader, CalcDate('<CQ+1D>', WorkDate), CustNo);
+        CreateInvoice(SalesHeader, CalcDate('<CQ+1D>', WorkDate()), CustNo);
         UpdateRevisionInfo(SalesHeader, true, PostedDocNo, 'InvRev1');
         CreateSalesLine(SalesHeader, GLAccountNo, UnitPrice * 2);
         PostSalesDoc(SalesHeader);
 
-        StartDate := CalcDate('<-CQ>', WorkDate);
+        StartDate := CalcDate('<-CQ>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
         VATLedgerCode := LibrarySales.CreateSalesVATLedger(StartDate, EndDate, CustNo);
         VerifySalesVATLedgerLineCnt(VATLedgerCode, CustNo, 2);
 
-        StartDate := CalcDate('<-CQ>', CalcDate('<CQ+1D>', WorkDate));
+        StartDate := CalcDate('<-CQ>', CalcDate('<CQ+1D>', WorkDate()));
         EndDate := CalcDate('<CQ>', StartDate);
         VATLedgerCode := LibrarySales.CreateSalesVATLedger(StartDate, EndDate, CustNo);
         VerifySalesVATLedgerLineCnt(VATLedgerCode, CustNo, 1);
@@ -447,30 +447,30 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
-        CreateInvoice(SalesHeader, WorkDate, CustNo);
+        CreateInvoice(SalesHeader, WorkDate(), CustNo);
         CreateSalesLine(SalesHeader, GLAccountNo, UnitPrice);
         PostedDocNo := PostSalesDoc(SalesHeader);
 
-        CreateCrMemo(SalesHeader, CalcDate('<CQ+1D>', WorkDate), CustNo);
+        CreateCrMemo(SalesHeader, CalcDate('<CQ+1D>', WorkDate()), CustNo);
         UpdateAddVATLedgSheet(SalesHeader, true);
-        UpdateCorrDocDate(SalesHeader, WorkDate);
+        UpdateCorrDocDate(SalesHeader, WorkDate());
         UpdateRevisionInfo(SalesHeader, true, PostedDocNo, 'CrMemoRev1');
         CreateSalesLine(SalesHeader, GLAccountNo, UnitPrice / 2);
         PostSalesDoc(SalesHeader);
 
-        CreateInvoice(SalesHeader, CalcDate('<CQ+2D>', WorkDate), CustNo);
+        CreateInvoice(SalesHeader, CalcDate('<CQ+2D>', WorkDate()), CustNo);
         UpdateRevisionInfo(SalesHeader, true, PostedDocNo, 'InvRev1');
         CreateSalesLine(SalesHeader, GLAccountNo, UnitPrice * 2);
         PostSalesDoc(SalesHeader);
 
-        StartDate := CalcDate('<-CQ>', WorkDate);
+        StartDate := CalcDate('<-CQ>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
         VATLedgerCode := LibrarySales.CreateSalesVATLedger(StartDate, EndDate, CustNo);
         LibrarySales.CreateSalesVATLedgerAddSheet(VATLedgerCode);
         VerifySalesVATLedgerLineCnt(VATLedgerCode, CustNo, 1);
         VerifySalesVATLedgerAddLineCnt(VATLedgerCode, CustNo, 1);
 
-        StartDate := CalcDate('<-CQ>', CalcDate('<CQ+1D>', WorkDate));
+        StartDate := CalcDate('<-CQ>', CalcDate('<CQ+1D>', WorkDate()));
         EndDate := CalcDate('<CQ>', StartDate);
         VATLedgerCode := LibrarySales.CreateSalesVATLedger(StartDate, EndDate, CustNo);
         VerifySalesVATLedgerLineCnt(VATLedgerCode, CustNo, 1);
@@ -491,37 +491,37 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
-        CreateInvoice(SalesHeader, WorkDate, CustNo);
+        CreateInvoice(SalesHeader, WorkDate(), CustNo);
         CreateSalesLine(SalesHeader, GLAccountNo, UnitPrice);
         PostedDocNo[1] := PostSalesDoc(SalesHeader);
 
-        CreateCrMemo(SalesHeader, CalcDate('<CQ+1D>', WorkDate), CustNo);
+        CreateCrMemo(SalesHeader, CalcDate('<CQ+1D>', WorkDate()), CustNo);
         UpdateInclInPurchVATLedger(SalesHeader, true);
         UpdateCorrectionInfo(SalesHeader, SalesHeader."Corrected Doc. Type"::Invoice, PostedDocNo[1]);
         CreateSalesCorrLine(SalesHeader);
         PostedDocNo[2] := PostSalesDoc(SalesHeader);
 
-        CreateInvoice(SalesHeader, CalcDate('<CQ+2D>', WorkDate), CustNo);
+        CreateInvoice(SalesHeader, CalcDate('<CQ+2D>', WorkDate()), CustNo);
         UpdateRevisionInfo(SalesHeader, false, PostedDocNo[2], 'Rev2');
         CreateSalesLine(SalesHeader, GLAccountNo, UnitPrice);
         PostedDocNo[3] := PostSalesDoc(SalesHeader);
 
-        CreateCrMemo(SalesHeader, CalcDate('<CQ+3D>', WorkDate), CustNo);
+        CreateCrMemo(SalesHeader, CalcDate('<CQ+3D>', WorkDate()), CustNo);
         UpdateInclInPurchVATLedger(SalesHeader, true);
         UpdateRevisionInfo(SalesHeader, false, PostedDocNo[2], 'Rev2');
         CreateSalesLine(SalesHeader, GLAccountNo, UnitPrice);
         PostedDocNo[4] := PostSalesDoc(SalesHeader);
 
-        StartDate := CalcDate('<-CQ>', CalcDate('<CQ+1D>', WorkDate));
+        StartDate := CalcDate('<-CQ>', CalcDate('<CQ+1D>', WorkDate()));
         EndDate := CalcDate('<CQ>', StartDate);
 
         VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(StartDate, EndDate, CustNo, false, true);
         VerifyCrMemoPurchVATLedgerLine(
           VATLedgerCode, CustNo,
-          PostedDocNo[1], WorkDate, PostedDocNo[2], CalcDate('<CQ+1D>', WorkDate), '', 0D, '', 0D);
+          PostedDocNo[1], WorkDate(), PostedDocNo[2], CalcDate('<CQ+1D>', WorkDate()), '', 0D, '', 0D);
         VerifyCrMemoPurchVATLedgerLine(
           VATLedgerCode, CustNo,
-          PostedDocNo[1], WorkDate, PostedDocNo[2], CalcDate('<CQ+1D>', WorkDate), '', 0D, 'Rev2', CalcDate('<CQ+3D>', WorkDate));
+          PostedDocNo[1], WorkDate(), PostedDocNo[2], CalcDate('<CQ+1D>', WorkDate()), '', 0D, 'Rev2', CalcDate('<CQ+3D>', WorkDate()));
     end;
 
     [Test]
@@ -539,19 +539,19 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
-        CreateInvoice(SalesHeader, WorkDate, CustNo);
+        CreateInvoice(SalesHeader, WorkDate(), CustNo);
         CreateSalesLine(SalesHeader, GLAccountNo, UnitPrice);
         ReleaseInvoice(SalesHeader);
-        CreatePostPrepmt(CalcDate('<CQ+10D>', WorkDate), CustNo, SalesHeader."No.");
+        CreatePostPrepmt(CalcDate('<CQ+10D>', WorkDate()), CustNo, SalesHeader."No.");
         PrepmtInvDocNo := GetLastPrepmtInvoice(CustNo);
 
-        StartDate := CalcDate('<-CQ>', WorkDate);
+        StartDate := CalcDate('<-CQ>', WorkDate());
         EndDate := CalcDate('<CQ+1M>', StartDate);
 
         VATLedgerCode := LibrarySales.CreateSalesVATLedger(StartDate, EndDate, CustNo);
         VerifyPrepmtInvVATLedgerLine(
           VATLedgerCode, CustNo,
-          PrepmtInvDocNo, CalcDate('<CQ+10D>', WorkDate), '', 0D, '', 0D, '', 0D);
+          PrepmtInvDocNo, CalcDate('<CQ+10D>', WorkDate()), '', 0D, '', 0D, '', 0D);
     end;
 
     [Test]
@@ -569,19 +569,19 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
-        CreateInvoice(SalesHeader, WorkDate, CustNo);
+        CreateInvoice(SalesHeader, WorkDate(), CustNo);
         CreateSalesLine(SalesHeader, GLAccountNo, UnitPrice);
         ReleaseInvoice(SalesHeader);
-        CreatePostPrepmt(CalcDate('<-1M>', WorkDate), CustNo, SalesHeader."No.");
+        CreatePostPrepmt(CalcDate('<-1M>', WorkDate()), CustNo, SalesHeader."No.");
         PrepmtInvDocNo := GetLastPrepmtInvoice(CustNo);
 
-        StartDate := CalcDate('<-CM-1M>', WorkDate);
-        EndDate := CalcDate('<-CM-1D>', WorkDate);
+        StartDate := CalcDate('<-CM-1M>', WorkDate());
+        EndDate := CalcDate('<-CM-1D>', WorkDate());
 
         VATLedgerCode := LibrarySales.CreateSalesVATLedger(StartDate, EndDate, CustNo);
         VerifyPrepmtInvVATLedgerLine(
           VATLedgerCode, CustNo,
-          PrepmtInvDocNo, CalcDate('<-1M>', WorkDate), '', 0D, '', 0D, '', 0D);
+          PrepmtInvDocNo, CalcDate('<-1M>', WorkDate()), '', 0D, '', 0D, '', 0D);
     end;
 
     local procedure UpdateCorrectionInfo(var SalesHeader: Record "Sales Header"; CorrDocType: Option; CorrDocNo: Code[20])
@@ -693,7 +693,7 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         with SalesLine do begin
             LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type::"G/L Account", GLAccountNo, 1);
             Validate("Unit Price", UnitPrice);
-            Modify;
+            Modify();
         end;
     end;
 

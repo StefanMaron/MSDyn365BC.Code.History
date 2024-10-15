@@ -14,18 +14,18 @@ page 5390 "Product Item Availability"
         {
             repeater(Group)
             {
-                field("CRM ID"; "CRM ID")
+                field("CRM ID"; Rec."CRM ID")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the unique identifier (GUID) of the record in Dynamics 365 Sales that is coupled to a record in Business Central that is associated with the Integration ID.';
                 }
-                field("Integration ID"; "Integration ID")
+                field("Integration ID"; Rec."Integration ID")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the identifier (GUID) for a record that can be used by Dynamics 365 Sales to locate item records in Business Central.';
                     Visible = false;
                 }
-                field("Table ID"; "Table ID")
+                field("Table ID"; Rec."Table ID")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the table that the entry is stored in.';

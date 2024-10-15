@@ -28,7 +28,7 @@ codeunit 131032 "Mock Synch. Job Runner"
                 JobQueueEntry.Status := JobQueueEntry.Status::"On Hold with Inactivity Timeout"
             else
                 JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
-        VerifyJobLogEntryIsInProcess(JobQueueEntry.GetLastLogEntryNo);
+        VerifyJobLogEntryIsInProcess(JobQueueEntry.GetLastLogEntryNo());
     end;
 
     local procedure VerifyJobLogEntryIsInProcess(LogEntryNo: Integer)

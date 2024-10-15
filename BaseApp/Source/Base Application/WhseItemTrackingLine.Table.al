@@ -31,9 +31,9 @@
                 if "Quantity (Base)" < "Quantity Handled (Base)" then
                     FieldError("Quantity (Base)", StrSubstNo(Text002, FieldCaption("Quantity Handled (Base)")));
 
-                CheckSerialNoQty;
+                CheckSerialNoQty();
 
-                InitQtyToHandle;
+                InitQtyToHandle();
             end;
         }
         field(7; Description; Text[100])
@@ -219,7 +219,7 @@
                     TestField("Quantity Handled (Base)", 0);
                     if IsReclass("Source Type", "Source Batch Name") then
                         "New Lot No." := "Lot No.";
-                    InitExpirationDate;
+                    InitExpirationDate();
                 end;
             end;
         }
@@ -255,25 +255,15 @@
         {
             Caption = 'CD No.';
             ObsoleteReason = 'Replaced by field Package No.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
         field(14901; "New CD No."; Code[30])
         {
             Caption = 'New CD No.';
             ObsoleteReason = 'Replaced by field New Package No.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
     }
 
@@ -308,11 +298,12 @@
     end;
 
     var
+        UOMMgt: Codeunit "Unit of Measure Management";
+
         Text001: Label 'You cannot handle more than %1 units.';
         Text002: Label 'must not be less than %1';
         Text003: Label '%1 must be 0 or 1 when %2 is stated.';
         Text004: Label 'must not be negative';
-        UOMMgt: Codeunit "Unit of Measure Management";
 
     procedure GetLastEntryNo(): Integer;
     var
@@ -339,7 +330,7 @@
     begin
         if "Qty. per Unit of Measure" = 0 then
             "Qty. per Unit of Measure" := 1;
-        exit(Round(BaseQty / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
+        exit(Round(BaseQty / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
     end;
 
     procedure InitQtyToHandle()

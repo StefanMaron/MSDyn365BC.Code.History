@@ -1,4 +1,4 @@
-codeunit 1752 "Data Class. Eval. Data Country"
+﻿codeunit 1752 "Data Class. Eval. Data Country"
 {
 
     trigger OnRun()
@@ -10,10 +10,10 @@ codeunit 1752 "Data Class. Eval. Data Country"
 
     procedure ClassifyCountrySpecificTables()
     begin
-        ClassifyEmployee;
-        ClassifyEmployeeRelative;
-        ClassifyEmployeeQualification;
-        ClassifyVATReportHeader;
+        ClassifyEmployee();
+        ClassifyEmployeeRelative();
+        ClassifyEmployeeQualification();
+        ClassifyVATReportHeader();
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Tax Register Dim. Value Comb.");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"G/L Correspondence");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"G/L Correspondence Entry");
@@ -97,8 +97,8 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Tax Register Dim. Comb.");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cause of Absence");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Header Archive");
-        ClassifyCountrySpecificTablesPart2;
-        ClassifyCountrySpecificTablesPart3;
+        ClassifyCountrySpecificTablesPart2();
+        ClassifyCountrySpecificTablesPart3();
         OnAfterClassifyCountrySpecificTables();
     end;
 

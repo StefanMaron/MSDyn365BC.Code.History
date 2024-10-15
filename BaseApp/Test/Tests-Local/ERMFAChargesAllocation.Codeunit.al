@@ -57,7 +57,7 @@ codeunit 144510 "ERM FA Charges Allocation"
 
         CreateVendFAPurch(PurchaseHeader, FixedAssetNo, 4);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        FAReleaseDate := CalcDate('<CM+1M>', WorkDate);
+        FAReleaseDate := CalcDate('<CM+1M>', WorkDate());
 
         for Counter := 1 to 2 do
             CreateAndPostFAReleaseDoc(FixedAssetNo[Counter], FAReleaseDate);
@@ -75,7 +75,7 @@ codeunit 144510 "ERM FA Charges Allocation"
 
         CreateCreditMemoFromPostedDoc(
           PurchaseHeader, PurchaseHeader."Buy-from Vendor No.",
-          CalcDate('<CM+2M>', WorkDate),
+          CalcDate('<CM+2M>', WorkDate()),
           "Purchase Document Type From"::"Posted Invoice", DocumentNo);
 
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -113,14 +113,14 @@ codeunit 144510 "ERM FA Charges Allocation"
         DeprBonusPct := GetFADeprBonusPct(FixedAssetNo[1]);
 
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        FAReleaseDate := CalcDate('<CM+1M>', WorkDate);
+        FAReleaseDate := CalcDate('<CM+1M>', WorkDate());
         CreateAndPostFAReleaseDoc(FixedAssetNo[1], FAReleaseDate);
 
-        DeprDate := CalcDate('<CM+2M>', WorkDate);
+        DeprDate := CalcDate('<CM+2M>', WorkDate());
         CalcBonusDepreciation(FixedAssetNo[1], GetTaxAccDeprBook, DeprDate, true);
         CalcReleaseTaxDepr(FixedAssetNo[1], GetReleaseDeprBook, GetTaxAccDeprBook, DeprDate, true);
 
-        DeprDate := CalcDate('<CM+3M>', WorkDate);
+        DeprDate := CalcDate('<CM+3M>', WorkDate());
         CalcReleaseTaxDepr(FixedAssetNo[1], GetReleaseDeprBook, GetTaxAccDeprBook, DeprDate, true);
 
         DeprBonusAmount := Round(-PurchAndChargeAmount * (DeprBonusPct / 100), LibraryERM.GetAmountRoundingPrecision);
@@ -213,7 +213,7 @@ codeunit 144510 "ERM FA Charges Allocation"
     begin
         repeat
             AmountSum += FALedgerEntry.Amount;
-        until FALedgerEntry.Next = 0;
+        until FALedgerEntry.Next() = 0;
         Assert.AreEqual(Total, AmountSum, IncorrectAmountErr);
     end;
 
@@ -261,13 +261,13 @@ codeunit 144510 "ERM FA Charges Allocation"
     begin
         LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
         with FACharge do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"FA Charge");
             "G/L Acc. for Released FA" := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" ");
             GLAccount.Get("G/L Acc. for Released FA");
             "Gen. Prod. Posting Group" := GLAccount."Gen. Prod. Posting Group";
             "VAT Prod. Posting Group" := GLAccount."VAT Prod. Posting Group";
-            Insert;
+            Insert();
             SetEmptyTransVATType(GLAccount."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group");
         end;
         exit(FACharge."No.");
@@ -397,7 +397,7 @@ codeunit 144510 "ERM FA Charges Allocation"
         FindFADeprLedgerEntry(FixedAssetNo, FALedgerEntry, '', DeprBookCode);
         for i := 1 to Count do begin
             VerifyFALedgerEntry(FALedgerEntry, DeprAmount);
-            FALedgerEntry.Next;
+            FALedgerEntry.Next();
         end;
     end;
 
@@ -434,7 +434,7 @@ codeunit 144510 "ERM FA Charges Allocation"
         repeat
             DimensionSetEntry.Get(DimensionSetID, DefaultDimension."Dimension Code");
             Assert.AreEqual(DimensionSetEntry."Dimension Value Code", DefaultDimension."Dimension Value Code", DimValueMismatchErr);
-        until DefaultDimension.Next = 0;
+        until DefaultDimension.Next() = 0;
     end;
 
     local procedure FindDefaultDimension(var DefaultDimension: Record "Default Dimension"; TableID: Integer; No: Code[20])
@@ -467,7 +467,7 @@ codeunit 144510 "ERM FA Charges Allocation"
         FindDefaultDimension(DefaultDimension, DATABASE::"FA Charge", FAChargeNo);
         repeat
             VerifyDimensionSetID(DefaultDimension, GLEntry."Dimension Set ID");
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     local procedure GetDeprMonths(FANo: Code[20]; DeprBookCode: Code[20]): Decimal

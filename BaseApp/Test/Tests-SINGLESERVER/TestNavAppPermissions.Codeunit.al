@@ -282,7 +282,7 @@ codeunit 134611 "Test Nav App Permissions"
         PermissionSets.New;
 
         asserterror PermissionSets.PermissionSet.SetValue('MyRole');
-        PermissionSets.Close;
+        PermissionSets.Close();
 
         // Verify
         CleanupData;
@@ -314,7 +314,7 @@ codeunit 134611 "Test Nav App Permissions"
           StrSubstNo(
             'Expected permission set %1 to not be enabled for %2', PermissionSetByUser."Role ID", PermissionSetByUser.Column1.Caption));
         PermissionSetByUser.Column1.SetValue(true);
-        PermissionSetByUser.Close;
+        PermissionSetByUser.Close();
 
         // Verify
         PermissionSetByUser.OpenView;
@@ -324,7 +324,7 @@ codeunit 134611 "Test Nav App Permissions"
           PermSetEnabled,
           StrSubstNo('Expected permission set %1 to be enabled for %2', PermissionSetByUser."Role ID", PermissionSetByUser.Column1.Caption));
 
-        PermissionSetByUser.Close;
+        PermissionSetByUser.Close();
         CleanupData;
     end;
 
@@ -355,7 +355,7 @@ codeunit 134611 "Test Nav App Permissions"
             'Expected permission set %1 to not be enabled for %2', PermissionSetByUser."Role ID",
             PermissionSetByUser.AllUsersHavePermission.Caption));
         PermissionSetByUser.AllUsersHavePermission.SetValue(true);
-        PermissionSetByUser.Close;
+        PermissionSetByUser.Close();
 
         // Verify
         PermissionSetByUser.OpenView;
@@ -377,7 +377,7 @@ codeunit 134611 "Test Nav App Permissions"
           PermSetEnabled,
           StrSubstNo('Expected permission set %1 to be enabled for %2', PermissionSetByUser."Role ID", PermissionSetByUser.Column2.Caption));
 
-        PermissionSetByUser.Close;
+        PermissionSetByUser.Close();
         CleanupData;
     end;
 
@@ -408,7 +408,7 @@ codeunit 134611 "Test Nav App Permissions"
             'Expected permission set %1 to not be enabled for %2', PermissionSetByUserGroup."Role ID",
             PermissionSetByUserGroup.Column1.Caption));
         PermissionSetByUserGroup.Column1.SetValue(true);
-        PermissionSetByUserGroup.Close;
+        PermissionSetByUserGroup.Close();
 
         // Verify
         PermissionSetByUserGroup.OpenView;
@@ -419,7 +419,7 @@ codeunit 134611 "Test Nav App Permissions"
           StrSubstNo(
             'Expected permission set %1 to be enabled for %2', PermissionSetByUserGroup."Role ID", PermissionSetByUserGroup.Column1.Caption));
 
-        PermissionSetByUserGroup.Close;
+        PermissionSetByUserGroup.Close();
         CleanupData;
     end;
 
@@ -453,7 +453,7 @@ codeunit 134611 "Test Nav App Permissions"
         PermissionSetByUserGroup.AllUsersHavePermission.SetValue(true);
         UserGroup.SetRange(Customized, false);
         Assert.RecordCount(UserGroup, 0);
-        PermissionSetByUserGroup.Close;
+        PermissionSetByUserGroup.Close();
 
         // Verify
         PermissionSetByUserGroup.OpenView;
@@ -477,7 +477,7 @@ codeunit 134611 "Test Nav App Permissions"
           StrSubstNo(
             'Expected permission set %1 to be enabled for %2', PermissionSetByUserGroup."Role ID", PermissionSetByUserGroup.Column2.Caption));
 
-        PermissionSetByUserGroup.Close;
+        PermissionSetByUserGroup.Close();
         CleanupData;
     end;
 
@@ -507,13 +507,13 @@ codeunit 134611 "Test Nav App Permissions"
           StrSubstNo(
             'Expected permission set %1 to not be enabled for %2', PermissionSetByUser."Role ID", PermissionSetByUser.Column1.Caption));
         PermissionSetByUser.Column1.SetValue(true);
-        PermissionSetByUser.Close;
+        PermissionSetByUser.Close();
 
         // Delete the permission
         PermissionSetByUser.OpenView;
         PermissionSetByUser.GotoRecord(AggregatePermissionSet);
         PermissionSetByUser.Column1.SetValue(false);
-        PermissionSetByUser.Close;
+        PermissionSetByUser.Close();
 
         // Verify
         PermissionSetByUser.OpenView;
@@ -523,7 +523,7 @@ codeunit 134611 "Test Nav App Permissions"
           PermSetEnabled,
           StrSubstNo(
             'Expected permission set %1 to not be enabled for %2', PermissionSetByUser."Role ID", PermissionSetByUser.Column1.Caption));
-        PermissionSetByUser.Close;
+        PermissionSetByUser.Close();
 
         CleanupData;
     end;
@@ -555,7 +555,7 @@ codeunit 134611 "Test Nav App Permissions"
             'Expected permission set %1 to not be enabled for %2', PermissionSetByUser."Role ID",
             PermissionSetByUser.AllUsersHavePermission.Caption));
         PermissionSetByUser.AllUsersHavePermission.SetValue(true);
-        PermissionSetByUser.Close;
+        PermissionSetByUser.Close();
 
         PermissionSetByUser.OpenView;
         PermissionSetByUser.GotoRecord(AggregatePermissionSet);
@@ -566,7 +566,7 @@ codeunit 134611 "Test Nav App Permissions"
             'Expected permission set %1 to be enabled for %2', PermissionSetByUser."Role ID",
             PermissionSetByUser.AllUsersHavePermission.Caption));
         PermissionSetByUser.AllUsersHavePermission.SetValue(false);
-        PermissionSetByUser.Close;
+        PermissionSetByUser.Close();
 
         // Verify
         PermissionSetByUser.OpenView;
@@ -588,7 +588,7 @@ codeunit 134611 "Test Nav App Permissions"
           StrSubstNo(
             'Expected permission set %1 to not be enabled for %2', PermissionSetByUser."Role ID", PermissionSetByUser.Column2.Caption));
 
-        PermissionSetByUser.Close;
+        PermissionSetByUser.Close();
         CleanupData;
     end;
 
@@ -626,7 +626,7 @@ codeunit 134611 "Test Nav App Permissions"
 
         // Execute
         PermissionSetByUser.AllUsersHavePermission.SetValue(true);
-        PermissionSetByUser.Close;
+        PermissionSetByUser.Close();
         PermissionSetByUser.OpenView;
         PermissionSetByUser.GotoRecord(SuperPermissionSet);
         Evaluate(IsPermissionSetEnabled, PermissionSetByUser.AllUsersHavePermission.Value);
@@ -645,7 +645,7 @@ codeunit 134611 "Test Nav App Permissions"
         Assert.AreEqual(1, PermissionSetByUser.AllUsersHavePermission.ValidationErrorCount(), 'Wrong number of validation errors');
         Assert.AreEqual('There should be at least one enabled ''SUPER'' user.', PermissionSetByUser.AllUsersHavePermission.GetValidationError(1), 'Wrong validation error message');
 
-        PermissionSetByUser.Close;
+        PermissionSetByUser.Close();
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
         CleanupData;
@@ -678,7 +678,7 @@ codeunit 134611 "Test Nav App Permissions"
             'Expected permission set %1 to not be enabled for %2', PermissionSetByUserGroup."Role ID",
             PermissionSetByUserGroup.Column1.Caption));
         PermissionSetByUserGroup.Column1.SetValue(true);
-        PermissionSetByUserGroup.Close;
+        PermissionSetByUserGroup.Close();
 
         // Verify
         PermissionSetByUserGroup.OpenView;
@@ -689,7 +689,7 @@ codeunit 134611 "Test Nav App Permissions"
           StrSubstNo(
             'Expected permission set %1 to be enabled for %2', PermissionSetByUserGroup."Role ID", PermissionSetByUserGroup.Column1.Caption));
         PermissionSetByUserGroup.Column1.SetValue(false);
-        PermissionSetByUserGroup.Close;
+        PermissionSetByUserGroup.Close();
 
         PermissionSetByUserGroup.OpenView;
         PermissionSetByUserGroup.GotoRecord(AggregatePermissionSet);
@@ -700,7 +700,7 @@ codeunit 134611 "Test Nav App Permissions"
             'Expected permission set %1 to not be enabled for %2', PermissionSetByUserGroup."Role ID",
             PermissionSetByUserGroup.Column1.Caption));
 
-        PermissionSetByUserGroup.Close;
+        PermissionSetByUserGroup.Close();
         CleanupData;
     end;
 
@@ -732,7 +732,7 @@ codeunit 134611 "Test Nav App Permissions"
             'Expected permission set %1 to not be enabled for %2', PermissionSetByUserGroup."Role ID",
             PermissionSetByUserGroup.AllUsersHavePermission.Caption));
         PermissionSetByUserGroup.AllUsersHavePermission.SetValue(true);
-        PermissionSetByUserGroup.Close;
+        PermissionSetByUserGroup.Close();
 
         PermissionSetByUserGroup.OpenView;
         PermissionSetByUserGroup.GotoRecord(AggregatePermissionSet);
@@ -743,7 +743,7 @@ codeunit 134611 "Test Nav App Permissions"
             'Expected permission set %1 to be enabled for %2', PermissionSetByUserGroup."Role ID",
             PermissionSetByUserGroup.AllUsersHavePermission.Caption));
         PermissionSetByUserGroup.AllUsersHavePermission.SetValue(false);
-        PermissionSetByUserGroup.Close;
+        PermissionSetByUserGroup.Close();
 
         // Verify
         PermissionSetByUserGroup.OpenView;
@@ -767,7 +767,7 @@ codeunit 134611 "Test Nav App Permissions"
             'Expected permission set %1 to not be enabled for %2', PermissionSetByUserGroup."Role ID",
             PermissionSetByUserGroup.Column2.Caption));
 
-        PermissionSetByUserGroup.Close;
+        PermissionSetByUserGroup.Close();
         CleanupData;
     end;
 
@@ -797,7 +797,7 @@ codeunit 134611 "Test Nav App Permissions"
         PermissionSetByUser.OpenView;
         PermissionSetByUser.GotoRecord(AggregatePermissionSet);
         PermissionSetByUser.AllUsersHavePermission.SetValue(true);
-        PermissionSetByUser.Close;
+        PermissionSetByUser.Close();
 
         // Execute
         AccessControl.SetRange("User Security ID", User."User Security ID");
@@ -808,7 +808,7 @@ codeunit 134611 "Test Nav App Permissions"
         UserPermissionSets.GotoRecord(AccessControl);
         UserPermissionSets.PermissionSet.Lookup;
 
-        UserPermissionSets.Close;
+        UserPermissionSets.Close();
 
         CleanupData;
     end;
@@ -836,7 +836,7 @@ codeunit 134611 "Test Nav App Permissions"
             if PermissionSetsPage.Type.Value = TypeText then
                 exit;
 
-        while PermissionSetsPage.Next do
+        while PermissionSetsPage.Next() do
             if PermissionSetsPage.PermissionSet.Value = RoleId then
                 if PermissionSetsPage.Type.Value = TypeText then
                     exit;

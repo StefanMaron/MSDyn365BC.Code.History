@@ -10,18 +10,18 @@ codeunit 137915 "SCM Assembly Posting"
         // [FEATURE] [SCM] [Assembly]
         Initialized := false;
         MfgSetup.Get();
-        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
+        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
     end;
 
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         Assert: Codeunit Assert;
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryCosting: Codeunit "Library - Costing";
         TextGetLastErrorText: Label 'Actual error: ''%1''. Expected: ''%2''';
         ErrItemNoEmpty: Label 'Item No. must have a value in Assembly Header:';
-        ErrNothingToPost: Label 'There is nothing to post.';
         ErrNotOnInventory: Label 'on inventory.';
         ErrOrderDoesNotExist: Label 'The Assembly Header does not exist';
         ErrOrderAlreadyExists: Label 'cannot be created, because it already exists or has been posted.';
@@ -83,7 +83,7 @@ codeunit 137915 "SCM Assembly Posting"
         CreateAssemblyOrder(AssemblyHeader, AssembledItem."No.", 10);
         AssemblyHeader.Validate("Quantity to Assemble", 0);
         AssemblyHeader.Modify(true);
-        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, ErrNothingToPost);
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, DocumentErrorsMgt.GetNothingToPostErrorMsg());
     end;
 
     [Test]
@@ -97,7 +97,7 @@ codeunit 137915 "SCM Assembly Posting"
         // Post assembly order without any lines
         LibraryInventory.CreateItem(AssembledItem);
         CreateAssemblyOrder(AssemblyHeader, AssembledItem."No.", 10);
-        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, ErrNothingToPost);
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, DocumentErrorsMgt.GetNothingToPostErrorMsg());
     end;
 
     [Test]
@@ -118,7 +118,7 @@ codeunit 137915 "SCM Assembly Posting"
         CreateAssemblyOrderLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::" ", '', 2, '');
         AssemblyLine.Validate(Description, 'Text 2');
         AssemblyLine.Modify(true);
-        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, ErrNothingToPost);
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, DocumentErrorsMgt.GetNothingToPostErrorMsg());
     end;
 
     [Test]
@@ -138,7 +138,7 @@ codeunit 137915 "SCM Assembly Posting"
         CreateAssemblyOrderLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, CompItem."No.", 20, '');
         AssemblyLine.Validate("Quantity to Consume", 0);
         AssemblyLine.Modify(true);
-        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, ErrNothingToPost);
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, DocumentErrorsMgt.GetNothingToPostErrorMsg());
     end;
 
     [Test]
@@ -324,7 +324,7 @@ codeunit 137915 "SCM Assembly Posting"
         AssemblyLine.Validate("Quantity to Consume", 10);
         AssemblyLine.Validate(Type, AssemblyLine.Type::" ");
         AssemblyLine.Modify(true);
-        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, ErrNothingToPost);
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, DocumentErrorsMgt.GetNothingToPostErrorMsg());
     end;
 
     [Test]
@@ -384,13 +384,13 @@ codeunit 137915 "SCM Assembly Posting"
         AssemblyHeader.SetRange("No.", DocumentNo);
         Assert.AreEqual(0, AssemblyHeader.Count, 'Order should have been deleted.');
         // create another order with same doc no. - should fail
-        ClearLastError;
+        ClearLastError();
         asserterror B231812_CreateAssemblyOrder(AssemblyHeader, DocumentNo);
         Assert.IsTrue(StrPos(GetLastErrorText, ErrOrderAlreadyExists) > 0, '');
         // adjust cost- adjusts for first order
         LibraryCosting.AdjustCostItemEntries('', '');
         // create another order with same doc no. - should fail
-        ClearLastError;
+        ClearLastError();
         asserterror B231812_CreateAssemblyOrder(AssemblyHeader, DocumentNo);
         Assert.IsTrue(StrPos(GetLastErrorText, ErrOrderAlreadyExists) > 0, '');
         // deleted posted order from 1st posting
@@ -399,10 +399,10 @@ codeunit 137915 "SCM Assembly Posting"
         PostedAssemblyHeader.FindLast();
         PostedAssemblyHeader.Delete(true);
         // create another order with same doc no. - should fail
-        ClearLastError;
+        ClearLastError();
         asserterror B231812_CreateAssemblyOrder(AssemblyHeader, DocumentNo);
         Assert.IsTrue(StrPos(GetLastErrorText, ErrOrderAlreadyExists) > 0, '');
-        ClearLastError;
+        ClearLastError();
         // reset the no series to non-manual
         NoSeries.Validate("Manual Nos.", OriginalManualNo);
         NoSeries.Modify(true);
@@ -658,7 +658,7 @@ codeunit 137915 "SCM Assembly Posting"
         GenProdPostingGroup.Find('-');
         // Find Gen. Prod. Posting group such that it has a value in Inventory Adjustment Account
         while not (GenPostingSetup.Get('', GenProdPostingGroup.Code) and (GenPostingSetup."Inventory Adjmt. Account" <> '')) do
-            GenProdPostingGroup.Next;
+            GenProdPostingGroup.Next();
         AssembledItem.Validate("Gen. Prod. Posting Group", GenProdPostingGroup.Code);
         InventoryPostingGroup.Find('-');
         AssembledItem.Validate("Inventory Posting Group", InventoryPostingGroup.Code);
@@ -675,12 +675,12 @@ codeunit 137915 "SCM Assembly Posting"
 
         LibraryInventory.CreateItem(CompItem);
         CompItem.Validate(Description, 'Component item');
-        GenProdPostingGroup.Next;
+        GenProdPostingGroup.Next();
         // Find Gen. Prod. Posting group such that it has a value in Inventory Adjustment Account
         while not (GenPostingSetup.Get('', GenProdPostingGroup.Code) and (GenPostingSetup."Inventory Adjmt. Account" <> '')) do
-            GenProdPostingGroup.Next;
+            GenProdPostingGroup.Next();
         CompItem.Validate("Gen. Prod. Posting Group", GenProdPostingGroup.Code);
-        InventoryPostingGroup.Next;
+        InventoryPostingGroup.Next();
         CompItem.Validate("Inventory Posting Group", InventoryPostingGroup.Code);
         CreateLocation(ComponentLocation);
         CompItem.Validate("Costing Method", CompItem."Costing Method"::FIFO);
@@ -723,20 +723,20 @@ codeunit 137915 "SCM Assembly Posting"
         AssemblyHeader.Modify(true);
         LibraryAssembly.AddAssemblyLineComment(
           AssemblyCommentLineHeader1, AssemblyHeader."Document Type".AsInteger(),
-          AssemblyHeader."No.", 0, WorkDate, 'Comment in the header 1.');
+          AssemblyHeader."No.", 0, WorkDate(), 'Comment in the header 1.');
         LibraryAssembly.AddAssemblyLineComment(
           AssemblyCommentLineHeader2, AssemblyHeader."Document Type".AsInteger(),
-          AssemblyHeader."No.", 0, CalcDate('<-1M>', WorkDate), 'Comment in the header 2.');
+          AssemblyHeader."No.", 0, CalcDate('<-1M>', WorkDate()), 'Comment in the header 2.');
 
         CreateAssemblyOrderLine(AssemblyHeader, AssemblyLine1, "BOM Component Type"::" ", '', 0, '');
         AssemblyLine1.Validate(Description, 'Text description');
         AssemblyLine1.Modify(true);
         LibraryAssembly.AddAssemblyLineComment(
           AssemblyCommentLineTextLine1, AssemblyLine1."Document Type".AsInteger(),
-          AssemblyLine1."Document No.", AssemblyLine1."Line No.", WorkDate, 'Text comment 1.');
+          AssemblyLine1."Document No.", AssemblyLine1."Line No.", WorkDate(), 'Text comment 1.');
         LibraryAssembly.AddAssemblyLineComment(
           AssemblyCommentLineTextLine2, AssemblyLine1."Document Type".AsInteger(),
-          AssemblyLine1."Document No.", AssemblyLine1."Line No.", CalcDate('<+5D>', WorkDate), 'Text comment 2.');
+          AssemblyLine1."Document No.", AssemblyLine1."Line No.", CalcDate('<+5D>', WorkDate()), 'Text comment 2.');
 
         CreateAssemblyOrderLine(AssemblyHeader, AssemblyLine2, "BOM Component Type"::Item, CompItem."No.", 20, '');
         AssemblyLine2.Validate("Variant Code", ItemVariant.Code);
@@ -745,10 +745,10 @@ codeunit 137915 "SCM Assembly Posting"
         AssemblyLine2.Modify(true);
         LibraryAssembly.AddAssemblyLineComment(
           AssemblyCommentLineItemLine1, AssemblyLine2."Document Type".AsInteger(),
-          AssemblyLine2."Document No.", AssemblyLine2."Line No.", WorkDate, 'Comment for item line 1.');
+          AssemblyLine2."Document No.", AssemblyLine2."Line No.", WorkDate(), 'Comment for item line 1.');
         LibraryAssembly.AddAssemblyLineComment(
           AssemblyCommentLineItemLine2, AssemblyLine2."Document Type".AsInteger(),
-          AssemblyLine2."Document No.", AssemblyLine2."Line No.", WorkDate, 'Comment for item line 2.');
+          AssemblyLine2."Document No.", AssemblyLine2."Line No.", WorkDate(), 'Comment for item line 2.');
 
         CreateAssemblyOrderLine(
           AssemblyHeader, AssemblyLine3, "BOM Component Type"::Resource, Resource."No.", 30, Resource."Base Unit of Measure");
@@ -906,12 +906,12 @@ codeunit 137915 "SCM Assembly Posting"
         ItemLedgerEntry.FindSet();
         repeat
             Assert.AreEqual(0, ItemLedgerEntry."Document Line No.", 'Document Line No. should be emptied after deletion');
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
         ValueEntry.SetRange("Document No.", DocNo);
         ValueEntry.FindSet();
         repeat
             Assert.AreEqual(0, ValueEntry."Document Line No.", 'Document Line No. should be emptied after deletion');
-        until ValueEntry.Next = 0;
+        until ValueEntry.Next() = 0;
     end;
 
     local procedure VerifyEntries(PostedAssemblyHeader: Record "Posted Assembly Header")
@@ -962,7 +962,7 @@ codeunit 137915 "SCM Assembly Posting"
                     VerifyResLE(ResLedgEntry, PostedAssemblyLine."Document No.", PostedAssemblyLine."Line No.");
                 end;
             end;
-        until PostedAssemblyLine.Next = 0;
+        until PostedAssemblyLine.Next() = 0;
 
         ItemLedgEntry.SetRange("Document Line No.", 0);
         ItemLedgEntry.SetRange("Order Line No.", 0);
@@ -1255,7 +1255,7 @@ codeunit 137915 "SCM Assembly Posting"
             // "Partial Revaluation"
             // Inventoriable
             if "Item Ledger Entry Type" = "Item Ledger Entry Type"::"Assembly Consumption" then
-                Assert.AreEqual(WorkDate, "Valuation Date", Identifier) // special case- may be a bug!!!
+                Assert.AreEqual(WorkDate(), "Valuation Date", Identifier) // special case- may be a bug!!!
             else
                 Assert.AreEqual(PostedAssemblyHeader."Posting Date", "Valuation Date", Identifier);
             Assert.AreEqual("Variance Type"::" ", "Variance Type", Identifier);

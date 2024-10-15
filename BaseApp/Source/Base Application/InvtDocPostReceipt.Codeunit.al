@@ -37,7 +37,7 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
 
             SetInvtDocumentLineFiltersFromDocument(InvtDocLine, InvtDocHeader);
             if not InvtDocLine.Find('-') then
-                Error(NothingToPostErr);
+                Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 
             GetLocation("Location Code");
             if Location."Require Receive" or Location."Require Put-away" then
@@ -211,11 +211,11 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
         WhseJnlPostLine: Codeunit "Whse. Jnl.-Register Line";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         DimMgt: Codeunit DimensionManagement;
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         ReserveInvtDocLine: Codeunit "Invt. Doc. Line-Reserve";
         DocSignMgt: Codeunit "Doc. Signature Management";
         SourceCode: Code[10];
         HideValidationDialog: Boolean;
-        NothingToPostErr: Label 'There is nothing to post.';
         WarehouseHandlingRequiredErr: Label 'Warehouse handling is required for Location Code %1.', Comment = '%1 - location code';
         PostingLinesMsg: Label 'Posting item receipt lines     #2######', Comment = '#2 - line counter';
         PostingDocumentTxt: Label 'Item Receipt %1', Comment = '%1 - document number';

@@ -26,7 +26,7 @@ report 5194 "Create Conts. from Vendors"
                 Cont.TransferFields(Vendor);
                 Cont."No." := '';
                 OnBeforeSetSkipDefaults(Vendor, Cont);
-                Cont.SetSkipDefault;
+                Cont.SetSkipDefault();
                 OnBeforeContactInsert(Vendor, Cont);
                 Cont.Insert(true);
                 DuplMgt.MakeContIndex(Cont);
@@ -35,12 +35,12 @@ report 5194 "Create Conts. from Vendors"
                     DuplicateContactExist := DuplMgt.DuplicateExist(Cont);
 
                 with ContBusRel do begin
-                    Init;
+                    Init();
                     "Contact No." := Cont."No.";
                     "Business Relation Code" := RMSetup."Bus. Rel. Code for Vendors";
                     "Link to Table" := "Link to Table"::Vendor;
                     "No." := Vendor."No.";
-                    Insert;
+                    Insert();
                 end;
 
                 InsertNewContactIfNeeded(Vendor);
@@ -49,7 +49,7 @@ report 5194 "Create Conts. from Vendors"
 
             trigger OnPostDataItem()
             begin
-                Window.Close;
+                Window.Close();
 
                 if DuplicateContactExist then
                     DuplMgt.Notify();
@@ -92,9 +92,6 @@ report 5194 "Create Conts. from Vendors"
     end;
 
     var
-        Text000: Label 'Processing vendors...\\';
-        Text001: Label 'Vendor No.      #1##########';
-        TooManyRecordsQst: Label 'This process will take several minutes because it involves %1 vendors. It is recommended that you schedule the process to run as a background task.\\Do you want to start the process immediately anyway?', Comment = '%1 = number of records';
         RMSetup: Record "Marketing Setup";
         Cont: Record Contact;
         ContBusRel: Record "Contact Business Relation";
@@ -102,6 +99,10 @@ report 5194 "Create Conts. from Vendors"
         Window: Dialog;
         DuplicateContactExist: Boolean;
 
+        Text000: Label 'Processing vendors...\\';
+        Text001: Label 'Vendor No.      #1##########';
+        TooManyRecordsQst: Label 'This process will take several minutes because it involves %1 vendors. It is recommended that you schedule the process to run as a background task.\\Do you want to start the process immediately anyway?', Comment = '%1 = number of records';
+        
     local procedure InsertNewContactIfNeeded(var Vendor: Record Vendor)
     var
         VendContUpdate: Codeunit "VendCont-Update";

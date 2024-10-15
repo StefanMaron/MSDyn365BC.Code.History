@@ -21,7 +21,7 @@
         GLSetup: Record "General Ledger Setup";
     begin
         with GLSetup do begin
-            Get;
+            Get();
             Validate("Enable Russian Accounting", true);
             Validate("Summarize Gains/Losses", NewSummarizeGainsLosses);
             Validate("Currency Adjmt with Correction", false);
@@ -124,7 +124,7 @@
         // Check that Summarize Gain/Loss option works correctly in case of the same accounts for gain/losses
         UpdateGLSetup(IsSummarizeGainsLosses);
         SetupExchRateAmount(ExchRateAmount, IsRaise);
-        PostingDate := WorkDate;
+        PostingDate := WorkDate();
         CurrencyCode := CreateCurrencyWithExchRates(PostingDate, ExchRateAmount, false);
 
         PostGainLossEntries(PostingDate, CurrencyCode, IsRaise, IsUnapply, IsSummarizeGainsLosses);
@@ -139,7 +139,7 @@
         // Check that Summarize Gain/Loss option does not work in case of different accounts for real/unreal gain/losses
         UpdateGLSetup(true);
         SetupExchRateAmount(ExchRateAmount, IsRaise);
-        PostingDate := WorkDate;
+        PostingDate := WorkDate();
         CurrencyCode := CreateCurrencyWithExchRates(PostingDate, ExchRateAmount, true);
 
         PostGainLossEntries(PostingDate, CurrencyCode, IsRaise, IsUnapply, false);
@@ -164,7 +164,7 @@
         PmtNo :=
           CreatePostPayment(PostingDate, SalesLine."Sell-to Customer No.", CurrencyCode, -PmtAmount);
         Commit();
-        RunAdjExchRates(CurrencyCode, WorkDate, GetInvPostingDate(SalesLine."Document No."), SalesLine."Sell-to Customer No.");
+        RunAdjExchRates(CurrencyCode, WorkDate(), GetInvPostingDate(SalesLine."Document No."), SalesLine."Sell-to Customer No.");
         ApplyPaymentToPairedInvoice(PmtNo, InvNo);
         if IsUnapply then begin
             UnapplyLedgerEntries(CustLedgEntry."Document Type"::Payment, PmtNo);
@@ -422,7 +422,7 @@
                 SetRange("Document No.", DtldCustLedgEntry."Document No.");
                 SetRange("Transaction No.", DtldCustLedgEntry."Transaction No.");
                 Assert.IsTrue(
-                  FindLast, StrSubstNo(EntryDoesNotExist, TableCaption, GetFilters));
+                  FindLast, StrSubstNo(EntryDoesNotExist, TableCaption(), GetFilters));
             end;
         end;
     end;

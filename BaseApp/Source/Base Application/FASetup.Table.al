@@ -30,7 +30,7 @@ table 5603 "FA Setup"
                     if ("Default Depr. Book" <> xRec."Default Depr. Book") and
                        ("Default Depr. Book" <> '')
                     then
-                        if TaxRegisterSetup.Get then
+                        if TaxRegisterSetup.Get() then
                             if TaxRegisterSetup."Calculate TD for each FA" then begin
                                 DeprBook.Get("Default Depr. Book");
                                 DeprBook.TestField(DeprBook."Control FA Acquis. Cost", true);

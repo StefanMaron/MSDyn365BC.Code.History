@@ -42,6 +42,21 @@ table 56 "Invoice Posting Parameters"
             OptionCaption = 'None,VAT,Sales Tax';
             OptionMembers = "None","VAT","Sales Tax";
         }
+        field(12400; "Initial VAT Transaction No."; Integer)
+        {
+            Caption = 'Initial VAT Transaction No.';
+            DataClassification = SystemMetadata;
+        }
+        field(12401; "Change Transaction"; Boolean)
+        {
+            Caption = 'Change Transaction';
+            DataClassification = SystemMetadata;
+        }
+        field(12402; "Prepmt. Diff. Appln. Entry No."; Integer)
+        {
+            Caption = 'Prepmt. Diff. Appln. Entry No.';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys

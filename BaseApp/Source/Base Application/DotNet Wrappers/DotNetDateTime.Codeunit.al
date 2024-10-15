@@ -99,7 +99,7 @@ codeunit 3003 DotNet_DateTime
 
     procedure IsDaylightSavingTim(): Boolean;
     begin
-        exit(DotNetDateTime.IsDaylightSavingTime);
+        exit(DotNetDateTime.IsDaylightSavingTime());
     end;
 
     procedure ToString(DotNet_DateTimeFormatInfo: Codeunit DotNet_DateTimeFormatInfo): Text

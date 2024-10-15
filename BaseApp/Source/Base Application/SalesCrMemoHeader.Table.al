@@ -488,6 +488,11 @@ table 114 "Sales Cr.Memo Header"
             Caption = 'Email';
             ExtendedDatatype = EMail;
         }
+        field(179; "VAT Reporting Date"; Date)
+        {
+            Caption = 'VAT Date';
+            Editable = false;
+        }
         field(200; "Work Description"; BLOB)
         {
             Caption = 'Work Description';
@@ -826,7 +831,7 @@ table 114 "Sales Cr.Memo Header"
             if CorrDocMgt.IsCorrDocument(TempSalesHeader) then begin
                 if SendAsEmail then
                     ReportSelection.SendEmailToCust(
-                      ReportSelection.Usage::CSCM.AsInteger(), SalesCrMemoHeader, "No.", '', ShowRequestForm, "Bill-to Customer No.", 0)
+                      ReportSelection.Usage::CSCM.AsInteger(), SalesCrMemoHeader, "No.", '', ShowRequestForm, "Bill-to Customer No.")
                 else
                     ReportSelection.PrintWithDialogForCust(
                       ReportSelection.Usage::CSCM, SalesCrMemoHeader, ShowRequestForm, FieldNo("Bill-to Customer No."));
@@ -834,7 +839,7 @@ table 114 "Sales Cr.Memo Header"
                 if SendAsEmail then
                     ReportSelection.SendEmailToCust(
                       ReportSelection.Usage::"S.Cr.Memo".AsInteger(), SalesCrMemoHeader, "No.",
-                      ReportDistributionMgt.GetFullDocumentTypeText(SalesCrMemoHeader), ShowRequestForm, "Bill-to Customer No.", 0)
+                      ReportDistributionMgt.GetFullDocumentTypeText(SalesCrMemoHeader), ShowRequestForm, "Bill-to Customer No.")
                 else
                     ReportSelection.PrintWithDialogForCust(
                       ReportSelection.Usage::"S.Cr.Memo", SalesCrMemoHeader, ShowRequestForm, FieldNo("Bill-to Customer No."));
@@ -961,12 +966,12 @@ table 114 "Sales Cr.Memo Header"
         SalesSetup: Record "Sales & Receivables Setup";
     begin
         SalesSetup.Get();
-        exit(SalesSetup.GetLegalStatement);
+        exit(SalesSetup.GetLegalStatement());
     end;
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 
     procedure SetSecurityFilterOnRespCenter()
@@ -1065,9 +1070,9 @@ table 114 "Sales Cr.Memo Header"
         CalcFields(Cancelled, Corrective);
         case true of
             Cancelled:
-                ShowCorrectiveInvoice;
+                ShowCorrectiveInvoice();
             Corrective:
-                ShowCancelledInvoice;
+                ShowCancelledInvoice();
         end;
     end;
 
@@ -1108,7 +1113,7 @@ table 114 "Sales Cr.Memo Header"
     begin
         CalcFields("Work Description");
         "Work Description".CreateInStream(InStream, TEXTENCODING::UTF8);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator));
+        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
     end;
 
     [IntegrationEvent(false, false)]

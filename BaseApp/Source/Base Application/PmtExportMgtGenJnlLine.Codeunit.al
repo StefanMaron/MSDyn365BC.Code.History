@@ -21,7 +21,7 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
     begin
         GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
-        if GenJnlLine.IsExportedToPaymentFile then
+        if GenJnlLine.IsExportedToPaymentFile() then
             if not Confirm(ExportAgainQst) then
                 exit;
         ExportJournalPaymentFile(GenJnlLine);
@@ -47,7 +47,7 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
     var
         GenJnlLine2: Record "Gen. Journal Line";
     begin
-        GenJnlLine.DeletePaymentFileBatchErrors;
+        GenJnlLine.DeletePaymentFileBatchErrors();
         GenJnlLine2.CopyFilters(GenJnlLine);
         if GenJnlLine2.FindSet() then
             repeat
@@ -55,7 +55,7 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
                 OnCheckGenJnlLine(GenJnlLine2);
             until GenJnlLine2.Next() = 0;
 
-        if GenJnlLine2.HasPaymentFileErrorsInBatch then begin
+        if GenJnlLine2.HasPaymentFileErrorsInBatch() then begin
             Commit();
             Error(HasErrorsErr);
         end;
@@ -91,11 +91,11 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
                 CreateGenJnlDataExchLine(DataExch."Entry No.", GenJnlLine2, LineNo);
 
             CreditTransferEntry.CreateNew(CreditTransferRegister."No.", LineNo,
-              GenJnlLine2."Account Type", GenJnlLine2."Account No.", GenJnlLine2.GetAppliesToDocEntryNo,
+              GenJnlLine2."Account Type", GenJnlLine2."Account No.", GenJnlLine2.GetAppliesToDocEntryNo(),
               GenJnlLine2."Posting Date", GenJnlLine2."Currency Code", GenJnlLine2.Amount, '',
               GenJnlLine2."Recipient Bank Account", GenJnlLine2."Message to Recipient");
         until GenJnlLine2.Next() = 0;
-        Window.Close;
+        Window.Close();
 
         OnBeforePaymentExport(GenJnlLine."Bal. Account No.", DataExch."Entry No.", LineNo, TotalAmount, TransferDate, HandledPaymentExport);
         if not HandledPaymentExport then
@@ -132,7 +132,7 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
         CompanyInfo.Get();
         BankAcc.Get(GenJnlLine."Bal. Account No.");
         with TempPaymentExportData do begin
-            Init;
+            Init();
             "Data Exch Entry No." := DataExchEntryNo;
             "Document No." := GenJnlLine."Document No.";
             "Transfer Date" := GenJnlLine."Posting Date";
@@ -159,7 +159,7 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
             "Creation Time" := Format(Time);
             "Starting Date" := GenJnlLine."Posting Date";
             "Ending Date" := GenJnlLine."Posting Date";
-            Insert;
+            Insert();
         end;
         with GenJnlLine do
             case "Account Type" of
@@ -187,7 +187,7 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
             "Recipient Bank City" := VendorBankAcc.City;
             "Recipient Bank BIC" := VendorBankAcc.BIC;
             "Recipient Transit No." := VendorBankAcc."Bank Corresp. Account No.";
-            Modify;
+            Modify();
         end;
     end;
 
@@ -206,7 +206,7 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
             "Recipient Bank City" := CustomerBankAcc.City;
             "Recipient Bank BIC" := CustomerBankAcc.BIC;
             "Recipient Transit No." := CustomerBankAcc."Bank Corresp. Account No.";
-            Modify;
+            Modify();
         end;
     end;
 
@@ -223,7 +223,7 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
             "Recipient Bank City" := BankAccDetails."Bank City";
             "Recipient Bank BIC" := BankAccDetails."Bank BIC";
             "Recipient Transit No." := BankAccDetails."Transit No.";
-            Modify;
+            Modify();
         end;
     end;
 
@@ -244,7 +244,7 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
             BankAccount.GetBankExportImportSetup(BankExportImportSetup);
             SetPreserveNonLatinCharacters(BankExportImportSetup."Preserve Non-Latin Characters");
 
-            Init;
+            Init();
             "Data Exch Entry No." := DataExchEntryNo;
             "Sender Bank Account Code" := GenJnlLine."Bal. Account No.";
             "Sender Bank Name" := BankAccount.Name;
@@ -253,7 +253,7 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
                 Amount := GenJnlLine.Amount;
                 "Currency Code" := GeneralLedgerSetup.GetCurrencyCode(GenJnlLine."Currency Code");
                 "Recipient Bank Acc. No." :=
-                    CopyStr(VendorBankAccount.GetBankAccountNo, 1, MaxStrLen("Recipient Bank Acc. No."));
+                    CopyStr(VendorBankAccount.GetBankAccountNo(), 1, MaxStrLen("Recipient Bank Acc. No."));
                 "Recipient Reg. No." := VendorBankAccount."Bank Branch No.";
                 "Recipient Acc. No." := VendorBankAccount."Bank Account No.";
                 "Recipient Bank Country/Region" := VendorBankAccount."Country/Region Code";
@@ -296,7 +296,7 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
 
     procedure GetServerTempFileName(): Text[1024]
     begin
-        exit(PaymentExportMgt.GetServerTempFileName);
+        exit(PaymentExportMgt.GetServerTempFileName());
     end;
 
     [IntegrationEvent(false, false)]

@@ -47,10 +47,10 @@ codeunit 144515 "ERM Tax Accounting"
         LibraryTaxAcc.PrepareTaxDiffDeprBonusSetup;
         LibraryTaxAcc.CreateTaxDiffJnlSetup(TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
         CreateFixedAsset(FixedAsset);
-        CreateTaxDiffDeprBonusEntry(FixedAsset."No.", WorkDate, WorkDate, FixedAsset."Tax Difference Code", 100);
+        CreateTaxDiffDeprBonusEntry(FixedAsset."No.", WorkDate(), WorkDate, FixedAsset."Tax Difference Code", 100);
 
         // Exercise:
-        RunCalcTaxDiffDeprBonusReport(FixedAsset, WorkDate, WorkDate, TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
+        RunCalcTaxDiffDeprBonusReport(FixedAsset, WorkDate(), WorkDate, TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
 
         // Verify:
         TaxRegisterSetup.Get();
@@ -71,10 +71,10 @@ codeunit 144515 "ERM Tax Accounting"
         LibraryTaxAcc.PrepareTaxDiffFASetup;
         LibraryTaxAcc.CreateTaxDiffJnlSetup(TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
         CreateFixedAsset(FixedAsset);
-        CreateTaxDiffFAEntry(FixedAsset."No.", WorkDate, WorkDate, FixedAsset."Tax Difference Code", 100);
+        CreateTaxDiffFAEntry(FixedAsset."No.", WorkDate(), WorkDate, FixedAsset."Tax Difference Code", 100);
 
         // Exercise:
-        RunCalcTaxDiffFAReport(FixedAsset, WorkDate, TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
+        RunCalcTaxDiffFAReport(FixedAsset, WorkDate(), TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
 
         // Verify:
         VerifyTaxDiffJnl(TaxDiffJnlTemplateName, TaxDiffJnlBatchName, FixedAsset."Tax Difference Code", 1);
@@ -95,10 +95,10 @@ codeunit 144515 "ERM Tax Accounting"
         LibraryTaxAcc.PrepareTaxDiffDisposalSetup;
         LibraryTaxAcc.CreateTaxDiffJnlSetup(TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
         CreateFixedAsset(FixedAsset);
-        CreateTaxDiffDisposalEntry(FixedAsset."No.", WorkDate, WorkDate, FixedAsset."Tax Difference Code", 100);
+        CreateTaxDiffDisposalEntry(FixedAsset."No.", WorkDate(), WorkDate, FixedAsset."Tax Difference Code", 100);
 
         // Exercise:
-        RunCalcTaxDiffDisposedFAReport(FixedAsset, WorkDate, WorkDate, TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
+        RunCalcTaxDiffDisposedFAReport(FixedAsset, WorkDate(), WorkDate, TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
 
         // Verify:
         TaxRegisterSetup.Get();
@@ -119,10 +119,10 @@ codeunit 144515 "ERM Tax Accounting"
         LibraryTaxAcc.PrepareTaxDiffDeprFESetup;
         LibraryTaxAcc.CreateTaxDiffJnlSetup(TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
         CreateFutureExpense(FutureExpense);
-        CreateTaxDiffFEDeprEntry(FutureExpense."No.", WorkDate, WorkDate, 100);
+        CreateTaxDiffFEDeprEntry(FutureExpense."No.", WorkDate(), WorkDate, 100);
 
         // Exercise:
-        RunCalcTaxDiffDeprFEReport(FutureExpense, WorkDate, WorkDate, TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
+        RunCalcTaxDiffDeprFEReport(FutureExpense, WorkDate(), WorkDate, TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
 
         // Verify:
         VerifyTaxDiffJnl(TaxDiffJnlTemplateName, TaxDiffJnlBatchName, '', 1);
@@ -140,7 +140,7 @@ codeunit 144515 "ERM Tax Accounting"
         CreateTaxCalcSetupGL(TaxCalcSectionCode, TaxCalcHeaderNo);
 
         // Exercise:
-        CreateTaxCalcAccum(TaxCalcSectionCode, true, false, false, false, WorkDate);
+        CreateTaxCalcAccum(TaxCalcSectionCode, true, false, false, false, WorkDate());
 
         // Verify:
         VerifyTaxCalcAccum(TaxCalcSectionCode, TaxCalcHeaderNo, 2);
@@ -158,7 +158,7 @@ codeunit 144515 "ERM Tax Accounting"
         CreateTaxCalcSetupFA(TaxCalcSectionCode, TaxCalcHeaderNo);
 
         // Exercise:
-        CreateTaxCalcAccum(TaxCalcSectionCode, false, true, false, false, WorkDate);
+        CreateTaxCalcAccum(TaxCalcSectionCode, false, true, false, false, WorkDate());
 
         // Verify:
         VerifyTaxCalcAccum(TaxCalcSectionCode, TaxCalcHeaderNo, 1);
@@ -273,7 +273,7 @@ codeunit 144515 "ERM Tax Accounting"
     local procedure InsertFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry"; FANo: Code[20]; DeprBookCode: Code[10]; FAPostingDate: Date; PostingDate: Date; FAPostingType: Enum "FA Ledger Entry FA Posting Type")
     begin
         with FALedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := GetLastFALedgerEntryNo + 1;
             "FA No." := FANo;
             "Depreciation Book Code" := DeprBookCode;
@@ -281,7 +281,7 @@ codeunit 144515 "ERM Tax Accounting"
             "Posting Date" := PostingDate;
             "Part of Book Value" := true;
             "FA Posting Type" := FAPostingType;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -436,7 +436,7 @@ codeunit 144515 "ERM Tax Accounting"
         TaxCalcSection: Record "Tax Calc. Section";
         TaxCalcHeader: Record "Tax Calc. Header";
     begin
-        LibraryTaxAcc.CreateTaxCalcSection(TaxCalcSection, WorkDate, WorkDate);
+        LibraryTaxAcc.CreateTaxCalcSection(TaxCalcSection, WorkDate(), WorkDate());
         LibraryTaxAcc.CreateTaxCalcHeader(TaxCalcHeader, TaxCalcSection.Code, DATABASE::"Tax Calc. G/L Entry");
         TaxCalcSectionCode := TaxCalcSection.Code;
         TaxCalcHeaderNo := TaxCalcHeader."No.";
@@ -464,7 +464,7 @@ codeunit 144515 "ERM Tax Accounting"
         LibraryTaxAcc.CreateTaxCalcLine(
           TaxCalcLine, TaxCalcLine."Expression Type"::SumField, TaxCalcSectionCode, TaxCalcHeaderNo);
 
-        CreateGLCorrEntry(GLAccount[1]."No.", GLAccount[2]."No.", WorkDate);
+        CreateGLCorrEntry(GLAccount[1]."No.", GLAccount[2]."No.", WorkDate());
     end;
 
     local procedure GetLastGLCorrEntryNo(): Integer
@@ -481,7 +481,7 @@ codeunit 144515 "ERM Tax Accounting"
         GLCorrEntry: Record "G/L Correspondence Entry";
     begin
         with GLCorrEntry do begin
-            Init;
+            Init();
             Validate("Entry No.", GetLastGLCorrEntryNo + 10000);
             Validate("Posting Date", PostingDate);
             Validate("Debit Account No.", AccountNo);
@@ -502,7 +502,7 @@ codeunit 144515 "ERM Tax Accounting"
         FASetup: Record "FA Setup";
         TaxRegisterSetup: Record "Tax Register Setup";
     begin
-        LibraryTaxAcc.CreateTaxCalcSection(TaxCalcSection, WorkDate, WorkDate);
+        LibraryTaxAcc.CreateTaxCalcSection(TaxCalcSection, WorkDate(), WorkDate());
         LibraryTaxAcc.CreateTaxCalcHeader(TaxCalcHeader, TaxCalcSection.Code, DATABASE::"Tax Calc. FA Entry");
         TaxCalcSectionCode := TaxCalcSection.Code;
         TaxCalcHeaderNo := TaxCalcHeader."No.";
@@ -522,7 +522,7 @@ codeunit 144515 "ERM Tax Accounting"
         TaxRegisterSetup.Modify(true);
 
         CreateFixedAsset(FixedAsset);
-        CreateTaxCalcDeprEntry(FixedAsset."No.", WorkDate, WorkDate);
+        CreateTaxCalcDeprEntry(FixedAsset."No.", WorkDate(), WorkDate());
     end;
 
     local procedure CreateTaxCalcDeprEntry(FANo: Code[20]; FAPostingDate: Date; PostingDate: Date)
@@ -583,7 +583,7 @@ codeunit 144515 "ERM Tax Accounting"
             TaxCalcAccum.FindSet();
             repeat
                 Assert.AreNotEqual(0, TaxCalcAccum.Amount, TaxCalcAccumAmountErr);
-            until TaxCalcAccum.Next = 0;
+            until TaxCalcAccum.Next() = 0;
         end;
     end;
 
@@ -603,10 +603,10 @@ codeunit 144515 "ERM Tax Accounting"
 
         LibraryPurchase.CreatePurchaseInvoiceWithFixedAsset(PurchaseHeader, PurchaseLine, '', '');
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        CreateAndPostFAReleaseDoc(PurchaseLine."No.", WorkDate);
-        DocNo := CreateAndPostFAWriteOffDoc(PurchaseLine."No.", WorkDate);
+        CreateAndPostFAReleaseDoc(PurchaseLine."No.", WorkDate());
+        DocNo := CreateAndPostFAWriteOffDoc(PurchaseLine."No.", WorkDate());
         PostedFADocHeader.Get(PostedFADocHeader."Document Type"::Writeoff, DocNo);
-        PostedFADocHeader.SetRecFilter;
+        PostedFADocHeader.SetRecFilter();
 
         WriteOffForTaxLedger.SetTableView(PostedFADocHeader);
         WriteOffForTaxLedger.InitializeRequest(false, 0D, true);

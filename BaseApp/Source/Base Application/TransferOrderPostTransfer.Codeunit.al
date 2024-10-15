@@ -41,7 +41,7 @@ codeunit 5856 "TransferOrder-Post Transfer"
                     TransLine.TestField("Quantity Received", 0);
                 until TransLine.Next() = 0
             else
-                Error(NothingToPostErr);
+                Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 
             GetLocation("Transfer-from Code");
             if Location."Bin Mandatory" or Location."Require Shipment" then
@@ -132,6 +132,7 @@ codeunit 5856 "TransferOrder-Post Transfer"
         DocSign: Record "Document Signature";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         DimMgt: Codeunit DimensionManagement;
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         ReserveTransLine: Codeunit "Transfer Line-Reserve";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         DocSignMgt: Codeunit "Doc. Signature Management";
@@ -141,7 +142,6 @@ codeunit 5856 "TransferOrder-Post Transfer"
         WhseReceive: Boolean;
         OriginalQuantity: Decimal;
         OriginalQuantityBase: Decimal;
-        NothingToPostErr: Label 'There is nothing to post.';
         PostingLinesMsg: Label 'Posting transfer lines #2######', Comment = '#2 - line counter';
         PostingDocumentTxt: Label 'Transfer Order %1', Comment = '%1 - document number';
         DimCombBlockedErr: Label 'The combination of dimensions used in transfer order %1 is blocked. %2', Comment = '%1 - document number, %2 - error message';

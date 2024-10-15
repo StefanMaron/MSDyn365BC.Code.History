@@ -2,7 +2,6 @@ page 495 "Currency Card"
 {
     Caption = 'Currency Card';
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Navigate';
     SourceTable = Currency;
 
     layout
@@ -24,12 +23,12 @@ page 495 "Currency Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies a text to describe the currency code.';
                 }
-                field("ISO Code"; "ISO Code")
+                field("ISO Code"; Rec."ISO Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a three-letter currency code defined in ISO 4217.';
                 }
-                field("ISO Numeric Code"; "ISO Numeric Code")
+                field("ISO Numeric Code"; Rec."ISO Numeric Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a three-digit code number defined in ISO 4217.';
@@ -39,54 +38,54 @@ page 495 "Currency Card"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the symbol for this currency that you wish to appear on checks and charts, $ for USD, CAD or MXP for example.';
                 }
-                field("Unrealized Gains Acc."; "Unrealized Gains Acc.")
+                field("Unrealized Gains Acc."; Rec."Unrealized Gains Acc.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the general ledger account number to which unrealized exchange rate gains will be posted when the Adjust Exchange Rates batch job is run.';
                 }
-                field("Realized Gains Acc."; "Realized Gains Acc.")
+                field("Realized Gains Acc."; Rec."Realized Gains Acc.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the general ledger account number to which realized exchange rate gains will be posted.';
                 }
-                field("Unrealized Losses Acc."; "Unrealized Losses Acc.")
+                field("Unrealized Losses Acc."; Rec."Unrealized Losses Acc.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the general ledger account number to which unrealized exchange rate losses will be posted when the Adjust Exchange Rates batch job is run.';
                 }
-                field("Realized Losses Acc."; "Realized Losses Acc.")
+                field("Realized Losses Acc."; Rec."Realized Losses Acc.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the general ledger account number to which realized exchange rate losses will be posted.';
                 }
-                field("EMU Currency"; "EMU Currency")
+                field("EMU Currency"; Rec."EMU Currency")
                 {
                     ApplicationArea = Suite;
                     Importance = Promoted;
-                    ToolTip = 'Specifies whether the currency is an EMU currency, for example DEM or EUR.';
+                    ToolTip = 'Specifies whether the currency is an EMU currency, for example EUR.';
                 }
-                field("Last Date Modified"; "Last Date Modified")
+                field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the last date on which any information in the Currency table was modified.';
                 }
-                field("Last Date Adjusted"; "Last Date Adjusted")
+                field("Last Date Adjusted"; Rec."Last Date Adjusted")
                 {
                     ApplicationArea = Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies when the exchange rates were last adjusted, that is, the last date on which the Adjust Exchange Rates batch job was run.';
                 }
-                field("Payment Tolerance %"; "Payment Tolerance %")
+                field("Payment Tolerance %"; Rec."Payment Tolerance %")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the percentage that the payment or refund is allowed to be, less than the amount on the invoice or credit memo.';
                 }
-                field("Max. Payment Tolerance Amount"; "Max. Payment Tolerance Amount")
+                field("Max. Payment Tolerance Amount"; Rec."Max. Payment Tolerance Amount")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the maximum allowed amount that the payment or refund can differ from the amount on the invoice or credit memo.';
                 }
-                field("Search Method"; "Search Method")
+                field("Search Method"; Rec."Search Method")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the search method associated with the currency.';
@@ -96,12 +95,12 @@ page 495 "Currency Card"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if the currency has an imported exchange rate.';
                 }
-                field("RU Bank Code"; "RU Bank Code")
+                field("RU Bank Code"; Rec."RU Bank Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the Russian bank code associated with the currency.';
                 }
-                field("RU Bank Digital Code"; "RU Bank Digital Code")
+                field("RU Bank Digital Code"; Rec."RU Bank Digital Code")
                 {
                     ApplicationArea = Suite;
                 }
@@ -109,60 +108,60 @@ page 495 "Currency Card"
             group(Rounding)
             {
                 Caption = 'Rounding';
-                field("Invoice Rounding Precision"; "Invoice Rounding Precision")
+                field("Invoice Rounding Precision"; Rec."Invoice Rounding Precision")
                 {
                     ApplicationArea = Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the size of the interval to be used when rounding amounts in this currency. You can specify invoice rounding for each currency in the Currency table.';
                 }
-                field("Invoice Rounding Type"; "Invoice Rounding Type")
+                field("Invoice Rounding Type"; Rec."Invoice Rounding Type")
                 {
                     ApplicationArea = Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies whether an invoice amount will be rounded up or down. The program uses this information together with the interval for rounding that you have specified in the Invoice Rounding Precision field.';
                 }
-                field("Amount Rounding Precision"; "Amount Rounding Precision")
+                field("Amount Rounding Precision"; Rec."Amount Rounding Precision")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the size of the interval to be used when rounding amounts in this currency.';
                 }
-                field("Amount Decimal Places"; "Amount Decimal Places")
+                field("Amount Decimal Places"; Rec."Amount Decimal Places")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of decimal places the program will display for amounts in this currency.';
                 }
-                field("Unit-Amount Rounding Precision"; "Unit-Amount Rounding Precision")
+                field("Unit-Amount Rounding Precision"; Rec."Unit-Amount Rounding Precision")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the size of the interval to be used when rounding unit amounts (that is, item prices per unit) in this currency.';
                 }
-                field("Unit-Amount Decimal Places"; "Unit-Amount Decimal Places")
+                field("Unit-Amount Decimal Places"; Rec."Unit-Amount Decimal Places")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of decimal places the program will display for amounts in this currency.';
                 }
-                field("Appln. Rounding Precision"; "Appln. Rounding Precision")
+                field("Appln. Rounding Precision"; Rec."Appln. Rounding Precision")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the size of the interval that will be allowed as a rounding difference when you apply entries in different currencies to one another.';
                 }
-                field("Conv. LCY Rndg. Debit Acc."; "Conv. LCY Rndg. Debit Acc.")
+                field("Conv. LCY Rndg. Debit Acc."; Rec."Conv. LCY Rndg. Debit Acc.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies conversion information that must also contain a debit account if you wish to insert correction lines for rounding differences in the general journals using the Insert Conv. LCY Rndg. Lines function.';
                 }
-                field("Conv. LCY Rndg. Credit Acc."; "Conv. LCY Rndg. Credit Acc.")
+                field("Conv. LCY Rndg. Credit Acc."; Rec."Conv. LCY Rndg. Credit Acc.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies conversion information that must also contain a credit account if you wish to insert correction lines for rounding differences in the general journals using the Insert Conv. LCY Rndg. Lines function.';
                 }
-                field("Max. VAT Difference Allowed"; "Max. VAT Difference Allowed")
+                field("Max. VAT Difference Allowed"; Rec."Max. VAT Difference Allowed")
                 {
                     ApplicationArea = Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the maximum VAT correction amount allowed for the currency.';
                 }
-                field("VAT Rounding Type"; "VAT Rounding Type")
+                field("VAT Rounding Type"; Rec."VAT Rounding Type")
                 {
                     ApplicationArea = Suite;
                     Importance = Promoted;
@@ -172,25 +171,25 @@ page 495 "Currency Card"
             group(Reporting)
             {
                 Caption = 'Reporting';
-                field("Realized G/L Gains Account"; "Realized G/L Gains Account")
+                field("Realized G/L Gains Account"; Rec."Realized G/L Gains Account")
                 {
                     ApplicationArea = Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the general ledger account to post exchange rate gains to, for currency adjustments between LCY and the additional reporting currency.';
                 }
-                field("Realized G/L Losses Account"; "Realized G/L Losses Account")
+                field("Realized G/L Losses Account"; Rec."Realized G/L Losses Account")
                 {
                     ApplicationArea = Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the general ledger account to post exchange rate losses to, for currency adjustments between LCY and the additional reporting currency.';
                 }
-                field("Residual Gains Account"; "Residual Gains Account")
+                field("Residual Gains Account"; Rec."Residual Gains Account")
                 {
                     ApplicationArea = Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the general ledger account to post residual amounts to that are gains, if you post in the general ledger application area in both LCY and an additional reporting currency.';
                 }
-                field("Residual Losses Account"; "Residual Losses Account")
+                field("Residual Losses Account"; Rec."Residual Losses Account")
                 {
                     ApplicationArea = Suite;
                     Importance = Promoted;
@@ -209,47 +208,47 @@ page 495 "Currency Card"
             group("In Words")
             {
                 Caption = 'In Words';
-                field("Unit Kind"; "Unit Kind")
+                field("Unit Kind"; Rec."Unit Kind")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the kind of unit associated with the currency.';
                 }
-                field("Unit Name 1"; "Unit Name 1")
+                field("Unit Name 1"; Rec."Unit Name 1")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the spelling for one unit of currency.';
                 }
-                field("Unit Name 2"; "Unit Name 2")
+                field("Unit Name 2"; Rec."Unit Name 2")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the spelling for two or more units of currency.';
                 }
-                field("Unit Name 5"; "Unit Name 5")
+                field("Unit Name 5"; Rec."Unit Name 5")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the spelling for five or more units of currency.';
                 }
-                field("Invoice Comment"; "Invoice Comment")
+                field("Invoice Comment"; Rec."Invoice Comment")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies an invoice comment that will be displayed in a report.';
                 }
-                field("Hundred Kind"; "Hundred Kind")
+                field("Hundred Kind"; Rec."Hundred Kind")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the kind of one one-hundredth unit of currency.';
                 }
-                field("Hundred Name 1"; "Hundred Name 1")
+                field("Hundred Name 1"; Rec."Hundred Name 1")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the spelling for one one-hundredth unit of currency.';
                 }
-                field("Hundred Name 2"; "Hundred Name 2")
+                field("Hundred Name 2"; Rec."Hundred Name 2")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the kind of two one-hundredths unit of currency.';
                 }
-                field("Hundred Name 5"; "Hundred Name 5")
+                field("Hundred Name 5"; Rec."Hundred Name 5")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the kind of five one-hundredths unit of currency.';
@@ -258,27 +257,27 @@ page 495 "Currency Card"
             group(Prepayment)
             {
                 Caption = 'Prepayment';
-                field("Sales PD Gains Acc. (TA)"; "Sales PD Gains Acc. (TA)")
+                field("Sales PD Gains Acc. (TA)"; Rec."Sales PD Gains Acc. (TA)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the sales prepayment document gains account for tax accounting associated with the currency.';
                 }
-                field("Sales PD Losses Acc. (TA)"; "Sales PD Losses Acc. (TA)")
+                field("Sales PD Losses Acc. (TA)"; Rec."Sales PD Losses Acc. (TA)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the sales prepayment document losses account for tax accounting associated with the currency.';
                 }
-                field("Purch. PD Gains Acc. (TA)"; "Purch. PD Gains Acc. (TA)")
+                field("Purch. PD Gains Acc. (TA)"; Rec."Purch. PD Gains Acc. (TA)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the purchase prepayment document gains account for tax accounting associated with the currency.';
                 }
-                field("Purch. PD Losses Acc. (TA)"; "Purch. PD Losses Acc. (TA)")
+                field("Purch. PD Losses Acc. (TA)"; Rec."Purch. PD Losses Acc. (TA)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the purchase prepayment document losses account for tax accounting associated with the currency.';
                 }
-                field("PD Bal. Gain/Loss Acc. (TA)"; "PD Bal. Gain/Loss Acc. (TA)")
+                field("PD Bal. Gain/Loss Acc. (TA)"; Rec."PD Bal. Gain/Loss Acc. (TA)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the prepayment document balance gains or losses account for tax accounting associated with the currency.';
@@ -313,8 +312,6 @@ page 495 "Currency Card"
                     ApplicationArea = Suite;
                     Caption = 'Change Payment &Tolerance';
                     Image = ChangePaymentTolerance;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Change either or both the maximum payment tolerance and the payment tolerance percentage and filters by currency.';
 
                     trigger OnAction()
@@ -331,8 +328,6 @@ page 495 "Currency Card"
                 ApplicationArea = Suite;
                 Caption = 'Exch. &Rates';
                 Image = CurrencyExchangeRates;
-                Promoted = true;
-                PromotedCategory = Category4;
                 RunObject = Page "Currency Exchange Rates";
                 RunPageLink = "Currency Code" = FIELD(Code);
                 ToolTip = 'View updated exchange rates for the currencies that you use.';
@@ -345,8 +340,6 @@ page 495 "Currency Card"
                 ApplicationArea = Suite;
                 Caption = 'Foreign Currency Balance';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Foreign Currency Balance";
                 ToolTip = 'View the balances for all customers and vendors in both foreign currencies and in local currency (LCY). The report displays two LCY balances. One is the foreign currency balance converted to LCY by using the exchange rate at the time of the transaction. The other is the foreign currency balance converted to LCY by using the exchange rate of the work date.';
             }
@@ -355,8 +348,6 @@ page 495 "Currency Card"
                 ApplicationArea = Suite;
                 Caption = 'Aged Accounts Receivable';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Aged Accounts Receivable";
                 ToolTip = 'View an overview of when customer payments are due or overdue, divided into four periods. You must specify the date you want aging calculated from and the length of the period that each column will contain data for.';
             }
@@ -365,8 +356,6 @@ page 495 "Currency Card"
                 ApplicationArea = Suite;
                 Caption = 'Aged Accounts Payable';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Aged Accounts Payable";
                 ToolTip = 'View an overview of when your payables to vendors are due or overdue (divided into four periods). You must specify the date you want aging calculated from and the length of the period that each column will contain data for.';
             }
@@ -375,8 +364,6 @@ page 495 "Currency Card"
                 ApplicationArea = Suite;
                 Caption = 'Trial Balance';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Trial Balance";
                 ToolTip = 'View a detailed trial balance for selected currency.';
             }
@@ -419,7 +406,7 @@ page 495 "Currency Card"
                         CurrencyRecordRef: RecordRef;
                     begin
                         CurrPage.SetSelectionFilter(Currency);
-                        Currency.Next;
+                        Currency.Next();
 
                         if Currency.Count = 1 then
                             CRMIntegrationManagement.UpdateOneNow(Currency.RecordId)
@@ -486,6 +473,42 @@ page 495 "Currency Card"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Change Payment &Tolerance_Promoted"; "Change Payment &Tolerance")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
+                actionref("Foreign Currency Balance_Promoted"; "Foreign Currency Balance")
+                {
+                }
+                actionref("Aged Accounts Receivable_Promoted"; "Aged Accounts Receivable")
+                {
+                }
+                actionref("Aged Accounts Payable_Promoted"; "Aged Accounts Payable")
+                {
+                }
+                actionref("Trial Balance_Promoted"; "Trial Balance")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Exch. &Rates_Promoted"; "Exch. &Rates")
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
@@ -501,8 +524,8 @@ page 495 "Currency Card"
 
     trigger OnOpenPage()
     begin
-        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
-        CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled;
+        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
+        CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
     end;
 
     var

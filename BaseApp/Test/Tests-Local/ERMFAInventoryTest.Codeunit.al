@@ -123,7 +123,7 @@ codeunit 144716 "ERM FA Inventory Test"
         with FA do begin
             "No." := LibraryUtility.GenerateGUID();
             "FA Type" := "FA Type"::"Intangible Asset";
-            Insert;
+            Insert();
             exit("No.");
         end;
     end;
@@ -133,7 +133,7 @@ codeunit 144716 "ERM FA Inventory Test"
         FAJournalLine: Record "FA Journal Line";
     begin
         with FAJournalLine do begin
-            Init;
+            Init();
             "Journal Template Name" := FAJournalBatch."Journal Template Name";
             "Journal Batch Name" := FAJournalBatch.Name;
             "Line No." := LibraryUtility.GetNewRecNo(FAJournalLine, FieldNo("Line No."));
@@ -146,7 +146,7 @@ codeunit 144716 "ERM FA Inventory Test"
             "Actual Amount" := LibraryRandom.RandDecInRange(10, 100, 2);
             "Calc. Quantity" := LibraryRandom.RandIntInRange(10, 2);
             "Calc. Amount" := LibraryRandom.RandDecInRange(10, 100, 2);
-            Insert;
+            Insert();
 
             TotalArr[1] += "Actual Quantity";
             TotalArr[2] += "Actual Amount";
@@ -168,13 +168,13 @@ codeunit 144716 "ERM FA Inventory Test"
         Employee: Record Employee;
     begin
         with Employee do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateGUID();
             "Org. Unit Name" := LibraryUtility.GenerateGUID();
             "Job Title" := LibraryUtility.GenerateGUID();
             "Last Name" := LibraryUtility.GenerateGUID();
             Initials := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
             exit("No.");
         end;
     end;
@@ -184,11 +184,11 @@ codeunit 144716 "ERM FA Inventory Test"
         FALocation: Record "FA Location";
     begin
         with FALocation do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateGUID();
             Name := LibraryUtility.GenerateGUID();
             Validate("Employee No.", EmployeeNo);
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -200,12 +200,12 @@ codeunit 144716 "ERM FA Inventory Test"
         with DocumentPrintBuffer do begin
             SetRange("Table ID", DATABASE::"FA Journal Line");
             DeleteAll();
-            Init;
+            Init();
             "User ID" := UserId;
             "Table ID" := DATABASE::"FA Journal Line";
             "Journal Template Name" := FAJournalBatch."Journal Template Name";
             "Journal Batch Name" := FAJournalBatch.Name;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -266,7 +266,7 @@ codeunit 144716 "ERM FA Inventory Test"
         CompanyInformation.Get();
         FALocation.Get(FALocationCode);
 
-        LibraryReportValidation.VerifyCellValueByRef('A', 5, 1, LocalReportMgt.GetCompanyName); // Company Name
+        LibraryReportValidation.VerifyCellValueByRef('A', 5, 1, LocalReportMgt.GetCompanyName()); // Company Name
         LibraryReportValidation.VerifyCellValueByRef('A', 7, 1, LocalReportMgt.GetEmpDepartment(EmployeeNo)); // Department Name
         LibraryReportValidation.VerifyCellValueByRef('M', 5, 1, '0317001'); // OKUD
         LibraryReportValidation.VerifyCellValueByRef('M', 6, 1, CompanyInformation."OKPO Code"); // OKPO

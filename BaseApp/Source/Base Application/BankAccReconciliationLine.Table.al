@@ -72,6 +72,10 @@
             Caption = 'Type';
             OptionCaption = 'Bank Account Ledger Entry,Check Ledger Entry,Difference';
             OptionMembers = "Bank Account Ledger Entry","Check Ledger Entry",Difference;
+            ObsoleteReason = 'This field is prone to confusion and is redundant. A type Difference can be manually tracked and a type Check Ledger Entry has a related Bank Account Ledger Entry';
+#if not CLEAN21
+            ObsoleteState = Pending;
+            ObsoleteTag = '21.0';
 
             trigger OnValidate()
             begin
@@ -79,13 +83,18 @@
                    ("Applied Entries" <> 0)
                 then
                     if Confirm(Text001, false) then begin
-                        RemoveApplication(xRec.Type);
+                        RemoveApplication();
                         Validate("Applied Amount", 0);
                         "Applied Entries" := 0;
                         "Check No." := '';
                     end else
                         Error(Text002);
             end;
+
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '24.0';
+#endif
         }
         field(11; "Applied Entries"; Integer)
         {
@@ -94,7 +103,7 @@
 
             trigger OnLookup()
             begin
-                DisplayApplication;
+                DisplayApplication();
             end;
         }
         field(12; "Value Date"; Date)
@@ -284,9 +293,9 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
-                GetPaymentDirection;
-                GetContractor;
+                CheckLineStatus();
+                GetPaymentDirection();
+                GetContractor();
             end;
         }
         field(12402; "Sender VAT Reg. No."; Text[20])
@@ -295,9 +304,9 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
-                GetPaymentDirection;
-                GetContractor;
+                CheckLineStatus();
+                GetPaymentDirection();
+                GetContractor();
             end;
         }
         field(12403; "Sender Party Name"; Text[150])
@@ -306,7 +315,7 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
+                CheckLineStatus();
             end;
         }
         field(12404; "Sender BIC"; Code[9])
@@ -315,7 +324,7 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
+                CheckLineStatus();
             end;
         }
         field(12405; "Sender Bank Name"; Text[150])
@@ -324,7 +333,7 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
+                CheckLineStatus();
             end;
         }
         field(12406; "Sender Bank City"; Text[50])
@@ -333,7 +342,7 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
+                CheckLineStatus();
             end;
         }
         field(12407; "Sender Transit No."; Code[20])
@@ -342,7 +351,7 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
+                CheckLineStatus();
             end;
         }
         field(12408; "Sender KPP"; Code[20])
@@ -351,8 +360,8 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
-                GetContractor;
+                CheckLineStatus();
+                GetContractor();
             end;
         }
         field(12409; "Recipient Account No."; Code[20])
@@ -361,9 +370,9 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
-                GetPaymentDirection;
-                GetContractor;
+                CheckLineStatus();
+                GetPaymentDirection();
+                GetContractor();
             end;
         }
         field(12410; "Recipient VAT Reg. No."; Text[20])
@@ -372,9 +381,9 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
-                GetPaymentDirection;
-                GetContractor;
+                CheckLineStatus();
+                GetPaymentDirection();
+                GetContractor();
             end;
         }
         field(12411; "Recipient Name"; Text[150])
@@ -383,7 +392,7 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
+                CheckLineStatus();
             end;
         }
         field(12412; "Recipient BIC"; Code[9])
@@ -392,7 +401,7 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
+                CheckLineStatus();
             end;
         }
         field(12413; "Recipient Bank Name"; Text[150])
@@ -401,7 +410,7 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
+                CheckLineStatus();
             end;
         }
         field(12414; "Recipient Bank City"; Text[50])
@@ -410,7 +419,7 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
+                CheckLineStatus();
             end;
         }
         field(12415; "Recipient Transit No."; Code[20])
@@ -419,7 +428,7 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
+                CheckLineStatus();
             end;
         }
         field(12416; "Recipient KPP"; Code[20])
@@ -428,8 +437,8 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
-                GetContractor;
+                CheckLineStatus();
+                GetContractor();
             end;
         }
         field(12417; "Status Parameter"; Option)
@@ -440,7 +449,7 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
+                CheckLineStatus();
             end;
         }
         field(12418; KBK; Code[20])
@@ -449,7 +458,7 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
+                CheckLineStatus();
             end;
         }
         field(12419; OKATO; Code[11])
@@ -459,7 +468,7 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
+                CheckLineStatus();
             end;
         }
         field(12420; "Payment Reason Code"; Option)
@@ -470,7 +479,7 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
+                CheckLineStatus();
             end;
         }
         field(12421; "Tax Period"; Code[10])
@@ -479,7 +488,7 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
+                CheckLineStatus();
             end;
         }
         field(12422; "Period Code"; Option)
@@ -490,7 +499,7 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
+                CheckLineStatus();
             end;
         }
         field(12423; "Reason Document No."; Code[15])
@@ -499,7 +508,7 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
+                CheckLineStatus();
             end;
         }
         field(12424; "Reason Document Date"; Date)
@@ -508,7 +517,7 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
+                CheckLineStatus();
             end;
         }
         field(12425; "Reason Document Type"; Option)
@@ -519,7 +528,7 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
+                CheckLineStatus();
             end;
         }
         field(12426; "Pay Type"; Option)
@@ -530,7 +539,7 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
+                CheckLineStatus();
             end;
         }
         field(12427; "Payment Method"; Option)
@@ -541,7 +550,7 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
+                CheckLineStatus();
             end;
         }
         field(12428; "Payment Variant"; Code[10])
@@ -550,7 +559,7 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
+                CheckLineStatus();
             end;
         }
         field(12429; "Payment Date"; Date)
@@ -559,7 +568,7 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
+                CheckLineStatus();
             end;
         }
         field(12430; "Payment Subsequence"; Code[10])
@@ -568,7 +577,7 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
+                CheckLineStatus();
             end;
         }
         field(12431; "Line Status"; Option)
@@ -598,7 +607,7 @@
 
             trigger OnValidate()
             begin
-                CheckLineStatus;
+                CheckLineStatus();
                 if "Entity Type" <> xRec."Entity Type" then begin
                     Validate("Entity No.", '');
                     if "Entity Type" = "Entity Type"::Customer then begin
@@ -637,7 +646,7 @@
                 KPPCode: Code[20];
                 ConfirmedEntityNo: Boolean;
             begin
-                CheckLineStatus;
+                CheckLineStatus();
                 if not ConfirmedEntityNo then
                     if "Entity No." <> '' then begin
                         BankAccountNo := '';
@@ -674,9 +683,9 @@
                                         if VendBankAcc.FindLast() then begin
                                             "Line Status" := "Line Status"::"Contractor Confirmed";
                                         end else
-                                            IncorrectContractor;
+                                            IncorrectContractor();
                                     end else
-                                        IncorrectContractor;
+                                        IncorrectContractor();
                                 end;
                             "Entity Type"::Customer:
                                 begin
@@ -692,9 +701,9 @@
                                         if CustBankAcc.FindLast() then begin
                                             "Line Status" := "Line Status"::"Contractor Confirmed";
                                         end else
-                                            IncorrectContractor;
+                                            IncorrectContractor();
                                     end else
-                                        IncorrectContractor;
+                                        IncorrectContractor();
                                 end;
                             "Entity Type"::"G/L Account":
                                 begin
@@ -708,7 +717,7 @@
                                         "Document Type" := BankAccountDetail."Document Type";
                                         "Line Status" := "Line Status"::"Contractor Confirmed";
                                     end else
-                                        IncorrectContractor;
+                                        IncorrectContractor();
                                 end;
                         end;
                     end else
@@ -717,7 +726,7 @@
                         end;
 
                 if "Entity No." <> xRec."Entity No." then
-                    CalculateDebitCreditAmount;
+                    CalculateDebitCreditAmount();
             end;
         }
         field(12435; "Document Type"; Option)
@@ -750,9 +759,11 @@
         key(Key2; "Account Type", "Statement Amount")
         {
         }
+#if not CLEAN21
         key(Key3; Type, "Applied Amount")
         {
         }
+#endif
     }
 
     fieldgroups
@@ -761,12 +772,12 @@
 
     trigger OnDelete()
     begin
-        RemoveApplication(Type);
-        ClearDataExchEntries;
-        RemoveAppliedPaymentEntries;
-        DeletePaymentMatchingDetails;
-        UpdateParentLineStatementAmount;
-        if Find then;
+        RemoveApplication();
+        ClearDataExchEntries();
+        RemoveAppliedPaymentEntries();
+        DeletePaymentMatchingDetails();
+        UpdateParentLineStatementAmount();
+        if Find() then;
     end;
 
     trigger OnInsert()
@@ -786,7 +797,7 @@
             exit;
 
         if xRec."Statement Amount" <> "Statement Amount" then
-            RemoveApplication(Type);
+            RemoveApplication();
     end;
 
     trigger OnRename()
@@ -795,21 +806,18 @@
     end;
 
     var
-        Text000: Label 'You cannot rename a %1.';
-        Text001: Label 'Delete application?';
-        Text002: Label 'Update canceled.';
-        NotAppliedTxt: Label 'Not applied';
-        MatchedAutomaticallyTxt: Label 'Matched Automatically';
-        MatchedFromTextMappingRulesTxt: Label 'Matched - Text-To-Account Mapping';
-        AppliedManuallyStatusTxt: Label 'Applied Manually';
-        ReviewedStatusTxt: Label 'Application Reviewed';
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
         CheckLedgEntry: Record "Check Ledger Entry";
         BankAccRecon: Record "Bank Acc. Reconciliation";
         BankAccSetStmtNo: Codeunit "Bank Acc. Entry Set Recon.-No.";
-        CheckSetStmtNo: Codeunit "Check Entry Set Recon.-No.";
         DimMgt: Codeunit DimensionManagement;
         ConfirmManagement: Codeunit "Confirm Management";
+
+        Text000: Label 'You cannot rename a %1.';
+#if not CLEAN21
+        Text001: Label 'Delete application?';
+        Text002: Label 'Update canceled.';
+#endif
         AmountWithinToleranceRangeTok: Label '>=%1&<=%2', Locked = true;
         AmountOustideToleranceRangeTok: Label '<%1|>%2', Locked = true;
         TransactionAmountMustNotBeZeroErr: Label 'The Transaction Amount field must have a value that is not 0.';
@@ -820,6 +828,11 @@
         AppliedEntriesFilterLbl: Label '|%1', Locked = true;
         MatchedAutomaticallyFilterLbl: Label '=%1|%2|%3|%4', Locked = true;
         PaymentReconciliationJournalUXImprovementsLbl: Label 'PaymentReconciliationJournalUXImprovements', Locked = true;
+        NotAppliedTxt: Label 'Not applied';
+        MatchedAutomaticallyTxt: Label 'Matched Automatically';
+        MatchedFromTextMappingRulesTxt: Label 'Matched - Text-To-Account Mapping';
+        AppliedManuallyStatusTxt: Label 'Applied Manually';
+        ReviewedStatusTxt: Label 'Application Reviewed';
 
     procedure DisplayApplication()
     var
@@ -827,33 +840,20 @@
     begin
         case "Statement Type" of
             "Statement Type"::"Bank Reconciliation":
-                case Type of
-                    Type::"Bank Account Ledger Entry":
-                        begin
-                            BankAccLedgEntry.Reset();
-                            BankAccLedgEntry.SetCurrentKey("Bank Account No.", Open);
-                            BankAccLedgEntry.SetRange("Bank Account No.", "Bank Account No.");
-                            BankAccLedgEntry.SetRange(Open, true);
-                            BankAccLedgEntry.SetRange(
-                              "Statement Status", BankAccLedgEntry."Statement Status"::"Bank Acc. Entry Applied");
-                            BankAccLedgEntry.SetRange("Statement No.", "Statement No.");
-                            BankAccLedgEntry.SetRange("Statement Line No.", "Statement Line No.");
-                            OnDisplayApplicationOnAfterBankAccLedgEntrySetFilters(Rec, BankAccLedgEntry);
-                            PAGE.Run(0, BankAccLedgEntry);
-                        end;
-                    Type::"Check Ledger Entry":
-                        begin
-                            CheckLedgEntry.Reset();
-                            CheckLedgEntry.SetCurrentKey("Bank Account No.", Open);
-                            CheckLedgEntry.SetRange("Bank Account No.", "Bank Account No.");
-                            CheckLedgEntry.SetRange(Open, true);
-                            CheckLedgEntry.SetRange(
-                              "Statement Status", CheckLedgEntry."Statement Status"::"Check Entry Applied");
-                            CheckLedgEntry.SetRange("Statement No.", "Statement No.");
-                            CheckLedgEntry.SetRange("Statement Line No.", "Statement Line No.");
-                            OnDisplayApplicationOnAfterCheckLedgEntrySetFilters(Rec, CheckLedgEntry);
-                            PAGE.Run(0, CheckLedgEntry);
-                        end;
+                begin
+                    BankAccLedgEntry.Reset();
+                    BankAccLedgEntry.SetCurrentKey("Bank Account No.", Open);
+                    BankAccLedgEntry.SetRange("Bank Account No.", "Bank Account No.");
+                    BankAccLedgEntry.SetRange(Open, true);
+                    BankAccLedgEntry.SetRange(
+                        "Statement Status", BankAccLedgEntry."Statement Status"::"Bank Acc. Entry Applied");
+                    BankAccLedgEntry.SetRange("Statement No.", "Statement No.");
+                    BankAccLedgEntry.SetRange("Statement Line No.", "Statement Line No.");
+                    OnDisplayApplicationOnAfterBankAccLedgEntrySetFilters(Rec, BankAccLedgEntry);
+#if not CLEAN21
+                    OnDisplayApplicationOnAfterCheckLedgEntrySetFilters(Rec, CheckLedgEntry);
+#endif
+                    PAGE.Run(0, BankAccLedgEntry);
                 end;
             "Statement Type"::"Payment Application":
                 begin
@@ -1101,7 +1101,7 @@
     procedure ShowDimensions()
     begin
         "Dimension Set ID" :=
-          DimMgt.EditDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption, "Statement No.", "Statement Line No."));
+          DimMgt.EditDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption(), "Statement No.", "Statement Line No."));
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
     end;
 
@@ -1158,7 +1158,7 @@
 
     procedure SetUpNewLine()
     begin
-        "Transaction Date" := WorkDate;
+        "Transaction Date" := WorkDate();
         "Match Confidence" := "Match Confidence"::None;
         "Document No." := '';
 
@@ -1183,7 +1183,7 @@
     begin
         if FindSet() then
             repeat
-                AcceptApplication;
+                AcceptApplication();
             until Next() = 0;
     end;
 
@@ -1191,14 +1191,14 @@
     begin
         if FindSet() then
             repeat
-                RejectAppliedPayment;
+                RejectAppliedPayment();
             until Next() = 0;
     end;
 
     procedure RejectAppliedPayment()
     begin
-        RemoveAppliedPaymentEntries;
-        DeletePaymentMatchingDetails;
+        RemoveAppliedPaymentEntries();
+        DeletePaymentMatchingDetails();
     end;
 
     procedure AcceptApplication()
@@ -1213,10 +1213,10 @@
             if "Account Type" = "Account Type"::"Bank Account" then
                 Error(ExcessiveAmountErr, Difference);
             SetAppliedPaymentEntryFromRec(AppliedPaymentEntry);
-            if not AppliedPaymentEntry.Find then begin
-                if not Confirm(StrSubstNo(CreditTheAccountQst, GetAppliedToName, Difference)) then
+            if not AppliedPaymentEntry.Find() then begin
+                if not Confirm(StrSubstNo(CreditTheAccountQst, GetAppliedToName(), Difference)) then
                     exit;
-                TransferRemainingAmountToAccount;
+                TransferRemainingAmountToAccount();
             end;
         end;
 
@@ -1231,92 +1231,69 @@
         BankAccRecMatchBuffer.SetRange("Statement Line No.", Rec."Statement Line No.");
     end;
 
-    local procedure RemoveApplication(AppliedType: Option)
+    local procedure RemoveApplication()
     var
         BankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer";
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         ManyToOneBLEFound: Boolean;
     begin
-        if "Statement Type" = "Statement Type"::"Bank Reconciliation" then
-            case AppliedType of
-                Type::"Bank Account Ledger Entry":
-                    begin
-                        FilterManyToOneMatches(BankAccRecMatchBuffer);
-                        if BankAccRecMatchBuffer.FindFirst() then begin
-                            BankAccLedgEntry.Reset();
-                            BankAccLedgEntry.SetRange("Entry No.", BankAccRecMatchBuffer."Ledger Entry No.");
-                            BankAccLedgEntry.SetRange(Open, true);
-                            BankAccLedgEntry.SetRange(
-                                "Statement Status", BankAccLedgEntry."Statement Status"::"Bank Acc. Entry Applied");
-                            if BankAccLedgEntry.FindFirst() then begin
-                                ManyToOneBLEFound := true;
-                                BankAccSetStmtNo.RemoveReconNo(BankAccLedgEntry, Rec, false);
-                                BankAccRecMatchBuffer.Delete();
-                            end;
-                        end;
-
-
-                        BankAccRecMatchBuffer.Reset();
-                        BankAccRecMatchBuffer.SetRange("Ledger Entry No.", BankAccLedgEntry."Entry No.");
-                        BankAccRecMatchBuffer.SetRange("Statement No.", Rec."Statement No.");
-                        BankAccRecMatchBuffer.SetRange("Bank Account No.", Rec."Bank Account No.");
-                        if (BankAccRecMatchBuffer.FindSet()) and (ManyToOneBLEFound) then begin
-                            repeat
-                                BankAccReconciliationLine.SetRange("Statement Line No.", BankAccRecMatchBuffer."Statement Line No.");
-                                BankAccReconciliationLine.SetRange("Statement No.", BankAccRecMatchBuffer."Statement No.");
-                                BankAccReconciliationLine.SetRange("Bank Account No.", BankAccRecMatchBuffer."Bank Account No.");
-                                if BankAccReconciliationLine.FindFirst() then begin
-                                    BankAccReconciliationLine."Applied Entries" := 0;
-                                    BankAccReconciliationLine.Validate("Applied Amount", 0);
-                                    BankAccReconciliationLine.Modify();
-                                end;
-                            until BankAccRecMatchBuffer.Next() = 0;
-
-                            BankAccRecMatchBuffer.DeleteAll();
-                        end;
-
-                        BankAccLedgEntry.Reset();
-                        BankAccLedgEntry.SetCurrentKey("Bank Account No.", Open);
-                        BankAccLedgEntry.SetRange("Bank Account No.", "Bank Account No.");
-                        BankAccLedgEntry.SetRange(Open, true);
-                        BankAccLedgEntry.SetRange(
-                          "Statement Status", BankAccLedgEntry."Statement Status"::"Bank Acc. Entry Applied");
-                        BankAccLedgEntry.SetRange("Statement No.", "Statement No.");
-                        BankAccLedgEntry.SetRange("Statement Line No.", "Statement Line No.");
-                        OnRemoveApplicationOnAfterBankAccLedgEntrySetFilters(Rec, BankAccLedgEntry);
-                        BankAccLedgEntry.LockTable();
-                        CheckLedgEntry.LockTable();
-                        if BankAccLedgEntry.Find('-') then
-                            repeat
-                                BankAccSetStmtNo.RemoveReconNo(BankAccLedgEntry, Rec, true);
-                            until BankAccLedgEntry.Next() = 0;
-                        "Applied Entries" := 0;
-                        Validate("Applied Amount", 0);
-                        Modify;
-                    end;
-                Type::"Check Ledger Entry":
-                    begin
-                        CheckLedgEntry.Reset();
-                        CheckLedgEntry.SetCurrentKey("Bank Account No.", Open);
-                        CheckLedgEntry.SetRange("Bank Account No.", "Bank Account No.");
-                        CheckLedgEntry.SetRange(Open, true);
-                        CheckLedgEntry.SetRange(
-                          "Statement Status", CheckLedgEntry."Statement Status"::"Check Entry Applied");
-                        CheckLedgEntry.SetRange("Statement No.", "Statement No.");
-                        CheckLedgEntry.SetRange("Statement Line No.", "Statement Line No.");
-                        OnRemoveApplicationOnAfterCheckLedgEntrySetFilters(Rec, CheckLedgEntry);
-                        BankAccLedgEntry.LockTable();
-                        CheckLedgEntry.LockTable();
-                        if CheckLedgEntry.Find('-') then
-                            repeat
-                                CheckSetStmtNo.RemoveReconNo(CheckLedgEntry, Rec, true);
-                            until CheckLedgEntry.Next() = 0;
-                        "Applied Entries" := 0;
-                        Validate("Applied Amount", 0);
-                        "Check No." := '';
-                        Modify;
-                    end;
+        if "Statement Type" <> "Statement Type"::"Bank Reconciliation" then
+            exit;
+        FilterManyToOneMatches(BankAccRecMatchBuffer);
+        if BankAccRecMatchBuffer.FindFirst() then begin
+            BankAccLedgEntry.Reset();
+            BankAccLedgEntry.SetRange("Entry No.", BankAccRecMatchBuffer."Ledger Entry No.");
+            BankAccLedgEntry.SetRange(Open, true);
+            BankAccLedgEntry.SetRange(
+                "Statement Status", BankAccLedgEntry."Statement Status"::"Bank Acc. Entry Applied");
+            if BankAccLedgEntry.FindFirst() then begin
+                ManyToOneBLEFound := true;
+                BankAccSetStmtNo.RemoveReconNo(BankAccLedgEntry, Rec, false);
+                BankAccRecMatchBuffer.Delete();
             end;
+        end;
+
+
+        BankAccRecMatchBuffer.Reset();
+        BankAccRecMatchBuffer.SetRange("Ledger Entry No.", BankAccLedgEntry."Entry No.");
+        BankAccRecMatchBuffer.SetRange("Statement No.", Rec."Statement No.");
+        BankAccRecMatchBuffer.SetRange("Bank Account No.", Rec."Bank Account No.");
+        if (BankAccRecMatchBuffer.FindSet()) and (ManyToOneBLEFound) then begin
+            repeat
+                BankAccReconciliationLine.SetRange("Statement Line No.", BankAccRecMatchBuffer."Statement Line No.");
+                BankAccReconciliationLine.SetRange("Statement No.", BankAccRecMatchBuffer."Statement No.");
+                BankAccReconciliationLine.SetRange("Bank Account No.", BankAccRecMatchBuffer."Bank Account No.");
+                if BankAccReconciliationLine.FindFirst() then begin
+                    BankAccReconciliationLine."Applied Entries" := 0;
+                    BankAccReconciliationLine.Validate("Applied Amount", 0);
+                    BankAccReconciliationLine.Modify();
+                end;
+            until BankAccRecMatchBuffer.Next() = 0;
+
+            BankAccRecMatchBuffer.DeleteAll();
+        end;
+
+        BankAccLedgEntry.Reset();
+        BankAccLedgEntry.SetCurrentKey("Bank Account No.", Open);
+        BankAccLedgEntry.SetRange("Bank Account No.", "Bank Account No.");
+        BankAccLedgEntry.SetRange(Open, true);
+        BankAccLedgEntry.SetRange(
+            "Statement Status", BankAccLedgEntry."Statement Status"::"Bank Acc. Entry Applied");
+        BankAccLedgEntry.SetRange("Statement No.", "Statement No.");
+        BankAccLedgEntry.SetRange("Statement Line No.", "Statement Line No.");
+        OnRemoveApplicationOnAfterBankAccLedgEntrySetFilters(Rec, BankAccLedgEntry);
+#if not CLEAN21
+        OnRemoveApplicationOnAfterCheckLedgEntrySetFilters(Rec, CheckLedgEntry);
+#endif
+        BankAccLedgEntry.LockTable();
+        CheckLedgEntry.LockTable();
+        if BankAccLedgEntry.Find('-') then
+            repeat
+                BankAccSetStmtNo.RemoveReconNo(BankAccLedgEntry, Rec, true);
+            until BankAccLedgEntry.Next() = 0;
+        "Applied Entries" := 0;
+        Validate("Applied Amount", 0);
+        Modify();
     end;
 
     procedure SetManualApplication()
@@ -1368,8 +1345,8 @@
         AccountType: Option;
         AccountNo: Code[20];
     begin
-        AccountType := GetAppliedToAccountType;
-        AccountNo := GetAppliedToAccountNo;
+        AccountType := GetAppliedToAccountType();
+        AccountNo := GetAppliedToAccountNo();
         exit(GetAccountName(AccountType, AccountNo));
     end;
 
@@ -1388,7 +1365,7 @@
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
     begin
         if "Account Type" = "Account Type"::"Bank Account" then
-            if BankAccountLedgerEntry.Get(GetFirstAppliedToEntryNo) then
+            if BankAccountLedgerEntry.Get(GetFirstAppliedToEntryNo()) then
                 exit(BankAccountLedgerEntry."Bal. Account Type".AsInteger());
         exit("Account Type".AsInteger());
     end;
@@ -1420,7 +1397,7 @@
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
     begin
         if "Account Type" = "Account Type"::"Bank Account" then
-            if BankAccountLedgerEntry.Get(GetFirstAppliedToEntryNo) then
+            if BankAccountLedgerEntry.Get(GetFirstAppliedToEntryNo()) then
                 exit(BankAccountLedgerEntry."Bal. Account No.");
         exit("Account No.")
     end;
@@ -1454,7 +1431,7 @@
     begin
         AppliedPaymentEntry.TransferFromBankAccReconLine(Rec);
         AppliedPaymentEntry."Account Type" := "Gen. Journal Account Type".FromInteger(GetAppliedToAccountType());
-        AppliedPaymentEntry."Account No." := GetAppliedToAccountNo;
+        AppliedPaymentEntry."Account No." := GetAppliedToAccountNo();
     end;
 
     procedure AppliedEntryAccountDrillDown(AppliedEntryNo: Integer)
@@ -1472,8 +1449,8 @@
         AccountType: Option;
         AccountNo: Code[20];
     begin
-        AccountType := GetAppliedToAccountType;
-        AccountNo := GetAppliedToAccountNo;
+        AccountType := GetAppliedToAccountType();
+        AccountNo := GetAppliedToAccountNo();
         OpenAccountPage(AccountType, AccountNo);
     end;
 
@@ -1559,7 +1536,7 @@
         BankAccount.Get("Bank Account No.");
         GetApplicableCustomerLedgerEntries(CustLedgerEntry, BankAccount."Currency Code", AccountNo);
 
-        if BankAccount.IsInLocalCurrency then
+        if BankAccount.IsInLocalCurrency() then
             CustLedgerEntry.SetFilter("Remaining Amt. (LCY)", AmountFilter, MinAmount, MaxAmount)
         else
             CustLedgerEntry.SetFilter("Remaining Amount", AmountFilter, MinAmount, MaxAmount);
@@ -1576,7 +1553,7 @@
         BankAccount.Get("Bank Account No.");
         GetApplicableVendorLedgerEntries(VendorLedgerEntry, BankAccount."Currency Code", AccountNo);
 
-        if BankAccount.IsInLocalCurrency then
+        if BankAccount.IsInLocalCurrency() then
             VendorLedgerEntry.SetFilter("Remaining Amt. (LCY)", AmountFilter, MinAmount, MaxAmount)
         else
             VendorLedgerEntry.SetFilter("Remaining Amount", AmountFilter, MinAmount, MaxAmount);
@@ -1637,27 +1614,42 @@
             BankAccountLedgerEntry.SetRange("Bank Account No.", AccountNo);
     end;
 
-    procedure FilterBankRecLines(BankAccRecon: Record "Bank Acc. Reconciliation")
+    procedure FilterBankRecLines(BankAccReconciliation: Record "Bank Acc. Reconciliation"; Overwrite: Boolean)
     begin
-        Reset;
-        SetRange("Statement Type", BankAccRecon."Statement Type");
-        SetRange("Bank Account No.", BankAccRecon."Bank Account No.");
-        SetRange("Statement No.", BankAccRecon."Statement No.");
+        Rec.Reset();
+        Rec.SetRange("Statement Type", BankAccReconciliation."Statement Type");
+        Rec.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
+        Rec.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        if not Overwrite then
+            Rec.SetRange("Applied Entries", 0);
 
-        OnAfterFilterBankRecLines(Rec, BankAccRecon);
+        // Records sorted by transaction date to optimize matching
+        Rec.SetCurrentKey("Transaction Date");
+        Rec.SetAscending("Transaction Date", true);
+        OnAfterFilterBankRecLines(Rec, BankAccReconciliation);
+    end;
+
+    procedure FilterBankRecLines(BankAccReconciliation: Record "Bank Acc. Reconciliation")
+    begin
+        FilterBankRecLines(BankAccReconciliation, true);
     end;
 
     procedure LinesExist(BankAccRecon: Record "Bank Acc. Reconciliation"): Boolean
     begin
         FilterBankRecLines(BankAccRecon);
-        exit(FindSet);
+        exit(FindSet());
     end;
 
-    procedure GetAppliedToDocumentNo(): Text
+    procedure GetAppliedToDocumentNo(SeparatorTxt: Text): Text
     var
         ApplyType: Option "Document No.","Entry No.";
     begin
-        exit(GetAppliedNo(ApplyType::"Document No.", ', '));
+        exit(GetAppliedNo(ApplyType::"Document No.", SeparatorTxt));
+    end;
+
+    procedure GetAppliedToDocumentNo(): Text
+    begin
+        exit(GetAppliedToDocumentNo(', '));
     end;
 
     procedure GetAppliedToEntryNo(): Text
@@ -1679,7 +1671,7 @@
         AppliedEntryNumbers: Text;
         AppliedToEntryNo: Integer;
     begin
-        AppliedEntryNumbers := GetAppliedToEntryNo;
+        AppliedEntryNumbers := GetAppliedToEntryNo();
         if AppliedEntryNumbers = '' then
             exit(0);
         Evaluate(AppliedToEntryNo, SelectStr(1, AppliedEntryNumbers));
@@ -1697,7 +1689,7 @@
         AppliedPaymentEntry.SetRange("Statement Line No.", "Statement Line No.");
 
         AppliedNumbers := '';
-        if AppliedPaymentEntry.FindSet() then begin
+        if AppliedPaymentEntry.FindSet() then
             repeat
                 if ApplyType = ApplyType::"Document No." then begin
                     if AppliedPaymentEntry."Document No." <> '' then
@@ -1705,15 +1697,13 @@
                             AppliedNumbers := AppliedPaymentEntry."Document No."
                         else
                             AppliedNumbers := AppliedNumbers + SeparatorText + AppliedPaymentEntry."Document No.";
-                end else begin
+                end else
                     if AppliedPaymentEntry."Applies-to Entry No." <> 0 then
                         if AppliedNumbers = '' then
                             AppliedNumbers := Format(AppliedPaymentEntry."Applies-to Entry No.")
                         else
                             AppliedNumbers := AppliedNumbers + SeparatorText + Format(AppliedPaymentEntry."Applies-to Entry No.");
-                end;
             until AppliedPaymentEntry.Next() = 0;
-        end;
 
         exit(AppliedNumbers);
     end;
@@ -1881,8 +1871,8 @@
             DifferenceStatementAmtToApplEntryAmount := "Statement Amount";
             repeat
                 CurrRemAmtAfterPosting :=
-                  AppliedPmtEntry.GetRemAmt -
-                  AppliedPmtEntry.GetAmtAppliedToOtherStmtLines;
+                  AppliedPmtEntry.GetRemAmt() -
+                  AppliedPmtEntry.GetAmtAppliedToOtherStmtLines();
 
                 RemainingAmountAfterPosting += CurrRemAmtAfterPosting - AppliedPmtEntry."Applied Amount";
                 DifferenceStatementAmtToApplEntryAmount -= CurrRemAmtAfterPosting - AppliedPmtEntry."Applied Pmt. Discount";
@@ -1940,7 +1930,7 @@
             PostedPaymentReconLine.SetRange("Bank Account No.", "Bank Account No.");
             PostedPaymentReconLine.SetRange("Transaction ID", "Transaction ID");
             PostedPaymentReconLine.SetRange(Reconciled, false);
-            exit(PostedPaymentReconLine.FindFirst)
+            exit(not PostedPaymentReconLine.IsEmpty());
         end;
         exit(false);
     end;
@@ -1953,7 +1943,7 @@
             BankAccReconciliationLine.SetRange("Statement Type", "Statement Type");
             BankAccReconciliationLine.SetRange("Bank Account No.", "Bank Account No.");
             BankAccReconciliationLine.SetRange("Transaction ID", "Transaction ID");
-            exit(BankAccReconciliationLine.FindFirst)
+            exit(BankAccReconciliationLine.FindFirst());
         end;
         exit(false);
     end;
@@ -1976,11 +1966,11 @@
 
     procedure CanImport(): Boolean
     begin
-        if IsTransactionPostedAndReconciled or IsTransactionAlreadyImported then
+        if IsTransactionPostedAndReconciled() or IsTransactionAlreadyImported() then
             exit(false);
 
-        if IsTransactionPostedAndNotReconciled then
-            exit(AllowImportOfPostedNotReconciledTransactions);
+        if IsTransactionPostedAndNotReconciled() then
+            exit(AllowImportOfPostedNotReconciledTransactions());
 
         exit(true);
     end;
@@ -2065,7 +2055,7 @@
     local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
         DimMgt.AddDimSource(DefaultDimSource, DimMgt.TypeToTableID1(Rec."Account Type".AsInteger()), Rec."Account No.");
-        DimMgt.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", GetSalepersonPurchaserCode);
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", GetSalepersonPurchaserCode());
 
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
     end;
@@ -2178,18 +2168,24 @@
     begin
     end;
 
+#if not CLEAN21
     [IntegrationEvent(false, false)]
+    [Obsolete('This event will be removed, displaying check ledger entries is done via Bank Account Ledger Entries and Find entries.', '21.0')]
     local procedure OnDisplayApplicationOnAfterCheckLedgEntrySetFilters(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var CheckLedgEntry: Record "Check Ledger Entry")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnRemoveApplicationOnAfterBankAccLedgEntrySetFilters(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var BankAccLedgEntry: Record "Bank Account Ledger Entry")
     begin
     end;
 
+#if not CLEAN21
     [IntegrationEvent(false, false)]
+    [Obsolete('This event will be removed, removing application from check ledger entries is done when removing application from Bank Account Ledger Entries.', '21.0')]
     local procedure OnRemoveApplicationOnAfterCheckLedgEntrySetFilters(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var CheckLedgEntry: Record "Check Ledger Entry")
     begin
     end;
+#endif
 }

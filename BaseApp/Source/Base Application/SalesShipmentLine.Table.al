@@ -669,14 +669,15 @@ table 111 "Sales Shipment Line"
     end;
 
     var
-        Text000: Label 'Shipment No. %1:';
-        Text001: Label 'The program cannot find this Sales line.';
         Currency: Record Currency;
         SalesShptHeader: Record "Sales Shipment Header";
         PostedATOLink: Record "Posted Assemble-to-Order Link";
         DimMgt: Codeunit DimensionManagement;
         UOMMgt: Codeunit "Unit of Measure Management";
         CurrencyRead: Boolean;
+
+        Text000: Label 'Shipment No. %1:';
+        Text001: Label 'The program cannot find this Sales line.';
 
     procedure GetCurrencyCode(): Code[10]
     begin
@@ -689,7 +690,7 @@ table 111 "Sales Shipment Line"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption, "Document No.", "Line No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption(), "Document No.", "Line No."));
     end;
 
     procedure ShowItemTrackingLines()
@@ -740,7 +741,7 @@ table 111 "Sales Shipment Line"
             SalesLine."Document No." := TempSalesLine."Document No.";
             TranslationHelper.SetGlobalLanguageByCode(SalesInvHeader."Language Code");
             SalesLine.Description := StrSubstNo(Text000, "Document No.");
-            TranslationHelper.RestoreGlobalLanguage;
+            TranslationHelper.RestoreGlobalLanguage();
             IsHandled := false;
             OnBeforeInsertInvLineFromShptLineBeforeInsertTextLine(Rec, SalesLine, NextLineNo, IsHandled, TempSalesLine, SalesInvHeader);
             if not IsHandled then begin
@@ -750,7 +751,7 @@ table 111 "Sales Shipment Line"
             end;
         end;
 
-        TransferOldExtLines.ClearLineNumbers;
+        TransferOldExtLines.ClearLineNumbers();
 
         repeat
             ExtTextLine := (TransferOldExtLines.GetNewLineNumber("Attached to Line No.") <> 0);
@@ -771,13 +772,12 @@ table 111 "Sales Shipment Line"
                           Round(
                             SalesOrderLine."Unit Price" * (1 + SalesOrderLine."VAT %" / 100),
                             Currency."Unit-Amount Rounding Precision");
-                end else begin
+                end else
                     if SalesOrderHeader."Prices Including VAT" then
                         SalesOrderLine."Unit Price" :=
                           Round(
                             SalesOrderLine."Unit Price" / (1 + SalesOrderLine."VAT %" / 100),
                             Currency."Unit-Amount Rounding Precision");
-                end;
             end else begin
                 SalesOrderHeader.Init();
                 if ExtTextLine or (Type = Type::" ") then begin
@@ -822,16 +822,15 @@ table 111 "Sales Shipment Line"
                           Round(
                             SalesOrderLine."Line Discount Amount" *
                             (1 + SalesOrderLine."VAT %" / 100), Currency."Amount Rounding Precision");
-                end else begin
+                end else
                     if SalesOrderHeader."Prices Including VAT" then
                         SalesOrderLine."Line Discount Amount" :=
                           Round(
                             SalesOrderLine."Line Discount Amount" /
                             (1 + SalesOrderLine."VAT %" / 100), Currency."Amount Rounding Precision");
-                end;
                 SalesLine.Validate("Line Discount Amount", SalesOrderLine."Line Discount Amount");
                 SalesLine."Line Discount %" := SalesOrderLine."Line Discount %";
-                SalesLine.UpdatePrePaymentAmounts;
+                SalesLine.UpdatePrePaymentAmounts();
                 OnInsertInvLineFromShptLineOnAfterUpdatePrepaymentsAmounts(SalesLine, SalesOrderLine, Rec);
 
                 if SalesOrderLine.Quantity = 0 then
@@ -950,7 +949,7 @@ table 111 "Sales Shipment Line"
     begin
         if "Qty. per Unit of Measure" = 0 then
             exit(QtyBase);
-        exit(Round(QtyBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
+        exit(Round(QtyBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
     end;
 
     procedure FilterPstdDocLnItemLedgEntries(var ItemLedgEntry: Record "Item Ledger Entry")
@@ -980,7 +979,7 @@ table 111 "Sales Shipment Line"
         if CurrencyCode <> '' then
             Currency.Get(CurrencyCode)
         else
-            Currency.InitRoundingPrecision;
+            Currency.InitRoundingPrecision();
         CurrencyRead := true;
     end;
 
@@ -1034,7 +1033,7 @@ table 111 "Sales Shipment Line"
         Clear(Totals);
 
         if SalesShptHeader."Currency Code" = '' then
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         else
             Currency.Get(SalesShptHeader."Currency Code");
 
@@ -1133,7 +1132,7 @@ table 111 "Sales Shipment Line"
                               Totals[2], SalesShptHeader."Currency Factor")) - Totals[4];
                         Totals[3] := Totals[3] + "Amount (LCY)";
                         Totals[4] := Totals[4] + "Amount Including VAT (LCY)";
-                        Modify;
+                        Modify();
 
                         TempVATAmountLineRemainder."Amount Including VAT" :=
                           NewAmountIncludingVAT - Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision");
@@ -1160,7 +1159,7 @@ table 111 "Sales Shipment Line"
         LineDiscountAmount: Decimal;
     begin
         if SalesShptHeader."Currency Code" = '' then
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         else
             Currency.Get(SalesShptHeader."Currency Code");
 
@@ -1227,7 +1226,7 @@ table 111 "Sales Shipment Line"
                                         PrevVatAmountLine."VAT Amount" +
                                         ("Line Amount" - "Invoice Discount Amount" - "VAT Base" - "VAT Difference") *
                                         (1 - SalesShptHeader."VAT Base Discount %" / 100),
-                                        Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                                        Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                                     if not SalesSetup."Calc. VAT per Line" then
                                         "VAT Amount" :=
                                           "VAT Difference" +
@@ -1235,7 +1234,7 @@ table 111 "Sales Shipment Line"
                                             PrevVatAmountLine."VAT Amount" +
                                             ("Line Amount" - "Invoice Discount Amount" - "VAT Base" - "VAT Difference") *
                                             (1 - SalesShptHeader."VAT Base Discount %" / 100),
-                                            Currency."Amount Rounding Precision", Currency.VATRoundingDirection)
+                                            Currency."Amount Rounding Precision", Currency.VATRoundingDirection())
                                     else
                                         "VAT Amount" :=
                                         "VAT Difference" +
@@ -1244,7 +1243,7 @@ table 111 "Sales Shipment Line"
                                         (1 - SalesShptHeader."VAT Base Discount %" / 100);
                                     "Amount Including VAT" := "VAT Base" + "VAT Amount";
                                     if Positive then
-                                        PrevVatAmountLine.Init
+                                        PrevVatAmountLine.Init()
                                     else begin
                                         PrevVatAmountLine := VATAmountLine;
                                         PrevVatAmountLine."VAT Amount" :=
@@ -1252,7 +1251,7 @@ table 111 "Sales Shipment Line"
                                           (1 - SalesShptHeader."VAT Base Discount %" / 100);
                                         PrevVatAmountLine."VAT Amount" :=
                                           PrevVatAmountLine."VAT Amount" -
-                                          Round(PrevVatAmountLine."VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                                          Round(PrevVatAmountLine."VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                                     end;
                                 end;
                             "VAT Calculation Type"::"Full VAT":
@@ -1289,7 +1288,7 @@ table 111 "Sales Shipment Line"
                                           Round(
                                             PrevVatAmountLine."VAT Amount" +
                                             "VAT Base" * "VAT %" / 100 * (1 - SalesShptHeader."VAT Base Discount %" / 100),
-                                            Currency."Amount Rounding Precision", Currency.VATRoundingDirection)
+                                            Currency."Amount Rounding Precision", Currency.VATRoundingDirection())
                                     else
                                         "VAT Amount" :=
                                           "VAT Difference" +
@@ -1297,14 +1296,14 @@ table 111 "Sales Shipment Line"
                                           "VAT Base" * "VAT %" / 100 * (1 - SalesShptHeader."VAT Base Discount %" / 100);
                                     "Amount Including VAT" := "Line Amount" - "Invoice Discount Amount" + "VAT Amount";
                                     if Positive then
-                                        PrevVatAmountLine.Init
+                                        PrevVatAmountLine.Init()
                                     else begin
                                         PrevVatAmountLine := VATAmountLine;
                                         PrevVatAmountLine."VAT Amount" :=
                                           "VAT Base" * "VAT %" / 100 * (1 - SalesShptHeader."VAT Base Discount %" / 100);
                                         PrevVatAmountLine."VAT Amount" :=
                                           PrevVatAmountLine."VAT Amount" -
-                                          Round(PrevVatAmountLine."VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                                          Round(PrevVatAmountLine."VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                                     end;
                                 end;
                             "VAT Calculation Type"::"Full VAT":
@@ -1326,19 +1325,19 @@ table 111 "Sales Shipment Line"
                                         "VAT %" := Round(100 * "VAT Amount" / "VAT Base", 0.00001);
                                     "VAT Amount" :=
                                       "VAT Difference" +
-                                      Round("VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                                      Round("VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                                     "Amount Including VAT" := "VAT Base" + "VAT Amount";
                                 end;
                         end;
                     end;
                     "Calculated VAT Amount" := "VAT Amount" - "VAT Difference";
-                    Modify;
+                    Modify();
                 until Next() = 0;
     end;
 
     procedure InitFromSalesLine(SalesShptHeader: Record "Sales Shipment Header"; SalesLine: Record "Sales Line")
     begin
-        Init;
+        Init();
         TransferFields(SalesLine);
         if ("No." = '') and HasTypeToFillMandatoryFields() then
             Type := Type::" ";
@@ -1362,7 +1361,7 @@ table 111 "Sales Shipment Line"
         OnAfterInitFromSalesLine(SalesShptHeader, SalesLine, Rec);
     end;
 
-    local procedure ClearSalesLineValues(var SalesLine: Record "Sales Line")
+    procedure ClearSalesLineValues(var SalesLine: Record "Sales Line")
     begin
         SalesLine."Quantity (Base)" := 0;
         SalesLine.Quantity := 0;
@@ -1390,35 +1389,35 @@ table 111 "Sales Shipment Line"
         SalesLine: Record "Sales Line";
     begin
         if Type = Type::" " then
-            exit(SalesLine.FormatType);
+            exit(SalesLine.FormatType());
 
         exit(Format(Type));
     end;
 
-    local procedure CalcBaseQuantities(var SalesLine: Record "Sales Line"; QtyFactor: Decimal)
+    procedure CalcBaseQuantities(var SalesLine: Record "Sales Line"; QtyFactor: Decimal)
     begin
         SalesLine."Quantity (Base)" :=
-          Round(SalesLine.Quantity * QtyFactor, UOMMgt.QtyRndPrecision);
+          Round(SalesLine.Quantity * QtyFactor, UOMMgt.QtyRndPrecision());
         SalesLine."Qty. to Asm. to Order (Base)" :=
-          Round(SalesLine."Qty. to Assemble to Order" * QtyFactor, UOMMgt.QtyRndPrecision);
+          Round(SalesLine."Qty. to Assemble to Order" * QtyFactor, UOMMgt.QtyRndPrecision());
         SalesLine."Outstanding Qty. (Base)" :=
-          Round(SalesLine."Outstanding Quantity" * QtyFactor, UOMMgt.QtyRndPrecision);
+          Round(SalesLine."Outstanding Quantity" * QtyFactor, UOMMgt.QtyRndPrecision());
         SalesLine."Qty. to Ship (Base)" :=
-          Round(SalesLine."Qty. to Ship" * QtyFactor, UOMMgt.QtyRndPrecision);
+          Round(SalesLine."Qty. to Ship" * QtyFactor, UOMMgt.QtyRndPrecision());
         SalesLine."Qty. Shipped (Base)" :=
-          Round(SalesLine."Quantity Shipped" * QtyFactor, UOMMgt.QtyRndPrecision);
+          Round(SalesLine."Quantity Shipped" * QtyFactor, UOMMgt.QtyRndPrecision());
         SalesLine."Qty. Shipped Not Invd. (Base)" :=
-          Round(SalesLine."Qty. Shipped Not Invoiced" * QtyFactor, UOMMgt.QtyRndPrecision);
+          Round(SalesLine."Qty. Shipped Not Invoiced" * QtyFactor, UOMMgt.QtyRndPrecision());
         SalesLine."Qty. to Invoice (Base)" :=
-          Round(SalesLine."Qty. to Invoice" * QtyFactor, UOMMgt.QtyRndPrecision);
+          Round(SalesLine."Qty. to Invoice" * QtyFactor, UOMMgt.QtyRndPrecision());
         SalesLine."Qty. Invoiced (Base)" :=
-          Round(SalesLine."Quantity Invoiced" * QtyFactor, UOMMgt.QtyRndPrecision);
+          Round(SalesLine."Quantity Invoiced" * QtyFactor, UOMMgt.QtyRndPrecision());
         SalesLine."Return Qty. to Receive (Base)" :=
-          Round(SalesLine."Return Qty. to Receive" * QtyFactor, UOMMgt.QtyRndPrecision);
+          Round(SalesLine."Return Qty. to Receive" * QtyFactor, UOMMgt.QtyRndPrecision());
         SalesLine."Return Qty. Received (Base)" :=
-          Round(SalesLine."Return Qty. Received" * QtyFactor, UOMMgt.QtyRndPrecision);
+          Round(SalesLine."Return Qty. Received" * QtyFactor, UOMMgt.QtyRndPrecision());
         SalesLine."Ret. Qty. Rcd. Not Invd.(Base)" :=
-          Round(SalesLine."Return Qty. Rcd. Not Invd." * QtyFactor, UOMMgt.QtyRndPrecision);
+          Round(SalesLine."Return Qty. Rcd. Not Invd." * QtyFactor, UOMMgt.QtyRndPrecision());
     end;
 
     local procedure GetFieldCaption(FieldNumber: Integer): Text[100]

@@ -750,9 +750,9 @@ codeunit 137161 "SCM Warehouse Orders"
 
         if UpdateEMail then begin
             // Exercise.
-            Customer.Find;
+            Customer.Find();
             UpdateEMailOnCustomer(Customer);
-            Contact.Find;
+            Contact.Find();
             UpdateEmailOnContact(Contact);
             PostInventoryPick(SalesHeader."No.", true);
 
@@ -899,7 +899,7 @@ codeunit 137161 "SCM Warehouse Orders"
               LocationWhite.Code, '', 0, 0, "Whse. Activity Sorting Method"::None, false, false, false, false, false, false, false);
 
             // [THEN] Outstanding Quantity for the pick line is decreased by picked quantity.
-            Find;
+            Find();
             Assert.AreEqual(
               ExpectedQty, "Qty. Outstanding", StrSubstNo(QtyToCrossDockErr, FieldCaption("Qty. Outstanding")));
         end;
@@ -961,7 +961,7 @@ codeunit 137161 "SCM Warehouse Orders"
               LocationWhite.Code, '', 0, 0, "Whse. Activity Sorting Method"::None, false, false, false, false, false, false, false);
 
             // [THEN] "Qty. Outstanding" for the pick line is (X / 2).
-            Find;
+            Find();
             Assert.AreEqual(
               QtyOnStock / 2, "Qty. Outstanding", StrSubstNo(QtyToCrossDockErr, FieldCaption("Qty. Outstanding")));
         end;
@@ -1244,7 +1244,7 @@ codeunit 137161 "SCM Warehouse Orders"
 
         // [GIVEN] Calulate requisition plan for "I" and carry out.
         // [GIVEN] This creates a purchase order on the "BLUE" location and a transfer order from "BLUE" to "SILVER", both having item tracking entries with undefined lot no.
-        CalculateRegenPlanAndCarryOutActionMessage(Item, WorkDate, WorkDate);
+        CalculateRegenPlanAndCarryOutActionMessage(Item, WorkDate(), WorkDate());
 
         // [GIVEN] Create stock of item "I" on both locations "BLUE" and "SILVER" with "Lot No." = "L".
         PostInventoryAdjustmentWithTracking(Item."No.", LocationSilver.Code, Bin.Code, Qty, LotNo);
@@ -1310,7 +1310,7 @@ codeunit 137161 "SCM Warehouse Orders"
 
         // [GIVEN] Calulate requisition plan for "I" and carry out.
         // [GIVEN] This creates a purchase order on the "SILVER" location with item tracking entries having undefined lot no.
-        CalculateRegenPlanAndCarryOutActionMessage(Item, WorkDate, WorkDate);
+        CalculateRegenPlanAndCarryOutActionMessage(Item, WorkDate(), WorkDate());
 
         // [GIVEN] Set "Lot No." = "L" on the purchase line and post purchase. Tracking entry receives "Lot No." = "L" and links the sales line with the item ledger entry.
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
@@ -1391,7 +1391,7 @@ codeunit 137161 "SCM Warehouse Orders"
 
         // [WHEN] Select the second warehouse receipt line and invoke lookup on the "Qty. to Cross-Doc" field
         LibraryVariableStorage.Enqueue(2);
-        WarehouseReceiptLine.Next;
+        WarehouseReceiptLine.Next();
         WhseReceiptSubform.GotoRecord(WarehouseReceiptLine);
         WhseReceiptSubform."Qty. to Cross-Dock".Lookup;
 
@@ -1434,15 +1434,15 @@ codeunit 137161 "SCM Warehouse Orders"
         // [GIVEN] two lines with item "I", location = "White", and "Needed by Date" is within the cross-docking period;
         // [GIVEN] each of other three lines are either with another item, another location, or the date is outside the cross-docking period.
         CreateServiceLine(
-          ServiceLine, ServiceHeader, ServiceItemLine."Line No.", LibraryInventory.CreateItemNo, LocationWhite.Code, WorkDate, Qty); // item <> "I"
+          ServiceLine, ServiceHeader, ServiceItemLine."Line No.", LibraryInventory.CreateItemNo, LocationWhite.Code, WorkDate(), Qty); // item <> "I"
         CreateServiceLine(
-          ServiceLine, ServiceHeader, ServiceItemLine."Line No.", ItemNo, LocationWhite.Code, WorkDate, Qty); // item = "I", location = "White", date in cross-docking period
+          ServiceLine, ServiceHeader, ServiceItemLine."Line No.", ItemNo, LocationWhite.Code, WorkDate(), Qty); // item = "I", location = "White", date in cross-docking period
         CreateServiceLine(
-          ServiceLine, ServiceHeader, ServiceItemLine."Line No.", ItemNo, LocationSilver.Code, WorkDate, Qty); // location <> "White"
+          ServiceLine, ServiceHeader, ServiceItemLine."Line No.", ItemNo, LocationSilver.Code, WorkDate(), Qty); // location <> "White"
         CreateServiceLine(
           ServiceLine, ServiceHeader, ServiceItemLine."Line No.", ItemNo, LocationWhite.Code, LibraryRandom.RandDate(10), Qty); // date outside the cross-docking period
         CreateServiceLine(
-          ServiceLine, ServiceHeader, ServiceItemLine."Line No.", ItemNo, LocationWhite.Code, WorkDate, Qty); // item = "I", location = "White", date in cross-docking period
+          ServiceLine, ServiceHeader, ServiceItemLine."Line No.", ItemNo, LocationWhite.Code, WorkDate(), Qty); // item = "I", location = "White", date in cross-docking period
 
         LibraryService.ReleaseServiceDocument(ServiceHeader);
 
@@ -1473,9 +1473,9 @@ codeunit 137161 "SCM Warehouse Orders"
         WhseCrossDockOpportunity.FindSet();
         repeat
             WhseCrossDockOpportunity.AutoFillQtyToCrossDock(WhseCrossDockOpportunity);
-            WhseCrossDockOpportunity.Find;
+            WhseCrossDockOpportunity.Find();
             WhseCrossDockOpportunity.TestField("Qty. to Cross-Dock", Qty);
-        until WhseCrossDockOpportunity.Next = 0;
+        until WhseCrossDockOpportunity.Next() = 0;
     end;
 
     [Test]
@@ -1513,8 +1513,8 @@ codeunit 137161 "SCM Warehouse Orders"
         LibraryService.CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
-        CreateServiceLine(ServiceLine, ServiceHeader, ServiceItemLine."Line No.", ItemNo, Location.Code, WorkDate, ServLineQty);
-        CreateServiceLine(ServiceLine, ServiceHeader, ServiceItemLine."Line No.", ItemNo, Location.Code, WorkDate, ServLineQty);
+        CreateServiceLine(ServiceLine, ServiceHeader, ServiceItemLine."Line No.", ItemNo, Location.Code, WorkDate(), ServLineQty);
+        CreateServiceLine(ServiceLine, ServiceHeader, ServiceItemLine."Line No.", ItemNo, Location.Code, WorkDate(), ServLineQty);
         LibraryService.ReleaseServiceDocument(ServiceHeader);
 
         // [GIVEN] Warehouse shipment and pick for the service order. Picked quantity = "q". Quantity remaining to pick = "Q" - "q".
@@ -1671,8 +1671,8 @@ codeunit 137161 "SCM Warehouse Orders"
         RegisterWarehousePickAndPostWarehouseShipmentSomeLines(SalesHeader2, Bin, LotNo);
 
         // [GIVEN] Sales Order 1 and Sales Order 2 are invoiced
-        SalesHeader.Find;
-        SalesHeader2.Find;
+        SalesHeader.Find();
+        SalesHeader2.Find();
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
         LibrarySales.PostSalesDocument(SalesHeader2, false, true);
 
@@ -1775,8 +1775,8 @@ codeunit 137161 "SCM Warehouse Orders"
         RegisterWarehousePickAndPostWarehouseShipmentSomeLines(SalesHeader2, Bin, LotNo);
 
         // [WHEN] Sales Order 1 and Sales Order 2 are invoiced
-        SalesHeader.Find;
-        SalesHeader2.Find;
+        SalesHeader.Find();
+        SalesHeader2.Find();
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
         LibrarySales.PostSalesDocument(SalesHeader2, false, true);
 
@@ -1819,7 +1819,7 @@ codeunit 137161 "SCM Warehouse Orders"
         CreateAndReleaseSalesOrderWithReserve(SalesHeader, LibrarySales.CreateCustomerNo, Item."No.", SalesQty, LocationWhite.Code);
 
         // [GIVEN] Calculate requisition plan for the item
-        LibraryPlanning.CalcRequisitionPlanForReqWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRequisitionPlanForReqWksh(Item, WorkDate(), WorkDate());
         RequisitionLine.SetRange("No.", Item."No.");
         RequisitionLine.FindFirst();
 
@@ -1978,7 +1978,7 @@ codeunit 137161 "SCM Warehouse Orders"
 
         // [GIVEN] Sales order with two item lines - "A" and "B".
         // [GIVEN] Release the sales order and create warehouse shipment.
-        CreateSalesHeaderWithShipmentDate(SalesHeader, LibrarySales.CreateCustomerNo, WorkDate);
+        CreateSalesHeaderWithShipmentDate(SalesHeader, LibrarySales.CreateCustomerNo, WorkDate());
         CreateSalesLine(SalesHeader, SalesLine, Item[1]."No.", Qty, LocationWhite.Code);
         CreateSalesLine(SalesHeader, SalesLine, Item[2]."No.", Qty, LocationWhite.Code);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -2469,7 +2469,7 @@ codeunit 137161 "SCM Warehouse Orders"
         Quantity := LibraryRandom.RandInt(100) + 100;  // Large value Required.
         Quantity2 := LibraryRandom.RandInt(100) + 100;  // Large value Required.
         CreateLotForLotItem(Item);
-        ShipmentDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        ShipmentDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         CreateAndReleaseSalesOrderWithShipmentDate(
           SalesHeader, SalesLine, '', ShipmentDate, Item."No.", Quantity + (Quantity2 / 2), LocationWhite.Code);  // Calculated Value Required.
         LotNo :=
@@ -2481,7 +2481,7 @@ codeunit 137161 "SCM Warehouse Orders"
             Quantity2 + LibraryRandom.RandInt(100), LocationWhite.Code);
 
         // Exercise: Calculate Plan for Requisition Worksheet.
-        LibraryPlanning.CalcRequisitionPlanForReqWksh(Item, WorkDate, ShipmentDate);
+        LibraryPlanning.CalcRequisitionPlanForReqWksh(Item, WorkDate(), ShipmentDate);
 
         // Verify: Verify Reservation Entry.
         VerifyReservationEntry(
@@ -2524,7 +2524,7 @@ codeunit 137161 "SCM Warehouse Orders"
         if SalesOrder then begin
             // Exercise: Create and Release Sales Order with Remaining Quantity. Register Pick and Post Warehouse Shipment.
             CreateAndReleaseSalesOrderWithShipmentDate(
-              SalesHeader2, SalesLine2, SalesHeader."Sell-to Customer No.", WorkDate, Item."No.",
+              SalesHeader2, SalesLine2, SalesHeader."Sell-to Customer No.", WorkDate(), Item."No.",
               PurchaseLine2.Quantity - (SalesLine.Quantity - PurchaseLine.Quantity), LocationWhite.Code);  // Calculated Value Required.
             RegisterWarehousePickAndPostWarehouseShipment(SalesHeader2, LotNo2);
 
@@ -2835,7 +2835,7 @@ codeunit 137161 "SCM Warehouse Orders"
         Location.Get(LocationCode);
         LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
         LibraryPatterns.POSTPositiveAdjustment(
-          Item, LocationCode, '', Bin.Code, QtyOnInventory, WorkDate, LibraryRandom.RandDec(9, 2));
+          Item, LocationCode, '', Bin.Code, QtyOnInventory, WorkDate(), LibraryRandom.RandDec(9, 2));
     end;
 
     local procedure CreateInventoryActivity(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; PutAway: Boolean; Pick: Boolean)
@@ -3039,7 +3039,7 @@ codeunit 137161 "SCM Warehouse Orders"
           ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ParentItem."No.", Qty);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, true, true, true, true, false);
         LibraryPatterns.POSTPositiveAdjustment(
-          CompItem, '', '', '', LibraryRandom.RandDec(10, 2), WorkDate, LibraryPatterns.RandCost(CompItem));
+          CompItem, '', '', '', LibraryRandom.RandDec(10, 2), WorkDate(), LibraryPatterns.RandCost(CompItem));
     end;
 
     local procedure CreateProdOrderWithReservedComponent(var ProductionOrder: Record "Production Order")
@@ -3082,7 +3082,7 @@ codeunit 137161 "SCM Warehouse Orders"
         with SalesLine do begin
             Validate("Unit of Measure Code", UOMCode);
             Validate("Shipment Date", WorkDate + LibraryRandom.RandInt(5));
-            Modify;
+            Modify();
             if DoReserve then
                 ShowReservation();
         end;
@@ -3211,8 +3211,8 @@ codeunit 137161 "SCM Warehouse Orders"
         PurchaseLine: Record "Purchase Line";
         RequisitionLine: Record "Requisition Line";
     begin
-        LibraryPlanning.CalcRequisitionPlanForReqWkshAndGetLines(RequisitionLine, Item, WorkDate, WorkDate);
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+        LibraryPlanning.CalcRequisitionPlanForReqWkshAndGetLines(RequisitionLine, Item, WorkDate(), WorkDate());
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
 
         FindPurchaseLine(PurchaseLine, Item."No.");
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
@@ -3738,7 +3738,7 @@ codeunit 137161 "SCM Warehouse Orders"
 
     local procedure UpdateExternalDocumentNoOnWarehouseShipmentHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
     begin
-        WarehouseShipmentHeader.Find;
+        WarehouseShipmentHeader.Find();
         WarehouseShipmentHeader.Validate("External Document No.", LibraryUtility.GenerateGUID());
         WarehouseShipmentHeader.Modify(true);
     end;
@@ -3754,7 +3754,7 @@ codeunit 137161 "SCM Warehouse Orders"
             WarehouseActivityLine.Validate("Qty. to Handle", WarehouseActivityLine.Quantity);
             WarehouseActivityLine.Validate("Lot No.", LotNo);
             WarehouseActivityLine.Modify(true);
-        until WarehouseActivityLine.Next = 0;
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure UpdateInventoryUsingWarehouseJournal(Bin: Record Bin; Item: Record Item; Quantity: Decimal; UnitOfMeasureCode: Code[10]; ItemTracking: Boolean)
@@ -3798,7 +3798,7 @@ codeunit 137161 "SCM Warehouse Orders"
         UpdateLotNoAndQtyToHandleOnWhsePickLines(WarehouseActivityLine, SourceNo, ActionType, LotNo);
         WarehouseActivityLine.SetRange("Action Type");
         WarehouseActivityLine.SetRange("Bin Code");
-        WarehouseActivityLine.Next;
+        WarehouseActivityLine.Next();
         WarehouseActivityLine.Validate("Lot No.", LotNo);
         WarehouseActivityLine.Modify(true);
         WarehouseActivityLine.AutofillQtyToHandle(WarehouseActivityLine);
@@ -3837,7 +3837,7 @@ codeunit 137161 "SCM Warehouse Orders"
         repeat
             WarehouseActivityLine.Validate("Qty. to Handle", QuantityToHandle);
             WarehouseActivityLine.Modify(true);
-        until WarehouseActivityLine.Next = 0;
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure UpdateQuantityToHandleOnWarehousePickLines(SourceNo: Code[20]; QuantityToHandle: Decimal)
@@ -3925,7 +3925,7 @@ codeunit 137161 "SCM Warehouse Orders"
     begin
         FindItemLedgerEntry(ItemLedgerEntry, EntryType, ItemNo);
         if MoveNext then
-            ItemLedgerEntry.Next;
+            ItemLedgerEntry.Next();
         ItemLedgerEntry.TestField("Lot No.", LotNo);
         ItemLedgerEntry.TestField(Quantity, Quantity)
     end;
@@ -3946,7 +3946,7 @@ codeunit 137161 "SCM Warehouse Orders"
     begin
         FindWarehouseWorksheetLine(WhseWorksheetLine, WhseWorksheetName, WhseWorksheetName."Location Code", ItemNo, ItemNo);
         if MoveNext then
-            WhseWorksheetLine.Next;
+            WhseWorksheetLine.Next();
         WhseWorksheetLine.TestField(Quantity, Quantity);
         Assert.AreEqual(AvailableQtyToPick, WhseWorksheetLine.AvailableQtyToPick, QuantityMustBeSameErr);
     end;
@@ -3992,7 +3992,7 @@ codeunit 137161 "SCM Warehouse Orders"
         FilterReservationEntry(ReservationEntry, ReservationStatus, ItemNo, SourceType, LocationCode);
         ReservationEntry.FindSet();
         if MoveNext then
-            ReservationEntry.Next;
+            ReservationEntry.Next();
         ReservationEntry.TestField("Lot No.", LotNo);
         ReservationEntry.TestField(Quantity, Quantity);
     end;
@@ -4018,7 +4018,7 @@ codeunit 137161 "SCM Warehouse Orders"
         repeat
             ReservationEntry.TestField("Qty. to Handle (Base)", ReservationEntry."Quantity (Base)");
             ReservationEntry.TestField("Qty. to Invoice (Base)", ReservationEntry."Quantity (Base)");
-        until ReservationEntry.Next = 0;
+        until ReservationEntry.Next() = 0;
     end;
 
     local procedure VerifyReservationEntryPositiveNegativeQtyForItemAndLot(ItemNo: Code[20]; LotNo: Code[50]; Qty: Integer)
@@ -4272,7 +4272,7 @@ codeunit 137161 "SCM Warehouse Orders"
         ExpectedRecCount := LibraryVariableStorage.DequeueInteger;
         if CrossDockOpportunities.First then begin
             RecCount := 1;
-            while CrossDockOpportunities.Next do
+            while CrossDockOpportunities.Next() do
                 RecCount += 1;
         end;
 

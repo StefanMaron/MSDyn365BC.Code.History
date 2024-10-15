@@ -469,7 +469,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         Assert.ExpectedError(NoWorkflowEnabledErr);
 
         // Cleanup
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
 
         // [GIVEN] PurchHeader approval enabled.
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseOrderApprovalWorkflowCode);
@@ -484,7 +484,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         Assert.IsFalse(PurchaseOrder.Approve.Visible, 'Approve should NOT be visible');
         Assert.IsFalse(PurchaseOrder.Reject.Visible, 'Reject should NOT be visible');
         Assert.IsFalse(PurchaseOrder.Delegate.Visible, 'Delegate should NOT be visible');
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
 
         // [GIVEN] Approval exist on PurchHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
@@ -500,7 +500,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         Assert.IsTrue(PurchaseOrder.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Clenup
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
 
         // Setup the approval so it can be approve by current user
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(PurchHeader.RecordId);
@@ -547,7 +547,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         Assert.ExpectedError(NoWorkflowEnabledErr);
 
         // Cleanup
-        PurchaseOrderList.Close;
+        PurchaseOrderList.Close();
 
         // [GIVEN] PurchHeader approval enabled.
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseOrderApprovalWorkflowCode);
@@ -559,7 +559,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         // [THEN] Only Send is enabled.
         Assert.IsTrue(PurchaseOrderList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
         Assert.IsFalse(PurchaseOrderList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        PurchaseOrderList.Close;
+        PurchaseOrderList.Close();
 
         // [GIVEN] Approval exist on PurchHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
@@ -587,7 +587,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         // [SCENARIO 379202] Test Workflow Table Relations for Purchase Order
         // [WHEN] Init Workflow Setup
         LibraryWorkflow.DeleteAllExistingWorkflows;
-        WorkflowSetup.InitWorkflow;
+        WorkflowSetup.InitWorkflow();
 
         // [THEN] Workflow Table Relations for Purhase Order exist
         WorkflowTableRelation.Get(
@@ -702,7 +702,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchaseHeader.RecordId);
         Assert.AreEqual(3, ApprovalEntry.Count, UnexpectedNoOfApprovalEntriesErr);
 
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntry(ApprovalEntry, UserId, IntermediateApproverUserSetup."User ID", ApprovalEntry.Status::Open);
 
         // Setup - Assign the approval entry to current user so that it can be approved
@@ -755,7 +755,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchaseHeader.RecordId);
         Assert.AreEqual(3, ApprovalEntry.Count, UnexpectedNoOfApprovalEntriesErr);
 
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntry(ApprovalEntry, UserId, IntermediateApproverUserSetup."User ID", ApprovalEntry.Status::Open);
 
         // Setup - Assign the approval entry to current user so that it can be approved
@@ -927,7 +927,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         PurchaseOrder.OpenView;
         PurchaseOrder.GotoRecord(PurchaseHeader);
         PurchaseOrder.SendApprovalRequest.Invoke;
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
     end;
 
     local procedure ApprovePurchaseOrder(var PurchaseHeader: Record "Purchase Header")
@@ -937,7 +937,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         PurchaseOrder.OpenView;
         PurchaseOrder.GotoRecord(PurchaseHeader);
         PurchaseOrder.Approve.Invoke;
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
     end;
 
     local procedure RejectPurchaseOrder(var PurchaseHeader: Record "Purchase Header")
@@ -947,7 +947,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         PurchaseOrder.OpenView;
         PurchaseOrder.GotoRecord(PurchaseHeader);
         PurchaseOrder.Reject.Invoke;
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
     end;
 
     local procedure CancelPurchaseOrder(var PurchaseHeader: Record "Purchase Header")
@@ -957,7 +957,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         PurchaseOrder.OpenView;
         PurchaseOrder.GotoRecord(PurchaseHeader);
         PurchaseOrder.CancelApprovalRequest.Invoke;
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
     end;
 
     local procedure DelegatePurchaseOrder(var PurchaseHeader: Record "Purchase Header")
@@ -967,7 +967,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         PurchaseOrder.OpenView;
         PurchaseOrder.GotoRecord(PurchaseHeader);
         PurchaseOrder.Delegate.Invoke;
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
     end;
 
     local procedure UpdateApprovalEntryWithTempUser(UserSetup: Record "User Setup"; PurchaseHeader: Record "Purchase Header")
@@ -981,7 +981,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
 
     local procedure VerifyPurchaseDocumentStatus(var PurchaseHeader: Record "Purchase Header"; Status: Enum "Purchase Document Status")
     begin
-        PurchaseHeader.SetRecFilter;
+        PurchaseHeader.SetRecFilter();
         PurchaseHeader.FindFirst();
         PurchaseHeader.TestField(Status, Status);
     end;
@@ -1001,9 +1001,9 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         Assert.AreEqual(ExpectedNumberOfApprovalEntries, ApprovalEntry.Count, 'Unexpected number of approval entries found');
         
         VerifyApprovalEntry(ApprovalEntry, SenderUserID, ApproverUserID1, Status1);
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntry(ApprovalEntry, SenderUserID, ApproverUserID2, Status2);
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntry(ApprovalEntry, SenderUserID, ApproverUserID3, Status3);
     end;
 
@@ -1025,15 +1025,15 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
             if ApprovalComments.First then
                 repeat
                     NumberOfComments += 1;
-                until ApprovalComments.Next;
+                until ApprovalComments.Next();
             Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
             ApprovalComments.Comment.SetValue('Test Comment' + Format(NumberOfExpectedComments));
-            ApprovalComments.Next;
-            ApprovalComments.Close;
+            ApprovalComments.Next();
+            ApprovalComments.Close();
         end;
 
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry: Record "Approval Entry"; NumberOfExpectedComments: Integer)
@@ -1051,12 +1051,12 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         if ApprovalComments.First then
             repeat
                 NumberOfComments += 1;
-            until ApprovalComments.Next;
+            until ApprovalComments.Next();
         Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
-        ApprovalEntries.Close;
+        ApprovalEntries.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnRequestsToApprovePage(ApprovalEntry: Record "Approval Entry"; NumberOfExpectedComments: Integer)
@@ -1074,12 +1074,12 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         if ApprovalComments.First then
             repeat
                 NumberOfComments += 1;
-            until ApprovalComments.Next;
+            until ApprovalComments.Next();
         Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
-        RequeststoApprove.Close;
+        RequeststoApprove.Close();
     end;
 
     local procedure CheckUserCanCancelTheApprovalRequest(PurchaseHeader: Record "Purchase Header"; CancelActionExpectedEnabled: Boolean)
@@ -1090,12 +1090,12 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         PurchaseOrder.OpenView;
         PurchaseOrder.GotoRecord(PurchaseHeader);
         Assert.AreEqual(CancelActionExpectedEnabled, PurchaseOrder.CancelApprovalRequest.Enabled, 'Wrong state for the Cancel action');
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
 
         PurchaseOrderList.OpenView;
         PurchaseOrderList.GotoRecord(PurchaseHeader);
         Assert.AreEqual(CancelActionExpectedEnabled, PurchaseOrderList.CancelApprovalRequest.Enabled, 'Wrong state for the Cancel action');
-        PurchaseOrderList.Close;
+        PurchaseOrderList.Close();
     end;
 
     local procedure ReinitializeWorkflowsAndCreateWorkflowForPurchaseOrder(var Workflow: Record Workflow; var WorkflowStep: Record "Workflow Step")
@@ -1105,7 +1105,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         WorkflowSetup: Codeunit "Workflow Setup";
     begin
         LibraryWorkflow.DeleteAllExistingWorkflows;
-        WorkflowSetup.InitWorkflow;
+        WorkflowSetup.InitWorkflow();
 
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseOrderApprovalWorkflowCode);
 

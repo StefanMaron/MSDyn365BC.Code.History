@@ -21,7 +21,7 @@ table 92 "Customer Posting Group"
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Receivables Account")
                 else
                     LookupGLAccount(
-                      "Receivables Account", GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetAR);
+                      "Receivables Account", GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetAR());
 
                 Validate("Receivables Account");
             end;
@@ -32,7 +32,7 @@ table 92 "Customer Posting Group"
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Receivables Account", false, false)
                 else
                     CheckGLAccount(
-                      FieldNo("Receivables Account"), "Receivables Account", false, false, GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetAR);
+                      FieldNo("Receivables Account"), "Receivables Account", false, false, GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetAR());
             end;
         }
         field(7; "Service Charge Acc."; Code[20])
@@ -46,7 +46,7 @@ table 92 "Customer Posting Group"
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Service Charge Acc.")
                 else
                     LookupGLAccount(
-                      "Service Charge Acc.", GLAccountCategory."Account Category"::Income, GLAccountCategoryMgt.GetIncomeService);
+                      "Service Charge Acc.", GLAccountCategory."Account Category"::Income, GLAccountCategoryMgt.GetIncomeService());
 
                 Validate("Service Charge Acc.");
             end;
@@ -57,7 +57,7 @@ table 92 "Customer Posting Group"
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Service Charge Acc.", true, true)
                 else
                     CheckGLAccount(
-                      FieldNo("Service Charge Acc."), "Service Charge Acc.", true, true, GLAccountCategory."Account Category"::Income, GLAccountCategoryMgt.GetIncomeService);
+                      FieldNo("Service Charge Acc."), "Service Charge Acc.", true, true, GLAccountCategory."Account Category"::Income, GLAccountCategoryMgt.GetIncomeService());
             end;
         }
         field(8; "Payment Disc. Debit Acc."; Code[20])
@@ -304,7 +304,7 @@ table 92 "Customer Posting Group"
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Payment Tolerance Credit Acc.")
                 else
                     LookupGLAccount(
-                      "Payment Tolerance Credit Acc.", GLAccountCategory."Account Category"::Expense, GLAccountCategoryMgt.GetInterestExpense);
+                      "Payment Tolerance Credit Acc.", GLAccountCategory."Account Category"::Expense, GLAccountCategoryMgt.GetInterestExpense());
 
                 Validate("Payment Tolerance Credit Acc.");
             end;
@@ -316,7 +316,7 @@ table 92 "Customer Posting Group"
                 else
                     CheckGLAccount(
                       FieldNo("Payment Tolerance Credit Acc."), "Payment Tolerance Credit Acc.", false, false,
-                      GLAccountCategory."Account Category"::Expense, GLAccountCategoryMgt.GetInterestExpense);
+                      GLAccountCategory."Account Category"::Expense, GLAccountCategoryMgt.GetInterestExpense());
             end;
         }
         field(19; "Add. Fee per Line Account"; Code[20])
@@ -379,7 +379,7 @@ table 92 "Customer Posting Group"
 
     trigger OnDelete()
     begin
-        CheckCustEntries;
+        CheckCustEntries();
     end;
 
     var
@@ -530,8 +530,8 @@ table 92 "Customer Posting Group"
         PaymentTerms: Record "Payment Terms";
     begin
         GLSetup.Get();
-        PmtToleranceVisible := GLSetup.GetPmtToleranceVisible;
-        PmtDiscountVisible := PaymentTerms.UsePaymentDiscount;
+        PmtToleranceVisible := GLSetup.GetPmtToleranceVisible();
+        PmtDiscountVisible := PaymentTerms.UsePaymentDiscount();
 
         SalesSetup.Get();
         InvRoundingVisible := SalesSetup."Invoice Rounding";

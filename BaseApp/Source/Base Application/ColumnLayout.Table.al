@@ -1,4 +1,4 @@
-table 334 "Column Layout"
+﻿table 334 "Column Layout"
 {
     Caption = 'Column Layout';
 
@@ -147,7 +147,7 @@ table 334 "Column Layout"
         field(40; "Hide Currency Symbol"; Boolean)
         {
             Caption = 'Hide Currency Symbol';
-            
+
             trigger OnValidate()
             begin
                 if "Hide Currency Symbol" then
@@ -187,6 +187,11 @@ table 334 "Column Layout"
     }
 
     var
+        ColumnLayoutName: Record "Column Layout Name";
+        AnalysisView: Record "Analysis View";
+        GLSetup: Record "General Ledger Setup";
+        HasGLSetup: Boolean;
+
         PeriodFormulaErr: Label '%1 is not a valid Period Formula.', Comment = '%1 - value of Comparison Period Formula field';
         Text002: Label 'P', Comment = 'Period';
         Text003: Label 'FY', Comment = 'Fiscal year';
@@ -202,10 +207,6 @@ table 334 "Column Layout"
         Text013: Label '1,5,,Dimension 3 Totaling';
         Text014: Label '1,5,,Dimension 4 Totaling';
         Text015: Label 'The %1 refers to %2 %3, which does not exist. The field %4 on table %5 has now been deleted.';
-        ColumnLayoutName: Record "Column Layout Name";
-        AnalysisView: Record "Analysis View";
-        GLSetup: Record "General Ledger Setup";
-        HasGLSetup: Boolean;
         Text12400: Label ',, Corr. Totaling';
         Text12401: Label '1,5,,Dimension 1 Corr. Totaling';
         Text12402: Label '1,5,,Dimension 2 Corr. Totaling';
@@ -295,10 +296,9 @@ table 334 "Column Layout"
                     if not ParseInt(FormulaExpression, Int, false) then
                         exit(false);
                 end;
-            else begin
-                    if not ParseInt(FormulaExpression, Int, true) then
-                        exit(false);
-                end;
+            else
+                if not ParseInt(FormulaExpression, Int, true) then
+                    exit(false);
         end;
         exit(true);
     end;
@@ -398,6 +398,7 @@ table 334 "Column Layout"
         Token: Code[20];
         p: Integer;
     begin
+        Token := '';
         for p := 1 to StrLen(FormulaExpression) do begin
             if CopyStr(FormulaExpression, p, 1) in ['[', ']', '.'] then begin
                 FormulaExpression := CopyStr(FormulaExpression, StrLen(Token) + 1);
@@ -417,14 +418,14 @@ table 334 "Column Layout"
         DimValList: Page "Dimension Value List";
         IsHandled: Boolean;
     begin
-        GetColLayoutSetup;
+        GetColLayoutSetup();
 
         IsHandled := false;
         OnBeforeLookUpDimFilter(Rec, DimNo, Text, ColumnLayoutName, Result, IsHandled);
         if IsHandled then
             exit(Result);
 
-        if CostAccSetup.Get then;
+        if CostAccSetup.Get() then;
         case DimNo of
             1:
                 DimVal.SetRange("Dimension Code", AnalysisView."Dimension 1 Code");
@@ -445,9 +446,9 @@ table 334 "Column Layout"
         end;
         DimValList.LookupMode(true);
         DimValList.SetTableView(DimVal);
-        if DimValList.RunModal = ACTION::LookupOK then begin
+        if DimValList.RunModal() = ACTION::LookupOK then begin
             DimValList.GetRecord(DimVal);
-            Text := DimValList.GetSelectionFilter;
+            Text := DimValList.GetSelectionFilter();
             exit(true);
         end;
         exit(false)
@@ -457,7 +458,7 @@ table 334 "Column Layout"
     var
         IsHandled: Boolean;
     begin
-        GetColLayoutSetup;
+        GetColLayoutSetup();
 
         IsHandled := false;
         OnBeforeGetCaptionClass(Rec, ColumnLayoutName, AnalysisViewDimType, Result, IsHandled);
@@ -547,8 +548,8 @@ table 334 "Column Layout"
                 if not AnalysisView.Get(ColumnLayoutName."Analysis View Name") then begin
                     Message(
                       Text015,
-                      ColumnLayoutName.TableCaption, AnalysisView.TableCaption, ColumnLayoutName."Analysis View Name",
-                      ColumnLayoutName.FieldCaption("Analysis View Name"), ColumnLayoutName.TableCaption);
+                      ColumnLayoutName.TableCaption(), AnalysisView.TableCaption(), ColumnLayoutName."Analysis View Name",
+                      ColumnLayoutName.FieldCaption("Analysis View Name"), ColumnLayoutName.TableCaption());
                     ColumnLayoutName."Analysis View Name" := '';
                     ColumnLayoutName.Modify();
                 end;

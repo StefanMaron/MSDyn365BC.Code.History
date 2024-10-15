@@ -2,7 +2,7 @@ page 99000797 "Prod. BOM Comment List"
 {
     AutoSplitKey = true;
     Caption = 'Comment List';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     Editable = false;
     LinksAllowed = false;
     PageType = List;

@@ -131,7 +131,7 @@ table 5600 "Fixed Asset"
                     FALocation.Get("FA Location Code");
                     "OKATO Code" := FALocation."OKATO Code";
                     if "Assessed Tax Code" <> '' then
-                        CheckRegionCode;
+                        CheckRegionCode();
                 end;
             end;
         }
@@ -338,7 +338,7 @@ table 5600 "Fixed Asset"
                     end else
                         Validate("Depreciation Code");
 
-                    if TaxRegisterSetup.Get then
+                    if TaxRegisterSetup.Get() then
                         if FADeprBook.Get("No.", TaxRegisterSetup."Tax Depreciation Book") then begin
                             if DepreciationGroup.Get("Depreciation Group") then;
                             if FADeprBook."Depr. Bonus %" <> DepreciationGroup."Depr. Bonus %" then begin
@@ -348,7 +348,7 @@ table 5600 "Fixed Asset"
                                     FADeprBook.FieldCaption("Depr. Bonus %"),
                                     FADeprBook."Depr. Bonus %",
                                     DepreciationGroup."Depr. Bonus %",
-                                    FADeprBook.TableCaption,
+                                    FADeprBook.TableCaption(),
                                     FADeprBook.FieldCaption("FA No."),
                                     FADeprBook."FA No.",
                                     FADeprBook.FieldCaption("Depreciation Book Code"),
@@ -629,13 +629,13 @@ table 5600 "Fixed Asset"
                         Message(Text12404, "No.");
                     if "OKATO Code" = '' then
                         Message(Text12405, "No.");
-                    CheckATCode;
-                    CheckBaseCode;
-                    CheckATCodeDuplicate;
+                    CheckATCode();
+                    CheckBaseCode();
+                    CheckATCodeDuplicate();
                     if ("FA Location Code" <> '') and ("OKATO Code" <> '') then
-                        CheckRegionCode;
+                        CheckRegionCode();
                 end;
-                Modify;
+                Modify();
             end;
         }
         field(14922; "FA Type for Taxation"; Option)
@@ -772,7 +772,7 @@ table 5600 "Fixed Asset"
         FADeprBook.SetRange("FA No.", "No.");
         FADeprBook.DeleteAll(true);
         if not FADeprBook.IsEmpty() then
-            Error(Text001, TableCaption, "No.");
+            Error(Text001, TableCaption(), "No.");
 
         MainAssetComp.SetCurrentKey("FA No.");
         MainAssetComp.SetRange("FA No.", "No.");
@@ -837,29 +837,30 @@ table 5600 "Fixed Asset"
     end;
 
     var
-        Text000: Label 'A main asset cannot be deleted.';
-        Text001: Label 'You cannot delete %1 %2 because it has associated depreciation books.';
         CommentLine: Record "Comment Line";
         FA: Record "Fixed Asset";
         FASetup: Record "FA Setup";
         MaintenanceRegistration: Record "Maintenance Registration";
         MainAssetComp: Record "Main Asset Component";
         InsCoverageLedgEntry: Record "Ins. Coverage Ledger Entry";
-        FAMoveEntries: Codeunit "FA MoveEntries";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        DimMgt: Codeunit DimensionManagement;
-        Text12401: Label 'Change service life?';
-        Text12400: Label 'Future Depr. Book does not exist';
-        Text12402: Label 'The field %1 cannot be changed for a fixed asset with ledger entries.';
         AmortizationCode: Record "Depreciation Code";
         FALocation: Record "FA Location";
         FALedgEntry: Record "FA Ledger Entry";
         TaxRegisterSetup: Record "Tax Register Setup";
-        Text12403: Label 'FA Status will be changed from %1 to %2. Continue?';
         AssessedTaxCode: Record "Assessed Tax Code";
+        OKATO: Record OKATO;
+        FAMoveEntries: Codeunit "FA MoveEntries";
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        DimMgt: Codeunit DimensionManagement;
+
+        Text000: Label 'A main asset cannot be deleted.';
+        Text001: Label 'You cannot delete %1 %2 because it has associated depreciation books.';
+        Text12401: Label 'Change service life?';
+        Text12400: Label 'Future Depr. Book does not exist';
+        Text12402: Label 'The field %1 cannot be changed for a fixed asset with ledger entries.';
+        Text12403: Label 'FA Status will be changed from %1 to %2. Continue?';
         Text12404: Label 'FA Location Code is empty in FA No.=%1. Assessed tax would not be calculated properly.';
         Text12405: Label 'OKATO Code is empty in FA No.=%1. Assessed tax would not be calculated properly.';
-        OKATO: Record OKATO;
         Text12406: Label 'Region Code should be the same both in OKATO Code=%1 and in Assessed Tax Code=%2 for Fixed Asset=%3. \Assessed Tax would not be calculated properly.';
         Text12407: Label 'There are duplicate Assessed Tax Codes: Assessed Tax Code=%1 and Assessed Tax Code=%2. Remove one of them.';
         Text12408: Label 'Base Assessed Tax Code should exist for Assessed Tax Code=%1.';
@@ -1003,7 +1004,7 @@ table 5600 "Fixed Asset"
             exit;
 
         FASetup.Get();
-        if TaxRegisterSetup.Get then;
+        if TaxRegisterSetup.Get() then;
         if "FA Type" = "FA Type"::"Future Expense" then begin
             if FASetup."Future Depr. Book" <> '' then
                 InsertFADeprBook("No.", FASetup."Future Depr. Book", Description, "FA Depreciation Method"::"Straight-Line", 0);
@@ -1025,13 +1026,13 @@ table 5600 "Fixed Asset"
         FADeprBook: Record "FA Depreciation Book";
     begin
         with FADeprBook do begin
-            Init;
+            Init();
             "FA No." := FANo;
             "Depreciation Book Code" := DeprBookCode;
             Description := Description;
             "Depr. Bonus %" := DeprBonus;
             "Depreciation Method" := DepreciationMethod;
-            if Insert then;
+            if Insert() then;
         end;
     end;
 
@@ -1051,7 +1052,7 @@ table 5600 "Fixed Asset"
         TaxDiffFABuffer: Record "Tax Diff. FA Buffer" temporary;
         FATaxDifferences: Page "FA Tax Differences Detailed";
     begin
-        TaxDiffLedgerEntry.SetRange("Source Type", GetTDESourceType);
+        TaxDiffLedgerEntry.SetRange("Source Type", GetTDESourceType());
         TaxDiffLedgerEntry.SetRange("Source No.", "No.");
         if TaxDiffLedgerEntry.FindSet() then
             repeat
@@ -1121,15 +1122,15 @@ table 5600 "Fixed Asset"
         FixedAssetAcquisitionWizard: Codeunit "Fixed Asset Acquisition Wizard";
         FAAcquireWizardNotification: Notification;
     begin
-        if IsNotificationEnabledForCurrentUser then begin
-            FAAcquireWizardNotification.Id(GetNotificationID);
+        if IsNotificationEnabledForCurrentUser() then begin
+            FAAcquireWizardNotification.Id(GetNotificationID());
             FAAcquireWizardNotification.Message(ReadyToAcquireMsg);
             FAAcquireWizardNotification.Scope(NOTIFICATIONSCOPE::LocalScope);
             FAAcquireWizardNotification.AddAction(
               AcquireActionTxt, CODEUNIT::"Fixed Asset Acquisition Wizard", 'RunAcquisitionWizardFromNotification');
             FAAcquireWizardNotification.AddAction(
               DontAskAgainActionTxt, CODEUNIT::"Fixed Asset Acquisition Wizard", 'HideNotificationForCurrentUser');
-            FAAcquireWizardNotification.SetData(FixedAssetAcquisitionWizard.GetNotificationFANoDataItemID, "No.");
+            FAAcquireWizardNotification.SetData(FixedAssetAcquisitionWizard.GetNotificationFANoDataItemID(), "No.");
             NotificationLifecycleMgt.SendNotification(FAAcquireWizardNotification, RecordId);
         end
     end;
@@ -1143,22 +1144,22 @@ table 5600 "Fixed Asset"
     var
         MyNotifications: Record "My Notifications";
     begin
-        MyNotifications.InsertDefault(GetNotificationID, NotificationNameTxt, NotificationDescriptionTxt, true);
+        MyNotifications.InsertDefault(GetNotificationID(), NotificationNameTxt, NotificationDescriptionTxt, true);
     end;
 
     local procedure IsNotificationEnabledForCurrentUser(): Boolean
     var
         MyNotifications: Record "My Notifications";
     begin
-        exit(MyNotifications.IsEnabled(GetNotificationID));
+        exit(MyNotifications.IsEnabled(GetNotificationID()));
     end;
 
     procedure DontNotifyCurrentUserAgain()
     var
         MyNotifications: Record "My Notifications";
     begin
-        if not MyNotifications.Disable(GetNotificationID) then
-            MyNotifications.InsertDefault(GetNotificationID, NotificationNameTxt, NotificationDescriptionTxt, false);
+        if not MyNotifications.Disable(GetNotificationID()) then
+            MyNotifications.InsertDefault(GetNotificationID(), NotificationNameTxt, NotificationDescriptionTxt, false);
     end;
 
     procedure RecallNotificationForCurrentUser()

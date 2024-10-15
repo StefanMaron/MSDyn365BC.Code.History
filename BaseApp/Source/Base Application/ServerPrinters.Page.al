@@ -33,7 +33,7 @@ page 683 "Server Printers"
         CODEUNIT.Run(CODEUNIT::"Init. Server Printer Table", Rec);
         if SelectedPrinterName <> '' then begin
             ID := SelectedPrinterName;
-            if Find then;
+            if Find() then;
         end;
     end;
 

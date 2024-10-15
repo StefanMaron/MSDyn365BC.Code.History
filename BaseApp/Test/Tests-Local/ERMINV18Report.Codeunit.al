@@ -46,14 +46,14 @@ codeunit 144710 "ERM INV-18 Report"
     local procedure MockFixedAsset(var FixedAsset: Record "Fixed Asset")
     begin
         with FixedAsset do begin
-            Init;
+            Init();
             "No." := '';
             Insert(true);
-            "Manufacturing Year" := Format(Date2DMY(WorkDate, 3));
+            "Manufacturing Year" := Format(Date2DMY(WorkDate(), 3));
             "Inventory Number" := LibraryUtility.GenerateGUID();
             "Factory No." := LibraryUtility.GenerateGUID();
             "Passport No." := LibraryUtility.GenerateGUID();
-            Modify;
+            Modify();
         end;
     end;
 
@@ -86,7 +86,7 @@ codeunit 144710 "ERM INV-18 Report"
         RecRef: RecordRef;
     begin
         with FAJournalLine do begin
-            Init;
+            Init();
             "Journal Template Name" := '';
             "Journal Batch Name" := '';
             RecRef.GetTable(FAJournalLine);
@@ -97,7 +97,7 @@ codeunit 144710 "ERM INV-18 Report"
             "Actual Quantity" := ActualQty;
             "Calc. Amount" := CalcAmount;
             "Actual Amount" := ActualAmount;
-            Insert;
+            Insert();
             if AddLineToBuffer then begin
                 TempFAJournalLine := FAJournalLine;
                 TempFAJournalLine.Insert();

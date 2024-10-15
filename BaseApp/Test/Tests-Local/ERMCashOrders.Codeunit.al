@@ -541,7 +541,7 @@ codeunit 144723 "ERM Cash Orders"
         MockBankLedgerEntry(BankAccount."No.", Description, true);
 
         // [WHEN] Run Cash Report CO-4
-        RunCashReportCO4(BankAccount."No.", CashReportCO4ReportType::"Cash Report CO-4", false, false, WorkDate);
+        RunCashReportCO4(BankAccount."No.", CashReportCO4ReportType::"Cash Report CO-4", false, false, WorkDate());
 
         // [THEN] Report prints only one line
         LibraryReportValidation.OpenExcelFile;
@@ -574,7 +574,7 @@ codeunit 144723 "ERM Cash Orders"
         ExportedDocumentNo := LocalisationMgt.DigitalPartCode(GenJournalLine."Document No.");
 
         // [WHEN] Run Cash Report CO-4
-        RunCashReportCO4(BankAccountNo, CashReportCO4ReportType::"Cash Report CO-4", false, false, WorkDate);
+        RunCashReportCO4(BankAccountNo, CashReportCO4ReportType::"Cash Report CO-4", false, false, WorkDate());
 
         // [THEN] Report does not print voided and voiding lines
         LibraryReportValidation.OpenExcelFile;
@@ -599,10 +599,10 @@ codeunit 144723 "ERM Cash Orders"
 
         // [WHEN] Print "Cash Report CO-4" with Report Type = "Cash Additional Sheet"
         LibraryVariableStorage.Enqueue(false);
-        RunCashReportCO4WithRequestPage(BankAccount."No.", CashReportCO4ReportType::"Cash Additional Sheet", false, false, WorkDate);
+        RunCashReportCO4WithRequestPage(BankAccount."No.", CashReportCO4ReportType::"Cash Additional Sheet", false, false, WorkDate());
 
         // [THEN] "Last Cash Report Page No." = "A"
-        BankAccount.Find;
+        BankAccount.Find();
         BankAccount.TestField("Last Cash Report Page No.", GetPageNoAsCode(PageNumber));
     end;
 
@@ -624,10 +624,10 @@ codeunit 144723 "ERM Cash Orders"
 
         // [WHEN] Print "Cash Report CO-4" with Report Type = "Cash Report CO-4"
         LibraryVariableStorage.Enqueue(true);
-        RunCashReportCO4WithRequestPage(BankAccount."No.", CashReportCO4ReportType::"Cash Report CO-4", false, false, WorkDate);
+        RunCashReportCO4WithRequestPage(BankAccount."No.", CashReportCO4ReportType::"Cash Report CO-4", false, false, WorkDate());
 
         // [THEN] "Last Cash Report Page No." = "A"
-        BankAccount.Find;
+        BankAccount.Find();
         BankAccount.TestField("Last Cash Report Page No.", GetPageNoAsCode(PageNumber));
     end;
 
@@ -649,10 +649,10 @@ codeunit 144723 "ERM Cash Orders"
 
         // [WHEN] Print "Cash Report CO-4" with Report Type = "Cash Additional Sheet"
         LibraryVariableStorage.Enqueue(true);
-        RunCashReportCO4WithRequestPage(BankAccount."No.", CashReportCO4ReportType::"Cash Additional Sheet", false, false, WorkDate);
+        RunCashReportCO4WithRequestPage(BankAccount."No.", CashReportCO4ReportType::"Cash Additional Sheet", false, false, WorkDate());
 
         // [THEN] "Last Cash Report Page No." = "A"
-        BankAccount.Find;
+        BankAccount.Find();
         BankAccount.TestField("Last Cash Report Page No.", GetPageNoAsCode(PageNumber));
     end;
 
@@ -677,10 +677,10 @@ codeunit 144723 "ERM Cash Orders"
 
         // [WHEN] Print "Cash Report CO-4" with Report Type = "Cash Report CO-4"
         LibraryVariableStorage.Enqueue(false);
-        RunCashReportCO4WithRequestPage(BankAccount."No.", CashReportCO4ReportType::"Cash Report CO-4", false, false, WorkDate);
+        RunCashReportCO4WithRequestPage(BankAccount."No.", CashReportCO4ReportType::"Cash Report CO-4", false, false, WorkDate());
 
         // [THEN] "Last Cash Report Page No." = "A" + 2
-        BankAccount.Find;
+        BankAccount.Find();
         BankAccount.TestField("Last Cash Report Page No.", GetPageNoAsCode(PageNumber + 2));
     end;
 
@@ -705,10 +705,10 @@ codeunit 144723 "ERM Cash Orders"
 
         // [WHEN] Preview "Cash Report CO-4" with Report Type = "Cash Report CO-4"
         LibraryVariableStorage.Enqueue(true);
-        RunCashReportCO4WithRequestPage(BankAccount."No.", CashReportCO4ReportType::"Cash Report CO-4", false, false, WorkDate);
+        RunCashReportCO4WithRequestPage(BankAccount."No.", CashReportCO4ReportType::"Cash Report CO-4", false, false, WorkDate());
 
         // [THEN] "Last Cash Report Page No." = "A" + 1
-        BankAccount.Find;
+        BankAccount.Find();
         BankAccount.TestField("Last Cash Report Page No.", GetPageNoAsCode(PageNumber + 1));
     end;
 
@@ -733,10 +733,10 @@ codeunit 144723 "ERM Cash Orders"
 
         // [WHEN] Print "Cash Report CO-4" with Report Type = "Cash Additional Sheet"
         LibraryVariableStorage.Enqueue(false);
-        RunCashReportCO4WithRequestPage(BankAccount."No.", CashReportCO4ReportType::"Cash Additional Sheet", false, false, WorkDate);
+        RunCashReportCO4WithRequestPage(BankAccount."No.", CashReportCO4ReportType::"Cash Additional Sheet", false, false, WorkDate());
 
         // [THEN] "Last Cash Report Page No." = "A" + 1
-        BankAccount.Find;
+        BankAccount.Find();
         BankAccount.TestField("Last Cash Report Page No.", GetPageNoAsCode(PageNumber + 1));
     end;
 
@@ -761,10 +761,10 @@ codeunit 144723 "ERM Cash Orders"
 
         // [WHEN] Preview "Cash Report CO-4" with Report Type = "Cash Additional Sheet"
         LibraryVariableStorage.Enqueue(true);
-        RunCashReportCO4WithRequestPage(BankAccount."No.", CashReportCO4ReportType::"Cash Additional Sheet", false, false, WorkDate);
+        RunCashReportCO4WithRequestPage(BankAccount."No.", CashReportCO4ReportType::"Cash Additional Sheet", false, false, WorkDate());
 
         // [THEN] "Last Cash Report Page No." = "A" + 1
-        BankAccount.Find;
+        BankAccount.Find();
         BankAccount.TestField("Last Cash Report Page No.", GetPageNoAsCode(PageNumber + 1));
     end;
 
@@ -792,7 +792,7 @@ codeunit 144723 "ERM Cash Orders"
           GenJournalLine, GenJournalBatch,
           GenJournalLine."Account Type"::"Bank Account", BankAccount."No.", BankAccount."Bank Payment Order No. Series", Amount);
 
-        GenJournalLine.SetRecFilter;
+        GenJournalLine.SetRecFilter();
     end;
 
     local procedure CreateBankAccount(var BankAccount: Record "Bank Account"; AccountType: Option): Code[20]
@@ -830,7 +830,7 @@ codeunit 144723 "ERM Cash Orders"
             LibraryERM.CreateGeneralJnlLine(
               GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
               "Document Type"::Payment, AccountType, AccountNo, LineAmount);
-            Validate("Document No.", NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, true));
+            Validate("Document No.", NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), true));
             Validate("Bal. Account No.", BalanceBankAccount."No.");
             Validate("Bank Payment Type", "Bank Payment Type"::"Computer Check");
             Modify(true);
@@ -919,13 +919,13 @@ codeunit 144723 "ERM Cash Orders"
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
     begin
         with BankAccountLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(BankAccountLedgerEntry, FieldNo("Entry No."));
             "Bank Account No." := BankAccountNo;
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             Description := NewDescription;
             Reversed := NewReversed;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -937,7 +937,7 @@ codeunit 144723 "ERM Cash Orders"
         GenJournalLineCopy.Copy(GenJournalLineSource);
         GenJournalLineCopy."Line No." := LibraryUtility.GetNewRecNo(GenJournalLineCopy, GenJournalLineCopy.FieldNo("Line No."));
         GenJournalLineCopy.Amount := LineAmount;
-        GenJournalLineCopy."Document No." := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, true);
+        GenJournalLineCopy."Document No." := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), true);
         GenJournalLineCopy.Insert();
         PrintCashOrderFromJournalLine(GenJournalLineCopy);
     end;
@@ -1015,7 +1015,7 @@ codeunit 144723 "ERM Cash Orders"
         GenJournalLineToPrint: Record "Gen. Journal Line";
     begin
         GenJournalLineToPrint.Copy(GenJournalLine);
-        GenJournalLineToPrint.SetRecFilter;
+        GenJournalLineToPrint.SetRecFilter();
         RunCashOutgoingOrderReport(GenJournalLineToPrint);
         LibraryERM.RunAdjustGenJournalBalance(GenJournalLineToPrint);
     end;
@@ -1162,7 +1162,7 @@ codeunit 144723 "ERM Cash Orders"
     begin
         LibraryVariableStorage.Enqueue(VoidType);
         CheckManagement.FinancialVoidCheck(CheckLedgerEntry);
-        CheckLedgerEntry.Find;
+        CheckLedgerEntry.Find();
     end;
 
     local procedure SetCheckLedgerLinePrinted(BankAccountNo: Code[20]; PageNo: Code[20])

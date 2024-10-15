@@ -1,4 +1,4 @@
-codeunit 144104 "ERM G/L Turnover Pages"
+﻿codeunit 144104 "ERM G/L Turnover Pages"
 {
     // // [FEATURE] [G/L Turnover]
     TestPermissions = NonRestrictive;
@@ -64,8 +64,8 @@ codeunit 144104 "ERM G/L Turnover Pages"
         Amount := CreatePostGenJnlLine(GenJnlLine."Account Type"::Customer, Customer."No.", '', 1);
         LibraryVariableStorage.Enqueue(Amount);
 
-        Customer.SetFilter("Date Filter", Format(WorkDate));
-        Customer.SetRecFilter;
+        Customer.SetFilter("Date Filter", Format(WorkDate()));
+        Customer.SetRecFilter();
 
         Clear(CustomerGLTurnover);
         CustomerGLTurnover.SetTableView(Customer);
@@ -88,8 +88,8 @@ codeunit 144104 "ERM G/L Turnover Pages"
         Amount := CreatePostGenJnlLine(GenJnlLine."Account Type"::Vendor, Vendor."No.", '', 1);
         LibraryVariableStorage.Enqueue(Amount);
 
-        Vendor.SetFilter("Date Filter", Format(WorkDate));
-        Vendor.SetRecFilter;
+        Vendor.SetFilter("Date Filter", Format(WorkDate()));
+        Vendor.SetRecFilter();
 
         Clear(VendorGLTurnover);
         VendorGLTurnover.SetTableView(Vendor);
@@ -116,8 +116,8 @@ codeunit 144104 "ERM G/L Turnover Pages"
         Amount := CreatePostGenJnlLine(GenJnlLine."Account Type"::Customer, Customer."No.", CustomerAgreement."No.", 1);
         LibraryVariableStorage.Enqueue(Amount);
 
-        CustomerAgreement.SetFilter("Date Filter", Format(WorkDate));
-        CustomerAgreement.SetRecFilter;
+        CustomerAgreement.SetFilter("Date Filter", Format(WorkDate()));
+        CustomerAgreement.SetRecFilter();
 
         Clear(CustomerGLTurnoverAgr);
         CustomerGLTurnoverAgr.SetTableView(CustomerAgreement);
@@ -144,8 +144,8 @@ codeunit 144104 "ERM G/L Turnover Pages"
         Amount := CreatePostGenJnlLine(GenJnlLine."Account Type"::Vendor, Vendor."No.", VendorAgreement."No.", 1);
         LibraryVariableStorage.Enqueue(Amount);
 
-        VendorAgreement.SetFilter("Date Filter", Format(WorkDate));
-        VendorAgreement.SetRecFilter;
+        VendorAgreement.SetFilter("Date Filter", Format(WorkDate()));
+        VendorAgreement.SetRecFilter();
 
         Clear(VendorGLTurnoverAgr);
         VendorGLTurnoverAgr.SetTableView(VendorAgreement);
@@ -168,8 +168,8 @@ codeunit 144104 "ERM G/L Turnover Pages"
         Amount := CreatePostGenJnlLine(GenJnlLine."Account Type"::"Fixed Asset", FixedAsset."No.", '', 1);
         LibraryVariableStorage.Enqueue(Amount);
 
-        FixedAsset.SetFilter("Date Filter", Format(WorkDate));
-        FixedAsset.SetRecFilter;
+        FixedAsset.SetFilter("Date Filter", Format(WorkDate()));
+        FixedAsset.SetRecFilter();
 
         Clear(FAGLTurnover);
         FAGLTurnover.SetTableView(FixedAsset);
@@ -191,8 +191,8 @@ codeunit 144104 "ERM G/L Turnover Pages"
         LibraryRUReports.CreateAndPostItemJournalLine('', Item."No.", Qty, false);
         LibraryVariableStorage.Enqueue(Qty);
 
-        Item.SetFilter("Date Filter", Format(WorkDate));
-        Item.SetRecFilter;
+        Item.SetFilter("Date Filter", Format(WorkDate()));
+        Item.SetRecFilter();
         Clear(ItemGLTurnover);
         ItemGLTurnover.SetTableView(Item);
         ItemGLTurnover.Run();
@@ -236,14 +236,14 @@ codeunit 144104 "ERM G/L Turnover Pages"
         GLAccountTurnover.SourceNo.SetValue(CustomerNo[1]);
         VerifyGLAccountTurnoverPageValues(GLAccountTurnover, 0, CreditAmount[1], -CreditAmount[1]);
         // [GIVEN] Close the page
-        GLAccountTurnover.Close;
+        GLAccountTurnover.Close();
 
         // [WHEN] Open Page 12405 "G/L Account Turnover" again
         GLAccountTurnover.OpenEdit;
 
         // [THEN] "Debit Amount" = 0, "Credit Amount" = 100, "Balance at End Period" = -100
         VerifyGLAccountTurnoverPageValues(GLAccountTurnover, 0, CreditAmount[1], -CreditAmount[1]);
-        GLAccountTurnover.Close;
+        GLAccountTurnover.Close();
     end;
 
     [Test]
@@ -276,7 +276,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
 
         // [WHEN] Run REP 12438 "G/L Account Entries Analysis" from the G/L Account Turnover page
         GLAccountTurnover.GLAccountEntries.Invoke;
-        GLAccountTurnover.Close;
+        GLAccountTurnover.Close();
 
         // [THEN] The report prints:
         // [THEN] Net Change Debit = 700
@@ -316,7 +316,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
 
         // [WHEN] Run REP 12438 "G/L Account Entries Analysis" from the G/L Account Turnover page
         GLAccountTurnover.GLAccountEntries.Invoke;
-        GLAccountTurnover.Close;
+        GLAccountTurnover.Close();
 
         // [THEN] The report prints:
         // [THEN] Net Change Debit = 0
@@ -356,7 +356,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
 
         // [WHEN] Run REP 12438 "G/L Account Entries Analysis" from the G/L Account Turnover page
         GLAccountTurnover.GLAccountEntries.Invoke;
-        GLAccountTurnover.Close;
+        GLAccountTurnover.Close();
 
         // [THEN] The report prints:
         // [THEN] Net Change Debit = 700
@@ -396,7 +396,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
 
         // [WHEN] Run REP 12438 "G/L Account Entries Analysis" from the G/L Account Turnover page
         GLAccountTurnover.GLAccountEntries.Invoke;
-        GLAccountTurnover.Close;
+        GLAccountTurnover.Close();
 
         // [THEN] The report prints:
         // [THEN] Net Change Debit = 0
@@ -436,7 +436,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
 
         // [WHEN] Run REP 12438 "G/L Account Entries Analysis" from the G/L Account Turnover page
         GLAccountTurnover.GLAccountEntries.Invoke;
-        GLAccountTurnover.Close;
+        GLAccountTurnover.Close();
 
         // [THEN] The report prints:
         // [THEN] Net Change Debit = 400
@@ -476,7 +476,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
 
         // [WHEN] Run REP 12438 "G/L Account Entries Analysis" from the G/L Account Turnover page
         GLAccountTurnover.GLAccountEntries.Invoke;
-        GLAccountTurnover.Close;
+        GLAccountTurnover.Close();
 
         // [THEN] The report prints:
         // [THEN] Net Change Debit = 0
@@ -516,7 +516,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
 
         // [WHEN] Run REP 12438 "G/L Account Entries Analysis" from the G/L Account Turnover page
         GLAccountTurnover.GLAccountEntries.Invoke;
-        GLAccountTurnover.Close;
+        GLAccountTurnover.Close();
 
         // [THEN] The report prints:
         // [THEN] Net Change Debit = 300
@@ -569,7 +569,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
         CustomerAgreement.Init();
         CustomerAgreement."Customer No." := CustomerNo;
         CustomerAgreement.Active := IsActive;
-        CustomerAgreement."Expire Date" := CalcDate('<1M>', WorkDate);
+        CustomerAgreement."Expire Date" := CalcDate('<1M>', WorkDate());
         CustomerAgreement.Insert(true);
     end;
 
@@ -578,7 +578,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
         VendorAgreement.Init();
         VendorAgreement."Vendor No." := VendorNo;
         VendorAgreement.Active := IsActive;
-        VendorAgreement."Expire Date" := CalcDate('<1M>', WorkDate);
+        VendorAgreement."Expire Date" := CalcDate('<1M>', WorkDate());
         VendorAgreement.Insert(true);
     end;
 
@@ -611,8 +611,8 @@ codeunit 144104 "ERM G/L Turnover Pages"
     local procedure SetGLAccountFilters(var GLAccount: Record "G/L Account"; GLAccNo: Code[20])
     begin
         GLAccount.Get(GLAccNo);
-        GLAccount.SetFilter("Date Filter", Format(WorkDate));
-        GLAccount.SetRecFilter;
+        GLAccount.SetFilter("Date Filter", Format(WorkDate()));
+        GLAccount.SetRecFilter();
     end;
 
     local procedure UpdateFAPostingType(var GenJnlLine: Record "Gen. Journal Line")

@@ -43,7 +43,7 @@ codeunit 144009 "ERM VAT Agent"
         GLAccountNo: Code[20];
     begin
         SetupEnvironment(VendorNo, GLAccountNo);
-        CreatePostPurchInvoice(VendorNo, WorkDate, GLAccountNo, 100);
+        CreatePostPurchInvoice(VendorNo, WorkDate(), GLAccountNo, 100);
         SuggestVATAgentPayments(VendorNo, GetNextDocNo);
         VerifyGenJnlLineCount(2);
         VerifyPaymentAndInvoiceAmounts(VendorNo);
@@ -92,7 +92,7 @@ codeunit 144009 "ERM VAT Agent"
         SetupEnvironment(VendorNo, GLAccountNo);
         SetVendInternalFundsSetup(VendorNo);
         InvAmount := LibraryRandom.RandDec(100, 2);
-        PmtDate := CalcDate('<1Y>', WorkDate);
+        PmtDate := CalcDate('<1Y>', WorkDate());
         PmtAmount := Round(InvAmount / 3);
         PmtApplAmount := Round(PmtAmount / 3);
         PurchDocNo := CreateReleasePurchInvoice(VendorNo, PmtDate, GLAccountNo, InvAmount);
@@ -108,7 +108,7 @@ codeunit 144009 "ERM VAT Agent"
         InvNo: Code[20];
         PmtNo: Code[20];
     begin
-        InvNo := CreatePostPurchInvoice(VendorNo, WorkDate, GLAccountNo, 100);
+        InvNo := CreatePostPurchInvoice(VendorNo, WorkDate(), GLAccountNo, 100);
         SuggestVATAgentPayments(VendorNo, GetNextDocNo);
         PmtNo := PostVATAgentPayment(VendorNo);
         if ApplyEntries then
@@ -166,7 +166,7 @@ codeunit 144009 "ERM VAT Agent"
 
         // [GIVEN] Purchase Invoice with G/L Account line = "X": Amount = 100 and VAT = 18%
         InvAmount := LibraryRandom.RandDec(100, 2);
-        PurchInvNo := CreateReleasePurchInvoice(VendorNo, WorkDate, GLAccountNo, InvAmount);
+        PurchInvNo := CreateReleasePurchInvoice(VendorNo, WorkDate(), GLAccountNo, InvAmount);
 
         // [GIVEN] Post Prepayment for the Invoice in Gen Journal Line with Amount = 50
         LibraryJournals.CreateGenJournalLineWithBatch(
@@ -277,7 +277,7 @@ codeunit 144009 "ERM VAT Agent"
         CreatePostApplyVATAgentPaymentToInvoice(Vendor, PaymentAmount, PaymentExternalDocNo);
 
         // [WHEN] VAT Sales Ledger is being created
-        VATLedgerCode := LibrarySales.CreateSalesVATLedger(WorkDate, WorkDate, '');
+        VATLedgerCode := LibrarySales.CreateSalesVATLedger(WorkDate(), WorkDate(), '');
 
         // [THEN] Sales VAT ledger line created with proper amount and External Document No. "EXTDOCNO"
         VerifyVATLedgerLine(
@@ -301,7 +301,7 @@ codeunit 144009 "ERM VAT Agent"
         CreatePostApplyVATAgentInvoiceToPayment(Vendor, PaymentAmount, PaymentExternalDocNo);
 
         // [WHEN] VAT Sales Ledger is being created
-        VATLedgerCode := LibrarySales.CreateSalesVATLedger(WorkDate, WorkDate, '');
+        VATLedgerCode := LibrarySales.CreateSalesVATLedger(WorkDate(), WorkDate(), '');
 
         // [THEN] Sales VAT ledger line created with proper amount and External Document No. "EXTDOCNO"
         VerifyVATLedgerLine(
@@ -325,7 +325,7 @@ codeunit 144009 "ERM VAT Agent"
         CreatePostApplyVATAgentPaymentToInvoice(Vendor, PaymentAmount, PaymentExternalDocNo);
 
         // [WHEN] VAT Purchase Ledger is being created
-        VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(WorkDate, WorkDate, '', true, false);
+        VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(WorkDate(), WorkDate(), '', true, false);
 
         // [THEN] Purchase VAT ledger line created with proper Amount, Document No. from VAT Agent Invoice and External Document No. "EXTDOCNO"
         VerifyVATLedgerLine(
@@ -349,7 +349,7 @@ codeunit 144009 "ERM VAT Agent"
         CreatePostApplyVATAgentInvoiceToPayment(Vendor, PaymentAmount, PaymentExternalDocNo);
 
         // [WHEN] VAT Purchase Ledger is being created
-        VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(WorkDate, WorkDate, '', true, false);
+        VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(WorkDate(), WorkDate(), '', true, false);
 
         // [THEN] Purchase VAT ledger line created with proper Amount, Document No. from VAT Agent Invoice and External Document No. "EXTDOCNO"
         VerifyVATLedgerLine(
@@ -376,7 +376,7 @@ codeunit 144009 "ERM VAT Agent"
         CreatePostPrepayment(Vendor."No.", InvoiceNo, PaymentAmount);
 
         // [WHEN] VAT Purchase Ledger is being created
-        VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(WorkDate, WorkDate, '', true, false);
+        VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(WorkDate(), WorkDate(), '', true, false);
 
         // [THEN] Purchase VAT ledger line is not created
         VerifyPurchVATLedgerLineDoesNotExist(
@@ -408,7 +408,7 @@ codeunit 144009 "ERM VAT Agent"
         PostInvoiceAndApplyToPrepayment(InvoiceNo, PaymentNo);
 
         // [WHEN] VAT Purchase Ledger is being created
-        VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(WorkDate, WorkDate, '', true, false);
+        VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(WorkDate(), WorkDate(), '', true, false);
 
         // [THEN] Purchase VAT ledger line is created with Amount in currency = "Payment Amount" + "VAT Amount"
         VerifyPrepaymentVATLedgerLine(Vendor."No.", VATLedgerCode, PaymentAmount, 18);
@@ -443,7 +443,7 @@ codeunit 144009 "ERM VAT Agent"
           "Gen. Journal Document Type"::Invoice, "Gen. Journal Document Type"::Payment, InvoiceNo, PaymentNo);
 
         // [WHEN] VAT Purchase Ledger is being created
-        VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(WorkDate, WorkDate, '', true, false);
+        VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(WorkDate(), WorkDate(), '', true, false);
 
         // [THEN] Purchase VAT ledger line is created with Amount in currency = "Payment Amount" + "VAT Amount"
         VerifyPrepaymentVATLedgerLine(Vendor."No.", VATLedgerCode, PaymentAmount, 10);
@@ -470,7 +470,7 @@ codeunit 144009 "ERM VAT Agent"
         CreatePostPrepayment(Vendor."No.", InvoiceNo, PaymentAmount);
 
         // [WHEN] VAT Sales Ledger is being created
-        VATLedgerCode := LibrarySales.CreateSalesVATLedger(WorkDate, WorkDate, '');
+        VATLedgerCode := LibrarySales.CreateSalesVATLedger(WorkDate(), WorkDate(), '');
 
         // [THEN] Sales VAT ledger line is created with Amount in currency = "Payment Amount" + "VAT Amount" and positive LCY amounts
         VerifyPrepaymentVATLedgerLine(Vendor."No.", VATLedgerCode, PaymentAmount, 18);
@@ -497,7 +497,7 @@ codeunit 144009 "ERM VAT Agent"
         CreatePostPrepayment(Vendor."No.", InvoiceNo, PaymentAmount);
 
         // [WHEN] VAT Sales Ledger is being created
-        VATLedgerCode := LibrarySales.CreateSalesVATLedger(WorkDate, WorkDate, '');
+        VATLedgerCode := LibrarySales.CreateSalesVATLedger(WorkDate(), WorkDate(), '');
 
         // [THEN] Sales VAT ledger line is created with Amount in currency = "Payment Amount" + "VAT Amount" and positive LCY amounts
         VerifyPrepaymentVATLedgerLine(Vendor."No.", VATLedgerCode, PaymentAmount, 10);
@@ -528,7 +528,7 @@ codeunit 144009 "ERM VAT Agent"
         PostInvoiceAndApplyToPrepayment(InvoiceNo, PaymentNo);
 
         // [WHEN] VAT Sales Ledger is being created
-        VATLedgerCode := LibrarySales.CreateSalesVATLedger(WorkDate, WorkDate, '');
+        VATLedgerCode := LibrarySales.CreateSalesVATLedger(WorkDate(), WorkDate(), '');
 
         // [THEN] Sales VAT ledger line is created with Amount in currency = "Payment Amount" + "VAT Amount" and positive LCY amounts
         VerifyPrepaymentVATLedgerLine(Vendor."No.", VATLedgerCode, PaymentAmount, 18);
@@ -563,7 +563,7 @@ codeunit 144009 "ERM VAT Agent"
           "Gen. Journal Document Type"::Invoice, "Gen. Journal Document Type"::Payment, InvoiceNo, PaymentNo);
 
         // [WHEN] VAT Sales Ledger is being created
-        VATLedgerCode := LibrarySales.CreateSalesVATLedger(WorkDate, WorkDate, '');
+        VATLedgerCode := LibrarySales.CreateSalesVATLedger(WorkDate(), WorkDate(), '');
 
         // [THEN] Sales VAT ledger line is created with Amount in currency = "Payment Amount" + "VAT Amount" and positive LCY amounts
         VerifyPrepaymentVATLedgerLine(Vendor."No.", VATLedgerCode, PaymentAmount, 10);
@@ -609,7 +609,7 @@ codeunit 144009 "ERM VAT Agent"
             "PD Bal. Gain/Loss Acc. (TA)" := LibraryERM.CreateGLAccountNo();
             "Purch. PD Gains Acc. (TA)" := LibraryERM.CreateGLAccountNo();
             "Purch. PD Losses Acc. (TA)" := LibraryERM.CreateGLAccountNo();
-            Modify;
+            Modify();
             exit(Code);
         end;
     end;
@@ -748,14 +748,14 @@ codeunit 144009 "ERM VAT Agent"
         CurrencyExchRate: Record "Currency Exchange Rate";
     begin
         with CurrencyExchRate do begin
-            Init;
+            Init();
             "Currency Code" := CurrencyCode;
             "Starting Date" := StartingDate;
             "Exchange Rate Amount" := 1;
             "Adjustment Exch. Rate Amount" := 1;
             "Relational Exch. Rate Amount" := Rate;
             "Relational Adjmt Exch Rate Amt" := Rate;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -801,7 +801,7 @@ codeunit 144009 "ERM VAT Agent"
         // Create and post invoice
         GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetupNoVAT, "General Posting Type"::" ");
         InvoiceAmount := LibraryRandom.RandDecInRange(500, 1000, 2);
-        InvoiceNo := CreatePostPurchInvoice(Vendor."No.", WorkDate, GLAccountNo, InvoiceAmount);
+        InvoiceNo := CreatePostPurchInvoice(Vendor."No.", WorkDate(), GLAccountNo, InvoiceAmount);
 
         // Create and post payment
         PaymentExternalDocNo := LibraryUtility.GenerateGUID();
@@ -822,7 +822,7 @@ codeunit 144009 "ERM VAT Agent"
         // Create and release invoice
         GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetupNoVAT, "General Posting Type"::" ");
         InvoiceAmount := LibraryRandom.RandDecInRange(500, 1000, 2);
-        InvoiceNo := CreatePurchInvoice(Vendor."No.", WorkDate, GLAccountNo, InvoiceAmount, AmountIncludingVAT);
+        InvoiceNo := CreatePurchInvoice(Vendor."No.", WorkDate(), GLAccountNo, InvoiceAmount, AmountIncludingVAT);
         ReleasePurchInvoice(InvoiceNo);
 
         PaymentAmount := Round(InvoiceAmount / LibraryRandom.RandIntInRange(2, 5));
@@ -871,8 +871,8 @@ codeunit 144009 "ERM VAT Agent"
     local procedure CreateCurrencyWithExchangeRate() CurrencyCode: Code[10]
     begin
         CurrencyCode := CreateCurrency;
-        CreateCurrencyExchRate(CurrencyCode, WorkDate, LibraryRandom.RandDec(100, 2));
-        CreateCurrencyExchRate(CurrencyCode, CalcDate('<1Y>', WorkDate), LibraryRandom.RandDec(100, 2));
+        CreateCurrencyExchRate(CurrencyCode, WorkDate(), LibraryRandom.RandDec(100, 2));
+        CreateCurrencyExchRate(CurrencyCode, CalcDate('<1Y>', WorkDate()), LibraryRandom.RandDec(100, 2));
     end;
 
     local procedure CreateUnrealizedVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusPostGroupCode: Code[20]; VATProdPostGroupCode: Code[20]; VATPercent: Decimal)
@@ -884,7 +884,7 @@ codeunit 144009 "ERM VAT Agent"
             Validate("Unrealized VAT Type", "Unrealized VAT Type"::Percentage);
             Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
             Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -929,7 +929,7 @@ codeunit 144009 "ERM VAT Agent"
             Get(Vendor."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group");
             "VAT %" := 0;
             "Unrealized VAT Type" := "Unrealized VAT Type"::" ";
-            Modify;
+            Modify();
         end;
     end;
 
@@ -948,7 +948,7 @@ codeunit 144009 "ERM VAT Agent"
     var
         NoSeriesMgt: Codeunit NoSeriesManagement;
     begin
-        UseDocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", WorkDate, false);
+        UseDocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", WorkDate(), false);
         Clear(NoSeriesMgt);
     end;
 
@@ -957,7 +957,7 @@ codeunit 144009 "ERM VAT Agent"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         with PurchInvHeader do begin
-            Reset;
+            Reset();
             SetRange("Buy-from Vendor No.", VendorNo);
             FindLast();
             exit("No.");
@@ -1014,7 +1014,7 @@ codeunit 144009 "ERM VAT Agent"
             SetTableView(Vendor);
             SetGenJnlLine(GenJnlLine);
             InitializeRequest(
-              CalcDate('<CM>', WorkDate), false, 0, false, WorkDate, DocNo, false,
+              CalcDate('<CM>', WorkDate()), false, 0, false, WorkDate(), DocNo, false,
               GenJnlLine."Bal. Account Type"::"Bank Account", CreateBankAccount, GenJnlLine."Bank Payment Type"::" ");
             InitVATAgentPayment(true);
             SetHideMessage(true);
@@ -1029,7 +1029,7 @@ codeunit 144009 "ERM VAT Agent"
         with Vendor do begin
             Get(VendorNo);
             "VAT Payment Source Type" := "VAT Payment Source Type"::"Internal Funds";
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1043,8 +1043,8 @@ codeunit 144009 "ERM VAT Agent"
     begin
         Initialize();
         CurrencyCode := CreateCurrency;
-        CreateCurrencyExchRate(CurrencyCode, WorkDate, 30);
-        CreateCurrencyExchRate(CurrencyCode, CalcDate('<1Y>', WorkDate), 28);
+        CreateCurrencyExchRate(CurrencyCode, WorkDate(), 30);
+        CreateCurrencyExchRate(CurrencyCode, CalcDate('<1Y>', WorkDate()), 28);
 
         LibraryERM.CreateUnrealizedVATPostingSetup(VATPostingSetup);
         VATPostingSetup.Validate("VAT %", 18);
@@ -1073,11 +1073,11 @@ codeunit 144009 "ERM VAT Agent"
               "Document Type"::Invoice, InvNo,
               "Document Type"::Payment, PmtNo);
 
-            Reset;
+            Reset();
             SetRange("Vendor No.", VendNo);
             if FindSet() then
                 repeat
-                    Assert.IsFalse(Open, StrSubstNo(WrongValueErr, TableCaption, FieldCaption(Open)));
+                    Assert.IsFalse(Open, StrSubstNo(WrongValueErr, TableCaption(), FieldCaption(Open)));
                 until Next = 0;
         end;
     end;
@@ -1100,7 +1100,7 @@ codeunit 144009 "ERM VAT Agent"
     begin
         PurchInvHeader.SetRange("Buy-from Vendor No.", VendorNo);
         PurchInvHeader.FindFirst();
-        PurchInvHeader.SetRecFilter;
+        PurchInvHeader.SetRecFilter();
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
         PurchInvLine.FindFirst();
         Commit();
@@ -1126,10 +1126,10 @@ codeunit 144009 "ERM VAT Agent"
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
         PurchInvLine.FindFirst();
         VATPostingSetup.Get(PurchInvLine."VAT Bus. Posting Group", PurchInvLine."VAT Prod. Posting Group");
-        ExchangeRate := CurrExchRate.ExchangeRate(WorkDate, PurchInvHeader."Currency Code");
+        ExchangeRate := CurrExchRate.ExchangeRate(WorkDate(), PurchInvHeader."Currency Code");
         exit(
           Round(
-            CurrExchRate.ExchangeAmtFCYToLCY(WorkDate, PurchInvHeader."Currency Code", BaseAmount, ExchangeRate) *
+            CurrExchRate.ExchangeAmtFCYToLCY(WorkDate(), PurchInvHeader."Currency Code", BaseAmount, ExchangeRate) *
             PurchInvLine."VAT %" / 100));
     end;
 
@@ -1215,8 +1215,8 @@ codeunit 144009 "ERM VAT Agent"
         with VATEntry do begin
             SetRange("Document No.", GetLastInvNo(VendorNo));
             FindFirst();
-            Assert.AreEqual(UnrealizedBase, "Unrealized Base", StrSubstNo(WrongValueErr, TableCaption, FieldCaption("Unrealized Base")));
-            Assert.AreEqual(UnrealizedAmount, "Unrealized Amount", StrSubstNo(WrongValueErr, TableCaption, FieldCaption("Unrealized Amount")));
+            Assert.AreEqual(UnrealizedBase, "Unrealized Base", StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Unrealized Base")));
+            Assert.AreEqual(UnrealizedAmount, "Unrealized Amount", StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Unrealized Amount")));
         end;
     end;
 

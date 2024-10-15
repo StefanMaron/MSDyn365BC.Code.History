@@ -114,7 +114,7 @@ codeunit 136907 Resource
         // Verify.
         Assert.ExpectedError(
           StrSubstNo(
-            CannotModifyBaseUnitOfMeasureErr, ResourceUnitOfMeasure.TableCaption, ResourceUnitOfMeasure.Code, Resource."No.",
+            CannotModifyBaseUnitOfMeasureErr, ResourceUnitOfMeasure.TableCaption(), ResourceUnitOfMeasure.Code, Resource."No.",
             Resource.FieldCaption("Base Unit of Measure")));
     end;
 
@@ -141,7 +141,7 @@ codeunit 136907 Resource
         // Verify.
         Assert.ExpectedError(
           StrSubstNo(
-            CannotModifyBaseUnitOfMeasureErr, ResourceUnitOfMeasure.TableCaption, Resource."Base Unit of Measure", Resource."No.",
+            CannotModifyBaseUnitOfMeasureErr, ResourceUnitOfMeasure.TableCaption(), Resource."Base Unit of Measure", Resource."No.",
             Resource.FieldCaption("Base Unit of Measure")));
     end;
 
@@ -1235,7 +1235,7 @@ codeunit 136907 Resource
         // [WHEN] Create resource "R2" and resource location for resource "R2" on location "L"
         for I := 1 to ArrayLen(Resource) do begin
             LibraryResource.CreateResourceNew(Resource[I]);
-            CreateResourceLocation(ResourceLocation, Resource[I]."No.", Location.Code, WorkDate);
+            CreateResourceLocation(ResourceLocation, Resource[I]."No.", Location.Code, WorkDate());
         end;
 
         // [THEN] Two resource locations are created
@@ -1407,7 +1407,7 @@ codeunit 136907 Resource
         // [THEN] Error message that resource unit of measure cannot be renamed because it is bease unit of measure is shown
         Assert.ExpectedError(
           StrSubstNo(
-            CannotModifyBaseUnitOfMeasureErr, ResourceUnitOfMeasure.TableCaption, Resource."Base Unit of Measure", Resource."No.",
+            CannotModifyBaseUnitOfMeasureErr, ResourceUnitOfMeasure.TableCaption(), Resource."Base Unit of Measure", Resource."No.",
             Resource.FieldCaption("Base Unit of Measure")));
     end;
 
@@ -1913,13 +1913,13 @@ codeunit 136907 Resource
         UnitOfMeasure: Record "Unit of Measure";
     begin
         with UnitOfMeasure do begin
-            Init;
+            Init();
             Code := UOMCode;
             Insert(true);
         end;
 
         with Resource do begin
-            Init;
+            Init();
             Validate("No.", LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Resource));
             LibraryERM.FindGenProductPostingGroup(GenProductPostingGroup);
             Validate("Gen. Prod. Posting Group", GenProductPostingGroup.Code);
@@ -1927,7 +1927,7 @@ codeunit 136907 Resource
         end;
 
         with ResourceUnitOfMeasure do begin
-            Init;
+            Init();
             Validate("Resource No.", Resource."No.");
             Validate(Code, UOMCode);
             Validate("Related to Base Unit of Meas.", RelatedToBaseUnitOfMeas);
@@ -1995,7 +1995,7 @@ codeunit 136907 Resource
     local procedure CreateTask(var Task: Record "To-do"; Contact: Record Contact)
     begin
         LibraryMarketing.CreateTask(Task);
-        Task.Validate(Date, WorkDate);
+        Task.Validate(Date, WorkDate());
         Task.Validate("Contact No.", Contact."No.");
         Task.Validate("Salesperson Code", Contact."Salesperson Code");
         Task.Modify(true);
@@ -2111,7 +2111,7 @@ codeunit 136907 Resource
 
     local procedure PostPurchaseOrder(PurchaseHeader: Record "Purchase Header"; IsShipAndInvoice: Boolean)
     begin
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, IsShipAndInvoice, true);  // Post as Invoice.
@@ -2216,7 +2216,7 @@ codeunit 136907 Resource
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
         PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.Validate("Unit Price (LCY)", UnitPrice);
         PurchaseLine.Modify(true);
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignSerialNo);  // Enqueue for ItemTrackingPageHandler.
@@ -2315,7 +2315,7 @@ codeunit 136907 Resource
             JobLedgerEntry.TestField("Unit Price", Item."Unit Price");
             JobLedgerEntry.TestField(Quantity, 1);  // Value Required for Serial.
             Quantity += JobLedgerEntry.Quantity;
-        until JobLedgerEntry.Next = 0;
+        until JobLedgerEntry.Next() = 0;
         Assert.AreEqual(TotalQuantity, Quantity, QuantityMustBeSameMsg);
     end;
 
@@ -2326,7 +2326,7 @@ codeunit 136907 Resource
         FilterJobPlanningLine(JobPlanningLine, PurchaseLine, LineType);
         JobPlanningLine.FindSet();
         if MoveNext then
-            JobPlanningLine.Next;
+            JobPlanningLine.Next();
         JobPlanningLine.TestField(Quantity, Quantity);
         JobPlanningLine.TestField("Unit Cost (LCY)", PurchaseLine."Unit Cost (LCY)");
     end;
@@ -2367,9 +2367,9 @@ codeunit 136907 Resource
     begin
         with JobPlanningLine do begin
             SetRange("Job Task No.", JobTaskNo);
-            Assert.IsTrue(UOMCodeLineCount < Count, StrSubstNo(JobPlanningLineCountErr, TableCaption, UOMCodeLineCount));
+            Assert.IsTrue(UOMCodeLineCount < Count, StrSubstNo(JobPlanningLineCountErr, TableCaption(), UOMCodeLineCount));
             SetFilter("Unit of Measure Code", Filter);
-            Assert.AreEqual(UOMCodeLineCount, Count, StrSubstNo(JobPlanningLineFilterErr, TableCaption, GetFilters));
+            Assert.AreEqual(UOMCodeLineCount, Count, StrSubstNo(JobPlanningLineFilterErr, TableCaption(), GetFilters));
         end;
     end;
 
@@ -2400,7 +2400,7 @@ codeunit 136907 Resource
         Assert.RecordCount(ResLedgerEntry, 2);
         ResLedgerEntry.FindSet();
         ResLedgerEntry.TestField("Unit Price", UnitPrice[1]);
-        ResLedgerEntry.Next;
+        ResLedgerEntry.Next();
         ResLedgerEntry.TestField("Unit Price", UnitPrice[2]);
     end;
 

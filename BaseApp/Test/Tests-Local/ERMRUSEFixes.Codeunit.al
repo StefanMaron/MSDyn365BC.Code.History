@@ -53,8 +53,8 @@ codeunit 144004 "ERM RU SE Fixes"
         CustNo := LibrarySales.CreateCustomerNo();
         InvoiceDocNo := CreateAndPostSalesInvoice(Amount, CustNo, CurrencyCode);
         CreateAndApplyPaymentToInvoice(GenJournalLine, GenJournalLine."Account Type"::Customer, CustNo, InvoiceDocNo, CurrencyCode, -Amount);
-        AmountLCY := LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate);
-        AddCurrAmount := LibraryERM.ConvertCurrency(AmountLCY, '', AddRepCurrencyCode, WorkDate);
+        AmountLCY := LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate());
+        AddCurrAmount := LibraryERM.ConvertCurrency(AmountLCY, '', AddRepCurrencyCode, WorkDate());
 
         VerifyGLEntryAmount(InvoiceDocNo, GetCustReceivAccNo(CustNo), AmountLCY, AddCurrAmount);
         VerifyClosedCustLedgEntry(CustNo, CustLedgEntry."Document Type"::Invoice, InvoiceDocNo, Amount, AmountLCY);
@@ -85,8 +85,8 @@ codeunit 144004 "ERM RU SE Fixes"
         VendNo := LibraryPurchase.CreateVendorNo();
         InvoiceDocNo := CreateAndPostPurchInvWithItem(Amount, VendNo, CurrencyCode);
         CreateAndApplyPaymentToInvoice(GenJournalLine, GenJournalLine."Account Type"::Vendor, VendNo, InvoiceDocNo, CurrencyCode, Amount);
-        AmountLCY := LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate);
-        AddCurrAmount := LibraryERM.ConvertCurrency(AmountLCY, '', AddRepCurrencyCode, WorkDate);
+        AmountLCY := LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate());
+        AddCurrAmount := LibraryERM.ConvertCurrency(AmountLCY, '', AddRepCurrencyCode, WorkDate());
 
         VerifyGLEntryAmount(InvoiceDocNo, GetVendPayAccNo(VendNo), -AmountLCY, -AddCurrAmount);
         VerifyClosedVendLedgEntry(VendNo, VendLedgEntry."Document Type"::Invoice, InvoiceDocNo, -Amount, -AmountLCY);
@@ -118,14 +118,14 @@ codeunit 144004 "ERM RU SE Fixes"
           SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, TotalQty);
 
         for i := 1 to ArrayLen(QtyToShip) do begin
-            SalesLine.Find;
+            SalesLine.Find();
             SalesLine.Validate("Qty. to Ship", QtyToShip[i]);
             SalesLine.Modify(true);
             ShipmentDocNo[i] := LibrarySales.PostSalesDocument(SalesHeader, true, false);
         end;
 
         for i := 1 to ArrayLen(QtyToInvoice) do begin
-            SalesLine.Find;
+            SalesLine.Find();
             SalesLine.Validate("Qty. to Invoice", QtyToInvoice[i]);
             SalesLine.Modify(true);
             InvoiceDocNo[i] := LibrarySales.PostSalesDocument(SalesHeader, false, true);
@@ -160,14 +160,14 @@ codeunit 144004 "ERM RU SE Fixes"
           PurchLine, PurchHeader, PurchLine.Type::Item, LibraryInventory.CreateItemNo, TotalQty);
 
         for i := 1 to ArrayLen(QtyToReceive) do begin
-            PurchLine.Find;
+            PurchLine.Find();
             PurchLine.Validate("Qty. to Receive", QtyToReceive[i]);
             PurchLine.Modify(true);
             ReceiptDocNo[i] := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, false);
         end;
 
         for i := 1 to ArrayLen(QtyToInvoice) do begin
-            PurchLine.Find;
+            PurchLine.Find();
             PurchLine.Validate("Qty. to Invoice", QtyToInvoice[i]);
             PurchLine.Modify(true);
             PurchHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID();
@@ -285,11 +285,11 @@ codeunit 144004 "ERM RU SE Fixes"
         LibraryFixedAsset.CreateFixedAssetWithSetup(FA);
 
         CreateAndPostPurchInvWithFA(Vendor."No.", FA."No.");
-        CreateAndPostFAReleaseDoc(FA."No.", CalcDate('<10D>', WorkDate));
-        CreateAndPostFAWriteOffDoc(FA."No.", CalcDate('<1M>', WorkDate));
+        CreateAndPostFAReleaseDoc(FA."No.", CalcDate('<10D>', WorkDate()));
+        CreateAndPostFAWriteOffDoc(FA."No.", CalcDate('<1M>', WorkDate()));
 
         FindFALedgerEntry(
-          FALedgerEntry, CalcDate('<1M>', WorkDate), FA."No.",
+          FALedgerEntry, CalcDate('<1M>', WorkDate()), FA."No.",
           FALedgerEntry."FA Posting Type"::"Proceeds on Disposal", GetFADisposalDeprBookCode);
         Assert.AreEqual(0, FALedgerEntry.Quantity, FALedgerEntry.FieldCaption(Quantity));
         Assert.AreEqual(0, FALedgerEntry.Amount, FALedgerEntry.FieldCaption(Amount));
@@ -311,10 +311,10 @@ codeunit 144004 "ERM RU SE Fixes"
         LibraryFixedAsset.CreateFixedAssetWithSetup(FA);
 
         CreateAndPostPurchInvWithFA(Vendor."No.", FA."No.");
-        CreateAndPostFAReleaseDoc(FA."No.", WorkDate);
+        CreateAndPostFAReleaseDoc(FA."No.", WorkDate());
 
         FindFALedgerEntry(
-          FALedgerEntry, WorkDate, FA."No.", FALedgerEntry."FA Posting Type"::"Acquisition Cost", GetFAReleaseDeprBookCode);
+          FALedgerEntry, WorkDate(), FA."No.", FALedgerEntry."FA Posting Type"::"Acquisition Cost", GetFAReleaseDeprBookCode);
         PostedFADocHeader.SetRange("Document Type", PostedFADocHeader."Document Type"::Release);
         PostedFADocHeader.FindLast();
         Assert.AreEqual(FALedgerEntry."Document No.", PostedFADocHeader."No.", PostedFADocHeader.FieldCaption("No."));
@@ -339,7 +339,7 @@ codeunit 144004 "ERM RU SE Fixes"
 
         GenJnlAmount := CreateAndPostFAAcqCost(FA."No.");
 
-        CreateAndPostFAReleaseDoc(FA."No.", WorkDate);
+        CreateAndPostFAReleaseDoc(FA."No.", WorkDate());
 
         VerifyFAReclassificationLedgerEntry(FA."No.", GetFAReleaseDeprBookCode, PurchInvAmount + GenJnlAmount);
         VerifyFAReclassificationLedgerEntry(FA."No.", GetFATaxDeprBookCode, PurchInvAmount + GenJnlAmount);
@@ -363,7 +363,7 @@ codeunit 144004 "ERM RU SE Fixes"
         // [WHEN] Post FA Movement Act with "Posting Date" = D + 1
         LibraryFixedAsset.PostFADocument(FADocHeader);
         // [THEN] DeprBook2."Depreciation Starting Date" = D
-        VerifyDeprStartingDate(FA."No.", GetFAReleaseDeprBookCode, CalcDate('<CM+1D>', WorkDate));
+        VerifyDeprStartingDate(FA."No.", GetFAReleaseDeprBookCode, CalcDate('<CM+1D>', WorkDate()));
     end;
 
     [Test]
@@ -404,7 +404,7 @@ codeunit 144004 "ERM RU SE Fixes"
         AccScheduleName := CreateAccScheduleWithDefaultColumnName(ColumnLayoutName, GLAccountNo);
 
         // [GIVEN] G/L Corr. Entry for G/L Account = 'A' within period for Comparision Formula = '-1Y'
-        CreateGLCorrEntry(GLCorrespondenceEntry, CalcDate(ComparisionDateFormula, WorkDate), GLAccountNo);
+        CreateGLCorrEntry(GLCorrespondenceEntry, CalcDate(ComparisionDateFormula, WorkDate()), GLAccountNo);
 
         // [WHEN] Open Acc. Schedule Overview Page
         AccountScheduleNames.OpenView;
@@ -471,7 +471,7 @@ codeunit 144004 "ERM RU SE Fixes"
 
         Initialize();
         // [GIVEN] G/L Correspondence Entry with "Debit Account No." = "X" and Amount = 100
-        CreateGLCorrEntry(GLCorrespondenceEntry, WorkDate, LibraryERM.CreateGLAccountNo);
+        CreateGLCorrEntry(GLCorrespondenceEntry, WorkDate(), LibraryERM.CreateGLAccountNo);
 
         // [GIVEN] Account Schedule Line "A" with "Totaling Type" = "Total Accounts" and "Totaling" = "X"
         LibraryERM.CreateAccScheduleName(AccScheduleName);
@@ -589,7 +589,7 @@ codeunit 144004 "ERM RU SE Fixes"
         // [THEN] G/L Entries List contains G/L Entry posted on C010117D and does not contain G/L Entry posted on 020117D.
         GLEntriesList.First;
         Assert.AreEqual(WithinReportingPeriodEntryNo, GLEntriesList."Entry No.".AsDEcimal, CorrectDateNotFoundErr);
-        GLEntriesList.Next;
+        GLEntriesList.Next();
         Assert.AreNotEqual(OutOfReportingPeriodEntryNo, GLEntriesList."Entry No.".AsDEcimal, WrongDateFoundErr);
         GLEntriesList.Last;
         Assert.AreEqual(WithinReportingPeriodEntryNo, GLEntriesList."Entry No.".AsDEcimal, WrongDateFoundErr);
@@ -663,7 +663,7 @@ codeunit 144004 "ERM RU SE Fixes"
 
         Initialize();
         GLAccountNo := LibraryERM.CreateGLAccountNo();
-        ReportingDate := LibraryUtility.GenerateRandomDate(WorkDate, WorkDate + 10);
+        ReportingDate := LibraryUtility.GenerateRandomDate(WorkDate(), WorkDate + 10);
 
         // [GIVEN] GL Corresp. Page filtered by Reporting Date, GL Account No.; Period Type = Day.
         GLCorrespGeneralLedger.OpenEdit;
@@ -722,10 +722,10 @@ codeunit 144004 "ERM RU SE Fixes"
 
         // [GIVEN] Fixed Asset with Depreciation calculated till 31-12-2020
         PrepareFixedAsset(Vendor, FixedAsset);
-        CalcDeprTillDate(FixedAsset."No.", CalcDate('<-CM+2M+CM>', WorkDate), CalcDate('<CY>', WorkDate));
+        CalcDeprTillDate(FixedAsset."No.", CalcDate('<-CM+2M+CM>', WorkDate()), CalcDate('<CY>', WorkDate()));
 
         // [GIVEN] Post FA Movement to a new FA Location on "Posting Date" = 31-01-2021
-        DeprDate := CalcDate('<1Y+CM>', WorkDate);
+        DeprDate := CalcDate('<1Y+CM>', WorkDate());
         CreatePostFAMovementToNewLocation(FixedAsset."No.", DeprDate, CreateFALocation);
 
         // [WHEN] Calculate Dpreciation on 31-01-2021
@@ -774,7 +774,7 @@ codeunit 144004 "ERM RU SE Fixes"
         Initialize();
 
         // [GIVEN] Currency USD has exchange rates 01.01 2435.35, 02.01 2500
-        PaymentDate := WorkDate;
+        PaymentDate := WorkDate();
         InvoiceDate := WorkDate + 1;
         CurrencyCode := CreateCurrencyWithSpecificExchangeRate(PaymentDate, InvoiceDate);
 
@@ -825,14 +825,14 @@ codeunit 144004 "ERM RU SE Fixes"
         // [GIVEN] Generate two g/l correspondence entries with g/l account "X" -
         // [GIVEN] The first entry has blank "Credit Global Dimension 2 Code", Amount = "A1";
         // [GIVEN] The second entry has "Credit Global Dimension 2 Code" = "DIM2", Amount = "A2".
-        CreateGLCorrEntry(GLCorrespondenceEntry[1], WorkDate, GLAccountNo);
-        CreateGLCorrEntry(GLCorrespondenceEntry[2], WorkDate, GLAccountNo);
+        CreateGLCorrEntry(GLCorrespondenceEntry[1], WorkDate(), GLAccountNo);
+        CreateGLCorrEntry(GLCorrespondenceEntry[2], WorkDate(), GLAccountNo);
         GLCorrespondenceEntry[2].Validate("Credit Global Dimension 2 Code", DimensionValue.Code);
         GLCorrespondenceEntry[2].Modify(true);
 
         // [WHEN] Calculate the account schedule.
         AccScheduleLine.SetRange("Schedule Name", AccScheduleName);
-        AccScheduleLine.SetRange("Date Filter", WorkDate);
+        AccScheduleLine.SetRange("Date Filter", WorkDate());
         AccScheduleLine.FindFirst();
         Amt := AccSchedManagement.CalcCell(AccScheduleLine, ColumnLayout, false);
 
@@ -874,17 +874,17 @@ codeunit 144004 "ERM RU SE Fixes"
         // [GIVEN] Generate two g/l correspondence entries with g/l account "X" -
         // [GIVEN] The first entry has blank "Credit Global Dimension 2 Code".
         // [GIVEN] The second entry has "Credit Global Dimension 2 Code" = "DIM2".
-        CreateGLCorrEntry(GLCorrespondenceEntry[1], WorkDate, GLAccountNo);
-        CreateGLCorrEntry(GLCorrespondenceEntry[2], WorkDate, GLAccountNo);
+        CreateGLCorrEntry(GLCorrespondenceEntry[1], WorkDate(), GLAccountNo);
+        CreateGLCorrEntry(GLCorrespondenceEntry[2], WorkDate(), GLAccountNo);
         GLCorrespondenceEntry[2].Validate("Credit Global Dimension 2 Code", DimensionValue.Code);
         GLCorrespondenceEntry[2].Modify(true);
 
         // [WHEN] Drill down the only cell in the account schedule.
         GLCorrespondenceEntries.Trap;
         AccScheduleLine.SetRange("Schedule Name", AccScheduleName);
-        AccScheduleLine.SetRange("Date Filter", WorkDate);
+        AccScheduleLine.SetRange("Date Filter", WorkDate());
         AccScheduleLine.FindFirst();
-        AccSchedManagement.SetDateParameters(WorkDate, WorkDate);
+        AccSchedManagement.SetDateParameters(WorkDate(), WorkDate());
         AccSchedManagement.DrillDown(ColumnLayout, AccScheduleLine, PeriodType::Day);
 
         // [THEN] Only the g/l correspondence entry with "Credit Global Dimension 2 Code" = "DIM2" is shown.
@@ -932,14 +932,14 @@ codeunit 144004 "ERM RU SE Fixes"
         // [GIVEN] Generate two g/l correspondence entries with g/l account "X" -
         // [GIVEN] The first entry has blank "Credit Global Dimension 2 Code", Amount = "A1";
         // [GIVEN] The second entry has "Credit Global Dimension 2 Code" = "DIM2", Amount = "A2".
-        CreateGLCorrEntry(GLCorrespondenceEntry[1], WorkDate, GLAccountNo);
-        CreateGLCorrEntry(GLCorrespondenceEntry[2], WorkDate, GLAccountNo);
+        CreateGLCorrEntry(GLCorrespondenceEntry[1], WorkDate(), GLAccountNo);
+        CreateGLCorrEntry(GLCorrespondenceEntry[2], WorkDate(), GLAccountNo);
         GLCorrespondenceEntry[2].Validate("Credit Global Dimension 2 Code", DimensionValue.Code);
         GLCorrespondenceEntry[2].Modify(true);
 
         // [WHEN] Calculate the account schedule.
         AccScheduleLine.SetRange("Schedule Name", AccScheduleName);
-        AccScheduleLine.SetRange("Date Filter", WorkDate);
+        AccScheduleLine.SetRange("Date Filter", WorkDate());
         AccScheduleLine.FindFirst();
         Amt := AccSchedManagement.CalcCell(AccScheduleLine, ColumnLayout, false);
 
@@ -973,12 +973,12 @@ codeunit 144004 "ERM RU SE Fixes"
         RecRef: RecordRef;
     begin
         with GLEntry do begin
-            Init;
+            Init();
             "G/L Account No." := GLAccountNo;
             "Posting Date" := PostingDate;
             RecRef.GetTable(GLEntry);
             "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            Insert;
+            Insert();
         end;
 
         exit(GLEntry."Entry No.");
@@ -989,9 +989,9 @@ codeunit 144004 "ERM RU SE Fixes"
         SourceCode: Record "Source Code";
     begin
         with SourceCode do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Source Code");
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -1037,7 +1037,7 @@ codeunit 144004 "ERM RU SE Fixes"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         with CurrencyExchangeRate do begin
-            Init;
+            Init();
             Validate("Currency Code", CurrencyCode);
             Validate("Starting Date", StartingDate);
             Insert(true);
@@ -1062,7 +1062,7 @@ codeunit 144004 "ERM RU SE Fixes"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateFCYSalesInvoiceWithGLAcc(SalesHeader, SalesLine, CustNo, '', WorkDate, CurrencyCode);
+        LibrarySales.CreateFCYSalesInvoiceWithGLAcc(SalesHeader, SalesLine, CustNo, '', WorkDate(), CurrencyCode);
         Amount := SalesLine."Amount Including VAT";
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
@@ -1072,7 +1072,7 @@ codeunit 144004 "ERM RU SE Fixes"
         PurchaseHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreateFCYPurchInvoiceWithGLAcc(PurchaseHeader, PurchLine, VendNo, '', WorkDate, CurrencyCode);
+        LibraryPurchase.CreateFCYPurchInvoiceWithGLAcc(PurchaseHeader, PurchLine, VendNo, '', WorkDate(), CurrencyCode);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         Amount := PurchLine."Amount Including VAT";
     end;
@@ -1181,7 +1181,7 @@ codeunit 144004 "ERM RU SE Fixes"
             Validate("Row No.", LibraryUtility.GenerateGUID());
             Validate("Totaling Type", TotalingType);
             Validate(Totaling, PassedTotaling);
-            SetFilter("Date Filter", Format(WorkDate));
+            SetFilter("Date Filter", Format(WorkDate()));
             Modify(true);
         end;
     end;
@@ -1191,13 +1191,13 @@ codeunit 144004 "ERM RU SE Fixes"
         RecRef: RecordRef;
     begin
         with GLCorrespondenceEntry do begin
-            Init;
+            Init();
             RecRef.GetTable(GLCorrespondenceEntry);
             "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
             "Debit Account No." := DebitGlAccountNo;
             "Posting Date" := PostingDate;
             Amount := LibraryRandom.RandDec(100, 2);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1219,12 +1219,12 @@ codeunit 144004 "ERM RU SE Fixes"
         RecRef: RecordRef;
     begin
         with VendLedgEntry do begin
-            Init;
+            Init();
             RecRef.GetTable(VendLedgEntry);
             "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
             LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup);
             "Vendor Posting Group" := VendorPostingGroup.Code;
-            Insert;
+            Insert();
         end;
         CreateDtldVendLedgEntry(VendLedgEntry."Entry No.", VendLedgEntry."Vendor Posting Group");
         VendLedgEntry.CalcFields(Amount);
@@ -1236,15 +1236,15 @@ codeunit 144004 "ERM RU SE Fixes"
         RecRef: RecordRef;
     begin
         with DtldVendLedgEntry do begin
-            Init;
+            Init();
             RecRef.GetTable(DtldVendLedgEntry);
             "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
             "Entry Type" := "Entry Type"::"Initial Entry";
             "Vendor Ledger Entry No." := VendLedgEntryNo;
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Vendor Posting Group" := VendorPostingGroupCode;
             Amount := LibraryRandom.RandDec(100, 2);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1305,7 +1305,7 @@ codeunit 144004 "ERM RU SE Fixes"
         FADeprBook.Validate("FA Posting Group", FAPostingGroup.Code);
         FADeprBook.Modify(true);
         ModernDeprBookCode := DeprBook.Code;
-        PostingDate := CalcDate('<+1M>', WorkDate);
+        PostingDate := CalcDate('<+1M>', WorkDate());
         CreateAndPostPurchInvWithDeprBook(Vendor."No.", FANo, PostingDate, ModernDeprBookCode);
         LibraryFixedAsset.CreateFAMovementDoc(FADocHeader, FANo, PostingDate, ModernDeprBookCode);
     end;
@@ -1357,10 +1357,10 @@ codeunit 144004 "ERM RU SE Fixes"
         FALocation: Record "FA Location";
     begin
         with FALocation do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateGUID();
             Name := Code;
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -1370,14 +1370,14 @@ codeunit 144004 "ERM RU SE Fixes"
         FALedgerEntry: Record "FA Ledger Entry";
     begin
         with FALedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(FALedgerEntry, FieldNo("Entry No."));
             "FA No." := FANo;
             "Depreciation Book Code" := DeprBookCode;
             "FA Posting Date" := FAPostingDate;
             "FA Posting Type" := FAPostingType;
             "Reclassification Entry" := ReclassificationEntry;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1488,16 +1488,16 @@ codeunit 144004 "ERM RU SE Fixes"
         LibraryFixedAsset.CreateFixedAssetWithSetup(FA);
 
         CreateAndPostPurchInvWithFA(Vendor."No.", FA."No.");
-        CreateAndPostFAReleaseDoc(FA."No.", WorkDate);
+        CreateAndPostFAReleaseDoc(FA."No.", WorkDate());
         LibraryFixedAsset.CalcDepreciation(
-          FA."No.", GetFAReleaseDeprBookCode, CalcDate('<-CM+2M-1D>', WorkDate), true, false);
+          FA."No.", GetFAReleaseDeprBookCode, CalcDate('<-CM+2M-1D>', WorkDate()), true, false);
     end;
 
     local procedure VerifyFAReclassificationLedgerEntry(FANo: Code[20]; DeprBookCode: Code[10]; ExpectedAmount: Decimal)
     var
         FALedgerEntry: Record "FA Ledger Entry";
     begin
-        FindFALedgerEntry(FALedgerEntry, WorkDate, FANo, FALedgerEntry."FA Posting Type"::"Acquisition Cost", DeprBookCode);
+        FindFALedgerEntry(FALedgerEntry, WorkDate(), FANo, FALedgerEntry."FA Posting Type"::"Acquisition Cost", DeprBookCode);
         Assert.AreEqual(ExpectedAmount, FALedgerEntry.Amount, FALedgerEntry.FieldCaption(Amount));
         Assert.IsTrue(FALedgerEntry."Reclassification Entry", FALedgerEntry.FieldCaption("Reclassification Entry"));
     end;

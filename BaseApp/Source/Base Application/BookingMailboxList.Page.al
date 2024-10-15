@@ -25,7 +25,7 @@ page 6704 "Booking Mailbox List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the Bookings mailbox.';
                 }
-                field("Display Name"; "Display Name")
+                field("Display Name"; Rec."Display Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the full name of the Bookings mailbox.';
@@ -43,9 +43,9 @@ page 6704 "Booking Mailbox List"
         TempBookingMailbox.Reset();
         if TempBookingMailbox.FindSet() then
             repeat
-                Init;
+                Init();
                 TransferFields(TempBookingMailbox);
-                Insert;
+                Insert();
             until TempBookingMailbox.Next() = 0;
     end;
 }

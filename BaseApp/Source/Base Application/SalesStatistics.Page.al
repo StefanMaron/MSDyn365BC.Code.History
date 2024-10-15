@@ -250,20 +250,21 @@ page 160 "Sales Statistics"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        GetVATSpecification;
+        GetVATSpecification();
         if TempVATAmountLine.GetAnyLineModified() then
             UpdateVATOnSalesLines();
         exit(true);
     end;
 
     var
+        SalesSetup: Record "Sales & Receivables Setup";
+
         Text000: Label 'Sales %1 Statistics';
         Text001: Label 'Total';
         Text002: Label 'Amount';
         Text003: Label '%1 must not be 0.';
         Text004: Label '%1 must not be greater than %2.';
         Text005: Label 'You cannot change the invoice discount because there is a %1 record for %2 %3.', Comment = 'You cannot change the invoice discount because there is a Cust. Invoice Disc. record for Invoice Disc. Code 30000.';
-        SalesSetup: Record "Sales & Receivables Setup";
 
     protected var
         TotalSalesLine: Record "Sales Line";
@@ -290,12 +291,12 @@ page 160 "Sales Statistics"
         CurrExchRate: Record "Currency Exchange Rate";
         UseDate: Date;
     begin
-        TotalSalesLine."Inv. Discount Amount" := TempVATAmountLine.GetTotalInvDiscAmount;
+        TotalSalesLine."Inv. Discount Amount" := TempVATAmountLine.GetTotalInvDiscAmount();
         TotalAmount1 :=
           TotalSalesLine."Line Amount" - TotalSalesLine."Inv. Discount Amount";
-        VATAmount := TempVATAmountLine.GetTotalVATAmount;
+        VATAmount := TempVATAmountLine.GetTotalVATAmount();
         if Rec."Prices Including VAT" then begin
-            TotalAmount1 := TempVATAmountLine.GetTotalAmountInclVAT;
+            TotalAmount1 := TempVATAmountLine.GetTotalAmountInclVAT();
             TotalAmount2 := TotalAmount1 - VATAmount;
             TotalSalesLine."Line Amount" := TotalAmount1 + TotalSalesLine."Inv. Discount Amount";
         end else
@@ -399,7 +400,7 @@ page 160 "Sales Statistics"
     var
         SalesLine: Record "Sales Line";
     begin
-        GetVATSpecification;
+        GetVATSpecification();
         if TempVATAmountLine.GetAnyLineModified() then begin
             SalesLine.UpdateVATOnLines(0, Rec, SalesLine, TempVATAmountLine);
             SalesLine.UpdateVATOnLines(1, Rec, SalesLine, TempVATAmountLine);
@@ -412,7 +413,7 @@ page 160 "Sales Statistics"
         CustInvDisc: Record "Cust. Invoice Disc.";
     begin
         CustInvDisc.SetRange(Code, InvDiscCode);
-        exit(CustInvDisc.FindFirst);
+        exit(CustInvDisc.FindFirst())
     end;
 
     local procedure CheckAllowInvDisc()
@@ -422,7 +423,7 @@ page 160 "Sales Statistics"
         if not AllowInvDisc then
             Error(
               Text005,
-              CustInvDisc.TableCaption, Rec.FieldCaption("Invoice Disc. Code"), Rec."Invoice Disc. Code");
+              CustInvDisc.TableCaption(), Rec.FieldCaption("Invoice Disc. Code"), Rec."Invoice Disc. Code");
     end;
 
     local procedure CalculateTotals()

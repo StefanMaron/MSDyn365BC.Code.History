@@ -2,6 +2,14 @@ table 2103 "O365 Sales Document"
 {
     Caption = 'O365 Sales Document';
     ReplicateData = false;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+#if CLEAN21
+    ObsoleteState = Removed;
+    ObsoleteTag = '24.0';
+#else
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
+#endif
 
     fields
     {
@@ -186,7 +194,7 @@ table 2103 "O365 Sales Document"
         {
         }
     }
-
+#if not CLEAN21
     var
         OverdueTxt: Label 'Overdue';
         AmountTxt: Label '%1%2', Comment = '%1=Currency symbol %2= amount';
@@ -204,6 +212,7 @@ table 2103 "O365 Sales Document"
         TestTxt: Label 'Test';
         InvoiceFailedTxt: Label 'Failed to send';
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure UpdateFields()
     var
         Currency: Record Currency;
@@ -211,16 +220,16 @@ table 2103 "O365 Sales Document"
         "Currency Symbol" := Currency.ResolveGLCurrencySymbol("Currency Code");
 
         if Posted then
-            GetAmountsPosted
+            GetAmountsPosted()
         else
-            GetAmountsUnposted;
+            GetAmountsUnposted();
 
         if "Document Type" = "Document Type"::Quote then
             CalcFields("Quote Accepted", "Quote Valid Until Date", "Quote Sent to Customer", "Quote Accepted Date");
 
-        AssignDocumentStatus;
-        SetBrickStatus;
-        SetDisplayNo;
+        AssignDocumentStatus();
+        SetBrickStatus();
+        SetDisplayNo();
     end;
 
     local procedure AssignDocumentStatus()
@@ -231,7 +240,7 @@ table 2103 "O365 Sales Document"
                     case true of
                         "Quote Accepted":
                             "Document Status" := "Document Status"::"Paid Invoice";
-                        QuoteIsExpired:
+                        QuoteIsExpired():
                             "Document Status" := "Document Status"::"Canceled Invoice";
                         "Quote Sent to Customer" <> 0DT:
                             "Document Status" := "Document Status"::"Unpaid Invoice";
@@ -261,7 +270,7 @@ table 2103 "O365 Sales Document"
             exit;
         end;
 
-        if IsOverduePostedInvoice then begin
+        if IsOverduePostedInvoice() then begin
             "Document Status" := "Document Status"::"Overdue Invoice";
             exit;
         end;
@@ -269,6 +278,7 @@ table 2103 "O365 Sales Document"
         "Document Status" := "Document Status"::"Unpaid Invoice";
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure IsOverduePostedInvoice(): Boolean
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -277,7 +287,7 @@ table 2103 "O365 Sales Document"
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", "No.");
         CustLedgerEntry.SetRange(Open, true);
-        CustLedgerEntry.SetFilter("Due Date", '<%1', WorkDate);
+        CustLedgerEntry.SetFilter("Due Date", '<%1', WorkDate());
         exit(not CustLedgerEntry.IsEmpty);
     end;
 
@@ -309,16 +319,16 @@ table 2103 "O365 Sales Document"
         CalcFields("Last Email Sent Time", "Last Email Sent Status");
 
         if "Document Type" = "Document Type"::Quote then begin
-            SetQuoteBrickStatus;
+            SetQuoteBrickStatus();
             exit;
         end;
 
         if not Posted then begin
-            SetDraftInvoiceBrickStatus;
+            SetDraftInvoiceBrickStatus();
             exit;
         end;
 
-        SetPostedDocumentBrickStatus;
+        SetPostedDocumentBrickStatus();
     end;
 
     local procedure SetQuoteBrickStatus()
@@ -331,7 +341,7 @@ table 2103 "O365 Sales Document"
         case true of
             "Quote Accepted":
                 "Outstanding Status" := StrSubstNo(AcceptedTxt, "Quote Accepted Date");
-            QuoteIsExpired:
+            QuoteIsExpired():
                 "Outstanding Status" := ExpiredTxt;
             "Last Email Sent Status" = "Last Email Sent Status"::Error:
                 "Outstanding Status" := InvoiceFailedTxt;
@@ -358,7 +368,7 @@ table 2103 "O365 Sales Document"
         case true of
             "Last Email Sent Status" = "Last Email Sent Status"::Error:
                 "Outstanding Status" := InvoiceFailedTxt;
-            IsOverduePostedInvoice:
+            IsOverduePostedInvoice():
                 "Outstanding Status" := OverdueTxt;
             else
                 "Outstanding Status" := InvoiceSentTxt;
@@ -396,6 +406,7 @@ table 2103 "O365 Sales Document"
             end;
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure OnFind(Which: Text): Boolean
     var
         FilterPosted: Boolean;
@@ -416,6 +427,7 @@ table 2103 "O365 Sales Document"
         exit(FindUnpostedDocument(Which));
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure OnNext(Steps: Integer): Integer
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -524,7 +536,7 @@ table 2103 "O365 Sales Document"
     begin
         TransferFields(SalesHeader);
         Posted := false;
-        UpdateFields;
+        UpdateFields();
     end;
 
     local procedure SetSalesInvoiceHeaderAsRec(var SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -532,7 +544,7 @@ table 2103 "O365 Sales Document"
         TransferFields(SalesInvoiceHeader);
         Posted := true;
         "Document Type" := "Document Type"::Invoice;
-        UpdateFields;
+        UpdateFields();
     end;
 
     local procedure FindUnpostedDocument(Which: Text): Boolean
@@ -569,6 +581,7 @@ table 2103 "O365 Sales Document"
         exit(false);
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure FindPostedDocument(Which: Text): Boolean
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -683,11 +696,13 @@ table 2103 "O365 Sales Document"
         SalesHeader.SetAscending("Document Date", false);
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure SetSortByDocDate()
     begin
         SortByDueDate := false;
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure SetSortByDueDate()
     begin
         SortByDueDate := true;
@@ -695,9 +710,10 @@ table 2103 "O365 Sales Document"
 
     local procedure QuoteIsExpired(): Boolean
     begin
-        exit(("Quote Valid Until Date" <> 0D) and ("Quote Valid Until Date" < WorkDate));
+        exit(("Quote Valid Until Date" <> 0D) and ("Quote Valid Until Date" < WorkDate()));
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure OpenDocument()
     var
         SalesHeader: Record "Sales Header";
@@ -706,12 +722,12 @@ table 2103 "O365 Sales Document"
         if Posted then begin
             if not SalesInvoiceHeader.Get("No.") then
                 exit;
-            SalesInvoiceHeader.SetRecFilter;
+            SalesInvoiceHeader.SetRecFilter();
             PAGE.Run(PAGE::"BC O365 Posted Sales Invoice", SalesInvoiceHeader);
         end else begin
             if not SalesHeader.Get("Document Type", "No.") then
                 exit;
-            SalesHeader.SetRecFilter;
+            SalesHeader.SetRecFilter();
             case "Document Type" of
                 "Document Type"::Invoice:
                     PAGE.Run(PAGE::"BC O365 Sales Invoice", SalesHeader);
@@ -721,6 +737,7 @@ table 2103 "O365 Sales Document"
         end;
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure IgnoreInvoices()
     begin
         HideInvoices := true;
@@ -735,5 +752,6 @@ table 2103 "O365 Sales Document"
     local procedure OnAfterGetAmountsUnposted(var O365SalesDocument: Record "O365 Sales Document"; SalesHeader: Record "Sales Header")
     begin
     end;
+#endif
 }
 

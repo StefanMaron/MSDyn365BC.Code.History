@@ -18,57 +18,57 @@ page 5604 "FA Ledger Entries"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("FA Posting Date"; "FA Posting Date")
+                field("FA Posting Date"; Rec."FA Posting Date")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
                     ToolTip = 'Specifies the posting date of the related fixed asset transaction, such as a depreciation.';
                 }
-                field("Depr. Period Starting Date"; "Depr. Period Starting Date")
+                field("Depr. Period Starting Date"; Rec."Depr. Period Starting Date")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
                     ToolTip = 'Specifies the start date of the depreciation period associated with the fixed asset ledger entry.';
                     Visible = false;
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
                     ToolTip = 'Specifies the entry document type.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
                     ToolTip = 'Specifies the document number on the entry.';
                 }
-                field("FA No."; "FA No.")
+                field("FA No."; Rec."FA No.")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
                     ToolTip = 'Specifies the number of the related fixed asset. ';
                 }
-                field("Depreciation Book Code"; "Depreciation Book Code")
+                field("Depreciation Book Code"; Rec."Depreciation Book Code")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
                     ToolTip = 'Specifies the code for the depreciation book to which the line will be posted if you have selected Fixed Asset in the Type field for this line.';
                 }
-                field("FA Posting Group"; "FA Posting Group")
+                field("FA Posting Group"; Rec."FA Posting Group")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
                     ToolTip = 'Specifies which posting group is used for the depreciation book when posting fixed asset transactions.';
                     Visible = false;
                 }
-                field("FA Posting Category"; "FA Posting Category")
+                field("FA Posting Category"; Rec."FA Posting Category")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
                     ToolTip = 'Specifies the posting category assigned to the entry when it was posted.';
                 }
-                field("FA Posting Type"; "FA Posting Type")
+                field("FA Posting Type"; Rec."FA Posting Type")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
@@ -80,33 +80,33 @@ page 5604 "FA Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies a description of the entry.';
                 }
-                field("Need Cost Posted to G/L"; "Need Cost Posted to G/L")
+                field("Need Cost Posted to G/L"; Rec."Need Cost Posted to G/L")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
                     ToolTip = 'Specifies if the need cost is posted to general ledger.';
                 }
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = Dim1Visible;
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = Dim2Visible;
                 }
-                field("Employee No."; "Employee No.")
+                field("Employee No."; Rec."Employee No.")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
                     ToolTip = 'Specifies the number of the involved employee.';
                 }
-                field("FA Location Code"; "FA Location Code")
+                field("FA Location Code"; Rec."FA Location Code")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
@@ -124,52 +124,52 @@ page 5604 "FA Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies the entry amount in currency.';
                 }
-                field("Debit Amount"; "Debit Amount")
+                field("Debit Amount"; Rec."Debit Amount")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the total of the ledger entries that represent debits.';
                     Visible = false;
                 }
-                field("Credit Amount"; "Credit Amount")
+                field("Credit Amount"; Rec."Credit Amount")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
                     Visible = false;
                 }
-                field("Reclassification Entry"; "Reclassification Entry")
+                field("Reclassification Entry"; Rec."Reclassification Entry")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies whether the entry was made to reclassify a fixed asset, for example, to change the dimension the fixed asset is linked to.';
                 }
-                field("Index Entry"; "Index Entry")
+                field("Index Entry"; Rec."Index Entry")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
                     ToolTip = 'Specifies this entry is an index entry.';
                     Visible = false;
                 }
-                field("No. of Depreciation Days"; "No. of Depreciation Days")
+                field("No. of Depreciation Days"; Rec."No. of Depreciation Days")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
                     ToolTip = 'Specifies the number of depreciation days that were used for calculating depreciation for the fixed asset entry.';
                 }
-                field("Bal. Account Type"; "Bal. Account Type")
+                field("Bal. Account Type"; Rec."Bal. Account Type")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
                     ToolTip = 'Specifies the type of account that a balancing entry is posted to, such as BANK for a cash account.';
                     Visible = false;
                 }
-                field("Bal. Account No."; "Bal. Account No.")
+                field("Bal. Account No."; Rec."Bal. Account No.")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
                     ToolTip = 'Specifies the number of the general ledger, customer, vendor, or bank account that the balancing entry is posted to, such as a cash account for cash purchases.';
                     Visible = false;
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
@@ -183,14 +183,14 @@ page 5604 "FA Ledger Entries"
                         UserMgt.DisplayUserInformation("User ID");
                     end;
                 }
-                field("Source Code"; "Source Code")
+                field("Source Code"; Rec."Source Code")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
                     ToolTip = 'Specifies the source code that specifies where the entry was created.';
                     Visible = false;
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
@@ -204,123 +204,123 @@ page 5604 "FA Ledger Entries"
                     ToolTip = 'Specifies whether the entry has been part of a reverse transaction (correction) made by the Reverse function.';
                     Visible = false;
                 }
-                field("Reversed by Entry No."; "Reversed by Entry No.")
+                field("Reversed by Entry No."; Rec."Reversed by Entry No.")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
                     ToolTip = 'Specifies the number of the correcting entry.';
                     Visible = false;
                 }
-                field("Reversed Entry No."; "Reversed Entry No.")
+                field("Reversed Entry No."; Rec."Reversed Entry No.")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
                     ToolTip = 'Specifies the number of the original entry that was undone by the reverse transaction.';
                     Visible = false;
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
                     ToolTip = 'Specifies the entry''s posting date.';
                 }
-                field("G/L Entry No."; "G/L Entry No.")
+                field("G/L Entry No."; Rec."G/L Entry No.")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
                     ToolTip = 'Specifies the entry number of the corresponding G/L entry that was created in the general ledger for this fixed asset transaction.';
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
                 }
-                field("Initial Acquisition"; "Initial Acquisition")
+                field("Initial Acquisition"; Rec."Initial Acquisition")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
                     ToolTip = 'Specifies if the fixed asset ledger entry is an initial acquisition.';
                 }
-                field("Depr. Bonus"; "Depr. Bonus")
+                field("Depr. Bonus"; Rec."Depr. Bonus")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
                     ToolTip = 'Specifies if the fixed asset ledger entry contains a depreciation bonus.';
                 }
-                field("Depr. Bonus Recovery Date"; "Depr. Bonus Recovery Date")
+                field("Depr. Bonus Recovery Date"; Rec."Depr. Bonus Recovery Date")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
                     ToolTip = 'Specifies date of the depreciation bonus recovery associated with the fixed asset ledger entry.';
                 }
-                field("Depr. Group Elimination"; "Depr. Group Elimination")
+                field("Depr. Group Elimination"; Rec."Depr. Group Elimination")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
                     ToolTip = 'Specifies the depreciation group elimination of the fixed asset ledger entry.';
                     Visible = false;
                 }
-                field("Tax Difference Code"; "Tax Difference Code")
+                field("Tax Difference Code"; Rec."Tax Difference Code")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the tax difference code associated with the fixed asset ledger entry.';
                     Visible = false;
                 }
-                field("Sales Gain Amount"; "Sales Gain Amount")
+                field("Sales Gain Amount"; Rec."Sales Gain Amount")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
                     ToolTip = 'Specifies the sales gain amount associated with the fixed asset ledger entry.';
                 }
-                field("Sales Loss Amount"; "Sales Loss Amount")
+                field("Sales Loss Amount"; Rec."Sales Loss Amount")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
                     ToolTip = 'Specifies the sales loss amount associated with the fixed asset ledger entry.';
                 }
-                field("Dimension Set ID"; "Dimension Set ID")
+                field("Dimension Set ID"; Rec."Dimension Set ID")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a reference to a combination of dimension values. The actual values are stored in the Dimension Set Entry table.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 3 Code"; "Shortcut Dimension 3 Code")
+                field("Shortcut Dimension 3 Code"; Rec."Shortcut Dimension 3 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 3, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim3Visible;
                 }
-                field("Shortcut Dimension 4 Code"; "Shortcut Dimension 4 Code")
+                field("Shortcut Dimension 4 Code"; Rec."Shortcut Dimension 4 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 4, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim4Visible;
                 }
-                field("Shortcut Dimension 5 Code"; "Shortcut Dimension 5 Code")
+                field("Shortcut Dimension 5 Code"; Rec."Shortcut Dimension 5 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 5, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim5Visible;
                 }
-                field("Shortcut Dimension 6 Code"; "Shortcut Dimension 6 Code")
+                field("Shortcut Dimension 6 Code"; Rec."Shortcut Dimension 6 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 6, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim6Visible;
                 }
-                field("Shortcut Dimension 7 Code"; "Shortcut Dimension 7 Code")
+                field("Shortcut Dimension 7 Code"; Rec."Shortcut Dimension 7 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 7, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim7Visible;
                 }
-                field("Shortcut Dimension 8 Code"; "Shortcut Dimension 8 Code")
+                field("Shortcut Dimension 8 Code"; Rec."Shortcut Dimension 8 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
@@ -376,7 +376,7 @@ page 5604 "FA Ledger Entries"
 
                     trigger OnAction()
                     begin
-                        SetFilter("Dimension Set ID", DimensionSetIDFilter.LookupFilter);
+                        SetFilter("Dimension Set ID", DimensionSetIDFilter.LookupFilter());
                     end;
                 }
             }
@@ -425,7 +425,7 @@ page 5604 "FA Ledger Entries"
                         if Reversed then
                             ReversalEntry.AlreadyReversedEntry(TableCaption, "Entry No.");
                         if "Journal Batch Name" = '' then
-                            ReversalEntry.TestFieldError;
+                            ReversalEntry.TestFieldError();
                         FADeprBook.Get("FA No.", "Depreciation Book Code");
                         if FADeprBook."Disposal Date" > 0D then
                             Error(Text001);
@@ -476,8 +476,6 @@ page 5604 "FA Ledger Entries"
                 ApplicationArea = FixedAssets;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Process;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
@@ -486,6 +484,23 @@ page 5604 "FA Ledger Entries"
                     Navigate.SetDoc("Posting Date", "Document No.");
                     Navigate.Run();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
+                actionref(CancelEntries_Promoted; CancelEntries)
+                {
+                }
+                actionref(ReverseTransaction_Promoted; ReverseTransaction)
+                {
+                }
             }
         }
     }

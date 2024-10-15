@@ -98,7 +98,7 @@
             OnMoveCustEntriesOnBeforeError(Cust);
             Error(
               Text000,
-              Cust.TableCaption, Cust."No.");
+              Cust.TableCaption(), Cust."No.");
         end;
 
         CustLedgEntry.Reset();
@@ -109,7 +109,7 @@
         if not CustLedgEntry.IsEmpty() then
             Error(
               Text001,
-              Cust.TableCaption, Cust."No.");
+              Cust.TableCaption(), Cust."No.");
 
         ReminderEntry.Reset();
         ReminderEntry.SetCurrentKey("Customer No.");
@@ -127,14 +127,14 @@
         if not ServLedgEntry.IsEmpty() then
             Error(
               Text000,
-              Cust.TableCaption, Cust."No.");
+              Cust.TableCaption(), Cust."No.");
 
         ServLedgEntry.SetRange("Posting Date");
         ServLedgEntry.SetRange(Open, true);
         if not ServLedgEntry.IsEmpty() then
             Error(
               Text001,
-              Cust.TableCaption, Cust."No.");
+              Cust.TableCaption(), Cust."No.");
 
         ServLedgEntry.SetRange(Open);
         ServLedgEntry.ModifyAll("Customer No.", NewCustNo);
@@ -147,14 +147,14 @@
         if not ServLedgEntry.IsEmpty() then
             Error(
               Text000,
-              Cust.TableCaption, Cust."No.");
+              Cust.TableCaption(), Cust."No.");
 
         ServLedgEntry.SetRange("Posting Date");
         ServLedgEntry.SetRange(Open, true);
         if not ServLedgEntry.IsEmpty() then
             Error(
               Text001,
-              Cust.TableCaption, Cust."No.");
+              Cust.TableCaption(), Cust."No.");
 
         ServLedgEntry.SetRange(Open);
         ServLedgEntry.ModifyAll("Bill-to Customer No.", NewCustNo);
@@ -167,7 +167,7 @@
         WarrantyLedgEntry.SetRange("Bill-to Customer No.", Cust."No.");
         WarrantyLedgEntry.ModifyAll("Bill-to Customer No.", NewCustNo);
 
-        ServContract.SetFilter(Status, '<>%1', ServContract.Status::Canceled);
+        ServContract.SetFilter(Status, '<>%1', ServContract.Status::Cancelled);
         ServContract.SetRange("Customer No.", Cust."No.");
         if not ServContract.IsEmpty() then
             Error(CannotDeleteBecauseServiceContractErr, Cust."No.");
@@ -176,7 +176,7 @@
         ServContract.ModifyAll("Customer No.", NewCustNo);
 
         ServContract.Reset();
-        ServContract.SetFilter(Status, '<>%1', ServContract.Status::Canceled);
+        ServContract.SetFilter(Status, '<>%1', ServContract.Status::Cancelled);
         ServContract.SetRange("Bill-to Customer No.", Cust."No.");
         if not ServContract.IsEmpty() then
             Error(CannotDeleteBecauseServiceContractErr, Cust."No.");
@@ -214,7 +214,7 @@
         if not VendLedgEntry.IsEmpty() then
             Error(
               Text000,
-              Vend.TableCaption, Vend."No.");
+              Vend.TableCaption(), Vend."No.");
 
         VendLedgEntry.Reset();
         if not VendLedgEntry.SetCurrentKey("Vendor No.", Open) then
@@ -224,7 +224,7 @@
         if not VendLedgEntry.IsEmpty() then
             Error(
               Text001,
-              Vend.TableCaption, Vend."No.");
+              Vend.TableCaption(), Vend."No.");
 
         VendLedgEntry.SetRange(Open);
         VendLedgEntry.ModifyAll("Vendor No.", NewVendNo);
@@ -269,7 +269,7 @@
         if not BankAccLedgEntry.IsEmpty() then
             Error(
               Text000,
-              BankAcc.TableCaption, BankAcc."No.");
+              BankAcc.TableCaption(), BankAcc."No.");
 
         BankAccLedgEntry.Reset();
         if not BankAccLedgEntry.SetCurrentKey("Bank Account No.", Open) then
@@ -279,7 +279,7 @@
         if not BankAccLedgEntry.IsEmpty() then
             Error(
               Text001,
-              BankAcc.TableCaption, BankAcc."No.");
+              BankAcc.TableCaption(), BankAcc."No.");
 
         BankAccLedgEntry.SetRange(Open);
         BankAccLedgEntry.ModifyAll("Bank Account No.", '');
@@ -306,7 +306,7 @@
         if not ItemLedgEntry.IsEmpty() then
             Error(
               Text000,
-              Item.TableCaption, Item."No.");
+              Item.TableCaption(), Item."No.");
 
         ItemLedgEntry.Reset();
         ItemLedgEntry.SetCurrentKey("Item No.");
@@ -324,7 +324,7 @@
         if not ItemLedgEntry.IsEmpty() then
             Error(
               Text001,
-              Item.TableCaption, Item."No.");
+              Item.TableCaption(), Item."No.");
 
         ItemLedgEntry.SetCurrentKey("Item No.", "Applied Entry to Adjust");
         ItemLedgEntry.SetRange(Open, false);
@@ -370,14 +370,14 @@
         if not ServLedgEntry.IsEmpty() then
             Error(
               Text000,
-              Item.TableCaption, Item."No.");
+              Item.TableCaption(), Item."No.");
 
         ServLedgEntry.SetRange("Posting Date");
         ServLedgEntry.SetRange(Open, true);
         if not ServLedgEntry.IsEmpty() then
             Error(
               Text001,
-              Item.TableCaption, Item."No.");
+              Item.TableCaption(), Item."No.");
 
         ServLedgEntry.SetRange(Open);
         ServLedgEntry.ModifyAll("Item No. (Serviced)", NewItemNo);
@@ -391,14 +391,14 @@
         if not ServLedgEntry.IsEmpty() then
             Error(
               Text000,
-              Item.TableCaption, Item."No.");
+              Item.TableCaption(), Item."No.");
 
         ServLedgEntry.SetRange("Posting Date");
         ServLedgEntry.SetRange(Open, true);
         if not ServLedgEntry.IsEmpty() then
             Error(
               Text001,
-              Item.TableCaption, Item."No.");
+              Item.TableCaption(), Item."No.");
 
         ServLedgEntry.SetRange(Open);
         ServLedgEntry.ModifyAll("No.", NewItemNo);
@@ -441,7 +441,7 @@
         if not ResLedgEntry.IsEmpty() then
             Error(
               Text000,
-              Res.TableCaption, Res."No.");
+              Res.TableCaption(), Res."No.");
 
         ResLedgEntry.Reset();
         ResLedgEntry.SetCurrentKey("Resource No.");
@@ -457,14 +457,14 @@
         if not ServLedgEntry.IsEmpty() then
             Error(
               Text000,
-              Res.TableCaption, Res."No.");
+              Res.TableCaption(), Res."No.");
 
         ServLedgEntry.SetRange("Posting Date");
         ServLedgEntry.SetRange(Open, true);
         if not ServLedgEntry.IsEmpty() then
             Error(
               Text001,
-              Res.TableCaption, Res."No.");
+              Res.TableCaption(), Res."No.");
 
         ServLedgEntry.SetRange(Open);
         ServLedgEntry.ModifyAll("No.", NewResNo);
@@ -489,7 +489,7 @@
         if not JobLedgEntry.IsEmpty() then
             Error(
               Text006,
-              Job.TableCaption, Job."No.");
+              Job.TableCaption(), Job."No.");
 
         TimeSheetLine.SetRange(Type, TimeSheetLine.Type::Job);
         TimeSheetLine.SetRange("Job No.", Job."No.");
@@ -505,9 +505,9 @@
         PurchOrderLine.SetRange("Job No.", Job."No.");
         if PurchOrderLine.FindFirst() then begin
             if PurchOrderLine."Document Type" = PurchOrderLine."Document Type"::Order then
-                Error(Text007, Job.TableCaption, Job."No.");
+                Error(Text007, Job.TableCaption(), Job."No.");
             if PurchOrderLine."Document Type" = PurchOrderLine."Document Type"::"Return Order" then
-                Error(Text015, Job.TableCaption, Job."No.");
+                Error(Text015, Job.TableCaption(), Job."No.");
         end;
 
         ServLedgEntry.Reset();
@@ -518,14 +518,14 @@
         if not ServLedgEntry.IsEmpty() then
             Error(
               Text000,
-              Job.TableCaption, Job."No.");
+              Job.TableCaption(), Job."No.");
 
         ServLedgEntry.SetRange("Posting Date");
         ServLedgEntry.SetRange(Open, true);
         if not ServLedgEntry.IsEmpty() then
             Error(
               Text001,
-              Job.TableCaption, Job."No.");
+              Job.TableCaption(), Job."No.");
 
         ServLedgEntry.SetRange(Open);
         ServLedgEntry.ModifyAll("Job No.", NewJobNo);
@@ -572,12 +572,12 @@
             if not ServLedgEntry.IsEmpty() then
                 Error(
                   Text013,
-                  ServiceContractHeader.TableCaption, ServiceContractHeader."Contract No.", ServLedgEntry.TableCaption);
+                  ServiceContractHeader.TableCaption(), ServiceContractHeader."Contract No.", ServLedgEntry.TableCaption());
             ServLedgEntry.SetRange(Open, true);
             if not ServLedgEntry.IsEmpty() then
                 Error(
                   Text014,
-                  ServiceContractHeader.TableCaption, ServiceContractHeader."Contract No.", ServLedgEntry.TableCaption);
+                  ServiceContractHeader.TableCaption(), ServiceContractHeader."Contract No.", ServLedgEntry.TableCaption());
         end;
 
         ServLedgEntry.Reset();
@@ -588,14 +588,14 @@
         if not ServLedgEntry.IsEmpty() then
             Error(
               Text000,
-              ServiceContractHeader.TableCaption, ServiceContractHeader."Contract No.");
+              ServiceContractHeader.TableCaption(), ServiceContractHeader."Contract No.");
 
         ServLedgEntry.SetRange("Posting Date");
         ServLedgEntry.SetRange(Open, true);
         if not ServLedgEntry.IsEmpty() then
             Error(
               Text001,
-              ServiceContractHeader.TableCaption, ServiceContractHeader."Contract No.");
+              ServiceContractHeader.TableCaption(), ServiceContractHeader."Contract No.");
 
         ServLedgEntry.SetRange(Open);
         ServLedgEntry.ModifyAll("Service Contract No.", NewContractNo);
@@ -609,14 +609,14 @@
         if not ServLedgEntry.IsEmpty() then
             Error(
               Text000,
-              ServiceContractHeader.TableCaption, ServiceContractHeader."Contract No.");
+              ServiceContractHeader.TableCaption(), ServiceContractHeader."Contract No.");
 
         ServLedgEntry.SetRange("Posting Date");
         ServLedgEntry.SetRange(Open, true);
         if not ServLedgEntry.IsEmpty() then
             Error(
               Text001,
-              ServiceContractHeader.TableCaption, ServiceContractHeader."Contract No.");
+              ServiceContractHeader.TableCaption(), ServiceContractHeader."Contract No.");
 
         ServLedgEntry.SetRange(Open);
         ServLedgEntry.ModifyAll("No.", NewContractNo);
@@ -643,14 +643,14 @@
         if not ServLedgEntry.IsEmpty() then
             Error(
               Text000,
-              ServiceCost.TableCaption, ServiceCost.Code);
+              ServiceCost.TableCaption(), ServiceCost.Code);
 
         ServLedgEntry.SetRange("Posting Date");
         ServLedgEntry.SetRange(Open, true);
         if not ServLedgEntry.IsEmpty() then
             Error(
               Text001,
-              ServiceCost.TableCaption, ServiceCost.Code);
+              ServiceCost.TableCaption(), ServiceCost.Code);
 
         ServLedgEntry.SetRange(Open);
         ServLedgEntry.ModifyAll("No.", NewCostCode);
@@ -688,7 +688,7 @@
         if not CFForecastEntry.IsEmpty() then
             Error(
               Text000,
-              CashFlowAccount.TableCaption, CashFlowAccount."No.");
+              CashFlowAccount.TableCaption(), CashFlowAccount."No.");
 
         CFSetup.Get();
         if CFSetup."Receivables CF Account No." = CashFlowAccount."No." then
@@ -775,12 +775,12 @@
         if AccountingPeriod.FindFirst() then
             ServiceLedgerEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
         if not ServiceLedgerEntry.IsEmpty() then
-            exit(StrSubstNo(Text000, ServiceItem.TableCaption, ServiceItemNo));
+            exit(StrSubstNo(Text000, ServiceItem.TableCaption(), ServiceItemNo));
 
         ServiceLedgerEntry.SetRange("Posting Date");
         ServiceLedgerEntry.SetRange(Open, true);
         if not ServiceLedgerEntry.IsEmpty() then
-            exit(StrSubstNo(Text001, ServiceItem.TableCaption, ServiceItemNo));
+            exit(StrSubstNo(Text001, ServiceItem.TableCaption(), ServiceItemNo));
 
         ServiceLedgerEntry.SetRange(Open);
         exit('');
@@ -825,7 +825,7 @@
         GLBudgetEntry.SetRange("G/L Account No.", GLAccount."No.");
         GLBudgetEntry.SetFilter(Date, '>=%1', GeneralLedgerSetup."Allow G/L Acc. Deletion Before");
 
-        HasGLEntries := not GLEntry.IsEmpty;
+        HasGLEntries := not GLEntry.IsEmpty();
         HasGLBudgetEntries := GLBudgetEntry.FindFirst();
 
         if HasGLEntries or HasGLBudgetEntries then begin

@@ -415,8 +415,8 @@ codeunit 144101 "ERM G/L Reports"
         Qty := LibraryRandom.RandDecInRange(10, 20, 2);
         LibraryRUReports.CreateAndPostItemJournalLine('', Item."No.", Qty, false);
 
-        Item.SetFilter("Date Filter", Format(WorkDate));
-        Item.SetRecFilter;
+        Item.SetFilter("Date Filter", Format(WorkDate()));
+        Item.SetRecFilter();
         Clear(ItemTurnover);
         ItemTurnover.SetTableView(Item);
         ItemTurnover.Run();
@@ -689,7 +689,7 @@ codeunit 144101 "ERM G/L Reports"
         // [GIVEN] StartingDebitAmount = "A", StartingCreditAmount = "B" and StartingTotalAmount = "C" with "G/L Account Filter" = "PA"
         CalculateVendorStartingBalance(
           StartingDebitAmount, StartingCreditAmount, StartingTotalAmount,
-          VendorPostingGroup."Payables Account", WorkDate);
+          VendorPostingGroup."Payables Account", WorkDate());
 
         // [WHEN] Run "Vendor G/L Turnover" report with G/L account filter = "PA" on 11/01/2017.
         RunVendorGLTurnover(VendorPostingGroup."Payables Account", LibraryRandom.RandDate(10));
@@ -729,8 +729,8 @@ codeunit 144101 "ERM G/L Reports"
         CreateAndPostCustomerPaymentWithAgreement(GenJournalLine, Customer."No.", CustomerAgreement."No.", -LibraryRandom.RandInt(100));
 
         // [WHEN] Run "Customer G/L Turnover" report for the single created above customer
-        Customer.SetFilter("Date Filter", Format(WorkDate));
-        Customer.SetRecFilter;
+        Customer.SetFilter("Date Filter", Format(WorkDate()));
+        Customer.SetRecFilter();
         REPORT.Run(REPORT::"Customer G/L Turnover", true, false, Customer);
 
         // [THEN] Customer Debit Amount and Customer Credit Amount must be equal to the detailed totals respectively
@@ -773,8 +773,8 @@ codeunit 144101 "ERM G/L Reports"
         CreateAndPostVendorPaymentWithAgreement(GenJournalLine, Vendor."No.", VendorAgreement."No.", LibraryRandom.RandInt(100));
 
         // [WHEN] Run "Vendor G/L Turnover" report for the single created above vendor
-        Vendor.SetFilter("Date Filter", Format(WorkDate));
-        Vendor.SetRecFilter;
+        Vendor.SetFilter("Date Filter", Format(WorkDate()));
+        Vendor.SetRecFilter();
         REPORT.Run(REPORT::"Vendor G/L Turnover", true, false, Vendor);
 
         // [THEN] Vendor Debit Amount and Vendor Credit Amount must be equal to the detailed totals respectively
@@ -885,8 +885,8 @@ codeunit 144101 "ERM G/L Reports"
         LibrarySales.CreateCustomer(Customer);
         Amount := CreatePostGenJnlLine(GenJnlLine."Account Type"::Customer, Customer."No.", 1);
 
-        Customer.SetFilter("Date Filter", Format(WorkDate));
-        Customer.SetRecFilter;
+        Customer.SetFilter("Date Filter", Format(WorkDate()));
+        Customer.SetRecFilter();
     end;
 
     local procedure InitVendorForReport(var Vendor: Record Vendor) Amount: Decimal
@@ -897,8 +897,8 @@ codeunit 144101 "ERM G/L Reports"
         LibraryPurchase.CreateVendor(Vendor);
         Amount := CreatePostGenJnlLine(GenJnlLine."Account Type"::Vendor, Vendor."No.", 1);
 
-        Vendor.SetFilter("Date Filter", Format(WorkDate));
-        Vendor.SetRecFilter;
+        Vendor.SetFilter("Date Filter", Format(WorkDate()));
+        Vendor.SetRecFilter();
     end;
 
     local procedure InitBankAccountForReport(var BankAccount: Record "Bank Account") Amount: Decimal
@@ -909,7 +909,7 @@ codeunit 144101 "ERM G/L Reports"
         LibraryERM.CreateBankAccount(BankAccount);
         Amount := CreatePostGenJnlLine(GenJnlLine."Account Type"::"Bank Account", BankAccount."No.", 1);
 
-        BankAccount.SetRecFilter;
+        BankAccount.SetRecFilter();
     end;
 
     local procedure InitFixedAssetForReport(var FixedAsset: Record "Fixed Asset") Amount: Decimal
@@ -920,8 +920,8 @@ codeunit 144101 "ERM G/L Reports"
         LibraryFixedAsset.CreateFixedAssetWithSetup(FixedAsset);
         Amount := CreatePostGenJnlLine(GenJnlLine."Account Type"::"Fixed Asset", FixedAsset."No.", 1);
 
-        FixedAsset.SetFilter("Date Filter", Format(WorkDate));
-        FixedAsset.SetRecFilter;
+        FixedAsset.SetFilter("Date Filter", Format(WorkDate()));
+        FixedAsset.SetRecFilter();
     end;
 
     local procedure InitGLAccountWithBalance(var GLAccountNo: Code[20]; var Amount: Decimal)
@@ -1120,10 +1120,10 @@ codeunit 144101 "ERM G/L Reports"
     local procedure CreateVendorAgreement(var VendorAgreement: Record "Vendor Agreement"; Vendor: Record Vendor)
     begin
         with VendorAgreement do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateGUID();
             Validate("Vendor No.", Vendor."No.");
-            Validate("Expire Date", CalcDate('<1M>', WorkDate));
+            Validate("Expire Date", CalcDate('<1M>', WorkDate()));
             Validate("Vendor Posting Group", Vendor."Vendor Posting Group");
             Validate("VAT Bus. Posting Group", Vendor."VAT Bus. Posting Group");
             Validate("Gen. Bus. Posting Group", Vendor."Gen. Bus. Posting Group");
@@ -1135,10 +1135,10 @@ codeunit 144101 "ERM G/L Reports"
     local procedure CreateCustomerAgreement(var CustomerAgreement: Record "Customer Agreement"; Customer: Record Customer)
     begin
         with CustomerAgreement do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateGUID();
             Validate("Customer No.", Customer."No.");
-            Validate("Expire Date", CalcDate('<1M>', WorkDate));
+            Validate("Expire Date", CalcDate('<1M>', WorkDate()));
             Validate("Customer Posting Group", Customer."Customer Posting Group");
             Validate("VAT Bus. Posting Group", Customer."VAT Bus. Posting Group");
             Validate("Gen. Bus. Posting Group", Customer."Gen. Bus. Posting Group");
@@ -1151,7 +1151,7 @@ codeunit 144101 "ERM G/L Reports"
     begin
         GLEntry.Init();
         GLEntry."Entry No." := LibraryUtility.GetNewRecNo(GLEntry, GLEntry.FieldNo("Entry No."));
-        GLEntry."Posting Date" := WorkDate;
+        GLEntry."Posting Date" := WorkDate();
         GLEntry."G/L Account No." := GLAccNo;
         GLEntry."Debit Amount" := DebitAmount;
         GLEntry."Source Type" := SourceType;
@@ -1170,7 +1170,7 @@ codeunit 144101 "ERM G/L Reports"
             StartingDebitAmount += Customer."G/L Debit Amount";
             StartingCreditAmount += Customer."G/L Credit Amount";
             StartTotalAmount += Customer."G/L Starting Balance";
-        until Customer.Next = 0;
+        until Customer.Next() = 0;
     end;
 
     local procedure CalculateVendorStartingBalance(var StartingDebitAmount: Decimal; var StartingCreditAmount: Decimal; var StartingTotalAmount: Decimal; GLAccountNo: Code[20]; StartingDate: Date)
@@ -1193,17 +1193,17 @@ codeunit 144101 "ERM G/L Reports"
     local procedure SetGLAccountFilters(var GLAccount: Record "G/L Account"; GLAccNo: Code[20])
     begin
         GLAccount.Get(GLAccNo);
-        GLAccount.SetFilter("Date Filter", Format(WorkDate));
-        GLAccount.SetRecFilter;
+        GLAccount.SetFilter("Date Filter", Format(WorkDate()));
+        GLAccount.SetRecFilter();
     end;
 
     local procedure SetGLAccountSourceTypeAndSourceNoFilters(var GLAccount: Record "G/L Account"; GLAccNo: Code[20]; SourceType: Enum "Gen. Journal Source Type"; CustomerNo: Code[20])
     begin
         GLAccount.Get(GLAccNo);
-        GLAccount.SetFilter("Date Filter", Format(WorkDate));
+        GLAccount.SetFilter("Date Filter", Format(WorkDate()));
         GLAccount.SetFilter("Source Type Filter", '%1', SourceType);
         GLAccount.SetFilter("Source No. Filter", '%1', CustomerNo);
-        GLAccount.SetRecFilter;
+        GLAccount.SetRecFilter();
     end;
 
     local procedure UpdateFAPostingType(var GenJnlLine: Record "Gen. Journal Line")
@@ -1251,8 +1251,8 @@ codeunit 144101 "ERM G/L Reports"
 
         Amount := CreatePostGenJnlLine(GenJnlLine."Account Type"::Customer, Customer."No.", Sign);
 
-        Customer.SetFilter("Date Filter", Format(WorkDate));
-        Customer.SetRecFilter;
+        Customer.SetFilter("Date Filter", Format(WorkDate()));
+        Customer.SetRecFilter();
     end;
 
     local procedure RunCustomerAccountingCard(CustomerNo: Code[20]; GLAccountNo: Code[20])
@@ -1265,7 +1265,7 @@ codeunit 144101 "ERM G/L Reports"
         Commit();
 
         Customer.SetRange("No.", CustomerNo);
-        Customer.SetRange("Date Filter", WorkDate);
+        Customer.SetRange("Date Filter", WorkDate());
         Customer.SetRange("G/L Account Filter", GLAccountNo);
         Clear(CustomerAccountingCard);
         CustomerAccountingCard.SetTableView(Customer);
@@ -1399,9 +1399,9 @@ codeunit 144101 "ERM G/L Reports"
     [Scope('OnPrem')]
     procedure GLCorrEntriesAnalysisReportHandler(var GLCorrEntriesAnalysisReport: TestRequestPage "G/L Corresp Entries Analysis")
     begin
-        GLCorrEntriesAnalysisReport.PeriodBeginning.SetValue(WorkDate);
-        GLCorrEntriesAnalysisReport.EndingOfPeriod.SetValue(WorkDate);
-        GLCorrEntriesAnalysisReport.DebitCreditSeparately.SetValue(WorkDate);
+        GLCorrEntriesAnalysisReport.PeriodBeginning.SetValue(WorkDate());
+        GLCorrEntriesAnalysisReport.EndingOfPeriod.SetValue(WorkDate());
+        GLCorrEntriesAnalysisReport.DebitCreditSeparately.SetValue(WorkDate());
         GLCorrEntriesAnalysisReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -1430,8 +1430,8 @@ codeunit 144101 "ERM G/L Reports"
     [Scope('OnPrem')]
     procedure BankAccountGLTurnoverHandler(var BankAccountGLTurnover: TestRequestPage "Bank Account G/L Turnover")
     begin
-        BankAccountGLTurnover."Starting Date".SetValue(WorkDate);
-        BankAccountGLTurnover."Ending Date".SetValue(WorkDate);
+        BankAccountGLTurnover."Starting Date".SetValue(WorkDate());
+        BankAccountGLTurnover."Ending Date".SetValue(WorkDate());
         BankAccountGLTurnover.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -1463,7 +1463,7 @@ codeunit 144101 "ERM G/L Reports"
         DatePeriod: Record Date;
     begin
         SelectReportingPeriod.FILTER.SetFilter("Period Type", Format(DatePeriod."Period Type"::Month));
-        SelectReportingPeriod.FILTER.SetFilter("Period End", Format(ClosingDate(CalcDate('<CM>', WorkDate))));
+        SelectReportingPeriod.FILTER.SetFilter("Period End", Format(ClosingDate(CalcDate('<CM>', WorkDate()))));
         SelectReportingPeriod.OK.Invoke;
     end;
 
@@ -1499,8 +1499,8 @@ codeunit 144101 "ERM G/L Reports"
     [Scope('OnPrem')]
     procedure FATurnoverHandler(var FATurnover: TestRequestPage "FA Turnover")
     begin
-        FATurnover."Starting Date".SetValue(WorkDate);
-        FATurnover."Ending Date".SetValue(WorkDate);
+        FATurnover."Starting Date".SetValue(WorkDate());
+        FATurnover."Ending Date".SetValue(WorkDate());
         FATurnover."Depreciation Book Code".SetValue(LibraryVariableStorage.DequeueText);
         FATurnover."Skip zero lines".SetValue(true);
         FATurnover.SaveAsExcel(LibraryReportValidation.GetFileName);
@@ -1552,7 +1552,7 @@ codeunit 144101 "ERM G/L Reports"
     [Scope('OnPrem')]
     procedure CustomerAccountingCardRequestPageHandler(var CustomerAccountingCard: TestRequestPage "Customer Accounting Card")
     begin
-        CustomerAccountingCard.Customer.SetFilter("Date Filter", Format(WorkDate));
+        CustomerAccountingCard.Customer.SetFilter("Date Filter", Format(WorkDate()));
         CustomerAccountingCard.Customer.SetFilter("G/L Account Filter", LibraryVariableStorage.DequeueText);
         CustomerAccountingCard.SaveAsExcel(LibraryVariableStorage.DequeueText);
     end;

@@ -45,7 +45,7 @@ codeunit 1210 "Payment Export Mgt"
         if not DataExchDef."Columns as Rows" then begin
             BankAccount.Get(PaymentExportData."Sender Bank Account Code");
             PaymentExportData."Sender Bank Account No." :=
-              CopyStr(BankAccount.GetBankAccountNo, 1, MaxStrLen(PaymentExportData."Sender Bank Account No."));
+              CopyStr(BankAccount.GetBankAccountNo(), 1, MaxStrLen(PaymentExportData."Sender Bank Account No."));
             PaymentExportData.Modify();
         end;
 
@@ -61,9 +61,70 @@ codeunit 1210 "Payment Export Mgt"
         DataExchColumnDef: Record "Data Exch. Column Def";
         DataExchField: Record "Data Exch. Field";
         DataExchFieldMapping: Record "Data Exch. Field Mapping";
+        TransformationRule: Record "Transformation Rule";
         StringConversionManagement: Codeunit StringConversionManagement;
         ValueAsDestType: Variant;
         FieldRef: FieldRef;
+        ValueAsString: Text[250];
+        IsHandled: Boolean;
+    begin
+        if not DataExchDef.Get(DataExch."Data Exch. Def Code") then
+            Error(FormatNotDefinedErr, DataExch."Data Exch. Def Code");
+
+        PrepopulateColumns(DataExchDef, DataExchLineDefCode, DataExch."Entry No.", LineNo);
+
+        DataExchFieldMapping.SetRange("Data Exch. Def Code", DataExchDef.Code);
+        DataExchFieldMapping.SetRange("Data Exch. Line Def Code", DataExchLineDefCode);
+        DataExchFieldMapping.SetRange("Table ID", TableID);
+        DataExchFieldMapping.FindSet();
+
+        repeat
+            DataExchColumnDef.Get(DataExchDef.Code, DataExchLineDefCode, DataExchFieldMapping."Column No.");
+
+            if DataExchFieldMapping."Use Default Value" then
+                ValueAsString := DataExchFieldMapping."Default Value"
+            else begin
+                FieldRef := RecRef.Field(DataExchFieldMapping."Field ID");
+                if FieldRef.Class = FieldRef.Class::FlowField then
+                    FieldRef.CalcField();
+                CheckOptional(DataExchFieldMapping.Optional, FieldRef);
+                CastToDestinationType(ValueAsDestType, FieldRef.Value, DataExchColumnDef, DataExchFieldMapping.Multiplier);
+                IsHandled := false;
+                OnOnProcessColumnMappingOnBeforeFormatToText(ValueAsString, ValueAsDestType, DataExchDef, DataExchColumnDef, IsHandled);
+                if not IsHandled then
+                    ValueAsString := FormatToText(ValueAsDestType, DataExchDef, DataExchColumnDef);
+
+                if TransformationRule.Get(DataExchFieldMapping."Transformation Rule") then
+                    ValueAsString := CopyStr(TransformationRule.TransformText(ValueAsString), 1, 250);
+
+                if DataExchColumnDef."Text Padding Required" and (DataExchColumnDef."Pad Character" <> '') and (not DataExchColumnDef."Blank Zero") then
+                    ValueAsString :=
+                        StringConversionManagement.GetPaddedString(
+                            ValueAsString,
+                            DataExchColumnDef.Length,
+                            DataExchColumnDef."Pad Character",
+                            DataExchColumnDef.Justification);
+            end;
+
+            OnProcessColumnMappingOnBeforeCheckLength(ValueAsString, DataExchFieldMapping, DataExchColumnDef);
+            CheckLength(ValueAsString, RecRef.Field(DataExchFieldMapping."Field ID"), DataExchDef, DataExchColumnDef);
+
+            DataExchField.Get(DataExch."Entry No.", LineNo, DataExchFieldMapping."Column No.");
+            DataExchField.Value := ValueAsString;
+            DataExchField.Modify();
+        until DataExchFieldMapping.Next() = 0;
+    end;
+
+    procedure ProcessColumnMapping(var DataExch: Record "Data Exch."; RecRef: RecordRef; var DataExchFlowFieldGrBuff: Record "Data Exch. FlowField Gr. Buff."; LineNo: Integer; DataExchLineDefCode: Code[20]; TableID: Integer)
+    var
+        DataExchDef: Record "Data Exch. Def";
+        DataExchColumnDef: Record "Data Exch. Column Def";
+        DataExchField: Record "Data Exch. Field";
+        DataExchFieldMapping: Record "Data Exch. Field Mapping";
+        TransformationRule: Record "Transformation Rule";
+        StringConversionManagement: Codeunit StringConversionManagement;
+        FieldRef: FieldRef;
+        ValueAsDestType: Variant;
         ValueAsString: Text[250];
     begin
         if not DataExchDef.Get(DataExch."Data Exch. Def Code") then
@@ -83,10 +144,20 @@ codeunit 1210 "Payment Export Mgt"
                 ValueAsString := DataExchFieldMapping."Default Value"
             else begin
                 FieldRef := RecRef.Field(DataExchFieldMapping."Field ID");
+                if FieldRef.Class = FieldRef.Class::FlowField then
+                    if DataExchFlowFieldGrBuff.Get(RecRef.RecordId, FieldRef.Number) then
+                        FieldRef.Value := DataExchFlowFieldGrBuff.Value
+                    else
+                        FieldRef.CalcField();
+
                 CheckOptional(DataExchFieldMapping.Optional, FieldRef);
                 CastToDestinationType(ValueAsDestType, FieldRef.Value, DataExchColumnDef, DataExchFieldMapping.Multiplier);
                 ValueAsString := FormatToText(ValueAsDestType, DataExchDef, DataExchColumnDef);
-                if DataExchColumnDef."Text Padding Required" and (DataExchColumnDef."Pad Character" <> '') then
+
+                if TransformationRule.Get(DataExchFieldMapping."Transformation Rule") then
+                    ValueAsString := CopyStr(TransformationRule.TransformText(ValueAsString), 1, 250);
+
+                if DataExchColumnDef."Text Padding Required" and (DataExchColumnDef."Pad Character" <> '') and (not DataExchColumnDef."Blank Zero") then
                     ValueAsString :=
                         StringConversionManagement.GetPaddedString(
                             ValueAsString,
@@ -201,6 +272,9 @@ codeunit 1210 "Payment Export Mgt"
         if IsHandled then
             exit(ResultText);
 
+        if (Format(ValueToFormat) = '0') and (DataExchColumnDef."Blank Zero") then
+            exit('');
+
         if DataExchColumnDef."Data Format" <> '' then
             exit(Format(ValueToFormat, 0, DataExchColumnDef."Data Format"));
 
@@ -297,6 +371,11 @@ codeunit 1210 "Payment Export Mgt"
 
     [IntegrationEvent(false, false)]
     local procedure OnProcessColumnMappingOnBeforeCheckLength(var ValueAsString: Text[250]; DataExchFieldMapping: Record "Data Exch. Field Mapping"; DataExchColumnDef: Record "Data Exch. Column Def")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnProcessColumnMappingOnBeforeFormatToText(var ValueAsString: Text[250]; ValueAsDestType: Variant; DataExchDef: Record "Data Exch. Def"; DataExchColumnDef: Record "Data Exch. Column Def"; var IsHandled: Boolean)
     begin
     end;
 

@@ -27,25 +27,25 @@ codeunit 5550 "Fixed Asset Acquisition Wizard"
 
     procedure PopulateDataOnNotification(var FixedAssetAcquisitionNotification: Notification; FixedAssetNo: Code[20])
     begin
-        FixedAssetAcquisitionNotification.SetData(GetNotificationFANoDataItemID, FixedAssetNo);
+        FixedAssetAcquisitionNotification.SetData(GetNotificationFANoDataItemID(), FixedAssetNo);
     end;
 
     procedure InitializeFromNotification(FixedAssetAcquisitionNotification: Notification; var FixedAssetNo: Code[20])
     begin
-        FixedAssetNo := FixedAssetAcquisitionNotification.GetData(GetNotificationFANoDataItemID);
+        FixedAssetNo := FixedAssetAcquisitionNotification.GetData(GetNotificationFANoDataItemID());
     end;
 
     procedure GetAutogenJournalBatch(): Code[10]
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        if not GenJournalBatch.Get(SelectFATemplate, GetDefaultGenJournalBatchName()) then begin
+        if not GenJournalBatch.Get(SelectFATemplate(), GetDefaultGenJournalBatchName()) then begin
             GenJournalBatch.Init();
-            GenJournalBatch."Journal Template Name" := SelectFATemplate;
+            GenJournalBatch."Journal Template Name" := SelectFATemplate();
             GenJournalBatch.Name := CopyStr(GetDefaultGenJournalBatchName(), 1,
                 MaxStrLen(GenJournalBatch.Name));
             GenJournalBatch.Description := SimpleJnlDescriptionTxt;
-            GenJournalBatch.SetupNewBatch;
+            GenJournalBatch.SetupNewBatch();
             GenJournalBatch.Insert();
         end;
 
@@ -98,8 +98,8 @@ codeunit 5550 "Fixed Asset Acquisition Wizard"
     var
         FixedAsset: Record "Fixed Asset";
     begin
-        if Notification.Id = FixedAsset.GetNotificationID then
-            FixedAsset.DontNotifyCurrentUserAgain;
+        if Notification.Id = FixedAsset.GetNotificationID() then
+            FixedAsset.DontNotifyCurrentUserAgain();
     end;
 
     procedure GetNotificationFANoDataItemID(): Text
@@ -117,7 +117,7 @@ codeunit 5550 "Fixed Asset Acquisition Wizard"
     var
         FixedAsset: Record "Fixed Asset";
     begin
-        FixedAsset.RecallNotificationForCurrentUser;
+        FixedAsset.RecallNotificationForCurrentUser();
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
@@ -125,7 +125,7 @@ codeunit 5550 "Fixed Asset Acquisition Wizard"
     var
         FixedAsset: Record "Fixed Asset";
     begin
-        FixedAsset.SetNotificationDefaultState;
+        FixedAsset.SetNotificationDefaultState();
     end;
 }
 

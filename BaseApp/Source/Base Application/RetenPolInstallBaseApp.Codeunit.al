@@ -8,6 +8,7 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
 
     var
         OneMonthTok: Label 'One Month', MaxLength = 20;
+        OneWeekTok: Label 'One Week', MaxLength = 20;
 
     trigger OnInstallAppPerCompany()
     var
@@ -39,6 +40,16 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
         if not UpgradeTag.HasUpgradeTag(GetRetenPolDocArchivesTablesUpgradeTag()) then begin
             AddDocumentArchiveTablesToAllowedTables();
             UpgradeTag.SetUpgradeTag(GetRetenPolDocArchivesTablesUpgradeTag());
+        end;
+
+        if not UpgradeTag.HasUpgradeTag(GetRetenPolDataverseEntityChangeUpgradeTag()) then begin
+            AddDataverseEntityChange();
+            UpgradeTag.SetUpgradeTag(GetRetenPolDataverseEntityChangeUpgradeTag());
+        end;
+
+        if not UpgradeTag.HasUpgradeTag(GetRetenPolActivityLogUpgradeTag()) then begin
+            RetenPolAllowedTables.AddAllowedTable(Database::"Activity Log");
+            UpgradeTag.SetUpgradeTag(GetRetenPolActivityLogUpgradeTag());
         end;
     end;
 
@@ -100,6 +111,16 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
         RetenPolAllowedTables.AddAllowedTable(Database::"Purchase Header Archive", PurchaseHeaderArchive.FieldNo("Last Archived Date"), 0, RetenPolFiltering::"Document Archive Filtering", RetenPolDeleting::Default, TableFilters);
     end;
 
+    local procedure AddDataverseEntityChange()
+    var
+        DataverseEntityChange: Record "Dataverse Entity Change";
+        RetenPolAllowedTables: Codeunit "Reten. Pol. Allowed Tables";
+    begin
+        RetenPolAllowedTables.AddAllowedTable(Database::"Dataverse Entity Change", DataverseEntityChange.FieldNo(SystemCreatedAt));
+        CreateRetentionPolicySetup(Database::"Dataverse Entity Change", CreateOneWeekRetentionPeriod());
+        EnableRetentionPolicySetup(Database::"Dataverse Entity Change");
+    end;
+
     local procedure CreateOneMonthRetentionPeriod(): Code[20]
     var
         RetentionPeriod: Record "Retention Period";
@@ -118,6 +139,24 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
         exit(RetentionPeriod.Code);
     end;
 
+    local procedure CreateOneWeekRetentionPeriod(): Code[20]
+    var
+        RetentionPeriod: Record "Retention Period";
+    begin
+        if RetentionPeriod.Get(OneWeekTok) then
+            exit(RetentionPeriod.Code);
+
+        RetentionPeriod.SetRange("Retention Period", RetentionPeriod."Retention Period"::"1 Week");
+        if RetentionPeriod.FindFirst() then
+            exit(RetentionPeriod.Code);
+
+        RetentionPeriod.Code := CopyStr(UpperCase(OneWeekTok), 1, MaxStrLen(RetentionPeriod.Code));
+        RetentionPeriod.Description := OneWeekTok;
+        RetentionPeriod.Validate("Retention Period", RetentionPeriod."Retention Period"::"1 Week");
+        RetentionPeriod.Insert(true);
+        exit(RetentionPeriod.Code);
+    end;
+
     local procedure CreateRetentionPolicySetup(TableId: Integer; RetentionPeriodCode: Code[20])
     var
         RetentionPolicySetup: Record "Retention Policy Setup";
@@ -131,6 +170,27 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
         RetentionPolicySetup.Insert(true);
     end;
 
+    local procedure EnableRetentionPolicySetup(TableId: Integer)
+    var
+        RetentionPolicySetup: Record "Retention Policy Setup";
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        if not TaskScheduler.CanCreateTask() then
+            exit;
+
+        if not (JobQueueEntry.ReadPermission() and JobQueueEntry.WritePermission()) then
+            exit;
+
+        if not JobQueueEntry.TryCheckRequiredPermissions() then
+            exit;
+
+        if not RetentionPolicySetup.Get(TableId) then
+            exit;
+
+        RetentionPolicySetup.Validate(Enabled, true);
+        RetentionPolicySetup.Modify(true);
+    end;
+
     local procedure GetRetenPolBaseAppTablesUpgradeTag(): Code[250]
     begin
         exit('MS-334067-RetenPolBaseAppTables-20200801');
@@ -139,6 +199,16 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
     local procedure GetRetenPolDocArchivesTablesUpgradeTag(): Code[250]
     begin
         exit('MS-378964-RetenPolDocArchives-20210423');
+    end;
+
+    local procedure GetRetenPolDataverseEntityChangeUpgradeTag(): Code[250]
+    begin
+        exit('MS-434662-RetenPolDataverseEntityChange-20220428');
+    end;
+
+    local procedure GetRetenPolActivityLogUpgradeTag(): Code[250]
+    begin
+        exit('MS-436257-RetenPolActivityLog-20220526');
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company-Initialize", 'OnBeforeOnRun', '', false, false)]

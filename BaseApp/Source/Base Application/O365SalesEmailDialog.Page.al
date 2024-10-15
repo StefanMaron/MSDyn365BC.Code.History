@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2150 "O365 Sales Email Dialog"
 {
     Caption = 'Send Email';
@@ -5,6 +6,9 @@ page 2150 "O365 Sales Email Dialog"
     RefreshOnActivate = true;
     SourceTable = "Email Item";
     SourceTableTemporary = true;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -12,7 +16,7 @@ page 2150 "O365 Sales Email Dialog"
         {
             field(SendToText; SendTo)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'To';
                 ExtendedDatatype = EMail;
                 ToolTip = 'Specifies the recipient of the email.';
@@ -29,7 +33,7 @@ page 2150 "O365 Sales Email Dialog"
             }
             field(CcBccText; CcAndBcc)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'CC/BCC';
                 Editable = false;
                 Importance = Additional;
@@ -39,13 +43,13 @@ page 2150 "O365 Sales Email Dialog"
                 trigger OnAssistEdit()
                 begin
                     PAGE.RunModal(PAGE::"BC O365 Email Settings");
-                    TempEmailItem.AddCcBcc;
+                    TempEmailItem.AddCcBcc();
                     UpdateCcBccText(TempEmailItem."Send CC", TempEmailItem."Send BCC");
                 end;
             }
             field(FromAddressField; FromAddress)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'From';
                 Editable = false;
                 ExtendedDatatype = EMail;
@@ -63,7 +67,7 @@ page 2150 "O365 Sales Email Dialog"
             }
             field(Subject; SubjectText)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Subject';
                 ToolTip = 'Specifies the text that will display as the subject of the email.';
 
@@ -74,7 +78,7 @@ page 2150 "O365 Sales Email Dialog"
             }
             field(Body; BodyText)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Email Body Text';
                 MultiLine = true;
                 Visible = NOT IsBodyHidden;
@@ -89,7 +93,7 @@ page 2150 "O365 Sales Email Dialog"
             }
             field(ShowEmailContentLbl; ShowEmailContentLbl)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Editable = false;
                 ShowCaption = false;
 
@@ -99,7 +103,7 @@ page 2150 "O365 Sales Email Dialog"
                     O365EmailPreview: Page "O365 Email Preview";
                     FileName: Text;
                 begin
-                    BodyText := TempEmailItem.GetBodyText;
+                    BodyText := TempEmailItem.GetBodyText();
                     if TempEmailItem."Body File Path" = '' then
                         FileName := FileManagement.CreateAndWriteToServerFile(BodyText, 'html')
                     else
@@ -115,7 +119,7 @@ page 2150 "O365 Sales Email Dialog"
             }
             field(AttachmentName; InvoiceOrEstimate)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Editable = false;
                 ShowCaption = false;
                 Visible = HasInvoiceAttachment;
@@ -139,7 +143,7 @@ page 2150 "O365 Sales Email Dialog"
             }
             field(NoOfAttachmentsValueTxt; NoOfAttachmentsValueTxt)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Editable = false;
                 ShowCaption = false;
 
@@ -156,7 +160,7 @@ page 2150 "O365 Sales Email Dialog"
                     RecRef.GetTable(DocumentHeaderRecordVariant);
                     if RecRef.Number = DATABASE::"Sales Header" then begin
                         SalesHeader := DocumentHeaderRecordVariant;
-                        if SalesHeader.Find then
+                        if SalesHeader.Find() then
                             DocumentHeaderRecordVariant := SalesHeader;
                     end;
                 end;
@@ -189,8 +193,8 @@ page 2150 "O365 Sales Email Dialog"
         SubjectText := TempEmailItem.Subject;
         if not MailManagement.TryGetSenderEmailAddress(FromAddress) then;
         TempEmailItem.CalcFields(Body);
-        TempEmailItem.Body.CreateInStream(BodyInStream, O365SalesEmailManagement.GetBodyTextEncoding);
-        BodyText := TypeHelper.ReadAsTextWithSeparator(BodyInStream, TypeHelper.LFSeparator);
+        TempEmailItem.Body.CreateInStream(BodyInStream, O365SalesEmailManagement.GetBodyTextEncoding());
+        BodyText := TypeHelper.ReadAsTextWithSeparator(BodyInStream, TypeHelper.LFSeparator());
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -268,7 +272,7 @@ page 2150 "O365 Sales Email Dialog"
                 exit;
 
         if ReportSelections.GetEmailBodyTextForCust(TempEmailItem."Body File Path", ReportUsage, DocumentHeaderRecordVariant,
-             CustomerNo, SendTo, TempEmailItem.GetBodyText)
+             CustomerNo, SendTo, TempEmailItem.GetBodyText())
         then
             TempEmailItem.Modify();
         Commit();
@@ -333,4 +337,4 @@ page 2150 "O365 Sales Email Dialog"
         InvoiceOrEstimate := pdfInvoiceTxt;
     end;
 }
-
+#endif

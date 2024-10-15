@@ -90,7 +90,7 @@
                 AvailableToSelect: Decimal;
             begin
                 if "Bin Active" and ("Total Available Quantity" > "Bin Content") then begin
-                    AvailableToSelect := QtyAvailableToSelectFromBin;
+                    AvailableToSelect := QtyAvailableToSelectFromBin();
                     if "Selected Quantity" > AvailableToSelect then
                         Error(Text001, AvailableToSelect);
                 end else
@@ -154,26 +154,16 @@
         {
             Caption = 'CD No.';
             ObsoleteReason = 'Replaced by field Package No.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
         field(14901; "Lot/CD Exists"; Boolean)
         {
             Caption = 'Lot/CD Exists';
             Editable = false;
             ObsoleteReason = 'Replaced by W1 field Non Serial Tracking.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
     }
 

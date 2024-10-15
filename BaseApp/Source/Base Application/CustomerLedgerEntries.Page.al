@@ -7,10 +7,8 @@ page 25 "Customer Ledger Entries"
     InsertAllowed = false;
     PageType = List;
     Permissions = TableData "Cust. Ledger Entry" = m;
-    PromotedActionCategories = 'New,Process,Report,Line,Entry,Navigate';
     SourceTable = "Cust. Ledger Entry";
-    SourceTableView = SORTING("Entry No.")
-                      ORDER(Descending);
+    SourceTableView = SORTING("Customer No.", "Posting Date") ORDER(Descending);
     UsageCategory = History;
 
     layout
@@ -20,20 +18,20 @@ page 25 "Customer Ledger Entries"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the customer entry''s posting date.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the document type that the customer entry belongs to.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -46,7 +44,7 @@ page 25 "Customer Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies if the related payment is a prepayment.';
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -58,64 +56,64 @@ page 25 "Customer Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies a description of the customer entry.';
                 }
-                field("Agreement No."; "Agreement No.")
+                field("Agreement No."; Rec."Agreement No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the agreement number associated with the customer ledger entry.';
                 }
-                field("VAT Entry Type"; "VAT Entry Type")
+                field("VAT Entry Type"; Rec."VAT Entry Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a VAT entry code according to Russian legislation. Some types of documents, such as corrective or revision invoices, must have multiple VAT entry type codes.';
                 }
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = Dim1Visible;
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = Dim2Visible;
                 }
-                field("Customer Posting Group"; "Customer Posting Group")
+                field("Customer Posting Group"; Rec."Customer Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the customer''s market type to link business transactions to.';
                     Visible = false;
                 }
-                field("IC Partner Code"; "IC Partner Code")
+                field("IC Partner Code"; Rec."IC Partner Code")
                 {
                     ApplicationArea = Intercompany;
                     Editable = false;
                     ToolTip = 'Specifies the code of the intercompany partner that the transaction is related to if the entry was created from an intercompany transaction.';
                     Visible = false;
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the code for the salesperson whom the entry is linked to.';
                     Visible = false;
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the currency code for the amount on the line.';
                 }
-                field("Original Amount"; "Original Amount")
+                field("Original Amount"; Rec."Original Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the amount of the original entry.';
                 }
-                field("Original Amt. (LCY)"; "Original Amt. (LCY)")
+                field("Original Amt. (LCY)"; Rec."Original Amt. (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -129,101 +127,101 @@ page 25 "Customer Ledger Entries"
                     ToolTip = 'Specifies the amount of the entry.';
                     Visible = AmountVisible;
                 }
-                field("Amount (LCY)"; "Amount (LCY)")
+                field("Amount (LCY)"; Rec."Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the amount of the entry in LCY.';
                     Visible = AmountVisible;
                 }
-                field("Debit Amount"; "Debit Amount")
+                field("Debit Amount"; Rec."Debit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent debits.';
                     Visible = DebitCreditVisible;
                 }
-                field("Debit Amount (LCY)"; "Debit Amount (LCY)")
+                field("Debit Amount (LCY)"; Rec."Debit Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent debits, expressed in LCY.';
                     Visible = DebitCreditVisible;
                 }
-                field("Credit Amount"; "Credit Amount")
+                field("Credit Amount"; Rec."Credit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
                     Visible = DebitCreditVisible;
                 }
-                field("Credit Amount (LCY)"; "Credit Amount (LCY)")
+                field("Credit Amount (LCY)"; Rec."Credit Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits, expressed in LCY.';
                     Visible = DebitCreditVisible;
                 }
-                field("Remaining Amount"; "Remaining Amount")
+                field("Remaining Amount"; Rec."Remaining Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the amount that remains to be applied to before the entry has been completely applied.';
                 }
-                field("Remaining Amt. (LCY)"; "Remaining Amt. (LCY)")
+                field("Remaining Amt. (LCY)"; Rec."Remaining Amt. (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the amount that remains to be applied to before the entry is totally applied to.';
                 }
-                field("Sales (LCY)"; "Sales (LCY)")
+                field("Sales (LCY)"; Rec."Sales (LCY)")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the total net amount of sales to the customer in LCY.';
                 }
-                field("Bal. Account Type"; "Bal. Account Type")
+                field("Bal. Account Type"; Rec."Bal. Account Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the type of account that a balancing entry is posted to, such as BANK for a cash account.';
                     Visible = false;
                 }
-                field("Bal. Account No."; "Bal. Account No.")
+                field("Bal. Account No."; Rec."Bal. Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the general ledger, customer, vendor, or bank account that the balancing entry is posted to, such as a cash account for cash purchases.';
                     Visible = false;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the due date on the entry.';
                 }
-                field("Pmt. Discount Date"; "Pmt. Discount Date")
+                field("Pmt. Discount Date"; Rec."Pmt. Discount Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date on which the amount in the entry must be paid for a payment discount to be granted.';
                 }
-                field("Pmt. Disc. Tolerance Date"; "Pmt. Disc. Tolerance Date")
+                field("Pmt. Disc. Tolerance Date"; Rec."Pmt. Disc. Tolerance Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last date the amount in the entry must be paid in order for a payment discount tolerance to be granted.';
                 }
-                field("Original Pmt. Disc. Possible"; "Original Pmt. Disc. Possible")
+                field("Original Pmt. Disc. Possible"; Rec."Original Pmt. Disc. Possible")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the discount that the customer can obtain if the entry is applied to before the payment discount date.';
                 }
-                field("Remaining Pmt. Disc. Possible"; "Remaining Pmt. Disc. Possible")
+                field("Remaining Pmt. Disc. Possible"; Rec."Remaining Pmt. Disc. Possible")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the remaining payment discount which can be received if the payment is made before the payment discount date.';
                 }
-                field("Max. Payment Tolerance"; "Max. Payment Tolerance")
+                field("Max. Payment Tolerance"; Rec."Max. Payment Tolerance")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the maximum tolerated amount the entry can differ from the amount on the invoice or credit memo.';
                 }
-                field("Payment Method Code"; "Payment Method Code")
+                field("Payment Method Code"; Rec."Payment Method Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
@@ -234,12 +232,12 @@ page 25 "Customer Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies whether the amount on the entry has been fully paid or there is still a remaining amount that must be applied to.';
                 }
-                field("On Hold"; "On Hold")
+                field("On Hold"; Rec."On Hold")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the related entry represents an unpaid invoice for which either a payment suggestion, a reminder, or a finance charge memo exists.';
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -253,14 +251,14 @@ page 25 "Customer Ledger Entries"
                         UserMgt.DisplayUserInformation("User ID");
                     end;
                 }
-                field("Source Code"; "Source Code")
+                field("Source Code"; Rec."Source Code")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the source code that specifies where the entry was created.';
                     Visible = false;
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
@@ -274,27 +272,27 @@ page 25 "Customer Ledger Entries"
                     ToolTip = 'Specifies if the entry has been part of a reverse transaction.';
                     Visible = false;
                 }
-                field("Reversed by Entry No."; "Reversed by Entry No.")
+                field("Reversed by Entry No."; Rec."Reversed by Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the correcting entry that replaced the original entry in the reverse transaction.';
                     Visible = false;
                 }
-                field("Reversed Entry No."; "Reversed Entry No.")
+                field("Reversed Entry No."; Rec."Reversed Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the original entry that was undone by the reverse transaction.';
                     Visible = false;
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
                 }
-                field("Exported to Payment File"; "Exported to Payment File")
+                field("Exported to Payment File"; Rec."Exported to Payment File")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = true;
@@ -308,24 +306,24 @@ page 25 "Customer Ledger Entries"
                             Error('');
                     end;
                 }
-                field("Message to Recipient"; "Message to Recipient")
+                field("Message to Recipient"; Rec."Message to Recipient")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the message exported to the payment file when you use the Export Payments to File function in the Payment Journal window.';
                 }
-                field("Direct Debit Mandate ID"; "Direct Debit Mandate ID")
+                field("Direct Debit Mandate ID"; Rec."Direct Debit Mandate ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the direct-debit mandate that the customer has signed to allow direct debit collection of payments.';
                     Visible = false;
                 }
-                field("Dimension Set ID"; "Dimension Set ID")
+                field("Dimension Set ID"; Rec."Dimension Set ID")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a reference to a combination of dimension values. The actual values are stored in the Dimension Set Entry table.';
                     Visible = false;
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -337,42 +335,42 @@ page 25 "Customer Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account to transfer the amount to.';
                 }
-                field("Shortcut Dimension 3 Code"; "Shortcut Dimension 3 Code")
+                field("Shortcut Dimension 3 Code"; Rec."Shortcut Dimension 3 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 3, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim3Visible;
                 }
-                field("Shortcut Dimension 4 Code"; "Shortcut Dimension 4 Code")
+                field("Shortcut Dimension 4 Code"; Rec."Shortcut Dimension 4 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 4, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim4Visible;
                 }
-                field("Shortcut Dimension 5 Code"; "Shortcut Dimension 5 Code")
+                field("Shortcut Dimension 5 Code"; Rec."Shortcut Dimension 5 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 5, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim5Visible;
                 }
-                field("Shortcut Dimension 6 Code"; "Shortcut Dimension 6 Code")
+                field("Shortcut Dimension 6 Code"; Rec."Shortcut Dimension 6 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 6, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim6Visible;
                 }
-                field("Shortcut Dimension 7 Code"; "Shortcut Dimension 7 Code")
+                field("Shortcut Dimension 7 Code"; Rec."Shortcut Dimension 7 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 7, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim7Visible;
                 }
-                field("Shortcut Dimension 8 Code"; "Shortcut Dimension 8 Code")
+                field("Shortcut Dimension 8 Code"; Rec."Shortcut Dimension 8 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
@@ -434,8 +432,6 @@ page 25 "Customer Ledger Entries"
                     ApplicationArea = Suite;
                     Caption = 'Reminder/Fin. Charge Entries';
                     Image = Reminder;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Reminder/Fin. Charge Entries";
                     RunPageLink = "Customer Entry No." = FIELD("Entry No.");
                     RunPageView = SORTING("Customer Entry No.");
@@ -447,8 +443,6 @@ page 25 "Customer Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Applied E&ntries';
                     Image = Approve;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Applied Customer Entries";
                     RunPageOnRec = true;
                     Scope = Repeater;
@@ -459,8 +453,6 @@ page 25 "Customer Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Customer';
                     Image = Customer;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     RunObject = Page "Customer Card";
                     RunPageLink = "No." = FIELD("Customer No.");
                     ShortCutKey = 'Shift+F7';
@@ -472,8 +464,6 @@ page 25 "Customer Ledger Entries"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     Scope = Repeater;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
@@ -489,13 +479,11 @@ page 25 "Customer Ledger Entries"
                     Caption = 'Set Dimension Filter';
                     Ellipsis = true;
                     Image = "Filter";
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Limit the entries according to the dimension filters that you specify. NOTE: If you use a high number of dimension combinations, this function may not work and can result in a message that the SQL server only supports a maximum of 2100 parameters.';
 
                     trigger OnAction()
                     begin
-                        SetFilter("Dimension Set ID", DimensionSetIDFilter.LookupFilter);
+                        SetFilter("Dimension Set ID", DimensionSetIDFilter.LookupFilter());
                     end;
                 }
                 action("Detailed &Ledger Entries")
@@ -503,8 +491,6 @@ page 25 "Customer Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Detailed &Ledger Entries';
                     Image = View;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Detailed Cust. Ledg. Entries";
                     RunPageLink = "Cust. Ledger Entry No." = FIELD("Entry No."),
                                   "Customer No." = FIELD("Customer No.");
@@ -518,8 +504,6 @@ page 25 "Customer Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     Caption = 'VAT Entries';
                     Image = VATLedger;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "VAT Entries";
                     RunPageLink = "CV Ledg. Entry No." = FIELD("Entry No.");
                     RunPageView = SORTING("Transaction No.", "CV Ledg. Entry No.")
@@ -531,8 +515,6 @@ page 25 "Customer Ledger Entries"
                     ApplicationArea = Prepayments;
                     Caption = 'Posted Prepayment Invoices';
                     Image = SalesInvoice;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Posted Sales Invoices";
                     RunPageLink = "No." = FIELD("Prepayment Document No.");
                     ToolTip = 'View related prepayments.';
@@ -548,8 +530,6 @@ page 25 "Customer Ledger Entries"
                 action("Create Reminder")
                 {
                     ApplicationArea = Basic, Suite;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     Scope = Repeater;
                     Ellipsis = true;
                     Image = CreateReminders;
@@ -579,8 +559,6 @@ page 25 "Customer Ledger Entries"
                 action("Create Finance Charge Memo")
                 {
                     ApplicationArea = Basic, Suite;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     Scope = Repeater;
                     Ellipsis = true;
                     Caption = 'Create Finance Charge Memo';
@@ -612,8 +590,6 @@ page 25 "Customer Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Apply Entries';
                     Image = ApplyEntries;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     Scope = Repeater;
                     ShortCutKey = 'Shift+F11';
                     ToolTip = 'Select one or more ledger entries that you want to apply this record to so that the related posted documents are closed as paid or refunded.';
@@ -636,8 +612,6 @@ page 25 "Customer Ledger Entries"
                     Caption = 'Unapply Entries';
                     Ellipsis = true;
                     Image = UnApply;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     Scope = Repeater;
                     ToolTip = 'Unselect one or more ledger entries that you want to unapply this record.';
 
@@ -654,8 +628,6 @@ page 25 "Customer Ledger Entries"
                     Caption = 'Reverse Transaction';
                     Ellipsis = true;
                     Image = ReverseRegister;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     Scope = Repeater;
                     ToolTip = 'Reverse an erroneous customer ledger entry.';
 
@@ -667,7 +639,7 @@ page 25 "Customer Ledger Entries"
                         if Reversed then
                             ReversalEntry.AlreadyReversedEntry(TableCaption, "Entry No.");
                         if "Journal Batch Name" = '' then
-                            ReversalEntry.TestFieldError;
+                            ReversalEntry.TestFieldError();
                         TestField("Transaction No.");
                         ReversalEntry.ReverseTransaction("Transaction No.");
                     end;
@@ -677,8 +649,6 @@ page 25 "Customer Ledger Entries"
                     ApplicationArea = Prepayments;
                     Caption = 'Return Prepayment';
                     Image = ReturnOrder;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Prepare to return the prepayment to the customer.';
 
                     trigger OnAction()
@@ -752,8 +722,6 @@ page 25 "Customer Ledger Entries"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Category5;
                 Scope = Repeater;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
@@ -769,15 +737,12 @@ page 25 "Customer Ledger Entries"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Show Document';
                 Image = Document;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ShortCutKey = 'Return';
                 ToolTip = 'Show details for the posted payment, invoice, or credit memo.';
 
                 trigger OnAction()
                 begin
-                    ShowDoc
+                    ShowDoc();
                 end;
             }
             action(ShowDocumentAttachment)
@@ -786,15 +751,101 @@ page 25 "Customer Ledger Entries"
                 Caption = 'Show Document Attachment';
                 Enabled = HasDocumentAttachment;
                 Image = Attach;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'View documents or images that are attached to the posted invoice or credit memo.';
 
                 trigger OnAction()
                 begin
-                    ShowPostedDocAttachment;
+                    ShowPostedDocAttachment();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                group(Category_Category4)
+                {
+                    Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 3.';
+                    ShowAs = SplitButton;
+
+                    actionref("Show Document_Promoted"; "Show Document")
+                    {
+                    }
+                    actionref(ShowDocumentAttachment_Promoted; ShowDocumentAttachment)
+                    {
+                    }
+                }
+                group(Category_ApplyEntries)
+                {
+                    Caption = 'Apply Entries';
+                    ShowAs = SplitButton;
+
+                    actionref("Apply Entries_Promoted"; "Apply Entries")
+                    {
+                    }
+                    actionref(UnapplyEntries_Promoted; UnapplyEntries)
+                    {
+                    }
+                }
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
+                actionref(ReverseTransaction_Promoted; ReverseTransaction)
+                {
+                }
+                actionref("Create Reminder_Promoted"; "Create Reminder")
+                {
+                }
+                actionref("Create Finance Charge Memo_Promoted"; "Create Finance Charge Memo")
+                {
+                }
+                actionref("Return Prepayment_Promoted"; "Return Prepayment")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Entry', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(SetDimensionFilter_Promoted; SetDimensionFilter)
+                {
+                }
+                actionref(AppliedEntries_Promoted; AppliedEntries)
+                {
+                }
+                actionref("Reminder/Fin. Charge Entries_Promoted"; "Reminder/Fin. Charge Entries")
+                {
+                }
+                actionref("Detailed &Ledger Entries_Promoted"; "Detailed &Ledger Entries")
+                {
+                }
+                actionref("VAT Entries_Promoted"; "VAT Entries")
+                {
+                }
+
+                separator(Navigate_Separator)
+                {
+                }
+
+                actionref(Customer_Promoted; Customer)
+                {
+                }
+                actionref("Posted Prepayment Invoices_Promoted"; "Posted Prepayment Invoices")
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 5.';
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }

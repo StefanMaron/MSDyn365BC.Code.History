@@ -32,6 +32,16 @@
     end;
 
     var
+        GLSetup: Record "General Ledger Setup";
+        GenJnlBatch: Record "Gen. Journal Batch";
+        DetailedVendorLedgEntryPreviewContext: Record "Detailed Vendor Ledg. Entry";
+        ApplyUnapplyParametersContext: Record "Apply Unapply Parameters";
+        AmtDiffManagement: Codeunit PrepmtDiffManagement;
+        AllowAmtDiffUnapply: Boolean;
+        RunOptionPreview: Option Apply,Unapply;
+        RunOptionPreviewContext: Option Apply,Unapply;
+        PreviewMode: Boolean;
+
         PostingApplicationMsg: Label 'Posting application...';
         MustNotBeBeforeErr: Label 'The posting date entered must not be before the posting date on the vendor ledger entry.';
         NoEntriesAppliedErr: Label 'Cannot post because you did not specify which entry to apply. You must specify an entry in the %1 field for one or more open entries.', Comment = '%1 - Caption of "Applies to ID" field of Gen. Journal Line';
@@ -45,15 +55,6 @@
         CannotUnapplyInReversalErr: Label 'You cannot unapply Vendor Ledger Entry No. %1 because the entry is part of a reversal.';
         CannotApplyClosedEntriesErr: Label 'One or more of the entries that you selected is closed. You cannot apply closed entries.';
         Text12400: Label 'This entry will be unapplied automatically if you first unapply %1 No. %2. ';
-        GLSetup: Record "General Ledger Setup";
-        GenJnlBatch: Record "Gen. Journal Batch";
-        DetailedVendorLedgEntryPreviewContext: Record "Detailed Vendor Ledg. Entry";
-        ApplyUnapplyParametersContext: Record "Apply Unapply Parameters";
-        AmtDiffManagement: Codeunit PrepmtDiffManagement;
-        AllowAmtDiffUnapply: Boolean;
-        RunOptionPreview: Option Apply,Unapply;
-        RunOptionPreviewContext: Option Apply,Unapply;
-        PreviewMode: Boolean;
 
 #if not CLEAN20
     [Obsolete('Replaced by Apply(VendLedgEntry, ApplyUnapplyParameters)', '20.0')]
@@ -161,14 +162,14 @@
         GenJnlLine."Journal Batch Name" := ApplyUnapplyParameters."Journal Batch Name";
         GenJnlLine."Agreement No." := VendLedgEntry."Agreement No.";
 
-        EntryNoBeforeApplication := FindLastApplDtldVendLedgEntry;
+        EntryNoBeforeApplication := FindLastApplDtldVendLedgEntry();
 
         OnBeforePostApplyVendLedgEntry(GenJnlLine, VendLedgEntry, GenJnlPostLine);
         GenJnlPostLine.SetPreviewMode(PreviewMode);
         GenJnlPostLine.VendPostApplyVendLedgEntry(GenJnlLine, VendLedgEntry);
         OnAfterPostApplyVendLedgEntry(GenJnlLine, VendLedgEntry, GenJnlPostLine);
 
-        EntryNoAfterApplication := FindLastApplDtldVendLedgEntry;
+        EntryNoAfterApplication := FindLastApplDtldVendLedgEntry();
         if EntryNoAfterApplication = EntryNoBeforeApplication then
             Error(NoEntriesAppliedErr, GenJnlLine.FieldCaption("Applies-to ID"));
 

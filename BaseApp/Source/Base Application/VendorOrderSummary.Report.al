@@ -13,7 +13,7 @@ report 307 "Vendor - Order Summary"
             DataItemTableView = SORTING("No.");
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.", "Search Name", "Vendor Posting Group", "Currency Filter";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(PrintAmountsInLCY; PrintAmountsInLCY)
@@ -152,7 +152,7 @@ report 307 "Vendor - Order Summary"
                     while "Expected Receipt Date" >= PeriodStartDate[PeriodNo] do
                         PeriodNo := PeriodNo + 1;
 
-                    Currency.InitRoundingPrecision;
+                    Currency.InitRoundingPrecision();
                     if "VAT Calculation Type" in ["VAT Calculation Type"::"Normal VAT", "VAT Calculation Type"::"Reverse Charge VAT"] then
                         PurchOrderAmount :=
                           Round(
@@ -176,7 +176,7 @@ report 307 "Vendor - Order Summary"
                             PurchOrderAmountLCY :=
                               Round(
                                 CurrExchRate.ExchangeAmtFCYToLCY(
-                                  WorkDate, PurchOrderHeader."Currency Code",
+                                  WorkDate(), PurchOrderHeader."Currency Code",
                                   PurchOrderAmount, PurchOrderHeader."Currency Factor"));
                     end;
 
@@ -249,7 +249,7 @@ report 307 "Vendor - Order Summary"
         trigger OnOpenPage()
         begin
             if PeriodStartDate[1] = 0D then
-                PeriodStartDate[1] := WorkDate;
+                PeriodStartDate[1] := WorkDate();
         end;
     }
 
@@ -272,7 +272,6 @@ report 307 "Vendor - Order Summary"
         CurrExchRate: Record "Currency Exchange Rate";
         PurchOrderHeader: Record "Purchase Header";
         Currency: Record Currency;
-        VendFilter: Text;
         PurchOrderAmount: Decimal;
         PurchOrderAmountLCY: Decimal;
         PeriodStartDate: array[5] of Date;
@@ -293,6 +292,9 @@ report 307 "Vendor - Order Summary"
         GroupNumber: Integer;
         NewCustomer: Boolean;
         LastCurrencyCode: Code[10];
+
+    protected var
+        VendFilter: Text;
 
     procedure InitializeRequest(NewPeriodStartDate: Date; NewPrintAmountsInLCY: Boolean)
     begin

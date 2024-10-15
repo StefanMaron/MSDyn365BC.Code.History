@@ -169,7 +169,7 @@ codeunit 147123 "ERM VAT Posting Preview"
             Assert.IsTrue(
               GLEntry."Entry No." = LastEntryNo, StrSubstNo(SalesPostingPreviewErr, SalesHeader."Document Type"));
 
-            GLPostingPreview.Close;
+            GLPostingPreview.Close();
             Iteration += 1;
         until Iteration = MaxIterations;
     end;
@@ -195,7 +195,7 @@ codeunit 147123 "ERM VAT Posting Preview"
         Currency."Realized Losses Acc." := LibraryERM.CreateGLAccountNo();
         Currency.Modify();
         LibraryERM.CreateExchangeRate(
-          Currency.Code, WorkDate, 1, 10 + LibraryRandom.RandDec(1000, 2));
+          Currency.Code, WorkDate(), 1, 10 + LibraryRandom.RandDec(1000, 2));
         LibraryERM.CreateExchangeRate(
           Currency.Code, InvoiceDate, 1, 10 + LibraryRandom.RandDec(1000, 2));
 
@@ -203,7 +203,7 @@ codeunit 147123 "ERM VAT Posting Preview"
 
         LibrarySales.CreateFCYSalesInvoiceWithGLAcc(SalesHeader, SalesLine, '', '', InvoiceDate, Currency.Code);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
-        LibraryERM.CreateCustomerPrepmtGenJnlLine(GenJnlLine, SalesHeader."Bill-to Customer No.", WorkDate, SalesHeader."No.", -500);
+        LibraryERM.CreateCustomerPrepmtGenJnlLine(GenJnlLine, SalesHeader."Bill-to Customer No.", WorkDate(), SalesHeader."No.", -500);
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
         DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -230,7 +230,7 @@ codeunit 147123 "ERM VAT Posting Preview"
         // [GIVEN] FA Release Act
         LibraryPurchase.CreatePurchaseInvoiceWithFixedAsset(PurchaseHeader, PurchaseLine, '', '');
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        LibraryFixedAsset.CreateFAReleaseDoc(FADocHeader, PurchaseLine."No.", WorkDate);
+        LibraryFixedAsset.CreateFAReleaseDoc(FADocHeader, PurchaseLine."No.", WorkDate());
 
         // [WHEN] Run Posting Preview for FA Release Act
         asserterror LibraryFixedAsset.PreviewFADocument(FADocHeader);
@@ -250,10 +250,10 @@ codeunit 147123 "ERM VAT Posting Preview"
         // [GIVEN] Posted FA Release Act
         LibraryPurchase.CreatePurchaseInvoiceWithFixedAsset(PurchaseHeader, PurchaseLine, '', '');
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        LibraryFixedAsset.CreateFAReleaseDoc(FADocHeader, PurchaseLine."No.", WorkDate);
+        LibraryFixedAsset.CreateFAReleaseDoc(FADocHeader, PurchaseLine."No.", WorkDate());
         LibraryFixedAsset.PostFADocument(FADocHeader);
         // [GIVEN] FA Writeoff Act
-        LibraryFixedAsset.CreateFAWriteOffDoc(FADocHeader, PurchaseLine."No.", WorkDate);
+        LibraryFixedAsset.CreateFAWriteOffDoc(FADocHeader, PurchaseLine."No.", WorkDate());
 
         // [WHEN] Run Posting Preview for FA Writeoff Act
         asserterror LibraryFixedAsset.PreviewFADocument(FADocHeader);
@@ -281,7 +281,7 @@ codeunit 147123 "ERM VAT Posting Preview"
         // [GIVEN] Prepayment in FCY with different currency factor
         CurrencyCode := SetupCurrExchRates(InvPostingDate);
         TotalAmount := CreateReleasePurchInvWithCurrency(PurchHeader, GLAccNo, InvPostingDate, CurrencyCode);
-        PostPurchasePrepaymentWithCurrency(GenJnlLine, WorkDate, PurchHeader."Pay-to Vendor No.", CurrencyCode, TotalAmount);
+        PostPurchasePrepaymentWithCurrency(GenJnlLine, WorkDate(), PurchHeader."Pay-to Vendor No.", CurrencyCode, TotalAmount);
         InvNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
 
         GLPostingPreview.Trap;
@@ -350,7 +350,7 @@ codeunit 147123 "ERM VAT Posting Preview"
 
         LibraryPurchase.CreatePurchaseInvoiceWithGLAcc(PurchaseHeader, PurchaseLine, '', '');
         asserterror LibraryPurchase.PreviewPostPurchaseDocument(PurchaseHeader);
-        Assert.IsFalse(PurchInvHeader.Get(PurchaseHeader."Posting No."), StrSubstNo(PreviewDocExistsErr, PurchInvHeader.TableCaption));
+        Assert.IsFalse(PurchInvHeader.Get(PurchaseHeader."Posting No."), StrSubstNo(PreviewDocExistsErr, PurchInvHeader.TableCaption()));
     end;
 
     [Test]
@@ -365,7 +365,7 @@ codeunit 147123 "ERM VAT Posting Preview"
 
         LibraryPurchase.CreatePurchaseCrMemoWithGLAcc(PurchaseHeader, PurchaseLine, '', '');
         asserterror LibraryPurchase.PreviewPostPurchaseDocument(PurchaseHeader);
-        Assert.IsFalse(PurchCrMemoHdr.Get(PurchaseHeader."Posting No."), StrSubstNo(PreviewDocExistsErr, PurchCrMemoHdr.TableCaption));
+        Assert.IsFalse(PurchCrMemoHdr.Get(PurchaseHeader."Posting No."), StrSubstNo(PreviewDocExistsErr, PurchCrMemoHdr.TableCaption()));
     end;
 
     [Test]
@@ -380,7 +380,7 @@ codeunit 147123 "ERM VAT Posting Preview"
 
         LibrarySales.CreateSalesInvoiceWithGLAcc(SalesHeader, SalesLine, '', '');
         asserterror LibrarySales.PreviewSalesDocument(SalesHeader);
-        Assert.IsFalse(SalesInvHeader.Get(SalesHeader."Posting No."), StrSubstNo(PreviewDocExistsErr, SalesInvHeader.TableCaption));
+        Assert.IsFalse(SalesInvHeader.Get(SalesHeader."Posting No."), StrSubstNo(PreviewDocExistsErr, SalesInvHeader.TableCaption()));
     end;
 
     [Test]
@@ -395,7 +395,7 @@ codeunit 147123 "ERM VAT Posting Preview"
 
         LibrarySales.CreateSalesCrMemoWithGLAcc(SalesHeader, SalesLine, '', '');
         asserterror LibrarySales.PreviewSalesDocument(SalesHeader);
-        Assert.IsFalse(SalesCrMemoHeader.Get(SalesHeader."Posting No."), StrSubstNo(PreviewDocExistsErr, SalesCrMemoHeader.TableCaption));
+        Assert.IsFalse(SalesCrMemoHeader.Get(SalesHeader."Posting No."), StrSubstNo(PreviewDocExistsErr, SalesCrMemoHeader.TableCaption()));
     end;
 
     [Test]
@@ -420,7 +420,7 @@ codeunit 147123 "ERM VAT Posting Preview"
         CurrencyCode := SetupCurrExchRates(InvPostingDate);
         TotalAmount := CreateReleaseSalesInvWithCurrency(SalesHeader, GLAccountNo, CurrencyCode, InvPostingDate);
         PostSalesPrepaymentWithCurrency(
-          GenJnlLine, WorkDate, SalesHeader."Sell-to Customer No.", CurrencyCode, -TotalAmount, SalesHeader."No.");
+          GenJnlLine, WorkDate(), SalesHeader."Sell-to Customer No.", CurrencyCode, -TotalAmount, SalesHeader."No.");
         InvNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         GLPostingPreview.Trap;
@@ -466,7 +466,7 @@ codeunit 147123 "ERM VAT Posting Preview"
         Currency."PD Bal. Gain/Loss Acc. (TA)" := LibraryERM.CreateGLAccountNo();
         Currency.Modify();
 
-        PrepmtPostingDate := WorkDate;
+        PrepmtPostingDate := WorkDate();
         PrepmtCurrExchRate := LibraryRandom.RandDec(100, 2);
         LibraryERM.CreateExchangeRate(
           Currency.Code, PrepmtPostingDate, PrepmtCurrExchRate, PrepmtCurrExchRate);
@@ -575,8 +575,8 @@ codeunit 147123 "ERM VAT Posting Preview"
         GLPostingPreview.Show.Invoke;
         GLEntriesPreview.FILTER.SetFilter("G/L Account No.", GLAccountNo);
         Assert.IsTrue(GLEntriesPreview.First, StrSubstNo(PreviewEntryErr, GLAccountNo));
-        GLEntriesPreview.Close;
-        GLPostingPreview.Close;
+        GLEntriesPreview.Close();
+        GLPostingPreview.Close();
     end;
 }
 

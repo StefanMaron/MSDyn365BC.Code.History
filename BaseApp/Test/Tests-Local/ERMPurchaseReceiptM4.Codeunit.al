@@ -154,7 +154,7 @@ codeunit 144703 "ERM Purchase Receipt M-4"
         // [WHEN] Print M-4 Report for "PO"
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         Commit();
-        PurchaseHeader.SetRecFilter;
+        PurchaseHeader.SetRecFilter();
         PurchaseReceiptM4.SetTableView(PurchaseHeader);
         PurchaseReceiptM4.SetFileNameSilent(LibraryReportValidation.GetFileName);
         PurchaseReceiptM4.UseRequestPage(false);

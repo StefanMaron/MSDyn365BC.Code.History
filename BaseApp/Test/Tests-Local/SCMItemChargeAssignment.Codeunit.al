@@ -123,7 +123,7 @@ codeunit 147110 "SCM Item Charge Assignment"
         UserSetup: Record "User Setup";
     begin
         with UserSetup do begin
-            Init;
+            Init();
             "User ID" := UserId;
             Insert(true);
         end;

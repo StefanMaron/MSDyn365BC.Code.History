@@ -35,13 +35,13 @@ page 806 "Online Map Location"
 
     trigger OnOpenPage()
     begin
-        if not LocationProvider.IsAvailable then begin
+        if not LocationProvider.IsAvailable() then begin
             Message(LocationNotAvailableMsg);
-            CurrPage.Close;
+            CurrPage.Close();
             exit;
         end;
-        LocationProvider := LocationProvider.Create;
-        LocationProvider.RequestLocationAsync;
+        LocationProvider := LocationProvider.Create();
+        LocationProvider.RequestLocationAsync();
     end;
 
     var
@@ -67,28 +67,28 @@ page 806 "Online Map Location"
     begin
         if location.Status <> 0 then begin
             Message(LocationNotAvailableMsg);
-            CurrPage.Close;
+            CurrPage.Close();
             exit;
         end;
 
         Geolocation.Init();
-        Geolocation.ID := CreateGuid;
+        Geolocation.ID := CreateGuid();
         Geolocation.Latitude := location.Coordinate.Latitude;
         Geolocation.Longitude := location.Coordinate.Longitude;
         Geolocation.Insert();
 
-        if not OnlineMapSetup.Get then begin
-            OnlineMapManagement.SetupDefault;
+        if not OnlineMapSetup.Get() then begin
+            OnlineMapManagement.SetupDefault();
             OnlineMapSetup.Get();
         end;
 
         OnlineMapManagement.ProcessDirections(
-          DATABASE::Geolocation, Geolocation.GetPosition,
+          DATABASE::Geolocation, Geolocation.GetPosition(),
           ToTableNo, ToRecordPosition,
           OnlineMapSetup."Distance In", OnlineMapSetup.Route);
 
         Geolocation.Delete();
-        CurrPage.Close;
+        CurrPage.Close();
     end;
 }
 

@@ -49,10 +49,10 @@ page 1455 "Headline RC Whse. Basic"
     end;
 
     var
+        RCHeadlinesPageCommon: Codeunit "RC Headlines Page Common";
         [InDataSet]
         DefaultFieldsVisible: Boolean;
         [InDataSet]
         UserGreetingVisible: Boolean;
-        RCHeadlinesPageCommon: Codeunit "RC Headlines Page Common";
 }
 

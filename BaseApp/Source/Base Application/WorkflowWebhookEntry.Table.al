@@ -93,10 +93,9 @@ table 467 "Workflow Webhook Entry"
     begin
         IsApprovalAdmin := false;
 
-        if UserSetup.Get(UserId) then begin
+        if UserSetup.Get(UserId) then
             if UserSetup."Approval Administrator" then
                 IsApprovalAdmin := true;
-        end;
 
         Clear(WorkflowWebhookEntry);
         WorkflowWebhookEntry.Init();
@@ -147,7 +146,7 @@ table 467 "Workflow Webhook Entry"
         // Used by the Flow Entries page. Based on code from the Approval Entries page/Approval Entry table.
         if not RecRef.Get("Record ID") then
             exit;
-        RecRef.SetRecFilter;
+        RecRef.SetRecFilter();
         PageManagement.PageRun(RecRef);
     end;
 }

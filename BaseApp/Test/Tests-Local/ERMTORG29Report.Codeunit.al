@@ -336,7 +336,7 @@ codeunit 144712 "ERM TORG-29 Report"
         Item: Record Item;
     begin
         with Item do begin
-            Init;
+            Init();
             Insert(true);
             exit("No.");
         end;
@@ -352,7 +352,7 @@ codeunit 144712 "ERM TORG-29 Report"
         PriceListLine."Ending Date" := PostingDate;
         PriceListLine."Unit Price" := LibraryRandom.RandDec(100, 2);
         PriceListLine.Status := PriceListLine.Status::Active;
-        PriceListLine.Modify;
+        PriceListLine.Modify();
         exit(PriceListLine."Unit Price");
     end;
 
@@ -361,14 +361,14 @@ codeunit 144712 "ERM TORG-29 Report"
         SalesPrice: Record "Sales Price";
     begin
         with SalesPrice do begin
-            Init;
+            Init();
             "Item No." := ItemNo;
             "Sales Type" := "Sales Type"::"All Customers";
             "Sales Code" := '';
             "Starting Date" := PostingDate;
             "Ending Date" := PostingDate;
             "Unit Price" := LibraryRandom.RandDec(100, 2);
-            Insert;
+            Insert();
             exit("Unit Price");
         end;
     end;
@@ -378,9 +378,9 @@ codeunit 144712 "ERM TORG-29 Report"
         Employee: Record Employee;
     begin
         with Employee do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
             exit("No.");
         end;
     end;
@@ -390,9 +390,9 @@ codeunit 144712 "ERM TORG-29 Report"
         Location: Record Location;
     begin
         with Location do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -420,7 +420,7 @@ codeunit 144712 "ERM TORG-29 Report"
     begin
         ValueEntryNo += 1;
         with ValueEntry do begin
-            Init;
+            Init();
             "Entry No." := ValueEntryNo;
             "Document Type" := "Document Type"::"Sales Invoice";
             "Document No." := LibraryUtility.GenerateGUID();
@@ -432,7 +432,7 @@ codeunit 144712 "ERM TORG-29 Report"
             "Sales Amount (Actual)" := Round("Cost Amount (Actual)" * LibraryRandom.RandInt(10));
             "Item Ledger Entry No." := MockItemLedgEntry(ItemEntryNo);
             Positive := Sign > 0;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -442,9 +442,9 @@ codeunit 144712 "ERM TORG-29 Report"
     begin
         EntryNo += 1;
         with ItemLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := EntryNo;
-            Insert;
+            Insert();
             exit("Entry No.");
         end;
     end;

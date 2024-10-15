@@ -52,7 +52,7 @@ table 1249 "Bank Stmt Multiple Match Line"
         "Entry No." := TempLedgerEntryMatchingBuffer."Entry No.";
         "Due Date" := TempLedgerEntryMatchingBuffer."Due Date";
         "Document No." := TempLedgerEntryMatchingBuffer."Document No.";
-        Insert;
+        Insert();
     end;
 }
 

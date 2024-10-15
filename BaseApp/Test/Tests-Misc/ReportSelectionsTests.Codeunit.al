@@ -461,7 +461,7 @@
         LibrarySales.SetArchiveOrders(true);
 
         // [WHEN] EmailSalesHeader is called
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         DocumentPrint.EmailSalesHeader(SalesHeader);
 
         // [THEN] One entry appears in Sales Quote Archives and one entry appears in Interaction Log Entries
@@ -647,7 +647,7 @@
         // [WHEN] SendRecords was executed for this one order
         PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
         PurchaseHeader.FindFirst();
-        PurchaseHeader.SendRecords;
+        PurchaseHeader.SendRecords();
 
         // [THEN] No error and files were successfully created
         VerifySendEmailPage(FromEmailBodyTemplateTxt, TemplateIdentificationTxt, PurchaseHeader."No.");
@@ -677,7 +677,7 @@
         Commit();
 
         // [WHEN] Print Posted Return Shipment.
-        ReturnShipmentHeader.SetRecFilter;
+        ReturnShipmentHeader.SetRecFilter();
         ReturnShipmentHeader.PrintRecords(false);
 
         // [THEN] Chosen report is used for printing.
@@ -2126,7 +2126,7 @@
 
     local procedure GetStatementTitlePdf(ReportTitle: Text; CustomerName: Text): Text
     begin
-        exit(StrSubstNo(ReportTitleTemplatePdfTxt, ReportTitle, CustomerName, Format(WorkDate, 0, 9)));
+        exit(StrSubstNo(ReportTitleTemplatePdfTxt, ReportTitle, CustomerName, Format(WorkDate(), 0, 9)));
     end;
 
     local procedure VerifySendEmailPage(ExpectedType: Text; ExpectedBodyText: Text; ExpectedAttachmentName: Text)
@@ -2292,8 +2292,8 @@
     [Scope('OnPrem')]
     procedure StatementOKRequestPageHandler(var Statement: TestRequestPage Statement)
     begin
-        Statement."Start Date".SetValue(WorkDate);
-        Statement."End Date".SetValue(WorkDate);
+        Statement."Start Date".SetValue(WorkDate());
+        Statement."End Date".SetValue(WorkDate());
         Statement.ReportOutput.SetValue(LibraryVariableStorage.DequeueInteger);
         Statement.Customer.SetFilter("No.", LibraryVariableStorage.DequeueText());
         Statement.OK.Invoke;
@@ -2359,7 +2359,7 @@
         // Given two reports, select the second one
         ReportSelectionPrint.First;
         ReportSelectionPrint.Default.SetValue(true);
-        ReportSelectionPrint.Next;
+        ReportSelectionPrint.Next();
         ReportSelectionPrint.Default.SetValue(false);
         ReportSelectionPrint.OK.Invoke;
     end;

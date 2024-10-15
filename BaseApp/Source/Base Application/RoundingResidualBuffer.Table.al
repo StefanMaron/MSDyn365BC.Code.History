@@ -61,13 +61,13 @@ table 5810 "Rounding Residual Buffer"
             "Adjusted Cost (ACY)" := "Adjusted Cost (ACY)" + NewAdjustedCostACY;
             if not NewCompletelyInvoiced then
                 "Completely Invoiced" := false;
-            Modify;
+            Modify();
         end else begin
-            Init;
+            Init();
             "Adjusted Cost" := NewAdjustedCost;
             "Adjusted Cost (ACY)" := NewAdjustedCostACY;
             "Completely Invoiced" := NewCompletelyInvoiced;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -90,21 +90,21 @@ table 5810 "Rounding Residual Buffer"
 
             "Adjusted Cost" := NewAdjustedCost;
             "Adjusted Cost (ACY)" := NewAdjustedCostACY;
-            Modify;
+            Modify();
         end else begin
-            Init;
+            Init();
             "Adjusted Cost" := NewAdjustedCost;
             "Adjusted Cost (ACY)" := NewAdjustedCostACY;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure Retrieve(NewInboundEntryNo: Integer): Boolean
     begin
-        Reset;
+        Reset();
         "Item Ledger Entry No." := NewInboundEntryNo;
-        if not Find then begin
-            Init;
+        if not Find() then begin
+            Init();
             exit(false);
         end;
         exit(true);

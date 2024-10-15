@@ -27,28 +27,28 @@ codeunit 147125 "ERM VAT Invoices Journal"
     [Scope('OnPrem')]
     procedure IssuedFacturesInSamePeriod()
     begin
-        IssuedFactures(CalcDate('<CM-1D>', WorkDate));
+        IssuedFactures(CalcDate('<CM-1D>', WorkDate()));
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure IssuedFacturesInNextPeriod()
     begin
-        IssuedFactures(CalcDate('<+3M>', WorkDate));
+        IssuedFactures(CalcDate('<+3M>', WorkDate()));
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ReceivedFacturesInSamePeriod()
     begin
-        ReceivedFactures(CalcDate('<CM-1D>', WorkDate), CalcDate('<CM-1D>', WorkDate));
+        ReceivedFactures(CalcDate('<CM-1D>', WorkDate()), CalcDate('<CM-1D>', WorkDate()));
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ReceivedFacturesInNextPeriod()
     begin
-        ReceivedFactures(CalcDate('<CM-1D>', WorkDate), CalcDate('<+3M>', WorkDate));
+        ReceivedFactures(CalcDate('<CM-1D>', WorkDate()), CalcDate('<+3M>', WorkDate()));
     end;
 
     local procedure IssuedFactures(NewDate: Date)
@@ -64,8 +64,8 @@ codeunit 147125 "ERM VAT Invoices Journal"
     begin
         GLAccountNo := CreateVendorAndGLAcount(VendorNo);
         Amount := LibraryRandom.RandDec(100, 2);
-        CreateInvoice(PurchHeader, WorkDate, VendorNo, GLAccountNo, Amount, false, '', '');
-        UpdateVATInvoiceInfo(PurchHeader, Format(WorkDate), WorkDate, WorkDate);
+        CreateInvoice(PurchHeader, WorkDate(), VendorNo, GLAccountNo, Amount, false, '', '');
+        UpdateVATInvoiceInfo(PurchHeader, Format(WorkDate()), WorkDate(), WorkDate());
         InvNo := PostPurchDoc(PurchHeader);
 
         CreateCrMemo(PurchHeader, NewDate, VendorNo, GLAccountNo, Round(Amount / 3, 1), true, InvNo);
@@ -93,8 +93,8 @@ codeunit 147125 "ERM VAT Invoices Journal"
     begin
         GLAccountNo := CreateVendorAndGLAcount(VendorNo);
         Amount := LibraryRandom.RandDec(100, 2);
-        CreateInvoice(PurchHeader, WorkDate, VendorNo, GLAccountNo, Amount, false, '', '');
-        UpdateVATInvoiceInfo(PurchHeader, Format(WorkDate), WorkDate, WorkDate);
+        CreateInvoice(PurchHeader, WorkDate(), VendorNo, GLAccountNo, Amount, false, '', '');
+        UpdateVATInvoiceInfo(PurchHeader, Format(WorkDate()), WorkDate(), WorkDate());
         PostedDocNo := PostPurchDoc(PurchHeader);
 
         CreateCrMemo(PurchHeader, CrMemoDate, VendorNo, GLAccountNo, Amount, false, '');
@@ -150,7 +150,7 @@ codeunit 147125 "ERM VAT Invoices Journal"
         with PurchLine do begin
             LibraryPurch.CreatePurchaseLine(PurchLine, PurchHeader, Type::"G/L Account", GLAccountNo, 1);
             Validate("Direct Unit Cost", DirectunitCost);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -211,7 +211,7 @@ codeunit 147125 "ERM VAT Invoices Journal"
         VATInvoiceJournalMgt: Codeunit "VAT Invoice Journal Management";
     begin
         Vendor.SetFilter("No.", VendNo);
-        Period."Period Start" := WorkDate;
+        Period."Period Start" := WorkDate();
         Period."Period End" := EndDate;
         with TempVendorLedgerEntry do begin
             VATInvoiceJournalMgt.GetVendVATList(

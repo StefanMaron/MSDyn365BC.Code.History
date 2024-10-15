@@ -61,11 +61,11 @@ codeunit 144007 "ERM VAT Reinstatement"
         Customer."Vendor No." := Vendor."No.";
         Customer.Modify();
 
-        CreatePostPurchInvoice(Vendor."No.", GLAccountNo, CalcDate('<-CM>', WorkDate));
-        CreatePostVATSettlementJnlLine(Vendor."No.", CalcDate('<CM>', WorkDate));
-        CreatePostVATReinstatementJnlLine(Vendor."No.", CalcDate('<CM+1D>', WorkDate));
+        CreatePostPurchInvoice(Vendor."No.", GLAccountNo, CalcDate('<-CM>', WorkDate()));
+        CreatePostVATSettlementJnlLine(Vendor."No.", CalcDate('<CM>', WorkDate()));
+        CreatePostVATReinstatementJnlLine(Vendor."No.", CalcDate('<CM+1D>', WorkDate()));
 
-        VATLedgerStartDate := CalcDate('<-CM+1M>', WorkDate);
+        VATLedgerStartDate := CalcDate('<-CM+1M>', WorkDate());
         VATLedgerEndDate := CalcDate('<CM>', VATLedgerStartDate);
         VATLedgerNo :=
           LibraryPurchase.CreatePurchaseVATLedger(VATLedgerStartDate, VATLedgerEndDate, Vendor."No.", false, false);
@@ -88,9 +88,9 @@ codeunit 144007 "ERM VAT Reinstatement"
         Vendor.Get(
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(ReinstmtVATPostingSetup."VAT Bus. Posting Group"));
         FAWriteOffScenario(FixedAsset, Vendor);
-        CreatePostVATSettlementForFA(FixedAsset, WorkDate);
+        CreatePostVATSettlementForFA(FixedAsset, WorkDate());
         ClearVATReinstatementJnlLinesByObjNo(GenJnlLine, FixedAsset[1]."No.");
-        CreatePostVATReinstatementFromFAWriteOff(GenJnlLine, CalcDate('<CM+2M>', WorkDate));
+        CreatePostVATReinstatementFromFAWriteOff(GenJnlLine, CalcDate('<CM+2M>', WorkDate()));
         VerifyVATEntriesOfFA(FixedAsset);
     end;
 
@@ -107,9 +107,9 @@ codeunit 144007 "ERM VAT Reinstatement"
         Vendor.Get(
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(ReinstmtVATPostingSetup."VAT Bus. Posting Group"));
         GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(ReinstmtVATPostingSetup, "General Posting Type"::" ");
-        CreatePostPurchInvoice(Vendor."No.", GLAccountNo, CalcDate('<CM+1D>', WorkDate));
-        CreatePostVATSettlementJnlLine(Vendor."No.", CalcDate('<CM+2D>', WorkDate));
-        CreateVATReinstJnlLineBySuggestDocuments(VATEntry, Vendor."No.", CalcDate('<CM+2D>', WorkDate));
+        CreatePostPurchInvoice(Vendor."No.", GLAccountNo, CalcDate('<CM+1D>', WorkDate()));
+        CreatePostVATSettlementJnlLine(Vendor."No.", CalcDate('<CM+2D>', WorkDate()));
+        CreateVATReinstJnlLineBySuggestDocuments(VATEntry, Vendor."No.", CalcDate('<CM+2D>', WorkDate()));
         VerifyReinstatementVATEntry(Vendor."No.");
     end;
 
@@ -132,7 +132,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(ReinstmtVATPostingSetup, "General Posting Type"::" ");
         SetupDimensionCodes(DimCode, DimValueCode);
         CreatePostPurchInvoicesWithDim(Vendor."No.", GLAccountNo, DimCode, DimValueCode);
-        CreatePostVATSettlJnlLineForUnrealVATEntries(Vendor."No.", WorkDate);
+        CreatePostVATSettlJnlLineForUnrealVATEntries(Vendor."No.", WorkDate());
         ClearVATReinstatementJnlLinesByVendNo(GenJournalLine, VATEntry, Vendor."No.");
         CreateVATReinstJnlLineBySuggestDocuments(VATEntry, Vendor."No.", VATEntry."Posting Date");
         FindDocNosFromGenJnlLine(DocNo, GenJournalLine, Vendor."No.");
@@ -157,14 +157,14 @@ codeunit 144007 "ERM VAT Reinstatement"
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(ReinstmtVATPostingSetup."VAT Bus. Posting Group"));
         GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(ReinstmtVATPostingSetup, "General Posting Type"::" ");
 
-        VATSetlDate := CalcDate('<CM+1D>', WorkDate);
-        VATReinsDate := CalcDate('<CM+1M+1D>', WorkDate);
+        VATSetlDate := CalcDate('<CM+1D>', WorkDate());
+        VATReinsDate := CalcDate('<CM+1M+1D>', WorkDate());
         CreatePostPurchInvoice(Vendor."No.", GLAccountNo, VATSetlDate);
         CreatePostVATSettlJnlLineForUnrealVATEntries(Vendor."No.", VATSetlDate);
         ClearVATReinstatementJnlLinesByVendNo(GenJournalLine, VATEntry, Vendor."No.");
         LibraryERM.CreateVATReinstatementJnlLine(GenJournalLine, VATEntry."Entry No.", VATReinsDate, 1000, false);
         asserterror
-          GenJournalLine.Validate("Posting Date", WorkDate);
+          GenJournalLine.Validate("Posting Date", WorkDate());
         Assert.ExpectedError(PostingDateErr);
     end;
 
@@ -268,11 +268,11 @@ codeunit 144007 "ERM VAT Reinstatement"
         // SetFullVATPostingSetup(
         // VATPostingSetup,Vendor."VAT Bus. Posting Group",GLAccNo);
         CreatePostPurchInvoice(
-          Vendor."No.", VATPostingSetup."Purchase VAT Account", CalcDate('<-CM>', WorkDate));
+          Vendor."No.", VATPostingSetup."Purchase VAT Account", CalcDate('<-CM>', WorkDate()));
         // [GIVEN] Posted VAT Settlement
-        CreatePostVATSettlementJnlLine(Vendor."No.", CalcDate('<CM>', WorkDate));
+        CreatePostVATSettlementJnlLine(Vendor."No.", CalcDate('<CM>', WorkDate()));
         // [WHEN] Run "Suggest Document" for VAT Reinstatement
-        CreateVATReinstJnlLineBySuggestDocuments(VATEntry, Vendor."No.", CalcDate('<CM+1D>', WorkDate));
+        CreateVATReinstJnlLineBySuggestDocuments(VATEntry, Vendor."No.", CalcDate('<CM+1D>', WorkDate()));
         // [THEN] "Reinstatement VAT Entry No." of generated General Journal Line is equal to Full VAT Entry No.
         VerifyReinstatementVATEntry(Vendor."No.");
     end;
@@ -294,11 +294,11 @@ codeunit 144007 "ERM VAT Reinstatement"
         Vendor.Get(
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(ReinstmtVATPostingSetup."VAT Bus. Posting Group"));
         GLAccNo := LibraryERM.CreateGLAccountWithVATPostingSetup(ReinstmtVATPostingSetup, "General Posting Type"::" ");
-        CreatePostPurchCrMemo(Vendor."No.", GLAccNo, CalcDate('<-CM>', WorkDate));
+        CreatePostPurchCrMemo(Vendor."No.", GLAccNo, CalcDate('<-CM>', WorkDate()));
         // [GIVEN] Posted VAT Settlement
-        CreatePostVATSettlementJnlLine(Vendor."No.", CalcDate('<CM>', WorkDate));
+        CreatePostVATSettlementJnlLine(Vendor."No.", CalcDate('<CM>', WorkDate()));
         // [GIVEN] Run "Suggest Document" for VAT Reinstatement
-        CreateVATReinstJnlLineBySuggestDocuments(VATEntry, Vendor."No.", CalcDate('<CM+1D>', WorkDate));
+        CreateVATReinstJnlLineBySuggestDocuments(VATEntry, Vendor."No.", CalcDate('<CM+1D>', WorkDate()));
         // [THEN] "Reinstatement VAT Entry No." of generated General Journal Line is equal to Full VAT Entry No.
         VerifyReinstatementVATEntry(Vendor."No.");
     end;
@@ -447,9 +447,9 @@ codeunit 144007 "ERM VAT Reinstatement"
         Vendor.Get(
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(ReinstmtVATPostingSetup."VAT Bus. Posting Group"));
         GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(ReinstmtVATPostingSetup, "General Posting Type"::" ");
-        CreatePostPurchInvoice(Vendor."No.", GLAccountNo, CalcDate('<1D>', WorkDate));
+        CreatePostPurchInvoice(Vendor."No.", GLAccountNo, CalcDate('<1D>', WorkDate()));
         // [GIVEN] Posted VAT Settlement
-        VATPostingDate := CalcDate('<2D>', WorkDate);
+        VATPostingDate := CalcDate('<2D>', WorkDate());
         CreatePostVATSettlementJnlLine(Vendor."No.", VATPostingDate);
         // [GIVEN] Posted VAT Reinstatement with Entry No. = "X"
         CreateVATReinstJnlLineBySuggestDocuments(VATEntry, Vendor."No.", VATPostingDate);
@@ -538,7 +538,7 @@ codeunit 144007 "ERM VAT Reinstatement"
             DimValueCode[i] := DimValue.Code;
         end;
 
-        Dimension.Next;
+        Dimension.Next();
         DimCode[2] := Dimension.Code;
         LibraryDimension.CreateDimensionValue(DimValue, Dimension.Code);
         DimValueCode[3] := DimValue.Code;
@@ -550,9 +550,9 @@ codeunit 144007 "ERM VAT Reinstatement"
         InvExchRateAmount: Decimal;
         PrepmtExchRateAmount: Decimal;
     begin
-        PrepmtPostingDate := WorkDate;
+        PrepmtPostingDate := WorkDate();
         PrepmtExchRateAmount := LibraryRandom.RandInt(100);
-        InvPostingDate := CalcDate('<1M>', WorkDate);
+        InvPostingDate := CalcDate('<1M>', WorkDate());
         InvExchRateAmount := PrepmtExchRateAmount * Factor;
         LibraryERM.CreateCurrency(Currency);
         Currency.Validate("Purch. PD Losses Acc. (TA)", LibraryERM.CreateGLAccountNo);
@@ -594,10 +594,10 @@ codeunit 144007 "ERM VAT Reinstatement"
         FASetup.Get();
         for i := 1 to 3 do
             LibraryFixedAsset.CalcDepreciation(
-              FixedAsset[i]."No.", FASetup."Release Depr. Book", CalcDate('<CM+1D+CM>', WorkDate), true, false);
+              FixedAsset[i]."No.", FASetup."Release Depr. Book", CalcDate('<CM+1D+CM>', WorkDate()), true, false);
 
         LibraryFixedAsset.CreateFADocumentHeader(FADocHeader, FADocHeader."Document Type"::Writeoff);
-        FADocHeader.Validate("Posting Date", CalcDate('<CM+2M>', WorkDate));
+        FADocHeader.Validate("Posting Date", CalcDate('<CM+2M>', WorkDate()));
         FADocHeader.Modify(true);
         for i := 1 to 3 do
             LibraryFixedAsset.CreateFADocumentLine(FADocLine, FADocHeader, FixedAsset[i]."No.");
@@ -615,8 +615,8 @@ codeunit 144007 "ERM VAT Reinstatement"
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(ReinstmtVATPostingSetup."VAT Bus. Posting Group"));
         GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(ReinstmtVATPostingSetup, "General Posting Type"::" ");
 
-        VATSetlDate := CalcDate('<CM+1D>', WorkDate);
-        VATReinsDate := CalcDate('<CM+1M+1D>', WorkDate);
+        VATSetlDate := CalcDate('<CM+1D>', WorkDate());
+        VATReinsDate := CalcDate('<CM+1M+1D>', WorkDate());
         CreatePostPurchInvoice(Vendor."No.", GLAccountNo, VATSetlDate);
         CreatePostVATSettlJnlLineForUnrealVATEntries(Vendor."No.", VATSetlDate);
         ClearVATReinstatementJnlLinesByVendNo(GenJnlLine, VATEntry, Vendor."No.");
@@ -707,7 +707,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         VATEntry.FindSet();
         repeat
             LibraryERM.CreateVATSettlementJnlLine(VATEntry."Entry No.", PostingDate, -VATEntry."Remaining Unrealized Amount", true);
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
     end;
 
     local procedure CreateReleasePurchInvoiceWithCurrency(var PurchHeader: Record "Purchase Header"; PostingDate: Date; VendNo: Code[20]; GLAccNo: Code[20]; CurrencyCode: Code[10]): Decimal
@@ -936,7 +936,7 @@ codeunit 144007 "ERM VAT Reinstatement"
             GenJnlLine.Validate("Document No.", VATSettlementDocNo);
             GenJnlLine.Validate("External Document No.", GenJnlLine."Document No.");
             GenJnlLine.Modify(true);
-        until GenJnlLine.Next = 0;
+        until GenJnlLine.Next() = 0;
         GenJnlLine.SetRange("Document No.");
     end;
 

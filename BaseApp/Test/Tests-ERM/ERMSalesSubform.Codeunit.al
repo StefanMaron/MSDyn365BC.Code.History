@@ -105,32 +105,32 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity := ItemQuantity * 2;
         SalesInvoice.SalesLines.Quantity.SetValue(ItemQuantity);
         TotalAmount := ItemQuantity * Item."Unit Price";
-        SalesInvoice.SalesLines.Next;
+        SalesInvoice.SalesLines.Next();
         SalesInvoice.SalesLines.First;
 
         CheckInvoiceStatistics(SalesInvoice);
 
         SalesInvoice.SalesLines."Unit Price".SetValue(2 * Item."Unit Price");
         TotalAmount := 2 * TotalAmount;
-        SalesInvoice.SalesLines.Next;
+        SalesInvoice.SalesLines.Next();
         SalesInvoice.SalesLines.First;
 
         CheckInvoiceStatistics(SalesInvoice);
 
         SalesInvoice.SalesLines."Line Amount".SetValue(
           Round(SalesInvoice.SalesLines."Line Amount".AsDEcimal / 2, 1));
-        SalesInvoice.SalesLines.Next;
+        SalesInvoice.SalesLines.Next();
         SalesInvoice.SalesLines.First;
         CheckInvoiceStatistics(SalesInvoice);
 
         SalesInvoice.SalesLines."Line Discount %".SetValue('0');
-        SalesInvoice.SalesLines.Next;
+        SalesInvoice.SalesLines.Next();
         SalesInvoice.SalesLines.First;
         CheckInvoiceStatistics(SalesInvoice);
 
         SalesInvoice.SalesLines."No.".SetValue('');
         TotalAmount := 0;
-        SalesInvoice.SalesLines.Next;
+        SalesInvoice.SalesLines.Next();
         SalesInvoice.SalesLines.First;
 
         ValidateInvoiceInvoiceDiscountAmountIsReadOnly(SalesInvoice);
@@ -163,7 +163,7 @@ codeunit 134393 "ERM Sales Subform"
 
         ItemQuantity := ItemQuantity * 2;
         SalesInvoice.SalesLines.Quantity.SetValue(ItemQuantity);
-        SalesInvoice.SalesLines.Next;
+        SalesInvoice.SalesLines.Next();
         SalesInvoice.SalesLines.First;
 
         CheckInvoiceStatistics(SalesInvoice);
@@ -249,7 +249,7 @@ codeunit 134393 "ERM Sales Subform"
         AnswerYesToAllConfirmDialogs;
 
         SalesInvoice."Sell-to Customer Name".SetValue(NewCustomer."No.");
-        SalesInvoice.SalesLines.Next;
+        SalesInvoice.SalesLines.Next();
 
         ValidateInvoiceInvoiceDiscountAmountIsReadOnly(SalesInvoice);
         CheckInvoiceStatistics(SalesInvoice);
@@ -282,7 +282,7 @@ codeunit 134393 "ERM Sales Subform"
 
         AnswerYesToAllConfirmDialogs;
         SalesInvoice."Sell-to Customer Name".SetValue(NewCustomer."No.");
-        SalesInvoice.SalesLines.Next;
+        SalesInvoice.SalesLines.Next();
 
         CheckInvoiceStatistics(SalesInvoice);
     end;
@@ -309,7 +309,7 @@ codeunit 134393 "ERM Sales Subform"
 
         AnswerYesToAllConfirmDialogs;
         SalesInvoice."Sell-to Customer Name".SetValue(NewCustomer."No.");
-        SalesInvoice.SalesLines.Next;
+        SalesInvoice.SalesLines.Next();
 
         CheckInvoiceStatistics(SalesInvoice);
     end;
@@ -338,7 +338,7 @@ codeunit 134393 "ERM Sales Subform"
 
         AnswerYesToAllConfirmDialogs;
         SalesInvoice."Bill-to Name".SetValue(NewCustomer.Name);
-        SalesInvoice.SalesLines.Next;
+        SalesInvoice.SalesLines.Next();
 
         ValidateInvoiceInvoiceDiscountAmountIsReadOnly(SalesInvoice);
         CheckInvoiceStatistics(SalesInvoice);
@@ -585,30 +585,30 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity := ItemQuantity * 2;
         SalesOrder.SalesLines.Quantity.SetValue(ItemQuantity);
         TotalAmount := ItemQuantity * Item."Unit Price";
-        SalesOrder.SalesLines.Next;
+        SalesOrder.SalesLines.Next();
         SalesOrder.SalesLines.First;
         CheckOrderStatistics(SalesOrder);
 
         SalesOrder.SalesLines."Unit Price".SetValue(2 * Item."Unit Price");
         TotalAmount := 2 * TotalAmount;
-        SalesOrder.SalesLines.Next;
+        SalesOrder.SalesLines.Next();
         SalesOrder.SalesLines.First;
         CheckOrderStatistics(SalesOrder);
 
         SalesOrder.SalesLines."Line Amount".SetValue(
           Round(SalesOrder.SalesLines."Line Amount".AsDEcimal / 2, 1));
-        SalesOrder.SalesLines.Next;
+        SalesOrder.SalesLines.Next();
         SalesOrder.SalesLines.First;
         CheckOrderStatistics(SalesOrder);
 
         SalesOrder.SalesLines."Line Discount %".SetValue('0');
-        SalesOrder.SalesLines.Next;
+        SalesOrder.SalesLines.Next();
         SalesOrder.SalesLines.First;
         CheckOrderStatistics(SalesOrder);
 
         SalesOrder.SalesLines."No.".SetValue('');
         TotalAmount := 0;
-        SalesOrder.SalesLines.Next;
+        SalesOrder.SalesLines.Next();
         SalesOrder.SalesLines.First;
 
         ValidateOrderInvoiceDiscountAmountIsReadOnly(SalesOrder);
@@ -641,7 +641,7 @@ codeunit 134393 "ERM Sales Subform"
 
         ItemQuantity := ItemQuantity * 2;
         SalesOrder.SalesLines.Quantity.SetValue(ItemQuantity);
-        SalesOrder.SalesLines.Next;
+        SalesOrder.SalesLines.Next();
         SalesOrder.SalesLines.First;
 
         CheckOrderStatistics(SalesOrder);
@@ -677,7 +677,7 @@ codeunit 134393 "ERM Sales Subform"
 
         AnswerYesToAllConfirmDialogs;
         SalesOrder."Sell-to Customer Name".SetValue(NewCustomer.Name);
-        SalesOrder.SalesLines.Next;
+        SalesOrder.SalesLines.Next();
 
         CheckOrderStatistics(SalesOrder);
     end;
@@ -753,7 +753,7 @@ codeunit 134393 "ERM Sales Subform"
         AnswerYesToAllConfirmDialogs;
 
         SalesOrder."Sell-to Customer Name".SetValue(NewCustomer.Name);
-        SalesOrder.SalesLines.Next;
+        SalesOrder.SalesLines.Next();
 
         ValidateOrderInvoiceDiscountAmountIsReadOnly(SalesOrder);
         CheckOrderStatistics(SalesOrder);
@@ -1053,30 +1053,30 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity := ItemQuantity * 2;
         SalesQuote.SalesLines.Quantity.SetValue(ItemQuantity);
         TotalAmount := ItemQuantity * Item."Unit Price";
-        SalesQuote.SalesLines.Next;
+        SalesQuote.SalesLines.Next();
         SalesQuote.SalesLines.First;
         CheckQuoteStatistics(SalesQuote);
 
         SalesQuote.SalesLines."Unit Price".SetValue(2 * Item."Unit Price");
         TotalAmount := 2 * TotalAmount;
-        SalesQuote.SalesLines.Next;
+        SalesQuote.SalesLines.Next();
         SalesQuote.SalesLines.First;
         CheckQuoteStatistics(SalesQuote);
 
         SalesQuote.SalesLines."Line Amount".SetValue(
           Round(SalesQuote.SalesLines."Line Amount".AsDEcimal / 2, 1));
-        SalesQuote.SalesLines.Next;
+        SalesQuote.SalesLines.Next();
         SalesQuote.SalesLines.First;
         CheckQuoteStatistics(SalesQuote);
 
         SalesQuote.SalesLines."Line Discount %".SetValue('0');
-        SalesQuote.SalesLines.Next;
+        SalesQuote.SalesLines.Next();
         SalesQuote.SalesLines.First;
         CheckQuoteStatistics(SalesQuote);
 
         SalesQuote.SalesLines."No.".SetValue('');
         TotalAmount := 0;
-        SalesQuote.SalesLines.Next;
+        SalesQuote.SalesLines.Next();
         SalesQuote.SalesLines.First;
 
         ValidateQuoteInvoiceDiscountAmountIsReadOnly(SalesQuote);
@@ -1158,7 +1158,7 @@ codeunit 134393 "ERM Sales Subform"
 
         AnswerYesToAllConfirmDialogs;
         SalesQuote."Sell-to Customer Name".SetValue(NewCustomer.Name);
-        SalesQuote.SalesLines.Next;
+        SalesQuote.SalesLines.Next();
 
         ValidateQuoteInvoiceDiscountAmountIsReadOnly(SalesQuote);
         CheckQuoteStatistics(SalesQuote);
@@ -1216,7 +1216,7 @@ codeunit 134393 "ERM Sales Subform"
 
         AnswerYesToAllConfirmDialogs;
         SalesQuote."Sell-to Customer Name".SetValue(NewCustomer.Name);
-        SalesQuote.SalesLines.Next;
+        SalesQuote.SalesLines.Next();
 
         CheckQuoteStatistics(SalesQuote);
     end;
@@ -1464,30 +1464,30 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity := ItemQuantity * 2;
         BlanketSalesOrder.SalesLines.Quantity.SetValue(ItemQuantity);
         TotalAmount := ItemQuantity * Item."Unit Price";
-        BlanketSalesOrder.SalesLines.Next;
+        BlanketSalesOrder.SalesLines.Next();
         BlanketSalesOrder.SalesLines.First;
         CheckBlanketOrderStatistics(BlanketSalesOrder);
 
         BlanketSalesOrder.SalesLines."Unit Price".SetValue(2 * Item."Unit Price");
         TotalAmount := 2 * TotalAmount;
-        BlanketSalesOrder.SalesLines.Next;
+        BlanketSalesOrder.SalesLines.Next();
         BlanketSalesOrder.SalesLines.First;
         CheckBlanketOrderStatistics(BlanketSalesOrder);
 
         BlanketSalesOrder.SalesLines."Line Amount".SetValue(
           Round(BlanketSalesOrder.SalesLines."Line Amount".AsDEcimal / 2, 1));
-        BlanketSalesOrder.SalesLines.Next;
+        BlanketSalesOrder.SalesLines.Next();
         BlanketSalesOrder.SalesLines.First;
         CheckBlanketOrderStatistics(BlanketSalesOrder);
 
         BlanketSalesOrder.SalesLines."Line Discount %".SetValue('0');
-        BlanketSalesOrder.SalesLines.Next;
+        BlanketSalesOrder.SalesLines.Next();
         BlanketSalesOrder.SalesLines.First;
         CheckBlanketOrderStatistics(BlanketSalesOrder);
 
         BlanketSalesOrder.SalesLines."No.".SetValue('');
         TotalAmount := 0;
-        BlanketSalesOrder.SalesLines.Next;
+        BlanketSalesOrder.SalesLines.Next();
         BlanketSalesOrder.SalesLines.First;
 
         ValidateBlanketOrderInvoiceDiscountAmountIsReadOnly(BlanketSalesOrder);
@@ -1569,7 +1569,7 @@ codeunit 134393 "ERM Sales Subform"
 
         AnswerYesToAllConfirmDialogs;
         BlanketSalesOrder."Sell-to Customer Name".SetValue(NewCustomer."No.");
-        BlanketSalesOrder.SalesLines.Next;
+        BlanketSalesOrder.SalesLines.Next();
 
         ValidateBlanketOrderInvoiceDiscountAmountIsReadOnly(BlanketSalesOrder);
         CheckBlanketOrderStatistics(BlanketSalesOrder);
@@ -1627,7 +1627,7 @@ codeunit 134393 "ERM Sales Subform"
 
         AnswerYesToAllConfirmDialogs;
         BlanketSalesOrder."Sell-to Customer Name".SetValue(NewCustomer."No.");
-        BlanketSalesOrder.SalesLines.Next;
+        BlanketSalesOrder.SalesLines.Next();
 
         CheckBlanketOrderStatistics(BlanketSalesOrder);
     end;
@@ -1839,30 +1839,30 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity := ItemQuantity * 2;
         SalesReturnOrder.SalesLines.Quantity.SetValue(ItemQuantity);
         TotalAmount := ItemQuantity * Item."Unit Price";
-        SalesReturnOrder.SalesLines.Next;
+        SalesReturnOrder.SalesLines.Next();
         SalesReturnOrder.SalesLines.First;
         CheckReturnOrderStatistics(SalesReturnOrder);
 
         SalesReturnOrder.SalesLines."Unit Price".SetValue(2 * Item."Unit Price");
         TotalAmount := 2 * TotalAmount;
-        SalesReturnOrder.SalesLines.Next;
+        SalesReturnOrder.SalesLines.Next();
         SalesReturnOrder.SalesLines.First;
         CheckReturnOrderStatistics(SalesReturnOrder);
 
         SalesReturnOrder.SalesLines."Line Amount".SetValue(
           Round(SalesReturnOrder.SalesLines."Line Amount".AsDEcimal / 2, 1));
-        SalesReturnOrder.SalesLines.Next;
+        SalesReturnOrder.SalesLines.Next();
         SalesReturnOrder.SalesLines.First;
         CheckReturnOrderStatistics(SalesReturnOrder);
 
         SalesReturnOrder.SalesLines."Line Discount %".SetValue('0');
-        SalesReturnOrder.SalesLines.Next;
+        SalesReturnOrder.SalesLines.Next();
         SalesReturnOrder.SalesLines.First;
         CheckReturnOrderStatistics(SalesReturnOrder);
 
         SalesReturnOrder.SalesLines."No.".SetValue('');
         TotalAmount := 0;
-        SalesReturnOrder.SalesLines.Next;
+        SalesReturnOrder.SalesLines.Next();
         SalesReturnOrder.SalesLines.First;
 
         ValidateReturnOrderInvoiceDiscountAmountIsReadOnly(SalesReturnOrder);
@@ -1895,7 +1895,7 @@ codeunit 134393 "ERM Sales Subform"
 
         ItemQuantity := ItemQuantity * 2;
         SalesReturnOrder.SalesLines.Quantity.SetValue(ItemQuantity);
-        SalesReturnOrder.SalesLines.Next;
+        SalesReturnOrder.SalesLines.Next();
         SalesReturnOrder.SalesLines.First;
 
         CheckReturnOrderStatistics(SalesReturnOrder);
@@ -1979,7 +1979,7 @@ codeunit 134393 "ERM Sales Subform"
         AnswerYesToAllConfirmDialogs;
 
         SalesReturnOrder."Sell-to Customer Name".SetValue(NewCustomer."No.");
-        SalesReturnOrder.SalesLines.Next;
+        SalesReturnOrder.SalesLines.Next();
 
         ValidateReturnOrderInvoiceDiscountAmountIsReadOnly(SalesReturnOrder);
         CheckReturnOrderStatistics(SalesReturnOrder);
@@ -2011,7 +2011,7 @@ codeunit 134393 "ERM Sales Subform"
 
         AnswerYesToAllConfirmDialogs;
         SalesReturnOrder."Sell-to Customer Name".SetValue(NewCustomer."No.");
-        SalesReturnOrder.SalesLines.Next;
+        SalesReturnOrder.SalesLines.Next();
 
         CheckReturnOrderStatistics(SalesReturnOrder);
     end;
@@ -2038,7 +2038,7 @@ codeunit 134393 "ERM Sales Subform"
 
         AnswerYesToAllConfirmDialogs;
         SalesReturnOrder."Sell-to Customer Name".SetValue(NewCustomer."No.");
-        SalesReturnOrder.SalesLines.Next;
+        SalesReturnOrder.SalesLines.Next();
 
         CheckReturnOrderStatistics(SalesReturnOrder);
     end;
@@ -2276,13 +2276,13 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity := ItemQuantity * 2;
         SalesCreditMemo.SalesLines.Quantity.SetValue(ItemQuantity);
         TotalAmount := ItemQuantity * Item."Unit Price";
-        SalesCreditMemo.SalesLines.Next;
+        SalesCreditMemo.SalesLines.Next();
         SalesCreditMemo.SalesLines.First;
         CheckCreditMemoStatistics(SalesCreditMemo);
 
         SalesCreditMemo.SalesLines."Unit Price".SetValue(2 * Item."Unit Price");
         TotalAmount := 2 * TotalAmount;
-        SalesCreditMemo.SalesLines.Next;
+        SalesCreditMemo.SalesLines.Next();
         SalesCreditMemo.SalesLines.First;
         CheckCreditMemoStatistics(SalesCreditMemo);
 
@@ -2299,24 +2299,24 @@ codeunit 134393 "ERM Sales Subform"
         ItemUOM.Insert();
         SalesCreditMemo.SalesLines."Unit of Measure Code".SetValue(ItemUOM.Code);
         TotalAmount := ItemQuantity * Item."Unit Price" * 5;
-        SalesCreditMemo.SalesLines.Next;
+        SalesCreditMemo.SalesLines.Next();
         SalesCreditMemo.SalesLines.First;
         CheckCreditMemoStatistics(SalesCreditMemo);
 
         SalesCreditMemo.SalesLines."Line Amount".SetValue(
           Round(SalesCreditMemo.SalesLines."Line Amount".AsDEcimal / 2, 1));
-        SalesCreditMemo.SalesLines.Next;
+        SalesCreditMemo.SalesLines.Next();
         SalesCreditMemo.SalesLines.First;
         CheckCreditMemoStatistics(SalesCreditMemo);
 
         SalesCreditMemo.SalesLines."Line Discount %".SetValue('0');
-        SalesCreditMemo.SalesLines.Next;
+        SalesCreditMemo.SalesLines.Next();
         SalesCreditMemo.SalesLines.First;
         CheckCreditMemoStatistics(SalesCreditMemo);
 
         SalesCreditMemo.SalesLines."No.".SetValue('');
         TotalAmount := 0;
-        SalesCreditMemo.SalesLines.Next;
+        SalesCreditMemo.SalesLines.Next();
         SalesCreditMemo.SalesLines.First;
 
         ValidateCreditMemoInvoiceDiscountAmountIsReadOnly(SalesCreditMemo);
@@ -2399,7 +2399,7 @@ codeunit 134393 "ERM Sales Subform"
         AnswerYesToAllConfirmDialogs;
 
         SalesCreditMemo."Sell-to Customer Name".SetValue(NewCustomer."No.");
-        SalesCreditMemo.SalesLines.Next;
+        SalesCreditMemo.SalesLines.Next();
 
         ValidateCreditMemoInvoiceDiscountAmountIsReadOnly(SalesCreditMemo);
         CheckCreditMemoStatistics(SalesCreditMemo);
@@ -2431,7 +2431,7 @@ codeunit 134393 "ERM Sales Subform"
 
         AnswerYesToAllConfirmDialogs;
         SalesCreditMemo."Sell-to Customer Name".SetValue(NewCustomer."No.");
-        SalesCreditMemo.SalesLines.Next;
+        SalesCreditMemo.SalesLines.Next();
 
         CheckCreditMemoStatistics(SalesCreditMemo);
     end;
@@ -2458,7 +2458,7 @@ codeunit 134393 "ERM Sales Subform"
 
         AnswerYesToAllConfirmDialogs;
         SalesCreditMemo."Sell-to Customer Name".SetValue(NewCustomer."No.");
-        SalesCreditMemo.SalesLines.Next;
+        SalesCreditMemo.SalesLines.Next();
 
         CheckCreditMemoStatistics(SalesCreditMemo);
     end;
@@ -2594,7 +2594,7 @@ codeunit 134393 "ERM Sales Subform"
         Initialize();
 
         CreateCustomer(Customer);
-        Customer."Currency Code" := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1, 1);
+        Customer."Currency Code" := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, 1);
         Customer.Modify(true);
         SalesCreditMemo.OpenNew();
 
@@ -2723,10 +2723,10 @@ codeunit 134393 "ERM Sales Subform"
         DimValueID := CreateDimOnGLAccount(GLAccountNo);
 
         // [WHEN] Calculate Totals by Open Sales Credit Memo Page
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
         SalesCreditMemo.OpenEdit;
         SalesCreditMemo.GotoRecord(SalesHeader);
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
 
         // [THEN] No Dimension Set Tree Node is created for "D"
         DimSetTreeNode.Init(); // PreCAL trick
@@ -2783,10 +2783,10 @@ codeunit 134393 "ERM Sales Subform"
         SalesOrder.OpenEdit;
         SalesOrder.GotoKey(SalesLine."Document Type", SalesLine."Document No.");
         SalesOrder.SalesLines."Unit of Measure Code".Lookup;
-        SalesOrder.Close;
+        SalesOrder.Close();
 
         // [THEN] Lookup is available. Unit of Measure Code is changed.
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.TestField("Unit of Measure Code", AdditionalUOMCode);
     end;
 
@@ -2822,7 +2822,7 @@ codeunit 134393 "ERM Sales Subform"
         SalesOrder.SalesLines."Unit of Measure Code".Lookup;
 
         // [THEN] Lookup is available. Resource Base Unit of Measure Code is read.
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.TestField("Unit of Measure Code", Format(ResourceUOMCode));
     end;
 
@@ -2942,7 +2942,7 @@ codeunit 134393 "ERM Sales Subform"
         SalesOrderPage.OpenEdit;
         SalesOrderPage.FILTER.SetFilter("No.", SalesHeader."No.");
         CheckSalesOrderSubformTotalAmountCaptions(SalesOrderPage, CurrencyCode);
-        SalesOrderPage.Close;
+        SalesOrderPage.Close();
 
         // [GIVEN] "SO" Currency Code set to blank
         SalesHeader.Validate("Currency Code", '');
@@ -2977,7 +2977,7 @@ codeunit 134393 "ERM Sales Subform"
         SalesQuotePage.OpenEdit;
         SalesQuotePage.FILTER.SetFilter("No.", SalesHeader."No.");
         CheckSalesQuoteSubformTotalAmountCaptions(SalesQuotePage, CurrencyCode);
-        SalesQuotePage.Close;
+        SalesQuotePage.Close();
 
         // [GIVEN] "SQ" Currency Code set to blank
         SalesHeader.Validate("Currency Code", '');
@@ -3012,7 +3012,7 @@ codeunit 134393 "ERM Sales Subform"
         SalesInvoicePage.OpenEdit;
         SalesInvoicePage.FILTER.SetFilter("No.", SalesHeader."No.");
         CheckSalesInvoiceSubformTotalAmountCaptions(SalesInvoicePage, CurrencyCode);
-        SalesInvoicePage.Close;
+        SalesInvoicePage.Close();
 
         // [GIVEN] "SI" Currency Code set to blank
         SalesHeader.Validate("Currency Code", '');
@@ -3047,7 +3047,7 @@ codeunit 134393 "ERM Sales Subform"
         SalesCreditMemoPage.OpenEdit;
         SalesCreditMemoPage.FILTER.SetFilter("No.", SalesHeader."No.");
         CheckSalesCreditMemoSubformTotalAmountCaptions(SalesCreditMemoPage, CurrencyCode);
-        SalesCreditMemoPage.Close;
+        SalesCreditMemoPage.Close();
 
         // [GIVEN] "SCM" Currency Code set to blank
         SalesHeader.Validate("Currency Code", '');
@@ -3082,7 +3082,7 @@ codeunit 134393 "ERM Sales Subform"
         BlanketSalesOrderPage.OpenEdit;
         BlanketSalesOrderPage.FILTER.SetFilter("No.", SalesHeader."No.");
         CheckSalesBlanketOrderSubformTotalAmountCaptions(BlanketSalesOrderPage, CurrencyCode);
-        BlanketSalesOrderPage.Close;
+        BlanketSalesOrderPage.Close();
 
         // [GIVEN] "BSO" Currency Code set to blank
         SalesHeader.Validate("Currency Code", '');
@@ -3117,7 +3117,7 @@ codeunit 134393 "ERM Sales Subform"
         SalesReturnOrderPage.OpenEdit;
         SalesReturnOrderPage.FILTER.SetFilter("No.", SalesHeader."No.");
         CheckSalesReturnOrderSubformTotalAmountCaptions(SalesReturnOrderPage, CurrencyCode);
-        SalesReturnOrderPage.Close;
+        SalesReturnOrderPage.Close();
 
         // [GIVEN] "SRO" Currency Code set to blank
         SalesHeader.Validate("Currency Code", '');
@@ -3832,34 +3832,6 @@ codeunit 134393 "ERM Sales Subform"
         Assert.AreEqual('Line Amount Excl. VAT', SalesLine.FieldCaption("Line Amount"), 'Caption must contain Excl. VAT');
     end;
 
-#if not CLEAN18
-    [Test]
-    [Scope('OnPrem')]
-    procedure SalesLineVATCaptionOnChangeBillToCustomerTemplate()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-    begin
-        // [FEATURE] [Caption] [UT] [Customer Template]
-        // [SCENARIO 310753] Captions endings of "Unit Price"/"Line Amount" are changed between "Incl. VAT" and "Excl. VAT" when Bill-to Customer Template is changed.
-        Initialize();
-
-        // [GIVEN] Sales Quote with Bill-to Customer Template "C1", that has "Prices Including VAT" = TRUE.
-        // [GIVEN] Fields "Unit Price"/"Line Amount" of Sales Line have captions "Unit Price Incl. VAT"/"Line Amount Incl. VAT".
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, CreateCustomerNoPricesIncludingVAT(false));
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
-        SalesHeader.Validate("Bill-to Customer Template Code", CreateCustomerTemplateCodePricesIncludingVAT(true));
-        Assert.AreEqual('Unit Price Incl. VAT', SalesLine.FieldCaption("Unit Price"), 'Caption must contain Incl. VAT');
-        Assert.AreEqual('Line Amount Incl. VAT', SalesLine.FieldCaption("Line Amount"), 'Caption must contain Incl. VAT');
-
-        // [WHEN] Change Bill-to Customer Template to "C2", it has "Prices Including VAT" = FALSE.
-        SalesHeader.Validate("Bill-to Customer Template Code", CreateCustomerTemplateCodePricesIncludingVAT(false));
-
-        // [THEN] Captions of the fields "Unit Price"/"Line Amount" are updated to "Unit Price Excl. VAT"/"Line Amount Excl. VAT".
-        Assert.AreEqual('Unit Price Excl. VAT', SalesLine.FieldCaption("Unit Price"), 'Caption must contain Excl. VAT');
-        Assert.AreEqual('Line Amount Excl. VAT', SalesLine.FieldCaption("Line Amount"), 'Caption must contain Excl. VAT');
-    end;
-#endif
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
@@ -4510,7 +4482,7 @@ codeunit 134393 "ERM Sales Subform"
         CurrencyCode: Code[10];
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo);
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1, 1);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, 1);
         SalesHeader.Validate("Currency Code", CurrencyCode);
         SalesHeader.Modify(true);
         exit(CurrencyCode);
@@ -4783,7 +4755,7 @@ codeunit 134393 "ERM Sales Subform"
         SalesInvoice.SalesLines.Quantity.SetValue(ItemQuantity);
 
         // Trigger Save
-        SalesInvoice.SalesLines.Next;
+        SalesInvoice.SalesLines.Next();
         SalesInvoice.SalesLines.First;
     end;
 
@@ -4804,7 +4776,7 @@ codeunit 134393 "ERM Sales Subform"
         end;
 
         // Trigger Save
-        SalesOrder.SalesLines.Next;
+        SalesOrder.SalesLines.Next();
         SalesOrder.SalesLines.First;
     end;
 
@@ -4825,7 +4797,7 @@ codeunit 134393 "ERM Sales Subform"
         end;
 
         // Trigger Save
-        SalesQuote.SalesLines.Next;
+        SalesQuote.SalesLines.Next();
         SalesQuote.SalesLines.First;
     end;
 
@@ -4846,7 +4818,7 @@ codeunit 134393 "ERM Sales Subform"
         end;
 
         // Trigger Save
-        BlanketSalesOrder.SalesLines.Next;
+        BlanketSalesOrder.SalesLines.Next();
         BlanketSalesOrder.SalesLines.First;
     end;
 
@@ -4867,7 +4839,7 @@ codeunit 134393 "ERM Sales Subform"
         end;
 
         // Trigger Save
-        SalesReturnOrder.SalesLines.Next;
+        SalesReturnOrder.SalesLines.Next();
         SalesReturnOrder.SalesLines.First;
     end;
 
@@ -4888,7 +4860,7 @@ codeunit 134393 "ERM Sales Subform"
         end;
 
         // Trigger Save
-        SalesCreditMemo.SalesLines.Next;
+        SalesCreditMemo.SalesLines.Next();
         SalesCreditMemo.SalesLines.First;
     end;
 
@@ -4954,20 +4926,6 @@ codeunit 134393 "ERM Sales Subform"
         exit(Customer."No.");
     end;
 
-#if not CLEAN18
-    local procedure CreateCustomerTemplateCodePricesIncludingVAT(PricesIncludingVAT: Boolean): Code[10]
-    var
-        CustomerTemplate: Record "Customer Template";
-        CustomerPostingGroup: Record "Customer Posting Group";
-    begin
-        LibrarySales.CreateCustomerTemplate(CustomerTemplate);
-        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
-        CustomerTemplate.Validate("Prices Including VAT", PricesIncludingVAT);
-        CustomerTemplate.Validate("Customer Posting Group", CustomerPostingGroup.Code);
-        CustomerTemplate.Modify(true);
-        exit(CustomerTemplate.Code);
-    end;
-#endif
     local procedure CreateGLAccountForInvoiceRounding(CustomerPostingGroupCode: Code[20]): Code[20]
     var
         CustomerPostingGroup: Record "Customer Posting Group";
@@ -5003,8 +4961,8 @@ codeunit 134393 "ERM Sales Subform"
         Currency: Record Currency;
     begin
         if not Currency.Get(CurrencyCode) then
-            Currency.InitRoundingPrecision;
-        exit(Round(Amount, Currency."Invoice Rounding Precision", Currency.InvoiceRoundingDirection))
+            Currency.InitRoundingPrecision();
+        exit(Round(Amount, Currency."Invoice Rounding Precision", Currency.InvoiceRoundingDirection()))
     end;
 
     local procedure DoesCustomerHaveInvDiscounts(var Customer: Record Customer): Boolean

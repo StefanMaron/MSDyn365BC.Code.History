@@ -163,7 +163,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
         PaymentFile.TextMode := true;
         PaymentFile.Open(FileName);
         PaymentFile.Read(Content);
-        PaymentFile.Close;
+        PaymentFile.Close();
     end;
 
     local procedure ValidateExportedPmtJnlLine(GenJournalBatch: Record "Gen. Journal Batch")
@@ -183,7 +183,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
         CreditTransferRegister.SetRange(Identifier, Identifier);
         CreditTransferRegister.SetRange(Status, CreditTransferRegister.Status::"File Created");
         CreditTransferRegister.SetRange("From Bank Account No.", FromBankAccountNo);
-        Assert.IsFalse(CreditTransferRegister.IsEmpty, StrSubstNo(RecordNotFoundErr, CreditTransferRegister.TableCaption));
+        Assert.IsFalse(CreditTransferRegister.IsEmpty, StrSubstNo(RecordNotFoundErr, CreditTransferRegister.TableCaption()));
     end;
 
     [Test]
@@ -346,7 +346,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
         PmtExportMgtGenJnlLine.ExportJournalPaymentFileYN(PmtGenJournalLine);
 
         // [THEN] Amount in exported file is equal to GenJnlLine.Amount
-        Assert.AreEqual(PmtGenJournalLine.Amount, GetAmountFromFile(PmtExportMgtGenJnlLine.GetServerTempFileName), 'Amount');
+        Assert.AreEqual(PmtGenJournalLine.Amount, GetAmountFromFile(PmtExportMgtGenJnlLine.GetServerTempFileName()), 'Amount');
     end;
 
     [Test]
@@ -492,7 +492,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
 
         // [THEN] Amount text = "14.7000" in exported file is equal to Amount padded with Pad Character.
         PaddedAmount := PadStr(Format(PmtGenJnlLine.Amount), PaddedLength, PadChar);
-        Assert.AreEqual(PaddedAmount, GetAmountTextFromFile(PmtExportMgtGenJnlLine.GetServerTempFileName), '');
+        Assert.AreEqual(PaddedAmount, GetAmountTextFromFile(PmtExportMgtGenJnlLine.GetServerTempFileName()), '');
     end;
 
     [Test]
@@ -575,7 +575,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
         File.TextMode := true;
         File.Open(FileName);
         File.Read(Content);
-        File.Close;
+        File.Close();
     end;
 
     local procedure GetAmountFromFile(FilePath: Text) Amount: Decimal
@@ -671,10 +671,10 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
         with VendLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(VendLedgerEntry, FieldNo("Entry No."));
             "Vendor No." := VendorCode;
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Document Type" := DocumentType;
             "Document No." := LibraryUtility.GenerateGUID();
             Open := true;
@@ -688,16 +688,16 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
             "Exported to Payment File" := Exported;
             "Currency Code" := Currency.Code;
             "Amount (LCY)" := Amount * Currency."Currency Factor";
-            Insert;
+            Insert();
         end;
         with DetailedVendorLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
             Amount := VendLedgerEntry.Amount;
             "Vendor Ledger Entry No." := VendLedgerEntry."Entry No.";
             "Ledger Entry Amount" := true;
             "Posting Date" := VendLedgerEntry."Date Filter";
-            Insert;
+            Insert();
         end;
     end;
 

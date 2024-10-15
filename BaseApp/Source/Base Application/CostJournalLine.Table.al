@@ -28,7 +28,7 @@ table 1101 "Cost Journal Line"
                     Description := CostType.Name;
                 end;
 
-                CalcBalance;
+                CalcBalance();
             end;
         }
         field(5; "Posting Date"; Date)
@@ -63,7 +63,7 @@ table 1101 "Cost Journal Line"
                     "Bal. Cost Object Code" := CostType."Cost Object Code";
                 end;
 
-                CalcBalance;
+                CalcBalance();
             end;
         }
         field(16; Amount; Decimal)
@@ -72,8 +72,8 @@ table 1101 "Cost Journal Line"
 
             trigger OnValidate()
             begin
-                CalcBalance;
-                UpdateDebitCreditAmounts;
+                CalcBalance();
+                UpdateDebitCreditAmounts();
             end;
         }
         field(17; Balance; Decimal)
@@ -263,7 +263,7 @@ table 1101 "Cost Journal Line"
     begin
         if CostCenter.Get(CostCenterCode) then begin
             if not (CostCenter."Line Type" in [CostCenter."Line Type"::"Cost Center", CostCenter."Line Type"::"Begin-Total"]) then
-                Error(Text000, CostCenter."Line Type"::"Cost Center", CostCenter.TableCaption, CostCenter.Code);
+                Error(Text000, CostCenter."Line Type"::"Cost Center", CostCenter.TableCaption(), CostCenter.Code);
             CostCenter.TestField(Blocked, false);
         end;
     end;
@@ -274,7 +274,7 @@ table 1101 "Cost Journal Line"
     begin
         if CostObject.Get(CostObjectCode) then begin
             if not (CostObject."Line Type" in [CostObject."Line Type"::"Cost Object", CostObject."Line Type"::"Begin-Total"]) then
-                Error(Text000, CostObject."Line Type"::"Cost Object", CostObject.TableCaption, CostObject.Code);
+                Error(Text000, CostObject."Line Type"::"Cost Object", CostObject.TableCaption(), CostObject.Code);
             CostObject.TestField(Blocked, false);
         end;
     end;
@@ -291,7 +291,7 @@ table 1101 "Cost Journal Line"
             "Posting Date" := LastCostJournalLine."Posting Date";
             "Document No." := LastCostJournalLine."Document No.";
         end else
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
 
         "Source Code" := CostJournalTemplate."Source Code";
         "Reason Code" := CostJournalBatch."Reason Code";

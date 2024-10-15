@@ -58,6 +58,8 @@ permissionset 1044 "D365 READ"
                   tabledata "Acc. Schedule Line" = R,
                   tabledata "Acc. Schedule Line Entity" = R,
                   tabledata "Acc. Schedule Name" = R,
+                  tabledata "Financial Report" = R,
+                  tabledata "Financial Report User Filters" = R,
                   tabledata "Account Schedules Chart Setup" = R,
                   tabledata "Account Use Buffer" = R,
                   tabledata "Accounting Period" = R,
@@ -287,6 +289,7 @@ permissionset 1044 "D365 READ"
                   tabledata "Credit Trans Re-export History" = R,
                   tabledata "Credit Transfer Entry" = R,
                   tabledata "Credit Transfer Register" = R,
+                  tabledata "Dataverse Entity Change" = Rd,
                   tabledata "CRM Account" = R,
                   tabledata "CRM Account Statistics" = R,
                   tabledata "CRM Annotation" = R,
@@ -359,7 +362,7 @@ permissionset 1044 "D365 READ"
                   tabledata "Customer Price Group" = R,
                   tabledata "Customer Sales Buffer" = R,
                   tabledata "Customer Templ." = R,
-#if not CLEAN18
+#if not CLEAN19
                   tabledata "Customer Template" = R,
 #endif
                   tabledata "Customized Calendar Change" = R,
@@ -373,6 +376,8 @@ permissionset 1044 "D365 READ"
                   tabledata "Data Exch. Field Mapping Buf." = R,
                   tabledata "Data Exch. Line Def" = R,
                   tabledata "Data Exch. Mapping" = R,
+                  tabledata "Data Exch. Field Grouping" = R,
+                  tabledata "Data Exch. FlowField Gr. Buff." = R,
                   tabledata "Data Exchange Type" = R,
                   tabledata "Data Migration Entity" = R,
                   tabledata "Data Migration Error" = R,
@@ -549,7 +554,9 @@ permissionset 1044 "D365 READ"
                   tabledata "Generic Chart Setup" = R,
                   tabledata "Generic Chart Y-Axis" = R,
                   tabledata Geolocation = R,
+#if not CLEAN21
                   tabledata "Graph Mail Setup" = R,
+#endif
                   tabledata "Grounds for Termination" = R,
                   tabledata "Handled IC Inbox Jnl. Line" = R,
                   tabledata "Handled IC Inbox Purch. Header" = R,
@@ -699,9 +706,6 @@ permissionset 1044 "D365 READ"
                   tabledata "Item Statistics Buffer" = R,
                   tabledata "Item Substitution" = R,
                   tabledata "Item Templ." = R,
-#if not CLEAN18
-                  tabledata "Item Template" = R,
-#endif
                   tabledata "Item Tracing Buffer" = R,
                   tabledata "Item Tracing History Buffer" = R,
                   tabledata "Item Tracking Code" = R,
@@ -717,7 +721,7 @@ permissionset 1044 "D365 READ"
                   tabledata "Job Cue" = R,
                   tabledata "Job Difference Buffer" = R,
                   tabledata "Job Entry No." = R,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Job G/L Account Price" = R,
                   tabledata "Job Item Price" = R,
 #endif
@@ -736,7 +740,7 @@ permissionset 1044 "D365 READ"
                   tabledata "Job Queue Entry Buffer" = R,
                   tabledata "Job Queue Log Entry" = R,
                   tabledata "Job Register" = R,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Job Resource Price" = R,
 #endif
                   tabledata "Job Responsibility" = R,
@@ -778,10 +782,6 @@ permissionset 1044 "D365 READ"
                   tabledata "Marketing Setup" = R,
                   tabledata "Media Repository" = R,
                   tabledata "Memoized Result" = R,
-#if not CLEAN18
-                  tabledata "Mini Customer Template" = R,
-                  tabledata "Mini Vendor Template" = R,
-#endif
                   tabledata "Miniform Function" = R,
                   tabledata "Miniform Function Group" = R,
                   tabledata "Miniform Header" = R,
@@ -815,6 +815,7 @@ permissionset 1044 "D365 READ"
                   tabledata "Notification Schedule" = R,
                   tabledata "Notification Setup" = R,
                   tabledata "O365 Brand Color" = R,
+#if not CLEAN21
                   tabledata "O365 C2Graph Event Settings" = R,
                   tabledata "O365 Country/Region" = R,
                   tabledata "O365 Coupon Claim" = R,
@@ -822,13 +823,17 @@ permissionset 1044 "D365 READ"
                   tabledata "O365 Cust. Invoice Discount" = R,
                   tabledata "O365 Customer" = R,
                   tabledata "O365 Default Email Message" = R,
+#endif
                   tabledata "O365 Device Setup Instructions" = R,
+#if not CLEAN21
                   tabledata "O365 Document Sent History" = R,
                   tabledata "O365 Email Setup" = R,
                   tabledata "O365 Field Excel Mapping" = R,
+#endif
                   tabledata "O365 Getting Started" = R,
                   tabledata "O365 Getting Started Page Data" = R,
                   tabledata "O365 HTML Template" = R,
+#if not CLEAN21
                   tabledata "O365 Item Basket Entry" = R,
                   tabledata "O365 Payment History Buffer" = R,
                   tabledata "O365 Payment Instr. Transl." = R,
@@ -837,7 +842,9 @@ permissionset 1044 "D365 READ"
                   tabledata "O365 Payment Service Logo" = R,
                   tabledata "O365 Payment Terms" = R,
                   tabledata "O365 Posted Coupon Claim" = R,
+#endif
                   tabledata "O365 Sales Cue" = R,
+#if not CLEAN21
                   tabledata "O365 Sales Document" = R,
                   tabledata "O365 Sales Event" = R,
                   tabledata "O365 Sales Graph" = R,
@@ -845,6 +852,7 @@ permissionset 1044 "D365 READ"
                   tabledata "O365 Sales Invoice Document" = R,
                   tabledata "O365 Settings Menu" = R,
                   tabledata "O365 Social Network" = R,
+#endif
                   tabledata "OAuth 2.0 Setup" = R,
                   tabledata "Object Translation" = R,
                   tabledata "OCR Service Document Template" = R,
@@ -957,16 +965,17 @@ permissionset 1044 "D365 READ"
                   tabledata "Posted Whse. Shipment Line" = R,
                   tabledata "Power BI Chart Buffer" = R,
                   tabledata "Power BI Customer Reports" = R,
-#if not CLEAN18
-                  tabledata "Power BI Ongoing Deployments" = R,
-#endif
+#if not CLEAN21
                   tabledata "Power BI Report Buffer" = R,
+#endif
                   tabledata "Power BI Report Configuration" = R,
                   tabledata "Power BI Report Labels" = R,
                   tabledata "Power BI Report Uploads" = R,
                   tabledata "Power BI Service Status Setup" = R,
                   tabledata "Power BI User Configuration" = R,
+#if not CLEAN21
                   tabledata "Power BI User License" = R,
+#endif
                   tabledata "Power BI User Status" = R,
                   tabledata "Prepayment Inv. Line Buffer" = R,
                   tabledata "Price Asset" = R,
@@ -1013,7 +1022,7 @@ permissionset 1044 "D365 READ"
                   tabledata "Purch. Inv. Header" = R,
                   tabledata "Purch. Inv. Line" = R,
                   tabledata "Purch. Inv. Line Aggregate" = R,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Purch. Price Line Disc. Buff." = R,
 #endif
                   tabledata "Purch. Rcpt. Header" = R,
@@ -1024,12 +1033,12 @@ permissionset 1044 "D365 READ"
                   tabledata "Purchase Header Archive" = R,
                   tabledata "Purchase Line" = R,
                   tabledata "Purchase Line Archive" = R,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Purchase Line Discount" = R,
 #endif
                   tabledata "Purchase Order Entity Buffer" = R,
                   tabledata "Purchase Prepayment %" = R,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Purchase Price" = R,
 #endif
                   tabledata "Purchase Price Access" = R,
@@ -1068,6 +1077,7 @@ permissionset 1044 "D365 READ"
                   tabledata "Reminder Terms Translation" = R,
                   tabledata "Reminder Text" = R,
                   tabledata "Reminder/Fin. Charge Entry" = R,
+                  tabledata "Remit Address" = R,
                   tabledata "Repair Status" = R,
                   tabledata "Report Inbox" = R,
                   tabledata "Report Layout Selection" = R,
@@ -1090,12 +1100,12 @@ permissionset 1044 "D365 READ"
                   tabledata "Reservation Entry Buffer" = R,
                   tabledata "Resolution Code" = R,
                   tabledata Resource = R,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Resource Cost" = R,
 #endif
                   tabledata "Resource Group" = R,
                   tabledata "Resource Location" = R,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Resource Price" = R,
                   tabledata "Resource Price Change" = R,
 #endif
@@ -1146,17 +1156,17 @@ permissionset 1044 "D365 READ"
                   tabledata "Sales Invoice Line Aggregate" = R,
                   tabledata "Sales Line" = R,
                   tabledata "Sales Line Archive" = R,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Sales Line Discount" = R,
 #endif
                   tabledata "Sales Order Entity Buffer" = R,
                   tabledata "Sales Planning Line" = R,
                   tabledata "Sales Prepayment %" = R,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Sales Price" = R,
 #endif
                   tabledata "Sales Price Access" = R,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Sales Price and Line Disc Buff" = R,
                   tabledata "Sales Price Worksheet" = R,
 #endif
@@ -1273,7 +1283,9 @@ permissionset 1044 "D365 READ"
                   tabledata "SWIFT Code" = R,
                   tabledata "Symptom Code" = R,
                   tabledata "Table Filter" = R,
+#if not CLEAN21
                   tabledata "Table Permission Buffer" = R,
+#endif
                   tabledata "Tariff Number" = R,
                   tabledata "Tax Area" = R,
                   tabledata "Tax Area Buffer" = R,

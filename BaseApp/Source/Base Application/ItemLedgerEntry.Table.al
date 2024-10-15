@@ -498,13 +498,8 @@
         {
             Caption = 'CD No.';
             ObsoleteReason = 'Replaced by field Package No.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
         field(12450; "FA No."; Code[20])
         {
@@ -672,7 +667,7 @@
     begin
         if "Applied Entry to Adjust" <> AppliedEntryToAdjust then begin
             "Applied Entry to Adjust" := AppliedEntryToAdjust;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -697,7 +692,7 @@
             until ItemApplnEntry.Next() = 0;
 
             if CompletelyInvoiced then begin
-                SetCompletelyInvoiced;
+                SetCompletelyInvoiced();
                 exit(true);
             end;
         end;
@@ -708,13 +703,13 @@
     begin
         if not "Completely Invoiced" then begin
             "Completely Invoiced" := true;
-            Modify;
+            Modify();
         end;
     end;
 
     procedure AppliedEntryToAdjustExists(ItemNo: Code[20]): Boolean
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Item No.", "Applied Entry to Adjust");
         SetRange("Item No.", ItemNo);
         SetRange("Applied Entry to Adjust", true);
@@ -752,7 +747,7 @@
 
     procedure GetSourceCaption(): Text
     begin
-        exit(StrSubstNo('%1 %2', TableCaption, "Entry No."));
+        exit(StrSubstNo('%1 %2', TableCaption(), "Entry No."));
     end;
 
     procedure GetUnitCostLCY(): Decimal
@@ -765,7 +760,7 @@
 
     procedure FilterLinesWithItemToPlan(var Item: Record Item; NetChange: Boolean)
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date");
         SetRange("Item No.", Item."No.");
         SetRange(Open, true);
@@ -796,7 +791,7 @@
     var
         IsHandled: Boolean;
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code");
         SetRange("Item No.", ReservationEntry."Item No.");
         SetRange(Open, true);
@@ -830,7 +825,7 @@
     var
         DimMgt: Codeunit DimensionManagement;
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "Entry No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "Entry No."));
     end;
 
     procedure CalculateRemQuantity(ItemLedgEntryNo: Integer; PostingDate: Date): Decimal
@@ -1008,7 +1003,7 @@
 
     procedure SetItemVariantLocationFilters(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; PostingDate: Date)
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date");
         SetRange("Item No.", ItemNo);
         SetRange("Variant Code", VariantCode);

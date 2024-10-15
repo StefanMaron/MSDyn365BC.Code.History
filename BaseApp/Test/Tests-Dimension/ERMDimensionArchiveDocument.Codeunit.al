@@ -288,7 +288,7 @@ codeunit 134481 "ERM Dimension Archive Document"
         LibrarySales.PostSalesDocument(SalesHeaderInvoice, true, true);
 
         // [WHEN] Delete "SO"
-        SalesHeaderOrder.Find;
+        SalesHeaderOrder.Find();
         SalesHeaderOrder.Delete(true);
 
         // [THEN] 2nd archive created
@@ -325,7 +325,7 @@ codeunit 134481 "ERM Dimension Archive Document"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeaderInvoice, true, true);
 
         // [WHEN] Delete "PO"
-        PurchaseHeaderOrder.Find;
+        PurchaseHeaderOrder.Find();
         PurchaseHeaderOrder.Delete(true);
 
         // [THEN] 2nd archive created
@@ -633,7 +633,7 @@ codeunit 134481 "ERM Dimension Archive Document"
         repeat
             TempDimensionSetEntry := DimensionSetEntry;
             TempDimensionSetEntry.Insert();
-        until DimensionSetEntry.Next = 0;
+        until DimensionSetEntry.Next() = 0;
     end;
 
 #if not CLEAN19
@@ -729,7 +729,7 @@ codeunit 134481 "ERM Dimension Archive Document"
             DimensionSetEntry.SetRange("Dimension Code", TempDimensionSetEntry."Dimension Code");
             DimensionSetEntry.FindFirst();
             DimensionSetEntry.TestField("Dimension Value Code", TempDimensionSetEntry."Dimension Value Code");
-        until TempDimensionSetEntry.Next = 0;
+        until TempDimensionSetEntry.Next() = 0;
     end;
 
     local procedure VerifyPurchaseOrderArchive(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; VersionNo: Integer)

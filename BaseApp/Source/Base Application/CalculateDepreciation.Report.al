@@ -1,4 +1,4 @@
-report 5692 "Calculate Depreciation"
+﻿report 5692 "Calculate Depreciation"
 {
     AdditionalSearchTerms = 'write down fixed asset';
     ApplicationArea = FixedAssets;
@@ -113,7 +113,7 @@ report 5692 "Calculate Depreciation"
                     end;
                     if TempFAJnlLine.Find('-') then
                         repeat
-                            Init;
+                            Init();
                             "Line No." := 0;
                             FAJnlSetup.SetFAJnlTrailCodes(FAJnlLine);
                             LineNo := LineNo + 1;
@@ -160,7 +160,7 @@ report 5692 "Calculate Depreciation"
                     end;
                     if TempGenJnlLine.Find('-') then
                         repeat
-                            Init;
+                            Init();
                             "Line No." := 0;
                             FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
                             LineNo := LineNo + 1;
@@ -238,7 +238,7 @@ report 5692 "Calculate Depreciation"
                             PeriodReportManagement.SelectPeriod(Text, CalendarPeriod, ProgressiveTotal);
                             DatePeriod.Copy(CalendarPeriod);
                             PeriodReportManagement.PeriodSetup(DatePeriod, ProgressiveTotal);
-                            RequestOptionsPage.Update;
+                            RequestOptionsPage.Update();
                             exit(true);
                         end;
 
@@ -253,7 +253,7 @@ report 5692 "Calculate Depreciation"
                             PeriodReportManagement.PeriodSetup(DatePeriod, ProgressiveTotal);
 
                             Period := DatePeriod."Period Start";
-                            SetProperties;
+                            SetProperties();
                         end;
                     }
                     field(From; DatePeriod."Period Start")
@@ -372,15 +372,15 @@ report 5692 "Calculate Depreciation"
             PeriodReportManagement.PeriodSetup(DatePeriod, ProgressiveTotal);
 
             BalAccount := true;
-            PostingDate := WorkDate;
-            DeprUntilDate := WorkDate;
+            PostingDate := WorkDate();
+            DeprUntilDate := WorkDate();
             if DeprBookCode = '' then begin
                 FASetup.Get();
-                DeprBookCode := GetDeprBookCode;
+                DeprBookCode := GetDeprBookCode();
             end;
 
             Period := DatePeriod."Period Start";
-            SetProperties;
+            SetProperties();
 
             UseForceNoOfDays := true;
             DaysInPeriod := 30;
@@ -412,7 +412,7 @@ report 5692 "Calculate Depreciation"
             if ErrorMessageHandler.ShowErrors() then
                 Error('');
 
-        Window.Close;
+        Window.Close();
         if (FAJnlLineCreatedCount = 0) and (GenJnlLineCreatedCount = 0) then begin
             Message(CompletionStatsMsg);
             exit;
@@ -454,7 +454,7 @@ report 5692 "Calculate Depreciation"
               FAJnlLine.FieldCaption("Posting Date"),
               DeprBook.FieldCaption("Use Same FA+G/L Posting Dates"),
               false,
-              DeprBook.TableCaption,
+              DeprBook.TableCaption(),
               DeprBook.FieldCaption(Code),
               DeprBook.Code);
 
@@ -465,13 +465,6 @@ report 5692 "Calculate Depreciation"
     end;
 
     var
-        Text000: Label 'You must specify %1.';
-        Text001: Label 'Force No. of Days must be activated.';
-        Text002: Label '%1 and %2 must be identical. %3 must be %4 in %5 %6 = %7.';
-        Text003: Label 'Depreciating fixed asset      #1##########\';
-        Text004: Label 'Not depreciating fixed asset  #2##########\';
-        Text005: Label 'Inserting journal lines       #3##########';
-        Text006: Label 'Use Force No. of Days must be activated.';
         GenJnlLine: Record "Gen. Journal Line";
         TempGenJnlLine: Record "Gen. Journal Line" temporary;
         FASetup: Record "FA Setup";
@@ -499,6 +492,9 @@ report 5692 "Calculate Depreciation"
         GenJnlNextLineNo: Integer;
         EntryAmounts: array[4] of Decimal;
         LineNo: Integer;
+        FAJnlLineCreatedCount: Integer;
+        GenJnlLineCreatedCount: Integer;
+        DeprUntilDateModified: Boolean;
         Period: Date;
         Text12407: Label 'FA Posting Date must be into Accounting Period';
         CalendarPeriod: Record Date;
@@ -508,19 +504,24 @@ report 5692 "Calculate Depreciation"
         StdRepManagement: Codeunit "Localisation Management";
         AccountPeriod: Text[30];
         ProgressiveTotal: Boolean;
+        DeprBonus: Boolean;
+
+        Text000: Label 'You must specify %1.';
+        Text001: Label 'Force No. of Days must be activated.';
+        Text002: Label '%1 and %2 must be identical. %3 must be %4 in %5 %6 = %7.';
+        Text003: Label 'Depreciating fixed asset      #1##########\';
+        Text004: Label 'Not depreciating fixed asset  #2##########\';
+        Text005: Label 'Inserting journal lines       #3##########';
+        Text006: Label 'Use Force No. of Days must be activated.';
         Text12408: Label 'You must create Accounting Period when Starting Date is %1 ';
         Text12409: Label 'Posting Date must be into Accounting Period';
         Details: Boolean;
         Text12411: Label 'DP-';
         Text12410: Label ' FA Depreciation';
         Text12412: Label 'No. of Days in Fiscal Year for Depr. Book %1 = %2 will calculate incorrect depreciation amounts. Continue?';
-        DeprBonus: Boolean;
         CompletionStatsMsg: Label 'The depreciation has been calculated.\\No journal lines were created.';
-        FAJnlLineCreatedCount: Integer;
-        GenJnlLineCreatedCount: Integer;
         CompletionStatsFAJnlMsg: Label 'The depreciation has been calculated.\\%1 fixed asset journal lines were created.', Comment = 'The depreciation has been calculated.\\5 fixed asset journal lines were created.';
         CompletionStatsGenJnlMsg: Label 'The depreciation has been calculated.\\%1 fixed asset G/L journal lines were created.', Comment = 'The depreciation has been calculated.\\2 fixed asset G/L journal lines were created.';
-        DeprUntilDateModified: Boolean;
 
     protected var
         DeprBookCode: Code[10];
@@ -575,7 +576,7 @@ report 5692 "Calculate Depreciation"
     [Scope('OnPrem')]
     procedure InitializeRequest2(NewDeprBookCode: Code[10]; NewPostingDate: Date; NewDeprUntilDate: Date; NewDocumentNo: Code[20]; NewPostingDescription: Text[100]; NewUseForceNoOfDays: Boolean; NewDaysInPeriod: Integer; NewBalAccount: Boolean; ChangeDetails: Boolean; NewDeprBonus: Boolean)
     begin
-        ClearAll;
+        ClearAll();
         DeprBookCode := NewDeprBookCode;
         PostingDate := NewPostingDate;
         DocumentNo := NewDocumentNo;

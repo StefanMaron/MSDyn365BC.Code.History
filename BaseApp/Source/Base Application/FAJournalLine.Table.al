@@ -69,7 +69,7 @@
                 Description := FA.Description;
                 if "Depreciation Book Code" = '' then begin
                     FASetup.Get();
-                    "Depreciation Book Code" := GetDeprBookCode;
+                    "Depreciation Book Code" := GetDeprBookCode();
                     if not FADeprBook.Get("FA No.", "Depreciation Book Code") then
                         "Depreciation Book Code" := '';
                 end;
@@ -423,7 +423,7 @@
             trigger OnValidate()
             begin
                 TestField("Phys. Inventory");
-                CalcInventory;
+                CalcInventory();
             end;
         }
         field(12451; "Calc. Quantity"; Decimal)
@@ -434,7 +434,7 @@
             trigger OnValidate()
             begin
                 TestField("Phys. Inventory");
-                CalcInventory;
+                CalcInventory();
             end;
         }
         field(12452; "Actual Amount"; Decimal)
@@ -508,15 +508,9 @@
     }
 
     trigger OnInsert()
-    var
-        FAJnlTemplate: Record "FA Journal Template";
-        FAJnlBatch: Record "FA Journal Batch";
     begin
         LockTable();
-        FAJnlTemplate.Get("Journal Template Name");
-        "Source Code" := FAJnlTemplate."Source Code";
-        FAJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-        "Reason Code" := FAJnlBatch."Reason Code";
+        FAJnlSetup.SetFAJnlTrailCodes(Rec);
 
         ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
         ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
@@ -528,6 +522,7 @@
         FAJnlTemplate: Record "FA Journal Template";
         FAJnlBatch: Record "FA Journal Batch";
         FAJnlLine: Record "FA Journal Line";
+        FAJnlSetup: Record "FA Journal Setup";
         FADeprBook: Record "FA Depreciation Book";
         GLSetup: Record "General Ledger Setup";
         NoSeriesMgt: Codeunit NoSeriesManagement;
@@ -576,7 +571,7 @@
             "FA Posting Date" := LastFAJnlLine."FA Posting Date";
             "Document No." := LastFAJnlLine."Document No.";
         end else begin
-            "FA Posting Date" := WorkDate;
+            "FA Posting Date" := WorkDate();
             if FAJnlBatch."No. Series" <> '' then begin
                 Clear(NoSeriesMgt);
                 "Document No." := NoSeriesMgt.TryGetNextNo(FAJnlBatch."No. Series", "FA Posting Date");
@@ -756,6 +751,15 @@
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
     end;
 
+    procedure IsAcquisitionCost(): Boolean
+    var
+        AcquisitionCost: Boolean;
+    begin
+        AcquisitionCost := "FA Posting Type" = "FA Posting Type"::"Acquisition Cost";
+        OnAfterIsAcquisitionCost(Rec, AcquisitionCost);
+        exit(AcquisitionCost);
+    end;
+
 #if not CLEAN20
     local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
     var
@@ -852,6 +856,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateFAPostingType(var FAJournalLine: Record "FA Journal Line"; var IsHandled: Boolean; FieldNumber: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsAcquisitionCost(var FAJournalLine: Record "FA Journal Line"; var AcquisitionCost: Boolean);
     begin
     end;
 }

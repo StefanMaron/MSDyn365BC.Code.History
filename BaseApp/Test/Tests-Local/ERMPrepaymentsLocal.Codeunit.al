@@ -37,7 +37,7 @@ codeunit 144014 "ERM Prepayments Local"
         PostPurchInvWithPrepayment(PrepmtDocNo, InvNo, PostingDate, Amount);
         asserterror ApplyVendEntries(
             VendLedgEntry."Document Type"::Payment, PrepmtDocNo, VendLedgEntry."Document Type"::Invoice, InvNo, Amount);
-        Assert.ExpectedError(StrSubstNo(PostingDateMustNotBeAfterErr, PostingDate, VendLedgEntry.TableCaption));
+        Assert.ExpectedError(StrSubstNo(PostingDateMustNotBeAfterErr, PostingDate, VendLedgEntry.TableCaption()));
     end;
 
     [Test]
@@ -55,7 +55,7 @@ codeunit 144014 "ERM Prepayments Local"
         PostSalesInvWithPrepayment(PrepmtDocNo, InvNo, PostingDate, Amount);
         asserterror ApplyCustEntries(
             CustLedgEntry."Document Type"::Payment, PrepmtDocNo, CustLedgEntry."Document Type"::Invoice, InvNo, -Amount);
-        Assert.ExpectedError(StrSubstNo(PostingDateMustNotBeAfterErr, PostingDate, CustLedgEntry.TableCaption));
+        Assert.ExpectedError(StrSubstNo(PostingDateMustNotBeAfterErr, PostingDate, CustLedgEntry.TableCaption()));
     end;
 
     [Test]
@@ -73,7 +73,7 @@ codeunit 144014 "ERM Prepayments Local"
         PostPurchInvWithPrepayment(PrepmtDocNo, InvNo, PostingDate, Amount);
         asserterror ApplyVendEntries(
             VendLedgEntry."Document Type"::Invoice, InvNo, VendLedgEntry."Document Type"::Payment, PrepmtDocNo, -Amount);
-        Assert.ExpectedError(StrSubstNo(PostingDateMustNotBeAfterErr, PostingDate, VendLedgEntry.TableCaption));
+        Assert.ExpectedError(StrSubstNo(PostingDateMustNotBeAfterErr, PostingDate, VendLedgEntry.TableCaption()));
     end;
 
     [Test]
@@ -91,7 +91,7 @@ codeunit 144014 "ERM Prepayments Local"
         PostSalesInvWithPrepayment(PrepmtDocNo, InvNo, PostingDate, Amount);
         asserterror ApplyCustEntries(
             CustLedgEntry."Document Type"::Invoice, InvNo, CustLedgEntry."Document Type"::Payment, PrepmtDocNo, Amount);
-        Assert.ExpectedError(StrSubstNo(PostingDateMustNotBeAfterErr, PostingDate, CustLedgEntry.TableCaption));
+        Assert.ExpectedError(StrSubstNo(PostingDateMustNotBeAfterErr, PostingDate, CustLedgEntry.TableCaption()));
     end;
 
     [Test]
@@ -219,9 +219,9 @@ codeunit 144014 "ERM Prepayments Local"
         Initialize();
 
         // [GIVEN] Posted Sales Prepayment "PAY01" with modified "Dimension Set ID" = 123
-        Amount := CreateSalesInvoice(SalesHeader, CalcDate('<-1D>', WorkDate));
+        Amount := CreateSalesInvoice(SalesHeader, CalcDate('<-1D>', WorkDate()));
         CreatePrepmtGenJnlLine(
-          GenJournalLine, GenJournalLine."Document Type"::Payment, WorkDate, GenJournalLine."Account Type"::Customer,
+          GenJournalLine, GenJournalLine."Document Type"::Payment, WorkDate(), GenJournalLine."Account Type"::Customer,
           SalesHeader."Sell-to Customer No.", -Amount, SalesHeader."No.");
         GenJournalLine.Validate("Dimension Set ID", CreateDimSet(GenJournalLine."Dimension Set ID"));
         GenJournalLine.Modify(true);
@@ -252,9 +252,9 @@ codeunit 144014 "ERM Prepayments Local"
         Initialize();
 
         // [GIVEN] Posted Purchase Prepayment "PAY01" with modified "Dimension Set ID" = 123
-        Amount := CreatePurchInvoice(PurchaseHeader, CalcDate('<-1D>', WorkDate));
+        Amount := CreatePurchInvoice(PurchaseHeader, CalcDate('<-1D>', WorkDate()));
         CreatePrepmtGenJnlLine(
-          GenJournalLine, GenJournalLine."Document Type"::Payment, WorkDate, GenJournalLine."Account Type"::Vendor,
+          GenJournalLine, GenJournalLine."Document Type"::Payment, WorkDate(), GenJournalLine."Account Type"::Vendor,
           PurchaseHeader."Buy-from Vendor No.", Amount, PurchaseHeader."No.");
         GenJournalLine.Validate("Dimension Set ID", CreateDimSet(GenJournalLine."Dimension Set ID"));
         GenJournalLine.Modify(true);
@@ -288,10 +288,10 @@ codeunit 144014 "ERM Prepayments Local"
         GenJnlLine: Record "Gen. Journal Line";
     begin
         Initialize();
-        Amount := CreatePurchInvoice(PurchHeader, CalcDate('<-1D>', WorkDate));
+        Amount := CreatePurchInvoice(PurchHeader, CalcDate('<-1D>', WorkDate()));
         PostingDate := PurchHeader."Posting Date";
         CreatePostPrepmtGenJnlLine(
-          GenJnlLine, GenJnlLine."Document Type"::Payment, WorkDate, GenJnlLine."Account Type"::Vendor,
+          GenJnlLine, GenJnlLine."Document Type"::Payment, WorkDate(), GenJnlLine."Account Type"::Vendor,
           PurchHeader."Buy-from Vendor No.", Amount, PurchHeader."No.");
         PrepmtDocNo := GenJnlLine."Document No.";
         InvNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
@@ -303,10 +303,10 @@ codeunit 144014 "ERM Prepayments Local"
         GenJnlLine: Record "Gen. Journal Line";
     begin
         Initialize();
-        Amount := CreateSalesInvoice(SalesHeader, CalcDate('<-1D>', WorkDate));
+        Amount := CreateSalesInvoice(SalesHeader, CalcDate('<-1D>', WorkDate()));
         PostingDate := SalesHeader."Posting Date";
         CreatePostPrepmtGenJnlLine(
-          GenJnlLine, GenJnlLine."Document Type"::Payment, WorkDate, GenJnlLine."Account Type"::Customer,
+          GenJnlLine, GenJnlLine."Document Type"::Payment, WorkDate(), GenJnlLine."Account Type"::Customer,
           SalesHeader."Sell-to Customer No.", -Amount, SalesHeader."No.");
         PrepmtDocNo := GenJnlLine."Document No.";
         InvNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -321,11 +321,11 @@ codeunit 144014 "ERM Prepayments Local"
         Amount := LibraryRandom.RandDec(100, 2);
         PrepmtDocNo :=
           CreatePostPrepmtGenJnlLine(
-            GenJnlLine, GenJnlLine."Document Type"::Payment, CalcDate('<-1D>', WorkDate), GenJnlLine."Account Type"::Vendor,
+            GenJnlLine, GenJnlLine."Document Type"::Payment, CalcDate('<-1D>', WorkDate()), GenJnlLine."Account Type"::Vendor,
             VendNo, Amount, ''); // pass empty value for Prepmt Doc. No.
         RefundDocNo :=
           CreatePostPrepmtGenJnlLine(
-            GenJnlLine, GenJnlLine."Document Type"::Refund, WorkDate, GenJnlLine."Account Type"::Vendor,
+            GenJnlLine, GenJnlLine."Document Type"::Refund, WorkDate(), GenJnlLine."Account Type"::Vendor,
             VendNo, -Amount, '');
     end;
 
@@ -334,15 +334,15 @@ codeunit 144014 "ERM Prepayments Local"
         SalesHeader: Record "Sales Header";
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        CreateSalesInvoice(SalesHeader, CalcDate('<-1D>', WorkDate));
+        CreateSalesInvoice(SalesHeader, CalcDate('<-1D>', WorkDate()));
         Amount := -LibraryRandom.RandDec(100, 2);
         PrepmtDocNo :=
           CreatePostPrepmtGenJnlLine(
-            GenJnlLine, GenJnlLine."Document Type"::Payment, CalcDate('<-1D>', WorkDate), GenJnlLine."Account Type"::Customer,
+            GenJnlLine, GenJnlLine."Document Type"::Payment, CalcDate('<-1D>', WorkDate()), GenJnlLine."Account Type"::Customer,
             SalesHeader."Sell-to Customer No.", Amount, SalesHeader."No.");
         RefundDocNo :=
           CreatePostPrepmtGenJnlLine(
-            GenJnlLine, GenJnlLine."Document Type"::Refund, WorkDate, GenJnlLine."Account Type"::Customer,
+            GenJnlLine, GenJnlLine."Document Type"::Refund, WorkDate(), GenJnlLine."Account Type"::Customer,
             SalesHeader."Sell-to Customer No.", -Amount, SalesHeader."No.");
     end;
 
@@ -467,7 +467,7 @@ codeunit 144014 "ERM Prepayments Local"
         with VendLedgEntry do begin
             CalcFields("Remaining Amount");
             Assert.AreEqual(
-              0, "Remaining Amount", StrSubstNo(EntryNotAppliedErr, TableCaption, "Entry No.", "Remaining Amount"));
+              0, "Remaining Amount", StrSubstNo(EntryNotAppliedErr, TableCaption(), "Entry No.", "Remaining Amount"));
         end;
     end;
 
@@ -487,7 +487,7 @@ codeunit 144014 "ERM Prepayments Local"
         with CustLedgEntry do begin
             CalcFields("Remaining Amount");
             Assert.AreEqual(
-              0, "Remaining Amount", StrSubstNo(EntryNotAppliedErr, TableCaption, "Entry No.", "Remaining Amount"));
+              0, "Remaining Amount", StrSubstNo(EntryNotAppliedErr, TableCaption(), "Entry No.", "Remaining Amount"));
         end;
     end;
 

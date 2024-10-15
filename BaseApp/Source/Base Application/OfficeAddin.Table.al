@@ -108,9 +108,9 @@ table 1610 "Office Add-in"
     begin
         Separator := '.';
         TempString := UserVersion;
-        UserComponents := TempString.Split(Separator.ToCharArray);
+        UserComponents := TempString.Split(Separator.ToCharArray());
         TempString := Version;
-        Components := TempString.Split(Separator.ToCharArray);
+        Components := TempString.Split(Separator.ToCharArray());
 
         if (Components.Length() < 3) or (UserComponents.Length() < 3) then
             Session.LogMessage('0000BOQ', StrSubstNo(VersionFormatMismatchTelemetryErr, UserVersion, Version), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OfficeManagement.GetOfficeAddinTelemetryCategory());

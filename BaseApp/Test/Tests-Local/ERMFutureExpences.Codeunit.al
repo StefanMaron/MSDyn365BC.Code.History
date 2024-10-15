@@ -150,7 +150,7 @@ codeunit 144010 "ERM Future Expences"
 
     local procedure InitDeprDates(var PurchaseDate: Date; var StartDeprDate: Date; var EndDeprDate: Date; MonthQty: Integer; AddCalcFormula: Text)
     begin
-        PurchaseDate := CalcDate('<-CM+' + Format(LibraryRandom.RandIntInRange(1, 10)) + 'D>', WorkDate);
+        PurchaseDate := CalcDate('<-CM+' + Format(LibraryRandom.RandIntInRange(1, 10)) + 'D>', WorkDate());
         StartDeprDate := CalcDate('<' + Format(LibraryRandom.RandIntInRange(1, 10)) + 'D>', PurchaseDate);
         EndDeprDate := CalcDate('<' + AddCalcFormula + Format(MonthQty) + 'M>', PurchaseDate);
     end;
@@ -195,7 +195,7 @@ codeunit 144010 "ERM Future Expences"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         with FA do begin
-            Init;
+            Init();
             Validate("FA Type", "FA Type"::"Future Expense");
             Insert(true);
         end;
@@ -523,12 +523,12 @@ codeunit 144010 "ERM Future Expences"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
         AddPurchaseLine(PurchaseHeader, PurchaseLine, PurchaseLine.Type::"Fixed Asset", FixedAssetNo);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        CreateAndPostFAReleaseDoc(FixedAssetNo, WorkDate);
-        CreateAndPostFAWriteOffDoc(FixedAssetNo, WorkDate);
+        CreateAndPostFAReleaseDoc(FixedAssetNo, WorkDate());
+        CreateAndPostFAWriteOffDoc(FixedAssetNo, WorkDate());
         PostedFADocLine.SetRange("FA No.", FixedAssetNo);
         PostedFADocLine.FindFirst();
         PostedFADocHeader.Get(PostedFADocLine."Document Type", PostedFADocLine."Document No.");
-        PostedFADocHeader.SetRecFilter;
+        PostedFADocHeader.SetRecFilter();
         WriteOffForTaxLedger.SetTableView(PostedFADocHeader);
         WriteOffForTaxLedger.InitializeRequest(false, 0D, true);
         WriteOffForTaxLedger.UseRequestPage(false);
@@ -538,13 +538,13 @@ codeunit 144010 "ERM Future Expences"
         LibraryVariableStorage.Enqueue(FASetup."Fixed Asset Nos.");
         LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
         Commit();
-        FixedAsset.SetRecFilter;
+        FixedAsset.SetRecFilter();
         CreateFEfromSoldFARep.SetTableView(FixedAsset);
         CreateFEfromSoldFARep.UseRequestPage(true);
         CreateFEfromSoldFARep.Run();
 
         with FixedAsset do begin
-            Reset;
+            Reset();
             SetRange("Created by FA No.", FixedAssetNo);
             SetRange("FA Type", "FA Type"::"Future Expense");
             Assert.IsFalse(IsEmpty, FutureExpenseNotFoundErr);
@@ -574,7 +574,7 @@ codeunit 144010 "ERM Future Expences"
             "G/L Integration - Acq. Cost" := IsGLIntegration;
             "G/L Integration - Depreciation" := IsGLIntegration;
             "G/L Integration - Disposal" := IsGLIntegration;
-            Modify;
+            Modify();
         end;
         if IsGLIntegration then
             with FAJnlSetup do begin
@@ -584,7 +584,7 @@ codeunit 144010 "ERM Future Expences"
                 LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
                 "Gen. Jnl. Template Name" := GenJnlTemplate.Name;
                 "Gen. Jnl. Batch Name" := GenJnlBatch.Name;
-                Modify;
+                Modify();
             end;
     end;
 

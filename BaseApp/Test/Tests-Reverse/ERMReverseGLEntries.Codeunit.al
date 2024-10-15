@@ -238,7 +238,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         Initialize();
 
         LibraryLowerPermissions.AddAccountReceivables;
-        AllowPeriodTransaction(CalcDate('<-1D>', WorkDate));
+        AllowPeriodTransaction(CalcDate('<-1D>', WorkDate()));
     end;
 
     [Test]
@@ -250,7 +250,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         // Allow Period. Reverse and Verify Error for before allow Period Date transaction from GL Entry.
         Initialize();
         LibraryLowerPermissions.AddAccountReceivables;
-        AllowPeriodTransaction(CalcDate('<1D>', WorkDate));
+        AllowPeriodTransaction(CalcDate('<1D>', WorkDate()));
     end;
 
     local procedure AllowPeriodTransaction(PostingDate: Date)
@@ -282,7 +282,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         // Allow Period. Reverse and Verify Error for before allow Period Date transaction from GL Register.
         Initialize();
         LibraryLowerPermissions.AddAccountReceivables;
-        AllowPeriodFromRegister(CalcDate('<-1D>', WorkDate));
+        AllowPeriodFromRegister(CalcDate('<-1D>', WorkDate()));
     end;
 
     [Test]
@@ -293,7 +293,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         // Create and Post Payment Entry form General Journal Line after Allow Period Date Range, update General Ledger Setup
         // Allow Period. Reverse and Verify Error for before allow Period Date transaction from GL Register.
         Initialize();
-        AllowPeriodFromRegister(CalcDate('<1D>', WorkDate));
+        AllowPeriodFromRegister(CalcDate('<1D>', WorkDate()));
     end;
 
     local procedure AllowPeriodFromRegister(PostingDate: Date)
@@ -360,7 +360,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         asserterror ReversalEntry.ReverseRegister(GLRegister."No." - 1);
 
         // Verify: Verify Blocked Error Message for Date Compress Entries.
-        Assert.AreEqual(StrSubstNo(DateCompressError, GLEntry.TableCaption, GLAccount.TableCaption), GetLastErrorText, ErrorsMustMatch);
+        Assert.AreEqual(StrSubstNo(DateCompressError, GLEntry.TableCaption(), GLAccount.TableCaption()), GetLastErrorText, ErrorsMustMatch);
     end;
 
     [Test]
@@ -392,7 +392,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         asserterror ReversalEntry.ReverseTransaction(CustLedgerEntry."Transaction No.");
 
         // Verify: Verify Blocked Error Message for Date Compress Entry.
-        Assert.AreEqual(StrSubstNo(DateCompressError, GLEntry.TableCaption, GLAccount.TableCaption), GetLastErrorText, ErrorsMustMatch);
+        Assert.AreEqual(StrSubstNo(DateCompressError, GLEntry.TableCaption(), GLAccount.TableCaption()), GetLastErrorText, ErrorsMustMatch);
     end;
 
     [Test]
@@ -424,7 +424,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         asserterror ReversalEntry.ReverseTransaction(VendorLedgerEntry."Transaction No.");
 
         // Verify: Verify Blocked Error Message for Date Compress Entry.
-        Assert.AreEqual(StrSubstNo(DateCompressError, GLEntry.TableCaption, GLAccount.TableCaption), GetLastErrorText, ErrorsMustMatch);
+        Assert.AreEqual(StrSubstNo(DateCompressError, GLEntry.TableCaption(), GLAccount.TableCaption()), GetLastErrorText, ErrorsMustMatch);
     end;
 
     [Test]
@@ -458,7 +458,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         asserterror ReversalEntry.ReverseTransaction(BankAccountLedgerEntry."Transaction No.");
 
         // Verify: Verify Blocked Error Message for Date Compress Entry.
-        Assert.AreEqual(StrSubstNo(DateCompressError, GLEntry.TableCaption, GLAccount.TableCaption), GetLastErrorText, ErrorsMustMatch);
+        Assert.AreEqual(StrSubstNo(DateCompressError, GLEntry.TableCaption(), GLAccount.TableCaption()), GetLastErrorText, ErrorsMustMatch);
     end;
 
     [Test]
@@ -494,7 +494,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         asserterror ReversalEntry.ReverseTransaction(MaintenanceLedgerEntry."Transaction No.");
 
         // Verify: Verify Blocked Error Message for Date Compress Entry.
-        Assert.AreEqual(StrSubstNo(DateCompressError, GLEntry.TableCaption, GLAccount.TableCaption), GetLastErrorText, ErrorsMustMatch);
+        Assert.AreEqual(StrSubstNo(DateCompressError, GLEntry.TableCaption(), GLAccount.TableCaption()), GetLastErrorText, ErrorsMustMatch);
     end;
 
     [Test]
@@ -895,7 +895,7 @@ codeunit 134131 "ERM Reverse GL Entries"
           GLAccountNo, LibraryRandom.RandInt(100)); // Using RANDOM for Amount field.
         UpdateGeneralJournalLine(GenJournalLine, PostingDate);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        UpdateGeneralLedgerSetup(WorkDate, WorkDate);
+        UpdateGeneralLedgerSetup(WorkDate(), WorkDate());
         exit(GenJournalLine."Document No.");
     end;
 
@@ -1113,7 +1113,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         DateComprRetainFields."Retain Quantity" := false;
         DateComprRetainFields."Retain Journal Template Name" := false;	
         DateCompressGeneralLedger.InitializeRequest(
-          WorkDate, WorkDate, DateComprRegister."Period Length"::Day, '', DateComprRetainFields, InsertDimSelectionBuffer, false);
+          WorkDate, WorkDate(), DateComprRegister."Period Length"::Day, '', DateComprRetainFields, InsertDimSelectionBuffer, false);
         DateCompressGeneralLedger.UseRequestPage(false);
         DateCompressGeneralLedger.Run();
     end;
@@ -1171,7 +1171,7 @@ codeunit 134131 "ERM Reverse GL Entries"
                     DimensionSelectionBuffer.Validate(Selected, true);
                     DimensionSelectionBuffer.Insert();
                 end;
-            until DimensionTranslation.Next = 0;
+            until DimensionTranslation.Next() = 0;
         DimensionSelectionBuffer.SetDimSelection(3, 98, '', RetainDimText, DimensionSelectionBuffer);
     end;
 
@@ -1284,7 +1284,7 @@ codeunit 134131 "ERM Reverse GL Entries"
     begin
         GLEntry.SetRange("Transaction No.", GetGLEntryTransactionNo(DocumentNo, GLAccountNo));
         GLEntry.FindFirst();
-        Assert.AreEqual(StrSubstNo(ReversalErrorForPeriod, GLEntry.TableCaption, GLEntry."Entry No."), GetLastErrorText, ErrorsMustMatch);
+        Assert.AreEqual(StrSubstNo(ReversalErrorForPeriod, GLEntry.TableCaption(), GLEntry."Entry No."), GetLastErrorText, ErrorsMustMatch);
     end;
 
     local procedure VerifyGLEntryVATEntryLinkReversed(DocumentNo: Code[20]; GLAccountNo: Code[20])
@@ -1319,7 +1319,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         GLEntry.FindSet();
         repeat
             GLEntry.TestField("Dimension Set ID", DimSetID);
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     [ModalPageHandler]
@@ -1329,7 +1329,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         VoidTypeVariant: Variant;
     begin
         LibraryVariableStorage.Dequeue(VoidTypeVariant);
-        ConfirmFinancialVoid.InitializeRequest(WorkDate, VoidTypeVariant);
+        ConfirmFinancialVoid.InitializeRequest(WorkDate(), VoidTypeVariant);
         Response := ACTION::Yes
     end;
 

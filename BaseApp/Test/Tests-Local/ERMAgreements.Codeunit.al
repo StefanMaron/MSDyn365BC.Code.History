@@ -1,4 +1,4 @@
-codeunit 144508 "ERM Agreements"
+﻿codeunit 144508 "ERM Agreements"
 {
     TestPermissions = NonRestrictive;
     Subtype = Test;
@@ -72,7 +72,7 @@ codeunit 144508 "ERM Agreements"
 
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
         Assert.ExpectedError(
-          StrSubstNo(AgrmtMustHaveAValueErr, SalesHeader.TableCaption, SalesHeader."Document Type", SalesHeader."No."));
+          StrSubstNo(AgrmtMustHaveAValueErr, SalesHeader.TableCaption(), SalesHeader."Document Type", SalesHeader."No."));
     end;
 
     [Test]
@@ -89,7 +89,7 @@ codeunit 144508 "ERM Agreements"
 
         asserterror LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
         Assert.ExpectedError(
-          StrSubstNo(AgrmtMustHaveAValueErr, PurchHeader.TableCaption,
+          StrSubstNo(AgrmtMustHaveAValueErr, PurchHeader.TableCaption(),
             PurchHeader."Document Type", PurchHeader."No."));
     end;
 
@@ -332,7 +332,7 @@ codeunit 144508 "ERM Agreements"
 
         Assert.IsTrue(
           CustAgreement.Get(SalesHeader."Sell-to Customer No.", ''),
-          StrSubstNo(AgrmtMustExistErr, CustAgreement.TableCaption));
+          StrSubstNo(AgrmtMustExistErr, CustAgreement.TableCaption()));
     end;
 
     [Test]
@@ -353,7 +353,7 @@ codeunit 144508 "ERM Agreements"
         Vendor.Validate("Agreement Posting", Vendor."Agreement Posting"::Mandatory);
 
         Assert.IsTrue(VendAgreement.Get(PurchHeader."Buy-from Vendor No.", ''),
-          StrSubstNo(AgrmtMustExistErr, VendAgreement.TableCaption));
+          StrSubstNo(AgrmtMustExistErr, VendAgreement.TableCaption()));
     end;
 
     [Test]
@@ -431,7 +431,7 @@ codeunit 144508 "ERM Agreements"
 
         Assert.IsFalse(
           DimValue.Get(GetPurchSetupAgreementDimCode, VendorAgreement."No."),
-          StrSubstNo(DimValueExistsErr, VendorAgreement.TableCaption));
+          StrSubstNo(DimValueExistsErr, VendorAgreement.TableCaption()));
 
         ClearPurchSalesSetup;
     end;
@@ -447,12 +447,12 @@ codeunit 144508 "ERM Agreements"
         // Check Vendor Agreement cannot be deleted while connected VLE exists
         InitVendorAgreement(VendorAgreement, false);
         with VendorLedgerEntry do begin
-            Init;
+            Init();
             RecRef.GetTable(VendorLedgerEntry);
             "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
             "Vendor No." := VendorAgreement."Vendor No.";
             "Agreement No." := VendorAgreement."No.";
-            Insert;
+            Insert();
         end;
 
         asserterror VendorAgreement.Delete(true);
@@ -473,7 +473,7 @@ codeunit 144508 "ERM Agreements"
 
         Assert.IsFalse(
           DimValue.Get(GetSalesSetupAgreementDimCode, CustomerAgreement."No."),
-          StrSubstNo(DimValueExistsErr, CustomerAgreement.TableCaption));
+          StrSubstNo(DimValueExistsErr, CustomerAgreement.TableCaption()));
 
         ClearPurchSalesSetup;
     end;
@@ -489,12 +489,12 @@ codeunit 144508 "ERM Agreements"
         // Check Vendor Agreement cannot be deleted while connected VLE exists
         InitCustomerAgreement(CustomerAgreement, false);
         with CustomerLedgerEntry do begin
-            Init;
+            Init();
             RecRef.GetTable(CustomerLedgerEntry);
             "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
             "Customer No." := CustomerAgreement."Customer No.";
             "Agreement No." := CustomerAgreement."No.";
-            Insert;
+            Insert();
         end;
 
         asserterror CustomerAgreement.Delete(true);
@@ -520,7 +520,7 @@ codeunit 144508 "ERM Agreements"
             Get(CreateVendor(AgreementPosting::Mandatory));
             Validate("Global Dimension 1 Code", DimValueCode1);
             Validate("Global Dimension 2 Code", DimValueCode2);
-            Modify;
+            Modify();
         end;
         CreateSimpleVendorAgreement(VendorAgreement, Vendor."No.");
 
@@ -548,7 +548,7 @@ codeunit 144508 "ERM Agreements"
             Get(CreateCustomer(AgreementPosting::Mandatory));
             Validate("Global Dimension 1 Code", DimValueCode1);
             Validate("Global Dimension 2 Code", DimValueCode2);
-            Modify;
+            Modify();
         end;
         CreateSimpleCustomerAgreement(CustomerAgreement, Customer."No.");
 
@@ -566,7 +566,7 @@ codeunit 144508 "ERM Agreements"
     begin
         // Check Vendor Agreement "No." field OnValidate trigger
         with VendorAgreement do begin
-            Init;
+            Init();
             "Vendor No." := CreateVendor(AgreementPosting::Mandatory);
             Insert(true);
             Validate("No.", LibraryUtility.GenerateGUID());
@@ -585,7 +585,7 @@ codeunit 144508 "ERM Agreements"
     begin
         // Check Customer Agreement "No." field OnValidate trigger
         with CustomerAgreement do begin
-            Init;
+            Init();
             "Customer No." := CreateCustomer(AgreementPosting::Mandatory);
             Insert(true);
             Validate("No.", LibraryUtility.GenerateGUID());
@@ -793,11 +793,11 @@ codeunit 144508 "ERM Agreements"
         // [GIVEN] Created Customer and Customer Agreement with "Expire Date" = 01.01.2020
         CustomerNo := CreateCustomer(AgreementPosting::Mandatory);
         CustomerAgreementNo := CreateCustomerAgreement(CustomerNo, true);
-        SetCustomerAgreementExpireDate(CustomerNo, CustomerAgreementNo, WorkDate);
+        SetCustomerAgreementExpireDate(CustomerNo, CustomerAgreementNo, WorkDate());
 
         // [GIVEN] Created Sales Document with "Posting Date" = 01.02.2020
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
-        SalesHeader.Validate("Posting Date", CalcDate('<1M>', WorkDate));
+        SalesHeader.Validate("Posting Date", CalcDate('<1M>', WorkDate()));
         SalesHeader.Modify(true);
 
         // [WHEN] Agreement Number is being assigned to Sales Document
@@ -851,11 +851,11 @@ codeunit 144508 "ERM Agreements"
         // [GIVEN] Created Vendor and Vendor Agreement with "Expire Date" = 01.01.2020
         VendorNo := CreateVendor(AgreementPosting::Mandatory);
         VendorAgreementNo := CreateVendorAgreement(VendorNo, true);
-        SetVendorAgreementExpireDate(VendorNo, VendorAgreementNo, WorkDate);
+        SetVendorAgreementExpireDate(VendorNo, VendorAgreementNo, WorkDate());
 
         // [GIVEN] Created Purchase Document with "Posting Date" = 01.02.2020
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
-        PurchaseHeader.Validate("Posting Date", CalcDate('<1M>', WorkDate));
+        PurchaseHeader.Validate("Posting Date", CalcDate('<1M>', WorkDate()));
         PurchaseHeader.Modify(true);
 
         // [WHEN] Agreement Number is being assigned to Purchase Document
@@ -971,10 +971,10 @@ codeunit 144508 "ERM Agreements"
         CustomerAgreement: Record "Customer Agreement";
     begin
         with CustomerAgreement do begin
-            Init;
+            Init();
             "Customer No." := CustomerNo;
             Active := IsActive;
-            "Expire Date" := CalcDate('<1M>', WorkDate);
+            "Expire Date" := CalcDate('<1M>', WorkDate());
             Insert(true);
         end;
         exit(CustomerAgreement."No.");
@@ -985,10 +985,10 @@ codeunit 144508 "ERM Agreements"
         VendorAgreement: Record "Vendor Agreement";
     begin
         with VendorAgreement do begin
-            Init;
+            Init();
             "Vendor No." := VendorNo;
             Active := IsActive;
-            "Expire Date" := CalcDate('<1M>', WorkDate);
+            "Expire Date" := CalcDate('<1M>', WorkDate());
             Insert(true);
         end;
         exit(VendorAgreement."No.");
@@ -1408,7 +1408,7 @@ codeunit 144508 "ERM Agreements"
         CustLedgerEntry.FindSet();
         repeat
             Assert.AreEqual(CustLedgerEntry."Agreement No.", AgreementNo, AgrmtNoIncorrectErr)
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyVendLedgerEntryAgrmt(VendorNo: Code[20]; AgreementNo: Code[20])
@@ -1419,7 +1419,7 @@ codeunit 144508 "ERM Agreements"
         VendLedgerEntry.FindSet();
         repeat
             Assert.AreEqual(VendLedgerEntry."Agreement No.", AgreementNo, AgrmtNoIncorrectErr)
-        until VendLedgerEntry.Next = 0;
+        until VendLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyGLEntryAgrmt(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; AgreementNo: Code[20])
@@ -1431,7 +1431,7 @@ codeunit 144508 "ERM Agreements"
         GLEntry.FindSet();
         repeat
             Assert.AreEqual(GLEntry."Agreement No.", AgreementNo, AgrmtNoIncorrectErr);
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyClosedCustLedgerEntry(CustomerNo: Code[20])
@@ -1467,10 +1467,10 @@ codeunit 144508 "ERM Agreements"
     begin
         Dimension.FindFirst();
         with PurchSetup do begin
-            Get;
+            Get();
             "Synch. Agreement Dimension" := SynchAgmtDim;
             "Vendor Agreement Dim. Code" := Dimension.Code;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1481,10 +1481,10 @@ codeunit 144508 "ERM Agreements"
     begin
         Dimension.FindFirst();
         with SalesSetup do begin
-            Get;
+            Get();
             "Synch. Agreement Dimension" := SynchAgmtDim;
             "Customer Agreement Dim. Code" := Dimension.Code;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1495,14 +1495,14 @@ codeunit 144508 "ERM Agreements"
     begin
         Assert.IsTrue(
           DimValue.Get(AgreementDimCode, AgreementCode),
-          StrSubstNo(RecordNotFoundErr, DimValue.TableCaption));
+          StrSubstNo(RecordNotFoundErr, DimValue.TableCaption()));
         Assert.AreEqual(
           IsDimValueBlocked, DimValue.Blocked,
           StrSubstNo(FieldValueIncorrectErr, DimValue.FieldCaption(Blocked)));
         Assert.IsTrue(
           DefaultDimension.Get(
             TableID, AgreementCode, AgreementDimCode),
-          StrSubstNo(RecordNotFoundErr, DefaultDimension.TableCaption));
+          StrSubstNo(RecordNotFoundErr, DefaultDimension.TableCaption()));
         Assert.AreEqual(
           AgreementCode, DefaultDimension."Dimension Value Code",
           StrSubstNo(FieldValueIncorrectErr, DefaultDimension.FieldCaption("Dimension Value Code")));
@@ -1639,7 +1639,7 @@ codeunit 144508 "ERM Agreements"
     local procedure CreateSimpleVendorAgreement(var VendorAgreement: Record "Vendor Agreement"; VendorNo: Code[20])
     begin
         with VendorAgreement do begin
-            Init;
+            Init();
             "Vendor No." := VendorNo;
             Insert(true);
         end;
@@ -1648,7 +1648,7 @@ codeunit 144508 "ERM Agreements"
     local procedure CreateSimpleCustomerAgreement(var CustomerAgreement: Record "Customer Agreement"; CustomerNo: Code[20])
     begin
         with CustomerAgreement do begin
-            Init;
+            Init();
             "Customer No." := CustomerNo;
             Insert(true);
         end;

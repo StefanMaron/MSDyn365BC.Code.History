@@ -222,7 +222,7 @@ codeunit 144709 "ERM Item And Phys. Inventory"
         ExpectedResult := (Qtys[1] * UnitCosts[1] + Qtys[2] * UnitCosts[2]) / (Qtys[1] + Qtys[2]);
 
         // [WHEN] Run function CalcAvgUnitActualCost of ItemCostManagement Codeunit.
-        ActualResult := ItemCostManagement.CalcAvgUnitActualCost(Item."No.", '', WorkDate);
+        ActualResult := ItemCostManagement.CalcAvgUnitActualCost(Item."No.", '', WorkDate());
 
         // [THEN] Calculated average unit cost is equal to "AC".
         Assert.AreEqual(ExpectedResult, ActualResult, 'Wrong average unit cost calculation');
@@ -359,7 +359,7 @@ codeunit 144709 "ERM Item And Phys. Inventory"
             InitItemJournalLine(ItemJnlLine, ItemJournalBatch."Template Type"::Item);
             LibraryInventory.CreateItemJournalLine(ItemJnlLine, "Journal Template Name", "Journal Batch Name",
               "Entry Type"::"Positive Adjmt.", ItemNo, Qty);
-            Validate("Posting Date", CalcDate('<-1M>', WorkDate));
+            Validate("Posting Date", CalcDate('<-1M>', WorkDate()));
             Validate("Unit Cost", UnitCost);
             Modify(true);
             LibraryInventory.PostItemJournalLine("Journal Template Name", "Journal Batch Name");
@@ -412,7 +412,7 @@ codeunit 144709 "ERM Item And Phys. Inventory"
         FindItemJnlLines(ItemJnlLine);
         with ValueEntry do
             repeat
-                Reset;
+                Reset();
                 SetCurrentKey("Item No.", "Location Code", "Expected Cost", Inventoriable, "Posting Date");
                 SetRange("Item No.", ItemJnlLine."Item No.");
                 SetRange("Location Code", ItemJnlLine."Location Code");
@@ -428,7 +428,7 @@ codeunit 144709 "ERM Item And Phys. Inventory"
                       ItemJnlLine."Quantity (Base)" *
                       ItemCostManagement.CalcAvgUnitActualCost(
                         ItemJnlLine."Item No.", ItemJnlLine."Location Code", ItemJnlLine."Posting Date");
-            until ItemJnlLine.Next = 0;
+            until ItemJnlLine.Next() = 0;
     end;
 
     local procedure GetItemJnlLineQtySurplus(ItemJnlLine: Record "Item Journal Line"; Surplus: Boolean) Qty: Decimal

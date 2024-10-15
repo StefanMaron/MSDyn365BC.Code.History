@@ -369,7 +369,7 @@
         OnBeforeCheckEntries(Rec, DATABASE::"G/L Entry", SkipCheck);
         if not SkipCheck then begin
             if GLEntry.IsEmpty() then
-                Error(CannotReverseDeletedErr, GLEntry.TableCaption(), GLAcc.TableCaption);
+                Error(CannotReverseDeletedErr, GLEntry.TableCaption(), GLAcc.TableCaption());
             if GLEntry.Find('-') then begin
                 CheckGLEntry(IsVATAllocOnCost);
                 repeat
@@ -468,7 +468,7 @@
             exit;
 
         if (GLEntry."Journal Batch Name" = '') and not IsVATAllocOnCost then
-            TestFieldError;
+            TestFieldError();
     end;
 
     local procedure CheckGLAcc(GLEntry: Record "G/L Entry"; var BalanceCheckAmount: Decimal; var BalanceCheckAddCurrAmount: Decimal)
@@ -884,7 +884,7 @@
                     exit(StrSubstNo('%1 %2 %3', FA.TableCaption(), FA."No.", FA.Description));
                 end;
             "Entry Type"::VAT:
-                exit(StrSubstNo('%1', VATEntry.TableCaption));
+                exit(StrSubstNo('%1', VATEntry.TableCaption()));
             "Entry Type"::"Tax Difference":
                 begin
                     if TaxDiffLedgEntry.Get("Entry No.") then;
@@ -994,7 +994,7 @@
         TaxDiffLedgEntry2: Record "Tax Diff. Ledger Entry";
     begin
         TaxDiff.Get(TaxDiffLedgEntry."Tax Diff. Code");
-        CheckPostingDate(TaxDiffLedgEntry."Posting Date", TableCaption, TaxDiffLedgEntry."Entry No.");
+        CheckPostingDate(TaxDiffLedgEntry."Posting Date", TableCaption(), TaxDiffLedgEntry."Entry No.");
         if TaxDiffLedgEntry.Reversed then
             AlreadyReversedEntry(TableCaption, TaxDiffLedgEntry."Entry No.");
         TaxDiffLedgEntry2.SetCurrentKey("Tax Diff. Code", "Source Type", "Source No.");
@@ -1241,7 +1241,7 @@
                     TempReversalEntry."Reversal Type" := RevType;
                     TempReversalEntry."Entry Type" := TempReversalEntry."Entry Type"::"G/L Account";
                     if not GLAcc.Get(GLEntry."G/L Account No.") then
-                        Error(CannotReverseDeletedErr, GLEntry.TableCaption(), GLAcc.TableCaption);
+                        Error(CannotReverseDeletedErr, GLEntry.TableCaption(), GLAcc.TableCaption());
                     TempReversalEntry."Account No." := GLAcc."No.";
                     TempReversalEntry."Account Name" := GLAcc.Name;
                     TempReversalEntry.CopyFromGLEntry(GLEntry);
@@ -1271,7 +1271,7 @@
                     TempReversalEntry."Reversal Type" := RevType;
                     TempReversalEntry."Entry Type" := TempReversalEntry."Entry Type"::"Tax Difference";
                     if not TaxDiff.Get(TaxDiffLedgEntry."Tax Diff. Code") then
-                        Error(CannotReverseDeletedErr, TaxDiffLedgEntry.TableCaption(), TaxDiff.TableCaption);
+                        Error(CannotReverseDeletedErr, TaxDiffLedgEntry.TableCaption(), TaxDiff.TableCaption());
                     TempReversalEntry."Account No." := TaxDiff.Code;
                     TempReversalEntry."Account Name" := CopyStr(TaxDiff.Description, 1, MaxStrLen(TempReversalEntry."Account Name"));
                     TempReversalEntry.CopyFromTaxDiffEntry(TaxDiffLedgEntry);

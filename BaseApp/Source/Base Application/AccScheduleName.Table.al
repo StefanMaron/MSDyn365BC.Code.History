@@ -19,6 +19,14 @@ table 84 "Acc. Schedule Name"
         {
             Caption = 'Default Column Layout';
             TableRelation = "Column Layout Name";
+            ObsoleteReason = 'Use now the Column Group property in the table Financial Report';
+#if not CLEAN21
+            ObsoleteTag = '21.0';
+            ObsoleteState = Pending;
+#else
+            ObsoleteTag = '24.0';
+            ObsoleteState = Removed;
+#endif
         }
         field(4; "Analysis View Name"; Code[10])
         {
@@ -86,11 +94,11 @@ table 84 "Acc. Schedule Name"
 
     var
         AccSchedLine: Record "Acc. Schedule Line";
-        AccSchedPrefixTxt: Label 'ACC.SCHED.', MaxLength = 10, Comment = 'Part of the name for the confguration package, stands for Account Schedule';
+        AccSchedPrefixTxt: Label 'ROW.DEF.', MaxLength = 10, Comment = 'Part of the name for the confguration package, stands for Row Definition';
         TwoPosTxt: Label '%1%2', Locked = true;
-        PackageNameTxt: Label 'Account Schedule - %1', MaxLength = 40, Comment = '%1 - account schedule name';
-        PackageImportErr: Label 'The account schedule could not be imported.';
+        PackageNameTxt: Label 'Row Definition - %1', MaxLength = 40, Comment = '%1 - Rows definition name';
         ClearDimensionTotalingConfirmTxt: Label 'Changing Analysis View will clear differing dimension totaling columns of Account Schedule Lines. \Do you want to continue?';
+        PackageImportErr: Label 'The row definitions could not be imported.';
         Text26550: Label 'Select a filename to import File Settings.';
         FileMgt: Codeunit "File Management";
         Text12400: Label 'File Name';
@@ -113,8 +121,8 @@ table 84 "Acc. Schedule Name"
 
         AccountSchedules.SetDestination(OutStr);
         AccountSchedules.SetData(AccScheduleName);
-        AccountSchedules.Export;
-        OutputFile.Close;
+        AccountSchedules.Export();
+        OutputFile.Close();
         Clear(OutStr);
 
         Download(ServerFileName, '', '', '', ClientFileName)
@@ -134,11 +142,11 @@ table 84 "Acc. Schedule Name"
         InputFile.CreateInStream(InStr);
 
         AccountSchedules.SetSource(InStr);
-        AccountSchedules.Import;
-        AccountSchedules.ImportData;
+        AccountSchedules.Import();
+        AccountSchedules.ImportData();
 
         Clear(InStr);
-        InputFile.Close;
+        InputFile.Close();
     end;
 
     local procedure AnalysisViewGet(var AnalysisView: Record "Analysis View"; AnalysisViewName: Code[10])
@@ -197,40 +205,29 @@ table 84 "Acc. Schedule Name"
     var
         ConfigPackage: Record "Config. Package";
         ConfigXMLExchange: Codeunit "Config. XML Exchange";
-    begin
-        AddConfigPackage(Name, ConfigPackage);
-        Commit();
-        ConfigXMLExchange.ExportPackage(ConfigPackage);
-    end;
-
-    local procedure AddConfigPackage(AccScheduleName: Code[10]; var ConfigPackage: Record "Config. Package")
-    var
-        AccScheduleLine: Record "Acc. Schedule Line";
-        AnalysisView: Record "Analysis View";
-        ColumnLayoutName: Record "Column Layout Name";
-        ColumnLayout: Record "Column Layout";
         PackageCode: Code[20];
     begin
-        PackageCode := StrSubstNo(TwoPosTxt, AccSchedPrefixTxt, AccScheduleName);
+        PackageCode := StrSubstNo(TwoPosTxt, AccSchedPrefixTxt, Name);
         if ConfigPackage.Get(PackageCode) then
             ConfigPackage.Delete(true);
 
         ConfigPackage.Code := PackageCode;
-        ConfigPackage."Package Name" := StrSubstNo(PackageNameTxt, AccScheduleName);
+        ConfigPackage."Package Name" := StrSubstNo(PackageNameTxt, Name);
         ConfigPackage."Exclude Config. Tables" := true;
         ConfigPackage.Insert(true);
+        AddRowDefinitionToConfigPackage(Name, ConfigPackage, PackageCode);
+        Commit();
+        ConfigXMLExchange.ExportPackage(ConfigPackage);
+    end;
 
+    procedure AddRowDefinitionToConfigPackage(AccScheduleName: Code[10]; var ConfigPackage: Record "Config. Package"; PackageCode: Code[20])
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AnalysisView: Record "Analysis View";
+    begin
         AddConfigPackageTable(PackageCode, Database::"Acc. Schedule Name", FieldNo(Name), AccScheduleName);
         AddConfigPackageTable(
             PackageCode, Database::"Acc. Schedule Line", AccScheduleLine.FieldNo("Schedule Name"), AccScheduleName);
-        if "Default Column Layout" <> '' then begin
-            AddConfigPackageTable(
-                PackageCode, Database::"Column Layout Name", ColumnLayoutName.FieldNo(Name), "Default Column Layout");
-            SkipConfigPackageField(PackageCode, Database::"Column Layout Name", ColumnLayoutName.FieldNo("Analysis View Name"));
-
-            AddConfigPackageTable(
-                PackageCode, Database::"Column Layout", ColumnLayout.FieldNo("Column Layout Name"), "Default Column Layout");
-        end;
         if "Analysis View Name" <> '' then
             AddConfigPackageTable(
                 PackageCode, Database::"Analysis View", AnalysisView.FieldNo(Code), "Analysis View Name");
@@ -257,14 +254,6 @@ table 84 "Acc. Schedule Name"
         ConfigPackageFilter."Processing Rule No." := 0;
         ConfigPackageFilter."Field Filter" := FieldFilter;
         ConfigPackageFilter.Insert(true);
-    end;
-
-    local procedure SkipConfigPackageField(PackageCode: Code[20]; TableID: Integer; FieldID: Integer)
-    var
-        ConfigPackageField: Record "Config. Package Field";
-    begin
-        if ConfigPackageField.Get(PackageCode, TableID, FieldID) then
-            ConfigPackageField.Delete();
     end;
 
     procedure Import()
@@ -297,48 +286,36 @@ table 84 "Acc. Schedule Name"
 
     local procedure GetPackageAccSchedName(PackageCode: Code[20]) NewName: Code[10]
     var
-        NewColumnLayoutName: Code[10];
-        OldColumnLayoutName: Code[10];
         OldName: Code[10];
         AccScheduleExists: Boolean;
-        ColumnLayoutExists: Boolean;
     begin
         NewName := GetAccountScheduleName(PackageCode, AccScheduleExists);
         if NewName = '' then
             exit('');
 
-        NewColumnLayoutName := GetColumnLayoutName(PackageCode, ColumnLayoutExists);
-        if not AccScheduleExists and not ColumnLayoutExists then
+        if not AccScheduleExists then
             exit(NewName);
 
         OldName := NewName;
-        OldColumnLayoutName := NewColumnLayoutName;
-        if not GetNewAccScheduleName(NewName, NewColumnLayoutName) then
+        if not GetNewAccScheduleName(NewName) then
             exit('');
 
-        RenameAccountScheduleInPackage(PackageCode, OldName, NewName, OldColumnLayoutName, NewColumnLayoutName);
+        RenameAccountScheduleInPackage(PackageCode, OldName, NewName);
     end;
 
-    local procedure GetNewAccScheduleName(var AccScheduleName: Code[10]; var ColumnLayoutName: Code[10]): Boolean
+    local procedure GetNewAccScheduleName(var AccScheduleName: Code[10]): Boolean
     var
         NewAccountScheduleName: Page "New Account Schedule Name";
     begin
-        NewAccountScheduleName.Set(AccScheduleName, ColumnLayoutName);
+        NewAccountScheduleName.Set(AccScheduleName);
         if NewAccountScheduleName.RunModal() = Action::OK then begin
             AccScheduleName := NewAccountScheduleName.GetName();
-            ColumnLayoutName := NewAccountScheduleName.GetColumnLayoutName();
             exit(true);
         end;
         exit(false)
     end;
 
-    local procedure RenameAccountScheduleInPackage(PackageCode: Code[20]; OldName: Code[10]; NewName: Code[10]; OldColumnLayoutName: Code[10]; NewColumnLayoutName: Code[10])
-    begin
-        RenameColumnLayoutInPackage(PackageCode, OldColumnLayoutName, NewColumnLayoutName);
-        RenameAccScheduleInPackage(PackageCode, OldName, NewName, OldColumnLayoutName, NewColumnLayoutName);
-    end;
-
-    local procedure RenameAccScheduleInPackage(PackageCode: Code[20]; OldName: Code[10]; NewName: Code[10]; OldColumnLayoutName: Code[10]; NewColumnLayoutName: Code[10])
+    procedure RenameAccountScheduleInPackage(PackageCode: Code[20]; OldName: Code[10]; NewName: Code[10])
     var
         AccScheduleName: Record "Acc. Schedule Name";
         AccScheduleLine: Record "Acc. Schedule Line";
@@ -357,35 +334,6 @@ table 84 "Acc. Schedule Name"
 
         ConfigPackageData.SetRange("Table ID", Database::"Acc. Schedule Line");
         ConfigPackageData.SetRange("Field ID", AccScheduleLine.FieldNo("Schedule Name"));
-        ConfigPackageData.ModifyAll(Value, NewName);
-
-        if OldColumnLayoutName <> NewColumnLayoutName then begin
-            ConfigPackageData.SetRange("Table ID", Database::"Acc. Schedule Name");
-            ConfigPackageData.SetRange("Field ID", AccScheduleName.FieldNo("Default Column Layout"));
-            ConfigPackageData.SetRange(Value, OldColumnLayoutName);
-            ConfigPackageData.ModifyAll(Value, NewColumnLayoutName);
-        end;
-    end;
-
-    local procedure RenameColumnLayoutInPackage(PackageCode: Code[20]; OldName: Code[10]; NewName: Code[10])
-    var
-        ColumnLayoutName: Record "Column Layout Name";
-        ColumnLayout: Record "Column Layout";
-        ConfigPackageData: Record "Config. Package Data";
-    begin
-        if OldName = NewName then
-            exit;
-
-        ConfigPackageData.SetLoadFields(Value);
-        ConfigPackageData.SetRange("Package Code", PackageCode);
-        ConfigPackageData.SetRange(Value, OldName);
-
-        ConfigPackageData.SetRange("Table ID", Database::"Column Layout Name");
-        ConfigPackageData.SetRange("Field ID", ColumnLayoutName.FieldNo(Name));
-        ConfigPackageData.ModifyAll(Value, NewName);
-
-        ConfigPackageData.SetRange("Table ID", Database::"Column Layout");
-        ConfigPackageData.SetRange("Field ID", ColumnLayout.FieldNo("Column Layout Name"));
         ConfigPackageData.ModifyAll(Value, NewName);
     end;
 
@@ -409,26 +357,8 @@ table 84 "Acc. Schedule Name"
         end;
     end;
 
-    local procedure GetColumnLayoutName(PackageCode: Code[20]; var ColumnLayoutExists: Boolean) Name: Code[10]
-    var
-        ColumnLayoutName: Record "Column Layout Name";
-        ConfigPackageData: Record "Config. Package Data";
-        ConfigPackageField: Record "Config. Package Field";
-    begin
-        ColumnLayoutExists := false;
-        if not ConfigPackageField.Get(PackageCode, Database::"Column Layout Name", ColumnLayoutName.FieldNo(Name)) then
-            exit('');
-
-        ConfigPackageData.SetLoadFields(Value);
-        ConfigPackageData.SetRange("Package Code", PackageCode);
-        ConfigPackageData.SetRange("Table ID", Database::"Column Layout Name");
-        ConfigPackageData.SetRange("Field ID", ColumnLayoutName.FieldNo(Name));
-        if ConfigPackageData.FindFirst() then begin
-            Name := CopyStr(ConfigPackageData.Value, 1, MaxStrLen(ColumnLayoutName.Name));
-            ColumnLayoutExists := ColumnLayoutName.Get(Name);
-        end;
-    end;
-
+#if not CLEAN21
+    [Obsolete('AccScheduleName is no longer printable directly as they are only row definitions, print instead related Financial Report by calling directly the Account Schedule Report with SetFinancialReportName or SetFinancialReportNameNonEditable.', '21.0')]
     procedure Print()
     var
         AccountSchedule: Report "Account Schedule";
@@ -444,9 +374,11 @@ table 84 "Acc. Schedule Name"
         AccountSchedule.Run();
     end;
 
+    [Obsolete('AccScheduleName is no longer printable directly as they are only row definitions, print instead the related Financial Report by calling directly the Account Schedule Report with SetFinancialReportName or SetFinancialReportNameNonEditable, and use the triggers on the report.', '21.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrint(var AccScheduleName: Record "Acc. Schedule Name"; var IsHandled: Boolean)
     begin
     end;
+#endif
 }
 

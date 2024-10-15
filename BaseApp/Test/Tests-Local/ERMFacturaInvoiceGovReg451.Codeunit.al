@@ -151,7 +151,7 @@ codeunit 144514 "ERM FacturaInvoiceGovReg451"
 
     local procedure CreatePrepaymentJournalLine(var GenJournalLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; PrepDocNo: Code[20]; Amount: Decimal)
     begin
-        LibraryERM.CreateCustomerPrepmtGenJnlLine(GenJournalLine, CustomerNo, WorkDate, PrepDocNo, Amount);
+        LibraryERM.CreateCustomerPrepmtGenJnlLine(GenJournalLine, CustomerNo, WorkDate(), PrepDocNo, Amount);
     end;
 
     local procedure UpdateStockOutWarning()
@@ -159,7 +159,7 @@ codeunit 144514 "ERM FacturaInvoiceGovReg451"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         with SalesReceivablesSetup do begin
-            Get;
+            Get();
             "Stockout Warning" := false;
             Modify(true);
         end;

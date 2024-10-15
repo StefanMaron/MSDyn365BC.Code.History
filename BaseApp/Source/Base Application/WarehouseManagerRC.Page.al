@@ -35,7 +35,7 @@ page 8909 "Warehouse Manager Role Center"
                 }
                 action("Orders1")
                 {
-                    ApplicationArea = Warehouse, Assembly;
+                    ApplicationArea = Assembly, Warehouse;
                     Caption = 'Sales Orders';
                     RunObject = page "Sales Order List";
                 }
@@ -113,7 +113,7 @@ page 8909 "Warehouse Manager Role Center"
                 Caption = 'Planning & Operations';
                 action("Items")
                 {
-                    ApplicationArea = Warehouse, Assembly;
+                    ApplicationArea = Assembly, Warehouse;
                     Caption = 'Items';
                     RunObject = page "Item List";
                 }
@@ -407,7 +407,7 @@ page 8909 "Warehouse Manager Role Center"
                     }
                     action("Prod. Order - Picking List")
                     {
-                        ApplicationArea = Manufacturing, Warehouse;
+                        ApplicationArea = Warehouse, Manufacturing;
                         Caption = 'Prod. Order Picking List';
                         RunObject = report "Prod. Order - Picking List";
                     }
@@ -567,7 +567,7 @@ page 8909 "Warehouse Manager Role Center"
                     }
                     action("Prod. Order - Picking List1")
                     {
-                        ApplicationArea = Manufacturing, Warehouse;
+                        ApplicationArea = Warehouse, Manufacturing;
                         Caption = 'Prod. Order Picking List';
                         RunObject = report "Prod. Order - Picking List";
                     }
@@ -740,7 +740,7 @@ page 8909 "Warehouse Manager Role Center"
                 Caption = 'Assembly';
                 action("Items1")
                 {
-                    ApplicationArea = Warehouse, Assembly;
+                    ApplicationArea = Assembly, Warehouse;
                     Caption = 'Items';
                     RunObject = page "Item List";
                 }
@@ -758,7 +758,7 @@ page 8909 "Warehouse Manager Role Center"
                 }
                 action("Orders3")
                 {
-                    ApplicationArea = Warehouse, Assembly;
+                    ApplicationArea = Assembly, Warehouse;
                     Caption = 'Sales Orders';
                     RunObject = page "Sales Order List";
                 }

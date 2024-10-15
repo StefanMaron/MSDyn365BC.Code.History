@@ -15,7 +15,7 @@ report 99000767 "Prod. Order - Calculation"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Production_Order__TABLECAPTION_________ProdOrderFilter; TableCaption + ':' + ProdOrderFilter)
@@ -107,7 +107,7 @@ report 99000767 "Prod. Order - Calculation"
 
             trigger OnPreDataItem()
             begin
-                ProdOrderFilter := GetFilters;
+                ProdOrderFilter := GetFilters();
                 Clear(TotalCost);
             end;
         }

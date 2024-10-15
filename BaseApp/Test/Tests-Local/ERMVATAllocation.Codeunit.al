@@ -50,7 +50,7 @@ codeunit 144008 "ERM VAT Allocation"
         Item.Get(
           LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"));
 
-        PostingDate := WorkDate;
+        PostingDate := WorkDate();
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 9);
@@ -96,7 +96,7 @@ codeunit 144008 "ERM VAT Allocation"
         Vendor.Get(
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
 
-        PostingDate := WorkDate;
+        PostingDate := WorkDate();
 
         LibraryFixedAsset.CreateFixedAssetWithCustomSetup(FA, VATPostingSetup);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
@@ -159,7 +159,7 @@ codeunit 144008 "ERM VAT Allocation"
         Item.Get(
           LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"));
 
-        PostingDate := WorkDate;
+        PostingDate := WorkDate();
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 9);
@@ -242,7 +242,7 @@ codeunit 144008 "ERM VAT Allocation"
         GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" "));
         GLAccount2.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" "));
 
-        PostingDate := WorkDate;
+        PostingDate := WorkDate();
 
         LibraryFixedAsset.CreateFixedAssetWithCustomSetup(FA, VATPostingSetup);
         PurchInvNo :=
@@ -326,7 +326,7 @@ codeunit 144008 "ERM VAT Allocation"
 
         CreateDimensionValue(DimensionValue);
 
-        PostingDate := WorkDate;
+        PostingDate := WorkDate();
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
         LibraryPurchase.CreatePurchaseLine(
@@ -368,7 +368,7 @@ codeunit 144008 "ERM VAT Allocation"
         DimSetID := GenerateDimSetID;
         InvNo :=
           CreatePostAdvanceStatementWithDimension(Vendor, VATPostingSetup."VAT Prod. Posting Group", DimSetID);
-        CreateVATSettlement(VATEntry, WorkDate, WorkDate, InvNo, SettlementType::Purchase);
+        CreateVATSettlement(VATEntry, WorkDate(), WorkDate, InvNo, SettlementType::Purchase);
         VerifyDimSetIDInVATAllocLines(VATPostingSetup."Purchase VAT Account", DimSetID);
     end;
 
@@ -397,7 +397,7 @@ codeunit 144008 "ERM VAT Allocation"
         CreateDefaultVATAllocation(VATPostingSetup, DimSetID[1]);
         InvNo :=
           CreatePostAdvanceStatementWithDimension(Vendor, VATPostingSetup."VAT Prod. Posting Group", DimSetID[2]);
-        CreateVATSettlement(VATEntry, WorkDate, WorkDate, InvNo, SettlementType::Purchase);
+        CreateVATSettlement(VATEntry, WorkDate(), WorkDate, InvNo, SettlementType::Purchase);
         VerifyDimSetIDInVATAllocLines(
           VATPostingSetup."Purchase VAT Account", DimMgt.GetCombinedDimensionSetID(DimSetID, GlobalDimensionCode, GlobalDimensionCode));
     end;
@@ -536,7 +536,7 @@ codeunit 144008 "ERM VAT Allocation"
         DefVAtAllocationLine: Record "Default VAT Allocation Line";
     begin
         with DefVAtAllocationLine do begin
-            Init;
+            Init();
             Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
             Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
             "Line No." := 10000;
@@ -583,7 +583,7 @@ codeunit 144008 "ERM VAT Allocation"
             if FindSet(true) then
                 repeat
                     "Posting Date" := ToDate;
-                    Modify;
+                    Modify();
                 until Next = 0;
             VATSettlementMgt.CopyToJnl(TempVATDocEntryBuffer, VATEntry);
             exit("Document No.");
@@ -694,7 +694,7 @@ codeunit 144008 "ERM VAT Allocation"
         VATSettlementMgt: Codeunit "VAT Settlement Management";
     begin
         with TempVATDocEntryBuffer do begin
-            SetRange("Date Filter", WorkDate, WorkDate);
+            SetRange("Date Filter", WorkDate(), WorkDate());
             SetRange("Document No.", DocumentNo);
             VATSettlementMgt.Generate(TempVATDocEntryBuffer, SettlementType);
         end;

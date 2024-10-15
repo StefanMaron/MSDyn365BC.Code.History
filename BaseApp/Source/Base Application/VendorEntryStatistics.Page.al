@@ -556,7 +556,7 @@
 
     trigger OnAfterGetRecord()
     begin
-        ClearAll;
+        ClearAll();
 
         for j := 1 to 7 do begin
             VendLedgEntry[j].SetCurrentKey("Document Type", "Vendor No.", "Posting Date");
@@ -592,9 +592,9 @@
             until VendLedgEntry2.Next(-1) = 0;
         VendLedgEntry2.Reset();
 
-        DateFilterCalc.CreateAccountingPeriodFilter(VendDateFilter[1], VendDateName[1], WorkDate, 0);
-        DateFilterCalc.CreateFiscalYearFilter(VendDateFilter[2], VendDateName[2], WorkDate, 0);
-        DateFilterCalc.CreateFiscalYearFilter(VendDateFilter[3], VendDateName[3], WorkDate, -1);
+        DateFilterCalc.CreateAccountingPeriodFilter(VendDateFilter[1], VendDateName[1], WorkDate(), 0);
+        DateFilterCalc.CreateFiscalYearFilter(VendDateFilter[2], VendDateName[2], WorkDate(), 0);
+        DateFilterCalc.CreateFiscalYearFilter(VendDateFilter[3], VendDateName[3], WorkDate(), -1);
 
         for i := 1 to 3 do begin // Period,This Year,Last Year
             VendLedgEntry2.SetCurrentKey("Vendor No.", "Posting Date");

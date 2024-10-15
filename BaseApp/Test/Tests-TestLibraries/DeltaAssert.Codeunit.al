@@ -30,7 +30,7 @@ codeunit 130001 "Delta Assert"
         end;
 
         if FieldRef.Class = FieldClass::FlowField then
-            FieldRef.CalcField;
+            FieldRef.CalcField();
 
         exit(FieldRef.Value);
     end;
@@ -116,7 +116,7 @@ codeunit 130001 "Delta Assert"
         Watches.FindSet();
         repeat
             AssertWatch(Watches);
-        until Watches.Next = 0;
+        until Watches.Next() = 0;
 
         // Go back to uninitialized state so the class can be reused
         Initialized := false;

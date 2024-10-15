@@ -66,7 +66,7 @@ codeunit 144504 "ERM RU Apply Unapply Cust"
         UpdateSalesSetup(true, false);
 
         // [GIVEN] Posted Sales Invoice on january = "Date" and Payment on february with EntryNo = "N"
-        CreatePostInvoiceAndPayment(CustLedgerEntry, InvoiceNo, PaymentNo, CalcDate('<1M>', WorkDate));
+        CreatePostInvoiceAndPayment(CustLedgerEntry, InvoiceNo, PaymentNo, CalcDate('<1M>', WorkDate()));
 
         // [WHEN] Apply Invoice to Payment
         asserterror ApplyCustomerInvoiceToPayment(InvoiceNo, PaymentNo);
@@ -74,7 +74,7 @@ codeunit 144504 "ERM RU Apply Unapply Cust"
         // [THEN] Error thrown: Posting date must not be after "Date" in Cust. Ledger Entry entry no. "N"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntryPmt, CustLedgerEntry."Document Type"::Payment, PaymentNo);
         Assert.ExpectedError(
-          StrSubstNo(MustNotBeAfterErr, CustLedgerEntry."Posting Date", CustLedgerEntryPmt.TableCaption, CustLedgerEntryPmt."Entry No."));
+          StrSubstNo(MustNotBeAfterErr, CustLedgerEntry."Posting Date", CustLedgerEntryPmt.TableCaption(), CustLedgerEntryPmt."Entry No."));
     end;
 
     [Test]
@@ -93,7 +93,7 @@ codeunit 144504 "ERM RU Apply Unapply Cust"
         UpdateSalesSetup(true, false);
 
         // [GIVEN] Posted Sales Invoice and Payment on workdate
-        CreatePostInvoiceAndPayment(CustLedgerEntry, InvoiceNo, PaymentNo, WorkDate);
+        CreatePostInvoiceAndPayment(CustLedgerEntry, InvoiceNo, PaymentNo, WorkDate());
 
         // [WHEN] Apply Invoice to Payment
         ApplyCustomerInvoiceToPayment(InvoiceNo, PaymentNo);
@@ -118,7 +118,7 @@ codeunit 144504 "ERM RU Apply Unapply Cust"
         UpdateSalesSetup(false, true);
 
         // [GIVEN] Posted Sales Invoice and Payment on different dates
-        CreatePostInvoiceAndPayment(CustLedgerEntry, InvoiceNo, PaymentNo, CalcDate('<1M>', WorkDate));
+        CreatePostInvoiceAndPayment(CustLedgerEntry, InvoiceNo, PaymentNo, CalcDate('<1M>', WorkDate()));
 
         // [WHEN] Apply Invoice to Payment
         asserterror ApplyCustomerInvoiceToPayment(InvoiceNo, PaymentNo);
@@ -143,7 +143,7 @@ codeunit 144504 "ERM RU Apply Unapply Cust"
         UpdateSalesSetup(false, true);
 
         // [GIVEN] Posted Sales Invoice and Payment on workdate
-        CreatePostInvoiceAndPayment(CustLedgerEntry, InvoiceNo, PaymentNo, WorkDate);
+        CreatePostInvoiceAndPayment(CustLedgerEntry, InvoiceNo, PaymentNo, WorkDate());
 
         // [WHEN] Apply Invoice to Payment
         ApplyCustomerInvoiceToPayment(InvoiceNo, PaymentNo);
@@ -214,7 +214,7 @@ codeunit 144504 "ERM RU Apply Unapply Cust"
               GenJournalLine, "Document Type"::Payment, "Account Type"::Customer, CustomerNo, GLAmount);
             Validate(Prepayment, true);
             Validate("Prepayment Document No.", PrepaymentDocNo);
-            Modify;
+            Modify();
             LibraryERM.PostGeneralJnlLine(GenJournalLine);
             exit("Document No.");
         end;

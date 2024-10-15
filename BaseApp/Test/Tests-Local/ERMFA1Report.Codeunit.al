@@ -546,7 +546,7 @@ codeunit 144711 "ERM FA-1 Report"
         FADeprBook.FindSet();
         repeat
             LibraryRUReports.MockFADepreciationBook(FADeprBook);
-        until FADeprBook.Next = 0;
+        until FADeprBook.Next() = 0;
     end;
 
     local procedure MockFAWithMultipleDeprBooksWithEmptyDeprAmount(var FixedAsset: Record "Fixed Asset")
@@ -558,7 +558,7 @@ codeunit 144711 "ERM FA-1 Report"
             SetRange("FA No.", FixedAsset."No.");
             FindSet();
             repeat
-                Validate("Depreciation Starting Date", CalcDate('<-CY>', WorkDate));
+                Validate("Depreciation Starting Date", CalcDate('<-CY>', WorkDate()));
                 Validate("No. of Depreciation Years", LibraryRandom.RandInt(10));
                 Validate("Disposal Date", LibraryRandom.RandDate(100));
                 Validate("Acquisition Date", LibraryRandom.RandDate(100));
@@ -577,20 +577,20 @@ codeunit 144711 "ERM FA-1 Report"
     local procedure MockFixedAsset(var FixedAsset: Record "Fixed Asset")
     begin
         with FixedAsset do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Fixed Asset");
-            Insert;
+            Insert();
             Description := LibraryUtility.GenerateGUID();
             "Description 2" := LibraryUtility.GenerateGUID();
             Manufacturer := LibraryUtility.GenerateGUID();
-            "Initial Release Date" := WorkDate;
+            "Initial Release Date" := WorkDate();
             "FA Location Code" := LibraryRUReports.MockFALocation;
             "Depreciation Code" := LibraryRUReports.MockDepreciationCode;
             "Depreciation Group" := LibraryRUReports.MockDepreciationGroup;
             "Inventory Number" := LibraryUtility.GenerateGUID();
             "Factory No." := LibraryUtility.GenerateGUID();
-            "Manufacturing Year" := Format(Date2DMY(WorkDate, 3));
-            Modify;
+            "Manufacturing Year" := Format(Date2DMY(WorkDate(), 3));
+            Modify();
             InitFADeprBooks("No.");
         end;
     end;
@@ -608,15 +608,15 @@ codeunit 144711 "ERM FA-1 Report"
     local procedure MockFAHeader(var FADocHeader: Record "FA Document Header")
     begin
         with FADocHeader do begin
-            Init;
+            Init();
             "Document Type" := "Document Type"::Release;
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"FA Document Header");
-            Insert;
+            Insert();
             "Reason Document No." := LibraryUtility.GenerateGUID();
-            "Reason Document Date" := WorkDate;
-            "Posting Date" := WorkDate;
+            "Reason Document Date" := WorkDate();
+            "Posting Date" := WorkDate();
             "FA Posting Date" := LibraryRandom.RandDate(5);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -625,15 +625,15 @@ codeunit 144711 "ERM FA-1 Report"
         FADocLine: Record "FA Document Line";
     begin
         with FADocLine do begin
-            Init;
+            Init();
             "Document Type" := FADocHeader."Document Type";
             "Document No." := FADocHeader."No.";
             "Line No." := LibraryUtility.GetNewRecNo(FADocLine, FieldNo("Line No."));
-            Insert;
+            Insert();
             Validate("FA No.", FADepreciationBook."FA No.");
             Validate("Depreciation Book Code", FADepreciationBook."Depreciation Book Code");
             Validate("New Depreciation Book Code", FADepreciationBook."Depreciation Book Code");
-            Modify;
+            Modify();
         end;
     end;
 
@@ -650,14 +650,14 @@ codeunit 144711 "ERM FA-1 Report"
     local procedure MockPostedFAHeader(var PostedFADocHeader: Record "Posted FA Doc. Header")
     begin
         with PostedFADocHeader do begin
-            Init;
+            Init();
             "Document Type" := "Document Type"::Release;
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Posted FA Doc. Header");
-            Insert;
+            Insert();
             "Reason Document No." := LibraryUtility.GenerateGUID();
-            "Reason Document Date" := WorkDate;
-            "Posting Date" := WorkDate;
-            Modify;
+            "Reason Document Date" := WorkDate();
+            "Posting Date" := WorkDate();
+            Modify();
         end;
     end;
 
@@ -666,17 +666,17 @@ codeunit 144711 "ERM FA-1 Report"
         PostedFADocLine: Record "Posted FA Doc. Line";
     begin
         with PostedFADocLine do begin
-            Init;
+            Init();
             "Document Type" := PostedFADocHeader."Document Type";
             "Document No." := PostedFADocHeader."No.";
             "Line No." := LibraryUtility.GetNewRecNo(PostedFADocLine, FieldNo("Line No."));
-            Insert;
+            Insert();
             "FA No." := FixedAsset."No.";
             "Depreciation Book Code" := FADepreciationBook."Depreciation Book Code";
             "New Depreciation Book Code" := FADepreciationBook."Depreciation Book Code";
             "FA Posting Group" := FADepreciationBook."FA Posting Group";
             "FA Location Code" := FixedAsset."FA Location Code";
-            Modify;
+            Modify();
         end;
     end;
 
@@ -693,12 +693,12 @@ codeunit 144711 "ERM FA-1 Report"
     local procedure MockSalesHeader(var SalesHeader: Record "Sales Header")
     begin
         with SalesHeader do begin
-            Init;
+            Init();
             "Document Type" := "Document Type"::Invoice;
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Sales Header");
-            Insert;
-            "Posting Date" := WorkDate;
-            Modify;
+            Insert();
+            "Posting Date" := WorkDate();
+            Modify();
         end;
     end;
 
@@ -707,16 +707,16 @@ codeunit 144711 "ERM FA-1 Report"
         SalesLine: Record "Sales Line";
     begin
         with SalesLine do begin
-            Init;
+            Init();
             "Document Type" := SalesHeader."Document Type";
             "Document No." := SalesHeader."No.";
             "Line No." := LibraryUtility.GetNewRecNo(SalesLine, FieldNo("Line No."));
-            Insert;
+            Insert();
             Type := Type::"Fixed Asset";
             "No." := FANo;
             "Depreciation Book Code" := FADeprBook."Depreciation Book Code";
             "Posting Group" := FADeprBook."FA Posting Group";
-            Modify;
+            Modify();
         end;
     end;
 
@@ -733,11 +733,11 @@ codeunit 144711 "ERM FA-1 Report"
     local procedure MockPostedSalesHeader(var SalesInvHeader: Record "Sales Invoice Header")
     begin
         with SalesInvHeader do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Sales Invoice Header");
-            Insert;
-            "Posting Date" := WorkDate;
-            Modify;
+            Insert();
+            "Posting Date" := WorkDate();
+            Modify();
         end;
     end;
 
@@ -746,15 +746,15 @@ codeunit 144711 "ERM FA-1 Report"
         SalesInvLine: Record "Sales Invoice Line";
     begin
         with SalesInvLine do begin
-            Init;
+            Init();
             "Document No." := SalesInvHeader."No.";
             "Line No." := LibraryUtility.GetNewRecNo(SalesInvLine, FieldNo("Line No."));
-            Insert;
+            Insert();
             Type := Type::"Fixed Asset";
             "No." := FANo;
             "Depreciation Book Code" := FADeprBook."Depreciation Book Code";
             "Posting Group" := FADeprBook."FA Posting Group";
-            Modify;
+            Modify();
         end;
     end;
 
@@ -774,7 +774,7 @@ codeunit 144711 "ERM FA-1 Report"
         FAReleaseActRep: Report "FA Release Act FA-1";
     begin
         LibraryReportValidation.SetFileName(FADocHeader."No.");
-        FADocHeader.SetRecFilter;
+        FADocHeader.SetRecFilter();
         with FAReleaseActRep do begin
             SetFileNameSilent(LibraryReportValidation.GetFileName);
             SetTableView(FADocHeader);
@@ -788,7 +788,7 @@ codeunit 144711 "ERM FA-1 Report"
         PostedFAReleaseActRep: Report "FA Posted Release Act FA-1";
     begin
         LibraryReportValidation.SetFileName(PostedFADocHeader."No.");
-        PostedFADocHeader.SetRecFilter;
+        PostedFADocHeader.SetRecFilter();
         with PostedFAReleaseActRep do begin
             SetFileNameSilent(LibraryReportValidation.GetFileName);
             SetTableView(PostedFADocHeader);
@@ -802,7 +802,7 @@ codeunit 144711 "ERM FA-1 Report"
         SalesFAReleaseRep: Report "Sales FA Release FA-1";
     begin
         LibraryReportValidation.SetFileName(SalesHeader."No.");
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         with SalesFAReleaseRep do begin
             SetFileNameSilent(LibraryReportValidation.GetFileName);
             SetTableView(SalesHeader);
@@ -816,7 +816,7 @@ codeunit 144711 "ERM FA-1 Report"
         PostedSalesFAReleaseRep: Report "Posted Sales FA Release FA-1";
     begin
         LibraryReportValidation.SetFileName(SalesInvHeader."No.");
-        SalesInvHeader.SetRecFilter;
+        SalesInvHeader.SetRecFilter();
         with PostedSalesFAReleaseRep do begin
             SetFileNameSilent(LibraryReportValidation.GetFileName);
             SetTableView(SalesInvHeader);

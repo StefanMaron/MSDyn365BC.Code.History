@@ -207,7 +207,7 @@ codeunit 134658 "Edit Posted Documents"
         Assert.AreEqual(PurchInvHeader."Ship-to Code", PostedPurchaseInvoice."Ship-to Code".Value, '');
         Assert.AreEqual(PurchInvHeader."Posting Description", PostedPurchaseInvoice."Posting Description".Value, '');
 
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
         PurchInvHeader.Get(PurchInvHeader."No.");
         Assert.AreNotEqual(PurchInvHeaderNew."Payment Reference", PurchInvHeader."Payment Reference", '');
         Assert.AreNotEqual(PurchInvHeaderNew."Payment Method Code", PurchInvHeader."Payment Method Code", '');
@@ -252,7 +252,7 @@ codeunit 134658 "Edit Posted Documents"
         Assert.AreEqual(PurchInvHeaderNew."Ship-to Code", PostedPurchaseInvoice."Ship-to Code".Value, '');
         Assert.AreEqual(PurchInvHeaderNew."Posting Description", PostedPurchaseInvoice."Posting Description".Value, '');
 
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
         PurchInvHeader.Get(PurchInvHeader."No.");
         PurchInvHeader.TestField("Payment Reference", PurchInvHeaderNew."Payment Reference");
         PurchInvHeader.TestField("Payment Method Code", PurchInvHeaderNew."Payment Method Code");
@@ -492,7 +492,7 @@ codeunit 134658 "Edit Posted Documents"
         // [WHEN] Press Cancel on the page via PostedSalesInvoiceUpdateCancelModalPageHandler
 
         // [THEN] Values of these fields in Sales Invoice Header were not changed to new values.
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
         SalesInvoiceHeader.Get(SalesInvoiceHeader."No.");
         Assert.AreNotEqual(SalesInvoiceHeaderNew."Payment Reference", SalesInvoiceHeader."Payment Reference", '');
         Assert.AreNotEqual(SalesInvoiceHeaderNew."Payment Method Code", SalesInvoiceHeader."Payment Method Code", '');
@@ -529,7 +529,7 @@ codeunit 134658 "Edit Posted Documents"
         // [WHEN] Press OK on the page via PostedSalesInvoiceUpdateOkModalPageHandler
 
         // [THEN] Values of these fields in Sales Invoice Header were changed to new values.
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
         SalesInvoiceHeader.Get(SalesInvoiceHeader."No.");
         SalesInvoiceHeader.TestField("Payment Reference", SalesInvoiceHeaderNew."Payment Reference");
         SalesInvoiceHeader.TestField("Payment Method Code", SalesInvoiceHeaderNew."Payment Method Code");
@@ -590,7 +590,7 @@ codeunit 134658 "Edit Posted Documents"
         // [WHEN] Press Cancel on the page via PostedServiceInvoiceUpdateCancelModalPageHandler
 
         // [THEN] Values of these fields in Service Invoice Header were not changed to new values.
-        PostedServiceInvoice.Close;
+        PostedServiceInvoice.Close();
         ServiceInvoiceHeader.Get(ServiceInvoiceHeader."No.");
         Assert.AreNotEqual(ServiceInvoiceHeaderNew."Payment Reference", ServiceInvoiceHeader."Payment Reference", '');
         Assert.AreNotEqual(ServiceInvoiceHeaderNew."Payment Method Code", ServiceInvoiceHeader."Payment Method Code", '');
@@ -624,7 +624,7 @@ codeunit 134658 "Edit Posted Documents"
         // [WHEN] Press OK on the page via PostedServiceInvoiceUpdateOkModalPageHandler
 
         // [THEN] Values of these fields in Service Invoice Header were changed to new values.
-        PostedServiceInvoice.Close;
+        PostedServiceInvoice.Close();
         ServiceInvoiceHeader.Get(ServiceInvoiceHeader."No.");
         ServiceInvoiceHeader.TestField("Payment Reference", ServiceInvoiceHeaderNew."Payment Reference");
         ServiceInvoiceHeader.TestField("Payment Method Code", ServiceInvoiceHeaderNew."Payment Method Code");

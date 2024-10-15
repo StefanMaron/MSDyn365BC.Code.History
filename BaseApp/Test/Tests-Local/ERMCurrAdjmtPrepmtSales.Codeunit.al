@@ -187,7 +187,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         ExpectedDocNo := GetGenJnlTemplateNextNo(AdjPostingDate);
         PostInvAndPrepmtWithCurrency(
           InvNo, PmtNo, EntryAmount, CurrencyCode, true, true);
-        AdjPostingDate := CalcDate('<1M+CM>', WorkDate);
+        AdjPostingDate := CalcDate('<1M+CM>', WorkDate());
         RunAdjExchRates(CurrencyCode, AdjPostingDate, GetCustNoFromCustLedgEntry(InvNo));
         VerifyEmptyGLEntries(ExpectedDocNo, CurrencyCode);
     end;
@@ -376,12 +376,12 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         // [GIVEN] Sales order "S" with item line and specified currency
         CreateSalesOrderWithTrackedItem(
           SalesHeader, SalesLine, LibrarySales.CreateCustomerNo, CreateLotItemInventory(LibraryRandom.RandIntInRange(20, 100)),
-          LibraryRandom.RandIntInRange(2, 10), CalcDate('<1M>', WorkDate),
+          LibraryRandom.RandIntInRange(2, 10), CalcDate('<1M>', WorkDate()),
           PrepareSetup(true, ExchRateAmount, false));
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         // [GIVEN] Post prepayment "P" for the sales order "S"
-        PaymentNo := CreatePostPrepayment(WorkDate, SalesLine, SalesHeader."Currency Code", -SalesLine."Amount Including VAT");
+        PaymentNo := CreatePostPrepayment(WorkDate(), SalesLine, SalesHeader."Currency Code", -SalesLine."Amount Including VAT");
 
         // [GIVEN] Post "S",  posted invoice "N" is created
         InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -415,14 +415,14 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         // [GIVEN] Sales order "S" with item line and specified currency
         CreateSalesOrderWithTrackedItem(
           OrderSalesHeader, OrderSalesLine, LibrarySales.CreateCustomerNo, CreateLotItemInventory(LibraryRandom.RandIntInRange(20, 100)),
-          LibraryRandom.RandIntInRange(2, 10), WorkDate, PrepareSetup(true, ExchRateAmount, false));
+          LibraryRandom.RandIntInRange(2, 10), WorkDate(), PrepareSetup(true, ExchRateAmount, false));
 
         // [GIVEN] Post "S" shipment
         LibrarySales.PostSalesDocument(OrderSalesHeader, true, false);
 
         // [GIVEN] Create and post invoice "N" from "S"
         CreateSalesInvoice(
-          InvoiceSalesHeader, OrderSalesHeader."Sell-to Customer No.", OrderSalesHeader."Currency Code", CalcDate('<1M>', WorkDate));
+          InvoiceSalesHeader, OrderSalesHeader."Sell-to Customer No.", OrderSalesHeader."Currency Code", CalcDate('<1M>', WorkDate()));
         InvoiceNo := LibrarySales.PostSalesDocument(InvoiceSalesHeader, false, true);
 
         // [GIVEN] Post prepayment "P" for the sales order "S"
@@ -464,20 +464,20 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
 
         // [GIVEN] Sales order for 10 pcs of item "I" with "Direct Unit Cost" = 100 EUR on 16.03. Post shipment.
         CreateItemSalesDocWithCurrency(
-          SalesHeader, OrderSalesLine, SalesHeader."Document Type"::Order, CalcDate('<1M>', WorkDate), SourceCurrencyCode);
+          SalesHeader, OrderSalesLine, SalesHeader."Document Type"::Order, CalcDate('<1M>', WorkDate()), SourceCurrencyCode);
         LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, OrderSalesLine."No.", '', '', OrderSalesLine.Quantity);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // [GIVEN] Create a separate invoice on 16.04 and get lines from the posted shipment. Post invoice.
         CreateSalesHeaderWithCurrency(
-          SalesHeader, SalesHeader."Document Type"::Invoice, CalcDate('<2M>', WorkDate),
+          SalesHeader, SalesHeader."Document Type"::Invoice, CalcDate('<2M>', WorkDate()),
           SourceCurrencyCode, SalesHeader."Sell-to Customer No.");
         GetShipmentLines(SalesHeader);
         PostedInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
 
         // [GIVEN] Post customer prepayment on 16.02
-        PaymentNo := CreatePostPrepayment(WorkDate, OrderSalesLine, SourceCurrencyCode, -OrderSalesLine."Amount Including VAT");
+        PaymentNo := CreatePostPrepayment(WorkDate(), OrderSalesLine, SourceCurrencyCode, -OrderSalesLine."Amount Including VAT");
 
         // [WHEN] Apply prepayment to invoice
         ApplyCustomerPaymentToInvoice(PaymentNo, PostedInvoiceNo);
@@ -576,7 +576,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
     begin
         UpdateGLSetup(IsCancelPrepmt);
         SetupExchRateAmount(ExchRateAmount, IsRaise);
-        exit(CreateCurrencyWithExchRates(WorkDate, ExchRateAmount));
+        exit(CreateCurrencyWithExchRates(WorkDate(), ExchRateAmount));
     end;
 
     local procedure UpdateGLSetup(NewCancelCurrAdjmtPrepmt: Boolean)
@@ -584,7 +584,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         GLSetup: Record "General Ledger Setup";
     begin
         with GLSetup do begin
-            Get;
+            Get();
             Validate("Enable Russian Tax Accounting", true);
             Validate("Cancel Curr. Prepmt. Adjmt.", NewCancelCurrAdjmtPrepmt);
             Validate("Currency Adjmt with Correction", false);
@@ -642,7 +642,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         GLSetup: Record "General Ledger Setup";
     begin
         with GLSetup do begin
-            Get;
+            Get();
             "Cancel Curr. Prepmt. Adjmt." := CancelCurrPrepmtAdjmt;
             "Cancel Prepmt. Adjmt. in TA" := CancelPrepmtAdjmtInTA;
             Modify(true);
@@ -703,7 +703,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
           InvNo, PmtNo, EntryAmount, CurrencyCode, IsRaise, IsCancelPrepmt);
         ApplyCustomerPaymentToInvoice(PmtNo, InvNo);
         RefundAmount := -Round(EntryAmount[EntryType::Prepayment] / 3, 1);
-        PostingDate := CalcDate('<2M>', WorkDate);
+        PostingDate := CalcDate('<2M>', WorkDate());
         RefundNo := PostApplyRefundToPrepayment(PostingDate, PmtNo, CurrencyCode, RefundAmount);
         CalcAndVerifyCorrEntries(
           CurrencyCode, PostingDate, IsRaise, IsCancelPrepmt, PmtNo, RefundNo, RefundAmount, 1);
@@ -787,7 +787,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
           InvNo, PmtNo, EntryAmount, CurrencyCode, IsRaise, IsCancelPrepmt);
         ApplyCustomerPaymentToInvoice(PmtNo, InvNo);
         RefundAmount := -Round(EntryAmount[EntryType::Prepayment] / 3, 1);
-        PostingDate := CalcDate('<2M>', WorkDate);
+        PostingDate := CalcDate('<2M>', WorkDate());
         RefundNo := PostApplyRefundToPrepayment(PostingDate, PmtNo, CurrencyCode, RefundAmount);
         UnApplyCustomerRefund(RefundNo);
         VerifyUnappliedLedgerEntry(CustLedgEntry."Document Type"::Refund, RefundNo);
@@ -831,7 +831,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         ExpectedDocNo := GetGenJnlTemplateNextNo(AdjPostingDate);
         PostInvAndPrepmtWithCurrency(
           InvNo, PmtNo, EntryAmount, CurrencyCode, IsRaise, IsCancelPrepmt);
-        AdjPostingDate := CalcDate('<1M+CM>', WorkDate);
+        AdjPostingDate := CalcDate('<1M+CM>', WorkDate());
         RunAdjExchRates(CurrencyCode, AdjPostingDate, GetCustNoFromCustLedgEntry(InvNo));
         VerifyAdjGLEntries(
           ExpectedDocNo, CurrencyCode, IsRaise, IsCancelPrepmt, EntryAmount[EntryType::Prepayment] - EntryAmount[EntryType::Invoice]);
@@ -845,11 +845,11 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
     begin
         Initialize();
         SourceCurrencyCode := PrepareSetup(IsCancelPrepmt, ExchRateAmount, IsRaise);
-        LibrarySales.CreateFCYSalesInvoiceWithGLAcc(SalesHeader, SalesLine, '', '', CalcDate('<1M>', WorkDate), SourceCurrencyCode);
+        LibrarySales.CreateFCYSalesInvoiceWithGLAcc(SalesHeader, SalesLine, '', '', CalcDate('<1M>', WorkDate()), SourceCurrencyCode);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         CalculateEntryAmount(EntryAmount, ExchRateAmount, SalesLine."Amount Including VAT");
         PmtNo :=
-          CreatePostPrepayment(WorkDate, SalesLine, '', -EntryAmount[EntryType::Invoice]);
+          CreatePostPrepayment(WorkDate(), SalesLine, '', -EntryAmount[EntryType::Invoice]);
         InvNo := PostInvoice(SalesLine);
     end;
 
@@ -860,11 +860,11 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         ExchRateAmount: array[3] of Decimal;
     begin
         SourceCurrencyCode := PrepareSetup(IsCancelPrepmt, ExchRateAmount, IsRaise);
-        LibrarySales.CreateFCYSalesInvoiceWithGLAcc(SalesHeader, SalesLine, '', '', CalcDate('<1M>', WorkDate), SourceCurrencyCode);
+        LibrarySales.CreateFCYSalesInvoiceWithGLAcc(SalesHeader, SalesLine, '', '', CalcDate('<1M>', WorkDate()), SourceCurrencyCode);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         CalculateEntryAmount(EntryAmount, ExchRateAmount, SalesLine."Amount Including VAT");
         PmtNo :=
-          CreatePostPrepayment(WorkDate, SalesLine, SourceCurrencyCode, -SalesLine."Amount Including VAT");
+          CreatePostPrepayment(WorkDate(), SalesLine, SourceCurrencyCode, -SalesLine."Amount Including VAT");
         InvNo := PostInvoice(SalesLine);
     end;
 
@@ -878,9 +878,9 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
     begin
         SourceCurrencyCode := PrepareSetup(IsCancelPrepmt, ExchRateAmount, IsRaise);
         CreateItemSalesDocWithCurrency(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, CalcDate('<1M>', WorkDate), SourceCurrencyCode);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, CalcDate('<1M>', WorkDate()), SourceCurrencyCode);
         PmtAmount := Round(SalesLine."Amount Including VAT" / 3, 1);
-        PmtNo := CreatePostPrepayment(WorkDate, SalesLine, SourceCurrencyCode, -PmtAmount);
+        PmtNo := CreatePostPrepayment(WorkDate(), SalesLine, SourceCurrencyCode, -PmtAmount);
         InvNo := PostInvoice(SalesLine);
         CustomerNo := SalesHeader."Sell-to Customer No.";
         ItemNo := SalesLine."No.";
@@ -894,14 +894,14 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
     begin
         LibrarySales.CreateSalesInvoiceWithGLAcc(SalesHeader, SalesLine, '', '');
         SalesHeader.SetHideValidationDialog(true);
-        SalesHeader.Validate("Posting Date", CalcDate('<1M>', WorkDate));
+        SalesHeader.Validate("Posting Date", CalcDate('<1M>', WorkDate()));
         SalesHeader.Modify(true);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT %");
         SetUnrealVATSetupOnSalesPrepmtAccount(SalesLine."Bill-to Customer No.", VATPostingSetup);
         PmtNo :=
-          CreatePostPrepayment(WorkDate, SalesLine, '', -SalesLine."Amount Including VAT");
+          CreatePostPrepayment(WorkDate(), SalesLine, '', -SalesLine."Amount Including VAT");
         InvNo := PostInvoice(SalesLine);
         exit(
           Round(SalesLine."Amount Including VAT" * VATPostingSetup."VAT %" / (100 + VATPostingSetup."VAT %"),
@@ -916,12 +916,12 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
     begin
         Initialize();
         SourceCurrencyCode := PrepareSetup(IsCancelPrepmt, ExchRateAmount, IsRaise);
-        LibrarySales.CreateFCYSalesInvoiceWithGLAcc(SalesHeader, SalesLine, '', '', CalcDate('<1M>', WorkDate), SourceCurrencyCode);
+        LibrarySales.CreateFCYSalesInvoiceWithGLAcc(SalesHeader, SalesLine, '', '', CalcDate('<1M>', WorkDate()), SourceCurrencyCode);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         CalculateEntryAmount(EntryAmount, ExchRateAmount, SalesLine."Amount Including VAT");
         EntryAmount[EntryType::Invoice] := Round(EntryAmount[EntryType::Invoice] * 3, 1);
         PmtNo :=
-          CreatePostPrepayment(WorkDate, SalesLine, SourceCurrencyCode, -EntryAmount[EntryType::Invoice]);
+          CreatePostPrepayment(WorkDate(), SalesLine, SourceCurrencyCode, -EntryAmount[EntryType::Invoice]);
         InvNo := PostInvoice(SalesLine);
     end;
 
@@ -1192,7 +1192,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
     begin
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup.TestField("Posted Prepayment Nos.");
-        exit(NoSeriesManagement.GetNextNo(SalesReceivablesSetup."Posted Prepayment Nos.", WorkDate, false));
+        exit(NoSeriesManagement.GetNextNo(SalesReceivablesSetup."Posted Prepayment Nos.", WorkDate(), false));
     end;
 
     local procedure GetShipmentDocNo(CustomerNo: Code[20]; ItemNo: Code[20]): Code[20]
@@ -1261,7 +1261,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         ExpectedAmount: Decimal;
     begin
         ExpectedAmount :=
-          Round(CorrAmount * GetExchRateDiff(CurrencyCode, WorkDate, PostingDate));
+          Round(CorrAmount * GetExchRateDiff(CurrencyCode, WorkDate(), PostingDate));
         if IsCancelPrepmt then begin
             ExpectedDocType := CustLedgEntry."Document Type"::Refund;
             ExpectedDocNo := RefundNo;
@@ -1311,7 +1311,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
             SetRange("Document No.", DocNo);
             SetRange("Entry Type", EntryType);
             Assert.IsTrue(
-              FindLast, StrSubstNo(EntryDoesNotExistErr, TableCaption, GetFilters));
+              FindLast, StrSubstNo(EntryDoesNotExistErr, TableCaption(), GetFilters));
         end;
     end;
 
@@ -1338,9 +1338,9 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         with CustLedgEntry do begin
             CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
             Assert.AreEqual(
-              0, "Remaining Amount", StrSubstNo(WrongValueErr, TableCaption, FieldCaption("Remaining Amount"), "Entry No."));
+              0, "Remaining Amount", StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Remaining Amount"), "Entry No."));
             Assert.AreEqual(
-              0, "Remaining Amt. (LCY)", StrSubstNo(WrongValueErr, TableCaption, FieldCaption("Remaining Amt. (LCY)"), "Entry No."));
+              0, "Remaining Amt. (LCY)", StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Remaining Amt. (LCY)"), "Entry No."));
         end;
     end;
 
@@ -1352,9 +1352,9 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         with CustLedgEntry do begin
             CalcFields(Amount, "Amount (LCY)", "Remaining Amount", "Remaining Amt. (LCY)");
             Assert.AreEqual(
-              "Remaining Amount", Amount, StrSubstNo(WrongValueErr, TableCaption, FieldCaption(Amount), "Entry No."));
+              "Remaining Amount", Amount, StrSubstNo(WrongValueErr, TableCaption(), FieldCaption(Amount), "Entry No."));
             Assert.AreEqual(
-              "Remaining Amt. (LCY)", "Amount (LCY)", StrSubstNo(WrongValueErr, TableCaption, FieldCaption("Amount (LCY)"), "Entry No."));
+              "Remaining Amt. (LCY)", "Amount (LCY)", StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Amount (LCY)"), "Entry No."));
         end;
     end;
 
@@ -1379,9 +1379,9 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         FindDtldCustLedgEntry(DtldCustLedgEntry, DocType, DocNo, GetEntryType(IsRaise));
         with DtldCustLedgEntry do begin
             Assert.AreEqual(
-              0, Amount, StrSubstNo(WrongValueErr, TableCaption, FieldCaption(Amount), "Entry No."));
+              0, Amount, StrSubstNo(WrongValueErr, TableCaption(), FieldCaption(Amount), "Entry No."));
             Assert.AreEqual(
-              ExpectedAmount, "Amount (LCY)", StrSubstNo(WrongValueErr, TableCaption, FieldCaption("Amount (LCY)"), "Entry No."));
+              ExpectedAmount, "Amount (LCY)", StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Amount (LCY)"), "Entry No."));
         end;
     end;
 
@@ -1396,10 +1396,10 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
             SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
             SetRange("Prepmt. Diff.", true);
             Assert.IsTrue(
-              FindLast, StrSubstNo(EntryDoesNotExistErr, TableCaption, GetFilters));
+              FindLast, StrSubstNo(EntryDoesNotExistErr, TableCaption(), GetFilters));
             Assert.AreEqual(
               ExpectedAmount, "Amount (LCY)",
-              StrSubstNo(WrongValueErr, TableCaption, FieldCaption("Amount (LCY)"), "Entry No."));
+              StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Amount (LCY)"), "Entry No."));
         end;
     end;
 
@@ -1415,7 +1415,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
             SetRange("Prepmt. Diff.", true);
             SetRange(Unapplied, true);
             Assert.IsTrue(
-              FindLast, StrSubstNo(EntryDoesNotExistErr, TableCaption, GetFilters));
+              FindLast, StrSubstNo(EntryDoesNotExistErr, TableCaption(), GetFilters));
             CustPostingGroup.Get(CustLedgEntry."Customer Posting Group");
             VerifyGLEntry(
               DocType, DocNo, CustPostingGroup."Receivables Account", "Amount (LCY)");

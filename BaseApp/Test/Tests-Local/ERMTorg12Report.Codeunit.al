@@ -400,7 +400,7 @@ codeunit 144702 "ERM Torg-12 Report"
         Option: Option Capitalized,Literal;
     begin
         with Employee do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Employee);
             "First Name" :=
               CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("First Name"), Option::Literal), 1, MaxStrLen("First Name"));
@@ -408,7 +408,7 @@ codeunit 144702 "ERM Torg-12 Report"
               CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Last Name"), Option::Literal), 1, MaxStrLen("Last Name"));
             "Middle Name" :=
               CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Middle Name"), Option::Literal), 1, MaxStrLen("Middle Name"));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -418,9 +418,9 @@ codeunit 144702 "ERM Torg-12 Report"
         Employee: Record Employee;
     begin
         CreateSimpleEmployee(Employee);
-        EmployeeFullName := Employee.GetFullName;
+        EmployeeFullName := Employee.GetFullName();
         with DocSignature do begin
-            Init;
+            Init();
             "Table ID" := DATABASE::"Sales Header";
             "Document Type" := 1;
             "Document No." := DocumentNo;
@@ -428,7 +428,7 @@ codeunit 144702 "ERM Torg-12 Report"
             "Employee Type" := EmployeeType;
             "Employee Job Title" := Employee.GetJobTitleName;
             "Employee Name" := EmployeeFullName;
-            Insert;
+            Insert();
         end;
     end;
 }

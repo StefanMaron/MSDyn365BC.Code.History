@@ -16,7 +16,7 @@ report 99000783 "Work Center Load"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompantName; COMPANYPROPERTY.DisplayName)
+            column(CompantName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(WorkCntrGroupTblCaptFilt; TableCaption + ':' + WorkCntrGroupFilter)
@@ -201,7 +201,7 @@ report 99000783 "Work Center Load"
         trigger OnInit()
         begin
             if StartingDate = 0D then
-                StartingDate := WorkDate;
+                StartingDate := WorkDate();
             if Format(PeriodLength) = '' then
                 Evaluate(PeriodLength, '<1W>');
             if NoOfPeriods = 0 then
@@ -215,17 +215,17 @@ report 99000783 "Work Center Load"
 
     trigger OnPreReport()
     begin
-        WorkCntrGroupFilter := "Work Center Group".GetFilters;
-        WorkCntrFilter := "Work Center".GetFilters;
+        WorkCntrGroupFilter := "Work Center Group".GetFilters();
+        WorkCntrFilter := "Work Center".GetFilters();
     end;
 
     var
+        PeriodLength: DateFormula;
         WorkCntrGroupFilter: Text;
         WorkCntrFilter: Text;
         StartingDate: Date;
         PeriodStartingDate: Date;
         PeriodEndingDate: Date;
-        PeriodLength: DateFormula;
         NoOfPeriods: Integer;
         i: Integer;
         CapacityAvailable: Decimal;

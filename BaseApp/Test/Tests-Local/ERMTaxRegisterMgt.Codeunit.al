@@ -29,8 +29,8 @@ codeunit 144517 "ERM Tax Register Mgt."
         TaxRegMgt.FindDate('=', ActualCalendarPeriod, PeriodType::Quarter, AmountType::"Tax Period");
         // Find period start and period end.
         ExpectedCalendarPeriod."Period Type" := ExpectedCalendarPeriod."Period Type"::Quarter;
-        ExpectedCalendarPeriod."Period Start" := CalcDate('<-CQ>', WorkDate);
-        ExpectedCalendarPeriod.Find;
+        ExpectedCalendarPeriod."Period Start" := CalcDate('<-CQ>', WorkDate());
+        ExpectedCalendarPeriod.Find();
         // Calculate difference for period start.
         ExpectedCalendarPeriod."Period Start" := CalcDate('<-CY>', ExpectedCalendarPeriod."Period Start");
         VerifyStartEndDates(ExpectedCalendarPeriod, ActualCalendarPeriod);
@@ -53,11 +53,11 @@ codeunit 144517 "ERM Tax Register Mgt."
         Assert.AreEqual(
           CalcDate('<-1D>', StartDate),
           TaxRegSection."Absence GL Entries Date",
-          StrSubstNo(WrongFieldValueErr, TaxRegSection.FieldCaption("Absence GL Entries Date"), TaxRegSection.TableCaption));
+          StrSubstNo(WrongFieldValueErr, TaxRegSection.FieldCaption("Absence GL Entries Date"), TaxRegSection.TableCaption()));
         Assert.AreEqual(
           EndDate,
           TaxRegSection."Last GL Entries Date",
-          StrSubstNo(WrongFieldValueErr, TaxRegSection.FieldCaption("Last GL Entries Date"), TaxRegSection.TableCaption));
+          StrSubstNo(WrongFieldValueErr, TaxRegSection.FieldCaption("Last GL Entries Date"), TaxRegSection.TableCaption()));
     end;
 
     [Test]
@@ -77,11 +77,11 @@ codeunit 144517 "ERM Tax Register Mgt."
         Assert.AreEqual(
           CalcDate('<-1D>', StartDate),
           TaxRegSection."Absence CV Entries Date",
-          StrSubstNo(WrongFieldValueErr, TaxRegSection.FieldCaption("Absence CV Entries Date"), TaxRegSection.TableCaption));
+          StrSubstNo(WrongFieldValueErr, TaxRegSection.FieldCaption("Absence CV Entries Date"), TaxRegSection.TableCaption()));
         Assert.AreEqual(
           EndDate,
           TaxRegSection."Last CV Entries Date",
-          StrSubstNo(WrongFieldValueErr, TaxRegSection.FieldCaption("Last CV Entries Date"), TaxRegSection.TableCaption));
+          StrSubstNo(WrongFieldValueErr, TaxRegSection.FieldCaption("Last CV Entries Date"), TaxRegSection.TableCaption()));
     end;
 
     [Test]
@@ -101,11 +101,11 @@ codeunit 144517 "ERM Tax Register Mgt."
         Assert.AreEqual(
           CalcDate('<-1D>', StartDate),
           TaxRegSection."Absence Item Entries Date",
-          StrSubstNo(WrongFieldValueErr, TaxRegSection.FieldCaption("Absence Item Entries Date"), TaxRegSection.TableCaption));
+          StrSubstNo(WrongFieldValueErr, TaxRegSection.FieldCaption("Absence Item Entries Date"), TaxRegSection.TableCaption()));
         Assert.AreEqual(
           EndDate,
           TaxRegSection."Last Item Entries Date",
-          StrSubstNo(WrongFieldValueErr, TaxRegSection.FieldCaption("Last Item Entries Date"), TaxRegSection.TableCaption));
+          StrSubstNo(WrongFieldValueErr, TaxRegSection.FieldCaption("Last Item Entries Date"), TaxRegSection.TableCaption()));
     end;
 
     [Test]
@@ -125,11 +125,11 @@ codeunit 144517 "ERM Tax Register Mgt."
         Assert.AreEqual(
           CalcDate('<-1D>', StartDate),
           TaxRegSection."Absence FA Entries Date",
-          StrSubstNo(WrongFieldValueErr, TaxRegSection.FieldCaption("Absence FA Entries Date"), TaxRegSection.TableCaption));
+          StrSubstNo(WrongFieldValueErr, TaxRegSection.FieldCaption("Absence FA Entries Date"), TaxRegSection.TableCaption()));
         Assert.AreEqual(
           EndDate,
           TaxRegSection."Last FA Entries Date",
-          StrSubstNo(WrongFieldValueErr, TaxRegSection.FieldCaption("Last FA Entries Date"), TaxRegSection.TableCaption));
+          StrSubstNo(WrongFieldValueErr, TaxRegSection.FieldCaption("Last FA Entries Date"), TaxRegSection.TableCaption()));
     end;
 
     [Test]
@@ -149,11 +149,11 @@ codeunit 144517 "ERM Tax Register Mgt."
         Assert.AreEqual(
           CalcDate('<-1D>', StartDate),
           TaxRegSection."Absence FE Entries Date",
-          StrSubstNo(WrongFieldValueErr, TaxRegSection.FieldCaption("Absence FE Entries Date"), TaxRegSection.TableCaption));
+          StrSubstNo(WrongFieldValueErr, TaxRegSection.FieldCaption("Absence FE Entries Date"), TaxRegSection.TableCaption()));
         Assert.AreEqual(
           EndDate,
           TaxRegSection."Last FE Entries Date",
-          StrSubstNo(WrongFieldValueErr, TaxRegSection.FieldCaption("Last FE Entries Date"), TaxRegSection.TableCaption));
+          StrSubstNo(WrongFieldValueErr, TaxRegSection.FieldCaption("Last FE Entries Date"), TaxRegSection.TableCaption()));
     end;
 
     [Test]
@@ -270,7 +270,7 @@ codeunit 144517 "ERM Tax Register Mgt."
         InputText: Text;
     begin
         Initialize();
-        LibraryTaxAcc.FindCalendarPeriod(ExpectedCalendarPeriod, WorkDate);
+        LibraryTaxAcc.FindCalendarPeriod(ExpectedCalendarPeriod, WorkDate());
         InputText := LowerCase(ExpectedCalendarPeriod."Period Name") + ' ' + Format(Date2DMY(ExpectedCalendarPeriod."Period Start", 3));
         ActualCalendarPeriod."Period Type" := ActualCalendarPeriod."Period Type"::Month;
         TaxRegMgt.ParseCaptionPeriodAndName(InputText, ActualCalendarPeriod);
@@ -286,8 +286,8 @@ codeunit 144517 "ERM Tax Register Mgt."
         Periodical: Option Month,Quarter,Year;
     begin
         Initialize();
-        TaxRegMgt.InitTaxPeriod(ActualCalendarPeriod, Periodical::Quarter, WorkDate);
-        ExpectedCalendarPeriod.Get(ExpectedCalendarPeriod."Period Type"::Quarter, CalcDate('<-CQ>', WorkDate));
+        TaxRegMgt.InitTaxPeriod(ActualCalendarPeriod, Periodical::Quarter, WorkDate());
+        ExpectedCalendarPeriod.Get(ExpectedCalendarPeriod."Period Type"::Quarter, CalcDate('<-CQ>', WorkDate()));
         VerifyStartEndDates(ExpectedCalendarPeriod, ActualCalendarPeriod);
     end;
 
@@ -318,7 +318,7 @@ codeunit 144517 "ERM Tax Register Mgt."
     begin
         Initialize();
         InitTaxRegisterWithTemplate(TaxRegTemplate, CalendarPeriod, DATABASE::"Tax Register G/L Entry");
-        TaxRegTemplate.SetFilter("Date Filter", '%1..%2', WorkDate, WorkDate);
+        TaxRegTemplate.SetFilter("Date Filter", '%1..%2', WorkDate(), WorkDate());
         LibraryTaxAcc.CreateEntryNoAmountBuffer(EntryNoAmountBuffer, TaxRegTemplate."Line No.");
         TaxRegMgt.CreateAccumulate(TaxRegTemplate, EntryNoAmountBuffer);
         TaxRegAccum.SetRange("Section Code", TaxRegTemplate."Section Code");
@@ -326,7 +326,7 @@ codeunit 144517 "ERM Tax Register Mgt."
         TaxRegAccum.CalcSums(Amount);
         Assert.AreEqual(
           EntryNoAmountBuffer.Amount, TaxRegAccum.Amount,
-          StrSubstNo(WrongFieldValueErr, TaxRegAccum.FieldCaption(Amount), TaxRegAccum.TableCaption));
+          StrSubstNo(WrongFieldValueErr, TaxRegAccum.FieldCaption(Amount), TaxRegAccum.TableCaption()));
     end;
 
     local procedure Initialize()
@@ -337,8 +337,8 @@ codeunit 144517 "ERM Tax Register Mgt."
     local procedure InitTaxRegisterAndDates(TableID: Integer; var SectionCode: Code[10]; var StartDate: Date; var EndDate: Date)
     begin
         SectionCode :=
-          CreateTaxRegisterWithAccumulation(TableID, WorkDate);
-        StartDate := WorkDate;
+          CreateTaxRegisterWithAccumulation(TableID, WorkDate());
+        StartDate := WorkDate();
         EndDate := CalcDate('<1M>', StartDate);
     end;
 
@@ -346,9 +346,9 @@ codeunit 144517 "ERM Tax Register Mgt."
     var
         TaxRegister: Record "Tax Register";
     begin
-        LibraryTaxAcc.CreateTaxReg(TaxRegister, CreateTaxRegSection(WorkDate), TableID, TaxRegister."Storing Method"::Calculation);
+        LibraryTaxAcc.CreateTaxReg(TaxRegister, CreateTaxRegSection(WorkDate()), TableID, TaxRegister."Storing Method"::Calculation);
         LibraryTaxAcc.CreateTaxRegTemplate(TaxRegTemplate, TaxRegister."Section Code", TaxRegister."No.");
-        LibraryTaxAcc.FindCalendarPeriod(CalendarPeriod, WorkDate);
+        LibraryTaxAcc.FindCalendarPeriod(CalendarPeriod, WorkDate());
     end;
 
     local procedure CreateTaxRegisterWithAccumulation(TableID: Integer; AccumDate: Date): Code[10]
@@ -361,12 +361,12 @@ codeunit 144517 "ERM Tax Register Mgt."
           TaxRegister, CreateTaxRegSection(AccumDate), TableID, TaxRegister."Storing Method"::Calculation);
 
         with TaxRegAccum do begin
-            Init;
+            Init();
             RecRef.GetTable(TaxRegAccum);
             "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
             "Section Code" := TaxRegister."Section Code";
             "Starting Date" := AccumDate;
-            Insert;
+            Insert();
         end;
 
         exit(TaxRegister."Section Code");
@@ -377,10 +377,10 @@ codeunit 144517 "ERM Tax Register Mgt."
         TaxRegSection: Record "Tax Register Section";
     begin
         with TaxRegSection do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateGUID();
             "Starting Date" := CalcDate('<-1M>', StartingDate);
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -390,11 +390,11 @@ codeunit 144517 "ERM Tax Register Mgt."
         Assert.AreEqual(
           ExpectedCalendarPeriod."Period Start",
           ActualCalendarPeriod."Period Start",
-          StrSubstNo(WrongFieldValueErr, ActualCalendarPeriod.FieldCaption("Period Start"), ActualCalendarPeriod.TableCaption));
+          StrSubstNo(WrongFieldValueErr, ActualCalendarPeriod.FieldCaption("Period Start"), ActualCalendarPeriod.TableCaption()));
         Assert.AreEqual(
           ExpectedCalendarPeriod."Period End",
           ClosingDate(ActualCalendarPeriod."Period End"),
-          StrSubstNo(WrongFieldValueErr, ActualCalendarPeriod.FieldCaption("Period End"), ActualCalendarPeriod.TableCaption));
+          StrSubstNo(WrongFieldValueErr, ActualCalendarPeriod.FieldCaption("Period End"), ActualCalendarPeriod.TableCaption()));
     end;
 
     [ConfirmHandler]

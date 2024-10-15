@@ -294,7 +294,7 @@ codeunit 144100 "ERM G/L Corr. Analysis View"
         PeriodInitialized := true;
         DimOption := DimOption::Period;
         PeriodType := PeriodType::Month;
-        PeriodStart := CalcDate('<-CM>', WorkDate);
+        PeriodStart := CalcDate('<-CM>', WorkDate());
         PeriodEnd := CalcDate('<+1Y-1D>', PeriodStart);
 
         DateFilter := '';
@@ -348,7 +348,7 @@ codeunit 144100 "ERM G/L Corr. Analysis View"
     local procedure CreateAnalysisView(var GLCorrAnalysisView: Record "G/L Corr. Analysis View")
     begin
         with GLCorrAnalysisView do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateGUID();
             Insert(true);
         end;
@@ -491,7 +491,7 @@ codeunit 144100 "ERM G/L Corr. Analysis View"
     begin
         CreateGLCorrView(GLCorrAnalysisView);
         CODEUNIT.Run(CODEUNIT::"Update G/L Corr. Analysis View", GLCorrAnalysisView);
-        GLCorrAnalysisView.Find;
+        GLCorrAnalysisView.Find();
     end;
 
     local procedure CreateGLCorrView(var GLCorrAnalysisView: Record "G/L Corr. Analysis View")

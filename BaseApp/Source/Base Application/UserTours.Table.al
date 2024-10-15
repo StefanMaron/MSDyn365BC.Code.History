@@ -45,7 +45,7 @@ table 1314 "User Tours"
         if not Get(UserId, TourID) then
             exit(Status::None);
 
-        if Version = GetVersion then
+        if Version = GetVersion() then
             exit(Status);
 
         exit(Status::Expired);
@@ -54,15 +54,15 @@ table 1314 "User Tours"
     local procedure SetStatus(TourID: Integer; NewStatus: Option)
     begin
         if not Get(UserId, TourID) then begin
-            Init;
+            Init();
             "User ID" := UserId;
             "Tour ID" := TourID;
-            Insert;
+            Insert();
         end;
 
         Status := NewStatus;
-        Version := CopyStr(GetVersion, 1, MaxStrLen(Version));
-        Modify;
+        Version := CopyStr(GetVersion(), 1, MaxStrLen(Version));
+        Modify();
     end;
 
     procedure AlreadyCompleted(TourID: Integer): Boolean
@@ -79,7 +79,7 @@ table 1314 "User Tours"
     var
         ApplicationSystemConstants: Codeunit "Application System Constants";
     begin
-        exit(StrSubstNo('%1 (%2)', ApplicationSystemConstants.ApplicationVersion, ApplicationSystemConstants.ApplicationBuild));
+        exit(StrSubstNo('%1 (%2)', ApplicationSystemConstants.ApplicationVersion(), ApplicationSystemConstants.ApplicationBuild()));
     end;
 }
 

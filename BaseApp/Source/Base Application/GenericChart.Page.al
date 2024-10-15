@@ -39,12 +39,12 @@ page 1390 "Generic Chart"
                 begin
                     IsChartAddInReady := true;
                     ChartManagement.AddinReady(SelectedChartDefinition, Rec);
-                    InitializeSelectedChart;
+                    InitializeSelectedChart();
                 end;
 
                 trigger Refresh()
                 begin
-                    InitializeSelectedChart;
+                    InitializeSelectedChart();
                 end;
             }
         }
@@ -64,7 +64,7 @@ page 1390 "Generic Chart"
                 trigger OnAction()
                 begin
                     ChartManagement.SelectChart(Rec, SelectedChartDefinition);
-                    InitializeSelectedChart;
+                    InitializeSelectedChart();
                 end;
             }
             action("Previous Chart")
@@ -80,7 +80,7 @@ page 1390 "Generic Chart"
                     if SelectedChartDefinition.Next(-1) = 0 then
                         if not SelectedChartDefinition.FindLast() then
                             exit;
-                    InitializeSelectedChart;
+                    InitializeSelectedChart();
                 end;
             }
             action("Next Chart")
@@ -96,7 +96,7 @@ page 1390 "Generic Chart"
                     if SelectedChartDefinition.Next() = 0 then
                         if not SelectedChartDefinition.FindFirst() then
                             exit;
-                    InitializeSelectedChart;
+                    InitializeSelectedChart();
                 end;
             }
             group(PeriodLength)
@@ -231,7 +231,7 @@ page 1390 "Generic Chart"
         ChartManagement.UpdateChart(SelectedChartDefinition, Rec, Period::" ");
         PreviousNextActionEnabled := ChartManagement.UpdateNextPrevious(SelectedChartDefinition);
         ChartManagement.UpdateStatusText(SelectedChartDefinition, Rec, StatusText);
-        UpdateChart;
+        UpdateChart();
     end;
 
     local procedure SetPeriodAndUpdateChart(PeriodLength: Option)
@@ -239,7 +239,7 @@ page 1390 "Generic Chart"
         ChartManagement.SetPeriodLength(SelectedChartDefinition, Rec, PeriodLength, false);
         ChartManagement.UpdateChart(SelectedChartDefinition, Rec, Period::" ");
         ChartManagement.UpdateStatusText(SelectedChartDefinition, Rec, StatusText);
-        UpdateChart;
+        UpdateChart();
     end;
 
     local procedure UpdateChart()

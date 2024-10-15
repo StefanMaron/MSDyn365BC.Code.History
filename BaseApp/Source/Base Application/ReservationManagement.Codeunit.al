@@ -30,7 +30,7 @@
         LateBindingMgt: Codeunit "Late Binding Management";
         SourceRecRef: RecordRef;
         RefOrderType: Option;
-        PlanningLineOrigin: Option;
+        PlanningLineOrigin: Enum "Planning Line Origin Type";
         Positive: Boolean;
         CurrentBindingIsSet: Boolean;
         HandleItemTracking: Boolean;
@@ -100,7 +100,7 @@
 
     procedure SetReservSource(NewSourceRecRef: RecordRef; Direction: Enum "Transfer Direction")
     begin
-        ClearAll;
+        ClearAll();
         TempTrackingSpecification.DeleteAll();
 
         SourceRecRef := NewSourceRecRef;
@@ -297,7 +297,7 @@
 
     procedure SetExternalDocumentResEntry(ReservEntry: Record "Reservation Entry"; UpdReservation: Boolean)
     begin
-        ClearAll;
+        ClearAll();
         TempTrackingSpecification.DeleteAll();
         CalcReservEntry := ReservEntry;
         UpdateReservation(UpdReservation);
@@ -401,7 +401,7 @@
 
                     TempEntrySummary."Table ID" := DATABASE::"Item Ledger Entry";
                     TempEntrySummary."Summary Type" :=
-                      CopyStr(CalcItemLedgEntry.TableCaption, 1, MaxStrLen(TempEntrySummary."Summary Type"));
+                      CopyStr(CalcItemLedgEntry.TableCaption(), 1, MaxStrLen(TempEntrySummary."Summary Type"));
                     TempEntrySummary."Total Quantity" := CalcSumValue;
                     TempEntrySummary."Total Available Quantity" :=
                       TempEntrySummary."Total Quantity" - TempEntrySummary."Total Reserved Quantity";
@@ -560,7 +560,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeAutoReserveOneLine(IsHandled, AvailabilityDate);
+        OnBeforeAutoReserveOneLine(IsHandled, AvailabilityDate, CalcReservEntry);
         if IsHandled then
             exit;
 
@@ -716,7 +716,7 @@
                             QtyThisLine := 0
                         end else begin
                             QtyThisLineBase := TotalAvailQty + QtyOnOutBound;
-                            QtyThisLine := Round(QtyThisLineBase, UOMMgt.QtyRndPrecision);
+                            QtyThisLine := Round(QtyThisLineBase, UOMMgt.QtyRndPrecision());
                         end;
 
                     OnAfterCalcReservation(CalcReservEntry, CalcItemLedgEntry, ReservSummEntryNo, QtyThisLine, QtyThisLineBase, TotalAvailQty);
@@ -829,7 +829,7 @@
                     QtyThisLineBase := 0;
                 end;
 
-                SetQtyToReserveDownToTrackedQuantity(CalcReservEntry, SalesLine.RowID1, QtyThisLine, QtyThisLineBase);
+                SetQtyToReserveDownToTrackedQuantity(CalcReservEntry, SalesLine.RowID1(), QtyThisLine, QtyThisLineBase);
 
                 CallTrackingSpecification.InitTrackingSpecification(
                   DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", '', 0, SalesLine."Line No.",
@@ -870,7 +870,7 @@
                     QtyThisLineBase := 0;
                 end;
 
-                SetQtyToReserveDownToTrackedQuantity(CalcReservEntry, ProdOrderLine.RowID1, QtyThisLine, QtyThisLineBase);
+                SetQtyToReserveDownToTrackedQuantity(CalcReservEntry, ProdOrderLine.RowID1(), QtyThisLine, QtyThisLineBase);
 
                 CallTrackingSpecification.InitTrackingSpecification(
                     DATABASE::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", '', ProdOrderLine."Line No.", 0,
@@ -911,7 +911,7 @@
                     QtyThisLineBase := 0;
                 end;
 
-                SetQtyToReserveDownToTrackedQuantity(CalcReservEntry, ProdOrderComp.RowID1, QtyThisLine, QtyThisLineBase);
+                SetQtyToReserveDownToTrackedQuantity(CalcReservEntry, ProdOrderComp.RowID1(), QtyThisLine, QtyThisLineBase);
 
                 CallTrackingSpecification.InitTrackingSpecification(
                     DATABASE::"Prod. Order Component", ProdOrderComp.Status.AsInteger(), ProdOrderComp."Prod. Order No.", '',
@@ -953,7 +953,7 @@
                     QtyThisLineBase := 0;
                 end;
 
-                SetQtyToReserveDownToTrackedQuantity(CalcReservEntry, AssemblyHeader.RowID1, QtyThisLine, QtyThisLineBase);
+                SetQtyToReserveDownToTrackedQuantity(CalcReservEntry, AssemblyHeader.RowID1(), QtyThisLine, QtyThisLineBase);
 
                 CallTrackingSpecification.InitTrackingSpecification(
                   DATABASE::"Assembly Header", AssemblyHeader."Document Type".AsInteger(), AssemblyHeader."No.", '', 0, 0,
@@ -994,7 +994,7 @@
                     QtyThisLineBase := 0;
                 end;
 
-                SetQtyToReserveDownToTrackedQuantity(CalcReservEntry, AssemblyLine.RowID1, QtyThisLine, QtyThisLineBase);
+                SetQtyToReserveDownToTrackedQuantity(CalcReservEntry, AssemblyLine.RowID1(), QtyThisLine, QtyThisLineBase);
 
                 CallTrackingSpecification.InitTrackingSpecification(
                   DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", '', 0, AssemblyLine."Line No.",
@@ -1103,7 +1103,7 @@
                     QtyThisLineBase := 0;
                 end;
 
-                SetQtyToReserveDownToTrackedQuantity(CalcReservEntry, ServiceLine.RowID1, QtyThisLine, QtyThisLineBase);
+                SetQtyToReserveDownToTrackedQuantity(CalcReservEntry, ServiceLine.RowID1(), QtyThisLine, QtyThisLineBase);
 
                 CallTrackingSpecification.InitTrackingSpecification(
                   DATABASE::"Service Line", ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.", '', 0, ServiceLine."Line No.",
@@ -1202,7 +1202,7 @@
                             QtyThisLineBase := RemainingQtyToReserveBase;
                         end else begin
                             QtyThisLineBase := QtyThisLineBase - ReservQty;
-                            QtyThisLine := Round(RemainingQtyToReserve / RemainingQtyToReserveBase * QtyThisLineBase, UOMMgt.QtyRndPrecision);
+                            QtyThisLine := Round(RemainingQtyToReserve / RemainingQtyToReserveBase * QtyThisLineBase, UOMMgt.QtyRndPrecision());
                         end;
 
                         CopySign(RemainingQtyToReserve, QtyThisLine);
@@ -1231,7 +1231,7 @@
                 QtyThisLineBase := RemainingQtyToReserveBase;
             end else begin
                 QtyThisLineBase := QtyThisLineBase - ReservQty;
-                QtyThisLine := Round(RemainingQtyToReserve / RemainingQtyToReserveBase * QtyThisLineBase, UOMMgt.QtyRndPrecision);
+                QtyThisLine := Round(RemainingQtyToReserve / RemainingQtyToReserveBase * QtyThisLineBase, UOMMgt.QtyRndPrecision());
             end;
             CopySign(RemainingQtyToReserveBase, QtyThisLineBase);
             CopySign(RemainingQtyToReserve, QtyThisLine);
@@ -1277,7 +1277,7 @@
         then begin
             CalcReservEntry4 := CalcReservEntry;
             CalcReservEntry4."Source Subtype" := 1;
-            CalcReservEntry4.SetPointerFilter;
+            CalcReservEntry4.SetPointerFilter();
             DeleteReservEntries(DeleteAll, DownToQuantity, CalcReservEntry4);
         end;
 
@@ -1341,7 +1341,7 @@
 
         GetItemSetup(ReservEntry);
         ReservEntry.TestField("Source Type");
-        ReservEntry.Lock;
+        ReservEntry.Lock();
         SignFactor := CreateReservEntry.SignFactor(ReservEntry);
         QtyTracked := QuantityTracked(ReservEntry);
         CurrentBinding := ReservEntry.Binding;
@@ -1350,12 +1350,12 @@
         // Item Tracking:
         if ItemTrackingCode.IsSpecific() or CurrentItemTrackingSetup.TrackingExists() then begin
             ReservEntry.SetFilter("Item Tracking", '<>%1', ReservEntry."Item Tracking"::None);
-            HandleItemTracking2 := not ReservEntry.IsEmpty;
+            HandleItemTracking2 := not ReservEntry.IsEmpty();
             ReservEntry.SetRange("Item Tracking");
             OnDeleteReservEntriesOnAfterReservEntrySetFilters(ReservEntry, ItemTrackingHandling);
             case ItemTrackingHandling of
                 ItemTrackingHandling::None:
-                    ReservEntry.SetTrackingFilterBlank;
+                    ReservEntry.SetTrackingFilterBlank();
                 ItemTrackingHandling::Match:
                     begin
                         if CurrentItemTrackingSetup.TrackingExists() then begin
@@ -1380,42 +1380,42 @@
 
         for ReservStatus := ReservStatus::Prospect downto ReservStatus::Reservation do begin
             ReservEntry.SetRange("Reservation Status", ReservStatus);
-            if ReservEntry.FindSet and (QtyToRelease <> 0) then
+            if ReservEntry.FindSet() and (QtyToRelease <> 0) then
                 case ReservStatus of
                     "Reservation Status"::Prospect:
-                    repeat
-                        if (Abs(ReservEntry."Quantity (Base)") <= Abs(QtyToRelease)) or DeleteAll then begin
-                            ReservEntry.Delete();
-                            SaveTrackingSpecification(ReservEntry, ReservEntry."Quantity (Base)");
-                            QtyToRelease := QtyToRelease - ReservEntry."Quantity (Base)";
-                        end else begin
-                            ReservEntry.Validate("Quantity (Base)", ReservEntry."Quantity (Base)" - QtyToRelease);
-                            ReservEntry.Modify();
-                            SaveTrackingSpecification(ReservEntry, QtyToRelease);
-                            QtyToRelease := 0;
-                        end;
-                    until (ReservEntry.Next() = 0) or ((not DeleteAll) and (QtyToRelease = 0));
-                    "Reservation Status"::Surplus:
-                    repeat
-                        if CalcReservEntry4.Get(ReservEntry."Entry No.", not ReservEntry.Positive) then // Find related entry
-                            Error(Text007);
-                        if (Abs(ReservEntry."Quantity (Base)") <= Abs(QtyToRelease)) or DeleteAll then begin
-                            ReservEngineMgt.CloseReservEntry(ReservEntry, false, DeleteAll);
-                            SaveTrackingSpecification(ReservEntry, ReservEntry."Quantity (Base)");
-                            QtyToRelease := QtyToRelease - ReservEntry."Quantity (Base)";
-                            if not DeleteAll and CalcReservEntry4.TrackingExists then begin
-                                CalcReservEntry4."Reservation Status" := CalcReservEntry4."Reservation Status"::Surplus;
-                                CalcReservEntry4.Insert();
+                        repeat
+                            if (Abs(ReservEntry."Quantity (Base)") <= Abs(QtyToRelease)) or DeleteAll then begin
+                                ReservEntry.Delete();
+                                SaveTrackingSpecification(ReservEntry, ReservEntry."Quantity (Base)");
+                                QtyToRelease := QtyToRelease - ReservEntry."Quantity (Base)";
+                            end else begin
+                                ReservEntry.Validate("Quantity (Base)", ReservEntry."Quantity (Base)" - QtyToRelease);
+                                ReservEntry.Modify();
+                                SaveTrackingSpecification(ReservEntry, QtyToRelease);
+                                QtyToRelease := 0;
                             end;
-                            ModifyActionMessage(ReservEntry."Entry No.", 0, true); // Delete action messages
-                        end else begin
-                            ReservEntry.Validate("Quantity (Base)", ReservEntry."Quantity (Base)" - QtyToRelease);
-                            ReservEntry.Modify();
-                            SaveTrackingSpecification(ReservEntry, QtyToRelease);
-                            ModifyActionMessage(ReservEntry."Entry No.", QtyToRelease, false); // Modify action messages
-                            QtyToRelease := 0;
-                        end;
-                    until (ReservEntry.Next() = 0) or ((not DeleteAll) and (QtyToRelease = 0));
+                        until (ReservEntry.Next() = 0) or ((not DeleteAll) and (QtyToRelease = 0));
+                    "Reservation Status"::Surplus:
+                        repeat
+                            if CalcReservEntry4.Get(ReservEntry."Entry No.", not ReservEntry.Positive) then // Find related entry
+                                Error(Text007);
+                            if (Abs(ReservEntry."Quantity (Base)") <= Abs(QtyToRelease)) or DeleteAll then begin
+                                ReservEngineMgt.CloseReservEntry(ReservEntry, false, DeleteAll);
+                                SaveTrackingSpecification(ReservEntry, ReservEntry."Quantity (Base)");
+                                QtyToRelease := QtyToRelease - ReservEntry."Quantity (Base)";
+                                if not DeleteAll and CalcReservEntry4.TrackingExists() then begin
+                                    CalcReservEntry4."Reservation Status" := CalcReservEntry4."Reservation Status"::Surplus;
+                                    CalcReservEntry4.Insert();
+                                end;
+                                ModifyActionMessage(ReservEntry."Entry No.", 0, true); // Delete action messages
+                            end else begin
+                                ReservEntry.Validate("Quantity (Base)", ReservEntry."Quantity (Base)" - QtyToRelease);
+                                ReservEntry.Modify();
+                                SaveTrackingSpecification(ReservEntry, QtyToRelease);
+                                ModifyActionMessage(ReservEntry."Entry No.", QtyToRelease, false); // Modify action messages
+                                QtyToRelease := 0;
+                            end;
+                        until (ReservEntry.Next() = 0) or ((not DeleteAll) and (QtyToRelease = 0));
                     "Reservation Status"::Tracking,
                     "Reservation Status"::Reservation:
                         for Release := Release::"Non-Inventory" to Release::Inventory do begin
@@ -1585,15 +1585,16 @@
     begin
         CalcReservEntry.TestField("Source Type");
         ReservEntry2 := CalcReservEntry;
-        ReservEntry2.SetPointerFilter;
+        ReservEntry2.SetPointerFilter();
         ReservEntry2.SetRange("Reservation Status", ReservEntry2."Reservation Status"::Surplus);
         // Item Tracking
         if ItemTrackingHandling = ItemTrackingHandling::None then
-            ReservEntry2.SetTrackingFilterBlank;
+            ReservEntry2.SetTrackingFilterBlank();
         OnClearSurplusOnAfterReservEntry2SetFilters(ReservEntry2, ItemTrackingHandling);
 
         if Item."Order Tracking Policy" = Item."Order Tracking Policy"::"Tracking & Action Msg." then begin
-            ReservEntry2.Lock;
+            ReservEntry2.Lock();
+            ReservEntry2.SetLoadFields("Entry No.");
             if not ReservEntry2.FindSet() then
                 exit;
             ActionMessageEntry.Reset();
@@ -1632,7 +1633,7 @@
         QtyTracked: Decimal;
     begin
         ReservEntry2 := ReservEntry;
-        ReservEntry2.SetPointerFilter;
+        ReservEntry2.SetPointerFilter();
         ReservEntry2.SetTrackingFilterFromReservEntry(ReservEntry);
         ReservEntry2.SetRange("Reservation Status",
           ReservEntry2."Reservation Status"::Tracking, ReservEntry2."Reservation Status"::Prospect);
@@ -1671,7 +1672,7 @@
         if Item."Order Tracking Policy" = Item."Order Tracking Policy"::None then
             exit;
 
-        CalcReservEntry.Lock;
+        CalcReservEntry.Lock();
 
         QtyToTrack := CreateReservEntry.SignFactor(CalcReservEntry) * TotalQty - QuantityTracked(CalcReservEntry);
 
@@ -1712,7 +1713,7 @@
         if QtyToTrack = 0 then
             exit;
 
-        ReservEntry.Lock;
+        ReservEntry.Lock();
         SurplusEntry.SetCurrentKey(
           "Item No.", "Variant Code", "Location Code", "Reservation Status",
           "Shipment Date", "Expected Receipt Date", "Serial No.", "Lot No.");
@@ -1823,7 +1824,7 @@
 
         TotalQuantity := SourceQuantity(ReservEntry, false);
         ReservEntry2 := ReservEntry;
-        ReservEntry2.SetPointerFilter;
+        ReservEntry2.SetPointerFilter();
         ItemTrackingHandling := ItemTrackingHandling::Match;
         DeleteReservEntries(false, TotalQuantity - (ReservEntry."Quantity (Base)" * CreateReservEntry.SignFactor(ReservEntry)),
           ReservEntry2);
@@ -1834,7 +1835,7 @@
         // Used when creating reservations.
         if ItemTrackingHandling = ItemTrackingHandling::None then
             exit;
-        if not ReservEntry.TrackingExists then
+        if not ReservEntry.TrackingExists() then
             exit;
         TempTrackingSpecification.SetTrackingFilterFromReservEntry(ReservEntry);
         if TempTrackingSpecification.FindSet() then begin
@@ -1998,14 +1999,14 @@
                 SurplusEntry.Binding::"Order-to-Order":
                     begin
                         ReservEntry3 := SurplusEntry;
-                        ReservEntry3.SetPointerFilter;
+                        ReservEntry3.SetPointerFilter();
                         ReservEntry3.SetRange(
                           "Reservation Status", ReservEntry3."Reservation Status"::Reservation, ReservEntry3."Reservation Status"::Tracking);
                         ReservEntry3.SetRange(Binding, ReservEntry3.Binding::"Order-to-Order");
                         if ReservEntry3.FindFirst() then begin
                             ReservEntry3.Get(ReservEntry3."Entry No.", not ReservEntry3.Positive);
                             ReservEntry := ReservEntry3;
-                            ReservEntry.SetRecFilter;
+                            ReservEntry.SetRecFilter();
                             Found := true;
                         end else begin
                             Found := false;
@@ -2016,7 +2017,9 @@
 
             ActionMessageEntry.Quantity := -(SurplusEntry."Quantity (Base)" + SurplusEntry."Action Message Adjustment");
 
-            if not FreeBinding then
+            if not FreeBinding then begin
+                ReservEntry.SetLoadFields(
+                    "Source Type", "Source Subtype", "Source ID", "Source Batch Name", "Source Prod. Order Line", "Source Ref. No.");
                 if ReservEntry.Find('+') then begin
                     if AllDeletedEntry."Entry No." > 0 then // The supply record has been deleted and cannot be reused.
                         repeat
@@ -2027,6 +2030,7 @@
                     else
                         Found := true;
                 end;
+            end;
 
             if Found then begin
                 ActionMessageEntry.TransferFromReservEntry(ReservEntry);
@@ -2053,7 +2057,7 @@
             ActionMessageEntry."Reservation Entry" := SurplusEntry."Entry No.";
         end;
 
-        ReservEntry2.SetPointerFilter;
+        ReservEntry2.SetPointerFilter();
         ReservEntry2.SetRange(
           "Reservation Status", ReservEntry2."Reservation Status"::Reservation, ReservEntry2."Reservation Status"::Tracking);
 
@@ -2080,18 +2084,18 @@
                         ActionMessageEntry2."New Date" := FirstDate;
                         ActionMessageEntry2.Type := ActionMessageEntry.Type::Reschedule;
                         ActionMessageEntry2."Reservation Entry" := ReservEntry2."Entry No.";
-                        while not ActionMessageEntry2.Insert do
+                        while not ActionMessageEntry2.Insert() do
                             ActionMessageEntry2."Entry No." += 1;
                         ActionMessageEntry."Entry No." := ActionMessageEntry2."Entry No." + 1;
                     end;
                 end;
             end;
 
-        while not ActionMessageEntry.Insert do
+        while not ActionMessageEntry.Insert() do
             ActionMessageEntry."Entry No." += 1;
     end;
 
-    procedure ModifyActionMessage(RelatedToEntryNo: Integer; Quantity: Decimal; Delete: Boolean)
+    procedure ModifyActionMessage(RelatedToEntryNo: Integer; Quantity: Decimal; DoDelete: Boolean)
     var
         ActionMessageEntry: Record "Action Message Entry";
     begin
@@ -2099,7 +2103,7 @@
         ActionMessageEntry.SetCurrentKey("Reservation Entry");
         ActionMessageEntry.SetRange("Reservation Entry", RelatedToEntryNo);
 
-        if Delete then begin
+        if DoDelete then begin
             ActionMessageEntry.DeleteAll();
             exit;
         end;
@@ -2168,7 +2172,7 @@
                 exit;
 
         FilterReservEntry := CalcReservEntry2;
-        FilterReservEntry.SetPointerFilter;
+        FilterReservEntry.SetPointerFilter();
 
         if not FilterReservEntry.FindFirst() then
             exit;
@@ -2580,7 +2584,7 @@
     procedure CopyToReservEntry(EntryNo: Integer; VariantCode: Code[20]; LocationCode: Code[20]; SerialNo: Code[20]; LotNo: Code[20]; CDNo: Text[30]; QtyperUoM: Decimal)
     begin
         with CalcReservEntry3 do begin
-            Init;
+            Init();
             "Entry No." := EntryNo;
             "Variant Code" := VariantCode;
             "Location Code" := LocationCode;
@@ -2752,12 +2756,12 @@
                     end;
                 end;
             else begin
-                    RecRef.Open(TableID);
-                    FldRef := RecRef.FieldIndex(1);
-                    OnGetDocumentReservationDeleteQstOnElseCase(RecRef, FldRef, DocType, DocTypeCaption, IsHandled);
-                    if not IsHandled then
-                        exit(StrSubstNo(DeleteDocLineWithItemReservQst, SelectStr(DocType + 1, FldRef.OptionCaption), DocNo));
-                end;
+                RecRef.Open(TableID);
+                FldRef := RecRef.FieldIndex(1);
+                OnGetDocumentReservationDeleteQstOnElseCase(RecRef, FldRef, DocType, DocTypeCaption, IsHandled);
+                if not IsHandled then
+                    exit(StrSubstNo(DeleteDocLineWithItemReservQst, SelectStr(DocType + 1, FldRef.OptionCaption), DocNo));
+            end;
         end;
     end;
 
@@ -2920,7 +2924,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAutoReserveOneLine(var IsHandled: Boolean; var AvailabilityDate: Date)
+    local procedure OnBeforeAutoReserveOneLine(var IsHandled: Boolean; var AvailabilityDate: Date; var CalcReservEntry: Record "Reservation Entry")
     begin
     end;
 

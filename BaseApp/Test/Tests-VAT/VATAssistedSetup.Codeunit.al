@@ -687,7 +687,7 @@ codeunit 132531 "VAT Assisted Setup"
         repeat
             AssertBusGrpTemplateLine(VATAssistedSetupTemplates);
             AssertProdGrpTemplateLine(VATAssistedSetupTemplates);
-        until VATAssistedSetupTemplates.Next = 0;
+        until VATAssistedSetupTemplates.Next() = 0;
     end;
 
     local procedure AssertBusGrpTemplateLine(VATAssistedSetupTemplates: Record "VAT Assisted Setup Templates")
@@ -727,7 +727,7 @@ codeunit 132531 "VAT Assisted Setup"
                 VATClause.SetFilter(Description, VATSetupPostingGroups."VAT Clause Desc");
                 Assert.IsTrue(VATClause.FindFirst, 'Expected that there is vat clause')
             end;
-        until VATSetupPostingGroups.Next = 0;
+        until VATSetupPostingGroups.Next() = 0;
     end;
 
     local procedure AssertGenProdBusGrpAreCleared()

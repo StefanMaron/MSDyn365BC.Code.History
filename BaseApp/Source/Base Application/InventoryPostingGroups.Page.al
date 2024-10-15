@@ -23,27 +23,27 @@ page 112 "Inventory Posting Groups"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the inventory posting group.';
                 }
-                field("Purch. PD Charge FCY (Item)"; "Purch. PD Charge FCY (Item)")
+                field("Purch. PD Charge FCY (Item)"; Rec."Purch. PD Charge FCY (Item)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the purchase prepayment charge, in functional currency, for the item associated with the posting group.';
                 }
-                field("Purch. PD Charge Conv. (Item)"; "Purch. PD Charge Conv. (Item)")
+                field("Purch. PD Charge Conv. (Item)"; Rec."Purch. PD Charge Conv. (Item)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the purchase prepayment charge for the item associated with the posting group.';
                 }
-                field("Sales PD Charge FCY (Item)"; "Sales PD Charge FCY (Item)")
+                field("Sales PD Charge FCY (Item)"; Rec."Sales PD Charge FCY (Item)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sales prepayment charge, in functional currency, for the item associated with the posting group.';
                 }
-                field("Sales PD Charge Conv. (Item)"; "Sales PD Charge Conv. (Item)")
+                field("Sales PD Charge Conv. (Item)"; Rec."Sales PD Charge Conv. (Item)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sales prepayment charge for the item associated with the posting group.';
                 }
-                field("Sales Corr. Doc. Charge (Item)"; "Sales Corr. Doc. Charge (Item)")
+                field("Sales Corr. Doc. Charge (Item)"; Rec."Sales Corr. Doc. Charge (Item)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the item charge code that you want to use in in value entries to correct the original price of items in the corrective documents.';
@@ -74,11 +74,20 @@ page 112 "Inventory Posting Groups"
                 ApplicationArea = Basic, Suite;
                 Caption = '&Setup';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Inventory Posting Setup";
                 RunPageLink = "Invt. Posting Group Code" = FIELD(Code);
                 ToolTip = 'Specify the locations for the inventory posting group that you can link to general ledger accounts. Posting groups create links between application areas and the General Ledger application area.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Setup_Promoted"; "&Setup")
+                {
+                }
             }
         }
     }

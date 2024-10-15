@@ -145,7 +145,7 @@ table 1222 "Data Exch. Def"
 
     procedure InsertRec(NewCode: Code[20]; NewName: Text[100]; NewType: Enum "Data Exchange Definition Type"; ProcessingXMLport: Integer; HeaderCount: Integer; HeaderTag: Text[250]; FooterTag: Text[250])
     begin
-        Init;
+        Init();
         Validate(Code, NewCode);
         Validate(Name, NewName);
         Validate(Type, NewType);
@@ -153,12 +153,12 @@ table 1222 "Data Exch. Def"
         Validate("Header Lines", HeaderCount);
         Validate("Header Tag", HeaderTag);
         Validate("Footer Tag", FooterTag);
-        Insert;
+        Insert();
     end;
 
     procedure InsertRecForExport(NewCode: Code[20]; NewName: Text[100]; NewType: Option; ProcessingXMLport: Integer; FileType: Option)
     begin
-        Init;
+        Init();
         Validate(Code, NewCode);
         Validate(Name, NewName);
         "File Type" := FileType;
@@ -167,7 +167,7 @@ table 1222 "Data Exch. Def"
         Validate(Type, NewType);
 
         Validate("Reading/Writing XMLport", ProcessingXMLport);
-        Insert;
+        Insert();
     end;
 
     procedure ColumnSeparatorChar(): Text

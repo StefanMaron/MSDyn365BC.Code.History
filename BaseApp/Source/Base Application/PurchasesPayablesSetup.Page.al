@@ -16,146 +16,146 @@ page 460 "Purchases & Payables Setup"
             group(General)
             {
                 Caption = 'General';
-                field("Discount Posting"; "Discount Posting")
+                field("Discount Posting"; Rec."Discount Posting")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of purchase discounts to post separately. No Discounts: Discounts are not posted separately but instead will subtract the discount before posting. Invoice Discounts: The invoice discount and invoice amount are posted simultaneously, based on the Purch. Inv. Disc. Account field in the General Posting Setup window. Line Discounts: The line discount and the invoice amount will be posted simultaneously, based on Purch. Line Disc. Account field in the General Posting Setup window. All Discounts: The invoice and line discounts and the invoice amount will be posted simultaneously, based on the Purch. Inv. Disc. Account field and Purch. Line. Disc. Account fields in the General Posting Setup window.';
                 }
-                field("Receipt on Invoice"; "Receipt on Invoice")
+                field("Receipt on Invoice"; Rec."Receipt on Invoice")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies that a posted receipt and a posted invoice are automatically created when you post an invoice.';
                 }
-                field("Return Shipment on Credit Memo"; "Return Shipment on Credit Memo")
+                field("Return Shipment on Credit Memo"; Rec."Return Shipment on Credit Memo")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies that a posted return shipment and a posted purchase credit memo are automatically created when you post a credit memo.';
                 }
-                field("Invoice Rounding"; "Invoice Rounding")
+                field("Invoice Rounding"; Rec."Invoice Rounding")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if amounts are rounded for purchase invoices. Rounding is applied as specified in the Inv. Rounding Precision (LCY) field in the General Ledger Setup window. ';
                 }
-                field("Create Item from Item No."; "Create Item from Item No.")
+                field("Create Item from Item No."; Rec."Create Item from Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the system will suggest to create a new item when no item matches the number that you enter in the No. Field on purchase lines.';
                 }
-                field("Copy Vendor Name to Entries"; "Copy Vendor Name to Entries")
+                field("Copy Vendor Name to Entries"; Rec."Copy Vendor Name to Entries")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you want the name on vendor cards to be copied to vendor ledger entries during posting.';
                 }
-                field("Ext. Doc. No. Mandatory"; "Ext. Doc. No. Mandatory")
+                field("Ext. Doc. No. Mandatory"; Rec."Ext. Doc. No. Mandatory")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if it is mandatory to enter an external document number in the External Document No. field on a purchase header or the External Document No. field on a general journal line.';
                 }
-                field("Allow VAT Difference"; "Allow VAT Difference")
+                field("Allow VAT Difference"; Rec."Allow VAT Difference")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to allow the manual adjustment of VAT amounts in purchase documents.';
                 }
-                field("Calc. Inv. Discount"; "Calc. Inv. Discount")
+                field("Calc. Inv. Discount"; Rec."Calc. Inv. Discount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the invoice discount amount is automatically calculated with purchase documents. If this check box is selected, then the invoice discount amount is calculated automatically, based on purchase lines where the Allow Invoice Disc. field is selected.';
                 }
-                field("Calc. Inv. Disc. per VAT ID"; "Calc. Inv. Disc. per VAT ID")
+                field("Calc. Inv. Disc. per VAT ID"; Rec."Calc. Inv. Disc. per VAT ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the invoice discount is calculated according to the VAT identifier that is defined in the VAT posting setup. If you choose not to select this check box, the invoice discount will be calculated based on the invoice total.';
                 }
-                field("Appln. between Currencies"; "Appln. between Currencies")
+                field("Appln. between Currencies"; Rec."Appln. between Currencies")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies whether it is allowed to apply vendor payments in different currencies. None: All entries involved in one application must be in the same currency. EMU: You can apply entries in euro and one of the old national currencies (for EMU countries/regions) to one another. All: You can apply entries in different currencies to one another. The entries can be in any currency.';
                 }
-                field("Vendor Agreement Dim. Code"; "Vendor Agreement Dim. Code")
+                field("Vendor Agreement Dim. Code"; Rec."Vendor Agreement Dim. Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vendor agreement dimension Code.';
                 }
-                field("Synch. Agreement Dimension"; "Synch. Agreement Dimension")
+                field("Synch. Agreement Dimension"; Rec."Synch. Agreement Dimension")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to create a dimension value code equal to the agreement code after an agreement is created.';
                 }
-                field("Allow Alter Posting Groups"; "Allow Alter Posting Groups")
+                field("Allow Alter Posting Groups"; Rec."Allow Alter Posting Groups")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if an alternate posting group can be assigned.';
                 }
-                field("Copy Comments Blanket to Order"; "Copy Comments Blanket to Order")
+                field("Copy Comments Blanket to Order"; Rec."Copy Comments Blanket to Order")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies whether to copy comments from blanket purchase orders to purchase orders.';
                 }
-                field("Copy Comments Order to Invoice"; "Copy Comments Order to Invoice")
+                field("Copy Comments Order to Invoice"; Rec."Copy Comments Order to Invoice")
                 {
                     ApplicationArea = Comments;
                     Importance = Additional;
                     ToolTip = 'Specifies whether to copy comments from purchase orders to purchase invoices.';
                 }
-                field("Copy Comments Order to Receipt"; "Copy Comments Order to Receipt")
+                field("Copy Comments Order to Receipt"; Rec."Copy Comments Order to Receipt")
                 {
                     ApplicationArea = Comments;
                     Importance = Additional;
                     ToolTip = 'Specifies whether to copy comments from purchase orders to receipts.';
                 }
-                field("Copy Cmts Ret.Ord. to Cr. Memo"; "Copy Cmts Ret.Ord. to Cr. Memo")
+                field("Copy Cmts Ret.Ord. to Cr. Memo"; Rec."Copy Cmts Ret.Ord. to Cr. Memo")
                 {
                     ApplicationArea = Comments;
                     Importance = Additional;
                     ToolTip = 'Specifies whether to copy comments from purchase return orders to purchase credit memos.';
                 }
-                field("Copy Cmts Ret.Ord. to Ret.Shpt"; "Copy Cmts Ret.Ord. to Ret.Shpt")
+                field("Copy Cmts Ret.Ord. to Ret.Shpt"; Rec."Copy Cmts Ret.Ord. to Ret.Shpt")
                 {
                     ApplicationArea = Comments;
                     Importance = Additional;
                     ToolTip = 'Specifies that comments are copied from the purchase return order to the posted return shipment.';
                 }
-                field("Exact Cost Reversing Mandatory"; "Exact Cost Reversing Mandatory")
+                field("Exact Cost Reversing Mandatory"; Rec."Exact Cost Reversing Mandatory")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that a return transaction cannot be posted unless the Appl.-to Item Entry field on the purchase order line specifies an entry.';
                 }
-                field("Check Prepmt. when Posting"; "Check Prepmt. when Posting")
+                field("Check Prepmt. when Posting"; Rec."Check Prepmt. when Posting")
                 {
                     ApplicationArea = Prepayments;
                     Importance = Additional;
                     ToolTip = 'Specifies that you cannot receive or invoice an order that has an unpaid prepayment amount.';
                 }
-                field("Prepmt. Auto Update Frequency"; "Prepmt. Auto Update Frequency")
+                field("Prepmt. Auto Update Frequency"; Rec."Prepmt. Auto Update Frequency")
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies how often the job must run that automatically updates the status of orders that are pending prepayment.';
                 }
-                field("Default Posting Date"; "Default Posting Date")
+                field("Default Posting Date"; Rec."Default Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies which date must be used as the default posting date on purchase documents.';
                 }
-                field("Default Qty. to Receive"; "Default Qty. to Receive")
+                field("Default Qty. to Receive"; Rec."Default Qty. to Receive")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the default value for the Qty. to Receive field on purchase order lines and the Return Qty. to Ship field on purchase return order lines. If you choose Blank, the quantity to invoice is not automatically calculated.';
                 }
-                field("Check Application Date"; "Check Application Date")
+                field("Check Application Date"; Rec."Check Application Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the date is used to apply payments.';
                 }
-                field("Transfer Posting Description"; "Transfer Posting Description")
+                field("Transfer Posting Description"; Rec."Transfer Posting Description")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the posting description code is transferable.';
                 }
-                field("Allow Document Deletion Before"; "Allow Document Deletion Before")
+                field("Allow Document Deletion Before"; Rec."Allow Document Deletion Before")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
@@ -166,20 +166,20 @@ page 460 "Purchases & Payables Setup"
                     ApplicationArea = Advanced;
                     Importance = Additional;
                     ToolTip = 'Specifies if multiple posting groups can be used for the same vendor in purchase documents.';
-                    Visible = false;
+                    Visible = MultiplePostingGroupsVisible;
                 }
-                field("Ignore Updated Addresses"; "Ignore Updated Addresses")
+                field("Ignore Updated Addresses"; Rec."Ignore Updated Addresses")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if changes to addresses made on purchase documents are copied to the vendor card. By default, changes are copied to the vendor card.';
                 }
-                field("Copy Line Descr. to G/L Entry"; "Copy Line Descr. to G/L Entry")
+                field("Copy Line Descr. to G/L Entry"; Rec."Copy Line Descr. to G/L Entry")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies that the description on document lines of type G/L Account will be carried to the resulting general ledger entries.';
                 }
-                field("Copy Inv. No. To Pmt. Ref."; "Copy Inv. No. To Pmt. Ref.")
+                field("Copy Inv. No. To Pmt. Ref."; Rec."Copy Inv. No. To Pmt. Ref.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the value of the Vendor Invoice No. field must be copied to the Payment Reference field during posting unless the Payment Reference field is not blank.';
@@ -198,12 +198,12 @@ page 460 "Purchases & Payables Setup"
                     ObsoleteTag = '20.0';
                 }
 #endif
-                field("Document Default Line Type"; "Document Default Line Type")
+                field("Document Default Line Type"; Rec."Document Default Line Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the default value for the Type field on the first line in new purchase documents. If needed, you can change the value on the line.';
                 }
-                field("Disable Search by Name"; "Disable Search by Name")
+                field("Disable Search by Name"; Rec."Disable Search by Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
@@ -233,90 +233,90 @@ page 460 "Purchases & Payables Setup"
             group("Number Series")
             {
                 Caption = 'Number Series';
-                field("Vendor Nos."; "Vendor Nos.")
+                field("Vendor Nos."; Rec."Vendor Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to vendors.';
                 }
-                field("Quote Nos."; "Quote Nos.")
+                field("Quote Nos."; Rec."Quote Nos.")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to purchase quotes.';
                 }
-                field("Blanket Order Nos."; "Blanket Order Nos.")
+                field("Blanket Order Nos."; Rec."Blanket Order Nos.")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to blanket purchase orders.';
                 }
-                field("Order Nos."; "Order Nos.")
+                field("Order Nos."; Rec."Order Nos.")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to purchase orders.';
                 }
-                field("Return Order Nos."; "Return Order Nos.")
+                field("Return Order Nos."; Rec."Return Order Nos.")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to new purchase return orders.';
                 }
-                field("Invoice Nos."; "Invoice Nos.")
+                field("Invoice Nos."; Rec."Invoice Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to purchase invoices.';
                 }
-                field("Posted Invoice Nos."; "Posted Invoice Nos.")
+                field("Posted Invoice Nos."; Rec."Posted Invoice Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to posted purchase invoices.';
                 }
-                field("Credit Memo Nos."; "Credit Memo Nos.")
+                field("Credit Memo Nos."; Rec."Credit Memo Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to purchase credit memos.';
                 }
-                field("Posted Credit Memo Nos."; "Posted Credit Memo Nos.")
+                field("Posted Credit Memo Nos."; Rec."Posted Credit Memo Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to posted purchase credit memos.';
                 }
-                field("Vendor Agreement Nos."; "Vendor Agreement Nos.")
+                field("Vendor Agreement Nos."; Rec."Vendor Agreement Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number series from which numbers are assigned to new records.';
                 }
-                field("Posted VAT Agent Invoice Nos."; "Posted VAT Agent Invoice Nos.")
+                field("Posted VAT Agent Invoice Nos."; Rec."Posted VAT Agent Invoice Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number series from which numbers are assigned to new records.';
                 }
-                field("Posted Receipt Nos."; "Posted Receipt Nos.")
+                field("Posted Receipt Nos."; Rec."Posted Receipt Nos.")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to posted receipts.';
                 }
-                field("Posted Return Shpt. Nos."; "Posted Return Shpt. Nos.")
+                field("Posted Return Shpt. Nos."; Rec."Posted Return Shpt. Nos.")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to posted return shipments.';
                 }
-                field("Posted Prepmt. Inv. Nos."; "Posted Prepmt. Inv. Nos.")
+                field("Posted Prepmt. Inv. Nos."; Rec."Posted Prepmt. Inv. Nos.")
                 {
                     ApplicationArea = Prepayments;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to posted purchase prepayment invoices.';
                 }
-                field("Posted Prepmt. Cr. Memo Nos."; "Posted Prepmt. Cr. Memo Nos.")
+                field("Posted Prepmt. Cr. Memo Nos."; Rec."Posted Prepmt. Cr. Memo Nos.")
                 {
                     ApplicationArea = Prepayments;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to purchase prepayment credit memos.';
                 }
-                field("Price List Nos."; "Price List Nos.")
+                field("Price List Nos."; Rec."Price List Nos.")
                 {
                     Visible = ExtendedPriceEnabled;
                     ApplicationArea = Basic, Suite;
@@ -326,37 +326,37 @@ page 460 "Purchases & Payables Setup"
             group("Background Posting")
             {
                 Caption = 'Background Posting';
-                field("Post with Job Queue"; "Post with Job Queue")
+                field("Post with Job Queue"; Rec."Post with Job Queue")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if you use job queues to post purchase documents in the background.';
                 }
-                field("Post & Print with Job Queue"; "Post & Print with Job Queue")
+                field("Post & Print with Job Queue"; Rec."Post & Print with Job Queue")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if you use job queues to post and print purchase documents in the background.';
                 }
-                field("Job Queue Category Code"; "Job Queue Category Code")
+                field("Job Queue Category Code"; Rec."Job Queue Category Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code for the category of the job queue that you want to associate with background posting.';
                 }
-                field("Notify On Success"; "Notify On Success")
+                field("Notify On Success"; Rec."Notify On Success")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if a notification is sent when posting and printing is successfully completed.';
                 }
-                field("Report Output Type"; "Report Output Type")
+                field("Report Output Type"; Rec."Report Output Type")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the output of the report that will be scheduled with a job queue entry when the Post and Print with Job Queue check box is selected.';
                 }
-                field("Letter of Attorney Nos."; "Letter of Attorney Nos.")
+                field("Letter of Attorney Nos."; Rec."Letter of Attorney Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number series from which numbers are assigned to new records.';
                 }
-                field("Released Letter of Attor. Nos."; "Released Letter of Attor. Nos.")
+                field("Released Letter of Attor. Nos."; Rec."Released Letter of Attor. Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number series of the released letter of attorney associated with the purchases and payables setup information.';
@@ -365,42 +365,42 @@ page 460 "Purchases & Payables Setup"
             group(Prepayment)
             {
                 Caption = 'Prepayment';
-                field("Use Prepayment Account"; "Use Prepayment Account")
+                field("Use Prepayment Account"; Rec."Use Prepayment Account")
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies if you want to post prepayments using the general ledger account.';
                 }
-                field("Posted PD Doc. Nos."; "Posted PD Doc. Nos.")
+                field("Posted PD Doc. Nos."; Rec."Posted PD Doc. Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number series from which numbers are assigned to new records.';
                 }
-                field("PD Doc. Nos. Type"; "PD Doc. Nos. Type")
+                field("PD Doc. Nos. Type"; Rec."PD Doc. Nos. Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you want to use a number series or symbol to identify prepayment transaction entries.';
                 }
-                field("Symbol for PD Doc."; "Symbol for PD Doc.")
+                field("Symbol for PD Doc."; Rec."Symbol for PD Doc.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the symbol that identifies prepayment related entries.';
                 }
-                field("PD Gains Condition Dim Value"; "PD Gains Condition Dim Value")
+                field("PD Gains Condition Dim Value"; Rec."PD Gains Condition Dim Value")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the dimension that is used to generate conditional prepayment gains.';
                 }
-                field("PD Losses Condition Dim Value"; "PD Losses Condition Dim Value")
+                field("PD Losses Condition Dim Value"; Rec."PD Losses Condition Dim Value")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the dimension that is used to generate conditional prepayment losses.';
                 }
-                field("PD Gains Kind Dim Value"; "PD Gains Kind Dim Value")
+                field("PD Gains Kind Dim Value"; Rec."PD Gains Kind Dim Value")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the dimension that is used to generate payment in kind prepayment gains.';
                 }
-                field("PD Losses Kind Dim Value"; "PD Losses Kind Dim Value")
+                field("PD Losses Kind Dim Value"; Rec."PD Losses Kind Dim Value")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the dimension that is used to generate payment in kind prepayment losses.';
@@ -409,22 +409,22 @@ page 460 "Purchases & Payables Setup"
             group("Advance Statement")
             {
                 Caption = 'Advance Statement';
-                field("Advance Statement Nos."; "Advance Statement Nos.")
+                field("Advance Statement Nos."; Rec."Advance Statement Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number series from which numbers are assigned to new records.';
                 }
-                field("Adv. Stmt. Vendor Posting Gr."; "Adv. Stmt. Vendor Posting Gr.")
+                field("Adv. Stmt. Vendor Posting Gr."; Rec."Adv. Stmt. Vendor Posting Gr.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the advanced statement vendor posting group associated with the purchases and payables setup information.';
                 }
-                field("Adv. Stmt. Gen.Bus. Posting Gr"; "Adv. Stmt. Gen.Bus. Posting Gr")
+                field("Adv. Stmt. Gen.Bus. Posting Gr"; Rec."Adv. Stmt. Gen.Bus. Posting Gr")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the advanced statement general business posting group associated with the purchases and payables setup information.';
                 }
-                field("Adv. Stmt. VAT Bus. Posting Gr"; "Adv. Stmt. VAT Bus. Posting Gr")
+                field("Adv. Stmt. VAT Bus. Posting Gr"; Rec."Adv. Stmt. VAT Bus. Posting Gr")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the advanced statement VAT business posting group associated with the purchases and payables setup information.';
@@ -433,27 +433,27 @@ page 460 "Purchases & Payables Setup"
             group(Templates)
             {
                 Caption = 'Templates';
-                field("TORG-1 Template Code"; "TORG-1 Template Code")
+                field("TORG-1 Template Code"; Rec."TORG-1 Template Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the journal template that is used for the process in question. ';
                 }
-                field("TORG-2 Template Code"; "TORG-2 Template Code")
+                field("TORG-2 Template Code"; Rec."TORG-2 Template Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the journal template that is used for the process in question. ';
                 }
-                field("M-7 Template Code"; "M-7 Template Code")
+                field("M-7 Template Code"; Rec."M-7 Template Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the M-7 Microsoft Excel template.';
                 }
-                field("M-4 Template Code"; "M-4 Template Code")
+                field("M-4 Template Code"; Rec."M-4 Template Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the journal template that is used for the process in question. ';
                 }
-                field("Adv. Statement Template Code"; "Adv. Statement Template Code")
+                field("Adv. Statement Template Code"; Rec."Adv. Statement Template Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the journal template that is used for the process in question. ';
@@ -462,22 +462,22 @@ page 460 "Purchases & Payables Setup"
             group(Archiving)
             {
                 Caption = 'Archiving';
-                field("Archive Quotes"; "Archive Quotes")
+                field("Archive Quotes"; Rec."Archive Quotes")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you want to archive purchase quotes when they are deleted.';
                 }
-                field("Archive Orders"; "Archive Orders")
+                field("Archive Orders"; Rec."Archive Orders")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you want to archive purchase orders when they are deleted.';
                 }
-                field("Archive Blanket Orders"; "Archive Blanket Orders")
+                field("Archive Blanket Orders"; Rec."Archive Blanket Orders")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you want to archive purchase blanket orders when they are deleted.';
                 }
-                field("Archive Return Orders"; "Archive Return Orders")
+                field("Archive Return Orders"; Rec."Archive Return Orders")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies if you want to archive purchase return orders when they are deleted.';
@@ -488,33 +488,33 @@ page 460 "Purchases & Payables Setup"
                 Caption = 'Journal Templates';
                 Visible = JnlTemplateNameVisible;
 
-                field("P. Invoice Template Name"; "P. Invoice Template Name")
+                field("P. Invoice Template Name"; Rec."P. Invoice Template Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that you can select the journal template to use for posting purchase invoices.';
                 }
-                field("P. Cr. Memo Template Name"; "P. Cr. Memo Template Name")
+                field("P. Cr. Memo Template Name"; Rec."P. Cr. Memo Template Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that you can select the journal template to use for posting purchase credit memos.';
                 }
-                field("P. Prep. Inv. Template Name"; "P. Prep. Inv. Template Name")
+                field("P. Prep. Inv. Template Name"; Rec."P. Prep. Inv. Template Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies which general journal template to use for purchase prepayment invoices.';
                 }
-                field("P. Prep. Cr.Memo Template Name"; "P. Prep. Cr.Memo Template Name")
+                field("P. Prep. Cr.Memo Template Name"; Rec."P. Prep. Cr.Memo Template Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies which general journal template to use for purchase prepayment credit memos.';
                     Visible = JnlTemplateNameVisible;
                 }
-                field("IC Purch. Invoice Templ. Name"; "IC Purch. Invoice Templ. Name")
+                field("IC Purch. Invoice Templ. Name"; Rec."IC Purch. Invoice Templ. Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the intercompany journal template to use for purchase invoices.';
                 }
-                field("IC Purch. Cr. Memo Templ. Name"; "IC Purch. Cr. Memo Templ. Name")
+                field("IC Purch. Cr. Memo Templ. Name"; Rec."IC Purch. Cr. Memo Templ. Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the intercompany journal template to use for posting purchase credit memos.';
@@ -524,13 +524,13 @@ page 460 "Purchases & Payables Setup"
             group("Default Accounts")
             {
                 Caption = 'Default Accounts';
-                field("Debit Acc. for Non-Item Lines"; "Debit Acc. for Non-Item Lines")
+                field("Debit Acc. for Non-Item Lines"; Rec."Debit Acc. for Non-Item Lines")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Default Debit Account for Non-Item Lines';
                     ToolTip = 'Specifies the G/L account that is automatically inserted on purchase lines of type debit that are created from electronic documents when the incoming document line does not contain an identifiable item. Any incoming document line that does not have a GTIN or the vendor''s item number will be converted to a purchase line of type G/L Account, and the No. field on the purchase line will contain the account that you select in the G/L Account for Non-Item Lines field.';
                 }
-                field("Credit Acc. for Non-Item Lines"; "Credit Acc. for Non-Item Lines")
+                field("Credit Acc. for Non-Item Lines"; Rec."Credit Acc. for Non-Item Lines")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Default Credit Account for Non-Item Lines';
@@ -562,10 +562,6 @@ page 460 "Purchases & Payables Setup"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Vendor Posting Groups';
                 Image = Vendor;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 RunObject = Page "Vendor Posting Groups";
                 ToolTip = 'Set up the posting groups to select from when you set up vendor cards to link business transactions made for the vendor with the appropriate account in the general ledger.';
             }
@@ -574,12 +570,22 @@ page 460 "Purchases & Payables Setup"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Incoming Documents Setup';
                 Image = Documents;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 RunObject = Page "Incoming Documents Setup";
                 ToolTip = 'Set up the journal template that will be used to create general journal lines from electronic external documents, such as invoices from your vendors on email.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Vendor Posting Groups_Promoted"; "Vendor Posting Groups")
+                {
+                }
+                actionref("Incoming Documents Setup_Promoted"; "Incoming Documents Setup")
+                {
+                }
             }
         }
     }
@@ -588,19 +594,22 @@ page 460 "Purchases & Payables Setup"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        FeatureKeyManagement: Codeunit "Feature Key Management";
     begin
-        Rec.Reset;
-        if not Rec.Get then begin
-            Rec.Init;
-            Rec.Insert;
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
         GeneralLedgerSetup.Get();
         JnlTemplateNameVisible := GeneralLedgerSetup."Journal Templ. Name Mandatory";
+        MultiplePostingGroupsVisible := FeatureKeyManagement.IsAllowMultipleCustVendPostingGroupsEnabled();
     end;
 
     var
         ExtendedPriceEnabled: Boolean;
         JnlTemplateNameVisible: Boolean;
+        MultiplePostingGroupsVisible: Boolean;
 }
 

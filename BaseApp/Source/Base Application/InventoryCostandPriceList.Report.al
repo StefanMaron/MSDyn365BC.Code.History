@@ -14,7 +14,7 @@ report 716 "Inventory Cost and Price List"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ItemFilterCopyCaption; TableCaption + ': ' + ItemFilter)
@@ -196,7 +196,7 @@ report 716 "Inventory Cost and Price List"
 
     trigger OnPreReport()
     begin
-        ItemFilter := Item.GetFilters;
+        ItemFilter := Item.GetFilters();
         GetGLSetup();
     end;
 

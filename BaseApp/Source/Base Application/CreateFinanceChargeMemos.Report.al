@@ -16,7 +16,7 @@ report 191 "Create Finance Charge Memos"
                 Clear(MakeFinChrgMemo);
                 MakeFinChrgMemo.Set(Customer, CustLedgEntry, FinChrgMemoHeaderReq);
                 if NoOfRecords = 1 then begin
-                    MakeFinChrgMemo.Code;
+                    MakeFinChrgMemo.Code();
                     Mark := false;
                 end else begin
                     NewDateTime := CurrentDateTime;
@@ -28,7 +28,7 @@ report 191 "Create Finance Charge Memos"
                         end;
                         OldDateTime := CurrentDateTime;
                     end;
-                    Mark := not MakeFinChrgMemo.Code;
+                    Mark := not MakeFinChrgMemo.Code();
                 end;
                 Commit();
             end;
@@ -37,7 +37,7 @@ report 191 "Create Finance Charge Memos"
             var
                 ConfirmManagement: Codeunit "Confirm Management";
             begin
-                Window.Close;
+                Window.Close();
                 MarkedOnly := true;
                 if FindFirst() then
                     if ConfirmManagement.GetResponse(Text003, true) then
@@ -106,8 +106,8 @@ report 191 "Create Finance Charge Memos"
         trigger OnOpenPage()
         begin
             if FinChrgMemoHeaderReq."Document Date" = 0D then begin
-                FinChrgMemoHeaderReq."Document Date" := WorkDate;
-                FinChrgMemoHeaderReq."Posting Date" := WorkDate;
+                FinChrgMemoHeaderReq."Document Date" := WorkDate();
+                FinChrgMemoHeaderReq."Posting Date" := WorkDate();
             end;
         end;
     }
@@ -122,12 +122,7 @@ report 191 "Create Finance Charge Memos"
     end;
 
     var
-        Text000: Label '%1 must be specified.';
-        Text001: Label 'Making finance charge memos...';
-        Text002: Label 'Making finance charge memos @1@@@@@@@@@@@@@';
-        Text003: Label 'It was not possible to create finance charge memos for some of the selected customers.\Do you want to see these customers?';
         CustLedgEntry: Record "Cust. Ledger Entry";
-        FinChrgMemoHeaderReq: Record "Finance Charge Memo Header";
         MakeFinChrgMemo: Codeunit "FinChrgMemo-Make";
         Window: Dialog;
         NoOfRecords: Integer;
@@ -136,6 +131,14 @@ report 191 "Create Finance Charge Memos"
         OldProgress: Integer;
         NewDateTime: DateTime;
         OldDateTime: DateTime;
+
+        Text000: Label '%1 must be specified.';
+        Text001: Label 'Making finance charge memos...';
+        Text002: Label 'Making finance charge memos @1@@@@@@@@@@@@@';
+        Text003: Label 'It was not possible to create finance charge memos for some of the selected customers.\Do you want to see these customers?';
+
+    protected var
+        FinChrgMemoHeaderReq: Record "Finance Charge Memo Header";
 
     procedure InitializeRequest(PostingDate: Date; DocumentDate: Date)
     begin

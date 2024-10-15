@@ -247,7 +247,7 @@ codeunit 144706 "ERM Sales Shipment M-15"
         SalesShipmentM15.SetFileNameSilent(LibraryReportValidation.GetFileName, Preview);
         SalesShipmentM15.UseRequestPage(false);
         SalesShipmentM15.Run();
-        SalesHeader.Find; // re-read record as there is an assignments inside report
+        SalesHeader.Find(); // re-read record as there is an assignments inside report
     end;
 
     local procedure PrintM15SalesShipment(var LineQty: Integer) DocumentNo: Code[20]
@@ -313,7 +313,7 @@ codeunit 144706 "ERM Sales Shipment M-15"
         NoSeriesMgt: Codeunit NoSeriesManagement;
     begin
         SalesSetup.Get();
-        exit(NoSeriesMgt.GetNextNo(SalesSetup."Posted Shipment Nos.", WorkDate, false));
+        exit(NoSeriesMgt.GetNextNo(SalesSetup."Posted Shipment Nos.", WorkDate(), false));
     end;
 
     local procedure FormatAmount(Amount: Decimal): Text

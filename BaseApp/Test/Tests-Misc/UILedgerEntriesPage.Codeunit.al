@@ -118,7 +118,7 @@ codeunit 134343 "UI Ledger Entries Page"
         NewDesctiption := LibraryUtility.GenerateRandomText(MaxStrLen(GLEntry.Description));
         GeneralLedgerEntries.Description.SetValue(
           CopyStr(NewDesctiption, 1, MaxStrLen(GLEntry.Description)));
-        GeneralLedgerEntries.Close;
+        GeneralLedgerEntries.Close();
 
         // [THEN] Desctiption is "New Description" in General Ledger Entry
         GLEntry.Get(EntryNo);
@@ -187,7 +187,7 @@ codeunit 134343 "UI Ledger Entries Page"
         GeneralLedgerEntries.FILTER.SetFilter("Entry No.", Format(GLEntryNo));
         GeneralLedgerEntries.Description.SetValue(
           LibraryUtility.GenerateRandomText(MaxStrLen(DummyGLEntry.Description)));
-        GeneralLedgerEntries.Close;
+        GeneralLedgerEntries.Close();
 
         FindChangeLogEntry(ChangeLogEntry, GLEntryNo, DummyGLEntry.FieldNo(Description));
         ChangeLogEntryNo := ChangeLogEntry."Entry No.";
@@ -470,16 +470,16 @@ codeunit 134343 "UI Ledger Entries Page"
         CustLedgerEntry."Document Type" := DocumentType;
         CustLedgerEntry."Document No." := DocumentNo;
         CustLedgerEntry.Open := true;
-        CustLedgerEntry.Modify;
+        CustLedgerEntry.Modify();
     end;
 
     local procedure CreateIssuedFinChargeMemoHeader(var IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header"; CustomerNo: Code[20]): Code[20]
     begin
         with IssuedFinChargeMemoHeader do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Issued Fin. Charge Memo Header");
             "Customer No." := CustomerNo;
-            Insert;
+            Insert();
             exit("No.");
         end;
     end;
@@ -487,10 +487,10 @@ codeunit 134343 "UI Ledger Entries Page"
     local procedure CreateIssuedReminderHeader(var IssuedReminderHeader: Record "Issued Reminder Header"; CustomerNo: Code[20]): Code[20]
     begin
         with IssuedReminderHeader do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Issued Reminder Header");
             "Customer No." := CustomerNo;
-            Insert;
+            Insert();
             exit("No.");
         end;
     end;

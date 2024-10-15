@@ -27,7 +27,7 @@ page 5871 "Item Availability by BOM Level"
                     begin
                         ItemList.SetTableView(Item);
                         ItemList.LookupMode := true;
-                        if ItemList.RunModal = ACTION::LookupOK then begin
+                        if ItemList.RunModal() = ACTION::LookupOK then begin
                             ItemList.GetRecord(Item);
                             Text := Item."No.";
                             exit(true);
@@ -38,7 +38,7 @@ page 5871 "Item Availability by BOM Level"
                     trigger OnValidate()
                     begin
                         IsCalculated := false;
-                        RefreshPage;
+                        RefreshPage();
                     end;
                 }
                 field(LocationFilter; LocationFilter)
@@ -54,7 +54,7 @@ page 5871 "Item Availability by BOM Level"
                     begin
                         LocationList.SetTableView(Location);
                         LocationList.LookupMode := true;
-                        if LocationList.RunModal = ACTION::LookupOK then begin
+                        if LocationList.RunModal() = ACTION::LookupOK then begin
                             LocationList.GetRecord(Location);
                             Text := Location.Code;
                             exit(true);
@@ -65,7 +65,7 @@ page 5871 "Item Availability by BOM Level"
                     trigger OnValidate()
                     begin
                         IsCalculated := false;
-                        RefreshPage;
+                        RefreshPage();
                     end;
                 }
                 field(VariantFilter; VariantFilter)
@@ -82,7 +82,7 @@ page 5871 "Item Availability by BOM Level"
                         ItemVariant.SetFilter("Item No.", ItemFilter);
                         ItemVariants.SetTableView(ItemVariant);
                         ItemVariants.LookupMode := true;
-                        if ItemVariants.RunModal = ACTION::LookupOK then begin
+                        if ItemVariants.RunModal() = ACTION::LookupOK then begin
                             ItemVariants.GetRecord(ItemVariant);
                             Text := ItemVariant.Code;
                             exit(true);
@@ -93,7 +93,7 @@ page 5871 "Item Availability by BOM Level"
                     trigger OnValidate()
                     begin
                         IsCalculated := false;
-                        RefreshPage;
+                        RefreshPage();
                     end;
                 }
                 field(DemandDate; DemandDate)
@@ -105,7 +105,7 @@ page 5871 "Item Availability by BOM Level"
                     trigger OnValidate()
                     begin
                         IsCalculated := false;
-                        RefreshPage;
+                        RefreshPage();
                     end;
                 }
                 field(IsCalculated; IsCalculated)
@@ -124,7 +124,7 @@ page 5871 "Item Availability by BOM Level"
                     trigger OnValidate()
                     begin
                         IsCalculated := false;
-                        RefreshPage;
+                        RefreshPage();
                     end;
                 }
             }
@@ -133,7 +133,7 @@ page 5871 "Item Availability by BOM Level"
                 Caption = 'Lines';
                 IndentationColumn = Indentation;
                 ShowAsTree = true;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Assembly;
                     Editable = false;
@@ -160,7 +160,7 @@ page 5871 "Item Availability by BOM Level"
                     trigger OnDrillDown()
                     begin
                         if HasWarning then
-                            ShowWarnings;
+                            ShowWarnings();
                     end;
                 }
                 field(Bottleneck; Bottleneck)
@@ -171,20 +171,20 @@ page 5871 "Item Availability by BOM Level"
                     StyleExpr = TRUE;
                     ToolTip = 'Specifies which item in the BOM structure restricts you from making a larger quantity than what is shown in the Able to Make Top Item field.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant code that you entered in the Variant Filter field in the Item Availability by BOM Level window.';
                     Visible = false;
                 }
-                field("Qty. per Parent"; "Qty. per Parent")
+                field("Qty. per Parent"; Rec."Qty. per Parent")
                 {
                     ApplicationArea = Assembly;
                     DecimalPlaces = 0 : 5;
                     Editable = false;
                     ToolTip = 'Specifies how many units of the component are required to assemble or produce one unit of the parent.';
                 }
-                field("Qty. per Top Item"; "Qty. per Top Item")
+                field("Qty. per Top Item"; Rec."Qty. per Top Item")
                 {
                     ApplicationArea = Assembly;
                     DecimalPlaces = 0 : 5;
@@ -192,52 +192,52 @@ page 5871 "Item Availability by BOM Level"
                     ToolTip = 'Specifies how many units of the component are required to assemble or produce one unit of the top item.';
                     Visible = false;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Assembly;
                     Editable = false;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Replenishment System"; "Replenishment System")
+                field("Replenishment System"; Rec."Replenishment System")
                 {
                     ApplicationArea = Assembly;
                     Editable = false;
                     ToolTip = 'Specifies the item''s replenishment system.';
                 }
-                field("Available Quantity"; "Available Quantity")
+                field("Available Quantity"; Rec."Available Quantity")
                 {
                     ApplicationArea = Assembly;
                     BlankZero = true;
                     Editable = false;
                     ToolTip = 'Specifies how many units of the item on the line are available, regardless of how many parents you can make with the item.';
                 }
-                field("Unused Quantity"; "Unused Quantity")
+                field("Unused Quantity"; Rec."Unused Quantity")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the part of the item''s total availability that is not required to make the quantities that are shown in the fields.';
                     Visible = false;
                 }
-                field("Needed by Date"; "Needed by Date")
+                field("Needed by Date"; Rec."Needed by Date")
                 {
                     ApplicationArea = Assembly;
                     Editable = false;
                     ToolTip = 'Specifies when the item must be available to make the parent or top item.';
                 }
-                field("Able to Make Parent"; "Able to Make Parent")
+                field("Able to Make Parent"; Rec."Able to Make Parent")
                 {
                     ApplicationArea = Assembly;
                     BlankZero = true;
                     Editable = false;
                     ToolTip = 'Specifies how many units of the BOM item on the collapsible line above it can be assembled or produced.';
                 }
-                field("Able to Make Top Item"; "Able to Make Top Item")
+                field("Able to Make Top Item"; Rec."Able to Make Top Item")
                 {
                     ApplicationArea = Assembly;
                     BlankZero = true;
                     Editable = false;
                     ToolTip = 'Specifies how many units of the BOM item on the top line can be assembled or produced.';
                 }
-                field("Gross Requirement"; "Gross Requirement")
+                field("Gross Requirement"; Rec."Gross Requirement")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -245,7 +245,7 @@ page 5871 "Item Availability by BOM Level"
                     ToolTip = 'Specifies the total demand for the item.';
                     Visible = false;
                 }
-                field("Scheduled Receipts"; "Scheduled Receipts")
+                field("Scheduled Receipts"; Rec."Scheduled Receipts")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -253,14 +253,14 @@ page 5871 "Item Availability by BOM Level"
                     ToolTip = 'Specifies how many units of the item are inbound on orders.';
                     Visible = false;
                 }
-                field("Safety Lead Time"; "Safety Lead Time")
+                field("Safety Lead Time"; Rec."Safety Lead Time")
                 {
                     ApplicationArea = Planning;
                     Editable = false;
                     ToolTip = 'Specifies any safety lead time that is defined for the item.';
                     Visible = false;
                 }
-                field("Rolled-up Lead-Time Offset"; "Rolled-up Lead-Time Offset")
+                field("Rolled-up Lead-Time Offset"; Rec."Rolled-up Lead-Time Offset")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the cumulative lead time of components under a parent item.';
@@ -291,7 +291,7 @@ page 5871 "Item Availability by BOM Level"
 
                         trigger OnAction()
                         begin
-                            ItemAvail(ItemAvailFormsMgt.ByEvent);
+                            ItemAvail(ItemAvailFormsMgt.ByEvent());
                         end;
                     }
                     action(Period)
@@ -303,7 +303,7 @@ page 5871 "Item Availability by BOM Level"
 
                         trigger OnAction()
                         begin
-                            ItemAvail(ItemAvailFormsMgt.ByPeriod);
+                            ItemAvail(ItemAvailFormsMgt.ByPeriod());
                         end;
                     }
                     action(Variant)
@@ -315,7 +315,7 @@ page 5871 "Item Availability by BOM Level"
 
                         trigger OnAction()
                         begin
-                            ItemAvail(ItemAvailFormsMgt.ByVariant);
+                            ItemAvail(ItemAvailFormsMgt.ByVariant());
                         end;
                     }
                     action(Location)
@@ -328,7 +328,7 @@ page 5871 "Item Availability by BOM Level"
 
                         trigger OnAction()
                         begin
-                            ItemAvail(ItemAvailFormsMgt.ByLocation);
+                            ItemAvail(ItemAvailFormsMgt.ByLocation());
                         end;
                     }
                 }
@@ -341,16 +341,12 @@ page 5871 "Item Availability by BOM Level"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Previous Period';
                 Image = PreviousRecord;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Show the information based on the previous period. If you set the View by field to Day, the date filter changes to the day before.';
 
                 trigger OnAction()
                 begin
                     DemandDate := CalcDate('<-1D>', DemandDate);
-                    RefreshPage;
+                    RefreshPage();
                 end;
             }
             action("Next Period")
@@ -358,15 +354,12 @@ page 5871 "Item Availability by BOM Level"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Next Period';
                 Image = NextRecord;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Show the information based on the next period. If you set the View by field to Day, the date filter changes to the day before.';
 
                 trigger OnAction()
                 begin
                     DemandDate := CalcDate('<+1D>', DemandDate);
-                    RefreshPage;
+                    RefreshPage();
                 end;
             }
             action("Show Warnings")
@@ -374,15 +367,11 @@ page 5871 "Item Availability by BOM Level"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Show Warnings';
                 Image = ErrorLog;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'View details about bottlenecks.';
 
                 trigger OnAction()
                 begin
-                    ShowWarningsForAllLines;
+                    ShowWarningsForAllLines();
                 end;
             }
         }
@@ -393,16 +382,37 @@ page 5871 "Item Availability by BOM Level"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Item - Able to Make (Timeline)';
                 Image = Trendscape;
-                Promoted = true;
-                PromotedCategory = "Report";
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'View five key availability figures over time for the selected parent item. The figures change according to expected supply and demand events and to supply that is based on available components that can be assembled or produced. You can use the report to see whether you can fulfill a sales order for an item on a specified date by looking at its current availability in combination with the potential quantities that its components can supply if an assembly order were started.';
 
                 trigger OnAction()
                 begin
-                    ShowAbleToMakeTimeline;
+                    ShowAbleToMakeTimeline();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Previous Period_Promoted"; "Previous Period")
+                {
+                }
+                actionref("Show Warnings_Promoted"; "Show Warnings")
+                {
+                }
+                actionref("Next Period_Promoted"; "Next Period")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Reports';
+
+                actionref("Item - Able to Make (Timeline)_Promoted"; "Item - Able to Make (Timeline)")
+                {
+                }
             }
         }
     }
@@ -420,8 +430,8 @@ page 5871 "Item Availability by BOM Level"
     begin
         ShowTotalAvailability := true;
         if DemandDate = 0D then
-            DemandDate := WorkDate;
-        RefreshPage;
+            DemandDate := WorkDate();
+        RefreshPage();
     end;
 
     var
@@ -443,7 +453,7 @@ page 5871 "Item Availability by BOM Level"
         ItemFilter: Code[250];
         LocationFilter: Code[250];
         VariantFilter: Code[250];
-        ShowBy: Option Item,Assembly,Production;
+        ShowBy: Enum "BOM Structure Show By";
 
     procedure InitItem(var NewItem: Record Item)
     begin
@@ -490,7 +500,7 @@ page 5871 "Item Availability by BOM Level"
                     IsHandled := false;
                     OnRefreshPageOnBeforeCheckItemHasBOM(Item, IsHandled);
                     if not IsHandled then
-                        if not Item.HasBOM then
+                        if not Item.HasBOM() then
                             Error(Text000);
                     CalcBOMTree.GenerateTreeForItems(Item, Rec, 1);
                 end;
@@ -545,7 +555,7 @@ page 5871 "Item Availability by BOM Level"
         Item.SetFilter("No.", "No.");
 
         with ItemAbleToMakeTimeline do begin
-            if Indentation = 0 then begin
+            if Indentation = 0 then
                 case ShowBy of
                     ShowBy::Item:
                         begin
@@ -556,15 +566,15 @@ page 5871 "Item Availability by BOM Level"
                         InitAsmOrder(AsmHeader);
                     ShowBy::Production:
                         InitProdOrder(ProdOrderLine);
-                end;
-            end else begin
+                end
+            else begin
                 Item.SetFilter("Location Filter", LocationFilter);
                 Item.SetFilter("Variant Filter", VariantFilter);
             end;
 
             SetTableView(Item);
             Initialize("Needed by Date", 0, 7, true);
-            Run;
+            Run();
         end;
     end;
 

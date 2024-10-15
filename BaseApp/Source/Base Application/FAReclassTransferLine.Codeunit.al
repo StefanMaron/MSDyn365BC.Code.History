@@ -6,11 +6,6 @@ codeunit 5642 "FA Reclass. Transfer Line"
     end;
 
     var
-        Text000: Label 'is a %1 and %2 is not a %1.';
-        Text001: Label 'is not different than %1.';
-        Text002: Label '%1 is disposed.';
-        Text003: Label '%2 = 0 for %1.';
-        Text004: Label '%2 is greater than %3 for %1.';
         FAJnlSetup: Record "FA Journal Setup";
         OldFA: Record "Fixed Asset";
         NewFA: Record "Fixed Asset";
@@ -45,6 +40,12 @@ codeunit 5642 "FA Reclass. Transfer Line"
         GLSetup: Record "General Ledger Setup";
         Text12400: Label 'Nothing to reclassify.';
         PostToGenJnL: Boolean;
+
+        Text000: Label 'is a %1 and %2 is not a %1.';
+        Text001: Label 'is not different than %1.';
+        Text002: Label '%1 is disposed.';
+        Text003: Label '%2 = 0 for %1.';
+        Text004: Label '%2 is greater than %3 for %1.';
         Text005: Label 'It was not possible to find a %1 in %2.';
         Text006: Label '%1 must be %2 or %3 for %4.';
         Text007: Label '%1 must be %2 for %3.';
@@ -120,7 +121,7 @@ codeunit 5642 "FA Reclass. Transfer Line"
                           TransferToGenJnl, TemplateName, BatchName);
                         if TransferToGenJnl and (not PostToGenJnL) then
                             TransferToGenJnl := false;
-                        SetJnlRange;
+                        SetJnlRange();
                         if TransferToGenJnl then
                             InsertGenJnlLine(FAReclassJnlLine, CurrFA, Sign * Amounts[i], "Insert Bal. Account")
                         else
@@ -134,7 +135,7 @@ codeunit 5642 "FA Reclass. Transfer Line"
                     FAGetJnl.JnlName(
                       "Depreciation Book Code", OldFA."Budgeted Asset", FAPostingType::"Acquisition Cost",
                       TransferToGenJnl, TemplateName, BatchName);
-                    SetJnlRange;
+                    SetJnlRange();
                     if TransferToGenJnl then begin
                         //CheckBatch;
                         InsertDisposalLine(FAReclassJnlLine, OldFA, -Amounts[1]);
@@ -293,7 +294,7 @@ codeunit 5642 "FA Reclass. Transfer Line"
 
         GLSetup.Get();
         with FAJnlLine do begin
-            Init;
+            Init();
             "Line No." := 0;
             FAJnlSetup.SetFAJnlTrailCodes(FAJnlLine);
             "FA Posting Type" := FAPostingType;
@@ -437,7 +438,7 @@ codeunit 5642 "FA Reclass. Transfer Line"
               StrSubstNo(
                 Text008,
                 DeprBook.FieldCaption("Use Custom 1 Depreciation"),
-                DeprBook.TableCaption,
+                DeprBook.TableCaption(),
                 DeprBook.Code));
 
         FADeprBook.TestField("Temp. Ending Date", 0D);
@@ -505,7 +506,7 @@ codeunit 5642 "FA Reclass. Transfer Line"
               FAJnlSetup.GetGenJnlDocumentNo(GenJnlLine, FAReclassJnlLine."FA Posting Date", false);
         end;
         with GenJnlLine do begin
-            Init;
+            Init();
             "Account Type" := "Account Type"::"Fixed Asset";
             "Account No." := FA."No.";
             "Object Type" := "Account Type"::"Fixed Asset".AsInteger();

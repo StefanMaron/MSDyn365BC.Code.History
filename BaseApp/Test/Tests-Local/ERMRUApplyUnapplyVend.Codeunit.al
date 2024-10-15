@@ -38,7 +38,7 @@ codeunit 144505 "ERM RU Apply Unapply Vend"
         PostApplyVendLedgerEntries(PaymentNo, Amount, VendorNo, VendorLedgerEntry."Document Type"::Invoice, false);
 
         // [GIVEN] Set Allow Posting From Date = "D"
-        PostingDateFrom := CalcDate('<1Y>', WorkDate);
+        PostingDateFrom := CalcDate('<1Y>', WorkDate());
         OldPostingDateFrom := SetAllowPostingFrom(PostingDateFrom);
 
         // [WHEN] Unapply Vendor Ledger Entry on Posting From Date = "D" for PaymentNo = "X"
@@ -67,7 +67,7 @@ codeunit 144505 "ERM RU Apply Unapply Vend"
         PostApplyVendLedgerEntries(PaymentNo, Amount, VendorNo, VendorLedgerEntry."Document Type"::Invoice, true);
 
         // [WHEN] Unapply Vendor Ledger Entry for PaymentNo = "X"
-        UnapplyVendLedgerEntry(VendorLedgerEntry."Document Type"::Payment, PaymentNo, WorkDate);
+        UnapplyVendLedgerEntry(VendorLedgerEntry."Document Type"::Payment, PaymentNo, WorkDate());
 
         // [THEN] G/L Register created with Source Code for Unapplication with Amount = "A"
         VerifyUnappliedGLEntries(VendorNo, Amount);
@@ -154,7 +154,7 @@ codeunit 144505 "ERM RU Apply Unapply Vend"
         GenLedgSetup: Record "General Ledger Setup";
     begin
         with GenLedgSetup do begin
-            Get;
+            Get();
             OldAllowPostingFrom := "Allow Posting From";
             "Allow Posting From" := AllowPostingFrom;
             Modify(true);
@@ -188,8 +188,8 @@ codeunit 144505 "ERM RU Apply Unapply Vend"
         FindDetailedVendLedgerEntry(DetailedVendLedgEntry, DocumentNo, DocumentType, DetailedVendLedgEntry."Entry Type"::Application);
         repeat
             Assert.IsTrue(
-              DetailedVendLedgEntry.Unapplied, StrSubstNo(UnappliedErr, DetailedVendLedgEntry.TableCaption));
-        until DetailedVendLedgEntry.Next = 0;
+              DetailedVendLedgEntry.Unapplied, StrSubstNo(UnappliedErr, DetailedVendLedgEntry.TableCaption()));
+        until DetailedVendLedgEntry.Next() = 0;
     end;
 
     local procedure VerifyUnappliedGLEntries(SourceNo: Code[20]; GLAmount: Decimal)

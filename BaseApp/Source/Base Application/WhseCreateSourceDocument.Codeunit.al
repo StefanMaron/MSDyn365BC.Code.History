@@ -1,4 +1,4 @@
-﻿codeunit 5750 "Whse.-Create Source Document"
+codeunit 5750 "Whse.-Create Source Document"
 {
 
     trigger OnRun()

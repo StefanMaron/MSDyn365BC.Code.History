@@ -85,7 +85,7 @@ table 483 "Change Global Dim. Log Entry"
 
             trigger OnValidate()
             begin
-                CalcProgress;
+                CalcProgress();
             end;
         }
         field(5; Progress; Decimal)
@@ -195,7 +195,7 @@ table 483 "Change Global Dim. Log Entry"
             exit(false);
 
         if CurrentRecNo >= "Total Records" then
-            RecalculateTotalRecords;
+            RecalculateTotalRecords();
         Validate("Completed Records", CurrentRecNo);
         case "Completed Records" of
             0:
@@ -212,7 +212,7 @@ table 483 "Change Global Dim. Log Entry"
                         ("Total Records" - CurrentRecNo) / (CurrentRecNo - StartedFromRecord) *
                         (CurrentDateTime - "Earliest Start Date/Time"), 1);
         end;
-        exit(Modify);
+        exit(Modify());
     end;
 
     procedure UpdateWithCommit(CurrentRecNo: Integer; StartedFromRecord: Integer) Completed: Boolean
@@ -320,7 +320,7 @@ table 483 "Change Global Dim. Log Entry"
         PKFieldRef: FieldRef;
     begin
         PKFieldRef := RecRef.Field("Primary Key Field No.");
-        if DefaultDimension.Get(RecRef.Number, PKFieldRef.Value, DimensionCode) then
+        if DefaultDimension.Get(RecRef.Number, Format(PKFieldRef.Value()), DimensionCode) then
             exit(DefaultDimension."Dimension Value Code");
         exit('');
     end;
@@ -329,9 +329,11 @@ table 483 "Change Global Dim. Log Entry"
     var
         DimensionSetEntry: Record "Dimension Set Entry";
         DimSetIDFieldRef: FieldRef;
+        DimSetID: Integer;
     begin
         DimSetIDFieldRef := RecRef.Field("Dim. Set ID Field No.");
-        if DimensionSetEntry.Get(DimSetIDFieldRef.Value, DimensionCode) then
+        DimSetID := DimSetIDFieldRef.Value();
+        if DimensionSetEntry.Get(DimSetID, DimensionCode) then
             exit(DimensionSetEntry."Dimension Value Code");
         exit('');
     end;
@@ -370,7 +372,7 @@ table 483 "Change Global Dim. Log Entry"
             else
                 "Parent Table ID" := FindParentTable(RecRef);
         end;
-        FindFieldIDs;
+        FindFieldIDs();
     end;
 
     local procedure FindFieldIDs()
@@ -405,7 +407,7 @@ table 483 "Change Global Dim. Log Entry"
     begin
         RecRef.Open("Table ID");
         "Total Records" := RecRef.Count();
-        RecRef.Close;
+        RecRef.Close();
     end;
 
     procedure SendTraceTagOnError()
@@ -425,10 +427,10 @@ table 483 "Change Global Dim. Log Entry"
 
     procedure SetSessionInProgress()
     begin
-        "Session ID" := SessionId;
-        "Server Instance ID" := ServiceInstanceId;
+        "Session ID" := SessionId();
+        "Server Instance ID" := ServiceInstanceId();
         Status := Status::"In Progress";
-        Modify;
+        Modify();
     end;
 
     procedure UpdateStatus() OldStatus: Integer
@@ -443,7 +445,7 @@ table 483 "Change Global Dim. Log Entry"
                 Status := Status::Completed
             end else
                 if "Session ID" = 0 then begin
-                    if IsTaskScheduled then
+                    if IsTaskScheduled() then
                         Status := Status::Scheduled
                     else
                         Status := Status::Incomplete;

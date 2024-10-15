@@ -1,6 +1,6 @@
 enum 136 "Dimension Set Entry Buffer Parent Type"
 {
-    Extensible = false;
+    Extensible = true;
 
     value(0; " ") { Caption = ' '; }
     value(1; "Journal Line") { Caption = 'Journal Line'; }

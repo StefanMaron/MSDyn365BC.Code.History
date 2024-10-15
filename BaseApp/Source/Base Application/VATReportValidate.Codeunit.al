@@ -4,20 +4,21 @@ codeunit 744 "VAT Report Validate"
 
     trigger OnRun()
     begin
-        ClearErrorLog;
+        ClearErrorLog();
 
         ValidateVATReportLinesExists(Rec);
-        ValidateVATReportHeader;
-        ValidateVATReportLines;
+        ValidateVATReportHeader();
+        ValidateVATReportLines();
 
-        ShowErrorLog;
+        ShowErrorLog();
     end;
 
     var
-        Text000: Label 'You cannot release the VAT report because no lines exist.';
         TempVATReportErrorLog: Record "VAT Report Error Log" temporary;
         VATStatementReportLine: Record "VAT Statement Report Line";
         ErrorID: Integer;
+
+        Text000: Label 'You cannot release the VAT report because no lines exist.';
 
     local procedure ClearErrorLog()
     begin
@@ -52,7 +53,7 @@ codeunit 744 "VAT Report Validate"
         VATStatementReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
         if VATStatementReportLine.IsEmpty() then begin
             InsertErrorLog(Text000);
-            ShowErrorLog;
+            ShowErrorLog();
         end;
     end;
 

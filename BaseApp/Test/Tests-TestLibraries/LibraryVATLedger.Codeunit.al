@@ -37,12 +37,12 @@ codeunit 143018 "Library - VAT Ledger"
         SalesHeader: Record "Sales Header";
     begin
         with SalesHeader do begin
-            Init;
+            Init();
             "Document Type" := "Document Type"::Invoice;
             "No." := LibraryUtility.GenerateGUID();
             "Sell-to Customer No." := CustomerNo;
             "Ship-to Code" := ShipToCode;
-            Insert;
+            Insert();
             exit("No.");
         end;
     end;
@@ -51,14 +51,14 @@ codeunit 143018 "Library - VAT Ledger"
     procedure MockSalesLine(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10])
     begin
         with SalesLine do begin
-            Init;
+            Init();
             "Document Type" := "Document Type"::Invoice;
             "Document No." := DocumentNo;
             "Line No." := LibraryUtility.GetNewRecNo(SalesLine, FieldNo("Line No."));
             Type := Type::Item;
             "No." := ItemNo;
             "Location Code" := LocationCode;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -68,11 +68,11 @@ codeunit 143018 "Library - VAT Ledger"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         with SalesInvoiceHeader do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateGUID();
             "Sell-to Customer No." := CustomerNo;
             "Ship-to Code" := ShipToCode;
-            Insert;
+            Insert();
             exit("No.");
         end;
     end;
@@ -81,13 +81,13 @@ codeunit 143018 "Library - VAT Ledger"
     procedure MockSalesInvLine(var SalesInvoiceLine: Record "Sales Invoice Line"; DocumentNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10])
     begin
         with SalesInvoiceLine do begin
-            Init;
+            Init();
             "Document No." := DocumentNo;
             "Line No." := LibraryUtility.GetNewRecNo(SalesInvoiceLine, FieldNo("Line No."));
             Type := Type::Item;
             "No." := ItemNo;
             "Location Code" := LocationCode;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -97,11 +97,11 @@ codeunit 143018 "Library - VAT Ledger"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
         with SalesCrMemoHeader do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateGUID();
             "Sell-to Customer No." := CustomerNo;
             "Ship-to Code" := ShipToCode;
-            Insert;
+            Insert();
             exit("No.");
         end;
     end;
@@ -110,13 +110,13 @@ codeunit 143018 "Library - VAT Ledger"
     procedure MockSalesCrMemoLine(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; DocumentNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10])
     begin
         with SalesCrMemoLine do begin
-            Init;
+            Init();
             "Document No." := DocumentNo;
             "Line No." := LibraryUtility.GetNewRecNo(SalesCrMemoLine, FieldNo("Line No."));
             Type := Type::Item;
             "No." := ItemNo;
             "Location Code" := LocationCode;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -126,11 +126,11 @@ codeunit 143018 "Library - VAT Ledger"
         Vendor: Record Vendor;
     begin
         with Vendor do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateGUID();
             Validate("KPP Code", CopyStr(LibraryUtility.GenerateRandomXMLText(9), 1, 9));
             "VAT Registration No." := CopyStr(LibraryUtility.GenerateRandomXMLText(10), 1, 10);
-            Insert;
+            Insert();
             exit("No.");
         end;
     end;
@@ -141,10 +141,10 @@ codeunit 143018 "Library - VAT Ledger"
         Customer: Record Customer;
     begin
         with Customer do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateGUID();
             "Country/Region Code" := CountryRegionCode;
-            Insert;
+            Insert();
             exit("No.");
         end;
     end;
@@ -153,12 +153,12 @@ codeunit 143018 "Library - VAT Ledger"
     procedure MockVATLedger(var VATLedger: Record "VAT Ledger"; TypeValue: Option)
     begin
         with VATLedger do begin
-            Init;
+            Init();
             Type := TypeValue;
             Code := LibraryUtility.GenerateGUID();
-            "Start Date" := WorkDate;
-            "End Date" := WorkDate;
-            Insert;
+            "Start Date" := WorkDate();
+            "End Date" := WorkDate();
+            Insert();
         end;
     end;
 
@@ -183,13 +183,13 @@ codeunit 143018 "Library - VAT Ledger"
     begin
         MockVATLedger(VATLedger, TypeValue);
         with VATLedgerLine do begin
-            Init;
+            Init();
             Type := VATLedger.Type;
             Code := VATLedger.Code;
             "Line No." := LibraryUtility.GetNewRecNo(VATLedgerLine, FieldNo("Line No."));
             "C/V Type" := CVType;
             "C/V No." := CVNo;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -197,12 +197,12 @@ codeunit 143018 "Library - VAT Ledger"
     procedure MockVATLedgerLineForTheGivenVATLedger(var VATLedgerLine: Record "VAT Ledger Line"; VATLedger: Record "VAT Ledger"; AddSheet: Boolean)
     begin
         with VATLedgerLine do begin
-            Init;
+            Init();
             Type := VATLedger.Type;
             Code := VATLedger.Code;
             "Line No." := LibraryUtility.GetNewRecNo(VATLedgerLine, FieldNo("Line No."));
             "Additional Sheet" := AddSheet;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -256,12 +256,12 @@ codeunit 143018 "Library - VAT Ledger"
         VATLedgerLineCDNo: Record "VAT Ledger Line CD No.";
     begin
         with VATLedgerLineCDNo do begin
-            Init;
+            Init();
             Type := VATLedgerLine.Type;
             Code := VATLedgerLine.Code;
             "Line No." := VATLedgerLine."Line No.";
             "CD No." := CDNo;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -271,12 +271,12 @@ codeunit 143018 "Library - VAT Ledger"
         VATLedgerLineTariffNo: Record "VAT Ledger Line Tariff No.";
     begin
         with VATLedgerLineTariffNo do begin
-            Init;
+            Init();
             Type := VATLedgerLine.Type;
             Code := VATLedgerLine.Code;
             "Line No." := VATLedgerLine."Line No.";
             "Tariff No." := TariffNo;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -321,7 +321,7 @@ codeunit 143018 "Library - VAT Ledger"
         ValueEntry: Record "Value Entry";
     begin
         with ValueEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(ValueEntry, FieldNo("Entry No."));
             "Source Type" := SourceType;
             "Source No." := SourceNo;
@@ -330,7 +330,7 @@ codeunit 143018 "Library - VAT Ledger"
             "Document Type" := "Document Type"::"Sales Invoice";
             "Document No." := DocumentNo;
             "Document Line No." := 10000;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -339,10 +339,10 @@ codeunit 143018 "Library - VAT Ledger"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         with ItemLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(ItemLedgerEntry, FieldNo("Entry No."));
             "Package No." := CDNo;
-            Insert;
+            Insert();
             exit("Entry No.");
         end;
     end;
@@ -395,10 +395,10 @@ codeunit 143018 "Library - VAT Ledger"
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(10, 30));
         with VATEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
             Type := TypeValue;
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Document Type" := "Document Type"::Invoice;
             "Document No." := DocumentNo;
             "Bill-to/Pay-to No." := CVNo;
@@ -406,7 +406,7 @@ codeunit 143018 "Library - VAT Ledger"
             "VAT Calculation Type" := "VAT Calculation Type"::"Normal VAT";
             "VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
             "VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
-            Insert;
+            Insert();
             exit("Entry No.");
         end;
     end;
@@ -420,7 +420,7 @@ codeunit 143018 "Library - VAT Ledger"
             Reversed := true;
             "Corrected Document Date" := "Posting Date";
             "Additional VAT Ledger Sheet" := true;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -430,10 +430,10 @@ codeunit 143018 "Library - VAT Ledger"
         Item: Record Item;
     begin
         with Item do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateGUID();
             "Tariff No." := TariffNo;
-            Insert;
+            Insert();
             exit("No.");
         end;
     end;
@@ -444,9 +444,9 @@ codeunit 143018 "Library - VAT Ledger"
         TariffNumber: Record "Tariff Number";
     begin
         with TariffNumber do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
             exit("No.");
         end;
     end;
@@ -468,10 +468,10 @@ codeunit 143018 "Library - VAT Ledger"
         CountryRegion: Record "Country/Region";
     begin
         with CountryRegion do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateGUID();
             "EAEU Country/Region Code" := EAEUCountryRegionCode;
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -494,10 +494,10 @@ codeunit 143018 "Library - VAT Ledger"
         Location: Record Location;
     begin
         with Location do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateGUID();
             "Country/Region Code" := CountryRegionCode;
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -520,11 +520,11 @@ codeunit 143018 "Library - VAT Ledger"
         ShipToAddress: Record "Ship-to Address";
     begin
         with ShipToAddress do begin
-            Init;
+            Init();
             "Customer No." := CustomerNo;
             Code := LibraryUtility.GenerateGUID();
             "Country/Region Code" := CountryRegionCode;
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -550,7 +550,7 @@ codeunit 143018 "Library - VAT Ledger"
     var
         CreateVATPurchaseLedger: Report "Create VAT Purchase Ledger";
     begin
-        VATLedger.SetRecFilter;
+        VATLedger.SetRecFilter();
         Clear(CreateVATPurchaseLedger);
         CreateVATPurchaseLedger.SetTableView(VATLedger);
         CreateVATPurchaseLedger.SetParameters(VendorNo, '', '', 0, false, true, 0, 0, true, true, false, false);
@@ -563,7 +563,7 @@ codeunit 143018 "Library - VAT Ledger"
     var
         CreateVATSalesLedger: Report "Create VAT Sales Ledger";
     begin
-        VATLedger.SetRecFilter;
+        VATLedger.SetRecFilter();
         Clear(CreateVATSalesLedger);
         CreateVATSalesLedger.SetTableView(VATLedger);
         CreateVATSalesLedger.SetParameters(CustomerNo, '', '', 0, true, true, true, false, false, false, false);
@@ -576,7 +576,7 @@ codeunit 143018 "Library - VAT Ledger"
     var
         CreateVATPurchLedAdSh: Report "Create VAT Purch. Led. Ad. Sh.";
     begin
-        VATLedger.SetRecFilter;
+        VATLedger.SetRecFilter();
         Clear(CreateVATPurchLedAdSh);
         CreateVATPurchLedAdSh.SetTableView(VATLedger);
         CreateVATPurchLedAdSh.SetParameters(VendorNo, '', '', 0, false, true, 0, 0, true, true, false, false);
@@ -589,7 +589,7 @@ codeunit 143018 "Library - VAT Ledger"
     var
         CreateVATSalesLedAdSh: Report "Create VAT Sales Led. Ad. Sh.";
     begin
-        VATLedger.SetRecFilter;
+        VATLedger.SetRecFilter();
         Clear(CreateVATSalesLedAdSh);
         CreateVATSalesLedAdSh.SetTableView(VATLedger);
         CreateVATSalesLedAdSh.SetParameters(CustomerNo, '', '', 0, true, true, true, false, false, false);
@@ -603,7 +603,7 @@ codeunit 143018 "Library - VAT Ledger"
         CompanyInformation: Record "Company Information";
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             Validate("Country/Region Code", MockCountryEAEU);
             Modify(true);
         end;

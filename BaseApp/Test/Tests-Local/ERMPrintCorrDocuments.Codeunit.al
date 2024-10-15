@@ -865,7 +865,7 @@ codeunit 144013 "ERM Print Corr. Documents"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         with SalesReceivablesSetup do begin
-            Get;
+            Get();
             OldSalesReceivablesSetup := SalesReceivablesSetup;
             Validate("Credit Warnings", CreditWarnings);
             Validate("Stockout Warning", StockoutWarning);

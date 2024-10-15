@@ -224,7 +224,7 @@ codeunit 144016 "ERM G/L Correspodence"
         GeneralPostingSetup.Get(Vendor."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group");
 
         // [GIVEN] Post inventory cost to G/L with "Per Posting Group" option.
-        LibraryCosting.PostInvtCostToGL(true, WorkDate, DocNo);
+        LibraryCosting.PostInvtCostToGL(true, WorkDate(), DocNo);
 
         // [WHEN] Create G/L Correspondence.
         GLEntry.SetRange("Document No.", DocNo);
@@ -355,7 +355,7 @@ codeunit 144016 "ERM G/L Correspodence"
         PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, DocumentType, VendorNo, ItemNo, Qty, '', WorkDate);
+          PurchaseHeader, PurchaseLine, DocumentType, VendorNo, ItemNo, Qty, '', WorkDate());
         PurchaseLine.Validate("Direct Unit Cost", UnitCost);
         PurchaseLine.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -424,7 +424,7 @@ codeunit 144016 "ERM G/L Correspodence"
         GLEntry: Record "G/L Entry";
     begin
         with GLEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FieldNo("Entry No."));
             "G/L Account No." := GLAccountNo;
             "Debit Amount" := DebitAmount;
@@ -432,7 +432,7 @@ codeunit 144016 "ERM G/L Correspodence"
             Amount := DebitAmount - CreditAmount;
             "Bal. Account Type" := "Bal. Account Type"::"G/L Account";
             "Transaction No." := TransactionNo;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -589,7 +589,7 @@ codeunit 144016 "ERM G/L Correspodence"
                 Assert.AreEqual("Debit Account No.", ReversedGLCorrespondenceEntry."Debit Account No.", FieldCaption("Debit Account No."));
                 Assert.AreEqual("Credit Account No.", ReversedGLCorrespondenceEntry."Credit Account No.", FieldCaption("Credit Account No."));
                 Assert.AreEqual(-Amount, ReversedGLCorrespondenceEntry.Amount, FieldCaption(Amount));
-                ReversedGLCorrespondenceEntry.Next;
+                ReversedGLCorrespondenceEntry.Next();
             until Next = 0;
     end;
 

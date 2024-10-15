@@ -13,7 +13,7 @@ page 152 "Vendor Statistics"
             group(General)
             {
                 Caption = 'General';
-                field("Balance (LCY)"; "Balance (LCY)")
+                field("Balance (LCY)"; Rec."Balance (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total value of your completed purchases from the vendor in the current fiscal year.';
@@ -31,30 +31,30 @@ page 152 "Vendor Statistics"
                         VendLedgEntry.DrillDownOnEntries(DtldVendLedgEntry);
                     end;
                 }
-                field("Outstanding Orders (LCY)"; "Outstanding Orders (LCY)")
+                field("Outstanding Orders (LCY)"; Rec."Outstanding Orders (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum of outstanding orders (in LCY) to this vendor.';
                 }
-                field("Amt. Rcd. Not Invoiced (LCY)"; "Amt. Rcd. Not Invoiced (LCY)")
+                field("Amt. Rcd. Not Invoiced (LCY)"; Rec."Amt. Rcd. Not Invoiced (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Amt. Rcd. Not Invd. (LCY)';
                     ToolTip = 'Specifies the total invoice amount (in LCY) for the items you have received but not yet been invoiced for.';
                 }
-                field("Outstanding Invoices (LCY)"; "Outstanding Invoices (LCY)")
+                field("Outstanding Invoices (LCY)"; Rec."Outstanding Invoices (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum of the vendor''s outstanding purchase invoices in LCY.';
                 }
-                field(GetTotalAmountLCY; GetTotalAmountLCY)
+                field(GetTotalAmountLCY; GetTotalAmountLCY())
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
                     Caption = 'Total (LCY)';
                     ToolTip = 'Specifies the payment amount that you owe the vendor for completed purchases plus purchases that are still ongoing.';
                 }
-                field("Balance Due (LCY)"; CalcOverDueBalance)
+                field("Balance Due (LCY)"; CalcOverDueBalance())
                 {
                     ApplicationArea = Basic, Suite;
                     CaptionClass = Format(StrSubstNo(Text000, Format(CurrentDate)));
@@ -71,7 +71,7 @@ page 152 "Vendor Statistics"
                         VendLedgEntry.DrillDownOnOverdueEntries(DtldVendLedgEntry);
                     end;
                 }
-                field(GetInvoicedPrepmtAmountLCY; GetInvoicedPrepmtAmountLCY)
+                field(GetInvoicedPrepmtAmountLCY; GetInvoicedPrepmtAmountLCY())
                 {
                     ApplicationArea = Prepayments;
                     Caption = 'Invoiced Prepayment Amount (LCY)';
@@ -470,8 +470,8 @@ page 152 "Vendor Statistics"
 
     trigger OnAfterGetRecord()
     begin
-        if CurrentDate <> WorkDate then begin
-            CurrentDate := WorkDate;
+        if CurrentDate <> WorkDate() then begin
+            CurrentDate := WorkDate();
             DateFilterCalc.CreateAccountingPeriodFilter(VendDateFilter[1], VendDateName[1], CurrentDate, 0);
             DateFilterCalc.CreateFiscalYearFilter(VendDateFilter[2], VendDateName[2], CurrentDate, 0);
             DateFilterCalc.CreateFiscalYearFilter(VendDateFilter[3], VendDateName[3], CurrentDate, -1);
@@ -503,9 +503,10 @@ page 152 "Vendor Statistics"
     end;
 
     var
+        DateFilterCalc: Codeunit "DateFilter-Calc";
+
         Text000: Label 'Overdue Amounts (LCY) as of %1';
         Text001: Label 'Placeholder';
-        DateFilterCalc: Codeunit "DateFilter-Calc";
 
     protected var
         VendDateFilter: array[4] of Text[30];

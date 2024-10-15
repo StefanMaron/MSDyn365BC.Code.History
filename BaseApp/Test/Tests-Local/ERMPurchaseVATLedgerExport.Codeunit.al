@@ -489,13 +489,13 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         DocNo := CreateAndPostPurchInvoiceVATAgent(VendorNo, Amount, '', 0D);
 
         // [GIVEN] Payment "Y" applied to "X"
-        PostAppliedPayment(GenJnlLine, VendorNo, DocNo, Amount, WorkDate);
+        PostAppliedPayment(GenJnlLine, VendorNo, DocNo, Amount, WorkDate());
         // [GIVEN] Posted VAT Settlement Journal Line
         CreatePostVATSettlementJnlLine(VendorNo);
 
         // [WHEN] Create Sales VAT Ledger Line
         VATLedgerCode :=
-          LibrarySales.CreateSalesVATLedger(WorkDate, LibraryRandom.RandDateFromInRange(WorkDate, 5, 10), VendorNo);
+          LibrarySales.CreateSalesVATLedger(WorkDate(), LibraryRandom.RandDateFromInRange(WorkDate(), 5, 10), VendorNo);
 
         // [THEN] VAT Ledger contain only one line
         VerifySalesVATLedger(VendorNo, VATLedgerCode);
@@ -604,13 +604,13 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         // [SCENARIO 379551] VAT Purchase Ledger report in scenario with prepayment from VAT Agent on invoice date
         Initialize();
         LibraryERM.SetCancelPrepmtAdjmtinTA(true);
-        DeleteVATEntriesOnDate(WorkDate, WorkDate);
+        DeleteVATEntriesOnDate(WorkDate(), WorkDate());
 
         // [GIVEN] Purchase Invoice and prepayment applied. Applied Amount = "X"
         CreateVATAgentPurchaseInvoiceAndAppliedPrepament(VendorNo, PrepaymentDate, AppliedAmount);
 
         // [WHEN] Export Purchase VAT Ledger to Excel on invoice date
-        RunVATLedgerExportReportOnDate(VendorNo, WorkDate, WorkDate, false, false);
+        RunVATLedgerExportReportOnDate(VendorNo, WorkDate(), WorkDate, false, false);
 
         // [THEN] Column 15 of line value equals "X".
         VerifyVATLedgExportVATAgentPrepayment(
@@ -629,7 +629,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         // [SCENARIO 379551] VAT Purchase Ledger report in scenario with prepayment from VAT Agent on prepayment date
         Initialize();
         LibraryERM.SetCancelPrepmtAdjmtinTA(true);
-        DeleteVATEntriesOnDate(WorkDate, WorkDate);
+        DeleteVATEntriesOnDate(WorkDate(), WorkDate());
 
         // [GIVEN] Purchase Invoice and prepayment applied
         CreateVATAgentPurchaseInvoiceAndAppliedPrepament(VendorNo, PrepaymentDate, AppliedAmount);
@@ -778,7 +778,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         with PurchHeader do begin
             UpdateCorrectionInfo(PurchHeader, "Corrective Doc. Type"::Revision, CorrDocType, CorrDocNo);
             Validate("Revision No.", LibraryUtility.GenerateGUID());
-            Validate("Posting Date", CalcDate('<1D>', WorkDate));
+            Validate("Posting Date", CalcDate('<1D>', WorkDate()));
             Modify(true);
         end;
     end;
@@ -806,7 +806,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
     local procedure RunVATLedgerExportReport(VendorNo: Code[20]; AddSheet: Boolean; UseExternalDocNo: Boolean)
     begin
         RunVATLedgerExportReportOnDate(
-          VendorNo, WorkDate, LibraryRandom.RandDateFromInRange(WorkDate, 5, 10), AddSheet, UseExternalDocNo);
+          VendorNo, WorkDate(), LibraryRandom.RandDateFromInRange(WorkDate(), 5, 10), AddSheet, UseExternalDocNo);
     end;
 
     local procedure RunVATLedgerExportReportOnDate(VendorNo: Code[20]; StartDate: Date; EndDate: Date; AddSheet: Boolean; UseExternalDocNo: Boolean)

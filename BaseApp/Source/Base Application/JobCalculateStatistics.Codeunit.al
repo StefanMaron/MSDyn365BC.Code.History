@@ -28,7 +28,7 @@ codeunit 1008 "Job Calculate Statistics"
             JobCalculateCommonFilters(Job2)
         else
             JTCalculateCommonFilters(JT, Job2, true);
-        CalculateAmounts;
+        CalculateAmounts();
         GetLCYCostAmounts(CL);
         GetCostAmounts(C);
         GetLCYPriceAmounts(PL);
@@ -142,7 +142,7 @@ codeunit 1008 "Job Calculate Statistics"
 
     procedure JobCalculateCommonFilters(var Job: Record Job)
     begin
-        ClearAll;
+        ClearAll();
         JobPlanningLine.SetCurrentKey("Job No.", "Job Task No.");
         JobLedgEntry.SetCurrentKey("Job No.", "Job Task No.", "Entry Type");
         JobPlanningLine.FilterGroup(2);
@@ -159,7 +159,7 @@ codeunit 1008 "Job Calculate Statistics"
     var
         JT: Record "Job Task";
     begin
-        ClearAll;
+        ClearAll();
         JT := JT2;
         JobPlanningLine.FilterGroup(2);
         JobPlanningLine.SetCurrentKey("Job No.", "Job Task No.");

@@ -7,7 +7,6 @@ page 40 "Item Journal"
     DataCaptionFields = "Journal Batch Name";
     DelayedInsert = true;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Page,Post/Print,Line,Item';
     SaveValues = true;
     SourceTable = "Item Journal Line";
     UsageCategory = Tasks;
@@ -25,7 +24,7 @@ page 40 "Item Journal"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     ItemJnlMgt.LookupName(CurrentJnlBatchName, Rec);
                     SetControlAppearanceFromBatch();
                     CurrPage.Update(false);
@@ -34,24 +33,24 @@ page 40 "Item Journal"
                 trigger OnValidate()
                 begin
                     ItemJnlMgt.CheckName(CurrentJnlBatchName, Rec);
-                    CurrentJnlBatchNameOnAfterVali;
+                    CurrentJnlBatchNameOnAfterVali();
                 end;
             }
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting date for the entry.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
-                field("Entry Type"; "Entry Type")
+                field("Entry Type"; Rec."Entry Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Entry Type';
@@ -71,25 +70,25 @@ page 40 "Item Journal"
                         Rec.Validate("Entry Type");
                     end;
                 }
-                field("Price Calculation Method"; "Price Calculation Method")
+                field("Price Calculation Method"; Rec."Price Calculation Method")
                 {
                     Visible = ExtendedPriceEnabled;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the method that will be used for price calculation in the journal line.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a document number for the journal line.';
                     ShowMandatory = true;
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                     Visible = false;
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the item on the journal line.';
@@ -99,7 +98,7 @@ page 40 "Item Journal"
                         ItemNoOnAfterValidate();
                     end;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -110,7 +109,7 @@ page 40 "Item Journal"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the item on the journal line.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code for the inventory location where the item on the journal line will be registered.';
@@ -126,25 +125,25 @@ page 40 "Item Journal"
                         WMSManagement.CheckItemJnlLineLocation(Rec, xRec);
                     end;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin where the items are picked or put away.';
                     Visible = false;
                 }
-                field("Salespers./Purch. Code"; "Salespers./Purch. Code")
+                field("Salespers./Purch. Code"; Rec."Salespers./Purch. Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code for the salesperson or purchaser who is linked to the sale or purchase on the journal line.';
                     Visible = false;
                 }
-                field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
+                field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the vendor''s or customer''s trade type to link transactions made for this business partner with the appropriate general ledger account according to the general posting setup.';
                     Visible = false;
                 }
-                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
@@ -155,12 +154,12 @@ page 40 "Item Journal"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of units of the item to be included on the journal line.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Unit Amount"; "Unit Amount")
+                field("Unit Amount"; Rec."Unit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the price of one unit of the item on the journal line.';
@@ -170,64 +169,64 @@ page 40 "Item Journal"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line''s net amount.';
                 }
-                field("Discount Amount"; "Discount Amount")
+                field("Discount Amount"; Rec."Discount Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the discount amount of this entry on the line.';
                 }
-                field("Indirect Cost %"; "Indirect Cost %")
+                field("Indirect Cost %"; Rec."Indirect Cost %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the percentage of the item''s last purchase cost that includes indirect costs, such as freight that is associated with the purchase of the item.';
                     Visible = false;
                 }
-                field("Unit Cost"; "Unit Cost")
+                field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                 }
-                field("Applies-to Entry"; "Applies-to Entry")
+                field("Applies-to Entry"; Rec."Applies-to Entry")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the quantity on the journal line must be applied to an already-posted entry. In that case, enter the entry number that the quantity will be applied to.';
                 }
-                field("Applies-from Entry"; "Applies-from Entry")
+                field("Applies-from Entry"; Rec."Applies-from Entry")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the outbound item ledger entry, whose cost is forwarded to the inbound item ledger entry.';
                     Visible = false;
                 }
-                field("Transaction Type"; "Transaction Type")
+                field("Transaction Type"; Rec."Transaction Type")
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = BasicEU, BasicNO;
                     ToolTip = 'Specifies the type of transaction that the document represents, for the purpose of reporting to INTRASTAT.';
                     Visible = false;
                 }
-                field("Transport Method"; "Transport Method")
+                field("Transport Method"; Rec."Transport Method")
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = BasicEU, BasicNO;
                     ToolTip = 'Specifies the transport method, for the purpose of reporting to INTRASTAT.';
                     Visible = false;
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
                     Visible = false;
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = DimVisible1;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -329,7 +328,7 @@ page 40 "Item Journal"
                         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 8);
                     end;
                 }
-                field("Red Storno"; "Red Storno")
+                field("Red Storno"; Rec."Red Storno")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if this transaction must be posted in the same column as the original posting.';
@@ -399,15 +398,13 @@ page 40 "Item Journal"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
                 action(ItemTrackingLines)
@@ -415,9 +412,7 @@ page 40 "Item Journal"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -430,8 +425,6 @@ page 40 "Item Journal"
                     ApplicationArea = Warehouse;
                     Caption = 'Bin Contents';
                     Image = BinContent;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     RunObject = Page "Bin Contents List";
                     RunPageLink = "Location Code" = FIELD("Location Code"),
                                   "Item No." = FIELD("Item No."),
@@ -444,14 +437,12 @@ page 40 "Item Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = '&Recalculate Unit Amount';
                     Image = UpdateUnitCost;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     ToolTip = 'Reset the unit amount to the amount specified on the item card.';
 
                     trigger OnAction()
                     begin
-                        RecalculateUnitAmount;
-                        CurrPage.SaveRecord;
+                        RecalculateUnitAmount();
+                        CurrPage.SaveRecord();
                     end;
                 }
             }
@@ -464,8 +455,6 @@ page 40 "Item Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Card';
                     Image = EditLines;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     RunObject = Page "Item Card";
                     RunPageLink = "No." = FIELD("Item No.");
                     ShortCutKey = 'Shift+F7';
@@ -476,8 +465,6 @@ page 40 "Item Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Ledger E&ntries';
                     Image = ItemLedger;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     RunObject = Page "Item Ledger Entries";
                     RunPageLink = "Item No." = FIELD("Item No.");
                     RunPageView = SORTING("Item No.");
@@ -497,7 +484,7 @@ page 40 "Item Journal"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByEvent)
+                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByEvent())
                         end;
                     }
                     action(Period)
@@ -509,7 +496,7 @@ page 40 "Item Journal"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByPeriod)
+                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByPeriod())
                         end;
                     }
                     action(Variant)
@@ -521,7 +508,7 @@ page 40 "Item Journal"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByVariant)
+                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByVariant())
                         end;
                     }
                     action(Location)
@@ -534,7 +521,7 @@ page 40 "Item Journal"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByLocation)
+                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByLocation())
                         end;
                     }
                     action(Lot)
@@ -558,7 +545,7 @@ page 40 "Item Journal"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByBOM)
+                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByBOM())
                         end;
                     }
                 }
@@ -576,8 +563,6 @@ page 40 "Item Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'E&xplode BOM';
                     Image = ExplodeBOM;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Codeunit "Item Jnl.-Explode BOM";
                     ToolTip = 'Insert new lines for the components on the bill of materials, for example to sell the parent item as a kit. CAUTION: The line for the parent item will be deleted and represented by a description only. To undo, you must delete the component lines and add a line the parent item again.';
                 }
@@ -602,8 +587,6 @@ page 40 "Item Journal"
                     Caption = '&Get Standard Journals';
                     Ellipsis = true;
                     Image = GetStandardJournal;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Import journal lines from a standard journal that already exists.';
 
                     trigger OnAction()
@@ -671,9 +654,6 @@ page 40 "Item Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'P&ost';
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
@@ -689,9 +669,6 @@ page 40 "Item Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Post and &Print';
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
@@ -709,8 +686,6 @@ page 40 "Item Journal"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Category5;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -728,10 +703,6 @@ page 40 "Item Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Edit in Excel';
                     Image = Excel;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
                     Visible = IsSaaSExcelAddinEnabled;
                     AccessByPermission = System "Allow Action Export To Excel" = X;
@@ -753,8 +724,6 @@ page 40 "Item Journal"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Show Lines with Issues';
                         Image = Error;
-                        Promoted = true;
-                        PromotedCategory = Category4;
                         Visible = BackgroundErrorCheck;
                         Enabled = not ShowAllLinesEnabled;
                         ToolTip = 'View a list of journal lines that have issues before you post the journal.';
@@ -769,8 +738,6 @@ page 40 "Item Journal"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Show All Lines';
                         Image = ExpandAll;
-                        Promoted = true;
-                        PromotedCategory = Category4;
                         Visible = BackgroundErrorCheck;
                         Enabled = ShowAllLinesEnabled;
                         ToolTip = 'View all journal lines, including lines with and without issues.';
@@ -781,6 +748,125 @@ page 40 "Item Journal"
                         end;
                     }
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                group(Category_Category5)
+                {
+                    Caption = 'Posting';
+                    ShowAs = SplitButton;
+
+                    actionref(Post_Promoted; Post)
+                    {
+                    }
+                    actionref("Post and &Print_Promoted"; "Post and &Print")
+                    {
+                    }
+                }
+                actionref("&Calculate Warehouse Adjustment_Promoted"; "&Calculate Warehouse Adjustment")
+                {
+                }
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+                actionref("&Get Standard Journals_Promoted"; "&Get Standard Journals")
+                {
+                }
+                actionref("&Recalculate Unit Amount_Promoted"; "&Recalculate Unit Amount")
+                {
+                }
+                actionref("E&xplode BOM_Promoted"; "E&xplode BOM")
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref(ItemTrackingLines_Promoted; ItemTrackingLines)
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                group("Category_Item Availability by")
+                {
+                    Caption = 'Item Availability by';
+
+                    actionref(Location_Promoted; Location)
+                    {
+                    }
+                    actionref(Variant_Promoted; Variant)
+                    {
+                    }
+                    actionref(Event_Promoted; "Event")
+                    {
+                    }
+                    actionref(Period_Promoted; Period)
+                    {
+                    }
+                    actionref("BOM Level_Promoted"; "BOM Level")
+                    {
+                    }
+                    actionref(Lot_Promoted; Lot)
+                    {
+                    }
+                }
+#if not CLEAN21
+                actionref("Bin Contents_Promoted"; "Bin Contents")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Item', Comment = 'Generated from the PromotedActionCategories property index 6.';
+
+#if not CLEAN21
+                actionref(Card_Promoted; Card)
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+#if not CLEAN21
+                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Page', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(EditInExcel_Promoted; EditInExcel)
+                {
+                }
+                actionref(ShowLinesWithErrors_Promoted; ShowLinesWithErrors)
+                {
+                }
+                actionref(ShowAllLines_Promoted; ShowAllLines)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }
@@ -827,7 +913,7 @@ page 40 "Item Journal"
     begin
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
-        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
             exit;
 
         SetDimensionsVisibility();
@@ -836,7 +922,6 @@ page 40 "Item Journal"
     end;
 
     var
-        Text000: Label 'You cannot use entry type %1 in this journal.';
         CalcWhseAdjmt: Report "Calculate Whse. Adjustment";
         ItemJnlMgt: Codeunit ItemJnlManagement;
         ReportPrint: Codeunit "Test Report-Print";
@@ -846,12 +931,14 @@ page 40 "Item Journal"
         ItemJournalErrorsMgt: Codeunit "Item Journal Errors Mgt.";
         CurrentJnlBatchName: Code[10];
         ItemDescription: Text[100];
-        Text001: Label 'Item Journal lines have been successfully inserted from Standard Item Journal %1.';
-        Text002: Label 'Standard Item Journal %1 has been successfully created.';
         ExtendedPriceEnabled: Boolean;
         BackgroundErrorCheck: Boolean;
         ShowAllLinesEnabled: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
+
+        Text000: Label 'You cannot use entry type %1 in this journal.';
+        Text001: Label 'Item Journal lines have been successfully inserted from Standard Item Journal %1.';
+        Text002: Label 'Standard Item Journal %1 has been successfully created.';
 
     protected var
         EntryType: Enum "Item Journal Entry Type";
@@ -867,7 +954,7 @@ page 40 "Item Journal"
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         ItemJnlMgt.SetName(CurrentJnlBatchName, Rec);
         SetControlAppearanceFromBatch();
         CurrPage.Update(false);
@@ -883,7 +970,7 @@ page 40 "Item Journal"
         if IsHandled then
             exit;
 
-        if IsOpenedFromBatch then begin
+        if IsOpenedFromBatch() then begin
             CurrentJnlBatchName := "Journal Batch Name";
             ItemJnlMgt.OpenJnl(CurrentJnlBatchName, Rec);
             SetControlAppearanceFromBatch();

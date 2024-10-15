@@ -1,4 +1,4 @@
-page 385 "Report Selection - Bank Acc."
+﻿page 385 "Report Selection - Bank Acc."
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Report Selection - Bank Account';
@@ -75,6 +75,7 @@ page 385 "Report Selection - Bank Acc."
 
     trigger OnOpenPage()
     begin
+        InitUsageFilter();
         SetUsageFilter(false);
     end;
 
@@ -91,10 +92,10 @@ page 385 "Report Selection - Bank Acc."
                 Rec.SetRange(Usage, "Report Selection Usage"::"B.Stmt");
             "Report Selection Usage Bank"::"Reconciliation - Test":
                 Rec.SetRange(Usage, "Report Selection Usage"::"B.Recon.Test");
-            "Report Selection Usage Bank"::"Posted Payment Reconciliation":
-                SetRange(Usage, Usage::"Posted Payment Reconciliation");
             "Report Selection Usage Bank"::Check:
                 Rec.SetRange(Usage, "Report Selection Usage"::"B.Check");
+            "Report Selection Usage Bank"::"Posted Payment Reconciliation":
+                Rec.SetRange(Usage, "Report Selection Usage"::"Posted Payment Reconciliation");
             "Report Selection Usage Bank"::"Unposted Cash Ingoing Order":
                 Rec.SetRange(Usage, "Report Selection Usage"::UCI);
             "Report Selection Usage Bank"::"Unposted Cash Outgoing Order":
@@ -111,8 +112,45 @@ page 385 "Report Selection - Bank Acc."
         CurrPage.Update();
     end;
 
+    local procedure InitUsageFilter()
+    var
+        NewReportUsage: Enum "Report Selection Usage";
+    begin
+        if Rec.GetFilter(Usage) <> '' then begin
+            if Evaluate(NewReportUsage, Rec.GetFilter(Usage)) then
+                case NewReportUsage of
+                    "Report Selection Usage"::"B.Stmt":
+                        ReportUsage2 := "Report Selection Usage Bank"::Statement;
+                    "Report Selection Usage"::"B.Recon.Test":
+                        ReportUsage2 := "Report Selection Usage Bank"::"Reconciliation - Test";
+                    "Report Selection Usage"::"B.Check":
+                        ReportUsage2 := "Report Selection Usage Bank"::Check;
+                    "Report Selection Usage"::"Posted Payment Reconciliation":
+                        ReportUsage2 := "Report Selection Usage Bank"::"Posted Payment Reconciliation";
+                    "Report Selection Usage"::UCI:
+                        ReportUsage2 := "Report Selection Usage Bank"::"Unposted Cash Ingoing Order";
+                    "Report Selection Usage"::UCO:
+                        ReportUsage2 := "Report Selection Usage Bank"::"Unposted Cash Outgoing Order";
+                    "Report Selection Usage"::CB:
+                        ReportUsage2 := "Report Selection Usage Bank"::"Cash Book";
+                    "Report Selection Usage"::CI:
+                        ReportUsage2 := "Report Selection Usage Bank"::"Cash Ingoing Order";
+                    "Report Selection Usage"::CO:
+                        ReportUsage2 := "Report Selection Usage Bank"::"Cash Outgoing Order";
+                    else
+                        OnInitUsageFilterOnElseCase(NewReportUsage, ReportUsage2);
+                end;
+            Rec.SetRange(Usage);
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnSetUsageFilterOnAfterSetFiltersByReportUsage(var Rec: Record "Report Selections"; ReportUsage2: Enum "Report Selection Usage Bank")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitUsageFilterOnElseCase(ReportUsage: Enum "Report Selection Usage"; var ReportUsage2: Enum "Report Selection Usage Bank")
     begin
     end;
 }

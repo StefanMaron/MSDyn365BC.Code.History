@@ -42,6 +42,8 @@ codeunit 138012 "O365 Templates Test"
         TemplateMustBeEnabledErr: Label 'New configuration template must be enabled';
         RelationErr: Label 'A template cannot relate to itself. Specify a different template.';
         DuplicateRelationErr: Label 'The template %1 is already in this hierarchy.';
+        StartingNumberTxt: Label 'ABC00010D';
+        EndingNumberTxt: Label 'ABC00090D';
 
     [Test]
     [HandlerFunctions('CustomerTemplateCardHandler')]
@@ -558,7 +560,7 @@ codeunit 138012 "O365 Templates Test"
 
         CustomerCard.Name.SetValue('Test');
         CustomerNo := CustomerCard."No.".Value;
-        CustomerCard.Close;
+        CustomerCard.Close();
 
         // [THEN] Fields in new customer matches template's fields, no dimensions assigned
         CustomerFromTemplate.Get(CustomerNo);
@@ -594,7 +596,7 @@ codeunit 138012 "O365 Templates Test"
         VendorCard.Name.SetValue('Test');
 
         VendorNo := VendorCard."No.".Value;
-        VendorCard.Close;
+        VendorCard.Close();
 
         // [THEN] Fields in new vendor matches template's fields, no dimensions assigned
         VendorFromTemplate.Get(VendorNo);
@@ -629,7 +631,7 @@ codeunit 138012 "O365 Templates Test"
         ItemCard.OpenNew();
         ItemCard.Description.SetValue('Test');
         ItemNo := ItemCard."No.".Value;
-        ItemCard.Close;
+        ItemCard.Close();
 
         // [THEN] Fields in new item matches template's fields, no dimensions assigned
         ItemFromTemplate.Get(ItemNo);
@@ -660,7 +662,7 @@ codeunit 138012 "O365 Templates Test"
         CustomerCard.OpenNew();
         CustomerCard.Name.SetValue('Test');
         CustomerNo := CustomerCard."No.".Value;
-        CustomerCard.Close;
+        CustomerCard.Close();
 
         CustomerFromTemplate.Get(CustomerNo);
         ValidateCustomerVsConfigTemplateWithEmptyDim(CustomerFromTemplate, CustomerTemplateCode);
@@ -693,7 +695,7 @@ codeunit 138012 "O365 Templates Test"
 
         VendorCard.Name.SetValue('Test');
         VendorNo := VendorCard."No.".Value;
-        VendorCard.Close;
+        VendorCard.Close();
 
         VendorFromTemplate.Get(VendorNo);
         ValidateVendorVsConfigTemplateWithEmptyDim(VendorFromTemplate, VendorTemplateCode);
@@ -726,7 +728,7 @@ codeunit 138012 "O365 Templates Test"
         ItemCard.Description.SetValue('Test');
 
         ItemNo := ItemCard."No.".Value;
-        ItemCard.Close;
+        ItemCard.Close();
 
         ItemFromTemplate.Get(ItemNo);
         ValidateItemVsConfigTemplateWithEmptyDim(ItemFromTemplate, ItemTemplateCode);
@@ -756,7 +758,7 @@ codeunit 138012 "O365 Templates Test"
         CustomerCard.OpenNew();
         CustomerCard.Name.SetValue('Test');
         CustomerNo := CustomerCard."No.".Value;
-        CustomerCard.Close;
+        CustomerCard.Close();
 
         // [THEN] One Contact created for Customer
         VerifyOneCustomerContactDoesExist(CustomerNo, ContactsCount);
@@ -786,7 +788,7 @@ codeunit 138012 "O365 Templates Test"
         VendorCard.OpenNew();
         VendorCard.Name.SetValue('Test');
         VendorNo := VendorCard."No.".Value;
-        VendorCard.Close;
+        VendorCard.Close();
 
         // [THEN] One Contact created for Vendor
         VerifyOneVendorContactDoesExist(VendorNo, ContactsCount);
@@ -815,7 +817,7 @@ codeunit 138012 "O365 Templates Test"
         CustomerCard.OpenNew();
         CustomerCard.Name.SetValue('Test');
         CustomerNo := CustomerCard."No.".Value;
-        CustomerCard.Close;
+        CustomerCard.Close();
 
         CustomerFromTemplate.Get(CustomerNo);
         ValidateCustomerVsConfigTemplate(CustomerFromTemplate, CustomerConfigTemplateHeaderCode);
@@ -844,7 +846,7 @@ codeunit 138012 "O365 Templates Test"
         VendorCard.OpenNew();
         VendorCard.Name.SetValue('Test');
         VendorNo := VendorCard."No.".Value;
-        VendorCard.Close;
+        VendorCard.Close();
 
         VendorFromTemplate.Get(VendorNo);
         ValidateVendorVsConfigTemplate(VendorFromTemplate, VendorConfigTemplateHeaderCode);
@@ -875,7 +877,7 @@ codeunit 138012 "O365 Templates Test"
         ItemCard.OpenNew();
         ItemCard.Description.SetValue('Test');
         ItemNo := ItemCard."No.".Value;
-        ItemCard.Close;
+        ItemCard.Close();
 
         ItemFromTemplate.Get(ItemNo);
         ValidateItemVsConfigTemplate(ItemFromTemplate, ItemConfigTemplateHeaderCode);
@@ -895,8 +897,8 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplates.NewConfigTemplate.Invoke;
         Assert.IsTrue(ConfigTemplateHeaderPage.Code.Editable, 'Template page opened in read-only mode.');
         Assert.AreEqual('', ConfigTemplateHeaderPage.Code.Value, 'Template not opened in new mode.');
-        ConfigTemplateHeaderPage.Close;
-        ConfigTemplates.Close;
+        ConfigTemplateHeaderPage.Close();
+        ConfigTemplates.Close();
     end;
 
     [Test]
@@ -1127,7 +1129,7 @@ codeunit 138012 "O365 Templates Test"
 
         // [THEN] The Costing Method equals Average
         ItemTemplateCard."Costing Method".AssertEquals(InventorySetup."Default Costing Method"::Average);
-        ItemTemplateCard.Close;
+        ItemTemplateCard.Close();
     end;
 
     [Test]
@@ -1207,12 +1209,12 @@ codeunit 138012 "O365 Templates Test"
         ItemTempl.Get(ConfigTemplHeaderCode);
         ItemTempl."No. Series" := NoSeriesCode;
         ItemTempl.Modify(true);
-        ExpectedNo := LibraryUtility.GetNextNoFromNoSeries(NoSeriesCode, WorkDate);
+        ExpectedNo := LibraryUtility.GetNextNoFromNoSeries(NoSeriesCode, WorkDate());
 
         // [WHEN] Create new Item
         ItemCard.OpenNew();
         ItemNo := ItemCard."No.".Value;
-        ItemCard.Close;
+        ItemCard.Close();
 
         // [THEN] Item is created with No. = "N" and "No. Series" = "S"
         VerifyItemNoWithSeries(ItemNo, ExpectedNo, NoSeriesCode);
@@ -1242,12 +1244,12 @@ codeunit 138012 "O365 Templates Test"
         CustomerTempl.Get(ConfigTemplHeaderCode);
         CustomerTempl."No. Series" := NoSeriesCode;
         CustomerTempl.Modify(true);
-        ExpectedNo := LibraryUtility.GetNextNoFromNoSeries(NoSeriesCode, WorkDate);
+        ExpectedNo := LibraryUtility.GetNextNoFromNoSeries(NoSeriesCode, WorkDate());
 
         // [WHEN] Create new Customer
         CustomerCard.OpenNew();
         CustomerNo := CustomerCard."No.".Value;
-        CustomerCard.Close;
+        CustomerCard.Close();
 
         // [THEN] Customer is created with No. = "N" and "No. Series" = "S"
         VerifyCustomerNoWithSeries(CustomerNo, ExpectedNo, NoSeriesCode);
@@ -1277,12 +1279,12 @@ codeunit 138012 "O365 Templates Test"
         VendorTempl.Get(ConfigTemplHeaderCode);
         VendorTempl."No. Series" := NoSeriesCode;
         VendorTempl.Modify(true);
-        ExpectedNo := LibraryUtility.GetNextNoFromNoSeries(NoSeriesCode, WorkDate);
+        ExpectedNo := LibraryUtility.GetNextNoFromNoSeries(NoSeriesCode, WorkDate());
 
         // [WHEN] Create new Vendor
         VendorCard.OpenNew();
         VendorNo := VendorCard."No.".Value;
-        VendorCard.Close;
+        VendorCard.Close();
 
         // [THEN] Vendor is created with No. = "N" and "No. Series" = "S"
         VerifyVendorNoWithSeries(VendorNo, ExpectedNo, NoSeriesCode);
@@ -1484,6 +1486,52 @@ codeunit 138012 "O365 Templates Test"
         VendorTemplateCard.City.AssertEquals('');
         VendorTemplateCard."Post Code".AssertEquals('');
         VendorTemplateCard.OK.Invoke;
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTemplateCardHandler')]
+    [Scope('OnPrem')]
+    procedure CreateItemFromItemTemplateWit()
+    var
+        ItemTempl: Record "Item Templ.";
+        Item: Record Item;
+        NoSeries: Record "No. Series";
+        ItemCard: TestPage "Item Card";
+        ItemNo: Variant;
+        ConfigTemplHeaderCode: Code[20];
+        LastNoUsed: Code[20];
+        NewLastNoUsed: Code[20];
+    begin
+        // [SCENARIO 446206] No Series Lines are no longer automatically closing when the last number is reached.
+        Initialize();
+
+        // [GIVEN] Create No. Series and No. Series Line 
+        CreateNewNumberSeries(NoSeries);
+        CreateNumberSeriesLine(NoSeries, StartingNumberTxt, StartingNumberTxt, 1, 10000, false);
+        CreateNumberSeriesLine(NoSeries, EndingNumberTxt, EndingNumberTxt, 1, 20000, false);
+
+        // [GIVEN] Configuration Template for blank Item with No. Series.
+        CreateBlankItem(Item);
+        CreateTemplateFromItem(Item, ConfigTemplHeaderCode);
+        ItemTempl.Get(ConfigTemplHeaderCode);
+        ItemTempl."No. Series" := NoSeries.Code;
+        ItemTempl.Modify(true);
+
+        // [WHEN] Create new Item
+        ItemCard.OpenNew();
+        ItemNo := ItemCard."No.".Value;
+        ItemCard.Close();
+
+        // [VERIFY] Item is created with No. = "ABC00010D" 
+        VerifyItemNoWithSeries(ItemNo, StartingNumberTxt, NoSeries.Code);
+
+        // [WHEN] Create new Item
+        ItemCard.OpenNew();
+        ItemNo := ItemCard."No.".Value;
+        ItemCard.Close();
+
+        // [VERIFy] Item is created with No. = "ABC00090D".
+        VerifyItemNoWithSeries(ItemNo, EndingNumberTxt, NoSeries.Code);
     end;
 
     local procedure Initialize()
@@ -1888,7 +1936,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         InventorySetup.Get();
         NoSeries := InventorySetup."Item Nos.";
-        ItemNo := LibraryUtility.GetNextNoFromNoSeries(NoSeries, WorkDate);
+        ItemNo := LibraryUtility.GetNextNoFromNoSeries(NoSeries, WorkDate());
     end;
 
     local procedure GetDefaultCustomerNoWithSeries(var CustomerNo: Code[20]; var NoSeries: Code[20])
@@ -1897,7 +1945,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         SalesReceivablesSetup.Get();
         NoSeries := SalesReceivablesSetup."Customer Nos.";
-        CustomerNo := LibraryUtility.GetNextNoFromNoSeries(NoSeries, WorkDate);
+        CustomerNo := LibraryUtility.GetNextNoFromNoSeries(NoSeries, WorkDate());
     end;
 
     local procedure GetDefaultVendorNoWithSeries(var VendorNo: Code[20]; var NoSeries: Code[20])
@@ -1906,7 +1954,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         PurchasesPayablesSetup.Get();
         NoSeries := PurchasesPayablesSetup."Vendor Nos.";
-        VendorNo := LibraryUtility.GetNextNoFromNoSeries(NoSeries, WorkDate);
+        VendorNo := LibraryUtility.GetNextNoFromNoSeries(NoSeries, WorkDate());
     end;
 
     local procedure ValidateCustomerVsBlankTemplate(Customer: Record Customer)
@@ -2251,11 +2299,11 @@ codeunit 138012 "O365 Templates Test"
         with PostCodeRec do begin
             SetFilter(City, CityName);
             DeleteAll();
-            Reset;
+            Reset();
             SetFilter(Code, PostCode);
             DeleteAll();
 
-            Init;
+            Init();
             Code := PostCode;
             City := CityName;
             "Search City" := CityName;
@@ -2556,7 +2604,7 @@ codeunit 138012 "O365 Templates Test"
 
         ItemCard.Description.SetValue('Test');
         ItemNo := ItemCard."No.".Value;
-        ItemCard.Close;
+        ItemCard.Close();
 
         NewItem.Get(ItemNo);
         Item.Description := 'Test';
@@ -2570,6 +2618,36 @@ codeunit 138012 "O365 Templates Test"
         RecordRef2.GetTable(NewItem);
 
         VerifyRecordRefsMatch(RecordRef1, RecordRef2);
+    end;
+
+    local procedure CreateNewNumberSeries(var NoSeries: Record "No. Series")
+    var
+        NoSerCode: Code[20];
+    begin
+        NoSerCode := LibraryRandom.RandText(20);
+        NoSeries.Code := NoSerCode;
+        NoSeries.Description := NoSerCode;
+        NoSeries."Default Nos." := true;
+        NoSeries.Insert();
+    end;
+
+    local procedure CreateNumberSeriesLine(NoSeries: Record "No. Series";
+                                           StartingNumber: Code[20];
+                                           EndingNumber: Code[20];
+                                           IncrementBy: Integer;
+                                           LineNo: Integer;
+                                           AllowGaps: Boolean)
+    var
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        NoSeriesLine."Series Code" := NoSeries.Code;
+        NoSeriesLine."Line No." := LineNo;
+        NoSeriesLine.Validate("Starting No.", StartingNumber);
+        NoSeriesLine.Validate("Ending No.", EndingNumber);
+        NoSeriesLine."Increment-by No." := IncrementBy;
+        NoSeriesLine.Insert();
+        NoSeriesLine.Validate("Allow Gaps in Nos.", AllowGaps);
+        NoSeriesLine.Modify();
     end;
 
     local procedure EditSalesSetupWithVATBusPostGrPrice(BusPostingGroupVal: Code[20])

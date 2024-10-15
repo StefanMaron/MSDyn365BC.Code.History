@@ -58,7 +58,7 @@ codeunit 144507 "ERM FA Depreciation Bonus"
         // Check no more FA Depreciation Entries in FA Journal created
         FixedAssetNo := CreateCustFAPostDepr(false, false, 0, FAPurchAmount, FADeprBonusPct, DeprAmount);
 
-        FADeprDate := CalcDate('<CM+2M>', WorkDate);
+        FADeprDate := CalcDate('<CM+2M>', WorkDate());
         CalcBonusDepreciation(
           FixedAssetNo, TaxDeprBookCode, FADeprDate, true);
 
@@ -85,7 +85,7 @@ codeunit 144507 "ERM FA Depreciation Bonus"
 
         FindFADeprLedgerEntry(FixedAssetNo, FALedgerEntry, FALedgerEntry."FA Posting Type"::Depreciation);
         VerifyFALedgerEntry(FALedgerEntry, -FAPurchAmount * (FADeprBonusPct / 100), true);
-        FALedgerEntry.Next;
+        FALedgerEntry.Next();
         VerifyFALedgerEntry(FALedgerEntry, DeprAmount, false);
     end;
 
@@ -139,12 +139,12 @@ codeunit 144507 "ERM FA Depreciation Bonus"
             true, true, 0, FAPurchAmount, FADeprBonusPct, DeprAmount[2]);
         DeprAmount[1] := -FAPurchAmount * (FADeprBonusPct / 100);
 
-        FADeprDate := CalcDate('<CM+3M>', WorkDate);
+        FADeprDate := CalcDate('<CM+3M>', WorkDate());
         DeprAmount[3] := CalcDepreciation(FixedAssetNo, TaxDeprBookCode, FADeprDate, true);
-        FADeprDate := CalcDate('<CM+4M>', WorkDate);
+        FADeprDate := CalcDate('<CM+4M>', WorkDate());
         DeprAmount[4] := CalcDepreciation(FixedAssetNo, TaxDeprBookCode, FADeprDate, true);
 
-        FADeprDate := CalcDate('<CM+5M>', WorkDate);
+        FADeprDate := CalcDate('<CM+5M>', WorkDate());
         AppreciationAmount[1] :=
           CreatePostFAAppreciation(
             FixedAssetNo, FAPurchAmount, TaxDeprBookCode,
@@ -156,7 +156,7 @@ codeunit 144507 "ERM FA Depreciation Bonus"
             false, FADeprDate);
 
         DeprAmount[5] := CalcDepreciation(FixedAssetNo, TaxDeprBookCode, FADeprDate, true);
-        FADeprDate := CalcDate('<CM+6M>', WorkDate);
+        FADeprDate := CalcDate('<CM+6M>', WorkDate());
         DeprAmount[6] := CalcBonusDepreciation(FixedAssetNo, TaxDeprBookCode, FADeprDate, true);
         DeprAmount[7] := CalcDepreciation(FixedAssetNo, TaxDeprBookCode, FADeprDate, true);
 
@@ -164,18 +164,18 @@ codeunit 144507 "ERM FA Depreciation Bonus"
         repeat
             Count += 1;
             Assert.AreEqual(DeprAmount[Count], FALedgerEntry.Amount, IncorrectAmountErr);
-        until FALedgerEntry.Next = 0;
+        until FALedgerEntry.Next() = 0;
 
         FALedgerEntry.Reset();
         FALedgerEntry.SetRange("Depr. Bonus", true);
         FindFADeprLedgerEntry(FixedAssetNo, FALedgerEntry, FALedgerEntry."FA Posting Type"::Depreciation);
         Assert.AreEqual(DeprAmount[1], FALedgerEntry.Amount, IncorrectAmountErr);
-        FALedgerEntry.Next;
+        FALedgerEntry.Next();
         Assert.AreEqual(DeprAmount[6], FALedgerEntry.Amount, IncorrectAmountErr);
         FALedgerEntry.Reset();
         FindFADeprLedgerEntry(FixedAssetNo, FALedgerEntry, FALedgerEntry."FA Posting Type"::Appreciation);
         VerifyFALedgerEntry(FALedgerEntry, AppreciationAmount[1], false);
-        FALedgerEntry.Next;
+        FALedgerEntry.Next();
         VerifyFALedgerEntry(FALedgerEntry, AppreciationAmount[2], false);
     end;
 
@@ -194,7 +194,7 @@ codeunit 144507 "ERM FA Depreciation Bonus"
         // Validate correctness of Mark/Unmark as Depreciation Bonus functionality
         FixedAssetNo := CreateCustFAPostDepr(true, true, 0, FAPurchAmount, FADeprBonusPct, DeprAmount);
 
-        FADeprDate := CalcDate('<CM+2M+1D>', WorkDate);
+        FADeprDate := CalcDate('<CM+2M+1D>', WorkDate());
         CreatePostFAAppreciation(
           FixedAssetNo, FAPurchAmount, TaxDeprBookCode,
           false, FADeprDate);
@@ -237,13 +237,13 @@ codeunit 144507 "ERM FA Depreciation Bonus"
         FALedgerEntry.FindLast();
         FALedgerEntry.UnMarkAsDeprBonusBase(FALedgerEntry, true);
 
-        FADeprDate := CalcDate('<CM+2M>', WorkDate);
+        FADeprDate := CalcDate('<CM+2M>', WorkDate());
         CalcBonusDepreciation(FixedAssetNo, TaxDeprBookCode, FADeprDate, true);
 
         FindFADeprLedgerEntry(FixedAssetNo, FALedgerEntry, FALedgerEntry."FA Posting Type"::Depreciation);
         VerifyFALedgerEntry(FALedgerEntry, -FAPurchAmount * (FADeprBonusPct / 100), true);
         CalcDepreciation(FixedAssetNo, TaxDeprBookCode, FADeprDate, true);
-        FALedgerEntry.Next;
+        FALedgerEntry.Next();
         VerifyFALedgerEntry(FALedgerEntry, DeprAmount, false);
     end;
 
@@ -391,15 +391,15 @@ codeunit 144507 "ERM FA Depreciation Bonus"
         FADeprDate: Date;
     begin
         Setup;
-        FAReleaseDate := CalcDate('<CM+1M>', WorkDate);
-        FADeprDate := CalcDate('<CM+2M>', WorkDate);
+        FAReleaseDate := CalcDate('<CM+1M>', WorkDate());
+        FADeprDate := CalcDate('<CM+2M>', WorkDate());
         LibraryPurchase.CreateVendor(Vendor);
         FixedAssetNo := CreateFA('');
         FADeprBonusPct := SetRandFADeprBonus(FixedAssetNo);
         FAPurchAmount := AddAcqCost + CreatePurchInv(PurchaseHeader, Vendor."No.", FixedAssetNo);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         if AddAcqCost <> 0 then
-            CreatePostAddFAAcqCost(FixedAssetNo, WorkDate, AddAcqCost);
+            CreatePostAddFAAcqCost(FixedAssetNo, WorkDate(), AddAcqCost);
         CreateAndPostFAReleaseDoc(FixedAssetNo, FAReleaseDate);
         LibraryFixedAsset.CalcDepreciation(FixedAssetNo, TaxDeprBookCode, FADeprDate, true, true);
         if CalcOriginalDepr then
@@ -416,8 +416,8 @@ codeunit 144507 "ERM FA Depreciation Bonus"
         with FAJournalLine do begin
             Validate("Document Type", DocumentType);
             Validate("Document No.", GetDocumentNo(FAJournalBatch));
-            Validate("Posting Date", WorkDate);
-            Validate("FA Posting Date", WorkDate);
+            Validate("Posting Date", WorkDate());
+            Validate("FA Posting Date", WorkDate());
             Validate("FA Posting Type", FAPostingType);
             Validate("FA No.", FANo);
             Validate(Amount, AmountValue);
@@ -443,7 +443,7 @@ codeunit 144507 "ERM FA Depreciation Bonus"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         NoSeries.Get(FAJournalBatch."No. Series");
-        exit(NoSeriesManagement.GetNextNo(FAJournalBatch."No. Series", WorkDate, false));
+        exit(NoSeriesManagement.GetNextNo(FAJournalBatch."No. Series", WorkDate(), false));
     end;
 
     local procedure CalcDepreciation(FixedAssetNo: Code[20]; DeprBook: Code[10]; PostingDate: Date; Post: Boolean): Decimal
@@ -492,7 +492,7 @@ codeunit 144507 "ERM FA Depreciation Bonus"
         repeat
             FAJournalLine."Document No." := FAJournalLine.Description;
             FAJournalLine.Modify();
-        until FAJournalLine.Next = 0;
+        until FAJournalLine.Next() = 0;
     end;
 
     local procedure Setup()

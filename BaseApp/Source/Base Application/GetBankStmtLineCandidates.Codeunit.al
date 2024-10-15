@@ -26,7 +26,7 @@ codeunit 1295 "Get Bank Stmt. Line Candidates"
         BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
         MatchBankPayments: Codeunit "Match Bank Payments";
     begin
-        BankAccReconLine.SetRecFilter;
+        BankAccReconLine.SetRecFilter();
         MatchBankPayments.SetApplyEntries(false);
         MatchBankPayments.Run(BankAccReconLine);
         MatchBankPayments.GetBankStatementMatchingBuffer(TempBankStmtMatchingBuffer);
@@ -123,7 +123,7 @@ codeunit 1295 "Get Bank Stmt. Line Candidates"
             repeat
                 PaymentApplicationProposal.CreateFromBankStmtMacthingBuffer(TempBankStmtMatchingBuffer, BankAccReconLine, BankAccount);
                 if not PaymentApplicationProposal.Insert(true) then begin
-                    PaymentApplicationProposal.Find;
+                    PaymentApplicationProposal.Find();
                     PaymentApplicationProposal."Match Confidence" := BankPmtApplRule.GetMatchConfidence(PaymentApplicationProposal.Quality);
                     PaymentApplicationProposal.Modify(true);
                 end;

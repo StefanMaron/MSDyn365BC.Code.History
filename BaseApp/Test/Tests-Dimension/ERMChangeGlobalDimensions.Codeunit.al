@@ -113,7 +113,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         Assert.IsFalse(ChangeGlobalDimensionsPage.LogLines.Status.Editable, 'Status column to be not editable');
         Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines."Remaining Duration".Enabled, 'Remaining Duration column to be enabled');
         Assert.IsFalse(ChangeGlobalDimensionsPage.LogLines."Remaining Duration".Editable, 'Remaining Duration column to be not editable');
-        ChangeGlobalDimensionsPage.Close;
+        ChangeGlobalDimensionsPage.Close();
     end;
 
     [Test]
@@ -300,10 +300,10 @@ codeunit 134483 "ERM Change Global Dimensions"
         GeneralLedgerSetup.TestField("Global Dimension 1 Code", DimensionValue[1]."Dimension Code");
         GeneralLedgerSetup.TestField("Global Dimension 2 Code", DimensionValue[2]."Dimension Code");
         // [THEN] TableWithDefaultDim and TableWithDimensionSetID are not modified
-        TableWithDimensionSetID.Find;
+        TableWithDimensionSetID.Find();
         TableWithDimensionSetID.TestField("Global Dimension 1 Code", DimensionValue[1].Code);
         TableWithDimensionSetID.TestField("Shortcut Dimension 2 Code", DimensionValue[2].Code);
-        TableWithDefaultDim.Find;
+        TableWithDefaultDim.Find();
         TableWithDefaultDim.TestField("Global Dimension 1 Code", DimensionValue[1].Code);
         TableWithDefaultDim.TestField("Shortcut Dimension 2 Code", DimensionValue[2].Code);
     end;
@@ -445,7 +445,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [GIVEN] run Action "Prepare"
         ChangeGlobalDimensionsPage.Prepare.Invoke;
         // [GIVEN] Close the page
-        ChangeGlobalDimensionsPage.Close;
+        ChangeGlobalDimensionsPage.Close();
 
         // [WHEN] Open page "Change Global Dimensions"
         ChangeGlobalDimensionsPage.OpenEdit;
@@ -502,7 +502,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ConcurrentSessionListPage.FindFirstField("Session ID", ActiveSessionNo);
         ConcurrentSessionListPage.CurrentSession.AssertEquals(Format(false));
         ConcurrentSessionListPage."Client Type".AssertEquals(ActiveSession."Client Type"::Background);
-        ConcurrentSessionListPage.Next;
+        ConcurrentSessionListPage.Next();
         // [THEN] The secont line, where "Current Session" is 'Yes', "User ID", "Client Computer Name" are shown.
         ConcurrentSessionListPage.FindFirstField("Session ID", SessionId);
         ConcurrentSessionListPage.CurrentSession.AssertEquals(Format(true));
@@ -510,7 +510,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ConcurrentSessionListPage."User ID".AssertEquals(UserId);
         Assert.IsTrue(ConcurrentSessionListPage."Client Computer Name".Visible, 'Client Computer Name is not visible.');
         Assert.IsFalse(ConcurrentSessionListPage.Next, 'should be two sessions in the list.');
-        ConcurrentSessionListPage.Close;
+        ConcurrentSessionListPage.Close();
     end;
 
     [Test]
@@ -706,14 +706,14 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [FEATURE] [Reset]
         LibraryLowerPermissions.SetOutsideO365Scope();
         Initialize();
-        ChangeGlobalDimensions.ResetState;
+        ChangeGlobalDimensions.ResetState();
         // [GIVEN] Log lines are created by "Prepare" action
         MockPreparedLines(DATABASE::"Salesperson/Purchaser", DATABASE::"Cust. Ledger Entry");
         // [GIVEN] COD484 is subscribed on session start
         ChangeGlobalDimensions.RefreshHeader;
 
         // [WHEN] Run action "Reset"
-        ChangeGlobalDimensions.ResetState;
+        ChangeGlobalDimensions.ResetState();
 
         // [THEN] The table list is empty
         Assert.TableIsEmpty(DATABASE::"Change Global Dim. Log Entry");
@@ -732,7 +732,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [FEATURE] [Start] [UI]
         LibraryLowerPermissions.SetOutsideO365Scope();
         Initialize();
-        ChangeGlobalDimensions.ResetState;
+        ChangeGlobalDimensions.ResetState();
         // [GIVEN] Open page "Change Global Dimensions" and set "Parallel Processing" to 'Yes'
         OpenPageForParalllelProcessing(ChangeGlobalDimensionsPage);
         // [GIVEN] Global Dimensions are set as 'A' and 'B', swap "Global Dimension 1 Code" and "Global Dimension 2 Code" on the page
@@ -751,10 +751,10 @@ codeunit 134483 "ERM Change Global Dimensions"
         GeneralLedgerSetup.TestField("Global Dimension 1 Code", DimensionValue[2]."Dimension Code");
         GeneralLedgerSetup.TestField("Global Dimension 2 Code", DimensionValue[1]."Dimension Code");
         // [THEN] Dimension Values, where "Dimension Code" = 'A' have "Global Dimension No." = 2
-        DimensionValue[1].Find;
+        DimensionValue[1].Find();
         DimensionValue[1].TestField("Global Dimension No.", 2);
         // [THEN] Dimension Values, where "Dimension Code" = 'B' have "Global Dimension No." = 1
-        DimensionValue[2].Find;
+        DimensionValue[2].Find();
         DimensionValue[2].TestField("Global Dimension No.", 1);
         // [THEN] "Parallel Processing" is 'Yes'
         ChangeGlobalDimensionsPage."Parallel Processing".AssertEquals(Format(true));
@@ -816,19 +816,19 @@ codeunit 134483 "ERM Change Global Dimensions"
         Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines.Rerun.Enabled, 'TAB21: Rerun');
         Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines.ShowError.Enabled, 'TAB21: ShowError');
         // [THEN] Actions "Rerun" and "Show Error" are enabled for TAB25, where is 'Scheduled' status
-        ChangeGlobalDimensionsPage.LogLines.Next;
+        ChangeGlobalDimensionsPage.LogLines.Next();
         Assert.AreEqual(
           Format(ChangeGlobalDimLogEntry[2].Status::Scheduled), Format(ChangeGlobalDimensionsPage.LogLines.Status), 'TAB25: Status');
         Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines.Rerun.Enabled, 'TAB25: Rerun');
         Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines.ShowError.Enabled, 'TAB25: ShowError');
         // [THEN] Actions "Rerun" and "Show Error" are disabled for TAB1001, where is 'In Progress' status
-        ChangeGlobalDimensionsPage.LogLines.Next;
+        ChangeGlobalDimensionsPage.LogLines.Next();
         Assert.AreEqual(
           Format(ChangeGlobalDimLogEntry[3].Status::"In Progress"), Format(ChangeGlobalDimensionsPage.LogLines.Status), 'TAB1001: Status');
         Assert.IsFalse(ChangeGlobalDimensionsPage.LogLines.Rerun.Enabled, 'TAB1001: Rerun');
         Assert.IsFalse(ChangeGlobalDimensionsPage.LogLines.ShowError.Enabled, 'TAB1001: ShowError');
         // [THEN] Actions "Rerun" and "Show Error" are enabled for TAB134483, where is 'Incomplete' status
-        ChangeGlobalDimensionsPage.LogLines.Next;
+        ChangeGlobalDimensionsPage.LogLines.Next();
         Assert.AreEqual(
           Format(ChangeGlobalDimLogEntry[5].Status::Incomplete), Format(ChangeGlobalDimensionsPage.LogLines.Status), 'TAB134483: Status');
         Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines.Rerun.Enabled, 'TAB134483: Rerun');
@@ -875,7 +875,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimensionsPage.LogLines.Rerun.Invoke;
 
         // [THEN] Log entry, where Status is "Scheduled", "Task ID" is new, "Completed records" = 1, "Total Records" = 2.
-        ChangeGlobalDimLogEntry.Find;
+        ChangeGlobalDimLogEntry.Find();
         ChangeGlobalDimLogEntry.TestField(Status, ChangeGlobalDimLogEntry.Status::Scheduled);
         ChangeGlobalDimLogEntry.TestField("Total Records", xChangeGlobalDimLogEntry."Total Records");
         ChangeGlobalDimLogEntry.TestField("Completed Records", xChangeGlobalDimLogEntry."Completed Records");
@@ -913,7 +913,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [GIVEN] Log Entry, where status is in <blank> status, "Completed records" = 0, "Total Records" = 2.
         MockScheduledLogEntry(ChangeGlobalDimLogEntry, DATABASE::"Table With Default Dim", 0, 1);
         Clear(ChangeGlobalDimLogEntry."Task ID");
-        ChangeGlobalDimLogEntry.UpdateStatus;
+        ChangeGlobalDimLogEntry.UpdateStatus();
         ChangeGlobalDimLogEntry.Modify();
         ChangeGlobalDimLogEntry.TestField(Status, ChangeGlobalDimLogEntry.Status::" ");
         xChangeGlobalDimLogEntry := ChangeGlobalDimLogEntry;
@@ -926,7 +926,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimensionsPage.LogLines.Rerun.Invoke;
 
         // [THEN] Log entry, where Status is "Scheduled", "Task ID" is new, "Completed records" = 0, "Total Records" = 2.
-        ChangeGlobalDimLogEntry.Find;
+        ChangeGlobalDimLogEntry.Find();
         ChangeGlobalDimLogEntry.TestField(Status, ChangeGlobalDimLogEntry.Status::Scheduled);
         ChangeGlobalDimLogEntry.TestField("Total Records", xChangeGlobalDimLogEntry."Total Records");
         ChangeGlobalDimLogEntry.TestField("Completed Records", 0);
@@ -959,7 +959,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         BindSubscription(ERMChangeGlobalDimensions);
         MockTaskScheduling(ERMChangeGlobalDimensions, DATABASE::"Table With Default Dim");
         MockScheduledLogEntry(ChangeGlobalDimLogEntry, DATABASE::"Table With Default Dim", 0, 1);
-        ChangeGlobalDimLogEntry.UpdateStatus;
+        ChangeGlobalDimLogEntry.UpdateStatus();
         ChangeGlobalDimLogEntry."Earliest Start Date/Time" := CreateDateTime(Today, Time - 10000);
         ChangeGlobalDimLogEntry.Modify();
         ChangeGlobalDimLogEntry.TestField(Status, ChangeGlobalDimLogEntry.Status::Scheduled);
@@ -972,7 +972,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimensionsPage.LogLines.Rerun.Invoke;
 
         // [THEN] Log entry, where Status is "Scheduled", "Task ID" is new
-        ChangeGlobalDimLogEntry.Find;
+        ChangeGlobalDimLogEntry.Find();
         ChangeGlobalDimLogEntry.TestField(Status, ChangeGlobalDimLogEntry.Status::Scheduled);
         ChangeGlobalDimLogEntry.TestField("Task ID", TaskID);
         // [THEN] "Earliest Start Date/Time" is delayed for 2 seconds
@@ -1077,7 +1077,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         Initialize();
         // [GIVEN] Job is failed with the error message: 'Err'
         ExpectedErrorMsg := LibraryUtility.GenerateGUID();
-        ClearLastError;
+        ClearLastError();
         asserterror Error(ExpectedErrorMsg);
         // [GIVEN] ChangeGlobalDimLogEntry is in progress, where "Task ID" = 'X', "Table Name" = 'T'
         ChangeGlobalDimLogEntry.DeleteAll();
@@ -1086,7 +1086,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimLogEntry."Completed Records" := 0;
         ChangeGlobalDimLogEntry."Total Records" := 1;
         ChangeGlobalDimLogEntry."Table ID" := DATABASE::"G/L Entry";
-        ChangeGlobalDimLogEntry."Task ID" := CreateGuid;
+        ChangeGlobalDimLogEntry."Task ID" := CreateGuid();
         ChangeGlobalDimLogEntry."Table Name" := LibraryUtility.GenerateGUID();
         ChangeGlobalDimLogEntry.Insert();
 
@@ -1094,7 +1094,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         CODEUNIT.Run(CODEUNIT::"Change Global Dim Err. Handler", ChangeGlobalDimLogEntry);
 
         // [THEN] ChangeGlobalDimLogEntry got Status 'Incomplete'
-        ChangeGlobalDimLogEntry.Find;
+        ChangeGlobalDimLogEntry.Find();
         ChangeGlobalDimLogEntry.TestField(Status, ChangeGlobalDimLogEntry.Status::Incomplete);
 
         // [THEN] Job Queue Log Entry, where "Object ID to Run" = 483, "ID" = 'X', "Status" = 'Error', "Error Message" = 'Err', Description = 'T'
@@ -1377,7 +1377,7 @@ codeunit 134483 "ERM Change Global Dimensions"
             JobTask.Insert();
         end;
         // [WHEN] run InitTableList()
-        ChangeGlobalDimensions.InitTableList;
+        ChangeGlobalDimensions.InitTableList();
         // [THEN] The list contains tables 1001, 134482, 134483, but not 134484
         Assert.IsTrue(ChangeGlobalDimLogEntry.Get(DATABASE::"Job Task"), 'Table 1001 is not found');
         ChangeGlobalDimLogEntry.TestField("Total Records", 3);
@@ -1421,11 +1421,11 @@ codeunit 134483 "ERM Change Global Dimensions"
 
         // [THEN] lines are sorted by "Progress", then by "Table ID": 25, 21, 13, 15
         Assert.AreEqual(25, ChangeGlobalDimensionsPage.LogLines."Table ID".AsDEcimal, '1st');
-        ChangeGlobalDimensionsPage.LogLines.Next;
+        ChangeGlobalDimensionsPage.LogLines.Next();
         Assert.AreEqual(21, ChangeGlobalDimensionsPage.LogLines."Table ID".AsDEcimal, '2nd');
-        ChangeGlobalDimensionsPage.LogLines.Next;
+        ChangeGlobalDimensionsPage.LogLines.Next();
         Assert.AreEqual(13, ChangeGlobalDimensionsPage.LogLines."Table ID".AsDEcimal, '3rd');
-        ChangeGlobalDimensionsPage.LogLines.Next;
+        ChangeGlobalDimensionsPage.LogLines.Next();
         Assert.AreEqual(15, ChangeGlobalDimensionsPage.LogLines."Table ID".AsDEcimal, '4th');
     end;
 
@@ -1620,7 +1620,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [THEN] Error message: 'TAB134483.OnBeforeModify'
         Assert.ExpectedError(TAB134483OnBeforeModifyErr);
         // [THEN] The log line is updated: "Status" is "In Progress", "Session ID" is filled, "Total Records" = 1
-        ChangeGlobalDimLogEntry.Find;
+        ChangeGlobalDimLogEntry.Find();
         ChangeGlobalDimLogEntry.TestField("Total Records", 1);
         ChangeGlobalDimLogEntry.TestField("Session ID");
         ChangeGlobalDimLogEntry.TestField(Status, ChangeGlobalDimLogEntry.Status::"In Progress");
@@ -2055,13 +2055,13 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimensions.Rerun(ChangeGlobalDimLogEntry[2]);
 
         // [THEN] Jobs for three tables, where "Completed Records" = 0, "Status" is "Scheduled"
-        ChangeGlobalDimLogEntry[1].Find;
+        ChangeGlobalDimLogEntry[1].Find();
         ChangeGlobalDimLogEntry[1].TestField(Status, ChangeGlobalDimLogEntry[1].Status::Scheduled);
         ChangeGlobalDimLogEntry[1].TestField("Completed Records", 0);
-        ChangeGlobalDimLogEntry[2].Find;
+        ChangeGlobalDimLogEntry[2].Find();
         ChangeGlobalDimLogEntry[2].TestField(Status, ChangeGlobalDimLogEntry[1].Status::Scheduled);
         ChangeGlobalDimLogEntry[2].TestField("Completed Records", 0);
-        ChangeGlobalDimLogEntry[3].Find;
+        ChangeGlobalDimLogEntry[3].Find();
         ChangeGlobalDimLogEntry[3].TestField(Status, ChangeGlobalDimLogEntry[1].Status::Scheduled);
         ChangeGlobalDimLogEntry[3].TestField("Completed Records", 0);
     end;
@@ -2114,19 +2114,19 @@ codeunit 134483 "ERM Change Global Dimensions"
           ParentChangeGlobalDimLogEntry, DATABASE::"Table With Dimension Set ID", 0, 1);
         ParentChangeGlobalDimLogEntry."Is Parent Table" := true;
         ParentChangeGlobalDimLogEntry."Task ID" := TaskID;
-        ParentChangeGlobalDimLogEntry.UpdateStatus;
+        ParentChangeGlobalDimLogEntry.UpdateStatus();
         ParentChangeGlobalDimLogEntry.Modify();
         // [GIVEN] First Dependent entry, where "Table ID" = 134485, "Parent Table ID" = 134483, "Status" = 'Scheduled'
         MockScheduledLogEntry(
           ChangeGlobalDimLogEntry[1], DATABASE::"Detailed Entry With Global Dim", 0, 1);
         ChangeGlobalDimLogEntry[1]."Task ID" := TaskID;
-        ChangeGlobalDimLogEntry[1].UpdateStatus;
+        ChangeGlobalDimLogEntry[1].UpdateStatus();
         ChangeGlobalDimLogEntry[1].Modify();
         // [GIVEN] Second Dependent entry, where "Table ID" = 134486, "Parent Table ID" = 134483, "Status" = 'Scheduled'
         MockScheduledLogEntry(
           ChangeGlobalDimLogEntry[2], DATABASE::"Dtld. Entry With Global Dim 2", 0, 1);
         ChangeGlobalDimLogEntry[2]."Task ID" := TaskID;
-        ChangeGlobalDimLogEntry[2].UpdateStatus;
+        ChangeGlobalDimLogEntry[2].UpdateStatus();
         ChangeGlobalDimLogEntry[2].Modify();
 
         // [WHEN] RunTask() on Parent entry
@@ -2170,13 +2170,13 @@ codeunit 134483 "ERM Change Global Dimensions"
         ParentChangeGlobalDimLogEntry."Is Parent Table" := true;
         ParentChangeGlobalDimLogEntry."Task ID" := TaskID;
         ParentChangeGlobalDimLogEntry."Completed Records" := 1;
-        ParentChangeGlobalDimLogEntry.UpdateStatus;
+        ParentChangeGlobalDimLogEntry.UpdateStatus();
         ParentChangeGlobalDimLogEntry.Modify();
         // [GIVEN] Dependent entry, where "Table ID" = 134485, "Parent Table ID" = 134483, "Status" = 'Scheduled'
         MockScheduledLogEntry(
           ChangeGlobalDimLogEntry, DATABASE::"Detailed Entry With Global Dim", 0, 1);
         ChangeGlobalDimLogEntry."Task ID" := TaskID;
-        ChangeGlobalDimLogEntry.UpdateStatus;
+        ChangeGlobalDimLogEntry.UpdateStatus();
         ChangeGlobalDimLogEntry.Modify();
 
         // [WHEN] RunTask on Parent entry
@@ -2247,7 +2247,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         LibraryLowerPermissions.SetOutsideO365Scope();
         Initialize();
         // [GIVEN] Log Entry, where "Server Instance ID" and "Session ID" are current, "Task ID" = 'X'
-        ChangeGlobalDimLogEntry."Task ID" := CreateGuid;
+        ChangeGlobalDimLogEntry."Task ID" := CreateGuid();
         ChangeGlobalDimLogEntry."Session ID" := SessionId;
         ChangeGlobalDimLogEntry."Server Instance ID" := ServiceInstanceId;
         // [GIVEN] "Completed Records" = 0, "Total Records" > 0
@@ -2256,7 +2256,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimLogEntry.Insert();
 
         // [WHEN] run UpdateStatus()
-        ChangeGlobalDimLogEntry.UpdateStatus;
+        ChangeGlobalDimLogEntry.UpdateStatus();
 
         // [THEN] "Status" is "In Progress"
         ChangeGlobalDimLogEntry.TestField(Status, ChangeGlobalDimLogEntry.Status::"In Progress");
@@ -2273,14 +2273,14 @@ codeunit 134483 "ERM Change Global Dimensions"
         Initialize();
         // [GIVEN] Log Entry, where "Session ID" = X (not active), "Task ID" = 'A',
         // [GIVEN] "Completed Records" = 1, "Total Records" = 2
-        ChangeGlobalDimLogEntry."Task ID" := CreateGuid;
+        ChangeGlobalDimLogEntry."Task ID" := CreateGuid();
         ChangeGlobalDimLogEntry."Session ID" := -1; // to make sure it is not active
         ChangeGlobalDimLogEntry."Total Records" := 2;
         ChangeGlobalDimLogEntry."Completed Records" := 1;
         ChangeGlobalDimLogEntry.Insert();
 
         // [WHEN] run UpdateStatus()
-        ChangeGlobalDimLogEntry.UpdateStatus;
+        ChangeGlobalDimLogEntry.UpdateStatus();
 
         // [THEN] "Status" is "Incomplete", "Session ID" is -1, "Server Instance ID" is -1
         ChangeGlobalDimLogEntry.TestField(Status, ChangeGlobalDimLogEntry.Status::Incomplete);
@@ -2298,13 +2298,13 @@ codeunit 134483 "ERM Change Global Dimensions"
         LibraryLowerPermissions.SetOutsideO365Scope();
         Initialize();
         // [GIVEN] Log Entry, where "Completed Records" = "Total Records"
-        ChangeGlobalDimLogEntry."Task ID" := CreateGuid;
+        ChangeGlobalDimLogEntry."Task ID" := CreateGuid();
         ChangeGlobalDimLogEntry."Total Records" := 1;
         ChangeGlobalDimLogEntry."Completed Records" := ChangeGlobalDimLogEntry."Total Records";
         ChangeGlobalDimLogEntry.Insert();
 
         // [WHEN] run UpdateStatus()
-        ChangeGlobalDimLogEntry.UpdateStatus;
+        ChangeGlobalDimLogEntry.UpdateStatus();
 
         // [THEN] "Status" is "Completed", "Session ID" = -1, "Server Instance ID" is -1
         ChangeGlobalDimLogEntry.TestField(Status, ChangeGlobalDimLogEntry.Status::Completed);
@@ -2323,7 +2323,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         LibraryLowerPermissions.SetOutsideO365Scope();
         Initialize();
         // [GIVEN] Log Entry, where Session ID = 0, "Task ID" = 'X', "Completed Records" = 0, "Total Records" > 0
-        ChangeGlobalDimLogEntry."Task ID" := CreateGuid;
+        ChangeGlobalDimLogEntry."Task ID" := CreateGuid();
         ChangeGlobalDimLogEntry."Session ID" := 0;
         ChangeGlobalDimLogEntry."Total Records" := 1;
         ChangeGlobalDimLogEntry."Completed Records" := 0;
@@ -2332,7 +2332,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         BindSubscription(ERMChangeGlobalDimensions); // to mock TASKEXIST call
 
         // [WHEN] run UpdateStatus()
-        ChangeGlobalDimLogEntry.UpdateStatus;
+        ChangeGlobalDimLogEntry.UpdateStatus();
 
         // [THEN] "Status" is "Scheduled"
         ChangeGlobalDimLogEntry.TestField(Status, ChangeGlobalDimLogEntry.Status::Scheduled);
@@ -2355,7 +2355,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimLogEntry.Insert();
 
         // [WHEN] run UpdateStatus()
-        ChangeGlobalDimLogEntry.UpdateStatus;
+        ChangeGlobalDimLogEntry.UpdateStatus();
 
         // [THEN] "Status" is <blank>
         ChangeGlobalDimLogEntry.TestField(Status, ChangeGlobalDimLogEntry.Status::" ");
@@ -2412,7 +2412,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         TableWithDimensionSetID.Insert();
         // [GIVEN] Log Entry for "Table With Default Dim", where Session ID = 0, "Task ID" = 'X'
         ChangeGlobalDimLogEntry."Table ID" := DATABASE::"Table With Dimension Set ID";
-        ChangeGlobalDimLogEntry."Task ID" := CreateGuid;
+        ChangeGlobalDimLogEntry."Task ID" := CreateGuid();
         ChangeGlobalDimLogEntry."Session ID" := 0;
         ChangeGlobalDimLogEntry.Insert();
 
@@ -2438,11 +2438,11 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimLogEntry."Table ID" := DATABASE::"Table With Dimension Set ID";
         ChangeGlobalDimLogEntry."Total Records" := 1;
         ChangeGlobalDimLogEntry.Status := ChangeGlobalDimLogEntry.Status::Scheduled;
-        ChangeGlobalDimLogEntry."Task ID" := CreateGuid;
+        ChangeGlobalDimLogEntry."Task ID" := CreateGuid();
         ChangeGlobalDimLogEntry."Session ID" := 0;
         ChangeGlobalDimLogEntry.Insert();
         // [WHEN] UpdateStatus()
-        ChangeGlobalDimLogEntry.UpdateStatus;
+        ChangeGlobalDimLogEntry.UpdateStatus();
 
         // [THEN] "Status" is "Incomplete"
         ChangeGlobalDimLogEntry.TestField(Status, ChangeGlobalDimLogEntry.Status::Incomplete);
@@ -2461,7 +2461,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimLogEntry[1].DeleteAll();
         // [GIVEN] 2 Log Entries, where "Session ID" = X (not active), "Task ID" is not <null> ,
         // [GIVEN] "Status" = "In Progress", "Completed Records" = 1, "Total Records" = 2
-        ChangeGlobalDimLogEntry[1]."Task ID" := CreateGuid;
+        ChangeGlobalDimLogEntry[1]."Task ID" := CreateGuid();
         ChangeGlobalDimLogEntry[1]."Session ID" := -1; // to make sure it is not active
         ChangeGlobalDimLogEntry[1]."Total Records" := 2;
         ChangeGlobalDimLogEntry[1]."Completed Records" := 1;
@@ -2495,14 +2495,14 @@ codeunit 134483 "ERM Change Global Dimensions"
         Assert.AreEqual(
           ChangeGlobalDimLogEntry[3].Status::Completed,
           ChangeGlobalDimensionsPage.LogLines.Status.AsInteger, '3rd Status');
-        ChangeGlobalDimensionsPage.Close;
+        ChangeGlobalDimensionsPage.Close();
         // [THEN] "Status" is "In Progress" on both records
-        ChangeGlobalDimLogEntry[1].Find;
+        ChangeGlobalDimLogEntry[1].Find();
         ChangeGlobalDimLogEntry[1].TestField(Status, ChangeGlobalDimLogEntry[1].Status::"In Progress");
-        ChangeGlobalDimLogEntry[2].Find;
+        ChangeGlobalDimLogEntry[2].Find();
         ChangeGlobalDimLogEntry[2].TestField(Status, ChangeGlobalDimLogEntry[2].Status::"In Progress");
         // [THEN] "Status" is "Completed" on 3rd records
-        ChangeGlobalDimLogEntry[3].Find;
+        ChangeGlobalDimLogEntry[3].Find();
         ChangeGlobalDimLogEntry[3].TestField(Status, ChangeGlobalDimLogEntry[3].Status::Completed);
     end;
 
@@ -2520,7 +2520,7 @@ codeunit 134483 "ERM Change Global Dimensions"
 
         ChangeGlobalDimLogEntry.SetSessionInProgress;
 
-        ChangeGlobalDimLogEntry.Find;
+        ChangeGlobalDimLogEntry.Find();
         ChangeGlobalDimLogEntry.TestField("Session ID", SessionId);
         ChangeGlobalDimLogEntry.TestField("Server Instance ID", ServiceInstanceId);
         ChangeGlobalDimLogEntry.TestField(Status, ChangeGlobalDimLogEntry.Status::"In Progress");
@@ -2739,7 +2739,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         asserterror Error('');
 
         // [THEN] LogEntry, where "Completed Records" = 1, "Status" = 'Completed'
-        ChangeGlobalDimLogEntry.Find;
+        ChangeGlobalDimLogEntry.Find();
         ChangeGlobalDimLogEntry.TestField("Completed Records", 1);
         ChangeGlobalDimLogEntry.TestField(Status, ChangeGlobalDimLogEntry.Status::Completed);
     end;
@@ -2807,7 +2807,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         asserterror Error('');
 
         // [THEN] LogEntry, where "Completed Records" = 0, "Status" = 'In Progress'
-        ChangeGlobalDimLogEntry.Find;
+        ChangeGlobalDimLogEntry.Find();
         ChangeGlobalDimLogEntry.TestField("Completed Records", 0);
         ChangeGlobalDimLogEntry.TestField(Status, ChangeGlobalDimLogEntry.Status::"In Progress");
     end;
@@ -2847,7 +2847,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [THEN] Log entry is 'Completed' and deleted
         Assert.IsFalse(ChangeGlobalDimLogEntry.Find, 'LogEntry should be deleted');
         // [THEN] TableWithDefaultDim, where "Global Dimension 1 Code" is 'X', "Shortcut Dimension 2 Code" is 'B'
-        TableWithDefaultDim.Find;
+        TableWithDefaultDim.Find();
         TableWithDefaultDim.TestField("Global Dimension 1 Code", DimensionValue[3].Code);
         TableWithDefaultDim.TestField("Shortcut Dimension 2 Code", DimensionValue[2].Code);
     end;
@@ -2888,7 +2888,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [THEN] Log entry is 'Completed' and deleted
         Assert.IsFalse(ChangeGlobalDimLogEntry.Find, 'LogEntry should be deleted');
         // [THEN] TableWithDefaultDim, where "Global Dimension 1 Code" is 'A', "Shortcut Dimension 2 Code" is 'Y'
-        TableWithDimensionSetID.Find;
+        TableWithDimensionSetID.Find();
         TableWithDimensionSetID.TestField("Global Dimension 1 Code", DimensionValue[1].Code);
         TableWithDimensionSetID.TestField("Shortcut Dimension 2 Code", DimensionValue[3].Code);
     end;
@@ -2931,7 +2931,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [THEN] Log entry is 'Completed' and deleted
         Assert.IsFalse(ChangeGlobalDimLogEntry.Find, 'LogEntry should be deleted');
         // [THEN] TableWithDefaultDim, where "Global Dimension 1 Code" is 'Y', "Shortcut Dimension 2 Code" is <blank>
-        TableWithDefaultDim.Find;
+        TableWithDefaultDim.Find();
         TableWithDefaultDim.TestField("Global Dimension 1 Code", DimensionValue[3].Code);
         TableWithDefaultDim.TestField("Shortcut Dimension 2 Code", '');
     end;
@@ -2974,7 +2974,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [THEN] Log entry is 'Completed' and deleted
         Assert.IsFalse(ChangeGlobalDimLogEntry.Find, 'LogEntry should be deleted');
         // [THEN] TableWithDefaultDim, where "Global Dimension 1 Code" is <blank>, "Shortcut Dimension 2 Code" is 'A'
-        TableWithDefaultDim.Find;
+        TableWithDefaultDim.Find();
         TableWithDefaultDim.TestField("Global Dimension 1 Code", '');
         TableWithDefaultDim.TestField("Shortcut Dimension 2 Code", DimensionValue[1].Code);
     end;
@@ -3016,7 +3016,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [THEN] Log entry is 'Completed' and deleted
         Assert.IsFalse(ChangeGlobalDimLogEntry.Find, 'LogEntry should be deleted');
         // [THEN] TableWithDefaultDim, where "Global Dimension 1 Code" is 'B', "Shortcut Dimension 2 Code" is 'A'
-        TableWithDimensionSetID.Find;
+        TableWithDimensionSetID.Find();
         TableWithDimensionSetID.TestField("Dimension Set ID", DimSetID);
         TableWithDimensionSetID.TestField("Global Dimension 1 Code", DimensionValue[2].Code);
         TableWithDimensionSetID.TestField("Shortcut Dimension 2 Code", DimensionValue[1].Code);
@@ -3057,7 +3057,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [THEN] Log entry is 'Completed' and deleted
         Assert.IsFalse(ChangeGlobalDimLogEntry.Find, 'LogEntry should be deleted');
         // [THEN] TableWithDefaultDim, where "Global Dimension 1 Code" is <blank>, "Shortcut Dimension 2 Code" is 'B'
-        TableWithDefaultDim.Find;
+        TableWithDefaultDim.Find();
         TableWithDefaultDim.TestField("Global Dimension 1 Code", '');
         TableWithDefaultDim.TestField("Shortcut Dimension 2 Code", DimensionValue[2].Code);
     end;
@@ -3099,7 +3099,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [THEN] Log entry is 'Completed' and deleted
         Assert.IsFalse(ChangeGlobalDimLogEntry.Find, 'LogEntry should be deleted');
         // [THEN] TableWithDimensionSetID, where "Global Dimension 1 Code" is <blank>, "Shortcut Dimension 2 Code" is 'B'
-        TableWithDimensionSetID.Find;
+        TableWithDimensionSetID.Find();
         TableWithDimensionSetID.TestField("Global Dimension 1 Code", '');
         TableWithDimensionSetID.TestField("Shortcut Dimension 2 Code", DimensionValue[2].Code);
     end;
@@ -3138,7 +3138,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [THEN] Log entry is 'Completed' and deleted
         Assert.IsFalse(ChangeGlobalDimLogEntry.Find, 'LogEntry should be deleted');
         // [THEN] Job Task, where "Global Dimension 1 Code" is <blank>, "Shortcut Dimension 2 Code" is 'B'
-        JobTask.Find;
+        JobTask.Find();
         JobTask.TestField("Global Dimension 1 Code", '');
         JobTask.TestField("Global Dimension 2 Code", DimensionValue[2].Code);
     end;
@@ -3197,7 +3197,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [THEN] ChangeGlobalDimLogEntry for dependent table, where "Status" is "Completed" and deleted
         Assert.IsFalse(ChangeGlobalDimLogEntry[3].Find, '2nd Dependent LogEntry should be deleted');
         // [THEN] Records of dependent table gets global dim codes from parent table
-        TableWithDimensionSetID.Find;
+        TableWithDimensionSetID.Find();
         VerifyDependentRecords(TableWithDimensionSetID);
     end;
 
@@ -3353,7 +3353,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimensions.SetParallelProcessing(true);
         ChangeGlobalDimensions.Prepare;
         // [GIVEN] New session, where COD484 is subscribed to OnDatabase triggers
-        ChangeGlobalDimLogMgt.ClearBuffer;
+        ChangeGlobalDimLogMgt.ClearBuffer();
         // [GIVEN] 2 ChangeGlobalDimLogEntries for tables 1001 and 134482, where "Status" is "Completed"
         ChangeGlobalDimensions.Start;
         ChangeGlobalDimLogEntry.Get(DATABASE::"Job Task");
@@ -3426,7 +3426,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         MockScheduledLogEntry(ChangeGlobalDimLogEntry, 134482, 0, 1);
         MockScheduledLogEntry(ChangeGlobalDimLogEntry, 134483, 0, 1);
         // [GIVEN] COD484 is subscribed to OnDatabase triggers
-        ChangeGlobalDimLogMgt.ClearBuffer;
+        ChangeGlobalDimLogMgt.ClearBuffer();
 
         // [WHEN] Open page "Change Global Dimensions"
         ChangeGlobalDimensionsPage.OpenView;
@@ -3766,7 +3766,7 @@ codeunit 134483 "ERM Change Global Dimensions"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Change Global Dimensions");
         ChangeGlobalDimHeader.DeleteAll();
-        ChangeGlobalDimensions.ResetState;
+        ChangeGlobalDimensions.ResetState();
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
         TableWithDefaultDim.DeleteAll();
@@ -3791,7 +3791,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         RecRef.Open(ChangeGlobalDimLogEntry."Table ID");
         ChangeGlobalDimLogEntry.FillData(RecRef);
         ChangeGlobalDimLogEntry.Insert();
-        RecRef.Close;
+        RecRef.Close();
     end;
 
     [ModalPageHandler]
@@ -3908,7 +3908,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         end;
         DependentChangeGlobalDimLogEntry.Init();
         DependentChangeGlobalDimLogEntry."Table ID" := DependentTableNo;
-        DependentChangeGlobalDimLogEntry."Task ID" := CreateGuid;
+        DependentChangeGlobalDimLogEntry."Task ID" := CreateGuid();
         DependentChangeGlobalDimLogEntry."Change Type 1" := ChangeGlobalDimLogEntry."Change Type 1"::Blank;
         DependentChangeGlobalDimLogEntry."Session ID" := 0;
         DependentChangeGlobalDimLogEntry."Parent Table ID" := DATABASE::"Table With Dimension Set ID";
@@ -3916,7 +3916,7 @@ codeunit 134483 "ERM Change Global Dimensions"
 
         ChangeGlobalDimLogEntry.Init();
         ChangeGlobalDimLogEntry."Table ID" := DATABASE::"Table With Dimension Set ID";
-        ChangeGlobalDimLogEntry."Task ID" := CreateGuid;
+        ChangeGlobalDimLogEntry."Task ID" := CreateGuid();
         ChangeGlobalDimLogEntry."Change Type 1" := ChangeGlobalDimLogEntry."Change Type 1"::Blank;
         ChangeGlobalDimLogEntry."Session ID" := 0;
         ChangeGlobalDimLogEntry."Is Parent Table" := true;
@@ -4005,7 +4005,7 @@ codeunit 134483 "ERM Change Global Dimensions"
                         TableID := Field.TableNo;
                         Result += 1;
                     end;
-            until Field.Next = 0;
+            until Field.Next() = 0;
         ChangeGlobalDimLogEntry.SetFilter(
           "Table ID", '<>0&<>%1&<>%2&<>%3', DATABASE::"Job Task", DATABASE::"Vendor Agreement", DATABASE::"Customer Agreement");
         if ChangeGlobalDimLogEntry.FindFirst() then
@@ -4052,20 +4052,20 @@ codeunit 134483 "ERM Change Global Dimensions"
         with ActiveSession do begin
             SetFilter("Session ID", '<>%1', SessionId);
             DeleteAll();
-            Reset;
+            Reset();
             FindFirst();
             "Session ID" := 0;
             for "Client Type" := "Client Type"::"Web Service" to "Client Type"::"Management Client" do begin
                 "Session ID" -= 1;
-                "Session Unique ID" := CreateGuid;
+                "Session Unique ID" := CreateGuid();
                 if "Client Type" <> "Client Type"::Background then
-                    Insert;
+                    Insert();
             end;
             "Client Type" := "Client Type"::Background;
             for i := 1 to NoOfSessions do begin
                 "Session ID" -= 1;
-                "Session Unique ID" := CreateGuid;
-                Insert;
+                "Session Unique ID" := CreateGuid();
+                Insert();
                 "Client Type" := "Client Type"::"Web Client";
             end;
             LastSessionID := "Session ID";
@@ -4074,8 +4074,8 @@ codeunit 134483 "ERM Change Global Dimensions"
             "Client Type" := "Client Type"::"Web Client";
             "Session ID" := "Session ID";
             "Server Instance ID" := ServiceInstanceId + 1000;
-            "Session Unique ID" := CreateGuid;
-            Insert;
+            "Session Unique ID" := CreateGuid();
+            Insert();
         end;
     end;
 
@@ -4095,7 +4095,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         JobQueueLogEntry[2].Insert();
         JobQueueLogEntry[3] := JobQueueLogEntry[2];
         JobQueueLogEntry[3]."Entry No." := 0;
-        JobQueueLogEntry[3].ID := CreateGuid;
+        JobQueueLogEntry[3].ID := CreateGuid();
         JobQueueLogEntry[3].Status := JobQueueLogEntry[3].Status::Error;
         JobQueueLogEntry[3].Insert();
     end;
@@ -4131,7 +4131,7 @@ codeunit 134483 "ERM Change Global Dimensions"
 
     local procedure MockTaskScheduling(var ERMChangeGlobalDimensions: Codeunit "ERM Change Global Dimensions"; TableNo: Integer) ExpectedTaskID: Guid
     begin
-        ExpectedTaskID := CreateGuid;
+        ExpectedTaskID := CreateGuid();
         ERMChangeGlobalDimensions.SetTaskID(ExpectedTaskID, TableNo);
     end;
 
@@ -4139,7 +4139,7 @@ codeunit 134483 "ERM Change Global Dimensions"
     begin
         ChangeGlobalDimLogEntry."Session ID" := SessionId;
         ChangeGlobalDimLogEntry.Validate("Completed Records", ChangeGlobalDimLogEntry."Total Records");
-        ChangeGlobalDimLogEntry.UpdateStatus;
+        ChangeGlobalDimLogEntry.UpdateStatus();
         ChangeGlobalDimLogEntry.Modify();
         ChangeGlobalDimLogEntry.Delete(true);
     end;
@@ -4148,7 +4148,7 @@ codeunit 134483 "ERM Change Global Dimensions"
     begin
         ChangeGlobalDimLogEntry."Session ID" := -1; // inactive session
         ChangeGlobalDimLogEntry.Validate("Completed Records", ChangeGlobalDimLogEntry."Total Records" - 1);
-        ChangeGlobalDimLogEntry.UpdateStatus;
+        ChangeGlobalDimLogEntry.UpdateStatus();
         ChangeGlobalDimLogEntry.Modify();
     end;
 
@@ -4158,10 +4158,10 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimLogEntry."Table ID" := TableNo;
         ChangeGlobalDimLogEntry."Table Name" := Format(TableNo);
         InsertChangeGlobalDimLogEntry(ChangeGlobalDimLogEntry);
-        ChangeGlobalDimLogEntry."Task ID" := CreateGuid;
+        ChangeGlobalDimLogEntry."Task ID" := CreateGuid();
         ChangeGlobalDimLogEntry."Change Type 1" := ChangeType1;
         ChangeGlobalDimLogEntry."Change Type 2" := ChangeType2;
-        ChangeGlobalDimLogEntry.UpdateStatus;
+        ChangeGlobalDimLogEntry.UpdateStatus();
         if ChangeGlobalDimLogEntry."Total Records" = 0 then
             ChangeGlobalDimLogEntry."Total Records" := 1;
         ChangeGlobalDimLogEntry.Modify();
@@ -4198,7 +4198,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         RecRef.Open(TableID);
         KeyRef := RecRef.KeyIndex(1);
         Result := KeyRef.FieldCount = 1;
-        RecRef.Close;
+        RecRef.Close();
     end;
 
     [Scope('OnPrem')]
@@ -4206,7 +4206,7 @@ codeunit 134483 "ERM Change Global Dimensions"
     var
         ChangeGlobalDimensions: Codeunit "Change Global Dimensions";
     begin
-        ChangeGlobalDimLogMgt.ClearBuffer;
+        ChangeGlobalDimLogMgt.ClearBuffer();
         ChangeGlobalDimensions.SetParallelProcessing(true);
         ChangeGlobalDimensions.Run(ChangeGlobalDimLogEntry);
     end;
@@ -4314,7 +4314,7 @@ codeunit 134483 "ERM Change Global Dimensions"
                 repeat
                     if not TempChangeGlobalDimLogEntry.Get(TempAllObjWithCaption."Object ID") then
                         TempAllObjWithCaption.Delete();
-                until TempAllObjWithCaption.Next = 0;
+                until TempAllObjWithCaption.Next() = 0;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Change Global Dimensions", 'OnBeforeScheduleTask', '', false, false)]

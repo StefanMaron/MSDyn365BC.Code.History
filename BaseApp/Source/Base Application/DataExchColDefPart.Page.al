@@ -11,7 +11,7 @@ page 1216 "Data Exch Col Def Part"
         {
             repeater(Group)
             {
-                field("Column No."; "Column No.")
+                field("Column No."; Rec."Column No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number that reflects the column''s position on the line in the file.';
@@ -21,7 +21,7 @@ page 1216 "Data Exch Col Def Part"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the column.';
                 }
-                field("Data Type"; "Data Type")
+                field("Data Type"; Rec."Data Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
@@ -29,17 +29,17 @@ page 1216 "Data Exch Col Def Part"
 
                     trigger OnValidate()
                     begin
-                        DataFormatRequired := IsDataFormatRequired;
-                        DataFormattingCultureRequired := IsDataFormattingCultureRequired;
+                        DataFormatRequired := IsDataFormatRequired();
+                        DataFormattingCultureRequired := IsDataFormattingCultureRequired();
                     end;
                 }
-                field("Data Format"; "Data Format")
+                field("Data Format"; Rec."Data Format")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = DataFormatRequired;
                     ToolTip = 'Specifies the format of the data, if any. For example, MM-DD-YYYY if the data type is Date.';
                 }
-                field("Data Formatting Culture"; "Data Formatting Culture")
+                field("Data Formatting Culture"; Rec."Data Formatting Culture")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = DataFormattingCultureRequired;
@@ -60,7 +60,7 @@ page 1216 "Data Exch Col Def Part"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the position of the element in the related XML schema.';
                 }
-                field("Negative-Sign Identifier"; "Negative-Sign Identifier")
+                field("Negative-Sign Identifier"; Rec."Negative-Sign Identifier")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value that is used in the data file to identify negative amounts, in data files that cannot contain negative signs. This identifier is then used to reverse the identified amounts to negative signs during import.';
@@ -76,16 +76,16 @@ page 1216 "Data Exch Col Def Part"
                     ToolTip = 'Specifies that the element is shown in the data exchange definition.';
                     Visible = false;
                 }
-                field("Column Type"; "Column Type")
+                field("Column Type"; Rec."Column Type")
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field("Text Padding Required"; "Text Padding Required")
+                field("Text Padding Required"; Rec."Text Padding Required")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the data must include text padding.';
                 }
-                field("Pad Character"; "Pad Character")
+                field("Pad Character"; Rec."Pad Character")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that text padding.';
@@ -95,11 +95,16 @@ page 1216 "Data Exch Col Def Part"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the column justification is left or right.';
                 }
-                field("Use Node Name as Value"; "Use Node Name as Value")
+                field("Use Node Name as Value"; Rec."Use Node Name as Value")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the node name should be used as value for file types Xml or Json during import.';
                     Visible = false;
+                }
+                field("Blank Zero"; Rec."Blank Zero")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if the element is epmty if equal to 0.';
                 }
             }
         }
@@ -118,7 +123,7 @@ page 1216 "Data Exch Col Def Part"
 
                 trigger OnAction()
                 begin
-                    GetStructure;
+                    GetStructure();
                 end;
             }
         }

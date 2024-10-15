@@ -100,7 +100,7 @@ codeunit 139048 "SMB Office Pages"
         RunMailEngine(OfficeAddinContext);
 
         // [THEN] Office Welcome Dlg page is shown to the user
-        OfficeWelcomeDlg.Close;
+        OfficeWelcomeDlg.Close();
     end;
 
     [Test]
@@ -421,7 +421,7 @@ codeunit 139048 "SMB Office Pages"
         RunMailEngine(OfficeAddinContext);
 
         // [THEN] Verify the page was open
-        ContactList.Close;
+        ContactList.Close();
     end;
 
     [Test]
@@ -888,7 +888,7 @@ codeunit 139048 "SMB Office Pages"
 
         // [THEN] Customer card is opened for the selected contact
         CustomerCard.Trap;
-        ContactList.Close;
+        ContactList.Close();
         CustomerCard."No.".AssertEquals(CustomerNo);
     end;
 
@@ -921,7 +921,7 @@ codeunit 139048 "SMB Office Pages"
         // [THEN] The customer does appear in the list to choose from
         Assert.IsTrue(ContactList.FindFirstField("No.", CustomerContactNo), 'Customer should be in contact list.');
         SetOfficeHostUnAvailable;
-        ContactList.Close;
+        ContactList.Close();
     end;
 
     [Test]
@@ -953,7 +953,7 @@ codeunit 139048 "SMB Office Pages"
         // [THEN] The customer does not appear in the list to choose from
         Assert.IsFalse(ContactList.FindFirstField("No.", CustomerContactNo), 'Customer should not be in contact list.');
         SetOfficeHostUnAvailable;
-        ContactList.Close;
+        ContactList.Close();
     end;
 
     [Test]
@@ -986,7 +986,7 @@ codeunit 139048 "SMB Office Pages"
         // [THEN] The customer does appear in the list to choose from
         Assert.IsTrue(ContactList.FindFirstField("No.", CustomerContactNo), 'Customer should be in contact list.');
         SetOfficeHostUnAvailable;
-        ContactList.Close;
+        ContactList.Close();
     end;
 
     [Test]
@@ -1122,7 +1122,7 @@ codeunit 139048 "SMB Office Pages"
 
         // [THEN] The contact list is opened
         ContactList."No.".AssertEquals(ContactNo);
-        ContactList.Close;
+        ContactList.Close();
     end;
 
     [Test]
@@ -1166,7 +1166,7 @@ codeunit 139048 "SMB Office Pages"
         // [THEN] The contact list is opened
         Assert.IsTrue(ContactList.GotoKey(ContactNo), 'Contact is not present on the list');
         Assert.IsTrue(ContactList.GotoKey(Contact2."No."), 'Contact is not present on the list');
-        ContactList.Close;
+        ContactList.Close();
     end;
 
     [Test]
@@ -1261,7 +1261,7 @@ codeunit 139048 "SMB Office Pages"
 
         // [THEN] Verify the Contact List was open
         ContactList."No.".AssertEquals(ContactNo);
-        ContactList.Close;
+        ContactList.Close();
     end;
 
     [Test]
@@ -1306,7 +1306,7 @@ codeunit 139048 "SMB Office Pages"
         // [THEN] The contact list is opened
         Assert.IsTrue(ContactList.GotoKey(ContactNo), 'Contact is not present on the list');
         Assert.IsTrue(ContactList.GotoKey(Contact2."No."), 'Contact is not present on the list');
-        ContactList.Close;
+        ContactList.Close();
     end;
 
     [Test]
@@ -1392,7 +1392,7 @@ codeunit 139048 "SMB Office Pages"
         // Generate a random file
         FileName := StrSubstNo('%1.txt', CreateGuid);
         TempBlob.CreateOutStream(OutStream);
-        OutStream.WriteText(Format(CreateGuid));
+        OutStream.WriteText(Format(CreateGuid()));
         TempBlob.CreateInStream(InStream);
 
         if AttachAsUrl then
@@ -1405,7 +1405,7 @@ codeunit 139048 "SMB Office Pages"
         FileMgt.BLOBExportToServerFile(TempBlob, ServerPath);
 
         // Generate email body text
-        EmailBody := CreateGuid;
+        EmailBody := CreateGuid();
         Subject := 'Testing AttachFile';
 
         LibraryVariableStorage.Enqueue('sendAttachment');
@@ -1425,7 +1425,7 @@ codeunit 139048 "SMB Office Pages"
         ErrorText: Text;
     begin
         // Setup
-        ErrorText := CreateGuid;
+        ErrorText := CreateGuid();
         OfficeErrorDlg.Trap;
 
         // Exercise
@@ -1650,7 +1650,7 @@ codeunit 139048 "SMB Office Pages"
         CustNo := CreateContactFromCustomer(CustEmail, CustContactNo, NewBusRelCode, false);
 
         // [GIVEN] Office invoice record exists for the appointment
-        ItemId := CreateGuid;
+        ItemId := CreateGuid();
         CreateOfficeInvoiceRecord(CustNo, ItemId, SalesHeader);
 
         // [WHEN] User clicks the New Sales Invoice add-in command for an appointment
@@ -1781,7 +1781,7 @@ codeunit 139048 "SMB Office Pages"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustNo);
 
         if ItemId = '' then
-            ItemId := CreateGuid;
+            ItemId := CreateGuid();
 
         OfficeInvoice.DeleteAll();
         OfficeInvoice.Init();
@@ -1809,7 +1809,7 @@ codeunit 139048 "SMB Office Pages"
         CreateContactFromCustomer(CustEmail, CustContactNo, NewBusRelCode, false);
 
         if ItemId = '' then
-            ItemId := CreateGuid;
+            ItemId := CreateGuid();
 
         OfficeAddinContext.SetRange("Item ID", ItemId);
         if IsAppointment then begin
@@ -1942,7 +1942,7 @@ codeunit 139048 "SMB Office Pages"
     [Scope('OnPrem')]
     procedure MultipleContactsEngineHandler(var OfficeContactAssociations: TestPage "Office Contact Associations")
     begin
-        OfficeContactAssociations.Close;
+        OfficeContactAssociations.Close();
     end;
 
     [PageHandler]
@@ -1954,7 +1954,7 @@ codeunit 139048 "SMB Office Pages"
         LibraryVariableStorage.Dequeue(LinkNo);
         OfficeContactAssociations.FindFirstField("No.", LinkNo);
         OfficeContactAssociations."Customer/Vendor".Invoke;
-        OfficeContactAssociations.Close;
+        OfficeContactAssociations.Close();
     end;
 
     [ModalPageHandler]

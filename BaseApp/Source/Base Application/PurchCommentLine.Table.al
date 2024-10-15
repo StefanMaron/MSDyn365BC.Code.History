@@ -55,9 +55,9 @@ table 43 "Purch. Comment Line"
         PurchCommentLine.SetRange("Document Type", "Document Type");
         PurchCommentLine.SetRange("No.", "No.");
         PurchCommentLine.SetRange("Document Line No.", "Document Line No.");
-        PurchCommentLine.SetRange(Date, WorkDate);
+        PurchCommentLine.SetRange(Date, WorkDate());
         if not PurchCommentLine.FindFirst() then
-            Date := WorkDate;
+            Date := WorkDate();
 
         OnAfterSetUpNewLine(Rec, PurchCommentLine);
     end;

@@ -109,7 +109,7 @@ codeunit 144511 "ERM Allocation Charge"
         // Gross Weight Mandartory = FALSE, Unit Volume Mandatory = TRUE
         // Verify correction of Suggest Item Charge Assignment for 1 item
         VerifySuggestItemChargeAssgnt(
-          0, false, LibraryRandom.RandDec(100, 2), true, ItemChargeAssgntPurch.AssignByVolumeMenuText);
+          0, false, LibraryRandom.RandDec(100, 2), true, ItemChargeAssgntPurch.AssignByVolumeMenuText());
     end;
 
     [Test]
@@ -133,7 +133,7 @@ codeunit 144511 "ERM Allocation Charge"
         // Gross Weight Mandartory = TRUE, Unit Volume Mandatory = FALSE
         // Verify correction of Suggest Item Charge Assignment for 2 items
         VerifySuggestItemChargeAssgnt2(
-          0, false, LibraryRandom.RandDec(100, 2), true, ItemChargeAssgntPurch.AssignByVolumeMenuText);
+          0, false, LibraryRandom.RandDec(100, 2), true, ItemChargeAssgntPurch.AssignByVolumeMenuText());
     end;
 
     [Test]
@@ -155,7 +155,7 @@ codeunit 144511 "ERM Allocation Charge"
     begin
         // Check Suggest Item Charge Assignment by Volume
         // for Posted Documents
-        ItemChargeAssgntGetPostedDocs(ItemChargeAssgntPurch.AssignByVolumeMenuText);
+        ItemChargeAssgntGetPostedDocs(ItemChargeAssgntPurch.AssignByVolumeMenuText());
     end;
 
     local procedure CreateItem(GrossWeight: Decimal; GrossWeightMandatory: Boolean; UnitVolume: Decimal; UnitVolumeMandatory: Boolean): Code[20]

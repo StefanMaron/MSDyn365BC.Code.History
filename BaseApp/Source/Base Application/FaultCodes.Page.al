@@ -14,13 +14,13 @@ page 5927 "Fault Codes"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Fault Area Code"; "Fault Area Code")
+                field("Fault Area Code"; Rec."Fault Area Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code of the fault area associated with the fault code.';
                     Visible = FaultAreaCodeVisible;
                 }
-                field("Symptom Code"; "Symptom Code")
+                field("Symptom Code"; Rec."Symptom Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code of the symptom linked to the fault code.';

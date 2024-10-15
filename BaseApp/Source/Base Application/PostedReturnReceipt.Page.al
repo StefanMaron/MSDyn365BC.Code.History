@@ -3,7 +3,6 @@ page 6660 "Posted Return Receipt"
     Caption = 'Posted Return Receipt';
     InsertAllowed = false;
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Print/Send,Receipt';
     RefreshOnActivate = true;
     SourceTable = "Return Receipt Header";
 
@@ -14,21 +13,21 @@ page 6660 "Posted Return Receipt"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Sell-to Customer No."; "Sell-to Customer No.")
+                field("Sell-to Customer No."; Rec."Sell-to Customer No.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the number of the customer.';
                 }
-                field("Sell-to Contact No."; "Sell-to Contact No.")
+                field("Sell-to Contact No."; Rec."Sell-to Contact No.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Editable = false;
@@ -37,21 +36,21 @@ page 6660 "Posted Return Receipt"
                 group("Sell-to")
                 {
                     Caption = 'Sell-to';
-                    field("Sell-to Customer Name"; "Sell-to Customer Name")
+                    field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                     {
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'Name';
                         Editable = false;
                         ToolTip = 'Specifies the name of the customer.';
                     }
-                    field("Sell-to Address"; "Sell-to Address")
+                    field("Sell-to Address"; Rec."Sell-to Address")
                     {
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'Address';
                         Editable = false;
                         ToolTip = 'Specifies the main address of the customer.';
                     }
-                    field("Sell-to Address 2"; "Sell-to Address 2")
+                    field("Sell-to Address 2"; Rec."Sell-to Address 2")
                     {
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'Address 2';
@@ -62,34 +61,34 @@ page 6660 "Posted Return Receipt"
                     {
                         ShowCaption = false;
                         Visible = IsSellToCountyVisible;
-                        field("Sell-to County"; "Sell-to County")
+                        field("Sell-to County"; Rec."Sell-to County")
                         {
                             ApplicationArea = SalesReturnOrder;
                             Caption = 'County';
                             Editable = false;
                         }
                     }
-                    field("Sell-to Post Code"; "Sell-to Post Code")
+                    field("Sell-to Post Code"; Rec."Sell-to Post Code")
                     {
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'Post Code';
                         Editable = false;
                         ToolTip = 'Specifies the postal code of the customer''s main address.';
                     }
-                    field("Sell-to City"; "Sell-to City")
+                    field("Sell-to City"; Rec."Sell-to City")
                     {
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'City';
                         Editable = false;
                         ToolTip = 'Specifies the city of the customer''s main address.';
                     }
-                    field("Sell-to Country/Region Code"; "Sell-to Country/Region Code")
+                    field("Sell-to Country/Region Code"; Rec."Sell-to Country/Region Code")
                     {
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'Country/Region';
                         Editable = false;
                     }
-                    field("Sell-to Contact"; "Sell-to Contact")
+                    field("Sell-to Contact"; Rec."Sell-to Contact")
                     {
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'Contact';
@@ -124,51 +123,51 @@ page 6660 "Posted Return Receipt"
                         ToolTip = 'Specifies the email address of the contact person at the customer''s main address.';
                     }
                 }
-                field("Posting Description"; "Posting Description")
+                field("Posting Description"; Rec."Posting Description")
                 {
                     Editable = false;
                     ToolTip = 'Specifies any text that is entered to accompany the posting, for example for information to auditors.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the entry''s posting date.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
-                field("Return Order No."; "Return Order No.")
+                field("Return Order No."; Rec."Return Order No.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the number of the return order that will post a return receipt.';
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies which salesperson is associated with the posted return receipt.';
                 }
-                field("Responsibility Center"; "Responsibility Center")
+                field("Responsibility Center"; Rec."Responsibility Center")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the code of the responsibility center, such as a distribution hub, that is associated with the involved user, company, customer, or vendor.';
                 }
-                field("No. Printed"; "No. Printed")
+                field("No. Printed"; Rec."No. Printed")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Editable = false;
@@ -183,14 +182,14 @@ page 6660 "Posted Return Receipt"
             group(Invoicing)
             {
                 Caption = 'Invoicing';
-                field("Bill-to Customer No."; "Bill-to Customer No.")
+                field("Bill-to Customer No."; Rec."Bill-to Customer No.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the number of the customer that you send or sent the invoice or credit memo to.';
                 }
-                field("Bill-to Contact No."; "Bill-to Contact No.")
+                field("Bill-to Contact No."; Rec."Bill-to Contact No.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Editable = false;
@@ -200,21 +199,21 @@ page 6660 "Posted Return Receipt"
                 {
                     Caption = 'Bill-to';
                     Visible = IsBillToCountyVisible;
-                    field("Bill-to Name"; "Bill-to Name")
+                    field("Bill-to Name"; Rec."Bill-to Name")
                     {
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'Name';
                         Editable = false;
                         ToolTip = 'Specifies the name of the customer that you send or sent the invoice or credit memo to.';
                     }
-                    field("Bill-to Address"; "Bill-to Address")
+                    field("Bill-to Address"; Rec."Bill-to Address")
                     {
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'Address';
                         Editable = false;
                         ToolTip = 'Specifies the address of the customer to whom you sent the invoice.';
                     }
-                    field("Bill-to Address 2"; "Bill-to Address 2")
+                    field("Bill-to Address 2"; Rec."Bill-to Address 2")
                     {
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'Address 2';
@@ -224,34 +223,34 @@ page 6660 "Posted Return Receipt"
                     group(Control29)
                     {
                         ShowCaption = false;
-                        field("Bill-to County"; "Bill-to County")
+                        field("Bill-to County"; Rec."Bill-to County")
                         {
                             ApplicationArea = SalesReturnOrder;
                             Caption = 'County';
                             Editable = false;
                         }
                     }
-                    field("Bill-to Post Code"; "Bill-to Post Code")
+                    field("Bill-to Post Code"; Rec."Bill-to Post Code")
                     {
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'Post Code';
                         Editable = false;
                         ToolTip = 'Specifies the postal code of the customer''s billing address.';
                     }
-                    field("Bill-to City"; "Bill-to City")
+                    field("Bill-to City"; Rec."Bill-to City")
                     {
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'City';
                         Editable = false;
                         ToolTip = 'Specifies the city of the address.';
                     }
-                    field("Bill-to Country/Region Code"; "Bill-to Country/Region Code")
+                    field("Bill-to Country/Region Code"; Rec."Bill-to Country/Region Code")
                     {
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'Country/Region';
                         Editable = false;
                     }
-                    field("Bill-to Contact"; "Bill-to Contact")
+                    field("Bill-to Contact"; Rec."Bill-to Contact")
                     {
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'Contact';
@@ -286,19 +285,19 @@ page 6660 "Posted Return Receipt"
                         ToolTip = 'Specifies the email address of the contact person at the customer''s billing address.';
                     }
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
-                field("Agreement No."; "Agreement No.")
+                field("Agreement No."; Rec."Agreement No.")
                 {
                     Editable = false;
                     ToolTip = 'Specifies the agreement number associated with the return receipt header.';
@@ -307,7 +306,7 @@ page 6660 "Posted Return Receipt"
             group(Shipping)
             {
                 Caption = 'Shipping';
-                field("Ship-to Code"; "Ship-to Code")
+                field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Editable = false;
@@ -317,21 +316,21 @@ page 6660 "Posted Return Receipt"
                 {
                     Caption = 'Ship-to';
                     Visible = IsShipToCountyVisible;
-                    field("Ship-to Name"; "Ship-to Name")
+                    field("Ship-to Name"; Rec."Ship-to Name")
                     {
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'Name';
                         Editable = false;
                         ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                     }
-                    field("Ship-to Address"; "Ship-to Address")
+                    field("Ship-to Address"; Rec."Ship-to Address")
                     {
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'Address';
                         Editable = false;
                         ToolTip = 'Specifies the address that the items are shipped to.';
                     }
-                    field("Ship-to Address 2"; "Ship-to Address 2")
+                    field("Ship-to Address 2"; Rec."Ship-to Address 2")
                     {
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'Address 2';
@@ -341,34 +340,34 @@ page 6660 "Posted Return Receipt"
                     group(Control37)
                     {
                         ShowCaption = false;
-                        field("Ship-to County"; "Ship-to County")
+                        field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = SalesReturnOrder;
                             Caption = 'County';
                             Editable = false;
                         }
                     }
-                    field("Ship-to Post Code"; "Ship-to Post Code")
+                    field("Ship-to Post Code"; Rec."Ship-to Post Code")
                     {
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'Post Code';
                         Editable = false;
                         ToolTip = 'Specifies the postal code of the address that the items are shipped to.';
                     }
-                    field("Ship-to City"; "Ship-to City")
+                    field("Ship-to City"; Rec."Ship-to City")
                     {
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'City';
                         Editable = false;
                         ToolTip = 'Specifies the city of the address that the items are shipped to.';
                     }
-                    field("Ship-to Country/Region Code"; "Ship-to Country/Region Code")
+                    field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                     {
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'Country/Region';
                         Editable = false;
                     }
-                    field("Ship-to Contact"; "Ship-to Contact")
+                    field("Ship-to Contact"; Rec."Ship-to Contact")
                     {
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'Contact';
@@ -376,7 +375,7 @@ page 6660 "Posted Return Receipt"
                         ToolTip = 'Specifies the name of the contact person at the address that the items are shipped to.';
                     }
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Editable = false;
@@ -386,14 +385,14 @@ page 6660 "Posted Return Receipt"
                 group("Shipment Method")
                 {
                     Caption = 'Shipment Method';
-                    field("Shipment Method Code"; "Shipment Method Code")
+                    field("Shipment Method Code"; Rec."Shipment Method Code")
                     {
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'Code';
                         Editable = false;
                         ToolTip = 'Specifies the reason for the posted return.';
                     }
-                    field("Shipping Agent Code"; "Shipping Agent Code")
+                    field("Shipping Agent Code"; Rec."Shipping Agent Code")
                     {
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'Agent';
@@ -401,7 +400,7 @@ page 6660 "Posted Return Receipt"
                         Importance = Additional;
                         ToolTip = 'Specifies which shipping agent is used to transport the items on the sales document to the customer.';
                     }
-                    field("Package Tracking No."; "Package Tracking No.")
+                    field("Package Tracking No."; Rec."Package Tracking No.")
                     {
                         ApplicationArea = SalesReturnOrder;
                         Editable = false;
@@ -409,7 +408,7 @@ page 6660 "Posted Return Receipt"
                         ToolTip = 'Specifies the shipping agent''s package number.';
                     }
                 }
-                field("Shipment Date"; "Shipment Date")
+                field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Editable = false;
@@ -446,9 +445,6 @@ page 6660 "Posted Return Receipt"
                     ApplicationArea = SalesReturnOrder;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     RunObject = Page "Return Receipt Statistics";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -459,8 +455,6 @@ page 6660 "Posted Return Receipt"
                     ApplicationArea = SalesReturnOrder;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Sales Comment Sheet";
                     RunPageLink = "Document Type" = CONST("Posted Return Receipt"),
                                   "No." = FIELD("No."),
@@ -473,9 +467,6 @@ page 6660 "Posted Return Receipt"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
@@ -490,8 +481,6 @@ page 6660 "Posted Return Receipt"
                     ApplicationArea = SalesReturnOrder;
                     Caption = 'Approvals';
                     Image = Approvals;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'View a list of the records that are waiting to be approved. For example, you can see who requested the record to be approved, when it was sent, and when it is due to be approved.';
 
                     trigger OnAction()
@@ -531,8 +520,6 @@ page 6660 "Posted Return Receipt"
                     ApplicationArea = Basic, Suite;
                     Caption = '&Track Package';
                     Image = ItemTracking;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Open the shipping agent''s tracking page to track the package. ';
 
                     trigger OnAction()
@@ -547,8 +534,6 @@ page 6660 "Posted Return Receipt"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Category4;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -564,14 +549,12 @@ page 6660 "Posted Return Receipt"
                 ApplicationArea = SalesReturnOrder;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Category5;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
-                    Navigate;
+                    Navigate();
                 end;
             }
             action("Update Document")
@@ -579,10 +562,6 @@ page 6660 "Posted Return Receipt"
                 ApplicationArea = SalesReturnOrder;
                 Caption = 'Update Document';
                 Image = Edit;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Add new information that is relevant to the document, such as information from the shipping agent. You can only edit a few fields because the document has already been posted.';
 
                 trigger OnAction()
@@ -595,13 +574,59 @@ page 6660 "Posted Return Receipt"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Update Document_Promoted"; "Update Document")
+                {
+                }
+                actionref("&Track Package_Promoted"; "&Track Package")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Print/Send', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Receipt', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+                actionref(Approvals_Promoted; Approvals)
+                {
+                }
+            }
+        }
     }
 
     trigger OnOpenPage()
     begin
-        SetSecurityFilterOnRespCenter;
+        SetSecurityFilterOnRespCenter();
 
-        ActivateFields;
+        ActivateFields();
     end;
 
     trigger OnAfterGetRecord()

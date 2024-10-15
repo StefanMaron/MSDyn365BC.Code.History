@@ -9,7 +9,6 @@ page 116 "G/L Registers"
     SourceTableView = SORTING("No.")
                       ORDER(Descending);
     UsageCategory = History;
-    PromotedActionCategories = 'New,Process,Report,Reverse';
 
     layout
     {
@@ -18,22 +17,22 @@ page 116 "G/L Registers"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the general ledger register.';
                 }
-                field("Creation Date"; "Creation Date")
+                field("Creation Date"; Rec."Creation Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the entries in the register were posted.';
                 }
-                field("Creation Time"; "Creation Time")
+                field("Creation Time"; Rec."Creation Time")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the time when the entries in the register were posted.';
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
@@ -45,12 +44,12 @@ page 116 "G/L Registers"
                         UserMgt.DisplayUserInformation("User ID");
                     end;
                 }
-                field("Source Code"; "Source Code")
+                field("Source Code"; Rec."Source Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the source code for the entries in the register.';
                 }
-                field("Journal Batch Name"; "Journal Batch Name")
+                field("Journal Batch Name"; Rec."Journal Batch Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the batch name of the general journal that the entries were posted from.';
@@ -61,22 +60,22 @@ page 116 "G/L Registers"
                     ToolTip = 'Specifies if the register has been reversed (undone) from the Reverse Entries window.';
                     Visible = false;
                 }
-                field("From Entry No."; "From Entry No.")
+                field("From Entry No."; Rec."From Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the first general ledger entry number in the register.';
                 }
-                field("To Entry No."; "To Entry No.")
+                field("To Entry No."; Rec."To Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last general ledger entry number in the register.';
                 }
-                field("From VAT Entry No."; "From VAT Entry No.")
+                field("From VAT Entry No."; Rec."From VAT Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the first VAT entry number in the register.';
                 }
-                field("To VAT Entry No."; "To VAT Entry No.")
+                field("To VAT Entry No."; Rec."To VAT Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last entry number in the register.';
@@ -111,9 +110,6 @@ page 116 "G/L Registers"
                     ApplicationArea = Basic, Suite;
                     Caption = 'General Ledger';
                     Image = GLRegisters;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Codeunit "G/L Reg.-Gen. Ledger";
                     ToolTip = 'View the general ledger entries that resulted in the current register entry.';
                 }
@@ -122,9 +118,6 @@ page 116 "G/L Registers"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Customer &Ledger';
                     Image = CustomerLedger;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Codeunit "G/L Reg.-Cust.Ledger";
                     ToolTip = 'View the customer ledger entries that resulted in the current register entry.';
                 }
@@ -133,9 +126,6 @@ page 116 "G/L Registers"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Ven&dor Ledger';
                     Image = VendorLedger;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Codeunit "G/L Reg.-Vend.Ledger";
                     ToolTip = 'View the vendor ledger entries that resulted in the current register entry.';
                 }
@@ -144,8 +134,6 @@ page 116 "G/L Registers"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Bank Account Ledger';
                     Image = BankAccountLedger;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Codeunit "G/L Reg.-Bank Account Ledger";
                     ToolTip = 'View the bank account ledger entries that resulted in the current register entry.';
                 }
@@ -154,8 +142,6 @@ page 116 "G/L Registers"
                     ApplicationArea = FixedAssets;
                     Caption = 'Fixed &Asset Ledger';
                     Image = FixedAssetLedger;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Codeunit "G/L Reg.-FALedger";
                     ToolTip = 'View registers that involve fixed assets.';
                 }
@@ -164,8 +150,6 @@ page 116 "G/L Registers"
                     ApplicationArea = FixedAssets;
                     Caption = 'Maintenance Ledger';
                     Image = MaintenanceLedgerEntries;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Codeunit "G/L Reg.-Maint.Ledger";
                     ToolTip = 'View the maintenance ledger entries for the selected fixed asset.';
                 }
@@ -174,8 +158,6 @@ page 116 "G/L Registers"
                     ApplicationArea = Basic, Suite;
                     Caption = 'VAT Entries';
                     Image = VATLedger;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Codeunit "G/L Reg.-VAT Entries";
                     ToolTip = 'View the VAT entries that are associated with the current register entry.';
                 }
@@ -184,8 +166,6 @@ page 116 "G/L Registers"
                     ApplicationArea = Basic, Suite;
                     Caption = 'G/L Corresp. Entries';
                     Image = GeneralLedger;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Codeunit "G/L Reg. - Corresp. Entries";
                     ToolTip = 'View general ledger correspondence entries.';
                 }
@@ -203,8 +183,6 @@ page 116 "G/L Registers"
                 action(ChangeDimensions)
                 {
                     ApplicationArea = All;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     Image = ChangeDimensions;
                     Caption = 'Correct Dimensions';
                     ToolTip = 'Correct dimensions for the related general ledger entries.';
@@ -234,9 +212,6 @@ page 116 "G/L Registers"
                     Caption = 'Reverse Register';
                     Ellipsis = true;
                     Image = ReverseRegister;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'Undo entries that were incorrectly posted. You can only reverse entries that were posted from a journal and have not already been involved in a reversal.';
                     Enabled = ReverseRegisterEnabled;
 
@@ -286,8 +261,6 @@ page 116 "G/L Registers"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Detail Trial Balance';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Detail Trial Balance";
                 ToolTip = 'Print or save a detail trial balance for the general ledger accounts that you specify.';
             }
@@ -296,7 +269,6 @@ page 116 "G/L Registers"
                 ApplicationArea = Suite;
                 Caption = 'Trial Balance';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report Budget;
@@ -307,8 +279,6 @@ page 116 "G/L Registers"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Trial Balance by Period';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Trial Balance by Period";
                 ToolTip = 'Print or save the opening balance by general ledger account, the movements in the selected period of month, quarter, or year, and the resulting closing balance.';
             }
@@ -317,10 +287,65 @@ page 116 "G/L Registers"
                 ApplicationArea = Suite;
                 Caption = 'G/L Register';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "G/L Register";
                 ToolTip = 'View posted G/L entries.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("General Ledger_Promoted"; "General Ledger")
+                {
+                }
+                actionref("Customer &Ledger_Promoted"; "Customer &Ledger")
+                {
+                }
+                actionref("Ven&dor Ledger_Promoted"; "Ven&dor Ledger")
+                {
+                }
+                actionref("Bank Account Ledger_Promoted"; "Bank Account Ledger")
+                {
+                }
+                actionref("Fixed &Asset Ledger_Promoted"; "Fixed &Asset Ledger")
+                {
+                }
+                actionref("Maintenance Ledger_Promoted"; "Maintenance Ledger")
+                {
+                }
+                actionref("VAT Entries_Promoted"; "VAT Entries")
+                {
+                }
+                actionref("G/L Corresp. Entries_Promoted"; "G/L Corresp. Entries")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
+                actionref("Detail Trial Balance_Promoted"; "Detail Trial Balance")
+                {
+                }
+                actionref("Trial Balance by Period_Promoted"; "Trial Balance by Period")
+                {
+                }
+                actionref("G/L Register_Promoted"; "G/L Register")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Reverse', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(ReverseRegister_Promoted; ReverseRegister)
+                {
+                }
+                actionref(ChangeDimensions_Promoted; ChangeDimensions)
+                {
+                }
             }
         }
     }

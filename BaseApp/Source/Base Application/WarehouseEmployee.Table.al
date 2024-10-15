@@ -71,13 +71,13 @@ table 7301 "Warehouse Employee"
     trigger OnInsert()
     begin
         if Default then
-            CheckDefault;
+            CheckDefault();
     end;
 
     trigger OnModify()
     begin
         if Default then
-            CheckDefault;
+            CheckDefault();
     end;
 
     var

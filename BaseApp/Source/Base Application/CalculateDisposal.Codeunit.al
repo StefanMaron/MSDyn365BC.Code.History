@@ -21,7 +21,7 @@ codeunit 5605 "Calculate Disposal"
         IsHandled: Boolean;
     begin
         OnBeforeCalcGainLoss(FANo, DeprBookCode, EntryAmounts);
-        ClearAll;
+        ClearAll();
         Clear(EntryAmounts);
         DeprBook.Get(DeprBookCode);
         FA.Get(FANo);
@@ -61,7 +61,7 @@ codeunit 5605 "Calculate Disposal"
     var
         NewGainLoss: Decimal;
     begin
-        ClearAll;
+        ClearAll();
         Clear(EntryAmounts);
         with FADeprBook do begin
             Get(FANo, DeprBookCode);
@@ -128,7 +128,7 @@ codeunit 5605 "Calculate Disposal"
         DisposalAmount: Decimal;
         SalesDisposal: Boolean;
     begin
-        ClearAll;
+        ClearAll();
         MaxDisposalNo := 0;
         SalesEntryNo := 0;
         DisposalType := DisposalType::FirstDisposal;
@@ -151,7 +151,7 @@ codeunit 5605 "Calculate Disposal"
                     DeprBook.Get(DeprBookCode);
                     DeprBook.TestField("Allow Correction of Disposal");
                     DisposalType := DisposalType::SecondDisposal;
-                end else begin
+                end else begin // todo
                     if SalesDisposal and (DisposalAmount = 0) then begin
                         GLSetup.Get();
                         if GLSetup."Enable Russian Accounting" then begin
@@ -180,7 +180,7 @@ codeunit 5605 "Calculate Disposal"
         FALedgEntry: Record "FA Ledger Entry";
         i: Integer;
     begin
-        ClearAll;
+        ClearAll();
         Clear(EntryNumbers);
         with FALedgEntry do begin
             DepreciationCalc.SetFAFilter(FALedgEntry, FANo, DeprBookCode, true);
@@ -287,7 +287,7 @@ codeunit 5605 "Calculate Disposal"
         GainLoss: Decimal;
         I: Integer;
     begin
-        ClearAll;
+        ClearAll();
         GainLoss := EntryAmounts[1];
         Clear(EntryAmounts);
         DeprBook.Get(DeprBookCode);
@@ -309,7 +309,7 @@ codeunit 5605 "Calculate Disposal"
         TransactionNo: Integer;
         i: Integer;
     begin
-        ClearAll;
+        ClearAll();
         Clear(EntryNumbers);
         with FALedgEntry do begin
             FALedgEntry.Get(ErrorEntryNo);

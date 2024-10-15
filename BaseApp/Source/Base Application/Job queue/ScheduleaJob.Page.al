@@ -18,7 +18,7 @@ page 676 "Schedule a Job"
                 Enabled = false;
                 ToolTip = 'Specifies a description of the job queue entry. You can edit and update the description on the job queue entry card. The description is also displayed in the Job Queue Entries window, but it cannot be updated there.';
             }
-            field("Earliest Start Date/Time"; "Earliest Start Date/Time")
+            field("Earliest Start Date/Time"; Rec."Earliest Start Date/Time")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the earliest date and time when the job should be started. If you leave the field blank, the job starts when you choose the OK button.  The format for the date and time must be month/day/year hour:minute, and then AM or PM. For example, 3/10/2021 12:00 AM.';
@@ -48,7 +48,7 @@ page 676 "Schedule a Job"
         ScheduleAJob: Page "Schedule a Job";
     begin
         ScheduleAJob.SetJob(JobQueueEntry);
-        exit(ScheduleAJob.RunModal = ACTION::OK);
+        exit(ScheduleAJob.RunModal() = ACTION::OK);
     end;
 
     procedure SetJob(JobQueueEntry: Record "Job Queue Entry")

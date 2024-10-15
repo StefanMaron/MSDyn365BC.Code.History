@@ -364,65 +364,65 @@ codeunit 144714 "ERM FA Reports Test"
     local procedure CreateFADocHeader(var FADocHeader: Record "FA Document Header")
     begin
         with FADocHeader do begin
-            Init;
+            Init();
             "Document Type" := "Document Type"::Movement;
             "No." := LibraryUtility.GenerateGUID();
             Insert(true);
-            "Posting Date" := WorkDate;
-            "FA Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
+            "FA Posting Date" := WorkDate();
             "FA Location Code" := CreateLocation;
             "New FA Location Code" := CreateLocation;
-            Modify;
+            Modify();
         end;
     end;
 
     local procedure CreateFADocLine(var FADocLine: Record "FA Document Line"; FADocHeader: Record "FA Document Header"; FANo: Code[20]; DeprBookCode: Code[10])
     begin
         with FADocLine do begin
-            Init;
+            Init();
             "Document Type" := FADocHeader."Document Type";
             "Document No." := FADocHeader."No.";
             "Line No." := 10000;
-            Insert;
+            Insert();
             "FA No." := FANo;
             "Depreciation Book Code" := DeprBookCode;
             Quantity := LibraryRandom.RandInt(10);
             Amount := LibraryRandom.RandInt(100);
             "Book Value" := LibraryRandom.RandInt(1000);
             "FA Posting Group" := LibraryUtility.GenerateGUID();
-            Modify;
+            Modify();
         end;
     end;
 
     local procedure CreatePostedFADocHeader(var PostedFADocHeader: Record "Posted FA Doc. Header")
     begin
         with PostedFADocHeader do begin
-            Init;
+            Init();
             "Document Type" := "Document Type"::Movement;
             "No." := LibraryUtility.GenerateGUID();
-            "Posting Date" := WorkDate;
-            "FA Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
+            "FA Posting Date" := WorkDate();
             "FA Location Code" := CreateLocation;
             "New FA Location Code" := CreateLocation;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure CreatePostedFADocLine(var PostedFADocLine: Record "Posted FA Doc. Line"; PostedFADocHeader: Record "Posted FA Doc. Header"; FANo: Code[20]; DeprBookCode: Code[10])
     begin
         with PostedFADocLine do begin
-            Init;
+            Init();
             "Document Type" := PostedFADocHeader."Document Type";
             "Document No." := PostedFADocHeader."No.";
             "Line No." := 10000;
-            Insert;
+            Insert();
             "FA No." := FANo;
             "Depreciation Book Code" := DeprBookCode;
             Quantity := LibraryRandom.RandInt(10);
             Amount := LibraryRandom.RandInt(100);
             "Book Value" := LibraryRandom.RandInt(1000);
             "FA Posting Group" := LibraryUtility.GenerateGUID();
-            Modify;
+            Modify();
         end;
     end;
 
@@ -431,9 +431,9 @@ codeunit 144714 "ERM FA Reports Test"
         Location: Record Location;
     begin
         with Location do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::Location);
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -585,20 +585,20 @@ codeunit 144714 "ERM FA Reports Test"
         FALedgEntry: Record "FA Ledger Entry";
     begin
         MockFALedgerEntry(
-          FALedgEntry, FADeprBook, WorkDate, FALedgEntry."FA Posting Category"::Disposal);
+          FALedgEntry, FADeprBook, WorkDate(), FALedgEntry."FA Posting Category"::Disposal);
     end;
 
     local procedure MockFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry"; FADeprBook: Record "FA Depreciation Book"; PostingDate: Date; FAPostCategory: Option)
     begin
         with FALedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(FALedgerEntry, FieldNo("Entry No."));
             "FA No." := FADeprBook."FA No.";
             "FA Posting Date" := PostingDate;
             "Depreciation Book Code" := FADeprBook."Depreciation Book Code";
             "FA Posting Category" := FAPostCategory;
             Amount := LibraryRandom.RandDec(100, 2);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -611,7 +611,7 @@ codeunit 144714 "ERM FA Reports Test"
 
         FixedAsset.SetRange("No.", FANo);
         FAInvCardFA6.SetTableView(FixedAsset);
-        FAInvCardFA6.InitializeRequest(WorkDate, LibraryRUReports.GetFirstFADeprBook(FANo));
+        FAInvCardFA6.InitializeRequest(WorkDate(), LibraryRUReports.GetFirstFADeprBook(FANo));
         FAInvCardFA6.SetFileNameSilent(LibraryReportValidation.GetFileName);
         FAInvCardFA6.UseRequestPage(false);
         FAInvCardFA6.Run();
@@ -655,7 +655,7 @@ codeunit 144714 "ERM FA Reports Test"
             repeat
                 Quantity := LibraryRandom.RandDecInRange(2, 5, 2);
                 "Reclassification Entry" := not InitialAcquisition;
-                Modify;
+                Modify();
             until Next = 0;
         end;
     end;

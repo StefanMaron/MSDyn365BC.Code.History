@@ -34,14 +34,14 @@
                     Item.SetRange("Cost is Adjusted", false);
                     Item.SetRange("Allow Online Adjustment", false);
 
-                    UpdateInvtAdjmtEntryOrder;
+                    UpdateInvtAdjmtEntryOrder();
 
                     InvtAdjmtEntryOrder.SetCurrentKey("Cost is Adjusted", "Allow Online Adjustment");
                     InvtAdjmtEntryOrder.SetRange("Cost is Adjusted", false);
                     InvtAdjmtEntryOrder.SetRange("Allow Online Adjustment", false);
                     InvtAdjmtEntryOrder.SetRange("Is Finished", true);
 
-                    if not (Item.IsEmpty and InvtAdjmtEntryOrder.IsEmpty) then
+                    if not (Item.IsEmpty() and InvtAdjmtEntryOrder.IsEmpty) then
                         Message(Text000);
                 end;
             end;
@@ -49,6 +49,10 @@
         field(40; "Prevent Negative Inventory"; Boolean)
         {
             Caption = 'Prevent Negative Inventory';
+        }
+        field(45; "Variant Mandatory if Exists"; Boolean)
+        {
+            Caption = 'Variant Mandatory if Exists';
         }
         field(50; "Skip Prompt to Create Item"; Boolean)
         {
@@ -159,7 +163,7 @@
                 if "Expected Cost Posting to G/L" <> xRec."Expected Cost Posting to G/L" then
                     if ItemLedgEntry.FindFirst() then begin
                         ChangeExpCostPostToGL.ChangeExpCostPostingToGL(Rec, "Expected Cost Posting to G/L");
-                        Find;
+                        Find();
                     end;
             end;
         }
@@ -307,78 +311,48 @@
             Caption = 'Item Receipt Nos.';
             TableRelation = "No. Series";
             ObsoleteReason = 'Replaced by Inventory Documents feature.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
         field(12401; "Posted Item Receipt Nos."; Code[20])
         {
             Caption = 'Posted Item Receipt Nos.';
             TableRelation = "No. Series";
             ObsoleteReason = 'Replaced by Inventory Documents feature.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
         field(12402; "Item Shipment Nos."; Code[20])
         {
             Caption = 'Item Shipment Nos.';
             TableRelation = "No. Series";
             ObsoleteReason = 'Replaced by Inventory Documents feature.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
         field(12403; "Posted Item Shipment Nos."; Code[20])
         {
             Caption = 'Posted Item Shipment Nos.';
             TableRelation = "No. Series";
             ObsoleteReason = 'Replaced by Inventory Documents feature.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
         field(12404; "CD Header Nos."; Code[20])
         {
             Caption = 'CD Header Nos.';
             TableRelation = "No. Series";
             ObsoleteReason = 'Replaced by "Package Nos." field.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
         field(12405; "Posted Direct Transfer Nos."; Code[20])
         {
             Caption = 'Posted Direct Transfer Nos.';
             TableRelation = "No. Series";
             ObsoleteReason = 'Replaced by field Posted Direct Trans. Nos. in W1.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
         field(12406; "Copy Comments to Item Doc."; Boolean)
         {
@@ -416,12 +390,12 @@
             begin
                 if "Enable Red Storno" then begin
                     if Confirm(Text12400) then
-                        ItemJnlPostLine.EnableRedStorno
+                        ItemJnlPostLine.EnableRedStorno()
                     else
                         Error('');
                 end else
                     if Confirm(Text12401) then
-                        ItemJnlPostLine.DisableRedStorno
+                        ItemJnlPostLine.DisableRedStorno()
                     else
                         Error('');
             end;
@@ -430,13 +404,8 @@
         {
             Caption = 'Check CD No. Format';
             ObsoleteReason = 'Moved to RU CD Tracking extension.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
         field(12450; "TORG-13 Template Code"; Code[10])
         {
@@ -509,12 +478,13 @@
 
     var
         ItemLedgEntry: Record "Item Ledger Entry";
-        Text000: Label 'Some unadjusted value entries will not be covered with the new setting. You must run the Adjust Cost - Item Entries batch job once to adjust these.';
         Item: Record Item;
         InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+        ObjTransl: Record "Object Translation";
+
+        Text000: Label 'Some unadjusted value entries will not be covered with the new setting. You must run the Adjust Cost - Item Entries batch job once to adjust these.';
         Text004: Label 'The program has cancelled the change that would have caused an adjustment of all items.';
         Text005: Label '%1 has been changed to %2. You should now run %3.';
-        ObjTransl: Record "Object Translation";
         ItemEntriesAdjustQst: Label 'If you change the %1, the program must adjust all item entries.The adjustment of all entries can take several hours.\Do you really want to change the %1?', Comment = '%1 - field caption';
         Text12400: Label 'Do you want to enable red storno?';
         Text12401: Label 'Do you want to disable red storno?';

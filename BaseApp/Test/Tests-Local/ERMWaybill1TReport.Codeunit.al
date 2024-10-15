@@ -138,7 +138,7 @@ codeunit 144701 "ERM Waybill 1-T Report"
 
         PrintOrderItemWaybill1TToExcel(SalesHeader);
 
-        SalesHeader.Find;
+        SalesHeader.Find();
         VerifyWaybill1TReport(SalesHeader);
     end;
 
@@ -222,7 +222,7 @@ codeunit 144701 "ERM Waybill 1-T Report"
         Option: Option Capitalized,Literal;
     begin
         with Employee do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Employee);
             "First Name" :=
               CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("First Name"), Option::Literal), 1, MaxStrLen("First Name"));
@@ -230,7 +230,7 @@ codeunit 144701 "ERM Waybill 1-T Report"
               CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Last Name"), Option::Literal), 1, MaxStrLen("Last Name"));
             "Middle Name" :=
               CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Middle Name"), Option::Literal), 1, MaxStrLen("Middle Name"));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -240,9 +240,9 @@ codeunit 144701 "ERM Waybill 1-T Report"
         Employee: Record Employee;
     begin
         CreateSimpleEmployee(Employee);
-        EmployeeFullName := Employee.GetFullName;
+        EmployeeFullName := Employee.GetFullName();
         with DocSignature do begin
-            Init;
+            Init();
             "Table ID" := DATABASE::"Sales Header";
             "Document Type" := 1;
             "Document No." := DocumentNo;
@@ -250,7 +250,7 @@ codeunit 144701 "ERM Waybill 1-T Report"
             "Employee Type" := EmployeeType;
             "Employee Job Title" := Employee.GetJobTitleName;
             "Employee Name" := EmployeeFullName;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -288,7 +288,7 @@ codeunit 144701 "ERM Waybill 1-T Report"
         Currency: Record Currency;
         LineRowId: Integer;
     begin
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         LineRowId := 23 + RowShift;
         LibraryReportValidation.VerifyCellValue(LineRowId, 1, LineNo);
         LibraryReportValidation.VerifyCellValue(LineRowId, 13, StdRepMgt.FormatReportValue(QtyToInvoice, 2));
@@ -337,7 +337,7 @@ codeunit 144701 "ERM Waybill 1-T Report"
               SalesLine."Unit of Measure",
               SalesLine."Amount Including VAT");
             RowShift += 1;
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
         RowShift -= 1;
 
         SalesHeader.CalcFields("Amount Including VAT");
@@ -378,7 +378,7 @@ codeunit 144701 "ERM Waybill 1-T Report"
               SalesShipmentLine."Amount Including VAT");
             Amount += SalesShipmentLine."Amount Including VAT";
             RowShift += 1;
-        until SalesShipmentLine.Next = 0;
+        until SalesShipmentLine.Next() = 0;
         RowShift -= 1;
 
         VerifyWaybillFooterValues(Amount, SalesShipmentHeader."Posting Date", RowShift);
@@ -416,7 +416,7 @@ codeunit 144701 "ERM Waybill 1-T Report"
               SalesInvoiceLine."Amount Including VAT");
             Amount += SalesInvoiceLine."Amount Including VAT";
             RowShift += 1;
-        until SalesInvoiceLine.Next = 0;
+        until SalesInvoiceLine.Next() = 0;
         RowShift -= 1;
 
         VerifyWaybillFooterValues(Amount, SalesInvoiceHeader."Posting Date", RowShift);

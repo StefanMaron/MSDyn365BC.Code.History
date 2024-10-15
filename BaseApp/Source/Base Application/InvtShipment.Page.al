@@ -138,8 +138,6 @@ page 6564 "Invt. Shipment"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Invt. Document Statistics";
                     RunPageLink = "Document Type" = FIELD("Document Type"),
                                   "No." = FIELD("No.");
@@ -173,8 +171,6 @@ page 6564 "Invt. Shipment"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Employee Si&gnatures';
                     Image = Signature;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'View or edit employee signatures.';
                     RunObject = Page "Document Signatures";
                     RunPageLink = "Table ID" = CONST(12450),
@@ -224,9 +220,6 @@ page 6564 "Invt. Shipment"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Re&lease';
                     Image = ReleaseDoc;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Codeunit "Release Invt. Document";
                     ShortCutKey = 'Ctrl+F9';
                     ToolTip = 'Enable the record for the next stage of processing. ';
@@ -236,8 +229,6 @@ page 6564 "Invt. Shipment"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Reo&pen';
                     Image = ReOpen;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Open the closed or released record.';
 
                     trigger OnAction()
@@ -258,9 +249,6 @@ page 6564 "Invt. Shipment"
                     Caption = 'P&ost';
                     Ellipsis = true;
                     Image = Post;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Codeunit "Invt. Doc.-Post (Yes/No)";
                     ShortCutKey = 'F9';
                     ToolTip = 'Record the related transaction in your books.';
@@ -270,9 +258,6 @@ page 6564 "Invt. Shipment"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Post and &Print';
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Codeunit "Invt. Doc.-Post + Print";
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
@@ -284,8 +269,6 @@ page 6564 "Invt. Shipment"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Print document.';
 
                 trigger OnAction()
@@ -294,6 +277,35 @@ page 6564 "Invt. Shipment"
                 begin
                     DocPrint.PrintInvtDocument(Rec, true);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Re&lease_Promoted"; "Re&lease")
+                {
+                }
+                actionref("P&ost_Promoted"; "P&ost")
+                {
+                }
+                actionref("Post and &Print_Promoted"; "Post and &Print")
+                {
+                }
+                actionref("Reo&pen_Promoted"; "Reo&pen")
+                {
+                }
+                actionref(Print_Promoted; Print)
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref("Employee Si&gnatures_Promoted"; "Employee Si&gnatures")
+                {
+                }
             }
         }
     }

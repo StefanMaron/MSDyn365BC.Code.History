@@ -371,7 +371,7 @@ codeunit 131305 "Library - ERM Country Data"
     local procedure PrepareNormalGenPostingSetup(var GenPostingSetup: Record "General Posting Setup")
     begin
         with GenPostingSetup do begin
-            Reset;
+            Reset();
             SetFilter("Gen. Bus. Posting Group", '<>%1', '');
             SetFilter("Gen. Prod. Posting Group", '<>%1', '');
             SetFilter("Sales Account", '<>%1', '');
@@ -416,7 +416,7 @@ codeunit 131305 "Library - ERM Country Data"
             repeat
                 VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::" ");
                 VATPostingSetup.Modify(true);
-            until VATPostingSetup.Next = 0;
+            until VATPostingSetup.Next() = 0;
     end;
 
     local procedure UpdateAccountsInVATPostingSetup()

@@ -66,8 +66,8 @@ table 726 "Custom Address Format Line"
 
     trigger OnInsert()
     begin
-        CheckMaxRecords;
-        InitFieldPosition;
+        CheckMaxRecords();
+        InitFieldPosition();
     end;
 
     var
@@ -86,7 +86,7 @@ table 726 "Custom Address Format Line"
             CustomAddressFormatLine."Field Position" -= MoveBy;
             CustomAddressFormatLine.Modify();
             "Field Position" += MoveBy;
-            Modify;
+            Modify();
         end;
     end;
 

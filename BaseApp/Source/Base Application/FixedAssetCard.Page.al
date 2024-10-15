@@ -1,4 +1,4 @@
-page 5600 "Fixed Asset Card"
+﻿page 5600 "Fixed Asset Card"
 {
     Caption = 'Fixed Asset Card';
     PageType = ListPlus;
@@ -15,7 +15,7 @@ page 5600 "Fixed Asset Card"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
                     Importance = Standard;
@@ -34,23 +34,23 @@ page 5600 "Fixed Asset Card"
                     ShowMandatory = true;
                     ToolTip = 'Specifies a description of the fixed asset.';
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = FixedAssets;
                     Importance = Promoted;
                     ToolTip = 'Specifies the fixed asset''s serial number.';
                 }
-                field("Inventory Number"; "Inventory Number")
+                field("Inventory Number"; Rec."Inventory Number")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the fixed asset''s inventory number.';
                 }
-                field("Factory No."; "Factory No.")
+                field("Factory No."; Rec."Factory No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the factory number that defines the location of the fixed asset.';
                 }
-                field("Passport No."; "Passport No.")
+                field("Passport No."; Rec."Passport No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the passport number of the manufacturer or distributor of the fixed asset.';
@@ -60,23 +60,23 @@ page 5600 "Fixed Asset Card"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the manufacturer of the vehicle associated with the fixed asset.';
                 }
-                field("Manufacturing Year"; "Manufacturing Year")
+                field("Manufacturing Year"; Rec."Manufacturing Year")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the year the fixed asset was manufactured.';
                 }
-                field("FA Type"; "FA Type")
+                field("FA Type"; Rec."FA Type")
                 {
                     ApplicationArea = FixedAssets;
                     OptionCaption = 'Fixed Assets,Intangible Asset';
                     ToolTip = 'Specifies the type of asset.';
                 }
-                field("Search Description"; "Search Description")
+                field("Search Description"; Rec."Search Description")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a search description for the fixed asset.';
                 }
-                field("Responsible Employee"; "Responsible Employee")
+                field("Responsible Employee"; Rec."Responsible Employee")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
@@ -95,7 +95,7 @@ page 5600 "Fixed Asset Card"
                     Importance = Additional;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
                 }
-                field("Last Date Modified"; "Last Date Modified")
+                field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = FixedAssets;
                     Importance = Additional;
@@ -106,12 +106,12 @@ page 5600 "Fixed Asset Card"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the status of the fixed asset.';
                 }
-                field("Initial Release Date"; "Initial Release Date")
+                field("Initial Release Date"; Rec."Initial Release Date")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the date that the fixed asset was first released.';
                 }
-                field("Status Document No."; "Status Document No.")
+                field("Status Document No."; Rec."Status Document No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number assigned to the document that changed the value of the Status field after the document was posted.';
@@ -125,42 +125,42 @@ page 5600 "Fixed Asset Card"
             group(Classification)
             {
                 Caption = 'Classification';
-                field("FA Class Code"; "FA Class Code")
+                field("FA Class Code"; Rec."FA Class Code")
                 {
                     ApplicationArea = FixedAssets;
                     Importance = Promoted;
                     ToolTip = 'Specifies a class code for the fixed asset.';
                 }
-                field("FA Subclass Code"; "FA Subclass Code")
+                field("FA Subclass Code"; Rec."FA Subclass Code")
                 {
                     ApplicationArea = FixedAssets;
                     Importance = Promoted;
                     ToolTip = 'Specifies a fixed asset subclass code, which can be used for subgrouping of fixed assets, for example, cars and machinery.';
                 }
-                field("FA Location Code"; "FA Location Code")
+                field("FA Location Code"; Rec."FA Location Code")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the code for the location (within a building, for example) of the fixed asset.';
                 }
-                field("Budgeted Asset"; "Budgeted Asset")
+                field("Budgeted Asset"; Rec."Budgeted Asset")
                 {
                     ApplicationArea = Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies whether the asset is for budgeting purposes.';
                 }
-                field("Tax Difference Code"; "Tax Difference Code")
+                field("Tax Difference Code"; Rec."Tax Difference Code")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the tax difference code associated with the fixed asset.';
                 }
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
@@ -169,35 +169,35 @@ page 5600 "Fixed Asset Card"
             group(Maintenance)
             {
                 Caption = 'Maintenance';
-                field("Vendor No."; "Vendor No.")
+                field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = FixedAssets;
                     Importance = Promoted;
                     ToolTip = 'Specifies the number of the vendor from which you purchased this fixed asset.';
                 }
-                field("Maintenance Vendor No."; "Maintenance Vendor No.")
+                field("Maintenance Vendor No."; Rec."Maintenance Vendor No.")
                 {
                     ApplicationArea = FixedAssets;
                     Importance = Promoted;
                     ToolTip = 'Specifies the number of the vendor who performs repairs and maintenance on the fixed asset.';
                 }
-                field("Under Maintenance"; "Under Maintenance")
+                field("Under Maintenance"; Rec."Under Maintenance")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies if the fixed asset is currently being repaired.';
                 }
-                field("Next Service Date"; "Next Service Date")
+                field("Next Service Date"; Rec."Next Service Date")
                 {
                     ApplicationArea = FixedAssets;
                     Importance = Promoted;
                     ToolTip = 'Specifies the next scheduled service date for the fixed asset. This is used as a filter in the Maintenance - Next Service report.';
                 }
-                field("Last Renovation Date"; "Last Renovation Date")
+                field("Last Renovation Date"; Rec."Last Renovation Date")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the date of the last renovation associated with the fixed asset.';
                 }
-                field("Warranty Date"; "Warranty Date")
+                field("Warranty Date"; Rec."Warranty Date")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the warranty expiration date of the fixed asset.';
@@ -211,22 +211,22 @@ page 5600 "Fixed Asset Card"
             group(Depreciation)
             {
                 Caption = 'Depreciation';
-                field("Depreciation Group"; "Depreciation Group")
+                field("Depreciation Group"; Rec."Depreciation Group")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the code for the depreciation group to apply to this asset.';
                 }
-                field("Depreciation Code"; "Depreciation Code")
+                field("Depreciation Code"; Rec."Depreciation Code")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the code for the depreciation code to apply to this asset.';
                 }
-                field("Belonging to Manufacturing"; "Belonging to Manufacturing")
+                field("Belonging to Manufacturing"; Rec."Belonging to Manufacturing")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies how the fixed asset is used in manufacturing.';
                 }
-                field("Undepreciable FA"; "Undepreciable FA")
+                field("Undepreciable FA"; Rec."Undepreciable FA")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies if you can repay fixed assets with the whole amount of their acquisition at the time of their release.';
@@ -235,13 +235,13 @@ page 5600 "Fixed Asset Card"
             group(Components)
             {
                 Caption = 'Components';
-                field("Main Asset/Component"; "Main Asset/Component")
+                field("Main Asset/Component"; Rec."Main Asset/Component")
                 {
                     ApplicationArea = FixedAssets;
                     Importance = Additional;
                     ToolTip = 'Specifies whether the asset is a main asset or a component of a main asset.';
                 }
-                field("Component of Main Asset"; "Component of Main Asset")
+                field("Component of Main Asset"; Rec."Component of Main Asset")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
@@ -252,62 +252,62 @@ page 5600 "Fixed Asset Card"
             group(Vehicle)
             {
                 Caption = 'Vehicle';
-                field("Vehicle Identification Number"; "Vehicle Identification Number")
+                field("Vehicle Identification Number"; Rec."Vehicle Identification Number")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the vehicle identification number associated with the fixed asset.';
                 }
-                field("Vehicle Model"; "Vehicle Model")
+                field("Vehicle Model"; Rec."Vehicle Model")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the vehicle model associated with the fixed asset.';
                 }
-                field("Vehicle Type"; "Vehicle Type")
+                field("Vehicle Type"; Rec."Vehicle Type")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the vehicle type associated with the fixed asset.';
                 }
-                field("Vehicle Reg. No."; "Vehicle Reg. No.")
+                field("Vehicle Reg. No."; Rec."Vehicle Reg. No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the vehicle registration number associated with the fixed asset.';
                 }
-                field("Vehicle Class"; "Vehicle Class")
+                field("Vehicle Class"; Rec."Vehicle Class")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the vehicle class associated with the fixed asset.';
                 }
-                field("Vehicle Engine No."; "Vehicle Engine No.")
+                field("Vehicle Engine No."; Rec."Vehicle Engine No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the vehicle engine number associated with the fixed asset.';
                 }
-                field("Vehicle Chassis No."; "Vehicle Chassis No.")
+                field("Vehicle Chassis No."; Rec."Vehicle Chassis No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the vehicle chassis number associated with the fixed asset.';
                 }
-                field("Vehicle Capacity"; "Vehicle Capacity")
+                field("Vehicle Capacity"; Rec."Vehicle Capacity")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the vehicle capacity associated with the fixed asset.';
                 }
-                field("Vehicle Passport Weight"; "Vehicle Passport Weight")
+                field("Vehicle Passport Weight"; Rec."Vehicle Passport Weight")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the vehicle passport weight associated with the fixed asset.';
                 }
-                field("Run after Release Date"; "Run after Release Date")
+                field("Run after Release Date"; Rec."Run after Release Date")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the run after release date associated with the fixed asset.';
                 }
-                field("Run after Renovation Date"; "Run after Renovation Date")
+                field("Run after Renovation Date"; Rec."Run after Renovation Date")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the run after renovation date associated with the fixed asset.';
                 }
-                field("Vehicle Writeoff Date"; "Vehicle Writeoff Date")
+                field("Vehicle Writeoff Date"; Rec."Vehicle Writeoff Date")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the date this vehicle is taken out of service.';
@@ -316,28 +316,28 @@ page 5600 "Fixed Asset Card"
             group("Assessed Tax")
             {
                 Caption = 'Assessed Tax';
-                field("Assessed Tax Code"; "Assessed Tax Code")
+                field("Assessed Tax Code"; Rec."Assessed Tax Code")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the assessed tax code associated with the fixed asset.';
                 }
-                field("Property Type"; "Property Type")
+                field("Property Type"; Rec."Property Type")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the property type of the fixed asset.';
                 }
-                field("Book Value per Share"; "Book Value per Share")
+                field("Book Value per Share"; Rec."Book Value per Share")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the book value of the fixed asset, per share.';
                 }
-                field("OKATO Code"; "OKATO Code")
+                field("OKATO Code"; Rec."OKATO Code")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
                     ToolTip = 'Specifies the region where the current fixed asset is situated.';
                 }
-                field("Tax Amount Paid Abroad"; "Tax Amount Paid Abroad")
+                field("Tax Amount Paid Abroad"; Rec."Tax Amount Paid Abroad")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the amount of tax that was paid abroad for the fixed asset.';
@@ -346,12 +346,12 @@ page 5600 "Fixed Asset Card"
             group(Control1904423301)
             {
                 Caption = 'History';
-                field("Accrued Depr. Amount"; "Accrued Depr. Amount")
+                field("Accrued Depr. Amount"; Rec."Accrued Depr. Amount")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the accrued depreciation amount of the fixed asset.';
                 }
-                field("Operation Life (Months)"; "Operation Life (Months)")
+                field("Operation Life (Months)"; Rec."Operation Life (Months)")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the operation life of the fixed asset.';
@@ -411,8 +411,6 @@ page 5600 "Fixed Asset Card"
                     ApplicationArea = FixedAssets;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Fixed Asset Statistics";
                     RunPageLink = "FA No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -423,8 +421,6 @@ page 5600 "Fixed Asset Card"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Default Dimensions";
                     RunPageLink = "Table ID" = CONST(5600),
                                   "No." = FIELD("No.");
@@ -436,8 +432,6 @@ page 5600 "Fixed Asset Card"
                     ApplicationArea = FixedAssets;
                     Caption = 'Maintenance &Registration';
                     Image = MaintenanceRegistrations;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Maintenance Registration";
                     RunPageLink = "FA No." = FIELD("No.");
                     ToolTip = 'View or edit the date and description regarding the maintenance of the fixed asset.';
@@ -465,10 +459,6 @@ page 5600 "Fixed Asset Card"
                     ApplicationArea = All;
                     Caption = 'Attachments';
                     Image = Attach;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
 
                     trigger OnAction()
@@ -581,7 +571,7 @@ page 5600 "Fixed Asset Card"
 
                     trigger OnAction()
                     begin
-                        ShowTaxDifferences;
+                        ShowTaxDifferences();
                     end;
                 }
             }
@@ -600,8 +590,8 @@ page 5600 "Fixed Asset Card"
 
                     trigger OnAction()
                     begin
-                        FA.Get("No.");
-                        REPORT.Run(REPORT::"Create FA Depreciation Books", true, true, FA);
+                        FixedAsset.Get("No.");
+                        REPORT.Run(REPORT::"Create FA Depreciation Books", true, true, FixedAsset);
                     end;
                 }
             }
@@ -610,8 +600,6 @@ page 5600 "Fixed Asset Card"
                 ApplicationArea = FixedAssets;
                 Caption = 'Calculate Depreciation';
                 Image = CalculateDepreciation;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Calculate depreciation according to the conditions that you define. If the fixed assets that are included in the batch job are integrated with the general ledger (defined in the depreciation book that is used in the batch job), the resulting entries are transferred to the fixed assets general ledger journal. Otherwise, the batch job transfers the entries to the fixed asset journal. You can then post the journal or adjust the entries before posting, if necessary.';
 
                 trigger OnAction()
@@ -646,8 +634,6 @@ page 5600 "Fixed Asset Card"
                 ApplicationArea = FixedAssets;
                 Caption = 'Details';
                 Image = View;
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Fixed Asset - Details";
                 ToolTip = 'View detailed information about the fixed asset ledger entries that have been posted to a specified depreciation book for each fixed asset.';
             }
@@ -672,8 +658,6 @@ page 5600 "Fixed Asset Card"
                 ApplicationArea = FixedAssets;
                 Caption = 'Analysis';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Fixed Asset - Analysis";
                 ToolTip = 'View an analysis of your fixed assets with various types of data for both individual fixed assets and groups of fixed assets.';
             }
@@ -682,8 +666,6 @@ page 5600 "Fixed Asset Card"
                 ApplicationArea = FixedAssets;
                 Caption = 'Projected Value';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Fixed Asset - Projected Value";
                 ToolTip = 'View the calculated future depreciation and book value. You can print the report for one depreciation book at a time.';
             }
@@ -711,9 +693,9 @@ page 5600 "Fixed Asset Card"
 
                 trigger OnAction()
                 begin
-                    FA.Get("No.");
-                    FA.SetRecFilter;
-                    REPORT.Run(REPORT::"FA Inventory Card FA-6", true, true, FA);
+                    FixedAsset.Get("No.");
+                    FixedAsset.SetRecFilter();
+                    REPORT.Run(REPORT::"FA Inventory Card FA-6", true, true, FixedAsset);
                 end;
             }
             action("FA G/L Turnover")
@@ -721,15 +703,65 @@ page 5600 "Fixed Asset Card"
                 ApplicationArea = FixedAssets;
                 Caption = 'FA G/L Turnover';
                 Image = Turnover;
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Page "FA G/L Turnover";
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(CalculateDepreciation_Promoted; CalculateDepreciation)
+                {
+                }
+                actionref("C&opy Fixed Asset_Promoted"; "C&opy Fixed Asset")
+                {
+                }
+            }
+            group("Category_Fixed Asset")
+            {
+                Caption = 'Fixed Asset';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+                actionref(Attachments_Promoted; Attachments)
+                {
+                }
+                actionref("Depreciation &Books_Promoted"; "Depreciation &Books")
+                {
+                }
+                actionref("Maintenance &Registration_Promoted"; "Maintenance &Registration")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
+                actionref(Analysis_Promoted; Analysis)
+                {
+                }
+                actionref("Projected Value_Promoted"; "Projected Value")
+                {
+                }
+                actionref(Details_Promoted; Details)
+                {
+                }
+            }
+        }
     }
 
     var
-        FA: Record "Fixed Asset";
+        FixedAsset: Record "Fixed Asset";
 }
 

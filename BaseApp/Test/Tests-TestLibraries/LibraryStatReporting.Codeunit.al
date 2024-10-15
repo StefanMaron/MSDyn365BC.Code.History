@@ -40,14 +40,14 @@ codeunit 143014 "Library - Stat. Reporting"
         RecRef: RecordRef;
     begin
         with XMLElementLine do begin
-            Init;
+            Init();
             "Report Code" := ReportCode;
             RecRef.GetTable(XMLElementLine);
             "Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
             "Source Type" := SourceType;
             "Data Type" := "Data Type"::Integer;
             Value := LineValue;
-            Insert;
+            Insert();
             exit("Line No.");
         end;
     end;
@@ -59,13 +59,13 @@ codeunit 143014 "Library - Stat. Reporting"
         RecRef: RecordRef;
     begin
         with XMLElementExpressionLine do begin
-            Init;
+            Init();
             "Report Code" := ReportCode;
             "Base XML Element Line No." := BaseXMLElementLineNo;
             RecRef.GetTable(XMLElementExpressionLine);
             "Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
             "XML Element Line No." := ChildXMLElementLineNo;
-            Insert;
+            Insert();
         end;
     end;
 

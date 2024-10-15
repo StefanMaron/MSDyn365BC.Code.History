@@ -74,7 +74,7 @@ table 94 "Inventory Posting Group"
 
     trigger OnDelete()
     begin
-        CheckGroupUsage;
+        CheckGroupUsage();
     end;
 
     var

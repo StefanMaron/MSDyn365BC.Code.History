@@ -325,7 +325,7 @@ codeunit 134103 "ERM Prepayment IV"
         Initialize();
         CurrencyCode := CreateCurrency;
         GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
-        CreateExchangeRate(CurrencyCode, WorkDate);
+        CreateExchangeRate(CurrencyCode, WorkDate());
         PurchasePrepmtAccount := CreatePurchaseOrder(PurchaseHeader, PurchaseLine, GLAccountNo);
         ModifyCurrencyOnPurchaseHeader(PurchaseHeader, CurrencyCode);
 
@@ -340,7 +340,7 @@ codeunit 134103 "ERM Prepayment IV"
 
         // Verify: Verify GL Entry for Prepayment Amount and Source Type for Vendor.
         Currency.Get(CurrencyCode);
-        VerifyGLEntryInFCY(DocumentNo, Amount, GLAccountNo, CurrencyCode, WorkDate);
+        VerifyGLEntryInFCY(DocumentNo, Amount, GLAccountNo, CurrencyCode, WorkDate());
         VerifyGLEntryForSourceType(DocumentNo, GLAccountNo);
 
         // Tear Down.
@@ -369,9 +369,9 @@ codeunit 134103 "ERM Prepayment IV"
         // Setup: Create Purchase Order and Currency with New Starting Date. Take Random Date for New Starting Date.
         Initialize();
         GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
-        StartingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        StartingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         CurrencyCode := CreateCurrency;
-        CreateExchangeRate(CurrencyCode, WorkDate);
+        CreateExchangeRate(CurrencyCode, WorkDate());
         CreateExchangeRate(CurrencyCode, StartingDate);
         PurchasePrepmtAccount := CreatePurchaseOrder(PurchaseHeader, PurchaseLine, GLAccountNo);
         ModifyCurrencyOnPurchaseHeader(PurchaseHeader, CurrencyCode);
@@ -710,8 +710,8 @@ codeunit 134103 "ERM Prepayment IV"
         Initialize();
         GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
         CurrencyCode := CreateCurrency;
-        StartingDate := CalcDate('<1M>', WorkDate);
-        CreateExchangeRate(CurrencyCode, WorkDate);
+        StartingDate := CalcDate('<1M>', WorkDate());
+        CreateExchangeRate(CurrencyCode, WorkDate());
         CreateExchangeRate(CurrencyCode, StartingDate);
 
         // Create Purchase Order with Currency.
@@ -776,8 +776,8 @@ codeunit 134103 "ERM Prepayment IV"
         LibrarySales.SetStockoutWarning(false);
         GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
         CurrencyCode := CreateCurrency;
-        StartingDate := CalcDate('<1M>', WorkDate);
-        CreateExchangeRate(CurrencyCode, WorkDate);
+        StartingDate := CalcDate('<1M>', WorkDate());
+        CreateExchangeRate(CurrencyCode, WorkDate());
         CreateExchangeRate(CurrencyCode, StartingDate);
 
         // Create Sales Order with Currency.
@@ -848,7 +848,7 @@ codeunit 134103 "ERM Prepayment IV"
         PostedSalesInvoice.FILTER.SetFilter("Prepayment Order No.", SalesHeader."No.");
         PostedSalesInvoice.SalesInvLines.First;
         PostedSalesInvoice.SalesInvLines.Description.AssertEquals(Item[1].Description);
-        PostedSalesInvoice.SalesInvLines.Next;
+        PostedSalesInvoice.SalesInvLines.Next();
         PostedSalesInvoice.SalesInvLines.Description.AssertEquals(Item[2].Description);
     end;
 
@@ -974,7 +974,7 @@ codeunit 134103 "ERM Prepayment IV"
 
         // Exercise
         PrepmtInvoice := PostSalesPrepaymentInvoice(SalesHeader);
-        FinalInvoiceNo := PostSalesHeader(SalesHeader, WorkDate);
+        FinalInvoiceNo := PostSalesHeader(SalesHeader, WorkDate());
 
         // Verify
         VerifyGLAccountBalance(GeneralPostingSetup."Sales Prepayments Account", StrSubstNo('%1|%2', PrepmtInvoice, FinalInvoiceNo), 0);
@@ -1073,7 +1073,7 @@ codeunit 134103 "ERM Prepayment IV"
 
         // Exercise
         PrepmtInvoice := PostPurchasePrepaymentInvoice(PurchaseHeader);
-        FinalInvoiceNo := PostPurchaseHeader(PurchaseHeader, WorkDate);
+        FinalInvoiceNo := PostPurchaseHeader(PurchaseHeader, WorkDate());
 
         // Verify
         VerifyGLAccountBalance(GeneralPostingSetup."Purch. Prepayments Account", StrSubstNo('%1|%2', PrepmtInvoice, FinalInvoiceNo), 0);
@@ -1355,10 +1355,10 @@ codeunit 134103 "ERM Prepayment IV"
 
         // [WHEN] Prepayment Credit Memo is posted
         PurchaseHeader."Vendor Cr. Memo No." := LibraryPurchase.GegVendorLedgerEntryUniqueExternalDocNo;
-        PostPurchasePrepaymentCreditMemo(PurchaseHeader, WorkDate);
+        PostPurchasePrepaymentCreditMemo(PurchaseHeader, WorkDate());
 
         // [THEN] Purchase Order Line: "Prepmt. Amount Inv. (LCY)" = 0, "Prepmt. VAT Amount Inv. (LCY)" = 0
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         Assert.AreEqual(
           0, PurchaseLine."Prepmt. VAT Amount Inv. (LCY)", PurchaseLine.FieldName("Prepmt. VAT Amount Inv. (LCY)"));
         Assert.AreEqual(
@@ -1425,7 +1425,7 @@ codeunit 134103 "ERM Prepayment IV"
         PostPurchasePrepaymentInvoice(PurchaseHeader);
 
         // [THEN] Purchase Line: "Prepmt. Amount Inv. (LCY)" = 0, "Prepmt. VAT Amount Inv. (LCY)" = "X"
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         Assert.AreEqual(
           PurchaseLine."Prepmt. VAT Amount Inv. (LCY)", PurchaseLine."Prepmt. Line Amount",
           PurchaseLine.FieldName("Prepmt. VAT Amount Inv. (LCY)"));
@@ -1477,12 +1477,12 @@ codeunit 134103 "ERM Prepayment IV"
         PostPurchasePrepaymentInvoice(PurchaseHeader);
 
         // [THEN] Posted VAT Entry has "VAT Calculation Type" = "Full VAT", Base = 0, Amount = "X1"
-        PurchaseLine[1].Find;
+        PurchaseLine[1].Find();
         VerifyVATEntryBalanceWithCalcType(
           PurchaseLine[1]."Buy-from Vendor No.", "General Posting Type"::Purchase, "Tax Calculation Type"::"Full VAT",
           PurchaseLine[1]."Prepmt. Amount Inv. (LCY)", PurchaseLine[1]."Prepmt. VAT Amount Inv. (LCY)");
         // [THEN] Posted VAT Entry has "VAT Calculation Type" = "Normal VAT", Base + Amount = "X2"
-        PurchaseLine[2].Find;
+        PurchaseLine[2].Find();
         VerifyVATEntryBalanceWithCalcType(
           PurchaseLine[2]."Buy-from Vendor No.", "General Posting Type"::Purchase, "Tax Calculation Type"::"Normal VAT",
           PurchaseLine[2]."Prepmt. Amount Inv. (LCY)", PurchaseLine[2]."Prepmt. VAT Amount Inv. (LCY)");
@@ -1564,10 +1564,10 @@ codeunit 134103 "ERM Prepayment IV"
         PostSalesPrepaymentInvoice(SalesHeader);
 
         // [WHEN] Prepayment Credit Memo is posted
-        PostSalesPrepaymentCreditMemo(SalesHeader, WorkDate);
+        PostSalesPrepaymentCreditMemo(SalesHeader, WorkDate());
 
         // [THEN] Sales Line: "Prepmt. Amount Inv. (LCY)" = 0 , "Prepmt. VAT Amount Inv. (LCY)" = 0
-        SalesLine.Find;
+        SalesLine.Find();
         Assert.AreEqual(
           0, SalesLine."Prepmt. VAT Amount Inv. (LCY)", SalesLine.FieldName("Prepmt. VAT Amount Inv. (LCY)"));
         Assert.AreEqual(
@@ -1634,7 +1634,7 @@ codeunit 134103 "ERM Prepayment IV"
         PostSalesPrepaymentInvoice(SalesHeader);
 
         // [THEN] Sales Line: "Prepmt. Amount Inv. (LCY)" = 0, "Prepmt. VAT Amount Inv. (LCY)" = "X"
-        SalesLine.Find;
+        SalesLine.Find();
         Assert.AreEqual(
           SalesLine."Prepmt. VAT Amount Inv. (LCY)", SalesLine."Prepmt. Line Amount",
           SalesLine.FieldName("Prepmt. VAT Amount Inv. (LCY)"));
@@ -1686,12 +1686,12 @@ codeunit 134103 "ERM Prepayment IV"
         PostSalesPrepaymentInvoice(SalesHeader);
 
         // [THEN] Posted VAT Entry has "VAT Calculation Type" = "Full VAT", Base = 0, Amount = "-X1"
-        SalesLine[1].Find;
+        SalesLine[1].Find();
         VerifyVATEntryBalanceWithCalcType(
           SalesLine[1]."Sell-to Customer No.", "General Posting Type"::Sale, "Tax Calculation Type"::"Full VAT",
           -SalesLine[1]."Prepmt. Amount Inv. (LCY)", -SalesLine[1]."Prepmt. VAT Amount Inv. (LCY)");
         // [THEN] Posted VAT Entry has "VAT Calculation Type" = "Normal VAT", Base + Amount = "-X2"
-        SalesLine[2].Find;
+        SalesLine[2].Find();
         VerifyVATEntryBalanceWithCalcType(
           SalesLine[2]."Sell-to Customer No.", "General Posting Type"::Sale, "Tax Calculation Type"::"Normal VAT",
           -SalesLine[2]."Prepmt. Amount Inv. (LCY)", -SalesLine[2]."Prepmt. VAT Amount Inv. (LCY)");
@@ -1715,7 +1715,7 @@ codeunit 134103 "ERM Prepayment IV"
         SetVATPostingSetupCustomPct(LineGLAccount, 25);
         // [GIVEN] Foreign Customer with currency FCY (3.33FCY = 1 LCY)
         CurrencyCode := CreateCurrency;
-        LibraryERM.CreateExchangeRate(CurrencyCode, WorkDate, 3.33, 3.33);
+        LibraryERM.CreateExchangeRate(CurrencyCode, WorkDate(), 3.33, 3.33);
         CustomerNo :=
           CreateCustomerWithCurrencyAnd100PrepmtPct(
             LineGLAccount."VAT Bus. Posting Group", LineGLAccount."Gen. Bus. Posting Group", CurrencyCode);
@@ -1753,7 +1753,7 @@ codeunit 134103 "ERM Prepayment IV"
         SetVATPostingSetupCustomPct(LineGLAccount, 25);
         // [GIVEN] Foreign Vendor with currency FCY (3.33FCY = 1 LCY)
         CurrencyCode := CreateCurrency;
-        LibraryERM.CreateExchangeRate(CurrencyCode, WorkDate, 3.33, 3.33);
+        LibraryERM.CreateExchangeRate(CurrencyCode, WorkDate(), 3.33, 3.33);
         VendorNo :=
           CreateVendorWithCurrencyAnd100PrepmtPct(
             LineGLAccount."VAT Bus. Posting Group", LineGLAccount."Gen. Bus. Posting Group", CurrencyCode);
@@ -1880,7 +1880,7 @@ codeunit 134103 "ERM Prepayment IV"
         SetVATPostingSetupCustomPct(LineGLAccount, 8);
 
         // [GIVEN] Currency with two Exchange Rates. Frmo date "D1": 1.2024, from date "D2": 1.2010.
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1.2024, 1.2024);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1.2024, 1.2024);
         NewPostingDate := LibraryRandom.RandDate(10);
         LibraryERM.CreateExchangeRate(CurrencyCode, NewPostingDate, 1.201, 1.201);
 
@@ -1933,7 +1933,7 @@ codeunit 134103 "ERM Prepayment IV"
         SetVATPostingSetupCustomPct(LineGLAccount, 8);
 
         // [GIVEN] Currency with two Exchange Rates. Frmo date "D1": 1.2024, from date "D2": 1.2010.
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1.2024, 1.2024);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1.2024, 1.2024);
         NewPostingDate := LibraryRandom.RandDate(10);
         LibraryERM.CreateExchangeRate(CurrencyCode, NewPostingDate, 1.201, 1.201);
 
@@ -1986,7 +1986,7 @@ codeunit 134103 "ERM Prepayment IV"
         SetVATPostingSetupCustomPct(LineGLAccount, 8);
 
         // [GIVEN] Currency with two Exchange Rates. Frmo date "D1": 1.0745, from date "D2": 1.07.
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1.0745, 1.0745);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1.0745, 1.0745);
         NewPostingDate := LibraryRandom.RandDate(10);
         LibraryERM.CreateExchangeRate(CurrencyCode, NewPostingDate, 1.07, 1.07);
 
@@ -2039,7 +2039,7 @@ codeunit 134103 "ERM Prepayment IV"
         SetVATPostingSetupCustomPct(LineGLAccount, 8);
 
         // [GIVEN] Currency with two Exchange Rates. Frmo date "D1": 1.0745, from date "D2": 1.07.
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1.0745, 1.0745);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1.0745, 1.0745);
         NewPostingDate := LibraryRandom.RandDate(10);
         LibraryERM.CreateExchangeRate(CurrencyCode, NewPostingDate, 1.07, 1.07);
 
@@ -2098,7 +2098,7 @@ codeunit 134103 "ERM Prepayment IV"
         PostSalesPrepaymentInvoice(SalesHeader);
 
         // [WHEN] Post prepayment Credit Memo
-        PostSalesPrepaymentCreditMemo(SalesHeader, WorkDate);
+        PostSalesPrepaymentCreditMemo(SalesHeader, WorkDate());
 
         // [THEN] SalesLine."Prepayment Amount" = 0
         // [THEN] SalesLine."Prepmt. Amt. Incl. VAT" = 0
@@ -2130,7 +2130,7 @@ codeunit 134103 "ERM Prepayment IV"
         PostPurchasePrepaymentInvoice(PurchaseHeader);
 
         // [WHEN] Post prepayment Credit Memo
-        PostPurchasePrepaymentCreditMemo(PurchaseHeader, WorkDate);
+        PostPurchasePrepaymentCreditMemo(PurchaseHeader, WorkDate());
 
         // [THEN] PurchaseLine."Prepayment Amount" = 0
         // [THEN] PurchaseLine."Prepmt. Amt. Incl. VAT" = 0
@@ -2162,11 +2162,11 @@ codeunit 134103 "ERM Prepayment IV"
 
         // [GIVEN] Post prepayment Invoice[1], Credit Memo[1]
         PostSalesPrepaymentInvoice(SalesHeader);
-        PostSalesPrepaymentCreditMemo(SalesHeader, WorkDate);
+        PostSalesPrepaymentCreditMemo(SalesHeader, WorkDate());
 
         // [WHEN] Post prepayment Invoice[2], Credit Memo[2]
         PrepmtInvNo := PostSalesPrepaymentInvoice(SalesHeader);
-        PrepmtCrMemoNo := PostSalesPrepaymentCreditMemo(SalesHeader, WorkDate);
+        PrepmtCrMemoNo := PostSalesPrepaymentCreditMemo(SalesHeader, WorkDate());
 
         // [THEN] Prepayment Invoice[2] has document Amount = "X", Amount Incl. VAT = "Y"
         // [THEN] Prepayment Cr. Memo[2] has document Amount = "X", Amount Incl. VAT = "Y"
@@ -2200,11 +2200,11 @@ codeunit 134103 "ERM Prepayment IV"
 
         // [GIVEN] Post prepayment Invoice[1], Credit Memo[1]
         PostPurchasePrepaymentInvoice(PurchaseHeader);
-        PostPurchasePrepaymentCreditMemo(PurchaseHeader, WorkDate);
+        PostPurchasePrepaymentCreditMemo(PurchaseHeader, WorkDate());
 
         // [WHEN] Post prepayment Invoice[2], Credit Memo[2]
         PrepmtInvNo := PostPurchasePrepaymentInvoice(PurchaseHeader);
-        PrepmtCrMemoNo := PostPurchasePrepaymentCreditMemo(PurchaseHeader, WorkDate);
+        PrepmtCrMemoNo := PostPurchasePrepaymentCreditMemo(PurchaseHeader, WorkDate());
 
         // [THEN] Prepayment Invoice[2] has document Amount = "X", Amount Incl. VAT = "Y"
         // [THEN] Prepayment Cr. Memo[2] has document Amount = "X", Amount Incl. VAT = "Y"
@@ -2346,7 +2346,7 @@ codeunit 134103 "ERM Prepayment IV"
         LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         SetVATPostingSetupCustomPct(LineGLAccount, 10);
         Currency.Get(CreateCurrency);
-        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate, 1 / 14650, 1 / 14650);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), 1 / 14650, 1 / 14650);
 
         // [GIVEN] Sales Order with FCY, "VAT %" = 10, "Prepayment %" = 33
         CustNo := CreateCustomerWithPostingGroupsAndCurrency(LineGLAccount, Currency.Code, 33);
@@ -2383,7 +2383,7 @@ codeunit 134103 "ERM Prepayment IV"
         LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         SetVATPostingSetupCustomPct(LineGLAccount, 10);
         Currency.Get(CreateCurrency);
-        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate, 1 / 14650, 1 / 14650);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), 1 / 14650, 1 / 14650);
 
         // [GIVEN] Purchase Order with FCY, "VAT %" = 10, "Prepayment %" = 33
         VendNo := CreateVendorWithPostingGroupsAndCurrency(LineGLAccount, Currency.Code, 33);
@@ -3323,7 +3323,7 @@ codeunit 134103 "ERM Prepayment IV"
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         Item.Get(LibraryInventory.CreateItemNo());
         CurrencyCode := CreateCurrency;
-        CreateExchangeRate(CurrencyCode, WorkDate);
+        CreateExchangeRate(CurrencyCode, WorkDate());
         LibrarySales.CreateSalesHeader(
           SalesHeader, SalesHeader."Document Type"::Order,
           CreateCustWithCurrencyAndVATBusPostingGroup(CurrencyCode, VATPostingSetup."VAT Bus. Posting Group"));
@@ -3351,7 +3351,7 @@ codeunit 134103 "ERM Prepayment IV"
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         Item.Get(LibraryInventory.CreateItemNo());
         CurrencyCode := CreateCurrency;
-        CreateExchangeRate(CurrencyCode, WorkDate);
+        CreateExchangeRate(CurrencyCode, WorkDate());
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeader, PurchaseHeader."Document Type"::Order,
           CreateVendorWithCurrencyAndVATBusPostingGroup(CurrencyCode, VATPostingSetup."VAT Bus. Posting Group"));
@@ -3418,7 +3418,7 @@ codeunit 134103 "ERM Prepayment IV"
         with Currency do begin
             Get(LibraryERM.CreateCurrencyWithGLAccountSetup);
             "Invoice Rounding Precision" := 1; // to match W1
-            Modify;
+            Modify();
             exit(Code);
         end;
     end;
@@ -3437,7 +3437,7 @@ codeunit 134103 "ERM Prepayment IV"
 
     local procedure CreateExchangeRateOnRndDate(CurrencyCode: Code[10]) ExchangeRateChangeDate: Date
     begin
-        ExchangeRateChangeDate := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(5)), WorkDate);
+        ExchangeRateChangeDate := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(5)), WorkDate());
         CreateExchangeRate(CurrencyCode, ExchangeRateChangeDate);
     end;
 
@@ -4011,7 +4011,7 @@ codeunit 134103 "ERM Prepayment IV"
                 ResetPrepaymentPercentage := true;
             end;
             SalesLine.Modify(true);
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
 
         // Post prepayment and r-open order
         PrepmtInvoice := PostSalesPrepaymentInvoice(SalesHeader);
@@ -4043,7 +4043,7 @@ codeunit 134103 "ERM Prepayment IV"
                 ResetPrepaymentPercentage := true;
             end;
             PurchaseLine.Modify(true);
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
 
         // Post prepayment and r-open order
         PrepmtInvoice := PostPurchasePrepaymentInvoice(PurchaseHeader);
@@ -4104,7 +4104,7 @@ codeunit 134103 "ERM Prepayment IV"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         Clear(NoSeriesManagement);
-        exit(NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false));
+        exit(NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false));
     end;
 
     local procedure ModifyCustomerNoOnSalesHeader(var SalesHeader: Record "Sales Header")
@@ -4147,14 +4147,14 @@ codeunit 134103 "ERM Prepayment IV"
 
     local procedure ModifyQtyToReceiveOnPurchaseLine(var PurchaseLine: Record "Purchase Line")
     begin
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.Validate("Qty. to Receive", PurchaseLine."Qty. to Receive" / LibraryRandom.RandIntInRange(2, 5));
         PurchaseLine.Modify(true);
     end;
 
     local procedure ModifyQtyToShipOnSalesLine(var SalesLine: Record "Sales Line")
     begin
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.Validate("Qty. to Ship", SalesLine."Qty. to Ship" / LibraryRandom.RandIntInRange(2, 5));
         SalesLine.Modify(true);
     end;
@@ -4162,7 +4162,7 @@ codeunit 134103 "ERM Prepayment IV"
     local procedure ModifyQuantityOnSalesLine(var SalesLine: Record "Sales Line")
     begin
         // Take Random Values for quantity.
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.Validate(Quantity, SalesLine.Quantity + LibraryRandom.RandInt(10));
         SalesLine.Modify(true);
     end;
@@ -4170,7 +4170,7 @@ codeunit 134103 "ERM Prepayment IV"
     local procedure ModifyQuantityOnPurchaseLine(var PurchaseLine: Record "Purchase Line")
     begin
         // Take Random Values for quantity.
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.Validate(Quantity, PurchaseLine.Quantity + LibraryRandom.RandInt(10));
         PurchaseLine.Modify(true);
     end;
@@ -4314,7 +4314,7 @@ codeunit 134103 "ERM Prepayment IV"
             FindFirst();
             if PrepaymentAmountInLCY = "Prepmt. Amount Inv. (LCY)" then
                 "Prepmt. Amount Inv. (LCY)" -= 0.01;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -4328,7 +4328,7 @@ codeunit 134103 "ERM Prepayment IV"
             FindFirst();
             if PrepaymentAmountInLCY = "Prepmt. Amount Inv. (LCY)" then
                 "Prepmt. Amount Inv. (LCY)" -= 0.01;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -4380,7 +4380,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         FindGLEntry(GLEntry, DocumentNo, GLAccountNo);
         Assert.AreNearlyEqual(
-          Amount, GLEntry.Amount, RoundingPrecision, StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
+          Amount, GLEntry.Amount, RoundingPrecision, StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyGLEntryDoesNotExist(DocNo: Code[20]; GLAccNo: Code[20])
@@ -4409,7 +4409,7 @@ codeunit 134103 "ERM Prepayment IV"
 
         Assert.AreNearlyEqual(
           Amount, FCYAmount, Currency."Invoice Rounding Precision",
-          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
+          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyGLEntryForSourceType(DocumentNo: Code[20]; GLAccountNo: Code[20])
@@ -4461,7 +4461,7 @@ codeunit 134103 "ERM Prepayment IV"
         FindGLEntry(GLEntry, DocumentNo, GLAccountNo);
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
+          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyACYAmountOnGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20])

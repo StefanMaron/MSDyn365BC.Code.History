@@ -16,20 +16,20 @@ page 1353 "Posted Return Receipt - Update"
         {
             group(General)
             {
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Sell-to Customer Name"; "Sell-to Customer Name")
+                field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Caption = 'Customer';
                     Editable = false;
                     ToolTip = 'Specifies the name of the customer.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Editable = false;
@@ -39,7 +39,7 @@ page 1353 "Posted Return Receipt - Update"
             group(Invoicing)
             {
                 Caption = 'Invoicing';
-                field("Bill-to Country/Region Code"; "Bill-to Country/Region Code")
+                field("Bill-to Country/Region Code"; Rec."Bill-to Country/Region Code")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Editable = true;
@@ -48,14 +48,14 @@ page 1353 "Posted Return Receipt - Update"
             group(Shipping)
             {
                 Caption = 'Shipping';
-                field("Shipping Agent Code"; "Shipping Agent Code")
+                field("Shipping Agent Code"; Rec."Shipping Agent Code")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Caption = 'Agent';
                     Editable = true;
                     ToolTip = 'Specifies which shipping agent is used to transport the items on the sales document to the customer.';
                 }
-                field("Package Tracking No."; "Package Tracking No.")
+                field("Package Tracking No."; Rec."Package Tracking No.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Editable = true;
@@ -77,7 +77,7 @@ page 1353 "Posted Return Receipt - Update"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction = ACTION::LookupOK then
-            if RecordChanged then
+            if RecordChanged() then
                 CODEUNIT.Run(CODEUNIT::"Return Receipt Header - Edit", Rec);
     end;
 
@@ -99,7 +99,7 @@ page 1353 "Posted Return Receipt - Update"
     procedure SetRec(ReturnReceiptHeader: Record "Return Receipt Header")
     begin
         Rec := ReturnReceiptHeader;
-        Insert;
+        Insert();
     end;
 
     [IntegrationEvent(false, false)]

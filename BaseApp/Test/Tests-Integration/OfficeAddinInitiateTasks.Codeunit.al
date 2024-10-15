@@ -48,7 +48,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         Assert.IsFalse(CustomerCard.NewSalesQuote.Visible, 'New Sales Quote shouldn''t be visible');
         Assert.IsFalse(CustomerCard.NewSalesInvoice.Visible, 'New Sales Invoice shoudln''t be visible');
         Assert.IsFalse(CustomerCard.NewSalesCreditMemo.Visible, 'New Sales Credit Memo shouldn''t be visible');
-        CustomerCard.Close;
+        CustomerCard.Close();
     end;
 
     [Test]
@@ -79,7 +79,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         CreateSalesInvoiceLine(SalesInvoice);
         PostedSalesInvoice.Trap;
         SalesInvoice.Post.Invoke;
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
 
         // [THEN] Email with reply is opened with PDF attached
     end;
@@ -112,7 +112,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         CreateSalesInvoiceLine(SalesInvoice);
         PostedSalesInvoice.Trap;
         SalesInvoice.Post.Invoke;
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
 
         // [THEN] Email with reply is opened with PDF attached
         // Verified in ActionHandler that assigned sending document profile not used
@@ -146,7 +146,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         CreateSalesCreditMemoLine(SalesCreditMemo);
         PostedSalesCreditMemo.Trap;
         SalesCreditMemo.Post.Invoke;
-        PostedSalesCreditMemo.Close;
+        PostedSalesCreditMemo.Close();
 
         // [THEN] Email with reply is opened with PDF attached
         // Verified in ActionHandler that email was reply with PDF attached
@@ -180,7 +180,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         CreateSalesCreditMemoLine(SalesCreditMemo);
         PostedSalesCreditMemo.Trap;
         SalesCreditMemo.Post.Invoke;
-        PostedSalesCreditMemo.Close;
+        PostedSalesCreditMemo.Close();
 
         // [THEN] Email with reply is opened with PDF attached
         // Verified in ActionHandler that assigned sending document profile not used
@@ -662,7 +662,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         LibrarySales.SetStockoutWarning(false);
         SetupCompanyPaymentInfo();
         SetupMarketing();
@@ -745,7 +745,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         LibrarySales.CreateCustomer(Customer);
 
         // Create Contact from Customer by running the report Create Conts. from Customers.
-        Customer.SetRecFilter;
+        Customer.SetRecFilter();
         CreateContsFromCustomers.UseRequestPage(false);
         CreateContsFromCustomers.SetTableView(Customer);
         CreateContsFromCustomers.Run();
@@ -951,7 +951,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
     begin
         SalesReceivablesSetup.Get();
         DocNoSeries := SalesReceivablesSetup."Quote Nos.";
-        QuoteNextNo := NoSeriesManagement.GetNextNo(DocNoSeries, WorkDate, false);
+        QuoteNextNo := NoSeriesManagement.GetNextNo(DocNoSeries, WorkDate(), false);
     end;
 
     [ConfirmHandler]

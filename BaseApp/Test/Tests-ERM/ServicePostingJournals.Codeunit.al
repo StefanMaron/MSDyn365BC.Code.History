@@ -271,7 +271,7 @@ codeunit 136125 "Service Posting Journals"
         UpdateAutomaticCostPosting(OldAutomaticCostPosting);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure ServiceOrderWithJob_Customer_PriceInclVAT()
@@ -306,7 +306,7 @@ codeunit 136125 "Service Posting Journals"
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesPrice(
             SalesPrice, Item."No.", "Sales Price Type"::Customer, Customer."No.",
-            WorkDate - 1, '', '', '', 0, LibraryRandom.RandIntInRange(100, 200));
+            WorkDate() - 1, '', '', '', 0, LibraryRandom.RandIntInRange(100, 200));
         SalesPrice.TestField("Price Includes VAT", Customer."Prices Including VAT");
         CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
 
@@ -344,7 +344,7 @@ codeunit 136125 "Service Posting Journals"
                 ToTempServiceLine.Init();
                 ToTempServiceLine := FromServiceLine;
                 ToTempServiceLine.Insert();
-            until FromServiceLine.Next = 0
+            until FromServiceLine.Next() = 0
     end;
 
     local procedure CreateAndPostItemJournal(Bin: Record Bin; ItemNo: Code[20]; Quantity: Decimal)
@@ -424,7 +424,7 @@ codeunit 136125 "Service Posting Journals"
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Use Random because value is not important.
             ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity);
             ServiceLine.Modify(true);
-            Resource.Next;
+            Resource.Next();
         end;
     end;
 
@@ -610,7 +610,7 @@ codeunit 136125 "Service Posting Journals"
             GLEntry.TestField("Source Type", GLEntry."Source Type"::Customer);
             GLEntry.TestField("Source No.", ServiceInvoiceHeader."Bill-to Customer No.");
             GLEntry.TestField("Posting Date", ServiceInvoiceHeader."Posting Date");
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyResourceLedgerEntry(var TempServiceLine: Record "Service Line" temporary)
@@ -649,7 +649,7 @@ codeunit 136125 "Service Posting Journals"
             ServiceInvoiceLine.TestField("Line Discount %", TempServiceLine."Line Discount %");
             ServiceInvoiceLine.TestField("Line Discount Amount", TempServiceLine."Line Discount Amount");
             ServiceInvoiceLine.TestField("Inv. Discount Amount", TempServiceLine."Inv. Discount Amount");
-        until TempServiceLine.Next = 0;
+        until TempServiceLine.Next() = 0;
     end;
 
     local procedure VerifyServiceLedgerEntry(var TempServiceLine: Record "Service Line" temporary)
@@ -664,7 +664,7 @@ codeunit 136125 "Service Posting Journals"
             ServiceLedgerEntry.FindFirst();
             ServiceLedgerEntry.TestField("No.", TempServiceLine."No.");
             ServiceLedgerEntry.TestField(Quantity, TempServiceLine.Quantity);
-        until TempServiceLine.Next = 0;
+        until TempServiceLine.Next() = 0;
     end;
 
     local procedure VerifyServiceLedgerEntryForBin(ServiceLine: Record "Service Line"; DocumentNo: Code[20]; DocumentType: Enum "Service Ledger Entry Document Type"; EntryType: Enum "Service Ledger Entry Entry Type")
@@ -698,7 +698,7 @@ codeunit 136125 "Service Posting Journals"
                 ServiceLedgerEntry.TestField(Quantity, -Quantity)
             else
                 ServiceLedgerEntry.TestField(Quantity, Quantity);
-        until ServiceLedgerEntry.Next = 0;
+        until ServiceLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyServiceShipmentLine(var TempServiceLine: Record "Service Line" temporary)
@@ -713,7 +713,7 @@ codeunit 136125 "Service Posting Journals"
             ServiceShipmentLine.TestField("No.", TempServiceLine."No.");
             ServiceShipmentLine.TestField(Quantity, TempServiceLine.Quantity);
             ServiceShipmentLine.TestField("Quantity Consumed", TempServiceLine.Quantity);
-        until TempServiceLine.Next = 0;
+        until TempServiceLine.Next() = 0;
     end;
 
     local procedure VerifyVATEntry(OrderNo: Code[20])
@@ -729,7 +729,7 @@ codeunit 136125 "Service Posting Journals"
         repeat
             VATEntry.TestField("Posting Date", ServiceInvoiceHeader."Posting Date");
             VATEntry.TestField("Bill-to/Pay-to No.", ServiceInvoiceHeader."Bill-to Customer No.");
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
     end;
 
     local procedure VerifyValueEntry(var TempServiceLine: Record "Service Line" temporary)

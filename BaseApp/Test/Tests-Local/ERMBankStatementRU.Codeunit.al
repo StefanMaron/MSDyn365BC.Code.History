@@ -203,8 +203,8 @@ codeunit 147127 "ERM Bank Statement RU"
         ExportFile.CreateOutStream(OutStream);
         ExportGenericCSV.SetDestination(OutStream);
         ExportGenericCSV.SetTableView(DataExchField);
-        ExportGenericCSV.Export;
-        ExportFile.Close;
+        ExportGenericCSV.Export();
+        ExportFile.Close();
     end;
 
     local procedure VerifyFileContentAsRows(DataExch: Record "Data Exch."; Filename: Text[1024])
@@ -255,7 +255,7 @@ codeunit 147127 "ERM Bank Statement RU"
                         end;
                 end;
                 LineNo += 1;
-            until DataExchField.Next = 0;
+            until DataExchField.Next() = 0;
         end;
         Assert.AreEqual(LineNo - 1 - Shift, LinesRead.Length, ExportedDataIsWrongErr)
     end;

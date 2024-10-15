@@ -13,12 +13,12 @@ page 866 "Cash Flow Availability Lines"
             {
                 Editable = false;
                 ShowCaption = false;
-                field("Period Start"; "Period Start")
+                field("Period Start"; Rec."Period Start")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies on which date the period starts, such as the first day of March, if the period is Month.';
                 }
-                field("Period Name"; "Period Name")
+                field("Period Name"; Rec."Period Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the accounting period. it is a good idea to use descriptive names, such as Month01, 1st Month, 1st Month/2000, Month01-2000, M1-2001/2002, etc.';
@@ -26,7 +26,7 @@ page 866 "Cash Flow Availability Lines"
                 field(Receivables; Receivables)
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     Caption = 'Receivables';
                     ToolTip = 'Specifies amounts related to receivables.';
@@ -39,7 +39,7 @@ page 866 "Cash Flow Availability Lines"
                 field(SalesOrders; "Sales Orders")
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     Caption = 'Sales Orders';
                     ToolTip = 'Specifies amounts related to sales orders.';
@@ -52,7 +52,7 @@ page 866 "Cash Flow Availability Lines"
                 field(ServiceOrders; "Service Orders")
                 {
                     ApplicationArea = Service;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     Caption = 'Service Orders';
                     ToolTip = 'Specifies amounts related to service orders.';
@@ -65,7 +65,7 @@ page 866 "Cash Flow Availability Lines"
                 field(SalesofFixedAssets; "Fixed Assets Disposal")
                 {
                     ApplicationArea = FixedAssets;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     Caption = 'Fixed Assets Disposal';
                     ToolTip = 'Specifies amounts related to fixed assets disposal.';
@@ -78,7 +78,7 @@ page 866 "Cash Flow Availability Lines"
                 field(ManualRevenues; "Cash Flow Manual Revenues")
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     Caption = 'Cash Flow Manual Revenues';
                     ToolTip = 'Specifies amounts related to manual revenues.';
@@ -91,7 +91,7 @@ page 866 "Cash Flow Availability Lines"
                 field(Payables; Payables)
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     Caption = 'Payables';
                     ToolTip = 'Specifies amounts related to payables.';
@@ -104,7 +104,7 @@ page 866 "Cash Flow Availability Lines"
                 field(PurchaseOrders; "Purchase Orders")
                 {
                     ApplicationArea = Suite;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     Caption = 'Purchase Orders';
                     ToolTip = 'Specifies amounts related to purchase orders.';
@@ -117,7 +117,7 @@ page 866 "Cash Flow Availability Lines"
                 field(BudgetedFixedAssets; "Fixed Assets Budget")
                 {
                     ApplicationArea = FixedAssets;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     Caption = 'Fixed Assets Budget';
                     ToolTip = 'Specifies amounts related to fixed assets.';
@@ -130,7 +130,7 @@ page 866 "Cash Flow Availability Lines"
                 field(ManualExpenses; "Cash Flow Manual Expenses")
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     Caption = 'Cash Flow Manual Expenses';
                     ToolTip = 'Specifies amounts related to manual expenses.';
@@ -143,7 +143,7 @@ page 866 "Cash Flow Availability Lines"
                 field(Budget; "G/L Budget")
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     Caption = 'G/L Budget';
                     ToolTip = 'Specifies amounts related to the general ledger budget.';
@@ -156,7 +156,7 @@ page 866 "Cash Flow Availability Lines"
                 field(Job; Job)
                 {
                     ApplicationArea = Jobs;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     Caption = 'Job';
                     ToolTip = 'Specifies amounts related to jobs.';
@@ -169,7 +169,7 @@ page 866 "Cash Flow Availability Lines"
                 field(Tax; Tax)
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     Caption = 'Tax';
                     ToolTip = 'Specifies amounts related to taxes.';
@@ -182,7 +182,7 @@ page 866 "Cash Flow Availability Lines"
                 field(Total; Total)
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     Caption = 'Total';
                     Style = Strong;

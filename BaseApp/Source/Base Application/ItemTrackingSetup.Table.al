@@ -70,49 +70,29 @@
         {
             Caption = 'CD No. Required';
             ObsoleteReason = 'Replaced by field Package No. Required';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
         field(12410; "CD No."; Code[50])
         {
             Caption = 'CD No.';
             ObsoleteReason = 'Replaced by field Package No.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
         field(12420; "CD No. Info Required"; Boolean)
         {
             Caption = 'CD No. Info Required';
             ObsoleteReason = 'Replaced by field Package No. Info Required.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
         field(12430; "CD No. Mismatch"; Boolean)
         {
             Caption = 'CD No. Mismatch';
             ObsoleteReason = 'Replaced by field Package No. Mismatch';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
     }
 

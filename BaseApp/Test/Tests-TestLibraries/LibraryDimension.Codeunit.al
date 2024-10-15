@@ -1,4 +1,4 @@
-codeunit 131001 "Library - Dimension"
+﻿codeunit 131001 "Library - Dimension"
 {
     // Contains all utility functions related to Dimensions.
 
@@ -29,7 +29,7 @@ codeunit 131001 "Library - Dimension"
 
     procedure InitGlobalDimChange()
     begin
-        ChangeGlobalDimensions.ResetState;
+        ChangeGlobalDimensions.ResetState();
     end;
 
     procedure RunChangeGlobalDimensions(GlobalDimension1Code: Code[20]; GlobalDimension2Code: Code[20])
@@ -62,7 +62,7 @@ codeunit 131001 "Library - Dimension"
         if ChangeGlobalDimensions.FindTablesForScheduling(ChangeGlobalDimLogEntry) then
             repeat
                 CODEUNIT.Run(CODEUNIT::"Change Global Dimensions", ChangeGlobalDimLogEntry);
-            until ChangeGlobalDimLogEntry.Next = 0;
+            until ChangeGlobalDimLogEntry.Next() = 0;
         InitGlobalDimChange;
     end;
 
@@ -246,7 +246,7 @@ codeunit 131001 "Library - Dimension"
     procedure CreateDimensionsTemplate(var DimensionsTemplate: Record "Dimensions Template"; TemplateCode: Code[10]; TableID: Integer; DimensionCode: Code[20]; DimensionValueCode: Code[20])
     begin
         with DimensionsTemplate do begin
-            Init;
+            Init();
             Validate(
               Code,
               CopyStr(
@@ -344,9 +344,9 @@ codeunit 131001 "Library - Dimension"
         if DefaultDimension.FindSet() then
             while not DimFound do begin
                 DimValue.SetRange("Dimension Code", DefaultDimension."Dimension Code");
-                DimFound := not DimValue.IsEmpty;
+                DimFound := not DimValue.IsEmpty();
                 if not DimFound then
-                    DimFound := DefaultDimension.Next = 0;
+                    DimFound := DefaultDimension.Next() = 0;
             end;
         exit(DimFound);
     end;
@@ -360,9 +360,9 @@ codeunit 131001 "Library - Dimension"
         Dimension.FindSet();
         while not DimFound do begin
             DimValue.SetRange("Dimension Code", Dimension.Code);
-            DimFound := not DimValue.IsEmpty;
+            DimFound := not DimValue.IsEmpty();
             if not DimFound then
-                DimFound := Dimension.Next = 0;
+                DimFound := Dimension.Next() = 0;
         end;
     end;
 
@@ -469,9 +469,6 @@ codeunit 131001 "Library - Dimension"
         AddTable(TableBuffer, DATABASE::"Cash Flow Manual Revenue");
         AddTable(TableBuffer, DATABASE::"Cash Flow Manual Expense");
         AddTable(TableBuffer, DATABASE::Campaign);
-#if not CLEAN18
-        AddTable(TableBuffer, DATABASE::"Customer Template");
-#endif
         AddTable(TableBuffer, DATABASE::Employee);
         AddTable(TableBuffer, DATABASE::"Fixed Asset");
         AddTable(TableBuffer, DATABASE::Insurance);
@@ -494,7 +491,7 @@ codeunit 131001 "Library - Dimension"
     local procedure OnBeforeScheduleTask(TableNo: Integer; var DoNotScheduleTask: Boolean; var TaskID: Guid)
     begin
         DoNotScheduleTask := true;
-        TaskID := CreateGuid;
+        TaskID := CreateGuid();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Change Global Dimensions", 'OnCountingActiveSessions', '', false, false)]

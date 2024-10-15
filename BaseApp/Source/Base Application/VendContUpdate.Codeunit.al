@@ -114,7 +114,7 @@ codeunit 5057 "VendCont-Update"
             exit;
 
         with Cont do begin
-            Init;
+            Init();
             TransferFields(Vend);
             OnAfterTransferFieldsFromVendToCont(Cont, Vend);
             Validate(Name);
@@ -128,14 +128,14 @@ codeunit 5057 "VendCont-Update"
                 NoSeriesMgt.InitSeries(RMSetup."Contact Nos.", '', 0D, "No.", "No. Series");
             end;
             Type := Type::Company;
-            TypeChange;
-            SetSkipDefault;
+            TypeChange();
+            SetSkipDefault();
             OnBeforeContactInsert(Cont, Vend);
             Insert(true);
         end;
 
         with ContBusRel do begin
-            Init;
+            Init();
             "Contact No." := Cont."No.";
             "Business Relation Code" := RMSetup."Bus. Rel. Code for Vendors";
             "Link to Table" := "Link to Table"::Vendor;
@@ -162,7 +162,7 @@ codeunit 5057 "VendCont-Update"
         if ContBusRel.FindFirst() then
             if ContComp.Get(ContBusRel."Contact No.") then
                 with Cont do begin
-                    Init;
+                    Init();
                     "No." := '';
                     OnInsertNewContactPersonOnBeforeContactInsert(Cont, Vend);
                     Insert(true);

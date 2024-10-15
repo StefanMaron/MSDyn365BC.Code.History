@@ -48,7 +48,7 @@ table 5619 "FA Journal Template"
             begin
                 FAJnlLine.SetRange("Journal Template Name", Name);
                 FAJnlLine.ModifyAll("Source Code", "Source Code");
-                Modify;
+                Modify();
             end;
         }
         field(11; "Reason Code"; Code[10])
@@ -200,10 +200,11 @@ table 5619 "FA Journal Template"
     end;
 
     var
-        Text000: Label 'Only the %1 field can be filled in on recurring journals.';
-        Text001: Label 'must not be %1';
         FAJnlLine: Record "FA Journal Line";
         FAJnlBatch: Record "FA Journal Batch";
         SourceCodeSetup: Record "Source Code Setup";
+
+        Text000: Label 'Only the %1 field can be filled in on recurring journals.';
+        Text001: Label 'must not be %1';
 }
 

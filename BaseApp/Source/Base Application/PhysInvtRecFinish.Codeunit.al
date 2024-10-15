@@ -54,7 +54,7 @@ codeunit 5876 "Phys. Invt. Rec.-Finish"
             if not HideProgressWindow then begin
                 Window.Open(
                 '#1#################################\\' + FinishingLinesMsg);
-                Window.Update(1, StrSubstNo('%1 %2', TableCaption, "Order No."));
+                Window.Update(1, StrSubstNo('%1 %2', TableCaption(), "Order No."));
             end;
 
             PhysInvtOrderHeader.LockTable();
@@ -78,7 +78,7 @@ codeunit 5876 "Phys. Invt. Rec.-Finish"
                     if not HideProgressWindow then
                         Window.Update(2, LineCount);
 
-                    if not PhysInvtRecordLine.EmptyLine then begin
+                    if not PhysInvtRecordLine.EmptyLine() then begin
                         PhysInvtRecordLine.TestField("Item No.");
                         PhysInvtRecordLine.TestField(Recorded, true);
                         if PhysInvtRecordLine."Location Code" <> '' then begin

@@ -459,26 +459,16 @@ table 242 "Source Code Setup"
             Caption = 'Item Receipt';
             TableRelation = "Source Code";
             ObsoleteReason = 'Replaced by Inventory Documents feature.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
         field(12451; "Item Shipment"; Code[10])
         {
             Caption = 'Item Shipment';
             TableRelation = "Source Code";
             ObsoleteReason = 'Replaced by Inventory Documents feature.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
         field(12470; "FA Release"; Code[10])
         {

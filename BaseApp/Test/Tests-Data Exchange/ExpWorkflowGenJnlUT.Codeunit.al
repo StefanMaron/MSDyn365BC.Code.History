@@ -63,7 +63,7 @@ codeunit 132560 "Exp. Workflow Gen. Jnl. UT"
 
         // Verify
         PaymentExportData.SetRange("Document No.", GenJnlLine."Document No.");
-        Assert.IsFalse(PaymentExportData.IsEmpty, StrSubstNo(RecordNotFoundErr, PaymentExportData.TableCaption));
+        Assert.IsFalse(PaymentExportData.IsEmpty, StrSubstNo(RecordNotFoundErr, PaymentExportData.TableCaption()));
 
         // Cleanup
         PaymentExportData.FindFirst();
@@ -112,7 +112,7 @@ codeunit 132560 "Exp. Workflow Gen. Jnl. UT"
 
         // Verify
         CreditTransferEntry.SetRange("Credit Transfer Register No.", CreditTransferRegister."No.");
-        Assert.IsFalse(CreditTransferEntry.IsEmpty, StrSubstNo(RecordNotFoundErr, CreditTransferEntry.TableCaption));
+        Assert.IsFalse(CreditTransferEntry.IsEmpty, StrSubstNo(RecordNotFoundErr, CreditTransferEntry.TableCaption()));
 
         // Cleanup
         DataExch.Delete(true);

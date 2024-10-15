@@ -2,7 +2,7 @@
 page 5309 "Outlook Synch. Table Fields"
 {
     Caption = 'Outlook Synch. Table Fields';
-    DataCaptionExpression = GetFormCaption;
+    DataCaptionExpression = GetFormCaption();
     DeleteAllowed = false;
     Editable = false;
     InsertAllowed = false;
@@ -36,13 +36,13 @@ page 5309 "Outlook Synch. Table Fields"
                     ToolTip = 'Specifies the name of the table.';
                     Visible = false;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'No.';
                     ToolTip = 'Specifies the number of the field.';
                 }
-                field("Field Caption"; "Field Caption")
+                field("Field Caption"; Rec."Field Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Field Caption';
@@ -61,7 +61,7 @@ page 5309 "Outlook Synch. Table Fields"
                     Caption = 'Class';
                     ToolTip = 'Specifies the class of the field that will be synchronized.';
                 }
-                field("Type Name"; "Type Name")
+                field("Type Name"; Rec."Type Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Type Name';

@@ -346,7 +346,7 @@ codeunit 144720 "SCM Torg-13 Test"
             repeat
                 Item.Get(ReclassificationItemJournalLine."Item No.");
                 TotalAmount += ReclassificationItemJournalLine.Quantity * Item."Unit Cost";
-            until ReclassificationItemJournalLine.Next = 0;
+            until ReclassificationItemJournalLine.Next() = 0;
     end;
 
     local procedure GetTransferOrderAmount(HeaderNo: Code[20]) TotalAmount: Decimal
@@ -361,7 +361,7 @@ codeunit 144720 "SCM Torg-13 Test"
             repeat
                 Item.Get(TransferLine."Item No.");
                 TotalAmount += TransferLine.Quantity * Item."Unit Cost";
-            until TransferLine.Next = 0;
+            until TransferLine.Next() = 0;
     end;
 
     local procedure GetTransferReceiptAmount(HeaderNo: Code[20]) TotalAmount: Decimal
@@ -376,7 +376,7 @@ codeunit 144720 "SCM Torg-13 Test"
             repeat
                 Item.Get(TransferReceiptLine."Item No.");
                 TotalAmount += TransferReceiptLine.Quantity * Item."Unit Cost";
-            until TransferReceiptLine.Next = 0;
+            until TransferReceiptLine.Next() = 0;
     end;
 
     local procedure GetTransferShipmentAmount(HeaderNo: Code[20]) TotalAmount: Decimal
@@ -391,7 +391,7 @@ codeunit 144720 "SCM Torg-13 Test"
             repeat
                 Item.Get(TransferShipmentLine."Item No.");
                 TotalAmount += TransferShipmentLine.Quantity * Item."Unit Cost";
-            until TransferShipmentLine.Next = 0;
+            until TransferShipmentLine.Next() = 0;
     end;
 
     local procedure GetDecimals(Value: Decimal): Decimal

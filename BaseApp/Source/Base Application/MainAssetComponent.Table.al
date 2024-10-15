@@ -21,7 +21,7 @@ table 5640 "Main Asset Component"
             begin
                 if ("FA No." = '') or ("Main Asset No." = '') then
                     exit;
-                LockFixedAsset;
+                LockFixedAsset();
                 FA.Get("FA No.");
                 if "FA No." = "Main Asset No." then
                     CreateError("FA No.", 1);
@@ -79,7 +79,7 @@ table 5640 "Main Asset Component"
 
     trigger OnDelete()
     begin
-        LockFixedAsset;
+        LockFixedAsset();
         if "FA No." <> '' then begin
             FA.Get("FA No.");
             UpdateMainAsset(FA, 0);

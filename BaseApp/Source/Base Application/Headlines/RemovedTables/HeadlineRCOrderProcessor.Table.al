@@ -4,6 +4,7 @@ table 1441 "Headline RC Order Processor"
     ObsoleteState = Removed;
     ObsoleteReason = 'Replaced with "RC Headlines User Data" table';
     ObsoleteTag = '15.0';
+    ReplicateData = false;
 
     fields
     {

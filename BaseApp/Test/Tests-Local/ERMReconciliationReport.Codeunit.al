@@ -1,4 +1,4 @@
-codeunit 144719 "ERM Reconciliation Report"
+﻿codeunit 144719 "ERM Reconciliation Report"
 {
     // // [FEATURE] [Reports] [Reconciliation]
 
@@ -43,10 +43,10 @@ codeunit 144719 "ERM Reconciliation Report"
         InvoiceAmount: Decimal;
         PaymentAmount: Decimal;
     begin
-        RunReconciliationForPurchase(WorkDate, true, InvoiceAmount, PaymentAmount);
+        RunReconciliationForPurchase(WorkDate(), true, InvoiceAmount, PaymentAmount);
 
         LibraryReportValidation.VerifyCellValue(20, 12, AmountAsText(PaymentAmount));
-        LibraryReportValidation.VerifyCellValue(25, 4, Format(WorkDate) + ' - ' + Format(WorkDate));
+        LibraryReportValidation.VerifyCellValue(25, 4, Format(WorkDate()) + ' - ' + Format(WorkDate()));
     end;
 
     [Test]
@@ -82,10 +82,10 @@ codeunit 144719 "ERM Reconciliation Report"
         InvoiceAmount: Decimal;
         PaymentAmount: Decimal;
     begin
-        RunReconciliationForSales(WorkDate, true, InvoiceAmount, PaymentAmount, 2);
+        RunReconciliationForSales(WorkDate(), true, InvoiceAmount, PaymentAmount, 2);
 
         LibraryReportValidation.VerifyCellValue(26, 14, AmountAsText(InvoiceAmount + PaymentAmount));
-        LibraryReportValidation.VerifyCellValue(26, 4, Format(WorkDate) + ' - ' + Format(WorkDate));
+        LibraryReportValidation.VerifyCellValue(26, 4, Format(WorkDate()) + ' - ' + Format(WorkDate()));
     end;
 
     [Test]
@@ -121,9 +121,9 @@ codeunit 144719 "ERM Reconciliation Report"
         InvoiceAmount: Decimal;
         PaymentAmount: Decimal;
     begin
-        RunReconciliationForPurchase(WorkDate, false, InvoiceAmount, PaymentAmount);
+        RunReconciliationForPurchase(WorkDate(), false, InvoiceAmount, PaymentAmount);
         LibraryReportValidation.VerifyCellValue(24, 12, AmountAsText(InvoiceAmount - PaymentAmount));
-        LibraryReportValidation.VerifyCellValue(24, 5, Format(WorkDate) + ' - ' + Format(WorkDate));
+        LibraryReportValidation.VerifyCellValue(24, 5, Format(WorkDate()) + ' - ' + Format(WorkDate()));
     end;
 
     [Test]
@@ -159,10 +159,10 @@ codeunit 144719 "ERM Reconciliation Report"
         InvoiceAmount: Decimal;
         PaymentAmount: Decimal;
     begin
-        RunReconciliationForSales(WorkDate, false, InvoiceAmount, PaymentAmount, 2);
+        RunReconciliationForSales(WorkDate(), false, InvoiceAmount, PaymentAmount, 2);
 
         LibraryReportValidation.VerifyCellValue(20, 14, AmountAsText(-PaymentAmount));
-        LibraryReportValidation.VerifyCellValue(20, 5, Format(WorkDate) + ' - ' + Format(WorkDate));
+        LibraryReportValidation.VerifyCellValue(20, 5, Format(WorkDate()) + ' - ' + Format(WorkDate()));
     end;
 
     [Test]
@@ -175,7 +175,7 @@ codeunit 144719 "ERM Reconciliation Report"
         // [SCENARIO 378714] Report "Customer - Reconciliation Act" always shows Invoice closed by Payment in the current period
         // [GIVEN] Posted Sales Invoice, posted full Payment applied to the Invoice
         // [WHEN] Running the report
-        RunReconciliationForSales(WorkDate, false, InvoiceAmount, PaymentAmount, 1);
+        RunReconciliationForSales(WorkDate(), false, InvoiceAmount, PaymentAmount, 1);
 
         // [THEN] Payment followed by Invoice are shown, numbered as '1' and '1.1' respectively, with correct Debit and Credit
         LibraryReportValidation.VerifyCellValue(15, 1, '1');
@@ -226,10 +226,10 @@ codeunit 144719 "ERM Reconciliation Report"
         Initialize();
         PaymentCoeff := 2;
         CustomerNo :=
-          CreateDataForSalesWithAgreements(WorkDate, '', InvoiceAmount1, InvoiceAmount2, PaymentCoeff, SkippedInvoiceNo, SkippedCreditMemoNo);
+          CreateDataForSalesWithAgreements(WorkDate(), '', InvoiceAmount1, InvoiceAmount2, PaymentCoeff, SkippedInvoiceNo, SkippedCreditMemoNo);
 
         // [WHEN] Printing report "Customer - Reconciliation Act"
-        PrintCustomerReconciliation(CustomerNo, '', WorkDate);
+        PrintCustomerReconciliation(CustomerNo, '', WorkDate());
 
         // [THEN] Aggregated customer initial balance is shown (Debit only),
         // [THEN] Open invoice from previous period is shown,
@@ -284,14 +284,14 @@ codeunit 144719 "ERM Reconciliation Report"
         PaymentCoeff := 2;
         ExchRate1 := LibraryRandom.RandIntInRange(70, 90);
         ExchRate2 := LibraryRandom.RandIntInRange(70, 90);
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate - 1, ExchRate1, ExchRate1);
-        LibraryERM.CreateExchangeRate(CurrencyCode, WorkDate, ExchRate2, ExchRate2);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate() - 1, ExchRate1, ExchRate1);
+        LibraryERM.CreateExchangeRate(CurrencyCode, WorkDate(), ExchRate2, ExchRate2);
         CustomerNo :=
-          CreateDataForSalesWithAgreements(WorkDate, CurrencyCode, InvoiceAmount1, InvoiceAmount2, PaymentCoeff,
+          CreateDataForSalesWithAgreements(WorkDate(), CurrencyCode, InvoiceAmount1, InvoiceAmount2, PaymentCoeff,
             SkippedInvoiceNo, SkippedCreditMemoNo);
 
         // [WHEN] Printing report "Customer - Reconciliation Act"
-        PrintCustomerReconciliationWithCurrency(CustomerNo, WorkDate, CurrencyCode);
+        PrintCustomerReconciliationWithCurrency(CustomerNo, WorkDate(), CurrencyCode);
 
         // [THEN] Aggregated customer initial balance is shown (Debit only),
         // [THEN] Open invoice from previous period is shown,
@@ -328,10 +328,10 @@ codeunit 144719 "ERM Reconciliation Report"
         // [GIVEN] Posted Payment "P1" for "I1" with "Posting Date" = (WORKDATE + 1) and Amount = "IA1", applied to "I1"
         Initialize();
         CustomerNo :=
-          CreateDataForSalesWithFuturePayment(WorkDate, InvoiceAmount);
+          CreateDataForSalesWithFuturePayment(WorkDate(), InvoiceAmount);
 
         // [WHEN] Printing report "Customer - Reconciliation Act" on WORKDATE
-        PrintCustomerReconciliationWithCurrency(CustomerNo, WorkDate, '');
+        PrintCustomerReconciliationWithCurrency(CustomerNo, WorkDate(), '');
 
         // [THEN] Customer initial balance with Debit Amount ="IA1" is shown,
         // [THEN] Invoice "I1" from previous period with Debit Amount ="IA1" is shown,
@@ -419,15 +419,15 @@ codeunit 144719 "ERM Reconciliation Report"
         // [GIVEN] First customer with:
         CustomerNo := LibrarySales.CreateCustomerNo();
         // [GIVEN] Sales Invoice (Amount = 1000)
-        InvoiceNo := CreatePostSalesInvoice(CustomerNo, InvoiceAmount, '', WorkDate);
+        InvoiceNo := CreatePostSalesInvoice(CustomerNo, InvoiceAmount, '', WorkDate());
         // [GIVEN] Sales Credit Memo (Amount = 200) applied to the Invoice
         CreatePostPartialCorrectionSalesCrMemo(CustomerNo, InvoiceNo);
         // [GIVEN] Payment (Amount = 2000) applied to the Invoice
-        CreateApplyPostCustomerPayment(WorkDate, CustomerNo, InvoiceNo, '', -InvoiceAmount * 2);
+        CreateApplyPostCustomerPayment(WorkDate(), CustomerNo, InvoiceNo, '', -InvoiceAmount * 2);
         // [GIVEN] Second customer without transactions within period
 
         // [WHEN] Printing report "Customer - Reconciliation Act" for both customers
-        PrintCustomerReconciliation(CustomerNo, LibrarySales.CreateCustomerNo, WorkDate);
+        PrintCustomerReconciliation(CustomerNo, LibrarySales.CreateCustomerNo, WorkDate());
 
         // [THEN] The second customer has zero turnover
         VerifyCustomerZeroTurnoverLine;
@@ -448,7 +448,7 @@ codeunit 144719 "ERM Reconciliation Report"
         // [GIVEN] First customer with:
         CustomerNo := LibrarySales.CreateCustomerNo();
         // [GIVEN] Sales Credit Memo (Amount = 1000)
-        CrMemoNo := CreatePostSalesCrMemoWithTwoLines(WorkDate, CustomerNo, CrMemoAmount);
+        CrMemoNo := CreatePostSalesCrMemoWithTwoLines(WorkDate(), CustomerNo, CrMemoAmount);
         // [GIVEN] Sales Invoice (Amount = 200) applied to the Credit Memo
         CreatePostPartialCorrectionSalesInvoice(CustomerNo, CrMemoNo);
         // [GIVEN] Refund (Amount = 2000) applied to the Credit Memo
@@ -456,7 +456,7 @@ codeunit 144719 "ERM Reconciliation Report"
         // [GIVEN] Second customer without transactions within period
 
         // [WHEN] Printing report "Customer - Reconciliation Act" for both customers
-        PrintCustomerReconciliation(CustomerNo, LibrarySales.CreateCustomerNo, WorkDate);
+        PrintCustomerReconciliation(CustomerNo, LibrarySales.CreateCustomerNo, WorkDate());
 
         // [THEN] The second customer has zero turnover
         VerifyCustomerZeroTurnoverLine;
@@ -477,10 +477,10 @@ codeunit 144719 "ERM Reconciliation Report"
         UpdateGLSetupMarkCrMemosAsCorrections(false);
         // [GIVEN] Posted Sales Credit Memo
         CustomerNo := LibrarySales.CreateCustomerNo();
-        CreatePostSalesCrMemoWithTwoLines(WorkDate, CustomerNo, CrMemoAmount);
+        CreatePostSalesCrMemoWithTwoLines(WorkDate(), CustomerNo, CrMemoAmount);
 
         // [WHEN] Printing report "Customer - Reconciliation Act"
-        PrintCustomerReconciliation(CustomerNo, '', WorkDate);
+        PrintCustomerReconciliation(CustomerNo, '', WorkDate());
 
         // [THEN] Report prints positive credit amount for the Credit Memo
         VerifySalesCreditMemoPositiveCreditAmount(CrMemoAmount);
@@ -501,10 +501,10 @@ codeunit 144719 "ERM Reconciliation Report"
         UpdateGLSetupMarkCrMemosAsCorrections(true);
         // [GIVEN] Posted Sales Credit Memo
         CustomerNo := LibrarySales.CreateCustomerNo();
-        CreatePostSalesCrMemoWithTwoLines(WorkDate, CustomerNo, CrMemoAmount);
+        CreatePostSalesCrMemoWithTwoLines(WorkDate(), CustomerNo, CrMemoAmount);
 
         // [WHEN] Printing report "Customer - Reconciliation Act"
-        PrintCustomerReconciliation(CustomerNo, '', WorkDate);
+        PrintCustomerReconciliation(CustomerNo, '', WorkDate());
 
         // [THEN] Report prints negative debit amount for the Credit Memo
         VerifySalesCreditMemoNegativeDebitAmount(CrMemoAmount);
@@ -525,10 +525,10 @@ codeunit 144719 "ERM Reconciliation Report"
         UpdateGLSetupMarkCrMemosAsCorrections(false);
         // [GIVEN] Sales Credit Memo posted in previous period
         CustomerNo := LibrarySales.CreateCustomerNo();
-        CreatePostSalesCrMemoWithTwoLines(WorkDate, CustomerNo, CrMemoAmount);
+        CreatePostSalesCrMemoWithTwoLines(WorkDate(), CustomerNo, CrMemoAmount);
 
         // [WHEN] Printing report "Customer - Reconciliation Act" for current month
-        PrintCustomerReconciliation(CustomerNo, '', CalcDate('<1M>', WorkDate));
+        PrintCustomerReconciliation(CustomerNo, '', CalcDate('<1M>', WorkDate()));
 
         // [THEN] Report prints positive credit amount for the Credit Memo
         VerifySalesCreditMemoPositiveCreditAmount(CrMemoAmount);
@@ -549,10 +549,10 @@ codeunit 144719 "ERM Reconciliation Report"
         UpdateGLSetupMarkCrMemosAsCorrections(true);
         // [GIVEN] Sales Credit Memo posted in previous period
         CustomerNo := LibrarySales.CreateCustomerNo();
-        CreatePostSalesCrMemoWithTwoLines(WorkDate, CustomerNo, CrMemoAmount);
+        CreatePostSalesCrMemoWithTwoLines(WorkDate(), CustomerNo, CrMemoAmount);
 
         // [WHEN] Printing report "Customer - Reconciliation Act" for current month
-        PrintCustomerReconciliation(CustomerNo, '', CalcDate('<1M>', WorkDate));
+        PrintCustomerReconciliation(CustomerNo, '', CalcDate('<1M>', WorkDate()));
 
         // [THEN] Report prints negative debit amount for the Credit Memo
         VerifySalesCreditMemoNegativeDebitAmount(CrMemoAmount);
@@ -579,17 +579,17 @@ codeunit 144719 "ERM Reconciliation Report"
         // [GIVEN] Posted Purchase Invoice "PI01" for Vendor with Amount = 1000 for previous period
         // [GIVEN] Posted Payment for Vendor with Amount = 500 for current period applied to "PI01"
         CreatePostPurchInvoiceWithPostApplyPayment(
-          Vendor."No.", InvoiceAmount[1], PaymentAmount[1], LibraryRandom.RandDate(-10), WorkDate);
+          Vendor."No.", InvoiceAmount[1], PaymentAmount[1], LibraryRandom.RandDate(-10), WorkDate());
 
         // [GIVEN] Posted Purchase Invoice "PI02" for Vendor with Amount = 8000 for current period
         // [GIVEN] Posted Payment for Vendor with Amount = 5000 for current period applied to "PI02"
         CreatePostPurchInvoiceWithPostApplyPayment(
-          Vendor."No.", InvoiceAmount[2], PaymentAmount[2], WorkDate, WorkDate);
+          Vendor."No.", InvoiceAmount[2], PaymentAmount[2], WorkDate(), WorkDate());
         DebitTurnover := PaymentAmount[1] + PaymentAmount[2];
         TotalCreditBalance := InvoiceAmount[1] + InvoiceAmount[2] - DebitTurnover;
 
         // [WHEN] Print Report "Vendor - Reconciliation Act" for current period for Vendor "V01"
-        PrintVendorReconciliationRequestPage(Vendor."No.", WorkDate, true);
+        PrintVendorReconciliationRequestPage(Vendor."No.", WorkDate(), true);
 
         // [THEN] Report prints "Debit Turnover" = 5500
         // [THEN] Report prints "Total Balance" = 3500
@@ -619,17 +619,17 @@ codeunit 144719 "ERM Reconciliation Report"
         // [GIVEN] Posted Purchase Invoice "PI01" for Vendor with Amount = 1000 for previous period
         // [GIVEN] Posted Payment for Vendor with Amount = 500 for current period applied to "PI01"
         CreatePostPurchInvoiceWithPostApplyPayment(
-          Vendor."No.", InvoiceAmount[1], PaymentAmount[1], LibraryRandom.RandDate(-10), WorkDate);
+          Vendor."No.", InvoiceAmount[1], PaymentAmount[1], LibraryRandom.RandDate(-10), WorkDate());
 
         // [GIVEN] Posted Purchase Invoice "PI02" for Vendor with Amount = 8000 for current period
         // [GIVEN] Posted Payment for Vendor with Amount = 5000 for current period applied to "PI02"
         CreatePostPurchInvoiceWithPostApplyPayment(
-          Vendor."No.", InvoiceAmount[2], PaymentAmount[2], WorkDate, WorkDate);
+          Vendor."No.", InvoiceAmount[2], PaymentAmount[2], WorkDate(), WorkDate());
         DebitTurnover := PaymentAmount[1] + PaymentAmount[2];
         TotalCreditBalance := InvoiceAmount[1] + InvoiceAmount[2] - DebitTurnover;
 
         // [WHEN] Print Report "Customer - Reconciliation Act" for current period for Customer "CU01"
-        PrintCustomerReconciliationRequestPage(Customer."No.", '', WorkDate, true);
+        PrintCustomerReconciliationRequestPage(Customer."No.", '', WorkDate(), true);
 
         // [THEN] Report prints "Debit Turnover" = 5500
         // [THEN] Report prints "Total Balance" = 3500
@@ -663,7 +663,7 @@ codeunit 144719 "ERM Reconciliation Report"
         SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
 
         // [WHEN] Printing report "Customer - Reconciliation Act"
-        PrintCustomerReconciliation(CustomerNo, '', WorkDate);
+        PrintCustomerReconciliation(CustomerNo, '', WorkDate());
 
         // [THEN] Report prints with no error and contains this document
         LibraryReportValidation.VerifyCellValue(15, 4, StrSubstNo('Invoice %1 Invoice %2', SalesInvoiceNo, SalesHeader."No."));
@@ -697,7 +697,7 @@ codeunit 144719 "ERM Reconciliation Report"
         PurchaseInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
         // [WHEN] Printing report "Vendor - Reconciliation Act"
-        PrintVendorReconciliation(VendorNo, WorkDate);
+        PrintVendorReconciliation(VendorNo, WorkDate());
 
         // [THEN] Report prints with no error and contains this document
         LibraryReportValidation.VerifyCellValue(15, 4, StrSubstNo('Invoice %1 Invoice %2', PurchaseInvoiceNo, PurchaseHeader."No."));
@@ -724,7 +724,7 @@ codeunit 144719 "ERM Reconciliation Report"
         GLSetup: Record "General Ledger Setup";
     begin
         with GLSetup do begin
-            Get;
+            Get();
             Validate("Mark Cr. Memos as Corrections", NewValue);
             Modify(true);
         end;
@@ -767,7 +767,7 @@ codeunit 144719 "ERM Reconciliation Report"
 
     local procedure CreateApplyPostVendorPayment(VendorNo: Code[20]; InvoiceNo: Code[20]; LineAmount: Decimal)
     begin
-        CreateApplyPostVendorPaymentWithPostingDate(VendorNo, InvoiceNo, LineAmount, WorkDate);
+        CreateApplyPostVendorPaymentWithPostingDate(VendorNo, InvoiceNo, LineAmount, WorkDate());
     end;
 
     local procedure CreateApplyPostVendorPaymentWithPostingDate(VendorNo: Code[20]; InvoiceNo: Code[20]; LineAmount: Decimal; PostingDate: Date)
@@ -938,7 +938,7 @@ codeunit 144719 "ERM Reconciliation Report"
         Initialize();
 
         CreateCustomerVendor(Vendor, Customer);
-        InvoiceNo := CreatePostPurchInvoice(Vendor."No.", InvoiceAmount, WorkDate);
+        InvoiceNo := CreatePostPurchInvoice(Vendor."No.", InvoiceAmount, WorkDate());
         PaymentAmount := InvoiceAmount / 2;
         CreateApplyPostVendorPayment(Vendor."No.", InvoiceNo, PaymentAmount);
 
@@ -954,9 +954,9 @@ codeunit 144719 "ERM Reconciliation Report"
         Initialize();
 
         CreateCustomerVendor(Vendor, Customer);
-        InvoiceNo := CreatePostSalesInvoice(Customer."No.", InvoiceAmount, '', WorkDate);
+        InvoiceNo := CreatePostSalesInvoice(Customer."No.", InvoiceAmount, '', WorkDate());
         PaymentAmount := -InvoiceAmount / InvoiceAmountLargerBy;
-        CreateApplyPostCustomerPayment(WorkDate, Customer."No.", InvoiceNo, '', PaymentAmount);
+        CreateApplyPostCustomerPayment(WorkDate(), Customer."No.", InvoiceNo, '', PaymentAmount);
 
         PrintReconciliation(IsVendorReconciliation, Vendor."No.", Customer."No.", ReportDate)
     end;
@@ -1107,10 +1107,10 @@ codeunit 144719 "ERM Reconciliation Report"
         CustomerAgreement: Record "Customer Agreement";
     begin
         with CustomerAgreement do begin
-            Init;
+            Init();
             "Customer No." := CustomerNo;
             Active := IsActive;
-            "Expire Date" := CalcDate('<1M>', WorkDate);
+            "Expire Date" := CalcDate('<1M>', WorkDate());
             Insert(true);
         end;
         exit(CustomerAgreement."No.");

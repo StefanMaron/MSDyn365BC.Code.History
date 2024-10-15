@@ -57,7 +57,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        BankAccReconciliationLine.DrillDownOnNoOfLedgerEntriesWithinAmountTolerance;
+                        BankAccReconciliationLine.DrillDownOnNoOfLedgerEntriesWithinAmountTolerance();
                     end;
                 }
                 field(NoOfLedgerEntriesOutsideAmount; NoOfLedgerEntriesOutsideAmountTolerance)
@@ -69,7 +69,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        BankAccReconciliationLine.DrillDownOnNoOfLedgerEntriesOutsideOfAmountTolerance;
+                        BankAccReconciliationLine.DrillDownOnNoOfLedgerEntriesOutsideOfAmountTolerance();
                     end;
                 }
             }
@@ -82,7 +82,7 @@
 
     trigger OnAfterGetCurrRecord()
     begin
-        FetchData;
+        FetchData();
     end;
 
     var

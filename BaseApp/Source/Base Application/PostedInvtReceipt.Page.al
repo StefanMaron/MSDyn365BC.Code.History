@@ -160,8 +160,6 @@ page 6567 "Posted Invt. Receipt"
                 {
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Inventory Comment Sheet";
                     RunPageLink = "Document Type" = CONST("Posted Inventory Receipt"),
                                   "No." = FIELD("No.");
@@ -185,8 +183,6 @@ page 6567 "Posted Invt. Receipt"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Employee Si&gnatures';
                     Image = Signature;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Posted Document Signatures";
                     RunPageLink = "Table ID" = CONST(5851),
                                   "Document No." = FIELD("No.");
@@ -202,8 +198,6 @@ page 6567 "Posted Invt. Receipt"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -220,15 +214,32 @@ page 6567 "Posted Invt. Receipt"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
 
                 trigger OnAction()
                 begin
                     Rec.Navigate();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+                actionref("Employee Si&gnatures_Promoted"; "Employee Si&gnatures")
+                {
+                }
             }
         }
     }

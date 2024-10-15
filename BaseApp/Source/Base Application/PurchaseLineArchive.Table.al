@@ -721,11 +721,9 @@ table 5110 "Purchase Line Archive"
         {
             Caption = 'FA Posting Date';
         }
-        field(5601; "FA Posting Type"; Option)
+        field(5601; "FA Posting Type"; Enum "Purchase FA Posting Type")
         {
             Caption = 'FA Posting Type';
-            OptionCaption = ' ,Acquisition Cost,Maintenance';
-            OptionMembers = " ","Acquisition Cost",Maintenance;
         }
         field(5602; "Depreciation Book Code"; Code[10])
         {
@@ -778,7 +776,7 @@ table 5110 "Purchase Line Archive"
         {
             Caption = 'Cross-Reference No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-#if not CLEAN18
+#if not CLEAN19
             ObsoleteState = Pending;
             ObsoleteTag = '18.0';
 #else
@@ -1070,6 +1068,9 @@ table 5110 "Purchase Line Archive"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "Document No.", "Line No.", "Version No.", "Buy-from Vendor No.")
+        {
+        }
     }
 
     trigger OnDelete()

@@ -220,7 +220,7 @@ codeunit 144001 "ERM RU - Base"
         // [FEATURE] [Report] [UT]
         // [SCENARIO] COD 12401 "Local Report Management".HasRelationalCurrCode() returns FALSE in case of empty currency code
         Initialize();
-        Assert.IsFalse(LocalReportMgt.HasRelationalCurrCode('', WorkDate), '');
+        Assert.IsFalse(LocalReportMgt.HasRelationalCurrCode('', WorkDate()), '');
     end;
 
     [Test]
@@ -233,7 +233,7 @@ codeunit 144001 "ERM RU - Base"
         // [FEATURE] [Report] [UT]
         // [SCENARIO] COD 12401 "Local Report Management".HasRelationalCurrCode() returns FALSE in case of currency without exchange rates
         LibraryERM.CreateCurrency(Currency);
-        Assert.IsFalse(LocalReportMgt.HasRelationalCurrCode(Currency.Code, WorkDate), '');
+        Assert.IsFalse(LocalReportMgt.HasRelationalCurrCode(Currency.Code, WorkDate()), '');
     end;
 
     [Test]
@@ -245,7 +245,7 @@ codeunit 144001 "ERM RU - Base"
         // [FEATURE] [Report] [UT]
         // [SCENARIO] COD 12401 "Local Report Management".HasRelationalCurrCode() returns FALSE in case of currency without relational currency code
         Assert.IsFalse(
-          LocalReportMgt.HasRelationalCurrCode(LibraryERM.CreateCurrencyWithRandomExchRates, WorkDate), '');
+          LocalReportMgt.HasRelationalCurrCode(LibraryERM.CreateCurrencyWithRandomExchRates, WorkDate()), '');
     end;
 
     [Test]
@@ -263,7 +263,7 @@ codeunit 144001 "ERM RU - Base"
         CurrencyExchangeRate.Modify();
 
         Assert.IsTrue(
-          LocalReportMgt.HasRelationalCurrCode(CurrencyExchangeRate."Currency Code", WorkDate), '');
+          LocalReportMgt.HasRelationalCurrCode(CurrencyExchangeRate."Currency Code", WorkDate()), '');
     end;
 
     [Test]
@@ -483,7 +483,7 @@ codeunit 144001 "ERM RU - Base"
         CountriesRegions.OpenEdit;
         Assert.IsTrue(CountriesRegions."EAEU Country/Region Code".Visible, '');
         Assert.IsTrue(CountriesRegions."EAEU Country/Region Code".Enabled, '');
-        CountriesRegions.Close;
+        CountriesRegions.Close();
     end;
 
     [Test]
@@ -1077,7 +1077,7 @@ codeunit 144001 "ERM RU - Base"
         Assert.IsTrue(PostCodes.County.Visible, '');
         Assert.IsTrue(PostCodes.County.Editable, '');
         PostCodes.County.AssertEquals(PostCode.County);
-        PostCodes.Close;
+        PostCodes.Close();
     end;
 
     [Test]
@@ -1110,8 +1110,8 @@ codeunit 144001 "ERM RU - Base"
 
         NewCountyValue := LibraryUtility.GenerateGUID();
         CustomerCard.County.SetValue(NewCountyValue);
-        CustomerCard.Close;
-        Customer.Find;
+        CustomerCard.Close();
+        Customer.Find();
         Customer.TestField(County, NewCountyValue);
     end;
 
@@ -1168,8 +1168,8 @@ codeunit 144001 "ERM RU - Base"
 
         NewCountyValue := LibraryUtility.GenerateGUID();
         VendorCard.County.SetValue(NewCountyValue);
-        VendorCard.Close;
-        Vendor.Find;
+        VendorCard.Close();
+        Vendor.Find();
         Vendor.TestField(County, NewCountyValue);
     end;
 
@@ -1470,7 +1470,7 @@ codeunit 144001 "ERM RU - Base"
     local procedure InitVATLedgerLine(var VATLedgerLine: Record "VAT Ledger Line"; CVType: Option; IsPrepayment: Boolean; DocumentType: Enum "Gen. Journal Document Type")
     begin
         with VATLedgerLine do begin
-            Init;
+            Init();
             "C/V Type" := CVType;
             Prepayment := IsPrepayment;
             "Document Type" := DocumentType;
@@ -1482,7 +1482,7 @@ codeunit 144001 "ERM RU - Base"
         BankPaymentOrder: Report "Bank Payment Order";
     begin
         Commit();
-        GenJournalLine.SetRecFilter;
+        GenJournalLine.SetRecFilter();
         BankPaymentOrder.SetTableView(GenJournalLine);
         BankPaymentOrder.SetFileNameSilent(LibraryReportValidation.GetFileName);
         BankPaymentOrder.RunModal();
@@ -1493,10 +1493,10 @@ codeunit 144001 "ERM RU - Base"
         StandardText: Record "Standard Text";
     begin
         with StandardText do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Standard Text");
             Description := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
             exit(Description);
         end
     end;
@@ -1638,7 +1638,7 @@ codeunit 144001 "ERM RU - Base"
         CompanyInformation: Record "Company Information";
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             if IsIndividualPerson then begin
                 "VAT Registration No." := CopyStr(LibraryUtility.GenerateRandomXMLText(12), 1, 12);
                 Validate("KPP Code", '');
@@ -1648,7 +1648,7 @@ codeunit 144001 "ERM RU - Base"
             end;
             "Admin. Tax Authority SONO" := SONOAdmin;
             "Recipient Tax Authority SONO" := SONOReceipt;
-            Modify;
+            Modify();
         end;
     end;
 

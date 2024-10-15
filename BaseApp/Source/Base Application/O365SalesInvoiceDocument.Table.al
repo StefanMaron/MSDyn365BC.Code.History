@@ -2,6 +2,14 @@ table 2200 "O365 Sales Invoice Document"
 {
     Caption = 'O365 Sales Invoice Document';
     ReplicateData = false;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+#if CLEAN21
+    ObsoleteState = Removed;
+    ObsoleteTag = '24.0';
+#else
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
+#endif
 
     fields
     {

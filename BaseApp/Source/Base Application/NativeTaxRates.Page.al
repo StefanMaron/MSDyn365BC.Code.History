@@ -44,7 +44,7 @@ page 2876 "Native - Tax Rates"
 
     trigger OnOpenPage()
     begin
-        LoadRecords;
+        LoadRecords();
     end;
 }
 #endif

@@ -4,10 +4,9 @@ page 256 "Payment Journal"
     ApplicationArea = Basic, Suite;
     AutoSplitKey = true;
     Caption = 'Payment Journals';
-    DataCaptionExpression = DataCaption;
+    DataCaptionExpression = DataCaption();
     DelayedInsert = true;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Bank,Prepare,Approve,Page,Post/Print,Line,Account,Check';
     SaveValues = true;
     SourceTable = "Gen. Journal Line";
     UsageCategory = Tasks;
@@ -25,29 +24,29 @@ page 256 "Payment Journal"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     GenJnlManagement.LookupName(CurrentJnlBatchName, Rec);
-                    SetControlAppearanceFromBatch;
+                    SetControlAppearanceFromBatch();
                     CurrPage.Update(false);
                 end;
 
                 trigger OnValidate()
                 begin
                     GenJnlManagement.CheckName(CurrentJnlBatchName, Rec);
-                    CurrentJnlBatchNameOnAfterVali;
+                    CurrentJnlBatchNameOnAfterVali();
                 end;
             }
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Attention;
                     StyleExpr = HasPmtFileErr;
                     ToolTip = 'Specifies the posting date for the entry.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Attention;
@@ -55,7 +54,7 @@ page 256 "Payment Journal"
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Attention;
@@ -67,7 +66,7 @@ page 256 "Payment Journal"
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies if the related payment is a prepayment.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Attention;
@@ -75,7 +74,7 @@ page 256 "Payment Journal"
                     ToolTip = 'Specifies a document number for the journal line.';
                     ShowMandatory = true;
                 }
-                field("Incoming Document Entry No."; "Incoming Document Entry No.")
+                field("Incoming Document Entry No."; Rec."Incoming Document Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the incoming document that this general journal line is created for.';
@@ -84,21 +83,21 @@ page 256 "Payment Journal"
                     trigger OnAssistEdit()
                     begin
                         if "Incoming Document Entry No." > 0 then
-                            HyperLink(GetIncomingDocumentURL);
+                            HyperLink(GetIncomingDocumentURL());
                     end;
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                 }
-                field("Applies-to Ext. Doc. No."; "Applies-to Ext. Doc. No.")
+                field("Applies-to Ext. Doc. No."; Rec."Applies-to Ext. Doc. No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the external document number that will be exported in the payment file.';
                     Visible = false;
                 }
-                field("Account Type"; "Account Type")
+                field("Account Type"; Rec."Account Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of account that the entry on the journal line will be posted to.';
@@ -106,11 +105,11 @@ page 256 "Payment Journal"
                     trigger OnValidate()
                     begin
                         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
-                        EnableApplyEntriesAction;
+                        EnableApplyEntriesAction();
                         CurrPage.SaveRecord();
                     end;
                 }
-                field("Account No."; "Account No.")
+                field("Account No."; Rec."Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
@@ -125,22 +124,22 @@ page 256 "Payment Journal"
                         CurrPage.SaveRecord();
                     end;
                 }
-                field("Recipient Bank Account"; "Recipient Bank Account")
+                field("Recipient Bank Account"; Rec."Recipient Bank Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = RecipientBankAccountMandatory;
                     ToolTip = 'Specifies the bank account that the amount will be transferred to after it has been exported from the payment journal.';
                 }
-                field("Message to Recipient"; "Message to Recipient")
+                field("Message to Recipient"; Rec."Message to Recipient")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the message exported to the payment file when you use the Export Payments to File function in the Payment Journal window.';
                 }
-                field("Posting Group"; "Posting Group")
+                field("Posting Group"; Rec."Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field("Beneficiary Bank Code"; "Beneficiary Bank Code")
+                field("Beneficiary Bank Code"; Rec."Beneficiary Bank Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the beneficiary bank code associated with the general journal line.';
@@ -153,13 +152,13 @@ page 256 "Payment Journal"
                     StyleExpr = HasPmtFileErr;
                     ToolTip = 'Specifies a description of the entry.';
                 }
-                field("Prepayment Document No."; "Prepayment Document No.")
+                field("Prepayment Document No."; Rec."Prepayment Document No.")
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies the prepayment document number associated with the general journal line.';
                     Visible = false;
                 }
-                field("Agreement No."; "Agreement No.")
+                field("Agreement No."; Rec."Agreement No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the agreement number associated with the general journal line.';
@@ -169,19 +168,19 @@ page 256 "Payment Journal"
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
-                field("Salespers./Purch. Code"; "Salespers./Purch. Code")
+                field("Salespers./Purch. Code"; Rec."Salespers./Purch. Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the salesperson or purchaser who is linked to the journal line.';
                     Visible = false;
                 }
-                field("Campaign No."; "Campaign No.")
+                field("Campaign No."; Rec."Campaign No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the campaign that the journal line is linked to.';
                     Visible = false;
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     AssistEdit = true;
@@ -190,54 +189,54 @@ page 256 "Payment Journal"
                     trigger OnAssistEdit()
                     begin
                         ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Posting Date");
-                        if ChangeExchangeRate.RunModal = ACTION::OK then
-                            Validate("Currency Factor", ChangeExchangeRate.GetParameter);
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then
+                            Validate("Currency Factor", ChangeExchangeRate.GetParameter());
 
                         Clear(ChangeExchangeRate);
                     end;
                 }
-                field("Gen. Posting Type"; "Gen. Posting Type")
+                field("Gen. Posting Type"; Rec."Gen. Posting Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of transaction.';
                     Visible = false;
                 }
-                field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
+                field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the vendor''s or customer''s trade type to link transactions made for this business partner with the appropriate general ledger account according to the general posting setup.';
                     Visible = false;
                 }
-                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                     Visible = false;
                 }
-                field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
+                field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                     Visible = false;
                 }
-                field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
+                field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                     Visible = false;
                 }
-                field("Payment Method Code"; "Payment Method Code")
+                field("Payment Method Code"; Rec."Payment Method Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
                 }
-                field("Payment Reference"; "Payment Reference")
+                field("Payment Reference"; Rec."Payment Reference")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the payment of the purchase invoice.';
                 }
-                field("Creditor No."; "Creditor No.")
+                field("Creditor No."; Rec."Creditor No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vendor who sent the purchase invoice.';
@@ -251,59 +250,59 @@ page 256 "Payment Journal"
                     ToolTip = 'Specifies the total amount (including VAT) that the journal line consists of.';
                     Visible = AmountVisible;
                 }
-                field("Amount (LCY)"; "Amount (LCY)")
+                field("Amount (LCY)"; Rec."Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total amount in local currency (including VAT) that the journal line consists of.';
                     Visible = AmountVisible;
                 }
-                field("Debit Amount"; "Debit Amount")
+                field("Debit Amount"; Rec."Debit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent debits.';
                     Visible = DebitCreditVisible;
                 }
-                field("Credit Amount"; "Credit Amount")
+                field("Credit Amount"; Rec."Credit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
                     Visible = DebitCreditVisible;
                 }
-                field("VAT Amount"; "VAT Amount")
+                field("VAT Amount"; Rec."VAT Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of VAT that is included in the total amount.';
                     Visible = false;
                 }
-                field("VAT Difference"; "VAT Difference")
+                field("VAT Difference"; Rec."VAT Difference")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the difference between the calculated VAT amount and a VAT amount that you have entered manually.';
                     Visible = false;
                 }
-                field("Bal. VAT Amount"; "Bal. VAT Amount")
+                field("Bal. VAT Amount"; Rec."Bal. VAT Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of Bal. VAT included in the total amount.';
                     Visible = false;
                 }
-                field("Bal. VAT Difference"; "Bal. VAT Difference")
+                field("Bal. VAT Difference"; Rec."Bal. VAT Difference")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the difference between the calculate VAT amount and the VAT amount that you have entered manually.';
                     Visible = false;
                 }
-                field("Bal. Account Type"; "Bal. Account Type")
+                field("Bal. Account Type"; Rec."Bal. Account Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of account that a balancing entry is posted to, such as BANK for a cash account.';
 
                     trigger OnValidate()
                     begin
-                        EnableApplyEntriesAction;
+                        EnableApplyEntriesAction();
                     end;
                 }
-                field("Bal. Account No."; "Bal. Account No.")
+                field("Bal. Account No."; Rec."Bal. Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the general ledger, customer, vendor, or bank account that the balancing entry is posted to, such as a cash account for cash purchases.';
@@ -314,43 +313,43 @@ page 256 "Payment Journal"
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
-                field("Bal. Gen. Posting Type"; "Bal. Gen. Posting Type")
+                field("Bal. Gen. Posting Type"; Rec."Bal. Gen. Posting Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general posting type associated with the balancing account that will be used when you post the entry on the journal line.';
                     Visible = false;
                 }
-                field("Bal. Gen. Bus. Posting Group"; "Bal. Gen. Bus. Posting Group")
+                field("Bal. Gen. Bus. Posting Group"; Rec."Bal. Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the general business posting group code associated with the balancing account that will be used when you post the entry.';
                     Visible = false;
                 }
-                field("Bal. Gen. Prod. Posting Group"; "Bal. Gen. Prod. Posting Group")
+                field("Bal. Gen. Prod. Posting Group"; Rec."Bal. Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the general product posting group code associated with the balancing account that will be used when you post the entry.';
                     Visible = false;
                 }
-                field("Bal. VAT Bus. Posting Group"; "Bal. VAT Bus. Posting Group")
+                field("Bal. VAT Bus. Posting Group"; Rec."Bal. VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the VAT business posting group that will be used when you post the entry on the journal line.';
                     Visible = false;
                 }
-                field("Bal. VAT Prod. Posting Group"; "Bal. VAT Prod. Posting Group")
+                field("Bal. VAT Prod. Posting Group"; Rec."Bal. VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the VAT product posting group that will be used when you post the entry on the journal line.';
                     Visible = false;
                 }
-                field("Applied (Yes/No)"; IsApplied)
+                field("Applied (Yes/No)"; IsApplied())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Applied (Yes/No)';
                     ToolTip = 'Specifies if the payment has been applied.';
                 }
-                field("Applies-to Doc. Type"; "Applies-to Doc. Type")
+                field("Applies-to Doc. Type"; Rec."Applies-to Doc. Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
@@ -361,32 +360,32 @@ page 256 "Payment Journal"
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the number of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
                 }
-                field("Applies-to ID"; "Applies-to ID")
+                field("Applies-to ID"; Rec."Applies-to ID")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the ID of entries that will be applied to when you choose the Apply Entries action.';
                     Visible = false;
                 }
-                field(GetAppliesToDocDueDate; GetAppliesToDocDueDate)
+                field(GetAppliesToDocDueDate; GetAppliesToDocDueDate())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Applies-to Doc. Due Date';
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the due date from the Applies-to Doc. on the journal line.';
                 }
-                field("Bank Payment Type"; "Bank Payment Type")
+                field("Bank Payment Type"; Rec."Bank Payment Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the payment type to be used for the entry on the journal line.';
                 }
-                field("Check Printed"; "Check Printed")
+                field("Check Printed"; Rec."Check Printed")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether a check has been printed for the amount on the payment journal line.';
                     Visible = false;
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
@@ -397,12 +396,12 @@ page 256 "Payment Journal"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry as a corrective entry. You can use the field if you need to post a corrective entry to an account.';
                 }
-                field("Initial Document No."; "Initial Document No.")
+                field("Initial Document No."; Rec."Initial Document No.")
                 {
                     ToolTip = 'Specifies the initial document number associated with the general journal line.';
                     Visible = false;
                 }
-                field("VAT Entry Type"; "VAT Entry Type")
+                field("VAT Entry Type"; Rec."VAT Entry Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a VAT entry code according to Russian legislation. Some types of documents, such as corrective or revision invoices, must have multiple VAT entry type codes.';
@@ -413,12 +412,12 @@ page 256 "Payment Journal"
                     ToolTip = 'Specifies a comment about the activity on the journal line. Note that the comment is not carried forward to posted entries.';
                     Visible = false;
                 }
-                field("Exported to Payment File"; "Exported to Payment File")
+                field("Exported to Payment File"; Rec."Exported to Payment File")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the payment journal line was exported to a payment file.';
                 }
-                field(TotalExportedAmount; TotalExportedAmount)
+                field(TotalExportedAmount; TotalExportedAmount())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Total Exported Amount';
@@ -427,15 +426,15 @@ page 256 "Payment Journal"
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownExportedAmount
+                        DrillDownExportedAmount();
                     end;
                 }
-                field("Has Payment Export Error"; "Has Payment Export Error")
+                field("Has Payment Export Error"; Rec."Has Payment Export Error")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that an error occurred when you used the Export Payments to File function in the Payment Journal window.';
                 }
-                field("Job Queue Status"; "Job Queue Status")
+                field("Job Queue Status"; Rec."Job Queue Status")
                 {
                     ApplicationArea = All;
                     Importance = Additional;
@@ -451,13 +450,13 @@ page 256 "Payment Journal"
                         JobQueueEntry.ShowStatusMsg("Job Queue Entry ID");
                     end;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = DimVisible1;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -558,6 +557,13 @@ page 256 "Payment Journal"
 
                         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 8);
                     end;
+                }
+                field("Remit-to Code"; Rec."Remit-to Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the remit-to code address.';
+                    Visible = true;
+                    TableRelation = "Remit Address".Code WHERE("Vendor No." = FIELD("Account No."));
                 }
             }
             group(Control24)
@@ -739,15 +745,13 @@ page 256 "Payment Journal"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category9;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
                 action(IncomingDoc)
@@ -756,8 +760,6 @@ page 256 "Payment Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Incoming Document';
                     Image = Document;
-                    Promoted = true;
-                    PromotedCategory = Category9;
                     Scope = Repeater;
                     ToolTip = 'View or create an incoming document record that is linked to the entry or document.';
 
@@ -778,8 +780,6 @@ page 256 "Payment Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Card';
                     Image = EditLines;
-                    Promoted = true;
-                    PromotedCategory = Category10;
                     RunObject = Codeunit "Gen. Jnl.-Show Card";
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or change detailed information about the record on the document or journal line.';
@@ -789,8 +789,6 @@ page 256 "Payment Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Ledger E&ntries';
                     Image = GLRegisters;
-                    Promoted = true;
-                    PromotedCategory = Category9;
                     RunObject = Codeunit "Gen. Jnl.-Show Entries";
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
@@ -806,9 +804,6 @@ page 256 "Payment Journal"
                     Caption = 'Suggest Vendor Payments';
                     Ellipsis = true;
                     Image = SuggestVendorPayments;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ToolTip = 'Create payment suggestions as lines in the payment journal.';
 
                     trigger OnAction()
@@ -825,8 +820,6 @@ page 256 "Payment Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'P&review Check';
                     Image = ViewCheck;
-                    Promoted = true;
-                    PromotedCategory = Category11;
                     RunObject = Page "Check Preview";
                     RunPageLink = "Journal Template Name" = FIELD("Journal Template Name"),
                                   "Journal Batch Name" = FIELD("Journal Batch Name"),
@@ -840,8 +833,6 @@ page 256 "Payment Journal"
                     Caption = 'Print Check';
                     Ellipsis = true;
                     Image = PrintCheck;
-                    Promoted = true;
-                    PromotedCategory = Category11;
                     ToolTip = 'Prepare to print the check.';
 
                     trigger OnAction()
@@ -864,9 +855,6 @@ page 256 "Payment Journal"
                         Caption = 'E&xport';
                         Ellipsis = true;
                         Image = ExportFile;
-                        Promoted = true;
-                        PromotedCategory = Category4;
-                        PromotedIsBig = true;
                         ToolTip = 'Export a file with the payment information on the journal lines.';
 
                         trigger OnAction()
@@ -874,13 +862,13 @@ page 256 "Payment Journal"
                             GenJnlLine: Record "Gen. Journal Line";
                             Window: Dialog;
                         begin
-                            CheckIfPrivacyBlocked;
+                            CheckIfPrivacyBlocked();
 
                             Window.Open(GeneratingPaymentsMsg);
                             GenJnlLine.CopyFilters(Rec);
                             if GenJnlLine.FindFirst() then
-                                GenJnlLine.ExportPaymentFile;
-                            Window.Close;
+                                GenJnlLine.ExportPaymentFile();
+                            Window.Close();
                         end;
                     }
                     action(VoidPayments)
@@ -889,16 +877,13 @@ page 256 "Payment Journal"
                         Caption = 'Void';
                         Ellipsis = true;
                         Image = VoidElectronicDocument;
-                        Promoted = true;
-                        PromotedCategory = Category4;
-                        PromotedIsBig = true;
                         ToolTip = 'Void the exported electronic payment file.';
 
                         trigger OnAction()
                         begin
                             GenJnlLine.CopyFilters(Rec);
                             if GenJnlLine.FindFirst() then
-                                GenJnlLine.VoidPaymentFile;
+                                GenJnlLine.VoidPaymentFile();
                         end;
                     }
                     action(TransmitPayments)
@@ -907,9 +892,6 @@ page 256 "Payment Journal"
                         Caption = 'Transmit';
                         Ellipsis = true;
                         Image = TransmitElectronicDoc;
-                        Promoted = true;
-                        PromotedCategory = Category4;
-                        PromotedIsBig = true;
                         ToolTip = 'Transmit the exported electronic payment file to the bank.';
                         ObsoleteState = Pending;
                         ObsoleteReason = 'Action only related to NA local version';
@@ -919,7 +901,7 @@ page 256 "Payment Journal"
                         begin
                             GenJnlLine.CopyFilters(Rec);
                             if GenJnlLine.FindFirst() then
-                                GenJnlLine.TransmitPaymentFile;
+                                GenJnlLine.TransmitPaymentFile();
                         end;
                     }
                 }
@@ -928,8 +910,6 @@ page 256 "Payment Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'P&review Payment Order';
                     Image = ViewCheck;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -950,9 +930,6 @@ page 256 "Payment Journal"
                     Caption = 'Print Payment Order';
                     Ellipsis = true;
                     Image = PrintCheck;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Print the information in the window. A print request window opens where you can specify what to include on the print-out.';
 
                     trigger OnAction()
@@ -980,8 +957,6 @@ page 256 "Payment Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Void Payment Order';
                     Image = VoidCheck;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Cancel a payment that was made as a payment order.';
 
                     trigger OnAction()
@@ -1019,8 +994,6 @@ page 256 "Payment Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Void Check';
                     Image = VoidCheck;
-                    Promoted = true;
-                    PromotedCategory = Category11;
                     ToolTip = 'Void the check if, for example, the check is not cashed by the bank.';
 
                     trigger OnAction()
@@ -1038,8 +1011,6 @@ page 256 "Payment Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Void &All Checks';
                     Image = VoidAllChecks;
-                    Promoted = true;
-                    PromotedCategory = Category11;
                     ToolTip = 'Void all checks if, for example, the checks are not cashed by the bank.';
 
                     trigger OnAction()
@@ -1064,8 +1035,6 @@ page 256 "Payment Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Credit Transfer Reg. Entries';
                     Image = ExportReceipt;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Codeunit "Gen. Jnl.-Show CT Entries";
                     ToolTip = 'View or edit the credit transfer entries that are related to file export for credit transfers.';
                 }
@@ -1074,8 +1043,6 @@ page 256 "Payment Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Credit Transfer Registers';
                     Image = ExportElectronicDocument;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Credit Transfer Registers";
                     ToolTip = 'View or edit the payment files that have been exported in connection with credit transfers.';
                 }
@@ -1085,10 +1052,6 @@ page 256 "Payment Journal"
                     Caption = 'Net Customer/Vendor Balances';
                     Image = Balance;
                     ToolTip = 'Create journal lines to consolidate customer and vendor balances as of a specified date. This is relevant when you do business with a company that is both a customer and a vendor. Depending on which is larger, the balance will be netted for either the payable or receivable amount.';
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
 
                     trigger OnAction()
                     var
@@ -1105,8 +1068,6 @@ page 256 "Payment Journal"
                 ApplicationArea = Suite;
                 Caption = 'Approvals';
                 Image = Approvals;
-                Promoted = true;
-                PromotedCategory = Category9;
                 ToolTip = 'View a list of the records that are waiting to be approved. For example, you can see who requested the record to be approved, when it was sent, and when it is due to be approved.';
 
                 trigger OnAction()
@@ -1134,7 +1095,7 @@ page 256 "Payment Journal"
 
                     trigger OnAction()
                     begin
-                        RenumberDocumentNo
+                        RenumberDocumentNo();
                     end;
                 }
                 action(ApplyEntries)
@@ -1144,8 +1105,6 @@ page 256 "Payment Journal"
                     Ellipsis = true;
                     Enabled = ApplyEntriesActionEnabled;
                     Image = ApplyEntries;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Codeunit "Gen. Jnl.-Apply";
                     ShortCutKey = 'Shift+F11';
                     ToolTip = 'Apply the payment amount on a journal line to a sales or purchase document that was already posted for a customer or vendor. This updates the amount on the posted document, and the document can either be partially paid, or closed as paid or refunded.';
@@ -1155,13 +1114,11 @@ page 256 "Payment Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Calculate Posting Date';
                     Image = CalcWorkCenterCalendar;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Calculate the date that will appear as the posting date on the journal lines.';
 
                     trigger OnAction()
                     begin
-                        CalculatePostingDate;
+                        CalculatePostingDate();
                     end;
                 }
                 action("Insert Conv. LCY Rndg. Lines")
@@ -1218,8 +1175,6 @@ page 256 "Payment Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show Lines with Issues';
                     Image = Error;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     Visible = BackgroundErrorCheck;
                     Enabled = not ShowAllLinesEnabled;
                     ToolTip = 'View a list of journal lines that have issues before you post the journal.';
@@ -1234,8 +1189,6 @@ page 256 "Payment Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show All Lines';
                     Image = ExpandAll;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     Visible = BackgroundErrorCheck;
                     Enabled = ShowAllLinesEnabled;
                     ToolTip = 'View all journal lines, including lines with and without issues.';
@@ -1255,8 +1208,6 @@ page 256 "Payment Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Reconcile';
                     Image = Reconcile;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'Ctrl+F11';
                     ToolTip = 'View the balances on bank accounts that are marked for reconciliation, usually liquid accounts.';
 
@@ -1301,9 +1252,6 @@ page 256 "Payment Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'P&ost';
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Category8;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
@@ -1320,8 +1268,6 @@ page 256 "Payment Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Preview Posting';
                     Image = ViewPostedOrder;
-                    Promoted = true;
-                    PromotedCategory = Category8;
                     ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
@@ -1337,9 +1283,6 @@ page 256 "Payment Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Post and &Print';
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Category8;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
@@ -1356,15 +1299,12 @@ page 256 "Payment Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Remove From Job Queue';
                     Image = RemoveLine;
-                    Promoted = true;
-                    PromotedCategory = Category8;
-                    PromotedIsBig = true;
                     ToolTip = 'Remove the scheduled processing of this record from the job queue.';
                     Visible = JobQueueVisible;
 
                     trigger OnAction()
                     begin
-                        CancelBackgroundPosting;
+                        CancelBackgroundPosting();
                         SetJobQueueVisibility();
                         CurrPage.Update(false);
                     end;
@@ -1390,8 +1330,8 @@ page 256 "Payment Journal"
                             ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                         begin
                             ApprovalsMgmt.TrySendJournalBatchApprovalRequest(Rec);
-                            SetControlAppearanceFromBatch;
-                            SetControlAppearance;
+                            SetControlAppearanceFromBatch();
+                            SetControlAppearance();
                         end;
                     }
                     action(SendApprovalRequestJournalLine)
@@ -1429,8 +1369,8 @@ page 256 "Payment Journal"
                             ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                         begin
                             ApprovalsMgmt.TryCancelJournalBatchApprovalRequest(Rec);
-                            SetControlAppearanceFromBatch;
-                            SetControlAppearance;
+                            SetControlAppearanceFromBatch();
+                            SetControlAppearance();
                         end;
                     }
                     action(CancelApprovalRequestJournalLine)
@@ -1454,7 +1394,7 @@ page 256 "Payment Journal"
                 action(CreateFlow)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Create a flow';
+                    Caption = 'Create a Power Automate approval flow';
                     Image = Flow;
                     ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
                     Visible = IsSaaS;
@@ -1465,10 +1405,11 @@ page 256 "Payment Journal"
                         FlowTemplateSelector: Page "Flow Template Selector";
                     begin
                         // Opens page 6400 where the user can use filtered templates to create new flows.
-                        FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetJournalTemplateFilter);
+                        FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetJournalTemplateFilter());
                         FlowTemplateSelector.Run();
                     end;
                 }
+#if not CLEAN21
                 action(SeeFlows)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1476,7 +1417,12 @@ page 256 "Payment Journal"
                     Image = Flow;
                     RunObject = Page "Flow Selector";
                     ToolTip = 'View and configure Power Automate flows that you created.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
+                    ObsoleteTag = '21.0';
                 }
+#endif
             }
             group(Workflow)
             {
@@ -1525,10 +1471,6 @@ page 256 "Payment Journal"
                     ApplicationArea = All;
                     Caption = 'Approve';
                     Image = Approve;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Approve the requested changes.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
@@ -1544,10 +1486,6 @@ page 256 "Payment Journal"
                     ApplicationArea = All;
                     Caption = 'Reject';
                     Image = Reject;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Reject the approval request.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
@@ -1563,9 +1501,6 @@ page 256 "Payment Journal"
                     ApplicationArea = All;
                     Caption = 'Delegate';
                     Image = Delegate;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedOnly = true;
                     ToolTip = 'Delegate the approval to a substitute approver.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
@@ -1581,9 +1516,6 @@ page 256 "Payment Journal"
                     ApplicationArea = All;
                     Caption = 'Comments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedOnly = true;
                     ToolTip = 'View or add comments for the record.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
@@ -1609,10 +1541,6 @@ page 256 "Payment Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Edit in Excel';
                     Image = Excel;
-                    Promoted = true;
-                    PromotedCategory = Category7;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
                     Visible = IsSaaSExcelAddinEnabled;
                     AccessByPermission = System "Allow Action Export To Excel" = X;
@@ -1621,9 +1549,217 @@ page 256 "Payment Journal"
                     var
                         ODataUtility: Codeunit ODataUtility;
                     begin
-                        ODataUtility.EditJournalWorksheetInExcel(CurrPage.Caption, CurrPage.ObjectId(false), "Journal Batch Name", "Journal Template Name");
+                        ODataUtility.EditJournalWorksheetInExcel(CurrPage.Caption(), CurrPage.ObjectId(false), "Journal Batch Name", "Journal Template Name");
                     end;
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                group(Category_Category8)
+                {
+                    Caption = 'Post/Print', Comment = 'Generated from the PromotedActionCategories property index 7.';
+                    ShowAs = SplitButton;
+
+#if not CLEAN21
+                    actionref("Remove From Job Queue_Promoted"; "Remove From Job Queue")
+                    {
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                        ObsoleteTag = '21.0';
+                    }
+#endif
+                    actionref(Post_Promoted; Post)
+                    {
+                    }
+                    actionref(Preview_Promoted; Preview)
+                    {
+                    }
+                    actionref("Post and &Print_Promoted"; "Post and &Print")
+                    {
+                    }
+                    actionref("Test Report_Promoted"; "Test Report")
+                    {
+                    }
+                    actionref("Print Payment Order_Promoted"; "Print Payment Order")
+                    {
+                    }
+                    actionref(PreviewPaymentOrder_Promoted; PreviewPaymentOrder)
+                    {
+                    }
+                }
+                actionref("Renumber Document Numbers_Promoted"; "Renumber Document Numbers")
+                {
+                }
+                actionref(ApplyEntries_Promoted; ApplyEntries)
+                {
+                }
+                actionref(Reconcile_Promoted; Reconcile)
+                {
+                }
+                actionref("Void Payment Order_Promoted"; "Void Payment Order")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Prepare', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(SuggestVendorPayments_Promoted; SuggestVendorPayments)
+                {
+                }
+                actionref(NetCustomerVendorBalances_Promoted; NetCustomerVendorBalances)
+                {
+                }
+                actionref(CalculatePostingDate_Promoted; CalculatePostingDate)
+                {
+                }
+            }
+            group(Category_Category11)
+            {
+                Caption = 'Check', Comment = 'Generated from the PromotedActionCategories property index 10.';
+
+                actionref(PrintCheck_Promoted; PrintCheck)
+                {
+                }
+                actionref("Void Check_Promoted"; "Void Check")
+                {
+                }
+                actionref("Void &All Checks_Promoted"; "Void &All Checks")
+                {
+                }
+                actionref(PreviewCheck_Promoted; PreviewCheck)
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Approve', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref(Approve_Promoted; Approve)
+                {
+                }
+                actionref(Reject_Promoted; Reject)
+                {
+                }
+                actionref(Comment_Promoted; Comment)
+                {
+                }
+                actionref(Delegate_Promoted; Delegate)
+                {
+                }
+            }
+            group("Category_Request Approval")
+            {
+                Caption = 'Request Approval';
+
+                group("Category_Send Approval Request")
+                {
+                    Caption = 'Send Approval Request';
+
+                    actionref(SendApprovalRequestJournalBatch_Promoted; SendApprovalRequestJournalBatch)
+                    {
+                    }
+                    actionref(SendApprovalRequestJournalLine_Promoted; SendApprovalRequestJournalLine)
+                    {
+                    }
+                }
+                group("Category_Cancel Approval Request")
+                {
+                    Caption = 'Cancel Approval Request';
+
+                    actionref(CancelApprovalRequestJournalBatch_Promoted; CancelApprovalRequestJournalBatch)
+                    {
+                    }
+                    actionref(CancelApprovalRequestJournalLine_Promoted; CancelApprovalRequestJournalLine)
+                    {
+                    }
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Bank', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(ExportPaymentsToFile_Promoted; ExportPaymentsToFile)
+                {
+                }
+#if not CLEAN21
+                actionref(TransmitPayments_Promoted; TransmitPayments)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action only related to NA local version';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+                actionref(VoidPayments_Promoted; VoidPayments)
+                {
+                }
+                actionref(CreditTransferRegEntries_Promoted; CreditTransferRegEntries)
+                {
+                }
+                actionref(CreditTransferRegisters_Promoted; CreditTransferRegisters)
+                {
+                }
+            }
+            group(Category_Category9)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 8.';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(Approvals_Promoted; Approvals)
+                {
+                }
+                actionref(IncomingDoc_Promoted; IncomingDoc)
+                {
+                }
+#if not CLEAN21
+                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Category10)
+            {
+                Caption = 'Account', Comment = 'Generated from the PromotedActionCategories property index 9.';
+
+#if not CLEAN21
+                actionref(Card_Promoted; Card)
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Page', Comment = 'Generated from the PromotedActionCategories property index 6.';
+
+                actionref(EditInExcel_Promoted; EditInExcel)
+                {
+                }
+                actionref(ShowLinesWithErrors_Promoted; ShowLinesWithErrors)
+                {
+                }
+                actionref(ShowAllLines_Promoted; ShowAllLines)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }
@@ -1636,9 +1772,9 @@ page 256 "Payment Journal"
     begin
         StyleTxt := GetOverdueDateInteractions(OverdueWarningText);
         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
-        UpdateBalance;
-        EnableApplyEntriesAction;
-        SetControlAppearance;
+        UpdateBalance();
+        EnableApplyEntriesAction();
+        SetControlAppearance();
         CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
 
         if GenJournalBatch.Get("Journal Template Name", "Journal Batch Name") then begin
@@ -1647,7 +1783,7 @@ page 256 "Payment Journal"
         end;
         ShowWorkflowStatusOnLine := CurrPage.WorkflowStatusLine.PAGE.SetFilterOnWorkflowRecord(RecordId);
 
-        EventFilter := WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode;
+        EventFilter := WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode();
         EnabledApprovalWorkflowsExist := WorkflowManagement.EnabledWorkflowExist(DATABASE::"Gen. Journal Line", EventFilter);
         SetJobQueueVisibility();
 
@@ -1659,7 +1795,7 @@ page 256 "Payment Journal"
         StyleTxt := GetOverdueDateInteractions(OverdueWarningText);
         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
         ShowShortcutDimCode(ShortcutDimCode);
-        HasPmtFileErr := HasPaymentFileErrors;
+        HasPmtFileErr := HasPaymentFileErrors();
         RecipientBankAccountMandatory := IsAllowPaymentExport and
           (("Bal. Account Type" = "Bal. Account Type"::Vendor) or ("Bal. Account Type" = "Bal. Account Type"::Customer));
         CurrPage.IncomingDocAttachFactBox.PAGE.SetCurrentRecordID(RecordId);
@@ -1681,14 +1817,14 @@ page 256 "Payment Journal"
 
     trigger OnModifyRecord(): Boolean
     begin
-        CheckForPmtJnlErrors;
+        CheckForPmtJnlErrors();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         HasPmtFileErr := false;
-        UpdateBalance;
-        EnableApplyEntriesAction;
+        UpdateBalance();
+        EnableApplyEntriesAction();
         SetUpNewLine(xRec, Balance, BelowxRec);
         Clear(ShortcutDimCode);
 
@@ -1705,25 +1841,25 @@ page 256 "Payment Journal"
         OnBeforeOnOpenPage(Rec);
 
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
-        IsSaaS := EnvironmentInfo.IsSaaS;
-        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
+        IsSaaS := EnvironmentInfo.IsSaaS();
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
             exit;
 
         BalAccName := '';
-        SetControlVisibility;
-        SetDimensionsVisibility;
+        SetControlVisibility();
+        SetDimensionsVisibility();
 
-        if IsOpenedFromBatch then begin
+        if IsOpenedFromBatch() then begin
             CurrentJnlBatchName := "Journal Batch Name";
             GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
-            SetControlAppearanceFromBatch;
+            SetControlAppearanceFromBatch();
             exit;
         end;
         GenJnlManagement.TemplateSelection(PAGE::"Payment Journal", "Gen. Journal Template Type"::Payments, false, Rec, JnlSelected);
         if not JnlSelected then
             Error('');
         GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
-        SetControlAppearanceFromBatch;
+        SetControlAppearanceFromBatch();
 
         OnAfterOnOpenPage(CurrentJnlBatchName);
     end;
@@ -1834,16 +1970,16 @@ page 256 "Payment Journal"
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         GenJnlManagement.SetName(CurrentJnlBatchName, Rec);
-        SetControlAppearanceFromBatch;
+        SetControlAppearanceFromBatch();
         CurrPage.Update(false);
     end;
 
     local procedure GetCurrentlySelectedLines(var GenJournalLine: Record "Gen. Journal Line"): Boolean
     begin
         CurrPage.SetSelectionFilter(GenJournalLine);
-        exit(GenJournalLine.FindSet);
+        exit(GenJournalLine.FindSet());
     end;
 
     local procedure SetControlAppearanceFromBatch()
@@ -1931,7 +2067,7 @@ page 256 "Payment Journal"
     local procedure SetJobQueueVisibility()
     begin
         JobQueueVisible := "Job Queue Status" = "Job Queue Status"::"Scheduled for Posting";
-        JobQueuesUsed := GeneralLedgerSetup.JobQueueActive;
+        JobQueuesUsed := GeneralLedgerSetup.JobQueueActive();
     end;
 
     [IntegrationEvent(true, false)]

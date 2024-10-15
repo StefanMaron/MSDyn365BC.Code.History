@@ -56,8 +56,13 @@ table 5201 "Alternative Address"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(8; "Post Code"; Code[20])
@@ -76,8 +81,13 @@ table 5201 "Alternative Address"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(9; County; Text[30])
@@ -108,7 +118,7 @@ table 5201 "Alternative Address"
         }
         field(13; Comment; Boolean)
         {
-            CalcFormula = Exist ("Human Resource Comment Line" WHERE("Table Name" = CONST("Alternative Address"),
+            CalcFormula = Exist("Human Resource Comment Line" WHERE("Table Name" = CONST("Alternative Address"),
                                                                      "No." = FIELD("Employee No."),
                                                                      "Alternative Address Code" = FIELD(Code)));
             Caption = 'Comment';
@@ -142,5 +152,15 @@ table 5201 "Alternative Address"
     var
         PostCode: Record "Post Code";
         Employee: Record Employee;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var AlternativeAddress: Record "Alternative Address"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var AlternativeAddress: Record "Alternative Address"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
 }
 

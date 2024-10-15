@@ -404,9 +404,9 @@ codeunit 134768 "Test Posting Preview"
         RecRef.GetTable(RecVar);
         GLPostingPreview.Trap;
         BindSubscription(LibraryPostPrevHandler);
-        Assert.IsFalse(GenJnlPostPreview.IsActive, 'GenJnlPostPreview.IsActive before preview');
+        Assert.IsFalse(GenJnlPostPreview.IsActive, 'GenJnlPostPreview.IsActive() before preview');
         asserterror GenJnlPostPreview.Preview(LibraryPostPrevHandler, RecVar);
-        Assert.IsFalse(GenJnlPostPreview.IsActive, 'GenJnlPostPreview.IsActive after preview');
+        Assert.IsFalse(GenJnlPostPreview.IsActive, 'GenJnlPostPreview.IsActive() after preview');
         GLPostingPreview.FILTER.SetFilter("Table ID", Format(RecRef.Number));
         GLPostingPreview.Show.Invoke;
     end;
@@ -418,11 +418,11 @@ codeunit 134768 "Test Posting Preview"
     begin
         BindSubscription(LibraryPostPrevHandler);
         LibraryPostPrevHandler.SetInvokeCommit(true);
-        Assert.IsFalse(GenJnlPostPreview.IsActive, 'GenJnlPostPreview.IsActive before preview');
+        Assert.IsFalse(GenJnlPostPreview.IsActive, 'GenJnlPostPreview.IsActive() before preview');
         ErrorMessagesPage.Trap;
         asserterror GenJnlPostPreview.Preview(LibraryPostPrevHandler, RecVar);
         Assert.ExpectedError('');
-        Assert.IsFalse(GenJnlPostPreview.IsActive, 'GenJnlPostPreview.IsActive after preview');
+        Assert.IsFalse(GenJnlPostPreview.IsActive, 'GenJnlPostPreview.IsActive() after preview');
         Assert.ExpectedMessage('Commit is prohibited in the current scope.', ErrorMessagesPage.Description.Value);
     end;
 }

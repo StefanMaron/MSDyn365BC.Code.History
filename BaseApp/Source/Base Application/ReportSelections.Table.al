@@ -124,13 +124,13 @@ table 77 "Report Selections"
     trigger OnInsert()
     begin
         TestField("Report ID");
-        CheckEmailBodyUsage;
+        CheckEmailBodyUsage();
     end;
 
     trigger OnModify()
     begin
         TestField("Report ID");
-        CheckEmailBodyUsage;
+        CheckEmailBodyUsage();
     end;
 
     var
@@ -143,12 +143,16 @@ table 77 "Report Selections"
         MailingJobCategoryTok: Label 'Sending invoices via email';
         MailingJobCategoryCodeTok: Label 'SENDINV', Comment = 'Must be max. 10 chars and no spacing. (Send Invoice)';
         FileManagement: Codeunit "File Management";
-        JobQueueParameterStringTok: Label '%1|%2|%3|%4|%5|%6|%7', Locked = true;
+        RecordDoesNotMatchErr: Label 'The record that will be sent does not match the original record. The original record was changed or deleted. Please verify that the record exists, or try to re-send the remittance advice from the vendor ledger entries.';
+        JobQueueParameterStringTok: Label '%1|%2|%3|%4|%5|%6', Locked = true;
+#if not CLEAN22
+        JobQueueNewParameterStringTok: Label '%1|%2|%3|%4|%5|%6|%7', Locked = true;
+#endif
 
     procedure NewRecord()
     begin
         ReportSelection2.SetRange(Usage, Usage);
-        if ReportSelection2.FindLast and (ReportSelection2.Sequence <> '') then
+        if ReportSelection2.FindLast() and (ReportSelection2.Sequence <> '') then
             Sequence := IncStr(ReportSelection2.Sequence)
         else
             Sequence := '1';
@@ -236,7 +240,7 @@ table 77 "Report Selections"
         SetFilter("Report ID", '<>0');
         SetRange("Use for Email Attachment", true);
         FindReportSelections(ReportSelections, CustNo, DATABASE::Customer);
-        exit(ReportSelections.FindSet);
+        exit(ReportSelections.FindSet());
     end;
 
     procedure FindEmailAttachmentUsageForVend(ReportUsage: Enum "Report Selection Usage"; VendorNo: Code[20]; var ReportSelections: Record "Report Selections"): Boolean
@@ -261,7 +265,7 @@ table 77 "Report Selections"
         SetEmailBodyUsageFilters(ReportUsage);
         SetFilter("Report ID", '<>0');
         FindReportSelections(ReportSelections, VendorNo, DATABASE::Vendor);
-        exit(ReportSelections.FindSet);
+        exit(ReportSelections.FindSet());
     end;
 
     procedure PrintWithCheckForCust(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; CustomerNoFieldNo: Integer)
@@ -397,7 +401,7 @@ table 77 "Report Selections"
     var
         AccountNoFieldRef: FieldRef;
     begin
-        RecRefToPrint := RecRefSource.Duplicate;
+        RecRefToPrint := RecRefSource.Duplicate();
 
         if (AccountNoFieldNo <> 0) and (AccountNoFilter <> '') then begin
             AccountNoFieldRef := RecRefToPrint.Field(AccountNoFieldNo);
@@ -431,7 +435,7 @@ table 77 "Report Selections"
             if ReportInvolvedInCustomSelection then begin
                 CustomReportSelection.SetRange("Custom Report Layout Code", TempReportSelections."Custom Report Layout Code");
 
-                AccountHasCustomSelection := not CustomReportSelection.IsEmpty;
+                AccountHasCustomSelection := not CustomReportSelection.IsEmpty();
                 if AccountHasCustomSelection then
                     AccountNoFilter += StrSubstNo(AccountNoTok, AccountNo) + '|';
 
@@ -439,7 +443,7 @@ table 77 "Report Selections"
             end else begin
                 CustomReportSelection.SetRange("Report ID");
 
-                AccountHasCustomSelection := not CustomReportSelection.IsEmpty;
+                AccountHasCustomSelection := not CustomReportSelection.IsEmpty();
                 if not AccountHasCustomSelection then
                     AccountNoFilter += StrSubstNo(AccountNoTok, AccountNo) + '|';
 
@@ -720,42 +724,18 @@ table 77 "Report Selections"
         RecRef: RecordRef;
         ReportUsage: Integer;
         DocNo: Code[20];
-        DocNos: Text;
         DocName: Text[150];
         No: Code[20];
-        FieldNo: Integer;
         ParamString: Text;
     begin
         // Called from codeunit 260 OnRun trigger - in a background process.
-        ParamString := JobQueueEntry."Parameter String";  // Set in function SendEmailToCust
-
-        GetJobQueueParameters(ParamString, ReportUsage, DocNos, DocName, No, FieldNo);
-
-        JobQueueEntry.CalcFields(XML);
-        if JobQueueEntry.XML.Length <> 0 then begin
-            RecRef.Open(JobQueueEntry."Record ID to Process".TableNo);
-            RecRef.Field(RecRef.SystemIdNo).SetFilter(JobQueueEntry.GetXmlContent());
-            RecRef.LockTable();
-            RecRef.FindSet();
-            RecRef.Next(0);
-        end
-        else
-            if FieldNo <> 0 then begin
-                RecRef.Open(JobQueueEntry."Record ID to Process".TableNo);
-                RecRef.Field(FieldNo).SetFilter(DocNos);
-                RecRef.LockTable();
-                RecRef.FindSet();
-                RecRef.Next(0);
-            end else begin
-                RecRef.Get(JobQueueEntry."Record ID to Process");
-                RecRef.LockTable();
-                RecRef.Find();
-                RecRef.SetRecFilter();
-            end;
-
-        if not DocNos.Contains('|') then
-            DocNo := CopyStr(DocNos, 1, MaxStrLen(DocNo));
-        GetNextJobQueueParam(ParamString);
+        RecRef.Get(JobQueueEntry."Record ID to Process");
+        RecRef.LockTable();
+        RecRef.Find();
+        RecRef.SetRecFilter();
+        ParamString := JobQueueEntry."Parameter String";  // Are set in function SendEmailToCust
+        GetJobQueueParameters(ParamString, ReportUsage, DocNo, DocName, No);
+        VerifyRecordBySystemId(ParamString, ReportUsage, RecRef);
         OnSendEmailInBackgroundOnAfterGetJobQueueParameters(RecRef, ParamString);
 
         ParamString := ParamString.TrimStart('|');
@@ -765,18 +745,16 @@ table 77 "Report Selections"
             SendEmailToCustDirectly("Report Selection Usage".FromInteger(ReportUsage), RecRef, DocNo, DocName, false, No);
     end;
 
-#if not CLEAN21
-    [Obsolete('Replaced with GetJobQueueParameters where DocNo is now Text instead of Code[20] and an additional parameter, FieldNo, to allow combination of multiple records.', '21.0')]
     procedure GetJobQueueParameters(var ParameterString: Text; var ReportUsage: Integer; var DocNo: Code[20]; var DocName: Text[150]; var CustNo: Code[20]) WasSuccessful: Boolean
-    var
-        DocNos: Text;
-        FieldNo: Integer;
     begin
-        WasSuccessful := GetJobQueueParameters(ParameterString, ReportUsage, DocNos, DocName, CustNo, FieldNo);
-        DocNo := CopyStr(DocNos, 1, MaxStrLen(DocNo));
+        WasSuccessful := Evaluate(ReportUsage, GetNextJobQueueParam(ParameterString));
+        WasSuccessful := WasSuccessful and Evaluate(DocNo, GetNextJobQueueParam(ParameterString));
+        WasSuccessful := WasSuccessful and Evaluate(DocName, GetNextJobQueueParam(ParameterString));
+        WasSuccessful := WasSuccessful and Evaluate(CustNo, GetNextJobQueueParam(ParameterString));
     end;
-#endif
 
+#if not CLEAN22
+    [Obsolete('Unused.', '22.0')]
     procedure GetJobQueueParameters(var ParameterString: Text; var ReportUsage: Integer; var DocNos: Text; var DocName: Text[150]; var CustNo: Code[20]; var FieldNo: Integer) WasSuccessful: Boolean
     begin
         WasSuccessful := Evaluate(ReportUsage, GetNextJobQueueParam(ParameterString));
@@ -787,6 +765,7 @@ table 77 "Report Selections"
 
         DocNos := DocNos.Replace(',', '|');
     end;
+#endif
 
     procedure RunGetNextJobQueueParam(var Parameter: Text): Text
     begin
@@ -806,11 +785,8 @@ table 77 "Report Selections"
         exit(Result);
     end;
 
-    procedure EnqueueMailingJob(RecordIdToProcess: RecordID; ParameterString: Text; Description: Text)
-    begin
-        EnqueueMailingJob(RecordIdToProcess, ParameterString, Description, '');
-    end;
-
+#if not CLEAN22
+    [Obsolete('Unused.', '22.0')]
     procedure EnqueueMailingJob(RecordIdToProcess: RecordId; ParameterString: Text; Description: Text; RecFilter: Text)
     var
         JobQueueEntry: Record "Job Queue Entry";
@@ -820,7 +796,7 @@ table 77 "Report Selections"
         JobQueueEntry.Init();
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := CODEUNIT::"Document-Mailing";
-        JobQueueEntry."Job Queue Category Code" := GetMailingJobCategory;
+        JobQueueEntry."Job Queue Category Code" := GetMailingJobCategory();
         JobQueueEntry."Maximum No. of Attempts to Run" := 0; // So that the job runs only once
         JobQueueEntry."Record ID to Process" := RecordIdToProcess;
         JobQueueEntry."Parameter String" := CopyStr(ParameterString, 1, MaxStrLen(JobQueueEntry."Parameter String"));
@@ -834,13 +810,33 @@ table 77 "Report Selections"
         if not IsHandled then
             CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
     end;
+#endif
+
+    procedure EnqueueMailingJob(RecordIdToProcess: RecordID; ParameterString: Text; Description: Text)
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        IsHandled: Boolean;
+    begin
+        JobQueueEntry.Init();
+        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
+        JobQueueEntry."Object ID to Run" := CODEUNIT::"Document-Mailing";
+        JobQueueEntry."Job Queue Category Code" := GetMailingJobCategory();
+        JobQueueEntry."Maximum No. of Attempts to Run" := 0; // So that the job runs only once
+        JobQueueEntry."Record ID to Process" := RecordIdToProcess;
+        JobQueueEntry."Parameter String" := CopyStr(ParameterString, 1, MaxStrLen(JobQueueEntry."Parameter String"));
+        JobQueueEntry.Description := CopyStr(Description, 1, MaxStrLen(JobQueueEntry.Description));
+        IsHandled := false;
+        OnEnqueueMailingJobOnBeforeRunJobQueueEnqueue(RecordIdToProcess, ParameterString, Description, JobQueueEntry, IsHandled);
+        if not IsHandled then
+            CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
+    end;
 
     procedure GetMailingJobCategory(): Code[10]
     var
         JobQueueCategory: Record "Job Queue Category";
         MailingJobCategoryCode: Code[10];
     begin
-        MailingJobCategoryCode := GetMailingJobCategoryCode;
+        MailingJobCategoryCode := GetMailingJobCategoryCode();
         if not JobQueueCategory.Get(MailingJobCategoryCode) then begin
             JobQueueCategory.Init();
             JobQueueCategory.Code := MailingJobCategoryCode;
@@ -938,12 +934,16 @@ table 77 "Report Selections"
         OnAfterCanSaveReportAsPDF(ReportId, Result);
     end;
 
+#if not CLEAN22
+    [Obsolete('Unused.', '22.0')]
     procedure SendEmailToCust(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ShowDialog: Boolean; CustNo: Code[20]; DocNoFieldNo: Integer)
     var
+        DummyJobQueueEntry: Record "Job Queue Entry";
 #if not CLEAN21
         O365DocumentSentHistory: Record "O365 Document Sent History";
         GraphMail: Codeunit "Graph Mail";
 #endif
+        SelectionFilterManagement: Codeunit SelectionFilterManagement;
         RecRef: RecordRef;
         ReportUsageEnum: Enum "Report Selection Usage";
 #if not CLEAN21
@@ -952,6 +952,10 @@ table 77 "Report Selections"
         Handled: Boolean;
         ParameterString: Text;
         RecFilter: Text;
+        ParameterStringLen: Integer;
+        MaxAvailableLength: Integer;
+        LastComma: Integer;
+        CurrentFilter: Text;
     begin
         OnBeforeSendEmailToCust(ReportUsage, RecordVariant, DocNo, DocName, ShowDialog, CustNo, Handled);
         if Handled then
@@ -966,10 +970,10 @@ table 77 "Report Selections"
                     O365DocumentSentHistory.SetStatusAsFailed();
                     UpdateDocumentSentHistory := true;
                 end;
-
+		    
                 if SendEmailToCustDirectly(ReportUsageEnum, RecordVariant, DocNo, DocName, ShowDialog, CustNo) and UpdateDocumentSentHistory then
                     O365DocumentSentHistory.SetStatusAsSuccessfullyFinished();
-
+		    
                 exit;
             end;
 #endif
@@ -981,27 +985,90 @@ table 77 "Report Selections"
         RecRef.GetTable(RecordVariant);
         if RecRef.FindSet() then
             if DocNo = '' then begin
-                RecFilter := GetSystemIdsAsFilter(RecRef);
+                RecRef.CurrentKeyIndex(1);
 
-                ParameterString := StrSubstNo(JobQueueParameterStringTok, ReportUsage, DocNo, DocName, CustNo, DocNoFieldNo, '', '');
+                // Generate filterstring for doc-nos
+                RecFilter := SelectionFilterManagement.GetSelectionFilter(RecRef, DocNoFieldNo, false);
+                RecFilter := RecFilter.Replace('|', ',');
+
+                // Get length of Parameter String without the filter
+                ParameterStringLen := StrLen(StrSubstNo(JobQueueNewParameterStringTok, ReportUsage, '', DocName, CustNo, DocNoFieldNo, '', ''));
+                MaxAvailableLength := MaxStrLen(DummyJobQueueEntry."Parameter String") - ParameterStringLen;
+
+                // Loop through the filter and create job queues until all filters are covered
+                while StrLen(RecFilter) > MaxAvailableLength do begin
+                    CurrentFilter := RecFilter.Substring(1, MaxAvailableLength);
+                    LastComma := CurrentFilter.LastIndexOf(',');
+                    CurrentFilter := CurrentFilter.Substring(1, LastComma);
+                    RecFilter := RecFilter.Substring(LastComma + 1);
+
+                    ParameterString := StrSubstNo(JobQueueNewParameterStringTok, ReportUsage, CurrentFilter, DocName, CustNo, DocNoFieldNo, '', '');
+                    OnSendEmailToCustOnAfterSetParameterString(RecRef, ParameterString);
+                    EnqueueMailingJob(RecRef.RecordId, ParameterString, DocName);
+                end;
+
+                // Final loop
+                ParameterString := StrSubstNo(JobQueueNewParameterStringTok, ReportUsage, RecFilter, DocName, CustNo, DocNoFieldNo, '', '');
                 OnSendEmailToCustOnAfterSetParameterString(RecRef, ParameterString);
-                EnqueueMailingJob(RecRef.RecordId, ParameterString, DocName, RecFilter);
+                EnqueueMailingJob(RecRef.RecordId, ParameterString, DocName);
             end else
                 repeat
-                    RecFilter := RecRef.Field(RecRef.SystemIdNo).Value;
-                    ParameterString := StrSubstNo(JobQueueParameterStringTok, ReportUsage, DocNo, DocName, CustNo, DocNoFieldNo, '', '');
+                    ParameterString := StrSubstNo(JobQueueNewParameterStringTok, ReportUsage, DocNo, DocName, CustNo, DocNoFieldNo, '', '');
                     OnSendEmailToCustOnAfterSetParameterString(RecRef, ParameterString);
-                    EnqueueMailingJob(RecRef.RecordId, ParameterString, DocName, RecFilter);
+                    EnqueueMailingJob(RecRef.RecordId, ParameterString, DocName);
                 until RecRef.Next() = 0;
     end;
+#endif
+
+    procedure SendEmailToCust(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ShowDialog: Boolean; CustNo: Code[20])
+    var
+#if not CLEAN21
+        O365DocumentSentHistory: Record "O365 Document Sent History";
+        GraphMail: Codeunit "Graph Mail";
+#endif
+        RecRef: RecordRef;
+        ReportUsageEnum: Enum "Report Selection Usage";
+#if not CLEAN21
+        UpdateDocumentSentHistory: Boolean;
+#endif
+        Handled: Boolean;
+        ParameterString: Text;
+    begin
+        OnBeforeSendEmailToCust(ReportUsage, RecordVariant, DocNo, DocName, ShowDialog, CustNo, Handled);
+        if Handled then
+            exit;
+
+        RecRef.GetTable(RecordVariant);
+        ReportUsageEnum := "Report Selection Usage".FromInteger(ReportUsage);
 
 #if not CLEAN21
-    [Obsolete('Replaced with overload with an additional parameter, DocNoFieldNo.', '21.0')]
-    procedure SendEmailToCust(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ShowDialog: Boolean; CustNo: Code[20])
-    begin
-        SendEmailToCust(ReportUsage, RecordVariant, DocNo, DocName, ShowDialog, CustNo, 0)
-    end;
+        if GraphMail.IsEnabled() then
+            if GraphMail.HasConfiguration() then begin
+                if O365DocumentSentHistory.NewInProgressFromRecRef(RecRef) then begin
+                    O365DocumentSentHistory.SetStatusAsFailed();
+                    UpdateDocumentSentHistory := true;
+                end;
+		    
+                if SendEmailToCustDirectly(ReportUsageEnum, RecordVariant, DocNo, DocName, ShowDialog, CustNo) and UpdateDocumentSentHistory then
+                    O365DocumentSentHistory.SetStatusAsSuccessfullyFinished();
+		    
+                exit;
+            end;
 #endif
+
+        if ShowDialog or ShouldSendToCustDirectly(ReportUsageEnum, RecordVariant, CustNo) then begin
+            SendEmailToCustDirectly(ReportUsageEnum, RecordVariant, DocNo, DocName, true, CustNo);
+            exit;
+        end;
+
+        RecRef.GetTable(RecordVariant);
+        if RecRef.FindSet() then
+            repeat
+                ParameterString := StrSubstNo('%1|%2|%3|%4|', ReportUsage, DocNo, DocName, CustNo);
+                OnSendEmailToCustOnAfterSetParameterString(RecRef, ParameterString);
+                EnqueueMailingJob(RecRef.RecordId, ParameterString, DocName);
+            until RecRef.Next() = 0;
+    end;
 
     procedure ShouldSendToCustDirectly(ReportUsageEnum: Enum "Report Selection Usage"; RecordVariant: Variant; CustNo: Code[20]): Boolean
     var
@@ -1042,15 +1109,109 @@ table 77 "Report Selections"
         exit(MailManagement.IsEnabled());
     end;
 
+#if not CLEAN22
+    [Obsolete('Unused.', '22.0')]
+    procedure SendEmailToVendor(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ShowDialog: Boolean; VendorNo: Code[20]; VendorNoFieldNo: Integer)
+    var
+        DummyJobQueueEntry: Record "Job Queue Entry";
 #if not CLEAN21
-    [Obsolete('Replaced with overload with an additional parameter, VendorNoFieldNo.', '21.0')]
-    procedure SendEmailToVendor(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ShowDialog: Boolean; VendorNo: Code[20])
+        O365DocumentSentHistory: Record "O365 Document Sent History";
+        GraphMail: Codeunit "Graph Mail";
+#endif
+        SelectionFilterManagement: Codeunit SelectionFilterManagement;
+        RecRef: RecordRef;
+        ReportUsageEnum: Enum "Report Selection Usage";
+#if not CLEAN21
+        UpdateDocumentSentHistory: Boolean;
+#endif
+        Handled: Boolean;
+        ParameterString: Text;
+        ParameterStringLen: Integer;
+        MaxAvailableLength: Integer;
+        LastComma: Integer;
+        CurrentFilter: Text;
+        RecFilter: Text;
     begin
-        SendEmailToVendor(ReportUsage, RecordVariant, DocNo, DocName, ShowDialog, VendorNo, 0);
+        OnBeforeSendEmailToVendor(ReportUsage, RecordVariant, DocNo, DocName, ShowDialog, VendorNo, Handled);
+        if Handled then
+            exit;
+
+        RecRef.GetTable(RecordVariant);
+        ReportUsageEnum := "Report Selection Usage".FromInteger(ReportUsage);
+
+#if not CLEAN21
+        if GraphMail.IsEnabled() then
+            if GraphMail.HasConfiguration() then begin
+                if O365DocumentSentHistory.NewInProgressFromRecRef(RecRef) then begin
+                    O365DocumentSentHistory.SetStatusAsFailed();
+                    UpdateDocumentSentHistory := true;
+                end;
+		    
+                if SendEmailToVendorDirectly(ReportUsageEnum, RecordVariant, DocNo, DocName, ShowDialog, VendorNo) and UpdateDocumentSentHistory then
+                    O365DocumentSentHistory.SetStatusAsSuccessfullyFinished();
+		    
+                exit;
+            end;
+#endif
+
+        if ShowDialog or ShouldSendToVendorDirectly(ReportUsageEnum, RecordVariant, VendorNo) then begin
+            SendEmailToVendorDirectly(ReportUsageEnum, RecordVariant, DocNo, DocName, true, VendorNo);
+            exit;
+        end;
+
+        RecRef.GetTable(RecordVariant);
+        if RecRef.FindSet() then
+            if DocNo = '' then begin
+                RecRef.CurrentKeyIndex(1);
+
+                // Generate filterstring for doc-nos
+                RecFilter := SelectionFilterManagement.GetSelectionFilter(RecRef, VendorNoFieldNo, false);
+                RecFilter := RecFilter.Replace('|', ',');
+
+                // Get length of Parameter String without the filter
+                if IsRecordSystemIdVerificationRequired(ReportUsage, RecRef.Number) then
+                    ParameterString := StrSubstNo(JobQueueNewParameterStringTok, ReportUsage, '', DocName, VendorNo, VendorNoFieldNo, RecRef.Field(RecRef.SystemIdNo).Value, 'Vendor')
+                else
+                    ParameterString := StrSubstNo(JobQueueNewParameterStringTok, ReportUsage, '', DocName, VendorNo, VendorNoFieldNo, '', 'Vendor');
+                ParameterStringLen := StrLen(ParameterString);
+                MaxAvailableLength := MaxStrLen(DummyJobQueueEntry."Parameter String") - ParameterStringLen;
+
+                // Loop through the filter and create job queues until all filters are covered
+                while StrLen(RecFilter) > MaxAvailableLength do begin
+                    CurrentFilter := RecFilter.Substring(1, MaxAvailableLength);
+                    LastComma := CurrentFilter.LastIndexOf(',');
+                    CurrentFilter := CurrentFilter.Substring(1, LastComma);
+                    RecFilter := RecFilter.Substring(LastComma + 1);
+
+                    if IsRecordSystemIdVerificationRequired(ReportUsage, RecRef.Number) then
+                        ParameterString := StrSubstNo(JobQueueNewParameterStringTok, ReportUsage, CurrentFilter, DocName, VendorNo, VendorNoFieldNo, RecRef.Field(RecRef.SystemIdNo).Value, 'Vendor')
+                    else
+                        ParameterString := StrSubstNo(JobQueueNewParameterStringTok, ReportUsage, CurrentFilter, DocName, VendorNo, VendorNoFieldNo, '', 'Vendor');
+                    OnSendEmailToCustOnAfterSetParameterString(RecRef, ParameterString);
+                    EnqueueMailingJob(RecRef.RecordId, ParameterString, DocName);
+                end;
+
+                // Final loop
+                if IsRecordSystemIdVerificationRequired(ReportUsage, RecRef.Number) then
+                    ParameterString := StrSubstNo(JobQueueNewParameterStringTok, ReportUsage, RecFilter, DocName, VendorNo, VendorNoFieldNo, RecRef.Field(RecRef.SystemIdNo).Value, 'Vendor')
+                else
+                    ParameterString := StrSubstNo(JobQueueNewParameterStringTok, ReportUsage, RecFilter, DocName, VendorNo, VendorNoFieldNo, '', 'Vendor');
+
+                OnSendEmailToVendorOnAfterSetParameterString(RecRef, ParameterString);
+                EnqueueMailingJob(RecRef.RecordId, ParameterString, DocName);
+            end else
+                repeat
+                    if IsRecordSystemIdVerificationRequired(ReportUsage, RecRef.Number) then
+                        ParameterString := StrSubstNo(JobQueueNewParameterStringTok, ReportUsage, DocNo, DocName, VendorNo, VendorNoFieldNo, RecRef.Field(RecRef.SystemIdNo).Value, 'Vendor')
+                    else
+                        ParameterString := StrSubstNo(JobQueueNewParameterStringTok, ReportUsage, DocNo, DocName, VendorNo, VendorNoFieldNo, '', 'Vendor');
+                    OnSendEmailToVendorOnAfterSetParameterString(RecRef, ParameterString);
+                    EnqueueMailingJob(RecRef.RecordId, ParameterString, DocName);
+                until RecRef.Next() = 0;
     end;
 #endif
 
-    procedure SendEmailToVendor(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ShowDialog: Boolean; VendorNo: Code[20]; VendorNoFieldNo: Integer)
+    procedure SendEmailToVendor(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ShowDialog: Boolean; VendorNo: Code[20])
     var
 #if not CLEAN21
         O365DocumentSentHistory: Record "O365 Document Sent History";
@@ -1063,7 +1224,6 @@ table 77 "Report Selections"
 #endif
         Handled: Boolean;
         ParameterString: Text;
-        RecFilter: Text;
     begin
         OnBeforeSendEmailToVendor(ReportUsage, RecordVariant, DocNo, DocName, ShowDialog, VendorNo, Handled);
         if Handled then
@@ -1071,6 +1231,7 @@ table 77 "Report Selections"
 
         RecRef.GetTable(RecordVariant);
         ReportUsageEnum := "Report Selection Usage".FromInteger(ReportUsage);
+
 #if not CLEAN21
         if GraphMail.IsEnabled() then
             if GraphMail.HasConfiguration() then begin
@@ -1078,13 +1239,14 @@ table 77 "Report Selections"
                     O365DocumentSentHistory.SetStatusAsFailed();
                     UpdateDocumentSentHistory := true;
                 end;
-
+		    
                 if SendEmailToVendorDirectly(ReportUsageEnum, RecordVariant, DocNo, DocName, ShowDialog, VendorNo) and UpdateDocumentSentHistory then
                     O365DocumentSentHistory.SetStatusAsSuccessfullyFinished();
-
+		    
                 exit;
             end;
 #endif
+
         if ShowDialog or ShouldSendToVendorDirectly(ReportUsageEnum, RecordVariant, VendorNo) then begin
             SendEmailToVendorDirectly(ReportUsageEnum, RecordVariant, DocNo, DocName, true, VendorNo);
             exit;
@@ -1092,43 +1254,14 @@ table 77 "Report Selections"
 
         RecRef.GetTable(RecordVariant);
         if RecRef.FindSet() then
-            if DocNo = '' then begin
-                RecFilter := GetSystemIdsAsFilter(RecRef);
-
-                if IsRecordSystemIdVerificationRequired(ReportUsage, RecRef.Number) then
-                    ParameterString := StrSubstNo(JobQueueParameterStringTok, ReportUsage, DocNo, DocName, VendorNo, VendorNoFieldNo, RecRef.Field(RecRef.SystemIdNo).Value, 'Vendor')
-                else
-                    ParameterString := StrSubstNo(JobQueueParameterStringTok, ReportUsage, DocNo, DocName, VendorNo, VendorNoFieldNo, '', 'Vendor');
-
-                OnSendEmailToVendorOnAfterSetParameterString(RecRef, ParameterString);
-                EnqueueMailingJob(RecRef.RecordId, ParameterString, DocName, RecFilter);
-            end else
-                repeat
-                    RecFilter := RecRef.Field(RecRef.SystemIdNo).Value;
-                    if IsRecordSystemIdVerificationRequired(ReportUsage, RecRef.Number) then
-                        ParameterString := StrSubstNo(JobQueueParameterStringTok, ReportUsage, DocNo, DocName, VendorNo, VendorNoFieldNo, RecRef.Field(RecRef.SystemIdNo).Value, 'Vendor')
-                    else
-                        ParameterString := StrSubstNo(JobQueueParameterStringTok, ReportUsage, DocNo, DocName, VendorNo, VendorNoFieldNo, '', 'Vendor');
-                    OnSendEmailToVendorOnAfterSetParameterString(RecRef, ParameterString);
-                    EnqueueMailingJob(RecRef.RecordId, ParameterString, DocName, RecFilter);
-                until RecRef.Next() = 0;
-    end;
-
-    local procedure GetSystemIdsAsFilter(var RecRef: RecordRef) RecFilter: Text
-    var
-        SystemIdFieldRef: FieldRef;
-        IdValue: Text;
-        FilterBuilder: TextBuilder;
-    begin
-        if RecRef.FindSet() then begin
             repeat
-                SystemIdFieldRef := RecRef.Field(RecRef.SystemIdNo);
-                IdValue := SystemIdFieldRef.Value();
-                FilterBuilder.append(IdValue);
-                FilterBuilder.append('|');
+                if IsRecordSystemIdVerificationRequired(ReportUsage, RecRef.Number) then
+                    ParameterString := StrSubstNo(JobQueueParameterStringTok, ReportUsage, DocNo, DocName, VendorNo, RecRef.Field(RecRef.SystemIdNo).Value, 'Vendor')
+                else
+                    ParameterString := StrSubstNo('%1|%2|%3|%4|%5', ReportUsage, DocNo, DocName, VendorNo, 'Vendor');
+                OnSendEmailToVendorOnAfterSetParameterString(RecRef, ParameterString);
+                EnqueueMailingJob(RecRef.RecordId, ParameterString, DocName);
             until RecRef.Next() = 0;
-            RecFilter := FilterBuilder.ToText().TrimEnd('|');
-        end;
     end;
 
     local procedure SendEmailToCustDirectly(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant;
@@ -1163,7 +1296,11 @@ table 77 "Report Selections"
             TempAttachReportSelections, CustomReportSelection));
     end;
 
-    local procedure SendEmailToVendorDirectly(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ShowDialog: Boolean; VendorNo: Code[20]): Boolean
+    local procedure SendEmailToVendorDirectly(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant;
+                                                               DocNo: Code[20];
+                                                               DocName: Text[150];
+                                                               ShowDialog: Boolean;
+                                                               VendorNo: Code[20]): Boolean
     var
         TempAttachReportSelections: Record "Report Selections" temporary;
         CustomReportSelection: Record "Custom Report Selection";
@@ -1186,7 +1323,12 @@ table 77 "Report Selections"
             TempAttachReportSelections, CustomReportSelection));
     end;
 
-    local procedure SendEmailDirectly(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; FoundBody: Boolean; FoundAttachment: Boolean; ServerEmailBodyFilePath: Text[250]; var DefaultEmailAddress: Text[250]; ShowDialog: Boolean; var TempAttachReportSelections: Record "Report Selections" temporary; var CustomReportSelection: Record "Custom Report Selection") AllEmailsWereSuccessful: Boolean
+    local procedure SendEmailDirectly(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant;
+                                                       DocNo: Code[20];
+                                                       DocName: Text[150];
+                                                       FoundBody: Boolean;
+                                                       FoundAttachment: Boolean;
+                                                       ServerEmailBodyFilePath: Text[250]; var DefaultEmailAddress: Text[250]; ShowDialog: Boolean; var TempAttachReportSelections: Record "Report Selections" temporary; var CustomReportSelection: Record "Custom Report Selection") AllEmailsWereSuccessful: Boolean
     var
         Customer: Record Customer;
         Vendor: Record Vendor;
@@ -1233,13 +1375,13 @@ table 77 "Report Selections"
         // Related Source - Customer or vendor receiving the document
         TableId := GetAccountTableId(DocumentRecord.Number());
         if TableId = Database::Customer then
-            if DataTypeManagement.FindFieldByName(DocumentRecord, FieldRef, 'Sell-to Customer No.') and Customer.Get(FieldRef.Value()) then begin
+            if DataTypeManagement.FindFieldByName(DocumentRecord, FieldRef, 'Sell-to Customer No.') and Customer.Get(Format(FieldRef.Value())) then begin
                 SourceTableIDs.Add(Database::Customer);
                 SourceIDs.Add(Customer.SystemId);
                 SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
             end;
         if TableId = Database::Vendor then
-            if DataTypeManagement.FindFieldByName(DocumentRecord, FieldRef, 'Buy-from Vendor No.') and Vendor.Get(FieldRef.Value()) then begin
+            if DataTypeManagement.FindFieldByName(DocumentRecord, FieldRef, 'Buy-from Vendor No.') and Vendor.Get(Format(FieldRef.Value())) then begin
                 SourceTableIDs.Add(Database::Vendor);
                 SourceIDs.Add(Vendor.SystemId);
                 SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
@@ -1302,7 +1444,10 @@ table 77 "Report Selections"
     end;
 
     [Scope('OnPrem')]
-    procedure SendToDiskForCust(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text; CustNo: Code[20])
+    procedure SendToDiskForCust(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant;
+                                                 DocNo: Code[20];
+                                                 DocName: Text;
+                                                 CustNo: Code[20])
     var
         TempReportSelections: Record "Report Selections" temporary;
         ElectronicDocumentFormat: Record "Electronic Document Format";
@@ -1324,7 +1469,10 @@ table 77 "Report Selections"
     end;
 
     [Scope('OnPrem')]
-    procedure SendToDiskForVend(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text; VendorNo: Code[20])
+    procedure SendToDiskForVend(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant;
+                                                 DocNo: Code[20];
+                                                 DocName: Text;
+                                                 VendorNo: Code[20])
     var
         TempReportSelections: Record "Report Selections" temporary;
         ElectronicDocumentFormat: Record "Electronic Document Format";
@@ -1626,7 +1774,7 @@ table 77 "Report Selections"
             until CustomReportSelection.Next() = 0;
     end;
 
-    local procedure CopyReportSelectionToReportSelection(var ToReportSelections: Record "Report Selections"): Boolean
+    procedure CopyReportSelectionToReportSelection(var ToReportSelections: Record "Report Selections"): Boolean
     begin
         ToReportSelections.Reset();
         ToReportSelections.DeleteAll();
@@ -1636,7 +1784,7 @@ table 77 "Report Selections"
                 if ToReportSelections.Insert() then;
             until Next() = 0;
 
-        exit(ToReportSelections.FindSet);
+        exit(ToReportSelections.FindSet());
     end;
 
     local procedure GetCustomReportSelection(var CustomReportSelection: Record "Custom Report Selection"; AccountNo: Code[20]; TableNo: Integer): Boolean
@@ -1748,7 +1896,8 @@ table 77 "Report Selections"
         exit('');
     end;
 
-    procedure ShowNoBodyNoAttachmentError(ReportUsage: Enum "Report Selection Usage"; FoundBody: Boolean; FoundAttachment: Boolean)
+    procedure ShowNoBodyNoAttachmentError(ReportUsage: Enum "Report Selection Usage"; FoundBody: Boolean;
+                                                           FoundAttachment: Boolean)
     begin
         if not (FoundBody or FoundAttachment) then begin
             Usage := ReportUsage;
@@ -1823,6 +1972,18 @@ table 77 "Report Selections"
         TempReportSelections.SetRange(Usage, ReportUsage);
         TempReportSelections.SetRange("Report ID", ReportID);
         exit(TempReportSelections.FindFirst());
+    end;
+
+    local procedure VerifyRecordBySystemId(var ParamString: Text; ReportUsage: Integer; RecRef: RecordRef)
+    var
+        SrcRecSysId: Guid;
+    begin
+        if not IsRecordSystemIdVerificationRequired(ReportUsage, RecRef.Number) then
+            exit;
+
+        Evaluate(SrcRecSysId, GetNextJobQueueParam(ParamString));
+        if not RecRef.GetBySystemId(SrcRecSysId) then
+            Error(RecordDoesNotMatchErr);
     end;
 
     local procedure IsRecordSystemIdVerificationRequired(ReportUsage: Integer; TableId: Integer): Boolean
@@ -2041,7 +2202,9 @@ table 77 "Report Selections"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSendEmailDirectlyOnBeforeSendFileLoop(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; var DefaultEmailAddress: Text[250]; ShowDialog: Boolean; var TempAttachReportSelections: Record "Report Selections" temporary; var CustomReportSelection: Record "Custom Report Selection")
+    local procedure OnSendEmailDirectlyOnBeforeSendFileLoop(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant;
+                                                                             DocNo: Code[20];
+                                                                             DocName: Text[150]; var DefaultEmailAddress: Text[250]; ShowDialog: Boolean; var TempAttachReportSelections: Record "Report Selections" temporary; var CustomReportSelection: Record "Custom Report Selection")
     begin
     end;
 

@@ -81,7 +81,7 @@ table 121 "Purch. Rcpt. Line"
         }
         field(22; "Direct Unit Cost"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCodeFromHeader;
+            AutoFormatExpression = GetCurrencyCodeFromHeader();
             AutoFormatType = 2;
             Caption = 'Direct Unit Cost';
         }
@@ -301,14 +301,14 @@ table 121 "Purch. Rcpt. Line"
         }
         field(99; "VAT Base Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCodeFromHeader;
+            AutoFormatExpression = GetCurrencyCodeFromHeader();
             AutoFormatType = 1;
             Caption = 'VAT Base Amount';
             Editable = false;
         }
         field(100; "Unit Cost"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCodeFromHeader;
+            AutoFormatExpression = GetCurrencyCodeFromHeader();
             AutoFormatType = 2;
             Caption = 'Unit Cost';
             Editable = false;
@@ -463,11 +463,9 @@ table 121 "Purch. Rcpt. Line"
         {
             Caption = 'FA Posting Date';
         }
-        field(5601; "FA Posting Type"; Option)
+        field(5601; "FA Posting Type"; Enum "Purchase FA Posting Type")
         {
             Caption = 'FA Posting Type';
-            OptionCaption = ' ,Acquisition Cost,Maintenance';
-            OptionMembers = " ","Acquisition Cost",Maintenance;
         }
         field(5602; "Depreciation Book Code"; Code[10])
         {
@@ -643,7 +641,7 @@ table 121 "Purch. Rcpt. Line"
         }
         field(5811; "Item Charge Base Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCodeFromHeader;
+            AutoFormatExpression = GetCurrencyCodeFromHeader();
             AutoFormatType = 1;
             Caption = 'Item Charge Base Amount';
         }
@@ -793,7 +791,7 @@ table 121 "Purch. Rcpt. Line"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption, "Document No.", "Line No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption(), "Document No.", "Line No."));
     end;
 
     procedure ShowItemTrackingLines()
@@ -838,7 +836,7 @@ table 121 "Purch. Rcpt. Line"
             PurchLine."Document No." := TempPurchLine."Document No.";
             TranslationHelper.SetGlobalLanguageByCode(PurchInvHeader."Language Code");
             PurchLine.Description := StrSubstNo(Text000, "Document No.");
-            TranslationHelper.RestoreGlobalLanguage;
+            TranslationHelper.RestoreGlobalLanguage();
             IsHandled := false;
             OnBeforeInsertInvLineFromRcptLineBeforeInsertTextLine(Rec, PurchLine, NextLineNo, IsHandled);
             if not IsHandled then begin
@@ -848,7 +846,7 @@ table 121 "Purch. Rcpt. Line"
             end;
         end;
 
-        TransferOldExtLines.ClearLineNumbers;
+        TransferOldExtLines.ClearLineNumbers();
         OnInsertInvLineFromRcptLineOnAfterTransferOldExtLinesClearLineNumbers(Rec);
 
         repeat
@@ -874,14 +872,13 @@ table 121 "Purch. Rcpt. Line"
                           Round(
                             PurchOrderLine."Direct Unit Cost" * (1 + PurchOrderLine."VAT %" / 100),
                             Currency."Unit-Amount Rounding Precision");
-                end else begin
+                end else
                     if PurchOrderHeader."Prices Including VAT" then
                         PurchOrderLine."Direct Unit Cost" :=
                           Round(
                             PurchOrderLine."Direct Unit Cost" / (1 + PurchOrderLine."VAT %" / 100),
                             Currency."Unit-Amount Rounding Precision");
-                end;
-            end else begin
+            end else
                 if ExtTextLine then begin
                     PurchOrderLine.Init();
                     PurchOrderLine."Line No." := "Order Line No.";
@@ -890,7 +887,6 @@ table 121 "Purch. Rcpt. Line"
                     OnInsertInvLineFromRcptLineOnAfterAssignDescription(Rec, PurchOrderLine);
                 end else
                     Error(Text001);
-            end;
 
             CopyFromPurchRcptLine(PurchLine, PurchOrderLine, TempPurchLine, NextLineNo);
 
@@ -926,7 +922,7 @@ table 121 "Purch. Rcpt. Line"
                 PurchLine.Validate("Line Discount Amount", PurchOrderLine."Line Discount Amount");
                 PurchLine."Line Discount %" := PurchOrderLine."Line Discount %";
                 OnInsertInvLineFromRcptLineOnBeforePurchLineUpdatePrePaymentAmounts(PurchLine, PurchOrderLine);
-                PurchLine.UpdatePrePaymentAmounts;
+                PurchLine.UpdatePrePaymentAmounts();
                 if PurchOrderLine.Quantity = 0 then
                     PurchLine.Validate("Inv. Discount Amount", 0)
                 else
@@ -999,8 +995,7 @@ table 121 "Purch. Rcpt. Line"
     procedure GetPurchInvLines(var TempPurchInvLine: Record "Purch. Inv. Line" temporary)
     var
         PurchInvLine: Record "Purch. Inv. Line";
-        ItemLedgEntry: Record "Item Ledger Entry";
-        ValueEntry: Record "Value Entry";
+        ValueItemLedgerEntries: Query "Value Item Ledger Entries";
     begin
         TempPurchInvLine.Reset();
         TempPurchInvLine.DeleteAll();
@@ -1008,25 +1003,20 @@ table 121 "Purch. Rcpt. Line"
         if Type <> Type::Item then
             exit;
 
-        FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
-        ItemLedgEntry.SetFilter("Invoiced Quantity", '<>0');
-        if ItemLedgEntry.FindSet() then begin
-            ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
-            ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
-            ValueEntry.SetFilter("Invoiced Quantity", '<>0');
-            repeat
-                ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
-                if ValueEntry.FindSet() then
-                    repeat
-                        if ValueEntry."Document Type" = ValueEntry."Document Type"::"Purchase Invoice" then
-                            if PurchInvLine.Get(ValueEntry."Document No.", ValueEntry."Document Line No.") then begin
-                                TempPurchInvLine.Init();
-                                TempPurchInvLine := PurchInvLine;
-                                if TempPurchInvLine.Insert() then;
-                            end;
-                    until ValueEntry.Next() = 0;
-            until ItemLedgEntry.Next() = 0;
-        end;
+        ValueItemLedgerEntries.SetRange(Item_Ledg_Document_No, "Document No.");
+        ValueItemLedgerEntries.SetRange(Item_Ledg_Document_Type, "Item Ledger Document Type"::"Purchase Receipt");
+        ValueItemLedgerEntries.SetRange(Item_Ledg_Document_Line_No, "Line No.");
+        ValueItemLedgerEntries.SetFilter(Item_Ledg_Invoice_Quantity, '<>0');
+        ValueItemLedgerEntries.SetRange(Value_Entry_Type, "Cost Entry Type"::"Direct Cost");
+        ValueItemLedgerEntries.SetFilter(Value_Entry_Invoiced_Qty, '<>0');
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_Type, "Item Ledger Document Type"::"Purchase Invoice");
+        ValueItemLedgerEntries.Open();
+        while ValueItemLedgerEntries.Read() do
+            if PurchInvLine.Get(ValueItemLedgerEntries.Value_Entry_Doc_No, ValueItemLedgerEntries.Value_Entry_Doc_Line_No) then begin
+                TempPurchInvLine.Init();
+                TempPurchInvLine := PurchInvLine;
+                if TempPurchInvLine.Insert() then;
+            end;
     end;
 
     procedure CalcReceivedPurchNotReturned(var RemainingQty: Decimal; var RevUnitCostLCY: Decimal; ExactCostReverse: Boolean)
@@ -1066,7 +1056,7 @@ table 121 "Purch. Rcpt. Line"
     begin
         if "Qty. per Unit of Measure" = 0 then
             exit(QtyBase);
-        exit(Round(QtyBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
+        exit(Round(QtyBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
     end;
 
     procedure FilterPstdDocLnItemLedgEntries(var ItemLedgEntry: Record "Item Ledger Entry")
@@ -1096,7 +1086,7 @@ table 121 "Purch. Rcpt. Line"
         if CurrencyCode <> '' then
             Currency.Get(CurrencyCode)
         else
-            Currency.InitRoundingPrecision;
+            Currency.InitRoundingPrecision();
         CurrencyRead := true;
     end;
 
@@ -1116,7 +1106,7 @@ table 121 "Purch. Rcpt. Line"
     var
         Factor: Decimal;
     begin
-        Init;
+        Init();
         TransferOverReceiptCode(PurchLine);
         TransferFields(PurchLine);
         if ("No." = '') and HasTypeToFillMandatoryFields() then
@@ -1151,7 +1141,7 @@ table 121 "Purch. Rcpt. Line"
         PurchaseLine: Record "Purchase Line";
     begin
         if Type = Type::" " then
-            exit(PurchaseLine.FormatType);
+            exit(PurchaseLine.FormatType());
 
         exit(Format(Type));
     end;

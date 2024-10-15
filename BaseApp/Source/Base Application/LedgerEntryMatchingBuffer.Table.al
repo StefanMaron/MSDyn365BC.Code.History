@@ -2,6 +2,13 @@ table 1248 "Ledger Entry Matching Buffer"
 {
     Caption = 'Ledger Entry Matching Buffer';
     ReplicateData = false;
+#if CLEAN21
+    TableType = Temporary;
+#else
+    ObsoleteReason = 'Table will be marked as TableType=Temporary. Make sure you are not using this table to store records.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
+#endif
 
     fields
     {
@@ -28,6 +35,10 @@ table 1248 "Ledger Entry Matching Buffer"
         field(5; "Bal. Account No."; Code[20])
         {
             Caption = 'Bal. Account No.';
+            DataClassification = SystemMetadata;
+        }
+        field(7; Description; Text[100])
+        {
             DataClassification = SystemMetadata;
         }
         field(8; "Document Type"; Enum "Gen. Journal Document Type")
@@ -161,6 +172,7 @@ table 1248 "Ledger Entry Matching Buffer"
         "Account No." := BankAccountLedgerEntry."Bank Account No.";
         "Bal. Account Type" := BankAccountLedgerEntry."Bal. Account Type";
         "Bal. Account No." := BankAccountLedgerEntry."Bal. Account No.";
+        Description := BankAccountLedgerEntry.Description;
         "Posting Date" := BankAccountLedgerEntry."Posting Date";
         "Document Type" := BankAccountLedgerEntry."Document Type";
         "Document No." := BankAccountLedgerEntry."Document No.";

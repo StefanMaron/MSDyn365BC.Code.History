@@ -21,7 +21,7 @@ codeunit 1273 "Exp. Pre-Mapping Gen. Jnl."
             PreparePaymentExportDataJnl(GenJnlLine, GenJnlLine."Data Exch. Entry No.", LineNo);
         until GenJnlLine.Next() = 0;
 
-        Window.Close;
+        Window.Close();
     end;
 
     var
@@ -46,17 +46,17 @@ codeunit 1273 "Exp. Pre-Mapping Gen. Jnl."
             BankAccount.GetBankExportImportSetup(BankExportImportSetup);
             SetPreserveNonLatinCharacters(BankExportImportSetup."Preserve Non-Latin Characters");
 
-            Init;
+            Init();
             "Data Exch Entry No." := DataExchEntryNo;
             "Sender Bank Account Code" := GenJnlLine."Bal. Account No.";
             BankAccount.Get("Sender Bank Account Code");
-            "Sender Bank Account No." := CopyStr(BankAccount.GetBankAccountNo, 1, MaxStrLen("Sender Bank Account No."));
+            "Sender Bank Account No." := CopyStr(BankAccount.GetBankAccountNo(), 1, MaxStrLen("Sender Bank Account No."));
 
             if VendorBankAccount.Get(GenJnlLine."Account No.", GenJnlLine."Recipient Bank Account") then begin
                 Amount := GenJnlLine.Amount;
                 "Currency Code" := GeneralLedgerSetup.GetCurrencyCode(GenJnlLine."Currency Code");
                 "Recipient Bank Acc. No." :=
-                  CopyStr(VendorBankAccount.GetBankAccountNo, 1, MaxStrLen("Recipient Bank Acc. No."));
+                  CopyStr(VendorBankAccount.GetBankAccountNo(), 1, MaxStrLen("Recipient Bank Acc. No."));
                 "Recipient Reg. No." := VendorBankAccount."Bank Branch No.";
                 "Recipient Acc. No." := VendorBankAccount."Bank Account No.";
                 "Recipient Bank Country/Region" := VendorBankAccount."Country/Region Code";

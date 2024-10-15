@@ -102,7 +102,7 @@ codeunit 134770 "New Document from Vendor Card"
 
         PurchaseInvoice."Vendor Invoice No.".SetValue(
           LibraryUtility.GenerateRandomText(MaxStrLen(DummyPurchaseHeader."Vendor Invoice No.")));
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
 
         // Execute
         PurchaseInvoice.Trap;

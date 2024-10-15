@@ -1498,7 +1498,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         ReservEntry.SetRange("Source Subtype", SourceSubType);
         ReservEntry.SetRange("Source ID", SourceID);
         ReservEntry.SetRange("Source Ref. No.", SourceRefNo);
-        exit(ReservEntry.FindLast);
+        exit(ReservEntry.FindLast());
     end;
 
     local procedure CalcBaseQty(Qty: Decimal; QtyPerUnit: Decimal): Decimal

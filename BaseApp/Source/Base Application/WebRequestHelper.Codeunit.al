@@ -64,14 +64,14 @@ codeunit 1299 "Web Request Helper"
         if ProgressDialogEnabled then
             ProcessingWindow.Open(ProcessingWindowMsg);
 
-        ClearLastError;
-        HttpWebResponse := HttpWebRequest.GetResponse;
-        HttpWebResponse.GetResponseStream.CopyTo(ResponseInStream);
+        ClearLastError();
+        HttpWebResponse := HttpWebRequest.GetResponse();
+        HttpWebResponse.GetResponseStream().CopyTo(ResponseInStream);
         HttpStatusCode := HttpWebResponse.StatusCode;
         ResponseHeaders := HttpWebResponse.Headers;
 
         if ProgressDialogEnabled then
-            ProcessingWindow.Close;
+            ProcessingWindow.Close();
     end;
 
     [Scope('OnPrem')]
@@ -82,10 +82,10 @@ codeunit 1299 "Web Request Helper"
         HttpStatusCode: DotNet HttpStatusCode;
         ErrorText: Text;
     begin
-        DotNetExceptionHandler.Collect;
+        DotNetExceptionHandler.Collect();
 
         if not DotNetExceptionHandler.CastToType(WebException, GetDotNetType(WebException)) then
-            DotNetExceptionHandler.Rethrow;
+            DotNetExceptionHandler.Rethrow();
 
         if not IsNull(WebException.Response) then
             if not IsNull(WebException.Response.ResponseUri) then
@@ -96,7 +96,7 @@ codeunit 1299 "Web Request Helper"
             exit(ErrorText);
 
         if IsNull(WebException.Response) then
-            DotNetExceptionHandler.Rethrow;
+            DotNetExceptionHandler.Rethrow();
 
         GlobalHttpWebResponseError := WebException.Response;
         if not (GlobalHttpWebResponseError.StatusCode.Equals(HttpStatusCode.Found) or

@@ -45,6 +45,8 @@ permissionset 6720 "General Ledger - Edit"
                   tabledata "Data Exch. Field Mapping" = R,
                   tabledata "Data Exch. Line Def" = R,
                   tabledata "Data Exch. Mapping" = R,
+                  tabledata "Data Exch. Field Grouping" = R,
+                  tabledata "Data Exch. FlowField Gr. Buff." = R,
                   tabledata "Data Exchange Type" = Rimd,
                   tabledata "Date Compr. Register" = RimD,
                   tabledata "Detailed Cust. Ledg. Entry" = Rimd,

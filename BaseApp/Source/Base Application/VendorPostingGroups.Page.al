@@ -47,90 +47,90 @@ page 111 "Vendor Posting Groups"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description for the vendor posting group.';
                 }
-                field("View All Accounts on Lookup"; "View All Accounts on Lookup")
+                field("View All Accounts on Lookup"; Rec."View All Accounts on Lookup")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that all possible accounts are shown when you look up from a field. If the check box is not selected, then only accounts related to the involved account category are shown.';
                 }
-                field("Payables Account"; "Payables Account")
+                field("Payables Account"; Rec."Payables Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the general ledger account to use when you post payables due to vendors in this posting group.';
                 }
-                field("Prepayment Account"; "Prepayment Account")
+                field("Prepayment Account"; Rec."Prepayment Account")
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies the prepayment account associated with the vendor posting group.';
                 }
-                field("Service Charge Acc."; "Service Charge Acc.")
+                field("Service Charge Acc."; Rec."Service Charge Acc.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger account to use when you post service charges due to vendors in this posting group.';
                 }
-                field("Payment Disc. Debit Acc."; "Payment Disc. Debit Acc.")
+                field("Payment Disc. Debit Acc."; Rec."Payment Disc. Debit Acc.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger account to use when you post reductions in payment discounts received from vendors in this posting group.';
                     Visible = PmtDiscountVisible;
                 }
-                field("Payment Disc. Credit Acc."; "Payment Disc. Credit Acc.")
+                field("Payment Disc. Credit Acc."; Rec."Payment Disc. Credit Acc.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger account to use when you post payment discounts received from vendors in this posting group.';
                     Visible = PmtDiscountVisible;
                 }
-                field("Invoice Rounding Account"; "Invoice Rounding Account")
+                field("Invoice Rounding Account"; Rec."Invoice Rounding Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger account to use when amounts result from invoice rounding when you post transactions that involve vendors.';
                     Visible = InvRoundingVisible;
                 }
-                field("Debit Curr. Appln. Rndg. Acc."; "Debit Curr. Appln. Rndg. Acc.")
+                field("Debit Curr. Appln. Rndg. Acc."; Rec."Debit Curr. Appln. Rndg. Acc.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the general ledger account to use when you post rounding differences. These differences can occur when you apply entries in different currencies to one another.';
                     Visible = ApplnRoundingVisible;
                 }
-                field("Credit Curr. Appln. Rndg. Acc."; "Credit Curr. Appln. Rndg. Acc.")
+                field("Credit Curr. Appln. Rndg. Acc."; Rec."Credit Curr. Appln. Rndg. Acc.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the general ledger account to use when you post rounding differences. These differences can occur when you apply entries in different currencies to one another.';
                     Visible = ApplnRoundingVisible;
                 }
-                field("Debit Rounding Account"; "Debit Rounding Account")
+                field("Debit Rounding Account"; Rec."Debit Rounding Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger account number to use when you post rounding differences from a remaining amount.';
                 }
-                field("Credit Rounding Account"; "Credit Rounding Account")
+                field("Credit Rounding Account"; Rec."Credit Rounding Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger account number to use when you post rounding differences from a remaining amount.';
                 }
-                field("Payment Tolerance Debit Acc."; "Payment Tolerance Debit Acc.")
+                field("Payment Tolerance Debit Acc."; Rec."Payment Tolerance Debit Acc.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger account number to use when you post purchase tolerance amounts and payments for purchases. This applies to this particular combination of business posting group and product posting group.';
                     Visible = PmtToleranceVisible;
                 }
-                field("Payment Tolerance Credit Acc."; "Payment Tolerance Credit Acc.")
+                field("Payment Tolerance Credit Acc."; Rec."Payment Tolerance Credit Acc.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger account number to use when you post purchase tolerance amounts and payments for purchases. This applies to this particular combination of business posting group and product posting group.';
                     Visible = PmtToleranceVisible;
                 }
-                field("KPP Code Mandatory"; "KPP Code Mandatory")
+                field("KPP Code Mandatory"; Rec."KPP Code Mandatory")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the code of the company registration (KPP) is required for the vendor posting group.';
                 }
-                field("VAT Invoice Mandatory"; "VAT Invoice Mandatory")
+                field("VAT Invoice Mandatory"; Rec."VAT Invoice Mandatory")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that vendor purchase documents that use this posting group cannot be posted without stating the invoice date and number.';
                 }
-                field("Skip Posting"; "Skip Posting")
+                field("Skip Posting"; Rec."Skip Posting")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if transactions are posted to the Vendor Ledger Entry table when transactions with this vendor posting group are posted.';

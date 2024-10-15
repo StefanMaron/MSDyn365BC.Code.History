@@ -12,7 +12,7 @@ page 9839 "Printer Selections FactBox"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the user for whom you want to define permissions.';
@@ -25,19 +25,19 @@ page 9839 "Printer Selections FactBox"
                         UserMgt.DisplayUserInformation("User ID");
                     end;
                 }
-                field("Report ID"; "Report ID")
+                field("Report ID"; Rec."Report ID")
                 {
                     ApplicationArea = Basic, Suite;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the object ID of the report.';
                 }
-                field("Report Caption"; "Report Caption")
+                field("Report Caption"; Rec."Report Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
                     ToolTip = 'Specifies the display name of the report.';
                 }
-                field("Printer Name"; "Printer Name")
+                field("Printer Name"; Rec."Printer Name")
                 {
                     ApplicationArea = Basic, Suite;
                     LookupPageID = Printers;

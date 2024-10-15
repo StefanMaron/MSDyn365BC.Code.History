@@ -1,4 +1,4 @@
-﻿table 5767 "Warehouse Activity Line"
+table 5767 "Warehouse Activity Line"
 {
     Caption = 'Warehouse Activity Line';
     DrillDownPageID = "Warehouse Activity Lines";
@@ -84,7 +84,7 @@
                     "Variant Code" := '';
 
                 if "Item No." <> '' then begin
-                    GetItemUnitOfMeasure;
+                    GetItemUnitOfMeasure();
                     Description := Item.Description;
                     "Description 2" := Item."Description 2";
                     Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
@@ -135,7 +135,7 @@
             trigger OnValidate()
             begin
                 if "Item No." <> '' then begin
-                    GetItemUnitOfMeasure;
+                    GetItemUnitOfMeasure();
                     "Qty. per Unit of Measure" := ItemUnitOfMeasure."Qty. per Unit of Measure";
                     "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
                     "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
@@ -283,7 +283,7 @@
                    (CurrFieldNo <> 0)
                 then
                     if ("Breakbulk No." <> 0) or "Original Breakbulk" then
-                        UpdateBreakbulkQtytoHandle;
+                        UpdateBreakbulkQtytoHandle();
 
                 if ("Activity Type" in ["Activity Type"::Pick, "Activity Type"::"Invt. Pick"]) and
                    ("Action Type" <> "Action Type"::Place) and ("Lot No." <> '') and (CurrFieldNo <> 0)
@@ -406,7 +406,7 @@
 
             trigger OnLookup()
             begin
-                LookUpTrackingSummary(Rec, ShouldLookUpBinContent, -1, ItemTrackingType::"Serial No.");
+                LookUpTrackingSummary(Rec, ShouldLookUpBinContent(), -1, ItemTrackingType::"Serial No.");
             end;
 
             trigger OnValidate()
@@ -425,11 +425,11 @@
                     if "Activity Type" in ["Activity Type"::Pick, "Activity Type"::"Invt. Pick"] then
                         CheckReservedItemTrkg(ItemTrackingType::"Serial No.", "Serial No.");
 
-                    CheckSNSpecificationExists;
+                    CheckSNSpecificationExists();
 
                     ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.", WhseItemTrackingSetup);
                     if WhseItemTrackingSetup."Serial No. Required" and WhseItemTrackingSetup."Lot No. Required" then
-                        FindLotNoBySerialNo;
+                        FindLotNoBySerialNo();
                 end;
 
                 if "Serial No." <> xRec."Serial No." then
@@ -473,7 +473,7 @@
             begin
                 if "Lot No." <> '' then
                     with WhseActivLine do begin
-                        Reset;
+                        Reset();
                         SetCurrentKey("No.", "Line No.", "Activity Type");
                         SetRange("No.", Rec."No.");
                         SetRange("Item No.", Rec."Item No.");
@@ -544,7 +544,7 @@
 
                 if BinCode <> '' then begin
                     Validate("Bin Code", BinCode);
-                    Modify;
+                    Modify();
                 end;
             end;
 
@@ -559,13 +559,13 @@
                 NewBinCode: Code[20];
                 IsHandled: Boolean;
             begin
-                CheckBinInSourceDoc;
+                CheckBinInSourceDoc();
 
                 if "Bin Code" <> '' then
                     FindBinContent();
 
                 if "Bin Code" <> xRec."Bin Code" then begin
-                    CheckInvalidBinCode;
+                    CheckInvalidBinCode();
                     IsHandled := false;
                     OnValidateBinCodeOnAfterCheckInvalidBinCode(Rec, xRec, CurrFieldNo, IsHandled);
                     if IsHandled then
@@ -576,7 +576,7 @@
                                ("Breakbulk No." <> 0)
                             then
                                 Error(Text005, FieldCaption("Bin Code"));
-                            CheckWhseDocLine;
+                            CheckWhseDocLine();
                             if "Action Type" = "Action Type"::Take then begin
                                 if (("Whse. Document Type" <> "Whse. Document Type"::Receipt) and
                                     (Bin."Bin Type Code" <> ''))
@@ -899,7 +899,7 @@
     begin
         OnBeforeCalcQty(Rec, QtyBase);
         TestField("Qty. per Unit of Measure");
-        exit(Round(QtyBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
+        exit(Round(QtyBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
     end;
 
     procedure AutofillQtyToHandle(var WhseActivLine: Record "Warehouse Activity Line")
@@ -919,7 +919,7 @@
                     Validate("Qty. to Handle", "Qty. Outstanding");
                     if "Qty. to Handle (Base)" <> "Qty. Outstanding (Base)" then
                         Validate("Qty. to Handle (Base)", "Qty. Outstanding (Base)");
-                    Modify;
+                    Modify();
                     OnAfterAutofillQtyToHandleLine(WhseActivLine);
 
                     if not NotEnough then
@@ -941,7 +941,7 @@
             if Find('-') then
                 repeat
                     Validate("Qty. to Handle", 0);
-                    Modify;
+                    Modify();
                     OnAfterUpdateQtyToHandleWhseActivLine(WhseActivLine);
                 until Next() = 0;
         end;
@@ -1151,19 +1151,19 @@
             if not Location."Directed Put-away and Pick" then
                 exit(true);
             if Bin.Get(LocationCode, BinCode) then begin
-                CheckBin;
+                CheckBin();
                 exit(true);
             end;
             exit(false);
         end;
 
-        CheckBin;
+        CheckBin();
         exit(true);
     end;
 
     local procedure GetItemUnitOfMeasure()
     begin
-        GetItem;
+        GetItem();
         Item.TestField("No.");
         if (Item."No." <> ItemUnitOfMeasure."Item No.") or
            ("Unit of Measure Code" <> ItemUnitOfMeasure.Code)
@@ -1211,7 +1211,7 @@
             if "Bin Code" = Location."Adjustment Bin Code" then
                 Error(
                   Text011,
-                  Location.FieldCaption("Adjustment Bin Code"), Location.TableCaption,
+                  Location.FieldCaption("Adjustment Bin Code"), Location.TableCaption(),
                   FieldCaption("Bin Code"));
     end;
 
@@ -1257,7 +1257,7 @@
                  StrSubstNo(
                    Text012,
                    FieldCaption("Qty. Outstanding (Base)"), "Qty. Outstanding (Base)",
-                   QtyAvailBase, BinContent.TableCaption, FieldCaption("Bin Code")),
+                   QtyAvailBase, BinContent.TableCaption(), FieldCaption("Bin Code")),
                  false)
             then
                 Error(Text006);
@@ -1584,7 +1584,7 @@
                     WMSMgt.CalcCubageAndWeight(
                       "Item No.", "Unit of Measure Code", "Qty. to Handle", Cubage, Weight);
                 OnChangeUOMCodeOnBeforeRecModify(Rec, Location);
-                Modify;
+                Modify();
             end;
     end;
 
@@ -1704,7 +1704,7 @@
                        not WhseActivLine."Assemble to Order"
                     then
                         if WhseItemTrkgLine."Quantity Handled (Base)" = 0 then
-                            WhseItemTrkgLine.Delete
+                            WhseItemTrkgLine.Delete()
                         else begin
                             WhseItemTrkgLine.Validate("Quantity (Base)", WhseItemTrkgLine."Quantity Handled (Base)");
                             WhseItemTrkgLine.Modify();
@@ -1713,7 +1713,7 @@
                         if (WhseActivLine."Activity Type" = WhseActivLine."Activity Type"::"Invt. Movement") and
                            (WhseItemTrkgLine."Quantity Handled (Base)" = 0)
                         then
-                            WhseItemTrkgLine.Delete
+                            WhseItemTrkgLine.Delete()
                         else
                             WhseItemTrkgLine.Modify();
                 until WhseItemTrkgLine.Next() = 0;
@@ -1956,7 +1956,7 @@
         Description := WhseWkshLine.Description;
         "Description 2" := WhseWkshLine."Description 2";
         "Due Date" := WhseWkshLine."Due Date";
-        "Starting Date" := WorkDate;
+        "Starting Date" := WorkDate();
         "Destination Type" := WhseWkshLine."Destination Type";
         "Destination No." := WhseWkshLine."Destination No.";
         "Shipping Agent Code" := WhseWkshLine."Shipping Agent Code";
@@ -2024,7 +2024,7 @@
         Description := WhseInternalPickLine.Description;
         "Description 2" := WhseInternalPickLine."Description 2";
         "Due Date" := WhseInternalPickLine."Due Date";
-        "Starting Date" := WorkDate;
+        "Starting Date" := WorkDate();
         "Source Type" := DATABASE::"Whse. Internal Pick Line";
         "Source No." := WhseInternalPickLine."No.";
         "Source Line No." := WhseInternalPickLine."Line No.";
@@ -2094,7 +2094,7 @@
         "Activity Type" := "Activity Type"::Movement;
         "Item No." := WhseWkshLine."Item No.";
         "Variant Code" := WhseWkshLine."Variant Code";
-        "Starting Date" := WorkDate;
+        "Starting Date" := WorkDate();
         Description := WhseWkshLine.Description;
         "Description 2" := WhseWkshLine."Description 2";
         "Due Date" := WhseWkshLine."Due Date";
@@ -2153,7 +2153,7 @@
             WarehouseActivityLine.SetFilter("Line No.", '<>%1', "Line No.");
             WarehouseActivityLine.SetRange("Serial No.", "Serial No.");
             if not WarehouseActivityLine.IsEmpty() then
-                Error(Text018, TableCaption, FieldCaption("Serial No."), "Serial No.");
+                Error(Text018, TableCaption(), FieldCaption("Serial No."), "Serial No.");
         end;
     end;
 
@@ -2240,8 +2240,8 @@
                 Error(Text019, Format("Action Type"), Format(WhseActivLine."Action Type"), Location.Code);
 
             if (("Activity Type" = "Activity Type"::"Put-away") and ("Action Type" = "Action Type"::Place) and
-                Location.IsBWReceive or ("Activity Type" = "Activity Type"::Pick) and
-                ("Action Type" = "Action Type"::Take) and Location.IsBWShip) and Location.IsBinBWReceiveOrShip("Bin Code")
+                Location.IsBWReceive() or ("Activity Type" = "Activity Type"::Pick) and
+                ("Action Type" = "Action Type"::Take) and Location.IsBWShip()) and Location.IsBinBWReceiveOrShip("Bin Code")
             then
                 Error(Text020, Format("Action Type"), Location.Code);
         end;
@@ -2264,28 +2264,28 @@
     var
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
     begin
-        ItemAvailFormsMgt.ShowItemAvailFromWhseActivLine(Rec, ItemAvailFormsMgt.ByPeriod);
+        ItemAvailFormsMgt.ShowItemAvailFromWhseActivLine(Rec, ItemAvailFormsMgt.ByPeriod());
     end;
 
     procedure ShowItemAvailabilityByVariant()
     var
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
     begin
-        ItemAvailFormsMgt.ShowItemAvailFromWhseActivLine(Rec, ItemAvailFormsMgt.ByVariant);
+        ItemAvailFormsMgt.ShowItemAvailFromWhseActivLine(Rec, ItemAvailFormsMgt.ByVariant());
     end;
 
     procedure ShowItemAvailabilityByLocation()
     var
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
     begin
-        ItemAvailFormsMgt.ShowItemAvailFromWhseActivLine(Rec, ItemAvailFormsMgt.ByLocation);
+        ItemAvailFormsMgt.ShowItemAvailFromWhseActivLine(Rec, ItemAvailFormsMgt.ByLocation());
     end;
 
     procedure ShowItemAvailabilityByEvent()
     var
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
     begin
-        ItemAvailFormsMgt.ShowItemAvailFromWhseActivLine(Rec, ItemAvailFormsMgt.ByEvent);
+        ItemAvailFormsMgt.ShowItemAvailFromWhseActivLine(Rec, ItemAvailFormsMgt.ByEvent());
     end;
 
     local procedure ShowDeletedMessage(WhseActivLine: Record "Warehouse Activity Line")
@@ -2294,7 +2294,7 @@
         IsHandled: Boolean;
     begin
         with WhseActivLine2 do begin
-            Reset;
+            Reset();
             SetRange("Activity Type", WhseActivLine."Activity Type");
             SetRange("No.", WhseActivLine."No.");
             if not IsEmpty() then begin
@@ -2319,7 +2319,7 @@
             IsHandled := false;
             OnBeforeConfirmWhseActivLinesDeletionRecreate(WarehouseActivityLine, IsHandled);
             if not IsHandled then
-                if not Confirm(Text009, false, WarehouseActivityLine.TableCaption) then
+                if not Confirm(Text009, false, WarehouseActivityLine.TableCaption()) then
                     Error(Text006);
             exit(true);
         end;
@@ -2355,7 +2355,7 @@
                                    Text004,
                                    WhseActivLine.FieldCaption("Activity Type"), WhseActivLine."Activity Type", FieldCaption("No."), "No.",
                                    WhseActivLine.FieldCaption("Line No."), WhseActivLine."Line No.", WhseActivLine."Action Type",
-                                   WhseActivLine.TableCaption),
+                                   WhseActivLine.TableCaption()),
                                  false)
                             then
                                 Error(Text006);

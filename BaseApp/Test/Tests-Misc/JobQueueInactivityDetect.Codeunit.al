@@ -59,7 +59,7 @@ codeunit 139032 "Job Queue - Inactivity Detect"
         CODEUNIT.Run(CODEUNIT::"Job Queue Dispatcher", JobQueueEntry);
 
         // [THEN] Job gets status "On Hold with Inactivity period"
-        JobQueueEntry.Find;
+        JobQueueEntry.Find();
         JobQueueEntry.TestField(Status, JobQueueEntry.Status::"On Hold with Inactivity Timeout");
         VerifyDateTimeDifference(CurrDT, JobQueueEntry."Earliest Start Date/Time", JobQueueEntry."Inactivity Timeout Period" * 60);
     end;
@@ -85,7 +85,7 @@ codeunit 139032 "Job Queue - Inactivity Detect"
         CODEUNIT.Run(CODEUNIT::"Job Queue Dispatcher", JobQueueEntry);
 
         // [THEN] Job gets status "On Hold with Inactivity Timeout"
-        JobQueueEntry.Find;
+        JobQueueEntry.Find();
         JobQueueEntry.TestField(Status, JobQueueEntry.Status::"On Hold with Inactivity Timeout");
     end;
 
@@ -110,7 +110,7 @@ codeunit 139032 "Job Queue - Inactivity Detect"
         CODEUNIT.Run(CODEUNIT::"Job Queue Dispatcher", JobQueueEntry);
 
         // [THEN] Job stays active, Status = Ready
-        JobQueueEntry.Find;
+        JobQueueEntry.Find();
         JobQueueEntry.TestField(Status, JobQueueEntry.Status::Ready);
     end;
 
@@ -149,14 +149,14 @@ codeunit 139032 "Job Queue - Inactivity Detect"
         Item.Insert(); // calls COD1.OnDatabaseInsert -> COD5150.InsertUpdateIntegrationRecord
 
         // [THEN] Job 'ITEM1' does not get status "Ready", as it has only recently executed.
-        JobQueueEntry[1].Find;
+        JobQueueEntry[1].Find();
         JobQueueEntry[1].TestField(Status, JobQueueEntry[1].Status::"On Hold with Inactivity Timeout");
         // [THEN] Job 'CUSTOMER' is not changed, the state of the job is "On Hold with Inactivity period"
-        JobQueueEntry[2].Find;
+        JobQueueEntry[2].Find();
         JobQueueEntry[2].TestField(Status, JobQueueEntry[2].Status::"On Hold with Inactivity Timeout");
         // [THEN] Job 'ITEM2' gets status "Ready"
         if TaskScheduler.CanCreateTask() then begin
-            JobQueueEntry[3].Find;
+            JobQueueEntry[3].Find();
             JobQueueEntry[3].TestField(Status, JobQueueEntry[3].Status::Ready);
             // [THEN] new "Earliest Start Date/Time" is about 1 second from now
             VerifyDateTimeDifference(CurrentDateTime, JobQueueEntry[3]."Earliest Start Date/Time", 1);
@@ -190,7 +190,7 @@ codeunit 139032 "Job Queue - Inactivity Detect"
         Item.Insert(); // calls COD1.OnDatabaseInsert -> COD5150.InsertUpdateIntegrationRecord
 
         // [THEN] Job 'ITEM', where status "On Hold with Inactivity period"
-        JobQueueEntry.Find;
+        JobQueueEntry.Find();
         JobQueueEntry.TestField(Status, JobQueueEntry.Status::"On Hold with Inactivity Timeout");
     end;
 
@@ -239,7 +239,7 @@ codeunit 139032 "Job Queue - Inactivity Detect"
         CODEUNIT.Run(CODEUNIT::"Job Queue User Handler");
 
         for I := 1 to ArrayLen(JobQueueEntry) do
-            JobQueueEntry[I].Find;
+            JobQueueEntry[I].Find();
 
         // [THEN] Job 'A' is activated, the state is "Ready"
         Assert.AreEqual(JobQueueEntry[1].Status::Ready, JobQueueEntry[1].Status, 'Job A Status');
@@ -279,7 +279,7 @@ codeunit 139032 "Job Queue - Inactivity Detect"
 
         // [THEN] Job gets status "On Hold with Inactivity period"
         // [THEN] "Earliest Start Date/Time" is set according to "Inactivity Timeout Period"
-        JobQueueEntry.Find;
+        JobQueueEntry.Find();
         JobQueueEntry.TestField(Status, JobQueueEntry.Status::"On Hold with Inactivity Timeout");
         VerifyDateTimeDifference(CurrDT, JobQueueEntry."Earliest Start Date/Time", JobQueueEntry."Inactivity Timeout Period" * 60);
     end;
@@ -304,7 +304,7 @@ codeunit 139032 "Job Queue - Inactivity Detect"
         JobQueueEntry.SetStatus(JobQueueEntry.Status::"On Hold with Inactivity Timeout");
 
         // [THEN] Job gets status "On Hold"
-        JobQueueEntry.Find;
+        JobQueueEntry.Find();
         JobQueueEntry.TestField(Status, JobQueueEntry.Status::"On Hold with Inactivity Timeout");
     end;
 
@@ -327,7 +327,7 @@ codeunit 139032 "Job Queue - Inactivity Detect"
         IntegrationTableMapping.Insert();
 
         with JobQueueEntry do begin
-            ID := CreateGuid;
+            ID := CreateGuid();
             Description := Format(TableNo);
             Status := JobStatus;
             "Object Type to Run" := "Object Type to Run"::Codeunit;
@@ -343,8 +343,8 @@ codeunit 139032 "Job Queue - Inactivity Detect"
             "Run on Saturdays" := true;
             "Run on Sundays" := true;
             "Inactivity Timeout Period" := 10;
-            "System Task ID" := CreateGuid;
-            Insert;
+            "System Task ID" := CreateGuid();
+            Insert();
         end;
     end;
 
@@ -360,7 +360,7 @@ codeunit 139032 "Job Queue - Inactivity Detect"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         JobQueueEntry := ExpectedJobQueueEntry;
-        JobQueueEntry.Find;
+        JobQueueEntry.Find();
         JobQueueEntry.TestField(Status, ExpectedJobQueueEntry.Status);
     end;
 

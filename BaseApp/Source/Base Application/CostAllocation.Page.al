@@ -22,13 +22,13 @@ page 1105 "Cost Allocation"
                     Importance = Promoted;
                     ToolTip = 'Specifies by which level the cost allocation posting is done. For example, this makes sure that costs are allocated at level 1 from the ADM cost center to the WORKSHOP and PROD cost centers, before they are allocated at level 2 from the PROD cost center to the FURNITURE, CHAIRS, and PAINT cost objects.';
                 }
-                field("Valid From"; "Valid From")
+                field("Valid From"; Rec."Valid From")
                 {
                     ApplicationArea = CostAccounting;
                     Importance = Promoted;
                     ToolTip = 'Specifies the date when the cost allocation starts.';
                 }
-                field("Valid To"; "Valid To")
+                field("Valid To"; Rec."Valid To")
                 {
                     ApplicationArea = CostAccounting;
                     Importance = Promoted;
@@ -40,22 +40,22 @@ page 1105 "Cost Allocation"
                     Importance = Promoted;
                     ToolTip = 'Specifies the variant of the cost allocation.';
                 }
-                field("Cost Type Range"; "Cost Type Range")
+                field("Cost Type Range"; Rec."Cost Type Range")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies a cost type range to define which cost types are allocated. If all costs that are incurred by the cost center are allocated, you do not have to set a cost type range.';
                 }
-                field("Cost Center Code"; "Cost Center Code")
+                field("Cost Center Code"; Rec."Cost Center Code")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the cost center code. The code serves as a default value for cost posting that is captured later in the cost journal.';
                 }
-                field("Cost Object Code"; "Cost Object Code")
+                field("Cost Object Code"; Rec."Cost Object Code")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the cost object code. The code serves as a default value for cost posting that is captured later in the cost journal.';
                 }
-                field("Credit to Cost Type"; "Credit to Cost Type")
+                field("Credit to Cost Type"; Rec."Credit to Cost Type")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the cost type to which the credit posting is posted. The costs that are allocated are credited to the source cost center. It is useful to set up a helping cost type to later identify the allocation postings in the statistics and reports.';
@@ -74,18 +74,18 @@ page 1105 "Cost Allocation"
             group(Statistics)
             {
                 Caption = 'Statistics';
-                field("Allocation Source Type"; "Allocation Source Type")
+                field("Allocation Source Type"; Rec."Allocation Source Type")
                 {
                     ApplicationArea = CostAccounting;
                     Importance = Promoted;
                     ToolTip = 'Specifies if the allocation comes from both budgeted and actual costs, only budgeted costs, or only actual costs.';
                 }
-                field("Last Date Modified"; "Last Date Modified")
+                field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies when the cost allocation was last modified.';
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
@@ -102,7 +102,7 @@ page 1105 "Cost Allocation"
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies a comment that applies to the cost allocation.';
                 }
-                field("Total Share"; "Total Share")
+                field("Total Share"; Rec."Total Share")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the sum of the shares allocated.';
@@ -146,8 +146,6 @@ page 1105 "Cost Allocation"
                     ApplicationArea = CostAccounting;
                     Caption = 'Calculate Allocation Key';
                     Image = CalculateCost;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Recalculate the dynamic shares of the allocation key.';
 
                     trigger OnAction()
@@ -166,10 +164,27 @@ page 1105 "Cost Allocation"
                 ApplicationArea = CostAccounting;
                 Caption = 'Allocations';
                 Image = Allocations;
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Cost Allocations";
                 ToolTip = 'Verify and print the allocation source and targets that are defined in the Cost Allocation window for controlling purposes.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Calculate Allocation Key_Promoted"; "Calculate Allocation Key")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Reports';
+
+                actionref(Allocations_Promoted; Allocations)
+                {
+                }
             }
         }
     }

@@ -1,7 +1,7 @@
 page 7117 "Sales Analysis Report"
 {
     Caption = 'Sales Analysis Report';
-    DataCaptionExpression = GetCaption;
+    DataCaptionExpression = GetCaption();
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
@@ -28,7 +28,7 @@ page 7117 "Sales Analysis Report"
                         CurrentAnalysisAreaType := Rec.GetRangeMax("Analysis Area");
                         if AnalysisReportMgt.LookupAnalysisReportName(CurrentAnalysisAreaType, CurrentReportName) then begin
                             Text := CurrentReportName;
-                            CurrentReportNameOnAfterValidate;
+                            CurrentReportNameOnAfterValidate();
                             exit(true);
                         end;
                     end;
@@ -36,7 +36,7 @@ page 7117 "Sales Analysis Report"
                     trigger OnValidate()
                     begin
                         AnalysisReportMgt.CheckReportName(CurrentReportName, Rec);
-                        CurrentReportNameOnAfterValidate;
+                        CurrentReportNameOnAfterValidate();
                     end;
                 }
                 field(CurrentLineTemplate; CurrentLineTemplate)
@@ -47,16 +47,16 @@ page 7117 "Sales Analysis Report"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         AnalysisReportMgt.LookupAnalysisLineTemplName(CurrentLineTemplate, Rec);
-                        ValidateAnalysisTemplateName;
+                        ValidateAnalysisTemplateName();
                         CurrPage.Update(false);
                     end;
 
                     trigger OnValidate()
                     begin
                         AnalysisReportMgt.CheckAnalysisLineTemplName(CurrentLineTemplate, Rec);
-                        CurrentLineTemplateOnAfterValidate;
+                        CurrentLineTemplateOnAfterValidate();
                     end;
                 }
                 field(CurrentColumnTemplate; CurrentColumnTemplate)
@@ -97,7 +97,7 @@ page 7117 "Sales Analysis Report"
                         SetRange("Source Type Filter", CurrentSourceTypeFilter);
                         CurrentSourceTypeNoFilter := '';
                         AnalysisReportMgt.SetSourceNo(Rec, CurrentSourceTypeNoFilter);
-                        CurrentSourceTypeFilterOnAfterValidate;
+                        CurrentSourceTypeFilterOnAfterValidate();
                     end;
                 }
                 field(CurrentSourceTypeNoFilter; CurrentSourceTypeNoFilter)
@@ -114,7 +114,7 @@ page 7117 "Sales Analysis Report"
 
                     trigger OnValidate()
                     begin
-                        CurrentSourceTypeNoFilterOnAfterValidate;
+                        CurrentSourceTypeNoFilterOnAfterValidate();
                     end;
                 }
             }
@@ -132,7 +132,7 @@ page 7117 "Sales Analysis Report"
                         FindPeriod('');
                     end;
                 }
-                field(ColumnsSet; GetColumnsRangeFilter)
+                field(ColumnsSet; GetColumnsRangeFilter())
                 {
                     ApplicationArea = SalesAnalysis;
                     Caption = 'Column Set';
@@ -263,18 +263,15 @@ page 7117 "Sales Analysis Report"
                 ApplicationArea = SalesAnalysis;
                 Caption = '&Show Matrix';
                 Image = ShowMatrix;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'View the actual analysis report according to the selected filters and options.';
 
                 trigger OnAction()
                 begin
-                    SetFilters;
+                    SetFilters();
                     Clear(MatrixColumnCaptions);
-                    FillMatrixColumns;
+                    FillMatrixColumns();
                     Clear(SalesAnalysisMatrix);
-                    SalesAnalysisMatrix.Load(AnalysisColumn, MatrixColumnCaptions, FirstLineNo, LastLineNo);
+                    SalesAnalysisMatrix.Load(TempAnalysisColumn, MatrixColumnCaptions, FirstLineNo, LastLineNo);
                     SalesAnalysisMatrix.SetTableView(AnalysisLine);
                     SalesAnalysisMatrix.Run();
                 end;
@@ -284,16 +281,12 @@ page 7117 "Sales Analysis Report"
                 ApplicationArea = SalesAnalysis;
                 Caption = 'Previous Set';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
                 begin
                     Direction := Direction::Backward;
-                    SetPointsAnalysisColumn;
+                    SetPointsAnalysisColumn();
                 end;
             }
             action("Next Set")
@@ -301,16 +294,30 @@ page 7117 "Sales Analysis Report"
                 ApplicationArea = SalesAnalysis;
                 Caption = 'Next Set';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
                 begin
                     Direction := Direction::Forward;
-                    SetPointsAnalysisColumn;
+                    SetPointsAnalysisColumn();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Previous Set_Promoted"; "Previous Set")
+                {
+                }
+                actionref(ShowMatrix_Promoted; ShowMatrix)
+                {
+                }
+                actionref("Next Set_Promoted"; "Next Set")
+                {
+                }
             }
         }
     }
@@ -322,15 +329,15 @@ page 7117 "Sales Analysis Report"
         if (NewCurrentReportName <> '') and (NewCurrentReportName <> CurrentReportName) then begin
             CurrentReportName := NewCurrentReportName;
             AnalysisReportMgt.CheckReportName(CurrentReportName, Rec);
-            ValidateReportName;
+            ValidateReportName();
             AnalysisReportMgt.SetAnalysisLineTemplName(CurrentLineTemplate, Rec);
-            ValidateAnalysisTemplateName;
+            ValidateAnalysisTemplateName();
         end;
 
         AnalysisReportMgt.OpenAnalysisLines(CurrentLineTemplate, Rec);
-        AnalysisReportMgt.OpenColumns(CurrentColumnTemplate, Rec, AnalysisColumn);
+        AnalysisReportMgt.OpenColumns(CurrentColumnTemplate, Rec, TempAnalysisColumn);
 
-        AnalysisReportMgt.CopyColumnsToTemp(Rec, CurrentColumnTemplate, AnalysisColumn);
+        AnalysisReportMgt.CopyColumnsToTemp(Rec, CurrentColumnTemplate, TempAnalysisColumn);
         AnalysisReportMgt.SetSourceType(Rec, CurrentSourceTypeFilter.AsInteger());
         AnalysisReportMgt.SetSourceNo(Rec, CurrentSourceTypeNoFilter);
 
@@ -347,23 +354,20 @@ page 7117 "Sales Analysis Report"
 
         FindPeriod('');
 
-        NoOfColumns := SalesAnalysisMatrix.GetMatrixDimension;
+        NoOfColumns := SalesAnalysisMatrix.GetMatrixDimension();
         Direction := Direction::Forward;
 
-        ClearPoints;
-        SetPointsAnalysisColumn;
+        ClearPoints();
+        SetPointsAnalysisColumn();
     end;
 
     var
         GLSetup: Record "General Ledger Setup";
-        AnalysisColumn: Record "Analysis Column" temporary;
+        TempAnalysisColumn: Record "Analysis Column" temporary;
         ItemAnalysisView: Record "Item Analysis View";
         AnalysisLine: Record "Analysis Line";
         AnalysisReportMgt: Codeunit "Analysis Report Management";
         SalesAnalysisMatrix: Page "Sales Analysis Matrix";
-        CurrentReportName: Code[10];
-        CurrentLineTemplate: Code[10];
-        CurrentColumnTemplate: Code[10];
         NewCurrentReportName: Code[10];
         CurrentSourceTypeNoFilter: Text;
         CurrentSourceTypeFilter: Enum "Analysis Source Type";
@@ -376,6 +380,11 @@ page 7117 "Sales Analysis Report"
         FirstColumn: Text[1024];
         LastColumn: Text[1024];
         MatrixColumnCaptions: array[32] of Text[1024];
+
+    protected var
+        CurrentReportName: Code[10];
+        CurrentColumnTemplate: Code[10];
+        CurrentLineTemplate: Code[10];
 
     local procedure FindPeriod(SearchText: Code[10])
     var
@@ -404,8 +413,8 @@ page 7117 "Sales Analysis Report"
                (CurrentColumnTemplate <> AnalysisLineTemplate."Default Column Template Name")
             then begin
                 CurrentColumnTemplate := AnalysisLineTemplate."Default Column Template Name";
-                AnalysisReportMgt.OpenColumns(CurrentColumnTemplate, Rec, AnalysisColumn);
-                AnalysisReportMgt.CopyColumnsToTemp(Rec, CurrentColumnTemplate, AnalysisColumn);
+                AnalysisReportMgt.OpenColumns(CurrentColumnTemplate, Rec, TempAnalysisColumn);
+                AnalysisReportMgt.CopyColumnsToTemp(Rec, CurrentColumnTemplate, TempAnalysisColumn);
             end;
 
         if AnalysisLineTemplate."Item Analysis View Code" <> ItemAnalysisView.Code then begin
@@ -449,9 +458,9 @@ page 7117 "Sales Analysis Report"
 
     procedure SetFilters()
     begin
-        AnalysisColumn.Reset();
-        AnalysisColumn.SetRange("Analysis Area", "Analysis Area"::Sales);
-        AnalysisColumn.SetRange("Analysis Column Template", CurrentColumnTemplate);
+        TempAnalysisColumn.Reset();
+        TempAnalysisColumn.SetRange("Analysis Area", "Analysis Area"::Sales);
+        TempAnalysisColumn.SetRange("Analysis Column Template", CurrentColumnTemplate);
 
         AnalysisLine.Copy(Rec);
         AnalysisLine.SetRange("Analysis Area", "Analysis Area"::Sales);
@@ -548,30 +557,30 @@ page 7117 "Sales Analysis Report"
 
     local procedure CurrentReportNameOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
-        ValidateReportName;
+        CurrPage.SaveRecord();
+        ValidateReportName();
         AnalysisReportMgt.SetAnalysisLineTemplName(CurrentLineTemplate, Rec);
-        ValidateAnalysisTemplateName;
-        AnalysisReportMgt.CopyColumnsToTemp(Rec, CurrentColumnTemplate, AnalysisColumn);
+        ValidateAnalysisTemplateName();
+        AnalysisReportMgt.CopyColumnsToTemp(Rec, CurrentColumnTemplate, TempAnalysisColumn);
         CurrPage.Update(false);
-        ClearPoints;
-        SetPointsAnalysisColumn;
+        ClearPoints();
+        SetPointsAnalysisColumn();
     end;
 
     local procedure CurrentLineTemplateOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         AnalysisReportMgt.SetAnalysisLineTemplName(CurrentLineTemplate, Rec);
-        ValidateAnalysisTemplateName;
+        ValidateAnalysisTemplateName();
         CurrPage.Update(false);
     end;
 
     local procedure CurrentColumnTemplateOnAfterValidate()
     begin
-        AnalysisReportMgt.CopyColumnsToTemp(Rec, CurrentColumnTemplate, AnalysisColumn);
+        AnalysisReportMgt.CopyColumnsToTemp(Rec, CurrentColumnTemplate, TempAnalysisColumn);
         CurrPage.Update(false);
-        ClearPoints;
-        SetPointsAnalysisColumn;
+        ClearPoints();
+        SetPointsAnalysisColumn();
     end;
 
     local procedure CurrentSourceTypeNoFilterOnAfterValidate()

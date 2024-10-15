@@ -25,7 +25,7 @@ table 5611 "Depreciation Book"
             trigger OnValidate()
             begin
                 if "G/L Integration - Acq. Cost" then
-                    if TaxDeprBook then
+                    if TaxDeprBook() then
                         TaxRegisterSetup.TestField("Create Acquis. FA Tax Ledger", false);
             end;
         }
@@ -56,7 +56,7 @@ table 5611 "Depreciation Book"
             trigger OnValidate()
             begin
                 if "G/L Integration - Disposal" then
-                    if TaxDeprBook then
+                    if TaxDeprBook() then
                         TaxRegisterSetup.TestField("Create Disposal FA Tax Ledger", false);
             end;
         }
@@ -256,12 +256,12 @@ table 5611 "Depreciation Book"
                     TestField("Periodic Depr. Date Calc.", "Periodic Depr. Date Calc."::"Last Entry");
                 end;
                 FADeprBook.LockTable();
-                Modify;
+                Modify();
                 FADeprBook.SetCurrentKey("Depreciation Book Code", "FA No.");
                 FADeprBook.SetRange("Depreciation Book Code", Code);
                 if FADeprBook.FindSet(true) then
                     repeat
-                        FADeprBook.CalcDeprPeriod;
+                        FADeprBook.CalcDeprPeriod();
                         FADeprBook.Modify();
                     until FADeprBook.Next() = 0;
             end;
@@ -326,10 +326,10 @@ table 5611 "Depreciation Book"
         if not FADeprBook.IsEmpty() then
             Error(Text000);
 
-        if not InsCoverageLedgEntry.IsEmpty and (FASetup."Insurance Depr. Book" = Code) then
+        if not InsCoverageLedgEntry.IsEmpty() and (FASetup."Insurance Depr. Book" = Code) then
             Error(
               Text001,
-              FASetup.TableCaption, FASetup.FieldCaption("Insurance Depr. Book"), Code);
+              FASetup.TableCaption(), FASetup.FieldCaption("Insurance Depr. Book"), Code);
 
         FAPostingTypeSetup.SetRange("Depreciation Book Code", Code);
         FAPostingTypeSetup.DeleteAll();
@@ -350,18 +350,18 @@ table 5611 "Depreciation Book"
             "Depreciation Type" := false;
             "Acquisition Type" := true;
             Sign := Sign::Debit;
-            Insert;
+            Insert();
             "FA Posting Type" := "FA Posting Type"::"Write-Down";
             "Part of Depreciable Basis" := false;
             "Include in Gain/Loss Calc." := true;
             "Depreciation Type" := true;
             "Acquisition Type" := false;
             Sign := Sign::Credit;
-            Insert;
+            Insert();
             "FA Posting Type" := "FA Posting Type"::"Custom 1";
-            Insert;
+            Insert();
             "FA Posting Type" := "FA Posting Type"::"Custom 2";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -376,11 +376,12 @@ table 5611 "Depreciation Book"
     end;
 
     var
-        Text000: Label 'The book cannot be deleted because it is in use.';
-        Text001: Label 'The book cannot be deleted because %1 %2 = %3.';
         FASetup: Record "FA Setup";
         FAJnlSetup: Record "FA Journal Setup";
         TaxRegisterSetup: Record "Tax Register Setup";
+
+        Text000: Label 'The book cannot be deleted because it is in use.';
+        Text001: Label 'The book cannot be deleted because %1 %2 = %3.';
 
     protected var
         FAPostingTypeSetup: Record "FA Posting Type Setup";
@@ -401,7 +402,7 @@ table 5611 "Depreciation Book"
     [Scope('OnPrem')]
     procedure TaxDeprBook(): Boolean
     begin
-        if not TaxRegisterSetup.Get then begin
+        if not TaxRegisterSetup.Get() then begin
             TaxRegisterSetup.Init();
             TaxRegisterSetup.Insert();
         end;

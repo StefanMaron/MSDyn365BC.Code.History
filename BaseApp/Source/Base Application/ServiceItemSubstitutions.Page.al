@@ -14,17 +14,17 @@ page 5954 "Service Item Substitutions"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Substitute Type"; "Substitute Type")
+                field("Substitute Type"; Rec."Substitute Type")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the type of the item that can be used as a substitute.';
                 }
-                field("Substitute No."; "Substitute No.")
+                field("Substitute No."; Rec."Substitute No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the item that can be used as a substitute.';
                 }
-                field("Substitute Variant Code"; "Substitute Variant Code")
+                field("Substitute Variant Code"; Rec."Substitute Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the code of the variant that can be used as a substitute.';
@@ -35,7 +35,7 @@ page 5954 "Service Item Substitutions"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the description of the substitute item.';
                 }
-                field("Sub. Item No."; "Sub. Item No.")
+                field("Sub. Item No."; Rec."Sub. Item No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the item number of the catalog substitute item.';
@@ -50,7 +50,7 @@ page 5954 "Service Item Substitutions"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies how many units (such as pieces, boxes, or cans) of the item are available.';
                 }
-                field("Relations Level"; "Relations Level")
+                field("Relations Level"; Rec."Relations Level")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the priority level of this substitute item.';
@@ -81,8 +81,6 @@ page 5954 "Service Item Substitutions"
                 ApplicationArea = Service;
                 Caption = '&Condition';
                 Image = ViewComments;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Sub. Conditions";
                 RunPageLink = Type = FIELD(Type),
                               "No." = FIELD("No."),
@@ -91,6 +89,17 @@ page 5954 "Service Item Substitutions"
                               "Substitute No." = FIELD("Substitute No."),
                               "Substitute Variant Code" = FIELD("Substitute Variant Code");
                 ToolTip = 'Specify a condition for the item substitution, which is for information only and does not affect the item substitution.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Condition_Promoted"; "&Condition")
+                {
+                }
             }
         }
     }

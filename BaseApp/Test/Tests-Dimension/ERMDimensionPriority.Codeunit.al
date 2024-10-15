@@ -174,7 +174,7 @@ codeunit 134381 "ERM Dimension Priority"
         ExpectedDimValue := CreateReqLineWithCustomDimVal(RequisitionLine, ItemNo, DimensionCode);
 
         // Exercise.
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
 
         // Verify.
         VerifyDimValueInPurchLine(VendNo, DimensionCode, ExpectedDimValue);
@@ -915,7 +915,7 @@ codeunit 134381 "ERM Dimension Priority"
 
         i := 0;
         Dimension.FindSet();
-        Dimension.Next; // to skip Agreements
+        Dimension.Next(); // to skip Agreements
         repeat
             if i < Dimension.Count - 2 then
                 LibraryDimension.CreateDefaultDimension(DefaultDimension, DATABASE::Customer, CustomerNo, Dimension.Code,
@@ -924,7 +924,7 @@ codeunit 134381 "ERM Dimension Priority"
                 LibraryDimension.CreateDefaultDimension(DefaultDimension, DATABASE::"G/L Account", GLAccount, Dimension.Code,
                   GetDimensionValueCode(Dimension.Code, i mod 2));
             i += 1;
-        until Dimension.Next = 0;
+        until Dimension.Next() = 0;
     end;
 
     local procedure ClearDefaultDimensionCodes(TableID: Integer; No: Code[20])
@@ -1012,7 +1012,7 @@ codeunit 134381 "ERM Dimension Priority"
         ReqLine: Record "Requisition Line";
     begin
         CreateReqLine(ReqLine, ItemNo);
-        LibraryPlanning.CarryOutReqWksh(ReqLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(ReqLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
     end;
 
     local procedure CreateReqLineWithCustomDimVal(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20]; DimensionCode: Code[20]): Code[20]
@@ -1076,9 +1076,11 @@ codeunit 134381 "ERM Dimension Priority"
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
         ReqWkshTemplate.SetRange(Recurring, false);
         ReqWkshTemplate.FindFirst();
+        ReqWkshTemplate."Increment Batch Name" := true;
+        ReqWkshTemplate.Modify();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
         Item.Get(ItemNo);
-        LibraryPlanning.CalculatePlanForReqWksh(Item, ReqWkshTemplate.Name, RequisitionWkshName.Name, WorkDate, WorkDate);
+        LibraryPlanning.CalculatePlanForReqWksh(Item, ReqWkshTemplate.Name, RequisitionWkshName.Name, WorkDate(), WorkDate());
         FindReqLine(ReqLine, Item."No.");
     end;
 
@@ -1146,7 +1148,7 @@ codeunit 134381 "ERM Dimension Priority"
             DimensionSetEntry.SetRange("Dimension Code", DefaultDimension."Dimension Code");
             DimensionSetEntry.FindFirst();
             Assert.AreEqual(DimensionSetEntry."Dimension Value Code", DefaultDimension."Dimension Value Code", 'Dimension value mismatch');
-        until DefaultDimension.Next = 0;
+        until DefaultDimension.Next() = 0;
     end;
 
     local procedure CreateDefaultDimensionPriority(SourceCode: Code[10]; TableID: Integer; Priority: Integer)

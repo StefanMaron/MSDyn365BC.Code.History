@@ -23,7 +23,7 @@ page 373 "Bank Account Posting Groups"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with the bank account posting setup information.';
                 }
-                field("G/L Account No."; "G/L Account No.")
+                field("G/L Account No."; Rec."G/L Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger account to which bank account entries in this posting group are posted.';

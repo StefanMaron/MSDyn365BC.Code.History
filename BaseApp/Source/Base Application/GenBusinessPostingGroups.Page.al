@@ -24,7 +24,7 @@ page 312 "Gen. Business Posting Groups"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description for the general business posting group.';
                 }
-                field("Def. VAT Bus. Posting Group"; "Def. VAT Bus. Posting Group")
+                field("Def. VAT Bus. Posting Group"; Rec."Def. VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a default VAT business group code.';
@@ -40,7 +40,7 @@ page 312 "Gen. Business Posting Groups"
                                 Error('');
                     end;
                 }
-                field("Auto Insert Default"; "Auto Insert Default")
+                field("Auto Insert Default"; Rec."Auto Insert Default")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to automatically insert the Def. VAT Bus. Posting Group when the corresponding Code is inserted on new customer and vendor cards.';
@@ -71,11 +71,20 @@ page 312 "Gen. Business Posting Groups"
                 ApplicationArea = Basic, Suite;
                 Caption = '&Setup';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "General Posting Setup";
                 RunPageLink = "Gen. Bus. Posting Group" = FIELD(Code);
                 ToolTip = 'View or edit how you want to set up combinations of general business and general product posting groups.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Setup_Promoted"; "&Setup")
+                {
+                }
             }
         }
     }

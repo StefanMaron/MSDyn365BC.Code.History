@@ -8,6 +8,8 @@ permissionset 7576 "D365 FINANCIAL REP."
                   tabledata "Acc. Schedule Line" = RIMD,
                   tabledata "Acc. Schedule Line Entity" = RIMD,
                   tabledata "Acc. Schedule Name" = RIMD,
+                  tabledata "Financial Report" = RIMD,
+                  tabledata "Financial Report User Filters" = RIMD,
                   tabledata "Accounting Period" = RIMD,
                   tabledata "Analysis Column" = RIMD,
                   tabledata "Analysis Column Template" = RIMD,

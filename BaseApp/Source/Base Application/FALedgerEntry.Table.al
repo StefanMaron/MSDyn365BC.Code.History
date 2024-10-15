@@ -718,7 +718,7 @@ table 5601 "FA Ledger Entry"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "Entry No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "Entry No."));
     end;
 
     [Scope('OnPrem')]
@@ -750,7 +750,7 @@ table 5601 "FA Ledger Entry"
         FALedgEntry1: Record "FA Ledger Entry";
     begin
         with FALedgEntry1 do begin
-            Reset;
+            Reset();
             SetCurrentKey(
               "FA No.", "Depreciation Book Code", "FA Posting Category",
               "FA Posting Type", "FA Posting Date", "Depr. Bonus");
@@ -777,9 +777,9 @@ table 5601 "FA Ledger Entry"
         RealVATEntryNo: Integer;
     begin
         if Get(EntryNo) then begin
-            RealVATEntryNo := FindLastRealizedVATEntry;
+            RealVATEntryNo := FindLastRealizedVATEntry();
             if RealVATEntryNo <> 0 then
-                Error(Text12400, RealVATEntryNo, TableCaption, "Entry No.")
+                Error(Text12400, RealVATEntryNo, TableCaption(), "Entry No.")
         end;
     end;
 
@@ -845,6 +845,15 @@ table 5601 "FA Ledger Entry"
         exit(VATEntry.Base);
     end;
 
+    procedure IsAcquisitionCost(): Boolean
+    var
+        AcquisitionCost: Boolean;
+    begin
+        AcquisitionCost := "FA Posting Type" = "FA Posting Type"::"Acquisition Cost";
+        OnAfterIsAcquisitionCost(Rec, AcquisitionCost);
+        exit(AcquisitionCost);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterConvertPostingTypeElse(var FAJournalLine: Record "FA Journal Line"; var FALedgerEntry: Record "FA Ledger Entry")
     begin
@@ -857,6 +866,11 @@ table 5601 "FA Ledger Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterMoveToFAJnlLine(var FAJournalLine: Record "FA Journal Line"; FALedgerEntry: Record "FA Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsAcquisitionCost(var FALedgerEntry: Record "FA Ledger Entry"; var AcquisitionCost: Boolean);
     begin
     end;
 }

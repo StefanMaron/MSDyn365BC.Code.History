@@ -600,7 +600,7 @@ codeunit 5854 "Invt. Doc. Line-Reserve"
             TempEntrySummary."Table ID" := DATABASE::"Invt. Document Line";
             TempEntrySummary."Summary Type" :=
                 CopyStr(
-                    StrSubstNo(SummaryTxt, InvtDocLine.TableCaption, SelectStr(DocumentType + 1, DirectionTxt)),
+                    StrSubstNo(SummaryTxt, InvtDocLine.TableCaption(), SelectStr(DocumentType + 1, DirectionTxt)),
                     1, MaxStrLen(TempEntrySummary."Summary Type"));
             TempEntrySummary."Total Quantity" := TotalQuantity;
             TempEntrySummary."Total Available Quantity" :=

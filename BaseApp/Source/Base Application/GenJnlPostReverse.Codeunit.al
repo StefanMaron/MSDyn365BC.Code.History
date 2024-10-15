@@ -73,7 +73,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                 until ReversalEntry2.Next() = 0;
         end;
 
-        TransactionKey := GetTransactionKey;
+        TransactionKey := GetTransactionKey();
         SaveReversalEntries(ReversalEntry2, TransactionKey);
 
         GenJnlLine.Init();
@@ -82,7 +82,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
 
         OnReverseOnBeforeStartPosting(GenJnlLine, ReversalEntry2, GLEntry2);
 
-        if GenJnlPostLine.GetNextEntryNo = 0 then
+        if GenJnlPostLine.GetNextEntryNo() = 0 then
             GenJnlPostLine.StartPosting(GenJnlLine)
         else
             GenJnlPostLine.ContinuePosting(GenJnlLine);
@@ -125,20 +125,20 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
         FAInsertLedgEntry.FinishFAReverseEntry(GLReg);
 
         if not TempCustLedgEntry.IsEmpty() then
-            Error(ReversalMismatchErr, CustLedgEntry.TableCaption);
+            Error(ReversalMismatchErr, CustLedgEntry.TableCaption());
         if not TempVendLedgEntry.IsEmpty() then
-            Error(ReversalMismatchErr, VendLedgEntry.TableCaption);
+            Error(ReversalMismatchErr, VendLedgEntry.TableCaption());
         if not TempBankAccLedgEntry.IsEmpty() then
-            Error(ReversalMismatchErr, BankAccLedgEntry.TableCaption);
+            Error(ReversalMismatchErr, BankAccLedgEntry.TableCaption());
         if not TempTaxDiffLedgEntry.IsEmpty() then
-            Error(ReversalMismatchErr, TaxDiffLedgEntry.TableCaption);
+            Error(ReversalMismatchErr, TaxDiffLedgEntry.TableCaption());
 
         OnReverseOnBeforeFinishPosting(ReversalEntry, ReversalEntry2, GenJnlPostLine, GLReg);
 
         GenJnlPostLine.FinishPosting(GenJnlLine);
 
         if GLReg2."No." <> 0 then
-            if GLReg2.Find then begin
+            if GLReg2.Find() then begin
                 GLReg2.Reversed := true;
                 GLReg2.Modify();
             end;
@@ -170,12 +170,12 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                     CheckDimComb("Entry No.", "Dimension Set ID", DATABASE::"G/L Account", "G/L Account No.", 0, '');
                     GLEntry := GLEntry2;
                     if ("FA Entry No." <> 0) and GLSetup."Enable Russian Tax Accounting" then
-                        InsertReverseTaxEntry(FAInsertLedgerEntry, "Entry No.", GenJnlPostLine.GetNextEntryNo, "FA Entry Type",
-                          "FA Entry No.", GLEntry."FA Entry No.", GenJnlPostLine.GetNextTransactionNo);
+                        InsertReverseTaxEntry(FAInsertLedgerEntry, "Entry No.", GenJnlPostLine.GetNextEntryNo(), "FA Entry Type",
+                          "FA Entry No.", GLEntry."FA Entry No.", GenJnlPostLine.GetNextTransactionNo());
                     if "FA Entry No." <> 0 then
                         FAInsertLedgerEntry.InsertReverseEntry(
-                          GenJnlPostLine.GetNextEntryNo, "FA Entry Type", "FA Entry No.", GLEntry."FA Entry No.",
-                          GenJnlPostLine.GetNextTransactionNo);
+                          GenJnlPostLine.GetNextEntryNo(), "FA Entry Type", "FA Entry No.", GLEntry."FA Entry No.",
+                          GenJnlPostLine.GetNextTransactionNo());
                     GLEntry.Amount := -Amount;
                     GLEntry.Quantity := -Quantity;
                     GLEntry."VAT Amount" := -"VAT Amount";
@@ -184,8 +184,8 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                     GLEntry."Additional-Currency Amount" := -"Additional-Currency Amount";
                     GLEntry."Add.-Currency Debit Amount" := -"Add.-Currency Debit Amount";
                     GLEntry."Add.-Currency Credit Amount" := -"Add.-Currency Credit Amount";
-                    GLEntry."Entry No." := GenJnlPostLine.GetNextEntryNo;
-                    GLEntry."Transaction No." := GenJnlPostLine.GetNextTransactionNo;
+                    GLEntry."Entry No." := GenJnlPostLine.GetNextEntryNo();
+                    GLEntry."Transaction No." := GenJnlPostLine.GetNextTransactionNo();
                     GLEntry."User ID" := UserId;
                     GenJnlLine.Correction :=
                       (GLEntry."Debit Amount" < 0) or (GLEntry."Credit Amount" < 0) or
@@ -208,7 +208,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                     end;
                     "Reversed by Entry No." := GLEntry."Entry No.";
                     Reversed := true;
-                    Modify;
+                    Modify();
                     OnReverseGLEntryOnBeforeInsertGLEntry(GLEntry, GenJnlLine, GLEntry2);
                     GenJnlPostLine.InsertGLEntry(GenJnlLine, GLEntry, false);
                     OnReverseGLEntryOnAfterInsertGLEntry(GLEntry, GenJnlLine, GLEntry2, GenJnlPostLine);
@@ -312,7 +312,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
             "Pmt. Tolerance (LCY)" := -"Pmt. Tolerance (LCY)";
             "User ID" := UserId;
             "Entry No." := NewEntryNo;
-            "Transaction No." := GenJnlPostLine.GetNextTransactionNo;
+            "Transaction No." := GenJnlPostLine.GetNextTransactionNo();
             "Journal Batch Name" := '';
             "Source Code" := SourceCode;
             SetReversalDescription(CustLedgEntry, Description);
@@ -333,7 +333,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
             CustLedgEntry.Reversed := true;
             CustLedgEntry.Modify();
             OnReverseCustLedgEntryOnBeforeInsertCustLedgEntry(NewCustLedgEntry, CustLedgEntry, GenJnlPostLine);
-            Insert;
+            Insert();
             OnReverseCustLedgEntryOnAfterInsertCustLedgEntry(NewCustLedgEntry, CustLedgEntry, GenJnlPostLine);
 
             if NextDtldCustLedgEntryEntryNo = 0 then begin
@@ -353,7 +353,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                 NewDtldCustLedgEntry.UpdateDebitCredit(Correction);
                 NewDtldCustLedgEntry."Cust. Ledger Entry No." := NewEntryNo;
                 NewDtldCustLedgEntry."User ID" := UserId;
-                NewDtldCustLedgEntry."Transaction No." := GenJnlPostLine.GetNextTransactionNo;
+                NewDtldCustLedgEntry."Transaction No." := GenJnlPostLine.GetNextTransactionNo();
                 NewDtldCustLedgEntry."Entry No." := NextDtldCustLedgEntryEntryNo;
                 NextDtldCustLedgEntryEntryNo := NextDtldCustLedgEntryEntryNo + 1;
                 IsHandled := false;
@@ -394,7 +394,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
             "Pmt. Tolerance (LCY)" := -"Pmt. Tolerance (LCY)";
             "User ID" := UserId;
             "Entry No." := NewEntryNo;
-            "Transaction No." := GenJnlPostLine.GetNextTransactionNo;
+            "Transaction No." := GenJnlPostLine.GetNextTransactionNo();
             "Journal Batch Name" := '';
             "Source Code" := SourceCode;
             SetReversalDescription(VendLedgEntry, Description);
@@ -415,7 +415,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
             VendLedgEntry.Reversed := true;
             VendLedgEntry.Modify();
             OnReverseVendLedgEntryOnBeforeInsertVendLedgEntry(NewVendLedgEntry, VendLedgEntry, GenJnlPostLine);
-            Insert;
+            Insert();
             OnReverseVendLedgEntryOnAfterInsertVendLedgEntry(NewVendLedgEntry);
 
             if NextDtldVendLedgEntryEntryNo = 0 then begin
@@ -435,7 +435,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                 NewDtldVendLedgEntry.UpdateDebitCredit(Correction);
                 NewDtldVendLedgEntry."Vendor Ledger Entry No." := NewEntryNo;
                 NewDtldVendLedgEntry."User ID" := UserId;
-                NewDtldVendLedgEntry."Transaction No." := GenJnlPostLine.GetNextTransactionNo;
+                NewDtldVendLedgEntry."Transaction No." := GenJnlPostLine.GetNextTransactionNo();
                 NewDtldVendLedgEntry."Entry No." := NextDtldVendLedgEntryEntryNo;
                 NextDtldVendLedgEntryEntryNo := NextDtldVendLedgEntryEntryNo + 1;
                 IsHandled := false;
@@ -468,7 +468,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
             Positive := not Positive;
             "User ID" := UserId;
             "Entry No." := NewEntryNo;
-            "Transaction No." := GenJnlPostLine.GetNextTransactionNo;
+            "Transaction No." := GenJnlPostLine.GetNextTransactionNo();
             "Journal Batch Name" := '';
             "Source Code" := SourceCode;
             SetReversalDescription(BankAccLedgEntry, Description);
@@ -487,11 +487,11 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
             BankAccLedgEntry.Reversed := true;
             BankAccLedgEntry.Modify();
             OnReverseBankAccLedgEntryOnBeforeInsert(NewBankAccLedgEntry, BankAccLedgEntry);
-            Insert;
+            Insert();
         end;
     end;
 
-    local procedure ReverseVAT(GLEntry: Record "G/L Entry"; SourceCode: Code[10])
+    procedure ReverseVAT(GLEntry: Record "G/L Entry"; SourceCode: Code[10])
     var
         VATEntry: Record "VAT Entry";
         NewVATEntry: Record "VAT Entry";
@@ -519,11 +519,11 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                     "Add.-Curr. Rem. Unreal. Base" := -"Add.-Curr. Rem. Unreal. Base";
                     "VAT Difference" := -"VAT Difference";
                     "Add.-Curr. VAT Difference" := -"Add.-Curr. VAT Difference";
-                    "Transaction No." := GenJnlPostLine.GetNextTransactionNo;
+                    "Transaction No." := GenJnlPostLine.GetNextTransactionNo();
                     "Source Code" := SourceCode;
                     Positive := Amount > 0;
                     "User ID" := UserId;
-                    "Entry No." := GenJnlPostLine.GetNextVATEntryNo;
+                    "Entry No." := GenJnlPostLine.GetNextVATEntryNo();
                     "Reversed Entry No." := VATEntry."Entry No.";
                     Reversed := true;
                     // Reversal of Reversal
@@ -539,9 +539,9 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                     VATEntry.Reversed := true;
                     VATEntry.Modify();
                     OnReverseVATEntryOnBeforeInsert(NewVATEntry, VATEntry);
-                    Insert;
+                    Insert();
                     GLEntryVATEntryLink.InsertLink(GLEntry."Entry No.", "Entry No.");
-                    GenJnlPostLine.IncrNextVATEntryNo;
+                    GenJnlPostLine.IncrNextVATEntryNo();
                 end;
             until GLEntryVATEntryLink.Next() = 0;
     end;
@@ -567,7 +567,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
         NewDtldCustLedgEntry."Entry Type" := NewDtldCustLedgEntry."Entry Type"::Application;
         NewDtldCustLedgEntry."Applied Cust. Ledger Entry No." := AppliedEntryNo;
         NewDtldCustLedgEntry."User ID" := UserId;
-        NewDtldCustLedgEntry."Transaction No." := GenJnlPostLine.GetNextTransactionNo;
+        NewDtldCustLedgEntry."Transaction No." := GenJnlPostLine.GetNextTransactionNo();
         NewDtldCustLedgEntry."Entry No." := NextDtldCustLedgEntryEntryNo;
         NextDtldCustLedgEntryEntryNo := NextDtldCustLedgEntryEntryNo + 1;
         IsHandled := false;
@@ -597,7 +597,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
         NewDtldVendLedgEntry."Entry Type" := NewDtldVendLedgEntry."Entry Type"::Application;
         NewDtldVendLedgEntry."Applied Vend. Ledger Entry No." := AppliedEntryNo;
         NewDtldVendLedgEntry."User ID" := UserId;
-        NewDtldVendLedgEntry."Transaction No." := GenJnlPostLine.GetNextTransactionNo;
+        NewDtldVendLedgEntry."Transaction No." := GenJnlPostLine.GetNextTransactionNo();
         NewDtldVendLedgEntry."Entry No." := NextDtldVendLedgEntryEntryNo;
         NextDtldVendLedgEntryEntryNo := NextDtldVendLedgEntryEntryNo + 1;
         IsHandled := false;
@@ -619,7 +619,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
             exit;
 
         if not DimMgt.CheckDimIDComb(DimSetID) then
-            Error(DimCombBlockedErr, EntryNo, DimMgt.GetDimCombErr);
+            Error(DimCombBlockedErr, EntryNo, DimMgt.GetDimCombErr());
         Clear(TableID);
         Clear(AccNo);
         TableID[1] := TableID1;
@@ -627,7 +627,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
         TableID[2] := TableID2;
         AccNo[2] := AccNo2;
         if not DimMgt.CheckDimValuePosting(TableID, AccNo, DimSetID) then
-            Error(DimMgt.GetDimValuePostingErr);
+            Error(DimMgt.GetDimValuePostingErr());
     end;
 
     local procedure CopyCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; var TempCustLedgEntry: Record "Cust. Ledger Entry" temporary)
@@ -825,11 +825,11 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                     "Add.-Curr. Rem. Unreal. Base" := -"Add.-Curr. Rem. Unreal. Base";
                     "VAT Difference" := -"VAT Difference";
                     "Add.-Curr. VAT Difference" := -"Add.-Curr. VAT Difference";
-                    "Transaction No." := GenJnlPostLine.GetNextTransactionNo;
+                    "Transaction No." := GenJnlPostLine.GetNextTransactionNo();
                     "Source Code" := SourceCode;
                     Positive := Amount > 0;
                     "User ID" := UserId;
-                    "Entry No." := GenJnlPostLine.GetNextVATEntryNo;
+                    "Entry No." := GenJnlPostLine.GetNextVATEntryNo();
                     "Reversed Entry No." := VATEntry."Entry No.";
                     Reversed := true;
                     // Reversal of Reversal
@@ -849,9 +849,9 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                         "Additional VAT Ledger Sheet" := true;
                         "Posting Date" := ReversalEntry."Posting Date";
                     end;
-                    Insert;
+                    Insert();
                     GLEntryVATEntryLink.InsertLink(GLEntry."Entry No.", "Entry No.");
-                    GenJnlPostLine.IncrNextVATEntryNo;
+                    GenJnlPostLine.IncrNextVATEntryNo();
                     if VATEntry."Unrealized VAT Entry No." <> 0 then begin
                         Get(VATEntry."Unrealized VAT Entry No.");
                         "Remaining Unrealized Amount" := "Remaining Unrealized Amount" + VATEntry.Amount;
@@ -859,7 +859,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                         "Add.-Curr. Rem. Unreal. Amount" := "Add.-Curr. Rem. Unreal. Amount" + VATEntry."Additional-Currency Amount";
                         "Add.-Curr. Rem. Unreal. Base" := "Add.-Curr. Rem. Unreal. Base" + VATEntry."Additional-Currency Base";
                         "VAT Settlement Part" := VATSettlementMgt.GetPart(VATEntry."Unrealized VAT Entry No.");
-                        Modify;
+                        Modify();
                     end;
                 end;
             until GLEntryVATEntryLink.Next() = 0;
@@ -883,25 +883,25 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
 
                 Reversed := true;
                 "Reversed by Entry No." := NewTaxDiffLedgEntry."Entry No.";
-                Modify;
+                Modify();
 
                 with TaxDiffRegister do begin
                     if "No." = 0 then begin
                         LockTable();
                         if Find('+') then
                             "No." := "No." + 1;
-                        Init;
+                        Init();
                         "From Entry No." := NewTaxDiffLedgEntry."Entry No.";
                         "Creation Date" := Today;
                         "Journal Batch Name" := NewTaxDiffLedgEntry."Journal Batch Name";
                         "User ID" := UserId;
-                        Insert;
+                        Insert();
                     end;
                     "To Entry No." := NewTaxDiffLedgEntry."Entry No.";
-                    Modify;
+                    Modify();
                 end;
 
-                NewTaxDiffLedgEntry."Transaction No." := GenJnlPostLine.GetNextTransactionNo;
+                NewTaxDiffLedgEntry."Transaction No." := GenJnlPostLine.GetNextTransactionNo();
                 NewTaxDiffLedgEntry."Amount (Base)" := -"Amount (Base)";
                 NewTaxDiffLedgEntry."Amount (Tax)" := -"Amount (Tax)";
                 NewTaxDiffLedgEntry.Difference := -Difference;
@@ -977,11 +977,11 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                     if GLEntry."Entry No." = 0 then
                         RecordFound := GLEntry.FindFirst
                     else
-                        RecordFound := GLEntry.Next <> 0;
+                        RecordFound := GLEntry.Next() <> 0;
 
                     if RecordFound then
                         if (GLEntry.Amount = 0) and (GLEntry."Additional-Currency Amount" = 0) then
-                            RecordFound := GLEntry.Next <> 0;
+                            RecordFound := GLEntry.Next() <> 0;
 
                     if RecordFound then
                         if SettledVATEntry."Entry No." = UnrealizedVATEntry."Entry No." then
@@ -989,7 +989,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                                 FirstEntryNo := GLEntry."Entry No.";
 
                     if (GLEntry.Amount <> 0) or (GLEntry."Additional-Currency Amount" <> 0) then begin
-                        RecordFound := GLEntry.Next <> 0;
+                        RecordFound := GLEntry.Next() <> 0;
                         if RecordFound then
                             if SettledVATEntry."Entry No." = UnrealizedVATEntry."Entry No." then
                                 if (GLEntry."Entry No." <> 0) and (not GLEntry.Reversed) then

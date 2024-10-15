@@ -13,12 +13,12 @@ page 5892 "Phys. Inventory Comment List"
             repeater(Control40)
             {
                 ShowCaption = false;
-                field("Order No."; "Order No.")
+                field("Order No."; Rec."Order No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the document number of the physical inventory order to which the comment applies.';
                 }
-                field("Recording No."; "Recording No.")
+                field("Recording No."; Rec."Recording No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the document number of the physical inventory recording to which the comment applies.';

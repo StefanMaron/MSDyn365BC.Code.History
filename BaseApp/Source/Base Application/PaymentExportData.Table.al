@@ -527,7 +527,7 @@ table 1226 "Payment Export Data"
     trigger OnInsert()
     begin
         if not PreserveNonLatinCharacters then
-            PaymentExportConvertToLatin;
+            PaymentExportConvertToLatin();
     end;
 
     var
@@ -536,9 +536,9 @@ table 1226 "Payment Export Data"
 
     procedure InitData(var GenJnlLine: Record "Gen. Journal Line")
     begin
-        Reset;
+        Reset();
         Clear(TempPaymentExportRemittanceText);
-        Init;
+        Init();
         Amount := GenJnlLine.Amount;
         "Currency Code" := GenJnlLine."Currency Code";
     end;
@@ -636,7 +636,7 @@ table 1226 "Payment Export Data"
         "Recipient Bank Post Code" := CustomerBankAccount."Post Code";
         "Recipient Bank Country/Region" := CustomerBankAccount."Country/Region Code";
         "Recipient Bank BIC" := CustomerBankAccount."SWIFT Code";
-        "Recipient Bank Acc. No." := CopyStr(CustomerBankAccount.GetBankAccountNo, 1, MaxStrLen("Recipient Bank Acc. No."));
+        "Recipient Bank Acc. No." := CopyStr(CustomerBankAccount.GetBankAccountNo(), 1, MaxStrLen("Recipient Bank Acc. No."));
         "Recipient Bank Clearing Std." := CustomerBankAccount."Bank Clearing Standard";
         "Recipient Bank Clearing Code" := CustomerBankAccount."Bank Clearing Code";
 
@@ -659,7 +659,7 @@ table 1226 "Payment Export Data"
         "Recipient Bank Post Code" := VendorBankAccount."Post Code";
         "Recipient Bank Country/Region" := VendorBankAccount."Country/Region Code";
         "Recipient Bank BIC" := VendorBankAccount."SWIFT Code";
-        "Recipient Bank Acc. No." := CopyStr(VendorBankAccount.GetBankAccountNo, 1, MaxStrLen("Recipient Bank Acc. No."));
+        "Recipient Bank Acc. No." := CopyStr(VendorBankAccount.GetBankAccountNo(), 1, MaxStrLen("Recipient Bank Acc. No."));
         "Recipient Bank Clearing Std." := VendorBankAccount."Bank Clearing Standard";
         "Recipient Bank Clearing Code" := VendorBankAccount."Bank Clearing Code";
 
@@ -674,7 +674,7 @@ table 1226 "Payment Export Data"
         "Sender Bank County" := BankAccount.County;
         "Sender Bank Post Code" := BankAccount."Post Code";
         "Sender Bank Account Code" := BankAccount."No.";
-        "Sender Bank Account No." := CopyStr(BankAccount.GetBankAccountNo, 1, MaxStrLen("Sender Bank Account No."));
+        "Sender Bank Account No." := CopyStr(BankAccount.GetBankAccountNo(), 1, MaxStrLen("Sender Bank Account No."));
         "Sender Bank BIC" := BankAccount."SWIFT Code";
         "Sender Bank Clearing Std." := BankAccount."Bank Clearing Standard";
         "Sender Bank Clearing Code" := BankAccount."Bank Clearing Code";

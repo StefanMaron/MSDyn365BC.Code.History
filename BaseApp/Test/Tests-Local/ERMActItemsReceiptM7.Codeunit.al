@@ -119,7 +119,7 @@ codeunit 144708 "ERM Act Items Receipt M-7"
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
-        PurchaseHeader.SetRecFilter;
+        PurchaseHeader.SetRecFilter();
         ActItemsReceiptM7.SetTableView(PurchaseHeader);
         ActItemsReceiptM7.SetFileNameSilent(LibraryReportValidation.GetFileName);
         ActItemsReceiptM7.UseRequestPage(false);
@@ -137,7 +137,7 @@ codeunit 144708 "ERM Act Items Receipt M-7"
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
-        InvtDocumentHeader.SetRecFilter;
+        InvtDocumentHeader.SetRecFilter();
         ActItemsReceiptM7.SetTableView(InvtDocumentHeader);
         ActItemsReceiptM7.SetFileNameSilent(LibraryReportValidation.GetFileName);
         ActItemsReceiptM7.UseRequestPage(false);
@@ -200,7 +200,7 @@ codeunit 144708 "ERM Act Items Receipt M-7"
         i: Integer;
     begin
         with InvtDocumentHeader do begin
-            Init;
+            Init();
             "Document Type" := "Document Type"::Receipt;
             Validate("Location Code", CreateLocation);
             Insert(true);
@@ -215,7 +215,7 @@ codeunit 144708 "ERM Act Items Receipt M-7"
         InvtDocumentLine: Record "Invt. Document Line";
         RecRef: RecordRef;
     begin
-        InvtDocumentLine.Init;
+        InvtDocumentLine.Init();
         InvtDocumentLine.Validate("Document Type", InvtDocumentHeader."Document Type");
         InvtDocumentLine.Validate("Document No.", InvtDocumentHeader."No.");
         RecRef.GetTable(InvtDocumentLine);

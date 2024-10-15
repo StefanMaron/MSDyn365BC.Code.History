@@ -48,7 +48,7 @@
         CreatePostGenJournalLine(
           GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::Vendor, VendorNo,
-          CurrencyCode, WorkDate);
+          CurrencyCode, WorkDate());
         // [WHEN] Adjust Exchange Rate, "Dimension For Positive" = X with value Y and "Dimension for Negative" = X with value Z.
         ExchRateAdjPostingDate := WorkDate + 1;
         RunExchangeRateAdjWithSelectedDimensions(
@@ -82,7 +82,7 @@
         CreatePostGenJournalLine(
           GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::Vendor, VendorNo,
-          CurrencyCode, WorkDate);
+          CurrencyCode, WorkDate());
         // [WHEN] Adjust Exchange Rate, "Dimension For Positive" = X with value Y and "Dimension for Negative" = X with value Z.
         ExchRateAdjPostingDate := WorkDate + 1;
         RunExchangeRateAdjWithSelectedDimensions(
@@ -117,7 +117,7 @@
         CreatePostGenJournalLine(
           GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::Vendor, VendorANo,
-          CurrencyCode, WorkDate);
+          CurrencyCode, WorkDate());
         // [GIVEN] Posted Gen. Journal Line for Vendor B at Rate R2
         VendorBNo := LibraryPurchase.CreateVendorNo();
         CreatePostGenJournalLine(
@@ -151,7 +151,7 @@
         // [GIVEN] Posted FCY payment through Gen. Jnl. Line with balance Bank Account
         PostFCYPaymentWithBankBalAccount(CurrencyCode, BankAccNo);
         // [WHEN] Adjust Exchange Rates for Bank Account only
-        RunBankAccountExchRateAdjmt(CurrencyCode, BankAccNo, WorkDate, WorkDate + 1, DocNo);
+        RunBankAccountExchRateAdjmt(CurrencyCode, BankAccNo, WorkDate(), WorkDate + 1, DocNo);
         // [THEN] Two adjustment G/L Entries for Bank Account created
         VerifyAdjustmentGLEntry(DocNo);
     end;
@@ -176,7 +176,7 @@
         BankAccountNo := CreateBankAccount(CurrencyCode);
         CreatePostGenJournalLine(
           GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"Bank Account",
-          BankAccountNo, CurrencyCode, WorkDate);
+          BankAccountNo, CurrencyCode, WorkDate());
 
         // [WHEN] Run Adjust Exchange Rate.
         ExchRateAdjPostingDate := WorkDate + 1;
@@ -230,7 +230,7 @@
             ExchRateAmount[2] := LibraryRandom.RandIntInRange(ExchRateAmount[1], 200)
         else
             ExchRateAmount[2] := LibraryRandom.RandIntInRange(1, ExchRateAmount[1]);
-        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate, ExchRateAmount[1], ExchRateAmount[1]);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), ExchRateAmount[1], ExchRateAmount[1]);
         LibraryERM.CreateExchangeRate(Currency.Code, Date1, ExchRateAmount[2], ExchRateAmount[2]);
 
         if Date2 <> 0D then begin
@@ -364,7 +364,7 @@
         GLEntry: Record "G/L Entry";
     begin
         with GLEntry do begin
-            Init;
+            Init();
             SetRange("Posting Date", PostingDate);
             SetRange("Source No.", SourceNo);
             Assert.RecordIsNotEmpty(GLEntry);

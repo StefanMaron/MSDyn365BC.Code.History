@@ -85,7 +85,7 @@ codeunit 144006 "ERM Item Storno"
 
         LibraryInventory.CreateItem(Item);
         asserterror CreateAndPostItemJournalLine(
-            ItemJournalLine."Entry Type"::"Negative Adjmt.", ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", WorkDate,
+            ItemJournalLine."Entry Type"::"Negative Adjmt.", ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", WorkDate(),
             LibraryRandom.RandDec(10, 2), 0, 0, true);
 
         Assert.IsTrue(
@@ -151,7 +151,7 @@ codeunit 144006 "ERM Item Storno"
         LibraryInventory.CreateItem(Item);
 
         asserterror CreateAndPostInvtDocument(
-            InvtDocHeader."Document Type"::Shipment, InvtDocHeader."Document Type"::Shipment, Item."No.", WorkDate,
+            InvtDocHeader."Document Type"::Shipment, InvtDocHeader."Document Type"::Shipment, Item."No.", WorkDate(),
             LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2), 0, true);
 
         Assert.ExpectedError(StrSubstNo(ApplyEntryNoExpectedErr, ItemJournalLine.FieldCaption("Applies-from Entry")));
@@ -187,9 +187,9 @@ codeunit 144006 "ERM Item Storno"
 
         LibraryInventory.CreateItem(Item);
         InvoiceNo :=
-          CreateAndPostSalesDocument(SalesHeader."Document Type"::Invoice, Item."No.", WorkDate, LibraryRandom.RandDec(10, 2));
+          CreateAndPostSalesDocument(SalesHeader."Document Type"::Invoice, Item."No.", WorkDate(), LibraryRandom.RandDec(10, 2));
 
-        asserterror CreateAndPostCorrSalesCrMemo(InvoiceNo, WorkDate, 0, true);
+        asserterror CreateAndPostCorrSalesCrMemo(InvoiceNo, WorkDate(), 0, true);
 
         Assert.ExpectedError(StrSubstNo(ApplyEntryNoExpectedErr, ItemJournalLine.FieldCaption("Applies-from Entry")));
     end;
@@ -224,9 +224,9 @@ codeunit 144006 "ERM Item Storno"
 
         LibraryInventory.CreateItem(Item);
         InvoiceNo :=
-          CreateAndPostPurchDocument(PurchaseHeader."Document Type"::Invoice, Item."No.", WorkDate, LibraryRandom.RandDec(10, 2));
+          CreateAndPostPurchDocument(PurchaseHeader."Document Type"::Invoice, Item."No.", WorkDate(), LibraryRandom.RandDec(10, 2));
 
-        asserterror CreateAndPostCorrPurchCrMemo(InvoiceNo, WorkDate, 0, true);
+        asserterror CreateAndPostCorrPurchCrMemo(InvoiceNo, WorkDate(), 0, true);
 
         Assert.ExpectedError(StrSubstNo(ApplyEntryNoExpectedErr, ItemJournalLine.FieldCaption("Applies-to Entry")));
     end;
@@ -315,7 +315,7 @@ codeunit 144006 "ERM Item Storno"
 
         // [GIVEN] Inventory Setup "Enable Red Storno" = TRUE.
         // [GIVEN] Posted Sales Invoice "I".
-        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, WorkDate, false);
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, WorkDate(), false);
         for i := 1 to ArrayLen(ItemNo) do begin
             ItemNo[i] := CreateItemNo;
             LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo[i], LibraryRandom.RandIntInRange(100, 200));
@@ -337,7 +337,7 @@ codeunit 144006 "ERM Item Storno"
         if isInitialized then
             exit;
 
-        UpdateGLSetup;
+        UpdateGLSetup();
         UpdateInventorySetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateVATPostingSetup;
@@ -358,15 +358,15 @@ codeunit 144006 "ERM Item Storno"
         Initialize();
 
         ItemNo := CreateItemWithStartingData(Quantity, UnitAmt);
-        CreateAndPostInvtDocument(DocType, "Invt. Doc. Document Type"::Receipt, ItemNo, WorkDate, Quantity, UnitAmt, 0, false);
+        CreateAndPostInvtDocument(DocType, "Invt. Doc. Document Type"::Receipt, ItemNo, WorkDate(), Quantity, UnitAmt, 0, false);
 
-        CreateAndPostInvtDocument(CorrDocType, DocType, ItemNo, WorkDate, Quantity, 0,
-          FindLastItemLedgerEntryNo(ItemNo, WorkDate), RedStorno);
+        CreateAndPostInvtDocument(CorrDocType, DocType, ItemNo, WorkDate(), Quantity, 0,
+          FindLastItemLedgerEntryNo(ItemNo, WorkDate()), RedStorno);
 
         CalcTypeAndSignForInvtDoc(CorrEntryType, ExpectedSign, Sorting, DocType, CorrDocType);
 
-        VerifyValueEntries(ItemNo, WorkDate, ExpectedSign * Round(UnitAmt * Quantity), RedStorno);
-        VerifyItemLedgerEntries(ItemNo, WorkDate, CorrEntryType, ExpectedSign * Quantity);
+        VerifyValueEntries(ItemNo, WorkDate(), ExpectedSign * Round(UnitAmt * Quantity), RedStorno);
+        VerifyItemLedgerEntries(ItemNo, WorkDate(), CorrEntryType, ExpectedSign * Quantity);
 
         VerifyGLEntries('', GetLastCostDocumentNo, CalcExpectedSign(RedStorno) * Round(UnitAmt * Quantity), Sorting);
     end;
@@ -385,16 +385,16 @@ codeunit 144006 "ERM Item Storno"
         ItemNo := CreateItemWithStartingData(Quantity, CostAmt);
 
         CreateAndPostItemJournalLine(
-          EntryType, "Item Ledger Entry Type"::" ", ItemNo, WorkDate, Quantity, CostAmt, 0, false);
+          EntryType, "Item Ledger Entry Type"::" ", ItemNo, WorkDate(), Quantity, CostAmt, 0, false);
 
         CalcSign(CorrSign, ExpectedSign, EntryType, RedStorno);
 
         CreateAndPostItemJournalLine(
-          CorrEntryType, EntryType, ItemNo, WorkDate, CorrSign * Quantity, 0,
-          FindLastItemLedgerEntryNo(ItemNo, WorkDate), RedStorno);
+          CorrEntryType, EntryType, ItemNo, WorkDate(), CorrSign * Quantity, 0,
+          FindLastItemLedgerEntryNo(ItemNo, WorkDate()), RedStorno);
 
-        VerifyValueEntries(ItemNo, WorkDate, ExpectedSign * CostAmt, RedStorno);
-        VerifyItemLedgerEntries(ItemNo, WorkDate, CorrEntryType.AsInteger(), ExpectedSign * Quantity);
+        VerifyValueEntries(ItemNo, WorkDate(), ExpectedSign * CostAmt, RedStorno);
+        VerifyItemLedgerEntries(ItemNo, WorkDate(), CorrEntryType.AsInteger(), ExpectedSign * Quantity);
 
         Sorting := (ExpectedSign = -1) xor RedStorno;
         VerifyGLEntries('', GetLastCostDocumentNo, CorrSign * CostAmt, Sorting);
@@ -412,12 +412,12 @@ codeunit 144006 "ERM Item Storno"
         Initialize();
 
         ItemNo := CreateItemWithStartingData(Quantity, CostAmt);
-        InvoiceNo := CreateAndPostSalesDocument(SalesHeader."Document Type"::Invoice, ItemNo, WorkDate, Quantity);
-        CostAmt := -GetCostAmountActual(FindLastItemLedgerEntryNo(ItemNo, WorkDate));
+        InvoiceNo := CreateAndPostSalesDocument(SalesHeader."Document Type"::Invoice, ItemNo, WorkDate(), Quantity);
+        CostAmt := -GetCostAmountActual(FindLastItemLedgerEntryNo(ItemNo, WorkDate()));
 
-        CrMemoNo := CreateAndPostCorrSalesCrMemo(InvoiceNo, WorkDate, FindLastItemLedgerEntryNo(ItemNo, WorkDate), RedStorno);
+        CrMemoNo := CreateAndPostCorrSalesCrMemo(InvoiceNo, WorkDate(), FindLastItemLedgerEntryNo(ItemNo, WorkDate()), RedStorno);
 
-        VerifyValueEntries(ItemNo, WorkDate, CostAmt, RedStorno);
+        VerifyValueEntries(ItemNo, WorkDate(), CostAmt, RedStorno);
         VerifyGLEntries('', CrMemoNo, CalcExpectedSign(RedStorno) * CostAmt, RedStorno);
     end;
 
@@ -433,12 +433,12 @@ codeunit 144006 "ERM Item Storno"
         Initialize();
 
         ItemNo := CreateItemWithStartingData(Quantity, CostAmt);
-        InvoiceNo := CreateAndPostPurchDocument(PurchaseHeader."Document Type"::Invoice, ItemNo, WorkDate, Quantity);
-        CostAmt := GetCostAmountActual(FindLastItemLedgerEntryNo(ItemNo, WorkDate));
+        InvoiceNo := CreateAndPostPurchDocument(PurchaseHeader."Document Type"::Invoice, ItemNo, WorkDate(), Quantity);
+        CostAmt := GetCostAmountActual(FindLastItemLedgerEntryNo(ItemNo, WorkDate()));
 
-        CrMemoNo := CreateAndPostCorrPurchCrMemo(InvoiceNo, WorkDate, FindLastItemLedgerEntryNo(ItemNo, WorkDate), RedStorno);
+        CrMemoNo := CreateAndPostCorrPurchCrMemo(InvoiceNo, WorkDate(), FindLastItemLedgerEntryNo(ItemNo, WorkDate()), RedStorno);
 
-        VerifyValueEntries(ItemNo, WorkDate, -CostAmt, RedStorno);
+        VerifyValueEntries(ItemNo, WorkDate(), -CostAmt, RedStorno);
         VerifyGLEntries('', CrMemoNo, CalcExpectedSign(RedStorno) * CostAmt, not RedStorno);
     end;
 
@@ -456,12 +456,12 @@ codeunit 144006 "ERM Item Storno"
         RevalAmt := CostAmt + IncreaseIndex * LibraryRandom.RandDec(100, 2);
 
         CreateAndPostItemJournalLine(
-          ItemJournalLine."Entry Type"::"Positive Adjmt.", "Item Ledger Entry Type"::" ", Item."No.", WorkDate,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", "Item Ledger Entry Type"::" ", Item."No.", WorkDate(),
           LibraryRandom.RandDec(10, 2), CostAmt, 0, false);
 
-        CreateAndPostRevaluationItemJnlLine(Item."No.", WorkDate, RevalAmt, RedStorno);
+        CreateAndPostRevaluationItemJnlLine(Item."No.", WorkDate(), RevalAmt, RedStorno);
 
-        VerifyValueEntries(Item."No.", WorkDate, -(CostAmt - RevalAmt), RedStorno);
+        VerifyValueEntries(Item."No.", WorkDate(), -(CostAmt - RevalAmt), RedStorno);
         VerifyGLEntries('', GetLastCostDocumentNo, CalcExpectedSign(RedStorno) * (CostAmt - RevalAmt), not RedStorno);
     end;
 
@@ -478,12 +478,12 @@ codeunit 144006 "ERM Item Storno"
         ItemNo := CreateItemWithStartingData(Quantity, CostAmt);
 
         CreateAndPostItemJournalLine(
-          ItemJournalLine."Entry Type"::"Positive Adjmt.", "Item Ledger Entry Type"::" ", ItemNo, WorkDate, Quantity, CostAmt, 0, false);
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", "Item Ledger Entry Type"::" ", ItemNo, WorkDate(), Quantity, CostAmt, 0, false);
 
-        CreateAndPostReclassItemJnlLine(ItemNo, WorkDate, Quantity, FindLastItemLedgerEntryNo(ItemNo, WorkDate), RedStorno);
+        CreateAndPostReclassItemJnlLine(ItemNo, WorkDate(), Quantity, FindLastItemLedgerEntryNo(ItemNo, WorkDate()), RedStorno);
 
-        VerifyValueEntries(ItemNo, WorkDate, CostAmt, RedStorno);
-        VerifyItemLedgerEntries(ItemNo, WorkDate, ItemLedgerEntry."Entry Type"::Transfer.AsInteger(), Quantity);
+        VerifyValueEntries(ItemNo, WorkDate(), CostAmt, RedStorno);
+        VerifyItemLedgerEntries(ItemNo, WorkDate(), ItemLedgerEntry."Entry Type"::Transfer.AsInteger(), Quantity);
 
         VerifyGLEntries(GetInventoryAdjAccountNo(ItemNo), GetLastCostDocumentNo, CalcExpectedSign(RedStorno) * CostAmt, not RedStorno);
         VerifyGLEntries(GetInventoryAccountNoFilter(ItemNo), GetLastCostDocumentNo, CalcExpectedSign(RedStorno) * CostAmt, RedStorno);
@@ -531,7 +531,7 @@ codeunit 144006 "ERM Item Storno"
         CreateInvPostingSetup(Item."Inventory Posting Group");
 
         CreateAndPostItemJournalLine(
-          ItemJnlLine."Entry Type"::"Positive Adjmt.", "Item Ledger Entry Type"::" ", Item."No.", CalcDate('<-1D>', WorkDate),
+          ItemJnlLine."Entry Type"::"Positive Adjmt.", "Item Ledger Entry Type"::" ", Item."No.", CalcDate('<-1D>', WorkDate()),
           LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2), 0, false);
 
         Quantity := LibraryRandom.RandDec(10, 2);
@@ -674,7 +674,7 @@ codeunit 144006 "ERM Item Storno"
     local procedure CreateInvtDocumentHeader(var InvtDocumentHeader: Record "Invt. Document Header"; DocumentType: Enum "Invt. Doc. Document Type"; PostingDate: Date; NewCorrection: Boolean)
     begin
         with InvtDocumentHeader do begin
-            Init;
+            Init();
             "Document Type" := DocumentType;
             Insert(true);
             Validate("Posting Date", PostingDate);
@@ -688,7 +688,7 @@ codeunit 144006 "ERM Item Storno"
         InvtDocumentLine: Record "Invt. Document Line";
     begin
         with InvtDocumentLine do begin
-            Init;
+            Init();
             Validate("Document Type", InvtDocumentHeader."Document Type");
             Validate("Document No.", InvtDocumentHeader."No.");
             Validate("Item No.", ItemNo);
@@ -888,10 +888,10 @@ codeunit 144006 "ERM Item Storno"
         InventorySetup: Record "Inventory Setup";
     begin
         with InventorySetup do begin
-            Get;
+            Get();
             "Automatic Cost Posting" := true;
             "Enable Red Storno" := true;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1020,9 +1020,9 @@ codeunit 144006 "ERM Item Storno"
             SetRange("Posting Date", PostingDate);
             FindLast();
             Assert.AreNearlyEqual(ExpectedAmount, "Cost Amount (Actual)", 0.01,
-              StrSubstNo(ValuesAreNotEqualErr, TableCaption, FieldCaption("Cost Amount (Actual)")));
+              StrSubstNo(ValuesAreNotEqualErr, TableCaption(), FieldCaption("Cost Amount (Actual)")));
             Assert.AreEqual(RedStorno, "Red Storno",
-              StrSubstNo(ValuesAreNotEqualErr, TableCaption, FieldCaption("Red Storno")));
+              StrSubstNo(ValuesAreNotEqualErr, TableCaption(), FieldCaption("Red Storno")));
         end;
     end;
 
@@ -1048,9 +1048,9 @@ codeunit 144006 "ERM Item Storno"
             SetRange("Posting Date", PostingDate);
             FindLast();
             Assert.AreEqual(ExpectedEntryType, "Entry Type",
-              StrSubstNo(ValuesAreNotEqualErr, TableCaption, FieldCaption("Entry Type")));
+              StrSubstNo(ValuesAreNotEqualErr, TableCaption(), FieldCaption("Entry Type")));
             Assert.AreEqual(ExpectedQty, Quantity,
-              StrSubstNo(ValuesAreNotEqualErr, TableCaption, FieldCaption(Quantity)));
+              StrSubstNo(ValuesAreNotEqualErr, TableCaption(), FieldCaption(Quantity)));
         end;
     end;
 
@@ -1074,9 +1074,9 @@ codeunit 144006 "ERM Item Storno"
     begin
         with GLEntry do begin
             Assert.AreNearlyEqual(ExpectedDebit, "Debit Amount", 0.01,
-              StrSubstNo(ValuesAreNotEqualErr, TableCaption, FieldCaption("Debit Amount")));
+              StrSubstNo(ValuesAreNotEqualErr, TableCaption(), FieldCaption("Debit Amount")));
             Assert.AreNearlyEqual(ExpectedCredit, "Credit Amount", 0.01,
-              StrSubstNo(ValuesAreNotEqualErr, TableCaption, FieldCaption("Credit Amount")));
+              StrSubstNo(ValuesAreNotEqualErr, TableCaption(), FieldCaption("Credit Amount")));
         end;
     end;
 

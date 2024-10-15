@@ -11,7 +11,7 @@ report 713 "Inventory - Customer Sales"
         dataitem(ReportHeader; "Integer")
         {
             DataItemTableView = SORTING(Number) WHERE(Number = CONST(0));
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(PeriodText; PeriodText)
@@ -93,12 +93,12 @@ report 713 "Inventory - Customer Sales"
 
                 trigger OnAfterGetRecord()
                 begin
-                    if IsNewGroup then
+                    if IsNewGroup() then
                         AddReportLine(ValueEntryBuf);
 
                     IncrLineAmounts(ValueEntryBuf, "Item Ledger Entry");
 
-                    if IsLastEntry then
+                    if IsLastEntry() then
                         AddReportLine(ValueEntryBuf);
                 end;
 
@@ -140,13 +140,12 @@ report 713 "Inventory - Customer Sales"
 
     trigger OnPreReport()
     begin
-        ItemFilter := GetTableFilters(Item.TableCaption, Item.GetFilters);
-        ItemLedgEntryFilter := GetTableFilters("Item Ledger Entry".TableCaption, "Item Ledger Entry".GetFilters);
+        ItemFilter := GetTableFilters(Item.TableCaption(), Item.GetFilters);
+        ItemLedgEntryFilter := GetTableFilters("Item Ledger Entry".TableCaption(), "Item Ledger Entry".GetFilters);
         PeriodText := StrSubstNo(PeriodInfo, "Item Ledger Entry".GetFilter("Posting Date"));
     end;
 
     var
-        PeriodInfo: Label 'Period: %1';
         ValueEntryBuf: Record "Value Entry";
         TempValueEntryBuf: Record "Value Entry" temporary;
         PeriodText: Text;
@@ -154,6 +153,8 @@ report 713 "Inventory - Customer Sales"
         ItemLedgEntryFilter: Text;
         LastItemLedgEntryNo: Integer;
         ReportLineNo: Integer;
+
+        PeriodInfo: Label 'Period: %1';
 
     local procedure CalcDiscountAmount(ItemLedgerEntryNo: Integer): Decimal
     var

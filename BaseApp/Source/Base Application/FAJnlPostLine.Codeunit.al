@@ -1,4 +1,4 @@
-﻿codeunit 5632 "FA Jnl.-Post Line"
+codeunit 5632 "FA Jnl.-Post Line"
 {
     Permissions = TableData "FA Ledger Entry" = rm,
                   TableData "FA Register" = rm,
@@ -10,9 +10,6 @@
     end;
 
     var
-        Text000: Label '%2 must not be %3 in %4 %5 = %6 for %1.';
-        Text001: Label '%2 = %3 must be canceled first for %1.';
-        Text002: Label '%1 is not a %2.';
         FA: Record "Fixed Asset";
         FA2: Record "Fixed Asset";
         DeprBook: Record "Depreciation Book";
@@ -40,6 +37,10 @@
         DeprAcqCost: Boolean;
         ErrorEntryNo: Integer;
         ResultOnDisposal: Integer;
+
+        Text000: Label '%2 must not be %3 in %4 %5 = %6 for %1.';
+        Text001: Label '%2 = %3 must be canceled first for %1.';
+        Text002: Label '%1 is not a %2.';
         Text003: Label '%1 = %2 already exists for %5 (%3 = %4).';
         Text12400: Label 'You must specify FA Location Code and FA New Location Code';
 
@@ -85,10 +86,10 @@
                 ErrorEntryNo := "FA Error Entry No.";
                 if "FA Posting Type" = "FA Posting Type"::Maintenance then begin
                     MakeMaintenanceLedgEntry.CopyFromFAJnlLine(MaintenanceLedgEntry, FAJnlLine);
-                    PostMaintenance;
+                    PostMaintenance();
                 end else begin
                     MakeFALedgEntry.CopyFromFAJnlLine(FALedgEntry, FAJnlLine);
-                    PostFixedAsset;
+                    PostFixedAsset();
                 end;
                 UnmarkDeprBonusBaseEntries("Depr. Bonus", "FA Posting Date");
             end;
@@ -105,7 +106,7 @@
         OnBeforeGenJnlPostLine(GenJnlLine, FAInsertLedgEntry, FAAmount, VATAmount, NextTransactionNo, NextGLEntryNo, GLRegisterNo, IsHandled);
         if not IsHandled then begin
             FAInsertLedgEntry.SetGLRegisterNo(GLRegisterNo);
-            FAInsertLedgEntry.DeleteAllGLAcc;
+            FAInsertLedgEntry.DeleteAllGLAcc();
             with GenJnlLine do begin
                 if "Account No." = '' then
                     exit;
@@ -146,7 +147,7 @@
                     MaintenanceLedgEntry."VAT Amount" := VATAmount;
                     MaintenanceLedgEntry."Transaction No." := NextTransactionNo;
                     MaintenanceLedgEntry."G/L Entry No." := NextGLEntryNo;
-                    PostMaintenance;
+                    PostMaintenance();
                 end else begin
                     MakeFALedgEntry.CopyFromGenJnlLine(FALedgEntry, GenJnlLine);
                     FALedgEntry.Amount := FAAmount;
@@ -160,7 +161,7 @@
                     FALedgEntry."Transaction No." := NextTransactionNo;
                     FALedgEntry."G/L Entry No." := NextGLEntryNo;
                     OnBeforePostFixedAssetFromGenJnlLine(GenJnlLine, FALedgEntry, FAAmount, VATAmount);
-                    PostFixedAsset;
+                    PostFixedAsset();
                 end;
                 UnmarkDeprBonusBaseEntries("Depr. Bonus", "FA Posting Date");
             end;
@@ -200,9 +201,9 @@
             else
                 PostDisposalEntry(FALedgEntry)
         else begin
-            if PostBudget then
-                SetBudgetAssetNo;
-            if not DeprLine then begin
+            if PostBudget() then
+                SetBudgetAssetNo();
+            if not DeprLine() then begin
                 OnPostFixedAssetOnBeforeInsertEntry(FALedgEntry);
                 FAInsertLedgEntry.SetOrgGenJnlLine(true);
                 FAInsertLedgEntry.InsertFA(FALedgEntry);
@@ -213,8 +214,8 @@
         if DeprAcqCost then
             PostDeprUntilDate(FALedgEntry, 1);
         FAInsertLedgEntry.SetLastEntryNo(false);
-        if PostBudget then
-            PostBudgetAsset;
+        if PostBudget() then
+            PostBudgetAsset();
 
         OnAfterPostFixedAsset(FA, FALedgEntry);
     end;
@@ -233,14 +234,14 @@
                 FADeprBook.TestField("FA Posting Group");
                 "FA Posting Group" := FADeprBook."FA Posting Group";
             end;
-        if PostBudget then
-            SetBudgetAssetNo;
+        if PostBudget() then
+            SetBudgetAssetNo();
         OnPostMaintenanceOnBeforeInsertEntry(MaintenanceLedgEntry);
         FAInsertLedgEntry.SetOrgGenJnlLine(true);
         FAInsertLedgEntry.InsertMaintenance(MaintenanceLedgEntry);
         FAInsertLedgEntry.SetOrgGenJnlLine(false);
-        if PostBudget then
-            PostBudgetAsset;
+        if PostBudget() then
+            PostBudgetAsset();
     end;
 
     local procedure PostDisposalEntry(var FALedgEntry: Record "FA Ledger Entry")
@@ -270,14 +271,14 @@
             then
                 Error(
                   Text000,
-                  FAName, DeprBook.FieldCaption("Disposal Calculation Method"), "Disposal Calculation Method",
-                  DeprBook.TableCaption, DeprBook.FieldCaption(Code), DeprBook.Code);
+                  FAName(), DeprBook.FieldCaption("Disposal Calculation Method"), "Disposal Calculation Method",
+                  DeprBook.TableCaption(), DeprBook.FieldCaption(Code), DeprBook.Code);
             if ErrorEntryNo = 0 then
                 "Disposal Entry No." := MaxDisposalNo + 1
             else
                 if SalesEntryNo <> ErrorEntryNo then
                     Error(Text001,
-                      FAName, FieldCaption("Disposal Entry No."), MaxDisposalNo);
+                      FAName(), FieldCaption("Disposal Entry No."), MaxDisposalNo);
             if DisposalType = DisposalType::FirstDisposal then
                 PostReverseType(FALedgEntry);
             if DeprBook."Disposal Calculation Method" = DeprBook."Disposal Calculation Method"::Gross then
@@ -360,7 +361,7 @@
                 if DisposalType = DisposalType::LastErrorDisposal then
                     ModifySalesDisposalEntries(FANo, DeprBookCode, MaxDisposalNo);
             end;
-            FAInsertLedgEntry.CorrectEntries;
+            FAInsertLedgEntry.CorrectEntries();
             FAInsertLedgEntry.SetNetdisposal(false);
         end;
 
@@ -433,7 +434,7 @@
         if not FA2."Budgeted Asset" then begin
             FA."No." := FA2."No.";
             DeprBookCode := '';
-            Error(Text002, FAName, FA.FieldCaption("Budgeted Asset"));
+            Error(Text002, FAName(), FA.FieldCaption("Budgeted Asset"));
         end;
         if FAPostingType = FAPostingType::Maintenance then
             MaintenanceLedgEntry."FA No./Budgeted FA No." := BudgetNo
@@ -450,32 +451,29 @@
         FA2.TestField(Blocked, false);
         FA2.TestField(Inactive, false);
         if FAPostingType = FAPostingType::Maintenance then begin
-            with MaintenanceLedgEntry do begin
-                "Automatic Entry" := true;
-                "G/L Entry No." := 0;
-                "FA No./Budgeted FA No." := "FA No.";
-                "FA No." := BudgetNo;
-                Amount := -Amount2;
-                OnPostBudgetAssetOnBeforeInsertMaintenanceLedgEntry(MaintenanceLedgEntry);
-                FAInsertLedgEntry.InsertMaintenance(MaintenanceLedgEntry);
-            end;
-        end else
-            with FALedgEntry do begin
-                "Automatic Entry" := true;
-                "G/L Entry No." := 0;
-                "FA No./Budgeted FA No." := "FA No.";
-                "FA No." := BudgetNo;
-                if SalvageValue <> 0 then begin
-                    Amount := -SalvageValue;
-                    FAPostingType2 := "FA Posting Type";
-                    "FA Posting Type" := "FA Posting Type"::"Salvage Value";
-                    FAInsertLedgEntry.InsertFA(FALedgEntry);
-                    "FA Posting Type" := FAPostingType2;
-                end;
-                Amount := -Amount2;
-                OnPostBudgetAssetOnBeforeInsertFAEntry(FALedgEntry);
+            MaintenanceLedgEntry."Automatic Entry" := true;
+            MaintenanceLedgEntry."G/L Entry No." := 0;
+            MaintenanceLedgEntry."FA No./Budgeted FA No." := MaintenanceLedgEntry."FA No.";
+            MaintenanceLedgEntry."FA No." := BudgetNo;
+            MaintenanceLedgEntry.Amount := -Amount2;
+            OnPostBudgetAssetOnBeforeInsertMaintenanceLedgEntry(MaintenanceLedgEntry);
+            FAInsertLedgEntry.InsertMaintenance(MaintenanceLedgEntry);
+        end else begin
+            FALedgEntry."Automatic Entry" := true;
+            FALedgEntry."G/L Entry No." := 0;
+            FALedgEntry."FA No./Budgeted FA No." := FALedgEntry."FA No.";
+            FALedgEntry."FA No." := BudgetNo;
+            if SalvageValue <> 0 then begin
+                FALedgEntry.Amount := -SalvageValue;
+                FAPostingType2 := FALedgEntry."FA Posting Type";
+                FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Salvage Value";
                 FAInsertLedgEntry.InsertFA(FALedgEntry);
+                FALedgEntry."FA Posting Type" := FAPostingType2;
             end;
+            FALedgEntry.Amount := -Amount2;
+            OnPostBudgetAssetOnBeforeInsertFAEntry(FALedgEntry);
+            FAInsertLedgEntry.InsertFA(FALedgEntry);
+        end;
     end;
 
     procedure PostReverseType(FALedgEntry: Record "FA Ledger Entry")
@@ -608,7 +606,7 @@
               OldMaintenanceLedgEntry."Document No.",
               FAJnlLine2.FieldCaption("FA Posting Type"),
               FAJnlLine2."FA Posting Type",
-              FAName);
+              FAName());
         end;
     end;
 
@@ -663,7 +661,7 @@
             else
                 if SalesEntryNo <> ErrorEntryNo then
                     Error(Text001,
-                    FAName, FieldCaption("Disposal Entry No."), MaxDisposalNo);
+                    FAName(), FieldCaption("Disposal Entry No."), MaxDisposalNo);
             if DeprBook."Disposal Calculation Method" = DeprBook."Disposal Calculation Method"::Gross then
                 FAInsertLedgEntry.SetOrgGenJnlLine(true);
             FAInsertLedgEntry.InsertFA(FALedgEntry);
@@ -722,7 +720,7 @@
                     end;
                 end;
             end;
-            FAInsertLedgEntry.CorrectEntries;
+            FAInsertLedgEntry.CorrectEntries();
         end;
     end;
 

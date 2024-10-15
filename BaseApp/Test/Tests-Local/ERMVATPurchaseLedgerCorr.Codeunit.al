@@ -36,16 +36,16 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
-          PurchHeader, WorkDate, VendorNo, GLAccountNo,
+          PurchHeader, WorkDate(), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::" ", '', '');
         PostedDocNo := PostPurchDoc(PurchHeader);
 
         CreateInvoice(
-          PurchHeader, CalcDate('<CQ-1D>', WorkDate), VendorNo, GLAccountNo, UnitPrice, PurchHeader."Corrected Doc. Type"::Invoice,
+          PurchHeader, CalcDate('<CQ-1D>', WorkDate()), VendorNo, GLAccountNo, UnitPrice, PurchHeader."Corrected Doc. Type"::Invoice,
           PostedDocNo, '');
         PostPurchDoc(PurchHeader);
 
-        StartDate := CalcDate('<-CQ>', WorkDate);
+        StartDate := CalcDate('<-CQ>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
 
         VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(StartDate, EndDate, VendorNo, false, true);
@@ -68,17 +68,17 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
-          PurchHeader, WorkDate, VendorNo, GLAccountNo,
+          PurchHeader, WorkDate(), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::" ", '', '');
         PostedDocNo := PostPurchDoc(PurchHeader);
 
         CreateCrMemo(
-          PurchHeader, CalcDate('<CQ-1D>', WorkDate), VendorNo, GLAccountNo, UnitPrice, PurchHeader."Corrected Doc. Type"::Invoice,
+          PurchHeader, CalcDate('<CQ-1D>', WorkDate()), VendorNo, GLAccountNo, UnitPrice, PurchHeader."Corrected Doc. Type"::Invoice,
           PostedDocNo, '');
         UpdateInclInSalesVATLedger(PurchHeader, true);
         PostPurchDoc(PurchHeader);
 
-        StartDate := CalcDate('<-CQ>', WorkDate);
+        StartDate := CalcDate('<-CQ>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
 
         VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(StartDate, EndDate, VendorNo, false, true);
@@ -104,21 +104,21 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
-          PurchHeader, WorkDate, VendorNo, GLAccountNo,
+          PurchHeader, WorkDate(), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::" ", '', '');
         PostedDocNo := PostPurchDoc(PurchHeader);
 
         CreateInvoice(
-          PurchHeader, CalcDate('<CQ+1D>', WorkDate), VendorNo, GLAccountNo, UnitPrice, PurchHeader."Corrected Doc. Type"::Invoice,
+          PurchHeader, CalcDate('<CQ+1D>', WorkDate()), VendorNo, GLAccountNo, UnitPrice, PurchHeader."Corrected Doc. Type"::Invoice,
           PostedDocNo, '');
         PostPurchDoc(PurchHeader);
 
-        StartDate := CalcDate('<-CQ>', WorkDate);
+        StartDate := CalcDate('<-CQ>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
         VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(StartDate, EndDate, VendorNo, false, true);
         VerifyPurchVATLedgerLineCnt(VATLedgerCode, VendorNo, 1);
 
-        StartDate := CalcDate('<CQ+1D>', WorkDate);
+        StartDate := CalcDate('<CQ+1D>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
         VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(StartDate, EndDate, VendorNo, false, true);
         VerifyPurchVATLedgerLineCnt(VATLedgerCode, VendorNo, 1);
@@ -140,22 +140,22 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
-          PurchHeader, WorkDate, VendorNo, GLAccountNo,
+          PurchHeader, WorkDate(), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::" ", '', '');
         PostedDocNo := PostPurchDoc(PurchHeader);
 
         CreateCrMemo(
-          PurchHeader, CalcDate('<CQ+1D>', WorkDate), VendorNo, GLAccountNo, UnitPrice, PurchHeader."Corrected Doc. Type"::Invoice,
+          PurchHeader, CalcDate('<CQ+1D>', WorkDate()), VendorNo, GLAccountNo, UnitPrice, PurchHeader."Corrected Doc. Type"::Invoice,
           PostedDocNo, '');
         UpdateInclInSalesVATLedger(PurchHeader, true);
         PostPurchDoc(PurchHeader);
 
-        StartDate := CalcDate('<-CQ>', WorkDate);
+        StartDate := CalcDate('<-CQ>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
         VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(StartDate, EndDate, VendorNo, false, true);
         VerifyPurchVATLedgerLineCnt(VATLedgerCode, VendorNo, 1);
 
-        StartDate := CalcDate('<CQ+1D>', WorkDate);
+        StartDate := CalcDate('<CQ+1D>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
         VATLedgerCode := LibrarySales.CreateSalesVATLedger(StartDate, EndDate, '');
         VerifySalesVATLedgerLineCnt(VATLedgerCode, VendorNo, 1);
@@ -177,21 +177,21 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
-          PurchHeader, WorkDate, VendorNo, GLAccountNo,
+          PurchHeader, WorkDate(), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::" ", '', '');
         PostedDocNo := PostPurchDoc(PurchHeader);
 
         CreateInvoice(
-          PurchHeader, CalcDate('<1D>', WorkDate), VendorNo, GLAccountNo,
+          PurchHeader, CalcDate('<1D>', WorkDate()), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::Invoice, PostedDocNo, '');
         PostedDocNo := PostPurchDoc(PurchHeader);
 
         CreateInvoice(
-          PurchHeader, CalcDate('<3D>', WorkDate), VendorNo, GLAccountNo,
+          PurchHeader, CalcDate('<3D>', WorkDate()), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::Invoice, PostedDocNo, '');
         PostPurchDoc(PurchHeader);
 
-        StartDate := CalcDate('<-CQ>', WorkDate);
+        StartDate := CalcDate('<-CQ>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
         VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(StartDate, EndDate, VendorNo, false, true);
         VerifyPurchVATLedgerLineCnt(VATLedgerCode, VendorNo, 3);
@@ -213,23 +213,23 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
-          PurchHeader, WorkDate, VendorNo, GLAccountNo,
+          PurchHeader, WorkDate(), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::" ", '', '');
         PostedDocNo := PostPurchDoc(PurchHeader);
 
         CreateCrMemo(
-          PurchHeader, CalcDate('<1D>', WorkDate), VendorNo, GLAccountNo,
+          PurchHeader, CalcDate('<1D>', WorkDate()), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::Invoice, PostedDocNo, '');
         UpdateInclInSalesVATLedger(PurchHeader, true);
         PostedDocNo := PostPurchDoc(PurchHeader);
 
         CreateCrMemo(
-          PurchHeader, CalcDate('<3D>', WorkDate), VendorNo, GLAccountNo,
+          PurchHeader, CalcDate('<3D>', WorkDate()), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::"Credit Memo", PostedDocNo, '');
         UpdateInclInSalesVATLedger(PurchHeader, true);
         PostPurchDoc(PurchHeader);
 
-        StartDate := CalcDate('<-CQ>', WorkDate);
+        StartDate := CalcDate('<-CQ>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
 
         VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(StartDate, EndDate, VendorNo, false, true);
@@ -255,22 +255,22 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
-          PurchHeader, WorkDate, VendorNo, GLAccountNo,
+          PurchHeader, WorkDate(), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::" ", '', '');
         PostedDocNo := PostPurchDoc(PurchHeader);
 
         CreateInvoice(
-          PurchHeader, CalcDate('<1D>', WorkDate), VendorNo, GLAccountNo,
+          PurchHeader, CalcDate('<1D>', WorkDate()), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::Invoice, PostedDocNo, '');
         PostedDocNo := PostPurchDoc(PurchHeader);
 
         CreateCrMemo(
-          PurchHeader, CalcDate('<3D>', WorkDate), VendorNo, GLAccountNo,
+          PurchHeader, CalcDate('<3D>', WorkDate()), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::Invoice, PostedDocNo, '');
         UpdateInclInSalesVATLedger(PurchHeader, true);
         PostPurchDoc(PurchHeader);
 
-        StartDate := CalcDate('<-CQ>', WorkDate);
+        StartDate := CalcDate('<-CQ>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
 
         VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(StartDate, EndDate, VendorNo, false, true);
@@ -296,27 +296,27 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
-          PurchHeader, WorkDate, VendorNo, GLAccountNo,
+          PurchHeader, WorkDate(), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::" ", '', '');
         PostedDocNo := PostPurchDoc(PurchHeader);
 
         CreateInvoice(
-          PurchHeader, CalcDate('<1D>', WorkDate), VendorNo, GLAccountNo,
+          PurchHeader, CalcDate('<1D>', WorkDate()), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::Invoice, PostedDocNo, '');
         PostedDocNo := PostPurchDoc(PurchHeader);
 
         CreateCrMemo(
-          PurchHeader, CalcDate('<CQ+1D>', WorkDate), VendorNo, GLAccountNo,
+          PurchHeader, CalcDate('<CQ+1D>', WorkDate()), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::Invoice, PostedDocNo, '');
         UpdateInclInSalesVATLedger(PurchHeader, true);
         PostPurchDoc(PurchHeader);
 
-        StartDate := CalcDate('<-CQ>', WorkDate);
+        StartDate := CalcDate('<-CQ>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
         VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(StartDate, EndDate, VendorNo, false, true);
         VerifyPurchVATLedgerLineCnt(VATLedgerCode, VendorNo, 2);
 
-        StartDate := CalcDate('<CQ+1D>', WorkDate);
+        StartDate := CalcDate('<CQ+1D>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
         VATLedgerCode := LibrarySales.CreateSalesVATLedger(StartDate, EndDate, '');
         VerifySalesVATLedgerLineCnt(VATLedgerCode, VendorNo, 1);
@@ -338,22 +338,22 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
-          PurchHeader, WorkDate, VendorNo, GLAccountNo,
+          PurchHeader, WorkDate(), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::" ", '', '');
         PostedDocNo := PostPurchDoc(PurchHeader);
 
         CreateCrMemo(
-          PurchHeader, CalcDate('<1D>', WorkDate), VendorNo, GLAccountNo,
+          PurchHeader, CalcDate('<1D>', WorkDate()), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::Invoice, PostedDocNo, '');
         UpdateInclInSalesVATLedger(PurchHeader, true);
         PostedDocNo := PostPurchDoc(PurchHeader);
 
         CreateInvoice(
-          PurchHeader, CalcDate('<CQ+1D>', WorkDate), VendorNo, GLAccountNo,
+          PurchHeader, CalcDate('<CQ+1D>', WorkDate()), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::"Credit Memo", PostedDocNo, '');
         PostPurchDoc(PurchHeader);
 
-        StartDate := CalcDate('<-CQ>', WorkDate);
+        StartDate := CalcDate('<-CQ>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
 
         VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(StartDate, EndDate, VendorNo, false, true);
@@ -362,7 +362,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         VATLedgerCode := LibrarySales.CreateSalesVATLedger(StartDate, EndDate, '');
         VerifySalesVATLedgerLineCnt(VATLedgerCode, VendorNo, 1);
 
-        StartDate := CalcDate('<CQ+1D>', WorkDate);
+        StartDate := CalcDate('<CQ+1D>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
         VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(StartDate, EndDate, VendorNo, false, true);
         VerifyPurchVATLedgerLineCnt(VATLedgerCode, VendorNo, 1);
@@ -384,18 +384,18 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
-          PurchHeader, WorkDate, VendorNo, GLAccountNo,
+          PurchHeader, WorkDate(), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::" ", '', '');
         PostedDocNo := PostPurchDoc(PurchHeader);
 
         CreateCrMemo(
-          PurchHeader, CalcDate('<CQ+1D>', WorkDate), VendorNo, GLAccountNo,
+          PurchHeader, CalcDate('<CQ+1D>', WorkDate()), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::Invoice, PostedDocNo, '');
         UpdateAddVATLedgSheet(PurchHeader, true);
-        UpdateCorrDocDate(PurchHeader, WorkDate);
+        UpdateCorrDocDate(PurchHeader, WorkDate());
         PostPurchDoc(PurchHeader);
 
-        StartDate := CalcDate('<-CQ>', WorkDate);
+        StartDate := CalcDate('<-CQ>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
 
         VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(StartDate, EndDate, VendorNo, false, true);
@@ -421,26 +421,26 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
-          PurchHeader, WorkDate, VendorNo, GLAccountNo,
+          PurchHeader, WorkDate(), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::" ", '', '');
         PostedDocNo := PostPurchDoc(PurchHeader);
 
         CreateCrMemo(
-          PurchHeader, CalcDate('<CQ>', WorkDate), VendorNo, GLAccountNo,
+          PurchHeader, CalcDate('<CQ>', WorkDate()), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::Invoice, PostedDocNo, 'CrMemoRev1');
         PostPurchDoc(PurchHeader);
 
         CreateInvoice(
-          PurchHeader, CalcDate('<CQ+1D>', WorkDate), VendorNo, GLAccountNo,
+          PurchHeader, CalcDate('<CQ+1D>', WorkDate()), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::Invoice, PostedDocNo, 'InvRev1');
         PostPurchDoc(PurchHeader);
 
-        StartDate := CalcDate('<-CQ>', WorkDate);
+        StartDate := CalcDate('<-CQ>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
         VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(StartDate, EndDate, VendorNo, false, true);
         VerifyPurchVATLedgerLineCnt(VATLedgerCode, VendorNo, 2);
 
-        StartDate := CalcDate('<CQ+1D>', WorkDate);
+        StartDate := CalcDate('<CQ+1D>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
         VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(StartDate, EndDate, VendorNo, false, true);
         VerifyPurchVATLedgerLineCnt(VATLedgerCode, VendorNo, 1);
@@ -462,30 +462,30 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
-          PurchHeader, WorkDate, VendorNo, GLAccountNo,
+          PurchHeader, WorkDate(), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::" ", '', '');
         PostedDocNo := PostPurchDoc(PurchHeader);
 
         CreateCrMemo(
-          PurchHeader, CalcDate('<CQ+1D>', WorkDate), VendorNo, GLAccountNo,
+          PurchHeader, CalcDate('<CQ+1D>', WorkDate()), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::Invoice, PostedDocNo, 'CrMemoRev1');
         UpdateAddVATLedgSheet(PurchHeader, true);
-        UpdateCorrDocDate(PurchHeader, WorkDate);
+        UpdateCorrDocDate(PurchHeader, WorkDate());
         PostPurchDoc(PurchHeader);
 
         CreateInvoice(
-          PurchHeader, CalcDate('<CQ+2D>', WorkDate), VendorNo, GLAccountNo,
+          PurchHeader, CalcDate('<CQ+2D>', WorkDate()), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::Invoice, PostedDocNo, 'InvRev1');
         PostPurchDoc(PurchHeader);
 
-        StartDate := CalcDate('<-CQ>', WorkDate);
+        StartDate := CalcDate('<-CQ>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
         VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(StartDate, EndDate, VendorNo, false, true);
         LibraryPurchase.CreatePurchaseVATLedgerAddSheet(VATLedgerCode, 0);
         // VerifyPurchVATLedgerLineCnt(VATLedgerCode,VendorNo,1);
         // VerifyPurchVATLedgerAddLineCnt(VATLedgerCode,VendorNo,1);
 
-        StartDate := CalcDate('<-CQ>', CalcDate('<CQ+1D>', WorkDate));
+        StartDate := CalcDate('<-CQ>', CalcDate('<CQ+1D>', WorkDate()));
         EndDate := CalcDate('<CQ>', StartDate);
         VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(StartDate, EndDate, VendorNo, false, true);
         // VerifyPurchVATLedgerLineCnt(VATLedgerCode,VendorNo,1);
@@ -506,22 +506,22 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
-          PurchHeader, WorkDate, VendorNo, GLAccountNo,
+          PurchHeader, WorkDate(), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::" ", '', '');
         PostPurchDoc(PurchHeader);
 
         CreateCrMemo(
-          PurchHeader, WorkDate, VendorNo, GLAccountNo,
+          PurchHeader, WorkDate(), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::" ", '', '');
         PostPurchDoc(PurchHeader);
 
         CreateInvoice(
-          PurchHeader, WorkDate, VendorNo, GLAccountNo,
+          PurchHeader, WorkDate(), VendorNo, GLAccountNo,
           UnitPrice * 2, PurchHeader."Corrected Doc. Type"::" ", '', '');
-        UpdateVATInvoiceInfo(PurchHeader, Format(WorkDate), WorkDate, WorkDate);
+        UpdateVATInvoiceInfo(PurchHeader, Format(WorkDate()), WorkDate(), WorkDate());
         PostPurchDoc(PurchHeader);
 
-        StartDate := CalcDate('<-CQ>', WorkDate);
+        StartDate := CalcDate('<-CQ>', WorkDate());
         EndDate := CalcDate('<CQ>', StartDate);
         VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(StartDate, EndDate, VendorNo, true, true);
 
@@ -544,33 +544,33 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
-          PurchHeader, WorkDate, VendorNo, GLAccountNo,
+          PurchHeader, WorkDate(), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::" ", '', '');
-        UpdateVATInvoiceInfo(PurchHeader, Format(WorkDate), WorkDate, WorkDate);
+        UpdateVATInvoiceInfo(PurchHeader, Format(WorkDate()), WorkDate(), WorkDate());
         PostedDocNo := PostPurchDoc(PurchHeader);
 
         CreateCrMemo(
-          PurchHeader, CalcDate('<1D>', WorkDate), VendorNo, GLAccountNo,
+          PurchHeader, CalcDate('<1D>', WorkDate()), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::" ", '', '');
-        UpdateVATInvoiceInfo(PurchHeader, Format(WorkDate), CalcDate('<1D>', WorkDate), CalcDate('<1D>', WorkDate));
+        UpdateVATInvoiceInfo(PurchHeader, Format(WorkDate()), CalcDate('<1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
         PostPurchDoc(PurchHeader);
 
         CreateInvoice(
-          PurchHeader, CalcDate('<1D>', WorkDate), VendorNo, GLAccountNo,
+          PurchHeader, CalcDate('<1D>', WorkDate()), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::Invoice, PostedDocNo, '1');
-        UpdateVATInvoiceInfo(PurchHeader, Format(WorkDate), CalcDate('<1D>', WorkDate), CalcDate('<1D>', WorkDate));
+        UpdateVATInvoiceInfo(PurchHeader, Format(WorkDate()), CalcDate('<1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
         PostPurchDoc(PurchHeader);
 
-        StartDate := CalcDate('<-CM>', WorkDate);
+        StartDate := CalcDate('<-CM>', WorkDate());
         EndDate := CalcDate('<CM>', StartDate);
         VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(StartDate, EndDate, VendorNo, true, true);
 
         VerifyInvPurchVATLedgerLine(
           VATLedgerCode, VendorNo,
-          Format(WorkDate), WorkDate, '', 0D, '', 0D, '', 0D);
+          Format(WorkDate()), WorkDate(), '', 0D, '', 0D, '', 0D);
         VerifyCrMemoPurchVATLedgerLine(
           VATLedgerCode, VendorNo,
-          Format(WorkDate), CalcDate('<1D>', WorkDate), '', 0D, '', 0D, '', 0D);
+          Format(WorkDate()), CalcDate('<1D>', WorkDate()), '', 0D, '', 0D, '', 0D);
     end;
 
     [Test]
@@ -590,28 +590,28 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
-          PurchHeader, WorkDate, VendorNo, GLAccountNo,
+          PurchHeader, WorkDate(), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::" ", '', '');
-        UpdateVATInvoiceInfo(PurchHeader, Format(WorkDate), WorkDate, WorkDate);
+        UpdateVATInvoiceInfo(PurchHeader, Format(WorkDate()), WorkDate(), WorkDate());
         PostedDocNo := PostPurchDoc(PurchHeader);
 
-        NewDate := CalcDate('<1D>', WorkDate);
+        NewDate := CalcDate('<1D>', WorkDate());
         CreateInvoice(
           PurchHeader, NewDate, VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::Invoice, PostedDocNo, '');
         UpdateVATInvoiceInfo(PurchHeader, Format(NewDate), NewDate, NewDate);
         PostPurchDoc(PurchHeader);
 
-        StartDate := CalcDate('<-CM>', WorkDate);
+        StartDate := CalcDate('<-CM>', WorkDate());
         EndDate := CalcDate('<CM>', StartDate);
         VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(StartDate, EndDate, VendorNo, true, true);
 
         VerifyInvPurchVATLedgerLine(
           VATLedgerCode, VendorNo,
-          Format(WorkDate), WorkDate, '', 0D, '', 0D, '', 0D);
+          Format(WorkDate()), WorkDate(), '', 0D, '', 0D, '', 0D);
         VerifyInvPurchVATLedgerLine(
           VATLedgerCode, VendorNo,
-          Format(WorkDate), WorkDate, Format(NewDate), NewDate, '', 0D, '', 0D);
+          Format(WorkDate()), WorkDate(), Format(NewDate), NewDate, '', 0D, '', 0D);
     end;
 
     [Test]
@@ -631,21 +631,21 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
-          PurchHeader, WorkDate, VendorNo, GLAccountNo,
+          PurchHeader, WorkDate(), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::" ", '', '');
-        UpdateVATInvoiceInfo(PurchHeader, Format(WorkDate), WorkDate, WorkDate);
+        UpdateVATInvoiceInfo(PurchHeader, Format(WorkDate()), WorkDate(), WorkDate());
         PostedDocNo := PostPurchDoc(PurchHeader);
 
-        NewDate := CalcDate('<1M>', WorkDate);
+        NewDate := CalcDate('<1M>', WorkDate());
         CreateInvoice(
           PurchHeader, NewDate, VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::Invoice, PostedDocNo, '');
         UpdateVATInvoiceInfo(PurchHeader, Format(NewDate), NewDate, NewDate);
-        UpdateCorrDocDate(PurchHeader, WorkDate);
+        UpdateCorrDocDate(PurchHeader, WorkDate());
         UpdateAddVATLedgSheet(PurchHeader, true);
         PostPurchDoc(PurchHeader);
 
-        StartDate := CalcDate('<-CM>', WorkDate);
+        StartDate := CalcDate('<-CM>', WorkDate());
         EndDate := CalcDate('<CM>', StartDate);
 
         VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(StartDate, EndDate, VendorNo, true, true);
@@ -653,10 +653,10 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
 
         VerifyInvPurchVATLedgerLine(
           VATLedgerCode, VendorNo,
-          Format(WorkDate), WorkDate, '', 0D, '', 0D, '', 0D);
+          Format(WorkDate()), WorkDate(), '', 0D, '', 0D, '', 0D);
         VerifyInvPurchVATLedgerAddLine(
           VATLedgerCode, VendorNo,
-          Format(WorkDate), WorkDate, Format(NewDate), NewDate, '', 0D, '', 0D);
+          Format(WorkDate()), WorkDate(), Format(NewDate), NewDate, '', 0D, '', 0D);
     end;
 
     [Test]
@@ -676,12 +676,12 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
-          PurchHeader, WorkDate, VendorNo, GLAccountNo,
+          PurchHeader, WorkDate(), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::" ", '', '');
-        UpdateVATInvoiceInfo(PurchHeader, Format(WorkDate), WorkDate, WorkDate);
+        UpdateVATInvoiceInfo(PurchHeader, Format(WorkDate()), WorkDate(), WorkDate());
         PostedDocNo := PostPurchDoc(PurchHeader);
 
-        NewDate := CalcDate('<1D>', WorkDate);
+        NewDate := CalcDate('<1D>', WorkDate());
         CreateCrMemo(
           PurchHeader, NewDate, VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::Invoice, PostedDocNo, '');
@@ -689,13 +689,13 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         UpdateInclInSalesVATLedger(PurchHeader, true);
         PostPurchDoc(PurchHeader);
 
-        StartDate := CalcDate('<-CM>', WorkDate);
+        StartDate := CalcDate('<-CM>', WorkDate());
         EndDate := CalcDate('<CM>', StartDate);
 
         VATLedgerCode := LibrarySales.CreateSalesVATLedger(StartDate, EndDate, '');
         VerifyCrMemoSalesVATLedgerLine(
           VATLedgerCode, VendorNo,
-          Format(WorkDate), WorkDate, Format(NewDate), NewDate, '', 0D, '', 0D);
+          Format(WorkDate()), WorkDate(), Format(NewDate), NewDate, '', 0D, '', 0D);
     end;
 
     [Test]
@@ -715,12 +715,12 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
-          PurchHeader, WorkDate, VendorNo, GLAccountNo,
+          PurchHeader, WorkDate(), VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::" ", '', '');
-        UpdateVATInvoiceInfo(PurchHeader, Format(WorkDate), WorkDate, WorkDate);
+        UpdateVATInvoiceInfo(PurchHeader, Format(WorkDate()), WorkDate(), WorkDate());
         PostedDocNo := PostPurchDoc(PurchHeader);
 
-        NewDate := CalcDate('<1M>', WorkDate);
+        NewDate := CalcDate('<1M>', WorkDate());
         CreateCrMemo(
           PurchHeader, NewDate, VendorNo, GLAccountNo,
           UnitPrice, PurchHeader."Corrected Doc. Type"::Invoice, PostedDocNo, '');
@@ -734,7 +734,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         VATLedgerCode := LibrarySales.CreateSalesVATLedger(StartDate, EndDate, '');
         VerifyCrMemoSalesVATLedgerLine(
           VATLedgerCode, VendorNo,
-          Format(WorkDate), WorkDate, Format(NewDate), NewDate, '', 0D, '', 0D);
+          Format(WorkDate()), WorkDate(), Format(NewDate), NewDate, '', 0D, '', 0D);
     end;
 
     [Test]
@@ -955,7 +955,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         with PurchLine do begin
             LibraryPurch.CreatePurchaseLine(PurchLine, PurchHeader, Type::"G/L Account", GLAccountNo, 1);
             Validate("Direct Unit Cost", DirectUnitCost);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -975,7 +975,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
     begin
         RecRef.GetTable(CustLedgEntry);
         with CustLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
             "VAT Entry Type" := VATEntryTypeCode;
             Open := IsOpen;
@@ -989,7 +989,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
     begin
         RecRef.GetTable(VendLedgEntry);
         with VendLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
             "VAT Entry Type" := VATEntryTypeCode;
             Open := IsOpen;
@@ -1116,7 +1116,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
     begin
         MaxCount := LibraryRandom.RandInt(5);
         for Counter := 1 to MaxCount do
-            VATEntryTypePage.Next;
+            VATEntryTypePage.Next();
         LibraryVariableStorage.Enqueue(VATEntryTypePage.Code.Value);
         VATEntryTypePage.OK.Invoke;
     end;

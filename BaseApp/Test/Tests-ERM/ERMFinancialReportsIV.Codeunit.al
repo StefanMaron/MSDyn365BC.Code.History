@@ -125,7 +125,7 @@ codeunit 134992 "ERM Financial Reports IV"
         // Setup: Set Parameters for Report having Starting Date, Ending Date, Posting Date, Document No. and Settlement Account No as Blank.
         Initialize();
         Clear(CalcAndPostVATSettlement);
-        CalcAndPostVATSettlement.InitializeRequest(0D, 0D, 0D, '', '', false, false);
+        CalcAndPostVATSettlement.InitializeRequest(0D, 0D, Enum::"VAT Date Type"::"Posting Date", 0D, '', '', false, false);
 
         // Exercise: Try to save Report with TEST Name.
         asserterror CalcAndPostVATSettlement.Run();
@@ -146,7 +146,7 @@ codeunit 134992 "ERM Financial Reports IV"
         // Setup: Set Parameters for Report having Starting Date, Ending Date, Document No. and Settlement Account No. as Blank, take Posting Date as WORKDATE.
         Initialize();
         Clear(CalcAndPostVATSettlement);
-        CalcAndPostVATSettlement.InitializeRequest(0D, 0D, WorkDate, '', '', false, false);
+        CalcAndPostVATSettlement.InitializeRequest(0D, 0D, Enum::"VAT Date Type"::"Posting Date", WorkDate(), '', '', false, false);
 
         // Exercise: Try to save Report with TEST Name.
         asserterror CalcAndPostVATSettlement.Run();
@@ -167,7 +167,7 @@ codeunit 134992 "ERM Financial Reports IV"
         // Setup: Set Parameters for Report having Starting Date, Ending Date and Settlement Account No. as Blank, take Posting Date as WORKDATE and a Random Document No. value is not important.
         Initialize();
         Clear(CalcAndPostVATSettlement);
-        CalcAndPostVATSettlement.InitializeRequest(0D, 0D, WorkDate, Format(LibraryRandom.RandInt(100)), '', false, false);
+        CalcAndPostVATSettlement.InitializeRequest(0D, 0D, Enum::"VAT Date Type"::"Posting Date", WorkDate(), Format(LibraryRandom.RandInt(100)), '', false, false);
 
         // Exercise: Try to save Report with TEST Name.
         asserterror CalcAndPostVATSettlement.Run();
@@ -394,7 +394,7 @@ codeunit 134992 "ERM Financial Reports IV"
         VATStatementNames.OpenView;
         Commit();
         VATStatementNames."&Print".Invoke; // Print
-        VATStatementNames.Close;
+        VATStatementNames.Close();
 
         Assert.AreEqual(1, LibraryReportValidation.CountWorksheets, TooManyWorksheetsErr);
 
@@ -439,7 +439,7 @@ codeunit 134992 "ERM Financial Reports IV"
 
         VATStatement.OpenView;
         VATStatement.Print.Invoke;
-        VATStatement.Close;
+        VATStatement.Close();
 
         Assert.AreEqual(1, LibraryReportValidation.CountWorksheets, TooManyWorksheetsErr);
 
@@ -674,7 +674,7 @@ codeunit 134992 "ERM Financial Reports IV"
     begin
         // Setup: Create and Post General Journal Line with different Account Types, Find VAT Entries Amount.
         CreateAndPostGeneralJournalLine(VATPostingSetup, AccountType, AccountNo, GenPostingType, SignFactor, true);
-        VATEntry.SetRange("Posting Date", WorkDate);
+        VATEntry.SetRange("Posting Date", WorkDate());
         Amount := -CalculateVATEntryAmount(VATEntry, VATPostingSetup, GenPostingType, false);
 
         // Exercise: Taking Random No. for Document No., value is not important.
@@ -788,7 +788,7 @@ codeunit 134992 "ERM Financial Reports IV"
         FindVATEntry(VATEntry, CustomerNo);
         repeat
             TotalBase += VATEntry.Base;
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
     end;
 
     local procedure CreateCustomer(var VATPostingSetup: Record "VAT Posting Setup"): Code[20]
@@ -872,7 +872,7 @@ codeunit 134992 "ERM Financial Reports IV"
     begin
         VATEntry.SetRange("Bill-to/Pay-to No.", BilltoPaytoNo);
         VATEntry.SetRange(Type, VATEntry.Type::Sale);
-        VATEntry.SetRange("Posting Date", WorkDate);
+        VATEntry.SetRange("Posting Date", WorkDate());
         VATEntry.FindSet();
     end;
 
@@ -898,7 +898,7 @@ codeunit 134992 "ERM Financial Reports IV"
         VATPostingSetup.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         VATPostingSetup.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
-        CalcAndPostVATSettlement.InitializeRequest(WorkDate, WorkDate, WorkDate, DocumentNo, GLAccount."No.", false, Post);
+        CalcAndPostVATSettlement.InitializeRequest(WorkDate(), WorkDate(), Enum::"VAT Date Type"::"Posting Date", WorkDate, DocumentNo, GLAccount."No.", false, Post);
         Commit();
         CalcAndPostVATSettlement.Run();
     end;
@@ -912,7 +912,7 @@ codeunit 134992 "ERM Financial Reports IV"
         Clear(VATStatement);
         VATStatementName.SetRange(Name, Name);
         VATStatement.SetTableView(VATStatementName);
-        VATStatement.InitializeRequest(VATStatementName, VATStatementLine, Selection, PeriodSelection, false, false);
+        VATStatement.InitializeRequest(VATStatementName, VATStatementLine, Selection, PeriodSelection, false, false, Enum::"VAT Date Type"::"Posting Date");
         Commit();
         VATStatement.Run();
     end;
@@ -949,7 +949,7 @@ codeunit 134992 "ERM Financial Reports IV"
         VATVIESDeclarationTaxAuth: Report "VAT- VIES Declaration Tax Auth";
     begin
         Clear(VATVIESDeclarationTaxAuth);
-        VATVIESDeclarationTaxAuth.InitializeRequest(false, WorkDate, WorkDate, CustomerVATRegistrationNo);
+        VATVIESDeclarationTaxAuth.InitializeRequest(false, WorkDate(), WorkDate, CustomerVATRegistrationNo);
         VATVIESDeclarationTaxAuth.Run();
     end;
 

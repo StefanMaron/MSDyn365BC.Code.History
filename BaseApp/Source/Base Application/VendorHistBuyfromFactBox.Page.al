@@ -8,7 +8,7 @@ page 9095 "Vendor Hist. Buy-from FactBox"
     {
         area(content)
         {
-            field("No."; "No.")
+            field("No."; Rec."No.")
             {
                 ApplicationArea = All;
                 Caption = 'Vendor No.';
@@ -16,68 +16,68 @@ page 9095 "Vendor Hist. Buy-from FactBox"
 
                 trigger OnDrillDown()
                 begin
-                    ShowDetails;
+                    ShowDetails();
                 end;
             }
             group(Control23)
             {
                 ShowCaption = false;
                 Visible = false;
-                field("No. of Quotes"; "No. of Quotes")
+                field("No. of Quotes"; Rec."No. of Quotes")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Quotes';
                     DrillDownPageID = "Purchase Quotes";
                     ToolTip = 'Specifies the number of purchase quotes that exist for the vendor.';
                 }
-                field("No. of Blanket Orders"; "No. of Blanket Orders")
+                field("No. of Blanket Orders"; Rec."No. of Blanket Orders")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Blanket Orders';
                     DrillDownPageID = "Blanket Purchase Orders";
                     ToolTip = 'Specifies the number of purchase blanket orders that exist for the vendor.';
                 }
-                field("No. of Orders"; "No. of Orders")
+                field("No. of Orders"; Rec."No. of Orders")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Orders';
                     DrillDownPageID = "Purchase Order List";
                     ToolTip = 'Specifies the number of purchase orders that exist for the vendor.';
                 }
-                field("No. of Invoices"; "No. of Invoices")
+                field("No. of Invoices"; Rec."No. of Invoices")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Invoices';
                     DrillDownPageID = "Purchase Invoices";
                     ToolTip = 'Specifies the number of unposted purchase invoices that exist for the vendor.';
                 }
-                field("No. of Return Orders"; "No. of Return Orders")
+                field("No. of Return Orders"; Rec."No. of Return Orders")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Caption = 'Return Orders';
                     DrillDownPageID = "Purchase Return Order List";
                     ToolTip = 'Specifies the number of purchase return orders that exist for the vendor.';
                 }
-                field("No. of Credit Memos"; "No. of Credit Memos")
+                field("No. of Credit Memos"; Rec."No. of Credit Memos")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Credit Memos';
                     DrillDownPageID = "Purchase Credit Memos";
                     ToolTip = 'Specifies the number of unposted purchase credit memos that exist for the vendor.';
                 }
-                field("No. of Pstd. Return Shipments"; "No. of Pstd. Return Shipments")
+                field("No. of Pstd. Return Shipments"; Rec."No. of Pstd. Return Shipments")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Caption = 'Pstd. Return Shipments';
                     ToolTip = 'Specifies the number of posted return shipments that exist for the vendor.';
                 }
-                field("No. of Pstd. Receipts"; "No. of Pstd. Receipts")
+                field("No. of Pstd. Receipts"; Rec."No. of Pstd. Receipts")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Pstd. Receipts';
                     ToolTip = 'Specifies the number of posted purchase receipts that exist for the vendor.';
                 }
-                field("No. of Pstd. Invoices"; "No. of Pstd. Invoices")
+                field("No. of Pstd. Invoices"; Rec."No. of Pstd. Invoices")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Pstd. Invoices';
@@ -94,7 +94,7 @@ page 9095 "Vendor Hist. Buy-from FactBox"
                             PAGE.Run(PAGE::"Posted Purchase Invoices", PurchInvHeader);
                     end;
                 }
-                field("No. of Pstd. Credit Memos"; "No. of Pstd. Credit Memos")
+                field("No. of Pstd. Credit Memos"; Rec."No. of Pstd. Credit Memos")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Pstd. Credit Memos';

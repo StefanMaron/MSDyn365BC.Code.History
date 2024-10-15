@@ -27,7 +27,7 @@ page 1879 "VAT Product Posting Grp Part"
                         end;
                     end;
                 }
-                field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
+                field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
@@ -40,7 +40,7 @@ page 1879 "VAT Product Posting Grp Part"
                         end;
                     end;
                 }
-                field("Application Type"; "Application Type")
+                field("Application Type"; Rec."Application Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how a cost recipient is linked to its cost source to provide cost forwarding according to the costing method.';
@@ -54,38 +54,38 @@ page 1879 "VAT Product Posting Grp Part"
                         end;
                     end;
                 }
-                field("VAT Prod. Posting Grp Desc."; "VAT Prod. Posting Grp Desc.")
+                field("VAT Prod. Posting Grp Desc."; Rec."VAT Prod. Posting Grp Desc.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the VAT product posting group.';
                     Visible = VATRatesGroup;
                 }
-                field("VAT %"; "VAT %")
+                field("VAT %"; Rec."VAT %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT percentage used.';
                     Visible = VATRatesGroup;
                     Width = 3;
                 }
-                field("Sales VAT Account"; "Sales VAT Account")
+                field("Sales VAT Account"; Rec."Sales VAT Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger account number to which to post sales VAT, for the particular combination of VAT business posting group and VAT product posting group.';
                     Visible = VATAccountsGroup;
                 }
-                field("Purchase VAT Account"; "Purchase VAT Account")
+                field("Purchase VAT Account"; Rec."Purchase VAT Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger account number to which to post purchase VAT.';
                     Visible = VATAccountsGroup;
                 }
-                field("Reverse Chrg. VAT Acc."; "Reverse Chrg. VAT Acc.")
+                field("Reverse Chrg. VAT Acc."; Rec."Reverse Chrg. VAT Acc.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger account number to which you want to post reverse charge VAT (purchase VAT) for this combination of VAT business posting group and VAT product posting group, if you have selected the Reverse Charge VAT option in the VAT Calculation Type field.';
                     Visible = VATAccountsGroup;
                 }
-                field("VAT Clause Desc"; "VAT Clause Desc")
+                field("VAT Clause Desc"; Rec."VAT Clause Desc")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the VAT clause.';
@@ -132,9 +132,9 @@ page 1879 "VAT Product Posting Grp Part"
 
     trigger OnOpenPage()
     begin
-        VATNotification.Id := Format(CreateGuid);
-        PopulateVATProdGroups;
-        ShowVATRates;
+        VATNotification.Id := Format(CreateGuid());
+        PopulateVATProdGroups();
+        ShowVATRates();
         SetRange(Default, false);
     end;
 
@@ -149,30 +149,30 @@ page 1879 "VAT Product Posting Grp Part"
 
     procedure ShowVATRates()
     begin
-        ResetView;
+        ResetView();
         VATRatesGroup := true;
-        Reset;
+        Reset();
         SetRange(Default, false);
         CurrPage.Update();
     end;
 
     procedure ShowVATAccounts()
     begin
-        ResetView;
+        ResetView();
         VATAccountsGroup := true;
-        ShowOnlySelectedSrvItem;
+        ShowOnlySelectedSrvItem();
     end;
 
     procedure ShowVATClauses()
     begin
-        ResetView;
+        ResetView();
         VATClausesGroup := true;
-        ShowOnlySelectedSrvItem;
+        ShowOnlySelectedSrvItem();
     end;
 
     local procedure ResetView()
     begin
-        VATNotification.Recall;
+        VATNotification.Recall();
         VATRatesGroup := false;
         VATAccountsGroup := false;
         VATClausesGroup := false;
@@ -186,9 +186,9 @@ page 1879 "VAT Product Posting Grp Part"
 
     local procedure TrigerNotification(NotificationMsg: Text)
     begin
-        VATNotification.Recall;
+        VATNotification.Recall();
         VATNotification.Message(NotificationMsg);
-        VATNotification.Send;
+        VATNotification.Send();
     end;
 
     procedure HideNotification()
@@ -198,7 +198,7 @@ page 1879 "VAT Product Posting Grp Part"
         if VATNotification.Id = DummyGuid then
             exit;
         VATNotification.Message := '';
-        VATNotification.Recall;
+        VATNotification.Recall();
     end;
 }
 

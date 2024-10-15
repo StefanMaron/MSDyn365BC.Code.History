@@ -1,6 +1,7 @@
 table 136606 DuplicatedXMLFields
 {
     DataClassification = SystemMetadata;
+    ReplicateData = false;
 
     fields
     {

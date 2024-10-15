@@ -234,7 +234,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
     end;
 
     [Test]
-    [HandlerFunctions('MatchRecLinesReqPageHandler,MessageHandler,ConfirmHandler')]
+    [HandlerFunctions('MatchRecLinesReqPageHandler,MessageHandler,ConfirmHandler,BankStatementPagePostHandler')]
     [Scope('OnPrem')]
     procedure PostMatch()
     var
@@ -246,6 +246,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
 
         // Setup.
         SetupManualMatch(BankAccReconciliation, BankAccReconciliationPage, Amount, 1);
+        LibraryVariableStorage.Enqueue(BankAccReconciliationPage.StatementNo.Value);
         Commit();
         BankAccReconciliationPage.MatchAutomatically.Invoke;
         BankAccReconciliationPage.StatementEndingBalance.SetValue(BankAccReconciliationPage.StmtLine.TotalBalance.AsDEcimal);
@@ -724,7 +725,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateLocalPostingSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         isInitialized := true;
         Commit();
@@ -761,7 +762,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         AppliedPaymentEntry: Record "Applied Payment Entry";
     begin
         with AppliedPaymentEntry do begin
-            Init;
+            Init();
             "Statement Type" := BankAccReconLine."Statement Type";
             "Bank Account No." := BankAccReconLine."Bank Account No.";
             "Statement No." := BankAccReconLine."Statement No.";
@@ -769,7 +770,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
             "Account Type" := BankAccReconLine."Account Type";
             "Account No." := BankAccReconLine."Account No.";
             "Applied Amount" := AmountToApply;
-            Insert;
+            Insert();
         end;
 
         BankAccReconLine.Validate("Applied Amount", AmountToApply);
@@ -785,12 +786,12 @@ codeunit 134253 "Match Bank Rec. Scenarios"
           BankAccReconciliation, BankAccount."No.", BankAccReconciliation."Statement Type"::"Payment Application");
         LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
         with BankAccReconciliationLine do begin
-            Validate("Transaction Date", WorkDate);
+            Validate("Transaction Date", WorkDate());
             Validate("Account Type", "Account Type"::"G/L Account");
             Validate("Account No.", GLAccountNo);
             Validate(Description, "Account No.");
             Validate("Statement Amount", StmtAmount);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -857,7 +858,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         BankAccReconciliation.Validate("Bank Account No.", BankAccountNo);
         BankAccReconciliation.Validate("Statement No.",
           LibraryUtility.GenerateRandomCode(BankAccReconciliation.FieldNo("Statement No."), DATABASE::"Bank Acc. Reconciliation"));
-        BankAccReconciliation.Validate("Statement Date", WorkDate);
+        BankAccReconciliation.Validate("Statement Date", WorkDate());
         BankAccReconciliation.Insert(true);
     end;
 
@@ -869,7 +870,6 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         Clear(StatementLineNos);
         for i := 1 to LineCount do begin
             LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
-            BankAccReconciliationLine.Validate(Type, BankAccReconciliationLine.Type::"Check Ledger Entry");
             BankAccReconciliationLine.Validate("Statement Amount", LibraryRandom.RandDecInRange(100, 200, 2));
             BankAccReconciliationLine.Modify(true);
             StatementLineNos.Add(BankAccReconciliationLine."Statement Line No.");
@@ -922,7 +922,6 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.");
         for count := 1 to 2 do begin
             LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
-            BankAccReconciliationLine.Validate(Type, BankAccReconciliationLine.Type::"Bank Account Ledger Entry");
             BankAccReconciliationLine.Validate("Statement Amount", MatchFactor * ExpectedAmount);
             BankAccReconciliationLine.Modify(true);
         end;
@@ -961,7 +960,6 @@ codeunit 134253 "Match Bank Rec. Scenarios"
 
         CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.");
         LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
-        BankAccReconciliationLine.Validate(Type, BankAccReconciliationLine.Type::"Bank Account Ledger Entry");
         BankAccReconciliationLine.Validate("Statement Amount", 2 * PaymentAmount);
         BankAccReconciliationLine.Description := StatementDescription;
         BankAccReconciliationLine.Modify(true);
@@ -1024,7 +1022,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         BankAccountLedgerEntry.SetRange(Open, true);
         Assert.IsTrue(BankAccountLedgerEntry.IsEmpty, 'There should be no entries left.');
 
-        asserterror BankAccReconciliation.Find;
+        asserterror BankAccReconciliation.Find();
     end;
 
     local procedure VerifyGLEntryDocType(GLAccountNo: Code[20]; DocumentNo: Code[20]; ExpectedDocType: Enum "Gen. Journal Document Type")
@@ -1206,11 +1204,21 @@ codeunit 134253 "Match Bank Rec. Scenarios"
     procedure MessageHandler(Message: Text[1024])
     begin
     end;
-
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnModifyOnBeforeTestCheckPrinted', '', false, false)]
     local procedure CancelTestOnModifyOnBeforeTestCheckPrinted(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
         IsHandled := true;  // to avoid bug in report "Bank Payment Order"
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure BankStatementPagePostHandler(var BankStatement: TestPage "Bank Account Statement")
+    var
+        BankStatementNo: Text;
+    begin
+        BankStatementNo := LibraryVariableStorage.DequeueText();
+        Assert.AreEqual(BankStatementNo, BankStatement."Statement No.".Value, StrSubstNo('The opened statement is not the correct one. Opened: %1, Expected: %2', BankStatement."Statement No.".Value, BankStatementNo));
+        BankStatement.Close();
     end;
 }
 

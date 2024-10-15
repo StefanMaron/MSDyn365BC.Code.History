@@ -37,7 +37,7 @@ codeunit 144544 "ERM G/L Account Where-Used RU"
 
         // [THEN] G/L Account "G" is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          FACharge.TableCaption,
+          FACharge.TableCaption(),
           FACharge.FieldCaption("G/L Acc. for Released FA"),
           StrSubstNo('%1=%2', FACharge.FieldCaption("No."), FACharge."No."));
     end;
@@ -76,10 +76,10 @@ codeunit 144544 "ERM G/L Account Where-Used RU"
     local procedure CreateFACharge(var FACharge: Record "FA Charge")
     begin
         with FACharge do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"FA Charge");
             "G/L Acc. for Released FA" := LibraryERM.CreateGLAccountNo();
-            Insert;
+            Insert();
         end;
     end;
 
