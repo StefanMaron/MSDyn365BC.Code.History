@@ -3160,6 +3160,7 @@
     local procedure ErrorIfAlreadySelectedSI(ServItemLineNo: Integer)
     var
         Item: Record Item;
+        IsHandled: Boolean;
     begin
         if "Document Type" <> "Document Type"::Order then
             exit;
@@ -3171,6 +3172,11 @@
             then
                 exit;
         end;
+
+        IsHandled := false;
+        OnBeforeCheckErrorSelectedSI(Rec, ServItemLineNo, IsHandled);
+        if IsHandled then
+            exit;
 
         ServiceLine.Reset();
         ServiceLine.SetCurrentKey("Document Type", "Document No.", "Service Item Line No.", Type, "No.");
@@ -5938,7 +5944,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeInitTableValuePair(TableValuePair, FieldNo, IsHandled);
+        OnBeforeInitTableValuePair(TableValuePair, FieldNo, IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -5952,7 +5958,7 @@
             FieldNo = Rec.FieldNo("Location Code"):
                 TableValuePair.Add(Database::Location, Rec."Location Code");
         end;
-        OnAfterInitTableValuePair(TableValuePair, FieldNo);
+        OnAfterInitTableValuePair(TableValuePair, FieldNo, Rec);
     end;
 
     local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
@@ -6635,12 +6641,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer; var IsHandled: Boolean; var ServiceLine: Record "Service Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer)
+    local procedure OnAfterInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer; var ServiceLine: Record "Service Line")
     begin
     end;
 
@@ -6691,6 +6697,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateDiscount(var ServiceLine: Record "Service Line"; var IsHandled: Boolean; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckErrorSelectedSI(var ServiceLine: Record "Service Line"; var ServItemLineNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

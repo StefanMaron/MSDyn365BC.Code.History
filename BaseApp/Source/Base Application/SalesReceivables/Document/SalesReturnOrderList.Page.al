@@ -7,6 +7,7 @@ page 9304 "Sales Return Order List"
     Editable = false;
     PageType = List;
     QueryCategory = 'Sales Return Order List';
+    RefreshOnActivate = true;
     SourceTable = "Sales Header";
     SourceTableView = WHERE("Document Type" = CONST("Return Order"));
     UsageCategory = Lists;

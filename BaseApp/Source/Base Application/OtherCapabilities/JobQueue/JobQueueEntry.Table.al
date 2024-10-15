@@ -793,10 +793,13 @@ table 472 "Job Queue Entry"
     procedure CancelTask()
     var
         ScheduledTask: Record "Scheduled Task";
+        TelemetrySubscribers: Codeunit "Telemetry Subscribers";
     begin
         if not IsNullGuid("System Task ID") then begin
-            if ScheduledTask.Get("System Task ID") then
+            if ScheduledTask.Get("System Task ID") then begin
                 TASKSCHEDULER.CancelTask("System Task ID");
+                TelemetrySubscribers.SendTraceOnJobQueueEntryScheduledTaskCancelled(Rec);
+            end;
             Clear("System Task ID");
         end;
     end;

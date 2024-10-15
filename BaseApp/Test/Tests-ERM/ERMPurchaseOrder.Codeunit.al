@@ -7790,6 +7790,43 @@
         PurchaseLine.Modify(true);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyJobNoOnReleasePurchaseOrder()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [SCENARIO 479158] A Purchase Order in status of Released allows for the deletion or addition of Job No., Job 
+        // Task No., and Job Line Type - This is not expected especially for a client using Approvals and now allowed to 
+        // change after Release
+        Initialize();
+
+        // [GIVEN] Create the Job
+        LibraryJob.CreateJob(Job);
+
+        // [GIVEN] Create the Job task
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Create the Purchase Order
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, CreateItem);
+
+        // [WHEN] Release the Purchase Order
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [THEN] Open the Purchase Order Page.
+        PurchaseOrder.OpenEdit;
+        PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseOrder.PurchLines.First;
+
+        // [VERIFY] Verify the user will not able to add the Job No. and Job Line Type
+        asserterror PurchaseOrder.PurchLines."Job No.".Value(Job."No.");
+        asserterror PurchaseOrder.PurchLines."Job Line Type".Value(Format(PurchaseLine."Job Line Type".AsInteger()));
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -10391,7 +10428,7 @@
                 ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Sale);
                 ItemLedgEntry.SetRange("Document No.", DocNo[i]);
                 ItemLedgEntry.FindLast();
-                SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::Sale);
+                SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::Purchase);
                 SetRange("Entry Type", "Entry Type"::"Direct Cost");
                 SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
                 SetRange("Item Charge No.", ItemChargeNo);

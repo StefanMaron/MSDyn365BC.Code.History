@@ -48,6 +48,8 @@
     var
         Job: Record Job;
     begin
+        OnBeforePostPlanningLine(JobPlanningLine);
+
         if JobPlanningLine."Line Type" = JobPlanningLine."Line Type"::"Both Budget and Billable" then begin
             Job.Get(JobPlanningLine."Job No.");
             if not Job."Allow Schedule/Contract Lines" or
@@ -762,6 +764,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostPlanningLineOnBeforeJobPlanningLineInsert(var JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostPlanningLine(var JobPlanningLine: Record "Job Planning Line")
     begin
     end;
 }
