@@ -323,7 +323,6 @@ report 95 "Date Compress VAT Entries"
 
     var
         SourceCodeSetup: Record "Source Code Setup";
-        EntrdDateComprReg: Record "Date Compr. Register";
         DateComprReg: Record "Date Compr. Register";
         DateComprRetainFields: Record "Date Compr. Retain Fields";
         GLReg: Record "G/L Register";
@@ -357,6 +356,9 @@ report 95 "Date Compress VAT Entries"
         CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
         StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
         EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
+
+    protected var
+        EntrdDateComprReg: Record "Date Compr. Register";
 
     local procedure InitRegisters()
     begin

@@ -4400,6 +4400,7 @@ table 38 "Purchase Header"
         NewDimSetID: Integer;
         ReceivedShippedItemLineDimChangeConfirmed: Boolean;
         IsHandled: Boolean;
+        DefaultAnswer: Boolean;
     begin
         IsHandled := false;
         OnBeforeUpdateAllLineDim(Rec, NewParentDimSetID, OldParentDimSetID, IsHandled, xRec);
@@ -4408,9 +4409,12 @@ table 38 "Purchase Header"
 
         if NewParentDimSetID = OldParentDimSetID then
             exit;
-        if not GetHideValidationDialog() then
+        if not GetHideValidationDialog() then begin
+            DefaultAnswer := true;
+            OnUpdateAllLineDimOnBeforeConfirmUpdateAllLineDim(Rec, DefaultAnswer);
             if not ConfirmManagement.GetResponseOrDefault(Text051, true) then
                 exit;
+        end;
 
         PurchLine.Reset();
         PurchLine.SetRange("Document Type", "Document Type");
@@ -8065,6 +8069,11 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnInitRecordOnBeforeAssignResponsibilityCenter(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAllLineDimOnBeforeConfirmUpdateAllLineDim(var PurchaseHeader: Record "Purchase Header"; var DefaultAnswer: Boolean)
     begin
     end;
 }

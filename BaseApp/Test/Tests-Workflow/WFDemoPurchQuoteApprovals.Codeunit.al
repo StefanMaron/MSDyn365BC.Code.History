@@ -170,6 +170,48 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
     end;
 
     [Test]
+    procedure CanRequestApprovalPurchaseQuoteWithNotifySender()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        WorkflowStepInstance: Record "Workflow Step Instance";
+        WorkflowStepArgument: Record "Workflow Step Argument";
+        ApprovalEntry: Record "Approval Entry";
+        WorkflowResponseHandling: Codeunit "Workflow Response Handling";
+        Variant: Variant;
+    begin
+        // [SCENARIO] When ExecuteResponse is called with a purchase header as argument and setup to Create a notification entry code, no error is thrown.
+        // [GIVEN] The approval workflow for purchase quotes is enabled.
+        // [WHEN] The user wants to Release the purchase quote.
+        // [THEN] The user will get an error that he cannot release the purchase quote that is not approved.
+
+        // Setup
+        Initialize();
+
+        // [GIVEN] A purchase quote that should be approved
+        CreatePurchaseQuote(PurchaseHeader);
+
+        // [GIVEN] An approval for the purchase quote
+        if ApprovalEntry.FindLast() then;
+        ApprovalEntry."Entry No." += 1;
+        ApprovalEntry."Record ID to Approve" := PurchaseHeader.RecordId;
+        ApprovalEntry.Insert();
+
+        // [GIVEN] A workflow step for sending a notification
+        WorkflowStepArgument.ID := CreateGuid();
+        WorkflowStepArgument."Notify Sender" := true;
+        WorkflowStepArgument.Insert();
+
+        WorkflowStepInstance.ID := CreateGuid();
+        WorkflowStepInstance.Argument := WorkflowStepArgument.ID;
+        WorkflowStepInstance."Function Name" := WorkflowResponseHandling.CreateNotificationEntryCode();
+        WorkflowStepInstance.Insert();
+
+        // [WHEN] Executing the notification step
+        // [THEN] No error is thrown
+        WorkflowResponseHandling.ExecuteResponse(Variant, WorkflowStepInstance, PurchaseHeader);
+    end;
+
+    [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure CannotReopenPurchaseQuoteApprovalIsPending()

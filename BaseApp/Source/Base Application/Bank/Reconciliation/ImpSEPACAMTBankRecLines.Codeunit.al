@@ -98,7 +98,8 @@ codeunit 1261 "Imp. SEPA CAMT Bank Rec. Lines"
         ImportType := NewImportType;
     end;
 
-    local procedure InitNodeText()
+    [Scope('OnPrem')]
+    procedure InitNodeText()
     begin
         if ImportType = ImportType::CH054 then begin
             IBANNodeText := IBAN054Txt;
@@ -119,13 +120,14 @@ codeunit 1261 "Imp. SEPA CAMT Bank Rec. Lines"
         end;
     end;
 
-    local procedure InitBalTypeDescriptor()
+    [Scope('OnPrem')]
+    procedure InitBalTypeDescriptor()
     begin
         case ImportType of
             ImportType::W1:
                 BalTypeDescriptorText := 'CLBD';
             ImportType::CH053:
-                BalTypeDescriptorText := 'OPBD';
+                BalTypeDescriptorText := 'CLBD';
             ImportType::CH054:
                 BalTypeDescriptorText := '';
         end;

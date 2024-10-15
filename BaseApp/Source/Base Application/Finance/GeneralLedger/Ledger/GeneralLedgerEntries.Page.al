@@ -167,6 +167,15 @@ page 20 "General Ledger Entries"
                     Visible = SourceCurrencyVisible;
 #endif
                 }
+                field("Source Currency VAT Amount"; Rec."Source Currency VAT Amount")
+                {
+                    ApplicationArea = VAT;
+                    Editable = false;
+                    ToolTip = 'Specifies the source currency VAT amount for general ledger entries.';
+#if not CLEAN24
+                    Visible = SourceCurrencyVisible;
+#endif
+                }
 #if not CLEAN24
                 field("Amount (FCY)"; Rec."Amount (FCY)")
                 {

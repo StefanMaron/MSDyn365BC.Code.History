@@ -2590,7 +2590,7 @@ codeunit 1255 "Match Bank Payments"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnFindBankAccLedgerEntryForTextToAccountMapping(Handled: Boolean; Found: Boolean; var BankAccLedgerEntry: Record "Bank Account Ledger Entry"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; TextToAccountMapping: Record "Text-to-Account Mapping"; BalAccountNo: Code[20])
+    local procedure OnFindBankAccLedgerEntryForTextToAccountMapping(var Handled: Boolean; var Found: Boolean; var BankAccLedgerEntry: Record "Bank Account Ledger Entry"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; TextToAccountMapping: Record "Text-to-Account Mapping"; BalAccountNo: Code[20])
     begin
     end;
 

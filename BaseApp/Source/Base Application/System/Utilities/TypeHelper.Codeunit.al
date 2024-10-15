@@ -794,6 +794,12 @@ codeunit 10 "Type Helper"
         exit(Result);
     end;
 
+    /// <summary>
+    /// NOTE: The procedure's name is incorrect. This procedure converts the time from current client timezone to target timezone, instead of converting from utc to target time zone.
+    /// </summary>
+    /// <param name="InputDateTime">The datetime based on current Client's time zone.</param>
+    /// <param name="TimeZoneTxt">The destination timezone, such as 'GMT standard time','UTC','China standard time'.</param>
+    /// <returns>The new datetime based on the detination timezone</returns>
     procedure ConvertDateTimeFromUTCToTimeZone(InputDateTime: DateTime; TimeZoneTxt: Text): DateTime
     var
         TimeZoneInfo: DotNet TimeZoneInfo;
@@ -807,6 +813,27 @@ codeunit 10 "Type Helper"
 
         TimeZoneInfo := TimeZoneInfo.FindSystemTimeZoneById(TimeZoneTxt);
         exit(InputDateTime + TimeZoneInfo.BaseUtcOffset);
+    end;
+
+    /// <summary>
+    /// Convert the datetime from the specified timezone to current client's timezone.
+    /// </summary>
+    /// <param name="InputDateTime">The datetime based on the specified timezone.</param>
+    /// <param name="TimeZoneTxt">The specified timezone, such as 'GMT standard time','UTC','China standard time'.</param>
+    /// <returns>The new datetime based on current client's timezone</returns>
+    procedure ConvertDateTimeFromInputTimeZoneToClientTimezone(InputDateTime: DateTime; TimeZoneTxt: Text): DateTime
+    var
+        TimeZoneInfo: DotNet TimeZoneInfo;
+        Offset: Duration;
+    begin
+        if TimeZoneTxt = '' then
+            exit(InputDateTime);
+
+        GetUserClientTypeOffset(Offset);
+        InputDateTime := InputDateTime + Offset;
+
+        TimeZoneInfo := TimeZoneInfo.FindSystemTimeZoneById(TimeZoneTxt);
+        exit(InputDateTime - TimeZoneInfo.BaseUtcOffset);
     end;
 
     procedure IntToHex(IntValue: Integer): Text

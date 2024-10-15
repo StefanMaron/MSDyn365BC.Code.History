@@ -1150,7 +1150,6 @@ report 595 "Adjust Exchange Rates"
     var
         EnvironmentInformation: Codeunit "Environment Information";
         FeatureKeyManagement: Codeunit "Feature Key Management";
-        RunNewVersion: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1158,14 +1157,11 @@ report 595 "Adjust Exchange Rates"
         if IsHandled then
             exit;
 
-        if not EnvironmentInformation.IsOnPrem() then begin
-            RunNewVersion := FeatureKeyManagement.IsExtensibleExchangeRateAdjustmentEnabled();
-            Commit();
-            if RunNewVersion then begin
+        if not EnvironmentInformation.IsOnPrem() then
+            if FeatureKeyManagement.IsExtensibleExchangeRateAdjustmentEnabled(false) then begin
                 Report.Run(Report::"Exch. Rate Adjustment");
                 CurrReport.Quit();
             end;
-        end;
     end;
 
     trigger OnPostReport()

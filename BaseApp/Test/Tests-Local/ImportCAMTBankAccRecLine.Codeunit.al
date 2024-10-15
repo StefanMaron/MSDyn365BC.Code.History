@@ -65,6 +65,11 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         BankAccReconciliationLineTemplate: Record "Bank Acc. Reconciliation Line";
         BankAcc: Record "Bank Account";
         ImportCAMTBankAccRecLine: Codeunit "Import CAMT Bank AccRecLine";
+        ImpSEPACAMTBankRecLines: Codeunit "Imp. SEPA CAMT Bank Rec. Lines";
+        StartBalAmt: Decimal;
+        CreditAmt1: Decimal;
+        CreditAmt2: Decimal;
+        DebitAmt: Decimal;
     begin
         // [FEATURE] [CAMT 053-04]
         // [SCENARIO 221219] Import CAMT 053.001.04
@@ -84,6 +89,14 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [THEN] Two Bank Reconciliation lines created
         VerifyBankAccRecLineWithDataExchField(BankAccReconciliationLineTemplate, GetCAMT05304DataExch(), 2, 27);
+
+        // [THEN] Statement ending balance is correctly imported
+        ImpSEPACAMTBankRecLines.InitNodeText();
+        ImpSEPACAMTBankRecLines.InitBalTypeDescriptor();
+        ImpSEPACAMTBankRecLines.RunPostProcess(BankAccReconciliationLineTemplate);
+        BankAccReconciliation.Find();
+        SetStatementValues(StartBalAmt, CreditAmt1, CreditAmt2, DebitAmt);
+        Assert.AreEqual(StartBalAmt + CreditAmt1 + CreditAmt2 - DebitAmt, BankAccReconciliation."Statement Ending Balance", '');
     end;
 
     [Test]

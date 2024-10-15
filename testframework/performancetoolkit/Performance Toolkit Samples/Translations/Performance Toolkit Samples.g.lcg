@@ -149,6 +149,33 @@
       <Cmt Name="Dev"><![CDATA[%1 = a string]D;]A;(LookupHint=Codeunit BCPT Purch. Post with N Lines - NamedType ParamValidationErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3444465938 - NamedType 1607471646" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Category]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit BCPT Schedule Job Queue - NamedType CategoryLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3444465938 - NamedType 3359943900" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[CodeUnit_No]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit BCPT Schedule Job Queue - NamedType CodeUnitNoLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3444465938 - Method 1497625488 - NamedType 370157630" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unknown parameter: %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 is any unknown user input.]D;]A;(LookupHint=Codeunit BCPT Schedule Job Queue - Method ValidateParameters - NamedType UnkownParameterErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1902486214 - NamedType 1607471646" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[CategoryCode]]></Val>

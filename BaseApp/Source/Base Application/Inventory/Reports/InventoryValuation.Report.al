@@ -304,7 +304,7 @@ report 1001 "Inventory Valuation"
         ExpCostPostedToGL: Decimal;
         IsEmptyLine: Boolean;
 
-    local procedure AssignAmounts(ValueEntry: Record "Value Entry"; var InvoicedValue: Decimal; var InvoicedQty: Decimal; var ExpectedValue: Decimal; var ExpectedQty: Decimal; Sign: Decimal)
+    procedure AssignAmounts(ValueEntry: Record "Value Entry"; var InvoicedValue: Decimal; var InvoicedQty: Decimal; var ExpectedValue: Decimal; var ExpectedQty: Decimal; Sign: Decimal)
     begin
         InvoicedValue += ValueEntry."Cost Amount (Actual)" * Sign;
         InvoicedQty += ValueEntry."Invoiced Quantity" * Sign;
@@ -385,8 +385,11 @@ report 1001 "Inventory Valuation"
                     ValueEntry."Item Ledger Entry Type"::"Negative Adjmt.",
                     ValueEntry."Item Ledger Entry Type"::Consumption,
                     ValueEntry."Item Ledger Entry Type"::"Assembly Consumption");
+
+                OnCalculateItemOnBeforeAssignDecreaseAmounts(ValueEntry, Item);
                 ValueEntry.CalcSums("Item Ledger Entry Quantity", "Cost Amount (Actual)", "Cost Amount (Expected)", "Invoiced Quantity");
                 AssignAmounts(ValueEntry, DecreaseInvoicedValue, DecreaseInvoicedQty, DecreaseExpectedValue, DecreaseExpectedQty, -1);
+                OnCalculateItemOnAfterAssignDecreaseAmounts(ValueEntry, Item, DecreaseInvoicedValue, DecreaseInvoicedQty, DecreaseExpectedValue, DecreaseExpectedQty, IncreaseInvoicedValue, IncreaseInvoicedQty, IncreaseExpectedValue, IncreaseExpectedQty);
             end;
 
             if HasEntriesWithinDateRange then begin
@@ -442,6 +445,7 @@ report 1001 "Inventory Valuation"
         ItemLedgEntry.SetFilter("Global Dimension 1 Code", Item.GetFilter("Global Dimension 1 Filter"));
         ItemLedgEntry.SetFilter("Global Dimension 2 Code", Item.GetFilter("Global Dimension 2 Filter"));
         ItemLedgEntry.SetRange("Entry No.", ItemApplnEntry."Outbound Item Entry No.");
+        OnGetOutboundItemEntryOnAfterSetItemLedgEntryFilters(ItemLedgEntry, Item);
         exit(ItemLedgEntry.IsEmpty());
     end;
 
@@ -485,8 +489,23 @@ report 1001 "Inventory Valuation"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnItemOnAfterGetRecordOnAfterValueEntrySetInitialFilters(var ValueEntry: Record "Value Entry"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCalculateItemOnBeforeAssignDecreaseAmounts(var ValueEntry: Record "Value Entry"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCalculateItemOnAfterAssignDecreaseAmounts(var ValueEntry: Record "Value Entry"; Item: Record Item; var DecreaseInvoicedValue: Decimal; var DecreaseInvoicedQty: Decimal; var DecreaseExpectedValue: Decimal; var DecreaseExpectedQty: Decimal; var IncreaseInvoicedValue: Decimal; var IncreaseInvoicedQty: Decimal; var IncreaseExpectedValue: Decimal; var IncreaseExpectedQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnGetOutboundItemEntryOnAfterSetItemLedgEntryFilters(var ItemLedgerEntry: Record "Item Ledger Entry"; Item: Record Item)
     begin
     end;
 }

@@ -83,6 +83,8 @@ codeunit 5139 "Job Archive Management"
 
         StoreComments(CommentLineTableName::Job, JobArchive."No.", JobArchive."Version No.");
 
+        OnStoreJobOnBeforeStoreJobTaskAndJobPlanningLine(JobTask, JobPlanningLine, Job);
+
         JobTask.SetRange("Job No.", Job."No.");
         if JobTask.FindSet() then
             repeat
@@ -380,6 +382,11 @@ codeunit 5139 "Job Archive Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnRestoreJobOnBeforeInsertJob(JobArchive: Record "Job Archive"; var Job: Record Job)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnStoreJobOnBeforeStoreJobTaskAndJobPlanningLine(var JobTask: Record "Job Task"; var JobPlanningLine: Record "Job Planning Line"; var Job: Record Job)
     begin
     end;
 }

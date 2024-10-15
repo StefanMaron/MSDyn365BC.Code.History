@@ -532,10 +532,14 @@ codeunit 1002 "Job Create-Invoice"
         end;
     end;
 
-    local procedure GetCustomerNo(Job: Record Job; JobPlanningLine: Record "Job Planning Line"; SellToCustomerNo: Boolean): Code[20]
+    local procedure GetCustomerNo(Job: Record Job; JobPlanningLine: Record "Job Planning Line"; SellToCustomerNo: Boolean) CustomerNo: Code[20]
     var
         JobTask: Record "Job Task";
     begin
+        OnBeforeGetCustomerNo(Job, JobPlanningLine, SellToCustomerNo, CustomerNo);
+        if CustomerNo <> '' then
+            exit(CustomerNo);
+
         if Job."Task Billing Method" = Job."Task Billing Method"::"One customer" then
             if SellToCustomerNo then
                 exit(Job."Sell-to Customer No.")
@@ -1506,6 +1510,11 @@ codeunit 1002 "Job Create-Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteSalesLineOnBeforeGetJobPlanningLine(JobPlanningLineInvoice: Record "Job Planning Line Invoice")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCustomerNo(var Job: Record Job; var JobPlanningLine: Record "Job Planning Line"; SellToCustomerNo: Boolean; var CustomerNo: Code[20])
     begin
     end;
 }

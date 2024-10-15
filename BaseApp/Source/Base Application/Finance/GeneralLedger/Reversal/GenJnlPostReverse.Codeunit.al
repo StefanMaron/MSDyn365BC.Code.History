@@ -200,6 +200,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                       GenJnlPostLine.GetNextTransactionNo());
                 GLEntry.Amount := -GLEntry2.Amount;
                 GLEntry."Source Currency Amount" := -GLEntry2."Source Currency Amount";
+                GLEntry."Source Currency VAT Amount" := -GLEntry2."Source Currency VAT Amount";
                 GLEntry.Quantity := -GLEntry2.Quantity;
                 GLEntry."VAT Amount" := -GLEntry2."VAT Amount";
                 NonDeductibleVAT.Reverse(GLEntry, GLEntry2);
