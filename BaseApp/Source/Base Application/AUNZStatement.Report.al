@@ -867,7 +867,7 @@ report 17110 "AU/NZ Statement"
         exit('');
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure CalcAging()
     begin
         if AgingMethod = AgingMethod::None then
@@ -908,7 +908,7 @@ report 17110 "AU/NZ Statement"
         AgingHead[i] := StrSubstNo('%1 %2 %3', Text1500006, ToDate - Periodstartdate[i - 1] + 1, Text1500005);
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure CalcOpenLedgEntry()
     begin
         Clear(AgingAmount);

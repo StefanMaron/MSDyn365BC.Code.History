@@ -1179,6 +1179,47 @@ codeunit 141021 "ERM Electronic - Banking"
             FilePath, 31 - StrLen(AmountTxt), StrLen(AmountTxt), AmountTxt) > '', ValueMustExistMsg);
     end;
 
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentsRequestPageHandler,MessageHandler,CreateEFTFileRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure EFTFileExportedFromEFTRegisterContainsPostedAmount()
+    var
+        Vendor: Record "Vendor";
+        GenJnlLine: Record "Gen. Journal Line";
+        GenJnlBatch: Record "Gen. Journal Batch";
+        EFTRegister: Record "EFT Register";
+        GenJnlLineAmount: Decimal;
+        FilePath: Text;
+        TextLine: Text;
+    begin
+        // [FEATURE] [EFT Payment]
+        // [SCENARIO 327808] EFT file exported from EFT Register contains posted amount
+        Initialize();
+
+        // [GIVEN] Create and post invoice for vendor
+        CreateAndPostPurchaseOrderForNewVendor(Vendor);
+
+        // [GIVEN] Create payment journal line to bank BANK applied to posted invoice with Amount = X
+        CreateGenJournalBatchWithBankAccount(GenJnlBatch);
+        SuggestVendorPayments(GenJnlLine,GenJnlBatch,Vendor."No.",false);
+        FindFirstGenJournalLineFromBatch(GenJnlBatch,GenJnlLine);
+        GenJnlLineAmount := GenJnlLine.Amount;
+
+        // [GIVEN] Run EFT export for created payment
+        EFTPaymentCreateFile(GenJnlLine);
+        FindEFTRegister(EFTRegister,GenJnlBatch."Bal. Account No.");
+
+        // [GIVEN] Exported payment journal line is being posted
+        LibraryERM.PostGeneralJnlLine(GenJnlLine);
+
+        // [WHEN] File is being exported from EFT register
+        FilePath := EFTPaymentCreateFileFromEFTRegister(EFTRegister);
+        TextLine := LibraryTextFileValidation.ReadLine(FilePath,2);
+
+        // [THEN] Exported file contains line with Amount = X
+        VerifyPaymentFileLineAmountAndWHTAmount(TextLine,GenJnlLineAmount,0);
+    end;
+
     local procedure Initialize()
     var
         GenJournalLine: Record "Gen. Journal Line";

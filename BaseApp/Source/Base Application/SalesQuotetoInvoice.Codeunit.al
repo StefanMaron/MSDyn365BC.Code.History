@@ -90,23 +90,28 @@ codeunit 1305 "Sales-Quote to Invoice"
     var
         SalesQuoteLine: Record "Sales Line";
         SalesInvoiceLine: Record "Sales Line";
+        IsHandled: Boolean;
     begin
         with SalesQuoteHeader do begin
             SalesQuoteLine.Reset;
             SalesQuoteLine.SetRange("Document Type", "Document Type");
             SalesQuoteLine.SetRange("Document No.", "No.");
-
+            OnAfterSalesQuoteLineSetFilters(SalesQuoteLine);
             if SalesQuoteLine.FindSet then
                 repeat
-                    SalesInvoiceLine := SalesQuoteLine;
-                    SalesInvoiceLine."Document Type" := SalesInvoiceHeader."Document Type";
-                    SalesInvoiceLine."Document No." := SalesInvoiceHeader."No.";
-                    if SalesInvoiceLine."No." <> '' then
-                        SalesInvoiceLine.DefaultDeferralCode;
-                    SalesInvoiceLine.InitQtyToShip;
-                    OnBeforeInsertSalesInvoiceLine(SalesQuoteLine, SalesQuoteHeader, SalesInvoiceLine, SalesInvoiceHeader);
-                    SalesInvoiceLine.Insert;
-                    OnAfterInsertSalesInvoiceLine(SalesQuoteLine, SalesQuoteHeader, SalesInvoiceLine, SalesInvoiceHeader);
+                    IsHandled := false;
+                    OnBeforeCreateSalesInvoiceLineLoop(SalesQuoteLine, SalesQuoteHeader, SalesInvoiceHeader, IsHandled);
+                    if not IsHandled then begin
+                        SalesInvoiceLine := SalesQuoteLine;
+                        SalesInvoiceLine."Document Type" := SalesInvoiceHeader."Document Type";
+                        SalesInvoiceLine."Document No." := SalesInvoiceHeader."No.";
+                        if SalesInvoiceLine."No." <> '' then
+                            SalesInvoiceLine.DefaultDeferralCode;
+                        SalesInvoiceLine.InitQtyToShip;
+                        OnBeforeInsertSalesInvoiceLine(SalesQuoteLine, SalesQuoteHeader, SalesInvoiceLine, SalesInvoiceHeader);
+                        SalesInvoiceLine.Insert;
+                        OnAfterInsertSalesInvoiceLine(SalesQuoteLine, SalesQuoteHeader, SalesInvoiceLine, SalesInvoiceHeader);
+                    end;
                 until SalesQuoteLine.Next = 0;
 
             MoveLineCommentsToSalesInvoice(SalesInvoiceHeader, SalesQuoteHeader);
@@ -168,12 +173,23 @@ codeunit 1305 "Sales-Quote to Invoice"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSalesQuoteLineSetFilters(var SalesQuoteLine: Record "Sales Line");
+
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeOnRun(var SalesHeader: Record "Sales Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertSalesInvoiceLine(SalesQuoteLine: Record "Sales Line"; SalesQuoteHeader: Record "Sales Header"; var SalesInvoiceLine: Record "Sales Line"; SalesInvoiceHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateSalesInvoiceLineLoop(var SalesQuoteLine: Record "Sales Line"; var SalesQuoteHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Header"; var IsHandled: Boolean);
     begin
     end;
 

@@ -74,10 +74,13 @@ page 1352 "Posted Return Shpt. - Update"
     var
         xReturnShipmentHeader: Record "Return Shipment Header";
 
-    local procedure RecordChanged(): Boolean
+    local procedure RecordChanged() IsChanged: Boolean
     begin
-        exit(("Ship-to County" <> xReturnShipmentHeader."Ship-to County") or
-          ("Ship-to Country/Region Code" <> xReturnShipmentHeader."Ship-to Country/Region Code"));
+        IsChanged :=
+            ("Ship-to County" <> xReturnShipmentHeader."Ship-to County") or
+            ("Ship-to Country/Region Code" <> xReturnShipmentHeader."Ship-to Country/Region Code");
+
+        OnAfterRecordChanged(Rec, xRec, IsChanged);
     end;
 
     [Scope('OnPrem')]
@@ -86,5 +89,9 @@ page 1352 "Posted Return Shpt. - Update"
         Rec := ReturnShipmentHeader;
         Insert;
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRecordChanged(var ReturnShipmentHeader: Record "Return Shipment Header"; xReturnShipmentHeader: Record "Return Shipment Header"; var IsChanged: Boolean);
+    begin
+    end;
+}

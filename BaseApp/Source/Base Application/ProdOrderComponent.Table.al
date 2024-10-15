@@ -84,7 +84,9 @@ table 5407 "Prod. Order Component"
                 GetGLSetup;
 
                 "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
-                "Quantity (Base)" := UOMMgt.CalcBaseQty(Quantity, "Qty. per Unit of Measure");
+                "Quantity (Base)" :=
+                  UOMMgt.CalcBaseQty(
+                    "Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
 
                 UpdateUnitCost;
 
@@ -682,7 +684,10 @@ table 5407 "Prod. Order Component"
 
             trigger OnValidate()
             begin
-                "Qty. Picked (Base)" := UOMMgt.CalcBaseQty("Qty. Picked", "Qty. per Unit of Measure");
+                "Qty. Picked (Base)" :=
+                  UOMMgt.CalcBaseQty(
+                    "Item No.", "Variant Code", "Unit of Measure Code", "Qty. Picked", "Qty. per Unit of Measure");
+
                 "Completely Picked" := "Qty. Picked" >= "Expected Quantity";
             end;
         }

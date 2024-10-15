@@ -913,6 +913,77 @@ codeunit 134462 "ERM Copy Item"
         NotificationLifecycleMgt.RecallAllNotifications;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure RecurringSalesLinesUseItemDescriptionTranslation()
+    var
+        SalesHeader: Record "Sales Header";
+        StandardSalesLine: Record "Standard Sales Line";
+        StandardCustomerSalesCode: Record "Standard Customer Sales Code";
+        Customer: Record Customer;
+        SalesLine: Record "Sales Line";
+        Description: Text;
+    begin
+        // [FEATURE] [Recurring Sales Lines] [Item translation]
+        // [SCENARIO 319744] ApplyStdCodesToSalesLines function in table 'Standard Customer Sales Code' uses Item Translation
+        Initialize;
+
+        // [GIVEN] Item "I1" with Description = "D1"
+        // [GIVEN] Customer "C1" with Standard Sales Line defned for "I1" and 'Landuage Code' = "X"
+        CreateStandardSalesLinesWithItemForCustomer(StandardSalesLine, StandardCustomerSalesCode);
+        Customer.Get(StandardCustomerSalesCode."Customer No.");
+        Customer.Validate("Language Code", GetRandomLanguageCode);
+        Customer.Modify(true);
+        // [GIVEN] "I1" has a translation for Landuage Code "X" = "D2"
+        Description := CreateItemTranslationWithRecord(StandardSalesLine."No.", Customer."Language Code");
+
+        // [WHEN] Run ApplyStdCodesToSalesLines with Sales Order for "C1"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        StandardCustomerSalesCode.ApplyStdCodesToSalesLines(SalesHeader, StandardCustomerSalesCode);
+
+        // [THEN] Sales Line created, Description = "D2"
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst;
+        SalesLine.TestField(Description, Description);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RecurringPurchaseLinesUseItemDescriptionTranslation()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        StandardPurchaseLine: Record "Standard Purchase Line";
+        StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code";
+        Vendor: Record Vendor;
+        PurchaseLine: Record "Purchase Line";
+        Description: Text;
+    begin
+        // [FEATURE] [Recurring Purchase Lines] [Item translation]
+        // [SCENARIO 319744] ApplyStdCodesToPurchaseLines function in table 'Standard Vendor Purchase Code' uses Item Translation
+        Initialize;
+
+        // [GIVEN] Item "I1" with Description = "D1"
+        // [GIVEN] Vendor "V1" with Standard Purchase Line defned for "I1" and 'Landuage Code' = "X"
+        CreateStandardPurchaseLinesWithItemForVendor(StandardPurchaseLine, StandardVendorPurchaseCode);
+        Vendor.Get(StandardVendorPurchaseCode."Vendor No.");
+        Vendor.Validate("Language Code", GetRandomLanguageCode);
+        Vendor.Modify(true);
+
+        // [GIVEN] "I1" has a translation for Landuage Code "X" = "D2"
+        Description := CreateItemTranslationWithRecord(StandardPurchaseLine."No.", Vendor."Language Code");
+
+        // [WHEN] Run ApplyStdCodesToPurchaseLines with Purchase Order for "V1"
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        StandardVendorPurchaseCode.ApplyStdCodesToPurchaseLines(PurchaseHeader, StandardVendorPurchaseCode);
+
+        // [THEN] Purchase Line created, Description = "D2"
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindFirst;
+        PurchaseLine.TestField(Description, Description);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1006,6 +1077,20 @@ codeunit 134462 "ERM Copy Item"
         ItemTranslations.OK.Invoke;
     end;
 
+    local procedure CreateItemTranslationWithRecord(ItemNo: Code[20]; LanguageCode: Code[10]): Text[50]
+    var
+        ItemTranslation: Record "Item Translation";
+    begin
+        with ItemTranslation do begin
+            Init;
+            Validate("Item No.", ItemNo);
+            Validate("Language Code", LanguageCode);
+            Validate(Description, ItemNo + LanguageCode);
+            Insert(true);
+            exit(Description);
+        end;
+    end;
+
     local procedure CreateItemWithCommentLine(var Item: Record Item) Comment: Text[80]
     begin
         LibraryInventory.CreateItem(Item);
@@ -1085,6 +1170,40 @@ codeunit 134462 "ERM Copy Item"
         exit(NoSeries.Code);
     end;
 
+    local procedure CreateStandardSalesLinesWithItemForCustomer(var StandardSalesLine: Record "Standard Sales Line"; var StandardCustomerSalesCode: Record "Standard Customer Sales Code")
+    var
+        StandardSalesCode: Record "Standard Sales Code";
+        Customer: Record Customer;
+    begin
+        LibrarySales.CreateStandardSalesCode(StandardSalesCode);
+
+        LibrarySales.CreateStandardSalesLine(StandardSalesLine, StandardSalesCode.Code);
+        StandardSalesLine.Type := StandardSalesLine.Type::Item;
+        StandardSalesLine.Quantity := LibraryRandom.RandInt(10);
+        StandardSalesLine."No." := LibraryInventory.CreateItemNo;
+        StandardSalesLine.Modify;
+
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateCustomerSalesCode(StandardCustomerSalesCode, Customer."No.", StandardSalesCode.Code);
+    end;
+
+    local procedure CreateStandardPurchaseLinesWithItemForVendor(var StandardPurchaseLine: Record "Standard Purchase Line"; var StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code")
+    var
+        StandardPurchaseCode: Record "Standard Purchase Code";
+        Vendor: Record Vendor;
+    begin
+        LibraryPurchase.CreateStandardPurchaseCode(StandardPurchaseCode);
+
+        LibraryPurchase.CreateStandardPurchaseLine(StandardPurchaseLine, StandardPurchaseCode.Code);
+        StandardPurchaseLine.Type := StandardPurchaseLine.Type::Item;
+        StandardPurchaseLine.Quantity := LibraryRandom.RandInt(10);
+        StandardPurchaseLine."No." := LibraryInventory.CreateItemNo;
+        StandardPurchaseLine.Modify;
+
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreateVendorPurchaseCode(StandardVendorPurchaseCode, Vendor."No.", StandardPurchaseCode.Code);
+    end;
+
     local procedure CopyItem(ItemNo: Code[20])
     var
         ItemCard: TestPage "Item Card";
@@ -1103,6 +1222,17 @@ codeunit 134462 "ERM Copy Item"
         ItemList.FILTER.SetFilter("No.", ItemNo);
         Commit;  // COMMIT is required to handle Item Copy Request page.
         ItemList.CopyItem.Invoke;
+    end;
+
+    local procedure GetRandomLanguageCode(): Code[10]
+    var
+        Language: Record Language;
+        RandNum: Integer;
+    begin
+        Language.Init;
+        RandNum := LibraryRandom.RandIntInRange(1, Language.Count);
+        Language.Next(RandNum);
+        exit(Language.Code);
     end;
 
     local procedure EnqueueValuesForItemCopyRequestPageHandler(TargetItemNo: Code[20]; Comments: Boolean; UnitsOfMeasure: Boolean; Translations: Boolean; Dimensions: Boolean; ItemVariants: Boolean; ExtendedText: Boolean; Services: Boolean; Sales: Boolean; Purchase: Boolean; BOMComponent: Boolean)

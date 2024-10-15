@@ -714,6 +714,17 @@ codeunit 138400 "RS Pack Content - Evaluation"
 
     [Test]
     [Scope('OnPrem')]
+    procedure VerifyPurchasingCodes()
+    var
+        Purchasing: Record Purchasing;
+    begin
+        // [FEATURE] [UT] [Purchasing]
+        // [SCENARIO 328635] There are 3 records of Purchasing table
+        Assert.RecordCount(Purchasing, 3);
+    end;
+    
+    [Test]
+    [Scope('OnPrem')]
     procedure BASXMLFieldIDsSetup()
     var
         BASXMLFieldID: Record "BAS XML Field ID";

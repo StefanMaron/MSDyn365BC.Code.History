@@ -18,6 +18,9 @@ codeunit 9178 "Application Area Mgmt."
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
         AllProfile: Record "All Profile";
     begin
+        if ApplicationAreaSetup.IsEmpty then
+            exit(false);
+
         if not ApplicationAreaSetup.Get('', '', UserId) then begin
             ConfPersonalizationMgt.GetCurrentProfileNoError(AllProfile);
             if not ApplicationAreaSetup.Get('', AllProfile."Profile ID") then
@@ -157,26 +160,44 @@ codeunit 9178 "Application Area Mgmt."
         ApplicationArea(GetApplicationAreaSetup);
     end;
 
+    local procedure GetApplicationAreaSetupFromSession() ApplicationAreas: Text
+    begin
+        ApplicationAreas := ApplicationArea();
+        if ApplicationAreas = '' then
+            ApplicationAreas := GetApplicationAreaSetup();
+    end;
+
+    local procedure IsApplicationAreaEnabled(ApplicationAreaName: Text): Boolean
+    var
+        ApplicationAreaList: List of [Text];
+    begin
+        ApplicationAreaList := GetApplicationAreaSetupFromSession().Split(',');
+        exit(ApplicationAreaList.Contains('#' + ApplicationAreaName.Replace(' ', '')));
+    end;
+
+    local procedure IsApplicationAreaTheOnlyOneEnabled(ApplicationAreaName: Text): Boolean
+    begin
+        exit(GetApplicationAreaSetupFromSession() = ('#' + ApplicationAreaName.Replace(' ', '')));
+    end;
+
     [Scope('OnPrem')]
-    procedure IsFoundationEnabled(): Boolean
+    procedure IsBasicEnabled(): Boolean
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName(Basic)));
+    end;
 
-        exit(ApplicationAreaSetup.Basic or ApplicationAreaSetup.Suite);
+    [Scope('OnPrem')]
+    procedure IsFoundationEnabled(): Boolean
+    begin
+        exit(IsBasicEnabled() or IsSuiteEnabled());
     end;
 
     [Scope('OnPrem')]
     procedure IsBasicOnlyEnabled(): Boolean
-    var
-        ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup.Basic and not ApplicationAreaSetup.Suite and not ApplicationAreaSetup.Advanced);
+        exit(IsBasicEnabled() and not IsSuiteEnabled() and not IsAdvancedEnabled());
     end;
 
     [Scope('OnPrem')]
@@ -190,10 +211,7 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup."Fixed Assets");
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Fixed Assets")));
     end;
 
     [Scope('OnPrem')]
@@ -201,10 +219,7 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup.Jobs);
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName(Jobs)));
     end;
 
     [Scope('OnPrem')]
@@ -212,10 +227,7 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup.BasicHR);
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName(BasicHR)));
     end;
 
     [Scope('OnPrem')]
@@ -223,10 +235,7 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup.Dimensions);
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName(Dimensions)));
     end;
 
     [Scope('OnPrem')]
@@ -234,10 +243,7 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup.Location);
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName(Location)));
     end;
 
     [Scope('OnPrem')]
@@ -245,10 +251,7 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup.Assembly);
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName(Assembly)));
     end;
 
     [Scope('OnPrem')]
@@ -256,10 +259,7 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup."Item Charges");
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Item Charges")));
     end;
 
     [Scope('OnPrem')]
@@ -267,10 +267,7 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup."Item Tracking");
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Item Tracking")));
     end;
 
     [Scope('OnPrem')]
@@ -278,10 +275,7 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup.Intercompany);
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName(Intercompany)));
     end;
 
     [Scope('OnPrem')]
@@ -289,10 +283,7 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup."Sales Return Order");
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Sales Return Order")));
     end;
 
     [Scope('OnPrem')]
@@ -300,10 +291,7 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup."Purch Return Order");
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Purch Return Order")));
     end;
 
     [Scope('OnPrem')]
@@ -311,10 +299,7 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup."Cost Accounting");
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Cost Accounting")));
     end;
 
     [Scope('OnPrem')]
@@ -322,10 +307,7 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup."Sales Budget");
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Sales Budget")));
     end;
 
     [Scope('OnPrem')]
@@ -333,10 +315,7 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup."Purchase Budget");
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Purchase Budget")));
     end;
 
     [Scope('OnPrem')]
@@ -344,10 +323,7 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup."Item Budget");
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Item Budget")));
     end;
 
     [Scope('OnPrem')]
@@ -355,10 +331,7 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup."Sales Analysis");
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Sales Analysis")));
     end;
 
     [Scope('OnPrem')]
@@ -366,10 +339,7 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup."Purchase Analysis");
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Purchase Analysis")));
     end;
 
     [Scope('OnPrem')]
@@ -377,10 +347,7 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup."Inventory Analysis");
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Inventory Analysis")));
     end;
 
     [Scope('OnPrem')]
@@ -388,10 +355,7 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup.Reservation);
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName(Reservation)));
     end;
 
     [Scope('OnPrem')]
@@ -399,13 +363,7 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        if not ApplicationAreaSetup.Invoicing then
-            exit(false);
-
-        exit(SelectedAppAreaCount(ApplicationAreaSetup) = 0);
+        exit(IsApplicationAreaTheOnlyOneEnabled(ApplicationAreaSetup.FieldName(Invoicing)));
     end;
 
     [Scope('OnPrem')]
@@ -413,10 +371,7 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup.Manufacturing);
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName(Manufacturing)));
     end;
 
     [Scope('OnPrem')]
@@ -424,10 +379,7 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup.Planning);
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName(Planning)));
     end;
 
     [Scope('OnPrem')]
@@ -435,10 +387,7 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup."Relationship Mgmt");
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Relationship Mgmt")));
     end;
 
     [Scope('OnPrem')]
@@ -446,10 +395,7 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup.Service);
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName(Service)));
     end;
 
     [Scope('OnPrem')]
@@ -457,10 +403,7 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup.Warehouse);
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName(Warehouse)));
     end;
 
     [Scope('OnPrem')]
@@ -468,10 +411,7 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup."Order Promising");
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Order Promising")));
     end;
 
     [Scope('OnPrem')]
@@ -479,10 +419,7 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup.Comments);
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName(Comments)));
     end;
 
     [Scope('OnPrem')]
@@ -490,10 +427,7 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup."Record Links");
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Record Links")));
     end;
 
     [Scope('OnPrem')]
@@ -501,30 +435,21 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup.Notes);
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName(Notes)));
     end;
 
     procedure IsVATEnabled(): Boolean
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup.VAT);
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName(VAT)));
     end;
 
     procedure IsSalesTaxEnabled(): Boolean
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup."Sales Tax");
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Sales Tax")));
     end;
 
     procedure IsBasicCountryEnabled(CountryCode: Code[10]): Boolean
@@ -533,56 +458,53 @@ codeunit 9178 "Application Area Mgmt."
         IsHandled: Boolean;
         IsEnabled: Boolean;
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
         case CountryCode of
             // used for functinality specific to all EU countries
             'EU':
-                exit(ApplicationAreaSetup."Basic EU");
+                exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Basic EU")));
             // used for country specific functionality
             'AU':
-                exit(ApplicationAreaSetup."Basic AU");
+                exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Basic AU")));
             'AT':
-                exit(ApplicationAreaSetup."Basic AT");
+                exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Basic AT")));
             'CH':
-                exit(ApplicationAreaSetup."Basic CH");
+                exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Basic CH")));
             'DE':
-                exit(ApplicationAreaSetup."Basic DE");
+                exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Basic DE")));
             'BE':
-                exit(ApplicationAreaSetup."Basic BE");
+                exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Basic BE")));
             'CA':
-                exit(ApplicationAreaSetup."Basic CA");
+                exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Basic CA")));
             'CZ':
-                exit(ApplicationAreaSetup."Basic CZ");
+                exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Basic CZ")));
             'DK':
-                exit(ApplicationAreaSetup."Basic DK");
+                exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Basic DK")));
             'ES':
-                exit(ApplicationAreaSetup."Basic ES");
+                exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Basic ES")));
             'FI':
-                exit(ApplicationAreaSetup."Basic FI");
+                exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Basic FI")));
             'FR':
-                exit(ApplicationAreaSetup."Basic FR");
+                exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Basic FR")));
             'GB':
-                exit(ApplicationAreaSetup."Basic GB");
+                exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Basic GB")));
             'IS':
-                exit(ApplicationAreaSetup."Basic IS");
+                exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Basic IS")));
             'IT':
-                exit(ApplicationAreaSetup."Basic IT");
+                exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Basic IT")));
             'MX':
-                exit(ApplicationAreaSetup."Basic MX");
+                exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Basic MX")));
             'NL':
-                exit(ApplicationAreaSetup."Basic NL");
+                exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Basic NL")));
             'NO':
-                exit(ApplicationAreaSetup."Basic NO");
+                exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Basic NO")));
             'NZ':
-                exit(ApplicationAreaSetup."Basic NZ");
+                exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Basic NZ")));
             'RU':
-                exit(ApplicationAreaSetup."Basic RU");
+                exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Basic RU")));
             'SE':
-                exit(ApplicationAreaSetup."Basic SE");
+                exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Basic SE")));
             'US':
-                exit(ApplicationAreaSetup."Basic US");
+                exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Basic US")));
             else begin
                     IsHandled := false;
                     OnIsBasicCountryEnabled(CountryCode, IsEnabled, IsHandled);
@@ -598,10 +520,7 @@ codeunit 9178 "Application Area Mgmt."
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-
-        exit(ApplicationAreaSetup.Suite);
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName(Suite)));
     end;
 
     [Scope('OnPrem')]
@@ -611,12 +530,8 @@ codeunit 9178 "Application Area Mgmt."
     end;
 
     local procedure IsAnyEnabled(): Boolean
-    var
-        ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
-            exit(false);
-        exit(SelectedAppAreaCount(ApplicationAreaSetup) > 0);
+        exit(ApplicationArea() <> '');
     end;
 
     [Scope('OnPrem')]
@@ -654,24 +569,6 @@ codeunit 9178 "Application Area Mgmt."
 
         Message(PremiumSubscriptionNeededMsg);
         exit(false);
-    end;
-
-    local procedure SelectedAppAreaCount(ApplicationAreaSetup: Record "Application Area Setup"): Integer
-    var
-        RecRef: RecordRef;
-        FieldRef: FieldRef;
-        FieldIndex: Integer;
-        "Count": Integer;
-    begin
-        RecRef.GetTable(ApplicationAreaSetup);
-
-        for FieldIndex := GetFirstPublicAppAreaFieldIndex to RecRef.FieldCount do begin
-            FieldRef := RecRef.FieldIndex(FieldIndex);
-            if not IsInPrimaryKey(FieldRef) then
-                if FieldRef.Value then
-                    Count += 1;
-        end;
-        exit(Count);
     end;
 
     local procedure IsInPrimaryKey(FieldRef: FieldRef): Boolean

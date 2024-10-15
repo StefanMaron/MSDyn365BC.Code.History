@@ -341,7 +341,7 @@ page 161 "Purchase Statistics"
         exit('2,0,' + FieldCaption);
     end;
 
-    local procedure UpdateVATOnPurchLines()
+    procedure UpdateVATOnPurchLines()
     var
         PurchLine: Record "Purchase Line";
     begin

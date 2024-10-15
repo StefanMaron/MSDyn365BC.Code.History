@@ -1,9 +1,12 @@
 page 28082 "Posted Sales Tax Cr. Memos"
 {
+    ApplicationArea = Basic, Suite;
+    CardPageID = "Posted Sales Tax Credit Memo";
     Caption = 'Posted Sales Tax Cr. Memos';
     Editable = false;
     PageType = List;
     SourceTable = "Sales Tax Cr.Memo Header";
+    UsageCategory = Lists;
 
     layout
     {

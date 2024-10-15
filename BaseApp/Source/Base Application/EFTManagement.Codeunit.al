@@ -351,12 +351,13 @@ codeunit 11603 "EFT Management"
             repeat
                 FindAppliedEntries(VendorLedgerEntry, TempVendorLedgerEntry);
                 if TempVendorLedgerEntry.FindSet then begin
+                    VendorLedgerEntry.CalcFields(Amount);
                     InitPaymentBuffer(
                       PaymentBufferGenJournalLine,
                       VendorLedgerEntry."Vendor No.",
                       VendorLedgerEntry."EFT Bank Account No.",
                       VendorLedgerEntry."Document No.",
-                      0);
+                      VendorLedgerEntry.Amount);
                     repeat
                         UpdatePaymentBufferAmounts(PaymentBufferGenJournalLine, TempVendorLedgerEntry, true);
                     until TempVendorLedgerEntry.Next = 0;

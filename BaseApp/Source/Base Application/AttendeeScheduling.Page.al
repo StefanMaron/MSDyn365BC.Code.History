@@ -209,6 +209,7 @@ page 5199 "Attendee Scheduling"
                     Caption = 'Send Invitations';
                     Image = DistributionGroup;
                     ToolTip = 'Send invitation to the attendee.';
+                    Visible = not IsSaas;
 
                     trigger OnAction()
                     begin
@@ -240,9 +241,12 @@ page 5199 "Attendee Scheduling"
         AttachmentEnable := true;
         SubjectEnable := true;
         LanguageCodeEnable := true;
+        IsSaas := EnvironmentInfo.IsSaaS();
     end;
 
     var
+        EnvironmentInfo: Codeunit "Environment Information";
+        IsSaas: Boolean;
         [InDataSet]
         LanguageCodeEnable: Boolean;
         [InDataSet]

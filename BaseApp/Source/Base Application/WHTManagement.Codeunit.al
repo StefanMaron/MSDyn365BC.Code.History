@@ -79,6 +79,7 @@ codeunit 28040 WHTManagement
     var
         Currency: Option Vendor,Customer;
         RemainingAmt: Decimal;
+        PmtDiscount: Decimal;
     begin
         GLSetup.Get;
         if GLSetup."Enable GST (Australia)" then
@@ -118,6 +119,8 @@ codeunit 28040 WHTManagement
                 TempVendLedgEntry.CalcFields(
                   Amount, "Amount (LCY)", "Remaining Amount", "Remaining Amt. (LCY)",
                   "Original Amount", "Original Amt. (LCY)");
+
+                PmtDiscount := 0;
                 if CheckPmtDisc(
                      GenJnlLine."Posting Date", TempVendLedgEntry."Pmt. Discount Date",
                      Abs(TempVendLedgEntry."Rem. Amt for WHT"),
@@ -125,42 +128,13 @@ codeunit 28040 WHTManagement
                      Abs(TempVendLedgEntry."Original Pmt. Disc. Possible"),
                      Abs(TotAmt))
                 then
-                    TotAmt := TotAmt + TempVendLedgEntry."Original Pmt. Disc. Possible";
+                    PmtDiscount := TempVendLedgEntry."Original Pmt. Disc. Possible";
 
-                if (Abs(RemainingAmt) < Abs(TotAmt)) or
-                   (Abs(TempVendLedgEntry."Rem. Amt for WHT") < Abs(TotAmt))
-                then begin
-                    if CheckPmtDisc(GenJnlLine."Posting Date",
-                         TempVendLedgEntry."Pmt. Discount Date",
-                         Abs(TempVendLedgEntry."Rem. Amt for WHT"),
-                         Abs(TempVendLedgEntry."Rem. Amt"),
-                         Abs(TempVendLedgEntry."Original Pmt. Disc. Possible"),
-                         Abs(TotAmt))
-                    then begin
-                        GenJnlLine.Validate(
-                          Amount,
-                          -Abs(TempVendLedgEntry."Rem. Amt for WHT" - TempVendLedgEntry."Original Pmt. Disc. Possible"));
-                        RemainingAmt :=
-                          RemainingAmt - TempVendLedgEntry."Rem. Amt for WHT" - TempVendLedgEntry."Original Pmt. Disc. Possible";
-                    end else begin
-                        GenJnlLine.Validate(Amount, -Abs(TempVendLedgEntry."Rem. Amt for WHT"));
-                        RemainingAmt := RemainingAmt - TempVendLedgEntry."Rem. Amt for WHT";
-                    end;
-                end else begin
-                    if CheckPmtDisc(GenJnlLine."Posting Date",
-                         TempVendLedgEntry."Pmt. Discount Date",
-                         Abs(TempVendLedgEntry."Rem. Amt for WHT"),
-                         Abs(TempVendLedgEntry."Rem. Amt"),
-                         Abs(TempVendLedgEntry."Original Pmt. Disc. Possible"),
-                         Abs(TotAmt))
-                    then
-                        GenJnlLine.Validate(Amount, -TotAmt + TempVendLedgEntry."Original Pmt. Disc. Possible")
-                    else
-                        GenJnlLine.Validate(Amount, -TotAmt);
-                    ExitLoop := true;
-                end;
+                GenJnlLine.Validate(Amount, -Abs(TempVendLedgEntry."Rem. Amt for WHT" - PmtDiscount));
+                RemainingAmt -= TempVendLedgEntry."Rem. Amt for WHT";
+                TotAmt += (TempVendLedgEntry."Rem. Amt for WHT" - PmtDiscount);
+
                 GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::"Credit Memo";
-                TotAmt := TotAmt + TempVendLedgEntry."Rem. Amt for WHT";
                 GenJnlLine."Applies-to Doc. No." := TempVendLedgEntry."Document No.";
                 NextEntry :=
                   ProcessPayment(
@@ -169,6 +143,7 @@ codeunit 28040 WHTManagement
                 if ExitLoop then
                     exit(NextEntry);
             until TempVendLedgEntry.Next = 0;
+
         ExitLoop := false;
         TempVendLedgEntry.Reset;
         SetVendAppliesToFilter(TempVendLedgEntry, GenJnlLine);
@@ -4027,21 +4002,13 @@ codeunit 28040 WHTManagement
                          Abs(TempVendLedgEntry."Original Pmt. Disc. Possible"),
                          Abs(TotAmt))
                     then
-                        TotAmt := TotAmt + Abs(TempVendLedgEntry."Original Pmt. Disc. Possible");
+                        TotAmt := TotAmt - Abs(TempVendLedgEntry."Original Pmt. Disc. Possible");
 
-                    if (Abs(RemainingAmt) < Abs(TotAmt)) or
-                       (Abs(TempVendLedgEntry."Remaining Amount") < Abs(TotAmt))
-                    then begin
-                        GenJnlLine.Validate(Amount, -Abs(TempVendLedgEntry."Remaining Amount"));
-                        RemainingAmt := RemainingAmt - TempVendLedgEntry."Remaining Amount";
-                    end else begin
-                        GenJnlLine.Validate(Amount, -TotAmt);
-                        ExitLoop := true;
-                    end;
+                    GenJnlLine.Validate(Amount, -Abs(TempVendLedgEntry."Remaining Amount"));
+                    RemainingAmt -= TempVendLedgEntry."Remaining Amount";
+                    TotAmt += TempVendLedgEntry."Remaining Amount";
 
                     GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::"Credit Memo";
-                    TotAmt := TotAmt + Abs(TempVendLedgEntry."Remaining Amount");
-
                     GenJnlLine."Applies-to Doc. No." := TempVendLedgEntry."Document No.";
                     PaymentAmount := GenJnlLine.Amount;
                     PaymentAmount1 := GenJnlLine.Amount;
@@ -4143,6 +4110,7 @@ codeunit 28040 WHTManagement
                         until WHTEntry.Next = 0;
 
                 until TempVendLedgEntry.Next = 0;
+
             ExitLoop := false;
             TempVendLedgEntry.Reset;
             if GenJnlLine."Applies-to ID" <> '' then begin

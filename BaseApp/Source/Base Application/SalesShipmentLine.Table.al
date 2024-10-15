@@ -647,6 +647,7 @@ table 111 "Sales Shipment Line"
             OnBeforeInsertInvLineFromShptLineBeforeInsertTextLine(Rec, SalesLine, NextLineNo, IsHandled);
             if not IsHandled then begin
                 SalesLine.Insert;
+                OnAfterDescriptionSalesLineInsert(SalesLine, Rec, NextLineNo);
                 NextLineNo := NextLineNo + 10000;
             end;
         end;
@@ -701,7 +702,10 @@ table 111 "Sales Shipment Line"
             SalesLine."Shipment Line No." := "Line No.";
             ClearSalesLineValues(SalesLine);
             if not ExtTextLine and (SalesLine.Type <> 0) then begin
-                SalesLine.Validate(Quantity, Quantity - "Quantity Invoiced");
+                IsHandled := false;
+                OnInsertInvLineFromShptLineOnBeforeValidateQuantity(Rec, SalesLine, IsHandled);
+                if not IsHandled then
+                    SalesLine.Validate(Quantity, Quantity - "Quantity Invoiced");
                 CalcBaseQuantities(SalesLine, "Quantity (Base)" / Quantity);
 
                 OnInsertInvLineFromShptLineOnAfterCalcQuantities(SalesLine, SalesOrderLine);
@@ -1003,6 +1007,11 @@ table 111 "Sales Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterDescriptionSalesLineInsert(var SalesLine: Record "Sales Line"; SalesShipmentLine: Record "Sales Shipment Line"; var NextLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromSalesLine(SalesShptHeader: Record "Sales Shipment Header"; SalesLine: Record "Sales Line"; var SalesShptLine: Record "Sales Shipment Line")
     begin
     end;
@@ -1039,6 +1048,11 @@ table 111 "Sales Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertInvLineFromShptLineOnAfterUpdatePrepaymentsAmounts(var SalesLine: Record "Sales Line"; var SalesOrderLine: Record "Sales Line"; var SalesShipmentLine: Record "Sales Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInvLineFromShptLineOnBeforeValidateQuantity(SalesShipmentLine: Record "Sales Shipment Line"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

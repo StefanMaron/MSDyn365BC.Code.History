@@ -1,9 +1,12 @@
 page 28081 "Posted Sales Tax Invoices"
 {
+    ApplicationArea = Basic, Suite;
+    CardPageID = "Posted Sales Tax Invoice";
     Caption = 'Posted Sales Tax Invoices';
     Editable = false;
     PageType = List;
     SourceTable = "Sales Tax Invoice Header";
+    UsageCategory = Lists;
 
     layout
     {

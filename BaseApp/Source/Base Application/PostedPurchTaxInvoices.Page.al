@@ -1,9 +1,12 @@
 page 28079 "Posted Purch. Tax Invoices"
 {
+    ApplicationArea = Basic, Suite;
+    CardPageID = "Posted Purchase Tax Invoice";
     Caption = 'Posted Purch. Tax Invoices';
     Editable = false;
     PageType = List;
     SourceTable = "Purch. Tax Inv. Header";
+    UsageCategory = Lists;
 
     layout
     {

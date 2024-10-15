@@ -19,7 +19,10 @@ codeunit 5470 "Graph Collection Mgt - Item"
         RecRef: RecordRef;
         ItemModified: Boolean;
     begin
-        Item.Insert(true);
+        If IsNullGuid(Item.SystemId) then
+            Item.Insert(true)
+        else
+            Item.Insert(true, true);
 
         UpdateOrCreateItemUnitOfMeasureFromSalesDocument(UnitOfMeasureJSON, Item, TempFieldSet, ItemModified);
 
@@ -36,7 +39,10 @@ codeunit 5470 "Graph Collection Mgt - Item"
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
         RecRef: RecordRef;
     begin
-        Item.Insert(true);
+        If IsNullGuid(Item.SystemId) then
+            Item.Insert(true)
+        else
+            Item.Insert(true, true);
 
         ProcessComplexTypes(
           Item,

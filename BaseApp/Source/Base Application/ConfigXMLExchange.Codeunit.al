@@ -556,7 +556,8 @@ codeunit 8614 "Config. XML Exchange"
                                 if ConfigPackageRecord.FindSet then
                                     repeat
                                         ConfigPackageData.Get(
-                                          ConfigPackageRecord."Package Code", ConfigPackageRecord."Table ID", ConfigPackageRecord."No.", 1);
+                                          ConfigPackageRecord."Package Code", ConfigPackageRecord."Table ID",
+                                          ConfigPackageRecord."No.", GetPrimaryKeyFieldNumber(TableID));
                                         ConfigPackageMgt.UpdateDefaultDimValues(ConfigPackageRecord, CopyStr(ConfigPackageData.Value, 1, 20));
                                     until ConfigPackageRecord.Next = 0;
                             end;
@@ -947,7 +948,7 @@ codeunit 8614 "Config. XML Exchange"
             end;
         end else
             if ConfigMgt.IsDefaultDimTable(RecRef.Number) then begin // Default Dimensions
-                FieldRef := RecRef.Field(1);
+                FieldRef := RecRef.Field(GetPrimaryKeyFieldNumber(RecRef.Number));
                 DefaultDim.SetRange("Table ID", RecRef.Number);
                 MasterNo := Format(FieldRef.Value);
                 DefaultDim.SetRange("No.", MasterNo);
@@ -1011,6 +1012,18 @@ codeunit 8614 "Config. XML Exchange"
     begin
         DocumentElement := PackageXML.DocumentElement;
         exit(CopyStr(GetAttribute(GetElementName(ConfigPackage.FieldName(Code)), DocumentElement), 1, MaxStrLen(ConfigPackage.Code)));
+    end;
+
+    local procedure GetPrimaryKeyFieldNumber(TableID: Integer): Integer
+    var
+        RecRef: RecordRef;
+        KeyRef: KeyRef;
+        FieldRef: FieldRef;
+    begin
+        RecRef.Open(TableID);
+        KeyRef := RecRef.KeyIndex(1);
+        FieldRef := KeyRef.FieldIndex(1);
+        exit(FieldRef.Number);
     end;
 
     local procedure InitializeMediaTempFolder()

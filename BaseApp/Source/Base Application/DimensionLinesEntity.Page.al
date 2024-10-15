@@ -188,7 +188,6 @@ page 5489 "Dimension Lines Entity"
         IdAndCodeCannotBeModifiedErr: Label 'The ID and Code fields cannot be modified.', Locked = true;
         RecordDoesntExistErr: Label 'Could not find the record.', Locked = true;
         RecordWasDeletedErr: Label 'The record was deleted.', Locked = true;
-        WrongEntityErr: Label 'Dimension Lines do not exist for the Entity with that Id.', Locked = true;
         DimensionFieldsDontMatchErr: Label 'The dimension field values do not match to a specific Dimension.', Locked = true;
         DimensionIdDoesNotMatchADimensionErr: Label 'The "id" does not match to a Dimension.', Locked = true;
         DimensionCodeDoesNotMatchADimensionErr: Label 'The "code" does not match to a Dimension.', Locked = true;
@@ -238,35 +237,22 @@ page 5489 "Dimension Lines Entity"
 
     local procedure GetSetId(IntegrationId: Text): Integer
     var
-        IntegrationRecord: Record "Integration Record";
         GenJournalLine: Record "Gen. Journal Line";
-        DummyRecordId: RecordID;
     begin
-        if not IntegrationRecord.Get(IntegrationId) then
-            Error(RecordDoesntExistErr);
+        if GenJournalLine.GetBySystemId(IntegrationId) then
+            exit(GenJournalLine."Dimension Set ID");
 
-        if Format(IntegrationRecord."Record ID") = Format(DummyRecordId) then
-            Error(RecordWasDeletedErr);
-
-        case IntegrationRecord."Table ID" of
-            DATABASE::"Gen. Journal Line":
-                begin
-                    GenJournalLine.Get(IntegrationRecord."Record ID");
-                    exit(GenJournalLine."Dimension Set ID");
-                end;
-            else
-                Error(WrongEntityErr);
-        end;
+        Error(RecordDoesntExistErr);
     end;
 
     local procedure SaveDimensions()
     var
         TempDimensionSetEntry: Record "Dimension Set Entry" temporary;
-        IntegrationRecord: Record "Integration Record";
         GenJournalLine: Record "Gen. Journal Line";
         DimensionManagement: Codeunit DimensionManagement;
+        ParentSystemId: Guid;
     begin
-        IntegrationRecord.Get("Parent Id");
+        ParentSystemId := "Parent Id";
 
         Reset;
         if FindFirst then
@@ -276,18 +262,13 @@ page 5489 "Dimension Lines Entity"
                 TempDimensionSetEntry.Insert(true);
             until Next = 0;
 
-        case IntegrationRecord."Table ID" of
-            DATABASE::"Gen. Journal Line":
-                begin
-                    GenJournalLine.Get(IntegrationRecord."Record ID");
-                    GenJournalLine."Dimension Set ID" := DimensionManagement.GetDimensionSetID(TempDimensionSetEntry);
-                    DimensionManagement.UpdateGlobalDimFromDimSetID(
-                      GenJournalLine."Dimension Set ID", GenJournalLine."Shortcut Dimension 1 Code", GenJournalLine."Shortcut Dimension 2 Code");
-                    GenJournalLine.Modify(true);
-                end;
-            else
-                Error(WrongEntityErr);
-        end;
+        if GenJournalLine.GetBySystemId(ParentSystemId) then begin
+            GenJournalLine."Dimension Set ID" := DimensionManagement.GetDimensionSetID(TempDimensionSetEntry);
+            DimensionManagement.UpdateGlobalDimFromDimSetID(
+              GenJournalLine."Dimension Set ID", GenJournalLine."Shortcut Dimension 1 Code", GenJournalLine."Shortcut Dimension 2 Code");
+            GenJournalLine.Modify(true);
+        end else
+            Error(RecordDoesntExistErr);
     end;
 
     local procedure CheckIfValuesAreProperlyFilled()

@@ -35,6 +35,9 @@ codeunit 5529 "Purch. Inv. Aggregator"
         if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled) then
             exit;
 
+        if IsBackgroundPosting(Rec) then
+            exit;
+
         InsertOrModifyFromPurchaseHeader(Rec);
     end;
 
@@ -948,6 +951,14 @@ codeunit 5529 "Purch. Inv. Aggregator"
             exit(false);
 
         exit(true);
+    end;
+
+    local procedure IsBackgroundPosting(var PurchaseHeader: Record "Purchase Header"): Boolean
+    begin
+        if PurchaseHeader.IsTemporary then
+            exit(false);
+
+        exit(PurchaseHeader."Job Queue Status" in [PurchaseHeader."Job Queue Status"::"Scheduled for Posting", PurchaseHeader."Job Queue Status"::Posting]);
     end;
 }
 

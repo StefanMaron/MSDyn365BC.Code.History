@@ -4,7 +4,7 @@ page 5478 "Journal Lines Entity"
     DelayedInsert = true;
     EntityName = 'journalLine';
     EntitySetName = 'journalLines';
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = "Gen. Journal Line";
 
@@ -15,7 +15,7 @@ page 5478 "Journal Lines Entity"
             repeater(Control2)
             {
                 ShowCaption = false;
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'Id', Locked = true;
@@ -172,8 +172,7 @@ page 5478 "Journal Lines Entity"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        GenJournalLine.SetRange(Id, Id);
-        GenJournalLine.FindFirst;
+        GenJournalLine.GetBySystemId(SystemId);
 
         if "Line No." = GenJournalLine."Line No." then
             Modify(true)
@@ -240,7 +239,7 @@ page 5478 "Journal Lines Entity"
     local procedure CheckFilters()
     begin
         if (GetFilter("Journal Batch Id") = '') and
-           (GetFilter(Id) = '')
+           (GetFilter(SystemId) = '')
         then
             Error(FiltersNotSpecifiedErr);
     end;

@@ -738,6 +738,138 @@ codeunit 137066 "SCM Order Tracking"
           DATABASE::"Purchase Line", Item."No.", DummyReservationEntry."Reservation Status"::Surplus, Qty, 0D, CalcDate('<-CM>', WorkDate));
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandlerSimple,SalesListModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure OrderTrackingNotChangeStatusInReservationEntryWhenSpecialOrderInPurchLine()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        PurchaseHeader: Record "Purchase Header";
+        SalesLine: Record "Sales Line";
+        PurchaseLine: Record "Purchase Line";
+        ReservationEntry: Record "Reservation Entry";
+        Qty: Integer;
+        QtyPurchSurplus: Integer;
+    begin
+        // [FEATURE] [Special Order]
+        // [SCENARIO 330077] Second Sales Order is not tracked to special order Purchase with same Item
+        Initialize;
+        Qty := LibraryRandom.RandIntInRange(2, 10);
+
+        // [GIVEN] Item had Order Tracking enabled
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Order Tracking Policy", Item."Order Tracking Policy"::"Tracking Only");
+        Item.Modify(true);
+
+        // [GIVEN] Sales Order and Purchase Order with 10 PCS of the Item linked as Special Order (Pair of Surplus Entries with 10 PCS)
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", Qty,
+          Location.Code, WorkDate);
+        SalesLine.Validate("Purchasing Code", CreatePurchasingCode(false, true));
+        SalesLine.Modify(true);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        PurchaseHeader.Validate("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        PurchaseHeader.Modify(true);
+        LibraryVariableStorage.Enqueue(SalesHeader."No.");
+        LibraryPurchase.GetSpecialOrder(PurchaseHeader);
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindFirst;
+        ReservationEntry.SetSourceFilter(DATABASE::"Purchase Line", PurchaseHeader."Document Type", PurchaseHeader."No.", -1, false);
+        ReservationEntry.FindFirst;
+        QtyPurchSurplus := ReservationEntry.Quantity;
+
+        // [GIVEN] 2nd Sales Order with the same Item
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", 0,
+          Location.Code, WorkDate);
+
+        // [WHEN] Validate Quantity = 1 in 2nd Sales Order Line
+        SalesLine.Validate(Quantity, Qty - 1);
+
+        // [THEN] Surplus Reservation Entry with 1 PCS for the second Sales Order Line
+        ReservationEntry.SetSourceFilter(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No.", -1, false);
+        ReservationEntry.FindFirst;
+        ReservationEntry.TestField(Quantity, -SalesLine.Quantity);
+        ReservationEntry.TestField("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
+        ReservationEntry.TestField("Expected Receipt Date", 0D);
+
+        // [THEN] Surplus Reservation Entry for Purchase Order still has 10 PCS
+        VerifyReservationEntryStatusQtyShipAndRcptDates(
+          DATABASE::"Purchase Line", Item."No.", ReservationEntry."Reservation Status"::Surplus, QtyPurchSurplus, 0D,
+          PurchaseLine."Expected Receipt Date");
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandlerSimple,SalesListModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure OrderTrackingNotChangeStatusInReservationEntryWhenDropShipmentInPurchLine()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        PurchaseHeader: Record "Purchase Header";
+        SalesLine: Record "Sales Line";
+        PurchaseLine: Record "Purchase Line";
+        ReservationEntry: Record "Reservation Entry";
+        Qty: Integer;
+        QtyPurchSurplus: Integer;
+    begin
+        // [FEATURE] [Drop Shipment]
+        // [SCENARIO 330077] Second Sales Order is not tracked to drop shipment Purchase with same Item
+        Initialize;
+        Qty := LibraryRandom.RandIntInRange(2, 10);
+
+        // [GIVEN] Item had Order Tracking enabled
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Order Tracking Policy", Item."Order Tracking Policy"::"Tracking Only");
+        Item.Modify(true);
+
+        // [GIVEN] Sales Order and Purchase Order with 10 PCS of the Item linked as Drop Shipment (Pair of Surplus Entries with 10 PCS)
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", Qty,
+          Location.Code, WorkDate);
+        SalesLine.Validate("Purchasing Code", CreatePurchasingCode(true, false));
+        SalesLine.Modify(true);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        PurchaseHeader.Validate("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        PurchaseHeader.Modify(true);
+        LibraryVariableStorage.Enqueue(SalesHeader."No.");
+        LibraryPurchase.GetDropShipment(PurchaseHeader);
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindFirst;
+        ReservationEntry.SetSourceFilter(DATABASE::"Purchase Line", PurchaseHeader."Document Type", PurchaseHeader."No.", -1, false);
+        ReservationEntry.FindFirst;
+        QtyPurchSurplus := ReservationEntry.Quantity;
+
+        // [GIVEN] 2nd Sales Order with the same Item
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", 0,
+          Location.Code, WorkDate);
+
+        // [WHEN] Validate Quantity = 1 in 2nd Sales Order Line
+        SalesLine.Validate(Quantity, Qty - 1);
+
+        // [THEN] Surplus Reservation Entry with 1 PCS for the second Sales Order Line
+        ReservationEntry.SetSourceFilter(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No.", -1, false);
+        ReservationEntry.FindFirst;
+        ReservationEntry.TestField(Quantity, -SalesLine.Quantity);
+        ReservationEntry.TestField("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
+        ReservationEntry.TestField("Expected Receipt Date", 0D);
+
+        // [THEN] Surplus Reservation Entry for Purchase Order still has 10 PCS
+        VerifyReservationEntryStatusQtyShipAndRcptDates(
+          DATABASE::"Purchase Line", Item."No.", ReservationEntry."Reservation Status"::Surplus, QtyPurchSurplus, 0D,
+          PurchaseLine."Expected Receipt Date");
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1239,6 +1371,14 @@ codeunit 137066 "SCM Order Tracking"
         VerifyQuantityOnOrderTracking(OrderTracking);
         OrderTracking.Next;
         VerifyQuantityOnOrderTracking(OrderTracking);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesListModalPageHandler(var SalesList: TestPage "Sales List")
+    begin
+        SalesList.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        SalesList.OK.Invoke;
     end;
 }
 

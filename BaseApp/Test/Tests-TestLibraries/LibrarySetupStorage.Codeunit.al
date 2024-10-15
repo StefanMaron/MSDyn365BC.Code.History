@@ -31,6 +31,36 @@ codeunit 131009 "Library - Setup Storage"
         RecordRefStorage[TempIntegerStoredTables.Count] := RecRef;
     end;
 
+    [Scope('OnPrem')]
+    procedure SaveSalesSetup()
+    begin
+        Save(DATABASE::"Sales & Receivables Setup");
+    end;
+
+    [Scope('OnPrem')]
+    procedure SavePurchasesSetup()
+    begin
+        Save(DATABASE::"Purchases & Payables Setup");
+    end;
+
+    [Scope('OnPrem')]
+    procedure SaveGeneralLedgerSetup()
+    begin
+        Save(DATABASE::"General Ledger Setup");
+    end;
+
+    [Scope('OnPrem')]
+    procedure SaveCompanyInformation()
+    begin
+        Save(DATABASE::"Company Information");
+    end;
+
+    [Scope('OnPrem')]
+    procedure SaveManufacturingSetup()
+    begin
+        Save(DATABASE::"Manufacturing Setup");
+    end;
+
     procedure Restore()
     var
         RecordRefSource: RecordRef;

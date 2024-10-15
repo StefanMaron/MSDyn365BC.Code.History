@@ -150,7 +150,6 @@ codeunit 141038 "ERM VAT - Details"
         // [GIVEN] Currency with "Exchange Rate Amount" = 7
         CreateCurrencyWithExchRateAmount(CurrencyCode);
         UpdateGenLedgSetupAddReportingCurrency(CurrencyCode);
-        LibraryERM.RunAddnlReportingCurrency(CurrencyCode, CurrencyCode, LibraryERM.CreateGLAccountNo);
         // [GIVEN] VAT Posting Setup with "VAT %" = 20%
         // [GIVEN] Sales invoice with 2 lines
         // [GIVEN] Amount of first line = 10
@@ -178,7 +177,6 @@ codeunit 141038 "ERM VAT - Details"
 
         // [GIVEN] Currency with "Exchange Rate Amount" = 7
         CreateCurrencyWithExchRateAmount(CurrencyCode);
-        LibraryERM.RunAddnlReportingCurrency(CurrencyCode, CurrencyCode, LibraryERM.CreateGLAccountNo);
         // [GIVEN] VAT Posting Setup with "VAT %" = 20%
         // [GIVEN] Purchase invoice with 2 lines
         // [GIVEN] Amount of first line = 10

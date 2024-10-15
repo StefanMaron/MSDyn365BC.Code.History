@@ -758,6 +758,52 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         LibraryReportDataset.AssertCurrentRowValueEquals('FORMAT_DueDate_', Format(ExpectedDueDate));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseVendorExchangeRateIsUsedForAdditionalCurrencyAmountCalculation()
+    var
+        GLEntry: Record "G/L Entry";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        CurrencyCode: Code[10];
+    begin
+        // [FEATURE] [Purchase] [ACY]
+        // [SCENARIO 321551] Vendor Exchange rate in Purchase Order is used for Additional-Currency Amount Calculation.
+        Initialize;
+        LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
+        UpdateGeneralLedgerSetupGSTReport;
+
+        // [GIVEN] Currency.
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+
+        // [GIVEN] "Enable Vendor GST Amount (ACY)" set to TRUE in Purchases & Payables Setup.
+        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup."Enable Vendor GST Amount (ACY)" := true;
+        PurchasesPayablesSetup.Modify;
+
+        // [GIVEN] Currency set up as Additional Reporting curreny.
+        LibraryERM.SetAddReportingCurrency(CurrencyCode);
+
+        // [GIVEN] Purchase Order with "Vendor Exchange Rate (ACY)" = 10 and Purchase Line with "Quanitity" = 2, "Direct Unit Cost" = 15.
+        CreatePurchDocWithLine(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
+          PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, WorkDate);
+        PurchaseHeader."Vendor Exchange Rate (ACY)" := LibraryRandom.RandInt(10);
+        PurchaseHeader.Modify;
+
+        // [WHEN] Purchase Order is posted.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] G/L Entry has "Additional-Currency Amount" equal to 2 * 15 * 10 = 300.
+        GLEntry.SetRange("G/L Account No.", PurchaseLine."No.");
+        Assert.RecordCount(GLEntry, 1);
+        GLEntry.FindFirst;
+        GLEntry.TestField(
+          "Additional-Currency Amount",
+          PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost" * PurchaseHeader."Vendor Exchange Rate (ACY)");
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
