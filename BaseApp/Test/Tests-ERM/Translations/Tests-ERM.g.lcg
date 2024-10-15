@@ -12137,6 +12137,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Contracts II - NamedType UnexpectedConfirmTextErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1134171456 - NamedType 306311142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be equal to %2 in %3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Expected Value , %3 = Table Caption]D;]A;(LookupHint=Codeunit Service Contracts II - NamedType ValueMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1502205507 - NamedType 1314462029" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[NTF_TEST_NTF_TEST]]></Val>
