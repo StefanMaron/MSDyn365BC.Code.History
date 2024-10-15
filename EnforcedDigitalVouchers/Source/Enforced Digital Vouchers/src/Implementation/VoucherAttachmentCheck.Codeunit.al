@@ -23,7 +23,7 @@
         IncomingDocument: Record "Incoming Document";
         VoucherAttached: Boolean;
     begin
-        DigitalVoucherEntrySetup.Get(DigitalVoucherEntryType);
+        DigitalVoucherImpl.GetDigitalVoucherEntrySetup(DigitalVoucherEntrySetup, DigitalVoucherEntryType);
         VoucherAttached := DigitalVoucherImpl.GetIncomingDocumentRecordFromRecordRef(IncomingDocument, RecRef);
         if VoucherAttached and DigitalVoucherEntrySetup."Skip If Manually Added" then
             exit;

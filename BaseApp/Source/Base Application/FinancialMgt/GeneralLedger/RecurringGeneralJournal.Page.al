@@ -523,6 +523,11 @@ page 283 "Recurring General Journal"
                               "Journal Batch Name" = FIELD("Journal Batch Name"),
                               "Line No." = FIELD("Line No.");
             }
+            part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                ShowFilter = false;
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -830,6 +835,11 @@ page 283 "Recurring General Journal"
         UpdateBalance();
         SetUpNewLine(xRec, Balance, BelowxRec);
         Clear(ShortcutDimCode);
+    end;
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        CurrPage.IncomingDocAttachFactBox.PAGE.SetCurrentRecordID(Rec.RecordId);
     end;
 
     trigger OnOpenPage()
