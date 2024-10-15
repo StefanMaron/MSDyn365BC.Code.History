@@ -391,41 +391,38 @@ table 1237 "Transformation Rule"
 
     local procedure GetDateTime(TextValue: Text; SuppresTimeZone: Boolean): DateTime
     var
-        DotNetDateTime: DotNet DateTime;
-        CultureInfo: DotNet CultureInfo;
-        DotNetDateTimeStyles: DotNet DateTimeStyles;
+        DotNet_DateTime: Codeunit DotNet_DateTime;
+        DotNet_CultureInfo: Codeunit DotNet_CultureInfo;
+        DotNet_DateTimeStyles: Codeunit DotNet_DateTimeStyles;
         DateTimeValue: DateTime;
     begin
         DateTimeValue := 0DT;
-        DotNetDateTime := DotNetDateTime.DateTime(1);
 
-        DotNetDateTimeStyles := DotNetDateTimeStyles.None;
+        DotNet_DateTimeStyles.None();
 
         if "Data Formatting Culture" = '' then begin
-            CultureInfo := CultureInfo.InvariantCulture;
-            if not DotNetDateTime.TryParseExact(
+            DotNet_CultureInfo.InvariantCulture();
+            if not DotNet_DateTime.TryParseExact(
                  TextValue,
                  "Data Format",
-                 CultureInfo,
-                 DotNetDateTimeStyles,
-                 DotNetDateTime)
+                 DotNet_CultureInfo,
+                 DotNet_DateTimeStyles)
             then
                 exit(DateTimeValue);
         end else begin
-            CultureInfo := CultureInfo.GetCultureInfo("Data Formatting Culture");
-            if not DotNetDateTime.TryParse(
+            DotNet_CultureInfo.GetCultureInfoByName("Data Formatting Culture");
+            if not DotNet_DateTime.TryParse(
                  TextValue,
-                 CultureInfo,
-                 DotNetDateTimeStyles,
-                 DotNetDateTime)
+                 DotNet_CultureInfo,
+                 DotNet_DateTimeStyles)
             then
                 exit(DateTimeValue);
         end;
 
         if SuppresTimeZone then
-            DateTimeValue := CreateDateTime(DMY2Date(DotNetDateTime.Day, DotNetDateTime.Month, DotNetDateTime.Year), 0T)
+            DateTimeValue := CreateDateTime(DMY2Date(DotNet_DateTime.Day(), DotNet_DateTime.Month(), DotNet_DateTime.Year()), 0T)
         else
-            DateTimeValue := DotNetDateTime;
+            DateTimeValue := DotNet_DateTime.ToDateTime();
 
         exit(DateTimeValue);
     end;

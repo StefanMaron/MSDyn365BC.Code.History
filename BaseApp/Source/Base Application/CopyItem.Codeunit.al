@@ -102,6 +102,8 @@ codeunit 730 "Copy Item"
     var
         TargetItem: Record Item;
     begin
+        OnBeforeCopyItem(SourceItem, TargetItem, CopyCounter);
+
         InitTargetItem(TargetItem, CopyCounter);
 
         if not (CopyItemBuffer."Sales Line Discounts" or CopyItemBuffer."Purchase Line Discounts") then
@@ -529,6 +531,11 @@ codeunit 730 "Copy Item"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyItem(var CopyItemBuffer: Record "Copy Item Buffer"; SourceItem: Record Item; var TargetItem: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyItem(SourceItem: Record Item; var TargetItem: Record Item; CopyCounter: Integer)
     begin
     end;
 

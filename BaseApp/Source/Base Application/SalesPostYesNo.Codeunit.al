@@ -92,6 +92,7 @@ codeunit 81 "Sales-Post (Yes/No)"
             DefaultOption := 1;
 
         with SalesHeader do begin
+            OnConfirmPostOnBeforeSetSelection(SalesHeader);
             case "Document Type" of
                 "Document Type"::Order:
                     begin
@@ -180,6 +181,11 @@ codeunit 81 "Sales-Post (Yes/No)"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunSalesPost(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnConfirmPostOnBeforeSetSelection(var SalesHeader: Record "Sales Header")
     begin
     end;
 }

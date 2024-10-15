@@ -273,7 +273,9 @@ codeunit 134911 "ERM Create Finance Charge Memo"
     procedure TestIssueFinChargeMemoEmail()
     var
         LibraryEmailFeature: Codeunit "Library - Email Feature";
+        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
     begin
+        LibraryLowerPermissions.SetO365Full();
         LibraryEmailFeature.SetEmailFeatureEnabled(true);
         IssueFinChargeMemoEmail();
         LibraryEmailFeature.SetEmailFeatureEnabled(false);

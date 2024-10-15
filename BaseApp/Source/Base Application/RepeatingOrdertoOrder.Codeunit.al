@@ -250,21 +250,24 @@ codeunit 15000300 "Repeating Order to Order"
     local procedure UpdateUnitPrice()
     var
         SalesHeader: Record "Sales Header";
-        PriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
+        PriceCalculation: Interface "Price Calculation";
         CalledByFieldNo: Integer;
     begin
         // Init to be able to use the code from table 37 (see Note).
         SalesHeader := SalesOrderHeader;
-        CalledByFieldNo := 6; // = field SalesOrderLine."No."
+        CalledByFieldNo := SalesOrderLine.FieldNo("No.");
 
-        // Note >>: This is a copy of code from function "UpdateUnitprice" on table 37.
+        // Note >>: This is a copy of code from function "UpdateUnitPriceByField" on table 37.
         SalesOrderLine.TestField("Qty. per Unit of Measure");
 
         case SalesOrderLine.Type of
             SalesOrderLine.Type::Item, SalesOrderLine.Type::Resource:
                 begin
-                    PriceCalcMgt.FindSalesLineLineDisc(SalesHeader, SalesOrderLine);
-                    PriceCalcMgt.FindSalesLinePrice(SalesHeader, SalesOrderLine, CalledByFieldNo);
+                    SalesOrderLine.GetPriceCalculationHandler("Price Type"::Sale, SalesHeader, PriceCalculation);
+                    if not (SalesOrderLine."Copied From Posted Doc." and SalesOrderLine.IsCreditDocType()) then begin
+                        PriceCalculation.ApplyDiscount();
+                        SalesOrderLine.ApplyPrice(CalledByFieldNo, PriceCalculation);
+                    end;
                 end;
             SalesOrderLine.Type::"Charge (Item)":
                 SalesOrderLine.UpdateItemChargeAssgnt();

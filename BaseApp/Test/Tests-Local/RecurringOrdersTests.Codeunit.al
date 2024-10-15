@@ -395,6 +395,81 @@ codeunit 144200 "Recurring Orders Tests"
     [Test]
     [HandlerFunctions('MsgHandler')]
     [Scope('OnPrem')]
+    procedure RecurringGroup_UpdatePriceV16()
+    var
+        BlanketSalesHeader: Record "Sales Header";
+        BlanketSalesLine: Record "Sales Line";
+        SalesOrderHeader: Record "Sales Header";
+        SalesOrderLine: Record "Sales Line";
+        RecurringGroup: Record "Recurring Group";
+        Item: Record Item;
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
+        NewDF: DateFormula;
+        PriceChoice: Integer;
+        ProcessingDate: Date;
+        OriginalDate: Date;
+        PriceListLine: Record "Price List Line";
+    begin
+        Initialize;
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+
+        CreateRecurringSetup(RecurringGroup);
+
+        for PriceChoice := // Use different Update Price Options
+            RecurringGroup."Update Price"::Fixed to
+            RecurringGroup."Update Price"::Reset
+        do begin
+            OriginalDate := WorkDate;
+            ProcessingDate := WorkDate;
+            Evaluate(NewDF, '<1D>');
+
+            CreateBlanketSalesOrder(BlanketSalesHeader);
+
+            FindSalesLineWithItem(BlanketSalesHeader, BlanketSalesLine);
+            BlanketSalesLine.Validate("Unit Price", BlanketSalesLine."Unit Price" + 1);
+            BlanketSalesLine.Modify(true);
+
+            // Exercise : Create Recurring Sales Order with Recurring Update Price set
+            Item.Get(BlanketSalesLine."No.");
+            Item."Unit Price" := BlanketSalesLine."Unit Price" + 1;
+            Item.Modify(true);
+            LibraryPriceCalculation.CreateSalesPriceLine(
+                PriceListLine, '', "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, Item."No.");
+            PriceListLine."Unit Price" := Item."Unit Price" + 3;
+            PriceListLine.Status := PriceListLine.Status::Active;
+            PriceListLine.Modify();
+
+            RecurringGroup."Date formula" := NewDF;
+            RecurringGroup."Update Price" := PriceChoice;
+            RecurringGroup.Modify();
+
+            BlanketSalesHeader.Validate("Order Date", OriginalDate);
+            BlanketSalesHeader.Validate("Recurring Group Code", RecurringGroup.Code);
+            BlanketSalesHeader.Modify(true);
+
+            ProcessingDate := WorkDate;
+            CreateRecurringSalesOrder(BlanketSalesHeader, SalesOrderHeader, false, ProcessingDate);
+
+            // Verify : Check that the Sales Order Line Unit Price wrt Recurring group Update Price option
+            FindSalesLineWithItem(SalesOrderHeader, SalesOrderLine);
+            BlanketSalesLine.Find;
+            case PriceChoice of
+                RecurringGroup."Update Price"::Fixed:
+                    Assert.AreEqual(BlanketSalesLine."Unit Price", SalesOrderLine."Unit Price", '');
+                RecurringGroup."Update Price"::Recalculate:
+                    Assert.AreEqual(PriceListLine."Unit Price", SalesOrderLine."Unit Price", '');
+                RecurringGroup."Update Price"::Reset:
+                    Assert.AreEqual(0, SalesOrderLine."Unit Price", '');
+                else
+                    Assert.Fail('Unknown price choice')
+            end;
+        end;
+    end;
+
+    [Test]
+    [HandlerFunctions('MsgHandler')]
+    [Scope('OnPrem')]
     procedure RecurringGroup_UpdateNumber()
     var
         BlanketSalesHeader: Record "Sales Header";
