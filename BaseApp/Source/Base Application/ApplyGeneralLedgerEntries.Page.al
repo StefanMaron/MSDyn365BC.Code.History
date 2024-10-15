@@ -391,7 +391,7 @@
         ShowAmount: Decimal;
         ShowTotalAppliedAmount: Decimal;
 
-
+#pragma warning disable AS0022 // False positive due to a compiler bug fix
     [Scope('OnPrem')]
     procedure Apply(var GLEntryBuf: Record "G/L Entry Application Buffer")
     var
@@ -449,6 +449,7 @@
 
         ShowTotalAppliedAmount := 0;
     end;
+#pragma warning restore AS0022
 
     [Scope('OnPrem')]
     procedure Undo(var GLEntryBuf: Record "G/L Entry Application Buffer")

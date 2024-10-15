@@ -75,7 +75,7 @@ codeunit 134421 "Report Selections Tests"
         SendToEMailAndPDF();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('SelectSendingOptionHandler,EmailEditorHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure TestSendToEMailAndPDF()
@@ -114,7 +114,7 @@ codeunit 134421 "Report Selections Tests"
         SendToEMailAndPDFVendor();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('SelectSendingOptionHandler,EmailEditorHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure TestSendToEMailAndPDFVendor()
@@ -192,7 +192,7 @@ codeunit 134421 "Report Selections Tests"
         EmailAttachmentOnly();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('EmailEditorHandlerCustomMessage,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure TestEmailAttachmentOnly()
@@ -236,7 +236,7 @@ codeunit 134421 "Report Selections Tests"
         EmailBodyOnly();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('EmailEditorHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure TestEmailBodyOnly()
@@ -282,7 +282,7 @@ codeunit 134421 "Report Selections Tests"
         EmailAttachmentAndBody();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('EmailEditorHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure TestEmailAttachmentAndBody()
@@ -326,7 +326,7 @@ codeunit 134421 "Report Selections Tests"
         CustomEmailAttachment();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('EmailEditorHandlerCustomMessage,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure TestCustomEmailAttachment()
@@ -369,7 +369,7 @@ codeunit 134421 "Report Selections Tests"
         CustomEmailBody();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('EmailEditorHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure TestCustomEmailBody()
@@ -417,7 +417,7 @@ codeunit 134421 "Report Selections Tests"
         CustomEmailAttachmentAndBody();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('EmailEditorHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure TestCustomEmailAttachmentAndBody()
@@ -704,7 +704,7 @@ codeunit 134421 "Report Selections Tests"
         QuoteSendByEmailWhenArchivingIsOn();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('EmailEditorHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure SalesQuoteSendByEmailWhenArchivingIsOn()
@@ -757,7 +757,7 @@ codeunit 134421 "Report Selections Tests"
         SendToEMailAndPDFVendorWithOrderAddress();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('SelectSendingOptionHandler,TestAddressEmailEditorHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure TestSendToEMailAndPDFVendorWithOrderAddress()
@@ -974,7 +974,7 @@ codeunit 134421 "Report Selections Tests"
         SendToEMailAndPDFVendorWithSpecialSymbolsInNo();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('SelectSendingOptionHandler,EmailEditorHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure TestSendToEMailAndPDFVendorWithSpecialSymbolsInNo()
@@ -1085,7 +1085,7 @@ codeunit 134421 "Report Selections Tests"
         EmailCustomerStatementInternal();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('StatementOKRequestPageHandler,DownloadAttachmentNoConfirmHandler')]
     [Scope('OnPrem')]
     procedure EmailCustomerStatement()
@@ -1430,7 +1430,7 @@ codeunit 134421 "Report Selections Tests"
         GetSendToEmailFromContactsFilterInternal();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('TestAddressEmailEditorHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure GetSendToEmailFromContactsFilter()
@@ -1765,7 +1765,7 @@ codeunit 134421 "Report Selections Tests"
         EmailBodyOnlyWithOrderAddress();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('TestAddressEmailEditorHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure TestEmailBodyOnlyWithOrderAddress()
@@ -1909,6 +1909,49 @@ codeunit 134421 "Report Selections Tests"
         CustomReportSelection.GetSendToEmailFromContactsSelection(ContBusRel."Link to Table"::Vendor.AsInteger(), Vendor[1]."No.");
 
         // [THEN] Contact list page contains 5 records with "VC11".."VC13" and "VC21".."VC22" contacts (verified in ContactListHandler)
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,SelectSendingOptionHandler,TestAddressEmailEditorHandler,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
+    procedure BuyFromContactNoEmailWhenSendingPurchaseDocument()
+    var
+        Contact: Record Contact;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        PurchaseHeader: Record "Purchase Header";
+        Vendor: Record Vendor;
+    begin
+        // [FEATURE] [Email] [Purchase]
+        // [SCENARIO 372081] Purchase document Send suggests E-mail of "Buy-from Contact No.".
+        Initialize();
+        SetupReportSelectionsVendor(true, true);
+
+        // [GIVEN] Vendor with E-mail "e1@v.com".
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("E-Mail", LibraryUtility.GenerateRandomEmail());
+        Vendor.Modify(true);
+
+        // [GIVEN] Person Contact "C" with Email "e2@v.com" for Vendor.
+        LibraryMarketing.CreatePersonContact(Contact);
+        Commit();
+        ContactBusinessRelation.FindByRelation(ContactBusinessRelation."Link to Table"::Vendor, Vendor."No.");
+        Contact.Validate("Company No.", ContactBusinessRelation."Contact No.");
+        Contact.Validate("E-Mail", LibraryUtility.GenerateRandomEmail());
+        Contact.Modify(true);
+
+        // [GIVEN] Purchase Order with "Buy-from Contact No." = "C".
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        PurchaseHeader.Validate("Buy-from Contact No.", Contact."No.");
+        PurchaseHeader.Modify(true);
+
+        // [WHEN] Choosing Send for Purchase Order.
+        PurchaseHeader.SetRecFilter();
+        PurchaseHeader.SendRecords();
+
+        // [THEN] In opened Email Dialog field Email is equal to e2@v.com".
+        Assert.AreEqual(Contact."E-Mail", LibraryVariableStorage.DequeueText(), WrongEmailAddressErr);
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -2658,6 +2701,13 @@ codeunit 134421 "Report Selections Tests"
         FileName := LibraryReportDataset.GetFileName;
         LibraryVariableStorage.Enqueue(FileName);
         PurchaseReturnShipment.SaveAsXml(FileName);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerTrue(Message: Text[1024]; var Response: Boolean)
+    begin
+        Response := true;
     end;
 
     [ConfirmHandler]

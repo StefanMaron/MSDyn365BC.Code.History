@@ -15,11 +15,22 @@ codeunit 104030 "Upgrade Plan Permissions"
         SetSmartListDesignerPermissions();
         SetCompanyHubPermissions();
         SetMonitorSensitiveFieldPermisions();
+        AddFeatureDataUpdatePernissions();
     end;
 
     var
+        AutomationTok: Label 'D365 AUTOMATION', MaxLength = 20, Locked = true;
         BackupRestoreTok: Label 'D365 BACKUP/RESTORE', Locked = true;
         BackupRestoreDescriptionTxt: Label 'Backup or restore database', Comment = 'Maximum length is 30';
+        BasicTok: Label 'D365 BASIC', Locked = true;
+        BasicISVTok: Label 'D365 BASIC ISV', Locked = true;
+        BusFullTok: Label 'D365 BUS FULL ACCESS', Locked = true;
+        PremiumBusFullTok: Label 'D365 BUS PREMIUM', Locked = true;
+        FullTok: Label 'D365 FULL ACCESS', Locked = true;
+        OnPremBasicTok: Label 'BASIC', Locked = true;
+        ReadTok: Label 'D365 READ', Locked = true;
+        SecurityTok: Label 'SECURITY', Locked = true;
+        TeamMemberTok: Label 'D365 TEAM MEMBER', Locked = true;
         ExcelExportActionTok: Label 'EXCEL EXPORT ACTION', Locked = true;
         ExcelExportActionDescriptionTxt: Label 'D365 Excel Export Action', Locked = true;
         SmartListDesignerTok: Label 'SMARTLIST DESIGNER', Locked = true;
@@ -28,6 +39,29 @@ codeunit 104030 "Upgrade Plan Permissions"
         CompanyHubDescriptionTxt: Label 'Company Hub';
         D365MonitorFieldsTxt: Label 'D365 Monitor Fields', Locked = true;
         SecurityUserGroupTok: Label 'D365 SECURITY', Locked = true;
+
+    local procedure AddFeatureDataUpdatePernissions()
+    var
+        Permission: Record Permission;
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetAddFeatureDataUpdatePernissionsUpgradeTag()) then
+            exit;
+
+        InsertPermission(AutomationTok, Permission."Object Type"::"Table Data", DATABASE::"Feature Data Update Status", 1, 1, 1, 1, 0);
+        InsertPermission(BasicTok, Permission."Object Type"::"Table Data", DATABASE::"Feature Data Update Status", 1, 1, 1, 1, 0);
+        InsertPermission(BasicISVTok, Permission."Object Type"::"Table Data", DATABASE::"Feature Data Update Status", 1, 1, 1, 1, 0);
+        InsertPermission(BusFullTok, Permission."Object Type"::"Table Data", DATABASE::"Feature Data Update Status", 1, 1, 1, 1, 0);
+        InsertPermission(PremiumBusFullTok, Permission."Object Type"::"Table Data", DATABASE::"Feature Data Update Status", 1, 1, 1, 1, 0);
+        InsertPermission(FullTok, Permission."Object Type"::"Table Data", DATABASE::"Feature Data Update Status", 1, 1, 1, 1, 0);
+        InsertPermission(ReadTok, Permission."Object Type"::"Table Data", DATABASE::"Feature Data Update Status", 1, 0, 0, 0, 0);
+        InsertPermission(TeamMemberTok, Permission."Object Type"::"Table Data", DATABASE::"Feature Data Update Status", 1, 0, 1, 0, 0);
+        InsertPermission(OnPremBasicTok, Permission."Object Type"::"Table Data", DATABASE::"Feature Data Update Status", 1, 1, 1, 1, 0);
+        InsertPermission(SecurityTok, Permission."Object Type"::"Table Data", DATABASE::"Feature Data Update Status", 1, 1, 1, 1, 0);
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetAddFeatureDataUpdatePernissionsUpgradeTag());
+    end;
 
     local procedure RemoveExtensionManagementFromPlan()
     var
@@ -136,7 +170,10 @@ codeunit 104030 "Upgrade Plan Permissions"
     local procedure InsertPermission(PermissionSetID: Code[20]; ObjType: Option; ObjId: Integer; ReadPerm: Option; InsertPerm: Option; ModifyPerm: Option; DeletePerm: Option; ExecutePerm: Option)
     var
         Permission: Record Permission;
+        PermissionSet: Record "Permission Set";
     begin
+        if not PermissionSet.Get(PermissionSetID) then
+            exit;
         if Permission.Get(PermissionSetID, ObjType, ObjId) then
             exit;
 

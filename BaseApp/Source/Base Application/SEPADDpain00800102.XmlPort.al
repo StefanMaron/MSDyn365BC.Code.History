@@ -1,4 +1,4 @@
-xmlport 1010 "SEPA DD pain.008.001.02"
+﻿xmlport 1010 "SEPA DD pain.008.001.02"
 {
     Caption = 'SEPA DD pain.008.001.02';
     DefaultNamespace = 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.02';
@@ -86,6 +86,10 @@ xmlport 1010 "SEPA DD pain.008.001.02"
                                 {
                                     fieldelement(Id; CompanyInformation."Enterprise No.")
                                     {
+                                        trigger OnBeforePassField()
+                                        begin
+                                            OnBeforePassFieldEnterpriseNo(CompanyInformation."Enterprise No.");
+                                        end;
                                     }
                                 }
                             }
@@ -433,6 +437,11 @@ xmlport 1010 "SEPA DD pain.008.001.02"
             StrSubstNo('%1/%2', PaymentExportData."Message ID", PaymentGroupNo),
             1, MaxStrLen(PaymentExportDataGroup."Payment Information ID"));
         PaymentExportDataGroup.Insert();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePassFieldEnterpriseNo(var EnterpriseNo: Text[50])
+    begin
     end;
 }
 

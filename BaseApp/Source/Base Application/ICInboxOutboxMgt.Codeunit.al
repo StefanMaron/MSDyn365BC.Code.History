@@ -19,6 +19,7 @@
         Text004: Label 'Transaction %1 for %2 %3 already exists in the %4 table.';
         Text005: Label '%1 must be %2 or %3 in order to be re-created.';
         NoItemForCommonItemErr: Label 'There is no Item related to Common Item No. %1.', Comment = '%1 = Common Item No value';
+        TheTransactionAlreadyExistInOutboxHandledErr: Label 'Document %1 %2 for %3 %4 already exists in the %5 table.', Comment = '%1 - Document Type, %2 - Document No, %3 "IC Parthner Code" caption, %4 - IC parthner code, %5 - name of the table, where the lines were found';
 
     procedure CreateOutboxJnlTransaction(TempGenJnlLine: Record "Gen. Journal Line" temporary; Rejection: Boolean): Integer
     var
@@ -81,6 +82,9 @@
                 Error(Text002, ICPartner.TableCaption, ICPartner.Code, ICPartner.FieldCaption("Inbox Type"), ICPartner."Inbox Type");
         ICPartner.TestField(Blocked, false);
         OnSendSalesDocOnBeforeReleaseSalesDocument(SalesHeader, Post);
+	
+        CheckICSalesDocumentAlreadySent(SalesHeader);
+
         if not Post then
             CODEUNIT.Run(CODEUNIT::"Release Sales Document", SalesHeader);
         if SalesHeader."Sell-to IC Partner Code" <> '' then
@@ -101,6 +105,9 @@
         ICPartner.TestField(Blocked, false);
 
         OnSendPurchDocOnBeforeReleasePurchDocument(PurchHeader, Post);
+	
+        CheckICPurchaseDocumentAlreadySent(PurchHeader);
+
         if not Post then
             CODEUNIT.Run(CODEUNIT::"Release Purchase Document", PurchHeader);
         CreateOutboxPurchDocTrans(PurchHeader, false, Post);
@@ -2542,6 +2549,58 @@
                     CurrencyCode := GLSetup."LCY Code";
             end;
         end;
+    end;
+
+    local procedure CheckICSalesDocumentAlreadySent(SalesHeader: Record "Sales Header")
+    var
+        HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
+    begin
+        HandledICOutboxTrans.SetRange("Source Type", HandledICOutboxTrans."Source Type"::"Sales Document");
+        case SalesHeader."Document Type" of
+            SalesHeader."Document Type"::"Credit Memo":
+                HandledICOutboxTrans.SetRange("Document Type", HandledICOutboxTrans."Document Type"::"Credit Memo");
+            SalesHeader."Document Type"::Invoice:
+                HandledICOutboxTrans.SetRange("Document Type", HandledICOutboxTrans."Document Type"::Invoice);
+            SalesHeader."Document Type"::Order:
+                HandledICOutboxTrans.SetRange("Document Type", HandledICOutboxTrans."Document Type"::Order);
+            SalesHeader."Document Type"::"Return Order":
+                HandledICOutboxTrans.SetRange("Document Type", HandledICOutboxTrans."Document Type"::"Return Order");
+            else
+                exit;
+        end;
+        HandledICOutboxTrans.SetRange("Document No.", SalesHeader."No.");
+
+        if HandledICOutboxTrans.FindFirst() then
+            Error(
+              TheTransactionAlreadyExistInOutboxHandledErr, HandledICOutboxTrans."Document Type", HandledICOutboxTrans."Document No.",
+              HandledICOutboxTrans.FieldCaption("IC Partner Code"),
+              HandledICOutboxTrans."IC Partner Code", HandledICOutboxTrans.TableCaption);
+    end;
+
+    local procedure CheckICPurchaseDocumentAlreadySent(PurchaseHeader: Record "Purchase Header")
+    var
+        HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
+    begin
+        HandledICOutboxTrans.SetRange("Source Type", HandledICOutboxTrans."Source Type"::"Purchase Document");
+        case PurchaseHeader."Document Type" of
+            PurchaseHeader."Document Type"::"Credit Memo":
+                HandledICOutboxTrans.SetRange("Document Type", HandledICOutboxTrans."Document Type"::"Credit Memo");
+            PurchaseHeader."Document Type"::Invoice:
+                HandledICOutboxTrans.SetRange("Document Type", HandledICOutboxTrans."Document Type"::Invoice);
+            PurchaseHeader."Document Type"::Order:
+                HandledICOutboxTrans.SetRange("Document Type", HandledICOutboxTrans."Document Type"::Order);
+            PurchaseHeader."Document Type"::"Return Order":
+                HandledICOutboxTrans.SetRange("Document Type", HandledICOutboxTrans."Document Type"::"Return Order");
+            else
+                exit;
+        end;
+        HandledICOutboxTrans.SetRange("Document No.", PurchaseHeader."No.");
+
+        if HandledICOutboxTrans.FindFirst() then
+            Error(
+              TheTransactionAlreadyExistInOutboxHandledErr, HandledICOutboxTrans."Document Type", HandledICOutboxTrans."Document No.",
+              HandledICOutboxTrans.FieldCaption("IC Partner Code"),
+              HandledICOutboxTrans."IC Partner Code", HandledICOutboxTrans.TableCaption);
     end;
 
     [IntegrationEvent(false, false)]

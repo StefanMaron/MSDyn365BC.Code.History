@@ -3,7 +3,7 @@ table 1303 "Mini Vendor Template"
     Caption = 'Mini Vendor Template';
     ReplicateData = true;
     ObsoleteState = Pending;
-    ObsoleteReason = 'This functionality will be replaced by other templates.';
+    ObsoleteReason = 'Deprecate mini templates. Use table "Vendor Templ." instead and for extensions.';
     ObsoleteTag = '16.0';
 
     fields

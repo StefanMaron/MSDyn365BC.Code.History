@@ -158,6 +158,8 @@ codeunit 7023 "Job Journal Line - Price" implements "Line With Price"
                 end;
         end;
         PriceCalculationBuffer."Document Date" := JobJournalLine."Posting Date";
+        if PriceCalculationBuffer."Document Date" = 0D then
+            PriceCalculationBuffer."Document Date" := WorkDate();
         PriceCalculationBuffer.Validate("Currency Code", JobJournalLine."Currency Code");
         PriceCalculationBuffer."Currency Factor" := JobJournalLine."Currency Factor";
 
@@ -219,14 +221,14 @@ codeunit 7023 "Job Journal Line - Price" implements "Line With Price"
                 CurrPriceType::Purchase:
                     case JobJournalLine.Type of
                         JobJournalLine.Type::Item:
-                            JobJournalLine."Direct Unit Cost (LCY)" := PriceListLine."Unit Cost";
+                            JobJournalLine."Direct Unit Cost (LCY)" := PriceListLine."Direct Unit Cost";
                         JobJournalLine.Type::Resource:
                             begin
                                 JobJournalLine."Unit Cost (LCY)" := PriceListLine."Unit Cost";
-                                JobJournalLine."Direct Unit Cost (LCY)" := PriceListLine."Unit Price";
+                                JobJournalLine."Direct Unit Cost (LCY)" := PriceListLine."Direct Unit Cost";
                             end;
                         JobJournalLine.Type::"G/L Account":
-                            JobJournalLine."Unit Cost" := PriceListLine."Unit Cost";
+                            JobJournalLine."Unit Cost" := PriceListLine."Direct Unit Cost";
                     end;
             end;
         OnAfterSetPrice(JobJournalLine, PriceListLine, AmountType);

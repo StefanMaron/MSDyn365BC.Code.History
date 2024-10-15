@@ -1,4 +1,4 @@
-codeunit 1720 "Deferral Utilities"
+﻿codeunit 1720 "Deferral Utilities"
 {
 
     trigger OnRun()
@@ -855,8 +855,15 @@ codeunit 1720 "Deferral Utilities"
         exit(AccountingPeriod."Starting Date");
     end;
 
-    local procedure GetDeferralDescription(GenJnlBatchName: Code[10]; DocumentNo: Code[20]; Description: Text[100]): Text[100]
+    local procedure GetDeferralDescription(GenJnlBatchName: Code[10]; DocumentNo: Code[20]; Description: Text[100]) Result: Text[100]
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetDeferralDescription(GenJnlBatchName, DocumentNo, Description, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if GenJnlBatchName <> '' then
             exit(CopyStr(StrSubstNo('%1-%2', GenJnlBatchName, Description), 1, 100));
         exit(CopyStr(StrSubstNo('%1-%2', DocumentNo, Description), 1, 100));
@@ -939,6 +946,11 @@ codeunit 1720 "Deferral Utilities"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcDeferralNoOfPeriods(CalcMethod: Enum "Deferral Calculation Method"; NoOfPeriods: Integer; StartDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDeferralDescription(GenJnlBatchName: Code[10]; DocumentNo: Code[20]; Description: Text[100]; var Result: Text[100]; var IsHandled: Boolean)
     begin
     end;
 }

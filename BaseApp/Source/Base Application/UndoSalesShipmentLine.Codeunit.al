@@ -1,4 +1,4 @@
-codeunit 5815 "Undo Sales Shipment Line"
+﻿codeunit 5815 "Undo Sales Shipment Line"
 {
     Permissions = TableData "Sales Line" = imd,
                   TableData "Sales Shipment Line" = imd,
@@ -508,8 +508,7 @@ codeunit 5815 "Undo Sales Shipment Line"
             if SalesInvoiceLine.FindSet() then
                 repeat
                     SalesInvoiceHeader.Get(SalesInvoiceLine."Document No.");
-                    SalesInvoiceHeader.CalcFields(Cancelled);
-                    if not SalesInvoiceHeader.Cancelled then
+                    if not IsSalesInvoiceCancelled(SalesInvoiceHeader) then
                         exit(true);
                 until SalesInvoiceLine.Next() = 0;
 
@@ -539,6 +538,14 @@ codeunit 5815 "Undo Sales Shipment Line"
         end;
 
         exit(false);
+    end;
+
+    local procedure IsSalesInvoiceCancelled(var SalesInvoiceHeader: Record "Sales Invoice Header") Result: Boolean
+    begin
+        SalesInvoiceHeader.CalcFields(Cancelled);
+        Result := SalesInvoiceHeader.Cancelled;
+
+        OnAfterIsSalesInvoiceCancelled(SalesInvoiceHeader, Result);
     end;
 
     [IntegrationEvent(false, false)]
@@ -608,6 +615,11 @@ codeunit 5815 "Undo Sales Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostItemJnlLineOnBeforeRunItemJnlPostLine(var ItemJnlLine: Record "Item Journal Line"; ItemLedgEntryNotInvoiced: Record "Item Ledger Entry"; SalesShptLine: Record "Sales Shipment Line"; SalesShptHeader: Record "Sales Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsSalesInvoiceCancelled(var SalesInvoiceHeader: Record "Sales Invoice Header"; var Result: Boolean)
     begin
     end;
 }

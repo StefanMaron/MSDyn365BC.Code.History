@@ -201,7 +201,7 @@ page 101 "General Journal Templates"
                         ConfirmManagement: Codeunit "Confirm Management";
                     begin
                         if "Copy to Posted Jnl. Lines" <> xRec."Copy to Posted Jnl. Lines" then
-                            if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text001, FieldCaption("Copy to Posted Jnl. Lines")), true) then
+                            if not ConfirmManagement.GetResponseOrDefault(EnableCopyToPostedQst, true) then
                                 Error(Text002);
                     end;
                 }
@@ -246,5 +246,6 @@ page 101 "General Journal Templates"
     var
         Text001: Label 'Do you want to update the %1 field on all general journal batches?';
         Text002: Label 'Canceled.';
+        EnableCopyToPostedQst: Label 'Do you want to enable copying of journal lines to posted general journal on journal batches that belong to selected general journal template?';
 }
 

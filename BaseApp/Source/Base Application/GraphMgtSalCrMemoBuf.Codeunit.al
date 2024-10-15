@@ -18,20 +18,27 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         CreditMemoIdIsNotSpecifiedErr: Label 'Credit Memo ID is not specified.', Locked = true;
         EntityIsNotFoundErr: Label 'Sales Credit Memo Entity is not found.', Locked = true;
         AggregatorCategoryLbl: Label 'Sales Credit Memo Aggregator', Locked = true;
+        OrphanedRecordsFoundMsg: Label 'Found orphaned records.', Locked = true;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertSalesHeader(var Rec: Record "Sales Header"; RunTrigger: Boolean)
     begin
         if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled) then
             exit;
 
+        if CheckUpdatesDisabled(Rec.SystemId) then
+            exit;
+
         InsertOrModifyFromSalesHeader(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnAfterModifySalesHeader(var Rec: Record "Sales Header"; var xRec: Record "Sales Header"; RunTrigger: Boolean)
     begin
         if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled) then
+            exit;
+
+        if CheckUpdatesDisabled(Rec.SystemId) then
             exit;
 
         if IsBackgroundPosting(Rec) then
@@ -40,12 +47,15 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         InsertOrModifyFromSalesHeader(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnAfterDeleteSalesHeader(var Rec: Record "Sales Header"; RunTrigger: Boolean)
     var
         SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
     begin
         if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled) then
+            exit;
+
+        if CheckUpdatesDisabled(Rec.SystemId) then
             exit;
 
         TransferRecordIDs(Rec);
@@ -56,41 +66,53 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         SalesCrMemoEntityBuffer.Delete();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 56, 'OnAfterResetRecalculateInvoiceDisc', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales - Calc Discount By Type", 'OnAfterResetRecalculateInvoiceDisc', '', false, false)]
     local procedure OnAfterResetRecalculateCreditMemoDisc(var SalesHeader: Record "Sales Header")
     begin
         if not CheckValidRecord(SalesHeader) or (not GraphMgtGeneralTools.IsApiEnabled) then
             exit;
 
+        if CheckUpdatesDisabled(SalesHeader.SystemId) then
+            exit;
+
         InsertOrModifyFromSalesHeader(SalesHeader);
     end;
 
-    [EventSubscriber(ObjectType::Table, 37, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertSalesLine(var Rec: Record "Sales Line"; RunTrigger: Boolean)
     begin
         if not CheckValidLineRecord(Rec) then
             exit;
 
-        UpdateCompletelyShipped(Rec);
-        ModifyTotalsSalesLine(Rec);
-    end;
-
-    [EventSubscriber(ObjectType::Table, 37, 'OnAfterModifyEvent', '', false, false)]
-    local procedure OnAfterModifySalesLine(var Rec: Record "Sales Line"; var xRec: Record "Sales Line"; RunTrigger: Boolean)
-    begin
-        if not CheckValidLineRecord(Rec) then
+        if CheckUpdatesDisabled(Rec.SystemId) then
             exit;
 
         UpdateCompletelyShipped(Rec);
         ModifyTotalsSalesLine(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 37, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", 'OnAfterModifyEvent', '', false, false)]
+    local procedure OnAfterModifySalesLine(var Rec: Record "Sales Line"; var xRec: Record "Sales Line"; RunTrigger: Boolean)
+    begin
+        if not CheckValidLineRecord(Rec) then
+            exit;
+
+        if CheckUpdatesDisabled(Rec.SystemId) then
+            exit;
+
+        UpdateCompletelyShipped(Rec);
+        ModifyTotalsSalesLine(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnAfterDeleteSalesLine(var Rec: Record "Sales Line"; RunTrigger: Boolean)
     var
         SalesLine: Record "Sales Line";
     begin
         if not CheckValidLineRecord(Rec) then
+            exit;
+
+        if CheckUpdatesDisabled(Rec.SystemId) then
             exit;
 
         UpdateCompletelyShipped(Rec);
@@ -110,30 +132,39 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
             BlankTotals(Rec."Document No.", false);
     end;
 
-    [EventSubscriber(ObjectType::Table, 114, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Cr.Memo Header", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertSalesCreditMemoHeader(var Rec: Record "Sales Cr.Memo Header"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
             exit;
 
-        InsertOrModifyFromSalesCreditMemoHeader(Rec);
-    end;
-
-    [EventSubscriber(ObjectType::Table, 114, 'OnAfterModifyEvent', '', false, false)]
-    local procedure OnAfterModifySalesCreditMemoHeader(var Rec: Record "Sales Cr.Memo Header"; var xRec: Record "Sales Cr.Memo Header"; RunTrigger: Boolean)
-    begin
-        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if CheckUpdatesDisabled(Rec.SystemId) then
             exit;
 
         InsertOrModifyFromSalesCreditMemoHeader(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 114, 'OnAfterRenameEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Cr.Memo Header", 'OnAfterModifyEvent', '', false, false)]
+    local procedure OnAfterModifySalesCreditMemoHeader(var Rec: Record "Sales Cr.Memo Header"; var xRec: Record "Sales Cr.Memo Header"; RunTrigger: Boolean)
+    begin
+        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+            exit;
+
+        if CheckUpdatesDisabled(Rec.SystemId) then
+            exit;
+
+        InsertOrModifyFromSalesCreditMemoHeader(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Cr.Memo Header", 'OnAfterRenameEvent', '', false, false)]
     local procedure OnAfterRenameSalesCreditMemoHeader(var Rec: Record "Sales Cr.Memo Header"; var xRec: Record "Sales Cr.Memo Header"; RunTrigger: Boolean)
     var
         SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
     begin
         if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+            exit;
+
+        if CheckUpdatesDisabled(Rec.SystemId) then
             exit;
 
         if not SalesCrMemoEntityBuffer.Get(xRec."No.", true) then
@@ -143,12 +174,15 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         SalesCrMemoEntityBuffer.Rename(Rec."No.", true);
     end;
 
-    [EventSubscriber(ObjectType::Table, 114, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Cr.Memo Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnAfterDeleteSalesCreditMemoHeader(var Rec: Record "Sales Cr.Memo Header"; RunTrigger: Boolean)
     var
         SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
     begin
         if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+            exit;
+
+        if CheckUpdatesDisabled(Rec.SystemId) then
             exit;
 
         if not SalesCrMemoEntityBuffer.Get(Rec."No.", true) then
@@ -157,95 +191,126 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         SalesCrMemoEntityBuffer.Delete();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 60, 'OnAfterCalcSalesDiscount', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Calc. Discount", 'OnAfterCalcSalesDiscount', '', false, false)]
     local procedure OnAfterCalculateSalesDiscountOnSalesHeader(var SalesHeader: Record "Sales Header")
     begin
         if not CheckValidRecord(SalesHeader) or (not GraphMgtGeneralTools.IsApiEnabled) then
             exit;
 
+        if CheckUpdatesDisabled(SalesHeader.SystemId) then
+            exit;
+
         InsertOrModifyFromSalesHeader(SalesHeader);
     end;
 
-    [EventSubscriber(ObjectType::Table, 21, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Cust. Ledger Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertCustomerLedgerEntry(var Rec: Record "Cust. Ledger Entry"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
             exit;
 
+        if CheckUpdatesDisabled(Rec.SystemId) then
+            exit;
+
         SetStatusOptionFromCustLedgerEntry(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 21, 'OnAfterModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Cust. Ledger Entry", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnAfterModifyCustomerLedgerEntry(var Rec: Record "Cust. Ledger Entry"; var xRec: Record "Cust. Ledger Entry"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
             exit;
 
+        if CheckUpdatesDisabled(Rec.SystemId) then
+            exit;
+
         SetStatusOptionFromCustLedgerEntry(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 21, 'OnAfterRenameEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Cust. Ledger Entry", 'OnAfterRenameEvent', '', false, false)]
     local procedure OnAfterRenameCustomerLedgerEntry(var Rec: Record "Cust. Ledger Entry"; var xRec: Record "Cust. Ledger Entry"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
             exit;
 
+        if CheckUpdatesDisabled(Rec.SystemId) then
+            exit;
+
         SetStatusOptionFromCustLedgerEntry(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 21, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Cust. Ledger Entry", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnAfterDeleteCustomerLedgerEntry(var Rec: Record "Cust. Ledger Entry"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
             exit;
 
+        if CheckUpdatesDisabled(Rec.SystemId) then
+            exit;
+
         SetStatusOptionFromCustLedgerEntry(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1900, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Cancelled Document", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertCancelledDocument(var Rec: Record "Cancelled Document"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
             exit;
 
-        SetStatusOptionFromCancelledDocument(Rec);
-    end;
-
-    [EventSubscriber(ObjectType::Table, 1900, 'OnAfterModifyEvent', '', false, false)]
-    local procedure OnAfterModifyCancelledDocument(var Rec: Record "Cancelled Document"; var xRec: Record "Cancelled Document"; RunTrigger: Boolean)
-    begin
-        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if CheckUpdatesDisabled(Rec.SystemId) then
             exit;
 
         SetStatusOptionFromCancelledDocument(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1900, 'OnAfterRenameEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Cancelled Document", 'OnAfterModifyEvent', '', false, false)]
+    local procedure OnAfterModifyCancelledDocument(var Rec: Record "Cancelled Document"; var xRec: Record "Cancelled Document"; RunTrigger: Boolean)
+    begin
+        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+            exit;
+
+        if CheckUpdatesDisabled(Rec.SystemId) then
+            exit;
+
+        SetStatusOptionFromCancelledDocument(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Cancelled Document", 'OnAfterRenameEvent', '', false, false)]
     local procedure OnAfterRenameCancelledDocument(var Rec: Record "Cancelled Document"; var xRec: Record "Cancelled Document"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+            exit;
+
+        if CheckUpdatesDisabled(Rec.SystemId) then
             exit;
 
         SetStatusOptionFromCancelledDocument(xRec);
         SetStatusOptionFromCancelledDocument(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1900, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Cancelled Document", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnAfterDeleteCancelledDocument(var Rec: Record "Cancelled Document"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
             exit;
 
+        if CheckUpdatesDisabled(Rec.SystemId) then
+            exit;
+
         SetStatusOptionFromCancelledDocument(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnBeforeSalesCrMemoHeaderInsert', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforeSalesCrMemoHeaderInsert', '', false, false)]
     local procedure OnBeforeSalesCrMemoHeaderInsert(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean)
     var
         SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
+        ExistingSalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
         IsRenameAllowed: Boolean;
     begin
         if SalesCrMemoHeader.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+            exit;
+
+        if CheckUpdatesDisabled(SalesCrMemoHeader.SystemId) then
             exit;
 
         if IsNullGuid(SalesHeader.SystemId) then begin
@@ -263,6 +328,11 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
 
         if SalesCrMemoEntityBuffer.Id <> SalesHeader.SystemId then
             exit;
+
+        if ExistingSalesCrMemoEntityBuffer.Get(SalesCrMemoHeader."No.", true) then begin
+            Session.LogMessage('0000DPW', OrphanedRecordsFoundMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', AggregatorCategoryLbl);
+            ExistingSalesCrMemoEntityBuffer.Delete();
+        end;
 
         IsRenameAllowed := SalesCrMemoEntityBuffer.GetIsRenameAllowed;
         SalesCrMemoEntityBuffer.SetIsRenameAllowed(true);
@@ -521,6 +591,9 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         CurrentStatus: Option;
     begin
+        if CheckUpdatesDisabled(SalesCrMemoEntityBuffer.SystemId) then
+            exit;
+
         SalesCrMemoHeader.Get(SalesCrMemoEntityBuffer."No.");
         CurrentStatus := SalesCrMemoEntityBuffer.Status;
 
@@ -607,6 +680,9 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         if not SalesCrMemoEntityBuffer.Get(DocumentNo, Posted) then
             exit;
 
+        if CheckUpdatesDisabled(SalesCrMemoEntityBuffer.Id) then
+            exit;
+
         SalesCrMemoEntityBuffer."Invoice Discount Amount" := 0;
         SalesCrMemoEntityBuffer."Total Tax Amount" := 0;
 
@@ -648,13 +724,16 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         if SalesLine."Document Type" <> SalesLine."Document Type"::"Credit Memo" then
             exit;
 
-        if not SalesCrMemoEntityBuffer.Get(SalesLine."Document No.", false) then
-            exit;
-
         if not SalesLine."Recalculate Invoice Disc." then
             exit;
 
         if not SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.") then
+            exit;
+
+        if CheckUpdatesDisabled(SalesHeader.SystemId) then
+            exit;
+
+        if not SalesCrMemoEntityBuffer.Get(SalesLine."Document No.", false) then
             exit;
 
         AssignTotalsFromSalesLine(SalesLine, SalesCrMemoEntityBuffer, SalesHeader);
@@ -898,6 +977,10 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
 
         if not SalesCrMemoEntityBuffer.Get(SalesLine."Document No.") then
             exit;
+
+        if CheckUpdatesDisabled(SalesCrMemoEntityBuffer.Id) then
+            exit;
+
         if SalesCrMemoEntityBuffer."Completely Shipped" <> CompletelyShipped then begin
             SalesCrMemoEntityBuffer."Completely Shipped" := CompletelyShipped;
             SalesCrMemoEntityBuffer.Modify(true);
@@ -921,6 +1004,19 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
             exit(false);
 
         exit(SalesHeader."Job Queue Status" in [SalesHeader."Job Queue Status"::"Scheduled for Posting", SalesHeader."Job Queue Status"::Posting]);
+    end;
+
+    local procedure CheckUpdatesDisabled(RecSystemId: Guid): Boolean
+    var
+        DisableAggregateTableUpgrade: Codeunit "Disable Aggregate Table Update";
+        UpdatesDisabled: Boolean;
+    begin
+        DisableAggregateTableUpgrade.OnGetAggregateTablesUpdateEnabled(UpdatesDisabled, Database::"Sales Cr. Memo Entity Buffer", RecSystemId);
+
+        if UpdatesDisabled then
+            exit(true);
+
+        exit(false);
     end;
 }
 

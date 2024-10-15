@@ -155,7 +155,7 @@ table 2000041 "CODA Statement Line"
         {
             BlankNumbers = BlankZeroAndPos;
             BlankZero = true;
-            CalcFormula = Count ("CODA Statement Line" WHERE("Bank Account No." = FIELD("Bank Account No."),
+            CalcFormula = Count("CODA Statement Line" WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                              "Statement No." = FIELD("Statement No."),
                                                              ID = CONST("Free Message"),
                                                              "Attached to Line No." = FIELD("Statement Line No.")));
@@ -423,21 +423,22 @@ table 2000041 "CODA Statement Line"
         CODAStmtLine2: Record "CODA Statement Line";
         StatusCount: array[4] of Integer;
     begin
-        if (xRec."Account No." <> "Account No.") and (xRec."Account No." <> '') then begin
+        if "Account No." = '' then begin
             "Application Status" := "Application Status"::" ";
             Validate(Amount, 0);
             "Unapplied Amount" := "Statement Amount"
         end else
-            if "System-Created Entry" = false then
-                // set Application status to Partly applied if no application ledger entry is selected
-                if "Applies-to ID" = '' then begin
-                    "Application Status" := "Application Status"::"Partly applied";
-                    "Unapplied Amount" := "Statement Amount";
-                end else begin
-                    "Application Status" := "Application Status"::Applied;
-                    Validate(Amount, "Statement Amount");
-                    "Unapplied Amount" := 0
-                end;
+            // set Application status to Partly applied if no application ledger entry is selected
+            if "Applies-to ID" = '' then begin
+                "Application Status" := "Application Status"::"Partly applied";
+                Validate(Amount, 0);
+                "Unapplied Amount" := "Statement Amount";
+            end else begin
+                "Application Status" := "Application Status"::Applied;
+                Validate(Amount, "Statement Amount");
+                "Unapplied Amount" := 0
+            end;
+        OnUpdateStatusOnAfterUpdateApplicationFields(Rec, xRec);
 
         // Lines with global info and details
         if Type = Type::Global then begin
@@ -503,6 +504,11 @@ table 2000041 "CODA Statement Line"
                 CODAStmtLine."Application Status" := "Application Status"::"Indirectly applied";
             CODAStmtLine.Modify();
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateStatusOnAfterUpdateApplicationFields(var CODAStatementLine: Record "CODA Statement Line"; xCODAStatementLine: Record "CODA Statement Line")
+    begin
     end;
 }
 

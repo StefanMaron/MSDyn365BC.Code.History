@@ -543,6 +543,74 @@ codeunit 144015 "CODA Import Tests"
         CODAStatementPage."Process CODA Statement Lines".Invoke; // Process CODA Statement lines
     end;
 
+    [Test]
+    [HandlerFunctions('RequestPageHandlerPostCODAStatementLines,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure PostCodedBankStatementWhenMultipleEntriesIndirectlyApplied()
+    var
+        BankAccount: Record "Bank Account";
+        CODAStatement: Record "CODA Statement";
+        CODAStatementLine: Record "CODA Statement Line";
+        TempTransactionCoding: Record "Transaction Coding" temporary;
+        ImportCODAStatement: Report "Import CODA Statement";
+    begin
+        // [SCENARIO 373926] CODA statement has correct values of status, unapplied amount, amount and statement amount
+        // [SCENARIO 373926] after running "Post CODA Stmt. Line" action with transaction coding setup for multiple indirect relation
+
+        // [GIVEN] Company information with "Enterprise No." to match the CODA file
+        UpdateCompanyInformation('0820.877.643');
+        UpdateElectronicBanking(true);
+
+        // [GIVEN] A bank account with all the information matched the CODA file
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount."Bank Account No." := '7340 2822 2864';
+        BankAccount."Protocol No." := '725';
+        BankAccount."Version Code" := '2';
+        BankAccount."Bank Branch No." := '734';
+        BankAccount."SWIFT Code" := 'KREDBEBB';
+        BankAccount.IBAN := 'BE 29 7340 2822 2864';
+        BankAccount."Country/Region Code" := 'BE';
+        BankAccount.Modify;
+
+        // [GIVEN] Setup transaction coding with Globalisation Code = Detail to have an "indirect application"
+        ReplaceTransactionCodingScenario373926(TempTransactionCoding);
+
+        // [GIVEN] Import CODA statement from file
+        DeleteAllCODALines;
+        ImportCODAStatement.SetBankAcc(BankAccount);
+        ImportCODAStatement.InitializeRequest(LibraryCODADataProvider.OntVangenCODAScenario373926DataFile);
+        ImportCODAStatement.Run;
+        Commit;
+
+        // [GIVEN] Open the imported CODA statement
+        CODAStatement.FindFirst;
+        CODAStatement.SetRecFilter;
+        LibraryVariableStorage.Enqueue(false); // Default application for "Post CODA Stmt. Lines"
+        LibraryVariableStorage.Enqueue(false); // Dont print for "Post CODA Stmt. Lines"
+
+        // [WHEN] Process CODA statement lines
+        REPORT.RunModal(REPORT::"Post CODA Stmt. Lines", true, false, CODAStatement);
+
+        // [THEN] Application status, unapplied amount, amount and statement amount are correct for all CODA statement lines after processing
+        CODAStatementLine.SetRange("Bank Account No.", CODAStatement."Bank Account No.");
+        CODAStatementLine.SetRange("Statement No.", CODAStatement."Statement No.");
+        CODAStatementLine.SetRange(ID, CODAStatementLine.ID::Movement);
+        CODAStatementLine.FindFirst;
+        Assert.RecordCount(CODAStatementLine, 8);
+        VerifyCODAStatementLine(CODAStatementLine, CODAStatementLine."Application Status"::"Indirectly applied", -837.63, 0, -837.63);
+        VerifyCODAStatementLine(CODAStatementLine, CODAStatementLine."Application Status"::"Partly applied", -832.34, 0, -832.34);
+        VerifyCODAStatementLine(CODAStatementLine, CODAStatementLine."Application Status"::"Partly applied", -5.29, 0, -5.29);
+        VerifyCODAStatementLine(CODAStatementLine, CODAStatementLine."Application Status"::" ", -78.93, 0, -78.93);
+        VerifyCODAStatementLine(CODAStatementLine, CODAStatementLine."Application Status"::"Indirectly applied", -1.5, 0, -1.5);
+        VerifyCODAStatementLine(CODAStatementLine, CODAStatementLine."Application Status"::"Partly applied", -1.5, 0, -1.5);
+        VerifyCODAStatementLine(CODAStatementLine, CODAStatementLine."Application Status"::"Indirectly applied", -0.3, 0, -0.3);
+        VerifyCODAStatementLine(CODAStatementLine, CODAStatementLine."Application Status"::"Partly applied", -0.3, 0, -0.3);
+        LibraryVariableStorage.AssertEmpty;
+
+        // Tear down
+        RestoreTransactionCoding(TempTransactionCoding);
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RequestPageHandlerPostCODAStatementLines(var PostCODAStatementLines: TestRequestPage "Post CODA Stmt. Lines")
@@ -707,6 +775,80 @@ codeunit 144015 "CODA Import Tests"
             CODAStatementSourceLine.DeleteAll(true);
 
         Commit();
+    end;
+
+    local procedure ReplaceTransactionCodingScenario373926(var TempTransactionCoding: Record "Transaction Coding" temporary)
+    var
+        TransactionCoding: Record "Transaction Coding";
+    begin
+        TransactionCoding.FindSet;
+        repeat
+            TempTransactionCoding := TransactionCoding;
+            TempTransactionCoding.Insert;
+        until TransactionCoding.Next = 0;
+        TransactionCoding.DeleteAll;
+        InsertTransactionCoding(1, 1, 0, TransactionCoding."Globalisation Code"::Global, TransactionCoding."Account Type"::Vendor, '');
+        InsertTransactionCoding(
+          1, 7, 0, TransactionCoding."Globalisation Code"::Global, TransactionCoding."Account Type"::"G/L Account", '580000');
+        InsertTransactionCoding(1, 50, 0, TransactionCoding."Globalisation Code"::Global, TransactionCoding."Account Type"::Customer, '');
+        InsertTransactionCoding(
+          1, 51, 0, TransactionCoding."Globalisation Code"::Global, TransactionCoding."Account Type"::"G/L Account", '580000');
+        InsertTransactionCoding(1, 52, 0, TransactionCoding."Globalisation Code"::Global, TransactionCoding."Account Type"::Customer, '');
+        InsertTransactionCoding(4, 2, 0, TransactionCoding."Globalisation Code"::Detail, 0, '');
+        InsertTransactionCoding(
+          4, 2, 100, TransactionCoding."Globalisation Code"::Global, TransactionCoding."Account Type"::"G/L Account", '658100');
+        InsertTransactionCoding(4, 3, 0, TransactionCoding."Globalisation Code"::Global, TransactionCoding."Account Type"::Vendor, '20');
+        InsertTransactionCoding(5, 1, 0, TransactionCoding."Globalisation Code"::Global, TransactionCoding."Account Type"::Vendor, '');
+        InsertTransactionCoding(5, 3, 0, TransactionCoding."Globalisation Code"::Global, TransactionCoding."Account Type"::Customer, '');
+        InsertTransactionCoding(5, 5, 0, TransactionCoding."Globalisation Code"::Global, TransactionCoding."Account Type"::Customer, '');
+        InsertTransactionCoding(13, 1, 0, TransactionCoding."Globalisation Code"::Detail, 0, '');
+        InsertTransactionCoding(
+          13, 1, 2, TransactionCoding."Globalisation Code"::Global, TransactionCoding."Account Type"::"G/L Account", '650050');
+        InsertTransactionCoding(
+          13, 1, 55, TransactionCoding."Globalisation Code"::Global, TransactionCoding."Account Type"::"G/L Account", '430000');
+        InsertTransactionCoding(13, 15, 0, TransactionCoding."Globalisation Code"::Global, TransactionCoding."Account Type"::Vendor, '');
+        InsertTransactionCoding(35, 37, 0, TransactionCoding."Globalisation Code"::Detail, 0, '');
+        InsertTransactionCoding(
+          35, 37, 6, TransactionCoding."Globalisation Code"::Global, TransactionCoding."Account Type"::"G/L Account", '658100');
+        InsertTransactionCoding(
+          35, 37, 11, TransactionCoding."Globalisation Code"::Global, TransactionCoding."Account Type"::"G/L Account", '498501');
+        InsertTransactionCoding(
+          80, 2, 0, TransactionCoding."Globalisation Code"::Global, TransactionCoding."Account Type"::"G/L Account", '656000');
+    end;
+
+    local procedure RestoreTransactionCoding(var TempTransactionCoding: Record "Transaction Coding" temporary)
+    var
+        TransactionCoding: Record "Transaction Coding";
+    begin
+        TransactionCoding.DeleteAll;
+        TempTransactionCoding.FindSet;
+        repeat
+            TransactionCoding := TempTransactionCoding;
+            TransactionCoding.Insert;
+        until TempTransactionCoding.Next = 0;
+    end;
+
+    local procedure InsertTransactionCoding(TransactionFamily: Integer; Transaction: Integer; TransactionCategory: Integer; GlobalisationCode: Option; AccountType: Option; AccountNo: Code[20])
+    var
+        TransactionCoding: Record "Transaction Coding";
+    begin
+        TransactionCoding.Init;
+        TransactionCoding."Transaction Family" := TransactionFamily;
+        TransactionCoding.Transaction := Transaction;
+        TransactionCoding."Transaction Category" := TransactionCategory;
+        TransactionCoding."Globalisation Code" := GlobalisationCode;
+        TransactionCoding."Account Type" := AccountType;
+        TransactionCoding."Account No." := AccountNo;
+        TransactionCoding.Insert;
+    end;
+
+    local procedure VerifyCODAStatementLine(var CODAStatementLine: Record "CODA Statement Line"; ApplicationStatus: Option; UnappliedAmount: Decimal; Amount: Decimal; StatementAmount: Decimal)
+    begin
+        CODAStatementLine.TestField("Application Status", ApplicationStatus);
+        CODAStatementLine.TestField("Unapplied Amount", UnappliedAmount);
+        CODAStatementLine.TestField(Amount, Amount);
+        CODAStatementLine.TestField("Statement Amount", StatementAmount);
+        CODAStatementLine.Next;
     end;
 
     [Normal]

@@ -140,7 +140,6 @@ page 9900 "Import Data"
                         Caption = 'Application Data';
                         Editable = ContainsApplicationData;
                         ToolTip = 'Specifies that the data that defines the application in the database is imported. This includes the permissions, permission sets, profiles, and style sheets.';
-                        Visible = IncludeApplicationDataVisible;
                     }
                 }
                 repeater(Control8)
@@ -189,11 +188,12 @@ page 9900 "Import Data"
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
+        if EnvironmentInfo.IsSaaS then
+            error(OnPremiseOnlyErr);
         OriginalTenantId := '';
         ContainsApplication := false;
         ContainsApplicationData := false;
         ContainsGlobalData := false;
-        IncludeApplicationDataVisible := not EnvironmentInfo.IsSaaS;
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -231,9 +231,9 @@ page 9900 "Import Data"
         IncludeAllCompanies: Boolean;
         IncludeApplicationData: Boolean;
         IncludeGlobalData: Boolean;
+        OnPremiseOnlyErr: Label 'This functionality is supported only in Business Central on-premises.';
         OverwriteQst: Label 'Application data, global data, or both types of data will be overwritten. Are you sure that you want to continue?';
         CompletedMsg: Label 'The data was imported successfully.';
-        IncludeApplicationDataVisible: Boolean;
 
     local procedure MarkAll()
     begin
