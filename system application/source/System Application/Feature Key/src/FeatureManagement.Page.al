@@ -79,6 +79,8 @@ page 2610 "Feature Management"
                                     if not Confirmed then
                                         Error('');
 
+                                    FeatureManagementFacade.OnAfterFeatureEnableConfirmed(Rec);
+
                                     if not FeatureManagementFacade.Update(FeatureDataUpdateStatus) then
                                         Error('');
                                 end;

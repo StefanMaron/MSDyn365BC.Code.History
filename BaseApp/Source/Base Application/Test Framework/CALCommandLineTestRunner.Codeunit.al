@@ -14,7 +14,7 @@ codeunit 130402 "CAL Command Line Test Runner"
         TestRunNo := CALTestResult.LastTestRunNo + 1;
         CompanyWorkDate := WorkDate;
 
-        if CALTestEnabledCodeunit.FindSet then
+        if CALTestEnabledCodeunit.FindSet() then
             repeat
                 if CALTestMgt.DoesTestCodeunitExist(CALTestEnabledCodeunit."Test Codeunit ID") then begin
                     CodeCoverageMgt.Start(true);
@@ -54,7 +54,7 @@ codeunit 130402 "CAL Command Line Test Runner"
         if FunctionName = '' then
             exit;
 
-        CALTestResult.FindLast;
+        CALTestResult.FindLast();
         CALTestResult.Update(Success, CurrentDateTime);
 
         ApplicationArea('');

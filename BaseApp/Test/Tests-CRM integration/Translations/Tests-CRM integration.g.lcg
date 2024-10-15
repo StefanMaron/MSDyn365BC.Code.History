@@ -1040,13 +1040,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CRM Setup Test - NamedType ConnectionErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 775477311 - NamedType 1439227913" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 775477311 - NamedType 2865083016" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%2 integration is not enabled for %1.]]></Val>
+      <Val><![CDATA[The connection test was successful]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Current User ID]D;]A;(LookupHint=Codeunit CRM Setup Test - NamedType ConnectionSuccessNotEnabledForCurrentUserMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CRM Setup Test - NamedType ConnectionSuccessMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 775477311 - NamedType 632241935" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

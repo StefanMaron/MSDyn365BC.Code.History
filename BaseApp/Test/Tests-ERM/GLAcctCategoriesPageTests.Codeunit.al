@@ -48,7 +48,7 @@ codeunit 134442 "GL Acct. Categories Page Tests"
         // Setup
         FindFirstParentGLAccountCategory(GLAccountCategory);
         GLAccountCategory.SetRange("Parent Entry No.", GLAccountCategory."Entry No.");
-        GLAccountCategory.FindFirst;
+        GLAccountCategory.FindFirst();
 
         // Exercise
         NewGLAccountCategory.Get(GLAccountCategory.InsertRow);
@@ -121,7 +121,7 @@ codeunit 134442 "GL Acct. Categories Page Tests"
     begin
         // Setuo
         GLAccountCategory.SetFilter("Parent Entry No.", '<>0');
-        GLAccountCategory.FindFirst;
+        GLAccountCategory.FindFirst();
         InitialSquenceNo := GLAccountCategory."Sibling Sequence No.";
 
         // Exercise
@@ -146,7 +146,7 @@ codeunit 134442 "GL Acct. Categories Page Tests"
         // Setup
         FindFirstParentGLAccountCategory(GLAccountCategory);
         ChildGLAccountCategory.SetRange("Parent Entry No.", GLAccountCategory."Entry No.");
-        ChildGLAccountCategory.FindFirst;
+        ChildGLAccountCategory.FindFirst();
 
         // Exercise
         ChildGLAccountCategory.MakeSiblingOfParent;
@@ -185,7 +185,7 @@ codeunit 134442 "GL Acct. Categories Page Tests"
     begin
         // Setup
         GLAccount.SetFilter("Account Subcategory Entry No.", '<>0');
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
         GLAccountCategory.Get(GLAccount."Account Subcategory Entry No.");
 
         // Exercise
@@ -573,7 +573,7 @@ codeunit 134442 "GL Acct. Categories Page Tests"
     local procedure FindFirstParentGLAccountCategory(var GLAccountCategory: Record "G/L Account Category")
     begin
         GLAccountCategory.SetRange("Parent Entry No.", 0);
-        GLAccountCategory.FindFirst;
+        GLAccountCategory.FindFirst();
     end;
 
     local procedure VerifyGLAccountAccountSubcategoryEntryNo(GLAccountNo: Code[20]; ExpectedAccountSubcategoryEntryNo: Integer)

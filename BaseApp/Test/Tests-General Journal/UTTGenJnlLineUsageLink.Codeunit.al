@@ -31,8 +31,8 @@ codeunit 136359 "UT T Gen Jnl Line Usage Link"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"UT T Gen Jnl Line Usage Link");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"UT T Gen Jnl Line Usage Link");
@@ -91,7 +91,7 @@ codeunit 136359 "UT T Gen Jnl Line Usage Link"
     [Scope('OnPrem')]
     procedure TestInitialization()
     begin
-        Initialize;
+        Initialize();
         SetUp;
 
         // Verify that "Job Planning Line No." is initialized correctly.
@@ -107,7 +107,7 @@ codeunit 136359 "UT T Gen Jnl Line Usage Link"
     [Scope('OnPrem')]
     procedure TestFieldLineType()
     begin
-        Initialize;
+        Initialize();
         SetUp;
 
         // Verify that "Line Type" is set to the correct value when a "Job Planning Line No." is set.
@@ -126,7 +126,7 @@ codeunit 136359 "UT T Gen Jnl Line Usage Link"
     [Scope('OnPrem')]
     procedure TestFieldJobPlanningLineNo()
     begin
-        Initialize;
+        Initialize();
         SetUp;
 
         // Verify that "Job Planning Line No." and "Remaining Qty." are blanked when the No. changes.
@@ -138,7 +138,7 @@ codeunit 136359 "UT T Gen Jnl Line Usage Link"
 
         TearDown;
 
-        Initialize;
+        Initialize();
         SetUp;
 
         // Verify that "Job Planning Line No." is blanked when the Job No. changes.
@@ -159,7 +159,7 @@ codeunit 136359 "UT T Gen Jnl Line Usage Link"
         QtyDelta: Decimal;
         OldRemainingQty: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetUp;
 
         // Verify that "Remaining Qty." can't be set if "Job Planning Line No." isn't set.
@@ -167,7 +167,7 @@ codeunit 136359 "UT T Gen Jnl Line Usage Link"
 
         TearDown;
 
-        Initialize;
+        Initialize();
         SetUp;
 
         // Verify that "Remaining Qty." is set correctly when a "Job Planning Line No." is defined.

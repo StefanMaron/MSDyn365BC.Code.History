@@ -28,7 +28,7 @@ codeunit 138043 "O365 Standard Document Reports"
     var
         SalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
 
         // Prepare
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Quote);
@@ -46,7 +46,7 @@ codeunit 138043 "O365 Standard Document Reports"
         ItemNo: Code[20];
     begin
         // [SCENARIO 258773] Print report 'Standard Sales - Quote' with one item line and one comment line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Quote with item line and comment line
         ItemNo := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Quote);
@@ -70,7 +70,7 @@ codeunit 138043 "O365 Standard Document Reports"
         SalesHeader: Record "Sales Header";
         WorkDescription: Text;
     begin
-        Initialize;
+        Initialize();
         WorkDescription := 'Hello World!';
 
         // Prepare
@@ -95,7 +95,7 @@ codeunit 138043 "O365 Standard Document Reports"
     begin
         // [FEATURE] [Standard Sales - Order Conf.]
         // [SCENARIO 215434] Report "Standard Sales - Order Conf." have to contain value of field "Work Description" from Sales Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with "Work Description" = 'Hello World!'
         WorkDescription := 'Hello World!';
@@ -119,7 +119,7 @@ codeunit 138043 "O365 Standard Document Reports"
         ItemNo: Code[20];
     begin
         // [SCENARIO 258773] Print report 'Standard Sales - Order Conf.' with one item line and one comment line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with item line and comment line
         ItemNo := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
@@ -146,7 +146,7 @@ codeunit 138043 "O365 Standard Document Reports"
         PostedDocNo: Code[20];
     begin
         // [SCENARIO 258773] Print report 'Standard Sales - Invoice' with one item line and one comment line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with item line and comment line
         PostedDocNo := CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
@@ -161,7 +161,7 @@ codeunit 138043 "O365 Standard Document Reports"
         SalesInvoiceHeader.Find;
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
         SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::Item);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         Assert.AreEqual(1, SalesInvoiceHeader."No. Printed", '');
         VerifyPrintedReport(SalesInvoiceHeader."No.", SalesInvoiceLine."No.");
     end;
@@ -177,7 +177,7 @@ codeunit 138043 "O365 Standard Document Reports"
         PostedDocNo: Code[20];
     begin
         // [SCENARIO 258773] Print report 'Standard Sales - Credit Memo' with one item line and one comment line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo with item line and comment line
         PostedDocNo := CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
@@ -192,7 +192,7 @@ codeunit 138043 "O365 Standard Document Reports"
         SalesCrMemoHeader.Find;
         SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
         SalesCrMemoLine.SetRange(Type, SalesCrMemoLine.Type::Item);
-        SalesCrMemoLine.FindFirst;
+        SalesCrMemoLine.FindFirst();
         Assert.AreEqual(1, SalesCrMemoHeader."No. Printed", '');
         VerifyPrintedReport(SalesCrMemoHeader."No.", SalesCrMemoLine."No.");
     end;
@@ -206,7 +206,7 @@ codeunit 138043 "O365 Standard Document Reports"
         ItemNo: Code[20];
     begin
         // [SCENARIO 258773] Print report 'Standard Sales - Draft Invoice' with one item line and one comment line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with item line and comment line
         ItemNo := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
@@ -231,7 +231,7 @@ codeunit 138043 "O365 Standard Document Reports"
         SalesInvoice: TestPage "Sales Invoice";
     begin
         // Works differently in RU.
-        Initialize;
+        Initialize();
         ReportSelections.Init();
         ReportSelections.Usage := ReportSelections.Usage::"S.Invoice Draft";
         ReportSelections.Sequence := '1';
@@ -259,7 +259,7 @@ codeunit 138043 "O365 Standard Document Reports"
         PurchaseHeader: Record "Purchase Header";
         ItemNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Prepare
         ItemNo := CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
@@ -281,7 +281,7 @@ codeunit 138043 "O365 Standard Document Reports"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Standard Document Reports");
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         if IsInitialized then
             exit;
@@ -290,9 +290,9 @@ codeunit 138043 "O365 Standard Document Reports"
         ClearTable(DATABASE::Resource);
 
         if not LibraryFiscalYear.AccountingPeriodsExists then
-            LibraryFiscalYear.CreateFiscalYear;
+            LibraryFiscalYear.CreateFiscalYear();
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         with CompanyInformation do begin
             Get;
@@ -318,7 +318,7 @@ codeunit 138043 "O365 Standard Document Reports"
     var
         Resource: Record Resource;
     begin
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         case TableID of
             DATABASE::Resource:
                 Resource.DeleteAll();

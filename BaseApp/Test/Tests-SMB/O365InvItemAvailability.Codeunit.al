@@ -31,7 +31,7 @@ codeunit 138048 "O365 Inv. Item Availability"
         DemandQuantity: Integer;
     begin
         // SETUP: Create an item and demand for the item on the workdate of the system.
-        Initialize;
+        Initialize();
         ExistingQuantity := LibraryRandom.RandIntInRange(20, 100);
         DemandQuantity := LibraryRandom.RandInt(ExistingQuantity - 1);
 
@@ -61,7 +61,7 @@ codeunit 138048 "O365 Inv. Item Availability"
         DemandQuantity: Integer;
     begin
         // SETUP: Create an item and demand for the item on the workdate of the system.
-        Initialize;
+        Initialize();
         ExistingQuantity := LibraryRandom.RandIntInRange(20, 100);
         DemandQuantity := LibraryRandom.RandInt(ExistingQuantity - 1);
 
@@ -88,7 +88,7 @@ codeunit 138048 "O365 Inv. Item Availability"
         ItemAvailabilityCheck: TestPage "Item Availability Check";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "ITEM" with empty Vendor No.
         LibraryInventory.CreateItem(Item);
@@ -122,7 +122,7 @@ codeunit 138048 "O365 Inv. Item Availability"
         ItemAvailabilityCheck: TestPage "Item Availability Check";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "ITEM" with Vendor No. = "VEND"
         LibraryInventory.CreateItem(Item);
@@ -155,7 +155,7 @@ codeunit 138048 "O365 Inv. Item Availability"
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // [SCENARIO 264628] Create Purchase Order action for item with empty Vendor No after vendor selection creates and opens a new purchase order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "ITEM" with empty Vendor No.
         LibraryInventory.CreateItem(Item);
@@ -191,7 +191,7 @@ codeunit 138048 "O365 Inv. Item Availability"
         PurchDocQty: Integer;
     begin
         // [SCENARIO 264628] Create Purchase Order action for item with empty Vendor No and vendor selection canceled a new purchase order is not created
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "ITEM" with empty Vendor No.
         LibraryInventory.CreateItem(Item);
@@ -220,7 +220,7 @@ codeunit 138048 "O365 Inv. Item Availability"
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // [SCENARIO 264628] Create Purchase Order action for item with Vendor No makes a new purchase order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "ITEM" with Vendor No. = "VEND"
         LibraryInventory.CreateItem(Item);
@@ -254,7 +254,7 @@ codeunit 138048 "O365 Inv. Item Availability"
     begin
         // [FEATURE] [Gross Requirement] [UI]
         // [SCENARIO 292299] Page Item Availability by UoM shows "Gross Requirement" per Unit of Measure
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "ITEM" with base unit of measure "UOM1" and additional one "UOM2"
         CreateItemWithUoMs(Item, ItemUnitOfMeasure);
@@ -290,7 +290,7 @@ codeunit 138048 "O365 Inv. Item Availability"
     begin
         // [FEATURE] [Gross Requirement] [UI]
         // [SCENARIO 292299] Drilldown "Gross Requirement" on page Item Availability by UoM shows quantity per Unit of Measure
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "ITEM" with base unit of measure "UOM1" and additional one "UOM2"
         CreateItemWithUoMs(Item, ItemUnitOfMeasure);
@@ -324,7 +324,7 @@ codeunit 138048 "O365 Inv. Item Availability"
     begin
         // [FEATURE] [Inventory] [UI]
         // [SCENARIO 292299] Page Item Availability by UoM shows "Inventory" per Unit of Measure
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "ITEM" with base unit of measure "UOM1" and additional one "UOM2"
         CreateItemWithUoMs(Item, ItemUnitOfMeasure);
@@ -362,7 +362,7 @@ codeunit 138048 "O365 Inv. Item Availability"
     begin
         // [FEATURE] [Projected Available Balance] [UI]
         // [SCENARIO 292299] Drilldown from "Projected Available Balance" on page Item Availability by UoM shows quantity per Unit of Measure
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "ITEM" with base unit of measure "UOM1" and additional one "UOM2"
         CreateItemWithUoMs(Item, ItemUnitOfMeasure);
@@ -396,7 +396,7 @@ codeunit 138048 "O365 Inv. Item Availability"
     begin
         // [FEATURE] [Inventory] [UI]
         // [SCENARIO 292299] Drilldown from "Inventory" on page Item Availability by UoM shows item ledger entries filtered by Unit of Measure
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "ITEM" with base unit of measure "UOM1" and additional one "UOM2"
         CreateItemWithUoMs(Item, ItemUnitOfMeasure);
@@ -435,7 +435,7 @@ codeunit 138048 "O365 Inv. Item Availability"
     begin
         // [FEATURE] [Sales Order] [UI]
         // [SCENARIO 292299] Sales order subform allows user to select unit of measure code with action Line - Item Availability by - Unit of Measure
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "ITEM" with base unit of measure "UOM1" and additional one "UOM2"
         CreateItemWithUoMs(Item, ItemUnitOfMeasure);
@@ -463,16 +463,16 @@ codeunit 138048 "O365 Inv. Item Availability"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Inv. Item Availability");
-        LibraryVariableStorage.Clear;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryVariableStorage.Clear();
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // Lazy Setup.
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Inv. Item Availability");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Inv. Item Availability");

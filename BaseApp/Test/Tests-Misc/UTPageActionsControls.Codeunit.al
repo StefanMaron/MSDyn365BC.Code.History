@@ -606,7 +606,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] PurchaseOrder."Job Queue Status".VISIBLE = FALSE when posting with job queue is disabled
         UpdateJobQueueActiveOnPurchaseSetup(false, false);
 
-        PurchaseOrder.OpenNew;
+        PurchaseOrder.OpenNew();
         Assert.IsFalse(PurchaseOrder."Job Queue Status".Visible, '');
     end;
 
@@ -620,7 +620,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] PurchaseOrder."Job Queue Status".VISIBLE = TRUE when post with job queue is enabled
         UpdateJobQueueActiveOnPurchaseSetup(true, false);
 
-        PurchaseOrder.OpenNew;
+        PurchaseOrder.OpenNew();
         Assert.IsTrue(PurchaseOrder."Job Queue Status".Visible, '');
     end;
 
@@ -634,7 +634,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] PurchaseOrder."Job Queue Status".VISIBLE = TRUE when post and print with job queue is enabled
         UpdateJobQueueActiveOnPurchaseSetup(false, true);
 
-        PurchaseOrder.OpenNew;
+        PurchaseOrder.OpenNew();
         Assert.IsTrue(PurchaseOrder."Job Queue Status".Visible, '');
     end;
 
@@ -648,7 +648,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] PurchaseInvoice."Job Queue Status".VISIBLE = FALSE when posting with job queue is disabled
         UpdateJobQueueActiveOnPurchaseSetup(false, false);
 
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         Assert.IsFalse(PurchaseInvoice."Job Queue Status".Visible, '');
     end;
 
@@ -662,7 +662,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] PurchaseInvoice."Job Queue Status".VISIBLE = TRUE when post with job queue is enabled
         UpdateJobQueueActiveOnPurchaseSetup(true, false);
 
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         Assert.IsTrue(PurchaseInvoice."Job Queue Status".Visible, '');
     end;
 
@@ -676,7 +676,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] PurchaseInvoice."Job Queue Status".VISIBLE = TRUE when post and print with job queue is enabled
         UpdateJobQueueActiveOnPurchaseSetup(false, true);
 
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         Assert.IsTrue(PurchaseInvoice."Job Queue Status".Visible, '');
     end;
 
@@ -690,7 +690,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] PurchaseCreditMemo."Job Queue Status".VISIBLE = FALSE when posting with job queue is disabled
         UpdateJobQueueActiveOnPurchaseSetup(false, false);
 
-        PurchaseCreditMemo.OpenNew;
+        PurchaseCreditMemo.OpenNew();
         Assert.IsFalse(PurchaseCreditMemo."Job Queue Status".Visible, '');
     end;
 
@@ -704,7 +704,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] PurchaseCreditMemo."Job Queue Status".VISIBLE = TRUE when post with job queue is enabled
         UpdateJobQueueActiveOnPurchaseSetup(true, false);
 
-        PurchaseCreditMemo.OpenNew;
+        PurchaseCreditMemo.OpenNew();
         Assert.IsTrue(PurchaseCreditMemo."Job Queue Status".Visible, '');
     end;
 
@@ -718,7 +718,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] PurchaseCreditMemo."Job Queue Status".VISIBLE = TRUE when post and print with job queue is enabled
         UpdateJobQueueActiveOnPurchaseSetup(false, true);
 
-        PurchaseCreditMemo.OpenNew;
+        PurchaseCreditMemo.OpenNew();
         Assert.IsTrue(PurchaseCreditMemo."Job Queue Status".Visible, '');
     end;
 
@@ -732,7 +732,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] PurchaseReturnOrder."Job Queue Status".VISIBLE = FALSE when posting with job queue is disabled
         UpdateJobQueueActiveOnPurchaseSetup(false, false);
 
-        PurchaseReturnOrder.OpenNew;
+        PurchaseReturnOrder.OpenNew();
         Assert.IsFalse(PurchaseReturnOrder."Job Queue Status".Visible, '');
     end;
 
@@ -746,7 +746,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] PurchaseReturnOrder."Job Queue Status".VISIBLE = TRUE when post with job queue is enabled
         UpdateJobQueueActiveOnPurchaseSetup(true, false);
 
-        PurchaseReturnOrder.OpenNew;
+        PurchaseReturnOrder.OpenNew();
         Assert.IsTrue(PurchaseReturnOrder."Job Queue Status".Visible, '');
     end;
 
@@ -760,7 +760,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] PurchaseReturnOrder."Job Queue Status".VISIBLE = TRUE when post and print with job queue is enabled
         UpdateJobQueueActiveOnPurchaseSetup(false, true);
 
-        PurchaseReturnOrder.OpenNew;
+        PurchaseReturnOrder.OpenNew();
         Assert.IsTrue(PurchaseReturnOrder."Job Queue Status".Visible, '');
     end;
 
@@ -774,7 +774,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] PurchaseOrderList."Job Queue Status".VISIBLE = FALSE when posting with job queue is disabled
         UpdateJobQueueActiveOnPurchaseSetup(false, false);
 
-        PurchaseOrderList.OpenNew;
+        PurchaseOrderList.OpenNew();
         Assert.IsFalse(PurchaseOrderList."Job Queue Status".Visible, '');
     end;
 
@@ -788,7 +788,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] PurchaseOrderList."Job Queue Status".VISIBLE = TRUE when post with job queue is enabled
         UpdateJobQueueActiveOnPurchaseSetup(true, false);
 
-        PurchaseOrderList.OpenNew;
+        PurchaseOrderList.OpenNew();
         Assert.IsTrue(PurchaseOrderList."Job Queue Status".Visible, '');
     end;
 
@@ -802,7 +802,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] PurchaseOrderList."Job Queue Status".VISIBLE = TRUE when post and print with job queue is enabled
         UpdateJobQueueActiveOnPurchaseSetup(false, true);
 
-        PurchaseOrderList.OpenNew;
+        PurchaseOrderList.OpenNew();
         Assert.IsTrue(PurchaseOrderList."Job Queue Status".Visible, '');
     end;
 
@@ -816,7 +816,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] PurchaseInvoices."Job Queue Status".VISIBLE = FALSE when posting with job queue is disabled
         UpdateJobQueueActiveOnPurchaseSetup(false, false);
 
-        PurchaseInvoices.OpenNew;
+        PurchaseInvoices.OpenNew();
         Assert.IsFalse(PurchaseInvoices."Job Queue Status".Visible, '');
     end;
 
@@ -830,7 +830,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] PurchaseInvoices."Job Queue Status".VISIBLE = TRUE when post with job queue is enabled
         UpdateJobQueueActiveOnPurchaseSetup(true, false);
 
-        PurchaseInvoices.OpenNew;
+        PurchaseInvoices.OpenNew();
         Assert.IsTrue(PurchaseInvoices."Job Queue Status".Visible, '');
     end;
 
@@ -844,7 +844,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] PurchaseInvoices."Job Queue Status".VISIBLE = TRUE when post and print with job queue is enabled
         UpdateJobQueueActiveOnPurchaseSetup(false, true);
 
-        PurchaseInvoices.OpenNew;
+        PurchaseInvoices.OpenNew();
         Assert.IsTrue(PurchaseInvoices."Job Queue Status".Visible, '');
     end;
 
@@ -858,7 +858,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] PurchaseCreditMemos."Job Queue Status".VISIBLE = FALSE when posting with job queue is disabled
         UpdateJobQueueActiveOnPurchaseSetup(false, false);
 
-        PurchaseCreditMemos.OpenNew;
+        PurchaseCreditMemos.OpenNew();
         Assert.IsFalse(PurchaseCreditMemos."Job Queue Status".Visible, '');
     end;
 
@@ -872,7 +872,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] PurchaseCreditMemos."Job Queue Status".VISIBLE = TRUE when post with job queue is enabled
         UpdateJobQueueActiveOnPurchaseSetup(true, false);
 
-        PurchaseCreditMemos.OpenNew;
+        PurchaseCreditMemos.OpenNew();
         Assert.IsTrue(PurchaseCreditMemos."Job Queue Status".Visible, '');
     end;
 
@@ -886,7 +886,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] PurchaseCreditMemos."Job Queue Status".VISIBLE = TRUE when post and print with job queue is enabled
         UpdateJobQueueActiveOnPurchaseSetup(false, true);
 
-        PurchaseCreditMemos.OpenNew;
+        PurchaseCreditMemos.OpenNew();
         Assert.IsTrue(PurchaseCreditMemos."Job Queue Status".Visible, '');
     end;
 
@@ -900,7 +900,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] PurchaseReturnOrderList."Job Queue Status".VISIBLE = FALSE when posting with job queue is disabled
         UpdateJobQueueActiveOnPurchaseSetup(false, false);
 
-        PurchaseReturnOrderList.OpenNew;
+        PurchaseReturnOrderList.OpenNew();
         Assert.IsFalse(PurchaseReturnOrderList."Job Queue Status".Visible, '');
     end;
 
@@ -914,7 +914,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] PurchaseReturnOrderList."Job Queue Status".VISIBLE = TRUE when post with job queue is enabled
         UpdateJobQueueActiveOnPurchaseSetup(true, false);
 
-        PurchaseReturnOrderList.OpenNew;
+        PurchaseReturnOrderList.OpenNew();
         Assert.IsTrue(PurchaseReturnOrderList."Job Queue Status".Visible, '');
     end;
 
@@ -928,7 +928,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] PurchaseReturnOrderList."Job Queue Status".VISIBLE = TRUE when post and print with job queue is enabled
         UpdateJobQueueActiveOnPurchaseSetup(false, true);
 
-        PurchaseReturnOrderList.OpenNew;
+        PurchaseReturnOrderList.OpenNew();
         Assert.IsTrue(PurchaseReturnOrderList."Job Queue Status".Visible, '');
     end;
 
@@ -941,7 +941,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [FEATURE] [Purchase]
         // [SCENARIO 252621] PurchaseReturnOrderList has visible fields: "Status".
 
-        PurchaseReturnOrderList.OpenNew;
+        PurchaseReturnOrderList.OpenNew();
         Assert.IsTrue(PurchaseReturnOrderList.Status.Visible, '');
     end;
 
@@ -955,7 +955,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] SalesOrder."Job Queue Status".VISIBLE = FALSE when posting with job queue is disabled
         UpdateJobQueueActiveOnSalesSetup(false, false);
 
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
         Assert.IsFalse(SalesOrder."Job Queue Status".Visible, '');
     end;
 
@@ -969,7 +969,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] SalesOrder."Job Queue Status".VISIBLE = TRUE when post with job queue is enabled
         UpdateJobQueueActiveOnSalesSetup(true, false);
 
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
         Assert.IsTrue(SalesOrder."Job Queue Status".Visible, '');
     end;
 
@@ -983,7 +983,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] SalesOrder."Job Queue Status".VISIBLE = TRUE when post and print with job queue is enabled
         UpdateJobQueueActiveOnSalesSetup(false, true);
 
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
         Assert.IsTrue(SalesOrder."Job Queue Status".Visible, '');
     end;
 
@@ -997,7 +997,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] SalesInvoice."Job Queue Status".VISIBLE = FALSE when posting with job queue is disabled
         UpdateJobQueueActiveOnSalesSetup(false, false);
 
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         Assert.IsFalse(SalesInvoice."Job Queue Status".Visible, '');
     end;
 
@@ -1011,7 +1011,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] SalesInvoice."Job Queue Status".VISIBLE = TRUE when post with job queue is enabled
         UpdateJobQueueActiveOnSalesSetup(true, false);
 
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         Assert.IsTrue(SalesInvoice."Job Queue Status".Visible, '');
     end;
 
@@ -1025,7 +1025,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] SalesInvoice."Job Queue Status".VISIBLE = TRUE when post and print with job queue is enabled
         UpdateJobQueueActiveOnSalesSetup(false, true);
 
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         Assert.IsTrue(SalesInvoice."Job Queue Status".Visible, '');
     end;
 
@@ -1039,7 +1039,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] SalesCreditMemo."Job Queue Status".VISIBLE = FALSE when posting with job queue is disabled
         UpdateJobQueueActiveOnSalesSetup(false, false);
 
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         Assert.IsFalse(SalesCreditMemo."Job Queue Status".Visible, '');
     end;
 
@@ -1053,7 +1053,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] SalesCreditMemo."Job Queue Status".VISIBLE = TRUE when post with job queue is enabled
         UpdateJobQueueActiveOnSalesSetup(true, false);
 
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         Assert.IsTrue(SalesCreditMemo."Job Queue Status".Visible, '');
     end;
 
@@ -1067,7 +1067,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] SalesCreditMemo."Job Queue Status".VISIBLE = TRUE when post and print with job queue is enabled
         UpdateJobQueueActiveOnSalesSetup(false, true);
 
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         Assert.IsTrue(SalesCreditMemo."Job Queue Status".Visible, '');
     end;
 
@@ -1081,7 +1081,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] SalesReturnOrder."Job Queue Status".VISIBLE = FALSE when posting with job queue is disabled
         UpdateJobQueueActiveOnSalesSetup(false, false);
 
-        SalesReturnOrder.OpenNew;
+        SalesReturnOrder.OpenNew();
         Assert.IsFalse(SalesReturnOrder."Job Queue Status".Visible, '');
     end;
 
@@ -1095,7 +1095,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] SalesReturnOrder."Job Queue Status".VISIBLE = TRUE when post with job queue is enabled
         UpdateJobQueueActiveOnSalesSetup(true, false);
 
-        SalesReturnOrder.OpenNew;
+        SalesReturnOrder.OpenNew();
         Assert.IsTrue(SalesReturnOrder."Job Queue Status".Visible, '');
     end;
 
@@ -1109,7 +1109,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] SalesReturnOrder."Job Queue Status".VISIBLE = TRUE when post and print with job queue is enabled
         UpdateJobQueueActiveOnSalesSetup(false, true);
 
-        SalesReturnOrder.OpenNew;
+        SalesReturnOrder.OpenNew();
         Assert.IsTrue(SalesReturnOrder."Job Queue Status".Visible, '');
     end;
 
@@ -1123,7 +1123,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] SalesOrderList."Job Queue Status".VISIBLE = FALSE when posting with job queue is disabled
         UpdateJobQueueActiveOnSalesSetup(false, false);
 
-        SalesOrderList.OpenNew;
+        SalesOrderList.OpenNew();
         Assert.IsFalse(SalesOrderList."Job Queue Status".Visible, '');
     end;
 
@@ -1137,7 +1137,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] SalesOrderList."Job Queue Status".VISIBLE = TRUE when post with job queue is enabled
         UpdateJobQueueActiveOnSalesSetup(true, false);
 
-        SalesOrderList.OpenNew;
+        SalesOrderList.OpenNew();
         Assert.IsTrue(SalesOrderList."Job Queue Status".Visible, '');
     end;
 
@@ -1151,7 +1151,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] SalesOrderList."Job Queue Status".VISIBLE = TRUE when post and print with job queue is enabled
         UpdateJobQueueActiveOnSalesSetup(false, true);
 
-        SalesOrderList.OpenNew;
+        SalesOrderList.OpenNew();
         Assert.IsTrue(SalesOrderList."Job Queue Status".Visible, '');
     end;
 
@@ -1165,7 +1165,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] SalesInvoiceList."Job Queue Status".VISIBLE = FALSE when posting with job queue is disabled
         UpdateJobQueueActiveOnSalesSetup(false, false);
 
-        SalesInvoiceList.OpenNew;
+        SalesInvoiceList.OpenNew();
         Assert.IsFalse(SalesInvoiceList."Job Queue Status".Visible, '');
     end;
 
@@ -1179,7 +1179,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] SalesInvoiceList."Job Queue Status".VISIBLE = TRUE when post with job queue is enabled
         UpdateJobQueueActiveOnSalesSetup(true, false);
 
-        SalesInvoiceList.OpenNew;
+        SalesInvoiceList.OpenNew();
         Assert.IsTrue(SalesInvoiceList."Job Queue Status".Visible, '');
     end;
 
@@ -1193,7 +1193,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] SalesInvoiceList."Job Queue Status".VISIBLE = TRUE when post and print with job queue is enabled
         UpdateJobQueueActiveOnSalesSetup(false, true);
 
-        SalesInvoiceList.OpenNew;
+        SalesInvoiceList.OpenNew();
         Assert.IsTrue(SalesInvoiceList."Job Queue Status".Visible, '');
     end;
 
@@ -1207,7 +1207,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] SalesCreditMemos."Job Queue Status".VISIBLE = FALSE when posting with job queue is disabled
         UpdateJobQueueActiveOnSalesSetup(false, false);
 
-        SalesCreditMemos.OpenNew;
+        SalesCreditMemos.OpenNew();
         Assert.IsFalse(SalesCreditMemos."Job Queue Status".Visible, '');
     end;
 
@@ -1221,7 +1221,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] SalesCreditMemos."Job Queue Status".VISIBLE = TRUE when post with job queue is enabled
         UpdateJobQueueActiveOnSalesSetup(true, false);
 
-        SalesCreditMemos.OpenNew;
+        SalesCreditMemos.OpenNew();
         Assert.IsTrue(SalesCreditMemos."Job Queue Status".Visible, '');
     end;
 
@@ -1235,7 +1235,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] SalesCreditMemos."Job Queue Status".VISIBLE = TRUE when post and print with job queue is enabled
         UpdateJobQueueActiveOnSalesSetup(false, true);
 
-        SalesCreditMemos.OpenNew;
+        SalesCreditMemos.OpenNew();
         Assert.IsTrue(SalesCreditMemos."Job Queue Status".Visible, '');
     end;
 
@@ -1249,7 +1249,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] SalesReturnOrderList."Job Queue Status".VISIBLE = FALSE when posting with job queue is disabled
         UpdateJobQueueActiveOnSalesSetup(false, false);
 
-        SalesReturnOrderList.OpenNew;
+        SalesReturnOrderList.OpenNew();
         Assert.IsFalse(SalesReturnOrderList."Job Queue Status".Visible, '');
     end;
 
@@ -1263,7 +1263,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] SalesReturnOrderList."Job Queue Status".VISIBLE = TRUE when post with job queue is enabled
         UpdateJobQueueActiveOnSalesSetup(true, false);
 
-        SalesReturnOrderList.OpenNew;
+        SalesReturnOrderList.OpenNew();
         Assert.IsTrue(SalesReturnOrderList."Job Queue Status".Visible, '');
     end;
 
@@ -1277,7 +1277,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 211732] SalesReturnOrderList."Job Queue Status".VISIBLE = TRUE when post and print with job queue is enabled
         UpdateJobQueueActiveOnSalesSetup(false, true);
 
-        SalesReturnOrderList.OpenNew;
+        SalesReturnOrderList.OpenNew();
         Assert.IsTrue(SalesReturnOrderList."Job Queue Status".Visible, '');
     end;
 
@@ -1290,7 +1290,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [FEATURE] [Sales]
         // [SCENARIO 252621] SalesReturnOrderList has visible fields: "Status", "Amount", "Amount Including VAT".
 
-        SalesReturnOrderList.OpenNew;
+        SalesReturnOrderList.OpenNew();
         Assert.IsTrue(SalesReturnOrderList.Status.Visible, '');
         Assert.IsTrue(SalesReturnOrderList.Amount.Visible, '');
         Assert.IsTrue(SalesReturnOrderList."Amount Including VAT".Visible, '');
@@ -1356,7 +1356,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 223571] "IC Partner Code" is not visible on Vendor Card if Application Area is set to Suite
 
         // [GIVEN] Application Area = Suite
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // [GIVEN] Vendor "V" with "IC Partner Code" = "ICP"
         CreateVendorWithICPartnerCode(Vendor);
@@ -1431,7 +1431,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 223571] "IC Partner Code" is not visible on Customer Card if Application Area is set to Suite
 
         // [GIVEN] Application Area = Suite
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // [GIVEN] Customer "C" with "IC Partner Code" = "ICP"
         CreateCustomerWithICPartnerCode(Customer);
@@ -1587,7 +1587,7 @@ codeunit 134341 "UT Page Actions & Controls"
         MockRecordWithKeyValue(GLEntry);
         Commit();
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         SetBasicUserExperience;
 
         GeneralLedgerSetupPage.OpenEdit;
@@ -1623,7 +1623,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 256677] The field "External Document No." must be visible on the page "General Ledger Entries"
 
         // [GIVEN] Application Area = Suite
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // [GIVEN] "G/L Entry"
         MockRecordWithKeyValue(GLEntry);
@@ -1865,8 +1865,8 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 260487] Purchase Order List has visible fields: "Status" if Application Area is set to Suite
-        LibraryApplicationArea.EnableFoundationSetup;
-        PurchaseOrderList.OpenNew;
+        LibraryApplicationArea.EnableFoundationSetup();
+        PurchaseOrderList.OpenNew();
         Assert.IsTrue(PurchaseOrderList.Status.Visible, '');
     end;
 
@@ -2149,7 +2149,7 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [UI] [Sales] [Sales Prices]
         // [SCENARIO 264545] Customer page shows Sales Prices & Discounts
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // [GIVEN] Customer
         LibrarySales.CreateCustomer(Customer);
@@ -2182,7 +2182,7 @@ codeunit 134341 "UT Page Actions & Controls"
         LibraryERM.CreateAnalysisView(AnalysisView);
         AnalysisViewEntry.Init();
         AnalysisViewEntry."Analysis View Code" := AnalysisView.Code;
-        AnalysisViewEntry."Account No." := LibraryUtility.GenerateGUID;
+        AnalysisViewEntry."Account No." := LibraryUtility.GenerateGUID();
         AnalysisViewEntry.Insert();
         AnalysisViewEntry.SetRecFilter;
         AnalysisViewEntries.Trap;
@@ -2200,8 +2200,8 @@ codeunit 134341 "UT Page Actions & Controls"
         // [FEATURE] [Analysis View] [Budget]
         // [SCENARIO 264348] Analisys View Budget Entry has default page
         AnalysisViewBudgetEntry.Init();
-        AnalysisViewBudgetEntry."Budget Name" := LibraryUtility.GenerateGUID;
-        AnalysisViewBudgetEntry."G/L Account No." := LibraryUtility.GenerateGUID;
+        AnalysisViewBudgetEntry."Budget Name" := LibraryUtility.GenerateGUID();
+        AnalysisViewBudgetEntry."G/L Account No." := LibraryUtility.GenerateGUID();
         AnalysisViewBudgetEntry.Insert();
         AnalysisViewBudgetEntry.SetRecFilter;
         AnalysisViewBudgetEntries.Trap;
@@ -2255,8 +2255,8 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 269728] Sales Order has visible fields: "Direct Debit Mandate ID" if Application Area is set to Suite
-        LibraryApplicationArea.EnableFoundationSetup;
-        SalesOrder.OpenNew;
+        LibraryApplicationArea.EnableFoundationSetup();
+        SalesOrder.OpenNew();
         Assert.IsTrue(SalesOrder."Direct Debit Mandate ID".Visible, '');
     end;
 
@@ -2268,8 +2268,8 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 269728] Sales Invoice has visible fields: "Direct Debit Mandate ID" if Application Area is set to Suite
-        LibraryApplicationArea.EnableFoundationSetup;
-        SalesInvoice.OpenNew;
+        LibraryApplicationArea.EnableFoundationSetup();
+        SalesInvoice.OpenNew();
         Assert.IsTrue(SalesInvoice."Direct Debit Mandate ID".Visible, '');
     end;
 
@@ -2281,7 +2281,7 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 269728] Posted Sales Order has visible fields: "Direct Debit Mandate ID" if Application Area is set to Suite
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         PostedSalesInvoice.OpenView;
         Assert.IsTrue(PostedSalesInvoice."Direct Debit Mandate ID".Visible, '');
     end;
@@ -2323,7 +2323,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [FEATURE] [Purchase] [Purchasing Codes]
         // [SCENARIO 271183] Columns of the Purchasing Codes page are visible for #Suite plan.
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         PurchasingCodes.OpenView;
 
         Assert.IsTrue(
@@ -2352,7 +2352,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [FEATURE] [Purchase] [Purchasing Codes]
         // [SCENARIO 271183] Columns of the Purchasing Codes page are visible for #Suite plan.
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         PurchasingCodeList.OpenView;
 
         Assert.IsTrue(
@@ -2452,7 +2452,7 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Purchase] [Order] [Select Multiple Items]
         // [SCENARIO] Action "Select items" on Order subpage adds selected items, if no lines exist
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         // [GIVEN] Open Purchase Order '1000' with no lines
         LibraryPurchase.CreatePurchHeader(
           PurchHeader, PurchHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
@@ -2468,7 +2468,7 @@ codeunit 134341 "UT Page Actions & Controls"
         PurchLine.SetRange("Document Type", PurchHeader."Document Type");
         PurchLine.SetRange("Document No.", PurchHeader."No.");
         Assert.RecordCount(PurchLine, 1);
-        PurchLine.FindFirst;
+        PurchLine.FindFirst();
         PurchLine.TestField(Type, PurchLine.Type::Item);
         PurchLine.TestField("No.", ExpectedItemNo);
 
@@ -2503,7 +2503,7 @@ codeunit 134341 "UT Page Actions & Controls"
         PurchLine.SetRange("Document Type", PurchHeader."Document Type");
         PurchLine.SetRange("Document No.", PurchHeader."No.");
         Assert.RecordCount(PurchLine, 1);
-        PurchLine.FindLast;
+        PurchLine.FindLast();
         PurchLine.TestField(Type, PurchLine.Type::Item);
         Assert.AreNotEqual(ExpectedItemNo, PurchLine."No.", 'selected item should not be inserted');
 
@@ -2523,12 +2523,12 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Purchase] [Quote] [Select Multiple Items]
         // [SCENARIO] Action "Select items" on Quote subpage adds selected items, if the current line is the first of many
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         // [GIVEN] Created Purchase Quote '1000' with two lines
         LibraryPurchase.CreatePurchaseQuote(PurchHeader);
         PurchLine.SetRange("Document Type", PurchHeader."Document Type");
         PurchLine.SetRange("Document No.", PurchHeader."No.");
-        PurchLine.FindLast;
+        PurchLine.FindLast();
         PurchLine."Line No." += 10000;
         PurchLine.Insert(true);
         Assert.RecordCount(PurchLine, 2);
@@ -2544,7 +2544,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         // [THEN] Third purchase line added as the last one, where "Document No." = '1000', "Type" = 'Item', "No." = 'X'
         Assert.RecordCount(PurchLine, 3);
-        PurchLine.FindLast;
+        PurchLine.FindLast();
         PurchLine.TestField(Type, PurchLine.Type::Item);
         PurchLine.TestField("No.", ExpectedItemNo);
 
@@ -2580,7 +2580,7 @@ codeunit 134341 "UT Page Actions & Controls"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         Assert.RecordCount(SalesLine, 1);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.TestField(Type, SalesLine.Type::Item);
         SalesLine.TestField("No.", ExpectedItemNo);
     end;
@@ -2613,7 +2613,7 @@ codeunit 134341 "UT Page Actions & Controls"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         Assert.RecordCount(SalesLine, 1);
-        SalesLine.FindLast;
+        SalesLine.FindLast();
         SalesLine.TestField(Type, SalesLine.Type::Item);
         Assert.AreNotEqual(ExpectedItemNo, SalesLine."No.", 'selected item should not be inserted');
     end;
@@ -2636,7 +2636,7 @@ codeunit 134341 "UT Page Actions & Controls"
         LibrarySales.CreateSalesQuoteForCustomerNo(SalesHeader, LibrarySales.CreateCustomerNo);
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindLast;
+        SalesLine.FindLast();
         SalesLine."Line No." += 10000;
         SalesLine.Insert(true);
         Assert.RecordCount(SalesLine, 2);
@@ -2652,7 +2652,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         // [THEN] Third sales line added as the last one, where "Document No." = '1000', "Type" = 'Item', "No." = 'X'
         Assert.RecordCount(SalesLine, 3);
-        SalesLine.FindLast;
+        SalesLine.FindLast();
         SalesLine.TestField(Type, SalesLine.Type::Item);
         SalesLine.TestField("No.", ExpectedItemNo);
     end;
@@ -2854,7 +2854,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [FEATURE] [UT] [Purchase] [Quote]
         // [SCENARIO 274511] "Send" action is visible on the "Purchase Quote" page.
 
-        PurchaseQuote.OpenNew;
+        PurchaseQuote.OpenNew();
         Assert.IsTrue(PurchaseQuote.Send.Visible, 'Button "Send" must be visible');
     end;
 
@@ -2867,7 +2867,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [FEATURE] [UT] [Purchase] [Quote]
         // [SCENARIO 274511] "Send" action is visible on the "Purchase Quotes" page.
 
-        PurchaseQuotes.OpenNew;
+        PurchaseQuotes.OpenNew();
         Assert.IsTrue(PurchaseQuotes.Send.Visible, 'Button "Send" must be visible');
     end;
 
@@ -3142,8 +3142,99 @@ codeunit 134341 "UT Page Actions & Controls"
 
     [Test]
     [Scope('OnPrem')]
+    procedure PaymentMethodCodeOnSalesQuote()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        SalesQuote: TestPage "Sales Quote";
+    begin
+        // [FEATURE] [Sales Quote]
+        // [SCENARIO 288448] "Payment Method Code" is enabled and visible on "Sales Quote" page
+
+        SalesQuote.OpenEdit;
+        Assert.IsTrue(SalesQuote."Payment Method Code".Enabled, '');
+        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", SalesQuote."Payment Method Code".Visible, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PaymentMethodCodeOnPurchaseQuote()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        PurchaseQuote: TestPage "Purchase Quote";
+    begin
+        // [FEATURE] [Sales Purchase]
+        // [SCENARIO 288448] "Payment Method Code" is enabled and visible on "Sales Purchase" page
+
+        PurchaseQuote.OpenEdit;
+        Assert.IsTrue(PurchaseQuote."Payment Method Code".Enabled, '');
+        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", PurchaseQuote."Payment Method Code".Visible, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PaymentMethodCodeOnSalesInvoice()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        SalesInvoice: TestPage "Sales Invoice";
+    begin
+        // [FEATURE] [Sales Invoice]
+        // [SCENARIO 288448] "Payment Method Code" is enabled and visible on "Sales Invoice" page
+
+        SalesInvoice.OpenEdit;
+        Assert.IsTrue(SalesInvoice."Payment Method Code".Enabled, '');
+        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", SalesInvoice."Payment Method Code".Visible, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PaymentMethodCodeOnPurchaseInvoice()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        // [FEATURE] [Purchase Invoice]
+        // [SCENARIO 288448] "Payment Method Code" is enabled and visible on "Purchase Invoice" page
+
+        PurchaseInvoice.OpenEdit;
+        Assert.IsTrue(PurchaseInvoice."Payment Method Code".Enabled, '');
+        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", PurchaseInvoice."Payment Method Code".Visible, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PaymentMethodCodeOnSalesOrder()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [FEATURE] [Sales Order]
+        // [SCENARIO 288448] "Payment Method Code" is enabled and visible on "Sales Order" page
+
+        SalesOrder.OpenEdit;
+        Assert.IsTrue(SalesOrder."Payment Method Code".Enabled, '');
+        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", SalesOrder."Payment Method Code".Visible, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PaymentMethodCodeOnPurchaseOrder()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [FEATURE] [Purchase Order]
+        // [SCENARIO 288448] "Payment Method Code" is enabled and visible on "Purchase Order" page
+
+        PurchaseOrder.OpenEdit;
+        Assert.IsTrue(PurchaseOrder."Payment Method Code".Enabled, '');
+        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", PurchaseOrder."Payment Method Code".Visible, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure PaymentMethodCodeOnSalesCreditMemo()
     var
+        GeneralLedgerSetup: Record "General Ledger Setup";
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
         // [FEATURE] [Sales Credit Memo]
@@ -3151,13 +3242,14 @@ codeunit 134341 "UT Page Actions & Controls"
 
         SalesCreditMemo.OpenEdit;
         Assert.IsTrue(SalesCreditMemo."Payment Method Code".Enabled, '');
-        Assert.IsTrue(SalesCreditMemo."Payment Method Code".Visible, '');
+        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", SalesCreditMemo."Payment Method Code".Visible, '');
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure PaymentMethodCodeOnPurchCreditMemo()
     var
+        GeneralLedgerSetup: Record "General Ledger Setup";
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
         // [FEATURE] [Purchase Credit Memo]
@@ -3165,13 +3257,14 @@ codeunit 134341 "UT Page Actions & Controls"
 
         PurchaseCreditMemo.OpenEdit;
         Assert.IsTrue(PurchaseCreditMemo."Payment Method Code".Enabled, '');
-        Assert.IsTrue(PurchaseCreditMemo."Payment Method Code".Visible, '');
+        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", PurchaseCreditMemo."Payment Method Code".Visible, '');
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure PaymentMethodCodeOnSalesReturnOrder()
     var
+        GeneralLedgerSetup: Record "General Ledger Setup";
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
         // [FEATURE] [Sales Credit Memo]
@@ -3179,13 +3272,14 @@ codeunit 134341 "UT Page Actions & Controls"
 
         SalesReturnOrder.OpenEdit;
         Assert.IsTrue(SalesReturnOrder."Payment Method Code".Enabled, '');
-        Assert.IsTrue(SalesReturnOrder."Payment Method Code".Visible, '');
+        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", SalesReturnOrder."Payment Method Code".Visible, '');
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure PaymentMethodCodeOnPurchReturnOrder()
     var
+        GeneralLedgerSetup: Record "General Ledger Setup";
         PurchaseReturnOrder: TestPage "Purchase Return Order";
     begin
         // [FEATURE] [Purchase Return Order]
@@ -3193,7 +3287,37 @@ codeunit 134341 "UT Page Actions & Controls"
 
         PurchaseReturnOrder.OpenEdit;
         Assert.IsTrue(PurchaseReturnOrder."Payment Method Code".Enabled, '');
-        Assert.IsTrue(PurchaseReturnOrder."Payment Method Code".Visible, '');
+        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", PurchaseReturnOrder."Payment Method Code".Visible, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PaymentMethodCodeOnBlanketSalesOrder()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        BlanketSalesOrder: TestPage "Blanket Sales Order";
+    begin
+        // [FEATURE] [Blanket Sales Order]
+        // [SCENARIO 288448] "Payment Method Code" is enabled and visible on "Blanket Sales Order" page
+
+        BlanketSalesOrder.OpenEdit;
+        Assert.IsTrue(BlanketSalesOrder."Payment Method Code".Enabled, '');
+        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", BlanketSalesOrder."Payment Method Code".Visible, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PaymentMethodCodeOnBlanketPurchaseOrder()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
+    begin
+        // [FEATURE] [Blanket Purchase Order]
+        // [SCENARIO 288448] "Payment Method Code" is enabled and visible on "Blanket Purchase Order" page
+
+        BlanketPurchaseOrder.OpenEdit;
+        Assert.IsTrue(BlanketPurchaseOrder."Payment Method Code".Enabled, '');
+        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", BlanketPurchaseOrder."Payment Method Code".Visible, '');
     end;
 
     [Test]
@@ -3251,7 +3375,7 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Manufacturers]
         // [SCENARIO 298939] Page 'Manufacturers' is visible with Suite setup
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         Manufacturers.OpenEdit;
         Assert.IsTrue(Manufacturers.Code.Visible, '');
         Assert.IsTrue(Manufacturers.Name.Visible, '');
@@ -3623,7 +3747,7 @@ codeunit 134341 "UT Page Actions & Controls"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange(Type, SalesLine.Type::" ");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         Assert.AreEqual(ExtendedText, SalesLine.Description, '');
     end;
 
@@ -3657,7 +3781,7 @@ codeunit 134341 "UT Page Actions & Controls"
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange(Type, PurchaseLine.Type::" ");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         Assert.AreEqual(ExtendedText, PurchaseLine.Description, '');
     end;
 
@@ -3701,7 +3825,7 @@ codeunit 134341 "UT Page Actions & Controls"
         Assert.IsFalse(
           CustPstGrps."Payment Tolerance Debit Acc.".Visible,
           StrSubstNo(PageFieldNotVisibleErr, CustPstGrps."Payment Tolerance Debit Acc.".Caption));
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
     end;
 
     [Test]
@@ -3720,7 +3844,7 @@ codeunit 134341 "UT Page Actions & Controls"
         Assert.IsTrue(
           VndrPstGrps."Payment Tolerance Debit Acc.".Visible,
           StrSubstNo(PageFieldVisibleErr, VndrPstGrps."Payment Tolerance Debit Acc.".Caption));
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
     end;
 
     [Test]
@@ -3795,7 +3919,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         CustomerCard.Trap;
         CodeCoverageMgt.StartApplicationCoverage;
-        CustomerCard.OpenNew;
+        CustomerCard.OpenNew();
         CodeCoverageMgt.StopApplicationCoverage;
 
         NoOfHits := CodeCoverageMgt.GetNoOfHitsCoverageForObject(
@@ -3881,7 +4005,7 @@ codeunit 134341 "UT Page Actions & Controls"
         ConfigLinePage."Table ID".Lookup;
         ConfigLinePage.OK.Invoke;
 
-        ConfigLine.FindFirst;
+        ConfigLine.FindFirst();
         Assert.AreEqual(TableID, ConfigLine."Table ID", 'Incorrect Table ID.');
     end;
 
@@ -3988,7 +4112,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         // [GIVEN] Created new segment with page
         Segment.OpenNew();
-        Description := LibraryUtility.GenerateGUID;
+        Description := LibraryUtility.GenerateGUID();
         Segment.Description.SetValue(Description);
         Segment.SegLines."Contact No.".SETVALUE(Contact."No.");
         Segment."Interaction Template Code".SETVALUE(InteractionTemplate.Code);
@@ -4510,7 +4634,7 @@ codeunit 134341 "UT Page Actions & Controls"
         FieldRef := KeyRef.FieldIndex(1);
         case FieldRef.Type of
             FieldType::Code:
-                FieldRef.Value := LibraryUtility.GenerateGUID;
+                FieldRef.Value := LibraryUtility.GenerateGUID();
             FieldType::Integer:
                 FieldRef.Value := LibraryUtility.GetNewRecNo(RecRef, FieldRef.Number);
         end;
@@ -4534,7 +4658,7 @@ codeunit 134341 "UT Page Actions & Controls"
     local procedure CreateItemWithSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount")
     begin
         SalesLineDiscount.Init();
-        SalesLineDiscount.Code := LibraryInventory.CreateItemNo;
+        SalesLineDiscount.Code := LibraryInventory.CreateItemNo();
         SalesLineDiscount.Type := SalesLineDiscount.Type::Item;
         SalesLineDiscount."Sales Type" := SalesLineDiscount."Sales Type"::"All Customers";
         SalesLineDiscount."Minimum Quantity" := LibraryRandom.RandIntInRange(10, 100);
@@ -4597,17 +4721,17 @@ codeunit 134341 "UT Page Actions & Controls"
         KeyRef := RecRefToFilter.KeyIndex(1);
         FieldRef := KeyRef.FieldIndex(1);
 
-        RecRefToFilter.FindFirst;
+        RecRefToFilter.FindFirst();
         KeyValueFirst := FieldRef.Value;
         RecRefToFilter.Next(RecRef.Count div 2);
         KeyValueMiddle := FieldRef.Value;
-        RecRefToFilter.FindLast;
+        RecRefToFilter.FindLast();
         KeyValueLast := FieldRef.Value;
 
         FieldRef := RecRef.Field(FieldRef.Number);
         FieldRef.SetRange(KeyValueFirst, KeyValueLast);
 
-        RecRef.FindFirst;
+        RecRef.FindFirst();
         RecRef.SetTable(RecVar);
 
         KeyValueFirst := FieldRef.Value;
@@ -4650,7 +4774,7 @@ codeunit 134341 "UT Page Actions & Controls"
         SalesShipmentHeader: Record "Sales Shipment Header";
     begin
         SalesShipmentHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        SalesShipmentHeader.FindFirst;
+        SalesShipmentHeader.FindFirst();
 
         PostedSalesShipment.OpenEdit;
         PostedSalesShipment.FILTER.SetFilter("No.", SalesShipmentHeader."No.");
@@ -4662,7 +4786,7 @@ codeunit 134341 "UT Page Actions & Controls"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
 
         PostedSalesInvoice.OpenEdit;
         PostedSalesInvoice.FILTER.SetFilter("No.", SalesInvoiceHeader."No.");
@@ -4674,7 +4798,7 @@ codeunit 134341 "UT Page Actions & Controls"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
         SalesCrMemoHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.FindFirst();
 
         PostedSalesCreditMemo.OpenEdit;
         PostedSalesCreditMemo.FILTER.SetFilter("No.", SalesCrMemoHeader."No.");
@@ -4686,7 +4810,7 @@ codeunit 134341 "UT Page Actions & Controls"
         ReturnReceiptHeader: Record "Return Receipt Header";
     begin
         ReturnReceiptHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        ReturnReceiptHeader.FindFirst;
+        ReturnReceiptHeader.FindFirst();
 
         PostedReturnReceipt.OpenEdit;
         PostedReturnReceipt.FILTER.SetFilter("No.", ReturnReceiptHeader."No.");
@@ -4698,7 +4822,7 @@ codeunit 134341 "UT Page Actions & Controls"
         PurchRcptHeader: Record "Purch. Rcpt. Header";
     begin
         PurchRcptHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        PurchRcptHeader.FindFirst;
+        PurchRcptHeader.FindFirst();
 
         PostedPurchaseReceipt.OpenEdit;
         PostedPurchaseReceipt.FILTER.SetFilter("No.", PurchRcptHeader."No.");
@@ -4710,7 +4834,7 @@ codeunit 134341 "UT Page Actions & Controls"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         PurchInvHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
 
         PostedPurchaseInvoice.OpenEdit;
         PostedPurchaseInvoice.FILTER.SetFilter("No.", PurchInvHeader."No.");
@@ -4722,7 +4846,7 @@ codeunit 134341 "UT Page Actions & Controls"
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
     begin
         PurchCrMemoHdr.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        PurchCrMemoHdr.FindFirst;
+        PurchCrMemoHdr.FindFirst();
 
         PostedPurchaseCreditMemo.OpenEdit;
         PostedPurchaseCreditMemo.FILTER.SetFilter("No.", PurchCrMemoHdr."No.");
@@ -4734,7 +4858,7 @@ codeunit 134341 "UT Page Actions & Controls"
         ReturnShipmentHeader: Record "Return Shipment Header";
     begin
         ReturnShipmentHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        ReturnShipmentHeader.FindFirst;
+        ReturnShipmentHeader.FindFirst();
 
         PostedReturnShipment.OpenEdit;
         PostedReturnShipment.FILTER.SetFilter("No.", ReturnShipmentHeader."No.");
@@ -4851,7 +4975,7 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         Contact.Init();
-        Contact."No." := LibraryUtility.GenerateGUID;
+        Contact."No." := LibraryUtility.GenerateGUID();
         Contact."Salesperson Code" := SalespersonPurchaser.Code;
         Contact.Insert();
     end;
@@ -4860,7 +4984,7 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         InteractionTemplate.Init();
         InteractionTemplate."Correspondence Type (Default)" := "Correspondence Type"::" ";
-        InteractionTemplate.Code := LibraryUtility.GenerateGUID;
+        InteractionTemplate.Code := LibraryUtility.GenerateGUID();
         InteractionTemplate.Insert(false);
     end;
 
@@ -5244,7 +5368,7 @@ codeunit 134341 "UT Page Actions & Controls"
         LibraryVariableStorage.Dequeue(TableID);
         AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Table);
         AllObjWithCaption.SetRange("Object ID", TableID);
-        AllObjWithCaption.FindFirst;
+        AllObjWithCaption.FindFirst();
         ObjectsPage.GotoRecord(AllObjWithCaption);
         ObjectsPage.OK.Invoke;
     end;

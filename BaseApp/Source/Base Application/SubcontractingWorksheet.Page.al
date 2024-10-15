@@ -281,7 +281,7 @@ page 99000886 "Subcontracting Worksheet"
                     Image = ItemTrackingLines;
                     Promoted = true;
                     PromotedCategory = Category4;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -329,7 +329,7 @@ page 99000886 "Subcontracting Worksheet"
                         CalculateSubContract: Report "Calculate Subcontracts";
                     begin
                         CalculateSubContract.SetWkShLine(Rec);
-                        CalculateSubContract.RunModal;
+                        CalculateSubContract.RunModal();
                     end;
                 }
                 action(CarryOutActionMessage)
@@ -371,7 +371,8 @@ page 99000886 "Subcontracting Worksheet"
             ReqJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
             exit;
         end;
-        ReqJnlManagement.TemplateSelection(PAGE::"Subcontracting Worksheet", false, 1, Rec, JnlSelected);
+        ReqJnlManagement.WkshTemplateSelection(
+            PAGE::"Subcontracting Worksheet", false, "Req. Worksheet Template Type"::"For. Labor", Rec, JnlSelected);
         if not JnlSelected then
             Error('');
         ReqJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
@@ -404,7 +405,7 @@ page 99000886 "Subcontracting Worksheet"
             exit;
 
         CarryOutActionMsgReq.SetReqWkshLine(Rec);
-        CarryOutActionMsgReq.RunModal;
+        CarryOutActionMsgReq.RunModal();
     end;
 
     [IntegrationEvent(false, false)]

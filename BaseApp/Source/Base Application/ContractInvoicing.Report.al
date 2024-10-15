@@ -320,7 +320,7 @@ report 5984 "Contract Invoicing"
         ServContractLine.SetRange("Contract Type", ServContHeader."Contract Type");
         ServContractLine.SetRange("Contract No.", ServContHeader."Contract No.");
         ContAmt := 0;
-        if ServContractLine.FindSet then
+        if ServContractLine.FindSet() then
             repeat
                 ContAmt := ContAmt + Round(ServContractMgt.CalcContractLineAmount(ServContractLine."Line Amount", DateFrom, DateTo));
             until ServContractLine.Next() = 0;

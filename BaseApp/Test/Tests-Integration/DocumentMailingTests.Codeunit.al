@@ -16,7 +16,6 @@ codeunit 135060 "Document Mailing Tests"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
         LibraryWorkflow: Codeunit "Library - Workflow";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryERM: Codeunit "Library - ERM";
@@ -237,18 +236,8 @@ codeunit 135060 "Document Mailing Tests"
     [Test]
     [HandlerFunctions('SelectSendingOptionsStrMenuHandler')]
     [Scope('OnPrem')]
-    procedure DocumentSendingProfile_MultiInvoices_Email_BackgroundSMTPSetup() // To be removed together with deprecated SMTP objects
-    begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(false);
-        DocumentSendingProfile_MultiInvoices_Email_Background_Internal();
-    end;
-
-    [Test]
-    [HandlerFunctions('SelectSendingOptionsStrMenuHandler')]
-    [Scope('OnPrem')]
     procedure DocumentSendingProfile_MultiInvoices_Email_Background()
     begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         DocumentSendingProfile_MultiInvoices_Email_Background_Internal();
     end;
 
@@ -263,7 +252,6 @@ codeunit 135060 "Document Mailing Tests"
         TestClientTypeMgtSubscriber: Codeunit "Test Client Type Subscriber";
         LibrarySMTPMailHandler: Codeunit "Library - SMTP Mail Handler";
         ConnectorMock: Codeunit "Connector Mock";
-        EmailFeature: Codeunit "Email Feature";
         IndexCustomer: Integer;
         IndexSalesInvoice: Integer;
     begin
@@ -291,20 +279,12 @@ codeunit 135060 "Document Mailing Tests"
 
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         BindSubscription(LibraryJobQueue);
-        if EmailFeature.IsEnabled() then begin
-            LibraryWorkflow.SetUpEmailAccount();
-            ConnectorMock.FailOnSend(true);
-        end;
+        LibraryWorkflow.SetUpEmailAccount();
+        ConnectorMock.FailOnSend(true);
         SalesInvoiceHeader.SendRecords();
 
         TestClientTypeMgtSubscriber.SetClientType(CLIENTTYPE::Background);
         BindSubscription(TestClientTypeMgtSubscriber);
-
-        if not EmailFeature.IsEnabled() then begin
-            LibrarySMTPMailHandler.SetSenderAddress(LibraryUtility.GenerateRandomEmail());
-            LibrarySMTPMailHandler.SetSenderName(LibraryUtility.GenerateGUID());
-            BindSubscription(LibrarySMTPMailHandler);
-        end;
 
         Assert.RecordCount(JobQueueEntry, ArrayLen(SalesHeader));
         JobQueueEntry.FindSet();
@@ -331,7 +311,6 @@ codeunit 135060 "Document Mailing Tests"
         // [FEATURE] [UT]
         // [SCENARIO 421871] Run ShouldSendToCustDirectly() procedure of Report Selections table on Posted Sales Invoice when Customer's email is blank and email from Document Layout is not blank.
         Initialize();
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
 
         // [GIVEN] Customer with blank Email. Document Layout with Usage "Invoice" and Email "abc@abc.com" for this Customer.
         LibrarySales.CreateCustomer(Customer);
@@ -368,7 +347,6 @@ codeunit 135060 "Document Mailing Tests"
     begin
         // [SCENARIO 421871] Send Posted Sales Invoice when Customer's email is blank, email from Document Layout is not blank and Document Sending Profile has E-Mail = "Yes (Use Default Settings)".
         Initialize();
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         JobQueueEntry.SetRange("Job Queue Category Code", MailingJobCategoryCodeTok);
         JobQueueEntry.DeleteAll();
 
@@ -412,7 +390,6 @@ codeunit 135060 "Document Mailing Tests"
     begin
         // [SCENARIO 421871] Send Posted Sales Invoice when Customer's email and email from Document Layout are blank and Document Sending Profile has E-Mail = "Yes (Use Default Settings)".
         Initialize();
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         LibraryWorkflow.SetUpEmailAccount();
         ConnectorMock.FailOnSend(true);
 
@@ -458,7 +435,6 @@ codeunit 135060 "Document Mailing Tests"
     begin
         // [SCENARIO 421871] Send Purchase Order when Vendor's email is blank, email from Document Layout is not blank and Document Sending Profile has E-Mail = "Yes (Use Default Settings)".
         Initialize();
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         JobQueueEntry.SetRange("Job Queue Category Code", MailingJobCategoryCodeTok);
         JobQueueEntry.DeleteAll();
 
@@ -500,7 +476,6 @@ codeunit 135060 "Document Mailing Tests"
     begin
         // [SCENARIO 421871] Send Purchase Order when Vendor's email and email from Document Layout are blank and Document Sending Profile has E-Mail = "Yes (Use Default Settings)".
         Initialize();
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         LibraryWorkflow.SetUpEmailAccount();
         ConnectorMock.FailOnSend(true);
 
@@ -547,7 +522,6 @@ codeunit 135060 "Document Mailing Tests"
     begin
         // [SCENARIO 426569] Send Posted Sales Invoice when Document Sending Profile has E-Mail Attachment = "PDF & Electronic Document" and Combine Email Documents = true.
         Initialize();
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         LibraryWorkflow.SetUpEmailAccount();
         ConnectorMock.FailOnSend(true);
 
@@ -597,7 +571,6 @@ codeunit 135060 "Document Mailing Tests"
     begin
         // [SCENARIO 426569] Send Posted Sales Invoice when Document Sending Profile has E-Mail Attachment = "PDF & Electronic Document" and Combine Email Documents = false.
         Initialize();
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         LibraryWorkflow.SetUpEmailAccount();
         ConnectorMock.FailOnSend(true);
 
@@ -636,7 +609,6 @@ codeunit 135060 "Document Mailing Tests"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Document Mailing Tests");
         LibraryVariableStorage.Clear();
-        InitializeSmtpSetup();
 
         if IsInitialized then
             exit;
@@ -702,18 +674,6 @@ codeunit 135060 "Document Mailing Tests"
     begin
         TempBlob.CreateOutStream(OutStream, TEXTENCODING::UTF8);
         OutStream.WriteText(Content);
-    end;
-
-    local procedure InitializeSmtpSetup()
-    var
-        SMTPMailSetup: Record "SMTP Mail Setup";
-    begin
-        SMTPMailSetup.DeleteAll();
-
-        SMTPMailSetup.Init();
-        SMTPMailSetup."SMTP Server" := LibraryUtility.GenerateGUID();
-        SMTPMailSetup."SMTP Server Port" := 25;
-        SMTPMailSetup.Insert();
     end;
 
     local procedure InsertPeppolElectronicFormat()

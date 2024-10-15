@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN20
 page 2840 "Native - General Setting"
 {
     Caption = 'nativeInvoicingGeneralSettings', Locked = true;
@@ -286,10 +286,7 @@ page 2840 "Native - General Setting"
 
     [ServiceEnabled]
     procedure SyncBizProfile(var ActionContext: DotNet WebServiceActionContext)
-    var
-        GraphIntBusinessProfile: Codeunit "Graph Int - Business Profile";
     begin
-        GraphIntBusinessProfile.SyncFromGraphSynchronously;
         SetActionResponse(ActionContext);
     end;
 

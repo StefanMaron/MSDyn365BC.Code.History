@@ -72,7 +72,7 @@ codeunit 132902 "Double quotations in Item No."
         if StockkeepingUnitObj.Get(No) then
             StockkeepingUnitObj.Delete();
         ItemUnitOfMeasureObj.SetRange("Item No.", No);
-        if ItemUnitOfMeasureObj.FindFirst then
+        if ItemUnitOfMeasureObj.FindFirst() then
             ItemUnitOfMeasureObj.Delete();
         Commit();
     end;
@@ -108,7 +108,7 @@ codeunit 132902 "Double quotations in Item No."
     begin
         StockkeepingUnit.SetFilter("Item No.", No);
 
-        if not StockkeepingUnit.FindFirst then
+        if not StockkeepingUnit.FindFirst() then
             Error(StockKeepingUnitNotCreatedErr, No);
     end;
 
@@ -127,7 +127,7 @@ codeunit 132902 "Double quotations in Item No."
     var
         InventoryPostingGroup: Record "Inventory Posting Group";
     begin
-        InventoryPostingGroup.FindFirst;
+        InventoryPostingGroup.FindFirst();
         exit(InventoryPostingGroup.Code);
     end;
 
@@ -135,7 +135,7 @@ codeunit 132902 "Double quotations in Item No."
     var
         GenProductPostingGroup: Record "Gen. Product Posting Group";
     begin
-        GenProductPostingGroup.FindFirst;
+        GenProductPostingGroup.FindFirst();
         exit(GenProductPostingGroup.Code);
     end;
 
@@ -143,7 +143,7 @@ codeunit 132902 "Double quotations in Item No."
     var
         Location: Record Location;
     begin
-        Location.FindFirst;
+        Location.FindFirst();
         exit(Location.Code);
     end;
 }

@@ -163,10 +163,10 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument.Modify();
         IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::Journal);
 
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
         Assert.IsTrue(GenJnlLine.HasLinks, 'Gen. Jnl. Line is missing a link.');
         Assert.AreEqual(GenJnlLine.GetIncomingDocumentURL, IncomingDocument.GetURL, 'Gen. Jnl. Line has a wrong URL.');
-        GenJnlLine."Document No." := LibraryUtility.GenerateGUID;
+        GenJnlLine."Document No." := LibraryUtility.GenerateGUID();
         GenJnlLine."Posting Date" := WorkDate;
         GenJnlLine.Validate("Account Type", GenJnlLine."Account Type"::"G/L Account");
         GenJnlLine.Validate("Account No.", GetIncomeStatementAcc);
@@ -198,7 +198,7 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument.Modify();
         IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::"Purchase Invoice");
 
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         PurchaseHeader.TestField("Document Type", PurchaseHeader."Document Type"::Invoice);
         PurchaseHeader.TestField("Incoming Document Entry No.", IncomingDocument."Entry No.");
         Assert.IsTrue(PurchaseHeader.HasLinks, 'Purchase Invoice is missing a link.');
@@ -326,7 +326,7 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument.Modify();
         IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::"Purchase Credit Memo");
 
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         PurchaseHeader.TestField("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
         PurchaseHeader.TestField("Incoming Document Entry No.", IncomingDocument."Entry No.");
         Assert.IsTrue(PurchaseHeader.HasLinks, 'Purchase Credit Memo is missing a link.');
@@ -351,7 +351,7 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument.Modify();
         IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::"Sales Invoice");
 
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         SalesHeader.TestField("Document Type", SalesHeader."Document Type"::Invoice);
         SalesHeader.TestField("Incoming Document Entry No.", IncomingDocument."Entry No.");
         Assert.IsTrue(SalesHeader.HasLinks, 'Sales Invoice is missing a link.');
@@ -432,7 +432,7 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument.Modify();
         IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::"Sales Credit Memo");
 
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         SalesHeader.TestField("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.TestField("Incoming Document Entry No.", IncomingDocument."Entry No.");
         Assert.IsTrue(SalesHeader.HasLinks, 'Sales Credit Memo is missing a link.');
@@ -623,8 +623,8 @@ codeunit 134400 "ERM Incoming Documents"
 
         CreateAndAssignGenJournalLineToIncomingDocument(IncomingDocument);
 
-        GenJnlLine.FindFirst;
-        GenJnlLine."Document No." := LibraryUtility.GenerateGUID;
+        GenJnlLine.FindFirst();
+        GenJnlLine."Document No." := LibraryUtility.GenerateGUID();
         GenJnlLine.Modify();
         CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJnlLine);
         ValidatePostedIncomingDocument(IncomingDocument);
@@ -773,7 +773,7 @@ codeunit 134400 "ERM Incoming Documents"
 
     local procedure CreateIncomingDocumentWithoutAttachments(var IncomingDocument: Record "Incoming Document")
     begin
-        if IncomingDocument.FindLast then;
+        if IncomingDocument.FindLast() then;
         IncomingDocument.Init();
         IncomingDocument."Entry No." += 1;
         IncomingDocument.Insert();
@@ -845,7 +845,7 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocumentAttachment.Init();
         FileName := IncomingDocumentAttachment.Export('', false);   // Returns as entry no. is 0
 
-        if IncomingDocumentAttachment.FindLast then;
+        if IncomingDocumentAttachment.FindLast() then;
         IncomingDocumentAttachment."Incoming Document Entry No." += 1;
         IncomingDocumentAttachment."Line No." := 10000;
         IncomingDocumentAttachment.Init();
@@ -884,7 +884,7 @@ codeunit 134400 "ERM Incoming Documents"
         FileName: Text;
     begin
         // Init
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         GLEntry.TestField("Posting Date");
         GLEntry.TestField("Document No.");
 
@@ -900,7 +900,7 @@ codeunit 134400 "ERM Incoming Documents"
         ImportAttachToIncomingDoc(IncomingDocumentAttachment, FileName);
 
         // Verify
-        IncomingDocument.FindFirst;
+        IncomingDocument.FindFirst();
         IncomingDocument.TestField(Description);
         IncomingDocument.TestField(Released);
         IncomingDocument.TestField(Posted);
@@ -1022,7 +1022,7 @@ codeunit 134400 "ERM Incoming Documents"
         GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
         GenJournalLine.SetRange("Journal Template Name", GenJournalTemplate.Name);
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        if GenJournalLine.FindLast then;
+        if GenJournalLine.FindLast() then;
         GenJournalLine."Line No." += 10000;
         GenJournalLine."Document Type" := GenJournalLine."Document Type"::Invoice;
         GenJournalLine.Insert(true);
@@ -1551,7 +1551,7 @@ codeunit 134400 "ERM Incoming Documents"
         CreateNewIncomingDocument(IncomingDocument);
         CreateTestGLEntries;
 
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
 
         DocumentNo := GLEntry."Document No.";
         PostingDate := GLEntry."Posting Date";
@@ -1851,7 +1851,7 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument.UpdateIncomingDocumentFromPosting(IncomingDocument."Entry No.", DMY2Date(1, 1, 2015), 'TEST');
 
         PostingDate := LibraryRandom.RandDate(10);
-        DocumentNo := LibraryUtility.GenerateGUID;
+        DocumentNo := LibraryUtility.GenerateGUID();
         IncomingDocument.Find;
         IncomingDocument.UpdateIncomingDocumentFromPosting(IncomingDocument."Entry No.", PostingDate, DocumentNo);
 
@@ -1981,7 +1981,7 @@ codeunit 134400 "ERM Incoming Documents"
         CreateNewIncomingDocument(IncomingDocumentRec);
 
         if DataExchangeTypeHasValue then begin
-            IncomingDocumentRec."Data Exchange Type" := LibraryUtility.GenerateGUID;
+            IncomingDocumentRec."Data Exchange Type" := LibraryUtility.GenerateGUID();
             IncomingDocumentRec.Modify();
         end;
 
@@ -2037,7 +2037,7 @@ codeunit 134400 "ERM Incoming Documents"
         GLEntry: Record "G/L Entry";
         i: Integer;
     begin
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
         for i := 1 to 10 do begin
             GLEntry."Entry No." += 1;
             GLEntry."G/L Account No." := 'TEST';
@@ -2165,7 +2165,7 @@ codeunit 134400 "ERM Incoming Documents"
 
         // Verify
         Assert.AreEqual(1, IncomingDocumentAttachment.Count, '');
-        IncomingDocumentAttachment.FindFirst;
+        IncomingDocumentAttachment.FindFirst();
         IncomingDocumentAttachment.CalcFields(Content);
         Assert.IsTrue(IncomingDocumentAttachment.Content.HasValue, '');
         Assert.AreEqual(ExpectedContentType, IncomingDocumentAttachment.Type, '');
@@ -2187,13 +2187,13 @@ codeunit 134400 "ERM Incoming Documents"
     begin
         LineNo := 10000;
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
-        if IncomingDocumentAttachment.FindLast then
+        if IncomingDocumentAttachment.FindLast() then
             LineNo += IncomingDocumentAttachment."Line No.";
 
         IncomingDocumentAttachment.Init();
         IncomingDocumentAttachment."Incoming Document Entry No." := IncomingDocument."Entry No.";
         IncomingDocumentAttachment."Line No." := LineNo;
-        IncomingDocumentAttachment.Name := LibraryUtility.GenerateGUID;
+        IncomingDocumentAttachment.Name := LibraryUtility.GenerateGUID();
         IncomingDocumentAttachment.Insert(true);
         exit(LineNo);
     end;

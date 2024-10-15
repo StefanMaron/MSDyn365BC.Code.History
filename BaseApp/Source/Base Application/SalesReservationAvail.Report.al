@@ -160,7 +160,7 @@ report 209 "Sales Reservation Avail."
                         if QtyToReserveBase > 0 then begin
                             ReservEntry.InitSortingAndFilters(true);
                             SetReservationFilters(ReservEntry);
-                            if ReservEntry.FindSet then
+                            if ReservEntry.FindSet() then
                                 repeat
                                     ReservEntryFrom.Reset();
                                     ReservEntryFrom.Get(ReservEntry."Entry No.", not ReservEntry.Positive);

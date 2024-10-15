@@ -66,6 +66,41 @@ table 5335 "Integration Table Mapping"
             Caption = 'Direction';
             OptionCaption = 'Bidirectional,ToIntegrationTable,FromIntegrationTable';
             OptionMembers = Bidirectional,ToIntegrationTable,FromIntegrationTable;
+
+            trigger OnValidate()
+            var
+                "Field": Record "Field";
+                IntegrationFieldMapping: Record "Integration Field Mapping";
+                CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
+                JobQueueEntry: Record "Job Queue Entry";
+                CRMIntegrationManagement: Codeunit "CRM Integration Management";
+            begin
+                if "Int. Table UID Field Type" = Field.Type::Option then
+                    if CRMIntegrationManagement.IsOptionMappingEnabled() then
+                        if Direction = Direction::Bidirectional then
+                            Error(OptionMappingCannotBeBidirectionalErr)
+                        else begin
+                            IntegrationFieldMapping.SetRange("Integration Table Mapping Name", Name);
+                            IntegrationFieldMapping.ModifyAll(Direction, Direction);
+
+                            if CRMFullSynchReviewLine.Get(Name) then
+                                if CRMFullSynchReviewLine.Direction <> Direction then begin
+                                    CRMFullSynchReviewLine.Direction := Direction;
+                                    CRMFullSynchReviewLine.Modify();
+                                end;
+
+                            if Direction = Direction::ToIntegrationTable then begin
+                                JobQueueEntry.SetRange("Record ID to Process", RecordId);
+                                JobQueueEntry.SetRange("Object ID to Run", Codeunit::"Integration Synch. Job Runner");
+                                JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+                                if JobQueueEntry.FindFirst() then
+                                    if JobQueueEntry.Status = JobQueueEntry.Status::Ready then begin
+                                        JobQueueEntry.Status := JobQueueEntry.Status::"On Hold with Inactivity Timeout";
+                                        JobQueueEntry.Modify();
+                                    end;
+                            end;
+                        end;
+            end;
         }
         field(11; "Int. Tbl. Caption Prefix"; Text[30])
         {
@@ -203,16 +238,18 @@ table 5335 "Integration Table Mapping"
     var
         CRMOptionMapping: Record "CRM Option Mapping";
         IntegrationFieldMapping: Record "Integration Field Mapping";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         IntegrationFieldMapping.SetRange("Integration Table Mapping Name", Name);
         IntegrationFieldMapping.DeleteAll();
 
-        if (not Rec.IsTemporary()) and (not Rec."Delete After Synchronization") then begin
-            CRMOptionMapping.SetRange("Table ID", "Table ID");
-            CRMOptionMapping.SetRange("Integration Table ID", "Integration Table ID");
-            CRMOptionMapping.SetRange("Integration Field ID", "Integration Table UID Fld. No.");
-            CRMOptionMapping.DeleteAll();
-        end;
+        if (not Rec.IsTemporary()) and (not Rec."Delete After Synchronization") then
+            if not CRMIntegrationManagement.IsOptionMappingEnabled() then begin
+                CRMOptionMapping.SetRange("Table ID", "Table ID");
+                CRMOptionMapping.SetRange("Integration Table ID", "Integration Table ID");
+                CRMOptionMapping.SetRange("Integration Field ID", "Integration Table UID Fld. No.");
+                CRMOptionMapping.DeleteAll();
+            end;
     end;
 
     trigger OnInsert()
@@ -233,6 +270,7 @@ table 5335 "Integration Table Mapping"
     var
         JobLogEntryNo: Integer;
         ConfirmIncludeEntitiesWithNoCompanyQst: Label 'Do you want the Integration Table Filter to include %1 entities with no value in %2 attribute?', Comment = '%1 - Dataverse service name; %2 - attribute name of a Dataverse entity';
+        OptionMappingCannotBeBidirectionalErr: Label 'Option mappings can only synchronize from integration table or to integration table.';
         UserChoseNotToIncludeEntitiesWithEmptyCompanyNameTxt: Label 'User chose not to include %1 entities with empty company id in the Integration Table Filter of the %2 mapping.', Locked = true;
         TelemetryCategoryTok: Label 'AL Dataverse Integration', Locked = true;
         CompanyIdFieldNameTxt: Label 'CompanyId', Locked = true;
@@ -526,7 +564,7 @@ table 5335 "Integration Table Mapping"
             IntegrationSynchJob.SetFilter(ID, JobIDFilter);
         if JobTypeFilter <> '' then
             IntegrationSynchJob.SetFilter(Type, JobTypeFilter);
-        if IntegrationSynchJob.FindFirst then;
+        if IntegrationSynchJob.FindFirst() then;
         Page.Run(Page::"Integration Synch. Job List", IntegrationSynchJob);
     end;
 
@@ -572,6 +610,28 @@ table 5335 "Integration Table Mapping"
                 Direction::FromIntegrationTable:
                     CRMIntegrationRecord.ModifyAll("Last Synch. CRM Modified On", 0DT);
             end
+        end;
+        Commit();
+        CRMSetupDefaults.CreateJobQueueEntry(Rec);
+    end;
+
+    [Scope('OnPrem')]
+    procedure SynchronizeOptionNow(ResetLastSynchModifiedOnDateTime: Boolean; ResetSynchonizationTimestampOnRecords: Boolean)
+    var
+        CRMOptionMapping: Record "CRM Option Mapping";
+        CRMSetupDefaults: Codeunit "CRM Setup Defaults";
+    begin
+        Codeunit.Run(Codeunit::"CRM Integration Management");
+        if ResetLastSynchModifiedOnDateTime then begin
+            Clear("Synch. Modified On Filter");
+            Clear("Synch. Int. Tbl. Mod. On Fltr.");
+            Modify;
+        end;
+        if ResetSynchonizationTimestampOnRecords then begin
+            CRMOptionMapping.SetRange("Table ID", "Table ID");
+            CRMOptionMapping.SetRange("Integration Table ID", "Integration Table ID");
+            if Direction = Direction::ToIntegrationTable then
+                CRMOptionMapping.ModifyAll("Last Synch. Modified On", 0DT);
         end;
         Commit();
         CRMSetupDefaults.CreateJobQueueEntry(Rec);
@@ -654,6 +714,8 @@ table 5335 "Integration Table Mapping"
 
     [Scope('Cloud')]
     procedure CreateRecord(MappingName: Code[20]; TableNo: Integer; IntegrationTableNo: Integer; IntegrationTableUIDFieldNo: Integer; IntegrationTableModifiedFieldNo: Integer; TableConfigTemplateCode: Code[10]; IntegrationTableConfigTemplateCode: Code[10]; SynchOnlyCoupledRecords: Boolean; DirectionArg: Option; Prefix: Text[30]; SynchCodeunitId: Integer; UncoupleCodeunitId: Integer)
+    var
+        Field: Record Field;
     begin
         if Get(MappingName) then
             Delete(true);
@@ -670,7 +732,10 @@ table 5335 "Integration Table Mapping"
         Direction := DirectionArg;
         "Int. Tbl. Caption Prefix" := Prefix;
         "Synch. Only Coupled Records" := SynchOnlyCoupledRecords;
-        "Coupling Codeunit ID" := Codeunit::"CDS Int. Table Couple";
+        if "Int. Table UID Field Type" = Field.Type::Option then
+            "Coupling Codeunit ID" := Codeunit::"CDS Int. Option Couple"
+        else
+            "Coupling Codeunit ID" := Codeunit::"CDS Int. Table Couple";
         Insert(true);
     end;
 

@@ -32,7 +32,7 @@ codeunit 138035 "O365 Correct Purchase Dim."
         PurchaseHeaderCorrection: Record "Purchase Header";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        Initialize;
+        Initialize();
         LibrarySmallBusiness.InitGlobalDimCodeValue(DimValue, 1);
 
         CreateItemWithCost(Item, Item.Type::Inventory, 0);
@@ -45,7 +45,7 @@ codeunit 138035 "O365 Correct Purchase Dim."
         // Block the Dimension
         BlockDimValue(DimValue);
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // EXCERCISE CHECK IT SHOULD BE POSSIBLE TO UNDO IF ITEM IS BLOCKED
         asserterror CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeaderCorrection);
@@ -75,7 +75,7 @@ codeunit 138035 "O365 Correct Purchase Dim."
         PurchaseHeaderCorrection: Record "Purchase Header";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        Initialize;
+        Initialize();
         LibrarySmallBusiness.InitGlobalDimCodeValue(DimValue, 1);
 
         CreateItemWithCost(Item, Item.Type::Inventory, 0);
@@ -89,7 +89,7 @@ codeunit 138035 "O365 Correct Purchase Dim."
         // Block the Dimension
         BlockDimValue(DimValue);
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         // EXERCISE CHECK IT SHOULD BE POSSIBLE TO UNDO IF ITEM IS BLOCKED
         asserterror CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeaderCorrection);
@@ -118,7 +118,7 @@ codeunit 138035 "O365 Correct Purchase Dim."
         GLEntry: Record "G/L Entry";
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.InitGlobalDimCodeValue(DimValue1, 1);
         LibrarySmallBusiness.InitGlobalDimCodeValue(DimValue2, 2);
@@ -131,7 +131,7 @@ codeunit 138035 "O365 Correct Purchase Dim."
         LibraryPurchase.CreateVendor(Vend);
         BuyItem(Vend, Item, 1, PurchInvHeader);
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // EXERCISE AND VERIFY CHECK IT SHOULD BE POSSIBLE TO UNDO IF ITEM IS BLOCKED
         TryCorrectingABlockedDimCombOnAPostedInvoice(
@@ -151,7 +151,7 @@ codeunit 138035 "O365 Correct Purchase Dim."
         PurchHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.InitGlobalDimCodeValue(DimValue1, 1);
         LibrarySmallBusiness.InitGlobalDimCodeValue(DimValue2, 2);
@@ -171,7 +171,7 @@ codeunit 138035 "O365 Correct Purchase Dim."
 
         PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchHeader, false, true));
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // EXERCISE AND VERIFY
         TryCorrectingABlockedDimCombOnAPostedInvoice(
@@ -195,7 +195,7 @@ codeunit 138035 "O365 Correct Purchase Dim."
         PurchaseHeaderCorrection: Record "Purchase Header";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemWithCost(Item, Item.Type::Inventory, 1);
         CreateBuyFromWithDifferentPayToVendor(BuyFromVendor, PayToVendor);
@@ -222,7 +222,7 @@ codeunit 138035 "O365 Correct Purchase Dim."
             DefaultDim.Insert(true);
             Commit();
 
-            GLEntry.FindLast;
+            GLEntry.FindLast();
 
             // EXERCISE
             asserterror CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeaderCorrection);
@@ -253,7 +253,7 @@ codeunit 138035 "O365 Correct Purchase Dim."
         GLAcc: Record "G/L Account";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemWithCost(Item, Item.Type::Inventory, 1);
 
@@ -326,7 +326,7 @@ codeunit 138035 "O365 Correct Purchase Dim."
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Correct Purchase Dim.");
         // Initialize setup.
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         if IsInitialized then
             exit;
@@ -336,9 +336,9 @@ codeunit 138035 "O365 Correct Purchase Dim."
         ClearTable(DATABASE::Resource);
 
         if not LibraryFiscalYear.AccountingPeriodsExists then
-            LibraryFiscalYear.CreateFiscalYear;
+            LibraryFiscalYear.CreateFiscalYear();
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         LibrarySmallBusiness.SetNoSeries;
         PurchasesPayablesSetup.Get();
@@ -357,7 +357,7 @@ codeunit 138035 "O365 Correct Purchase Dim."
         ProductionBOMLine: Record "Production BOM Line";
         Resource: Record Resource;
     begin
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         case TableID of
             DATABASE::"Production BOM Line":
                 ProductionBOMLine.DeleteAll();
@@ -481,7 +481,7 @@ codeunit 138035 "O365 Correct Purchase Dim."
           DefaultDim, DATABASE::"G/L Account", GLAccNo, DefaultDim."Value Posting"::"Code Mandatory");
         Commit();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         // EXERCISE
         asserterror CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeaderCorrection);

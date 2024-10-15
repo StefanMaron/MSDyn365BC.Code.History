@@ -75,7 +75,7 @@ page 5659 "Depreciation Table Card"
                         TestField(Code);
                         Clear(CreateSumOfDigitsTable);
                         CreateSumOfDigitsTable.SetTableCode(Code);
-                        CreateSumOfDigitsTable.RunModal;
+                        CreateSumOfDigitsTable.RunModal();
                         Clear(CreateSumOfDigitsTable);
                     end;
                 }

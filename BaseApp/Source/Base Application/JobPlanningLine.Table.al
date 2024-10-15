@@ -1,4 +1,4 @@
-﻿table 1003 "Job Planning Line"
+table 1003 "Job Planning Line"
 {
     Caption = 'Job Planning Line';
     DrillDownPageID = "Job Planning Lines";
@@ -105,6 +105,7 @@
                             if IsDefaultBin() and Item.IsInventoriableType() then
                                 WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", "Bin Code");
                         end;
+                        WhseValidateSourceLine.JobPlanningLineVerifyChange(Rec, xRec, FieldNo("No."));
                     end;
                     if "No." = '' then
                         exit;
@@ -175,6 +176,8 @@
 
                 CalcQuantityBase();
 
+                "Completely Picked" := "Qty. Picked" >= Quantity;
+
                 UpdateRemainingQuantity();
 
                 UpdateQtyToTransfer;
@@ -185,6 +188,7 @@
 
                 UpdateAllAmounts();
                 BypassQtyValidation := false;
+                WhseValidateSourceLine.JobPlanningLineVerifyChange(Rec, xRec, FieldNo(Quantity));
             end;
         }
         field(11; "Direct Unit Cost (LCY)"; Decimal)
@@ -273,7 +277,7 @@
             begin
                 ValidateModification(xRec."Unit of Measure Code" <> "Unit of Measure Code");
 
-                GetGLSetup;
+                GetGLSetup();
                 case Type of
                     Type::Item:
                         begin
@@ -282,6 +286,7 @@
                               UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
                             "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
                             "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
+                            WhseValidateSourceLine.JobPlanningLineVerifyChange(Rec, xRec, FieldNo("Unit of Measure Code"));
                         end;
                     Type::Resource:
                         begin
@@ -347,6 +352,16 @@
                         if IsDefaultBin() and Item.IsInventoriableType() then
                             WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", "Bin Code");
                     end;
+                    WhseValidateSourceLine.JobPlanningLineVerifyChange(Rec, xRec, FieldNo("Location Code"));
+
+#if not CLEAN20
+                    if FeatureManagement.IsEnabled(PicksForJobsFeatureIdLbl) then begin
+#endif
+                        DeleteWarehouseRequest(xRec);
+                        CreateWarehouseRequest();
+#if not CLEAN20
+                    end;
+#endif
                 end;
             end;
         }
@@ -436,6 +451,11 @@
         field(84; "Planning Due Date"; Date)
         {
             Caption = 'Planning Due Date';
+
+            trigger OnValidate()
+            begin
+                WhseValidateSourceLine.JobPlanningLineVerifyChange(Rec, xRec, FieldNo("Planning Due Date"));
+            end;
         }
         field(1000; "Job Task No."; Code[20])
         {
@@ -713,6 +733,11 @@
             Caption = 'Status';
             Editable = false;
             InitValue = "Order";
+
+            trigger OnValidate()
+            begin
+                WhseValidateSourceLine.JobPlanningLineVerifyChange(Rec, xRec, FieldNo(Status));
+            end;
         }
         field(1050; "Ledger Entry Type"; Enum "Job Ledger Entry Type")
         {
@@ -903,7 +928,9 @@
         {
             AccessByPermission = TableData Item = R;
             CalcFormula = - Sum("Reservation Entry".Quantity WHERE("Source Type" = CONST(1003),
+#pragma warning disable
                                                                    "Source Subtype" = FIELD(Status),
+#pragma warning restore
                                                                    "Source ID" = FIELD("Job No."),
                                                                    "Source Ref. No." = FIELD("Job Contract Entry No."),
                                                                    "Reservation Status" = CONST(Reservation)));
@@ -916,7 +943,9 @@
         {
             AccessByPermission = TableData Item = R;
             CalcFormula = - Sum("Reservation Entry"."Quantity (Base)" WHERE("Source Type" = CONST(1003),
+#pragma warning disable
                                                                             "Source Subtype" = FIELD(Status),
+#pragma warning restore
                                                                             "Source ID" = FIELD("Job No."),
                                                                             "Source Ref. No." = FIELD("Job Contract Entry No."),
                                                                             "Reservation Status" = CONST(Reservation)));
@@ -985,6 +1014,7 @@
                 Validate(Quantity);
                 CheckItemAvailable(FieldNo("Variant Code"));
                 UpdateReservation(FieldNo("Variant Code"));
+                WhseValidateSourceLine.JobPlanningLineVerifyChange(Rec, xRec, FieldNo("Variant Code"));
             end;
         }
         field(5403; "Bin Code"; Code[20])
@@ -993,29 +1023,49 @@
             TableRelation = Bin.Code WHERE("Location Code" = FIELD("Location Code"));
 
             trigger OnValidate()
+            var
+                WMSManagement: Codeunit "WMS Management";
+                WhseIntegrationMgt: Codeunit "Whse. Integration Management";
+                BinCodeCaption: Text[30];
             begin
                 ValidateModification(xRec."Bin Code" <> "Bin Code");
-
-                TestField("Location Code");
                 if "Bin Code" <> '' then begin
+                    TestField("Location Code");
                     GetLocation("Location Code");
-                    Location.TestField("Bin Mandatory");
                 end;
                 TestField(Type, Type::Item);
                 GetItem();
                 Item.TestField(Type, Item.Type::Inventory);
                 CheckItemAvailable(FieldNo("Bin Code"));
-                WMSManagement.FindBinContent("Location Code", "Bin Code", "No.", "Variant Code", '');
+                WMSManagement.FindBin("Location Code", "Bin Code", '');
+                BinCodeCaption := CopyStr(FieldCaption("Bin Code"), 1, 30);
+                WhseIntegrationMgt.CheckBinTypeCode(DATABASE::"Job Planning Line",
+                  BinCodeCaption,
+                  "Location Code",
+                  "Bin Code", 0);
+                CheckBin();
                 UpdateReservation(FieldNo("Bin Code"));
+
+                WhseValidateSourceLine.JobPlanningLineVerifyChange(Rec, xRec, FieldNo("Bin Code"));
             end;
 
             trigger OnLookup()
             var
+                WMSManagement: Codeunit "WMS Management";
                 BinCode: Code[20];
             begin
                 TestField("Location Code");
                 TestField(Type, Type::Item);
-                BinCode := WMSManagement.BinContentLookUp("Location Code", "No.", "Variant Code", '', "Bin Code");
+
+                if Item.Get(Rec."No.") then
+                    if BinCode <> '' then
+                        Item.TestField(Type, Item.Type::Inventory);
+
+                if Quantity > 0 then
+                    BinCode := WMSManagement.BinContentLookUp("Location Code", "No.", "Variant Code", '', "Bin Code")
+                else
+                    BinCode := WMSManagement.BinLookUp("Location Code", "No.", "Variant Code", '');
+
                 if BinCode <> '' then
                     Validate("Bin Code", BinCode);
             end;
@@ -1102,6 +1152,74 @@
         {
             Caption = 'Cost Calculation Method';
         }
+        field(7300; "Pick Qty."; Decimal)
+        {
+            CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding" WHERE("Activity Type" = FILTER(<> "Put-away"),
+                                                                                  "Source Type" = CONST(167),
+                                                                                  "Source No." = FIELD("Job No."),
+                                                                                  "Source Line No." = FIELD("Job Contract Entry No."),
+                                                                                  "Source Subline No." = FIELD("Line No."),
+                                                                                  "Unit of Measure Code" = FIELD("Unit of Measure Code"),
+                                                                                  "Action Type" = FILTER(" " | Place),
+                                                                                  "Original Breakbulk" = CONST(false),
+                                                                                  "Breakbulk No." = CONST(0)));
+            Caption = 'Pick Qty.';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(7301; "Qty. Picked"; Decimal)
+        {
+            Caption = 'Qty. Picked';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+
+            trigger OnValidate()
+            begin
+                "Qty. Picked (Base)" :=
+                    UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. Picked", "Qty. per Unit of Measure");
+
+                "Completely Picked" := "Qty. Picked" >= Quantity;
+            end;
+        }
+        field(7302; "Qty. Picked (Base)"; Decimal)
+        {
+            Caption = 'Qty. Picked (Base)';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+        }
+        field(7303; "Completely Picked"; Boolean)
+        {
+            Caption = 'Completely Picked';
+            Editable = false;
+        }
+        field(7304; "Pick Qty. (Base)"; Decimal)
+        {
+            CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Activity Type" = FILTER(<> "Put-away"),
+                                                                                         "Source Type" = CONST(167),
+                                                                                         "Source No." = FIELD("Job No."),
+                                                                                         "Source Line No." = FIELD("Job Contract Entry No."),
+                                                                                         "Source Subline No." = FIELD("Line No."),
+                                                                                         "Action Type" = FILTER(" " | Place),
+                                                                                         "Original Breakbulk" = CONST(false),
+                                                                                         "Breakbulk No." = CONST(0)));
+            Caption = 'Pick Qty. (Base)';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(7305; "Qty. on Journal"; Decimal)
+        {
+            CalcFormula = Sum("Job Journal Line"."Quantity (Base)" WHERE("Job No." = field("Job No."),
+                                                                  "Job Task No." = field("Job Task No."),
+                                                                  "Job Planning Line No." = field("Line No."),
+                                                                  Type = field(Type),
+                                                                  "No." = field("No.")));
+            Caption = 'Qty. on Journal';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
+        }
     }
 
     keys
@@ -1185,6 +1303,13 @@
 
         if "Schedule Line" then
             Job.UpdateOverBudgetValue("Job No.", false, "Total Cost (LCY)");
+
+        WhseValidateSourceLine.JobPlanningLineDelete(Rec);
+
+#if not CLEAN20
+        if FeatureManagement.IsEnabled(PicksForJobsFeatureIdLbl) then
+#endif
+        DeleteWarehouseRequest(Rec);
     end;
 
     trigger OnInsert()
@@ -1201,6 +1326,11 @@
 
         if "Schedule Line" then
             Job.UpdateOverBudgetValue("Job No.", false, "Total Cost (LCY)");
+
+#if not CLEAN20
+        if FeatureManagement.IsEnabled(PicksForJobsFeatureIdLbl) then
+#endif
+        CreateWarehouseRequest();
     end;
 
     trigger OnModify()
@@ -1213,6 +1343,14 @@
 
         if "Schedule Line" then
             Job.UpdateOverBudgetValue("Job No.", false, "Total Cost (LCY)");
+
+#if not CLEAN20
+        if FeatureManagement.IsEnabled(PicksForJobsFeatureIdLbl) then
+#endif
+        if xRec."Location Code" <> Rec."Location Code" then begin
+                DeleteWarehouseRequest(xRec);
+                CreateWarehouseRequest();
+            end;
     end;
 
     trigger OnRename()
@@ -1235,10 +1373,15 @@
         StandardText: Record "Standard Text";
         ItemTranslation: Record "Item Translation";
         GLSetup: Record "General Ledger Setup";
+        WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
         JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
         UOMMgt: Codeunit "Unit of Measure Management";
         ItemCheckAvail: Codeunit "Item-Check Avail.";
         WMSManagement: Codeunit "WMS Management";
+#if not CLEAN20
+        FeatureManagement: Codeunit "Feature Management Facade";
+        PicksForJobsFeatureIdLbl: Label 'PicksForJobs', Locked = true;
+#endif
         CurrencyFactorErr: Label 'cannot be specified without %1', Comment = '%1 = Currency Code field name';
         RecordRenameErr: Label 'You cannot change the %1 or %2 of this %3.', Comment = '%1 = Job Number field name; %2 = Job Task Number field name; %3 = Job Planning Line table name';
         CurrencyDate: Date;
@@ -1263,7 +1406,7 @@
         AmountRoundingPrecisionFCY: Decimal;
         NotPossibleJobPlanningLineErr: Label 'It is not possible to deleted job planning line transferred to an invoice.';
 
-    local procedure CheckItemAvailable(CalledByFieldNo: Integer)
+    procedure CheckItemAvailable(CalledByFieldNo: Integer)
     begin
         if CurrFieldNo <> CalledByFieldNo then
             exit;
@@ -1275,7 +1418,31 @@
             exit;
 
         if ItemCheckAvail.JobPlanningLineCheck(Rec) then
-            ItemCheckAvail.RaiseUpdateInterruptedError;
+            ItemCheckAvail.RaiseUpdateInterruptedError();
+    end;
+
+    local procedure CheckBin()
+    var
+        BinContent: Record "Bin Content";
+        Bin: Record Bin;
+    begin
+        if "Bin Code" <> '' then begin
+            GetLocation("Location Code");
+            if not Location."Directed Put-away and Pick" then
+                exit;
+
+            if BinContent.Get(
+                 "Location Code", "Bin Code",
+                 "No.", "Variant Code", "Unit of Measure Code")
+            then begin
+                if not BinContent.CheckWhseClass(false) then
+                    "Bin Code" := '';
+            end else begin
+                Bin.Get("Location Code", "Bin Code");
+                if not Bin.CheckWhseClass("No.", false) then
+                    "Bin Code" := '';
+            end;
+        end;
     end;
 
     local procedure CheckQuantityPosted()
@@ -1381,16 +1548,16 @@
                 Location.Get(LocationCode);
     end;
 
-    local procedure EnsureDirectedPutawayandPickFalse(var Location: Record Location)
+    local procedure EnsureDirectedPutawayandPickFalse(var LocationToCheck: Record Location)
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeEnsureDirectedPutawayandPickFalse(Rec, Location, IsHandled);
+        OnBeforeEnsureDirectedPutawayandPickFalse(Rec, LocationToCheck, IsHandled);
         if IsHandled then
             exit;
 
-        Location.TestField("Directed Put-away and Pick", false);
+        LocationToCheck.TestField("Directed Put-away and Pick", false);
     end;
 
     local procedure GetJob()
@@ -2104,12 +2271,13 @@
         BypassQtyValidation := Bypass;
     end;
 
-    local procedure UpdateReservation(CalledByFieldNo: Integer)
+    procedure UpdateReservation(CalledByFieldNo: Integer)
     var
         ReservationCheckDateConfl: Codeunit "Reservation-Check Date Confl.";
     begin
         if (CurrFieldNo <> CalledByFieldNo) and (CurrFieldNo <> 0) then
             exit;
+
         case CalledByFieldNo of
             FieldNo("Planning Date"), FieldNo("Planned Delivery Date"):
                 if (xRec."Planning Date" <> "Planning Date") and
@@ -2123,7 +2291,7 @@
                 if (Type = Type::Item) and "Usage Link" then begin
                     GetItem;
                     if Item.Reserve = Item.Reserve::Optional then begin
-                        GetJob;
+                        GetJob();
                         Reserve := Job.Reserve
                     end else
                         Reserve := Item.Reserve;
@@ -2131,7 +2299,7 @@
                     Reserve := Reserve::Never;
         end;
         JobPlanningLineReserve.VerifyChange(Rec, xRec);
-        UpdatePlanned;
+        UpdatePlanned();
     end;
 
     local procedure UpdateDescription()
@@ -2204,7 +2372,7 @@
         OrderTrackingForm: Page "Order Tracking";
     begin
         OrderTrackingForm.SetJobPlanningLine(Rec);
-        OrderTrackingForm.RunModal;
+        OrderTrackingForm.RunModal();
     end;
 
     procedure ShowOrderPromisingLine()
@@ -2219,7 +2387,7 @@
 
         OrderPromisingLines.SetSourceType(OrderPromisingLine."Source Type"::Job.AsInteger());
         OrderPromisingLines.SetTableView(OrderPromisingLine);
-        OrderPromisingLines.RunModal;
+        OrderPromisingLines.RunModal();
     end;
 
     procedure FilterLinesWithItemToPlan(var Item: Record Item)
@@ -2274,7 +2442,7 @@
     begin
         JobInvoices.SetShowDetails(false);
         JobInvoices.SetPrJobPlanningLine(Rec);
-        JobInvoices.Run;
+        JobInvoices.Run();
     end;
 
     local procedure CheckRelatedJobPlanningLineInvoice()
@@ -2381,13 +2549,13 @@
         Rec := ToJobPlanningLine;
     end;
 
-    local procedure GetNextJobLineNo(FromJobPlanningLine: Record "Job Planning Line"): Integer
+    protected procedure GetNextJobLineNo(FromJobPlanningLine: Record "Job Planning Line"): Integer
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
         JobPlanningLine.SetRange("Job No.", FromJobPlanningLine."Job No.");
         JobPlanningLine.SetRange("Job Task No.", FromJobPlanningLine."Job Task No.");
-        if JobPlanningLine.FindLast then;
+        if JobPlanningLine.FindLast() then;
         exit(JobPlanningLine."Line No." + 10000);
     end;
 
@@ -2438,6 +2606,66 @@
             "No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
 
+    local procedure DeleteWarehouseRequest(JobPlanningLine: Record "Job Planning Line")
+    var
+        JobPlanningLine2: Record "Job Planning Line";
+        WarehouseRequest: Record "Warehouse Request";
+        WhsePickRequest: Record "Whse. Pick Request";
+    begin
+        JobPlanningLine2.SetFilter("Job Contract Entry No.", '<>%1', JobPlanningLine."Job Contract Entry No.");
+        JobPlanningLine2.SetRange("Job No.", JobPlanningLine."Job No.");
+        JobPlanningLine2.SetRange("Location Code", JobPlanningLine."Location Code");
+
+        if JobPlanningLine2.IsEmpty() then
+            if WarehouseRequest.Get("Warehouse Request Type"::Outbound, JobPlanningLine."Location Code", Database::Job, 0, JobPlanningLine."Job No.") then
+                WarehouseRequest.Delete(true)
+            else
+                if WhsePickRequest.Get(WhsePickRequest."Document Type"::Job, 0, JobPlanningLine."Job No.", JobPlanningLine."Location Code") then
+                    WhsePickRequest.Delete(true);
+    end;
+
+    internal procedure CreateWarehouseRequest()
+    var
+        WhsePickRequest: Record "Whse. Pick Request";
+        WarehouseRequest: Record "Warehouse Request";
+    begin
+        if Rec."Location Code" = '' then
+            exit;
+
+        GetLocation(Rec."Location Code");
+
+        if Location."Require Pick" then
+            if Location."Require Shipment" then begin
+                if not WhsePickRequest.Get(WhsePickRequest."Document Type"::Job, 0, Rec."Job No.", Rec."Location Code") then begin
+                    WhsePickRequest.Init();
+                    WhsePickRequest."Document Type" := WhsePickRequest."Document Type"::Job;
+                    WhsePickRequest."Document Subtype" := 0;
+                    WhsePickRequest."Document No." := Rec."Job No.";
+                    WhsePickRequest.Status := WhsePickRequest.Status::Released;
+                    WhsePickRequest."Location Code" := Location.Code;
+                    if WhsePickRequest.Insert() then;
+                end
+            end
+            else
+                if not GetWarehouseRequest(WarehouseRequest) then begin
+                    WarehouseRequest.Init();
+                    WarehouseRequest.Type := WarehouseRequest.Type::Outbound;
+                    WarehouseRequest."Location Code" := Rec."Location Code";
+                    WarehouseRequest."Source Type" := Database::Job;
+                    WarehouseRequest."Source No." := Rec."Job No.";
+                    WarehouseRequest."Source Subtype" := 0;
+                    WarehouseRequest."Source Document" := WarehouseRequest."Source Document"::"Job Usage";
+                    WarehouseRequest."Document Status" := WarehouseRequest."Document Status"::Released;
+                    if WarehouseRequest.Insert() then;
+                end;
+    end;
+
+    local procedure GetWarehouseRequest(var WarehouseRequest: Record "Warehouse Request"): Boolean
+    begin
+        if WarehouseRequest.Get(WarehouseRequest.Type::Outbound, Rec."Location Code", Database::Job, 0, Rec."Job No.") then
+            if (WarehouseRequest."Source Document" = WarehouseRequest."Source Document"::"Job Usage") and (WarehouseRequest."Document Status" = WarehouseRequest."Document Status"::Released) then
+                exit(true);
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromItem(var JobPlanningLine: Record "Job Planning Line"; Job: Record Job; Item: Record Item)

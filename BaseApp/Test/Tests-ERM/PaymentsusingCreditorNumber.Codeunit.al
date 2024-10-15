@@ -36,7 +36,7 @@ codeunit 134160 "Payments using Creditor Number"
         CreditorNo: Code[8];
         PaymentReference: Code[16];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryPurchase.CreateVendor(Vendor);
@@ -77,7 +77,7 @@ codeunit 134160 "Payments using Creditor Number"
         Vendor: Record Vendor;
         PaymentJournal: TestPage "Payment Journal";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryPurchase.CreateVendor(Vendor);
@@ -116,7 +116,7 @@ codeunit 134160 "Payments using Creditor Number"
     var
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryPurchase.CreateVendor(Vendor);
@@ -138,7 +138,7 @@ codeunit 134160 "Payments using Creditor Number"
         NewCreditorNo: Code[8];
         NewPaymentRef: Code[16];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorWithCreditorNo(Vendor);
@@ -170,7 +170,7 @@ codeunit 134160 "Payments using Creditor Number"
         Vendor: Record Vendor;
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorWithCreditorNo(Vendor);
@@ -183,7 +183,7 @@ codeunit 134160 "Payments using Creditor Number"
         // Setup
         VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
-        VendorLedgerEntry.FindLast;
+        VendorLedgerEntry.FindLast();
 
         // Pre-Exercise
         VendorLedgerEntry.Open := false;
@@ -204,7 +204,7 @@ codeunit 134160 "Payments using Creditor Number"
         GenJnlLine: Record "Gen. Journal Line";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorWithCreditorNo(Vendor);
@@ -231,7 +231,7 @@ codeunit 134160 "Payments using Creditor Number"
         Vendor: Record Vendor;
         PaymentReference: Code[16];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorWithCreditorNo(Vendor);
@@ -261,7 +261,7 @@ codeunit 134160 "Payments using Creditor Number"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         // [FEATURE] [Payment Reference]
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorWithCreditorNo(Vendor);
@@ -297,7 +297,7 @@ codeunit 134160 "Payments using Creditor Number"
         // [SCENARIO 362612] A "Vendor Invoice No." copies to the "Payment Reference" during purchase invoice posting
         // [SCENARIO 362612] when the "Copy Inv. No. To Pmt. Ref." option is enabled in Purchases & Payables Setup
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Copy Inv. No. To Pmt. Ref." is enabled in the Purchases & Payables Setup
         CreateVendorWithCreditorNo(Vendor);
@@ -327,7 +327,7 @@ codeunit 134160 "Payments using Creditor Number"
         Vendor: Record Vendor;
         PaymentReference: Code[16];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorWithCreditorNo(Vendor);
@@ -355,7 +355,7 @@ codeunit 134160 "Payments using Creditor Number"
         CreditorNo: Code[10];
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryPurchase.CreateVendor(Vendor);
@@ -388,12 +388,12 @@ codeunit 134160 "Payments using Creditor Number"
         // [FEATURE] [UI]
         // [SCENARIO 275540] "Creditor No." allows non-numeric values on table "Purchase Header"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Header 'PO01' with "Document Type" = "Order"
         PurchaseHeader.Init();
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
-        PurchaseHeader."No." := LibraryUtility.GenerateGUID;
+        PurchaseHeader."No." := LibraryUtility.GenerateGUID();
         PurchaseHeader.Insert();
 
         // [GIVEN] CreditorNo = 'ABC', non-numeric
@@ -421,7 +421,7 @@ codeunit 134160 "Payments using Creditor Number"
         // [FEATURE] [UI]
         // [SCENARIO 275540] "Creditor No." allows non-numeric values on table "Vendor Ledger Entry"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor Ledger Entry 'X' created
         VendorLedgerEntry.Init();
@@ -453,11 +453,11 @@ codeunit 134160 "Payments using Creditor Number"
         // [FEATURE] [UI]
         // [SCENARIO 275540] "Creditor No." allows non-numeric values on table "Purchase Invoice Header"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice Header 'PI01'
         PurchInvHeader.Init();
-        PurchInvHeader."No." := LibraryUtility.GenerateGUID;
+        PurchInvHeader."No." := LibraryUtility.GenerateGUID();
         PurchInvHeader.Insert();
 
         // [GIVEN] CreditorNo = 'ABC', non-numeric
@@ -486,7 +486,7 @@ codeunit 134160 "Payments using Creditor Number"
         // [FEATURE] [UI]
         // [SCENARIO 275540] "Creditor No." allows non-numeric values on table "Gen. Journal Line"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Gen. Journal Batch 'JB01' with "Journal Template Name" = 'PAYMENT'
         // [GIVEN] Gen. Journal Line 'JL01' with "Journal Template Name" = 'PAYMENT', "Journal Batch Name" = 'JB01'
@@ -520,7 +520,7 @@ codeunit 134160 "Payments using Creditor Number"
         // [FEATURE] [UI]
         // [SCENARIO 275540] "Creditor No." allows non-numeric values on table "Vendor"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor 'X' created
         LibraryPurchase.CreateVendor(Vendor);
@@ -547,7 +547,7 @@ codeunit 134160 "Payments using Creditor Number"
         GenJnlLine: Record "Gen. Journal Line";
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibrarySales.CreateCustomer(Customer);
@@ -574,7 +574,7 @@ codeunit 134160 "Payments using Creditor Number"
         SalesLine: Record "Sales Line";
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibrarySales.CreateCustomer(Customer);
@@ -600,8 +600,8 @@ codeunit 134160 "Payments using Creditor Number"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Payments using Creditor Number");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.SavePurchasesSetup();
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Payments using Creditor Number");
@@ -658,7 +658,7 @@ codeunit 134160 "Payments using Creditor Number"
         GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
         GenJnlLine.SetRange("Account Type", AccountType);
         GenJnlLine.SetRange("Account No.", AccountNo);
-        GenJnlLine.FindLast;
+        GenJnlLine.FindLast();
     end;
 
     local procedure GetPmtMethodCodeFromVendorLedgerEntry(VendorNo: Code[20]): Code[10]
@@ -667,7 +667,7 @@ codeunit 134160 "Payments using Creditor Number"
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
-        VendorLedgerEntry.FindLast;
+        VendorLedgerEntry.FindLast();
         exit(VendorLedgerEntry."Payment Method Code");
     end;
 

@@ -1,4 +1,4 @@
-Codeunit 104021 "Upgrade Item Cross Reference"
+﻿Codeunit 104021 "Upgrade Item Cross Reference"
 {
     Permissions = TableData "Item Ledger Entry" = rm,
                   TableData "Sales Shipment Line" = rm,

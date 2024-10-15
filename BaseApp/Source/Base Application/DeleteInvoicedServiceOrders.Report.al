@@ -20,7 +20,8 @@ report 5914 "Delete Invoiced Service Orders"
             begin
                 OnBeforeServiceHeaderOnAfterGetRecord("Service Header");
 
-                Window.Update(1, "No.");
+                if GuiAllowed() then
+                    Window.Update(1, "No.");
 
                 ServiceOrderLine.Reset();
                 ServiceOrderLine.SetRange("Document Type", "Document Type");
@@ -45,7 +46,7 @@ report 5914 "Delete Invoiced Service Orders"
                                 ServiceOrderItemLine.Reset();
                                 ServiceOrderItemLine.SetRange("Document Type", "Document Type");
                                 ServiceOrderItemLine.SetRange("Document No.", "No.");
-                                if ServiceOrderItemLine.FindSet then
+                                if ServiceOrderItemLine.FindSet() then
                                     repeat
                                         OnBeforeDeleteServiceOrderItemLine(ServiceOrderItemLine);
                                         ServiceOrderItemLine.Delete();
@@ -88,7 +89,8 @@ report 5914 "Delete Invoiced Service Orders"
 
             trigger OnPreDataItem()
             begin
-                Window.Open(Text000);
+                if GuiAllowed() then
+                    Window.Open(Text000Txt);
             end;
         }
     }
@@ -110,7 +112,7 @@ report 5914 "Delete Invoiced Service Orders"
     }
 
     var
-        Text000: Label 'Processing Service orders #1##########';
+        Text000Txt: Label 'Processing Service orders #1##########';
         ServiceOrderItemLine: Record "Service Item Line";
         ServiceOrderLine: Record "Service Line";
         ServiceShptHeader: Record "Service Shipment Header";

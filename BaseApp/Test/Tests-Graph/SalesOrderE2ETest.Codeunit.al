@@ -40,7 +40,7 @@ codeunit 135513 "Sales Order E2E Test"
     begin
         // [SCENARIO 184721] Create Sales Orders and use a GET method to retrieve them
         // [GIVEN] 2 orders in the table
-        Initialize;
+        Initialize();
         LibrarySales.CreateSalesOrder(SalesHeader);
         OrderID[1] := SalesHeader."No.";
 
@@ -76,7 +76,7 @@ codeunit 135513 "Sales Order E2E Test"
         OrderWithComplexJSON: Text;
     begin
         // [SCENARIO 184721] Create sales orders JSON and use HTTP POST to create them
-        Initialize;
+        Initialize();
 
         // [GIVEN] a customer
         LibrarySales.CreateCustomer(Customer);
@@ -125,7 +125,7 @@ codeunit 135513 "Sales Order E2E Test"
         CurrencyCode: Code[10];
     begin
         // [SCENARIO 184721] Create sales order with specific currency set and use HTTP POST to create it
-        Initialize;
+        Initialize();
 
         // [GIVEN] an order with a non-LCY currencyCode set
         LibrarySales.CreateCustomer(Customer);
@@ -135,7 +135,7 @@ codeunit 135513 "Sales Order E2E Test"
         JSONManagement.GetJSONObject(JObject);
         JSONManagement.AddJPropertyToJObject(JObject, 'customerNumber', CustomerNo);
         Currency.SetFilter(Code, '<>%1', '');
-        Currency.FindFirst;
+        Currency.FindFirst();
         CurrencyCode := Currency.Code;
         JSONManagement.AddJPropertyToJObject(JObject, 'currencyCode', CurrencyCode);
         OrderJSON := JSONManagement.WriteObjectToString;
@@ -198,7 +198,7 @@ codeunit 135513 "Sales Order E2E Test"
     begin
         // [SCENARIO 184721] Create sales order, use a PATCH method to change it and then verify the changes
         // [GIVEN] a customer with address
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomerWithAddress(Customer);
 
         // [GIVEN] a SalesPerson
@@ -219,7 +219,7 @@ codeunit 135513 "Sales Order E2E Test"
         SalesHeader.Reset();
         SalesHeader.SetRange("No.", OrderID);
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         OrderIntegrationID := SalesHeader.SystemId;
         Assert.AreNotEqual('', OrderIntegrationID, 'ID should not be empty');
 
@@ -263,7 +263,7 @@ codeunit 135513 "Sales Order E2E Test"
     begin
         // [SCENARIO 184721] Create sales orders and use HTTP DELETE to delete them
         // [GIVEN] 2 orders in the table
-        Initialize;
+        Initialize();
         LibrarySales.CreateSalesOrder(SalesHeader);
         OrderID[1] := SalesHeader."No.";
         ID[1] := SalesHeader.SystemId;
@@ -308,7 +308,7 @@ codeunit 135513 "Sales Order E2E Test"
         OrderWithComplexJSON: Text;
     begin
         // [SCENARIO 184721] Create an order both through the client UI and through the API and compare them. They should be the same and have the same fields autocompleted wherever needed.
-        Initialize;
+        Initialize();
         LibraryGraphDocumentTools.InitializeUIPage;
 
         // [GIVEN] a customer
@@ -364,7 +364,7 @@ codeunit 135513 "Sales Order E2E Test"
     begin
         // [SCENARIO 184721] When an order is created, the GET Method should update the order and assign a total
         // [GIVEN] an order without totals assigned
-        Initialize;
+        Initialize();
         LibraryGraphDocumentTools.CreateDocumentWithDiscountPctPending(SalesHeader, DiscountPct, SalesHeader."Document Type"::Order);
         SalesHeader.CalcFields("Recalculate Invoice Disc.");
         Assert.IsTrue(SalesHeader."Recalculate Invoice Disc.", 'Setup error - recalculate Invoice disc. should be set');
@@ -394,7 +394,7 @@ codeunit 135513 "Sales Order E2E Test"
     begin
         // [SCENARIO 184721] When an order is created, the GET Method should update the order and redistribute the discount amount
         // [GIVEN] an order with discount amount that should be redistributed
-        Initialize;
+        Initialize();
         LibraryGraphDocumentTools.CreateDocumentWithDiscountPctPending(SalesHeader, DiscountPct, SalesHeader."Document Type"::Order);
         SalesHeader.CalcFields(Amount);
         DiscountAmt := LibraryRandom.RandDecInRange(1, Round(SalesHeader.Amount / 2, 1), 1);
@@ -430,7 +430,7 @@ codeunit 135513 "Sales Order E2E Test"
         OrderID: Text;
     begin
         // [SCENARIO 184721] Create Sales Order, use a PATCH method to change it and then verify the changes
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomerWithAddress(Customer);
 
         // [GIVEN] an item with unit price and unit cost
@@ -479,7 +479,7 @@ codeunit 135513 "Sales Order E2E Test"
         OrderID: Text;
     begin
         // [SCENARIO 184721] Clearing manually set discount
-        Initialize;
+        Initialize();
 
         // [GIVEN] an item with unit price and unit cost
         LibraryInventory.CreateItemWithUnitPriceAndUnitCost(
@@ -537,7 +537,7 @@ codeunit 135513 "Sales Order E2E Test"
 
     local procedure CreateOrderThroughTestPage(var SalesOrder: TestPage "Sales Order"; Customer: Record Customer; DocumentDate: Date)
     begin
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
         SalesOrder."Sell-to Customer No.".SetValue(Customer."No.");
         SalesOrder."Document Date".SetValue(DocumentDate);
     end;
@@ -547,7 +547,7 @@ codeunit 135513 "Sales Order E2E Test"
         SalesLine.Reset();
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure VerifyValidPostRequest(ResponseText: Text; var OrderNumber: Text)

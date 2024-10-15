@@ -106,7 +106,7 @@ table 1236 "JSON Buffer"
         TempJSONBuffer.Reset();
 
         TempJSONBuffer.SetRange(Path, AppendPathToCurrent(ArrayName));
-        if not TempJSONBuffer.FindFirst then
+        if not TempJSONBuffer.FindFirst() then
             exit(false);
         TempJSONBuffer.SetFilter(Path, AppendPathToCurrent(ArrayName) + '[*');
         TempJSONBuffer.SetRange(Depth, TempJSONBuffer.Depth + 1);
@@ -129,7 +129,7 @@ table 1236 "JSON Buffer"
         TempJSONBuffer.SetFilter(Path, PropertyPath);
         TempJSONBuffer.SetRange("Token type", "Token type"::"Property Name");
         TempJSONBuffer.SetRange(Value, PropertyName);
-        if not TempJSONBuffer.FindFirst then
+        if not TempJSONBuffer.FindFirst() then
             exit;
         if TempJSONBuffer.Get(TempJSONBuffer."Entry No." + 1) then begin
             PropertyValue := TempJSONBuffer.GetValue;

@@ -38,8 +38,8 @@ codeunit 137221 "SalesOrder Whse Validate Line"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SalesOrder Whse Validate Line");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
         DisableWarnings;
 
         WarehouseSetup.Get();
@@ -66,7 +66,7 @@ codeunit 137221 "SalesOrder Whse Validate Line"
         Item: Record Item;
         ExpectedErrorMessage: Text[1024];
     begin
-        Initialize;
+        Initialize();
         TestSalesOrderSetup(SalesHeader, SalesLine, Item, Location);
 
         ExpectedErrorMessage := StrSubstNo(ErrStatusMustBeOpen, SalesHeader.TableCaption);
@@ -87,7 +87,7 @@ codeunit 137221 "SalesOrder Whse Validate Line"
         Location: Record Location;
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestSalesOrderSetup(SalesHeader, SalesLine, Item, Location);
 
         SalesOrderFieldChange(true, SalesHeader, SalesLine, SalesLine.FieldNo(Type), SalesLine.Type::Resource);
@@ -323,13 +323,13 @@ codeunit 137221 "SalesOrder Whse Validate Line"
         SalesHeader: Record "Sales Header";
         Location: Record Location;
     begin
-        Initialize;
+        Initialize();
         TestSalesOrderSetup(SalesHeader, SalesLine, Item, Location);
 
         if Reopen then begin
             LibrarySales.ReopenSalesDocument(SalesHeader);
             SalesLine.SetRange("No.", SalesLine."No.");
-            SalesLine.FindFirst;
+            SalesLine.FindFirst();
         end;
 
         asserterror SalesLine.DeleteAll(true);
@@ -346,7 +346,7 @@ codeunit 137221 "SalesOrder Whse Validate Line"
         Location: Record Location;
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestSalesOrderSetup(SalesHeader, SalesLine, Item, Location);
         LibraryInventory.CreateItem(Item);
 
@@ -361,7 +361,7 @@ codeunit 137221 "SalesOrder Whse Validate Line"
         Item: Record Item;
         ItemVariant: Record "Item Variant";
     begin
-        Initialize;
+        Initialize();
         TestSalesOrderSetup(SalesHeader, SalesLine, Item, Location);
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
 
@@ -375,7 +375,7 @@ codeunit 137221 "SalesOrder Whse Validate Line"
         Location: Record Location;
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestSalesOrderSetup(SalesHeader, SalesLine, Item, Location);
         LocationSetup(Location);
 
@@ -389,7 +389,7 @@ codeunit 137221 "SalesOrder Whse Validate Line"
         Location: Record Location;
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestSalesOrderSetup(SalesHeader, SalesLine, Item, Location);
 
         SalesOrderFieldChange(Reopen, SalesHeader, SalesLine, SalesLine.FieldNo(Quantity), SalesLine.Quantity - 1);
@@ -404,7 +404,7 @@ codeunit 137221 "SalesOrder Whse Validate Line"
         UnitOfMeasure: Record "Unit of Measure";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
-        Initialize;
+        Initialize();
         TestSalesOrderSetup(SalesHeader, SalesLine, Item, Location);
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
         LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitOfMeasure.Code, 1);
@@ -419,7 +419,7 @@ codeunit 137221 "SalesOrder Whse Validate Line"
         Location: Record Location;
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestSalesOrderSetup(SalesHeader, SalesLine, Item, Location);
 
         SalesOrderFieldChange(Reopen, SalesHeader, SalesLine, SalesLine.FieldNo("Drop Shipment"), not SalesLine."Drop Shipment");

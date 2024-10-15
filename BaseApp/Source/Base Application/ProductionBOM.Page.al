@@ -147,7 +147,7 @@ page 99000786 "Production BOM"
                     begin
                         BOMMatrixForm.Set(Rec);
 
-                        BOMMatrixForm.RunModal;
+                        BOMMatrixForm.RunModal();
                         Clear(BOMMatrixForm);
                     end;
                 }
@@ -163,7 +163,7 @@ page 99000786 "Production BOM"
                     trigger OnAction()
                     begin
                         ProdBOMWhereUsed.SetProdBOM(Rec, WorkDate);
-                        ProdBOMWhereUsed.RunModal;
+                        ProdBOMWhereUsed.RunModal();
                         Clear(ProdBOMWhereUsed);
                     end;
                 }

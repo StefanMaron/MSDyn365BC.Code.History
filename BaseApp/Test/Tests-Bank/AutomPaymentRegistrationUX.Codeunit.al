@@ -23,7 +23,7 @@ codeunit 134711 "Autom. Payment Registration.UX"
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         BankAccNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         BankAccNo := CreateBankAcc;
         BankAccReconciliation.Init();
@@ -40,7 +40,7 @@ codeunit 134711 "Autom. Payment Registration.UX"
     var
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
     begin
-        Initialize;
+        Initialize();
 
         DeleteAllBankAcc;
 
@@ -56,7 +56,7 @@ codeunit 134711 "Autom. Payment Registration.UX"
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         BankPaymentWorksheet: TestPage "Payment Reconciliation Journal";
     begin
-        Initialize;
+        Initialize();
 
         DeleteAllBankAcc;
         CreateBankAcc;
@@ -76,7 +76,7 @@ codeunit 134711 "Autom. Payment Registration.UX"
         BankPaymentWorksheet: TestPage "Payment Reconciliation Journal";
         BankAccNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         DeleteAllBankAcc;
         BankAccNo := CreateBankAcc;
@@ -87,7 +87,7 @@ codeunit 134711 "Autom. Payment Registration.UX"
 
         BankAccount.Get(BankAccNo);
         BankAccReconciliation.SetRange("Bank Account No.", BankAccNo);
-        BankAccReconciliation.FindFirst;
+        BankAccReconciliation.FindFirst();
 
         Assert.AreNotEqual('', BankAccount."Last Payment Statement No.", '1. Wrong "Last Payment Statement No." on Bank Account table.');
         Assert.AreEqual(
@@ -106,13 +106,13 @@ codeunit 134711 "Autom. Payment Registration.UX"
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         BankPaymentApplication: TestPage "Payment Reconciliation Journal";
     begin
-        Initialize;
+        Initialize();
 
         InsertDummyBankReconHeaderAndLine(1, '0', BankAccReconciliation, 1);
 
         BankAccReconciliation.SetFiltersOnBankAccReconLineTable(
           BankAccReconciliation, BankAccReconciliationLine);
-        BankAccReconciliationLine.FindFirst;
+        BankAccReconciliationLine.FindFirst();
 
         BankPaymentApplication.OpenEdit;
         BankPaymentApplication.GotoRecord(BankAccReconciliationLine);
@@ -130,13 +130,13 @@ codeunit 134711 "Autom. Payment Registration.UX"
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         BankPaymentApplication: TestPage "Payment Reconciliation Journal";
     begin
-        Initialize;
+        Initialize();
 
         InsertDummyBankReconHeaderAndLine(1, '0', BankAccReconciliation, 0);
 
         BankAccReconciliation.SetFiltersOnBankAccReconLineTable(
           BankAccReconciliation, BankAccReconciliationLine);
-        BankAccReconciliationLine.FindFirst;
+        BankAccReconciliationLine.FindFirst();
 
         BankPaymentApplication.OpenEdit;
         BankPaymentApplication.GotoRecord(BankAccReconciliationLine);
@@ -149,7 +149,7 @@ codeunit 134711 "Autom. Payment Registration.UX"
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Autom. Payment Registration.UX");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         BankAccReconciliation.DeleteAll(true);
     end;
 

@@ -292,7 +292,7 @@ page 5110 "Profile Questionnaire Setup"
         if GetFilter("Profile Questionnaire Code") <> '' then begin
             ProfileQuestionnaireHeader.SetFilter(Code, GetFilter("Profile Questionnaire Code"));
             if ProfileQuestionnaireHeader.Count = 1 then begin
-                ProfileQuestionnaireHeader.FindFirst;
+                ProfileQuestionnaireHeader.FindFirst();
                 CurrentQuestionsChecklistCode := ProfileQuestionnaireHeader.Code;
             end;
         end;
@@ -310,7 +310,6 @@ page 5110 "Profile Questionnaire Setup"
         Text000: Label 'Details only available for questions.';
         ProfileQuestnHeader: Record "Profile Questionnaire Header";
         ProfileManagement: Codeunit ProfileManagement;
-        CurrentQuestionsChecklistCode: Code[20];
         Text001: Label 'Where-Used only available for answers.';
         CaptionExpr: Text[100];
         [InDataSet]
@@ -321,6 +320,9 @@ page 5110 "Profile Questionnaire Setup"
         StyleIsStrong: Boolean;
         [InDataSet]
         PriorityHideValue: Boolean;
+
+    protected var
+        CurrentQuestionsChecklistCode: Code[20];
 
     local procedure CurrentQuestionsChecklistCodeO()
     begin

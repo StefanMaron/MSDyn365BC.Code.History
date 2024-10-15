@@ -4,6 +4,12 @@ codeunit 1878 "Guided Experience Subscribers"
         BusinessManagerRoleCenterTourShortTitleTxt: Label 'A first look around';
         BusinessManagerRoleCenterTourTitleTxt: Label 'Take a first look around';
         BusinessManagerRoleCenterTourDescriptionTxt: Label 'The role-based home page offers quick access to key metrics and activities. We''ll also show you how to explore all the Business Central features.';
+        AccountantRoleCenterTourShortTitleTxt: Label 'A first look around';
+        AccountantRoleCenterTourTitleTxt: Label 'Take a first look around';
+        AccountantRoleCenterTourDescriptionTxt: Label 'The role-based home page offers quick access to key metrics and activities. We''ll also show you how to explore all the Business Central features.';
+        OrderProcessorRoleCenterTourShortTitleTxt: Label 'A first look around';
+        OrderProcessorRoleCenterTourTitleTxt: Label 'Take a first look around';
+        OrderProcessorRoleCenterTourDescriptionTxt: Label 'The role-based home page offers quick access to key metrics and activities. We''ll also show you how to explore all the Business Central features.';
         EditCustomerListInExcelShortTitleTxt: Label 'Edit and analyze in Excel';
         EditCustomerListInExcelTitleTxt: Label 'Edit and analyze in Excel';
         EditCustomerListInExcelDescriptionTxt: Label 'Open business data in Microsoft Excel to quickly analyze data with familiar tools. Let''s show you how with the Customer List.';
@@ -22,6 +28,27 @@ codeunit 1878 "Guided Experience Subscribers"
         YourSalesWithinOutlookTitleTxt: Label 'Manage sales while in Outlook';
         YourSalesWithinOutlookDescriptionTxt: Label 'Business Central is available in Outlook. You can manage quotes and invoices right next to a mail you received, without leaving Outlook.';
         YourSalesWithinOutlookVideoLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2170901', Locked = true;
+        ChartOfAccountSetupShortTitleTxt: Label 'Chart of Accounts';
+        ChartOfAccountSetupTitleTxt: Label 'Review the chart of accounts';
+        ChartOfAccountSetupDescriptionTxt: Label 'Organize your business down to the finest detail with the chart of accounts to track the financials across your business.';
+        BankAccountsSetupShortTitleTxt: Label 'Bank Accounts';
+        BankAccountsSetupTitleTxt: Label 'Set up your bank accounts';
+        BankAccountsSetupDescriptionTxt: Label 'Configure the bank accounts that you use to pay vendors, and which receive payments from customers.';
+        SalesQuotesTitleTxt: Label 'Make offers to your customers';
+        SalesQuotesShortTitleTxt: Label 'Sales Quotes';
+        SalesQuotesDescriptionTxt: Label 'Create quotes to send estimates to your customers or prospects with an offer for items or services.';
+        SalesOrdersTitleTxt: Label 'Manage orders, fulfillment, and invoicing';
+        SalesOrdersShortTitleTxt: Label 'Sales Orders';
+        SalesOrdersDescriptionTxt: Label 'Sales orders track what is ordered, what is shipped, and what is invoiced, all in a way that is connected to your inventory.';
+        SalesInvoicesTitleTxt: Label 'Send invoices and get paid';
+        SalesInvoicesShortTitleTxt: Label 'Sales Invoices';
+        SalesInvoicesDescriptionTxt: Label 'Create invoices directly when you ship and invoice in one go, otherwise use sales orders.';
+        SalesInvoiceHistoryTitleTxt: Label 'Overview your posted sales invoices';
+        SalesInvoiceHistoryShortTitleTxt: Label 'Sales Invoice History';
+        SalesInvoiceHistoryDescriptionTxt: Label 'All invoices end up in the Posted Sales Invoices list where you can track status and make corrections if needed.';
+        ReturnOrdersTitleTxt: Label 'Process sales returns';
+        ReturnOrdersShortTitleTxt: Label 'Sales Return Orders';
+        ReturnOrdersDescriptionTxt: Label 'Manage the return of products from customers to track warehouse receipt, refund, if applicable, and the reason for the return.';
 
     procedure GetYourSalesWithinOutlookVideoLinkTxt(): Text
     begin
@@ -40,6 +67,12 @@ codeunit 1878 "Guided Experience Subscribers"
         GuidedExperience.InsertTour(BusinessManagerRoleCenterTourTitleTxt, BusinessManagerRoleCenterTourShortTitleTxt,
             BusinessManagerRoleCenterTourDescriptionTxt, 2, Page::"Business Manager Role Center");
 
+        GuidedExperience.InsertTour(AccountantRoleCenterTourTitleTxt, AccountantRoleCenterTourShortTitleTxt,
+            AccountantRoleCenterTourDescriptionTxt, 2, Page::"Accountant Role Center");
+
+        GuidedExperience.InsertTour(OrderProcessorRoleCenterTourTitleTxt, OrderProcessorRoleCenterTourShortTitleTxt,
+            OrderProcessorRoleCenterTourDescriptionTxt, 2, Page::"Order Processor Role Center");
+
         GetCustomerListSpotlightDictionary(CustomerListSpotlightDictionary);
         GuidedExperience.InsertSpotlightTour(EditCustomerListInExcelTitleTxt, EditCustomerListInExcelShortTitleTxt,
             EditCustomerListInExcelDescriptionTxt, 2, Page::"Customer List", SpotlightTourType::"Open in Excel", CustomerListSpotlightDictionary);
@@ -50,6 +83,21 @@ codeunit 1878 "Guided Experience Subscribers"
 
         GuidedExperience.InsertVideo(YourSalesWithinOutlookTitleTxt, YourSalesWithinOutlookShortTitleTxt,
             YourSalesWithinOutlookDescriptionTxt, 2, YourSalesWithinOutlookVideoLinkTxt, VideoCategory::GettingStarted);
+
+        GuidedExperience.InsertApplicationFeature(ChartOfAccountSetupTitleTxt, ChartOfAccountSetupShortTitleTxt, ChartOfAccountSetupDescriptionTxt, 10, ObjectType::Page,
+            Page::"Chart of Accounts");
+        GuidedExperience.InsertApplicationFeature(BankAccountsSetupTitleTxt, BankAccountsSetupShortTitleTxt, BankAccountsSetupDescriptionTxt, 5, ObjectType::Page,
+            Page::"Bank Account List");
+        GuidedExperience.InsertApplicationFeature(SalesQuotesTitleTxt, SalesQuotesShortTitleTxt, SalesQuotesDescriptionTxt, 15, ObjectType::Page,
+            Page::"Sales Quotes");
+        GuidedExperience.InsertApplicationFeature(SalesOrdersTitleTxt, SalesOrdersShortTitleTxt, SalesOrdersDescriptionTxt, 15, ObjectType::Page,
+            Page::"Sales Order List");
+        GuidedExperience.InsertApplicationFeature(SalesInvoicesTitleTxt, SalesInvoicesShortTitleTxt, SalesInvoicesDescriptionTxt, 15, ObjectType::Page,
+            Page::"Sales Invoice List");
+        GuidedExperience.InsertApplicationFeature(SalesInvoiceHistoryTitleTxt, SalesInvoiceHistoryShortTitleTxt, SalesInvoiceHistoryDescriptionTxt, 15, ObjectType::Page,
+            Page::"Posted Sales Invoices");
+        GuidedExperience.InsertApplicationFeature(ReturnOrdersTitleTxt, ReturnOrdersShortTitleTxt, ReturnOrdersDescriptionTxt, 15, ObjectType::Page,
+           Page::"Sales Return Order List");
     end;
 
     local procedure GetCustomerListSpotlightDictionary(var CustomerListSpotlightDictionary: Dictionary of [Enum "Spotlight Tour Text", Text])

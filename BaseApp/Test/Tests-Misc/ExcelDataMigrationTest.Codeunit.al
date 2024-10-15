@@ -33,33 +33,33 @@ codeunit 139312 "Excel Data Migration Test"
         Customer: Record Customer;
     begin
         // [GIVEN] A newly provisioned database, initialized with no Excel Config. Package
-        Initialize;
+        Initialize();
 
         // [WHEN] Excel file is imported
         ExcelDataMigrator.ImportExcelDataByFileName(LibraryUtility.GetInetRoot + GetExcelFileName);
 
         // [THEN] A Config. Package was created
         ConfigPackage.SetRange(Code, ExcelDataMigrator.GetPackageCode);
-        ConfigPackage.FindFirst;
+        ConfigPackage.FindFirst();
         Assert.RecordIsNotEmpty(ConfigPackage);
 
         // [THEN] The Config. Package contains a Customer, Item Package Table
         ConfigPackageTable.SetRange("Package Code", ExcelDataMigrator.GetPackageCode);
         ConfigPackageTable.SetRange("Table ID", DATABASE::Customer);
-        ConfigPackageTable.FindFirst;
+        ConfigPackageTable.FindFirst();
         Assert.RecordIsNotEmpty(ConfigPackageTable);
 
         ConfigPackageTable.Reset();
         ConfigPackageTable.SetRange("Package Code", ExcelDataMigrator.GetPackageCode);
         ConfigPackageTable.SetRange("Table ID", DATABASE::Item);
-        ConfigPackageTable.FindFirst;
+        ConfigPackageTable.FindFirst();
         Assert.RecordIsNotEmpty(ConfigPackageTable);
 
         // [THEN] The Customer Package Table does not contain all fields
         ConfigPackageTable.Reset();
         ConfigPackageTable.SetRange("Package Code", ExcelDataMigrator.GetPackageCode);
         ConfigPackageTable.SetRange("Table ID", DATABASE::Customer);
-        ConfigPackageTable.FindFirst;
+        ConfigPackageTable.FindFirst();
         ConfigPackageTable.CalcFields("No. of Fields Available", "No. of Fields Included");
         Assert.AreEqual(15, ConfigPackageTable."No. of Fields Included",
           'Package should only contain a subset of fields');
@@ -68,27 +68,27 @@ codeunit 139312 "Excel Data Migration Test"
         ConfigPackageField.SetRange("Package Code", ExcelDataMigrator.GetPackageCode);
         ConfigPackageField.SetRange("Table ID", DATABASE::Customer);
         ConfigPackageField.SetRange("Field ID", Customer.FieldNo(Name));
-        ConfigPackageField.FindFirst;
+        ConfigPackageField.FindFirst();
         Assert.RecordIsNotEmpty(ConfigPackageField);
         Assert.IsTrue(ConfigPackageField."Include Field", 'Name field not included in customer package');
 
         // [THEN] There is a Customer, Item record in the package
         ConfigPackageRecord.SetRange("Package Code", ExcelDataMigrator.GetPackageCode);
         ConfigPackageRecord.SetRange("Table ID", DATABASE::Customer);
-        ConfigPackageRecord.FindFirst;
+        ConfigPackageRecord.FindFirst();
         Assert.RecordIsNotEmpty(ConfigPackageRecord);
 
         ConfigPackageRecord.Reset();
         ConfigPackageRecord.SetRange("Package Code", ExcelDataMigrator.GetPackageCode);
         ConfigPackageRecord.SetRange("Table ID", DATABASE::Item);
-        ConfigPackageRecord.FindFirst;
+        ConfigPackageRecord.FindFirst();
         Assert.RecordIsNotEmpty(ConfigPackageRecord);
 
         // [THEN] There is data in the Customer Record for the Country/Region Code field
         ConfigPackageData.SetRange("Package Code", ExcelDataMigrator.GetPackageCode);
         ConfigPackageData.SetRange("Table ID", DATABASE::Customer);
         ConfigPackageData.SetRange("Field ID", Customer.FieldNo("Country/Region Code"));
-        ConfigPackageData.FindFirst;
+        ConfigPackageData.FindFirst();
         Assert.IsTrue(ConfigPackageData.Count = 5, 'Wrong number of element in package');
 
         // [THEN] The package validates
@@ -104,7 +104,7 @@ codeunit 139312 "Excel Data Migration Test"
         Customer: Record Customer;
     begin
         // [GIVEN] A newly provisioned database, initialized with no Excel Config. Package, Customers
-        Initialize;
+        Initialize();
 
         // [WHEN] An Excel file is imported and applied
         ImportAndApplyPackage;
@@ -124,7 +124,7 @@ codeunit 139312 "Excel Data Migration Test"
         Vendor: Record Vendor;
     begin
         // [GIVEN] A newly provisioned database, initialized with no Excel Config. Package, Vendors
-        Initialize;
+        Initialize();
 
         // [WHEN] An Excel file is imported and applied
         ImportAndApplyPackage;
@@ -144,7 +144,7 @@ codeunit 139312 "Excel Data Migration Test"
         Item: Record Item;
     begin
         // [GIVEN] A newly provisioned database, initialized with no Excel Config. Package, Items
-        Initialize;
+        Initialize();
 
         // [WHEN] An Excel file is imported and applied
         ImportAndApplyPackage;
@@ -169,7 +169,7 @@ codeunit 139312 "Excel Data Migration Test"
         DataMigrationWizard: TestPage "Data Migration Wizard";
     begin
         // [GIVEN] A newly setup company
-        Initialize;
+        Initialize();
         BindSubscription(ExcelDataMigrationTest);
 
         // [WHEN] The data migration wizard executed to the end
@@ -192,7 +192,7 @@ codeunit 139312 "Excel Data Migration Test"
         Item: Record Item;
     begin
         // [GIVEN] A newly setup company
-        Initialize;
+        Initialize();
 
         // [WHEN] An Excel file is imported and applied
         ImportAndApplyPackage;
@@ -214,7 +214,7 @@ codeunit 139312 "Excel Data Migration Test"
     begin
         // [SCENARIO 251670] Confirmation message is shown when perform Apply step via data migration wizard in case of
         // [SCENARIO 251670] excel file contains invalid Customer row, valid Vendor row, select only Customer table to apply (confirm Yes)
-        Initialize;
+        Initialize();
         BindSubscription(ExcelDataMigrationTest);
 
         // [GIVEN] Import excel file including Customer (with invalid Payment Terms Code) and Vendor via data migration wizard
@@ -240,7 +240,7 @@ codeunit 139312 "Excel Data Migration Test"
     begin
         // [SCENARIO 251670] Confirmation message is shown when perform Apply step via data migration wizard in case of
         // [SCENARIO 251670] excel file contains invalid Customer row, valid Vendor row, select only Customer table to apply (confirm No)
-        Initialize;
+        Initialize();
         BindSubscription(ExcelDataMigrationTest);
 
         // [GIVEN] Import excel file including Customer (with invalid Payment Terms Code) and Vendor via data migration wizard
@@ -264,7 +264,7 @@ codeunit 139312 "Excel Data Migration Test"
     begin
         // [SCENARIO 251670] Confirmation message is shown when perform Apply step via data migration wizard in case of
         // [SCENARIO 251670] excel file contains invalid Customer row, valid Vendor row, select only Customer table to apply (confirm No, Apply only Customer again, confirm Yes)
-        Initialize;
+        Initialize();
         BindSubscription(ExcelDataMigrationTest);
 
         // [GIVEN] Import excel file including Customer (with invalid Payment Terms Code) and Vendor via data migration wizard
@@ -293,7 +293,7 @@ codeunit 139312 "Excel Data Migration Test"
     begin
         // [SCENARIO 251670] Confirmation message is shown when perform Apply step via data migration wizard in case of
         // [SCENARIO 251670] excel file contains invalid Customer row, valid Vendor row, select only Customer table to apply (confirm No, Apply only Vendor again)
-        Initialize;
+        Initialize();
         BindSubscription(ExcelDataMigrationTest);
 
         // [GIVEN] Import excel file including Customer (with invalid Payment Terms Code) and Vendor via data migration wizard
@@ -320,7 +320,7 @@ codeunit 139312 "Excel Data Migration Test"
     begin
         // [SCENARIO 251670] Confirmation message is shown when perform Apply step via data migration wizard in case of
         // [SCENARIO 251670] excel file contains invalid Customer row, valid Vendor row, select only Customer table to apply (confirm No, Apply both Customer and Vendor again, confirm Yes)
-        Initialize;
+        Initialize();
         BindSubscription(ExcelDataMigrationTest);
 
         // [GIVEN] Import excel file including Customer (with invalid Payment Terms Code) and Vendor via data migration wizard
@@ -349,7 +349,7 @@ codeunit 139312 "Excel Data Migration Test"
     begin
         // [SCENARIO 251670] There is no confirmation message when perform Apply step via data migration wizard in case of
         // [SCENARIO 251670] excel file contains invalid Customer row, valid Vendor row, select only Vendor table to apply
-        Initialize;
+        Initialize();
         BindSubscription(ExcelDataMigrationTest);
 
         // [GIVEN] Import excel file including Customer (with invalid Payment Terms Code) and Vendor via data migration wizard
@@ -373,7 +373,7 @@ codeunit 139312 "Excel Data Migration Test"
     begin
         // [SCENARIO 251670] Confirmation message is shown when perform Apply step via data migration wizard in case of
         // [SCENARIO 251670] excel file contains invalid Customer row, valid Vendor row, select both tables to apply (confirm Yes)
-        Initialize;
+        Initialize();
         BindSubscription(ExcelDataMigrationTest);
 
         // [GIVEN] Import excel file including Customer (with invalid Payment Terms Code) and Vendor via data migration wizard
@@ -399,7 +399,7 @@ codeunit 139312 "Excel Data Migration Test"
     begin
         // [SCENARIO 251670] Confirmation message is shown when perform Apply step via data migration wizard in case of
         // [SCENARIO 251670] excel file contains invalid Customer row, valid Vendor row, select both tables to apply (confirm No)
-        Initialize;
+        Initialize();
         BindSubscription(ExcelDataMigrationTest);
 
         // [GIVEN] Import excel file including Customer (with invalid Payment Terms Code) and Vendor via data migration wizard
@@ -423,7 +423,7 @@ codeunit 139312 "Excel Data Migration Test"
     begin
         // [SCENARIO 251670] Confirmation message is shown when perform Apply step via data migration wizard in case of
         // [SCENARIO 251670] excel file contains invalid Customer row, valid Vendor row, select both tables to apply (confirm No, Apply only Customer again, confirm Yes)
-        Initialize;
+        Initialize();
         BindSubscription(ExcelDataMigrationTest);
 
         // [GIVEN] Import excel file including Customer (with invalid Payment Terms Code) and Vendor via data migration wizard
@@ -452,7 +452,7 @@ codeunit 139312 "Excel Data Migration Test"
     begin
         // [SCENARIO 251670] Confirmation message is shown when perform Apply step via data migration wizard in case of
         // [SCENARIO 251670] excel file contains invalid Customer row, valid Vendor row, select both tables to apply (confirm No, Apply only Vendor again)
-        Initialize;
+        Initialize();
         BindSubscription(ExcelDataMigrationTest);
 
         // [GIVEN] Import excel file including Customer (with invalid Payment Terms Code) and Vendor via data migration wizard
@@ -479,7 +479,7 @@ codeunit 139312 "Excel Data Migration Test"
     begin
         // [SCENARIO 251670] Confirmation message is shown when perform Apply step via data migration wizard in case of
         // [SCENARIO 251670] excel file contains invalid Customer row, valid Vendor row, select both tables to apply (confirm No, Apply both Customer and Vendor again, confirm Yes)
-        Initialize;
+        Initialize();
         BindSubscription(ExcelDataMigrationTest);
 
         // [GIVEN] Import excel file including Customer (with invalid Payment Terms Code) and Vendor via data migration wizard
@@ -508,7 +508,7 @@ codeunit 139312 "Excel Data Migration Test"
     begin
         // [SCENARIO 251670] There is no confirmation message when perform Apply step via data migration wizard in case of
         // [SCENARIO 251670] excel file contains invalid Customer row, valid Vendor row, select no tables to apply
-        Initialize;
+        Initialize();
         BindSubscription(ExcelDataMigrationTest);
 
         // [GIVEN] Import excel file including Customer (with invalid Payment Terms Code) and Vendor via data migration wizard
@@ -555,7 +555,7 @@ codeunit 139312 "Excel Data Migration Test"
         VendLedgerEntry: Record "Vendor Ledger Entry";
         LibraryAzureKVMockMgmt: Codeunit "Library - Azure KV Mock Mgmt.";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryRapidStart.SetAPIServicesEnabled(false);
         LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider;
         LibraryAzureKVMockMgmt.EnsureSecretNameIsAllowed('SmtpSetup');
@@ -624,7 +624,7 @@ codeunit 139312 "Excel Data Migration Test"
 
         ConfigPackageTable.SetRange("Package Code", ExcelDataMigrator.GetPackageCode);
         ConfigPackageTable.SetRange("Table ID", TableId);
-        ConfigPackageTable.FindFirst;
+        ConfigPackageTable.FindFirst();
         ConfigPackageTable.CalcFields("Table Name");
 
         ColumnHeaderRow := 3;
@@ -637,11 +637,11 @@ codeunit 139312 "Excel Data Migration Test"
 
         RecordRef.Open(TableId);
         while true do begin
-            if TempExcelBuffer.FindSet then
+            if TempExcelBuffer.FindSet() then
                 repeat
                     if TempExcelBuffer."Row No." = ColumnHeaderRow then begin
                         ConfigPackageField.SetRange("Field Caption", TempExcelBuffer."Cell Value as Text");
-                        ConfigPackageField.FindFirst;
+                        ConfigPackageField.FindFirst();
                         FieldID[TempExcelBuffer."Column No."] := ConfigPackageField."Field ID";
                     end else
                         if TempExcelBuffer."Column No." = 1 then
@@ -694,7 +694,7 @@ codeunit 139312 "Excel Data Migration Test"
     var
         Attachment: Record Attachment;
     begin
-        Attachment.FindLast;
+        Attachment.FindLast();
         ServerFileName := LibraryUtility.GetInetRoot + Attachment."Storage Pointer";
     end;
 

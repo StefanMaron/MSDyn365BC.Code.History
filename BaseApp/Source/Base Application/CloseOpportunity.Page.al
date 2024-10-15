@@ -51,7 +51,7 @@ page 5128 "Close Opportunity"
                                 begin
                                     CloseOpportunityCode.SetRange(Type, CloseOpportunityCode.Type::Won);
                                     if CloseOpportunityCode.Count = 1 then begin
-                                        CloseOpportunityCode.FindFirst;
+                                        CloseOpportunityCode.FindFirst();
                                         "Close Opportunity Code" := CloseOpportunityCode.Code;
                                     end;
                                 end;
@@ -59,7 +59,7 @@ page 5128 "Close Opportunity"
                                 begin
                                     CloseOpportunityCode.SetRange(Type, CloseOpportunityCode.Type::Lost);
                                     if CloseOpportunityCode.Count = 1 then begin
-                                        CloseOpportunityCode.FindFirst;
+                                        CloseOpportunityCode.FindFirst();
                                         "Close Opportunity Code" := CloseOpportunityCode.Code;
                                     end;
                                 end;
@@ -168,18 +168,20 @@ page 5128 "Close Opportunity"
     var
         Text000: Label 'untitled';
         Cont: Record Contact;
-        Opp: Record Opportunity;
         ClientTypeManagement: Codeunit "Client Type Management";
         [InDataSet]
         CalcdCurrentValueLCYEnable: Boolean;
-        [InDataSet]
-        SalesQuoteEnable: Boolean;
         [InDataSet]
         OptionWonEnable: Boolean;
         [InDataSet]
         OptionLostEnable: Boolean;
         IsNotAValidSelectionErr: Label '%1 is not a valid selection.', Comment = '%1 - Field Value';
         IsOnMobile: Boolean;
+
+    protected var
+        Opp: Record Opportunity;
+        [InDataSet]
+        SalesQuoteEnable: Boolean;
 
     procedure Caption(): Text
     var

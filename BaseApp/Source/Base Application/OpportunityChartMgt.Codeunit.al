@@ -14,7 +14,7 @@ codeunit 782 "Opportunity Chart Mgt."
     begin
         BusinessChartBuffer.GetXValue(BusinessChartBuffer."Drill-Down X Index", SalesPersonName);
         SalespersonPurchaser.SetRange(Name, SalesPersonName);
-        SalespersonPurchaser.FindFirst;
+        SalespersonPurchaser.FindFirst();
         Opportunity.SetRange("Salesperson Code", SalespersonPurchaser.Code);
         Opportunity.Status := "Opportunity Status".FromInteger(OpportunityStatus);
         Opportunity.SetRange(Status, Opportunity.Status);
@@ -132,10 +132,10 @@ codeunit 782 "Opportunity Chart Mgt."
         OppCount: Integer;
     begin
         with BusinessChartBuffer do begin
-            Initialize;
+            Initialize();
             AddIntegerMeasure(SalespersonPurchaser.FieldCaption("No. of Opportunities"), 1, "Chart Type"::Pie);
             SetXAxis(SalespersonPurchaser.TableCaption, "Data Type"::String);
-            if SalespersonPurchaser.FindSet then
+            if SalespersonPurchaser.FindSet() then
                 repeat
                     OppCount := GetOppCount(Period, SalespersonPurchaser.Code, OpportunityStatus);
                     if OppCount <> 0 then begin

@@ -69,7 +69,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         CompanyInfo: Record "Company Information";
     begin
         // Tests if Company Information table is updated from Rapid Start Wizard
-        Initialize;
+        Initialize();
 
         CreateConfigSetup(ConfigSetup);
         ConfigSetup.CopyCompInfo;
@@ -84,7 +84,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigSetup: Record "Config. Setup";
         ConfigPackage: Record "Config. Package";
     begin
-        Initialize;
+        Initialize();
         PreparePackageFileNameForWizard(ConfigSetup, ConfigPackage);
 
         ConfigSetup.TestField("Package Name", ConfigPackage."Package Name");
@@ -96,7 +96,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     var
         ConfigLine: Record "Config. Line";
     begin
-        Initialize;
+        Initialize();
         CreateLineNumberBuffer;
         GenerateReport_GetConfigTables(DATABASE::"Line Number Buffer", true, false, false, false);
 
@@ -111,7 +111,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigLine: Record "Config. Line";
         TableID: Integer;
     begin
-        Initialize;
+        Initialize();
         CreateLineNumberBuffer;
         TableID := DATABASE::"Sales & Receivables Setup";
         GenerateReport_GetConfigTables(TableID, false, true, false, false);
@@ -127,7 +127,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     var
         ConfigLine: Record "Config. Line";
     begin
-        Initialize;
+        Initialize();
         CreateLineNumberBuffer;
         GenerateReport_GetConfigTables(DATABASE::Customer, false, false, true, false);
         ConfigLine.SetRange("Package Code", '');
@@ -145,7 +145,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // Sunshine scenario for assign package.
         // SETUP
-        Initialize;
+        Initialize();
         LibraryRapidStart.CreatePackage(ConfigPackage);
         TableID := FindTableID;
         AddConfigLine(ConfigLine."Line Type"::Table, TableID, '');
@@ -171,7 +171,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         // If table is removed from package then package code of appropriate config line must be cleaned.
         // Sunshine scenario.
         // SETUP
-        Initialize;
+        Initialize();
         LibraryRapidStart.CreatePackage(ConfigPackage);
         TableID := FindTableID;
         AddConfigLine(ConfigLine."Line Type"::Table, TableID, '');
@@ -200,7 +200,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         // If table is removed from package then package code of appropriate config line must be cleaned.
         // If worksheet has 2 same tables removing table from package must cleanup Package Code for proper config line
         // SETUP
-        Initialize;
+        Initialize();
         FirstTetLineNo := InitRemoveTableFromPackage_SameWorksheetTables(ConfigPackage, TableID);
 
         // EXECUTE delete table from second package
@@ -225,7 +225,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // it should not be possible assigne same tables to one package at once
         // SETUP
-        Initialize;
+        Initialize();
         TableID := FindTableID;
         LibraryRapidStart.CreatePackage(ConfigPackage);
 
@@ -248,7 +248,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // it should not be possible assigne same tables to one package one by one
         // SETUP
-        Initialize;
+        Initialize();
         TableID := FindTableID;
         LibraryRapidStart.CreatePackage(ConfigPackage);
 
@@ -257,7 +257,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         AddConfigLine(ConfigLine."Line Type"::Table, TableID, '');
 
         // assign first table to the package
-        ConfigLine.FindFirst;
+        ConfigLine.FindFirst();
         ConfigLine.SetRecFilter;
 
         ConfigPackageMgt.AssignPackage(ConfigLine, ConfigPackage.Code);
@@ -265,7 +265,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         // EXECUTE
         // try to assign second table to the package
         ConfigLine.Reset();
-        ConfigLine.FindLast;
+        ConfigLine.FindLast();
         ConfigLine.SetRecFilter;
         asserterror ConfigPackageMgt.AssignPackage(ConfigLine, ConfigPackage.Code);
         Assert.ExpectedError(SameTblReferenceErr);
@@ -280,7 +280,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         TableID: Integer;
     begin
         // change work sheet's Table ID if it is linked to package and confirm update
-        Initialize;
+        Initialize();
         ChangeConfigLineTableIDLinkedToPackage(ConfigLine, TableID);
 
         // VERIFY package code must be cleared
@@ -296,7 +296,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         TableID: Integer;
     begin
         // change work sheet's Table ID if it is linked to package and do not confirm update
-        Initialize;
+        Initialize();
         ChangeConfigLineTableIDLinkedToPackage(ConfigLine, TableID);
 
         // VERIFY table id is not changed
@@ -316,7 +316,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // check that after package is reassigned linked fields, filters and errors are renamed
         // SETUP
-        Initialize;
+        Initialize();
         InitReassignPackageScenario(ConfigLine, TableID, NewPackageCode, FieldsQty, FiltersQty, ErrorsQty);
 
         // EXECUTE assign config line to another package
@@ -576,7 +576,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigPackage: Record "Config. Package";
     begin
         // Unit Test to Verify ImportPackage function
-        Initialize;
+        Initialize();
 
         // 1. Excersize: prepare and import package
         PreparePackageFileNameForWizard(ConfigSetup, ConfigPackage);
@@ -600,7 +600,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         TableID: Integer;
     begin
         // Verify Apply Data on WS lines with page.
-        Initialize;
+        Initialize();
 
         // 1. Setup.
         ConfigLine.DeleteAll(true);
@@ -628,7 +628,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigLine: Record "Config. Line";
         ConfigWorksheet: TestPage "Config. Worksheet";
     begin
-        Initialize;
+        Initialize();
         AddConfigLine(ConfigLine."Line Type"::Table, FindTableID, '');
 
         ConfigWorksheet.OpenView;
@@ -646,7 +646,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigPackageCard: TestPage "Config. Package Card";
         PackageCode: Variant;
     begin
-        Initialize;
+        Initialize();
         FindTableAndCreatePackageWithWshtLines(ConfigPackage);
 
         ConfigWorksheet.OpenView;
@@ -668,7 +668,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigWorksheet: TestPage "Config. Worksheet";
         ConfigQuestionAreaCard: TestPage "Config. Question Area";
     begin
-        Initialize;
+        Initialize();
         AddConfigLine(ConfigLine."Line Type"::Area, 0, '');
 
         asserterror PrepareQuestionAreaCard(ConfigWorksheet, ConfigQuestionAreaCard, ConfigLine."Line No.");
@@ -683,7 +683,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigWorksheet: TestPage "Config. Worksheet";
         ConfigQuestionAreaCard: TestPage "Config. Question Area";
     begin
-        Initialize;
+        Initialize();
         AddConfigLine(ConfigLine."Line Type"::Group, 0, '');
 
         asserterror PrepareQuestionAreaCard(ConfigWorksheet, ConfigQuestionAreaCard, ConfigLine."Line No.");
@@ -699,7 +699,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigQuestionAreaCard: TestPage "Config. Question Area";
         TableID: Integer;
     begin
-        Initialize;
+        Initialize();
         TableID := FindTableID;
         AddConfigLine(ConfigLine."Line Type"::Table, TableID, '');
 
@@ -718,7 +718,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         QuestionAreaTableId: Variant;
         TableID: Integer;
     begin
-        Initialize;
+        Initialize();
         TableID := FindTableID;
         AddConfigLine(ConfigLine."Line Type"::Table, TableID, '');
         CreateQuestionArea(TableID);
@@ -737,7 +737,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigWorksheet: TestPage "Config. Worksheet";
         UsersList: TestPage Users;
     begin
-        Initialize;
+        Initialize();
         AddConfigLine(ConfigLine."Line Type"::Group, 0, '');
         ConfigWorksheet.OpenView;
 
@@ -746,6 +746,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         UsersList.Close;
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure VerifyAccessToUserPersonalizationListFromWorksheet()
@@ -754,7 +755,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigWorksheet: TestPage "Config. Worksheet";
         UserPersonList: TestPage "User Personalization List";
     begin
-        Initialize;
+        Initialize();
         AddConfigLine(ConfigLine."Line Type"::Group, 0, '');
         ConfigWorksheet.OpenView;
 
@@ -762,7 +763,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigWorksheet."Users Personalization".Invoke;
         UserPersonList.Close;
     end;
-
+#endif
     [Test]
     [HandlerFunctions('ConfigPackageRecordsHandler')]
     [Scope('OnPrem')]
@@ -772,7 +773,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         StandardText: Record "Standard Text";
         ConfigWorksheet: TestPage "Config. Worksheet";
     begin
-        Initialize;
+        Initialize();
         CreateAndAssignPackage(ConfigPackage, DATABASE::"Standard Text");
         LibraryRapidStart.CreatePackageData(
           ConfigPackage.Code,
@@ -794,7 +795,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigLine: Record "Config. Line";
         ConfigWorksheet: TestPage "Config. Worksheet";
     begin
-        Initialize;
+        Initialize();
         AddConfigLine(ConfigLine."Line Type"::Table, FindTableID, '');
 
         ConfigWorksheet.OpenView;
@@ -812,7 +813,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigWorksheet: TestPage "Config. Worksheet";
         StandardTextCodes: TestPage "Standard Text Codes";
     begin
-        Initialize;
+        Initialize();
         StandardText.DeleteAll();
         StandardText.Init();
         StandardText.Code := LibraryUtility.GenerateRandomCode(StandardText.FieldNo(Code), DATABASE::"Standard Text");
@@ -839,7 +840,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ValidRecordsCount: Integer;
         InvalidRecordsCount: Integer;
     begin
-        Initialize;
+        Initialize();
         InitFactBoxTestScenario(ConfigPackageCode, ConfigPackageName, ValidRecordsCount, InvalidRecordsCount);
 
         ConfigWorksheet.OpenView;
@@ -880,7 +881,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigWorksheet: TestPage "Config. Worksheet";
         GLAccountCode: Code[10];
     begin
-        Initialize;
+        Initialize();
         CreatePackageWithGLAccountTable(ConfigPackage, GLAccountCode);
 
         ConfigWorksheet.OpenView;
@@ -900,7 +901,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigWorksheet: TestPage "Config. Worksheet";
         GLAccountCode: Code[20];
     begin
-        Initialize;
+        Initialize();
         CreatePackageWithGLAccountTable(ConfigPackage, GLAccountCode);
 
         ChangeLastLineStatus(ConfigLine.Status::Blocked);
@@ -924,7 +925,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigWorksheet: TestPage "Config. Worksheet";
         GLAccountCode: Code[20];
     begin
-        Initialize;
+        Initialize();
         CreatePackageWithGLAccountTable(ConfigPackage, GLAccountCode);
 
         ChangeLastLineStatus(ConfigLine.Status::Ignored);
@@ -942,7 +943,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigWizard: TestPage "Config. Wizard";
         UsersList: TestPage Users;
     begin
-        Initialize;
+        Initialize();
         ConfigWizard.OpenView;
 
         UsersList.Trap;
@@ -952,6 +953,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         Assert.ExpectedError(TestPageNotOpenedErr);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure VerifyAccessToUserPersonalizationListFromWizard()
@@ -959,7 +961,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigWizard: TestPage "Config. Wizard";
         UserPersonList: TestPage "User Personalization List";
     begin
-        Initialize;
+        Initialize();
         ConfigWizard.OpenView;
 
         UserPersonList.Trap;
@@ -968,7 +970,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         asserterror UserPersonList.OpenView;
         Assert.ExpectedError(TestPageNotOpenedErr);
     end;
-
+#endif
     [Test]
     [Scope('OnPrem')]
     procedure VerifyAssignmentToBlockedLine()
@@ -977,7 +979,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigPackage: Record "Config. Package";
         FirstTestLineNo: Integer;
     begin
-        Initialize;
+        Initialize();
         FirstTestLineNo := InitAssignmentScenario(ConfigPackage);
         ConfigLine.SetFilter("Line No.", '>=%1', FirstTestLineNo);
         ChangeLastLineStatus(ConfigLine.Status::Blocked);
@@ -1006,7 +1008,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigLine: Record "Config. Line";
         FirstTestLineNo: Integer;
     begin
-        Initialize;
+        Initialize();
         FirstTestLineNo := InitAssignmentScenario(ConfigPackage);
         ConfigLine.SetFilter("Line No.", '>=%1', FirstTestLineNo);
         ChangeLastLineStatus(ConfigLine.Status::Ignored);
@@ -1032,10 +1034,10 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigWorksheet: TestPage "Config. Worksheet";
         FirstTestLineNo: Integer;
     begin
-        Initialize;
+        Initialize();
         FirstTestLineNo := InitAssignmentScenario(ConfigPackage);
         ConfigLine.SetFilter("Line No.", '>=%1', FirstTestLineNo);
-        ConfigLine.FindFirst;
+        ConfigLine.FindFirst();
 
         ConfigWorksheet.OpenEdit;
 
@@ -1055,10 +1057,10 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigWorksheet: TestPage "Config. Worksheet";
     begin
         // SETUP
-        Initialize;
+        Initialize();
         AddConfigLine(ConfigLine."Line Type"::Table, DATABASE::"Item Unit of Measure", '');
         ConfigLine.SetRange("Package Code", '');
-        ConfigLine.FindFirst;
+        ConfigLine.FindFirst();
 
         ConfigWorksheet.OpenEdit;
         ConfigWorksheet.GotoRecord(ConfigLine);
@@ -1085,7 +1087,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // SETUP
         // Config Line with a different Package Code is not considered as duplicate
-        Initialize;
+        Initialize();
         NoOfConfigLineRecordsBefore := ConfigLine.Count();
 
         LibraryRapidStart.CreatePackage(ConfigPackage);
@@ -1126,8 +1128,8 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // check that Related Table FactBox is accessible and shows related table list and related table can be added
         // SETUP
-        Initialize;
-        ConfigWorksheet.OpenNew;
+        Initialize();
+        ConfigWorksheet.OpenNew();
         ConfigWorksheet."Line Type".SetValue(ConfigLine."Line Type"::Table);
 
         // EXECUTE: Validate TableID
@@ -1149,7 +1151,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigWorksheet: TestPage "Config. Worksheet";
     begin
         // SETUP
-        Initialize;
+        Initialize();
         AddConfigLine(ConfigLine."Line Type"::Table, DATABASE::"Item Unit of Measure", '');
         ConfigWorksheet.OpenEdit;
         ConfigWorksheet.First;
@@ -1174,8 +1176,8 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // check that Related Table FactBox is accessible and shows related table list and related table can be added
         // SETUP
-        Initialize;
-        ConfigWorksheet.OpenNew;
+        Initialize();
+        ConfigWorksheet.OpenNew();
         ConfigWorksheet."Line Type".SetValue(ConfigLine."Line Type"::Table);
 
         // EXECUTE: Validate TableID
@@ -1203,7 +1205,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // test verifies that Answers can be applied and Questions FactBox has correct value and it is not editable
         // SETUP creates values to apply as Answers, Questions and Question Area
-        Initialize;
+        Initialize();
 
         InitCurrencyQuestionsAnswersScenario(Answers, ConfigQuestionAreaPage);
 
@@ -1248,9 +1250,9 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // negative test; this test verifies that lines with type 'Area' cannot have the property Promoted Table = TRUE
         // SETUP creates a line with the 'Area' type
-        Initialize;
+        Initialize();
 
-        AddConfigLine(0, 0, LibraryUtility.GenerateGUID);
+        AddConfigLine(0, 0, LibraryUtility.GenerateGUID());
         ConfigWorksheet.OpenEdit;
         ConfigWorksheet.First;
 
@@ -1266,9 +1268,9 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // negative test; this test verifies that lines with type 'Group' cannot have the property Promoted Table = TRUE
         // SETUP creates a line with the 'Group' type
-        Initialize;
+        Initialize();
 
-        AddConfigLine(1, 0, LibraryUtility.GenerateGUID);
+        AddConfigLine(1, 0, LibraryUtility.GenerateGUID());
         ConfigWorksheet.OpenEdit;
         ConfigWorksheet.First;
 
@@ -1288,7 +1290,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // test verifies that the Promoted Tables Only button works: 1) only Promoted tables are shown at the first click; 2) all the tables are shown at the second click.
         // SETUP creates lines of tables at the Worksheet
-        Initialize;
+        Initialize();
         MaxLines := LibraryRandom.RandInt(5);
         for Counter := 1 to MaxLines do begin
             TableID := FindNextTableID(LibraryRandom.RandIntInRange(3, 9));
@@ -1326,7 +1328,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // test verifies that the package can be assigned to tables one by one, then a table can be excluded from the package
         // SETUP creates lines in the Worksheet and package
-        Initialize;
+        Initialize();
         TableID := FindTableID;
         AddConfigLine(2, TableID, '');
         TableID := FindNextTableID(TableID);
@@ -1348,7 +1350,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
 
         // EXECUTE the deleting table from package (not from the Worksheet!)
         ConfigPackageTable.SetRange("Package Code", ConfigPackageCode);
-        ConfigPackageTable.FindFirst;
+        ConfigPackageTable.FindFirst();
         ConfigPackageTable.Delete(true);
 
         // VERIFY that the package is not assigned to excluded table (refreshing of page is needed)
@@ -1371,7 +1373,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // test verifies that the package cannot be assigned to the same tables
         // SETUP creates lines in the Worksheet and package; the tables in lines are the same
-        Initialize;
+        Initialize();
         TableID := FindTableID;
         AddConfigLine(2, TableID, '');
         AddConfigLine(2, TableID, '');
@@ -1406,21 +1408,21 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // test verifies that lines in the Worksheet can be moved up and down
         // SETUP creates several lines in the Worksheet
-        Initialize;
-        AddConfigLine(ConfigLine."Line Type"::Area, 0, LibraryUtility.GenerateGUID);
-        AddConfigLine(ConfigLine."Line Type"::Group, 0, LibraryUtility.GenerateGUID);
+        Initialize();
+        AddConfigLine(ConfigLine."Line Type"::Area, 0, LibraryUtility.GenerateGUID());
+        AddConfigLine(ConfigLine."Line Type"::Group, 0, LibraryUtility.GenerateGUID());
         TableID := FindTableID;
         AddConfigLine(ConfigLine."Line Type"::Table, TableID, '');
         TableID1 := TableID;
 
-        AddConfigLine(ConfigLine."Line Type"::Group, 0, LibraryUtility.GenerateGUID);
+        AddConfigLine(ConfigLine."Line Type"::Group, 0, LibraryUtility.GenerateGUID());
         TableID := FindNextTableID(TableID);
         AddConfigLine(ConfigLine."Line Type"::Table, TableID, '');
         TableID2 := TableID;
 
         SetVerticalSorting(ConfigLine);
         ConfigLine.SetRange("Table ID", TableID1);
-        ConfigLine.FindFirst;
+        ConfigLine.FindFirst();
 
         ConfigWorksheet.OpenEdit;
 
@@ -1429,17 +1431,17 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigWorksheet.MoveDown.Invoke;
         ConfigWorksheet.MoveDown.Invoke;
         // VERIFY that the line was moved down
-        ConfigLine.FindFirst;
+        ConfigLine.FindFirst();
         Assert.AreEqual(ConfigLine."Vertical Sorting", FindNumberOfLineAtWorksheetPage(ConfigLine, ConfigWorksheet), LineNotMovedDownErr);
 
         ConfigLine.SetRange("Table ID", TableID2);
-        ConfigLine.FindFirst;
+        ConfigLine.FindFirst();
 
         // EXECUTE moving up action
         ConfigWorksheet.GotoRecord(ConfigLine);
         ConfigWorksheet.MoveUp.Invoke;
         // VERIFY that the line was moved up
-        ConfigLine.FindFirst;
+        ConfigLine.FindFirst();
         Assert.AreEqual(ConfigLine."Vertical Sorting", FindNumberOfLineAtWorksheetPage(ConfigLine, ConfigWorksheet), LineNotMovedUpErr);
     end;
 
@@ -1456,7 +1458,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         JournalBatchName: Code[10];
     begin
         // Verify Apply Data can be applied on some WS lines: unit test for 2 lines.
-        Initialize;
+        Initialize();
 
         // 1. Excersise: create Config. Package and Line
         CreateConfigPackageAndLine(ConfigPackage, ConfigLine, JournalTemplateName, JournalBatchName);
@@ -1480,7 +1482,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         GroupLineNo: Integer;
     begin
         // Unit test to verify ConfigMgt.AssignParentLineNos
-        Initialize;
+        Initialize();
 
         // 1. Excersize: create WS Lines and AssignParentLineNos
         TableID := FindTableID;
@@ -1490,7 +1492,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigMgt.AssignParentLineNos;
 
         // 2. Verify  Parent Line No. for table
-        ConfigLine.FindLast;
+        ConfigLine.FindLast();
         Assert.AreEqual(GroupLineNo, ConfigLine."Parent Line No.",
           StrSubstNo(IncorrectValueErr, ConfigLine.FieldName("Parent Line No."), ConfigLine.TableName));
     end;
@@ -1504,7 +1506,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         TableID: Integer;
     begin
         // Verify that related tables are cleaned up when the config. line is deleted if there are no more lines with the same table id in the worksheet
-        Initialize;
+        Initialize();
 
         // Setup: Create config. line with related tables
         TableID := FindTableWithRelatedTables;
@@ -1527,7 +1529,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         TableID: Integer;
     begin
         // Verify that related tables are not deleted when the config. line is deleted if there are lines with the same table id in the worksheet
-        Initialize;
+        Initialize();
 
         // Setup: Create several config. lines with the same table ID having related tables
         TableID := FindTableWithRelatedTables;
@@ -1552,7 +1554,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         TableID: Integer;
     begin
         // Verify that a table from a worksheet is not added to the worksheet for the second time after getting related tables
-        Initialize;
+        Initialize();
 
         TableID := FindTableWithRelatedTables;
         LibraryRapidStart.CreateConfigLine(ConfigLine, ConfigLine."Line Type"::Table, TableID, '', '', false);
@@ -1572,7 +1574,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigLine: Record "Config. Line";
     begin
         // [FEATURE] [Dimension]
-        Initialize;
+        Initialize();
         // [GIVEN] Create worksheet line with <blank> package code
         LibraryRapidStart.CreateConfigLine(ConfigLine, ConfigLine."Line Type"::Table, DATABASE::Customer, '', '', false);
 
@@ -1590,7 +1592,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     var
         ConfigLine: Record "Config. Line";
     begin
-        Initialize;
+        Initialize();
         VerifyPackageCardAssignedToGroupOrAreaLineCanBeOpened_Helper(ConfigLine."Line Type"::Group);
     end;
 
@@ -1601,7 +1603,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     var
         ConfigLine: Record "Config. Line";
     begin
-        Initialize;
+        Initialize();
         VerifyPackageCardAssignedToGroupOrAreaLineCanBeOpened_Helper(ConfigLine."Line Type"::Area);
     end;
 
@@ -1611,7 +1613,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     var
         ConfigLine: Record "Config. Line";
     begin
-        Initialize;
+        Initialize();
         VerifyPackageCardIsNotOpenedIfPackageNotAssigned_Helper(ConfigLine."Line Type"::Group);
     end;
 
@@ -1621,7 +1623,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     var
         ConfigLine: Record "Config. Line";
     begin
-        Initialize;
+        Initialize();
         VerifyPackageCardIsNotOpenedIfPackageNotAssigned_Helper(ConfigLine."Line Type"::Area);
     end;
 
@@ -1633,7 +1635,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigPackageCard: TestPage "Config. Package Card";
     begin
         // [SCENARIO 262975] Import\Export functions disabled if user doesn't have write access to config package table
-        Initialize;
+        Initialize();
 
         // [GIVEN] User doesn't have access to the config package table
         LibraryLowerPermissions.SetTeamMember;
@@ -1660,7 +1662,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigPackages: TestPage "Config. Packages";
     begin
         // [SCENARIO 262975] Import\Export functions disabled if user doesn't have write access to config package table
-        Initialize;
+        Initialize();
 
         // [GIVEN] User doesn't have access to the config package table
         LibraryLowerPermissions.SetTeamMember;
@@ -1683,7 +1685,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigPackageCard: TestPage "Config. Package Card";
     begin
         // [SCENARIO 262975] Import\Export functions enabled if user has write access to config package table
-        Initialize;
+        Initialize();
 
         // [GIVEN] User has access to the config package table
         LibraryLowerPermissions.SetO365Full;
@@ -1710,7 +1712,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigPackages: TestPage "Config. Packages";
     begin
         // [SCENARIO 262975] Import\Export functions enabled if user has write access to config package table
-        Initialize;
+        Initialize();
 
         // [GIVEN] User has access to the config package table
         LibraryLowerPermissions.SetO365Full;
@@ -1732,7 +1734,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigPackage: Record "Config. Package";
         ConfigLine: Record "Config. Line";
     begin
-        Initialize;
+        Initialize();
         FindTableAndCreatePackageWithWshtLines(ConfigPackage);
 
         ExportImportPackageWithCleanup(ConfigPackage, true);
@@ -1750,7 +1752,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigLine: Record "Config. Line";
         TableId: Integer;
     begin
-        Initialize;
+        Initialize();
         TableId := FindTableID;
         LibraryRapidStart.CreatePackage(ConfigPackage);
         LibraryRapidStart.CreatePackageTable(ConfigPackageTable, ConfigPackage.Code, TableId);
@@ -1768,7 +1770,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigPackage: Record "Config. Package";
         ConfigLine: Record "Config. Line";
     begin
-        Initialize;
+        Initialize();
         ExportImportPackageAndWshtLineWithoutAssignment(ConfigPackage, true);
 
         ConfigLine.SetFilter("Package Code", '%1|%2', ConfigPackage.Code, '');
@@ -1783,7 +1785,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigLine: Record "Config. Line";
         AllConfigLines: Integer;
     begin
-        Initialize;
+        Initialize();
         ExportImportPackageAndWshtLineWithoutAssignment(ConfigPackage, false);
 
         AllConfigLines := ConfigLine.Count();
@@ -1798,7 +1800,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigPackage: Record "Config. Package";
         ConfigLine: Record "Config. Line";
     begin
-        Initialize;
+        Initialize();
         FindTableAndCreatePackageWithWshtLines(ConfigPackage);
 
         ExportImportPackageWithCleanup(ConfigPackage, false);
@@ -1815,7 +1817,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigLine: Record "Config. Line";
         AllConfigLines: Integer;
     begin
-        Initialize;
+        Initialize();
         FindTableAndCreatePackageWithWshtLines(ConfigPackage);
 
         ExportImportPackageWithCleanup(ConfigPackage, false);
@@ -1832,7 +1834,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigPackage: Record "Config. Package";
         ConfigLine: Record "Config. Line";
     begin
-        Initialize;
+        Initialize();
         FindTableAndCreatePackageWithWshtLines(ConfigPackage);
 
         ExportImportPackageWithoutCleanup(ConfigPackage);
@@ -1848,7 +1850,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigPackage: Record "Config. Package";
         ConfigLine: Record "Config. Line";
     begin
-        Initialize;
+        Initialize();
         FindTableAndCreatePackageWithWshtLines(ConfigPackage);
 
         ExportImportPackageWithoutCleanup(ConfigPackage);
@@ -1868,7 +1870,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         TableId: Integer;
         FilePath: Text;
     begin
-        Initialize;
+        Initialize();
         TableId := FindTableID;
         LibraryRapidStart.CreatePackage(ConfigPackage);
         LibraryRapidStart.CreatePackageTable(ConfigPackageTable, ConfigPackage.Code, TableId);
@@ -1896,7 +1898,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigPackage: Record "Config. Package";
         ConfigLine: Record "Config. Line";
     begin
-        Initialize;
+        Initialize();
         FindTableAndCreatePackageWithWshtLines(ConfigPackage);
 
         CleanupData(ConfigPackage.Code, false);
@@ -1915,7 +1917,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // [FEATURE] [Dimension]
         // [SCENARIO] Table ID cannot be changed in config. line with Dimension As Columns = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Config. Line for Customer, where "Dimensions as Columns" is 'Yes'
         LibraryRapidStart.CreatePackage(ConfigPackage);
@@ -1939,7 +1941,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // [FEATURE] [Dimension]
         // [SCENARIO] Dimension As Columns in config. line cleared after Package Table was deleted from package
-        Initialize;
+        Initialize();
 
         // [GIVEN] Config. Line for Customer table, where "Dimensions as Columns" is 'Yes'
         LibraryRapidStart.CreatePackage(ConfigPackage);
@@ -1950,7 +1952,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigPackageTable.Delete(true);
 
         // [THEN] Config. Line, where "Dimensions as Columns" is 'No'
-        ConfigLine.FindFirst;
+        ConfigLine.FindFirst();
         Assert.IsFalse(ConfigLine."Dimensions as Columns", StrSubstNo(ConfigLine.FieldName("Dimensions as Columns")));
     end;
 
@@ -1999,7 +2001,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // [SCENARIO 382545] RapidStart import data with blank value
 
-        Initialize;
+        Initialize();
         // [GIVEN] PaymentTerms with Description field filled in.
         LibraryERM.CreatePaymentTerms(PaymentTerms);
         LibraryUtility.FillFieldMaxText(PaymentTerms, PaymentTerms.FieldNo(Description));
@@ -2036,7 +2038,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // [SCENARIO] RapidStart import data with blank value which benongs to Template
 
-        Initialize;
+        Initialize();
         // [GIVEN] PaymentTerms with Description field filled in.
         LibraryERM.CreatePaymentTerms(PaymentTerms);
         LibraryUtility.FillFieldMaxText(PaymentTerms, PaymentTerms.FieldNo(Description));
@@ -2085,7 +2087,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // [SCENARIO] RapidStart import data with blank value which belongs to Template that inherits another one.
 
-        Initialize;
+        Initialize();
         // [GIVEN] PaymentTerms with Description field filled in.
         LibraryERM.CreatePaymentTerms(PaymentTerms);
         LibraryUtility.FillFieldMaxText(PaymentTerms, PaymentTerms.FieldNo(Description));
@@ -2144,7 +2146,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 217835] User can change the related table ID of the field if the one has some related tables at the time of adding table to Config. Package
-        Initialize;
+        Initialize();
 
         // [GIVEN] Empty Config. Package
         LibraryRapidStart.CreatePackage(ConfigPackage);
@@ -2184,7 +2186,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 217835] Action "Change Relation Table" on the page "Config. Package Fields" is enabled for a field with multirelated table and the action is disabled for the field with 1 relation or without relations
-        Initialize;
+        Initialize();
 
         // [GIVEN] Config. Package with table is containing field with 2 or more related tables
         // [GIVEN] Example table Item (27) with field "Sales Unit of Measure" (5425) with related tables "Unit of Measure" (204) and "Item Unit of Measure" (5404)
@@ -2223,7 +2225,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 217835] "Config. Package Table"."ShowFilteredPackageFields" with FilterValue = '' opens page "Config. Package Fields" with all fields of table
-        Initialize;
+        Initialize();
 
         // [GIVEN] Config. package with table
         TableID := DATABASE::"Config. Package Field";
@@ -2251,7 +2253,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 217835] "Config. Package Table"."ShowFilteredPackageFields" with FilterValue = '1' opens page "Config. Package Fields" with only filtered record
-        Initialize;
+        Initialize();
 
         // [GIVEN] Config. package with table
         TableID := DATABASE::"Config. Package Field";
@@ -2276,7 +2278,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // [FEATURE] [Config. Line] [UT]
         // [SCENARIO 217870] Tables out of ..99000999|2000000004|2000000005 range must not be included in Configuration Worksheet and no error must appear
-        Initialize;
+        Initialize();
 
         TableID := 99008535; // TempBlob
 
@@ -2299,7 +2301,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // [FEATURE] [Config. Line] [UT]
         // [SCENARIO 217870] Tables of CRM Type must not be included in Configuration Worksheet
-        Initialize;
+        Initialize();
 
         TableID := DATABASE::"CRM NAV Connection";
 
@@ -2322,7 +2324,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // [FEATURE] [Config. Line] [UT]
         // [SCENARIO 217870] Tables of Exchange Type must not be included in Configuration Worksheet
-        Initialize;
+        Initialize();
 
         TableID := DATABASE::"Booking Item";
 
@@ -2345,7 +2347,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // [FEATURE] [Config. Line] [UT]
         // [SCENARIO 217870] Tables of Normal Type can be included in Configuration Worksheet
-        Initialize;
+        Initialize();
 
         TableID := DATABASE::Item;
 
@@ -2367,7 +2369,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // [FEATURE] [Config. Line] [UT]
         // [SCENARIO 217870] Extension tables can be included in Configuration Worksheet
-        Initialize;
+        Initialize();
 
         TableID := 1070; // "MS - PayPal Standard Account" extension table
 
@@ -2388,7 +2390,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 222724] Function "Config. Management"."MakeTableFilter" returns a filter string for Config. Lines with Status " ", "In Progress", "Completed"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Config. Line with "Table ID" = 1 and Status = " "
         InsertConfigLineWithStatusAndTableID(TempConfigLine, TempConfigLine.Status::" ", 1);
@@ -2418,7 +2420,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // [FEATURE] [Config Package]
         // [SCENARIO 231155] Apply data for related table when create missing codes and the primary key starts with field number greater than 1
-        Initialize;
+        Initialize();
 
         // [GIVEN] Config Line contains one record with fields of the table Item - "No." and "Manufacturer Code"
         TableID := DATABASE::Item;
@@ -2453,7 +2455,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         // [FEATURE] [Config Package] [Relation Table]
         // [SCENARIO 274364] Config package can contain composite key when missing code is creating
-        Initialize;
+        Initialize();
 
         // [GIVEN] Config line contains one record with fields of the table Item - "No." = "N" and "Sales Unit of Measure" = "SUOM"
         // [GIVEN] Database contains "Unit Of Measure" = "SUOM" but does not contain item "N" and "Item Unit of Measure" ["N","SUOM"]
@@ -2522,7 +2524,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryRapidStart.CleanUp('');
         LibraryRapidStart.SetAPIServicesEnabled(false);
     end;
@@ -2549,7 +2551,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
                 Init;
                 Insert;
             end;
-            Name := LibraryUtility.GenerateGUID;
+            Name := LibraryUtility.GenerateGUID();
             Modify;
         end;
     end;
@@ -2573,7 +2575,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         AllObj: Record AllObj;
     begin
         AllObj.SetRange("Object Type", AllObj."Object Type"::Table);
-        AllObj.FindFirst;
+        AllObj.FindFirst();
 
         exit(AllObj."Object ID");
     end;
@@ -2584,7 +2586,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         AllObj.SetRange("Object Type", AllObj."Object Type"::Table);
         AllObj.SetFilter("Object ID", '>%1', TableID);
-        AllObj.FindFirst;
+        AllObj.FindFirst();
 
         exit(AllObj."Object ID");
     end;
@@ -2594,7 +2596,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         "Field": Record "Field";
     begin
         Field.SetFilter(RelationTableNo, '>0');
-        Field.FindFirst;
+        Field.FindFirst();
 
         exit(Field.TableNo);
     end;
@@ -2603,7 +2605,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         TableRelationsMetadata.SetRange("Related Field No.", 2);
         TableRelationsMetadata.SetRange("Condition Field No.", 1);
-        TableRelationsMetadata.FindFirst;
+        TableRelationsMetadata.FindFirst();
     end;
 
     local procedure InitRemoveTableFromPackage_SameWorksheetTables(var ConfigPackage: array[2] of Record "Config. Package"; var TableID: Integer): Integer
@@ -2620,7 +2622,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
             LibraryRapidStart.CreatePackage(ConfigPackage[i]);
 
             AddConfigLine(ConfigLine[i]."Line Type"::Table, TableID, '');
-            ConfigLine[i].FindLast;
+            ConfigLine[i].FindLast();
             ConfigLine[i].SetRecFilter;
 
             ConfigPackageMgt.AssignPackage(ConfigLine[i], ConfigPackage[i].Code);
@@ -2720,7 +2722,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         GetConfigTables.InitializeRequest(
           IncludeWithDataOnly, IncludeRelatedTables, IncludeDimensionTables, IncludeLicensedTablesOnly);
         GetConfigTables.UseRequestPage(false);
-        GetConfigTables.Run;
+        GetConfigTables.Run();
     end;
 
     local procedure InitReassignPackageScenario(var ConfigLine: Record "Config. Line"; var TableID: Integer; var NewPackageCode: Code[20]; var FieldsQty: Integer; var FiltersQty: Integer; var ErrorsQty: Integer)
@@ -2741,7 +2743,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         LibraryRapidStart.CreatePackage(ConfigPackage);
 
         ConfigLine.SetRange("Package Code", '');
-        ConfigLine.FindFirst;
+        ConfigLine.FindFirst();
         ConfigPackageMgt.AssignPackage(ConfigLine, ConfigPackageCode);
 
         // add filters and errors for each field
@@ -2765,7 +2767,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         "Field": Record "Field";
     begin
         Field.SetRange(TableNo, ConfigPackageTable."Table ID");
-        if Field.FindSet then
+        if Field.FindSet() then
             repeat
                 ConfigPackageFilter.Init();
                 ConfigPackageFilter."Package Code" := ConfigPackageTable."Package Code";
@@ -2919,7 +2921,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         ConfigLine.Reset();
         ConfigLine.SetRange("Package Code", '');
-        ConfigLine.FindFirst;
+        ConfigLine.FindFirst();
     end;
 
     local procedure InitAssignmentScenario(var ConfigPackage: Record "Config. Package"): Integer
@@ -2939,7 +2941,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         AddConfigLine(2, TableID, '');
 
         ConfigLine.SetRange("Package Code", '');
-        ConfigLine.FindFirst;
+        ConfigLine.FindFirst();
         exit(ConfigLine."Line No.");
     end;
 
@@ -2957,7 +2959,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     var
         ConfigLine: Record "Config. Line";
     begin
-        ConfigLine.FindLast;
+        ConfigLine.FindLast();
         ConfigLine.Status := LineStatus;
         ConfigLine.Modify();
     end;
@@ -3082,7 +3084,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         FileName: Text;
         CompressedFileName: Text;
     begin
-        FileName := GetFileName(LibraryUtility.GenerateGUID);
+        FileName := GetFileName(LibraryUtility.GenerateGUID());
         CreateConfigSetup(ConfigSetup);
         LibraryRapidStart.CreatePackage(ConfigPackage);
         LibraryRapidStart.CreatePackageTable(ConfigPackageTable, ConfigPackage.Code, DATABASE::Location);
@@ -3135,7 +3137,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         DummyGLAccount: Record "G/L Account";
     begin
         // Some localized versions require G/L Account to start with a digit other than 0
-        GeneratedCode := LibraryUtility.GenerateGUID;
+        GeneratedCode := LibraryUtility.GenerateGUID();
         while StrLen(GeneratedCode) < MaxStrLen(DummyGLAccount."No.") do
             GeneratedCode := '1' + GeneratedCode;
     end;
@@ -3147,7 +3149,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         Field.SetRange(TableNo, TableID);
         Field.SetFilter(RelationTableNo, '<>%1&<>%2&..%3', 0, TableID, 99000999);
-        if Field.FindSet then
+        if Field.FindSet() then
             repeat
                 Integer.Number := Field.RelationTableNo;
                 if Integer.Insert() then;
@@ -3317,7 +3319,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigPackageData.SetRange("Table ID", DATABASE::"Standard Text");
         ConfigPackageData.SetRange("No.", 1);
         ConfigPackageData.SetRange("Field ID", StandardText.FieldNo(Code));
-        ConfigPackageData.FindFirst;
+        ConfigPackageData.FindFirst();
 
         Assert.AreEqual(ConfigPackageData.Value, Format(ConfigPackageRecords.Field1),
           StrSubstNo(IncorrectValueErr, ConfigPackageRecords.Field1.Caption, ConfigPackageRecords.Caption));

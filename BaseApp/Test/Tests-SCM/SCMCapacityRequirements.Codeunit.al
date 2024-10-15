@@ -50,7 +50,7 @@ codeunit 137074 "SCM Capacity Requirements"
         CapacityEfficiency: Decimal;
     begin
         // Setup: Create Production Item with Routing.
-        Initialize;
+        Initialize();
         CreateProductionItemWithRoutingSetup(Item, false);
         CreateAndRefreshBackwardFirmPlannedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate);
 
@@ -70,7 +70,7 @@ codeunit 137074 "SCM Capacity Requirements"
     procedure MachineCenterWithNegativeEfficiencyError()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         MachineCenterWithNegativeCapacityAndEfficiency(true);  // Efficiency as True.
     end;
 
@@ -79,7 +79,7 @@ codeunit 137074 "SCM Capacity Requirements"
     procedure MachineCenterWithNegativeCapacityError()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         MachineCenterWithNegativeCapacityAndEfficiency(false);  // Efficiency as False.
     end;
 
@@ -112,7 +112,7 @@ codeunit 137074 "SCM Capacity Requirements"
         MachineCenter: Record "Machine Center";
     begin
         // Setup: Create Work Center. Create Machine Center with Zero Capacity.
-        Initialize;
+        Initialize();
         CreateWorkCenter(WorkCenter);
         LibraryManufacturing.CreateMachineCenter(MachineCenter, WorkCenter."No.", 0);  // Capacity as 0 required.
 
@@ -131,7 +131,7 @@ codeunit 137074 "SCM Capacity Requirements"
         MachineCenter: Record "Machine Center";
     begin
         // Setup: Create Work Center. Create Machine Center with Zero Efficiency.
-        Initialize;
+        Initialize();
         CreateWorkCenter(WorkCenter);
         LibraryManufacturing.CreateMachineCenter(MachineCenter, WorkCenter."No.", LibraryRandom.RandDec(100, 2));
         UpdateMachineCenterWithZeroEfficiency(MachineCenter);
@@ -150,7 +150,7 @@ codeunit 137074 "SCM Capacity Requirements"
         WorkCenter: Record "Work Center";
     begin
         // Setup: Create Work Center with Zero Capacity.
-        Initialize;
+        Initialize();
         LibraryManufacturing.CreateWorkCenter(WorkCenter);
         UpdateWorkCenterWithZeroCapacity(WorkCenter);
 
@@ -168,7 +168,7 @@ codeunit 137074 "SCM Capacity Requirements"
         WorkCenter: Record "Work Center";
     begin
         // Setup: Create Work Center with Zero Efficiency.
-        Initialize;
+        Initialize();
         LibraryManufacturing.CreateWorkCenter(WorkCenter);
         UpdateWorkCenterWithZeroEfficiency(WorkCenter);
 
@@ -184,7 +184,7 @@ codeunit 137074 "SCM Capacity Requirements"
     procedure WorkCenterWithNegativeEfficiencyError()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         WorkCenterWithNegativeCapacityAndEfficiency(true);  // Efficiency as True.
     end;
 
@@ -193,7 +193,7 @@ codeunit 137074 "SCM Capacity Requirements"
     procedure WorkCenterWithNegativeCapacityError()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         WorkCenterWithNegativeCapacityAndEfficiency(false);  // Efficiency as False.
     end;
 
@@ -226,7 +226,7 @@ codeunit 137074 "SCM Capacity Requirements"
         RoutingLine: Record "Routing Line";
     begin
         // Setup: Create Work Center and Create Blocked Machine Center. Create Routing Header.
-        Initialize;
+        Initialize();
         CreateWorkCenter(WorkCenter);
         LibraryManufacturing.CreateMachineCenter(MachineCenter, WorkCenter."No.", LibraryRandom.RandDec(100, 2));
         UpdateMachineCenterBlocked(MachineCenter);
@@ -248,7 +248,7 @@ codeunit 137074 "SCM Capacity Requirements"
         RoutingLine: Record "Routing Line";
     begin
         // Setup: Create Blocked Work Center. Create Routing Header.
-        Initialize;
+        Initialize();
         CreateWorkCenter(WorkCenter);
         UpdateWorkCenterBlocked(WorkCenter);
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
@@ -273,7 +273,7 @@ codeunit 137074 "SCM Capacity Requirements"
         StandardCost: Decimal;
     begin
         // Setup: Create Production Item with Routing. Update Costing Method as Standard on Items.
-        Initialize;
+        Initialize();
         CreateProductionItemWithRoutingSetup(Item, false);
         FindProductionBOMLine(ProductionBOMLine, Item."Production BOM No.");
         ChildItem.Get(ProductionBOMLine."No.");
@@ -306,7 +306,7 @@ codeunit 137074 "SCM Capacity Requirements"
         ProdOrderLine: Record "Prod. Order Line";
     begin
         // Setup: Create Production Item with Routing and Sales Order.
-        Initialize;
+        Initialize();
         CreateProductionItemWithRoutingSetup(Item, false);
         CreateSalesOrder(SalesHeader, Item."No.");
 
@@ -326,7 +326,7 @@ codeunit 137074 "SCM Capacity Requirements"
     procedure ProdOrderRoutingLineWithStartingDateAndTimeForFirmPlannedProdOrderFromSalesOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ProdOrderRoutingLineWithStartingDateAndTime(true);  // Firm Planned Prod Order From Sales Order as True.
     end;
 
@@ -335,7 +335,7 @@ codeunit 137074 "SCM Capacity Requirements"
     procedure ProdOrderRoutingLineWithStartingDateAndTimeForFirmPlannedProdOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ProdOrderRoutingLineWithStartingDateAndTime(false);  // Firm Planned Prod Order From Sales Order as False.
     end;
 
@@ -372,7 +372,7 @@ codeunit 137074 "SCM Capacity Requirements"
         ProdOrderLine: Record "Prod. Order Line";
     begin
         // Setup: Create Production Item with Routing and Sales Order.
-        Initialize;
+        Initialize();
         CreateProductionItemWithRoutingSetup(Item, false);
         CreateAndRefreshBackwardFirmPlannedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate);
 
@@ -401,7 +401,7 @@ codeunit 137074 "SCM Capacity Requirements"
         ProdOrderCapacityNeedPage: TestPage "Prod. Order Capacity Need";
     begin
         // Setup: Create Item with routing Setup and Sales Order. Create Firm Planned Production Order from Sales Order.
-        Initialize;
+        Initialize();
         CreateProductionItemWithRoutingSetup(Item, false);
         CreateSalesOrder(SalesHeader, Item."No.");
         CreateFirmPlannedProductionOrderFromSalesOrder(SalesHeader);
@@ -435,7 +435,7 @@ codeunit 137074 "SCM Capacity Requirements"
         ProdOrderCapacityNeedPage: TestPage "Prod. Order Capacity Need";
     begin
         // Setup: Create Item with routing Setup and Sales Order. Create Firm Planned Production Order from Sales Order.
-        Initialize;
+        Initialize();
         CreateProductionItemWithRoutingSetup(Item, false);
         CreateSalesOrder(SalesHeader, Item."No.");
         CreateFirmPlannedProductionOrderFromSalesOrder(SalesHeader);
@@ -467,7 +467,7 @@ codeunit 137074 "SCM Capacity Requirements"
         ProdOrderLine: Record "Prod. Order Line";
     begin
         // Setup: Create Item with routing Setup and Sales Order. Create Firm Planned Production Order from Sales Order.
-        Initialize;
+        Initialize();
         CreateProductionItemWithRoutingSetup(Item, false);
         CreateSalesOrder(SalesHeader, Item."No.");
         CreateFirmPlannedProductionOrderFromSalesOrder(SalesHeader);
@@ -495,7 +495,7 @@ codeunit 137074 "SCM Capacity Requirements"
         SalesHeader: Record "Sales Header";
     begin
         // Setup: Create Item with routing Setup and Reorder Policy as Lot For Lot. Create Sales Order.
-        Initialize;
+        Initialize();
         CreateProductionItemWithRoutingSetup(Item, false);
         UpdateLotForLotReorderingPolicyOnItem(Item);
         CreateSalesOrder(SalesHeader, Item."No.");
@@ -517,7 +517,7 @@ codeunit 137074 "SCM Capacity Requirements"
         PlanningRoutingLine: Record "Planning Routing Line";
     begin
         // Setup: Create Item with routing Setup and Reorder Policy as Lot For Lot. Update Send Ahead Quantity on Routing line and Create Sales Order.
-        Initialize;
+        Initialize();
         CreateProductionItemWithRoutingSetup(Item, false);
         UpdateLotForLotReorderingPolicyOnItem(Item);
 
@@ -540,7 +540,7 @@ codeunit 137074 "SCM Capacity Requirements"
         RoutingLine: Record "Routing Line";
     begin
         // Setup: Create Routing Header, Routing Line.
-        Initialize;
+        Initialize();
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
         CreateRoutingLine(RoutingLine, RoutingHeader, RoutingLine.Type::"Machine Center", '', false);  // Machine Center No. should be empty.
 
@@ -561,7 +561,7 @@ codeunit 137074 "SCM Capacity Requirements"
         RoutingLine: Record "Routing Line";
     begin
         // Setup: Create Production Item with Routing without filling Setup Time/Run Time/Wait Time/Move Time.
-        Initialize;
+        Initialize();
         CreateProductionItemWithoutRoutingTime(Item);
 
         // Update Unit Cost Per on Routing Line and update Unit Cost Calculation on Work Center.
@@ -627,7 +627,7 @@ codeunit 137074 "SCM Capacity Requirements"
         ExpectedQty: Decimal;
     begin
         // Verify BOM Cost Shares "Qty. per Parent" value when multiple UOM is used
-        Initialize;
+        Initialize();
         CreateProductionItemWithRoutingSetup(Item, true);
         FindRoutingLine(RoutingLine, Item."Routing No.", RoutingLine.Type::"Machine Center");
         FindWorkCenter(WorkCenter, Item."Routing No.");
@@ -657,7 +657,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [BOM Cost Share]
         // [SCENARIO 377878] BOM Cost Share Page should not calculate Tree for Items without BOM and Routing
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "X" without BOM and Routing
         CreateItem(Item, Item."Replenishment System"::Purchase);
@@ -690,7 +690,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [BOM Cost Share] [Rounding]
         // [SCENARIO 377848] BOM Cost Shares should increase rounding precision while transmission time unit
-        Initialize;
+        Initialize();
 
         // [GIVEN] Work Center "W" with Unit of Measure Code = "Hours" and Direct Unit Cost = 10000
         WorkCenterNo := CreateWorkCenterWithDirectCost(10000);
@@ -723,7 +723,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Routing] [Production Order]
         // [SCENARIO 378850] Concurrent Capacities of Prod. Order Routing Line should not be blank if Capacity is greater then 1
-        Initialize;
+        Initialize();
 
         // [GIVEN] Machine Center "M" with "Capacity" > 1 and "Concurrent Capacities" = 0
         CreateProductionItemWithRoutingSetup(Item, false);
@@ -750,7 +750,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Capacity] [Routing] [Production Order] [Send-ahead]
         // [SCENARIO 220589] No time gaps for "Prod. Order Capacity Need" occur when refresh production order backward for item with serial routing with send-ahead quantity
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity, round-the-clock shop calendar
         CreateProductionItemWithSerialRoutingReorder(Item, WorkCenterCode, Item."Reordering Policy"::"Lot-for-Lot", 0);
@@ -773,7 +773,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Capacity] [Routing] [Production Order] [Send-ahead]
         // [SCENARIO 220589] No time gaps for "Prod. Order Capacity Need" occur when calculate regenerative plan backward for item with serial routing with send-ahead quantity
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity, round-the-clock shop calendar
         CreateProductionItemWithSerialRoutingReorder(Item, WorkCenterCode, Item."Reordering Policy"::"Lot-for-Lot", 0);
@@ -798,7 +798,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Capacity] [Routing] [Production Order] [Send-ahead]
         // [SCENARIO 220589] No time gaps for "Prod. Order Capacity Need" occur when refresh production order forward for item with serial routing with send-ahead quantity
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity, round-the-clock shop calendar
         CreateProductionItemWithSerialRoutingReorder(Item, WorkCenterCode, Item."Reordering Policy"::"Lot-for-Lot", 0);
@@ -819,7 +819,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Capacity] [Routing] [Production Order] [Send-ahead]
         // [SCENARIO 220589] No time gaps for "Prod. Order Capacity Need" occur when calculate regenerative plan forward for item with serial routing with send-ahead quantity
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity, round-the-clock shop calendar
         CreateProductionItemWithSerialRoutingReorder(Item, WorkCenterCode, Item."Reordering Policy"::"Fixed Reorder Qty.", 100);
@@ -841,7 +841,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Capacity] [Routing] [Production Order] [Send-ahead]
         // [SCENARIO 220589] No time gaps for "Prod. Order Capacity Need" occur when refresh production order backward for item with parallel routing with send-ahead quantity
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Parallel Routing with Send-ahead Quantity, round-the-clock shop calendar
         CreateProductionItemWithParallelRouting(Item, WorkCenterCode, Item."Reordering Policy"::"Lot-for-Lot", 0);
@@ -864,7 +864,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Capacity] [Routing] [Production Order] [Send-ahead]
         // [SCENARIO 220589] No time gaps for "Prod. Order Capacity Need" occur when calculate regenerative plan backward for item with parallel routing with send-ahead quantity
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Parallel Routing with Send-ahead Quantity, round-the-clock shop calendar
         CreateProductionItemWithParallelRouting(Item, WorkCenterCode, Item."Reordering Policy"::"Lot-for-Lot", 0);
@@ -889,7 +889,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Capacity] [Routing] [Production Order] [Send-ahead]
         // [SCENARIO 220589] No time gaps for "Prod. Order Capacity Need" occur when refresh production order forward for item with parallel routing with send-ahead quantity
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Parallel Routing with Send-ahead Quantity, round-the-clock shop calendar
         CreateProductionItemWithParallelRouting(Item, WorkCenterCode, Item."Reordering Policy"::"Lot-for-Lot", 0);
@@ -910,7 +910,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Capacity] [Routing] [Production Order] [Send-ahead]
         // [SCENARIO 220589] No time gaps for "Prod. Order Capacity Need" occur when calculate regenerative plan forward for item with parallel routing with send-ahead quantity
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Parallel Routing with Send-ahead Quantity, round-the-clock shop calendar
         CreateProductionItemWithParallelRouting(Item, WorkCenterCode, Item."Reordering Policy"::"Fixed Reorder Qty.", 100);
@@ -938,7 +938,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Routing] [Production Order] [Send-Ahead]
         // [SCENARIO 286758] Refresh Release Production Order in Backward direction in case of Send-Ahead = 0 and "Run Time" > 0.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity = 0 and "Run Time" 60, 120, 180 minutes.
         // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 16:00, 08:00 - 23:00.
@@ -958,7 +958,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [THEN] "Starting Date-Time" of "Prod. Order Routing Line" is earlier than "Starting Date-Time" of the next "Prod. Order Routing Line".
         // [THEN] "Ending Date-Time" of "Prod. Order Routing Line" is equal to "Starting Date-Time" of the next "Prod. Order Routing Line".
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
         VerifyProdOrderStartEndDateTime(
           ProdOrderRoutingLine, CreateDateTime(20200117D, 120000T), CreateDateTime(20200121D, 120000T));
         GetNextProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderRoutingLine."Next Operation No.");
@@ -1003,7 +1003,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Routing] [Production Order] [Send-Ahead]
         // [SCENARIO 286758] Refresh Release Production Order in Backward direction in case of Send-Ahead > 0 and "Run Time" > 0.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 3, 5 and "Run Time" 10, 35, 60 minutes.
         // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 16:00, 08:00 - 23:00.
@@ -1023,7 +1023,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [THEN] "Starting Date-Time" of "Prod. Order Routing Line" is earlier than "Starting Date-Time" of the next "Prod. Order Routing Line" by value "Run Time" * "Send-Ahead Qty".
         // [THEN] "Ending Date-Time" of "Prod. Order Routing Line" is later than "Starting Date-Time" of the next "Prod. Order Routing Line".
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
         VerifyProdOrderStartEndDateTime(
           ProdOrderRoutingLine, CreateDateTime(20200127D, 093500T), CreateDateTime(20200127D, 111500T));
         GetNextProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderRoutingLine."Next Operation No.");
@@ -1068,7 +1068,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Routing] [Production Order] [Send-Ahead]
         // [SCENARIO 286758] Refresh Release Production Order in Backward direction in case of Send-Ahead > Quantify of a Production Order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 13, 15 and "Run Time" 60, 120, 180 minutes.
         // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 16:00, 08:00 - 23:00.
@@ -1088,7 +1088,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [THEN] "Starting Date-Time" of "Prod. Order Routing Line" is earlier than "Starting Date-Time" of the next "Prod. Order Routing Line".
         // [THEN] "Ending Date-Time" of "Prod. Order Routing Line" is equal to "Starting Date-Time" of the next "Prod. Order Routing Line".
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
         VerifyProdOrderStartEndDateTime(
           ProdOrderRoutingLine, CreateDateTime(20200117D, 120000T), CreateDateTime(20200121D, 120000T));
         GetNextProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderRoutingLine."Next Operation No.");
@@ -1133,7 +1133,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Routing] [Production Order] [Send-Ahead]
         // [SCENARIO 286758] Refresh Release Production Order in Backward direction in case of End Time of the previous line is later than Start Time of the next line for the residual quantity.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 2, 5 and "Run Time" 70, 93, 90 minutes.
         // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 16:00, 08:00 - 23:00.
@@ -1154,7 +1154,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // .                               Ending Time for the Previous line with working hours 08:00 - 16:00 is (23:00 - 10 * 90) + (10 - 5) * 93 = 08:00 + 465 = 15:45.
         // [THEN] "Ending Date-Time" of "Prod. Order Routing Line" is earlier than or equal to "Starting Date-Time" of the next "Prod. Order Routing Line" for the residual quantity.
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
         VerifyProdOrderStartEndDateTime(
           ProdOrderRoutingLine, CreateDateTime(20200123D, 104400T), CreateDateTime(20200127D, 122400T));
         GetNextProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderRoutingLine."Next Operation No.");
@@ -1199,7 +1199,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Routing] [Production Order] [Send-Ahead]
         // [SCENARIO 286758] Refresh Release Production Order in Backward direction in case of End Time of the line is later than "Ending Time" of "Shop Calendar Working Days" of WorkCenter.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 3, 5 and "Run Time" 90, 72, 60 minutes.
         // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 16:00, 08:00 - 23:00.
@@ -1219,7 +1219,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // .       |------------|
         // [THEN] "Starting Time" and "Ending Time" of "Prod. Order Routing Line" are between "Starting Time" and "Ending Time" of "Shop Calendar Working Days" of WorkCenter.
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
         VerifyProdOrderStartEndDateTime(
           ProdOrderRoutingLine, CreateDateTime(20200123D, 090000T), CreateDateTime(20200127D, 140000T));
         GetNextProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderRoutingLine."Next Operation No.");
@@ -1267,7 +1267,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Routing] [Production Order] [Send-Ahead]
         // [SCENARIO 291307] Refresh Release Production Order in Backward direction in case of "Concurrent Capacities" > 1 and Efficiency < 100.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 3, 5; "Run Time" 2, 35, 120 minutes; "Concurrent Capacities" = 1, 2, 2; Efficiency = 20, 50, 100.
         // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 16:00, 08:00 - 23:00.
@@ -1291,7 +1291,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // .     |-----------|
         // [THEN] "Concurrent Capacities" and Efficiency of Work Center are considered in calculation of "Starting Time" and "Ending Time".
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
         VerifyProdOrderStartEndDateTime(
           ProdOrderRoutingLine, CreateDateTime(20200127D, 093500T), CreateDateTime(20200127D, 111500T));
         GetNextProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderRoutingLine."Next Operation No.");
@@ -1481,7 +1481,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Routing] [Planning] [Send-Ahead]
         // [SCENARIO 286758] Refresh Planning Line in Backward direction in case of Send-Ahead = 0 and "Run Time" > 0.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity = 0 and "Run Time" 60, 120, 180 minutes.
         // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 16:00, 08:00 - 23:00.
@@ -1502,7 +1502,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [THEN] "Ending Date-Time" of "Planning Routing Line" is equal to "Starting Date-Time" of the next "Planning Routing Line".
         PlanningRoutingLine.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
         PlanningRoutingLine.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
-        PlanningRoutingLine.FindFirst;
+        PlanningRoutingLine.FindFirst();
         VerifyPlanningLineStartEndDateTime(
           PlanningRoutingLine, CreateDateTime(20200117D, 120000T), CreateDateTime(20200121D, 120000T));
         GetNextPlanningRoutingLine(PlanningRoutingLine, PlanningRoutingLine."Next Operation No.");
@@ -1547,7 +1547,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Routing] [Planning] [Send-Ahead]
         // [SCENARIO 286758] Refresh Planning Line in Backward direction in case of Send-Ahead > 0 and "Run Time" > 0.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 3, 5 and "Run Time" 10, 35, 60 minutes.
         // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 16:00, 08:00 - 23:00.
@@ -1568,7 +1568,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [THEN] "Ending Date-Time" of "Planning Routing Line" is later than "Starting Date-Time" of the next "Planning Routing Line".
         PlanningRoutingLine.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
         PlanningRoutingLine.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
-        PlanningRoutingLine.FindFirst;
+        PlanningRoutingLine.FindFirst();
         VerifyPlanningLineStartEndDateTime(
           PlanningRoutingLine, CreateDateTime(20200127D, 093500T), CreateDateTime(20200127D, 111500T));
         GetNextPlanningRoutingLine(PlanningRoutingLine, PlanningRoutingLine."Next Operation No.");
@@ -1613,7 +1613,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Routing] [Planning] [Send-Ahead]
         // [SCENARIO 286758] Refresh Planning Line in Backward direction in case of Send-Ahead > Quantify of a Production Order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 13, 15 and "Run Time" 60, 120, 180 minutes.
         // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 16:00, 08:00 - 23:00.
@@ -1634,7 +1634,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [THEN] "Ending Date-Time" of "Planning Routing Line" is equal to "Starting Date-Time" of the next "Planning Routing Line".
         PlanningRoutingLine.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
         PlanningRoutingLine.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
-        PlanningRoutingLine.FindFirst;
+        PlanningRoutingLine.FindFirst();
         VerifyPlanningLineStartEndDateTime(
           PlanningRoutingLine, CreateDateTime(20200117D, 120000T), CreateDateTime(20200121D, 120000T));
         GetNextPlanningRoutingLine(PlanningRoutingLine, PlanningRoutingLine."Next Operation No.");
@@ -1679,7 +1679,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Routing] [Planning] [Send-Ahead]
         // [SCENARIO 286758] Refresh Planning Line in Backward direction in case of End Time of the previous line is later than Start Time of the next line for the residual quantity.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 2, 5 and "Run Time" 70, 93, 90 minutes.
         // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 16:00, 08:00 - 23:00.
@@ -1701,7 +1701,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [THEN] "Ending Date-Time" of "Planning Routing Line" is earlier than or equal to "Starting Date-Time" of the next "Planning Routing Line" for the residual quantity.
         PlanningRoutingLine.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
         PlanningRoutingLine.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
-        PlanningRoutingLine.FindFirst;
+        PlanningRoutingLine.FindFirst();
         VerifyPlanningLineStartEndDateTime(
           PlanningRoutingLine, CreateDateTime(20200123D, 104400T), CreateDateTime(20200127D, 122400T));
         GetNextPlanningRoutingLine(PlanningRoutingLine, PlanningRoutingLine."Next Operation No.");
@@ -1746,7 +1746,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Routing] [Planning] [Send-Ahead]
         // [SCENARIO 286758] Refresh Planning Line in Backward direction in case of End Time of the line is later than "Ending Time" of "Shop Calendar Working Days" of WorkCenter.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 3, 5 and "Run Time" 90, 72, 60 minutes.
         // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 16:00, 08:00 - 23:00.
@@ -1767,7 +1767,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [THEN] "Starting Time" and "Ending Time" of "Planning Routing Line" are between "Starting Time" and "Ending Time" of "Shop Calendar Working Days" of WorkCenter.
         PlanningRoutingLine.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
         PlanningRoutingLine.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
-        PlanningRoutingLine.FindFirst;
+        PlanningRoutingLine.FindFirst();
         VerifyPlanningLineStartEndDateTime(
           PlanningRoutingLine, CreateDateTime(20200123D, 090000T), CreateDateTime(20200127D, 140000T));
         GetNextPlanningRoutingLine(PlanningRoutingLine, PlanningRoutingLine."Next Operation No.");
@@ -1815,7 +1815,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Routing] [Planning] [Send-Ahead]
         // [SCENARIO 291307] Refresh Planning Line in Backward direction in case of "Concurrent Capacities" > 1 and Efficiency < 100.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Send-ahead Quantity 3, 5; "Run Time" 2, 35, 120 minutes; "Concurrent Capacities" = 1, 2, 2; Efficiency = 20, 50, 100.
         // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 16:00, 08:00 - 23:00.
@@ -1840,7 +1840,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [THEN] "Concurrent Capacities" and Efficiency of Work Center are considered in calculation of "Starting Time" and "Ending Time" of "Planning Routing Line".
         PlanningRoutingLine.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
         PlanningRoutingLine.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
-        PlanningRoutingLine.FindFirst;
+        PlanningRoutingLine.FindFirst();
         VerifyPlanningLineStartEndDateTime(
           PlanningRoutingLine, CreateDateTime(20200127D, 093500T), CreateDateTime(20200127D, 111500T));
         GetNextPlanningRoutingLine(PlanningRoutingLine, PlanningRoutingLine."Next Operation No.");
@@ -2030,7 +2030,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Routing] [Production Order] [Send-Ahead]
         // [SCENARIO 291307] Refresh Release Production Order in Forward direction in case of Send-Ahead = 0 and "Run Time" > 0.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity = 0 and "Run Time" 180, 120, 60 minutes.
         // [GIVEN] Three Work Centers with operational hours: 08:00 - 23:00, 08:00 - 16:00, 09:00 - 14:00.
@@ -2049,7 +2049,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // .      |-------|
         // [THEN] "Ending Date-Time" of "Prod. Order Routing Line" is equal to "Starting Date-Time" of the next "Prod. Order Routing Line".
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
         VerifyProdOrderStartEndDateTime(
           ProdOrderRoutingLine, CreateDateTime(20200117D, 120000T), CreateDateTime(20200121D, 120000T));
         GetNextProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderRoutingLine."Next Operation No.");
@@ -2094,7 +2094,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Routing] [Production Order] [Send-Ahead]
         // [SCENARIO 291307] Refresh Release Production Order in Forward direction in case of Send-Ahead > 0 and "Run Time" > 0.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 3, 5 and "Run Time" 10, 35, 60 minutes.
         // [GIVEN] Three Work Centers with operational hours: 08:00 - 23:00, 08:00 - 16:00, 09:00 - 14:00.
@@ -2114,7 +2114,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [THEN] "Starting Date-Time" of "Prod. Order Routing Line" is earlier than "Starting Date-Time" of the next "Prod. Order Routing Line" by value "Run Time" * "Send-Ahead Qty".
         // [THEN] "Ending Date-Time" of "Prod. Order Routing Line" is later than "Starting Date-Time" of the next "Prod. Order Routing Line".
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
         VerifyProdOrderStartEndDateTime(
           ProdOrderRoutingLine, CreateDateTime(20200127D, 093500T), CreateDateTime(20200127D, 111500T));
         GetNextProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderRoutingLine."Next Operation No.");
@@ -2159,7 +2159,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Routing] [Production Order] [Send-Ahead]
         // [SCENARIO 291307] Refresh Release Production Order in Forward direction in case of Send-Ahead > Quantify of a Production Order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 13, 15 and "Run Time" 60, 120, 180 minutes.
         // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 16:00, 08:00 - 23:00.
@@ -2179,7 +2179,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [THEN] "Starting Date-Time" of "Prod. Order Routing Line" is earlier than "Starting Date-Time" of the next "Prod. Order Routing Line".
         // [THEN] "Ending Date-Time" of "Prod. Order Routing Line" is equal to "Starting Date-Time" of the next "Prod. Order Routing Line".
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
         VerifyProdOrderStartEndDateTime(
           ProdOrderRoutingLine, CreateDateTime(20200117D, 120000T), CreateDateTime(20200121D, 120000T));
         GetNextProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderRoutingLine."Next Operation No.");
@@ -2224,7 +2224,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Routing] [Production Order] [Send-Ahead]
         // [SCENARIO 291307] Refresh Release Production Order in Forward direction in case of End Time of the previous line is later than Start Time of the next line for the residual quantity.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 2, 5 and "Run Time" 70, 93, 90 minutes.
         // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 16:00, 08:00 - 23:00.
@@ -2245,7 +2245,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // .                               Ending Time for the Previous line with working hours 08:00 - 16:00 is (23:00 - 10 * 90) + (10 - 5) * 93 = 08:00 + 465 = 15:45.
         // [THEN] "Ending Date-Time" of "Prod. Order Routing Line" is earlier than or equal to "Starting Date-Time" of the next "Prod. Order Routing Line" for the residual quantity.
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
         VerifyProdOrderStartEndDateTime(
           ProdOrderRoutingLine, CreateDateTime(20200123D, 104400T), CreateDateTime(20200127D, 122400T));
         GetNextProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderRoutingLine."Next Operation No.");
@@ -2290,7 +2290,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Routing] [Production Order] [Send-Ahead]
         // [SCENARIO 291307] Refresh Release Production Order in Forward direction in case of Start Time of the line is later than "Ending Time" of "Shop Calendar Working Days" of WorkCenter.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 3, 6 and "Run Time" 90, 72, 60 minutes.
         // [GIVEN] Three Work Centers with operational hours: 08:00 - 23:00, 08:00 - 16:00, 09:00 - 14:00.
@@ -2310,7 +2310,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // . {   } --> operational hours
         // [THEN] "Starting Time" and "Ending Time" of "Prod. Order Routing Line" are between "Starting Time" and "Ending Time" of "Shop Calendar Working Days" of WorkCenter.
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
         VerifyProdOrderStartEndDateTime(
           ProdOrderRoutingLine, CreateDateTime(20200123D, 120000T), CreateDateTime(20200124D, 120000T));
         GetNextProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderRoutingLine."Next Operation No.");
@@ -2358,7 +2358,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Routing] [Production Order] [Send-Ahead]
         // [SCENARIO 291307] Refresh Release Production Order in Forward direction in case of "Setup Time" > 0.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 3, 5; "Run Time" 10, 35, 60 minutes; "Setup Time" = 3.
         // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 16:00, 08:00 - 23:00.
@@ -2380,7 +2380,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // .     |-----------|
         // [THEN] "Setup Time" is added to the start of production period for every "Prod. Order Routing Line".
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
         VerifyProdOrderStartEndDateTime(
           ProdOrderRoutingLine, CreateDateTime(20200127D, 093500T), CreateDateTime(20200127D, 111800T));
         GetNextProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderRoutingLine."Next Operation No.");
@@ -2427,7 +2427,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Routing] [Production Order] [Send-Ahead]
         // [SCENARIO 291307] Refresh Release Production Order in Forward direction in case of "Concurrent Capacities" > 1 and Efficiency < 100.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 3, 5; "Run Time" 2, 35, 120 minutes; "Concurrent Capacities" = 1, 2, 2; Efficiency = 20, 50, 100.
         // [GIVEN] Three Work Centers with operational hours: 08:00 - 23:00, 08:00 - 16:00, 09:00 - 14:00.
@@ -2451,7 +2451,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // .     |-----------|
         // [THEN] "Concurrent Capacities" and Efficiency of Work Center are considered in calculation of "Starting Time" and "Ending Time" of "Prod. Order Routing Line".
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
         VerifyProdOrderStartEndDateTime(
           ProdOrderRoutingLine, CreateDateTime(20200127D, 093500T), CreateDateTime(20200127D, 111500T));
         GetNextProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderRoutingLine."Next Operation No.");
@@ -2498,7 +2498,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Routing] [Production Order] [Send-Ahead]
         // [SCENARIO 291307] Refresh Release Production Order in Forward direction in case of "Wait Time" > 0 and "Move Time" > 0.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 3, 5; "Run Time" 10, 35, 60 minutes; "Wait Time" = 2; "Move Time" = 3.
         // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 16:00, 08:00 - 23:00.
@@ -2520,7 +2520,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // .     |-----------|
         // [THEN] "Wait Time" and "Move Time" are added to the end of production period for every "Prod. Order Routing Line".
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
         VerifyProdOrderStartEndDateTime(
           ProdOrderRoutingLine, CreateDateTime(20200127D, 093500T), CreateDateTime(20200127D, 112000T));
         GetNextProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderRoutingLine."Next Operation No.");
@@ -2710,7 +2710,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Routing] [Planning] [Send-Ahead]
         // [SCENARIO 291307] Refresh Planning Line in Forward direction in case of Send-Ahead = 0 and "Run Time" > 0.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity = 0 and "Run Time" 180, 120, 60 minutes.
         // [GIVEN] Three Work Centers with operational hours: 08:00 - 23:00, 08:00 - 16:00, 09:00 - 14:00.
@@ -2730,7 +2730,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [THEN] "Ending Date-Time" of "Planning Routing Line" is equal to "Starting Date-Time" of the next "Planning Routing Line".
         PlanningRoutingLine.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
         PlanningRoutingLine.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
-        PlanningRoutingLine.FindFirst;
+        PlanningRoutingLine.FindFirst();
         VerifyPlanningLineStartEndDateTime(
           PlanningRoutingLine, CreateDateTime(20200117D, 120000T), CreateDateTime(20200121D, 120000T));
         GetNextPlanningRoutingLine(PlanningRoutingLine, PlanningRoutingLine."Next Operation No.");
@@ -2775,7 +2775,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Routing] [Planning] [Send-Ahead]
         // [SCENARIO 291307] Refresh Planning Line in Forward direction in case of Send-Ahead > 0 and "Run Time" > 0.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 3, 5 and "Run Time" 10, 35, 60 minutes.
         // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 16:00, 08:00 - 23:00.
@@ -2796,7 +2796,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [THEN] "Ending Date-Time" of "Planning Routing Line" is later than "Starting Date-Time" of the next "Planning Routing Line".
         PlanningRoutingLine.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
         PlanningRoutingLine.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
-        PlanningRoutingLine.FindFirst;
+        PlanningRoutingLine.FindFirst();
         VerifyPlanningLineStartEndDateTime(
           PlanningRoutingLine, CreateDateTime(20200127D, 093500T), CreateDateTime(20200127D, 111500T));
         GetNextPlanningRoutingLine(PlanningRoutingLine, PlanningRoutingLine."Next Operation No.");
@@ -2841,7 +2841,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Routing] [Planning] [Send-Ahead]
         // [SCENARIO 291307] Refresh Planning Line in Forward direction in case of Send-Ahead > Quantify of a Production Order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 13, 15 and "Run Time" 60, 120, 180 minutes.
         // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 16:00, 08:00 - 23:00.
@@ -2862,7 +2862,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [THEN] "Ending Date-Time" of "Planning Routing Line" is equal to "Starting Date-Time" of the next "Planning Routing Line".
         PlanningRoutingLine.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
         PlanningRoutingLine.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
-        PlanningRoutingLine.FindFirst;
+        PlanningRoutingLine.FindFirst();
         VerifyPlanningLineStartEndDateTime(
           PlanningRoutingLine, CreateDateTime(20200117D, 120000T), CreateDateTime(20200121D, 120000T));
         GetNextPlanningRoutingLine(PlanningRoutingLine, PlanningRoutingLine."Next Operation No.");
@@ -2907,7 +2907,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Routing] [Planning] [Send-Ahead]
         // [SCENARIO 291307] Refresh Planning Line in Forward direction in case of End Time of the previous line is later than Start Time of the next line for the residual quantity.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 2, 5 and "Run Time" 70, 93, 90 minutes.
         // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 16:00, 08:00 - 23:00.
@@ -2929,7 +2929,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [THEN] "Ending Date-Time" of "Planning Routing Line" is earlier than or equal to "Starting Date-Time" of the next "Planning Routing Line" for the residual quantity.
         PlanningRoutingLine.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
         PlanningRoutingLine.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
-        PlanningRoutingLine.FindFirst;
+        PlanningRoutingLine.FindFirst();
         VerifyPlanningLineStartEndDateTime(
           PlanningRoutingLine, CreateDateTime(20200123D, 104400T), CreateDateTime(20200127D, 122400T));
         GetNextPlanningRoutingLine(PlanningRoutingLine, PlanningRoutingLine."Next Operation No.");
@@ -2974,7 +2974,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Routing] [Planning] [Send-Ahead]
         // [SCENARIO 291307] Refresh Planning Line in Forward direction in case of Start Time of the line is later than "Ending Time" of "Shop Calendar Working Days" of WorkCenter.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 3, 5 and "Run Time" 90, 72, 60 minutes.
         // [GIVEN] Three Work Centers with operational hours: 08:00 - 23:00, 08:00 - 16:00, 09:00 - 14:00.
@@ -2995,7 +2995,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [THEN] "Starting Time" and "Ending Time" of "Planning Routing Line" are between "Starting Time" and "Ending Time" of "Shop Calendar Working Days" of WorkCenter.
         PlanningRoutingLine.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
         PlanningRoutingLine.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
-        PlanningRoutingLine.FindFirst;
+        PlanningRoutingLine.FindFirst();
         VerifyPlanningLineStartEndDateTime(
           PlanningRoutingLine, CreateDateTime(20200123D, 120000T), CreateDateTime(20200124D, 120000T));
         GetNextPlanningRoutingLine(PlanningRoutingLine, PlanningRoutingLine."Next Operation No.");
@@ -3043,7 +3043,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Routing] [Planning] [Send-Ahead]
         // [SCENARIO 291307] Refresh Planning Line in Forward direction in case of "Setup Time" > 0.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 3, 5; "Run Time" 10, 35, 60 minutes; "Setup Time" = 3.
         // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 16:00, 08:00 - 23:00.
@@ -3066,7 +3066,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [THEN] "Setup Time" is added to the start of the production period for every "Planning Routing Line".
         PlanningRoutingLine.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
         PlanningRoutingLine.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
-        PlanningRoutingLine.FindFirst;
+        PlanningRoutingLine.FindFirst();
         VerifyPlanningLineStartEndDateTime(
           PlanningRoutingLine, CreateDateTime(20200127D, 093500T), CreateDateTime(20200127D, 111800T));
         GetNextPlanningRoutingLine(PlanningRoutingLine, PlanningRoutingLine."Next Operation No.");
@@ -3114,7 +3114,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Routing] [Planning] [Send-Ahead]
         // [SCENARIO 291307] Refresh Planning Line in Forward direction in case of "Concurrent Capacities" > 1 and Efficiency < 100.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 3, 5; "Run Time" 2, 35, 120 minutes; "Concurrent Capacities" = 1, 2, 2; Efficiency = 20, 50, 100.
         // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 16:00, 08:00 - 23:00.
@@ -3139,7 +3139,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [THEN] "Concurrent Capacities" and Efficiency of Work Center are considered in calculation of "Starting Time" and "Ending Time".
         PlanningRoutingLine.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
         PlanningRoutingLine.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
-        PlanningRoutingLine.FindFirst;
+        PlanningRoutingLine.FindFirst();
         VerifyPlanningLineStartEndDateTime(
           PlanningRoutingLine, CreateDateTime(20200127D, 093500T), CreateDateTime(20200127D, 111500T));
         GetNextPlanningRoutingLine(PlanningRoutingLine, PlanningRoutingLine."Next Operation No.");
@@ -3186,7 +3186,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // [FEATURE] [Routing] [Planning] [Send-Ahead]
         // [SCENARIO 291307] Refresh Planning Line in Forward direction in case of "Wait Time" > 0 and "Move Time" > 0.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 3, 5; "Run Time" 10, 35, 60 minutes; "Wait Time" = 2; "Move Time" = 3.
         // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 16:00, 08:00 - 23:00.
@@ -3209,7 +3209,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [THEN] "Wait Time" and "Move Time" are added to the end of production period for every "Planning Routing Line".
         PlanningRoutingLine.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
         PlanningRoutingLine.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
-        PlanningRoutingLine.FindFirst;
+        PlanningRoutingLine.FindFirst();
         VerifyPlanningLineStartEndDateTime(
           PlanningRoutingLine, CreateDateTime(20200127D, 093500T), CreateDateTime(20200127D, 112000T));
         GetNextPlanningRoutingLine(PlanningRoutingLine, PlanningRoutingLine."Next Operation No.");
@@ -4464,14 +4464,14 @@ codeunit 137074 "SCM Capacity Requirements"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Capacity Requirements");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Capacity Requirements");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        NoSeriesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        NoSeriesSetup();
         CalendarMgt.ClearInternals(); // clear single instance codeunit vars to avoid influence of other test codeunits
         Commit();
 
@@ -4772,7 +4772,7 @@ codeunit 137074 "SCM Capacity Requirements"
         OperationNo: Code[10];
     begin
         CapacityUnitOfMeasure.SetRange(Type, CapacityUnitOfMeasure.Type::Minutes);
-        CapacityUnitOfMeasure.FindFirst;
+        CapacityUnitOfMeasure.FindFirst();
 
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
         OperationNo := FindLastOperationNo(RoutingHeader."No.") + Format(LibraryRandom.RandInt(5));
@@ -4793,7 +4793,7 @@ codeunit 137074 "SCM Capacity Requirements"
         WorkCenter: Record "Work Center";
     begin
         CapacityUnitOfMeasure.SetRange(Type, CapacityUnitOfMeasure.Type::Hours);
-        CapacityUnitOfMeasure.FindFirst;
+        CapacityUnitOfMeasure.FindFirst();
 
         LibraryManufacturing.CreateWorkCenter(WorkCenter);
         with WorkCenter do begin
@@ -4890,7 +4890,7 @@ codeunit 137074 "SCM Capacity Requirements"
         RoutingLine: Record "Routing Line";
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        if RoutingLine.FindLast then
+        if RoutingLine.FindLast() then
             exit(RoutingLine."Operation No.");
         exit('');
     end;
@@ -5157,7 +5157,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
         RoutingLine.SetRange(Type, Type);
-        RoutingLine.FindFirst;
+        RoutingLine.FindFirst();
     end;
 
     local procedure SetWorkCentersOperationalHours(var StartTime: array[3] of Time; var EndTime: array[3] of Time; FromTime1: Time; ToTime1: Time; FromTime2: Time; ToTime2: Time; FromTime3: Time; ToTime3: Time)
@@ -5209,7 +5209,7 @@ codeunit 137074 "SCM Capacity Requirements"
     local procedure FindProductionBOMLine(var ProductionBOMLine: Record "Production BOM Line"; ProductionBOMNo: Code[20])
     begin
         ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMNo);
-        ProductionBOMLine.FindFirst;
+        ProductionBOMLine.FindFirst();
     end;
 
     local procedure UpdateUnitCostPerOnRoutingLine(var RoutingLine: Record "Routing Line")
@@ -5281,21 +5281,21 @@ codeunit 137074 "SCM Capacity Requirements"
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderNo);
         ProdOrderRoutingLine.SetRange(Type, Type);
         ProdOrderRoutingLine.SetRange("No.", No);
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
     end;
 
     local procedure FindFirmPlannedProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ItemNo: Code[20])
     begin
         ProdOrderLine.SetRange(Status, ProdOrderLine.Status::"Firm Planned");
         ProdOrderLine.SetRange("Item No.", ItemNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure FindPlanningRoutingLine(var PlanningRoutingLine: Record "Planning Routing Line"; Type: Enum "Capacity Type"; No: Code[20])
     begin
         PlanningRoutingLine.SetRange(Type, Type);
         PlanningRoutingLine.SetRange("No.", No);
-        PlanningRoutingLine.FindFirst;
+        PlanningRoutingLine.FindFirst();
     end;
 
     local procedure FindFirstProdOrderCapacityNeedWithTimeType(var ProdOrderCapacityNeed: Record "Prod. Order Capacity Need"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; TimeType: Enum "Routing Time Type")
@@ -5314,13 +5314,13 @@ codeunit 137074 "SCM Capacity Requirements"
     local procedure GetNextProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; NextOperationNo: Code[30])
     begin
         ProdOrderRoutingLine.SetRange("Operation No.", CopyStr(NextOperationNo, 1, MaxStrLen(ProdOrderRoutingLine."Operation No.")));
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
     end;
 
     local procedure GetNextPlanningRoutingLine(var PlanningRoutingLine: Record "Planning Routing Line"; NextOperationNo: Code[30])
     begin
         PlanningRoutingLine.SetRange("Operation No.", CopyStr(NextOperationNo, 1, MaxStrLen(PlanningRoutingLine."Operation No.")));
-        PlanningRoutingLine.FindFirst;
+        PlanningRoutingLine.FindFirst();
     end;
 
     local procedure UpdateStartingDateAndTimeOnProdOrderLine(var ProdOrderLine: Record "Prod. Order Line")
@@ -5510,10 +5510,10 @@ codeunit 137074 "SCM Capacity Requirements"
         ProdOrderCapacityNeed.SetRange("Prod. Order No.", ProdOrderNo);
         ProdOrderCapacityNeed.SetRange("Worksheet Template Name", WorksheetTemplateName);
         ProdOrderCapacityNeed.SetRange("Work Center No.", WorkCenterCode);
-        ProdOrderCapacityNeed.FindFirst;
+        ProdOrderCapacityNeed.FindFirst();
         ProdOrderCapacityNeed.TestField(Date, DT2Date(ExpectedFirstCapNeedStartDateTime));
         ProdOrderCapacityNeed.TestField("Starting Time", DT2Time(ExpectedFirstCapNeedStartDateTime));
-        ProdOrderCapacityNeed.FindLast;
+        ProdOrderCapacityNeed.FindLast();
         ProdOrderCapacityNeed.TestField(Date, DT2Date(ExpectedLastCapNeedEndDateTime));
         ProdOrderCapacityNeed.TestField("Ending Time", DT2Time(ExpectedLastCapNeedEndDateTime));
     end;
@@ -5569,7 +5569,7 @@ codeunit 137074 "SCM Capacity Requirements"
         BOMCostShares: Page "BOM Cost Shares";
     begin
         BOMCostShares.InitItem(Item);
-        BOMCostShares.Run;
+        BOMCostShares.Run();
     end;
 
     [StrMenuHandler]
@@ -5602,7 +5602,7 @@ codeunit 137074 "SCM Capacity Requirements"
         Item.Get(ItemNo);
         RoutingNo := VariantVar2;
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        RoutingLine.FindFirst;
+        RoutingLine.FindFirst();
         ExpWarning := VariantVar3;
 
         BOMCostShares.FILTER.SetFilter(Type, Format(BOMBuffer.Type::Item));

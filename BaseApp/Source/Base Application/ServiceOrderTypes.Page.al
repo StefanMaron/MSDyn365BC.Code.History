@@ -78,7 +78,7 @@ page 5908 "Service Order Types"
                         begin
                             CurrPage.SetSelectionFilter(ServiceOrderType);
                             DefaultDimMultiple.SetMultiRecord(ServiceOrderType, FieldNo(Code));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                 }

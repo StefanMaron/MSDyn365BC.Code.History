@@ -55,7 +55,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
     begin
         // [GIVEN] A newly setup NAV company
-        Initialize;
+        Initialize();
 
         // [THEN] Assisted Setup has records
         Assert.IsTrue(AssistedSetupTestLibrary.HasAny(), 'Should not be empty.');
@@ -82,56 +82,17 @@ codeunit 139301 "Assisted Company Setup Tests"
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    procedure TestAssistedSetupMailStatusIsUpdatedSMTPSetup() // To be removed together with deprecated SMTP objects
-    var
-        SMTPMailSetup: Record "SMTP Mail Setup";
-        AssistedSetup: Codeunit "Assisted Setup";
-        AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
-    begin
-        // [GIVEN] A newly setup company where SMTP hasen't been setup
-        LibraryEmailFeature.SetEmailFeatureEnabled(false);
-        Initialize;
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Email Setup Wizard"), 'Precondition failed. Email is set up.');
-
-        // [WHEN] SMTP is set up
-        if not SMTPMailSetup.Get then begin
-            SMTPMailSetup.Init();
-            SMTPMailSetup.Insert();
-        end;
-        SMTPMailSetup."SMTP Server" := 'smtp.mail.com';
-        SMTPMailSetup."User ID" := 'test user';
-        SMTPMailSetup.Modify();
-
-        // [WHEN] The assisted setup status is updated
-        AssistedSetupTestLibrary.CallOnRegister();
-
-        // [THEN] The assisted setup status is set to completed
-        Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"Email Setup Wizard"), 'The Email status was not updated correctly.');
-
-        // [WHEN] The assisted setup status is updated again
-        AssistedSetupTestLibrary.CallOnRegister();
-
-        // [THEN] The assisted setup status remains unchanged
-        Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"Email Setup Wizard"), 'The Email status changed.');
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
     procedure TestAssistedSetupMailStatusIsUpdated()
     var
         TempAccount: Record "Email Account" temporary;
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         ConnectorMock: Codeunit "Connector Mock";
         EmailScenarioMock: Codeunit "Email Scenario Mock";
         AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
     begin
         // [GIVEN] A newly setup company where SMTP hasen't been setup
-        Initialize;
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Email Account Wizard"), 'Precondition failed. Email is set up.');
+        Initialize();
+        Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"Email Account Wizard"), 'Precondition failed. Email is set up.');
 
         // [WHEN] A connector is installed and an account is added
         ConnectorMock.Initialize();
@@ -143,13 +104,13 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedSetupTestLibrary.CallOnRegister();
 
         // [THEN] The assisted setup status is set to completed
-        Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"Email Account Wizard"), 'The Email status was not updated correctly.');
+        Assert.IsTrue(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"Email Account Wizard"), 'The Email status was not updated correctly.');
 
         // [WHEN] The assisted setup status is updated again
         AssistedSetupTestLibrary.CallOnRegister();
 
         // [THEN] The assisted setup status remains unchanged
-        Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"Email Account Wizard"), 'The Email status changed.');
+        Assert.IsTrue(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"Email Account Wizard"), 'The Email status changed.');
     end;
 
     [Test]
@@ -158,12 +119,12 @@ codeunit 139301 "Assisted Company Setup Tests"
     procedure TestAssistedSetupApprovalWorkflowIsUpdated()
     var
         ApprovalUserSetup: Record "User Setup";
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
     begin
         // [GIVEN] A newly setup company where SMTP hasen't been setup
-        Initialize;
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Approval Workflow Setup Wizard"), 'Precondition failed. Approval Workflow is set up.');
+        Initialize();
+        Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"Approval Workflow Setup Wizard"), 'Precondition failed. Approval Workflow is set up.');
 
         // [WHEN] Approval User Setup is set up
         ApprovalUserSetup.Init();
@@ -174,13 +135,13 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedSetupTestLibrary.CallOnRegister();
 
         // [THEN] The assisted setup status is set to completed
-        Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"Approval Workflow Setup Wizard"), 'The Approval Workflow status was not updated correctly.');
+        Assert.IsTrue(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"Approval Workflow Setup Wizard"), 'The Approval Workflow status was not updated correctly.');
 
         // [WHEN] The assisted setup status is updated again
         AssistedSetupTestLibrary.CallOnRegister();
 
         // [THEN] The assisted setup status remains unchanged
-        Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"Approval Workflow Setup Wizard"), 'The Approval Workflow status changed.');
+        Assert.IsTrue(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"Approval Workflow Setup Wizard"), 'The Approval Workflow status changed.');
     end;
 
     [Test]
@@ -191,7 +152,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         Companies: TestPage Companies;
     begin
         // [GIVEN] A newly setup NAV company with ledger entries (e.g. CRONUS)
-        Initialize;
+        Initialize();
 
         // [WHEN] The user tries to enable the wizard
         Companies.OpenEdit;
@@ -217,7 +178,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         ConfigurationPackageFile.DeleteAll();
 
         // [GIVEN] A newly setup NAV company
-        NewCompanyName := LibraryUtility.GenerateGUID;
+        NewCompanyName := LibraryUtility.GenerateGUID();
 
         Company.Init();
         Company.Name := NewCompanyName;
@@ -261,18 +222,15 @@ codeunit 139301 "Assisted Company Setup Tests"
     [Scope('OnPrem')]
     procedure TestFeatureSetupStatusCanBeSetAndRetrieved()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
-        AssistedSetupGroup: Enum "Assisted Setup Group";
+        GuidedExperience: Codeunit "Guided Experience";
     begin
         // [GIVEN] A feature setup record
-        AssistedSetup.Add(BaseAppID.Get(), Page::"Assisted Company Setup Wizard", 'Test', AssistedSetupGroup::Uncategorized);
-
+        GuidedExperience.InsertAssistedSetup('', '', '', 0, ObjectType::Page, Page::"Assisted Company Setup Wizard", "Assisted Setup Group"::Uncategorized, '', "Video Category"::Uncategorized, '');
         // [WHEN] The system tries to update the status on a existing feature
-        AssistedSetup.Complete(Page::"Assisted Company Setup Wizard");
+        GuidedExperience.CompleteAssistedSetup(ObjectType::Page, Page::"Assisted Company Setup Wizard");
 
         // [THEN] The status of the feature is actually updated
-        Assert.IsTrue(AssistedSetup.IsComplete(Page::"Assisted Company Setup Wizard"), 'Feature Status not updated correctly');
+        Assert.IsTrue(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"Assisted Company Setup Wizard"), 'Feature Status not updated correctly');
     end;
 
     [Test]
@@ -281,7 +239,7 @@ codeunit 139301 "Assisted Company Setup Tests"
     [Scope('OnPrem')]
     procedure TestWizardVerifyStatusNotCompletedWhenNotFinished()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         AssistedCompanySetupWizard: TestPage "Assisted Company Setup Wizard";
     begin
         // [GIVEN] A newly setup company
@@ -292,7 +250,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedCompanySetupWizard.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Assisted Company Setup Wizard"), 'Set Up Company status should not be completed.');
+        Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"Assisted Company Setup Wizard"), 'Set Up Company status should not be completed.');
     end;
 
     [Test]
@@ -301,7 +259,7 @@ codeunit 139301 "Assisted Company Setup Tests"
     [Scope('OnPrem')]
     procedure TestWizardVerifyStatusNotCompletedWhenExitRightAway()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         AssistedCompanySetupWizard: TestPage "Assisted Company Setup Wizard";
     begin
         // [GIVEN] A newly setup
@@ -313,7 +271,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedCompanySetupWizard.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Assisted Company Setup Wizard"), 'Set Up Company status should not be completed.');
+        Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"Assisted Company Setup Wizard"), 'Set Up Company status should not be completed.');
     end;
 
     [Test]
@@ -322,7 +280,7 @@ codeunit 139301 "Assisted Company Setup Tests"
     procedure TestWizardVerifyStatusCompletedWhenOnlineFeedAccountIsSet()
     var
         BankAccount: Record "Bank Account";
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         BankStatementProviderMock: Codeunit "Bank Statement Provider Mock";
         AssistedCompanySetupWizard: TestPage "Assisted Company Setup Wizard";
     begin
@@ -341,7 +299,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedCompanySetupWizard.ActionFinish.Invoke;
 
         // [THEN] Status of the setup step is set to Completed
-        Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"Assisted Company Setup Wizard"), 'Set Up Company status should be completed.');
+        Assert.IsTrue(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"Assisted Company Setup Wizard"), 'Set Up Company status should be completed.');
         Assert.AreEqual(1, BankAccount.Count, 'Expected that one account is created');
 
         // Thear down
@@ -354,7 +312,7 @@ codeunit 139301 "Assisted Company Setup Tests"
     [Scope('OnPrem')]
     procedure TestWizardVerifyStatusCompletedWhenFinished()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         AssistedCompanySetupWizard: TestPage "Assisted Company Setup Wizard";
     begin
         // [GIVEN] A newly setup company
@@ -365,7 +323,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedCompanySetupWizard.ActionFinish.Invoke;
 
         // [THEN] Status of the setup step is set to Completed
-        Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"Assisted Company Setup Wizard"), 'Set Up Company status should be completed.');
+        Assert.IsTrue(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"Assisted Company Setup Wizard"), 'Set Up Company status should be completed.');
     end;
 
     [Test]
@@ -411,7 +369,7 @@ codeunit 139301 "Assisted Company Setup Tests"
     [Scope('OnPrem')]
     procedure TestWizardVerifyWizardNotExitedWhenConfirmIsNo()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         AssistedCompanySetupWizard: TestPage "Assisted Company Setup Wizard";
     begin
         // [GIVEN] A newly setup company
@@ -423,7 +381,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedCompanySetupWizard.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Assisted Company Setup Wizard"), 'Set Up Company status should not be completed.');
+        Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"Assisted Company Setup Wizard"), 'Set Up Company status should not be completed.');
     end;
 
     [Test]
@@ -601,7 +559,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         // [SCENARIO 172916] Approval Workflow Setup Wizard in not Visible in Basic Application Area
 
         // [GIVEN] Application Area is set to Suite
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // [WHEN] Assisted Setup is initialized
         // [THEN] Assisted Setup Approval Workflow Setup Wizard is visible in Assisted Setup
@@ -622,7 +580,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         // [SCENARIO 172916] CRM Connection Setup Wizard in not Visible in Basic Application Area
 
         // [GIVEN] Application Area is set to Suite
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // [WHEN] Assisted Setup is initialized
         // [THEN] Assisted Setup CRM Connection Setup Wizard is visible in Assisted Setup
@@ -641,7 +599,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         // [SCENARIO 176085] Setup Email Logging in not Visible in Basic Application Area
 
         // [GIVEN] Application Area is set to Suite
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // [WHEN] Assisted Setup is initialized
         // [THEN] Assisted Setup Setup Email Logging is visible in Assisted Setup
@@ -731,7 +689,7 @@ codeunit 139301 "Assisted Company Setup Tests"
     var
         AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
         AssistedSetupPag: TestPage "Assisted Setup";
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
     begin
         InitializeEventSubscription;
 
@@ -742,7 +700,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         // [THEN] Assisted Setup has records
         Assert.AreEqual(FirstTestPageNameTxt, AssistedSetupPag.Name.Value, 'Wrong page name');
         AssistedSetupPag."Start Setup".Invoke;
-        Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"Item List"), 'Incorrect wizard status');
+        Assert.IsTrue(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"Item List"), 'Incorrect wizard status');
         AssistedSetupPag.Close;
     end;
 
@@ -828,7 +786,7 @@ codeunit 139301 "Assisted Company Setup Tests"
     begin
         // [FEATURE] [UT] [Assisted Company Setup]
         // [SCENARIO 280317] If not SaaS then functon CopySaaSCompanySetupStatus does nothing
-        Initialize;
+        Initialize();
 
         // [GIVEN] Not running in SaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
@@ -858,7 +816,7 @@ codeunit 139301 "Assisted Company Setup Tests"
     begin
         // [FEATURE] [UT] [Assisted Company Setup]
         // [SCENARIO 280317] Functon CopySaaSCompanySetupStatus copies status Completed in SaaS
-        Initialize;
+        Initialize();
 
         // [GIVEN] Running in SaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
@@ -890,7 +848,7 @@ codeunit 139301 "Assisted Company Setup Tests"
     begin
         // [FEATURE] [UT] [Assisted Company Setup]
         // [SCENARIO 280317] Functon CopySaaSCompanySetupStatus does nothing when company from has empty status in SaaS
-        Initialize;
+        Initialize();
 
         // [GIVEN] Running in SaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
@@ -1064,7 +1022,7 @@ codeunit 139301 "Assisted Company Setup Tests"
     var
         AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
     begin
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         AssistedSetupTestLibrary.DeleteAll();
         AssistedSetupTestLibrary.CallOnRegister();
     end;
@@ -1083,7 +1041,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         ConfigurationPackageFile.DeleteAll();
 
         AssistedCompanySetupStatus.SetEnabled(CompanyName, true, true);
-        Initialize;
+        Initialize();
     end;
 
     [Normal]

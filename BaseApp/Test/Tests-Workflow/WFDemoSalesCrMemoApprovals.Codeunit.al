@@ -43,7 +43,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         // [THEN] The user will get an error that he cannot post a Sales CreditMemo that is not approved and released.
 
         // Setup
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode);
 
@@ -74,7 +74,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         // [THEN] The user will get an error that he cannot release a Sales CreditMemo that is not approved.
 
         // Setup
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode);
 
@@ -107,7 +107,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         // [THEN] The user will get an error that he cannot release the sales creditmemo that is not approved.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode);
 
         // Setup - Create 3 approval usersetups
@@ -153,7 +153,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         // [THEN] The user will get an error that he cannot reopen the sales invoice.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode);
 
         // Setup - Create 3 approval usersetups
@@ -197,7 +197,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         // [WHEN] Salesperson approves the approval request.
         // [THEN] Sales CreditMemo is released.
 
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode);
 
@@ -254,7 +254,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         // [WHEN] Salesperson rejects the approval request.
         // [THEN] Sales CreditMemo is reopened and approval entries are marked as rejected.
 
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode);
 
@@ -314,7 +314,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         // [THEN] Approval request is assigned to the substitute.
         // [WHEN] Approval Request is approved.
         // [THEN] Sales CreditMemo is released.
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode);
 
@@ -390,7 +390,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         // [THEN] Approval Request is created for the Salesperson.
         // [WHEN] Sender cancels the approval request.
         // [THEN] Sales CreditMemo is opend and approval requests are marked as cancelled.
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode);
 
@@ -440,7 +440,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
     begin
         // [SCENARIO 3] Approval action availability.
         // [GIVEN] SalesHeader approval disabled.
-        Initialize;
+        Initialize();
 
         // [WHEN] SalesHeader card is opened.
         CreateSalesCreditMemo(SalesHeader);
@@ -519,7 +519,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
     begin
         // [SCENARIO 3] Approval action availability.
         // [GIVEN] SalesHeader approval disabled.
-        Initialize;
+        Initialize();
 
         // [WHEN] SalesHeader card is opened.
         CreateSalesCreditMemo(SalesHeader);
@@ -584,7 +584,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         // [WHEN] Salesperson approves the approval request.
         // [THEN] Sales Credit Memo is released.
 
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode);
 
@@ -650,7 +650,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         // [WHEN] Next approver opens the document.
         // [THEN] The user can only cancel the request if he is an approval administrator.
 
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode);
 
@@ -719,10 +719,10 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"WF Demo Sales CrMemo Approvals");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         UserSetup.DeleteAll();
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
         LibraryWorkflow.DisableAllWorkflows;
         if IsInitialized then
             exit;
@@ -770,7 +770,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
     local procedure RegetSalesDocument(var SalesHeader: Record "Sales Header")
     begin
         SalesHeader.SetRecFilter;
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
     end;
 
     local procedure VerifySalesCreditMemoIsReleased(var SalesHeader: Record "Sales Header")

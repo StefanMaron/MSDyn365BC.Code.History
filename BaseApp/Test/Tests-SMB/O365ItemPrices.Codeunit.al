@@ -27,15 +27,15 @@ codeunit 138019 "O365 Item Prices"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Item Prices");
-        LibraryVariableStorage.Clear;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryVariableStorage.Clear();
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // Lazy Setup.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Item Prices");
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         InvtSetup.Get();
         NoSeriesLine.SetRange("Series Code", InvtSetup."Item Nos.");
@@ -53,7 +53,7 @@ codeunit 138019 "O365 Item Prices"
         Item: Record Item;
         TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary;
     begin
-        Initialize;
+        Initialize();
 
         CreateBlankItem(Item);
         Item."Item Disc. Group" := GetGroupCode(Item."No.");
@@ -82,7 +82,7 @@ codeunit 138019 "O365 Item Prices"
         TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary;
     begin
         // nor rec check;
-        Initialize;
+        Initialize();
 
         CreateBlankItem(Item);
 
@@ -99,7 +99,7 @@ codeunit 138019 "O365 Item Prices"
         TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary;
         SalesLineDiscount: Record "Sales Line Discount";
     begin
-        Initialize;
+        Initialize();
 
         InitItemAndDiscAndPrices(Item);
 
@@ -120,7 +120,7 @@ codeunit 138019 "O365 Item Prices"
         TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary;
         SalesLineDiscount: Record "Sales Line Discount";
     begin
-        Initialize;
+        Initialize();
 
         InitItemAndDiscAndPrices(Item);
         Item."Item Disc. Group" := GetGroupCode(Item."No.");
@@ -145,7 +145,7 @@ codeunit 138019 "O365 Item Prices"
         Item: Record Item;
         TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary;
     begin
-        Initialize;
+        Initialize();
 
         InitItemAndDiscAndPrices(Item);
 
@@ -162,7 +162,7 @@ codeunit 138019 "O365 Item Prices"
         Item: Record Item;
         TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary;
     begin
-        Initialize;
+        Initialize();
 
         InitItemAndDiscAndPrices(Item);
         Item."Item Disc. Group" := GetGroupCode(Item."No.");
@@ -182,7 +182,7 @@ codeunit 138019 "O365 Item Prices"
         Item: Record Item;
         TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary;
     begin
-        Initialize;
+        Initialize();
 
         InitItemAndDiscAndPrices(Item);
         CreateBlankItem(WrongItem);
@@ -202,7 +202,7 @@ codeunit 138019 "O365 Item Prices"
         WrongItem: Record Item;
         TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary;
     begin
-        Initialize;
+        Initialize();
 
         InitItemAndDiscAndPrices(Item);
         Item."Item Disc. Group" := GetGroupCode(Item."No.");
@@ -228,7 +228,7 @@ codeunit 138019 "O365 Item Prices"
         WrongItem: Record Item;
         TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary;
     begin
-        Initialize;
+        Initialize();
 
         InitItemAndDiscAndPrices(Item);
         Item."Item Disc. Group" := GetGroupCode(Item."No.");
@@ -254,7 +254,7 @@ codeunit 138019 "O365 Item Prices"
         TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary;
         SalesPrice: Record "Sales Price";
     begin
-        Initialize;
+        Initialize();
 
         InitItemAndDiscAndPrices(Item);
 
@@ -273,7 +273,7 @@ codeunit 138019 "O365 Item Prices"
         Item: Record Item;
         TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary;
     begin
-        Initialize;
+        Initialize();
 
         InitItemAndDiscAndPrices(Item);
 
@@ -290,7 +290,7 @@ codeunit 138019 "O365 Item Prices"
         Item: Record Item;
         TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary;
     begin
-        Initialize;
+        Initialize();
 
         InitItemAndDiscAndPrices(Item);
         Item."Item Disc. Group" := GetGroupCode(Item."No.");
@@ -310,7 +310,7 @@ codeunit 138019 "O365 Item Prices"
         Item: Record Item;
         TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary;
     begin
-        Initialize;
+        Initialize();
 
         InitItemAndDiscAndPrices(Item);
         CreateBlankItem(WrongItem);
@@ -330,7 +330,7 @@ codeunit 138019 "O365 Item Prices"
         WrongItem: Record Item;
         TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary;
     begin
-        Initialize;
+        Initialize();
 
         InitItemAndDiscAndPrices(Item);
         Item."Item Disc. Group" := GetGroupCode(Item."No.");
@@ -356,7 +356,7 @@ codeunit 138019 "O365 Item Prices"
         TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary;
         ActualSalesLineDiscount: Record "Sales Line Discount";
     begin
-        Initialize;
+        Initialize();
 
         InitItemAndDiscAndPrices(Item);
 
@@ -378,7 +378,7 @@ codeunit 138019 "O365 Item Prices"
         TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary;
         ActualSalesLineDiscount: Record "Sales Line Discount";
     begin
-        Initialize;
+        Initialize();
 
         InitItemAndDiscAndPrices(Item);
 
@@ -401,7 +401,7 @@ codeunit 138019 "O365 Item Prices"
         ExpectedTempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary;
         ActualSalesLineDiscount: Record "Sales Line Discount";
     begin
-        Initialize;
+        Initialize();
 
         InitItemAndDiscAndPrices(Item);
 
@@ -429,7 +429,7 @@ codeunit 138019 "O365 Item Prices"
         TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary;
         ActualSalesLineDiscount: Record "Sales Line Discount";
     begin
-        Initialize;
+        Initialize();
 
         InitItemAndDiscAndPrices(Item);
         Item."Item Disc. Group" := GetGroupCode(Item."No.");
@@ -453,7 +453,7 @@ codeunit 138019 "O365 Item Prices"
         TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary;
         ActualSalesLineDiscount: Record "Sales Line Discount";
     begin
-        Initialize;
+        Initialize();
 
         InitItemAndDiscAndPrices(Item);
         Item."Item Disc. Group" := GetGroupCode(Item."No.");
@@ -478,7 +478,7 @@ codeunit 138019 "O365 Item Prices"
         ExpectedTempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary;
         ActualSalesLineDiscount: Record "Sales Line Discount";
     begin
-        Initialize;
+        Initialize();
 
         InitItemAndDiscAndPrices(Item);
         Item."Item Disc. Group" := GetGroupCode(Item."No.");
@@ -508,7 +508,7 @@ codeunit 138019 "O365 Item Prices"
         ExpectedTempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary;
         ActualSalesPrice: Record "Sales Price";
     begin
-        Initialize;
+        Initialize();
 
         InitItemAndDiscAndPrices(Item);
 
@@ -532,7 +532,7 @@ codeunit 138019 "O365 Item Prices"
         TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary;
         ActualSalesPrice: Record "Sales Price";
     begin
-        Initialize;
+        Initialize();
 
         InitItemAndDiscAndPrices(Item);
 
@@ -555,7 +555,7 @@ codeunit 138019 "O365 Item Prices"
         ActualTempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary;
         ActualSalesPrice: Record "Sales Price";
     begin
-        Initialize;
+        Initialize();
 
         InitItemAndDiscAndPrices(Item);
 
@@ -584,7 +584,7 @@ codeunit 138019 "O365 Item Prices"
         ExpectedSalesPrice: Record "Sales Price";
         ActualSalesPrice: Record "Sales Price";
     begin
-        Initialize;
+        Initialize();
 
         InitItemAndDiscAndPrices(Item);
 
@@ -607,7 +607,7 @@ codeunit 138019 "O365 Item Prices"
         ExpectedSalesLnDisc: Record "Sales Line Discount";
         ActualSalesLnDisc: Record "Sales Line Discount";
     begin
-        Initialize;
+        Initialize();
 
         InitItemAndDiscAndPrices(Item);
 
@@ -630,7 +630,7 @@ codeunit 138019 "O365 Item Prices"
         ExpectedSalesLnDisc: Record "Sales Line Discount";
         ActualSalesLnDisc: Record "Sales Line Discount";
     begin
-        Initialize;
+        Initialize();
 
         InitItemAndDiscAndPrices(Item);
 
@@ -649,7 +649,7 @@ codeunit 138019 "O365 Item Prices"
     var
         TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary;
     begin
-        Initialize;
+        Initialize();
 
         with TempSalesPriceAndLineDiscBuff do begin
             ValidateFieldsForLineType_vs_Type(
@@ -692,7 +692,7 @@ codeunit 138019 "O365 Item Prices"
     var
         TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary;
     begin
-        Initialize;
+        Initialize();
 
         with TempSalesPriceAndLineDiscBuff do begin
             ValidateFieldsForType_vs_LineType(
@@ -742,7 +742,7 @@ codeunit 138019 "O365 Item Prices"
         VAT: Decimal;
         OldPriceIncludesVAT: Boolean;
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableVATSetup;
         OldPriceIncludesVAT := false;
 
@@ -793,7 +793,7 @@ codeunit 138019 "O365 Item Prices"
         VAT: Decimal;
         OldPriceIncludesVAT: Boolean;
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableVATSetup;
         OldPriceIncludesVAT := true;
 
@@ -835,7 +835,7 @@ codeunit 138019 "O365 Item Prices"
         SalesPrice: Record "Sales Price";
         ItemCard: TestPage "Item Card";
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableVATSetup;
 
         CreateItem(Item);
@@ -859,7 +859,7 @@ codeunit 138019 "O365 Item Prices"
         SalesPrice: Record "Sales Price";
         ItemCard: TestPage "Item Card";
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableVATSetup;
 
         CreateItem(Item);
@@ -884,7 +884,7 @@ codeunit 138019 "O365 Item Prices"
         SalesPrice: Record "Sales Price";
         ItemCard: TestPage "Item Card";
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableVATSetup;
 
         CreateItem(Item);
@@ -902,6 +902,35 @@ codeunit 138019 "O365 Item Prices"
     end;
 
     [Test]
+    [HandlerFunctions('SalesPricesOverviewSetPricesHandler')]
+    [Scope('OnPrem')]
+    procedure TestLaunchPricesDiscountsOverviewViaActionOnItemCardNoPriceData()
+    var
+        Item: Record Item;
+        ItemCard: TestPage "Item Card";
+        SalesLineDiscount: Record "Sales Line Discount";
+        ItemType: Text;
+        CodeFilter: Text;
+    begin
+        Initialize();
+        SalesLineDiscount.DeleteAll();
+
+        CreateItem(Item);
+
+        ItemCard.OpenEdit;
+        ItemCard.Filter.SetFilter("No.", Item."No.");
+        ItemCard.PricesDiscountsOverview.Invoke();
+        ItemCard.Close;
+
+        ItemType := LibraryVariableStorage.DequeueText();
+        CodeFilter := LibraryVariableStorage.DequeueText();
+        Assert.AreEqual('Item', ItemType, 'wrong Item Type filter');
+        Assert.AreEqual(Item."No.", CodeFilter, 'wrong Code filter');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
     [HandlerFunctions('SalesPricesOverviewHandler')]
     [Scope('OnPrem')]
     procedure TestLaunchPricesDiscountsOverviewViaActionOnItemCard()
@@ -909,7 +938,7 @@ codeunit 138019 "O365 Item Prices"
         Item: Record Item;
         ItemCard: TestPage "Item Card";
     begin
-        Initialize;
+        Initialize();
 
         CreateItem(Item);
         CreateSalesPrices(Item."No.");
@@ -931,7 +960,7 @@ codeunit 138019 "O365 Item Prices"
         LibraryApplicationArea: Codeunit "Library - Application Area";
         ItemList: TestPage "Item List";
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
         CreateItem(Item);
@@ -953,7 +982,7 @@ codeunit 138019 "O365 Item Prices"
         Item: Record Item;
         ItemCard: TestPage "Item Card";
     begin
-        Initialize;
+        Initialize();
 
         CreateItem(Item);
         CreateSalesPrices(Item."No.");
@@ -974,7 +1003,7 @@ codeunit 138019 "O365 Item Prices"
         Item: Record Item;
         ItemCard: TestPage "Item Card";
     begin
-        Initialize;
+        Initialize();
 
         CreateItem(Item);
 
@@ -995,7 +1024,7 @@ codeunit 138019 "O365 Item Prices"
         Item: Record Item;
         ItemCard: TestPage "Item Card";
     begin
-        Initialize;
+        Initialize();
 
         CreateItem(Item);
 
@@ -1015,7 +1044,7 @@ codeunit 138019 "O365 Item Prices"
         Item: Record Item;
         SalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff";
     begin
-        Initialize;
+        Initialize();
 
         // [WHEN] A blank item with no discounts is created
         CreateBlankItem(Item);
@@ -1031,7 +1060,7 @@ codeunit 138019 "O365 Item Prices"
         Item: Record Item;
         SalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff";
     begin
-        Initialize;
+        Initialize();
 
         // [WHEN] An Item with discounts is created
         InitItemAndDiscAndPrices(Item);
@@ -1047,7 +1076,7 @@ codeunit 138019 "O365 Item Prices"
         Item: Record Item;
         SalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff";
     begin
-        Initialize;
+        Initialize();
 
         // [WHEN] An Item with discount group exists
         InitItemAndDiscAndPrices(Item);
@@ -1061,7 +1090,7 @@ codeunit 138019 "O365 Item Prices"
     local procedure CompareBuffAgainstDiscLines(var SalesLineDiscount: Record "Sales Line Discount"; var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary)
     begin
         with SalesLineDiscount do begin
-            FindFirst;
+            FindFirst();
 
             repeat
                 TempSalesPriceAndLineDiscBuff.SetRange("Line Type", TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Line Discount");
@@ -1074,7 +1103,7 @@ codeunit 138019 "O365 Item Prices"
                 TempSalesPriceAndLineDiscBuff.SetRange("Variant Code", "Variant Code");
                 TempSalesPriceAndLineDiscBuff.SetRange("Unit of Measure Code", "Unit of Measure Code");
                 TempSalesPriceAndLineDiscBuff.SetRange("Minimum Quantity", "Minimum Quantity");
-                TempSalesPriceAndLineDiscBuff.FindFirst;
+                TempSalesPriceAndLineDiscBuff.FindFirst();
 
                 TempSalesPriceAndLineDiscBuff.Get(
                   TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Line Discount",
@@ -1101,7 +1130,7 @@ codeunit 138019 "O365 Item Prices"
     local procedure CompareBuffAgainstPrices(var SalesPrice: Record "Sales Price"; var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary)
     begin
         with SalesPrice do begin
-            FindFirst;
+            FindFirst();
 
             repeat
                 TempSalesPriceAndLineDiscBuff.Get(
@@ -1138,7 +1167,7 @@ codeunit 138019 "O365 Item Prices"
     local procedure CompareDiscLinesAgainstBuff(var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary; var SalesLineDiscount: Record "Sales Line Discount")
     begin
         with TempSalesPriceAndLineDiscBuff do begin
-            FindFirst;
+            FindFirst();
 
             repeat
                 SalesLineDiscount.Get(
@@ -1161,7 +1190,7 @@ codeunit 138019 "O365 Item Prices"
     local procedure ComparePricesAgainstBuff(var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary; var SalesPrice: Record "Sales Price")
     begin
         with TempSalesPriceAndLineDiscBuff do begin
-            FindFirst;
+            FindFirst();
 
             repeat
                 SalesPrice.Get(
@@ -1384,7 +1413,7 @@ codeunit 138019 "O365 Item Prices"
     begin
         VATPostingSetup.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
         VATPostingSetup.SetRange("VAT %", 1, 1000);
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
         exit(VATPostingSetup."VAT Bus. Posting Group");
     end;
 
@@ -1454,7 +1483,7 @@ codeunit 138019 "O365 Item Prices"
     begin
         with TempSalesPriceAndLineDiscBuff do begin
             SetRange(Type, LineDiscType);
-            FindFirst;
+            FindFirst();
 
             "Minimum Quantity" := LibraryRandom.RandInt(100);
             "Starting Date" := Today - LibraryRandom.RandIntInRange(2, 100);
@@ -1482,7 +1511,7 @@ codeunit 138019 "O365 Item Prices"
     begin
         with TempSalesPriceAndLineDiscBuff do begin
             SetRange(Type, LineDiscType);
-            FindFirst;
+            FindFirst();
 
             for i := 0 to 1 do begin
                 "Ending Date" := "Ending Date" + LibraryRandom.RandIntInRange(1, 10);
@@ -1505,7 +1534,7 @@ codeunit 138019 "O365 Item Prices"
     local procedure DeleteLineInBuffer(var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary)
     begin
         with TempSalesPriceAndLineDiscBuff do begin
-            FindFirst;
+            FindFirst();
 
             Delete(true);
             Next;
@@ -1530,6 +1559,19 @@ codeunit 138019 "O365 Item Prices"
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesPricesOverviewSetPricesHandler(var SalesPriceAndLineDiscounts: TestPage "Sales Price and Line Discounts")
+    var
+        SalesLineDiscounts: TestPage "Sales Line Discounts";
+    begin
+        SalesLineDiscounts.Trap();
+        SalesPriceAndLineDiscounts."Set Special Discounts".Invoke();
+        LibraryVariableStorage.Enqueue(SalesLineDiscounts.ItemTypeFilter.Value());
+        LibraryVariableStorage.Enqueue(SalesLineDiscounts.CodeFilterCtrl.Value());
+        SalesLineDiscounts.Close();
     end;
 
     [ModalPageHandler]

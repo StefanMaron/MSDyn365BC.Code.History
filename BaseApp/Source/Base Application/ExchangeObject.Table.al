@@ -1,6 +1,14 @@
 table 1602 "Exchange Object"
 {
     Caption = 'Exchange Object';
+    ReplicateData = false;
+#if CLEAN20
+    TableType = Temporary;
+#else
+    ObsoleteReason = 'This table is only used as interface for integration with Exchange. Table will be marked as TableType=Temporary. Make sure you are not using this table to store records.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
+#endif
 
     fields
     {
@@ -61,18 +69,33 @@ table 1602 "Exchange Object"
         {
             Caption = 'InitiatedAction';
             Description = 'The action to be performed to the record';
-            OptionCaption = 'InitiateSendToOCR,InitiateSendToIncomingDocuments,InitiateSendToWorkFlow';
-            OptionMembers = InitiateSendToOCR,InitiateSendToIncomingDocuments,InitiateSendToWorkFlow;
+            OptionCaption = 'InitiateSendToOCR,InitiateSendToIncomingDocuments,InitiateSendToWorkFlow,InitiateSendToAttachments';
+            OptionMembers = InitiateSendToOCR,InitiateSendToIncomingDocuments,InitiateSendToWorkFlow,InitiateSendToAttachments;
         }
+
         field(14; VendorNo; Code[50])
         {
             Caption = 'VendorNo';
             Description = 'Vendor Number of the current Vendor';
+            ObsoleteReason = 'Use the field RecId instead';
+#if CLEAN20
+            ObsoleteState = Removed;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#endif
         }
+
         field(15; IsInline; Boolean)
         {
             Caption = 'IsInline';
             Description = 'Indicates if the attachment is Inline';
+        }
+        field(18; RecId; RecordId)
+        {
+            Caption = 'Record ID';
+            Description = 'Specifies the record ID of the entity that the exchange object is referencing.';
         }
     }
 

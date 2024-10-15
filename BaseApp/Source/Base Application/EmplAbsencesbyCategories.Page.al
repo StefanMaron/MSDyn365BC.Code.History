@@ -65,7 +65,7 @@ page 5226 "Empl. Absences by Categories"
                 begin
                     EmployeeNoFilter := "No.";
                     MatrixForm.Load(MATRIX_CaptionSet, MatrixRecords, PeriodType, AbsenceAmountType, EmployeeNoFilter);
-                    MatrixForm.RunModal;
+                    MatrixForm.RunModal();
                 end;
             }
             action("Previous Set")

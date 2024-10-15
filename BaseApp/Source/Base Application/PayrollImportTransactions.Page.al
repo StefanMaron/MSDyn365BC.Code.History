@@ -194,12 +194,12 @@ page 1661 "Payroll Import Transactions"
                         0:
                             begin
                                 OnImportPayrollTransactions(TempServiceConnection, TempImportGLTransaction);
-                                if TempImportGLTransaction.FindSet then
+                                if TempImportGLTransaction.FindSet() then
                                     repeat
                                         Rec := TempImportGLTransaction;
                                         Insert;
                                     until TempImportGLTransaction.Next() = 0;
-                                if FindFirst then begin
+                                if FindFirst() then begin
                                     SetCurrentKey("Entry No.");
                                     NextStep(false);
                                 end;
@@ -326,10 +326,10 @@ page 1661 "Payroll Import Transactions"
         NextLinieNo := 0;
         NewGenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         NewGenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        if NewGenJournalLine.FindLast then
+        if NewGenJournalLine.FindLast() then
             NextLinieNo := NewGenJournalLine."Line No.";
 
-        if FindSet then begin
+        if FindSet() then begin
             repeat
                 NewGenJournalLine.Init();
                 NewGenJournalLine."Journal Template Name" := GenJournalLine."Journal Template Name";
@@ -431,11 +431,11 @@ page 1661 "Payroll Import Transactions"
         TempImportGLTransaction: Record "Import G/L Transaction" temporary;
     begin
         ImportGLTransaction.SetRange("App ID", "App ID");
-        if ImportGLTransaction.FindFirst then
+        if ImportGLTransaction.FindFirst() then
             if Confirm(ResetLinksQst) then begin
                 ImportGLTransaction.DeleteAll();
                 TempImportGLTransaction := Rec;
-                if FindSet then
+                if FindSet() then
                     repeat
                         "G/L Account" := '';
                         Modify;

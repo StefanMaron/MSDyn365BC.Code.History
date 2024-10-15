@@ -35,10 +35,10 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM CETAF Sales-Purchase");
 
         LibraryPatterns.SETNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
 
         InventorySetup.Get();
         InventorySetup."Automatic Cost Posting" := false;
@@ -63,7 +63,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
     begin
         // From: Costing suite - CETAF 51
         // Costing: Standard; Inventory: Several splits; Modifications: None
-        Initialize;
+        Initialize();
 
         StandardItem(Item);
         LibraryPatterns.GRPHSeveralSplitApplication(Item, SalesLine, TempItemJournalLine);
@@ -99,7 +99,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
     begin
         // From: Costing suite - CETAF 52
         // Costing: Average; Inventory: Several splits; Modifications: None
-        Initialize;
+        Initialize();
 
         AverageItem(Item);
         LibraryPatterns.GRPHSeveralSplitApplication(Item, SalesLine, TempItemJournalLine);
@@ -115,7 +115,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         ValidateValueEntry_Inbound(TempItemJournalLine, ItemLedgerEntry, ValueEntry, ACTUALCOST);
         ValidateValueEntry_Inbound(TempItemJournalLine, ItemLedgerEntry, ValueEntry, ACTUALCOST);
 
-        TempItemJournalLine.FindFirst;
+        TempItemJournalLine.FindFirst();
         ValidateValueEntry_Outbound(ItemLedgerEntry, ValueEntry, AverageCost, TempItemJournalLine."Unit Amount", ACTUALCOST);
         ValidateValueEntry_Outbound(ItemLedgerEntry, ValueEntry, AverageCost, TempItemJournalLine."Unit Amount", ACTUALCOST);
 
@@ -137,7 +137,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
     begin
         // From: Costing suite - CETAF 53
         // Costing: FIFO; Inventory: Several splits; Modifications: None
-        Initialize;
+        Initialize();
 
         FIFOItem(Item);
 
@@ -153,7 +153,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         ValidateValueEntry_Inbound(TempItemJournalLine, ItemLedgerEntry, ValueEntry, ACTUALCOST);
         ValidateValueEntry_Inbound(TempItemJournalLine, ItemLedgerEntry, ValueEntry, ACTUALCOST);
 
-        TempItemJournalLine.FindFirst;
+        TempItemJournalLine.FindFirst();
         ValidateValueEntry_Outbound(ItemLedgerEntry, ValueEntry, FIFOCost1, TempItemJournalLine."Unit Amount", ACTUALCOST);
         ValidateValueEntry_Outbound(ItemLedgerEntry, ValueEntry, FIFOCost2, TempItemJournalLine."Unit Amount", ACTUALCOST);
         ValidateValueEntry_Outbound(ItemLedgerEntry, ValueEntry, FIFOCost3, TempItemJournalLine."Unit Amount", EXPECTEDCOST);
@@ -171,7 +171,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
     begin
         // From: Costing suite - CETAF 53
         // Costing: LIFO; Inventory: Several splits; Modifications: None
-        Initialize;
+        Initialize();
 
         LIFOItem(Item);
         LibraryPatterns.GRPHSeveralSplitApplication(Item, SalesLine, TempItemJournalLine);
@@ -193,7 +193,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
     begin
         // From: Costing suite - CETAF 54
         // Costing: Standard; Inventory: Simple application; Modifications: None
-        Initialize;
+        Initialize();
         StandardItem(Item);
         LibraryPatterns.GRPHSimpleApplication(Item, SalesLine, TempItemJournalLine);
         Invoice(SalesLine);
@@ -215,7 +215,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
     begin
         // From: Costing suite - CETAF 54
         // Costing: Average; nventory: Simple application; Modifications: None
-        Initialize;
+        Initialize();
         AverageItem(Item);
         LibraryPatterns.GRPHSimpleApplication(Item, SalesLine, TempItemJournalLine);
         Invoice(SalesLine);
@@ -237,7 +237,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
     begin
         // From: Costing suite - CETAF 54
         // Costing: FIFO; Inventory: Simple application; Modifications: None
-        Initialize;
+        Initialize();
         FIFOItem(Item);
         LibraryPatterns.GRPHSimpleApplication(Item, SalesLine, TempItemJournalLine);
         Invoice(SalesLine);
@@ -261,7 +261,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
     begin
         // From: Costing suite - CETAF 55
         // Costing: Standard; Inventory: Sales Return Split/Join application; Modifications: Sales Item Charge
-        Initialize;
+        Initialize();
         StandardItem(Item);
         LibraryPatterns.GRPHSplitJoinApplication(Item, SalesLine, SalesLineReturn, TempItemJournalLine);
 
@@ -290,7 +290,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
     begin
         // From: Costing suite - CETAF 55
         // Costing: Standard; Inventory: Sales Return Split/Join application; Modifications: Sales Item Charge
-        Initialize;
+        Initialize();
         AverageItem(Item);
         LibraryPatterns.GRPHSplitJoinApplication(Item, SalesLine, SalesLineReturn, TempItemJournalLine);
 
@@ -318,7 +318,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
     begin
         // From: Costing suite - CETAF 56
         // Costing: Average; Inventory: Simple Application; Modifications: Sales Shipment Item Charge
-        Initialize;
+        Initialize();
 
         AverageItem(Item);
         LibraryPatterns.GRPHSimpleApplication(Item, SalesLine, TempItemJournalLine);
@@ -350,7 +350,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
     begin
         // From: Costing suite - CETAF 57
         // Costing: Average; Inventory: Simple Application on two locations;
-        Initialize;
+        Initialize();
 
         AverageItem(Item);
 
@@ -378,7 +378,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         SalesLine: Record "Sales Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LibraryPatterns.MAKEItemSimple(Item, CostingMethod, LibraryPatterns.RandCost(Item));
         LibraryPatterns.GRPHApplyInboundToUnappliedOutbound(Item, SalesLine);
@@ -424,7 +424,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         ItemApplicationEntry: Record "Item Application Entry";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LibraryPatterns.MAKEItemSimple(Item, CostingMethod, LibraryPatterns.RandCost(Item));
         LibraryPatterns.GRPHSalesOnly(Item, SalesLine);
@@ -439,7 +439,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
 
         // Validate
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         Assert.AreEqual(1, ItemLedgerEntry.Count,
           'Expected exactly one item ledger entry after posting sales order');
 
@@ -479,7 +479,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         Amount: Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LibraryPatterns.MAKEItemSimple(Item, CostingMethod, LibraryPatterns.RandCost(Item));
         LibraryPatterns.GRPHSimpleApplication(Item, SalesLine, TempItemJournalLine);
@@ -512,7 +512,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         Amount: Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LibraryPatterns.MAKEItemSimple(Item, CostingMethod, LibraryPatterns.RandCost(Item));
         LibraryPatterns.GRPHSimpleApplication(Item, SalesLine, TempItemJournalLine);
@@ -600,7 +600,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         Item: Record Item;
         ReturnReceiptLine: Record "Return Receipt Line";
     begin
-        Initialize;
+        Initialize();
 
         LibraryPatterns.MAKEItem(Item, CostingMethod, LibraryPatterns.RandCost(Item), 0, 0, '');
         LibraryPatterns.GRPHSalesReturnOnly(Item, ReturnReceiptLine);
@@ -655,7 +655,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         SalesLine: Record "Sales Line";
         TempItemJournalLine: Record "Item Journal Line" temporary;
     begin
-        Initialize;
+        Initialize();
 
         LibraryPatterns.MAKEItem(Item, CostingMethod, LibraryPatterns.RandCost(Item), 0, 0, '');
         LibraryPatterns.GRPHSimpleApplication(Item, SalesLine, TempItemJournalLine);
@@ -712,7 +712,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         SalesLine: Record "Sales Line";
         TempItemJournalLine: Record "Item Journal Line" temporary;
     begin
-        Initialize;
+        Initialize();
 
         LibraryPatterns.MAKEItem(Item, CostingMethod, LibraryPatterns.RandCost(Item), 0, 0, '');
         LibraryPatterns.GRPHSimpleApplication(Item, SalesLine, TempItemJournalLine);
@@ -768,7 +768,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         Item: Record Item;
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
 
         LibraryPatterns.MAKEItem(Item, CostingMethod, LibraryPatterns.RandCost(Item), 0, 0, '');
         LibraryPatterns.GRPHSalesFromReturnReceipts(Item, SalesLine);
@@ -842,7 +842,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         SalesShptLine.SetRange("Order No.", SalesLine."Document No.");
         SalesShptLine.SetRange(Type, SalesLine.Type);
         Assert.AreEqual(1, SalesShptLine.Count, 'Couldn''t match Sales Line to Sales Shipment Line');
-        SalesShptLine.FindFirst;
+        SalesShptLine.FindFirst();
     end;
 
     local procedure CreateCreditMemo(var SalesHeader: Record "Sales Header"; Customer: Record Customer; PostingDate: Date)
@@ -921,7 +921,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
     begin
         ItemJnlLine.SetRange("Journal Template Name", ItemJnlBatch."Journal Template Name");
         ItemJnlLine.SetRange("Journal Batch Name", ItemJnlBatch.Name);
-        if ItemJnlLine.FindSet then
+        if ItemJnlLine.FindSet() then
             repeat
                 ItemJnlLine.Validate(
                   "Inventory Value (Revalued)", Round(ItemJnlLine."Inventory Value (Revalued)" * Factor, LibraryERM.GetAmountRoundingPrecision));
@@ -1069,7 +1069,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::Revaluation);
         Assert.AreEqual(1, ValueEntry.Count,
           'Expected exactly one revaluation entry');
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
 
         ShippedQuantity := SalesLine.Quantity;
         NearlyEqual(Amount * (Factor - 1) * (Quantity - ShippedQuantity) / Quantity, ValueEntry."Cost Amount (Actual)",
@@ -1106,7 +1106,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         Variant: Code[10];
         Loc: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         InventorySetup.Get();
         InventorySetup."Automatic Cost Adjustment" := InventorySetup."Automatic Cost Adjustment"::Always;

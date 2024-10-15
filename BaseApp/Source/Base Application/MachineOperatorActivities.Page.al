@@ -12,13 +12,13 @@ page 9047 "Machine Operator Activities"
             cuegroup("Production Orders")
             {
                 Caption = 'Production Orders';
-                field("Released Prod. Orders - All"; "Released Prod. Orders - All")
+                field("Released Prod. Orders - All"; Rec."Released Prod. Orders - All")
                 {
                     ApplicationArea = Manufacturing;
                     DrillDownPageID = "Released Production Orders";
                     ToolTip = 'Specifies the number of released production orders that are displayed in the Manufacturing Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Rlsd. Prod. Orders Until Today"; "Rlsd. Prod. Orders Until Today")
+                field("Rlsd. Prod. Orders Until Today"; Rec."Rlsd. Prod. Orders Until Today")
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Released Prod. Orders Until Today';
@@ -47,13 +47,13 @@ page 9047 "Machine Operator Activities"
             cuegroup(Operations)
             {
                 Caption = 'Operations';
-                field("Prod. Orders Routings-in Queue"; "Prod. Orders Routings-in Queue")
+                field("Prod. Orders Routings-in Queue"; Rec."Prod. Orders Routings-in Queue")
                 {
                     ApplicationArea = Manufacturing;
                     DrillDownPageID = "Prod. Order Routing";
                     ToolTip = 'Specifies how many production order routing lines are in queue. The documents are filtered by today''s date. Finished production orders are excluded.';
                 }
-                field("Prod. Orders Routings-in Prog."; "Prod. Orders Routings-in Prog.")
+                field("Prod. Orders Routings-in Prog."; Rec."Prod. Orders Routings-in Prog.")
                 {
                     ApplicationArea = Manufacturing;
                     DrillDownPageID = "Prod. Order Routing";
@@ -88,13 +88,13 @@ page 9047 "Machine Operator Activities"
             cuegroup("Warehouse Documents")
             {
                 Caption = 'Warehouse Documents';
-                field("Invt. Picks to Production"; "Invt. Picks to Production")
+                field("Invt. Picks to Production"; Rec."Invt. Picks to Production")
                 {
                     ApplicationArea = Warehouse;
                     DrillDownPageID = "Inventory Picks";
                     ToolTip = 'Specifies the number of inventory picks that are displayed in the Manufacturing Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Invt. Put-aways from Prod."; "Invt. Put-aways from Prod.")
+                field("Invt. Put-aways from Prod."; Rec."Invt. Put-aways from Prod.")
                 {
                     ApplicationArea = Warehouse;
                     DrillDownPageID = "Inventory Put-aways";
@@ -121,33 +121,6 @@ page 9047 "Machine Operator Activities"
                     }
                 }
             }
-            cuegroup("My User Tasks")
-            {
-                Caption = 'My User Tasks';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with User Tasks Activities part';
-                ObsoleteTag = '17.0';
-                field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Pending User Tasks';
-                    Image = Checklist;
-                    ToolTip = 'Specifies the number of pending tasks that are assigned to you or to a group that you are a member of.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with User Tasks Activities part';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnDrillDown()
-                    var
-                        UserTaskList: Page "User Task List";
-                    begin
-                        UserTaskList.SetPageToShowMyPendingUserTasks;
-                        UserTaskList.Run;
-                    end;
-                }
-            }
         }
     }
 
@@ -157,17 +130,14 @@ page 9047 "Machine Operator Activities"
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
 
-        SetFilter("Date Filter", '<=%1', WorkDate);
-        SetRange("User ID Filter", UserId);
+        Rec.SetFilter("Date Filter", '<=%1', WorkDate());
+        Rec.SetRange("User ID Filter", UserId());
     end;
-
-    var
-        UserTaskManagement: Codeunit "User Task Management";
 }
 

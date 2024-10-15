@@ -56,9 +56,9 @@ codeunit 1372 "Purchase Batch Post Mgt."
         if GuiAllowed then begin
             BatchProcessingMgt.GetErrorMessages(TempErrorMessage);
 
-            if TempErrorMessage.FindFirst then begin
+            if TempErrorMessage.FindFirst() then begin
                 ErrorMessages.SetRecords(TempErrorMessage);
-                ErrorMessages.Run;
+                ErrorMessages.Run();
             end;
         end;
 
@@ -153,7 +153,7 @@ codeunit 1372 "Purchase Batch Post Mgt."
         PurchaseLine.Reset();
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        if PurchaseLine.FindFirst then begin
+        if PurchaseLine.FindFirst() then begin
             CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", PurchaseLine);
             Commit();
             PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
@@ -181,12 +181,6 @@ codeunit 1372 "Purchase Batch Post Mgt."
 
         if PurchaseHeader.Status = PurchaseHeader.Status::"Pending Approval" then
             Error(ApprovalPendingErr, PurchaseHeader."No.", PurchaseHeader."Document Type");
-    end;
-
-    [Obsolete('Replaced by SetParameter().', '17.0')]
-    procedure AddParameter(ParameterId: Integer; ParameterValue: Variant)
-    begin
-        SetParameter("Batch Posting Parameter Type".FromInteger(ParameterId), ParameterValue);
     end;
 
     procedure SetParameter(ParameterId: Enum "Batch Posting Parameter Type"; ParameterValue: Variant)

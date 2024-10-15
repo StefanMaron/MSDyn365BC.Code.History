@@ -40,15 +40,44 @@ page 7201 "CDS Connection Setup Wizard"
                 Visible = InfoStepVisible;
 
                 Caption = '';
+                group(Control2)
+                {
+                    InstructionalText = 'Quickly set up the connection, couple records, and even synchronize data.';
+                    ShowCaption = false;
+
+                    field(Synchronization; Synchronization)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Enable data synchronization';
+                        ToolTip = 'Enable data synchronization.';
+
+                        trigger OnValidate()
+                        begin
+                            NextActionEnabled := Synchronization or BusinessEvents;
+                        end;
+                    }
+                }
                 group(Control1)
                 {
                     InstructionalText = 'Connect Business Central to Dataverse to synchronize data with other business apps.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
                     ShowCaption = false;
                 }
-                group(Control2)
+                group(BusinessEventsOption)
                 {
-                    InstructionalText = 'Quickly set up the connection, couple records, and even synchronize data.';
+                    InstructionalText = 'Quickly set up Business Central virtual tables in Dataverse and enable business events that Business Central sends to Dataverse.';
                     ShowCaption = false;
+
+                    field("Business Events"; BusinessEvents)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Enabled = BusinessEventsSupported;
+                        Caption = 'Enable business events';
+                        ToolTip = 'Set up virtual tables and enable business events.';
+                        trigger OnValidate()
+                        begin
+                            NextActionEnabled := Synchronization or BusinessEvents;
+                        end;
+                    }
                 }
                 group(Control3)
                 {
@@ -241,7 +270,6 @@ page 7201 "CDS Connection Setup Wizard"
                     InstructionalText = 'To install and configure integration components, choose Next. This might take a few minutes.';
                     ShowCaption = false;
                 }
-
             }
             group(Step2)
             {
@@ -336,8 +364,8 @@ page 7201 "CDS Connection Setup Wizard"
                         trigger OnValidate()
                         begin
                             if FinishWithoutSynchronizingData then begin
-                                NextActionEnabled := false;
-                                FinishActionEnabled := true;
+                                NextActionEnabled := BusinessEvents;
+                                FinishActionEnabled := not BusinessEvents;
                             end else begin
                                 NextActionEnabled := true;
                                 FinishActionEnabled := false;
@@ -348,7 +376,13 @@ page 7201 "CDS Connection Setup Wizard"
                     }
                     group(Control31)
                     {
-                        Visible = FinishWithoutSynchronizingData;
+                        Visible = FinishWithoutSynchronizingData and BusinessEvents;
+                        InstructionalText = 'When you choose Next, the Dataverse connection is enabled and you can start synchronizing data.';
+                        ShowCaption = false;
+                    }
+                    group(Control32)
+                    {
+                        Visible = FinishWithoutSynchronizingData and (not BusinessEvents);
                         InstructionalText = 'When you choose Finish, the Dataverse connection is enabled and you can start synchronizing data.';
                         ShowCaption = false;
                     }
@@ -407,7 +441,7 @@ page 7201 "CDS Connection Setup Wizard"
                 }
                 group(Control53)
                 {
-                    InstructionalText = 'We can analyze both business apps and provide  recommendations for your first synchronization.';
+                    InstructionalText = 'We can analyze both business apps and provide recommendations for your first synchronization.';
                     ShowCaption = false;
                 }
                 field(SynchronizationRecommendations; SynchronizationRecommendationsLbl)
@@ -439,7 +473,79 @@ page 7201 "CDS Connection Setup Wizard"
                 }
                 group(Control45)
                 {
+                    InstructionalText = 'After you choose Next, you can follow the progress of your first synchronization on the Dataverse Full Synch Review page. You might need to refresh the page to update the status.';
+                    ShowCaption = false;
+                    Visible = BusinessEvents;
+                }
+                group(Control46)
+                {
                     InstructionalText = 'After you choose Finish, you can follow the progress of your first synchronization on the Dataverse Full Synch Review page. You might need to refresh the page to update the status.';
+                    ShowCaption = false;
+                    Visible = not BusinessEvents;
+                }
+            }
+            group(StepBusinessEvents)
+            {
+                Visible = BusinessEventsStepVisible;
+
+                group(Control61)
+                {
+                    Caption = 'SET UP VIRTUAL TABLES';
+                    InstructionalText = 'Set up Business Central Virtual Tables app in a Dataverse environment to allow Business Central to send business events to Dataverse.';
+                }
+                group(Control62)
+                {
+                    InstructionalText = 'Use the link below to go to AppSource and get the the Business Central Virtual Table app, so you can install it in your Dataverse environment.';
+                    ShowCaption = false;
+
+                    field(InstallVirtualTableApp; VirtualTableAppInstallTxt)
+                    {
+                        ApplicationArea = All;
+                        Editable = false;
+                        ShowCaption = false;
+                        Caption = ' ';
+                        ToolTip = 'Get the Business Central Virtual Table app from Microsoft AppSource.';
+
+                        trigger OnDrillDown()
+                        begin
+                            Hyperlink(CDSIntegrationImpl.GetVirtualTablesAppSourceLink());
+                            FinishActionEnabled := true;
+                        end;
+                    }
+                }
+                group(Control63)
+                {
+                    Visible = VirtualTableAppInstalled;
+                    ShowCaption = false;
+
+                    field(VirtualTableAppInstalledLbl; VirtualTableAppInstalledTxt)
+                    {
+                        ApplicationArea = Suite;
+                        ToolTip = 'Indicates whether the Business Central Virtual Table app is installed in the Dataverse environment.';
+                        Caption = 'The Business Central Virtual Table app is installed.';
+                        Editable = false;
+                        ShowCaption = false;
+                        Style = Favorable;
+                    }
+                }
+                group(Control64)
+                {
+                    Visible = not VirtualTableAppInstalled;
+                    ShowCaption = false;
+
+                    field(VirtualTableAppNotInstalledLbl; VirtualTableAppNotInstalledTxt)
+                    {
+                        ApplicationArea = Suite;
+                        Tooltip = 'Indicates that the Business Central Virtual Table app is not installed in the Dataverse environment.';
+                        Caption = 'The Business Central Virtual Table app is not installed.';
+                        Editable = false;
+                        ShowCaption = false;
+                        Style = Ambiguous;
+                    }
+                }
+                group(Control66)
+                {
+                    InstructionalText = 'Choose Finish to set up the connection from Dataverse to Business Central and configure virtual tables in your Dataverse environment.';
                     ShowCaption = false;
                 }
             }
@@ -462,40 +568,24 @@ page 7201 "CDS Connection Setup Wizard"
                 var
                     CDSConnectionSetup: Record "CDS Connection Setup";
                 begin
-                    if Step = Step::Admin then
-                        if SoftwareAsAService then begin
-                            // skip the application step in SaaS as we use the default application
-                            NextStep(true, true);
-                            exit;
-                        end;
-
-                    if Step = Step::FullSynchReview then
-                        if not IsPersonOwnershipModelSelected then begin
-                            CDSConnectionSetup.Get();
-                            CDSConnectionSetup.Validate("Is Enabled", false);
-                            CDSConnectionSetup.Modify(true);
-                            Commit();
-                            NextStep(true, true);
-                            exit;
-                        end;
-
-                    if Step = Step::CoupleSalespersons then begin
-                        CDSConnectionSetup.Get();
-                        CDSConnectionSetup.Validate("Is Enabled", false);
-                        CDSConnectionSetup.Modify(true);
-                        Commit();
+                    case Step of
+                        Step::FullSynchReview:
+                            if not IsPersonOwnershipModelSelected then begin
+                                CDSConnectionSetup.Get();
+                                CDSConnectionSetup.Validate("Is Enabled", false);
+                                CDSConnectionSetup.Modify(true);
+                                Commit();
+                            end;
+                        Step::CoupleSalespersons:
+                            begin
+                                CDSConnectionSetup.Get();
+                                CDSConnectionSetup.Validate("Is Enabled", false);
+                                CDSConnectionSetup.Modify(true);
+                                Commit();
+                            end;
                     end;
 
-                    if Step = Step::OwnershipModel then
-                        if "Authentication Type" = "Authentication Type"::Office365 then begin
-                            // skip the user credentials step in Office365 authentication
-                            // we don't use username/password authentication
-                            // we inject an application user and use ClientId/ClientSecret authentication
-                            NextStep(true, true);
-                            exit;
-                        end;
-
-                    NextStep(true, false);
+                    NextStep(true);
                 end;
             }
             action(ActionNext)
@@ -511,79 +601,75 @@ page 7201 "CDS Connection Setup Wizard"
                     CDSConnectionSetup: Record "CDS Connection Setup";
                     AuthenticationType: Option Office365,AD,IFD,OAuth;
                 begin
+                    case Step of
+                        Step::Consent:
+                            begin
+                                AuthenticationType := "Authentication Type";
+                                GetCDSEnvironment();
+                                "Authentication Type" := AuthenticationType;
+                            end;
 
-                    if Step = Step::Consent then begin
-                        AuthenticationType := "Authentication Type";
-                        GetCDSEnvironment();
-                        "Authentication Type" := AuthenticationType;
-                        if SoftwareAsAService then begin
-                            // skip the application step in SaaS as we use the default application
-                            NextStep(false, true);
-                            exit;
-                        end;
+                        Step::Application:
+                            begin
+                                if not CDSConnectionSetup.Get() then begin
+                                    CDSConnectionSetup.Init();
+                                    CDSConnectionSetup.Insert();
+                                end;
+                                CDSConnectionSetup.Validate("Client Id", "Client Id");
+                                CDSConnectionSetup.SetClientSecret(ClientSecret);
+                                CDSConnectionSetup.Validate("Redirect URL", "Redirect URL");
+                                Modify();
+                            end;
+
+                        Step::Admin:
+                            begin
+                                if ("Server Address" = '') then
+                                    Error(URLShouldNotBeEmptyErr);
+
+                                if Synchronization then
+                                    ImportCDSSolution();
+                            end;
+
+                        Step::IntegrationUser:
+                            begin
+                                if ("User Name" = '') or (UserPassword = '') then
+                                    Error(UsernameAndPasswordShouldNotBeEmptyErr);
+                                SetPassword(UserPassword);
+                                if not CDSIntegrationImpl.TryCheckCredentials(Rec) then
+                                    Error(WrongCredentialsErr);
+                                CDSIntegrationImpl.CheckIntegrationUserPrerequisites(Rec, AdminUserName, AdminPassword, AdminAccessToken, AdminADDomain);
+                            end;
+
+                        Step::CoupleSalespersons:
+                            begin
+                                if (CoupledSalesPeople = false) then
+                                    Error(SalespeoplShouldBeCoupledErr);
+                                Window.Open(GettingThingsReadyTxt);
+                                CRMFullSynchReviewLine.DeleteAll();
+                                CRMFullSynchReviewLine.Generate();
+                                Commit();
+                                Window.Close();
+                            end;
+
+                        Step::OwnershipModel:
+                            begin
+                                Window.Open(GettingThingsReadyTxt);
+                                ConfigureCDSSolution();
+                                if not IsPersonOwnershipModelSelected then begin
+                                    CRMFullSynchReviewLine.DeleteAll();
+                                    CRMFullSynchReviewLine.Generate();
+                                    Commit();
+                                end;
+                                Window.Close();
+                            end;
                     end;
 
-                    if Step = Step::Application then begin
-                        if not CDSConnectionSetup.Get() then begin
-                            CDSConnectionSetup.Init();
-                            CDSConnectionSetup.Insert();
-                        end;
-                        CDSConnectionSetup.Validate("Client Id", "Client Id");
-                        CDSConnectionSetup.SetClientSecret(ClientSecret);
-                        CDSConnectionSetup.Validate("Redirect URL", "Redirect URL");
-                        Modify();
-                        NextStep(false, false);
-                        exit;
+                    NextStep(false);
+
+                    if Step = Step::BusinessEvents then begin
+                        VirtualTableAppInstalled := IsVirtualTablesAppInstalled();
+                        FinishActionEnabled := VirtualTableAppInstalled;
                     end;
-
-                    if (Step = Step::Admin) then begin
-                        if ("Server Address" = '') then
-                            Error(URLShouldNotBeEmptyErr);
-
-                        ImportCDSSOlution();
-
-                        if "Authentication Type" = "Authentication Type"::Office365 then begin
-                            // skip the user credentials step in Office365 authentication
-                            // we don't use username/password authentication
-                            // we inject an application user and use ClientId/ClientSecret authentication
-                            NextStep(false, true);
-                            exit;
-                        end;
-                    end;
-
-                    if Step = Step::IntegrationUser then begin
-                        if ("User Name" = '') or (UserPassword = '') then
-                            Error(UsernameAndPasswordShouldNotBeEmptyErr);
-                        SetPassword(UserPassword);
-                        if not CDSIntegrationImpl.TryCheckCredentials(Rec) then
-                            Error(WrongCredentialsErr);
-                        CDSIntegrationImpl.CheckIntegrationUserPrerequisites(Rec, AdminUserName, AdminPassword, AdminAccessToken, AdminADDomain);
-                    end;
-
-                    if Step = Step::CoupleSalespersons then begin
-                        if (CoupledSalesPeople = false) then
-                            Error(SalespeoplShouldBeCoupledErr);
-                        Window.Open(GettingThingsReadyTxt);
-                        CRMFullSynchReviewLine.DeleteAll();
-                        CRMFullSynchReviewLine.Generate();
-                        Commit();
-                        Window.Close();
-                    end;
-
-                    if Step = Step::OwnershipModel then begin
-                        Window.Open(GettingThingsReadyTxt);
-                        ConfigureCDSSolution();
-                        if not IsPersonOwnershipModelSelected then begin
-                            CRMFullSynchReviewLine.DeleteAll();
-                            CRMFullSynchReviewLine.Generate();
-                            Commit();
-                            NextStep(false, true);
-                            Window.Close();
-                            exit;
-                        end;
-                    end;
-
-                    NextStep(false, false);
                 end;
             }
             action(ActionFinish)
@@ -600,39 +686,53 @@ page 7201 "CDS Connection Setup Wizard"
                     CRMFullSynchReview: Page "CRM Full Synch. Review";
                     CDSCoupleSalespersons: Page "CDS Couple Salespersons";
                 begin
-                    if FinishWithoutSynchronizingData then begin
-                        Window.Open(GettingThingsReadyTxt);
-                        ConfigureCDSSolution();
-                        Session.LogMessage('0000CDW', FinishWithoutSynchronizingDataTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-                        if IsPersonOwnershipModelSelected then
-                            if Confirm(OpenCoupleSalespeoplePageQst) then begin
-                                Window.Close();
-                                CDSCoupleSalespersons.Initialize(CrmHelper);
-                                CDSCoupleSalespersons.Run();
-                                GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"CDS Connection Setup Wizard");
-                                SetupCompleted := true;
-                                AddCoupledUsersToDefaultOwningTeam();
-                                CurrPage.Close();
-                                exit;
-                            end;
-                        Window.Close();
-                        Page.Run(Page::"CDS Connection Setup");
-                        GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"CDS Connection Setup Wizard");
-                        SetupCompleted := true;
-                        CurrPage.Close();
-                        exit;
+                    if Synchronization then begin
+                        Session.LogMessage('0000GBE', SetupSynchronizationTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                        if FinishWithoutSynchronizingData then begin
+                            Window.Open(GettingThingsReadyTxt);
+                            ConfigureCDSSolution();
+                            Session.LogMessage('0000CDW', FinishWithoutSynchronizingDataTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                            if IsPersonOwnershipModelSelected then
+                                if Confirm(OpenCoupleSalespeoplePageQst) then begin
+                                    Window.Close();
+                                    CDSCoupleSalespersons.Initialize(CrmHelper);
+                                    CDSCoupleSalespersons.Run();
+                                    GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"CDS Connection Setup Wizard");
+                                    SetupCompleted := true;
+                                    AddCoupledUsersToDefaultOwningTeam();
+                                    CurrPage.Close();
+                                    exit;
+                                end;
+                            Window.Close();
+                            Page.Run(Page::"CDS Connection Setup");
+                        end else begin
+                            Window.Open(GettingThingsReadyTxt);
+                            CRMFullSynchReviewLine.DeleteAll(true);
+                            CRMFullSynchReviewLine.Generate(InitialSynchRecommendations);
+                            CRMFullSynchReviewLine.Start();
+                            CRMFullSynchReview.SetRecord(CRMFullSynchReviewLine);
+                            CRMFullSynchReview.SetTableView(CRMFullSynchReviewLine);
+                            CRMFullSynchReview.LookupMode := true;
+                            Session.LogMessage('0000CDZ', FinishWithSynchronizingDataTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                            Window.Close();
+                            CRMFullSynchReview.Run();
+                        end;
                     end;
 
-                    Window.Open(GettingThingsReadyTxt);
-                    CRMFullSynchReviewLine.DeleteAll(true);
-                    CRMFullSynchReviewLine.Generate(InitialSynchRecommendations);
-                    CRMFullSynchReviewLine.Start();
-                    CRMFullSynchReview.SetRecord(CRMFullSynchReviewLine);
-                    CRMFullSynchReview.SetTableView(CRMFullSynchReviewLine);
-                    CRMFullSynchReview.LookupMode := true;
-                    Session.LogMessage('0000CDZ', FinishWithSynchronizingDataTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-                    Window.Close();
-                    CRMFullSynchReview.Run();
+                    if BusinessEvents then begin
+                        VirtualTableAppInstalled := IsVirtualTablesAppInstalled();
+                        if not VirtualTableAppInstalled then begin
+                            FinishActionEnabled := false;
+                            Error(VirtualTableAppNotInstalledErr);
+                        end;
+
+                        Session.LogMessage('0000GBD', SetupVirtualTablesTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                        Window.Open(GettingThingsReadyTxt);
+                        CDSIntegrationImpl.SetupVirtualTables(Rec, CrmHelper, AdminAccessToken, Rec."Virtual Tables Config Id");
+                        FinalizeBusinessEventsSetup();
+                        Window.Close();
+                    end;
+
                     GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"CDS Connection Setup Wizard");
                     SetupCompleted := true;
                     CurrPage.Close();
@@ -647,6 +747,9 @@ page 7201 "CDS Connection Setup Wizard"
     begin
         LoadTopBanners();
         SoftwareAsAService := EnvironmentInfo.IsSaaSInfrastructure();
+        BusinessEventsSupported := CDSIntegrationImpl.GetBusinessEventsSupported();
+        Synchronization := true;
+        BusinessEvents := BusinessEventsSupported;
     end;
 
     trigger OnOpenPage()
@@ -655,10 +758,13 @@ page 7201 "CDS Connection Setup Wizard"
         OAuth2: Codeunit "OAuth2";
         RedirectUrl: Text;
     begin
+        if not CDSConnectionSetup.WritePermission() then
+            Error(NoPermissionsErr);
         CDSConnectionSetup.EnsureCRMConnectionSetupIsDisabled();
         Init();
         if CDSConnectionSetup.Get() then begin
             TempCDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model";
+            "Proxy Version" := CDSConnectionSetup."Proxy Version";
             "Authentication Type" := CDSConnectionSetup."Authentication Type";
             "Server Address" := CDSConnectionSetup."Server Address";
             "User Name" := CDSConnectionSetup."User Name";
@@ -673,6 +779,7 @@ page 7201 "CDS Connection Setup Wizard"
         end else begin
             TempCDSConnectionSetup."Ownership Model" := TempCDSConnectionSetup."Ownership Model"::Team;
             InitializeDefaultAuthenticationType();
+            InitializeDefaultProxyVersion();
         end;
         if not SoftwareAsAService then
             if "Redirect URL" = '' then begin
@@ -680,7 +787,6 @@ page 7201 "CDS Connection Setup Wizard"
                 "Redirect URL" := CopyStr(RedirectUrl, 1, MaxStrLen("Redirect URL"));
             end;
         IsPersonOwnershipModelSelected := TempCDSConnectionSetup."Ownership Model" = TempCDSConnectionSetup."Ownership Model"::Person;
-        InitializeDefaultProxyVersion();
         Insert();
         Step := Step::Info;
         EnableControls();
@@ -719,7 +825,7 @@ page 7201 "CDS Connection Setup Wizard"
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
         ClientTypeManagement: Codeunit "Client Type Management";
         CrmHelper: DotNet CrmHelper;
-        Step: Option Info,Consent,Application,Admin,IntegrationUser,OwnershipModel,CoupleSalespersons,FullSynchReview,Finish;
+        Step: Option Info,Consent,Application,Admin,IntegrationUser,OwnershipModel,CoupleSalespersons,FullSynchReview,BusinessEvents,Finish;
         Window: Dialog;
         [NonDebuggable]
         AdminAccessToken: Text;
@@ -744,12 +850,17 @@ page 7201 "CDS Connection Setup Wizard"
         OwnershipModelStepVisible: Boolean;
         CoupleSalespersonsStepVisible: Boolean;
         FullSynchReviewStepVisible: Boolean;
+        BusinessEventsStepVisible: Boolean;
         CoupledSalesPeople: Boolean;
         IsPersonOwnershipModelSelected: Boolean;
         HasAdminSignedIn: Boolean;
         AreAdminCredentialsCorrect: Boolean;
         FinishWithoutSynchronizingData: Boolean;
         SetupCompleted: Boolean;
+        Synchronization: Boolean;
+        BusinessEvents: Boolean;
+        BusinessEventsSupported: Boolean;
+        VirtualTableAppInstalled: Boolean;
         ConsentVar: Boolean;
         ConsentStepVisible: Boolean;
         InitialSynchRecommendations: Dictionary of [Code[20], Integer];
@@ -767,6 +878,8 @@ page 7201 "CDS Connection Setup Wizard"
         UserPassword: Text;
         SuccesfullyLoggedInTxt: Label 'The administrator is signed in.';
         UnsuccesfullyLoggedInTxt: Label 'Could not sign in the administrator.';
+        VirtualTableAppInstalledTxt: Label 'The Business Central Virtual Table app is installed.';
+        VirtualTableAppNotInstalledTxt: Label 'The Business Central Virtual Table app is not installed.';
         SignInAdminTxt: Label 'Sign in with administrator user';
         CoupleSalesPeopleTxt: Label 'Couple Salespeople to Users';
         NoEnvironmentSelectedErr: Label 'To sign in the administrator user you must specify an environment.';
@@ -778,9 +891,14 @@ page 7201 "CDS Connection Setup Wizard"
         URLShouldNotBeEmptyErr: Label 'You must specify the URL of your Dataverse environment.';
         AdminUserShouldBesignedInErr: Label 'The admin user must be connected in order to proceed.';
         CategoryTok: Label 'AL Dataverse Integration', Locked = true;
+        SetupVirtualTablesTxt: Label 'Setup virtual tables.', Locked = true;
+        SetupSynchronizationTxt: Label 'Setup data synchronization.', Locked = true;
         FinishWithoutSynchronizingDataTxt: Label 'User has chosen to finalize Dataverse configuration without synchronizing data.', Locked = true;
         FinishWithSynchronizingDataTxt: Label 'User has chosen to finalize Dataverse configuration also synchronizing data.', Locked = true;
         GettingThingsReadyTxt: Label 'Getting things ready for you.';
+        VirtualTableAppNotInstalledErr: Label 'Business Central Virtual Table app is not installed.';
+        VirtualTableAppInstallTxt: Label 'Install Business Central Virtual Table app';
+        NoPermissionsErr: Label 'Your license does not allow you to set up the connection to Dataverse. To view details about your permissions, see the Effective Permissions page.';
 
     [NonDebuggable]
     [Scope('OnPrem')]
@@ -818,21 +936,69 @@ page 7201 "CDS Connection Setup Wizard"
                 TopBannerVisible := MediaResourcesDone."Media Reference".HasValue();
     end;
 
-    local procedure NextStep(Backward: Boolean; SkipStep: Boolean)
+    local procedure NextStep(Backward: Boolean)
+    begin
+        UpdateAvailableStepNumber(Backward);
+        EnableControls();
+        SetupCompleted := false;
+    end;
+
+    local procedure UpdateAvailableStepNumber(Backward: Boolean)
+    begin
+        repeat
+            UpdateStepNumber(Backward);
+        until IsStepAvailable();
+    end;
+
+    local procedure UpdateStepNumber(Backward: Boolean)
     begin
         if Backward then
             Step := Step - 1
         else
             Step := Step + 1;
+    end;
 
-        if SkipStep then
-            if Backward then
-                Step := Step - 1
-            else
-                Step := Step + 1;
+    local procedure IsStepAvailable(): Boolean
+    begin
+        case Step of
+            Step::OwnershipModel:
+                if not Synchronization then
+                    exit(false);
 
-        EnableControls();
-        SetupCompleted := false;
+            Step::FullSynchReview:
+                if (not Synchronization) or FinishWithoutSynchronizingData then
+                    exit(false);
+
+            Step::IntegrationUser:
+                begin
+                    if not Synchronization then
+                        exit(false);
+                    if "Authentication Type" = "Authentication Type"::Office365 then
+                        // skip the user credentials step in Office365 authentication
+                        // we don't use username/password authentication
+                        // we inject an application user and use ClientId/ClientSecret authentication
+                        exit(false);
+                end;
+
+            Step::CoupleSalespersons:
+                begin
+                    if not Synchronization then
+                        exit(false);
+                    if not IsPersonOwnershipModelSelected then
+                        exit(false);
+                end;
+
+            Step::Application:
+                if SoftwareAsAService then
+                    // skip the application step in SaaS as we use the default application
+                    exit(false);
+
+            Step::BusinessEvents:
+                if not BusinessEvents then
+                    exit(false);
+        end;
+
+        exit(true);
     end;
 
     local procedure EnableControls()
@@ -854,7 +1020,8 @@ page 7201 "CDS Connection Setup Wizard"
                 ShowCoupleSalespersonsStep();
             Step::FullSynchReview:
                 ShowFullSynchReviewStep();
-
+            Step::BusinessEvents:
+                ShowBusinessEventsStep();
         end;
     end;
 
@@ -868,6 +1035,7 @@ page 7201 "CDS Connection Setup Wizard"
         ConsentStepVisible := false;
         ApplicationStepVisible := false;
         AdminStepVisible := false;
+        BusinessEventsStepVisible := false;
         CredentialsStepVisible := false;
         ImportSolutionStepVisible := false;
         OwnershipModelStepVisible := false;
@@ -887,6 +1055,7 @@ page 7201 "CDS Connection Setup Wizard"
         ConsentStepVisible := true;
         ApplicationStepVisible := false;
         AdminStepVisible := false;
+        BusinessEventsStepVisible := false;
         CredentialsStepVisible := false;
         ImportSolutionStepVisible := false;
         OwnershipModelStepVisible := false;
@@ -904,6 +1073,7 @@ page 7201 "CDS Connection Setup Wizard"
         InfoStepVisible := false;
         ApplicationStepVisible := true;
         AdminStepVisible := false;
+        BusinessEventsStepVisible := false;
         CredentialsStepVisible := false;
         ImportSolutionStepVisible := false;
         OwnershipModelStepVisible := false;
@@ -924,6 +1094,7 @@ page 7201 "CDS Connection Setup Wizard"
         ConsentStepVisible := false;
         ApplicationStepVisible := false;
         AdminStepVisible := true;
+        BusinessEventsStepVisible := false;
         CredentialsStepVisible := false;
         ImportSolutionStepVisible := false;
         OwnershipModelStepVisible := false;
@@ -943,6 +1114,7 @@ page 7201 "CDS Connection Setup Wizard"
         ConsentStepVisible := false;
         ApplicationStepVisible := false;
         AdminStepVisible := false;
+        BusinessEventsStepVisible := false;
         CredentialsStepVisible := true;
         OwnershipModelStepVisible := false;
         CoupleSalespersonsStepVisible := false;
@@ -953,8 +1125,8 @@ page 7201 "CDS Connection Setup Wizard"
     begin
         BackActionEnabled := true;
         if FinishWithoutSynchronizingData then begin
-            NextActionEnabled := false;
-            FinishActionEnabled := true;
+            NextActionEnabled := BusinessEvents;
+            FinishActionEnabled := not BusinessEvents;
         end else begin
             NextActionEnabled := true;
             FinishActionEnabled := false;
@@ -963,6 +1135,7 @@ page 7201 "CDS Connection Setup Wizard"
         InfoStepVisible := false;
         ApplicationStepVisible := false;
         AdminStepVisible := false;
+        BusinessEventsStepVisible := false;
         CredentialsStepVisible := false;
         ImportSolutionStepVisible := false;
         OwnershipModelStepVisible := true;
@@ -981,6 +1154,7 @@ page 7201 "CDS Connection Setup Wizard"
         InfoStepVisible := false;
         ApplicationStepVisible := false;
         AdminStepVisible := false;
+        BusinessEventsStepVisible := false;
         CredentialsStepVisible := false;
         ImportSolutionStepVisible := false;
         OwnershipModelStepVisible := false;
@@ -993,8 +1167,8 @@ page 7201 "CDS Connection Setup Wizard"
     local procedure ShowFullSynchReviewStep()
     begin
         BackActionEnabled := true;
-        NextActionEnabled := false;
-        FinishActionEnabled := true;
+        NextActionEnabled := BusinessEvents;
+        FinishActionEnabled := not BusinessEvents;
 
         InfoStepVisible := false;
         ApplicationStepVisible := false;
@@ -1004,6 +1178,23 @@ page 7201 "CDS Connection Setup Wizard"
         OwnershipModelStepVisible := false;
         CoupleSalespersonsStepVisible := false;
         FullSynchReviewStepVisible := true;
+    end;
+
+    local procedure ShowBusinessEventsStep()
+    begin
+        BackActionEnabled := true;
+        NextActionEnabled := false;
+        FinishActionEnabled := VirtualTableAppInstalled;
+
+        InfoStepVisible := false;
+        ApplicationStepVisible := false;
+        AdminStepVisible := false;
+        BusinessEventsStepVisible := true;
+        CredentialsStepVisible := false;
+        ImportSolutionStepVisible := false;
+        OwnershipModelStepVisible := false;
+        CoupleSalespersonsStepVisible := false;
+        FullSynchReviewStepVisible := false;
     end;
 
     local procedure InitializeDefaultAuthenticationType()
@@ -1016,14 +1207,21 @@ page 7201 "CDS Connection Setup Wizard"
         Validate("Proxy Version", CDSIntegrationImpl.GetLastProxyVersionItem());
     end;
 
-    local procedure FinalizeSetup(IsEnabled: Boolean): Boolean
+    local procedure FinalizeBusinessEventsSetup()
     begin
-        "Ownership Model" := TempCDSConnectionSetup."Ownership Model";
-        "Is Enabled" := IsEnabled;
+        Rec."Business Events Enabled" := true;
+        if not SoftwareAsAService then
+            SetClientSecret(ClientSecret);
+        CDSIntegrationImpl.UpdateBusinessEventsSetupFromWizard(Rec);
+    end;
+
+    local procedure FinalizeSynchronizationSetup()
+    begin
+        Rec."Ownership Model" := TempCDSConnectionSetup."Ownership Model";
+        Rec."Is Enabled" := true;
         if not SoftwareAsAService then
             SetClientSecret(ClientSecret);
         CDSIntegrationImpl.UpdateConnectionSetupFromWizard(Rec, UserPassword);
-        exit(true);
     end;
 
     [NonDebuggable]
@@ -1037,8 +1235,7 @@ page 7201 "CDS Connection Setup Wizard"
         end;
         CDSIntegrationImpl.ConfigureIntegrationSolution(Rec, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, AdminADDomain, true);
 
-        if not FinalizeSetup(true) then
-            exit;
+        FinalizeSynchronizationSetup();
 
         if CDSConectionSetup.Get() then begin
             CDSIntegrationImpl.RegisterConnection(CDSConectionSetup, false);
@@ -1064,5 +1261,14 @@ page 7201 "CDS Connection Setup Wizard"
     local procedure AddCoupledUsersToDefaultOwningTeam()
     begin
         CDSIntegrationImpl.AddCoupledUsersToDefaultOwningTeam(Rec, CrmHelper);
+    end;
+
+    local procedure IsVirtualTablesAppInstalled(): Boolean
+    var
+        [NonDebuggable]
+        TempAdminCDSConnectionSetup: Record "CDS Connection Setup" temporary;
+    begin
+        CDSIntegrationImpl.GetTempConnectionSetup(TempAdminCDSConnectionSetup, Rec, AdminAccessToken);
+        exit(CDSIntegrationImpl.IsVirtualTablesAppInstalled(TempAdminCDSConnectionSetup));
     end;
 }

@@ -21,7 +21,7 @@ report 5177 "Delete Purchase Quote Versions"
                 PurchHeader.SetRange("Document Type", PurchHeader."Document Type"::Quote);
                 PurchHeader.SetRange("No.", "No.");
                 PurchHeader.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");
-                if not PurchHeader.FindFirst then begin
+                if not PurchHeader.FindFirst() then begin
                     Delete(true);
                     DeletedDocuments += 1;
                 end;

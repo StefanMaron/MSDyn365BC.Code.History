@@ -45,11 +45,11 @@ codeunit 134303 "Workflow Event Response Tests"
         // [THEN] A Job Queue Entry will be created and the Purchase Invoice will be automatically posted.
 
         // Setup
-        Initialize;
+        Initialize();
 
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo,
           LibraryRandom.RandInt(100));
 
@@ -82,12 +82,12 @@ codeunit 134303 "Workflow Event Response Tests"
         // [THEN] A General Journal Line will be created.
 
         // Setup
-        Initialize;
+        Initialize();
 
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
 
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo,
           LibraryRandom.RandInt(100));
 
@@ -98,10 +98,10 @@ codeunit 134303 "Workflow Event Response Tests"
 
         PurchInvHeader.Init();
         PurchInvHeader.SetRange("Pre-Assigned No.", PurchaseHeader."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
 
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Workflow Create Payment Line");
-        JobQueueEntry.FindFirst;
+        JobQueueEntry.FindFirst();
 
         // Exercise
         CODEUNIT.Run(CODEUNIT::"Workflow Create Payment Line", JobQueueEntry);
@@ -133,11 +133,11 @@ codeunit 134303 "Workflow Event Response Tests"
         // [THEN] A notification entry will be created and the email will be sent.
 
         // Setup
-        Initialize;
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        Initialize();
+        VendorNo := LibraryPurchase.CreateVendorNo();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
 
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo,
           LibraryRandom.RandInt(100));
 
@@ -148,10 +148,10 @@ codeunit 134303 "Workflow Event Response Tests"
 
         PurchInvHeader.Init();
         PurchInvHeader.SetRange("Pre-Assigned No.", PurchaseHeader."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
 
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Workflow Create Payment Line");
-        JobQueueEntry.FindFirst;
+        JobQueueEntry.FindFirst();
 
         // Exercise
         CODEUNIT.Run(CODEUNIT::"Workflow Create Payment Line", JobQueueEntry);
@@ -159,7 +159,7 @@ codeunit 134303 "Workflow Event Response Tests"
         // Validate
         GenJournalLine.SetRange("Journal Template Name", GeneralJnlTemplateCode);
         GenJournalLine.SetRange("Journal Batch Name", GeneralJnlBatchCode);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
 
         RecRef.GetTable(GenJournalLine);
         RecRef.Reset();
@@ -198,7 +198,7 @@ codeunit 134303 "Workflow Event Response Tests"
         // [THEN] No effect.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryWorkflow.DeleteAllExistingWorkflows;
         CreateWorkflowThatDoesNothing(ResponseFunctionName);
         LibraryIncomingDocuments.InitIncomingDocuments;
@@ -222,7 +222,7 @@ codeunit 134303 "Workflow Event Response Tests"
         // Verify.
         PurchInvHeader.Init();
         PurchInvHeader.SetRange("Pre-Assigned No.", PurchaseHeader."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
 
         GenJournalLine.SetRange("Applies-to Doc. No.", PurchInvHeader."No.");
         Assert.IsTrue(GenJournalLine.IsEmpty, 'No General Journal Line should be created');
@@ -249,7 +249,7 @@ codeunit 134303 "Workflow Event Response Tests"
         // [THEN] An error occurs.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryWorkflow.DeleteAllExistingWorkflows;
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
 
@@ -278,7 +278,7 @@ codeunit 134303 "Workflow Event Response Tests"
         // [THEN] A notification is created.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryWorkflow.DeleteAllExistingWorkflows;
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', LibraryRandom.RandInt(100));
@@ -291,7 +291,7 @@ codeunit 134303 "Workflow Event Response Tests"
 
         // Verify.
         PurchInvHeader.SetRange("Pre-Assigned No.", PurchaseHeader."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         RecRef.GetTable(PurchInvHeader);
         VerifyNotificationEntry(RecRef);
     end;
@@ -311,7 +311,7 @@ codeunit 134303 "Workflow Event Response Tests"
         // [WHEN] OnPurchaseDocReleased is run
         // [THEN] Notification entry is created
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryWorkflow.DeleteAllExistingWorkflows;
@@ -340,7 +340,7 @@ codeunit 134303 "Workflow Event Response Tests"
         WorkflowEvent: Record "Workflow Event";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Workflow.ModifyAll(Enabled, false);
@@ -367,8 +367,8 @@ codeunit 134303 "Workflow Event Response Tests"
         PurchInvHeader.DeleteAll();
         JobQueueEntry.DeleteAll();
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         LibraryWorkflow.DeleteAllExistingWorkflows;
         WorkflowEventHandling.CreateEventsLibrary;
@@ -493,8 +493,6 @@ codeunit 134303 "Workflow Event Response Tests"
     var
         UserSetup: Record "User Setup";
     begin
-        LibraryWorkflow.SetUpSMTPEmailSetup;
-
         if not UserSetup.Get(UserId) then begin
             UserSetup."User ID" := UserId;
             UserSetup."E-Mail" := UserEmailAddressTxt;
@@ -512,7 +510,7 @@ codeunit 134303 "Workflow Event Response Tests"
     begin
         NotificationEntry.SetRange("Triggered By Record", RecRef.RecordId);
         NotificationEntry.SetRange("Recipient User ID", UserId);
-        NotificationEntry.FindFirst;
+        NotificationEntry.FindFirst();
 
         Assert.AreEqual(1, NotificationEntry.Count, 'Unexpected notification entry.');
     end;

@@ -26,7 +26,7 @@ codeunit 134036 "ERM Customer Balance Manl Appl"
 
         // Setup.
         // Create and Post General Journal Line for Invoice and Payment.
-        Initialize;
+        Initialize();
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, CreateCustomer,
           GenJournalLine."Bal. Account Type"::"Bank Account", CreateBankAccount, LibraryRandom.RandDec(5, 2));
@@ -59,7 +59,7 @@ codeunit 134036 "ERM Customer Balance Manl Appl"
         // Create General Journal Lines for invoice and Payment and Verify Balance LCY field.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Create General Journal Line for both Invoice and Payment.
         CreateGeneralJournalLine(
@@ -88,8 +88,8 @@ codeunit 134036 "ERM Customer Balance Manl Appl"
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Customer Balance Manl Appl");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Customer Balance Manl Appl");
@@ -109,7 +109,7 @@ codeunit 134036 "ERM Customer Balance Manl Appl"
         BankAccount: Record "Bank Account";
         BankAccountPostingGroup: Record "Bank Account Posting Group";
     begin
-        BankAccountPostingGroup.FindLast;
+        BankAccountPostingGroup.FindLast();
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount.Validate("Bank Acc. Posting Group", BankAccountPostingGroup.Code);
         BankAccount.Modify(true);

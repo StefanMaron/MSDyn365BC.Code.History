@@ -14,29 +14,29 @@ report 99 "Delete Empty G/L Registers"
             trigger OnAfterGetRecord()
             begin
                 GLEntry.SetRange("Entry No.", "From Entry No.", "To Entry No.");
-                if GLEntry.FindFirst then
+                if GLEntry.FindFirst() then
                     CurrReport.Skip();
                 CustLedgEntry.SetRange("Entry No.", "From Entry No.", "To Entry No.");
-                if CustLedgEntry.FindFirst then
+                if CustLedgEntry.FindFirst() then
                     CurrReport.Skip();
                 VendLedgEntry.SetRange("Entry No.", "From Entry No.", "To Entry No.");
-                if VendLedgEntry.FindFirst then
+                if VendLedgEntry.FindFirst() then
                     CurrReport.Skip();
                 VATEntry.SetRange("Entry No.", "From VAT Entry No.", "To VAT Entry No.");
-                if VATEntry.FindFirst then
+                if VATEntry.FindFirst() then
                     CurrReport.Skip();
                 BankAccLedgEntry.SetRange("Entry No.", "From Entry No.", "To Entry No.");
-                if BankAccLedgEntry.FindFirst then
+                if BankAccLedgEntry.FindFirst() then
                     CurrReport.Skip();
                 FAReg.SetCurrentKey("Creation Date");
                 FAReg.SetRange("Creation Date", "Creation Date");
                 FAReg.SetRange("G/L Register No.", "No.");
-                if FAReg.FindFirst then begin
+                if FAReg.FindFirst() then begin
                     FALedgEntry.SetRange("Entry No.", FAReg."From Entry No.", FAReg."To Entry No.");
-                    if FALedgEntry.FindFirst then
+                    if FALedgEntry.FindFirst() then
                         CurrReport.Skip();
                     MaintLedgEntry.SetRange("Entry No.", FAReg."From Maintenance Entry No.", FAReg."To Maintenance Entry No.");
-                    if MaintLedgEntry.FindFirst then
+                    if MaintLedgEntry.FindFirst() then
                         CurrReport.Skip();
                 end;
 

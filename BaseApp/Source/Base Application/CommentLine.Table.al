@@ -51,7 +51,7 @@ table 97 "Comment Line"
         CommentLine.SetRange("Table Name", "Table Name");
         CommentLine.SetRange("No.", "No.");
         CommentLine.SetRange(Date, WorkDate);
-        if not CommentLine.FindFirst then
+        if not CommentLine.FindFirst() then
             Date := WorkDate;
 
         OnAfterSetUpNewLine(Rec, CommentLine);

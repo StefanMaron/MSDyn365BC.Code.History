@@ -24,7 +24,7 @@ codeunit 139302 "Test Report Request Failure"
         // [WHEN] The user clicks ok to run the XML Port.
         // [THEN] The server does not crash with a StackOverflowException due to metadata load failures.
         TestReport.UseRequestPage := true;
-        TestReport.Run;
+        TestReport.Run();
 
         LibraryReportDataset.LoadDataSetFile;
         Assert.AreNotEqual(0, LibraryReportDataset.RowCount, 'A positive count is expected');

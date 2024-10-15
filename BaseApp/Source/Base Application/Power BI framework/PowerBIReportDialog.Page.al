@@ -19,6 +19,8 @@ page 6305 "Power BI Report Dialog"
                 end;
 
                 trigger DocumentReady()
+                var
+                    LoadReportMessage: Text;
                 begin
 #if not CLEAN18
                     if LegacyPostMessage <> '' then begin
@@ -26,7 +28,8 @@ page 6305 "Power BI Report Dialog"
                         exit;
                     end;
 #endif
-                    CurrPage.WebPageViewer.PostMessage(PowerBIEmbedHelper.GetLoadReportMessage(), PowerBIEmbedHelper.TargetOrigin(), false)
+                    PowerBIEmbedHelper.TryGetLoadReportMessage(LoadReportMessage);
+                    CurrPage.WebPageViewer.PostMessage(LoadReportMessage, PowerBIEmbedHelper.TargetOrigin(), false)
                 end;
 
                 trigger Callback(data: Text)

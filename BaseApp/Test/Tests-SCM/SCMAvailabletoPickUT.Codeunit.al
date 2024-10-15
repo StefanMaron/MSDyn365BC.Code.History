@@ -40,9 +40,9 @@ codeunit 137501 "SCM Available to Pick UT"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Available to Pick UT");
 
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         // Setup Demonstration data.
         IsInitialized := true;
@@ -94,7 +94,7 @@ codeunit 137501 "SCM Available to Pick UT"
         FirstSOQty: Decimal;
         SecondSOQty: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupLocation(Location, true, true, true);
         LibraryInventory.CreateItem(Item);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
@@ -106,7 +106,7 @@ codeunit 137501 "SCM Available to Pick UT"
 
         WhseReceiptLine.SetRange("Source Document", WhseReceiptLine."Source Document"::"Purchase Order");
         WhseReceiptLine.SetRange("Source No.", PurchaseHeader."No.");
-        WhseReceiptLine.FindFirst;
+        WhseReceiptLine.FindFirst();
 
         WhseReceiptHeader.Get(WhseReceiptLine."No.");
         LibraryWarehouse.PostWhseReceipt(WhseReceiptHeader);
@@ -144,7 +144,7 @@ codeunit 137501 "SCM Available to Pick UT"
 
         WhseShipmentLine.SetRange("Source Document", WhseShipmentLine."Source Document"::"Sales Order");
         WhseShipmentLine.SetRange("Source No.", SalesHeader."No.");
-        WhseShipmentLine.FindFirst;
+        WhseShipmentLine.FindFirst();
 
         WhseShipmentHeader.Get(WhseShipmentLine."No.");
         LibraryWarehouse.CreateWhsePick(WhseShipmentHeader);
@@ -162,7 +162,7 @@ codeunit 137501 "SCM Available to Pick UT"
 
         WhseShipmentLine.SetRange("Source Document", WhseShipmentLine."Source Document"::"Sales Order");
         WhseShipmentLine.SetRange("Source No.", SalesHeader."No.");
-        WhseShipmentLine.FindFirst;
+        WhseShipmentLine.FindFirst();
 
         WhseShipmentHeader.Get(WhseShipmentLine."No.");
 
@@ -262,7 +262,7 @@ codeunit 137501 "SCM Available to Pick UT"
         FirstSOQty: Decimal;
         SecondSOQty: Decimal;
     begin
-        Initialize;
+        Initialize();
         Clear(Location);
         SetupLocation(Location, false, true, true);
         SetupWarehouse(Location.Code);
@@ -272,7 +272,7 @@ codeunit 137501 "SCM Available to Pick UT"
 
         WhseReceiptLine.SetRange("Source Document", WhseReceiptLine."Source Document"::"Purchase Order");
         WhseReceiptLine.SetRange("Source No.", PurchaseHeader."No.");
-        WhseReceiptLine.FindFirst;
+        WhseReceiptLine.FindFirst();
         WhseReceiptLine.Validate("Bin Code", 'RECEIPT');
         WhseReceiptLine.Modify();
 
@@ -312,7 +312,7 @@ codeunit 137501 "SCM Available to Pick UT"
 
         WhseShipmentLine.SetRange("Source Document", WhseShipmentLine."Source Document"::"Sales Order");
         WhseShipmentLine.SetRange("Source No.", SalesHeader."No.");
-        WhseShipmentLine.FindFirst;
+        WhseShipmentLine.FindFirst();
         WhseShipmentLine.Validate("Bin Code", 'SHIPMENT');
         WhseShipmentLine.Modify();
 
@@ -327,7 +327,7 @@ codeunit 137501 "SCM Available to Pick UT"
 
         WhseShipmentLine.SetRange("Source Document", WhseShipmentLine."Source Document"::"Sales Order");
         WhseShipmentLine.SetRange("Source No.", SalesHeader."No.");
-        WhseShipmentLine.FindFirst;
+        WhseShipmentLine.FindFirst();
         WhseShipmentLine.Validate("Bin Code", 'SHIPMENT');
         WhseShipmentLine.Modify();
 
@@ -368,7 +368,7 @@ codeunit 137501 "SCM Available to Pick UT"
         FirstSOQty: Decimal;
         SecondSOQty: Decimal;
     begin
-        Initialize;
+        Initialize();
         Clear(Location);
         SetupLocation(Location, false, false, true);
         SetupWarehouse(Location.Code);
@@ -490,7 +490,7 @@ codeunit 137501 "SCM Available to Pick UT"
         ItemVariantQuantity: Decimal;
     begin
         // [SCENARIO 361061.1] Verify overstock by Variant in case of different Variant codes used in one Sales Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] 2 items "Item[i]", 2 Variant Codes "Var[i][j]" per each "Item[i]"
         CreateItemsWithVariants(TempItemVariant, 2, 2);
@@ -507,9 +507,9 @@ codeunit 137501 "SCM Available to Pick UT"
         until TempItemVariant.Next = 0;
 
         // [GIVEN] Additional Sales Line with "Var[1][2]" for overstock condition
-        TempItemVariant.FindFirst;
+        TempItemVariant.FindFirst();
         TempItemVariant.SetRange("Item No.", TempItemVariant."Item No.");
-        TempItemVariant.FindLast;
+        TempItemVariant.FindLast();
         MockSalesLine(SalesHeader, TempItemVariant);
 
         // [WHEN] Check Sales Order Availability
@@ -530,7 +530,7 @@ codeunit 137501 "SCM Available to Pick UT"
         ItemVariantQuantity: Decimal;
     begin
         // [SCENARIO 361061.2] Verify overstock by Variant in case of different Variant codes used in one Transfer Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] 2 items "Item[i]", 2 Variant Codes "Var[i][j]" per each "Item[i]"
         CreateItemsWithVariants(TempItemVariant, 2, 2);
@@ -547,9 +547,9 @@ codeunit 137501 "SCM Available to Pick UT"
         until TempItemVariant.Next = 0;
 
         // [GIVEN] Additional Transfer Line with "Var[1][2]" for overstock condition
-        TempItemVariant.FindFirst;
+        TempItemVariant.FindFirst();
         TempItemVariant.SetRange("Item No.", TempItemVariant."Item No.");
-        TempItemVariant.FindLast;
+        TempItemVariant.FindLast();
         MockTransferLine(TempItemVariant, TransferHeader."No.");
 
         // [WHEN] Check Transfer Order Availability
@@ -561,9 +561,9 @@ codeunit 137501 "SCM Available to Pick UT"
 
     local procedure SetupWhseActivityLineForShowItemAvailability(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
-        Initialize;
+        Initialize();
         WarehouseActivityLine."Activity Type" := WarehouseActivityLine."Activity Type"::Pick;
-        WarehouseActivityLine."Item No." := LibraryInventory.CreateItemNo;
+        WarehouseActivityLine."Item No." := LibraryInventory.CreateItemNo();
     end;
 
     [Normal]
@@ -591,7 +591,7 @@ codeunit 137501 "SCM Available to Pick UT"
         Location.SetRange("Require Put-away", true);
         Location.SetRange("Directed Put-away and Pick", IsDirected);
 
-        if not Location.FindFirst then
+        if not Location.FindFirst() then
             if not IsDirected then begin
                 LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
                 Location.Validate("Require Put-away", true);
@@ -648,7 +648,7 @@ codeunit 137501 "SCM Available to Pick UT"
         WhseActivityLine.SetRange("Source No.", SalesOrderNo);
         WhseActivityLine.SetRange("Action Type", LineType);
         Assert.AreEqual(WhseActivityLine.Count, 1, TooManyPickLinesErr);
-        WhseActivityLine.FindFirst;
+        WhseActivityLine.FindFirst();
         Assert.AreEqual(WhseActivityLine.Quantity, ExpectedQty, DifferentQtyErr);
     end;
 
@@ -678,7 +678,7 @@ codeunit 137501 "SCM Available to Pick UT"
         Clear(WhseActivityHeader);
         WhseActivityHeader.SetRange(Type, ActivityType);
         WhseActivityHeader.SetRange("No.", WhseActivityLine."No.");
-        WhseActivityHeader.FindFirst;
+        WhseActivityHeader.FindFirst();
         if (ActivityType = WhseActivityLine."Activity Type"::"Put-away") or
            (ActivityType = WhseActivityLine."Activity Type"::Pick)
         then
@@ -736,7 +736,7 @@ codeunit 137501 "SCM Available to Pick UT"
         LastEntryNo: Integer;
     begin
         with ItemLedgerEntry do begin
-            FindLast;
+            FindLast();
             LastEntryNo := "Entry No.";
             Init;
             "Entry No." := LastEntryNo + 1;
@@ -767,7 +767,7 @@ codeunit 137501 "SCM Available to Pick UT"
             LastLineNo := 0;
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
-            if FindLast then
+            if FindLast() then
                 LastLineNo := "Line No.";
             Init;
             "Document Type" := SalesHeader."Document Type";
@@ -800,7 +800,7 @@ codeunit 137501 "SCM Available to Pick UT"
         with TransferLine do begin
             LastLineNo := 0;
             SetRange("Document No.", TransferHeaderNo);
-            if FindLast then
+            if FindLast() then
                 LastLineNo := "Line No.";
             Init;
             "Document No." := TransferHeaderNo;

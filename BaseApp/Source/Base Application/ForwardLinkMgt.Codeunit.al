@@ -20,6 +20,10 @@ codeunit 1431 "Forward Link Mgt."
         EmptySetupAccountMsg: Label 'Empty Setup Account';
         TroubleshootingDimensionsTok: Label 'TROUBLESHOOTING DIMENSIONS', Locked = true;
         TroubleshootingDimensionsMsg: Label 'Troubleshooting and correcting dimensions';
+        FinancePostingGroupsTok: Label 'FINANCE POSTING GROUPS', Locked = true;
+        FinancePostingGroupsMsg: Label 'Finance posting groups';
+        FinanceSetupVATTok: Label 'FINANCE SETUP VAT', Locked = true;
+        FinanceSetupVATMsg: Label 'Finance setup VAT';
 
     procedure AddLink(NewName: Code[30]; NewDescription: Text[250]; NewLink: Text[250])
     var
@@ -69,23 +73,37 @@ codeunit 1431 "Forward Link Mgt."
         exit(TroubleshootingDimensionsTok);
     end;
 
+    procedure GetHelpCodeForFinancePostingGroups(): Code[30]
+    begin
+        exit(FinancePostingGroupsTok);
+    end;
+
+    procedure GetHelpCodeForFinanceSetupVAT(): Code[30]
+    begin
+        exit(FinanceSetupVATTok);
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Named Forward Link", 'OnLoad', '', false, false)]
     local procedure OnLoadHelpArticleCodes()
     begin
         AddLink(
-          GetHelpCodeForAllowedPostingDate, UsePostingPeriodsMsg, 'https://go.microsoft.com/fwlink/?linkid=2080265');
+          GetHelpCodeForAllowedPostingDate(), UsePostingPeriodsMsg, 'https://go.microsoft.com/fwlink/?linkid=2080265');
         AddLink(
-          GetHelpCodeForBlockedCustomer, BlockedCustomerMsg, 'https://go.microsoft.com/fwlink/?linkid=2094681');
+          GetHelpCodeForBlockedCustomer(), BlockedCustomerMsg, 'https://go.microsoft.com/fwlink/?linkid=2094681');
         AddLink(
-          GetHelpCodeForBlockedItem, BlockedItemMsg, 'https://go.microsoft.com/fwlink/?linkid=2094578');
+          GetHelpCodeForBlockedItem(), BlockedItemMsg, 'https://go.microsoft.com/fwlink/?linkid=2094578');
         AddLink(
-          GetHelpCodeForWorkingWithDimensions, WorkingWithDimensionsMsg, 'https://go.microsoft.com/fwlink/?linkid=2079638');
+          GetHelpCodeForWorkingWithDimensions(), WorkingWithDimensionsMsg, 'https://go.microsoft.com/fwlink/?linkid=2079638');
         AddLink(
-          GetHelpCodeForSalesLineDropShipmentErr, SalesLineDropShipmentMsg, 'https://go.microsoft.com/fwlink/?linkid=2104945');
+          GetHelpCodeForSalesLineDropShipmentErr(), SalesLineDropShipmentMsg, 'https://go.microsoft.com/fwlink/?linkid=2104945');
         AddLink(
           GetHelpCodeForEmptyPostingSetupAccount(), EmptySetupAccountMsg, 'https://go.microsoft.com/fwlink/?linkid=2157418');
         AddLink(
             GetHelpCodeForTroubleshootingDimensions(), TroubleshootingDimensionsMsg, 'https://go.microsoft.com/fwlink/?linkid=2162522');
+        AddLink(
+            GetHelpCodeForFinanceSetupVAT(), FinanceSetupVATMsg, 'https://go.microsoft.com/fwlink/?linkid=2185786');
+        AddLink(
+            GetHelpCodeForFinancePostingGroups(), FinancePostingGroupsMsg, 'https://go.microsoft.com/fwlink/?linkid=2185787');
     end;
 }
 

@@ -135,15 +135,17 @@ report 6655 "Batch Post Sales Return Orders"
 
     var
         Text003: Label 'The exchange rate associated with the new posting date on the sales header will not apply to the sales lines.';
+        PrintDoc: Boolean;
+        [InDataSet]
+        PrintDocVisible: Boolean;
+
+    protected var
         PostingDateReq: Date;
         ReceiveReq: Boolean;
         InvReq: Boolean;
         ReplacePostingDate: Boolean;
         ReplaceDocumentDate: Boolean;
         CalcInvDisc: Boolean;
-        PrintDoc: Boolean;
-        [InDataSet]
-        PrintDocVisible: Boolean;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesHeaderOnPreDataItem(var SalesHeader: Record "Sales Header"; var ReceiveReq: Boolean; var InvReq: Boolean)

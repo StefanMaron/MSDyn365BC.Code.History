@@ -72,7 +72,7 @@ codeunit 137065 "SCM Reservation II"
         InitialInventory: Decimal;
     begin
         // Setup: Create parent and child Item, create Production BOM. Create and release Purchase Order. Create Released Production Order.
-        Initialize;
+        Initialize();
         ItemNo := CreateItemsSetup(Item);
         InitialInventory := LibraryRandom.RandInt(100);
         LibraryVariableStorage.Enqueue(InitialInventory);  // Enqueue variable.
@@ -103,7 +103,7 @@ codeunit 137065 "SCM Reservation II"
         Quantity: Decimal;
     begin
         // Setup: Create parent and child Item, create Production BOM. Create and release Purchase Order and post it, create Released Production Order.
-        Initialize;
+        Initialize();
         PrevComponentsAtLocation := UpdateManufacturingSetupComponentsAtLocation(LocationGreen.Code);
 
         ItemNo := CreateItemsSetup(Item);
@@ -136,7 +136,7 @@ codeunit 137065 "SCM Reservation II"
         Quantity: Decimal;
     begin
         // Setup: Create Item. Create and release Purchase Order and post it, create a Sales Order.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, Item."No.", LocationGreen.Code, Quantity);
@@ -162,7 +162,7 @@ codeunit 137065 "SCM Reservation II"
         Quantity: Decimal;
     begin
         // Setup: Create parent and child Item, create Production BOM. Create a Released Production Orders, Create Sales Order and reserve it.
-        Initialize;
+        Initialize();
         CreateItemsSetup(Item);
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateAndRefreshProdOrder(ProductionOrder, ProductionOrder.Status::Released, Item."No.", Quantity, '', '');
@@ -189,7 +189,7 @@ codeunit 137065 "SCM Reservation II"
         Quantity: Decimal;
     begin
         // Setup: Create parent and child Item, create Production BOM. Create two Released Production Orders, Create Sales Order and reserve on it.
-        Initialize;
+        Initialize();
         CreateItemsSetup(Item);
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateAndRefreshProdOrder(ProductionOrder, ProductionOrder.Status::Released, Item."No.", Quantity, LocationGreen.Code, '');
@@ -218,7 +218,7 @@ codeunit 137065 "SCM Reservation II"
         Quantity: Decimal;
     begin
         // Setup: Create Item. Create and release Purchase Order and post it, create a Sales Order and reserve it.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, Item."No.", '', Quantity);
@@ -250,7 +250,7 @@ codeunit 137065 "SCM Reservation II"
         Quantity: Decimal;
     begin
         // Setup: Create parent and child Item, create Production BOM. Create and release Purchase Order and Post as Receive and Invoice. Create a Firm Planned Production Order.
-        Initialize;
+        Initialize();
         PrevComponentsAtLocation := UpdateManufacturingSetupComponentsAtLocation(LocationGreen.Code);
 
         ItemNo := CreateItemsSetup(Item);
@@ -289,7 +289,7 @@ codeunit 137065 "SCM Reservation II"
         // [SCENARIO] Check reserved Quantity on production component after release Production Order (components reserved for Firm Planned Prod. Order).
 
         // [GIVEN] Create parent and child Item, create Production BOM. Create and release Purchase Order and post it. Create a Firm Planned Production Order and reserve its components.
-        Initialize;
+        Initialize();
         PrevComponentsAtLocation := UpdateManufacturingSetupComponentsAtLocation('');
 
         ItemNo := CreateItemsSetup(Item);
@@ -323,7 +323,7 @@ codeunit 137065 "SCM Reservation II"
         WarehouseJournalLine: Record "Warehouse Journal Line";
     begin
         // Setup: Create Item With Item Tracking Code, Create Warehouse Journal line and assign Tracking on it.
-        Initialize;
+        Initialize();
         Bin.Get(LocationWhite.Code, LocationWhite."To-Production Bin Code");
         CreateItemWithItemTrackingCode(Item, CreateItemTrackingCode);
         LibraryWarehouse.WarehouseJournalSetup(LocationWhite.Code, WarehouseJournalTemplate, WarehouseJournalBatch);
@@ -354,7 +354,7 @@ codeunit 137065 "SCM Reservation II"
         Quantity: Decimal;
     begin
         // Setup: Create parent and child Items with Tracking in a Production BOM and certify it. Update Inventory for Items with Tracking. Create and refresh a Released Production order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateItemSetupWithLotTracking(Item, Item2);
         UpdateInventoryAndAssignTrackingInWhseItemJournal(LocationWhite, Item, Item2, Quantity);
@@ -380,7 +380,7 @@ codeunit 137065 "SCM Reservation II"
         Quantity: Decimal;
     begin
         // Setup: Create parent and child Items in a Production BOM and certify it.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(100, 2);  // Large Random Value required for Test.
         CreateItemSetupWithLotTracking(Item, Item2);
         Bin.Get(LocationWhite.Code, LocationWhite."Cross-Dock Bin Code");
@@ -408,7 +408,7 @@ codeunit 137065 "SCM Reservation II"
         Quantity: Decimal;
     begin
         // Setup: Update Components at a Location. Create parent and child Items with Tracking in a Production BOM and certify it. Update Inventory for Items with Tracking. Create and refresh a Released Production order.
-        Initialize;
+        Initialize();
         ComponentsAtLocation := UpdateManufacturingSetupComponentsAtLocation(LocationWhite.Code);
         Quantity := LibraryRandom.RandDec(100, 2);  // Large Random Value required for Test.
         CreateItemSetupWithLotTracking(Item, Item2);
@@ -447,7 +447,7 @@ codeunit 137065 "SCM Reservation II"
     begin
         // Setup: Update Components at a Location. Create parent and child Items with Tracking in a Production BOM and certify it. Update Inventory for Items with Lot Tracking. Create and refresh a Released Production order.
         // Create a Pick from Production Order.
-        Initialize;
+        Initialize();
         ComponentsAtLocation := UpdateManufacturingSetupComponentsAtLocation(LocationWhite.Code);
         Quantity := LibraryRandom.RandDec(100, 2);  // Large Random Value required for Test.
         CreateItemSetupWithLotTracking(Item, Item2);
@@ -476,7 +476,7 @@ codeunit 137065 "SCM Reservation II"
     procedure PostConsumptionWithProductionOrderWithLotTracking()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         OutputQuantityWithProductionOrderAndLotTracking(false);  // Post Output Journal FALSE.
     end;
 
@@ -486,7 +486,7 @@ codeunit 137065 "SCM Reservation II"
     procedure PostOutputWithProductionOrderWithLotTracking()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         OutputQuantityWithProductionOrderAndLotTracking(true);  // Post Output Journal TRUE.
     end;
 
@@ -541,7 +541,7 @@ codeunit 137065 "SCM Reservation II"
         WarehouseEntry: Record "Warehouse Entry";
     begin
         // Setup: Create parent and child Items in a Production BOM and certify it. Create and refresh Released Production Order.
-        Initialize;
+        Initialize();
         Bin.Get(LocationWhite.Code, LocationWhite."Cross-Dock Bin Code");
         CreateItemSetupWithLotTracking(Item, Item2);
         CreateAndRefreshProdOrder(
@@ -568,7 +568,7 @@ codeunit 137065 "SCM Reservation II"
         RoutingLinkCode: Code[10];
     begin
         // Setup: Create a child Item and update Inventory.
-        Initialize;
+        Initialize();
         CreateItemAndUpdateInventory(Item2, LibraryRandom.RandDec(100, 2));
 
         // Exercise: Create Production BOM, Parent item and update Routing Link Code on Child Item.
@@ -591,7 +591,7 @@ codeunit 137065 "SCM Reservation II"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create child Item and update Inventory. Create Production BOM and Parent item.
-        Initialize;
+        Initialize();
         CreateItemAndUpdateInventory(Item2, LibraryRandom.RandDec(100, 2));  // Child Item.
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item2."Base Unit of Measure");
         LibraryManufacturing.CreateProductionBOMLine(
@@ -620,7 +620,7 @@ codeunit 137065 "SCM Reservation II"
         Item2: Record Item;
     begin
         // Setup: Create child Item and update Inventory. Create Production BOM and Parent item.
-        Initialize;
+        Initialize();
         CreateItemAndUpdateInventory(Item2, LibraryRandom.RandDec(100, 2));
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item2."Base Unit of Measure");
         LibraryManufacturing.CreateProductionBOMLine(
@@ -644,7 +644,7 @@ codeunit 137065 "SCM Reservation II"
     procedure ReleasedProductionOrderWithRouting()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         OutputFromProductionOrderWithRoutingSetup(false);  // Post Output Journal FALSE.
     end;
 
@@ -653,7 +653,7 @@ codeunit 137065 "SCM Reservation II"
     procedure PostOutputFromReleasedProductionOrderWithRoutingSetup()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         OutputFromProductionOrderWithRoutingSetup(true);  // Post Output Journal TRUE.
     end;
 
@@ -692,7 +692,7 @@ codeunit 137065 "SCM Reservation II"
         RoutingLinkCode: Code[10];
     begin
         // Setup: Create parent and child Item, create Production BOM. Create Routing Setup and update Routing on Item. Create and refresh a Released Production Order.
-        Initialize;
+        Initialize();
         ItemNo := CreateItemsSetup(Item);
         CreateRoutingAndUpdateItem(RoutingHeader, Item);
         CreateAndRefreshProdOrder(
@@ -714,7 +714,7 @@ codeunit 137065 "SCM Reservation II"
         DynamicLowLevelCode: Boolean;
     begin
         // Setup: Create a Child Item and update Inventory, create a certified Production BOM, Parent Item and attach Production BOM.
-        Initialize;
+        Initialize();
         DynamicLowLevelCode := UpdateManufacturingSetupDynamicLowLevelCode(false);  // Dynamic Low Level Code False.
         CreateItemsSetup(Item);
 
@@ -738,7 +738,7 @@ codeunit 137065 "SCM Reservation II"
         DynamicLowLevelCode: Boolean;
     begin
         // Setup: Create a Child Item and update Inventory, create a certified Production BOM, Parent Item and attach Production BOM.
-        Initialize;
+        Initialize();
         DynamicLowLevelCode := UpdateManufacturingSetupDynamicLowLevelCode(false);  // Dynamic Low Level Code False.
         CreateItemsSetup(Item);
 
@@ -763,7 +763,7 @@ codeunit 137065 "SCM Reservation II"
         DynamicLowLevelCode: Boolean;
     begin
         // Setup: Create a Child Item and update Inventory, create a certified Production BOM, Parent Item and attach Production BOM.
-        Initialize;
+        Initialize();
         DynamicLowLevelCode := UpdateManufacturingSetupDynamicLowLevelCode(false);  // Dynamic Low Level Code False.
         CreateItemsSetup(Item);
 
@@ -791,7 +791,7 @@ codeunit 137065 "SCM Reservation II"
         Quantity: Decimal;
     begin
         // Setup: Find Bin at Location, Create parent and child Items with Tracking in a Production BOM and certify it. Update Inventory for Items with Tracking. Create and refresh a Released Production order.
-        Initialize;
+        Initialize();
         LibraryWarehouse.FindBin(Bin, LocationSilver.Code, '', 1);  // Find Bin of Index 1.
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateItemSetupWithLotTracking(Item, Item2);
@@ -816,7 +816,7 @@ codeunit 137065 "SCM Reservation II"
     procedure InventoryPickFromReleasedProductionOrderWithLotTracking()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         WhseActivityFromReleasedProductionOrderWithLotTracking(false);  // Post Inventory Pick FALSE.
     end;
 
@@ -826,7 +826,7 @@ codeunit 137065 "SCM Reservation II"
     procedure PostInventoryPickFromReleasedProductionOrderWithLotTracking()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         WhseActivityFromReleasedProductionOrderWithLotTracking(true);  // Post Inventory Pick TRUE.
     end;
 
@@ -890,7 +890,7 @@ codeunit 137065 "SCM Reservation II"
         ProductionBOMLine: Record "Production BOM Line";
     begin
         // Setup: Create Item and Item Unit Of Measure and update Inventory.
-        Initialize;
+        Initialize();
         CreateItemUnitOfMeasureSetup(Item, ItemUnitOfMeasure);
         CreateAndPostItemJournalLine(Item."No.", LibraryRandom.RandDec(100, 2), '', '', false);  // Using Tracking FALSE.
 
@@ -912,7 +912,7 @@ codeunit 137065 "SCM Reservation II"
         ProductionBOMVersion: Record "Production BOM Version";
     begin
         // Setup: Create a Child Item and update Inventory, create a certified Production BOM, Parent Item and attach Production BOM.
-        Initialize;
+        Initialize();
         CreateItemsSetup(Item);
 
         // Exercise: Create certified Production BOM Version.
@@ -934,7 +934,7 @@ codeunit 137065 "SCM Reservation II"
         RoutingLinkCode: Code[10];
     begin
         // Setup: Create child Item, create certified Production BOM, creat parent Item and attach Production BOM. Create Routing Setup and update Routing Link Code on Item.
-        Initialize;
+        Initialize();
         CreateItemAndUpdateInventory(Item2, LibraryRandom.RandDec(100, 2));
         RoutingLinkCode := CreateCertifiedProductionBOM(ProductionBOMHeader, Item2, true);
         CreateProductionItem(Item, ProductionBOMHeader."No.");
@@ -961,7 +961,7 @@ codeunit 137065 "SCM Reservation II"
         Quantity: Decimal;
     begin
         // Setup: Create child Item, create certified Production BOM, parent Item and attach Production BOM. Create Routing Setup and update Routing Link Code on Item.
-        Initialize;
+        Initialize();
         CreateItemsSetup(Item);
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateRoutingAndUpdateItem(RoutingHeader, Item);
@@ -984,7 +984,7 @@ codeunit 137065 "SCM Reservation II"
         RoutingLineUnitCostPer: Decimal;
     begin
         // Setup: Create parent and child Items, create Production BOM, attach Production BOM to parent Item and certify it. Create Routing Setup and update Routing on parent Item.
-        Initialize;
+        Initialize();
         CreateItemsSetup(Item);
         RoutingLineUnitCostPer := CreateRoutingAndUpdateItem(RoutingHeader, Item);
 
@@ -1008,7 +1008,7 @@ codeunit 137065 "SCM Reservation II"
         RoutingLineUnitCostPer: Decimal;
     begin
         // Setup: Create Parent and child Items, create certified Production BOM attach Production BOM to parent Item,update Item for Planning. Create Routing Setup and update Routing on parent Item. Create a Sales Order.
-        Initialize;
+        Initialize();
         UpdateItemPlanningParameters(Item);
         RoutingLineUnitCostPer := CreateRoutingAndUpdateItem(RoutingHeader, Item);
         CreateSalesOrder(SalesHeader, SalesLine, Item."No.", LibraryRandom.RandDec(10, 2) + 1000, '');
@@ -1035,7 +1035,7 @@ codeunit 137065 "SCM Reservation II"
         Quantity: Decimal;
     begin
         // Setup: Create parent and child Items with Tracking in a Production BOM and certify it. Create Routing and update Routing on parent Item. Update Inventory for Items with Tracking on a Location. Create and refresh a Released Production Order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateItemSetupWithLotTracking(Item, Item2);
         CreateRoutingAndUpdateItem(RoutingHeader, Item2);
@@ -1059,7 +1059,7 @@ codeunit 137065 "SCM Reservation II"
     procedure WarehousePutAwayWithProductionBOMAndLotTracking()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         WarehouseActivityWithProductionBOMAndLotTracking(true, false, false);  // Create Warehouse Put Away TRUE.
     end;
 
@@ -1069,7 +1069,7 @@ codeunit 137065 "SCM Reservation II"
     procedure RegisteredWhsePutAwayWithProductionBOMAndLotTracking()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         WarehouseActivityWithProductionBOMAndLotTracking(false, true, false);  // Register Warehouse Put Away TRUE.
     end;
 
@@ -1079,7 +1079,7 @@ codeunit 137065 "SCM Reservation II"
     procedure WarehousePickWithProductionBOMAndLotTracking()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         WarehouseActivityWithProductionBOMAndLotTracking(false, true, true);  // Register Warehouse Put Away and create Warehouse Pick TRUE.
     end;
 
@@ -1156,7 +1156,7 @@ codeunit 137065 "SCM Reservation II"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Find Bin at Location, Create parent and child Items in a Production BOM and certify it. Update Inventory for parent and child Items at Location.
-        Initialize;
+        Initialize();
         LibraryWarehouse.FindBin(Bin, LocationRed.Code, '', 1);  // Find Bin of Index 1.
         CreateItemsSetupWithLocationAndBin(Item, Item2, LibraryRandom.RandDec(100, 2), LocationRed.Code, Bin.Code);
 
@@ -1184,7 +1184,7 @@ codeunit 137065 "SCM Reservation II"
         Quantity: Decimal;
     begin
         // Setup: Find Bins at Locations, Create parent and child Items in a Production BOM and certify it. Update Inventory for parent and child Items at Location. Create and refresh a Released Production order.
-        Initialize;
+        Initialize();
         LibraryWarehouse.FindBin(Bin, LocationRed.Code, '', 1);  // Find Bin of Index 1.
         LibraryWarehouse.FindBin(Bin2, LocationRed2.Code, '', 1);  // Find Bin of Index 1.
         Quantity := LibraryRandom.RandDec(100, 2);
@@ -1216,7 +1216,7 @@ codeunit 137065 "SCM Reservation II"
         ItemNo: Code[20];
     begin
         // Setup: Create parent and child Items and update their Inventory. Create Production BOM and certify it.
-        Initialize;
+        Initialize();
         ItemNo := CreateItemsSetup(Item);
 
         // Exercise: Create and refresh Planned Production Order.
@@ -1240,7 +1240,7 @@ codeunit 137065 "SCM Reservation II"
         RoutingLinkCode: Code[10];
     begin
         // Setup: Create child Item, create certified Production BOM, creat parent Item and attach Production BOM. Create Routing Setup and update Routing Link Code on Item.
-        Initialize;
+        Initialize();
         CreateItemAndUpdateInventory(Item2, LibraryRandom.RandDec(100, 2));
         RoutingLinkCode := CreateCertifiedProductionBOM(ProductionBOMHeader, Item2, true);
         CreateProductionItem(Item, ProductionBOMHeader."No.");
@@ -1267,7 +1267,7 @@ codeunit 137065 "SCM Reservation II"
         CalcMethod: Option "All Levels";
     begin
         // Setup: Create parent and child Item, create Production BOM. Create Routing Setup and update Routing on Item. Update Routing for Send Ahead Quantity. Create and refresh a Released Production Order.
-        Initialize;
+        Initialize();
         CreateItemsSetup(Item);
         CreateRoutingAndUpdateItem(RoutingHeader, Item);
         UpdateRoutingLine(RoutingHeader, '');
@@ -1296,7 +1296,7 @@ codeunit 137065 "SCM Reservation II"
         Quantity: Decimal;
     begin
         // Setup: Create child Item, create certified Production BOM, creat parent Item and attach Production BOM. Create Routing Setup and update Routing Link Code on Item.
-        Initialize;
+        Initialize();
         CreateItemAndUpdateInventory(Item2, LibraryRandom.RandDec(100, 2));
         Quantity := LibraryRandom.RandInt(100);
         RoutingLinkCode := CreateCertifiedProductionBOM(ProductionBOMHeader, Item2, true);
@@ -1321,7 +1321,7 @@ codeunit 137065 "SCM Reservation II"
         RoutingHeader: Record "Routing Header";
     begin
         // Setup: Create parent and child Item, create Production BOM. Create Routing setup and update Routing on Item.
-        Initialize;
+        Initialize();
         CreateItemsSetup(Item);
         CreateRoutingAndUpdateItem(RoutingHeader, Item);
 
@@ -1339,7 +1339,7 @@ codeunit 137065 "SCM Reservation II"
     begin
         // Verify the Production BOM Matrix Per Version with Copy BOM.
         // Setup.
-        Initialize;
+        Initialize();
         ProductionBOMMatrixWithCopyBOM(false);  // Multiple BOM Versions -FALSE.
     end;
 
@@ -1349,7 +1349,7 @@ codeunit 137065 "SCM Reservation II"
     begin
         // Verify the Production BOM Matrix Per Version with Copy BOM with multiple BOM Versions.
         // Setup.
-        Initialize;
+        Initialize();
         ProductionBOMMatrixWithCopyBOM(true);  // Multiple BOM Versions -TRUE.
     end;
 
@@ -1379,7 +1379,7 @@ codeunit 137065 "SCM Reservation II"
     begin
         // Verify the Production BOM Matrix Per Version with Copy Version.
         // Setup.
-        Initialize;
+        Initialize();
         ProductionBOMMatrixWithCopyVersion(false);  // Multiple BOM Versions -FALSE.
     end;
 
@@ -1390,7 +1390,7 @@ codeunit 137065 "SCM Reservation II"
     begin
         // Verify the Production BOM Matrix Per Version with Copy Version and multiple BOM Versions.
         // Setup.
-        Initialize;
+        Initialize();
         ProductionBOMMatrixWithCopyVersion(true);  // Multiple BOM Versions -TRUE.
     end;
 
@@ -1419,7 +1419,7 @@ codeunit 137065 "SCM Reservation II"
     begin
         // Verify that correct Surplus Quantity is populated on Purchase Order with Calculate Regenerative Plan from Requisition Worksheet.
         // Setup.
-        Initialize;
+        Initialize();
         OrderWithSurplusQuantityFromRegenerativePlanWithProductionBOM("Replenishment System"::Purchase);  // Replenishment System -Purchase.
     end;
 
@@ -1429,7 +1429,7 @@ codeunit 137065 "SCM Reservation II"
     begin
         // Verify that correct Surplus Quantity is populated on Production Order with Calculate Regenerative Plan from Requisition Worksheet.
         // Setup.
-        Initialize;
+        Initialize();
         OrderWithSurplusQuantityFromRegenerativePlanWithProductionBOM("Replenishment System"::"Prod. Order");  // Replenishment System -Prod. Order.
     end;
 
@@ -1466,7 +1466,7 @@ codeunit 137065 "SCM Reservation II"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Item hierarchy with two Production BOMs and certify Production BOM.
-        Initialize;
+        Initialize();
         CreateItemHierarchy(Item, Item2);
 
         // Exercise: Create a Released Production Order.
@@ -1488,7 +1488,7 @@ codeunit 137065 "SCM Reservation II"
         SalesLine: Record "Sales Line";
     begin
         // Setup: Create Item hierarchy with two Production BOMs and certify Production BOM. Update Reordering Policy on updated BOM Item. Create a Sales Order.
-        Initialize;
+        Initialize();
         CreateItemHierarchy(Item, Item2);
         UpdateLotForLotReorderingPolicyOnItem(Item);
         CreateSalesOrder(SalesHeader, SalesLine, Item."No.", LibraryRandom.RandDec(100, 2), '');
@@ -1512,7 +1512,7 @@ codeunit 137065 "SCM Reservation II"
         SalesHeader: Record "Sales Header";
     begin
         // Setup: Create parent and child Items with Tracking in a Production BOM and certify it. Update Inventory for Items with Tracking.
-        Initialize;
+        Initialize();
         CreateItemSetupWithLotTracking(Item, Item2);
         UpdateInventoryAndAssignTrackingInWhseItemJournal(LocationWhite, Item, Item2, LibraryRandom.RandDec(100, 2));
 
@@ -1538,7 +1538,7 @@ codeunit 137065 "SCM Reservation II"
     begin
         // Setup: Update Components at a Location. Create parent and child Items with Tracking in a Production BOM and certify it. Update Inventory for Items with Tracking. Create and release a Sales Order with reservation. Create Warehouse Shipment.
         // Create Production Order from Sales Order.
-        Initialize;
+        Initialize();
         ComponentsAtLocation := UpdateManufacturingSetupComponentsAtLocation(LocationWhite.Code);
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateItemsAndWarehouseShipmentWithReservationAndTrackingSetup(Item, Item2, SalesHeader, LocationWhite, Quantity);
@@ -1574,7 +1574,7 @@ codeunit 137065 "SCM Reservation II"
     begin
         // Setup: Update Components at a Location. Create parent and child Items with Tracking in a Production BOM and certify it. Update Inventory for Items with Tracking. Create and release a Sales Order with reservation. Create Warehouse Shipment.
         // Create Production Order from Sales Order. Create a Warehouse Pick from Production Order.
-        Initialize;
+        Initialize();
         ComponentsAtLocation := UpdateManufacturingSetupComponentsAtLocation(LocationWhite.Code);
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateItemsAndWarehouseShipmentWithReservationAndTrackingSetup(Item, Item2, SalesHeader, LocationWhite, Quantity);
@@ -1602,7 +1602,7 @@ codeunit 137065 "SCM Reservation II"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         // Setup: Create parent and child Items with Serial Tracking, Create Production BOM and certify it. Update Inventory of the parent Item. Create and refresh a Released Production Order.
-        Initialize;
+        Initialize();
         CreateItemSetupWithSerialTracking(Item, Item2);
         CreateAndRefreshProdOrder(ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandInt(10), '', '');
 
@@ -1632,7 +1632,7 @@ codeunit 137065 "SCM Reservation II"
         OutputQty: array[4] of Integer;
     begin
         // Setup: Update Components at a Location.
-        Initialize;
+        Initialize();
         UpdateManufacturingSetupComponentsAtLocation(LocationWhite.Code);
 
         // Create a Item with multiple level Production BOM:
@@ -1680,7 +1680,7 @@ codeunit 137065 "SCM Reservation II"
         for i := 4 downto 1 do begin
             ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
             ProdOrderLine.SetRange("Item No.", ItemNo[i]);
-            ProdOrderLine.FindFirst;
+            ProdOrderLine.FindFirst();
             LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
             VerifyItemLedgerEntries(ItemNo[i], ConsumptionQty[i], OutputQty[i]);
         end;
@@ -1691,7 +1691,7 @@ codeunit 137065 "SCM Reservation II"
     [Scope('OnPrem')]
     procedure RegisterWhsePickWithLotTrackingFromProductionOrder()
     begin
-        Initialize;
+        Initialize();
         RegisterWhsePickWithTrackingFromProductionOrderByAddAndRemoveComponent(true); // Whse. Pick With Lot Tracking.
     end;
 
@@ -1700,7 +1700,7 @@ codeunit 137065 "SCM Reservation II"
     [Scope('OnPrem')]
     procedure RegisterWhsePickWithSNTrackingFromProductionOrder()
     begin
-        Initialize;
+        Initialize();
         RegisterWhsePickWithTrackingFromProductionOrderByAddAndRemoveComponent(false); // Whse. Pick With Serial Tracking.
     end;
 
@@ -1784,7 +1784,7 @@ codeunit 137065 "SCM Reservation II"
         Pick: Boolean;
     begin
         // Setup: Setup Location and Bin. Create Item With Item Tracking Code.
-        Initialize;
+        Initialize();
 
         // Save them before updating for tearing down.
         LocationSilver.Get(LocationSilver.Code);
@@ -1858,7 +1858,7 @@ codeunit 137065 "SCM Reservation II"
         // [FEATURE] [Adjust Cost Item Entries] [Item Tracking]
         // [SCENARIO] Verify Cost Amount (Actual) in ILEs after: create and refresh Production Order, post Output Journal (with assigned Serial No.), then post Item Journal fpr Sale with Tracking, then finish Production Order and run Adjust Cost.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create a Item with Production BOM and Routing.
         CreateItemWithProductionBOMAndRouting(Item, ChildItem, ProductionBOMHeader);
@@ -1896,7 +1896,7 @@ codeunit 137065 "SCM Reservation II"
         ItemNo: Code[20];
     begin
         // Setup: Create parent and child Item, create Production BOM.
-        Initialize;
+        Initialize();
         ItemNo := CreateItemsSetup(Item);
         LibraryVariableStorage.Enqueue(ItemNo); // Enqueue variable for ShowMatrixHandler.
         UpdateProductionBOMDescription(Item."Production BOM No."); // Required for test.
@@ -1918,7 +1918,7 @@ codeunit 137065 "SCM Reservation II"
         ProductionBOM: TestPage "Production BOM";
     begin
         // Setup: Create parent and child Item, create Production BOM.
-        Initialize;
+        Initialize();
         CreateItemsSetup(Item);
         LibraryVariableStorage.Enqueue(Item."No."); // Enqueue variable for WhereUsedHandler.
         UpdateProductionBOMDescription(Item."Production BOM No."); // Required for test.
@@ -1948,7 +1948,7 @@ codeunit 137065 "SCM Reservation II"
         // [SCENARIO] Verify error on finishing Production Order having Inventory Pick for component.
 
         // [GIVEN] Create Location with "Require Pick"=TRUE. Update Components at a Location.
-        Initialize;
+        Initialize();
         CreateLocationSetupWithBinsAndWhseEmployee(Location, false, true, false, false, false);
         ComponentsAtLocation := UpdateManufacturingSetupComponentsAtLocation(Location.Code);
 
@@ -1994,7 +1994,7 @@ codeunit 137065 "SCM Reservation II"
         // at the 2nd time when there is nothing availalbe to reserve.
 
         // Setup: Create Item. Add inventory for Item.
-        Initialize;
+        Initialize();
         ItemJournalLine.DeleteAll();
         LibraryInventory.CreateItem(Item);
         Quantity := LibraryRandom.RandIntInRange(40, 50);
@@ -2032,7 +2032,7 @@ codeunit 137065 "SCM Reservation II"
         // Verify that error "date conflict with existing reservations" pops up when changing Starting Date in Prod. Order Routing line.
 
         // Setup: Create and refresh a Released production Order with Routing Line. Create Sales Order and reserve with Production Order
-        Initialize;
+        Initialize();
         ProdOrderNo := ReserveSalesOrderWithProdOrder(SalesLine);
 
         // Exercise: Change Starting Date in Prod. Order Routing line
@@ -2054,7 +2054,7 @@ codeunit 137065 "SCM Reservation II"
         // Verify that error "date conflict with existing reservations" pops up when changing Setup Time in Prod. Order Routing line.
 
         // Setup: Create and refresh a Released production Order with Routing Line. Create Sales Order and reserve with Production Order
-        Initialize;
+        Initialize();
         ProdOrderNo := ReserveSalesOrderWithProdOrder(SalesLine);
 
         // Exercise: Change Setup Time in Prod. Order Routing line
@@ -2076,7 +2076,7 @@ codeunit 137065 "SCM Reservation II"
         // Test to verify Quantity Per and Expected Quantity are correct on Prod. Order Component for Released Production Order.
 
         // Setup: Create parent and child Item, create Production BOM. Update UOM and Quantity Per on Production BOM.
-        Initialize;
+        Initialize();
         QtyPer := LibraryRandom.RandIntInRange(80, 100);
         CreateItemsSetup(Item);
         UpdateItemProdBOMUOMAndQtyPer(Item, 2083, 2083 * QtyPer); // Values are important for reproducing the rounding issue.
@@ -2104,7 +2104,7 @@ codeunit 137065 "SCM Reservation II"
         // Test to verify Quantity Per and Expected Quantity are correct on Planning Component for Planning Worksheet line.
 
         // Setup: Create parent with Planning Parameters and child Item, create Production BOM. Update UOM and Quantity Per on Production BOM.
-        Initialize;
+        Initialize();
         QtyPer := LibraryRandom.RandIntInRange(80, 100);
         SalesOrderQty := LibraryRandom.RandInt(100);
         ComponentItemNo := UpdateItemPlanningParameters(Item);
@@ -2135,7 +2135,7 @@ codeunit 137065 "SCM Reservation II"
         ItemNo: Code[20];
         Quantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         UpdateManufacturingSetupComponentsAtLocation(LocationGreen.Code);
         ItemNo := CreateItemsSetup(Item);
         Quantity := LibraryRandom.RandInt(100);
@@ -2173,10 +2173,10 @@ codeunit 137065 "SCM Reservation II"
         // [SCENARIO 156554] Can change Bin code in Pick line, if Item is reserved and stock is available.
 
         // [GIVEN] Item on hand in two bins in Warehouse Location, each of Quantity "Q".
-        Initialize;
+        Initialize();
         LibraryWarehouse.WarehouseJournalSetup(LocationWhite.Code, WarehouseJournalTemplate, WarehouseJournalBatch);
 
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         Qty := LibraryRandom.RandDec(10, 2);
 
         FindZone(Zone, LocationWhite.Code, LibraryWarehouse.SelectBinType(false, false, true, true));
@@ -2238,7 +2238,7 @@ codeunit 137065 "SCM Reservation II"
         // [FEATURE] [Warehouse] [Bin] [Production]
         // [SCENARIO 378145] Components reserved and picked for active production order should be considered when calculating quantity available to pick
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Component item "CI"
         LibraryInventory.CreateItem(ComponentItem);
@@ -2302,7 +2302,7 @@ codeunit 137065 "SCM Reservation II"
         // [FEATURE] [Warehouse] [Bin] [Movement Worksheet] [FEFO]
         // [SCENARIO 308293] When creating a warehouse movement from movement worksheet, quantity available on bin being replenished should not be included in total available to pick
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with lot no. tracking
         CreateItemWithItemTrackingCode(Item, CreateItemTrackingCode);
@@ -2319,8 +2319,8 @@ codeunit 137065 "SCM Reservation II"
         ToBin.Modify(true);
         CreateBinContent(BinContent, ToBin, Item, ReplenishQty, ReplenishQty * 3, ToBin."Bin Ranking");
 
-        LotNo[1] := LibraryUtility.GenerateGUID;
-        LotNo[2] := LibraryUtility.GenerateGUID;
+        LotNo[1] := LibraryUtility.GenerateGUID();
+        LotNo[2] := LibraryUtility.GenerateGUID();
         LibraryWarehouse.WarehouseJournalSetup(Location.Code, WarehouseJournalTemplate, WarehouseJournalBatch);
 
         // [GIVEN] Post postive adjustment on "B2", expiration date = WORKDATE, quantity = "X", lot no. = "L1"
@@ -2402,8 +2402,8 @@ codeunit 137065 "SCM Reservation II"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Reservation II");
         Clear(Counter);
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         // Lazy Setup.
         if IsInitialized then
@@ -2414,9 +2414,9 @@ codeunit 137065 "SCM Reservation II"
         AllProfile.FindFirst();
         ConfPersonalizationMgt.SetCurrentProfile(AllProfile);
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
-        NoSeriesSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
+        NoSeriesSetup();
         CreateLocationSetup;
         ItemJournalSetup;
         OutputJournalSetup;
@@ -2549,7 +2549,7 @@ codeunit 137065 "SCM Reservation II"
             SetRange(Status, ProdOrderLine.Status);
             SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
             SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
-            FindFirst;
+            FindFirst();
             AutoReserve();
         end;
     end;
@@ -2671,7 +2671,7 @@ codeunit 137065 "SCM Reservation II"
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
         LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item."No.", 1);  // Value important.
         if UseRoutingLink then begin
-            RoutingLink.FindFirst;
+            RoutingLink.FindFirst();
             ProductionBOMLine.Validate("Routing Link Code", RoutingLink.Code);
             ProductionBOMLine.Modify(true);
         end;
@@ -2807,7 +2807,7 @@ codeunit 137065 "SCM Reservation II"
     begin
         WhsePickRequest.Get(WhsePickRequest."Document Type"::Production, ProdOrderStatus, ProdOrderNo, LocationCode);
         LibraryWarehouse.GetWhseDocsPickWorksheet(WhseWorksheetLine, WhsePickRequest, LocationCode);
-        WhseWorksheetLine.FindFirst;
+        WhseWorksheetLine.FindFirst();
     end;
 
     local procedure CreateWarehouseJournalLine(var Item: array[3] of Record Item; Quantity: Decimal; Location: Record Location)
@@ -3141,7 +3141,7 @@ codeunit 137065 "SCM Reservation II"
     local procedure FindProductionOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderNo: Code[20])
     begin
         ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderNo);
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
     end;
 
     local procedure AddProductionOrderComponentWithBin(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20])
@@ -3160,7 +3160,7 @@ codeunit 137065 "SCM Reservation II"
         with ProdOrderComponent do begin
             SetRange("Prod. Order No.", ProdOrderNo);
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
             Delete(true);
         end;
     end;
@@ -3193,7 +3193,7 @@ codeunit 137065 "SCM Reservation II"
         RoutingLine: Record "Routing Line";
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        if RoutingLine.FindLast then
+        if RoutingLine.FindLast() then
             exit(RoutingLine."Operation No.");
     end;
 
@@ -3201,19 +3201,19 @@ codeunit 137065 "SCM Reservation II"
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
     end;
 
     local procedure FindProductionOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProductionOrderNo: Code[20])
     begin
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrderNo);
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
     end;
 
     local procedure FindProductionOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ItemNo: Code[20])
     begin
         ProdOrderLine.SetRange("Item No.", ItemNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure FindBinForPickZone(var Bin: Record Bin; LocationCode: Code[10]; Pick: Boolean)
@@ -3231,7 +3231,7 @@ codeunit 137065 "SCM Reservation II"
         Zone.SetRange("Location Code", LocationCode);
         Zone.SetRange("Bin Type Code", BinTypeCode);
         Zone.SetRange("Cross-Dock Bin Zone", false);
-        Zone.FindFirst;
+        Zone.FindFirst();
     end;
 
     local procedure FindRegisteredWhseActivityLine(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type")
@@ -3248,7 +3248,7 @@ codeunit 137065 "SCM Reservation II"
     begin
         WarehouseShipmentLine.SetRange("Source Document", SourceDocument);
         WarehouseShipmentLine.SetRange("Source No.", SourceNo);
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]; No: Code[20])
@@ -3257,7 +3257,7 @@ codeunit 137065 "SCM Reservation II"
             SetRange("Document Type", "Document Type"::Order);
             SetRange("Document No.", DocumentNo);
             SetRange("No.", No);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -3341,34 +3341,34 @@ codeunit 137065 "SCM Reservation II"
         Commit();  // Commit required for batch job reports.
         AdjustCostItemEntries.InitializeRequest(ItemNoFilter, '');
         AdjustCostItemEntries.UseRequestPage(true);
-        AdjustCostItemEntries.RunModal;
+        AdjustCostItemEntries.RunModal();
     end;
 
     local procedure SelectItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10])
     begin
         ItemJournalLine.SetRange("Journal Template Name", JournalTemplateName);
         ItemJournalLine.SetRange("Journal Batch Name", JournalBatchName);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
     end;
 
     local procedure SelectRequisitionLine(var RequisitionLine: Record "Requisition Line"; No: Code[20])
     begin
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", No);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
     end;
 
     local procedure SelectProductionBOMLine(var ProductionBOMLine: Record "Production BOM Line"; ProductionBOMNo: Code[20])
     begin
         ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMNo);
-        ProductionBOMLine.FindFirst;
+        ProductionBOMLine.FindFirst();
     end;
 
     local procedure SelectProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderNo: Code[20]; Status: Enum "Production Order Status")
     begin
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
         ProdOrderLine.SetRange(Status, Status);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure SetExpirationDateOnItemTracking(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; WarehouseJournalLine: Record "Warehouse Journal Line"; ExpirationDate: Date)
@@ -3378,7 +3378,7 @@ codeunit 137065 "SCM Reservation II"
             SetRange("Source ID", WarehouseJournalLine."Journal Batch Name");
             SetRange("Location Code", WarehouseJournalLine."Location Code");
             SetRange("Source Ref. No.", WarehouseJournalLine."Line No.");
-            FindFirst;
+            FindFirst();
             Validate("Expiration Date", ExpirationDate);
             Modify(true);
         end;
@@ -3459,7 +3459,7 @@ codeunit 137065 "SCM Reservation II"
         ProdOrderComponent: Record "Prod. Order Component";
         RoutingLink: Record "Routing Link";
     begin
-        RoutingLink.FindFirst;
+        RoutingLink.FindFirst();
         FindProductionOrderComponent(ProdOrderComponent, ProductionOrderNo);
         ProdOrderComponent.Validate("Routing Link Code", RoutingLink.Code);
         ProdOrderComponent.Modify(true);
@@ -3504,7 +3504,7 @@ codeunit 137065 "SCM Reservation II"
         RoutingLine: Record "Routing Line";
     begin
         RoutingLine.SetRange("Routing No.", RoutingHeader."No.");
-        RoutingLine.FindFirst;
+        RoutingLine.FindFirst();
         UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::"Under Development");
         RoutingLine.Validate("Routing Link Code", RoutingLinkCode);
         RoutingLine.Validate("Send-Ahead Quantity", LibraryRandom.RandDec(10, 2));
@@ -3581,7 +3581,7 @@ codeunit 137065 "SCM Reservation II"
         end;
     end;
 
-    local procedure UpdateLocation(var Location: Record Location; PutAway: Boolean; Pick: Boolean; Receive: Boolean; Shipment: Boolean; BinMandatory: Boolean)
+    local procedure UpdateLocation(var Location: Record Location; PutAway: Boolean; Pick: Boolean; Receive: Boolean; Shipment: Boolean; BinRequired: Boolean)
     begin
         with Location do begin
             Validate("Require Receive", Receive);
@@ -3589,7 +3589,7 @@ codeunit 137065 "SCM Reservation II"
             Validate("Require Shipment", Shipment);
             Validate("Require Put-away", PutAway);
             Validate("Require Pick", Pick);
-            "Bin Mandatory" := BinMandatory; // Skip Validate to improve performance.
+            "Bin Mandatory" := BinRequired; // Skip Validate to improve performance.
             Modify(true);
         end;
     end;
@@ -3636,7 +3636,7 @@ codeunit 137065 "SCM Reservation II"
         ProdOrderComponent: Record "Prod. Order Component";
     begin
         ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderNo);
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
         ProdOrderComponent.TestField(Status, Status);
         ProdOrderComponent.TestField("Item No.", ItemNo);
         ProdOrderComponent.CalcFields("Reserved Quantity");
@@ -3651,7 +3651,7 @@ codeunit 137065 "SCM Reservation II"
     begin
         with ProdOrderComponent do begin
             SetRange("Prod. Order No.", ProdOrderNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(QtyPer, "Quantity per", FieldCaption("Quantity per"));
             Assert.AreEqual(ExpectedQty, "Expected Quantity", FieldCaption("Expected Quantity"));
         end;
@@ -3663,7 +3663,7 @@ codeunit 137065 "SCM Reservation II"
     begin
         with PlanningComponent do begin
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(QtyPer, "Quantity per", FieldCaption("Quantity per"));
             Assert.AreEqual(ExpectedQty, "Expected Quantity", FieldCaption("Expected Quantity"));
         end;
@@ -3675,7 +3675,7 @@ codeunit 137065 "SCM Reservation II"
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.CalcFields("Reserved Quantity");
         SalesLine.TestField("Reserved Quantity", ReservedQuantity);
     end;
@@ -3779,7 +3779,7 @@ codeunit 137065 "SCM Reservation II"
     begin
         WarehouseEntry.SetRange("Entry Type", EntryType);
         WarehouseEntry.SetRange("Item No.", ItemNo);
-        WarehouseEntry.FindFirst;
+        WarehouseEntry.FindFirst();
         WarehouseEntry.TestField(Quantity, Quantity);
         WarehouseEntry.TestField("Bin Code", BinCode);
         WarehouseEntry.TestField("Lot No.");
@@ -3790,7 +3790,7 @@ codeunit 137065 "SCM Reservation II"
         ItemJournalLine: Record "Item Journal Line";
     begin
         ItemJournalLine.SetRange("Item No.", ItemNo);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.TestField("Entry Type", EntryType);
     end;
 
@@ -3800,7 +3800,7 @@ codeunit 137065 "SCM Reservation II"
     begin
         ProductionOrder.SetRange(Status, ProductionOrder.Status::Released);
         ProductionOrder.SetRange("No.", No);
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
         ProductionOrder.TestField("Routing No.", RoutingNo);
         ProductionOrder.TestField(Quantity, Quantity);
     end;
@@ -3818,7 +3818,7 @@ codeunit 137065 "SCM Reservation II"
         PostedInvtPickLine: Record "Posted Invt. Pick Line";
     begin
         PostedInvtPickLine.SetRange("Source No.", SourceNo);
-        PostedInvtPickLine.FindFirst;
+        PostedInvtPickLine.FindFirst();
         PostedInvtPickLine.TestField("Item No.", ItemNo);
         PostedInvtPickLine.TestField("Bin Code", BinCode);
         PostedInvtPickLine.TestField(Quantity, Quantity);
@@ -3839,11 +3839,11 @@ codeunit 137065 "SCM Reservation II"
         LineCounter: Integer;
     begin
         ProductionBOMVersion.SetRange("Production BOM No.", ProductionBOMNo);
-        ProductionBOMVersion.FindFirst;
+        ProductionBOMVersion.FindFirst();
         Assert.AreEqual(VersionCount, ProductionBOMVersion.Count, VersionCountError);  // Verify the BOM Version count for Production BOM.
         for LineCounter := 1 to VersionCount do begin
             ProductionBOMVersion.SetRange("Version Code", VersionCode[VersionCount]);
-            ProductionBOMVersion.FindFirst;
+            ProductionBOMVersion.FindFirst();
             Assert.AreEqual(VersionCode[VersionCount], ProductionBOMVersion."Version Code", VersionCodeError);  // Verify the BOM Version Code for particular BOM Version per Item.
         end;
     end;
@@ -3853,7 +3853,7 @@ codeunit 137065 "SCM Reservation II"
         PurchaseLine: Record "Purchase Line";
     begin
         PurchaseLine.SetRange("No.", No);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.TestField(Quantity, Quantity);
     end;
 
@@ -4097,7 +4097,7 @@ codeunit 137065 "SCM Reservation II"
         LibraryVariableStorage.Dequeue(VersionCode);  // Dequeue variable.
         ProductionBOMVersion.SetRange("Production BOM No.", ProductionBOMNo);
         ProductionBOMVersion.SetRange("Version Code", VersionCode);
-        ProductionBOMVersion.FindFirst;
+        ProductionBOMVersion.FindFirst();
         ProdBOMVersionList.SetTableView(ProductionBOMVersion);
         ProdBOMVersionList.SetRecord(ProductionBOMVersion);
         Response := ACTION::LookupOK;

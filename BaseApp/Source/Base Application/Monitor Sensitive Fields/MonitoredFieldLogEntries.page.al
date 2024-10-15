@@ -137,13 +137,10 @@ page 1367 "Monitored Field Log Entries"
     }
 
     trigger OnOpenPage()
-    var
-        MonitorSensitiveField: Codeunit "Monitor Sensitive Field";
     begin
         MonitorSensitiveFieldData.ResetNotificationCount();
         SetFilter("Table No.", '<>%1', Database::"Change Log Setup (Field)");
         IsMonitoredFieldsEntriesShown := false;
-        MonitorSensitiveField.ShowEmailFeatureEnabledNotification();
     end;
 
     var

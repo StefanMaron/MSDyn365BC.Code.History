@@ -33,7 +33,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
     procedure InboundPurchPutAwayLocation()
     begin
         // Check Put Away Selection Page Have Selected data For Receipt Created From Purchase Order.
-        Initialize;
+        Initialize();
         CreateInboundSalesPurchase(ProcessTypeGlobal::Location, DocumentTypeGlobal::Purchase);
     end;
 
@@ -44,7 +44,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
     begin
         // Check Warehouse Activity Line Have Same Purchase Source Document No., Item And Quantity, For Receipt Created Form
         // Purchase Order.
-        Initialize;
+        Initialize();
         CreateInboundSalesPurchase(ProcessTypeGlobal::WarehousePutAway, DocumentTypeGlobal::Purchase);
     end;
 
@@ -54,7 +54,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
     procedure InboundPurchRegistered()
     begin
         // Check That There is No Request Remain For Said Location After Register Put Away For Receipt Created From Purchase Order.
-        Initialize;
+        Initialize();
         CreateInboundSalesPurchase(ProcessTypeGlobal::Register, DocumentTypeGlobal::Purchase);
     end;
 
@@ -64,7 +64,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
     procedure InboundReturnPutAwayLocation()
     begin
         // Check Put Away Selection Page Have Selected data For Receipt Created From Sales Return Order.
-        Initialize;
+        Initialize();
         CreateInboundSalesPurchase(ProcessTypeGlobal::Location, DocumentTypeGlobal::Sales);
     end;
 
@@ -75,7 +75,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
     begin
         // Check Warehouse Activity Line Have Same Sales Return Source Document No., Item And Quantity,For Receipt Created From
         // Sales Return Order.
-        Initialize;
+        Initialize();
         CreateInboundSalesPurchase(ProcessTypeGlobal::WarehousePutAway, DocumentTypeGlobal::Sales);
     end;
 
@@ -85,7 +85,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
     procedure InboundReturnRegistered()
     begin
         // Check That There is No Request Remain For Said Location After Register Put Away For Receipt Created From Sales Return.
-        Initialize;
+        Initialize();
         CreateInboundSalesPurchase(ProcessTypeGlobal::Register, DocumentTypeGlobal::Sales);
     end;
 
@@ -144,7 +144,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
     procedure PurchPutAwayLocation()
     begin
         // Check Put Away Selection Page has selected data For Receipt created from Warehouse Receipt Header.
-        Initialize;
+        Initialize();
         CreateInboundPurchWhseReceipt(ProcessTypeGlobal::Location);
     end;
 
@@ -155,7 +155,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
     begin
         // Check Warehouse Activity Line has same Purchase Source Document No., Item And Quantity, for Receipt Created
         // from Warehouse Receipt Header.
-        Initialize;
+        Initialize();
         CreateInboundPurchWhseReceipt(ProcessTypeGlobal::WarehousePutAway);
     end;
 
@@ -166,7 +166,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
     begin
         // Check that there is no Request remaining for said Location After Register Put Away for Receipt created from
         // Warehouse Receipt Header.
-        Initialize;
+        Initialize();
         CreateInboundPurchWhseReceipt(ProcessTypeGlobal::Register);
     end;
 
@@ -220,7 +220,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
     procedure InboundWhsePutAwayQty()
     begin
         // Check That Put Away Quantity To Handle is equal to Receipt Quantity, For Transfer Order.
-        Initialize;
+        Initialize();
         CreateInboundTransferWarehouse(ProcessTypeGlobal::PutAwayQuantity);
     end;
 
@@ -230,7 +230,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
     procedure InboundWhsePutAwayTransferQty()
     begin
         // Check That Put Away Quantity To Handle is equal to Transfer Quantity, For Transfer Order.
-        Initialize;
+        Initialize();
         CreateInboundTransferWarehouse(ProcessTypeGlobal::TransferQuantity);
     end;
 
@@ -240,7 +240,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
     procedure InboundWhsePutAwayPurchLineQty()
     begin
         // Check That Purchase Line Received Quantity is equal to Put Away Register Quantity.
-        Initialize;
+        Initialize();
         CreateInboundTransferWarehouse(ProcessTypeGlobal::PurchaseQuantity);
     end;
 
@@ -250,7 +250,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
     procedure InboundPutAwayWhseShipQty()
     begin
         // Check Warehouse Shipment Quantity after Pick and Register.
-        Initialize;
+        Initialize();
         CreateInboundTransferWarehouse(ProcessTypeGlobal::WarehouseShipmentQty);
     end;
 
@@ -260,7 +260,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
     procedure InboundPutAwayTransferBlank()
     begin
         // Check No Transfer Order Exist After Post Shipment And Register Pick , Post Receipt and Register Put Away.
-        Initialize;
+        Initialize();
         CreateInboundTransferWarehouse(ProcessTypeGlobal::TransferBlank);
     end;
 
@@ -270,7 +270,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
     procedure InboundPutAwayWhseRequestBlank()
     begin
         // Check No Request  After Posting and Put Away Register.
-        Initialize;
+        Initialize();
         CreateInboundTransferWarehouse(ProcessTypeGlobal::RequestBlank);
     end;
 
@@ -323,7 +323,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
                     RegisterWhseActivityLine(PurchaseHeader."Location Code");
                     PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
                     PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-                    PurchaseLine.FindFirst;
+                    PurchaseLine.FindFirst();
                     PurchaseLine.TestField("Quantity Received", Quantity);
                 end;
             ProcessTypeGlobal::WarehouseShipmentQty:  // Check warehouse shipment quantity with transfer quantity.
@@ -363,8 +363,8 @@ codeunit 137204 "SCM Whse Get Source Inbound"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Whse Get Source Inbound");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();
@@ -400,7 +400,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
                     LibraryWarehouse.CreateWhseReceiptFromSalesReturnOrder(SalesHeader);
 
                     WhseRcptHeader.SetRange("Location Code", SalesHeader."Location Code");
-                    WhseRcptHeader.FindLast;
+                    WhseRcptHeader.FindLast();
                     WarehouseReceiptNo := WhseRcptHeader."No.";
                 end;
             DocumentType::Purchase:
@@ -459,7 +459,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
         WarehouseEmployee: Record "Warehouse Employee";
     begin
         WarehouseEmployee.SetRange("User ID", UserId);
-        if WarehouseEmployee.FindFirst then
+        if WarehouseEmployee.FindFirst() then
             WarehouseEmployee.DeleteAll();
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationCode, IsDefault);
     end;
@@ -515,7 +515,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
         WhseShipmentCreatePick.SetWhseShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
         WhseShipmentCreatePick.SetHideValidationDialog(false);
         WhseShipmentCreatePick.UseRequestPage(false);
-        WhseShipmentCreatePick.Run;
+        WhseShipmentCreatePick.Run();
         WarehouseShipmentHeaderNo := WarehouseShipmentHeader."No.";
     end;
 
@@ -575,7 +575,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
         WhsePostReceiptYesNo: Codeunit "Whse.-Post Receipt (Yes/No)";
     begin
         WarehouseReceiptLine.SetRange("No.", WarehouseReceiptNo);
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
         WhsePostReceiptYesNo.Run(WarehouseReceiptLine);
     end;
 
@@ -585,7 +585,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
         WhsePostShipment: Codeunit "Whse.-Post Shipment";
     begin
         WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeaderNo);
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
         WhsePostShipment.Run(WarehouseShipmentLine);
     end;
 
@@ -603,7 +603,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
         WhseWorksheetLine.SetRange("Worksheet Template Name", WhseWorksheetTemplateName);
         WhseWorksheetLine.SetRange(Name, WhseWorksheetName);
         WhseWorksheetLine.SetRange("Location Code", LocationCode);
-        WhseWorksheetLine.FindFirst;
+        WhseWorksheetLine.FindFirst();
     end;
 
     local procedure GetWarehouseSourceDocument(var WhseWorksheetLine: Record "Whse. Worksheet Line")
@@ -613,7 +613,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
         WhseSourceCreateDocument.SetWhseWkshLine(WhseWorksheetLine);
         WhseSourceCreateDocument.Initialize(UserId, "Whse. Activity Sorting Method"::None, false, false, false);
         WhseSourceCreateDocument.UseRequestPage(false);
-        WhseSourceCreateDocument.Run;
+        WhseSourceCreateDocument.Run();
     end;
 
     local procedure CreateAndReleaseSalesReturns(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
@@ -632,17 +632,17 @@ codeunit 137204 "SCM Whse Get Source Inbound"
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
         WarehouseActivityHeader.SetRange("Location Code", LocationCode);
-        WarehouseActivityHeader.FindFirst;
+        WarehouseActivityHeader.FindFirst();
         WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
     end;
 
     local procedure FindWarehouseShipmentHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseShipmentLine: Record "Warehouse Shipment Line"; LocationCode: Code[10])
     begin
         WarehouseShipmentHeader.SetRange("Location Code", LocationCode);
-        WarehouseShipmentHeader.FindFirst;
+        WarehouseShipmentHeader.FindFirst();
         WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
     end;
 
     local procedure RestoreSalesReceivableSetup(TempSalesReceivablesSetup: Record "Sales & Receivables Setup" temporary)
@@ -669,7 +669,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
         WhsePutAwayRequest: Record "Whse. Put-away Request";
     begin
         WhsePutAwayRequest.SetRange("Location Code", LocationCode);
-        WhsePutAwayRequest.FindFirst;
+        WhsePutAwayRequest.FindFirst();
         WhsePutAwayRequest.TestField("Document Type", WhsePutAwayRequest."Document Type"::Receipt);
         WhsePutAwayRequest.TestField(Status, WhsePutAwayRequest.Status::Open);
         Assert.AreEqual(
@@ -683,7 +683,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
         WarehouseRequest: Record "Warehouse Request";
     begin
         WarehouseRequest.SetRange("Location Code", LocationCode);
-        WarehouseRequest.FindFirst;
+        WarehouseRequest.FindFirst();
         WarehouseRequest.TestField("Source No.", SourceNo);
         Assert.AreEqual(
           PutAwayNo, WarehouseRequest."Put-away / Pick No.",
@@ -695,7 +695,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
         WarehouseShipmentLine.SetRange("No.", No);
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
         WarehouseShipmentLine.TestField(Quantity, Quantity);
     end;
 
@@ -731,7 +731,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
     begin
         WhsePutAwayRequest.SetRange("Location Code", LocationCodeHandler);
         WhsePutAwayRequest.SetRange("Completely Put Away", false);
-        WhsePutAwayRequest.FindFirst;
+        WhsePutAwayRequest.FindFirst();
         PutawayRequestDocumentNo := WhsePutAwayRequest."Document No.";
         PutAwaySelection.SetRecord(WhsePutAwayRequest);
         Response := ACTION::LookupOK;
@@ -744,7 +744,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
         WarehouseRequest: Record "Warehouse Request";
     begin
         WarehouseRequest.SetRange("Location Code", LocationCodeHandler);
-        WarehouseRequest.FindFirst;
+        WarehouseRequest.FindFirst();
         PutAwayNo := WarehouseRequest."Put-away / Pick No.";
         SourceDocuments.SetRecord(WarehouseRequest);
         Response := ACTION::LookupOK;
@@ -763,7 +763,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
     begin
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchHeader);
         WhseRcptHeader.SetRange("Location Code", PurchHeader."Location Code");
-        WhseRcptHeader.FindLast;
+        WhseRcptHeader.FindLast();
         exit(WhseRcptHeader."No.");
     end;
 }

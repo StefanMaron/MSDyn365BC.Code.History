@@ -32,7 +32,7 @@ codeunit 1327 "Adjust Item Inventory"
         ItemTemplate: Code[10];
         ItemBatch: Code[10];
     begin
-        if not TempItemJournalLine.FindSet then
+        if not TempItemJournalLine.FindSet() then
             exit;
 
         ItemTemplate := SelectItemTemplateForAdjustment;
@@ -106,7 +106,7 @@ codeunit 1327 "Adjust Item Inventory"
         ItemJnlTemplate.SetRange("Page ID", PAGE::"Item Journal");
         ItemJnlTemplate.SetRange(Recurring, false);
         ItemJnlTemplate.SetRange(Type, ItemJnlTemplate.Type::Item);
-        if not ItemJnlTemplate.FindFirst then
+        if not ItemJnlTemplate.FindFirst() then
             Error(CantFindTemplateOrBatchErr);
 
         exit(ItemJnlTemplate.Name);

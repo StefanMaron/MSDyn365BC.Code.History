@@ -76,7 +76,7 @@ table 8614 "Config. Package Record"
             RecRefTemp.Open("Table ID", true);
             repeat
                 ConfigPackageData.SetRange("Field ID", ConfigPackageFilter."Field ID");
-                if ConfigPackageData.FindFirst then begin
+                if ConfigPackageData.FindFirst() then begin
                     FieldRef := RecRefTemp.Field(ConfigPackageData."Field ID");
                     ConfigValidateMgt.EvaluateTextToFieldRef(ConfigPackageData.Value, FieldRef, false);
                     FieldRef.SetFilter(ConfigPackageFilter."Field Filter");

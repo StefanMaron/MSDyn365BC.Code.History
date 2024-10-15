@@ -35,7 +35,7 @@ codeunit 9510 "Document Service Management"
         InitializedClientIdTelemetryTxt: Label 'The client ID has been initialized.', Locked = true;
         InitializedClientSecretTelemetryTxt: Label 'The client secret has been initialized.', Locked = true;
         CantFindMySiteErr: Label 'Could not determine the location of your OneDrive for Business, contact your partner to set this up.';
-        UnknownLocationErr: Label 'An unexpected error occured while trying to configure the Document Service. Try again later.';
+        UnknownLocationErr: Label 'An unexpected error occurred while trying to configure the Document Service. Try again later.';
         DocumentSharingNoNameErr: Label 'The document to be shared has not specified a name.';
         DocumentSharingNoExtErr: Label 'The document to be shared has not specified a file extension.';
         SharePointFileExistsInstructionsTxt: Label 'A file named "%1" already exists in your %2 folder in OneDrive for Business.\\ Would you like to add this new file as the latest version of the existing file, or rename it and keep them both?', Comment = '%1 = a file name, for example "CustomerCard.xlsx"; %2 = the product name, for example "Business Central"';
@@ -47,6 +47,7 @@ codeunit 9510 "Document Service Management"
         CouldNotFindLocationInResponseErr: Label 'Graph request could not find the webUrl property for the default location.', Locked = true;
         LocationResponseInvalidErr: Label 'Graph request did not return a JSON document.', Locked = true;
         LocationFoundTxt: Label 'A default location was found of length %1', Locked = true;
+        TokenRequestTxt: Label 'A token was requested. GetTokenFromCache: %1', Locked = true;
         NoDocumentServiceFoundErr: Label 'There''s no connection set up for OneDrive, so %1 can''t copy your files.\\ To set up a connection, open the page %2.', Comment = '%1= the product name for Business Central; %2= the page caption for Document Service Setup.';
         CheckingDriveProgressTxt: Label 'Checking that you have a valid drive.';
         CheckingBcDocumentFolderProgressTxt: Label 'Checking that the default folder exists.';
@@ -148,7 +149,7 @@ codeunit 9510 "Document Service Management"
             if Count > 1 then
                 Error(MultipleConfigsErr);
 
-            if not FindFirst then
+            if not FindFirst() then
                 exit(false);
 
             if (Location = '') or (Folder = '') then
@@ -170,7 +171,7 @@ codeunit 9510 "Document Service Management"
             exit(false);
 
         with DocumentServiceRec do begin
-            if FindLast then
+            if FindLast() then
                 if Location <> '' then begin
                     SetDocumentService();
                     SetProperties(true, DocumentServiceRec);
@@ -287,8 +288,10 @@ codeunit 9510 "Document Service Management"
         Endpoint := GetGraphSiteRootUrl();
         Token := AzureAdMgt.GetOnBehalfAccessToken(UrlHelper.GetGraphUrl());
 
-        if Token = '' then
+        if Token = '' then begin
+            Session.LogMessage('0000FSJ', EmptyTokenTelemetryMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
             Error(AccessTokenEmptyErr);
+        end;
 
         HttpWebRequestMgt.Initialize(Endpoint);
         HttpWebRequestMgt.DisableUI();
@@ -574,7 +577,7 @@ codeunit 9510 "Document Service Management"
     end;
 
     [TryFunction]
-    local procedure TrySaveStreamFromRec(Stream: InStream; TargetName: Text; ConflictBehavior: Enum "Doc. Service Conflict Behavior"; var DocumentServiceRec: Record "Document Service"; var DocumentUri: Text)
+    local procedure TrySaveStreamFromRec(Stream: InStream; TargetName: Text; ConflictBehavior: Enum "Doc. Service Conflict Behavior"; var DocumentServiceRec: Record "Document Service"; var DocumentUri: Text; var UploadedFileName: Text)
     var
         LocalDocumentService: Record "Document Service";
         DotNetConflictBehavior: DotNet ConflictBehavior;
@@ -599,16 +602,21 @@ codeunit 9510 "Document Service Management"
         DotNetUploadedDocument := DocumentService.Save(Stream, TargetName, DotNetConflictBehavior);
         CheckError;
 
-        if not IsNull(DotNetUploadedDocument) then
+        UploadedFileName := TargetName;
+        if not IsNull(DotNetUploadedDocument) then begin
             if not IsNull(DotNetUploadedDocument.Uri) then
                 DocumentUri := DotNetUploadedDocument.Uri.AbsoluteUri;
+            if not IsNull(DotNetUploadedDocument.FileName) then
+                UploadedFileName := DotNetUploadedDocument.FileName;
+        end;
     end;
 
     local procedure SaveStream(Stream: InStream; TargetName: Text; ConflictBehavior: Enum "Doc. Service Conflict Behavior") DocumentUri: Text
     var
         DocumentServiceRec: Record "Document Service";
+        UploadedFileName: Text;
     begin
-        TrySaveStreamFromRec(Stream, TargetName, ConflictBehavior, DocumentServiceRec, DocumentUri);
+        TrySaveStreamFromRec(Stream, TargetName, ConflictBehavior, DocumentServiceRec, DocumentUri, UploadedFileName);
     end;
 
     [NonDebuggable]
@@ -616,36 +624,24 @@ codeunit 9510 "Document Service Management"
     var
         OAuth2: Codeunit OAuth2;
         PromptInteraction: Enum "Prompt Interaction";
-#if CLEAN18
         Scopes: List of [Text];
-#else
-        ResourceURL: Text;
-#endif
         ClientId: Text;
         ClientSecret: Text;
         RedirectURL: Text;
         AuthError: Text;
     begin
-#if CLEAN18
+        Session.LogMessage('0000FSI', StrSubstNo(TokenRequestTxt, Format(GetTokenFromCache)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
         GetScopes(Location, Scopes);
-#else        
-        ResourceURL := GetResourceUrl(Location);
-#endif
         ClientId := GetClientId();
         ClientSecret := GetClientSecret();
         RedirectURL := GetRedirectURL();
 
         if GetTokenFromCache then
-#if CLEAN18
             OAuth2.AcquireAuthorizationCodeTokenFromCache(ClientId, ClientSecret, RedirectURL, OAuthAuthorityUrlLbl, Scopes, AccessToken);
-#else
-            OAuth2.AcquireAuthorizationCodeTokenFromCache(ClientId, ClientSecret, RedirectURL, OAuthAuthorityUrlLbl, ResourceURL, AccessToken);
-#endif
         if AccessToken <> '' then
             exit;
 
         Session.LogMessage('0000DB7', AccessTokenAcquiredFromCacheErr, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
-#if CLEAN18
         OAuth2.AcquireTokenByAuthorizationCode(
                     ClientId,
                     ClientSecret,
@@ -656,18 +652,6 @@ codeunit 9510 "Document Service Management"
                     AccessToken,
                     AuthError
                 );
-#else
-        OAuth2.AcquireTokenByAuthorizationCode(
-                    ClientId,
-                    ClientSecret,
-                    OAuthAuthorityUrlLbl,
-                    RedirectURL,
-                    ResourceURL,
-                    PromptInteraction::"Select Account",
-                    AccessToken,
-                    AuthError
-                );
-#endif
 
         if AccessToken = '' then begin
             Session.LogMessage('0000DB8', StrSubstNo(AuthTokenOrCodeNotReceivedErr, AuthError), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
@@ -756,22 +740,12 @@ codeunit 9510 "Document Service Management"
         exit(RedirectURL);
     end;
 
-#if CLEAN18
     [NonDebuggable]
     local procedure GetScopes(Location: Text; var Scopes: List of [Text])
     begin
         Scopes.Add(Location.Substring(1, Location.IndexOf('.com') + 3) + '/AllSites.FullControl');
-        Scopes.Add(Location.Substring(1, Location.IndexOf('.com') + 3) + '/EnterpriseResource.Write');
-        Scopes.Add(Location.Substring(1, Location.IndexOf('.com') + 3) + '/MyFiles.Write');
         Scopes.Add(Location.Substring(1, Location.IndexOf('.com') + 3) + '/User.ReadWrite.All');
     end;
-#else
-    [NonDebuggable]
-    local procedure GetResourceUrl(Location: Text): Text
-    begin
-        exit(Location.Substring(1, Location.IndexOf('.com') + 3));
-    end;
-#endif
 
     [Scope('OnPrem')]
     [NonDebuggable]
@@ -844,7 +818,7 @@ codeunit 9510 "Document Service Management"
         GetAccessToken(Location, Token, GetTokenFromCache);
         Session.SetDocumentServiceToken(Token);
 
-        if not IsNullGuid(DocumentServiceRec.SystemId) then
+        if (not IsNullGuid(DocumentServiceRec.SystemId)) and (not DocumentServiceCache."Use Cached Token") then
             EnsureDocumentServiceCache(DocumentServiceRec, true);
     end;
 
@@ -868,18 +842,33 @@ codeunit 9510 "Document Service Management"
 
     procedure OpenInOneDrive(FileName: Text; FileExtension: Text; InStream: InStream)
     var
-        TempDocumentSharing: Record "Document Sharing" temporary;
-        OutStream: OutStream;
+        DocumentSharing: Codeunit "Document Sharing";
     begin
-        SetFileNameAndExtension(TempDocumentSharing, FileName, FileExtension);
-
-        TempDocumentSharing.Data.CreateOutStream(OutStream);
-        CopyStream(OutStream, InStream);
-        TempDocumentSharing.Insert();
-        Codeunit.Run(Codeunit::"Document Sharing", TempDocumentSharing);
+        DocumentSharing.Share(FileName, FileExtension, InStream, Enum::"Document Sharing Intent"::Open);
     end;
 
     procedure OpenInOneDriveFromMedia(FileName: Text; FileExtension: Text; MediaId: Guid)
+    var
+        DocumentSharingIntent: Enum "Document Sharing Intent";
+    begin
+        InvokeDocumentSharingFlowFromMedia(FileName, FileExtension, MediaId, DocumentSharingintent::Open);
+    end;
+
+    procedure ShareWithOneDrive(FileName: Text; FileExtension: Text; InStream: InStream)
+    var
+        DocumentSharing: Codeunit "Document Sharing";
+    begin
+        DocumentSharing.Share(FileName, FileExtension, InStream, Enum::"Document Sharing Intent"::Share);
+    end;
+
+    procedure ShareWithOneDriveFromMedia(FileName: Text; FileExtension: Text; MediaId: Guid)
+    var
+        DocumentSharingIntent: Enum "Document Sharing Intent";
+    begin
+        InvokeDocumentSharingFlowFromMedia(FileName, FileExtension, MediaId, DocumentSharingintent::Share);
+    end;
+
+    local procedure InvokeDocumentSharingFlowFromMedia(FileName: Text; FileExtension: Text; MediaId: Guid; DocumentSharingIntent: Enum "Document Sharing Intent")
     var
         TempDocumentSharing: Record "Document Sharing" temporary;
         TenantMedia: Record "Tenant Media";
@@ -889,6 +878,7 @@ codeunit 9510 "Document Service Management"
         TenantMedia.Get(MediaId);
         TenantMedia.CalcFields(Content);
         TempDocumentSharing.Data := TenantMedia.Content;
+        TempDocumentSharing."Document Sharing Intent" := DocumentSharingIntent;
         TempDocumentSharing.Insert();
         Codeunit.Run(Codeunit::"Document Sharing", TempDocumentSharing);
     end;
@@ -961,24 +951,33 @@ codeunit 9510 "Document Service Management"
             DocumentServiceCache.Delete();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Database::"Document Sharing", 'OnCanUploadDocument', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Document Sharing", 'OnCanUploadDocument', '', false, false)]
     local procedure OnCanUploadDocument(var CanUpload: Boolean)
     var
         EnvironmentInformation: Codeunit "Environment Information";
+        PrivacyNotice: Codeunit "Privacy Notice";
+        PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
     begin
         if CanUpload then
+            exit;
+
+        if PrivacyNotice.IsApprovalStateDisagreed(PrivacyNoticeRegistrations.GetOneDrivePrivacyNoticeId()) then
             exit;
 
         CanUpload := IsConfigured() or EnvironmentInformation.IsSaaSInfrastructure();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Database::"Document Sharing", 'OnUploadDocument', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Document Sharing", 'OnUploadDocument', '', false, false)]
     local procedure OnUploadDocument(var DocumentSharing: Record "Document Sharing" temporary; var Handled: Boolean)
     var
         TempDocumentServiceRec: Record "Document Service" temporary;
         EnvironmentInformation: Codeunit "Environment Information";
+        PrivacyNotice: Codeunit "Privacy Notice";
+        PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
         DocumentUri: Text;
+        UploadedFileName: Text;
         InStr: InStream;
+        OutStr: OutStream;
     begin
         if Handled then
             exit;
@@ -989,6 +988,9 @@ codeunit 9510 "Document Service Management"
             Handled := False;
             exit;
         end;
+
+        if not PrivacyNotice.ConfirmPrivacyNoticeApproval(PrivacyNoticeRegistrations.GetOneDrivePrivacyNoticeId()) then
+            exit;
 
         InitTempDocumentServiceRecord(TempDocumentServiceRec);
 
@@ -1002,9 +1004,9 @@ codeunit 9510 "Document Service Management"
         DocumentSharing.Data.CreateInStream(InStr);
 
         if not GuiAllowed() then
-            TrySaveStreamFromRec(InStr, DocumentSharing.Name, Enum::"Doc. Service Conflict Behavior"::Fail, TempDocumentServiceRec, DocumentUri)
+            TrySaveStreamFromRec(InStr, DocumentSharing.Name, Enum::"Doc. Service Conflict Behavior"::Fail, TempDocumentServiceRec, DocumentUri, UploadedFileName)
         else
-            if not TrySaveStreamFromRec(InStr, DocumentSharing.Name, Enum::"Doc. Service Conflict Behavior"::Fail, TempDocumentServiceRec, DocumentUri)
+            if not TrySaveStreamFromRec(InStr, DocumentSharing.Name, Enum::"Doc. Service Conflict Behavior"::Fail, TempDocumentServiceRec, DocumentUri, UploadedFileName)
                 or (DocumentUri = '')
             then
                 case StrMenu(SharePointFileExistsOptionsTxt, 0, StrSubstNo(SharePointFileExistsInstructionsTxt, DocumentSharing.Name, ProductName.Short())) of
@@ -1014,13 +1016,17 @@ codeunit 9510 "Document Service Management"
                             exit;
                         end;
                     1: // Replace
-                        TrySaveStreamFromRec(InStr, DocumentSharing.Name, Enum::"Doc. Service Conflict Behavior"::Replace, TempDocumentServiceRec, DocumentUri);
+                        TrySaveStreamFromRec(InStr, DocumentSharing.Name, Enum::"Doc. Service Conflict Behavior"::Replace, TempDocumentServiceRec, DocumentUri, UploadedFileName);
                     2: // Keep both
-                        TrySaveStreamFromRec(InStr, DocumentSharing.Name, Enum::"Doc. Service Conflict Behavior"::Rename, TempDocumentServiceRec, DocumentUri);
+                        TrySaveStreamFromRec(InStr, DocumentSharing.Name, Enum::"Doc. Service Conflict Behavior"::Rename, TempDocumentServiceRec, DocumentUri, UploadedFileName);
                 end;
         EnsureDocumentServiceCache(TempDocumentServiceRec, true);
 
+        DocumentSharing.Name := CopyStr(UploadedFileName, 1, MaxStrLen(DocumentSharing.Name));
         DocumentSharing.DocumentUri := CopyStr(DocumentUri, 1, MaxStrLen(DocumentSharing.DocumentUri));
+
+        DocumentSharing.Token.CreateOutStream(OutStr);
+        OutStr.WriteText(DocumentService.Properties.GetProperty('Token'));
 
         DocumentSharing.DocumentPreviewUri := CopyStr(
             DocumentService.GenerateViewableDocumentAddress(DocumentSharing.DocumentUri),

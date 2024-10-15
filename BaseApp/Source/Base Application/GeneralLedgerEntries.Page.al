@@ -306,6 +306,13 @@ page 20 "General Ledger Entries"
                 ShowFilter = false;
                 SubPageLink = "Posting Date" = field("Posting Date"), "Document No." = field("Document No.");
             }
+            part(GLEntriesPart; "G/L Entries Part")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Related G/L Entries';
+                ShowFilter = false;
+                SubPageLink = "Posting Date" = field("Posting Date"), "Document No." = field("Document No.");
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -376,7 +383,7 @@ page 20 "General Ledger Entries"
                     begin
                         if IsTemporary then begin
                             GLEntriesDimensionOverview.SetTempGLEntry(Rec);
-                            GLEntriesDimensionOverview.Run;
+                            GLEntriesDimensionOverview.Run();
                         end else
                             PAGE.Run(PAGE::"G/L Entries Dimension Overview", Rec);
                     end;
@@ -398,6 +405,9 @@ page 20 "General Ledger Entries"
                         DimensionCorrectionMgt: Codeunit "Dimension Correction Mgt";
                     begin
                         CurrPage.SetSelectionFilter(GLEntry);
+                        if GLEntry.Count() > 1000 then
+                            Error(TooManyGLEntriesSelectedErr);
+
                         DimensionCorrectionMgt.CreateCorrectionFromSelection(GLEntry, DimensionCorrection);
                         Page.Run(PAGE::"Dimension Correction Draft", DimensionCorrection);
                     end;
@@ -540,7 +550,7 @@ page 20 "General Ledger Entries"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category4;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
@@ -548,7 +558,7 @@ page 20 "General Ledger Entries"
                     Navigate: Page Navigate;
                 begin
                     Navigate.SetDoc("Posting Date", "Document No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
             action(DocsWithoutIC)
@@ -588,7 +598,8 @@ page 20 "General Ledger Entries"
     var
         IncomingDocument: Record "Incoming Document";
     begin
-        HasIncomingDocument := IncomingDocument.PostedDocExists("Document No.", "Posting Date");
+        if GuiAllowed then
+            HasIncomingDocument := IncomingDocument.PostedDocExists(Rec."Document No.", Rec."Posting Date");
     end;
 
     trigger OnInit()
@@ -677,5 +688,8 @@ page 20 "General Ledger Entries"
     local procedure OnBeforeCheckEntryPostedFromJournal(var GLEntry: Record "G/L Entry"; var IsHandled: Boolean)
     begin
     end;
+
+    var
+        TooManyGLEntriesSelectedErr: Label 'You have selected too many G/L entries. Split the change to select fewer entries, or go to the Dimension Correction page and use filters to select the entries.';
 }
 

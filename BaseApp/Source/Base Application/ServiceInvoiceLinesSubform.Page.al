@@ -208,10 +208,10 @@ page 6038 "Service Invoice Lines Subform"
         TempServInvLine.Reset();
         TempServInvLine.CopyFilters(Rec);
         TempServInvLine.SetRange("Document No.", "Document No.");
-        if not TempServInvLine.FindFirst then begin
+        if not TempServInvLine.FindFirst() then begin
             ServInvLine.CopyFilters(Rec);
             ServInvLine.SetRange("Document No.", "Document No.");
-            if not ServInvLine.FindFirst then
+            if not ServInvLine.FindFirst() then
                 exit(false);
             TempServInvLine := ServInvLine;
             TempServInvLine.Insert();

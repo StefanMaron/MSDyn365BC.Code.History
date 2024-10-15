@@ -158,13 +158,13 @@ table 99000850 "Planning Assignment"
             ProductionBOMVersion."Production BOM No." := ProductionBOMHeader."No.";
             ProductionBOMVersion."Version Code" := '';
         end else
-            if not ProductionBOMVersion.FindSet then
+            if not ProductionBOMVersion.FindSet() then
                 exit;
 
         repeat
             ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMVersion."Production BOM No.");
             ProductionBOMLine.SetRange("Version Code", ProductionBOMVersion."Version Code");
-            if ProductionBOMLine.FindSet then
+            if ProductionBOMLine.FindSet() then
                 repeat
                     if ProductionBOMLine.Type = ProductionBOMLine.Type::Item then begin
                         if Item.Get(ProductionBOMLine."No.") then
@@ -187,7 +187,7 @@ table 99000850 "Planning Assignment"
     begin
         Item.SetCurrentKey("Production BOM No.");
         Item.SetRange("Production BOM No.", ProductionBOMNo);
-        if Item.FindSet then
+        if Item.FindSet() then
             repeat
                 if Item."Reordering Policy" <> Item."Reordering Policy"::" " then
                     AssignPlannedOrders(Item."No.", false);
@@ -213,7 +213,7 @@ table 99000850 "Planning Assignment"
                     AssignOne(ProdOrderLine."Item No.", ProdOrderLine."Variant Code", ProdOrderLine."Location Code", WorkDate);
                 ProdOrderLine.SetRange("Variant Code", ProdOrderLine."Variant Code");
                 ProdOrderLine.SetRange("Location Code", ProdOrderLine."Location Code");
-                ProdOrderLine.FindLast;
+                ProdOrderLine.FindLast();
                 ProdOrderLine.SetRange("Variant Code");
                 ProdOrderLine.SetRange("Location Code");
             until ProdOrderLine.Next() = 0;
@@ -231,7 +231,7 @@ table 99000850 "Planning Assignment"
                     AssignOne(ReqLine."No.", ReqLine."Variant Code", ReqLine."Location Code", WorkDate);
                 ReqLine.SetRange("Variant Code", ReqLine."Variant Code");
                 ReqLine.SetRange("Location Code", ReqLine."Location Code");
-                ReqLine.FindLast;
+                ReqLine.FindLast();
                 ReqLine.SetRange("Variant Code");
                 ReqLine.SetRange("Location Code");
             until ReqLine.Next() = 0;

@@ -28,17 +28,17 @@ codeunit 137206 "SCM Move Neg. Sales Lines"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Move Neg. Sales Lines");
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         Clear(SalesHeaderNo);
-        UpdateSalesReceivablesSetup;
+        UpdateSalesReceivablesSetup();
 
         // Lazy Setup.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Move Neg. Sales Lines");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Move Neg. Sales Lines");
@@ -51,7 +51,7 @@ codeunit 137206 "SCM Move Neg. Sales Lines"
         TempSalesLine: Record "Sales Line" temporary;
     begin
         // Setup: Create a Purchase Return Order with negative lines.
-        Initialize;
+        Initialize();
         CreateSalesDocWithMixedLines(SalesHeader, TempSalesLine, FromDocType, InitialSign);
 
         // Exercise: Run Move Negative Lines to generate a Purchase Order.
@@ -164,7 +164,7 @@ codeunit 137206 "SCM Move Neg. Sales Lines"
         MoveNegSalesLines.SetSalesHeader(SalesHeader);
         MoveNegSalesLines.InitializeRequest(FromDocType, ToDocType, ToDocType);
         MoveNegSalesLines.UseRequestPage(false);
-        MoveNegSalesLines.RunModal;
+        MoveNegSalesLines.RunModal();
         MoveNegSalesLines.ShowDocument;
     end;
 
@@ -191,7 +191,7 @@ codeunit 137206 "SCM Move Neg. Sales Lines"
             TempSalesLine.SetRange(Quantity, -SalesLine.Quantity);
             TempSalesLine.SetRange("Unit of Measure", SalesLine."Unit of Measure");
             Assert.AreEqual(1, TempSalesLine.Count, 'Too many migrated negative lines!');
-            TempSalesLine.FindFirst;
+            TempSalesLine.FindFirst();
             TempSalesLine.Delete(true);
         until SalesLine.Next = 0;
 

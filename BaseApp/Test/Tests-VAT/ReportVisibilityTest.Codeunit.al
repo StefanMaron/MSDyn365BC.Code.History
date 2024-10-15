@@ -33,7 +33,7 @@ codeunit 134095 "Report Visibility Test"
     begin
         // [SCENARIO] For each status of the report, certain controllers is visible.
         // [GIVEN] Empty Vat report header table, ECSL report card and list page.
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         VATReportHeader.DeleteAll();
         ReportType := VATReportHeader."VAT Report Config. Code"::"EC Sales List";
         CreateVATReportConfiguration(ReportType);
@@ -59,7 +59,7 @@ codeunit 134095 "Report Visibility Test"
     begin
         // [SCENARIO] For each status of the report, certain controllers is visible.
         // [GIVEN] Empty Vat report header table, VAT report card and list page and VAT report configration with VAT report
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         VATReportHeader.DeleteAll();
         ReportType := VATReportHeader."VAT Report Config. Code"::"VAT Return";
         CreateVATReportConfiguration(ReportType);
@@ -83,9 +83,9 @@ codeunit 134095 "Report Visibility Test"
     begin
         // [SCENARIO] When a new Card page is created, Controls should be disabled until it gets No.
         // [GIVEN] New ECSL card page.
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         // [WHEN] New card page is opened
-        ECSLReport.OpenNew;
+        ECSLReport.OpenNew();
         // [THEN] Field No should be blank and all controls should be disabled
         Assert.AreEqual(ECSLReport."No.".Value, '', 'No field should be empty for new page');
         Assert.IsFalse(ECSLReport.SuggestLines.Enabled or ECSLReport.Release.Enabled,
@@ -98,9 +98,9 @@ codeunit 134095 "Report Visibility Test"
     begin
         // [SCENARIO] When a new Card page is created, Controls should be disabled until it gets No.
         // [GIVEN] New VAT return card page.
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         // [WHEN] New card page is opened
-        VATReport.OpenNew;
+        VATReport.OpenNew();
         // [THEN] The No field is empty
         Assert.AreEqual(VATReport."No.".Value, '', 'No field should be empty for new page');
         Assert.IsFalse(VATReport.SuggestLines.Enabled or VATReport.Release.Enabled,
@@ -114,7 +114,7 @@ codeunit 134095 "Report Visibility Test"
     begin
         // [FEATURE] [Application Area] [Report]
         // [SCENARIO 316751] Actions are ENABLED on '..Balance to Date' reports' request page for Basic application area
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
 
         // [GIVEN] Basic Applicateion are is set
         LibraryApplicationArea.EnableBasicSetup;
@@ -138,7 +138,7 @@ codeunit 134095 "Report Visibility Test"
     begin
         // [FEATURE] [Application Area] [Report]
         // [SCENARIO 316751] Actions are ENABLED on '..Balance to Date' reports' request page for Basic application area
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
 
         // [GIVEN] Basic Applicateion are is set
         LibraryApplicationArea.EnableBasicSetup;

@@ -384,7 +384,7 @@ page 1523 "Workflow Response Options"
         WorkflowEvent: Record "Workflow Event";
     begin
         WorkflowStep.SetRange(Argument, ID);
-        if WorkflowStep.FindFirst then
+        if WorkflowStep.FindFirst() then
             if WorkflowStep.HasParentEvent(WorkflowStepEvent) then begin
                 WorkflowEvent.Get(WorkflowStepEvent."Function Name");
                 "Table No." := WorkflowEvent."Table ID";
@@ -441,11 +441,11 @@ page 1523 "Workflow Response Options"
         AddSeparator: Boolean;
     begin
         WorkflowStepApply.SetRange(Argument, ID);
-        if WorkflowStepApply.FindFirst then begin
+        if WorkflowStepApply.FindFirst() then begin
             WorkflowStepRevert.SetRange("Workflow Code", WorkflowStepApply."Workflow Code");
             WorkflowStepRevert.SetRange("Function Name", WorkflowResponseHandling.RevertValueForFieldCode);
 
-            if WorkflowStepRevert.FindSet then
+            if WorkflowStepRevert.FindSet() then
                 repeat
                     WorkflowStepArgument.Get(WorkflowStepRevert.Argument);
                     if WorkflowStepArgument."Field No." <> 0 then begin
@@ -469,7 +469,7 @@ page 1523 "Workflow Response Options"
         if TableFieldCaption <> '' then begin
             Field.SetRange(TableNo, "Table No.");
             Field.SetRange("Field Caption", TableFieldCaption);
-            Field.FindFirst;
+            Field.FindFirst();
             "Field No." := Field."No."
         end else
             "Field No." := 0;

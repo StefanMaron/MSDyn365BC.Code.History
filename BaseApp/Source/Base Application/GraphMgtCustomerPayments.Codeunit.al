@@ -57,10 +57,12 @@ codeunit 5479 "Graph Mgt - Customer Payments"
         with GenJournalLine do begin
             SetRange("Account Type", "Account Type"::Customer);
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     UpdateCustomerID;
+#if not CLEAN20                    
                     UpdateGraphContactId;
+#endif
                     UpdateAppliesToInvoiceID;
                     UpdateJournalBatchID;
                     Modify(false);

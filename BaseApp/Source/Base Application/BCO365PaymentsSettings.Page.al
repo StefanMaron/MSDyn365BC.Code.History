@@ -50,7 +50,7 @@ page 2338 "BC O365 Payments Settings"
                         O365PaymentInstructions: Record "O365 Payment Instructions";
                     begin
                         O365PaymentInstructions.SetRange(Default, true);
-                        O365PaymentInstructions.FindFirst;
+                        O365PaymentInstructions.FindFirst();
                         O365PaymentInstructions.Get(O365PaymentInstructions.Id);
                         O365PaymentInstructions.SetRange(Default);
 
@@ -87,7 +87,7 @@ page 2338 "BC O365 Payments Settings"
         PaymentTermsCode := O365SalesInitialSetup."Default Payment Terms Code";
 
         O365PaymentInstructions.SetRange(Default, true);
-        if O365PaymentInstructions.FindFirst then
+        if O365PaymentInstructions.FindFirst() then
             PaymentInstructionsShortName := O365PaymentInstructions.GetNameInCurrentLanguage;
     end;
 }

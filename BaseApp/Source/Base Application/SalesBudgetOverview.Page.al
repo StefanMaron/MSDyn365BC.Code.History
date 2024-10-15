@@ -412,7 +412,7 @@ page 7139 "Sales Budget Overview"
                           ItemFilter,
                           InternalDateFilter, PeriodInitialized, PeriodType,
                           LineDimType, ColumnDimType, LineDimCode, ColumnDimCode, RoundingFactor);
-                        ExportItemBudgetToExcel.Run;
+                        ExportItemBudgetToExcel.Run();
                     end;
                 }
                 action("Update Existing Document")
@@ -433,7 +433,7 @@ page 7139 "Sales Budget Overview"
                           InternalDateFilter, PeriodInitialized, PeriodType,
                           LineDimType, ColumnDimType, LineDimCode, ColumnDimCode, RoundingFactor);
                         ExportItemBudgetToExcel.SetUpdateExistingWorksheet(true);
-                        ExportItemBudgetToExcel.Run;
+                        ExportItemBudgetToExcel.Run();
                     end;
                 }
             }
@@ -450,7 +450,7 @@ page 7139 "Sales Budget Overview"
                     ImportItemBudgetFromExcel: Report "Import Item Budget from Excel";
                 begin
                     ImportItemBudgetFromExcel.SetParameters(CurrentBudgetName, CurrentAnalysisArea.AsInteger(), ValueType.AsInteger());
-                    ImportItemBudgetFromExcel.RunModal;
+                    ImportItemBudgetFromExcel.RunModal();
                     Clear(ImportItemBudgetFromExcel);
                 end;
             }
@@ -611,7 +611,6 @@ page 7139 "Sales Budget Overview"
         MATRIX_PrimKeyFirstCaptionInCu: Text;
         MATRIX_CurrentNoOfColumns: Integer;
         CurrentAnalysisArea: Enum "Analysis Area Type";
-        CurrentBudgetName: Code[10];
         SourceTypeFilter: Enum "Analysis Source Type";
         SourceNoFilter: Text;
         ItemFilter: Text;
@@ -619,7 +618,6 @@ page 7139 "Sales Budget Overview"
         RoundingFactor: Enum "Analysis Rounding Factor";
         LineDimType: Enum "Item Budget Dimension Type";
         ColumnDimType: Enum "Item Budget Dimension Type";
-        PeriodType: Enum "Analysis Period Type";
         GlobalDim1Filter: Text;
         GlobalDim2Filter: Text;
         BudgetDim1Filter: Text;
@@ -642,6 +640,10 @@ page 7139 "Sales Budget Overview"
         BudgetDim2FilterEnable: Boolean;
         [InDataSet]
         BudgetDim3FilterEnable: Boolean;
+
+    protected var
+        CurrentBudgetName: Code[10];
+        PeriodType: Enum "Analysis Period Type";
 
     local procedure GenerateColumnCaptions(StepType: Enum "Matrix Page Step Type")
     var

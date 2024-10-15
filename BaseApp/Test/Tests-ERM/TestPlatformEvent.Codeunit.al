@@ -48,7 +48,7 @@ codeunit 134298 "Test Platform Event"
     var
         DataTypeBuffer: Record "Data Type Buffer";
     begin
-        if DataTypeBuffer.FindLast then;
+        if DataTypeBuffer.FindLast() then;
 
         DataTypeBuffer.Init();
         DataTypeBuffer.ID += 1;

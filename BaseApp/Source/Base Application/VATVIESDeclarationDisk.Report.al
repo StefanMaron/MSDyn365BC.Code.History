@@ -241,7 +241,7 @@ report 88 "VAT- VIES Declaration Disk"
         DetailedCustLedgEntry.SetRange("Document Type", VATEntry."Document Type");
         DetailedCustLedgEntry.SetRange("Document No.", VATEntry."Document No.");
         DetailedCustLedgEntry.SetRange("Posting Date", VATEntry."Posting Date");
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
         CustLedgerEntry.Get(DetailedCustLedgEntry."Cust. Ledger Entry No.");
         exit(CustLedgerEntry."Sell-to Customer No.");
     end;

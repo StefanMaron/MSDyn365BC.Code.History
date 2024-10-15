@@ -53,7 +53,7 @@ page 2380 "O365 Export Customer Data"
         CompanyInformation: Record "Company Information";
     begin
         if GetFilters <> '' then
-            if FindFirst then
+            if FindFirst() then
                 SetRecFilter;
 
         if User.Get(UserSecurityId) then

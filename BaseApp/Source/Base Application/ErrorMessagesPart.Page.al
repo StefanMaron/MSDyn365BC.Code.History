@@ -109,7 +109,7 @@ page 701 "Error Messages Part"
         DeleteAll();
 
         TempErrorMessage.Reset();
-        if TempErrorMessage.FindFirst then
+        if TempErrorMessage.FindFirst() then
             Copy(TempErrorMessage, true);
     end;
 

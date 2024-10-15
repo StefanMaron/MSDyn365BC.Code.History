@@ -32,7 +32,7 @@ codeunit 134652 "O365 Posted Document Subtype"
         PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo";
     begin
         // [SCENARIO] Show Type field in OnPrem environment
-        Initialize;
+        Initialize();
 
         // [GIVEN] An OnPrem environment
         LibraryApplicationArea.DisableApplicationAreaSetup;
@@ -80,7 +80,7 @@ codeunit 134652 "O365 Posted Document Subtype"
         PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo";
     begin
         // [SCENARIO] Show the Subtype field in SaaS environment
-        Initialize;
+        Initialize();
 
         // [GIVEN] A SaaS environment
 
@@ -390,7 +390,7 @@ codeunit 134652 "O365 Posted Document Subtype"
         PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
     begin
         // [SCENARIO 272496] "Job No." field on Posted Sales Invoice subform is visible for Jobs Application Area.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Jobs and Suite application area enabled.
         LibraryApplicationArea.EnableJobsAndSuiteSetup;
@@ -405,8 +405,8 @@ codeunit 134652 "O365 Posted Document Subtype"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Posted Document Subtype");
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibraryVariableStorage.Clear;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure VerifySubtypeOnSalesShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line"; ExpectedSubtype: Text)

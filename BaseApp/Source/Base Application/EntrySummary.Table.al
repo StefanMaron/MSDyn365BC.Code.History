@@ -257,13 +257,6 @@ table 338 "Entry Summary"
         exit(AvailQty);
     end;
 
-    [Obsolete('Replaced by SetTrackingFilterFrom procedures.', '17.0')]
-    procedure SetTrackingFilter(SerialNo: Code[50]; LotNo: Code[50])
-    begin
-        SetRange("Serial No.", SerialNo);
-        SetRange("Lot No.", LotNo);
-    end;
-
     procedure SetTrackingFilterFromEntrySummary(EntrySummary: Record "Entry Summary")
     begin
         SetRange("Serial No.", EntrySummary."Serial No.");

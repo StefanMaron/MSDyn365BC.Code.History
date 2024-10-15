@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 582 "XBRL Taxonomies"
 {
     ApplicationArea = XBRL;
@@ -5,6 +6,9 @@ page 582 "XBRL Taxonomies"
     PageType = List;
     SourceTable = "XBRL Taxonomy";
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteReason = 'XBRL feature will be discontinued';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -111,5 +115,13 @@ page 582 "XBRL Taxonomies"
             }
         }
     }
+    trigger OnOpenPage()
+    var
+        XBRLDeprecationNotification: Codeunit "XBRL Deprecation Notification";
+    begin
+        XBRLDeprecationNotification.Show();
+    end;
 }
 
+
+#endif

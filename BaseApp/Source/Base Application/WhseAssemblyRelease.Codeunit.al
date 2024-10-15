@@ -77,7 +77,7 @@ codeunit 904 "Whse.-Assembly Release"
         AssemblyLine2.Copy(AssemblyLine);
         AssemblyLine2.SetRange("Location Code", AssemblyLine."Location Code");
         AssemblyLine2.SetRange("Unit of Measure Code", '');
-        if AssemblyLine2.FindFirst then
+        if AssemblyLine2.FindFirst() then
             AssemblyLine2.TestField("Unit of Measure Code");
 
         if Location."Require Shipment" then begin

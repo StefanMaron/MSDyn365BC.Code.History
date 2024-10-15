@@ -30,7 +30,7 @@ codeunit 132529 "Test Library Initialize"
 
         // [GIVEN] Test CU
         // [WHEN] The first test is run
-        Initialize;
+        Initialize();
 
         // [THEN] Initialize function is called for the first time, all three events are raised
         Assert.IsTrue(GetNameValue(TestInitializedTxt), 'OnTestInitialize event is not raised');
@@ -46,7 +46,7 @@ codeunit 132529 "Test Library Initialize"
 
         // [GIVEN] Test CU
         // [WHEN] The second test is run
-        Initialize;
+        Initialize();
 
         // [THEN] Initialize function is called for the first time, all three events are raised
         Assert.IsTrue(GetNameValue(TestInitializedTxt), 'TestInitialize event is not raised');

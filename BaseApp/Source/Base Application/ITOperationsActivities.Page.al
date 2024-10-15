@@ -9,11 +9,14 @@ page 9072 "IT Operations Activities"
     {
         area(content)
         {
-#if not CLEAN18
+#if not CLEAN20
             cuegroup("Intelligent Cloud")
             {
                 Caption = 'Intelligent Cloud';
                 Visible = false;
+                ObsoleteTag = '20.0';
+                ObsoleteReason = 'Intelligent Cloud Insights is discontinued.';
+                ObsoleteState = Pending;
 
                 actions
                 {
@@ -25,6 +28,9 @@ page 9072 "IT Operations Activities"
                         RunPageMode = View;
                         ToolTip = ' Learn more about the Intelligent Cloud and how it can help your business.';
                         Visible = false;
+                        ObsoleteTag = '20.0';
+                        ObsoleteReason = 'Intelligent Cloud Insights is discontinued.';
+                        ObsoleteState = Pending;
 
                         trigger OnAction()
                         var
@@ -33,6 +39,7 @@ page 9072 "IT Operations Activities"
                             HyperLink(IntelligentCloudManagement.GetIntelligentCloudLearnMoreUrl);
                         end;
                     }
+#if not CLEAN18
                     action("Intelligent Cloud Insights")
                     {
                         ApplicationArea = Basic, Suite;
@@ -52,25 +59,26 @@ page 9072 "IT Operations Activities"
                             HyperLink(IntelligentCloudManagement.GetIntelligentCloudInsightsUrl);
                         end;
                     }
+#endif
                 }
             }
-#endif
+#endif  
             cuegroup(Administration)
             {
                 Caption = 'Administration';
-                field("Job Queue Entries Until Today"; "Job Queue Entries Until Today")
+                field("Job Queue Entries Until Today"; Rec."Job Queue Entries Until Today")
                 {
                     ApplicationArea = Jobs;
                     DrillDownPageID = "Job Queue Entries";
                     ToolTip = 'Specifies the number of job queue entries that are displayed in the Administration Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("User Posting Period"; "User Posting Period")
+                field("User Posting Period"; Rec."User Posting Period")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "User Setup";
                     ToolTip = 'Specifies the period number of the documents that are displayed in the Administration Cue on the Role Center.';
                 }
-                field("No. Series Period"; "No. Series Period")
+                field("No. Series Period"; Rec."No. Series Period")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "No. Series Lines";
@@ -106,7 +114,7 @@ page 9072 "IT Operations Activities"
             {
                 Caption = 'Data Integration';
                 Visible = ShowDataIntegrationCues;
-                field("CDS Integration Errors"; "CDS Integration Errors")
+                field("CDS Integration Errors"; Rec."CDS Integration Errors")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Integration Errors';
@@ -114,40 +122,13 @@ page 9072 "IT Operations Activities"
                     ToolTip = 'Specifies the number of errors related to data integration.';
                     Visible = ShowDataIntegrationCues;
                 }
-                field("Coupled Data Synch Errors"; "Coupled Data Synch Errors")
+                field("Coupled Data Synch Errors"; Rec."Coupled Data Synch Errors")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Coupled Data Synchronization Errors';
                     DrillDownPageID = "CRM Skipped Records";
                     ToolTip = 'Specifies the number of errors that occurred in the latest synchronization of coupled data between Business Central and Dynamics 365 Sales.';
                     Visible = ShowD365SIntegrationCues;
-                }
-            }
-            cuegroup("My User Tasks")
-            {
-                Caption = 'My User Tasks';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with User Tasks Activities part';
-                ObsoleteTag = '17.0';
-                field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Pending User Tasks';
-                    Image = Checklist;
-                    ToolTip = 'Specifies the number of pending tasks that are assigned to you or to a group that you are a member of.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with User Tasks Activities part';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnDrillDown()
-                    var
-                        UserTaskList: Page "User Task List";
-                    begin
-                        UserTaskList.SetPageToShowMyPendingUserTasks;
-                        UserTaskList.Run;
-                    end;
                 }
             }
             cuegroup("Data Privacy")
@@ -184,10 +165,10 @@ page 9072 "IT Operations Activities"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
 
         DataClassNotificationMgt.ShowNotifications;
@@ -196,9 +177,9 @@ page 9072 "IT Operations Activities"
         DataSensitivity.SetRange("Data Sensitivity", DataSensitivity."Data Sensitivity"::Unclassified);
         UnclassifiedFields := DataSensitivity.Count();
 
-        SetFilter("Date Filter2", '<=%1', CreateDateTime(Today, 0T));
-        SetFilter("Date Filter3", '>%1', CreateDateTime(Today, 0T));
-        SetRange("User ID Filter", UserId);
+        Rec.SetFilter("Date Filter2", '<=%1', CreateDateTime(Today, 0T));
+        Rec.SetFilter("Date Filter3", '>%1', CreateDateTime(Today, 0T));
+        Rec.SetRange("User ID Filter", UserId());
 
         ShowIntelligentCloud := not EnvironmentInfo.IsSaaS;
         IntegrationSynchJobErrors.SetDataIntegrationUIElementsVisible(ShowDataIntegrationCues);
@@ -207,7 +188,6 @@ page 9072 "IT Operations Activities"
 
     var
         EnvironmentInfo: Codeunit "Environment Information";
-        UserTaskManagement: Codeunit "User Task Management";
         UnclassifiedFields: Integer;
         ShowIntelligentCloud: Boolean;
         ShowD365SIntegrationCues: Boolean;

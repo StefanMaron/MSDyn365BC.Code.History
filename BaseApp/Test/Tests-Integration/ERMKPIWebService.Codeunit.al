@@ -47,7 +47,7 @@ codeunit 134401 "ERM KPI Web Service"
         with GLBudgetEntry do begin
             SetCurrentKey("Last Date Modified", "Budget Name");
             SetRange("Budget Name", GetBudgetName);
-            FindLast;
+            FindLast();
             Assert.AreEqual(
               "Last Date Modified", AccSchedKPIWebSrvSetup.GetLastBudgetChangedDate, 'Wrong Last Date Modified for existing budget.');
         end;
@@ -205,7 +205,7 @@ codeunit 134401 "ERM KPI Web Service"
         WebService.LockTable();
         WebService.SetRange("Object Type", WebService."Object Type"::Page);
         WebService.SetRange("Object ID", PAGE::"Acc. Sched. KPI Web Service");
-        if WebService.FindFirst then
+        if WebService.FindFirst() then
             WebService.Delete();
         AccSchedKPIWebSrvSetup.PublishWebService;
         WebService.Get(WebService."Object Type"::Page, AccSchedKPIWebSrvSetup."Web Service Name");
@@ -326,7 +326,7 @@ codeunit 134401 "ERM KPI Web Service"
         AccSchedKPIWebSrvSetup.Modify();
 
         // When a G/L Budget Entry is added
-        if GLBudgetEntry.FindLast then;
+        if GLBudgetEntry.FindLast() then;
         GLBudgetEntry."Entry No." += 1;
         GLBudgetEntry."Budget Name" := AccSchedKPIWebSrvSetup."G/L Budget Name";
         GLBudgetEntry.Insert();
@@ -350,7 +350,7 @@ codeunit 134401 "ERM KPI Web Service"
         AccSchedKPIWebSrvSetup.Modify();
 
         // When a G/L Budget Entry is added
-        if GLBudgetEntry.FindLast then;
+        if GLBudgetEntry.FindLast() then;
         GLBudgetEntry."Entry No." += 1;
         GLBudgetEntry."Budget Name" := 'FOO-BAR';
         GLBudgetEntry.Insert();
@@ -443,7 +443,7 @@ codeunit 134401 "ERM KPI Web Service"
         // [GIVEN] Delete all accounting periods
         AccountingPeriod.DeleteAll();
         // [GIVEN] Create a new 12 month fiscal year for WORKDATE
-        LibraryFiscalYear.CreateFiscalYear;
+        LibraryFiscalYear.CreateFiscalYear();
 
         // [GIVEN] Period = "Current Fiscal Year", "View By" = Period
         SetAccSchedKPIWebSrvSetupPeriodAndViewBy(
@@ -555,17 +555,17 @@ codeunit 134401 "ERM KPI Web Service"
 
         AccSchedKPIBuffer.DeleteAll();
 
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLAccNo1 := GLEntry."G/L Account No.";
         GLEntry.SetFilter("G/L Account No.", '<>%1', GLEntry."G/L Account No.");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLAccNo2 := GLEntry."G/L Account No.";
 
         InsertTestData(ActivitiesTxt, 10000, 'REV', 'Revenue', GLAccNo1);
         InsertTestData(LiquidityTxt, 10000, 'COST', 'Cost', GLAccNo2);
 
         LibraryERM.SetAllowPostingFromTo(CalcDate('<-CM>', WorkDate), CalcDate('<CM>', WorkDate));
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure InsertTestData(Name: Code[10]; LineNo: Integer; RowNo: Code[10]; Description: Text[30]; Totaling: Code[30])
@@ -621,7 +621,7 @@ codeunit 134401 "ERM KPI Web Service"
     var
         GLBudgetName: Record "G/L Budget Name";
     begin
-        GLBudgetName.FindLast;
+        GLBudgetName.FindLast();
         exit(GLBudgetName.Name);
     end;
 
@@ -671,7 +671,7 @@ codeunit 134401 "ERM KPI Web Service"
 
     local procedure CopyBudgetEntries(var FromGLBudgetEntry: Record "G/L Budget Entry"; var ToGLBudgetEntry: Record "G/L Budget Entry")
     begin
-        if FromGLBudgetEntry.FindSet then
+        if FromGLBudgetEntry.FindSet() then
             repeat
                 ToGLBudgetEntry := FromGLBudgetEntry;
                 ToGLBudgetEntry.Insert();
@@ -689,7 +689,7 @@ codeunit 134401 "ERM KPI Web Service"
         LibraryVariableStorage.Enqueue(12);
         LibraryVariableStorage.Enqueue(PeriodLength);
         CreateFiscalYear.HideConfirmationDialog(true);
-        CreateFiscalYear.Run;
+        CreateFiscalYear.Run();
     end;
 
     local procedure SetAccSchedKPIWebSrvSetupPeriodAndViewBy(var AccSchedKPIWebSrvSetup: Record "Acc. Sched. KPI Web Srv. Setup"; NewPeriod: Option; NewViewBy: Option)

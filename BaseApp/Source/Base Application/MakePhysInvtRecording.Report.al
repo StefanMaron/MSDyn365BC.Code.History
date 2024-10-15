@@ -128,7 +128,7 @@ report 5881 "Make Phys. Invt. Recording"
                 PhysInvtRecordLine2.SetRange("Location Code", "Location Code");
                 PhysInvtRecordLine2.SetRange("Bin Code", "Bin Code");
                 OnCheckOrderLineOnAfterSetFilters(PhysInvtRecordLine2, PhysInvtOrderLine);
-                if PhysInvtRecordLine2.FindFirst then
+                if PhysInvtRecordLine2.FindFirst() then
                     exit(false);
             end;
         end;
