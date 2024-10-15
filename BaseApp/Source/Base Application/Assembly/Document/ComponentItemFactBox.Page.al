@@ -175,6 +175,7 @@ page 917 "Component - Item FactBox"
     trigger OnAfterGetRecord()
     begin
         Clear(Item);
+        AssemblyInfoPaneManagement.SetRecalculateItem();
         if (Rec.Type = Rec.Type::Item) and Item.Get(Rec."No.") then
             Item.CalcFields("No. of Substitutes");
     end;
