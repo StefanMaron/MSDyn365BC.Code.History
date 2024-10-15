@@ -1014,12 +1014,12 @@ codeunit 550 "VAT Rate Change Conversion"
         end;
 
         OldPurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
+        OldPurchaseLine.Validate("Qty. to Receive", 0);
         OldPurchaseLine.Validate(Quantity, PurchaseLine."Quantity Received");
 
         OldPurchaseLine.Validate("Direct Unit Cost", PurchaseLine."Direct Unit Cost");
 
         OldPurchaseLine.Validate("Line Discount %", PurchaseLine."Line Discount %");
-        OldPurchaseLine.Validate("Qty. to Receive", 0);
         OldPurchaseLine.Validate("Return Qty. to Ship", 0);
         if Abs(PurchaseLine."Qty. to Invoice") > (Abs(PurchaseLine."Quantity Received") - Abs(PurchaseLine."Quantity Invoiced")) then
             OldPurchaseLine.Validate("Qty. to Invoice", PurchaseLine."Quantity Received" - PurchaseLine."Quantity Invoiced")

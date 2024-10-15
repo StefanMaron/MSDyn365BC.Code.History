@@ -1347,6 +1347,9 @@ codeunit 5988 "Serv-Documents Mgt."
                             TestField("Shipment No.");
                     end;
 
+                    if (Type = Type::Item) and ("No." <> '') then
+                        TestField("Unit of Measure Code");
+
                     if "Qty. per Unit of Measure" = 0 then
                         "Qty. per Unit of Measure" := 1;
                     case "Document Type" of

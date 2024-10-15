@@ -29,6 +29,8 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         RemainingAmountElementNameTxt: Label 'Cust__Ledger_Entry__Remaining_Amount_';
         PaymentMethodCodeModifyErr: Label 'For Cartera-based bills and invoices, you cannot change the Payment Method Code to this value.';
         ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
+        CheckBillSituationGroupErr: Label '%1 cannot be applied because it is included in a bill group. To apply the document, remove it from the bill group and try again.', Comment = '%1 - document type and number';
+        CheckBillSituationPostedErr: Label '%1 cannot be applied because it is included in a posted bill group.', Comment = '%1 - document type and number';
 
     [Test]
     [Scope('OnPrem')]
@@ -1049,6 +1051,96 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         VerifyGLEntryCount(GLEntry."Document Type"::Payment, BillGroup."No.", CustPostingGroup."Bills on Collection Acc.", 2);
     end;
 
+    [Test]
+    procedure CheckBillSituation_UT_OpenBillGroup()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CarteraDoc: Record "Cartera Doc.";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 363341] TAB 21 "Cust. Ledger Entry".CheckBillSituation() throws an error in case of
+        // [SCENARIO 363341] existing open cartera document (bill group) related to this ledger entry
+        MockCustLedgEntry(CustLedgerEntry);
+        MockCarteraDoc(CarteraDoc.Type::Receivable, CustLedgerEntry."Entry No.", LibraryUtility.GenerateGUID());
+
+        asserterror CustLedgerEntry.CheckBillSituation();
+
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(CheckBillSituationGroupErr, CustLedgerEntry.Description));
+    end;
+
+    [Test]
+    procedure CheckBillSituation_UT_PostedBillGroup()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        PostedCarteraDoc: Record "Posted Cartera Doc.";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 363341] TAB 21 "Cust. Ledger Entry".CheckBillSituation() throws an error in case of
+        // [SCENARIO 363341] existing posted cartera document (posted bill group) related to this ledger entry
+        MockCustLedgEntry(CustLedgerEntry);
+        MockPostedCarteraDoc(PostedCarteraDoc.Type::Receivable, CustLedgerEntry."Entry No.", LibraryUtility.GenerateGUID());
+
+        asserterror CustLedgerEntry.CheckBillSituation();
+
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(CheckBillSituationPostedErr, CustLedgerEntry.Description));
+    end;
+
+    [Test]
+    procedure CrMemoTryApplyInvoiceAlreadyIncludedIntoBillGroup()
+    var
+        SalesHeader: Record "Sales Header";
+        BillGroup: Record "Bill Group";
+        CarteraDoc: Record "Cartera Doc.";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 363341] An error occurs trying apply the invoice already included into bill group
+        Initialize();
+
+        // [GIVEN] Posted sales invocie "X" with automatically created bill
+        DocumentNo := PostCarteraSalesInvoice(SalesHeader, '');
+        // [GIVEN] Bill group with added document "X"
+        CreateBillGroupAndAddDocumentLCY(BillGroup, CarteraDoc, SalesHeader."Sell-to Customer No.", DocumentNo);
+        // [GIVEN] Sales credit memo
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", SalesHeader."Sell-to Customer No.");
+
+        // [WHEN] Try validate sales credit memo "Applies-to Doc. No." = "X"
+        asserterror SalesHeader.Validate("Applies-to Doc. No.", DocumentNo);
+
+        // [THEN] An error occurs: "Bill X cannot be applied since it is included in a bill group. Remove it from its bill group and try again."
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(CheckBillSituationGroupErr, CarteraDoc.Description));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure CrMemoTryApplyInvoiceAlreadyIncludedIntoPostedBillGroup()
+    var
+        SalesHeader: Record "Sales Header";
+        BillGroup: Record "Bill Group";
+        CarteraDoc: Record "Cartera Doc.";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 363341] An error occurs trying apply the invoice already included into posted bill group
+        Initialize();
+
+        // [GIVEN] Posted sales invocie "X" with automatically created bill
+        DocumentNo := PostCarteraSalesInvoice(SalesHeader, '');
+        // [GIVEN] Posted bill group with added document "X"
+        CreateBillGroupAndAddDocumentLCY(BillGroup, CarteraDoc, SalesHeader."Sell-to Customer No.", DocumentNo);
+        LibraryCarteraReceivables.PostCarteraBillGroup(BillGroup);
+        // [GIVEN] Sales credit memo
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", SalesHeader."Sell-to Customer No.");
+
+        // [WHEN] Try validate sales credit memo "Applies-to Doc. No." = "X"
+        asserterror SalesHeader.Validate("Applies-to Doc. No.", DocumentNo);
+
+        // [THEN] An error occurs: "Bill X cannot be applied since it is included in a posted bill group."
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(CheckBillSituationPostedErr, CarteraDoc.Description));
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -1083,6 +1175,16 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         LibraryVariableStorage.Enqueue(DocumentNo);
         AddCarteraDocumentToBillGroup(BillGroup."No.");
         BillGroup.CalcFields("Amount (LCY)", Amount);
+    end;
+
+    procedure CreateBillGroupAndAddDocumentLCY(var BillGroup: Record "Bill Group"; var CarteraDoc: Record "Cartera Doc."; CustomerNo: Code[20]; DocumentNo: Code[20])
+    var
+        BankAccount: Record "Bank Account";
+    begin
+        LibraryCarteraReceivables.CreateBankAccount(BankAccount, '');
+        LibraryCarteraReceivables.UpdateBankAccountWithFormatN19(BankAccount);
+        LibraryCarteraReceivables.CreateBillGroup(BillGroup, BankAccount."No.", BillGroup."Dealing Type"::Collection);
+        LibraryCarteraReceivables.AddCarteraDocumentToBillGroup(CarteraDoc, DocumentNo, CustomerNo, BillGroup."No.");
     end;
 
     local procedure CreateCarteraJournalLine(var GenJournalLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; CurrencyCode: Code[10])
@@ -1137,6 +1239,35 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         SetScenarioRatesDates(CurrencyExchRate, PostingDate);
         for i := 1 to ArrayLen(PostingDate) do
             LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[i], CurrencyExchRate[i], CurrencyExchRate[i]);
+    end;
+
+    local procedure MockCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+        CustLedgEntry.Init();
+        CustLedgEntry."Entry No." :=
+          LibraryUtility.GetNewRecNo(CustLedgEntry, CustLedgEntry.FIELDNO("Entry No."));
+        CustLedgEntry.Description := LibraryUtility.GenerateGUID();
+        CustLedgEntry.Insert();
+    end;
+
+    local procedure MockCarteraDoc(Type: Option; EntryNo: Integer; BGPONo: Code[20])
+    var
+        CarteraDoc: Record "Cartera Doc.";
+    begin
+        CarteraDoc.Type := Type;
+        CarteraDoc."Entry No." := EntryNo;
+        CarteraDoc."Bill Gr./Pmt. Order No." := BGPONo;
+        CarteraDoc.Insert();
+    end;
+
+    local procedure MockPostedCarteraDoc(Type: Option; EntryNo: Integer; BGPONo: Code[20])
+    var
+        PostedCarteraDoc: Record "Posted Cartera Doc.";
+    begin
+        PostedCarteraDoc.Type := Type;
+        PostedCarteraDoc."Entry No." := EntryNo;
+        PostedCarteraDoc."Bill Gr./Pmt. Order No." := BGPONo;
+        PostedCarteraDoc.Insert();
     end;
 
     local procedure FindGLEntryByDocNoGLAccNo(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; GLAccountNo: Code[20])

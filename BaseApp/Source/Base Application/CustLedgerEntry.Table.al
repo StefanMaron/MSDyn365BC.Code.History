@@ -769,6 +769,8 @@ table 21 "Cust. Ledger Entry"
         Text1100001: Label 'Payment Discount (VAT Adjustment)';
         DocMisc: Codeunit "Document-Misc";
         CannotChangePmtMethodErr: Label 'For Cartera-based bills and invoices, you cannot change the Payment Method Code to this value.';
+        CheckBillSituationGroupErr: Label '%1 cannot be applied because it is included in a bill group. To apply the document, remove it from the bill group and try again.', Comment = '%1 - document type and number';
+        CheckBillSituationPostedErr: Label '%1 cannot be applied because it is included in a posted bill group.', Comment = '%1 - document type and number';
 
     procedure ShowDoc(): Boolean
     var
@@ -934,16 +936,17 @@ table 21 "Cust. Ledger Entry"
     [Scope('OnPrem')]
     procedure CheckBillSituation()
     var
-        Doc: Record "Cartera Doc.";
-        Text1100100: Label '%1 cannot be applied, since it is included in a bill group.';
-        Text1100101: Label ' Remove it from its bill group and try again.';
+        CarteraDoc: Record "Cartera Doc.";
+        PostedCarteraDoc: Record "Posted Cartera Doc.";
     begin
-        if Doc.Get(Doc.Type::Receivable, Rec."Entry No.") then
-            if Doc."Bill Gr./Pmt. Order No." <> '' then
-                Error(
-                  Text1100100 +
-                  Text1100101,
-                  Rec.Description);
+        case true of
+            CarteraDoc.Get(CarteraDoc.Type::Receivable, "Entry No."):
+                if CarteraDoc."Bill Gr./Pmt. Order No." <> '' then
+                    Error(CheckBillSituationGroupErr, Description);
+            PostedCarteraDoc.Get(PostedCarteraDoc.Type::Receivable, "Entry No."):
+                if PostedCarteraDoc."Bill Gr./Pmt. Order No." <> '' then
+                    Error(CheckBillSituationPostedErr, Description);
+        end;
     end;
 
     procedure SetStyle(): Text

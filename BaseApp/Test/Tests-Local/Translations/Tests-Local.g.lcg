@@ -410,6 +410,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cartera Payment Basic Scenario - NamedType PaymentMethodCodeModifyErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1376994288 - NamedType 3870931956" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 cannot be applied because it is included in a payment order. To apply the document, remove it from the payment order and try again.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - document type and number]D;]A;(LookupHint=Codeunit Cartera Payment Basic Scenario - NamedType CheckBillSituationOrderErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1376994288 - NamedType 1868195619" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 cannot be applied because it is included in a posted payment order.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - document type and number]D;]A;(LookupHint=Codeunit Cartera Payment Basic Scenario - NamedType CheckBillSituationPostedOrderErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 199787064 - NamedType 897546474" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Data could not be found in the report dataset.]]></Val>
@@ -705,6 +723,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cartera Recv. Basic Scenarios - NamedType ExchRateWasAdjustedTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 566879035 - NamedType 2335688819" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 cannot be applied because it is included in a bill group. To apply the document, remove it from the bill group and try again.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - document type and number]D;]A;(LookupHint=Codeunit Cartera Recv. Basic Scenarios - NamedType CheckBillSituationGroupErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 566879035 - NamedType 4043518521" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 cannot be applied because it is included in a posted bill group.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - document type and number]D;]A;(LookupHint=Codeunit Cartera Recv. Basic Scenarios - NamedType CheckBillSituationPostedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3968576693 - NamedType 3799202804" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4017,6 +4053,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit SII Documents With EU Service - NamedType XPathSalesNoTaxTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1005776364 - NamedType 2068972770" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[//soapenv:Body/siiRL:SuministroLRFacturasEmitidas/siiRL:RegistroLRFacturasEmitidas/siiRL:FacturaExpedida/sii:TipoDesglose/sii:DesgloseTipoOperacion/%1/sii:Sujeta/sii:Exenta/sii:DetalleExenta/]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Documents With EU Service - NamedType XPathSalesExentaTok)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2395523379 - NamedType 3088887303" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
