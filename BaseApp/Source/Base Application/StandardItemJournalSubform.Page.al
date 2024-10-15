@@ -22,8 +22,7 @@ page 755 "Standard Item Journal Subform"
                 }
                 field("Price Calculation Method"; "Price Calculation Method")
                 {
-                    // Visibility should be turned on by an extension for Price Calculation
-                    Visible = false;
+                    Visible = ExtendedPriceEnabled;
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the method that will be used for price calculation in the journal line.';
                 }
@@ -266,9 +265,15 @@ page 755 "Standard Item Journal Subform"
     end;
 
     trigger OnOpenPage()
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
         SetDimensionsVisibility;
     end;
+
+    var
+        ExtendedPriceEnabled: Boolean;
 
     protected var
         ShortcutDimCode: array[8] of Code[20];

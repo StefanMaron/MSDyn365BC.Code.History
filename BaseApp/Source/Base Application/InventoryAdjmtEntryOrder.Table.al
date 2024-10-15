@@ -386,6 +386,8 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         "Single-Lvl Subcontrd Cost(ACY)" := InvtAdjmtEntryOrder."Single-Lvl Subcontrd Cost(ACY)" - "Single-Lvl Subcontrd Cost(ACY)";
         "Single-Lvl Cap. Ovhd Cost(ACY)" := InvtAdjmtEntryOrder."Single-Lvl Cap. Ovhd Cost(ACY)" - "Single-Lvl Cap. Ovhd Cost(ACY)";
         "Single-Lvl Mfg. Ovhd Cost(ACY)" := InvtAdjmtEntryOrder."Single-Lvl Mfg. Ovhd Cost(ACY)" - "Single-Lvl Mfg. Ovhd Cost(ACY)";
+
+        OnAfterCalcDiff(Rec, InvtAdjmtEntryOrder, OnlyCostShares);
     end;
 
     procedure AddDirectCost(CostAmtLCY: Decimal; CostAmtACY: Decimal)
@@ -496,6 +498,11 @@ table 5896 "Inventory Adjmt. Entry (Order)"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcOvhdCost(xInventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; GeneralLedgerSetup: Record "General Ledger Setup"; OutputQty: Decimal; AmtRndgPrec: Decimal; AmtRndgPrecACY: Decimal; CurrencyFactor: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcDiff(var InvtAdjmtEntryOrderRec: Record "Inventory Adjmt. Entry (Order)"; var InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; OnlyCostShares: Boolean)
     begin
     end;
 

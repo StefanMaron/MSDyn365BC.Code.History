@@ -198,8 +198,8 @@ codeunit 138200 "Normal DemoData"
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
-        // [SCENARIO] There are 4 VAT Prod. Posting groups
-        Assert.RecordCount(VATProductPostingGroup, 4);
+        // [SCENARIO 392804] There are 6 VAT Prod. Posting groups
+        Assert.RecordCount(VATProductPostingGroup, 6);
     end;
 
     [Test]
@@ -338,6 +338,57 @@ codeunit 138200 "Normal DemoData"
 
         DefaultDimension.SetFilter("Allowed Values Filter", '<>%1', '');
         Assert.RecordIsNotEmpty(DefaultDimension);
+    end;
+
+    [Test]
+    procedure DEVATStatement2021()
+    var
+        VATStatementLine: Record "VAT Statement Line";
+    begin
+        // [FEATURE] [VAT Statement]
+        // [SCENARIO 392804] DE VAT Statement Setup 2021
+        AssertVATStatementLineExists('81A', VATStatementLine.Type::"VAT Entry Totaling", 'VAT19', VATStatementLine."Amount Type"::Base, '');
+        AssertVATStatementLineExists(
+          '81S', VATStatementLine.Type::"VAT Entry Totaling", 'VAT19', VATStatementLine."Amount Type"::Amount, '');
+        AssertVATStatementLineExists('50A', VATStatementLine.Type::"VAT Entry Totaling", 'MIN19', VATStatementLine."Amount Type"::Base, '');
+        AssertVATStatementLineExists(
+          '50AS', VATStatementLine.Type::"VAT Entry Totaling", 'MIN19', VATStatementLine."Amount Type"::Amount, '');
+        AssertVATStatementLineExists('81', VATStatementLine.Type::"Row Totaling", '', VATStatementLine."Amount Type"::" ", '81A|50A');
+        AssertVATStatementLineExists('81ST', VATStatementLine.Type::"Row Totaling", '', VATStatementLine."Amount Type"::" ", '81S|50AS');
+        AssertVATStatementLineExists('86A', VATStatementLine.Type::"VAT Entry Totaling", 'VAT7', VATStatementLine."Amount Type"::Base, '');
+        AssertVATStatementLineExists('86S', VATStatementLine.Type::"VAT Entry Totaling", 'VAT7', VATStatementLine."Amount Type"::Amount, '');
+        AssertVATStatementLineExists('50B', VATStatementLine.Type::"VAT Entry Totaling", 'MIN7', VATStatementLine."Amount Type"::Base, '');
+        AssertVATStatementLineExists(
+          '50BS', VATStatementLine.Type::"VAT Entry Totaling", 'MIN7', VATStatementLine."Amount Type"::Amount, '');
+        AssertVATStatementLineExists('86', VATStatementLine.Type::"Row Totaling", '', VATStatementLine."Amount Type"::" ", '86A|50B');
+        AssertVATStatementLineExists('86ST', VATStatementLine.Type::"Row Totaling", '', VATStatementLine."Amount Type"::" ", '86S|50BS');
+        AssertVATStatementLineExists('50', VATStatementLine.Type::"VAT Entry Totaling", 'MIN19', VATStatementLine."Amount Type"::Base, '');
+        AssertVATStatementLineExists('50', VATStatementLine.Type::"VAT Entry Totaling", 'MIN7', VATStatementLine."Amount Type"::Base, '');
+        AssertVATStatementLineExists('36', VATStatementLine.Type::"Account Totaling", '', VATStatementLine."Amount Type"::Base, '');
+        AssertVATStatementLineExists('35', VATStatementLine.Type::"Account Totaling", '', VATStatementLine."Amount Type"::Amount, '');
+        AssertVATStatementLineExists(
+          '37A', VATStatementLine.Type::"VAT Entry Totaling", 'MIN19', VATStatementLine."Amount Type"::Amount, '');
+        AssertVATStatementLineExists('37B', VATStatementLine.Type::"VAT Entry Totaling", 'MIN7', VATStatementLine."Amount Type"::Amount, '');
+        AssertVATStatementLineExists(
+          '66', VATStatementLine.Type::"Row Totaling", '', VATStatementLine."Amount Type"::" ", '66A|66B|37A|37B');
+        AssertVATStatementLineExists('37', VATStatementLine.Type::"VAT Entry Totaling", 'MIN19', VATStatementLine."Amount Type"::Amount, '');
+        AssertVATStatementLineExists('37', VATStatementLine.Type::"VAT Entry Totaling", 'MIN7', VATStatementLine."Amount Type"::Amount, '');
+        AssertVATStatementLineExists(
+          '83', VATStatementLine.Type::"Row Totaling", '', VATStatementLine."Amount Type"::" ", '81|86|35|89|93|66|61|62');
+    end;
+
+    local procedure AssertVATStatementLineExists(RowNo: Code[10]; LineType: Enum "VAT Statement Line Type"; VATProdPostingGroupCode: Code[20]; AmountType: Enum "VAT Statement Line Amount Type"; RowTotaling: Text[50])
+    var
+        VATStatementLine: Record "VAT Statement Line";
+    begin
+        VATStatementLine.SetRange("Statement Template Name", 'VAT');
+        VATStatementLine.SetRange("Statement Name", 'USTVA');
+        VATStatementLine.SetRange("Row No.", RowNo);
+        VATStatementLine.SetRange(Type, LineType);
+        VATStatementLine.SetRange("VAT Prod. Posting Group", VATProdPostingGroupCode);
+        VATStatementLine.SetRange("Amount Type", AmountType);
+        VATStatementLine.SetRange("Row Totaling", RowTotaling);
+        Assert.RecordIsNotEmpty(VATStatementLine);
     end;
 }
 

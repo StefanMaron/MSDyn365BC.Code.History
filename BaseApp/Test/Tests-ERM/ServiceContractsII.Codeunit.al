@@ -1461,6 +1461,69 @@ codeunit 136145 "Service Contracts II"
         VerifyContractLinesOnInvoiceDescription(ServiceContractHeader."Contract No.", ServiceContractHeader."Next Invoice Date", ExpectedDescription);
     end;
 
+    [Test]
+    [HandlerFunctions('NoConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RunUpdateContractPricesReportOnServContractInvoicePeriodNone()
+    var
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+        PriceChangePercent: Decimal;
+        AnnualAmount: Decimal;
+    begin
+        // [SCENARIO 392187] Run report "Update Service Contract Prices" on signed Service Contract with Invoice Period = None.
+        Initialize;
+
+        // [GIVEN] Signed Service Contract with Invoice Period = "None".
+        CreateServiceContractWithLine(
+          ServiceContractHeader, ServiceContractLine, CalcDate('<-CM - 1Y>', WorkDate), 0D,
+          ServiceContractHeader."Invoice Period"::None, false);
+        SignContractSilent(ServiceContractHeader);
+        AnnualAmount := ServiceContractHeader."Annual Amount";
+
+        // [WHEN] Run report "Update Service Contract Prices" on Service Contract, set "Price Update %" = 5.
+        PriceChangePercent := LibraryRandom.RandDecInRange(3, 9, 2);
+        RunUpdateContractPricesReport(ServiceContractHeader, PriceChangePercent);
+
+        // [THEN] Report run without errors. "Annual Amount" increased by 5%, "Amount per Period" remains 0.
+        ServiceContractHeader.Get(ServiceContractHeader."Contract Type", ServiceContractHeader."Contract No.");
+        ServiceContractHeader.TestField(
+          "Annual Amount", Round(AnnualAmount + (AnnualAmount * PriceChangePercent / 100), LibraryERM.GetAmountRoundingPrecision));
+        ServiceContractHeader.TestField("Amount per Period", 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('NoConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RunUpdateContractPricesReportOnServContractInvoicePeriodHalfYear()
+    var
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+        PriceChangePercent: Decimal;
+        AnnualAmount: Decimal;
+    begin
+        // [SCENARIO 392187] Run report "Update Service Contract Prices" on signed Service Contract with Invoice Period = Half Year.
+        Initialize;
+
+        // [GIVEN] Signed Service Contract with Invoice Period = "Half Year".
+        CreateServiceContractWithLine(
+          ServiceContractHeader, ServiceContractLine, CalcDate('<-CM - 1Y>', WorkDate), 0D,
+          ServiceContractHeader."Invoice Period"::"Half Year", false);
+        SignContractSilent(ServiceContractHeader);
+        AnnualAmount := ServiceContractHeader."Annual Amount";
+
+        // [WHEN] Run report "Update Service Contract Prices" on Service Contract, set "Price Update %" = 5.
+        PriceChangePercent := LibraryRandom.RandDecInRange(3, 9, 2);
+        RunUpdateContractPricesReport(ServiceContractHeader, PriceChangePercent);
+
+        // [THEN] Report run without errors. "Annual Amount" increased by 5%, "Amount per Period" = "Annual Amount" / 2.
+        ServiceContractHeader.Get(ServiceContractHeader."Contract Type", ServiceContractHeader."Contract No.");
+        ServiceContractHeader.TestField(
+          "Annual Amount", Round(AnnualAmount + (AnnualAmount * PriceChangePercent / 100), LibraryERM.GetAmountRoundingPrecision));
+        ServiceContractHeader.TestField(
+          "Amount per Period", Round(ServiceContractHeader."Annual Amount" / 2, LibraryERM.GetAmountRoundingPrecision));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1997,6 +2060,17 @@ codeunit 136145 "Service Contracts II"
         Clear(CreateContractServiceOrders);
         CreateContractServiceOrders.InitializeRequest(StartDate, EndDate, CreateServOrders::"Create Service Order");
         CreateContractServiceOrders.Run;
+    end;
+
+    local procedure RunUpdateContractPricesReport(ServiceContractHeader: Record "Service Contract Header"; PriceChangePercent: Decimal)
+    var
+        UpdateContractPrices: Report "Update Contract Prices";
+        PerformUpdate: Option "Update Contract Prices","Print Only";
+    begin
+        UpdateContractPrices.SetTableView(ServiceContractHeader);
+        UpdateContractPrices.InitializeRequest(WorkDate, PriceChangePercent, PerformUpdate::"Update Contract Prices");
+        UpdateContractPrices.UseRequestPage(false);
+        UpdateContractPrices.Run;
     end;
 
     local procedure ScenarioWithNewServLineWhenStartingDateAfterNextInvPeriodStart(var ServContractHeader: Record "Service Contract Header"; var ServContractLine: Record "Service Contract Line"; Prepaid: Boolean; ContractExpirationDate: Date; var InvoiceDate: Date)

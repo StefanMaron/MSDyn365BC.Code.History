@@ -262,6 +262,7 @@ codeunit 142039 "UT REP Intrastat DE"
     begin
         // [FEATURE] [Intrastat - Checklist DE]
         // [SCENARIO] "Country/Region Code" when run REP 11013 "Intrastat - Checklist DE"
+        // [SCENARIO 392541] "Partner VAT ID" is printed
 
         // Setup: Create Item with Tariff Number. Create Intrastat Journal Line.
         CreateItemWithTariffNumber(Item);
@@ -272,6 +273,7 @@ codeunit 142039 "UT REP Intrastat DE"
 
         // Verify: Verify that Country Region Origin Code is correct on Intrastat Checklist DE Report.
         VerifyIntrastatReport('Intrastat_Jnl__Line_Country_Region_of_Origin_Code', IntrastatJnlLine."Country/Region of Origin Code");
+        LibraryReportDataset.AssertElementWithValueExists('Intrastat_Jnl_Line_Partner_VAT_ID', IntrastatJnlLine."Partner VAT ID");
     end;
 
     [Test]
@@ -480,7 +482,7 @@ codeunit 142039 "UT REP Intrastat DE"
         REPORT.Run(REPORT::"Intrastat - Checklist DE");
 
         // [THEN] Origin Country Intrastat Code = ""
-        VerifyIntrastatReport('OriginCountry__Intrastat_Code_', '');
+        VerifyIntrastatReport('OriginCountry__Intrastat_Code_', IntrastatJnlLine."Country/Region of Origin Code");
     end;
 
     [Test]
@@ -831,6 +833,69 @@ codeunit 142039 "UT REP Intrastat DE"
         LibraryReportDataset.AssertElementWithValueExists(IntrastatJnlLineTotalWeightRoundedTxt, Round(TotalWeight * 2, 1));
     end;
 
+    [Test]
+    [HandlerFunctions('IntrastatChecklistDERequestPageHandler')]
+    procedure CheckForPartnerVATID()
+    var
+        CompanyInformation: Record "Company Information";
+        Item: Record Item;
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [SCENARIO 392540] "Intrastat - Checklist DE" report checks shipment for "Partner VAT ID" if enabled in company information
+        Initialize();
+
+        CompanyInformation.Get();
+        CompanyInformation.TestField("Check for Partner VAT ID", true);
+
+        CreateItemWithTariffNumber(Item);
+        CreateIntrastatJournalLine(Item, IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
+        IntrastatJnlLine."Partner VAT ID" := '';
+        IntrastatJnlLine.Modify();
+
+        Commit();
+        asserterror Report.Run(Report::"Intrastat - Checklist DE");
+
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError('Partner VAT ID');
+    end;
+
+    [Test]
+    [HandlerFunctions('IntrastatChecklistDERequestPageHandler')]
+    procedure CheckForCountryOfOrigin()
+    var
+        CompanyInformation: Record "Company Information";
+        Item: Record Item;
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [SCENARIO 392540] "Intrastat - Checklist DE" report checks shipment for "Check for Country of Origin" if enabled in company information
+        Initialize();
+
+        CompanyInformation.Get();
+        CompanyInformation.TestField("Check for Country of Origin", true);
+
+        CreateItemWithTariffNumber(Item);
+        CreateIntrastatJournalLine(Item, IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
+        IntrastatJnlLine."Country/Region of Origin Code" := '';
+        IntrastatJnlLine.Modify();
+
+        Commit();
+        asserterror Report.Run(Report::"Intrastat - Checklist DE");
+
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError('Country/Region of Origin Code');
+    end;
+
+    [Test]
+    procedure CompanyInformationDefaultValues()
+    var
+        CompanyInformation: Record "Company Information";
+    begin
+        // [SCENARIO 392540] Company information default values for "Check for Partner VAT ID", "Check for Country of Origin"
+        CompanyInformation.Init();
+        CompanyInformation.TestField("Check for Partner VAT ID", true);
+        CompanyInformation.TestField("Check for Country of Origin", true);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -939,6 +1004,7 @@ codeunit 142039 "UT REP Intrastat DE"
         IntrastatJnlLine.Insert();
 
         IntrastatJnlLine.Type := Type;
+        IntrastatJnlLine."Partner VAT ID" := LibraryUtility.GenerateGUID();
         IntrastatJnlLine.Area := LibraryUTUtility.GetNewCode10;
         IntrastatJnlLine."Item No." := Item."No.";
         IntrastatJnlLine.Quantity := 1;

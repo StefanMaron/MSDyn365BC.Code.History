@@ -6315,7 +6315,7 @@ Cstr(Fields!ShipmentMethodCaption.Value)
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
-                                                      <Format>=Fields!AmountIncludingVATAmountFormat.Value</Format>
+                                                      <Format>=Fields!AmtInclVAT_SalesInvLineFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>

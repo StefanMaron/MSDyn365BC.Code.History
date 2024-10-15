@@ -132,7 +132,7 @@ codeunit 5060 DuplicateManagement
             until DuplContSearchString.Next() = 0;
 
         DuplCont.SetFilter("No. of Matching Strings", '>=%1', Round(DuplSearchStringSetup.Count * HitRatio / 100, 1, '>'));
-        OnInsDuplContOnAfterDuplContSetFilters(DuplCont, DuplContSearchString);
+        OnInsDuplContOnAfterDuplContSetFilters(DuplCont, DuplContSearchString, DuplSearchStringSetup);
         if DuplCont.Find('-') then begin
             repeat
                 DuplCont2 := DuplCont;
@@ -193,7 +193,7 @@ codeunit 5060 DuplicateManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsDuplContOnAfterDuplContSetFilters(var TempDuplCont: Record "Contact Duplicate" temporary; var DuplContSearchString: Record "Cont. Duplicate Search String")
+    local procedure OnInsDuplContOnAfterDuplContSetFilters(var TempDuplCont: Record "Contact Duplicate" temporary; var DuplContSearchString: Record "Cont. Duplicate Search String"; var DuplSearchStringSetup: Record "Duplicate Search String Setup")
     begin
     end;
 

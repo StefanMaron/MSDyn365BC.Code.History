@@ -150,7 +150,14 @@ report 88 "VAT- VIES Declaration Disk"
     }
 
     trigger OnPostReport()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnPostReport(FileName, ToFileNameTxt, HideFileDialog, IsHandled);
+        if IsHandled then
+            exit;
+
         if not HideFileDialog then begin
             FileManagement.DownloadHandler(FileName, '', '', FileManagement.GetToFilterText('', FileName), ToFileNameTxt);
             FileManagement.DeleteServerFile(FileName);
@@ -278,6 +285,11 @@ report 88 "VAT- VIES Declaration Disk"
         VATEntry.SetRange("Bill-to/Pay-to No.", BillToPayToNo);
         VATEntry.SetRange("Posting Date", PostingDate);
         VATEntry.ModifyAll("Internal Ref. No.", InternalRefNo);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnPostReport(var FileName: Text; ToFileNameTxt: Text; HideFileDialog: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

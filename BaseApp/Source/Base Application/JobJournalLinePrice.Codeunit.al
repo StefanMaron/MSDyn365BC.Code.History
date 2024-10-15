@@ -157,7 +157,10 @@ codeunit 7023 "Job Journal Line - Price" implements "Line With Price"
                     PriceCalculationBuffer."VAT Prod. Posting Group" := Resource."VAT Prod. Posting Group";
                 end;
         end;
-        PriceCalculationBuffer."Document Date" := JobJournalLine."Posting Date";
+        if JobJournalLine."Time Sheet Date" <> 0D then
+            PriceCalculationBuffer."Document Date" := JobJournalLine."Time Sheet Date"
+        else
+            PriceCalculationBuffer."Document Date" := JobJournalLine."Posting Date";
         if PriceCalculationBuffer."Document Date" = 0D then
             PriceCalculationBuffer."Document Date" := WorkDate();
         PriceCalculationBuffer.Validate("Currency Code", JobJournalLine."Currency Code");

@@ -88,6 +88,7 @@ report 99001026 "Replan Production Order"
                         InvtProfileOffsetting: Codeunit "Inventory Profile Offsetting";
                         ReqQty: Decimal;
                         WithInventory: Boolean;
+                        UpdateProdOrder: Boolean;
                         IsHandled: Boolean;
                     begin
                         BlockDynamicTracking(true);
@@ -133,7 +134,9 @@ report 99001026 "Replan Production Order"
 
                         MainProdOrder.Get("Production Order".Status, "Prod. Order No.");
 
-                        if CompItem."Replenishment System" = CompItem."Replenishment System"::"Prod. Order" then begin
+                        UpdateProdOrder := CompItem."Replenishment System" = CompItem."Replenishment System"::"Prod. Order";
+                        OnProdOrderCompOnAfterGetRecordOnAfterCalcUpdateProdOrder(CompItem, UpdateProdOrder);
+                        if UpdateProdOrder then begin
                             ProdOrder.Status := MainProdOrder.Status;
                             ProdOrder."Replan Ref. No." := MainProdOrder."Replan Ref. No.";
                             ProdOrder."Replan Ref. Status" := MainProdOrder."Replan Ref. Status";
@@ -389,6 +392,11 @@ report 99001026 "Replan Production Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterLastProdOrderRtngLine(var ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProdOrderCompOnAfterGetRecordOnAfterCalcUpdateProdOrder(var CompItem: Record Item; var UpdateProdOrder: Boolean)
     begin
     end;
 
