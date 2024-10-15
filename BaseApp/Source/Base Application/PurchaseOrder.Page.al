@@ -196,6 +196,12 @@ page 50 "Purchase Order"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
+                field("Invoice Received Date"; Rec."Invoice Received Date")
+                {
+                    ApplicationArea = Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the date when the related document was received.';
+                }
                 field("Operation Occurred Date"; Rec."Operation Occurred Date")
                 {
                     ApplicationArea = Basic, Suite;
