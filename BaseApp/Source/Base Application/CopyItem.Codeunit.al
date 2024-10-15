@@ -364,7 +364,14 @@ codeunit 730 "Copy Item"
     end;
 
     local procedure CopyItemPriceListLines(FromItemNo: Code[20]; ToItemNo: Code[20])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyItemPriceListLines(FromItemNo, ToItemNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if TempCopyItemBuffer."Sales Prices" then
             CopyItemPriceListLines(FromItemNo, ToItemNo, "Price Type"::Sale, "Price Amount Type"::Price);
         if TempCopyItemBuffer."Sales Line Discounts" then
@@ -389,6 +396,7 @@ codeunit 730 "Copy Item"
         PriceListLine.SetRange("Amount Type", AmountType);
         PriceListLine.SetRange("Asset Type", "Price Asset Type"::Item);
         PriceListLine.SetRange("Asset No.", FromItemNo);
+        OnCopyItemPriceListLinesOnAfterPriceListLineSetFilters(PriceListLine);
         if PriceListLine.FindSet() then
             repeat
                 NewPriceListLine := PriceListLine;
@@ -528,6 +536,11 @@ codeunit 730 "Copy Item"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyItemPriceListLines(FromItemNo: Code[20]; ToItemNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeOnRun(Item: Record Item; var FirstItemNo: Code[20]; var LastItemNo: Code[20]; var IsItemCopied: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -544,6 +557,11 @@ codeunit 730 "Copy Item"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyItemVariants(var TempCopyItemBuffer: Record "Copy Item Buffer" temporary; FromItemNo: Code[20]; ToItemNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyItemPriceListLinesOnAfterPriceListLineSetFilters(var PriceListLine: Record "Price List Line")
     begin
     end;
 

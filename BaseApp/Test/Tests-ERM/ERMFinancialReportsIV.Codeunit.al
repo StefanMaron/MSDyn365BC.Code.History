@@ -1056,4 +1056,3 @@ codeunit 134992 "ERM Financial Reports IV"
         Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 }
-

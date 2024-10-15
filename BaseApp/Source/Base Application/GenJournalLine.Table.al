@@ -3245,6 +3245,10 @@
             exit;
 
         if (LastDocNo = '') or ("Document No." <> LastDocNo) then begin
+            if NoSeriesMgtInstance.FindNoSeriesLine(NoSeriesLine, NoSeriesCode, "Posting Date") then
+                if not NoSeriesMgtInstance.IsCurrentNoSeriesLine(NoSeriesLine) then
+                    NoSeriesMgtInstance.SaveNoSeries();
+
             DoDocumentNoTest := "Document No." <> NoSeriesMgtInstance.GetNextNo(NoSeriesCode, "Posting Date", false);
             if not DoDocumentNoTest then begin
                 if NoSeries.Get(NoSeriesCode) then;

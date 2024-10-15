@@ -1122,6 +1122,7 @@
             CostEntry.SetFilter("Posting Date", PostingDateFilter);
             InsertIntoDocEntry(Rec, DATABASE::"Cost Entry", CostEntry.TableCaption(), CostEntry.Count);
         end;
+        OnAfterFindCostEntries(Rec, DocNoFilter, PostingDateFilter);
     end;
 
     local procedure FindWhseEntries()
@@ -1619,7 +1620,7 @@
         SourceNoEnable := SourceType2 <> 0;
         SourceNameEnable := SourceType2 <> 0;
 
-        OnAfterSetSource(SourceType2, SourceType, SourceNo, SourceName);
+        OnAfterSetSource(SourceType2, SourceType, SourceNo, SourceName, PostingDateFilter);
     end;
 
     local procedure SetSourceForPurchase()
@@ -2434,6 +2435,11 @@
         end;
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFindCostEntries(var DocumentEntry: Record "Document Entry"; DocNoFilter: Text; PostingDateFilter: Text)
+    begin
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnAfterFindRecords(var DocumentEntry: Record "Document Entry"; DocNoFilter: Text; PostingDateFilter: Text)
     begin
@@ -2488,7 +2494,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterSetSource(var SourceType2: Integer; var SourceType: Text[30]; SourceNo: Code[20]; var SourceName: Text[100])
+    local procedure OnAfterSetSource(var SourceType2: Integer; var SourceType: Text[30]; SourceNo: Code[20]; var SourceName: Text[100]; var PostingDateFilter: Text)
     begin
     end;
 

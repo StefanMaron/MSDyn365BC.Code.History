@@ -32,6 +32,12 @@ report 1305 "Standard Sales - Order Conf."
             column(CompanyAddress6; CompanyAddr[6])
             {
             }
+            column(CompanyAddress7; CompanyAddr[7])
+            {
+            }
+            column(CompanyAddress8; CompanyAddr[8])
+            {
+            }
             column(CompanyHomePage; CompanyInfo."Home Page")
             {
             }
@@ -1127,6 +1133,7 @@ report 1305 "Standard Sales - Order Conf."
         BillToContactPhoneNoLbl: Label 'Bill-to Contact Phone No.';
         BillToContactMobilePhoneNoLbl: Label 'Bill-to Contact Mobile Phone No.';
         BillToContactEmailLbl: Label 'Bill-to Contact E-Mail';
+        LCYTxt: label ' (LCY)';
 
     protected var
         PaymentTerms: Record "Payment Terms";
@@ -1204,8 +1211,11 @@ report 1305 "Standard Sales - Order Conf."
             if TotalAmountVAT <> 0 then
                 ReportTotalsLine.Add(TotalExclVATText, TotalAmount, true, false, false);
         end;
-        if TotalAmountVAT <> 0 then
+        if TotalAmountVAT <> 0 then begin
             ReportTotalsLine.Add(VATAmountLine.VATAmountText(), TotalAmountVAT, false, true, false);
+            if TotalVATAmountLCY <> TotalAmountVAT then
+                ReportTotalsLine.Add(VATAmountLine.VATAmountText() + LCYTxt, TotalVATAmountLCY, false, true, false);
+        end;
     end;
 
     [IntegrationEvent(false, false)]

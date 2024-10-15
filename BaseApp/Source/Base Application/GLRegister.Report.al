@@ -1,4 +1,4 @@
-report 3 "G/L Register"
+﻿report 3 "G/L Register"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './GLRegister.rdlc';
@@ -126,7 +126,8 @@ report 3 "G/L Register"
                 }
                 dataitem("Purch. Inv. Line"; "Purch. Inv. Line")
                 {
-                    DataItemLink = "Document No." = FIELD("Document No."), "No." = FIELD("G/L Account No.");
+                    DataItemTableView = sorting("Document No.");
+                    DataItemLink = "Document No." = field("Document No."), "No." = field("G/L Account No.");
                     UseTemporary = true;
                     column(Purch__Inv__Line_Description; Description)
                     {
@@ -288,7 +289,6 @@ report 3 "G/L Register"
         G_L_Entry_Amount_Control41CaptionLbl: Label 'Total';
         ShowDetails: Boolean;
         DetailedVATAmount: Decimal;
-        
 
     local procedure DetailsPrinted(PurchInvLine: Record "Purch. Inv. Line"): Boolean
     begin

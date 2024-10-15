@@ -563,20 +563,26 @@ table 7302 "Bin Content"
           (("Pick Quantity (Base)" + "ATO Components Pick Qty (Base)") - ExcludeQtyBase + "Negative Adjmt. Qty. (Base)"));
     end;
 
-    procedure CalcQtyAvailToTakeUOM(): Decimal
+    procedure CalcQtyAvailToTakeUOM() Result: Decimal
     begin
         GetItem("Item No.");
         if Item."No." <> '' then
-            exit(
-              Round(CalcQtyAvailToTake(0) / UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code"), UOMMgt.QtyRndPrecision()));
+            Result := Round(CalcQtyAvailToTake(0) / UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code"), UOMMgt.QtyRndPrecision());
+        OnAfterCalcQtyAvailToTakeUOM(Rec, Result);
     end;
 
-    local procedure CalcTotalQtyAvailToTake(ExcludeQtyBase: Decimal): Decimal
+    local procedure CalcTotalQtyAvailToTake(ExcludeQtyBase: Decimal) Result: Decimal
     var
         TotalQtyBase: Decimal;
         TotalNegativeAdjmtQtyBase: Decimal;
         TotalATOComponentsPickQtyBase: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcTotalQtyAvailToTake(Rec, ExcludeQtyBase, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         TotalQtyBase := CalcTotalQtyBase();
         TotalNegativeAdjmtQtyBase := CalcTotalNegativeAdjmtQtyBase();
         TotalATOComponentsPickQtyBase := CalcTotalATOComponentsPickQtyBase();
@@ -601,10 +607,11 @@ table 7302 "Bin Content"
             exit(CalcQtyAvailToTake(ExcludeQtyBase) - CalcQtyWithBlockedItemTracking());
     end;
 
-    procedure CalcQtyAvailToPickIncludingDedicated(ExcludeQtyBase: Decimal): Decimal
+    procedure CalcQtyAvailToPickIncludingDedicated(ExcludeQtyBase: Decimal) Result: Decimal
     begin
         if not ("Block Movement" in ["Block Movement"::Outbound, "Block Movement"::All]) then
-            exit(CalcQtyAvailToTake(ExcludeQtyBase) - CalcQtyWithBlockedItemTracking());
+            Result := CalcQtyAvailToTake(ExcludeQtyBase) - CalcQtyWithBlockedItemTracking();
+        OnAfterCalcQtyAvailToPickIncludingDedicated(Rec, ExcludeQtyBase, Result);
     end;
 
     procedure CalcQtyWithBlockedItemTracking(): Decimal
@@ -680,16 +687,30 @@ table 7302 "Bin Content"
         exit(QtySNBlocked + QtyLNBlocked - QtySNAndLNBlocked);
     end;
 
-    procedure CalcQtyAvailToPutAway(ExcludeQtyBase: Decimal): Decimal
+    procedure CalcQtyAvailToPutAway(ExcludeQtyBase: Decimal) Result: Decimal
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcQtyAvailToPutAway(Rec, ExcludeQtyBase, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         CalcFields("Quantity (Base)", "Positive Adjmt. Qty. (Base)", "Put-away Quantity (Base)");
         exit(
           Round("Max. Qty." * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()) -
           ("Quantity (Base)" + "Put-away Quantity (Base)" - ExcludeQtyBase + "Positive Adjmt. Qty. (Base)"));
     end;
 
-    procedure NeedToReplenish(ExcludeQtyBase: Decimal): Boolean
+    procedure NeedToReplenish(ExcludeQtyBase: Decimal) Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeNeedToReplenish(Rec, ExcludeQtyBase, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         CalcFields("Quantity (Base)", "Positive Adjmt. Qty. (Base)", "Put-away Quantity (Base)");
         exit(
           Round("Min. Qty." * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()) >
@@ -697,8 +718,15 @@ table 7302 "Bin Content"
           Abs("Put-away Quantity (Base)" - ExcludeQtyBase + "Positive Adjmt. Qty. (Base)"));
     end;
 
-    procedure CalcQtyToReplenish(ExcludeQtyBase: Decimal): Decimal
+    procedure CalcQtyToReplenish(ExcludeQtyBase: Decimal) Result: Decimal
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcQtyToReplenish(Rec, ExcludeQtyBase, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         CalcFields("Quantity (Base)", "Positive Adjmt. Qty. (Base)", "Put-away Quantity (Base)");
         exit(
           Round("Max. Qty." * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()) -
@@ -764,7 +792,13 @@ table 7302 "Bin Content"
         WhseActivLine: Record "Warehouse Activity Line";
         QtyAvailToPickBase: Decimal;
         QtyAvailToPick: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckDecreaseBinContent(Qty, QtyBase, DecreaseQtyBase, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Block Movement" in ["Block Movement"::Outbound, "Block Movement"::All] then
             FieldError("Block Movement");
 
@@ -803,14 +837,20 @@ table 7302 "Bin Content"
         end;
     end;
 
-    procedure CheckIncreaseBinContent(QtyBase: Decimal; DeductQtyBase: Decimal; DeductCubage: Decimal; DeductWeight: Decimal; PutawayCubage: Decimal; PutawayWeight: Decimal; CalledbyPosting: Boolean; IgnoreError: Boolean): Boolean
+    procedure CheckIncreaseBinContent(QtyBase: Decimal; DeductQtyBase: Decimal; DeductCubage: Decimal; DeductWeight: Decimal; PutawayCubage: Decimal; PutawayWeight: Decimal; CalledbyPosting: Boolean; IgnoreError: Boolean) Result: Boolean
     var
         WhseActivLine: Record "Warehouse Activity Line";
         WMSMgt: Codeunit "WMS Management";
         QtyAvailToPutAwayBase: Decimal;
         AvailableWeight: Decimal;
         AvailableCubage: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckIncreaseBinContent(Rec, QtyBase, DeductQtyBase, DeductCubage, DeductWeight, PutawayCubage, PutawayWeight, CalledbyPosting, IgnoreError, Result, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Block Movement" in ["Block Movement"::Inbound, "Block Movement"::All] then
             if not StockProposal then
                 FieldError("Block Movement");
@@ -1149,31 +1189,35 @@ table 7302 "Bin Content"
     var
         WarehouseJournalLine: Record "Warehouse Journal Line";
         WhseItemTrackingLine: Record "Whse. Item Tracking Line";
+        IsHandled: Boolean;
     begin
-        WarehouseJournalLine.SetRange("Location Code", "Location Code");
-        WarehouseJournalLine.SetRange("From Bin Code", "Bin Code");
-        WarehouseJournalLine.SetRange("Item No.", "Item No.");
-        WarehouseJournalLine.SetRange("Variant Code", "Variant Code");
-        OnCalcTotalNegativeAdjmtQtyBaseOnAfterSetFilters(WarehouseJournalLine, Rec);
-        if not TrackingFiltersExist() then begin
-            WarehouseJournalLine.CalcSums("Qty. (Absolute, Base)");
-            TotalNegativeAdjmtQtyBase := WarehouseJournalLine."Qty. (Absolute, Base)";
-        end else begin
-            WhseItemTrackingLine.SetRange("Location Code", "Location Code");
-            WhseItemTrackingLine.SetRange("Item No.", "Item No.");
-            WhseItemTrackingLine.SetRange("Variant Code", "Variant Code");
-            WhseItemTrackingLine.SetTrackingFilterFromBinContent(Rec);
-            WhseItemTrackingLine.SetRange("Source Type", DATABASE::"Warehouse Journal Line");
-            if WarehouseJournalLine.FindSet() then
-                repeat
-                    WhseItemTrackingLine.SetRange("Source ID", WarehouseJournalLine."Journal Batch Name");
-                    WhseItemTrackingLine.SetRange("Source Batch Name", WarehouseJournalLine."Journal Template Name");
-                    WhseItemTrackingLine.SetRange("Source Ref. No.", WarehouseJournalLine."Line No.");
-                    WhseItemTrackingLine.CalcSums("Quantity (Base)");
-                    TotalNegativeAdjmtQtyBase += WhseItemTrackingLine."Quantity (Base)";
-                until WarehouseJournalLine.Next() = 0;
+        IsHandled := false;
+        OnBeforeCalcTotalNegativeAdjmtQtyBase(Rec, TotalNegativeAdjmtQtyBase, IsHandled);
+        if not IsHandled then begin
+            WarehouseJournalLine.SetRange("Location Code", "Location Code");
+            WarehouseJournalLine.SetRange("From Bin Code", "Bin Code");
+            WarehouseJournalLine.SetRange("Item No.", "Item No.");
+            WarehouseJournalLine.SetRange("Variant Code", "Variant Code");
+            OnCalcTotalNegativeAdjmtQtyBaseOnAfterSetFilters(WarehouseJournalLine, Rec);
+            if not TrackingFiltersExist() then begin
+                WarehouseJournalLine.CalcSums("Qty. (Absolute, Base)");
+                TotalNegativeAdjmtQtyBase := WarehouseJournalLine."Qty. (Absolute, Base)";
+            end else begin
+                WhseItemTrackingLine.SetRange("Location Code", "Location Code");
+                WhseItemTrackingLine.SetRange("Item No.", "Item No.");
+                WhseItemTrackingLine.SetRange("Variant Code", "Variant Code");
+                WhseItemTrackingLine.SetTrackingFilterFromBinContent(Rec);
+                WhseItemTrackingLine.SetRange("Source Type", DATABASE::"Warehouse Journal Line");
+                if WarehouseJournalLine.FindSet() then
+                    repeat
+                        WhseItemTrackingLine.SetRange("Source ID", WarehouseJournalLine."Journal Batch Name");
+                        WhseItemTrackingLine.SetRange("Source Batch Name", WarehouseJournalLine."Journal Template Name");
+                        WhseItemTrackingLine.SetRange("Source Ref. No.", WarehouseJournalLine."Line No.");
+                        WhseItemTrackingLine.CalcSums("Quantity (Base)");
+                        TotalNegativeAdjmtQtyBase += WhseItemTrackingLine."Quantity (Base)";
+                    until WarehouseJournalLine.Next() = 0;
+            end;
         end;
-
         OnAfterCalcTotalNegativeAdjmtQtyBase(Rec, WarehouseJournalLine, TotalNegativeAdjmtQtyBase);
     end;
 
@@ -1349,6 +1393,16 @@ table 7302 "Bin Content"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcQtyAvailToPickIncludingDedicated(BinContent: Record "Bin Content"; ExcludeQtyBase: Decimal; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcQtyAvailToTakeUOM(BinContent: Record "Bin Content"; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterClearTrackingFilters(var BinContent: Record "Bin Content")
     begin
     end;
@@ -1424,12 +1478,37 @@ table 7302 "Bin Content"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcQtyAvailToPutAway(var BinContent: Record "Bin Content"; ExcludeQtyBase: Decimal; var Result: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcQtyToReplenish(var BinContent: Record "Bin Content"; ExcludeQtyBase: Decimal; var Result: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcTotalQtyAvailToTake(var BinContent: Record "Bin Content"; ExcludeQtyBase: Decimal; var Result: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcQtyUOM(var BinContent: Record "Bin Content"; var Result: Decimal; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckManualChange(var BinContent: Record "Bin Content"; xBinContent: Record "Bin Content"; CaptionField: Text[80]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckIncreaseBinContent(var BinContent: Record "Bin Content"; QtyBase: Decimal; DeductQtyBase: Decimal; DeductCubage: Decimal; DeductWeight: Decimal; PutawayCubage: Decimal; PutawayWeight: Decimal; CalledbyPosting: Boolean; IgnoreError: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDecreaseBinContent(Qty: Decimal; var QtyBase: Decimal; DecreaseQtyBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 
@@ -1445,6 +1524,16 @@ table 7302 "Bin Content"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcQtyAvailToTake(var BinContent: Record "Bin Content"; ExcludeQtyBase: Decimal; var QtyAvailToTake: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcTotalNegativeAdjmtQtyBase(var BinContent: Record "Bin Content"; var TotalNegativeAdjmtQtyBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNeedToReplenish(var BinContent: Record "Bin Content"; ExcludeQtyBase: Decimal; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
