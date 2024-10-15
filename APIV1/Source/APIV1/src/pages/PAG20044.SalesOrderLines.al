@@ -61,14 +61,8 @@ page 20044 "APIV1 - Sales Order Lines"
                         RegisterFieldSet(FIELDNO("No."));
                         RegisterFieldSet(FIELDNO("Item Id"));
 
-                        Item.SETRANGE(Id, "Item Id");
-
-                        IF NOT Item.FINDFIRST() THEN BEGIN
+                        IF NOT Item.GetBySystemId("Item Id") THEN BEGIN
                             InsertItem := TRUE;
-                            CheckIntegrationIdInUse();
-
-                            Item.Id := "Item Id";
-                            RegisterItemFieldSet(Item.FIELDNO(Id));
                             EXIT;
                         END;
 
@@ -150,7 +144,7 @@ page 20044 "APIV1 - Sales Order Lines"
                         RegisterFieldSet(FIELDNO(Description));
                     end;
                 }
-                field(unitOfMeasureId; UnitOfMeasureId)
+                field(unitOfMeasureId; UnitOfMeasureIdGlobal)
                 {
                     ApplicationArea = All;
                     Caption = 'UnitOfMeasureId', Locked = true;
@@ -162,7 +156,7 @@ page 20044 "APIV1 - Sales Order Lines"
                         GraphMgtSalesInvLines: Codeunit "Graph Mgt - Sales Inv. Lines";
                         BlankGUID: Guid;
                     begin
-                        VALIDATE("Unit of Measure Id", UnitOfMeasureId);
+                        VALIDATE("Unit of Measure Id", UnitOfMeasureIdGlobal);
                         SalesInvoiceAggregator.VerifyCanUpdateUOM(Rec);
 
                         IF (UnitOfMeasureJSON = 'null') AND ("Unit of Measure Id" <> BlankGUID) THEN
@@ -171,11 +165,10 @@ page 20044 "APIV1 - Sales Order Lines"
                         IF "Unit of Measure Id" = BlankGUID THEN
                             "Unit of Measure Code" := ''
                         ELSE BEGIN
-                            UnitOfMeasure.SETRANGE(Id, "Unit of Measure Id");
-                            IF NOT UnitOfMeasure.FINDFIRST() THEN
+                            IF NOT UnitOfMeasureGlobal.GetBySystemId("Unit of Measure Id") THEN
                                 ERROR(UnitOfMeasureIdDoesNotMatchAUnitOfMeasureErr);
 
-                            "Unit of Measure Code" := UnitOfMeasure.Code;
+                            "Unit of Measure Code" := UnitOfMeasureGlobal.Code;
                         END;
 
                         RegisterFieldSet(FIELDNO("Unit of Measure Code"));
@@ -183,8 +176,7 @@ page 20044 "APIV1 - Sales Order Lines"
                         IF InsertItem THEN
                             EXIT;
 
-                        Item.SETRANGE(Id, "Item Id");
-                        IF Item.FINDFIRST() THEN
+                        IF Item.GetBySystemId("Item Id") THEN
                             SalesInvoiceAggregator.UpdateUnitOfMeasure(Item, GraphMgtSalesInvLines.GetUnitOfMeasureJSON(Rec));
                     end;
                 }
@@ -209,9 +201,9 @@ page 20044 "APIV1 - Sales Order Lines"
                         ELSE
                             GraphCollectionMgtItem.ParseJSONToUnitOfMeasure(UnitOfMeasureJSON, TempUnitOfMeasure);
 
-                        IF (UnitOfMeasureJSON = 'null') AND (UnitOfMeasure.Code <> '') THEN
+                        IF (UnitOfMeasureJSON = 'null') AND (UnitOfMeasureGlobal.Code <> '') THEN
                             EXIT;
-                        IF (UnitOfMeasure.Code <> '') AND (UnitOfMeasure.Code <> TempUnitOfMeasure.Code) THEN
+                        IF (UnitOfMeasureGlobal.Code <> '') AND (UnitOfMeasureGlobal.Code <> TempUnitOfMeasure.Code) THEN
                             ERROR(UnitOfMeasureValuesDontMatchErr);
 
                         "Unit of Measure Code" := TempUnitOfMeasure.Code;
@@ -220,8 +212,7 @@ page 20044 "APIV1 - Sales Order Lines"
                         IF InsertItem THEN
                             EXIT;
 
-                        Item.SETRANGE(Id, "Item Id");
-                        IF Item.FINDFIRST() THEN
+                        IF Item.GetBySystemId("Item Id") THEN
                             IF UnitOfMeasureJSON = 'null' THEN
                                 SalesInvoiceAggregator.UpdateUnitOfMeasure(Item, GraphMgtSalesInvLines.GetUnitOfMeasureJSON(Rec))
                             ELSE
@@ -491,7 +482,7 @@ page 20044 "APIV1 - Sales Order Lines"
         TempFieldBuffer: Record "Field Buffer" temporary;
         TempItemFieldSet: Record 2000000041 temporary;
         Item: Record "Item";
-        UnitOfMeasure: Record "Unit of Measure";
+        UnitOfMeasureGlobal: Record "Unit of Measure";
         UnitOfMeasureJSON: Text;
         LineObjectDetailsJSON: Text;
         LinesLoaded: Boolean;
@@ -500,12 +491,10 @@ page 20044 "APIV1 - Sales Order Lines"
         CannotChangeIdNoErr: Label 'The value for id cannot be modified.', Locked = true;
         CannotChangeDocumentIdNoErr: Label 'The value for documentId cannot be modified.', Locked = true;
         CannotChangeLineNoErr: Label 'The value for sequence cannot be modified. Delete and insert the line again.', Locked = true;
-        ItemWasDeletedErr: Label 'The item was deleted.', Locked = true;
-        IdIsAlreadyUsedErr: Label 'The id is already in use.', Locked = true;
         BothItemIdAndAccountIdAreSpecifiedErr: Label 'Both itemId and accountId are specified. Specify only one of them.';
         UnitOfMeasureValuesDontMatchErr: Label 'The unit of measure values do not match to a specific Unit of Measure.', Locked = true;
         UnitOfMeasureIdDoesNotMatchAUnitOfMeasureErr: Label 'The "unitOfMeasureId" does not match to a Unit of Measure.', Locked = true;
-        UnitOfMeasureId: Guid;
+        UnitOfMeasureIdGlobal: Guid;
 
     local procedure RegisterFieldSet(FieldNo: Integer)
     var
@@ -533,7 +522,7 @@ page 20044 "APIV1 - Sales Order Lines"
         CLEAR(UnitOfMeasureJSON);
         CLEAR(InsertItem);
         CLEAR(LineObjectDetailsJSON);
-        CLEAR(UnitOfMeasureId);
+        CLEAR(UnitOfMeasureIdGlobal);
     end;
 
     local procedure SetCalculatedFields()
@@ -543,7 +532,7 @@ page 20044 "APIV1 - Sales Order Lines"
     begin
         LineObjectDetailsJSON := GraphMgtComplexTypes.GetSalesLineDescriptionComplexType(Rec);
         UnitOfMeasureJSON := GraphMgtSalesInvLines.GetUnitOfMeasureJSON(Rec);
-        UnitOfMeasureId := "Unit of Measure Id";
+        UnitOfMeasureIdGlobal := "Unit of Measure Id";
     end;
 
     local procedure RegisterItemFieldSet(FieldNo: Integer)
@@ -555,19 +544,6 @@ page 20044 "APIV1 - Sales Order Lines"
         TempItemFieldSet.TableNo := DATABASE::Item;
         TempItemFieldSet.VALIDATE("No.", FieldNo);
         TempItemFieldSet.INSERT(TRUE);
-    end;
-
-    local procedure CheckIntegrationIdInUse()
-    var
-        IntegrationRecord: Record "Integration Record";
-    begin
-        IF NOT IntegrationRecord.GET("Item Id") THEN
-            EXIT;
-
-        IF IntegrationRecord."Table ID" = DATABASE::Item THEN
-            ERROR(ItemWasDeletedErr);
-
-        ERROR(IdIsAlreadyUsedErr);
     end;
 
     local procedure InsertItemOnTheFly()

@@ -222,8 +222,9 @@ table 5103 "Interaction Tmpl. Language"
                       UpperCase(AttachmentRecord."File Extension") +
                       ' (*.' + AttachmentRecord."File Extension" + ')|*.' + AttachmentRecord."File Extension";
                     ExportToFile := "Interaction Template Code" + '.' + AttachmentRecord."File Extension";
-                    Download(
-                      AttachmentRecord."Storage Pointer" + '\' + Format(AttachmentRecord."No.") + '.', Text005, '', FileFilter, ExportToFile);
+                    FileMgt.DownloadHandler(
+                      AttachmentRecord."Storage Pointer" + '\' + Format(AttachmentRecord."No.") + '.' + AttachmentRecord."File Extension",
+                      Text005, '', FileFilter, ExportToFile);
                 end;
         end;
     end;

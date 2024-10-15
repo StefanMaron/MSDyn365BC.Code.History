@@ -354,7 +354,7 @@ table 246 "Requisition Line"
                     Validate("Starting Date");
             end;
         }
-        field(22; "Vendor Item No."; Text[20])
+        field(22; "Vendor Item No."; Text[50])
         {
             Caption = 'Vendor Item No.';
         }

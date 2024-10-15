@@ -236,7 +236,7 @@ codeunit 6301 "Power BI Service Mgt."
         DotNetDateTime: DotNet DateTime;
         BlobStream: InStream;
         AzureAccessToken: Text;
-        FinancialsAccessToken: Text;
+        BusinessCentralAccessToken: Text;
         BlobId: Guid;
     begin
         // Uploads a default report
@@ -288,13 +288,15 @@ codeunit 6301 "Power BI Service Mgt."
                 AzureAccessToken := AzureAdMgt.GetAccessToken(GetPowerBIResourceUrl, GetPowerBiResourceName, false);
 
                 PbiServiceWrapper := PbiServiceWrapper.ServiceWrapper(AzureAccessToken, UrlHelper.GetPowerBIApiUrl);
-                FinancialsAccessToken := AzureAdMgt.GetAccessToken(UrlHelper.GetFinancialsResourceUrl, '', false);
+                BusinessCentralAccessToken := AzureAdMgt.GetAccessToken(UrlHelper.GetFixedEndpointWebServiceUrl(), '', false);
 
-                if FinancialsAccessToken <> '' then
+                if BusinessCentralAccessToken <> '' then
                     ApiResponseList := PbiServiceWrapper.ImportReports(ApiRequestList,
-                        CompanyName, EnvNameTxt, FinancialsAccessToken, GetServiceRetries)
-                else
+                        CompanyName, EnvNameTxt, BusinessCentralAccessToken, GetServiceRetries)
+                else begin
+                    SetIsDeployingReports(false);
                     exit;
+                end;
             end else begin
                 ApiResponseList := ApiResponseList.ImportReportResponseList;
                 OnUploadReports(ApiRequestList, ApiResponseList);
@@ -346,7 +348,7 @@ codeunit 6301 "Power BI Service Mgt."
         ApiResponse: DotNet ImportedReportResponse;
         DotNetDateTime: DotNet DateTime;
         AzureAccessToken: Text;
-        FinancialsAccessToken: Text;
+        BusinessCentralAccessToken: Text;
     begin
         // Retries a batch of default reports that have had their uploads started but not finished, based on
         // the passed in priority (see DoesDefaultReportMatchPriority). This will attempt to have the PBI service
@@ -373,11 +375,11 @@ codeunit 6301 "Power BI Service Mgt."
                 AzureAccessToken := AzureAdMgt.GetAccessToken(GetPowerBIResourceUrl, GetPowerBiResourceName, false);
 
                 PbiServiceWrapper := PbiServiceWrapper.ServiceWrapper(AzureAccessToken, UrlHelper.GetPowerBIApiUrl);
-                FinancialsAccessToken := AzureAdMgt.GetAccessToken(UrlHelper.GetFinancialsResourceUrl, '', false);
+                BusinessCentralAccessToken := AzureAdMgt.GetAccessToken(UrlHelper.GetFixedEndpointWebServiceUrl(), '', false);
 
-                if FinancialsAccessToken <> '' then
+                if BusinessCentralAccessToken <> '' then
                     ApiResponseList := PbiServiceWrapper.GetImportedReports(ImportIdList,
-                        CompanyName, EnvNameTxt, FinancialsAccessToken, GetServiceRetries)
+                        CompanyName, EnvNameTxt, BusinessCentralAccessToken, GetServiceRetries)
                 else
                     exit;
             end else begin

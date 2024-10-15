@@ -30,10 +30,12 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         WorkflowMgt: Codeunit "Workflow Management";
         CreateAppReqrespDescForApproverChainTxt: Label 'Create an approval request for the record using approver type Approver and approver limit type Approver Chain.';
         CreateAppReqrespDescForUserGrpTxt: Label 'Create an approval request for the record using approver type Workflow User Group and workflow user group code %1.', Comment = '%1 is a code. Example: GU00001';
+        CreateNotificationForUserTxt: Label 'Create a notification for %1.';
         ShowMessageTestMsg: Label 'This is just a test message.';
         RecordRestrictedErr: Label 'You cannot use %1 for this action.', Comment = 'You cannot use Customer 10000 for this action.';
         RecHasBeenApprovedMsg: Label 'has been approved.';
         PendingApprovalMsg: Label 'An approval request has been sent.';
+        SenderTok: Label '<Sender>';
         ApplyNewValuesTestMsg: Label 'The current value of the field is different from the value before the change.';
         NoRecordChangesFoundMsg: Label 'No record changes exist to apply the saved values to using the current options.';
         LibraryJobQueue: Codeunit "Library - Job Queue";
@@ -1877,6 +1879,34 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // Verify - Description
         Assert.AreEqual(StrSubstNo(CreateAppReqrespDescForUserGrpTxt, WorkflowUserGroup.Code),
           Description, 'Description text is not built as expected.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateApprReqRespDescForNotifySenderTest()
+    var
+        WorkflowStepArgument: Record "Workflow Step Argument";
+        WorkflowUserGroup: Record "Workflow User Group";
+        WorkflowResponseHandling: Codeunit "Workflow Response Handling";
+        Description: Text;
+    begin
+        // [SCENARIO] Description for 'Create notification entry' response when "Notify Sender" is 'Yes'.
+
+        // Setup - Cleanup
+        Initialize;
+
+        // [GIVEN] Create CreateNotificationEntry response.
+        LibraryWorkflow.CreateWorkflowStepArgument(WorkflowStepArgument, WorkflowStepArgument.Type::Response,
+          '', '', '', WorkflowStepArgument."Approver Type"::Approver, true);
+        WorkflowStepArgument.Validate("Response Function Name", WorkflowResponseHandling.CreateNotificationEntryCode());
+        WorkflowStepArgument.Validate("Notify Sender", True);
+        WorkflowStepArgument.Modify(true);
+
+        // [WHEN] GetDescription is called on the CreateNotificationEntry response.
+        Description := WorkflowResponseHandling.GetDescription(WorkflowStepArgument);
+
+        // [THEN] It returns 'Create a notification for <Sender>.' 
+        Assert.AreEqual(StrSubstNo(CreateNotificationForUserTxt, SenderTok), Description, 'Description text is not built as expected.');
     end;
 
     [Test]

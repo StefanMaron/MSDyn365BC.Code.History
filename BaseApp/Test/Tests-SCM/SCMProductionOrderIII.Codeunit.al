@@ -3176,6 +3176,99 @@ codeunit 137079 "SCM Production Order III"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure BinCodeIsFromProdBinCodeForLocationWithDirectedPAAndPick()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+    begin
+        // [FEATURE] [Bin] [UT]
+        // [SCENARIO 321444] Bin Code is by default blank on production order despite the "From-Production Bin Code" setting on location with directed put-away and pick.
+        Initialize;
+
+        LibraryInventory.CreateItem(Item);
+
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", LibraryRandom.RandInt(10));
+
+        ProductionOrder.Validate("Location Code", LocationWhite.Code);
+
+        ProductionOrder.TestField("Bin Code", '');
+        LocationWhite.TestField("From-Production Bin Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BinCodeIsNotOverriddenToDefaultForLocationWithDirectedPAAndPick()
+    var
+        Item: Record Item;
+        Zone: Record Zone;
+        Bin: Record Bin;
+        BinContent: Record "Bin Content";
+        ProductionOrder: Record "Production Order";
+        FromProdBinCode: Code[20];
+    begin
+        // [FEATURE] [Bin] [UT]
+        // [SCENARIO 321444] Bin Code is not set to "Default Bin" when you select location code with enabled directed put-away and pick on production order and "From-Production Bin Code" is not defined.
+        Initialize;
+
+        LocationWhite.Find;
+        FromProdBinCode := LocationWhite."From-Production Bin Code";
+        LocationWhite."From-Production Bin Code" := '';
+        LocationWhite.Modify;
+
+        LibraryInventory.CreateItem(Item);
+
+        LibraryWarehouse.FindZone(Zone, LocationWhite.Code, LibraryWarehouse.SelectBinType(false, false, true, true), false);
+        LibraryWarehouse.FindBin(Bin, LocationWhite.Code, Zone.Code, 1);
+        LibraryWarehouse.CreateBinContent(BinContent, LocationWhite.Code, Zone.Code, Bin.Code, Item."No.", '', Item."Base Unit of Measure");
+        BinContent.Validate(Default, true);
+        BinContent.Modify(true);
+
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", LibraryRandom.RandInt(10));
+
+        ProductionOrder.Validate("Location Code", LocationWhite.Code);
+
+        ProductionOrder.TestField("Bin Code", '');
+
+        // tear down
+        LocationWhite."From-Production Bin Code" := FromProdBinCode;
+        LocationWhite.Modify;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BinCodeIsOverriddenToDefaultForBasicWMSLocation()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        Bin: Record Bin;
+        BinContent: Record "Bin Content";
+        ProductionOrder: Record "Production Order";
+    begin
+        // [FEATURE] [Bin] [UT]
+        // [SCENARIO 321444] Bin Code is set to "Default Bin" when you select a location with disabled directed put-away and pick on production order and "From-Production Bin Code" is not defined.
+        Initialize;
+
+        LibraryInventory.CreateItem(Item);
+
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBinContent(BinContent, Location.Code, '', Bin.Code, Item."No.", '', Item."Base Unit of Measure");
+        BinContent.Validate(Default, true);
+        BinContent.Modify(true);
+
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", LibraryRandom.RandInt(10));
+
+        ProductionOrder.Validate("Location Code", Location.Code);
+
+        ProductionOrder.TestField("Bin Code", Bin.Code);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Production Order III");

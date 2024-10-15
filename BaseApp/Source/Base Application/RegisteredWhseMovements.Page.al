@@ -117,7 +117,8 @@ page 9345 "Registered Whse. Movements"
                     XmlParameters: Text;
                 begin
                     XmlParameters := DeleteRegisteredWhseDocs.RunRequestPage(ReportParametersTxt);
-                    REPORT.Execute(REPORT::"Delete Registered Whse. Docs.", XmlParameters);
+                    if XmlParameters <> '' then
+                        REPORT.Execute(REPORT::"Delete Registered Whse. Docs.", XmlParameters);
                 end;
             }
         }

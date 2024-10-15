@@ -704,7 +704,7 @@ report 1305 "Standard Sales - Order Conf."
                         CurrReport.Skip;
                     if not VATClause.Get("VAT Clause Code") then
                         CurrReport.Skip;
-                    VATClause.TranslateDescription(Header."Language Code");
+                    VATClause.GetDescription(Header);
                 end;
             }
             dataitem(ReportTotalsLine; "Report Totals Buffer")

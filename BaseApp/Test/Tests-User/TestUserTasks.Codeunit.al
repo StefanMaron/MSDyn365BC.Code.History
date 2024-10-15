@@ -153,14 +153,13 @@
     [Test]
     [Scope('OnPrem')]
     [TransactionModel(TransactionModel::AutoRollback)]
-    [TestPermissions(TestPermissions::Restrictive)]
     procedure TestRenameUser()
     var
-        // WorkflowStepInstanceArchive: Record "Workflow Step Instance Archive";
         User: Record User;
         FieldRec: Record "Field";
         Company: Record Company;
         TableInformation: Record "Table Information";
+        TempTablesAlreadyInserted: Record Integer temporary;
         RecRef: RecordRef;
         FldRef: FieldRef;
         UserMgt: Codeunit "User Management";
@@ -177,17 +176,26 @@
                 TableInformation.SetRange("Table No.", FieldRec.TableNo);
                 if TableInformation.FindFirst then begin
                     RecRef.Open(FieldRec.TableNo, false, Company.Name);
-                    RecRef.DeleteAll();
-                    RecRef.Init();
-                    FldRef := RecRef.Field(FieldRec."No.");
-                    FldRef.Value('OLD');
-                    RecRef.Insert();
+                    if TempTablesAlreadyInserted.Get(FieldRec.TableNo) then begin
+                        RecRef.FindFirst();
+                        FldRef := RecRef.Field(FieldRec."No.");
+                        FldRef.Value('OLD');
+                        RecRef.Modify();
+                    end else begin
+                        RecRef.DeleteAll();
+                        RecRef.Init();
+                        FldRef := RecRef.Field(FieldRec."No.");
+                        FldRef.Value('OLD');
+                        RecRef.Insert();
+                        TempTablesAlreadyInserted.Init();
+                        TempTablesAlreadyInserted.Number := FieldRec.TableNo;
+                        TempTablesAlreadyInserted.Insert();
+                    end;
                     RecRef.Close();
                 end;
             until FieldRec.Next() = 0;
 
         // [WHEN] RenameUser is invoked
-        LibraryLowerPermissions.SetO365BusFull();
         UserMgt.RenameUser('OLD', 'NEW');
 
         // [THEN] The data in the table fields has been updated
@@ -199,7 +207,7 @@
                     RecRef.Open(FieldRec.TableNo, false, Company.Name);
                     FldRef := RecRef.Field(FieldRec."No.");
                     FldRef.SetRange('NEW');
-                    Assert.AreEqual(1, RecRef.Count(), 'Records with new username should exist.');
+                    Assert.AreEqual(1, RecRef.Count(), StrSubstNo('Records with new username should exist in %1.', TableInformation."Table Name"));
                     RecRef.Close();
                 end;
             until FieldRec.Next() = 0;

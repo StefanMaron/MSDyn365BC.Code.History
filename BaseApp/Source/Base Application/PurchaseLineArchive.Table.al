@@ -253,7 +253,7 @@ table 5110 "Purchase Line Archive"
             AutoFormatType = 1;
             Caption = 'Inv. Discount Amount';
         }
-        field(70; "Vendor Item No."; Text[20])
+        field(70; "Vendor Item No."; Text[50])
         {
             Caption = 'Vendor Item No.';
         }

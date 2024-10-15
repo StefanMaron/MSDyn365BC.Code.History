@@ -95,57 +95,59 @@ report 7310 "Calculate Bins"
                 group(Options)
                 {
                     Caption = 'Options';
-                    field(BinTemplateCode; BinCreateFilter.Code)
+                    field(BinTemplateCode; BinTemplateFilter.Code)
                     {
                         ApplicationArea = Warehouse;
                         Caption = 'Bin Template Code';
                         ToolTip = 'Specifies the code for the bin. ';
 
                         trigger OnLookup(var Text: Text): Boolean
+                        var
+                            BinTemplates: Page "Bin Templates";
                         begin
                             if CurrLocationCode <> '' then begin
-                                BinCreateFilter.FilterGroup := 2;
-                                BinCreateFilter.SetRange("Location Code", CurrLocationCode);
-                                BinCreateFilter.FilterGroup := 0;
+                                BinTemplateFilter.FilterGroup := 2;
+                                BinTemplateFilter.SetRange("Location Code", CurrLocationCode);
+                                BinTemplateFilter.FilterGroup := 0;
                             end;
-                            Clear(BinTemplateForm);
-                            BinTemplateForm.SetTableView(BinCreateFilter);
-                            BinTemplateForm.Editable(false);
-                            BinTemplateForm.LookupMode(true);
-                            if BinTemplateForm.RunModal = ACTION::LookupOK then begin
-                                BinTemplateForm.GetRecord(BinCreateFilter);
-                                BinCreateFilter.Validate(Code);
-                                BinCreateFilter.TestField("Location Code");
+                            Clear(BinTemplates);
+                            BinTemplates.SetTableView(BinTemplateFilter);
+                            BinTemplates.Editable(false);
+                            BinTemplates.LookupMode(true);
+                            if BinTemplates.RunModal = ACTION::LookupOK then begin
+                                BinTemplates.GetRecord(BinTemplateFilter);
+                                BinTemplateFilter.Validate(Code);
+                                BinTemplateFilter.TestField("Location Code");
                             end;
                         end;
 
                         trigger OnValidate()
                         begin
-                            if BinCreateFilter.Code <> '' then begin
-                                BinCreateFilter.Get(BinCreateFilter.Code);
-                                BinCreateFilter.TestField("Location Code");
+                            if BinTemplateFilter.Code <> '' then begin
+                                BinTemplateFilter.Get(BinTemplateFilter.Code);
+                                BinTemplateFilter.TestField("Location Code");
                             end else begin
-                                BinCreateFilter.Code := '';
-                                BinCreateFilter.Description := '';
-                                BinCreateFilter."Location Code" := '';
-                                BinCreateFilter."Zone Code" := '';
+                                BinTemplateFilter.Code := '';
+                                BinTemplateFilter.Description := '';
+                                BinTemplateFilter."Location Code" := '';
+                                BinTemplateFilter."Zone Code" := '';
                             end;
                         end;
                     }
-                    field("BinCreateFilter.Description"; BinCreateFilter.Description)
+                    field("BinTemplateFilter.Description"; BinTemplateFilter.Description)
                     {
                         ApplicationArea = Warehouse;
                         Caption = 'Description';
                         ToolTip = 'Specifies the description of the bin.';
                     }
-                    field("BinCreateFilter.""Location Code"""; BinCreateFilter."Location Code")
+                    field("BinTemplateFilter.""Location Code"""; BinTemplateFilter."Location Code")
                     {
                         ApplicationArea = Warehouse;
                         Caption = 'Location Code';
                         Editable = false;
                         ToolTip = 'Specifies the location where the warehouse activity takes place. ';
                     }
-                    field("BinCreateFilter.""Zone Code"""; BinCreateFilter."Zone Code")
+                    field("BinTemplateFilter.""Zone Code"""; BinTemplateFilter."Zone Code")
                     {
                         ApplicationArea = Warehouse;
                         Caption = 'Zone Code';
@@ -278,38 +280,37 @@ report 7310 "Calculate Bins"
 
     trigger OnPreReport()
     begin
-        BinCreateFilter.TestField(Code);
-        if BinCreateFilter.Get(BinCreateFilter.Code) then;
-        BinCreateWkshLine.SetRange("Worksheet Template Name", CurrTemplateName);
-        BinCreateWkshLine.SetRange(Name, CurrWorksheetName);
-        BinCreateWkshLine.SetRange("Location Code", CurrLocationCode);
-        if BinCreateWkshLine.FindLast then
-            LineNo := BinCreateWkshLine."Line No." + 10000
+        BinTemplateFilter.TestField(Code);
+        if BinTemplateFilter.Get(BinTemplateFilter.Code) then;
+        BinCreationWkshLine.SetRange("Worksheet Template Name", CurrTemplateName);
+        BinCreationWkshLine.SetRange(Name, CurrWorksheetName);
+        BinCreationWkshLine.SetRange("Location Code", CurrLocationCode);
+        if BinCreationWkshLine.FindLast then
+            LineNo := BinCreationWkshLine."Line No." + 10000
         else
             LineNo := 10000;
-        BinCreateWkshLine.Init;
-        with BinCreateWkshLine do begin
+        BinCreationWkshLine.Init;
+        with BinCreationWkshLine do begin
             "Worksheet Template Name" := CurrTemplateName;
             Name := CurrWorksheetName;
             "Location Code" := CurrLocationCode;
-            Dedicated := BinCreateFilter.Dedicated;
-            "Zone Code" := BinCreateFilter."Zone Code";
-            Description := BinCreateFilter."Bin Description";
-            "Bin Type Code" := BinCreateFilter."Bin Type Code";
-            "Warehouse Class Code" := BinCreateFilter."Warehouse Class Code";
-            "Block Movement" := BinCreateFilter."Block Movement";
-            "Special Equipment Code" := BinCreateFilter."Special Equipment Code";
-            "Bin Ranking" := BinCreateFilter."Bin Ranking";
-            "Maximum Cubage" := BinCreateFilter."Maximum Cubage";
-            "Maximum Weight" := BinCreateFilter."Maximum Weight";
+            Dedicated := BinTemplateFilter.Dedicated;
+            "Zone Code" := BinTemplateFilter."Zone Code";
+            Description := BinTemplateFilter."Bin Description";
+            "Bin Type Code" := BinTemplateFilter."Bin Type Code";
+            "Warehouse Class Code" := BinTemplateFilter."Warehouse Class Code";
+            "Block Movement" := BinTemplateFilter."Block Movement";
+            "Special Equipment Code" := BinTemplateFilter."Special Equipment Code";
+            "Bin Ranking" := BinTemplateFilter."Bin Ranking";
+            "Maximum Cubage" := BinTemplateFilter."Maximum Cubage";
+            "Maximum Weight" := BinTemplateFilter."Maximum Weight";
         end;
     end;
 
     var
         Bin: Record Bin;
-        BinCreateFilter: Record "Bin Template";
-        BinCreateWkshLine: Record "Bin Creation Worksheet Line";
-        BinTemplateForm: Page "Bin Templates";
+        BinTemplateFilter: Record "Bin Template";
+        BinCreationWkshLine: Record "Bin Creation Worksheet Line";
         CurrTemplateName: Code[10];
         CurrWorksheetName: Code[10];
         CurrLocationCode: Code[10];
@@ -331,22 +332,24 @@ report 7310 "Calculate Bins"
 
     local procedure BinCreateWksh()
     begin
+        OnBeforeBinCreateWksh(BinCreationWkshLine, BinTemplateFilter);
+
         LenFieldSeparator := 0;
         if FieldSeparator <> '' then
             LenFieldSeparator := 2;
 
-        if (StrLen(Rack + Section + Level) + LenFieldSeparator) > MaxStrLen(BinCreateWkshLine."Bin Code") then
-            Error(Text000, MaxStrLen(BinCreateWkshLine."Bin Code"));
+        if (StrLen(Rack + Section + Level) + LenFieldSeparator) > MaxStrLen(BinCreationWkshLine."Bin Code") then
+            Error(Text000, MaxStrLen(BinCreationWkshLine."Bin Code"));
 
-        BinCreateWkshLine."Line No." := LineNo;
-        BinCreateWkshLine."Bin Code" := Rack + FieldSeparator + Section + FieldSeparator + Level;
+        BinCreationWkshLine."Line No." := LineNo;
+        BinCreationWkshLine."Bin Code" :=
+          CopyStr(Rack + FieldSeparator + Section + FieldSeparator + Level, 1, MaxStrLen(BinCreationWkshLine."Bin Code"));
         if not CheckOnBin then
-            BinCreateWkshLine.Insert(true)
+            BinCreationWkshLine.Insert(true)
         else begin
-            if Bin.Get(BinCreateWkshLine."Location Code", BinCreateWkshLine."Bin Code") then
-                exit
-                ;
-            BinCreateWkshLine.Insert(true);
+            if Bin.Get(BinCreationWkshLine."Location Code", BinCreationWkshLine."Bin Code") then
+                exit;
+            BinCreationWkshLine.Insert(true);
         end;
         LineNo := LineNo + 10000;
     end;
@@ -356,6 +359,11 @@ report 7310 "Calculate Bins"
         CurrTemplateName := TemplateName;
         CurrWorksheetName := WorksheetName;
         CurrLocationCode := LocationCode;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeBinCreateWksh(var BinCreationWorksheetLine: Record "Bin Creation Worksheet Line"; BinTemplate: Record "Bin Template")
+    begin
     end;
 }
 

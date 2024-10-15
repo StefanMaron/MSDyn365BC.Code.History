@@ -486,7 +486,7 @@ page 11309 "Apply General Ledger Entries"
         end;
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure UpdateAmounts()
     begin
         ShowAppliedAmount := 0;

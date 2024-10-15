@@ -267,7 +267,7 @@ codeunit 1543 "Workflow Webhook Management"
             DATABASE::"Gen. Journal Line":
                 begin
                     RecRef.SetTable(GenJournalLine);
-                    WorkflowWebhookEntry."Data ID" := GenJournalLine.Id;
+                    WorkflowWebhookEntry."Data ID" := GenJournalLine.SystemId;
                 end;
             DATABASE::Item:
                 begin

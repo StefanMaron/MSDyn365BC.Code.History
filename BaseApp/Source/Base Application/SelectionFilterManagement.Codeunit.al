@@ -350,5 +350,13 @@ codeunit 46 SelectionFilterManagement
         RecRef.GetTable(PurchaseHeader);
         exit(GetSelectionFilter(RecRef, PurchaseHeader.FieldNo("No.")));
     end;
+
+    procedure GetSelectionFilterForAggregatePermissionSetRoleId(var AggregatePermissionSet: Record "Aggregate Permission Set"): Text
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(AggregatePermissionSet);
+        exit(GetSelectionFilter(RecRef, AggregatePermissionSet.FieldNo("Role ID")));
+    end;
 }
 

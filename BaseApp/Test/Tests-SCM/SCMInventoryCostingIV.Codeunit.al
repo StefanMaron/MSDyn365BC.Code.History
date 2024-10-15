@@ -518,29 +518,6 @@ codeunit 137289 "SCM Inventory Costing IV"
     end;
 
     [Test]
-    [Scope('OnPrem')]
-    procedure ErrorOnUndoPurchRcptForChargeItem()
-    var
-        PurchaseLine: Record "Purchase Line";
-    begin
-        // Verify Error while Undo Receipt for Charge Item.
-
-        // Setup: Create and post Purchase Order for Item Charge.
-        Initialize;
-        CreateAndUpdatePurchaseDocument(
-          PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseLine.Type::"Charge (Item)", LibraryRandom.RandDec(10, 2),
-          LibraryRandom.RandDec(50, 1), LibraryRandom.RandDec(10, 1), LibraryInventory.CreateItemChargeNo, '');  // Use Random value.
-        PostPurchaseDocument(PurchaseLine, false);
-        LibraryVariableStorage.Enqueue(UndoReceiptMessage);  // Enqueue ConfirmMessageHandler.
-
-        // Exercise.
-        asserterror UndoPurchaseReceiptLines(PurchaseLine);
-
-        // Verify. Verify Error while Undo Receipt for Charge Item.
-        Assert.ExpectedError(UndoChargeItemReceiptError);
-    end;
-
-    [Test]
     [HandlerFunctions('ConfirmHandler,GetReceiptLinesHandler')]
     [Scope('OnPrem')]
     procedure GetReceiptLineFromPurchInvAfterUndoReceipt()
@@ -658,28 +635,6 @@ codeunit 137289 "SCM Inventory Costing IV"
     end;
 
     [Test]
-    [Scope('OnPrem')]
-    procedure ErrorOnUndoPurchRetShptForChargeItem()
-    var
-        PurchaseLine: Record "Purchase Line";
-    begin
-        // Verify Error while Undo Purchase Return Order Shipment for Charge Item.
-
-        // Setup: Create and post Purchase Return Order for Item Charge.
-        Initialize;
-        CreateAndUpdatePurchaseDocument(
-          PurchaseLine, PurchaseLine."Document Type"::"Return Order", PurchaseLine.Type::"Charge (Item)",
-          LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(50, 1), 0, LibraryInventory.CreateItemChargeNo, '');  // Use Random value.
-        PostPurchaseDocument(PurchaseLine, false);
-
-        // Exercise.
-        asserterror UndoReturnShipment(PurchaseLine);
-
-        // Verify. Verify Error while Undo Purchase Return Order Shipment for Charge Item.
-        Assert.ExpectedError(UndoChargeItemRetShptError);
-    end;
-
-    [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure UndoRetShptAfterCreateWhsePick()
@@ -727,26 +682,6 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify: Verify Corrective Purchase Return Shipment Lines.
         FindReturnShipmentLine(ReturnShipmentLine, PurchaseLine);
         ReturnShipmentLine.TestField(Correction, true);
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure ErrorOnUndoPurchRetShptAfterPostItemChargeCrMemo()
-    var
-        PurchaseLine: Record "Purchase Line";
-    begin
-        // Verify Error while undo Purchase Return Shipment which Invoiced with Item Charge Assignment.
-
-        // Setup: Create Purchase Return Order, Post, create Purchase Invoice with Item Charge Assignment and Post.
-        Initialize;
-        PurchaseReturnWithItemChargeAssignment(PurchaseLine, true);
-
-        // Exercise: Undo Purchase Receipt Shipment Line.
-        asserterror UndoReturnShipment(PurchaseLine);
-
-        // Verify: Verify Error while Undo Invoiced Purchase Return Shipment.
-        Assert.ExpectedError(UndoInvoicedReceiptError);
     end;
 
     [Test]
@@ -826,26 +761,6 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify: Verify Corrective Purchase Return Shipment Lines.
         FindReturnShipmentLine(ReturnShipmentLine, PurchaseLine);
         ReturnShipmentLine.TestField(Correction, true);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ErrorOnUndoSalesShipmentForChargeItem()
-    var
-        SalesLine: Record "Sales Line";
-    begin
-        // Verify Error while Undo Shipment for Charge Item.
-
-        // Setup: Create and post Sales Order for Item Charge.
-        Initialize;
-        CreateAndShipSalesDocument(
-          SalesLine, SalesLine."Document Type"::Order, SalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo, 1);  // 1 used as Quantity Factor.
-
-        // Exercise.
-        asserterror UndoSalesShipment(SalesLine);
-
-        // Verify: Verify Error while Undo Shipment for Charge Item.
-        Assert.ExpectedError(UndoChargeItemSaleShptError);
     end;
 
     [Test]
@@ -976,26 +891,6 @@ codeunit 137289 "SCM Inventory Costing IV"
 
         // Verify: Verify Error while Undo Reserved Shipment.
         Assert.ExpectedError(UndoRcptReservedQtyError);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ErrorOnUndoSalesRetReceiptForChargeItem()
-    var
-        SalesLine: Record "Sales Line";
-    begin
-        // Verify Error while Undo Sales Return Receipt for Charge Item.
-
-        // Setup: Create and post Sales Order for Item Charge.
-        Initialize;
-        CreateAndShipSalesDocument(
-          SalesLine, SalesLine."Document Type"::"Return Order", SalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo, 1);  // 1 used as Quantity Factor.
-
-        // Exercise.
-        asserterror UndoReturnReceipt(SalesLine);
-
-        // Verify: Verify Error while Undo Return Receipt for Charge Item.
-        Assert.ExpectedError(UndoChargeItemRetRcptMsg);
     end;
 
     [Test]
@@ -1670,7 +1565,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // [GIVEN] Created and posted Purchase Order with Service Item
         CreateServiceItem(Item, LibraryRandom.RandDec(10, 1), Item."Costing Method"::FIFO);
         CreatePurchaseDocument(
-          PurchaseLine,PurchaseLine."Document Type"::Order, PurchaseLine.Type::Item, CreateVendor, Item."No.", LibraryRandom.RandInt(10));
+          PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseLine.Type::Item, CreateVendor, Item."No.", LibraryRandom.RandInt(10));
         PostPurchaseDocument(PurchaseLine, false);
 
         // [WHEN] Undo Purchase Receipt

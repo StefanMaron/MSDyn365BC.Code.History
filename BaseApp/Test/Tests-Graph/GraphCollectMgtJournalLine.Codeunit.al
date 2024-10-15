@@ -713,18 +713,16 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         // [GIVEN] a G/L Account with Direct Posting enabled
         AccountNo := LibraryGraphJournalLines.CreateAccount;
 
-        // [GIVEN] a Journal Line with Account No but empty Account Id and Id
+        // [GIVEN] a Journal Line with Account No but empty Account Id
         LineNo := LibraryGraphJournalLines.CreateJournalLine(JournalName, AccountNo, BlankGUID, 0, '');
         GenJournalLine.Reset;
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Journal Batch Name", JournalName);
         GenJournalLine.SetRange("Line No.", LineNo);
         GenJournalLine.FindFirst;
-        GenJournalLine.Id := BlankGUID;
         GenJournalLine.Modify(false);
 
         // [WHEN] we run the functions of HandleApiSetup
-        GraphMgtJournalLines.UpdateIntegrationRecords(false);
         GraphMgtJournalLines.UpdateIds;
 
         // [THEN] the Id and AccountId should be set
@@ -733,7 +731,6 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         GenJournalLine.SetRange("Journal Batch Name", JournalName);
         GenJournalLine.SetRange("Line No.", LineNo);
         GenJournalLine.FindFirst;
-        Assert.AreEqual(false, IsNullGuid(GenJournalLine.Id), 'The Id should not be empty');
         Assert.AreEqual(false, IsNullGuid(GenJournalLine."Account Id"), 'The Account Id should not be empty');
     end;
 

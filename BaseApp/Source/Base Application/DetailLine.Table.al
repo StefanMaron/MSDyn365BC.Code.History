@@ -31,60 +31,65 @@ table 11000003 "Detail Line"
             var
                 TrMode: Record "Transaction Mode";
                 CompanyInfo: Record "Company Information";
-                Custm: Record Customer;
+                Cust: Record Customer;
                 Vend: Record Vendor;
                 Empl: Record Employee;
+                IsHandled: Boolean;
             begin
                 TrMode.Get("Account Type", "Transaction Mode");
                 case "Account Type" of
                     "Account Type"::Customer:
                         begin
                             GetCustomerEntries;
-                            CustEntries.TestField(Open, true);
-                            CustEntries.TestField("Customer No.", "Account No.");
-                            "Currency Code (Entry)" := CustEntries."Currency Code";
-                            Custm.Get(CustEntries."Customer No.");
-                            if Custm."Our Account No." <> '' then
+                            CustLedgEntry.TestField(Open, true);
+                            CustLedgEntry.TestField("Customer No.", "Account No.");
+                            "Currency Code (Entry)" := CustLedgEntry."Currency Code";
+                            Cust.Get(CustLedgEntry."Customer No.");
+                            if Cust."Our Account No." <> '' then
                                 Description :=
                                   CopyStr(
                                     StrSubstNo(
                                       Text1000001,
-                                      CustEntries."Document Type",
-                                      CustEntries."Document No.",
-                                      Custm."Our Account No."), 1, MaxStrLen(Description))
+                                      CustLedgEntry."Document Type",
+                                      CustLedgEntry."Document No.",
+                                      Cust."Our Account No."), 1, MaxStrLen(Description))
                             else begin
                                 CompanyInfo.Get;
                                 Description :=
                                   CopyStr(
                                     StrSubstNo(
                                       '%1 %2 %3',
-                                      CustEntries."Document Type",
-                                      CustEntries."Document No.",
+                                      CustLedgEntry."Document Type",
+                                      CustLedgEntry."Document No.",
                                       CompanyInfo.Name), 1, MaxStrLen(Description));
                             end;
-                            if TrMode."Pmt. Disc. Possible" and
-                               (CustEntries."Original Pmt. Disc. Possible" <> 0) and
-                               (CustEntries."Pmt. Discount Date" >= Date)
-                            then
-                                Validate("Amount (Entry)", -(CustEntries."Remaining Amount" - CustEntries."Original Pmt. Disc. Possible") -
-                                  CalculateTotalAmount("Currency Code (Entry)"))
-                            else
-                                Validate("Amount (Entry)", -CustEntries."Remaining Amount" - CalculateTotalAmount("Currency Code (Entry)"));
+
+                            IsHandled := false;
+                            OnValidateSerialNoEntryOnBeforeValidateAmountFromCustLedgEntry(Rec, TrMode, CustLedgEntry, IsHandled);
+                            if not IsHandled then
+                                if TrMode."Pmt. Disc. Possible" and
+                                (CustLedgEntry."Original Pmt. Disc. Possible" <> 0) and
+                                (CustLedgEntry."Pmt. Discount Date" >= Date)
+                                then
+                                    Validate("Amount (Entry)", -(CustLedgEntry."Remaining Amount" - CustLedgEntry."Original Pmt. Disc. Possible") -
+                                    CalculateTotalAmount("Currency Code (Entry)"))
+                                else
+                                    Validate("Amount (Entry)", -CustLedgEntry."Remaining Amount" - CalculateTotalAmount("Currency Code (Entry)"));
                         end;
                     "Account Type"::Vendor:
                         begin
                             GetVendorEntries;
-                            VendEntries.TestField(Open, true);
-                            VendEntries.TestField("Vendor No.", "Account No.");
-                            "Currency Code (Entry)" := VendEntries."Currency Code";
-                            Vend.Get(VendEntries."Vendor No.");
+                            VendLedgEntry.TestField(Open, true);
+                            VendLedgEntry.TestField("Vendor No.", "Account No.");
+                            "Currency Code (Entry)" := VendLedgEntry."Currency Code";
+                            Vend.Get(VendLedgEntry."Vendor No.");
                             if Vend."Our Account No." <> '' then
                                 Description :=
                                   CopyStr(
                                     StrSubstNo(
                                       Text1000002,
-                                      VendEntries."Document Type",
-                                      VendEntries."External Document No.",
+                                      VendLedgEntry."Document Type",
+                                      VendLedgEntry."External Document No.",
                                       Vend."Our Account No."), 1, MaxStrLen(Description))
                             else begin
                                 CompanyInfo.Get;
@@ -92,18 +97,22 @@ table 11000003 "Detail Line"
                                   CopyStr(
                                     StrSubstNo(
                                       '%1 %2 %3',
-                                      VendEntries."Document Type",
-                                      VendEntries."External Document No.",
+                                      VendLedgEntry."Document Type",
+                                      VendLedgEntry."External Document No.",
                                       CompanyInfo.Name), 1, MaxStrLen(Description));
                             end;
-                            if TrMode."Pmt. Disc. Possible" and
-                               (VendEntries."Original Pmt. Disc. Possible" <> 0) and
-                               (VendEntries."Pmt. Discount Date" >= Date)
-                            then
-                                Validate("Amount (Entry)", -(VendEntries."Remaining Amount" - VendEntries."Original Pmt. Disc. Possible") -
-                                  CalculateTotalAmount("Currency Code (Entry)"))
-                            else
-                                Validate("Amount (Entry)", -VendEntries."Remaining Amount" - CalculateTotalAmount("Currency Code (Entry)"));
+
+                            IsHandled := false;
+                            OnValidateSerialNoEntryOnBeforeValidateAmountFromVendLedgEntry(Rec, TrMode, VendLedgEntry, IsHandled);
+                            if not IsHandled then
+                                if TrMode."Pmt. Disc. Possible" and
+                                (VendLedgEntry."Original Pmt. Disc. Possible" <> 0) and
+                                (VendLedgEntry."Pmt. Discount Date" >= Date)
+                                then
+                                    Validate("Amount (Entry)", -(VendLedgEntry."Remaining Amount" - VendLedgEntry."Original Pmt. Disc. Possible") -
+                                    CalculateTotalAmount("Currency Code (Entry)"))
+                                else
+                                    Validate("Amount (Entry)", -VendLedgEntry."Remaining Amount" - CalculateTotalAmount("Currency Code (Entry)"));
                         end;
                     "Account Type"::Employee:
                         begin
@@ -120,7 +129,11 @@ table 11000003 "Detail Line"
                                   EmployeeLedgerEntry."Document Type",
                                   EmployeeLedgerEntry."Document No.",
                                   CompanyInfo.Name), 1, MaxStrLen(Description));
-                            Validate("Amount (Entry)", -EmployeeLedgerEntry."Remaining Amount" - CalculateTotalAmount("Currency Code (Entry)"));
+
+                            IsHandled := false;
+                            OnValidateSerialNoEntryOnBeforeValidateAmountFromEmplLedgEntry(Rec, TrMode, EmployeeLedgerEntry, IsHandled);
+                            if not IsHandled then
+                                Validate("Amount (Entry)", -EmployeeLedgerEntry."Remaining Amount" - CalculateTotalAmount("Currency Code (Entry)"));
                         end;
                 end;
             end;
@@ -234,14 +247,14 @@ table 11000003 "Detail Line"
                     "Account Type"::Customer:
                         begin
                             if GetCustomerEntries then
-                                "Remaining Amount" := -CustEntries."Remaining Amount"
+                                "Remaining Amount" := -CustLedgEntry."Remaining Amount"
                             else
                                 "Remaining Amount" := 0;
                         end;
                     "Account Type"::Vendor:
                         begin
                             if GetVendorEntries then
-                                "Remaining Amount" := -VendEntries."Remaining Amount"
+                                "Remaining Amount" := -VendLedgEntry."Remaining Amount"
                             else
                                 "Remaining Amount" := 0;
                         end;
@@ -343,15 +356,14 @@ table 11000003 "Detail Line"
         Text1000003: Label 'The sign does not correspond with the outstanding entry.';
         Text1000004: Label 'The outstanding amount is exceeded by %1.';
         CurrencyExchangeRate: Record "Currency Exchange Rate";
-        CustEntries: Record "Cust. Ledger Entry";
-        VendEntries: Record "Vendor Ledger Entry";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        VendLedgEntry: Record "Vendor Ledger Entry";
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
         AmountValidate: Boolean;
         EntryCurrency: Record Currency;
         BankCur: Record Currency;
 
-    [Scope('OnPrem')]
-    procedure CalculateBalance(UseCurrency: Code[10]) Total: Decimal
+    procedure CalculateBalance(UseCurrency: Code[10]) Balance: Decimal
     begin
         // always in currency of the entry (Entry currency)
         if "Serial No. (Entry)" <> 0 then
@@ -359,43 +371,44 @@ table 11000003 "Detail Line"
                 "Account Type"::Customer:
                     begin
                         GetCustomerEntries;
-                        Total := -CustEntries."Remaining Amount";
+                        Balance := -CustLedgEntry."Remaining Amount";
                     end;
                 "Account Type"::Vendor:
                     begin
                         GetVendorEntries;
-                        VendEntries.CalcFields("Remaining Amount");
-                        Total := -VendEntries."Remaining Amount";
+                        VendLedgEntry.CalcFields("Remaining Amount");
+                        Balance := -VendLedgEntry."Remaining Amount";
                     end;
                 "Account Type"::Employee:
                     begin
                         GetEmployeeEntries;
                         EmployeeLedgerEntry.CalcFields("Remaining Amount");
-                        Total := -EmployeeLedgerEntry."Remaining Amount";
+                        Balance := -EmployeeLedgerEntry."Remaining Amount";
                     end;
             end;
+
+        OnCalculateBalanceOnBeforeConvertToCurrency(Rec, VendLedgEntry, CustLedgEntry, Balance);
         if UseCurrency <> "Currency Code (Entry)" then
-            Total := CurrencyExchangeRate.ExchangeAmtFCYToFCY(Date, "Currency Code (Entry)", UseCurrency, Total);
+            Balance := CurrencyExchangeRate.ExchangeAmtFCYToFCY(Date, "Currency Code (Entry)", UseCurrency, Balance);
     end;
 
-    [Scope('OnPrem')]
-    procedure CalculateTotalAmount(UseCurrency: Code[10]) Total: Decimal
+    local procedure CalculateTotalAmount(UseCurrency: Code[10]) Total: Decimal
     var
-        "Detail line": Record "Detail Line";
+        DetailLine: Record "Detail Line";
     begin
-        "Detail line".SetCurrentKey("Account Type", "Serial No. (Entry)");
-        "Detail line".SetRange("Account Type", "Account Type");
-        "Detail line".SetRange("Serial No. (Entry)", "Serial No. (Entry)");
-        "Detail line".SetFilter(Status, '%1|%2', Status::Proposal, Status::"In process");
-        "Detail line".SetFilter("Transaction No.", '<>%1', "Transaction No.");
-        "Detail line".CalcSums("Amount (Entry)");
+        DetailLine.SetCurrentKey("Account Type", "Serial No. (Entry)");
+        DetailLine.SetRange("Account Type", "Account Type");
+        DetailLine.SetRange("Serial No. (Entry)", "Serial No. (Entry)");
+        DetailLine.SetFilter(Status, '%1|%2', Status::Proposal, Status::"In process");
+        DetailLine.SetFilter("Transaction No.", '<>%1', "Transaction No.");
+        OnCalculateTotalAmountOnBeforeCalcSums(Rec, DetailLine, VendLedgEntry, CustLedgEntry);
+        DetailLine.CalcSums("Amount (Entry)");
         if UseCurrency <> "Currency Code (Entry)" then
             Total := CurrencyExchangeRate.ExchangeAmtFCYToFCY(Date, "Currency Code (Entry)", UseCurrency, "Amount (Entry)")
         else
-            Total := "Detail line"."Amount (Entry)";
+            Total := DetailLine."Amount (Entry)";
     end;
 
-    [Scope('OnPrem')]
     procedure CalculatePartOfBalance() Percent: Decimal
     var
         Totamount: Decimal;
@@ -410,28 +423,25 @@ table 11000003 "Detail Line"
                 Percent := 0;
     end;
 
-    [Scope('OnPrem')]
-    procedure GetCustomerEntries() OK: Boolean
+    local procedure GetCustomerEntries() OK: Boolean
     begin
-        if "Serial No. (Entry)" <> CustEntries."Entry No." then begin
-            OK := CustEntries.Get("Serial No. (Entry)");
-            CustEntries.CalcFields("Remaining Amount");
+        if "Serial No. (Entry)" <> CustLedgEntry."Entry No." then begin
+            OK := CustLedgEntry.Get("Serial No. (Entry)");
+            CustLedgEntry.CalcFields("Remaining Amount");
         end else
             OK := true;
     end;
 
-    [Scope('OnPrem')]
-    procedure GetVendorEntries() OK: Boolean
+    local procedure GetVendorEntries() OK: Boolean
     begin
-        if "Serial No. (Entry)" <> VendEntries."Entry No." then begin
-            OK := VendEntries.Get("Serial No. (Entry)");
-            VendEntries.CalcFields("Remaining Amount");
+        if "Serial No. (Entry)" <> VendLedgEntry."Entry No." then begin
+            OK := VendLedgEntry.Get("Serial No. (Entry)");
+            VendLedgEntry.CalcFields("Remaining Amount");
         end else
             OK := true;
     end;
 
-    [Scope('OnPrem')]
-    procedure GetEmployeeEntries() OK: Boolean
+    local procedure GetEmployeeEntries() OK: Boolean
     begin
         if "Serial No. (Entry)" <> EmployeeLedgerEntry."Entry No." then begin
             OK := EmployeeLedgerEntry.Get("Serial No. (Entry)");
@@ -440,7 +450,6 @@ table 11000003 "Detail Line"
             OK := true;
     end;
 
-    [Scope('OnPrem')]
     procedure UpdateConnection()
     var
         Prop: Record "Proposal Line";
@@ -471,7 +480,6 @@ table 11000003 "Detail Line"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure InitRecord()
     var
         TrMode: Record "Transaction Mode";
@@ -509,8 +517,7 @@ table 11000003 "Detail Line"
             end;
     end;
 
-    [Scope('OnPrem')]
-    procedure CalculateVariation() Variation: Decimal
+    local procedure CalculateVariation() Variation: Decimal
     begin
         GetCurrency;
         if BankCur."Appln. Rounding Precision" <> 0 then
@@ -520,8 +527,7 @@ table 11000003 "Detail Line"
                 BankCur."Appln. Rounding Precision");
     end;
 
-    [Scope('OnPrem')]
-    procedure SerialnoPostingLookup()
+    local procedure SerialnoPostingLookup()
     var
         CustEntry: Page "Customer Ledger Entries";
         VenEntry: Page "Vendor Ledger Entries";
@@ -532,35 +538,35 @@ table 11000003 "Detail Line"
                 begin
                     if "Serial No. (Entry)" <> 0 then
                         GetCustomerEntries;
-                    CustEntries.SetCurrentKey("Customer No.", Open, Positive);
-                    CustEntries.SetRange("Customer No.", "Account No.");
+                    CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive);
+                    CustLedgEntry.SetRange("Customer No.", "Account No.");
                     if Status = Status::Proposal then
-                        CustEntries.SetRange(Open, true);
-                    CustEntry.SetRecord(CustEntries);
-                    CustEntry.SetTableView(CustEntries);
+                        CustLedgEntry.SetRange(Open, true);
+                    CustEntry.SetRecord(CustLedgEntry);
+                    CustEntry.SetTableView(CustLedgEntry);
                     CustEntry.LookupMode(true);
                     if CustEntry.RunModal = ACTION::LookupOK then begin
-                        CustEntry.GetRecord(CustEntries);
-                        Validate("Serial No. (Entry)", CustEntries."Entry No.");
+                        CustEntry.GetRecord(CustLedgEntry);
+                        Validate("Serial No. (Entry)", CustLedgEntry."Entry No.");
                     end;
-                    CustEntries.Reset;
+                    CustLedgEntry.Reset;
                 end;
             "Account Type"::Vendor:
                 begin
                     if "Serial No. (Entry)" <> 0 then
                         GetVendorEntries;
-                    VendEntries.SetCurrentKey("Vendor No.", Open, Positive);
-                    VendEntries.SetRange("Vendor No.", "Account No.");
+                    VendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive);
+                    VendLedgEntry.SetRange("Vendor No.", "Account No.");
                     if Status = Status::Proposal then
-                        VendEntries.SetRange(Open, true);
-                    VenEntry.SetRecord(VendEntries);
-                    VenEntry.SetTableView(VendEntries);
+                        VendLedgEntry.SetRange(Open, true);
+                    VenEntry.SetRecord(VendLedgEntry);
+                    VenEntry.SetTableView(VendLedgEntry);
                     VenEntry.LookupMode(true);
                     if VenEntry.RunModal = ACTION::LookupOK then begin
-                        VenEntry.GetRecord(VendEntries);
-                        Validate("Serial No. (Entry)", VendEntries."Entry No.");
+                        VenEntry.GetRecord(VendLedgEntry);
+                        Validate("Serial No. (Entry)", VendLedgEntry."Entry No.");
                     end;
-                    VendEntries.Reset;
+                    VendLedgEntry.Reset;
                 end;
             "Account Type"::Employee:
                 begin
@@ -580,6 +586,31 @@ table 11000003 "Detail Line"
                     EmployeeLedgerEntry.Reset;
                 end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateBalanceOnBeforeConvertToCurrency(var DetailLineRec: Record "Detail Line"; var VendLedgEntry: Record "Vendor Ledger Entry"; var CustLedgEntry: Record "Cust. Ledger Entry"; var Balance: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateTotalAmountOnBeforeCalcSums(var DetailLineRec: Record "Detail Line"; var DetailLine: Record "Detail Line"; var VendLedgEntry: Record "Vendor Ledger Entry"; var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateSerialNoEntryOnBeforeValidateAmountFromCustLedgEntry(var DetailLineRec: Record "Detail Line"; TrMode: Record "Transaction Mode"; CustLedgEntry: Record "Cust. Ledger Entry"; IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateSerialNoEntryOnBeforeValidateAmountFromVendLedgEntry(var DetailLineRec: Record "Detail Line"; TrMode: Record "Transaction Mode"; VendLedgEntry: Record "Vendor Ledger Entry"; IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateSerialNoEntryOnBeforeValidateAmountFromEmplLedgEntry(var DetailLineRec: Record "Detail Line"; TrMode: Record "Transaction Mode"; EmplLedgEntry: Record "Employee Ledger Entry"; IsHandled: Boolean)
+    begin
     end;
 }
 

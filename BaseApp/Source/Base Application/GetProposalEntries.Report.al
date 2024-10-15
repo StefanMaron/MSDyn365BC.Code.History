@@ -59,6 +59,8 @@ report 11000000 "Get Proposal Entries"
                 RequestFilterFields = "Vendor No.", "Recipient Bank Account";
 
                 trigger OnAfterGetRecord()
+                var
+                    Vend: Record Vendor;
                 begin
                     NumeratorPostings := NumeratorPostings + 1;
                     BatchStatus.Update(1, Round(NumeratorPostings / NumberOfEntries * 10000, 1));
@@ -107,6 +109,8 @@ report 11000000 "Get Proposal Entries"
                 RequestFilterFields = "Employee No.";
 
                 trigger OnAfterGetRecord()
+                var
+                    Empl: Record Employee;
                 begin
                     NumeratorPostings := NumeratorPostings + 1;
                     BatchStatus.Update(1, Round(NumeratorPostings / NumberOfEntries * 10000, 1));
@@ -157,56 +161,57 @@ report 11000000 "Get Proposal Entries"
                 TrMode.Get(DetailLine."Account Type", DetailLine."Transaction Mode");
 
                 if TrMode."Combine Entries" then begin
-                    Propline.Reset;
-                    Propline.SetCurrentKey("Our Bank No.", Process, "Account Type", "Account No.", Bank, "Transaction Mode", "Currency Code",
+                    ProposalLine.Reset;
+                    ProposalLine.SetCurrentKey("Our Bank No.", Process, "Account Type", "Account No.", Bank, "Transaction Mode", "Currency Code",
                       "Transaction Date");
-                    Propline.SetRange("Our Bank No.", DetailLine."Our Bank");
-                    Propline.SetRange("Account Type", DetailLine."Account Type");
-                    Propline.SetRange("Account No.", DetailLine."Account No.");
-                    Propline.SetRange(Bank, DetailLine.Bank);
-                    Propline.SetRange("Transaction Mode", DetailLine."Transaction Mode");
-                    Propline.SetRange("Currency Code", "Currency Code");
-                    Propline.SetRange("Foreign Currency", "Currency Code (Entry)");
-                    Propline.SetRange("Transaction Date", DetailLine.Date);
-
-                    Found := Propline.FindLast
+                    ProposalLine.SetRange("Our Bank No.", DetailLine."Our Bank");
+                    ProposalLine.SetRange("Account Type", DetailLine."Account Type");
+                    ProposalLine.SetRange("Account No.", DetailLine."Account No.");
+                    ProposalLine.SetRange(Bank, DetailLine.Bank);
+                    ProposalLine.SetRange("Transaction Mode", DetailLine."Transaction Mode");
+                    ProposalLine.SetRange("Currency Code", "Currency Code");
+                    ProposalLine.SetRange("Foreign Currency", "Currency Code (Entry)");
+                    ProposalLine.SetRange("Transaction Date", DetailLine.Date);
+                    OnAfterProposalLineSetFilters(ProposalLine, DetailLine);
+                    Found := ProposalLine.FindLast
                 end else
                     Found := false;
 
                 if not Found then begin
-                    Clear(Propline);
-                    Propline.SetRange("Our Bank No.", DetailLine."Our Bank");
-                    if Propline.FindLast then
-                        Propline."Line No." := Propline."Line No." + 10000
+                    Clear(ProposalLine);
+                    ProposalLine.SetRange("Our Bank No.", DetailLine."Our Bank");
+                    if ProposalLine.FindLast then
+                        ProposalLine."Line No." := ProposalLine."Line No." + 10000
                     else
-                        Propline."Line No." := 10000;
-                    Propline."Our Bank No." := DetailLine."Our Bank";
-                    Propline.Init;
-                    Propline.Validate("Account Type", DetailLine."Account Type");
-                    Propline.Validate("Account No.", DetailLine."Account No.");
-                    Propline.Validate(Bank, DetailLine.Bank);
-                    Propline.Validate("Transaction Mode", DetailLine."Transaction Mode");
-                    Propline.Validate("Currency Code", DetailLine."Currency Code");
-                    Propline."Transaction Date" := DetailLine.Date;
-                    Propline.Validate("Identification No. Series", TrMode."Identification No. Series");
-                    Propline.Insert(true);
+                        ProposalLine."Line No." := 10000;
+                    ProposalLine."Our Bank No." := DetailLine."Our Bank";
+                    ProposalLine.Init;
+                    ProposalLine.Validate("Account Type", DetailLine."Account Type");
+                    ProposalLine.Validate("Account No.", DetailLine."Account No.");
+                    ProposalLine.Validate(Bank, DetailLine.Bank);
+                    ProposalLine.Validate("Transaction Mode", DetailLine."Transaction Mode");
+                    ProposalLine.Validate("Currency Code", DetailLine."Currency Code");
+                    ProposalLine."Transaction Date" := DetailLine.Date;
+                    ProposalLine.Validate("Identification No. Series", TrMode."Identification No. Series");
+                    OnBeforeProposalLineInsert(ProposalLine, DetailLine);
+                    ProposalLine.Insert(true);
                 end;
 
-                DetailLine."Connect Lines" := Propline."Line No.";
+                DetailLine."Connect Lines" := ProposalLine."Line No.";
                 DetailLine.UpdateConnection;
                 DetailLine.Modify;
-                Propline.Get(DetailLine."Our Bank", DetailLine."Connect Lines");
-                if not "Proposal lines setup".CheckAProposalLine(Propline) then begin
-                    if Propline."Error Message" = '' then
+                ProposalLine.Get(DetailLine."Our Bank", DetailLine."Connect Lines");
+                if not ProcessProposalLines.CheckAProposalLine(ProposalLine) then begin
+                    if ProposalLine."Error Message" = '' then
                         NoOfErrors := NoOfErrors + 1;
                 end else begin
-                    if Propline."Error Message" <> '' then
+                    if ProposalLine."Error Message" <> '' then
                         NoOfErrors := NoOfErrors - 1;
                 end;
-                Propline."Error Message" := "Proposal lines setup".FinalError;
-                if Propline.Warning = '' then begin
-                    Propline.Warning := "Proposal lines setup".FinalWarning;
-                    if Propline.Warning <> '' then
+                ProposalLine."Error Message" := ProcessProposalLines.FinalError;
+                if ProposalLine.Warning = '' then begin
+                    ProposalLine.Warning := ProcessProposalLines.FinalWarning;
+                    if ProposalLine.Warning <> '' then
                         NumberOfWarnings := NumberOfWarnings + 1;
                 end;
                 case DetailLine."Account Type" of
@@ -215,8 +220,8 @@ report 11000000 "Get Proposal Entries"
                             CustEntry.Get(DetailLine."Serial No. (Entry)");
                             UseDocumentNo := CustEntry."Document No.";
                             if CustEntry."Document Type" <> CustEntry."Document Type"::Invoice then
-                                Propline.Docket := true;
-                            Propline.Validate("Salespers./Purch. Code", CustEntry."Salesperson Code");
+                                ProposalLine.Docket := true;
+                            ProposalLine.Validate("Salespers./Purch. Code", CustEntry."Salesperson Code");
                         end;
                     DetailLine."Account Type"::Vendor:
                         begin
@@ -226,59 +231,59 @@ report 11000000 "Get Proposal Entries"
                             else
                                 UseDocumentNo := VenEntry."Document No.";
                             if VenEntry."Document Type" <> VenEntry."Document Type"::Invoice then
-                                Propline.Docket := true;
-                            Propline.Validate("Salespers./Purch. Code", VenEntry."Purchaser Code");
+                                ProposalLine.Docket := true;
+                            ProposalLine.Validate("Salespers./Purch. Code", VenEntry."Purchaser Code");
                         end;
                     DetailLine."Account Type"::Employee:
                         begin
                             EmployeeLedgerEntry.Get(DetailLine."Serial No. (Entry)");
                             UseDocumentNo := EmployeeLedgerEntry."Document No.";
                             if EmployeeLedgerEntry."Document Type" <> EmployeeLedgerEntry."Document Type"::Invoice then
-                                Propline.Docket := true;
-                            Propline.Validate("Salespers./Purch. Code", EmployeeLedgerEntry."Salespers./Purch. Code");
+                                ProposalLine.Docket := true;
+                            ProposalLine.Validate("Salespers./Purch. Code", EmployeeLedgerEntry."Salespers./Purch. Code");
                         end;
                 end;
 
-                if not Propline.Docket then begin
-                    if Propline."Description 1" = '' then
-                        Propline."Description 1" := Text1000015;
-                    if StrLen(Propline."Description 1" + ' ' + UseDocumentNo) < MaxStrLen(Propline."Description 1") then
-                        Propline."Description 1" := DelChr(Propline."Description 1" + ' ' + UseDocumentNo, '<>')
+                if not ProposalLine.Docket then begin
+                    if ProposalLine."Description 1" = '' then
+                        ProposalLine."Description 1" := Text1000015;
+                    if StrLen(ProposalLine."Description 1" + ' ' + UseDocumentNo) < MaxStrLen(ProposalLine."Description 1") then
+                        ProposalLine."Description 1" := DelChr(ProposalLine."Description 1" + ' ' + UseDocumentNo, '<>')
                     else
-                        if StrLen(Propline."Description 2" + ' ' + UseDocumentNo) < MaxStrLen(Propline."Description 2") then
-                            Propline."Description 2" := DelChr(Propline."Description 2" + ' ' + UseDocumentNo, '<>')
+                        if StrLen(ProposalLine."Description 2" + ' ' + UseDocumentNo) < MaxStrLen(ProposalLine."Description 2") then
+                            ProposalLine."Description 2" := DelChr(ProposalLine."Description 2" + ' ' + UseDocumentNo, '<>')
                         else
-                            if StrLen(Propline."Description 3" + ' ' + UseDocumentNo) < MaxStrLen(Propline."Description 3") then
-                                Propline."Description 3" := DelChr(Propline."Description 3" + ' ' + UseDocumentNo, '<>')
+                            if StrLen(ProposalLine."Description 3" + ' ' + UseDocumentNo) < MaxStrLen(ProposalLine."Description 3") then
+                                ProposalLine."Description 3" := DelChr(ProposalLine."Description 3" + ' ' + UseDocumentNo, '<>')
                             else
-                                if StrLen(Propline."Description 4" + ' ' + UseDocumentNo) < MaxStrLen(Propline."Description 4") then
-                                    Propline."Description 4" := DelChr(Propline."Description 4" + ' ' + UseDocumentNo, '<>')
+                                if StrLen(ProposalLine."Description 4" + ' ' + UseDocumentNo) < MaxStrLen(ProposalLine."Description 4") then
+                                    ProposalLine."Description 4" := DelChr(ProposalLine."Description 4" + ' ' + UseDocumentNo, '<>')
                                 else
-                                    Propline.Docket := true;
+                                    ProposalLine.Docket := true;
                 end;
 
                 FillDescription;
 
-                if Propline.Identification = '' then begin
+                if ProposalLine.Identification = '' then begin
                     TrMode.TestField("Identification No. Series");
                     NoSeriesManagement.InitSeries(TrMode."Identification No. Series",
                       '',
-                      Propline."Transaction Date",
-                      Propline.Identification,
-                      Propline."Identification No. Series");
+                      ProposalLine."Transaction Date",
+                      ProposalLine.Identification,
+                      ProposalLine."Identification No. Series");
                 end;
 
-                Propline."Foreign Currency" := DetailLine."Currency Code (Entry)";
-                if Propline."Foreign Currency" <> Propline."Currency Code"
+                ProposalLine."Foreign Currency" := DetailLine."Currency Code (Entry)";
+                if ProposalLine."Foreign Currency" <> ProposalLine."Currency Code"
                 then
-                    Propline.Validate(
+                    ProposalLine.Validate(
                       "Foreign Amount",
                       Round(
                         CurrencyExchangeRate.ExchangeAmtFCYToFCY(
-                          Propline."Transaction Date", Propline."Currency Code", Propline."Foreign Currency", Propline.Amount),
-                        GetCurrencyAmountRoundingPrecision(Propline."Foreign Currency")));
+                          ProposalLine."Transaction Date", ProposalLine."Currency Code", ProposalLine."Foreign Currency", ProposalLine.Amount),
+                        GetCurrencyAmountRoundingPrecision(ProposalLine."Foreign Currency")));
 
-                Propline.Modify;
+                ProposalLine.Modify;
 
                 NumeratorDetailLines := NumeratorDetailLines + 1;
                 BatchStatus.Update(2, Round(NumeratorDetailLines / NumberOfDetailLines * 10000, 1));
@@ -442,48 +447,51 @@ report 11000000 "Get Proposal Entries"
         Text1000016: Label 'Collection order, see docket';
         Text1000017: Label 'Vendor No. %1';
         Text1000018: Label 'Customer No. %1';
+        DetailLine: Record "Detail Line";
+        ProposalLine: Record "Proposal Line";
+        TrMode: Record "Transaction Mode";
+        CompanyInfo: Record "Company Information";
+        ProcessProposalLines: Codeunit "Process Proposal Lines";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
         NumberOfEntries: Integer;
         NumeratorPostings: Integer;
         NumberOfDetailLines: Integer;
         NumeratorDetailLines: Integer;
         BatchStatus: Dialog;
-        DetailLine: Record "Detail Line";
-        Propline: Record "Proposal Line";
-        TrMode: Record "Transaction Mode";
         Found: Boolean;
-        "Proposal lines setup": Codeunit "Process Proposal Lines";
         NoOfErrors: Integer;
         NumberOfWarnings: Integer;
         "Value Date": Date;
         PmtDiscExpiryDate: Date;
-        Custm: Record Customer;
-        Vend: Record Vendor;
-        Empl: Record Employee;
-        CompanyInfo: Record "Company Information";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
         PartnerType: Option " ",Company,Person;
         EmployeeNoMsg: Label 'Employee No. %1', Comment = '%1=Employee number;';
 
     local procedure FillDescription()
+    var
+        Cust: Record Customer;
+        Vend: Record Vendor;
+        Empl: Record Employee;
     begin
         if DetailLine."Account No." <> '' then
             case DetailLine."Account Type" of
                 DetailLine."Account Type"::Customer:
                     begin
-                        Custm.Get(DetailLine."Account No.");
-                        UpdatePropLineDescription(Propline, Custm."Our Account No.", Text1000018);
+                        Cust.Get(DetailLine."Account No.");
+                        UpdatePropLineDescription(ProposalLine, Cust."Our Account No.", Text1000018);
                     end;
                 DetailLine."Account Type"::Vendor:
                     begin
                         Vend.Get(DetailLine."Account No.");
-                        UpdatePropLineDescription(Propline, Vend."Our Account No.", Text1000017);
+                        UpdatePropLineDescription(ProposalLine, Vend."Our Account No.", Text1000017);
                     end;
                 DetailLine."Account Type"::Employee:
                     begin
                         Empl.Get(DetailLine."Account No.");
-                        UpdatePropLineDescription(Propline, Empl."No.", EmployeeNoMsg);
+                        UpdatePropLineDescription(ProposalLine, Empl."No.", EmployeeNoMsg);
                     end;
             end;
+
+        OnAfterFillDescription(ProposalLine, DetailLine);
     end;
 
     local procedure UpdatePropLineDescription(var ProposalLine: Record "Proposal Line"; OurAccountNo: Text[20]; CVDescriptionFormat: Text)
@@ -511,14 +519,29 @@ report 11000000 "Get Proposal Entries"
 
     local procedure BlankForeignCurrencyWithSameCurrencyCode()
     begin
-        if Propline.FindSet(true) then
+        if ProposalLine.FindSet(true) then
             repeat
-                if Propline."Foreign Currency" = Propline."Currency Code" then begin
-                    Propline.Validate("Foreign Currency", '');
-                    Propline.Validate("Foreign Amount", 0);
-                    Propline.Modify;
+                if ProposalLine."Foreign Currency" = ProposalLine."Currency Code" then begin
+                    ProposalLine.Validate("Foreign Currency", '');
+                    ProposalLine.Validate("Foreign Amount", 0);
+                    ProposalLine.Modify;
                 end;
-            until Propline.Next = 0;
+            until ProposalLine.Next = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillDescription(var ProposalLine: Record "Proposal Line"; DetailLine: Record "Detail Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterProposalLineSetFilters(var ProposalLine: Record "Proposal Line"; DetailLine: Record "Detail Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProposalLineInsert(var ProposalLine: Record "Proposal Line"; DetailLine: Record "Detail Line")
+    begin
     end;
 }
 

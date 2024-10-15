@@ -3,6 +3,7 @@ report 11401 "CMR - Sales Shipment"
     DefaultLayout = RDLC;
     RDLCLayout = './CMRSalesShipment.rdlc';
     Caption = 'CMR - Sales Shipment';
+    ApplicationArea = Warehouse;
     UsageCategory = ReportsAndAnalysis;
 
     dataset

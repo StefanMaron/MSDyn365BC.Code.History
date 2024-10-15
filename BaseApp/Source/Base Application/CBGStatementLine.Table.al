@@ -714,7 +714,7 @@ table 11401 "CBG Statement Line"
         "Amount incl. VAT" := LastRecord."Amount incl. VAT";
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure UpdateLineBalance()
     begin
         if ((Amount > 0) and (not Correction)) or

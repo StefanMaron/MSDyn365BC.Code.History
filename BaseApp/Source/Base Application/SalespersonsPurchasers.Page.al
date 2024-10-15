@@ -4,6 +4,7 @@
     ApplicationArea = Basic, Suite;
     Caption = 'Salespeople/Purchasers';
     CardPageID = "Salesperson/Purchaser Card";
+    Editable = false;
     PageType = List;
     PromotedActionCategories = 'New,Process,Report,Salesperson';
     SourceTable = "Salesperson/Purchaser";

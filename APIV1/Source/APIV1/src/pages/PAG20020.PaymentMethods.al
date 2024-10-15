@@ -5,7 +5,7 @@ page 20020 "APIV1 - Payment Methods"
     DelayedInsert = true;
     EntityName = 'paymentMethod';
     EntitySetName = 'paymentMethods';
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = 289;
     Extensible = false;
@@ -16,7 +16,7 @@ page 20020 "APIV1 - Payment Methods"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'id', Locked = true;
@@ -79,12 +79,8 @@ page 20020 "APIV1 - Payment Methods"
     trigger OnModifyRecord(): Boolean
     var
         PaymentMethod: Record "Payment Method";
-        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        IF xRec.Id <> Id THEN
-            GraphMgtGeneralTools.ErrorIdImmutable();
-        PaymentMethod.SETRANGE(Id, Id);
-        PaymentMethod.FINDFIRST();
+        PaymentMethod.GetBySystemId(SystemId);
 
         IF Code = PaymentMethod.Code THEN
             MODIFY(TRUE)

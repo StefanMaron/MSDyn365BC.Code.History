@@ -305,7 +305,7 @@
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
 
                     trigger OnValidate()
@@ -521,10 +521,11 @@
                                 if "Pay-to Vendor No." <> xRec."Pay-to Vendor No." then
                                     SetRange("Pay-to Vendor No.");
 
+                            CurrPage.SaveRecord;
                             if ApplicationAreaMgmtFacade.IsFoundationEnabled then
                                 PurchCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
 
-                            CurrPage.Update;
+                            CurrPage.Update(false);
                         end;
                     }
                     field("Pay-to Address"; "Pay-to Address")
@@ -1240,7 +1241,7 @@
 
                     trigger OnAction()
                     begin
-                        PostDocument(CODEUNIT::"Purch.-Post (Yes/No)");
+                        PostDocument(CODEUNIT::"Purch.-Post (Yes/No)", NavigateAfterPost::"Posted Document");
                     end;
                 }
                 action(Preview)
@@ -1286,7 +1287,23 @@
 
                     trigger OnAction()
                     begin
-                        PostDocument(CODEUNIT::"Purch.-Post + Print");
+                        PostDocument(CODEUNIT::"Purch.-Post + Print", NavigateAfterPost::"Do Nothing");
+                    end;
+                }
+                action(PostAndNew)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Post and New';
+                    Ellipsis = true;
+                    Image = PostOrder;
+                    Promoted = true;
+                    PromotedCategory = Category8;
+                    ShortCutKey = 'Alt+F9';
+                    ToolTip = 'Post the purchase document and create a new, empty one.';
+
+                    trigger OnAction()
+                    begin
+                        PostDocument(CODEUNIT::"Purch.-Post (Yes/No)", NavigateAfterPost::"New Document");
                     end;
                 }
                 action("Remove From Job Queue")
@@ -1380,6 +1397,7 @@
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
         ShipToOptions: Option "Default (Vendor Address)","Alternate Vendor Address","Custom Address";
+        NavigateAfterPost: Option "Posted Document","New Document","Do Nothing";
         [InDataSet]
         JobQueueVisible: Boolean;
         [InDataSet]
@@ -1408,7 +1426,7 @@
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
     end;
 
-    local procedure PostDocument(PostingCodeunitID: Integer)
+    local procedure PostDocument(PostingCodeunitID: Integer; Navigate: Option)
     var
         PurchaseHeader: Record "Purchase Header";
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
@@ -1431,13 +1449,27 @@
         if PostingCodeunitID <> CODEUNIT::"Purch.-Post (Yes/No)" then
             exit;
 
-        if IsOfficeAddin then begin
-            PurchCrMemoHdr.SetRange("Pre-Assigned No.", "No.");
-            if PurchCrMemoHdr.FindFirst then
-                PAGE.Run(PAGE::"Posted Purchase Credit Memo", PurchCrMemoHdr);
-        end else
-            if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode) then
-                ShowPostedConfirmationMessage;
+        case Navigate of
+            NavigateAfterPost::"Posted Document":
+                begin
+                    if IsOfficeAddin then begin
+                        PurchCrMemoHdr.SetRange("Pre-Assigned No.", "No.");
+                        if PurchCrMemoHdr.FindFirst then
+                            PAGE.Run(PAGE::"Posted Purchase Credit Memo", PurchCrMemoHdr);
+                    end else
+                        if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode) then
+                            ShowPostedConfirmationMessage;
+                end;
+            NavigateAfterPost::"New Document":
+                if DocumentIsPosted then begin
+                    Clear(PurchaseHeader);
+                    PurchaseHeader.Init;
+                    PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
+                    OnPostDocumentOnBeforePurchaseHeaderInsert(PurchaseHeader);
+                    PurchaseHeader.Insert(true);
+                    PAGE.Run(PAGE::"Purchase Credit Memo", PurchaseHeader);
+                end;
+        end;
     end;
 
     local procedure ApproveCalcInvDisc()
@@ -1543,6 +1575,11 @@
             else
                 ShipToOptions := ShipToOptions::"Custom Address";
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDocumentOnBeforePurchaseHeaderInsert(var PurchaseHeader: Record "Purchase Header")
+    begin
     end;
 }
 

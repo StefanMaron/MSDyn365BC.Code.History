@@ -3,6 +3,7 @@ report 11402 "CMR - Transfer Shipment"
     DefaultLayout = RDLC;
     RDLCLayout = './CMRTransferShipment.rdlc';
     Caption = 'CMR - Transfer Shipment';
+    ApplicationArea = Warehouse;
     UsageCategory = ReportsAndAnalysis;
 
     dataset
