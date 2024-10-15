@@ -59,7 +59,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
         end;
 
         IsHandled := false;
-        OnCreateReservationOnBeforeCreateReservEntry(ItemJournalLine, Quantity, QuantityBase, ForReservationEntry, IsHandled);
+        OnCreateReservationOnBeforeCreateReservEntry(ItemJournalLine, Quantity, QuantityBase, ForReservationEntry, IsHandled, FromTrackingSpecification, ExpectedReceiptDate, Description, ShipmentDate);
         if not IsHandled then begin
             CreateReservEntry.CreateReservEntryFor(
                 Database::"Item Journal Line",
@@ -89,6 +89,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
     begin
         ReservationEntry.InitSortingAndFilters(false);
         ItemJournalLine.SetReservationFilters(ReservationEntry);
+        OnFindReservEntryOnBeforeReservationEntryFindLast(ReservationEntry, ItemJournalLine);
         exit(ReservationEntry.FindLast());
     end;
 
@@ -101,6 +102,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
     begin
         ReservationEntry.InitSortingAndFilters(false);
         ItemJournalLine.SetReservationFilters(ReservationEntry);
+        OnReservEntryExistOnBeforeReservationEntryIsEmpty(ReservationEntry, ItemJournalLine);
         exit(not ReservationEntry.IsEmpty());
     end;
 
@@ -524,6 +526,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
         if MatchThisTable(ForReservEntry."Source Type") then begin
             CreateReservationSetFrom(TrackingSpecification);
             SourceRecRef.SetTable(ItemJnlLine);
+            OnCreateReservationOnBeforeCreateReservation(ItemJnlLine, TrackingSpecification, Description, ExpectedDate, Quantity, QuantityBase, ForReservEntry);
             CreateReservation(ItemJnlLine, Description, ExpectedDate, Quantity, QuantityBase, ForReservEntry);
         end;
     end;
@@ -658,7 +661,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateReservationOnBeforeCreateReservEntry(var ItemJnlLine: Record "Item Journal Line"; var Quantity: Decimal; var QuantityBase: Decimal; var ForReservEntry: Record "Reservation Entry"; var IsHandled: Boolean)
+    local procedure OnCreateReservationOnBeforeCreateReservEntry(var ItemJnlLine: Record "Item Journal Line"; var Quantity: Decimal; var QuantityBase: Decimal; var ForReservEntry: Record "Reservation Entry"; var IsHandled: Boolean; var FromTrackingSpecification: Record "Tracking Specification"; ExpectedReceiptDate: Date; var Description: Text[100]; ShipmentDate: Date)
     begin
     end;
 
@@ -669,6 +672,21 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeVerifyChange(var NewItemJournalLine: Record "Item Journal Line"; OldItemJournalLine: Record "Item Journal Line"; var ReservationManagement: Codeunit "Reservation Management"; var Blocked: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReservEntryExistOnBeforeReservationEntryIsEmpty(var ReservationEntry: Record "Reservation Entry"; ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindReservEntryOnBeforeReservationEntryFindLast(var ReservationEntry: Record "Reservation Entry"; ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateReservationOnBeforeCreateReservation(var ItemJournalLine: Record "Item Journal Line"; var TrackingSpecification: Record "Tracking Specification"; var Description: Text[100]; var ExpectedDate: Date; var Quantity: Decimal; var QuantityBase: Decimal; var ReservationEntry: Record "Reservation Entry")
     begin
     end;
 }

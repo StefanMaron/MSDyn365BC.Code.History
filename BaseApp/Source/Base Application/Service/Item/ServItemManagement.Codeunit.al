@@ -297,6 +297,7 @@ codeunit 5920 ServItemManagement
     var
         ItemTrackingCode: Record "Item Tracking Code";
         PurchaseHeader: Record "Purchase Header";
+        ItemTrackingWarrantyDF: DateFormula;
         WarrantyStartDate: Date;
     begin
         ServItem."Sales/Serv. Shpt. Document No." := SalesShipmentLine."Document No.";
@@ -342,8 +343,10 @@ codeunit 5920 ServItemManagement
             ItemTrackingCode.Init();
 
         if TrackingLinesExist and (TempReservEntry."Warranty Date" <> 0D) then
-            if Format(ItemTrackingCode."Warranty Date Formula") <> '' then
-                WarrantyStartDate := CalcDate(StrSubstNo('<-%1>', ItemTrackingCode."Warranty Date Formula"), TempReservEntry."Warranty Date")
+            if Format(ItemTrackingCode."Warranty Date Formula") <> '' then begin
+                Evaluate(ItemTrackingWarrantyDF, StrSubstNo('-%1', ItemTrackingCode."Warranty Date Formula"));
+                WarrantyStartDate := CalcDate(ItemTrackingWarrantyDF, TempReservEntry."Warranty Date");
+            end
             else
                 WarrantyStartDate := TempReservEntry."Warranty Date"
         else begin

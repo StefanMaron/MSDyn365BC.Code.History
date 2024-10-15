@@ -193,6 +193,12 @@ codeunit 7200 "CDS Integration Mgt."
     end;
 
     [Scope('Cloud')]
+    procedure FindCompanyIdField(var RecRef: RecordRef; var CompanyIdFldRef: FieldRef): Boolean
+    begin
+        exit(CDSIntegrationImpl.FindCompanyIdField(RecRef, CompanyIdFldRef));
+    end;
+
+    [Scope('Cloud')]
     [IntegrationEvent(false, false)]
     procedure OnBeforeRegisterConnection()
     begin

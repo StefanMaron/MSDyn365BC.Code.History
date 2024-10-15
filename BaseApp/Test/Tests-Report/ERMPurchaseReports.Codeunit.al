@@ -1385,6 +1385,7 @@ codeunit 134983 "ERM Purchase Reports"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         PurchInvHeader: Record "Purch. Inv. Header";
+        PurchInvLine: Record "Purch. Inv. Line";
         PurchaseInvoice: Report "Purchase - Invoice";
         PostedDocumentNo: Code[20];
     begin
@@ -1396,6 +1397,8 @@ codeunit 134983 "ERM Purchase Reports"
         PurchaseHeader.Validate("Prices Including VAT", true);
         PurchaseHeader.Modify(true);
         PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        PurchInvLine.SetRange("Document No.", PostedDocumentNo);
+        PurchInvLine.FindFirst();
 
         // [WHEN] Run "Purchase Invoice" report
         Clear(PurchaseInvoice);
@@ -1406,7 +1409,7 @@ codeunit 134983 "ERM Purchase Reports"
 
         // [THEN] The Total Amount = 100
         LibraryReportValidation.OpenExcelFile();
-        LibraryReportValidation.VerifyCellValue(85, 27, LibraryReportValidation.FormatDecimalValue(PurchaseLine.Amount));
+        LibraryReportValidation.VerifyCellValue(85, 27, LibraryReportValidation.FormatDecimalValue(PurchInvLine.Amount));
     end;
 
     [Test]
