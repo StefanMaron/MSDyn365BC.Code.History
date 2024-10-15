@@ -25,14 +25,14 @@ report 11110 "VAT Statement AT"
                 trigger OnPostDataItem()
                 begin
                     for i := 1 to 99 do begin
-                        if i in [22, 29, 6, 37, 52, 7] then
+                        if i in [22, 29, 6, 37, 52, 7, 9] then
                             if Position[i] < 0 then begin
                                 Position[1000] := Position[1000] - Position[i];
                                 Position[i] := 0;
                                 Position[1090] := Position[1090] + Position[i + 1000];
                                 Position[i + 1000] := 0;
                             end;
-                        if i in [72, 73, 8, 88] then
+                        if i in [72, 73, 8, 88, 10] then
                             if Position[i] < 0 then begin
                                 Position[70] := Position[70] - Position[i];
                                 Position[1090] := Position[1090] + Position[i + 1000];
@@ -518,7 +518,7 @@ report 11110 "VAT Statement AT"
         then
             Error(TaxFreeBiggerErr);
 
-        if (Position[22] + Position[29] + Position[6] + Position[37] + Position[52] + Position[7]) <>
+        if (Position[22] + Position[29] + Position[6] + Position[37] + Position[52] + Position[7] + Position[9]) <>
            (Position[1000] + Position[1001] - Position[1021]) -
            (Position[1011] + Position[1012] + Position[1015] + Position[1017] +
             Position[1018] + Position[1019] + Position[1016] + Position[1020])
@@ -531,7 +531,7 @@ report 11110 "VAT Statement AT"
         if Position[71] > Position[70] then
             Error(TaxFreeECBiggerErr);
 
-        if Position[70] - Position[71] <> Position[72] + Position[73] + Position[8] + Position[88] then
+        if Position[70] - Position[71] <> Position[72] + Position[73] + Position[8] + Position[88] + Position[10] then
             Error(TaxableRevDiffersErr);
 
         if ((Position[1057] = 0) and (Position[1066] <> 0)) or ((Position[1057] <> 0) and (Position[1066] = 0)) then
@@ -650,6 +650,7 @@ report 11110 "VAT Statement AT"
         WriteFDFDataForPosition(37, 'Zahl118a');
         WriteFDFDataForPosition(52, 'Zahl119a');
         WriteFDFDataForPosition(7, 'Zahl120a');
+        WriteFDFDataForPosition(9, 'Zahl121a');
         WriteFDFDataForPosition(1056, 'Zahl123');
         WriteFDFDataForPosition(1057, 'Zahl124');
         WriteFDFDataForPosition(1048, 'Zahl125');
@@ -661,6 +662,7 @@ report 11110 "VAT Statement AT"
         WriteFDFDataForPosition(73, 'Zahl129a');
         WriteFDFDataForPosition(8, 'Zahl129a_1');
         WriteFDFDataForPosition(88, 'Zahl130a');
+        WriteFDFDataForPosition(10, 'Zahl130aa');
         WriteFDFDataForPosition(76, 'Zahl131');
         WriteFDFDataForPosition(77, 'Zahl132');
         WriteFDFDataForPosition(1060, 'Zahl133');
@@ -782,6 +784,7 @@ report 11110 "VAT Statement AT"
         WriteXMLNodeForPosition(37, 'KZ037');
         WriteXMLNodeForPosition(52, 'KZ052');
         WriteXMLNodeForPosition(7, 'KZ007');
+        WriteXMLNodeForPosition(9, 'KZ009');
         WriteXMLNodeForPosition(1056, 'KZ056');
         WriteXMLNodeForPosition(1057, 'KZ057');
         WriteXMLNodeForPosition(1048, 'KZ048');
@@ -802,6 +805,7 @@ report 11110 "VAT Statement AT"
         WriteXMLNodeForPosition(73, 'KZ073');
         WriteXMLNodeForPosition(8, 'KZ008');
         WriteXMLNodeForPosition(88, 'KZ088');
+        WriteXMLNodeForPosition(10, 'KZ010');
         WriteXMLNodeForPosition(76, 'KZ076');
         WriteXMLNodeForPosition(77, 'KZ077');
         XMLFile.Write('</VERSTEUERT_IGE>');

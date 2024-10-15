@@ -25,6 +25,7 @@ page 6052 "Service Contract Subform"
                     var
                         ServContractMgt: Codeunit ServContractManagement;
                     begin
+                        OnBeforeServiceItemNoLookup();
                         ServContractMgt.LookupServItemNo(Rec);
                         if xRec.Get("Contract Type", "Contract No.", "Line No.") then;
                     end;
@@ -210,5 +211,10 @@ page 6052 "Service Contract Subform"
         ServContractLine: Record "Service Contract Line";
         CreateCreditfromContractLines: Codeunit CreateCreditfromContractLines;
         NoOfSelectedLines: Integer;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeServiceItemNoLookup()
+    begin
+    end;
 }
 

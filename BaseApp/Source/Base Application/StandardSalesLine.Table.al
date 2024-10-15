@@ -278,7 +278,14 @@ table 171 "Standard Sales Line"
     end;
 
     procedure LookupShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLookupShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode, IsHandled);
+        if IsHandled then
+            exit;
+
         DimMgt.LookupDimValueCode(FieldNumber, ShortcutDimCode);
         DimMgt.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
     end;
@@ -294,6 +301,11 @@ table 171 "Standard Sales Line"
             exit(CommentLbl);
 
         exit(Format(Type));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupShortcutDimCode(var StandardSalesLine: Record "Standard Sales Line"; var xStandardSalesLine: Record "Standard Sales Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

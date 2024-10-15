@@ -11,6 +11,7 @@ codeunit 783 "Relationship Performance Mgt."
 
     local procedure CalcTopFiveOpportunities(var TempOpportunity: Record Opportunity temporary)
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         Opportunity: Record Opportunity;
         I: Integer;
     begin

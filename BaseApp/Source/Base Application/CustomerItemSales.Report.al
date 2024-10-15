@@ -247,6 +247,12 @@ report 113 "Customer/Item Sales"
     {
     }
 
+    trigger OnPostReport()
+    begin
+        if Customer.IsEmpty() and GuiAllowed() then
+            Error(EmptyReportDatasetTxt);
+    end;
+
     trigger OnPreReport()
     var
         FormatDocument: Codeunit "Format Document";
@@ -279,6 +285,7 @@ report 113 "Customer/Item Sales"
         Profit_Control46CaptionLbl: Label 'Profit';
         ProfitPct_Control47CaptionLbl: Label 'Profit %';
         TotalCaptionLbl: Label 'Total';
+        EmptyReportDatasetTxt: Label 'There is nothing to print for the selected filters.';
 
     procedure InitializeRequest(NewPagePerCustomer: Boolean)
     begin

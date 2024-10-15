@@ -80,8 +80,8 @@ report 11112 "Update VAT Statement Template"
 
     trigger OnInitReport()
     begin
-        TemplateName := 'UVA-2016';
-        TemplateDescription := 'Österreichische USt ab 2016';
+        TemplateName := 'UVA-2020';
+        TemplateDescription := 'Österreichische USt ab 2020';
     end;
 
     var

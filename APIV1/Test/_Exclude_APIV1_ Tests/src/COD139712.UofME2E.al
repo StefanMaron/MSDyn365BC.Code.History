@@ -157,7 +157,7 @@ codeunit 139712 "APIV1 - UofM E2E"
 
     local procedure GetServiceUrl() Url: Text
     begin
-        Url := LibraryGraphMgt.GetODataTargetURL(PAGE::"APIV1 - Units of Measure")
+        Url := LibraryGraphMgt.GetODataTargetURL(ObjectType::Page, PAGE::"APIV1 - Units of Measure")
     end;
 
     local procedure ValidateUnitOfMeasure(var UnitOfMeasure: Record "Unit of Measure"; Response: Text)

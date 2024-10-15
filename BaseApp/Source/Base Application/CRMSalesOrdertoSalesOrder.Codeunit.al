@@ -29,7 +29,22 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         MissingWriteInProductNoErr: Label '%1 %2 %3 contains a write-in product. You must choose the default write-in product in Sales & Receivables Setup window.', Comment = '%1 - CRM product name,%2 - document type (order or quote), %3 - document number';
         MisingWriteInProductTelemetryMsg: Label 'The user is missing a default write-in product when creating a sales order from a %1 order.', Locked = true;
         CrmTelemetryCategoryTok: Label 'AL CRM Integration', Locked = true;
-        SuccessfullyCoupledSalesOrderTelemetryMsg: Label 'The user successfully coupled a sales order to a %1 order.', Locked = true;
+        SuccessfullyCoupledSalesOrderTelemetryMsg: Label 'Successfully coupled sales order %2 to %1 order %3.', Locked = true;
+        SuccessfullyCreatedSalesOrderHeaderTelemetryMsg: Label 'Successfully created order header %2 from %1 order %3.', Locked = true;
+        SuccessfullyCreatedSalesOrderNotesTelemetryMsg: Label 'Successfully created notes for sales order %2 from %1 order %3.', Locked = true;
+        SuccessfullyCreatedSalesOrderLinesTelemetryMsg: Label 'Successfully created lines for sales order %2 from %1 order %3.', Locked = true;
+        SuccessfullyAppliedSalesOrderDiscountsTelemetryMsg: Label 'Successfully applied discounts from %1 order %3 to sales order %2.', Locked = true;
+        SuccessfullySetLastBackOfficeSubmitTelemetryMsg: Label 'Successfully set lastbackofficesubmit on %1 order %2 to the following date: %3.', Locked = true;
+        StartingToCreateSalesOrderHeaderTelemetryMsg: Label 'Starting to create order header from %1 order %2.', Locked = true;
+        StartingToCreateSalesOrderLinesTelemetryMsg: Label 'Starting to create order lines from %1 order %2.', Locked = true;
+        StartingToCreateSalesOrderNotesTelemetryMsg: Label 'Starting to create order lines from %1 order %2.', Locked = true;
+        StartingToApplySalesOrderDiscountsTelemetryMsg: Label 'Starting to appliy discounts from %1 order %3 to sales order %2.', Locked = true;
+        StartingToSetLastBackOfficeSubmitTelemetryMsg: Label 'Starting to set lastbackofficesubmit on %1 order %2 to the following date: %3.', Locked = true;
+        NoLinesFoundInSalesOrderTelemetryMsg: Label 'No lines found in %1 order %2.', Locked = true;
+        NoNotesFoundInSalesOrderTelemetryMsg: Label 'No notes found in %1 order %2.', Locked = true;
+        StartingToUncoupleSalesOrderTelemetryMsg: Label 'Starting to uncouple sales order %2 from %1 order %3.', Locked = true;
+        SuccessfullyUncoupledSalesOrderTelemetryMsg: Label 'Successfully uncoupled sales order %2 from %1 order %3.', Locked = true;
+        FailedToUncoupleSalesOrderTelemetryMsg: Label 'Failed to uncouple sales order %2 from %1 order %3.', Locked = true;
 
     local procedure ApplySalesOrderDiscounts(CRMSalesorder: Record "CRM Salesorder"; var SalesHeader: Record "Sales Header")
     var
@@ -39,6 +54,9 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         // No discounts to apply
         if (CRMSalesorder.DiscountAmount = 0) and (CRMSalesorder.DiscountPercentage = 0) then
             exit;
+
+        SendTraceTag('0000DEV', CrmTelemetryCategoryTok, VERBOSITY::Normal,
+            StrSubstNo(StartingToApplySalesOrderDiscountsTelemetryMsg, CRMProductName.CDSServiceName(), SalesHeader.SystemId, CRMSalesorder.SalesOrderId), DATACLASSIFICATION::SystemMetadata);
 
         // Attempt to set the discount, if NAV general and customer settings allow it
         // Using CRM discounts
@@ -51,6 +69,9 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         if not HideSalesOrderDiscountsDialog() then
             if not Confirm(StrSubstNo(OverwriteCRMDiscountQst, PRODUCTNAME.Short, CRMProductName.CDSServiceName()), true) then
                 Error('');
+
+        SendTraceTag('0000DEW', CrmTelemetryCategoryTok, VERBOSITY::Normal,
+            StrSubstNo(SuccessfullyAppliedSalesOrderDiscountsTelemetryMsg, CRMProductName.CDSServiceName(), SalesHeader.SystemId, CRMSalesorder.SalesOrderId), DATACLASSIFICATION::SystemMetadata);
     end;
 
     local procedure HideSalesOrderDiscountsDialog() Hide: Boolean;
@@ -201,35 +222,31 @@ codeunit 5343 "CRM Sales Order to Sales Order"
             CreateSalesOrderNotes(CRMSalesorder, SalesHeader);
             CreateSalesOrderLines(CRMSalesorder, SalesHeader);
             ApplySalesOrderDiscounts(CRMSalesorder, SalesHeader);
-        end;
 
-        // Flag sales order has been submitted to NAV.
-        SetLastBackOfficeSubmit(CRMSalesorder, Today);
-        SendTraceTag('000083B', CrmTelemetryCategoryTok, VERBOSITY::Normal,
-          StrSubstNo(SuccessfullyCoupledSalesOrderTelemetryMsg, CRMProductName.SHORT), DATACLASSIFICATION::SystemMetadata);
+            SetCompanyId(CRMSalesorder);
+            SetLastBackOfficeSubmit(CRMSalesorder, Today);
+            SendTraceTag('000083B', CrmTelemetryCategoryTok, VERBOSITY::Normal,
+              StrSubstNo(SuccessfullyCoupledSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), SalesHeader.SystemId, CRMSalesorder.SalesOrderId), DATACLASSIFICATION::SystemMetadata);
+        end;
 
         exit(true);
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnBeforeDeleteEvent', '', false, false)]
-    [Scope('OnPrem')]
-    procedure ClearLastBackOfficeSubmitOnSalesHeaderDelete(var Rec: Record "Sales Header"; RunTrigger: Boolean)
+    local procedure SetCompanyId(var CRMSalesorder: Record "CRM Salesorder")
     var
-        CRMSalesorder: Record "CRM Salesorder";
-        CRMIntegrationRecord: Record "CRM Integration Record";
-        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+        CDSIntTableSubscriber: Codeunit "CDS Int. Table. Subscriber";
+        DestinationRecordRef: RecordRef;
     begin
-        if Rec.IsTemporary then
-            exit;
-
-        if CRMIntegrationManagement.IsCRMIntegrationEnabled then
-            if CRMIntegrationRecord.FindIDFromRecordID(Rec.RecordId, CRMSalesorder.SalesOrderId) then begin
-                if not CRMIntegrationManagement.IsWorkingConnection then
-                    exit;
-                if CRMSalesorder.Find then
-                    if CRMSalesOrder.StateCode = CRMSalesOrder.StateCode::Submitted then
-                        SetLastBackOfficeSubmit(CRMSalesorder, 0D);
-            end;
+        if CDSIntegrationImpl.IsIntegrationEnabled() then begin
+            DestinationRecordRef.GetTable(CRMSalesorder);
+            CRMSalesorder.StateCode := CRMSalesorder.StateCode::Active;
+            CRMSalesorder.Modify();
+            CDSIntTableSubscriber.SetCompanyId(DestinationRecordRef);
+            DestinationRecordRef.Modify();
+            CRMSalesorder.StateCode := CRMSalesorder.StateCode::Submitted;
+            CRMSalesorder.Modify();
+        end;
     end;
 
     [EventSubscriber(ObjectType::Table, 36, 'OnBeforeDeleteEvent', '', false, false)]
@@ -240,6 +257,9 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         CRMIntegrationRecord: Record "CRM Integration Record";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
+        if Rec.IsTemporary then
+            exit;
+
         // RunTrigger is expected to be false when deleting Sales Header after posting.
         // In this case, we should not change CRM Salesorder state here.
         if not RunTrigger then
@@ -254,7 +274,15 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         if not CRMIntegrationRecord.FindIDFromRecordID(Rec.RecordId, CRMSalesorder.SalesOrderId) then
             exit;
 
-        if CRMIntegrationRecord.RemoveCouplingToRecord(Rec.RecordId) then;
+        SendTraceTag('0000DEX', CrmTelemetryCategoryTok, VERBOSITY::Normal,
+            StrSubstNo(StartingToUncoupleSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SystemId, CRMSalesorder.SalesOrderId), DATACLASSIFICATION::SystemMetadata);
+
+        if CRMIntegrationRecord.RemoveCouplingToRecord(Rec.RecordId) then
+            SendTraceTag('0000DEY', CrmTelemetryCategoryTok, VERBOSITY::Normal,
+                StrSubstNo(SuccessfullyUncoupledSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SystemId, CRMSalesorder.SalesOrderId), DATACLASSIFICATION::SystemMetadata)
+        else
+            SendTraceTag('0000DEZ', CrmTelemetryCategoryTok, VERBOSITY::Normal,
+                StrSubstNo(FailedToUncoupleSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SystemId, CRMSalesorder.SalesOrderId), DATACLASSIFICATION::SystemMetadata);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Assemble-to-Order Link", 'OnBeforeSalesLineCheckAvailShowWarning', '', false, false)]
@@ -285,11 +313,9 @@ codeunit 5343 "CRM Sales Order to Sales Order"
     local procedure CreateSalesOrderHeader(CRMSalesorder: Record "CRM Salesorder"; var SalesHeader: Record "Sales Header")
     var
         Customer: Record Customer;
-        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
-        CDSIntTableSubscriber: Codeunit "CDS Int. Table. Subscriber";
-        SourceRecordRef: RecordRef;
-        DestinationRecordRef: RecordRef;
     begin
+        SendTraceTag('0000DF0', CrmTelemetryCategoryTok, VERBOSITY::Normal,
+            StrSubstNo(StartingToCreateSalesOrderHeaderTelemetryMsg, CRMProductName.CDSServiceName(), CRMSalesorder.SalesOrderId), DATACLASSIFICATION::SystemMetadata);
         SalesHeader.Init();
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.Validate(Status, SalesHeader.Status::Open);
@@ -307,19 +333,8 @@ codeunit 5343 "CRM Sales Order to Sales Order"
 
         OnCreateSalesOrderHeaderOnBeforeSalesHeaderInsert(SalesHeader, CRMSalesorder);
         SalesHeader.Insert();
-
-        // set company id and owner on CDS salesorder
-        if CDSIntegrationImpl.IsIntegrationEnabled() then begin
-            SourceRecordRef.GetTable(SalesHeader);
-            DestinationRecordRef.GetTable(CRMSalesorder);
-            CRMSalesorder.StateCode := CRMSalesorder.StateCode::Active;
-            CRMSalesorder.Modify();
-            CDSIntTableSubscriber.SetCompanyId(DestinationRecordRef);
-            CDSIntTableSubscriber.SetOwnerId(SourceRecordRef, DestinationRecordRef);
-            DestinationRecordRef.Modify();
-            CRMSalesorder.StateCode := CRMSalesorder.StateCode::Submitted;
-            CRMSalesorder.Modify();
-        end;
+        SendTraceTag('0000DF1', CrmTelemetryCategoryTok, VERBOSITY::Normal,
+            StrSubstNo(SuccessfullyCreatedSalesOrderHeaderTelemetryMsg, CRMProductName.CDSServiceName(), SalesHeader.SystemId, CRMSalesorder.SalesOrderId), DATACLASSIFICATION::SystemMetadata);
     end;
 
     local procedure CreateSalesOrderNotes(CRMSalesorder: Record "CRM Salesorder"; var SalesHeader: Record "Sales Header")
@@ -328,14 +343,21 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         RecordLink: Record "Record Link";
         CRMAnnotationCoupling: Record "CRM Annotation Coupling";
     begin
+        SendTraceTag('0000DF2', CrmTelemetryCategoryTok, VERBOSITY::Normal,
+            StrSubstNo(StartingToCreateSalesOrderNotesTelemetryMsg, CRMProductName.CDSServiceName(), CRMSalesorder.SalesOrderId), DATACLASSIFICATION::SystemMetadata);
         CRMAnnotation.SetRange(ObjectId, CRMSalesorder.SalesOrderId);
         CRMAnnotation.SetRange(IsDocument, false);
         CRMAnnotation.SetRange(FileSize, 0);
-        if CRMAnnotation.FindSet then
+        if CRMAnnotation.FindSet then begin
             repeat
                 CreateNote(SalesHeader, CRMAnnotation, RecordLink);
                 CRMAnnotationCoupling.CoupleRecordLinkToCRMAnnotation(RecordLink, CRMAnnotation);
             until CRMAnnotation.Next = 0;
+            SendTraceTag('0000DF3', CrmTelemetryCategoryTok, VERBOSITY::Normal,
+                StrSubstNo(SuccessfullyCreatedSalesOrderNotesTelemetryMsg, CRMProductName.CDSServiceName(), SalesHeader.SystemId, CRMSalesorder.SalesOrderId), DATACLASSIFICATION::SystemMetadata)
+        end else
+            SendTraceTag('0000DF4', CrmTelemetryCategoryTok, VERBOSITY::Normal,
+                StrSubstNo(NoNotesFoundInSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), CRMSalesorder.SalesOrderId), DATACLASSIFICATION::SystemMetadata);
     end;
 
     [Scope('OnPrem')]
@@ -365,6 +387,9 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         CRMSalesorderdetail: Record "CRM Salesorderdetail";
         SalesLine: Record "Sales Line";
     begin
+        SendTraceTag('0000DF5', CrmTelemetryCategoryTok, VERBOSITY::Normal,
+            StrSubstNo(StartingToCreateSalesOrderLinesTelemetryMsg, CRMProductName.CDSServiceName(), CRMSalesorder.SalesOrderId), DATACLASSIFICATION::SystemMetadata);
+
         // If any of the products on the lines are not found in NAV, err
         CRMSalesorderdetail.SetRange(SalesOrderId, CRMSalesorder.SalesOrderId); // Get all sales order lines
 
@@ -376,9 +401,13 @@ codeunit 5343 "CRM Sales Order to Sales Order"
                 if SalesLine."Qty. to Assemble to Order" <> 0 then
                     SalesLine.Validate("Qty. to Assemble to Order");
             until CRMSalesorderdetail.Next = 0;
+            SendTraceTag('0000DF6', CrmTelemetryCategoryTok, VERBOSITY::Normal,
+                StrSubstNo(SuccessfullyCreatedSalesOrderLinesTelemetryMsg, CRMProductName.CDSServiceName(), SalesHeader.SystemId, CRMSalesorder.SalesOrderId), DATACLASSIFICATION::SystemMetadata);
         end else begin
             SalesLine.Validate("Document Type", SalesHeader."Document Type");
             SalesLine.Validate("Document No.", SalesHeader."No.");
+            SendTraceTag('0000DF7', CrmTelemetryCategoryTok, VERBOSITY::Normal,
+                StrSubstNo(NoLinesFoundInSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), CRMSalesorder.SalesOrderId), DATACLASSIFICATION::SystemMetadata);
         end;
 
         SalesLine.InsertFreightLine(CRMSalesorder.FreightAmount);
@@ -592,12 +621,16 @@ codeunit 5343 "CRM Sales Order to Sales Order"
     procedure SetLastBackOfficeSubmit(var CRMSalesorder: Record "CRM Salesorder"; NewDate: Date)
     begin
         if CRMSalesorder.LastBackofficeSubmit <> NewDate then begin
+            SendTraceTag('0000DF8', CrmTelemetryCategoryTok, VERBOSITY::Normal,
+              StrSubstNo(StartingToSetLastBackOfficeSubmitTelemetryMsg, CRMProductName.CDSServiceName(), CRMSalesorder.SalesOrderId, Format(NewDate)), DATACLASSIFICATION::SystemMetadata);
             CRMSalesorder.StateCode := CRMSalesorder.StateCode::Active;
             CRMSalesorder.Modify(true);
             CRMSalesorder.LastBackofficeSubmit := NewDate;
             CRMSalesorder.Modify(true);
             CRMSalesorder.StateCode := CRMSalesorder.StateCode::Submitted;
             CRMSalesorder.Modify(true);
+            SendTraceTag('0000DF9', CrmTelemetryCategoryTok, VERBOSITY::Normal,
+              StrSubstNo(SuccessfullySetLastBackOfficeSubmitTelemetryMsg, CRMProductName.CDSServiceName(), CRMSalesorder.SalesOrderId, Format(NewDate)), DATACLASSIFICATION::SystemMetadata);
         end;
     end;
 

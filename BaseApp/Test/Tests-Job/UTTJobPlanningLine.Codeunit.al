@@ -1235,6 +1235,114 @@ codeunit 136353 "UT T Job Planning Line"
         JobJournalLine.TestField("Source Code", JobJournalTemplate."Source Code");
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,CreateInvoiceRequestHandler')]
+    [Scope('OnPrem')]
+    procedure TheFieldTypeIsNotEditableForJobPlanningLineWithPostedSalesInvoiceAndTypeText()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        SalesHeader: Record "Sales Header";
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
+        JobPlanningLines: TestPage "Job Planning Lines";
+    begin
+        // [SCENARIO 366064] The field "Type" is not editable for Job Planning Line with posted Sales Invoice and Type = Text
+        Initialize();
+
+        // [GIVEN] Created Job and Sales Invoice
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Job."Bill-to Customer No.");
+
+        // [GIVEN] Created 2 Job Planning Line: 1 with type = G/L Account abd 1 with Type = Text
+        LibraryJob.CreateJobPlanningLine(
+          JobPlanningLine."Line Type"::Billable, JobPlanningLine.Type::"G/L Account", JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(
+          JobPlanningLine."Line Type"::Billable, JobPlanningLine.Type::Text, JobTask, JobPlanningLine);
+        Commit();
+
+        // [GIVEN] Added lines to Sales Invoice
+        LibraryVariableStorage.Enqueue(SalesHeader."No.");
+        JobPlanningLine.SetRange("Job No.", JobTask."Job No.");
+        JobPlanningLine.SetRange("Job Task No.", JobTask."Job Task No.");
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
+
+        // [GIVEN] Post Sales Invoice
+        LibrarySales.PostSalesDocument(SalesHeader, false, false);
+
+        // [WHEN] Open Job Planning Lines
+        JobPlanningLines.OpenEdit();
+        JobPlanningLines.FILTER.SetFilter("Job No.", JobTask."Job No.");
+        JobPlanningLines.FILTER.SetFilter("Job Task No.", JobTask."Job Task No.");
+        JobPlanningLines.FILTER.SetFilter(Type, Format(JobPlanningLine.Type::Text));
+        JobPlanningLines.First();
+
+        // [THEN] The field "Type" is not editable for the line with "Type" = Text
+        Assert.IsFalse(JobPlanningLines.Type.Editable, '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,CreateInvoiceRequestHandler')]
+    [Scope('OnPrem')]
+    procedure TheFieldTypeIsEditableForJobPlanningLineWithPostedSalesInvoiceAndTypeTextWithoutLinesInJobPlanningLineInvoice()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        SalesHeader: Record "Sales Header";
+        JobPlanningLineInvoice: Record "Job Planning Line Invoice";
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
+        JobPlanningLines: TestPage "Job Planning Lines";
+    begin
+        // [SCENARIO 366064] The field "Type" is editable for Job Planning Line with posted Sales Invoice and Type = Text,
+        // [SCENARIO 366064] with deleted lines from Job Planning Line Invoice
+        Initialize();
+
+        // [GIVEN] Created Job and Sales Invoice
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Job."Bill-to Customer No.");
+
+        // [GIVEN] Created 2 Job Planning Line: 1 with type = G/L Account abd 1 with Type = Text
+        LibraryJob.CreateJobPlanningLine(
+          JobPlanningLine."Line Type"::Billable, JobPlanningLine.Type::"G/L Account", JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(
+          JobPlanningLine."Line Type"::Billable, JobPlanningLine.Type::Text, JobTask, JobPlanningLine);
+        Commit();
+
+        // [GIVEN] Added lines to Sales Invoice
+        LibraryVariableStorage.Enqueue(SalesHeader."No.");
+        JobPlanningLine.SetRange("Job No.", JobTask."Job No.");
+        JobPlanningLine.SetRange("Job Task No.", JobTask."Job Task No.");
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
+
+        // [GIVEN] Post Sales Invoice
+        LibrarySales.PostSalesDocument(SalesHeader, false, false);
+
+        // [GIVEN] Delete created Job Planning Line Invoice for type "Text"
+        JobPlanningLine.SetRange(Type, JobPlanningLine.Type::Text);
+        JobPlanningLine.FindFirst();
+        JobPlanningLineInvoice.SetRange("Job No.", Job."No.");
+        JobPlanningLineInvoice.SetRange("Job Task No.", JobTask."Job Task No.");
+        JobPlanningLineInvoice.SetRange("Job Planning Line No.", JobPlanningLine."Line No.");
+        JobPlanningLineInvoice.DeleteAll();
+
+        // [WHEN] Open Job Planning Lines
+        JobPlanningLines.OpenEdit();
+        JobPlanningLines.FILTER.SetFilter("Job No.", JobTask."Job No.");
+        JobPlanningLines.FILTER.SetFilter("Job Task No.", JobTask."Job Task No.");
+        JobPlanningLines.FILTER.SetFilter(Type, Format(JobPlanningLine.Type::Text));
+        JobPlanningLines.First();
+
+        // [THEN] The field "Type" is editable for the line with "Type" = Text
+        Assert.IsTrue(JobPlanningLines.Type.Editable, '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1538,6 +1646,22 @@ codeunit 136353 "UT T Job Planning Line"
         until not JobLedgerEntries.Next;
 
         Assert.AreEqual(LibraryVariableStorage.DequeueDecimal, SumLineAmount, FBLedgerDrillDownErr);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
+        // For handle message
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CreateInvoiceRequestHandler(var JobTransfertoSalesInvoice: TestRequestPage "Job Transfer to Sales Invoice")
+    begin
+        JobTransfertoSalesInvoice.CreateNewInvoice.SetValue(false);
+        JobTransfertoSalesInvoice.AppendToSalesInvoiceNo.SetValue(LibraryVariableStorage.DequeueText);
+        JobTransfertoSalesInvoice.OK.Invoke;
     end;
 }
 
