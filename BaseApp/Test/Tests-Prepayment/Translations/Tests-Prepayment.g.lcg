@@ -221,6 +221,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Prepayment - NamedType PrepmtCrMemoErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 526616433 - NamedType 686762911" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot change %2 while %1 is pending prepayment.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%2- field caption, %1 - "sales order 1001".]D;]A;(LookupHint=Codeunit ERM Prepayment - NamedType CannotChangePrepmtAccErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 526616433 - NamedType 1345553021" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot change %2 on account %3 while %1 is pending prepayment.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%2 - field caption, %3 - account number, %1 - "sales order 1001".]D;]A;(LookupHint=Codeunit ERM Prepayment - NamedType CannotChangeSetupOnPrepmtAccErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 469116920 - NamedType 1747217336" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[No realized gains/losses have been posted.]]></Val>
