@@ -182,6 +182,11 @@ page 6571 "Posted Invt. Shipment Subform"
         }
     }
 
+    trigger OnAfterGetRecord()
+    begin
+        Rec.ShowShortcutDimCode(ShortcutDimCode);
+    end;
+
     trigger OnOpenPage()
     begin
         SetDimensionsVisibility();
