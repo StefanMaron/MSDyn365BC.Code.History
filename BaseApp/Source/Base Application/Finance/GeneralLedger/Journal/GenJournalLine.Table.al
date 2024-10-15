@@ -872,6 +872,8 @@ table 81 "Gen. Journal Line"
                                     "Exported to Payment File" := EmplLedgEntry."Exported to Payment File";
                                 end;
                             end;
+                        else
+                            OnAppliesToDocNoOnValidateOnCaseElse(Rec, xRec, TempGenJnlLine);
                     end;
                     OnAppliesToDocNoOnValidateOnAfterUpdAmtToEntries(Rec, TempGenJnlLine);
                 end;
@@ -4156,6 +4158,8 @@ table 81 "Gen. Journal Line"
 
     local procedure CheckGLAcc(GLAcc: Record "G/L Account")
     begin
+        OnBeforeCheckGLAcc(GLAcc, Rec);
+
         GLAcc.CheckGLAcc();
         if GLAcc."Direct Posting" or ("Journal Template Name" = '') or "System-Created Entry" then
             exit;
@@ -4164,6 +4168,8 @@ table 81 "Gen. Journal Line"
                 exit;
 
         CheckDirectPosting(GLAcc);
+
+        OnAfterCheckGLAcc(Rec, GLAcc);
     end;
 
     protected procedure CheckICPartner(ICPartnerCode: Code[20]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
@@ -4568,6 +4574,7 @@ table 81 "Gen. Journal Line"
         LocalGLAcc: Record "G/L Account";
         FAPostingGr: Record "FA Posting Group";
         FABalAcc: Boolean;
+        IsHandled: Boolean;
     begin
         if CurrFieldNo = 0 then
             exit;
@@ -4586,6 +4593,12 @@ table 81 "Gen. Journal Line"
             "Bal. Tax Group Code" := '';
             Validate("Bal. VAT Prod. Posting Group");
         end;
+
+        IsHandled := false;
+        OnGetFAVATSetupOnBeforeCopyVATSetupToJnlLines(Rec, LocalGLAcc, FAPostingGr, IsHandled);
+        if IsHandled then
+            exit;
+
         if CopyVATSetupToJnlLines() then
             if (("FA Posting Type" = "FA Posting Type"::"Acquisition Cost") or
                 ("FA Posting Type" = "FA Posting Type"::Disposal) or
@@ -4708,7 +4721,11 @@ table 81 "Gen. Journal Line"
         CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive, "Due Date");
         if AccNo <> '' then
             CustLedgEntry.SetRange("Customer No.", AccNo);
-        CustLedgEntry.SetRange(Open, true);
+
+        IsHandled := false;
+        OnLookUpAppliesToDocCustOnBeforeCustLedgerEntrySetRangeOpen(Rec, IsHandled);
+        if not IsHandled then
+            CustLedgEntry.SetRange(Open, true);
         if "Applies-to Doc. No." <> '' then begin
             CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
             CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
@@ -4785,7 +4802,10 @@ table 81 "Gen. Journal Line"
         VendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive, "Due Date");
         if AccNo <> '' then
             VendLedgEntry.SetRange("Vendor No.", AccNo);
-        VendLedgEntry.SetRange(Open, true);
+        IsHandled := false;
+        OnLookUpAppliesToDocVendOnBeforeVendLedgerEntrySetRangeOpen(Rec, IsHandled);
+        if not IsHandled then
+            VendLedgEntry.SetRange(Open, true);
         if "Applies-to Doc. No." <> '' then begin
             VendLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
             VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
@@ -6232,6 +6252,11 @@ table 81 "Gen. Journal Line"
         ConfirmManagement: Codeunit "Confirm Management";
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeExportPaymentFile(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if not FindSet() then
             Error(NothingToExportErr);
         SetRange("Journal Template Name", "Journal Template Name");
@@ -6797,6 +6822,8 @@ table 81 "Gen. Journal Line"
     end;
 
     local procedure SetAmountWithCustLedgEntry()
+    var
+        IsHandled: Boolean;
     begin
         OnBeforeSetAmountWithCustLedgEntry(Rec, CustLedgEntry);
 
@@ -6804,13 +6831,18 @@ table 81 "Gen. Journal Line"
             CheckModifyCurrencyCode(GenJnlLine."Account Type"::Customer, CustLedgEntry."Currency Code");
         if Amount = 0 then begin
             CustLedgEntry.CalcFields("Remaining Amount");
-            SetAmountWithRemaining(
-              PaymentToleranceMgt.CheckCalcPmtDiscGenJnlCust(Rec, CustLedgEntry, 0, false),
-              CustLedgEntry."Amount to Apply", CustLedgEntry."Remaining Amount", CustLedgEntry.GetRemainingPmtDiscPossible(Rec."Posting Date"));
+            IsHandled := false;
+            OnSetAmountWithCustLedgEntryOnBeforeSetAmountWithRemaining(Rec, CustLedgEntry, IsHandled);
+            if not IsHandled then
+                SetAmountWithRemaining(
+                  PaymentToleranceMgt.CheckCalcPmtDiscGenJnlCust(Rec, CustLedgEntry, 0, false),
+                  CustLedgEntry."Amount to Apply", CustLedgEntry."Remaining Amount", CustLedgEntry.GetRemainingPmtDiscPossible(Rec."Posting Date"));
         end;
     end;
 
     local procedure SetAmountWithVendLedgEntry()
+    var
+        IsHandled: Boolean;
     begin
         OnBeforeSetAmountWithVendLedgEntry(Rec, VendLedgEntry);
 
@@ -6818,9 +6850,12 @@ table 81 "Gen. Journal Line"
             CheckModifyCurrencyCode("Account Type"::Vendor, VendLedgEntry."Currency Code");
         if Amount = 0 then begin
             VendLedgEntry.CalcFields("Remaining Amount");
-            SetAmountWithRemaining(
-              PaymentToleranceMgt.CheckCalcPmtDiscGenJnlVend(Rec, VendLedgEntry, 0, false),
-              VendLedgEntry."Amount to Apply", VendLedgEntry."Remaining Amount", VendLedgEntry.GetRemainingPmtDiscPossible(Rec."Posting Date"));
+            IsHandled := false;
+            OnSetAmountWithVendLedgEntryOnBeforeSetAmountWithRemaining(Rec, VendLedgEntry, IsHandled);
+            if not IsHandled then
+                SetAmountWithRemaining(
+                  PaymentToleranceMgt.CheckCalcPmtDiscGenJnlVend(Rec, VendLedgEntry, 0, false),
+                  VendLedgEntry."Amount to Apply", VendLedgEntry."Remaining Amount", VendLedgEntry.GetRemainingPmtDiscPossible(Rec."Posting Date"));
         end;
     end;
 
@@ -7089,6 +7124,8 @@ table 81 "Gen. Journal Line"
 
     local procedure SetDescriptionFromGLAcc(GLAccount: Record "G/L Account")
     begin
+        OnBeforeSetDescriptionFromGLAcc(Rec, GLAccount);
+
         if ReplaceDescription() and (not GLAccount."Omit Default Descr. in Jnl.") then
             UpdateDescription(GLAccount.Name)
         else
@@ -9555,6 +9592,56 @@ table 81 "Gen. Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcVATAmountLCYOnBeforeInitRoundingPrecision(var GenJournalLine: Record "Gen. Journal Line"; var Currency: Record Currency)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAppliesToDocNoOnValidateOnCaseElse(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line"; var TempGenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckGLAcc(var GenJournalLine: Record "Gen. Journal Line"; GLAccount: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookUpAppliesToDocCustOnBeforeCustLedgerEntrySetRangeOpen(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExportPaymentFile(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetFAVATSetupOnBeforeCopyVATSetupToJnlLines(var GenJournalLine: Record "Gen. Journal Line"; var GLAccount: Record "G/L Account"; var FAPostingGroup: Record "FA Posting Group"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookUpAppliesToDocVendOnBeforeVendLedgerEntrySetRangeOpen(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetAmountWithCustLedgEntryOnBeforeSetAmountWithRemaining(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetAmountWithVendLedgEntryOnBeforeSetAmountWithRemaining(var GenJournalLine: Record "Gen. Journal Line"; var VendLedgerEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDescriptionFromGLAcc(var GenJournalLine: Record "Gen. Journal Line"; var GLAccount: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckGLAcc(var GLAccount: Record "G/L Account"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 }

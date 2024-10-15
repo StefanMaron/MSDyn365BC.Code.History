@@ -661,44 +661,45 @@ codeunit 5944 SignServContractDoc
     begin
         IsHandled := false;
         OnBeforeSetInvoicing(ServContractHeader, IsHandled, InvoiceNow, InvoiceFrom, InvoiceTo, InvoicingStartingPeriod, GoOut, HideDialog);
-        if IsHandled then
-            exit;
+        if not IsHandled then begin
+            if ServContractHeader."Invoice Period" = ServContractHeader."Invoice Period"::None then
+                exit;
 
-        if ServContractHeader."Invoice Period" = ServContractHeader."Invoice Period"::None then
-            exit;
-
-        if ServContractHeader.Prepaid then begin
-            if ServContractHeader."Starting Date" < ServContractHeader."Next Invoice Date" then begin
-                if HideDialog then
-                    InvoiceNow := true
-                else
-                    if ConfirmManagement.GetResponseOrDefault(
-                         StrSubstNo(Text015, ServContractHeader."Starting Date", ServContractHeader."Next Invoice Date" - 1), true)
-                    then
-                        InvoiceNow := true;
-                InvoiceFrom := ServContractHeader."Starting Date";
-                InvoiceTo := ServContractHeader."Next Invoice Date" - 1;
-            end
-        end else begin
-            GoOut := true;
-            TempDate := ServContractHeader."Next Invoice Period Start";
-            if ServContractHeader."Starting Date" < TempDate then begin
-                TempDate := TempDate - 1;
-                GoOut := false;
-            end;
-            if not GoOut then begin
-                if HideDialog then
-                    InvoiceNow := true
-                else
-                    if ConfirmManagement.GetResponseOrDefault(
-                         StrSubstNo(Text015, ServContractHeader."Starting Date", TempDate), true)
-                    then
-                        InvoiceNow := true;
-                InvoiceFrom := ServContractHeader."Starting Date";
-                InvoiceTo := TempDate;
-                InvoicingStartingPeriod := true;
+            if ServContractHeader.Prepaid then begin
+                if ServContractHeader."Starting Date" < ServContractHeader."Next Invoice Date" then begin
+                    if HideDialog then
+                        InvoiceNow := true
+                    else
+                        if ConfirmManagement.GetResponseOrDefault(
+                             StrSubstNo(Text015, ServContractHeader."Starting Date", ServContractHeader."Next Invoice Date" - 1), true)
+                        then
+                            InvoiceNow := true;
+                    InvoiceFrom := ServContractHeader."Starting Date";
+                    InvoiceTo := ServContractHeader."Next Invoice Date" - 1;
+                end
+            end else begin
+                GoOut := true;
+                TempDate := ServContractHeader."Next Invoice Period Start";
+                if ServContractHeader."Starting Date" < TempDate then begin
+                    TempDate := TempDate - 1;
+                    GoOut := false;
+                end;
+                if not GoOut then begin
+                    if HideDialog then
+                        InvoiceNow := true
+                    else
+                        if ConfirmManagement.GetResponseOrDefault(
+                             StrSubstNo(Text015, ServContractHeader."Starting Date", TempDate), true)
+                        then
+                            InvoiceNow := true;
+                    InvoiceFrom := ServContractHeader."Starting Date";
+                    InvoiceTo := TempDate;
+                    InvoicingStartingPeriod := true;
+                end;
             end;
         end;
+
+        OnAfterSetInvoicing(ServContractHeader, InvoiceNow, InvoiceFrom, InvoiceTo, InvoicingStartingPeriod, GoOut, HideDialog);
     end;
 
     local procedure CheckServContractQuote(FromServContractHeader: Record "Service Contract Header")
@@ -1202,6 +1203,11 @@ codeunit 5944 SignServContractDoc
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetInvoicing(var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean; var InvoiceNow: Boolean; var InvoiceFrom: Date; var InvoiceTo: Date; var InvoicingStartingPeriod: Boolean; var GoOut: Boolean; HideDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetInvoicing(var ServiceContractHeader: Record "Service Contract Header"; var InvoiceNow: Boolean; var InvoiceFrom: Date; var InvoiceTo: Date; var InvoicingStartingPeriod: Boolean; var GoOut: Boolean; HideDialog: Boolean)
     begin
     end;
 

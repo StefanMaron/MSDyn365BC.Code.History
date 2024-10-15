@@ -3260,7 +3260,7 @@ table 5902 "Service Line"
         end;
 
         if "Exclude Contract Discount" then
-            if CurrFieldNo = FieldNo("Fault Reason Code") then
+            if (CurrFieldNo = FieldNo("Fault Reason Code")) and (not "Exclude Warranty") then
                 Discounts[2] := "Line Discount %"
             else
                 Discounts[2] := 0
@@ -4678,6 +4678,7 @@ table 5902 "Service Line"
             SetRange("Document No.", ServHeader."No.");
             SetFilter(Type, '>0');
             SetFilter(Quantity, '<>0');
+            OnCalcVATAmountLinesOnAfterServiceLineSetFilters(ServiceLine, ServHeader);
             if FindSet() then
                 repeat
                     if Type = Type::"G/L Account" then
@@ -5740,7 +5741,7 @@ table 5902 "Service Line"
 
         if Rec.IsNonInventoriableItem() then
             exit;
-                
+
         Location.Get("Location Code");
         if not Location."Bin Mandatory" then
             exit;
@@ -6820,6 +6821,11 @@ table 5902 "Service Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAutoReserve(var ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line"; FullAutoReservation: Boolean; var ReserveServiceLine: Codeunit "Service Line-Reserve"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcVATAmountLinesOnAfterServiceLineSetFilters(var ServiceLine: Record "Service Line"; var ServiceHeader: Record "Service Header")
     begin
     end;
 }

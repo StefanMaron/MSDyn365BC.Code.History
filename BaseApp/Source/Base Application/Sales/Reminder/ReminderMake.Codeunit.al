@@ -175,7 +175,7 @@ codeunit 392 "Reminder-Make"
                     ReminderHeader.SetCurrentKey("Customer No.", "Currency Code");
                     ReminderHeader.SetRange("Customer No.", "No.");
                     ReminderHeader.SetRange("Currency Code", CurrencyCode);
-                    OnBeforeReminderHeaderFind(ReminderHeader, ReminderHeaderReq, ReminderTerms, Cust);
+                    OnBeforeReminderHeaderFind(ReminderHeader, ReminderHeaderReq, ReminderTerms, Cust, CustLedgEntry);
                     if ReminderHeader.FindFirst() then
                         exit(false);
                     ReminderHeader.Init();
@@ -359,7 +359,11 @@ codeunit 392 "Reminder-Make"
 
         SetReminderLine(LineLevel, ReminderDueDate);
         IsGracePeriodExpired := IsGracePeriodExpiredForOverdueEntry(ReminderDueDate, ReminderHeaderReq."Document Date", ReminderLevel."Grace Period");
-        OnMarkReminderCandidateOnAfterCalcIsGracePeriodExpired(ReminderLevel, ReminderDueDate, ReminderHeaderReq, ReminderTerms, CustLedgEntry, ReminderHeader, LineLevel, IsGracePeriodExpired);
+        IsHandled := false;
+        OnMarkReminderCandidateOnAfterCalcIsGracePeriodExpired(ReminderLevel, ReminderDueDate, ReminderHeaderReq, ReminderTerms, CustLedgEntry, ReminderHeader, LineLevel, IsGracePeriodExpired, IsHandled);
+        if IsHandled then
+            exit;
+
         MarkEntry := false;
         if IsGracePeriodExpired and
            ((LineLevel <= ReminderTerms."Max. No. of Reminders") or (ReminderTerms."Max. No. of Reminders" = 0))
@@ -730,7 +734,7 @@ codeunit 392 "Reminder-Make"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReminderHeaderFind(var ReminderHeader: Record "Reminder Header"; ReminderHeaderReq: Record "Reminder Header"; ReminderTerms: Record "Reminder Terms"; Customer: Record Customer)
+    local procedure OnBeforeReminderHeaderFind(var ReminderHeader: Record "Reminder Header"; ReminderHeaderReq: Record "Reminder Header"; ReminderTerms: Record "Reminder Terms"; Customer: Record Customer; CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
@@ -795,7 +799,7 @@ codeunit 392 "Reminder-Make"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnMarkReminderCandidateOnAfterCalcIsGracePeriodExpired(var ReminderLevel: Record "Reminder Level"; var ReminderDueDate: Date; var ReminderHeaderReq: Record "Reminder Header"; var ReminderTerms: Record "Reminder Terms"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var ReminderHeader: Record "Reminder Header"; var LineLevel: Integer; var IsGracePeriodExpired: Boolean)
+    local procedure OnMarkReminderCandidateOnAfterCalcIsGracePeriodExpired(var ReminderLevel: Record "Reminder Level"; var ReminderDueDate: Date; var ReminderHeaderReq: Record "Reminder Header"; var ReminderTerms: Record "Reminder Terms"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var ReminderHeader: Record "Reminder Header"; var LineLevel: Integer; var IsGracePeriodExpired: Boolean; var IsHandled: Boolean)
     begin
     end;
 

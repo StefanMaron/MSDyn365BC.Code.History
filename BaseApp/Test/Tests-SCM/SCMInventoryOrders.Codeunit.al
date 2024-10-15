@@ -2154,6 +2154,7 @@ codeunit 137400 "SCM Inventory - Orders"
         // [FEATURE] [Drop Shipment] [Receipt] [Posting Date]
         // [SCENARIO 390141] Posting Date on Sales Order is updated after posting receive on Purchase Line linked via Drop Shipment.
         Initialize(false);
+        LinkDocDateToPostingDateSalesSetup(false);
 
         // [GIVEN] Sales order with Posting Date "28-01-2023" with Drop Shipment sales line
         // [GIVEN] Document Date = "27-01-2023".
@@ -2190,6 +2191,7 @@ codeunit 137400 "SCM Inventory - Orders"
         // [FEATURE] [Drop Shipment] [Shipment] [Posting Date]
         // [SCENARIO 390141] Posting Date on Sales Order is updated after posting receive on Purchase Line linked via Drop Shipment.
         Initialize(false);
+        LinkDocDateToPostingDatePurchSetup(false);
 
         // [GIVEN] Sales order with Posting Date "15-02-2023" with Drop Shipment sales line.
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
@@ -2809,6 +2811,74 @@ codeunit 137400 "SCM Inventory - Orders"
         // [VERIFY] Verify that it is possible to delete the first purchase line.
         PurchaseLine[1].SetRange("Document No.", PurchaseHeader."No.");
         Assert.RecordCount(PurchaseLine[1], LibraryRandom.RandIntInRange(2, 2));
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesListHandler')]
+    procedure SalesOrderDocDateAfterDropShipmentPurchaseReceiveWhenLinkDocDateToPostingDateEnabled()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [SCENARIO 494663] Receipt Issues when Posting - Doc Date not automatically updated when Post. Date changes due to Drop Shipment
+        Initialize(false);
+        LinkDocDateToPostingDateSalesSetup(true);
+
+        // [GIVEN] Sales order with Posting Date including Drop Shipment sales line
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        SalesHeader.Validate("Document Date", WorkDate() - 1);
+        SalesHeader.Modify(true);
+        CreateSalesLineWithPurchasingCode(SalesLine, SalesHeader);
+
+        // [GIVEN] Create a purchase order associated with the sales order via drop shipment with Posting Date "15-02-2023".
+        CreatePurchaseOrder(PurchaseHeader, SalesHeader."Sell-to Customer No.");
+        PurchaseHeader.Validate("Posting Date", LibraryRandom.RandDate(30));
+        PurchaseHeader.Modify(true);
+        GetDropShipmentLine(PurchaseLine, PurchaseHeader);
+
+        // [WHEN] Post purchase receipt
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [VERIFY] Verify: Sales Order has Posting Date updated to Purchase Order Posting Date and Document Date as Posting Date
+        SalesHeader.Find();
+        SalesHeader.TestField("Posting Date", PurchaseHeader."Posting Date");
+        SalesHeader.TestField("Document Date", SalesHeader."Posting Date");
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesListHandler')]
+    procedure PurchaseOrderDocDateAfterDropShipmentSalesShipWhenLinkDocDateToPostingDateEnabled()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [SCENARIO 494663] Shipment Issues when Posting - Doc Date not automatically updated when Post. Date changes due to Drop Shipment
+        Initialize(false);
+        LinkDocDateToPostingDatePurchSetup(true);
+
+        // [GIVEN] Sales order with Posting Date including Drop Shipment sales line.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        SalesHeader.Validate("Posting Date", LibraryRandom.RandDate(30));
+        SalesHeader.Modify(true);
+        CreateSalesLineWithPurchasingCode(SalesLine, SalesHeader);
+
+        // [GIVEN] Create a purchase order associated with the sales order via drop shipment with Posting Date "28-01-2023".
+        CreatePurchaseOrder(PurchaseHeader, SalesHeader."Sell-to Customer No.");
+        PurchaseHeader.Validate("Document Date", WorkDate() - 1);
+        PurchaseHeader.Modify(true);
+        GetDropShipmentLine(PurchaseLine, PurchaseHeader);
+
+        // [WHEN] Post sales shipment.
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [VERIFY] Verify: Purchase Order has Posting Date updated to Sales Order Posting Date and Document Date as Posting Date
+        PurchaseHeader.Find();
+        PurchaseHeader.TestField("Posting Date", SalesHeader."Posting Date");
+        PurchaseHeader.TestField("Document Date", PurchaseHeader."Posting Date");
     end;
 
     local procedure Initialize(Enable: Boolean)
@@ -4010,6 +4080,24 @@ codeunit 137400 "SCM Inventory - Orders"
         exit(SalesOrder.SalesLines."Unit Price".AsDecimal());
     end;
 #endif
+
+    local procedure LinkDocDateToPostingDateSalesSetup(EnableLinkDocDate: Boolean)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", EnableLinkDocDate);
+        SalesReceivablesSetup.Modify(true);
+    end;
+
+    local procedure LinkDocDateToPostingDatePurchSetup(EnableLinkDocDate: Boolean)
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Link Doc. Date To Posting Date", EnableLinkDocDate);
+        PurchasesPayablesSetup.Modify(true);
+    end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]

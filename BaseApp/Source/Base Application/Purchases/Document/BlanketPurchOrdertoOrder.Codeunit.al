@@ -221,7 +221,7 @@ codeunit 97 "Blanket Purch. Order to Order"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreatePurchHeader(PurchHeader, PrepmtPercent, IsHandled);
+        OnBeforeCreatePurchHeader(PurchHeader, PrepmtPercent, IsHandled, PurchOrderHeader);
         if IsHandled then
             exit;
 
@@ -349,7 +349,7 @@ codeunit 97 "Blanket Purch. Order to Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreatePurchHeader(var PurchaseHeader: Record "Purchase Header"; PrepmtPercent: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeCreatePurchHeader(var PurchaseHeader: Record "Purchase Header"; PrepmtPercent: Decimal; var IsHandled: Boolean; var OrderPurchaseHeader: Record "Purchase Header")
     begin
     end;
 

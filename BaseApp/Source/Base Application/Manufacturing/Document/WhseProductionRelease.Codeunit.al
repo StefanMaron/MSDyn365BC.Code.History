@@ -62,7 +62,7 @@ codeunit 5774 "Whse.-Production Release"
         ProdOrderComp2: Record "Prod. Order Component";
     begin
         GetLocation(ProdOrderComp."Location Code");
-        if not Location."Require Pick" then
+        if ((not Location."Require Pick") and (Location."Prod. Consump. Whse. Handling" = Location."Prod. Consump. Whse. Handling"::"No Warehouse Handling")) then
             exit;
 
         if (ProdOrderComp."Flushing Method" = ProdOrderComp."Flushing Method"::"Pick + Forward") and
