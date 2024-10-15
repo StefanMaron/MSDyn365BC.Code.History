@@ -2460,6 +2460,7 @@ page 42 "Sales Order"
             UpdateShipToBillToGroupVisibility();
             BillToContact.GetOrClear("Bill-to Contact No.");
             SellToContact.GetOrClear("Sell-to Contact No.");
+            CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(RecordId);
         end;
         OnAfterOnAfterGetRecord(Rec);
     end;

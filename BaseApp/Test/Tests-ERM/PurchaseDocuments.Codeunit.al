@@ -1588,7 +1588,48 @@ codeunit 134099 "Purchase Documents"
 
         // [THEN] Number of confirmation questions = 2
         Assert.AreEqual(2, LibraryVariableStorage.DequeueInteger(), 'Number of confirmations is incorrect');
+    end;
 
+    [Test]
+    procedure S465057_WhenPromisedReceiptDateIsRemovedPlannedReceiptDateIsSetToRequestedReceiptDate()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Purchase Order] [Planned Receipt Date] [Promised Receipt Date]
+        // [SCENARIO 465057] When "Promised Receipt Date" is removed "Planned Receipt Date" is set to "Requested Receipt Date".
+        Initialize();
+
+        // [GIVEN] Create Purchase Order with Item in line.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+
+        // [WHEN] Set "Requested Receipt Date" in Purchase Order.
+        PurchaseHeader.Validate("Requested Receipt Date", WorkDate() + 10);
+        PurchaseHeader.Modify(true);
+
+        // [THEN] Verify "Planned Receipt Date" in Purchase Line is equal to "Requested Receipt Date" in Purchase Header.
+        PurchaseLine.GetBySystemId(PurchaseLine.SystemId);
+        PurchaseLine.TestField("Requested Receipt Date", PurchaseHeader."Requested Receipt Date");
+        PurchaseLine.TestField("Planned Receipt Date", PurchaseLine."Requested Receipt Date");
+
+        // [WHEN] Set "Promised Receipt Date" in Purchase Order.
+        PurchaseHeader.Validate("Promised Receipt Date", WorkDate() + 15);
+        PurchaseHeader.Modify(true);
+
+        // [THEN] Verify "Planned Receipt Date" in Purchase Line is equal to "Promised Receipt Date" in Purchase Header.
+        PurchaseLine.GetBySystemId(PurchaseLine.SystemId);
+        PurchaseLine.TestField("Promised Receipt Date", PurchaseHeader."Promised Receipt Date");
+        PurchaseLine.TestField("Planned Receipt Date", PurchaseLine."Promised Receipt Date");
+
+        // [WHEN] Remove "Promised Receipt Date" in Purchase Order.
+        PurchaseHeader.Validate("Promised Receipt Date", 0D);
+        PurchaseHeader.Modify(true);
+
+        // [THEN] Verify "Planned Receipt Date" in Purchase Line is equal to "Requested Receipt Date" in Purchase Header.
+        PurchaseLine.GetBySystemId(PurchaseLine.SystemId);
+        PurchaseLine.TestField("Requested Receipt Date", PurchaseHeader."Requested Receipt Date");
+        PurchaseLine.TestField("Planned Receipt Date", PurchaseLine."Requested Receipt Date");
     end;
 
     local procedure Initialize()

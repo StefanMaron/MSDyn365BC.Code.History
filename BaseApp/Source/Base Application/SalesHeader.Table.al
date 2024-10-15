@@ -4768,6 +4768,7 @@
     var
         ShipToAddress: Record "Ship-to Address";
         IsHandled: Boolean;
+        IsShipmentMethodCodeAssigned: Boolean;
     begin
         IsHandled := false;
         OnBeforeGetShipmentMethodCode(Rec, IsHandled);
@@ -4775,15 +4776,18 @@
             exit;
 
         if "Ship-to Code" <> '' then begin
+            ShipToAddress.SetLoadFields("Shipment Method Code");
             ShipToAddress.Get("Sell-to Customer No.", "Ship-to Code");
-            if ShipToAddress."Shipment Method Code" <> '' then
+            if ShipToAddress."Shipment Method Code" <> '' then begin
                 Validate("Shipment Method Code", ShipToAddress."Shipment Method Code");
-        end else
-            if "Sell-to Customer No." <> '' then begin
-                GetCust("Sell-to Customer No.");
-                if Customer."Shipment Method Code" <> '' then
-                    Validate("Shipment Method Code", Customer."Shipment Method Code");
+                IsShipmentMethodCodeAssigned := true;
             end;
+        end;
+
+        if (not IsShipmentMethodCodeAssigned) and ("Sell-to Customer No." <> '') then begin
+            GetCust("Sell-to Customer No.");
+            Validate("Shipment Method Code", Customer."Shipment Method Code");
+        end;
     end;
 
     procedure GetShippingTime(CalledByFieldNo: Integer)

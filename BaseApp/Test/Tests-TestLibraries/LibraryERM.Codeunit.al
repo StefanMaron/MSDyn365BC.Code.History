@@ -80,7 +80,7 @@
         VATPostingSetup.SetRange("Adjust for Payment Discount", true);
         if VATPostingSetup.FindSet() then
             repeat
-                    VATPostingSetup.Validate("Adjust for Payment Discount", false);
+                VATPostingSetup.Validate("Adjust for Payment Discount", false);
                 VATPostingSetup.Modify(true);
             until VATPostingSetup.Next() = 0;
     end;
@@ -397,6 +397,25 @@
           CopyStr(LibraryUtility.GenerateRandomCode(CountryRegion.FieldNo(Code), DATABASE::"Country/Region"),
             1, LibraryUtility.GetFieldLength(DATABASE::"Country/Region", CountryRegion.FieldNo(Code))));
         CountryRegion.Insert(true);
+    end;
+
+    procedure CreateCountryRegionTranslation(CountryRegionCode: Code[10]; var CountryRegionTranslation: Record "Country/Region Translation")
+    var
+        LanguageCode: Code[10];
+        NameTranslation: Text[50];
+    begin
+        LanguageCode := GetAnyLanguageDifferentFromCurrent();
+        NameTranslation := CopyStr(LibraryRandom.RandText(MaxStrLen(NameTranslation)), 1, MaxStrLen(NameTranslation));
+        CreateCountryRegionTranslation(CountryRegionCode, LanguageCode, NameTranslation, CountryRegionTranslation);
+    end;
+
+    procedure CreateCountryRegionTranslation(CountryRegionCode: Code[10]; LanguageCode: Code[10]; NameTranslation: Text[50]; var CountryRegionTranslation: Record "Country/Region Translation")
+    begin
+        CountryRegionTranslation.Init();
+        CountryRegionTranslation.Validate("Country/Region Code", CountryRegionCode);
+        CountryRegionTranslation.Validate("Language Code", LanguageCode);
+        CountryRegionTranslation.Validate(Name, NameTranslation);
+        CountryRegionTranslation.Insert(true);
     end;
 
     procedure CreateTerritory(var Territory: Record Territory)
@@ -2632,19 +2651,19 @@
         CustLedgerEntry2.SetRange("Applying Entry", true);
         CustLedgerEntry2.SetFilter("Entry No.", '<>%1', CustLedgerEntry."Entry No.");
         if CustLedgerEntry2.FindSet() then
-                repeat
-                    CustLedgerEntry2.Validate("Applying Entry", false);
-                    CustLedgerEntry2.Modify(true);
-                until CustLedgerEntry2.Next() = 0;
+            repeat
+                CustLedgerEntry2.Validate("Applying Entry", false);
+                CustLedgerEntry2.Modify(true);
+            until CustLedgerEntry2.Next() = 0;
 
         // Clear Applies-to IDs
         CustLedgerEntry2.Reset();
         CustLedgerEntry2.SetFilter("Applies-to ID", '<>%1', '');
         if CustLedgerEntry2.FindSet() then
-                repeat
-                    CustLedgerEntry2.Validate("Applies-to ID", '');
-                    CustLedgerEntry2.Modify(true);
-                until CustLedgerEntry2.Next() = 0;
+            repeat
+                CustLedgerEntry2.Validate("Applies-to ID", '');
+                CustLedgerEntry2.Modify(true);
+            until CustLedgerEntry2.Next() = 0;
 
         // Apply Payment Entry on Posted Invoice.
         with CustLedgerEntry do begin
@@ -2666,7 +2685,7 @@
         VendorLedgerEntry2.SetFilter("Entry No.", '<>%1', VendorLedgerEntry."Entry No.");
         if VendorLedgerEntry2.FindSet() then
             repeat
-                    VendorLedgerEntry2.Validate("Applying Entry", false);
+                VendorLedgerEntry2.Validate("Applying Entry", false);
                 VendorLedgerEntry2.Modify(true);
             until VendorLedgerEntry2.Next() = 0;
 
@@ -2675,7 +2694,7 @@
         VendorLedgerEntry2.SetFilter("Applies-to ID", '<>%1', '');
         if VendorLedgerEntry2.FindSet() then
             repeat
-                    VendorLedgerEntry2.Validate("Applies-to ID", '');
+                VendorLedgerEntry2.Validate("Applies-to ID", '');
                 VendorLedgerEntry2.Modify(true);
             until VendorLedgerEntry2.Next() = 0;
 
@@ -2697,19 +2716,19 @@
         EmployeeLedgerEntry2.SetRange("Applying Entry", true);
         EmployeeLedgerEntry2.SetFilter("Entry No.", '<>%1', EmployeeLedgerEntry."Entry No.");
         if EmployeeLedgerEntry2.FindSet() then
-                repeat
-                    EmployeeLedgerEntry2.Validate("Applying Entry", false);
-                    EmployeeLedgerEntry2.Modify(true);
-                until EmployeeLedgerEntry2.Next() = 0;
+            repeat
+                EmployeeLedgerEntry2.Validate("Applying Entry", false);
+                EmployeeLedgerEntry2.Modify(true);
+            until EmployeeLedgerEntry2.Next() = 0;
 
         // Clear Applies-to IDs.
         EmployeeLedgerEntry2.Reset();
         EmployeeLedgerEntry2.SetFilter("Applies-to ID", '<>%1', '');
         if EmployeeLedgerEntry2.FindSet() then
-                repeat
-                    EmployeeLedgerEntry2.Validate("Applies-to ID", '');
-                    EmployeeLedgerEntry2.Modify(true);
-                until EmployeeLedgerEntry2.Next() = 0;
+            repeat
+                EmployeeLedgerEntry2.Validate("Applies-to ID", '');
+                EmployeeLedgerEntry2.Modify(true);
+            until EmployeeLedgerEntry2.Next() = 0;
 
         // Apply Payment Entry on Posted Invoice.
         with EmployeeLedgerEntry do begin

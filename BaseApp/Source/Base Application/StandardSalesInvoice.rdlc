@@ -7001,14 +7001,14 @@
                               <Top>11.87779cm</Top>
                               <Left>0cm</Left>
                               <Height>0.4cm</Height>
-                              <Width>4.5cm</Width>
+                              <Width>7cm</Width>
                               <ZIndex>10</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
                                 </Border>
-                                <PaddingTop>5pt</PaddingTop>
-                                <PaddingBottom>5pt</PaddingBottom>
+                                <PaddingLeft>5pt</PaddingLeft>
+                                <PaddingRight>5pt</PaddingRight>
                               </Style>
                             </Textbox>
                             <Textbox Name="Textbox68">
@@ -7032,14 +7032,14 @@
                               <Top>12.38362cm</Top>
                               <Left>0cm</Left>
                               <Height>0.4cm</Height>
-                              <Width>4.5cm</Width>
+                              <Width>7cm</Width>
                               <ZIndex>11</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
                                 </Border>
-                                <PaddingTop>5pt</PaddingTop>
-                                <PaddingBottom>5pt</PaddingBottom>
+                                <PaddingLeft>5pt</PaddingLeft>
+                                <PaddingRight>5pt</PaddingRight>
                               </Style>
                             </Textbox>
                           </ReportItems>

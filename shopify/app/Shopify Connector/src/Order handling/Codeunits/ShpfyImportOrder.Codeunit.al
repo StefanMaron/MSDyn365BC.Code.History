@@ -17,6 +17,7 @@ codeunit 30161 "Shpfy Import Order"
         CommunicationMgt: Codeunit "Shpfy Communication Mgt.";
         JHelper: Codeunit "Shpfy Json Helper";
         OrderEvents: Codeunit "Shpfy Order Events";
+        OrderFulfillments: Codeunit "Shpfy Order Fulfillments";
         IsTestInProgress: Boolean;
 
     /// <summary> 
@@ -94,7 +95,7 @@ codeunit 30161 "Shpfy Import Order"
                     if OrderHeader."Location Id" = 0 then
                         OrderHeader."Location Id" := LocationId;
                     if OrderLine.Get(OrderHeader."Shopify Order Id", LineId) and (OrderLine."Location Id" = 0) then begin
-                        OrderLine."Location Id" := LocationId;
+                        UpdateLocationIdOnOrderLine(OrderLine);
                         OrderLine.Modify();
                     end;
                 end;
@@ -306,6 +307,10 @@ codeunit 30161 "Shpfy Import Order"
             if JHelper.GetJsonArray(JToken, JArray, 'tax_lines') then
                 AddTaxLines(RecRef.Field(OrderLine.FieldNo("Line Id")).Value, JArray);
             RecRef.Insert(true);
+            RecRef.SetTable(OrderLine);
+            UpdateLocationIdOnOrderLine(OrderLine);
+            OrderLine.Modify();
+
             RecRef.Close();
         end;
     end;
@@ -615,7 +620,7 @@ codeunit 30161 "Shpfy Import Order"
     internal procedure ImportOrder(var OrdersToImport: Record "Shpfy Orders to Import"; var OrderHeader: Record "Shpfy Order Header"; var JOrder: JsonObject)
     var
         xOrderHeader: Record "Shpfy Order Header";
-        FulFillments: Codeunit "Shpfy Order Fulfillments";
+        FulfillmentOrdersAPI: Codeunit "Shpfy Fulfillment Orders API";
         Risks: Codeunit "Shpfy Order Risks";
         ShippingCosts: Codeunit "Shpfy Shipping Charges";
         Transactions: Codeunit "Shpfy Transactions";
@@ -637,6 +642,8 @@ codeunit 30161 "Shpfy Import Order"
                     exit;
         end;
         UpdateOrder(OrderHeader, RecRef, JOrder, PhoneNo);
+
+        FulfillmentOrdersAPI.GetShopifyFulfillmentOrdersFromShopifyOrder(Shop, OrderHeader."Shopify Order Id");
 
         OrderHeader."Fulfillment Status" := OrdersToImport."Fulfillment Status";
         OrderHeader."Shop Code" := OrdersToImport."Shop Code";
@@ -672,11 +679,23 @@ codeunit 30161 "Shpfy Import Order"
             AddPaymentGatewayNames(OrderHeader."Shopify Order Id", JArray);
         if JHelper.GetJsonArray(JOrder, JArray, 'tax_lines') then
             AddTaxLines(OrderHeader."Shopify Order Id", JArray);
-        if JHelper.GetJsonArray(JOrder, JArray, 'fulfillments') then
-            FulFillments.GetFulfillmentInfos(OrderHeader."Shopify Order Id", JArray);
+        OrderFulfillments.GetFulfillments(Shop, OrderHeader."Shopify Order Id");
         if JHelper.GetJsonArray(JOrder, JArray, 'shipping_lines') then
             ShippingCosts.UpdateShippingCostInfos(OrderHeader, JArray);
         Transactions.UpdateTransactionInfos(OrderHeader);
         Risks.UpdateOrderRisks(OrderHeader);
     end;
+
+    local procedure UpdateLocationIdOnOrderLine(var OrderLine: Record "Shpfy Order Line")
+    var
+        FulfillmentOrderLine: Record "Shpfy FulFillment Order Line";
+    begin
+        FulfillmentOrderLine.Reset();
+        FulfillmentOrderLine.SetRange("Shopify Order Id", OrderLine."Shopify Order Id");
+        FulfillmentOrderLine.SetRange("Shopify Variant Id", OrderLine."Shopify Variant Id");
+        FulfillmentOrderLine.SetRange("Total Quantity", OrderLine.Quantity);
+        if FulfillmentOrderLine.FindFirst() then
+            OrderLine."Location Id" := FulfillmentOrderLine."Shopify Location Id";
+    end;
+
 }
