@@ -8,17 +8,22 @@ codeunit 10751 "SII Job Management"
     var
         JobQueueManagement: Codeunit "Job Queue Management";
         JobQueueEntryStartedTxt: Label 'The job queue entry for detection of missing SII entries has started.';
+        SIIFeatureNameTok: Label 'SII', Locked = true;
+        JobQueueEntryCreatedTxt: Label 'Job queue entry of type %1 has been created.', Locked = true, Comment = '%1 = job type';
 
     procedure RenewJobQueueEntry(JobType: Option HandlePending,HandleCommError,InitialUpload)
     var
         TempJobQueueEntry: Record "Job Queue Entry" temporary;
+        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
         if JobQueueEntryExists(JobType, TempJobQueueEntry) then begin
+            TempJobQueueEntry.CalcFields(Scheduled);
             if TempJobQueueEntry.Scheduled then
                 exit;
             JobQueueManagement.DeleteJobQueueEntries(TempJobQueueEntry."Object Type to Run", TempJobQueueEntry."Object ID to Run");
         end;
         CreateJobQueueEntry(JobType);
+        FeatureTelemetry.LogUsage('0000LN4', SIIFeatureNameTok, StrSubstNo(JobQueueEntryCreatedTxt, Format(JobType)));
     end;
 
     local procedure JobQueueEntryExists(JobType: Option HandlePending,HandleCommError,InitialUpload; var TempJobQueueEntryFound: Record "Job Queue Entry" temporary): Boolean

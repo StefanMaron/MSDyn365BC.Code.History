@@ -1619,6 +1619,97 @@ codeunit 147590 "Test VAT Statement"
         LibraryReportDataset.AssertElementWithValueExists('Base_NoTaxableEntry', PurchaseHeader1.Amount);
     end;
 
+    [Test]
+    [HandlerFunctions('TemplateSelectionModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure TestVATStatementPreviewNoTaxablePurchaseFCY()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        VATStatementName: Record "VAT Statement Name";
+        VATStatementLine: Record "VAT Statement Line";
+        VATStatement: TestPage "VAT Statement";
+        VATStatementPreview: TestPage "VAT Statement Preview";
+        NoTaxableEntries: TestPage "No Taxable Entries";
+        ExchangeRateAmount: Decimal;
+    begin
+        // [FEATURE] Purchase]
+        // [SCENARIO 488609] FCY Purchase No Taxable entry shown in foreign currency is shown in LCY in the VAT Statement Preview
+
+        Initialize();
+
+        // [GIVEN] The FCY purchase invoice with No Taxable VAT, Amount = 100 and Amount (LCY) = 50
+        CreateVATPostingSetupNoTaxable(VATPostingSetup);
+        ExchangeRateAmount := LibraryRandom.RandDecInRange(10, 50, 2);
+        CreatePostPurchInvoiceWithCurrency(
+          PurchaseHeader, VATPostingSetup,
+          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchangeRateAmount, ExchangeRateAmount));
+
+        // [GIVEN] VAT Statement Lines for No Taxable VAT Posting Setup with Amount type = Amount and Base
+        CreateVATStatement(VATStatementName);
+        CreateVATStatementLineVATTotalling(
+          VATStatementLine, VATStatementName, '1', VATPostingSetup,
+          VATStatementLine."Gen. Posting Type"::Purchase, VATStatementLine."Amount Type"::Amount, '');
+        CreateVATStatementLineVATTotalling(
+          VATStatementLine, VATStatementName, '2', VATPostingSetup,
+          VATStatementLine."Gen. Posting Type"::Purchase, VATStatementLine."Amount Type"::Base, '');
+
+        // [THEN] VAT Statement Preview shows 0 and 50 in VAT Statement Lines lines respectively
+        LibraryVariableStorage.Enqueue(VATStatementName."Statement Template Name");
+        VATStatementPreview.Trap;
+        NoTaxableEntries.Trap;
+        VATStatement.OpenEdit;
+        VATStatement."P&review".Invoke;
+        VATStatementPreview.VATStatementLineSubForm.ColumnValue.AssertEquals(0);
+        VATStatementPreview.VATStatementLineSubForm.Next;
+        VATStatementPreview.VATStatementLineSubForm.ColumnValue.AssertEquals(PurchaseHeader.Amount / ExchangeRateAmount);
+    end;
+
+    [Test]
+    [HandlerFunctions('TemplateSelectionModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure TestVATStatementPreviewNoTaxableSalesFCY()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeader: Record "Sales Header";
+        VATStatementName: Record "VAT Statement Name";
+        VATStatementLine: Record "VAT Statement Line";
+        VATStatement: TestPage "VAT Statement";
+        VATStatementPreview: TestPage "VAT Statement Preview";
+        NoTaxableEntries: TestPage "No Taxable Entries";
+        ExchangeRateAmount: Decimal;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 488609] FCY Sales No Taxable entry shown in foreign currency is shown in LCY in the VAT Statement Preview
+        Initialize();
+
+        // [GIVEN] The FCY sales invoice with No Taxable VAT, Amount = 100 and Amount (LCY) = 50
+        CreateVATPostingSetupNoTaxable(VATPostingSetup);
+        ExchangeRateAmount := LibraryRandom.RandDecInRange(10, 50, 2);
+        CreatePostSalesInvoiceWithCurrency(
+          SalesHeader, VATPostingSetup,
+          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchangeRateAmount, ExchangeRateAmount));
+
+        // [GIVEN] VAT Statement Lines for No Taxable VAT Posting Setup with Amount type = Amount and Base
+        CreateVATStatement(VATStatementName);
+        CreateVATStatementLineVATTotalling(
+          VATStatementLine, VATStatementName, '1', VATPostingSetup,
+          VATStatementLine."Gen. Posting Type"::Sale, VATStatementLine."Amount Type"::Amount, '');
+        CreateVATStatementLineVATTotalling(
+          VATStatementLine, VATStatementName, '2', VATPostingSetup,
+          VATStatementLine."Gen. Posting Type"::Sale, VATStatementLine."Amount Type"::Base, '');
+
+        // [THEN] VAT Statement Preview shows 0 and -50 in VAT Statement Lines lines respectively
+        LibraryVariableStorage.Enqueue(VATStatementName."Statement Template Name");
+        VATStatementPreview.Trap;
+        NoTaxableEntries.Trap;
+        VATStatement.OpenEdit;
+        VATStatement."P&review".Invoke;
+        VATStatementPreview.VATStatementLineSubForm.ColumnValue.AssertEquals(0);
+        VATStatementPreview.VATStatementLineSubForm.Next;
+        VATStatementPreview.VATStatementLineSubForm.ColumnValue.AssertEquals(-SalesHeader.Amount / ExchangeRateAmount);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2120,12 +2211,23 @@ codeunit 147590 "Test VAT Statement"
     end;
 
     local procedure CreatePostPurchInvoice(var PurchaseHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup"): Code[20]
+    begin
+        exit(CreatePostCustomPurchInvoice(PurchaseHeader, VATPostingSetup, ''));
+    end;
+
+    local procedure CreatePostPurchInvoiceWithCurrency(var PurchaseHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup"; CurrencyCode: Code[10]): Code[20]
+    begin
+        exit(CreatePostCustomPurchInvoice(PurchaseHeader, VATPostingSetup, CurrencyCode));
+    end;
+
+    local procedure CreatePostCustomPurchInvoice(var PurchaseHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup"; CurrencyCode: Code[10]): Code[20]
     var
         PurchaseLine: Record "Purchase Line";
         GLAccount: Record "G/L Account";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
         PurchaseHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        PurchaseHeader.Validate("Currency Code", CurrencyCode);
         PurchaseHeader.Modify(true);
         GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup);
         GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
@@ -2138,12 +2240,23 @@ codeunit 147590 "Test VAT Statement"
     end;
 
     local procedure CreatePostSalesInvoice(var SalesHeader: Record "Sales Header"; VATPostingSetup: Record "VAT Posting Setup"): Code[20]
+    begin
+        exit(CreatePostCustomSalesInvoice(SalesHeader, VATPostingSetup, ''));
+    end;
+
+    local procedure CreatePostSalesInvoiceWithCurrency(var SalesHeader: Record "Sales Header"; VATPostingSetup: Record "VAT Posting Setup"; CurrencyCode: Code[10]): Code[20]
+    begin
+        exit(CreatePostCustomSalesInvoice(SalesHeader, VATPostingSetup, CurrencyCode));
+    end;
+
+    local procedure CreatePostCustomSalesInvoice(var SalesHeader: Record "Sales Header"; VATPostingSetup: Record "VAT Posting Setup"; CurrencyCode: Code[10]): Code[20]
     var
         SalesLine: Record "Sales Line";
         GLAccount: Record "G/L Account";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
         SalesHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        SalesHeader.Validate("Currency Code", CurrencyCode);
         SalesHeader.Modify(true);
         GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
         GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");

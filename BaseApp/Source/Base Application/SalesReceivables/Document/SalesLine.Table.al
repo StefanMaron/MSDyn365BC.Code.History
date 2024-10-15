@@ -5601,7 +5601,6 @@
     local procedure GetFAPostingGroup()
     var
         LocalGLAcc: Record "G/L Account";
-        FASetup: Record "FA Setup";
         FAPostingGr: Record "FA Posting Group";
         FADeprBook: Record "FA Depreciation Book";
         ShouldExit: Boolean;
@@ -5616,11 +5615,7 @@
             exit;
 
         if "Depreciation Book Code" = '' then begin
-            FASetup.Get();
-            "Depreciation Book Code" := FASetup."Default Depr. Book";
-            if not FADeprBook.Get("No.", "Depreciation Book Code") then
-                "Depreciation Book Code" := '';
-
+            "Depreciation Book Code" := GetFADeprBook("No.");
             ShouldExit := "Depreciation Book Code" = '';
             OnGetGetFAPostingGroupOnBeforeExit(Rec, ShouldExit);
             if ShouldExit then
@@ -8863,6 +8858,35 @@
     begin
     end;
 #endif
+
+    local procedure GetFADeprBook(FANo: Code[20]) DepreciationBookCode: Code[10]
+    var
+        FASetup: Record "FA Setup";
+        FADeprBook: Record "FA Depreciation Book";
+        DefaultFADeprBook: Record "FA Depreciation Book";
+        SetFADeprBook: Record "FA Depreciation Book";
+    begin
+        FASetup.Get();
+
+        DefaultFADeprBook.SetRange("FA No.", FANo);
+        DefaultFADeprBook.SetRange("Default FA Depreciation Book", true);
+
+        SetFADeprBook.SetRange("FA No.", FANo);
+
+        case true of
+            SetFADeprBook.Count = 1:
+                begin
+                    SetFADeprBook.FindFirst();
+                    DepreciationBookCode := SetFADeprBook."Depreciation Book Code";
+                end;
+            DefaultFADeprBook.FindFirst():
+                DepreciationBookCode := DefaultFADeprBook."Depreciation Book Code";
+            FADeprBook.Get("No.", FASetup."Default Depr. Book"):
+                DepreciationBookCode := FASetup."Default Depr. Book"
+            else
+                DepreciationBookCode := '';
+        end;
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var SalesLine: Record "Sales Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)

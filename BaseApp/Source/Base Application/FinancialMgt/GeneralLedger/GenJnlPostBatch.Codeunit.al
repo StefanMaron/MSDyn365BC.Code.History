@@ -374,9 +374,9 @@
         OnBeforeProcessBalanceOfLines(GenJnlLine, GenJnlBatch, GenJnlTemplate, IsProcessingKeySet);
         if not IsProcessingKeySet then
             if GenJnlTemplate."Force Doc. Balance" then
-                GenJnlLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Posting Date", "Document No.")
+                GenJnlLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Document No.", "Posting Date")
             else
-                GenJnlLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Posting Date", "Transaction No.");
+                GenJnlLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Bal. Account No.");
         LineCount := 0;
         LastDate := 0D;
         LastDocType := LastDocType::" ";

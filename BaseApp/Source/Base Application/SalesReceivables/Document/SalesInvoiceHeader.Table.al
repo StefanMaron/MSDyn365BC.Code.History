@@ -969,7 +969,14 @@ table 112 "Sales Invoice Header"
         CorrInvDoesNotExistErr: Label 'The Corrected Invoice No. does not exist. \Identification fields and values:\Corrected Invoice No. = %1.', Comment = '%1 = number of document';
 
     procedure IsFullyOpen(): Boolean
+    var
+        FullyOpen: Boolean;
+        IsHandled: Boolean;
     begin
+        OnPostedSalesInvoiceFullyOpen(Rec, FullyOpen, IsHandled);
+        if IsHandled then
+            exit(FullyOpen);
+
         CalcFields("Amount Including VAT", "Remaining Amount");
         exit("Amount Including VAT" = "Remaining Amount");
     end;
@@ -1479,6 +1486,11 @@ table 112 "Sales Invoice Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnLookupAppliesToDocNoOnAfterSetFilters(var CustLedgEntry: Record "Cust. Ledger Entry"; SalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostedSalesInvoiceFullyOpen(var SalesInvoiceHeader: Record "Sales Invoice Header"; var FullyOpen: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

@@ -11,7 +11,6 @@ table 189 "VAT Setup"
         field(2; "Enable Non-Deductible VAT"; Boolean)
         {
             Caption = 'Enable Non-Deductible VAT';
-            Editable = false;
 
             trigger OnValidate()
             var

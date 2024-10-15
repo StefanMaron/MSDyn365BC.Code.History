@@ -2732,7 +2732,14 @@
     end;
 
     procedure Signed(Value: Decimal) Result: Decimal
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSigned(Rec, Value, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         case "Entry Type" of
             "Entry Type"::Purchase,
           "Entry Type"::"Positive Adjmt.",
@@ -4626,13 +4633,14 @@
         TempTrackingSpecification: Record "Tracking Specification" temporary;
         ItemTrackingCode: Record "Item Tracking Code";
         ItemTrackingDataCollection: Codeunit "Item Tracking Data Collection";
+        Math: Codeunit "Math";
     begin
         TempTrackingSpecification.InitFromItemJnlLine(Rec);
         GetItem();
         ItemTrackingCode.Get(Item."Item Tracking Code");
         ItemTrackingDataCollection.SetCurrentBinAndItemTrkgCode('', ItemTrackingCode);
         ItemTrackingDataCollection.AssistEditTrackingNo(
-            TempTrackingSpecification, not IsInbound(), Signed(Quantity),
+            TempTrackingSpecification, not IsInbound(), Math.Sign(Signed(Quantity)),
             TrackingType, Quantity);
 
         case TrackingType of
@@ -5430,6 +5438,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitTableValuePair(var ItemJournalLine: Record "Item Journal Line"; var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSigned(ItemJournalLine: Record "Item Journal Line"; var Value: Decimal; var Result: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

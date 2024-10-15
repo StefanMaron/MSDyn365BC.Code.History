@@ -534,7 +534,13 @@
                     No[4] := "Location Code";
                     TableID[5] := DATABASE::Location;
                     No[5] := "New Location Code";
-                    CheckDimensionsAfterAssignDimTableIDs(ItemJnlLine, TableID, No, "Dimension Set ID");
+
+                    if ("Entry Type" = "Entry Type"::Transfer) then begin
+                        CheckDimensionsAfterAssignDimTableIDs(ItemJnlLine, TableID, No, "Dimension Set ID");
+                        if DimMgt.CheckDefaultDimensionHasCodeMandatory(TableID, No) then
+                            CheckDimensionsAfterAssignDimTableIDs(ItemJnlLine, TableID, No, "New Dimension Set ID");
+                    end else
+                        CheckDimensionsAfterAssignDimTableIDs(ItemJnlLine, TableID, No, "Dimension Set ID");
                 end;
 
                 if ("Entry Type" = "Entry Type"::Transfer) and

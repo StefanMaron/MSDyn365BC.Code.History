@@ -5000,9 +5000,6 @@
             until DtldCVLedgEntryBuf.Next() = 0;
         end;
 
-        DtldLedgEntryInserted := not DtldCVLedgEntryBuf.IsEmpty();
-        DtldCVLedgEntryBuf.DeleteAll();
-
         EmplPostingGr.TestField("Payables Account");
         AccNo := EmplPostingGr."Payables Account";
 

@@ -19,8 +19,7 @@ page 187 "VAT Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the Non-Deductible VAT feature is enabled.';
-                    Editable = false;
-                    Visible = false;
+                    Editable = not "Non-Deductible VAT Is Enabled";
                 }
             }
             group(NonDeductibleVAT)

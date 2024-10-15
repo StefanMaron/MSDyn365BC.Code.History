@@ -749,8 +749,8 @@ report 12 "VAT Statement"
 
         if VATStatementLine."Amount Type" in [VATStatementLine."Amount Type"::Base, VATStatementLine."Amount Type"::"Amount+Base"]
         then begin
-            NoTaxableEntry.CalcSums(Base, "Base (ACY)");
-            exit(ConditionalAdd(0, NoTaxableEntry.Base, NoTaxableEntry."Base (ACY)"));
+            NoTaxableEntry.CalcSums("Base (LCY)", "Base (ACY)");
+            exit(ConditionalAdd(0, NoTaxableEntry."Base (LCY)", NoTaxableEntry."Base (ACY)"));
         end;
 
         exit(0);

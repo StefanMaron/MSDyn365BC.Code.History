@@ -4608,6 +4608,7 @@
         FASetup: Record "FA Setup";
         FADeprBook: Record "FA Depreciation Book";
         DefaultFADeprBook: Record "FA Depreciation Book";
+        SetFADeprBook: Record "FA Depreciation Book";
     begin
         OnBeforeGetFADeprBook(Rec, FANo);
         if "Depreciation Book Code" = '' then begin
@@ -4616,11 +4617,18 @@
             DefaultFADeprBook.SetRange("FA No.", FANo);
             DefaultFADeprBook.SetRange("Default FA Depreciation Book", true);
 
+            SetFADeprBook.SetRange("FA No.", FANo);
+
             case true of
                 DefaultFADeprBook.FindFirst():
                     "Depreciation Book Code" := DefaultFADeprBook."Depreciation Book Code";
                 FADeprBook.Get(FANo, FASetup."Default Depr. Book"):
                     "Depreciation Book Code" := FASetup."Default Depr. Book";
+                SetFADeprBook.Count = 1:
+                    begin
+                        SetFADeprBook.FindFirst();
+                        "Depreciation Book Code" := SetFADeprBook."Depreciation Book Code";
+                    end
                 else
                     "Depreciation Book Code" := '';
             end;
