@@ -425,10 +425,10 @@ table 130 "Incoming Document"
         DataExchangeTypeEmptyErr: Label 'You must select a value in the Data Exchange Type field on the incoming document.';
         NoDocAttachErr: Label 'No document is attached.\\Attach a document, and then try again.';
         AdvanceTxt: Label 'Advance';
-        SalesAdvanceTxt: Label 'Sales Advance';
-        PurchAdvanceTxt: Label 'Purchase Advance';
+        SalesAdvanceTxt: Label 'Sales Advance (Obsolete)';
+        PurchAdvanceTxt: Label 'Purchase Advance (Obsolete)';
 #if not CLEAN18
-        CreditTxt: Label 'Credit';
+        CreditTxt: Label 'Credit (Obsolete)';
 #endif
         GeneralLedgerEntriesTxt: Label 'General Ledger Entries';
         CannotReplaceMainAttachmentErr: Label 'Cannot replace the main attachment because the document has already been sent to OCR.';
@@ -589,8 +589,10 @@ table 130 "Incoming Document"
     procedure CreateManually()
     var
         RelatedRecord: Variant;
-        DocumentTypeOption: Integer;
+        DocumentTypeOption, DocumentTypeEnum : Integer;
         IsHandled: Boolean;
+        CreatedDocumentType: Dictionary of [Integer, Integer];
+        CreatedDocumentStrMenu: Text;
     begin
         IsHandled := false;
         OnBeforeCreateManually(Rec, IsHandled);
@@ -600,26 +602,26 @@ table 130 "Incoming Document"
         if GetRecord(RelatedRecord) then
             Error(DocAlreadyCreatedErr);
 
-        DocumentTypeOption :=
-            StrMenu(
-#if CLEAN18
-                StrSubstNo(
-                    '%1,%2,%3,%4,%5', JournalTxt, SalesInvoiceTxt, SalesCreditMemoTxt, PurchaseInvoiceTxt, PurchaseCreditMemoTxt), 1);
-#else
+        CreatedDocumentType.Add(1, "Document Type"::Journal.AsInteger());
+        CreatedDocumentType.Add(2, "Document Type"::"Sales Invoice".AsInteger());
+        CreatedDocumentType.Add(3, "Document Type"::"Sales Credit Memo".AsInteger());
+        CreatedDocumentType.Add(4, "Document Type"::"Purchase Invoice".AsInteger());
+        CreatedDocumentType.Add(5, "Document Type"::"Purchase Credit Memo".AsInteger());
         // NAVCZ
-                StrSubstNo('%1,%2,%3,%4,%5,%6,%7,%8',
-                    JournalTxt, SalesInvoiceTxt, SalesCreditMemoTxt, PurchaseInvoiceTxt, PurchaseCreditMemoTxt,
-                    SalesAdvanceTxt, PurchAdvanceTxt, CreditTxt), 1);
+        CreatedDocumentType.Add(6, "Document Type"::"Purchase Advance".AsInteger());
+        CreatedDocumentType.Add(7, "Document Type"::"Sales Advance".AsInteger());
+        CreatedDocumentType.Add(8, "Document Type"::Credit.AsInteger());
+        CreatedDocumentStrMenu := StrSubstNo('%1,%2,%3,%4,%5,%6,%7,%8', JournalTxt, SalesInvoiceTxt, SalesCreditMemoTxt, PurchaseInvoiceTxt, PurchaseCreditMemoTxt,
+            PurchAdvanceTxt, SalesAdvanceTxt, CreditTxt);
         // NAVCZ
-#endif
+        OnAfterSetCreatedDocumentType(CreatedDocumentType, CreatedDocumentStrMenu);
 
+        DocumentTypeOption := StrMenu(CreatedDocumentStrMenu, 1);
         if DocumentTypeOption < 1 then
             exit;
 
-        if DocumentTypeOption <= 5 then // NAVCZ
-            DocumentTypeOption -= 1;
-
-        case DocumentTypeOption of
+        DocumentTypeEnum := CreatedDocumentType.Get(DocumentTypeOption);
+        case DocumentTypeEnum of
             "Document Type"::"Purchase Invoice".AsInteger():
                 CreatePurchInvoice();
             "Document Type"::"Purchase Credit Memo".AsInteger():
@@ -635,11 +637,11 @@ table 130 "Incoming Document"
                 CreateSalesAdvLetter();
             "Document Type"::"Purchase Advance".AsInteger():
                 CreatePurchAdvLetter();
-#if not CLEAN18
             "Document Type"::Credit.AsInteger():
                 CreateCredit();
-#endif
-        // NAVCZ
+            // NAVCZ
+            else
+                OnAfterCreateDocumentType(Rec, DocumentTypeEnum);
         end;
 
         OnAfterCreateManually(Rec);
@@ -921,16 +923,14 @@ table 130 "Incoming Document"
         CopyFilters(IncomingDocument);
     end;
 
-    local procedure TestIfAlreadyExists()
+    procedure TestIfAlreadyExists()
     var
         GenJnlLine: Record "Gen. Journal Line";
         SalesHeader: Record "Sales Header";
         PurchaseHeader: Record "Purchase Header";
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
-#if not CLEAN18
         CreditHeader: Record "Credit Header";
-#endif
     begin
         case "Document Type" of
             "Document Type"::Journal:
@@ -964,15 +964,15 @@ table 130 "Incoming Document"
                     if PurchAdvanceLetterHeader.FindFirst then
                         Error(AlreadyUsedInDocHdrErr, AdvanceTxt, PurchAdvanceLetterHeader."No.", PurchAdvanceLetterHeader.TableCaption);
                 end;
-#if not CLEAN18
             "Document Type"::Credit:
                 begin
                     CreditHeader.SetRange("Incoming Document Entry No.", "Entry No.");
                     if CreditHeader.FindFirst then
                         Error(AlreadyUsedInDocHdrErr, '', CreditHeader."No.", CreditHeader.TableCaption);
                 end;
-#endif
-        // NAVCZ
+            // NAVCZ
+            else
+                OnTestIfAlreadyExists("Document Type", "Entry No.");
         end;
     end;
 
@@ -1016,10 +1016,15 @@ table 130 "Incoming Document"
         GLEntry: Record "G/L Entry";
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
-#if not CLEAN18
         PostedCreditHeader: Record "Posted Credit Header";
-#endif
+        IncomingRelatedDocumentType: Enum "Incoming Related Document Type";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetRelatedDocType(PostingDate, DocNo, IsPosted, IncomingRelatedDocumentType, IsHandled);
+        if IsHandled then
+            exit(IncomingRelatedDocumentType);
+
         IsPosted := true;
         case true of
             ((PostingDate = 0D) or (DocNo = '')):
@@ -1043,11 +1048,9 @@ table 130 "Incoming Document"
             PurchAdvanceLetterHeader.Get(DocNo):
                 if PurchAdvanceLetterHeader."Posting Date" = PostingDate then
                     exit("Document Type"::"Purchase Advance");
-#if not CLEAN18
             PostedCreditHeader.Get(DocNo):
                 if PostedCreditHeader."Posting Date" = PostingDate then
                     exit("Document Type"::Credit);
-#endif
             // NAVCZ
             else
                 GLEntry.SetRange("Posting Date", PostingDate);
@@ -1181,7 +1184,9 @@ table 130 "Incoming Document"
                     CreditHeader.ModifyAll("Incoming Document Entry No.", 0, true);
                 end;
 #endif
-        // NAVCZ
+            // NAVCZ
+            else
+                OnAfterClearRelatedRecords("Document Type", "Entry No.");
         end;
     end;
 
@@ -1356,7 +1361,7 @@ table 130 "Incoming Document"
     end;
 
 #endif
-    local procedure DocLinkExists(RecVar: Variant): Boolean
+    procedure DocLinkExists(RecVar: Variant): Boolean
     var
         RecordLink: Record "Record Link";
         RecRef: RecordRef;
@@ -2557,6 +2562,31 @@ table 130 "Incoming Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnRemoveReferenceToWorkingDocumentOnBeforeModify(var IncomingDocument: Record "Incoming Document")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCreatedDocumentType(var CreatedDocumentType: Dictionary of [Integer, Integer]; var CreatedDocumentStrMenu: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDocumentType(var IncomingDocument: Record "Incoming Document"; DocumentTypeEnum: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestIfAlreadyExists(IncomingRelatedDocumentType: Enum "Incoming Related Document Type"; EntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetRelatedDocType(PostingDate: Date; DocNo: Code[20]; var IsPosted: Boolean; var IncomingRelatedDocumentType: Enum "Incoming Related Document Type"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterClearRelatedRecords(IncomingRelatedDocumentType: Enum "Incoming Related Document Type"; EntryNo: Integer)
     begin
     end;
 }

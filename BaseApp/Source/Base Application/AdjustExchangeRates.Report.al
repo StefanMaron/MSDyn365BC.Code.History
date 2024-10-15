@@ -815,7 +815,6 @@ report 595 "Adjust Exchange Rates"
                 AdjVend := true;
                 AdjBank := true;
             end;
-            TestMode := true;
             if not SummarizeEntries then
                 PostingDescription := TextCZ001Txt;
             // NAVCZ

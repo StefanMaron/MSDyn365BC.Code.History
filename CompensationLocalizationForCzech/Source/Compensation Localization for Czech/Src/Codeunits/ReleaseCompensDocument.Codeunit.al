@@ -19,6 +19,7 @@ codeunit 31278 "Release Compens. Document CZC"
         CurrencyFactorErr: Label 'All lines with currency %1 must have the same currency factor.', Comment = '%1 = Currency Code';
         ApprovalProcessReleaseErr: Label 'This document can only be released when the approval process is complete.';
         ApprovalProcessReopenErr: Label 'The approval process must be cancelled or completed to reopen this document.';
+        RelatedToAdvanceLetterErr: Label '%1 %2 is related to Advance Letter.', Comment = '%1 = Ledger Entry TableCaption, %2 = Ledger Entry No.';
 
     local procedure Code()
     begin
@@ -95,6 +96,8 @@ codeunit 31278 "Release Compens. Document CZC"
                         if CompensationLineCZC."Source Entry No." <> 0 then begin
                             CustLedgerEntry.Get(CompensationLineCZC."Source Entry No.");
                             CustLedgerEntry.TestField(Prepayment, false);
+                            if CustLedgerEntry.RelatedToAdvanceLetterCZL() then
+                                Error(RelatedToAdvanceLetterErr, CustLedgerEntry.TableCaption(), CustLedgerEntry."Entry No.");
 #if not CLEAN19
 #pragma warning disable AL0432
                             CustLedgerEntry.TestField("Prepayment Type", CustLedgerEntry."Prepayment Type"::" ");
@@ -111,6 +114,8 @@ codeunit 31278 "Release Compens. Document CZC"
                         if CompensationLineCZC."Source Entry No." <> 0 then begin
                             VendorLedgerEntry.Get(CompensationLineCZC."Source Entry No.");
                             VendorLedgerEntry.TestField(Prepayment, false);
+                            if VendorLedgerEntry.RelatedToAdvanceLetterCZL() then
+                                Error(RelatedToAdvanceLetterErr, VendorLedgerEntry.TableCaption(), VendorLedgerEntry."Entry No.");
 #if not CLEAN19
 #pragma warning disable AL0432
                             VendorLedgerEntry.TestField("Prepayment Type", VendorLedgerEntry."Prepayment Type"::" ");

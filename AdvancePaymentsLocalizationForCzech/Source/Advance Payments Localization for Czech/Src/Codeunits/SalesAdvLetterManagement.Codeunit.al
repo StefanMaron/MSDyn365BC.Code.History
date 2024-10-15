@@ -387,6 +387,8 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
                 GenJournalLine."Bill-to/Pay-to No." := SalesAdvLetterHeaderCZZ."Bill-to Customer No.";
                 GenJournalLine."Country/Region Code" := SalesAdvLetterHeaderCZZ."Bill-to Country/Region Code";
                 GenJournalLine."VAT Registration No." := SalesAdvLetterHeaderCZZ."VAT Registration No.";
+                GenJournalLine."Registration No. CZL" := SalesAdvLetterHeaderCZZ."Registration No.";
+                GenJournalLine."Tax Registration No. CZL" := SalesAdvLetterHeaderCZZ."Tax Registration No.";
                 BindSubscription(VATPostingSetupHandlerCZZ);
                 GenJnlPostLine.RunWithCheck(GenJournalLine);
                 UnbindSubscription(VATPostingSetupHandlerCZZ);
@@ -837,6 +839,8 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
         GenJournalLine."Bill-to/Pay-to No." := SalesInvoiceHeader."Bill-to Customer No.";
         GenJournalLine."Country/Region Code" := SalesInvoiceHeader."Bill-to Country/Region Code";
         GenJournalLine."VAT Registration No." := SalesInvoiceHeader."VAT Registration No.";
+        GenJournalLine."Registration No. CZL" := SalesInvoiceHeader."Registration No. CZL";
+        GenJournalLine."Tax Registration No. CZL" := SalesInvoiceHeader."Tax Registration No. CZL";
         GenJournalLine.Amount := 0;
         GenJournalLine."VAT Amount" := -VATAmountCorr;
         GenJournalLine."VAT Base Amount" := -VATBaseCorr;
@@ -1365,6 +1369,8 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
         GenJournalLine."Country/Region Code" := SalesAdvLetterHeaderCZZ."Bill-to Country/Region Code";
         GenJournalLine."Source Code" := SourceCode;
         GenJournalLine."VAT Registration No." := SalesAdvLetterHeaderCZZ."VAT Registration No.";
+        GenJournalLine."Registration No. CZL" := SalesAdvLetterHeaderCZZ."Registration No.";
+        GenJournalLine."Tax Registration No. CZL" := SalesAdvLetterHeaderCZZ."Tax Registration No.";
         GenJournalLine."Shortcut Dimension 1 Code" := SalesAdvLetterEntryCZZ."Global Dimension 1 Code";
         GenJournalLine."Shortcut Dimension 2 Code" := SalesAdvLetterEntryCZZ."Global Dimension 2 Code";
         GenJournalLine."Dimension Set ID" := SalesAdvLetterEntryCZZ."Dimension Set ID";
@@ -1490,7 +1496,6 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
 
                         SalesAdvLetterHeaderCZZ.Get(SalesAdvLetterEntryCZZ."Sales Adv. Letter No.");
                         Customer.Get(SalesAdvLetterHeaderCZZ."Bill-to Customer No.");
-                        CustomerBankAccount.Get(Customer."No.", Customer."Preferred Bank Account Code");
                         CustLedgerEntry1.Get(SalesAdvLetterEntryCZZ."Cust. Ledger Entry No.");
 
                         InitGenJnlLineFromCustLedgEntry(CustLedgerEntry1, GenJournalLine, GenJournalLine."Document Type"::" ");
@@ -1539,11 +1544,13 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
                         GenJournalLine.SetCurrencyFactor(SalesAdvLetterEntryCZZ."Currency Code", CurrencyFactor);
                         GenJournalLine.Validate(Amount, -RemAmount);
                         GenJournalLine."Variable Symbol CZL" := SalesAdvLetterHeaderCZZ."Variable Symbol";
-                        GenJournalLine."Bank Account Code CZL" := CustomerBankAccount.Code;
-                        GenJournalLine."Bank Account No. CZL" := CustomerBankAccount."Bank Account No.";
-                        GenJournalLine."Transit No. CZL" := CustomerBankAccount."Transit No.";
-                        GenJournalLine."IBAN CZL" := CustomerBankAccount.IBAN;
-                        GenJournalLine."SWIFT Code CZL" := CustomerBankAccount."SWIFT Code";
+                        if CustomerBankAccount.Get(Customer."No.", Customer."Preferred Bank Account Code") then begin
+                            GenJournalLine."Bank Account Code CZL" := CustomerBankAccount.Code;
+                            GenJournalLine."Bank Account No. CZL" := CustomerBankAccount."Bank Account No.";
+                            GenJournalLine."Transit No. CZL" := CustomerBankAccount."Transit No.";
+                            GenJournalLine."IBAN CZL" := CustomerBankAccount.IBAN;
+                            GenJournalLine."SWIFT Code CZL" := CustomerBankAccount."SWIFT Code";
+                        end;
                         OnBeforePostClosePaymentRepos(GenJournalLine, SalesAdvLetterHeaderCZZ);
                         GenJnlPostLine.RunWithCheck(GenJournalLine);
                         OnAfterPostClosePaymentRepos(GenJournalLine, SalesAdvLetterHeaderCZZ);

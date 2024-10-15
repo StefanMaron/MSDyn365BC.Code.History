@@ -13,7 +13,8 @@ codeunit 31270 "Install Application CZC"
                   tabledata "Cust. Ledger Entry" = m,
                   tabledata "Vendor Ledger Entry" = m,
                   tabledata "Gen. Journal Line" = m,
-                  tabledata "Posted Gen. Journal Line" = m;
+                  tabledata "Posted Gen. Journal Line" = m,
+                  tabledata "Incoming Document" = m;
 
     var
         InstallApplicationsMgtCZL: Codeunit "Install Applications Mgt. CZL";
@@ -75,6 +76,7 @@ codeunit 31270 "Install Application CZC"
         CopyPostedCreditHeader();
         CopyPostedCreditLine();
         CopyPostedGenJournalLine();
+        MoveIncomingDocument();
     end;
 
     local procedure CopySourceCodeSetup();
@@ -307,6 +309,14 @@ codeunit 31270 "Install Application CZC"
                 PostedGenJournalLine."Compensation CZC" := PostedGenJournalLine.Compensation;
                 PostedGenJournalLine.Modify(false);
             until PostedGenJournalLine.Next() = 0;
+    end;
+
+    local procedure MoveIncomingDocument()
+    var
+        IncomingDocument: Record "Incoming Document";
+    begin
+        IncomingDocument.SetRange("Document Type", 8);
+        IncomingDocument.ModifyAll("Document Type", IncomingDocument."Document Type"::"Compensation CZC");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company-Initialize", 'OnCompanyInitialize', '', false, false)]

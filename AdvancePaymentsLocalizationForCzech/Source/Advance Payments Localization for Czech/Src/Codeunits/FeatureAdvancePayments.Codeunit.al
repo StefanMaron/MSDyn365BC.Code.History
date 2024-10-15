@@ -28,7 +28,8 @@ Codeunit 31085 "Feature Advance Payments CZZ" implements "Feature Data Update"
                   tabledata "Cash Flow Account" = m,
                   tabledata "Cash Flow Forecast Entry" = m,
                   tabledata "Cash Flow Setup" = m,
-                  tabledata "Cash Flow Worksheet Line" = m;
+                  tabledata "Cash Flow Worksheet Line" = m,
+                  tabledata "Incoming Document" = m;
 
     var
         PurchaseAdvPaymentTemplate: Record "Purchase Adv. Payment Template";
@@ -50,6 +51,7 @@ Codeunit 31085 "Feature Advance Payments CZZ" implements "Feature Data Update"
         CashFlowForecastEntry: Record "Cash Flow Forecast Entry";
         CashFlowSetup: Record "Cash Flow Setup";
         CashFlowWorksheetLine: Record "Cash Flow Worksheet Line";
+        IncomingDocument: Record "Incoming Document";
         FeatureDataUpdateMgt: Codeunit "Feature Data Update Mgt.";
         InstallApplicationsMgtCZL: Codeunit "Install Applications Mgt. CZL";
         PrepaymentLinksManagement: Codeunit "Prepayment Links Management";
@@ -111,6 +113,7 @@ Codeunit 31085 "Feature Advance Payments CZZ" implements "Feature Data Update"
         UpdateCashFlowForecastEntry(FeatureDataUpdateStatus);
         UpdateCashFlowSetup(FeatureDataUpdateStatus);
         UpdateCashFlowWorksheetLine(FeatureDataUpdateStatus);
+        UpdateIncomingDocument(FeatureDataUpdateStatus);
         UnbindSubscription(InstallApplicationsMgtCZL);
 #endif
     end;
@@ -165,6 +168,8 @@ Codeunit 31085 "Feature Advance Payments CZZ" implements "Feature Data Update"
             CashFlowWorksheetLine."Source Type"::"Sales Advance Letters",
             CashFlowWorksheetLine."Source Type"::"Purchase Advance Letters");
         InsertDocumentEntry(Database::"Cash Flow Worksheet Line", CashFlowWorksheetLine.TableCaption(), CashFlowWorksheetLine.CountApprox());
+        IncomingDocument.SetRange("Document Type", IncomingDocument."Document Type"::"Sales Advance", IncomingDocument."Document Type"::"Purchase Advance");
+        InsertDocumentEntry(Database::"Incoming Document", IncomingDocument.TableCaption(), IncomingDocument.CountApprox());
         OnAfterCountRecords(TempDocumentEntry);
     end;
 
@@ -300,6 +305,7 @@ Codeunit 31085 "Feature Advance Payments CZZ" implements "Feature Data Update"
                     PurchAdvLetterHeaderCZZ.Status := GetStatus(PurchAdvanceLetterHeader.Status);
                     PurchAdvLetterHeaderCZZ."Automatic Post VAT Usage" := true;
                     PurchAdvLetterHeaderCZZ."Dimension Set ID" := PurchAdvanceLetterHeader."Dimension Set ID";
+                    PurchAdvLetterHeaderCZZ."Incoming Document Entry No." := PurchAdvanceLetterHeader."Incoming Document Entry No.";
                     PurchAdvLetterHeaderCZZ.SystemId := PurchAdvanceLetterHeader.SystemId;
                     PurchAdvLetterHeaderCZZ.Insert(false, true);
 
@@ -581,6 +587,7 @@ Codeunit 31085 "Feature Advance Payments CZZ" implements "Feature Data Update"
                     SalesAdvLetterHeaderCZZ.Status := GetStatus(SalesAdvanceLetterHeader.Status);
                     SalesAdvLetterHeaderCZZ."Automatic Post VAT Document" := true;
                     SalesAdvLetterHeaderCZZ."Dimension Set ID" := SalesAdvanceLetterHeader."Dimension Set ID";
+                    SalesAdvLetterHeaderCZZ."Incoming Document Entry No." := SalesAdvanceLetterHeader."Incoming Document Entry No.";
                     SalesAdvLetterHeaderCZZ.SystemId := SalesAdvanceLetterHeader.SystemId;
                     SalesAdvLetterHeaderCZZ.Insert(false, true);
 
@@ -1143,6 +1150,26 @@ Codeunit 31085 "Feature Advance Payments CZZ" implements "Feature Data Update"
                 CashFlowWorksheetLine.Modify(false);
             until CashFlowWorksheetLine.Next() = 0;
         FeatureDataUpdateMgt.LogTask(FeatureDataUpdateStatus, CashFlowWorksheetLine.TableCaption(), StartDateTime);
+    end;
+
+    local procedure UpdateIncomingDocument(FeatureDataUpdateStatus: Record "Feature Data Update Status")
+    var
+        StartDateTime: DateTime;
+    begin
+        StartDateTime := CurrentDateTime();
+        IncomingDocument.Reset();
+        IncomingDocument.SetRange("Document Type", IncomingDocument."Document Type"::"Sales Advance", IncomingDocument."Document Type"::"Purchase Advance");
+        if IncomingDocument.FindSet() then
+            repeat
+                case IncomingDocument."Document Type" of
+                    IncomingDocument."Document Type"::"Sales Advance":
+                        IncomingDocument."Document Type" := IncomingDocument."Document Type"::"Sales Advance CZZ";
+                    IncomingDocument."Document Type"::"Purchase Advance":
+                        IncomingDocument."Document Type" := IncomingDocument."Document Type"::"Purchase Advance CZZ";
+                end;
+                IncomingDocument.Modify(false);
+            until IncomingDocument.Next() = 0;
+        FeatureDataUpdateMgt.LogTask(FeatureDataUpdateStatus, IncomingDocument.TableCaption(), StartDateTime);
     end;
 
     [IntegrationEvent(false, false)]

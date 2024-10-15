@@ -332,8 +332,6 @@ report 31004 "Adjust Exchange Rates CZL"
                 }
 
                 trigger OnAfterGetRecord()
-                var
-                    SkipCustLedgerEntry: Boolean;
                 begin
                     TempSumsDetailedCustLedgEntry.DeleteAll();
 
@@ -344,11 +342,9 @@ report 31004 "Adjust Exchange Rates CZL"
                         if TempCustLedgerEntry.Next() = 0 then
                             CurrReport.Break();
                     CustLedgerEntry.Get(TempCustLedgerEntry."Entry No.");
-
-                    SkipCustLedgerEntry := false;
-                    OnSkipCustLedgerEntry(CustLedgerEntry, SkipAdvancePayments, SkipCustLedgerEntry);
-                    if SkipCustLedgerEntry then
-                        CurrReport.Skip();
+                    if SkipAdvancePayments then
+                        if CustLedgerEntry.RelatedToAdvanceLetterCZL() then
+                            CurrReport.Skip();
 #if not CLEAN19
                     if SkipAdvancePayments and CustLedgerEntry.Prepayment then
                         CurrReport.Skip();
@@ -527,8 +523,6 @@ report 31004 "Adjust Exchange Rates CZL"
                 }
 
                 trigger OnAfterGetRecord()
-                var
-                    SkipVendorLedgerEntry: Boolean;
                 begin
                     TempSumsDetailedVendorLedgEntry.DeleteAll();
 
@@ -539,11 +533,9 @@ report 31004 "Adjust Exchange Rates CZL"
                         if TempVendorLedgerEntry.Next() = 0 then
                             CurrReport.Break();
                     VendorLedgerEntry.Get(TempVendorLedgerEntry."Entry No.");
-
-                    SkipVendorLedgerEntry := false;
-                    OnSkipVendorLedgerEntry(VendorLedgerEntry, SkipAdvancePayments, SkipVendorLedgerEntry);
-                    if SkipVendorLedgerEntry then
-                        CurrReport.Skip();
+                    if SkipAdvancePayments then
+                        if VendorLedgerEntry.RelatedToAdvanceLetterCZL() then
+                            CurrReport.Skip();
 #if not CLEAN19
                     if SkipAdvancePayments and VendorLedgerEntry.Prepayment then
                         CurrReport.Skip();
@@ -1483,7 +1475,7 @@ report 31004 "Adjust Exchange Rates CZL"
                     repeat
                         TempDetailedCVLedgEntryBuffer.Init();
                         TempDetailedCVLedgEntryBuffer."Entry No." := TempAdjustExchangeRateBuffer.Index;
-                        if AdjAmount <> 0 then
+                        if TempAdjustExchangeRateBuffer.AdjAmount <> 0 then
                             case AdjustAccType of
                                 1: // Customer
                                     begin
@@ -2677,14 +2669,17 @@ report 31004 "Adjust Exchange Rates CZL"
     local procedure OnCloseRequestPage()
     begin
     end;
-
+#if not CLEAN21
+    [Obsolete('Use procedure RelatedToAdvanceLetterCZL from Cust. Ledger Entry table instead.', '21.0')]
     [IntegrationEvent(false, false)]
     local procedure OnSkipCustLedgerEntry(CustLedgerEntry: Record "Cust. Ledger Entry"; SkipAdvancePayments: Boolean; var SkipCustLedgerEntry: Boolean)
     begin
     end;
 
+    [Obsolete('Use procedure RelatedToAdvanceLetterCZL from Vendor Ledger Entry table instead.', '21.0')]
     [IntegrationEvent(false, false)]
     local procedure OnSkipVendorLedgerEntry(VendorLedgerEntry: Record "Vendor Ledger Entry"; SkipAdvancePayments: Boolean; var SkipVendorLedgerEntry: Boolean)
     begin
     end;
+#endif
 }

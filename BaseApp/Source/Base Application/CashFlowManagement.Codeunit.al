@@ -309,7 +309,8 @@ codeunit 841 "Cash Flow Management"
         CashFlowForecast: Record "Cash Flow Forecast";
     begin
         if CashFlowForecast.Get(CashFlowNo) then
-            exit(CashFlowForecast.Description);
+            exit(CopyStr(CashFlowForecast.Description, 1, 50));
+
         exit('')
     end;
 
@@ -847,5 +848,4 @@ codeunit 841 "Cash Flow Management"
     begin
     end;
 }
-
 #endif

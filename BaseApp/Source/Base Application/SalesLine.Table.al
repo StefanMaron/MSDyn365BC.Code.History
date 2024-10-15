@@ -2969,8 +2969,8 @@
                         "Shipping Time" := SalesHeader."Shipping Time";
                     end;
 
-                if ShippingAgentServices."Shipping Time" <> xRec."Shipping Time" then
-                    Validate("Shipping Time", "Shipping Time");
+                if "Shipping Time" <> xRec."Shipping Time" then
+                    Validate("Shipping Time");
             end;
         }
         field(5800; "Allow Item Charge Assignment"; Boolean)

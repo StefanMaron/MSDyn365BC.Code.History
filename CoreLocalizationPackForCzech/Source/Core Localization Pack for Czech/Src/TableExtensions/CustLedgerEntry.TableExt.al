@@ -112,6 +112,17 @@ tableextension 11720 "Cust. Ledger Entry CZL" extends "Cust. Ledger Entry"
         OnAfterUpdateBankInfoCZL(Rec);
     end;
 
+    procedure RelatedToAdvanceLetterCZL() IsRelatedToAdvanceLetter: Boolean
+    begin
+        IsRelatedToAdvanceLetter := false;
+        OnIsRelatedToAdvanceLetterCZL(Rec, IsRelatedToAdvanceLetter);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsRelatedToAdvanceLetterCZL(CustLedgerEntry: Record "Cust. Ledger Entry"; var IsRelatedToAdvanceLetter: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateBankInfoCZL(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin

@@ -27,7 +27,8 @@ codeunit 131352 "Library - Document Approvals"
             "Approval Type" := ApprovalType;
             "Due Date" := DueDate;
             Amount := AmountDec;
-            Insert;
+            "Approver ID" := UserId();
+            Insert();
         end;
     end;
 

@@ -322,11 +322,11 @@
   </Item>
   <Item ItemId=";Codeunit 388502766 - NamedType 1124897584" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Nothing has been created for choice %1.]]></Val>
+      <Val><![CDATA[The given key was not present in the dictionary.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = choice (number)]D;]A;(LookupHint=Codeunit Incoming Doc. To Data Exch.UT - NamedType NoDocCreatedForChoiceErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Incoming Doc. To Data Exch.UT - NamedType NoDocCreatedForChoiceErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 388502766 - NamedType 3290120446" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

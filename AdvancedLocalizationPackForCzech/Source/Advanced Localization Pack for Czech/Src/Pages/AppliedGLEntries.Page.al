@@ -64,8 +64,9 @@ page 31286 "Applied G/L Entries CZA"
             action(Navigate)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Find entries...';
+                Caption = 'Find Entries';
                 Image = Navigate;
+                Ellipsis = true;
                 Promoted = true;
                 PromotedOnly = true;
                 PromotedCategory = Process;

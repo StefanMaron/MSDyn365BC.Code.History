@@ -12,6 +12,7 @@ codeunit 905 "Assembly Line Management"
         Text002: Label 'Do you want to update the Dimensions on the lines?';
         Text003: Label 'Changing %1 will change all the lines. Do you want to change the %1 from %2 to %3?';
         WarningModeOff: Boolean;
+        HideValidationDialog: Boolean;
         Text004: Label 'This assembly order may have customized lines. Are you sure that you want to reset the lines according to the assembly BOM?';
         Text005: Label 'Due Date %1 is before work date %2 in one or more of the assembly lines.';
         Text006: Label 'Item %1 is not a BOM.';
@@ -402,12 +403,13 @@ codeunit 905 "Assembly Line Management"
                 FieldNo("Quantity to Assemble"):
                     UpdateQtyToConsume := true;
                 FieldNo("Dimension Set ID"):
-                    if "Dimension Set ID" <> OldAsmHeader."Dimension Set ID" then begin
-                        if LinesExist(AsmHeader) then
-                            if GuiAllowed then
-                                if Confirm(Text002) then
-                                    UpdateDimension := true;
-                    end;
+                    if "Dimension Set ID" <> OldAsmHeader."Dimension Set ID" then
+                        if LinesExist(AsmHeader) then begin
+                            UpdateDimension := true;
+                            if GuiAllowed and not HideValidationDialog then
+                                if not Confirm(Text002) then
+                                    UpdateDimension := false;
+                        end;
                 else
                     if CalledFromRefreshBOM(ReplaceLinesFromBOM, FieldNum) then
                         if LinesExist(AsmHeader) then
@@ -732,6 +734,11 @@ codeunit 905 "Assembly Line Management"
                     TempToAssemblyLine.Insert();
                 end;
             until TempFromAssemblyLine.Next() = 0;
+    end;
+
+    procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
+    begin
+        HideValidationDialog := NewHideValidationDialog;
     end;
 
     [IntegrationEvent(false, false)]
