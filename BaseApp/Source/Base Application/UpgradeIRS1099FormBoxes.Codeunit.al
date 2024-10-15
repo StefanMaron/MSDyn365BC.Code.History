@@ -17,6 +17,8 @@ codeunit 10501 "Upgrade IRS 1099 Form Boxes"
             UpdateIRS1099FormBoxesTo2020();
         if IRS1099Management.Upgrade2020FebruaryNeeded() then
             UpdateIRS1099FormBoxesTo2020February();
+        if IRS1099Management.Upgrade2021Needed() then
+            UpdateIRS1099FormBoxesTo2021();
     end;
 
     var
@@ -47,6 +49,14 @@ codeunit 10501 "Upgrade IRS 1099 Form Boxes"
     local procedure UpdateIRS1099FormBoxesTo2020February()
     begin
         InsertIRS1099('NEC-04', 'Federal income tax withheld', 0);
+    end;
+
+    local procedure UpdateIRS1099FormBoxesTo2021()
+    begin
+        InsertIRS1099('DIV-02-E', 'Section 897 ordinary dividends', 0);
+        InsertIRS1099('DIV-02-F', 'Section 897 capital gain', 0);
+        InsertIRS1099('MISC-11', 'Fish purchased for resale', 600);
+        InsertIRS1099('NEC-02', 'Payer made direct sales totaling $5,000 or more of consumer products to recipient for resale', 5000);
     end;
 
     local procedure ShiftIRS1099(IRSCode: Code[10])

@@ -253,6 +253,7 @@
             SetRange("Document Type", PurchHeader."Document Type");
             SetRange("Document No.", PurchHeader."No.");
             SetRange("Drop Shipment", false);
+            SetRange("Job No.", '');
             if not CheckLineExist then
                 SetRange("Location Code", WhseActivHeader."Location Code");
             SetRange(Type, Type::Item);
