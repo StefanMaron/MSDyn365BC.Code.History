@@ -324,7 +324,8 @@ report 2000004 "Payment Journal Post"
             TempPaymJnlLine."Line No." := GetVendBalLineNo;
             TempPaymJnlLine.Amount := -VendorTotalAmount[2];
         end;
-        TempPaymJnlLine."Payment Message" := '';
+        if not TempPaymJnlLine."Separate Line" then
+            TempPaymJnlLine."Payment Message" := '';
         TempPaymJnlLine."Applies-to Doc. Type" := 0;
         TempPaymJnlLine."Applies-to Doc. No." := '';
         TempPaymJnlLine."Applies-to ID" := '';

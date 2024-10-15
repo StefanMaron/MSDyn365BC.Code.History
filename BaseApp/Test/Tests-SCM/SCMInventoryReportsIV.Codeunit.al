@@ -2014,6 +2014,48 @@ codeunit 137351 "SCM Inventory Reports - IV"
         // The verification is done in InvtAnalysisMatrixExcludeByShowReportPageHandler handler.
     end;
 
+    [Test]
+    [HandlerFunctions('ProductionJournalPageHandlerOnlyOutput,ConfirmHandler,MessageHandler,CostSharesBreakdownRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CostSharesBreakdownReportForInventoryOnlyOutput()
+    var
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        PrintCostShare: Option Sale,Inventory,"WIP Inventory";
+    begin
+        // [SCENARIO 374328] Cost Shares Breakdown report with no consumption posted should be generated correctly
+        Initialize();
+
+        // [GIVEN] Product Item. Item Journal Line for that Item is Created and Posted 
+        CreateItem(ProdItem, ProdItem."Replenishment System"::Purchase);
+        CreateAndPostItemJournalLine(ItemJournalLine, ProdItem."No.");
+
+        // [GIVEN] Component Item with Production BOM.
+        CreateItem(CompItem, CompItem."Replenishment System"::"Prod. Order");
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, ProdItem."No.", CompItem."Base Unit of Measure", 1);
+        UpdateProductionBOMOnItem(CompItem, ProductionBOMHeader."No.");
+
+        // [GIVEN] Released Production Order
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, CompItem."No.", ItemJournalLine.Quantity / 2);
+
+        // [WHEN] Set quantity for the Consumption lines to 0 in the Production Journal and then post it.
+        LibraryVariableStorage.Enqueue(PostingMessage);
+        LibraryVariableStorage.Enqueue(PostedLinesMessage);
+        CreateAndPostProductionJournal(ProductionOrder);
+
+        // [THEN] Cost Shares Breakdown report should be generated correctly and without errors
+        Commit();
+        RunCostSharesBreakdownReport(CompItem."No.", PrintCostShare::Inventory, true);
+        FindItemLedgerEntry(ItemLedgerEntry, CompItem."No.", ItemLedgerEntry."Entry Type"::Output);
+        VerifyCostSharesBreakdownReport(ItemLedgerEntry, ItemLedgerEntry.Quantity * CompItem."Unit Cost");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3361,6 +3403,19 @@ codeunit 137351 "SCM Inventory Reports - IV"
     procedure ProductionJournalPageHandler(var ProductionJournal: TestPage "Production Journal")
     begin
         ProductionJournal.Post.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionJournalPageHandlerOnlyOutput(var ProductionJournal: TestPage "Production Journal")
+    var
+        ItemJrnLine: Record "Item Journal Line";
+    begin
+        Assert.IsTrue(ProductionJournal.FindFirstField(ProductionJournal."Entry Type", ItemJrnLine."Entry Type"::Consumption), '');
+        repeat
+            ProductionJournal.Quantity.SetValue(0);
+        until not ProductionJournal.FindNextField(ProductionJournal."Entry Type", ItemJrnLine."Entry Type"::Consumption);
+        ProductionJournal.Post.Invoke();
     end;
 
     [RequestPageHandler]

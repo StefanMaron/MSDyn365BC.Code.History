@@ -192,7 +192,7 @@ codeunit 1000 "Job Calculate WIP"
     var
         JobWIPMethod: Record "Job WIP Method";
     begin
-        if (not JobComplete) and (RecognizedCostAmount > UsageTotalCost) then begin
+        if (not JobComplete) and (RecognizedCostAmount > UsageTotalCost) and (AccruedCostsJobTask."Job Task No." <> '') then begin
             JobWIPMethod.Get(AccruedCostsJobWIPTotal."WIP Method");
             InitWIPBufferEntryFromTask(
               AccruedCostsJobTask, AccruedCostsJobWIPTotal, BufferType::"Accrued Costs",

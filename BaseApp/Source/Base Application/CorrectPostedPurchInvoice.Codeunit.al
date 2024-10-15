@@ -265,7 +265,6 @@ codeunit 1313 "Correct Posted Purch. Invoice"
 
     local procedure TestPurchaseLines(PurchInvHeader: Record "Purch. Inv. Header")
     var
-        PurchRcptLine: Record "Purch. Rcpt. Line";
         PurchInvLine: Record "Purch. Inv. Line";
         Item: Record Item;
         DimensionManagement: Codeunit DimensionManagement;
@@ -278,11 +277,6 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         if PurchInvLine.Find('-') then
             repeat
                 if not IsCommentLine(PurchInvLine) then begin
-                    if PurchRcptLine.Get(PurchInvLine."Receipt No.", PurchInvLine."Receipt Line No.") then begin
-                        if PurchRcptLine."Order No." <> '' then
-                            ErrorHelperLine(ErrorType::LineFromOrder, PurchInvLine);
-                    end;
-
                     if (not PurchInvLine.IsCancellationSupported) and NotInvRndAccount(PurchInvHeader."Vendor Posting Group", PurchInvLine) then
                         ErrorHelperLine(ErrorType::WrongItemType, PurchInvLine);
 

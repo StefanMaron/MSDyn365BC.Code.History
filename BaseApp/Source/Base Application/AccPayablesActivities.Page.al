@@ -113,7 +113,7 @@ page 9032 "Acc. Payables Activities"
         end;
 
         SetFilter("Due Date Filter", '<=%1', WorkDate);
-        SetFilter("User ID Filter", UserId);
+        SetRange("User ID Filter", UserId);
     end;
 
     var

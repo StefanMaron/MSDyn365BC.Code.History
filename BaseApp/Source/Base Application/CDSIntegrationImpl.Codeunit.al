@@ -1673,7 +1673,6 @@ codeunit 7201 "CDS Integration Impl."
             if Changed then begin
                 CDSConnectionSetup."Business Unit Id" := EmptyGuid;
                 CDSConnectionSetup."Business Unit Name" := DefaultBusinessUnitName;
-                ModifyBusinessUnitCoupling(CDSConnectionSetup);
             end;
             exit(Changed);
         end;
@@ -1698,7 +1697,6 @@ codeunit 7201 "CDS Integration Impl."
                 CDSConnectionSetup."Business Unit Name" := DefaultBusinessUnitName
             else
                 CDSConnectionSetup."Business Unit Name" := TempCRMBusinessUnit.Name;
-            ModifyBusinessUnitCoupling(CDSConnectionSetup);
         end;
         exit(Changed);
     end;
@@ -2262,14 +2260,18 @@ codeunit 7201 "CDS Integration Impl."
     procedure SignInCDSAdminUser(var CDSConnectionSetup: Record "CDS Connection Setup"; var CrmHelper: DotNet CrmHelper; var AdminUser: Text; var AdminPassword: Text; var AccessToken: Text)
     var
         TempConnectionString: Text;
+        AdminADDomain: Text;
     begin
         if CDSConnectionSetup."Authentication Type" <> CDSConnectionSetup."Authentication Type"::Office365 then begin
-            if not PromptForAdminCredentials(CDSConnectionSetup, AdminUser, AdminPassword) then begin
+            if not PromptForAdminCredentials(CDSConnectionSetup, AdminUser, AdminPassword, AdminADDomain) then begin
                 SendTraceTag('0000AU1', CategoryTok, VERBOSITY::Normal, InvalidAdminCredentialsTxt, DataClassification::SystemMetadata);
                 Error(AdminUserPasswordWrongErr);
             end;
 
-            TempConnectionString := StrSubstNo(ConnectionStringFormatTok, CDSConnectionSetup."Server Address", AdminUser, AdminPassword, CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup));
+            if CDSConnectionSetup."Authentication Type" = CDSConnectionSetup."Authentication Type"::AD then
+                TempConnectionString := StrSubstNo(ConnectionStringFormatTok, CDSConnectionSetup."Server Address", AdminUser, AdminPassword, CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup, AdminADDomain))
+            else
+                TempConnectionString := StrSubstNo(ConnectionStringFormatTok, CDSConnectionSetup."Server Address", AdminUser, AdminPassword, CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup));
         end else begin
             GetAccessToken(CDSConnectionSetup."Server Address", AccessToken);
             TempConnectionString := StrSubstNo(OAuthConnectionStringFormatTok, CDSConnectionSetup."Server Address", AccessToken, CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup));
@@ -3081,6 +3083,9 @@ codeunit 7201 "CDS Integration Impl."
         CDSCoupledBusinessUnit.SetRange("Company Id", Company.SystemId);
         CDSCoupledBusinessUnit.DeleteAll(true);
 
+        if IsNullGuid(CDSConnectionSetup."Business Unit Id") then
+            exit;
+
         CDSCoupledBusinessUnit.Init();
         CDSCoupledBusinessUnit.Validate("Company Id", Company.SystemId);
         CDSCoupledBusinessUnit.Validate("Business Unit Id", CDSConnectionSetup."Business Unit Id");
@@ -3142,7 +3147,7 @@ codeunit 7201 "CDS Integration Impl."
         CrmHelper: DotNet CrmHelper;
     begin
         CheckConnectionRequiredFields(CDSConnectionSetup, false);
-        if CDSConnectionSetup."Authentication Type" = CDSConnectionSetup."Authentication Type"::Office365 then
+        if (CDSConnectionSetup."Authentication Type" = CDSConnectionSetup."Authentication Type"::Office365) or (CDSConnectionSetup."Authentication Type" = CDSConnectionSetup."Authentication Type"::AD) then
             exit;
 
         if not InitializeConnection(CrmHelper, CDSConnectionSetup) then begin
@@ -3273,11 +3278,19 @@ codeunit 7201 "CDS Integration Impl."
     [Scope('OnPrem')]
     procedure GetAuthenticationTypeToken(var CDSConnectionSetup: Record "CDS Connection Setup"): Text
     begin
+        exit(GetAuthenticationTypeToken(CDSConnectionSetup, ''));
+    end;
+
+    local procedure GetAuthenticationTypeToken(var CDSConnectionSetup: Record "CDS Connection Setup"; Domain: Text): Text
+    begin
         case CDSConnectionSetup."Authentication Type" of
             CDSConnectionSetup."Authentication Type"::Office365:
                 exit('AuthType=Office365;');
             CDSConnectionSetup."Authentication Type"::AD:
-                exit('AuthType=AD;' + GetDomainToken(CDSConnectionSetup));
+                if Domain = '' then
+                    exit('AuthType=AD;' + GetDomainToken(CDSConnectionSetup))
+                else
+                    exit('AuthType=AD; Domain=' + Domain + ';');
             CDSConnectionSetup."Authentication Type"::IFD:
                 exit('AuthType=IFD;' + GetDomainToken(CDSConnectionSetup) + 'HomeRealmUri= ;');
             CDSConnectionSetup."Authentication Type"::OAuth:
@@ -3339,14 +3352,15 @@ codeunit 7201 "CDS Integration Impl."
         SendTraceTag('0000AV0', CategoryTok, VERBOSITY::Normal, SetupUpdatedTxt, DataClassification::SystemMetadata);
     end;
 
-    local procedure PromptForAdminCredentials(var CDSConnectionSetup: Record "CDS Connection Setup"; var AdminUser: Text; var AdminPassword: Text): Boolean
+    local procedure PromptForAdminCredentials(var CDSConnectionSetup: Record "CDS Connection Setup"; var AdminUser: Text; var AdminPassword: Text; var AdminADDomain: Text): Boolean
     var
         TempOfficeAdminCredentials: Record "Office Admin. Credentials" temporary;
+        BackslashPos: Integer;
     begin
         TempOfficeAdminCredentials.Endpoint := CDSConnectionSetup."Server Address";
         TempOfficeAdminCredentials.Insert();
         Commit();
-        if Page.RunModal(Page::"CDS Admin Credentials", TempOfficeAdminCredentials) <> Action::LookupOK then begin
+        if Page.RunModal(Page::"Dynamics CRM Admin Credentials", TempOfficeAdminCredentials) <> Action::LookupOK then begin
             SendTraceTag('0000AV1', CategoryTok, Verbosity::Normal, IgnoredAdminCredentialsTxt, DataClassification::SystemMetadata);
             exit(false);
         end;
@@ -3355,6 +3369,15 @@ codeunit 7201 "CDS Integration Impl."
             exit(false);
         end;
 
+        if CDSConnectionSetup."Authentication Type" = CDSConnectionSetup."Authentication Type"::AD then begin
+            BackslashPos := StrPos(TempOfficeAdminCredentials.Email, '\');
+            if (BackslashPos <= 1) or (BackslashPos = StrLen(TempOfficeAdminCredentials.Email)) then
+                Error(UserNameMustIncludeDomainErr);
+            AdminADDomain := CopyStr(TempOfficeAdminCredentials.Email, 1, BackslashPos - 1);
+            AdminUser := CopyStr(TempOfficeAdminCredentials.Email, BackslashPos + 1);
+            AdminPassword := TempOfficeAdminCredentials.Password;
+            exit(true);
+        end;
         AdminUser := TempOfficeAdminCredentials.Email;
         AdminPassword := TempOfficeAdminCredentials.Password;
         exit(true);

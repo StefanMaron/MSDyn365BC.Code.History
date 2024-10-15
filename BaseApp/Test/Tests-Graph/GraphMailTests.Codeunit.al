@@ -179,6 +179,94 @@ codeunit 138926 "Graph Mail Tests"
         Cleanup;
     end;
 
+    [Test]
+    [HandlerFunctions('VerifyNoNotificationsAreSend')]
+    [Scope('OnPrem')]
+    procedure MailManagementIsGraphEnabledWhenGraphSetupNotExistUT()
+    var
+        GraphMailSetup: Record "Graph Mail Setup";
+        MailManagement: Codeunit "Mail Management";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 372077] Run IsGraphEnabled function of codeunit Mail Management in case Graph Setup does not exist and Azure Key Vault is not configured.
+        Initialize();
+        LibraryLowerPermissions.SetInvoiceApp();
+
+        // [GIVEN] Graph Mail Setup table is empty.
+        GraphMailSetup.DeleteAll();
+        AzureKeyVaultTestLibrary.ClearSecrets();
+
+        // [WHEN] Run IsGraphEnabled function of codeunit Mail Management.
+        // [THEN] Function returns False.
+        Assert.IsFalse(MailManagement.IsGraphEnabled(), '');
+    end;
+
+    [Test]
+    [HandlerFunctions('VerifyNoNotificationsAreSend')]
+    [Scope('OnPrem')]
+    procedure MailManagementIsGraphEnabledWhenGraphSetupNotExistKeyVaultConfiguredUT()
+    var
+        GraphMailSetup: Record "Graph Mail Setup";
+        MailManagement: Codeunit "Mail Management";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 372077] Run IsGraphEnabled function of codeunit Mail Management in case Graph Setup does not exist and Azure Key Vault is configured.
+        Initialize();
+        LibraryLowerPermissions.SetInvoiceApp();
+
+        // [GIVEN] Graph Mail Setup table is empty. Azure Key Vault is configured (inside Initialize).
+        GraphMailSetup.DeleteAll();
+
+        // [WHEN] Run IsGraphEnabled function of codeunit Mail Management.
+        // [THEN] Function returns False.
+        Assert.IsFalse(MailManagement.IsGraphEnabled(), '');
+    end;
+
+    [Test]
+    [HandlerFunctions('VerifyNoNotificationsAreSend')]
+    [Scope('OnPrem')]
+    procedure MailManagementIsGraphEnabledWhenGraphSetupExistsKeyVaultNotConfiguredUT()
+    var
+        GraphMailSetup: Record "Graph Mail Setup";
+        MailManagement: Codeunit "Mail Management";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 372077] Run IsGraphEnabled function of codeunit Mail Management in case Graph Setup exists and enabled and Azure Key Vault is not configured.
+        Initialize();
+        LibraryLowerPermissions.SetInvoiceApp();
+
+        // [GIVEN] Graph Mail Setup exists and enabled, but Azure Vault Key is not configured.
+        GraphMailSetup.Insert();
+        EnableGraphMailSetup();
+        AzureKeyVaultTestLibrary.ClearSecrets();
+
+        // [WHEN] Run IsGraphEnabled function of codeunit Mail Management.
+        // [THEN] Function returns False.
+        Assert.IsFalse(MailManagement.IsGraphEnabled(), '');
+    end;
+
+    [Test]
+    [HandlerFunctions('VerifyNoNotificationsAreSend')]
+    [Scope('OnPrem')]
+    procedure MailManagementIsGraphEnabledWhenGraphSetupExistsKeyVaultConfiguredUT()
+    var
+        GraphMailSetup: Record "Graph Mail Setup";
+        MailManagement: Codeunit "Mail Management";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 372077] Run IsGraphEnabled function of codeunit Mail Management in case Graph Setup exists and enabled and Azure Key Vault is configured.
+        Initialize();
+        LibraryLowerPermissions.SetInvoiceApp();
+
+        // [GIVEN] Graph Mail Setup exists and enabled, Azure Vault Key is configured.
+        GraphMailSetup.Insert();
+        EnableGraphMailSetup();
+
+        // [WHEN] Run IsGraphEnabled function of codeunit Mail Management.
+        // [THEN] Function returns True.
+        Assert.IsTrue(MailManagement.IsGraphEnabled(), '');
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure EmailSetupWizardPageHandler(var BCO365EmailSetupWizard: TestPage "BC O365 Email Setup Wizard")
@@ -291,6 +379,16 @@ codeunit 138926 "Graph Mail Tests"
         AzureKeyVaultTestLibrary.SetAzureKeyVaultSecretProvider(MockAzureKeyVaultSecretProvider);
 
         Assert.IsFalse(AzureKeyVault.GetAzureKeyVaultSecret(SecretNameTxt, TestSecret), 'Cleanup failed');
+    end;
+
+    local procedure EnableGraphMailSetup()
+    var
+        GraphMailSetup: Record "Graph Mail Setup";
+    begin
+        GraphMailSetup.Get();
+        GraphMailSetup.Initialize(false);
+        GraphMailSetup.Enabled := true;
+        GraphMailSetup.Modify();
     end;
 
     [SendNotificationHandler(true)]

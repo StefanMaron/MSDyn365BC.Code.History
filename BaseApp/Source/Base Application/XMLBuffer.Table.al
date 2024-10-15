@@ -368,6 +368,7 @@ table 1235 "XML Buffer"
     begin
         TempResultXMLBuffer.CopyImportFrom(Rec);
 
+        TempResultXMLBuffer.SetRange("Parent Entry No.");
         TempResultXMLBuffer.SetRange(Type, TempResultXMLBuffer.Type::Attribute);
         TempResultXMLBuffer.SetRange(Name, 'xmlns:' + NamespacePrefix);
         if TempResultXMLBuffer.FindFirst then

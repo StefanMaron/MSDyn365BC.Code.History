@@ -273,6 +273,7 @@
     var
         GenJnlLine: Record "Gen. Journal Line";
         CODAWriteStatements: Codeunit "CODA Write Statements";
+        Applied: Boolean;
     begin
         with CodedBankStmtLine do begin
             GenJnlLine.Init();
@@ -289,9 +290,11 @@
             BindSubscription(CODAWriteStatements);
             CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Apply", GenJnlLine);
             UnbindSubscription(CODAWriteStatements);
-            if not CODAWriteStatements.WasEntryApplied() then
-                exit;
-            if GenJnlLine."Applies-to ID" <> '' then begin
+            Applied := IsApplied(GenJnlLine, CodedBankStmtLine."Applies-to ID", CODAWriteStatements.WasEntrySelected());
+            // Make sure that "Applies-to ID" value for the CODA Statement Line is zero if the overall result is not applied
+            if not Applied then
+                GenJnlLine."Applies-to ID" := '';
+            if Applied then begin
                 if "Account No." = '' then
                     Validate("Account No.", GenJnlLine."Account No.");
                 "Applies-to ID" := GenJnlLine."Applies-to ID";
@@ -312,9 +315,58 @@
     end;
 
     [Scope('OnPrem')]
-    procedure WasEntryApplied(): Boolean
+    procedure WasEntrySelected(): Boolean
     begin
         exit(ApplEntryWasSelected);
+    end;
+
+    local procedure IsApplied(var GenJnlLine: Record "Gen. Journal Line"; StatementLineAppliesToID: Code[50]; WasEntrySelected: Boolean): Boolean
+    begin
+        if (GenJnlLine."Applies-to ID" <> '') and WasEntrySelected then
+            // If user set applies-to ID and press OK in the Apply Customer/Vendor Ledger Entries page then application is successfull
+            exit(true);
+
+        // User has cancelled the application process by closing the "Apply Customer/Vendor Ledger Entries page" or pressing cancel
+        if (StatementLineAppliesToID <> '') and (GenJnlLine."Applies-to ID" <> '') then
+            // If User previously made an application (first condition) and hasn't blanked the "Applies-to ID" (second condition during the existing application
+            // then check if there are still some entries applied to keep the CODA statement lined applied
+            exit(IsEntryApplied(GenJnlLine));
+        exit(false);
+    end;
+
+    local procedure IsEntryApplied(GenJournalLine: Record "Gen. Journal Line"): Boolean
+    begin
+        with GenJournalLine do
+            case "Account Type" of
+                "Account Type"::Customer:
+                    exit(IsAnyCustLedgEntryApplied(GenJournalLine));
+                "Account Type"::Vendor:
+                    exit(IsAnyVendLedgEntryApplied(GenJournalLine));
+                else begin
+                        Get("Journal Template Name", "Journal Batch Name", "Line No.");
+                        exit("Applies-to ID" <> '');
+                    end;
+            end
+    end;
+
+    local procedure IsAnyCustLedgEntryApplied(GenJournalLine: Record "Gen. Journal Line"): Boolean
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        CustLedgerEntry.SetRange("Customer No.", GenJournalLine."Account No.");
+        CustLedgerEntry.SetRange(Open, true);
+        CustLedgerEntry.SetRange("Applies-to ID", GenJournalLine."Applies-to ID");
+        exit(not CustLedgerEntry.IsEmpty());
+    end;
+
+    local procedure IsAnyVendLedgEntryApplied(GenJournalLine: Record "Gen. Journal Line"): Boolean
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
+        VendorLedgerEntry.SetRange(Open, true);
+        VendorLedgerEntry.SetRange("Applies-to ID", GenJournalLine."Applies-to ID");
+        exit(not VendorLedgerEntry.IsEmpty());
     end;
 
     [IntegrationEvent(false, false)]
