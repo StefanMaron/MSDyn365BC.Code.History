@@ -2164,6 +2164,8 @@ page 21 "Customer Card"
             if "No." <> xRec."No." then
                 CRMIntegrationManagement.SendResultNotification(Rec);
         end;
+        if Rec.GetFilter("Date Filter") = '' then
+            SetRange("Date Filter", 0D, WorkDate());
         OpenApprovalEntriesExistCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(RecordId);
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
 
