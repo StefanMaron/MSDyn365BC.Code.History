@@ -1235,6 +1235,8 @@ page 254 "Purchase Journal"
         LastGenJnlBatch: Code[10];
     begin
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+        VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
+
         if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
             exit;
 
@@ -1251,7 +1253,6 @@ page 254 "Purchase Journal"
         GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
         OnOpenPageOnAfterOpenJnl(CurrentJnlBatchName);
         SetControlAppearanceFromBatch();
-        VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     var

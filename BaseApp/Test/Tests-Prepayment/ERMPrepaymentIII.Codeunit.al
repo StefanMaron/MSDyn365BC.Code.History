@@ -33,7 +33,7 @@ codeunit 134102 "ERM Prepayment III"
         PrepaymentTotalAmount: Decimal;
         NoAmtFoundToBePostedErr: Label 'No amount found to be posted.';
         CheckPrepaymentErr: Label 'You cannot correct or cancel a posted sales prepayment invoice.\\Open the related sales order and choose the Post Prepayment Credit Memo.';
-        PrepaymentAmountHigherThanTheOrderErr: Label 'The Prepayment account is assigned to a VAT product posting group where the VAT percentage is not equal to zero. This can cause posting errors when invoices have mixed VAT lines. To avoid errors, set the VAT percentage to zero for the account.';
+        PrepaymentAmountHigherThanTheOrderErr: Label 'The Prepayment account is assigned to a VAT product posting group where the VAT percentage is not equal to zero. This can cause posting errors when invoices have mixed VAT lines. To avoid errors, set the VAT percentage to zero for the account.\\Prepayment amount to be posted is %1. It differs from document amount %2 by %3 in related lines. If the difference is related to rounding, please adjust amounts in lines related to prepayments.', Comment = '%1 - prepayment amount; %2 = document amount; %3 = difference amount';
 
     [Test]
     [Scope('OnPrem')]
@@ -1427,11 +1427,15 @@ codeunit 134102 "ERM Prepayment III"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         LineGLAccount: Record "G/L Account";
+        PrepmtTotalInclVAT: Decimal;
+        DocumentTotalInclVAT: Decimal;
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 382286] Try post prepayment invoice with prepayment VAT% more than document VAT%,
         // [SCENARIO 382286] in case of total prepayment more than total document amount by one cent
         Initialize();
+        PrepmtTotalInclVAT := 1100.01;
+        DocumentTotalInclVAT := 1100.00;
         LibraryLowerPermissions.SetO365BusFull();
 
         // [GIVEN] Purchase order with one line having Qty = 1, Unit Price = 1000, VAT setup = "X" (10 %), prepayment 88.0004% (prepayment VAT % = 25)
@@ -1447,7 +1451,8 @@ codeunit 134102 "ERM Prepayment III"
 
         // [THEN] Prepayment has been posted
         Assert.ExpectedErrorCode('Dialog');
-        Assert.ExpectedError(PrepaymentAmountHigherThanTheOrderErr);
+        Assert.ExpectedError(StrSubstNo(PrepaymentAmountHigherThanTheOrderErr,
+            Abs(PrepmtTotalInclVAT), Abs(DocumentTotalInclVAT), Abs(PrepmtTotalInclVAT) - Abs(DocumentTotalInclVAT)));
     end;
 
     [Test]
@@ -1456,11 +1461,15 @@ codeunit 134102 "ERM Prepayment III"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         LineGLAccount: Record "G/L Account";
+        PrepmtTotalInclVAT: Decimal;
+        DocumentTotalInclVAT: Decimal;
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 382286] Try post prepayment invoice with prepayment VAT% more than document VAT%,
         // [SCENARIO 382286] in case of total prepayment more than total document amount by one cent (two lines)
         Initialize();
+        PrepmtTotalInclVAT := 1100.01;
+        DocumentTotalInclVAT := 1100.00;
         LibraryLowerPermissions.SetO365BusFull();
 
         // [GIVEN] Purchase order with first line having Qty = 1, Unit Price = 1000, VAT setup = "X" (10 %), prepayment 88.0004% (prepayment VAT % = 25)
@@ -1478,7 +1487,8 @@ codeunit 134102 "ERM Prepayment III"
 
         // [THEN] Prepayment has been posted
         Assert.ExpectedErrorCode('Dialog');
-        Assert.ExpectedError(PrepaymentAmountHigherThanTheOrderErr);
+        Assert.ExpectedError(StrSubstNo(PrepaymentAmountHigherThanTheOrderErr,
+            Abs(PrepmtTotalInclVAT), Abs(DocumentTotalInclVAT), Abs(PrepmtTotalInclVAT) - Abs(DocumentTotalInclVAT)));
     end;
 
     [Test]
@@ -1545,11 +1555,15 @@ codeunit 134102 "ERM Prepayment III"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         LineGLAccount: Record "G/L Account";
+        PrepmtTotalInclVAT: Decimal;
+        DocumentTotalInclVAT: Decimal;
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 382286] Try post sales prepayment invoice with prepayment VAT% more than document VAT%,
         // [SCENARIO 382286] in case of total prepayment more than total document amount by one cent
         Initialize();
+        PrepmtTotalInclVAT := 1100.01;
+        DocumentTotalInclVAT := 1100.00;
         LibraryLowerPermissions.SetO365BusFull();
 
         // [GIVEN] Sales order with one line having Qty = 1, Unit Price = 1000, VAT setup = "X" (10 %), prepayment 88.0005% (prepayment VAT % = 25)
@@ -1565,7 +1579,8 @@ codeunit 134102 "ERM Prepayment III"
 
         // [THEN] Prepayment has been posted
         Assert.ExpectedErrorCode('Dialog');
-        Assert.ExpectedError(PrepaymentAmountHigherThanTheOrderErr);
+        Assert.ExpectedError(StrSubstNo(PrepaymentAmountHigherThanTheOrderErr,
+            Abs(PrepmtTotalInclVAT), Abs(DocumentTotalInclVAT), Abs(PrepmtTotalInclVAT) - Abs(DocumentTotalInclVAT)));
     end;
 
     [Test]
@@ -1574,11 +1589,15 @@ codeunit 134102 "ERM Prepayment III"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         LineGLAccount: Record "G/L Account";
+        PrepmtTotalInclVAT: Decimal;
+        DocumentTotalInclVAT: Decimal;
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 382286] Try post sales prepayment invoice with prepayment VAT% more than document VAT%,
         // [SCENARIO 382286] in case of total prepayment more than total document amount by one cent (two lines)
         Initialize();
+        PrepmtTotalInclVAT := 1100.01;
+        DocumentTotalInclVAT := 1100.00;
         LibraryLowerPermissions.SetO365BusFull();
 
         // [GIVEN] Sales order with first line having Qty = 1, Unit Price = 1000, VAT setup = "X" (10 %), prepayment 88.0005% (prepayment VAT % = 25)
@@ -1596,7 +1615,8 @@ codeunit 134102 "ERM Prepayment III"
 
         // [THEN] Prepayment has been posted
         Assert.ExpectedErrorCode('Dialog');
-        Assert.ExpectedError(PrepaymentAmountHigherThanTheOrderErr);
+        Assert.ExpectedError(StrSubstNo(PrepaymentAmountHigherThanTheOrderErr,
+            Abs(PrepmtTotalInclVAT), Abs(DocumentTotalInclVAT), Abs(PrepmtTotalInclVAT) - Abs(DocumentTotalInclVAT)));
     end;
 
     local procedure Initialize()

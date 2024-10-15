@@ -293,6 +293,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = dimension value code and %2- table name, %3 - account number]D;]A;(LookupHint=Codeunit ERM Dimension Allowed by Acc. - NamedType DefaultDimValueErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2240449890 - NamedType 3905893275" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Default Dimension is not allowed by default.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension Allowed by Acc. - NamedType DefDimensionIsNotAllowedMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2240449890 - NamedType 3881159795" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Dimension value %1, %2 is not allowed for %3, %4.]]></Val>

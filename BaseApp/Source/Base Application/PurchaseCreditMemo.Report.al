@@ -129,6 +129,12 @@ report 407 "Purchase - Credit Memo"
                     column(CompanyAddr6; CompanyAddr[6])
                     {
                     }
+                    column(CompanyAddr7; CompanyAddr[7])
+                    {
+                    }
+                    column(CompanyAddr8; CompanyAddr[8])
+                    {
+                    }
                     column(CompanyInfoABNDivPartNo; CompanyInfo."ABN Division Part No.")
                     {
                     }

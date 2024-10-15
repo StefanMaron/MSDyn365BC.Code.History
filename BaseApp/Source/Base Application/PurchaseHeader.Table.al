@@ -3427,7 +3427,6 @@
 
     procedure PriceMessageIfPurchLinesExist(ChangedFieldName: Text[100])
     var
-        PurchaseLine: Record "Purchase Line";
         ConfirmManagement: Codeunit "Confirm Management";
         MessageText: Text;
     begin
@@ -3437,21 +3436,10 @@
                 MessageText := StrSubstNo(SplitMessageTxt, MessageText, AffectExchangeRateMsg);
 
             if (ChangedFieldName.Contains(FieldCaption("Order Date"))) then begin
-                Confirmed := ConfirmManagement.GetResponseOrDefault(StrSubstNo(SplitMessageTxt, MessageText, UpdateLinesOrderDateAutomaticallyQst), true);
-                if Confirmed then begin
-                    Rec.Modify();
-                    PurchaseLine.SetRange("Document Type", Rec."Document Type");
-                    PurchaseLine.SetRange("Document No.", Rec."No.");
-                    if PurchaseLine.FindSet() then
-                        repeat
-                            PurchaseLine.Validate("Order Date", Rec."Order Date");
-                            if PurchaseLine."No." <> '' then
-                                PurchaseLine.Validate("No.");
-                            PurchaseLine.Modify();
-                        until PurchaseLine.Next() = 0;
-                end;
-            end
-            else
+                Confirmed := ConfirmManagement.GetResponseOrDefault(StrSubstNo(SplitMessageTxt, MessageText, UpdateLinesOrderDateAutomaticallyQst), false);
+                if Confirmed then
+                    UpdatePurchLinesByFieldNo(FieldNo("Order Date"), false);
+            end else
                 Message(StrSubstNo(SplitMessageTxt, MessageText, ReviewLinesManuallyMsg));
         end;
     end;
@@ -3651,8 +3639,13 @@
                         PurchLine.FieldNo("Deferral Code"):
                             if PurchLine."No." <> '' then
                                 PurchLine.Validate("Deferral Code");
+                        FieldNo("Order Date"):
+                            if PurchLine."No." <> '' then begin
+                                PurchLine.Validate("Order Date", "Order Date");
+                                PurchLine.UpdateDirectUnitCost(0);
+                            end;
                         else
-                            OnUpdatePurchLinesByChangedFieldName(Rec, PurchLine, Field.FieldName, ChangedFieldNo);
+                            OnUpdatePurchLinesByChangedFieldName(Rec, PurchLine, Field.FieldName, ChangedFieldNo, xRec);
                     end;
                 OnUpdatePurchLinesByFieldNoOnBeforeLineModify(Rec, xRec, PurchLine);
                 PurchLine.Modify(true);
@@ -3754,7 +3747,7 @@
 
         if (OldDimSetID <> "Dimension Set ID") and (OldDimSetID <> 0) and guiallowed then
             if CouldDimensionsBeKept() then
-                if Confirm(DoYouWantToKeepExistingDimensionsQst) then begin
+                if ConfirmKeepExistingDimensions(OldDimSetID) then begin
                     "Dimension Set ID" := OldDimSetID;
                     DimMgt.UpdateGlobalDimFromDimSetID(Rec."Dimension Set ID", Rec."Shortcut Dimension 1 Code", Rec."Shortcut Dimension 2 Code");
                 end;
@@ -3763,6 +3756,19 @@
             Modify();
             UpdateAllLineDim("Dimension Set ID", OldDimSetID);
         end;
+    end;
+
+
+    local procedure ConfirmKeepExistingDimensions(OldDimSetID: Integer) Confirmed: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeConfirmKeepExistingDimensions(Rec, xRec, CurrFieldNo, OldDimSetID, Confirmed, IsHandled);
+        if IsHandled then
+            exit(Confirmed);
+
+        Confirmed := Confirm(DoYouWantToKeepExistingDimensionsQst);
     end;
 
     local procedure CouldDimensionsBeKept() Result: Boolean;
@@ -4487,6 +4493,7 @@
         PurchLine.SetRange("Document Type", "Document Type");
         PurchLine.SetRange("Document No.", "No.");
         PurchLine.SetFilter("Qty. to Receive", '<>0');
+        OnQtyToReceiveIsZeroOnAfterSetFilters(PurchLine);
         exit(PurchLine.IsEmpty);
     end;
 
@@ -6146,9 +6153,12 @@
             exit;
 
         Validate("Sell-to Customer No.", '');
-        if "Buy-from Vendor No." <> '' then
-            GetVend("Buy-from Vendor No.");
-        UpdateLocationCode(Vend."Location Code");
+
+        if "Location Code" = '' then begin
+            if "Buy-from Vendor No." <> '' then
+                GetVend("Buy-from Vendor No.");
+            UpdateLocationCode(Vend."Location Code");
+        end;
     end;
 
     procedure CheckForBlockedLines()
@@ -6343,6 +6353,29 @@
         end;
     end;
 
+    procedure LookupPayToVendorName(var VendorName: Text): Boolean
+    var
+        Vendor: Record Vendor;
+        LookupStateManager: Codeunit "Lookup State Manager";
+        RecVariant: Variant;
+        SearchVendorName: Text;
+    begin
+        SearchVendorName := VendorName;
+        Vendor.SetFilter("Date Filter", GetFilter("Date Filter"));
+        if "Pay-to Vendor No." <> '' then
+            Vendor.Get("Pay-To Vendor No.");
+
+        if Vendor.LookupVendor(Vendor) then begin
+            if Rec."Pay-To Name" = Vendor.Name then
+                VendorName := SearchVendorName
+            else
+                VendorName := Vendor.Name;
+            RecVariant := Vendor;
+            LookupStateManager.SaveRecord(RecVariant);
+            exit(true);
+        end;
+    end;
+
     procedure RecreateTempPurchLines(var TempPurchLine: Record "Purchase Line")
     begin
         repeat
@@ -6353,9 +6386,18 @@
                 PurchLine.Modify();
             end;
             OnRecreatePurchLinesOnBeforeTempPurchLineInsert(TempPurchLine, PurchLine);
-            TempPurchLine.Insert();
+            if not IsServiceChargeLine(PurchLine) then
+                TempPurchLine.Insert();
             OnRecreateTempPurchLinesOnAfterTempPurchLineInsert(Rec, PurchLine, TempPurchLine);
         until PurchLine.Next() = 0;
+    end;
+
+    local procedure IsServiceChargeLine(PurchLine: Record "Purchase Line"): Boolean
+    begin
+        if PurchLine."System-Created Entry" then
+            if PurchLine.Type = PurchLine.Type::"G/L Account" then
+                if PurchLine.IsServiceCharge() then
+                    exit(true);
     end;
 
     local procedure TestPurchLineFieldsBeforeRecreate()
@@ -6823,7 +6865,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdatePurchLinesByChangedFieldName(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; ChangedFieldName: Text[100]; ChangedFieldNo: Integer)
+    local procedure OnUpdatePurchLinesByChangedFieldName(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; ChangedFieldName: Text[100]; ChangedFieldNo: Integer; xPurchaseHeader: Record "Purchase Header")
     begin
     end;
 
@@ -6909,6 +6951,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmDeletion(var PurchaseHeader: Record "Purchase Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmKeepExistingDimensions(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; FieldNo: Integer; OldDimSetID: Integer; var Confirmed: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -7377,6 +7424,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnSendProfileOnBeforeSendVendor(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnQtyToReceiveIsZeroOnAfterSetFilters(var PurchaseLine: Record "Purchase Line")
     begin
     end;
 

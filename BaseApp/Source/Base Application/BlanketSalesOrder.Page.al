@@ -403,7 +403,7 @@ page 507 "Blanket Sales Order"
                                                 ShipToOptions := ShipToOptions::"Custom Address";
                                         end;
                                     ShipToOptions::"Custom Address":
-                                        Validate("Ship-to Code", '');
+                                            Validate("Ship-to Code", '');
                                 end;
 
                                 OnAfterValidateShipToOptions(Rec, ShipToOptions);
@@ -1247,10 +1247,7 @@ page 507 "Blanket Sales Order"
 
         SetDocNoVisible();
 
-        GLSetup.Get();
-        IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
-        IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
-        IsSalesLinesEditable := Rec.SalesLinesEditable();
+        ActivateFields();
     end;
 
     var
@@ -1282,6 +1279,14 @@ page 507 "Blanket Sales Order"
     protected var
         ShipToOptions: Enum "Sales Ship-to Options";
         BillToOptions: Enum "Sales Bill-to Options";
+
+    local procedure ActivateFields()
+    begin
+        GLSetup.Get();
+        IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
+        IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
+        IsSalesLinesEditable := Rec.SalesLinesEditable();
+    end;
 
     local procedure ApproveCalcInvDisc()
     begin
@@ -1356,4 +1361,3 @@ page 507 "Blanket Sales Order"
     begin
     end;
 }
-

@@ -420,7 +420,13 @@
         NoSeriesManagement: Codeunit NoSeriesManagement;
         PostingDate: Date;
         PostingNoSeries: Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestIfAnyFreeNumberSeries(PurchInvHeader, CancellingOnly, IsHandled);
+        if IsHandled then
+            exit;
+
         PostingDate := WorkDate();
         PurchasesPayablesSetup.Get();
 
@@ -838,6 +844,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestIfInvoiceIsPaid(var PurchInvHeader: Record "Purch. Inv. Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestIfAnyFreeNumberSeries(var PurchInvHeader: Record "Purch. Inv. Header"; CancellingOnly: Boolean; var IsHandled: Boolean)
     begin
     end;
 

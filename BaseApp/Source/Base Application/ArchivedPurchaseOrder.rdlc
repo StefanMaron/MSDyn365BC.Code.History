@@ -12211,6 +12211,12 @@ End Function
         <Field Name="CompanyAddr_6_">
           <DataField>CompanyAddr_6_</DataField>
         </Field>
+        <Field Name="CompanyAddr_7_">
+          <DataField>CompanyAddr_7_</DataField>
+        </Field>
+        <Field Name="CompanyAddr_8_">
+          <DataField>CompanyAddr_8_</DataField>
+        </Field>
         <Field Name="Purchase_Header_Archive___Buy_from_Vendor_No__">
           <DataField>Purchase_Header_Archive___Buy_from_Vendor_No__</DataField>
         </Field>

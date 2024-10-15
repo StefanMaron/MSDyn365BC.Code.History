@@ -672,7 +672,13 @@ table 7001 "Price List Line"
     procedure SetNextLineNo()
     var
         PriceListLine: Record "Price List Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetNextLineNo(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         "Line No." := 10000;
         PriceListLine.SetRange("Price List Code", "Price List Code");
         if PriceListLine.FindLast() then
@@ -760,6 +766,7 @@ table 7001 "Price List Line"
         "Source Type" := PriceListHeader."Source Type";
         SetSourceNo(PriceListHeader."Parent Source No.", PriceListHeader."Source No.");
         "Source ID" := PriceListHeader."Source ID";
+        OnAfterCopySourceFrom(Rec, PriceListHeader);
     end;
 
     procedure CopyFrom(PriceListHeader: Record "Price List Header")
@@ -1182,6 +1189,11 @@ table 7001 "Price List Line"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopySourceFrom(var PriceListLine: Record "Price List Line"; PriceListHeader: Record "Price List Header")
+    begin
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnAfterCopyToPriceAsset(var PriceAsset: Record "Price Asset")
     begin
@@ -1224,6 +1236,11 @@ table 7001 "Price List Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyFromAssetType(var PriceListLine: Record "Price List Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetNextLineNo(var PriceListLine: Record "Price List Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -12535,6 +12535,12 @@ End Function
         <Field Name="CompanyAddr6">
           <DataField>CompanyAddr6</DataField>
         </Field>
+        <Field Name="CompanyAddr7">
+          <DataField>CompanyAddr7</DataField>
+        </Field>
+        <Field Name="CompanyAddr8">
+          <DataField>CompanyAddr8</DataField>
+        </Field>
         <Field Name="BuyFromAddr1">
           <DataField>BuyFromAddr1</DataField>
         </Field>

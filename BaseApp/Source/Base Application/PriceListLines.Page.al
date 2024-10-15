@@ -432,6 +432,7 @@ page 7001 "Price List Lines"
         ParentSourceNoVisible := IsJobGroup and SourceNoVisible;
         JobSourceTypeVisible := IsJobGroup and AllowUpdatingDefaults;
         SourceTypeVisible := not IsJobGroup and AllowUpdatingDefaults;
+        OnAfterUpdateColumnVisibility(PriceListHeader, SourceTypeVisible, JobSourceTypeVisible);
     end;
 
     procedure SetHeader(NewPriceListHeader: Record "Price List Header")
@@ -494,6 +495,11 @@ page 7001 "Price List Lines"
         Rec.Validate("Source Type", SourceType);
         SetSourceNoEnabled();
         CurrPage.Update(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateColumnVisibility(PriceListHeader: Record "Price List Header"; var SourceTypeVisible: Boolean; var JobSourceTypeVisible: Boolean)
+    begin
     end;
 
     [IntegrationEvent(true, false)]

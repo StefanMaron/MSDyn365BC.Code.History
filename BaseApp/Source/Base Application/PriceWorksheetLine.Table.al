@@ -776,6 +776,7 @@ table 7022 "Price Worksheet Line"
         "Source Type" := PriceListHeader."Source Type";
         SetSourceNo(PriceListHeader."Parent Source No.", PriceListHeader."Source No.");
         "Source ID" := PriceListHeader."Source ID";
+        OnAfterCopySourceFrom(Rec, PriceListHeader);
     end;
 
     procedure CopyFrom(PriceListHeader: Record "Price List Header")
@@ -1110,6 +1111,11 @@ table 7022 "Price Worksheet Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterCopyToPriceSource(var PriceSource: Record "Price Source")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopySourceFrom(var PriceWorksheetLine: Record "Price Worksheet Line"; PriceListHeader: Record "Price List Header")
     begin
     end;
 

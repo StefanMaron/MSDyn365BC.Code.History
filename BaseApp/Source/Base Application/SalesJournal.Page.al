@@ -1173,6 +1173,8 @@ page 253 "Sales Journal"
         IsHandled: Boolean;
     begin
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+        VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
+
         if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
             exit;
 
@@ -1201,7 +1203,6 @@ page 253 "Sales Journal"
         SetControlAppearanceFromBatch();
 
         OnAfterOpenPage();
-        VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     var

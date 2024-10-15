@@ -3889,6 +3889,33 @@ codeunit 137150 "SCM Warehouse UOM"
         Assert.ExpectedError(PurchaseLine.FieldCaption("Unit of Measure Code"));
     end;
 
+    [Test]
+    [HandlerFunctions('ProductionJournalUnitOfMeasureCodeErrorHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure S463638_CannotPostProductionJournalForItemWithBlankUoM()
+    var
+        Item: Record Item;
+        ReleasedProductionOrder: TestPage "Released Production Order";
+    begin
+        // [FEATURE] [Unit of Measure] [Released Production Order] [Production Journal]
+        // [SCENARIO 463638] Cannot post Production Journal line with blank "Unit of Measure Code".
+        Initialize();
+
+        // [GIVEN] Create Item "I".
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Released Production Order with Item "I" in line, without "Unit of Measure Code".
+        ReleasedProductionOrder.OpenNew();
+        ReleasedProductionOrder."Location Code".SetValue(LocationWhite.Code);
+        ReleasedProductionOrder.ProdOrderLines."Item No.".SetValue(Item."No.");
+        ReleasedProductionOrder.ProdOrderLines.Quantity.SetValue(2);
+        ReleasedProductionOrder.ProdOrderLines."Unit of Measure Code".SetValue('');
+
+        // [WHEN] Open Production Journal.
+        // [THEN] Post Production Journal raises error that "Unit of Measure Code" cannot be empty.
+        ReleasedProductionOrder.ProdOrderLines.ProductionJournal.Invoke(); // Uses ProductionJournalUnitOfMeasureCodeErrorHandler.
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6515,6 +6542,21 @@ codeunit 137150 "SCM Warehouse UOM"
         LibraryVariableStorage.Enqueue(JournalLinesPostedMsg); // Required inside MessageHandler.
         ProductionJournal.Post.Invoke;
         ProductionJournal.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionJournalUnitOfMeasureCodeErrorHandler(var ProductionJournal: TestPage "Production Journal")
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        ItemJournalLine.SetRange("Item No.", ProductionJournal."Item No.".Value());
+        ItemJournalLine.FindFirst();
+
+        asserterror ProductionJournal.Post.Invoke();
+
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(ItemJournalLine.FieldCaption("Unit of Measure Code"));
     end;
 
     [PageHandler]

@@ -5352,6 +5352,49 @@ codeunit 134902 "ERM Account Schedule"
         Assert.IsSubstring(PeriodTxt, Format(EndDate));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyDatefilterOutsideAccountingePeriodGivingError()
+    var
+        GLAccount: Record "G/L Account";
+        ColumnLayout: Record "Column Layout";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AccPeriod: Record "Accounting Period";
+        AccScheduleOverview: TestPage "Acc. Schedule Overview";
+        DateFilter: array[2] of Text;
+    begin
+        // [SCENARIO 461703] Drill down date filter is not correct when using Comparison Period Formula for a closed accounting period
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
+
+        // [GIVEN] Create G/L Account
+        LibraryERM.CreateGLAccount(GLAccount);
+
+        // [GIVEN] Create ColumnLayout and update "Column Header", "Column Type" and "Comparison Period Formula" .
+        CreateColumnLayout(ColumnLayout);
+        ColumnLayout.Validate("Column Header", 'January');
+        ColumnLayout.Validate("Column Type", ColumnLayout."Column Type"::"Net Change");
+        ColumnLayout.Validate("Comparison Period Formula", 'FY[1]');
+        ColumnLayout.Modify();
+
+        // [GIVEN] Create new Acc. Schedule for the G/L Account
+        CreateAndUpdateAccountSchedule(
+          AccScheduleLine, ColumnLayout."Column Layout Name", GLAccount."No.", AccScheduleLine."Totaling Type"::"Posting Accounts");
+
+        // [GIVEN] Create 2 DateFilters outside Accounting Period range. 
+        AccPeriod.FindFirst();
+        DateFilter[1] := Format(CalcDate('<-10Y>', WorkDate()));
+        DateFilter[2] := Format(CalcDate('<-3M>', AccPeriod."Starting Date")) + '..' + Format(CalcDate('<+3M>', AccPeriod."Starting Date"));
+
+        // [WHEN] Run Acc. Schedule Overview
+        AccScheduleOverview.Trap;
+        OpenAccountScheduleOverviewPage(AccScheduleLine."Schedule Name");
+
+        // [VERIFY] On verifying the DateFilters, error will come on both the dates.
+        asserterror AccScheduleOverview.DateFilter.SetValue(DateFilter[1]);
+        asserterror AccScheduleOverview.DateFilter.SetValue(DateFilter[2]);
+    end;
+
     local procedure Initialize()
     var
         ObjectOptions: Record "Object Options";

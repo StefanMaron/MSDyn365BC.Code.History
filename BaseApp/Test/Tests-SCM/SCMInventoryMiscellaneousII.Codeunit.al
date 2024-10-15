@@ -795,6 +795,49 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     end;
 
     [Test]
+    [HandlerFunctions('DummyMessageHandler,CreatePickReportHandler')]
+    [Scope('OnPrem')]
+    procedure InvPickUpdatesPostingDateInSalesDoc() //Test
+    var
+        SalesHeader: Record "Sales Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        // [Scenario] Verify Posting Date on Sales Doc gets updated when Inventory Pick posting date is updates.
+
+        // [GIVEN] Setup: Create Location, create Sales Order, release, set Posting Date and create Inv. Pick.
+        Initialize();
+
+        // [GIVEN] Create and Release Sales Order with a Posting Date
+        CreateReleasedItemSalesOrderFromLocation(SalesHeader);
+        SalesHeader.Validate("Posting Date", CalcDate('<CD+20D>', WorkDate()));
+        SalesHeader.Modify();
+
+        Commit();
+
+        // [GIVEN] Create Inventory Pick From Sales Order
+        CreateInventoryPickFromSalesHeader(SalesHeader);
+
+        // [GIVEN] Change the Posting Date on the Inventory Pick.
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, DATABASE::"Sales Line", SalesHeader."No.", WarehouseActivityLine."Activity Type"::"Invt. Pick");
+        WarehouseActivityLine.TestField("Destination Type", WarehouseActivityLine."Destination Type"::Customer);
+
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        WarehouseActivityHeader.Validate("Posting Date", WorkDate());
+        WarehouseActivityHeader.Modify();
+        WarehouseActivityLine.Validate("Qty. to Handle", WarehouseActivityLine.Quantity - 1);
+        WarehouseActivityLine.Modify();
+
+        // [WHEN] Inventory Pick is posted
+        LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
+
+        // [THEN] Posting date is updated on the sales document.
+        SalesHeader.Find();
+        SalesHeader.TestField("Posting Date", WorkDate());
+    end;
+
+    [Test]
     [HandlerFunctions('ItemTrackingLinesPageHandler,MessageHandler,CreatePickReportHandler')]
     [Scope('OnPrem')]
     procedure TFS356264_ItemPickedAccordingToFEFO()
@@ -2499,7 +2542,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         CreateLocation(Location, false, false);
         LocationCode := Location.Code;
         ItemNo := LibraryInventory.CreateItemNo();
-        Quantity := LibraryRandom.RandInt(10);
+        Quantity := LibraryRandom.RandIntInRange(3, 10);
         CreateItemJournalLineWithBin(ItemJournalLine, ItemNo, Quantity, LocationCode, '');
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;

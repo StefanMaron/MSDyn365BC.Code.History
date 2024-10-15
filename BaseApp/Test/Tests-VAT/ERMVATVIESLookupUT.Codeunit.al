@@ -11,6 +11,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
     var
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryERM: Codeunit "Library - ERM";
         Assert: Codeunit Assert;
         DefaultTxt: Label 'Default';
         CustomerUpdatedMsg: Label 'The customer has been updated.';
@@ -904,6 +905,42 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
             NameTxt, NameTxt, '', VATRegistrationLogDetails.Status::"Not Valid");
     end;
 
+    [Test]
+    procedure ValidateVatRegistrationLogForContactCreatedByCustomer()
+    var
+        Customer: Record Customer;
+        Contact: Record Contact;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        VATRegistrationLog: Record "VAT Registration Log";
+        CountryRegion: Record "Country/Region";
+        CustomerCard: TestPage "Customer Card";
+    begin
+        // [SCENARIO 461536] Verify VAT Registration Log on Contact when customer VAT Registration No. validated
+        Initialize();
+        InitDefaultTemplate();
+
+        //[GIVEN] Create customer and mock contact
+        PrepareCustomerLog(Customer, VATRegistrationLog);
+        MockContact(Contact, '', '', '', '');
+        MockContBusRelation(Contact."No.", ContactBusinessRelation."Link to Table"::Customer, Customer."No.");
+        PrepareContactLog(Contact, VATRegistrationLog);
+
+        // [GIVEN] Create Country and update EU country Code
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        UpdateEUCountryRegion(CountryRegion.Code);
+
+        // [GIVEN] Open customer card and validate "VAT Registration No."
+        CustomerCard.OpenEdit();
+        CustomerCard.GoToRecord(Customer);
+        CustomerCard."Country/Region Code".SetValue(CountryRegion.Code);
+        CustomerCard."VAT Registration No.".SetValue('');
+        CustomerCard.Close();
+
+        // [VERIFY] Verify VAT registration log created for contact
+        VerifyVATRegNoAndCountryCodeInLog(2);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     procedure Initialize()
     var
         VATRegistrationLog: Record "VAT Registration Log";
@@ -1207,6 +1244,23 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
         CompanyInformation.TestField(Address, Street);
         CompanyInformation.TestField(City, City);
         CompanyInformation.TestField("Post Code", PostCode);
+    end;
+
+    local procedure UpdateEUCountryRegion(CountryCode: Code[10])
+    var
+        CountryRegion: Record "Country/Region";
+    begin
+        CountryRegion.Get(CountryCode);
+        CountryRegion."EU Country/Region Code" := CountryRegion.Code;
+        CountryRegion."VAT Scheme" := LibraryUtility.GenerateGUID();
+        CountryRegion.Modify();
+    end;
+
+    local procedure VerifyVATRegNoAndCountryCodeInLog(Expected: Integer)
+    var
+        VATRegistrationLog: Record "VAT Registration Log";
+    begin
+        Assert.AreEqual(Expected, VATRegistrationLog.Count, '');
     end;
 
     [ModalPageHandler]

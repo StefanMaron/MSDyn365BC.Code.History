@@ -2884,7 +2884,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeMakeMultiLevelAdjmt(var Item: Record Item; IsOnlineAdjmt: Boolean; PostToGL: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeMakeMultiLevelAdjmt(var Item: Record Item; IsOnlineAdjmt: Boolean; var PostToGL: Boolean; var IsHandled: Boolean)
     begin
     end;
 

@@ -64,6 +64,12 @@ report 411 "Vendor - Payment Receipt"
                 column(CompanyAddr6; CompanyAddr[6])
                 {
                 }
+                column(CompanyAddr7; CompanyAddr[7])
+                {
+                }
+                column(CompanyAddr8; CompanyAddr[8])
+                {
+                }
                 column(CompanyInfoPhoneNo; CompanyInfo."Phone No.")
                 {
                 }

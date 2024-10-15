@@ -931,6 +931,7 @@ page 9203 "Budget Matrix"
     var
         NewAmount: Decimal;
     begin
+        OnBeforeUpdateAmount(MATRIX_ColumnOrdinal);
         if MATRIX_ColumnOrdinal > MATRIX_CurrentNoOfMatrixColumn then
             Error(Text002, MATRIX_CurrentNoOfMatrixColumn);
         MATRIX_MatrixRecord := MatrixRecords[MATRIX_ColumnOrdinal];
@@ -939,6 +940,7 @@ page 9203 "Budget Matrix"
         CalcFieldsAndSetNewBudgetedAmount(GLAccBudgetBuf, NewAmount);
         Amount := MatrixMgt.RoundAmount(CalcAmount(false), RoundingFactor);
         CurrPage.Update();
+        OnAfterUpdateAmount();
     end;
 
     local procedure CalcFieldsAndSetNewBudgetedAmount(var GLAccBudgetBuf: Record "G/L Acc. Budget Buffer"; NewAmount: Decimal)
@@ -1043,6 +1045,16 @@ page 9203 "Budget Matrix"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetDimensionValueFilters(var DimensionValue: Record "Dimension Value")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterUpdateAmount()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeUpdateAmount(MATRIX_ColumnOrdinal: Integer)
     begin
     end;
 

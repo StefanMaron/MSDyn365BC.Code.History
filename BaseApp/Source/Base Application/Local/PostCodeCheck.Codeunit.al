@@ -1,4 +1,4 @@
-codeunit 28000 "Post Code Check"
+﻿codeunit 28000 "Post Code Check"
 {
     trigger OnRun()
     begin
@@ -9,7 +9,8 @@ codeunit 28000 "Post Code Check"
         Country: Record "Country/Region";
         HadGLSetup: Boolean;
         ContactName: Text[100];
-        Text001: Label '%1 must be Post Code & City in %2.';
+        AddressValidationErr: Label '%1 must be Post Code & City in %2.', Comment = '%1 - Address Validation caption, %2 - table caption';
+        ExternalComponentMsg: Label 'The external component is not installed.';
 
 #if not CLEAN21
     [Obsolete('Replaced by procedure VerifyCity()', '21.0')]
@@ -110,7 +111,7 @@ codeunit 28000 "Post Code Check"
         PostCodeRec: Record "Post Code";
         RecCount: Integer;
     begin
-        if (PostCode = '') or (CurrFieldNumber = 0) or (not GuiAllowed = false) then
+        if (PostCode = '') or (CurrFieldNumber = 0) or (not GuiAllowed) then
             exit;
 
         GetAddressValidationSetup(CountryCode);
@@ -155,7 +156,7 @@ codeunit 28000 "Post Code Check"
         PostCodeRec: Record "Post Code";
         RecCount: Integer;
     begin
-        if (PostCode = '') or (CurrentFieldNo = 0) or (not GuiAllowed = false) then
+        if (PostCode = '') or (CurrentFieldNo = 0) or (not GuiAllowed) then
             exit;
 
         GetAddressValidationSetup(CountryCode);
@@ -197,16 +198,19 @@ codeunit 28000 "Post Code Check"
     procedure LookUpCity(CurrFieldNumber: Integer; TableNo: Integer; TableKey: Text[1024]; AddressType: Option Main,"Bill-to","Ship-to","Sell-to","Pay-to","Buy-from","Transfer-from","Transfer-to"; var Name: Text[100]; var Name2: Text[90]; var Contact: Text[100]; var Address: Text[100]; var Address2: Text[50]; var City: Text[50]; var PostCode: Code[20]; var County: Text[50]; var CountryCode: Code[10]; ReturnValues: Boolean)
     var
         PostCodeRec: Record "Post Code";
+        TempName2: Text[50];
+        TempCity, TempCounty : Text[30];
     begin
         if not GuiAllowed then
             exit;
+
         GetAddressValidationSetup(CountryCode);
         case Country."Address Validation" of
             Country."Address Validation"::"Post Code & City":
                 begin
                     PostCodeRec.Reset();
                     PostCodeRec.SetCurrentKey("Search City");
-                    PostCodeRec."Search City" := UpperCase(City);
+                    PostCodeRec."Search City" := UpperCase(TempCity);
                     if (PAGE.RunModal(
                           PAGE::"Post Codes", PostCodeRec, PostCodeRec.City) = ACTION::LookupOK) and ReturnValues
                     then begin
@@ -218,18 +222,29 @@ codeunit 28000 "Post Code Check"
                 end;
             Country."Address Validation"::"Entire Address",
             Country."Address Validation"::"Address ID":
-                RunExternalValidation(
-                    TableNo, TableKey, AddressType, 1,
-                    Name, Name2, Contact, Address, Address2, City, PostCode, County, CountryCode);
+                begin
+                    TempName2 := CopyStr(Name2, 1, 50);
+                    TempCity := CopyStr(City, 1, 30);
+                    TempCounty := CopyStr(County, 1, 30);
+                    RunAddressValidation(
+                        TableNo, TableKey, AddressType, 1,
+                        Name, TempName2, Contact, Address, Address2, TempCity, PostCode, TempCounty, CountryCode);
+                    City := CopyStr(TempCity, 1, 30);
+                    County := CopyStr(TempCounty, 1, 30);
+                    Name2 := CopyStr(TempName2, 1, 50);
+                end;
         end;
     end;
 
     procedure LookUpPostCode(CurrFieldNumber: Integer; TableNo: Integer; TableKey: Text[1024]; AddressType: Option Main,"Bill-to","Ship-to","Sell-to","Pay-to","Buy-from","Transfer-from","Transfer-to"; var Name: Text[100]; var Name2: Text[90]; var Contact: Text[100]; var Address: Text[100]; var Address2: Text[50]; var City: Text[50]; var PostCode: Code[20]; var County: Text[50]; var CountryCode: Code[10]; ReturnValues: Boolean)
     var
         PostCodeRec: Record "Post Code";
+        TempName2: Text[50];
+        TempCity, TempCounty : Text[30];
     begin
         if not GuiAllowed then
             exit;
+
         GetAddressValidationSetup(CountryCode);
         case Country."Address Validation" of
             Country."Address Validation"::"Post Code & City":
@@ -247,9 +262,17 @@ codeunit 28000 "Post Code Check"
                 end;
             Country."Address Validation"::"Entire Address",
             Country."Address Validation"::"Address ID":
-                RunExternalValidation(
-                    TableNo, TableKey, AddressType, 1,
-                    Name, Name2, Contact, Address, Address2, City, PostCode, County, CountryCode);
+                begin
+                    TempName2 := CopyStr(Name2, 1, 50);
+                    TempCity := CopyStr(City, 1, 30);
+                    TempCounty := CopyStr(County, 1, 30);
+                    RunAddressValidation(
+                        TableNo, TableKey, AddressType, 1,
+                        Name, TempName2, Contact, Address, Address2, TempCity, PostCode, TempCounty, CountryCode);
+                    City := CopyStr(TempCity, 1, 30);
+                    County := CopyStr(TempCounty, 1, 30);
+                    Name2 := CopyStr(TempName2, 1, 50);
+                end;
         end;
     end;
 
@@ -271,7 +294,7 @@ codeunit 28000 "Post Code Check"
     end;
 #endif
 
-    local procedure VerifyAddress(CurrentFieldNo: Integer; TableNo: Integer; TableKey: Text; AddressType: Option Main,"Bill-to","Ship-to","Sell-to","Pay-to","Buy-from","Transfer-from","Transfer-to"; var Name: Text[100]; var Name2: Text[50]; var Contact: Text[100]; var Address: Text[100]; var Address2: Text[50]; var City: Text[30]; var PostCode: Code[20]; var County: Text[30]; var CountryCode: Code[10])
+    internal procedure VerifyAddress(CurrentFieldNo: Integer; TableNo: Integer; TableKey: Text; AddressType: Option Main,"Bill-to","Ship-to","Sell-to","Pay-to","Buy-from","Transfer-from","Transfer-to"; var Name: Text[100]; var Name2: Text[50]; var Contact: Text[100]; var Address: Text[100]; var Address2: Text[50]; var City: Text[30]; var PostCode: Code[20]; var County: Text[30]; var CountryCode: Code[10])
     begin
         if (PostCode = '') or (City = '') or (CurrentFieldNo = 0) or (not GuiAllowed) then
             exit;
@@ -532,7 +555,7 @@ codeunit 28000 "Post Code Check"
                 ToAddressID.Init();
                 ToAddressID := FromAddressID;
                 ToAddressID."Table No." := ToTableNo;
-                ToAddressID."Table Key" := ToTableKey;
+                ToAddressID."Table Key" := CopyStr(ToTableKey, 1, MaxStrLen(ToAddressID."Table Key"));
                 ToAddressID.Insert();
             until FromAddressID.Next() = 0;
     end;
@@ -571,13 +594,13 @@ codeunit 28000 "Post Code Check"
                 ToAddressID.Init();
                 ToAddressID := FromAddressID;
                 ToAddressID."Table No." := ToTableNo;
-                ToAddressID."Table Key" := ToTableKey;
+                ToAddressID."Table Key" := CopyStr(ToTableKey, 1, 200);
                 ToAddressID."Address Type" := ToAddressType;
                 ToAddressID.Insert();
             end else begin
                 ToAddressID := FromAddressID;
                 ToAddressID."Table No." := ToTableNo;
-                ToAddressID."Table Key" := ToTableKey;
+                ToAddressID."Table Key" := CopyStr(ToTableKey, 1, 200);
                 ToAddressID."Address Type" := ToAddressType;
                 ToAddressID.Modify();
             end;
@@ -636,7 +659,7 @@ codeunit 28000 "Post Code Check"
                 ToAddressID.Init();
                 ToAddressID := FromAddressID;
                 ToAddressID."Table No." := ToTableNo;
-                ToAddressID."Table Key" := ToTableKey;
+                ToAddressID."Table Key" := CopyStr(ToTableKey, 1, 200);
                 ToAddressID.Insert();
             until FromAddressID.Next() = 0;
 
@@ -686,9 +709,8 @@ codeunit 28000 "Post Code Check"
     [Scope('OnPrem')]
     procedure ApplicationNotInstalled()
     var
-        Text001: Label 'The external component is not installed.';
     begin
-        Message(Text001);
+        Message(ExternalComponentMsg);
     end;
 
     local procedure GetAddressValidationSetup(CountryCode: Code[10])
@@ -723,7 +745,7 @@ codeunit 28000 "Post Code Check"
     begin
         GetGLSetup();
         if GLSetup."Address Validation" <> GLSetup."Address Validation"::"Post Code & City" then
-            Error(Text001, GLSetup.FieldCaption("Address Validation"), GLSetup.TableCaption());
+            Error(AddressValidationErr, GLSetup.FieldCaption("Address Validation"), GLSetup.TableCaption());
     end;
 
     // Table "Post Code"
@@ -766,6 +788,7 @@ codeunit 28000 "Post Code Check"
             AlternativeAddress.Name, AlternativeAddress."Name 2", ContactName, AlternativeAddress.Address,
             AlternativeAddress."Address 2", AlternativeAddress.City, AlternativeAddress."Post Code",
             AlternativeAddress.County, AlternativeAddress."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Alternative Address", 'OnBeforeValidatePostCode', '', false, false)]
@@ -776,6 +799,7 @@ codeunit 28000 "Post Code Check"
             AlternativeAddress.Name, AlternativeAddress."Name 2", ContactName, AlternativeAddress.Address,
             AlternativeAddress."Address 2", AlternativeAddress.City, AlternativeAddress."Post Code",
             AlternativeAddress.County, AlternativeAddress."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Alternative Address", 'OnAfterDeleteEvent', '', false, false)]
@@ -818,6 +842,7 @@ codeunit 28000 "Post Code Check"
             BankAccount.Name, BankAccount."Name 2", BankAccount.Contact, BankAccount.Address,
             BankAccount."Address 2", BankAccount.City, BankAccount."Post Code", BankAccount.County,
             BankAccount."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Bank Account", 'OnBeforeValidatePostCode', '', false, false)]
@@ -828,6 +853,7 @@ codeunit 28000 "Post Code Check"
             BankAccount.Name, BankAccount."Name 2", BankAccount.Contact, BankAccount.Address,
             BankAccount."Address 2", BankAccount.City, BankAccount."Post Code", BankAccount.County,
             BankAccount."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Bank Account", 'OnAfterDeleteEvent', '', false, false)]
@@ -916,6 +942,7 @@ codeunit 28000 "Post Code Check"
             CompanyInformation.Name, CompanyInformation."Name 2", ContactName, CompanyInformation.Address,
             CompanyInformation."Address 2", CompanyInformation.City, CompanyInformation."Post Code",
             CompanyInformation.County, CompanyInformation."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Company Information", 'OnBeforeValidateShipToCity', '', false, false)]
@@ -930,6 +957,7 @@ codeunit 28000 "Post Code Check"
             ShipToAddress, CompanyInformation."Ship-to Address 2", CompanyInformation."Ship-to City",
             CompanyInformation."Ship-to Post Code", CompanyInformation."Ship-to County", CompanyInformation."Ship-to Country/Region Code");
         CompanyInformation."Ship-to Address" := CopyStr(ShipToAddress, 1, MaxStrLen(CompanyInformation."Ship-to Address"));
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Company Information", 'OnBeforeValidatePostCode', '', false, false)]
@@ -940,6 +968,7 @@ codeunit 28000 "Post Code Check"
             CompanyInformation.Name, CompanyInformation."Name 2", ContactName, CompanyInformation.Address,
             CompanyInformation."Address 2", CompanyInformation.City, CompanyInformation."Post Code",
             CompanyInformation.County, CompanyInformation."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Company Information", 'OnBeforeValidateShipToPostCode', '', false, false)]
@@ -955,6 +984,7 @@ codeunit 28000 "Post Code Check"
             CompanyInformation."Ship-to City", CompanyInformation."Ship-to Post Code",
             CompanyInformation."Ship-to County", CompanyInformation."Ship-to Country/Region Code");
         CompanyInformation."Ship-to Address" := CopyStr(ShipToAddress, 1, MaxStrLen(CompanyInformation."Ship-to Address"));
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Company Information", 'OnAfterDeleteEvent', '', false, false)]
@@ -990,6 +1020,7 @@ codeunit 28000 "Post Code Check"
             Contact.Name, Contact."Name 2", ContactName, Contact.Address,
             Contact."Address 2", Contact.City, Contact."Post Code", Contact.County,
             Contact."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Contact, 'OnBeforeValidatePostCode', '', false, false)]
@@ -1000,6 +1031,7 @@ codeunit 28000 "Post Code Check"
             Contact.Name, Contact."Name 2", ContactName, Contact.Address,
             Contact."Address 2", Contact.City, Contact."Post Code", Contact.County,
             Contact."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Contact, 'OnAfterDeleteEvent', '', false, false)]
@@ -1042,17 +1074,18 @@ codeunit 28000 "Post Code Check"
             ContactAltAddress."Company Name", ContactAltAddress."COmpany Name 2", ContactName, ContactAltAddress.Address,
             ContactAltAddress."Address 2", ContactAltAddress.City, ContactAltAddress."Post Code",
             ContactAltAddress.County, ContactAltAddress."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Contact Alt. Address", 'OnBeforeValidatePostCode', '', false, false)]
     local procedure ContactAltAddressOnBeforeValidatePostCode(var ContactAltAddress: Record "Contact Alt. Address"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
-        if (CurrentFieldNo <> 0) and GuiAllowed then
-            VerifyPostCode(
-                CurrentFieldNo, DATABASE::"Contact Alt. Address", ContactAltAddress.GetPosition(), 0,
-                ContactAltAddress."Company Name", ContactAltAddress."Company Name 2", ContactName, ContactAltAddress.Address,
-                ContactAltAddress."Address 2", ContactAltAddress.City, ContactAltAddress."Post Code",
-                ContactAltAddress.County, ContactAltAddress."Country/Region Code");
+        VerifyPostCode(
+            CurrentFieldNo, DATABASE::"Contact Alt. Address", ContactAltAddress.GetPosition(), 0,
+            ContactAltAddress."Company Name", ContactAltAddress."Company Name 2", ContactName, ContactAltAddress.Address,
+            ContactAltAddress."Address 2", ContactAltAddress.City, ContactAltAddress."Post Code",
+            ContactAltAddress.County, ContactAltAddress."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Contact Alt. Address", 'OnAfterDeleteEvent', '', false, false)]
@@ -1154,6 +1187,7 @@ codeunit 28000 "Post Code Check"
             Customer.Name, Customer."Name 2", Customer.Contact, Customer.Address,
             Customer."Address 2", Customer.City, Customer."Post Code", Customer.County,
             Customer."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Customer, 'OnBeforeValidatePostCode', '', false, false)]
@@ -1164,6 +1198,7 @@ codeunit 28000 "Post Code Check"
             Customer.Name, Customer."Name 2", Customer.Contact, Customer.Address,
             Customer."Address 2", Customer.City, Customer."Post Code", Customer.County,
             Customer."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Customer, 'OnAfterDeleteEvent', '', false, false)]
@@ -1184,7 +1219,7 @@ codeunit 28000 "Post Code Check"
     local procedure CustomerBankAccountAddress(var Rec: Record "Customer Bank Account"; CurrFieldNo: Integer)
     begin
         VerifyAddress(
-            CurrFieldNo, DATABASE::Customer, Rec.GetPosition(), 0,
+            CurrFieldNo, DATABASE::"Customer Bank Account", Rec.GetPosition(), 0,
             Rec.Name, Rec."Name 2", Rec.Contact, Rec.Address, Rec."Address 2",
             Rec.City, Rec."Post Code", Rec.County, Rec."Country/Region Code");
     end;
@@ -1193,7 +1228,7 @@ codeunit 28000 "Post Code Check"
     local procedure CustomerBankAccountAddress2(var Rec: Record "Customer Bank Account"; CurrFieldNo: Integer)
     begin
         VerifyAddress(
-            CurrFieldNo, DATABASE::Customer, Rec.GetPosition(), 0,
+            CurrFieldNo, DATABASE::"Customer Bank Account", Rec.GetPosition(), 0,
             Rec.Name, Rec."Name 2", Rec.Contact, Rec.Address, Rec."Address 2",
             Rec.City, Rec."Post Code", Rec.County, Rec."Country/Region Code");
     end;
@@ -1206,6 +1241,7 @@ codeunit 28000 "Post Code Check"
             CustomerBankAccount.Name, CustomerBankAccount."Name 2", CustomerBankAccount.Contact,
             CustomerBankAccount.Address, CustomerBankAccount."Address 2", CustomerBankAccount.City,
             CustomerBankAccount."Post Code", CustomerBankAccount.County, CustomerBankAccount."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Customer Bank Account", 'OnBeforeValidatePostCode', '', false, false)]
@@ -1216,6 +1252,7 @@ codeunit 28000 "Post Code Check"
             CustomerBankAccount.Name, CustomerBankAccount."Name 2", CustomerBankAccount.Contact,
             CustomerBankAccount.Address, CustomerBankAccount."Address 2", CustomerBankAccount.City,
             CustomerBankAccount."Post Code", CustomerBankAccount.County, CustomerBankAccount."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Customer Bank Account", 'OnAfterDeleteEvent', '', false, false)]
@@ -1279,6 +1316,7 @@ codeunit 28000 "Post Code Check"
             Employee."Country/Region Code");
         FirstName := CopyStr(Employee."First Name", 1, MaxStrLen(Employee."First Name"));
         LastName := CopyStr(Employee."Last Name", 1, MaxStrLen(Employee."Last Name"));
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Employee, 'OnBeforeValidatePostCode', '', false, false)]
@@ -1296,6 +1334,7 @@ codeunit 28000 "Post Code Check"
             Employee."Country/Region Code");
         FirstName := CopyStr(Employee."First Name", 1, MaxStrLen(Employee."First Name"));
         LastName := CopyStr(Employee."Last Name", 1, MaxStrLen(Employee."Last Name"));
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Employee, 'OnAfterDeleteEvent', '', false, false)]
@@ -1339,6 +1378,7 @@ codeunit 28000 "Post Code Check"
             FinanceChargeMemoHeader.Address, FinanceChargeMemoHeader."Address 2",
             FinanceChargeMemoHeader.City, FinanceChargeMemoHeader."Post Code",
             FinanceChargeMemoHeader.County, FinanceChargeMemoHeader."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Finance Charge Memo Header", 'OnBeforeValidatePostCode', '', false, false)]
@@ -1350,6 +1390,7 @@ codeunit 28000 "Post Code Check"
             FinanceChargeMemoHeader.Address, FinanceChargeMemoHeader."Address 2",
             FinanceChargeMemoHeader.City, FinanceChargeMemoHeader."Post Code",
             FinanceChargeMemoHeader.County, FinanceChargeMemoHeader."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Finance Charge Memo Header", 'OnValidateCustomerNoOnAfterAssignCustomerValues', '', false, false)]
@@ -1396,6 +1437,7 @@ codeunit 28000 "Post Code Check"
             Job."Bill-to Name", Job."Bill-to Name 2", Job."Bill-to Contact",
             Job."Bill-to Address", Job."Bill-to Address 2", Job."Bill-to City",
             Job."Bill-to Post Code", Job."Bill-to County", Job."Bill-to Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Job, 'OnBeforeValidateBillToPostCode', '', false, false)]
@@ -1406,6 +1448,7 @@ codeunit 28000 "Post Code Check"
             Job."Bill-to Name", Job."Bill-to Name 2", Job."Bill-to Contact",
             Job."Bill-to Address", Job."Bill-to Address 2", Job."Bill-to City",
             Job."Bill-to Post Code", Job."Bill-to County", Job."Bill-to Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Job, 'OnBeforeValidateSellToCity', '', false, false)]
@@ -1416,6 +1459,7 @@ codeunit 28000 "Post Code Check"
             Job."Sell-to Customer Name", Job."Sell-to Customer Name 2", Job."Sell-to Contact",
             Job."Sell-to Address", Job."Sell-to Address 2", Job."Sell-to City",
             Job."Sell-to Post Code", Job."Sell-to County", Job."Sell-to Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Job, 'OnBeforeValidateShipToCity', '', false, false)]
@@ -1426,6 +1470,7 @@ codeunit 28000 "Post Code Check"
             Job."Ship-to Name", Job."Ship-to Name 2", Job."Ship-to Contact",
             Job."Ship-to Address", Job."Ship-to Address 2", Job."Ship-to City",
             Job."Ship-to Post Code", Job."Ship-to County", Job."Ship-to Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Job, 'OnAfterDeleteEvent', '', false, false)]
@@ -1476,6 +1521,7 @@ codeunit 28000 "Post Code Check"
             CurrentFieldNo, DATABASE::Location, Location.GetPosition(), 0,
             Location.Name, Location."Name 2", Location.Contact, Location.Address, Location."Address 2",
             Location.City, Location."Post Code", Location.County, Location."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Location", 'OnBeforeValidatePostCode', '', false, false)]
@@ -1485,6 +1531,7 @@ codeunit 28000 "Post Code Check"
             CurrentFieldNo, DATABASE::Location, Location.GetPosition(), 0,
             Location.Name, Location."Name 2", Location.Contact, Location.Address, Location."Address 2",
             Location.City, Location."Post Code", Location.County, Location."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Location", 'OnAfterDeleteEvent', '', false, false)]
@@ -1527,6 +1574,7 @@ codeunit 28000 "Post Code Check"
             MachineCenter.Name, MachineCenter."Name 2", ContactName,
             MachineCenter.Address, MachineCenter."Address 2", MachineCenter.City,
             MachineCenter."Post Code", MachineCenter.County, MachineCenter."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Machine Center", 'OnBeforeValidatePostCode', '', false, false)]
@@ -1537,6 +1585,7 @@ codeunit 28000 "Post Code Check"
             MachineCenter.Name, MachineCenter."Name 2", ContactName,
             MachineCenter.Address, MachineCenter."Address 2", MachineCenter.City,
             MachineCenter."Post Code", MachineCenter.County, MachineCenter."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Machine Center", 'OnAfterDeleteEvent', '', false, false)]
@@ -1579,6 +1628,7 @@ codeunit 28000 "Post Code Check"
             OrderAddress.Name, OrderAddress."Name 2", ContactName, OrderAddress.Address,
             OrderAddress."Address 2", OrderAddress.City, OrderAddress."Post Code",
             OrderAddress.County, OrderAddress."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Order Address", 'OnBeforeValidatePostCode', '', false, false)]
@@ -1589,6 +1639,7 @@ codeunit 28000 "Post Code Check"
             OrderAddress.Name, OrderAddress."Name 2", ContactName, OrderAddress.Address,
             OrderAddress."Address 2", OrderAddress.City, OrderAddress."Post Code",
             OrderAddress.County, OrderAddress."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Order Address", 'OnAfterDeleteEvent', '', false, false)]
@@ -1703,6 +1754,7 @@ codeunit 28000 "Post Code Check"
             PurchaseHeader."Pay-to Name", PurchaseHeader."Pay-to Name 2", PurchaseHeader."Pay-to Contact",
             PurchaseHeader."Pay-to Address", PurchaseHeader."Pay-to Address 2", PurchaseHeader."Pay-to City",
             PurchaseHeader."Pay-to Post Code", PurchaseHeader."Pay-to County", PurchaseHeader."Pay-to Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnBeforeValidateEvent', 'Buy-from Address', false, false)]
@@ -1733,6 +1785,7 @@ codeunit 28000 "Post Code Check"
             PurchaseHeader."Pay-to Name", PurchaseHeader."Pay-to Name 2", PurchaseHeader."Pay-to Contact",
             PurchaseHeader."Pay-to Address", PurchaseHeader."Pay-to Address 2", PurchaseHeader."Pay-to City",
             PurchaseHeader."Pay-to Post Code", PurchaseHeader."Pay-to County", PurchaseHeader."Pay-to Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnBeforeValidateShipToCity', '', false, false)]
@@ -1743,6 +1796,7 @@ codeunit 28000 "Post Code Check"
             PurchaseHeader."Ship-to Name", PurchaseHeader."Ship-to Name 2", PurchaseHeader."Ship-to Contact",
             PurchaseHeader."Ship-to Address", PurchaseHeader."Ship-to Address 2", PurchaseHeader."Ship-to City",
             PurchaseHeader."Ship-to Post Code", PurchaseHeader."Ship-to County", PurchaseHeader."Ship-to Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnBeforeValidateShipToPostCode', '', false, false)]
@@ -1753,6 +1807,7 @@ codeunit 28000 "Post Code Check"
             PurchaseHeader."Ship-to Name", PurchaseHeader."Ship-to Name 2", PurchaseHeader."Ship-to Contact",
             PurchaseHeader."Ship-to Address", PurchaseHeader."Ship-to Address 2", PurchaseHeader."Ship-to City",
             PurchaseHeader."Ship-to Post Code", PurchaseHeader."Ship-to County", PurchaseHeader."Ship-to Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnBeforeValidateBuyFromCity', '', false, false)]
@@ -1763,6 +1818,7 @@ codeunit 28000 "Post Code Check"
             PurchaseHeader."Buy-from Vendor Name", PurchaseHeader."Buy-from Vendor Name 2", PurchaseHeader."Buy-from Contact",
             PurchaseHeader."Buy-from Address", PurchaseHeader."Buy-from Address 2", PurchaseHeader."Buy-from City",
             PurchaseHeader."Buy-from Post Code", PurchaseHeader."Buy-from County", PurchaseHeader."Buy-from Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnBeforeValidateBuyFromPostCode', '', false, false)]
@@ -1773,6 +1829,7 @@ codeunit 28000 "Post Code Check"
             PurchaseHeader."Buy-from Vendor Name", PurchaseHeader."Buy-from Vendor Name 2", PurchaseHeader."Buy-from Contact",
             PurchaseHeader."Buy-from Address", PurchaseHeader."Buy-from Address 2", PurchaseHeader."Buy-from City",
             PurchaseHeader."Buy-from Post Code", PurchaseHeader."Buy-from County", PurchaseHeader."Buy-from Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnValidateOrderAddressCodeOnAfterCopyBuyFromVendorAddressFieldsFromVendor', '', false, false)]
@@ -1899,6 +1956,7 @@ codeunit 28000 "Post Code Check"
             ReminderHeader.Name, ReminderHeader."Name 2", ReminderHeader.Contact,
             ReminderHeader.Address, ReminderHeader."Address 2", ReminderHeader.City,
             ReminderHeader."Post Code", ReminderHeader.County, ReminderHeader."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Reminder Header", 'OnBeforeValidatePostCode', '', false, false)]
@@ -1909,6 +1967,7 @@ codeunit 28000 "Post Code Check"
             ReminderHeader.Name, ReminderHeader."Name 2", ReminderHeader.Contact,
             ReminderHeader.Address, ReminderHeader."Address 2", ReminderHeader.City,
             ReminderHeader."Post Code", ReminderHeader.County, ReminderHeader."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Reminder Header", 'OnValidateCustomerNoOnAfterAssignCustomerValues', '', false, false)]
@@ -1968,16 +2027,18 @@ codeunit 28000 "Post Code Check"
             Resource.Name, Resource."Name 2", ContactName, Resource.Address,
             Resource."Address 2", Resource.City, Resource."Post Code",
             Resource.County, Resource."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Resource, 'OnBeforeValidatePostCode', '', false, false)]
     local procedure ResourceOnBeforeValidatePostCode(var Resource: Record Resource; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
         VerifyPostCode(
-            CurrentFieldNo, DATABASE::"Ship-to Address", Resource.GetPosition(), 0,
+            CurrentFieldNo, DATABASE::Resource, Resource.GetPosition(), 0,
             Resource.Name, Resource."Name 2", ContactName, Resource.Address,
             Resource."Address 2", Resource.City, Resource."Post Code",
             Resource.County, Resource."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Resource, 'OnAfterDeleteEvent', '', false, false)]
@@ -2020,6 +2081,7 @@ codeunit 28000 "Post Code Check"
             ResponsibilityCenter.Name, ResponsibilityCenter."Name 2", ResponsibilityCenter.Contact,
             ResponsibilityCenter.Address, ResponsibilityCenter."Address 2", ResponsibilityCenter.City,
             ResponsibilityCenter."Post Code", ResponsibilityCenter.County, ResponsibilityCenter."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Responsibility Center", 'OnBeforeValidatePostCode', '', false, false)]
@@ -2030,6 +2092,7 @@ codeunit 28000 "Post Code Check"
             ResponsibilityCenter.Name, ResponsibilityCenter."Name 2", ResponsibilityCenter.Contact,
             ResponsibilityCenter.Address, ResponsibilityCenter."Address 2", ResponsibilityCenter.City,
             ResponsibilityCenter."Post Code", ResponsibilityCenter.County, ResponsibilityCenter."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Responsibility Center", 'OnAfterDeleteEvent', '', false, false)]
@@ -2128,6 +2191,7 @@ codeunit 28000 "Post Code Check"
             SalesHeader."Bill-to Name", SalesHeader."Bill-to Name 2", SalesHeader."Bill-to Contact",
             SalesHeader."Bill-to Address", SalesHeader."Bill-to Address 2", SalesHeader."Bill-to City",
             SalesHeader."Bill-to Post Code", SalesHeader."Bill-to County", SalesHeader."Bill-to Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnBeforeValidateBillToPostCode', '', false, false)]
@@ -2138,6 +2202,7 @@ codeunit 28000 "Post Code Check"
             SalesHeader."Bill-to Name", SalesHeader."Bill-to Name 2", SalesHeader."Bill-to Contact",
             SalesHeader."Bill-to Address", SalesHeader."Bill-to Address 2", SalesHeader."Bill-to City",
             SalesHeader."Bill-to Post Code", SalesHeader."Bill-to County", SalesHeader."Bill-to Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnBeforeValidateShipToCity', '', false, false)]
@@ -2148,6 +2213,7 @@ codeunit 28000 "Post Code Check"
             SalesHeader."Ship-to Name", SalesHeader."Ship-to Name 2", SalesHeader."Ship-to Contact",
             SalesHeader."Ship-to Address", SalesHeader."Ship-to Address 2", SalesHeader."Ship-to City",
             SalesHeader."Ship-to Post Code", SalesHeader."Ship-to County", SalesHeader."Ship-to Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnBeforeValidateShipToPostCode', '', false, false)]
@@ -2158,6 +2224,7 @@ codeunit 28000 "Post Code Check"
             SalesHeader."Ship-to Name", SalesHeader."Ship-to Name 2", SalesHeader."Ship-to Contact",
             SalesHeader."Ship-to Address", SalesHeader."Ship-to Address 2", SalesHeader."Ship-to City",
             SalesHeader."Ship-to Post Code", SalesHeader."Ship-to County", SalesHeader."Ship-to Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterCopySellToCustomerAddressFieldsFromCustomer', '', false, false)]
@@ -2363,6 +2430,7 @@ codeunit 28000 "Post Code Check"
             ServiceHeader.Name, ServiceHeader."Name 2", ServiceHeader."Contact Name",
             ServiceHeader.Address, ServiceHeader."Address 2", ServiceHeader.City,
             ServiceHeader."Post Code", ServiceHeader.County, ServiceHeader."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnBeforeValidatePostCode', '', false, false)]
@@ -2373,6 +2441,7 @@ codeunit 28000 "Post Code Check"
             ServiceHeader.Name, ServiceHeader."Name 2", ServiceHeader."Contact Name",
             ServiceHeader.Address, ServiceHeader."Address 2", ServiceHeader.City,
             ServiceHeader."Post Code", ServiceHeader.County, ServiceHeader."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnBeforeValidateBillToCity', '', false, false)]
@@ -2383,6 +2452,7 @@ codeunit 28000 "Post Code Check"
             ServiceHeader."Bill-to Name", ServiceHeader."Bill-to Name 2", ServiceHeader."Bill-to Contact",
             ServiceHeader."Bill-to Address", ServiceHeader."Bill-to Address 2", ServiceHeader."Bill-to City",
             ServiceHeader."Bill-to Post Code", ServiceHeader."Bill-to County", ServiceHeader."Bill-to Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnBeforeValidateBillToPostCode', '', false, false)]
@@ -2393,6 +2463,7 @@ codeunit 28000 "Post Code Check"
             ServiceHeader."Bill-to Name", ServiceHeader."Bill-to Name 2", ServiceHeader."Bill-to Contact",
             ServiceHeader."Bill-to Address", ServiceHeader."Bill-to Address 2", ServiceHeader."Bill-to City",
             ServiceHeader."Bill-to Post Code", ServiceHeader."Bill-to County", ServiceHeader."Bill-to Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnBeforeValidateShipToCity', '', false, false)]
@@ -2403,6 +2474,7 @@ codeunit 28000 "Post Code Check"
             ServiceHeader."Ship-to Name", ServiceHeader."Ship-to Name 2", ServiceHeader."Ship-to Contact",
             ServiceHeader."Ship-to Address", ServiceHeader."Ship-to Address 2", ServiceHeader."Ship-to City",
             ServiceHeader."Ship-to Post Code", ServiceHeader."Ship-to County", ServiceHeader."Ship-to Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnBeforeValidateShipToPostCode', '', false, false)]
@@ -2413,6 +2485,7 @@ codeunit 28000 "Post Code Check"
             ServiceHeader."Ship-to Name", ServiceHeader."Ship-to Name 2", ServiceHeader."Ship-to Contact",
             ServiceHeader."Ship-to Address", ServiceHeader."Ship-to Address 2", ServiceHeader."Ship-to City",
             ServiceHeader."Ship-to Post Code", ServiceHeader."Ship-to County", ServiceHeader."Ship-to Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnAfterCopyShipToCustomerAddressFieldsFromShipToAddr', '', false, false)]
@@ -2469,6 +2542,7 @@ codeunit 28000 "Post Code Check"
             ShipToAddress.Name, ShipToAddress."Name 2", ShipToAddress.Contact, ShipToAddress.Address,
             ShipToAddress."Address 2", ShipToAddress.City, ShipToAddress."Post Code",
             ShipToAddress.County, ShipToAddress."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Ship-to Address", 'OnBeforeValidatePostCode', '', false, false)]
@@ -2479,6 +2553,7 @@ codeunit 28000 "Post Code Check"
             ShipToAddress.Name, ShipToAddress."Name 2", ShipToAddress.Contact, ShipToAddress.Address,
             ShipToAddress."Address 2", ShipToAddress.City, ShipToAddress."Post Code",
             ShipToAddress.County, ShipToAddress."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Ship-to Address", 'OnAfterDeleteEvent', '', false, false)]
@@ -2553,6 +2628,7 @@ codeunit 28000 "Post Code Check"
             TransferHeader."Transfer-from Name", TransferHeader."Transfer-from Name 2", TransferHeader."Transfer-from Contact",
             TransferHeader."Transfer-from Address", TransferHeader."Transfer-from Address 2", TransferHeader."Transfer-from City",
             TransferHeader."Transfer-from Post Code", TransferHeader."Transfer-from County", TransferHeader."Trsf.-from Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Transfer Header", 'OnBeforeValidateTransferToCity', '', false, false)]
@@ -2563,6 +2639,7 @@ codeunit 28000 "Post Code Check"
             TransferHeader."Transfer-to Name", TransferHeader."Transfer-to Name 2", TransferHeader."Transfer-to Contact",
             TransferHeader."Transfer-to Address", TransferHeader."Transfer-to Address 2", TransferHeader."Transfer-to City",
             TransferHeader."Transfer-to Post Code", TransferHeader."Transfer-to County", TransferHeader."Trsf.-to Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Transfer Header", 'OnBeforeValidateTransferToPostCode', '', false, false)]
@@ -2573,6 +2650,7 @@ codeunit 28000 "Post Code Check"
             TransferHeader."Transfer-to Name", TransferHeader."Transfer-to Name 2", TransferHeader."Transfer-to Contact",
             TransferHeader."Transfer-to Address", TransferHeader."Transfer-to Address 2", TransferHeader."Transfer-to City",
             TransferHeader."Transfer-to Post Code", TransferHeader."Transfer-to County", TransferHeader."Trsf.-to Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Transfer Header", 'OnAfterInitFromTransferFromLocation', '', false, false)]
@@ -2663,6 +2741,7 @@ codeunit 28000 "Post Code Check"
             Vendor.Name, Vendor."Name 2", Vendor.Contact, Vendor.Address,
             Vendor."Address 2", Vendor.City, Vendor."Post Code", Vendor.County,
             Vendor."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Vendor, 'OnBeforeValidatePostCode', '', false, false)]
@@ -2673,6 +2752,7 @@ codeunit 28000 "Post Code Check"
             Vendor.Name, Vendor."Name 2", Vendor.Contact, Vendor.Address,
             Vendor."Address 2", Vendor.City, Vendor."Post Code", Vendor.County,
             Vendor."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Vendor, 'OnAfterDeleteEvent', '', false, false)]
@@ -2709,7 +2789,7 @@ codeunit 28000 "Post Code Check"
     local procedure VendorBankAccountAddress2(var Rec: Record "Vendor Bank Account"; CurrFieldNo: Integer)
     begin
         VerifyAddress(
-            CurrFieldNo, DATABASE::Customer, Rec.GetPosition(), 0,
+            CurrFieldNo, DATABASE::"Vendor Bank Account", Rec.GetPosition(), 0,
             Rec.Name, Rec."Name 2", Rec.Contact, Rec.Address, Rec."Address 2",
             Rec.City, Rec."Post Code", Rec.County, Rec."Country/Region Code");
     end;
@@ -2722,6 +2802,7 @@ codeunit 28000 "Post Code Check"
             VendorBankAccount.Name, VendorBankAccount."Name 2", VendorBankAccount.Contact,
             VendorBankAccount.Address, VendorBankAccount."Address 2", VendorBankAccount.City,
             VendorBankAccount."Post Code", VendorBankAccount.County, VendorBankAccount."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Vendor Bank Account", 'OnBeforeValidatePostCode', '', false, false)]
@@ -2732,6 +2813,7 @@ codeunit 28000 "Post Code Check"
             VendorBankAccount.Name, VendorBankAccount."Name 2", VendorBankAccount.Contact,
             VendorBankAccount.Address, VendorBankAccount."Address 2", VendorBankAccount.City,
             VendorBankAccount."Post Code", VendorBankAccount.County, VendorBankAccount."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Vendor Bank Account", 'OnAfterDeleteEvent', '', false, false)]
@@ -2807,6 +2889,7 @@ codeunit 28000 "Post Code Check"
             Union.Name, Union."Name 2", ContactName,
             Union.Address, Union."Address 2", Union.City,
             Union."Post Code", Union.County, Union."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Union, 'OnBeforeValidatePostCode', '', false, false)]
@@ -2817,6 +2900,7 @@ codeunit 28000 "Post Code Check"
             Union.Name, Union."Name 2", ContactName,
             Union.Address, Union."Address 2", Union.City,
             Union."Post Code", Union.County, Union."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Union, 'OnAfterDeleteEvent', '', false, false)]
@@ -2859,6 +2943,7 @@ codeunit 28000 "Post Code Check"
             WorkCenter.Name, WorkCenter."Name 2", ContactName,
             WorkCenter.Address, WorkCenter."Address 2", WorkCenter.City,
             WorkCenter."Post Code", WorkCenter.County, WorkCenter."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Work Center", 'OnBeforeValidatePostCode', '', false, false)]
@@ -2869,6 +2954,7 @@ codeunit 28000 "Post Code Check"
             WorkCenter.Name, WorkCenter."Name 2", ContactName,
             WorkCenter.Address, WorkCenter."Address 2", WorkCenter.City,
             WorkCenter."Post Code", WorkCenter.County, WorkCenter."Country/Region Code");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Work Center", 'OnAfterDeleteEvent', '', false, false)]

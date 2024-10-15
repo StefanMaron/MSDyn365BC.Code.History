@@ -531,6 +531,7 @@
             if SegHeader."No. of Criteria Actions" > 1 then
                 if Confirm(Text006, true) then begin
                     SegmentCriteriaLine.SetRange("Segment No.", "Segment No.");
+                    OnDeleteOnBeforeSegmentCriteriaLineDeleteAll(Rec, SegmentCriteriaLine);
                     SegmentCriteriaLine.DeleteAll();
                     SegmentHistory.SetRange("Segment No.", "Segment No.");
                     SegmentHistory.DeleteAll();
@@ -771,6 +772,7 @@
         TempSegmentLine.SetRange("Contact No.", TempSegmentLine."Contact No.");
         TempSegmentLine.SetRange("Campaign No.", TempSegmentLine."Campaign No.");
 
+        OnCreatePhoneCallOnBeforeStartWizard2(TempSegmentLine, Rec);
         TempSegmentLine.StartWizard2();
     end;
 
@@ -1688,6 +1690,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateInteractionFromOppOnBeforeStartWizard(var SegmentLine: Record "Segment Line"; Opportunity: Record Opportunity)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePhoneCallOnBeforeStartWizard2(var TempSegmentLine: Record "Segment Line" temporary; SegmentLine: Record "Segment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnBeforeSegmentCriteriaLineDeleteAll(SegmentLine: Record "Segment Line"; SegmentCriteriaLine: Record "Segment Criteria Line")
     begin
     end;
 

@@ -91,14 +91,8 @@ page 6303 "Power BI Report Spinner Part"
                     end;
 
                     trigger DocumentReady()
-                    var
-                        LoadReportMessage: Text;
                     begin
-                        if not TempPowerBiReportBuffer.IsEmpty() then
-                            if PowerBiEmbedHelper.TryGetLoadReportMessage(LoadReportMessage) then
-                                CurrPage.WebReportViewer.PostMessage(LoadReportMessage, PowerBiEmbedHelper.TargetOrigin(), false)
-                            else
-                                ShowError(GetLastErrorText());
+                        InitalizeAddIn();
                     end;
 
                     trigger Callback(data: Text)
@@ -687,6 +681,18 @@ page 6303 "Power BI Report Spinner Part"
     begin
         PageState := PageState::ErrorVisible;
         ErrorMessageText := NewErrorMessageText;
+    end;
+
+    [NonDebuggable]
+    local procedure InitalizeAddIn()
+    var
+        LoadReportMessage: Text;
+    begin
+        if not TempPowerBiReportBuffer.IsEmpty() then
+            if PowerBiEmbedHelper.TryGetLoadReportMessage(LoadReportMessage) then
+                CurrPage.WebReportViewer.PostMessage(LoadReportMessage, PowerBiEmbedHelper.TargetOrigin(), false)
+            else
+                ShowError(GetLastErrorText());
     end;
 }
 #endif

@@ -229,7 +229,7 @@
 
         if CreateCreditMemo(SalesInvoiceHeader) then begin
             CreateCopyDocument(SalesInvoiceHeader, SalesHeader, SalesHeader."Document Type"::Invoice, true);
-            OnAfterCreateCorrSalesInvoice(SalesHeader);
+            OnAfterCreateCorrSalesInvoice(SalesHeader, SalesInvoiceHeader);
             Commit();
         end;
     end;
@@ -965,7 +965,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateCorrSalesInvoice(var SalesHeader: Record "Sales Header")
+    local procedure OnAfterCreateCorrSalesInvoice(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
     end;
 
