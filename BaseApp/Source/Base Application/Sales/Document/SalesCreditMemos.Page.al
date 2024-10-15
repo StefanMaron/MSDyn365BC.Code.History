@@ -788,6 +788,7 @@ page 9302 "Sales Credit Memos"
         xLastPostingNo := Rec."Last Posting No.";
 
         Rec.SendToPosting(PostingCodeunitID);
+        Rec.UpdateSalesOrderLineIfExist();
 
         IsHandled := false;
         OnPostDocumentBeforeNavigateAfterPosting(Rec, PostingCodeunitID, IsHandled);

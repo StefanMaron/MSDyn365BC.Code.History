@@ -5,7 +5,7 @@ using Microsoft.Foundation.Address;
 page 368 "Order Address"
 {
     Caption = 'Order Address';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     PageType = Card;
     SourceTable = "Order Address";
 

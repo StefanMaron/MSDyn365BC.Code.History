@@ -371,7 +371,6 @@ page 372 "Bank Account Ledger Entries"
                     var
                         ReversalEntry: Record "Reversal Entry";
                         SourceCodeSetup: Record "Source Code Setup";
-                        LocalCalcRunningAccBalance: Codeunit "Calc. Running Acc. Balance";
                     begin
                         Clear(ReversalEntry);
                         if Rec.Reversed then
@@ -384,7 +383,7 @@ page 372 "Bank Account Ledger Entries"
                         end;
                         Rec.TestField("Transaction No.");
                         ReversalEntry.ReverseTransaction(Rec."Transaction No.");
-                        LocalCalcRunningAccBalance.FlushDayTotalsForNewestEntries(Rec."Bank Account No.");
+                        Clear(CalcRunningAccBalance);
                         CurrPage.Update(false);
                     end;
                 }
@@ -445,7 +444,6 @@ page 372 "Bank Account Ledger Entries"
     var
         GLSetup: Record "General Ledger Setup";
         BankAccount: Record "Bank Account";
-        LocalCalcRunningAccBalance: Codeunit "Calc. Running Acc. Balance";
     begin
         SetDimVisibility();
         BankAccount.SetLoadFields("Currency Code");
@@ -454,10 +452,6 @@ page 372 "Bank Account Ledger Entries"
                 IsForeignCurrency := BankAccount."Currency Code" <> '';
             BankAccount.Reset();
             Rec.CopyFilter("Bank Account No.", BankAccount."No.");
-            if BankAccount.FindSet() then
-                repeat
-                    LocalCalcRunningAccBalance.FlushDayTotalsForNewestEntries(BankAccount."No.");
-                until BankAccount.Next() = 0;
         end;
         GLSetup.SetLoadFields("Show Amounts");
         GLSetup.Get();

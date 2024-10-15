@@ -372,9 +372,11 @@ page 7200 "CDS Connection Setup"
 
                 trigger OnAction()
                 begin
-                    if CDSIntegrationImpl.TestConnection(Rec) then
-                        Message(ConnectionSuccessMsg)
-                    else
+                    if CDSIntegrationImpl.TestConnection(Rec) then begin
+                        Message(ConnectionSuccessMsg);
+                        RefreshStatuses := true;
+                        CurrPage.Update();
+                    end else
                         Message(ConnectionFailedMsg, GetLastErrorText());
                 end;
             }
@@ -893,7 +895,6 @@ page 7200 "CDS Connection Setup"
         SolutionKey := CDSIntegrationImpl.GetBaseSolutionUniqueName();
         SolutionName := CDSIntegrationImpl.GetBaseSolutionDisplayName();
         DefaultBusinessUnitName := CDSIntegrationImpl.GetDefaultBusinessUnitName();
-        RefreshStatuses := true;
         SetVisibilityFlags();
     end;
 
@@ -930,12 +931,7 @@ page 7200 "CDS Connection Setup"
                 Rec.Modify();
             end;
             Rec.LoadConnectionStringElementsFromCRMConnectionSetup();
-            if Rec."Is Enabled" then begin
-                CDSIntegrationImpl.RegisterConnection(Rec, true);
-                if (Rec."Server Address" <> '') and (Rec."Server Address" <> TestServerAddressTok) then
-                    if CDSIntegrationImpl.MultipleCompaniesConnected() then
-                        CDSIntegrationImpl.SendMultipleCompaniesNotification()
-            end else begin
+            if not Rec."Is Enabled" then begin
                 CDSIntegrationImpl.UnregisterConnection();
                 if Rec."Disable Reason" <> '' then
                     CDSIntegrationImpl.SendConnectionDisabledNotification(Rec."Disable Reason");

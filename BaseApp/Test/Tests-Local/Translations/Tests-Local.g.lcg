@@ -2966,6 +2966,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit IRS 1099 Upgrade Test - NamedType FormBoxesUpgradedMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4088299161 - NamedType 3886178871" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You are compliant with the latest format of 1099 reporting.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit IRS 1099 Upgrade Test - NamedType IRS1099ComplianceMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4088299161 - NamedType 1304771032" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The list of 1099 form boxes is not up to date. Update: %1]]></Val>

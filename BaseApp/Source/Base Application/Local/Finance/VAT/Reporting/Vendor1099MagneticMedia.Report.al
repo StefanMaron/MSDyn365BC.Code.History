@@ -5,6 +5,7 @@
 namespace Microsoft.Finance.VAT.Reporting;
 
 using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Company;
 using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
@@ -724,6 +725,20 @@ report 10115 "Vendor 1099 Magnetic Media"
         MagMediaManagement.UpdateLines(AppliedVendorLedgerEntry, FormTypeIndex, FormTypeLastNo[FormTypeIndex], AppliedVendorLedgerEntry."IRS 1099 Code", Invoice1099Amount);
     end;
 
+    local procedure GetForeignEntityIndicator(TempVendorInformation: Record "Company Information" temporary): Text[1]
+    var
+        PostCode: Record "Post Code";
+    begin
+        PostCode.SetRange(Code, TempVendorInformation."Post Code");
+        PostCode.SetRange(City, TempVendorInformation.City);
+        if PostCode.FindFirst() then
+            if PostCode."Country/Region Code" in ['US', 'USA'] then
+                exit(' ')
+            else
+                exit('1');
+        exit(' ');
+    end;
+
     procedure WriteTRec()
     begin
         // T Record - 1 per transmission, 750 length
@@ -765,7 +780,9 @@ report 10115 "Vendor 1099 Magnetic Media"
           StrSubstNo('#1######################################', VendContactName) +
           StrSubstNo('#1#############', VendContactPhoneNo) +
           StrSubstNo('#1##################', TempVendorInfo."E-Mail") + // 20 chars
-          StrSubstNo('                          '));
+          StrSubstNo('               ') +
+          StrSubstNo('%1', GetForeignEntityIndicator(TempVendorInfo)) + // position 740
+          StrSubstNo('          '));
 
 #if not CLEAN24
         OnAfterWriteTRec(IRSData, TempVendorInfo);

@@ -40,16 +40,21 @@ codeunit 6135 "E-Document WorkFlow Processing"
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
         EDocumentService: Record "E-Document Service";
-        EDoucmentHelper: Codeunit "E-Document Processing";
-        FeatureTelemetry: Codeunit "Feature Telemetry";
-        EDocumentHelper: Codeunit "E-Document Processing";
+    begin
+        ValidateFlowStep(EDocument, WorkflowStepArgument, WorkflowStepInstance);
+        EDocumentService.Get(WorkflowStepArgument."E-Document Service");
+        SendEDocument(EDocument, EDocumentService);
+    end;
+
+    internal procedure SendEDocument(var EDocument: Record "E-Document"; EDocumentService: Record "E-Document Service")
+    var
         Telemetry: Codeunit Telemetry;
+        EDocumentHelper: Codeunit "E-Document Processing";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         TelemetryDimensions: Dictionary of [Text, Text];
     begin
         FeatureTelemetry.LogUptake('0000KZ7', EDocumentHelper.GetEDocTok(), Enum::"Feature Uptake Status"::Used);
-        ValidateFlowStep(EDocument, WorkflowStepArgument, WorkflowStepInstance);
-        EDocumentService.Get(WorkflowStepArgument."E-Document Service");
-        EDoucmentHelper.GetTelemetryDimensions(EDocumentService, EDocument, TelemetryDimensions);
+        EDocumentHelper.GetTelemetryDimensions(EDocumentService, EDocument, TelemetryDimensions);
         Telemetry.LogMessage('0000LBB', EDocTelemetryProcessingStartScopeLbl, Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All, TelemetryDimensions);
 
         if IsEdocServiceUsingBatch(EDocumentService) then

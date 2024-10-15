@@ -1884,6 +1884,35 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         Assert.AreNotEqual('', PurchCrMemoHdr."No.", NoShouldNotBeBlankErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CorrectPurchaseInvoicewhenItemIsNonInventoriableTypeWithLocation()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+    begin
+        // [SCENARIO 492810] Error when trying to Correct Posted Purchase Invoice for a Non-Inventory Type item:  "Warehouse Shipment is required for Line No. 
+        Initialize();
+
+        // [GIVEN] Create Purchase Order with Item Type Service and Non Inventory.
+        CreatePurchaseOrderWithItemTypeServiceAndNonInventory(PurchaseHeader);
+
+        // [GIVEN] Post Purchase Order.
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        // [WHEN] Run "Correct" action for posted invoice.
+        CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvHeader, false);
+        CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
+
+        PurchCrMemoHdr.SetRange("Applies-to Doc. No.", PurchInvHeader."No.");
+        PurchCrMemoHdr.FindFirst();
+
+        // [VERIFY] Warehouse Shipment is not required when Item Type service or non-inventory & Location have "Directed Put-away and Pick".
+        Assert.AreNotEqual('', PurchCrMemoHdr."No.", NoShouldNotBeBlankErr);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales/Purch. Correct. Docs");
@@ -2409,6 +2438,27 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(1, 10));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(10));
         PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreatePurchaseOrderWithItemTypeServiceAndNonInventory(var PurchaseHeader: Record "Purchase Header")
+    var
+        Item: array[2] of Record Item;
+        PurchaseLine: array[2] of Record "Purchase Line";
+        Location: Record Location;
+        i: Integer;
+    begin
+        LibraryInventory.CreateServiceTypeItem(Item[1]);
+        LibraryInventory.CreateNonInventoryTypeItem(Item[2]);
+        LibraryWarehouse.CreateFullWMSLocation(Location, LibraryRandom.RandInt(5));
+        LibraryPurchase.CreatePurchaseOrderWithLocation(PurchaseHeader, LibraryPurchase.CreateVendorNo(), Location.Code);
+        
+        for i := 1 to ArrayLen(Item) do
+            LibraryPurchase.CreatePurchaseLineWithUnitCost(
+                PurchaseLine[i],
+                PurchaseHeader,
+                Item[i]."No.",
+                LibraryRandom.RandInt(100),
+                LibraryRandom.RandInt(10));
     end;
 
     [ModalPageHandler]

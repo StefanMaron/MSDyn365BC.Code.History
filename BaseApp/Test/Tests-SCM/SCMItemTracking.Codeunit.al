@@ -58,7 +58,8 @@ codeunit 137405 "SCM Item Tracking"
         BeforeExpirationDateShortErr: Label 'Expiration Date is before the posting date';
         CannotChangeItemWhseEntriesExistErr: Label 'You cannot change %1 because there are one or more warehouse entries for this item.', Comment = '%1: Changed field name';
         CannotChangeITWhseEntriesExistErr: Label 'You cannot change %1 because there are one or more warehouse entries for item %2.', Comment = '%1: Changed field name; %2: Item No.';
-
+        LotNoMustNotBeBlankErr: Label 'Lot No. must not be blank.';
+        SerialNoMustNotBeBlankErr: Label 'Serial No. must not be blank.';
 
     [Test]
     [HandlerFunctions('ItemTrackingAssignTrackingNoAndVerifyQuantityHandler,EnterQuantityToCreateHandler')]
@@ -4902,6 +4903,146 @@ codeunit 137405 "SCM Item Tracking"
         Assert.ExpectedError(NewSerialNoCannotBeChangedErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingAssignTrackingNoAndVerifyQuantityHandler,ItemTrackingSummaryOkModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ShouldBeAbleToAddLotNoInWhseShipmentWhenLocationIsSetAsRequirePutAway()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        ItemTrackingCode: Record "Item Tracking Code";
+        WarehouseEmployee: Record "Warehouse Employee";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesHeader: Record "Sales Header";
+        WhseShipmentHeader: Record "Warehouse Shipment Header";
+        WhseShipmentLine: Record "Warehouse Shipment Line";
+        WhseActivityLine: Record "Warehouse Activity Line";
+    begin
+        // [SCENARIO 491844] With the location Setup Require put away you are not able to add i[Atem tracking on the warehouse shipment without having require pick activated.
+        Initialize();
+
+        // [GIVEN] Create Lot Item Tracking Code.
+        CreatelotItemTrackingCode(ItemTrackingCode);
+
+        // [GIVEN] Create Item with Lot Item Tracking Code.
+        CreateItemWithLotItemTrackingCode(Item, ItemTrackingCode);
+
+        // [GIVEN] Create Location with Warehouse Employee Setup.
+        CreateLocationWithWarehouseEmployeeSetup(Location, WarehouseEmployee);
+
+        // [GIVEN] Create Purchase Order.
+        CreatePurchaseOrder(PurchaseHeader, Item, Location);
+
+        // [GIVEN] Find Purchase Line.
+        FindPurchLine(PurchaseHeader, PurchaseLine);
+
+        // [GIVEN] Open Item Tracking Lines page.
+        LibraryVariableStorage.Enqueue(TrackingOptionStr::AssignLotNo);
+        PurchaseLine.OpenItemTrackingLines();
+
+        // [GIVEN] Post Purchase Order.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Validate Require Receive and Require Put-away in Location.
+        Location.Validate("Require Receive", true);
+        Location.Validate("Require Put-away", true);
+        Location.Modify(true);
+
+        // [GIVEN] Create and Release Sales Order.
+        CreateAndReleaseSalesOrder(SalesHeader, Item, Location);
+
+        // [GIVEN] Create Warehouse Shipment.
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [GIVEN] Find Warehouse Shipment Header and Line.
+        FindWarehouseShipmentHeaderAndLine(WhseShipmentHeader, WhseShipmentLine, SalesHeader);
+
+        // [GIVEN] Open Item Tracking Lines page.
+        LibraryVariableStorage.Enqueue(TrackingOptionStr::SelectEntries);
+        WhseShipmentLine.OpenItemTrackingLines();
+
+        // [GIVEN] Create Pick.
+        LibraryWarehouse.CreatePick(WhseShipmentHeader);
+
+        // [WHEN] Find Warehouse Pick Line.
+        WhseActivityLine.SetRange("Item No.", Item."No.");
+        WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::Pick);
+        WhseActivityLine.FindFirst();
+
+        // [VERIFY] Verify Lot No. is not blank.
+        Assert.AreNotEqual('', WhseActivityLine."Lot No.", LotNoMustNotBeBlankErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingSingleLineHandler,ItemTrackingLinesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure ShouldBeAbleToAddSerialNoInWhseShipmentWhenLocationIsSetAsRequirePutAway()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        ItemTrackingCode: Record "Item Tracking Code";
+        WarehouseEmployee: Record "Warehouse Employee";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesHeader: Record "Sales Header";
+        WhseShipmentHeader: Record "Warehouse Shipment Header";
+        WhseShipmentLine: Record "Warehouse Shipment Line";
+        WhseActivityLine: Record "Warehouse Activity Line";
+    begin
+        // [SCENARIO 491844] With the location Setup Require put away you are not able to add i[Atem tracking on the warehouse shipment without having require pick activated.
+        Initialize();
+
+        // [GIVEN] Create Serial Item Tracking Code.
+        CreateSerialItemTrackingCode(ItemTrackingCode);
+
+        // [GIVEN] Create Item with Serial Item Tracking Code.
+        CreateItemWithSerialItemTrackingCode(Item, ItemTrackingCode);
+
+        // [GIVEN] Create Location with Warehouse Employee Setup.
+        CreateLocationWithWarehouseEmployeeSetup(Location, WarehouseEmployee);
+
+        // [GIVEN] Create Purchase Order.
+        CreatePurchaseOrder(PurchaseHeader, Item, Location);
+
+        // [GIVEN] Find Purchase Line.
+        FindPurchLine(PurchaseHeader, PurchaseLine);
+
+        // [GIVEN] Open Item Tracking Lines page.
+        PurchaseLine.OpenItemTrackingLines();
+
+        // [GIVEN] Post Purchase Order.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Validate Require Receive and Require Put-away in Location.
+        Location.Validate("Require Receive", true);
+        Location.Validate("Require Put-away", true);
+        Location.Modify(true);
+
+        // [GIVEN] Create and Release Sales Order.
+        CreateAndReleaseSalesOrder(SalesHeader, Item, Location);
+
+        // [GIVEN] Create Warehouse Shipment.
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [GIVEN] Find Warehouse Shipment Header and Line.
+        FindWarehouseShipmentHeaderAndLine(WhseShipmentHeader, WhseShipmentLine, SalesHeader);
+
+        // [GIVEN] Open Item Tracking Lines page.
+        LibraryVariableStorage.Enqueue(TrackingOptionStr::SelectEntries);
+        WhseShipmentLine.OpenItemTrackingLines();
+
+        // [GIVEN] Create Pick.
+        LibraryWarehouse.CreatePick(WhseShipmentHeader);
+
+        // [WHEN] Find Warehouse Pick Line.
+        WhseActivityLine.SetRange("Item No.", Item."No.");
+        WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::Pick);
+        WhseActivityLine.FindFirst();
+
+        // [VERIFY] Verify Serial No. is not blank.
+        Assert.AreNotEqual('', WhseActivityLine."Serial No.", SerialNoMustNotBeBlankErr);
+    end;
 
     local procedure Initialize()
     var
@@ -6575,6 +6716,118 @@ codeunit 137405 "SCM Item Tracking"
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
         WarehouseActivityLine.FindFirst;
+    end;
+
+    local procedure CreateLotItemTrackingCode(var ItemTrackingCode: Record "Item Tracking Code")
+    begin
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true, false);
+        ItemTrackingCode.Validate("Lot Warehouse Tracking", true);
+        ItemTrackingCode.Modify(true);
+    end;
+
+    local procedure CreateSerialItemTrackingCode(var ItemTrackingCode: Record "Item Tracking Code")
+    begin
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, true, false, false);
+        ItemTrackingCode.Validate("SN Warehouse Tracking", true);
+        ItemTrackingCode.Modify(true);
+    end;
+
+    local procedure CreateLocationWithWarehouseEmployeeSetup(
+        var Location: Record Location;
+        var WarehouseEmployee: Record "Warehouse Employee")
+    begin
+        WarehouseEmployee.DeleteAll(true);
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+    end;
+
+    local procedure FindWarehouseShipmentHeaderAndLine(
+        var WhseShipmentHeader: Record "Warehouse Shipment Header";
+        var WhseShipmentLine: Record "Warehouse Shipment Line";
+        var SalesHeader: Record "Sales Header")
+    begin
+        WhseShipmentHeader.Get(
+            LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
+                Database::"Sales Line",
+                SalesHeader."Document Type".AsInteger(),
+                SalesHeader."No."));
+
+        WhseShipmentLine.SetRange("No.", WhseShipmentHeader."No.");
+        WhseShipmentLine.FindFirst();
+    end;
+
+    local procedure CreateItemWithLotItemTrackingCode(
+        var Item: Record Item;
+        var ItemTrackingCode: Record "Item Tracking Code")
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        Item.Modify(true);
+    end;
+
+    local procedure CreateItemWithSerialItemTrackingCode(
+        var Item: Record Item;
+        var ItemTrackingCode: Record "Item Tracking Code")
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        Item.Modify(true);
+    end;
+
+    local procedure CreateAndReleaseSalesOrder(var SalesHeader: Record "Sales Header"; Item: Record Item; Location: Record Location)
+    var
+        Customer: Record Customer;
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+
+        LibrarySales.CreateSalesHeader(
+            SalesHeader,
+            SalesHeader."Document Type"::Order,
+            Customer."No.");
+
+        LibrarySales.CreateSalesLine(
+            SalesLine,
+            SalesHeader,
+            SalesLine.Type::Item,
+            Item."No.",
+            LibraryRandom.RandInt(0));
+
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Modify(true);
+
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+    end;
+
+    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; Item: Record Item; Location: Record Location)
+    var
+        Vendor: Record Vendor;
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader,
+            PurchaseHeader."Document Type"::Order,
+            Vendor."No.");
+
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::Item,
+            Item."No.",
+            LibraryRandom.RandInt(0));
+
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure FindPurchLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
+    begin
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindFirst();
     end;
 
     [ModalPageHandler]

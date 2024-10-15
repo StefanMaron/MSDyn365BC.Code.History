@@ -31,6 +31,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         February2020Lbl: Label 'February 2020';
         Upgrade2021Lbl: Label '2021';
         Upgrade2022Lbl: Label '2022';
+        IRS1099ComplianceMsg: Label 'You are compliant with the latest format of 1099 reporting.';
 
     [Test]
     [Scope('OnPrem')]
@@ -802,6 +803,50 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         IRS1099FormBox.RunVendor1099NecReport.Invoke();
     end;
 
+    [Test]
+    [HandlerFunctions('CustomNotificationHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    procedure CompliantNotificationWhenNo1099UpgradeIsRequired()
+    var
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        IRS1099FormBoxPage: TestPage "IRS 1099 Form-Box";
+    begin
+        // [SCENARIO 493444] Stan sees the "You are compliant with the 1099 requirements" notification when no 1099 upgrade is required
+
+        Initialize();
+        InsertIRS1099Code(GetIRS1099UpgradeCode2019());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2020());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2020February());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2021());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2022());
+        LibraryVariableStorage.Enqueue(IRS1099ComplianceMsg);
+        IRS1099FormBoxPage.OpenView();
+        IRS1099FormBoxPage.Close();
+        LibraryVariableStorage.AssertEmpty();
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    procedure NoCompliantNotificationIfDisableNotification()
+    var
+        MyNotifications: Record "My Notifications";
+        IRS1099Management: Codeunit "IRS 1099 Management";
+        IRS1099FormBoxPage: TestPage "IRS 1099 Form-Box";
+    begin
+        // [SCENARIO 493444] Stan do not see the "You are compliant with the 1099 requirements" notification if it is disable in my notification
+
+        Initialize();
+        InsertIRS1099Code(GetIRS1099UpgradeCode2019());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2020());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2020February());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2021());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2022());
+        MyNotifications.Disable(IRS1099Management.GetIRS1099CompliantNotificationID());
+        IRS1099FormBoxPage.OpenView();
+        IRS1099FormBoxPage.Close();
+    end;
+
     local procedure Initialize()
     var
         IRS1099FormBox: Record "IRS 1099 Form-Box";
@@ -1009,6 +1054,13 @@ codeunit 144030 "IRS 1099 Upgrade Test"
     procedure SendNotificationHandler(var Notification: Notification): Boolean
     begin
         Assert.ExpectedMessage(StrSubstNo(NotificationMsg, LibraryVariableStorage.DequeueText()), Notification.Message);
+    end;
+
+    [SendNotificationHandler]
+    [Scope('OnPrem')]
+    procedure CustomNotificationHandler(var Notification: Notification): Boolean
+    begin
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Notification.Message);
     end;
 
     [ConfirmHandler]

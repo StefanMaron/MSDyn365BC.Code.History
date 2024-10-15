@@ -6305,6 +6305,15 @@
       <Cmt Name="Dev"><![CDATA[TransformationRule.Code for replacing all a characters to b]D;]A;(LookupHint=Codeunit Transformation Rules Tests - NamedType REPLACEATxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4248684771 - NamedType 1788274998" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[ROUND]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[TransformationRule.Code for rounding]D;]A;(LookupHint=Codeunit Transformation Rules Tests - NamedType ROUNDTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4248684771 - NamedType 250807548" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[john roberts]]></Val>

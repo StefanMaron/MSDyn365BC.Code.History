@@ -58,9 +58,12 @@ report 5899 "Calculate Inventory Value"
                             RemCost := CalcRemainingCost(ItemLedgEntry, RemQty, IncludeExpectedCost);
                             case CalculatePer of
                                 CalculatePer::"Item Ledger Entry":
-                                    InsertItemJnlLine(
-                                      ItemLedgEntry."Entry Type", ItemLedgEntry."Item No.",
-                                      ItemLedgEntry."Variant Code", ItemLedgEntry."Location Code", RemQty, RemCost, ItemLedgEntry."Entry No.", 0);
+                                    begin
+                                        OnAfterGetRecordItemOnBeforInsertItemJnlLine(ItemLedgEntry, ItemJnlLine);
+                                        InsertItemJnlLine(
+                                          ItemLedgEntry."Entry Type", ItemLedgEntry."Item No.",
+                                          ItemLedgEntry."Variant Code", ItemLedgEntry."Location Code", RemQty, RemCost, ItemLedgEntry."Entry No.", 0);
+                                    end;
                                 CalculatePer::Item:
                                     InsertValJnlBuffer(
                                       ItemLedgEntry."Item No.", ItemLedgEntry."Variant Code", ItemLedgEntry."Location Code", RemQty, RemCost);
@@ -135,6 +138,7 @@ report 5899 "Calculate Inventory Value"
             var
                 SKU: Record "Stockkeeping Unit";
                 ItemCostMgt: Codeunit ItemCostManagement;
+                IsHandled: Boolean;
             begin
                 if not UpdStdCost then
                     exit;
@@ -154,7 +158,10 @@ report 5899 "Calculate Inventory Value"
                         if SKU.Find('-') then
                             repeat
                                 if not TempUpdatedStdCostSKU.Get(SKU."Location Code", TempNewStdCostItem."No.", SKU."Variant Code") then begin
-                                    SKU.Validate("Standard Cost", TempNewStdCostItem."Standard Cost");
+                                    IsHandled := false;
+                                    OnPostDataItemForItemOnBeforeValidateStandardCost(TempNewStdCostItem, SKU, IsHandled);
+                                    if not IsHandled then
+                                        SKU.Validate("Standard Cost", TempNewStdCostItem."Standard Cost");
                                     SKU.Modify();
                                 end;
                             until SKU.Next() = 0;
@@ -548,6 +555,7 @@ report 5899 "Calculate Inventory Value"
                         "Rolled-up Subcontracted Cost" := TempNewStdCostItem."Rolled-up Subcontracted Cost";
                         "Rolled-up Mfg. Ovhd Cost" := TempNewStdCostItem."Rolled-up Mfg. Ovhd Cost";
                         "Rolled-up Cap. Overhead Cost" := TempNewStdCostItem."Rolled-up Cap. Overhead Cost";
+                        OnInsertItemJnlLineOnCaseCalcBaseOnStandardCostAssemblyOrManufacturing(ItemJnlLine, TempNewStdCostItem);
                         TempUpdatedStdCostSKU."Item No." := ItemNo2;
                         TempUpdatedStdCostSKU."Location Code" := LocationCode2;
                         TempUpdatedStdCostSKU."Variant Code" := VariantCode2;
@@ -723,6 +731,21 @@ report 5899 "Calculate Inventory Value"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertItemJnlLineOnCaseCalcBaseOnElse(var ItemJournalLine: Record "Item Journal Line"; EntryType2: Enum "Item Ledger Entry Type"; ItemNo2: Code[20]; VariantCode2: Code[10]; LocationCode2: Code[10]; Quantity2: Decimal; Amount2: Decimal; ApplyToEntry2: Integer; AppliedAmount: Decimal; CalcBase: Enum "Inventory Value Calc. Base"; ByLocation2: Boolean; ByVariant2: Boolean; PostingDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordItemOnBeforInsertItemJnlLine(ItemLedgerEntry: Record "Item Ledger Entry"; var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDataItemForItemOnBeforeValidateStandardCost(var TempNewStdCostItem: Record Item temporary; var StockkeepingUnit: Record "Stockkeeping Unit"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertItemJnlLineOnCaseCalcBaseOnStandardCostAssemblyOrManufacturing(var ItemJournalLine: Record "Item Journal Line"; var TempNewStdCostItem: Record Item temporary)
     begin
     end;
 }

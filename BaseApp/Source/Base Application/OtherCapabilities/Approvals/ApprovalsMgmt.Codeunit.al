@@ -447,6 +447,7 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry.SetRange("Table ID", RecordID.TableNo);
         ApprovalEntry.SetRange("Record ID to Approve", RecordID);
         ApprovalEntry.SetRange("Approver ID", UserId);
+        OnFindApprovalEntryForCurrUserOnAfterApprovalEntrySetFilters(ApprovalEntry);
 
         exit(ApprovalEntry.FindFirst());
     end;
@@ -611,8 +612,15 @@ codeunit 1535 "Approvals Mgmt."
                     ApprovalEntry2.Modify(true);
                     CreateApprovalEntryNotification(ApprovalEntry2, WorkflowStepInstance);
                 until ApprovalEntry2.Next() = 0;
-            if FindApprovedApprovalEntryForWorkflowUserGroup(ApprovalEntry, WorkflowStepInstance) then
-                OnApproveApprovalRequest(ApprovalEntry);
+
+            IsHandled := false;
+            OnSendApprovalRequestFromRecordOnBeforeFindApprovedApprovalEntryForWorkflowUserGroup(ApprovalEntry, IsHandled);
+            if not IsHandled then
+                if FindApprovedApprovalEntryForWorkflowUserGroup(ApprovalEntry, WorkflowStepInstance) then
+                    if (ApprovalEntry."Sender ID" <> ApprovalEntry."Approver ID") or
+                       FindOpenApprovalEntryForSequenceNo(RecRef, WorkflowStepInstance, ApprovalEntry."Sequence No.")
+                    then
+                        OnApproveApprovalRequest(ApprovalEntry);
             exit;
         end;
 
@@ -872,6 +880,8 @@ codeunit 1535 "Approvals Mgmt."
                 end;
 
             until IsSufficientApprover(UserSetup, ApprovalEntryArgument);
+
+        OnAfterCreateApprovalRequestForApproverChain(ApprovalEntryArgument, ApproverId, WorkflowStepArgument, UserSetup, SufficientApproverOnly);
     end;
 
     local procedure CreateApprovalRequestForApprover(WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry")
@@ -1159,24 +1169,25 @@ codeunit 1535 "Approvals Mgmt."
     begin
         IsHandled := false;
         OnBeforeCreateApprovalEntryNotification(ApprovalEntry, IsHandled);
-        if IsHandled then
-            exit;
+        if not IsHandled then begin
+            if not WorkflowStepArgument.Get(WorkflowStepInstance.Argument) then
+                exit;
 
-        if not WorkflowStepArgument.Get(WorkflowStepInstance.Argument) then
-            exit;
+            IsNotificationRequiredForCurrentUser := (ApprovalEntry."Approver ID" <> UserId) or IsBackground();
+            IsNotifySenderRequired := ((ApprovalEntry."Sender ID" <> UserId) or IsBackground()) and (ApprovalEntry."Sender ID" <> ApprovalEntry."Approver ID");
 
-        IsNotificationRequiredForCurrentUser := (ApprovalEntry."Approver ID" <> UserId) or IsBackground();
-        IsNotifySenderRequired := ((ApprovalEntry."Sender ID" <> UserId) or IsBackground()) and (ApprovalEntry."Sender ID" <> ApprovalEntry."Approver ID");
+            ApprovalEntry.Reset();
+            if IsNotificationRequiredForCurrentUser and (ApprovalEntry.Status <> ApprovalEntry.Status::Rejected) then
+                NotificationEntry.CreateNotificationEntry(
+                    NotificationEntry.Type::Approval, ApprovalEntry."Approver ID",
+                    ApprovalEntry, WorkflowStepArgument."Link Target Page", WorkflowStepArgument."Custom Link", CopyStr(UserId(), 1, 50));
+            if WorkflowStepArgument."Notify Sender" and IsNotifySenderRequired then
+                NotificationEntry.CreateNotificationEntry(
+                    NotificationEntry.Type::Approval, ApprovalEntry."Sender ID",
+                    ApprovalEntry, WorkflowStepArgument."Link Target Page", WorkflowStepArgument."Custom Link", CopyStr(UserId(), 1, 50));
+        end;
 
-        ApprovalEntry.Reset();
-        if IsNotificationRequiredForCurrentUser and (ApprovalEntry.Status <> ApprovalEntry.Status::Rejected) then
-            NotificationEntry.CreateNotificationEntry(
-                NotificationEntry.Type::Approval, ApprovalEntry."Approver ID",
-                ApprovalEntry, WorkflowStepArgument."Link Target Page", WorkflowStepArgument."Custom Link", CopyStr(UserId(), 1, 50));
-        if WorkflowStepArgument."Notify Sender" and IsNotifySenderRequired then
-            NotificationEntry.CreateNotificationEntry(
-                NotificationEntry.Type::Approval, ApprovalEntry."Sender ID",
-                ApprovalEntry, WorkflowStepArgument."Link Target Page", WorkflowStepArgument."Custom Link", CopyStr(UserId(), 1, 50));
+        OnAfterCreateApprovalEntryNotification(ApprovalEntry, WorkflowStepArgument);
     end;
 
     local procedure SetApproverType(WorkflowStepArgument: Record "Workflow Step Argument"; var ApprovalEntry: Record "Approval Entry")
@@ -2546,6 +2557,19 @@ codeunit 1535 "Approvals Mgmt."
                 Clear(GenJnlLineApprovalStatus);
     end;
 
+    local procedure FindOpenApprovalEntryForSequenceNo(RecRef: RecordRef; WorkflowStepInstance: Record "Workflow Step Instance"; SequenceNo: Integer): Boolean
+    var
+        ApprovalEntry: Record "Approval Entry";
+    begin
+        ApprovalEntry.SetRange("Table ID", RecRef.Number);
+        ApprovalEntry.SetRange("Record ID to Approve", RecRef.RecordId());
+        ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
+        ApprovalEntry.SetRange("Workflow Step Instance ID", WorkflowStepInstance.ID);
+        ApprovalEntry.SetRange("Sequence No.", SequenceNo);
+
+        exit(not ApprovalEntry.IsEmpty());
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Job Queue Entry", 'OnBeforeScheduleTask', '', true, true)]
     local procedure SkipScheduleTaskIfWorkflowEnabledOnBeforeScheduleTask(var JobQueueEntry: Record "Job Queue Entry"; var IsHandled: Boolean; var TaskGUID: Guid)
     var
@@ -3035,6 +3059,26 @@ codeunit 1535 "Approvals Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnHasOpenApprovalEntriesForCurrentUserOnAfterSetApprovalEntrySetFilters(var ApprovalEntry: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateApprovalRequestForApproverChain(var ApprovalEntryArgument: Record "Approval Entry"; var ApproverId: Code[50]; var WorkflowStepArgument: Record "Workflow Step Argument"; var UserSetup: Record "User Setup"; var SufficientApproverOnly: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendApprovalRequestFromRecordOnBeforeFindApprovedApprovalEntryForWorkflowUserGroup(ApprovalEntry: Record "Approval Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateApprovalEntryNotification(var ApprovalEntryArgument: Record "Approval Entry"; var WorkflowStepArgument: Record "Workflow Step Argument")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindApprovalEntryForCurrUserOnAfterApprovalEntrySetFilters(var ApprovalEntry: Record "Approval Entry")
     begin
     end;
 }

@@ -519,8 +519,8 @@ codeunit 501 OAuth2
     /// Returns the default Business Central redirectURL
     /// </summary>
     [NonDebuggable]
-    procedure GetDefaultRedirectURL(var RedirectUrl: text)
+    procedure GetDefaultRedirectURL(var RedirectUrl: Text)
     begin
-        RedirectUrl := OAuth2Impl.GetDefaultRedirectURL();
+        RedirectUrl := OAuth2Impl.GetDefaultRedirectUrl();
     end;
 }

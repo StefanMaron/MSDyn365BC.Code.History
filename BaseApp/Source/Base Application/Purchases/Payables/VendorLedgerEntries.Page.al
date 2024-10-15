@@ -206,6 +206,14 @@ page 29 "Vendor Ledger Entries"
                     ToolTip = 'Specifies the total of the ledger entries that represent credits, expressed in LCY.';
                     Visible = DebitCreditVisible;
                 }
+                field(RunningBalanceLCY; CalcRunningVendBalance.GetVendorBalanceLCY(Rec))
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Running Balance (LCY)';
+                    ToolTip = 'Specifies the running balance in LCY.';
+                    AutoFormatType = 1;
+                    Visible = false;
+                }
                 field("Remaining Amount"; Rec."Remaining Amount")
                 {
                     ApplicationArea = Basic, Suite;
@@ -569,6 +577,7 @@ page 29 "Vendor Ledger Entries"
                     begin
                         ReversePaymentRec.ErrorIfEntryIsNotReversable(Rec);
                         ReversalEntry.ReverseTransaction(Rec."Transaction No.");
+                        Clear(CalcRunningVendBalance);
                     end;
                 }
                 group(IncomingDocument)
@@ -804,6 +813,7 @@ page 29 "Vendor Ledger Entries"
     end;
 
     var
+        CalcRunningVendBalance: Codeunit "Calc. Running Vend. Balance";
         Navigate: Page Navigate;
         DimensionSetIDFilter: Page "Dimension Set ID Filter";
         HasIncomingDocument: Boolean;
