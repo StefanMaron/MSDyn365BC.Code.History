@@ -16,6 +16,10 @@ using Microsoft.Projects.Project.Ledger;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
+#if not CLEAN23
+using Microsoft.Purchases.Setup;
+using Microsoft.Sales.Setup;
+#endif
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 
@@ -470,6 +474,7 @@ codeunit 1001 "Job Post-Line"
     [Obsolete('Replaced by PostJobPurchaseLines().', '19.0')]
     procedure PostPurchaseGLAccounts(TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; GLEntryNo: Integer)
     var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         IsHandled: Boolean;
     begin
         TempPurchaseLineJob.Reset();
@@ -480,6 +485,14 @@ codeunit 1001 "Job Post-Line"
         TempPurchaseLineJob.SetRange("VAT Bus. Posting Group", TempInvoicePostBuffer."VAT Bus. Posting Group");
         TempPurchaseLineJob.SetRange("VAT Prod. Posting Group", TempInvoicePostBuffer."VAT Prod. Posting Group");
         TempPurchaseLineJob.SetRange("Dimension Set ID", TempInvoicePostBuffer."Dimension Set ID");
+
+        if TempInvoicePostBuffer."Fixed Asset Line No." <> 0 then begin
+            PurchasesPayablesSetup.SetLoadFields("Copy Line Descr. to G/L Entry");
+            PurchasesPayablesSetup.Get();
+            if PurchasesPayablesSetup."Copy Line Descr. to G/L Entry" then
+                TempPurchaseLineJob.SetRange("Line No.", TempInvoicePostBuffer."Fixed Asset Line No.");
+        end;
+
         OnPostPurchaseGLAccountsOnAfterTempPurchaseLineJobSetFilters(TempPurchaseLineJob, TempInvoicePostBuffer);
         if TempPurchaseLineJob.FindSet() then begin
             repeat
@@ -526,6 +539,8 @@ codeunit 1001 "Job Post-Line"
 #if not CLEAN23
     [Obsolete('Replaced by PostJobSalesLines().', '19.0')]
     procedure PostSalesGLAccounts(TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; GLEntryNo: Integer)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         TempSalesLineJob.Reset();
         TempSalesLineJob.SetRange("Job No.", TempInvoicePostBuffer."Job No.");
@@ -534,6 +549,14 @@ codeunit 1001 "Job Post-Line"
         TempSalesLineJob.SetRange("Gen. Prod. Posting Group", TempInvoicePostBuffer."Gen. Prod. Posting Group");
         TempSalesLineJob.SetRange("VAT Bus. Posting Group", TempInvoicePostBuffer."VAT Bus. Posting Group");
         TempSalesLineJob.SetRange("VAT Prod. Posting Group", TempInvoicePostBuffer."VAT Prod. Posting Group");
+
+        if TempInvoicePostBuffer."Fixed Asset Line No." <> 0 then begin
+            SalesReceivablesSetup.SetLoadFields("Copy Line Descr. to G/L Entry");
+            SalesReceivablesSetup.Get();
+            if SalesReceivablesSetup."Copy Line Descr. to G/L Entry" then
+                TempSalesLineJob.SetRange("Line No.", TempInvoicePostBuffer."Fixed Asset Line No.");
+        end;
+
         if TempSalesLineJob.FindSet() then begin
             repeat
                 TempJobJournalLine.Reset();

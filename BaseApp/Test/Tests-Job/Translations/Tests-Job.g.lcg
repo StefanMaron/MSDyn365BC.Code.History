@@ -554,6 +554,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - Job No.]D;]A;(LookupHint=Codeunit Job Invoicing - NamedType JobMustNotBeBlockedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1338490621 - NamedType 1126852379" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 should be %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption, %2 = Field Value]D;]A;(LookupHint=Codeunit Job Invoicing - NamedType LineDiscountPctErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1338490621 - NamedType 3359697259" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Qty. to Transfer to Invoice cannot be set on a Job Planning Line of type Budget.]]></Val>
