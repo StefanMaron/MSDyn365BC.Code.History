@@ -117,6 +117,7 @@
 
     local procedure TryGetPurchOrderSupplyEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         PurchLine: Record "Purchase Line";
     begin
         if not PurchLine.ReadPermission then
@@ -133,6 +134,7 @@
 
     local procedure TryGetSalesRetOrderSupplyEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         SalesLine: Record "Sales Line";
     begin
         if not SalesLine.ReadPermission then
@@ -149,6 +151,7 @@
 
     local procedure TryGetProdOrderSupplyEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         ProdOrderLine: Record "Prod. Order Line";
     begin
         if not ProdOrderLine.ReadPermission then
@@ -165,6 +168,7 @@
 
     local procedure TryGetTransferOrderSupplyEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         TransLine: Record "Transfer Line";
     begin
         if not TransLine.ReadPermission then
@@ -181,6 +185,7 @@
 
     local procedure TryGetSalesOrdersDemandEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         SalesLine: Record "Sales Line";
     begin
         if not SalesLine.ReadPermission then
@@ -197,6 +202,7 @@
 
     local procedure TryGetServOrdersDemandEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         ServLine: Record "Service Line";
     begin
         if not ServLine.ReadPermission then
@@ -213,6 +219,7 @@
 
     local procedure TryGetJobOrdersDemandEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         JobPlanningLine: Record "Job Planning Line";
     begin
         if not JobPlanningLine.ReadPermission then
@@ -229,6 +236,7 @@
 
     local procedure TryGetPurchRetOrderDemandEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         PurchLine: Record "Purchase Line";
     begin
         if not PurchLine.ReadPermission then
@@ -245,6 +253,7 @@
 
     local procedure TryGetProdOrderCompDemandEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         ProdOrderComp: Record "Prod. Order Component";
     begin
         if not ProdOrderComp.ReadPermission then
@@ -261,6 +270,7 @@
 
     local procedure TryGetTransOrderDemandEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         TransLine: Record "Transfer Line";
     begin
         if not TransLine.ReadPermission then
@@ -277,6 +287,7 @@
 
     local procedure TryGetAsmOrderDemandEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         AsmLine: Record "Assembly Line";
     begin
         if not AsmLine.ReadPermission then
@@ -293,6 +304,7 @@
 
     local procedure TryGetAsmOrderSupllyEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         AsmHeader: Record "Assembly Header";
     begin
         if not AsmHeader.ReadPermission then

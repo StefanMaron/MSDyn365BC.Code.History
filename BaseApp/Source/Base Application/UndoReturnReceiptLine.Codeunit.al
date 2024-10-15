@@ -228,7 +228,7 @@ codeunit 5816 "Undo Return Receipt Line"
             ItemJnlLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
             ItemJnlLine."Document Date" := ReturnRcptHeader."Document Date";
 
-            OnAfterCopyItemJnlLineFromReturnRcpt(ItemJnlLine, ReturnRcptHeader, ReturnRcptLine);
+            OnAfterCopyItemJnlLineFromReturnRcpt(ItemJnlLine, ReturnRcptHeader, ReturnRcptLine, WhseUndoQty);
 
             WhseUndoQty.InsertTempWhseJnlLine(
                 ItemJnlLine,
@@ -286,7 +286,7 @@ codeunit 5816 "Undo Return Receipt Line"
 
         with ReturnRcptLine do begin
             SalesLine.Get(SalesLine."Document Type"::"Return Order", "Return Order No.", "Return Order Line No.");
-            OnUpdateOrderLineOnBeforeUpdateSalesLine(ReturnRcptLine);
+            OnUpdateOrderLineOnBeforeUpdateSalesLine(ReturnRcptLine, SalesLine);
             UndoPostingMgt.UpdateSalesLine(SalesLine, Quantity, "Quantity (Base)", TempGlobalItemLedgEntry);
             OnAfterUpdateSalesLine(ReturnRcptLine, SalesLine);
         end;
@@ -326,7 +326,7 @@ codeunit 5816 "Undo Return Receipt Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyItemJnlLineFromReturnRcpt(var ItemJournalLine: Record "Item Journal Line"; ReturnReceiptHeader: Record "Return Receipt Header"; ReturnReceiptLine: Record "Return Receipt Line")
+    local procedure OnAfterCopyItemJnlLineFromReturnRcpt(var ItemJournalLine: Record "Item Journal Line"; ReturnReceiptHeader: Record "Return Receipt Header"; ReturnReceiptLine: Record "Return Receipt Line"; var WhseUndoQty: Codeunit "Whse. Undo Quantity")
     begin
     end;
 
@@ -381,7 +381,7 @@ codeunit 5816 "Undo Return Receipt Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateOrderLineOnBeforeUpdateSalesLine(var ReturnReceiptLine: Record "Return Receipt Line")
+    local procedure OnUpdateOrderLineOnBeforeUpdateSalesLine(var ReturnReceiptLine: Record "Return Receipt Line"; var SalesLine: Record "Sales Line")
     begin
     end;
 }

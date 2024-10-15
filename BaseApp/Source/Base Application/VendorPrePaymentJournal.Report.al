@@ -788,7 +788,6 @@ report 317 "Vendor Pre-Payment Journal"
         E060Err: Label 'The combination of Vendor and Gen. Posting Type Sales is not allowed.';
         E061Err: Label 'The Balance and Reversing Balance recurring methods can be used only with Allocations.';
         E062Err: Label '%1 must not be 0.', Comment = '%1=Amount field caption';
-        E063Err: Label 'Document,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
         E064Err: Label '%1 %2 is already used in line %3 (%4 %5).', Comment = '%1=External Document No. field caption;%2=External Document No.;%3=Line No.;%4=Document No. field caption;%5=Document No.';
         E065Err: Label '%1 must not be blocked with type %2 when %3 is %4', Comment = '%1=Account Type;%2=Whether customer is blocked;%3=Document Type field caption;%4=Document Type';
         E066Err: Label 'You cannot enter G/L Account or Bank Account in both %1 and %2.', Comment = '%1=Account No. field caption;%2=Bal. Account No. field caption';
@@ -1063,15 +1062,9 @@ report 317 "Vendor Pre-Payment Journal"
                 if GenJnlTemplate."Force Doc. Balance" then begin
                     case true of
                         DocBalance <> 0:
-                            AddError(
-                              StrSubstNo(
-                                E025Err,
-                                SelectStr(LastDocType.AsInteger() + 1, E063Err), LastDocNo, DocBalance));
+                            AddError(StrSubstNo(E025Err, LastDocType, LastDocNo, DocBalance));
                         DocBalanceReverse <> 0:
-                            AddError(
-                              StrSubstNo(
-                                E026Err,
-                                SelectStr(LastDocType.AsInteger() + 1, E063Err), LastDocNo, DocBalanceReverse));
+                            AddError(StrSubstNo(E026Err, LastDocType, LastDocNo, DocBalanceReverse));
                     end;
                     DocBalance := 0;
                     DocBalanceReverse := 0;

@@ -1,4 +1,4 @@
-report 99001043 "Exchange Production BOM Item"
+﻿report 99001043 "Exchange Production BOM Item"
 {
     ApplicationArea = Manufacturing;
     Caption = 'Exchange Production BOM Item';
@@ -21,7 +21,7 @@ report 99001043 "Exchange Production BOM Item"
                   Text004 +
                   Text005);
 
-                Window.Update(1, SelectStr(FromBOMType.AsInteger() + 1, TypeTxt));
+                Window.Update(1, FromBOMType);
                 Window.Update(2, FromBOMNo);
 
                 ProdBOMLine.SetCurrentKey(Type, "No.");
@@ -154,6 +154,11 @@ report 99001043 "Exchange Production BOM Item"
         {
             DataItemTableView = SORTING(Number);
             MaxIteration = 1;
+
+            trigger OnPreDataItem()
+            begin
+                OnRecertifyLoopOnBeforeOnPreDataItem(FromBOMType, FromBOMNo, ToBOMType, ToBOMNo, QtyMultiply, CreateNewVersion, StartingDate, Recertify, CopyRoutingLink, DeleteExcComp);
+            end;
 
             trigger OnAfterGetRecord()
             begin
@@ -387,9 +392,7 @@ report 99001043 "Exchange Production BOM Item"
             Error(Text002);
 
         if (FromBOMType = ToBOMType) and (FromBOMNo = ToBOMNo) then
-            Error(
-                ItemBOMExchangeErr,
-                SelectStr(FromBOMType.AsInteger() + 1, TypeTxt), FromBOMNo, SelectStr(ToBOMType.AsInteger() + 1, TypeTxt), ToBOMNo);
+            Error(ItemBOMExchangeErr, FromBOMType, FromBOMNo, ToBOMType, ToBOMNo);
     end;
 
     var
@@ -415,7 +418,6 @@ report 99001043 "Exchange Production BOM Item"
         CreateNewVersion: Boolean;
         StartingDate: Date;
         Recertify: Boolean;
-        TypeTxt: Label ' ,Item,Production BOM';
         CopyRoutingLink: Boolean;
         DeleteExcComp: Boolean;
         [InDataSet]
@@ -490,6 +492,11 @@ report 99001043 "Exchange Production BOM Item"
 
     [IntegrationEvent(false, false)]
     local procedure OnLookupExchangeNo(LineType: Enum "Production BOM Line Type"; LookupText: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecertifyLoopOnBeforeOnPreDataItem(FromBOMType: Enum "Production BOM Line Type"; FromBOMNo: Code[20]; ToBOMType: Enum "Production BOM Line Type"; ToBOMNo: Code[20]; QtyMultiply: Decimal; CreateNewVersion: Boolean; StartingDate: Date; Recertify: Boolean; CopyRoutingLink: Boolean; DeleteExcComp: Boolean)
     begin
     end;
 }

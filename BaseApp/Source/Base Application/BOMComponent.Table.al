@@ -1,4 +1,4 @@
-table 90 "BOM Component"
+﻿table 90 "BOM Component"
 {
     Caption = 'BOM Component';
     DrillDownPageID = "Assembly BOM";
@@ -255,7 +255,7 @@ table 90 "BOM Component"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeValidateAgainstRecursion(ItemNo, IsHandled);
+        OnBeforeValidateAgainstRecursion(ItemNo, IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -325,7 +325,7 @@ table 90 "BOM Component"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeValidateAgainstRecursion(ItemNo: Code[20]; var IsHandled: Boolean)
+    local procedure OnBeforeValidateAgainstRecursion(ItemNo: Code[20]; var IsHandled: Boolean; var BOMComponent: Record "BOM Component")
     begin
     end;
 }

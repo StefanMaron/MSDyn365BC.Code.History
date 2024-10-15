@@ -238,15 +238,16 @@ report 321 "Vendor - Balance to Date"
             }
 
             trigger OnAfterGetRecord()
+            var
+                ShouldSkipVendor: Boolean;
             begin
                 MaxDate := GetRangeMax("Date Filter");
                 SetRange("Date Filter", 0D, MaxDate);
                 CalcFields("Net Change (LCY)", "Net Change");
 
-                if ("Net Change (LCY)" = 0) and
-                   ("Net Change" = 0) and
-                   (not ShowEntriesWithZeroBalance)
-                then
+                ShouldSkipVendor := ("Net Change (LCY)" = 0) and ("Net Change" = 0) and (not ShowEntriesWithZeroBalance);
+                OnVendorOnAfterGetRecordOnAfterCalcShouldSkipVendor(Vendor, ShouldSkipVendor);
+                if ShouldSkipVendor then
                     CurrReport.Skip();
             end;
         }
@@ -510,6 +511,11 @@ report 321 "Vendor - Balance to Date"
             exit(VendorLedgerEntry."External Document No.");
 
         exit('');
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnVendorOnAfterGetRecordOnAfterCalcShouldSkipVendor(var Vendor: Record Vendor; var ShouldSkipVendor: Boolean)
+    begin
     end;
 }
 

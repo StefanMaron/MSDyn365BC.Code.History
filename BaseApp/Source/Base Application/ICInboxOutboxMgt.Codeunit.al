@@ -297,6 +297,7 @@
         with ICOutBoxSalesLine do begin
             SalesInvLine.Reset();
             SalesInvLine.SetRange("Document No.", SalesInvHdr."No.");
+            SalesInvLine.SetFilter(Quantity, '<>%1', 0);
             if RoundingLineNo <> 0 then
                 SalesInvLine.SetRange("Line No.", 0, RoundingLineNo - 1);
             if SalesInvLine.FindSet then
@@ -423,6 +424,7 @@
         with ICOutBoxSalesLine do begin
             SalesCrMemoLine.Reset();
             SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHdr."No.");
+            SalesCrMemoLine.SetFilter(Quantity, '<>%1', 0);
             if RoundingLineNo <> 0 then
                 SalesCrMemoLine.SetRange("Line No.", 0, RoundingLineNo - 1);
             if SalesCrMemoLine.FindSet then
