@@ -2281,7 +2281,7 @@
         PAGE.RunModal(PAGE::"Approval Entries", ApprovalEntry);
     end;
 
-    procedure CanCancelApprovalForRecord(RecID: RecordID): Boolean
+    procedure CanCancelApprovalForRecord(RecID: RecordID) Result: Boolean
     var
         ApprovalEntry: Record "Approval Entry";
         UserSetup: Record "User Setup";
@@ -2296,7 +2296,8 @@
 
         if not UserSetup."Approval Administrator" then
             ApprovalEntry.SetRange("Sender ID", UserId);
-        exit(ApprovalEntry.FindFirst);
+        Result := ApprovalEntry.FindFirst();
+        OnAfterCanCancelApprovalForRecord(RecID, Result);
     end;
 
     local procedure FindUserSetupBySalesPurchCode(var UserSetup: Record "User Setup"; ApprovalEntryArgument: Record "Approval Entry")
@@ -2358,6 +2359,11 @@
         ApprovalEntry2.SetRange(Status, ApprovalEntry2.Status::Open);
         ApprovalEntry2.SetRange("Workflow Step Instance ID", ApprovalEntry."Workflow Step Instance ID");
         exit(not ApprovalEntry2.IsEmpty);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCanCancelApprovalForRecord(RecID: RecordID; var Result: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

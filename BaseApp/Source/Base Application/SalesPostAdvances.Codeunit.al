@@ -178,13 +178,14 @@ codeunit 31000 "Sales-Post Advances"
             end;
 
             SalesAdvanceLetterHeader."Amounts Including VAT" := "Prices Including VAT";
+            OnLetterOnBeforeInsertSalesAdvanceLetterHeader(SalesHeader2, SalesAdvanceLetterHeader);
             SalesAdvanceLetterHeader.Insert();
 
             // Create Lines
             TempPrepmtInvLineBuf.DeleteAll();
             CreateAdvanceInvLineBuf(SalesHeader, TempPrepmtInvLineBuf, TempAdvanceLetterLineRelation);
-
-            TempPrepmtInvLineBuf.FindSet;
+            OnLetterOnBeforeCreateSalesAdvanceLetterLines(TempAdvanceLetterLineRelation);
+            TempPrepmtInvLineBuf.FindSet();
             repeat
                 if TempPrepmtInvLineBuf."Line No." <> 0 then
                     LineNo := TempPrepmtInvLineBuf."Line No."
@@ -217,6 +218,7 @@ codeunit 31000 "Sales-Post Advances"
                 CustPostGr.TestField("Advance Account");
                 SalesAdvanceLetterLine."Advance G/L Account No." := CustPostGr."Advance Account";
                 SalesAdvanceLetterLine."Job No." := TempPrepmtInvLineBuf."Job No.";
+                OnLetterOnBeforeInsertSalesAdvanceLetterLine(TempPrepmtInvLineBuf, SalesAdvanceLetterLine);
                 SalesAdvanceLetterLine.Insert(true);
 
                 InsertLineRelations(TempPrepmtInvLineBuf."Entry No.", SalesAdvanceLetterLine, TempAdvanceLetterLineRelation);
@@ -282,7 +284,12 @@ codeunit 31000 "Sales-Post Advances"
     local procedure CheckOpenPrepaymentLines(SalesHeader: Record "Sales Header"): Boolean
     var
         SalesLine: Record "Sales Line";
+        IsHandled: Boolean;
+        IsChecked: Boolean;
     begin
+        OnBeforeCheckOpenPrepaymentLines(SalesHeader, IsChecked, IsHandled);
+        if IsHandled then
+            exit(IsChecked);
         with SalesLine do begin
             Reset;
             SetRange("Document Type", SalesHeader."Document Type");
@@ -357,7 +364,6 @@ codeunit 31000 "Sales-Post Advances"
         InsertLinks(TempAdvanceLink);
     end;
 
-    [Scope('OnPrem')]
     procedure AutoPostAdvanceInvoices()
     var
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
@@ -2383,7 +2389,6 @@ codeunit 31000 "Sales-Post Advances"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure SetLetterHeader(var TempSalesAdvanceLetterHeader2: Record "Sales Advance Letter Header" temporary)
     begin
         if TempSalesAdvanceLetterHeader2.Find('-') then begin
@@ -2394,7 +2399,6 @@ codeunit 31000 "Sales-Post Advances"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure SetGenJnlPostLine(var GenJnlPostLineNew: Codeunit "Gen. Jnl.-Post Line")
     begin
         GenJnlPostLine := GenJnlPostLineNew;
@@ -5859,6 +5863,26 @@ codeunit 31000 "Sales-Post Advances"
     end;
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateOrderLine(var SalesLine: Record "Sales Line"; var PricesInclVAT: Boolean; var RecalcAmtToDeduct: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckOpenPrepaymentLines(SalesHeader: Record "Sales Header"; var IsChecked: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLetterOnBeforeInsertSalesAdvanceLetterHeader(SalesHeader: Record "Sales Header"; var SalesAdvanceLetterHeader: Record "Sales Advance Letter Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLetterOnBeforeCreateSalesAdvanceLetterLines(var TempAdvanceLetterLineRelation: Record "Advance Letter Line Relation" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLetterOnBeforeInsertSalesAdvanceLetterLine(var TempPrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer" temporary; var SalesAdvanceLetterLine: Record "Sales Advance Letter Line")
     begin
     end;
 }

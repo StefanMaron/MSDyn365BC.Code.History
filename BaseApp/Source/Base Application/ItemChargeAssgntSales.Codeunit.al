@@ -131,6 +131,7 @@
             FromSalesLine.SetRange("Document Type", "Document Type");
             FromSalesLine.SetRange("Document No.", "Document No.");
             FromSalesLine.SetRange(Type, FromSalesLine.Type::Item);
+            OnCreateDocChargeAssgnOnAfterFromSalesLineSetFilters(LastItemChargeAssgntSales, FromSalesLine);
             if FromSalesLine.Find('-') then begin
                 NextLineNo := "Line No.";
                 ItemChargeAssgntSales.SetRange("Document Type", "Document Type");
@@ -487,6 +488,7 @@
                 TotalGrossWeight := TotalGrossWeight + (LineArray[2] * LineArray[1]);
             end;
         until ItemChargeAssignmentSales.Next() = 0;
+        OnAssignByWeightOnAfterCalcTotalGrossWeight(ItemChargeAssignmentSales, TotalGrossWeight);
 
         if TempItemChargeAssgntSales.FindSet(true) then
             repeat
@@ -498,6 +500,7 @@
                     TempItemChargeAssgntSales."Qty. to Assign" := 0;
                 AssignSalesItemCharge(ItemChargeAssignmentSales, TempItemChargeAssgntSales, Currency, QtyRemaining, AmountRemaining);
             until TempItemChargeAssgntSales.Next() = 0;
+        OnAssignByWeightOnBeforeTempItemChargeAssgntSalesDelete(ItemChargeAssignmentSales, QtyRemaining, TotalQtyToAssign);
         TempItemChargeAssgntSales.DeleteAll();
     end;
 
@@ -705,6 +708,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAssignByWeightOnAfterCalcTotalGrossWeight(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; TotalGrossWeight: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssignByWeightOnBeforeTempItemChargeAssgntSalesDelete(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; QtyRemaining: Decimal; TotalQtyToAssign: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeAssignItemCharges(var SalesLine: Record "Sales Line"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; var IsHandled: Boolean)
     begin
     end;
@@ -731,6 +744,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAssignEquallyOnBeforeItemChargeAssignmentSalesModify(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateDocChargeAssgnOnAfterFromSalesLineSetFilters(var LastItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; var FromSalesLine: Record "Sales Line")
     begin
     end;
 

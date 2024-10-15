@@ -1483,6 +1483,7 @@
             if IsOnlineAdjmt then
                 SetRange("Allow Online Adjustment", true);
 
+            OnWIPToAdjustExistOnAfterInventoryAdjmtEntryOrderSetFilters(InventoryAdjmtEntryOrder);
             CopyOrderAdmtEntryToOrderAdjmt(InventoryAdjmtEntryOrder, ToInventoryAdjmtEntryOrder);
             exit(ToInventoryAdjmtEntryOrder.FindFirst);
         end;
@@ -1810,6 +1811,7 @@
             */
 
             // NAVCZ
+            OnPostItemJnlLineOnAfterSetPostingDate(ItemJnlLine, OrigValueEntry);
 
             ItemJnlLine."Entry Type" := "Item Ledger Entry Type";
             ItemJnlLine."Document No." := "Document No.";
@@ -2744,6 +2746,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineOnAfterSetPostingDate(var ItemJournalLine: Record "Item Journal Line"; ValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnMakeMultiLevelAdjmtOnAfterMakeAdjmt(var TempAvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point" temporary; var FilterItem: Record Item; var RndgResidualBuf: Record "Rounding Residual Buffer"; IsOnlineAdjmt: Boolean; PostToGL: Boolean; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line")
     begin
     end;
@@ -2780,6 +2787,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitAdjmtJnlLine(var ItemJnlLine: Record "Item Journal Line"; OrigValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnWIPToAdjustExistOnAfterInventoryAdjmtEntryOrderSetFilters(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
     begin
     end;
 }

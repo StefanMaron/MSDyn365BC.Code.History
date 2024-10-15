@@ -144,6 +144,7 @@
             FromPurchLine.SetRange("Document Type", "Document Type");
             FromPurchLine.SetRange("Document No.", "Document No.");
             FromPurchLine.SetRange(Type, FromPurchLine.Type::Item);
+            OnCreateDocChargeAssgntOnAfterFromPurchLineSetFilters(LastItemChargeAssgntPurch, FromPurchLine);
             if FromPurchLine.Find('-') then begin
                 NextLineNo := "Line No.";
                 ItemChargeAssgntPurch.Reset();
@@ -691,6 +692,7 @@
                 TotalGrossWeight := TotalGrossWeight + (LineAray[2] * LineAray[1]);
             end;
         until ItemChargeAssgntPurch.Next() = 0;
+        OnAssignByWeightOnAfterCalcTotalGrossWeight(ItemChargeAssgntPurch, TotalGrossWeight);
 
         if TempItemChargeAssgntPurch.FindSet(true) then
             repeat
@@ -702,6 +704,7 @@
                     TempItemChargeAssgntPurch."Qty. to Assign" := 0;
                 AssignPurchItemCharge(ItemChargeAssgntPurch, TempItemChargeAssgntPurch, Currency, QtyRemainder, AmountRemainder);
             until TempItemChargeAssgntPurch.Next() = 0;
+        OnAssignByWeightOnBeforeTempItemChargeAssgntPurchDelete(ItemChargeAssgntPurch, QtyRemainder, TotalQtyToAssign);
         TempItemChargeAssgntPurch.DeleteAll();
     end;
 
@@ -926,6 +929,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDocChargeAssgnt(var LastItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; var ReceiptNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssignByWeightOnAfterCalcTotalGrossWeight(var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; TotalGrossWeight: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssignByWeightOnBeforeTempItemChargeAssgntPurchDelete(var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; QtyRemainder: Decimal; QtyToAssign: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateDocChargeAssgntOnAfterFromPurchLineSetFilters(var LastItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; var FromPurchLine: Record "Purchase Line")
     begin
     end;
 

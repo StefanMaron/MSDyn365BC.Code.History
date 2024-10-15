@@ -711,7 +711,7 @@ codeunit 31032 "Prepayment Links Management"
         end;
     end;
 
-    local procedure LinkWholeSalesLetter(CustCode: Code[20]; CurrencyCode: Code[10]; LinkCode: Code[30]; var CustPostingGroup: Code[20]) Result: Decimal
+    procedure LinkWholeSalesLetter(CustCode: Code[20]; CurrencyCode: Code[10]; LinkCode: Code[30]; var CustPostingGroup: Code[20]) Result: Decimal
     var
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
         SalesAdvanceLetterLine: Record "Sales Advance Letter Line";
@@ -740,7 +740,6 @@ codeunit 31032 "Prepayment Links Management"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure UnLinkWholeSalesLetter(LinkCode: Code[30])
     var
         SalesAdvanceLetterLine: Record "Sales Advance Letter Line";
@@ -759,7 +758,7 @@ codeunit 31032 "Prepayment Links Management"
             until SalesAdvanceLetterLine.Next = 0;
     end;
 
-    local procedure LinkWholePurchLetter(VendCode: Code[20]; CurrencyCode: Code[10]; LinkCode: Code[30]; var VendPostingGroup: Code[20]) Result: Decimal
+    procedure LinkWholePurchLetter(VendCode: Code[20]; CurrencyCode: Code[10]; LinkCode: Code[30]; var VendPostingGroup: Code[20]) Result: Decimal
     var
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
         PurchAdvanceLetterLine: Record "Purch. Advance Letter Line";
@@ -788,7 +787,6 @@ codeunit 31032 "Prepayment Links Management"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure UnLinkWholePurchLetter(LinkCode: Code[30])
     var
         PurchAdvanceLetterLine: Record "Purch. Advance Letter Line";

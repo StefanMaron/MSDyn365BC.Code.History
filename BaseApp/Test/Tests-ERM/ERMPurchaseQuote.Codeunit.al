@@ -16,6 +16,7 @@ codeunit 134325 "ERM Purchase Quote"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryResource: Codeunit "Library - Resource";
         IsInitialized: Boolean;
@@ -467,6 +468,32 @@ codeunit 134325 "ERM Purchase Quote"
         Assert.ExpectedError(BlockedResourceErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderFromPurchaseQuoteWithTransactionType()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+    begin
+        // [FEATURE] [Order]
+        // [SCENARIO 379229] "Transaction Type" is populated from Vendor on Purchase Order from Purchase Quote
+        Initialize();
+
+        // [GIVEN] Set Transaction Type on Vendor and created Purchase Quote
+        Vendor.SetRange("No.", CreateVendor());
+        Vendor.FindFirst();
+        Vendor.Validate("Transaction Type",LibraryUtility.CreateCodeRecord(DATABASE::"Transaction Type"));
+        Vendor.Modify(true);
+        CreatePurchaseQuote(PurchaseHeader, PurchaseLine, Vendor."No.");
+
+        // [WHEN] Create Purchase Order from Purchase Quote.
+        CODEUNIT.Run(CODEUNIT::"Purch.-Quote to Order", PurchaseHeader);
+
+        // [THEN] Verify that New Purchase Order created from Purchase Quote has Transaction Type on Header and Line
+        VerifyTransactionTypeOnOrder(PurchaseHeader, PurchaseHeader."No.", Vendor."Transaction Type");
+    end;
+    
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -486,6 +513,18 @@ codeunit 134325 "ERM Purchase Quote"
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purchase Quote");
+    end;
+
+    local procedure VerifyTransactionTypeOnOrder(PurchaseHeader: Record "Purchase Header"; QuoteNo: Code[20]; TransactionType: Code[10])
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        PurchaseHeader.SetRange("Quote No.", QuoteNo);
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.FindFirst();
+        PurchaseHeader.TestField("Transaction Type", TransactionType);
+        FindPurchaseLine(PurchaseLine, QuoteNo);
+        PurchaseLine.TestField("Transaction Type", TransactionType);
     end;
 
     local procedure CreateVendor(): Code[20]

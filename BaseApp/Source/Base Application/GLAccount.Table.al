@@ -1,4 +1,4 @@
-table 15 "G/L Account"
+﻿table 15 "G/L Account"
 {
     Caption = 'G/L Account';
     DataCaptionFields = "No.", Name;
@@ -949,6 +949,7 @@ table 15 "G/L Account"
             end;
             Validate("Account Subcategory Entry No.", GLAccountCategory."Entry No.");
         end;
+        GLAccountCategory.ShowNotificationAccSchedUpdateNeeded();
     end;
 
     procedure LookupAccountSubCategory()
@@ -968,6 +969,7 @@ table 15 "G/L Account"
             GLAccountCategories.GetRecord(GLAccountCategory);
             Validate("Account Category", GLAccountCategory."Account Category");
             "Account Subcategory Entry No." := GLAccountCategory."Entry No.";
+            GLAccountCategory.ShowNotificationAccSchedUpdateNeeded();
         end;
         CalcFields("Account Subcategory Descript.");
     end;

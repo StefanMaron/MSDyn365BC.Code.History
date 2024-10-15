@@ -21,7 +21,6 @@ codeunit 1011 "Job Jnl.-Check Line"
     procedure RunCheck(var JobJnlLine: Record "Job Journal Line")
     var
         Job: Record Job;
-        UserSetupManagement: Codeunit "User Setup Management";
         UserChecksMgt: Codeunit "User Setup Adv. Management";
         IsHandled: Boolean;
     begin
@@ -39,14 +38,10 @@ codeunit 1011 "Job Jnl.-Check Line"
             if not IsHandled then
                 Job.TestField(Status, Job.Status::Open);
 
-            if NormalDate("Posting Date") <> "Posting Date" then
-                FieldError("Posting Date", Text000);
+            CheckPostingDate(JobJnlLine);
 
             if ("Document Date" <> 0D) and ("Document Date" <> NormalDate("Document Date")) then
                 FieldError("Document Date", Text000);
-
-            if not UserSetupManagement.IsPostingDateValid("Posting Date") then
-                FieldError("Posting Date", Text001);
 
             if "Time Sheet No." <> '' then
                 TimeSheetMgt.CheckJobJnlLine(JobJnlLine);
@@ -78,6 +73,24 @@ codeunit 1011 "Job Jnl.-Check Line"
         end;
 
         OnAfterRunCheck(JobJnlLine);
+    end;
+
+    local procedure CheckPostingDate(JobJnlLine: Record "Job Journal Line")
+    var
+        UserSetupManagement: Codeunit "User Setup Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckPostingDate(JobJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        with JobJnlLine do begin
+            if NormalDate("Posting Date") <> "Posting Date" then
+                FieldError("Posting Date", Text000);
+            if not UserSetupManagement.IsPostingDateValid("Posting Date") then
+                FieldError("Posting Date", Text001);
+        end;
     end;
 
     local procedure GetLocation(LocationCode: Code[10])
@@ -170,6 +183,11 @@ codeunit 1011 "Job Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterRunCheck(var JobJnlLine: Record "Job Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPostingDate(var JobJnlLine: Record "Job Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

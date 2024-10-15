@@ -1227,9 +1227,11 @@ codeunit 134117 "Price Lists UI"
         ItemDiscGroupPriceListLine: array[12] of Record "Price List Line";
     begin
         // [FEATURE] [Price Asset] [Item]
+        // [SCENARIO 381378] Open price line review for the item, where "No." contains brackets, "Item Disc. Group" is defined.
         Initialize(true);
-        // [GIVEN] Item 'X', where "Item Disc. Group" is 'A'
+        // [GIVEN] Item 'X(1)', where "Item Disc. Group" is 'A'
         LibraryInventory.CreateItem(Item);
+        Item.Rename(Item."No." + '(1)');
         LibraryERM.CreateItemDiscountGroup(ItemDiscountGroup);
         Item."Item Disc. Group" := ItemDiscountGroup.Code;
         Item.Modify();
@@ -1242,7 +1244,11 @@ codeunit 134117 "Price Lists UI"
         PriceListLineReview.Trap();
         Item.ShowPriceListLines("Price Type"::Sale, "Price Amount Type"::Any);
 
-        // [THEN] Open Price List Line Review page, where are 6 lines #1-#6 for Item and 2 for Item Disc.Group (sorted by Code)
+        // [THEN] Open Price List Line Review page, where "Asset Type", "Asset No.", Description are visible
+        Assert.IsTrue(PriceListLineReview."Asset Type".Visible(), 'Asset Type.Visible');
+        Assert.IsTrue(PriceListLineReview."Asset No.".Visible(), 'Asset No.Visible');
+        Assert.IsTrue(PriceListLineReview.Description.Visible(), 'Description.Visible');
+        // [THEN] and where are 6 lines #1-#6 for Item and 2 for Item Disc.Group (sorted by Code)
         PriceListLineReview.First();
         PriceListLineReview."Price List Code".AssertEquals(PriceListLine[1]."Price List Code");
         PriceListLineReview.Next();
@@ -1280,7 +1286,11 @@ codeunit 134117 "Price Lists UI"
         PriceListLineReview.Trap();
         ItemDiscountGroup.ShowPriceListLines("Price Type"::Sale, "Price Amount Type"::Discount);
 
-        // [THEN] Open Price List Line Review page, where are 2 sales discount lines (sorted by Code)
+        // [THEN] Open Price List Line Review page, where "Asset Type", "Asset No.", Description are not visible
+        Assert.IsFalse(PriceListLineReview."Asset Type".Visible(), 'Asset Type.Visible');
+        Assert.IsFalse(PriceListLineReview."Asset No.".Visible(), 'Asset No.Visible');
+        Assert.IsFalse(PriceListLineReview.Description.Visible(), 'Description.Visible');
+        // [THEN] and where are 2 sales discount lines (sorted by Code)
         PriceListLineReview.First();
         PriceListLineReview."Price List Code".AssertEquals(PriceListLine[1]."Price List Code");
         PriceListLineReview.Next();
@@ -1532,6 +1542,306 @@ codeunit 134117 "Price Lists UI"
         Assert.IsFalse(PriceListLineReview.Next(), 'found 2nd line');
     end;
 
+    [Test]
+    [HandlerFunctions('ResourceListModalHandler')]
+    procedure T200_WorkTypeVariantCodeOnSalesPriceListLineResource()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        Resource: Record Resource;
+        PriceListsUI: Codeunit "Price Lists UI";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        // [FEATURE] [Sales] [Resource]
+        Initialize(true);
+        BindSubscription(PriceListsUI);
+        // [GIVEN] Resource 'X'
+        LibraryResource.CreateResource(Resource, '');
+
+        // [GIVEN] Price list with line, where "Asset Type" 'Resource'
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, PriceListHeader.Code, "Price Source Type"::"All Customers", '', "Price Asset Type"::Resource, Resource."No.");
+
+        // [WHEN] Open "Sales Price List" page
+        SalesPriceList.OpenEdit();
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+        // [THEN] "Work Type Code" is editable and enabled
+        Assert.IsTrue(SalesPriceList.Lines."Work Type Code".Enabled(), '"Work Type Code".Enabled');
+        Assert.IsTrue(SalesPriceList.Lines."Work Type Code".Editable(), '"Work Type Code".Editable');
+        // [THEN] "Variant Code" is not editable and disabled
+        Assert.IsFalse(SalesPriceList.Lines."Variant Code".Enabled(), '"Variant Code".Enabled');
+        Assert.IsFalse(SalesPriceList.Lines."Variant Code".Editable(), '"Variant Code".Editable');
+        // [THEN] "Unit of Measure Code" is editable and enabled
+        Assert.IsTrue(SalesPriceList.Lines."Unit of Measure Code".Enabled(), '"Unit of Measure Code".Enabled');
+        Assert.IsTrue(SalesPriceList.Lines."Unit of Measure Code".Editable(), '"Unit of Measure Code".Editable');
+
+        // [WHEN] Add another line for Resource 'X' by lookup
+        SalesPriceList.Lines.New();
+        SalesPriceList.Lines."Asset Type".SetValue("Price Asset Type"::Resource);
+        SalesPriceList.Lines."Asset No.".Lookup();
+
+        // [THEN] "Work Type Code" is editable and enabled
+        Assert.IsTrue(SalesPriceList.Lines."Work Type Code".Enabled(), 'new line "Work Type Code".Enabled');
+        Assert.IsTrue(SalesPriceList.Lines."Work Type Code".Editable(), 'new line "Work Type Code".Editable');
+        // [THEN] "Variant Code" is not editable and disabled
+        Assert.IsFalse(SalesPriceList.Lines."Variant Code".Enabled(), 'new line "Variant Code".Enabled');
+        Assert.IsFalse(SalesPriceList.Lines."Variant Code".Editable(), 'new line "Variant Code".Editable');
+    end;
+
+    [Test]
+    procedure T201_WorkTypeVariantCodeOnSalesPriceListLineResourceGroup()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        ResourceGroup: Record "Resource Group";
+        PriceListsUI: Codeunit "Price Lists UI";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        // [FEATURE] [Sales] [Resource Group]
+        Initialize(true);
+        BindSubscription(PriceListsUI);
+        // [GIVEN] Resource Group 'X'
+        LibraryResource.CreateResourceGroup(ResourceGroup);
+
+        // [GIVEN] Price list with line, where "Asset Type" 'Resource Group'
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, PriceListHeader.Code, "Price Source Type"::"All Customers", '', "Price Asset Type"::"Resource Group", ResourceGroup."No.");
+
+        // [WHEN] Open "Sales Price List" page
+        SalesPriceList.OpenEdit();
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+        // [THEN] "Work Type Code" is editable and enabled
+        Assert.IsTrue(SalesPriceList.Lines."Work Type Code".Enabled(), '"Work Type Code".Enabled');
+        Assert.IsTrue(SalesPriceList.Lines."Work Type Code".Editable(), '"Work Type Code".Editable');
+        // [THEN] "Variant Code" is not editable and disabled
+        Assert.IsFalse(SalesPriceList.Lines."Variant Code".Enabled(), '"Variant Code".Enabled');
+        Assert.IsFalse(SalesPriceList.Lines."Variant Code".Editable(), '"Variant Code".Editable');
+        // [THEN] "Unit of Measure Code" is editable and enabled
+        Assert.IsTrue(SalesPriceList.Lines."Unit of Measure Code".Enabled(), '"Unit of Measure Code".Enabled');
+        Assert.IsTrue(SalesPriceList.Lines."Unit of Measure Code".Editable(), '"Unit of Measure Code".Editable');
+    end;
+
+    [Test]
+    procedure T202_WorkTypeVariantCodeOnSalesPriceListLineItem()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        Item: Record Item;
+        PriceListsUI: Codeunit "Price Lists UI";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        // [FEATURE] [Sales] [Item]
+        Initialize(true);
+        BindSubscription(PriceListsUI);
+        // [GIVEN] Item 'X'
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Price list with line, where "Asset Type" 'Item'
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, PriceListHeader.Code, "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, Item."No.");
+
+        // [WHEN] Open "Sales Price List" page
+        SalesPriceList.OpenEdit();
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+        // [THEN] "Work Type Code" is not editable and disabled
+        Assert.IsFalse(SalesPriceList.Lines."Work Type Code".Enabled(), '"Work Type Code".Enabled');
+        Assert.IsFalse(SalesPriceList.Lines."Work Type Code".Editable(), '"Work Type Code".Editable');
+        // [THEN] "Variant Code" is editable and enabled
+        Assert.IsTrue(SalesPriceList.Lines."Variant Code".Enabled(), '"Variant Code".Enabled');
+        Assert.IsTrue(SalesPriceList.Lines."Variant Code".Editable(), '"Variant Code".Editable');
+        // [THEN] "Unit of Measure Code" is editable and enabled
+        Assert.IsTrue(SalesPriceList.Lines."Unit of Measure Code".Enabled(), '"Unit of Measure Code".Enabled');
+        Assert.IsTrue(SalesPriceList.Lines."Unit of Measure Code".Editable(), '"Unit of Measure Code".Editable');
+    end;
+
+    [Test]
+    procedure T203_WorkTypeVariantCodeOnSalesPriceListLineGLAccount()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        GLAccount: Record "G/L Account";
+        PriceListsUI: Codeunit "Price Lists UI";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        // [FEATURE] [Sales] [Item]
+        Initialize(true);
+        BindSubscription(PriceListsUI);
+        // [GIVEN] Item 'X'
+        LibraryERM.CreateGLAccount(GLAccount);
+
+        // [GIVEN] Price list with line, where "Asset Type" 'G/L Account'
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, PriceListHeader.Code, "Price Source Type"::"All Customers", '', "Price Asset Type"::"G/L Account", GLAccount."No.");
+
+        // [WHEN] Open "Sales Price List" page
+        SalesPriceList.OpenEdit();
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+
+        // [THEN] "Work Type Code" is not editable and disabled
+        Assert.IsFalse(SalesPriceList.Lines."Work Type Code".Enabled(), '"Work Type Code".Enabled');
+        Assert.IsFalse(SalesPriceList.Lines."Work Type Code".Editable(), '"Work Type Code".Editable');
+        // [THEN] "Variant Code" is not editable and disabled
+        Assert.IsFalse(SalesPriceList.Lines."Variant Code".Enabled(), '"Variant Code".Enabled');
+        Assert.IsFalse(SalesPriceList.Lines."Variant Code".Editable(), '"Variant Code".Editable');
+        // [THEN] "Unit of Measure Code" is not editable and disabled
+        Assert.IsFalse(SalesPriceList.Lines."Unit of Measure Code".Enabled(), '"Unit of Measure Code".Enabled');
+        Assert.IsFalse(SalesPriceList.Lines."Unit of Measure Code".Editable(), '"Unit of Measure Code".Editable');
+    end;
+
+    [Test]
+    [HandlerFunctions('ResourceListModalHandler')]
+    procedure T205_WorkTypeVariantCodeOnPurchasePriceListLineResource()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        Resource: Record Resource;
+        PriceListsUI: Codeunit "Price Lists UI";
+        PurchasePriceList: TestPage "Purchase Price List";
+    begin
+        // [FEATURE] [Purchase] [Resource]
+        Initialize(true);
+        BindSubscription(PriceListsUI);
+        // [GIVEN] Resource 'X'
+        LibraryResource.CreateResource(Resource, '');
+
+        // [GIVEN] Price list with line, where "Asset Type" 'Resource'
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Purchase, "Price Source Type"::"All Vendors", '');
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLine, PriceListHeader.Code, "Price Source Type"::"All Vendors", '', "Price Asset Type"::Resource, Resource."No.");
+
+        // [WHEN] Open "Purchase Price List" page
+        PurchasePriceList.OpenEdit();
+        PurchasePriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+        // [THEN] "Work Type Code" is editable and enabled
+        Assert.IsTrue(PurchasePriceList.Lines."Work Type Code".Enabled(), '"Work Type Code".Enabled');
+        Assert.IsTrue(PurchasePriceList.Lines."Work Type Code".Editable(), '"Work Type Code".Editable');
+        // [THEN] "Variant Code" is not editable and disabled
+        Assert.IsFalse(PurchasePriceList.Lines."Variant Code".Enabled(), '"Variant Code".Enabled');
+        Assert.IsFalse(PurchasePriceList.Lines."Variant Code".Editable(), '"Variant Code".Editable');
+        // [THEN] "Unit of Measure Code" is editable and enabled
+        Assert.IsTrue(PurchasePriceList.Lines."Unit of Measure Code".Enabled(), '"Unit of Measure Code".Enabled');
+        Assert.IsTrue(PurchasePriceList.Lines."Unit of Measure Code".Editable(), '"Unit of Measure Code".Editable');
+
+        // [WHEN] Add another line for Resource 'X' by lookup
+        PurchasePriceList.Lines.New();
+        PurchasePriceList.Lines."Asset Type".SetValue("Price Asset Type"::Resource);
+        PurchasePriceList.Lines."Asset No.".Lookup();
+
+        // [THEN] "Work Type Code" is editable and enabled
+        Assert.IsTrue(PurchasePriceList.Lines."Work Type Code".Enabled(), 'new line "Work Type Code".Enabled');
+        Assert.IsTrue(PurchasePriceList.Lines."Work Type Code".Editable(), 'new line "Work Type Code".Editable');
+        // [THEN] "Variant Code" is not editable and disabled
+        Assert.IsFalse(PurchasePriceList.Lines."Variant Code".Enabled(), 'new line "Variant Code".Enabled');
+        Assert.IsFalse(PurchasePriceList.Lines."Variant Code".Editable(), 'new line "Variant Code".Editable');
+    end;
+
+    [Test]
+    procedure T206_WorkTypeVariantCodeOnPurchasePriceListLineResourceGroup()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        ResourceGroup: Record "Resource Group";
+        PriceListsUI: Codeunit "Price Lists UI";
+        PurchasePriceList: TestPage "Purchase Price List";
+    begin
+        // [FEATURE] [Purchase] [Resource Group]
+        Initialize(true);
+        BindSubscription(PriceListsUI);
+        // [GIVEN] Resource Group 'X'
+        LibraryResource.CreateResourceGroup(ResourceGroup);
+
+        // [GIVEN] Price list with line, where "Asset Type" 'Resource Group'
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Vendors", '');
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLine, PriceListHeader.Code, "Price Source Type"::"All Vendors", '', "Price Asset Type"::"Resource Group", ResourceGroup."No.");
+
+        // [WHEN] Open "Purchase Price List" page
+        PurchasePriceList.OpenEdit();
+        PurchasePriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+        // [THEN] "Work Type Code" is editable and enabled
+        Assert.IsTrue(PurchasePriceList.Lines."Work Type Code".Enabled(), '"Work Type Code".Enabled');
+        Assert.IsTrue(PurchasePriceList.Lines."Work Type Code".Editable(), '"Work Type Code".Editable');
+        // [THEN] "Variant Code" is not editable and disabled
+        Assert.IsFalse(PurchasePriceList.Lines."Variant Code".Enabled(), '"Variant Code".Enabled');
+        Assert.IsFalse(PurchasePriceList.Lines."Variant Code".Editable(), '"Variant Code".Editable');
+        // [THEN] "Unit of Measure Code" is editable and enabled
+        Assert.IsTrue(PurchasePriceList.Lines."Unit of Measure Code".Enabled(), '"Unit of Measure Code".Enabled');
+        Assert.IsTrue(PurchasePriceList.Lines."Unit of Measure Code".Editable(), '"Unit of Measure Code".Editable');
+    end;
+
+    [Test]
+    procedure T207_WorkTypeVariantCodeOnPurchasePriceListLineItem()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        Item: Record Item;
+        PriceListsUI: Codeunit "Price Lists UI";
+        PurchasePriceList: TestPage "Purchase Price List";
+    begin
+        // [FEATURE] [Purchase] [Item]
+        Initialize(true);
+        BindSubscription(PriceListsUI);
+        // [GIVEN] Item 'X'
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Price list with line, where "Asset Type" 'Item'
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Vendors", '');
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLine, PriceListHeader.Code, "Price Source Type"::"All Vendors", '', "Price Asset Type"::Item, Item."No.");
+
+        // [WHEN] Open "Purchase Price List" page
+        PurchasePriceList.OpenEdit();
+        PurchasePriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+        // [THEN] "Work Type Code" is not editable and disabled
+        Assert.IsFalse(PurchasePriceList.Lines."Work Type Code".Enabled(), '"Work Type Code".Enabled');
+        Assert.IsFalse(PurchasePriceList.Lines."Work Type Code".Editable(), '"Work Type Code".Editable');
+        // [THEN] "Variant Code" is editable and enabled
+        Assert.IsTrue(PurchasePriceList.Lines."Variant Code".Enabled(), '"Variant Code".Enabled');
+        Assert.IsTrue(PurchasePriceList.Lines."Variant Code".Editable(), '"Variant Code".Editable');
+        // [THEN] "Unit of Measure Code" is editable and enabled
+        Assert.IsTrue(PurchasePriceList.Lines."Unit of Measure Code".Enabled(), '"Unit of Measure Code".Enabled');
+        Assert.IsTrue(PurchasePriceList.Lines."Unit of Measure Code".Editable(), '"Unit of Measure Code".Editable');
+    end;
+
+    [Test]
+    procedure T208_WorkTypeVariantCodeOnPurchasePriceListLineGLAccount()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        GLAccount: Record "G/L Account";
+        PriceListsUI: Codeunit "Price Lists UI";
+        PurchasePriceList: TestPage "Purchase Price List";
+    begin
+        // [FEATURE] [Purchase] [Item]
+        Initialize(true);
+        BindSubscription(PriceListsUI);
+        // [GIVEN] Item 'X'
+        LibraryERM.CreateGLAccount(GLAccount);
+
+        // [GIVEN] Price list with line, where "Asset Type" 'G/L Account'
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Vendors", '');
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLine, PriceListHeader.Code, "Price Source Type"::"All Vendors", '', "Price Asset Type"::"G/L Account", GLAccount."No.");
+
+        // [WHEN] Open "Purchase Price List" page
+        PurchasePriceList.OpenEdit();
+        PurchasePriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+
+        // [THEN] "Work Type Code" is not editable and disabled
+        Assert.IsFalse(PurchasePriceList.Lines."Work Type Code".Enabled(), '"Work Type Code".Enabled');
+        Assert.IsFalse(PurchasePriceList.Lines."Work Type Code".Editable(), '"Work Type Code".Editable');
+        // [THEN] "Variant Code" is not editable and disabled
+        Assert.IsFalse(PurchasePriceList.Lines."Variant Code".Enabled(), '"Variant Code".Enabled');
+        Assert.IsFalse(PurchasePriceList.Lines."Variant Code".Editable(), '"Variant Code".Editable');
+        // [THEN] "Unit of Measure Code" is not editable and disabled
+        Assert.IsFalse(PurchasePriceList.Lines."Unit of Measure Code".Enabled(), '"Unit of Measure Code".Enabled');
+        Assert.IsFalse(PurchasePriceList.Lines."Unit of Measure Code".Editable(), '"Unit of Measure Code".Editable');
+    end;
+
     local procedure Initialize(Enable: Boolean)
     var
         PriceListHeader: Record "Price List Header";
@@ -1728,6 +2038,13 @@ codeunit 134117 "Price Lists UI"
             repeat
                 LibraryVariableStorage.Enqueue(PriceListLineReview."Price List Code");
             until not PriceListLineReview.Next();
+    end;
+
+    [ModalPageHandler]
+    procedure ResourceListModalHandler(var ResourceList: TestPage "Resource List")
+    begin
+        ResourceList.First();
+        ResourceList.OK().Invoke();
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"Price List Lines", 'OnAfterSetSubFormLinkFilter', '', false, false)]

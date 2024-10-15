@@ -56,7 +56,7 @@ page 161 "Purchase Statistics"
                     ApplicationArea = Basic, Suite;
                     AutoFormatExpression = "Currency Code";
                     AutoFormatType = 1;
-                    CaptionClass = Format(VATAmountText);
+                    CaptionClass = '3,' + Format(VATAmountText);
                     Caption = 'VAT Amount';
                     Editable = false;
                     ToolTip = 'Specifies the total VAT amount that has been calculated for all the lines in the purchase document.';

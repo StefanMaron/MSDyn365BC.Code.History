@@ -1097,7 +1097,7 @@
         UnitofMeasureCodeIsChangeable: Boolean;
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
         CurrPageIsEditable: Boolean;
-		[InDataSet]
+        [InDataSet]
         ItemReferenceVisible: Boolean;
 
     protected var
@@ -1148,8 +1148,14 @@
     end;
 
     procedure InsertExtendedText(Unconditionally: Boolean)
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeInsertExtendedText(Rec);
+        IsHandled := false;
+        OnBeforeInsertExtendedText(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if TransferExtendedText.PurchCheckIfAnyExtText(Rec, Unconditionally) then begin
             CurrPage.SaveRecord();
             TransferExtendedText.InsertPurchExtText(Rec);
@@ -1327,7 +1333,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertExtendedText(var PurchaseLine: Record "Purchase Line")
+    local procedure OnBeforeInsertExtendedText(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -1175,11 +1175,18 @@ page 9233 "G/L Balance by Dim. Matrix"
     var
         GLEntry: Record "G/L Entry";
         GLBudgetEntry: Record "G/L Budget Entry";
+        IsHandled: Boolean;
     begin
         SetCommonFilters(GLAcc);
         SetDimFilters(GLAcc, 0);
         if SetColFilter then
             SetDimFilters(GLAcc, 1);
+
+        IsHandled := false;
+        OnBeforeDrillDown(SetColFilter, GLAcc, AnalysisByDimParameters, IsHandled);
+        if IsHandled then
+            exit;
+
         if AnalysisByDimParameters."Show Actual/Budgets" = AnalysisByDimParameters."Show Actual/Budgets"::"Actual Amounts" then begin
             with GLEntry do begin
                 if GLAcc."No." <> '' then
@@ -1494,6 +1501,11 @@ page 9233 "G/L Balance by Dim. Matrix"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcBudgetAmount(var GLAccount: Record "G/L Account"; AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; var Amount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDrillDown(SetColFilter: Boolean; var GLAcc: Record "G/L Account"; AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; var IsHandled: Boolean)
     begin
     end;
 }

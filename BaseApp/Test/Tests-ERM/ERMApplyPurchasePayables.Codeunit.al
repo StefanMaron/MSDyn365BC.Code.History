@@ -801,6 +801,195 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('GeneralJournalTemplateListPageHandler,ApplyVendorEntriesWithAmountModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyInvoiceToSecondPaymentLineWhenAnotherInvoiceIsMarkedAsApplied()
+    var
+        GenJournalLineInv: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        PaymentJournal: TestPage "Payment Journal";
+    begin
+        // [FEATURE] [Application] [Payment Journal] [UI]
+        // [SCENARIO 379474] Apply payment line to the invoice when another invoice has Applied-to ID
+        Initialize();
+
+        // [GIVEN] Two invoices "Inv1" of Amount = -1000 and "Inv2" of Amount = -2000
+        CreateAndPostTwoGenJournalLinesForSameVendor(GenJournalLineInv);
+        VendorLedgerEntry.SetRange("Vendor No.", GenJournalLineInv."Account No.");
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.CalcFields(Amount);
+
+        // [GIVEN] Two payment journal lines for the vendor with Amount = 0
+        CreatePaymentJournalBatch(GenJournalBatch);
+        LibraryJournals.CreateGenJournalLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, GenJournalLineInv."Account No.", 0, '', 0);
+        GenJournalLine."Line No." := LibraryUtility.GetNewRecNo(GenJournalLine, GenJournalLine.FieldNo("Line No."));
+        GenJournalLine.Insert();
+        Commit();
+
+        // [GIVEN] Set Applies-to ID on first payment line for first invoice, payment journal Line gets Amount = 1000
+        LibraryLowerPermissions.SetAccountPayables();
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
+        PaymentJournal.OpenEdit();
+        LibraryVariableStorage.Enqueue(VendorLedgerEntry."Document No.");
+        LibraryVariableStorage.Enqueue(VendorLedgerEntry.Amount);
+        PaymentJournal.ApplyEntries.Invoke;
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField(Amount, -VendorLedgerEntry.Amount);
+
+        // [WHEN] Set Applies-to ID on second payment line for second invoice, Amount to Apply = -1000
+        LibraryVariableStorage.Enqueue(GenJournalLineInv."Document No.");
+        LibraryVariableStorage.Enqueue(GenJournalLineInv.Amount / 2);
+        PaymentJournal.Next();
+        PaymentJournal.ApplyEntries.Invoke;
+        PaymentJournal.OK.Invoke;
+
+        // [THEN] Second payment journal line gets Amount = 1000
+        GenJournalLine.FindLast();
+        GenJournalLine.TestField(Amount, -GenJournalLineInv.Amount / 2);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ApplyFCYInvoicesToFCYPaymentsWithBalancePaymentLineApplnBtwCurrenciesAll()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry1: Record "Vendor Ledger Entry";
+        VendorLedgerEntry2: Record "Vendor Ledger Entry";
+        CurrencyCode1: Code[10];
+        CurrencyCode2: Code[10];
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [Application] [Currency]
+        // [SCENARIO 379474] Apply two FCY invoices to two FCY payments with "Appln. between Currencies" = All
+        Initialize();
+
+        // [GIVEN] "Appln. between Currencies" = All in Purchase Setup
+        UpdateApplnBetweenCurrenciesAllInPurchSetup();
+
+        // [GIVEN] Two invoices "Inv1" in "FCY1" of Amount = -1000 and "Inv2" in "FCY2" of Amount = -2000
+        CurrencyCode1 := RandomCurrency();
+        CurrencyCode2 := RandomCurrency();
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        CreateVendorInvoice(VendorLedgerEntry1, VendorNo, -LibraryRandom.RandIntInRange(1000, 2000), CurrencyCode1);
+        CreateVendorInvoice(VendorLedgerEntry2, VendorNo, -LibraryRandom.RandIntInRange(1000, 2000), CurrencyCode2);
+
+        // [GIVEN] First payment journal line for the vendor with Amount = 2000 in "FCY2"
+        // [GIVEN] Second invoice in "FCY2" is marked with Applies-to ID and Amount to Apply = -2000
+        CreatePaymentJournalBatch(GenJournalBatch);
+        LibraryJournals.CreateGenJournalLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, VendorNo, 0, '', 0);
+        UpdateGenJnlLineAppln(GenJournalLine, CurrencyCode2, -VendorLedgerEntry2.Amount);
+        UpdateVendorLedgerEntryAppln(VendorLedgerEntry2, GenJournalLine."Document No.", VendorLedgerEntry2.Amount);
+
+        // [GIVEN] Second payment journal line for the vendor with Amount = 500 in "FCY1"
+        // [GIVEN] First invoice in "FCY1" is marked with Applies-to ID and Amount to Apply = -500
+        GenJournalLine."Line No." := LibraryUtility.GetNewRecNo(GenJournalLine, GenJournalLine.FieldNo("Line No."));
+        GenJournalLine.Insert();
+        UpdateGenJnlLineAppln(GenJournalLine, CurrencyCode1, -VendorLedgerEntry1.Amount / 2);
+        UpdateVendorLedgerEntryAppln(VendorLedgerEntry1, GenJournalLine."Document No.", VendorLedgerEntry1.Amount / 2);
+
+        // [GIVEN] Balance payment journal line for bank account in LCY
+        GenJournalLine."Line No." := LibraryUtility.GetNewRecNo(GenJournalLine, GenJournalLine.FieldNo("Line No."));
+        GenJournalLine.Insert();
+        GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"Bank Account");
+        GenJournalLine.Validate("Account No.", LibraryERM.CreateBankAccountNo);
+        UpdateGenJnlLineAppln(
+          GenJournalLine, '', VendorLedgerEntry1."Amount (LCY)" / 2 + VendorLedgerEntry2."Amount (LCY)");
+
+        // [WHEN] Post payment journal lines
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Invoice in "FCY1" has "Remaining Amount" = -500, Invoice in "FCY2" has "Remaining Amount" = 0
+        VendorLedgerEntry1.CalcFields("Remaining Amount");
+        VendorLedgerEntry1.TestField("Remaining Amount", VendorLedgerEntry1.Amount / 2);
+        VendorLedgerEntry2.CalcFields("Remaining Amount");
+        VendorLedgerEntry2.TestField("Remaining Amount", 0);
+
+        // [THEN] First payment lines in "FCY2" is applied with to both first and second invoices
+        VerifyPaymentWithDetailedEntries(
+          VendorNo, CurrencyCode2, VendorLedgerEntry1."Entry No.", VendorLedgerEntry2."Entry No.", 1, 1);
+        // [THEN] Second payment line in "FCY1" is applied to second invoice in "FCY2"
+        VerifyPaymentWithDetailedEntries(
+          VendorNo, CurrencyCode1, VendorLedgerEntry1."Entry No.", VendorLedgerEntry2."Entry No.", 0, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ApplyFCYInvoicesToFCYPaymentsWithBalancePaymentLineApplnBtwCurrenciesNone()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry1: Record "Vendor Ledger Entry";
+        VendorLedgerEntry2: Record "Vendor Ledger Entry";
+        CurrencyCode1: Code[10];
+        CurrencyCode2: Code[10];
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [Application] [Currency]
+        // [SCENARIO 379474] Apply two FCY invoices to two FCY payments with "Appln. between Currencies" = None
+        Initialize();
+
+        // [GIVEN] "Appln. between Currencies" = None in Purchase Setup
+        UpdateApplnBetweenCurrenciesNoneInPurchSetup();
+
+        // [GIVEN] Two invoices "Inv1" in "FCY1" of Amount = -1000 and "Inv2" in "FCY2" of Amount = -2000
+        CurrencyCode1 := RandomCurrency();
+        CurrencyCode2 := RandomCurrency();
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        CreateVendorInvoice(VendorLedgerEntry1, VendorNo, -LibraryRandom.RandIntInRange(1000, 2000), CurrencyCode1);
+        CreateVendorInvoice(VendorLedgerEntry2, VendorNo, -LibraryRandom.RandIntInRange(1000, 2000), CurrencyCode2);
+
+        // [GIVEN] First payment journal line for the vendor with Amount = 2000 in "FCY2"
+        // [GIVEN] Second invoice in "FCY2" is marked with Applies-to ID and Amount to Apply = -2000
+        CreatePaymentJournalBatch(GenJournalBatch);
+        LibraryJournals.CreateGenJournalLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, VendorNo, 0, '', 0);
+        UpdateGenJnlLineAppln(GenJournalLine, CurrencyCode2, -VendorLedgerEntry2.Amount);
+        UpdateVendorLedgerEntryAppln(VendorLedgerEntry2, GenJournalLine."Document No.", VendorLedgerEntry2.Amount);
+
+        // [GIVEN] Second payment journal line for the vendor with Amount = 500 in "FCY1"
+        // [GIVEN] First invoice in "FCY1" is marked with Applies-to ID and Amount to Apply = -500
+        GenJournalLine."Line No." := LibraryUtility.GetNewRecNo(GenJournalLine, GenJournalLine.FieldNo("Line No."));
+        GenJournalLine.Insert();
+        UpdateGenJnlLineAppln(GenJournalLine, CurrencyCode1, -VendorLedgerEntry1.Amount / 2);
+        UpdateVendorLedgerEntryAppln(VendorLedgerEntry1, GenJournalLine."Document No.", VendorLedgerEntry1.Amount / 2);
+
+        // [GIVEN] Balance payment journal line for bank account in LCY
+        GenJournalLine."Line No." := LibraryUtility.GetNewRecNo(GenJournalLine, GenJournalLine.FieldNo("Line No."));
+        GenJournalLine.Insert();
+        GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"Bank Account");
+        GenJournalLine.Validate("Account No.", LibraryERM.CreateBankAccountNo);
+        UpdateGenJnlLineAppln(
+          GenJournalLine, '', VendorLedgerEntry1."Amount (LCY)" / 2 + VendorLedgerEntry2."Amount (LCY)");
+
+        // [WHEN] Post payment journal lines
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Invoice in "FCY1" has "Remaining Amount" = -500, Invoice in "FCY2" has "Remaining Amount" = 0
+        VendorLedgerEntry1.CalcFields("Remaining Amount");
+        VendorLedgerEntry1.TestField("Remaining Amount", VendorLedgerEntry1.Amount / 2);
+        VendorLedgerEntry2.CalcFields("Remaining Amount");
+        VendorLedgerEntry2.TestField("Remaining Amount", 0);
+
+        // [THEN] First payment lines in "FCY2" is applied with the second invoice in "FCY2"
+        VerifyPaymentWithDetailedEntries(
+          VendorNo, CurrencyCode2, VendorLedgerEntry1."Entry No.", VendorLedgerEntry2."Entry No.", 0, 1);
+        // [THEN] Second payment line in "FCY1" is applied to the first invoice in "FCY1"
+        VerifyPaymentWithDetailedEntries(
+          VendorNo, CurrencyCode1, VendorLedgerEntry1."Entry No.", VendorLedgerEntry2."Entry No.", 1, 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryApplicationArea: Codeunit "Library - Application Area";
@@ -830,6 +1019,8 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         isInitialized := true;
         Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
+
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Apply Purchase/Payables");
     end;
 
@@ -1352,20 +1543,23 @@ codeunit 134001 "ERM Apply Purchase/Payables"
 
     local procedure CreatePaymentJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20])
     var
-        GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        with GenJournalTemplate do begin
-            LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-            Validate(Type, Type::Payments);
-            Modify(true);
-            LibraryERM.CreateGenJournalBatch(GenJournalBatch, Name);
-        end;
-
+        CreatePaymentJournalBatch(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, AccountNo,
           GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, 0);
+    end;
+
+    local procedure CreatePaymentJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::Payments);
+        GenJournalTemplate.Modify(true);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
 
     local procedure CreateDefaultDimensionGLAccSameValue(var DimensionValue: Record "Dimension Value"; GLAccountNo: Code[20])
@@ -1509,6 +1703,40 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         VerifyVendorLedgerEntry(PurchaseHeader."Buy-from Vendor No.", SignForVendorLedgerEntry * PurchaseLine."Line Amount");
     end;
 
+    local procedure UpdateGenJnlLineAppln(var GenJournalLine: Record "Gen. Journal Line"; CurrencyCode: Code[10]; AmountToApply: Decimal)
+    begin
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Validate(Amount, AmountToApply);
+        GenJournalLine.Validate("Applies-to ID", GenJournalLine."Document No.");
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure UpdateVendorLedgerEntryAppln(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentNo: Code[20]; AmountToApply: Decimal)
+    begin
+        VendorLedgerEntry.Validate("Applies-to ID", DocumentNo);
+        VendorLedgerEntry.Validate("Amount to Apply", AmountToApply);
+        VendorLedgerEntry.Modify(true);
+    end;
+
+    local procedure UpdateApplnBetweenCurrenciesNoneInPurchSetup()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Appln. between Currencies", PurchasesPayablesSetup."Appln. between Currencies"::None);
+        PurchasesPayablesSetup.Modify(true);
+    end;
+
+    local procedure UpdateApplnBetweenCurrenciesAllInPurchSetup()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Validate("Appln. between Currencies", PurchasesPayablesSetup."Appln. between Currencies"::All);
+        PurchasesPayablesSetup.Modify(true);
+    end;
+
     local procedure ValidateVendLedgEntrClosed(VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
         with VendorLedgerEntry do begin
@@ -1576,6 +1804,26 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         end;
     end;
 
+    local procedure VerifyPaymentWithDetailedEntries(VendorNo: Code[20]; CurrencyCode: Code[10]; EntryNoInvoice1: Integer; EntryNoInvoice2: Integer; AppliedEntries1: Integer; AppliedEntries2: Integer)
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
+    begin
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.SetRange("Currency Code", CurrencyCode);
+        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Payment);
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        VendorLedgerEntry.TestField("Remaining Amount", 0);
+
+        DetailedVendorLedgEntry.SetRange("Vendor No.", VendorNo);
+        DetailedVendorLedgEntry.SetRange("Applied Vend. Ledger Entry No.", VendorLedgerEntry."Entry No.");
+        DetailedVendorLedgEntry.SetRange("Vendor Ledger Entry No.", EntryNoInvoice1);
+        Assert.RecordCount(DetailedVendorLedgEntry, AppliedEntries1);
+        DetailedVendorLedgEntry.SetRange("Vendor Ledger Entry No.", EntryNoInvoice2);
+        Assert.RecordCount(DetailedVendorLedgEntry, AppliedEntries2);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyVendorEntriesModalPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
@@ -1595,6 +1843,16 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         ApplyVendorEntries."Amount to Apply".AssertEquals(0);
         ApplyVendorEntries.ApplnAmountToApply.AssertEquals(0);
 
+        ApplyVendorEntries.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyVendorEntriesWithAmountModalPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
+    begin
+        ApplyVendorEntries.FILTER.SetFilter("Document No.", LibraryVariableStorage.DequeueText);
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
+        ApplyVendorEntries."Amount to Apply".SetValue(LibraryVariableStorage.DequeueDecimal);
         ApplyVendorEntries.OK.Invoke;
     end;
 

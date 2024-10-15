@@ -1917,11 +1917,9 @@ codeunit 137077 "SCM Supply Planning -IV"
     [Scope('OnPrem')]
     procedure CalcRegenPlanWithProdOrderFromSalesForStartingEndingTimeLFLItemsWhenBlankDefaultSafetyLeadTime()
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
         ParentItem: Record Item;
         RequisitionLine: Record "Requisition Line";
         ChildItemNo: Code[20];
-        BlankDefaultSafetyLeadTime: DateFormula;
         ParentStartingTime: Time;
         ParentStartingDate: Date;
     begin
@@ -1931,10 +1929,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         Initialize;
 
         // [GIVEN] Manufacturing Setup had Default Safety Lead Time = '0D'
-        Evaluate(BlankDefaultSafetyLeadTime, '<0D>');
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Default Safety Lead Time", BlankDefaultSafetyLeadTime);
-        ManufacturingSetup.Modify(true);
+        UpdateSafetyLeadTimeToZeroInMfgSetup();
 
         // [GIVEN] Parent Item had Production BOM with Child Item as Component, Reordering Policy was Lot-for-Lot for both
         // [GIVEN] Child Item had Production BOM as well and Safety Lead Time = '0D'
@@ -2197,6 +2192,107 @@ codeunit 137077 "SCM Supply Planning -IV"
         PlanningComponent.TestField("Reserved Quantity", 0);
     end;
 
+    [Test]
+    [HandlerFunctions('OrderPromisingPageHandler')]
+    [Scope('OnPrem')]
+    procedure PlanningComponentIsPartiallyReservedFromReqLineAfterPlanningViaCTP()
+    var
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        QtyPer: Decimal;
+    begin
+        // [FEATURE] [Capable to Promise] [Reservation] [Planning Component]
+        // [SCENARIO 383039] When running Capable-to-Promise, a planning component that is available in inventory, is partially reserved from requisition line.
+        Initialize();
+
+        // [GIVEN] Critical component item "C".
+        // [GIVEN] A critical component will be planned together with the parent item.
+        CreateOrderItem(CompItem);
+        CompItem.Validate(Critical, true);
+        CompItem.Modify(true);
+
+        // [GIVEN] We have 20 pcs of item "C" on hand.
+        UpdateInventory(CompItem."No.", LibraryRandom.RandIntInRange(20, 40), '');
+        CompItem.CalcFields(Inventory);
+
+        // [GIVEN] Production BOM that includes 3 pcs of component "C".
+        QtyPer := CreateAndCertifyProductionBOM(ProductionBOMHeader, CompItem."No.");
+
+        // [GIVEN] Manufacturing item "P", select the created production BOM.
+        CreateOrderItem(ProdItem);
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [GIVEN] Sales order for 50 pcs of item "P".
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', ProdItem."No.", LibraryRandom.RandIntInRange(50, 100), '', WorkDate);
+
+        // [WHEN] Open Order Promising and accept "Capable to Promise".
+        OpenOrderPromisingPage(SalesLine."Document No.");
+
+        // [THEN] 130 pcs of planning component "C" are reserved from a planning line (150 total need - 20 on hand).
+        VerifyReservedQtyBetweenSources(
+          CompItem."No.", DATABASE::"Requisition Line", DATABASE::"Planning Component", SalesLine.Quantity * QtyPer - CompItem.Inventory);
+
+        // [THEN] 50 pcs of item "P" are reserved from a planning line for the sales line.
+        VerifyReservedQtyBetweenSources(
+          ProdItem."No.", DATABASE::"Requisition Line", DATABASE::"Sales Line", SalesLine.Quantity);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FixedReorderQtyItemPlanningWithBlankSafetyLeadTime()
+    var
+        Item: Record Item;
+        RoutingHeader: Record "Routing Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        StartingDate: Date;
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Fixed Reorder Quantity] [Safety Lead Time]
+        // [SCENARIO 380947] Item set up for Fixed Reorder Qty. planning policy and blank Safety Lead Time is not suggested to be produced before starting date of the planning period.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(10, 20);
+        StartingDate := CalcDate('<WD3>', WorkDate());
+
+        // [GIVEN] Set "Safety Lead Time" = <blank> in Manufacturing Setup.
+        UpdateSafetyLeadTimeToZeroInMfgSetup();
+
+        // [GIVEN] Create manufacturing item with routing.
+        // [GIVEN] Set up Reordering Policy = "Fixed Reorder Qty." on the item.
+        // [GIVEN] Reorder Point = 6, Reorder Quantity = 12.
+        CreateRouting(RoutingHeader);
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Fixed Reorder Qty.");
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Routing No.", RoutingHeader."No.");
+        Item.Validate("Reorder Point", Qty);
+        Item.Validate("Reorder Quantity", 2 * Qty);
+        Item.Modify(true);
+
+        // [GIVEN] Post 6 pcs of the item to inventory. Posting Date = 01/01/22 (MM/DD/YY).
+        UpdateInventory(Item."No.", Qty, '');
+
+        // [GIVEN] Create sales order for 3 pcs on 01/05/22 to bring the remaining qty. below reorder point.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty / 2, '', StartingDate);
+
+        // [WHEN] Calculate regenerative plan from 01/05/22 to 02/05/22.
+        Item.SetRecFilter();
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, StartingDate, LibraryRandom.RandDateFrom(StartingDate, 30));
+
+        // [THEN] Starting Date = Due Date = 01/05/22 on the planning line.
+        SelectRequisitionLine(RequisitionLine, Item."No.");
+        RequisitionLine.TestField("Starting Date", StartingDate);
+        RequisitionLine.TestField("Due Date", StartingDate);
+    end;
+
     local procedure Initialize()
     var
         RequisitionLine: Record "Requisition Line";
@@ -2432,6 +2528,18 @@ codeunit 137077 "SCM Supply Planning -IV"
         CertifyRouting(RoutingHeader);
 
         UpdateItemRoutingNo(Item, RoutingHeader."No.");
+    end;
+
+    local procedure CreateRouting(var RoutingHeader: Record "Routing Header")
+    var
+        RoutingLine: Record "Routing Line";
+        WorkCenter: Record "Work Center";
+    begin
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        CreateRoutingLine(RoutingLine, RoutingHeader, WorkCenter."No.");
+        CertifyRouting(RoutingHeader);
     end;
 
     local procedure CreateRoutingSetup(var WorkCenter: Record "Work Center"; var RoutingHeader: Record "Routing Header")
@@ -3206,6 +3314,17 @@ codeunit 137077 "SCM Supply Planning -IV"
         LibraryManufacturing.CalculateMachCenterCalendar(MachineCenter[2], CalcDate('<-1W>', WorkDate), WorkDate);
     end;
 
+    local procedure UpdateSafetyLeadTimeToZeroInMfgSetup()
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+        BlankDefaultSafetyLeadTime: DateFormula;
+    begin
+        Evaluate(BlankDefaultSafetyLeadTime, '<0D>');
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Default Safety Lead Time", BlankDefaultSafetyLeadTime);
+        ManufacturingSetup.Modify(true);
+    end;
+
     local procedure VerifyItemAvailabilityByPeriod(Item: Record Item; ScheduledRcpt: Decimal; ScheduledRcpt2: Decimal; ProjAvailableBalance: Decimal)
     var
         ItemCard: TestPage "Item Card";
@@ -3458,6 +3577,23 @@ codeunit 137077 "SCM Supply Planning -IV"
             Get("Entry No.", not Positive);
             TestField("Source Type", SourceTypeFor);
             TestField("Reservation Status", "Reservation Status"::Reservation);
+        end;
+    end;
+
+    local procedure VerifyReservedQtyBetweenSources(ItemNo: Code[20]; SourceTypeFrom: Integer; SourceTypeFor: Integer; Qty: Decimal)
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        with ReservationEntry do begin
+            SetRange("Reservation Status", "Reservation Status"::Reservation);
+            SetRange("Item No.", ItemNo);
+            SetRange("Source Type", SourceTypeFrom);
+            FindFirst();
+            TestField(Quantity, Qty);
+
+            Get("Entry No.", not Positive);
+            TestField("Source Type", SourceTypeFor);
+            TestField(Quantity, -Qty);
         end;
     end;
 

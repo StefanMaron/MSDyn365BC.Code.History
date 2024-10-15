@@ -376,7 +376,6 @@ codeunit 31020 "Purchase-Post Advances"
         InsertLinks(TempAdvanceLink);
     end;
 
-    [Scope('OnPrem')]
     procedure AutoPostAdvanceInvoices()
     var
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
@@ -1369,7 +1368,7 @@ codeunit 31020 "Purchase-Post Advances"
         PurchLine.SetFilter("Qty. to Invoice", '<>0');
         IsHandled := false;
         OnBeforePostPaymentCorrection(PurchInvHeader, PurchHeader, PurchLine, TempVendLedgEntry, TempPurchAdvanceLetterHeader2, DocNoForVATCorr, InvoicedAmount, IsHandled);
-        if IsHandled then
+        if not IsHandled then
             case PurchHeader."Document Type" of
                 PurchHeader."Document Type"::Order:
                     begin
@@ -1423,7 +1422,7 @@ codeunit 31020 "Purchase-Post Advances"
         GenJnlPostLine2 := GenJnlPostLine;
     end;
 
-    local procedure PostInvLineCorrection(PurchLine: Record "Purchase Line"; PurchInvHeader: Record "Purch. Inv. Header"; var VendLedgEntry: Record "Vendor Ledger Entry"; var DocNoForVATCorr: Code[20]; var InvoicedAmount: Decimal; var TempPurchAdvanceLetterHeader2: Record "Purch. Advance Letter Header" temporary)
+    procedure PostInvLineCorrection(PurchLine: Record "Purchase Line"; PurchInvHeader: Record "Purch. Inv. Header"; var VendLedgEntry: Record "Vendor Ledger Entry"; var DocNoForVATCorr: Code[20]; var InvoicedAmount: Decimal; var TempPurchAdvanceLetterHeader2: Record "Purch. Advance Letter Header" temporary)
     var
         AdvanceLetterLineRelation: Record "Advance Letter Line Relation";
         PurchAdvanceLetterLine: Record "Purch. Advance Letter Line";
@@ -2564,7 +2563,6 @@ codeunit 31020 "Purchase-Post Advances"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure SetLetterHeader(var TempPurchAdvanceLetterHeader2: Record "Purch. Advance Letter Header" temporary)
     begin
         TempPurchAdvanceLetterHeader.Reset();
@@ -2577,7 +2575,6 @@ codeunit 31020 "Purchase-Post Advances"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure SetGenJnlPostLine(var GenJnlPostLineNew: Codeunit "Gen. Jnl.-Post Line")
     begin
         GenJnlPostLine := GenJnlPostLineNew;
@@ -3645,7 +3642,7 @@ codeunit 31020 "Purchase-Post Advances"
         end;
     end;
 
-    local procedure UnPostInvCorrGL(PurchInvHeader: Record "Purch. Inv. Header"; GenJnlLine: Record "Gen. Journal Line")
+    procedure UnPostInvCorrGL(PurchInvHeader: Record "Purch. Inv. Header"; GenJnlLine: Record "Gen. Journal Line")
     begin
         GenJnlLine."Shortcut Dimension 1 Code" := PurchInvHeader."Shortcut Dimension 1 Code";
         GenJnlLine."Shortcut Dimension 2 Code" := PurchInvHeader."Shortcut Dimension 2 Code";

@@ -2546,6 +2546,136 @@ codeunit 137271 "SCM Reservation IV"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure NoReservationDisruptedOnPostingItemReclassJournal()
+    var
+        Location: Record Location;
+        Bin: array[2] of Record Bin;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesLine: Record "Sales Line";
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Item Reclassification] [Warehouse]
+        // [SCENARIO 378280] Existing reservation is not disrupted and no warning is shown on posting item reclassification representing internal warehouse movement.
+        Initialize(false);
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Location with two bins "B1" and "B2".
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+
+        // [GIVEN] Post 10 pcs of an item to bin "B1".
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, Bin[1].Code, Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create and reserve sales order for 10 pcs.
+        CreateSalesOrderWithAutoReservation(SalesLine, Item."No.", Location.Code, Qty);
+
+        // [GIVEN] Create item reclassification line to move 10 pcs from bin "B1" to bin "B2" within the same location.
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Transfer);
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJnlLineWithNoItem(
+          ItemJournalLine, ItemJournalBatch, ItemJournalTemplate.Name, ItemJournalBatch.Name, ItemJournalLine."Entry Type"::Transfer);
+        ItemJournalLine.Validate("Item No.", Item."No.");
+        ItemJournalLine.Validate("Location Code", Location.Code);
+        ItemJournalLine.Validate("Bin Code", Bin[1].Code);
+        ItemJournalLine.Validate("New Location Code", Location.Code);
+        ItemJournalLine.Validate("New Bin Code", Bin[2].Code);
+        ItemJournalLine.Validate(Quantity, Qty);
+        ItemJournalLine.Modify(true);
+
+        // [WHEN] Post the reclassification journal.
+        LibraryVariableStorage.Enqueue(ReservationDisruptedWarningMsg);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [THEN] No confirmation message about reservation disruption is shown.
+        Assert.AreEqual(ReservationDisruptedWarningMsg, LibraryVariableStorage.DequeueText(), '');
+
+        // [THEN] The sales line remains reserved.
+        SalesLine.Find();
+        SalesLine.CalcFields("Reserved Quantity");
+        SalesLine.TestField("Reserved Quantity", Qty);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLinesPageHandler')]
+    [Scope('OnPrem')]
+    procedure SyncItemTrackingOnPartialPickWithReservedSalesLine()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Zone: Record Zone;
+        Bin: Record Bin;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ReservationEntry: Record "Reservation Entry";
+        LotNo: Code[20];
+        QtyOnHand: Decimal;
+        QtyForSale: Decimal;
+    begin
+        // [FEATURE] [Item Tracking] [Pick] [Sales]
+        // [SCENARIO 381375] Synchronize item tracking from a partial warehouse pick to a sales line that has non-specific reservation.
+        Initialize(false);
+        QtyOnHand := LibraryRandom.RandIntInRange(50, 100);
+        QtyForSale := LibraryRandom.RandIntInRange(10, 20);
+        LotNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Location set up for directed put-away and pick.
+        LibraryWarehouse.CreateFullWMSLocation(Location, 2);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+        LibraryWarehouse.FindZone(Zone, Location.Code, LibraryWarehouse.SelectBinType(false, false, true, true), false);
+        LibraryWarehouse.FindBin(Bin, Location.Code, Zone.Code, 1);
+
+        // [GIVEN] Lot-tracked item.
+        // [GIVEN] Post 50 pcs to the inventory.
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', CreateItemTrackingCode(false, true));
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(QtyOnHand);
+        LibraryWarehouse.UpdateInventoryInBinUsingWhseJournal(Bin, Item."No.", QtyOnHand, true);
+
+        // [GIVEN] Sales order for 50 pcs but only 10 pcs are reserved from the inventory.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", QtyForSale, Location.Code, WorkDate());
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+        SalesLine.Validate(Quantity, QtyOnHand);
+        SalesLine.Modify(true);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Create shipment and pick for the sales order.
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        WarehouseShipmentHeader.SetRange("Location Code", Location.Code);
+        WarehouseShipmentHeader.FindLast();
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+
+        // [GIVEN] Set lot no. = "L" and "Qty. to Handle" = 10 on the pick lines.
+        UpdateLotAndQtyToHandleOnPickLine(WarehouseActivityLine, WarehouseActivityLine."Action Type"::Take, Item."No.", LotNo, QtyForSale);
+        UpdateLotAndQtyToHandleOnPickLine(WarehouseActivityLine, WarehouseActivityLine."Action Type"::Place, Item."No.", LotNo, QtyForSale);
+
+        // [WHEN] Register the warehouse pick.
+        WarehouseActivityHeader.Get(WarehouseActivityHeader.Type::Pick, WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [GIVEN] 10 pcs with lot "L" are reserved for the sales line.
+        ReservationEntry.SetRange("Lot No.", LotNo);
+        FindReservationEntry(ReservationEntry, Item."No.", DATABASE::"Sales Line", ReservationEntry."Reservation Status"::Reservation);
+        ReservationEntry.CalcSums(Quantity);
+        ReservationEntry.TestField(Quantity, -QtyForSale);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize(Enable: Boolean)
     var
         InventorySetup: Record "Inventory Setup";
@@ -3537,6 +3667,16 @@ codeunit 137271 "SCM Reservation IV"
         LibraryVariableStorage.Enqueue(TrackingOption::UpdateQuantityBase); // Enqueue value for ItemTrackingLinesPageHandler.
         LibraryVariableStorage.Enqueue(Qty); // Enqueue value for ItemTrackingLinesPageHandler.
         PurchaseLine.OpenItemTrackingLines();
+    end;
+
+    local procedure UpdateLotAndQtyToHandleOnPickLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActionType: Option; ItemNo: Code[20]; LotNo: Code[20]; QtyToHandle: Decimal)
+    begin
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        WarehouseActivityLine.SetRange("Action Type", ActionType);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.Validate("Lot No.", LotNo);
+        WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
+        WarehouseActivityLine.Modify(true);
     end;
 
     local procedure VerifyBlankLotNoInReservationEntries(SourceType: Integer; SourceSubtype: Option; SourceID: Code[20])

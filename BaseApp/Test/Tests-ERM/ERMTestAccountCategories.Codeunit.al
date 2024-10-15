@@ -14,6 +14,7 @@ codeunit 134444 "ERM Test Account Categories"
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         ExpectedAccSchedName: Code[10];
         IsInitialized: Boolean;
         MoreThanOneLineErr: Label 'Account schedule %1 must have more than one line.', Comment = '%1 - account schedule name';
@@ -98,6 +99,8 @@ codeunit 134444 "ERM Test Account Categories"
         // [THEN] G/L Account with blank "No." wasn't inserted
         GLAccount.SetRange("No.", '');
         Assert.RecordIsEmpty(GLAccount);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -126,6 +129,8 @@ codeunit 134444 "ERM Test Account Categories"
         // [THEN] G/L Account with blank "No." wasn't inserted
         GLAccount.SetRange("No.", '');
         Assert.RecordIsEmpty(GLAccount);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]

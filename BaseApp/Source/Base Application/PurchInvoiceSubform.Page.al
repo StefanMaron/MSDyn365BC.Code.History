@@ -1187,7 +1187,7 @@ page 55 "Purch. Invoice Subform"
         TypeAsText: Text[30];
         ItemChargeStyleExpression: Text;
         SuppressTotals: Boolean;
-		[InDataSet]
+        [InDataSet]
         ItemReferenceVisible: Boolean;
 
     protected var
@@ -1236,8 +1236,14 @@ page 55 "Purch. Invoice Subform"
     end;
 
     procedure InsertExtendedText(Unconditionally: Boolean)
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeInsertExtendedText(Rec);
+        IsHandled := false;
+        OnBeforeInsertExtendedText(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if TransferExtendedText.PurchCheckIfAnyExtText(Rec, Unconditionally) then begin
             CurrPage.SaveRecord();
             TransferExtendedText.InsertPurchExtText(Rec);
@@ -1400,7 +1406,7 @@ page 55 "Purch. Invoice Subform"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertExtendedText(var PurchaseLine: Record "Purchase Line")
+    local procedure OnBeforeInsertExtendedText(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 

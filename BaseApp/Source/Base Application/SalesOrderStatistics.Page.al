@@ -1,4 +1,4 @@
-page 402 "Sales Order Statistics"
+﻿page 402 "Sales Order Statistics"
 {
     Caption = 'Sales Order Statistics';
     DeleteAllowed = false;
@@ -922,6 +922,7 @@ page 402 "Sales Order Statistics"
             Clear(TempSalesLine);
             Clear(SalesPost);
             SalesPost.GetSalesLines(Rec, TempSalesLine, i - 1, false);
+            OnRefreshOnAfterGetRecordOnAfterGetSalesLines(Rec, TempSalesLine);
             Clear(SalesPost);
             case i of
                 1:
@@ -1461,6 +1462,11 @@ page 402 "Sales Order Statistics"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckAllowInvDisc(SalesHeader: Record "Sales Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRefreshOnAfterGetRecordOnAfterGetSalesLines(SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary)
     begin
     end;
 }

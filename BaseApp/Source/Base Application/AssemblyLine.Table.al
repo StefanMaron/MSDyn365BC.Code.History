@@ -830,10 +830,16 @@
         end;
     end;
 
-    procedure UpdateAvailWarning(): Boolean
+    procedure UpdateAvailWarning() Result: Boolean
     var
         ItemCheckAvail: Codeunit "Item-Check Avail.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateAvailWarning(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         "Avail. Warning" := false;
         if Type = Type::Item then
             "Avail. Warning" := ItemCheckAvail.AsmOrderLineShowWarning(Rec);
@@ -1350,6 +1356,7 @@
         PeriodType: Option Day,Week,Month,Quarter,Year;
         LookaheadDateFormula: DateFormula;
     begin
+        OnBeforeCalcAvailQuantities(Rec);
         SetItemFilter(Item);
         AvailableInventory := AvailableToPromise.CalcAvailableInventory(Item);
         ScheduledReceipt := AvailableToPromise.CalcScheduledReceipt(Item);
@@ -1857,6 +1864,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcAvailQuantities(var AssemblyLine: Record "Assembly Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyFromItem(var AssemblyLine: Record "Assembly Line")
     begin
     end;
@@ -1868,6 +1880,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowReservation(var AssemblyLine: Record "Assembly Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateAvailWarning(var AssemblyLine: Record "Assembly Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
