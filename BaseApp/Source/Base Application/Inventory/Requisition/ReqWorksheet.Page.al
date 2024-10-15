@@ -610,7 +610,14 @@ page 291 "Req. Worksheet"
                     ToolTip = 'Use a batch job to help you calculate a supply plan for items and stockkeeping units that have the Replenishment System field set to Purchase or Transfer.';
 
                     trigger OnAction()
+                    var
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeCalculatePlan(Rec, IsHandled);
+                        if IsHandled then
+                            exit;
+
                         CalculatePlan.SetTemplAndWorksheet(Rec."Worksheet Template Name", Rec."Journal Batch Name");
                         OnCalculatePlanOnBeforeCalculatePlanRunModal(CalculatePlan, Rec);
                         CalculatePlan.RunModal();
@@ -1060,6 +1067,11 @@ page 291 "Req. Worksheet"
 
     [IntegrationEvent(false, false)]
     local procedure OnActionGetSalesOrdersOnBeforeGetSalesOrderRunModal(var GetSalesOrder: Report "Get Sales Orders"; var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculatePlan(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
 }

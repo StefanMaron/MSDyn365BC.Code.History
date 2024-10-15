@@ -85,6 +85,11 @@ page 1355 "Posted Sales Inv. - Update"
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the document number that replaces the canceled one. It is required when the cancellation reason is 01.';
                 }
+                field("Fiscal Invoice Number PAC"; Rec."Fiscal Invoice Number PAC")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the official invoice number for the related electronic document. When you generate an electronic document, Business Central sends it to a an authorized service provider, PAC, for processing. When the PAC returns the electronic document with the digital stamp, the electronic document includes a fiscal invoice number that uniquely identifies the document.';
+                }
             }
         }
     }
@@ -115,7 +120,8 @@ page 1355 "Posted Sales Inv. - Update"
           (Rec."Company Bank Account Code" <> xSalesInvoiceHeader."Company Bank Account Code") or
           (Rec."CFDI Cancellation Reason Code" <> xSalesInvoiceHeader."CFDI Cancellation Reason Code") or
           (Rec."Substitution Document No." <> xSalesInvoiceHeader."Substitution Document No.") or
-          (Rec."Posting Description" <> xSalesInvoiceHeader."Posting Description");
+          (Rec."Posting Description" <> xSalesInvoiceHeader."Posting Description") or
+          (Rec."Fiscal Invoice Number PAC" <> xSalesInvoiceHeader."Fiscal Invoice Number PAC");
 
         OnAfterRecordChanged(Rec, xSalesInvoiceHeader, IsChanged);
     end;

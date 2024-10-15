@@ -908,7 +908,6 @@ table 112 "Sales Invoice Header"
         field(10042; "Fiscal Invoice Number PAC"; Text[50])
         {
             Caption = 'Fiscal Invoice Number PAC';
-            Editable = false;
         }
         field(10043; "Date/Time First Req. Sent"; Text[50])
         {

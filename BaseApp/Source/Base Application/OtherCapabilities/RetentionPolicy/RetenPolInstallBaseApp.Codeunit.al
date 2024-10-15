@@ -7,6 +7,8 @@ using Microsoft.Foundation.Company;
 using Microsoft.Purchases.Archive;
 using Microsoft.Sales.Archive;
 using Microsoft.Utilities;
+using Microsoft.Warehouse.Activity.History;
+using Microsoft.Warehouse.History;
 using System.Upgrade;
 using System.Diagnostics;
 using System.Automation;
@@ -84,11 +86,20 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
                 UpgradeTag.SetUpgradeTag(GetRetenPolProtectedChangeLogUpgradeTag());
         end;
 
-        IsInitialSetup := not UpgradeTag.HasUpgradeTag(GetRetenPolSentNotifcationEntryUpgradeTag());
+        IsInitialSetup := not UpgradeTag.HasUpgradeTag(GetRetenPolPostedWhseTablesUpgradeTag());
         if IsInitialSetup or ForceUpdate then begin
-            AddSentNotifcationEntryToAllowedTables();
+            AddRegisteredWhseActivityHdrToAllowedTables(IsInitialSetup);
+            AddPostedWhseShipmentHeaderToAllowedTables(IsInitialSetup);
+            AddPostedWhseReceiptHeaderToAllowedTables();
             if IsInitialSetup then
-                UpgradeTag.SetUpgradeTag(GetRetenPolSentNotifcationEntryUpgradeTag());
+                UpgradeTag.SetUpgradeTag(GetRetenPolPostedWhseTablesUpgradeTag());
+
+            IsInitialSetup := not UpgradeTag.HasUpgradeTag(GetRetenPolSentNotifcationEntryUpgradeTag());
+            if IsInitialSetup or ForceUpdate then begin
+                AddSentNotifcationEntryToAllowedTables();
+                if IsInitialSetup then
+                    UpgradeTag.SetUpgradeTag(GetRetenPolSentNotifcationEntryUpgradeTag());
+            end;
         end;
     end;
 
@@ -124,6 +135,51 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
 
         RetentionPolicySetup.Validate("Table Id", Database::"Change Log Entry");
         RetentionPolicySetup.Insert(true);
+    end;
+
+    local procedure AddRegisteredWhseActivityHdrToAllowedTables(IsInitialSetup: Boolean)
+    var
+        RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr.";
+        RetenPolAllowedTables: Codeunit "Reten. Pol. Allowed Tables";
+    begin
+        RetenPolAllowedTables.AddAllowedTable(Database::"Registered Whse. Activity Hdr.", RegisteredWhseActivityHdr.FieldNo("Registering Date"));
+
+        if not IsInitialSetup then
+            exit;
+
+        CreateRetentionPolicySetup(Database::"Registered Whse. Activity Hdr.", FindOrCreateRetentionPeriod(Enum::"Retention Period Enum"::"1 Year"));
+    end;
+
+    local procedure AddPostedWhseShipmentHeaderToAllowedTables(IsInitialSetup: Boolean)
+    var
+        PostedWhseShipmentHeader: Record "Posted Whse. Shipment Header";
+        RetenPolAllowedTables: Codeunit "Reten. Pol. Allowed Tables";
+    begin
+
+        RetenPolAllowedTables.AddAllowedTable(Database::"Posted Whse. Shipment Header", PostedWhseShipmentHeader.FieldNo("Posting Date"));
+
+        if not IsInitialSetup then
+            exit;
+
+        CreateRetentionPolicySetup(Database::"Posted Whse. Shipment Header", FindOrCreateRetentionPeriod(Enum::"Retention Period Enum"::"1 Year"));
+    end;
+
+    local procedure AddPostedWhseReceiptHeaderToAllowedTables()
+    var
+        PostedWhseReceiptHeader: Record "Posted Whse. Receipt Header";
+        RetenPolAllowedTables: Codeunit "Reten. Pol. Allowed Tables";
+        RecRef: RecordRef;
+        RetentionPeriod: Enum "Retention Period Enum";
+        TableFilters: JsonArray;
+    begin
+        PostedWhseReceiptHeader.SetRange("Document Status", PostedWhseReceiptHeader."Document Status"::"Partially Put Away");
+        RecRef.GetTable(PostedWhseReceiptHeader);
+        RetenPolAllowedTables.AddTableFilterToJsonArray(TableFilters, RetentionPeriod::"Never Delete", PostedWhseReceiptHeader.FieldNo("Posting Date"), true, true, RecRef);  // locked
+        PostedWhseReceiptHeader.Reset();
+        PostedWhseReceiptHeader.SetRange("Document Status", PostedWhseReceiptHeader."Document Status"::"Completely Put Away");
+        RecRef.GetTable(PostedWhseReceiptHeader);
+        RetenPolAllowedTables.AddTableFilterToJsonArray(TableFilters, RetentionPeriod::"1 Year", PostedWhseReceiptHeader.FieldNo("Posting Date"), true, false, RecRef);  // not locked
+        RetenPolAllowedTables.AddAllowedTable(Database::"Posted Whse. Receipt Header", PostedWhseReceiptHeader.FieldNo("Posting Date"), TableFilters);
     end;
 
     local procedure AddDocumentArchiveTablesToAllowedTables()
@@ -211,7 +267,7 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
         if not (JobQueueEntry.ReadPermission() and JobQueueEntry.WritePermission()) then
             exit;
 
-        if not JobQueueEntry.TryCheckRequiredPermissions() then
+        if not JobQueueEntry.HasRequiredPermissions() then
             exit;
 
         if not RetentionPolicySetup.Get(TableId) then
@@ -244,6 +300,11 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
     local procedure GetRetenPolProtectedChangeLogUpgradeTag(): Code[250]
     begin
         exit('MS-447066-RetenPolProtectedChangeLog-20221003');
+    end;
+
+    local procedure GetRetenPolPostedWhseTablesUpgradeTag(): Code[250]
+    begin
+        exit('MS-GIT-9-RetenPolPostedWhseTables-20230823');
     end;
 
     local procedure GetRetenPolSentNotifcationEntryUpgradeTag(): Code[250]

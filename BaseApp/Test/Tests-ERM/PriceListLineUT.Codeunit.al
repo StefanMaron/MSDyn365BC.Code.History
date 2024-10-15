@@ -745,7 +745,7 @@ codeunit 134123 "Price List Line UT"
         // [WHEN] Set "Source Type" as "Customer" in Price list header
         PriceListLine.Validate("Source Type", "Price Source Type"::Customer);
         // [THEN] "Amount Type" is 'Price'
-        PriceListLine.TestField("Amount Type", "Price Amount Type"::Price);
+        PriceListLine.TestField("Amount Type", "Price Amount Type"::Any);
     end;
 
     [Test]

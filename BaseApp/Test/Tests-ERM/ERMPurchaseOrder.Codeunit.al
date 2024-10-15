@@ -8098,6 +8098,44 @@
         PurchaseOrderPage."Remit-to Post Code".AssertEquals(RemitAddress."Post Code");
     end;
 
+    [Test]
+    [HandlerFunctions('VendorLookupHandler,ConfirmHandlerYesNo')]
+    [Scope('OnPrem')]
+    procedure VerifyNewPurchaseOrderWithLookUpPayToVendorNameOnPreviousOrderNotChangingBuyFromVendor()
+    var
+        BuyFromVendor: Record Vendor;
+        PayToVendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseOrder: TestPage "Purchase Order";
+        PayToOptions: Option "Default (Vendor)","Another Vendor";
+    begin
+        // [SCENARIO 487985] If you enter the Vendor Name directly in a new Purchase Order, the vendor selected in a previous lookup on the Pay-to Vendor field is taken instead of the vendor entered.
+        Initialize();
+
+        // [GIVEN] Create Vendors and Purchase Order 
+        BuyFromVendor.Get(CreateVendor());
+        PayToVendor.Get(CreateVendor());
+        LibraryVariableStorage.Enqueue(PayToVendor."No.");
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, BuyFromVendor."No.");
+        LibraryVariableStorage.Enqueue(true);
+
+        // [GIVEN] Open Purchase Order page
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.GotoRecord(PurchaseHeader);
+
+        // [THEN] Pick another Pay-to vendor using Lookup
+        PurchaseOrder.PayToOptions.SetValue(PayToOptions::"Another Vendor");
+        PurchaseOrder."Pay-to Name".Lookup();
+
+        // [GIVEN] Create New Purchase Order without closing the page
+        PurchaseOrder.New();
+        PurchaseOrder."Buy-from Vendor Name".SetValue(BuyFromVendor.Name);
+
+        // [VERIFY] Verify: When set Buy-from Vendor Name directly not changed the Buy-from Vendor
+        PurchaseOrder."Buy-from Vendor No.".AssertEquals(BuyFromVendor."No.");
+        PurchaseOrder.Close();
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -11816,5 +11854,13 @@
         LineNo := LibraryVariableStorage.DequeueInteger();
         GetReceiptLines.GotoKey(DocumentNo, LineNo);
         GetReceiptLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure VendorLookupHandler(var VendorLookup: TestPage "Vendor Lookup")
+    begin
+        VendorLookup.GotoKey(LibraryVariableStorage.DequeueText());
+        VendorLookup.OK().Invoke();
     end;
 }

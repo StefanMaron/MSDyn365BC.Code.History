@@ -178,8 +178,7 @@ table 7005 "Price Source"
         foreach AmountTypeInt in AmountType.Ordinals() do begin
             AmountType := "Price Amount Type".FromInteger(AmountTypeInt);
             if IsForAmountType(AmountType) then
-                if AmountType <> AmountType::Any then
-                    exit;
+                exit(GetAmountType());
         end;
     end;
 
@@ -309,7 +308,14 @@ table 7005 "Price Source"
 
     // Should be a method in Price Source Interface
     local procedure PriceSourceInterfaceVerifyDate()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePriceSourceInterfaceVerifyDate(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Source Type" = "Source Type"::Campaign then
             Error(CampaignDateErr);
     end;
@@ -320,6 +326,17 @@ table 7005 "Price Source"
             "Filter Source No." := "Parent Source No."
         else
             "Filter Source No." := "Source No."
+    end;
+
+    local procedure GetAmountType() AmountType: Enum "Price Amount Type"
+    begin
+        if "Source Type" = "Source Type"::"Customer Disc. Group" then
+            exit(AmountType::Discount);
+
+        if "Source Type" = "Source Type"::"Customer Price Group" then
+            exit(AmountType::Price);
+
+        exit(AmountType::Any);
     end;
 
     [IntegrationEvent(false, false)]
@@ -339,6 +356,11 @@ table 7005 "Price Source"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDefaultAmountType(PriceSource: Record "Price Source"; var AmountType: Enum "Price Amount Type"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePriceSourceInterfaceVerifyDate(PriceSource: Record "Price Source"; var IsHandled: Boolean)
     begin
     end;
 }

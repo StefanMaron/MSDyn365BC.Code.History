@@ -73,6 +73,11 @@ codeunit 137153 "SCM Warehouse - Journal"
         WrongLocationCodeErr: Label 'Wrong location name is added to the filter of a line.';
         WhseJournalBatchDefaultNameTxt: Label 'DEFAULT';
         DirectedWhseLocationErr: Label 'You cannot use %1 %2 because it is set up with %3.\Adjustments to this location must therefore be made in a Warehouse Item Journal.', Comment = '%1: Location Table Caption, %2: Location Code, %3: Location Field Caption';
+        OnlyOneWarehouseJournalLineShouldBeCreatedErr: Label 'Only One Warehouse Jorunal Line should be created.';
+        SerialNoMustMatchErr: Label 'Serial No. must match.';
+        LotNoMustMatchErr: Label 'Lot No. must match.';
+        LotNoMustBeBlankErr: Label 'Lot No. must be blank.';
+        SerialNoMustBeBlankErr: Label 'Serial No. must be blank.';
 
     [Test]
     [HandlerFunctions('WhseItemTrackingLinesHandler,ConfirmHandler')]
@@ -3653,6 +3658,330 @@ codeunit 137153 "SCM Warehouse - Journal"
         BinContentPage."Bin Code".AssertEquals('');
     end;
 
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLinesSerialNoPageHandler,DummyConfirmHandler,DummyMessageHandler,WhseCalculateInventoryRequestPageHandler2')]
+    [Scope('OnPrem')]
+    procedure CalculateInventoryShouldGiveNoErrorWhenEnterLotNoInPickForOnlySerialTrackedItem()
+    var
+        Item: Record Item;
+        Bin: Record Bin;
+        Zone: Record Zone;
+        Location: Record Location;
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        WhseEmployee: Record "Warehouse Employee";
+        ItemTrackingCode: Record "Item Tracking Code";
+        WhseJournalTemplate: Record "Warehouse Journal Template";
+        WhseJournalBatch: Record "Warehouse Journal Batch";
+        WhseJournalLine: Record "Warehouse Journal Line";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WhseShipmentHeader: Record "Warehouse Shipment Header";
+        WhseActivityHeader: Record "Warehouse Activity Header";
+        WhseActivityLine: Record "Warehouse Activity Line";
+        WhsePhysInvtJournal: TestPage "Whse. Phys. Invt. Journal";
+        SerialNo: Code[50];
+        SerialNo2: Code[50];
+        LotNo: Code[50];
+    begin
+        // [SCENARIO 481693] Adding a Lot No. to Warehouse Pick for a Serial Tracked Item causes error when Calculate Inventory in Warehouse Physical Inventory Jrl when that Serial Number is no longer there: “Qty. (Phys. Inventory) must be 0 or 1 for an Item tracked by SN
+        Initialize();
+
+        // [GIVEN] Create an Item Tracking Code with Serial Tracking.
+        CreateItemTrackingCode(ItemTrackingCode, true, false);
+
+        // [GIVEN] Create an Item & Validate Item Tracking Code & Serial Nos.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        Item.Modify(true);
+
+        // [GIVEN] Create Location with Warehouse Employee Setup.
+        CreateLocationWithWarehouseEmployeeSetup(Location, WhseEmployee);
+
+        // [GIVEN] Create a Zone for Location White.
+        LibraryWarehouse.CreateZone(
+            Zone,
+            Zone.Code,
+            Location.Code,
+            LibraryWarehouse.SelectBinType(false, false, true, true),
+            '',
+            '',
+            0,
+            false);
+
+        // [GIVEN] Create a Bin for Location White.
+        LibraryWarehouse.CreateBin(Bin, Location.Code, Bin.Code, Zone.Code, Zone."Bin Type Code");
+
+        // [GIVEN] Generate & save Serial No in a Variable.
+        SerialNo := Format(LibraryRandom.RandText(5));
+
+        // [GIVEN] Generate & save Serial No 2 in a Variable.
+        SerialNo2 := Format(LibraryRandom.RandText(5));
+
+        // [GIVEN] Generate & save Lot No in a Variable.
+        LotNo := Format(LibraryRandom.RandText(5));
+
+        // [GIVEN] Create Warehouse Journal Setup.
+        LibraryWarehouse.WarehouseJournalSetup(Location.Code, WhseJournalTemplate, WhseJournalBatch);
+
+        // [GIVEN] Create Warehouse Item Journal Line with Item Tracking for Serial No.
+        CreateWhseJournalLineWithSerialTracking(WhseJournalBatch, Bin, Item."No.", LibraryRandom.RandInt(0), SerialNo, WorkDate());
+
+        // [GIVEN] Register Warehouse Item Journal Line.
+        LibraryWarehouse.RegisterWhseJournalLine(WhseJournalTemplate.Name, WhseJournalBatch.Name, Location.Code, false);
+
+        // [GIVEN] Create Item Journal to Calculate Warehouse Adjustment.
+        CreateItemJournalToCalculateWhseAdjustment(ItemJournalTemplate, ItemJournalBatch, Item);
+
+        // [GIVEN] Create a Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create and Release Sales Order.
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Customer."No.", Item."No.", Location.Code);
+
+        // [GIVEN] Create Warehouse Shipment from Sales Order.
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [GIVEN] Find Warehouse Shipment Header.
+        WhseShipmentHeader.Get(
+            LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
+                DATABASE::"Sales Line",
+                SalesHeader."Document Type".AsInteger(),
+                SalesHeader."No."));
+
+        // [GIVEN] Create Warehouse Pick.
+        LibraryWarehouse.CreatePick(WhseShipmentHeader);
+
+        // [GIVEN] Assign Serial No, Lot No & Qty to Handle in Warehouse Activity Lines.
+        AssignSerialNoLotNoAndQtyToHandleInWhseActivityLines(WhseActivityLine, Item."No.", SerialNo, LotNo);
+
+        // [GIVEN] Find Warehouse Activity Header.
+        WhseActivityHeader.Get(WhseActivityHeader.Type::Pick, WhseActivityLine."No.");
+
+        // [GIVEN] Register Warehouse Pick.
+        LibraryWarehouse.RegisterWhseActivity(WhseActivityHeader);
+
+        // [GIVEN] Post Warehouse Shipment.
+        LibraryWarehouse.PostWhseShipment(WhseShipmentHeader, false);
+
+        // [GIVEN] Open Warehouse Physical Inventory Journal Page & Calculate Inventory.
+        CalculateInventoryFromWhsePhysInvJournalPage(Location.Code, Item."No.");
+
+        // [WHEN] Find Warehouse Journal Line.
+        WhseJournalLine.SetRange("Item No.", Item."No.");
+
+        // [VERIFY] Verify No Warehouse Journal Line has been created.
+        asserterror WhseJournalLine.FindFirst();
+
+        // [GIVEN] Create Warehouse Item Journal Line with Item Tracking for Serial No 2.
+        CreateWhseJournalLineWithSerialTracking(WhseJournalBatch, Bin, Item."No.", LibraryRandom.RandInt(0), SerialNo2, WorkDate());
+
+        // [GIVEN] Register Warehouse Item Journal Line.
+        LibraryWarehouse.RegisterWhseJournalLine(WhseJournalTemplate.Name, WhseJournalBatch.Name, Location.Code, false);
+
+        // [GIVEN] Create Item Journal to Calculate Warehouse Adjustment.
+        CreateItemJournalToCalculateWhseAdjustment(ItemJournalTemplate, ItemJournalBatch, Item);
+
+        // [GIVEN] Open Warehouse Physical Inventory Journal Page & Calculate Inventory.
+        CalculateInventoryFromWhsePhysInvJournalPage(Location.Code, Item."No.");
+
+        // [WHEN] Find Warehouse Journal Line.
+        WhseJournalLine.SetRange("Item No.", Item."No.");
+        WhseJournalLine.FindSet();
+
+        // [VERIFY] Verify that Calculate Inventory pulls only one Warehouse Journal Line.
+        Assert.AreEqual(LibraryRandom.RandInt(0), WhseJournalLine.Count(), OnlyOneWarehouseJournalLineShouldBeCreatedErr);
+
+        // [VERIFY] Verify that created Warehouse Journal Line has Serial No 2 & Lot No is blank.
+        Assert.AreEqual(SerialNo2, WhseJournalLine."Serial No.", SerialNoMustMatchErr);
+        Assert.AreEqual('', WhseJournalLine."Lot No.", LotNoMustBeBlankErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLinesLotNoPageHandler,DummyConfirmHandler,DummyMessageHandler,WhseCalculateInventoryRequestPageHandler2')]
+    [Scope('OnPrem')]
+    procedure CalculateInventoryShouldGiveNoErrorWhenEnterSerialNoInPickForOnlyLotTrackedItem()
+    var
+        Item: Record Item;
+        Bin: Record Bin;
+        Zone: Record Zone;
+        Location: Record Location;
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        WhseEmployee: Record "Warehouse Employee";
+        ItemTrackingCode: Record "Item Tracking Code";
+        WhseJournalTemplate: Record "Warehouse Journal Template";
+        WhseJournalBatch: Record "Warehouse Journal Batch";
+        WhseJournalLine: Record "Warehouse Journal Line";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WhseShipmentHeader: Record "Warehouse Shipment Header";
+        WhseActivityHeader: Record "Warehouse Activity Header";
+        WhseActivityLine: Record "Warehouse Activity Line";
+        WhsePhysInvtJournal: TestPage "Whse. Phys. Invt. Journal";
+        SerialNo: Code[50];
+        LotNo: Code[50];
+        LotNo2: Code[50];
+    begin
+        // [SCENARIO 481693] Adding a Lot No. to Warehouse Pick for a Serial Tracked Item causes error when Calculate Inventory in Warehouse Physical Inventory Jrl when that Serial Number is no longer there: “Qty. (Phys. Inventory) must be 0 or 1 for an Item tracked by SN
+        Initialize();
+
+        // [GIVEN] Create an Item Tracking Code with Lot Tracking.
+        CreateItemTrackingCode(ItemTrackingCode, false, true);
+
+        // [GIVEN] Create an Item & Validate Item Tracking Code & Serial Nos.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        Item.Modify(true);
+
+        // [GIVEN] Create Location with Warehouse Employee Setup.
+        CreateLocationWithWarehouseEmployeeSetup(Location, WhseEmployee);
+
+        // [GIVEN] Create a Zone for Location White.
+        LibraryWarehouse.CreateZone(
+            Zone,
+            Zone.Code,
+            Location.Code,
+            LibraryWarehouse.SelectBinType(false, false, true, true),
+            '',
+            '',
+            0,
+            false);
+
+        // [GIVEN] Create a Bin for Location White.
+        LibraryWarehouse.CreateBin(Bin, Location.Code, Bin.Code, Zone.Code, Zone."Bin Type Code");
+
+        // [GIVEN] Generate & save Serial No in a Variable.
+        SerialNo := Format(LibraryRandom.RandText(5));
+
+        // [GIVEN] Generate & save Lot No in a Variable.
+        LotNo := Format(LibraryRandom.RandText(5));
+
+        // [GIVEN] Generate & save Lot No 2 in a Variable.
+        LotNo2 := Format(LibraryRandom.RandText(5));
+
+        // [GIVEN] Create Warehouse Journal Setup.
+        LibraryWarehouse.WarehouseJournalSetup(Location.Code, WhseJournalTemplate, WhseJournalBatch);
+
+        // [GIVEN] Create Warehouse Item Journal Line with Item Tracking for Lot No.
+        CreateWhseJournalLineWithLotTracking(WhseJournalBatch, Bin, Item."No.", LibraryRandom.RandInt(0), LotNo, WorkDate());
+
+        // [GIVEN] Register Warehouse Item Journal Line.
+        LibraryWarehouse.RegisterWhseJournalLine(WhseJournalTemplate.Name, WhseJournalBatch.Name, Location.Code, false);
+
+        // [GIVEN] Create Item Journal to Calculate Warehouse Adjustment.
+        CreateItemJournalToCalculateWhseAdjustment(ItemJournalTemplate, ItemJournalBatch, Item);
+
+        // [GIVEN] Create a Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create and Release Sales Order.
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Customer."No.", Item."No.", Location.Code);
+
+        // [GIVEN] Create Warehouse Shipment from Sales Order.
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [GIVEN] Find Warehouse Shipment Header.
+        WhseShipmentHeader.Get(
+            LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
+                DATABASE::"Sales Line",
+                SalesHeader."Document Type".AsInteger(),
+                SalesHeader."No."));
+
+        // [GIVEN] Create Warehouse Pick.
+        LibraryWarehouse.CreatePick(WhseShipmentHeader);
+
+        // [GIVEN] Assign Serial No, Lot No & Qty to Handle in Warehouse Activity Lines.
+        AssignSerialNoLotNoAndQtyToHandleInWhseActivityLines(WhseActivityLine, Item."No.", SerialNo, LotNo);
+
+        // [GIVEN] Find Warehouse Activity Header.
+        WhseActivityHeader.SetRange("No.", WhseActivityLine."No.");
+        WhseActivityHeader.FindFirst();
+
+        // [GIVEN] Register Warehouse Pick.
+        LibraryWarehouse.RegisterWhseActivity(WhseActivityHeader);
+
+        // [GIVEN] Post Warehouse Shipment.
+        LibraryWarehouse.PostWhseShipment(WhseShipmentHeader, false);
+
+        // [GIVEN] Open Warehouse Physical Inventory Journal Page & Calculate Inventory.
+        CalculateInventoryFromWhsePhysInvJournalPage(Location.Code, Item."No.");
+
+        // [WHEN] Find Warehouse Journal Line.
+        WhseJournalLine.SetRange("Item No.", Item."No.");
+
+        // [VERIFY] Verify No Warehouse Journal Line has been created.
+        asserterror WhseJournalLine.FindFirst();
+
+        // [GIVEN] Create Warehouse Item Journal Line with Item Tracking for Lot No 2.
+        CreateWhseJournalLineWithLotTracking(WhseJournalBatch, Bin, Item."No.", LibraryRandom.RandInt(0), LotNo2, WorkDate());
+
+        // [GIVEN] Register Warehouse Item Journal Line.
+        LibraryWarehouse.RegisterWhseJournalLine(WhseJournalTemplate.Name, WhseJournalBatch.Name, Location.Code, false);
+
+        // [GIVEN] Create Item Journal to Calculate Warehouse Adjustment.
+        CreateItemJournalToCalculateWhseAdjustment(ItemJournalTemplate, ItemJournalBatch, Item);
+
+        // [GIVEN] Open Warehouse Physical Inventory Journal Page & Calculate Inventory.
+        CalculateInventoryFromWhsePhysInvJournalPage(Location.Code, Item."No.");
+
+        // [WHEN] Find Warehouse Journal Line.
+        WhseJournalLine.SetRange("Item No.", Item."No.");
+        WhseJournalLine.FindSet();
+
+        // [VERIFY] Verify that Calculate Inventory pulls only one Warehouse Journal Line.
+        Assert.AreEqual(LibraryRandom.RandInt(0), WhseJournalLine.Count(), OnlyOneWarehouseJournalLineShouldBeCreatedErr);
+
+        // [VERIFY] Verify that created Warehouse Journal Line has Lot No 2 & Serial No is blank.
+        Assert.AreEqual(LotNo2, WhseJournalLine."Lot No.", LotNoMustMatchErr);
+        Assert.AreEqual('', WhseJournalLine."Serial No.", SerialNoMustBeBlankErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLinesPageHandlerWithLotsAndExpirationDate,DummyConfirmHandler,DummyMessageHandler,WhseJournalBatchesListHandler,WhseCalculateInventoryRequestPageHandler')]
+    procedure VerifyWarehousePhysicalJournalLinesForWarehouseEntriesWithLotAndExpirationDateTracking()
+    var
+        Bin: Record Bin;
+        Item: Record Item;
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+        ItemTrackingCode: Record "Item Tracking Code";
+        WhsePhysInvtJournal: TestPage "Whse. Phys. Invt. Journal";
+        ExpirationDate: Date;
+    begin
+        // [SCENARIO 489308] There is no validation for Lot Number with Expiration on Warehouse Physical Journal when manually entered with quantity, which leads to a Lot Number with multiple Expiration Dates in the warehouse.
+        Initialize();
+
+        // [GIVEN] Set Direct Put-away and Pick to false, except Location White
+        SetDirectPutAwayOnLocation();
+
+        // [GIVEN] Create Item Tracking Item
+        CreateItemTrackingCode(ItemTrackingCode);
+        LibraryInventory.CreateTrackedItem(Item, '', '', ItemTrackingCode.Code);
+
+        // [GIVEN] Enter Tracking Information (Lot No., Package No., Qty., Expiration Date)
+        ExpirationDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
+        EnterTrackingInfoWithExpirationDate(1, 1, 1, ExpirationDate);
+
+        // [GIVEN] Create Bin for PICK Zone
+        CreateBinForPickZone(Bin, LocationWhite.Code);
+
+        // [GIVEN] Create and Register Warehouse Journal Line
+        CreateAndRegisterWarehouseJournalLineWithExpirationDate(WarehouseJournalLine, Bin."Location Code", Bin."Zone Code", Bin.Code, Item."No.", 1);
+
+        // [GIVEN] Calculate and Post Warehouse Adjustment
+        CalculateAndPostWhseAdjustment(Item);
+
+        // [WHEN] Calculate Inventory on Warehouse Physical Journal
+        CalculateInventoryOnWhsePhysInvtJournalPage(WhsePhysInvtJournal, false, Item."No.", Bin."Zone Code", Bin.Code);
+
+        // [THEN] Verify Warehouse Physical Journal Line
+        VerifyExpirationDateOnWarehousePhysicalJournalLine(Bin."Zone Code", Bin.Code, Item."No.", Format(1), ExpirationDate);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6161,6 +6490,219 @@ codeunit 137153 "SCM Warehouse - Journal"
         ItemTrackingCode.Modify(true);
     end;
 
+    local procedure CreateWhseJournalLineWithSerialTracking(
+          WarehouseJournalBatch: Record "Warehouse Journal Batch";
+          Bin: Record Bin;
+          ItemNo: Code[20];
+          Qty: Decimal;
+          SerialNo: Code[50];
+          ExpirationDate: Date)
+    var
+        WhseJournalLine: Record "Warehouse Journal Line";
+        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
+    begin
+        LibraryWarehouse.CreateWhseJournalLine(
+            WhseJournalLine,
+            WarehouseJournalBatch."Journal Template Name",
+            WarehouseJournalBatch.Name,
+            Bin."Location Code",
+            Bin."Zone Code",
+            Bin.Code,
+            WhseJournalLine."Entry Type"::"Positive Adjmt.",
+            ItemNo,
+            Qty);
+
+        LibraryVariableStorage.Enqueue(SerialNo);
+        LibraryVariableStorage.Enqueue(Qty);
+        WhseJournalLine.OpenItemTrackingLines();
+
+        WhseItemTrackingLine.SetRange("Serial No.", SerialNo);
+        WhseItemTrackingLine.FindFirst();
+        WhseItemTrackingLine.Validate("Expiration Date", ExpirationDate);
+        WhseItemTrackingLine.Modify(true);
+    end;
+
+    local procedure CreateWhseJournalLineWithLotTracking(
+        WarehouseJournalBatch: Record "Warehouse Journal Batch";
+        Bin: Record Bin;
+        ItemNo: Code[20];
+        Qty: Decimal;
+        LotNo: Code[50];
+        ExpirationDate: Date)
+    var
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
+    begin
+        LibraryWarehouse.CreateWhseJournalLine(
+            WarehouseJournalLine,
+            WarehouseJournalBatch."Journal Template Name",
+            WarehouseJournalBatch.Name,
+            Bin."Location Code",
+            Bin."Zone Code",
+            Bin.Code,
+            WarehouseJournalLine."Entry Type"::"Positive Adjmt.",
+            ItemNo,
+            Qty);
+
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Qty);
+        WarehouseJournalLine.OpenItemTrackingLines();
+
+        WhseItemTrackingLine.SetRange("Lot No.", LotNo);
+        WhseItemTrackingLine.FindFirst();
+        WhseItemTrackingLine.Validate("Expiration Date", ExpirationDate);
+        WhseItemTrackingLine.Modify(true);
+    end;
+
+    local procedure CreateItemJournalToCalculateWhseAdjustment(
+        var ItemJournalTemplate: Record "Item Journal Template";
+        var ItemJournalBatch: Record "Item Journal Batch";
+        var Item: Record Item)
+    begin
+        LibraryInventory.CreateItemJournalTemplate(ItemJournalTemplate);
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
+        AssignNoSeriesForItemJournalBatch(ItemJournalBatch, LibraryUtility.GetGlobalNoSeriesCode);
+        LibraryWarehouse.CalculateWhseAdjustment(Item, ItemJournalBatch);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure AssignNoSeriesForItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; NoSeries: Code[20])
+    begin
+        ItemJournalBatch.Find();
+        ItemJournalBatch.Validate("No. Series", NoSeries);
+        ItemJournalBatch.Modify(true);
+    end;
+
+    local procedure CreateAndReleaseSalesOrder(
+        var SalesHeader: Record "Sales Header";
+        var SalesLine: Record "Sales Line";
+        CustomerNo: Code[20];
+        ItemNo: Code[20];
+        LocationCode: Code[10])
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(0));
+        SalesLine.Validate("Location Code", LocationCode);
+        SalesLine.Modify(true);
+
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+    end;
+
+    local procedure AssignSerialNoLotNoAndQtyToHandleInWhseActivityLines(
+        var WhseActivityLine: Record "Warehouse Activity Line";
+        ItemNo: Code[20];
+        SerialNo: Code[50];
+        LotNo: Code[50])
+    begin
+        WhseActivityLine.SetRange("Item No.", ItemNo);
+        WhseActivityLine.SetRange("Action Type", WhseActivityLine."Action Type"::Take);
+        WhseActivityLine.FindFirst();
+        WhseActivityLine.Validate("Serial No.", SerialNo);
+        WhseActivityLine.Validate("Lot No.", LotNo);
+        WhseActivityLine.Validate("Qty. to Handle", LibraryRandom.RandInt(0));
+        WhseActivityLine.Modify(true);
+
+        WhseActivityLine.SetRange("Item No.", ItemNo);
+        WhseActivityLine.SetRange("Action Type", WhseActivityLine."Action Type"::Place);
+        WhseActivityLine.FindFirst();
+        WhseActivityLine.Validate("Serial No.", SerialNo);
+        WhseActivityLine.Validate("Lot No.", LotNo);
+        WhseActivityLine.Validate("Qty. to Handle", LibraryRandom.RandInt(0));
+        WhseActivityLine.Modify(true);
+    end;
+
+    local procedure CreateLocationWithWarehouseEmployeeSetup(var Location: Record Location; var WarehouseEmployee: Record "Warehouse Employee")
+    begin
+        WarehouseEmployee.DeleteAll(true);
+        LibraryWarehouse.CreateFullWMSLocation(Location, 2);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+    end;
+
+    local procedure CalculateInventoryFromWhsePhysInvJournalPage(LocationCode: Code[10]; ItemNo: Code[20])
+    var
+        WhsePhysInvtJournal: TestPage "Whse. Phys. Invt. Journal";
+    begin
+        WhsePhysInvtJournal.OpenEdit();
+        LibraryVariableStorage.Enqueue(LocationCode);
+        LibraryVariableStorage.Enqueue(ItemNo);
+        WhsePhysInvtJournal."Calculate &Inventory".Invoke();
+        WhsePhysInvtJournal.Close();
+    end;
+
+    local procedure EnterTrackingInfoWithExpirationDate(
+        LotNo: Integer;
+        PackageNo: Integer;
+        Qty: Integer; ExpDate: Date)
+    begin
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(PackageNo);
+        LibraryVariableStorage.Enqueue(Qty);
+        LibraryVariableStorage.Enqueue(ExpDate);
+    end;
+
+    local procedure CreateAndRegisterWarehouseJournalLineWithExpirationDate(
+        var WarehouseJournalLine: Record "Warehouse Journal Line";
+        LocationCode: Code[10];
+        ZoneCode: Code[10];
+        BinCode: Code[20];
+        ItemNo: Code[20];
+        Qty: Decimal)
+    var
+        WarehouseJournalBatch: Record "Warehouse Journal Batch";
+        WarehouseJournalTemplate: Record "Warehouse Journal Template";
+    begin
+        LibraryWarehouse.CreateWarehouseJournalBatch(
+            WarehouseJournalBatch,
+            WarehouseJournalTemplate.Type::Item,
+            LocationCode);
+
+        LibraryWarehouse.CreateWhseJournalLine(
+            WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name,
+            LocationCode, ZoneCode, BinCode, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Qty);
+
+        WarehouseJournalLine.OpenItemTrackingLines();
+
+        UpdateExpirationDateOnWhseItemTrackingLine(LocationCode, ItemNo);
+
+        LibraryWarehouse.RegisterWhseJournalLine(
+            WarehouseJournalBatch."Journal Template Name",
+            WarehouseJournalBatch.Name,
+            LocationCode,
+            false);
+    end;
+
+    local procedure UpdateExpirationDateOnWhseItemTrackingLine(LocationCode: Code[10]; ItemNo: Code[20])
+    var
+        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
+    begin
+        WhseItemTrackingLine.SetRange("Location Code", LocationCode);
+        WhseItemTrackingLine.SetRange("Item No.", ItemNo);
+        WhseItemTrackingLine.FindFirst();
+        WhseItemTrackingLine.Validate("Expiration Date", LibraryVariableStorage.DequeueDate());
+        WhseItemTrackingLine.Modify(true);
+    end;
+
+    local procedure VerifyExpirationDateOnWarehousePhysicalJournalLine(
+        ZoneCode: Code[10];
+        BinCode: Code[20];
+        ItemNo: Code[20];
+        LotNo: Code[50];
+        ExpDate: Date)
+    var
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+    begin
+        WarehouseJournalLine.SetRange("Zone Code", ZoneCode);
+        WarehouseJournalLine.SetRange("Bin Code", BinCode);
+        WarehouseJournalLine.SetRange("Item No.", ItemNo);
+        WarehouseJournalLine.SetRange("Lot No.", LotNo);
+        WarehouseJournalLine.FindFirst();
+
+        WarehouseJournalLine.Validate("Lot No.", '');
+        Assert.IsTrue((WarehouseJournalLine."Expiration Date" = 0D), '');
+        WarehouseJournalLine.Validate("Lot No.", LotNo);
+        Assert.IsTrue((WarehouseJournalLine."Expiration Date" = ExpDate), '');
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
@@ -6552,6 +7094,23 @@ codeunit 137153 "SCM Warehouse - Journal"
         WhseCalculateInventory.OK.Invoke;
     end;
 
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure WhseCalculateInventoryRequestPageHandler2(var WhseCalculateInventory: TestRequestPage "Whse. Calculate Inventory")
+    var
+        ItemNo: Variant;
+        LocationCode: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(LocationCode);
+        LibraryVariableStorage.Dequeue(ItemNo);
+        WhseCalculateInventory.RegisteringDate.SetValue(WorkDate());
+        WhseCalculateInventory.WhseDocumentNo.SetValue(LibraryUtility.GetGlobalNoSeriesCode());
+        WhseCalculateInventory.ZeroQty.SetValue(false);
+        WhseCalculateInventory."Bin Content".SetFilter("location Code", LocationCode);
+        WhseCalculateInventory."Bin Content".SetFilter("Item No.", ItemNo);
+        WhseCalculateInventory.OK().Invoke();
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
@@ -6586,6 +7145,35 @@ codeunit 137153 "SCM Warehouse - Journal"
     procedure PostProductionJournalHandler(var ProductionJournal: TestPage "Production Journal")
     begin
         ProductionJournal.Post.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure WhseItemTrackingLinesSerialNoPageHandler(var WhseItemTrackingLines: TestPage "Whse. Item Tracking Lines")
+    begin
+        WhseItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText());
+        WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal());
+        WhseItemTrackingLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure WhseItemTrackingLinesLotNoPageHandler(var WhseItemTrackingLines: TestPage "Whse. Item Tracking Lines")
+    begin
+        WhseItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal());
+        WhseItemTrackingLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure WhseItemTrackingLinesPageHandlerWithLotsAndExpirationDate(var WhseItemTrackingLines: TestPage "Whse. Item Tracking Lines")
+    begin
+        WhseItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueInteger());
+        WhseItemTrackingLines."Package No.".SetValue(LibraryVariableStorage.DequeueInteger());
+        WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueInteger());
+
+        WhseItemTrackingLines.OK().Invoke();
     end;
 }
 

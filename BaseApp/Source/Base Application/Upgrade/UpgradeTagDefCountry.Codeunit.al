@@ -18,6 +18,7 @@
         PerCompanyUpgradeTags.Add(GetPACWebServiceDetailsUpgradeTag());
         PerCompanyUpgradeTags.Add(GetSCTPermissionNoUpgradeTag());
         PerCompanyUpgradeTags.Add(GetSATAddressUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetDataExchDefinitionTypeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]

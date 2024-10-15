@@ -1,4 +1,5 @@
 namespace System.Integration.PowerBI;
+using System.Telemetry;
 
 page 6323 "Power BI Element Card"
 {
@@ -122,6 +123,7 @@ page 6323 "Power BI Element Card"
     var
         PowerBIDisplayedElement: Record "Power BI Displayed Element";
         PowerBIServiceMgt: Codeunit "Power BI Service Mgt.";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         HasError: Boolean;
         ErrorMessageText: Text;
         UnsupportedElementTypeErr: Label 'Displaying Power BI elements of type %1 is currently not supported.', Comment = '%1 = an element type, such as Report or Workspace';
@@ -186,6 +188,8 @@ page 6323 "Power BI Element Card"
                 else
                     ShowError(StrSubstNo(UnsupportedElementTypeErr, PowerBIDisplayedElement.ElementType));
             end;
+
+        FeatureTelemetry.LogUsage('0000LSN', PowerBIServiceMgt.GetPowerBiFeatureTelemetryName(), 'Power BI element loaded', PowerBIDisplayedElement.GetTelemetryDimensions());
 
         CurrPage.Update();
     end;
