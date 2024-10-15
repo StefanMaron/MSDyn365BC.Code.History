@@ -637,6 +637,10 @@
             Caption = 'Remit-to Code';
             TableRelation = "Remit Address".Code WHERE("Vendor No." = FIELD("Vendor No."));
         }
+        field(10701; "VAT Reporting Date"; Date) 
+        {
+            Caption = 'VAT Date';
+        }
         field(10702; "Generated Autodocument"; Boolean)
         {
             Caption = 'Generated Autodocument';
@@ -1057,6 +1061,7 @@
         "Do Not Send To SII" := GenJnlLine."Do Not Send To SII";
         if (GenJnlLine."Remit-to Code" <> '') then
             "Remit-to Code" := GenJnlLine."Remit-to Code";
+        "VAT Reporting Date" := GenJnlLine."VAT Reporting Date";
 
         OnAfterCopyVendLedgerEntryFromGenJnlLine(Rec, GenJnlLine);
     end;

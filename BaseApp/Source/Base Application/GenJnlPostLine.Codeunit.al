@@ -2234,6 +2234,8 @@
                         VATBaseAddCurr := Round(CalcLCYToAddCurr(VATBase), AddCurrency."Amount Rounding Precision");
                         PmtDiscAddCurr2 := PmtDiscAddCurr2 + VATBaseAddCurr;
 
+                        OnCalcPmtDiscIfAdjVATOnAfterCalcPmtDiscVATBases(VATEntry2, OldCVLedgEntryBuf, VATBase, VATBaseAddCurr, PmtDiscLCY2, PmtDiscAddCurr2);
+
                         DtldCVLedgEntryBuf2.Init();
                         DtldCVLedgEntryBuf2."Posting Date" := GenJnlLine."Posting Date";
                         DtldCVLedgEntryBuf2."Document Type" := GenJnlLine."Document Type";
@@ -2264,6 +2266,8 @@
                     CalcPmtDiscVATAmounts(
                         VATEntry2, VATBase, VATBaseAddCurr, VATAmount, VATAmountAddCurr,
                         PmtDiscRounding, PmtDiscFactorLCY, PmtDiscLCY2, PmtDiscAddCurr2);
+                    OnCalcPmtDiscIfAdjVATOnAfterCalcPmtDiscVATAmounts(
+                        VATEntry2, OldCVLedgEntryBuf, VATBase, VATBaseAddCurr, VATAmount, VATAmountAddCurr, PmtDiscLCY2, PmtDiscAddCurr2);
 
                     TotalVATAmount := TotalVATAmount + VATAmount;
 
@@ -2296,6 +2300,8 @@
                 InsertSummarizedVAT(GenJnlLine);
             end;
         end;
+
+        OnAfterCalcPmtDiscIfAdjVAT(NewCVLedgEntryBuf, OldCVLedgEntryBuf, DtldCVLedgEntryBuf, GenJnlLine, PmtDiscLCY2, PmtDiscAddCurr2);
     end;
 
     local procedure CalcPmtDiscTolerance(var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf2: Record "CV Ledger Entry Buffer"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; GenJnlLine: Record "Gen. Journal Line"; NextTransactionNo: Integer; FirstNewVATEntryNo: Integer)
@@ -2918,6 +2924,7 @@
         with DtldCustLedgEntry do begin
             Init();
             TransferFields(DtldCVLedgEntryBuf);
+            "VAT Reporting Date" := GenJnlLine."VAT Reporting Date";
             "Entry No." := Offset + DtldCVLedgEntryBuf."Entry No.";
             "Journal Batch Name" := GenJnlLine."Journal Batch Name";
             "Reason Code" := GenJnlLine."Reason Code";
@@ -2943,6 +2950,7 @@
         with DtldVendLedgEntry do begin
             Init();
             TransferFields(DtldCVLedgEntryBuf);
+            "VAT Reporting Date" := GenJnlLine."VAT Reporting Date";
             "Entry No." := Offset + DtldCVLedgEntryBuf."Entry No.";
             "Journal Batch Name" := GenJnlLine."Journal Batch Name";
             "Reason Code" := GenJnlLine."Reason Code";
@@ -3099,7 +3107,7 @@
             OnApplyCustLedgEntryOnBeforeTempOldCustLedgEntryDelete(TempOldCustLedgEntry, NewCVLedgEntryBuf, GenJnlLine, Cust, NextEntryNo, GLReg, AppliedAmount, OldCVLedgEntryBuf);
             TempOldCustLedgEntry.Delete();
 
-            OnApplyCustLedgerEntryOnBeforeSetCompleted(GenJnlLine, OldCustLedgEntry, NewCVLedgEntryBuf);
+            OnApplyCustLedgerEntryOnBeforeSetCompleted(GenJnlLine, OldCustLedgEntry, NewCVLedgEntryBuf, AppliedAmount);
 
             Completed := FindNextOldCustLedgEntryToApply(GenJnlLine, TempOldCustLedgEntry, NewCVLedgEntryBuf);
         until Completed;
@@ -5815,6 +5823,7 @@
         with NewDtldCustLedgEntry do begin
             "Entry No." := NextDtldLedgEntryNo;
             "Posting Date" := GenJnlLine."Posting Date";
+            "VAT Reporting Date" := GenJnlLine."VAT Reporting Date";
             "Transaction No." := NextTransactionNo;
             "Application No." := 0;
             Amount := -OldDtldCustLedgEntry.Amount;
@@ -5843,6 +5852,7 @@
         with NewDtldVendLedgEntry do begin
             "Entry No." := NextDtldLedgEntryNo;
             "Posting Date" := GenJnlLine."Posting Date";
+            "VAT Reporting Date" := GenJnlLine."VAT Reporting Date";
             "Transaction No." := NextTransactionNo;
             "Application No." := 0;
             Amount := -OldDtldVendLedgEntry.Amount;
@@ -8772,6 +8782,21 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCalcPmtDiscIfAdjVATOnAfterCalcPmtDiscVATBases(var VATEntry: Record "VAT Entry"; var OldCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var VATBase: Decimal; var VATBaseAddCurr: Decimal; var PmtDiscLCY2: Decimal; var PmtDiscAddCurr2: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcPmtDiscIfAdjVATOnAfterCalcPmtDiscVATAmounts(var VATEntry: Record "VAT Entry"; var OldCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var VATBase: Decimal; var VATBaseAddCurr: Decimal; var VATAmount: Decimal; var VATAmountAddCurr: Decimal; var PmtDiscLCY2: Decimal; var PmtDiscAddCurr2: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcPmtDiscIfAdjVAT(var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; GenJnlLine: Record "Gen. Journal Line"; var PmtDiscLCY2: Decimal; var PmtDiscAddCurr2: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCalcToleratedPaymentExceedsLiability(var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf2: Record "CV Ledger Entry Buffer"; var MinimalPossibleLiability: Decimal; var ToleratedPaymentExceedsLiability: Boolean; var PmtTolAmtToBeApplied: Decimal)
     begin
     end;
@@ -9026,7 +9051,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnApplyCustLedgerEntryOnBeforeSetCompleted(var GenJournalLine: Record "Gen. Journal Line"; var OldCustLedgEntry: Record "Cust. Ledger Entry"; var NewCVLedgerEntryBuffer: Record "CV Ledger Entry Buffer")
+    local procedure OnApplyCustLedgerEntryOnBeforeSetCompleted(var GenJournalLine: Record "Gen. Journal Line"; var OldCustLedgEntry: Record "Cust. Ledger Entry"; var NewCVLedgerEntryBuffer: Record "CV Ledger Entry Buffer"; AppliedAmount: Decimal)
     begin
     end;
 

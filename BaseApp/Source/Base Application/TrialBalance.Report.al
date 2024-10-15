@@ -93,6 +93,9 @@
             column(TotalCaption; TotalCaptionLbl)
             {
             }
+            column(G_L_Account_Balance; Balance)
+            {
+            }
             dataitem("Integer"; "Integer")
             {
                 DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));

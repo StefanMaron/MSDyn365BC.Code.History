@@ -721,7 +721,7 @@
         PostSettlement: Boolean;
 
 #if not CLEAN21
-    [Obsolete('Replaced By InitializeRequest(NewStartDate: Date; NewEndDate: Date; VATDateType: Enum "VAT Date Type"; NewPostingDate: Date; NewDocNo: Code[20]; NewSettlementAcc: Code[20]; ShowVATEntries: Boolean; Post: Boolean)', '21.0')]
+    [Obsolete('Replaced By InitializeRequest(NewStartDate: Date; NewEndDate: Date; NewVATDateType: Enum "VAT Date Type"; NewPostingDate: Date; NewDocNo: Code[20]; NewSettlementAcc: Code[20]; ShowVATEntries: Boolean; Post: Boolean)', '21.0')]
     procedure InitializeRequest(NewStartDate: Date; NewEndDate: Date; NewPostingDate: Date; NewDocNo: Code[20]; NewSettlementAcc: Code[20]; ShowVATEntries: Boolean; Post: Boolean)
     begin
         EntrdStartDate := NewStartDate;
@@ -736,12 +736,12 @@
     end;
 #endif
 
-    procedure InitializeRequest(NewStartDate: Date; NewEndDate: Date; VATDateType: Enum "VAT Date Type"; NewPostingDate: Date; NewDocNo: Code[20]; NewSettlementAcc: Code[20]; ShowVATEntries: Boolean; Post: Boolean)
+    procedure InitializeRequest(NewStartDate: Date; NewEndDate: Date; NewVATDateType: Enum "VAT Date Type"; NewPostingDate: Date; NewDocNo: Code[20]; NewSettlementAcc: Code[20]; ShowVATEntries: Boolean; Post: Boolean)
     begin
         EntrdStartDate := NewStartDate;
         EnteredEndDate := NewEndDate;
         PostingDate := NewPostingDate;
-        VATDateType := VATDateType;
+        VATDateType := NewVATDateType;
         DocNo := NewDocNo;
         GLAccSettle."No." := NewSettlementAcc;
         PrintVATEntries := ShowVATEntries;

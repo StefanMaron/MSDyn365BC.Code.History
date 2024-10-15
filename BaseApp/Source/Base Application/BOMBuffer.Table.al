@@ -961,6 +961,7 @@ table 5870 "BOM Buffer"
         "Unit Cost" := 0;
         if "Qty. per Top Item" <> 0 then
             "Unit Cost" := Round("Total Cost" / "Qty. per Top Item", 0.00001);
+        OnAfterCalcUnitCost(Rec);
     end;
 
     local procedure CalcQtyPerParentFromProdRouting(RoutingLine: Record "Routing Line"; var RunTimeQty: Decimal; var SetupWaitMoveTimeQty: Decimal)
@@ -1010,10 +1011,16 @@ table 5870 "BOM Buffer"
           Round(SetupWaitMoveTimeQty / CalendarMgt.TimeFactor("Unit of Measure Code"), WorkCenter."Calendar Rounding Precision");
     end;
 
-    local procedure IsLowLevelOk(LogWarning: Boolean; var BOMWarningLog: Record "BOM Warning Log"): Boolean
+    local procedure IsLowLevelOk(LogWarning: Boolean; var BOMWarningLog: Record "BOM Warning Log") Result: Boolean
     var
         Item: Record Item;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsLowLevelOk(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if Type <> Type::Item then
             exit(true);
         if "No." = '' then
@@ -1152,10 +1159,16 @@ table 5870 "BOM Buffer"
         end;
     end;
 
-    local procedure IsBOMOk(LogWarning: Boolean; var BOMWarningLog: Record "BOM Warning Log"): Boolean
+    local procedure IsBOMOk(LogWarning: Boolean; var BOMWarningLog: Record "BOM Warning Log") Result: Boolean
     var
         Item: Record Item;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsBOMOk(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if Type <> Type::Item then
             exit(true);
         if "No." = '' then
@@ -1229,6 +1242,11 @@ table 5870 "BOM Buffer"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcUnitCost(BOMBuffer: Record "BOM Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetItemCosts(var BOMBuffer: Record "BOM Buffer"; Item: Record Item);
     begin
     end;
@@ -1270,6 +1288,16 @@ table 5870 "BOM Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitFromItem(var BOMBuffer: Record "BOM Buffer"; Item: Record Item; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsBOMOk(var BOMBuffer: Record "BOM Buffer"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsLowLevelOk(var BOMBuffer: Record "BOM Buffer"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

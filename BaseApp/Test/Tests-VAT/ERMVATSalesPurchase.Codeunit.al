@@ -34,6 +34,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         RoundingEntryErr: Label 'Rounding Entry must exist for Sales Document No.: %1.', Comment = '.';
         TooManyValuableSalesEntriesErr: Label 'Too many valuable Sales Lines found.', Comment = '.';
         TooManyValuablePurchaseEntriesErr: Label 'Too many valuable Purchase Lines found.', Comment = '.';
+        VATDateNotChangedErr: Label 'VAT Return Period is closed for the selected date. Please select another date.';
 
     [Test]
     [Scope('OnPrem')]
@@ -3270,9 +3271,9 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     procedure TestVATDateAdjustedOnVATEntryOnSalesInvHeader()
     var
         SalesInvHeader: Record "Sales Invoice Header";
-        DocNr: Code[20];
+        DocNo: Code[20];
         VATDate, NewVATDate: Date;
-        VATEntryNr: Integer;
+        VATEntryNo: Integer;
         DocType: Enum "Gen. Journal Document Type";
         PostType: Enum "General Posting Type";
     begin
@@ -3283,22 +3284,24 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [WHEN] Posting sales invoice 
         DocType := Enum::"Gen. Journal Document Type"::Invoice;
         PostType := Enum::"General Posting Type"::Sale;
-        DocNr := CreateAndPostSalesDoc(0D, DocType);
-        SalesInvHeader.Get(DocNr);
+        DocNo := CreateAndPostSalesDoc(0D, DocType);
+        SalesInvHeader.Get(DocNo);
 
         // [THEN] Verify that VAT is set on related docs
         VATDate := SalesInvHeader."VAT Reporting Date";
-        VATEntryNr := VerifyVATEntry(DocNr, DocType, PostType, VATDate);
-        VerifyGLEntry(DocNr, DocType, PostType, VATDate);
+        VATEntryNo := VerifyVATEntry(DocNo, DocType, PostType, VATDate);
+        VerifyGLEntry(DocNo, DocType, PostType, VATDate);
+        VerifyCustLedgerEntry(DocNo, DocType, VATDate);
 
         // [WHEN] Adjusting VAT Date
         NewVATDate := VATDate + 1;
-        CorrectVATDateAndVerifyChange(VATEntryNr, NewVATDate);
+        CorrectVATDateAndVerifyChange(VATEntryNo, NewVATDate);
 
         // [THEN] Verify Update on related docs
-        VerifyVATEntry(DocNr, DocType, PostType, NewVATDate);
-        VerifyGLEntry(DocNr, DocType, PostType, NewVATDate);
-        SalesInvHeader.Get(DocNr);
+        VerifyVATEntry(DocNo, DocType, PostType, NewVATDate);
+        VerifyGLEntry(DocNo, DocType, PostType, NewVATDate);
+        VerifyCustLedgerEntry(DocNo, DocType, NewVATDate);
+        SalesInvHeader.Get(DocNo);
         Assert.AreEqual(NewVATDate, SalesInvHeader."VAT Reporting Date", VATDateOnRecordErr);
     end;
 
@@ -3306,9 +3309,9 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     procedure TestVATDateAdjustedOnVATEntryOnPurchInvHeader()
     var
         PurchInvHeader: Record "Purch. Inv. Header";
-        DocNr: Code[20];
+        DocNo: Code[20];
         VATDate, NewVATDate: Date;
-        VATEntryNr: Integer;
+        VATEntryNo: Integer;
         DocType: Enum "Gen. Journal Document Type";
         PostType: Enum "General Posting Type";
     begin
@@ -3319,22 +3322,24 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [WHEN] Posting purchase invoice 
         DocType := Enum::"Gen. Journal Document Type"::Invoice;
         PostType := Enum::"General Posting Type"::Purchase;
-        DocNr := CreateAndPostPurchDoc(0D, DocType);
-        PurchInvHeader.Get(DocNr);
+        DocNo := CreateAndPostPurchDoc(0D, DocType);
+        PurchInvHeader.Get(DocNo);
 
         // [THEN] Verify that VAT is set on related docs
         VATDate := PurchInvHeader."VAT Reporting Date";
-        VATEntryNr := VerifyVATEntry(DocNr, DocType, PostType, VATDate);
-        VerifyGLEntry(DocNr, DocType, PostType, VATDate);
+        VATEntryNo := VerifyVATEntry(DocNo, DocType, PostType, VATDate);
+        VerifyGLEntry(DocNo, DocType, PostType, VATDate);
+        VerifyVendorLedgerEntry(DocNo, DocType, VATDate);
 
         // [WHEN] Adjusting VAT Date
         NewVATDate := VATDate + 1;
-        CorrectVATDateAndVerifyChange(VATEntryNr, NewVATDate);
+        CorrectVATDateAndVerifyChange(VATEntryNo, NewVATDate);
 
         // [THEN] Verify Update on related docs
-        VerifyVATEntry(DocNr, DocType, PostType, NewVATDate);
-        VerifyGLEntry(DocNr, DocType, PostType, NewVATDate);
-        PurchInvHeader.Get(DocNr);
+        VerifyVATEntry(DocNo, DocType, PostType, NewVATDate);
+        VerifyGLEntry(DocNo, DocType, PostType, NewVATDate);
+        VerifyVendorLedgerEntry(DocNo, DocType, NewVATDate);
+        PurchInvHeader.Get(DocNo);
         Assert.AreEqual(NewVATDate, PurchInvHeader."VAT Reporting Date", VATDateOnRecordErr);
     end;
 
@@ -3342,9 +3347,9 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     procedure TestVATDateAdjustedOnVATEntryOnSalesCreditMemoInvHeader()
     var
         DocHeader: Record "Sales Cr.Memo Header";
-        DocNr: Code[20];
+        DocNo: Code[20];
         VATDate, NewVATDate: Date;
-        VATEntryNr: Integer;
+        VATEntryNo: Integer;
         DocType: Enum "Gen. Journal Document Type";
         PostType: Enum "General Posting Type";
     begin
@@ -3355,22 +3360,24 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [WHEN] Posting Sales Credit Memo  
         DocType := Enum::"Gen. Journal Document Type"::"Credit Memo";
         PostType := Enum::"General Posting Type"::Sale;
-        DocNr := CreateAndPostSalesDoc(0D, DocType);
-        DocHeader.Get(DocNr);
+        DocNo := CreateAndPostSalesDoc(0D, DocType);
+        DocHeader.Get(DocNo);
 
         // [THEN] Verify that VAT is set on related docs
         VATDate := DocHeader."VAT Reporting Date";
-        VATEntryNr := VerifyVATEntry(DocNr, DocType, PostType, VATDate);
-        VerifyGLEntry(DocNr, DocType, PostType, VATDate);
+        VATEntryNo := VerifyVATEntry(DocNo, DocType, PostType, VATDate);
+        VerifyGLEntry(DocNo, DocType, PostType, VATDate);
+        VerifyCustLedgerEntry(DocNo, DocType, VATDate);
 
         // [WHEN] Adjusting VAT Date
         NewVATDate := VATDate + 1;
-        CorrectVATDateAndVerifyChange(VATEntryNr, NewVATDate);
+        CorrectVATDateAndVerifyChange(VATEntryNo, NewVATDate);
 
         // [THEN] Verify Update on related docs
-        VerifyVATEntry(DocNr, DocType, PostType, NewVATDate);
-        VerifyGLEntry(DocNr, DocType, PostType, NewVATDate);
-        DocHeader.Get(DocNr);
+        VerifyVATEntry(DocNo, DocType, PostType, NewVATDate);
+        VerifyGLEntry(DocNo, DocType, PostType, NewVATDate);
+        VerifyCustLedgerEntry(DocNo, DocType, NewVATDate);
+        DocHeader.Get(DocNo);
         Assert.AreEqual(NewVATDate, DocHeader."VAT Reporting Date", VATDateOnRecordErr);
     end;
 
@@ -3378,9 +3385,9 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     procedure TestVATDateAdjustedOnVATEntryOnPurchCreditMemoInvHeader()
     var
         DocHeader: Record "Purch. Cr. Memo Hdr.";
-        DocNr: Code[20];
+        DocNo: Code[20];
         VATDate, NewVATDate: Date;
-        VATEntryNr: Integer;
+        VATEntryNo: Integer;
         DocType: Enum "Gen. Journal Document Type";
         PostType: Enum "General Posting Type";
     begin
@@ -3391,22 +3398,24 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [WHEN] Posting Purchase Credit memo  
         DocType := Enum::"Gen. Journal Document Type"::"Credit Memo";
         PostType := Enum::"General Posting Type"::Purchase;
-        DocNr := CreateAndPostPurchDoc(0D, DocType);
-        DocHeader.Get(DocNr);
+        DocNo := CreateAndPostPurchDoc(0D, DocType);
+        DocHeader.Get(DocNo);
 
         // [THEN] Verify that VAT is set on related docs
         VATDate := DocHeader."VAT Reporting Date";
-        VATEntryNr := VerifyVATEntry(DocNr, DocType, PostType, VATDate);
-        VerifyGLEntry(DocNr, DocType, PostType, VATDate);
+        VATEntryNo := VerifyVATEntry(DocNo, DocType, PostType, VATDate);
+        VerifyGLEntry(DocNo, DocType, PostType, VATDate);
+        VerifyVendorLedgerEntry(DocNo, DocType, VATDate);
 
         // [WHEN] Adjusting VAT Date
         NewVATDate := VATDate + 1;
-        CorrectVATDateAndVerifyChange(VATEntryNr, NewVATDate);
+        CorrectVATDateAndVerifyChange(VATEntryNo, NewVATDate);
 
         // [THEN] Verify Update on related docs
-        VerifyVATEntry(DocNr, DocType, PostType, NewVATDate);
-        VerifyGLEntry(DocNr, DocType, PostType, NewVATDate);
-        DocHeader.Get(DocNr);
+        VerifyVATEntry(DocNo, DocType, PostType, NewVATDate);
+        VerifyGLEntry(DocNo, DocType, PostType, NewVATDate);
+        VerifyVendorLedgerEntry(DocNo, DocType, NewVATDate);
+        DocHeader.Get(DocNo);
         Assert.AreEqual(NewVATDate, DocHeader."VAT Reporting Date", VATDateOnRecordErr);
     end;
 
@@ -3456,9 +3465,9 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     var
         DocHeader: Record "Sales Invoice Header";
         VATEntry: Record "VAT Entry";
-        DocNr: Code[20];
+        DocNo: Code[20];
         VATDate, NewVATDate : Date;
-        VATEntryNr: Integer;
+        VATEntryNo: Integer;
         DocType: Enum "Gen. Journal Document Type";
         PostType: Enum "General Posting Type";
     begin
@@ -3469,12 +3478,12 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [WHEN] Posting with Sales Invoice to generate VAT entry
         DocType := Enum::"Gen. Journal Document Type"::Invoice;
         PostType := Enum::"General Posting Type"::Sale;
-        DocNr := CreateAndPostSalesDoc(0D, DocType);
-        DocHeader.Get(DocNr);
+        DocNo := CreateAndPostSalesDoc(0D, DocType);
+        DocHeader.Get(DocNo);
 
         // [THEN] Get VAT entry and change VAT doc type
         VATEntry.Reset();
-        VATEntry.SetRange("Document No.", DocNr);
+        VATEntry.SetRange("Document No.", DocNo);
         VATEntry.SetRange("Document Type", DocType);
         VATEntry.SetRange(Type, PostType);
         VATEntry.FindFirst();
@@ -3490,9 +3499,9 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     var
         DocHeader: Record "Sales Invoice Header";
         VATEntry: Record "VAT Entry";
-        DocNr: Code[20];
+        DocNo: Code[20];
         VATDate, NewVATDate : Date;
-        VATEntryNr: Integer;
+        VATEntryNo: Integer;
         DocType: Enum "Gen. Journal Document Type";
         PostType: Enum "General Posting Type";
     begin
@@ -3503,12 +3512,12 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [WHEN] Posting with Sales Invoice to generate VAT entry
         DocType := Enum::"Gen. Journal Document Type"::Invoice;
         PostType := Enum::"General Posting Type"::Sale;
-        DocNr := CreateAndPostSalesDoc(0D, DocType);
-        DocHeader.Get(DocNr);
+        DocNo := CreateAndPostSalesDoc(0D, DocType);
+        DocHeader.Get(DocNo);
 
         // [THEN] Get VAT entry and change VAT posting type
         VATEntry.Reset();
-        VATEntry.SetRange("Document No.", DocNr);
+        VATEntry.SetRange("Document No.", DocNo);
         VATEntry.SetRange("Document Type", DocType);
         VATEntry.SetRange(Type, PostType);
         VATEntry.FindFirst();
@@ -3517,6 +3526,247 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // [THEN] No errors happen when adjusting dates
         CorrectVATDateAndVerifyChange(VATEntry."Entry No.", VATEntry."VAT Reporting Date" + 1);
+    end;
+
+    [Test]
+    procedure VATPostingDateChangeSuccessful()
+    var
+        SalesInvHeader: Record "Sales Invoice Header";
+        VATReturnPeriod: Record "VAT Return Period";
+        VATReportHeader: Record "VAT Report Header";
+        VATEntryPage: TestPage "VAT Entries";
+        DocNo: Code[20];
+        VATDate, NewVATDate : Date;
+        VATEntryNo: Integer;
+        DocType: Enum "Gen. Journal Document Type";
+        PostType: Enum "General Posting Type";
+    begin
+        // [FEATURE] [VAT]
+        // [SCENARIO 448198] Restricting VAT Date change
+        Initialize();
+
+        // [WHEN] Posting sales invoice
+        DocType := Enum::"Gen. Journal Document Type"::Invoice;
+        PostType := Enum::"General Posting Type"::Sale;
+        DocNo := CreateAndPostSalesDoc(WorkDate(), DocType);
+        SalesInvHeader.Get(DocNo);
+
+        // [WHEN] Adding VAT Return period that is Open with VAT Return Status Open
+        CreateVATReturnPeriod(VATReturnPeriod.Status::Open, VATReportHeader.Status::Open, WorkDate(), WorkDate() + 1);
+
+        // [THEN] Get VAT Entry for document
+        VATEntryNo := VerifyVATEntry(DocNo, DocType, PostType, SalesInvHeader."VAT Reporting Date");
+        NewVATDate := WorkDate() + 1;
+
+        // [WHEN] Change VAT Date to date within VAT period there is no warnings
+        VATEntryPage.OpenEdit();
+        VATEntryPage.Filter.SetFilter("Entry No.", Format(VATEntryNo));
+        VATEntryPage.First();
+        VATEntryPage."VAT Reporting Date".SetValue(NewVATDate);
+
+        Assert.AreEqual(NewVATDate, VATEntryPage."VAT Reporting Date".AsDate(), VATDateOnRecordErr);        
+    end;
+
+    [Test]
+    procedure VATPostingDateChangeFailure()
+    var
+        SalesInvHeader: Record "Sales Invoice Header";
+        VATReturnPeriod: Record "VAT Return Period";
+        VATReportHeader: Record "VAT Report Header";
+        VATEntryPage: TestPage "VAT Entries";
+        DocNo: Code[20];
+        VATDate, NewVATDate : Date;
+        VATEntryNo: Integer;
+        DocType: Enum "Gen. Journal Document Type";
+        PostType: Enum "General Posting Type";
+    begin
+        // [FEATURE] [VAT]
+        // [SCENARIO 448198] Restricting VAT Date change
+        Initialize();
+
+        // [WHEN] Posting sales invoice
+        DocType := Enum::"Gen. Journal Document Type"::Invoice;
+        PostType := Enum::"General Posting Type"::Sale;
+        DocNo := CreateAndPostSalesDoc(WorkDate(), DocType);
+        SalesInvHeader.Get(DocNo);
+
+        // [WHEN] Adding VAT Return period that is Closed with VAT Return Status Open
+        CreateVATReturnPeriod(VATReturnPeriod.Status::Closed, VATReportHeader.Status::Open, WorkDate(), WorkDate() + 1);
+
+        // [THEN] Get VAT Entry for document
+        VATEntryNo := VerifyVATEntry(DocNo, DocType, PostType, SalesInvHeader."VAT Reporting Date");
+        NewVATDate := WorkDate() + 1;
+
+        // [WHEN] Change VAT Date to date within VAT period there is no warnings
+        VATEntryPage.OpenEdit();
+        VATEntryPage.Filter.SetFilter("Entry No.", Format(VATEntryNo));
+        VATEntryPage.First();
+        asserterror VATEntryPage."VAT Reporting Date".SetValue(NewVATDate);
+        Assert.ExpectedError(VATDateNotChangedErr);
+
+        Assert.AreEqual(WorkDate(), VATEntryPage."VAT Reporting Date".AsDate(), VATDateOnRecordErr);        
+    end;
+    
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure VATPostingDateChangeWarning()
+    var
+        SalesInvHeader: Record "Sales Invoice Header";
+        VATReturnPeriod: Record "VAT Return Period";
+        VATReportHeader: Record "VAT Report Header";
+        VATEntryPage: TestPage "VAT Entries";
+        DocNo: Code[20];
+        VATDate, NewVATDate : Date;
+        VATEntryNo: Integer;
+        DocType: Enum "Gen. Journal Document Type";
+        PostType: Enum "General Posting Type";
+    begin
+        // [FEATURE] [VAT]
+        // [SCENARIO 448198] Restricting VAT Date change
+        Initialize();
+
+        // [WHEN] Posting sales invoice
+        DocType := Enum::"Gen. Journal Document Type"::Invoice;
+        PostType := Enum::"General Posting Type"::Sale;
+        DocNo := CreateAndPostSalesDoc(WorkDate(), DocType);
+        SalesInvHeader.Get(DocNo);
+
+        // [WHEN] Adding VAT Return period that is Open with VAT Return Status Submitted
+        CreateVATReturnPeriod(VATReturnPeriod.Status::Open, VATReportHeader.Status::Submitted, WorkDate(), WorkDate() + 1);
+
+        // [THEN] Get VAT Entry for document
+        VATEntryNo := VerifyVATEntry(DocNo, DocType, PostType, SalesInvHeader."VAT Reporting Date");
+        NewVATDate := WorkDate() + 1;
+
+        // [WHEN] Change VAT Date to date within VAT period there is warnings
+        VATEntryPage.OpenEdit();
+        VATEntryPage.Filter.SetFilter("Entry No.", Format(VATEntryNo));
+        VATEntryPage.First();
+        VATEntryPage."VAT Reporting Date".SetValue(NewVATDate);
+      
+        Assert.AreEqual(WorkDate() + 1, VATEntryPage."VAT Reporting Date".AsDate(), VATDateOnRecordErr);        
+    end;
+
+    
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure VATPostingDateChangeWarning2()
+    var
+        SalesInvHeader: Record "Sales Invoice Header";
+        VATReturnPeriod: Record "VAT Return Period";
+        VATReportHeader: Record "VAT Report Header";
+        VATEntryPage: TestPage "VAT Entries";
+        DocNo: Code[20];
+        VATDate, NewVATDate : Date;
+        VATEntryNo: Integer;
+        DocType: Enum "Gen. Journal Document Type";
+        PostType: Enum "General Posting Type";
+    begin
+        // [FEATURE] [VAT]
+        // [SCENARIO 448198] Restricting VAT Date change
+        Initialize();
+
+        // [WHEN] Posting sales invoice
+        DocType := Enum::"Gen. Journal Document Type"::Invoice;
+        PostType := Enum::"General Posting Type"::Sale;
+        DocNo := CreateAndPostSalesDoc(WorkDate(), DocType);
+        SalesInvHeader.Get(DocNo);
+
+        // [WHEN] Adding VAT Return period that is Open with VAT Return Status Released
+        CreateVATReturnPeriod(VATReturnPeriod.Status::Open, VATReportHeader.Status::Released, WorkDate(), WorkDate() + 1);
+
+        // [THEN] Get VAT Entry for document
+        VATEntryNo := VerifyVATEntry(DocNo, DocType, PostType, SalesInvHeader."VAT Reporting Date");
+        NewVATDate := WorkDate() + 1;
+
+        // [WHEN] Change VAT Date to date within VAT period there is warnings
+        VATEntryPage.OpenEdit();
+        VATEntryPage.Filter.SetFilter("Entry No.", Format(VATEntryNo));
+        VATEntryPage.First();
+        VATEntryPage."VAT Reporting Date".SetValue(NewVATDate);
+      
+        Assert.AreEqual(WorkDate() + 1, VATEntryPage."VAT Reporting Date".AsDate(), VATDateOnRecordErr);        
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerFalse')]
+    procedure VATPostingDateChangeWarning3()
+    var
+        SalesInvHeader: Record "Sales Invoice Header";
+        VATReturnPeriod: Record "VAT Return Period";
+        VATReportHeader: Record "VAT Report Header";
+        VATEntryPage: TestPage "VAT Entries";
+        DocNo: Code[20];
+        VATDate, NewVATDate : Date;
+        VATEntryNo: Integer;
+        DocType: Enum "Gen. Journal Document Type";
+        PostType: Enum "General Posting Type";
+    begin
+        // [FEATURE] [VAT]
+        // [SCENARIO 448198] Restricting VAT Date change
+        Initialize();
+
+        // [WHEN] Posting sales invoice
+        DocType := Enum::"Gen. Journal Document Type"::Invoice;
+        PostType := Enum::"General Posting Type"::Sale;
+        DocNo := CreateAndPostSalesDoc(WorkDate(), DocType);
+        SalesInvHeader.Get(DocNo);
+
+        // [WHEN] Adding VAT Return period that is Open with VAT Return Status Released
+        CreateVATReturnPeriod(VATReturnPeriod.Status::Open, VATReportHeader.Status::Released, WorkDate(), WorkDate() + 1);
+
+        // [THEN] Get VAT Entry for document
+        VATEntryNo := VerifyVATEntry(DocNo, DocType, PostType, SalesInvHeader."VAT Reporting Date");
+        NewVATDate := WorkDate() + 1;
+
+        // [WHEN] Change VAT Date to date within VAT period there is warnings
+        VATEntryPage.OpenEdit();
+        VATEntryPage.Filter.SetFilter("Entry No.", Format(VATEntryNo));
+        VATEntryPage.First();
+        VATEntryPage."VAT Reporting Date".SetValue(NewVATDate);
+      
+        Assert.AreEqual(WorkDate(), VATEntryPage."VAT Reporting Date".AsDate(), VATDateOnRecordErr);        
+    end;
+
+    [Test]
+    procedure VATPostingDateChangeMultiPeriodSuccessful()
+    var
+        SalesInvHeader: Record "Sales Invoice Header";
+        VATReturnPeriod: Record "VAT Return Period";
+        VATReportHeader: Record "VAT Report Header";
+        VATEntryPage: TestPage "VAT Entries";
+        DocNo: Code[20];
+        VATDate, NewVATDate : Date;
+        VATEntryNo: Integer;
+        DocType: Enum "Gen. Journal Document Type";
+        PostType: Enum "General Posting Type";
+    begin
+        // [FEATURE] [VAT]
+        // [SCENARIO 448198] Restricting VAT Date change
+        Initialize();
+
+        // [WHEN] Posting sales invoice
+        DocType := Enum::"Gen. Journal Document Type"::Invoice;
+        PostType := Enum::"General Posting Type"::Sale;
+        DocNo := CreateAndPostSalesDoc(WorkDate(), DocType);
+        SalesInvHeader.Get(DocNo);
+
+        // [WHEN] Adding VAT Return period that is Open with VAT Return Status Open
+        CreateVATReturnPeriod(VATReturnPeriod.Status::Open, VATReportHeader.Status::Open, WorkDate(), WorkDate() + 1);
+        CreateVATReturnPeriod(VATReturnPeriod.Status::Open, VATReportHeader.Status::Closed, WorkDate() + 2, WorkDate() + 3);
+
+        // [THEN] Get VAT Entry for document
+        VATEntryNo := VerifyVATEntry(DocNo, DocType, PostType, SalesInvHeader."VAT Reporting Date");
+        NewVATDate := WorkDate() + 1;
+
+        // [WHEN] Change VAT Date to date within VAT period there is no warnings
+        VATEntryPage.OpenEdit();
+        VATEntryPage.Filter.SetFilter("Entry No.", Format(VATEntryNo));
+        VATEntryPage.First();
+        VATEntryPage."VAT Reporting Date".SetValue(NewVATDate);
+      
+        Assert.AreEqual(WorkDate() + 1, VATEntryPage."VAT Reporting Date".AsDate(), VATDateOnRecordErr);        
     end;
 
     [Test]
@@ -3587,23 +3837,44 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM VAT Sales/Purchase");
     end;
 
-    local procedure CorrectVATDateAndVerifyChange(VATEntryNr: Integer; VATDate: Date)
+    local procedure CreateVATReturnPeriod(VATReturnPeriodStatus: Option; VATReportHeaderStatus: Option; StartDate: Date; EndDate: Date) 
+    var
+        VATReturnPeriod: Record "VAT Return Period";
+        VATReportHeader: Record "VAT Report Header";
+    begin
+        VATReportHeader.DeleteAll();
+        VATReportHeader."No." := 'TEST';
+        VATReportHeader."VAT Report Config. Code" := VATReportHeader."VAT Report Config. Code"::"VAT Return";
+        VATReportHeader.Status := VATReportHeaderStatus;
+        VATReportHeader.Insert();
+
+        VATReturnPeriod.DeleteAll();
+        VATReturnPeriod.Init();
+        VATReturnPeriod."No." := 'TEST';
+        VATReturnPeriod."VAT Return No." := 'TEST';
+        VATReturnPeriod."Start Date" := StartDate;
+        VATReturnPeriod."End Date" := EndDate;
+        VATReturnPeriod.Status := VATReturnPeriodStatus;
+        VATReturnPeriod.Insert();
+    end;
+
+    local procedure CorrectVATDateAndVerifyChange(VATEntryNo: Integer; VATDate: Date)
     var
         VATEntryPage: TestPage "VAT Entries";
     begin
         VATEntryPage.OpenEdit();
-        VATEntryPage.Filter.SetFilter("Entry No.", Format(VATEntryNr));
+        VATEntryPage.Filter.SetFilter("Entry No.", Format(VATEntryNo));
         VATEntryPage.First();
         VATEntryPage."VAT Reporting Date".SetValue(VATDate);
         Assert.AreEqual(VATDate, VATEntryPage."VAT Reporting Date".AsDate(), VATDateOnRecordErr);
     end;
 
-    local procedure VerifyVATEntry(DocNr: Code[20]; DocType: Enum "Gen. Journal Document Type"; Type: Enum "General Posting Type"; VATDate: Date) : Integer
+    local procedure VerifyVATEntry(DocNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; Type: Enum "General Posting Type"; VATDate: Date) : Integer
     var
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.Reset();
-        VATEntry.SetRange("Document No.", DocNr);
+        VATEntry.SetRange("Document No.", DocNo);
         VATEntry.SetRange("Document Type", DocType);
         VATEntry.SetRange(Type, Type);
         VATEntry.FindFirst();
@@ -3611,12 +3882,12 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         exit(VATEntry."Entry No.");
     end;
 
-    local procedure VerifyGLEntry(DocNr: Code[20]; DocType: Enum "Gen. Journal Document Type"; Type: Enum "General Posting Type"; VATDate: Date)
+    local procedure VerifyGLEntry(DocNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; Type: Enum "General Posting Type"; VATDate: Date)
     var
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.Reset();
-        GLEntry.SetRange("Document No.", DocNr);
+        GLEntry.SetRange("Document No.", DocNo);
         GLEntry.SetRange("Document Type", DocType);
         GLEntry.SetRange("Gen. Posting Type", Type);
         GLEntry.FindSet();
@@ -3624,6 +3895,51 @@ codeunit 134045 "ERM VAT Sales/Purchase"
             Assert.AreEqual(VATDate, GLEntry."VAT Reporting Date", VATDateOnRecordErr);
         until GLEntry.Next() = 0;
     end;
+
+    local procedure VerifyCustLedgerEntry(DocNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; VATDate: Date)
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        DetailedCustLedgerEntry: Record "Detailed Cust. Ledg. Entry";
+    begin
+        CustLedgerEntry.Reset();
+        CustLedgerEntry.SetRange("Document No.", DocNo);
+        CustLedgerEntry.SetRange("Document Type", DocType);
+        CustLedgerEntry.FindSet();
+        repeat
+            Assert.AreEqual(VATDate, CustLedgerEntry."VAT Reporting Date", VATDateOnRecordErr);
+        until CustLedgerEntry.Next() = 0;
+
+        DetailedCustLedgerEntry.Reset();
+        DetailedCustLedgerEntry.SetRange("Document No.", DocNo);
+        DetailedCustLedgerEntry.SetRange("Document Type", DocType);
+        DetailedCustLedgerEntry.FindSet();
+        repeat
+            Assert.AreEqual(VATDate, DetailedCustLedgerEntry."VAT Reporting Date", VATDateOnRecordErr);
+        until DetailedCustLedgerEntry.Next() = 0;
+    end;
+
+    local procedure VerifyVendorLedgerEntry(DocNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; VATDate: Date)
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        DetailedVendorLedgerEntry: Record "Detailed Vendor Ledg. Entry";
+    begin
+        VendorLedgerEntry.Reset();
+        VendorLedgerEntry.SetRange("Document No.", DocNo);
+        VendorLedgerEntry.SetRange("Document Type", DocType);
+        VendorLedgerEntry.FindSet();
+        repeat
+            Assert.AreEqual(VATDate, VendorLedgerEntry."VAT Reporting Date", VATDateOnRecordErr);
+        until VendorLedgerEntry.Next() = 0;
+
+        DetailedVendorLedgerEntry.Reset();
+        DetailedVendorLedgerEntry.SetRange("Document No.", DocNo);
+        DetailedVendorLedgerEntry.SetRange("Document Type", DocType);
+        DetailedVendorLedgerEntry.FindSet();
+        repeat
+            Assert.AreEqual(VATDate, DetailedVendorLedgerEntry."VAT Reporting Date", VATDateOnRecordErr);
+        until DetailedVendorLedgerEntry.Next() = 0;
+    end;
+
 
     local procedure SetupForSalesOrderAndVAT(var VATAmountLine: Record "VAT Amount Line")
     var
@@ -4643,6 +4959,20 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     procedure InvoicingVATAmountSalesOrderStatisticsHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
     begin
         SalesOrderStatistics.VATAmount_Invoicing.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+    
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerFalse(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 }
 

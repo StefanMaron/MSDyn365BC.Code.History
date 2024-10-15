@@ -622,7 +622,7 @@ codeunit 10740 "No Taxable Mgt."
     var
         NoTaxableEntry: Record "No Taxable Entry";
     begin
-        NoTaxableEntry.FilterNoTaxableEntriesForSource(
+        NoTaxableEntry.FilterNoTaxableEntriesForSourceWithVATReportingDate(
           "General Posting Type"::Sale.AsInteger(), CustomerNo, "Gen. Journal Document Type"::Invoice.AsInteger(),
           FromDate, ToDate, FilterString);
         if NoTaxableEntry.IsEmpty() then
@@ -655,7 +655,7 @@ codeunit 10740 "No Taxable Mgt."
     var
         NoTaxableEntry: Record "No Taxable Entry";
     begin
-        NoTaxableEntry.FilterNoTaxableEntriesForSource(
+        NoTaxableEntry.FilterNoTaxableEntriesForSourceWithVATReportingDate(
           "General Posting Type"::Purchase.AsInteger(), VendorNo, "Gen. Journal Document Type"::Invoice.AsInteger(),
           FromDate, ToDate, FilterString);
         if NoTaxableEntry.IsEmpty() then

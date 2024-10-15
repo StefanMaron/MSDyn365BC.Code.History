@@ -44,7 +44,10 @@ report 10704 "Sales Invoice Book"
             column(ShowAutoInvCred; ShowAutoInvCred)
             {
             }
-            column(SortPostDate; SortPostDate)
+            column(SortVATDate; SortVATDate)
+            {
+            }
+            column(SortPostDate; SortVATDate)
             {
             }
             column(AuxVatEntry; AuxVatEntry)
@@ -66,6 +69,9 @@ report 10704 "Sales Invoice Book"
             {
             }
             column(Posting_DateCaption; Posting_DateCaptionLbl)
+            {
+            }
+            column(VAT_DateCaption; VAT_DateCaptionLbl)
             {
             }
             column(External_Document_No_Caption; External_Document_No_CaptionLbl)
@@ -97,8 +103,8 @@ report 10704 "Sales Invoice Book"
             }
             dataitem(VATEntry; "VAT Entry")
             {
-                DataItemTableView = SORTING("No. Series", "Posting Date") WHERE(Type = CONST(Sale));
-                RequestFilterFields = "Posting Date", "Document Type", "Document No.";
+                DataItemTableView = SORTING("No. Series", "VAT Reporting Date") WHERE(Type = CONST(Sale));
+                RequestFilterFields = "VAT Reporting Date", "Document Type", "Document No.";
                 column(Base; -Base)
                 {
                 }
@@ -225,6 +231,9 @@ report 10704 "Sales Invoice Book"
                 column(VATEntry_Posting_Date; "Posting Date")
                 {
                 }
+                column(VATEntry_VAT_Date; "VAT Reporting Date")
+                {
+                }
                 column(VATEntry_Document_Type; "Document Type")
                 {
                 }
@@ -278,7 +287,7 @@ report 10704 "Sales Invoice Book"
                 }
                 dataitem(VATEntry6; "VAT Entry")
                 {
-                    DataItemTableView = SORTING(Type, "Posting Date", "Document Type", "Document No.", "Bill-to/Pay-to No.") WHERE(Type = CONST(Purchase));
+                    DataItemTableView = SORTING(Type, "VAT Reporting Date", "Document Type", "Document No.", "Bill-to/Pay-to No.") WHERE(Type = CONST(Purchase));
                     column(VATEntry6_Entry_No_; "Entry No.")
                     {
                     }
@@ -286,6 +295,9 @@ report 10704 "Sales Invoice Book"
                     {
                     }
                     column(VATEntry6_Posting_Date; "Posting Date")
+                    {
+                    }
+                    column(VATEntry6_VAT_Date; "VAT Reporting Date")
                     {
                     }
                     column(VATEntry6_Document_Type; "Document Type")
@@ -296,8 +308,8 @@ report 10704 "Sales Invoice Book"
                     }
                     dataitem(VATEntry7; "VAT Entry")
                     {
-                        DataItemLink = Type = FIELD(Type), "Posting Date" = FIELD("Posting Date"), "Document Type" = FIELD("Document Type"), "Document No." = FIELD("Document No.");
-                        DataItemTableView = SORTING(Type, "Posting Date", "Document Type", "Document No.", "Bill-to/Pay-to No.");
+                        DataItemLink = Type = FIELD(Type), "VAT Reporting Date" = FIELD("VAT Reporting Date"), "Document Type" = FIELD("Document Type"), "Document No." = FIELD("Document No.");
+                        DataItemTableView = SORTING(Type, "VAT Reporting Date", "Document Type", "Document No.", "Bill-to/Pay-to No.");
 
                         trigger OnAfterGetRecord()
                         begin
@@ -402,6 +414,9 @@ report 10704 "Sales Invoice Book"
                         column(VATEntry6__Posting_Date_; Format(VATEntry6."Posting Date"))
                         {
                         }
+                        column(VATEntry6__VAT_Date_; Format(VATEntry6."VAT Reporting Date"))
+                        {
+                        }
                         column(AutoDocNo; AutoDocNo)
                         {
                         }
@@ -432,7 +447,7 @@ report 10704 "Sales Invoice Book"
 
                         trigger OnAfterGetRecord()
                         begin
-                            if not SortPostDate then begin
+                            if not SortVATDate then begin
                                 if VATBuffer4.Amount = 0 then begin
                                     VATBuffer4."VAT %" := 0;
                                     VATBuffer4."EC %" := 0;
@@ -479,12 +494,12 @@ report 10704 "Sales Invoice Book"
 
                     trigger OnPostDataItem()
                     begin
-                        PrevData := VATEntry."Posting Date" + 1;
+                        PrevData := VATEntry."VAT Reporting Date" + 1;
                     end;
 
                     trigger OnPreDataItem()
                     begin
-                        if not SortPostDate or not ShowAutoInvCred then
+                        if not SortVATDate or not ShowAutoInvCred then
                             CurrReport.Break();
                         SetRange("Generated Autodocument", true);
                         if Find('-') then;
@@ -498,12 +513,12 @@ report 10704 "Sales Invoice Book"
                             if Find('-') then;
                             i := 0;
                         end;
-                        SetFilter("Posting Date", '%1..%2', PrevData, VATEntry."Posting Date");
+                        SetFilter("VAT Reporting Date", '%1..%2', PrevData, VATEntry."VAT Reporting Date");
                         SetFilter("Document No.", VATEntry.GetFilter("Document No."));
                         SetFilter("Document Type", VATEntry.GetFilter("Document Type"));
                         if VatEntryTemporary.Find('-') then;
                         VatEntryTemporary.SetRange("Generated Autodocument", true);
-                        VatEntryTemporary.SetFilter("Posting Date", '%1..%2', PrevData, VATEntry."Posting Date");
+                        VatEntryTemporary.SetFilter("VAT Reporting Date", '%1..%2', PrevData, VATEntry."VAT Reporting Date");
                         if VatEntryTemporary.Find('-') then begin
                             Show := true;
                             VatEntryTemporary.DeleteAll();
@@ -513,8 +528,8 @@ report 10704 "Sales Invoice Book"
                 }
                 dataitem(VATEntry2; "VAT Entry")
                 {
-                    DataItemLink = Type = FIELD(Type), "Posting Date" = FIELD("Posting Date"), "Document Type" = FIELD("Document Type"), "Document No." = FIELD("Document No.");
-                    DataItemTableView = SORTING("No. Series", "Posting Date");
+                    DataItemLink = Type = FIELD(Type), "VAT Reporting Date" = FIELD("VAT Reporting Date"), "Document Type" = FIELD("Document Type"), "Document No." = FIELD("Document No.");
+                    DataItemTableView = SORTING("No. Series", "VAT Reporting Date");
 
                     trigger OnAfterGetRecord()
                     begin
@@ -557,10 +572,10 @@ report 10704 "Sales Invoice Book"
 
                     trigger OnPreDataItem()
                     begin
-                        if SortPostDate then
-                            SetCurrentKey(Type, "Posting Date", "Document Type", "Document No.", "Bill-to/Pay-to No.")
+                        if SortVATDate then
+                            SetCurrentKey(Type, "VAT Reporting Date", "Document Type", "Document No.", "Bill-to/Pay-to No.")
                         else
-                            SetCurrentKey("No. Series", "Posting Date");
+                            SetCurrentKey("No. Series", "VAT Reporting Date");
 
                         SetRange("No. Series", VATEntry."No. Series");
                         Clear(SalesCrMemoHeader);
@@ -626,6 +641,9 @@ report 10704 "Sales Invoice Book"
                     {
                     }
                     column(VATEntry2__Posting_Date_; Format(VATEntry2."Posting Date"))
+                    {
+                    }
+                    column(VATEntry2__VAT_Date_; Format(VATEntry2."VAT Reporting Date"))
                     {
                     }
                     column(Customer_Name; Customer.Name)
@@ -708,15 +726,15 @@ report 10704 "Sales Invoice Book"
 
                 trigger OnPreDataItem()
                 begin
-                    if GetFilter("Posting Date") = '' then
+                    if GetFilter("VAT Reporting Date") = '' then
                         PrevData := 0D
                     else
-                        PrevData := GetRangeMin("Posting Date");
+                        PrevData := GetRangeMin("VAT Reporting Date");
                     i := 1;
-                    if SortPostDate then
-                        SetCurrentKey(Type, "Posting Date", "Document Type", "Document No.", "Bill-to/Pay-to No.")
+                    if SortVATDate then
+                        SetCurrentKey(Type, "VAT Reporting Date", "Document Type", "Document No.", "Bill-to/Pay-to No.")
                     else
-                        SetCurrentKey("No. Series", "Posting Date", "Document No.");
+                        SetCurrentKey("No. Series", "VAT Reporting Date", "Document No.");
                     if OnlyIncludeSIIDocuments then
                         SetRange("Do Not Send To SII", false);
                     TempVATEntry.Reset();
@@ -725,7 +743,7 @@ report 10704 "Sales Invoice Book"
             }
             dataitem(VATEntry4; "VAT Entry")
             {
-                DataItemTableView = SORTING("Document Type", "No. Series", "Posting Date") WHERE(Type = CONST(Purchase));
+                DataItemTableView = SORTING("Document Type", "No. Series", "VAT Reporting Date") WHERE(Type = CONST(Purchase));
                 column(VarNotBaseReverse; VarNotBaseReverse)
                 {
                 }
@@ -771,6 +789,9 @@ report 10704 "Sales Invoice Book"
                 column(VATEntry4_Posting_Date; "Posting Date")
                 {
                 }
+                column(VATEntry4_VAT_Date; "VAT Reporting Date")
+                {
+                }
                 column(VATEntry4_Document_No_; "Document No.")
                 {
                 }
@@ -791,8 +812,8 @@ report 10704 "Sales Invoice Book"
                 }
                 dataitem(VATEntry5; "VAT Entry")
                 {
-                    DataItemLink = Type = FIELD(Type), "Posting Date" = FIELD("Posting Date"), "Document Type" = FIELD("Document Type"), "Document No." = FIELD("Document No.");
-                    DataItemTableView = SORTING("No. Series", "Posting Date");
+                    DataItemLink = Type = FIELD(Type), "VAT Reporting Date" = FIELD("VAT Reporting Date"), "Document Type" = FIELD("Document Type"), "Document No." = FIELD("Document No.");
+                    DataItemTableView = SORTING("No. Series", "VAT Reporting Date");
 
                     trigger OnAfterGetRecord()
                     begin
@@ -909,6 +930,9 @@ report 10704 "Sales Invoice Book"
                     column(VATEntry4__Posting_Date_; Format(VATEntry4."Posting Date"))
                     {
                     }
+                    column(VATEntry4__VAT_Date_; Format(VATEntry4."VAT Reporting Date"))
+                    {
+                    }
                     column(AutoDocNo_Control91; AutoDocNo)
                     {
                     }
@@ -1001,7 +1025,7 @@ report 10704 "Sales Invoice Book"
                         CurrReport.Break();
                     SetRange("Generated Autodocument", true);
                     if Find('-') then;
-                    SetFilter("Posting Date", VATEntry.GetFilter("Posting Date"));
+                    SetFilter("VAT Reporting Date", VATEntry.GetFilter("VAT Reporting Date"));
                     SetFilter("Document No.", VATEntry.GetFilter("Document No."));
                     SetFilter("Document Type", VATEntry.GetFilter("Document Type"));
                 end;
@@ -1009,8 +1033,11 @@ report 10704 "Sales Invoice Book"
             dataitem("No Taxable Entry"; "No Taxable Entry")
             {
                 DataItemTableView = SORTING("Entry No.") WHERE(Type = CONST(Sale), Reversed = CONST(false), "Not In 347" = CONST(false));
-                RequestFilterFields = "Posting Date", "Document Type", "Document No.";
+                RequestFilterFields = "VAT Reporting Date", "Document Type", "Document No.";
                 column(PostingDate_NoTaxableEntry; Format("Posting Date"))
+                {
+                }
+                column(VATDate_NoTaxableEntry; Format("VAT Reporting Date"))
                 {
                 }
                 column(DocumentNo_NoTaxableEntry; "Document No.")
@@ -1068,11 +1095,11 @@ report 10704 "Sales Invoice Book"
 
                 trigger OnPreDataItem()
                 begin
-                    if SortPostDate then
-                        SetCurrentKey(Type, "Posting Date", "Document Type", "Document No.", "Source No.")
+                    if SortVATDate then
+                        SetCurrentKey(Type, "VAT Reporting Date", "Document Type", "Document No.", "Source No.")
                     else
-                        SetCurrentKey("No. Series", "Posting Date", "Document No.");
-                    SetFilter("Posting Date", VATEntry.GetFilter("Posting Date"));
+                        SetCurrentKey("No. Series", "VAT Reporting Date", "Document No.");
+                    SetFilter("VAT Reporting Date", VATEntry.GetFilter("VAT Reporting Date"));
                     NoTaxableText := NoTaxableVATTxt;
                 end;
             }
@@ -1119,11 +1146,11 @@ report 10704 "Sales Invoice Book"
                         Caption = 'Show Amounts in Add. Currency';
                         ToolTip = 'Specifies if amounts in the additional currency are included.';
                     }
-                    field(SortPostDate; SortPostDate)
+                    field(SortPostDate; SortVATDate)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Order by posting date';
-                        ToolTip = 'Specifies that the entries are sorted by posting date.';
+                        Caption = 'Order by VAT date';
+                        ToolTip = 'Specifies that the entries are sorted by VAT date.';
                     }
                     field(ShowAutoInvoicesAutoCrMemo; ShowAutoInvCred)
                     {
@@ -1193,7 +1220,7 @@ report 10704 "Sales Invoice Book"
         NoSeriesAuxPrev: Code[20];
         AuxVatEntry: Text[250];
         PrevData: Date;
-        SortPostDate: Boolean;
+        SortVATDate: Boolean;
         Show: Boolean;
         i: Integer;
         ShowAutoInvCred: Boolean;
@@ -1211,6 +1238,7 @@ report 10704 "Sales Invoice Book"
         Sales_Invoice_BookCaptionLbl: Label 'Sales Invoice Book';
         Document_No_CaptionLbl: Label 'Document No.';
         Posting_DateCaptionLbl: Label 'Posting Date';
+        VAT_DateCaptionLbl: Label 'VAT Date';
         External_Document_No_CaptionLbl: Label 'External Document No.';
         NameCaptionLbl: Label 'Name';
         VAT_RegistrationCaptionLbl: Label 'VAT Registration';

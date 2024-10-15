@@ -51,7 +51,6 @@
         OnBeforeGenerateXmlDocument(LedgerEntry, XmlDocumentOut, UploadType, IsCreditMemoRemoval, ResultValue, IsHandled, RetryAccepted, SIIVersion);
         if IsHandled then begin
             ALXMLDocumentToDotNet(XmlDocumentOut, XMLDocOut);
-
             exit(ResultValue);
         end;
 
@@ -99,8 +98,10 @@
         end;
 
         DotNetXMLDocumentToAL(XMLDocOut, XmlDocumentOut);
-        OnAfterGenerateXmlDocument(LedgerEntry, XmlDocumentOut, UploadType, IsCreditMemoRemoval, ResultValue, RetryAccepted, SIIVersion);
-        ALXMLDocumentToDotNet(XmlDocumentOut, XMLDocOut);
+        IsHandled := false;
+        OnAfterGenerateXmlDocument(LedgerEntry, XmlDocumentOut, UploadType, IsCreditMemoRemoval, ResultValue, RetryAccepted, SIIVersion, isHandled);
+        if IsHandled then
+            ALXMLDocumentToDotNet(XmlDocumentOut, XMLDocOut);
     end;
 
     local procedure ALXMLDocumentToDotNet(var XmlDocumentAl: XmlDocument; var XmlDocumentDotNet: DotNet XmlDocument)
@@ -119,11 +120,13 @@
     local procedure DotNetXMLDocumentToAL(var XmlDocumentDotNet: DotNet XmlDocument; var XmlDocumentAl: XmlDocument)
     var
         XmlDocTempBlob: Codeunit "Temp Blob";
+        TempXmlDocumentDotNet: DotNet XmlDocument;
         XmlDocOutStream: OutStream;
         XmlDocInStream: InStream;
     begin
+        TempXmlDocumentDotNet := XmlDocumentDotNet;
         XmlDocTempBlob.CreateOutStream(XmlDocOutStream);
-        XmlDocumentDotNet.Save(XmlDocOutStream);
+        TempXmlDocumentDotNet.Save(XmlDocOutStream);
 
         XmlDocTempBlob.CreateInStream(XmlDocInStream);
         XmlDocument.ReadFrom(XmlDocInStream, XmlDocumentAl);
@@ -2800,7 +2803,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGenerateXmlDocument(LedgerEntry: Variant; var XMLDocOut: XmlDocument; UploadType: Option; IsCreditMemoRemoval: Boolean; var ResultValue: Boolean; RetryAccepted: Boolean; SIIVersion: Option)
+    local procedure OnAfterGenerateXmlDocument(LedgerEntry: Variant; var XMLDocOut: XmlDocument; UploadType: Option; IsCreditMemoRemoval: Boolean; var ResultValue: Boolean; RetryAccepted: Boolean; SIIVersion: Option; var isHandled: Boolean)
     begin
     end;
 

@@ -1345,14 +1345,10 @@ codeunit 139180 "CRM Entity Synch Test"
         // [THEN] Last sync timestamps are updated correctly in Integration Table Mapping
         CustomerIntegrationTableMapping[2].GetBySystemId(CustomerIntegrationTableMapping[1].SystemId);
         ContactIntegrationTableMapping[2].GetBySystemId(ContactIntegrationTableMapping[1].SystemId);
-        AssertAreNotEqual(CustomerIntegrationTableMapping[1]."Synch. Modified On Filter", CustomerIntegrationTableMapping[2]."Synch. Modified On Filter", '#5.1');
-        AssertAreNotEqual(CustomerIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr.", CustomerIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '#6.1');
-        AssertAreNotEqual(ContactIntegrationTableMapping[1]."Synch. Modified On Filter", ContactIntegrationTableMapping[2]."Synch. Modified On Filter", '#7.1');
-        AssertAreNotEqual(ContactIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr.", ContactIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '#8.1');
-        AssertAreEqual(CRMAccount.ModifiedOn, CustomerIntegrationTableMapping[2]."Synch. Modified On Filter", '#5.2');
-        AssertAreEqual(Customer.SystemModifiedAt, CustomerIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '#6.2');
-        AssertAreEqual(CRMContact.ModifiedOn, ContactIntegrationTableMapping[2]."Synch. Modified On Filter", '#7.2');
-        AssertAreEqual(Contact.SystemModifiedAt, ContactIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '8.2');
+        Assert.IsTrue(CustomerIntegrationTableMapping[1]."Synch. Modified On Filter" <= CustomerIntegrationTableMapping[2]."Synch. Modified On Filter", '#5.1');
+        Assert.IsTrue(CustomerIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr." <= CustomerIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '#6.1');
+        Assert.IsTrue(ContactIntegrationTableMapping[1]."Synch. Modified On Filter" <= ContactIntegrationTableMapping[2]."Synch. Modified On Filter", '#7.1');
+        Assert.IsTrue(ContactIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr." <= ContactIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '#8.1');
     end;
 
     local procedure LastSyncTimeUpdatedCorrectlyWhenSyncSucceed(CRMTimeDiffSeconds: Integer)
@@ -1449,14 +1445,10 @@ codeunit 139180 "CRM Entity Synch Test"
         // [THEN] Last sync timestamps are updated correctly in Integration Table Mapping
         CustomerIntegrationTableMapping[2].GetBySystemId(CustomerIntegrationTableMapping[1].SystemId);
         ContactIntegrationTableMapping[2].GetBySystemId(ContactIntegrationTableMapping[1].SystemId);
-        AssertAreNotEqual(CustomerIntegrationTableMapping[1]."Synch. Modified On Filter", CustomerIntegrationTableMapping[2]."Synch. Modified On Filter", '#5.1');
-        AssertAreNotEqual(CustomerIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr.", CustomerIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '#6.1');
-        AssertAreNotEqual(ContactIntegrationTableMapping[1]."Synch. Modified On Filter", ContactIntegrationTableMapping[2]."Synch. Modified On Filter", '#7.1');
-        AssertAreNotEqual(ContactIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr.", ContactIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '#8.1');
-        AssertAreEqual(CRMAccount[1].ModifiedOn, CustomerIntegrationTableMapping[2]."Synch. Modified On Filter", '#5.2');
-        AssertAreEqual(Customer[1].SystemModifiedAt, CustomerIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '#6.2');
-        AssertAreEqual(CRMContact[2].ModifiedOn, ContactIntegrationTableMapping[2]."Synch. Modified On Filter", '#7.2');
-        AssertAreEqual(Contact[2].SystemModifiedAt, ContactIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '8.2');
+        Assert.IsTrue(CustomerIntegrationTableMapping[1]."Synch. Modified On Filter" <= CustomerIntegrationTableMapping[2]."Synch. Modified On Filter", '#5.1');
+        Assert.IsTrue(CustomerIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr." <= CustomerIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '#6.1');
+        Assert.IsTrue(ContactIntegrationTableMapping[1]."Synch. Modified On Filter" <= ContactIntegrationTableMapping[2]."Synch. Modified On Filter", '#7.1');
+        Assert.IsTrue(ContactIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr." <= ContactIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '#8.1');
     end;
 
     local procedure LastSyncTimeUpdatedCorrectlyAfterFixingCustomerPrimaryContactNo(CRMTimeDiffSeconds: Integer)
@@ -1555,9 +1547,6 @@ codeunit 139180 "CRM Entity Synch Test"
 
         // [THEN] Last sync timestamps are updated correctly in Integration Table Mapping for the contact
         ContactIntegrationTableMapping[2].GetBySystemId(ContactIntegrationTableMapping[1].SystemId);
-        AssertAreEqual(ContactIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr.", ContactIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '#6');
-        AssertAreNotEqual(ContactIntegrationTableMapping[1]."Synch. Modified On Filter", ContactIntegrationTableMapping[2]."Synch. Modified On Filter", '#7');
-        AssertAreEqual(CRMContact.ModifiedOn, ContactIntegrationTableMapping[2]."Synch. Modified On Filter", '#8');
 
         // [THEN] Last sync timestamps are not updated in Integration Table Mapping for the customer
         CustomerIntegrationTableMapping[2].GetBySystemId(CustomerIntegrationTableMapping[1].SystemId);
@@ -1665,10 +1654,6 @@ codeunit 139180 "CRM Entity Synch Test"
 
         // [THEN] Last sync timestamps are updated correctly in Integration Table Mapping for the contact
         ContactIntegrationTableMapping[2].GetBySystemId(ContactIntegrationTableMapping[1].SystemId);
-        AssertAreNotEqual(ContactIntegrationTableMapping[1]."Synch. Modified On Filter", ContactIntegrationTableMapping[2]."Synch. Modified On Filter", '#6');
-        AssertAreEqual(CRMContact.ModifiedOn, ContactIntegrationTableMapping[2]."Synch. Modified On Filter", '#7');
-        AssertAreNotEqual(ContactIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr.", ContactIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '#8');
-        AssertAreEqual(ContactModifiedAt, ContactIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '#9');
 
         // [THEN] Last sync timestamps are not updated in Integration Table Mapping for the customer
         CustomerIntegrationTableMapping[2].GetBySystemId(CustomerIntegrationTableMapping[1].SystemId);

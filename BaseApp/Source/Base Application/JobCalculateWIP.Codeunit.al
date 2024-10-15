@@ -76,6 +76,7 @@ codeunit 1000 "Job Calculate WIP"
         if (Job."Ending Date" = 0D) and Job.Complete then
             Job.Validate("Ending Date", WIPPostingDate);
         JobComplete := Job.Complete and (WIPPostingDate >= Job."Ending Date");
+        OnJobCalcWIPOnBeforeJobModify(Job, JobComplete);
         Job.Modify();
 
         DeleteWIP(Job);
@@ -217,6 +218,7 @@ codeunit 1000 "Job Calculate WIP"
         CalcCostInvoicePercentage(JobWIPTotal);
         OnJobTaskCalcWIPOnBeforeJobWIPTotalModify(Job, JobWIPTotal);
         JobWIPTotal.Modify();
+        OnJobTaskCalcWIPOnAfterJobWIPTotalModify(Job, JobWIPTotal);
         JobWIPWarning.CreateEntries(JobWIPTotal);
 
         OnAfterJobTaskCalcWIP(Job, FromJobTask, ToJobTask, JobWIPTotal);
@@ -262,6 +264,7 @@ codeunit 1000 "Job Calculate WIP"
 
     local procedure CreateJobWIPTotal(var JobTask: Record "Job Task"; var JobWIPTotal: Record "Job WIP Total")
     begin
+        OnBeforeCreateJobWIPTotal(JobTask);
         JobWIPTotalChanged := true;
         WIPAmount := 0;
         RecognizedAllocationPercentage := 0;
@@ -321,6 +324,7 @@ codeunit 1000 "Job Calculate WIP"
         JobWIPMethod.Get(JobWIPTotal."WIP Method");
         CalcRecognizedCosts(JobTask, JobWIPTotal, JobWIPMethod);
         CalcRecognizedSales(JobTask, JobWIPTotal, JobWIPMethod);
+        OnAfterCalcWIP(JobTask, JobWIPTotal, JobComplete, RecognizedAllocationPercentage, JobWIPTotalChanged);
     end;
 
     local procedure CalcRecognizedCosts(var JobTask: Record "Job Task"; JobWIPTotal: Record "Job WIP Total"; JobWIPMethod: Record "Job WIP Method")
@@ -390,7 +394,14 @@ codeunit 1000 "Job Calculate WIP"
     end;
 
     local procedure CalcCostValue(var JobTask: Record "Job Task"; JobWIPTotal: Record "Job WIP Total")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcCostValue(JobTask, JobWIPTotal, WIPAmount, RecognizedAllocationPercentage, JobWIPTotalChanged, IsHandled);
+        if IsHandled then
+            exit;
+
         if JobWIPTotal."Schedule (Total Price)" = 0 then
             exit;
 
@@ -1198,10 +1209,16 @@ codeunit 1000 "Job Calculate WIP"
         VerifyJobWIPEntryIsEmpty(Rec."Job No.");
     end;
 
-    local procedure JobTaskWIPRelatedFieldsAreModified(JobTask: Record "Job Task"): Boolean
+    local procedure JobTaskWIPRelatedFieldsAreModified(JobTask: Record "Job Task") Result: Boolean
     var
         OldJobTask: Record "Job Task";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeJobTaskWIPRelatedFieldsAreModified(JobTask, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         OldJobTask.Get(JobTask."Job No.", JobTask."Job Task No.");
         exit(
           (OldJobTask."Job Task Type" <> JobTask."Job Task Type") or
@@ -1233,6 +1250,11 @@ codeunit 1000 "Job Calculate WIP"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcWIP(var JobTask: Record "Job Task"; JobWIPTotal: Record "Job WIP Total"; JobComplete: Boolean; var RecognizedAllocationPercentage: Decimal; var JobWIPTotalChanged: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeActivateErrorMessageHandling(var Job: Record Job; var ErrorMessageMgt: Codeunit "Error Message Management"; var ErrorMessageHandler: Codeunit "Error Message Handler"; var ErrorContextElement: Codeunit "Error Context Element"; var IsHandled: Boolean)
     begin
     end;
@@ -1253,6 +1275,16 @@ codeunit 1000 "Job Calculate WIP"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcCostValue(var JobTask: Record "Job Task"; JobWIPTotal: Record "Job WIP Total"; var WIPAmount: Decimal; var RecognizedAllocationPercentage: Decimal; var JobWIPTotalChanged: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeJobTaskWIPRelatedFieldsAreModified(JobTask: Record "Job Task"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeVerifyJobWIPEntryIsEmpty(var JobWIPEntry: Record "Job WIP Entry")
     begin
     end;
@@ -1268,12 +1300,27 @@ codeunit 1000 "Job Calculate WIP"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateJobWIPTotal(var JobTask: Record "Job Task")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInitWIPBufferEntryFromTaskOnBeforeSetDimCombinationID(var TempDimensionBuffer: Record "Dimension Buffer" temporary; JobTask: Record "Job Task")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertWIPGLOnBeforeGenJnPostLine(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnJobTaskCalcWIPOnAfterJobWIPTotalModify(var Job: Record Job; var JobWIPTotal: Record "Job WIP Total")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnJobCalcWIPOnBeforeJobModify(var Job: Record Job; var JobComplete: Boolean)
     begin
     end;
 

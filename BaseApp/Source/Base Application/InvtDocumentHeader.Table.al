@@ -90,7 +90,7 @@ table 5850 "Invt. Document Header"
         field(11; "Salesperson/Purchaser Code"; Code[20])
         {
             Caption = 'Salesperson/Purchaser Code';
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
 
             trigger OnValidate()
             begin
@@ -139,6 +139,7 @@ table 5850 "Invt. Document Header"
             trigger OnValidate()
             begin
                 if "Posting No. Series" <> '' then begin
+                    InvtSetup.Get();
                     TestNoSeries();
                     NoSeriesMgt.TestSeries(GetPostingNoSeriesCode(), "Posting No. Series");
                 end;

@@ -29,9 +29,15 @@ page 10740 "No Taxable Entries"
                 {
                     ApplicationArea = Basic, Suite;
                 }
+                field("VAT Date"; Rec."VAT Reporting Date")
+                {
+                    ApplicationArea = VAT;
+                    Tooltip = 'Specifies the VAT Date for the No Taxable Entry.';
+                }
                 field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
+                    Tooltip = 'Specifies the Document Number for the No Taxable Entry.';
                 }
                 field("Document Type"; Rec."Document Type")
                 {
@@ -151,4 +157,3 @@ page 10740 "No Taxable Entries"
     {
     }
 }
-

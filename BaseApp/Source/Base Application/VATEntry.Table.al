@@ -10,7 +10,11 @@
                     TableData "Issued Fin. Charge Memo Header" = rm,
                     TableData "Purch. Inv. Header" = rm,
                     TableData "Purch. Cr. Memo Hdr." = rm,
-                    TableData "G/L Entry" = rm;
+                    TableData "G/L Entry" = rm,
+                    TableData "Cust. Ledger Entry" = rm,
+                    TableData "Detailed Cust. Ledg. Entry" = rm,
+                    TableData "Vendor Ledger Entry" = rm,
+                    TableData "Detailed Vendor Ledg. Entry" = rm;
 
     fields
     {
@@ -429,8 +433,14 @@
 
             trigger OnValidate()
             begin
+                if not IsValidVATReportingDate("VAT Reporting Date") then
+                    Error('');
+
                 FeatureTelemetry.LogUsage('0000I9D', VATDateFeatureTok, 'VAT Date field populated');
                 UpdateGLEntries("VAT Reporting Date");
+                UpdateCustLedgEntries("VAT Reporting Date");
+                UpdateVendLedgEntries("VAT Reporting Date");
+                UpdateNoTaxEntries("VAT Reporting Date");
                 UpdatePostedDocuments("VAT Reporting Date");
             end;
         }
@@ -567,6 +577,8 @@
         AdjustTitleMsg: Label 'Adjust G/L account number in VAT entries.\';
         NoGLAccNoOnVATEntriesErr: Label 'The VAT Entry table with filter <%1> must not contain records.', Comment = '%1 - the filter expression applied to VAT entry record.';
         VATDateFeatureTok: Label 'VAT Date', Locked = true;
+        VATReturnStatusWarningMsg: Label 'VAT Return for chosen period is already %1. Are you sure you want to make this change?', Comment = '%1 - The status of the VAT return.'; 
+        VATDateNotChangedErr: Label 'VAT Return Period is closed for the selected date. Please select another date.';
 
     local procedure UpdatePostedDocuments(NewDate: Date)
     var
@@ -722,6 +734,43 @@
             "VAT Reporting Date" := GLSetup.GetVATDate(GenJnlLine."Posting Date", GenJnlLine."Document Date")
         else
             "VAT Reporting Date" := GenJnlLine."VAT Reporting Date";
+    end;
+
+    local procedure UpdateCustLedgEntries(NewDate: Date)
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        DetailedCustLedgerEntry: Record "Detailed Cust. Ledg. Entry";
+    begin
+        CustLedgerEntry.SetRange("Document No.", "Document No.");
+        CustLedgerEntry.SetRange("Posting Date", "Posting Date");
+        CustLedgerEntry.ModifyAll("VAT Reporting Date", NewDate);
+
+        DetailedCustLedgerEntry.SetRange("Document No.", "Document No.");
+        DetailedCustLedgerEntry.SetRange("Posting Date", "Posting Date");
+        DetailedCustLedgerEntry.ModifyAll("VAT Reporting Date", NewDate);
+    end;
+
+    local procedure UpdateVendLedgEntries(NewDate: Date)
+    var
+        VendLedgerEntry: Record "Vendor Ledger Entry";
+        DetailedVendLedgerEntry: Record "Detailed Vendor Ledg. Entry";
+    begin
+        VendLedgerEntry.SetRange("Document No.", "Document No.");
+        VendLedgerEntry.SetRange("Posting Date", "Posting Date");
+        VendLedgerEntry.ModifyAll("VAT Reporting Date", NewDate);
+
+        DetailedVendLedgerEntry.SetRange("Document No.", "Document No.");
+        DetailedVendLedgerEntry.SetRange("Posting Date", "Posting Date");
+        DetailedVendLedgerEntry.ModifyAll("VAT Reporting Date", NewDate);
+    end;
+
+    local procedure UpdateNoTaxEntries(NewDate: Date)
+    var
+        NoTaxableEntry: Record "No Taxable Entry";
+    begin
+        NoTaxableEntry.SetRange("Document No.", "Document No.");
+        NoTaxableEntry.SetRange("Posting Date", "Posting Date");
+        NoTaxableEntry.ModifyAll("VAT Reporting Date", NewDate);
     end;
 
     procedure GetLastEntryNo(): Integer;
@@ -1032,6 +1081,23 @@
         "Realized Base" := 0;
         "Add.-Curr. Realized Amount" := 0;
         "Add.-Curr. Realized Base" := 0;
+    end;
+
+    local procedure IsValidVATReportingDate(VATReportingDate: Date): Boolean
+    var
+        VATReturnPeriod: Record "VAT Return Period";
+        ConfirmManagement: Codeunit "Confirm Management";
+    begin
+        if VATReturnPeriod.FindVATPeriodByDate(VATReportingDate) then begin
+            if VATReturnPeriod.Status = VATReturnPeriod.Status::Closed then
+                Error(VATDateNotChangedErr);
+
+            VATReturnPeriod.CalcFields("VAT Return Status");
+            if VATReturnPeriod."VAT Return Status" in [VATReturnPeriod."VAT Return Status"::Released, VATReturnPeriod."VAT Return Status"::Submitted] then
+                exit(ConfirmManagement.GetResponseOrDefault(StrSubstNo(VATReturnStatusWarningMsg, Format(VATReturnPeriod."VAT Return Status")), true));
+
+        end;
+        exit(true);
     end;
 
     procedure GetTotalAmount(): Decimal

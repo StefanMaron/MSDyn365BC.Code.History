@@ -7,7 +7,7 @@ codeunit 1385 "Vendor Templ. Mgt."
     end;
 
     var
-        UpdateExistingValuesQst: Label 'You are about to apply the template to selected records. Data from the template will replace data for the records. Do you want to continue?';
+        UpdateExistingValuesQst: Label 'You are about to apply the template to selected records. Data from the template will replace data for the records in fields that do not already contain data. Do you want to continue?';
         OpenBlankCardQst: Label 'Do you want to open the blank vendor card?';
 
     procedure CreateVendorFromTemplate(var Vendor: Record Vendor; var IsHandled: Boolean) Result: Boolean

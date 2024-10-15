@@ -98,6 +98,10 @@ table 10732 "Customer/Vendor Warning 349"
             Caption = 'EU Service';
             Editable = false;
         }
+        field(10702; "VAT Reporting Date"; Date) 
+        {
+            Caption = 'VAT Date';
+        }
         field(10740; "No Taxable Entry No."; Integer)
         {
             Caption = 'No Taxable Entry No.';

@@ -1154,6 +1154,36 @@ codeunit 134761 "Test Custom Reports"
     end;
 
     [Test]
+    procedure EntriesExcludedFromCalculationShouldntShowInStandardStatement()
+    var
+        Customer: Record Customer;
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        XMLNodeList: DotNet XmlNodeList;
+        LineAmount: Decimal;
+        OutputPath: Text;
+        Lines: Integer;
+    begin
+         Initialize();       
+         // [GIVEN] A customer
+         LibrarySales.CreateCustomer(Customer);        
+         // [GIVEN] Two customer ledger entries
+         LineAmount := LibraryRandom.RandDec(99, 2);
+         CreateTwoCustomerLedgerEntries(Customer."No.", LineAmount, LibraryRandom.RandDec(99, 2));        
+         // [GIVEN] One of the corresponding Detailed Cust. Ledg. Entry is marked as "Excluded from calculation"
+         DetailedCustLedgEntry.SetRange("Customer No.", Customer."No.");
+         DetailedCustLedgEntry.FindFirst();
+         DetailedCustLedgEntry."Excluded from calculation" := true;
+         DetailedCustLedgEntry.Modify();
+         // [WHEN] Executing Standard Statement Report
+        SaveStandardStatementAsXML(Customer, OutputPath, 0, CalcDate('<-CM-1M>', GetDate), GetDate, false);
+         // [THEN] Only one line should show on the report
+         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+         LibraryXPathXMLReader.Initialize(OutputPath, '');
+         Lines := LibraryXPathXMLReader.GetNodeListByElementName('//Column[@name=''DocNo_DtldCustLedgEntries'']', XMLNodeList);
+         Assert.AreEqual(1, Lines, 'The report should only show the entry that was not excluded from calculation');
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure TestCustomerStandardStatementAgingTotalsByDueDate()
     var
@@ -1176,7 +1206,7 @@ codeunit 134761 "Test Custom Reports"
         CreateTwoCustomerLedgerEntries(Customer."No.", LineAmount, LibraryRandom.RandDec(99, 2));
 
         // [WHEN] Standard Statement Report executed for "CUS" with BeginDate = 01/02/2017, EndDate = 22/02/2017, Aging Band by Due Date.
-        SaveStandardStatementAsXML(Customer, OutputPath, 0, CalcDate('<-CM>', GetDate), GetDate);
+        SaveStandardStatementAsXML(Customer, OutputPath, 0, CalcDate('<-CM>', GetDate), GetDate, true);
 
         // [THEN] Report Aging amount for the previous month = Entry1.Amount
         VerifyStandardStatementAging(OutputPath, LineAmount, 12);
@@ -1209,7 +1239,7 @@ codeunit 134761 "Test Custom Reports"
         CreateTwoCustomerLedgerEntries(Customer."No.", LineAmount[1], LineAmount[2]);
 
         // [WHEN] Mini Statement Report executed for "CUS" with BeginDate = 01/03/2017, EndDate = 31/03/2017, Aging Band by Due Date.
-        SaveStandardStatementAsXML(Customer, OutputPath, 0, CalcDate('<-CM+1M>', GetDate), CalcDate('<CM+1M>', GetDate));
+        SaveStandardStatementAsXML(Customer, OutputPath, 0, CalcDate('<-CM+1M>', GetDate), CalcDate('<CM+1M>', GetDate), true);
 
         // [THEN] Report Aging amount for the previous month = Entry1.Amount
         VerifyStandardStatementAging(OutputPath, LineAmount[1], 11);
@@ -1245,7 +1275,7 @@ codeunit 134761 "Test Custom Reports"
         CreateTwoCustomerLedgerEntries(Customer."No.", LineAmount[1], LineAmount[2]);
 
         // [WHEN] Mini Statement Report executed for "CUS" with BeginDate = 01/02/2017, EndDate = 28/02/2017, Aging Band by Posting Date.
-        SaveStandardStatementAsXML(Customer, OutputPath, 1, CalcDate('<-CM>', GetDate), GetDate);
+        SaveStandardStatementAsXML(Customer, OutputPath, 1, CalcDate('<-CM>', GetDate), GetDate, true);
 
         // [THEN] Report Aging amount for previous month = Entry1."Amount" + Entry2."Amount"
         VerifyStandardStatementAging(OutputPath, LineAmount[1] + LineAmount[2], 12);
@@ -2940,7 +2970,7 @@ codeunit 134761 "Test Custom Reports"
         LibraryReportDataset.AssertCurrentRowValueEquals('Amount_ReportTotalsLine', ExpectedValue);
     end;
 
-    local procedure SaveStandardStatementAsXML(var Customer: Record Customer; var OutputPath: Text; DateChoice: Option; DateBegin: Date; DateEnd: Date)
+    local procedure SaveStandardStatementAsXML(var Customer: Record Customer; var OutputPath: Text; DateChoice: Option; DateBegin: Date; DateEnd: Date; IncludeAgingBand: Boolean)
     var
         StandardStatement: Report "Standard Statement";
         FileManagement: Codeunit "File Management";
@@ -2949,7 +2979,7 @@ codeunit 134761 "Test Custom Reports"
         Clear(StandardStatement);
         StandardStatement.SetTableView(Customer);
         StandardStatement.InitializeRequest(
-          true, false, true, false, true, true, '1M+CM', DateChoice, true, DateBegin, DateEnd);
+          true, false, true, false, true, IncludeAgingBand, '1M+CM', DateChoice, true, DateBegin, DateEnd);
         StandardStatement.SaveAsXml(OutputPath);
     end;
 

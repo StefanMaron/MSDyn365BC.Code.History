@@ -180,13 +180,13 @@ Fields!CurrReport_PAGENOCaption.Value)</Hidden>
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Posting_DateCaption">
+                        <Textbox Name="VAT_DateCaption">
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=First(Fields!Posting_DateCaption.Value)</Value>
+                                  <Value>=First(Fields!VAT_DateCaption.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1312,7 +1312,7 @@ Fields!CurrReport_PAGENOCaption.Value)</Hidden>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!PostingDate_NoTaxableEntry.Value</Value>
+                                  <Value>=Fields!VATDate_NoTaxableEntry.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>d</Format>
@@ -1687,7 +1687,7 @@ Fields!CurrReport_PAGENOCaption.Value)</Hidden>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!VATEntry6__Posting_Date_.Value</Value>
+                                  <Value>=Fields!VATEntry6__VAT_Date_.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>d</Format>
@@ -2050,7 +2050,7 @@ Fields!CurrReport_PAGENOCaption.Value)</Hidden>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!VATEntry2__Posting_Date_.Value</Value>
+                                  <Value>=Fields!VATEntry2__VAT_Date_.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>d</Format>
@@ -2419,7 +2419,7 @@ Fields!CurrReport_PAGENOCaption.Value)</Hidden>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!VATEntry4__Posting_Date_.Value</Value>
+                                  <Value>=Fields!VATEntry4__VAT_Date_.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>d</Format>
@@ -4510,36 +4510,36 @@ Fields!CurrReport_PAGENOCaption.Value)</Hidden>
                   <Group Name="Table1_Group2">
                     <GroupExpressions>
                       <GroupExpression>=Fields!VATEntry_Type.Value</GroupExpression>
-                      <GroupExpression>=iif(Fields!SortPostDate.Value,Fields!VATEntry_Type.Value,Fields!VATEntry4_Type.Value)</GroupExpression>
-                      <GroupExpression>=iif(Fields!SortPostDate.Value,Fields!Type_NoTaxableEntry.Value,Fields!NoSeries_NoTaxableEntry.Value)</GroupExpression>
+                      <GroupExpression>=iif(Fields!SortVATDate.Value,Fields!VATEntry_Type.Value,Fields!VATEntry4_Type.Value)</GroupExpression>
+                      <GroupExpression>=iif(Fields!SortVATDate.Value,Fields!Type_NoTaxableEntry.Value,Fields!NoSeries_NoTaxableEntry.Value)</GroupExpression>
                     </GroupExpressions>
                   </Group>
                   <TablixMembers>
                     <TablixMember>
                       <Group Name="Table1_Group3">
                         <GroupExpressions>
-                          <GroupExpression>=iif(Fields!SortPostDate.Value,Fields!VATEntry_Posting_Date.Value,Fields!VATEntry__No__Series_.Value)</GroupExpression>
-                          <GroupExpression>=iif(Fields!SortPostDate.Value,Fields!VATEntry_Posting_Date.Value,Fields!No_SeriesAux_.Value)</GroupExpression>
-                          <GroupExpression>=iif(Fields!SortPostDate.Value,Fields!PostingDate_NoTaxableEntry.Value,Fields!NoSeries_NoTaxableEntry.Value)</GroupExpression>
+                          <GroupExpression>=iif(Fields!SortVATDate.Value,Fields!VATEntry_VAT_Date.Value,Fields!VATEntry__No__Series_.Value)</GroupExpression>
+                          <GroupExpression>=iif(Fields!SortVATDate.Value,Fields!VATEntry_VAT_Date.Value,Fields!No_SeriesAux_.Value)</GroupExpression>
+                          <GroupExpression>=iif(Fields!SortVATDate.Value,Fields!VATDate_NoTaxableEntry.Value,Fields!NoSeries_NoTaxableEntry.Value)</GroupExpression>
                         </GroupExpressions>
                       </Group>
                       <TablixMembers>
                         <TablixMember>
                           <Visibility>
-                            <Hidden>=iif(Fields!SortPostDate.Value OR Fields!VATEntry__No__Series_Caption.Value = "" ,TRUE,FALSE)</Hidden>
+                            <Hidden>=iif(Fields!SortVATDate.Value OR Fields!VATEntry__No__Series_Caption.Value = "" ,TRUE,FALSE)</Hidden>
                           </Visibility>
                           <KeepWithGroup>After</KeepWithGroup>
                           <KeepTogether>true</KeepTogether>
                         </TablixMember>
                         <TablixMember>
                           <Visibility>
-                            <Hidden>=IIF(Fields!DocumentNo_NoTaxableEntry.Value="" or Fields!SortPostDate.Value or Fields!NoTaxableTitleText.Value="",TRUE,FALSE)</Hidden>
+                            <Hidden>=IIF(Fields!DocumentNo_NoTaxableEntry.Value="" or Fields!SortVATDate.Value or Fields!NoTaxableTitleText.Value="",TRUE,FALSE)</Hidden>
                           </Visibility>
                           <KeepWithGroup>After</KeepWithGroup>
                         </TablixMember>
                         <TablixMember>
                           <Visibility>
-                            <Hidden>=iif(Fields!SortPostDate.Value OR Fields!VATEntry__No__Series_Caption.Value = "" OR Fields!NoSeries_NoTaxableEntry.Value = "",TRUE,FALSE)</Hidden>
+                            <Hidden>=iif(Fields!SortVATDate.Value OR Fields!VATEntry__No__Series_Caption.Value = "" OR Fields!NoSeries_NoTaxableEntry.Value = "",TRUE,FALSE)</Hidden>
                           </Visibility>
                           <KeepWithGroup>After</KeepWithGroup>
                           <KeepTogether>true</KeepTogether>
@@ -4553,7 +4553,7 @@ Fields!CurrReport_PAGENOCaption.Value)</Hidden>
                         </TablixMember>
                         <TablixMember>
                           <Visibility>
-                            <Hidden>=IIF(Fields!DocumentNo_NoTaxableEntry.Value="" or Fields!SortPostDate.Value,TRUE,FALSE)</Hidden>
+                            <Hidden>=IIF(Fields!DocumentNo_NoTaxableEntry.Value="" or Fields!SortVATDate.Value,TRUE,FALSE)</Hidden>
                           </Visibility>
                           <KeepWithGroup>After</KeepWithGroup>
                         </TablixMember>
@@ -4567,8 +4567,8 @@ Fields!CurrReport_PAGENOCaption.Value)</Hidden>
                         <TablixMember>
                           <Group Name="Table1_Group4">
                             <GroupExpressions>
-                              <GroupExpression>=Fields!VATEntry_Posting_Date.Value</GroupExpression>
-                              <GroupExpression>=Fields!PostingDate_NoTaxableEntry.Value</GroupExpression>
+                              <GroupExpression>=Fields!VATEntry_VAT_Date.Value</GroupExpression>
+                              <GroupExpression>=Fields!VATDate_NoTaxableEntry.Value</GroupExpression>
                             </GroupExpressions>
                           </Group>
                           <TablixMembers>
@@ -4584,7 +4584,7 @@ Fields!CurrReport_PAGENOCaption.Value)</Hidden>
                                 </TablixMember>
                                 <TablixMember>
                                   <Visibility>
-                                    <Hidden>=iif(Fields!AutoDocNo.Value="" OR Fields!SortPostDate.Value,TRUE,FALSE)</Hidden>
+                                    <Hidden>=iif(Fields!AutoDocNo.Value="" OR Fields!SortVATDate.Value,TRUE,FALSE)</Hidden>
                                   </Visibility>
                                 </TablixMember>
                                 <TablixMember>
@@ -4606,13 +4606,13 @@ Fields!CurrReport_PAGENOCaption.Value)</Hidden>
                         </TablixMember>
                         <TablixMember>
                           <Visibility>
-                            <Hidden>=iif(Fields!SortPostDate.Value,TRUE,FALSE) OR iif(Fields!NoSeriesCaption_NoTaxableEntry.Value="",TRUE,FALSE)</Hidden>
+                            <Hidden>=iif(Fields!SortVATDate.Value,TRUE,FALSE) OR iif(Fields!NoSeriesCaption_NoTaxableEntry.Value="",TRUE,FALSE)</Hidden>
                           </Visibility>
                           <KeepWithGroup>Before</KeepWithGroup>
                         </TablixMember>
                         <TablixMember>
                           <Visibility>
-                            <Hidden>=iif(Fields!SortPostDate.Value,TRUE,FALSE) OR iif(Fields!VATEntry__No__Series_Caption.Value="",TRUE,FALSE)</Hidden>
+                            <Hidden>=iif(Fields!SortVATDate.Value,TRUE,FALSE) OR iif(Fields!VATEntry__No__Series_Caption.Value="",TRUE,FALSE)</Hidden>
                           </Visibility>
                           <KeepWithGroup>Before</KeepWithGroup>
                           <KeepTogether>true</KeepTogether>
@@ -4628,21 +4628,21 @@ Fields!CurrReport_PAGENOCaption.Value)</Hidden>
                     </TablixMember>
                     <TablixMember>
                       <Visibility>
-                        <Hidden>=iif(Fields!SortPostDate.Value,FALSE,TRUE)OR iif(Fields!VATEntry__No__Series_Caption.Value="",TRUE,FALSE)</Hidden>
+                        <Hidden>=iif(Fields!SortVATDate.Value,FALSE,TRUE)OR iif(Fields!VATEntry__No__Series_Caption.Value="",TRUE,FALSE)</Hidden>
                       </Visibility>
                       <KeepWithGroup>Before</KeepWithGroup>
                       <KeepTogether>true</KeepTogether>
                     </TablixMember>
                     <TablixMember>
                       <Visibility>
-                        <Hidden>=iif(LAST(Fields!AutoDocNo.Value)="" or (Fields!ShowAutoInvCred.Value=TRUE and Fields!SortPostDate.Value=TRUE),TRUE,FALSE)</Hidden>
+                        <Hidden>=iif(LAST(Fields!AutoDocNo.Value)="" or (Fields!ShowAutoInvCred.Value=TRUE and Fields!SortVATDate.Value=TRUE),TRUE,FALSE)</Hidden>
                       </Visibility>
                       <KeepWithGroup>Before</KeepWithGroup>
                       <KeepTogether>true</KeepTogether>
                     </TablixMember>
                     <TablixMember>
                       <Visibility>
-                        <Hidden>=iif(Fields!SortPostDate.Value,FALSE,TRUE)OR iif(Fields!NoSeriesCaption_NoTaxableEntry.Value="",TRUE,FALSE)</Hidden>
+                        <Hidden>=iif(Fields!SortVATDate.Value,FALSE,TRUE)OR iif(Fields!NoSeriesCaption_NoTaxableEntry.Value="",TRUE,FALSE)</Hidden>
                       </Visibility>
                       <KeepWithGroup>Before</KeepWithGroup>
                     </TablixMember>
@@ -5083,6 +5083,9 @@ End Function</Code>
         <Field Name="ShowAutoInvCred">
           <DataField>ShowAutoInvCred</DataField>
         </Field>
+        <Field Name="SortVATDate">
+          <DataField>SortVATDate</DataField>
+        </Field>
         <Field Name="SortPostDate">
           <DataField>SortPostDate</DataField>
         </Field>
@@ -5106,6 +5109,9 @@ End Function</Code>
         </Field>
         <Field Name="Posting_DateCaption">
           <DataField>Posting_DateCaption</DataField>
+        </Field>
+        <Field Name="VAT_DateCaption">
+          <DataField>VAT_DateCaption</DataField>
         </Field>
         <Field Name="External_Document_No_Caption">
           <DataField>External_Document_No_Caption</DataField>
@@ -5368,6 +5374,9 @@ End Function</Code>
         <Field Name="VATEntry_Posting_Date">
           <DataField>VATEntry_Posting_Date</DataField>
         </Field>
+        <Field Name="VATEntry_VAT_Date">
+          <DataField>VATEntry_VAT_Date</DataField>
+        </Field>
         <Field Name="VATEntry_Document_Type">
           <DataField>VATEntry_Document_Type</DataField>
         </Field>
@@ -5428,6 +5437,9 @@ End Function</Code>
         <Field Name="VATEntry6_Posting_Date">
           <DataField>VATEntry6_Posting_Date</DataField>
         </Field>
+        <Field Name="VATEntry6_VAT_Date">
+          <DataField>VATEntry6_VAT_Date</DataField>
+        </Field>
         <Field Name="VATEntry6_Document_Type">
           <DataField>VATEntry6_Document_Type</DataField>
         </Field>
@@ -5475,6 +5487,9 @@ End Function</Code>
         </Field>
         <Field Name="VATEntry6__Posting_Date_">
           <DataField>VATEntry6__Posting_Date_</DataField>
+        </Field>
+        <Field Name="VATEntry6__VAT_Date_">
+          <DataField>VATEntry6__VAT_Date_</DataField>
         </Field>
         <Field Name="AutoDocNo">
           <DataField>AutoDocNo</DataField>
@@ -5547,6 +5562,9 @@ End Function</Code>
         </Field>
         <Field Name="VATEntry2__Posting_Date_">
           <DataField>VATEntry2__Posting_Date_</DataField>
+        </Field>
+        <Field Name="VATEntry2__VAT_Date_">
+          <DataField>VATEntry2__VAT_Date_</DataField>
         </Field>
         <Field Name="Customer_Name">
           <DataField>Customer_Name</DataField>
@@ -5695,6 +5713,9 @@ End Function</Code>
         <Field Name="VATEntry4_Posting_Date">
           <DataField>VATEntry4_Posting_Date</DataField>
         </Field>
+        <Field Name="VATEntry4_VAT_Date">
+          <DataField>VATEntry4_VAT_Date</DataField>
+        </Field>
         <Field Name="VATEntry4_Document_No_">
           <DataField>VATEntry4_Document_No_</DataField>
         </Field>
@@ -5751,6 +5772,9 @@ End Function</Code>
         </Field>
         <Field Name="VATEntry4__Posting_Date_">
           <DataField>VATEntry4__Posting_Date_</DataField>
+        </Field>
+        <Field Name="VATEntry4__VAT_Date_">
+          <DataField>VATEntry4__VAT_Date_</DataField>
         </Field>
         <Field Name="AutoDocNo_Control91">
           <DataField>AutoDocNo_Control91</DataField>
@@ -5817,6 +5841,9 @@ End Function</Code>
         </Field>
         <Field Name="PostingDate_NoTaxableEntry">
           <DataField>PostingDate_NoTaxableEntry</DataField>
+        </Field>
+        <Field Name="VATDate_NoTaxableEntry">
+          <DataField>VATDate_NoTaxableEntry</DataField>
         </Field>
         <Field Name="DocumentNo_NoTaxableEntry">
           <DataField>DocumentNo_NoTaxableEntry</DataField>

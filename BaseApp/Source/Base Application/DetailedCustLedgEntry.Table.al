@@ -211,6 +211,10 @@
             Editable = false;
             TableRelation = "Exch. Rate Adjmt. Reg.";
         }
+        field(10700; "VAT Reporting Date"; Date) 
+        {
+            Caption = 'VAT Date';
+        }
         field(7000000; "Bill No."; Code[20])
         {
             Caption = 'Bill No.';

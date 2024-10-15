@@ -12,6 +12,10 @@ codeunit 9997 "Upgrade Tag Def - Country"
         PerCompanyUpgradeTags.Add(GetUpdateNoTaxableEntriesTag());
         PerCompanyUpgradeTags.Add(GetUpdateSIISetupSchemasTag());
         PerCompanyUpgradeTags.Add(GetUpdateSIICertificateTag());
+        PerCompanyUpgradeTags.Add(GetUpdateNoTaxableEntriesVATDateTag());
+        PerCompanyUpgradeTags.Add(GetUpdateCustVendWarning349VATDateTag());
+        PerCompanyUpgradeTags.Add(GetUpdateCustLedgerEntryVATDateTag());
+        PerCompanyUpgradeTags.Add(GetUpdateVendLedgerEntryVATDateTag());
     end;
 
     procedure GetUpdateEmployeeNewNamesTag(): Code[250]
@@ -38,5 +42,27 @@ codeunit 9997 "Upgrade Tag Def - Country"
     begin
         exit('MS-316847-ES-GetUpdateSIICertificateTag-20191206');
     end;
+
+    procedure GetUpdateNoTaxableEntriesVATDateTag(): Code[250]
+    begin
+        exit('MS-450002-ES-GetUpdateNoTaxableEntriesVATDateTag-20221007');
+    end;
+
+    procedure GetUpdateCustVendWarning349VATDateTag(): Code[250]
+    begin
+        exit('MS-450002-ES-GetUpdateCustVendWarning349VATDateTag-20221021');
+    end;
+
+    procedure GetUpdateCustLedgerEntryVATDateTag(): Code[250]
+    begin
+        exit('MS-450002-ES-GetUpdateCustLedgerEntryVATDateTag-20221021');
+    end;
+
+    procedure GetUpdateVendLedgerEntryVATDateTag(): Code[250]
+    begin
+        exit('MS-450002-ES-GetUpdateVendLedgerEntryVATDateTag-20221021');
+    end;
+
+
 }
 

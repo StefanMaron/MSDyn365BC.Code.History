@@ -2,6 +2,7 @@ page 36 "Assembly BOM"
 {
     AutoSplitKey = true;
     Caption = 'Assembly BOM';
+    DelayedInsert = true;
     DataCaptionFields = "Parent Item No.";
     PageType = List;
     RefreshOnActivate = true;
@@ -338,6 +339,8 @@ page 36 "Assembly BOM"
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
+        CheckMandatoryRecFieldsBeforePageInsert();
+
         IsEmptyOrItem := Type in [Type::" ", Type::Item];
     end;
 
@@ -345,5 +348,31 @@ page 36 "Assembly BOM"
         [InDataSet]
         IsEmptyOrItem: Boolean;
         VariantCodeMandatory: Boolean;
+
+    local procedure CheckMandatoryRecFieldsBeforePageInsert()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckMandatoryRecFieldsBeforePageInsert(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        Rec.TestField("Parent Item No.");
+        case Rec.Type of
+            Rec.Type::" ":
+                Rec.TestField("Description");
+            Rec.Type::Item, Rec.Type::Resource:
+                begin
+                    Rec.TestField("No.");
+                    Rec.TestField("Quantity per");
+                end;
+        end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckMandatoryRecFieldsBeforePageInsert(var BOMComponent: Record "BOM Component"; var IsHandled: Boolean)
+    begin
+    end;
 }
 

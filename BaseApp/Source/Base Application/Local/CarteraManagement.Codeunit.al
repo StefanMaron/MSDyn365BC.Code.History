@@ -28,7 +28,7 @@ codeunit 7000000 CarteraManagement
         VATUnrealAcc: Code[20];
         VATAcc: Code[20];
         TotalVATAmount: Decimal;
-        Text1100010: Label 'The document %1/%2 is marked to apply.';
+        EntryIsAppliedErr: Label 'The document %1/%2 is marked to apply.';
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         ElectPmtMgmt: Codeunit "Elect. Pmts Management";
 
@@ -228,7 +228,8 @@ codeunit 7000000 CarteraManagement
             repeat
                 if CustLedgEntry.Get("Entry No.") then
                     if CustLedgEntry."Applies-to ID" <> '' then
-                        Error(Text1100010, "Document No.", "No.");
+                        Error(EntryIsAppliedErr, "Document No.", "No.");
+
                 TestField(Type, Type::Receivable);
                 TestField("Bill Gr./Pmt. Order No.", '');
                 TestField("Currency Code", BillGr."Currency Code");
@@ -259,6 +260,7 @@ codeunit 7000000 CarteraManagement
         PmtOrd: Record "Payment Order";
         CarteraSetup: Record "Cartera Setup";
         VendLedgEntry: Record "Vendor Ledger Entry";
+        GenJournalLine: Record "Gen. Journal Line";
         CarteraDocuments: Page "Cartera Documents";
         GroupNo: Code[20];
         Vend: Record Vendor;
@@ -302,7 +304,14 @@ codeunit 7000000 CarteraManagement
             repeat
                 if VendLedgEntry.Get("Entry No.") then
                     if VendLedgEntry."Applies-to ID" <> '' then
-                        Error(Text1100010, "Document No.", "No.");
+                        Error(EntryIsAppliedErr, "Document No.", "No.");
+                GenJournalLine.Reset();
+                GenJournalLine.SetRange("Applies-to Doc. No.", VendLedgEntry."Document No.");
+                GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Vendor);
+                GenJournalLine.SetRange("Account No.", VendLedgEntry."Vendor No.");
+                if not GenJournalLine.IsEmpty() then
+                    Error(EntryIsAppliedErr, "Document No.", "No.");
+                
                 TestField(Type, Type::Payable);
                 TestField("Bill Gr./Pmt. Order No.", '');
                 TestField("Currency Code", PmtOrd."Currency Code");

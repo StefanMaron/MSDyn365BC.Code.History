@@ -260,7 +260,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=First(Fields!Posting_DateCaption.Value)</Value>
+                                  <Value>=First(Fields!VAT_DateCaption.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -813,7 +813,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!SortPostDate.Value</Value>
+                                  <Value>=Fields!SortVATDate.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Color>#ff0000</Color>
@@ -2115,7 +2115,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!PostingDate_NoTaxableEntry.Value</Value>
+                                  <Value>=Fields!VATDate_NoTaxableEntry.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>d</Format>
@@ -2530,7 +2530,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!VATEntry7__Posting_Date_.Value</Value>
+                                  <Value>=Fields!VATEntry7__VAT_Date_.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>d</Format>
@@ -2942,7 +2942,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!VATEntry2__Posting_Date_.Value</Value>
+                                  <Value>=Fields!VATEntry2__VAT_Date_.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>d</Format>
@@ -3351,7 +3351,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!VATEntry4__Posting_Date_.Value</Value>
+                                  <Value>=Fields!VATEntry4__VAT_Date_.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>d</Format>
@@ -5455,28 +5455,28 @@
                     <TablixMember>
                       <Group Name="table2_Group2">
                         <GroupExpressions>
-                          <GroupExpression>=iif(Fields!SortPostDate.Value,Fields!VATEntry_Posting_Date.Value,Fields!VATEntry__No__Series_.Value)</GroupExpression>
-                          <GroupExpression>=iif(Fields!SortPostDate.Value,Fields!VATEntry_Posting_Date.Value,Fields!No_SeriesAux_.Value)</GroupExpression>
-                          <GroupExpression>=iif(Fields!SortPostDate.Value,Fields!PostingDate_NoTaxableEntry.Value,Fields!NoSeries_NoTaxableEntry.Value)</GroupExpression>
+                          <GroupExpression>=iif(Fields!SortVATDate.Value,Fields!VATEntry_VAT_Date.Value,Fields!VATEntry__No__Series_.Value)</GroupExpression>
+                          <GroupExpression>=iif(Fields!SortVATDate.Value,Fields!VATEntry_VAT_Date.Value,Fields!No_SeriesAux_.Value)</GroupExpression>
+                          <GroupExpression>=iif(Fields!SortVATDate.Value,Fields!VATDate_NoTaxableEntry.Value,Fields!NoSeries_NoTaxableEntry.Value)</GroupExpression>
                         </GroupExpressions>
                       </Group>
                       <TablixMembers>
                         <TablixMember>
                           <Visibility>
-                            <Hidden>=iif(Fields!SortPostDate.Value,TRUE,FALSE)</Hidden>
+                            <Hidden>=iif(Fields!SortVATDate.Value,TRUE,FALSE)</Hidden>
                           </Visibility>
                           <KeepWithGroup>After</KeepWithGroup>
                           <KeepTogether>true</KeepTogether>
                         </TablixMember>
                         <TablixMember>
                           <Visibility>
-                            <Hidden>=IIF(Fields!NoSeries_NoTaxableEntry.Value="" or Fields!SortPostDate.Value or Fields!NoTaxableTitleText.Value="",TRUE,FALSE)</Hidden>
+                            <Hidden>=IIF(Fields!NoSeries_NoTaxableEntry.Value="" or Fields!SortVATDate.Value or Fields!NoTaxableTitleText.Value="",TRUE,FALSE)</Hidden>
                           </Visibility>
                           <KeepWithGroup>After</KeepWithGroup>
                         </TablixMember>
                         <TablixMember>
                           <Visibility>
-                            <Hidden>=iif(Fields!SortPostDate.Value or not Fields!NoTaxableTitleText.Value ="",TRUE,FALSE)</Hidden>
+                            <Hidden>=iif(Fields!SortVATDate.Value or not Fields!NoTaxableTitleText.Value ="",TRUE,FALSE)</Hidden>
                           </Visibility>
                           <KeepWithGroup>After</KeepWithGroup>
                           <KeepTogether>true</KeepTogether>
@@ -5490,7 +5490,7 @@
                         </TablixMember>
                         <TablixMember>
                           <Visibility>
-                            <Hidden>=IIF(Fields!NoSeries_NoTaxableEntry.Value="" or Fields!SortPostDate.Value,TRUE,FALSE)</Hidden>
+                            <Hidden>=IIF(Fields!NoSeries_NoTaxableEntry.Value="" or Fields!SortVATDate.Value,TRUE,FALSE)</Hidden>
                           </Visibility>
                           <KeepWithGroup>After</KeepWithGroup>
                         </TablixMember>
@@ -5504,16 +5504,16 @@
                         <TablixMember>
                           <Group Name="table2_Group4">
                             <GroupExpressions>
-                              <GroupExpression>=Fields!VATEntry2__Posting_Date_.Value</GroupExpression>
-                              <GroupExpression>=Fields!PostingDate_NoTaxableEntry.Value</GroupExpression>
+                              <GroupExpression>=Fields!VATEntry2__VAT_Date_.Value</GroupExpression>
+                              <GroupExpression>=Fields!VATDate_NoTaxableEntry.Value</GroupExpression>
                             </GroupExpressions>
                           </Group>
                           <TablixMembers>
                             <TablixMember>
                               <Group Name="table2_Group3">
                                 <GroupExpressions>
-                                  <GroupExpression>=Fields!VATEntry_Posting_Date.Value</GroupExpression>
-                                  <GroupExpression>=Fields!PostingDate_NoTaxableEntry.Value</GroupExpression>
+                                  <GroupExpression>=Fields!VATEntry_VAT_Date.Value</GroupExpression>
+                                  <GroupExpression>=Fields!VATDate_NoTaxableEntry.Value</GroupExpression>
                                 </GroupExpressions>
                               </Group>
                               <TablixMembers>
@@ -5553,13 +5553,13 @@
                         </TablixMember>
                         <TablixMember>
                           <Visibility>
-                            <Hidden>=iif(Fields!SortPostDate.Value,TRUE,FALSE) OR iif(Fields!NoSeriesCaption_NoTaxableEntry.Value="",TRUE,FALSE)</Hidden>
+                            <Hidden>=iif(Fields!SortVATDate.Value,TRUE,FALSE) OR iif(Fields!NoSeriesCaption_NoTaxableEntry.Value="",TRUE,FALSE)</Hidden>
                           </Visibility>
                           <KeepWithGroup>Before</KeepWithGroup>
                         </TablixMember>
                         <TablixMember>
                           <Visibility>
-                            <Hidden>=iif(Fields!SortPostDate.Value,TRUE,FALSE) OR iif(Fields!VATEntry__No__Series_Caption.Value="",TRUE,FALSE)</Hidden>
+                            <Hidden>=iif(Fields!SortVATDate.Value,TRUE,FALSE) OR iif(Fields!VATEntry__No__Series_Caption.Value="",TRUE,FALSE)</Hidden>
                           </Visibility>
                           <KeepWithGroup>Before</KeepWithGroup>
                           <KeepTogether>true</KeepTogether>
@@ -5575,7 +5575,7 @@
                     </TablixMember>
                     <TablixMember>
                       <Visibility>
-                        <Hidden>=iif(Fields!SortPostDate.Value,FALSE,TRUE)OR iif(Fields!VATEntry__No__Series_Caption.Value="",TRUE,FALSE)or iif(Fields!AutoDocNo.Value="",FALSE,TRUE)</Hidden>
+                        <Hidden>=iif(Fields!SortVATDate.Value,FALSE,TRUE)OR iif(Fields!VATEntry__No__Series_Caption.Value="",TRUE,FALSE)or iif(Fields!AutoDocNo.Value="",FALSE,TRUE)</Hidden>
                       </Visibility>
                       <KeepWithGroup>Before</KeepWithGroup>
                       <KeepTogether>true</KeepTogether>
@@ -5589,7 +5589,7 @@
                     </TablixMember>
                     <TablixMember>
                       <Visibility>
-                        <Hidden>=iif(Fields!SortPostDate.Value,FALSE,TRUE) or iif(Fields!DocumentNo_NoTaxableEntry.Value="",TRUE,FALSE)</Hidden>
+                        <Hidden>=iif(Fields!SortVATDate.Value,FALSE,TRUE) or iif(Fields!DocumentNo_NoTaxableEntry.Value="",TRUE,FALSE)</Hidden>
                       </Visibility>
                       <KeepWithGroup>Before</KeepWithGroup>
                     </TablixMember>
@@ -5986,6 +5986,9 @@ End Function
         <Field Name="SortPostDate">
           <DataField>SortPostDate</DataField>
         </Field>
+        <Field Name="SortVATDate">
+          <DataField>SortVATDate</DataField>
+        </Field>
         <Field Name="PrintAmountsInAddCurrency">
           <DataField>PrintAmountsInAddCurrency</DataField>
         </Field>
@@ -6030,6 +6033,9 @@ End Function
         </Field>
         <Field Name="Posting_DateCaption">
           <DataField>Posting_DateCaption</DataField>
+        </Field>
+        <Field Name="VAT_DateCaption">
+          <DataField>VAT_DateCaption</DataField>
         </Field>
         <Field Name="Document_DateCaption">
           <DataField>Document_DateCaption</DataField>
@@ -6274,6 +6280,9 @@ End Function
         <Field Name="VATEntry_Posting_Date">
           <DataField>VATEntry_Posting_Date</DataField>
         </Field>
+        <Field Name="VATEntry_VAT_Date">
+          <DataField>VATEntry_VAT_Date</DataField>
+        </Field>
         <Field Name="VATEntry_Document_Type">
           <DataField>VATEntry_Document_Type</DataField>
         </Field>
@@ -6334,6 +6343,9 @@ End Function
         <Field Name="VATEntry6_Posting_Date">
           <DataField>VATEntry6_Posting_Date</DataField>
         </Field>
+        <Field Name="VATEntry6_VAT_Date">
+          <DataField>VATEntry6_VAT_Date</DataField>
+        </Field>
         <Field Name="VATEntry6_Document_Date">
           <DataField>VATEntry6_Document_Date</DataField>
         </Field>
@@ -6369,6 +6381,9 @@ End Function
         </Field>
         <Field Name="VATEntry7__Posting_Date_">
           <DataField>VATEntry7__Posting_Date_</DataField>
+        </Field>
+        <Field Name="VATEntry7__VAT_Date_">
+          <DataField>VATEntry7__VAT_Date_</DataField>
         </Field>
         <Field Name="VATEntry7__Document_Date_">
           <DataField>VATEntry7__Document_Date_</DataField>
@@ -6441,6 +6456,9 @@ End Function
         </Field>
         <Field Name="VATEntry2__Posting_Date_">
           <DataField>VATEntry2__Posting_Date_</DataField>
+        </Field>
+        <Field Name="VATEntry2__VAT_Date_">
+          <DataField>VATEntry2__VAT_Date_</DataField>
         </Field>
         <Field Name="VATEntry2__Document_Date_">
           <DataField>VATEntry2__Document_Date_</DataField>
@@ -6610,6 +6628,9 @@ End Function
         <Field Name="VATEntry3_Posting_Date">
           <DataField>VATEntry3_Posting_Date</DataField>
         </Field>
+        <Field Name="VATEntry3_VAT_Date">
+          <DataField>VATEntry3_VAT_Date</DataField>
+        </Field>
         <Field Name="VATEntry3_Document_No_">
           <DataField>VATEntry3_Document_No_</DataField>
         </Field>
@@ -6636,6 +6657,9 @@ End Function
         </Field>
         <Field Name="VATEntry4_Posting_Date">
           <DataField>VATEntry4_Posting_Date</DataField>
+        </Field>
+        <Field Name="VATEntry4_VAT_Date">
+          <DataField>VATEntry4_VAT_Date</DataField>
         </Field>
         <Field Name="VATEntry4_Document_Date">
           <DataField>VATEntry4_Document_Date</DataField>
@@ -6693,6 +6717,9 @@ End Function
         </Field>
         <Field Name="VATEntry4__Posting_Date_">
           <DataField>VATEntry4__Posting_Date_</DataField>
+        </Field>
+        <Field Name="VATEntry4__VAT_Date_">
+          <DataField>VATEntry4__VAT_Date_</DataField>
         </Field>
         <Field Name="FORMAT_VATEntry4__Document_Date__">
           <DataField>FORMAT_VATEntry4__Document_Date__</DataField>
@@ -6753,6 +6780,9 @@ End Function
         </Field>
         <Field Name="PostingDate_NoTaxableEntry">
           <DataField>PostingDate_NoTaxableEntry</DataField>
+        </Field>
+        <Field Name="VATDate_NoTaxableEntry">
+          <DataField>VATDate_NoTaxableEntry</DataField>
         </Field>
         <Field Name="DocumentNo_NoTaxableEntry">
           <DataField>DocumentNo_NoTaxableEntry</DataField>

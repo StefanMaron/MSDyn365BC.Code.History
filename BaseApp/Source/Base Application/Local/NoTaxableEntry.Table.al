@@ -162,6 +162,10 @@ table 10740 "No Taxable Entry"
         {
             Caption = 'Amount (ACY)';
         }
+        field(10707; "VAT Reporting Date"; Date)
+        {
+            Caption = 'VAT Date';
+        }
     }
 
     keys
@@ -177,6 +181,12 @@ table 10740 "No Taxable Entry"
         {
         }
         key(Key4; "No. Series", "Posting Date", "Document No.")
+        {
+        }
+        key(Key5; Type, "VAT Reporting Date", "Document Type", "Document No.", "Source No.")
+        {
+        }
+        key(Key6; "No. Series", "VAT Reporting Date", "Document No.")
         {
         }
     }
@@ -196,6 +206,16 @@ table 10740 "No Taxable Entry"
         SetRange(Reversed, IsReversed);
     end;
 
+    internal procedure FilterNoTaxableEntryWithVATReportingDate(EntryType: Option; SourceNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; VATReportingDate: Date; IsReversed: Boolean)
+    begin
+        SetRange(Type, EntryType);
+        SetRange("Source No.", SourceNo);
+        SetRange("Document Type", DocumentType);
+        SetRange("Document No.", DocumentNo);
+        SetRange("VAT Reporting Date", VATReportingDate);
+        SetRange(Reversed, IsReversed);
+    end;
+
     [Scope('OnPrem')]
     procedure FilterNoTaxableEntriesForSource(EntryType: Option; SourceNo: Code[20]; DocumentType: Option; FromDate: Date; ToDate: Date; GenProdPostGroupFilter: Text)
     begin
@@ -203,6 +223,18 @@ table 10740 "No Taxable Entry"
         SetRange("Source No.", SourceNo);
         SetRange("Document Type", DocumentType);
         SetRange("Posting Date", FromDate, ToDate);
+        if GenProdPostGroupFilter <> '' then
+            SetFilter("Gen. Prod. Posting Group", GenProdPostGroupFilter);
+        SetRange(Intracommunity, true);
+        SetRange(Reversed, false);
+    end;
+
+    internal procedure FilterNoTaxableEntriesForSourceWithVATReportingDate(EntryType: Option; SourceNo: Code[20]; DocumentType: Option; FromDate: Date; ToDate: Date; GenProdPostGroupFilter: Text)
+    begin
+        SetRange(Type, EntryType);
+        SetRange("Source No.", SourceNo);
+        SetRange("Document Type", DocumentType);
+        SetRange("VAT Reporting Date", FromDate, ToDate);
         if GenProdPostGroupFilter <> '' then
             SetFilter("Gen. Prod. Posting Group", GenProdPostGroupFilter);
         SetRange(Intracommunity, true);
@@ -224,6 +256,7 @@ table 10740 "No Taxable Entry"
         "No. Series" := GenJournalLine."Posting No. Series";
         "EU 3-Party Trade" := GenJournalLine."EU 3-Party Trade";
         "VAT Registration No." := GenJournalLine."VAT Registration No.";
+        "VAT Reporting Date" := GenJournalLine."VAT Reporting Date";
 
         OnAfterInitFromGenJnlLine(Rec, GenJournalLine);
     end;
@@ -246,6 +279,7 @@ table 10740 "No Taxable Entry"
         "No. Series" := ServiceHeader."Posting No. Series";
         "EU 3-Party Trade" := ServiceHeader."EU 3-Party Trade";
         "VAT Registration No." := ServiceHeader."VAT Registration No.";
+        "VAT Reporting Date" := ServiceHeader."VAT Reporting Date";
 
         OnAfterInitFromServiceDocument(Rec, ServiceHeader);
     end;
@@ -266,6 +300,7 @@ table 10740 "No Taxable Entry"
         "EU 3-Party Trade" := EU3PartyTrade;
         "VAT Registration No." := VATRegistrationNo;
         "Transaction No." := VendorLedgerEntry."Transaction No.";
+        "VAT Reporting Date" := VendorLedgerEntry."VAT Reporting Date";
 
         OnAfterInitFromVendorEntry(Rec, VendorLedgerEntry);
     end;
@@ -286,6 +321,7 @@ table 10740 "No Taxable Entry"
         "EU 3-Party Trade" := EU3PartyTrade;
         "VAT Registration No." := VATRegistrationNo;
         "Transaction No." := CustLedgerEntry."Transaction No.";
+        "VAT Reporting Date" := CustLedgerEntry."VAT Reporting Date";
 
         OnAfterInitFromCustomerEntry(Rec, CustLedgerEntry);
     end;

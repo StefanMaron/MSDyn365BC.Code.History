@@ -716,6 +716,10 @@
         {
             Caption = 'Last Summary Doc. No.';
         }
+        field(10728; "VAT Reporting Date"; Date) 
+        {
+            Caption = 'VAT Date';
+        }
         field(7000000; "Bill No."; Code[20])
         {
             Caption = 'Bill No.';
@@ -1229,6 +1233,7 @@
         "ID Type" := GenJnlLine."ID Type";
         "Issued By Third Party" := GenJnlLine."Issued By Third Party";
         "Do Not Send To SII" := GenJnlLine."Do Not Send To SII";
+        "VAT Reporting Date" := GenJnlLine."VAT Reporting Date";
 
         OnAfterCopyCustLedgerEntryFromGenJnlLine(Rec, GenJnlLine);
     end;

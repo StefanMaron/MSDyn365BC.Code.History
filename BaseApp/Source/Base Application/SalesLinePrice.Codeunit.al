@@ -57,7 +57,7 @@
                 Result or
                 not (CalledByFieldNo in [SalesLine.FieldNo(Quantity), SalesLine.FieldNo("Variant Code")]);
 
-        OnAfterIsPriceUpdateNeeded(AmountType, FoundPrice, CalledByFieldNo, Result);
+        OnAfterIsPriceUpdateNeeded(AmountType, FoundPrice, CalledByFieldNo, Result, SalesLine);
     end;
 
     procedure IsDiscountAllowed() Result: Boolean;
@@ -67,7 +67,14 @@
     end;
 
     procedure Verify()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVerify(SalesHeader, SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesLine.TestField("Qty. per Unit of Measure");
         if SalesHeader."Currency Code" <> '' then
             SalesHeader.TestField("Currency Factor");
@@ -354,6 +361,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerify(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCopyToBufferOnAfterPriceCalculationBufferMgtSet(var PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt."; PriceCalculationBuffer: Record "Price Calculation Buffer"; var PriceSourceList: Codeunit "Price Source List")
     begin
     end;
@@ -369,7 +381,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterIsPriceUpdateNeeded(AmountType: Enum "Price Amount Type"; FoundPrice: Boolean; CalledByFieldNo: Integer; var Result: Boolean)
+    local procedure OnAfterIsPriceUpdateNeeded(AmountType: Enum "Price Amount Type"; FoundPrice: Boolean; CalledByFieldNo: Integer; var Result: Boolean; SalesLine: Record "Sales Line")
     begin
     end;
 

@@ -53,7 +53,7 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
         exit(CurrPriceType);
     end;
 
-    procedure IsPriceUpdateNeeded(AmountType: enum "Price Amount Type"; FoundPrice: Boolean; CalledByFieldNo: Integer) Result: Boolean;
+    procedure IsPriceUpdateNeeded(AmountType: Enum "Price Amount Type"; FoundPrice: Boolean; CalledByFieldNo: Integer) Result: Boolean;
     begin
         if PurchaseLine."Prepmt. Amt. Inv." <> 0 then
             Result := false
@@ -66,6 +66,7 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
                     not ((CalledByFieldNo = PurchaseLine.FieldNo("Job No.")) or (CalledByFieldNo = PurchaseLine.FieldNo("Job Task No.")) or
                          (CalledByFieldNo = PurchaseLine.FieldNo(Quantity)) or
                         ((CalledByFieldNo = PurchaseLine.FieldNo("Variant Code")) and not IsSKU));
+        OnAfterIsPriceUpdateNeeded(AmountType, FoundPrice, CalledByFieldNo, PurchaseLine, Result, IsSKU);
     end;
 
     procedure IsDiscountAllowed() Result: Boolean;
@@ -74,7 +75,14 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
     end;
 
     procedure Verify()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVerify(PurchaseHeader, PurchaseLine, IsHandled);
+        if IsHandled then
+            exit;
+
         PurchaseLine.TestField("Qty. per Unit of Measure");
         if PurchaseHeader."Currency Code" <> '' then
             PurchaseHeader.TestField("Currency Factor");
@@ -278,6 +286,11 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterIsPriceUpdateNeeded(AmountType: Enum "Price Amount Type"; FoundPrice: Boolean; CalledByFieldNo: Integer; PurchaseLine: Record "Purchase Line"; var Result: Boolean; IsSKU: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetPrice(var PurchaseLine: Record "Purchase Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type"; CurrPriceType: Enum "Price Type")
     begin
     end;
@@ -289,6 +302,11 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidatePrice(var PurchaseLine: Record "Purchase Line"; CurrPriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerify(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 

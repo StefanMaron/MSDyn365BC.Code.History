@@ -279,6 +279,7 @@ codeunit 5775 "Whse. Management"
         ProdOrderComp: Record "Prod. Order Component";
         AssemblyLine: Record "Assembly Line";
         ProdOrderLine: Record "Prod. Order Line";
+        JobPlanningLine: Record "Job Planning Line";
     begin
         case SourceType of
             DATABASE::"Sales Line":
@@ -330,6 +331,16 @@ codeunit 5775 "Whse. Management"
                 if ProdOrderLine.Get(SourceSubType, SourceNo, SourceLineNo) then begin
                     QtyOutstanding := ProdOrderLine."Remaining Quantity";
                     QtyBaseOutstanding := ProdOrderLine."Remaining Qty. (Base)";
+                end;
+            DATABASE::"Job Planning Line":
+                begin
+                    JobPlanningLine.Setrange(Status, SourceSubType);
+                    JobPlanningLine.SetRange("Job No.", SourceNo);
+                    JobPlanningLine.SetRange("Job Contract Entry No.", SourceLineNo);
+                    if JobPlanningLine.FindFirst() then begin
+                        QtyOutstanding := JobPlanningLine."Remaining Qty.";
+                        QtyBaseOutstanding := JobPlanningLine."Remaining Qty. (Base)";
+                    end;
                 end;
             else begin
                 QtyOutstanding := 0;

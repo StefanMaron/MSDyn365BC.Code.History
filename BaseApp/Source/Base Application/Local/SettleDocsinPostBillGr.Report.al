@@ -54,6 +54,7 @@ report 7000098 "Settle Docs. in Post. Bill Gr."
                     OnAfterGetPostedDocOnBeforeValidateAccountNo(
                       GenJnlLine, PostedDoc, VATPostingSetup, CustLedgEntry, FromJnl, ExistsNoRealVAT);
                     Validate("Account No.", CustLedgEntry."Customer No.");
+                    Validate("Salespers./Purch. Code", CustLedgEntry."Salesperson Code");
                     if PostedDoc."Document Type" = PostedDoc."Document Type"::Bill then
                         Description := CopyStr(
                             StrSubstNo(Text1100001, PostedDoc."Document No.", PostedDoc."No."),

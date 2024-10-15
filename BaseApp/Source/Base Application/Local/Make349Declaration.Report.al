@@ -67,7 +67,7 @@ report 10710 "Make 349 Declaration"
                         VATCredSales.SetRange(Type, VATCredSales.Type::Sale);
                         VATCredSales.SetRange("Document Type", VATCredSales."Document Type"::"Credit Memo");
                         VATCredSales.SetRange("Bill-to/Pay-to No.", Customer2."No.");
-                        VATCredSales.SetRange("Posting Date", FromDate, ToDate);
+                        VATCredSales.SetRange("VAT Reporting Date", FromDate, ToDate);
                         VATCredSales.SetFilter("Gen. Prod. Posting Group", FilterString);
                         if VATCredSales.FindSet() then
                             repeat
@@ -77,7 +77,7 @@ report 10710 "Make 349 Declaration"
                                        (VATCredSales."Country/Region Code" <> CompanyInfo."Country/Region Code")
                                     then
                                         InsertCustWarning349(
-                                          Customer2."No.", Customer2.Name, VATCredSales."Posting Date",
+                                          Customer2."No.", Customer2.Name, VATCredSales."VAT Reporting Date",
                                           VATCredSales."Document Type", VATCredSales."Document No.",
                                           VATCredSales."EU 3-Party Trade", VATCredSales."EU Service", VATCredSales.Base >= 0,
                                           VATCredSales."Entry No.", 0, VATCredSales."Delivery Operation Code");
@@ -116,7 +116,7 @@ report 10710 "Make 349 Declaration"
                         VATCredPurch.SetRange(Type, VATCredPurch.Type::Purchase);
                         VATCredPurch.SetRange("Document Type", VATCredPurch."Document Type"::"Credit Memo");
                         VATCredPurch.SetRange("Bill-to/Pay-to No.", Vendor2."No.");
-                        VATCredPurch.SetRange("Posting Date", FromDate, ToDate);
+                        VATCredPurch.SetRange("VAT Reporting Date", FromDate, ToDate);
                         VATCredPurch.SetFilter("Gen. Prod. Posting Group", FilterString);
                         if VATCredPurch.FindSet() then
                             repeat
@@ -126,7 +126,7 @@ report 10710 "Make 349 Declaration"
                                        (VATCredPurch."Country/Region Code" <> CompanyInfo."Country/Region Code")
                                     then
                                         InsertVendWarning349(
-                                          Vendor2."No.", Vendor2.Name, VATCredPurch."Posting Date",
+                                          Vendor2."No.", Vendor2.Name, VATCredPurch."VAT Reporting Date",
                                           VATCredPurch."Document Type", VATCredPurch."Document No.",
                                           VATCredPurch."EU 3-Party Trade", VATCredPurch."EU Service", VATCredPurch.Base >= 0, VATCredPurch."Entry No.", 0);
                                 end;
@@ -200,8 +200,6 @@ report 10710 "Make 349 Declaration"
                     AccumOrigDeclAmountEUService := 0;
                     AccumPrevDeclAmountTri := 0;
                     AccumOrigDeclAmountTri := 0;
-                    NoTaxableAmountOpTri := 0;
-                    NoTaxableAmountEUService := 0;
                     Customer2.Reset();
                     Customer2.SetRange("VAT Registration No.", "VAT Registration No.");
                     if Customer2.FindSet() then begin
@@ -259,6 +257,9 @@ report 10710 "Make 349 Declaration"
                                     end;
                                 until VATInvSales.Next() = 0;
 
+                            NoTaxableAmountOpTri := 0;
+                            NoTaxableAmountEUService := 0;
+                            Clear(NoTaxableNormalAmountSales);
                             CalcNoTaxableAmountCustomer(NoTaxableNormalAmountSales);
 
                             for i := 1 to 3 do
@@ -271,7 +272,7 @@ report 10710 "Make 349 Declaration"
                             CustVendWarning349.Reset();
                             CustVendWarning349.SetRange(Type, CustVendWarning349.Type::Sale);
                             CustVendWarning349.SetRange("Customer/Vendor No.", Customer2."No.");
-                            CustVendWarning349.SetRange("Posting Date", FromDate, ToDate);
+                            CustVendWarning349.SetRange("VAT Reporting Date", FromDate, ToDate);
                             CustVendWarning349.SetRange("Include Correction", true);
                             if CustVendWarning349.FindSet() then
                                 repeat
@@ -578,7 +579,7 @@ report 10710 "Make 349 Declaration"
                             CustVendWarning349.Reset();
                             CustVendWarning349.SetRange(Type, CustVendWarning349.Type::Purchase);
                             CustVendWarning349.SetRange("Customer/Vendor No.", Vendor2."No.");
-                            CustVendWarning349.SetRange("Posting Date", FromDate, ToDate);
+                            CustVendWarning349.SetRange("VAT Reporting Date", FromDate, ToDate);
                             CustVendWarning349.SetRange("Include Correction", true);
                             if CustVendWarning349.FindSet() then
                                 repeat
@@ -1690,9 +1691,9 @@ report 10710 "Make 349 Declaration"
            (VendLedgEntry."Closed by Entry No." <> 0) and
            AppliedVendLedgEntry.Get(VendLedgEntry."Closed by Entry No.")
         then
-            RectFiscalYear := Format(Date2DMY(AppliedVendLedgEntry."Posting Date", 3))
+            RectFiscalYear := Format(Date2DMY(AppliedVendLedgEntry."VAT Reporting Date", 3))
         else
-            RectFiscalYear := Format(Date2DMY(VendLedgEntry."Posting Date", 3));
+            RectFiscalYear := Format(Date2DMY(VendLedgEntry."VAT Reporting Date", 3));
     end;
 
     local procedure CalcCustDeclarationPeriodInfo(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; CustNo: Code[20])
@@ -1706,9 +1707,9 @@ report 10710 "Make 349 Declaration"
            (CustEntries."Closed by Entry No." <> 0) and
            CustEntries2.Get(CustEntries."Closed by Entry No.")
         then
-            RectFiscalYear := Format(Date2DMY(CustEntries2."Posting Date", 3))
+            RectFiscalYear := Format(Date2DMY(CustEntries2."VAT Reporting Date", 3))
         else
-            RectFiscalYear := Format(Date2DMY(CustEntries."Posting Date", 3));
+            RectFiscalYear := Format(Date2DMY(CustEntries."VAT Reporting Date", 3));
     end;
 
     local procedure CalcNoTaxableAmountVendor(var NormalAmount: Decimal; var EUServiceAmount: Decimal; VendorNo: Code[20]; FromDate: Date; ToDate: Date; FilterString: Text[1024])
@@ -1746,7 +1747,7 @@ report 10710 "Make 349 Declaration"
             SetRange(Type, Type::Purchase);
             SetRange("Document Type", "Document Type"::Invoice);
             SetRange("Bill-to/Pay-to No.", BillToPayNo);
-            SetRange("Posting Date", FromDate, ToDate);
+            SetRange("VAT Reporting Date", FromDate, ToDate);
             SetRange("EU Service", EUService);
             SetFilter("Gen. Prod. Posting Group", GenProdPostingGroupFilter);
         end;
@@ -1759,7 +1760,7 @@ report 10710 "Make 349 Declaration"
             SetRange(Type, Type::Sale);
             SetRange("Document Type", "Document Type"::Invoice);
             SetRange("Bill-to/Pay-to No.", BillToPayNo);
-            SetRange("Posting Date", FromDate, ToDate);
+            SetRange("VAT Reporting Date", FromDate, ToDate);
             SetRange("EU Service", EUService);
             SetFilter("Gen. Prod. Posting Group", GenProdPostingGroupFilter);
         end;
@@ -1841,7 +1842,7 @@ report 10710 "Make 349 Declaration"
           Format(CountryRegion.GetVATRegistrationNoLimitedBySetup(VATRegistrationNo), MaxStrLen(CombinedVATRegNo));
     end;
 
-    local procedure InsertVendWarning349(No: Code[20]; Name: Text[100]; PostingDate: Date; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; EU3PartyTrade: Boolean; EUService: Boolean; PositiveBase: Boolean; VATEntryNo: Integer; NoTaxableEntryNo: Integer)
+    local procedure InsertVendWarning349(No: Code[20]; Name: Text[100]; VATReportingDate: Date; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; EU3PartyTrade: Boolean; EUService: Boolean; PositiveBase: Boolean; VATEntryNo: Integer; NoTaxableEntryNo: Integer)
     begin
         CalcVendDeclarationPeriodInfo(DocType, DocNo, No);
 
@@ -1851,7 +1852,7 @@ report 10710 "Make 349 Declaration"
         CustVendWarning349.Type := CustVendWarning349.Type::Purchase;
         CustVendWarning349."Customer/Vendor No." := No;
         CustVendWarning349."Customer/Vendor Name" := Name;
-        CustVendWarning349."Posting Date" := PostingDate;
+        CustVendWarning349."VAT Reporting Date" := VATReportingDate;
         CustVendWarning349."Document No." := DocNo;
         CustVendWarning349."EU 3-Party Trade" := EU3PartyTrade;
         CustVendWarning349."EU Service" := EUService;
@@ -1867,7 +1868,7 @@ report 10710 "Make 349 Declaration"
         CustVendWarning349.Insert();
     end;
 
-    local procedure InsertCustWarning349(No: Code[20]; Name: Text[100]; PostingDate: Date; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; EU3PartyTrade: Boolean; EUService: Boolean; PositiveBase: Boolean; VATEntryNo: Integer; NoTaxableEntryNo: Integer; DeliveryOperationCode: Option)
+    local procedure InsertCustWarning349(No: Code[20]; Name: Text[100]; VATReportingDate: Date; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; EU3PartyTrade: Boolean; EUService: Boolean; PositiveBase: Boolean; VATEntryNo: Integer; NoTaxableEntryNo: Integer; DeliveryOperationCode: Option)
     begin
         CalcCustDeclarationPeriodInfo(DocType, DocNo, No);
 
@@ -1877,7 +1878,7 @@ report 10710 "Make 349 Declaration"
         CustVendWarning349.Type := CustVendWarning349.Type::Sale;
         CustVendWarning349."Customer/Vendor No." := No;
         CustVendWarning349."Customer/Vendor Name" := Name;
-        CustVendWarning349."Posting Date" := PostingDate;
+        CustVendWarning349."VAT Reporting Date" := VATReportingDate;
         CustVendWarning349."Document No." := DocNo;
         CustVendWarning349."EU 3-Party Trade" := EU3PartyTrade;
         CustVendWarning349."EU Service" := EUService;
@@ -1898,7 +1899,7 @@ report 10710 "Make 349 Declaration"
     var
         NoTaxableEntry: Record "No Taxable Entry";
     begin
-        NoTaxableEntry.FilterNoTaxableEntriesForSource(
+        NoTaxableEntry.FilterNoTaxableEntriesForSourceWithVATReportingDate(
           "General Posting Type"::Sale.AsInteger(), Customer2."No.", "Gen. Journal Document Type"::"Credit Memo".AsInteger(),
           FromDate, ToDate, FilterString);
         if NoTaxableEntry.IsEmpty() then
@@ -1907,7 +1908,7 @@ report 10710 "Make 349 Declaration"
         NoTaxableEntry.FindSet();
         repeat
             InsertCustWarning349(
-              Customer2."No.", Customer2.Name, NoTaxableEntry."Posting Date",
+              Customer2."No.", Customer2.Name, NoTaxableEntry."VAT Reporting Date",
               NoTaxableEntry."Document Type"::"Credit Memo", NoTaxableEntry."Document No.",
               NoTaxableEntry."EU 3-Party Trade", NoTaxableEntry."EU Service", false, 0, NoTaxableEntry."Entry No.", 0);
         until NoTaxableEntry.Next() = 0;
@@ -1917,7 +1918,7 @@ report 10710 "Make 349 Declaration"
     var
         NoTaxableEntry: Record "No Taxable Entry";
     begin
-        NoTaxableEntry.FilterNoTaxableEntriesForSource(
+        NoTaxableEntry.FilterNoTaxableEntriesForSourceWithVATReportingDate(
           "General Posting Type"::Purchase.AsInteger(), Vendor2."No.", "Gen. Journal Document Type"::"Credit Memo".AsInteger(),
           FromDate, ToDate, FilterString);
         if NoTaxableEntry.IsEmpty() then
@@ -1926,7 +1927,7 @@ report 10710 "Make 349 Declaration"
         NoTaxableEntry.FindSet();
         repeat
             InsertVendWarning349(
-              Vendor2."No.", Vendor2.Name, NoTaxableEntry."Posting Date",
+              Vendor2."No.", Vendor2.Name, NoTaxableEntry."VAT Reporting Date",
               NoTaxableEntry."Document Type"::"Credit Memo", NoTaxableEntry."Document No.",
               NoTaxableEntry."EU 3-Party Trade", NoTaxableEntry."EU Service", false, 0, NoTaxableEntry."Entry No.");
         until NoTaxableEntry.Next() = 0;

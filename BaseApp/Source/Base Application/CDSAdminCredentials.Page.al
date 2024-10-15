@@ -41,23 +41,35 @@ page 7202 "CDS Admin Credentials"
         EmptyPasswordErr: Label 'Enter password.';
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
+    begin
+        if CloseAction = Action::LookupOK then begin
+            CheckEmailPassword();
+            SetConnectionSetupProperties()
+        end;
+    end;
+
+    [NonDebuggable]
+    local procedure CheckEmailPassword()
+    begin
+        if Email.Trim() = '' then
+            Error(EmptyUserNameErr);
+        if Password = '' then
+            Error(EmptyPasswordErr);
+    end;
+
+    [NonDebuggable]
+    local procedure SetConnectionSetupProperties()
     var
         TempCDSConnectionSetup: Record "CDS Connection Setup" temporary;
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
     begin
-        if CloseAction = Action::LookupOK then begin
-            if Email.Trim() = '' then
-                Error(EmptyUserNameErr);
-            if Password = '' then
-                Error(EmptyPasswordErr);
-            TempCDSConnectionSetup."Authentication Type" := TempCDSConnectionSetup."Authentication Type"::Office365;
-            TempCDSConnectionSetup."Proxy Version" := CDSIntegrationImpl.GetLastProxyVersionItem();
-            TempCDSConnectionSetup."Server Address" := Endpoint;
-            TempCDSConnectionSetup."User Name" := Email;
-            TempCDSConnectionSetup.SetPassword(Password);
-            CDSIntegrationImpl.UpdateConnectionString(TempCDSConnectionSetup);
-            CDSIntegrationImpl.CheckAdminUserPrerequisites(TempCDSConnectionSetup, Email, Password, '', '');
-        end;
+        TempCDSConnectionSetup."Authentication Type" := TempCDSConnectionSetup."Authentication Type"::Office365;
+        TempCDSConnectionSetup."Proxy Version" := CDSIntegrationImpl.GetLastProxyVersionItem();
+        TempCDSConnectionSetup."Server Address" := Endpoint;
+        TempCDSConnectionSetup."User Name" := Email;
+        TempCDSConnectionSetup.SetPassword(Password);
+        CDSIntegrationImpl.UpdateConnectionString(TempCDSConnectionSetup);
+        CDSIntegrationImpl.CheckAdminUserPrerequisites(TempCDSConnectionSetup, Email, Password, '', '');
     end;
 }
 

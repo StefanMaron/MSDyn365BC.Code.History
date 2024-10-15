@@ -29,12 +29,12 @@ report 10707 "Make 347 Declaration"
             dataitem("Cust. Ledger Entry"; "Cust. Ledger Entry")
             {
                 CalcFields = Amount;
-                DataItemLink = "Customer No." = FIELD("No."), "Posting Date" = FIELD("Date Filter");
-                DataItemTableView = SORTING("Document Type", "Customer No.", "Global Dimension 1 Code", "Global Dimension 2 Code", "Posting Date", "Currency Code");
+                DataItemLink = "Customer No." = FIELD("No."), "VAT Reporting Date" = FIELD("Date Filter");
+                DataItemTableView = SORTING("Document Type", "Customer No.", "Global Dimension 1 Code", "Global Dimension 2 Code", "VAT Reporting Date", "Currency Code");
                 dataitem(GLEntry1; "G/L Entry")
                 {
-                    DataItemLink = "Document No." = FIELD("Document No."), "Posting Date" = FIELD("Posting Date");
-                    DataItemTableView = SORTING("Document No.", "Posting Date") WHERE("Gen. Posting Type" = CONST(Sale));
+                    DataItemLink = "Document No." = FIELD("Document No."), "VAT Reporting Date" = FIELD("VAT Reporting Date");
+                    DataItemTableView = SORTING("Document No.", "VAT Reporting Date") WHERE("Gen. Posting Type" = CONST(Sale));
                     PrintOnlyIfDetail = true;
 
                     trigger OnAfterGetRecord()
@@ -56,7 +56,7 @@ report 10707 "Make 347 Declaration"
                     NoTaxVATFound := false;
                     FromJournal := false;
 
-                    FilterVATEntry(VATEntry, "Posting Date", "Document Type", "Document No.", true);
+                    FilterVATEntry(VATEntry, "VAT Reporting Date", "Document Type", "Document No.", true);
 
                     if not VATEntry.FindFirst() then begin
                         case "Document Type" of
@@ -235,12 +235,12 @@ report 10707 "Make 347 Declaration"
             dataitem("Vendor Ledger Entry"; "Vendor Ledger Entry")
             {
                 CalcFields = Amount;
-                DataItemLink = "Vendor No." = FIELD("No."), "Posting Date" = FIELD("Date Filter");
-                DataItemTableView = SORTING("Document Type", "Vendor No.", "Global Dimension 1 Code", "Global Dimension 2 Code", "Posting Date", "Currency Code");
+                DataItemLink = "Vendor No." = FIELD("No."), "VAT Reporting Date" = FIELD("Date Filter");
+                DataItemTableView = SORTING("Document Type", "Vendor No.", "Global Dimension 1 Code", "Global Dimension 2 Code", "VAT Reporting Date", "Currency Code");
                 dataitem(GLEntry2; "G/L Entry")
                 {
-                    DataItemLink = "Document No." = FIELD("Document No."), "Posting Date" = FIELD("Posting Date");
-                    DataItemTableView = SORTING("Document No.", "Posting Date") WHERE("Gen. Posting Type" = CONST(Purchase));
+                    DataItemLink = "Document No." = FIELD("Document No."), "VAT Reporting Date" = FIELD("VAT Reporting Date");
+                    DataItemTableView = SORTING("Document No.", "VAT Reporting Date") WHERE("Gen. Posting Type" = CONST(Purchase));
                     PrintOnlyIfDetail = true;
 
                     trigger OnAfterGetRecord()
@@ -257,7 +257,7 @@ report 10707 "Make 347 Declaration"
                     FromJournal := false;
                     OperationTypeIdx := 1;
 
-                    FilterVATEntry(VATEntry, "Posting Date", "Document Type", "Document No.", false);
+                    FilterVATEntry(VATEntry, "VAT Reporting Date", "Document Type", "Document No.", false);
                     if not VATEntry.FindFirst() then begin
                         case "Document Type" of
                             "Document Type"::Invoice:
@@ -961,13 +961,12 @@ report 10707 "Make 347 Declaration"
                 CustomerAmount := 0;
                 CustLedgEntry.SetCurrentKey("Customer No.", "Document Type");
                 CustLedgEntry.SetRange("Customer No.", Customer2."No.");
-                CustLedgEntry.SetRange("Posting Date", FromDate, ToDate);
+                CustLedgEntry.SetRange("VAT Reporting Date", FromDate, ToDate);
                 CustLedgEntry.SetRange(
                   "Document Type", CustLedgEntry."Document Type"::Invoice, CustLedgEntry."Document Type"::"Credit Memo");
                 if CustLedgEntry.FindSet() then
                     repeat
-                        FilterVATEntry(VATEntry3, CustLedgEntry."Posting Date", CustLedgEntry."Document Type",
-                          CustLedgEntry."Document No.", true);
+                        FilterVATEntry(VATEntry3, CustLedgEntry."VAT Reporting Date", CustLedgEntry."Document Type", CustLedgEntry."Document No.", true);
                         if not VATEntry3.FindSet() then
                             case CustLedgEntry."Document Type" of
                                 CustLedgEntry."Document Type"::Invoice:
@@ -1007,12 +1006,12 @@ report 10707 "Make 347 Declaration"
                 VendorAmount := 0;
                 VendorLedgerEntry.SetCurrentKey("Vendor No.", "Document Type");
                 VendorLedgerEntry.SetRange("Vendor No.", Vendor2."No.");
-                VendorLedgerEntry.SetRange("Posting Date", FromDate, ToDate);
+                VendorLedgerEntry.SetRange("VAT Reporting Date", FromDate, ToDate);
                 VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice,
                   VendorLedgerEntry."Document Type"::"Credit Memo");
                 if VendorLedgerEntry.FindSet() then
                     repeat
-                        FilterVATEntry(VATEntry3, VendorLedgerEntry."Posting Date", VendorLedgerEntry."Document Type",
+                        FilterVATEntry(VATEntry3, VendorLedgerEntry."VAT Reporting Date", VendorLedgerEntry."Document Type",
                           VendorLedgerEntry."Document No.", false);
                         if not VATEntry3.FindSet() then
                             case VendorLedgerEntry."Document Type" of
@@ -1204,7 +1203,7 @@ report 10707 "Make 347 Declaration"
                     NotIn347Amt := NotIn347Amt + Amount + "VAT Amount"
                 else
                     ISPNotIn347Amt := Amount + "VAT Amount";
-                UpdateQuarterAmount(AmountType::NotIn347Report, Amount + "VAT Amount", "Posting Date", idx);
+                UpdateQuarterAmount(AmountType::NotIn347Report, Amount + "VAT Amount", "VAT Reporting Date", idx);
             end;
         end;
     end;
@@ -1235,15 +1234,15 @@ report 10707 "Make 347 Declaration"
         until VATEntry.Next() = 0;
     end;
 
-    local procedure FilterVATEntry(var VATEntry: Record "VAT Entry"; PostingDate: Date; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; IsCustomer: Boolean)
+    local procedure FilterVATEntry(var VATEntry: Record "VAT Entry"; VATReportingDate: Date; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; IsCustomer: Boolean)
     begin
         VATEntry.Reset();
-        VATEntry.SetCurrentKey(Type, "Posting Date", "Document No.", "Country/Region Code");
+        VATEntry.SetCurrentKey(Type, "VAT Reporting Date", "Document No.", "Country/Region Code");
         if IsCustomer then
             VATEntry.SetRange(Type, VATEntry.Type::Sale)
         else
             VATEntry.SetRange(Type, VATEntry.Type::Purchase);
-        VATEntry.SetRange("Posting Date", PostingDate);
+        VATEntry.SetRange("VAT Reporting Date", VATReportingDate);
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.SetFilter("Country/Region Code", CountryRegionFilter);
@@ -1253,7 +1252,7 @@ report 10707 "Make 347 Declaration"
     begin
         NoTaxVATFound :=
           CheckSalesNoTaxableEntriesExist(
-            CustLedgEntry."Customer No.", CustLedgEntry."Document Type", CustLedgEntry."Document No.", CustLedgEntry."Posting Date") and
+            CustLedgEntry."Customer No.", CustLedgEntry."Document Type", CustLedgEntry."Document No.", CustLedgEntry."VAT Reporting Date") and
           IsCountryCodeInSpainOrOutsideEU(Customer."Country/Region Code");
 
         if IsCountryCodeInSpainOrOutsideEU(Customer."Country/Region Code") then
@@ -1265,7 +1264,7 @@ report 10707 "Make 347 Declaration"
     begin
         NoTaxVATFound :=
           CheckSalesNoTaxableEntriesExist(
-            CustLedgEntry."Customer No.", CustLedgEntry."Document Type", CustLedgEntry."Document No.", CustLedgEntry."Posting Date") and
+            CustLedgEntry."Customer No.", CustLedgEntry."Document Type", CustLedgEntry."Document No.", CustLedgEntry."VAT Reporting Date") and
           IsCountryCodeInSpainOrOutsideEU(Customer."Country/Region Code");
 
         if IsCountryCodeInSpainOrOutsideEU(Customer."Country/Region Code") then
@@ -1278,7 +1277,7 @@ report 10707 "Make 347 Declaration"
         NoTaxVATFound :=
           CheckPurchNoTaxableEntriesExist(
             VendorLedgerEntry."Vendor No.", VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.",
-            VendorLedgerEntry."Posting Date") and
+            VendorLedgerEntry."VAT Reporting Date") and
           IsCountryCodeInSpainOrOutsideEU(Vendor."Country/Region Code");
 
         if IsCountryCodeInSpainOrOutsideEU(Vendor."Country/Region Code") then
@@ -1291,7 +1290,7 @@ report 10707 "Make 347 Declaration"
         NoTaxVATFound :=
           CheckPurchNoTaxableEntriesExist(
             VendorLedgerEntry."Vendor No.", VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.",
-            VendorLedgerEntry."Posting Date") and
+            VendorLedgerEntry."VAT Reporting Date") and
           IsCountryCodeInSpainOrOutsideEU(Vendor."Country/Region Code");
 
         if IsCountryCodeInSpainOrOutsideEU(Vendor."Country/Region Code") then
@@ -1341,21 +1340,21 @@ report 10707 "Make 347 Declaration"
         exit(false);
     end;
 
-    local procedure CheckSalesNoTaxableEntriesExist(CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; PostingDate: Date): Boolean
+    local procedure CheckSalesNoTaxableEntriesExist(CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; VATReportingDate: Date): Boolean
     var
         NoTaxableEntry: Record "No Taxable Entry";
     begin
-        NoTaxableEntry.FilterNoTaxableEntry(
-            "General Posting Type"::Sale.AsInteger(), CustomerNo, DocumentType.AsInteger(), DocumentNo, PostingDate, false);
+        NoTaxableEntry.FilterNoTaxableEntryWithVATReportingDate(
+            "General Posting Type"::Sale.AsInteger(), CustomerNo, DocumentType.AsInteger(), DocumentNo, VATReportingDate, false);
         exit(not NoTaxableEntry.IsEmpty);
     end;
 
-    local procedure CheckPurchNoTaxableEntriesExist(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; PostingDate: Date): Boolean
+    local procedure CheckPurchNoTaxableEntriesExist(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; VATReportingDate: Date): Boolean
     var
         NoTaxableEntry: Record "No Taxable Entry";
     begin
-        NoTaxableEntry.FilterNoTaxableEntry(
-            "General Posting Type"::Purchase.AsInteger(), VendorNo, DocumentType.AsInteger(), DocumentNo, PostingDate, false);
+        NoTaxableEntry.FilterNoTaxableEntryWithVATReportingDate(
+            "General Posting Type"::Purchase.AsInteger(), VendorNo, DocumentType.AsInteger(), DocumentNo, VATReportingDate, false);
         exit(not NoTaxableEntry.IsEmpty);
     end;
 
@@ -1397,16 +1396,16 @@ report 10707 "Make 347 Declaration"
         VATEntry: Record "VAT Entry";
     begin
         DtldCustLedgEntry.SetRange("Customer No.", CustNo);
-        DtldCustLedgEntry.SetRange("Posting Date", FromDate, ToDate);
+        DtldCustLedgEntry.SetRange("VAT Reporting Date", FromDate, ToDate);
         DtldCustLedgEntry.SetRange("Entry Type", DtldCustLedgEntry."Entry Type"::Application);
         DtldCustLedgEntry.SetRange("Initial Document Type", DtldCustLedgEntry."Initial Document Type"::Invoice);
         DtldCustLedgEntry.SetRange(Unapplied, false);
         if DtldCustLedgEntry.FindSet() then
             repeat
                 if CustLedgerEntry.Get(DtldCustLedgEntry."Cust. Ledger Entry No.") then
-                    if (CustLedgerEntry."Posting Date" < FromDate) or (CustLedgerEntry."Posting Date" > ToDate) then begin
+                    if (CustLedgerEntry."VAT Reporting Date" < FromDate) or (CustLedgerEntry."VAT Reporting Date" > ToDate) then begin
                         FilterVATEntry(
-                          VATEntry, CustLedgerEntry."Posting Date", CustLedgerEntry."Document Type", CustLedgerEntry."Document No.", true);
+                          VATEntry, CustLedgerEntry."VAT Reporting Date", CustLedgerEntry."Document Type", CustLedgerEntry."Document No.", true);
                         VATEntry.SetRange("VAT Cash Regime", true);
                         VATEntry.SetFilter("VAT Registration No.", '<>%1', '');
                         if VATEntry.FindFirst() then begin
@@ -1439,16 +1438,16 @@ report 10707 "Make 347 Declaration"
         VATEntry: Record "VAT Entry";
     begin
         DtldVendorLedgEntry.SetRange("Vendor No.", VendNo);
-        DtldVendorLedgEntry.SetRange("Posting Date", FromDate, ToDate);
+        DtldVendorLedgEntry.SetRange("VAT Reporting Date", FromDate, ToDate);
         DtldVendorLedgEntry.SetRange("Entry Type", DtldVendorLedgEntry."Entry Type"::Application);
         DtldVendorLedgEntry.SetRange("Initial Document Type", DtldVendorLedgEntry."Initial Document Type"::Invoice);
         DtldVendorLedgEntry.SetRange(Unapplied, false);
         if DtldVendorLedgEntry.FindSet() then
             repeat
                 if VendorLedgerEntry.Get(DtldVendorLedgEntry."Vendor Ledger Entry No.") then
-                    if (VendorLedgerEntry."Posting Date" < FromDate) or (VendorLedgerEntry."Posting Date" > ToDate) then begin
+                    if (VendorLedgerEntry."VAT Reporting Date" < FromDate) or (VendorLedgerEntry."VAT Reporting Date" > ToDate) then begin
                         FilterVATEntry(
-                          VATEntry, VendorLedgerEntry."Posting Date", VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.", false);
+                          VATEntry, VendorLedgerEntry."VAT Reporting Date", VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.", false);
                         VATEntry.SetRange("VAT Cash Regime", true);
                         VATEntry.SetFilter("VAT Registration No.", '<>%1', '');
                         if VATEntry.FindFirst() then begin
@@ -1483,7 +1482,7 @@ report 10707 "Make 347 Declaration"
         SalesAmt += CustLedgerEntry."Amount (LCY)";
         CustAmt += CustLedgerEntry."Amount (LCY)";
         if not VATEntry."VAT Cash Regime" then
-            UpdateQuarterAmount(QuarterAmtType, CustLedgerEntry."Amount (LCY)", CustLedgerEntry."Posting Date", 1);
+            UpdateQuarterAmount(QuarterAmtType, CustLedgerEntry."Amount (LCY)", CustLedgerEntry."VAT Reporting Date", 1);
 
         if VATEntry."VAT Cash Regime" then begin
             OperationsCashAccountingCriteria := 'X';
@@ -1502,7 +1501,7 @@ report 10707 "Make 347 Declaration"
 
         if VATEntry."VAT Calculation Type" = VATEntry."VAT Calculation Type"::"Reverse Charge VAT" then begin
             ISPPurchAmt -= VendLedgerEntry."Amount (LCY)";
-            UpdateQuarterAmount(QuarterAmtType, -VendLedgerEntry."Amount (LCY)", VendLedgerEntry."Posting Date", 2);
+            UpdateQuarterAmount(QuarterAmtType, -VendLedgerEntry."Amount (LCY)", VendLedgerEntry."VAT Reporting Date", 2);
             ReverseChargeOperation := 'X';
         end else begin
             PurchAmt -= VendLedgerEntry."Amount (LCY)";
@@ -1511,7 +1510,7 @@ report 10707 "Make 347 Declaration"
                 VendLedgerEntry.CalcFields("Remaining Amt. (LCY)");
                 AnnualAmountVATCashRegime -= VendLedgerEntry."Amount (LCY)" - VendLedgerEntry."Remaining Amt. (LCY)";
             end else
-                UpdateQuarterAmount(QuarterAmtType, -VendLedgerEntry."Amount (LCY)", VendLedgerEntry."Posting Date", 1);
+                UpdateQuarterAmount(QuarterAmtType, -VendLedgerEntry."Amount (LCY)", VendLedgerEntry."VAT Reporting Date", 1);
         end;
 
         VendAmt -= VendLedgerEntry."Amount (LCY)";
