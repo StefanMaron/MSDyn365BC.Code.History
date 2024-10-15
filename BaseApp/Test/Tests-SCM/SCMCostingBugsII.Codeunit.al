@@ -2057,6 +2057,47 @@ codeunit 137621 "SCM Costing Bugs II"
         ValueEntry.TestField("Cost Amount (Actual)", 0);
     end;
 
+    [Test]
+    procedure ValuedByAverageCostTrueWhenUnapplyFixedItemApplForAvgCostItem()
+    var
+        Item: Record Item;
+        PositiveItemLedgerEntry: Record "Item Ledger Entry";
+        NegativeItemLedgerEntry: Record "Item Ledger Entry";
+        ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
+    begin
+        // [FEATURE] [Item Application] [Average Cost]
+        // [SCENARIO 395193] For an item with average costing method, "Valued by Average Cost" is set to TRUE on value entries for outbound item entry when removing fixed application to an inbound entry.
+        Initialize();
+
+        // [GIVEN] Item with "Average" costing method.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Costing Method", Item."Costing Method"::Average);
+        Item.Modify(true);
+
+        // [GIVEN] Post positive and negative inventory adjustments.
+        PostAndUnapplyPositiveAndNegativeAdjustments(
+          Item, LibraryRandom.RandInt(10), PositiveItemLedgerEntry, NegativeItemLedgerEntry, false);
+
+        // [GIVEN] Establish fixed application between the two item entries.
+        ItemJnlPostLine.ReApply(PositiveItemLedgerEntry, NegativeItemLedgerEntry."Entry No.");
+
+        // [GIVEN] Check that the item entries are applied, "Valued by Average Cost" on value entries for the negative entry = FALSE.
+        NegativeItemLedgerEntry.Find();
+        NegativeItemLedgerEntry.TestField("Applies-to Entry", PositiveItemLedgerEntry."Entry No.");
+        VerifyValuedByAverageCostValueEntry(NegativeItemLedgerEntry."Entry No.", false);
+
+        // [WHEN] Un-apply item entries.
+        UnapplyItemLedgerEntries(
+          PositiveItemLedgerEntry."Entry No.", NegativeItemLedgerEntry."Entry No.", false);
+
+        // [THEN] The item application has been removed.
+        NegativeItemLedgerEntry.Find();
+        NegativeItemLedgerEntry.TestField("Applies-to Entry", 0);
+
+        // [THEN] "Valued by Average Cost" on value entries for the negative entry = TRUE.
+        VerifyValuedByAverageCostValueEntry(NegativeItemLedgerEntry."Entry No.", true);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2720,6 +2761,17 @@ codeunit 137621 "SCM Costing Bugs II"
         ValueEntry.CalcSums("Item Ledger Entry Quantity", "Cost Amount (Actual)");
         ValueEntry.TestField("Item Ledger Entry Quantity", Qty);
         ValueEntry.TestField("Cost Amount (Actual)", CostAmount);
+    end;
+
+    local procedure VerifyValuedByAverageCostValueEntry(ItemLedgerEntryNo: Integer; ValuedByAverageCost: Boolean)
+    var
+        ValueEntry: Record "Value Entry";
+    begin
+        ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntryNo);
+        ValueEntry.FindSet();
+        repeat
+            ValueEntry.TestField("Valued By Average Cost", ValuedByAverageCost);
+        until ValueEntry.Next() = 0;
     end;
 
     local procedure AdjustCostAndVerify(ItemNo: Code[20]; ExpectedUnitCost: Decimal)

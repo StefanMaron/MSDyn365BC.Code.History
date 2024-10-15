@@ -1092,10 +1092,15 @@ report 205 "Order Confirmation"
         end;
 
         trigger OnOpenPage()
+        var
+            StdReportWithCaption: Record AllObjWithCaption;
+            ReportManagementCodeunit: Codeunit ReportManagement;
         begin
             InitLogInteraction;
 
             LogInteractionEnable := LogInteraction;
+            StdReportWithCaption.Get(StdReportWithCaption."Object Type"::Report, Report::"Standard Sales - Order Conf.");
+            ReportManagementCodeunit.OrderConfirmReportReplacedNotify(Report::"Standard Sales - Order Conf.", StdReportWithCaption."Object Caption", CurrReport."Sales Header");
         end;
     }
 

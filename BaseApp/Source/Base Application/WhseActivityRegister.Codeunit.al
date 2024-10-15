@@ -1059,6 +1059,8 @@ codeunit 7307 "Whse.-Activity-Register"
                         end;
                 end;
 
+                OnRegisterWhseItemTrkgLineOnAfterSetDueDate(WhseActivLine2, DueDate);
+
                 if WhseActivLine2."Activity Type" = WhseActivLine2."Activity Type"::"Invt. Movement" then
                     case WhseActivLine2."Source Type" of
                         DATABASE::"Prod. Order Component":
@@ -2300,6 +2302,11 @@ codeunit 7307 "Whse.-Activity-Register"
 
     [IntegrationEvent(false, false)]
     local procedure OnRegisterWhseItemTrkgLineOnBeforeCreateSpecification(var WhseActivLine2: Record "Warehouse Activity Line"; var DueDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRegisterWhseItemTrkgLineOnAfterSetDueDate(WarehouseActivityLine: Record "Warehouse Activity Line"; var DueDate: Date)
     begin
     end;
 

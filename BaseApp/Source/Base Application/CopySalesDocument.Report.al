@@ -503,7 +503,7 @@ report 292 "Copy Sales Document"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterValidateIncludeHeader(var IncludeHeader: Boolean; var RecalculateLines: Boolean)
     begin
     end;
@@ -548,7 +548,7 @@ report 292 "Copy Sales Document"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeValidateIncludeHeader(var DoIncludeHeader: Boolean; FromSalesHeader: Record "Sales Header")
     begin
     end;
