@@ -266,7 +266,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                     }
                     tableelement(paymentexportdata; "Payment Export Data")
                     {
-                        LinkFields = "Sender Bank BIC" = FIELD("Sender Bank BIC"), "SEPA Instruction Priority Text" = FIELD("SEPA Instruction Priority Text"), "Transfer Date" = FIELD("Transfer Date"), "SEPA Batch Booking" = FIELD("SEPA Batch Booking"), "SEPA Charge Bearer Text" = FIELD("SEPA Charge Bearer Text");
+                        LinkFields = "Sender Bank BIC" = FIELD("Sender Bank BIC"), "SEPA Instruction Priority Text" = FIELD("SEPA Instruction Priority Text"), "Transfer Date" = FIELD("Transfer Date"), "SEPA Batch Booking" = FIELD("SEPA Batch Booking"), "SEPA Charge Bearer Text" = FIELD("SEPA Charge Bearer Text"), "Currency Code" = field("Currency Code");
                         LinkTable = PaymentExportDataGroup;
                         XmlName = 'CdtTrfTxInf';
                         UseTemporary = true;
@@ -709,7 +709,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
 
         PaymentExportData.SetCurrentKey(
           "Sender Bank BIC", "SEPA Instruction Priority Text", "Transfer Date",
-          "SEPA Batch Booking", "SEPA Charge Bearer Text");
+          "SEPA Batch Booking", "SEPA Charge Bearer Text", "Currency Code");
 
         if not PaymentExportData.FindSet() then
             Error(NoDataToExportErr);
@@ -733,7 +733,8 @@ xmlport 1000 "SEPA CT pain.001.001.03"
           (PaymentExportData."SEPA Instruction Priority Text" <> PaymentExportDataGroup."SEPA Instruction Priority Text") or
           (PaymentExportData."Transfer Date" <> PaymentExportDataGroup."Transfer Date") or
           (PaymentExportData."SEPA Batch Booking" <> PaymentExportDataGroup."SEPA Batch Booking") or
-          (PaymentExportData."SEPA Charge Bearer Text" <> PaymentExportDataGroup."SEPA Charge Bearer Text"));
+          (PaymentExportData."SEPA Charge Bearer Text" <> PaymentExportDataGroup."SEPA Charge Bearer Text") or
+          (PaymentExportData."Currency Code" <> PaymentExportDataGroup."Currency Code"));
     end;
 
     local procedure InitPmtGroup()

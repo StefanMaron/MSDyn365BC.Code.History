@@ -3113,6 +3113,8 @@
             end;
         end else
             Error(RecreatePurchaseLinesCancelErr, ChangedFieldName);
+
+        OnAfterRecreatePurchLines(Rec, ChangedFieldName);
     end;
 
     local procedure StorePurchCommentLineToTemp(var TempPurchCommentLine: Record "Purch. Comment Line" temporary)
@@ -4468,7 +4470,7 @@
         if TempPurchaseLine.FindSet() then
             repeat
                 InitPurchaseLineDefaultDimSource(DefaultDimSource, TempPurchaseLine);
-                PurchaseLine.CreateDim(DefaultDimSource);
+                TempPurchaseLine.CreateDim(DefaultDimSource);
             until TempPurchaseLine.Next() = 0;
     end;
 
@@ -4509,6 +4511,8 @@
     local procedure InsertTempPurchaseLineInBuffer(var TempPurchaseLine: Record "Purchase Line" temporary; PurchaseLine: Record "Purchase Line"; AccountNo: Code[20]; DefaultDimenstionsNotExist: Boolean)
     begin
         TempPurchaseLine.Init();
+        TempPurchaseLine."Document Type" := PurchaseLine."Document Type";
+        TempPurchaseLine."Document No." := PurchaseLine."Document No.";
         TempPurchaseLine."Line No." := PurchaseLine."Line No.";
         TempPurchaseLine."No." := AccountNo;
         TempPurchaseLine."Job No." := PurchaseLine."Job No.";
@@ -7158,6 +7162,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupPayToContactNo(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRecreatePurchLines(var PurchaseHeader: Record "Purchase Header"; ChangedFieldName: Text[100])
     begin
     end;
 }

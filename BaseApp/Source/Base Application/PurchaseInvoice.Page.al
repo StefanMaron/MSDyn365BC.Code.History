@@ -821,7 +821,8 @@ page 51 "Purchase Invoice"
                 ApplicationArea = All;
                 SubPageLink = "Table ID" = CONST(38),
                               "Document Type" = FIELD("Document Type"),
-                              "Document No." = FIELD("No.");
+                              "Document No." = FIELD("No."),
+                              Status = const(Open);
                 Visible = OpenApprovalEntriesExistForCurrUser;
             }
             part(ApprovalFactBox; "Approval FactBox")
