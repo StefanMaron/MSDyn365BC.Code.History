@@ -1914,7 +1914,6 @@
         field(171; "Payment Reference"; Code[50])
         {
             Caption = 'Payment Reference';
-            Numeric = true;
         }
         field(178; "Journal Templ. Name"; Code[10])
         {

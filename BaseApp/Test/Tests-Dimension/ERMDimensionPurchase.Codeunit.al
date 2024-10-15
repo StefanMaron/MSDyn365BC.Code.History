@@ -1786,6 +1786,35 @@ codeunit 134476 "ERM Dimension Purchase"
         VerifyDimensionOnPurchaseOrderLine(PurchaseHeader."Document Type", PurchaseHeader."No.", DimensionValue2."Dimension Code");
     end;
 
+    [Test]
+    procedure VerifyAccountTypeDefaultDimensionsIsPulledOnPurchaseLine()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        DimensionValue: Record "Dimension Value";
+    begin
+        // [SCENARIO 465518] Verify Dimension Code is pulled from Account Type Def. Dimension to Purchase Line, if Vendor and Item doesn't have def. dimensions
+        Initialize();
+
+        // [GIVEN] Create Vendor without default dimension
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create Item without Default Dimension
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Account Type Default Dimension for Item table
+        CreateAccountTypeDefaultDimension(DimensionValue, Vendor."No.", Database::Item);
+
+        // [WHEN] Create Purchase Order
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Vendor."No.", Item."No.");
+
+        // [VERIFY] Verify Dimension are puled from Account Type to Purchase Line
+        Assert.AreEqual(PurchaseLine."Shortcut Dimension 1 Code", DimensionValue.Code,
+            StrSubstNo(DimensionValueCodeError, PurchaseLine.FieldCaption("Shortcut Dimension 1 Code"), DimensionValue.Code));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2678,6 +2707,17 @@ codeunit 134476 "ERM Dimension Purchase"
         LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
         LibraryDimension.CreateDefaultDimensionVendor(
           DefaultDimension, Vendor."No.", DimensionValue."Dimension Code", DimensionValue.Code);
+    end;
+
+    local procedure CreateAccountTypeDefaultDimension(var DimensionValue: Record "Dimension Value"; VendorNo: Code[20]; TableId: Integer)
+    var
+        DefaultDimension: Record "Default Dimension";
+    begin
+        LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
+        LibraryDimension.CreateDefaultDimensionVendor(
+          DefaultDimension, VendorNo, DimensionValue."Dimension Code", DimensionValue.Code);
+        LibraryDimension.CreateAccTypeDefaultDimension(DefaultDimension, TableId, DimensionValue."Dimension Code",
+            DimensionValue.Code, DefaultDimension."Value Posting"::" ");
     end;
 
     [ConfirmHandler]
