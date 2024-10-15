@@ -400,7 +400,7 @@ table 334 "Column Layout"
         GetColLayoutSetup();
 
         IsHandled := false;
-        OnBeforeLookUpDimFilter(Rec, DimNo, Text, ColumnLayoutName, Result, IsHandled);
+        OnBeforeLookUpDimFilter(Rec, DimNo, Text, ColumnLayoutName, Result, IsHandled, AnalysisView);
         if IsHandled then
             exit(Result);
 
@@ -537,7 +537,7 @@ table 334 "Column Layout"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeLookUpDimFilter(var ColumnLayout: Record "Column Layout"; DimNo: Integer; var Text: Text[250]; ColumnLayoutName: Record "Column Layout Name"; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeLookUpDimFilter(var ColumnLayout: Record "Column Layout"; DimNo: Integer; var Text: Text[250]; ColumnLayoutName: Record "Column Layout Name"; var Result: Boolean; var IsHandled: Boolean; var AnalysisView: Record "Analysis View")
     begin
     end;
 }

@@ -95,6 +95,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Batch Jobs - NamedType LineNoErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2271570513 - NamedType 2091946191" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be positive to create Sales Invoice in Job Planning Line Job No.='%2',Job Task No.='%3',Line No.='%4'.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Quantity, %2 = Job No., %3 = Job Task No., %4 = Line No.]D;]A;(LookupHint=Codeunit Job Batch Jobs - NamedType QuantityNegativeErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2271570513 - NamedType 1517313969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 should be empty.]]></Val>

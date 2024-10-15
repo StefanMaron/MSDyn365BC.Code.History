@@ -829,7 +829,14 @@
     end;
 
     local procedure ModifyDeprFields()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeModifyDeprFields(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if ("Last Depreciation Date" > 0D) or
            ("Last Write-Down Date" > 0D) or
            ("Last Appreciation Date" > 0D) or
@@ -1075,6 +1082,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAdjustLinearMethod(var FADepreciationBook: Record "FA Depreciation Book"; var Amount1: Decimal; var Amount2: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyDeprFields(FADepreciationBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
     begin
     end;
 

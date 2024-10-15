@@ -2931,7 +2931,7 @@ page 21 "Customer Card"
             IsAddressLookupTextEnabled := ("Country/Region Code" = 'GB') or ("Country/Region Code" = '');
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterActivateFields(var Customer: Record Customer)
     begin
     end;

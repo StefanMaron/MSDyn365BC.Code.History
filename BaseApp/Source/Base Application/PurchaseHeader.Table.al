@@ -2545,6 +2545,8 @@
         ReviewLinesManuallyMsg: Label 'You should review the lines and manually update prices and discounts if needed.';
         UpdateLinesOrderDateAutomaticallyQst: Label 'Do you want to update the order date for existing lines?';
         PurchSetup: Record "Purchases & Payables Setup";
+        DifferentDatesQst: Label 'Posting Date %1 is different from Work Date %2.\\Do you want to continue?', Comment = '%1 - Posting Date, %2 - work date';
+        DifferentDatesErr: Label 'Posting Date %1 is different from Work Date %2.\\Batch posting cannot be used.', Comment = '%1 - Posting Date, %2 - work date';
         GLSetup: Record "General Ledger Setup";
         GLAcc: Record "G/L Account";
         PurchLine: Record "Purchase Line";
@@ -2684,7 +2686,7 @@
             Correction := GLSetup."Mark Cr. Memos as Corrections";
         end;
 
-        "Posting Description" := Format("Document Type") + ' ' + "No.";
+        InitPostingDescription();
 
         UpdateInboundWhseHandlingTime();
 
@@ -2718,6 +2720,18 @@
         end;
 
         OnAfterInitNoSeries(Rec, xRec);
+    end;
+
+    local procedure InitPostingDescription()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInitPostingDescription(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        Rec."Posting Description" := Format(Rec."Document Type") + ' ' + Rec."No.";
     end;
 
     local procedure InitVATDate()
@@ -3322,7 +3336,13 @@
     procedure MessageIfPurchLinesExist(ChangedFieldName: Text[100])
     var
         MessageText: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeMessageIfPurchLinesExist(Rec, ChangedFieldName, IsHandled);
+        if IsHandled then
+            exit;
+
         if PurchLinesExist() and not GetHideValidationDialog() then begin
             MessageText := StrSubstNo(LinesNotUpdatedMsg, ChangedFieldName);
             MessageText := StrSubstNo(SplitMessageTxt, MessageText, Text020);
@@ -3487,7 +3507,7 @@
 
         if AskQuestion then begin
             Question := StrSubstNo(Text032, Field."Field Caption");
-            if GuiAllowed then
+            if GuiAllowed and not HideValidationDialog then
                 if DIALOG.Confirm(Question, true) then begin
                     ShouldConfirmReservationDateConflict := ChangedFieldNo in [FieldNo("Expected Receipt Date"),
                         FieldNo("Requested Receipt Date"),
@@ -3503,6 +3523,7 @@
         end;
 
         PurchLine.LockTable();
+        OnUpdatePurchLinesByFieldNoOnBeforeModifyRec(Rec, PurchLine);
         Modify();
 
         PurchLine.Reset();
@@ -3664,24 +3685,29 @@
         end;
     end;
 
-    local procedure CouldDimensionsBeKept(): Boolean;
+    local procedure CouldDimensionsBeKept() Result: Boolean;
+    var
+        IsHandled: Boolean;
     begin
-        if not PurchLinesExist() then
-            exit(false);
-        if (xRec."Buy-from Vendor No." <> '') and (xRec."Buy-from Vendor No." <> Rec."Buy-from Vendor No.") then
-            exit(false);
-        if (xRec."Pay-to Vendor No." <> '') and (xRec."Pay-to Vendor No." <> Rec."Pay-to Vendor No.") then
-            exit(false);
-        if (Rec."Location Code" = '') and (xRec."Location Code" <> '') then
-            exit(true);
-        if xRec."Location Code" <> Rec."Location Code" then
-            exit(true);
-        if (xRec."Purchaser Code" <> '') and (xRec."Purchaser Code" <> Rec."Purchaser Code") then
-            exit(true);
-        if (xRec."Responsibility Center" <> '') and (xRec."Responsibility Center" <> Rec."Responsibility Center") then
-            exit(true);
-        if (xRec."Sell-to Customer No." <> '') and (xRec."Sell-to Customer No." <> Rec."Sell-to Customer No.") then
-            exit(true);
+        IsHandled := false;
+        OnBeforeCouldDimensionsBeKept(Rec, xRec, Result, IsHandled);
+        if not IsHandled then begin
+            if (xRec."Buy-from Vendor No." <> '') and (xRec."Buy-from Vendor No." <> Rec."Buy-from Vendor No.") then
+                exit(false);
+            if (xRec."Pay-to Vendor No." <> '') and (xRec."Pay-to Vendor No." <> Rec."Pay-to Vendor No.") then
+                exit(false);
+            if (Rec."Location Code" = '') and (xRec."Location Code" <> '') then
+                exit(true);
+            if xRec."Location Code" <> Rec."Location Code" then
+                exit(true);
+            if (xRec."Purchaser Code" <> '') and (xRec."Purchaser Code" <> Rec."Purchaser Code") then
+                exit(true);
+            if (xRec."Responsibility Center" <> '') and (xRec."Responsibility Center" <> Rec."Responsibility Center") then
+                exit(true);
+            if (xRec."Sell-to Customer No." <> '') and (xRec."Sell-to Customer No." <> Rec."Sell-to Customer No.") then
+                exit(true);
+        end;
+        OnAfterCouldDimensionsBeKept(Rec, xRec, Result);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -3945,9 +3971,6 @@
 
     [Scope('OnPrem')]
     procedure TestPostingDate(BatchPost: Boolean)
-    var
-        Text1041000: Label '%1 %2 is different from Work Date %3.\\';
-        Text1041001: Label 'Do you want to continue?';
     begin
         PurchSetup.Get();
         if not PurchSetup."Posting Date Check on Posting" then
@@ -3956,12 +3979,8 @@
             exit;
         if "Posting Date" <> WorkDate() then begin
             if BatchPost then
-                Error('');
-            if not Confirm(
-                 Text1041000 +
-                 Text1041001,
-                 false, FieldCaption("Posting Date"), "Posting Date", WorkDate())
-            then
+                Error(DifferentDatesErr, "Posting Date", WorkDate());
+            if not Confirm(DifferentDatesQst, false, "Posting Date", WorkDate()) then
                 Error('');
         end;
     end;
@@ -4022,6 +4041,8 @@
             end;
         end else
             ContactIsNotRelatedToVendorError(Cont, ContactNo);
+
+        OnCheckBuyFromContactOnAfterFindByContact(Rec, ContBusinessRelation, Cont);
 
         if ("Buy-from Vendor No." = "Pay-to Vendor No.") or
            ("Pay-to Vendor No." = '')
@@ -4143,6 +4164,7 @@
         PurchLine.Reset();
         PurchLine.SetRange("Document Type", "Document Type");
         PurchLine.SetRange("Document No.", "No.");
+        OnUpdateAllLineDimOnAfterPurchLineSetFilters(PurchLine);
         PurchLine.LockTable();
         if PurchLine.Find('-') then
             repeat
@@ -4218,21 +4240,31 @@
 
     local procedure JobUpdatePurchLines(SkipJobCurrFactorUpdate: Boolean)
     begin
-        with PurchLine do begin
-            SetFilter("Job No.", '<>%1', '');
-            SetFilter("Job Task No.", '<>%1', '');
-            LockTable();
-            if FindSet(true, false) then begin
-                SetPurchHeader(Rec);
-                repeat
-                    if not SkipJobCurrFactorUpdate then
-                        JobSetCurrencyFactor();
-                    CreateTempJobJnlLine(false);
-                    UpdateJobPrices();
-                    Modify();
-                until Next() = 0;
-            end;
-        end
+        PurchLine.SetFilter("Job No.", '<>%1', '');
+        PurchLine.SetFilter("Job Task No.", '<>%1', '');
+        PurchLine.LockTable();
+        if PurchLine.FindSet(true, false) then begin
+            PurchLine.SetPurchHeader(Rec);
+            repeat
+                JobUpdatePurchaseLine(SkipJobCurrFactorUpdate);
+            until PurchLine.Next() = 0;
+        end;
+    end;
+
+    local procedure JobUpdatePurchaseLine(SkipJobCurrFactorUpdate: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeJobUpdatePurchaseLine(PurchLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not SkipJobCurrFactorUpdate then
+            PurchLine.JobSetCurrencyFactor();
+        PurchLine.CreateTempJobJnlLine(false);
+        PurchLine.UpdateJobPrices();
+        PurchLine.Modify();
     end;
 
     procedure GetPstdDocLinesToReverse()
@@ -4546,7 +4578,13 @@
         PurchaseLine: Record "Purchase Line";
         TempPurchaseLine: Record "Purchase Line" temporary;
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateDimSetForPrepmtAccDefaultDim(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         PurchaseLine.SetRange("Document Type", "Document Type");
         PurchaseLine.SetRange("Document No.", "No.");
         PurchaseLine.SetFilter("Prepmt. Amt. Inv.", '<>%1', 0);
@@ -6364,6 +6402,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCouldDimensionsBeKept(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInitRecord(var PurchHeader: Record "Purchase Header")
     begin
     end;
@@ -6554,6 +6597,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateAllLineDimOnAfterPurchLineSetFilters(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdatePurchLinesByFieldNoOnBeforeModifyRec(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdatePurchLinesByFieldNoOnAfterCalcShouldConfirmReservationDateConflict(var PurchaseHeader: Record "Purchase Header"; ChangedFieldNo: Integer; var ShouldConfirmReservationDateConflict: Boolean)
     begin
     end;
@@ -6624,6 +6677,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCouldDimensionsBeKept(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckReceiptInfo(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; PayTo: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -6664,6 +6722,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDimSetForPrepmtAccDefaultDim(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateDimensionsFromValidatePayToVendorNo(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
@@ -6695,6 +6758,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitRecord(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; xPurchaseHeader: Record "Purchase Header"; PurchSetup: Record "Purchases & Payables Setup"; GLSetup: Record "General Ledger Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitPostingDescription(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -6740,6 +6808,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupReturnShipmentNoSeries(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMessageIfPurchLinesExist(var PurchaseHeader: Record "Purchase Header"; ChangedFieldName: Text[100]; var IsHandled: Boolean)
     begin
     end;
 
@@ -6790,6 +6863,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdatePurchLineAmounts(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeJobUpdatePurchaseLine(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -7448,6 +7526,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetUserSetupPurchaserCode(var PurchaseHeader: Record "Purchase Header"; IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckBuyFromContactOnAfterFindByContact(var PurchHeader: Record "Purchase Header"; var ContBusinessRelation: Record "Contact Business Relation"; var Contact: Record Contact)
     begin
     end;
 }

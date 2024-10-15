@@ -521,7 +521,7 @@ codeunit 134153 "Test Intrastat"
         ErrorMessage.SetContext(IntrastatJnlBatch);
         Assert.AreEqual(1, ErrorMessage.ErrorMessageCount(ErrorMessage."Message Type"::Error), '');
         ErrorMessage.FindFirst();
-        Assert.ExpectedMessage(FieldName, ErrorMessage.Description);
+        Assert.ExpectedMessage(FieldName, ErrorMessage."Message");
     end;
 
     [RequestPageHandler]

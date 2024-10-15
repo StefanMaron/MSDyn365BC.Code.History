@@ -7,6 +7,7 @@
     trigger OnRun()
     begin
         PurchaseHeader.Copy(Rec);
+        PurchaseHeader.SetHideValidationDialog(Rec.GetHideValidationDialog());
         Code();
         Rec := PurchaseHeader;
     end;
@@ -168,7 +169,7 @@
             if "Document Type" in ["Document Type"::Order, "Document Type"::"Return Order"] then
                 WhsePurchRelease.Reopen(PurchHeader);
             Status := Status::Open;
-
+            OnReopenOnBeforePurchaseHeaderModify(PurchHeader);
             Modify(true);
         end;
 
@@ -380,6 +381,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeMandatoryFields(PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReopenOnBeforePurchaseHeaderModify(var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 }

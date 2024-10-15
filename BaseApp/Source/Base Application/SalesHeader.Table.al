@@ -3064,7 +3064,8 @@
         PrepaymentInvoicesNotPaidErr: Label 'You cannot post the document of type %1 with the number %2 before all related prepayment invoices are posted.', Comment = 'You cannot post the document of type Order with the number 1001 before all related prepayment invoices are posted.';
         StatisticsInsuffucientPermissionsErr: Label 'You don''t have permission to view statistics.';
         Text072: Label 'There are unpaid prepayment invoices related to the document of type %1 with the number %2.';
-        Text1041000: Label '%1 %2 is different from Work Date %3.\\Do you want to continue?';
+        DifferentDatesQst: Label 'Posting Date %1 is different from Work Date %2.\\Do you want to continue?', Comment = '%1 - Posting Date, %2 - work date';
+        DifferentDatesErr: Label 'Posting Date %1 is different from Work Date %2.\\Batch posting cannot be used.', Comment = '%1 - Posting Date, %2 - work date';
         DeferralLineQst: Label 'Do you want to update the deferral schedules for the lines?';
         SynchronizingMsg: Label 'Synchronizing ...\ from: Sales Header with %1\ to: Assembly Header with %2.';
         ShippingAdviceErr: Label 'This document cannot be shipped completely. Change the value in the Shipping Advice field to Partial.';
@@ -3785,6 +3786,8 @@
             Validate("Currency Factor")
         else
             "Currency Factor" := xRec."Currency Factor";
+
+        OnAfterConfirmCurrencyFactorUpdate(Rec, Confirmed);
     end;
 
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
@@ -4434,13 +4437,12 @@
         SalesSetup.Get();
         if not SalesSetup."Posting Date Check on Posting" then
             exit;
-        if ("Posting Date" <> WorkDate) and GuiAllowed then begin
+        if not GuiAllowed then
+            exit;
+        if "Posting Date" <> WorkDate() then begin
             if BatchPost then
-                Error('');
-            if not Confirm(
-                 Text1041000,
-                 false, FieldCaption("Posting Date"), "Posting Date", WorkDate())
-            then
+                Error(DifferentDatesErr, "Posting Date", WorkDate());
+            if not Confirm(DifferentDatesQst, false, "Posting Date", WorkDate()) then
                 Error('');
         end;
     end;
@@ -4459,7 +4461,7 @@
         end else
             if Cust.Get(CustomerNo) then begin
                 if Cust."Primary Contact No." <> '' then
-                    "Sell-to Contact No." := Cust."Primary Contact No."
+                    Validate("Sell-to Contact No.", Cust."Primary Contact No.")
                 else begin
                     ContBusRel.Reset();
                     ContBusRel.SetCurrentKey("Link to Table", "No.");
@@ -6126,15 +6128,15 @@
         if ((not ReplacePostingDate) and (not ReplaceVATDate)) or (BatchConfirm = BatchConfirm::Skip) then
             exit;
         if (PostingDateReq = "Posting Date") and (VATDateReq = "VAT Reporting Date") then
-            exit; 
+            exit;
         if not DeferralHeadersExist() then
             exit;
 
-        if ReplacePostingDate then 
+        if ReplacePostingDate then
             "Posting Date" := PostingDateReq;
-        if ReplaceVATDate then 
+        if ReplaceVATDate then
             "VAT Reporting Date" := VATDateReq;
-        
+
         case BatchConfirm of
             BatchConfirm::" ":
                 begin
@@ -7597,7 +7599,7 @@
     procedure SalesLinesEditable() IsEditable: Boolean;
     begin
         if "Document Type" = "Document Type"::Quote then
-            IsEditable := (Rec."Sell-to Customer No." <> '') or (Rec."Sell-to Customer Templ. Code" <> '') or (Rec."Sell-to Contact No." <> '')
+            IsEditable := (Rec."Sell-to Customer No." <> '') or (Rec."Sell-to Customer Templ. Code" <> '') or (Rec."Sell-to Contact No." <> '') or (Rec.GetFilter("Sell-to Contact No.") <> '')
         else
             IsEditable := Rec."Sell-to Customer No." <> '';
 
@@ -7703,6 +7705,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterConfirmSalesPrice(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var RecalculateLines: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterConfirmCurrencyFactorUpdate(var SalesHeader: Record "Sales Header"; var Confirmed: Boolean)
     begin
     end;
 
@@ -9053,7 +9060,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetBillToCustomerNo(var SalesHeader: Record "Sales Header"; var Cust: Record Customer; var IsHandled: Boolean; xSalesHeader: Record "Sales Header"; CurrentFieldNo: Integer)
+    local procedure OnBeforeSetBillToCustomerNo(var SalesHeader: Record "Sales Header"; var Cust: Record Customer; var IsHandled: Boolean; xSalesHeader: Record "Sales Header"; var CurrentFieldNo: Integer)
     begin
     end;
 

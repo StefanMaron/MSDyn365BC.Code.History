@@ -50,8 +50,10 @@
         OutOfSyncNotificationMsg: Label 'We have detected that price list lines exists, which are out of sync. We have disabled the new lookups to prevent issues.';
         IsInitialized: Boolean;
         ResourceNoErr: Label 'Resource Group is not updated';
+        JobPriceListFieldErr: Label 'Invalid %1', Comment = '%1 Price List Header Field Caption';
         SourceNoErr: Label 'Invalid Source No.';
         AssignToNoErr: Label 'Invalid Assign-to No.';
+        VATProdPostingGroupErr: Label 'VAT Product Posting Group are not equal.';
 
     [Test]
     [HandlerFunctions('ItemUOMModalHandler')]
@@ -3400,7 +3402,6 @@
         ResourceGroup: Record "Resource Group";
         Job: Record Job;
         JobTask: Record "Job Task";
-
         OldNo: Code[20];
         ResourceGroupNo: Code[20];
         JobTaskNo: Code[20];
@@ -3486,6 +3487,209 @@
         // [THEN] Verify G/L Account No. is updated in Price List Line.
         PriceListLineGLAcc.Find();
         Assert.AreEqual(GLAccount."No.", PriceListLineGLAcc."Product No.", 'G/L Account No. is not updated');
+    end;
+
+    [Test]
+    procedure VerifyPriceListLineforJobTaskAfterCopyJob()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListLine2: Record "Price List Line";
+        ResourceGroup: Record "Resource Group";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        CopyJob: Codeunit "Copy Job";
+        TargetJobNo: Code[20];
+    begin
+        // [SCENARIO 458131] The Assign-to Job No.  on the Price List Lines page is incorrect, if the job is created by ‘Copy Job.’
+        Initialize();
+
+        // [GIVEN] Creat Jobs with Job Tasks and Create Resource.
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryResource.CreateResourceGroup(ResourceGroup);
+
+        // [GIVEN] Create Price List Header and it's Price List Line.
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, PriceListHeader."Source Type"::"Job Task", Job."No.", JobTask."Job Task No.");
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::"Resource Group", ResourceGroup."No.");
+
+        // [GIVEN] Set "Allow Updating Defaults" as true to copy price list line for copy job
+        PriceListHeader.Validate("Allow Updating Defaults", true);
+        PriceListHeader.Modify();
+
+        // [THEN] Copy Job 
+        TargetJobNo := IncStr(Job."No.");
+        CopyJob.SetCopyOptions(true, false, false, 0, 0, 0);
+        CopyJob.CopyJob(Job, TargetJobNo, '', '', '');
+
+        // [VERIFY] Verify New Job No on "Assign-to Parent No."
+        PriceListLine2.Reset();
+        PriceListLine2.SetRange("Source Type", PriceListLine2."Source Type"::"Job Task");
+        PriceListLine2.SetRange("Parent Source No.", Job."No.");
+        Assert.RecordCount(PriceListLine2, 1);
+    end;
+
+    [Test]
+    procedure VerifyPriceListLineforJobAfterCopyJob()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListLine2: Record "Price List Line";
+        ResourceGroup: Record "Resource Group";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        CopyJob: Codeunit "Copy Job";
+        TargetJobNo: Code[20];
+    begin
+        // [SCENARIO 458131] The Assign-to Job No.  on the Price List Lines page is incorrect, if the job is created by ‘Copy Job.’
+        Initialize();
+
+        // [GIVEN] Creat Jobs with Job Tasks and Create Resource.
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryResource.CreateResourceGroup(ResourceGroup);
+
+        // [GIVEN] Create Price List Header and it's Price List Line.
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, PriceListHeader."Source Type"::Job, '', Job."No.");
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::"Resource Group", ResourceGroup."No.");
+
+        // [GIVEN] Set "Allow Updating Defaults" as true to copy price list line for copy job
+        PriceListHeader.Validate("Allow Updating Defaults", true);
+        PriceListHeader.Modify();
+
+        // [THEN] Copy Job 
+        TargetJobNo := IncStr(Job."No.");
+        CopyJob.SetCopyOptions(true, false, false, 0, 0, 0);
+        CopyJob.CopyJob(Job, TargetJobNo, '', '', '');
+
+        // [VERIFY] Verify New Job No on "Assign-to Parent No."
+        PriceListLine2.Reset();
+        PriceListLine2.SetRange("Source Type", PriceListLine2."Source Type"::Job);
+        PriceListLine2.SetRange("Source No.", Job."No.");
+        Assert.RecordCount(PriceListLine2, 1);
+    end;
+
+    [Test]
+    procedure VarifyFieldsOnSalesJobPriceListsPage()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        ResourceGroup: Record "Resource Group";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        SalesJobPriceList: TestPage "Sales Job Price Lists";
+    begin
+        // [SCENARIO 460320] Assign-to Type, Assign-to and Assign-to Job No. fields have incorrect values in Sales Price Job List page
+        Initialize(true);
+
+        // [GIVEN] Create Jobs with Job Tasks and Create Resource.
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryResource.CreateResourceGroup(ResourceGroup);
+
+        // [GIVEN] Create Price List Header and it's Price List Line.
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, PriceListHeader."Source Type"::Job, '', Job."No.");
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::"Resource Group", ResourceGroup."No.");
+
+        // [GIVEN] Set "Allow Updating Defaults" as true
+        PriceListHeader.Validate("Allow Updating Defaults", true);
+        PriceListHeader.Modify();
+
+        // [WHEN] Trap and Run Sales Job Price Lists page
+        SalesJobPriceList.Trap();
+        Page.Run(Page::"Sales Job Price Lists", PriceListHeader);
+        SalesJobPriceList.Code.Activate();
+
+        // [VERIFY] Verify: Assign-to Type, Assign-to and Assign-to Job No. fields Sales Job Price Lists page is same as on Price List Header record
+        Assert.AreEqual(SalesJobPriceList.SourceType.Value, Format(PriceListHeader."Source Type"), StrSubstNo(JobPriceListFieldErr, SalesJobPriceList.SourceType.Caption));
+        Assert.AreEqual(SalesJobPriceList.SourceNo.Value, Format(PriceListHeader."Source No."), StrSubstNo(JobPriceListFieldErr, SalesJobPriceList.SourceNo.Caption));
+        Assert.AreEqual(SalesJobPriceList.ParentSourceNo.Value, Format(PriceListHeader."Parent Source No."), StrSubstNo(JobPriceListFieldErr, SalesJobPriceList.ParentSourceNo.Caption));
+    end;
+
+    [Test]
+    procedure VarifyFieldsOnPurchaseJobPriceListsPage()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        ResourceGroup: Record "Resource Group";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        PurchaseJobPriceList: TestPage "Purchase Job Price Lists";
+    begin
+        // [SCENARIO 460320] Assign-to Type, Assign-to and Assign-to Job No. fields have incorrect values in Purchase Price Job List page
+        Initialize(true);
+
+        // [GIVEN] Create Jobs with Job Tasks and Create Resource.
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryResource.CreateResourceGroup(ResourceGroup);
+
+        // [GIVEN] Create Price List Header and it's Price List Line.
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Purchase, PriceListHeader."Source Type"::Job, '', Job."No.");
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::"Resource Group", ResourceGroup."No.");
+
+        // [GIVEN] Set "Allow Updating Defaults" as true
+        PriceListHeader.Validate("Allow Updating Defaults", true);
+        PriceListHeader.Modify();
+
+        // [WHEN] Trap and Run Purchase Job Price Lists page
+        PurchaseJobPriceList.Trap();
+        Page.Run(Page::"Purchase Job Price Lists", PriceListHeader);
+        PurchaseJobPriceList.Code.Activate();
+
+        // [VERIFY] Verify: Assign-to Type, Assign-to and Assign-to Job No. fields Purchase Job Price Lists page is same as on Price List Header record
+        Assert.AreEqual(PurchaseJobPriceList.SourceType.Value, Format(PriceListHeader."Source Type"), StrSubstNo(JobPriceListFieldErr, PurchaseJobPriceList.SourceType.Caption));
+        Assert.AreEqual(PurchaseJobPriceList.SourceNo.Value, Format(PriceListHeader."Source No."), StrSubstNo(JobPriceListFieldErr, PurchaseJobPriceList.SourceNo.Caption));
+        Assert.AreEqual(PurchaseJobPriceList.ParentSourceNo.Value, Format(PriceListHeader."Parent Source No."), StrSubstNo(JobPriceListFieldErr, PurchaseJobPriceList.ParentSourceNo.Caption));
+    end;
+
+    [Test]
+    procedure VerifyVATProdPostingGroupFromItemOnPriceListLine()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        Item: Record Item;
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        // [SCENARIO 458626] "VAT Prod. Posting Group" in Purchase Price List Line and Sales price list
+        Initialize();
+
+        // [GIVEN] Create VAT Business Posting and update Sales Receivable Setup
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        UpdateSalesReceivablesSetup(VATBusinessPostingGroup.Code);
+
+        // [GIVEN] Create Item and create VAT Posting Setup
+        LibraryInventory.CreateItem(Item);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, Item."VAT Prod. Posting Group");
+
+        // [GIVEN] Update Price Including VAT as true and VAT Bus. Posting GR. (Price)
+        Item.Validate("Price Includes VAT", true);
+        Item.Validate("VAT Bus. Posting Gr. (Price)", VATBusinessPostingGroup.Code);
+        Item.Modify();
+
+        // [GIVEN] Create new Price Header
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, PriceListHeader."Source Type"::"All Customers", '', '');
+
+        // [GIVEN] Create New Price List line
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Item, Item."No.");
+
+        // [WHEN] Insert Product No. as created new Item no
+        PriceListLine.Validate("Product No.", Item."No.");
+        PriceListLine.Modify();
+
+        // [VERIFY] Verify VAT Prod. Posting Group has been updated from Item
+        Assert.AreEqual(Item."VAT Prod. Posting Group", PriceListLine."VAT Prod. Posting Group", VATProdPostingGroupErr);
     end;
 
     local procedure Initialize()
@@ -3720,6 +3924,15 @@
         SalesPriceList.Lines."Product No.".SetValue(ItemNo);
         if VariantCode <> '' then
             SalesPriceList.Lines."Variant Code".SetValue(VariantCode);
+    end;
+
+    local procedure UpdateSalesReceivablesSetup(VATBusinessPostingGroup: Code[20])
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("VAT Bus. Posting Gr. (Price)", VATBusinessPostingGroup);
+        SalesReceivablesSetup.Modify(true);
     end;
 
     [ModalPageHandler]
