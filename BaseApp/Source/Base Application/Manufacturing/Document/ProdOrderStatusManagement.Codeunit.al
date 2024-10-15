@@ -13,6 +13,7 @@ using Microsoft.Inventory.Posting;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Capacity;
+using Microsoft.Manufacturing.Setup;
 using Microsoft.Purchases.Document;
 using Microsoft.Utilities;
 using Microsoft.Warehouse.Activity;
@@ -769,6 +770,8 @@ codeunit 5407 "Prod. Order Status Management"
     end;
 
     local procedure InitItemJnlLineFromProdOrderComp(var ItemJnlLine: Record "Item Journal Line"; ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderComp: Record "Prod. Order Component"; PostingDate: Date; QtyToPost: Decimal)
+    var
+        UnitOfMeasureManagement: Codeunit "Unit of Measure Management";
     begin
         ItemJnlLine.Init();
         OnInitItemJnlLineFromProdOrderCompOnAfterInit(ItemJnlLine);
@@ -788,6 +791,8 @@ codeunit 5407 "Prod. Order Status Management"
         ItemJnlLine."Qty. per Unit of Measure" := ProdOrderComp."Qty. per Unit of Measure";
         ItemJnlLine.Description := ProdOrderComp.Description;
         ItemJnlLine.Validate(Quantity, QtyToPost);
+        if Abs(ItemJnlLine."Quantity (Base)" - ProdOrderComp."Qty. Picked (Base)") <= UnitOfMeasureManagement.QtyRndPrecision() then
+            ItemJnlLine."Quantity (Base)" := ProdOrderComp."Qty. Picked (Base)";
         ItemJnlLine.Validate("Unit Cost", ProdOrderComp."Unit Cost");
         ItemJnlLine."Location Code" := ProdOrderComp."Location Code";
         ItemJnlLine."Bin Code" := ProdOrderComp."Bin Code";

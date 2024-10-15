@@ -2197,6 +2197,7 @@ codeunit 134301 "Workflow Notification Test"
         NotificationSetup: Record "Notification Setup";
         DataTypeBuffer: Record "Data Type Buffer";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
         LibraryWorkflow.SetUpEmailAccount();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
@@ -2216,7 +2217,9 @@ codeunit 134301 "Workflow Notification Test"
         SentNotificationEntry.DeleteAll();
         NotificationSetup.DeleteAll();
         DataTypeBuffer.DeleteAll(true);
-        SetupApprovalAdministrator;
+        SetupApprovalAdministrator();
+        if NumberSequence.Exists(SequenceNoMgt.GetTableSequenceName(DATABASE::"Sent Notification Entry")) then
+            NumberSequence.Delete(SequenceNoMgt.GetTableSequenceName(DATABASE::"Sent Notification Entry")); // Make sure the number sequence is re-created for each test.
 
         if IsInitialized then
             exit;
