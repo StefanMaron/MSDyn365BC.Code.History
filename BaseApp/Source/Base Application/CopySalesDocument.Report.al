@@ -204,7 +204,7 @@ report 292 "Copy Sales Document"
         CopyDocMgt.SetArchDocVal(FromDocNoOccurrence, FromDocVersionNo);
         CopyDocMgt.SetIncludeOrgInvInfo(IncludeOrgInvInfo);
 
-        OnPreReportOnBeforeCopySalesDoc(CopyDocMgt, FromDocType.AsInteger(), FromDocNo, SalesHeader);
+        OnPreReportOnBeforeCopySalesDoc(CopyDocMgt, FromDocType.AsInteger(), FromDocNo, SalesHeader, CurrReport.UseRequestPage(), IncludeHeader, RecalculateLines, ExactCostReversingMandatory);
 
         CopyDocMgt.CopySalesDoc(FromDocType, FromDocNo, SalesHeader);
     end;
@@ -562,7 +562,7 @@ report 292 "Copy Sales Document"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPreReportOnBeforeCopySalesDoc(var CopyDocumentMgt: Codeunit "Copy Document Mgt."; DocType: Integer; DocNo: Code[20]; SalesHeader: Record "Sales Header")
+    local procedure OnPreReportOnBeforeCopySalesDoc(var CopyDocumentMgt: Codeunit "Copy Document Mgt."; DocType: Integer; DocNo: Code[20]; SalesHeader: Record "Sales Header"; CurrReportUseRequestPage: Boolean; IncludeHeader: Boolean; RecalculateLines: Boolean; ExactCostReversingMandatory: Boolean)
     begin
     end;
 

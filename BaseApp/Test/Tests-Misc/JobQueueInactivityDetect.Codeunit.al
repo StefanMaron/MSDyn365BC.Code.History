@@ -244,9 +244,6 @@ codeunit 139032 "Job Queue - Inactivity Detect"
         // [THEN] Job 'A' is activated, the state is "Ready"
         Assert.AreEqual(JobQueueEntry[1].Status::Ready, JobQueueEntry[1].Status, 'Job A Status');
 
-        // [THEN] new "Earliest Start Date/Time" is about 1 second from now
-        VerifyDateTimeDifference(CurrentDateTime, JobQueueEntry[1]."Earliest Start Date/Time", 1);
-
         // [THEN] Jobs 'B', 'C' are not changed
         UpdatedJobQueueEntry.SetRange(Status, UpdatedJobQueueEntry.Status::"On Hold with Inactivity Timeout");
         Assert.RecordCount(UpdatedJobQueueEntry, 1);

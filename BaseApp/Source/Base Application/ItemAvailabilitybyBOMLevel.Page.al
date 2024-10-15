@@ -1,4 +1,4 @@
-page 5871 "Item Availability by BOM Level"
+﻿page 5871 "Item Availability by BOM Level"
 {
     Caption = 'Item Availability by BOM Level';
     DeleteAllowed = false;
@@ -474,6 +474,7 @@ page 5871 "Item Availability by BOM Level"
     local procedure RefreshPage()
     var
         CalcBOMTree: Codeunit "Calculate BOM Tree";
+        IsHandled: Boolean;
     begin
         Item.SetRange("Date Filter", 0D, DemandDate);
         Item.SetFilter("Location Filter", LocationFilter);
@@ -486,8 +487,11 @@ page 5871 "Item Availability by BOM Level"
             ShowBy::Item:
                 begin
                     Item.FindFirst;
-                    if not Item.HasBOM then
-                        Error(Text000);
+                    IsHandled := false;
+                    OnRefreshPageOnBeforeCheckItemHasBOM(Item, IsHandled);
+                    if not IsHandled then
+                        if not Item.HasBOM then
+                            Error(Text000);
                     CalcBOMTree.GenerateTreeForItems(Item, Rec, 1);
                 end;
             ShowBy::Production:
@@ -582,6 +586,11 @@ page 5871 "Item Availability by BOM Level"
             Message(Text001)
         else
             PAGE.RunModal(PAGE::"BOM Warning Log", TempBOMWarningLog);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRefreshPageOnBeforeCheckItemHasBOM(Item: Record Item; var IsHandled: Boolean)
+    begin
     end;
 }
 

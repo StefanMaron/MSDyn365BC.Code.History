@@ -109,6 +109,8 @@ report 492 "Copy Purchase Document"
 
         trigger OnOpenPage()
         begin
+            OnBeforeOpenPage(FromDocNo, FromDocType);
+
             if FromDocNo <> '' then begin
                 case FromDocType of
                     FromDocType::Quote:
@@ -177,7 +179,7 @@ report 492 "Copy Purchase Document"
         CopyDocMgt.SetIncludeOrgInvInfo(false);
         CopyDocMgt.SetArchDocVal(FromDocNoOccurrence, FromDocVersionNo);
 
-        OnPreReportOnBeforeCopyPurchaseDoc(CopyDocMgt);
+        OnPreReportOnBeforeCopyPurchaseDoc(CopyDocMgt, CurrReport.UseRequestPage(), IncludeHeader, RecalculateLines);
 
         CopyDocMgt.CopyPurchDoc(FromDocType, FromDocNo, PurchHeader);
     end;
@@ -493,6 +495,11 @@ report 492 "Copy Purchase Document"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenPage(var FromDocNo: Code[20]; var FromDocType: Enum "Purchase Document Type From")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePreReport()
     begin
     end;
@@ -508,7 +515,7 @@ report 492 "Copy Purchase Document"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPreReportOnBeforeCopyPurchaseDoc(var CopyDocumentMgt: Codeunit "Copy Document Mgt.")
+    local procedure OnPreReportOnBeforeCopyPurchaseDoc(var CopyDocumentMgt: Codeunit "Copy Document Mgt."; UseRequestPage: Boolean; IncludeHeader: Boolean; RecalculateLines: Boolean)
     begin
     end;
 }

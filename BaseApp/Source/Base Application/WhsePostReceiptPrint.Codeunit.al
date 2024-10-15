@@ -18,6 +18,7 @@ codeunit 5762 "Whse.-Post Receipt + Print"
     local procedure "Code"()
     var
         WhsePostReceipt: Codeunit "Whse.-Post Receipt";
+        ShouldRunPrint: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -29,7 +30,9 @@ codeunit 5762 "Whse.-Post Receipt + Print"
         WhsePostReceipt.GetResultMessage();
 
         PrintedDocuments := 0;
-        if WhsePostReceipt.GetFirstPutAwayDocument(WhseActivHeader) then begin
+        ShouldRunPrint := WhsePostReceipt.GetFirstPutAwayDocument(WhseActivHeader);
+        OnCodeOnAfterCalcShouldRunPrint(WhseReceiptLine, WhsePostReceipt, ShouldRunPrint);
+        if ShouldRunPrint then begin
             repeat
                 WhseActivHeader.SetRecFilter();
                 OnBeforePrintReport(WhseActivHeader);
@@ -61,6 +64,11 @@ codeunit 5762 "Whse.-Post Receipt + Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintReport(var WhseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterCalcShouldRunPrint(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var WhsePostReceipt: Codeunit "Whse.-Post Receipt"; var ShouldRunPrint: Boolean)
     begin
     end;
 }

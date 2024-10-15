@@ -1,4 +1,4 @@
-codeunit 900 "Assembly-Post"
+﻿codeunit 900 "Assembly-Post"
 {
     Permissions = TableData "Posted Assembly Header" = im,
                   TableData "Posted Assembly Line" = im,
@@ -520,11 +520,19 @@ codeunit 900 "Assembly-Post"
         end;
     end;
 
-    local procedure PostItemConsumption(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; PostingNoSeries: Code[20]; QtyToConsume: Decimal; QtyToConsumeBase: Decimal; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line"; DocumentNo: Code[20]; IsCorrection: Boolean; ApplyToEntryNo: Integer): Integer
+    local procedure PostItemConsumption(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; PostingNoSeries: Code[20]; QtyToConsume: Decimal; QtyToConsumeBase: Decimal; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line"; DocumentNo: Code[20]; IsCorrection: Boolean; ApplyToEntryNo: Integer) Result: Integer
     var
         ItemJnlLine: Record "Item Journal Line";
         AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostItemConsumptionProcedure(
+            AssemblyHeader, AssemblyLine, PostingNoSeries, QtyToConsume, QtyToConsumeBase, ItemJnlPostLine,
+            WhseJnlRegisterLine, DocumentNo, IsCorrection, ApplyToEntryNo, Result, IsHandled);
+        if IsHandled then
+            exit;
+
         with AssemblyLine do begin
             TestField(Type, Type::Item);
 
@@ -581,11 +589,19 @@ codeunit 900 "Assembly-Post"
         exit(ItemJnlLine."Item Shpt. Entry No.");
     end;
 
-    local procedure PostItemOutput(var AssemblyHeader: Record "Assembly Header"; PostingNoSeries: Code[20]; QtyToOutput: Decimal; QtyToOutputBase: Decimal; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line"; DocumentNo: Code[20]; IsCorrection: Boolean; ApplyToEntryNo: Integer): Integer
+    local procedure PostItemOutput(var AssemblyHeader: Record "Assembly Header"; PostingNoSeries: Code[20]; QtyToOutput: Decimal; QtyToOutputBase: Decimal; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line"; DocumentNo: Code[20]; IsCorrection: Boolean; ApplyToEntryNo: Integer) Result: Integer
     var
         ItemJnlLine: Record "Item Journal Line";
         AssemblyHeaderReserve: Codeunit "Assembly Header-Reserve";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostItemOutputProcedure(
+            AssemblyHeader, PostingNoSeries, QtyToOutput, QtyToOutputBase, ItemJnlPostLine,
+            WhseJnlRegisterLine, DocumentNo, IsCorrection, ApplyToEntryNo, Result, IsHandled);
+        if IsHandled then
+            exit;
+
         with AssemblyHeader do begin
             ItemJnlLine.Init();
             ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::"Assembly Output";
@@ -1603,6 +1619,16 @@ codeunit 900 "Assembly-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostedAssemblyLineInsert(var PostedAssemblyLine: Record "Posted Assembly Line"; AssemblyLine: Record "Assembly Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostItemConsumptionProcedure(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; PostingNoSeries: Code[20]; QtyToConsume: Decimal; QtyToConsumeBase: Decimal; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line"; DocumentNo: Code[20]; IsCorrection: Boolean; ApplyToEntryNo: Integer; var Result: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostItemOutputProcedure(AssemblyHeader: Record "Assembly Header"; PostingNoSeries: Code[20]; QtyToOutput: Decimal; QtyToOutputBase: Decimal; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line"; DocumentNo: Code[20]; IsCorrection: Boolean; ApplyToEntryNo: Integer; var Result: Integer; var IsHandled: Boolean)
     begin
     end;
 
