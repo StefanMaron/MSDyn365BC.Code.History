@@ -1,4 +1,4 @@
-﻿table 39 "Purchase Line"
+﻿﻿table 39 "Purchase Line"
 {
     Caption = 'Purchase Line';
     DrillDownPageID = "Purchase Lines";
@@ -7833,6 +7833,10 @@
 
     procedure UpdatePrepmtAmounts()
     begin
+        if (Rec."Outstanding Quantity" = 0) and (Rec."Qty. Rcd. Not Invoiced" = 0) then
+            if PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice then
+                exit;
+
         if PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice then begin
             "Prepayment VAT Difference" := 0;
             if not PrePaymentLineAmountEntered then begin
@@ -7858,6 +7862,10 @@
             exit;
 
         if "Prepayment %" <> 0 then begin
+            if "System-Created Entry" then
+                if Type = Type::"G/L Account" then
+                    if not IsServiceCharge() then
+                        exit;
             if Quantity < 0 then
                 FieldError(Quantity, StrSubstNo(Text043, FieldCaption("Prepayment %")));
             if "Direct Unit Cost" < 0 then

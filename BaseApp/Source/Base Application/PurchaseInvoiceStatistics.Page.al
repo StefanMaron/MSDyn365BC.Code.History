@@ -150,7 +150,7 @@ page 400 "Purchase Invoice Statistics"
         VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Invoice);
         VendLedgEntry.SetRange("Vendor No.", "Pay-to Vendor No.");
         if VendLedgEntry.FindFirst() then
-            AmountLCY := VendLedgEntry."Purchase (LCY)";
+            AmountLCY := -(VendLedgEntry."Purchase (LCY)");
 
         if not Vend.Get("Pay-to Vendor No.") then
             Clear(Vend);

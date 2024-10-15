@@ -1,4 +1,4 @@
-codeunit 99000842 "Service Line-Reserve"
+﻿codeunit 99000842 "Service Line-Reserve"
 {
     Permissions = TableData "Reservation Entry" = rimd;
 
@@ -495,7 +495,11 @@ codeunit 99000842 "Service Line-Reserve"
     begin
         if MatchThisTable(SourceRecRef.Number) then begin
             SourceRecRef.SetTable(ServiceLine);
-            ServiceLine.Find;
+            ServiceLine.Find();
+            if ServiceLine.UpdatePlanned() then begin
+                ServiceLine.Modify(true);
+                Commit();
+            end;
             QtyPerUOM := ServiceLine.GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
         end;
     end;

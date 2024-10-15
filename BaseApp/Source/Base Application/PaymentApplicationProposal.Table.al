@@ -69,6 +69,8 @@
         field(24; "Applied Amount"; Decimal)
         {
             Caption = 'Applied Amount';
+            AutoFormatExpression = "Currency Code";
+            AutoFormatType = 1;
 
             trigger OnValidate()
             begin
@@ -109,6 +111,7 @@
         {
             AutoFormatExpression = "Currency Code";
             Caption = 'Applied Pmt. Discount';
+            AutoFormatType = 1;
         }
         field(30; Quality; Integer)
         {
@@ -165,6 +168,8 @@
         field(52; "Remaining Pmt. Disc. Possible"; Decimal)
         {
             Caption = 'Remaining Pmt. Disc. Possible';
+            AutoFormatExpression = "Currency Code";
+            AutoFormatType = 1;
 
             trigger OnValidate()
             begin
@@ -183,6 +188,8 @@
         field(60; "Applied Amt. Incl. Discount"; Decimal)
         {
             Caption = 'Applied Amt. Incl. Discount';
+            AutoFormatExpression = "Currency Code";
+            AutoFormatType = 1;
 
             trigger OnValidate()
             begin
@@ -196,11 +203,15 @@
         {
             Caption = 'Remaining Amount';
             Editable = false;
+            AutoFormatExpression = "Currency Code";
+            AutoFormatType = 1;
         }
         field(62; "Remaining Amt. Incl. Discount"; Decimal)
         {
             Caption = 'Remaining Amt. Incl. Discount';
             Editable = false;
+            AutoFormatExpression = "Currency Code";
+            AutoFormatType = 1;
         }
         field(63; Type; Option)
         {
@@ -217,6 +228,8 @@
         {
             Caption = 'Stmt To Rem. Amount Difference';
             Editable = false;
+            AutoFormatExpression = "Currency Code";
+            AutoFormatType = 1;
         }
     }
 
