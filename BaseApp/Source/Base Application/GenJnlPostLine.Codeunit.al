@@ -3470,18 +3470,9 @@
                         VATBase := VATEntry2."Remaining Unrealized Base";
                         VATAmountAddCurr := VATEntry2."Add.-Curr. Rem. Unreal. Amount";
                         VATBaseAddCurr := VATEntry2."Add.-Curr. Rem. Unreal. Base";
-                    end else begin
-                        VATAmount := Round(VATEntry2."Remaining Unrealized Amount" * VATPart, GLSetup."Amount Rounding Precision");
-                        VATBase := Round(VATEntry2."Remaining Unrealized Base" * VATPart, GLSetup."Amount Rounding Precision");
-                        VATAmountAddCurr :=
-                          Round(
-                            VATEntry2."Add.-Curr. Rem. Unreal. Amount" * VATPart,
-                            AddCurrency."Amount Rounding Precision");
-                        VATBaseAddCurr :=
-                          Round(
-                            VATEntry2."Add.-Curr. Rem. Unreal. Base" * VATPart,
-                            AddCurrency."Amount Rounding Precision");
-                    end;
+                    end else
+                        CalcRealizedVATAmt(
+                            VATBase, VATAmount, VATBaseAddCurr, VATAmountAddCurr, VATEntry2, IsCustBillDoc(CustLedgEntry4), VATPart);
 
                     IsHandled := false;
                     OnCustUnrealizedVATOnBeforeInitGLEntryVAT(
@@ -5461,6 +5452,7 @@
             Closed := false;
             CopyAmountsFromVATEntry(VATEntry, true);
             "Posting Date" := GenJnlLine."Posting Date";
+            "Document Date" := GenJnlLine."Document Date";
             "Document No." := GenJnlLine."Document No.";
             "User ID" := UserId;
             "Transaction No." := NextTransactionNo;

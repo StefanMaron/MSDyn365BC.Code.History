@@ -265,6 +265,7 @@ table 49 "Invoice Post. Buffer"
     }
 
     var
+        TempInvoicePostBufferRounding: Record "Invoice Post. Buffer" temporary;
         DimMgt: Codeunit DimensionManagement;
 
     procedure PrepareSales(var SalesLine: Record "Sales Line")
@@ -631,17 +632,32 @@ table 49 "Invoice Post. Buffer"
 
     local procedure AdjustRoundingForUpdate()
     begin
-        AdjustRoundingFieldsPair(Amount, "Amount (ACY)");
-        AdjustRoundingFieldsPair("VAT Amount", "VAT Amount (ACY)");
-        AdjustRoundingFieldsPair("VAT Base Amount", "VAT Base Amount (ACY)");
+        AdjustRoundingFieldsPair(TempInvoicePostBufferRounding.Amount, Amount, "Amount (ACY)");
+        AdjustRoundingFieldsPair(TempInvoicePostBufferRounding."VAT Amount", "VAT Amount", "VAT Amount (ACY)");
+        AdjustRoundingFieldsPair(TempInvoicePostBufferRounding."VAT Base Amount", "VAT Base Amount", "VAT Base Amount (ACY)");
     end;
 
-    local procedure AdjustRoundingFieldsPair(var Value1: Decimal; var Value2: Decimal)
+    local procedure AdjustRoundingFieldsPair(var TotalRoundingAmount: Decimal; var AmountLCY: Decimal; AmountFCY: Decimal)
     begin
-        if (Value1 = 0) and (Value2 <> 0) then
-            Value2 := 0;
-        if (Value1 <> 0) and (Value2 = 0) then
-            Value1 := 0;
+        if (AmountLCY <> 0) and (AmountFCY = 0) then begin
+            TotalRoundingAmount += AmountLCY;
+            AmountLCY := 0;
+        end;
+    end;
+
+    internal procedure ApplyRoundingForFinalPosting()
+    begin
+        ApplyRoundingValueForFinalPosting(TempInvoicePostBufferRounding.Amount, Amount);
+        ApplyRoundingValueForFinalPosting(TempInvoicePostBufferRounding."VAT Amount", "VAT Amount");
+        ApplyRoundingValueForFinalPosting(TempInvoicePostBufferRounding."VAT Base Amount", "VAT Base Amount");
+    end;
+
+    local procedure ApplyRoundingValueForFinalPosting(var Rounding: Decimal; var Value: Decimal)
+    begin
+        IF (Rounding <> 0) and (Value <> 0) then begin
+            Value += Rounding;
+            Rounding := 0;
+        end;
     end;
 
     [IntegrationEvent(false, false)]

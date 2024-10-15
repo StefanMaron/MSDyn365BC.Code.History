@@ -1111,7 +1111,8 @@ codeunit 144117 "ERM Make 349 Declaration"
     [Scope('OnPrem')]
     procedure TestDECustomerShippingAddressIsESLocationCodeES()
     begin
-        RunReportForCustomerAndWithDifferentAddresses('DE', 'ES', 'ES', false);
+        // TFS ID 403106: Foreign customer with shipping address in Spain must be reported in the 349 Declaration for Spain
+        RunReportForCustomerAndWithDifferentAddresses('DE', 'ES', 'ES', true);
     end;
 
     [Test]
@@ -1175,7 +1176,8 @@ codeunit 144117 "ERM Make 349 Declaration"
     [Scope('OnPrem')]
     procedure TestMACustomerShippingAddressIsESLocationCodeES()
     begin
-        RunReportForCustomerAndWithDifferentAddresses('MA', 'ES', 'ES', false);
+        // TFS ID 403106: Foreign customer with shipping address in Spain must be reported in the 349 Declaration for Spain
+        RunReportForCustomerAndWithDifferentAddresses('MA', 'ES', 'ES', true);
     end;
 
     [Test]
@@ -1372,7 +1374,8 @@ codeunit 144117 "ERM Make 349 Declaration"
     [Scope('OnPrem')]
     procedure TestEUVendorOrderAddressESLocationCodeDE()
     begin
-        RunReporForVendorAndtWithDifferentAddresses('DE', 'ES', 'DE', true);
+        // TFS ID 403106: Foreign customer with shipping address in Spain must be reported in the 349 Declaration for Spain
+        RunReporForVendorAndtWithDifferentAddresses('DE', 'ES', 'DE', false);
     end;
 
     [Test]
@@ -1380,7 +1383,8 @@ codeunit 144117 "ERM Make 349 Declaration"
     [Scope('OnPrem')]
     procedure TestEUVendorOrderAddressESLocationCodeES()
     begin
-        RunReporForVendorAndtWithDifferentAddresses('DE', 'ES', 'ES', false);
+        // TFS ID 403106: Foreign customer with shipping address in Spain must be reported in the 349 Declaration for Spain
+        RunReporForVendorAndtWithDifferentAddresses('DE', 'ES', 'ES', true);
     end;
 
     [Test]
