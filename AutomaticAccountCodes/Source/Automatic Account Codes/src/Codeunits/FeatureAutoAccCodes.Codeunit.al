@@ -183,7 +183,7 @@ codeunit 4851 "Feature Auto. Acc. Codes" implements "Feature Data Update"
         AutoAccCodesObjectIdFieldRef := AutoAccPageSetupCardRecRef.FieldIndex(2);
         AutoAccCodesObjectIdFieldRef.VALUE := Page::"Automatic Account Header";
 
-        AutoAccPageSetupCardRecRef.Insert();
+        if not AutoAccPageSetupCardRecRef.Insert() then;
         AutoAccPageSetupCardRecRef.Close();
 
         // Set up List page to be used
@@ -194,7 +194,7 @@ codeunit 4851 "Feature Auto. Acc. Codes" implements "Feature Data Update"
 
         AutoAccCodesObjectIdFieldRef := AutoAccPageSetupListRecRef.Field(2);
         AutoAccCodesObjectIdFieldRef.VALUE := Page::"Automatic Account List";
-        AutoAccPageSetupListRecRef.Insert();
+        if not AutoAccPageSetupListRecRef.Insert() then;
 
         AutoAccPageSetupListRecRef.Close();
     end;

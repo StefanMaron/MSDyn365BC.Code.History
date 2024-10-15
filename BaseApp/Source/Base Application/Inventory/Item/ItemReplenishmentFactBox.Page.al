@@ -43,9 +43,9 @@ page 9090 "Item Replenishment FactBox"
                     var
                         Vendor: Record Vendor;
                     begin
-                        Vendor.SetFilter("No.", Rec."Vendor No.");
-
-                        PAGE.Run(PAGE::"Vendor Card", Vendor);
+                        if Rec."Vendor No." <> '' then
+                            Vendor.SetRange("No.", Rec."Vendor No.");
+                        Page.Run(Page::"Vendor Card", Vendor);
                     end;
                 }
                 field("Vendor Item No."; Rec."Vendor Item No.")
@@ -73,9 +73,9 @@ page 9090 "Item Replenishment FactBox"
                     var
                         RoutingHeader: Record "Routing Header";
                     begin
-                        RoutingHeader.SetFilter("No.", Rec."Routing No.");
-
-                        PAGE.Run(PAGE::Routing, RoutingHeader);
+                        if RoutingHeader."No." <> '' then
+                            RoutingHeader.SetRange("No.", Rec."Routing No.");
+                        Page.Run(Page::Routing, RoutingHeader);
                     end;
                 }
                 field("Production BOM No."; Rec."Production BOM No.")
@@ -86,11 +86,11 @@ page 9090 "Item Replenishment FactBox"
 
                     trigger OnDrillDown()
                     var
-                        ProdBomHeader: Record "Production BOM Header";
+                        ProductionBOMHeader: Record "Production BOM Header";
                     begin
-                        ProdBomHeader.SetFilter("No.", Rec."Production BOM No.");
-
-                        PAGE.Run(PAGE::"Production BOM", ProdBomHeader);
+                        if ProductionBOMHeader."No." <> '' then
+                            ProductionBOMHeader.SetRange("No.", Rec."Production BOM No.");
+                        Page.Run(Page::"Production BOM", ProductionBOMHeader);
                     end;
                 }
             }
@@ -103,7 +103,7 @@ page 9090 "Item Replenishment FactBox"
 
     local procedure ShowDetails()
     begin
-        PAGE.Run(PAGE::"Item Card", Rec);
+        Page.Run(Page::"Item Card", Rec);
     end;
 }
 

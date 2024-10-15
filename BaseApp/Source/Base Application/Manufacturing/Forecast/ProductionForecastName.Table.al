@@ -103,6 +103,7 @@ table 99000851 "Production Forecast Name"
 
     var
         Confirm001Qst: Label 'Demand forecast %1 has entries. Do you want to delete it anyway?', Comment = '%1 = forecast name';
+        Confirm002Qst: Label 'The current format of date filter %1 is not valid. Do you want to remove it?', Comment = '%1 = Date Filter';
 
     procedure GetItemFilterBlobAsViewFilters(): Text
     begin
@@ -187,6 +188,27 @@ table 99000851 "Production Forecast Name"
         "Location Filter".CreateInStream(FiltersInStream);
         FiltersInStream.ReadText(LocationFilterText);
         exit(LocationFilterText);
+    end;
+
+    procedure CheckDateFilterIsValid()
+    begin
+        if TrySetFilter("Date Filter") then
+            exit;
+
+        if GuiAllowed() then
+            if not Confirm(Confirm002Qst, true, "Date Filter") then
+                Error('');
+
+        Rec."Date Filter" := '';
+        Rec.Modify();
+    end;
+
+    [TryFunction]
+    local procedure TrySetFilter(DateFilter: Text)
+    var
+        Period: Record Date;
+    begin
+        Period.SetFilter("Period Start", DateFilter);
     end;
 }
 
