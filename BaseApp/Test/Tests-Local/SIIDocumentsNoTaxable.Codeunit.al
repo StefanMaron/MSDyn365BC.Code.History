@@ -2400,7 +2400,7 @@ codeunit 147524 "SII Documents No Taxable"
         VendNo: Code[20];
     begin
         // [FEATURE] [Purchase] [Invoice]
-        // [SCENARIO 353654] XML has no non taxable node if it has negative amount in Purchase Invoice
+        // [SCENARIO 386572] XML has negative non taxable node if it has negative amount in Purchase Invoice
 
         Initialize();
 
@@ -2431,8 +2431,8 @@ codeunit 147524 "SII Documents No Taxable"
         // [WHEN] Create xml for Posted Purchase Invoice
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
 
-        // [THEN] XML file has just one sii:BaseImponible node for normal VAT amount
-        LibrarySII.VerifyCountOfElements(XMLDoc, 'sii:BaseImponible', 1);
+        // [THEN] XML file has just two sii:BaseImponible nodes - for normal and non-taxable VAT
+        LibrarySII.VerifyCountOfElements(XMLDoc, 'sii:BaseImponible', 2);
 
         // [THEN] XML file has ImporteTotal node with only normal amount
         LibrarySII.ValidateElementByName(
@@ -2455,7 +2455,7 @@ codeunit 147524 "SII Documents No Taxable"
         VendNo: Code[20];
     begin
         // [FEATURE] [Purchase] [Credit Memo]
-        // [SCENARIO 353654] XML has no non taxable node if it has negative amount in Purchase Credit Memo
+        // [SCENARIO 386572] XML has negative non taxable node if it has negative amount in Purchase Credit Memo
         Initialize();
 
         // [GIVEN] Posted Purchase Cr Memo with two lines
@@ -2483,8 +2483,8 @@ codeunit 147524 "SII Documents No Taxable"
         // [WHEN] Create xml for Posted Purchase Credit Memo
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
 
-        // [THEN] XML file has just one sii:BaseImponible node for normal VAT amount
-        LibrarySII.VerifyCountOfElements(XMLDoc, 'sii:BaseImponible', 1);
+        // [THEN] XML file has just two sii:BaseImponible nodes - for normal and non-taxable VAT
+        LibrarySII.VerifyCountOfElements(XMLDoc, 'sii:BaseImponible', 2);
 
         // [THEN] XML file has ImporteTotal node with only normal amount
         LibrarySII.ValidateElementByName(

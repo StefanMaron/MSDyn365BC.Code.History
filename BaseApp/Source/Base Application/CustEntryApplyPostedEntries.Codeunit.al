@@ -33,7 +33,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         Text1100000: Label 'Application of %1 %2';
         Text1100001: Label 'Application of %1 %2/%3';
         Text1100002: Label 'To apply a set of entries containing bills, rejected invoices or invoices to cartera, the cursor should be positioned on an entry different than bill type, rejected invoice or invoices to cartera.';
-        Text1100003: Label 'You cannot unapply the entry.';
+        UnapplyBlankedDocTypeErr: Label 'You cannot unapply the entries because one entry has a blank document type.';
         DetailedCustLedgEntryPreviewContext: Record "Detailed Cust. Ledg. Entry";
         SIIJobUploadPendingDocs: Codeunit "SII Job Upload Pending Docs.";
         ApplicationDatePreviewContext: Date;
@@ -119,7 +119,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         HideProgressWindow: Boolean;
         SuppressCommit: Boolean;
     begin
-        OnBeforeCustPostApplyCustLedgEntry(HideProgressWindow);
+        OnBeforeCustPostApplyCustLedgEntry(HideProgressWindow, CustLedgEntry);
         with CustLedgEntry do begin
             if not HideProgressWindow then
                 Window.Open(PostingApplicationMsg);
@@ -358,7 +358,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
             exit;
 
         if DtldCustLedgEntry."Initial Document Type" = DtldCustLedgEntry."Initial Document Type"::" " then
-            Error(Text1100003);
+            Error(UnapplyBlankedDocTypeErr);
     end;
 
     local procedure CheckPostingDate(PostingDate: Date; var MaxPostingDate: Date)
@@ -400,7 +400,6 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     procedure ApplyCustEntryFormEntry(var ApplyingCustLedgEntry: Record "Cust. Ledger Entry")
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
-        ApplyCustEntries: Page "Apply Customer Entries";
         CustEntryApplID: Code[50];
     begin
         if not ApplyingCustLedgEntry.Open then
@@ -421,7 +420,19 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive);
         CustLedgEntry.SetRange("Customer No.", ApplyingCustLedgEntry."Customer No.");
         CustLedgEntry.SetRange(Open, true);
-        OnApplyApplyCustEntryFormEntryOnAfterCustLedgEntrySetFilters(CustLedgEntry, ApplyingCustLedgEntry);
+        RunApplyCustEntries(CustLedgEntry, ApplyingCustLedgEntry);
+    end;
+
+    local procedure RunApplyCustEntries(var CustLedgEntry: Record "Cust. Ledger Entry"; var ApplyingCustLedgEntry: Record "Cust. Ledger Entry")
+    var
+        ApplyCustEntries: Page "Apply Customer Entries";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnApplyApplyCustEntryFormEntryOnAfterCustLedgEntrySetFilters(CustLedgEntry, ApplyingCustLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if CustLedgEntry.FindFirst then begin
             ApplyCustEntries.SetCustLedgEntry(ApplyingCustLedgEntry);
             ApplyCustEntries.SetRecord(CustLedgEntry);
@@ -644,12 +655,12 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCustPostApplyCustLedgEntry(var HideProgressWindow: Boolean);
+    local procedure OnBeforeCustPostApplyCustLedgEntry(var HideProgressWindow: Boolean; CustLedgEntry: Record "Cust. Ledger Entry");
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnApplyApplyCustEntryFormEntryOnAfterCustLedgEntrySetFilters(var CustLedgerEntry: Record "Cust. Ledger Entry"; var ApplyingCustLedgerEntry: Record "Cust. Ledger Entry" temporary);
+    local procedure OnApplyApplyCustEntryFormEntryOnAfterCustLedgEntrySetFilters(var CustLedgerEntry: Record "Cust. Ledger Entry"; var ApplyingCustLedgerEntry: Record "Cust. Ledger Entry" temporary; var IsHandled: Boolean);
     begin
     end;
 

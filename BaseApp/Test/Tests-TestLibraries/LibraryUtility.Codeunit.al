@@ -565,6 +565,13 @@ codeunit 131000 "Library - Utility"
         exit(NoSeriesMgt.GetNextNo(NoSeries.Code, WorkDate, true));
     end;
 
+    procedure GetEmptyGuid(): Guid
+    var
+        EmptyGuid: Guid;
+    begin
+        exit(EmptyGuid);
+    end;
+
     procedure GenerateRandomRec(var RecRef: RecordRef)
     var
         FieldRef: FieldRef;

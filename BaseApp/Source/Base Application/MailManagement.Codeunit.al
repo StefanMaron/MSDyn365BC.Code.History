@@ -256,7 +256,14 @@
 
     [TryFunction]
     procedure ValidateEmailAddressField(var EmailAddress: Text)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateEmailAddressField(EmailAddress, IsHandled);
+        if IsHandled then
+            exit;
+
         EmailAddress := DelChr(EmailAddress, '<>');
 
         if EmailAddress = '' then
@@ -328,7 +335,7 @@
     [Obsolete('Replaced with the overload containing Email Scenario', '17.0')]
     procedure Send(ParmEmailItem: Record "Email Item"): Boolean
     begin
-        Send(ParmEmailItem, Enum::"Email Scenario"::Default);
+        exit(Send(ParmEmailItem, Enum::"Email Scenario"::Default));
     end;
 
     local procedure DoSend(): Boolean
@@ -438,6 +445,7 @@
         MailManagement.InitializeFrom(HideMailDialog, not IsBackground());
         if MailManagement.IsEnabled() then
             if MailManagement.Send(TempEmailItem, EmailScenario) then begin
+                OnSendMailOrDownloadOnBeforeMailManagementIsSent(MailManagement);
                 MailSent := MailManagement.IsSent();
                 exit;
             end;
@@ -514,7 +522,13 @@
         Base64: Text;
         MimeType: Text;
         MediaId: Guid;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeImageBase64ToUrl(BodyText, SearchText, Regex, MemoryStream, MediaId, Base64, Convert, IsHandled);
+        if IsHandled then
+            exit(BodyText);
+
         SearchText := '(.*<img src=\")data:image\/([a-z]+);base64,([a-zA-Z0-9\/+=]+)(\".*)';
         Regex := Regex.Regex(SearchText);
         while Regex.IsMatch(BodyText) do begin
@@ -737,6 +751,11 @@
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateEmailAddressField(var EmailAddress: Text; var IsHandled: Boolean)
+    begin
+    end;
+
 #pragma warning disable AA0228
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSendMailOnWinClient(var TempEmailItem: Record "Email Item" temporary)
@@ -760,7 +779,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeImageBase64ToUrl(var BodyText: Text; var SearchText: Text; var Regex: DotNet Regex; var MemoryStream: DotNet MemoryStream; var MediaId: Guid; var Base64: Text; var Convert: DotNet Convert; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnSendOnBeforeQualifyFromAddress(var TempEmailItem: Record "Email Item" temporary; EmailScenario: Enum "Email Scenario")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendMailOrDownloadOnBeforeMailManagementIsSent(var MailManagement: Codeunit "Mail Management")
     begin
     end;
 

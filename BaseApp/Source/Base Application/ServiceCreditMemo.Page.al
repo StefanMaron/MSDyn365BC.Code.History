@@ -392,9 +392,30 @@ page 5935 "Service Credit Memo"
                             Modify(true);
                         end;
                     }
+                    group(Control1100011)
+                    {
+                        ShowCaption = false;
+                        Visible = DocHasMultipleRegimeCode;
+                        field(MultipleSchemeCodesControl; MultipleSchemeCodesLbl)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Editable = false;
+                            ShowCaption = false;
+                            Style = StandardAccent;
+                            StyleExpr = TRUE;
+
+                            trigger OnDrillDown()
+                            var
+                                SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
+                            begin
+                                SIISchemeCodeMgt.SalesDrillDownRegimeCodes(Rec);
+                            end;
+                        }
+                    }
                     field("Special Scheme Code"; "Special Scheme Code")
                     {
                         ApplicationArea = Basic, Suite;
+                        Editable = NOT DocHasMultipleRegimeCode;
                         ToolTip = 'Specifies the Special Scheme Code.';
                     }
                     field("Cr. Memo Type"; "Cr. Memo Type")
@@ -654,6 +675,21 @@ page 5935 "Service Credit Memo"
                         PAGE.Run(0, TempServDocLog);
                     end;
                 }
+                action(SpecialSchemeCodes)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Special Scheme Codes';
+                    Image = Allocations;
+                    ToolTip = 'View or edit the list of special scheme codes that related to the current document for VAT reporting.';
+
+                    trigger OnAction()
+                    var
+                        SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
+                    begin
+                        SIISchemeCodeMgt.SalesDrillDownRegimeCodes(Rec);
+                        CurrPage.Update(false);
+                    end;
+                }
             }
         }
         area(processing)
@@ -841,6 +877,7 @@ page 5935 "Service Credit Memo"
         SIIManagement: Codeunit "SII Management";
     begin
         SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
+        UpdateDocHasRegimeCode();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -872,6 +909,7 @@ page 5935 "Service Credit Memo"
     begin
         if SellToContact.Get("Contact No.") then;
         if BillToContact.Get("Bill-to Contact No.") then;
+        UpdateDocHasRegimeCode();
     end;
 
     trigger OnOpenPage()
@@ -883,7 +921,7 @@ page 5935 "Service Credit Memo"
             DocumentIsPosted := (not Get("Document Type", "No."));
 
         SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
-
+        UpdateDocHasRegimeCode();
         ActivateFields;
     end;
 
@@ -907,7 +945,9 @@ page 5935 "Service Credit Memo"
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+        DocHasMultipleRegimeCode: Boolean;
         OperationDescription: Text[500];
+        MultipleSchemeCodesLbl: Label 'Multiple scheme codes';
 
     local procedure ActivateFields()
     begin
@@ -971,6 +1011,13 @@ page 5935 "Service Credit Memo"
                  InstructionMgt.ShowPostedConfirmationMessageCode)
             then
                 PAGE.Run(PAGE::"Posted Service Credit Memo", ServiceCrMemoHeader);
+    end;
+
+    local procedure UpdateDocHasRegimeCode()
+    var
+        SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
+    begin
+        DocHasMultipleRegimeCode := SIISchemeCodeMgt.SalesDocHasRegimeCodes(Rec);
     end;
 }
 

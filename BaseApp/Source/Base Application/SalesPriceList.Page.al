@@ -227,7 +227,7 @@ page 7016 "Sales Price List"
             group(ActionGroupCRM)
             {
                 Caption = 'Dynamics 365 Sales';
-                Enabled = (StatusActiveFilterApplied and (Rec.Status = Rec.Status::Active)) or not StatusActiveFilterApplied;
+                Enabled = ((StatusActiveFilterApplied and (Rec.Status = Rec.Status::Active)) or not StatusActiveFilterApplied) and not Rec."Allow Updating Defaults";
                 Visible = CRMIntegrationEnabled;
                 action(CRMGoToPricelevel)
                 {

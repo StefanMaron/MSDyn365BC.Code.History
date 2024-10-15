@@ -332,6 +332,26 @@ page 132 "Posted Sales Invoice"
                             Modify(true);
                         end;
                     }
+                    group(Control1100012)
+                    {
+                        ShowCaption = false;
+                        Visible = DocHasMultipleRegimeCode;
+                        field(MultipleSchemeCodesControl; MultipleSchemeCodesLbl)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Editable = false;
+                            ShowCaption = false;
+                            Style = StandardAccent;
+                            StyleExpr = TRUE;
+
+                            trigger OnDrillDown()
+                            var
+                                SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
+                            begin
+                                SIISchemeCodeMgt.SalesDrillDownRegimeCodes(Rec);
+                            end;
+                        }
+                    }
                     field("Special Scheme Code"; "Special Scheme Code")
                     {
                         ApplicationArea = Basic, Suite;
@@ -819,6 +839,24 @@ page 132 "Posted Sales Invoice"
                         DocumentAttachmentDetails.RunModal;
                     end;
                 }
+                action(SpecialSchemeCodes)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Special Scheme Codes';
+                    Image = Allocations;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    PromotedIsBig = true;
+                    ToolTip = 'View or edit the list of special scheme codes that related to the current document for VAT reporting.';
+
+                    trigger OnAction()
+                    var
+                        SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
+                    begin
+                        SIISchemeCodeMgt.SalesDrillDownRegimeCodes(Rec);
+                        CurrPage.Update(false);
+                    end;
+                }
                 separator(Action171)
                 {
                 }
@@ -1216,6 +1254,7 @@ page 132 "Posted Sales Invoice"
         DocExcStatusVisible := DocExchangeStatusIsSent;
 
         SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
+        UpdateDocHasRegimeCode();
     end;
 
     trigger OnAfterGetRecord()
@@ -1223,6 +1262,7 @@ page 132 "Posted Sales Invoice"
         DocExchStatusStyle := GetDocExchStatusStyle;
         if SellToContact.Get("Sell-to Contact No.") then;
         if BillToContact.Get("Bill-to Contact No.") then;
+        UpdateDocHasRegimeCode();
     end;
 
     trigger OnInit()
@@ -1242,7 +1282,7 @@ page 132 "Posted Sales Invoice"
         IsOfficeAddin := OfficeMgt.IsAvailable;
 
         SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
-
+        UpdateDocHasRegimeCode();
         ActivateFields;
         PaymentServiceVisible := PaymentServiceSetup.IsPaymentServiceVisible;
     end;
@@ -1265,7 +1305,9 @@ page 132 "Posted Sales Invoice"
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+        DocHasMultipleRegimeCode: Boolean;
         OperationDescription: Text[500];
+        MultipleSchemeCodesLbl: Label 'Multiple scheme codes';
 
     local procedure ActivateFields()
     begin
@@ -1281,6 +1323,13 @@ page 132 "Posted Sales Invoice"
         PaymentServiceEnabled := PaymentServiceSetup.CanChangePaymentService(Rec);
     end;
 
+    local procedure UpdateDocHasRegimeCode()
+    var
+        SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
+    begin
+        DocHasMultipleRegimeCode := SIISchemeCodeMgt.SalesDocHasRegimeCodes(Rec);
+    end;
+    
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesInvHeaderPrintRecords(var SalesInvHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
     begin

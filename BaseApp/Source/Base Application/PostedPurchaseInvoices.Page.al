@@ -577,8 +577,8 @@ page 146 "Posted Purchase Invoices"
     begin
         HasFilters := GetFilters <> '';
         SetSecurityFilterOnRespCenter;
-        if HasFilters then
-            if FindFirst then;
+        if HasFilters and not Find() then
+            if FindFirst() then;
         IsOfficeAddin := OfficeMgt.IsAvailable;
 
         SIIStateVisible := SIISetup.IsEnabled;

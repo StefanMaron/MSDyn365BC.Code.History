@@ -19,6 +19,7 @@ codeunit 144073 "ERM Corrected Invoice"
         CorrInvDoesNotExistErr: Label 'The Corrected Invoice No. does not exist';
         IncorrectAccOrBalAccTypeErr: Label 'Account Type or Bal. Account Type must be a Customer or Vendor.';
         DocumentTypeMustBeCrMemoErr: Label 'Document Type must be equal to ''Credit Memo''';
+        CorrectiveInvoiceTxt: Label 'Corrective Invoice %1';
 
     [Test]
     [Scope('OnPrem')]
@@ -334,6 +335,230 @@ codeunit 144073 "ERM Corrected Invoice"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostingDescriptionNotChangedAfterPostingSalesCrMemo()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        GLDocumentType: Enum "Gen. Journal Document Type";
+        CustomerNo: Code[20];
+        PostedInvoiceNo: Code[20];
+        PostedCrMemoNo: Code[20];
+        PostingDescription: Text[100];
+    begin
+        // [FEATURE] [Sales] [Credit Memo] [Corrected Invoice No]
+        // [SCENARIO 389191] Stan sets Posting Description and posts Sales Credit Memo.
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        PostingDescription := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Posted Sales Invoice "I".
+        LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, CustomerNo);
+        PostedInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [GIVEN] Sales Credit Memo with "Corrected Invoice No." = "I" and "Posting Description" = "PD".
+        LibrarySales.CreateSalesCreditMemoForCustomerNo(SalesHeader, CustomerNo);
+        SalesHeader.Validate("Corrected Invoice No.", PostedInvoiceNo);
+        SalesHeader.Validate("Posting Description", PostingDescription);
+        SalesHeader.Modify(true);
+
+        // [WHEN] Post Sales Credit Memo.
+        PostedCrMemoNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [THEN] Posted Credit Memo has "Posting Description" = "PD".
+        // [THEN] General Ledger Entries for Posted Sales Credit Memo have "Description" = "PD".
+        SalesCrMemoHeader.Get(PostedCrMemoNo);
+        SalesCrMemoHeader.TestField("Posting Description", PostingDescription);
+        VerifyGLEntriesDescription(GLDocumentType::"Credit Memo", PostedCrMemoNo, PostingDescription);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BlankPostingDescriptionChangedAfterPostingSalesCrMemo()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        GLDocumentType: Enum "Gen. Journal Document Type";
+        CustomerNo: Code[20];
+        PostedInvoiceNo: Code[20];
+        PostedCrMemoNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Credit Memo] [Corrected Invoice No]
+        // [SCENARIO 389191] Blank Posting Description is filled with Corrected Invoice number after posting Sales Credit Memo.
+        CustomerNo := LibrarySales.CreateCustomerNo();
+
+        // [GIVEN] Posted Sales Invoice "I".
+        LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, CustomerNo);
+        PostedInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [GIVEN] Sales Credit Memo "CRM" with "Corrected Invoice No." = "I" and blank "Posting Description".
+        LibrarySales.CreateSalesCreditMemoForCustomerNo(SalesHeader, CustomerNo);
+        SalesHeader.Validate("Corrected Invoice No.", PostedInvoiceNo);
+        SalesHeader.Validate("Posting Description", '');
+        SalesHeader.Modify(true);
+
+        // [WHEN] Post Sales Credit Memo.
+        PostedCrMemoNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [THEN] Posted Credit Memo has "Posting Description" = "Corrective Invoice CRM".
+        // [THEN] General Ledger Entries for Posted Sales Credit Memo have "Description" = "Corrective Invoice CRM".
+        SalesCrMemoHeader.Get(PostedCrMemoNo);
+        SalesCrMemoHeader.TestField("Posting Description", StrSubstNo(CorrectiveInvoiceTxt, SalesHeader."No."));
+        VerifyGLEntriesDescription(GLDocumentType::"Credit Memo", PostedCrMemoNo, StrSubstNo(CorrectiveInvoiceTxt, SalesHeader."No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostingDescriptionNotChangedAfterPostingPurchaseCrMemo()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
+        GLDocumentType: Enum "Gen. Journal Document Type";
+        VendorNo: Code[20];
+        PostedInvoiceNo: Code[20];
+        PostedCrMemoNo: Code[20];
+        PostingDescription: Text[100];
+    begin
+        // [FEATURE] [Purchase] [Credit Memo] [Corrected Invoice No]
+        // [SCENARIO 389191] Stan sets Posting Description and posts Purchase Credit Memo.
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        PostingDescription := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Posted Purchase Invoice "I".
+        LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, VendorNo);
+        PostedInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [GIVEN] Purchase Credit Memo with "Corrected Invoice No." = "I" and "Posting Description" = "PD".
+        LibraryPurchase.CreatePurchaseCreditMemoForVendorNo(PurchaseHeader, VendorNo);
+        PurchaseHeader.Validate("Corrected Invoice No.", PostedInvoiceNo);
+        PurchaseHeader.Validate("Posting Description", PostingDescription);
+        PurchaseHeader.Modify(true);
+
+        // [WHEN] Post Purchase Credit Memo.
+        PostedCrMemoNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [THEN] Posted Credit Memo has "Posting Description" = "PD".
+        // [THEN] General Ledger Entries for Posted Purchase Credit Memo have "Description" = "PD".
+        PurchCrMemoHeader.Get(PostedCrMemoNo);
+        PurchCrMemoHeader.TestField("Posting Description", PostingDescription);
+        VerifyGLEntriesDescription(GLDocumentType::"Credit Memo", PostedCrMemoNo, PostingDescription);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BlankPostingDescriptionChangedAfterPostingPurchaseCrMemo()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
+        GLDocumentType: Enum "Gen. Journal Document Type";
+        VendorNo: Code[20];
+        PostedInvoiceNo: Code[20];
+        PostedCrMemoNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Credit Memo] [Corrected Invoice No]
+        // [SCENARIO 389191] Blank Posting Description is filled with Corrected Invoice number after posting Purchase Credit Memo.
+        VendorNo := LibraryPurchase.CreateVendorNo();
+
+        // [GIVEN] Posted Purchase Invoice "I".
+        LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, VendorNo);
+        PostedInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [GIVEN] Purchase Credit Memo "CRM" with "Corrected Invoice No." = "I" and blank "Posting Description".
+        LibraryPurchase.CreatePurchaseCreditMemoForVendorNo(PurchaseHeader, VendorNo);
+        PurchaseHeader.Validate("Corrected Invoice No.", PostedInvoiceNo);
+        PurchaseHeader.Validate("Posting Description", '');
+        PurchaseHeader.Modify(true);
+
+        // [WHEN] Post Purchase Credit Memo.
+        PostedCrMemoNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [THEN] Posted Credit Memo has "Posting Description" = "Corrective Invoice CRM".
+        // [THEN] General Ledger Entries for Posted Purchase Credit Memo have "Description" = "Corrective Invoice CRM".
+        PurchCrMemoHeader.Get(PostedCrMemoNo);
+        PurchCrMemoHeader.TestField("Posting Description", StrSubstNo(CorrectiveInvoiceTxt, PurchaseHeader."No."));
+        VerifyGLEntriesDescription(GLDocumentType::"Credit Memo", PostedCrMemoNo, StrSubstNo(CorrectiveInvoiceTxt, PurchaseHeader."No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure PostingDescriptionNotChangedAfterPostingServiceCrMemo()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        ServPostYesNo: Codeunit "Service-Post (Yes/No)";
+        ServiceDocType: Enum "Service Document Type";
+        CustomerNo: Code[20];
+        PostedInvoiceNo: Code[20];
+        PostedCrMemoNo: Code[20];
+        PostingDescription: Text[100];
+    begin
+        // [FEATURE] [Service] [Credit Memo] [Corrected Invoice No]
+        // [SCENARIO 389191] Stan sets Posting Description and posts Service Credit Memo.
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        PostingDescription := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Posted Service Invoice "I".
+        LibraryService.CreateServiceDocumentForCustomerNo(ServiceHeader, ServiceDocType::Invoice, CustomerNo);
+        ServPostYesNo.PostDocument(ServiceHeader);
+        PostedInvoiceNo := ServiceHeader."Last Posting No.";
+
+        // [GIVEN] Service Credit Memo with "Corrected Invoice No." = "I" and "Posting Description" = "PD".
+        LibraryService.CreateServiceDocumentForCustomerNo(ServiceHeader, ServiceDocType::"Credit Memo", CustomerNo);
+        ServiceHeader.Validate("Corrected Invoice No.", PostedInvoiceNo);
+        ServiceHeader.Validate("Posting Description", PostingDescription);
+        ServiceHeader.Modify(true);
+
+        // [WHEN] Post Service Credit Memo.
+        ServPostYesNo.PostDocument(ServiceHeader);
+        PostedCrMemoNo := ServiceHeader."Last Posting No.";
+
+        // [THEN] Posted Credit Memo has "Posting Description" = "PD".
+        // [THEN] General Ledger Entries for Posted Service Credit Memo have "Description" = "PD".
+        ServiceCrMemoHeader.Get(PostedCrMemoNo);
+        ServiceCrMemoHeader.TestField("Posting Description", PostingDescription);
+        VerifyGLEntriesServiceCrMemoDescription(PostedCrMemoNo, PostingDescription);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure BlankPostingDescriptionChangedAfterPostingServiceCrMemo()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        ServPostYesNo: Codeunit "Service-Post (Yes/No)";
+        ServiceDocType: Enum "Service Document Type";
+        CustomerNo: Code[20];
+        PostedInvoiceNo: Code[20];
+        PostedCrMemoNo: Code[20];
+    begin
+        // [FEATURE] [Service] [Credit Memo] [Corrected Invoice No]
+        // [SCENARIO 389191] Blank Posting Description is filled with Corrected Invoice number after posting Service Credit Memo.
+        CustomerNo := LibrarySales.CreateCustomerNo();
+
+        // [GIVEN] Posted Service Invoice "I".
+        LibraryService.CreateServiceDocumentForCustomerNo(ServiceHeader, ServiceDocType::Invoice, CustomerNo);
+        ServPostYesNo.PostDocument(ServiceHeader);
+        PostedInvoiceNo := ServiceHeader."Last Posting No.";
+
+        // [GIVEN] Service Credit Memo "CRM" with "Corrected Invoice No." = "I" and blank "Posting Description".
+        LibraryService.CreateServiceDocumentForCustomerNo(ServiceHeader, ServiceDocType::"Credit Memo", CustomerNo);
+        ServiceHeader.Validate("Corrected Invoice No.", PostedInvoiceNo);
+        ServiceHeader.Validate("Posting Description", '');
+        ServiceHeader.Modify(true);
+
+        // [WHEN] Post Service Credit Memo.
+        ServPostYesNo.PostDocument(ServiceHeader);
+        PostedCrMemoNo := ServiceHeader."Last Posting No.";
+
+        // [THEN] Posted Credit Memo has "Posting Description" = "Corrective Invoice CRM".
+        // [THEN] General Ledger Entries for Posted Service Credit Memo have "Description" = "Corrective Invoice CRM".
+        ServiceCrMemoHeader.Get(PostedCrMemoNo);
+        ServiceCrMemoHeader.TestField("Posting Description", StrSubstNo(CorrectiveInvoiceTxt, ServiceHeader."No."));
+        VerifyGLEntriesServiceCrMemoDescription(PostedCrMemoNo, StrSubstNo(CorrectiveInvoiceTxt, ServiceHeader."No."));
+    end;
+
     local procedure MockSalesInvoice(CustNo: Code[20]): Code[20]
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -367,6 +592,36 @@ codeunit 144073 "ERM Corrected Invoice"
         exit(ServiceInvoiceHeader."No.");
     end;
 
+    local procedure VerifyGLEntriesDescription(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; ExpectedDescription: Text[100])
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document Type", DocumentType);
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("Posting Date", WorkDate());
+        GLEntry.SetLoadFields(Description);
+        GLEntry.FindSet();
+        repeat
+            GLEntry.TestField(Description, ExpectedDescription);
+        until GLEntry.Next() = 0;
+    end;
+
+    local procedure VerifyGLEntriesServiceCrMemoDescription(DocumentNo: Code[20]; ExpectedDescription: Text[100])
+    var
+        GLEntry: Record "G/L Entry";
+        GLDocumentType: Enum "Gen. Journal Document Type";
+    begin
+        GLEntry.SetRange("Document Type", GLDocumentType::"Credit Memo");
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("Posting Date", WorkDate());
+        GLEntry.SetFilter("Credit Amount", '<>%1', 0);
+        GLEntry.SetLoadFields(Description);
+        GLEntry.FindSet();
+        repeat
+            GLEntry.TestField(Description, ExpectedDescription);
+        until GLEntry.Next() = 0;
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedSalesInvoicesModalPageHandler(var PostedSalesInvoices: TestPage "Posted Sales Invoices")
@@ -389,6 +644,13 @@ codeunit 144073 "ERM Corrected Invoice"
     begin
         PostedServiceInvoices.GotoKey(LibraryVariableStorage.DequeueText);
         PostedServiceInvoices.OK.Invoke;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 

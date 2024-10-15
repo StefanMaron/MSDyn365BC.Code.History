@@ -47,6 +47,9 @@ codeunit 10753 "SII Job Upload Pending Docs."
 
         if SalesHeader.IsTemporary then
             exit;
+			
+        if (SalesInvHdrNo = '') and (SalesCrMemoHdrNo = '') then
+            exit;
 
         SIIJobManagement.RenewJobQueueEntry(JobType::HandlePending);
     end;
@@ -66,6 +69,9 @@ codeunit 10753 "SII Job Upload Pending Docs."
             exit;
 
         if PurchaseHeader.IsTemporary then
+            exit;
+			
+        if (PurchInvHdrNo = '') and (PurchCrMemoHdrNo = '') then
             exit;
 
         SIIJobManagement.RenewJobQueueEntry(JobType::HandlePending);

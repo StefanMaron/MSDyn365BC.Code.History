@@ -553,6 +553,7 @@ table 5093 "Opportunity Entry"
         "Sales Cycle Stage Description" := '';
         OppEntry := Rec;
         InsertEntry(OppEntry, CancelOldTask, CreateNewTask);
+        OnFinishWizard2OnAfterInsertEntry(OppEntry);
         Delete;
     end;
 
@@ -873,6 +874,11 @@ table 5093 "Opportunity Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnFinishWizardOnAfterInsertEntry(OpportunityEntry: Record "Opportunity Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinishWizard2OnAfterInsertEntry(OpportunityEntry: Record "Opportunity Entry")
     begin
     end;
 }

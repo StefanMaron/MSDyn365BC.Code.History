@@ -48,7 +48,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         isInitialized: Boolean;
 
     [Test]
-    [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler')]
+    [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure AcquireFixedAssetNotification()
     var
@@ -74,7 +74,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
     end;
 
     [Test]
-    [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler')]
+    [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure AcquireFixedAssetUsingAcquisitionWizardAutoPostVendorAccount()
     begin
@@ -83,7 +83,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
     end;
 
     [Test]
-    [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler')]
+    [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler,ConfirmHandler')]
     [TransactionModel(TransactionModel::AutoCommit)]
     [Scope('OnPrem')]
     procedure AcquireFixedAssetGenJournalLinesCreation()
@@ -128,7 +128,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
     end;
 
     [Test]
-    [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler')]
+    [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure AcquireFixedAssetGenJournalLinesAlreadyExist()
     var
@@ -2240,7 +2240,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
     end;
 
     [Test]
-    [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler')]
+    [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure RunAcquireWizardForVendorWhenAcquisitionAllocationExists()
     var
@@ -3079,7 +3079,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         FAJournalSetup.Get(DepreciationBookCode, '');
         GenJournalLine.SetRange("Journal Template Name", FAJournalSetup."Gen. Jnl. Template Name");
         GenJournalLine.SetRange("Journal Batch Name", FAJournalSetup."Gen. Jnl. Batch Name");
-        GenJournalLine.FindSet;
+        GenJournalLine.FindSet();
         GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
         DocumentNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate, false);
         repeat
@@ -3255,7 +3255,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
     begin
         FAAllocation.SetRange(Code, FAAllocation.Code);
         FAAllocation.SetRange("Allocation Type", FAAllocation."Allocation Type");
-        FAAllocation.FindSet;
+        FAAllocation.FindSet();
 
         // Using Random Number Generator for Allocation Percent.
         repeat
@@ -3573,7 +3573,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
     begin
         MaintenanceLedgerEntry.SetRange("FA No.", GenJournalLine."Account No.");
         MaintenanceLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");
-        MaintenanceLedgerEntry.FindSet;
+        MaintenanceLedgerEntry.FindSet();
         repeat
             Amount += MaintenanceLedgerEntry.Amount;
         until MaintenanceLedgerEntry.Next = 0;

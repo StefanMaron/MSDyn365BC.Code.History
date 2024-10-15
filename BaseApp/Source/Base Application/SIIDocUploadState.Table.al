@@ -670,6 +670,60 @@
         Validate(IDType, NewIDType);
     end;
 
+    procedure GetSpecialSchemeCodes(var RegimeCodes: array[3] of Code[2])
+    var
+        SIISalesDocumentSchemeCode: Record "SII Sales Document Scheme Code";
+        SIIPurchDocSchemeCode: Record "SII Purch. Doc. Scheme Code";
+        i: Integer;
+    begin
+        case "Document Source" of
+            "Document Source"::"Customer Ledger":
+                begin
+                    case "Document Type" of
+                        "Document Type"::Invoice:
+                            SIISalesDocumentSchemeCode.SetRange(
+                              "Document Type", SIISalesDocumentSchemeCode."Document Type"::"Posted Invoice");
+                        "Document Type"::"Credit Memo":
+                            SIISalesDocumentSchemeCode.SetRange(
+                              "Document Type", SIISalesDocumentSchemeCode."Document Type"::"Posted Credit Memo");
+                        else
+                            exit;
+                    end;
+                    SIISalesDocumentSchemeCode.SetRange("Document No.", "Document No.");
+                    if SIISalesDocumentSchemeCode.FindSet() then begin
+                        repeat
+                            i += 1;
+                            RegimeCodes[i] := CopyStr(Format(SIISalesDocumentSchemeCode."Special Scheme Code"), 1, 2);
+                        until (SIISalesDocumentSchemeCode.Next() = 0) or (i = ArrayLen(RegimeCodes));
+                        exit;
+                    end;
+                    RegimeCodes[1] := CopyStr(Format("Sales Special Scheme Code"), 1, 2);
+                end;
+            "Document Source"::"Vendor Ledger":
+                begin
+                    case "Document Type" of
+                        "Document Type"::Invoice:
+                            SIIPurchDocSchemeCode.SetRange(
+                              "Document Type", SIIPurchDocSchemeCode."Document Type"::"Posted Invoice");
+                        "Document Type"::"Credit Memo":
+                            SIIPurchDocSchemeCode.SetRange(
+                              "Document Type", SIIPurchDocSchemeCode."Document Type"::"Posted Credit Memo");
+                        else
+                            exit;
+                    end;
+                    SIIPurchDocSchemeCode.SetRange("Document No.", "Document No.");
+                    if SIIPurchDocSchemeCode.FindSet() then begin
+                        repeat
+                            i += 1;
+                            RegimeCodes[i] := CopyStr(Format(SIIPurchDocSchemeCode."Special Scheme Code"), 1, 2);
+                        until (SIIPurchDocSchemeCode.Next() = 0) or (i = ArrayLen(RegimeCodes));
+                        exit;
+                    end;
+                    RegimeCodes[1] := CopyStr(Format("Purch. Special Scheme Code"), 1, 2);
+                end;
+        end;
+    end;
+    	
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateDocInfo(var TempSIIDocUploadState: Record "SII Doc. Upload State" temporary; EntryNo: Integer; DocumentSource: Enum "SII Doc. Upload State Document Source"; DocumentType: Enum "SII Doc. Upload State Document Type"; DocumentNo: Code[35])
     begin

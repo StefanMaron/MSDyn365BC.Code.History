@@ -49,6 +49,7 @@ codeunit 147310 "ERM Apply Unapply"
         Assert: Codeunit Assert;
         ApplnTypeRef: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,,,,,,,,,,,,,,,Bill;
         IsInitialized: Boolean;
+        UnapplyBlankedDocTypeErr: Label 'You cannot unapply the entries because one entry has a blank document type.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1291,6 +1292,154 @@ codeunit 147310 "ERM Apply Unapply"
         VerifyCustAppliedGLEntriesAddCurrAmountNotEmpty(CustomerNo, ExpectedAmountACY);
     end;
 
+    [Test]
+    [HandlerFunctions('UnapplyCustomerEntriesMPH,ConfirmHandler')]
+    procedure ErrorOnTryingUnapplyPmtWithBlankedDocTypeToInvSales()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustomerNo: Code[20];
+        PaymentNo: Code[20];
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Sales] [Unapply]
+        // [SCENARIO 385952] An error message is shown trying to unapply customer payment with blanked document type to invoice
+        Initialize();
+
+        // [GIVEN] Posted customer payment with blanked document type
+        CustomerNo := CreateCustomer(false, '');
+        Amount := LibraryRandom.RandDec(1000, 2);
+        PaymentNo :=
+          CreateAndPostGenJnlLine(
+            GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Customer, CustomerNo, Amount);
+
+        // [GIVEN] Posted customer invoice
+        CreateAndPostGenJnlLine(
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, CustomerNo, -Amount);
+
+        // [GIVEN] Apply payment to invoice
+        ApplySalesDocuments(
+          CustLedgerEntry."Document Type"::" ", PaymentNo, CustLedgerEntry."Document Type"::Invoice, -Amount);
+
+        // [WHEN] Try to unapply
+        asserterror UnapplySalesViaPage(CustomerNo, CustLedgerEntry."Document Type"::" ", PaymentNo);
+
+        // [THEN] An error is shown: "You cannot unapply the entries because one entry has a blank Document Type."
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(UnapplyBlankedDocTypeErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('UnapplyCustomerEntriesMPH,ConfirmHandler')]
+    procedure ErrorOnTryingUnapplyInvToPmtWithBlankedDocTypeSales()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustomerNo: Code[20];
+        InvoiceNo: Code[20];
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Sales] [Unapply]
+        // [SCENARIO 385952] An error message is shown trying to unapply customer invoice to payment with blanked document type
+        Initialize();
+
+        // [GIVEN] Posted customer invoice
+        CustomerNo := CreateCustomer(false, '');
+        Amount := LibraryRandom.RandDec(1000, 2);
+        InvoiceNo :=
+          CreateAndPostGenJnlLine(
+            GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, CustomerNo, -Amount);
+
+        // [GIVEN] Posted customer payment with blanked document type
+        CreateAndPostGenJnlLine(
+          GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Customer, CustomerNo, Amount);
+
+        // [GIVEN] Apply invoice to payment
+        ApplySalesDocuments(
+          CustLedgerEntry."Document Type"::Invoice, InvoiceNo, CustLedgerEntry."Document Type"::" ", Amount);
+
+        // [WHEN] Try to unapply
+        asserterror UnapplySalesViaPage(CustomerNo, CustLedgerEntry."Document Type"::Invoice, InvoiceNo);
+
+        // [THEN] An error is shown: "You cannot unapply the entries because one entry has a blank Document Type."
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(UnapplyBlankedDocTypeErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('UnapplyVendorEntriesMPH,ConfirmHandler')]
+    procedure ErrorOnTryingUnapplyPmtWithBlankedDocTypeToInvPurchase()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VendorNo: Code[20];
+        PaymentNo: Code[20];
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Purchases] [Unapply]
+        // [SCENARIO 385952] An error message is shown trying to unapply vendor payment with blanked document type to invoice
+        Initialize();
+
+        // [GIVEN] Posted vendor payment with blanked document type
+        VendorNo := CreateVendor(false, '');
+        Amount := LibraryRandom.RandDec(1000, 2);
+        PaymentNo :=
+          CreateAndPostGenJnlLine(
+            GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Vendor, VendorNo, -Amount);
+
+        // [GIVEN] Posted vendor invoice
+        CreateAndPostGenJnlLine(
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, VendorNo, Amount);
+
+        // [GIVEN] Apply payment to invoice
+        ApplyPurchDocuments(
+          VendorLedgerEntry."Document Type"::" ", PaymentNo, VendorLedgerEntry."Document Type"::Invoice, Amount);
+
+        // [WHEN] Try to unapply
+        asserterror UnapplyPurchaseViaPage(VendorNo, VendorLedgerEntry."Document Type"::" ", PaymentNo);
+
+        // [THEN] An error is shown: "You cannot unapply the entries because one entry has a blank Document Type."
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(UnapplyBlankedDocTypeErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('UnapplyVendorEntriesMPH,ConfirmHandler')]
+    procedure ErrorOnTryingUnapplyInvToPmtWithBlankedDocTypePurchase()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VendorNo: Code[20];
+        InvoiceNo: Code[20];
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Purchases] [Unapply]
+        // [SCENARIO 385952] An error message is shown trying to unapply vendor invoice to payment with blanked document type
+        Initialize();
+
+        // [GIVEN] Posted vendor invoice
+        VendorNo := CreateVendor(false, '');
+        Amount := LibraryRandom.RandDec(1000, 2);
+        InvoiceNo :=
+          CreateAndPostGenJnlLine(
+            GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, VendorNo, Amount);
+
+        // [GIVEN] Posted vendor payment with blanked document type
+        CreateAndPostGenJnlLine(
+          GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Vendor, VendorNo, -Amount);
+
+        // [GIVEN] Apply invoice to payment
+        ApplyPurchDocuments(
+          VendorLedgerEntry."Document Type"::Invoice, InvoiceNo, VendorLedgerEntry."Document Type"::" ", -Amount);
+
+        // [WHEN] Try to unapply
+        asserterror UnapplyPurchaseViaPage(VendorNo, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
+
+        // [THEN] An error is shown: "You cannot unapply the entries because one entry has a blank Document Type."
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(UnapplyBlankedDocTypeErr);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -1528,6 +1677,26 @@ codeunit 147310 "ERM Apply Unapply"
         VendLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendLedgerEntry.FindFirst;
         LibraryERM.UnapplyVendorLedgerEntry(VendLedgerEntry);
+    end;
+
+    local procedure UnapplySalesViaPage(CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
+    begin
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
+        CustEntryApplyPostedEntries.UnApplyCustLedgEntry(CustLedgerEntry."Entry No.");
+    end;
+
+    local procedure UnapplyPurchaseViaPage(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
+    begin
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocumentType, DocumentNo);
+        VendEntryApplyPostedEntries.UnApplyVendLedgEntry(VendorLedgerEntry."Entry No.");
     end;
 
     local procedure CreateAndPostSalesDocument(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; CustomerNo: Code[20]; var Amount: Decimal): Code[20]
@@ -2130,6 +2299,18 @@ codeunit 147310 "ERM Apply Unapply"
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text)
     begin
+    end;
+
+    [ModalPageHandler]
+    procedure UnapplyCustomerEntriesMPH(var UnapplyCustomerEntries: TestPage "Unapply Customer Entries")
+    begin
+        UnapplyCustomerEntries.Unapply.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure UnapplyVendorEntriesMPH(var UnapplyVendorEntries: TestPage "Unapply Vendor Entries")
+    begin
+        UnapplyVendorEntries.Unapply.Invoke();
     end;
 }
 

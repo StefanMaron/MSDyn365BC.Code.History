@@ -1319,6 +1319,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Reservation - NamedType NotCreateReservationEntryErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2478735241 - NamedType 3254359832" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot set the status to %1 because the job has reservations on the job planning lines.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=The job status name]D;]A;(LookupHint=Codeunit Job Reservation - NamedType ReservationEntriesExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2478735241 - NamedType 2829942994" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Automatic reservation is not possible for one or more job planning lines. \Please reserve manually.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Reservation - NamedType AutoReserveNotPossibleMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3739650216 - NamedType 2008153173" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[There is no record in TempPurchHeader.]]></Val>

@@ -290,6 +290,7 @@ page 576 "VAT Specification Subform"
     procedure SetParentControl(ID: Integer)
     begin
         ParentControl := ID;
+        OnAfterSetParentControl(ParentControl);
     end;
 
     procedure SetServHeader(ServiceHeader: Record "Service Header")
@@ -300,6 +301,11 @@ page 576 "VAT Specification Subform"
     procedure SetCurrentTabNo(TabNo: Integer)
     begin
         CurrentTabNo := TabNo;
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnAfterSetParentControl(var ParentControl: integer)
+    begin
     end;
 
     [IntegrationEvent(true, false)]

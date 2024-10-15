@@ -575,10 +575,10 @@ report 206 "Sales - Invoice"
                                 if "Sales Invoice Header"."Prices Including VAT" then
                                     VATAmountLine."Prices Including VAT" := true;
                                 VATAmountLine."VAT Clause Code" := "VAT Clause Code";
-                                VATAmountLine.InsertLine;
                                 CalcVATAmountLineLCY(
                                   "Sales Invoice Header", VATAmountLine, TempVATAmountLineLCY,
                                   VATBaseRemainderAfterRoundingLCY, AmtInclVATRemainderAfterRoundingLCY);
+                                VATAmountLine.InsertLine();
 
                                 TotalSubTotal += "Line Amount";
                                 TotalInvoiceDiscountAmount -= "Inv. Discount Amount";

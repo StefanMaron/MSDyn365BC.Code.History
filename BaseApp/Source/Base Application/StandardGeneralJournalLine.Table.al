@@ -1459,7 +1459,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreateDim(Rec, IsHandled);
+        OnBeforeCreateDim(Rec, IsHandled, CurrFieldNo);
         if IsHandled then
             exit;
 
@@ -1861,7 +1861,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateDim(var StandardGenJournalLine: Record "Standard General Journal Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCreateDim(var StandardGenJournalLine: Record "Standard General Journal Line"; var IsHandled: Boolean; CurrentFieldNo: Integer)
     begin
     end;
 

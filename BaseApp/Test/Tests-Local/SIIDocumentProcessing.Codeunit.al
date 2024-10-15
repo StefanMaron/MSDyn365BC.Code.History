@@ -1446,6 +1446,102 @@ codeunit 147522 "SII Document Processing"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure JobQueueEntryTriggeresOnSalesInvoicePosting()
+    var
+        SalesHeader: Record "Sales Header";
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        // [FEATURE] [Sales] [Invoice] [Job Queue]
+        // [SCENARIO 388578] Job Queue Entry triggers on sales invoice posting
+
+        Initialize();
+        JobQueueEntry.DeleteAll();
+        PostSalesDocument(SalesHeader."Document Type"::Invoice, true, true);
+        VerifySIIJobQueueEntryCount(1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure JobQueueEntryTriggeresOnSalesCrMemoPosting()
+    var
+        SalesHeader: Record "Sales Header";
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        // [FEATURE] [Sales] [Credit Memo] [Job Queue]
+        // [SCENARIO 388578] Job Queue Entry triggers on sales credit memo posting
+
+        Initialize();
+        JobQueueEntry.DeleteAll();
+        PostSalesDocument(SalesHeader."Document Type"::"Credit Memo", true, true);
+        VerifySIIJobQueueEntryCount(1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure JobQueueEntryNotTriggeresOnSalesInvoiceShipment()
+    var
+        SalesHeader: Record "Sales Header";
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        // [FEATURE] [Sales] [Invoice] [Job Queue]
+        // [SCENARIO 388578] Job Queue Entry not triggers on sales invoice shipment
+
+        Initialize();
+        JobQueueEntry.DeleteAll();
+        PostSalesDocument(SalesHeader."Document Type"::Order, true, false);
+        VerifySIIJobQueueEntryCount(0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure JobQueueEntryTriggeresOnPurchInvoicePosting()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        // [FEATURE] [Purchase] [Invoice] [Job Queue]
+        // [SCENARIO 388578] Job Queue Entry triggers on purchase invoice posting
+
+        Initialize();
+        JobQueueEntry.DeleteAll();
+        PostPurchaseDocument(PurchaseHeader."Document Type"::Invoice, true, true);
+        VerifySIIJobQueueEntryCount(1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure JobQueueEntryTriggeresOnPurchCrMemoPosting()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        // [FEATURE] [Purchase] [Credit Memo] [Job Queue]
+        // [SCENARIO 388578] Job Queue Entry triggers on purchase credit memo posting
+
+        Initialize();
+        JobQueueEntry.DeleteAll();
+        PostPurchaseDocument(PurchaseHeader."Document Type"::"Credit Memo", true, true);
+        VerifySIIJobQueueEntryCount(1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure JobQueueEntryNotTriggeresOnPurchInvoiceReceive()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        // [FEATURE] [Purchase] [Invoice] [Job Queue]
+        // [SCENARIO 388578] Job Queue Entry not triggers on purchase invoice receive
+
+        Initialize();
+        JobQueueEntry.DeleteAll();
+        PostPurchaseDocument(PurchaseHeader."Document Type"::Order, true, false);
+        VerifySIIJobQueueEntryCount(0);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -1457,6 +1553,28 @@ codeunit 147522 "SII Document Processing"
         LibrarySII.InitSetup(true, false);
         LibrarySII.BindSubscriptionJobQueue;
         LibrarySetupStorage.Save(DATABASE::"SII Setup");
+    end;
+
+    local procedure PostSalesDocument(DocType: Enum "Sales Document Type"; ShipReceive: Boolean; Invoice: Boolean)
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, DocType,
+          '', '', LibraryRandom.RandDecInRange(100, 200, 2), '', WorkDate());
+        LibrarySales.PostSalesDocument(SalesHeader, ShipReceive, Invoice);
+    end;
+
+    local procedure PostPurchaseDocument(DocType: Enum "Purchase Document Type"; ShipReceive: Boolean; Invoice: Boolean)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, DocType,
+          '', '', LibraryRandom.RandDecInRange(100, 200, 2), '', WorkDate());
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, ShipReceive, Invoice);
     end;
 
     local procedure CreateSalesInvoiceWithType(var SalesHeader: Record "Sales Header"; SIIDocType: Option)
@@ -1719,6 +1837,15 @@ codeunit 147522 "SII Document Processing"
             TestField("Transaction Type", ExpectedUploadType);
             TestField("Retry Accepted", ExpectedRetryAccepted);
         end;
+    end;
+
+    local procedure VerifySIIJobQueueEntryCount(ExpectedCount: Integer)
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+        JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"SII Job Upload Pending Docs.");
+        Assert.RecordCount(JobQueueEntry, ExpectedCount);
     end;
 
     [ConfirmHandler]

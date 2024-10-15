@@ -1,4 +1,4 @@
-table 10751 "SII Setup"
+﻿table 10751 "SII Setup"
 {
     Caption = 'SII VAT Setup';
     LookupPageID = "SII Setup";
@@ -14,7 +14,14 @@ table 10751 "SII Setup"
             Caption = 'Enabled';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateEnabled(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if Enabled and ("Certificate Code" = '') then
                     Error(CannotEnableWithoutCertificateErr);
             end;
@@ -173,4 +180,8 @@ table 10751 "SII Setup"
         Modify(true);
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateEnabled(var SIISetup: Record "SII Setup"; var IsHandled: Boolean)
+    begin
+    end;
 }

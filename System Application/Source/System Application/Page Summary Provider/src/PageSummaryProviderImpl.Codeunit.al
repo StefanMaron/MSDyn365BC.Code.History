@@ -70,6 +70,7 @@ codeunit 2717 "Page Summary Provider Impl."
         ResultJsonObject.Add('version', GetVersion());
         ResultJsonObject.Add('pageCaption', PageCaption);
         ResultJsonObject.Add('pageType', format(PageMetadata.PageType));
+        ResultJsonObject.Add('cardPageId', PageMetadata.CardPageID);
     end;
 
     [TryFunction]

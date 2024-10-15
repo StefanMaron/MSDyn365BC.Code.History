@@ -456,6 +456,7 @@ report 12 "VAT Statement"
                             GLAcc.CalcFields("Net Change", "Additional-Currency Net Change");
                             Amount := ConditionalAdd(Amount, GLAcc."Net Change", GLAcc."Additional-Currency Net Change");
                         until GLAcc.Next = 0;
+                    OnCalcLineTotalOnBeforeCalcTotalAmountAccountTotaling(VATStmtLine2, VATEntry, Amount, UseAmtsInAddCurr);
                     CalcTotalAmount(VATStmtLine2, TotalAmount);
                 end;
             VATStmtLine2.Type::"VAT Entry Totaling":
@@ -705,6 +706,11 @@ report 12 "VAT Statement"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(VATStmtLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; var Amount: Decimal; UseAmtsInAddCurr: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcLineTotalOnBeforeCalcTotalAmountAccountTotaling(VATStmtLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; var Amount: Decimal; UseAmtsInAddCurr: Boolean)
     begin
     end;
 }
