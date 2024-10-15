@@ -5670,7 +5670,8 @@
             if FindSet then
                 repeat
                     if not ZeroAmountLine(QtyType) and
-                       ((PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice) or ("Prepmt. Amt. Inv." = 0))
+                       ((PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice) or ("Prepmt. Amt. Inv." = 0) or
+                        (PurchHeader."Prepayment Type" = PurchHeader."Prepayment Type"::Advance))
                     then begin
                         DeferralAmount := GetDeferralAmount;
                         VATAmountLine.Get("VAT Identifier", "VAT Calculation Type", "Tax Group Code", "Use Tax", "Line Amount" >= 0);

@@ -234,10 +234,8 @@
     begin
         if MainFormActiveTab = MainFormActiveTab::Other then
             VATAmountEditable := AllowVATDifference and not "Includes Prepayment"
-              and ("Currency Code" <> '') // NAVCZ
         else
-            VATAmountEditable := AllowVATDifference
-              and ("Currency Code" <> ''); // NAVCZ
+            VATAmountEditable := AllowVATDifference;
         VATAmountLCYEditable := AllowVATDifferenceOnThisTab; // NAVCZ
         InvoiceDiscountAmountEditable := AllowInvDisc and not "Includes Prepayment";
 

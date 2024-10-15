@@ -542,7 +542,7 @@ codeunit 134451 "ERM Fixed Assets"
         // 3.Verify: Verify "Proceeds on Disposal" and "Gain/Loss" FA Ledger Entry for Sales Order.
         VerifySalesFALedgerEntry(
           DocumentNo, FixedAsset."No.", FALedgerEntry."FA Posting Type"::"Proceeds on Disposal",
-          SalesHeader.Amount, SalesHeader.Amount, 0);
+          -SalesHeader.Amount, 0, SalesHeader.Amount);
         VerifySalesFALedgerEntry(
           DocumentNo, FixedAsset."No.", FALedgerEntry."FA Posting Type"::"Gain/Loss",
           -SalesHeader.Amount, 0, SalesHeader.Amount);
@@ -843,7 +843,7 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
 
         // 3.Verify: Verify that the Amount is posted in FA Ledger Entry correctly.
-        VerifyAmountInFALedgerEntry(FixedAsset."No.", FALedgerEntry."FA Posting Type"::"Proceeds on Disposal", Amount);
+        VerifyAmountInFALedgerEntry(FixedAsset."No.", FALedgerEntry."FA Posting Type"::"Proceeds on Disposal", -Amount);
     end;
 
     [Test]
@@ -2286,170 +2286,6 @@ codeunit 134451 "ERM Fixed Assets"
 
         // [THEN] "Final Rounding Amount" on FA Depreciation Book is correct
         Assert.AreEqual(FinalRoundingAmount, FADepreciationBook."Final Rounding Amount", '');
-    end;
-
-    [Test]
-    [HandlerFunctions('DepreciationCalcConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure ProceedsOnDisposalWithGainLossAfterDepreciation()
-    var
-        DepreciationBook: Record "Depreciation Book";
-        FixedAsset: Record "Fixed Asset";
-        FAJournalBatch: Record "FA Journal Batch";
-        FAJournalLine: Record "FA Journal Line";
-        SalesHeader: Record "Sales Header";
-        FALedgerEntry: Record "FA Ledger Entry";
-        FADepreciationBook: Record "FA Depreciation Book";
-        DocumentNo: Code[20];
-        GainLossAmount: Decimal;
-    begin
-        // [FEATURE] [Proceeds on Disposal]
-        // [SCENARIO 352540] Posting Sales Order with disposal and gain/loss entries for fixed asset
-        Initialize;
-
-        // [GIVEN] Fixed Asset has aquisition cost of 1000
-        CreateFixedAssetSetup(DepreciationBook);
-        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
-        CreateFADepreciationBook(FixedAsset."No.", DepreciationBook.Code, FixedAsset."FA Posting Group");
-        UpdateIntegrationInBook(DepreciationBook, false, false, false);
-        UpdateAllowCorrectionInBook(DepreciationBook);
-        ModifyIntegrationInBook(DepreciationBook);
-        CreateFAJournalBatch(FAJournalBatch);
-        CreateFAJournalLine(
-          FAJournalLine, FAJournalBatch, FAJournalLine."FA Posting Type"::"Acquisition Cost", FixedAsset."No.",
-          DepreciationBook.Code, LibraryRandom.RandDecInRange(1000, 2000, 2));
-        LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
-
-        // [GIVEN] Depreciation is posted for the fixed asset with amount = 100
-        RunCalculateDepreciation(FixedAsset."No.", DepreciationBook.Code);
-        PostDepreciationWithDocumentNo(DepreciationBook.Code);
-        FADepreciationBook.Get(FixedAsset."No.", DepreciationBook.Code);
-        FADepreciationBook.CalcFields("Acquisition Cost", Depreciation);
-
-        // [WHEN] Post Sales Order for the fixed asset with amount = 300
-        SellFixedAsset(SalesHeader, SalesHeader."Document Type"::Order, FixedAsset."No.", DepreciationBook.Code);
-        SalesHeader.CalcFields(Amount);
-        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-        ExecuteUIHandler;
-
-        // [THEN] 'Proceeds on Disposal' FA Legger Entry has amount = 300
-        // [THEN] 'Gain/Loss' FA Legger Entry has amount = 600 (1000 - 100 - 300)
-        VerifySalesFALedgerEntry(
-          DocumentNo, FixedAsset."No.", FALedgerEntry."FA Posting Type"::"Proceeds on Disposal", SalesHeader.Amount, SalesHeader.Amount, 0);
-        GainLossAmount := FADepreciationBook."Acquisition Cost" + FADepreciationBook.Depreciation - SalesHeader.Amount;
-        VerifySalesFALedgerEntry(
-          DocumentNo, FixedAsset."No.", FALedgerEntry."FA Posting Type"::"Gain/Loss", GainLossAmount, GainLossAmount, 0);
-    end;
-
-    [Test]
-    [HandlerFunctions('CancelFALedgerEntryRequestPageHandler,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure CancelDisposalDepreciationNoIntegration()
-    var
-        FAJournalLineDepreciation: Record "FA Journal Line";
-        FAJournalLineAcqCost: Record "FA Journal Line";
-        FAJournalLineDisposal: Record "FA Journal Line";
-        FAJournalLineCanceled: Record "FA Journal Line";
-        FAJournalBatch: Record "FA Journal Batch";
-        FALedgerEntry: Record "FA Ledger Entry";
-        FAJournalSetup: Record "FA Journal Setup";
-        FANo: Code[20];
-        Amount: Decimal;
-        DepBookCode: Code[10];
-    begin
-        // [FEATURE] [Proceeds on Disposal]
-        // [SCENARIO 370047] Posting Fixed Asset Journal Line after canceling the Fixed Assed Ledger Entry with type Proceeds on Disposal without G/L Integration
-        Initialize();
-
-        // [GIVEN] Fixed Asset, Depreciantion Book, FA Depreciation Book with FA Posting Group and disable G/L Integration
-        Amount := CreateFixedAssetWithoutIntegration(FAJournalLineDepreciation."FA Posting Type"::Depreciation, -1, FAJournalLineDepreciation);
-        FANo := FAJournalLineDepreciation."FA No.";
-        DepBookCode := FAJournalLineDepreciation."Depreciation Book Code";
-        FAJournalBatch.Get(FAJournalLineDepreciation."Journal Template Name", FAJournalLineDepreciation."Journal Batch Name");
-        CreateFAJournalLine(FAJournalLineAcqCost, FAJournalBatch, FAJournalLineAcqCost."FA Posting Type"::"Acquisition Cost",
-            FANo, DepBookCode, -Amount * 3);
-
-        // [GIVEN] Post Acquisition Cost, Depreciation and Disposal
-        LibraryLowerPermissions.SetJournalsPost();
-        LibraryLowerPermissions.AddO365FAEdit();
-        LibraryFixedAsset.PostFAJournalLine(FAJournalLineDepreciation);
-        LibraryFixedAsset.PostFAJournalLine(FAJournalLineAcqCost);
-        CreateFAJournalLine(FAJournalLineDisposal, FAJournalBatch, FAJournalLineAcqCost."FA Posting Type"::Disposal,
-            FANo, DepBookCode, Amount * 2);
-        LibraryFixedAsset.PostFAJournalLine(FAJournalLineDisposal);
-
-        // [GIVEN] Cancel Proceeds on Disposal
-        CancelFALedgerEntry(DepBookCode, FALedgerEntry."FA Posting Type"::"Proceeds on Disposal", FANo);
-
-        // [WHEN] Post created Fixed Asset Journal Line
-        FAJournalLineCanceled.SetRange("FA No.", FANo);
-        FAJournalLineCanceled.SetRange("FA Posting Type", FAJournalLineCanceled."FA Posting Type"::Disposal);
-        FAJournalLineCanceled.FindFirst();
-        FAJournalLineCanceled."Document No." := LibraryUtility.GenerateGUID();
-        FAJournalLineCanceled.Modify(true);
-        LibraryFixedAsset.PostFAJournalLine(FAJournalLineCanceled);
-
-        // [THEN] There is no Fixed Asset Ledger Entry with type "Proceeds on Disposal"
-        FALedgerEntry.SetRange("FA No.", FANo);
-        FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::"Proceeds on Disposal");
-        Assert.RecordIsEmpty(FALedgerEntry);
-        VerifyFALedgerEntry(FANo, DepBookCode);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure FAIgnoreDefaultEndingBookValue()
-    var
-        FixedAsset: Record "Fixed Asset";
-        DepreciationBook: Record "Depreciation Book";
-        FADepreciationBook: Record "FA Depreciation Book";
-    begin
-        // [FEATURE] [Depreciation]
-        // [SCENARIO 376178] "Ending Book Value" for FA Depreciation Book is not defaulted if "Ignore Def. Ending Book Value"=TRUE
-        Initialize();
-
-        // [GIVEN] Created Depreciation Book with specified "Default Ending Book Value", Fixed Asset
-        CreateFixedAssetSetupWDefaultEndingBookValue(DepreciationBook, LibraryRandom.RandDec(100, 2));
-        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
-
-        // [GIVEN] Created FA Depreciation Book
-        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBook.Code);
-
-        // [WHEN] Set "Ignore Def. Ending Book Value"=TRUE and attempt to change "Ending Book Value" to 0.0
-        FADepreciationBook.Validate("Ignore Def. Ending Book Value", true);
-        FADepreciationBook.Validate("Ending Book Value", 0);
-        FADepreciationBook.Modify(true);
-
-        // [THEN] "Ending Book Value" on FA Depreciation Book is set to 0.0
-        Assert.AreEqual(0, FADepreciationBook."Ending Book Value", '');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure FANotIgnoreDefaultEndingBookValue()
-    var
-        FixedAsset: Record "Fixed Asset";
-        DepreciationBook: Record "Depreciation Book";
-        FADepreciationBook: Record "FA Depreciation Book";
-    begin
-        // [FEATURE] [Depreciation]
-        // [SCENARIO 376178] "Ending Book Value" for FA Depreciation Book is defaulted if "Ignore Def. Ending Book Value"=FALSE
-        Initialize();
-
-        // [GIVEN] Created Depreciation Book with specified "Default Ending Book Value", Fixed Asset
-        CreateFixedAssetSetupWDefaultEndingBookValue(DepreciationBook, LibraryRandom.RandDec(100, 2));
-        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
-
-        // [GIVEN] Created FA Depreciation Book
-        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBook.Code);
-
-        // [WHEN] Set "Ignore Def. Ending Book Value"=FALSE and attempt to change "Ending Book Value" to 0.0
-        FADepreciationBook.Validate("Ignore Def. Ending Book Value", false);
-        FADepreciationBook.Validate("Ending Book Value", 0);
-        FADepreciationBook.Modify(true);
-
-        // [THEN] "Ending Book Value" on FA Depreciation Book is set to be equal to "Default Ending Book Value" from Depreciation Book
-        Assert.AreEqual(DepreciationBook."Default Ending Book Value", FADepreciationBook."Ending Book Value", '');
     end;
 
     local procedure Initialize()

@@ -1655,6 +1655,42 @@ codeunit 137302 "SCM Inventory Reports - II"
         Assert.AreEqual(1, LibraryReportDataset.RowCount, '');
     end;
 
+    [Test]
+    [HandlerFunctions('PriceListRequestPageHandler')]
+    procedure CustPriceGroupItemWithSpecialPricePriceList()
+    var
+        Item: Record Item;
+        CustomerPriceGroup: Record "Customer Price Group";
+        SalesPrice: Record "Sales Price";
+        CurrencyCode: Code[10];
+    begin
+        // [FEATURE] [Price List]
+        // [SCENARIO] Report Price List shows correct Unit Price for Item with Special Price for Customer Price Group
+        Initialize;
+
+        // [GIVEN] Customer Pricer Group = "CPG"
+        // [GIVEN] Item with Special Price
+        // [GIVEN] "Unit Price" = "100" 
+        // [GIVEN] Currency = "C"
+        // [GIVEN] "Sales Type" = Customer Price Group
+        // [GIVEN] "Sales Code" = "CPG"
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
+        CustPriceGroupPriceListReport(CurrencyCode);
+        CreateItem(Item, '', '', Item."Manufacturing Policy"::"Make-to-Order");
+        UpdateItem(Item, Item.FieldNo("Unit Price"), LibraryRandom.RandDec(10, 2));
+        LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
+        CreateSalesPriceForItem(Item, SalesPrice."Sales Type"::"Customer Price Group", CustomerPriceGroup.Code,
+            '', 0, Item."Unit Price", CurrencyCode);
+        CreateCustomerWithPriceGroup(CustomerPriceGroup.Code);
+
+        // [WHEN] Run report "Price List" for Item and Sales Type = Customer Price Group
+        Commit();
+        RunPriceListReport(Item."No.", SalesPrice."Sales Type"::"Customer Price Group", CustomerPriceGroup.Code, CurrencyCode);
+
+        // [THEN] "Unit price" = 100
+        VerifyUnitPriceForCurrency(Item, CurrencyCode, Item."Unit Price");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1826,6 +1862,18 @@ codeunit 137302 "SCM Inventory Reports - II"
         end;
     end;
 
+    local procedure VerifyUnitPriceForCurrency(Item: Record Item; CurrencyCode: Code[10]; ExpUnitPrice: Decimal)
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        LibraryReportDataset.LoadDataSetFile;
+        CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
+        CurrencyExchangeRate.FindFirst;
+        LibraryReportDataset.SetRange('UnitPriceFieldCaption', Item.FieldCaption("Unit Price") + ' ' + '(' + CurrencyCode + ')');
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('SalesPriceUnitPrice', ExpUnitPrice);
+    end;
+
     local procedure VerifyVariantLineInPriceListReport(VariantCap: Text[40]; VariantCode: Code[20]; MinimumQtyCap: Text[40]; MinimumQty: Decimal; AmountCap: Text[40]; Amount: Decimal)
     begin
         LibraryReportDataset.SetRange(VariantCap, VariantCode);
@@ -1878,11 +1926,16 @@ codeunit 137302 "SCM Inventory Reports - II"
     end;
 
     local procedure CreateSalesPriceForItem(Item: Record Item; SalesType: Option; SalesCode: Code[20]; VariantCode: Code[10]; MinimumQty: Decimal; UnitPrice: Decimal)
+    begin
+        CreateSalesPriceForItem(Item, SalesType, SalesCode, VariantCode, MinimumQty, UnitPrice, '');
+    end;
+
+    local procedure CreateSalesPriceForItem(Item: Record Item; SalesType: Option; SalesCode: Code[20]; VariantCode: Code[10]; MinimumQty: Decimal; UnitPrice: Decimal; CurrencyCode: Code[10])
     var
         SalesPrice: Record "Sales Price";
     begin
         LibraryCosting.CreateSalesPrice(
-          SalesPrice, SalesType, SalesCode, Item."No.", WorkDate, '', VariantCode, Item."Base Unit of Measure", MinimumQty);
+          SalesPrice, SalesType, SalesCode, Item."No.", WorkDate, CurrencyCode, VariantCode, Item."Base Unit of Measure", MinimumQty);
         SalesPrice.Validate("Unit Price", UnitPrice);
         SalesPrice.Modify(true);
     end;
