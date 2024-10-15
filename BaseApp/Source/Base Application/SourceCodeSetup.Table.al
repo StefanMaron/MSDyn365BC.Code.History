@@ -1,4 +1,4 @@
-table 242 "Source Code Setup"
+﻿table 242 "Source Code Setup"
 {
     Caption = 'Source Code Setup';
 
@@ -262,6 +262,21 @@ table 242 "Source Code Setup"
         field(1105; "Transfer Budget to Actual"; Code[10])
         {
             Caption = 'Transfer Budget to Actual';
+            TableRelation = "Source Code";
+        }
+        field(1700; "General Deferral"; Code[10])
+        {
+            Caption = 'General Deferral';
+            TableRelation = "Source Code";
+        }
+        field(1701; "Sales Deferral"; Code[10])
+        {
+            Caption = 'Sales Deferral';
+            TableRelation = "Source Code";
+        }
+        field(1702; "Purchase Deferral"; Code[10])
+        {
+            Caption = 'Purchase Deferral';
             TableRelation = "Source Code";
         }
         field(5400; "Consumption Journal"; Code[10])

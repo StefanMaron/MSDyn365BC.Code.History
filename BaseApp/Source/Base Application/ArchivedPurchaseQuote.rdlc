@@ -3787,6 +3787,12 @@ End Function</Code>
         <Field Name="CompanyAddr_6_">
           <DataField>CompanyAddr_6_</DataField>
         </Field>
+        <Field Name="CompanyAddr_7_">
+          <DataField>CompanyAddr_7_</DataField>
+        </Field>
+        <Field Name="CompanyAddr_8_">
+          <DataField>CompanyAddr_8_</DataField>
+        </Field>
         <Field Name="STRSUBSTNO_Text004__Purchase_Header_Archive___Version_No____Purchase_Header_Archive___No__of_Archived_Versions__">
           <DataField>STRSUBSTNO_Text004__Purchase_Header_Archive___Version_No____Purchase_Header_Archive___No__of_Archived_Versions__</DataField>
         </Field>

@@ -273,6 +273,49 @@ codeunit 144023 "SE Feature Bugs"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('SIEExportRPH,SIEImportRPH,MessageHandler')]
+    procedure VATDateWhenRunSIEImport()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        TempBlob: Codeunit "Temp Blob";
+        FileName: Text;
+        PostingDate: Date;
+    begin
+        // [FEATURE] [Import]
+        // [SCENARIO 463175] VAT Reporting Date in General Journal when run SIE Import.
+        Initialize();
+
+        // [GIVEN] Posted General Journal Line with Posting Date "D1".
+        PostingDate := LibraryRandom.RandDateFromInRange(WorkDate(), 1, 5);
+        LibraryJournals.CreateGenJournalLineWithBatch(
+            GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"G/L Account",
+            LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDecInRange(1000, 2000, 2));
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        Commit();
+
+        // [GIVEN] Exported SIE file.
+        FileName := RunSIEExport(GenJournalLine."Account No.", PostingDate, PostingDate);
+
+        // [GIVEN] General Journal Template "T" and General Journal Batch "B".
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+
+        // [WHEN] Run SIE Import to General Journal with template "T" and batch "B".
+        LibraryVariableStorage.Enqueue(GenJournalTemplate.Name);
+        LibraryVariableStorage.Enqueue(GenJournalBatch.Name);
+        Commit();
+        RunSIEImport(FileName);
+
+        // [THEN] General Journal Line is created. Posting Date, Document Date, VAT Registration Date are equal to "D1".
+        VerifyDatesOnGenJournalLine(
+            GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Account No.", PostingDate, PostingDate, PostingDate);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -581,6 +624,19 @@ codeunit 144023 "SE Feature Bugs"
         GenJournalLine.TestField("Gen. Prod. Posting Group", GLAccount."Gen. Prod. Posting Group");
         GenJournalLine.TestField("VAT Prod. Posting Group", GLAccount."VAT Prod. Posting Group");
         GenJournalLine.TestField("VAT Bus. Posting Group", GLAccount."VAT Bus. Posting Group");
+    end;
+
+    local procedure VerifyDatesOnGenJournalLine(GenJournalTemplateName: Code[10]; GenJournalBatchName: Code[10]; GLAccountNo: Code[20]; PostingDate: Date; DocumentDate: Date; VATDate: Date)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        GenJournalLine.SetRange("Journal Template Name", GenJournalTemplateName);
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatchName);
+        GenJournalLine.SetRange("Account No.", GLAccountNo);
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Posting Date", PostingDate);
+        GenJournalLine.TestField("Document Date", DocumentDate);
+        GenJournalLine.TestField("VAT Reporting Date", VATDate);
     end;
 
     [RequestPageHandler]

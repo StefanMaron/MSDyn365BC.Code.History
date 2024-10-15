@@ -997,9 +997,8 @@
                         SalesLine.Validate("Unit Price", Round(ICInboxSalesLine."Amount Including VAT" / ICInboxSalesLine.Quantity, Precision))
                     else
                         SalesLine.Validate("Unit Price", ICInboxSalesLine."Unit Price");
-                    SalesLine.Validate("Line Discount Amount", ICInboxSalesLine."Line Discount Amount");
                     SalesLine."Amount Including VAT" := ICInboxSalesLine."Amount Including VAT";
-                    SalesLine."Line Discount %" := ICInboxSalesLine."Line Discount %";
+                    SalesLine.Validate("Line Discount %", ICInboxSalesLine."Line Discount %");
                     SalesLine.UpdateAmounts();
                 end;
                 ValidateSalesLineDeliveryDates(SalesLine, ICInboxSalesLine);

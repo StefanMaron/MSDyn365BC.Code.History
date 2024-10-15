@@ -132,6 +132,12 @@ report 6636 "Purchase - Return Shipment"
                     column(CompanyAddr6; CompanyAddr[6])
                     {
                     }
+                    column(CompanyAddr7; CompanyAddr[7])
+                    {
+                    }
+                    column(CompanyAddr8; CompanyAddr[8])
+                    {
+                    }
                     column(BuyfromVendNo_ReturnShpHdr; "Return Shipment Header"."Buy-from Vendor No.")
                     {
                     }

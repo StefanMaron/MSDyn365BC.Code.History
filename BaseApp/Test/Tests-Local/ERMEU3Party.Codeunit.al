@@ -74,6 +74,12 @@ codeunit 144003 "ERM EU 3-Party"
     // Test Function Name                                                     TFS ID
     // -----------------------------------------------------------------------------
     // VATVIESDeclarationTaxAuthorityReportWithEUService                      157317
+    // 
+    // Covers Test Cases for WI - 461741
+    // -----------------------------------------------------------------------------
+    // Test Function Name                                                     TFS ID
+    // -----------------------------------------------------------------------------
+    // S461741_EUThirdPartyTradeCopiedOnPurchaseOrderFromDropShipmentSalesOrder 461741
 
     Subtype = Test;
     TestPermissions = Disabled;
@@ -92,6 +98,7 @@ codeunit 144003 "ERM EU 3-Party"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryPlanning: Codeunit "Library - Planning";
         EUThirdPartyItemTradeAmtCap: Label 'EU3PartyItemTradeAmt';
         EUThirdPartyServiceTradeAmtCap: Label 'EU3PartyServiceTradeAmt';
         TotalAmountCap: Label 'TotalAmount';
@@ -646,6 +653,78 @@ codeunit 144003 "ERM EU 3-Party"
         PostedPurchaseInvioceNo := CreateAndPostPurchaseInvoiceWithEUThirdParty(PurchaseHeader, false);
         // [THEN] Created VAT Entry EU Third Party is FALSE
         VerifyVATEntryEUThirdPartyTrade(PostedPurchaseInvioceNo, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure S461741_EUThirdPartyTradeCopiedOnPurchaseOrderFromDropShipmentSalesOrder()
+    var
+        Customer: Record Customer;
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ReqWkshTemplate: Record "Req. Wksh. Template";
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        RequisitionLine: Record "Requisition Line";
+        GetSalesOrders: Report "Get Sales Orders";
+    begin
+        // [FEATURE] [Special Order] [Drop Shipment] [Requisition Worksheet] [Purchase] [EU 3-Party Trade]
+        // [SCENARIO 461741] "EU 3 Party Trade" flag is copied from Sales Order in a Drop Shipment Purchase Order created from the Requisition Worksheet.
+        Initialize();
+
+        // [GIVEN] Create Sales Order with "EU 3-Party Trade" and "Drop Shipment".
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesHeader.Validate("EU 3-Party Trade", true);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(10, 2));  // Take random Quantity.
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Validate("Drop Shipment", true);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Execute Get Sales Orders in Requisition Worksheet.
+        ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
+        ReqWkshTemplate.FindFirst();
+        LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
+
+        RequisitionLine.Init();
+        RequisitionLine.Validate("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
+        RequisitionLine.Validate("Journal Batch Name", RequisitionWkshName.Name);
+        RequisitionLine.Validate("Line No.", 10000);
+
+        Clear(GetSalesOrders);
+        SalesLine.SetRange("Document Type", SalesLine."Document Type");
+        SalesLine.SetRange("Document No.", SalesLine."Document No.");
+        GetSalesOrders.SetTableView(SalesLine);
+        GetSalesOrders.SetReqWkshLine(RequisitionLine, 0);
+        GetSalesOrders.UseRequestPage(false);
+        GetSalesOrders.RunModal();
+        RequisitionLine.Find();
+
+        // [GIVEN] Insert "Vendor No." in Requisition Worksheet Line.
+        LibraryPurchase.CreateVendor(Vendor);
+        RequisitionLine.Validate("Vendor No.", Vendor."No.");
+        RequisitionLine.Modify(true);
+        Commit();
+
+        // [WHEN] Create Purchase Order from Requisition Worksheet.
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate(), WorkDate(), WorkDate(), '');
+
+        // [THEN] Find created Purchase Order and verify that "EU 3-Party Trade" is the same as in Sales Order.
+        PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.FindFirst();
+        PurchaseHeader.TestField("EU 3-Party Trade", SalesHeader."EU 3-Party Trade");
+
+        // [THEN] Verify that Item and Quantity are the same as in Sales Order.
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindFirst();
+        PurchaseLine.TestField("No.", SalesLine."No.");
+        PurchaseLine.TestField(Quantity, SalesLine.Quantity);
     end;
 
     local procedure Initialize()

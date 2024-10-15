@@ -392,6 +392,7 @@ report 11208 "SIE Import"
         GenJnlLine.Validate("Account Type", GenJnlLine."Account Type"::"G/L Account");
         GenJnlLine."Posting Date" := PostingDate;
         GenJnlLine."Document Date" := PostingDate;
+        GenJnlLine."VAT Reporting Date" := PostingDate;
         GenJnlLine."Document No." := DocNo;
         GenJnlLine."Posting No. Series" := GenJnlBatch."Posting No. Series";
         GenJnlLine.Description := Description;

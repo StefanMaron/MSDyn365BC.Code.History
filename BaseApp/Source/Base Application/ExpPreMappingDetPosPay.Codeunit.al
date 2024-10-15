@@ -62,17 +62,23 @@ codeunit 1704 "Exp. Pre-Mapping Det Pos. Pay"
             end;
             "Check Number" := CheckLedgerEntry."Check No.";
             Amount := CheckLedgerEntry.Amount;
-            Payee := CheckLedgerEntry.GetPayee();
+            Payee := CheckLedgerEntry.Description;
             "Issue Date" := CheckLedgerEntry."Check Date";
             if BankAccount."Currency Code" <> '' then
                 "Currency Code" := BankAccount."Currency Code";
 
+            OnPreparePosPayDetailOnBeforeInsert(CheckLedgerEntry, PosPayDetail);
             Insert(true);
         end;
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnGetFiltersBeforePreparingPosPayDetails(var CheckLedgerEntryView: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPreparePosPayDetailOnBeforeInsert(CheckLedgerEntry: Record "Check Ledger Entry"; var PositivePayDetail: Record "Positive Pay Detail")
     begin
     end;
 }

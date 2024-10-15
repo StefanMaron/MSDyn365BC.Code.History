@@ -125,7 +125,7 @@ codeunit 76 "Purch.-Get Drop Shpt."
 
             // NTR Start
             if SalesHeader."EU 3-Party Trade" <> PurchHeader."EU 3-Party Trade" then
-                if Confirm(Text010, false,
+                if Confirm(Text010, true,
                   SalesHeader.FieldCaption("EU 3-Party Trade"), SalesHeader.TableName, SalesHeader."No.",
                   SalesHeader."EU 3-Party Trade", PurchHeader.FieldCaption("EU 3-Party Trade"),
                   PurchHeader.TableCaption(), PurchHeader."No.", PurchHeader."EU 3-Party Trade",
