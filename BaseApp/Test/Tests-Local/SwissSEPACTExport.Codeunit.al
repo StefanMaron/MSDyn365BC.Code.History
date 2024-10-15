@@ -41,7 +41,8 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [UT] [UI]
         // [SCENARIO 220991] There is a Swiss SEPA CT "Bank Export/Import Setup" in demodata
-        Assert.AreEqual('SEPACT SWISS', FindSwissSEPACTBankExpImpCode, '');
+        Assert.AreEqual('SEPACT SWISS', FindSwissSEPACTBankExpImpCode(), '');
+        Assert.AreEqual('SEPACTSWISS 00100109', FindLastSwissSEPACTBankExpImpCode(), '');
     end;
 
     [Test]
@@ -3407,15 +3408,20 @@ codeunit 144352 "Swiss SEPA CT Export"
 
     local procedure FindW1SEPACTBankExpImpCode(): Code[20]
     begin
-        exit(FindSEPACTBankExpImpCode(CODEUNIT::"SEPA CT-Export File"));
+        exit(FindFirstSEPACTBankExpImpCode(CODEUNIT::"SEPA CT-Export File"));
     end;
 
     local procedure FindSwissSEPACTBankExpImpCode(): Code[20]
     begin
-        exit(FindSEPACTBankExpImpCode(CODEUNIT::"Swiss SEPA CT-Export File"));
+        exit(FindFirstSEPACTBankExpImpCode(CODEUNIT::"Swiss SEPA CT-Export File"));
     end;
 
-    local procedure FindSEPACTBankExpImpCode(ProcDodeunitID: Integer): Code[20]
+    local procedure FindLastSwissSEPACTBankExpImpCode(): Code[20]
+    begin
+        exit(FindLastSEPACTBankExpImpCode(CODEUNIT::"Swiss SEPA CT-Export File"));
+    end;
+
+    local procedure FindFirstSEPACTBankExpImpCode(ProcDodeunitID: Integer): Code[20]
     var
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
@@ -3427,6 +3433,18 @@ codeunit 144352 "Swiss SEPA CT Export"
             FindFirst();
             exit(Code);
         end;
+    end;
+
+    local procedure FindLastSEPACTBankExpImpCode(ProcDodeunitID: Integer): Code[20]
+    var
+        BankExportImportSetup: Record "Bank Export/Import Setup";
+    begin
+        BankExportImportSetup.SetRange(Direction, BankExportImportSetup.Direction::Export);
+        BankExportImportSetup.SetRange("Processing Codeunit ID", ProcDodeunitID);
+        BankExportImportSetup.SetRange("Processing XMLport ID", XMLPORT::"SEPA CT pain.001.001.09");
+        BankExportImportSetup.SetRange("Check Export Codeunit", CODEUNIT::"SEPA CT-Check Line");
+        BankExportImportSetup.FindLast();
+        exit(BankExportImportSetup.Code);
     end;
 
     local procedure FindVendorBankAccount(var VendorBankAccount: Record "Vendor Bank Account"; VendorNo: Code[20])

@@ -140,6 +140,8 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetPurchaseCreditMemoUpgradeTag());
         PerCompanyUpgradeTags.Add(GetWorkflowDelegatedAdminSetupTemplateUpgradeTag());
         PerCompanyUpgradeTags.Add(GetVATSetupUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetBankExportImportSetupSEPACT09UpgradeTag());
+        PerCompanyUpgradeTags.Add(GetCountryVATSchemeDKTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -759,6 +761,11 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-396220-DimSetEntryGlobalDimNo-20210503');
     end;
 
+    internal procedure GetBankExportImportSetupSEPACT09UpgradeTag(): Code[250]
+    begin
+        exit('MS-533446-BankExportImportSetupSEPACT09-20240528');
+    end;
+
     [Obsolete('Function will be removed or moved to internal', '20.0')]
     procedure GetUpdateEditInExcelPermissionSetUpgradeTag(): Code[250]
     begin
@@ -1126,5 +1133,10 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-471211-NewTimeSheetExperienceUpgradeTag-20230720');
     end;
 #endif
+
+    internal procedure GetCountryVATSchemeDKTag(): Code[250]
+    begin
+        exit('MS-GetCountryVATSchemeDKTag-20240624');
+    end;
 }
 

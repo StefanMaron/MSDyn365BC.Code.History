@@ -8,11 +8,13 @@
 
     procedure CheckVoucherIsAttachedToDocument(var ErrorMessageMgt: Codeunit "Error Message Management"; DigitalVoucherEntryType: Enum "Digital Voucher Entry Type"; RecRef: RecordRef)
     begin
-        if not DigitalVoucherImpl.CheckDigitalVoucherForDocument(DigitalVoucherEntryType, RecRef) then
-            if DigitalVoucherEntryType = DigitalVoucherEntryType::"General Journal" then
-                error(NotPossibleToPostWithoutVoucherErr)
-            else
-                ErrorMessageMgt.LogSimpleErrorMessage(NotPossibleToPostWithoutVoucherErr);
+        if DigitalVoucherImpl.CheckDigitalVoucherForDocument(DigitalVoucherEntryType, RecRef) then
+            exit;
+        if (DigitalVoucherEntryType in [DigitalVoucherEntryType::"General Journal", DigitalVoucherEntryType::"Purchase Journal", DigitalVoucherEntryType::"Sales Journal"]) or
+           (RecRef.Number() = Database::"Service Header")
+        then
+            error(NotPossibleToPostWithoutVoucherErr);
+        ErrorMessageMgt.LogSimpleErrorMessage(NotPossibleToPostWithoutVoucherErr);
     end;
 
     procedure GenerateDigitalVoucherForPostedDocument(DigitalVoucherEntryType: Enum "Digital Voucher Entry Type"; RecRef: RecordRef)
