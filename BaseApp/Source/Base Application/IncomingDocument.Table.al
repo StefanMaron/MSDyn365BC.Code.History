@@ -439,11 +439,10 @@
     var
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
         ActivityLog: Record "Activity Log";
-        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
         TestField(Posted, false);
 
-        ApprovalsMgmt.DeleteApprovalEntries(RecordId);
+        DeleteApprovalEntries();
         ClearRelatedRecords;
 
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Entry No.");
@@ -524,6 +523,19 @@
             Error(UrlTooLongErr, MaxStrLen(URL));
 
         URL := NewURL;
+    end;
+
+    local procedure DeleteApprovalEntries()
+    var
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeDeleteApprovalEntries(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        ApprovalsMgmt.DeleteApprovalEntries(RecordId);
     end;
 
     [Scope('OnPrem')]
@@ -642,7 +654,13 @@
     var
         RelatedRecord: Variant;
         DocumentTypeOption: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateManually(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if GetRecord(RelatedRecord) then
             Error(DocAlreadyCreatedErr);
 
@@ -667,6 +685,8 @@
             "Document Type"::Journal:
                 CreateGenJnlLine;
         end;
+
+        OnAfterCreateManually(Rec);
     end;
 
     procedure CreateGenJnlLine()
@@ -2087,6 +2107,11 @@
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    procedure OnAfterCreateManually(var IncomingDocument: Record "Incoming Document")
+    begin
+    end;
+
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterCreateSalesHeaderFromIncomingDoc(var SalesHeader: Record "Sales Header")
     begin
@@ -2118,7 +2143,17 @@
     end;
 
     [IntegrationEvent(TRUE, false)]
+    local procedure OnBeforeCreateManually(var IncomingDocument: Record "Incoming Document"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(TRUE, false)]
     local procedure OnBeforeCreateSalesHeaderFromIncomingDoc(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnBeforeDeleteApprovalEntries(var IncomingDocument: Record "Incoming Document"; var IsHandled: Boolean)
     begin
     end;
 

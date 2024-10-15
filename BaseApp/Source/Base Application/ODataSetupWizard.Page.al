@@ -570,9 +570,11 @@ page 6711 "OData Setup Wizard"
                 if AllObjWithCaption.FindFirst then begin
                     Clear(RecRef);
                     RecRef.Open(AllObjWithCaption."Object ID");
-                    FieldRef := RecRef.Field(FieldNo);
-                    if not ColumnList.Contains(FieldRef.Name) then
-                        FilterPage.ADdField(AllObjWithCaption."Object Caption", FieldRef);
+                    if RecRef.FieldExist(FieldNo) then begin
+                        FieldRef := RecRef.Field(FieldNo);
+                        if not ColumnList.Contains(FieldRef.Name) then
+                            FilterPage.AddField(AllObjWithCaption."Object Caption", FieldRef);
+                    end;
                 end;
             until TempTenantWebServiceColumns.Next = 0;
 

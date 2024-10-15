@@ -503,6 +503,7 @@ page 303 "Vendor Entry Statistics"
             VendLedgEntry[j].SetCurrentKey("Document Type", "Vendor No.", "Posting Date");
             VendLedgEntry[j].SetRange("Document Type", j); // Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund
             VendLedgEntry[j].SetRange("Vendor No.", "No.");
+            OnAfterGetRecordOnAfterVendLedgEntrySetFiltersCalcAmount(VendLedgEntry[j]);
             if VendLedgEntry[j].FindLast then
                 VendLedgEntry[j].CalcFields(Amount, "Remaining Amount");
         end;
@@ -510,6 +511,7 @@ page 303 "Vendor Entry Statistics"
         VendLedgEntry2.SetCurrentKey("Vendor No.", Open);
         VendLedgEntry2.SetRange("Vendor No.", "No.");
         VendLedgEntry2.SetRange(Open, true);
+        OnAfterGetRecordOnAfterVendLedgEntrySetFiltersCalcRemainingAmountLCY(VendLedgEntry2);
         if VendLedgEntry2.Find('+') then
             repeat
                 j := VendLedgEntry2."Document Type".AsInteger();
@@ -528,6 +530,7 @@ page 303 "Vendor Entry Statistics"
             VendLedgEntry2.SetCurrentKey("Vendor No.", "Posting Date");
             VendLedgEntry2.SetRange("Vendor No.", "No.");
             VendLedgEntry2.SetFilter("Posting Date", VendDateFilter[i]);
+            OnAfterGetRecordOnAfterVendLedgEntrySetFiltersCalcPaymentDiscMissedLCY(VendLedgEntry2);
             if VendLedgEntry2.Find('+') then
                 repeat
                     j := VendLedgEntry2."Document Type".AsInteger();
@@ -563,5 +566,20 @@ page 303 "Vendor Entry Statistics"
         i: Integer;
         j: Integer;
         Text000: Label 'Placeholder';
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnAfterVendLedgEntrySetFiltersCalcAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnAfterVendLedgEntrySetFiltersCalcRemainingAmountLCY(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnAfterVendLedgEntrySetFiltersCalcPaymentDiscMissedLCY(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
 }
 

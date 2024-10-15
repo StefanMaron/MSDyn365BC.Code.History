@@ -14,17 +14,20 @@ page 357 Companies
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Name; Name)
+                field(Name; CompanyNameVar)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Name';
+                    Editable = PageInEditmode;
                     ToolTip = 'Specifies the name of a company that has been created in the current database.';
 
                     trigger OnValidate()
                     begin
-                        if (Name <> xRec.Name) and (xRec.Name <> '') then
+
+                        if (CompanyNameVar <> xRec.Name) and (xRec.Name <> '') then
                             if SoftwareAsAService then
-                                error(RenameNotAllowedErr, FieldCaption("Display Name"));
+                                Error(RenameNotAllowedErr, FieldCaption("Display Name"));
+                        Validate(Name, CompanyNameVar);
                     end;
 
                 }
@@ -147,6 +150,10 @@ page 357 Companies
             }
         }
     }
+    trigger OnOpenPage()
+    begin
+        PageInEditmode := CurrPage.Editable;
+    end;
 
     trigger OnAfterGetRecord()
     var
@@ -154,12 +161,14 @@ page 357 Companies
     begin
         EnableAssistedCompanySetup := false;
         SetupStatus := 0;
-
+        CompanyNameVar := CopyStr(Name, 1, MaxStrLen(CompanyNameVar));
+        PageInEditmode := CurrPage.Editable;
         if ApplicationAreaMgmt.IsAdvancedExperienceEnabled then
             CompanyCreatedDateTime := GetCompanyCreatedDateTime;
 
         if not AssistedCompanySetupStatus.Get(Name) then
             exit;
+
         EnableAssistedCompanySetup := AssistedCompanySetupStatus.Enabled;
         SetupStatus := AssistedCompanySetupStatus.GetCompanySetupStatus(Name);
     end;
@@ -206,6 +215,7 @@ page 357 Companies
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         EnableAssistedCompanySetup := false;
+        Clear(CompanyNameVar);
     end;
 
     var
@@ -218,10 +228,12 @@ page 357 Companies
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         SetupStatus: Option " ",Completed,"In Progress",Error,"Missing Permission";
         EnableAssistedCompanySetup: Boolean;
+        PageInEditmode: Boolean;
         SoftwareAsAService: Boolean;
         InsertNotAllowedErr: Label 'To create a new company, choose the Create New Company button. An assisted setup guide will make sure you get everything you need to get started.';
         DeleteLastCompanyMsg: Label 'Cannot delete this company. It''s the only company you have, and you must have at least one.';
         IsFoundation: Boolean;
+        CompanyNameVar: Text[30];
         OnlySuperCanCreateNewCompanyErr: Label 'Only users with the SUPER permission set can create a new company.';
         CompanyCreatedDateTime: DateTime;
 

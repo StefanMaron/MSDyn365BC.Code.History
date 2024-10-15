@@ -37,6 +37,7 @@ codeunit 5703 "Catalog Item Management"
           GetNewItemNo(
             NonStock2, StrLen(NonStock2."Vendor Item No."), StrLen(NonStock2."Manufacturer Code"));
         NonStock2.Modify();
+        OnNonstockAutoItemOnBeforeInsertItemUnitOfMeasure(NonStock2);
         InsertItemUnitOfMeasure(NonStock2."Unit of Measure", NonStock2."Item No.");
 
         NonStock2.TestField("Vendor No.");
@@ -212,6 +213,7 @@ codeunit 5703 "Catalog Item Management"
             NonStock, StrLen(NonStock."Vendor Item No."), StrLen(NonStock."Manufacturer Code"));
         NonStock."Item No." := SalesLine2."No.";
         NonStock.Modify();
+        OnNonStockSalesOnBeforeInsertItemUnitOfMeasure(NonStock);
         InsertItemUnitOfMeasure(NonStock."Unit of Measure", SalesLine2."No.");
 
         NewItem.SetRange("No.", SalesLine2."No.");
@@ -300,6 +302,7 @@ codeunit 5703 "Catalog Item Management"
             NonStock, StrLen(NonStock."Vendor Item No."), StrLen(NonStock."Manufacturer Code"));
         NonStock."Item No." := ServInvLine2."No.";
         NonStock.Modify();
+        OnNonStockFSMOnBeforeInsertItemUnitOfMeasure(NonStock);
         InsertItemUnitOfMeasure(NonStock."Unit of Measure", ServInvLine2."No.");
 
         NewItem.SetRange("No.", ServInvLine2."No.");
@@ -339,6 +342,7 @@ codeunit 5703 "Catalog Item Management"
           GetNewItemNo(
             Nonstock2, StrLen(Nonstock2."Vendor Item No."), StrLen(Nonstock2."Manufacturer Code"));
         Nonstock2.Modify();
+        OnCreateItemFromNonstockOnBeforeInsertItemUnitOfMeasure(NonStock2);
         InsertItemUnitOfMeasure(Nonstock2."Unit of Measure", Nonstock2."Item No.");
 
         Nonstock2.TestField("Vendor No.");
@@ -605,6 +609,11 @@ codeunit 5703 "Catalog Item Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateItemFromNonstockOnBeforeInsertItemUnitOfMeasure(var NonStockItem: Record "Nonstock Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnNonstockItemVendOnBeforeItemVendInsert(var ItemVend: Record "Item Vendor"; NonStockItem: Record "Nonstock Item")
     begin
     end;
@@ -615,12 +624,27 @@ codeunit 5703 "Catalog Item Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnNonstockAutoItemOnBeforeInsertItemUnitOfMeasure(var NonStockItem: Record "Nonstock Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnNonStockSalesOnAfterCreateNewItem(var NewItem: Record Item)
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnNonStockSalesOnBeforeInsertItemUnitOfMeasure(var NonStockItem: Record "Nonstock Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnNonStockFSMOnAfterCreateNewItem(var NewItem: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnNonStockFSMOnBeforeInsertItemUnitOfMeasure(var NonStockItem: Record "Nonstock Item")
     begin
     end;
 

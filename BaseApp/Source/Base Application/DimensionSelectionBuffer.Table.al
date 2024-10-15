@@ -174,7 +174,7 @@ table 368 "Dimension Selection Buffer"
               DimTextFieldName);
     end;
 
-    local procedure AddDimCodeToText(DimCode: Code[20]; var Text: Text[250])
+    local procedure AddDimCodeToText(DimCode: Code[30]; var Text: Text[250])
     begin
         if Text = '' then
             Text := DimCode

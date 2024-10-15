@@ -121,9 +121,20 @@ page 2150 "O365 Sales Email Dialog"
                 Visible = HasInvoiceAttachment;
 
                 trigger OnDrillDown()
+                var
+                    Attachments: Codeunit "Temp Blob List";
+                    Attachment: Codeunit "Temp Blob";
+                    AttachmentNames: List of [Text];
+                    AttachmentName: Text;
+                    InStream: InStream;
                 begin
-                    if HasInvoiceAttachment then
-                        Download(TempEmailItem."Attachment File Path", '', '', '', TempEmailItem."Attachment File Path");
+                    if HasInvoiceAttachment then begin
+                        TempEmailItem.GetAttachments(Attachments, AttachmentNames);
+                        AttachmentName := AttachmentNames.Get(1);
+                        Attachments.Get(1, Attachment);
+                        Attachment.CreateInStream(InStream);
+                        DownloadFromStream(InStream, '', '', '', AttachmentName);
+                    end;
                 end;
             }
             field(NoOfAttachmentsValueTxt; NoOfAttachmentsValueTxt)

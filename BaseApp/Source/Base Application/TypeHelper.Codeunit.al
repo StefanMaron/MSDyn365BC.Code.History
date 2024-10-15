@@ -306,10 +306,9 @@ codeunit 10 "Type Helper"
 
     procedure IsPhoneNumber(Input: Text): Boolean
     var
-        DotNet_Regex: Codeunit DotNet_Regex;
+        Regex: Codeunit Regex;
     begin
-        DotNet_Regex.Regex('^[\(\)\-\+0-9 ]*$');
-        exit(DotNet_Regex.IsMatch(Input));
+        exit(Regex.IsMatch(Input, '^[\(\)\-\+0-9 ]*$'));
     end;
 
     [TryFunction]

@@ -33,20 +33,22 @@ codeunit 2380 "O365 Email Customer Data"
         Window: Dialog;
         EmailSuccess: Boolean;
         ServerFileName: Text;
+        File: File;
+        Instream: Instream;
     begin
         ServerFileName := CreateExcelBook(Customer);
 
         CODEUNIT.Run(CODEUNIT::"O365 Setup Email");
 
         Window.Open(SendingEmailMsg);
-        with TempEmailItem do begin
-            Validate("Send to", CopyStr(SendToEmail, 1, MaxStrLen("Send to")));
-            Validate(Subject, EmailSubjectTxt);
-            SetBodyText(EmailSubjectTxt);
-            "Attachment File Path" := CopyStr(ServerFileName, 1, 250);
-            Validate("Attachment Name", StrSubstNo('%1.xlsx', CopyStr(GetDocumentName(Customer), 1, MaxStrLen("Attachment Name") - 5)));
-            EmailSuccess := Send(true);
-        end;
+        TempEmailItem.Validate("Send to", CopyStr(SendToEmail, 1, MaxStrLen(TempEmailItem."Send to")));
+        TempEmailItem.Validate(Subject, EmailSubjectTxt);
+        TempEmailItem.SetBodyText(EmailSubjectTxt);
+        File.Open(ServerFileName);
+        File.CreateInStream(InStream);
+        TempEmailItem.AddAttachment(InStream, StrSubstNo('%1.xlsx', GetDocumentName(Customer)));
+        File.Close();
+        EmailSuccess := TempEmailItem.Send(true);
         Window.Close;
         if EmailSuccess then
             Message(ExportedMsg);

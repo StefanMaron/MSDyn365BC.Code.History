@@ -14,6 +14,7 @@ codeunit 144055 "Test CH Posting Description"
         LibraryInventory: Codeunit "Library - Inventory";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
@@ -21,6 +22,7 @@ codeunit 144055 "Test CH Posting Description"
 
     local procedure Initialize()
     begin
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test CH Posting Description");
         if IsInitialized then
             exit;

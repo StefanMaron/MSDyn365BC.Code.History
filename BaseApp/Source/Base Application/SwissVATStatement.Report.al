@@ -1132,7 +1132,7 @@ report 26100 "Swiss VAT Statement"
         RecordRef.GetTable(VATCipherSetup);
         Fields.SetRange(TableNo, DATABASE::"VAT Cipher Setup");
         Fields.SetFilter(ObsoleteState, '<>%1', Fields.ObsoleteState::Removed);
-        Fields.SetFilter("No.", '>1');
+        Fields.SetFilter("No.", '>1&<2000000000');
         if Fields.FindSet then
             repeat
                 FieldRef := RecordRef.Field(Fields."No.");
