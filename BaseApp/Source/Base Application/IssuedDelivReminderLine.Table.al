@@ -103,13 +103,10 @@ table 5005273 "Issued Deliv. Reminder Line"
             Caption = 'Promised Receipt Date';
             Editable = false;
         }
-        field(21; "Del. Rem. Date Field"; Option)
+        field(21; "Del. Rem. Date Field"; Enum "Delivery Reminder Date Type")
         {
             Caption = 'Del. Rem. Date Field';
             Editable = false;
-            OptionCaption = ' ,Requested Receipt Date,Promised Receipt Date,Expected Receipt Date';
-            OptionMembers = " ","Requested Receipt Date","Promised Receipt Date","Expected Receipt Date";
-            ValuesAllowed = "Requested Receipt Date", "Promised Receipt Date", "Expected Receipt Date";
         }
     }
 

@@ -47,6 +47,9 @@ page 9108 "Resource Details FactBox"
                 DrillDown = true;
                 Editable = true;
                 ToolTip = 'Specifies detailed information about costs for the resource.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                ObsoleteTag = '17.0';
 
                 trigger OnDrillDown()
                 var

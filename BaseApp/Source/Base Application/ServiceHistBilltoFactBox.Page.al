@@ -22,7 +22,7 @@ page 9086 "Service Hist. Bill-to FactBox"
             group(Control1)
             {
                 ShowCaption = false;
-                Visible = RegularFastTabVisible;
+                Visible = false;
                 field(NoOfQuotes; NoOfQuotes)
                 {
                     ApplicationArea = Service;
@@ -139,7 +139,7 @@ page 9086 "Service Hist. Bill-to FactBox"
             cuegroup(Control14)
             {
                 ShowCaption = false;
-                Visible = NOT RegularFastTabVisible;
+                Visible = true;
                 field(NoOfQuotesTile; NoOfQuotes)
                 {
                     ApplicationArea = Service;
@@ -284,14 +284,7 @@ page 9086 "Service Hist. Bill-to FactBox"
         exit(Find(Which));
     end;
 
-    trigger OnOpenPage()
-    begin
-        RegularFastTabVisible := ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Windows;
-    end;
-
     var
-        ClientTypeManagement: Codeunit "Client Type Management";
-        RegularFastTabVisible: Boolean;
         NoOfQuotes: Integer;
         NoOfOrders: Integer;
         NoOfInvoices: Integer;

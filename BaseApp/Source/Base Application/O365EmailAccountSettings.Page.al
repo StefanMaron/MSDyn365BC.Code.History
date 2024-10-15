@@ -5,6 +5,9 @@ page 2135 "O365 Email Account Settings"
     Editable = false;
     RefreshOnActivate = true;
     SourceTable = "SMTP Mail Setup";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced with the "Email Accounts" page from "System Application".';
+    ObsoleteTag = '17.0';
 
     layout
     {
@@ -195,4 +198,3 @@ page 2135 "O365 Email Account Settings"
                         EmailProvider := EmailProvider::"Other Email Provider";
     end;
 }
-

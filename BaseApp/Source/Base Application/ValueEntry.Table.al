@@ -19,11 +19,9 @@ table 5802 "Value Entry"
         {
             Caption = 'Posting Date';
         }
-        field(4; "Item Ledger Entry Type"; Option)
+        field(4; "Item Ledger Entry Type"; Enum "Item Ledger Entry Type")
         {
             Caption = 'Item Ledger Entry Type';
-            OptionCaption = 'Purchase,Sale,Positive Adjmt.,Negative Adjmt.,Transfer,Consumption,Output, ,Assembly Consumption,Assembly Output';
-            OptionMembers = Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output," ","Assembly Consumption","Assembly Output";
         }
         field(5; "Source No."; Code[20])
         {
@@ -182,21 +180,21 @@ table 5802 "Value Entry"
         }
         field(68; "Cost Amount (Actual) (ACY)"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Cost Amount (Actual) (ACY)';
         }
         field(70; "Cost Posted to G/L (ACY)"; Decimal)
         {
             AccessByPermission = TableData Currency = R;
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Cost Posted to G/L (ACY)';
         }
         field(72; "Cost per Unit (ACY)"; Decimal)
         {
             AccessByPermission = TableData Currency = R;
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 2;
             Caption = 'Cost per Unit (ACY)';
         }
@@ -248,19 +246,15 @@ table 5802 "Value Entry"
         {
             Caption = 'Valuation Date';
         }
-        field(105; "Entry Type"; Option)
+        field(105; "Entry Type"; Enum "Cost Entry Type")
         {
             Caption = 'Entry Type';
             Editable = false;
-            OptionCaption = 'Direct Cost,Revaluation,Rounding,Indirect Cost,Variance';
-            OptionMembers = "Direct Cost",Revaluation,Rounding,"Indirect Cost",Variance;
         }
-        field(106; "Variance Type"; Option)
+        field(106; "Variance Type"; Enum "Cost Variance Type")
         {
             Caption = 'Variance Type';
             Editable = false;
-            OptionCaption = ' ,Purchase,Material,Capacity,Capacity Overhead,Manufacturing Overhead,Subcontracted';
-            OptionMembers = " ",Purchase,Material,Capacity,"Capacity Overhead","Manufacturing Overhead",Subcontracted;
         }
         field(148; "Purchase Amount (Actual)"; Decimal)
         {
@@ -292,14 +286,14 @@ table 5802 "Value Entry"
         }
         field(156; "Cost Amount (Expected) (ACY)"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Cost Amount (Expected) (ACY)';
         }
         field(157; "Cost Amount (Non-Invtbl.)(ACY)"; Decimal)
         {
             AccessByPermission = TableData "Item Charge" = R;
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Cost Amount (Non-Invtbl.)(ACY)';
         }
@@ -321,7 +315,7 @@ table 5802 "Value Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(1000; "Job No."; Code[20])
@@ -359,11 +353,9 @@ table 5802 "Value Entry"
             Caption = 'Capacity Ledger Entry No.';
             TableRelation = "Capacity Ledger Entry";
         }
-        field(5832; Type; Option)
+        field(5832; Type; Enum "Capacity Type Journal")
         {
             Caption = 'Type';
-            OptionCaption = 'Work Center,Machine Center, ,Resource';
-            OptionMembers = "Work Center","Machine Center"," ",Resource;
         }
         field(5834; "No."; Code[20])
         {

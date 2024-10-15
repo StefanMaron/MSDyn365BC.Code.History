@@ -19,6 +19,7 @@ codeunit 137035 "SCM PS Bugs-I"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
+        LibraryItemReference: Codeunit "Library - Item Reference";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -47,7 +48,7 @@ codeunit 137035 "SCM PS Bugs-I"
     procedure CalcProdOrderLineQuantity()
     begin
         // Create Production order Family and Check Production Order Line Quantity.
-        Initialize;
+        Initialize(false);
         ProdOrderLineQuantity(false);
     end;
 
@@ -56,7 +57,7 @@ codeunit 137035 "SCM PS Bugs-I"
     procedure CalcProdOrderLineQuantityUOM()
     begin
         // Create Production order Family with one Item having alternate UOM and Check Production Order Line Quantity.
-        Initialize;
+        Initialize(false);
         ProdOrderLineQuantity(true);
     end;
 
@@ -71,7 +72,7 @@ codeunit 137035 "SCM PS Bugs-I"
         ItemNo: Code[20];
     begin
         // Setup : Update Sales Setup.
-        Initialize;
+        Initialize(false);
 
         // Create Item with Replenishment System as Production Order.Create Sales Order.
         CreateItemAndSalesOrder(Item, Item."Replenishment System"::"Prod. Order");
@@ -112,7 +113,7 @@ codeunit 137035 "SCM PS Bugs-I"
     begin
         // 1. Setup : Update Sales Setup.Create Item with Variant and Item cross Reference.Create Purchase Order.
         // Update Purchase Line with Cross reference number of Type Bar Code.
-        Initialize;
+        Initialize(false);
         ItemCrossReferenceSetup(
           PurchaseLine, ItemCrossReference, ItemCrossReference."Cross-Reference Type"::"Bar Code",
           CopyStr(
@@ -150,12 +151,32 @@ codeunit 137035 "SCM PS Bugs-I"
         DirectUnitCost: Decimal;
     begin
         // 1. Setup : Update Sales Setup.Create Item. Create Purchase Order and Item cross Reference.
-        Initialize;
+        Initialize(false);
         ItemCrossReferenceSetup(PurchaseLine, ItemCrossReference, 0, '', false);
 
         // 2. Execute : Update Cross Reference in Purchase Line.
         DirectUnitCost := PurchaseLine."Direct Unit Cost";
         UpdateItemCrossReference(PurchaseLine, ItemCrossReference."Cross-Reference No.");
+
+        // 3. Verify : Verify Direct Unit Cost of Purchase Line.
+        PurchaseLine.TestField("Direct Unit Cost", DirectUnitCost);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemRefPurchaseOrderUnitCost()
+    var
+        PurchaseLine: Record "Purchase Line";
+        ItemReference: Record "Item Reference";
+        DirectUnitCost: Decimal;
+    begin
+        // 1. Setup : Create Item. Create Purchase Order and Item Reference.
+        Initialize(true);
+        ItemReferenceSetup(PurchaseLine, ItemReference, "Item Reference Type"::" ", '', false);
+
+        // 2. Execute : Update Item Reference in Purchase Line.
+        DirectUnitCost := PurchaseLine."Direct Unit Cost";
+        UpdateItemReference(PurchaseLine, ItemReference."Reference No.");
 
         // 3. Verify : Verify Direct Unit Cost of Purchase Line.
         PurchaseLine.TestField("Direct Unit Cost", DirectUnitCost);
@@ -174,7 +195,7 @@ codeunit 137035 "SCM PS Bugs-I"
         ProdOrderNo: Code[20];
     begin
         // Setup : Update Sales Setup.Create Item and Update Item Inventory.
-        Initialize;
+        Initialize(false);
 
         CreateProdBOMUpdateInventory(ProductionBOMHeader);
         CreateRoutingSetup(RoutingHeader, Item."Flushing Method");
@@ -219,7 +240,7 @@ codeunit 137035 "SCM PS Bugs-I"
         CalculationBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
     begin
         // 1. Setup : Update Sales Setup.Create Item and Update Inventory.Random values used are not important for test.
-        Initialize;
+        Initialize(false);
 
         InventorySetup.Get();
         LibraryInventory.SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
@@ -268,7 +289,7 @@ codeunit 137035 "SCM PS Bugs-I"
         PurchaseDirectCost: Decimal;
     begin
         // 1. Setup Update Sales and Inventory Setup.Create Negative Adjustment and Post it. Random values used are not important for test.
-        Initialize;
+        Initialize(false);
 
         CreateItem(
           Item, Item."Costing Method"::Average, '', '', Item."Manufacturing Policy", Item."Reordering Policy", Item."Replenishment System");
@@ -300,7 +321,7 @@ codeunit 137035 "SCM PS Bugs-I"
         ProdOrderNo: Code[20];
     begin
         // 1. Setup : Update Sales Setup.Create Item and Update Item Inventory.
-        Initialize;
+        Initialize(false);
 
         CreateProdBOMUpdateInventory(ProductionBOMHeader);
         CreateRoutingSetup(RoutingHeader, Item."Flushing Method");
@@ -336,7 +357,7 @@ codeunit 137035 "SCM PS Bugs-I"
         ComponentItemDescription: Code[100];
     begin
         // 1. Setup : Update Sales Setup.Create Item and Update Item Inventory.Random values used are not important for test.
-        Initialize;
+        Initialize(false);
 
         CreateItem(
           Item, Item."Costing Method", '', '', Item."Manufacturing Policy"::"Make-to-Order", Item."Reordering Policy",
@@ -375,7 +396,7 @@ codeunit 137035 "SCM PS Bugs-I"
         ProdOrderNo: Code[20];
     begin
         // 1. Setup : Update Sales Setup.Create and Update Item Inventory.
-        Initialize;
+        Initialize(false);
 
         CreateItem(
           Item, Item."Costing Method", '', '', Item."Manufacturing Policy"::"Make-to-Order", Item."Reordering Policy",
@@ -427,7 +448,7 @@ codeunit 137035 "SCM PS Bugs-I"
         // Verify Quantity on Item Ledger Entry after Posting Item Journal.
 
         // Setup: Create and modify Location and Items.Post Item Journal.
-        Initialize;
+        Initialize(false);
         LocationCode := CreateAndModifyLocationCode;
         CreateAndModifyItem(Item, Item."Replenishment System"::"Prod. Order", '', '', '');
         CreateAndModifyItem(
@@ -460,7 +481,7 @@ codeunit 137035 "SCM PS Bugs-I"
         // Verify Quantity on Item Ledger Entry after Posting Warehouse Inventory Activity.
 
         // 1. Setup: Create and modify Location and Items.Post Item Journal.Create and Refresh Prod. Order.
-        Initialize;
+        Initialize(false);
         LocationCode := CreateAndModifyLocationCode;
         CreateAndModifyItem(Item, Item."Replenishment System"::"Prod. Order", '', '', '');
         CreateAndModifyItem(
@@ -494,7 +515,7 @@ codeunit 137035 "SCM PS Bugs-I"
         ProdOrderNo: Code[20];
     begin
         // 1. Setup : Update Sales Setup.Create Item and attach it to BOM.
-        Initialize;
+        Initialize(false);
 
         CreateItem(
           Item, Item."Costing Method"::FIFO, '', '', Item."Manufacturing Policy"::"Make-to-Order", Item."Reordering Policy",
@@ -529,7 +550,7 @@ codeunit 137035 "SCM PS Bugs-I"
         ProdOrderNo: Code[20];
     begin
         // 1. Setup : Update Sales Setup.Create Item and Update Item Inventory.Random values used are not important for test.
-        Initialize;
+        Initialize(false);
 
         CreateProdBOMUpdateInventory(ProductionBOMHeader);
         CreateRoutingSetup(RoutingHeader, Item."Flushing Method");
@@ -572,7 +593,7 @@ codeunit 137035 "SCM PS Bugs-I"
         ProductionOrderNo: Code[20];
     begin
         // 1. Setup : Update Sales and Inventory Setup.
-        Initialize;
+        Initialize(false);
 
         LibraryInventory.SetAverageCostSetup(
           InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant", InventorySetup."Average Cost Period"::Day);
@@ -618,7 +639,7 @@ codeunit 137035 "SCM PS Bugs-I"
         PurchaseHeaderNo: Code[20];
     begin
         // 1. Setup : Update Sales Setup.Create Item and Vendor. Update Item Inventory.
-        Initialize;
+        Initialize(false);
 
         CreateItem(
           Item, Item."Costing Method"::FIFO, '', '', Item."Manufacturing Policy"::"Make-to-Order", Item."Reordering Policy",
@@ -671,7 +692,7 @@ codeunit 137035 "SCM PS Bugs-I"
         ComponentUnitCost: Decimal;
     begin
         // 1. Setup : Update Sales and Inventory Setup.
-        Initialize;
+        Initialize(false);
 
         // Create BOM Item and Create Unit of measure code.
         CreateItem(
@@ -711,7 +732,7 @@ codeunit 137035 "SCM PS Bugs-I"
         ComponentUnitCost: Decimal;
     begin
         // 1. Setup : Update Sales Setup.Create Item and attach Alternate Unit of measure to it.
-        Initialize;
+        Initialize(false);
 
         CreateItem(
           Item, Item."Costing Method", '', '', Item."Manufacturing Policy"::"Make-to-Order", Item."Reordering Policy",
@@ -762,7 +783,7 @@ codeunit 137035 "SCM PS Bugs-I"
         ProdOrderNo: Code[20];
     begin
         // 1. Setup : Update Sales and Inventory Setup.
-        Initialize;
+        Initialize(false);
 
         LibraryERM.SetUseLegacyGLEntryLocking(true);
 
@@ -810,7 +831,7 @@ codeunit 137035 "SCM PS Bugs-I"
         // Check Routing No. on Prod. Order Line after changing Status from Released to Finished.
 
         // Setup : Create Production BOM,Production Order and Production Order Lines and Refresh Production Order.
-        Initialize;
+        Initialize(false);
         LibraryInventory.CreateItem(Item);
         CreateProdBOM(ProductionBOMHeader, Item, '');
         CreateRoutingSetup(RoutingHeader, Item."Flushing Method"::Manual);
@@ -845,7 +866,7 @@ codeunit 137035 "SCM PS Bugs-I"
     begin
         // Check that purchase order description validates with cross reference description
 
-        Initialize;
+        Initialize(false);
         VendNo := LibraryPurchase.CreateVendorNo;
         CreateItemWithCrossReference(
           ItemCrossReference, ItemCrossReference."Cross-Reference Type"::Vendor, VendNo);
@@ -859,6 +880,28 @@ codeunit 137035 "SCM PS Bugs-I"
 
     [Test]
     [Scope('OnPrem')]
+    procedure ItemReferenceDescriptionInPurchOrder()
+    var
+        ItemReference: Record "Item Reference";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendNo: Code[20];
+    begin
+        // Check that purchase order description validates with item reference description
+
+        Initialize(true);
+        VendNo := LibraryPurchase.CreateVendorNo();
+        CreateItemWithItemReference(ItemReference, ItemReference."Reference Type"::Vendor, VendNo);
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeader, PurchaseHeader."Document Type"::Order, VendNo);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemReference."Item No.", LibraryRandom.RandInt(100));
+        Assert.AreEqual(
+          ItemReference.Description, PurchaseLine.Description, StrSubstNo(WrongDescriptionInOrderErr, PurchaseHeader.TableCaption));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure ItemCrossReferenceDescriptionInSalesOrder()
     var
         ItemCrossReference: Record "Item Cross Reference";
@@ -868,7 +911,7 @@ codeunit 137035 "SCM PS Bugs-I"
     begin
         // Check that sales order description validates with cross reference description
 
-        Initialize;
+        Initialize(false);
         CustNo := LibrarySales.CreateCustomerNo;
         CreateItemWithCrossReference(
           ItemCrossReference, ItemCrossReference."Cross-Reference Type"::Customer, CustNo);
@@ -878,6 +921,28 @@ codeunit 137035 "SCM PS Bugs-I"
           SalesLine, SalesHeader, SalesLine.Type::Item, ItemCrossReference."Item No.", LibraryRandom.RandInt(100));
         Assert.AreEqual(
           ItemCrossReference.Description, SalesLine.Description, StrSubstNo(WrongDescriptionInOrderErr, SalesHeader.TableCaption));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemReferenceDescriptionInSalesOrder()
+    var
+        ItemReference: Record "Item Reference";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CustNo: Code[20];
+    begin
+        // Check that sales order description validates with item reference description
+
+        Initialize(true);
+        CustNo := LibrarySales.CreateCustomerNo();
+        CreateItemWithItemReference(ItemReference, ItemReference."Reference Type"::Customer, CustNo);
+        LibrarySales.CreateSalesHeader(
+          SalesHeader, SalesHeader."Document Type"::Order, CustNo);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, ItemReference."Item No.", LibraryRandom.RandInt(100));
+        Assert.AreEqual(
+          ItemReference.Description, SalesLine.Description, StrSubstNo(WrongDescriptionInOrderErr, SalesHeader.TableCaption));
     end;
 
     [Test]
@@ -894,7 +959,7 @@ codeunit 137035 "SCM PS Bugs-I"
         OutputJournal: TestPage "Output Journal";
     begin
         // Setup : Update Sales Setup.Create Item and Update Item Inventory.
-        Initialize;
+        Initialize(false);
 
         CreateProdBOMUpdateInventory(ProductionBOMHeader);
         CreateRoutingSetup(RoutingHeader, Item."Flushing Method");
@@ -939,7 +1004,7 @@ codeunit 137035 "SCM PS Bugs-I"
         // [FEATURE] [Purchase] [Item Tracking]
         // [SCENARIO 217878] Changing expected receipt date in a purchase order should not raise the date conflict warning when the item is tracked and not reserved
 
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Lot tracked item "I"
         CreateAndModifyItem(
@@ -951,7 +1016,7 @@ codeunit 137035 "SCM PS Bugs-I"
         ReceiptDate := PurchaseLine."Expected Receipt Date";
 
         // [GIVEN] Assign lot no. to the purchase order line
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
 
         // [WHEN] Move expected receipt date in the order line to an earlier day
         PurchaseOrder.OpenEdit;
@@ -973,7 +1038,7 @@ codeunit 137035 "SCM PS Bugs-I"
     begin
         // [FEATURE] [Production Order] [Production Order Status] [Output] [UT]
         // [SCENARIO 284740] Finishing production order is interrupted when a user chooses not to proceed due to missing output.
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Released production order.
         CreateRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, LibraryInventory.CreateItemNo, '');
@@ -1000,7 +1065,7 @@ codeunit 137035 "SCM PS Bugs-I"
     begin
         // [FEATURE] [Production Order] [Production Order Status] [Consumption] [UT]
         // [SCENARIO 284740] Finishing production order with complete output needs a confirmation if the consumption has not been posted in full.
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Released production order.
         CreateRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, LibraryInventory.CreateItemNo, '');
@@ -1034,7 +1099,7 @@ codeunit 137035 "SCM PS Bugs-I"
     begin
         // [FEATURE] [Production Order] [Production Order Status] [Consumption] [UT]
         // [SCENARIO 284740] Finishing production order is interrupted with error if outstanding pick line exists for a prod. order component.
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Released production order.
         CreateRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, LibraryInventory.CreateItemNo, '');
@@ -1069,7 +1134,7 @@ codeunit 137035 "SCM PS Bugs-I"
     begin
         // [FEATURE] [Production Order] [Production Order Status] [Output] [Consumption] [UT]
         // [SCENARIO 284740] Finishing production order is interrupted when a user chooses not to proceed due to missing consumption.
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Released production order.
         CreateRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, LibraryInventory.CreateItemNo, '');
@@ -1100,7 +1165,7 @@ codeunit 137035 "SCM PS Bugs-I"
     begin
         // [FEATURE] [Production Order] [Production Order Status] [Output] [UT]
         // [SCENARIO 284740] Finishing production order does not warn a user of missing output if the output will be automatically posted due to backward flushing method on unfinished prod. order line.
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Released production order.
         CreateRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, LibraryInventory.CreateItemNo, '');
@@ -1124,26 +1189,25 @@ codeunit 137035 "SCM PS Bugs-I"
         ProductionOrder.Get(ProductionOrder.Status::Finished, ProductionOrder."No.");
     end;
 
-    local procedure Initialize()
+    local procedure Initialize(Enable: Boolean)
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM PS Bugs-I");
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
-
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibraryItemReference.EnableFeature(Enable);
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetStockoutWarning(false);
-
-        // Lazy Setup.
         if isInitialized then
             exit;
+
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM PS Bugs-I");
 
-        NoSeriesSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        NoSeriesSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
@@ -1189,7 +1253,7 @@ codeunit 137035 "SCM PS Bugs-I"
           '', '');
     end;
 
-    local procedure CreateAndModifyItem(var Item: Record Item; ReplenishmentSystem: Option; ItemTrackingCode: Code[10]; LotNos: Code[20]; ProductionBOMHeaderNo: Code[20])
+    local procedure CreateAndModifyItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; ItemTrackingCode: Code[10]; LotNos: Code[20]; ProductionBOMHeaderNo: Code[20])
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Replenishment System", ReplenishmentSystem);
@@ -1260,7 +1324,7 @@ codeunit 137035 "SCM PS Bugs-I"
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
     end;
 
-    local procedure CreateAndPostItemJrnl(EntryType: Option; ItemNo: Code[20]; Qty: Decimal)
+    local procedure CreateAndPostItemJrnl(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Qty: Decimal)
     var
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
@@ -1308,7 +1372,7 @@ codeunit 137035 "SCM PS Bugs-I"
         ProductionOrder.CreateInvtPutAwayPick;
     end;
 
-    local procedure CreateItem(var Item: Record Item; CostingMethod: Option; RoutingNo: Code[20]; ProductionBOMNo: Code[20]; ManufacturingPolicy: Option; ReorderingPolicy: Option; ReplenishmentSystem: Option)
+    local procedure CreateItem(var Item: Record Item; CostingMethod: Enum "Costing Method"; RoutingNo: Code[20]; ProductionBOMNo: Code[20]; ManufacturingPolicy: Enum "Manufacturing Policy"; ReorderingPolicy: Enum "Reordering Policy"; ReplenishmentSystem: Enum "Replenishment System")
     begin
         // Random values used are not important for test.
         LibraryManufacturing.CreateItemManufacturing(
@@ -1332,7 +1396,17 @@ codeunit 137035 "SCM PS Bugs-I"
         ItemCrossReference.Modify(true);
     end;
 
-    local procedure CreateItemAndSalesOrder(var Item: Record Item; ReplenishmentSystem: Option)
+    local procedure CreateItemWithItemReference(var ItemReference: Record "Item Reference"; RefType: Enum "Item Reference Type"; RefTypeNo: Code[30])
+    var
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibraryItemReference.CreateItemReference(ItemReference, Item."No.", RefType, RefTypeNo);
+        ItemReference.Validate(Description, LibraryUtility.GenerateGUID);
+        ItemReference.Modify(true);
+    end;
+
+    local procedure CreateItemAndSalesOrder(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System")
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1422,7 +1496,7 @@ codeunit 137035 "SCM PS Bugs-I"
         UpdateVendorInvoiceNoPurchaseHeader(PurchaseHeader);
     end;
 
-    local procedure CreateRefreshRelProdOrder(var ProductionOrder: Record "Production Order"; SourceType: Option; SourceNo: Code[20]; LocationCode: Code[10]): Code[20]
+    local procedure CreateRefreshRelProdOrder(var ProductionOrder: Record "Production Order"; SourceType: Enum "Prod. Order Source Type"; SourceNo: Code[20]; LocationCode: Code[10]): Code[20]
     begin
         // Random values used are not important for test.
         LibraryManufacturing.CreateProductionOrder(
@@ -1459,7 +1533,7 @@ codeunit 137035 "SCM PS Bugs-I"
           RoutingLine, RoutingHeader, CenterNo, OperationNo, LibraryRandom.RandInt(5), LibraryRandom.RandInt(5));
     end;
 
-    local procedure CreateRoutingSetup(var RoutingHeader: Record "Routing Header"; FlushingMethod: Option)
+    local procedure CreateRoutingSetup(var RoutingHeader: Record "Routing Header"; FlushingMethod: Enum "Flushing Method")
     var
         RoutingLine: Record "Routing Line";
         WorkCenter: Record "Work Center";
@@ -1498,14 +1572,14 @@ codeunit 137035 "SCM PS Bugs-I"
         StockkeepingUnit.Modify(true);
     end;
 
-    local procedure CreateWorkCenter(var WorkCenter: Record "Work Center"; FlushingMethod: Option)
+    local procedure CreateWorkCenter(var WorkCenter: Record "Work Center"; FlushingMethod: Enum "Flushing Method")
     begin
         LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
         WorkCenter.Validate("Flushing Method", FlushingMethod);
         WorkCenter.Modify(true);
     end;
 
-    local procedure MockProdOrderRoutingLine(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line"; FlushingMethod: Option)
+    local procedure MockProdOrderRoutingLine(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line"; FlushingMethod: Enum "Flushing Method")
     begin
         ProdOrderRoutingLine.Init();
         ProdOrderRoutingLine.Status := ProdOrderLine.Status;
@@ -1522,7 +1596,7 @@ codeunit 137035 "SCM PS Bugs-I"
     begin
         WarehouseActivityLine."Activity Type" := WarehouseActivityLine."Activity Type"::Pick;
         WarehouseActivityLine."Source Type" := DATABASE::"Prod. Order Component";
-        WarehouseActivityLine."Source Subtype" := ProdOrderComponent.Status;
+        WarehouseActivityLine."Source Subtype" := ProdOrderComponent.Status.AsInteger();
         WarehouseActivityLine."Source No." := ProdOrderComponent."Prod. Order No.";
         WarehouseActivityLine."Source Line No." := ProdOrderComponent."Prod. Order Line No.";
         WarehouseActivityLine."Source Subline No." := ProdOrderComponent."Line No.";
@@ -1540,7 +1614,7 @@ codeunit 137035 "SCM PS Bugs-I"
         ProdOrderLine.Delete(true);
     end;
 
-    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Option; DocumentNo: Code[20])
+    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Document Type"; DocumentNo: Code[20])
     begin
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
@@ -1556,14 +1630,14 @@ codeunit 137035 "SCM PS Bugs-I"
             exit(RoutingLine."Operation No.");
     end;
 
-    local procedure FindProdOrder(var ProductionOrder: Record "Production Order"; Status: Option; SourceNo: Code[20])
+    local procedure FindProdOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20])
     begin
         ProductionOrder.SetRange(Status, Status);
         ProductionOrder.SetRange("Source No.", SourceNo);
         ProductionOrder.FindFirst;
     end;
 
-    local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderNo: Code[20]; Status: Option)
+    local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderNo: Code[20]; Status: Enum "Production Order Status")
     begin
         ProdOrderLine.SetRange(Status, Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
@@ -1629,6 +1703,25 @@ codeunit 137035 "SCM PS Bugs-I"
             LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
         CreatePurchaseOrder(PurchaseHeader, Item."No.", LibraryRandom.RandInt(100), Item."Unit Cost");
         LibraryInventory.CreateItemCrossReference(ItemCrossReference, Item."No.", CrossReferenceType, CrossReferenceTypeNo);
+        FindPurchaseLine(PurchaseLine, PurchaseHeader."No.");
+    end;
+
+    local procedure ItemReferenceSetup(var PurchaseLine: Record "Purchase Line"; var ItemReference: Record "Item Reference"; ReferenceType: Enum "Item Reference Type"; ReferenceTypeNo: Code[10]; VariantExist: Boolean)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+    begin
+        // Update Sales Setup. Create Item and Item Variant. Create Item Reference.
+        // Random values used are not important for test.
+
+        CreateItem(
+          Item, Item."Costing Method", '', '', Item."Manufacturing Policy"::"Make-to-Order", Item."Reordering Policy",
+          Item."Replenishment System"::"Prod. Order");
+        if VariantExist then
+            LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+        CreatePurchaseOrder(PurchaseHeader, Item."No.", LibraryRandom.RandInt(100), Item."Unit Cost");
+        LibraryItemReference.CreateItemReference(ItemReference, Item."No.", ReferenceType, ReferenceTypeNo);
         FindPurchaseLine(PurchaseLine, PurchaseHeader."No.");
     end;
 
@@ -1712,7 +1805,7 @@ codeunit 137035 "SCM PS Bugs-I"
         FamilyLine.Modify(true);
     end;
 
-    local procedure UpdateItem(var Item: Record Item; FlushingMethod: Option; ReorderingPolicy: Option; ReorderQuantity: Decimal)
+    local procedure UpdateItem(var Item: Record Item; FlushingMethod: Enum "Flushing Method"; ReorderingPolicy: Enum "Reordering Policy"; ReorderQuantity: Decimal)
     begin
         Item.Validate("Flushing Method", FlushingMethod);
         Item.Validate("Reordering Policy", ReorderingPolicy);
@@ -1723,6 +1816,12 @@ codeunit 137035 "SCM PS Bugs-I"
     local procedure UpdateItemCrossReference(var PurchaseLine: Record "Purchase Line"; ItemCrossReferenceNo: Code[20])
     begin
         PurchaseLine.Validate("Cross-Reference No.", ItemCrossReferenceNo);
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure UpdateItemReference(var PurchaseLine: Record "Purchase Line"; ItemReferenceNo: Code[20])
+    begin
+        PurchaseLine.Validate("Item Reference No.", ItemReferenceNo);
         PurchaseLine.Modify(true);
     end;
 
@@ -1828,7 +1927,7 @@ codeunit 137035 "SCM PS Bugs-I"
         ItemLedgerEntry.TestField(Quantity, Quantity);
     end;
 
-    local procedure VerifyProdComponentUnitCost(Status: Option; ProdOrderNo: Code[20]; UnitCost: Decimal)
+    local procedure VerifyProdComponentUnitCost(Status: Enum "Production Order Status"; ProdOrderNo: Code[20]; UnitCost: Decimal)
     var
         ProdOrderComponent: Record "Prod. Order Component";
         GeneralLedgerSetup: Record "General Ledger Setup";

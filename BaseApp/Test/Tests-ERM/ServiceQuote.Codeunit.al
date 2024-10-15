@@ -364,7 +364,7 @@ codeunit 136115 "Service Quote"
         CustInvoiceDisc.Modify(true);
     end;
 
-    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; Type: Option)
+    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; Type: Enum "Service Document Type")
     var
         Customer: Record Customer;
         ServiceItem: Record "Service Item";

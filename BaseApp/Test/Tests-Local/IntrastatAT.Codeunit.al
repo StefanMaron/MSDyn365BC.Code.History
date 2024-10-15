@@ -264,9 +264,9 @@ codeunit 144061 "Intrastat AT"
         FilenameSales: Text;
         FilenamePurchase: Text;
         Filepath: Text;
-    begin	
+    begin
         // [SCENARIO 344448] Stan can generate intrastat file from the Intrastat Journal with the correct content
-		
+
         Initialize;
         DisableTransportMethodCheck;
         DisableTransactionSpecificationCheck;
@@ -537,7 +537,7 @@ codeunit 144061 "Intrastat AT"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Intrastat AT");
     end;
 
-    local procedure CreateAndPostSalesDoc(DocumentType: Option; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreateAndPostSalesDoc(DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -547,7 +547,7 @@ codeunit 144061 "Intrastat AT"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure CreateAndPostPurchDoc(DocumentType: Option; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreateAndPostPurchDoc(DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";

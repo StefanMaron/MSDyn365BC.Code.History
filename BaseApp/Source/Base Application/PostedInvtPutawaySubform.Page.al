@@ -26,7 +26,6 @@ page 7391 "Posted Invt. Put-away Subform"
                 field("Source Document"; "Source Document")
                 {
                     ApplicationArea = Warehouse;
-                    OptionCaption = ' ,,,,Sales Return Order,Purchase Order,,,,Inbound Transfer';
                     ToolTip = 'Specifies the type of document that the line relates to.';
                     Visible = false;
                 }

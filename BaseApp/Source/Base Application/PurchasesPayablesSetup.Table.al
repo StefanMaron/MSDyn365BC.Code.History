@@ -433,12 +433,9 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Issued Delivery Reminder Nos.';
             TableRelation = "No. Series";
         }
-        field(5005272; "Default Del. Rem. Date Field"; Option)
+        field(5005272; "Default Del. Rem. Date Field"; Enum "Delivery Reminder Date Type")
         {
             Caption = 'Default Del. Rem. Date Field';
-            OptionCaption = ' ,Requested Receipt Date,Promised Receipt Date,Expected Receipt Date';
-            OptionMembers = " ","Requested Receipt Date","Promised Receipt Date","Expected Receipt Date";
-            ValuesAllowed = "Requested Receipt Date", "Promised Receipt Date", "Expected Receipt Date";
         }
     }
 

@@ -385,7 +385,7 @@ report 122 "Reminder - Test"
 
                             NNC_TotalLCYVATAmount := NNC_RemAmtTotal + NNC_VatAmtTotal + NNC_ReminderInterestAmt;
 
-                            TypeNo := Type;
+                            TypeNo := Type.AsInteger();
                         end;
                     end;
 

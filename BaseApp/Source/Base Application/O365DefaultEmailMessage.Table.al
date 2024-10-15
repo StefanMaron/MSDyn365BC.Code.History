@@ -95,9 +95,12 @@ table 2170 "O365 Default Email Message"
         ReportSelections: Record "Report Selections";
     begin
         case ReportUsage of
-            ReportSelections.Usage::"S.Invoice", ReportSelections.Usage::"S.Invoice Draft", ReportSelections.Usage::"P.Invoice":
+            ReportSelections.Usage::"S.Invoice".AsInteger(),
+            ReportSelections.Usage::"S.Invoice Draft".AsInteger(),
+            ReportSelections.Usage::"P.Invoice".AsInteger():
                 DocumentType := "Document Type"::Invoice;
-            ReportSelections.Usage::"S.Quote", ReportSelections.Usage::"P.Quote":
+            ReportSelections.Usage::"S.Quote".AsInteger(),
+            ReportSelections.Usage::"P.Quote".AsInteger():
                 DocumentType := "Document Type"::Quote;
         end;
     end;

@@ -2,9 +2,12 @@ page 2801 "Native - Customer Entity"
 {
     Caption = 'invoicingCustomers', Locked = true;
     DelayedInsert = true;
-    ODataKeyFields = Id;
-    PageType = List;
     SourceTable = Customer;
+    PageType = List;
+    ODataKeyFields = SystemId;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'These objects will be removed';
+    ObsoleteTag = '17.0';
 
     layout
     {
@@ -12,7 +15,7 @@ page 2801 "Native - Customer Entity"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; Rec.SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'Id', Locked = true;
@@ -175,8 +178,7 @@ page 2801 "Native - Customer Entity"
                         if "Payment Terms Id" = BlankGUID then
                             "Payment Terms Code" := ''
                         else begin
-                            PaymentTerms.SetRange(Id, "Payment Terms Id");
-                            if not PaymentTerms.FindFirst then
+                            if not PaymentTerms.GetBySystemId(Rec."Payment Terms Id") then
                                 Error(PaymentTermsIdDoesNotMatchAPaymentTermsErr);
 
                             "Payment Terms Code" := PaymentTerms.Code;
@@ -196,8 +198,7 @@ page 2801 "Native - Customer Entity"
                         if "Shipment Method Id" = BlankGUID then
                             "Shipment Method Code" := ''
                         else begin
-                            ShipmentMethod.SetRange(Id, "Shipment Method Id");
-                            if not ShipmentMethod.FindFirst then
+                            if not ShipmentMethod.GetBySystemId(Rec."Shipment Method Id") then
                                 Error(ShipmentMethodIdDoesNotMatchAShipmentMethodErr);
 
                             "Shipment Method Code" := ShipmentMethod.Code;
@@ -217,8 +218,7 @@ page 2801 "Native - Customer Entity"
                         if "Payment Method Id" = BlankGUID then
                             "Payment Method Code" := ''
                         else begin
-                            PaymentMethod.SetRange(Id, "Payment Method Id");
-                            if not PaymentMethod.FindFirst then
+                            if not PaymentMethod.GetBySystemId("Payment Method Id") then
                                 Error(PaymentMethodIdDoesNotMatchAPaymentMethodErr);
 
                             "Payment Method Code" := PaymentMethod.Code;
@@ -258,7 +258,9 @@ page 2801 "Native - Customer Entity"
                 {
                     ApplicationArea = All;
                     Caption = 'Coupons', Locked = true;
-                    SubPageLink = "Customer Id" = FIELD(Id);
+                    SubPageLink = "Customer Id" = FIELD(SystemId);
+                    EntityName = 'coupon';
+                    EntitySetName = 'coupons';
                 }
             }
         }
@@ -314,13 +316,8 @@ page 2801 "Native - Customer Entity"
     trigger OnModifyRecord(): Boolean
     var
         Customer: Record Customer;
-        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        if not CustomerCreatedFromGraph and (xRec.Id <> Id) then
-            GraphMgtGeneralTools.ErrorIdImmutable;
-
-        Customer.SetRange(Id, Id);
-        Customer.FindFirst;
+        Customer.GetBySystemId(SystemId);
         ProcessPostalAddress;
 
         UpdatePricesIncludingTax;
@@ -348,10 +345,12 @@ page 2801 "Native - Customer Entity"
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
         EmptyGuid: Guid;
     begin
-        EmptyIDPaymentTerms.SetRange(Id, EmptyGuid);
-        EmptyIDPaymentMethod.SetRange(Id, EmptyGuid);
-        if EmptyIDPaymentTerms.FindFirst or EmptyIDPaymentMethod.FindFirst then
-            GraphMgtGeneralTools.ApiSetup;
+        if EmptyIDPaymentTerms.GetBySystemId(EmptyGuid) then
+            GraphMgtGeneralTools.ApiSetup
+        else
+            if EmptyIDPaymentMethod.GetBySystemId(EmptyGuid) then
+                GraphMgtGeneralTools.ApiSetup;
+
         BindSubscription(NativeAPILanguageHandler);
         TranslateContactIdFilterToCustomerNoFilter;
         SelectLatestVersion;
@@ -401,7 +400,6 @@ page 2801 "Native - Customer Entity"
 
     local procedure ClearCalculatedFields()
     begin
-        Clear(Id);
         Clear(TaxAreaDisplayName);
         Clear(PostalAddressJSON);
         Clear(OverdueAmount);

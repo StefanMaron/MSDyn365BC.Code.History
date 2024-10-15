@@ -258,6 +258,7 @@ codeunit 7030 "Campaign Target Group Mgt"
         exit(NoPriceDiscV15ForCampaign(CampaignNo));
     end;
 
+    [Obsolete('Replaced by NoPriceDiscForCampaign', '17.0')]
     local procedure NoPriceDiscV15ForCampaign(CampaignNo: Code[20]): Boolean;
     var
         SalesPrice: Record "Sales Price";

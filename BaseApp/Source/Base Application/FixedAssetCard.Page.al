@@ -28,7 +28,7 @@ page 5600 "Fixed Asset Card"
 
                     trigger OnValidate()
                     begin
-                        ShowAcquireNotification
+                        ShowAcquisitionNotification();
                     end;
                 }
                 field(Description; Description)
@@ -40,7 +40,7 @@ page 5600 "Fixed Asset Card"
 
                     trigger OnValidate()
                     begin
-                        ShowAcquireNotification
+                        ShowAcquisitionNotification();
                     end;
                 }
                 group(Control34)
@@ -75,9 +75,9 @@ page 5600 "Fixed Asset Card"
 
                         trigger OnValidate()
                         begin
-                            SetDefaultDepreciationBook;
-                            SetDefaultPostingGroup;
-                            ShowAcquireNotification;
+                            SetDefaultDepreciationBook();
+                            SetDefaultPostingGroup();
+                            ShowAcquisitionNotification();
                         end;
                     }
                 }
@@ -175,10 +175,10 @@ page 5600 "Fixed Asset Card"
 
                     trigger OnValidate()
                     begin
-                        LoadDepreciationBooks;
+                        LoadFADepreciationBooks();
                         FADepreciationBook.Validate("Depreciation Book Code");
-                        SaveSimpleDepriciationBook(xRec."No.");
-                        ShowAcquireNotification;
+                        SaveSimpleDepreciationBook(xRec."No.");
+                        ShowAcquisitionNotification();
                     end;
                 }
                 field(FAPostingGroup; FADepreciationBook."FA Posting Group")
@@ -191,10 +191,10 @@ page 5600 "Fixed Asset Card"
 
                     trigger OnValidate()
                     begin
-                        LoadDepreciationBooks;
+                        LoadFADepreciationBooks();
                         FADepreciationBook.Validate("FA Posting Group");
-                        SaveSimpleDepriciationBook(xRec."No.");
-                        ShowAcquireNotification;
+                        SaveSimpleDepreciationBook(xRec."No.");
+                        ShowAcquisitionNotification();
                     end;
                 }
                 field(DepreciationMethod; FADepreciationBook."Depreciation Method")
@@ -205,10 +205,10 @@ page 5600 "Fixed Asset Card"
 
                     trigger OnValidate()
                     begin
-                        LoadDepreciationBooks;
+                        LoadFADepreciationBooks();
                         FADepreciationBook.Validate("Depreciation Method");
-                        SaveSimpleDepriciationBook(xRec."No.");
-                        ShowAcquireNotification;
+                        SaveSimpleDepreciationBook(xRec."No.");
+                        ShowAcquisitionNotification();
                     end;
                 }
                 group(Control33)
@@ -223,10 +223,10 @@ page 5600 "Fixed Asset Card"
 
                         trigger OnValidate()
                         begin
-                            LoadDepreciationBooks;
+                            LoadFADepreciationBooks();
                             FADepreciationBook.Validate("Depreciation Starting Date");
-                            SaveSimpleDepriciationBook(xRec."No.");
-                            ShowAcquireNotification;
+                            SaveSimpleDepreciationBook(xRec."No.");
+                            ShowAcquisitionNotification();
                         end;
                     }
                     field(NumberOfDepreciationYears; FADepreciationBook."No. of Depreciation Years")
@@ -237,10 +237,10 @@ page 5600 "Fixed Asset Card"
 
                         trigger OnValidate()
                         begin
-                            LoadDepreciationBooks;
+                            LoadFADepreciationBooks();
                             FADepreciationBook.Validate("No. of Depreciation Years");
-                            SaveSimpleDepriciationBook(xRec."No.");
-                            ShowAcquireNotification;
+                            SaveSimpleDepreciationBook(xRec."No.");
+                            ShowAcquisitionNotification();
                         end;
                     }
                     field(DepreciationEndingDate; FADepreciationBook."Depreciation Ending Date")
@@ -252,10 +252,10 @@ page 5600 "Fixed Asset Card"
 
                         trigger OnValidate()
                         begin
-                            LoadDepreciationBooks;
+                            LoadFADepreciationBooks();
                             FADepreciationBook.Validate("Depreciation Ending Date");
-                            SaveSimpleDepriciationBook(xRec."No.");
-                            ShowAcquireNotification;
+                            SaveSimpleDepreciationBook(xRec."No.");
+                            ShowAcquisitionNotification();
                         end;
                     }
                 }
@@ -282,9 +282,9 @@ page 5600 "Fixed Asset Card"
 
                     trigger OnValidate()
                     begin
-                        LoadDepreciationBooks;
+                        LoadFADepreciationBooks();
                         FADepreciationBook.Validate("Depreciation Table Code");
-                        SaveSimpleDepriciationBook(xRec."No.");
+                        SaveSimpleDepreciationBook(xRec."No.");
                     end;
                 }
                 field(UseHalfYearConvention; FADepreciationBook."Use Half-Year Convention")
@@ -296,9 +296,9 @@ page 5600 "Fixed Asset Card"
 
                     trigger OnValidate()
                     begin
-                        LoadDepreciationBooks;
+                        LoadFADepreciationBooks();
                         FADepreciationBook.Validate("Use Half-Year Convention");
-                        SaveSimpleDepriciationBook(xRec."No.");
+                        SaveSimpleDepreciationBook(xRec."No.");
                     end;
                 }
                 group(Control38)
@@ -669,12 +669,12 @@ page 5600 "Fixed Asset Card"
     trigger OnAfterGetRecord()
     begin
         if "No." <> xRec."No." then
-            SaveSimpleDepriciationBook(xRec."No.");
+            SaveSimpleDepreciationBook(xRec."No.");
 
-        LoadDepreciationBooks;
+        LoadFADepreciationBooks();
         CurrPage.Update(false);
         FADepreciationBook.Copy(FADepreciationBookOld);
-        ShowAcquireNotification;
+        ShowAcquisitionNotification();
         BookValue := GetBookValue;
     end;
 
@@ -686,7 +686,7 @@ page 5600 "Fixed Asset Card"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        SaveSimpleDepriciationBook("No.");
+        SaveSimpleDepreciationBook("No.");
     end;
 
     var
@@ -700,15 +700,15 @@ page 5600 "Fixed Asset Card"
         ShowAddMoreDeprBooksLbl: Boolean;
         BookValue: Decimal;
 
-    local procedure ShowAcquireNotification()
+    local procedure ShowAcquisitionNotification()
     var
-        ShowAcquireNotification: Boolean;
+        ShowNotification: Boolean;
     begin
-        ShowAcquireNotification :=
-          (not Acquired) and FieldsForAcquitionInGeneralGroupAreCompleted and AtLeastOneDepreciationLineIsComplete;
-        if ShowAcquireNotification and IsNullGuid(FAAcquireWizardNotificationId) then begin
+        ShowNotification :=
+          (not Acquired) and FieldsForAcquitionInGeneralGroupAreCompleted() and AtLeastOneDepreciationLineIsComplete();
+        if ShowNotification and IsNullGuid(FAAcquireWizardNotificationId) then begin
             Acquirable := true;
-            ShowAcquireWizardNotification;
+            ShowAcquireWizardNotification();
         end else
             Acquirable := false;
     end;
@@ -723,11 +723,11 @@ page 5600 "Fixed Asset Card"
         exit(FADepreciationBookMultiline.LineIsReadyForAcquisition("No."));
     end;
 
-    local procedure SaveSimpleDepriciationBook(FixedAssetNo: Code[20])
+    procedure SaveSimpleDepreciationBook(FixedAssetNo: Code[20])
     var
         FixedAsset: Record "Fixed Asset";
     begin
-        if not SimpleDepreciationBookHasChanged then
+        if not SimpleFADepreciationBookHasChanged() then
             exit;
 
         if Simple and FixedAsset.Get(FixedAssetNo) then begin
@@ -747,8 +747,8 @@ page 5600 "Fixed Asset Card"
         if FADepreciationBook."Depreciation Book Code" = '' then begin
             FASetup.Get();
             FADepreciationBook.Validate("Depreciation Book Code", FASetup."Default Depr. Book");
-            SaveSimpleDepriciationBook("No.");
-            LoadDepreciationBooks;
+            SaveSimpleDepreciationBook("No.");
+            LoadFADepreciationBooks();
         end;
     end;
 
@@ -761,15 +761,15 @@ page 5600 "Fixed Asset Card"
 
         if FASubclass.Get("FA Subclass Code") then;
         FADepreciationBook.Validate("FA Posting Group", FASubclass."Default FA Posting Group");
-        SaveSimpleDepriciationBook("No.");
+        SaveSimpleDepreciationBook("No.");
     end;
 
-    local procedure SimpleDepreciationBookHasChanged(): Boolean
+    protected procedure SimpleFADepreciationBookHasChanged(): Boolean
     begin
         exit(Format(FADepreciationBook) <> Format(FADepreciationBookOld));
     end;
 
-    local procedure LoadDepreciationBooks()
+    protected procedure LoadFADepreciationBooks()
     begin
         Clear(FADepreciationBookOld);
         FADepreciationBookOld.SetRange("FA No.", "No.");

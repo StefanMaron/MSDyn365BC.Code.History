@@ -87,7 +87,7 @@ codeunit 483 "Change Global Dimensions"
         NoOfRecords: Integer;
         ProgressMsg: Label 'Updating #1#####\@2@@@@@@@@@@', Comment = '#1-Table Id and Name;#2 - progress bar.';
         IsWindowOpen: Boolean;
-        TagCategoryTxt: Label 'Change Global Dimensions';
+        TagCategoryTxt: Label 'Change Global Dimensions', Locked = true;
         StartTraceTagMsg: Label 'Change Global Dimensions is started, parallel processing is on.';
         SequentialStartTraceTagMsg: Label 'Change Global Dimensions is started, parallel processing is off.';
         FinishTraceTagMsg: Label 'Change Global Dimensions is finished.';
@@ -671,7 +671,7 @@ codeunit 483 "Change Global Dimensions"
 
     local procedure SendTraceTagOn(TraceTagMessage: Text)
     begin
-        SendTraceTag('00001ZE', TagCategoryTxt, VERBOSITY::Normal, TraceTagMessage, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00001ZE', TraceTagMessage, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TagCategoryTxt);
     end;
 
     procedure ShowActiveSessions(BlockNotification: Notification)

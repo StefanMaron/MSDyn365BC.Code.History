@@ -1,4 +1,4 @@
-﻿codeunit 353 "Item Availability Forms Mgt"
+codeunit 353 "Item Availability Forms Mgt"
 {
 
     trigger OnRun()
@@ -193,7 +193,7 @@
     var
         AssemblyHeader: Record "Assembly Header";
     begin
-        AssemblyHeader.FindLinesWithItemToPlan(Item, AssemblyHeader."Document Type"::Order);
+        AssemblyHeader.FindItemToPlanLines(Item, AssemblyHeader."Document Type"::Order);
         PAGE.Run(0, AssemblyHeader);
     end;
 
@@ -201,7 +201,7 @@
     var
         AssemblyLine: Record "Assembly Line";
     begin
-        AssemblyLine.FindLinesWithItemToPlan(Item, AssemblyLine."Document Type"::Order);
+        AssemblyLine.FindItemToPlanLines(Item, AssemblyLine."Document Type"::Order);
         PAGE.Run(0, AssemblyLine);
     end;
 

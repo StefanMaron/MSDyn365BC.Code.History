@@ -1154,7 +1154,7 @@ codeunit 137034 "SCM Production Journal"
         LibrarySales.SetStockoutWarning(false);
     end;
 
-    local procedure CreateItem(var Item: Record Item; CostingMethod: Option; RoutingNo: Code[20]; ProductionBOMNo: Code[20]; ItemManufacturingPolicy: Option)
+    local procedure CreateItem(var Item: Record Item; CostingMethod: Enum "Costing Method"; RoutingNo: Code[20]; ProductionBOMNo: Code[20]; ItemManufacturingPolicy: Enum "Manufacturing Policy")
     begin
         // Random value important for test.
         LibraryManufacturing.CreateItemManufacturing(
@@ -1345,7 +1345,7 @@ codeunit 137034 "SCM Production Journal"
         CreateItem(Item, Item."Costing Method"::FIFO, RoutingNo, ProductionBOMHeader."No.", Item."Manufacturing Policy"::"Make-to-Order");
     end;
 
-    local procedure CreateItemsWithInventory(var ChildItemNo: Code[20]; var ChildItemNo2: Code[20]; ItemManufacturingPolicy: Option; ItemManufacturingPolicy2: Option)
+    local procedure CreateItemsWithInventory(var ChildItemNo: Code[20]; var ChildItemNo2: Code[20]; ItemManufacturingPolicy: Enum "Manufacturing Policy"; ItemManufacturingPolicy2: Enum "Manufacturing Policy")
     var
         Item: Record Item;
         ItemJournalLine: Record "Item Journal Line";
@@ -1383,7 +1383,7 @@ codeunit 137034 "SCM Production Journal"
           ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LibraryRandom.RandDec(10, 2));
     end;
 
-    local procedure CreateProductionItemJournal(var ItemJournalLine: Record "Item Journal Line"; EntryType: Option; OrderNo: Code[20])
+    local procedure CreateProductionItemJournal(var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Document Type"; OrderNo: Code[20])
     var
         ItemJournalBatch: Record "Item Journal Batch";
     begin
@@ -1395,7 +1395,7 @@ codeunit 137034 "SCM Production Journal"
         end;
     end;
 
-    local procedure CreateAndPostItemJournal(EntryType: Option; ItemNo: Code[20]; Qty: Decimal)
+    local procedure CreateAndPostItemJournal(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Qty: Decimal)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -1436,7 +1436,7 @@ codeunit 137034 "SCM Production Journal"
         ProdOrderLine.FindSet;
     end;
 
-    local procedure CreateAndRefreshRelProdOrder(var ProductionOrder: Record "Production Order"; SourceType: Option; SourceNo: Code[20])
+    local procedure CreateAndRefreshRelProdOrder(var ProductionOrder: Record "Production Order"; SourceType: Enum "Prod. Order Source Type"; SourceNo: Code[20])
     begin
         LibraryManufacturing.CreateProductionOrder(
           ProductionOrder, ProductionOrder.Status::Released, SourceType, SourceNo, 1);  // Value important.
@@ -1560,7 +1560,7 @@ codeunit 137034 "SCM Production Journal"
         NewProdOrderRoutingLine.Modify(true);
     end;
 
-    local procedure FindProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderStatus: Option; ProdOrderNo: Code[20]; OperationNo: Code[10])
+    local procedure FindProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20]; OperationNo: Code[10])
     begin
         with ProdOrderRoutingLine do begin
             SetRange(Status, ProdOrderStatus);
@@ -1590,7 +1590,7 @@ codeunit 137034 "SCM Production Journal"
         end;
     end;
 
-    local procedure UpdateNextOperationOnProdOrderRoutingLine(ProdOrderStatus: Option; ProdOrderNo: Code[20]; OperationNo: Code[10]; NextOperationNo: Code[30])
+    local procedure UpdateNextOperationOnProdOrderRoutingLine(ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20]; OperationNo: Code[10]; NextOperationNo: Code[30])
     var
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
@@ -1605,7 +1605,7 @@ codeunit 137034 "SCM Production Journal"
         end;
     end;
 
-    local procedure UpdateProdOrderRoutingLineStatus(ProdOrderStatus: Option; ProdOrderNo: Code[20]; OperationNo: Code[10]; NewRoutingStatus: Option)
+    local procedure UpdateProdOrderRoutingLineStatus(ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20]; OperationNo: Code[10]; NewRoutingStatus: Option)
     var
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
@@ -1829,7 +1829,7 @@ codeunit 137034 "SCM Production Journal"
         ItemLedgerEntry.TestField("Dimension Set ID", TempItemJournalLine2."Dimension Set ID");
     end;
 
-    local procedure VerifyProdOrderRtngLineNextPrevOperation(ProdOrderStatus: Option; ProdOrderNo: Code[20]; OperationNo: Code[10]; NextOperationNo: Code[30]; PrevOperationNo: Code[30])
+    local procedure VerifyProdOrderRtngLineNextPrevOperation(ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20]; OperationNo: Code[10]; NextOperationNo: Code[30]; PrevOperationNo: Code[30])
     var
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin

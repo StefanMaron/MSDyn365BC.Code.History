@@ -47,12 +47,11 @@ page 7345 "Pick Worksheet"
             {
                 ApplicationArea = Warehouse;
                 Caption = 'Sorting Method';
-                OptionCaption = ' ,Item,Document,Shelf or Bin,Due Date,Ship-To';
                 ToolTip = 'Specifies the method by which the movement lines are sorted.';
 
                 trigger OnValidate()
                 begin
-                    CurrentSortingMethodOnAfterVal;
+                    CurrentSortingMethodOnAfterValidate();
                 end;
             }
             repeater(Control1)
@@ -327,7 +326,7 @@ page 7345 "Pick Worksheet"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }
@@ -517,26 +516,26 @@ page 7345 "Pick Worksheet"
         CurrentWkshTemplateName: Code[10];
         CurrentWkshName: Code[10];
         CurrentLocationCode: Code[10];
-        CurrentSortingMethod: Option " ",Item,Document,"Shelf/Bin No.","Due Date","Ship-To";
+        CurrentSortingMethod: Enum "Whse. Activity Sorting Method";
         ItemDescription: Text[100];
         QtyCrossDockedUOM: Decimal;
         QtyCrossDockedAllUOMBase: Decimal;
         QtyCrossDockedUOMBase: Decimal;
         OpenedFromBatch: Boolean;
 
-    local procedure QtytoHandleOnAfterValidate()
+    protected procedure QtytoHandleOnAfterValidate()
     begin
         CurrPage.Update;
     end;
 
-    local procedure CurrentWkshNameOnAfterValidate()
+    protected procedure CurrentWkshNameOnAfterValidate()
     begin
         CurrPage.SaveRecord;
         SetWhseWkshName(CurrentWkshName, CurrentLocationCode, Rec);
         CurrPage.Update(false);
     end;
 
-    local procedure CurrentSortingMethodOnAfterVal()
+    protected procedure CurrentSortingMethodOnAfterValidate()
     begin
         SortWhseWkshLines(
           CurrentWkshTemplateName, CurrentWkshName, CurrentLocationCode, CurrentSortingMethod);

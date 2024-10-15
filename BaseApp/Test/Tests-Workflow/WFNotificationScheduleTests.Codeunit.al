@@ -58,7 +58,8 @@ codeunit 134314 "WF Notification Schedule Tests"
 
         // [WHEN] A Notification Entry is created.
         EarliestDateTimeOfExecution := CurrentDateTime + 59990; // Substract 10ms to accomodate for the DB rounding
-        NotificationEntry.CreateNew(NotificationEntry.Type::"New Record", UserId(), NotificationSchedule, 0, '');
+        NotificationEntry.CreateNotificationEntry(
+            NotificationEntry.Type::"New Record", UserId(), NotificationSchedule, 0, '', '');
         LatestDateTimeOfExecution := CurrentDateTime + 60010; // Added 10ms to accomodate for the DB rounding
 
         // [THEN] A Instant Job Queue Entry is created for a minute later
@@ -83,12 +84,14 @@ codeunit 134314 "WF Notification Schedule Tests"
         // [SCENARIO] Notification Dispatcher can reuse a job that failed.
         // [GIVEN] A failed job.
         Initialize;
-        NotificationEntry.CreateNew(NotificationEntry.Type::"New Record", UserId(), NotificationSchedule, 0, '');
+        NotificationEntry.CreateNotificationEntry(
+            NotificationEntry.Type::"New Record", UserId(), NotificationSchedule, 0, '', '');
         JobQueueEntry.FindFirst();
         JobQueueEntry.SetStatus(JobQueueEntry.Status::Error);
 
         // [WHEN] A Notification Entry is created.
-        NotificationEntry.CreateNew(NotificationEntry.Type::"New Record", UserId(), NotificationSchedule, 0, '');
+        NotificationEntry.CreateNotificationEntry(
+            NotificationEntry.Type::"New Record", UserId(), NotificationSchedule, 0, '', '');
 
         // [THEN] A Instant Job Queue Entry is created for a minute later
         JobQueueEntry.FindFirst();
@@ -111,11 +114,15 @@ codeunit 134314 "WF Notification Schedule Tests"
         Initialize;
 
         // [WHEN] A Notification Entry is created.
-        NotificationEntry.CreateNew(NotificationEntry.Type::Approval, UserId(), ApprovalEntry, 0, '');
+        NotificationEntry.CreateNotificationEntry(
+            NotificationEntry.Type::Approval, UserId(), ApprovalEntry, 0, '', '');
 
-        NotificationEntry.CreateNew(NotificationEntry.Type::Approval, UserId(), ApprovalEntry, 0, '');
-        NotificationEntry.CreateNew(NotificationEntry.Type::"New Record", UserId(), NotificationSchedule, 0, '');
-        NotificationEntry.CreateNew(NotificationEntry.Type::Overdue, UserId(), OverdueApprovalEntry, 0, '');
+        NotificationEntry.CreateNotificationEntry(
+            NotificationEntry.Type::Approval, UserId(), ApprovalEntry, 0, '', '');
+        NotificationEntry.CreateNotificationEntry(
+            NotificationEntry.Type::"New Record", UserId(), NotificationSchedule, 0, '', '');
+        NotificationEntry.CreateNotificationEntry(
+            NotificationEntry.Type::Overdue, UserId(), OverdueApprovalEntry, 0, '', '');
 
         // [THEN] A Instant Job Queue Entry is created
         JobQueueEntry.FindFirst();
@@ -139,9 +146,10 @@ codeunit 134314 "WF Notification Schedule Tests"
         NotificationSchedule.NewRecord('', NotificationSchedule."Notification Type"::Approval);
 
         // [WHEN] A number of Notification Entry are created.
-        NotificationEntry.CreateNew(NotificationEntry.Type::Approval, UserId(), ApprovalEntry, 0, '');
-
-        NotificationEntry.CreateNew(NotificationEntry.Type::"New Record", UserId(), NotificationSchedule, 0, '');
+        NotificationEntry.CreateNotificationEntry(
+            NotificationEntry.Type::Approval, UserId(), ApprovalEntry, 0, '', '');
+        NotificationEntry.CreateNotificationEntry(
+            NotificationEntry.Type::"New Record", UserId(), NotificationSchedule, 0, '', '');
 
         // [THEN] A Instant Job Queue Entry is created
         JobQueueEntry.FindFirst();
@@ -172,9 +180,11 @@ codeunit 134314 "WF Notification Schedule Tests"
         NotificationSchedule.Modify(true);
 
         // [WHEN] A Notification Entry is created.
-        NotificationEntry.CreateNew(NotificationEntry.Type::Approval, UserName, ApprovalEntry, 0, '');
+        NotificationEntry.CreateNotificationEntry(
+            NotificationEntry.Type::Approval, UserName, ApprovalEntry, 0, '', '');
 
-        NotificationEntry.CreateNew(NotificationEntry.Type::Approval, UserName, ApprovalEntry, 0, '');
+        NotificationEntry.CreateNotificationEntry(
+            NotificationEntry.Type::Approval, UserName, ApprovalEntry, 0, '', '');
 
         // [THEN] A Instant Job Queue Entry is created
         JobQueueEntry.FindFirst();
@@ -207,7 +217,8 @@ codeunit 134314 "WF Notification Schedule Tests"
         CreateMonthlyScheduleForApproval(NotificationSchedule);
         NotificationSchedule.Validate(Time, DT2Time(EarliestDateTimeOfExecution));
         NotificationSchedule.Modify(true);
-        NotificationEntry.CreateNew(NotificationEntry.Type::Approval, UserId(), ApprovalEntry, 0, '');
+        NotificationEntry.CreateNotificationEntry(
+            NotificationEntry.Type::Approval, UserId(), ApprovalEntry, 0, '', '');
         JobQueueEntry.FindFirst();
         OldEarliestDateTimeOfExecution := JobQueueEntry."Earliest Start Date/Time";
 
@@ -237,7 +248,8 @@ codeunit 134314 "WF Notification Schedule Tests"
         Initialize;
 
         CreateMonthlyScheduleForApproval(NotificationSchedule);
-        NotificationEntry.CreateNew(NotificationEntry.Type::Approval, UserId(), ApprovalEntry, 0, '');
+        NotificationEntry.CreateNotificationEntry(
+            NotificationEntry.Type::Approval, UserId(), ApprovalEntry, 0, '', '');
 
         // [WHEN] The existing schedule is deleted
         NotificationSchedule.Find();
@@ -401,14 +413,16 @@ codeunit 134314 "WF Notification Schedule Tests"
         Initialize;
 
         CreateMonthlyScheduleForApproval(NotificationSchedule);
-        NotificationEntry.CreateNew(NotificationEntry.Type::Approval, UserId(), ApprovalEntry, 0, '');
+        NotificationEntry.CreateNotificationEntry(
+            NotificationEntry.Type::Approval, UserId(), ApprovalEntry, 0, '', '');
 
         // [WHEN] The existing schedule is deleted and then it is readded
         NotificationSchedule.Find();
         NotificationSchedule.Delete(true);
 
         CreateMonthlyScheduleForApproval(NotificationSchedule);
-        NotificationEntry.CreateNew(NotificationEntry.Type::Approval, UserId(), ApprovalEntry, 0, '');
+        NotificationEntry.CreateNotificationEntry(
+            NotificationEntry.Type::Approval, UserId(), ApprovalEntry, 0, '', '');
 
         // [THEN] We end up with two Job Queue entries one instant and one scheduled.
         JobQueueEntry.SetRange("Job Queue Category Code", NotifyNowLbl);

@@ -82,7 +82,7 @@ table 2115 "O365 Coupon Claim"
         }
         field(14; "Is applied"; Boolean)
         {
-            CalcFormula = Exist ("O365 Coupon Claim Doc. Link" WHERE("Claim ID" = FIELD("Claim ID"),
+            CalcFormula = Exist("O365 Coupon Claim Doc. Link" WHERE("Claim ID" = FIELD("Claim ID"),
                                                                      "Document Type" = FIELD("Document Type Filter"),
                                                                      "Document No." = FIELD("Document No. Filter"),
                                                                      "Graph Contact ID" = FIELD("Graph Contact ID")));
@@ -118,7 +118,7 @@ table 2115 "O365 Coupon Claim"
         field(8002; "Customer Id"; Guid)
         {
             Caption = 'Customer Id';
-            TableRelation = Customer.Id;
+            TableRelation = Customer.SystemId;
         }
     }
 
@@ -312,7 +312,7 @@ table 2115 "O365 Coupon Claim"
 
         O365CouponClaimDocLink."Claim ID" := "Claim ID";
         O365CouponClaimDocLink."Graph Contact ID" := "Graph Contact ID";
-        O365CouponClaimDocLink."Document Type" := GetRangeMin("Document Type Filter");
+        O365CouponClaimDocLink."Document Type" := "Sales Document Type".FromInteger(GetRangeMin("Document Type Filter"));
         O365CouponClaimDocLink."Document No." := GetRangeMin("Document No. Filter");
         if not O365CouponClaimDocLink.Insert() then
             Error(CouponHasAlreadyBeenAppliedErr);
@@ -418,7 +418,7 @@ table 2115 "O365 Coupon Claim"
         if not GraphIntContact.FindOrCreateCustomerFromGraphContactSafe("Graph Contact ID", Customer, Contact) then
             exit;
 
-        "Customer Id" := Customer.Id;
+        "Customer Id" := Customer.SystemId;
     end;
 
     local procedure SetLastModifiedDateTime()

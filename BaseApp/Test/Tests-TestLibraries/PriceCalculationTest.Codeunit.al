@@ -87,24 +87,53 @@ codeunit 130514 "Price Calculation - Test" implements "Price Calculation"
     local procedure AddSupportedSetup(var TempPriceCalculationSetup: Record "Price Calculation Setup" temporary)
     begin
         TempPriceCalculationSetup.Init();
-        TempPriceCalculationSetup.Validate(Implementation, TempPriceCalculationSetup.Implementation::Test);
         TempPriceCalculationSetup.Method := TempPriceCalculationSetup.Method::"Test Price";
         TempPriceCalculationSetup.Enabled := not IsDisabled();
-        TempPriceCalculationSetup.Type := TempPriceCalculationSetup.Type::Purchase;
-        TempPriceCalculationSetup.Insert(true);
+        // Sale
         TempPriceCalculationSetup.Type := TempPriceCalculationSetup.Type::Sale;
-        TempPriceCalculationSetup.Insert(true);
-        /*
-        TempPriceCalculationSetup.Init();
+        TempPriceCalculationSetup."Asset Type" := TempPriceCalculationSetup."Asset Type"::" ";
+
         TempPriceCalculationSetup.Validate(Implementation, TempPriceCalculationSetup.Implementation::Test);
-        TempPriceCalculationSetup.Method := TempPriceCalculationSetup.Method::"Lowest Price";
-        TempPriceCalculationSetup.Enabled := not IsDisabled();
-        TempPriceCalculationSetup.Type := TempPriceCalculationSetup.Type::Purchase;
-        TempPriceCalculationSetup."Asset Type" := TempPriceCalculationSetup."Asset Type"::Resource;
+        TempPriceCalculationSetup.Default := true;
         TempPriceCalculationSetup.Insert(true);
-        TempPriceCalculationSetup.Type := TempPriceCalculationSetup.Type::Sale;
+
+        TempPriceCalculationSetup.Validate(Implementation, TempPriceCalculationSetup.Implementation::"Business Central (Version 15.0)");
+        TempPriceCalculationSetup.Default := false;
+        TempPriceCalculationSetup.Insert(true);
+
+        // Purchase 
+        TempPriceCalculationSetup.Type := TempPriceCalculationSetup.Type::Purchase;
+        TempPriceCalculationSetup."Asset Type" := TempPriceCalculationSetup."Asset Type"::" ";
+
+        TempPriceCalculationSetup.Validate(Implementation, TempPriceCalculationSetup.Implementation::Test);
+        TempPriceCalculationSetup.Default := true;
+        TempPriceCalculationSetup.Insert(true);
+
+        TempPriceCalculationSetup."Asset Type" := TempPriceCalculationSetup."Asset Type"::Resource;
+
+        TempPriceCalculationSetup.Validate(Implementation, TempPriceCalculationSetup.Implementation::Test);
+        TempPriceCalculationSetup.Default := false;
+        TempPriceCalculationSetup.Insert(true);
+
+        TempPriceCalculationSetup.Validate(Implementation, TempPriceCalculationSetup.Implementation::"Business Central (Version 16.0)");
+        TempPriceCalculationSetup.Default := true;
+        TempPriceCalculationSetup.Insert(true);
+
+
         TempPriceCalculationSetup."Asset Type" := TempPriceCalculationSetup."Asset Type"::Item;
-        TempPriceCalculationSetup.Insert(true);*/
+
+        TempPriceCalculationSetup.Validate(Implementation, TempPriceCalculationSetup.Implementation::Test);
+        TempPriceCalculationSetup.Default := false;
+        TempPriceCalculationSetup.Insert(true);
+
+        TempPriceCalculationSetup.Validate(Implementation, TempPriceCalculationSetup.Implementation::"Business Central (Version 16.0)");
+        TempPriceCalculationSetup.Default := false;
+        TempPriceCalculationSetup.Insert(true);
+
+        TempPriceCalculationSetup.Validate(Implementation, TempPriceCalculationSetup.Implementation::"Business Central (Version 15.0)");
+        TempPriceCalculationSetup.Default := true;
+        TempPriceCalculationSetup.Insert(true);
+
     end;
 
     procedure ShowPrices(var TempPriceListLine: Record "Price List Line")

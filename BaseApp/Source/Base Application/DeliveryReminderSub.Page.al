@@ -29,7 +29,7 @@ page 5005271 "Delivery Reminder Sub."
 
                     trigger OnValidate()
                     begin
-                        NoOnAfterValidate;
+                        NoOnAfterValidate();
                     end;
                 }
                 field("Vendor Item No."; "Vendor Item No.")

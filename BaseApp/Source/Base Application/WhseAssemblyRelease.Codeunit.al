@@ -83,7 +83,7 @@ codeunit 904 "Whse.-Assembly Release"
         if Location."Require Shipment" then begin
             WhsePickRqst.Init();
             WhsePickRqst."Document Type" := WhsePickRqst."Document Type"::Assembly;
-            WhsePickRqst."Document Subtype" := AssemblyLine."Document Type";
+            WhsePickRqst."Document Subtype" := AssemblyLine."Document Type".AsInteger();
             WhsePickRqst."Document No." := AssemblyLine."Document No.";
             WhsePickRqst.Status := WhsePickRqst.Status::Released;
             WhsePickRqst."Location Code" := AssemblyLine."Location Code";
@@ -100,7 +100,7 @@ codeunit 904 "Whse.-Assembly Release"
             end;
             WhseRqst."Source Document" := WhseRqst."Source Document"::"Assembly Consumption";
             WhseRqst."Source Type" := DATABASE::"Assembly Line";
-            WhseRqst."Source Subtype" := AssemblyLine."Document Type";
+            WhseRqst."Source Subtype" := AssemblyLine."Document Type".AsInteger();
             WhseRqst."Source No." := AssemblyLine."Document No.";
             WhseRqst."Document Status" := WhseRqst."Document Status"::Released;
             WhseRqst."Location Code" := AssemblyLine."Location Code";
@@ -124,7 +124,7 @@ codeunit 904 "Whse.-Assembly Release"
         end;
     end;
 
-    local procedure FilterAssemblyLine(var AssemblyLine: Record "Assembly Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FilterAssemblyLine(var AssemblyLine: Record "Assembly Line"; DocumentType: Enum "Assembly Document Type"; DocumentNo: Code[20])
     begin
         AssemblyLine.SetCurrentKey("Document Type", "Document No.", Type, "Location Code");
         AssemblyLine.SetRange("Document Type", DocumentType);

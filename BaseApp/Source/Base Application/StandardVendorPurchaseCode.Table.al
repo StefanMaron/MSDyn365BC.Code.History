@@ -181,7 +181,7 @@ table 175 "Standard Vendor Purchase Code"
                 if StdPurchLine.InsertLine then begin
                     PurchLine."Line No." := GetNextLineNo(PurchLine);
                     PurchLine.Insert(true);
-                    InsertExtendedText(PurchLine);
+                    InsertExtendedText(PurchLine, PurchHeader);
                 end;
             until StdPurchLine.Next = 0;
     end;
@@ -206,6 +206,14 @@ table 175 "Standard Vendor Purchase Code"
         if PurchLine.Type = PurchLine.Type::" " then
             exit;
         if TransferExtendedText.PurchCheckIfAnyExtText(PurchLine, false) then
+            TransferExtendedText.InsertPurchExtText(PurchLine);
+    end;
+
+    procedure InsertExtendedText(PurchLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
+    var
+        TransferExtendedText: Codeunit "Transfer Extended Text";
+    begin
+        if TransferExtendedText.PurchCheckIfAnyExtText(PurchLine, false, PurchaseHeader) then
             TransferExtendedText.InsertPurchExtText(PurchLine);
     end;
 

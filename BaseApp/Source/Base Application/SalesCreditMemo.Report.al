@@ -257,7 +257,7 @@ report 207 "Sales - Credit Memo"
                         DataItemTableView = SORTING("Document No.", "Line No.");
                         column(LineAmt_SalesCrMemoLine; "Line Amount")
                         {
-                            AutoFormatExpression = "Sales Cr.Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Sales Cr.Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Desc_SalesCrMemoLine; Description)
@@ -274,7 +274,7 @@ report 207 "Sales - Credit Memo"
                         }
                         column(UnitPrice_SalesCrMemoLine; "Unit Price")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 2;
                         }
                         column(LineDis_SalesCrMemoLine; "Line Discount %")
@@ -291,22 +291,22 @@ report 207 "Sales - Credit Memo"
                         }
                         column(NNCTotalLineAmt; NNC_TotalLineAmount)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(NNCTotalAmtInclVat; NNC_TotalAmountInclVat)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(NNCTotalInvDiscAmt; NNC_TotalInvDiscAmount)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(NNCTotalAmt; NNC_TotalAmount)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TotalText; TotalText)
@@ -314,7 +314,7 @@ report 207 "Sales - Credit Memo"
                         }
                         column(SalesCrMemoLineAmt; Amount)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TotalExclVATText; TotalExclVATText)
@@ -325,12 +325,12 @@ report 207 "Sales - Credit Memo"
                         }
                         column(AmtInclVAT_SalesCrMemoLine; "Amount Including VAT")
                         {
-                            AutoFormatExpression = "Sales Cr.Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Sales Cr.Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmtInclVATAmt; "Amount Including VAT" - Amount)
                         {
-                            AutoFormatExpression = "Sales Cr.Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Sales Cr.Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATAmtLineVATAmtText; VATAmountLine.VATAmountText)

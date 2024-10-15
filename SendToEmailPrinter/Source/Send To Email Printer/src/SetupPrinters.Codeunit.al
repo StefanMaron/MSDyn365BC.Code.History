@@ -27,14 +27,14 @@ codeunit 2650 "Setup Printers"
                     Clear(PaperTray);
                     Clear(PaperTrays);
                     Clear(Payload);
-                    PaperTray.Add('papersourcekind', PrinterPaperSourceKind::AutomaticFeed);
+                    PaperTray.Add('papersourcekind', PrinterPaperSourceKind::AutomaticFeed.AsInteger());
 
-                    PaperTray.Add('paperkind', EmailPrinterSettings."Paper Size");
+                    PaperTray.Add('paperkind', EmailPrinterSettings."Paper Size".AsInteger());
                     // If paper size is custom and no height and width is specified then set the paper size to A4
                     if IsPaperSizeCustom(EmailPrinterSettings."Paper Size") then begin
                         if (EmailPrinterSettings."Paper Height" <= 0) or (EmailPrinterSettings."Paper Width" <= 0) then begin
-                            PaperTray.Replace('paperkind', EmailPrinterSettings."Paper Size"::A4);
-                            SENDTRACETAG('0000BOZ', EmailPrinterTelemetryCategoryTok, Verbosity::Warning, CustomSizeErrorTelemetryTxt, DataClassification::SystemMetadata);
+                            PaperTray.Replace('paperkind', EmailPrinterSettings."Paper Size"::A4.AsInteger());
+                            Session.LogMessage('0000BOZ', CustomSizeErrorTelemetryTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailPrinterTelemetryCategoryTok);
                         end;
                         ConvertAndAddPrinterPaperDimensions(EmailPrinterSettings, PaperTray);
                     end;
@@ -49,7 +49,7 @@ codeunit 2650 "Setup Printers"
 
                     Printers.Add(EmailPrinterSettings.ID, Payload);
                 end else
-                    SENDTRACETAG('0000BJQ', EmailPrinterTelemetryCategoryTok, Verbosity::Warning, PrinterIDMissingTelemetryTxt, DataClassification::SystemMetadata);
+                    Session.LogMessage('0000BJQ', PrinterIDMissingTelemetryTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailPrinterTelemetryCategoryTok);
             until EmailPrinterSettings.Next() = 0;
 
     end;
@@ -145,11 +145,12 @@ codeunit 2650 "Setup Printers"
         PaperTray.Add('width', EmailPrinterSettings."Paper Height" * 100);
         PaperTray.Add('height', EmailPrinterSettings."Paper Width" * 100);
         if EmailPrinterSettings."Paper Unit" = EmailPrinterSettings."Paper Unit"::Millimeters then
-            PaperTray.Add('units', PrinterUnit::HundredthsOfAMillimeter);
+            PaperTray.Add('units', PrinterUnit::HundredthsOfAMillimeter.AsInteger());
         if EmailPrinterSettings."Paper Unit" = EmailPrinterSettings."Paper Unit"::Inches then
-            PaperTray.Add('units', PrinterUnit::Display);
+            PaperTray.Add('units', PrinterUnit::Display.AsInteger());
     end;
 
+    [Obsolete('SMTP setup is replaced with the Email Module. Please, use EmailAccount.IsAnyAccountRegistered()', '17.0')]
     internal procedure IsSMTPSetup(): Boolean
     var
         SMTPMailSetup: Record "SMTP Mail Setup";

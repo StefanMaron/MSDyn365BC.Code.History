@@ -88,15 +88,14 @@ codeunit 142057 "UT REP VATFUNC"
         VATStatementLine: Record "VAT Statement Line";
         VATStatementName: Record "VAT Statement Name";
         VATStatementGermany: Report "VAT Statement Germany";
-        PeriodSelection: Option "Before and Within Period","Within Period";
-        EntrySelection: Option Open,Closed;
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
     begin
         // Purpose of the test is to validate InitializeRequest function of Report 11005 - VAT Statement Germany.
 
         // Setup: Initialize parameters of InitializeRequest function of Report VAT Statement Germany.
         Initialize;
         VATStatementLine.SetRange("Date Filter", 0D, WorkDate);
-        VATStatementGermany.InitializeRequest(VATStatementName, VATStatementLine, EntrySelection::Closed, PeriodSelection::"Within Period", false, false);  // Boolean False for PrintInIntegers and Additional Currency.
+        VATStatementGermany.InitializeRequest(VATStatementName, VATStatementLine, "VAT Statement Report Selection"::Closed, PeriodSelection::"Within Period", false, false);  // Boolean False for PrintInIntegers and Additional Currency.
 
         // Exercise And Verify: Run Report and verify initialized values in the handler - VATStmtGermanyInitializeRequestPageHandler.
         VATStatementGermany.Run;
@@ -183,7 +182,7 @@ codeunit 142057 "UT REP VATFUNC"
         CalcLineTotalAmtTypeVATStatementGermany(VATStatementLine."Amount Type"::"Unrealized Base");
     end;
 
-    local procedure CalcLineTotalAmtTypeVATStatementGermany(AmountType: Option)
+    local procedure CalcLineTotalAmtTypeVATStatementGermany(AmountType: Enum "VAT Statement Line Amount Type")
     var
         VATEntry: Record "VAT Entry";
         VATStatementLine: Record "VAT Statement Line";
@@ -326,7 +325,7 @@ codeunit 142057 "UT REP VATFUNC"
         GLEntry.Insert();
     end;
 
-    local procedure CreateVATEntryForVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; AmountType: Option)
+    local procedure CreateVATEntryForVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; AmountType: Enum "VAT Statement Line Amount Type")
     var
         VATEntry2: Record "VAT Entry";
     begin
@@ -350,7 +349,7 @@ codeunit 142057 "UT REP VATFUNC"
         VATEntry.Insert();
     end;
 
-    local procedure CreateVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; AccountTotaling: Code[20]; Type: Option; AmountType: Option)
+    local procedure CreateVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; AccountTotaling: Code[20]; Type: Enum "VAT Statement Line Type"; AmountType: Enum "VAT Statement Line Amount Type")
     begin
         VATStatementLine."Statement Template Name" := LibraryUTUtility.GetNewCode10;
         VATStatementLine."Statement Name" := LibraryUTUtility.GetNewCode10;
@@ -374,7 +373,7 @@ codeunit 142057 "UT REP VATFUNC"
         LibraryVariableStorage.Enqueue(VATStatementName."Statement Template Name");  // Enqueue value for VATStatementGermanyPrintInIntegerRequestPageHandler.
     end;
 
-    local procedure VerifyVATEntry(VATEntry: Record "VAT Entry"; AmountType: Option; TotalAmount: Decimal; TotalBase: Decimal; TotalUnrealizedAmount: Decimal; TotalUnrealizedBase: Decimal)
+    local procedure VerifyVATEntry(VATEntry: Record "VAT Entry"; AmountType: Enum "VAT Statement Line Amount Type"; TotalAmount: Decimal; TotalBase: Decimal; TotalUnrealizedAmount: Decimal; TotalUnrealizedBase: Decimal)
     var
         VATStatementLine: Record "VAT Statement Line";
     begin
@@ -394,7 +393,7 @@ codeunit 142057 "UT REP VATFUNC"
     [Scope('OnPrem')]
     procedure VATStmtGermanyInitializeRequestPageHandler(var VATStatementGermany: TestRequestPage "VAT Statement Germany")
     var
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
         EntrySelection: Option Open,Closed;
     begin
         VATStatementGermany.Selection.AssertEquals(EntrySelection::Closed);
@@ -406,7 +405,7 @@ codeunit 142057 "UT REP VATFUNC"
     [Scope('OnPrem')]
     procedure VATStmtGermanyPeriodSelectionRequestPageHandler(var VATStatementGermany: TestRequestPage "VAT Statement Germany")
     var
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
     begin
         VATStatementGermany.PeriodSelection.SetValue(PeriodSelection::"Before and Within Period");
         VATStatementGermany.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);

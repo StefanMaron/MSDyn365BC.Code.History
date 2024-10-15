@@ -369,7 +369,7 @@ codeunit 142064 "UT REP VATSTAT"
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
 
-    local procedure CreateVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; Type: Option; AmountType: Option)
+    local procedure CreateVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; Type: Enum "VAT Statement Line Type"; AmountType: Enum "VAT Statement Line Amount Type")
     var
         VATStatementName: Record "VAT Statement Name";
     begin
@@ -464,7 +464,7 @@ codeunit 142064 "UT REP VATSTAT"
         VATStatementTemplate.TestField("Page ID", PAGE::"VAT Statement");
     end;
 
-    local procedure UpdateGLVATReconciliationReportRequestPage(GLVATReconciliation: TestRequestPage "G/L - VAT Reconciliation"; PeriodSelection: Option; EntrySelection: Option; UseAmtsInAddCurr: Boolean)
+    local procedure UpdateGLVATReconciliationReportRequestPage(GLVATReconciliation: TestRequestPage "G/L - VAT Reconciliation"; PeriodSelection: Enum "VAT Statement Report Period Selection"; EntrySelection: Enum "VAT Statement Report Selection"; UseAmtsInAddCurr: Boolean)
     begin
         GLVATReconciliation.StartDate.SetValue(WorkDate);
         GLVATReconciliation.EndDateReq.SetValue(WorkDate);
@@ -516,19 +516,18 @@ codeunit 142064 "UT REP VATSTAT"
     [Scope('OnPrem')]
     procedure GLVATReconciliationReportHandler(var GLVATReconciliation: TestRequestPage "G/L - VAT Reconciliation")
     var
-        PeriodSelection: Option "Before and Within Period","Within Period";
-        EntrySelection: Option Open,Closed,"Open and Closed";
+        EntrySelection: Enum "VAT Statement Report Selection";
     begin
         UpdateGLVATReconciliationReportRequestPage(GLVATReconciliation,
-          PeriodSelection::"Before and Within Period", EntrySelection, false);  // Use Additional Reporting Currency - FALSE.
+          "VAT Statement Report Period Selection"::"Before and Within Period", EntrySelection, false);  // Use Additional Reporting Currency - FALSE.
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure AddCurrencyVATAdvNotAccProofReportHandler(var GLVATReconciliation: TestRequestPage "G/L - VAT Reconciliation")
     var
-        PeriodSelection: Option "Before and Within Period","Within Period";
-        EntrySelection: Option Open,Closed,"Open and Closed";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
+        EntrySelection: Enum "VAT Statement Report Selection";
     begin
         UpdateGLVATReconciliationReportRequestPage(GLVATReconciliation, PeriodSelection, EntrySelection, true);  // Use Additional Reporting Currency - TRUE.
     end;
@@ -537,19 +536,18 @@ codeunit 142064 "UT REP VATSTAT"
     [Scope('OnPrem')]
     procedure GLVATReconciliationClosedEntryReportHandler(var GLVATReconciliation: TestRequestPage "G/L - VAT Reconciliation")
     var
-        PeriodSelection: Option "Before and Within Period","Within Period";
-        EntrySelection: Option Open,Closed,"Open and Closed";
+        EntrySelection: Enum "VAT Statement Report Selection";
     begin
         UpdateGLVATReconciliationReportRequestPage(GLVATReconciliation,
-          PeriodSelection::"Within Period", EntrySelection::Closed, false);  // Use Additional Reporting Currency - FALSE.
+          "VAT Statement Report Period Selection"::"Within Period", EntrySelection::Closed, false);  // Use Additional Reporting Currency - FALSE.
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure GLVATReconciliationSelectionReportHandler(var GLVATReconciliation: TestRequestPage "G/L - VAT Reconciliation")
     var
-        PeriodSelection: Option "Before and Within Period","Within Period";
-        EntrySelection: Option Open,Closed,"Open and Closed";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
+        EntrySelection: Enum "VAT Statement Report Selection";
     begin
         UpdateGLVATReconciliationReportRequestPage(GLVATReconciliation, PeriodSelection, EntrySelection::"Open and Closed", false);  // Use Additional Reporting Currency - FALSE.
     end;

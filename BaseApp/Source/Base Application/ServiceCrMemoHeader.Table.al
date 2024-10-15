@@ -183,7 +183,7 @@ table 5994 "Service Cr.Memo Header"
         }
         field(46; Comment; Boolean)
         {
-            CalcFormula = Exist ("Service Comment Line" WHERE("Table Name" = CONST("Service Cr.Memo Header"),
+            CalcFormula = Exist("Service Comment Line" WHERE("Table Name" = CONST("Service Cr.Memo Header"),
                                                               "No." = FIELD("No."),
                                                               Type = CONST(General)));
             Caption = 'Comment';
@@ -222,7 +222,7 @@ table 5994 "Service Cr.Memo Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Service Cr.Memo Line".Amount WHERE("Document No." = FIELD("No.")));
+            CalcFormula = Sum("Service Cr.Memo Line".Amount WHERE("Document No." = FIELD("No.")));
             Caption = 'Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -231,7 +231,7 @@ table 5994 "Service Cr.Memo Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Service Cr.Memo Line"."Amount Including VAT" WHERE("Document No." = FIELD("No.")));
+            CalcFormula = Sum("Service Cr.Memo Line"."Amount Including VAT" WHERE("Document No." = FIELD("No.")));
             Caption = 'Amount Including VAT';
             Editable = false;
             FieldClass = FlowField;
@@ -440,7 +440,7 @@ table 5994 "Service Cr.Memo Header"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(710; "Document Exchange Identifier"; Text[50])
@@ -494,7 +494,7 @@ table 5994 "Service Cr.Memo Header"
         }
         field(5911; "Allocated Hours"; Decimal)
         {
-            CalcFormula = Sum ("Service Order Allocation"."Allocated Hours" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Sum("Service Order Allocation"."Allocated Hours" WHERE("Document Type" = CONST(Order),
                                                                                   "Document No." = FIELD("No."),
                                                                                   "Resource No." = FIELD("Resource Filter"),
                                                                                   Status = FILTER(Active | Finished),
@@ -532,7 +532,7 @@ table 5994 "Service Cr.Memo Header"
         }
         field(5921; "No. of Unallocated Items"; Integer)
         {
-            CalcFormula = Count ("Service Item Line" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Count("Service Item Line" WHERE("Document Type" = CONST(Order),
                                                            "Document No." = FIELD("No."),
                                                            "No. of Active/Finished Allocs" = CONST(0)));
             Caption = 'No. of Unallocated Items';
@@ -591,14 +591,14 @@ table 5994 "Service Cr.Memo Header"
         }
         field(5933; "Contract Serv. Hours Exist"; Boolean)
         {
-            CalcFormula = Exist ("Service Hour" WHERE("Service Contract No." = FIELD("Contract No.")));
+            CalcFormula = Exist("Service Hour" WHERE("Service Contract No." = FIELD("Contract No.")));
             Caption = 'Contract Serv. Hours Exist';
             Editable = false;
             FieldClass = FlowField;
         }
         field(5934; "Reallocation Needed"; Boolean)
         {
-            CalcFormula = Exist ("Service Order Allocation" WHERE(Status = CONST("Reallocation Needed"),
+            CalcFormula = Exist("Service Order Allocation" WHERE(Status = CONST("Reallocation Needed"),
                                                                   "Resource No." = FIELD("Resource Filter"),
                                                                   "Document Type" = CONST(Order),
                                                                   "Document No." = FIELD("No."),
@@ -628,7 +628,7 @@ table 5994 "Service Cr.Memo Header"
         }
         field(5939; "No. of Allocations"; Integer)
         {
-            CalcFormula = Count ("Service Order Allocation" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Count("Service Order Allocation" WHERE("Document Type" = CONST(Order),
                                                                   "Document No." = FIELD("No."),
                                                                   "Resource No." = FIELD("Resource Filter"),
                                                                   "Resource Group No." = FIELD("Resource Group Filter"),
@@ -799,7 +799,7 @@ table 5994 "Service Cr.Memo Header"
     begin
         DocumentTypeTxt := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
         DocumentSendingProfile.SendCustomerRecords(
-          DummyReportSelections.Usage::"SM.Credit Memo", Rec, DocumentTypeTxt, "Bill-to Customer No.", "No.",
+          DummyReportSelections.Usage::"SM.Credit Memo".AsInteger(), Rec, DocumentTypeTxt, "Bill-to Customer No.", "No.",
           FieldNo("Bill-to Customer No."), FieldNo("No."));
     end;
 
@@ -811,7 +811,7 @@ table 5994 "Service Cr.Memo Header"
     begin
         DocumentTypeTxt := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
         DocumentSendingProfile.Send(
-          DummyReportSelections.Usage::"SM.Credit Memo", Rec, "No.", "Bill-to Customer No.",
+          DummyReportSelections.Usage::"SM.Credit Memo".AsInteger(), Rec, "No.", "Bill-to Customer No.",
           DocumentTypeTxt, FieldNo("Bill-to Customer No."), FieldNo("No."));
     end;
 
@@ -821,7 +821,7 @@ table 5994 "Service Cr.Memo Header"
         DummyReportSelections: Record "Report Selections";
     begin
         DocumentSendingProfile.TrySendToPrinter(
-          DummyReportSelections.Usage::"SM.Credit Memo", Rec, FieldNo("Bill-to Customer No."), ShowRequestForm);
+          DummyReportSelections.Usage::"SM.Credit Memo".AsInteger(), Rec, FieldNo("Bill-to Customer No."), ShowRequestForm);
     end;
 
     procedure LookupAdjmtValueEntries()

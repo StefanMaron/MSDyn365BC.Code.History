@@ -45,7 +45,7 @@ codeunit 96 "Purch.-Quote to Order"
             PurchOrderHeader.Modify();
         end;
 
-        PurchCommentLine.CopyComments("Document Type", PurchOrderHeader."Document Type", "No.", PurchOrderHeader."No.");
+        PurchCommentLine.CopyComments("Document Type".AsInteger(), PurchOrderHeader."Document Type".AsInteger(), "No.", PurchOrderHeader."No.");
         RecordLinkManagement.CopyLinks(Rec, PurchOrderHeader);
 
         AssignItemCharges("Document Type", "No.", PurchOrderHeader."Document Type", PurchOrderHeader."No.");
@@ -111,7 +111,7 @@ codeunit 96 "Purch.-Quote to Order"
         OnAfterCreatePurchHeader(PurchOrderHeader, PurchHeader);
     end;
 
-    local procedure AssignItemCharges(FromDocType: Option; FromDocNo: Code[20]; ToDocType: Option; ToDocNo: Code[20])
+    local procedure AssignItemCharges(FromDocType: Enum "Purchase Document Type"; FromDocNo: Code[20]; ToDocType: Enum "Purchase Applies-to Document Type"; ToDocNo: Code[20])
     var
         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
     begin

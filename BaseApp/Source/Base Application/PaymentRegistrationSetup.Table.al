@@ -98,9 +98,9 @@ table 980 "Payment Registration Setup"
         TestField("Bal. Account Type");
         case "Bal. Account Type" of
             "Bal. Account Type"::"Bank Account":
-                exit(GenJnlLine."Bal. Account Type"::"Bank Account");
+                exit(GenJnlLine."Bal. Account Type"::"Bank Account".AsInteger());
             "Bal. Account Type"::"G/L Account":
-                exit(GenJnlLine."Bal. Account Type"::"G/L Account");
+                exit(GenJnlLine."Bal. Account Type"::"G/L Account".AsInteger());
         end;
     end;
 

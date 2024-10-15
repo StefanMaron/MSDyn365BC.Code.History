@@ -2,9 +2,12 @@ page 2863 "Native Country/Regions Entity"
 {
     Caption = 'countriesRegions', Locked = true;
     DelayedInsert = true;
-    ODataKeyFields = Id;
-    PageType = List;
     SourceTable = "Country/Region";
+    PageType = List;
+    ODataKeyFields = SystemId;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'These objects will be removed';
+    ObsoleteTag = '17.0';
 
     layout
     {
@@ -12,7 +15,7 @@ page 2863 "Native Country/Regions Entity"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'Id', Locked = true;
@@ -73,12 +76,8 @@ page 2863 "Native Country/Regions Entity"
     trigger OnModifyRecord(): Boolean
     var
         CountryRegion: Record "Country/Region";
-        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        if xRec.Id <> Id then
-            GraphMgtGeneralTools.ErrorIdImmutable;
-        CountryRegion.SetRange(Id, Id);
-        CountryRegion.FindFirst;
+        CountryRegion.GetBySystemId(SystemId);
 
         if Code = CountryRegion.Code then
             Modify(true)

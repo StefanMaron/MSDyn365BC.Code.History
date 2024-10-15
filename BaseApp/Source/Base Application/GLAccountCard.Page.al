@@ -519,8 +519,54 @@ page 17 "G/L Account Card"
                     end;
                 }
             }
+            group(Prices)
+            {
+                Caption = 'Prices';
+                Image = JobPrice;
+                action(SalesPriceLists)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Prices';
+                    Image = Price;
+                    Promoted = true;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or edit sales prices for the account.';
+
+                    trigger OnAction()
+                    var
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        Rec.ShowPriceListLines(PriceType::Sale, AmountType::Any);
+                    end;
+                }
+                action(PurchPriceLists)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Purchase Prices';
+                    Image = Costs;
+                    Promoted = true;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or edit purchase prices for the account.';
+
+                    trigger OnAction()
+                    var
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        Rec.ShowPriceListLines(PriceType::Purchase, AmountType::Any);
+                    end;
+                }
+            }
         }
     }
+
+    trigger OnOpenPage()
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+    begin
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+    end;
 
     trigger OnAfterGetRecord()
     begin
@@ -533,6 +579,7 @@ page 17 "G/L Account Card"
     end;
 
     var
+        ExtendedPriceEnabled: Boolean;
         SubCategoryDescription: Text[80];
 
     local procedure UpdateAccountSubcategoryDescription()

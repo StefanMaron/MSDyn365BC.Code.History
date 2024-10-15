@@ -23,12 +23,12 @@ codeunit 1444 "Global Admin Notifier"
         GlobalAdminNotification.AddAction(ActionTxt, Codeunit::"Global Admin Notifier", 'DetailedMessage');
         GlobalAdminNotification.Send();
 
-        SendTraceTag('0000C0T', 'Global Admin Notification', Verbosity::Normal, 'Notification was sent to user.', DataClassification::SystemMetadata);
+        Session.LogMessage('0000C0T', 'Notification was sent to user.', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'Global Admin Notification');
     end;
 
     internal procedure DetailedMessage(var Notification: Notification)
     begin
-        SendTraceTag('0000C0U', 'Global Admin Notification', Verbosity::Normal, 'User clicked on notification action.', DataClassification::SystemMetadata);
+        Session.LogMessage('0000C0U', 'User clicked on notification action.', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'Global Admin Notification');
 
         Page.RunModal(Page::"Global Admin Message");
     end;

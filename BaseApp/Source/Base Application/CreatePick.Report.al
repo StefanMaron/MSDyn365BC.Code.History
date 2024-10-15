@@ -224,7 +224,7 @@ report 5754 "Create Pick"
         MaxNoOfLines: Integer;
         MaxNoOfSourceDoc: Integer;
         TempNo: Integer;
-        SortPick: Option " ",Item,Document,"Shelf No.","Due Date",Destination,"Bin Ranking","Action Type";
+        SortPick: Enum "Whse. Activity Sorting Method";
         PerDestination: Boolean;
         PerItem: Boolean;
         PerZone: Boolean;
@@ -359,8 +359,8 @@ report 5754 "Create Pick"
         PickWhseActivHeader.SetRange("No.", FirstSetPickNo, LastPickNo);
         PickWhseActivHeader.Find('-');
         repeat
-            if SortPick > 0 then
-                PickWhseActivHeader.SortWhseDoc;
+            if SortPick <> SortPick::None then
+                PickWhseActivHeader.SortWhseDoc();
             Commit();
             if PrintPick then begin
                 PickListReportID := REPORT::"Picking List";
@@ -373,11 +373,15 @@ report 5754 "Create Pick"
     end;
 
     procedure SetWkshPickLine(var PickWhseWkshLine2: Record "Whse. Worksheet Line")
+    var
+        SortingMethod: Option;
     begin
         PickWhseWkshLine.CopyFilters(PickWhseWkshLine2);
         LocationCode := PickWhseWkshLine2."Location Code";
 
-        OnAfterSetWkshPickLine(PickWhseWkshLine2, SortPick);
+        SortingMethod := SortPick.AsInteger();
+        OnAfterSetWkshPickLine(PickWhseWkshLine2, SortingMethod);
+        SortPick := "Whse. Activity Sorting Method".FromInteger(SortingMethod);
     end;
 
     procedure GetResultMessage() ReturnValue: Boolean
@@ -392,7 +396,7 @@ report 5754 "Create Pick"
         exit(ReturnValue);
     end;
 
-    procedure InitializeReport(AssignedID2: Code[50]; MaxNoOfLines2: Integer; MaxNoOfSourceDoc2: Integer; SortPick2: Option " ",Item,Document,"Shelf/Bin No.","Due Date","Ship-To","Bin Ranking","Action Type"; PerDestination2: Boolean; PerItem2: Boolean; PerZone2: Boolean; PerBin2: Boolean; PerWhseDoc2: Boolean; PerDate2: Boolean; PrintPick2: Boolean; DoNotFillQtytoHandle2: Boolean; BreakbulkFilter2: Boolean)
+    procedure InitializeReport(AssignedID2: Code[50]; MaxNoOfLines2: Integer; MaxNoOfSourceDoc2: Integer; SortPick2: Enum "Whse. Activity Sorting Method"; PerDestination2: Boolean; PerItem2: Boolean; PerZone2: Boolean; PerBin2: Boolean; PerWhseDoc2: Boolean; PerDate2: Boolean; PrintPick2: Boolean; DoNotFillQtytoHandle2: Boolean; BreakbulkFilter2: Boolean)
     begin
         AssignedID := AssignedID2;
         MaxNoOfLines := MaxNoOfLines2;

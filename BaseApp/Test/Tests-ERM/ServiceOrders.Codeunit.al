@@ -2409,7 +2409,7 @@ codeunit 136101 "Service Orders"
         ServiceContractWithInvoicePeriod(ServiceContractHeader."Invoice Period"::Quarter, 3);
     end;
 
-    local procedure ServiceContractWithInvoicePeriod(InvoicePeriod: Option; NoOfEntries: Integer)
+    local procedure ServiceContractWithInvoicePeriod(InvoicePeriod: Enum "Service Contract Header Invoice Period"; NoOfEntries: Integer)
     var
         ServiceContractHeader: Record "Service Contract Header";
         ServiceContractLine: Record "Service Contract Line";
@@ -4014,8 +4014,9 @@ codeunit 136101 "Service Orders"
         Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, "Service Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, "Service Line Type"::Item, LibraryInventory.CreateItemNo());
-        LibraryService.CreateServiceCommentLine(ServiceCommentLine, ServiceCommentLine."Table Name"::"Service Header",
-            ServiceHeader."Document Type", ServiceHeader."No.", ServiceCommentLine.Type::General, ServiceLine."Line No.");
+        LibraryService.CreateServiceCommentLine(
+            ServiceCommentLine, ServiceCommentLine."Table Name"::"Service Header",
+            ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.", ServiceCommentLine.Type::General, ServiceLine."Line No.");
 
         ServiceHeader.Validate("Customer No.", LibrarySales.CreateCustomerNo());
         // [SCENARIO 360476] No duplicate Comment Lines inserted
@@ -4026,7 +4027,7 @@ codeunit 136101 "Service Orders"
         ServiceCommentLine.SetRange("No.", ServiceHeader."No.");
         Assert.RecordCount(ServiceCommentLine, 1);
     end;
- 
+
     [Test]
     [Scope('OnPrem')]
     procedure CorrectCalculationLineDiscountForServiceLineWithSalesPrice()
@@ -4051,7 +4052,7 @@ codeunit 136101 "Service Orders"
 
         // [GIVEN] Sales Price with Item for Customer 
         LibrarySales.CreateSalesPrice(
-          SalesPrice, Item."No.", SalesPrice."Sales Type"::Customer, Customer."No.", WorkDate, '', '', '', 0, LibraryRandom.RandInt(20));
+          SalesPrice, Item."No.", "Sales Price Type"::Customer, Customer."No.", WorkDate, '', '', '', 0, LibraryRandom.RandInt(20));
         SalesPrice.Validate("Allow Line Disc.", false);
         SalesPrice.Modify(true);
 
@@ -4144,7 +4145,7 @@ codeunit 136101 "Service Orders"
         UpdateContractOnServiceHeader(ServiceHeader, ServiceContractHeader."Contract No.");
     end;
 
-    local procedure InitServDocWithInvRoundingPrecisionScenario(var ServiceHeader: Record "Service Header"; DocumentType: Option)
+    local procedure InitServDocWithInvRoundingPrecisionScenario(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type")
     var
         Customer: Record Customer;
         Item: Record Item;
@@ -4320,7 +4321,7 @@ codeunit 136101 "Service Orders"
         end;
     end;
 
-    local procedure CreateAndUpdateServiceLine(ServiceHeader: Record "Service Header"; Type: Option; No: Code[20]; Quantity: Decimal; ServiceItemLineNo: Integer; LineDiscount: Decimal)
+    local procedure CreateAndUpdateServiceLine(ServiceHeader: Record "Service Header"; Type: Enum "Service Line Type"; No: Code[20]; Quantity: Decimal; ServiceItemLineNo: Integer; LineDiscount: Decimal)
     var
         ServiceLine: Record "Service Line";
     begin
@@ -4365,7 +4366,7 @@ codeunit 136101 "Service Orders"
         exit(Loaner."No.");
     end;
 
-    local procedure CreateDescriptionServiceLine(var ServiceHeader: Record "Service Header"; Type: Option; No: Code[20]; ServiceItemLineNo: Integer)
+    local procedure CreateDescriptionServiceLine(var ServiceHeader: Record "Service Header"; Type: Enum "Service Line Type"; No: Code[20]; ServiceItemLineNo: Integer)
     var
         ServiceLine: Record "Service Line";
     begin
@@ -4465,7 +4466,7 @@ codeunit 136101 "Service Orders"
         exit(ExtendedTextLine.Text);
     end;
 
-    local procedure CreateItemWithReplenishmentSystem(ReplenishmentSystem: Option): Code[20]
+    local procedure CreateItemWithReplenishmentSystem(ReplenishmentSystem: Enum "Replenishment System"): Code[20]
     var
         Item: Record Item;
     begin
@@ -4525,7 +4526,7 @@ codeunit 136101 "Service Orders"
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
     end;
 
-    local procedure CreateServiceContractHeader(var ServiceContractHeader: Record "Service Contract Header"; InvoicePeriod: Option)
+    local procedure CreateServiceContractHeader(var ServiceContractHeader: Record "Service Contract Header"; InvoicePeriod: Enum "Service Contract Header Invoice Period")
     var
         Customer: Record Customer;
     begin
@@ -4565,7 +4566,7 @@ codeunit 136101 "Service Orders"
         end;
     end;
 
-    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Option; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
+    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
     var
         ServiceLine: Record "Service Line";
     begin
@@ -4576,7 +4577,7 @@ codeunit 136101 "Service Orders"
         ServiceLine.Modify(true);
     end;
 
-    local procedure CreateServiceDocumentWithServiceItem(var ServiceHeader: Record "Service Header"; var ServiceItemLine: Record "Service Item Line"; DocumentType: Option; CustomerNo: Code[20])
+    local procedure CreateServiceDocumentWithServiceItem(var ServiceHeader: Record "Service Header"; var ServiceItemLine: Record "Service Item Line"; DocumentType: Enum "Service Document Type"; CustomerNo: Code[20])
     var
         ServiceItem: Record "Service Item";
     begin
@@ -4779,7 +4780,7 @@ codeunit 136101 "Service Orders"
         exit(ServiceItemLine."Line No.");
     end;
 
-    local procedure CreateServiceHeaderRespCenter(var ServiceHeader: Record "Service Header"; DocumentType: Option; CustomerNo: Code[20])
+    local procedure CreateServiceHeaderRespCenter(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; CustomerNo: Code[20])
     var
         Item: Record Item;
         ResponsibilityCenter: Record "Responsibility Center";
@@ -4892,7 +4893,7 @@ codeunit 136101 "Service Orders"
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
     end;
 
-    local procedure CreateServiceInvoiceWithUniqueDescriptionLines(var ServiceHeader: record "Service Header"; var TempServiceLine: Record "Service Line" temporary; Type: Option)
+    local procedure CreateServiceInvoiceWithUniqueDescriptionLines(var ServiceHeader: record "Service Header"; var TempServiceLine: Record "Service Line" temporary; Type: Enum "Service Line Type")
     var
         ServiceLine: Record "Service Line";
         i: Integer;
@@ -4932,7 +4933,7 @@ codeunit 136101 "Service Orders"
         ServiceLine.Modify(true);
     end;
 
-    local procedure CreateServiceDocWithCrLimitCustomer(var ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; DocType: Option)
+    local procedure CreateServiceDocWithCrLimitCustomer(var ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; DocType: Enum "Service Document Type")
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         CustNo: Code[20];
@@ -4946,7 +4947,7 @@ codeunit 136101 "Service Orders"
         LibraryVariableStorage.Enqueue(CustNo);
     end;
 
-    local procedure CreateServiceDocWithIncreasedAmount(var ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; DocType: Option; CustNo: Code[20]; Amount: Decimal)
+    local procedure CreateServiceDocWithIncreasedAmount(var ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; DocType: Enum "Service Document Type"; CustNo: Code[20]; Amount: Decimal)
     begin
         LibraryService.CreateServiceHeader(ServHeader, DocType, CustNo);
         LibraryService.CreateServiceLine(ServLine, ServHeader, ServLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
@@ -4960,12 +4961,11 @@ codeunit 136101 "Service Orders"
         ExtendedTextHeader: Record "Extended Text Header";
         ExtendedTextLine: Record "Extended Text Line";
         StandardText: Record "Standard Text";
-        TableNameOption: Option "Standard Text","G/L Account",Item,Resource;
     begin
         StandardText.Init();
         StandardText.Code := LibraryUtility.GenerateRandomCode(StandardText.FieldNo(Code), DATABASE::"Standard Text");
         StandardText.Insert(true);
-        LibrarySmallBusiness.CreateExtendedTextHeader(ExtendedTextHeader, TableNameOption::"Standard Text", StandardText.Code);
+        LibrarySmallBusiness.CreateExtendedTextHeader(ExtendedTextHeader, "Extended Text Table Name"::"Standard Text", StandardText.Code);
         LibrarySmallBusiness.CreateExtendedTextLine(ExtendedTextLine, ExtendedTextHeader);
         exit(StandardText.Code);
     end;
@@ -5041,7 +5041,7 @@ codeunit 136101 "Service Orders"
         end;
     end;
 
-    local procedure CreateServiceLinesOnPage(var ServiceItemWorksheet: TestPage "Service Item Worksheet"; Type: Option; ItemNo: Code[20])
+    local procedure CreateServiceLinesOnPage(var ServiceItemWorksheet: TestPage "Service Item Worksheet"; Type: Enum "Service Line Type"; ItemNo: Code[20])
     var
         ServiceLine: Record "Service Line";
     begin
@@ -5076,7 +5076,7 @@ codeunit 136101 "Service Orders"
         ServiceLine.Modify(true);
     end;
 
-    local procedure CreateServiceDoumentLine(var ServiceItemLine: Record "Service Item Line"; DocumentType: Option)
+    local procedure CreateServiceDoumentLine(var ServiceItemLine: Record "Service Item Line"; DocumentType: Enum "Service Document Type")
     var
         ServiceHeader: Record "Service Header";
     begin
@@ -5156,7 +5156,7 @@ codeunit 136101 "Service Orders"
         end;
     end;
 
-    local procedure CreateServiceDocWithLoaner(var ServiceHeader: Record "Service Header"; var ServiceItemLine: Record "Service Item Line"; DocType: Option)
+    local procedure CreateServiceDocWithLoaner(var ServiceHeader: Record "Service Header"; var ServiceItemLine: Record "Service Item Line"; DocType: Enum "Service Document Type")
     var
         ServiceItem: Record "Service Item";
     begin
@@ -5296,7 +5296,7 @@ codeunit 136101 "Service Orders"
         ServiceOrder.ServItemLines."Service Item Worksheet".Invoke;
     end;
 
-    local procedure FindDetailedCustLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocumentNo: Code[20]; DocumentType: Option; EntryType: Option)
+    local procedure FindDetailedCustLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; EntryType: Option)
     begin
         DetailedCustLedgEntry.SetRange("Entry Type", EntryType);
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
@@ -5320,7 +5320,7 @@ codeunit 136101 "Service Orders"
         exit(PaymentMethod.Code);
     end;
 
-    local procedure FindServiceDocumentLog(var ServiceDocumentLog: Record "Service Document Log"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindServiceDocumentLog(var ServiceDocumentLog: Record "Service Document Log"; DocumentType: Enum "Service Log Document Type"; DocumentNo: Code[20])
     begin
         ServiceDocumentLog.SetRange("Document Type", DocumentType);
         ServiceDocumentLog.SetRange("Document No.", DocumentNo);
@@ -5345,7 +5345,7 @@ codeunit 136101 "Service Orders"
         exit(ServiceInvoiceHeader."No.");
     end;
 
-    local procedure FindLastServiceItemLineNo(DocumentType: Option; DocumentNo: Code[20]): Integer
+    local procedure FindLastServiceItemLineNo(DocumentType: Enum "Service Document Type"; DocumentNo: Code[20]): Integer
     var
         ServiceItemLine: Record "Service Item Line";
     begin
@@ -5454,7 +5454,7 @@ codeunit 136101 "Service Orders"
         ShipToAddress := ShipToAddress2;
     end;
 
-    local procedure ServiceItemNoCreatedOnServiceItemLine(DocumentType: Option; Warranty: Boolean; ReplenishmentSystem: Option)
+    local procedure ServiceItemNoCreatedOnServiceItemLine(DocumentType: Enum "Service Document Type"; Warranty: Boolean; ReplenishmentSystem: Enum "Replenishment System")
     var
         ServiceItemLine: Record "Service Item Line";
     begin
@@ -5492,7 +5492,7 @@ codeunit 136101 "Service Orders"
         exit(ServiceLine."Outstanding Amount");
     end;
 
-    local procedure CalcTotalLineAmount(DocType: Option; DocNo: Code[20]): Decimal
+    local procedure CalcTotalLineAmount(DocType: Enum "Service Document Type"; DocNo: Code[20]): Decimal
     var
         ServiceLine: Record "Service Line";
     begin
@@ -5504,7 +5504,7 @@ codeunit 136101 "Service Orders"
         end;
     end;
 
-    local procedure UpdateItemAndWarrantyOnServiceItemLine(var ServiceItemLine: Record "Service Item Line"; Warranty: Boolean; ReplenishmentSystem: Option)
+    local procedure UpdateItemAndWarrantyOnServiceItemLine(var ServiceItemLine: Record "Service Item Line"; Warranty: Boolean; ReplenishmentSystem: Enum "Replenishment System")
     begin
         ServiceItemLine.Validate("Item No.", CreateItemWithReplenishmentSystem(ReplenishmentSystem));
         ServiceItemLine.Validate(Warranty, Warranty);
@@ -5603,7 +5603,7 @@ codeunit 136101 "Service Orders"
         ServiceMgtSetup.Modify(true);
     end;
 
-    local procedure VendorErrorMessageWhileCreatingServiceItem(DocumentType: Option; Warranty: Boolean; ReplenishmentSystem: Option)
+    local procedure VendorErrorMessageWhileCreatingServiceItem(DocumentType: Enum "Service Document Type"; Warranty: Boolean; ReplenishmentSystem: Enum "Replenishment System")
     var
         ServiceItemLine: Record "Service Item Line";
     begin
@@ -5658,7 +5658,7 @@ codeunit 136101 "Service Orders"
         until ServiceLine.Next = 0;
     end;
 
-    local procedure VerifyDetailedLedgerEntry(DocumentNo: Code[20]; DocumentType: Option)
+    local procedure VerifyDetailedLedgerEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         TotalAmount: Decimal;
@@ -5674,7 +5674,7 @@ codeunit 136101 "Service Orders"
             DetailedCustLedgEntry."Entry Type"));
     end;
 
-    local procedure VerifyEntriesAfterPostingServiceDocument(DocumentType: Option; DocumentNo: Code[20]; DocumentNo2: Code[20])
+    local procedure VerifyEntriesAfterPostingServiceDocument(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; DocumentNo2: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -5770,7 +5770,7 @@ codeunit 136101 "Service Orders"
           StrSubstNo(TotalAmountErr, ExpectedAmount, VATEntry.TableCaption, VATEntry.FieldCaption("Document No."), VATEntry."Document No."));
     end;
 
-    local procedure VerifyVATAmountOnServiceStatistics(DocumentType: Option)
+    local procedure VerifyVATAmountOnServiceStatistics(DocumentType: Enum "Service Document Type")
     var
         ServiceHeader: Record "Service Header";
     begin
@@ -5801,7 +5801,7 @@ codeunit 136101 "Service Orders"
           StrSubstNo(DiscountAmountErr, GLEntry.FieldCaption(Amount), DiscountAmount, GLEntry.TableCaption));
     end;
 
-    local procedure VerifyLinkedServiceLineExists(DocumentType: Option; DocumentNo: Code[20]; ServiceItemLineNo: Integer)
+    local procedure VerifyLinkedServiceLineExists(DocumentType: Enum "Service Document Type"; DocumentNo: Code[20]; ServiceItemLineNo: Integer)
     var
         ServiceLine: Record "Service Line";
     begin
@@ -5828,7 +5828,7 @@ codeunit 136101 "Service Orders"
         LoanerEntry.TestField("Customer No.", ServiceItemLine."Customer No.");
     end;
 
-    local procedure VerifyResourceLedgerEntry(ResourceNo: Code[20]; DocumentNo: Code[20]; EntryType: Option; Quantity: Decimal; TotalPrice: Decimal)
+    local procedure VerifyResourceLedgerEntry(ResourceNo: Code[20]; DocumentNo: Code[20]; EntryType: Enum "Res. Journal Line Entry Type"; Quantity: Decimal; TotalPrice: Decimal)
     var
         ResLedgerEntry: Record "Res. Ledger Entry";
     begin
@@ -5854,7 +5854,7 @@ codeunit 136101 "Service Orders"
         until ServiceShipmentItemLine.Next = 0;
     end;
 
-    local procedure VerifyServiceDocumentLocationCode(DocumentType: Option; CustomerNo: Code[20]; LocationCode: Code[10])
+    local procedure VerifyServiceDocumentLocationCode(DocumentType: Enum "Service Document Type"; CustomerNo: Code[20]; LocationCode: Code[10])
     var
         ServiceHeader: Record "Service Header";
     begin
@@ -5868,7 +5868,7 @@ codeunit 136101 "Service Orders"
         end;
     end;
 
-    local procedure VerifyServiceDocumentResponsibilityCenter(DocumentType: Option; CustomerNo: Code[20]; ResponsibilityCenter: Code[10])
+    local procedure VerifyServiceDocumentResponsibilityCenter(DocumentType: Enum "Service Document Type"; CustomerNo: Code[20]; ResponsibilityCenter: Code[10])
     var
         ServiceHeader: Record "Service Header";
     begin
@@ -5982,7 +5982,7 @@ codeunit 136101 "Service Orders"
         Assert.AreEqual(ExpectedNoOfEntries, ActualNoOfEntries, NoOfEntriesMsg);
     end;
 
-    local procedure VerifyServiceItemGroup(DocumentNo: Code[20]; DocumentType: Option)
+    local procedure VerifyServiceItemGroup(DocumentNo: Code[20]; DocumentType: Enum "Service Document Type")
     var
         ServiceItemLine: Record "Service Item Line";
     begin
@@ -6007,7 +6007,7 @@ codeunit 136101 "Service Orders"
         GLEntry.FindFirst;
     end;
 
-    local procedure VerifyPostingDateOnServiceLedgerEntry(ServiceLine: Record "Service Line"; DocumentType: Option; Quantity: Decimal)
+    local procedure VerifyPostingDateOnServiceLedgerEntry(ServiceLine: Record "Service Line"; DocumentType: Enum "Service Ledger Entry Document Type"; Quantity: Decimal)
     var
         ServiceLedgerEntry: Record "Service Ledger Entry";
     begin
@@ -6061,7 +6061,7 @@ codeunit 136101 "Service Orders"
         end;
     end;
 
-    local procedure VerifyNextInvoiceDateAndAmountToPeriod(ServiceInvoicePeriod: Option; Formula: Integer; EndingDate: Date)
+    local procedure VerifyNextInvoiceDateAndAmountToPeriod(ServiceInvoicePeriod: Enum "Service Contract Header Invoice Period"; Formula: Integer; EndingDate: Date)
     var
         Customer: Record Customer;
         ServiceContractHeader: Record "Service Contract Header";
@@ -6106,7 +6106,7 @@ codeunit 136101 "Service Orders"
             Error(ServiceItemNoErr);
     end;
 
-    local procedure VerifyServiceLineAmount(DocumentType: Option; DocumentNo: Code[20])
+    local procedure VerifyServiceLineAmount(DocumentType: Enum "Service Document Type"; DocumentNo: Code[20])
     var
         ServiceLine: Record "Service Line";
     begin
@@ -6119,7 +6119,7 @@ codeunit 136101 "Service Orders"
         end;
     end;
 
-    local procedure VerifyServiceLineInsertLineNo(DocumentType: Option; DocumentNo: Code[20]; ServiceLineBeforeAfterInsert: Record "Service Line"; IsInsertAfter: Boolean; CheckLineNoValue: Integer)
+    local procedure VerifyServiceLineInsertLineNo(DocumentType: Enum "Service Document Type"; DocumentNo: Code[20]; ServiceLineBeforeAfterInsert: Record "Service Line"; IsInsertAfter: Boolean; CheckLineNoValue: Integer)
     var
         ServiceLine: Record "Service Line";
     begin
@@ -6187,7 +6187,7 @@ codeunit 136101 "Service Orders"
         Assert.RecordCount(DummyServiceLine, ExpectedCount);
     end;
 
-    local procedure VerifyServiceLineDescription(ServiceLine: Record "Service Line"; ExpectedType: Option; ExpectedNo: Code[20]; ExpectedDescription: Text)
+    local procedure VerifyServiceLineDescription(ServiceLine: Record "Service Line"; ExpectedType: Enum "Service Line Type"; ExpectedNo: Code[20]; ExpectedDescription: Text)
     begin
         with ServiceLine do begin
             Assert.AreEqual(ExpectedType, Type, FieldCaption(Type));

@@ -49,8 +49,7 @@ page 5478 "Journal Lines Entity"
                             exit;
                         end;
 
-                        GLAccount.SetRange(Id, "Account Id");
-                        if not GLAccount.FindFirst then
+                        if not GLAccount.GetBySystemId("Account Id") then
                             Error(AccountIdDoesNotMatchAnAccountErr);
 
                         "Account No." := GLAccount."No.";
@@ -77,7 +76,7 @@ page 5478 "Journal Lines Entity"
                         if not GLAccount.Get("Account No.") then
                             Error(AccountNumberDoesNotMatchAnAccountErr);
 
-                        "Account Id" := GLAccount.Id;
+                        "Account Id" := GLAccount.SystemId;
                     end;
                 }
                 field(postingDate; "Posting Date")

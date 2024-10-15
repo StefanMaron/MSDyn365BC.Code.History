@@ -21,7 +21,6 @@ page 5827 "Item Statistics"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show as Lines';
-                    OptionCaption = 'Profit Calculation,Cost Specification,Purch. Item Charge Spec.,Sales Item Charge Spec.,Period<Undefined>';
                     ToolTip = 'Specifies which values you want to show as lines in the window. This allows you to see the same matrix window from various perspectives, especially when you use both the Show as Lines field and the Show as Columns field.';
 
                     trigger OnValidate()
@@ -274,15 +273,8 @@ page 5827 "Item Statistics"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        with ItemBuffer do begin
-            if "Line Option" = "Line Option"::"Profit Calculation" then
-                IntegerLine.SetRange(Number, 1, 5)
-            else
-                if "Line Option" = "Line Option"::"Cost Specification" then
-                    IntegerLine.SetRange(Number, 1, 9);
-
-            exit(FindRec("Line Option", Rec, Which));
-        end;
+        IntegerLineSetFilter();
+        exit(FindRec(ItemBuffer."Line Option", Rec, Which));
     end;
 
     trigger OnOpenPage()
@@ -338,6 +330,17 @@ page 5827 "Item Statistics"
         Text003: Label '%1 is not a valid column definition.';
         MATRIX_CurrentNoOfColumns: Integer;
 
+    local procedure IntegerLineSetFilter()
+    begin
+        if ItemBuffer."Line Option" = ItemBuffer."Line Option"::"Profit Calculation" then
+            IntegerLine.SetRange(Number, 1, 5)
+        else
+            if ItemBuffer."Line Option" = ItemBuffer."Line Option"::"Cost Specification" then
+                IntegerLine.SetRange(Number, 1, 9);
+
+        OnAfterIntegerLineSetFilter(ItemBuffer, IntegerLine);
+    end;
+
     local procedure MATRIX_GenerateColumnCaptions(MATRIX_SetWanted: Option Initial,Previous,Same,Next)
     var
         MATRIX_PeriodRecords: array[32] of Record Date;
@@ -389,7 +392,7 @@ page 5827 "Item Statistics"
         end;
     end;
 
-    local procedure FindRec(DimOption: Option "Profit Calculation","Cost Specification","Purch. Item Charge Spec.","Sales Item Charge Spec.",Period,Location; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text[250]): Boolean
+    local procedure FindRec(DimOption: Enum "Item Statistics Line Option"; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text[250]): Boolean
     var
         ItemCharge: Record "Item Charge";
         Location: Record Location;
@@ -480,7 +483,8 @@ page 5827 "Item Statistics"
                         9:
                             InsertRow('9', FieldCaption("Inventory (LCY)"), 0, true, TheDimCodeBuf);
                     end;
-            end
+            end;
+        OnAfterCopyDimValueToBuf(ItemBuffer, TheDimValue, TheDimCodeBuf);
     end;
 
     local procedure CopyAddChargesToBuf(var TheItemCharge: Record "Item Charge"; var TheDimCodeBuf: Record "Dimension Code Buffer")
@@ -638,6 +642,16 @@ page 5827 "Item Statistics"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetItem(var Item: Record item; var ItemFilter: Text);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIntegerLineSetFilter(var ItemBuffer: Record "Item Statistics Buffer"; var IntegerLine: Record "Integer");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyDimValueToBuf(var ItemBuffer: Record "Item Statistics Buffer"; var TheDimValue: Record "Integer"; var TheDimCodeBuf: Record "Dimension Code Buffer");
     begin
     end;
 }

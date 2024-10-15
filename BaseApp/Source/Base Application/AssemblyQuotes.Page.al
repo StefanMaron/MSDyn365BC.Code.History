@@ -6,6 +6,7 @@ page 932 "Assembly Quotes"
     DataCaptionFields = "No.";
     Editable = false;
     PageType = List;
+    PromotedActionCategories = 'New,Process,Report,Quote,View,Release,Navigate';
     SourceTable = "Assembly Header";
     SourceTableView = WHERE("Document Type" = FILTER(Quote));
     UsageCategory = Lists;
@@ -21,6 +22,10 @@ page 932 "Assembly Quotes"
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the type of assembly document the record represents in assemble-to-order scenarios.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
+                    ObsoleteTag = '17.0';
                 }
                 field("No."; "No.")
                 {
@@ -86,6 +91,10 @@ page 932 "Assembly Quotes"
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies how many units of the assembly item remain to be posted as assembled output.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
+                    ObsoleteTag = '17.0';
                 }
             }
         }
@@ -117,6 +126,10 @@ page 932 "Assembly Quotes"
                 {
                     Caption = 'Entries';
                     Image = Entries;
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
+                    ObsoleteTag = '17.0';
                     action("Item Ledger Entries")
                     {
                         ApplicationArea = Basic, Suite;
@@ -128,6 +141,10 @@ page 932 "Assembly Quotes"
                         RunPageView = SORTING("Order Type", "Order No.");
                         ShortCutKey = 'Ctrl+F7';
                         ToolTip = 'View the item ledger entries of the item on the document or journal line.';
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
+                        ObsoleteTag = '17.0';
                     }
                     action("Capacity Ledger Entries")
                     {
@@ -139,6 +156,10 @@ page 932 "Assembly Quotes"
                                       "Order No." = FIELD("No.");
                         RunPageView = SORTING("Order Type", "Order No.");
                         ToolTip = 'View the capacity ledger entries of the involved production order. Capacity is recorded either as time (run time, stop time, or setup time) or as quantity (scrap quantity or output quantity).';
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
+                        ObsoleteTag = '17.0';
                     }
                     action("Resource Ledger Entries")
                     {
@@ -150,6 +171,10 @@ page 932 "Assembly Quotes"
                                       "Order No." = FIELD("No.");
                         RunPageView = SORTING("Order Type", "Order No.");
                         ToolTip = 'View the ledger entries for the resource.';
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
+                        ObsoleteTag = '17.0';
                     }
                     action("Value Entries")
                     {
@@ -161,6 +186,10 @@ page 932 "Assembly Quotes"
                                       "Order No." = FIELD("No.");
                         RunPageView = SORTING("Order Type", "Order No.");
                         ToolTip = 'View the value entries of the item on the document or journal line.';
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
+                        ObsoleteTag = '17.0';
                     }
                     action("Warehouse Entries")
                     {
@@ -173,6 +202,10 @@ page 932 "Assembly Quotes"
                                       "Source No." = FIELD("No.");
                         RunPageView = SORTING("Source Type", "Source Subtype", "Source No.");
                         ToolTip = 'View the history of quantities that are registered for the item in warehouse activities. ';
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
+                        ObsoleteTag = '17.0';
                     }
                 }
                 action("Show Order")
@@ -185,80 +218,89 @@ page 932 "Assembly Quotes"
                                   "No." = FIELD("No.");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View the selected assembly order.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
+                    ObsoleteTag = '17.0';
                 }
-                group("Item Availability by")
+            }
+            group("Item Availability by")
+            {
+                Caption = 'Item Availability by';
+                Image = ItemAvailability;
+                action("Event")
                 {
-                    Caption = 'Item Availability by';
-                    Image = ItemAvailability;
-                    action("Event")
-                    {
-                        ApplicationArea = Assembly;
-                        Caption = 'Event';
-                        Image = "Event";
-                        ToolTip = 'View how the actual and the projected available balance of an item will develop over time according to supply and demand events.';
+                    ApplicationArea = Assembly;
+                    Caption = 'Event';
+                    Image = "Event";
+                    ToolTip = 'View how the actual and the projected available balance of an item will develop over time according to supply and demand events.';
 
-                        trigger OnAction()
-                        begin
-                            ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByEvent);
-                        end;
-                    }
-                    action(Period)
-                    {
-                        ApplicationArea = Assembly;
-                        Caption = 'Period';
-                        Image = Period;
-                        ToolTip = 'View the projected quantity of the item over time according to time periods, such as day, week, or month.';
-
-                        trigger OnAction()
-                        begin
-                            ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByPeriod);
-                        end;
-                    }
-                    action(Variant)
-                    {
-                        ApplicationArea = Planning;
-                        Caption = 'Variant';
-                        Image = ItemVariant;
-                        ToolTip = 'View or edit the item''s variants. Instead of setting up each color of an item as a separate item, you can set up the various colors as variants of the item.';
-
-                        trigger OnAction()
-                        begin
-                            ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByVariant);
-                        end;
-                    }
-                    action(Location)
-                    {
-                        AccessByPermission = TableData Location = R;
-                        ApplicationArea = Location;
-                        Caption = 'Location';
-                        Image = Warehouse;
-                        ToolTip = 'View the actual and projected quantity of the item per location.';
-
-                        trigger OnAction()
-                        begin
-                            ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByLocation);
-                        end;
-                    }
-                    action("BOM Level")
-                    {
-                        ApplicationArea = Assembly;
-                        Caption = 'BOM Level';
-                        Image = BOMLevel;
-                        ToolTip = 'View availability figures for items on bills of materials that show how many units of a parent item you can make based on the availability of child items.';
-
-                        trigger OnAction()
-                        begin
-                            ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByBOM);
-                        end;
-                    }
+                    trigger OnAction()
+                    begin
+                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByEvent);
+                    end;
                 }
+                action(Period)
+                {
+                    ApplicationArea = Assembly;
+                    Caption = 'Period';
+                    Image = Period;
+                    ToolTip = 'View the projected quantity of the item over time according to time periods, such as day, week, or month.';
+
+                    trigger OnAction()
+                    begin
+                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByPeriod);
+                    end;
+                }
+                action(Variant)
+                {
+                    ApplicationArea = Planning;
+                    Caption = 'Variant';
+                    Image = ItemVariant;
+                    ToolTip = 'View or edit the item''s variants. Instead of setting up each color of an item as a separate item, you can set up the various colors as variants of the item.';
+
+                    trigger OnAction()
+                    begin
+                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByVariant);
+                    end;
+                }
+                action(Location)
+                {
+                    AccessByPermission = TableData Location = R;
+                    ApplicationArea = Location;
+                    Caption = 'Location';
+                    Image = Warehouse;
+                    ToolTip = 'View the actual and projected quantity of the item per location.';
+
+                    trigger OnAction()
+                    begin
+                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByLocation);
+                    end;
+                }
+                action("BOM Level")
+                {
+                    ApplicationArea = Assembly;
+                    Caption = 'BOM Level';
+                    Image = BOMLevel;
+                    ToolTip = 'View availability figures for items on bills of materials that show how many units of a parent item you can make based on the availability of child items.';
+
+                    trigger OnAction()
+                    begin
+                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByBOM);
+                    end;
+                }
+            }
+            group("&Quote")
+            {
+                Caption = '&Quote';
+                Image = Quote;
                 action(Statistics)
                 {
                     ApplicationArea = Assembly;
                     Caption = 'Statistics';
                     Image = Statistics;
                     Promoted = true;
-                    PromotedCategory = Process;
+                    PromotedCategory = Category4;
                     RunObject = Page "Assembly Order Statistics";
                     RunPageOnRec = true;
                     ShortCutKey = 'F7';
@@ -270,12 +312,14 @@ page 932 "Assembly Quotes"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
+                    Promoted = true;
+                    PromotedCategory = Category4;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Assembly BOM")
@@ -283,6 +327,8 @@ page 932 "Assembly Quotes"
                     ApplicationArea = Assembly;
                     Caption = 'Assembly BOM';
                     Image = AssemblyBOM;
+                    Promoted = true;
+                    PromotedCategory = Category4;
                     RunObject = Page "Assembly BOM";
                     RunPageLink = "Parent Item No." = FIELD("Item No.");
                     ToolTip = 'View or edit the bill of material that specifies which items and resources are required to assemble the assembly item.';
@@ -292,6 +338,8 @@ page 932 "Assembly Quotes"
                     ApplicationArea = Comments;
                     Caption = 'Co&mments';
                     Image = ViewComments;
+                    Promoted = true;
+                    PromotedCategory = Category4;
                     RunObject = Page "Assembly Comment Sheet";
                     RunPageLink = "Document Type" = FIELD("Document Type"),
                                   "Document No." = FIELD("No."),
@@ -306,6 +354,14 @@ page 932 "Assembly Quotes"
             {
                 Caption = 'F&unctions';
                 Image = "Action";
+                ObsoleteState = Pending;
+                ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
+                ObsoleteTag = '17.0';
+            }
+            group(ReleaseGroup)
+            {
+                Caption = 'Release';
+                Image = ReleaseDoc;
                 action(Release)
                 {
                     ApplicationArea = Assembly;
@@ -345,6 +401,10 @@ page 932 "Assembly Quotes"
             {
                 Caption = 'P&osting';
                 Image = Post;
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
+                ObsoleteTag = '17.0';
                 action("P&ost")
                 {
                     ApplicationArea = Assembly;
@@ -356,6 +416,10 @@ page 932 "Assembly Quotes"
                     PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnAction()
                     begin
@@ -371,6 +435,10 @@ page 932 "Assembly Quotes"
                     Promoted = true;
                     PromotedCategory = Process;
                     ToolTip = 'Post several documents at once. A report request window opens where you can specify which documents to post.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnAction()
                     begin
@@ -385,4 +453,3 @@ page 932 "Assembly Quotes"
     var
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
 }
-

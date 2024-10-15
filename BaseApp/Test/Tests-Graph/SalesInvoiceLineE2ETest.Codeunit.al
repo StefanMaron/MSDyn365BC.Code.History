@@ -158,7 +158,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         InvoiceID := CreateSalesInvoiceWithLines(SalesHeader);
         LibraryInventory.CreateItem(Item);
 
-        InvoiceLineJSON := CreateInvoiceLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
+        InvoiceLineJSON := CreateInvoiceLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100));
         Commit();
 
         // [WHEN] we POST the JSON to the web service
@@ -202,7 +202,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         InvoiceID := CreateSalesInvoiceWithLines(SalesHeader);
         LibraryInventory.CreateItem(Item);
 
-        InvoiceLineJSON := CreateInvoiceLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
+        InvoiceLineJSON := CreateInvoiceLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100));
         LineNo := 500;
         InvoiceLineJSON := LibraryGraphMgt.AddPropertytoJSON(InvoiceLineJSON, 'sequence', LineNo);
         Commit();
@@ -252,14 +252,14 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
 
         // [GIVEN] a JSON with an invoice line with UoM Id
-        InvoiceLineJSON[1] := CreateInvoiceLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
-        InvoiceLineJSON[1] := LibraryGraphMgt.AddPropertytoJSON(InvoiceLineJSON[1], UoMIdTxt, UnitOfMeasure.Id);
+        InvoiceLineJSON[1] := CreateInvoiceLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100));
+        InvoiceLineJSON[1] := LibraryGraphMgt.AddPropertytoJSON(InvoiceLineJSON[1], UoMIdTxt, UnitOfMeasure.SystemId);
 
         // [GIVEN] a JSON with UoM complex type
         UoMJSON := LibraryGraphMgt.AddPropertytoJSON('{}', UoMComplexTypeCodeNameTxt, UnitOfMeasure.Code);
 
         // [GIVEN] a JSON with an invoice line with UoM as complex type
-        InvoiceLineJSON[2] := CreateInvoiceLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
+        InvoiceLineJSON[2] := CreateInvoiceLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100));
         InvoiceLineJSON[2] := LibraryGraphMgt.AddComplexTypetoJSON(InvoiceLineJSON[2], UoMComplexTypeNameTxt, UoMJSON);
         Commit();
 
@@ -400,7 +400,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
 
         // [GIVEN] a JSON with an UoM Id
-        InvoiceLineJSON[1] := LibraryGraphMgt.AddPropertytoJSON('', UoMIdTxt, UnitOfMeasure.Id);
+        InvoiceLineJSON[1] := LibraryGraphMgt.AddPropertytoJSON('', UoMIdTxt, UnitOfMeasure.SystemId);
 
         // [GIVEN] a JSON with UoM complex type
         UoMJSON := LibraryGraphMgt.AddPropertytoJSON('{}', UoMComplexTypeCodeNameTxt, UnitOfMeasure.Code);
@@ -536,9 +536,9 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         CustomerNo := Customer."No.";
         ItemNo := LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
-        InvoiceID := SalesHeader.Id;
+        InvoiceID := SalesHeader.SystemId;
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
-        InvoiceLineJSON := CreateInvoiceLineJSON(Item.Id, ItemQuantity);
+        InvoiceLineJSON := CreateInvoiceLineJSON(Item.SystemId, ItemQuantity);
         Commit();
 
         // [WHEN] we POST the JSON to the web service and when we create an invoice through the client UI
@@ -604,13 +604,13 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         MinAmount := SalesHeader.Amount + Item."Unit Price" / 2;
         DiscountPct := LibraryRandom.RandDecInDecimalRange(1, 90, 2);
         LibrarySmallBusiness.SetInvoiceDiscountToCustomer(Customer, DiscountPct, MinAmount, SalesHeader."Currency Code");
-        InvoiceLineJSON := CreateInvoiceLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
+        InvoiceLineJSON := CreateInvoiceLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100));
         Commit();
 
         // [WHEN] We create a line through API
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Invoice Entity",
             InvoiceServiceNameTxt,
             InvoiceServiceLinesNameTxt);
@@ -646,7 +646,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         MinAmount := SalesHeader.Amount + Item."Unit Price" / 2;
         DiscountPct := LibraryRandom.RandDecInDecimalRange(1, 90, 2);
         LibrarySmallBusiness.SetInvoiceDiscountToCustomer(Customer, DiscountPct, MinAmount, SalesHeader."Currency Code");
-        InvoiceLineJSON := CreateInvoiceLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
+        InvoiceLineJSON := CreateInvoiceLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100));
         FindFirstSalesLine(SalesHeader, SalesLine);
         SalesQuantity := SalesLine.Quantity * 2;
 
@@ -657,10 +657,10 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         // [WHEN] we PATCH the line
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Invoice Entity",
             InvoiceServiceNameTxt,
-            GetLineSubURL(SalesHeader.Id, SalesLine."Line No."));
+            GetLineSubURL(SalesHeader.SystemId, SalesLine."Line No."));
         LibraryGraphMgt.PatchToWebService(TargetURL, InvoiceLineJSON, ResponseText);
 
         // [THEN] Invoice discount is applied
@@ -708,10 +708,10 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         // [WHEN] we DELETE the line
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Invoice Entity",
             InvoiceServiceNameTxt,
-            GetLineSubURL(SalesHeader.Id, SalesLine."Line No."));
+            GetLineSubURL(SalesHeader.SystemId, SalesLine."Line No."));
         LibraryGraphMgt.DeleteFromWebService(TargetURL, '', ResponseText);
 
         // [THEN] Lower Invoice discount is applied
@@ -751,10 +751,10 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         // [WHEN] we DELETE the line
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Invoice Entity",
             InvoiceServiceNameTxt,
-            GetLineSubURL(SalesHeader.Id, SalesLine."Line No."));
+            GetLineSubURL(SalesHeader.SystemId, SalesLine."Line No."));
         LibraryGraphMgt.DeleteFromWebService(TargetURL, '', ResponseText);
 
         // [THEN] Lower Invoice discount is applied
@@ -777,14 +777,14 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         // [GIVEN] An unposted invoice for customer with invoice discount amount
         Initialize();
         SetupAmountDiscountTest(SalesHeader, DiscountAmount);
-        InvoiceLineJSON := CreateInvoiceLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
+        InvoiceLineJSON := CreateInvoiceLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100));
 
         Commit();
 
         // [WHEN] We create a line through API
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Invoice Entity",
             InvoiceServiceNameTxt,
             InvoiceServiceLinesNameTxt);
@@ -812,7 +812,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         // [GIVEN] An unposted invoice for customer with invoice discount amt
         Initialize();
         SetupAmountDiscountTest(SalesHeader, DiscountAmount);
-        InvoiceLineJSON := CreateInvoiceLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
+        InvoiceLineJSON := CreateInvoiceLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100));
 
         SalesQuantity := 0;
         InvoiceLineJSON := LibraryGraphMgt.AddComplexTypetoJSON('{}', 'quantity', Format(SalesQuantity));
@@ -823,10 +823,10 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         // [WHEN] we PATCH the line
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Invoice Entity",
             InvoiceServiceNameTxt,
-            GetLineSubURL(SalesHeader.Id, SalesLine."Line No."));
+            GetLineSubURL(SalesHeader.SystemId, SalesLine."Line No."));
         LibraryGraphMgt.PatchToWebService(TargetURL, InvoiceLineJSON, ResponseText);
 
         // [THEN] Invoice discount is kept
@@ -857,10 +857,10 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         // [WHEN] we DELETE the line
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Invoice Entity",
             InvoiceServiceNameTxt,
-            GetLineSubURL(SalesHeader.Id, SalesLine."Line No."));
+            GetLineSubURL(SalesHeader.SystemId, SalesLine."Line No."));
         LibraryGraphMgt.DeleteFromWebService(TargetURL, '', ResponseText);
 
         // [THEN] Lower Invoice discount is applied
@@ -889,7 +889,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
 
         // [WHEN] we GET the lines
         TargetURL := LibraryGraphMgt
-          .CreateTargetURLWithSubpage(SalesHeader.Id,
+          .CreateTargetURLWithSubpage(SalesHeader.SystemId,
             PAGE::"Sales Invoice Entity",
             InvoiceServiceNameTxt,
             InvoiceServiceLinesNameTxt);
@@ -929,7 +929,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         // [WHEN] we just POST a blank line
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Invoice Entity",
             InvoiceServiceNameTxt,
             InvoiceServiceLinesNameTxt);
@@ -971,7 +971,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         // [WHEN] we just POST a blank line
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Invoice Entity",
             InvoiceServiceNameTxt,
             InvoiceServiceLinesNameTxt);
@@ -1015,7 +1015,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
 
         GetGLAccount(GLAccount);
 
-        InvoiceLineJSON := StrSubstNo('{"accountId":"%1"}', IntegrationManagement.GetIdWithoutBrackets(GLAccount.Id));
+        InvoiceLineJSON := StrSubstNo('{"accountId":"%1"}', IntegrationManagement.GetIdWithoutBrackets(GLAccount.SystemId));
 
         // [WHEN] we PATCH the line
         TargetURL := LibraryGraphMgt
@@ -1057,7 +1057,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         // [GIVEN] An unposted invoice with lines and a valid JSON describing the fields that we want to change
         Initialize();
         CreateInvoiceWithAllPossibleLineTypes(SalesHeader, ExpectedNumberOfLines);
-        InvoiceLineID := IntegrationManagement.GetIdWithoutBrackets(SalesHeader.Id);
+        InvoiceLineID := IntegrationManagement.GetIdWithoutBrackets(SalesHeader.SystemId);
         SalesLine.SetRange(Type, SalesLine.Type::"G/L Account");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
@@ -1068,16 +1068,16 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         LineNo := SalesLine."Line No.";
         LibraryInventory.CreateItem(Item);
 
-        InvoiceLineJSON := StrSubstNo('{"itemId":"%1"}', IntegrationManagement.GetIdWithoutBrackets(Item.Id));
+        InvoiceLineJSON := StrSubstNo('{"itemId":"%1"}', IntegrationManagement.GetIdWithoutBrackets(Item.SystemId));
         Commit();
 
         // [WHEN] we PATCH the line
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Invoice Entity",
             InvoiceServiceNameTxt,
-            GetLineSubURL(SalesHeader.Id, LineNo));
+            GetLineSubURL(SalesHeader.SystemId, LineNo));
         LibraryGraphMgt.PatchToWebService(TargetURL, InvoiceLineJSON, ResponseText);
 
         // [THEN] Line type is changed to Item and other fields are updated
@@ -1158,7 +1158,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 2);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 2);
         Commit();
-        exit(SalesHeader.Id);
+        exit(SalesHeader.SystemId);
     end;
 
     local procedure CreatePostedSalesInvoiceWithLines(var SalesInvoiceHeader: Record "Sales Invoice Header"): Text
@@ -1173,7 +1173,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         LibrarySales.CreateSalesInvoice(SalesHeader);
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 2);
-        PostedSalesInvoiceID := SalesHeader.Id;
+        PostedSalesInvoiceID := SalesHeader.SystemId;
         NewNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
         Commit();
 
@@ -1378,7 +1378,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         Assert.IsTrue(JSONManagement.GetStringPropertyValueFromJObjectByName(JObject, UoMIdTxt, UoMIdValue),
           'Could not find the UnitOfMeasureId in' + JSONTxt);
         UoMGUID := UoMIdValue;
-        Assert.AreEqual(UnitOfMeasure.Id, UoMGUID, 'UnitOfMeasure Id should be ' + UoMIdValue);
+        Assert.AreEqual(UnitOfMeasure.SystemId, UoMGUID, 'UnitOfMeasure Id should be ' + UoMIdValue);
 
         JSONManagement.InitializeObject(JSONUoMValue);
         JSONManagement.GetJSONObject(JObject);

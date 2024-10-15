@@ -79,12 +79,12 @@ codeunit 1639 "Office Line Generation"
 
         Stopwatch.Stop;
         GetMatchTotals(TempOfficeSuggestedLineItem, SingleMatches, TotalMatches);
-        SendTraceTag('00001KH', OfficeMgt.GetOfficeAddinTelemetryCategory(), Verbosity::Normal, StrSubstNo(TelemetryAlgorithmPerformanceTxt, NewLine,
+        Session.LogMessage('00001KH', StrSubstNo(TelemetryAlgorithmPerformanceTxt, NewLine,
             Stopwatch.ElapsedMilliseconds,
             StrLen(EmailBody),
             TempOfficeSuggestedLineItem.Count,
             SingleMatches,
-            TotalMatches), DataClassification::SystemMetadata);
+            TotalMatches), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OfficeMgt.GetOfficeAddinTelemetryCategory());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 1637, 'OnGenerateLinesFromText', '', false, false)]
@@ -127,12 +127,12 @@ codeunit 1639 "Office Line Generation"
 
         Stopwatch.Stop;
         GetMatchTotals(TempOfficeSuggestedLineItem, SingleMatches, TotalMatches);
-        SendTraceTag('00001KI', OfficeMgt.GetOfficeAddinTelemetryCategory(), Verbosity::Normal, StrSubstNo(TelemetryAlgorithmPerformanceTxt, NewLine,
+        Session.LogMessage('00001KI', StrSubstNo(TelemetryAlgorithmPerformanceTxt, NewLine,
             Stopwatch.ElapsedMilliseconds,
             StrLen(EmailBody),
             TempOfficeSuggestedLineItem.Count,
             SingleMatches,
-            TotalMatches), DataClassification::SystemMetadata);
+            TotalMatches), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OfficeMgt.GetOfficeAddinTelemetryCategory());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 1637, 'OnCloseSuggestedLineItemsPage', '', false, false)]
@@ -151,10 +151,10 @@ codeunit 1639 "Office Line Generation"
                     end;
                 until TempOfficeSuggestedLineItem.Next = 0;
 
-        SendTraceTag('00001KJ', OfficeMgt.GetOfficeAddinTelemetryCategory(), Verbosity::Normal, StrSubstNo(TelemetryClosedPageTxt, NewLine,
+        Session.LogMessage('00001KJ', StrSubstNo(TelemetryClosedPageTxt, NewLine,
             PageCloseAction,
             TempOfficeSuggestedLineItem.Count,
-            AddedCount), DataClassification::SystemMetadata);
+            AddedCount), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OfficeMgt.GetOfficeAddinTelemetryCategory());
     end;
 
     local procedure CalculateMatchStrength(ItemNo: Text[50]; Matches: Integer; SearchText: Text; AlreadyFound: Boolean) Strength: Decimal

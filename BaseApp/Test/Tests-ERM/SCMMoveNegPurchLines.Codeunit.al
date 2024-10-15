@@ -43,7 +43,7 @@ codeunit 137205 "SCM Move Neg. Purch. Lines"
     end;
 
     [Normal]
-    local procedure MoveNegativePurchLines(FromDocType: Option; ToDocType: Option; FromDocTypeRep: Option; ToDocTypeRep: Option; InitialSign: Integer)
+    local procedure MoveNegativePurchLines(FromDocType: Enum "Purchase Document Type"; ToDocType: Enum "Purchase Document Type"; FromDocTypeRep: Option; ToDocTypeRep: Option; InitialSign: Integer)
     var
         PurchaseHeader: Record "Purchase Header";
         TempPurchaseLine: Record "Purchase Line" temporary;
@@ -119,7 +119,7 @@ codeunit 137205 "SCM Move Neg. Purch. Lines"
     end;
 
     [Normal]
-    local procedure CreatePurchDocWithMixedLines(var PurchaseHeader: Record "Purchase Header"; var TempPurchaseLine: Record "Purchase Line" temporary; DocumentType: Option; InitialSign: Integer)
+    local procedure CreatePurchDocWithMixedLines(var PurchaseHeader: Record "Purchase Header"; var TempPurchaseLine: Record "Purchase Line" temporary; DocumentType: Enum "Purchase Document Type"; InitialSign: Integer)
     var
         PurchaseLine: Record "Purchase Line";
         Item: Record Item;
@@ -156,7 +156,7 @@ codeunit 137205 "SCM Move Neg. Purch. Lines"
     end;
 
     [Normal]
-    local procedure VerifyNegPurchaseLines(var TempPurchaseLine: Record "Purchase Line" temporary; NewDocumentType: Option; NewPurchaseHeaderNo: Code[20])
+    local procedure VerifyNegPurchaseLines(var TempPurchaseLine: Record "Purchase Line" temporary; NewDocumentType: Enum "Purchase Document Type"; NewPurchaseHeaderNo: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";

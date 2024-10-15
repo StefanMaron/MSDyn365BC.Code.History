@@ -1,3 +1,6 @@
+/// <summary>
+/// Persists information about the reports that Business Central has uploaded to Power BI, by user.
+/// </summary>
 table 6307 "Power BI Report Uploads"
 {
     Caption = 'Power BI Report Uploads';

@@ -253,7 +253,7 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
         OCRVendors: Query "OCR Vendors";
         Data: Text;
     begin
-        OCRVendors.SetRange(Modified_On, StartDateTime, EndDateTime);
+        OCRVendors.SetRange(ModifiedAt, StartDateTime, EndDateTime);
         if OCRVendors.Open() then
             while OCRVendors.Read() do begin
                 Data := GetModifiedVendorXml(OCRVendors);
@@ -267,7 +267,7 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
         VendorId: Guid;
         Data: Text;
     begin
-        OCRVendorBankAccounts.SetRange(Modified_On, StartDateTime, EndDateTime);
+        OCRVendorBankAccounts.SetRange(ModifiedAt, StartDateTime, EndDateTime);
         if not OCRVendorBankAccounts.Open() then
             exit;
 
@@ -473,14 +473,12 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
 
     local procedure LogTelemetrySuccessfulMasterDataSync(RootNodeName: Text)
     begin
-        SendTraceTag('00008A3', TelemetryCategoryTok, VERBOSITY::Normal,
-          StrSubstNo(OCRServiceMasterDataSyncSucceededTxt, RootNodeName), DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00008A3', StrSubstNo(OCRServiceMasterDataSyncSucceededTxt, RootNodeName), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
     end;
 
     local procedure LogTelemetryFailedMasterDataSync(RootNodeName: Text)
     begin
-        SendTraceTag('00008AJ', TelemetryCategoryTok, VERBOSITY::Normal,
-          StrSubstNo(OCRServiceMasterDataSyncFailedTxt, RootNodeName), DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00008AJ', StrSubstNo(OCRServiceMasterDataSyncFailedTxt, RootNodeName), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
     end;
 }
 

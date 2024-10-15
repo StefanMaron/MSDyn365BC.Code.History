@@ -12,11 +12,9 @@ table 9510 "Email Parameter"
         {
             Caption = 'Document Type';
         }
-        field(3; "Parameter Type"; Option)
+        field(3; "Parameter Type"; Enum "Email Parameter Type")
         {
             Caption = 'Parameter Type';
-            OptionCaption = ' ,Subject,Address,Body';
-            OptionMembers = " ",Subject,Address,Body;
         }
         field(4; "Parameter Value"; Text[250])
         {
@@ -43,14 +41,22 @@ table 9510 "Email Parameter"
     var
         ParameterNotSupportedErr: Label 'Report usage is not supported.';
 
-    procedure GetEntryWithReportUsage(DocumentNo: Code[20]; ReportUsage: Integer; ParameterType: Option): Boolean
+    procedure GetParameterWithReportUsage(DocumentNo: Code[20]; ReportUsage: Enum "Report Selection Usage"; ParameterType: Enum "Email Parameter Type"): Boolean
     var
         ReportSelections: Record "Report Selections";
-        DocumentType: Option;
+        DocumentType: Enum "Sales Document Type";
     begin
-        if not ReportSelections.ReportUsageToDocumentType(DocumentType, ReportUsage) then
+        if not ReportSelections.ConvertReportUsageToSalesDocumentType(DocumentType, ReportUsage) then
             exit(false);
+
         exit(Get(DocumentNo, DocumentType, ParameterType));
+    end;
+
+    procedure GetEntryWithReportUsage(DocumentNo: Code[20]; ReportUsage: Integer; ParameterType: Option): Boolean
+    begin
+        exit(
+            GetParameterWithReportUsage(
+                DocumentNo, "Report Selection Usage".FromInteger(ReportUsage), "Email Parameter Type".FromInteger(ParameterType)));
     end;
 
     procedure GetParameterValue(): Text
@@ -70,8 +76,8 @@ table 9510 "Email Parameter"
         if not ParameterAlreadyExists then begin
             Init;
             "Document No" := DocumentNo;
-            "Document Type" := DocumentType;
-            "Parameter Type" := ParameterType;
+            "Document Type" := "Sales Document Type".FromInteger(DocumentType);
+            "Parameter Type" := "Email Parameter Type".FromInteger(ParameterType);
         end;
 
         Clear("Parameter Value");
@@ -90,11 +96,11 @@ table 9510 "Email Parameter"
     procedure SaveParameterValueWithReportUsage(DocumentNo: Code[20]; ReportUsage: Integer; ParameterType: Option; ParameterValue: Text)
     var
         ReportSelections: Record "Report Selections";
-        DocumentType: Option;
+        DocumentType: Enum "Sales Document Type";
     begin
-        if not ReportSelections.ReportUsageToDocumentType(DocumentType, ReportUsage) then
+        if not ReportSelections.ConvertReportUsageToSalesDocumentType(DocumentType, "Report Selection Usage".FromInteger(ReportUsage)) then
             Error(ParameterNotSupportedErr);
-        SaveParameterValue(DocumentNo, DocumentType, ParameterType, ParameterValue);
+        SaveParameterValue(DocumentNo, DocumentType.AsInteger(), ParameterType, ParameterValue);
     end;
 
     local procedure WriteToBLOB(ParameterValue: Text)

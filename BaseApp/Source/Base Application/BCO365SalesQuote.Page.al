@@ -547,7 +547,7 @@ page 2341 "BC O365 Sales Quote"
                     SetRecFilter;
                     LockTable();
                     Find;
-                    ReportSelections.GetPdfReport(DocumentPath, ReportSelections.Usage::"S.Quote", Rec, "Sell-to Customer No.");
+                    ReportSelections.GetPdfReportForCust(DocumentPath, ReportSelections.Usage::"S.Quote", Rec, "Sell-to Customer No.");
                     Download(DocumentPath, '', '', '', DocumentPath);
                     Find;
                 end;
@@ -660,7 +660,7 @@ page 2341 "BC O365 Sales Quote"
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
         "Document Type" := "Document Type"::Quote;
-        O365SendResendInvoice.CheckNextNoSeriesIsAvailable("Document Type"::Quote);
+        O365SendResendInvoice.CheckNextNoSeriesIsAvailable("Document Type"::Quote.AsInteger());
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)

@@ -359,7 +359,7 @@ codeunit 134339 "UI Workflow Factboxes"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"UI Workflow Factboxes");
     end;
 
-    local procedure SetupGenJnlBatchAndWorkflow(var GenJournalBatch: Record "Gen. Journal Batch"; WorkflowCode: Code[17]; GenJnlType: Option; PageID: Integer)
+    local procedure SetupGenJnlBatchAndWorkflow(var GenJournalBatch: Record "Gen. Journal Batch"; WorkflowCode: Code[17]; GenJnlType: Enum "Gen. Journal Template Type"; PageID: Integer)
     var
         Workflow: Record Workflow;
         ApprovalUserSetup: Record "User Setup";
@@ -383,7 +383,7 @@ codeunit 134339 "UI Workflow Factboxes"
         GenJournalBatch.Modify(true);
     end;
 
-    local procedure CreateGeneralJournalBatchWithOneJournalLine(var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line"; GenJnlType: Option; PageID: Integer)
+    local procedure CreateGeneralJournalBatchWithOneJournalLine(var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line"; GenJnlType: Enum "Gen. Journal Template Type"; PageID: Integer)
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin

@@ -200,8 +200,6 @@ table 5005355 "Posted Phys. Invt. Order Line"
             Caption = 'Product Group Code';
             ObsoleteReason = 'Product Groups became first level children of Item Categories.';
             ObsoleteState = Pending;
-            TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
-            ValidateTableRelation = false;
             ObsoleteTag = '15.0';
         }
         field(7380; "Phys Invt Counting Period Code"; Code[10])

@@ -200,7 +200,7 @@ report 99001015 "Calculate Subcontracts"
             end else begin
                 "Ref. Order No." := ProdOrderLine."Prod. Order No.";
                 "Ref. Order Type" := "Ref. Order Type"::"Prod. Order";
-                "Ref. Order Status" := ProdOrderLine.Status;
+                "Ref. Order Status" := ProdOrderLine.Status.AsInteger();
                 "Ref. Line No." := ProdOrderLine."Line No.";
                 "Action Message" := "Action Message"::New;
                 "Accept Action Message" := true;

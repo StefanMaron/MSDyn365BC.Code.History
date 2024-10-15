@@ -485,7 +485,7 @@ codeunit 841 "Cash Flow Management"
         CreateCashFlowAccount(CashFlowAccount."Source Type"::Tax, '');
     end;
 
-    local procedure CreateCashFlowAccount(SourceType: Option; LiquidFundsGLAccountFilter: Code[250])
+    local procedure CreateCashFlowAccount(SourceType: Enum "Cash Flow Source Type"; LiquidFundsGLAccountFilter: Code[250])
     var
         CashFlowAccount: Record "Cash Flow Account";
     begin
@@ -501,16 +501,16 @@ codeunit 841 "Cash Flow Management"
     var
         CashFlowAccount: Record "Cash Flow Account";
     begin
-        CashFlowAccount."Source Type" := SourceType;
+        CashFlowAccount."Source Type" := "Cash Flow Source Type".FromInteger(SourceType);
         exit(CopyStr(StrSubstNo('%1-%2', SourceType, Format(CashFlowAccount."Source Type")), 1, MaxStrLen(CashFlowAccount."No.")));
     end;
 
-    local procedure InitCashFlowAccount(var CashFlowAccount: Record "Cash Flow Account"; SourceType: Option)
+    local procedure InitCashFlowAccount(var CashFlowAccount: Record "Cash Flow Account"; SourceType: Enum "Cash Flow Source Type")
     begin
         with CashFlowAccount do begin
             Init;
             Validate("Source Type", SourceType);
-            Validate("No.", GetNoFromSourceType(SourceType));
+            Validate("No.", GetNoFromSourceType(SourceType.AsInteger()));
             Validate(Name, Format("Source Type", MaxStrLen(Name)));
         end;
     end;
@@ -558,16 +558,16 @@ codeunit 841 "Cash Flow Management"
     begin
         CashFlowSetup.Init();
         CashFlowSetup.Validate("Cash Flow Forecast No. Series", CashFlowNoSeriesCode);
-        CashFlowSetup.Validate("Receivables CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::Receivables));
-        CashFlowSetup.Validate("Payables CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::Payables));
-        CashFlowSetup.Validate("Sales Order CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::"Sales Orders"));
-        CashFlowSetup.Validate("Service CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::"Service Orders"));
-        CashFlowSetup.Validate("Purch. Order CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::"Purchase Orders"));
-        CashFlowSetup.Validate("FA Budget CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::"Fixed Assets Budget"));
+        CashFlowSetup.Validate("Receivables CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::Receivables.AsInteger()));
+        CashFlowSetup.Validate("Payables CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::Payables.AsInteger()));
+        CashFlowSetup.Validate("Sales Order CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::"Sales Orders".AsInteger()));
+        CashFlowSetup.Validate("Service CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::"Service Orders".AsInteger()));
+        CashFlowSetup.Validate("Purch. Order CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::"Purchase Orders".AsInteger()));
+        CashFlowSetup.Validate("FA Budget CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::"Fixed Assets Budget".AsInteger()));
         CashFlowSetup.Validate(
-            "FA Disposal CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::"Fixed Assets Disposal"));
-        CashFlowSetup.Validate("Job CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::Job));
-        CashFlowSetup.Validate("Tax CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::Tax));
+            "FA Disposal CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::"Fixed Assets Disposal".AsInteger()));
+        CashFlowSetup.Validate("Job CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::Job.AsInteger()));
+        CashFlowSetup.Validate("Tax CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::Tax.AsInteger()));
         CashFlowSetup.Insert();
     end;
 

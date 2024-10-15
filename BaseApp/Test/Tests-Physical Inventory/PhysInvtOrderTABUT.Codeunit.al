@@ -122,7 +122,7 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
         CreatePostedPhysInvtOrderHeader(PstdPhysInvtOrderHdr);
 
         // Exercise.
-        PstdPhysInvtOrderHdr.ShowDimensions;
+        PstdPhysInvtOrderHdr.ShowDimensions();
 
         // [THEN] Verify Dimension Set Entries Page Open. Added Page Handler DimensionSetEntriesModalPageHandler.
     end;
@@ -170,7 +170,7 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
         CreatePostedPhysInvtOrderLine(PstdPhysInvtOrderLine, LibraryUTUtility.GetNewCode);
 
         // Exercise.
-        PstdPhysInvtOrderLine.ShowDimensions;
+        PstdPhysInvtOrderLine.ShowDimensions();
 
         // [THEN] Verify Dimension Set Entries Page Open. Added Page Handler DimensionSetEntriesModalPageHandler.
     end;

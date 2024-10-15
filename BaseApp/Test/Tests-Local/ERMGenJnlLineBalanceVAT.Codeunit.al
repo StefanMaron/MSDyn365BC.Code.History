@@ -289,7 +289,7 @@ codeunit 142084 "ERM Gen. Jnl. Line Balance VAT"
         VerifyApplicationWithVATBalancingError(AppliedPaymentGenJournalLine);
     end;
 
-    local procedure CreateInvGenJnlLine(var InvGenJnlLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateInvGenJnlLine(var InvGenJnlLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
           InvGenJnlLine, InvGenJnlLine."Document Type"::Invoice, AccountType, AccountNo, Amount);
@@ -311,7 +311,7 @@ codeunit 142084 "ERM Gen. Jnl. Line Balance VAT"
         PmtGenJnlLine.Modify(true);
     end;
 
-    local procedure CreateBalanceGLAcountNo(GenPostingType: Option): Code[20]
+    local procedure CreateBalanceGLAcountNo(GenPostingType: Enum "General Posting Type"): Code[20]
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
@@ -320,7 +320,7 @@ codeunit 142084 "ERM Gen. Jnl. Line Balance VAT"
         exit(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GenPostingType));
     end;
 
-    local procedure CreatePaymentLinesWithEqualDocNo(var PmtGenJnlLine: Record "Gen. Journal Line"; InvGenJnlLine: Record "Gen. Journal Line"; GenPostingType: Option; var BalAccountNo: array[2] of Code[20])
+    local procedure CreatePaymentLinesWithEqualDocNo(var PmtGenJnlLine: Record "Gen. Journal Line"; InvGenJnlLine: Record "Gen. Journal Line"; GenPostingType: Enum "General Posting Type"; var BalAccountNo: array[2] of Code[20])
     var
         DocNo: Code[20];
     begin

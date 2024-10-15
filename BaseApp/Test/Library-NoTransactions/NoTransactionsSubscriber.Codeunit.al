@@ -60,8 +60,6 @@ codeunit 130630 "No Transactions Subscriber"
     local procedure IsTableExcluded(RecRef: RecordRef): Boolean
     begin
         case RecRef.Name() of
-            'Azure AD Mgt. Setup':
-                exit(true);
             'AMC Bank Pmt. Type':
                 exit(true);
             'Application Area Setup':
@@ -86,24 +84,21 @@ codeunit 130630 "No Transactions Subscriber"
                 exit(true);
             'Translation':
                 exit(true);
-            'Transformation Rule':
-                exit(true);
-            'Tenant Media':
-                exit(true);
-            'Tenant Media Thumbnails':
-                exit(true);
             'Upgrade Tags':
                 exit(true);
-            'Workflow - Table Relation':
+            'Retention Policy Allowed Table':
                 exit(true);
-            'Workflow Event':
+            'Retention Period':
                 exit(true);
-            'Workflow Category':
+            'Retention Policy Setup':
+                exit(true);
+            'Retention Policy Setup Line':
                 exit(true);
         end;
 
         exit(false);
     end;
+
 
     var
         TransactionDetectedErr: Label 'Database transaction has been detected, no writes are allowed during this test. RecordID is %1, Operation %2.', Locked = true;

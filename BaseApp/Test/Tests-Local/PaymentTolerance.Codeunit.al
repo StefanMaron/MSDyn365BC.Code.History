@@ -301,7 +301,7 @@ codeunit 142076 "Payment Tolerance"
         GenJournalBatch.Modify(true);
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; DocumentType: Option; Amount: Decimal; PostingDate: Date)
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; PostingDate: Date)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -309,7 +309,7 @@ codeunit 142076 "Payment Tolerance"
         CreateGenJnlLineWithBatch(GenJournalLine, GenJournalBatch, AccountType, AccountNo, DocumentType, Amount, PostingDate);
     end;
 
-    local procedure CreateGenJnlLineWithBatch(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Option; AccountNo: Code[20]; DocumentType: Option; Amount: Decimal; PostingDate: Date)
+    local procedure CreateGenJnlLineWithBatch(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; PostingDate: Date)
     var
         GLAccount: Record "G/L Account";
     begin
@@ -336,7 +336,7 @@ codeunit 142076 "Payment Tolerance"
         PaymentTerms.Modify(true);
     end;
 
-    local procedure CreateGenJnlBatchWithType(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Option)
+    local procedure CreateGenJnlBatchWithType(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Enum "Gen. Journal Template Type")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin

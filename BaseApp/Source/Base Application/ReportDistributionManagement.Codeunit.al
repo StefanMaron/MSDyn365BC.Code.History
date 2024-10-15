@@ -8,6 +8,7 @@ codeunit 452 "Report Distribution Management"
 
     var
         HideDialog: Boolean;
+        FullDocTypeTxt: Label '%1 %2', Comment = '%1 - Document Type prefix, Sales/Purchase etc. %2 - Document Type, Invoice/Order etc.';
         SalesDocTypeTxt: Label 'Sales';
         PurchaseDocTypeTxt: Label 'Purchase';
         ServiceDocTypeTxt: Label 'Service';
@@ -81,19 +82,19 @@ codeunit 452 "Report Distribution Management"
 
         case DocumentRecordRef.Number of
             DATABASE::"Sales Invoice Header":
-                DocumentTypeText := StrSubstNo('%1 %2', SalesDocTypeTxt, Format(SalesHeader."Document Type"::Invoice));
+                DocumentTypeText := StrSubstNo(FullDocTypeTxt, SalesDocTypeTxt, Format(SalesHeader."Document Type"::Invoice));
             DATABASE::"Sales Cr.Memo Header":
-                DocumentTypeText := StrSubstNo('%1 %2', SalesDocTypeTxt, Format(SalesHeader."Document Type"::"Credit Memo"));
+                DocumentTypeText := StrSubstNo(FullDocTypeTxt, SalesDocTypeTxt, Format(SalesHeader."Document Type"::"Credit Memo"));
             Database::"Sales Shipment Header":
-                DocumentTypeText := StrSubstNo('%1 %2', SalesDocTypeTxt, ShipmentDocTypeTxt);
+                DocumentTypeText := StrSubstNo(FullDocTypeTxt, SalesDocTypeTxt, ShipmentDocTypeTxt);
             DATABASE::"Service Invoice Header":
-                DocumentTypeText := StrSubstNo('%1 %2', ServiceDocTypeTxt, Format(ServiceHeader."Document Type"::Invoice));
+                DocumentTypeText := StrSubstNo(FullDocTypeTxt, ServiceDocTypeTxt, Format(ServiceHeader."Document Type"::Invoice));
             DATABASE::"Service Cr.Memo Header":
-                DocumentTypeText := StrSubstNo('%1 %2', ServiceDocTypeTxt, Format(ServiceHeader."Document Type"::"Credit Memo"));
+                DocumentTypeText := StrSubstNo(FullDocTypeTxt, ServiceDocTypeTxt, Format(ServiceHeader."Document Type"::"Credit Memo"));
             DATABASE::Job:
                 DocumentTypeText := JobQuoteDocTypeTxt;
             Database::"Return Receipt Header":
-                DocumentTypeText := StrSubstNo('%1 %2', SalesDocTypeTxt, ReturnReceiptDocTypeTxt);
+                DocumentTypeText := StrSubstNo(FullDocTypeTxt, SalesDocTypeTxt, ReturnReceiptDocTypeTxt);
             Database::"Issued Reminder Header":
                 DocumentTypeText := IssuedReminderDocTypeTxt;
             Database::"Issued Fin. Charge Memo Header":
@@ -101,17 +102,17 @@ codeunit 452 "Report Distribution Management"
             DATABASE::"Sales Header":
                 begin
                     DocumentRecordRef.SetTable(SalesHeader);
-                    DocumentTypeText := StrSubstNo('%1 %2', SalesDocTypeTxt, Format(SalesHeader."Document Type"));
+                    DocumentTypeText := StrSubstNo(FullDocTypeTxt, SalesDocTypeTxt, Format(SalesHeader."Document Type"));
                 end;
             DATABASE::"Purchase Header":
                 begin
                     DocumentRecordRef.SetTable(PurchaseHeader);
-                    DocumentTypeText := StrSubstNo('%1 %2', PurchaseDocTypeTxt, Format(PurchaseHeader."Document Type"));
+                    DocumentTypeText := StrSubstNo(FullDocTypeTxt, PurchaseDocTypeTxt, Format(PurchaseHeader."Document Type"));
                 end;
             DATABASE::"Service Header":
                 begin
                     DocumentRecordRef.SetTable(ServiceHeader);
-                    DocumentTypeText := StrSubstNo('%1 %2', ServiceDocTypeTxt, Format(ServiceHeader."Document Type"));
+                    DocumentTypeText := StrSubstNo(FullDocTypeTxt, ServiceDocTypeTxt, Format(ServiceHeader."Document Type"));
                 end;
         end;
 
@@ -259,7 +260,7 @@ codeunit 452 "Report Distribution Management"
           ClientFileName);
     end;
 
-    local procedure SendAttachment(PostedDocumentNo: Code[20]; SendEmailAddress: Text[250]; AttachmentFilePath: Text[250]; AttachmentFileName: Text[250]; DocumentType: Text[50]; SendTo: Option; ServerEmailBodyFilePath: Text[250]; ReportUsage: Integer)
+    local procedure SendAttachment(PostedDocumentNo: Code[20]; SendEmailAddress: Text[250]; AttachmentFilePath: Text[250]; AttachmentFileName: Text[250]; DocumentType: Text[50]; SendTo: Option; ServerEmailBodyFilePath: Text[250]; ReportUsage: Enum "Report Selection Usage")
     var
         DocumentSendingProfile: Record "Document Sending Profile";
         DocumentMailing: Codeunit "Document-Mailing";
@@ -271,7 +272,7 @@ codeunit 452 "Report Distribution Management"
 
         DocumentMailing.EmailFile(
           AttachmentFilePath, AttachmentFileName, ServerEmailBodyFilePath, PostedDocumentNo,
-          SendEmailAddress, DocumentType, HideDialog, ReportUsage);
+          SendEmailAddress, DocumentType, HideDialog, ReportUsage.AsInteger());
     end;
 
     [Scope('OnPrem')]
@@ -284,7 +285,7 @@ codeunit 452 "Report Distribution Management"
         DocumentMailing: Codeunit "Document-Mailing";
         XMLPath: Text[250];
         ClientFileName: Text[250];
-        ReportUsage: Integer;
+        ReportUsage: Enum "Report Selection Usage";
     begin
         GetBillToCustomer(Customer, DocumentVariant);
 
@@ -317,7 +318,7 @@ codeunit 452 "Report Distribution Management"
         DocumentMailing: Codeunit "Document-Mailing";
         XMLPath: Text[250];
         ClientFileName: Text[250];
-        ReportUsage: Integer;
+        ReportUsage: Enum "Report Selection Usage";
     begin
         GetBuyFromVendor(Vendor, DocumentVariant);
 
@@ -382,7 +383,7 @@ codeunit 452 "Report Distribution Management"
                 exit;
     end;
 
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure CreateOrAppendZipFile(var DataCompression: Codeunit "Data Compression"; ServerFilePath: Text[250]; ClientFileName: Text[250]; var ClientZipFileName: Text[250])
     var
         FileManagement: Codeunit "File Management";

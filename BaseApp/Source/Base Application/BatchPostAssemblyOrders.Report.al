@@ -13,15 +13,14 @@ report 900 "Batch Post Assembly Orders"
             trigger OnPreDataItem()
             var
                 BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
-                BatchPostParameterTypes: Codeunit "Batch Post Parameter Types";
                 RecRef: RecordRef;
             begin
                 if ReplacePostingDate and (PostingDateReq = 0D) then
                     Error(Text000);
 
                 BatchProcessingMgt.SetProcessingCodeunit(CODEUNIT::"Assembly-Post");
-                BatchProcessingMgt.AddParameter(BatchPostParameterTypes.ReplacePostingDate, ReplacePostingDate);
-                BatchProcessingMgt.AddParameter(BatchPostParameterTypes.PostingDate, PostingDateReq);
+                BatchProcessingMgt.SetParameter("Batch Posting Parameter Type"::"Replace Posting Date", ReplacePostingDate);
+                BatchProcessingMgt.SetParameter("Batch Posting Parameter Type"::"Posting Date", PostingDateReq);
 
                 RecRef.GetTable("Assembly Header");
                 BatchProcessingMgt.BatchProcess(RecRef);

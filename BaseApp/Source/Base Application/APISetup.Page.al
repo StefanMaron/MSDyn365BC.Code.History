@@ -70,6 +70,10 @@ page 5469 "API Setup"
                 Image = Setup;
                 Promoted = true;
                 PromotedCategory = Process;
+                Visible = SetupActionVisible;
+                ObsoleteReason = 'This functionality will be removed because APIs are refactored in Integration Management to not use integration records.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '17.0';
                 ToolTip = 'Integrates records to the associated integration tables';
 
                 trigger OnAction()
@@ -92,11 +96,15 @@ page 5469 "API Setup"
     end;
 
     trigger OnOpenPage()
+    var
+        EnviromentInformation: Codeunit "Environment Information";
     begin
         SetAutoCalcFields("Selection Criteria");
+        SetupActionVisible := EnviromentInformation.IsOnPrem();
     end;
 
     var
+        SetupActionVisible: Boolean;
         ConditionsText: Text;
         ConfirmApiSetupQst: Label 'This action will populate the integration tables for all APIs and may take several minutes to complete. Do you want to continue?';
 }
