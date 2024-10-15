@@ -141,7 +141,7 @@
                 PriceSource.Validate("Starting Date", "Starting Date");
                 CopyFrom(PriceSource);
 
-                UpdateLines(FieldNo("Starting Date"), FieldCaption("Starting Date"));
+                UpdateDatesInLines(FieldCaption("Starting Date"));
             end;
         }
         field(12; "Ending Date"; Date)
@@ -158,7 +158,7 @@
                 PriceSource.Validate("Ending Date", "Ending Date");
                 CopyFrom(PriceSource);
 
-                UpdateLines(FieldNo("Ending Date"), FieldCaption("Ending Date"));
+                UpdateDatesInLines(FieldCaption("Ending Date"));
             end;
         }
         field(13; "Price Includes VAT"; Boolean)
@@ -471,11 +471,10 @@
         exit("Amount Type"::Any);
     end;
 
-    local procedure UpdateLines(FieldId: Integer; Caption: Text)
+    local procedure UpdateDatesInLines(Caption: Text)
     var
         PriceListLine: Record "Price List Line";
         ConfirmManagement: Codeunit "Confirm Management";
-        ToModify: Boolean;
     begin
         if IsTemporary() then
             exit;
@@ -487,24 +486,20 @@
             if not ConfirmManagement.GetResponse(StrSubstNo(ConfirmUpdateQst, Caption), true) then
                 exit;
 
-        PriceListLine.FindSet(true);
-        repeat
-            ToModify := false;
-            case FieldId of
-                FieldNo("Starting Date"):
-                    if "Starting Date" <> PriceListLine."Starting Date" then begin
-                        PriceListLine.Validate("Starting Date", "Starting Date");
-                        ToModify := true;
-                    end;
-                FieldNo("Ending Date"):
-                    if "Ending Date" <> PriceListLine."Ending Date" then begin
-                        PriceListLine.Validate("Ending Date", "Ending Date");
-                        ToModify := true;
-                    end;
-            end;
-            if ToModify then
-                PriceListLine.Modify();
-        until PriceListLine.Next() = 0;
+        PriceListLine.SetFilter("Starting Date", '<>%1', "Starting Date");
+        SetStatusToDraft(PriceListLine);
+        PriceListLine.ModifyAll("Starting Date", "Starting Date");
+        PriceListLine.SetRange("Starting Date");
+        PriceListLine.SetFilter("Ending Date", '<>%1', "Ending Date");
+        SetStatusToDraft(PriceListLine);
+        PriceListLine.ModifyAll("Ending Date", "Ending Date");
+    end;
+
+    local procedure SetStatusToDraft(var PriceListLine: Record "Price List Line")
+    begin
+        PriceListLine.SetFilter(Status, '<>%1', "Price Status"::Draft);
+        PriceListLine.ModifyAll(Status, "Price Status"::Draft);
+        PriceListLine.SetRange(Status);
     end;
 
     local procedure TestStatusDraft()

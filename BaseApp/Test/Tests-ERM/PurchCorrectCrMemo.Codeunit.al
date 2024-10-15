@@ -899,7 +899,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         Assert.ExpectedError(
             LibraryErrorMessage.GetMissingAccountErrorMessage(
                 GeneralPostingSetup.FieldCaption("COGS Account"),
-                GeneralPostingSetup.TableCaption()));
+                GeneralPostingSetup));
 
         RestoreGenPostingSetup(GeneralPostingSetup);
     end;

@@ -103,32 +103,6 @@ codeunit 1368 "Monitored Field Notification"
         exit((RecRef.Number = Database::"Field Monitoring Setup") and (FieldNo = FieldMonitoringSetup.FieldNo("Monitor Status")));
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::Email, 'OnAfterSendEmail', '', false, false)]
-    local procedure OnAfterSendEmail(MessageId: Guid; Status: Boolean)
-    begin
-        UpdateEmailStatus(MessageId, Status);
-    end;
-
-    procedure UpdateEmailStatus(MessageId: Guid; Status: Boolean)
-    var
-        ChangeLogEntry: Record "Change Log Entry";
-    begin
-        if IsNullGuid(MessageId) then
-            exit;
-
-        ChangeLogEntry.SetRange("Notification Message Id", MessageId);
-        ChangeLogEntry.SetRange("Field Log Entry Feature", ChangeLogEntry."Field Log Entry Feature"::"Monitor Sensitive Fields");
-        ChangeLogEntry.SetRange("Notification Status", ChangeLogEntry."Notification Status"::"Email Enqueued");
-        if ChangeLogEntry.FindFirst() then begin
-            if Status then
-                ChangeLogEntry."Notification Status" := ChangeLogEntry."Notification Status"::"Email Sent"
-            else
-                ChangeLogEntry."Notification Status" := ChangeLogEntry."Notification Status"::"Sending Email Failed";
-
-            ChangeLogEntry.Modify();
-        end;
-    end;
-
     var
         Email: Codeunit Email;
         EmailAccount: Codeunit "Email Account";

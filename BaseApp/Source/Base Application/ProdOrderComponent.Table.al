@@ -1089,6 +1089,8 @@ table 5407 "Prod. Order Component"
             exit;
 
         TestField("Item No.");
+        Item.Get("Item No.");
+        Item.TestField(Reserve);
         Clear(Reservation);
         Reservation.SetReservSource(Rec);
         Reservation.RunModal();

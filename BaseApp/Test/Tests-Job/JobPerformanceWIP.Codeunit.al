@@ -1771,7 +1771,7 @@ codeunit 136304 "Job Performance WIP"
             Description,
             LibraryErrorMessage.GetMissingAccountErrorMessage(
                 JobPostingGroup.FieldCaption("Job Costs Applied Account"),
-                JobPostingGroup.TableCaption()));
+                JobPostingGroup));
     end;
 
     [Test]
