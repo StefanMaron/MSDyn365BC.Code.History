@@ -17,7 +17,9 @@ table 280 "Extended Text Line"
             ELSE
             IF ("Table Name" = CONST(Item)) Item
             ELSE
-            IF ("Table Name" = CONST(Resource)) Resource;
+            IF ("Table Name" = CONST (Resource)) Resource
+            ELSE
+            IF ("Table Name" = CONST ("VAT Clause")) "VAT Clause";
         }
         field(3; "Language Code"; Code[10])
         {

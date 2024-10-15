@@ -4835,7 +4835,7 @@
 
                     OnUpdateAllLineDimOnBeforeSalesLineModify(SalesLine);
                     SalesLine.Modify();
-                    ATOLink.UpdateAsmDimFromSalesLine(SalesLine);
+                    ATOLink.UpdateAsmDimFromSalesLine(SalesLine, true);
                 end;
             until SalesLine.Next() = 0;
     end;
