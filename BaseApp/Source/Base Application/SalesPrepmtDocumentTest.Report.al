@@ -281,7 +281,7 @@ report 212 "Sales Prepmt. Document Test"
                             Continue := MergeText(DimSetEntry);
                             if Continue then
                                 exit;
-                        until DimSetEntry.Next = 0;
+                        until DimSetEntry.Next() = 0;
                     end;
 
                     trigger OnPreDataItem()
@@ -415,7 +415,7 @@ report 212 "Sales Prepmt. Document Test"
                                 if not TempSalesLine.Find('-') then
                                     CurrReport.Break();
                             end else
-                                if TempSalesLine.Next = 0 then
+                                if TempSalesLine.Next() = 0 then
                                     CurrReport.Break();
                             "Sales Line" := TempSalesLine;
 
@@ -469,7 +469,7 @@ report 212 "Sales Prepmt. Document Test"
                             SalesPostPrepmt.GetSalesLines("Sales Header", DocumentType, TempSalesLine);
                             if DocumentType = DocumentType::Invoice then begin
                                 SalesPostPrepmt.GetSalesLinesToDeduct("Sales Header", TempSalesLineToDeduct);
-                                if not TempSalesLineToDeduct.IsEmpty then
+                                if not TempSalesLineToDeduct.IsEmpty() then
                                     SalesPostPrepmt.CalcVATAmountLines(
                                       "Sales Header", TempSalesLineToDeduct, TempVATAmountLineDeduct, DocumentType::"Credit Memo");
                             end;
@@ -488,7 +488,7 @@ report 212 "Sales Prepmt. Document Test"
                                     if DocumentType = DocumentType::"Credit Memo" then
                                         TempSalesLine."Prepmt. Amt. Inv." := TempSalesLine."Prepmt. Line Amount";
                                     TempSalesLine.Insert();
-                                until SalesLine.Next = 0;
+                                until SalesLine.Next() = 0;
                         end;
                     end;
                 }
@@ -639,7 +639,7 @@ report 212 "Sales Prepmt. Document Test"
                                 Continue := MergeText(LineDimSetEntry);
                                 if Continue then
                                     exit;
-                            until LineDimSetEntry.Next = 0;
+                            until LineDimSetEntry.Next() = 0;
                         end;
 
                         trigger OnPreDataItem()
@@ -681,7 +681,7 @@ report 212 "Sales Prepmt. Document Test"
                             if not TempPrepmtInvLineBuf.Find('-') then
                                 CurrReport.Break();
                         end else
-                            if TempPrepmtInvLineBuf.Next = 0 then
+                            if TempPrepmtInvLineBuf.Next() = 0 then
                                 CurrReport.Break();
 
                         LineDimSetEntry.SetRange("Dimension Set ID", TempPrepmtInvLineBuf."Dimension Set ID");

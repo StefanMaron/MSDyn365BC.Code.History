@@ -11,7 +11,7 @@ codeunit 132496 MockOnPostNotificationRequest
         ReturnType: Text;
         ReceivedErr: Label 'abc';
 
-    [EventSubscriber(ObjectType::Codeunit, 1545, 'OnPostNotificationRequest', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Webhook Notification", 'OnPostNotificationRequest', '', false, false)]
     [TryFunction]
     [Normal]
     [Scope('OnPrem')]

@@ -15,7 +15,6 @@ page 385 "Report Selection - Bank Acc."
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Usage';
-                OptionCaption = 'Statement,Reconciliation - Test,Check';
                 ToolTip = 'Specifies which type of document the report is used for.';
 
                 trigger OnValidate()
@@ -26,18 +25,18 @@ page 385 "Report Selection - Bank Acc."
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Sequence; Sequence)
+                field(Sequence; Rec.Sequence)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a number that indicates where this report is in the printing order.';
                 }
-                field("Report ID"; "Report ID")
+                field("Report ID"; Rec."Report ID")
                 {
                     ApplicationArea = Basic, Suite;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the object ID of the report.';
                 }
-                field("Report Caption"; "Report Caption")
+                field("Report Caption"; Rec."Report Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
@@ -66,7 +65,7 @@ page 385 "Report Selection - Bank Acc."
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        NewRecord;
+        Rec.NewRecord();
     end;
 
     trigger OnOpenPage()
@@ -75,23 +74,31 @@ page 385 "Report Selection - Bank Acc."
     end;
 
     var
-        ReportUsage2: Option Statement,"Reconciliation - Test",Check;
+        ReportUsage2: Enum "Report Selection Usage Bank";
 
     local procedure SetUsageFilter(ModifyRec: Boolean)
     begin
         if ModifyRec then
-            if Modify then;
-        FilterGroup(2);
+            if Rec.Modify() then;
+        Rec.FilterGroup(2);
         case ReportUsage2 of
-            ReportUsage2::Statement:
-                SetRange(Usage, Usage::"B.Stmt");
-            ReportUsage2::"Reconciliation - Test":
-                SetRange(Usage, Usage::"B.Recon.Test");
-            ReportUsage2::Check:
-                SetRange(Usage, Usage::"B.Check");
+            "Report Selection Usage Bank"::Statement:
+                Rec.SetRange(Usage, "Report Selection Usage"::"B.Stmt");
+            "Report Selection Usage Bank"::"Reconciliation - Test":
+                Rec.SetRange(Usage, "Report Selection Usage"::"B.Recon.Test");
+            "Report Selection Usage Bank"::Check:
+                Rec.SetRange(Usage, "Report Selection Usage"::"B.Check");
+            "Report Selection Usage Bank"::"Posted Payment Reconciliation":
+                SetRange(Usage, Usage::"Posted Payment Reconciliation");
         end;
-        FilterGroup(0);
-        CurrPage.Update;
+        OnSetUsageFilterOnAfterSetFiltersByReportUsage(Rec, ReportUsage2);
+        Rec.FilterGroup(0);
+        CurrPage.Update();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetUsageFilterOnAfterSetFiltersByReportUsage(var Rec: Record "Report Selections"; ReportUsage2: Enum "Report Selection Usage Bank")
+    begin
     end;
 }
 

@@ -832,7 +832,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         ConfigPackageData.SetRange("Package Code", ConfigPackage.Code);
         ConfigPackageData.SetRange("Table ID", TableID);
         ConfigPackageData.SetFilter("Field ID", '%1|%2', BankAccount.FieldNo(IBAN), BankAccount.FieldNo("SWIFT Code"));
-        ConfigPackageData.FindSet;
+        ConfigPackageData.FindSet();
         repeat
             Assert.AreEqual(
               TransformedTestBankAccountIBANCodeTxt, ConfigPackageData.Value,
@@ -2097,7 +2097,7 @@ codeunit 136608 "ERM RS Validate and Apply"
     var
         DimSetEntry: Record "Dimension Set Entry";
     begin
-        if DimSetEntry.IsEmpty then begin
+        if DimSetEntry.IsEmpty() then begin
             DimSetEntry.Init();
             DimSetEntry."Dimension Set ID" := 1;
             DimSetEntry.Insert();
@@ -2249,7 +2249,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         with ConfigPackageData do begin
             SetRange("Package Code", ConfigPackageCode);
             SetRange("No.", FromRecordNo);
-            FindSet;
+            FindSet();
             repeat
                 FieldRef := RecRef.Field("Field ID");
                 LibraryRapidStart.CreatePackageData("Package Code", "Table ID", NewRecordNo, "Field ID", Format(FieldRef.Value));
@@ -2377,7 +2377,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         LibraryVariableStorage.Enqueue(ConfigPackageRecords.Field3.Editable);
     end;
 
-    [EventSubscriber(ObjectType::Report, 8621, 'OnBeforeTextTransformation', '', false, false)]
+    [EventSubscriber(ObjectType::Report, Report::"Config. Package - Process", 'OnBeforeTextTransformation', '', false, false)]
     local procedure OnBeforeTextTransformationHandler(ConfigPackageTable: Record "Config. Package Table"; var TempField: Record "Field" temporary; var TempTransformationRule: Record "Transformation Rule" temporary)
     var
         Customer: Record Customer;

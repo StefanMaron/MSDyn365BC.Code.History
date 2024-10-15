@@ -26,7 +26,7 @@ codeunit 10328 "Exp. Mapping Det EFT US"
                       RecordRef);
                     LineNo := LineNo + 1;
                 end;
-            until ACHUSDetail.Next = 0;
+            until ACHUSDetail.Next() = 0;
         ACHUSDetail.DeleteAll();
     end;
 

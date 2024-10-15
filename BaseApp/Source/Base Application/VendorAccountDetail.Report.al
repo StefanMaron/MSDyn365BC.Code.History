@@ -501,7 +501,7 @@ report 10103 "Vendor Account Detail"
                                         Currency.Code,
                                         "Net Change");
                                     EndingBalanceToPrint := EndingBalanceToPrint + "Net Change";
-                                until TempCurrency.Next = 0;
+                                until TempCurrency.Next() = 0;
                             SetRange("Currency Filter");
                             EndingBalanceToPrint := Round(EndingBalanceToPrint, Currency."Amount Rounding Precision");
                         end else begin
@@ -523,7 +523,7 @@ report 10103 "Vendor Account Detail"
                                         Currency.Code,
                                         "Net Change");
                                     BalanceToPrint := BalanceToPrint + "Net Change";
-                                until TempCurrency.Next = 0;
+                                until TempCurrency.Next() = 0;
                             SetRange("Currency Filter");
                             BalanceToPrint := Round(BalanceToPrint, Currency."Amount Rounding Precision");
                         end else

@@ -404,7 +404,7 @@ codeunit 134153 "Test Intrastat"
     begin
         IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
-        IntrastatJnlLine.FindSet;
+        IntrastatJnlLine.FindSet();
         repeat
             IntrastatJnlLine.Validate("Transport Method", TransportMethod);
             IntrastatJnlLine.Validate("Transaction Type", TransactionType);

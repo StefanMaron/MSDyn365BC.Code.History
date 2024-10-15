@@ -66,7 +66,7 @@ codeunit 134329 "ERM Purchase Return Order"
         PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         repeat
             PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
         until PurchaseLine.Next = 0;
@@ -1087,7 +1087,7 @@ codeunit 134329 "ERM Purchase Return Order"
 
         // [GIVEN] Posted Purchase Return Order for Purchase Order
         CreatePurchaseReturnHeader(PurchaseHeader, PurchaseHeader."Buy-from Vendor No.");
-        PurchaseHeader.GetPstdDocLinesToRevere;
+        PurchaseHeader.GetPstdDocLinesToReverse();
         LibraryVariableStorage.Enqueue(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
 
         // [GIVEN] Purchase Return Order and Get Posted Doc to Reverse
@@ -1097,7 +1097,7 @@ codeunit 134329 "ERM Purchase Return Order"
         // done in PostedPurchaseDocumentLinesModalPageHandlerWithPostedReceipts
 
         // [WHEN] Stan pushes OK on page Posted Purchase Document Lines
-        PurchaseHeader.GetPstdDocLinesToRevere;
+        PurchaseHeader.GetPstdDocLinesToReverse();
 
         // [THEN] Message "One or more return document lines were not copied..."
         Assert.ExpectedMessage(CopyDocForReturnOrderMsg, LibraryVariableStorage.DequeueText);
@@ -1128,7 +1128,7 @@ codeunit 134329 "ERM Purchase Return Order"
 
         // [GIVEN] Posted Purchase Return Order for Purchase Order
         CreatePurchaseReturnHeader(PurchaseHeader, PurchaseHeader."Buy-from Vendor No.");
-        PurchaseHeader.GetPstdDocLinesToRevere;
+        PurchaseHeader.GetPstdDocLinesToReverse();
         LibraryVariableStorage.Enqueue(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
 
         // [GIVEN] Purchase Return Order and Get Posted Doc to Reverse
@@ -1138,7 +1138,7 @@ codeunit 134329 "ERM Purchase Return Order"
         // done in PostedPurchaseDocumentLinesModalPageHandlerWithPostedReceipts
 
         // [WHEN] Stan pushes OK on page Posted Purchase Document Lines
-        PurchaseHeader.GetPstdDocLinesToRevere;
+        PurchaseHeader.GetPstdDocLinesToReverse();
 
         // [THEN] Message "One or more return document lines were not copied..."
         Assert.ExpectedMessage(CopyDocForReturnOrderMsg, LibraryVariableStorage.DequeueText);
@@ -1604,7 +1604,7 @@ codeunit 134329 "ERM Purchase Return Order"
         TotalAmount: Decimal;
     begin
         ReturnShipmentLine.SetRange("Return Order No.", ReturnOrderNo);
-        ReturnShipmentLine.FindSet;
+        ReturnShipmentLine.FindSet();
         repeat
             TotalAmount += ReturnShipmentLine.Quantity * ReturnShipmentLine."Direct Unit Cost";
         until ReturnShipmentLine.Next = 0;
@@ -1715,7 +1715,7 @@ codeunit 134329 "ERM Purchase Return Order"
         PurchCrMemoHdr.FindFirst;
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Purchase Credit Memo");
         ValueEntry.SetRange("Document No.", PurchCrMemoHdr."No.");
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
         repeat
             TotalCostAmount += ValueEntry."Cost Amount (Actual)";
         until ValueEntry.Next = 0;

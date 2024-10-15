@@ -364,7 +364,6 @@ report 7112 "Analysis Report"
                         {
                             ApplicationArea = SalesAnalysis, PurchaseAnalysis, InventoryAnalysis;
                             Caption = 'Analysis Area';
-                            OptionCaption = 'Sales,Purchase,Inventory';
                             ToolTip = 'Specifies if the analysis template is set up in the Sales, Purchasing, or Inventory application area.';
 
                             trigger OnValidate()
@@ -385,7 +384,7 @@ report 7112 "Analysis Report"
 
                             trigger OnLookup(var Text: Text): Boolean
                             begin
-                                if AnalysisReportManagement.LookupReportName(AnalysisArea, AnalysisReportName) then begin
+                                if AnalysisReportManagement.LookupAnalysisReportName(AnalysisArea, AnalysisReportName) then begin
                                     Text := AnalysisReportName;
                                     exit(true);
                                 end;
@@ -441,12 +440,12 @@ report 7112 "Analysis Report"
 
                             trigger OnLookup(var Text: Text): Boolean
                             begin
-                                AnalysisReportManagement.LookupColumnName(AnalysisArea, AnalysisColumnTemplName);
+                                AnalysisReportManagement.LookupAnalysisColumnName(AnalysisArea, AnalysisColumnTemplName);
                             end;
 
                             trigger OnValidate()
                             begin
-                                AnalysisReportManagement.GetColumnTemplate(AnalysisArea, AnalysisColumnTemplName);
+                                AnalysisReportManagement.GetColumnTemplate(AnalysisArea.AsInteger(), AnalysisColumnTemplName);
                             end;
                         }
                     }
@@ -492,7 +491,6 @@ report 7112 "Analysis Report"
                         {
                             ApplicationArea = SalesAnalysis, PurchaseAnalysis, InventoryAnalysis;
                             Caption = 'Source Type Filter';
-                            OptionCaption = ' ,Customer,Vendor,Item';
                             ToolTip = 'Specifies if figures in the analysis report are filtered by item number, customer number, or vendor number.';
 
                             trigger OnValidate()
@@ -508,7 +506,7 @@ report 7112 "Analysis Report"
 
                             trigger OnLookup(var Text: Text): Boolean
                             begin
-                                AnalysisReportManagement.LookupSourceNo("Analysis Line", SourceTypeFilter, SourceNoFilter);
+                                AnalysisReportManagement.LookupSourceNo("Analysis Line", SourceTypeFilter.AsInteger(), SourceNoFilter);
                             end;
                         }
                     }
@@ -651,16 +649,16 @@ report 7112 "Analysis Report"
         AnalysisReportManagement: Codeunit "Analysis Report Management";
         AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
         MatrixMgt: Codeunit "Matrix Management";
-        AnalysisArea: Option Sales,Purchase,Inventory;
-        AnalysisAreaHidden: Option Sales,Purchase,Inventory;
+        AnalysisArea: Enum "Analysis Area Type";
+        AnalysisAreaHidden: Enum "Analysis Area Type";
         AnalysisReportName: Code[10];
         AnalysisReportNameHidden: Code[10];
         AnalysisLineTemplateName: Code[10];
         AnalysisLineTemplateNameHidden: Code[10];
         AnalysisColumnTemplName: Code[10];
         AnalysisColumnTemplNameHidden: Code[10];
-        SourceTypeFilter: Option " ",Customer,Vendor,Item;
-        SourceTypeFilterHidden: Option " ",Customer,Vendor,Item;
+        SourceTypeFilter: Enum "Analysis Source Type";
+        SourceTypeFilterHidden: Enum "Analysis Source Type";
         SourceNoFilter: Text;
         SourceNoFilterHidden: Text;
         EndDate: Date;
@@ -757,13 +755,21 @@ report 7112 "Analysis Report"
                         end;
                         NoOfCols += 1;
                     end;
-                until (i >= MaxColumnsDisplayed) or (Next = 0);
+                until (i >= MaxColumnsDisplayed) or (Next() = 0);
                 MaxColumnsDisplayed := i;
             end;
         end;
     end;
 
+#if not CLEAN18
+    [Obsolete('Replaced by SetParameters().', '18.0')]
     procedure SetParams(NewAnalysisArea: Option Sales,Purchase,Inventory; NewReportName: Code[10]; NewLineTemplateName: Code[10]; NewColumnTemplateName: Code[10])
+    begin
+        SetParameters("Analysis Area Type".FromInteger(NewAnalysisArea), NewReportName, NewLineTemplateName, NewColumnTemplateName);
+    end;
+#endif
+
+    procedure SetParameters(NewAnalysisArea: Enum "Analysis Area Type"; NewReportName: Code[10]; NewLineTemplateName: Code[10]; NewColumnTemplateName: Code[10])
     begin
         UseHiddenFilters := true;
         AnalysisAreaHidden := NewAnalysisArea;
@@ -780,7 +786,7 @@ report 7112 "Analysis Report"
         Dim1FilterHidden := NewDim1Filter;
         Dim2FilterHidden := NewDim2Filter;
         Dim3FilterHidden := NewDim3Filter;
-        SourceTypeFilterHidden := NewSourceTypeFilter;
+        SourceTypeFilterHidden := "Analysis Source Type".FromInteger(NewSourceTypeFilter);
         SourceNoFilterHidden := NewSourceNoFilter;
     end;
 
@@ -815,7 +821,7 @@ report 7112 "Analysis Report"
                                   MatrixMgt.FormatValue(ColumnValuesDisplayed[i], "Rounding Factor", false);
                             end;
                     end;
-                until (i >= MaxColumnsDisplayed) or (Next = 0);
+                until (i >= MaxColumnsDisplayed) or (Next() = 0);
         end;
         exit(NonZero);
     end;

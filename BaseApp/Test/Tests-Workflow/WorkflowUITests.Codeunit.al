@@ -1610,9 +1610,9 @@ codeunit 134316 "Workflow UI Tests"
     [Scope('OnPrem')]
     procedure WorkflowCardDoesNotMixRecsWithTemplates_NonTemplateIsOpened()
     var
-        Workflow: array[2] of Record 1501;
-        TemplateWorkflow: array[2] of Record 1501;
-        TestPageWorkflow: TestPage 1501;
+        Workflow: array[2] of Record "Workflow";
+        TemplateWorkflow: array[2] of Record "Workflow";
+        TestPageWorkflow: TestPage "Workflow";
         Index: Integer;
     begin
         // [FEATURE] [Workflow Card]
@@ -1642,9 +1642,9 @@ codeunit 134316 "Workflow UI Tests"
     [Scope('OnPrem')]
     procedure WorkflowCardDoesNotMixRecsWithTemplates_TemplateIsOpened()
     var
-        Workflow: array[2] of Record 1501;
-        TemplateWorkflow: array[2] of Record 1501;
-        TestPageWorkflow: TestPage 1501;
+        Workflow: array[2] of Record "Workflow";
+        TemplateWorkflow: array[2] of Record "Workflow";
+        TestPageWorkflow: TestPage "Workflow";
         Index: Integer;
     begin
         // [FEATURE] [Workflow Card]
@@ -1716,7 +1716,7 @@ codeunit 134316 "Workflow UI Tests"
         Assert.AreEqual(IsActionable, WorkflowPage.WorkflowSubpage."Event Description".Editable, UIElementDoesNotHaveCorrectStateErr);
     end;
 
-    local procedure VerifyPreviousAndNextWorkflowRecords(var TestPageWorkflow: TestPage 1501; WorkflowCode1: Code[20]; WorkflowCode2: Code[20])
+    local procedure VerifyPreviousAndNextWorkflowRecords(var TestPageWorkflow: TestPage "Workflow"; WorkflowCode1: Code[20]; WorkflowCode2: Code[20])
     begin
         TestPageWorkflow.Previous();
         TestPageWorkflow.Code.AssertEquals(WorkflowCode1);

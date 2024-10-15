@@ -3759,7 +3759,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         if GLVATLink.FindSet then begin
             repeat
                 GLVatLink2.SetRange("G/L Entry No.", GLVATLink."G/L Entry No.");
-                GLVatLink2.FindSet;
+                GLVatLink2.FindSet();
                 repeat
                     if GLVatLink2."VAT Entry No." <> VATEntry."Entry No." then begin
                         VATEntry2.Get(GLVatLink2."VAT Entry No.");

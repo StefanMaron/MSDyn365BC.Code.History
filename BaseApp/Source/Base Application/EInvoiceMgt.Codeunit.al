@@ -1597,7 +1597,7 @@ codeunit 10145 "E-Invoice Mgt."
                 repeat
                     TotalTaxes := TotalTaxes + (TempDocumentLine."Amount Including VAT" - TempDocumentLine.Amount);
                     TotalDiscount := TotalDiscount + TempDocumentLine."Line Discount Amount";
-                until TempDocumentLine.Next = 0;
+                until TempDocumentLine.Next() = 0;
             AddAttribute(XMLDoc, XMLCurrNode, 'Descuento', FormatAmount(TotalDiscount));
 
             if "Currency Code" <> '' then begin
@@ -1750,7 +1750,7 @@ codeunit 10145 "E-Invoice Mgt."
             if TempDocumentLine.FindSet then
                 repeat
                     TotalDiscount := TotalDiscount + TempDocumentLine."Line Discount Amount";
-                until TempDocumentLine.Next = 0;
+                until TempDocumentLine.Next() = 0;
 
             AddAttribute(XMLDoc, XMLCurrNode, 'SubTotal', FormatAmount(SubTotal));
             AddAttribute(XMLDoc, XMLCurrNode, 'Descuento', FormatAmount(TotalDiscount));
@@ -1848,7 +1848,7 @@ codeunit 10145 "E-Invoice Mgt."
                         // End of tax info per line
                     end;
                     XMLCurrNode := XMLCurrNode.ParentNode;
-                until TempDocumentLine.Next = 0;
+                until TempDocumentLine.Next() = 0;
 
             CreateXMLDocument33TaxAmountLines(
               TempVATAmountLine, TempDocumentLine, XMLDoc, XMLCurrNode, XMLNewChild, RetainAmt, false);
@@ -2157,7 +2157,7 @@ codeunit 10145 "E-Invoice Mgt."
                 repeat
                     TotalTaxes := TotalTaxes + (TempDocumentLine."Amount Including VAT" - TempDocumentLine.Amount);
                     TotalDiscount := TotalDiscount + TempDocumentLine."Line Discount Amount";
-                until TempDocumentLine.Next = 0;
+                until TempDocumentLine.Next() = 0;
 
             WriteOutStr(OutStream, FormatAmount(TotalDiscount) + '|'); // Descuento
 
@@ -2235,7 +2235,7 @@ codeunit 10145 "E-Invoice Mgt."
                     end;
 
                     WriteOutStr(OutStream, RemoveInvalidChars(FormatNumeroPedimento(TempDocumentLine)) + '|'); // NumeroPedimento
-                until TempDocumentLine.Next = 0;
+                until TempDocumentLine.Next() = 0;
 
             CreateOriginalStr33TaxAmountLines(
               TempVATAmountLine, TempDocumentLine, OutStream, RetainAmt, IsCredit);
@@ -2270,7 +2270,7 @@ codeunit 10145 "E-Invoice Mgt."
             if TempDocumentLine.FindSet then
                 repeat
                     TotalDiscount := TotalDiscount + TempDocumentLine."Line Discount Amount";
-                until TempDocumentLine.Next = 0;
+                until TempDocumentLine.Next() = 0;
 
             WriteOutStr(OutStream, FormatAmount(SubTotal) + '|'); // SubTotal
             WriteOutStr(OutStream, FormatAmount(TotalDiscount) + '|'); // Desuento
@@ -2341,7 +2341,7 @@ codeunit 10145 "E-Invoice Mgt."
                             WriteOutStr(OutStream, 'Exento' + '|'); // TipoFactor
                         TotalTaxes := TotalTaxes + (TempDocumentLine."Amount Including VAT" - TempDocumentLine.Amount);
                     end;
-                until TempDocumentLine.Next = 0;
+                until TempDocumentLine.Next() = 0;
 
             CreateOriginalStr33TaxAmountLines(
               TempVATAmountLine, TempDocumentLine, OutStream, RetainAmt, false);
@@ -2446,7 +2446,7 @@ codeunit 10145 "E-Invoice Mgt."
                             WriteOutStr(OutStream, 'Exento' + '|'); // TipoFactor
                         TotalTaxes := TotalTaxes + TaxAmount;
                     end;
-                until TempDocumentLine.Next = 0;
+                until TempDocumentLine.Next() = 0;
             if TotalTaxes <> 0 then
                 WriteOutStr(OutStream, FormatDecimal(TotalTaxes, 0) + '|'); // TotalImpuestosTrasladados
             WriteOutStrAllowOneCharacter(OutStream, '|');
@@ -2967,7 +2967,7 @@ codeunit 10145 "E-Invoice Mgt."
             repeat
                 SubTotal := SubTotal + (DocumentLine.Quantity * DocumentLine."Unit Price/Direct Unit Cost");
                 RetainAmt := RetainAmt + (DocumentLine."Amount Including VAT" - DocumentLine.Amount);
-            until DocumentLine.Next = 0;
+            until DocumentLine.Next() = 0;
     end;
 
     local procedure RemoveExtraWhiteSpaces(StrParam: Text) StrReturn: Text
@@ -3211,7 +3211,7 @@ codeunit 10145 "E-Invoice Mgt."
                             if SalesInvoiceLine.Type = SalesInvoiceLine.Type::"Fixed Asset" then
                                 TempDocumentLine."Unit of Measure Code" := SATUtilities.GetSATUnitOfMeasureFixedAsset();
                             TempDocumentLine.Insert();
-                        until SalesInvoiceLine.Next = 0;
+                        until SalesInvoiceLine.Next() = 0;
                 end;
             DATABASE::"Sales Cr.Memo Header":
                 begin
@@ -3236,7 +3236,7 @@ codeunit 10145 "E-Invoice Mgt."
                             if SalesCrMemoLine.Type = SalesCrMemoLine.Type::"Fixed Asset" then
                                 TempDocumentLine."Unit of Measure Code" := SATUtilities.GetSATUnitOfMeasureFixedAsset();
                             TempDocumentLine.Insert();
-                        until SalesCrMemoLine.Next = 0;
+                        until SalesCrMemoLine.Next() = 0;
                 end;
             DATABASE::"Service Invoice Header":
                 begin
@@ -3263,7 +3263,7 @@ codeunit 10145 "E-Invoice Mgt."
                             TempDocumentLine."Line Discount Amount" :=
                               TempDocumentLine."Line Discount Amount" + ServiceInvoiceLine."Inv. Discount Amount";
                             TempDocumentLine.Insert();
-                        until ServiceInvoiceLine.Next = 0;
+                        until ServiceInvoiceLine.Next() = 0;
                 end;
             DATABASE::"Service Cr.Memo Header":
                 begin
@@ -3290,7 +3290,7 @@ codeunit 10145 "E-Invoice Mgt."
                             TempDocumentLine."Line Discount Amount" :=
                               TempDocumentLine."Line Discount Amount" + ServiceCrMemoLine."Inv. Discount Amount";
                             TempDocumentLine.Insert();
-                        until ServiceCrMemoLine.Next = 0;
+                        until ServiceCrMemoLine.Next() = 0;
                 end;
         end;
     end;
@@ -3440,7 +3440,7 @@ codeunit 10145 "E-Invoice Mgt."
                 Clear(TempDetailedCustLedgEntry);
                 TempDetailedCustLedgEntry.TransferFields(DetailedCustLedgEntry, true);
                 TempDetailedCustLedgEntry.Insert();
-            until DetailedCustLedgEntry.Next = 0;
+            until DetailedCustLedgEntry.Next() = 0;
         end;
         DateTimeFirstReqSent := GetDateTimeOfFirstReqPayment(CustLedgerEntry);
         CurrencyDecimalPlaces := GetCurrencyDecimalPlaces(CustLedgerEntry."Currency Code");
@@ -3526,7 +3526,7 @@ codeunit 10145 "E-Invoice Mgt."
                             end;
                         if CustLedgerEntryLoc2."Entry No." = CustLedgerEntry."Entry No." then
                             exit(true);
-                    until CustLedgerEntryLoc2.Next = 0
+                    until CustLedgerEntryLoc2.Next() = 0
                 else
                     exit(true);
             end;
@@ -3552,7 +3552,7 @@ codeunit 10145 "E-Invoice Mgt."
                     repeat
                         StampedAmount += CustLedgerEntryLoc2."Closed by Amount";
                         PaymentNo += 1;
-                    until CustLedgerEntryLoc2.Next = 0;
+                    until CustLedgerEntryLoc2.Next() = 0;
             end;
         end;
     end;
@@ -3826,7 +3826,7 @@ codeunit 10145 "E-Invoice Mgt."
             if TempDetailedCustLedgEntry.FindSet then
                 repeat
                     PaymentAmount := PaymentAmount + Abs(TempDetailedCustLedgEntry.Amount);
-                until TempDetailedCustLedgEntry.Next = 0;
+                until TempDetailedCustLedgEntry.Next() = 0;
             AddAttribute(XMLDoc, XMLCurrNode, 'Monto', FormatAmount(PaymentAmount));
             // AddAttribute(XMLDoc,XMLCurrNode,'Monto',FormatAmount(Amount));
 
@@ -3881,7 +3881,7 @@ codeunit 10145 "E-Invoice Mgt."
                       FormatAmount(AmountInclVAT + (TempDetailedCustLedgEntry.Amount + SumOfStamped)));
 
                     XMLCurrNode := XMLCurrNode.ParentNode;
-                until TempDetailedCustLedgEntry.Next = 0;
+                until TempDetailedCustLedgEntry.Next() = 0;
 
             XMLCurrNode := XMLCurrNode.ParentNode;
             XMLCurrNode := XMLCurrNode.ParentNode;
@@ -3958,7 +3958,7 @@ codeunit 10145 "E-Invoice Mgt."
             if TempDetailedCustLedgEntry.FindSet then
                 repeat
                     PaymentAmount := PaymentAmount + Abs(TempDetailedCustLedgEntry.Amount);
-                until TempDetailedCustLedgEntry.Next = 0;
+                until TempDetailedCustLedgEntry.Next() = 0;
             WriteOutStr(OutStream, FormatAmount(PaymentAmount) + '|'); // Monto
                                                                        // OutStream.WRITETEXT(FormatAmount(Amount) + '|'); // Monto
 
@@ -4007,7 +4007,7 @@ codeunit 10145 "E-Invoice Mgt."
                     WriteOutStr(OutStream, FormatAmount(TempDetailedCustLedgEntry.Amount) + '|'); // ImpPagado
                     WriteOutStr(OutStream,
                       FormatAmount(AmountInclVAT + (TempDetailedCustLedgEntry.Amount + SumOfStamped)) + '|');// ImpSaldoInsoluto
-                until TempDetailedCustLedgEntry.Next = 0;
+                until TempDetailedCustLedgEntry.Next() = 0;
             // Need one more pipe character at end of built string...
             WriteOutStrAllowOneCharacter(OutStream, '|');
         end;
@@ -4142,7 +4142,7 @@ codeunit 10145 "E-Invoice Mgt."
             repeat
                 CFDIRelationDocument := CFDIRelationDocumentFrom;
                 CFDIRelationDocument.Insert();
-            until CFDIRelationDocumentFrom.Next = 0;
+            until CFDIRelationDocumentFrom.Next() = 0;
     end;
 
     local procedure GetRelationDocumentsCreditMemo(var CFDIRelationDocument: Record "CFDI Relation Document"; DocumentHeader: Record "Document Header"; DocumentNo: Code[20]; TableID: Integer)
@@ -4213,20 +4213,20 @@ codeunit 10145 "E-Invoice Mgt."
 
     local procedure AddNodeRelacionado(var XMLDoc: DotNet XmlDocument; var XMLCurrNode: DotNet XmlNode; var XMLNewChild: DotNet XmlNode; var TempCFDIRelationDocument: Record "CFDI Relation Document" temporary; CFDIRelacion: Code[10])
     begin
-        if TempCFDIRelationDocument.IsEmpty then
+        if TempCFDIRelationDocument.IsEmpty() then
             exit;
 
         AddElementCFDI(XMLCurrNode, 'CfdiRelacionados', '', DocNameSpace, XMLNewChild);
         XMLCurrNode := XMLNewChild;
         AddAttribute(XMLDoc, XMLCurrNode, 'TipoRelacion', CFDIRelacion);
 
-        TempCFDIRelationDocument.FindSet;
+        TempCFDIRelationDocument.FindSet();
         repeat
             AddElementCFDI(XMLCurrNode, 'CfdiRelacionado', '', DocNameSpace, XMLNewChild);
             XMLCurrNode := XMLNewChild;
             AddAttribute(XMLDoc, XMLCurrNode, 'UUID', TempCFDIRelationDocument."Fiscal Invoice Number PAC");
             XMLCurrNode := XMLCurrNode.ParentNode;
-        until TempCFDIRelationDocument.Next = 0;
+        until TempCFDIRelationDocument.Next() = 0;
 
         XMLCurrNode := XMLCurrNode.ParentNode;
     end;
@@ -4237,7 +4237,7 @@ codeunit 10145 "E-Invoice Mgt."
             WriteOutStr(OutStr, RemoveInvalidChars(TempDocumentHeader."CFDI Relation") + '|');
             repeat
                 WriteOutStr(OutStr, RemoveInvalidChars(TempCFDIRelationDocument."Fiscal Invoice Number PAC") + '|');
-            until TempCFDIRelationDocument.Next = 0;
+            until TempCFDIRelationDocument.Next() = 0;
         end;
     end;
 
@@ -4253,7 +4253,7 @@ codeunit 10145 "E-Invoice Mgt."
                     AdvanceAmount := SalesInvoiceLine."Amount Including VAT";
                     exit(true);
                 end;
-            until SalesInvoiceLine.Next = 0;
+            until SalesInvoiceLine.Next() = 0;
         exit(false);
     end;
 
@@ -4338,9 +4338,8 @@ codeunit 10145 "E-Invoice Mgt."
         exit(Round(Tax / Amount, 0.01, '=') * 100);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1400, 'OnRegisterServiceConnection', '', false, false)]
-    [Scope('OnPrem')]
-    procedure HandleMXElectronicInvoicingRegisterServiceConnection(var ServiceConnection: Record "Service Connection")
+    [EventSubscriber(ObjectType::Table, Database::"Service Connection", 'OnRegisterServiceConnection', '', false, false)]
+    local procedure HandleMXElectronicInvoicingRegisterServiceConnection(var ServiceConnection: Record "Service Connection")
     var
         MXElectronicInvoicingSetup: Record "MX Electronic Invoicing Setup";
         RecRef: RecordRef;
@@ -4504,7 +4503,7 @@ codeunit 10145 "E-Invoice Mgt."
             CFDIRelationDocument."Document Type" := 0;
             CFDIRelationDocument."Document No." := ToDocumentNo;
             CFDIRelationDocument.Insert();
-        until CFDIRelationDocumentFrom.Next = 0;
+        until CFDIRelationDocumentFrom.Next() = 0;
 
         if DeleteRelations then
             CFDIRelationDocumentFrom.DeleteAll();
@@ -4621,7 +4620,7 @@ codeunit 10145 "E-Invoice Mgt."
         LineTableCaption: Text;
     begin
         DataTypeManagement.GetRecordRef(DocumentVariant, RecRef);
-        DocumentLine.FindSet;
+        DocumentLine.FindSet();
         with TempErrorMessage do
             repeat
                 GetLineVarFromDocumentLine(LineVariant, LineTableCaption, RecRef.Number, DocumentLine);
@@ -4641,7 +4640,7 @@ codeunit 10145 "E-Invoice Mgt."
                     LogIfEmpty(Item, Item.FieldNo("SAT Item Classification"), "Message Type"::Error);
                 if UnitOfMeasure.Get(DocumentLine."Unit of Measure Code") then
                     LogIfEmpty(UnitOfMeasure, UnitOfMeasure.FieldNo("SAT UofM Classification"), "Message Type"::Error);
-            until DocumentLine.Next = 0;
+            until DocumentLine.Next() = 0;
     end;
 
     local procedure CheckCFDIRelations(var TempErrorMessage: Record "Error Message" temporary; var TempCFDIRelationDocument: Record "CFDI Relation Document" temporary; DocumentHeader: Record "Document Header"; RecVariant: Variant)
@@ -4650,7 +4649,7 @@ codeunit 10145 "E-Invoice Mgt."
             if TempCFDIRelationDocument.FindSet then
                 repeat
                     LogIfEmpty(TempCFDIRelationDocument, TempCFDIRelationDocument.FieldNo("Fiscal Invoice Number PAC"), "Message Type"::Error);
-                until TempCFDIRelationDocument.Next = 0
+                until TempCFDIRelationDocument.Next() = 0
             else
                 if DocumentHeader."CFDI Relation" = '04' then
                     LogMessage(RecVariant, DocumentHeader.FieldNo("CFDI Relation"), "Message Type"::Error, NoRelationDocumentsExistErr);
@@ -4669,28 +4668,28 @@ codeunit 10145 "E-Invoice Mgt."
         SATPaymentMethod: Record "SAT Payment Method";
     begin
         with TempErrorMessage do begin
-            if SATClassification.IsEmpty then
+            if SATClassification.IsEmpty() then
                 LogSimpleMessage("Message Type"::Error, StrSubstNo(EmptySATCatalogErr, SATClassification.TableCaption));
-            if SATRelationshipType.IsEmpty then
+            if SATRelationshipType.IsEmpty() then
                 LogSimpleMessage("Message Type"::Error, StrSubstNo(EmptySATCatalogErr, SATRelationshipType.TableCaption));
-            if SATUseCode.IsEmpty then
+            if SATUseCode.IsEmpty() then
                 LogSimpleMessage("Message Type"::Error, StrSubstNo(EmptySATCatalogErr, SATUseCode.TableCaption));
-            if SATUnitOfMeasure.IsEmpty then
+            if SATUnitOfMeasure.IsEmpty() then
                 LogSimpleMessage("Message Type"::Error, StrSubstNo(EmptySATCatalogErr, SATUnitOfMeasure.TableCaption));
-            if SATCountryCode.IsEmpty then
+            if SATCountryCode.IsEmpty() then
                 LogSimpleMessage("Message Type"::Error, StrSubstNo(EmptySATCatalogErr, SATCountryCode.TableCaption));
-            if SATTaxScheme.IsEmpty then
+            if SATTaxScheme.IsEmpty() then
                 LogSimpleMessage("Message Type"::Error, StrSubstNo(EmptySATCatalogErr, SATTaxScheme.TableCaption));
-            if SATPaymentTerm.IsEmpty then
+            if SATPaymentTerm.IsEmpty() then
                 LogSimpleMessage("Message Type"::Error, StrSubstNo(EmptySATCatalogErr, SATPaymentTerm.TableCaption));
-            if SATPaymentMethod.IsEmpty then
+            if SATPaymentMethod.IsEmpty() then
                 LogSimpleMessage("Message Type"::Error, StrSubstNo(EmptySATCatalogErr, SATPaymentMethod.TableCaption));
 
             SATPaymentTerm.SetRange(Code, 'PIP');
-            if SATPaymentTerm.IsEmpty then
+            if SATPaymentTerm.IsEmpty() then
                 LogSimpleMessage("Message Type"::Error, StrSubstNo(WrongSATCatalogErr, SATPaymentTerm.TableCaption));
             SATPaymentMethod.SetRange(Code, '01');
-            if SATPaymentMethod.IsEmpty then
+            if SATPaymentMethod.IsEmpty() then
                 LogSimpleMessage("Message Type"::Error, StrSubstNo(WrongSATCatalogErr, SATPaymentMethod.TableCaption));
         end;
     end;

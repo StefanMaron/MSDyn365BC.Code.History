@@ -60,11 +60,9 @@ table 763 "Acc. Sched. Chart Setup Line"
             Caption = 'Measure Value';
             Editable = false;
         }
-        field(40; "Chart Type"; Option)
+        field(40; "Chart Type"; Enum "Account Schedule Chart Type")
         {
             Caption = 'Chart Type';
-            OptionCaption = ' ,Line,StepLine,Column,StackedColumn';
-            OptionMembers = " ",Line,StepLine,Column,StackedColumn;
 
             trigger OnValidate()
             var
@@ -84,7 +82,7 @@ table 763 "Acc. Sched. Chart Setup Line"
                                (AccSchedChartSetupLine."Column Layout Line No." <> "Column Layout Line No.")
                             then
                                 ActualNumMeasures += 1;
-                        until AccSchedChartSetupLine.Next = 0;
+                        until AccSchedChartSetupLine.Next() = 0;
                     if ActualNumMeasures >= BusinessChartBuffer.GetMaxNumberOfMeasures then
                         BusinessChartBuffer.RaiseErrorMaxNumberOfMeasuresExceeded;
                 end;
@@ -121,7 +119,15 @@ table 763 "Acc. Sched. Chart Setup Line"
         end;
     end;
 
+#if not CLEAN18
+    [Obsolete('Replaced by GetDefaultAccSchedChartType()', '18.0')]
     procedure GetDefaultChartType(): Integer
+    begin
+        exit("Chart Type"::Column.AsInteger());
+    end;
+#endif
+
+    procedure GetDefaultAccSchedChartType(): Enum "Account Schedule Chart Type"
     begin
         exit("Chart Type"::Column);
     end;

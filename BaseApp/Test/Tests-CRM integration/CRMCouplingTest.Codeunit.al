@@ -33,6 +33,7 @@ codeunit 139182 "CRM Coupling Test"
         CurrencyExchangeRateMissingErr: Label 'Cannot create or update the currency %1 in %2, because there is no exchange rate defined for it.', Comment = '%1 - currency code, %2 - CRM product name';
 
     [Test]
+    //Reenabled in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
     [HandlerFunctions('SetCouplingRecordPageHandler,SyncStartedNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure CoupleSalesperson()
@@ -851,14 +852,12 @@ codeunit 139182 "CRM Coupling Test"
         Item: Record Item;
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
-        CRMCouplingTest: Codeunit "CRM Coupling Test";
         SalesPriceList: TestPage "Sales Price List";
     begin
         // [FEATURE] [UI] [Price List]
         // [SCENARIO] Coupling is not enabled for inactive Price List Header
         TestInit(true);
         // [GIVEN] Extended Price is on
-        BindSubscription(CRMCouplingTest); // to pass 'CurPage.Activate on subpage' issue
 
         // [GIVEN] Draft Price List Header for Customer Price Group 'CPR' with one Line for Item 'I'
         LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
@@ -888,13 +887,11 @@ codeunit 139182 "CRM Coupling Test"
         Item: Record Item;
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
-        CRMCouplingTest: Codeunit "CRM Coupling Test";
         SalesPriceList: TestPage "Sales Price List";
     begin
         // [FEATURE] [UI] [Price List]
         // [SCENARIO] Coupling is not enabled for Price List Header, where "Allow Updating Defaults" is Yes.
         TestInit(true);
-        BindSubscription(CRMCouplingTest); // to pass 'CurPage.Activate on subpage' issue
         // [GIVEN] Extended Price is on
 
         // [GIVEN] Active Price List Header for Customer Price Group 'CPR' with one Line for Item 'I',
@@ -932,7 +929,6 @@ codeunit 139182 "CRM Coupling Test"
         IntegrationTableMapping: Record "Integration Table Mapping";
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
-        CRMCouplingTest: Codeunit "CRM Coupling Test";
         SalesPriceList: TestPage "Sales Price List";
         CustomerPriceGroups: TestPage "Customer Price Groups";
         JobQueueEntryID: Guid;
@@ -941,7 +937,6 @@ codeunit 139182 "CRM Coupling Test"
         // [SCENARIO] Coupling a Price List Header with child Line, create new Pricelevel in CRM
         TestInit(true);
         // [GIVEN] Extended Price is on
-        BindSubscription(CRMCouplingTest); // to pass 'CurPage.Activate on subpage' issue
 
         // [GIVEN] Active Price List Header 'PLH001' for Customer Price Group 'CPR' with one Line for Item 'I'
         LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
@@ -1142,7 +1137,6 @@ codeunit 139182 "CRM Coupling Test"
         A_CRMContact: Record "CRM Contact";
         P_CRMContact: Record "CRM Contact";
         Q_CRMContact: Record "CRM Contact";
-        IntegrationRecord: Record "Integration Record";
         A_Contact: Record Contact;
         B_Contact: Record Contact;
         C_Contact: Record Contact;
@@ -1157,17 +1151,17 @@ codeunit 139182 "CRM Coupling Test"
 
         // [GIVEN] A contact related to the customer coupled to a CRM contact related to the CRM account
         LibraryCRMIntegration.CreateCRMContactWithParentAccount(A_CRMContact, CRMAccount);
-        LibraryCRMIntegration.CreateContactForCustomerAndEnsureIntegrationRecord(A_Contact, Customer, IntegrationRecord);
+        LibraryCRMIntegration.CreateContactForCustomer(A_Contact, Customer);
         CRMIntegrationRecord.CoupleRecordIdToCRMID(A_Contact.RecordId, A_CRMContact.ContactId);
 
         // [GIVEN] A contact related to the customer coupled to a CRM contact not related to the CRM account
-        LibraryCRMIntegration.CreateContactForCustomerAndEnsureIntegrationRecord(B_Contact, Customer, IntegrationRecord);
+        LibraryCRMIntegration.CreateContactForCustomer(B_Contact, Customer);
         LibraryCRMIntegration.CreateCRMContact(P_CRMContact);
         CRMIntegrationRecord.CoupleRecordIdToCRMID(B_Contact.RecordId, P_CRMContact.ContactId);
 
         // [GIVEN] A CRM contact related to the CRM account coupled to a contact not related to the customer
         LibraryCRMIntegration.CreateCRMContactWithParentAccount(Q_CRMContact, CRMAccount);
-        LibraryCRMIntegration.CreateContactAndEnsureIntegrationRecord(C_Contact, IntegrationRecord);
+        LibraryCRMIntegration.CreateContact(C_Contact);
         CRMIntegrationRecord.CoupleRecordIdToCRMID(C_Contact.RecordId, Q_CRMContact.ContactId);
 
         // [WHEN] Deleting the coupling of the customer
@@ -1479,7 +1473,7 @@ codeunit 139182 "CRM Coupling Test"
         Assert.RecordIsEmpty(IntegrationRecord);
     end;
 
-    //[Test]
+    [Test]
     [HandlerFunctions('SyncStartedNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestProductToNewItem()
@@ -1492,24 +1486,78 @@ codeunit 139182 "CRM Coupling Test"
         IntegrationTableMapping: Record "Integration Table Mapping";
         Item: Record Item;
         UnitOfMeasure: Record "Unit of Measure";
+        CDSCompany: Record "CDS Company";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         // [SCENARIO] Synchronize CRM Product to Item
         TestInit;
         Item.DeleteAll(false);
+        LibraryCRMIntegration.EnsureCDSCompany(CDSCompany);
 
         // [GIVEN] Unit of Measure coupled to CRM UoM "CRMUOM"
         LibraryCRMIntegration.CreateCoupledUnitOfMeasureAndUomSchedule(UnitOfMeasure, CRMUom, CRMUomschedule);
         LibraryCRMIntegration.CreateCoupledCurrencyAndTransactionCurrency(Currency, CRMTransactioncurrency);
         // [GIVEN] CRM Product
         LibraryCRMIntegration.CreateCRMProduct(CRMProduct, CRMTransactioncurrency, CRMUom);
+        CRMProduct.StateCode := CRMProduct.StateCode::Active;
+        CRMProduct.ProductTypeCode := CRMProduct.ProductTypeCode::SalesInventory;
+        CRMProduct.Modify();
+
         // [WHEN] Synchronize CRM Product to Item
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
-        CRMIntegrationManagement.CreateNewRecordsFromCRM(CRMProduct);
         CRMProduct.SetRecFilter;
+        CRMIntegrationManagement.CreateNewRecordsFromCRM(CRMProduct);
         LibraryCRMIntegration.RunJobQueueEntry(DATABASE::"CRM Product", CRMProduct.GetView, IntegrationTableMapping);
 
         // [THEN] "Item"."Base Unit of Measure" = "CRMUOM"
+        Item.FindFirst;
+        Assert.AreEqual(UnitOfMeasure.Code, Item."Base Unit of Measure", UoMErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('SyncStartedNotificationHandler,RecallNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure TestProductToNewItemResourceNotPickedUp()
+    var
+        Currency: Record Currency;
+        CRMProduct: Record "CRM Product";
+        CRMProductService: Record "CRM Product";
+        CRMTransactioncurrency: Record "CRM Transactioncurrency";
+        CRMUom: Record "CRM Uom";
+        CRMUomService: Record "CRM Uom";
+        CRMUomschedule: Record "CRM Uomschedule";
+        CRMUomscheduleService: Record "CRM Uomschedule";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+        UnitOfMeasureService: Record "Unit of Measure";
+        CDSCompany: Record "CDS Company";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+    begin
+        // [SCENARIO] Synchronize CRM Product to Item
+        TestInit;
+        Item.DeleteAll(false);
+        LibraryCRMIntegration.EnsureCDSCompany(CDSCompany);
+
+        // [GIVEN] Unit of Measure coupled to CRM UoM "CRMUOM"
+        LibraryCRMIntegration.CreateCoupledUnitOfMeasureAndUomSchedule(UnitOfMeasure, CRMUom, CRMUomschedule);
+        LibraryCRMIntegration.CreateCoupledUnitOfMeasureAndUomSchedule(UnitOfMeasureService, CRMUomService, CRMUomscheduleService);
+        LibraryCRMIntegration.CreateCoupledCurrencyAndTransactionCurrency(Currency, CRMTransactioncurrency);
+        // [GIVEN] CRM Product of type Sales inventory
+        LibraryCRMIntegration.CreateCRMProduct(CRMProduct, CRMTransactioncurrency, CRMUom);
+        // [GIVEN] CRM Product of type Service
+        LibraryCRMIntegration.CreateCRMProduct(CRMProductService, CRMTransactioncurrency, CRMUomService);
+        CRMProductService.ProductTypeCode := CRMProductService.ProductTypeCode::Services;
+        CRMProductService.Modify();
+
+        // [WHEN] Synchronize CRM Product to Item
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
+        CRMProduct.SetRecFilter;
+        CRMIntegrationManagement.CreateNewRecordsFromCRM(CRMProduct);
+        LibraryCRMIntegration.RunJobQueueEntry(DATABASE::"CRM Product", CRMProduct.GetView, IntegrationTableMapping);
+
+        // [THEN] "Item"."Base Unit of Measure" = "CRMUOM"
+        Assert.AreEqual(1, Item.Count(), 'Only one Item should have been created. The CRM Product of type Services should not have been picked up.');
         Item.FindFirst;
         Assert.AreEqual(UnitOfMeasure.Code, Item."Base Unit of Measure", UoMErr);
     end;
@@ -1666,7 +1714,7 @@ codeunit 139182 "CRM Coupling Test"
     end;
 
     [Test]
-    [HandlerFunctions('CRMCouplingRecordModalPageHandler,CRMSystemuserCouplingControlModalPageHandler,ConfirmYes')]
+    [HandlerFunctions('CRMCouplingRecordModalPageHandler,CRMSystemuserCouplingControlModalPageHandler')]
     [Scope('OnPrem')]
     procedure CRMSystemUserPageCoupleControlsVisibility()
     var
@@ -1706,13 +1754,6 @@ codeunit 139182 "CRM Coupling Test"
     procedure CoupleYesConfirmHandler(Question: Text; var Reply: Boolean)
     begin
         Assert.ExpectedMessage('create a coupling?', Question);
-        Reply := true;
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmYes(Question: Text; var Reply: Boolean)
-    begin
         Reply := true;
     end;
 
@@ -1758,6 +1799,7 @@ codeunit 139182 "CRM Coupling Test"
     end;
 
     [Test]
+    //Reenabled in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
     [HandlerFunctions('SynchCustomerStrMenuHandler,SyncStartedNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure UpdateCustomerPrimaryContactCodeFromCRMAccount()
@@ -1925,6 +1967,7 @@ codeunit 139182 "CRM Coupling Test"
     end;
 
     [Test]
+    //Reenabled in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
     [Scope('OnPrem')]
     procedure CRMtoNAVSyncClearValueOnFailedSyncNo()
     var
@@ -1987,7 +2030,6 @@ codeunit 139182 "CRM Coupling Test"
         Contact: Record Contact;
         CRMAccount: Record "CRM Account";
         CRMContact: Record "CRM Contact";
-        IntegrationRecord: Record "Integration Record";
     begin
         // [FEATURE] [Customer-Contact Link] [UI]
         // [SCENARIO 230754] User is able to couple not coupled customer and its primary contact in sequence: first contact, second customer
@@ -1996,7 +2038,7 @@ codeunit 139182 "CRM Coupling Test"
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
 
         // [GIVEN] Contact 'CONT'
-        LibraryCRMIntegration.CreateContactAndEnsureIntegrationRecord(Contact, IntegrationRecord);
+        LibraryCRMIntegration.CreateContact(Contact);
 
         // [GIVEN] Customer 'CUST' with Primary Contact No = 'CONT'
         LibrarySales.CreateCustomer(Customer);
@@ -2021,7 +2063,6 @@ codeunit 139182 "CRM Coupling Test"
         Contact: Record Contact;
         CRMAccount: Record "CRM Account";
         CRMContact: Record "CRM Contact";
-        IntegrationRecord: Record "Integration Record";
         JobQueueEntry: Record "Job Queue Entry";
         IntegrationSynchJob: Record "Integration Synch. Job";
         NullGuid: Guid;
@@ -2036,7 +2077,7 @@ codeunit 139182 "CRM Coupling Test"
         IntegrationSynchJob.DeleteAll();
 
         // [GIVEN] Contact 'CONT'
-        LibraryCRMIntegration.CreateContactAndEnsureIntegrationRecord(Contact, IntegrationRecord);
+        LibraryCRMIntegration.CreateContact(Contact);
 
         // [GIVEN] Customer 'CUST' with Primary Contact No = 'CONT'
         LibrarySales.CreateCustomer(Customer);
@@ -2217,12 +2258,10 @@ codeunit 139182 "CRM Coupling Test"
     end;
 
     local procedure CreateCoupledCustomerAndNotCoupledPrimaryContact(var Customer: Record Customer; var CRMAccount: Record "CRM Account"; var Contact: Record Contact)
-    var
-        IntegrationRecord: Record "Integration Record";
     begin
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
 
-        LibraryCRMIntegration.CreateContactAndEnsureIntegrationRecord(Contact, IntegrationRecord);
+        LibraryCRMIntegration.CreateContact(Contact);
         SetCustomerPrimaryContact(Customer, Contact);
     end;
 
@@ -2504,12 +2543,6 @@ codeunit 139182 "CRM Coupling Test"
     [Scope('OnPrem')]
     procedure RecallNotificationHandler(var Notification: Notification): Boolean
     begin
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Price List Lines", 'OnAfterSetSubFormLinkFilter', '', false, false)]
-    local procedure OnAfterSetSalesSubFormLinkFilter(var Sender: Page "Price List Lines"; var SkipActivate: Boolean);
-    begin
-        SkipActivate := true;
     end;
 }
 

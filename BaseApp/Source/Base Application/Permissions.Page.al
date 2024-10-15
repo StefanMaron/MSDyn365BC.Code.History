@@ -279,7 +279,7 @@ page 9803 Permissions
             repeat
                 TempPermission := Permission;
                 TempPermission.Insert();
-            until Permission.Next = 0;
+            until Permission.Next() = 0;
 
         if Show = Show::All then
             FillTempPermissionsForAllObjects(TempPermission);
@@ -307,7 +307,7 @@ page 9803 Permissions
                 TempPermission."Execute Permission" := "Execute Permission"::" ";
                 SetObjectZeroName(TempPermission);
                 if TempPermission.Insert() then;
-            until AllObj.Next = 0;
+            until AllObj.Next() = 0;
     end;
 
     local procedure ActivateControls()

@@ -217,7 +217,7 @@ report 10406 "Bank Rec. Process Lines"
                                   "Global Dimension 2 Code",
                                   "Dimension Set ID");
 
-                        until CheckLedger.Next = 0;
+                        until CheckLedger.Next() = 0;
                     end else begin
                         if RecordTypeToProcess in [RecordTypeToProcess::Both, RecordTypeToProcess::Deposits] then
                             WriteLine("Bank Rec. Header",
@@ -236,7 +236,7 @@ report 10406 "Bank Rec. Process Lines"
                               "Global Dimension 2 Code",
                               "Dimension Set ID");
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
         Window.Close;
         if RecordTypeToProcess in [RecordTypeToProcess::Both, RecordTypeToProcess::Deposits] then begin
@@ -252,7 +252,7 @@ report 10406 "Bank Rec. Process Lines"
                     repeat
                         BankRecLine2 := BankRecLine;
                         CollapseLines(BankRecLine2);
-                    until Next = 0;
+                    until Next() = 0;
                 Reset;
             end;
             Window.Close;
@@ -280,7 +280,7 @@ report 10406 "Bank Rec. Process Lines"
                 BankRecLine.Validate(Cleared, MarkCleared);
                 BankRecLine.Modify();
                 Window.Update(3, BankRecLine."Line No.");
-            until BankRecLine.Next = 0;
+            until BankRecLine.Next() = 0;
 
         Window.Close;
     end;
@@ -328,7 +328,7 @@ report 10406 "Bank Rec. Process Lines"
                           "Dimension Set ID");
                         Modify;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
         Window.Close;
     end;
@@ -353,7 +353,7 @@ report 10406 "Bank Rec. Process Lines"
             repeat
                 BankRecLine.Delete(true);
                 Window.Update(3, BankRecLine."Line No.");
-            until BankRecLine.Next = 0;
+            until BankRecLine.Next() = 0;
 
         Window.Close;
     end;

@@ -24,7 +24,7 @@ page 10028 "Sales Order Invoice"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Sell-to Customer No."; "Sell-to Customer No.")
@@ -80,7 +80,7 @@ page 10028 "Sales Order Invoice"
                         ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Posting Date");
                         if ChangeExchangeRate.RunModal = ACTION::OK then begin
                             Validate("Currency Factor", ChangeExchangeRate.GetParameter);
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                         Clear(ChangeExchangeRate);
                     end;
@@ -458,12 +458,12 @@ page 10028 "Sales Order Invoice"
 
     local procedure SelltoCustomerNoOnAfterValidat()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure BilltoCustomerNoOnAfterValidat()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ShortcutDimension1CodeOnAfterV()

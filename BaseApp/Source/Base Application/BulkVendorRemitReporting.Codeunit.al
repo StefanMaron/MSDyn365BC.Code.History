@@ -114,7 +114,7 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
                         Message(PreviewModeNoExportMsg);
                         PreviewMode := true;
                     end;
-            until ReportSelections.Next = 0;
+            until ReportSelections.Next() = 0;
 
         exit(PreviewMode);
     end;
@@ -154,10 +154,10 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
 
                                 CreateCreditTransferRegister(BankAccountNo, GenJournalLine."Bal. Account No.", BankPaymentType);
                             end;
-                        until GenJournalLineRecRef.Next = 0;
+                        until GenJournalLineRecRef.Next() = 0;
                     end;
                 end;
-            until ReportSelections.Next = 0;
+            until ReportSelections.Next() = 0;
     end;
 
     local procedure CheckReportSelectionsExists()
@@ -260,10 +260,10 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
 
                             if ProcessLine(GenJournalLine) and (BankAccountNo = GenJournalLineBankAccount) then
                                 UpdateDocNoForGenLedgLine(GenJournalLine, BankAccountNo);
-                        until GenJournalLineRecRef.Next = 0;
+                        until GenJournalLineRecRef.Next() = 0;
                     end;
                 end;
-            until ReportSelections.Next = 0;
+            until ReportSelections.Next() = 0;
         end;
     end;
 
@@ -388,7 +388,7 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
                     GenJournalLine."Document No." := '';
                     GenJournalLine.Modify();
                 end;
-            until GenJournalLineRecRef.Next = 0;
+            until GenJournalLineRecRef.Next() = 0;
         end;
     end;
 }

@@ -3159,7 +3159,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
 
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             LibraryReportValidation.VerifyCellValueByRef('P', RowNo, 1, LibraryReportValidation.FormatDecimalValue(SalesLine."Unit Price"));
             RowNo += 1;

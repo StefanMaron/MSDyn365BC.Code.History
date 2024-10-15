@@ -230,7 +230,7 @@ table 10807 "Sales Tax Setup Wizard"
         if JurisdictionCode <> '' then begin
             TaxDetail.SetRange("Tax Jurisdiction Code", JurisdictionCode);
             TaxDetail.SetRange("Tax Group Code", Group);
-            if not TaxDetail.IsEmpty then
+            if not TaxDetail.IsEmpty() then
                 TaxDetail.DeleteAll();
             TaxDetail.Init();
             TaxDetail.Validate("Tax Jurisdiction Code", JurisdictionCode);
@@ -320,7 +320,7 @@ table 10807 "Sales Tax Setup Wizard"
         SetTaxArea(TaxArea);
 
         TaxAreaLine.SetRange("Tax Area", "Tax Area Code");
-        if not TaxAreaLine.IsEmpty then
+        if not TaxAreaLine.IsEmpty() then
             TaxAreaLine.DeleteAll();
         SetTaxAreaLine(TaxArea, State);
         SetTaxAreaLine(TaxArea, County);

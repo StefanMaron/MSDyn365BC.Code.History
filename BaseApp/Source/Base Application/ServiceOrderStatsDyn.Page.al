@@ -593,7 +593,7 @@ page 10452 "Service Order Stats. Dyn"
             if TempServLine.Find('-') then
                 repeat
                     SalesTaxCalculate.AddServiceLine(TempServLine);
-                until TempServLine.Next = 0;
+                until TempServLine.Next() = 0;
             case i of
                 1:
                     begin
@@ -655,7 +655,7 @@ page 10452 "Service Order Stats. Dyn"
                         end;
                         BreakdownAmt[i, BrkIdx] := BreakdownAmt[i, BrkIdx] + "Tax Amount";
                         VATAmount[i] := VATAmount[i] + "Tax Amount";
-                    until Next = 0;
+                    until Next() = 0;
                 TotalAmount2[i] := TotalAmount2[i] + VATAmount[i];
             end;
         end;

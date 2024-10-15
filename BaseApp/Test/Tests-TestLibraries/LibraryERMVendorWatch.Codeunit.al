@@ -115,14 +115,14 @@ codeunit 131320 "Library - ERM Vendor Watch"
     end;
 
     [Scope('OnPrem')]
-    procedure WatchDtldLedgerEntries(VendorNo: Code[20]; EntryType: Option; DeltaCount: Integer; DeltaSum: Decimal; CountCompareMethod: Option; SumCompareMethod: Option)
+    procedure WatchDtldLedgerEntries(VendorNo: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"; DeltaCount: Integer; DeltaSum: Decimal; CountCompareMethod: Option; SumCompareMethod: Option)
     begin
         with WatchVendorLedgerEntry do begin
             Init;
             "Line No." := NextLELineNo;
             "Vendor No." := VendorNo;
             "Line Level" := "Line Level"::"Detailed Ledger Entry";
-            "Line Type" := EntryType;
+            "Line Type" := EntryType.AsInteger();
 
             "Original Count" := DtldLedgerEntryCount(VendorNo, EntryType);
             "Delta Count" := DeltaCount;
@@ -136,7 +136,7 @@ codeunit 131320 "Library - ERM Vendor Watch"
     end;
 
     [Scope('OnPrem')]
-    procedure DtldEntriesSigned(Sign: Decimal; VendorNo: Code[20]; EntryType: Option; DeltaSum: Decimal)
+    procedure DtldEntriesSigned(Sign: Decimal; VendorNo: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"; DeltaSum: Decimal)
     begin
         if Sign = 0 then
             DtldEntriesEqual(VendorNo, EntryType, DeltaSum)
@@ -148,7 +148,7 @@ codeunit 131320 "Library - ERM Vendor Watch"
     end;
 
     [Scope('OnPrem')]
-    procedure DtldEntriesEqual(VendorNo: Code[20]; EntryType: Option; DeltaSum: Decimal)
+    procedure DtldEntriesEqual(VendorNo: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"; DeltaSum: Decimal)
     begin
         WatchDtldLedgerEntries(VendorNo, EntryType, 1, DeltaSum,
           WatchVendorLedgerEntry."Count Comparison Method"::"Greater Than",
@@ -156,7 +156,7 @@ codeunit 131320 "Library - ERM Vendor Watch"
     end;
 
     [Scope('OnPrem')]
-    procedure DtldEntriesGreaterThan(VendorNo: Code[20]; EntryType: Option; DeltaSum: Decimal)
+    procedure DtldEntriesGreaterThan(VendorNo: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"; DeltaSum: Decimal)
     begin
         WatchDtldLedgerEntries(VendorNo, EntryType, 1, DeltaSum,
           WatchVendorLedgerEntry."Count Comparison Method"::"Greater Than",
@@ -164,7 +164,7 @@ codeunit 131320 "Library - ERM Vendor Watch"
     end;
 
     [Scope('OnPrem')]
-    procedure DtldEntriesLessThan(VendorNo: Code[20]; EntryType: Option; DeltaSum: Decimal)
+    procedure DtldEntriesLessThan(VendorNo: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"; DeltaSum: Decimal)
     begin
         WatchDtldLedgerEntries(VendorNo, EntryType, 1, DeltaSum,
           WatchVendorLedgerEntry."Count Comparison Method"::"Greater Than",
@@ -196,14 +196,14 @@ codeunit 131320 "Library - ERM Vendor Watch"
             DeltaCompareCount(
               "Original Count",
               "Delta Count",
-              DtldLedgerEntryCount("Vendor No.", "Line Type"),
+              DtldLedgerEntryCount("Vendor No.", "Detailed CV Ledger Entry Type".FromInteger("Line Type")),
               "Count Comparison Method",
               'Incorrect detailed ledger entry count, vendor: ' + "Vendor No." + ', line type: ' + Format("Line Type"));
 
             DeltaCompareSum(
               "Original Sum",
               "Delta Sum",
-              DtldLedgerEntrySum("Vendor No.", "Line Type"),
+              DtldLedgerEntrySum("Vendor No.", "Detailed CV Ledger Entry Type".FromInteger("Line Type")),
               "Sum Comparison Method",
               'Incorrect detailed ledger entry sum, vendor: ' + "Vendor No." + ', line type: ' + Format("Line Type"));
         end;
@@ -324,7 +324,7 @@ codeunit 131320 "Library - ERM Vendor Watch"
         exit(Sum);
     end;
 
-    local procedure DtldLedgerEntryCount(VendorNo: Code[20]; LineType: Option): Integer
+    local procedure DtldLedgerEntryCount(VendorNo: Code[20]; LineType: Enum "Detailed CV Ledger Entry Type"): Integer
     var
         DtldVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
@@ -336,7 +336,7 @@ codeunit 131320 "Library - ERM Vendor Watch"
         exit(0);
     end;
 
-    local procedure DtldLedgerEntrySum(VendorNo: Code[20]; LineType: Option) "Sum": Decimal
+    local procedure DtldLedgerEntrySum(VendorNo: Code[20]; LineType: Enum "Detailed CV Ledger Entry Type") "Sum": Decimal
     var
         DtldVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin

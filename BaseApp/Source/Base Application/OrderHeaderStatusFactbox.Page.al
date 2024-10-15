@@ -219,7 +219,7 @@ page 36640 "Order Header Status Factbox"
                     TotalOpenAmountOnHold := TotalOpenAmountOnHold + SalesHeader."Outstanding Amount ($)";
                 if SalesHeader.Status = SalesHeader.Status::"Pending Approval" then
                     TotalOpenAmountPendingApproval := TotalOpenAmountPendingApproval + SalesHeader."Outstanding Amount ($)";
-            until SalesHeader.Next = 0;
+            until SalesHeader.Next() = 0;
     end;
 
     procedure GetLastShipmentInvoice()

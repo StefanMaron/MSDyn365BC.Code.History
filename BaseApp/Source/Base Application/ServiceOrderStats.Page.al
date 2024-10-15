@@ -776,7 +776,7 @@ page 10052 "Service Order Stats."
                 if TempServLine.Find('-') then
                     repeat
                         SalesTaxCalculate.AddServiceLine(TempServLine);
-                    until TempServLine.Next = 0;
+                    until TempServLine.Next() = 0;
             end;
             OnAfterCalculateSalesTax(SalesTaxCalculationOverridden, Rec, TempServLine, i, TempSalesTaxLine1,
               TempSalesTaxLine2, TempSalesTaxLine3, TempSalesTaxAmtLine);
@@ -848,7 +848,7 @@ page 10052 "Service Order Stats."
                         end;
                         BreakdownAmt[i, BrkIdx] := BreakdownAmt[i, BrkIdx] + "Tax Amount";
                         VATAmount[i] := VATAmount[i] + "Tax Amount";
-                    until Next = 0;
+                    until Next() = 0;
                 TotalAmount2[i] := TotalAmount2[i] + VATAmount[i];
             end;
             OnAfterCalculateSalesTaxValidate(i);

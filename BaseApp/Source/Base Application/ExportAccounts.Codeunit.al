@@ -56,7 +56,7 @@ codeunit 27000 "Export Accounts"
                           StrSubstNo(GLAccountTypeErr, GLAccount."Debit/Credit", GLAccount.RecordId));
                 end;
                 TempXMLBuffer.GetParent;
-            until GLAccount.Next = 0;
+            until GLAccount.Next() = 0;
         end else
             TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, NoSATAccountDefinedErr);
 
@@ -119,7 +119,7 @@ codeunit 27000 "Export Accounts"
                 TempXMLBuffer.AddAttribute('Haber', FormatDecimal(GLAccount."Credit Amount"));
                 TempXMLBuffer.AddAttribute('SaldoFin', FormatDecimal(GLAccountBalanceFin."Balance at Date"));
                 TempXMLBuffer.GetParent;
-            until GLAccount.Next = 0;
+            until GLAccount.Next() = 0;
 
         if DeliveryType = DeliveryType::Normal then
             FileType := 'BN'
@@ -170,7 +170,7 @@ codeunit 27000 "Export Accounts"
                     CreatePolizaNode(TempXMLBuffer, GLEntry);
                 end;
                 CreateTransaccionNode(TempXMLBuffer, GLEntry);
-            until GLEntry.Next = 0;
+            until GLEntry.Next() = 0;
             TempXMLBuffer.GetParent;
         end;
 
@@ -241,10 +241,10 @@ codeunit 27000 "Export Accounts"
                         TempXMLBuffer.AddAttribute('Debe', FormatDecimal(GLEntry."Debit Amount"));
                         TempXMLBuffer.AddAttribute('Haber', FormatDecimal(GLEntry."Credit Amount"));
                         TempXMLBuffer.GetParent;
-                    until GLEntry.Next = 0;
+                    until GLEntry.Next() = 0;
                     TempXMLBuffer.GetParent;
                 end;
-            until GLAccount.Next = 0;
+            until GLAccount.Next() = 0;
         end;
 
         if not TempErrorMessage.HasErrors(true) then
@@ -333,11 +333,11 @@ codeunit 27000 "Export Accounts"
                         if AppliedVendorLedgerEntry.FindSet then
                             repeat
                                 CreateReceipt(TempXMLBuffer, AppliedVendorLedgerEntry, IsAuxiliary);
-                            until AppliedVendorLedgerEntry.Next = 0;
+                            until AppliedVendorLedgerEntry.Next() = 0;
                     end else
                         CreateReceipt(TempXMLBuffer, VendorLedgerEntry, IsAuxiliary);
                 end;
-            until VendorLedgerEntry.Next = 0;
+            until VendorLedgerEntry.Next() = 0;
     end;
 
     local procedure CreateCustomerReceipts(var TempXMLBuffer: Record "XML Buffer"; GLEntry: Record "G/L Entry"; IsAuxiliary: Boolean)
@@ -359,11 +359,11 @@ codeunit 27000 "Export Accounts"
                         if AppliedCustLedgerEntry.FindSet then
                             repeat
                                 CreateReceipt(TempXMLBuffer, AppliedCustLedgerEntry, IsAuxiliary);
-                            until AppliedCustLedgerEntry.Next = 0;
+                            until AppliedCustLedgerEntry.Next() = 0;
                     end else
                         CreateReceipt(TempXMLBuffer, CustLedgerEntry, IsAuxiliary);
                 end;
-            until CustLedgerEntry.Next = 0;
+            until CustLedgerEntry.Next() = 0;
     end;
 
     local procedure FindAppliedVendorReceipts(var AppliedVendorLedgerEntry: Record "Vendor Ledger Entry"; EntryNo: Integer)
@@ -400,14 +400,14 @@ codeunit 27000 "Export Accounts"
                                     if Find('-') then
                                         Mark(true);
                                 end;
-                            until DetailedVendorLedgEntry2.Next = 0;
+                            until DetailedVendorLedgEntry2.Next() = 0;
                     end else begin
                         SetCurrentKey("Entry No.");
                         SetRange("Entry No.", DetailedVendorLedgEntry1."Applied Vend. Ledger Entry No.");
                         if Find('-') then
                             Mark(true);
                     end;
-                until DetailedVendorLedgEntry1.Next = 0;
+                until DetailedVendorLedgEntry1.Next() = 0;
 
             SetCurrentKey("Entry No.");
             SetRange("Entry No.");
@@ -422,7 +422,7 @@ codeunit 27000 "Export Accounts"
             if Find('-') then
                 repeat
                     Mark(true);
-                until Next = 0;
+                until Next() = 0;
 
             SetCurrentKey("Entry No.");
             SetRange("Closed by Entry No.");
@@ -462,14 +462,14 @@ codeunit 27000 "Export Accounts"
                                     if Find('-') then
                                         Mark(true);
                                 end;
-                            until DetailedCustLedgEntry2.Next = 0;
+                            until DetailedCustLedgEntry2.Next() = 0;
                     end else begin
                         SetCurrentKey("Entry No.");
                         SetRange("Entry No.", DetailedCustLedgEntry1."Applied Cust. Ledger Entry No.");
                         if Find('-') then
                             Mark(true);
                     end;
-                until DetailedCustLedgEntry1.Next = 0;
+                until DetailedCustLedgEntry1.Next() = 0;
 
             SetCurrentKey("Entry No.");
             SetRange("Entry No.");
@@ -484,7 +484,7 @@ codeunit 27000 "Export Accounts"
             if Find('-') then
                 repeat
                     Mark(true);
-                until Next = 0;
+                until Next() = 0;
 
             SetCurrentKey("Entry No.");
             SetRange("Closed by Entry No.");
@@ -587,12 +587,12 @@ codeunit 27000 "Export Accounts"
                     if CheckLedgerEntry.FindSet then
                         repeat
                             PaymentHandled := CreateChequeNode(TempXMLBuffer, CheckLedgerEntry) or PaymentHandled;
-                        until CheckLedgerEntry.Next = 0
+                        until CheckLedgerEntry.Next() = 0
                     else
                         PaymentHandled := CreateTransferenciaNode(TempXMLBuffer, BankAccountLedgerEntry) or PaymentHandled
                 end else
                     PaymentHandled := true;
-            until BankAccountLedgerEntry.Next = 0;
+            until BankAccountLedgerEntry.Next() = 0;
 
         with GLEntry do
             if (not PaymentHandled) and
@@ -845,7 +845,7 @@ codeunit 27000 "Export Accounts"
                     TempXMLBuffer.AddAttribute('TipCamb', FormatDecimal(1 / AdjustedCurrencyFactor));
                 end;
                 TempXMLBuffer.GetParent;
-            until LedgerEntryRecordRef.Next = 0;
+            until LedgerEntryRecordRef.Next() = 0;
     end;
 
     local procedure FindUUIDCFDI(CustVendLedgerEntry: Variant): Text

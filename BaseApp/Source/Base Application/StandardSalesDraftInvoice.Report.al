@@ -463,12 +463,14 @@ report 1303 "Standard Sales - Draft Invoice"
                 column(ItemNo_Line_Lbl; FieldCaption("No."))
                 {
                 }
+#if not CLEAN16
                 column(CrossReferenceNo_Line; "Cross-Reference No.")
                 {
                 }
                 column(CrossReferenceNo_Line_Lbl; FieldCaption("Cross-Reference No."))
                 {
                 }
+#endif
                 column(ItemReferenceNo_Line; "Item Reference No.")
                 {
                 }

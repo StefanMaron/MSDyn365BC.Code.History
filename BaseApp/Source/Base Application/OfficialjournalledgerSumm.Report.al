@@ -479,7 +479,7 @@ report 14030 "Official journal ledger Summ."
                     else
                         DebitAmt := DebitAmt + Abs(GLAcc."Net Change");
                 end;
-            until GLAcc.Next = 0;
+            until GLAcc.Next() = 0;
     end;
 
     procedure CalcOpenEntriesHeading()
@@ -507,7 +507,7 @@ report 14030 "Official journal ledger Summ."
                         DebitAmt := DebitAmt + GLAcc."Net Change";
                 end;
 
-            until GLAcc.Next = 0;
+            until GLAcc.Next() = 0;
     end;
 
     procedure Verify(Process: Integer): Integer

@@ -13,7 +13,7 @@ codeunit 9178 "Application Area Mgmt."
         AllProfile: Record "All Profile";
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
     begin
-        if ApplicationAreaSetup.IsEmpty then
+        if ApplicationAreaSetup.IsEmpty() then
             exit(false);
 
         if not ApplicationAreaSetup.Get('', '', UserId()) then begin
@@ -98,7 +98,7 @@ codeunit 9178 "Application Area Mgmt."
             FieldRef.Value := TempApplicationAreaBuffer.Selected;
             if TempApplicationAreaBuffer.Selected <> ExistingTempApplicationAreaBuffer.Selected then
                 ApplicationAreasChanged := true;
-        until (TempApplicationAreaBuffer.Next = 0) and (ExistingTempApplicationAreaBuffer.Next = 0);
+        until (TempApplicationAreaBuffer.Next() = 0) and (ExistingTempApplicationAreaBuffer.Next() = 0);
 
         if NoApplicationAreasExist then begin
             if ApplicationAreasChanged then
@@ -647,9 +647,6 @@ codeunit 9178 "Application Area Mgmt."
         if TempExperienceTierBuffer.Get(ExperienceTierSetup.FieldNo(Basic)) then
             TempExperienceTierBuffer.Delete();
 
-        if TempExperienceTierBuffer.Get(ExperienceTierSetup.FieldNo(Invoicing)) then
-            TempExperienceTierBuffer.Delete();
-
         GetExperienceTierRec(ExperienceTierSetup);
         if not ExperienceTierSetup.Custom then
             if TempExperienceTierBuffer.Get(ExperienceTierSetup.FieldNo(Custom)) then
@@ -861,12 +858,12 @@ codeunit 9178 "Application Area Mgmt."
         exit(ApplicationAreaSetupsMatch(ApplicationAreaSetup, TempApplicationAreaSetup, false));
     end;
 
-    local procedure GetBasicExperienceAppAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
+    [Scope('OnPrem')]
+    procedure GetBasicExperienceAppAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
     begin
         TempApplicationAreaSetup.Basic := true;
         TempApplicationAreaSetup."Sales Tax" := true;
         TempApplicationAreaSetup."Basic CA" := true;
-        TempApplicationAreaSetup."Basic US" := true;
         TempApplicationAreaSetup."Relationship Mgmt" := true;
         TempApplicationAreaSetup."Record Links" := true;
         TempApplicationAreaSetup.Notes := true;
@@ -874,7 +871,8 @@ codeunit 9178 "Application Area Mgmt."
         OnGetBasicExperienceAppAreas(TempApplicationAreaSetup);
     end;
 
-    local procedure GetEssentialExperienceAppAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
+    [Scope('OnPrem')]
+    procedure GetEssentialExperienceAppAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
     begin
         GetBasicExperienceAppAreas(TempApplicationAreaSetup);
         TempApplicationAreaSetup.Suite := true;
@@ -908,7 +906,8 @@ codeunit 9178 "Application Area Mgmt."
         OnGetEssentialExperienceAppAreas(TempApplicationAreaSetup);
     end;
 
-    local procedure GetPremiumExperienceAppAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
+    [Scope('OnPrem')]
+    procedure GetPremiumExperienceAppAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
     begin
         GetEssentialExperienceAppAreas(TempApplicationAreaSetup);
         TempApplicationAreaSetup.Service := true;

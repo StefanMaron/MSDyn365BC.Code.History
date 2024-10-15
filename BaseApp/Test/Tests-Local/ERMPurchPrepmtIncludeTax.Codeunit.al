@@ -417,7 +417,7 @@
         TaxJurisdiction: Record "Tax Jurisdiction";
     begin
         TaxDetail.SetRange("Tax Group Code", TaxGroupCode);
-        TaxDetail.FindSet;
+        TaxDetail.FindSet();
         repeat
             TaxJurisdiction.Get(TaxDetail."Tax Jurisdiction Code");
             GLAccFilter += TaxJurisdiction."Tax Account (Purchases)" + '|';
@@ -521,7 +521,7 @@
     begin
         PurchLine.SetRange("Document Type", DocType);
         PurchLine.SetRange("Document No.", DocNo);
-        PurchLine.FindSet;
+        PurchLine.FindSet();
     end;
 
     local procedure CreateCurrency(ExchRateAmount: Decimal): Code[10]

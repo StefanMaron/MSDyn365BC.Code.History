@@ -1,4 +1,4 @@
-table 6502 "Item Tracking Code"
+﻿table 6502 "Item Tracking Code"
 {
     Caption = 'Item Tracking Code';
     DataCaptionFields = "Code", Description;
@@ -83,7 +83,7 @@ table 6502 "Item Tracking Code"
                     "SN Assembly Inbound Tracking" := true;
                     "SN Assembly Outbound Tracking" := true;
                 end else begin
-                    TestRemoveSpecific(FieldCaption("SN Specific Tracking"));
+                    TestRemoveSpecificSN(FieldCaption("SN Specific Tracking"));
                     "SN Warehouse Tracking" := false;
                 end;
             end;
@@ -107,7 +107,7 @@ table 6502 "Item Tracking Code"
                     TestField("SN Specific Tracking", true);
                     TestSetSpecific(FieldCaption("SN Warehouse Tracking"));
                 end else
-                    TestRemoveSpecific(FieldCaption("SN Warehouse Tracking"));
+                    TestRemoveSpecificSN(FieldCaption("SN Warehouse Tracking"));
 
                 TestNoWhseEntriesExist(FieldCaption("SN Warehouse Tracking"));
             end;
@@ -237,6 +237,10 @@ table 6502 "Item Tracking Code"
             begin
                 TestField("SN Specific Tracking", false);
             end;
+        }
+        field(34; "Create SN Info on Posting"; Boolean)
+        {
+            Caption = 'Create SN Info. on posting';
         }
         field(41; "Lot Specific Tracking"; Boolean)
         {
@@ -417,6 +421,206 @@ table 6502 "Item Tracking Code"
                 TestField("Lot Specific Tracking", false);
             end;
         }
+        field(64; "Create Lot No. Info on posting"; Boolean)
+        {
+            Caption = 'Create Lot No. Info. on posting';
+        }
+        field(70; "Package Specific Tracking"; Boolean)
+        {
+            Caption = 'Package Specific Tracking';
+            CaptionClass = '6,70';
+
+            trigger OnValidate()
+            begin
+                if "Package Specific Tracking" = xRec."Package Specific Tracking" then
+                    exit;
+
+                if "Package Specific Tracking" then begin
+                    TestSetSpecific(FieldCaption("Package Specific Tracking"));
+
+                    "Package Purchase Inb. Tracking" := true;
+                    "Package Purch. Outb. Tracking" := true;
+                    "Package Sales Inbound Tracking" := true;
+                    "Package Sales Outb. Tracking" := true;
+                    "Package Pos. Inb. Tracking" := true;
+                    "Package Pos. Outb. Tracking" := true;
+                    "Package Neg. Inb. Tracking" := true;
+                    "Package Neg. Outb. Tracking" := true;
+                    "Package Transfer Tracking" := true;
+                    "Package Manuf. Inb. Tracking" := true;
+                    "Package Manuf. Outb. Tracking" := true;
+                    "Package Assembly Inb. Tracking" := true;
+                    "Package Assembly Out. Tracking" := true;
+                end else begin
+                    TestRemoveSpecific(FieldCaption("Package Specific Tracking"));
+                    "Package Warehouse Tracking" := false;
+                end;
+            end;
+        }
+        field(71; "Package Warehouse Tracking"; Boolean)
+        {
+            Caption = 'Package Warehouse Tracking';
+            CaptionClass = '6,71';
+
+            trigger OnValidate()
+            begin
+                if "Package Warehouse Tracking" then begin
+                    TestField("Package Specific Tracking", true);
+                    TestSetSpecific(FieldCaption("Package Warehouse Tracking"));
+                end else
+                    TestRemoveSpecific(FieldCaption("Package Warehouse Tracking"));
+
+                TestNoWhseEntriesExist(FieldCaption("Package Warehouse Tracking"));
+            end;
+        }
+        field(73; "Package Info. Inb. Must Exist"; Boolean)
+        {
+            Caption = 'Package Info. Inb. Must Exist';
+            CaptionClass = '6,73';
+        }
+        field(74; "Package Info. Outb. Must Exist"; Boolean)
+        {
+            Caption = 'Lot Info. Outb. Must Exist';
+            CaptionClass = '6,74';
+        }
+        field(75; "Package Purchase Inb. Tracking"; Boolean)
+        {
+            AccessByPermission = TableData "Purch. Rcpt. Header" = R;
+            Caption = 'Package Purchase Inb. Tracking';
+            CaptionClass = '6,75';
+
+            trigger OnValidate()
+            begin
+                TestField("Package Specific Tracking", false);
+            end;
+        }
+        field(76; "Package Purch. Outb. Tracking"; Boolean)
+        {
+            AccessByPermission = TableData "Purch. Rcpt. Header" = R;
+            Caption = 'Package Purch. Outb. Tracking';
+            CaptionClass = '6,76';
+
+            trigger OnValidate()
+            begin
+                TestField("Package Specific Tracking", false);
+            end;
+        }
+        field(77; "Package Sales Inbound Tracking"; Boolean)
+        {
+            AccessByPermission = TableData "Sales Shipment Header" = R;
+            Caption = 'Package Sales Inbound Tracking';
+            CaptionClass = '6,77';
+
+            trigger OnValidate()
+            begin
+                TestField("Package Specific Tracking", false);
+            end;
+        }
+        field(78; "Package Sales Outb. Tracking"; Boolean)
+        {
+            AccessByPermission = TableData "Sales Shipment Header" = R;
+            Caption = 'Package Sales Outb. Tracking';
+            CaptionClass = '6,78';
+
+            trigger OnValidate()
+            begin
+                TestField("Lot Specific Tracking", false);
+            end;
+        }
+        field(79; "Package Pos. Inb. Tracking"; Boolean)
+        {
+            Caption = 'Package Pos. Inb. Tracking';
+            CaptionClass = '6,79';
+
+            trigger OnValidate()
+            begin
+                TestField("Package Specific Tracking", false);
+            end;
+        }
+        field(80; "Package Pos. Outb. Tracking"; Boolean)
+        {
+            Caption = 'Package Pos. Outb. Tracking';
+            CaptionClass = '6,80';
+
+            trigger OnValidate()
+            begin
+                TestField("Package Specific Tracking", false);
+            end;
+        }
+        field(81; "Package Neg. Inb. Tracking"; Boolean)
+        {
+            Caption = 'Package Neg. Inb. Tracking';
+            CaptionClass = '6,81';
+
+            trigger OnValidate()
+            begin
+                TestField("Package Specific Tracking", false);
+            end;
+        }
+        field(82; "Package Neg. Outb. Tracking"; Boolean)
+        {
+            Caption = 'Package Neg. Outb. Tracking';
+            CaptionClass = '6,82';
+
+            trigger OnValidate()
+            begin
+                TestField("Package Specific Tracking", false);
+            end;
+        }
+        field(83; "Package Transfer Tracking"; Boolean)
+        {
+            Caption = 'Package Transfer Tracking';
+            CaptionClass = '6,83';
+
+            trigger OnValidate()
+            begin
+                TestField("Package Specific Tracking", false);
+            end;
+        }
+        field(84; "Package Manuf. Inb. Tracking"; Boolean)
+        {
+            AccessByPermission = TableData "Production Order" = R;
+            Caption = 'Package Manuf. Inbound Tracking';
+            CaptionClass = '6,84';
+
+            trigger OnValidate()
+            begin
+                TestField("Package Specific Tracking", false);
+            end;
+        }
+        field(85; "Package Manuf. Outb. Tracking"; Boolean)
+        {
+            AccessByPermission = TableData "Production Order" = R;
+            Caption = 'Package Manuf. Outbound Tracking';
+            CaptionClass = '6,85';
+
+            trigger OnValidate()
+            begin
+                TestField("Package Specific Tracking", false);
+            end;
+        }
+        field(86; "Package Assembly Inb. Tracking"; Boolean)
+        {
+            AccessByPermission = TableData "BOM Component" = R;
+            Caption = 'Package Assembly Inbound Tracking';
+            CaptionClass = '6,86';
+
+            trigger OnValidate()
+            begin
+                TestField("Package Specific Tracking", false);
+            end;
+        }
+        field(87; "Package Assembly Out. Tracking"; Boolean)
+        {
+            AccessByPermission = TableData "BOM Component" = R;
+            Caption = 'Lot Assembly Outbound Tracking';
+            CaptionClass = '6,87';
+
+            trigger OnValidate()
+            begin
+                TestField("Package Specific Tracking", false);
+            end;
+        }
     }
 
     keys
@@ -437,9 +641,9 @@ table 6502 "Item Tracking Code"
     end;
 
     var
-        Text000: Label 'Entries exist for item %1. The field %2 cannot be changed.';
         Item: Record Item;
-        Text001: Label '%1 is %2 for item %3. The field %4 cannot be changed.';
+        EntriesExistErr: Label 'Entries exist for item %1. The field %2 cannot be changed.';
+        CostingMethodErr: Label 'Costing Method is %1 for item %2. The field %3 cannot be changed.', Comment = '%1 = Costing Method, %2 = Item No., %3 - field caption.';
         Text002: Label 'You cannot delete %1 %2 because it is used on one or more items.';
         IgnoreExpirationDateErr: Label 'You cannot stop using expiration dates because item ledger entries with expiration dates exist for item %1.', Comment = '%1 is the item number';
         ExpDateCalcSetOnItemsQst: Label 'You cannot stop using expiration dates because they are set up for %1 item(s). Do you want to see a list of these items, and decide whether to remove the expiration dates?', Comment = '%1 is the number of items';
@@ -480,7 +684,7 @@ table 6502 "Item Tracking Code"
         end;
     end;
 
-    procedure TestSetSpecific(CurrentFieldname: Text[100])
+    procedure TestSetSpecific(CurrentFieldName: Text[100])
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
@@ -489,14 +693,26 @@ table 6502 "Item Tracking Code"
         if Item.Find('-') then
             repeat
                 ItemLedgEntry.SetRange("Item No.", Item."No.");
-                if not ItemLedgEntry.IsEmpty then
-                    Error(
-                      Text000,
-                      Item."No.", CurrentFieldname);
-            until Item.Next = 0;
+                if not ItemLedgEntry.IsEmpty() then
+                    Error(EntriesExistErr, Item."No.", CurrentFieldName);
+            until Item.Next() = 0;
     end;
 
-    procedure TestRemoveSpecific(CurrentFieldname: Text[100])
+    procedure TestRemoveSpecific(CurrentFieldName: Text)
+    var
+        ItemLedgEntry: Record "Item Ledger Entry";
+    begin
+        Item.Reset();
+        Item.SetRange("Item Tracking Code", Code);
+        if Item.Find('-') then
+            repeat
+                ItemLedgEntry.SetRange("Item No.", Item."No.");
+                if not ItemLedgEntry.IsEmpty() then
+                    Error(EntriesExistErr, Item."No.", CurrentFieldName);
+            until Item.Next() = 0;
+    end;
+
+    local procedure TestRemoveSpecificSN(CurrentFieldName: Text)
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
@@ -505,23 +721,18 @@ table 6502 "Item Tracking Code"
         if Item.Find('-') then
             repeat
                 if Item."Costing Method" = Item."Costing Method"::Specific then
-                    Error(
-                      Text001,
-                      Item.FieldCaption("Costing Method"),
-                      Item."Costing Method", Item."No.", CurrentFieldname);
+                    Error(CostingMethodErr, Item."Costing Method", Item."No.", CurrentFieldName);
                 ItemLedgEntry.SetRange("Item No.", Item."No.");
-                if not ItemLedgEntry.IsEmpty then
-                    Error(
-                      Text000,
-                      Item."No.", CurrentFieldname);
-            until Item.Next = 0;
+                if not ItemLedgEntry.IsEmpty() then
+                    Error(EntriesExistErr, Item."No.", CurrentFieldname);
+            until Item.Next() = 0;
     end;
 
     local procedure TestDelete()
     begin
         Item.Reset();
         Item.SetRange("Item Tracking Code", Code);
-        if not Item.IsEmpty then
+        if not Item.IsEmpty() then
             Error(Text002, TableCaption, Code);
     end;
 
@@ -543,16 +754,38 @@ table 6502 "Item Tracking Code"
             Error(IgnoreButStrictExpirationPostingErr);
     end;
 
-    procedure IsSpecific(): Boolean
+    procedure IsSpecific() Specific: Boolean
     begin
-        exit("SN Specific Tracking" or "Lot Specific Tracking");
+        Specific := "SN Specific Tracking" or "Lot Specific Tracking";
+
+        OnAfterIsSpecific(Rec, Specific);
     end;
 
-    procedure IsWarehouseTracking(): Boolean
+    procedure IsSpecificTrackingChanged(ItemTrackingCode2: Record "Item Tracking Code") TrackingChanged: Boolean
     begin
-        exit("SN Warehouse Tracking" or "Lot Warehouse Tracking");
+        TrackingChanged :=
+            ("SN Specific Tracking" <> ItemTrackingCode2."SN Specific Tracking") or
+            ("Lot Specific Tracking" <> ItemTrackingCode2."Lot Specific Tracking");
+
+        OnAfterIsSpecificTrackingChanged(Rec, ItemTrackingCode2, TrackingChanged);
     end;
-    
+
+    procedure IsWarehouseTracking() WarehouseTracking: Boolean
+    begin
+        WarehouseTracking := "SN Warehouse Tracking" or "Lot Warehouse Tracking";
+
+        OnAfterIsWarehouseTracking(Rec, WarehouseTracking);
+    end;
+
+    procedure IsWarehouseTrackingChanged(ItemTrackingCode2: Record "Item Tracking Code") TrackingChanged: Boolean
+    begin
+        TrackingChanged :=
+            ("SN Warehouse Tracking" <> ItemTrackingCode2."SN Warehouse Tracking") or
+            ("Lot Warehouse Tracking" <> ItemTrackingCode2."Lot Warehouse Tracking");
+
+        OnAfterIsWarehouseTrackingChanged(Rec, ItemTrackingCode2, TrackingChanged);
+    end;
+
     local procedure TestNoWhseEntriesExist(CurrentFieldName: Text)
     var
         TrackedItem: Record Item;
@@ -565,6 +798,26 @@ table 6502 "Item Tracking Code"
                 if not WarehouseEntry.IsEmpty() then
                     Error(WhseEntriesExistErr, CurrentFieldName, TrackedItem."No.");
             until TrackedItem.Next() = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsSpecific(ItemTrackingCode: Record "Item Tracking Code"; var Specific: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsSpecificTrackingChanged(ItemTrackingCode: Record "Item Tracking Code"; ItemTrackingCode2: Record "Item Tracking Code"; var TrackingChanged: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsWarehouseTracking(ItemTrackingCode: Record "Item Tracking Code"; var WarehouseTracking: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsWarehouseTrackingChanged(ItemTrackingCode: Record "Item Tracking Code"; ItemTrackingCode2: Record "Item Tracking Code"; var TrackingChanged: Boolean)
+    begin
     end;
 }
 

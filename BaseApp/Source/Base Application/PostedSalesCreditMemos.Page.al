@@ -321,7 +321,7 @@ page 144 "Posted Sales Credit Memos"
                             repeat
                                 SalesCrMemoHeader.RequestStampEDocument;
                                 ProgressWindow.Update(1, SalesCrMemoHeader."No.");
-                            until SalesCrMemoHeader.Next = 0;
+                            until SalesCrMemoHeader.Next() = 0;
                         end;
                         ProgressWindow.Close;
                     end;
@@ -380,7 +380,7 @@ page 144 "Posted Sales Credit Memos"
                             repeat
                                 SalesCrMemoHeader.CancelEDocument;
                                 ProgressWindow.Update(1, SalesCrMemoHeader."No.");
-                            until SalesCrMemoHeader.Next = 0;
+                            until SalesCrMemoHeader.Next() = 0;
                         end;
                         ProgressWindow.Close;
                     end;
@@ -705,7 +705,7 @@ page 144 "Posted Sales Credit Memos"
         HasFilters := GetFilters <> '';
         SetSecurityFilterOnRespCenter;
         if HasFilters and not Find() then
-            if FindFirst() then;
+            if FindFirst then;
         IsOfficeAddin := OfficeMgt.IsAvailable;
         SalesCrMemoHeader.CopyFilters(Rec);
         SalesCrMemoHeader.SetFilter("Document Exchange Status", '<>%1', "Document Exchange Status"::"Not Sent");

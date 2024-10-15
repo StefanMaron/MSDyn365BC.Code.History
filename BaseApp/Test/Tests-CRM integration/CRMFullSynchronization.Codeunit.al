@@ -328,12 +328,17 @@ codeunit 139187 "CRM Full Synchronization"
     var
         CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
         Customer: array[2] of Record Customer;
+        CRMAccount: array[2] of Record "CRM Account";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        CRMFullSynchronization: Codeunit "CRM Full Synchronization";
+        JobQueueEntryID: Guid;
     begin
         // [FEATURE] [Integration Synch. Job]
         Initialize;
         LibraryLowerPermissions.SetO365Full;
         // [GIVEN] 2 New Customers: "A" and
         Customer[1].DeleteAll();
+        Customer[2].DeleteAll();
         LibrarySales.CreateCustomer(Customer[1]);
         // [GIVEN] "B", where "Salesperson Code" is not coupled
         LibrarySales.CreateCustomer(Customer[2]);
@@ -348,9 +353,19 @@ codeunit 139187 "CRM Full Synchronization"
         CRMFullSynchReviewLine.Start;
 
         // [THEN] The 'CUSTOMER' synch job is scheduled and executed
-        // [THEN] 'CUSTOMER' line gets "Job Queue Entry Status" = 'Finished', "Session ID" = 0, "Active Session" = 'No'
-        // [THEN] "To Int. Table Job Status" = 'Success', "From Int. Table Job Status" = 'Success'
-        VerifyCustomerJobIsFinished(CRMFullSynchReviewLine."To Int. Table Job Status"::Success);
+        // [THEN] 'CUSTOMER' line gets "Session ID" = 0, "Active Session" = 'No'
+        // [THEN] "To Int. Table Job Status" = 'Error'
+        Assert.IsTrue(FindFullSyncIntTableMapping('CUSTOMER', IntegrationTableMapping), 'Full Synch. mapping is not created');
+        BindSubscription(CRMFullSynchronization); // to catch "In Process" Status
+        JobQueueEntryID :=
+          LibraryCRMIntegration.RunJobQueueEntryForIntTabMapping(IntegrationTableMapping);
+
+        CRMFullSynchReviewLine.Get('CUSTOMER');
+        CRMFullSynchReviewLine.TestField("Session ID", 0);
+        Assert.IsFalse(CRMFullSynchReviewLine.IsActiveSession, 'Session should be inactive');
+
+        CRMFullSynchReviewLine.TestField("To Int. Table Job Status", CRMFullSynchReviewLine."To Int. Table Job Status"::Error);
+
         // [THEN] Customer "A" is coupled, Customer "B" is NOT coupled.
         VerifyNAVRecIsCoupled(Customer[1].RecordId);
         VerifyNAVRecIsNotCoupled(Customer[2].RecordId);
@@ -438,7 +453,6 @@ codeunit 139187 "CRM Full Synchronization"
     procedure T130_CRMJobQueueEntryIsOnHoldDuringFullSynchronization()
     var
         Contact: Record Contact;
-        IntegrationRecord: Record "Integration Record";
         IntegrationTableMapping: Record "Integration Table Mapping";
         JobQueueEntry: Record "Job Queue Entry";
         CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
@@ -449,7 +463,7 @@ codeunit 139187 "CRM Full Synchronization"
         // [SCENARIO] Original CRM Job Queue Entry gets 'On Hold' while the full synch. job is being executed
         Initialize;
         LibraryLowerPermissions.SetO365Full;
-        LibraryCRMIntegration.CreateContactAndEnsureIntegrationRecord(Contact, IntegrationRecord);
+        LibraryCRMIntegration.CreateContact(Contact);
 
         // [GIVEN] Original 'CONTACT' Job Queue Entry is 'Ready'
         Assert.IsTrue(FindJobQueueEntryForMapping('CONTACT', JobQueueEntry), 'cannot find CONTACT job queue entry');

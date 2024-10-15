@@ -115,7 +115,7 @@ page 563 "G/L Entries Dimension Overview"
             repeat
                 TempGLEntry := NewGLEntry;
                 TempGLEntry.Insert();
-            until NewGLEntry.Next = 0;
+            until NewGLEntry.Next() = 0;
     end;
 
     local procedure MATRIX_GenerateColumnCaptions(Step: Option First,Previous,Same,Next)

@@ -503,6 +503,7 @@ report 1305 "Standard Sales - Order Conf."
                     AutoFormatExpression = "Currency Code";
                     AutoFormatType = 1;
                 }
+#if not CLEAN16
                 column(CrossReferenceNo; "Cross-Reference No.")
                 {
                     ObsoleteState = Pending;
@@ -515,6 +516,7 @@ report 1305 "Standard Sales - Order Conf."
                     ObsoleteReason = 'Replaced by Item Reference No.';
                     ObsoleteTag = '17.0';
                 }
+#endif
                 column(ItemReferenceNo; "Item Reference No.")
                 {
                 }
@@ -1055,7 +1057,7 @@ report 1305 "Standard Sales - Order Conf."
                           Header."No. of Archived Versions", DATABASE::Customer, Header."Bill-to Customer No.",
                           Header."Salesperson Code", Header."Campaign No.", Header."Posting Description", Header."Opportunity No.");
 
-                until Header.Next = 0;
+                until Header.Next() = 0;
     end;
 
     trigger OnPreReport()
@@ -1252,7 +1254,7 @@ report 1305 "Standard Sales - Order Conf."
             if TempSalesTaxAmountLine.FindSet then
                 repeat
                     ReportTotalsLine.Add(TempSalesTaxAmountLine."Print Description", TempSalesTaxAmountLine."Tax Amount", false, true, false);
-                until TempSalesTaxAmountLine.Next = 0;
+                until TempSalesTaxAmountLine.Next() = 0;
         end;
     end;
 
@@ -1281,7 +1283,7 @@ report 1305 "Standard Sales - Order Conf."
             repeat
                 if not TaxArea."Use External Tax Engine" then
                     SalesTaxCalculate.AddSalesLine(Line);
-            until Line.Next = 0;
+            until Line.Next() = 0;
         TempSalesTaxAmountLine.DeleteAll();
         if TaxArea."Use External Tax Engine" then
             SalesTaxCalculate.CallExternalTaxEngineForSales(Header, true)

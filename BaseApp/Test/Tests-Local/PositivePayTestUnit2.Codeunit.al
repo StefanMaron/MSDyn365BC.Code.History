@@ -597,11 +597,11 @@ codeunit 134802 "Positive Pay Test Unit 2"
         DataExchLineDef: Record "Data Exch. Line Def";
     begin
         DataExchDef.SetRange(Type, DataExchDef.Type::"Positive Pay Export");
-        DataExchDef.FindSet;
+        DataExchDef.FindSet();
         repeat
             DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
             DataExchLineDef.SetRange("Line Type", LineType);
-            if not DataExchLineDef.IsEmpty then
+            if not DataExchLineDef.IsEmpty() then
                 exit(DataExchDef.Code);
         until DataExchDef.Next = 0;
         exit('');
@@ -654,7 +654,7 @@ codeunit 134802 "Positive Pay Test Unit 2"
         ReplacePosition := 0;
         DataExchColumnDef.SetRange("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
         DataExchColumnDef.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
-        DataExchColumnDef.FindSet;
+        DataExchColumnDef.FindSet();
         repeat
             ReplacePosition += DataExchColumnDef.Length;
         until DataExchColumnDef.Next = 0;
@@ -764,7 +764,7 @@ codeunit 134802 "Positive Pay Test Unit 2"
         RemoveDataExchByType(DataExchDefCode, DataExchLineDef."Line Type"::Footer, TempDataExchLineDef[2]);
 
         DataExchColumnDef.SetRange("Data Exch. Def Code", DataExchDefCode);
-        DataExchColumnDef.FindSet;
+        DataExchColumnDef.FindSet();
         repeat
             AmountStartPosNo += DataExchColumnDef.Length;
         until (DataExchColumnDef.Next = 0) or (DataExchColumnDef."Data Type" = DataExchColumnDef."Data Type"::Decimal);

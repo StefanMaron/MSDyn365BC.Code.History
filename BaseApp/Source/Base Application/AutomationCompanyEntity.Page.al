@@ -9,6 +9,9 @@ page 5440 "Automation Company Entity"
     ODataKeyFields = Id;
     PageType = API;
     SourceTable = Company;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {

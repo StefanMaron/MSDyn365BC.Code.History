@@ -462,7 +462,7 @@ table 273 "Bank Acc. Reconciliation"
                       BankAccReconciliationLine."Shortcut Dimension 2 Code");
                     BankAccReconciliationLine.Modify();
                 end;
-            until BankAccReconciliationLine.Next = 0;
+            until BankAccReconciliationLine.Next() = 0;
         end;
     end;
 
@@ -518,6 +518,11 @@ table 273 "Bank Acc. Reconciliation"
         end;
 
         Commit();
+
+        if BankAccount.Get(BankAccReconciliation."Bank Account No.") then
+            if BankAccount."Disable Automatic Pmt Matching" then
+                exit;
+
         ProcessStatement(BankAccReconciliation);
     end;
 
@@ -730,7 +735,7 @@ table 273 "Bank Acc. Reconciliation"
         if not Confirm(MustHaveValueQst, true, BankAccount.FieldCaption("Bank Statement Import Format")) then
             exit(false);
 
-        if PAGE.RunModal(PAGE::"Payment Bank Account Card", BankAccount) = ACTION::LookupOK then
+        if PAGE.RunModal(PAGE::"Bank Account Card", BankAccount) = ACTION::LookupOK then
             if BankAccount."Bank Statement Import Format" <> '' then
                 exit(true);
 
@@ -749,7 +754,7 @@ table 273 "Bank Acc. Reconciliation"
         repeat
             BankAccReconciliation := Rec;
             BankAccReconciliation.Insert();
-        until Next = 0;
+        until Next() = 0;
     end;
 
     procedure GetTempCopyFromBankRecHeader(var BankAccReconciliation: Record "Bank Acc. Reconciliation")
@@ -774,7 +779,7 @@ table 273 "Bank Acc. Reconciliation"
             BankAccReconciliation."Balance Last Statement" := BankRecHeader."Statement Balance";
             BankAccReconciliation."Statement Ending Balance" := BankRecHeader.CalculateEndingBalance;
             BankAccReconciliation.Insert();
-        until BankRecHeader.Next = 0;
+        until BankRecHeader.Next() = 0;
     end;
 
     procedure InsertRec(StatementType: Option; BankAccountNo: Code[20])
@@ -794,13 +799,30 @@ table 273 "Bank Acc. Reconciliation"
         PAGE.Run(PAGE::"Bank Account Ledger Entries", BankAccountLedgerEntry);
     end;
 
+    [Scope('OnPrem')]
+    procedure MatchCandidateFilterDate(): Date
+    var
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+    begin
+        BankAccReconciliationLine.SetRange("Statement Type", "Statement Type");
+        BankAccReconciliationLine.SetRange("Statement No.", "Statement No.");
+        BankAccReconciliationLine.SetFilter("Bank Account No.", "Bank Account No.");
+        BankAccReconciliationLine.SetCurrentKey("Transaction Date");
+        BankAccReconciliationLine.Ascending := false;
+        if BankAccReconciliationLine.FindFirst() then
+            if BankAccReconciliationLine."Transaction Date" > "Statement Date" then
+                exit(BankAccReconciliationLine."Transaction Date");
+
+        exit("Statement Date");
+    end;
+
     local procedure CopyBankAccountsToTemp(var TempBankAccount: Record "Bank Account" temporary; var FromBankAccount: Record "Bank Account")
     begin
         if FromBankAccount.FindSet then
             repeat
                 TempBankAccount := FromBankAccount;
                 if TempBankAccount.Insert() then;
-            until FromBankAccount.Next = 0;
+            until FromBankAccount.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

@@ -1,5 +1,6 @@
 page 8510 "Over-Receipt Codes"
 {
+    Caption = 'Over-Receipt Codes';
     PageType = List;
     ApplicationArea = All;
     UsageCategory = Lists;

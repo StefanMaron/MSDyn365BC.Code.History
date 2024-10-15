@@ -282,10 +282,10 @@ codeunit 131305 "Library - ERM Country Data"
             exit;
 
         // Create VAT Posting Setup using existing VAT Business and VAT Product Groups.
-        VATProdPostingGroup.FindSet;
+        VATProdPostingGroup.FindSet();
         repeat
             VATPerc := GetVATPerc(VATProdPostingGroup.Code);
-            VATBusPostingGroup.FindSet;
+            VATBusPostingGroup.FindSet();
             repeat
                 if (VATBusPostingGroup.Code = EU) and (VATPerc > 0) then
                     VATCalculationType := VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT" // Reverse Charge VAT is used for EU VAT Business Posting Group.
@@ -510,9 +510,9 @@ codeunit 131305 "Library - ERM Country Data"
         GeneralProductPostingGroup: Record "Gen. Product Posting Group";
         GeneralPostingSetup: Record "General Posting Setup";
     begin
-        GeneralBusinessPostingGroup.FindSet;
+        GeneralBusinessPostingGroup.FindSet();
         repeat
-            GeneralProductPostingGroup.FindSet;
+            GeneralProductPostingGroup.FindSet();
             repeat
                 GeneralPostingSetup.Reset();
                 if not GeneralPostingSetup.Get(GeneralBusinessPostingGroup.Code, GeneralProductPostingGroup.Code) then begin

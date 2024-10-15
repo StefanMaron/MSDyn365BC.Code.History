@@ -22,6 +22,8 @@ codeunit 139163 "Int. Table Synch. Subscriber"
         CallbackCounterBeforeModify: Integer;
         CallbackCounterAfterModify: Integer;
         ModifyOnFieldTransfer: Boolean;
+        UpdateModifiedOnTimeOnIntegrationRecord: Boolean;
+        CRMTimeDiffSeconds: Integer;
         ExpectedFailureErr: Label 'Expected Failure.';
 
     [Scope('OnPrem')]
@@ -37,6 +39,8 @@ codeunit 139163 "Int. Table Synch. Subscriber"
         CallbackCounterAfterModify := 0;
 
         ModifyOnFieldTransfer := false;
+        UpdateModifiedOnTimeOnIntegrationRecord := false;
+        CRMTimeDiffSeconds := 0;
 
         ClearFindRecordResults;
     end;
@@ -67,6 +71,24 @@ codeunit 139163 "Int. Table Synch. Subscriber"
     begin
         HandleFindRecord := false;
         FindDestinationRecordShouldError := false;
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetUpdateModifiedOn(DoUpdateModifiedOnTimeOnIntegrationRecord: Boolean)
+    begin
+        SetUpdateModifiedOn(DoUpdateModifiedOnTimeOnIntegrationRecord, 0);
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetUpdateModifiedOn(DoUpdateModifiedOnTimeOnIntegrationRecord: Boolean; TimeDiffSeconds: Integer)
+    begin
+        UpdateModifiedOnTimeOnIntegrationRecord := DoUpdateModifiedOnTimeOnIntegrationRecord;
+        CRMTimeDiffSeconds := TimeDiffSeconds;
+    end;
+
+    local procedure CurrentCRMDateTime(): DateTime
+    begin
+        exit(CurrentDateTime() + (CRMTimeDiffSeconds * 1000));
     end;
 
     [Scope('OnPrem')]
@@ -110,25 +132,22 @@ codeunit 139163 "Int. Table Synch. Subscriber"
         Counter := Counter + 1;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5345, 'OnBeforeTransferRecordFields', '', false, false)]
-    [Scope('OnPrem')]
-    procedure HandleBeforeTransferFields()
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnBeforeTransferRecordFields', '', false, false)]
+    local procedure HandleBeforeTransferFields()
     begin
         IncrementCounter(CallbackCounterBeforeTransferFields);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5345, 'OnAfterTransferRecordFields', '', false, false)]
-    [Scope('OnPrem')]
-    procedure HandleAfterTransferFields(var AdditionalFieldsWereModified: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnAfterTransferRecordFields', '', false, false)]
+    local procedure HandleAfterTransferFields(var AdditionalFieldsWereModified: Boolean)
     begin
         IncrementCounter(CallbackCounterAfterTransferFields);
         if ModifyOnFieldTransfer then
             AdditionalFieldsWereModified := true;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5345, 'OnBeforeInsertRecord', '', false, false)]
-    [Scope('OnPrem')]
-    procedure HandleBeforeInsert(var DestinationRecordRef: RecordRef)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnBeforeInsertRecord', '', false, false)]
+    local procedure HandleBeforeInsert(var DestinationRecordRef: RecordRef)
     var
         IdFieldRef: FieldRef;
     begin
@@ -146,30 +165,74 @@ codeunit 139163 "Int. Table Synch. Subscriber"
             end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5345, 'OnAfterInsertRecord', '', false, false)]
-    [Scope('OnPrem')]
-    procedure HandleAfterInsert()
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnAfterInsertRecord', '', false, false)]
+    local procedure HandleAfterInsert()
     begin
         IncrementCounter(CallbackCounterAfterInsert);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5345, 'OnBeforeModifyRecord', '', false, false)]
-    [Scope('OnPrem')]
-    procedure HandleBeforeModify()
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnBeforeModifyRecord', '', false, false)]
+    local procedure HandleBeforeModify()
     begin
         IncrementCounter(CallbackCounterBeforeModify);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5345, 'OnAfterModifyRecord', '', false, false)]
-    [Scope('OnPrem')]
-    procedure HandleAfterModify()
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnAfterModifyRecord', '', false, false)]
+    local procedure HandleAfterModify()
     begin
         IncrementCounter(CallbackCounterAfterModify);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5345, 'OnFindUncoupledDestinationRecord', '', false, false)]
-    [Scope('OnPrem')]
-    procedure HandleFindUncoupledDestinationRecord(var DestinationRecordRef: RecordRef; var DestinationIsDeleted: Boolean; var DestinationFound: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"CRM Account", 'OnBeforeInsertEvent', '', false, false)]
+    procedure UpdateModifiedOnTimeOnBeforeInsertCRMAccount(var Rec: Record "CRM Account"; RunTrigger: Boolean)
+    begin
+        if not Rec.IsTemporary() then
+            if UpdateModifiedOnTimeOnIntegrationRecord then
+                Rec.ModifiedOn := CurrentCRMDateTime();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"CRM Account", 'OnBeforeModifyEvent', '', false, false)]
+    procedure UpdateModifiedOnTimeOnBeforeModifyCRMAccount(var Rec: Record "CRM Account"; RunTrigger: Boolean)
+    begin
+        if not Rec.IsTemporary() then
+            if UpdateModifiedOnTimeOnIntegrationRecord then
+                Rec.ModifiedOn := CurrentCRMDateTime();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"CRM Contact", 'OnBeforeInsertEvent', '', false, false)]
+    procedure UpdateModifiedOnTimeOnBeforeInsertCRMContact(var Rec: Record "CRM Contact"; RunTrigger: Boolean)
+    begin
+        if not Rec.IsTemporary() then
+            if UpdateModifiedOnTimeOnIntegrationRecord then
+                Rec.ModifiedOn := CurrentCRMDateTime();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"CRM Contact", 'OnBeforeModifyEvent', '', false, false)]
+    procedure UpdateModifiedOnTimeOnBeforeModifyCRMContact(var Rec: Record "CRM Contact"; RunTrigger: Boolean)
+    begin
+        if not Rec.IsTemporary() then
+            if UpdateModifiedOnTimeOnIntegrationRecord then
+                Rec.ModifiedOn := CurrentCRMDateTime();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"CRM Systemuser", 'OnBeforeInsertEvent', '', false, false)]
+    procedure UpdateModifiedOnTimeOnBeforeInsertCRMSystemuser(var Rec: Record "CRM Systemuser"; RunTrigger: Boolean)
+    begin
+        if not Rec.IsTemporary() then
+            if UpdateModifiedOnTimeOnIntegrationRecord then
+                Rec.ModifiedOn := CurrentCRMDateTime();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"CRM Systemuser", 'OnBeforeModifyEvent', '', false, false)]
+    procedure UpdateModifiedOnTimeOnBeforeModifyCRMSystemuser(var Rec: Record "CRM Systemuser"; RunTrigger: Boolean)
+    begin
+        if not Rec.IsTemporary() then
+            if UpdateModifiedOnTimeOnIntegrationRecord then
+                Rec.ModifiedOn := CurrentCRMDateTime();
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnFindUncoupledDestinationRecord', '', false, false)]
+    local procedure HandleFindUncoupledDestinationRecord(var DestinationRecordRef: RecordRef; var DestinationIsDeleted: Boolean; var DestinationFound: Boolean)
     begin
         if FindDestinationRecordShouldError then
             Error(ExpectedFailureErr);

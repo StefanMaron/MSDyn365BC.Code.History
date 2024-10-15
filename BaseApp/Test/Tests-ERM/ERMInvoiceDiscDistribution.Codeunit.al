@@ -683,7 +683,7 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
     local procedure VerifySalesLines(var SalesLine: Record "Sales Line"; Multiplier: Decimal)
     begin
         with SalesLine do begin
-            FindSet;
+            FindSet();
             VerifySalesLineInvoiceDiscountAmounts(SalesLine, 333.33 * Multiplier, 0);
             Next;
             VerifySalesLineInvoiceDiscountAmounts(SalesLine, 333.34 * Multiplier, 333.34 / 2);
@@ -701,7 +701,7 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
     local procedure VerifyPurchaseLines(var PurchaseLine: Record "Purchase Line"; Multiplier: Decimal)
     begin
         with PurchaseLine do begin
-            FindSet;
+            FindSet();
             VerifyPurchaseLineInvoiceDiscountAmounts(PurchaseLine, 333.33 * Multiplier, 0);
             Next;
             VerifyPurchaseLineInvoiceDiscountAmounts(PurchaseLine, 333.34 * Multiplier, 333.34 / 2);

@@ -57,7 +57,7 @@ page 1486 "Role Center Overview"
     begin
         ConfPersonalizationMgt.GetCurrentProfileNoError(CurrAllProfile);
 
-        if CurrAllProfile.IsEmpty then
+        if CurrAllProfile.IsEmpty() then
             if CurrAllProfile.FindFirst then
                 exit;
 

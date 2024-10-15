@@ -51,7 +51,7 @@ page 10351 "BC O365 Tax Settings List"
                 begin
                     TempTaxArea.Insert();
                     PAGE.RunModal(PAGE::"BC O365 Tax Settings Card", TempTaxArea);
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
             action(Edit)

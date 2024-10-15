@@ -351,8 +351,8 @@ report 10403 Deposit
                                                     repeat
                                                         AppliedCustLedgEntry := TempAppliedCustLedgEntry;
                                                         AppliedCustLedgEntry.Insert();
-                                                    until TempAppliedCustLedgEntry.Next = 0;
-                                            until CustLedgEntry.Next = 0;
+                                                    until TempAppliedCustLedgEntry.Next() = 0;
+                                            until CustLedgEntry.Next() = 0;
                                     end;
                                 "Account Type"::Vendor:
                                     begin
@@ -365,8 +365,8 @@ report 10403 Deposit
                                                     repeat
                                                         AppliedVendLedgEntry := TempAppliedVendLedgEntry;
                                                         AppliedVendLedgEntry.Insert();
-                                                    until TempAppliedVendLedgEntry.Next = 0;
-                                            until VendLedgEntry.Next = 0;
+                                                    until TempAppliedVendLedgEntry.Next() = 0;
+                                            until VendLedgEntry.Next() = 0;
                                     end;
                             end;
                     end;

@@ -530,7 +530,7 @@ report 10074 "Sales Invoice NA"
                                 if not TempLineFeeNoteOnReportHist.FindSet then
                                     CurrReport.Break
                             end else
-                                if TempLineFeeNoteOnReportHist.Next = 0 then
+                                if TempLineFeeNoteOnReportHist.Next() = 0 then
                                     CurrReport.Break();
                         end;
                     }
@@ -673,7 +673,7 @@ report 10074 "Sales Invoice NA"
                                         BreakdownLabel[BrkIdx] := StrSubstNo("Print Description", "Tax %");
                                 end;
                                 BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + "Tax Amount";
-                            until Next = 0;
+                            until Next() = 0;
                     end;
                     if BrkIdx = 1 then begin
                         Clear(BreakdownLabel);
@@ -931,10 +931,10 @@ report 10074 "Sales Invoice NA"
                         if PostedAsmLine.FindSet then
                             repeat
                                 TreatAsmLineBuffer(PostedAsmLine);
-                            until PostedAsmLine.Next = 0;
+                            until PostedAsmLine.Next() = 0;
                     end;
                 end;
-        until ValueEntry.Next = 0;
+        until ValueEntry.Next() = 0;
     end;
 
     procedure TreatAsmLineBuffer(PostedAsmLine: Record "Posted Assembly Line")
@@ -991,7 +991,7 @@ report 10074 "Sales Invoice NA"
                 TempLineFeeNoteOnReportHist.Init();
                 TempLineFeeNoteOnReportHist.Copy(LineFeeNoteOnReportHist);
                 TempLineFeeNoteOnReportHist.Insert();
-            until LineFeeNoteOnReportHist.Next = 0;
+            until LineFeeNoteOnReportHist.Next() = 0;
         end else begin
             LineFeeNoteOnReportHist.SetRange("Language Code", Language.GetUserLanguageCode);
             if LineFeeNoteOnReportHist.FindSet then
@@ -999,7 +999,7 @@ report 10074 "Sales Invoice NA"
                     TempLineFeeNoteOnReportHist.Init();
                     TempLineFeeNoteOnReportHist.Copy(LineFeeNoteOnReportHist);
                     TempLineFeeNoteOnReportHist.Insert();
-                until LineFeeNoteOnReportHist.Next = 0;
+                until LineFeeNoteOnReportHist.Next() = 0;
         end;
     end;
 }

@@ -14,7 +14,7 @@ codeunit 6310 "PBI Top Opportunities Calc."
         if TempOpportunity.FindSet then
             repeat
                 InsertToBuffer(TempPowerBIChartBuffer, TempOpportunity);
-            until TempOpportunity.Next = 0;
+            until TempOpportunity.Next() = 0;
     end;
 
     local procedure CalcTopFiveOpportunities(var TempOpportunity: Record Opportunity temporary)
@@ -30,7 +30,7 @@ codeunit 6310 "PBI Top Opportunities Calc."
             repeat
                 TempOpportunity := Opportunity;
                 TempOpportunity.Insert();
-            until Opportunity.Next = 0;
+            until Opportunity.Next() = 0;
     end;
 
     local procedure InsertToBuffer(var TempPowerBIChartBuffer: Record "Power BI Chart Buffer" temporary; TempOpportunity: Record Opportunity temporary)

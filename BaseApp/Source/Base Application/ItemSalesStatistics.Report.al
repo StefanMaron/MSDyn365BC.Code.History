@@ -290,7 +290,7 @@ report 10135 "Item Sales Statistics"
                                 QuantityReturned := QuantityReturned + ItemLedgerEntry."Invoiced Quantity";
                                 Item."Sales (Qty.)" := Item."Sales (Qty.)" + ItemLedgerEntry."Invoiced Quantity";
                             end;
-                        until ItemLedgerEntry.Next = 0;
+                        until ItemLedgerEntry.Next() = 0;
                     if (Item."Sales (Qty.)" = 0) and (QuantityReturned = 0) and
                        (Item."Sales (LCY)" = 0) and (Item."COGS (LCY)" = 0)
                     then
@@ -338,7 +338,7 @@ report 10135 "Item Sales Statistics"
                             QuantityReturned := QuantityReturned + ItemLedgerEntry."Invoiced Quantity";
                             "Sales (Qty.)" := "Sales (Qty.)" + ItemLedgerEntry."Invoiced Quantity";
                         end;
-                    until ItemLedgerEntry.Next = 0;
+                    until ItemLedgerEntry.Next() = 0;
             end;
 
             trigger OnPreDataItem()

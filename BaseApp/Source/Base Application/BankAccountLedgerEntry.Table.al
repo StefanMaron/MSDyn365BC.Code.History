@@ -416,18 +416,18 @@ table 271 "Bank Account Ledger Entry"
         SetRange(Open, true);
     end;
 
-	procedure ResetStatementFields(BankAccountNo: Code[20]; StatementNo: Code[20])
-	var
-		BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
-		BankAccLedgEntryReset: Codeunit "Bank Acc. Ledg. Entry-Reset";
-	begin
-		BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
-		BankAccountLedgerEntry.SetRange("Statement No.", StatementNo);
-		if BankAccountLedgerEntry.FindSet() then
-			repeat
-				BankAccLedgEntryReset.Run(BankAccountLedgerEntry);
-			until BankAccountLedgerEntry.Next() = 0;
-	end;
+    procedure ResetStatementFields(BankAccountNo: Code[20]; StatementNo: Code[20])
+    var
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        BankAccLedgEntryReset: Codeunit "Bank Acc. Ledg. Entry-Reset";
+    begin
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        BankAccountLedgerEntry.SetRange("Statement No.", StatementNo);
+        if BankAccountLedgerEntry.FindSet() then
+            repeat
+                BankAccLedgEntryReset.Run(BankAccountLedgerEntry);
+            until BankAccountLedgerEntry.Next() = 0;
+    end;
 
     [IntegrationEvent(false, false)]
     procedure OnAfterCopyFromGenJnlLine(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; GenJournalLine: Record "Gen. Journal Line")

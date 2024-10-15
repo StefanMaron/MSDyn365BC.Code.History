@@ -139,7 +139,7 @@ codeunit 2129 "O365 Export Invoices + Email"
                         'HST':
                             EnterCell(RowNo, 16, TempSalesTaxAmountLine."Tax Amount");
                     end;
-                until TempSalesTaxAmountLine.Next = 0;
+                until TempSalesTaxAmountLine.Next() = 0;
         end;
 
         if CompanyInformation.IsCanada then
@@ -232,9 +232,9 @@ codeunit 2129 "O365 Export Invoices + Email"
                     repeat
                         LineRowNo := LineRowNo + 1;
                         InsertSalesLineItem;
-                    until SalesInvoiceLine.Next = 0;
+                    until SalesInvoiceLine.Next() = 0;
                 end;
-            until SalesInvoiceHeader.Next = 0;
+            until SalesInvoiceHeader.Next() = 0;
         end;
     end;
 

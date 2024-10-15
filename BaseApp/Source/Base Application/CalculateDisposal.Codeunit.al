@@ -18,6 +18,7 @@ codeunit 5605 "Calculate Disposal"
         EntryAmounts2: array[4] of Decimal;
         GainLoss: Decimal;
         I: Integer;
+        IsHandled: Boolean;
     begin
         ClearAll;
         Clear(EntryAmounts);
@@ -36,7 +37,11 @@ codeunit 5605 "Calculate Disposal"
             OnCalcGainLossOnAfterSetEntryAmounts(FANo, DeprBookCode, EntryAmounts);
             if DeprBook."Disposal Calculation Method" = DeprBook."Disposal Calculation Method"::Gross then
                 EntryAmounts[10] := "Book Value";
-            GainLoss := "Book Value" + "Proceeds on Disposal";
+
+            IsHandled := false;
+            OnAfterSetEntryAmountsOnBeforeGainLoss(FANo, FADeprBook, DeprBookCode, EntryAmounts, GainLoss, IsHandled);
+            if not IsHandled then
+                GainLoss := "Book Value" + "Proceeds on Disposal";
         end;
         for I := 0 to 3 do
             if not DepreciationCalc.GetPartOfCalculation(1, I, DeprBookCode) then begin
@@ -133,7 +138,7 @@ codeunit 5605 "Calculate Disposal"
                         MaxDisposalNo := "Disposal Entry No.";
                         SalesEntryNo := "Entry No.";
                     end;
-                until Next = 0;
+                until Next() = 0;
                 if ErrorNo = 0 then begin
                     DeprBook.Get(DeprBookCode);
                     DeprBook.TestField("Allow Correction of Disposal");
@@ -170,7 +175,7 @@ codeunit 5605 "Calculate Disposal"
                             EntryNumbers[2] := "Entry No.";
                         end;
                     end;
-                until Next = 0;
+                until Next() = 0;
             if not OnlyGainLoss then
                 for i := 3 to 14 do begin
                     SetRange("FA Posting Category", SetFAPostingCategory(i));
@@ -255,6 +260,17 @@ codeunit 5605 "Calculate Disposal"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcGainLossOnAfterSetEntryAmounts(FANo: Code[20]; DeprBookCode: Code[10]; var EntryAmounts: array[14] of Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetEntryAmountsOnBeforeGainLoss(
+        FANo: Code[20];
+        FADeprBook: Record "FA Depreciation Book";
+        DeprBookCode: Code[10];
+        var EntryAmounts: array[14] of Decimal;
+        var GainLoss: Decimal;
+        var IsHandled: Boolean)
     begin
     end;
 }

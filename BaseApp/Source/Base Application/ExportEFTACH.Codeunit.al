@@ -428,7 +428,7 @@ codeunit 10094 "Export EFT (ACH)"
                     TempBlob.CreateInStream(ServerTempFileInStream);
                     DataCompression.AddEntry(ServerTempFileInStream, TempNameValueBuffer.Name);
                     TempEraseFileNameValueBuffer.AddNewEntry(TempNameValueBuffer.Value, '');
-                until TempNameValueBuffer.Next = 0;
+                until TempNameValueBuffer.Next() = 0;
                 ZipTempBlob.CreateOutStream(ZipOutStream);
                 DataCompression.SaveZipArchive(ZipOutStream);
                 DataCompression.CloseZipArchive();
@@ -467,7 +467,7 @@ codeunit 10094 "Export EFT (ACH)"
             repeat
                 if not TryDeleteFile(TempEraseFileNameValueBuffer.Name) then
                     DeleteError := true;
-            until TempEraseFileNameValueBuffer.Next = 0;
+            until TempEraseFileNameValueBuffer.Next() = 0;
 
         if DeleteError then
             Error('');

@@ -31,7 +31,7 @@ codeunit 10202 "Entry Application Management"
                 PmtDtldCustLedgEntry.SetRange("Application No.", DtldCustLedgEntry."Application No.");
                 PmtDtldCustLedgEntry.SetRange("Customer No.", DtldCustLedgEntry."Customer No.");
                 OnGetAppliedCustEntriesOnAfterFilterPmtDtldCustLedgEntry(DtldCustLedgEntry, PmtDtldCustLedgEntry);
-                PmtDtldCustLedgEntry.FindSet;
+                PmtDtldCustLedgEntry.FindSet();
                 repeat
                     if UseLCY then
                         AmountToApply := -PmtDtldCustLedgEntry."Amount (LCY)"
@@ -52,8 +52,8 @@ codeunit 10202 "Entry Application Management"
                         end;
                         AppliedCustLedgEntry.Insert();
                     end;
-                until PmtDtldCustLedgEntry.Next = 0;
-            until DtldCustLedgEntry.Next = 0;
+                until PmtDtldCustLedgEntry.Next() = 0;
+            until DtldCustLedgEntry.Next() = 0;
     end;
 
     procedure GetAppliedVendEntries(var AppliedVendLedgEntry: Record "Vendor Ledger Entry" temporary; VendLedgEntry: Record "Vendor Ledger Entry"; UseLCY: Boolean)
@@ -82,7 +82,7 @@ codeunit 10202 "Entry Application Management"
                 PmtDtldVendLedgEntry.SetRange("Transaction No.", DtldVendLedgEntry."Transaction No.");
                 PmtDtldVendLedgEntry.SetRange("Application No.", DtldVendLedgEntry."Application No.");
                 PmtDtldVendLedgEntry.SetRange("Vendor No.", DtldVendLedgEntry."Vendor No.");
-                PmtDtldVendLedgEntry.FindSet;
+                PmtDtldVendLedgEntry.FindSet();
                 repeat
                     PaymentDiscount := 0;
                     if PmtDtldVendLedgEntry."Posting Date" <= PmtDtldVendLedgEntry."Initial Entry Due Date" then
@@ -106,8 +106,8 @@ codeunit 10202 "Entry Application Management"
                         end;
                         AppliedVendLedgEntry.Insert();
                     end;
-                until PmtDtldVendLedgEntry.Next = 0;
-            until DtldVendLedgEntry.Next = 0;
+                until PmtDtldVendLedgEntry.Next() = 0;
+            until DtldVendLedgEntry.Next() = 0;
     end;
 
     procedure GetAppliedVendorEntries(var TempAppliedVendLedgEntry: Record "Vendor Ledger Entry" temporary; VendorNo: Code[20]; PeriodDate: array[2] of Date; UseLCY: Boolean)
@@ -140,7 +140,7 @@ codeunit 10202 "Entry Application Management"
                         PmtDtldVendLedgEntry.SetRange("Vendor No.", VendorNo);
                         PmtDtldVendLedgEntry.SetRange("Transaction No.", DtldVendLedgEntry."Transaction No.");
                         PmtDtldVendLedgEntry.SetRange("Application No.", DtldVendLedgEntry."Application No.");
-                        PmtDtldVendLedgEntry.FindSet;
+                        PmtDtldVendLedgEntry.FindSet();
                         repeat
                             if TryCacheEntryNo(TempInteger, PmtDtldVendLedgEntry."Entry No.") then begin
                                 if UseLCY then
@@ -166,9 +166,9 @@ codeunit 10202 "Entry Application Management"
                                     TempAppliedVendLedgEntry.Insert();
                                 end;
                             end;
-                        until PmtDtldVendLedgEntry.Next = 0;
-                    until DtldVendLedgEntry.Next = 0;
-            until VendLedgEntry.Next = 0;
+                        until PmtDtldVendLedgEntry.Next() = 0;
+                    until DtldVendLedgEntry.Next() = 0;
+            until VendLedgEntry.Next() = 0;
     end;
 
     local procedure GetPaymentDiscount(ClosingVendLedgEntryNo: Integer; UseLCY: Boolean): Decimal

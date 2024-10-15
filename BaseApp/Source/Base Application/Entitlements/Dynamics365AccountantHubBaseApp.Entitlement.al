@@ -1,0 +1,12 @@
+entitlement "Dynamics 365 - Accountant Hub BaseApp"
+{
+    Type = PerUserServicePlan;
+    Id = '5d60ea51-0053-458f-80a8-b6f426a1a0c1';
+    ObjectEntitlements = "BaseApp Objects - Exec",
+                         "D365 ACCOUNTANTS",
+                         "D365 BASIC",
+                         "D365 DIM CORRECTION",
+                         "D365 JOBS, EDIT",
+                         "D365 MONITOR FIELDS",
+                         "Security - Baseapp";
+}

@@ -1,4 +1,4 @@
-﻿codeunit 76 "Purch.-Get Drop Shpt."
+codeunit 76 "Purch.-Get Drop Shpt."
 {
     Permissions = TableData "Sales Header" = m,
                   TableData "Sales Line" = m;
@@ -115,7 +115,7 @@
                         end;
                         OnCodeOnAfterInsertPurchExtText(SalesLine, PurchHeader, NextLineNo);
                     end;
-                until SalesLine.Next = 0
+                until SalesLine.Next() = 0
             else
                 Error(
                   Text000,
@@ -170,8 +170,10 @@
             exit;
         Item.Get(SalesLine."No.");
 
+#if not CLEAN17
         if GetDescriptionFromItemCrossReference(PurchaseLine, SalesLine, Item) then
             exit;
+#endif
         if GetDescriptionFromItemReference(PurchaseLine, SalesLine, Item) then
             exit;
         if GetDescriptionFromItemTranslation(PurchaseLine, SalesLine) then
@@ -183,6 +185,7 @@
         GetDescriptionFromItem(PurchaseLine, Item);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by GetDescriptionFromItemReference().', '17.0')]
     local procedure GetDescriptionFromItemCrossReference(var PurchaseLine: Record "Purchase Line"; SalesLine: Record "Sales Line"; Item: Record Item): Boolean
     var
@@ -200,6 +203,7 @@
                 PurchaseLine.Description, PurchaseLine."Description 2", Item."No.", SalesLine."Variant Code",
                 SalesLine."Unit of Measure Code", ItemCrossRef."Cross-Reference Type"::Vendor, PurchHeader."Buy-from Vendor No."));
     end;
+#endif
 
     local procedure GetDescriptionFromItemReference(var PurchaseLine: Record "Purchase Line"; SalesLine: Record "Sales Line"; Item: Record Item): Boolean
     var

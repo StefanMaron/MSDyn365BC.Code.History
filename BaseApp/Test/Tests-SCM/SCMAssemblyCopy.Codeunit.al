@@ -1058,7 +1058,7 @@ codeunit 137927 "SCM Assembly Copy"
     begin
         FromSalesShipmentLine.SetRange("Document No.", SalesShipmentNo);
         FromSalesShipmentLine.SetRange(Type, FromSalesShipmentLine.Type::Item);
-        FromSalesShipmentLine.FindSet;
+        FromSalesShipmentLine.FindSet();
         repeat
             Assert.IsTrue(FromSalesShipmentLine.AsmToShipmentExists(PostedAsmHeader),
               StrSubstNo('%1: No Assembly orders exist for %2: Order %3 line %4', ThisObj, FromSalesShipmentLine.TableCaption,
@@ -1078,7 +1078,7 @@ codeunit 137927 "SCM Assembly Copy"
     begin
         FromSalesShipmentLine.SetRange("Document No.", SalesShipmentNo);
         FromSalesShipmentLine.SetRange(Type, FromSalesShipmentLine.Type::Item);
-        FromSalesShipmentLine.FindSet;
+        FromSalesShipmentLine.FindSet();
         repeat
             Assert.IsTrue(FromSalesShipmentLine.AsmToShipmentExists(PostedAsmHeader),
               StrSubstNo('%1: No Assembly orders exist for %2: Order %3 line %4', FromSalesShipmentLine.TableCaption,
@@ -1142,8 +1142,8 @@ codeunit 137927 "SCM Assembly Copy"
         ToAsmLine.SetRange("Document Type", ToAsmLine."Document Type"::Order);
         ToAsmLine.SetRange("Document No.", ToDocumentNo);
         Assert.AreEqual(TempAsmLine.Count, ToAsmLine.Count, 'No. of Asm lines when copying from one Asm header to another');
-        TempAsmLine.FindSet;
-        ToAsmLine.FindSet;
+        TempAsmLine.FindSet();
+        ToAsmLine.FindSet();
         repeat
             Assert.AreEqual(TempAsmLine.Type, ToAsmLine.Type, GetMsg(ToAsmLine.FieldCaption(Type)));
             Assert.AreEqual(TempAsmLine."No.", ToAsmLine."No.", GetMsg(ToAsmLine.FieldCaption("No.")));
@@ -1319,8 +1319,8 @@ codeunit 137927 "SCM Assembly Copy"
         ToAsmLine.SetRange("Document No.", AssembleToOrderLink."Assembly Document No.");
         Assert.AreEqual(TempAsmLine.Count, ToAsmLine.Count,
           'The number of assembly lines on the copied document must match the number on the original');
-        TempAsmLine.FindSet;
-        ToAsmLine.FindSet;
+        TempAsmLine.FindSet();
+        ToAsmLine.FindSet();
         repeat
             Assert.AreEqual(TempAsmLine.Type, ToAsmLine.Type, TempAsmLine.FieldCaption(Type));
             Assert.AreEqual(TempAsmLine."No.", ToAsmLine."No.", GetMsg(TempAsmLine.FieldCaption("No.")));

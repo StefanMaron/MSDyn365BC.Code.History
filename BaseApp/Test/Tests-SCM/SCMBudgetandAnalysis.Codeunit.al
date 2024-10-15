@@ -94,7 +94,7 @@ codeunit 137403 "SCM Budget and Analysis"
         CreateAnalysisLineTemplateAndOpenAnalysisLines(AnalysisLineTemplate."Analysis Area"::Inventory);
     end;
 
-    local procedure CreateAnalysisLineTemplateAndOpenAnalysisLines(AnalysisArea: Option)
+    local procedure CreateAnalysisLineTemplateAndOpenAnalysisLines(AnalysisArea: Enum "Analysis Area Type")
     var
         AnalysisLineTemplate: Record "Analysis Line Template";
         AnalysisLineTemplates: TestPage "Analysis Line Templates";
@@ -147,7 +147,7 @@ codeunit 137403 "SCM Budget and Analysis"
         CreateAnalysisColumnTemplateAndOpenAnalysisColumns(AnalysisColumnTemplate."Analysis Area"::Inventory);
     end;
 
-    local procedure CreateAnalysisColumnTemplateAndOpenAnalysisColumns(AnalysisArea: Option)
+    local procedure CreateAnalysisColumnTemplateAndOpenAnalysisColumns(AnalysisArea: Enum "Analysis Area Type")
     var
         AnalysisColumnTemplate: Record "Analysis Column Template";
         AnalysisColumnTemplates: TestPage "Analysis Column Templates";
@@ -346,7 +346,7 @@ codeunit 137403 "SCM Budget and Analysis"
     begin
         // Verify that the Row Reference Number gets updated.
         AnalysisLine.SetRange("Analysis Line Template Name", AnalysisLineTemplateName);
-        AnalysisLine.FindSet;
+        AnalysisLine.FindSet();
         AnalysisLine.TestField("Row Ref. No.", NewRowNo);
         AnalysisLine.Next;
         NewRowNo := IncStr(NewRowNo);

@@ -9,7 +9,7 @@ codeunit 1225 "Unixtimestamp Transformation"
         UNIXTimeStampDescTxt: Label 'Transforming UNIX timestamp to text format.';
         UNIXTimeStampTxt: Label 'UNIXTIMESTAMP', Locked = true;
 
-    [EventSubscriber(ObjectType::Table, 1237, 'OnTransformation', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Transformation Rule", 'OnTransformation', '', false, false)]
     local procedure TransformUnixtimestampOnTransformation(TransformationCode: Code[20]; InputText: Text; var OutputText: Text)
     begin
         if TransformationCode <> GetUnixTimestampCode then
@@ -18,13 +18,14 @@ codeunit 1225 "Unixtimestamp Transformation"
             OutputText := ''
     end;
 
-    [EventSubscriber(ObjectType::Table, 1237, 'OnCreateTransformationRules', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Transformation Rule", 'OnCreateTransformationRules', '', false, false)]
     local procedure InsertUnixtimestampOnCreateTransformationRules()
     var
         TransformationRule: Record "Transformation Rule";
     begin
-        TransformationRule.InsertRec(
-          GetUnixTimestampCode, UNIXTimeStampDescTxt, TransformationRule."Transformation Type"::Custom, 0, 0, '', '');
+        if not TransformationRule.Get(GetUnixTimestampCode()) then
+            TransformationRule.CreateRule(
+                GetUnixTimestampCode(), UNIXTimeStampDescTxt, TransformationRule."Transformation Type"::Custom, 0, 0, '', '');
     end;
 
     [TryFunction]

@@ -1,4 +1,4 @@
-report 1322 "Standard Purchase - Order"
+﻿report 1322 "Standard Purchase - Order"
 {
     RDLCLayout = './StandardPurchaseOrder.rdlc';
     WordLayout = './StandardPurchaseOrder.docx';
@@ -478,12 +478,14 @@ report 1322 "Standard Purchase - Order"
                 column(VendorItemNo_PurchLine; "Vendor Item No.")
                 {
                 }
+#if not CLEAN16
                 column(CrossReferenceNo_PurchLine; "Cross-Reference No.")
                 {
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Replaced by Item Reference No.';
                     ObsoleteTag = '17.0';
                 }
+#endif
                 column(ItemReferenceNo_PurchLine; "Item Reference No.")
                 {
                 }
@@ -612,11 +614,12 @@ report 1322 "Standard Purchase - Order"
 
                     if ItemReferenceMgt.IsEnabled() then
                         if "Item Reference No." <> '' then
-                            ItemNo := "Item Reference No."
-                        else
-                            if "Cross-Reference No." <> '' then
-                                ItemNo := "Cross-Reference No.";
-
+                            ItemNo := "Item Reference No.";
+#if not CLEAN16                            
+                    if not ItemReferenceMgt.IsEnabled() then
+                        if "Cross-Reference No." <> '' then
+                            ItemNo := "Cross-Reference No.";
+#endif
                     FormatDocument.SetPurchaseLine("Purchase Line", FormattedQuanitity, FormattedDirectUnitCost, FormattedVATPct, FormattedLineAmount);
 
                     OnLineNumber := OnLineNumber + 1;
@@ -666,7 +669,7 @@ report 1322 "Standard Purchase - Order"
                                     end;
                                     BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + TempSalesTaxAmtLine."Tax Amount";
                                     TaxAmount := TaxAmount + TempSalesTaxAmtLine."Tax Amount";
-                                until TempSalesTaxAmtLine.Next = 0;
+                                until TempSalesTaxAmtLine.Next() = 0;
 
                             if BrkIdx = 1 then begin
                                 Clear(BreakdownLabel);
@@ -754,9 +757,9 @@ report 1322 "Standard Purchase - Order"
 
                     TempPrepaymentInvLineBuffer.DeleteAll();
                     PurchasePostPrepayments.GetPurchLines("Purchase Header", 0, TempPrepmtPurchLine);
-                    if not TempPrepmtPurchLine.IsEmpty then begin
+                    if not TempPrepmtPurchLine.IsEmpty() then begin
                         PurchasePostPrepayments.GetPurchLinesToDeduct("Purchase Header", TempPurchLine);
-                        if not TempPurchLine.IsEmpty then
+                        if not TempPurchLine.IsEmpty() then
                             PurchasePostPrepayments.CalcVATAmountLines("Purchase Header", TempPurchLine, TempPrePmtVATAmountLineDeduct, 1);
                     end;
                     PurchasePostPrepayments.CalcVATAmountLines("Purchase Header", TempPrepmtPurchLine, TempPrepmtVATAmountLine, 0);
@@ -956,7 +959,7 @@ report 1322 "Standard Purchase - Order"
                         if not TempPrepaymentInvLineBuffer.Find('-') then
                             CurrReport.Break();
                     end else
-                        if TempPrepaymentInvLineBuffer.Next = 0 then
+                        if TempPrepaymentInvLineBuffer.Next() = 0 then
                             CurrReport.Break();
 
                     if "Purchase Header"."Prices Including VAT" then
@@ -1125,7 +1128,7 @@ report 1322 "Standard Purchase - Order"
                     SegManagement.LogDocument(
                       13, "Purchase Header"."No.", 0, 0, DATABASE::Vendor, "Purchase Header"."Buy-from Vendor No.",
                       "Purchase Header"."Purchaser Code", '', "Purchase Header"."Posting Description", '');
-                until "Purchase Header".Next = 0;
+                until "Purchase Header".Next() = 0;
     end;
 
     trigger OnPreReport()

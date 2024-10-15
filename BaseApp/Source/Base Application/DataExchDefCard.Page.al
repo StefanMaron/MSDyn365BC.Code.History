@@ -37,7 +37,7 @@ page 1210 "Data Exch Def Card"
                             IsNonXMLFileType := CheckEnableDisableIsNonXMLFileType;
                             IsDelimitedFileType := CheckEnableDisableDelimitedFileType;
                             IsImportType := CheckEnableDisableIsImportType;
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                     }
                     field(Type; Type)
@@ -51,7 +51,7 @@ page 1210 "Data Exch Def Card"
                             IsImportType := CheckEnableDisableIsImportType;
                             PositivePayUpdateCodeunits;
                             EFTPaymentUpdateCodeunits;
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                     }
                     field("Data Handling Codeunit"; "Data Handling Codeunit")

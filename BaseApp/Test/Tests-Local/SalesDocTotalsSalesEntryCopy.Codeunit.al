@@ -1014,7 +1014,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
     begin
         Clear(CopySalesDocument);
         CopySalesDocument.SetSalesHeader(SalesHeader);
-        CopySalesDocument.InitializeRequest(DocumentType, DocumentNo, false, ReCalculateLines);
+        CopySalesDocument.SetParameters(DocumentType, DocumentNo, false, ReCalculateLines);
         CopySalesDocument.UseRequestPage(false);
         CopySalesDocument.RunModal;
     end;

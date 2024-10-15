@@ -267,7 +267,7 @@ page 5971 "Posted Service Credit Memos"
                             repeat
                                 ServiceCrMemoHeader.RequestStampEDocument;
                                 ProgressWindow.Update(1, ServiceCrMemoHeader."No.");
-                            until ServiceCrMemoHeader.Next = 0;
+                            until ServiceCrMemoHeader.Next() = 0;
                         end;
                         ProgressWindow.Close;
                     end;
@@ -311,7 +311,7 @@ page 5971 "Posted Service Credit Memos"
                             repeat
                                 ServiceCrMemoHeader.CancelEDocument;
                                 ProgressWindow.Update(1, ServiceCrMemoHeader."No.");
-                            until ServiceCrMemoHeader.Next = 0;
+                            until ServiceCrMemoHeader.Next() = 0;
                         end;
                         ProgressWindow.Close;
                     end;

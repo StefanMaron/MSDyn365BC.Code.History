@@ -449,7 +449,7 @@ codeunit 137097 "SCM Kitting - Undo"
         AssemblyHeader.SetRange(Quantity, Qty);
         AssemblyHeader.SetRange("Quantity (Base)", Qty * LibraryInventory.GetQtyPerForItemUOM(Item."No.", UOM));
 
-        AssemblyHeader.FindSet;
+        AssemblyHeader.FindSet();
     end;
 
     local procedure FindAssemblyLine(var AssemblyLine: Record "Assembly Line"; DocumentType: Enum "Assembly Document Type"; DocumentNo: Code[20])

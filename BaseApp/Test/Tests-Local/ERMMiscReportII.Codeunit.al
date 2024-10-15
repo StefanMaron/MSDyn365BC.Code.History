@@ -1732,7 +1732,7 @@ codeunit 142061 "ERM Misc. Report II"
     local procedure FindCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20])
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         CustLedgerEntry.CalcFields(Amount, "Amount (LCY)");
     end;
 

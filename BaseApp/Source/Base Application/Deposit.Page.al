@@ -23,7 +23,7 @@ page 10140 Deposit
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Bank Account No."; "Bank Account No.")

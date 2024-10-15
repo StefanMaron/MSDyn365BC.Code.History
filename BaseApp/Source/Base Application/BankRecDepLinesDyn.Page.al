@@ -172,13 +172,13 @@ page 36722 "Bank Rec. Dep. Lines - Dyn."
 
     local procedure ClearedOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
         SetupTotals;
     end;
 
     local procedure ClearedAmountOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
         SetupTotals;
     end;
 

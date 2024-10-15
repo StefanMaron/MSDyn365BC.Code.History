@@ -17,6 +17,7 @@ page 10122 "Bank Rec. Dep. Lines Subform"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Bank Account No.';
                 Editable = false;
+                Visible = false;
                 ToolTip = 'Specifies the bank account that the bank statement line applies to.';
             }
             field("BankRecHdr.""Statement No."""; BankRecHdr."Statement No.")
@@ -24,6 +25,7 @@ page 10122 "Bank Rec. Dep. Lines Subform"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Statement No.';
                 Editable = false;
+                Visible = false;
                 ToolTip = 'Specifies the bank reconciliation statement number that this line applies to.';
             }
             field("BankRecHdr.""Statement Date"""; BankRecHdr."Statement Date")
@@ -31,6 +33,7 @@ page 10122 "Bank Rec. Dep. Lines Subform"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Statement Date';
                 Editable = false;
+                Visible = false;
                 ToolTip = 'Specifies the bank reconciliation statement date that this line applies to.';
             }
             repeater(Control1)
@@ -278,13 +281,13 @@ page 10122 "Bank Rec. Dep. Lines Subform"
 
     local procedure ClearedOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
         SetupTotals;
     end;
 
     local procedure ClearedAmountOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
         SetupTotals;
     end;
 

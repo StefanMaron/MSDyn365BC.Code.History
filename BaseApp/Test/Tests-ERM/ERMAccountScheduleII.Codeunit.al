@@ -61,7 +61,7 @@ codeunit 134994 "ERM Account Schedule II"
         // 3.Verify: Verify that names of columns are the same as they are in the Column Layout set.
         LibraryReportDataset.LoadDataSetFile;
         ColumnLayout.SetRange("Column Layout Name", ColumnLayoutName.Name);
-        ColumnLayout.FindSet;
+        ColumnLayout.FindSet();
         repeat
             LibraryReportDataset.AssertElementWithValueExists('Header', ColumnLayout."Column Header");
         until ColumnLayout.Next = 0;
@@ -1120,7 +1120,7 @@ codeunit 134994 "ERM Account Schedule II"
         Clear(LibraryReportValidation);
     end;
 
-    local procedure CreateAccScheduleWithFourLines(var AccountScheduleName: Code[10]; var ColLayoutName: Code[10]; var LineDescription: array[4] of Text; ShowOption: Option)
+    local procedure CreateAccScheduleWithFourLines(var AccountScheduleName: Code[10]; var ColLayoutName: Code[10]; var LineDescription: array[4] of Text; ShowOption: Enum "Acc. Schedule Line Show")
     var
         AccScheduleName: Record "Acc. Schedule Name";
         ColumnLayoutName: Record "Column Layout Name";
@@ -1147,7 +1147,7 @@ codeunit 134994 "ERM Account Schedule II"
         ColLayoutName := ColumnLayoutName.Name;
     end;
 
-    local procedure CreateAccScheduleLineWithGLAcc(var AccScheduleLine: Record "Acc. Schedule Line"; AccScheduleName: Code[10]; GLAccountNo: Code[20]; ShowValue: Option)
+    local procedure CreateAccScheduleLineWithGLAcc(var AccScheduleLine: Record "Acc. Schedule Line"; AccScheduleName: Code[10]; GLAccountNo: Code[20]; ShowValue: Enum "Acc. Schedule Line Show")
     begin
         CreateAccScheduleLine(AccScheduleLine, AccScheduleName, AccScheduleLine."Totaling Type"::"Posting Accounts", GLAccountNo);
         with AccScheduleLine do begin
@@ -1183,7 +1183,7 @@ codeunit 134994 "ERM Account Schedule II"
         end;
     end;
 
-    local procedure CreateColumnLayoutLine(var ColumnLayout: Record "Column Layout"; ColumnLayoutName: Code[10]; NewColumnTypeValue: Option; NewFormulaValue: Code[80])
+    local procedure CreateColumnLayoutLine(var ColumnLayout: Record "Column Layout"; ColumnLayoutName: Code[10]; NewColumnTypeValue: Enum "Column Layout Type"; NewFormulaValue: Code[80])
     begin
         LibraryERM.CreateColumnLayout(ColumnLayout, ColumnLayoutName);
         with ColumnLayout do begin
@@ -1372,8 +1372,8 @@ codeunit 134994 "ERM Account Schedule II"
 
     local procedure AssertAccountScheduleLineCopyValuesEqualAccountScheduleLineValues(var ToAccScheduleLine: Record "Acc. Schedule Line"; var FromAccScheduleLine: Record "Acc. Schedule Line")
     begin
-        FromAccScheduleLine.FindSet;
-        ToAccScheduleLine.FindSet;
+        FromAccScheduleLine.FindSet();
+        ToAccScheduleLine.FindSet();
 
         repeat
             AssertAccountScheduleLineValuesAreEqual(ToAccScheduleLine, FromAccScheduleLine);
@@ -1385,8 +1385,8 @@ codeunit 134994 "ERM Account Schedule II"
     var
         FirstLineIsChecked: Boolean;
     begin
-        FromAccScheduleLine.FindSet;
-        ToAccScheduleLine.FindSet;
+        FromAccScheduleLine.FindSet();
+        ToAccScheduleLine.FindSet();
 
         repeat
             AssertAccountScheduleLineValuesAreEqual(ToAccScheduleLine, FromAccScheduleLine);

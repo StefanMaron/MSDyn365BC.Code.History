@@ -133,7 +133,7 @@ codeunit 782 "Opportunity Chart Mgt."
     begin
         with BusinessChartBuffer do begin
             Initialize;
-            AddMeasure(SalespersonPurchaser.FieldCaption("No. of Opportunities"), 1, "Data Type"::Integer, "Chart Type"::Pie);
+            AddIntegerMeasure(SalespersonPurchaser.FieldCaption("No. of Opportunities"), 1, "Chart Type"::Pie);
             SetXAxis(SalespersonPurchaser.TableCaption, "Data Type"::String);
             if SalespersonPurchaser.FindSet then
                 repeat
@@ -143,7 +143,7 @@ codeunit 782 "Opportunity Chart Mgt."
                         AddColumn(SalespersonPurchaser.Name);
                         SetValueByIndex(0, I - 1, OppCount);
                     end;
-                until SalespersonPurchaser.Next = 0;
+                until SalespersonPurchaser.Next() = 0;
         end;
     end;
 }

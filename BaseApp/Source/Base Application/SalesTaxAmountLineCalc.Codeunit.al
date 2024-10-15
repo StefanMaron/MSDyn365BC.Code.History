@@ -135,7 +135,7 @@ codeunit 10148 "Sales Tax Amount Line Calc"
             if (LineType <> 0) and (TaxAreaCode <> '') then begin
                 TaxAreaLine.SetCurrentKey("Tax Area", "Calculation Order");
                 TaxAreaLine.SetRange("Tax Area", TaxAreaCode);
-                TaxAreaLine.FindSet;
+                TaxAreaLine.FindSet();
                 repeat
                     case TaxCountry of
                         TaxCountry::US:  // Area Code
@@ -180,7 +180,7 @@ codeunit 10148 "Sales Tax Amount Line Calc"
                             "Tax Liable" := TaxLiable;
                         Modify;
                     end;
-                until TaxAreaLine.Next = 0;
+                until TaxAreaLine.Next() = 0;
             end;
         end;
     end;
@@ -192,7 +192,7 @@ codeunit 10148 "Sales Tax Amount Line Calc"
             if (LineType <> 0) and (TaxAreaCode <> '') then begin
                 TaxAreaLine.SetCurrentKey("Tax Area", "Calculation Order");
                 TaxAreaLine.SetRange("Tax Area", TaxAreaCode);
-                TaxAreaLine.FindSet;
+                TaxAreaLine.FindSet();
                 repeat
                     case TaxCountry of
                         TaxCountry::US:  // Area Code
@@ -254,7 +254,7 @@ codeunit 10148 "Sales Tax Amount Line Calc"
                             "Tax Liable" := TaxLiable;
                         Modify;
                     end;
-                until TaxAreaLine.Next = 0;
+                until TaxAreaLine.Next() = 0;
             end;
         end;
     end;

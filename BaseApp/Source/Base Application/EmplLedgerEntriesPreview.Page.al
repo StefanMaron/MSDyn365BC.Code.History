@@ -291,13 +291,13 @@ page 5239 "Empl. Ledger Entries Preview"
             repeat
                 Rec := TempEmplLedgerEntry;
                 Insert;
-            until TempEmplLedgerEntry.Next = 0;
+            until TempEmplLedgerEntry.Next() = 0;
 
         if TempDetailedEmplLedgEntry2.FindSet then
             repeat
                 TempDetailedEmplLedgEntry := TempDetailedEmplLedgEntry2;
                 TempDetailedEmplLedgEntry.Insert();
-            until TempDetailedEmplLedgEntry2.Next = 0;
+            until TempDetailedEmplLedgEntry2.Next() = 0;
     end;
 
     local procedure CalcAmounts(var AmountFCY: Decimal; var AmountLCY: Decimal; var RemainingAmountFCY: Decimal; var RemainingAmountLCY: Decimal; var OriginalAmountFCY: Decimal; var OriginalAmountLCY: Decimal)
@@ -323,7 +323,7 @@ page 5239 "Empl. Ledger Entries Preview"
                 end;
                 RemainingAmountFCY += TempDetailedEmplLedgEntry.Amount;
                 RemainingAmountLCY += TempDetailedEmplLedgEntry."Amount (LCY)";
-            until TempDetailedEmplLedgEntry.Next = 0;
+            until TempDetailedEmplLedgEntry.Next() = 0;
     end;
 
     local procedure DrilldownAmounts(AmountType: Option Amount,"Remaining Amount","Original Amount")

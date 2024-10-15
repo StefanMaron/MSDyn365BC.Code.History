@@ -302,7 +302,7 @@ page 5082 "Postponed Interactions"
                     begin
                         if Confirm(Text001) then begin
                             CurrPage.SetSelectionFilter(InteractionLogEntry);
-                            if not InteractionLogEntry.IsEmpty then
+                            if not InteractionLogEntry.IsEmpty() then
                                 InteractionLogEntry.DeleteAll(true)
                             else
                                 Delete(true);
@@ -340,7 +340,7 @@ page 5082 "Postponed Interactions"
 
                 trigger OnAction()
                 begin
-                    if IsEmpty then
+                    if IsEmpty() then
                         exit;
 
                     ResumeInteraction

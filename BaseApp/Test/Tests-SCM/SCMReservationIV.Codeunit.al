@@ -37,8 +37,8 @@ codeunit 137271 "SCM Reservation IV"
         ReservedQtyErr: Label 'Reserved Qty. (Base) must be equal to ''0''  in Sales Line: Document Type=Order, Document No.=%1, Line No.=%2. Current value is ''%3''', Comment = '%1 = Document No., %2 = Line No., %3 = Quantity';
         TransferOrderDeletedMsg: Label 'Transfer order %1 was successfully posted and is now deleted.', Comment = '%1 = Document No.';
         OrderTrackingPolicyMsg: Label 'The change will not affect existing entries.';
-        AvailabilityWarningMsg: Label 'There are availability warnings on one or more lines.';
-        ItemTrackingLotNoErr: Label 'Item Tracking Serial No.  Lot No. %1 for Item No. %2 Variant  cannot be fully applied.', Comment = '%1 = Lot No., %2 = Item No.';
+        AvailabilityWarningMsg: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
+        ItemTrackingLotNoErr: Label 'Item Tracking Serial No.  Lot No. %1 Package No.  for Item No. %2 Variant  cannot be fully applied.', Comment = '%1 = Lot No., %2 = Item No.';
         ReservationErr: Label 'There is nothing available to reserve.';
         ValidationErr: Label '%1 must be %2.', Comment = '%1:Field1,%2:Value1';
         ReservationDisruptedWarningMsg: Label 'One or more reservation entries exist for the item';
@@ -352,6 +352,7 @@ codeunit 137271 "SCM Reservation IV"
         SalesLine.TestField("Reserved Quantity", SalesLine.Quantity);
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure ReservedQuantityOnSalesLineWithCrossReference()
@@ -375,6 +376,7 @@ codeunit 137271 "SCM Reservation IV"
         Assert.AreEqual(
           ItemQuantity, SalesLine."Reserved Quantity", SalesLine.FieldCaption("Reserved Quantity"));
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1548,7 +1550,7 @@ codeunit 137271 "SCM Reservation IV"
 
         // [GIVEN] Set "Qty. to Handle" = 2 in pick
         WhseActivityLine.SetRange("Action Type");
-        WhseActivityLine.FindSet;
+        WhseActivityLine.FindSet();
         repeat
             WhseActivityLine.Validate("Qty. to Handle", WhseActivityLine."Qty. to Handle" / 4);
             WhseActivityLine.Modify(true);
@@ -1918,7 +1920,7 @@ codeunit 137271 "SCM Reservation IV"
 
         // [THEN] "Q" pcs of lot "L1" are reserved from the purchase.
         ReservEntry.SetRange("Source Type", DATABASE::"Purchase Line");
-        ReservEntry.SetTrackingFilter('', LotNo[1]);
+        ReservEntry.SetRange("Lot No.", LotNo[1]);
         ReservEntry.CalcSums(Quantity);
         ReservEntry.TestField(Quantity, Qty);
     end;
@@ -1967,7 +1969,7 @@ codeunit 137271 "SCM Reservation IV"
         // [THEN] "Q" pcs of lot "L1" are reserved from the sales return.
         ReservEntry.SetRange("Source Type", DATABASE::"Sales Line");
         ReservEntry.SetRange("Source ID", ReturnSalesHeader."No.");
-        ReservEntry.SetTrackingFilter('', LotNo[1]);
+        ReservEntry.SetRange("Lot No.", LotNo[1]);
         ReservEntry.CalcSums(Quantity);
         ReservEntry.TestField(Quantity, Qty);
     end;
@@ -2035,7 +2037,7 @@ codeunit 137271 "SCM Reservation IV"
         ReservEntry.SetRange("Source Type", DATABASE::"Transfer Line");
         ReservEntry.SetRange("Source Subtype", "Transfer Direction"::Inbound);
         ReservEntry.SetRange("Source ID", TransferHeader."No.");
-        ReservEntry.SetTrackingFilter('', LotNo[1]);
+        ReservEntry.SetRange("Lot No.", LotNo[1]);
         ReservEntry.CalcSums(Quantity);
         ReservEntry.TestField(Quantity, Qty);
     end;
@@ -2089,7 +2091,7 @@ codeunit 137271 "SCM Reservation IV"
 
         // [THEN] "Q" pcs of lot "L1" are reserved from the production order line.
         ReservEntry.SetRange("Source Type", DATABASE::"Prod. Order Line");
-        ReservEntry.SetTrackingFilter('', LotNo[1]);
+        ReservEntry.SetRange("Lot No.", LotNo[1]);
         ReservEntry.CalcSums(Quantity);
         ReservEntry.TestField(Quantity, Qty);
     end;
@@ -2135,7 +2137,7 @@ codeunit 137271 "SCM Reservation IV"
 
         // [THEN] "Q" pcs of lot "L1" are reserved from the assembly order.
         ReservEntry.SetRange("Source Type", DATABASE::"Assembly Header");
-        ReservEntry.SetTrackingFilter('', LotNo[1]);
+        ReservEntry.SetRange("Lot No.", LotNo[1]);
         ReservEntry.CalcSums(Quantity);
         ReservEntry.TestField(Quantity, Qty);
     end;
@@ -2189,7 +2191,7 @@ codeunit 137271 "SCM Reservation IV"
         // [THEN] "Q" pcs of lot "L2" are reserved to the outbound transfer.
         ReservEntry.SetRange("Source Type", DATABASE::"Transfer Line");
         ReservEntry.SetRange("Source Subtype", "Transfer Direction"::Outbound);
-        ReservEntry.SetTrackingFilter('', LotNo[2]);
+        ReservEntry.SetRange("Lot No.", LotNo[2]);
         ReservEntry.CalcSums(Quantity);
         ReservEntry.TestField(Quantity, -Qty);
     end;
@@ -2241,7 +2243,7 @@ codeunit 137271 "SCM Reservation IV"
 
         // [THEN] "Q" pcs of lot "L2" are reserved to the production order component.
         ReservEntry.SetRange("Source Type", DATABASE::"Prod. Order Component");
-        ReservEntry.SetTrackingFilter('', LotNo[2]);
+        ReservEntry.SetRange("Lot No.", LotNo[2]);
         ReservEntry.CalcSums(Quantity);
         ReservEntry.TestField(Quantity, -Qty);
     end;
@@ -2291,7 +2293,7 @@ codeunit 137271 "SCM Reservation IV"
 
         // [THEN] "Q" pcs of lot "L2" are reserved to the assembly line.
         ReservEntry.SetRange("Source Type", DATABASE::"Assembly Line");
-        ReservEntry.SetTrackingFilter('', LotNo[2]);
+        ReservEntry.SetRange("Lot No.", LotNo[2]);
         ReservEntry.CalcSums(Quantity);
         ReservEntry.TestField(Quantity, -Qty);
     end;
@@ -2342,7 +2344,7 @@ codeunit 137271 "SCM Reservation IV"
 
         // [THEN] "Q" pcs of lot "L2" are reserved to the service line.
         ReservEntry.SetRange("Source Type", DATABASE::"Service Line");
-        ReservEntry.SetTrackingFilter('', LotNo[2]);
+        ReservEntry.SetRange("Lot No.", LotNo[2]);
         ReservEntry.CalcSums(Quantity);
         ReservEntry.TestField(Quantity, -Qty);
     end;
@@ -2402,7 +2404,7 @@ codeunit 137271 "SCM Reservation IV"
 
         // [THEN] "Q" pcs of lot "L1" are reserved from the purchase order.
         ReservEntry.SetRange("Source Type", DATABASE::"Purchase Line");
-        ReservEntry.SetTrackingFilter('', LotNo[1]);
+        ReservEntry.SetRange("Lot No.", LotNo[1]);
         ReservEntry.CalcSums(Quantity);
         ReservEntry.TestField(Quantity, Qty * NoOfLots);
     end;
@@ -2740,111 +2742,6 @@ codeunit 137271 "SCM Reservation IV"
         LibraryVariableStorage.AssertEmpty();
     end;
 
-    [Test]
-    [HandlerFunctions('ItemTrackingLinesPageHandler')]
-    procedure ItemTrackingOnSalesLineFromPickWithBreakbulk()
-    var
-        WarehouseSetup: Record "Warehouse Setup";
-        Location: Record Location;
-        Zone: Record Zone;
-        Bin: Record Bin;
-        Item: Record Item;
-        ItemUnitOfMeasure: Record "Item Unit of Measure";
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        WarehouseReceiptLine: Record "Warehouse Receipt Line";
-        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
-        WarehouseActivityHeader: Record "Warehouse Activity Header";
-        WarehouseActivityLine: Record "Warehouse Activity Line";
-        LotNos: array[2] of Code[20];
-    begin
-        // [FEATURE] [Item Tracking] [Pick] [Shipment] [Sales] [Breakbulk] [Unit of Measure]
-        // [SCENARIO 388429] Item tracking is properly created from a pick with breakbulk lines.
-        Initialize(false);
-
-        // [GIVEN] Make sure warehouse shipment posting will be interrupted at the first error.
-        WarehouseSetup.Get();
-        WarehouseSetup.Validate(
-          "Shipment Posting Policy", WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error");
-        WarehouseSetup.Modify(true);
-
-        // [GIVEN] Lot-tracked item with base unit of measure "PCS" and alternate unit of measure "BOX". 1 "BOX" = 100 "PCS"
-        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', CreateItemTrackingCode(false, true));
-        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 100);
-
-        // [GIVEN] Location with directed put-away and pick.
-        CreateWarehouseLocation(Location);
-        LibraryWarehouse.FindZone(Zone, Location.Code, LibraryWarehouse.SelectBinType(false, false, true, true), false);
-        LibraryWarehouse.FindBin(Bin, Location.Code, Zone.Code, 1);
-
-        // [GIVEN] Create purchase order with two lines.
-        // [GIVEN] 1st line: 5 "PCS", lot no. = "L1".
-        // [GIVEN] 2nd line: 1 "BOX", lot no. = "L2".
-        // [GIVEN] Release the order and post warehouse receipt.
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
-        PurchaseHeader.Validate("Location Code", Location.Code);
-        PurchaseHeader.Modify(true);
-        CreatePurchaseLineWithAlternateUOMAndLotTracking(PurchaseLine, LotNos[1], PurchaseHeader, Item."No.", Item."Base Unit of Measure", 5);
-        CreatePurchaseLineWithAlternateUOMAndLotTracking(PurchaseLine, LotNos[2], PurchaseHeader, Item."No.", ItemUnitOfMeasure.Code, 1);
-        CreateWarehouseReceipt(PurchaseLine);
-        PostWarehouseReceipt(WarehouseReceiptLine."Source Document"::"Purchase Order", PurchaseHeader."No.");
-
-        // [GIVEN] Open put-away and change the bin code where the lot "L2" is placed into.
-        // [GIVEN] Register the put-away.
-        WarehouseActivityLine.Reset();
-        WarehouseActivityLine.SetRange("Lot No.", LotNos[2]);
-        FindWhseActivityLine(
-          WarehouseActivityLine, WarehouseActivityLine."Activity Type"::"Put-away", Location.Code, PurchaseHeader."No.",
-          WarehouseActivityLine."Action Type"::Place);
-        WarehouseActivityLine.Validate("Bin Code", Bin.Code);
-        WarehouseActivityLine.Modify(true);
-        RegisterWarehouseActivity(
-          PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::"Put-away", PurchaseHeader."Location Code",
-          WarehouseActivityLine."Action Type"::Place);
-
-        // [GIVEN] Sales order for 20 pcs.
-        // [GIVEN] Release the order, create shipment and pick.
-        LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 20, Location.Code, WorkDate);
-        LibrarySales.ReleaseSalesDocument(SalesHeader);
-        CreatePick(Location.Code, SalesHeader."No.");
-
-        // [GIVEN] Adjust the warehouse pick as follows:
-        // [GIVEN] Pick 5 "PCS" of lot "L1", add lot "L2" to breakbulk lines, pick 10 "PCS" of lot "L2".
-        WarehouseActivityLine.Reset();
-        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick);
-        WarehouseActivityLine.SetRange("Item No.", Item."No.");
-        ProcessNextWhseActivityLine(
-          WarehouseActivityLine, WarehouseActivityLine."Action Type"::Take, 5, 5, LotNos[1]);
-        ProcessNextWhseActivityLine(
-          WarehouseActivityLine, WarehouseActivityLine."Action Type"::Place, 5, 5, LotNos[1]);
-        ProcessNextWhseActivityLine(
-          WarehouseActivityLine, WarehouseActivityLine."Action Type"::Take, 1, 1, LotNos[2]);
-        ProcessNextWhseActivityLine(
-          WarehouseActivityLine, WarehouseActivityLine."Action Type"::Place, 100, 100, LotNos[2]);
-        ProcessNextWhseActivityLine(
-          WarehouseActivityLine, WarehouseActivityLine."Action Type"::Take, 15, 10, LotNos[2]);
-        ProcessNextWhseActivityLine(
-          WarehouseActivityLine, WarehouseActivityLine."Action Type"::Place, 15, 10, LotNos[2]);
-
-        // [WHEN] Register the pick.
-        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
-        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
-
-        // [THEN] The warehouse shipment can be posted.
-        WarehouseShipmentHeader.Get(
-          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No."));
-        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
-
-        // [THEN] The sales line is shipped for 15 "PCS".
-        SalesLine.Find();
-        SalesLine.TestField("Quantity Shipped", 15);
-
-        LibraryVariableStorage.AssertEmpty();
-    end;
-
     local procedure Initialize(Enable: Boolean)
     var
         InventorySetup: Record "Inventory Setup";
@@ -2862,10 +2759,11 @@ codeunit 137271 "SCM Reservation IV"
 
         LibraryInventory.NoSeriesSetup(InventorySetup);
         LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
+        DisableAutomaticCostPosting();
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
-        LibrarySetupStorage.Save(DATABASE::"Warehouse Setup");
 
         isInitialized := true;
         Commit();
@@ -3275,16 +3173,6 @@ codeunit 137271 "SCM Reservation IV"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseLineWithAlternateUOMAndLotTracking(var PurchaseLine: Record "Purchase Line"; var NewLotNo: Code[20]; PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; Qty: Decimal)
-    begin
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Qty);
-        PurchaseLine.Validate("Unit of Measure Code", UnitOfMeasureCode);
-        PurchaseLine.Modify(true);
-        LibraryVariableStorage.Enqueue(TrackingOption::AssignLot);
-        PurchaseLine.OpenItemTrackingLines();
-        NewLotNo := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(NewLotNo));
-    end;
-
     local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; No: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
     var
         SalesHeader: Record "Sales Header";
@@ -3446,6 +3334,15 @@ codeunit 137271 "SCM Reservation IV"
         WarehouseShipmentHeader.Delete(true);
     end;
 
+    local procedure DisableAutomaticCostPosting()
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        InventorySetup.Get();
+        InventorySetup.Validate("Automatic Cost Posting", false);
+        InventorySetup.Modify(true);
+    end;
+
     local procedure EnqueueValuesForReservationPageHandler(QtyToReserve: Decimal; TotalReservedQuantity: Decimal; TotalQuantity: Decimal)
     begin
         LibraryVariableStorage.Enqueue(QtyToReserve);
@@ -3508,7 +3405,7 @@ codeunit 137271 "SCM Reservation IV"
     local procedure FindWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Option; LocationCode: Code[10]; SourceNo: Code[20]; ActionType: Option)
     begin
         FindWarehouseActivityNo(WarehouseActivityLine, SourceNo, ActivityType, LocationCode, ActionType);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
     end;
 
     local procedure FindWarehouseActivityNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Option; LocationCode: Code[10]; ActionType: Option): Code[20]
@@ -3630,17 +3527,6 @@ codeunit 137271 "SCM Reservation IV"
           WarehouseActivityLine."Action Type"::Place);
         WarehouseShipmentHeader.Get(DocumentNo);
         LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, true);
-    end;
-
-    local procedure ProcessNextWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActionType: Option; Qty: Decimal; QtyToHandle: Decimal; LotNo: Code[20])
-    begin
-        WarehouseActivityLine.Next();
-        WarehouseActivityLine.TestField("Action Type", ActionType);
-        WarehouseActivityLine.TestField(Quantity, Qty);
-
-        WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
-        WarehouseActivityLine.Validate("Lot No.", LotNo);
-        WarehouseActivityLine.Modify(true);
     end;
 
     local procedure RegisterWarehouseActivity(SourceNo: Code[20]; ActivityType: Option; LocationCode: Code[10]; ActionType: Option)
@@ -3774,6 +3660,7 @@ codeunit 137271 "SCM Reservation IV"
         WarehouseActivityLine.SplitLine(WarehouseActivityLine);
     end;
 
+#if not CLEAN16
     local procedure CreateItemWithCrossReference(var Item: Record Item; AssemblyPolicy: Enum "Assembly Policy"; var ItemCrossReference: Record "Item Cross Reference")
     var
         ItemUnitOfMeasure: Record "Item Unit of Measure";
@@ -3792,6 +3679,7 @@ codeunit 137271 "SCM Reservation IV"
         LibraryInventory.CreateItemCrossReference(
           ItemCrossReference, Item."No.", ItemCrossReference."Cross-Reference Type"::" ", '');
     end;
+#endif
 
     local procedure CreateItemWithItemReference(var Item: Record Item; AssemblyPolicy: Enum "Assembly Policy"; var ItemReference: Record "Item Reference")
     var
@@ -3890,7 +3778,7 @@ codeunit 137271 "SCM Reservation IV"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetFilter("Credit Amount", '<>%1', 0);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             ActualAmount += GLEntry."Credit Amount";
         until GLEntry.Next = 0;

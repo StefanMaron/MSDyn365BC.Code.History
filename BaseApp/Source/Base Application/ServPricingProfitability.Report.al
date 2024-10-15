@@ -185,11 +185,11 @@ report 6080 "Serv. Pricing Profitability"
                                                     ServShipmentHeader."Currency Code",
                                                     "Line Discount Amount",
                                                     ServShipmentHeader."Currency Factor");
-                                            until Next = 0;
+                                            until Next() = 0;
                                     end;
-                                until ServInvHeader.Next = 0;
+                                until ServInvHeader.Next() = 0;
 
-                        until Next = 0;
+                        until Next() = 0;
                         SetRange("Customer No.");
 
                         ProfitAmt := InvoiceAmt - CostAmt;

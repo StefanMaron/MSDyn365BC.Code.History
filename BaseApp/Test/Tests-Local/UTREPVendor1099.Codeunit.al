@@ -456,7 +456,6 @@ codeunit 142055 "UT REP Vendor 1099"
         Initialize;
 
         // [GIVEN] Vendor with "MiscARec" source data and MISC-07 code
-        // TFS ID 380761: US 1099 changes for 2020 format
         SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeMisc07Tok, LibraryRandom.RandIntInRange(5000, 10000)); // Amount have to be greater than 5000 For MISC-07
         Commit();
 

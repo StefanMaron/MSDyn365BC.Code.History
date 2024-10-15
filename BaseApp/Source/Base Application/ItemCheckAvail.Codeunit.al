@@ -1,4 +1,4 @@
-﻿codeunit 311 "Item-Check Avail."
+codeunit 311 "Item-Check Avail."
 {
     Permissions = TableData "My Notifications" = rimd;
 
@@ -33,6 +33,7 @@
         DetailsTxt: Label 'Show details';
         ItemAvailabilityNotificationTxt: Label 'Item availability is low.';
         ItemAvailabilityNotificationDescriptionTxt: Label 'Show a warning when someone creates a sales order or sales invoice for an item that is out of stock.';
+        DontShowAgainTxt: Label 'Don''t show again';
 
     protected var
         ContextInfo: Dictionary of [Text, Text];
@@ -40,7 +41,7 @@
     procedure ItemJnlCheckLine(ItemJnlLine: Record "Item Journal Line") Rollback: Boolean
     begin
         NotificationLifecycleMgt.RecallNotificationsForRecordWithAdditionalContext(
-          ItemJnlLine.RecordId, GetItemAvailabilityNotificationId, true);
+          ItemJnlLine.RecordId, GetItemAvailabilityNotificationId(), true);
         if ItemJnlLineShowWarning(ItemJnlLine) then
             Rollback := ShowAndHandleAvailabilityPage(ItemJnlLine.RecordId);
     end;
@@ -58,7 +59,7 @@
             exit(Rollback);
 
         NotificationLifecycleMgt.RecallNotificationsForRecordWithAdditionalContext(
-          SalesLine.RecordId, GetItemAvailabilityNotificationId, true);
+          SalesLine.RecordId, GetItemAvailabilityNotificationId(), true);
         if SalesLineShowWarning(SalesLine) then
             Rollback := ShowAndHandleAvailabilityPage(SalesLine.RecordId);
 
@@ -70,7 +71,7 @@
     procedure TransferLineCheck(TransLine: Record "Transfer Line") Rollback: Boolean
     begin
         NotificationLifecycleMgt.RecallNotificationsForRecordWithAdditionalContext(
-          TransLine.RecordId, GetItemAvailabilityNotificationId, true);
+          TransLine.RecordId, GetItemAvailabilityNotificationId(), true);
         if TransferLineShowWarning(TransLine) then
             Rollback := ShowAndHandleAvailabilityPage(TransLine.RecordId);
     end;
@@ -78,7 +79,7 @@
     procedure ServiceInvLineCheck(ServInvLine: Record "Service Line") Rollback: Boolean
     begin
         NotificationLifecycleMgt.RecallNotificationsForRecordWithAdditionalContext(
-          ServInvLine.RecordId, GetItemAvailabilityNotificationId, true);
+          ServInvLine.RecordId, GetItemAvailabilityNotificationId(), true);
         if ServiceInvLineShowWarning(ServInvLine) then
             Rollback := ShowAndHandleAvailabilityPage(ServInvLine.RecordId);
     end;
@@ -86,7 +87,7 @@
     procedure JobPlanningLineCheck(JobPlanningLine: Record "Job Planning Line") Rollback: Boolean
     begin
         NotificationLifecycleMgt.RecallNotificationsForRecordWithAdditionalContext(
-          JobPlanningLine.RecordId, GetItemAvailabilityNotificationId, true);
+          JobPlanningLine.RecordId, GetItemAvailabilityNotificationId(), true);
         if JobPlanningLineShowWarning(JobPlanningLine) then
             Rollback := ShowAndHandleAvailabilityPage(JobPlanningLine.RecordId);
     end;
@@ -94,7 +95,7 @@
     procedure AssemblyLineCheck(AssemblyLine: Record "Assembly Line") Rollback: Boolean
     begin
         NotificationLifecycleMgt.RecallNotificationsForRecordWithAdditionalContext(
-          AssemblyLine.RecordId, GetItemAvailabilityNotificationId, true);
+          AssemblyLine.RecordId, GetItemAvailabilityNotificationId(), true);
         if AsmOrderLineShowWarning(AssemblyLine) then
             Rollback := ShowAndHandleAvailabilityPage(AssemblyLine.RecordId);
     end;
@@ -584,6 +585,7 @@
         AvailabilityCheckNotification.Message(StrSubstNo(NotificationMsg, ItemNo));
         AvailabilityCheckNotification.Scope(NOTIFICATIONSCOPE::LocalScope);
         AvailabilityCheckNotification.AddAction(DetailsTxt, CODEUNIT::"Item-Check Avail.", 'ShowNotificationDetails');
+        AvailabilityCheckNotification.AddAction(DontShowAgainTxt, CODEUNIT::"Item-Check Avail.", 'DeactivateNotification');
         ItemAvailabilityCheck.PopulateDataOnNotification(AvailabilityCheckNotification, ItemNo, UnitOfMeasureCode,
           InventoryQty, GrossReq, ReservedReq, SchedRcpt, ReservedRcpt, CurrentQuantity, CurrentReservedQty,
           TotalQuantity, EarliestAvailDate, LocationCode);
@@ -628,16 +630,60 @@
         end;
     end;
 
+    procedure InvtDocCheckLine(InvtDocLine: Record "Invt. Document Line") Rollback: Boolean
+    begin
+        NotificationLifecycleMgt.RecallNotificationsForRecordWithAdditionalContext(
+          InvtDocLine.RecordId, GetItemAvailabilityNotificationId(), true);
+        if ItemDocLineShowWarning(InvtDocLine) then
+            Rollback := ShowAndHandleAvailabilityPage(InvtDocLine.RecordId);
+    end;
+
+    procedure ItemDocLineShowWarning(InvtDocLine: Record "Invt. Document Line"): Boolean
+    var
+        SalesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesSetup.Get();
+        if not SalesSetup."Stockout Warning" then
+            exit(false);
+        case InvtDocLine."Document Type" of
+            InvtDocLine."Document Type"::Receipt:
+                ItemNetChange := InvtDocLine.Quantity;
+            InvtDocLine."Document Type"::Shipment:
+                ItemNetChange := -InvtDocLine.Quantity;
+        end;
+        exit(
+          ShowWarning(
+            InvtDocLine."Item No.",
+            InvtDocLine."Variant Code",
+            InvtDocLine."Location Code",
+            InvtDocLine."Unit of Measure Code",
+            InvtDocLine."Qty. per Unit of Measure",
+            ItemNetChange,
+            0,
+            0D,
+            0D));
+    end;
+
     procedure GetItemAvailabilityNotificationId(): Guid
     begin
         exit('2712AD06-C48B-4C20-820E-347A60C9AD00');
+    end;
+
+    procedure DeactivateNotification(SetupNotification: Notification)
+    var
+        MyNotifications: Record "My Notifications";
+    begin
+        // Insert notification in case the My Notifications page has not been opened yet
+        OnInitializingNotificationWithDefaultState();
+
+        MyNotifications.Disable(GetItemAvailabilityNotificationId())
     end;
 
     local procedure IsItemAvailabilityNotificationEnabled(Item: Record Item): Boolean
     var
         MyNotifications: Record "My Notifications";
     begin
-        exit(MyNotifications.IsEnabledForRecord(GetItemAvailabilityNotificationId, Item));
+        exit(MyNotifications.IsEnabledForRecord(GetItemAvailabilityNotificationId(), Item));
     end;
 
     [IntegrationEvent(false, false)]
@@ -690,12 +736,12 @@
     begin
     end;
 
-    [EventSubscriber(ObjectType::Page, 1518, 'OnInitializingNotificationWithDefaultState', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
     local procedure OnInitializingNotificationWithDefaultState()
     var
         MyNotifications: Record "My Notifications";
     begin
-        MyNotifications.InsertDefaultWithTableNum(GetItemAvailabilityNotificationId,
+        MyNotifications.InsertDefaultWithTableNum(GetItemAvailabilityNotificationId(),
           ItemAvailabilityNotificationTxt,
           ItemAvailabilityNotificationDescriptionTxt,
           DATABASE::Item);

@@ -89,7 +89,7 @@ codeunit 6080 "Service Price Management"
                     "Service Price Group Code" := ServItemLine."Service Price Group Code";
                     Insert;
                 end;
-            until ServLine.Next = 0;
+            until ServLine.Next() = 0;
             CalculateWeight(ServLinePriceAdjmt, ServPriceGrSetup);
         end;
 
@@ -158,7 +158,7 @@ codeunit 6080 "Service Price Management"
                     else
                         Validate("New Amount", Round(FixedPrice * Weight / 100, Currency."Amount Rounding Precision"));
                     Modify;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -185,7 +185,7 @@ codeunit 6080 "Service Price Management"
                         Weight := Round(Amount * 100 / TotalAmount, 0.00001);
                 end;
                 Modify;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -216,7 +216,7 @@ codeunit 6080 "Service Price Management"
         with ServPriceAdjmtDetail do begin
             Reset;
             SetRange("Serv. Price Adjmt. Gr. Code", ServPriceAdjmtGrCode);
-            if IsEmpty then
+            if IsEmpty() then
                 exit(true);
             case ServLine.Type of
                 ServLine.Type::Item:
@@ -233,7 +233,7 @@ codeunit 6080 "Service Price Management"
             SetFilter("No.", '%1|%2', ServLine."No.", '');
             SetFilter("Work Type", '%1|%2', ServLine."Work Type Code", '');
             SetFilter("Gen. Prod. Posting Group", '%1|%2', ServLine."Gen. Prod. Posting Group", '');
-            if not IsEmpty then
+            if not IsEmpty() then
                 exit(true);
             if ServLine.Type = ServLine.Type::Resource then begin
                 Resource.Get(ServLine."No.");
@@ -282,7 +282,7 @@ codeunit 6080 "Service Price Management"
                         OldVatPct := 0;
                     end;
                     ServLine.Modify();
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -300,7 +300,7 @@ codeunit 6080 "Service Price Management"
                     UpdateUnitPrice(FieldNo("Unit Price"));
                     "Price Adjmt. Status" := "Price Adjmt. Status"::" ";
                     Modify;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

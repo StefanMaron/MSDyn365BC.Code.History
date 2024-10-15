@@ -240,7 +240,7 @@ table 10123 "Posted Bank Rec. Header"
             ReportSelection.Find('-');
             repeat
                 REPORT.RunModal(ReportSelection."Report ID", ShowRequestForm, false, PostedBankRecHdr);
-            until ReportSelection.Next = 0;
+            until ReportSelection.Next() = 0;
         end;
     end;
 
@@ -300,7 +300,7 @@ table 10123 "Posted Bank Rec. Header"
                       PostedBankRecLines."Shortcut Dimension 2 Code");
                     PostedBankRecLines.Modify();
                 end;
-            until PostedBankRecLines.Next = 0;
+            until PostedBankRecLines.Next() = 0;
     end;
 }
 

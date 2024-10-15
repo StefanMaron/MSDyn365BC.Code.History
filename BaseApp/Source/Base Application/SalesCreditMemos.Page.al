@@ -488,10 +488,10 @@ page 9302 "Sales Credit Memos"
                     begin
                         CurrPage.SetSelectionFilter(SalesHeader);
                         if SalesHeader.Count > 1 then begin
-                            SalesHeader.FindSet;
+                            SalesHeader.FindSet();
                             repeat
                                 CheckSalesCheckAllLinesHaveQuantityAssigned(SalesHeader);
-                            until SalesHeader.Next = 0;
+                            until SalesHeader.Next() = 0;
                             SalesBatchPostMgt.RunWithUI(SalesHeader, Count, ReadyToPostQst);
                         end else begin
                             CheckSalesCheckAllLinesHaveQuantityAssigned(Rec);
@@ -713,6 +713,7 @@ page 9302 "Sales Credit Memos"
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         PreAssignedNo: Code[20];
+        IsHandled: Boolean;        
     begin
         if ApplicationAreaMgmtFacade.IsFoundationEnabled then begin
             LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
@@ -720,6 +721,11 @@ page 9302 "Sales Credit Memos"
         end;
 
         SendToPosting(PostingCodeunitID);
+
+        IsHandled := false;
+        OnPostDocumentBeforeNavigateAfterPosting(Rec, PostingCodeunitID, IsHandled);
+        if IsHandled then
+            exit;
 
         if "Job Queue Status" = "Job Queue Status"::"Scheduled for Posting" then
             CurrPage.Close
@@ -753,5 +759,10 @@ page 9302 "Sales Credit Memos"
     local procedure OnBeforeCalculateSalesTaxStatistics(var SalesHeader: Record "Sales Header"; ShowDialog: Boolean)
     begin
     end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPostDocumentBeforeNavigateAfterPosting(var SalesHeader: Record "Sales Header"; var PostingCodeunitID: Integer; var IsHandled: Boolean)
+    begin
+    end; 
 }
 

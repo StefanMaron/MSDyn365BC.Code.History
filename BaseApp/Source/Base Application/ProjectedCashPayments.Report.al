@@ -506,7 +506,7 @@ report 10098 "Projected Cash Payments"
                                     TempCurrency.Description := Description;
                                     TempCurrency.Insert();
                                 end;
-                            until Next = 0;
+                            until Next() = 0;
                 end;
 
                 GetCurrencyRecord(Currency, "Currency Code");

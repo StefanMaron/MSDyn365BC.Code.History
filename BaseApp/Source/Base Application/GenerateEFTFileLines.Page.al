@@ -66,7 +66,7 @@ page 10811 "Generate EFT File Lines"
                 TransferFields(EFTExport);
                 Include := true;
                 Insert;
-            until EFTExport.Next = 0;
+            until EFTExport.Next() = 0;
         CurrPage.Update(false);
     end;
 
@@ -79,7 +79,7 @@ page 10811 "Generate EFT File Lines"
             repeat
                 TempEFTExportWorkset.TransferFields(Rec);
                 TempEFTExportWorkset.Insert();
-            until Next = 0;
+            until Next() = 0;
         Reset;
     end;
 
@@ -92,7 +92,7 @@ page 10811 "Generate EFT File Lines"
             repeat
                 Include := SetInclude;
                 Modify;
-            until Next = 0;
+            until Next() = 0;
     end;
 }
 

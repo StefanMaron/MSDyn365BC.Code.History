@@ -197,7 +197,7 @@ report 1115 "Resource - Price List"
                         ResPriceBuffer.Type := ResPrice.Type;
                         ResPriceBuffer."Work Type Code" := ResPrice."Work Type Code";
                         Ok := ResPriceBuffer.Insert();
-                    until ResPrice.Next = 0;
+                    until ResPrice.Next() = 0;
             end;
         }
     }
@@ -276,7 +276,7 @@ report 1115 "Resource - Price List"
                     ResPriceBuffer."Work Type Code" := ResPrice."Work Type Code";
                     Ok := ResPriceBuffer.Insert();
                 end;
-            until ResPrice.Next = 0;
+            until ResPrice.Next() = 0;
     end;
 
     procedure InitializeRequest(CurrencyCodeFrom: Code[10])

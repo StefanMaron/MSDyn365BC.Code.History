@@ -2016,7 +2016,7 @@ codeunit 142066 "UT REP Sales Tax"
             SetRange("VAT Bus. Posting Group", '');
             SetRange("VAT Prod. Posting Group", '');
             SetRange("VAT Calculation Type", "VAT Calculation Type"::"Sales Tax");
-            if IsEmpty then begin
+            if IsEmpty() then begin
                 Init;
                 "VAT Calculation Type" := "VAT Calculation Type"::"Sales Tax";
                 "VAT %" := LibraryRandom.RandIntInRange(1, 25);
@@ -2115,7 +2115,7 @@ codeunit 142066 "UT REP Sales Tax"
         LibraryReportDataset.LoadDataSetFile;
         with TaxDetail do begin
             SetRange("Tax Group Code", TaxGroupCode);
-            FindSet;
+            FindSet();
             repeat
                 LibraryReportDataset.AssertElementWithValueExists('SalesTaxAmountLine__Tax___', "Tax Below Maximum");
             until Next = 0;

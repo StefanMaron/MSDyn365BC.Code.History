@@ -6,6 +6,9 @@ page 5468 "Picture Entity"
     PageType = ListPart;
     SourceTable = "Picture Entity";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {

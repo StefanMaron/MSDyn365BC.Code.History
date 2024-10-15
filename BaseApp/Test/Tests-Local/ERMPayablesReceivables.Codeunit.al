@@ -1030,7 +1030,7 @@ codeunit 142052 "ERM Payables/Receivables"
         GLEntry.SetRange("Bal. Account No.", BalAccountNo);
         GLEntry.SetRange("Bal. Account Type", BalAccountType);
         GLEntry.SetRange("Document Type", DocumentType);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             Amount += GLEntry.Amount;
         until GLEntry.Next = 0;
@@ -1434,7 +1434,7 @@ codeunit 142052 "ERM Payables/Receivables"
         Amount: Decimal;
     begin
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
-        BankAccountLedgerEntry.FindSet;
+        BankAccountLedgerEntry.FindSet();
         repeat
             Amount += BankAccountLedgerEntry.Amount;
         until BankAccountLedgerEntry.Next = 0;

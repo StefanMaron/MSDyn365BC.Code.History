@@ -987,10 +987,10 @@ report 10477 "Elec. Sales Invoice MX"
                         if PostedAsmLine.FindSet then
                             repeat
                                 TreatAsmLineBuffer(PostedAsmLine);
-                            until PostedAsmLine.Next = 0;
+                            until PostedAsmLine.Next() = 0;
                     end;
                 end;
-        until ValueEntry.Next = 0;
+        until ValueEntry.Next() = 0;
     end;
 
     procedure TreatAsmLineBuffer(PostedAsmLine: Record "Posted Assembly Line")

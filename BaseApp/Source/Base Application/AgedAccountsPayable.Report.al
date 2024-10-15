@@ -154,14 +154,14 @@ report 322 "Aged Accounts Payable"
                     if VendorLedgEntry.FindSet(false, false) then
                         repeat
                             InsertTemp(VendorLedgEntry);
-                        until VendorLedgEntry.Next = 0;
+                        until VendorLedgEntry.Next() = 0;
 
                     if "Closed by Entry No." <> 0 then begin
                         VendorLedgEntry.SetRange("Closed by Entry No.", "Closed by Entry No.");
                         if VendorLedgEntry.FindSet(false, false) then
                             repeat
                                 InsertTemp(VendorLedgEntry);
-                            until VendorLedgEntry.Next = 0;
+                            until VendorLedgEntry.Next() = 0;
                     end;
 
                     VendorLedgEntry.Reset();
@@ -171,7 +171,7 @@ report 322 "Aged Accounts Payable"
                     if VendorLedgEntry.FindSet(false, false) then
                         repeat
                             InsertTemp(VendorLedgEntry);
-                        until VendorLedgEntry.Next = 0;
+                        until VendorLedgEntry.Next() = 0;
                     CurrReport.Skip();
                 end;
 
@@ -318,7 +318,7 @@ report 322 "Aged Accounts Payable"
                             if not TempVendorLedgEntry.FindSet(false, false) then
                                 CurrReport.Break();
                         end else
-                            if TempVendorLedgEntry.Next = 0 then
+                            if TempVendorLedgEntry.Next() = 0 then
                                 CurrReport.Break();
 
                         VendorLedgEntryEndingDate := TempVendorLedgEntry;
@@ -374,7 +374,7 @@ report 322 "Aged Accounts Payable"
                                           VendorLedgEntryEndingDate."Remaining Amt. (LCY)" + DetailedVendorLedgerEntry."Amount (LCY)";
                                     end;
                                 end;
-                            until DetailedVendorLedgerEntry.Next = 0;
+                            until DetailedVendorLedgerEntry.Next() = 0;
 
                         if UseExternalDocNo then
                             DocumentNo := VendorLedgEntryEndingDate."External Document No."
@@ -431,7 +431,7 @@ report 322 "Aged Accounts Payable"
                         if not TempCurrency.FindSet(false, false) then
                             CurrReport.Break();
                     end else
-                        if TempCurrency.Next = 0 then
+                        if TempCurrency.Next() = 0 then
                             CurrReport.Break();
 
                     if TempCurrency.Code <> '' then
@@ -520,7 +520,7 @@ report 322 "Aged Accounts Payable"
                     if not TempCurrency2.FindSet(false, false) then
                         CurrReport.Break();
                 end else
-                    if TempCurrency2.Next = 0 then
+                    if TempCurrency2.Next() = 0 then
                         CurrReport.Break();
 
                 Clear(AgedVendorLedgEntry);
@@ -532,7 +532,7 @@ report 322 "Aged Accounts Payable"
                               TempCurrencyAmount.Amount
                         else
                             AgedVendorLedgEntry[6]."Remaining Amount" := TempCurrencyAmount.Amount;
-                    until TempCurrencyAmount.Next = 0;
+                    until TempCurrencyAmount.Next() = 0;
             end;
 
             trigger OnPreDataItem()

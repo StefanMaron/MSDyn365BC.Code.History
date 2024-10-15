@@ -127,7 +127,7 @@ table 7012 "Purchase Price"
                 NewPurchasePrice."Vendor No." := VendNo;
                 OnBeforeNewPurchasePriceInsert(NewPurchasePrice, PurchPrice);
                 if NewPurchasePrice.Insert() then;
-            until PurchPrice.Next = 0;
+            until PurchPrice.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

@@ -25,6 +25,10 @@ table 5328 "CRM Synch Status"
         {
             Caption = 'Customer Statistics Synchronization Time';
         }
+        field(5; "Item Availability Synch. Time"; DateTime)
+        {
+            Caption = 'Item Availability Synchronization Time';
+        }
     }
 
     keys

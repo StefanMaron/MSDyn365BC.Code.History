@@ -4,6 +4,7 @@ table 10120 "Bank Rec. Header"
     DrillDownPageID = "Bank Rec. List";
     LookupPageID = "Bank Rec. List";
     Permissions = TableData "Bank Account" = rm;
+    DataCaptionFields = "Bank Account No.", "Statement No.", "Statement Date";
 
     fields
     {
@@ -47,7 +48,7 @@ table 10120 "Bank Rec. Header"
         field(5; "G/L Balance (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry".Amount WHERE("G/L Account No." = FIELD("G/L Bank Account No."),
+            CalcFormula = Sum("G/L Entry".Amount WHERE("G/L Account No." = FIELD("G/L Bank Account No."),
                                                         "Posting Date" = FIELD(UPPERLIMIT("Date Filter"))));
             Caption = 'G/L Balance ($)';
             Editable = false;
@@ -55,7 +56,7 @@ table 10120 "Bank Rec. Header"
         }
         field(6; "Positive Adjustments"; Decimal)
         {
-            CalcFormula = Sum ("Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
+            CalcFormula = Sum("Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                              "Statement No." = FIELD("Statement No."),
                                                              "Record Type" = CONST(Adjustment),
                                                              Positive = CONST(true),
@@ -66,7 +67,7 @@ table 10120 "Bank Rec. Header"
         }
         field(7; "Negative Adjustments"; Decimal)
         {
-            CalcFormula = Sum ("Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
+            CalcFormula = Sum("Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                              "Statement No." = FIELD("Statement No."),
                                                              "Record Type" = CONST(Adjustment),
                                                              Positive = CONST(false),
@@ -77,7 +78,7 @@ table 10120 "Bank Rec. Header"
         }
         field(8; "Outstanding Deposits"; Decimal)
         {
-            CalcFormula = Sum ("Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
+            CalcFormula = Sum("Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                              "Statement No." = FIELD("Statement No."),
                                                              "Record Type" = CONST(Deposit),
                                                              Cleared = CONST(false)));
@@ -86,7 +87,7 @@ table 10120 "Bank Rec. Header"
         }
         field(9; "Outstanding Checks"; Decimal)
         {
-            CalcFormula = Sum ("Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
+            CalcFormula = Sum("Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                              "Statement No." = FIELD("Statement No."),
                                                              "Record Type" = CONST(Check),
                                                              Cleared = CONST(false)));
@@ -144,7 +145,7 @@ table 10120 "Bank Rec. Header"
         }
         field(19; "Total Cleared Checks"; Decimal)
         {
-            CalcFormula = Sum ("Bank Rec. Line"."Cleared Amount" WHERE("Bank Account No." = FIELD("Bank Account No."),
+            CalcFormula = Sum("Bank Rec. Line"."Cleared Amount" WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                                        "Statement No." = FIELD("Statement No."),
                                                                        "Record Type" = CONST(Check),
                                                                        Cleared = CONST(true)));
@@ -153,7 +154,7 @@ table 10120 "Bank Rec. Header"
         }
         field(20; "Total Cleared Deposits"; Decimal)
         {
-            CalcFormula = Sum ("Bank Rec. Line"."Cleared Amount" WHERE("Bank Account No." = FIELD("Bank Account No."),
+            CalcFormula = Sum("Bank Rec. Line"."Cleared Amount" WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                                        "Statement No." = FIELD("Statement No."),
                                                                        "Record Type" = CONST(Deposit),
                                                                        Cleared = CONST(true)));
@@ -162,7 +163,7 @@ table 10120 "Bank Rec. Header"
         }
         field(21; "Total Adjustments"; Decimal)
         {
-            CalcFormula = Sum ("Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
+            CalcFormula = Sum("Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                              "Statement No." = FIELD("Statement No."),
                                                              "Record Type" = CONST(Adjustment)));
             Caption = 'Total Adjustments';
@@ -181,7 +182,7 @@ table 10120 "Bank Rec. Header"
         }
         field(24; Comment; Boolean)
         {
-            CalcFormula = Exist ("Bank Comment Line" WHERE("Table Name" = CONST("Bank Rec."),
+            CalcFormula = Exist("Bank Comment Line" WHERE("Table Name" = CONST("Bank Rec."),
                                                            "Bank Account No." = FIELD("Bank Account No."),
                                                            "No." = FIELD("Statement No.")));
             Caption = 'Comment';
@@ -205,7 +206,7 @@ table 10120 "Bank Rec. Header"
         }
         field(28; "Total Balanced Adjustments"; Decimal)
         {
-            CalcFormula = Sum ("Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
+            CalcFormula = Sum("Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                              "Statement No." = FIELD("Statement No."),
                                                              "Record Type" = CONST(Adjustment),
                                                              "Bal. Account No." = FILTER(<> '')));
@@ -214,7 +215,7 @@ table 10120 "Bank Rec. Header"
         }
         field(29; "Positive Bal. Adjustments"; Decimal)
         {
-            CalcFormula = Sum ("Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
+            CalcFormula = Sum("Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                              "Statement No." = FIELD("Statement No."),
                                                              "Record Type" = CONST(Adjustment),
                                                              Positive = CONST(true),
@@ -225,7 +226,7 @@ table 10120 "Bank Rec. Header"
         }
         field(30; "Negative Bal. Adjustments"; Decimal)
         {
-            CalcFormula = Sum ("Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
+            CalcFormula = Sum("Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                              "Statement No." = FIELD("Statement No."),
                                                              "Record Type" = CONST(Adjustment),
                                                              Positive = CONST(false),
@@ -353,7 +354,7 @@ table 10120 "Bank Rec. Header"
                                   "Currency Factor"),
                                 Currency."Amount Rounding Precision");
 
-                    until GLEntry.Next = 0;
+                    until GLEntry.Next() = 0;
                 end;
             end;
     end;
@@ -405,7 +406,7 @@ table 10120 "Bank Rec. Header"
                       BankRecLine."Dimension Set ID", BankRecLine."Shortcut Dimension 1 Code", BankRecLine."Shortcut Dimension 2 Code");
                     BankRecLine.Modify();
                 end;
-            until BankRecLine.Next = 0;
+            until BankRecLine.Next() = 0;
     end;
 
     procedure InsertRec(BankAccountNo: Code[20])

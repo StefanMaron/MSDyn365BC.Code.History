@@ -1,4 +1,4 @@
-﻿page 5104 "Contact Picture"
+page 5104 "Contact Picture"
 {
     Caption = 'Contact Picture';
     DeleteAllowed = false;

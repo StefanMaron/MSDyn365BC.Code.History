@@ -2755,7 +2755,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!Tracking_Specification__Serial_No__Caption.Value</Value>
+                                  <Value EvaluationMode="Auto">=Fields!Reservation_Entry__Serial_No__Caption.Value</Value>
                                   <Style>
                                     <FontSize>9pt</FontSize>
                                   </Style>
@@ -2784,7 +2784,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!Tracking_Specification__Serial_No__.Value</Value>
+                                  <Value EvaluationMode="Auto">=Fields!Reservation_Entry__Serial_No__.Value</Value>
                                   <Style>
                                     <FontSize>9pt</FontSize>
                                   </Style>
@@ -3620,7 +3620,7 @@
                                       <TablixMembers>
                                         <TablixMember>
                                           <Visibility>
-                                            <Hidden>=IIF(not IsNothing(Fields!Tracking_Specification__Serial_No__.Value),false,true)</Hidden>
+                                            <Hidden>=IIF(not IsNothing(Fields!Reservation_Entry__Serial_No__.Value),false,true)</Hidden>
                                           </Visibility>
                                         </TablixMember>
                                       </TablixMembers>
@@ -4266,20 +4266,20 @@ End Function
         <Field Name="Sales_Line_Line_No_">
           <DataField>Sales_Line_Line_No_</DataField>
         </Field>
-        <Field Name="Tracking_Specification__Serial_No__">
-          <DataField>Tracking_Specification__Serial_No__</DataField>
+        <Field Name="Reservation_Entry__Serial_No__">
+          <DataField>Reservation_Entry__Serial_No__</DataField>
         </Field>
-        <Field Name="Tracking_Specification_Entry_No_">
-          <DataField>Tracking_Specification_Entry_No_</DataField>
+        <Field Name="Reservation_Entry_Entry_No_">
+          <DataField>Reservation_Entry_Entry_No_</DataField>
         </Field>
-        <Field Name="Tracking_Specification_Source_ID">
-          <DataField>Tracking_Specification_Source_ID</DataField>
+        <Field Name="Reservation_Entry_Source_ID">
+          <DataField>Reservation_Entry_Source_ID</DataField>
         </Field>
-        <Field Name="Tracking_Specification_Source_Ref__No_">
-          <DataField>Tracking_Specification_Source_Ref__No_</DataField>
+        <Field Name="Reservation_Entry_Source_Ref__No_">
+          <DataField>Reservation_Entry_Source_Ref__No_</DataField>
         </Field>
-        <Field Name="Tracking_Specification__Serial_No__Caption">
-          <DataField>Tracking_Specification__Serial_No__Caption</DataField>
+        <Field Name="Reservation_Entry__Serial_No__Caption">
+          <DataField>Reservation_Entry__Serial_No__Caption</DataField>
         </Field>
         <Field Name="Sales_Comment_Line_Comment">
           <DataField>Sales_Comment_Line_Comment</DataField>

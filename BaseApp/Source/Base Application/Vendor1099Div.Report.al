@@ -315,7 +315,7 @@ report 10109 "Vendor 1099 Div"
                 repeat
                     IRS1099Management.Calculate1099Amount(
                       Invoice1099Amount, Amounts, Codes, LastLineNo, TempAppliedEntry, "Amount to Apply");
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

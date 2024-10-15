@@ -142,7 +142,7 @@ codeunit 142067 "UT REPORTS GENERAL"
         ReportSelections.DeleteAll();
 
         // [WHEN] Run InitReportUsage function of "Report Selection Mgt." codeunit for Usage "C.Statement".
-        ReportSelectionMgt.InitReportUsage(ReportSelections.Usage::"C.Statement");
+        ReportSelectionMgt.InitReportSelection(ReportSelections.Usage::"C.Statement");
 
         // [THEN] A line with Report ID 1316 was added to Report Selections for Usage "Customer Statement".
         ReportSelections.SetRange("Report ID", REPORT::"Standard Statement");

@@ -891,7 +891,7 @@ codeunit 57 "Document Totals"
                     TempTotalSalesLine."Inv. Discount Amount" += SalesLine."Inv. Discount Amount";
                     TempTotalSalesLine."Amount Including VAT" += SalesLine."Amount Including VAT";
                 end
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
         VATAmount := TempTotalSalesLine."Amount Including VAT" - TempTotalSalesLine.Amount;
     end;
 
@@ -915,7 +915,7 @@ codeunit 57 "Document Totals"
                     TempTotalPurchaseLine."Inv. Discount Amount" += PurchaseLine."Inv. Discount Amount";
                     TempTotalPurchaseLine."Amount Including VAT" += PurchaseLine."Amount Including VAT";
                 end
-            until PurchaseLine.Next = 0;
+            until PurchaseLine.Next() = 0;
         VATAmount := TempTotalPurchaseLine."Amount Including VAT" - TempTotalPurchaseLine.Amount;
     end;
 
@@ -932,7 +932,7 @@ codeunit 57 "Document Totals"
 
         CurrentPurchaseLine.SetRange("Document No.", CurrentPurchaseLine."Document No.");
         CurrentPurchaseLine.SetRange("Document Type", CurrentPurchaseLine."Document Type");
-        CurrentPurchaseLine.FindSet;
+        CurrentPurchaseLine.FindSet();
         TotalVATAmount := 0;
 
         // Loop through all purchase lines and calculate correct sales tax.
@@ -944,7 +944,7 @@ codeunit 57 "Document Totals"
                   CurrentPurchaseLine."Line Amount" - CurrentPurchaseLine."Inv. Discount Amount",
                   CurrentPurchaseLine."Quantity (Base)", PurchaseHeader."Currency Factor"),
                 Currency."Amount Rounding Precision");
-        until CurrentPurchaseLine.Next = 0;
+        until CurrentPurchaseLine.Next() = 0;
 
         TempTotalPurchaseLine."Amount Including VAT" := TempTotalPurchaseLine."Line Amount" -
           TempTotalPurchaseLine."Inv. Discount Amount" + TotalVATAmount;

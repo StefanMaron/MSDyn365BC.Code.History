@@ -614,7 +614,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
 
         // Exercise: Calculate VAT Amount Line.
         SalesLine.CalcVATAmountLines(QtyType::General, SalesHeader, SalesLine, VATAmountLine);
-        VATAmountLine.FindSet;
+        VATAmountLine.FindSet();
         repeat
             VATAmount += VATAmountLine."VAT Amount";
         until VATAmountLine.Next = 0;
@@ -656,7 +656,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
 
         // Exercise: Calculate VAT Amount Line.
         PurchaseLine.CalcVATAmountLines(QtyType::General, PurchaseHeader, PurchaseLine, VATAmountLine);
-        VATAmountLine.FindSet;
+        VATAmountLine.FindSet();
         repeat
             VATAmount += VATAmountLine."VAT Amount";
         until VATAmountLine.Next = 0;
@@ -2040,7 +2040,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             InvDiscountAmount += SalesLine."Inv. Discount Amount";
         until SalesLine.Next = 0;
@@ -2052,7 +2052,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         repeat
             InvDiscountAmount += PurchaseLine."Inv. Discount Amount";
         until PurchaseLine.Next = 0;

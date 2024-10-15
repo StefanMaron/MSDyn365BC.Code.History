@@ -70,12 +70,20 @@ page 422 "G/L Balance/Budget"
                     ToolTip = 'Specifies the dates that will be used to filter the amounts in the window.';
 
                     trigger OnValidate()
+                    var
+                        FilterTokens: Codeunit "Filter Tokens";
+                        DateFilter2: Text;
                     begin
                         if DateFilter = '' then
                             SetRange("Date Filter")
-                        else
+                        else begin
+                            DateFilter2 := DateFilter;
+                            FilterTokens.MakeDateFilter(DateFilter2);
+                            DateFilter := CopyStr(DateFilter2, 1, MaxStrLen(DateFilter));
                             SetFilter("Date Filter", DateFilter);
-                        CurrPage.Update;
+                        end;
+
+                        CurrPage.Update();
                     end;
                 }
                 field(GLAccFilter; GLAccFilter)
@@ -102,7 +110,7 @@ page 422 "G/L Balance/Budget"
                             SetRange("No.")
                         else
                             SetFilter("No.", GLAccFilter);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(GLAccCategory; GLAccCategoryFilter)
@@ -118,7 +126,7 @@ page 422 "G/L Balance/Budget"
                             SetRange("Account Category")
                         else
                             SetRange("Account Category", GLAccCategoryFilter);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(IncomeBalGLAccFilter; IncomeBalanceGLAccFilter)
@@ -139,7 +147,7 @@ page 422 "G/L Balance/Budget"
                                 SetRange("Income/Balance", "Income/Balance"::"Income Statement");
                         end;
                         IncomeBalanceVisible := GetFilter("Income/Balance") = '';
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(GlobalDim1Filter; GlobalDim1Filter)
@@ -163,7 +171,7 @@ page 422 "G/L Balance/Budget"
                             SetRange("Global Dimension 1 Filter")
                         else
                             SetFilter("Global Dimension 1 Filter", GlobalDim1Filter);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(GlobalDim2Filter; GlobalDim2Filter)
@@ -187,7 +195,7 @@ page 422 "G/L Balance/Budget"
                             SetRange("Global Dimension 2 Filter")
                         else
                             SetFilter("Global Dimension 2 Filter", GlobalDim2Filter);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -543,7 +551,7 @@ page 422 "G/L Balance/Budget"
                     SetFilter(
                       "Date Filter", GetFilter("Date Filter") + '&<>%1',
                       ClosingDate(AccountingPeriod."Starting Date" - 1));
-                until AccountingPeriod.Next = 0;
+                until AccountingPeriod.Next() = 0;
         end else
             SetRange(
               "Date Filter",
@@ -577,62 +585,62 @@ page 422 "G/L Balance/Budget"
 
     local procedure BudgetedDebitAmountOnAfterVali()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure BudgetedCreditAmountOnAfterVal()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure BudgetedAmountOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure DayPeriodTypeOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure WeekPeriodTypeOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure MonthPeriodTypeOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure QuarterPeriodTypeOnAfterValida()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure YearPeriodTypeOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure AccountingPerioPeriodTypeOnAft()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ClosingEntryFilterOnAfterValid()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure NetChangeAmountTypeOnAfterVali()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure BalanceatDateAmountTypeOnAfter()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure DayPeriodTypeOnPush()
@@ -741,7 +749,7 @@ page 422 "G/L Balance/Budget"
         GLAccFilter := GetFilter("No.");
 
         if Evaluate(TempGLAccount."Account Category", GetFilter("Account Category")) then
-            GLAccCategoryFilter := TempGLAccount."Account Category"
+            GLAccCategoryFilter := TempGLAccount."Account Category".AsInteger()
         else
             GLAccCategoryFilter := GLAccCategoryFilter::" ";
 

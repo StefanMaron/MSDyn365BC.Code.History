@@ -26,7 +26,7 @@ codeunit 10335 "Exp. Mapping Det EFT MX"
                       RecordRef);
                     LineNo := LineNo + 1;
                 end;
-            until ACHCecobanDetail.Next = 0;
+            until ACHCecobanDetail.Next() = 0;
         ACHCecobanDetail.DeleteAll();
     end;
 

@@ -121,7 +121,7 @@ page 5167 "Purchase Order Archive"
                 field("Order Date"; "Order Date")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the date when the order was created.';
+                    ToolTip = 'Specifies the date the order was created. The order date is also used to determine the prices and discounts on the document.';
                 }
                 field("Document Date"; "Document Date")
                 {

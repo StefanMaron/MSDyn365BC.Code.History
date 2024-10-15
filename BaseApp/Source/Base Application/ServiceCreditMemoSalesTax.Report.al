@@ -480,7 +480,7 @@ report 10473 "Service Credit Memo-Sales Tax"
                                         BreakdownLabel[BrkIdx] := StrSubstNo("Print Description", "Tax %");
                                 end;
                                 BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + "Tax Amount";
-                            until Next = 0;
+                            until Next() = 0;
                     end;
                     if BrkIdx = 1 then begin
                         Clear(BreakdownLabel);
@@ -653,7 +653,7 @@ report 10473 "Service Credit Memo-Sales Tax"
 
         if ServiceShipmentBuffer.Find('-') then begin
             ServiceShipmentBuffer2 := ServiceShipmentBuffer;
-            if ServiceShipmentBuffer.Next = 0 then begin
+            if ServiceShipmentBuffer.Next() = 0 then begin
                 ServiceShipmentBuffer.Get(ServiceShipmentBuffer2."Document No.", ServiceShipmentBuffer2."Line No.", ServiceShipmentBuffer2.
                   "Entry No.");
                 ServiceShipmentBuffer.Delete();
@@ -695,7 +695,7 @@ report 10473 "Service Credit Memo-Sales Tax"
                     TotalQuantity := TotalQuantity - ValueEntry."Invoiced Quantity";
                 end;
                 FirstValueEntryNo := ValueEntry."Entry No." + 1;
-            until (ValueEntry.Next = 0) or (TotalQuantity = 0);
+            until (ValueEntry.Next() = 0) or (TotalQuantity = 0);
     end;
 
     procedure AddBufferEntry(ServiceCrMemoLine: Record "Service Cr.Memo Line"; QtyOnShipment: Decimal; PostingDate: Date)

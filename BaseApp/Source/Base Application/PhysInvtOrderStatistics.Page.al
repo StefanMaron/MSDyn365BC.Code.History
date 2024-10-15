@@ -205,7 +205,7 @@ page 5897 "Phys. Invt. Order Statistics"
                             Error(UnknownEntryTypeErr);
                     end;
                 end;
-            until PhysInvtOrderLine.Next = 0;
+            until PhysInvtOrderLine.Next() = 0;
     end;
 
     var

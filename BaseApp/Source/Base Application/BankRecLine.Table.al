@@ -47,6 +47,11 @@ table 10121 "Bank Rec. Line"
         field(8; "Account Type"; enum "Gen. Journal Account Type")
         {
             Caption = 'Account Type';
+
+            trigger OnValidate()
+            begin
+                CheckAccountType();
+            end;
         }
         field(9; "Account No."; Code[20])
         {
@@ -190,6 +195,11 @@ table 10121 "Bank Rec. Line"
         field(14; "Bal. Account Type"; enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
+
+            trigger OnValidate()
+            begin
+                CheckBalAccountType();
+            end;
         }
         field(15; "Bal. Account No."; Code[20])
         {
@@ -511,6 +521,7 @@ table 10121 "Bank Rec. Line"
         Text014: Label 'The %1 %2 has a %3 %4.\Do you still want to use %1 %2 in this journal line?';
         Text1020100: Label '%1 is blocked for %2 processing.', Comment = '%1 = account type, %2 = Customer.blocked';
         PrivacyBlockedErr: Label '%1 is blocked for privacy.', Comment = '%1 = customer';
+        UnsupportedTypeNotificationMsg: Label '%1 is not supported account type. You can enter and post the adjustment entry in a General Journal instead.', Comment = '%1=account type';
         BankRecPost: Codeunit "Bank Rec.-Post";
 
     procedure SetUpNewLine(LastBankRecLine: Record "Bank Rec. Line"; Balance: Decimal; BottomLine: Boolean)
@@ -567,6 +578,48 @@ table 10121 "Bank Rec. Line"
             if "Posting Date" = ClosingDate("Posting Date") then
                 exit;
         GLAcc.TestField("Direct Posting", true);
+    end;
+
+    local procedure CheckAccountType()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckAccountType(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Account Type" in ["Account Type"::Employee, "Account Type"::"IC Partner"] then
+            ShowUnsupportedTypeNotification("Account Type");
+    end;
+
+    local procedure CheckBalAccountType()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckBalAccountType(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Bal. Account Type" in ["Bal. Account Type"::Employee, "Bal. Account Type"::"IC Partner"] then
+            ShowUnsupportedTypeNotification("Bal. Account Type");
+    end;
+
+    local procedure ShowUnsupportedTypeNotification(AccountType: Enum "Gen. Journal Account Type")
+    var
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        UnsupportedTypeNotification: Notification;
+    begin
+        UnsupportedTypeNotification.Id := GetUnsupportedTypeNotificationId();
+        UnsupportedTypeNotification.Message := StrSubstNo(UnsupportedTypeNotificationMsg, AccountType);
+        UnsupportedTypeNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
+        NotificationLifecycleMgt.SendNotification(UnsupportedTypeNotification, RecordId);
+    end;
+
+    procedure GetUnsupportedTypeNotificationId(): Guid
+    begin
+        exit('a346701b-edfb-4145-8f23-a928b2796001');
     end;
 
     local procedure SetCurrencyCode(AccType2: Enum "Gen. Journal Account Type"; AccNo2: Code[20]): Boolean
@@ -681,7 +734,7 @@ table 10121 "Bank Rec. Line"
                 BankRecLine.Insert(true);
                 BankRecSubLine.Delete();
                 NextBankRecLineNo := NextBankRecLineNo + 10000;
-            until BankRecSubLine.Next = 0;
+            until BankRecSubLine.Next() = 0;
         end;
         DepositBankRecLine := BankRecLine;
     end;
@@ -714,7 +767,7 @@ table 10121 "Bank Rec. Line"
                 TotalDepositAmount := 0;
                 CollapsedCleared := true;
                 NextSubLineNo := 1;
-                BankRecLine.FindSet;
+                BankRecLine.FindSet();
                 repeat
                     BankRecSubLine.SetRange("Bank Rec. Line No.", BankRecLine."Line No.");
                     if not BankRecSubLine.FindSet then begin
@@ -731,13 +784,13 @@ table 10121 "Bank Rec. Line"
                     end else
                         repeat
                             CopyBankRecSubLineToTemp(TempBankRecSubLine, BankRecSubLine);
-                        until BankRecSubLine.Next = 0;
+                        until BankRecSubLine.Next() = 0;
                     BankRecSubLine.DeleteAll();
                     if not BankRecLine.Cleared then
                         CollapsedCleared := false;
                     TotalDepositAmount := TotalDepositAmount + BankRecLine.Amount;
                     BankRecLine.Delete();
-                until BankRecLine.Next = 0;
+                until BankRecLine.Next() = 0;
                 CopyBankRecSubLineFromTemp(TempBankRecSubLine, "Line No.");
 
                 UpdateLedgers;
@@ -794,9 +847,19 @@ table 10121 "Bank Rec. Line"
                 BankRecSubLine."Bank Rec. Line No." := LineNo;
                 BankRecSubLine."Line No." := NextSubLineNo;
                 BankRecSubLine.Insert();
-            until TempBankRecSubLine.Next = 0;
+            until TempBankRecSubLine.Next() = 0;
             TempBankRecSubLine.DeleteAll();
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAccountType(var BankRecLine: Record "Bank Rec. Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBalAccountType(var BankRecLine: Record "Bank Rec. Line"; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -139,9 +139,9 @@ page 36642 "Customer Credit FactBox"
 
     trigger OnAfterGetRecord()
     begin
-        ChangeCustomer;
-        GetLatestPayment;
-        CalculateAging;
+        ChangeCustomer();
+        GetLatestPayment();
+        CalculateAging();
     end;
 
     trigger OnOpenPage()
@@ -160,8 +160,6 @@ page 36642 "Customer Credit FactBox"
     end;
 
     var
-        LatestCustLedgerEntry: Record "Cust. Ledger Entry";
-        CustLedgerEntry: array[4] of Record "Cust. Ledger Entry";
         AgingTitle: array[4] of Text[30];
         AgingPeriod: DateFormula;
         I: Integer;
@@ -170,6 +168,10 @@ page 36642 "Customer Credit FactBox"
         Text002: Label 'Not Yet Due';
         Text003: Label 'Over %1 Days';
         Text004: Label '%1-%2 Days';
+
+    protected var
+        LatestCustLedgerEntry: Record "Cust. Ledger Entry";
+        CustLedgerEntry: array[4] of Record "Cust. Ledger Entry";
 
     procedure CalculateAgingForPeriod(PeriodBeginDate: Date; PeriodEndDate: Date; Index: Integer)
     var
@@ -190,7 +192,7 @@ page 36642 "Customer Credit FactBox"
                 CustLedgerEntry2.CalcFields("Remaining Amt. (LCY)");
                 CustLedgerEntry[Index]."Remaining Amt. (LCY)" :=
                   CustLedgerEntry[Index]."Remaining Amt. (LCY)" + CustLedgerEntry2."Remaining Amt. (LCY)";
-            until CustLedgerEntry2.Next = 0;
+            until CustLedgerEntry2.Next() = 0;
 
         if PeriodBeginDate <> 0D then
             NumDaysToBegin := WorkDate - PeriodBeginDate;

@@ -25,14 +25,14 @@ page 7326 "Whse. Phys. Invt. Journal"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    CurrPage.SaveRecord;
-                    LookupName(CurrentJnlBatchName, CurrentLocationCode, Rec);
+                    CurrPage.SaveRecord();
+                    Rec.LookupName(CurrentJnlBatchName, CurrentLocationCode, Rec);
                     CurrPage.Update(false);
                 end;
 
                 trigger OnValidate()
                 begin
-                    CheckName(CurrentJnlBatchName, CurrentLocationCode, Rec);
+                    Rec.CheckName(CurrentJnlBatchName, CurrentLocationCode, Rec);
                     CurrentJnlBatchNameOnAfterVali;
                 end;
             }
@@ -48,108 +48,108 @@ page 7326 "Whse. Phys. Invt. Journal"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Registering Date"; "Registering Date")
+                field("Registering Date"; Rec."Registering Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the date the line is registered.';
                 }
-                field("Whse. Document No."; "Whse. Document No.")
+                field("Whse. Document No."; Rec."Whse. Document No.")
                 {
                     ApplicationArea = Warehouse;
                     Caption = 'Whse. Document No.';
                     ToolTip = 'Specifies the warehouse document number of the journal line.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the item on the journal line.';
 
                     trigger OnValidate()
                     begin
-                        GetItem("Item No.", ItemDescription);
+                        ItemNoOnAfterValidate();
                     end;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the description of the item.';
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = SerialNoEditable;
                     ToolTip = 'Specifies the same as for the field in the Item Journal window.';
                     Visible = false;
                 }
-                field("Lot No."; "Lot No.")
+                field("Lot No."; Rec."Lot No.")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = LotNoEditable;
                     ToolTip = 'Specifies the same as for the field in the Item Journal window.';
                     Visible = false;
                 }
-                field("Zone Code"; "Zone Code")
+                field("Zone Code"; Rec."Zone Code")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the zone code where the bin on this line is located.';
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin where the items are picked or put away.';
                 }
-                field("Qty. (Calculated) (Base)"; "Qty. (Calculated) (Base)")
+                field("Qty. (Calculated) (Base)"; Rec."Qty. (Calculated) (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the same as for the field in the Item Journal window.';
                     Visible = false;
                 }
-                field("Qty. (Phys. Inventory) (Base)"; "Qty. (Phys. Inventory) (Base)")
+                field("Qty. (Phys. Inventory) (Base)"; Rec."Qty. (Phys. Inventory) (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the same as for the field in the Item Journal window.';
                     Visible = false;
                 }
-                field("Qty. (Calculated)"; "Qty. (Calculated)")
+                field("Qty. (Calculated)"; Rec."Qty. (Calculated)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity of the bin item that is calculated when you use the function, Calculate Inventory, in the Whse. Physical Inventory Journal.';
                 }
-                field("Qty. (Phys. Inventory)"; "Qty. (Phys. Inventory)")
+                field("Qty. (Phys. Inventory)"; Rec."Qty. (Phys. Inventory)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity of items in the bin that you have counted.';
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of units of the item in the adjustment (positive or negative) or the reclassification.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Warehouse;
                     Caption = 'Reason Code';
                     ToolTip = 'Specifies the reason code for the warehouse journal line.';
                     Visible = false;
                 }
-                field("Phys Invt Counting Period Type"; "Phys Invt Counting Period Type")
+                field("Phys Invt Counting Period Type"; Rec."Phys Invt Counting Period Type")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies whether the physical inventory counting period was assigned to a stockkeeping unit or an item.';
                     Visible = false;
                 }
-                field("Phys Invt Counting Period Code"; "Phys Invt Counting Period Code")
+                field("Phys Invt Counting Period Code"; Rec."Phys Invt Counting Period Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies a code for the physical inventory counting period, if the counting period functionality was used when the line was created.';
@@ -274,11 +274,11 @@ page 7326 "Whse. Phys. Invt. Journal"
                         BinContent: Record "Bin Content";
                         WhseCalcInventory: Report "Whse. Calculate Inventory";
                     begin
-                        BinContent.SetRange("Location Code", "Location Code");
+                        BinContent.SetRange("Location Code", Rec."Location Code");
                         WhseCalcInventory.SetWhseJnlLine(Rec);
                         WhseCalcInventory.SetTableView(BinContent);
                         WhseCalcInventory.SetProposalMode(true);
-                        WhseCalcInventory.RunModal;
+                        WhseCalcInventory.RunModal();
                         Clear(WhseCalcInventory);
                     end;
                 }
@@ -296,14 +296,14 @@ page 7326 "Whse. Phys. Invt. Journal"
                         SortingMethod: Option " ",Item,Bin;
                     begin
                         PhysInvtCountMgt.InitFromWhseJnl(Rec);
-                        PhysInvtCountMgt.Run;
+                        PhysInvtCountMgt.Run();
 
                         PhysInvtCountMgt.GetSortingMethod(SortingMethod);
                         case SortingMethod of
                             SortingMethod::Item:
-                                SetCurrentKey("Location Code", "Item No.", "Variant Code");
+                                Rec.SetCurrentKey("Location Code", "Item No.", "Variant Code");
                             SortingMethod::Bin:
-                                SetCurrentKey("Location Code", "Bin Code");
+                                Rec.SetCurrentKey("Location Code", "Bin Code");
                         end;
 
                         Clear(PhysInvtCountMgt);
@@ -322,11 +322,11 @@ page 7326 "Whse. Phys. Invt. Journal"
 
                 trigger OnAction()
                 begin
-                    WhseJournalBatch.SetRange("Journal Template Name", "Journal Template Name");
-                    WhseJournalBatch.SetRange(Name, "Journal Batch Name");
+                    WhseJournalBatch.SetRange("Journal Template Name", Rec."Journal Template Name");
+                    WhseJournalBatch.SetRange(Name, Rec."Journal Batch Name");
                     WhseJournalBatch.SetRange("Location Code", CurrentLocationCode);
                     WhsePhysInventoryList.SetTableView(WhseJournalBatch);
-                    WhsePhysInventoryList.RunModal;
+                    WhsePhysInventoryList.RunModal();
                     Clear(WhsePhysInventoryList);
                 end;
             }
@@ -353,14 +353,14 @@ page 7326 "Whse. Phys. Invt. Journal"
                     Caption = '&Register';
                     Image = Confirm;
                     Promoted = true;
-                    PromotedCategory = Process;
+                    PromotedCategory = Category4;
                     ShortCutKey = 'F9';
                     ToolTip = 'Register the warehouse entry in question, such as a positive adjustment. ';
 
                     trigger OnAction()
                     begin
                         CODEUNIT.Run(CODEUNIT::"Whse. Jnl.-Register", Rec);
-                        CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
+                        CurrentJnlBatchName := Rec.GetRangeMax("Journal Batch Name");
                         CurrPage.Update(false);
                     end;
                 }
@@ -370,14 +370,14 @@ page 7326 "Whse. Phys. Invt. Journal"
                     Caption = 'Register and &Print';
                     Image = ConfirmAndPrint;
                     Promoted = true;
-                    PromotedCategory = Process;
+                    PromotedCategory = Category4;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Register the warehouse entry adjustments and print an overview of the changes. ';
 
                     trigger OnAction()
                     begin
                         CODEUNIT.Run(CODEUNIT::"Whse. Jnl.-Register+Print", Rec);
-                        CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
+                        CurrentJnlBatchName := Rec.GetRangeMax("Journal Batch Name");
                         CurrPage.Update(false);
                     end;
                 }
@@ -387,7 +387,7 @@ page 7326 "Whse. Phys. Invt. Journal"
 
     trigger OnAfterGetCurrRecord()
     begin
-        GetItem("Item No.", ItemDescription);
+        Rec.GetItem(Rec."Item No.", ItemDescription);
         SetControls;
     end;
 
@@ -399,17 +399,17 @@ page 7326 "Whse. Phys. Invt. Journal"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetUpNewLine(xRec);
+        Rec.SetUpNewLine(xRec);
     end;
 
     trigger OnOpenPage()
     var
         JnlSelected: Boolean;
     begin
-        if IsOpenedFromBatch then begin
-            CurrentJnlBatchName := "Journal Batch Name";
-            CurrentLocationCode := "Location Code";
-            OpenJnl(CurrentJnlBatchName, CurrentLocationCode, Rec);
+        if Rec.IsOpenedFromBatch then begin
+            CurrentJnlBatchName := Rec."Journal Batch Name";
+            CurrentLocationCode := Rec."Location Code";
+            Rec.OpenJnl(CurrentJnlBatchName, CurrentLocationCode, Rec);
             exit;
         end;
         TemplateSelection(PAGE::"Whse. Phys. Invt. Journal", 1, Rec, JnlSelected);
@@ -434,15 +434,20 @@ page 7326 "Whse. Phys. Invt. Journal"
 
     procedure SetControls()
     begin
-        SerialNoEditable := not "Phys. Inventory";
-        LotNoEditable := not "Phys. Inventory";
+        SerialNoEditable := not Rec."Phys. Inventory";
+        LotNoEditable := not Rec."Phys. Inventory";
     end;
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin
         CurrPage.SaveRecord;
-        SetName(CurrentJnlBatchName, CurrentLocationCode, Rec);
+        Rec.SetName(CurrentJnlBatchName, CurrentLocationCode, Rec);
         CurrPage.Update(false);
+    end;
+
+    procedure ItemNoOnAfterValidate()
+    begin
+        Rec.GetItem(Rec."Item No.", ItemDescription);
     end;
 }
 

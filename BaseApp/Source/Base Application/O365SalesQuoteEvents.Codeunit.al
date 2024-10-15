@@ -65,7 +65,7 @@ codeunit 2163 "O365 Sales Quote Events"
         SalesHeader.SetRange("Quote Valid Until Date", NewDate, CalcDate('<1W>', NewDate)); // ends some time during next week
 
         if CalendarEvent.Get(O365C2GraphEventSettings."Est. Expiring Event") and (not CalendarEvent.Archived) then begin
-            if SalesHeader.IsEmpty then
+            if SalesHeader.IsEmpty() then
                 CalendarEvent.Delete(true)
             else begin
                 CalendarEvent.Validate("Scheduled Date", NewDate);
@@ -75,7 +75,7 @@ codeunit 2163 "O365 Sales Quote Events"
             exit;
         end;
 
-        if SalesHeader.IsEmpty then
+        if SalesHeader.IsEmpty() then
             exit;
 
         CreateEvent(O365SalesEvent, O365SalesEvent.Type::"Estimate Expiring", '');
@@ -148,9 +148,8 @@ codeunit 2163 "O365 Sales Quote Events"
         exit(O365SalesInitialSetup."Is initialized");
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterInsertEvent', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterSalesHeaderInsert(var Rec: Record "Sales Header"; RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterInsertEvent', '', false, false)]
+    local procedure OnAfterSalesHeaderInsert(var Rec: Record "Sales Header"; RunTrigger: Boolean)
     begin
         if not IsQuote(Rec) then
             exit;
@@ -161,9 +160,8 @@ codeunit 2163 "O365 Sales Quote Events"
         UpdateExpiringEvent;
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterDeleteEvent', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterSalesHeaderDelete(var Rec: Record "Sales Header"; RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterDeleteEvent', '', false, false)]
+    local procedure OnAfterSalesHeaderDelete(var Rec: Record "Sales Header"; RunTrigger: Boolean)
     begin
         if not (IsInvoicing and IsQuote(Rec)) then
             exit;
@@ -171,7 +169,7 @@ codeunit 2163 "O365 Sales Quote Events"
         UpdateExpiringEvent;
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnAfterSalesHeaderModify(var Rec: Record "Sales Header"; var xRec: Record "Sales Header"; RunTrigger: Boolean)
     begin
         if not IsQuote(Rec) then
@@ -183,7 +181,7 @@ codeunit 2163 "O365 Sales Quote Events"
         UpdateExpiringEvent;
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterSalesQuoteAccepted', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterSalesQuoteAccepted', '', false, false)]
     local procedure OnAfterSalesQuoteAccepted(var SalesHeader: Record "Sales Header")
     begin
         if not IsQuote(SalesHeader) then
@@ -196,7 +194,7 @@ codeunit 2163 "O365 Sales Quote Events"
         UpdateExpiringEvent;
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterSendSalesHeader', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterSendSalesHeader', '', false, false)]
     local procedure OnAfterSendSalesHeader(var SalesHeader: Record "Sales Header"; ShowDialog: Boolean)
     begin
         if not IsQuote(SalesHeader) then

@@ -23,7 +23,7 @@ page 27006 "CFDI Relation Documents"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Fiscal Invoice Number PAC"; "Fiscal Invoice Number PAC")

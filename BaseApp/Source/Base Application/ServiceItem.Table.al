@@ -1016,7 +1016,7 @@ table 5940 "Service Item"
                       ServContractLine."Contract No.", 1,
                       ServContractLine.FieldCaption("Service Item No."), 3,
                       xRec."No.", "No.", "No.", 0);
-                until ServContractLine.Next = 0;
+                until ServContractLine.Next() = 0;
         end;
     end;
 

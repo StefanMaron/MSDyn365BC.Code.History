@@ -1,4 +1,4 @@
-﻿codeunit 11 "Gen. Jnl.-Check Line"
+codeunit 11 "Gen. Jnl.-Check Line"
 {
     Permissions = TableData "General Posting Setup" = rimd;
     TableNo = "Gen. Journal Line";
@@ -477,7 +477,7 @@
 
         OldCustLedgEntry.SetRange("Document No.", GenJournalLine."Document No.");
         OldCustLedgEntry.SetRange("Document Type", GenJournalLine."Document Type");
-        if not OldCustLedgEntry.IsEmpty then
+        if not OldCustLedgEntry.IsEmpty() then
             LogError(GenJournalLine, StrSubstNo(SalesDocAlreadyExistsErr, GenJournalLine."Document Type", GenJournalLine."Document No."));
     end;
 
@@ -493,7 +493,7 @@
 
         OldVendLedgEntry.SetRange("Document No.", GenJournalLine."Document No.");
         OldVendLedgEntry.SetRange("Document Type", GenJournalLine."Document Type");
-        if not OldVendLedgEntry.IsEmpty then
+        if not OldVendLedgEntry.IsEmpty() then
             LogError(GenJournalLine, StrSubstNo(PurchDocAlreadyExistsErr, GenJournalLine."Document Type", GenJournalLine."Document No."));
     end;
 
@@ -627,7 +627,7 @@
             LogTestField(GenJnlLine, GenJnlLine.FieldNo(Amount));
     end;
 
-    local procedure IsVendorPaymentToCrMemo(GenJournalLine: Record "Gen. Journal Line") Result: Boolean
+    procedure IsVendorPaymentToCrMemo(GenJournalLine: Record "Gen. Journal Line") Result: Boolean
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         IsHandled: Boolean;

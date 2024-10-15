@@ -240,7 +240,7 @@ codeunit 141040 "UT COD Electronic Payment"
         CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Customer, CustomerNo, CustomerBankAccountCode, true);  // Check Transmitted - TRUE.
 
         UpdateBalanceAccountOnGenJournalLine(
-           GenJournalLine, GenJournalLine."Bal. Account Type"::Customer, CustomerNo);
+          GenJournalLine, GenJournalLine."Bal. Account Type"::Customer, CustomerNo);
         UpdateBankAccount(BankAccountNo);
         ExportPaymentsIAT.StartExportFile(BankAccountNo, LibraryUTUtility.GetNewCode10);
 
@@ -265,7 +265,6 @@ codeunit 141040 "UT COD Electronic Payment"
         // Setup: Create Vendor Bank Account without Transit No. Create General Journal Line with Account Type Vendor.
         UpdateCompanyInformationFederalID;
         BankAccountNo := CreateBankAccountUS(CreateBankAccountPostingGroup, TransitNoTxt);  // Codeunit 10093, weight is hardcoded to '37137137', so the value is selected  to make 10 - Digit MOD 10 equal to 0.
-        VendorNo := CreateVendorBankAccount(BankAccountNo);
 
         VendorBankAccountCode := LibraryRandom.RandText(20);
         VendorNo := CreateVendor();

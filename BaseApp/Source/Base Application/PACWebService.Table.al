@@ -61,7 +61,7 @@ table 10000 "PAC Web Service"
     procedure DeleteSubTables()
     begin
         PACWebServiceDetail.SetRange("PAC Code", Code);
-        if not PACWebServiceDetail.IsEmpty then
+        if not PACWebServiceDetail.IsEmpty() then
             PACWebServiceDetail.DeleteAll();
     end;
 

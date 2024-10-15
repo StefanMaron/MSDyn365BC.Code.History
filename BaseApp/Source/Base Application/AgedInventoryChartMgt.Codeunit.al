@@ -22,7 +22,7 @@ codeunit 1317 "Aged Inventory Chart Mgt."
     begin
         with BusChartBuf do begin
             Initialize;
-            AddMeasure(YCaptionTxt, 1, "Data Type"::Decimal, "Chart Type"::StackedColumn);
+            AddDecimalMeasure(YCaptionTxt, 1, "Chart Type"::StackedColumn);
             SetXAxis(XCaptionTxt, "Data Type"::String);
             CalcPeriodStartDates(PeriodStartDate, GetPeriodLengthInDays(BusChartBuf));
             AddChartColumns(BusChartBuf);
@@ -53,18 +53,18 @@ codeunit 1317 "Aged Inventory Chart Mgt."
         PeriodNo: Integer;
     begin
         Item.SetRange(Type, Item.Type::Inventory, Item.Type::Inventory);
-        if Item.Findset() then
+        if Item.FindSet() then
             repeat
                 ItemLedgerEntry.SetCurrentKey(ItemLedgerEntry."Item No.", ItemLedgerEntry.Open);
-                ItemLedgerEntry.SetRange(Open, true);
                 ItemLedgerEntry.SetRange("Item No.", Item."No.");
+                ItemLedgerEntry.SetRange(Open, true);
                 if ItemLedgerEntry.Findset() then
                     repeat
                         CalcRemainingQty(ItemLedgerEntry, PeriodStartDate, InvtQty, PeriodNo);
                         UnitCost := CalcUnitCost(ItemLedgerEntry);
                         InvtValue[PeriodNo] += UnitCost * Abs(InvtQty[PeriodNo]);
                     until ItemLedgerEntry.Next() = 0;
-            until Item.Next = 0;
+            until Item.Next() = 0;
     end;
 
     local procedure AddChartColumns(var BusChartBuf: Record "Business Chart Buffer")
@@ -132,7 +132,7 @@ codeunit 1317 "Aged Inventory Chart Mgt."
                         SumUnitCost(UnitCost, "Cost Amount (Actual)" + "Cost Amount (Expected)", "Valued Quantity")
                     else
                         SumUnitCost(UnitCost, "Cost Amount (Actual)" + "Cost Amount (Expected)", ItemLedgerEntry.Quantity);
-                until Next = 0;
+                until Next() = 0;
         end;
         exit(UnitCost);
     end;

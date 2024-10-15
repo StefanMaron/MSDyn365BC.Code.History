@@ -59,7 +59,7 @@ report 1510 "Copy Workflow"
         ToWorkflowStep: Record "Workflow Step";
     begin
         ToWorkflowStep.SetRange("Workflow Code", ToWorkflow.Code);
-        if not ToWorkflowStep.IsEmpty then
+        if not ToWorkflowStep.IsEmpty() then
             if not Confirm(StepsExistQst) then
                 CurrReport.Quit;
 
@@ -75,7 +75,7 @@ report 1510 "Copy Workflow"
                 ToWorkflowStep.Insert(true);
 
                 CopyWorkflowRules(FromWorkflowStep, ToWorkflowStep);
-            until FromWorkflowStep.Next = 0;
+            until FromWorkflowStep.Next() = 0;
     end;
 
     local procedure CopyWorkflowRules(FromWorkflowStep: Record "Workflow Step"; ToWorkflowStep: Record "Workflow Step")
@@ -90,7 +90,7 @@ report 1510 "Copy Workflow"
                 ToWorkflowRule."Workflow Code" := ToWorkflowStep."Workflow Code";
                 ToWorkflowRule."Workflow Step ID" := ToWorkflowStep.ID;
                 ToWorkflowRule.Insert(true);
-            until FromWorkflowRule.Next = 0;
+            until FromWorkflowRule.Next() = 0;
     end;
 
     procedure InitCopyWorkflow(NewFromWorkflow: Record Workflow; NewToWorkflow: Record Workflow)

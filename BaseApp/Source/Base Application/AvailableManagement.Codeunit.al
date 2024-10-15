@@ -45,7 +45,7 @@ codeunit 5400 "Available Management"
                 SetRange("Date Filter", 0D, PlannedOrderReceiptDate);
             CalcFields(
               "Qty. on Sales Order",
-              "Scheduled Need (Qty.)",
+              "Qty. on Component Lines",
               "Trans. Ord. Shipment (Qty.)",
               "Qty. on Service Order",
               "Qty. on Assembly Order",
@@ -58,7 +58,7 @@ codeunit 5400 "Available Management"
               Inventory +
               "Qty. on Purch. Order" -
               "Qty. on Sales Order" -
-              "Scheduled Need (Qty.)" +
+              "Qty. on Component Lines" +
               "Planned Order Receipt (Qty.)" +
               "Scheduled Receipt (Qty.)" -
               "Trans. Ord. Shipment (Qty.)" +

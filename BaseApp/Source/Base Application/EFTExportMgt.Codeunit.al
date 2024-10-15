@@ -126,7 +126,7 @@ codeunit 10331 "EFT Export Mgt"
         DataExchFieldMapping.SetRange("Data Exch. Def Code", DataExchDef.Code);
         DataExchFieldMapping.SetRange("Data Exch. Line Def Code", DataExch."Data Exch. Line Def Code");
         DataExchFieldMapping.SetRange("Table ID", TableID);
-        DataExchFieldMapping.FindSet;
+        DataExchFieldMapping.FindSet();
         repeat
             DataExchColumnDef.Get(DataExchDef.Code, DataExch."Data Exch. Line Def Code", DataExchFieldMapping."Column No.");
             if DataExchColumnDef.Constant = '' then begin
@@ -162,7 +162,7 @@ codeunit 10331 "EFT Export Mgt"
                 DataExchField.Modify();
             end;
 
-        until DataExchFieldMapping.Next = 0;
+        until DataExchFieldMapping.Next() = 0;
     end;
 
     local procedure PrepopulateColumns(DataExchDef: Record "Data Exch. Def"; DataExchLineDefCode: Code[20]; DataExchEntryNo: Integer; DataExchLineNo: Integer)
@@ -181,7 +181,7 @@ codeunit 10331 "EFT Export Mgt"
                 DataExchField.InsertRec(
                   DataExchEntryNo, DataExchLineNo, DataExchColumnDef."Column No.",
                   PadStr(DataExchColumnDef.Constant, DataExchColumnDef.Length), DataExchLineDefCode)
-            until DataExchColumnDef.Next = 0;
+            until DataExchColumnDef.Next() = 0;
         end else begin
             if not DataExchLineDef.Get(DataExchDef.Code, DataExchLineDefCode) then
                 Error(DataExchLineDefNotFoundErr, DataExchDef.Name, DataExchLineDefCode);

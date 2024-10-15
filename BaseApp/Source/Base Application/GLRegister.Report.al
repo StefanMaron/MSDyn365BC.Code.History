@@ -264,8 +264,8 @@ report 10019 "G/L Register"
 
     trigger OnPreReport()
     begin
-        GLRegFilter := "G/L Register".GetFilters;
-        GLEntryFilter := "G/L Entry".GetFilters;
+        GLRegFilter := "G/L Register".GetFilters();
+        GLEntryFilter := "G/L Entry".GetFilters();
         CompanyInformation.Get();
     end;
 

@@ -238,7 +238,7 @@ page 10042 "Sales Stats."
                 TempSalesLine.Insert();
                 if not TaxArea."Use External Tax Engine" then
                     SalesTaxCalculate.AddSalesLine(TempSalesLine);
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
         TempSalesTaxLine.DeleteAll();
 
         OnBeforeCalculateSalesTaxSalesStats(Rec, TempSalesTaxLine, TempSalesTaxAmtLine, SalesTaxCalculationOverridden);
@@ -523,7 +523,7 @@ page 10042 "Sales Stats."
                         TaxAmount := TaxAmount + "Tax Amount"
                     else
                         BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + "Tax Difference";
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

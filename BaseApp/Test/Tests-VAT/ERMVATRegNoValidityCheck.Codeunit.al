@@ -1,4 +1,4 @@
-﻿codeunit 134060 "ERM VAT Reg. No Validity Check"
+codeunit 134060 "ERM VAT Reg. No Validity Check"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -53,7 +53,7 @@
         CreateContact(Contact);
 
         VATRegistrationLog.Ascending(false);
-        VATRegistrationLog.FindSet;
+        VATRegistrationLog.FindSet();
         VerifyVATRegLogEntry(
           VATRegistrationLog, VATRegistrationLog."Account Type"::Contact, Contact."No.",
           Contact."VAT Registration No.", VATRegistrationLog.Status::"Not Verified");
@@ -1241,7 +1241,7 @@
         VATRegNoSrvConfig.Modify(true);
     end;
 
-    local procedure SetGLSetupBillToSellToVATCalc(NewBillToSellToVATCalc: Option)
+    local procedure SetGLSetupBillToSellToVATCalc(NewBillToSellToVATCalc: Enum "G/L Setup VAT Calculation")
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
