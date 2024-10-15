@@ -104,10 +104,10 @@ report 10883 "SEPA ISO20022"
     begin
         XMLDOMManagement.LoadXMLDocumentFromText('<?xml version="1.0" encoding="UTF-8"?><Document></Document>', XMLDomDoc);
         XMLRootElement := XMLDomDoc.DocumentElement;
-        XMLRootElement.SetAttribute('xmlns', 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.02');
+        XMLRootElement.SetAttribute('xmlns', 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09');
         XMLRootElement.SetAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchemainstance');
         XMLNodeCurr := XMLDomDoc.SelectSingleNode('Document');
-        AddElement(XMLNodeCurr, 'pain.001.001.02', '', '', XMLNewChild);
+        AddElement(XMLNodeCurr, 'pain.001.001.09', '', '', XMLNewChild);
 
         ExportGroupHeader(XMLNewChild);
         ExportPaymentInformation(XMLNewChild);
@@ -178,7 +178,10 @@ report 10883 "SEPA ISO20022"
         XMLNodeCurr := XMLNodeCurr.ParentNode;
         XMLNodeCurr := XMLNodeCurr.ParentNode;
 
-        AddElement(XMLNodeCurr, 'ReqdExctnDt', Format("Payment Header"."Posting Date", 0, 9), '', XMLNewChild);
+        AddElement(XMLNodeCurr, 'ReqdExctnDt', '', '', XMLNewChild);
+        XMLNodeCurr := XMLNewChild;
+        AddElement(XMLNodeCurr, 'Dt', Format("Payment Header"."Posting Date", 0, 9), '', XMLNewChild);
+        XMLNodeCurr := XMLNodeCurr.ParentNode;
         AddElement(XMLNodeCurr, 'Dbtr', '', '', XMLNewChild);
         XMLNodeCurr := XMLNewChild;
 
