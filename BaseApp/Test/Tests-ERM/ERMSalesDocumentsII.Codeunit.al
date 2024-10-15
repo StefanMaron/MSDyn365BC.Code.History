@@ -3943,6 +3943,58 @@ codeunit 134386 "ERM Sales Documents II"
         Assert.RecordCount(SalesHeader, 1);
     end;
 
+    [Test]
+    [HandlerFunctions('ContactListPageHandler,ConfirmHandlerCount')]
+    procedure SalesOrderContactChangeLookupBilltoContactAskedOnce()
+    var
+        Customer: Record Customer;
+        Contact: Record Contact;
+        Contact2: Record Contact;
+        SalesHeader: Record "Sales Header";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 426882] When user change Sell-to Contact No. in Sales Order "Do you want to change Bill-to Contact No?" should not be asked twice
+        Initialize();
+
+        // [GIVEN] Customer with two contacts
+        // [GIVEN] First contact "C1" with phone = "111111111", mobile phone = "222222222" and email = "contact1@mail.com"
+        // [GIVEN] Second contact "C2" with phone = "333333333", mobile phone = "444444444" and email = "contact2@mail.com"
+        LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
+        UpdateContactInfo(Contact, '111111111', '222222222', 'contact1@mail.com');
+        Contact.Modify(true);
+        Customer.Validate("Primary Contact No.", Contact."No.");
+        Customer.Modify(true);
+        LibraryMarketing.CreatePersonContact(Contact2);
+        UpdateContactInfo(Contact2, '333333333', '444444444', 'contact2@mail.com');
+        Contact2.Validate("Company No.", Contact."Company No.");
+        Contact2.Modify(true);
+
+        // [GIVEN] Sales Order with "Sell-to Contact No." = "C1"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesOrder.Trap();
+        Page.Run(Page::"Sales Order", SalesHeader);
+
+        // [WHEN] User set "Sell-to Contact No." = "C2" by Look-Up on "Contact No." field
+        LibraryVariableStorage.Enqueue(Contact2."No.");
+        LibraryVariableStorage.Enqueue(True);  // true for "Do you want to change Sell-to Contact No.?"
+        LibraryVariableStorage.Enqueue(0);     // init value for count of confirmation handlers
+        LibraryVariableStorage.Enqueue(False); // false for "Do you want to change Bill-to Contact No.?"
+        SalesOrder."Sell-to Contact No.".Lookup();
+
+        // [THEN] "Sales Order"."Phone No." = "333333333"
+        SalesOrder."Sell-to Phone No.".AssertEquals(Contact2."Phone No.");
+
+        // [THEN] "Sales Order"."Mobile Phone No." = "444444444"
+        SalesOrder.SellToMobilePhoneNo.AssertEquals(Contact2."Mobile Phone No.");
+
+        // [THEN] "Sales Order"."Email" = "contact2@mail.com"
+        SalesOrder."Sell-to E-Mail".AssertEquals(Contact2."E-Mail");
+
+        // [THEN] Number of confirmation questions = 2
+        Assert.AreEqual(2, LibraryVariableStorage.DequeueInteger(), 'Number of confirmations is incorrect');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5824,6 +5876,17 @@ codeunit 134386 "ERM Sales Documents II"
     procedure ConfirmHandlerNo(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := false;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerCount(Question: Text[1024]; var Reply: Boolean)
+    begin
+        if LibraryVariableStorage.Length > 1 then
+            Reply := LibraryVariableStorage.DequeueBoolean()
+        else
+            Reply := false;
+        LibraryVariableStorage.Enqueue(LibraryVariableStorage.DequeueInteger() + 1);
     end;
 
     [ModalPageHandler]

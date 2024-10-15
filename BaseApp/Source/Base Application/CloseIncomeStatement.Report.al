@@ -1,4 +1,4 @@
-report 94 "Close Income Statement"
+﻿report 94 "Close Income Statement"
 {
     // Missing code from W1 due to ES modifications in this object
 
@@ -125,6 +125,7 @@ report 94 "Close Income Statement"
                                     GenJnlLine."Shortcut Dimension 1 Code" := GlobalDimVal1;
                                 if ClosePerGlobalDim2 then
                                     GenJnlLine."Shortcut Dimension 2 Code" := GlobalDimVal2;
+                                OnPostDataItemOnAfterGenJnlLineDimUpdated(GenJnlLine, ClosePerGlobalDim1, ClosePerGlobalDim2);
 
                                 HandleGenJnlLine;
                                 UpdateBalAcc;
@@ -754,6 +755,11 @@ report 94 "Close Income Statement"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeHandleGenJnlLine(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDataItemOnAfterGenJnlLineDimUpdated(var GenJnlLine: Record "Gen. Journal Line"; ClosePerGlobalDim1: Boolean; ClosePerGlobalDim2: Boolean)
     begin
     end;
 

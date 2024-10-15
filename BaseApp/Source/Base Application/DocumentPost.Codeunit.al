@@ -414,9 +414,10 @@ codeunit 7000006 "Document-Post"
                         if CarteraDoc."Document Type" = CarteraDoc."Document Type"::Bill then
                             DocAmountLCY := DocAmountLCY + AppliedAmountLCY;
                         CarteraDoc.ResetNoPrinted;
-                        if Open then
-                            CarteraDoc.Modify
-                        else begin
+                        if Open then begin
+                            OnUpdatePayableDocBeforeCarteraDocModify(CarteraDoc, VendLedgEntry);
+                            CarteraDoc.Modify();
+                        end else begin
                             ClosedCarteraDoc.TransferFields(CarteraDoc);
                             ClosedCarteraDoc.Status := ClosedCarteraDoc.Status::Honored;
                             ClosedCarteraDoc."Honored/Rejtd. at Date" := GenJnlLine."Posting Date";
@@ -689,6 +690,7 @@ codeunit 7000006 "Document-Post"
         GenJnlPostBatch: Codeunit "Gen. Jnl.-Post Batch";
         TempJnlBatchName: Code[10];
         GLReg: Record "G/L Register";
+        IsHandled: Boolean;
     begin
         with GenJnlLine do begin
             GenJnlTemplate.Get("Journal Template Name");
@@ -711,35 +713,49 @@ codeunit 7000006 "Document-Post"
                 if GLReg.FindLast() then;
             end;
 
-            GenJnlPostBatch.Run(GenJnlLine);
-            Clear(GenJnlPostBatch);
+            IsHandled := false;
+            OnCodeOnBeforeGenJnlPostBatchRun(GenJnlLine, IsHandled);
+            if not IsHandled then begin
+                GenJnlPostBatch.Run(GenJnlLine);
+                Clear(GenJnlPostBatch);
 
-            if Print then begin
-                GLReg.SetRange("No.", GLReg."No." + 1, "Line No.");
-                if GLReg.Get("Line No.") then
-                    REPORT.Run(GenJnlTemplate."Posting Report ID", false, false, GLReg);
-            end;
+                if Print then begin
+                    GLReg.SetRange("No.", GLReg."No." + 1, "Line No.");
+                    if GLReg.Get("Line No.") then
+                        REPORT.Run(GenJnlTemplate."Posting Report ID", false, false, GLReg);
+                end;
 
-            if "Line No." = 0 then
-                Message(Text1100015)
-            else
-                if TempJnlBatchName = "Journal Batch Name" then begin
-                    Message(Text1100016);
-                    PostOk := true;
-                end else
-                    Message(
-                      Text1100017,
-                      "Journal Batch Name");
+                ShowPostResultMessage(GenJnlLine, PostOk, TempJnlBatchName);
 
-            if not Find('=><') or (TempJnlBatchName <> "Journal Batch Name") then begin
-                Reset;
-                FilterGroup(2);
-                SetRange("Journal Template Name", "Journal Template Name");
-                SetRange("Journal Batch Name", "Journal Batch Name");
-                FilterGroup(0);
-                "Line No." := 1;
+                if not Find('=><') or (TempJnlBatchName <> "Journal Batch Name") then begin
+                    Reset;
+                    FilterGroup(2);
+                    SetRange("Journal Template Name", "Journal Template Name");
+                    SetRange("Journal Batch Name", "Journal Batch Name");
+                    FilterGroup(0);
+                    "Line No." := 1;
+                end;
             end;
         end;
+    end;
+
+    local procedure ShowPostResultMessage(var GenJournalLine: Record "Gen. Journal Line"; var PostOk: Boolean; TempJnlBatchName: Code[10])
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowPostResultMessage(GenJournalLine, PostOk, TempJnlBatchName, IsHandled);
+        if IsHandled then
+            exit;
+
+        if GenJournalLine."Line No." = 0 then
+            Message(Text1100015)
+        else
+            if TempJnlBatchName = GenJournalLine."Journal Batch Name" then begin
+                Message(Text1100016);
+                PostOk := true;
+            end else
+                Message(Text1100017, GenJournalLine."Journal Batch Name");
     end;
 
     procedure PostLines(var GenJnlLine2: Record "Gen. Journal Line"; var PostOk: Boolean; Print: Boolean)
@@ -1175,7 +1191,17 @@ codeunit 7000006 "Document-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowPostResultMessage(var GenJournalLine: Record "Gen. Journal Line"; var PostOk: Boolean; TempJnlBatchName: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCloseBillGroupIfEmptyOnAfterPostedCarteraDocSetFilter(var PostedCarteraDoc: Record "Posted Cartera Doc.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeGenJnlPostBatchRun(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1216,6 +1242,11 @@ codeunit 7000006 "Document-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateUnAppliedPayableDocOnBeforeCarteraDocInsert(var CarteraDoc: Record "Cartera Doc.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdatePayableDocBeforeCarteraDocModify(var CarteraDoc: Record "Cartera Doc."; VendLedgEntry: Record "Vendor Ledger Entry")
     begin
     end;
 }

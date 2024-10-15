@@ -1,5 +1,7 @@
 codeunit 4786 "Company Creation Wizard"
 {
+    Permissions = tabledata "Assisted Company Setup Status" = rm;
+
     [EventSubscriber(ObjectType::Page, Page::"Company Creation Wizard", 'OnOpenPageCheckAdditionalDemoData', '', false, false)]
     local procedure SetAdditionalDemoDataVisible(var AdditionalDemoDataVisible: Boolean)
     begin
@@ -10,6 +12,8 @@ codeunit 4786 "Company Creation Wizard"
     local procedure ConfigureAdditionalDemoDataInstallation(NewCompanyName: Text[30]; InstallAdditionalDemoData: Boolean)
     begin
         if AssistedCompanySetupStatus.Get(NewCompanyName) then begin
+            FeatureTelemetry.LogUptake('0000H73', ContosoCoffeeDemoDatasetFeatureNameTok, Enum::"Feature Uptake Status"::Discovered);
+
             AssistedCompanySetupStatus.InstallAdditionalDemoData := InstallAdditionalDemoData;
             AssistedCompanySetupStatus.Modify();
         end;
@@ -23,10 +27,17 @@ codeunit 4786 "Company Creation Wizard"
         if not AssistedCompanySetupStatus.Get(CompanyName()) then
             exit;
 
-        if AssistedCompanySetupStatus.InstallAdditionalDemoData then
+        if AssistedCompanySetupStatus.InstallAdditionalDemoData then begin
+            Telemetry.LogMessage('0000H74', StrSubstNo(ContosoCoffeeDemoDatasetInitilizationTok, ContosoCoffeeDemoDatasetFeatureNameTok),
+                Verbosity::Normal, DataClassification::SystemMetadata);
             CreateManufacturingDemoData.Create();
+        end;
     end;
 
     var
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        Telemetry: Codeunit Telemetry;
+        ContosoCoffeeDemoDatasetFeatureNameTok: Label 'ContosoCoffeeDemoDataset', Locked = true;
+        ContosoCoffeeDemoDatasetInitilizationTok: Label '%1: installation initialized from Company Creation wizard', Locked = true;
 }

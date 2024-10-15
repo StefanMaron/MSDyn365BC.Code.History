@@ -354,7 +354,7 @@ report 10721 "Export Electronic Payments"
                             ElectPmtMgmt.InsertSpecialTransTrailer(TotalDoc43Vend, ElectPmtMgmt.EuroAmount(TotalAmountSpecial));
                     end;
                     ElectPmtMgmt.InsertGeneralTrailer(
-                      TotalDoc10Vend + TotalDoc33Vend + TotalDoc43Vend, TotalAmountNac + TotalAmountInter + TotalAmountSpecial, true, '');
+                      TotalDoc10Vend + TotalDoc33Vend + TotalDoc43Vend, TotalAmountNac + TotalAmountInter + TotalAmountSpecial, false, '');
                 end;
             end;
 
@@ -597,6 +597,16 @@ report 10721 "Export Electronic Payments"
             else
                 AmountPaid := -ExportAmount;
         end;
+    end;
+
+    internal procedure GetEPayFileContent(var TempBlob: Codeunit "Temp Blob")
+    begin
+        ElectPmtMgmt.GetFileContent(TempBlob);
+    end;
+
+    internal procedure GetEPayFileName(): Text[150]
+    begin
+        exit(EPayExportFilePath);
     end;
 }
 

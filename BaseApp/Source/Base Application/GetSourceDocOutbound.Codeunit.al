@@ -1,4 +1,4 @@
-codeunit 5752 "Get Source Doc. Outbound"
+﻿codeunit 5752 "Get Source Doc. Outbound"
 {
 
     trigger OnRun()
@@ -14,6 +14,7 @@ codeunit 5752 "Get Source Doc. Outbound"
 
     local procedure CreateWhseShipmentHeaderFromWhseRequest(var WarehouseRequest: Record "Warehouse Request") Result: Boolean
     var
+        WhseShptHeader: Record "Warehouse Shipment Header";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -30,7 +31,8 @@ codeunit 5752 "Get Source Doc. Outbound"
         GetSourceDocuments.SetHideDialog(true);
         GetSourceDocuments.RunModal();
 
-        OnAfterCreateWhseShipmentHeaderFromWhseRequest(WarehouseRequest);
+        GetSourceDocuments.GetLastShptHeader(WhseShptHeader);
+        OnAfterCreateWhseShipmentHeaderFromWhseRequest(WarehouseRequest, WhseShptHeader);
 
         exit(true);
     end;
@@ -563,7 +565,7 @@ codeunit 5752 "Get Source Doc. Outbound"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateWhseShipmentHeaderFromWhseRequest(var WarehouseRequest: Record "Warehouse Request")
+    local procedure OnAfterCreateWhseShipmentHeaderFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; var WhseShptHeader: Record "Warehouse Shipment Header")
     begin
     end;
 

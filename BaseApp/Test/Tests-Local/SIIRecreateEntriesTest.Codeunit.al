@@ -371,6 +371,43 @@ codeunit 147558 "SII Recreate Entries Test"
         RecreateMissingSIIEntries.Close;
     end;
 
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    procedure NoMissingEntriesIfDocsMarkedToNotSendToSII()
+    var
+        SIISetup: Record "SII Setup";
+        SIIMissingEntriesState: Record "SII Missing Entries State";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 433352] No missing entries detects from documents posted during enabled SII Setup
+
+        Initialize();
+
+        // [GIVEN] "Starting Date" is 15.01.2017 in disabled SII Setup
+        EnableSIISetup(SIISetup, false);
+
+        // [GIVEN] Sales Invoice with "Posting Date" = 15.01.2017 and "Do Not Send To SII" option enabled
+        CustLedgerEntry.Get(MockCustLedgEntry(SIISetup."Starting Date"));
+        CustLedgerEntry."Do Not Send To SII" := true;
+        CustLedgerEntry.Modify;
+
+        // [GIVEN] Purchase Invoice with "Posting Date" = 15.01.2017 and "Do Not Send To SII" option enabled
+        VendorLedgerEntry.Get(MockVendLedgEntry(SIISetup."Starting Date"));
+        VendorLedgerEntry."Do Not Send To SII" := true;
+        VendorLedgerEntry.Modify();
+
+        EnableSIISetup(SIISetup, true);
+
+        // [WHEN] Run "SII Recreate Missing Entries" codeunit
+        CODEUNIT.Run(CODEUNIT::"SII Recreate Missing Entries");
+
+        // [THEN] "Entries Missing" is 0
+        SIIMissingEntriesState.Get();
+        SIIMissingEntriesState.TestField("Entries Missing", 0);
+    end;
+
     local procedure Initialize()
     var
         JobQueueEntry: Record "Job Queue Entry";

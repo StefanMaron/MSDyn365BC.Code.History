@@ -85,6 +85,8 @@ codeunit 1509 "Notification Entry Dispatcher"
             NotificationSetup."Notification Method"::Note:
                 CreateNoteAndDispatch(NotificationEntry);
         end;
+
+        OnAfterDispatchForNotificationType(NotificationSetup, NotificationEntry);
     end;
 
     local procedure ScheduledInstantly(RecipientUserID: Code[50]; NotificationType: Enum "Notification Entry Type"): Boolean
@@ -337,6 +339,11 @@ codeunit 1509 "Notification Entry Dispatcher"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateMailAndDispatch(var NotificationEntry: Record "Notification Entry"; Email: Text; IsEmailedSuccessfully: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDispatchForNotificationType(NotificationSetup: Record "Notification Setup"; var NotificationEntry: Record "Notification Entry")
     begin
     end;
 

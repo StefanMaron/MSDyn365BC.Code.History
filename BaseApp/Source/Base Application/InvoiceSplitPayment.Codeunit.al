@@ -256,7 +256,7 @@ codeunit 7000005 "Invoice-Split Payment"
                     end;
                     RemainingAmount := RemainingAmount - GenJnlLine.Amount;
                     RemainingAmountLCY := RemainingAmountLCY - GenJnlLine."Amount (LCY)";
-                    OnAfterSplitSalesInvCalculateAmounts(GenJnlLine, SalesHeader, RemainingAmount, RemainingAmountLCY);
+                    OnAfterSplitSalesInvCalculateAmounts(GenJnlLine, SalesHeader, RemainingAmount, RemainingAmountLCY, Installment, CurrDocNo, PaymentTerms);
                     Installment.TestField("Gap between Installments");
                     NextDueDate := CalculateDate(Installment."Gap between Installments", NextDueDate);
                     Installment.Next;
@@ -265,7 +265,7 @@ codeunit 7000005 "Invoice-Split Payment"
                     GenJnlLine."Amount (LCY)" := RemainingAmountLCY;
                 end;
 
-                OnBeforeSplitSalesInvCreateBills(GenJnlLine, SalesHeader);
+                OnBeforeSplitSalesInvCreateBills(GenJnlLine, SalesHeader, Installment, CurrDocNo, PaymentTerms, RemainingAmount, RemainingAmountLCY);
 
                 if PaymentMethod."Create Bills" and ((GenJnlLine.Amount <> 0) or (GenJnlLine."Amount (LCY)" <> 0)) then begin
                     BillNo += 1;
@@ -972,7 +972,7 @@ codeunit 7000005 "Invoice-Split Payment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSplitSalesInvCalculateAmounts(var GenJournalLine: Record "Gen. Journal Line"; var SalesHeader: Record "Sales Header"; var RemainingAmount: Decimal; var RemainingAmountLCY: Decimal)
+    local procedure OnAfterSplitSalesInvCalculateAmounts(var GenJournalLine: Record "Gen. Journal Line"; var SalesHeader: Record "Sales Header"; var RemainingAmount: Decimal; var RemainingAmountLCY: Decimal; Installment: Record Installment; CurrDocNo: Integer; PaymentTerms: Record "Payment Terms")
     begin
     end;
 
@@ -987,7 +987,7 @@ codeunit 7000005 "Invoice-Split Payment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSplitSalesInvCreateBills(var GenJournalLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header")
+    local procedure OnBeforeSplitSalesInvCreateBills(var GenJournalLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header"; Installment: Record Installment; CurrDocNo: Integer; PaymentTerms: Record "Payment Terms"; RemainingAmount: Decimal; RemainingAmountLCY: Decimal)
     begin
     end;
 

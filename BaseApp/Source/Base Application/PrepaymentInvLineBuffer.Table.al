@@ -352,7 +352,7 @@
         if CompressPrepayment then
             Description := GLAcc.Name;
 
-        OnAfterFillFromGLAcc(Rec, GLAcc);
+        OnAfterFillFromGLAcc(Rec, GLAcc, CompressPrepayment);
     end;
 
     procedure AdjustVATBase(VATAdjustment: array[2] of Decimal)
@@ -424,7 +424,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFillFromGLAcc(var PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; GLAccount: Record "G/L Account")
+    local procedure OnAfterFillFromGLAcc(var PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; GLAccount: Record "G/L Account"; CompressPayment: Boolean)
     begin
     end;
 

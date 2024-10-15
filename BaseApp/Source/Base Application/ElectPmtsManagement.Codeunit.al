@@ -775,5 +775,24 @@ codeunit 10701 "Elect. Pmts Management"
     begin
         if Download(Filename, '', ToFolder, Text1100003, ToFile) then;
     end;
+
+    internal procedure GetFileContent(var TempBlob: Codeunit "Temp Blob")
+    var
+        TxtFile: File;
+        InStream: InStream;
+        OutStream: OutStream;
+    begin
+        if Filename = '' then
+            exit;
+        if not File.Exists(Filename) then
+            exit;
+
+        TxtFile.TextMode(true);
+        TxtFile.Open(Filename);
+        TxtFile.CreateInStream(InStream);
+        TempBlob.CreateOutStream(OutStream);
+        CopyStream(OutStream, InStream);
+        TxtFile.Close();
+    end;
 }
 

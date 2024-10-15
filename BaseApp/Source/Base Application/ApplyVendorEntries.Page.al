@@ -1187,6 +1187,7 @@
             OnFindApplyingEntryOnAfterSetFilters(Rec, VendLedgEntry);
             if VendLedgEntry.FindFirst() then begin
                 VendLedgEntry.CalcFields(Amount, "Remaining Amount");
+                OnFindApplyingEntryOnBeforeAssignTempApplyingVendLedgEntry(VendLedgEntry);
                 TempApplyingVendLedgEntry := VendLedgEntry;
                 Rec.SetFilter("Entry No.", '<>%1', VendLedgEntry."Entry No.");
                 ApplyingAmount := VendLedgEntry."Remaining Amount";
@@ -1534,6 +1535,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnFindApplyingEntryOnBeforeCalcApplnAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindApplyingEntryOnBeforeAssignTempApplyingVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 

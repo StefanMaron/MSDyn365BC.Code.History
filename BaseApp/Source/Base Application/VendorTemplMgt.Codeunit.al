@@ -325,7 +325,7 @@ codeunit 1385 "Vendor Templ. Mgt."
         Page.Run(Page::"Vendor Templ. List");
     end;
 
-    local procedure InitVendorNo(var Vendor: Record Vendor; VendorTempl: Record "Vendor Templ.")
+    procedure InitVendorNo(var Vendor: Record Vendor; VendorTempl: Record "Vendor Templ.")
     var
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin

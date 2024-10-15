@@ -148,6 +148,10 @@ table 10751 "SII Setup"
                 Validate(Enabled, "Certificate Code" <> '');
             end;
         }
+        field(43; "Operation Date"; Enum "SII Operation Date Type")
+        {
+            Caption = 'Operation Date';
+        }
     }
 
     keys

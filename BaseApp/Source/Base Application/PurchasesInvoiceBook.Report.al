@@ -729,6 +729,8 @@ report 10705 "Purchases Invoice Book"
                         SetCurrentKey(Type, "Posting Date", "Document Type", "Document No.", "Bill-to/Pay-to No.")
                     else
                         SetCurrentKey("No. Series", "Posting Date", "Document No.");
+                    if OnlyIncludeSIIDocuments then
+                        SetRange("Do Not Send To SII", false);
                     TempVATEntry.Reset();
                     TempVATEntry.DeleteAll();
                 end;
@@ -1154,6 +1156,12 @@ report 10705 "Purchases Invoice Book"
                         Caption = 'Show Autoinvoices/Autocr. memo';
                         ToolTip = 'Specifies if the view includes invoices and credit memos that are created automatically.';
                     }
+                    field(OnlyIncludeSIIDocumentsOption; OnlyIncludeSIIDocuments)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Only Include SII Documents';
+                        ToolTip = 'Specifies if only the documents to send to SII will be present in the report.';
+                    }
                 }
             }
         }
@@ -1263,5 +1271,6 @@ report 10705 "Purchases Invoice Book"
         NoTaxableVATTxt: Label 'No Taxable VAT';
         NoTaxableText: Text;
         NoTaxablePrinted: Boolean;
+        OnlyIncludeSIIDocuments: Boolean;
 }
 

@@ -216,6 +216,11 @@ page 143 "Posted Sales Invoices"
                         SIIManagement.SIIStateDrilldown(SIIDocUploadState);
                     end;
                 }
+                field("Do Not Send To SII"; "Do Not Send To SII")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if the document must not be sent to SII.';
+                }
                 field("Sent to SII"; "Sent to SII")
                 {
                     ApplicationArea = Basic, Suite;
@@ -640,7 +645,13 @@ page 143 "Posted Sales Invoices"
                     var
                         SalesHeader: Record "Sales Header";
                         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeCreateCreditMemoOnAction(Rec, IsHandled);
+                        if IsHandled then
+                            exit;
+
                         if CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(Rec, SalesHeader) then
                             PAGE.Run(PAGE::"Sales Credit Memo", SalesHeader);
                     end;
@@ -791,6 +802,11 @@ page 143 "Posted Sales Invoices"
 
     [IntegrationEvent(true, false)]
     local procedure OnOpenPageOnAfterSetFilters(var SalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateCreditMemoOnAction(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
     begin
     end;
 }

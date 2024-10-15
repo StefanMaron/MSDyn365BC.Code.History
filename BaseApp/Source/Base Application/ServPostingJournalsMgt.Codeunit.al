@@ -424,6 +424,7 @@
                 "Amount (LCY)" :=
                   TotalServiceLineLCY."Amount Including VAT" +
                   Round(CustLedgEntry."Remaining Pmt. Disc. Possible" / CustLedgEntry."Adjusted Currency Factor");
+            "Allow Zero-Amount Posting" := true;
 
             OnBeforePostBalancingEntry(GenJnlLine, ServiceHeader, TotalServiceLine);
             GenJnlPostLine.RunWithCheck(GenJnlLine);

@@ -191,7 +191,7 @@ report 7000082 "Settle Docs. in Posted PO"
                 end;
 
                 IsHandled := false;
-                OnBeforePostedDocOnPostDataItem(PostedDoc, PostedPmtOrd, BankAccPostBuffer, IsHandled);
+                OnBeforePostedDocOnPostDataItem(PostedDoc, PostedPmtOrd, BankAccPostBuffer, IsHandled, GenJnlLine, GenJnlLineNextNo, SumLCYAmt, PostingDate, SourceCode);
                 if not IsHandled then
                     if BankAccPostBuffer.Find('-') then
                         repeat
@@ -509,7 +509,7 @@ report 7000082 "Settle Docs. in Posted PO"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostedDocOnPostDataItem(var PostedCarteraDoc: Record "Posted Cartera Doc."; var PostedPaymentOrder: Record "Posted Payment Order"; var BgPoPostBuffer: Record "BG/PO Post. Buffer"; var IsHandled: Boolean)
+    local procedure OnBeforePostedDocOnPostDataItem(var PostedCarteraDoc: Record "Posted Cartera Doc."; var PostedPaymentOrder: Record "Posted Payment Order"; var BgPoPostBuffer: Record "BG/PO Post. Buffer"; var IsHandled: Boolean; var GenJnlLine: Record "Gen. Journal Line"; var GenJnlLineNextNo: Integer; var SumLCYAmt: Decimal; PostingDate: Date; SourceCode: Code[10])
     begin
     end;
 

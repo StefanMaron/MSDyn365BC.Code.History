@@ -141,6 +141,7 @@ codeunit 70 "Purch.-Calc.Discount"
                     else
                         PurchLine2.Validate("Direct Unit Cost", VendInvDisc."Service Charge");
                     PurchLine2."System-Created Entry" := true;
+                    OnCalculateInvoiceDiscountOnbeforePurchLineInsert(PurchLine2, PurchHeader);
                     PurchLine2.Insert();
                 end;
                 PurchLine2.CalcVATAmountLines(0, PurchHeader, PurchLine2, TempVATAmountLine);
@@ -363,6 +364,11 @@ codeunit 70 "Purch.-Calc.Discount"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateInvoiceDiscountOnBeforeCurrencyInitialize(var VendorPostingGroup: record "Vendor Posting Group")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateInvoiceDiscountOnbeforePurchLineInsert(var PurchaseLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header")
     begin
     end;
 }

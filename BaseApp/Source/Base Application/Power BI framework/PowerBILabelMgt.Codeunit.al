@@ -22,14 +22,28 @@ codeunit 6302 "Power BI Label Mgt."
         CRM_Details2_ValueTxt: Label 'CRM Details';
         CRM_SnapShot_KeyTxt: Label 'CRM_SnapShot', Locked = true;
         CRM_SnapShot_ValueTxt: Label 'Opportunity Snapshot';
+        CRM_OpportunitiesValue_KeyTxt: Label 'CRM_OpportunitiesValue', Locked = true;
+        CRM_OpportunitiesValue_ValueTxt: Label 'Opportunities - Calculated Current Value';
+        CRM_EstimValueByCompanyName_KeyTxt: Label 'CRM_EstimValueByCompanyName', Locked = true;
+        CRM_EstimValueByCompanyName_ValueTxt: Label 'Estimated Value by Company Name';
+        CRM_CountByStatus_KeyTxt: Label 'CRM_CountByStatus', Locked = true;
+        CRM_CountByStatus_ValueTxt: Label 'Count by Status';
+        CRM_CountBySalesPerson_KeyTxt: Label 'CRM_CountBySalesperson', Locked = true;
+        CRM_CountBySalesPerson_ValueTxt: Label 'Count by Salesperson Name';
+        CRM_OpportunitiesEstim_KeyTxt: Label 'CRM_OpportunitiesEstim', Locked = true;
+        CRM_OpportunitiesEstim_ValueTxt: Label 'Opportunities - Estimated Value';
+        CRM_DateClosed_KeyTxt: Label 'CRM_DateClosed', Locked = true;
+        CRM_DateClosed_ValueTxt: Label 'Date Closed';
+        CRM_EstCloseDate_KeyTxt: Label 'CRM_EstCloseDate', Locked = true;
+        CRM_EstCloseDate_ValueTxt: Label 'Estimated Close Date';
         Finance_NetChangeMargin_KeyTxt: Label 'Finance_NetChangeMargin', Locked = true;
         Finance_NetChangeMargin_ValueTxt: Label 'Actual Net Change by Date & KPI Name';
         Finance_FinancialDashboard_KeyTxt: Label 'Finance_FinancialDashboard', Locked = true;
         Finance_FinancialDashboard_ValueTxt: Label 'Financial Dashboard';
         Finance_NetChangebyDays_KeyTxt: Label 'Finance_NetChangebyDays', Locked = true;
         Finance_NetChangebyDays_ValueTxt: Label 'Net Change by Date & KPI Name';
-        Finance_NetChangeRevenueExpendituresInterest_KeyTxt: Label 'Finance_NetChangeRevenueExpendituresInterest', Locked = true;
-        Finance_NetChangeRevenueExpendituresInterest_ValueTxt: Label 'Net Change by Date & KPI Name';
+        Finance_NetChangeRevenueExpInterest_KeyTxt: Label 'Finance_NetChangeRevenueExpendituresInterest', Locked = true;
+        Finance_NetChangeRevenueExpInterest_ValueTxt: Label 'Net Change by Date & KPI Name';
         Finance_MiniTrialBalance_KeyTxt: Label 'Finance_MiniTrialBalance', Locked = true;
         Finance_MiniTrialBalance_ValueTxt: Label 'Mini Trial Balance';
         Finance_KPIDetails1_KeyTxt: Label 'Finance_KPI Details1', Locked = true;
@@ -50,6 +64,28 @@ codeunit 6302 "Power BI Label Mgt."
         Sales_Details_SalesDetails1_ValueTxt: Label 'Back to Report';
         Sales_Details_SalesDetails2_KeyTxt: Label 'Sales_Details_SalesDetails2', Locked = true;
         Sales_Details_SalesDetails2_ValueTxt: Label 'Sales Details';
+        Sales_Top10ItemsByQuantity_KeyTxt: Label 'Sales_Top10ItemSales', Locked = true;
+        Sales_Top10ItemsByQuantity_ValueTxt: Label 'Top 10 Items Sold by Quantity';
+        Sales_Top5Customers_KeyTxt: Label 'Sales_Top5CustSales', Locked = true;
+        Sales_Top5Customers_ValueTxt: Label 'Top 5 Customers by Quantity Sold';
+        Sales_QuantityByGeneralPostingGroup_KeyTxt: Label 'Sales_QtyByPostingGroup', Locked = true;
+        Sales_QuantityByGeneralPostingGroup_ValueTxt: Label 'Quantity Sold by General Product Posting Group';
+        Sales_QuantityBySalesPerson_KeyTxt: Label 'Sales_QtyBySalesPerson', Locked = true;
+        Sales_QuantityBySalesPerson_ValueTxt: Label 'Quantity Sold by Salesperson Name';
+        Sales_CustomerBalances_KeyTxt: Label 'Sales_CustomerBalances', Locked = true;
+        Sales_CustomerBalances_ValueTxt: Label 'Customer Balances';
+        Sales_BalanceDue_KeyTxt: Label 'Sales_BalanceDue', Locked = true;
+        Sales_BalanceDue_ValueTxt: Label 'Balance Due';
+        Sales_AvailableCredit_KeyTxt: Label 'Sales_AvailableCredit', Locked = true;
+        Sales_AvailableCredit_ValueTxt: Label 'Available Credit';
+        Sales_CreditLimit_KeyTxt: Label 'Sales_CreditLimit', Locked = true;
+        Sales_CreditLimit_ValueTxt: Label 'Credit Limit';
+        ChartOfAccountAnalysis_KeyTxt: Label 'ChartOfAccountAnalysis', Locked = true;
+        ChartOfAccountAnalysis_ValueTxt: Label 'Chart of Account Analysis';
+        IncomeStatement_KeyTxt: Label 'IncomeStatement', Locked = true;
+        IncomeStatement_ValueTxt: Label 'Income Statement';
+        BalanceSheet_KeyTxt: Label 'BalanceSheet', Locked = true;
+        BalanceSheet_ValueTxt: Label 'Balance Sheet';
         JobsProfit_KeyTxt: Label 'JobsProfit', Locked = true;
         JobsProfit_ValueTxt: Label 'Cost vs. Invoiced Amount with Profit';
         JobsDashboard_KeyTxt: Label 'JobsDashboard', Locked = true;
@@ -58,6 +94,7 @@ codeunit 6302 "Power BI Label Mgt."
         VendorList_VendorPurchases_ValueTxt: Label 'Vendor Purchases';
         VendorList_PurchaseInvoiceList_KeyTxt: Label 'VendorList_PurchaseInvoiceList', Locked = true;
         VendorList_PurchaseInvoiceList_ValueTxt: Label 'Document Number';
+
         // Telemetry labels
         LabelsGeneratedTelemetryTxt: Label 'Retrieving Power BI labels for language "%1" (system language is "%2").', Locked = true;
 
@@ -96,14 +133,22 @@ codeunit 6302 "Power BI Label Mgt."
         InsertLabel(TempPowerBIReportLabels, CRM_Details1_KeyTxt, CRM_Details1_ValueTxt);
         InsertLabel(TempPowerBIReportLabels, CRM_Details2_KeyTxt, CRM_Details2_ValueTxt);
         InsertLabel(TempPowerBIReportLabels, CRM_SnapShot_KeyTxt, CRM_SnapShot_ValueTxt);
+        InsertLabel(TempPowerBIReportLabels, CRM_OpportunitiesValue_KeyTxt, CRM_OpportunitiesValue_ValueTxt);
+        InsertLabel(TempPowerBIReportLabels, CRM_EstimValueByCompanyName_KeyTxt, CRM_EstimValueByCompanyName_ValueTxt);
+        InsertLabel(TempPowerBIReportLabels, CRM_CountByStatus_KeyTxt, CRM_CountByStatus_ValueTxt);
+        InsertLabel(TempPowerBIReportLabels, CRM_CountBySalesPerson_KeyTxt, CRM_CountBySalesPerson_ValueTxt);
+        InsertLabel(TempPowerBIReportLabels, CRM_OpportunitiesEstim_KeyTxt, CRM_OpportunitiesEstim_ValueTxt);
+        InsertLabel(TempPowerBIReportLabels, CRM_DateClosed_KeyTxt, CRM_DateClosed_ValueTxt);
+        InsertLabel(TempPowerBIReportLabels, CRM_EstCloseDate_KeyTxt, CRM_EstCloseDate_ValueTxt);
+
         InsertLabel(TempPowerBIReportLabels, Finance_NetChangeMargin_KeyTxt, Finance_NetChangeMargin_ValueTxt);
         InsertLabel(TempPowerBIReportLabels, Finance_FinancialDashboard_KeyTxt, Finance_FinancialDashboard_ValueTxt);
         InsertLabel(TempPowerBIReportLabels, Finance_NetChangebyDays_KeyTxt, Finance_NetChangebyDays_ValueTxt);
-        InsertLabel(TempPowerBIReportLabels,
-          Finance_NetChangeRevenueExpendituresInterest_KeyTxt, Finance_NetChangeRevenueExpendituresInterest_ValueTxt);
+        InsertLabel(TempPowerBIReportLabels, Finance_NetChangeRevenueExpInterest_KeyTxt, Finance_NetChangeRevenueExpInterest_ValueTxt);
         InsertLabel(TempPowerBIReportLabels, Finance_MiniTrialBalance_KeyTxt, Finance_MiniTrialBalance_ValueTxt);
         InsertLabel(TempPowerBIReportLabels, Finance_KPIDetails1_KeyTxt, Finance_KPIDetails1_ValueTxt);
         InsertLabel(TempPowerBIReportLabels, Finance_KPIDetails2_KeyTxt, Finance_KPIDetails2_ValueTxt);
+
         InsertLabel(TempPowerBIReportLabels, Sales_ItemSales_KeyTxt, Sales_ItemSales_ValueTxt);
         InsertLabel(TempPowerBIReportLabels, Sales_ItemSalesDashboard_KeyTxt, Sales_ItemSalesDashboard_ValueTxt);
         InsertLabel(TempPowerBIReportLabels, Sales_CustomerSales_KeyTxt, Sales_CustomerSales_ValueTxt);
@@ -111,8 +156,21 @@ codeunit 6302 "Power BI Label Mgt."
         InsertLabel(TempPowerBIReportLabels, Sales_CustomerSalesTimeline_KeyTxt, Sales_CustomerSalesTimeline_ValueTxt);
         InsertLabel(TempPowerBIReportLabels, Sales_Details_SalesDetails1_KeyTxt, Sales_Details_SalesDetails1_ValueTxt);
         InsertLabel(TempPowerBIReportLabels, Sales_Details_SalesDetails2_KeyTxt, Sales_Details_SalesDetails2_ValueTxt);
+        InsertLabel(TempPowerBIReportLabels, Sales_Top10ItemsByQuantity_KeyTxt, Sales_Top10ItemsByQuantity_ValueTxt);
+        InsertLabel(TempPowerBIReportLabels, Sales_Top5Customers_KeyTxt, Sales_Top5Customers_ValueTxt);
+        InsertLabel(TempPowerBIReportLabels, Sales_QuantityByGeneralPostingGroup_KeyTxt, Sales_QuantityByGeneralPostingGroup_ValueTxt);
+        InsertLabel(TempPowerBIReportLabels, Sales_QuantityBySalesPerson_KeyTxt, Sales_QuantityBySalesPerson_ValueTxt);
+        InsertLabel(TempPowerBIReportLabels, Sales_CustomerBalances_KeyTxt, Sales_CustomerBalances_ValueTxt);
+        InsertLabel(TempPowerBIReportLabels, Sales_BalanceDue_KeyTxt, Sales_BalanceDue_ValueTxt);
+        InsertLabel(TempPowerBIReportLabels, Sales_AvailableCredit_KeyTxt, Sales_AvailableCredit_ValueTxt);
+        InsertLabel(TempPowerBIReportLabels, Sales_CreditLimit_KeyTxt, Sales_CreditLimit_ValueTxt);
+        InsertLabel(TempPowerBIReportLabels, ChartOfAccountAnalysis_KeyTxt, ChartOfAccountAnalysis_ValueTxt);
+        InsertLabel(TempPowerBIReportLabels, IncomeStatement_KeyTxt, IncomeStatement_ValueTxt);
+        InsertLabel(TempPowerBIReportLabels, BalanceSheet_KeyTxt, BalanceSheet_ValueTxt);
+
         InsertLabel(TempPowerBIReportLabels, JobsProfit_KeyTxt, JobsProfit_ValueTxt);
         InsertLabel(TempPowerBIReportLabels, JobsDashboard_KeyTxt, JobsDashboard_ValueTxt);
+
         InsertLabel(TempPowerBIReportLabels, VendorList_VendorPurchases_KeyTxt, VendorList_VendorPurchases_ValueTxt);
         InsertLabel(TempPowerBIReportLabels, VendorList_PurchaseInvoiceList_KeyTxt, VendorList_PurchaseInvoiceList_ValueTxt);
     end;

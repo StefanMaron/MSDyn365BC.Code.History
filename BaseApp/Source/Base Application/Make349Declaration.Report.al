@@ -46,12 +46,6 @@ report 10710 "Make 349 Declaration"
                         Error(Text1100000);
                 end;
             end;
-
-            trigger OnPostDataItem()
-            begin
-                Txt := PadStr('', 501, ' ');
-                OutFile.Write(Txt);
-            end;
         }
         dataitem(CustomerWarnings; Customer)
         {
@@ -403,7 +397,7 @@ report 10710 "Make 349 Declaration"
                                                       'S' + PadStr('', 13, ' ') + CustVendWarning349."Original Declaration FY" +
                                                       CustVendWarning349."Original Declaration Period" + TextAmount2 + TextAmount +
                                                       PadStr('', 322, ' ');
-                                                    OutFile.Write(Txt);
+                                                    AppendLine(Txt);
                                                 end else
                                                     if CustVendWarning349."EU 3-Party Trade" then begin
                                                         TextAmount := CopyStr(FormatTextAmt(AccumPrevDeclAmountTri), 3, 13);
@@ -416,7 +410,7 @@ report 10710 "Make 349 Declaration"
                                                           'T' + PadStr('', 13, ' ') + CustVendWarning349."Original Declaration FY" +
                                                           CustVendWarning349."Original Declaration Period" + TextAmount2 + TextAmount +
                                                           PadStr('', 322, ' ');
-                                                        OutFile.Write(Txt);
+                                                        AppendLine(Txt);
                                                     end else
                                                         for i := 1 to 3 do
                                                             if (AccPrevDeclAmount[i] <> 0) or (AccOrigDeclAmount[i] <> 0) then begin
@@ -430,7 +424,7 @@ report 10710 "Make 349 Declaration"
                                                                   OperationCode[i] + PadStr('', 13, ' ') + CustVendWarning349."Original Declaration FY" +
                                                                   CustVendWarning349."Original Declaration Period" + TextAmount2 + TextAmount +
                                                                   PadStr('', 322, ' ');
-                                                                OutFile.Write(Txt);
+                                                                AppendLine(Txt);
                                                             end;
 
                                             end else
@@ -469,7 +463,7 @@ report 10710 "Make 349 Declaration"
                                       OperationCode[i] + ConvertStr(TextAmount, ' ', '0') + PadStr('', 354, ' ');
                                     NoOperations := NoOperations + 1;
                                     TotalAmtShip := TotalAmtShip + Amount[i];
-                                    OutFile.Write(Txt);
+                                    AppendLine(Txt);
                                 end;
                             end;
                             if AmountOpTri < 0 then
@@ -484,7 +478,7 @@ report 10710 "Make 349 Declaration"
                                   'T' + ConvertStr(TextAmount, ' ', '0') + PadStr('', 354, ' ');
                                 NoOperations := NoOperations + 1;
                                 TotalAmtShip := TotalAmtShip + AmountOpTri;
-                                OutFile.Write(Txt);
+                                AppendLine(Txt);
                             end;
                             if AmountEUService < 0 then
                                 AmountEUService := -AmountEUService;
@@ -498,7 +492,7 @@ report 10710 "Make 349 Declaration"
                                   'S' + ConvertStr(TextAmount, ' ', '0') + PadStr('', 354, ' ');
                                 NoOperations := NoOperations + 1;
                                 TotalAmtShip := TotalAmtShip + AmountEUService;
-                                OutFile.Write(Txt);
+                                AppendLine(Txt);
                             end;
                             if IsCreditMemoPrinted then begin
                                 TextAmount2 := CopyStr(FormatTextAmt(Abs(CreditMemoOrgDeclaredAmt)), 3, 13);
@@ -513,7 +507,7 @@ report 10710 "Make 349 Declaration"
                                   PadStr('', 322, ' ');
                                 NoOperations += 1;
                                 TotalAmtShip += AmountEUService;
-                                OutFile.Write(Txt);
+                                AppendLine(Txt);
                             end;
                         end;
                     end;
@@ -736,7 +730,7 @@ report 10710 "Make 349 Declaration"
                                                       'I' + PadStr('', 13, ' ') + CustVendWarning349."Original Declaration FY" +
                                                       CustVendWarning349."Original Declaration Period" + TextAmount2 + TextAmount +
                                                       PadStr('', 322, ' ');
-                                                    OutFile.Write(Txt);
+                                                    AppendLine(Txt);
                                                 end else
                                                     if CustVendWarning349."EU 3-Party Trade" then begin
                                                         TextAmount := CopyStr(FormatTextAmt(AccumPrevDeclAmountTri), 3, 13);
@@ -749,7 +743,7 @@ report 10710 "Make 349 Declaration"
                                                           'T' + PadStr('', 13, ' ') + CustVendWarning349."Original Declaration FY" +
                                                           CustVendWarning349."Original Declaration Period" + TextAmount2 + TextAmount +
                                                           PadStr('', 322, ' ');
-                                                        OutFile.Write(Txt);
+                                                        AppendLine(Txt);
                                                     end else begin
                                                         TextAmount := CopyStr(FormatTextAmt(AccumPrevDeclAmount), 3, 13);
                                                         TextAmount2 := CopyStr(FormatTextAmt(AccumOrigDeclAmount), 3, 13);
@@ -760,7 +754,7 @@ report 10710 "Make 349 Declaration"
                                                           'A' + PadStr('', 13, ' ') + CustVendWarning349."Original Declaration FY" +
                                                           CustVendWarning349."Original Declaration Period" + TextAmount2 + TextAmount +
                                                           PadStr('', 322, ' ');
-                                                        OutFile.Write(Txt);
+                                                        AppendLine(Txt);
                                                     end;
                                             end else
                                                 EmptyVATRegNo := true;
@@ -796,7 +790,7 @@ report 10710 "Make 349 Declaration"
                                   'A' + ConvertStr(TextAmount, ' ', '0') + PadStr('', 354, ' ');
                                 NoOperations := NoOperations + 1;
                                 TotalAmtReciv := TotalAmtReciv + NormalAmount;
-                                OutFile.Write(Txt);
+                                AppendLine(Txt);
                             end;
                             if AmountOpTri < 0 then
                                 AmountOpTri := -AmountOpTri;
@@ -810,7 +804,7 @@ report 10710 "Make 349 Declaration"
                                   'T' + ConvertStr(TextAmount, ' ', '0') + PadStr('', 354, ' ');
                                 NoOperations := NoOperations + 1;
                                 TotalAmtReciv := TotalAmtReciv + AmountOpTri;
-                                OutFile.Write(Txt);
+                                AppendLine(Txt);
                             end;
                         end;
                         if AmountEUService < 0 then
@@ -825,7 +819,7 @@ report 10710 "Make 349 Declaration"
                               'I' + ConvertStr(TextAmount, ' ', '0') + PadStr('', 354, ' ');
                             NoOperations := NoOperations + 1;
                             TotalAmtReciv := TotalAmtReciv + AmountEUService;
-                            OutFile.Write(Txt);
+                            AppendLine(Txt);
                         end;
                         if IsPurchCreditMemoPrinted then begin
                             TextAmount := CopyStr(FormatTextAmt(Abs(PurchCreditMemoOrgDeclaredAmt)), 3, 13);
@@ -839,7 +833,7 @@ report 10710 "Make 349 Declaration"
                               PadStr('', 322, ' ');
                             NoOperations += 1;
                             TotalAmtShip += AmountEUService;
-                            OutFile.Write(Txt);
+                            AppendLine(Txt);
                         end;
                     end;
                 end;
@@ -1022,6 +1016,7 @@ report 10710 "Make 349 Declaration"
     trigger OnPostReport()
     var
         FileManagement: Codeunit "File Management";
+        TextLine: Text;
     begin
         if TotalAmtShip < 0 then
             TotalAmtShip := -TotalAmtShip;
@@ -1050,12 +1045,16 @@ report 10710 "Make 349 Declaration"
               ConvertStr(Format(NoOfCorrections, 9), ' ', '0') + ConvertStr(TextCorreAmount, ' ', '0') +
               PeriodChangeText + PadStr('', 314, ' ');
 
+            InsertLine(Txt);
             OutFile.Seek(0);
-            OutFile.Write(Txt);
-            OutFile.Close;
+            foreach TextLine in TextList do begin
+                Txt := CopyStr(TextLine, 1, MaxStrLen(Txt));
+                OutFile.Write(Txt);
+            end;
+            OutFile.Close();
             ConvertFileEncoding(FileName, Utf8Lbl, Iso88591Lbl);
         end else begin
-            OutFile.Close;
+            OutFile.Close();
             Erase(FileName);
             Message(Text1100013);
         end;
@@ -1169,6 +1168,7 @@ report 10710 "Make 349 Declaration"
         TempServiceInvLines: Record "Service Invoice Line" temporary;
         TempPurchInvLines: Record "Purch. Inv. Line" temporary;
         NoTaxableMgt: Codeunit "No Taxable Mgt.";
+        TextList: List of [Text];
         OutFile: File;
         CVWarning349: Page "Customer/Vendor Warnings 349";
         FiscalYear: Code[4];
@@ -1299,6 +1299,16 @@ report 10710 "Make 349 Declaration"
                     exit(true);
             end;
         end;
+    end;
+
+    local procedure AppendLine(Content: Text)
+    begin
+        TextList.Add(Content);
+    end;
+
+    local procedure InsertLine(Content: Text)
+    begin
+        TextList.Insert(1, Content);
     end;
 
     local procedure FindEUCountryRegionCode(CountryCode: Code[10]): Boolean

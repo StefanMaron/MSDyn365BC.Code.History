@@ -1675,6 +1675,181 @@ codeunit 144072 "ERM Miscellaneous ES"
         LibraryReportDataset.AssertElementWithValueExists(GLAccountNoCap, GLAccountNo);
     end;
 
+    [Test]
+    [HandlerFunctions('SimpleTrialBalanceRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure TrialBalanceReportNegativeCreditAmount()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GLAccount: Record "G/L Account";
+        GLAccountNo: Code[20];
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Report] [Trial Balance]
+        // [SCENARIO 428389] Trial Balance report prints negative credit amount
+        Initialize();
+        Amount := LibraryRandom.RandDec(1000, 2);
+
+        // [GIVEN] A G/L Account with type = posting
+        GLAccountNo := CreateGLAccountWithAccountType(GLAccount."Account Type"::Posting, '');
+
+        // [GIVEN] Create and post gen. journal line with "Credit Amount" = -100
+        CreateGeneralJournalLine(
+            GenJournalLine, GenJournalLine."Account Type"::"G/L Account", GLAccountNo, Amount, '', WorkDate());
+        GenJournalLine.Validate("Credit Amount", -Amount);
+        GenJournalLine.Modify();
+        GenJournalTemplate.Get(GenJournalLine."Journal Template Name");
+        GenJournalTemplate.Validate("Force Doc. Balance", true);
+        GenJournalTemplate.Modify();
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [WHEN] Trial Balance report is run with Include Opening Entries and Accumulate Balance at date for the accounting period
+        LibraryVariableStorage.Enqueue(WorkDate());
+        LibraryVariableStorage.Enqueue(GLAccountNo);
+        Report.Run(Report::"Trial Balance");
+        // Handled by SimpleTrialBalanceRequestPageHandler.
+
+        // [THEN] Credit amount -100 printed
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('CreditAmount_GLAccount', -Amount);
+        LibraryReportDataset.AssertElementWithValueExists('CreditAmount2_GLAccount', -Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesInvoiceBookOnlySIIRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure OnlySIIDocumentsShownInSalesInvBookWhenOnlySIIDocsOptionEnabled()
+    var
+        SalesHeader: Record "Sales Header";
+        DummyVATEntry: Record "VAT Entry";
+        PostedDocNo: array[2] of Code[20];
+    begin
+        // [FEATURE] [Report] [Sales] [Sales Invoice Book]
+        // [SCENARIO 230147] Only documents with the "Do Not Send To SII" option disabled include to the Sales Invoice Book report that run with the "Only Include SII Documents" option enabled
+
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice "X" with the "Do Not Send To SII" option enabled
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        SalesHeader.Validate("Do Not Send To SII", true);
+        SalesHeader.Modify(true);
+        PostedDocNo[1] := LibrarySales.PostSalesDocument(SalesHeader, false, false);
+
+        // [GIVEN] Posted Sales Invoice "Y" with the "Do Not Send To SII" option disabled
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        PostedDocNo[2] := LibrarySales.PostSalesDocument(SalesHeader, false, false);
+
+        // [WHEN] Run report "Sales Invoice Book"
+        DummyVATEntry.SetFilter("Document No.", '%1|%2', PostedDocNo[1], PostedDocNo[2]);
+        DummyVATEntry.SetRange("Document Type", DummyVATEntry."Document Type"::Invoice);
+        REPORT.Run(REPORT::"Sales Invoice Book", true, false, DummyVATEntry);
+
+        // [THEN] Only invoice "Y" present in the report
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueNotExist('VATEntry_Document_No_', PostedDocNo[1]);
+        LibraryReportDataset.AssertElementTagWithValueExists('VATEntry_Document_No_', PostedDocNo[2]);
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesInvoiceBookRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure AllDocumentsShownInSalesInvBookWhenSIIDocsOptionDisabled()
+    var
+        SalesHeader: Record "Sales Header";
+        DummyVATEntry: Record "VAT Entry";
+        PostedDocNo: array[2] of Code[20];
+        i: Integer;
+    begin
+        // [FEATURE] [Report] [Sales] [Sales Invoice Book]
+        // [SCENARIO 230147] All the documents include to the Sales Invoice Book report that run with the "Only Include SII Documents" option disabled
+
+        Initialize();
+
+        // [GIVEN] Posted sales invoices "X" and "Y" with the "Do Not Send To SII" option disabled
+        for i := 1 to ArrayLen(PostedDocNo) do begin
+            LibrarySales.CreateSalesInvoice(SalesHeader);
+            PostedDocNo[i] := LibrarySales.PostSalesDocument(SalesHeader, false, false);
+        end;
+
+        // [WHEN] Run report "Sales Invoice Book"
+        DummyVATEntry.SetFilter("Document No.", '%1|%2', PostedDocNo[1], PostedDocNo[2]);
+        DummyVATEntry.SetRange("Document Type", DummyVATEntry."Document Type"::Invoice);
+        REPORT.Run(REPORT::"Sales Invoice Book", true, false, DummyVATEntry);
+
+        // [THEN] Both invoices "X" and "Y" present in the report
+        LibraryReportDataset.LoadDataSetFile();
+        for i := 1 to ArrayLen(PostedDocNo) do
+            LibraryReportDataset.AssertElementTagWithValueExists('VATEntry_Document_No_', PostedDocNo[i]);
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchasesInvoiceBookOnlySIIRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure OnlySIIDocumentsShownInPurchInvBookWhenOnlySIIDocsOptionEnabled()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        DummyVATEntry: Record "VAT Entry";
+        PostedDocNo: array[2] of Code[20];
+    begin
+        // [FEATURE] [Report] [Purchase] [Purchase Invoice Book]
+        // [SCENARIO 230147] Only documents with the "Do Not Send To SII" option disabled include to the Sales Invoice Book report that run with the "Only Include SII Documents" option enabled
+
+        Initialize();
+
+        // [GIVEN] Posted Purchase Invoice "X" with the "Do Not Send To SII" option enabled
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        PurchaseHeader.Validate("Do Not Send To SII", true);
+        PurchaseHeader.Modify(true);
+        PostedDocNo[1] := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false);
+
+        // [GIVEN] Posted Purchase Invoice "Y" with the "Do Not Send To SII" option disabled
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        PostedDocNo[2] := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false);
+
+        // [WHEN] Run report "Purchases Invoice Book"
+        DummyVATEntry.SetFilter("Document No.", '%1|%2', PostedDocNo[1], PostedDocNo[2]);
+        DummyVATEntry.SetRange("Document Type", DummyVATEntry."Document Type"::Invoice);
+        REPORT.Run(REPORT::"Purchases Invoice Book", true, false, DummyVATEntry);
+
+        // [THEN] Only invoice "Y" present in the report
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueNotExist('VATEntry_Document_No_', PostedDocNo[1]);
+        LibraryReportDataset.AssertElementTagWithValueExists('VATEntry_Document_No_', PostedDocNo[2]);
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchasesInvoiceBookRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure AllDocumentsShownInPurchInvBookWhenSIIDocsOptionDisabled()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        DummyVATEntry: Record "VAT Entry";
+        PostedDocNo: array[2] of Code[20];
+        i: Integer;
+    begin
+        // [FEATURE] [Report] [Purchase] [Purchase Invoice Book]
+        // [SCENARIO 230147] All the documents include to the Sales Invoice Book report that run with the "Only Include SII Documents" option disabled
+
+        Initialize();
+
+        // [GIVEN] Posted purchase invoices "X" and "Y" with the "Do Not Send To SII" option disabled
+        for i := 1 to ArrayLen(PostedDocNo) do begin
+            LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+            PostedDocNo[i] := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false);
+        end;
+
+        // [WHEN] Run report "Purchase Invoice Book"
+        DummyVATEntry.SetFilter("Document No.", '%1|%2', PostedDocNo[1], PostedDocNo[2]);
+        DummyVATEntry.SetRange("Document Type", DummyVATEntry."Document Type"::Invoice);
+        REPORT.Run(REPORT::"Purchases Invoice Book", true, false, DummyVATEntry);
+
+        // [THEN] Both invoices "X" and "Y" present in the report
+        LibraryReportDataset.LoadDataSetFile();
+        for i := 1 to ArrayLen(PostedDocNo) do
+            LibraryReportDataset.AssertElementTagWithValueExists('VATEntry_Document_No_', PostedDocNo[i]);
+    end;
+    
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -1784,6 +1959,16 @@ codeunit 144072 "ERM Miscellaneous ES"
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
     begin
+        CreateGeneralJournalLine(GenJournalLine, AccountType, AccountNo, Amount, ShortcutDimensionOneCode, PostingDate);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        exit(GenJournalLine."Document No.");
+    end;
+
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; ShortcutDimensionOneCode: Code[20]; PostingDate: Date): Code[20]
+    var
+        BankAccount: Record "Bank Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
         BankAccount.SetRange(Blocked, false);
         BankAccount.FindFirst();
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
@@ -1796,8 +1981,6 @@ codeunit 144072 "ERM Miscellaneous ES"
         GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Validate("Shortcut Dimension 1 Code", ShortcutDimensionOneCode);
         GenJournalLine.Modify(true);
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        exit(GenJournalLine."Document No.");
     end;
 
     local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; CustomerNo: Code[20])
@@ -1882,7 +2065,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         exit(GLAccount."No.");
     end;
 
-    local procedure CreateGLAccountWithAccountType(AccountType: Option; Totaling: Text): Code[20]
+    local procedure CreateGLAccountWithAccountType(AccountType: Enum "G/L Account Type"; Totaling: Text): Code[20]
     var
         GLAccount: Record "G/L Account";
     begin
@@ -2589,10 +2772,28 @@ codeunit 144072 "ERM Miscellaneous ES"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
+    procedure SalesInvoiceBookOnlySIIRequestPageHandler(var SalesInvoiceBook: TestRequestPage "Sales Invoice Book")
+    begin
+        SalesInvoiceBook.OnlyIncludeSIIDocumentsOption.SetValue(true);
+        SalesInvoiceBook.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
     procedure PurchasesInvoiceBookRequestPageHandler(var PurchasesInvoiceBook: TestRequestPage "Purchases Invoice Book")
     begin
         PurchasesInvoiceBook.SortPostDate.SetValue(true);
         PurchasesInvoiceBook.ShowAutoInvCred.SetValue(true);
+        PurchasesInvoiceBook.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure PurchasesInvoiceBookOnlySIIRequestPageHandler(var PurchasesInvoiceBook: TestRequestPage "Purchases Invoice Book")
+    begin
+        PurchasesInvoiceBook.SortPostDate.SetValue(true);
+        PurchasesInvoiceBook.ShowAutoInvCred.SetValue(true);
+        PurchasesInvoiceBook.OnlyIncludeSIIDocumentsOption.SetValue(true);
         PurchasesInvoiceBook.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -2640,6 +2841,16 @@ codeunit 144072 "ERM Miscellaneous ES"
         TrialBalance."G/L Account".SetFilter("Date Filter", Format(ClosingDate(DateFilter)));
         TrialBalance."G/L Account".SetFilter("Global Dimension 1 Filter", GlobalDimensionOneFilter);
         TrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SimpleTrialBalanceRequestPageHandler(var TrialBalance: TestRequestPage "Trial Balance")
+    begin
+        TrialBalance.OnlyGLAccountsWithBalanceAtDate.SetValue(true);
+        TrialBalance."G/L Account".SetFilter("Date Filter", Format(LibraryVariableStorage.DequeueText()));
+        TrialBalance."G/L Account".SetFilter("No.", LibraryVariableStorage.DequeueText());
+        TrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]

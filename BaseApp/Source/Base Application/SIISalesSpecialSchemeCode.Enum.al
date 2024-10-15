@@ -19,4 +19,5 @@ enum 10700 "SII Sales Special Scheme Code"
     value(13; "14 Invoice Work Certification") { Caption = '14 Invoice Work Certification'; }
     value(14; "15 Invoice of Consecutive Nature") { Caption = '15 Invoice of Consecutive Nature'; }
     value(15; "16 First Half 2017") { Caption = '16 First Half 2017'; }
+    value(16; "17 Operations Under The One-Stop-Shop Regime") { Caption = '17 Operations Under The One-Stop-Shop Regime'; }
 }

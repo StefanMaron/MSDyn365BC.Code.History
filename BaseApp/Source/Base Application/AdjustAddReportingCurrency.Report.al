@@ -622,6 +622,7 @@
             GLEntry2."Add.-Currency Debit Amount" := 0;
             GLEntry2."Add.-Currency Credit Amount" := -GLEntry2."Additional-Currency Amount";
         end;
+        OnInsertGLEntryOnBeforeGLEntryInsert(GLEntry2);
         GLEntry2.Insert();
 
         GLReg."To Entry No." := GLEntry2."Entry No.";
@@ -640,6 +641,11 @@
         GenJnlBatch := NewGenJnlBatch;
         GenJnlLineReq."Journal Template Name" := GenJnlBatch."Journal Template Name";
         GenJnlLineReq."Journal Batch Name" := GenJnlBatch.Name;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertGLEntryOnBeforeGLEntryInsert(var GLEntry: Record "G/L Entry")
+    begin
     end;
 }
 

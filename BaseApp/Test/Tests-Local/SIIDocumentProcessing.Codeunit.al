@@ -21,6 +21,7 @@ codeunit 147522 "SII Document Processing"
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryService: Codeunit "Library - Service";
         IsInitialized: Boolean;
         TagMustNotExistErr: Label '%1 must not exist';
         FieldMustNotBeErr: Label '%1 must not be %2', Locked = true;
@@ -1676,6 +1677,98 @@ codeunit 147522 "SII Document Processing"
         Assert.ExpectedError('Corrected Invoice No. must have a value in Purchase Header');
     end;
 
+    [Test]
+    procedure NoSIIDocUploadStateCreatesForSalesDocMarkedToNotSendToSII()
+    var
+        SalesHeader: Record "Sales Header";
+        SIIDocUploadState: Record "SII Doc. Upload State";
+        SIIDocUploadManagement: Codeunit "SII Doc. Upload Management";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [UT]
+        // [SCENARIO 433352] No "SII Doc. Upload State" creates when sales document marked with "Dot Not Send To SII"
+
+        Initialize();
+
+        // [GIVEN] Sales invoice with "Dot Not Send To SII" option enabled
+        CreateSalesDocumentWithGLAccount(
+          SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), LibraryERM.CreateGLAccountWithSalesSetup());
+        SalesHeader.Validate("Do Not Send To SII", true);
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Post invoice
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Pending document is uploaded
+        SIIDocUploadManagement.UploadPendingDocuments();
+
+        // [GIVEN] No "SII Doc. Upload State" has been created
+        VerifyNoSIIDocUploadState(
+          SIIDocUploadState."Document Type"::Invoice, DocumentNo, SIIDocUploadState."Document Source"::"Customer Ledger");
+    end;
+
+    [Test]
+    procedure NoSIIDocUploadStateCreatesForPurchDocMarkedToNotSendToSII()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        SIIDocUploadState: Record "SII Doc. Upload State";
+        SIIDocUploadManagement: Codeunit "SII Doc. Upload Management";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [UT]
+        // [SCENARIO 433352] No "SII Doc. Upload State" creates when purchase document marked with "Dot Not Send To SII"
+
+        Initialize();
+
+        // [GIVEN] Purchase invoice with "Dot Not Send To SII" option enabled
+        CreatePurchInvoiceWithType(PurchaseHeader, 0);
+        PurchaseHeader.Validate("Do Not Send To SII", true);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Post invoice
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Pending document is uploaded
+        SIIDocUploadManagement.UploadPendingDocuments();
+
+        // [GIVEN] No "SII Doc. Upload State" has been created
+        VerifyNoSIIDocUploadState(
+          SIIDocUploadState."Document Type"::Invoice, DocumentNo, SIIDocUploadState."Document Source"::"Vendor Ledger");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NoSIIDocUploadStateCreatesForServDocMarkedToNotSendToSII()
+    var
+        ServiceHeader: Record "Service Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SIIDocUploadState: Record "SII Doc. Upload State";
+        SIIDocUploadManagement: Codeunit "SII Doc. Upload Management";
+    begin
+        // [FEATURE] [Service] [UT]
+        // [SCENARIO 433352] No "SII Doc. Upload State" creates when service document marked with "Dot Not Send To SII"
+
+        Initialize();
+
+        // [GIVEN] Service invoice with "Dot Not Send To SII" option enabled
+        CreateServiceDoc(ServiceHeader, ServiceHeader."Document Type"::Invoice);
+        ServiceHeader.Validate("Do Not Send To SII", true);
+        ServiceHeader.Modify(true);
+
+        // [GIVEN] Post invoice
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+        CustLedgerEntry.SetRange("Customer No.", ServiceHeader."Bill-to Customer No.");
+        CustLedgerEntry.FindFirst();
+
+        // [WHEN] Pending document is uploaded
+        SIIDocUploadManagement.UploadPendingDocuments();
+
+        // [GIVEN] No "SII Doc. Upload State" has been created
+        VerifyNoSIIDocUploadState(
+          SIIDocUploadState."Document Type"::Invoice, CustLedgerEntry."Document No.",
+          SIIDocUploadState."Document Source"::"Customer Ledger");
+    end;
+    
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -1765,6 +1858,21 @@ codeunit 147522 "SII Document Processing"
           '', '', LibraryRandom.RandDecInRange(100, 200, 2), '', WorkDate);
         PurchaseHeader.Validate("Cr. Memo Type", SIIDocType);
         PurchaseHeader.Modify(true);
+    end;
+
+    local procedure CreateServiceDoc(var ServiceHeader: Record "Service Header"; DocType: Option)
+    var
+        ServiceItem: Record "Service Item";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceLine: Record "Service Line";
+    begin
+        LibrarySII.CreateServiceHeader(ServiceHeader, DocType, LibrarySales.CreateCustomerNo(), '');
+        LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+        LibraryService.CreateServiceLineWithQuantity(
+          ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(100));
+        ServiceLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        ServiceLine.Modify(true);
     end;
 
     local procedure CreateIntraCommunityCustomer(var Customer: Record Customer)
@@ -1971,6 +2079,16 @@ codeunit 147522 "SII Document Processing"
             TestField("Transaction Type", ExpectedUploadType);
             TestField("Retry Accepted", ExpectedRetryAccepted);
         end;
+    end;
+
+    local procedure VerifyNoSIIDocUploadState(DocType: Option; DocNo: Code[20]; DocSource: Option)
+    var
+        SIIDocUploadState: Record "SII Doc. Upload State";
+    begin
+        SIIDocUploadState.SetRange("Document Source", DocSource);
+        SIIDocUploadState.SetRange("Document Type", DocType);
+        SIIDocUploadState.SetRange("Document No.", DocNo);
+        Assert.RecordCount(SIIDocUploadState, 0);
     end;
 
     local procedure VerifySIIJobQueueEntryCount(ExpectedCount: Integer)

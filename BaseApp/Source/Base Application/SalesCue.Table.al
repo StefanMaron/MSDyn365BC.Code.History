@@ -10,8 +10,8 @@ table 9053 "Sales Cue"
         }
         field(2; "Sales Quotes - Open"; Integer)
         {
-            CalcFormula = Count("Sales Header" WHERE("Document Type" = FILTER(Quote),
-                                                      Status = FILTER(Open),
+            CalcFormula = Count("Sales Header" WHERE("Document Type" = const(Quote),
+                                                      Status = const(Open),
                                                       "Responsibility Center" = FIELD("Responsibility Center Filter")));
             Caption = 'Sales Quotes - Open';
             Editable = false;
@@ -20,8 +20,8 @@ table 9053 "Sales Cue"
         field(3; "Sales Orders - Open"; Integer)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
-            CalcFormula = Count("Sales Header" WHERE("Document Type" = FILTER(Order),
-                                                      Status = FILTER(Open),
+            CalcFormula = Count("Sales Header" WHERE("Document Type" = const(Order),
+                                                      Status = const(Open),
                                                       "Responsibility Center" = FIELD("Responsibility Center Filter")));
             Caption = 'Sales Orders - Open';
             Editable = false;
@@ -30,8 +30,8 @@ table 9053 "Sales Cue"
         field(4; "Ready to Ship"; Integer)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
-            CalcFormula = Count("Sales Header" WHERE("Document Type" = FILTER(Order),
-                                                      Status = FILTER(Released),
+            CalcFormula = Count("Sales Header" WHERE("Document Type" = const(Order),
+                                                      Status = const(Released),
                                                       "Completely Shipped" = CONST(false),
                                                       "Shipment Date" = FIELD("Date Filter2"),
                                                       "Responsibility Center" = FIELD("Responsibility Center Filter")));
@@ -42,12 +42,12 @@ table 9053 "Sales Cue"
         field(5; Delayed; Integer)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
-            CalcFormula = Count("Sales Header" WHERE("Document Type" = FILTER(Order),
-                                                      Status = FILTER(Released),
+            CalcFormula = Count("Sales Header" WHERE("Document Type" = const(Order),
+                                                      Status = const(Released),
                                                       "Completely Shipped" = CONST(false),
                                                       "Shipment Date" = FIELD("Date Filter"),
                                                       "Responsibility Center" = FIELD("Responsibility Center Filter"),
-                                                      "Late Order Shipping" = FILTER(true)));
+                                                      "Late Order Shipping" = const(true)));
             Caption = 'Delayed';
             Editable = false;
             FieldClass = FlowField;
@@ -55,8 +55,8 @@ table 9053 "Sales Cue"
         field(6; "Sales Return Orders - Open"; Integer)
         {
             AccessByPermission = TableData "Return Receipt Header" = R;
-            CalcFormula = Count("Sales Header" WHERE("Document Type" = FILTER("Return Order"),
-                                                      Status = FILTER(Open),
+            CalcFormula = Count("Sales Header" WHERE("Document Type" = const("Return Order"),
+                                                      Status = const(Open),
                                                       "Responsibility Center" = FIELD("Responsibility Center Filter")));
             Caption = 'Sales Return Orders - Open';
             Editable = false;
@@ -64,8 +64,8 @@ table 9053 "Sales Cue"
         }
         field(7; "Sales Credit Memos - Open"; Integer)
         {
-            CalcFormula = Count("Sales Header" WHERE("Document Type" = FILTER("Credit Memo"),
-                                                      Status = FILTER(Open),
+            CalcFormula = Count("Sales Header" WHERE("Document Type" = const("Credit Memo"),
+                                                      Status = const(Open),
                                                       "Responsibility Center" = FIELD("Responsibility Center Filter")));
             Caption = 'Sales Credit Memos - Open';
             Editable = false;
@@ -74,10 +74,10 @@ table 9053 "Sales Cue"
         field(8; "Partially Shipped"; Integer)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
-            CalcFormula = Count("Sales Header" WHERE("Document Type" = FILTER(Order),
-                                                      Status = FILTER(Released),
-                                                      Shipped = FILTER(true),
-                                                      "Completely Shipped" = FILTER(false),
+            CalcFormula = Count("Sales Header" WHERE("Document Type" = const(Order),
+                                                      Status = const(Released),
+                                                      Shipped = const(true),
+                                                      "Completely Shipped" = const(false),
                                                       "Shipment Date" = FIELD("Date Filter2"),
                                                       "Responsibility Center" = FIELD("Responsibility Center Filter")));
             Caption = 'Partially Shipped';
@@ -104,6 +104,11 @@ table 9053 "Sales Cue"
             Caption = 'Sales Credit Memos - Pending Document Exchange';
             Editable = false;
             FieldClass = FlowField;
+        }
+        field(13; "Avg. Days Delayed Updated On"; DateTime)
+        {
+            Caption = 'Average Days Delayed Updated On';
+            Editable = false;
         }
         field(20; "Date Filter"; Date)
         {
@@ -171,6 +176,8 @@ table 9053 "Sales Cue"
         CountDelayedInvoices: Integer;
     begin
         FilterOrders(SalesHeader, FieldNo(Delayed));
+        SalesHeader.SetRange("Responsibility Center");
+        SalesHeader.SetLoadFields("Document Type", "No.");
         if SalesHeader.FindSet() then begin
             repeat
                 SummarizeDelayedData(SalesHeader, SumDelayDays, CountDelayedInvoices);
@@ -179,7 +186,7 @@ table 9053 "Sales Cue"
         end;
     end;
 
-    local procedure MaximumDelayAmongLines(SalesHeader: Record "Sales Header") MaxDelay: Integer
+    local procedure MaximumDelayAmongLines(var SalesHeader: Record "Sales Header") MaxDelay: Integer
     var
         SalesLine: Record "Sales Line";
     begin
@@ -188,7 +195,7 @@ table 9053 "Sales Cue"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetFilter("Shipment Date", '<%1&<>%2', WorkDate, 0D);
-        SalesLine.SetLoadFields("Document Type","Document No.", "Shipment Date");
+        SalesLine.SetLoadFields("Document Type", "Document No.", "Shipment Date");
         if SalesLine.FindFirst() then
             if WorkDate - SalesLine."Shipment Date" > MaxDelay then
                 MaxDelay := WorkDate - SalesLine."Shipment Date";

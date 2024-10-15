@@ -135,6 +135,15 @@ page 9850 "Tenant Permissions"
                         SetObjectZeroName(Rec);
                     end;
                 }
+                field(Type; Rec.Type)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Include/Exclude';
+                    Editable = false;
+                    Style = Strong;
+                    StyleExpr = ZeroObjStyleExpr;
+                    ToolTip = 'Specifies whether the permission is effective for this permission set. If you create a hierarchy of permission sets, the setting for the permission in the highest set in the hierarchy is used..';
+                }
                 field(ObjectName; ObjectName)
                 {
                     ApplicationArea = Basic, Suite;

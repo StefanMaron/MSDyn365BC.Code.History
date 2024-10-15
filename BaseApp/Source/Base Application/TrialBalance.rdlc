@@ -3362,7 +3362,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Code.BlankNegAndZero(Fields!DebitAmount_GLAccount.Value)</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(Fields!DebitAmount_GLAccount.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -3426,7 +3426,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Code.BlankNegAndZero(Fields!CreditAmount_GLAccount.Value)</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(Fields!CreditAmount_GLAccount.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -3490,7 +3490,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Code.BlankNegAndZero(Fields!DebitAmount2_GLAccount.Value)</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(Fields!DebitAmount2_GLAccount.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -3554,7 +3554,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Code.BlankNegAndZero(Fields!CreditAmount2_GLAccount.Value)</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(Fields!CreditAmount2_GLAccount.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -3754,7 +3754,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Code.BlankNegAndZero(Fields!DebitAmount4_GLAccount.Value)</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(Fields!DebitAmount4_GLAccount.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -3818,7 +3818,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Code.BlankNegAndZero(Fields!CreditAmount4_GLAccount.Value)</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(Fields!CreditAmount4_GLAccount.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -3882,7 +3882,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Code.BlankNegAndZero(Fields!DebitAmount3_GLAccount.Value)</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(Fields!DebitAmount3_GLAccount.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -3946,7 +3946,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Code.BlankNegAndZero(Fields!CreditAmount3_GLAccount.Value)</Value>
+                                  <Value EvaluationMode="Auto">=Code.BlankZero(Fields!CreditAmount3_GLAccount.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>

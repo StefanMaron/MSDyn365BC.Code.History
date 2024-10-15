@@ -63,6 +63,7 @@ codeunit 413 AnalysisViewEntryToGLEntries
                 then
                     SetFilter("Global Dimension 2 Code", AnalysisViewFilter."Dimension Value Filter");
 
+            OnGetGLEntriesOnAfterGLEntrySetFilters(GLEntry);
             if Find('-') then
                 repeat
                     if DimEntryOK("Dimension Set ID", AnalysisView."Dimension 1 Code", AnalysisViewEntry."Dimension 1 Value Code") and
@@ -209,6 +210,11 @@ codeunit 413 AnalysisViewEntryToGLEntries
                 end;
         end;
         exit(IsGlobalDim);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetGLEntriesOnAfterGLEntrySetFilters(var GLEntry: Record "G/L Entry")
+    begin
     end;
 }
 

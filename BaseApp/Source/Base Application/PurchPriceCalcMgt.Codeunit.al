@@ -586,15 +586,14 @@ codeunit 7010 "Purch. Price Calc. Mgt."
         end;
     end;
 
-    local procedure PurchHeaderStartDate(var PurchHeader: Record "Purchase Header"; var DateCaption: Text[30]): Date
+    local procedure PurchHeaderStartDate(var PurchHeader: Record "Purchase Header"; var DateCaption: Text[30]) StartDate: Date
     var
-        StartDate: Date;
         IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforePurchHeaderStartDate(PurchHeader, DateCaption, StartDate, IsHandled);
         if IsHandled then
-            exit;
+            exit(StartDate);
 
         with PurchHeader do
             if "Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"] then begin

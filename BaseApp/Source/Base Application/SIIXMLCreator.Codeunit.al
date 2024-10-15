@@ -27,19 +27,15 @@
         SiiLRTxt: Text;
 
     [Scope('OnPrem')]
-    procedure GenerateXml(LedgerEntry: Variant; var XMLDocOut: DotNet XmlDocument; UploadType: Option; IsCreditMemoRemoval: Boolean): Boolean
+    procedure GenerateXml(LedgerEntry: Variant; var XMLDocOut: DotNet XmlDocument; UploadType: Option; IsCreditMemoRemoval: Boolean) ResultValue: Boolean
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
-        XmlDocTempBlob: Codeunit "Temp Blob";
         RecRef: RecordRef;
         XmlDocumentOut: XmlDocument;
-        XmlDocOutStream: OutStream;
-        XmlDocInStream: InStream;
         IsHandled: Boolean;
-        ResultValue: Boolean;
     begin
         IsHandled := false;
 
@@ -50,15 +46,11 @@
 #endif
 
         if not IsInitialized then
-            XMLDocOut := XMLDocOut.XmlDocument;
+            XMLDocOut := XMLDocOut.XmlDocument();
 
         OnBeforeGenerateXmlDocument(LedgerEntry, XmlDocumentOut, UploadType, IsCreditMemoRemoval, ResultValue, IsHandled, RetryAccepted, SIIVersion);
         if IsHandled then begin
-            XmlDocTempBlob.CreateOutStream(XmlDocOutStream);
-            XmlDocumentOut.WriteTo(XmlDocOutStream);
-
-            XmlDocTempBlob.CreateInStream(XmlDocInStream);
-            XMLDocOut.Load(XmlDocInStream);
+            ALXMLDocumentToDotNet(XmlDocumentOut, XMLDocOut);
 
             exit(ResultValue);
         end;
@@ -104,6 +96,36 @@
             else
                 exit;
         end;
+
+        DotNetXMLDocumentToAL(XMLDocOut, XmlDocumentOut);
+        OnAfterGenerateXmlDocument(LedgerEntry, XmlDocumentOut, UploadType, IsCreditMemoRemoval, ResultValue, RetryAccepted, SIIVersion);
+        ALXMLDocumentToDotNet(XmlDocumentOut, XMLDocOut);
+    end;
+
+    local procedure ALXMLDocumentToDotNet(var XmlDocumentAl: XmlDocument; var XmlDocumentDotNet: DotNet XmlDocument)
+    var
+        XmlDocTempBlob: Codeunit "Temp Blob";
+        XmlDocOutStream: OutStream;
+        XmlDocInStream: InStream;
+    begin
+        XmlDocTempBlob.CreateOutStream(XmlDocOutStream);
+        XmlDocumentAl.WriteTo(XmlDocOutStream);
+
+        XmlDocTempBlob.CreateInStream(XmlDocInStream);
+        XmlDocumentDotNet.Load(XmlDocInStream);
+    end;
+
+    local procedure DotNetXMLDocumentToAL(var XmlDocumentDotNet: DotNet XmlDocument; var XmlDocumentAl: XmlDocument)
+    var
+        XmlDocTempBlob: Codeunit "Temp Blob";
+        XmlDocOutStream: OutStream;
+        XmlDocInStream: InStream;
+    begin
+        XmlDocTempBlob.CreateOutStream(XmlDocOutStream);
+        XmlDocumentDotNet.Save(XmlDocOutStream);
+
+        XmlDocTempBlob.CreateInStream(XmlDocInStream);
+        XmlDocument.ReadFrom(XmlDocInStream, XmlDocumentAl);
     end;
 
     local procedure CreateEmittedPaymentsXml(PurchaseVendorLedgerEntry: Record "Vendor Ledger Entry"; var XMLDocOut: DotNet XmlDocument): Boolean
@@ -553,7 +575,7 @@
         if IsPurchInvoice(InvoiceType, SIIDocUploadState) then begin
             VendNo := SIIManagement.GetVendFromLedgEntryByGLSetup(VendorLedgerEntry);
             InitializePurchXmlBody(
-              XMLNode, VendNo, VendorLedgerEntry."Posting Date", SIIDocUploadState.IDType);
+              XMLNode, VendNo, VendorLedgerEntry, SIIDocUploadState.IDType);
 
             XMLDOMManagement.AddElementWithPrefix(
               XMLNode, 'NumSerieFacturaEmisor', Format(VendorLedgerEntry."External Document No."), 'sii', SiiTxt, TempXMLNode);
@@ -742,17 +764,18 @@
         XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
     end;
 
-    local procedure InitializePurchXmlBody(var XMLNode: DotNet XmlNode; VendorNo: Code[20]; PostingDate: Date; IDType: Enum "SII ID Type")
+    local procedure InitializePurchXmlBody(var XMLNode: DotNet XmlNode; VendorNo: Code[20]; VendorLedgerEntry: Record "Vendor Ledger Entry"; IDType: Enum "SII ID Type")
     var
         Vendor: Record Vendor;
         TempXMLNode: DotNet XmlNode;
+        XmlNodeInnerXml: Text;
     begin
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'RegistroLRFacturasRecibidas', '', 'siiLR', SiiLRTxt, XMLNode);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, FillDocHeaderNode, '', 'sii', SiiTxt, XMLNode);
         XMLDOMManagement.AddElementWithPrefix(
-          XMLNode, 'Ejercicio', GetYear(PostingDate), 'sii', SiiTxt, TempXMLNode);
+          XMLNode, 'Ejercicio', GetYear(VendorLedgerEntry."Posting Date"), 'sii', SiiTxt, TempXMLNode);
         XMLDOMManagement.AddElementWithPrefix(
-          XMLNode, 'Periodo', Format(PostingDate, 0, '<Month,2>'), 'sii', SiiTxt, TempXMLNode);
+          XMLNode, 'Periodo', Format(VendorLedgerEntry."Posting Date", 0, '<Month,2>'), 'sii', SiiTxt, TempXMLNode);
         XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'IDFactura', '', 'siiLR', SiiLRTxt, XMLNode);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'IDEmisorFactura', '', 'sii', SiiTxt, XMLNode);
@@ -760,6 +783,10 @@
         FillThirdPartyId(
           XMLNode, Vendor."Country/Region Code", Vendor.Name, Vendor."VAT Registration No.", Vendor."No.", false,
           SIIManagement.VendorIsIntraCommunity(Vendor."No."), false, IDType);
+
+        XmlNodeInnerXml := XMLNode.InnerXml();
+        OnAfterInitializePurchXmlBody(XmlNodeInnerXml, VendorLedgerEntry);
+        XMLNode.InnerXml(XmlNodeInnerXml);
     end;
 
     local procedure AddPurchVATEntries(var XMLNode: DotNet XmlNode; var TempVATEntry: Record "VAT Entry" temporary; RegimeCodes: array[3] of Code[2])
@@ -1327,7 +1354,7 @@
                 end;
         end;
         VendNo := SIIManagement.GetVendFromLedgEntryByGLSetup(VendorLedgerEntry);
-        InitializePurchXmlBody(XMLNode, VendNo, VendorLedgerEntry."Posting Date", SIIDocUploadState.IDType);
+        InitializePurchXmlBody(XMLNode, VendNo, VendorLedgerEntry, SIIDocUploadState.IDType);
 
         // calculate totals for current doc
         DataTypeManagement.GetRecordRef(VendorLedgerEntry, VendorLedgerEntryRecRef);
@@ -1691,6 +1718,7 @@
 
         if SIIManagement.FindVatEntriesFromLedger(LedgerEntryRecRef, VATEntry) then begin
             repeat
+                OnCalculateTotalVatAndBaseAmountsOnBeforeAssignTotalBaseAmount(LedgerEntryRecRef, VATEntry);
                 TotalBaseAmount += VATEntry.Base + VATEntry."Unrealized Base";
                 if VATEntry."VAT %" <> 0 then
                     TotalNonExemptVATBaseAmount += VATEntry.Base + VATEntry."Unrealized Base";
@@ -1805,52 +1833,64 @@
         ReturnReceiptLine: Record "Return Receipt Line";
         LastShipDate: Date;
         PostingDate: Date;
+        DocDate: Date;
     begin
+        GetSIISetup;
         case CustLedgerEntry."Document Type" of
             CustLedgerEntry."Document Type"::Invoice:
                 if SalesInvoiceHeader.Get(CustLedgerEntry."Document No.") then begin
                     PostingDate := SalesInvoiceHeader."Posting Date";
+                    DocDate := SalesInvoiceHeader."Document Date";
                     SalesInvoiceLine.SetRange("Document No.", CustLedgerEntry."Document No.");
                     SalesInvoiceLine.SetFilter(Quantity, '>%1', 0);
                     if SalesInvoiceLine.FindSet() then
                         repeat
                             if SalesInvoiceLine."Shipment No." = '' then begin
                                 if SalesInvoiceLine."Shipment Date" <> 0D then
-                                    if (SalesInvoiceLine."Shipment Date" > LastShipDate) and (Date2DMY(SalesInvoiceLine."Shipment Date", 3) = Date2DMY(SalesInvoiceHeader."Posting Date", 3))
+                                    if (SalesInvoiceLine."Shipment Date" > LastShipDate) and (Date2DMY(SalesInvoiceLine."Shipment Date", 3) = Date2DMY(PostingDate, 3))
                                     then
                                         LastShipDate := SalesInvoiceLine."Shipment Date";
                             end else
                                 if SalesShipmentLine.Get(SalesInvoiceLine."Shipment No.", SalesInvoiceLine."Shipment Line No.") then
                                     if (SalesShipmentLine."Posting Date" > LastShipDate) and
-                                       (Date2DMY(SalesShipmentLine."Posting Date", 3) = Date2DMY(SalesInvoiceHeader."Posting Date", 3))
+                                       (Date2DMY(SalesShipmentLine."Posting Date", 3) = Date2DMY(PostingDate, 3))
                                     then
                                         LastShipDate := SalesShipmentLine."Posting Date";
                         until SalesInvoiceLine.Next() = 0;
                     OnGenerateNodeForFechaOperacionSalesOnBeforeFillFechaOperacion(LastShipDate, SalesInvoiceHeader);
-                end;
+                end else
+                    if SIISetup."Operation Date" = SIISetup."Operation Date"::"Document Date" then begin
+                        PostingDate := CustLedgerEntry."Posting Date";
+                        DocDate := CustLedgerEntry."Document Date";
+                    end;
             CustLedgerEntry."Document Type"::"Credit Memo":
                 if SalesCrMemoHeader.Get(CustLedgerEntry."Document No.") then begin
                     PostingDate := SalesCrMemoHeader."Posting Date";
+                    DocDate := SalesCrMemoHeader."Document Date";
                     SalesCrMemoLine.SetRange("Document No.", CustLedgerEntry."Document No.");
                     SalesCrMemoLine.SetFilter(Quantity, '>%1', 0);
                     if SalesCrMemoLine.FindSet() then
                         repeat
                             if SalesCrMemoLine."Return Receipt No." = '' then begin
                                 if SalesCrMemoLine."Shipment Date" <> 0D then
-                                    if (SalesCrMemoLine."Shipment Date" > LastShipDate) and (Date2DMY(SalesCrMemoLine."Shipment Date", 3) = Date2DMY(SalesCrMemoHeader."Posting Date", 3))
+                                    if (SalesCrMemoLine."Shipment Date" > LastShipDate) and (Date2DMY(SalesCrMemoLine."Shipment Date", 3) = Date2DMY(PostingDate, 3))
                                     then
                                         LastShipDate := SalesCrMemoLine."Shipment Date";
                             end else
                                 if ReturnReceiptLine.Get(SalesCrMemoLine."Return Receipt No.", SalesCrMemoLine."Return Receipt Line No.") then
                                     if (ReturnReceiptLine."Posting Date" > LastShipDate) and
-                                       (Date2DMY(ReturnReceiptLine."Posting Date", 3) = Date2DMY(SalesCrMemoHeader."Posting Date", 3))
+                                       (Date2DMY(ReturnReceiptLine."Posting Date", 3) = Date2DMY(PostingDate, 3))
                                     then
                                         LastShipDate := ReturnReceiptLine."Posting Date";
                         until SalesCrMemoLine.Next() = 0;
-                end;
+                end else
+                    if SIISetup."Operation Date" = SIISetup."Operation Date"::"Document Date" then begin
+                        PostingDate := CustLedgerEntry."Posting Date";
+                        DocDate := CustLedgerEntry."Document Date";
+                    end;
         end;
         if PostingDate <> 0D then
-            FillFechaOperacion(XMLNode, LastShipDate, PostingDate, true, RegimeCodes);
+            FillFechaOperacion(XMLNode, LastShipDate, PostingDate, DocDate, true, RegimeCodes);
     end;
 
     local procedure GenerateNodeForFechaOperacionPurch(var XMLNode: DotNet XmlNode; VendorLedgerEntry: Record "Vendor Ledger Entry")
@@ -1859,10 +1899,14 @@
         PurchInvLine: Record "Purch. Inv. Line";
         PurchRcptLine: Record "Purch. Rcpt. Line";
         LastRcptDate: Date;
+        PostingDate: Date;
+        DocDate: Date;
         DummyRegimeCodes: array[3] of Code[2];
     begin
-        if VendorLedgerEntry."Document Type" = VendorLedgerEntry."Document Type"::Invoice then
+        if VendorLedgerEntry."Document Type" = VendorLedgerEntry."Document Type"::Invoice then begin
             if PurchInvHeader.Get(VendorLedgerEntry."Document No.") then begin
+                PostingDate := PurchInvHeader."Posting Date";
+                DocDate := PurchInvHeader."Document Date";
                 PurchInvLine.SetRange("Document No.", VendorLedgerEntry."Document No.");
                 if PurchInvLine.FindSet() then
                     repeat
@@ -1871,8 +1915,12 @@
                                 if PurchRcptLine."Posting Date" > LastRcptDate then
                                     LastRcptDate := PurchRcptLine."Posting Date"
                     until PurchInvLine.Next() = 0;
-                FillFechaOperacion(XMLNode, LastRcptDate, PurchInvHeader."Posting Date", false, DummyRegimeCodes);
+            end else begin
+                PostingDate := VendorLedgerEntry."Posting Date";
+                DocDate := VendorLedgerEntry."Document Date";
             end;
+            FillFechaOperacion(XMLNode, LastRcptDate, PostingDate, DocDate, false, DummyRegimeCodes);
+        end;
     end;
 
     local procedure GenerateRecargoEquivalenciaNodes(var XMLNode: DotNet XmlNode; ECPercent: Decimal; ECAmount: Decimal)
@@ -2367,7 +2415,8 @@
                 begin
                     IsInvoice :=
                       SIIDocUploadState."Sales Cr. Memo Type" in [SIIDocUploadState."Sales Cr. Memo Type"::"F1 Invoice",
-                                                                  SIIDocUploadState."Sales Cr. Memo Type"::"F2 Simplified Invoice"];
+                                                                  SIIDocUploadState."Sales Cr. Memo Type"::"F2 Simplified Invoice",
+                                                                  SIIDocUploadState."Sales Cr. Memo Type"::"F3 Invoice issued to replace simplified invoices"];
                     if IsInvoice then
                         InvoiceType := CopyStr(Format(SIIDocUploadState."Sales Cr. Memo Type"), 1, 2);
                 end;
@@ -2492,22 +2541,29 @@
           XMLNode, 'FechaRegContable', FormatDate(NodePostingDate), 'sii', SiiTxt, TempXMLNode);
     end;
 
-    local procedure FillFechaOperacion(var XMLNode: DotNet XmlNode; LastShptRcptDate: Date; PostingDate: Date; IsSales: Boolean; RegimeCodes: array[3] of Code[2])
+    local procedure FillFechaOperacion(var XMLNode: DotNet XmlNode; LastShptRcptDate: Date; PostingDate: Date; DocumentDate: Date; IsSales: Boolean; RegimeCodes: array[3] of Code[2])
     var
         TempXMLNode: DotNet XmlNode;
     begin
-        if ((LastShptRcptDate = 0D) or (LastShptRcptDate = PostingDate)) and
-           not (IsSales and RegimeCodesContainsValue(RegimeCodes, '14'))
-        then
-            exit;
-
-        if LastShptRcptDate > WorkDate then
-            LastShptRcptDate := PostingDate;
-        if IsSales then begin
-            if not IncludeFechaOperationForSales(PostingDate, LastShptRcptDate, RegimeCodes) then
+        GetSIISetup();
+        if SIISetup."Operation Date" = SIISetup."Operation Date"::"Posting Date" then begin
+            if ((LastShptRcptDate = 0D) or (LastShptRcptDate = PostingDate)) and
+               not (IsSales and RegimeCodesContainsValue(RegimeCodes, '14'))
+            then
                 exit;
-            if IsShptDateMustBeAfterPostingDate(RegimeCodes) then
-                LastShptRcptDate := PostingDate + 1;
+
+            if LastShptRcptDate > WorkDate() then
+                LastShptRcptDate := PostingDate;
+            if IsSales then begin
+                if not IncludeFechaOperationForSales(PostingDate, LastShptRcptDate, RegimeCodes) then
+                    exit;
+                if IsShptDateMustBeAfterPostingDate(RegimeCodes) then
+                    LastShptRcptDate := PostingDate + 1;
+            end;
+        end else begin
+            if PostingDate = DocumentDate then
+                exit;
+            LastShptRcptDate := DocumentDate;
         end;
         OnFillFechaOperacionOnBeforeAddElementWithPrefix(LastShptRcptDate, PostingDate);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'FechaOperacion', FormatDate(LastShptRcptDate), 'sii', SiiTxt, TempXMLNode);
@@ -2703,6 +2759,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGenerateXmlDocument(LedgerEntry: Variant; var XMLDocOut: XmlDocument; UploadType: Option; IsCreditMemoRemoval: Boolean; var ResultValue: Boolean; RetryAccepted: Boolean; SIIVersion: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitializePurchXmlBody(var XmlNodeInnerXml: Text; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeAddLineAmountElement(var TempVATEntry: Record "VAT Entry" temporary; AmountNodeName: Text; var Amount: Decimal)
     begin
     end;
@@ -2742,6 +2808,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateNonExemptVATEntriesOnAfterTempVATEntryOutSetFilters(var TempVATEntryOut: Record "VAT Entry" temporary; TempVATEntry: Record "VAT Entry" temporary; SplitByEUService: Boolean; VATAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateTotalVatAndBaseAmountsOnBeforeAssignTotalBaseAmount(LedgerEntryRecRef: RecordRef; var VATEntry: Record "VAT Entry")
     begin
     end;
 

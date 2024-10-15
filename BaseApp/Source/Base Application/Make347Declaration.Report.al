@@ -1518,7 +1518,13 @@ report 10707 "Make 347 Declaration"
     local procedure CreateCountryRegionFilter()
     var
         CountryRegion: Record "Country/Region";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateCountryRegionFilter(CountryRegionFilter, IsHandled);
+        if IsHandled then
+            exit;
+
         CountryRegion.SetRange("EU Country/Region Code", '');
         CountryRegionFilter := ESCountryCodeTxt;
         if CountryRegion.FindSet() then
@@ -1527,13 +1533,24 @@ report 10707 "Make 347 Declaration"
             until CountryRegion.Next() = 0;
     end;
 
-    local procedure IsCountryCodeInSpainOrOutsideEU(CountryCode: Code[10]): Boolean
+    local procedure IsCountryCodeInSpainOrOutsideEU(CountryCode: Code[10]) Result: Boolean
     var
         CountryRegion: Record "Country/Region";
     begin
         CountryRegion.SetRange(Code, CountryCode);
         CountryRegion.SetFilter("EU Country/Region Code", '%1|%2', ESCountryCodeTxt, '');
-        exit(not CountryRegion.IsEmpty);
+        Result := not CountryRegion.IsEmpty;
+        OnAfterIsCountryCodeInSpainOrOutsideEU(CountryCode, Result);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsCountryCodeInSpainOrOutsideEU(CountryCode: Code[10]; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateCountryRegionFilter(var CountryRegionFilter: Text; var IsHandled: Boolean)
+    begin
     end;
 }
 

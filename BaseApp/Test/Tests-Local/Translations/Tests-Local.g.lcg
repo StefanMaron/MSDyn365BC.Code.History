@@ -464,6 +464,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cartera Paym. Settlement - NamedType BatchSettlementPOMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1452483504 - NamedType 2336856068" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[This %1 has not been printed. Do you want to continue?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cartera Paym. Settlement - NamedType BillGroupNotPrintedMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1452483504 - NamedType 4238946577" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Invalid status of partially settled Cartera document.]]></Val>
@@ -498,6 +507,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1=Table,%2=Field]D;]A;(LookupHint=Codeunit Cartera Paym. Settlement - NamedType PaymentOrderSuccessfullyPostedMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1452483504 - NamedType 4290104312" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 documents have been rejected.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cartera Paym. Settlement - NamedType RejectBillTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1452483504 - NamedType 3684284364" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3477,6 +3495,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Payment Order Elec. Export - NamedType ConfirmTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1071400811 - NamedType 1199841371" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you also want to download the E-Pay export file?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Payment Order Elec. Export - NamedType DownloadEPayFileQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1071400811 - NamedType 1610275317" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

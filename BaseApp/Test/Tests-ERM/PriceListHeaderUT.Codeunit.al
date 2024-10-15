@@ -36,8 +36,8 @@ codeunit 134118 "Price List Header UT"
         ParentSourceNoMustBeFilledErr: Label 'Assign-to Parent No. must have a value';
         ParentSourceNoMustBeBlankErr: Label 'Assign-to Parent No. must be equal to ''''';
         ProductNoMustBeFilledErr: Label 'Product No. must have a value';
-        SourceNoMustBeFilledErr: Label 'Assign-to must have a value';
-        SourceNoMustBeBlankErr: Label 'Assign-to must be equal to ''''';
+        SourceNoMustBeFilledErr: Label 'Assign-to No. must have a value';
+        SourceNoMustBeBlankErr: Label 'Assign-to No. must be equal to ''''';
         MissingPriceListCodeErr: Label '%1 must have a value', Comment = '%1 - field caption.';
         CannotRenameErr: Label 'You cannot rename a %1.', Comment = '%1 - table caption';
         IsInitialized: Boolean;
@@ -173,6 +173,17 @@ codeunit 134118 "Price List Header UT"
         PriceListHeader.Insert();
 
         asserterror PriceListHeader.Rename(LibraryUtility.GenerateGUID());
+        Assert.ExpectedError(StrSubstNo(CannotRenameErr, PriceListHeader.TableCaption()));
+    end;
+
+    [Test]
+    procedure T008_CannotRenameOnCodeValidatePriceListHeader()
+    var
+        PriceListHeader: Record "Price List Header";
+    begin
+        Initialize();
+        PriceListHeader.Validate(Code, LibraryUtility.GenerateGUID());
+        asserterror PriceListHeader.Validate(Code, LibraryUtility.GenerateGUID());
         Assert.ExpectedError(StrSubstNo(CannotRenameErr, PriceListHeader.TableCaption()));
     end;
 
@@ -1047,7 +1058,7 @@ codeunit 134118 "Price List Header UT"
         // [WHEN] Set "Status" as 'Active' and answer 'Yes'
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
-        // [THEN] Error: "Assign-to must be equal to ''''"
+        // [THEN] Error: "Assign-to No. must be equal to ''''"
         Assert.ExpectedError(SourceNoMustBeBlankErr);
     end;
 
@@ -1067,7 +1078,7 @@ codeunit 134118 "Price List Header UT"
         // [WHEN] Set "Status" as 'Active'
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
-        // [THEN] Error: "Assign-to must have a value"
+        // [THEN] Error: "Assign-to No. must have a value"
         Assert.ExpectedError(SourceNoMustBeFilledErr);
     end;
 
@@ -1093,7 +1104,7 @@ codeunit 134118 "Price List Header UT"
         // [WHEN] Set "Status" as 'Active'
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
-        // [THEN] Error: "Parent Assign-to must have a value"
+        // [THEN] Error: "Parent Assign-to No. must have a value"
         Assert.ExpectedError(ParentSourceNoMustBeFilledErr);
     end;
 
@@ -1180,7 +1191,7 @@ codeunit 134118 "Price List Header UT"
         // [WHEN] Set "Status" as 'Active'
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
-        // [THEN] Error message: "Assign-to must have a value"
+        // [THEN] Error message: "Assign-to No. must have a value"
         Assert.ExpectedError(SourceNoMustBeFilledErr);
     end;
 
@@ -1267,7 +1278,7 @@ codeunit 134118 "Price List Header UT"
         // [WHEN] Set "Status" as 'Active' and answer 'Yes'
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
-        // [THEN] Error: "Assign-to must be equal to ''''"
+        // [THEN] Error: "Assign-to No. must be equal to ''''"
         Assert.ExpectedError(SourceNoMustBeBlankErr);
     end;
 
@@ -1289,7 +1300,7 @@ codeunit 134118 "Price List Header UT"
         // [WHEN] Set "Status" as 'Active'
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
-        // [THEN] Error: "Assign-to must have a value"
+        // [THEN] Error: "Assign-to No. must have a value"
         Assert.ExpectedError(SourceNoMustBeFilledErr);
     end;
 

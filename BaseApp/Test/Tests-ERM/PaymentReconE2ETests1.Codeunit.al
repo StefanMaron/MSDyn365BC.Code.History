@@ -1876,7 +1876,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,PostAndReconcilePageHandler')]
+    [HandlerFunctions('MsgHandler,PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure SingleCustomerAutoMatchAndPostTwoPaymentsTwoInvoicesInViceVersaOrder()
     var
@@ -3243,6 +3243,13 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     procedure PostAndReconcilePageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
     begin
         PostPmtsAndRecBankAcc.OK.Invoke();
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure PostAndReconcilePageStatementDateHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 

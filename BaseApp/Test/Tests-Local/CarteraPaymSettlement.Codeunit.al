@@ -14,15 +14,20 @@ codeunit 147501 "Cartera Paym. Settlement"
         Assert: Codeunit Assert;
         LibraryCarteraCommon: Codeunit "Library - Cartera Common";
         LibraryCarteraPayables: Codeunit "Library - Cartera Payables";
+        LibraryCarteraReceivables: Codeunit "Library - Cartera Receivables";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryERM: Codeunit "Library - ERM";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibrarySales: Codeunit "Library - Sales";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
+        LocalCurrencyCode: Code[10];
         IsInitialized: Boolean;
         NotPrintedPaymentOrderQst: Label 'This %1 has not been printed. Do you want to continue?';
         PaymentOrderSuccessfullyPostedMsg: Label 'The %1 %2 was successfully posted.', Comment = '%1=Table,%2=Field';
@@ -32,7 +37,8 @@ codeunit 147501 "Cartera Paym. Settlement"
         InvalidStatusPartiallySettledCarteraDocErr: Label 'Invalid status of partially settled Cartera document.';
         UnexpectedCartDocRemAmountErr: Label 'Unexpected remaining amount for closed Cartera Document.';
         UnexpectedPartSettledCartDocRemAmountErr: Label 'Unexpected remaining amount on partially settled payable Cartera doc.';
-        LocalCurrencyCode: Code[10];
+        BillGroupNotPrintedMsg: Label 'This %1 has not been printed. Do you want to continue?';
+        RejectBillTxt: Label '%1 documents have been rejected.';
         SettlementCompletedSuccessfullyMsg: Label '%1 documents totaling %2 have been settled.';
 
     [Test]
@@ -587,6 +593,497 @@ codeunit 147501 "Cartera Paym. Settlement"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandler,SettleDocsinPostedPORequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure TotalSettlementBillGroupWithFixedAssetWithUnrealizedVATRealizesAllVATEntries()
+    var
+        BankAccount: Record "Bank Account";
+        Vendor: Record Vendor;
+        PaymentTerms: Record "Payment Terms";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        FixedAsset: Record "Fixed Asset";
+        VATPostingSetup: Record "VAT Posting Setup";
+        CarteraDoc: Record "Cartera Doc.";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        PaymentOrder: Record "Payment Order";
+        VATEntry: Record "VAT Entry";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Fixed Asset]
+        // [SCENARIO 425781] Stan can totally settle payment order applied to purchase invoice with Fixed Asset and Item lines. Settlement realizes VAT Entries posted from purchase invoice.
+        Initialize();
+
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("VAT Cash Regime", true);
+        GeneralLedgerSetup.Modify(true);
+
+        LibraryERM.SetUnrealizedVAT(true);
+
+        LibraryCarteraPayables.CreateCarteraVendorUseBillToCarteraPayment(Vendor, '');
+        LibraryCarteraPayables.CreateVendorBankAccount(Vendor, '');
+        LibraryCarteraPayables.CreateBankAccount(BankAccount, '');
+
+        LibraryCarteraPayables.SetPaymentTermsVatDistribution(
+            Vendor."Payment Terms Code", PaymentTerms."VAT distribution"::Proportional);
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+
+        CreateVATPostingSetupVATCashRegime(VATPostingSetup, Vendor."VAT Bus. Posting Group", 10);
+
+        CreateFixedAssetWithGroup(FixedAsset, VATPostingSetup);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Fixed Asset", FixedAsset."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", 100);
+        PurchaseLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        PurchaseLine.Modify(true);
+
+        CreateVATPostingSetupVATCashRegime(VATPostingSetup, Vendor."VAT Bus. Posting Group", 21);
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", 1000);
+        PurchaseLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        PurchaseLine.Modify(true);
+
+        PurchaseHeader.TestField("Special Scheme Code", PurchaseHeader."Special Scheme Code"::"07 Special Cash");
+
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.SetFilter("Unrealized Base", '>0');
+        Assert.RecordCount(VATEntry, 2);
+
+        CreatePaymentOrder(BankAccount, PaymentOrder, CarteraDoc, DocumentNo, Vendor, '');
+
+        PostPaymentOrderLCY(PaymentOrder);
+
+        InvokeTotalSettlementOnPaymentOrder(PaymentOrder."No.");
+
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+        VendorLedgerEntry.FindLast();
+        VendorLedgerEntry.TestField(Open, false);
+
+        VATEntry.Reset();
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Payment);
+        VATEntry.SetRange("Document No.", VendorLedgerEntry."Document No.");
+        Assert.RecordCount(VATEntry, 2);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandler,SettleDocsinPostedPORequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure TotalSettlementBillGroupWithSingleFixedAssetWithUnrealizedVATRealizesAllVATEntries()
+    var
+        BankAccount: Record "Bank Account";
+        Vendor: Record Vendor;
+        PaymentTerms: Record "Payment Terms";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        FixedAsset: Record "Fixed Asset";
+        VATPostingSetup: Record "VAT Posting Setup";
+        CarteraDoc: Record "Cartera Doc.";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        PaymentOrder: Record "Payment Order";
+        VATEntry: Record "VAT Entry";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Fixed Asset]
+        // [SCENARIO 425781] Stan can totally settle payment order applied to purchase invoice with the single Fixed Asset line. Settlement realizes VAT Entry posted from purchase invoice.
+        Initialize();
+
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("VAT Cash Regime", true);
+        GeneralLedgerSetup.Modify(true);
+
+        LibraryERM.SetUnrealizedVAT(true);
+
+        LibraryCarteraPayables.CreateCarteraVendorUseBillToCarteraPayment(Vendor, '');
+        LibraryCarteraPayables.CreateVendorBankAccount(Vendor, '');
+        LibraryCarteraPayables.CreateBankAccount(BankAccount, '');
+
+        LibraryCarteraPayables.SetPaymentTermsVatDistribution(
+            Vendor."Payment Terms Code", PaymentTerms."VAT distribution"::Proportional);
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+
+        CreateVATPostingSetupVATCashRegime(VATPostingSetup, Vendor."VAT Bus. Posting Group", 10);
+
+        CreateFixedAssetWithGroup(FixedAsset, VATPostingSetup);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Fixed Asset", FixedAsset."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", 100);
+        PurchaseLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        PurchaseLine.Modify(true);
+
+        PurchaseHeader.TestField("Special Scheme Code", PurchaseHeader."Special Scheme Code"::"07 Special Cash");
+
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.SetFilter("Unrealized Base", '>0');
+        Assert.RecordCount(VATEntry, 1);
+
+        CreatePaymentOrder(BankAccount, PaymentOrder, CarteraDoc, DocumentNo, Vendor, '');
+
+        PostPaymentOrderLCY(PaymentOrder);
+
+        InvokeTotalSettlementOnPaymentOrder(PaymentOrder."No.");
+
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+        VendorLedgerEntry.FindLast();
+        VendorLedgerEntry.TestField(Open, false);
+
+        VATEntry.Reset();
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Payment);
+        VATEntry.SetRange("Document No.", VendorLedgerEntry."Document No.");
+        Assert.RecordCount(VATEntry, 1);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandler,RejectDocsRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceWithRejectedBillAndTwoPurchaseInvoicesWithUnrealizedVATAppliedToPayments()
+    var
+        BankAccount: Record "Bank Account";
+        Vendor: Record Vendor;
+        Customer: Record Customer;
+        PaymentTerms: Record "Payment Terms";
+        PaymentMethod: Record "Payment Method";
+        BillGroup: Record "Bill Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: array[4] of Record "Gen. Journal Line";
+        CarteraDoc: Record "Cartera Doc.";
+        VATEntry: Record "VAT Entry";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        BGPOPostAndPrint: Codeunit "BG/PO-Post and Print";
+        TotalAmount: Decimal;
+        PostedSalesInvoiceWithBillNo: Code[20];
+        PostedPurchaseInvoiceNo: array[2] of Code[20];
+    begin
+        // [SCENARIO 427600] System settles all VAT entries associated with a Cartera document.
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice[1] => Posted Bill => Rejected.
+        UpdateVATCashRegimeOnGLSetup(false);
+        LibraryERM.SetUnrealizedVAT(false);
+
+        PrePostBillGroupSetup(BankAccount, Customer);
+
+        CreateVATPostingSetup(VATPostingSetup, Customer."VAT Bus. Posting Group", 21);
+
+        PaymentMethod.Get(Customer."Payment Method Code");
+        LibraryCarteraReceivables.UpdatePaymentMethodForBillsWithUnrealizedVAT(PaymentMethod);
+
+        LibraryCarteraReceivables.SetPaymentTermsVatDistribution(
+          Customer."Payment Terms Code", PaymentTerms."VAT distribution"::Proportional);
+
+        PostedSalesInvoiceWithBillNo := CreateAndPostSalesInvoiceWithItem(Customer, VATPostingSetup, 1, 1000);
+
+        LibraryCarteraReceivables.CreateBillGroup(BillGroup, BankAccount."No.", BillGroup."Dealing Type"::Collection);
+        LibraryCarteraReceivables.AddCarteraDocumentToBillGroup(CarteraDoc, PostedSalesInvoiceWithBillNo, Customer."No.", BillGroup."No.");
+
+        LibraryVariableStorage.Enqueue(StrSubstNo(BillGroupNotPrintedMsg, BillGroup.TableCaption));
+        BGPOPostAndPrint.ReceivablePostOnly(BillGroup);
+
+        LibraryVariableStorage.Enqueue(StrSubstNo(RejectBillTxt, 1)); // Reject bill
+        InvokeRejectOnBillGroup(Customer."No.", PostedSalesInvoiceWithBillNo, BillGroup."No.", TotalAmount, WorkDate());
+
+        // [GIVEN] Two Purchase Invoices with Unrealized VAT (without Bills)
+        UpdateVATCashRegimeOnGLSetup(true);
+
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryCarteraPayables.CreateVendorBankAccount(Vendor, '');
+        LibraryCarteraPayables.CreateBankAccount(BankAccount, '');
+
+        CreateVATPostingSetupVATCashRegime(VATPostingSetup, Vendor."VAT Bus. Posting Group", 21);
+        VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::Last);
+        VATPostingSetup.Modify(true);
+
+        LibraryCarteraPayables.SetPaymentTermsVatDistribution(
+            Vendor."Payment Terms Code", PaymentTerms."VAT distribution"::Proportional);
+
+        PostedPurchaseInvoiceNo[1] := CreateAndPostPurchaseInvoiceWithItem(Vendor, VATPostingSetup, 1, 1000);
+        PostedPurchaseInvoiceNo[2] := CreateAndPostPurchaseInvoiceWithItem(Vendor, VATPostingSetup, 1, 1000);
+
+        VATEntry.SetRange(Type, VATEntry.Type::Purchase);
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
+        VATEntry.SetFilter("Document No.", '%1|%2', PostedPurchaseInvoiceNo[1], PostedPurchaseInvoiceNo[2]);
+        VATEntry.SetFilter("Remaining Unrealized Base", '>0');
+        Assert.RecordCount(VATEntry, ArrayLen(PostedPurchaseInvoiceNo));
+
+        // [GIVEN] General Journal with 3 payment lines:
+        // [GIVEN] Purchase Payment[1] applied to Purchase Invoice[1]
+        // [GIVEN] Sales Payment[1] applied to Bill[1] (that rejected and 'closed')
+        // [GIVEN] Purchase Payment[2] applied to Purchase Invoice[2]
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"G/L Account");
+        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
+        GenJournalBatch.Modify(true);
+
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine[1], GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine[1]."Document Type"::Payment, GenJournalLine[1]."Account Type"::Vendor, Vendor."No.", 0);
+        GenJournalLine[1].Validate("External Document No.", LibraryUtility.GenerateGUID());
+        GenJournalLine[1].Validate("Applies-to Doc. Type", GenJournalLine[1]."Applies-to Doc. Type"::Invoice);
+        GenJournalLine[1].Validate("Applies-to Doc. No.", PostedPurchaseInvoiceNo[1]);
+        GenJournalLine[1].Validate("Debit Amount", 1210);
+        GenJournalLine[1].Modify(true);
+
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine[2], GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine[2]."Document Type"::Payment, GenJournalLine[2]."Account Type"::Customer, Customer."No.", 0);
+        GenJournalLine[2].Validate("Applies-to Doc. Type", GenJournalLine[2]."Applies-to Doc. Type"::Bill);
+        GenJournalLine[2].Validate("Applies-to Doc. No.", PostedSalesInvoiceWithBillNo);
+        GenJournalLine[2].Validate("Applies-to Bill No.", '1');
+        GenJournalLine[2].Validate("Credit Amount", 1210);
+        GenJournalLine[2].Modify(true);
+
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine[3], GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine[3]."Document Type"::Payment, GenJournalLine[3]."Account Type"::Vendor, Vendor."No.", 0);
+        GenJournalLine[3].Validate("External Document No.", LibraryUtility.GenerateGUID());
+        GenJournalLine[3].Validate("Applies-to Doc. Type", GenJournalLine[3]."Applies-to Doc. Type"::Invoice);
+        GenJournalLine[3].Validate("Applies-to Doc. No.", PostedPurchaseInvoiceNo[2]);
+        GenJournalLine[3].Validate("Debit Amount", 1210);
+        GenJournalLine[3].Modify(true);
+
+        GenJournalLine[1].SetRange("Journal Template Name", GenJournalTemplate.Name);
+        GenJournalLine[1].SetRange("Journal Batch Name", GenJournalBatch.Name);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine[1]);
+
+        // [THEN] Unrealized VAT realized. 
+        // [THEN] Invoices' Unrealized Amount reset
+        Assert.RecordIsEmpty(VATEntry);
+
+        // [THEN] VAT posted within payment
+        VATEntry.Reset();
+        VATEntry.SetRange(Type, VATEntry.Type::Purchase);
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Payment);
+        VATEntry.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        VATEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Assert.RecordCount(VATEntry, ArrayLen(PostedPurchaseInvoiceNo));
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandler,RejectDocsRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceWithRejectedBillAndTwoSalesInvoicesWithUnrealizedVATAppliedToPayments()
+    var
+        BankAccount: Record "Bank Account";
+        CustomerBankAccount: Record "Customer Bank Account";
+        Customer: array[2] of Record Customer;
+        PaymentTerms: Record "Payment Terms";
+        PaymentMethod: Record "Payment Method";
+        BillGroup: Record "Bill Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: array[4] of Record "Gen. Journal Line";
+        CarteraDoc: Record "Cartera Doc.";
+        VATEntry: Record "VAT Entry";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        BGPOPostAndPrint: Codeunit "BG/PO-Post and Print";
+        TotalAmount: Decimal;
+        PostedSalesInvoiceWithBillNo: Code[20];
+        PostedSalesInvoiceNo: array[2] of Code[20];
+    begin
+        // [SCENARIO 427600] xxxxxx
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice[1] => Posted Bill => Rejected.
+        UpdateVATCashRegimeOnGLSetup(false);
+        LibraryERM.SetUnrealizedVAT(false);
+
+        PrePostBillGroupSetup(BankAccount, Customer[1]);
+
+        CreateVATPostingSetup(VATPostingSetup, Customer[1]."VAT Bus. Posting Group", 21);
+
+        PaymentMethod.Get(Customer[1]."Payment Method Code");
+        LibraryCarteraReceivables.UpdatePaymentMethodForBillsWithUnrealizedVAT(PaymentMethod);
+
+        LibraryCarteraReceivables.SetPaymentTermsVatDistribution(
+          Customer[1]."Payment Terms Code", PaymentTerms."VAT distribution"::Proportional);
+
+        PostedSalesInvoiceWithBillNo := CreateAndPostSalesInvoiceWithItem(Customer[1], VATPostingSetup, 1, 1000);
+
+        LibraryCarteraReceivables.CreateBillGroup(BillGroup, BankAccount."No.", BillGroup."Dealing Type"::Collection);
+        LibraryCarteraReceivables.AddCarteraDocumentToBillGroup(CarteraDoc, PostedSalesInvoiceWithBillNo, Customer[1]."No.", BillGroup."No.");
+
+        LibraryVariableStorage.Enqueue(StrSubstNo(BillGroupNotPrintedMsg, BillGroup.TableCaption));
+        BGPOPostAndPrint.ReceivablePostOnly(BillGroup);
+
+        LibraryVariableStorage.Enqueue(StrSubstNo(RejectBillTxt, 1)); // reject Bill
+        InvokeRejectOnBillGroup(Customer[1]."No.", PostedSalesInvoiceWithBillNo, BillGroup."No.", TotalAmount, WorkDate());
+
+        // [GIVEN] Two Sales Invoices with Unrealized VAT (without Bills)
+
+        UpdateVATCashRegimeOnGLSetup(true);
+
+        LibrarySales.CreateCustomer(Customer[2]);
+        LibraryCarteraReceivables.CreateCustomerBankAccount(Customer[2], CustomerBankAccount);
+        LibraryCarteraReceivables.CreateBankAccount(BankAccount, '');
+
+        CreateVATPostingSetupVATCashRegime(VATPostingSetup, Customer[2]."VAT Bus. Posting Group", 21);
+        VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::Last);
+        VATPostingSetup.Modify(true);
+
+        PostedSalesInvoiceNo[1] := CreateAndPostSalesInvoiceWithItem(Customer[2], VATPostingSetup, 1, 1000);
+        PostedSalesInvoiceNo[2] := CreateAndPostSalesInvoiceWithItem(Customer[2], VATPostingSetup, 1, 1000);
+
+        VATEntry.SetRange(Type, VATEntry.Type::Sale);
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
+        VATEntry.SetFilter("Document No.", '%1|%2', PostedSalesInvoiceNo[1], PostedSalesInvoiceNo[2]);
+        VATEntry.SetFilter("Remaining Unrealized Base", '<0');
+        Assert.RecordCount(VATEntry, ArrayLen(PostedSalesInvoiceNo));
+
+        // [GIVEN] General Journal with 3 payment lines:
+        // [GIVEN] Sales Payment[1] applied to Sales Invoice[1]
+        // [GIVEN] Sales Payment[2] applied to Bill[1] (that rejected and 'closed')
+        // [GIVEN] Sales Payment[3] applied to Sales Invoice[2]
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"G/L Account");
+        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
+        GenJournalBatch.Modify(true);
+
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine[1], GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine[1]."Document Type"::Payment, GenJournalLine[1]."Account Type"::Customer, Customer[2]."No.", 0);
+        GenJournalLine[1].Validate("External Document No.", LibraryUtility.GenerateGUID());
+        GenJournalLine[1].Validate("Applies-to Doc. Type", GenJournalLine[1]."Applies-to Doc. Type"::Invoice);
+        GenJournalLine[1].Validate("Applies-to Doc. No.", PostedSalesInvoiceNo[1]);
+        GenJournalLine[1].Validate("Credit Amount", 1210);
+        GenJournalLine[1].Modify(true);
+
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine[2], GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine[2]."Document Type"::Payment, GenJournalLine[2]."Account Type"::Customer, Customer[1]."No.", 0);
+        GenJournalLine[2].Validate("Applies-to Doc. Type", GenJournalLine[2]."Applies-to Doc. Type"::Bill);
+        GenJournalLine[2].Validate("Applies-to Doc. No.", PostedSalesInvoiceWithBillNo);
+        GenJournalLine[2].Validate("Applies-to Bill No.", '1');
+        GenJournalLine[2].Validate("Credit Amount", 1210);
+        GenJournalLine[2].Modify(true);
+
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine[3], GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine[3]."Document Type"::Payment, GenJournalLine[3]."Account Type"::Customer, Customer[2]."No.", 0);
+        GenJournalLine[3].Validate("External Document No.", LibraryUtility.GenerateGUID());
+        GenJournalLine[3].Validate("Applies-to Doc. Type", GenJournalLine[3]."Applies-to Doc. Type"::Invoice);
+        GenJournalLine[3].Validate("Applies-to Doc. No.", PostedSalesInvoiceNo[2]);
+        GenJournalLine[3].Validate("Credit Amount", 1210);
+        GenJournalLine[3].Modify(true);
+
+        GenJournalLine[1].SetRange("Journal Template Name", GenJournalTemplate.Name);
+        GenJournalLine[1].SetRange("Journal Batch Name", GenJournalBatch.Name);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine[1]);
+
+        // [THEN] Unrealized VAT realized. 
+        // [THEN] Invoices' Unrealized Amount reset
+        Assert.RecordIsEmpty(VATEntry);
+
+        // [THEN] VAT posted within payment
+        VATEntry.Reset();
+        VATEntry.SetRange(Type, VATEntry.Type::Sale);
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Payment);
+        VATEntry.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        VATEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Assert.RecordCount(VATEntry, ArrayLen(PostedSalesInvoiceNo));
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('CreatePaymentModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CreatePaymentsForPostedVendorBills()
+    var
+        BankAccount: Record "Bank Account";
+        Vendor: Record Vendor;
+        PaymentTerms: Record "Payment Terms";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VendorLedgerEntries: TestPage "Vendor Ledger Entries";
+        PaymentJournal: TestPage "Payment Journal";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Create Payment]
+        // [SCENARIO 429148] System creates Payment journal line for the posted Vendor's Bill when user invokes "Create Payment" action on Vendor Ledger Entries page
+        Initialize();
+
+        UpdateVATCashRegimeOnGLSetup(true);
+
+        LibraryERM.SetUnrealizedVAT(true);
+
+        LibraryCarteraPayables.CreateCarteraVendorUseBillToCarteraPayment(Vendor, '');
+        LibraryCarteraPayables.CreateVendorBankAccount(Vendor, '');
+        LibraryCarteraPayables.CreateBankAccount(BankAccount, '');
+
+        LibraryCarteraPayables.SetPaymentTermsVatDistribution(
+          Vendor."Payment Terms Code", PaymentTerms."VAT distribution"::Proportional);
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+
+        CreateVATPostingSetup(VATPostingSetup, Vendor."VAT Bus. Posting Group", 10);
+
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", 100);
+        PurchaseLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        PurchaseLine.Modify(true);
+
+        PurchaseHeader.TestField("Special Scheme Code", PurchaseHeader."Special Scheme Code"::"07 Special Cash");
+
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Bill, DocumentNo);
+
+        GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
+        LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.FindGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+
+        LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
+        LibraryVariableStorage.Enqueue(GenJournalBatch.Name);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
+
+        VendorLedgerEntries.OpenEdit();
+        VendorLedgerEntries.FILTER.SetFilter("Entry No.", Format(VendorLedgerEntry."Entry No."));
+        VendorLedgerEntries.First();
+        PaymentJournal.Trap();
+
+        VendorLedgerEntries."Create Payment".Invoke();
+        PaymentJournal.OK.Invoke();
+
+        VendorLedgerEntries.Close();
+
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Vendor);
+        GenJournalLine.SetRange("Account No.", Vendor."No.");
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Document Type", GenJournalLine."Document Type"::Payment);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryReportDataset.Reset();
@@ -597,6 +1094,8 @@ codeunit 147501 "Cartera Paym. Settlement"
 
         if IsInitialized then
             exit;
+
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
 
         LocalCurrencyCode := '';
         IsInitialized := true;
@@ -700,6 +1199,50 @@ codeunit 147501 "Cartera Paym. Settlement"
         CreatePaymentOrder(BankAccount, PaymentOrder, CarteraDoc, DocumentNo, Vendor, CurrencyCode);
     end;
 
+    local procedure PrePostBillGroupSetup(var BankAccount: Record "Bank Account"; var Customer: Record Customer)
+    var
+        CustomerBankAccount: Record "Customer Bank Account";
+    begin
+        LibraryCarteraReceivables.CreateCarteraCustomer(Customer, LocalCurrencyCode);
+        LibraryCarteraReceivables.CreateCustomerBankAccount(Customer, CustomerBankAccount);
+        LibraryCarteraReceivables.CreateBankAccount(BankAccount, LocalCurrencyCode);
+    end;
+
+    local procedure CreateAndPostPurchaseInvoiceWithItem(var Vendor: Record Vendor; var VATPostingSetup: Record "VAT Posting Setup"; LineQuantity: Decimal; UnitCost: Decimal): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LineQuantity);
+        PurchaseLine.Validate("Direct Unit Cost", UnitCost);
+        PurchaseLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        PurchaseLine.Modify(true);
+
+        PurchaseHeader.TestField("Special Scheme Code", PurchaseHeader."Special Scheme Code"::"07 Special Cash");
+
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+    end;
+
+    local procedure CreateAndPostSalesInvoiceWithItem(var Customer: Record Customer; var VATPostingSetup: Record "VAT Posting Setup"; LineQuantity: Decimal; UnitPrice: Decimal): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LineQuantity);
+        SalesHeader.Validate("Special Scheme Code", SalesHeader."Special Scheme Code"::"07 Special Cash");
+        SalesHeader.Modify(true);
+
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        SalesLine.Modify(true);
+
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
     local procedure CreatePaymentOrder(var BankAccount: Record "Bank Account"; var PaymentOrder: Record "Payment Order"; var CarteraDoc: Record "Cartera Doc."; DocumentNo: Code[20]; Vendor: Record Vendor; CurrencyCode: Code[10])
     begin
         if CurrencyCode = LocalCurrencyCode then
@@ -750,8 +1293,67 @@ codeunit 147501 "Cartera Paym. Settlement"
         VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::Percentage);
         VATPostingSetup.Validate("VAT Cash Regime", true);
         VATPostingSetup.Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Modify(true);
+    end;
+
+    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusinessPostingGroupCode: Code[20]; VATPercent: Decimal)
+    var
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroupCode, VATProductPostingGroup.Code);
+        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.Validate("VAT %", VATPercent);
+        VATPostingSetup.Validate("VAT Identifier", LibraryUtility.GenerateGUID());
+        VATPostingSetup.Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
+    end;
+
+    local procedure CreateFixedAssetWithGroup(var FixedAsset: Record "Fixed Asset"; VATPostingSetup: Record "VAT Posting Setup")
+    var
+        FAPostingGroup: Record "FA Posting Group";
+        FADepreciationBook: Record "FA Depreciation Book";
+    begin
+        LibraryFixedAsset.CreateFixedAsset(FixedAsset);
+        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
+        UpdateFAPostingGroup(FAPostingGroup, VATPostingSetup);
+        FixedAsset.Validate("FA Posting Group", FAPostingGroup.Code);
+        FixedAsset.Modify(true);
+        CreateFADepreciationBook(FADepreciationBook, FixedAsset);
+    end;
+
+    local procedure CreateFADepreciationBook(var FADepreciationBook: Record "FA Depreciation Book"; FixedAsset: Record "Fixed Asset")
+    begin
+        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", LibraryFixedAsset.GetDefaultDeprBook);
+        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate());
+
+        // Random Number Generator for Ending date.
+        FADepreciationBook.Validate("Depreciation Ending Date", CalcDate('<' + Format(LibraryRandom.RandIntInRange(2, 5)) + 'Y>', WorkDate()));
+        FADepreciationBook.Validate("FA Posting Group", FixedAsset."FA Posting Group");
+        FADepreciationBook.Modify(true);
+    end;
+
+    local procedure UpdateFAPostingGroup(FAPostingGroup: Record "FA Posting Group"; VATPostingSetup: Record "VAT Posting Setup")
+    var
+        FAPostingGroup2: Record "FA Posting Group";
+        GLAccount: Record "G/L Account";
+    begin
+        FAPostingGroup2.SetFilter("Acquisition Cost Account", '<>''''');
+        FAPostingGroup2.FindFirst();
+        FAPostingGroup.TransferFields(FAPostingGroup2, false);
+
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
+
+        FAPostingGroup.Validate("Acquisition Cost Account", GLAccount."No.");
+        FAPostingGroup.Modify(true);
     end;
 
     local procedure CalculateExpectedVATAmount(DocumentNo: Code[20]; TotalAmount: Decimal; var ExpectedVATAmount: Decimal)
@@ -774,6 +1376,30 @@ codeunit 147501 "Cartera Paym. Settlement"
         DiscountPct := LibraryRandom.RandIntInRange(5, 90);
         PaymentTerms.Validate("Discount %", DiscountPct);
         PaymentTerms.Modify(true);
+    end;
+
+    local procedure InvokeRejectOnBillGroup(CustomerNo: Code[20]; DocumentNo: Code[20]; BillGroupNo: Code[20]; var TotalAmount: Decimal; SettlePostingDate: Date)
+    var
+        PostedBillGroup: Record "Posted Bill Group";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        PostedBillGroupTestPage: TestPage "Posted Bill Groups";
+    begin
+        TotalAmount := LibraryCarteraReceivables.GetPostedSalesInvoiceAmount(
+            CustomerNo, DocumentNo, CustLedgerEntry."Document Type"::Invoice);
+
+        // Open View - Posted Bill Groups page
+        PostedBillGroupTestPage.OpenView();
+
+        PostedBillGroup.SetFilter("No.", BillGroupNo);
+        PostedBillGroup.FindFirst();
+
+        PostedBillGroupTestPage.GotoRecord(PostedBillGroup);
+
+        // Exercise
+        Commit();
+        //LibraryVariableStorage.Enqueue(SettlePostingDate);
+        //LibraryVariableStorage.Enqueue(StrSubstNo(TotalSettlementBillGroupMsg, 1, TotalAmount));
+        PostedBillGroupTestPage.Docs.Reject.Invoke();
     end;
 
     local procedure InvokeTotalSettlementOnPaymentOrder(PostedPaymentOrderNo: Code[20])
@@ -806,6 +1432,15 @@ codeunit 147501 "Cartera Paym. Settlement"
           StrSubstNo(PartialSettlementPOMsg, 1, InitialAmount - DiscountAmount, PostedPaymentOrderNo, SettledAmount));
 
         PostedPaymentOrdersTestPage.Docs.PartialSettlement.Invoke;
+    end;
+
+    local procedure UpdateVATCashRegimeOnGLSetup(VATCashRegime: Boolean)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("VAT Cash Regime", VATCashRegime);
+        GeneralLedgerSetup.Modify(true);
     end;
 
     local procedure VerifyPartialSettlementOnPaymentOrder(CarteraDoc: Record "Cartera Doc."; InitialAmount: Decimal; SettledAmount: Decimal; PaymentOrder: Record "Payment Order")
@@ -916,35 +1551,35 @@ codeunit 147501 "Cartera Paym. Settlement"
         GLEntry.SetRange("Document No.", DocumentNo);
 
         GLEntry.Find('-');
-        Assert.AreNearlyEqual(TotalAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision, 'Wrong amount on G/L Line');
+        Assert.AreNearlyEqual(TotalAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision(), 'Wrong amount on G/L Line');
 
         GLEntry.Next();
-        Assert.AreNearlyEqual(TotalAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision, 'Wrong amount on G/L Line');
+        Assert.AreNearlyEqual(TotalAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision(), 'Wrong amount on G/L Line');
 
         if HasUnrealizedVAT then begin
             GLEntry.Next();
             Assert.AreNearlyEqual(
-              ExpectedVATamount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision, 'Wrong amount for Unrealized VAT Amount');
+              ExpectedVATamount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision(), 'Wrong amount for Unrealized VAT Amount');
 
             GLEntry.Next();
             Assert.AreNearlyEqual(
-              ExpectedVATamount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision, 'Wrong amount for Unrealized VAT Amount');
+              ExpectedVATamount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision(), 'Wrong amount for Unrealized VAT Amount');
         end;
 
         // Check invoice Discount Amount
         GLEntry.Next();
         Assert.AreNearlyEqual(
-          DiscountAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision, 'Wrong amount on G/L Line for Settlement Amount');
+          DiscountAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision(), 'Wrong amount on G/L Line for Settlement Amount');
 
         // Check Remaining Amount with Discount
         GLEntry.Next();
         Assert.AreNearlyEqual(
-          TotalAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision, 'Wrong amount on G/L Line for Remaining Amount');
+          TotalAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision(), 'Wrong amount on G/L Line for Remaining Amount');
 
         // Check remainging amount without discount
         GLEntry.Next();
         Assert.AreNearlyEqual(
-          TotalAmount - DiscountAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision,
+          TotalAmount - DiscountAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision(),
           'Wrong amount on G/L line without discount');
 
         Assert.IsTrue(GLEntry.Next() = 0, 'There should not be any more G/L Entries');
@@ -955,6 +1590,16 @@ codeunit 147501 "Cartera Paym. Settlement"
     procedure SettleDocsInPostedPOModalPageHandler(var SettleDocsInPostedPOModalPageHandler: TestRequestPage "Settle Docs. in Posted PO")
     begin
         SettleDocsInPostedPOModalPageHandler.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CreatePaymentModalPageHandler(var CreatePayment: TestPage "Create Payment")
+    begin
+        CreatePayment."Template Name".SetValue(LibraryVariableStorage.DequeueText());
+        CreatePayment."Batch Name".SetValue(LibraryVariableStorage.DequeueText());
+        CreatePayment."Starting Document No.".SetValue(LibraryVariableStorage.DequeueText());
+        CreatePayment.OK.Invoke();
     end;
 
     [ModalPageHandler]
@@ -1027,6 +1672,13 @@ codeunit 147501 "Cartera Paym. Settlement"
         SettleDocsinPostedPO.PostingDate.SetValue(WorkDate());
 
         SettleDocsinPostedPO.OK.Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RejectDocsRequestPageHandler(var RejectDocs: TestRequestPage "Reject Docs.")
+    begin
+        RejectDocs.OK().Invoke();
     end;
 }
 

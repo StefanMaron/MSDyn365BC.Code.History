@@ -463,6 +463,11 @@ page 5933 "Service Invoice"
                         ApplicationArea = VAT;
                         ToolTip = 'Specifies the VAT registration number of the company sucessor in connection with corporate restructuring.';
                     }
+                    field("Do Not Send To SII"; "Do Not Send To SII")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies if the document must not be sent to SII.';
+                    }
                 }
             }
             group(Shipping)
@@ -611,7 +616,7 @@ page 5933 "Service Invoice"
             part(ServiceDocCheckFactbox; "Service Doc. Check Factbox")
             {
                 ApplicationArea = All;
-                Caption = 'Check Document';
+                Caption = 'Document Check';
                 Visible = ServiceDocCheckFactboxVisible;
                 SubPageLink = "No." = FIELD("No."),
                               "Document Type" = FIELD("Document Type");

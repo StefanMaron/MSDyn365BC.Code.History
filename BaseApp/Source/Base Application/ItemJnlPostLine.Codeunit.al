@@ -609,6 +609,8 @@
                     "Document Line No." := 0;
                     "Invoiced Quantity" := 0;
                 end;
+
+                OnPostOutputOnBeforePostItem(ItemJnlLine, ProdOrderLine);
                 PostItem;
                 UpdateProdOrderLine(ProdOrderLine, ReTrack);
                 OnPostOutputOnAfterUpdateProdOrderLine(ItemJnlLine, WhseJnlLine, GlobalItemLedgEntry);
@@ -1398,8 +1400,8 @@
             QtyToPost :=
               CostCalcMgt.CalcActNeededQtyBase(ProdOrderLine, ProdOrderComp, OutputQtyBase) / ProdOrderComp."Qty. per Unit of Measure";
             if (ProdOrderLine."Remaining Qty. (Base)" = OutputQtyBase) and
-               (Abs(QtyToPost - ProdOrderComp."Remaining Quantity") < CompItem."Rounding Precision") and
-               (ProdOrderComp."Remaining Quantity" <> 0)
+               (ProdOrderComp."Remaining Quantity" <> 0) and
+               (Abs(Round(QtyToPost, CompItem."Rounding Precision") - ProdOrderComp."Remaining Quantity") <= CompItem."Rounding Precision")
             then
                 QtyToPost := ProdOrderComp."Remaining Quantity";
         end else
@@ -1457,6 +1459,7 @@
 
                 if not DimsAreTaken then begin
                     "Dimension Set ID" := GetCombinedDimSetID(ProdOrderLine."Dimension Set ID", ProdOrderComp."Dimension Set ID");
+                    OnPostFlushedConsumptionOnAfterSetDimensionSetID(ItemJnlLine, ProdOrderLine);
                     DimsAreTaken := true;
                 end;
                 ItemJnlCheckLine.RunCheck(ItemJnlLine);
@@ -5203,6 +5206,7 @@
 
         ValueEntry.SetCurrentKey("Item Ledger Entry No.");
         ValueEntry.SetRange("Item Ledger Entry No.", CostItemLedgEntryNo);
+        ValueEntry.SetRange(Inventoriable, true);
         ValueEntry.SetRange("Valued By Average Cost", not ValuedByAverage);
         ValueEntry.ModifyAll("Valued By Average Cost", ValuedByAverage);
     end;
@@ -5756,7 +5760,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckItemTracking(ItemJournalLine: Record "Item Journal Line"; ItemTrackingSetup: Record "Item Tracking Setup"; var IsHandled: Boolean; var TempTrackingSpecification: Record "Tracking Specification" temporary)
+    local procedure OnBeforeCheckItemTracking(var ItemJournalLine: Record "Item Journal Line"; ItemTrackingSetup: Record "Item Tracking Setup"; var IsHandled: Boolean; var TempTrackingSpecification: Record "Tracking Specification" temporary)
     begin
     end;
 
@@ -5966,7 +5970,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterPostItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ItemLedgerEntry: Record "Item Ledger Entry"; var ValueEntryNo: Integer; var InventoryPostingToGL: Codeunit "Inventory Posting To G/L"; CalledFromAdjustment: Boolean; CalledFromInvtPutawayPick: Boolean; var ItemRegister: Record "Item Register"; ItemLedgEntryNo: Integer; ItemApplnEntryNo: Integer)
+    local procedure OnAfterPostItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ItemLedgerEntry: Record "Item Ledger Entry"; var ValueEntryNo: Integer; var InventoryPostingToGL: Codeunit "Inventory Posting To G/L"; CalledFromAdjustment: Boolean; CalledFromInvtPutawayPick: Boolean; var ItemRegister: Record "Item Register"; var ItemLedgEntryNo: Integer; var ItemApplnEntryNo: Integer)
     begin
     end;
 
@@ -6256,7 +6260,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterApplyItemLedgEntryOnBeforeCalcAppliedQty(OldItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry")
+    local procedure OnAfterApplyItemLedgEntryOnBeforeCalcAppliedQty(var OldItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 
@@ -6491,6 +6495,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostFlushedConsumptionOnAfterSetDimensionSetID(ItemJournalLine: Record "Item Journal Line"; var ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostConsumptionOnAfterInsertEntry(var ProdOrderComponent: Record "Prod. Order Component")
     begin
     end;
@@ -6562,6 +6571,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostOutputOnBeforeCreateWhseJnlLine(var ItemJournalLine: Record "Item Journal Line"; var PostWhseJnlLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostOutputOnBeforePostItem(var ItemJournalLine: Record "Item Journal Line"; var ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
 

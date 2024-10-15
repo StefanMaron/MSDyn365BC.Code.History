@@ -431,6 +431,11 @@
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the ID Type.';
                     }
+                    field("Do Not Send To SII"; "Do Not Send To SII")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies if the document must not be sent to SII.';
+                    }
                 }
             }
             group(Payment)
@@ -696,7 +701,7 @@
             part(SalesDocCheckFactbox; "Sales Doc. Check Factbox")
             {
                 ApplicationArea = All;
-                Caption = 'Check Document';
+                Caption = 'Document Check';
                 Visible = SalesDocCheckFactboxVisible;
                 SubPageLink = "No." = FIELD("No."),
                               "Document Type" = FIELD("Document Type");
@@ -1675,6 +1680,8 @@
 
         SalesDocCheckFactboxVisible := DocumentErrorsMgt.BackgroundValidationEnabled();
         WorkflowWebhookMgt.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
+
+        OnAfterSetControlAppearance(Rec);
     end;
 
     procedure RunBackgroundCheck()
@@ -1723,6 +1730,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterOnAfterGetRecord(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetControlAppearance(var SalesHeader: Record "Sales Header")
     begin
     end;
 

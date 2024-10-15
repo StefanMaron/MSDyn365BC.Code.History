@@ -1,4 +1,4 @@
-codeunit 2581 "Dim Correction Run"
+﻿codeunit 2581 "Dim Correction Run"
 {
     TableNo = "Job Queue Entry";
     Permissions = tabledata "G/L Entry" = rimd;
@@ -117,6 +117,7 @@ codeunit 2581 "Dim Correction Run"
         GLEntry."Dimension Set ID" := TempDimCorrectionSetBuffer."Target Set ID";
         DimensionManagement.UpdateGlobalDimFromDimSetID(
             GLEntry."Dimension Set ID", GLEntry."Global Dimension 1 Code", GLEntry."Global Dimension 2 Code");
+        OnUpdateGLEntryOnAfterUpdateGlobalDimFromDimSetID(GLEntry);
 
         if TempDimCorrectionSetBuffer."Multiple Target Set ID" then begin
             DimCorrectionSetBuffer.Get(TempDimCorrectionSetBuffer.RecordId);
@@ -162,7 +163,12 @@ codeunit 2581 "Dim Correction Run"
         DimensionCorrectionTok: Label 'DimensionCorrection', Locked = true;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateGLEntry(var GLEntry: Record "G/L Entry"; var TempDimCorrectionSetBuffer: Record "Dim Correction Set Buffer"; var Result: Boolean; DimensionCorrectionEntryNo: Integer;var TempInvalidatedDimCorrection: Record "Invalidated Dim Correction" temporary)
+    local procedure OnAfterUpdateGLEntry(var GLEntry: Record "G/L Entry"; var TempDimCorrectionSetBuffer: Record "Dim Correction Set Buffer"; var Result: Boolean; DimensionCorrectionEntryNo: Integer; var TempInvalidatedDimCorrection: Record "Invalidated Dim Correction" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateGLEntryOnAfterUpdateGlobalDimFromDimSetID(var GLEntry: Record "G/L Entry")
     begin
     end;
 }

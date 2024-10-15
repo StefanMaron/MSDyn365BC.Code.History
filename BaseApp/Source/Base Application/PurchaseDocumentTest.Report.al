@@ -1,4 +1,4 @@
-report 402 "Purchase Document - Test"
+﻿report 402 "Purchase Document - Test"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './PurchaseDocumentTest.rdlc';
@@ -2272,6 +2272,8 @@ report 402 "Purchase Document - Test"
               DimMgt.GetDefaultDimID(DefaultDimSource, SourceCodesetup.Purchases, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code",
                 "Dimension Set ID", DATABASE::Vendor);
         end;
+
+        OnAfterAddDimToTempLine(PurchLine);
     end;
 
     procedure InitializeRequest(NewReceiveShipOnNextPostReq: Boolean; NewInvOnNextPostReq: Boolean; NewShowDim: Boolean; NewShowItemChargeAssgnt: Boolean)
@@ -2350,6 +2352,11 @@ report 402 "Purchase Document - Test"
                               StrSubstNo(Text010, Format("Posting Date")))
                     end;
                 end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAddDimToTempLine(var PurchLine: Record "Purchase Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

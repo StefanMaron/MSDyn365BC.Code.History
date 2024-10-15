@@ -131,6 +131,7 @@ codeunit 5950 "Service-Calc. Discount"
                         else
                             ServiceLine2.Validate("Unit Price", CustInvDisc."Service Charge");
                         ServiceLine2."System-Created Entry" := true;
+                        OnCalculateInvoiceDiscountOnBeforeServiceLineInsert(ServiceLine2, ServHeader);
                         ServiceLine2.Insert();
                         ServLineServChrg := ServiceLine2;
                         if not ServLineServChrg.Find then
@@ -331,6 +332,11 @@ codeunit 5950 "Service-Calc. Discount"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateInvoiceDiscountOnAfterServiceLine2ValidateQuantity(var ServiceHeader: Record "Service Header"; var ServiceLine2: Record "Service Line"; var CustInvDisc: Record "Cust. Invoice Disc.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateInvoiceDiscountOnBeforeServiceLineInsert(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
     begin
     end;
 }

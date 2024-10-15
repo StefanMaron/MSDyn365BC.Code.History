@@ -150,6 +150,8 @@ codeunit 5342 "CRM Synch. Helper"
         CRMProductpricelevel: Record "CRM Productpricelevel";
         CRMUom: Record "CRM Uom";
     begin
+        if CRMInvoicedetail.PricePerUnit <= 0 then
+            exit;
         CRMInvoice.Get(CRMInvoicedetail.InvoiceId);
         CRMUom.Get(CRMInvoicedetail.UoMId);
         with CRMProductpricelevel do begin

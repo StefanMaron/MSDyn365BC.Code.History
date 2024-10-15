@@ -17,8 +17,8 @@ table 225 "Post Code"
                 PostCode.SetRange("Search City", "Search City");
                 PostCode.SetRange(Code, Code);
                 if not PostCode.IsEmpty() then
-                    Error(Text000, FieldCaption(Code), Code);
-                GetCountyCode;
+                    Error(CodeCityAlreadyExistsErr, FieldCaption(Code), Code);
+                GetCountyCode();
             end;
         }
         field(2; City; Text[30])
@@ -36,7 +36,7 @@ table 225 "Post Code"
                     PostCode.SetRange("Search City", "Search City");
                     PostCode.SetRange(Code, Code);
                     if not PostCode.IsEmpty() then
-                        Error(Text000, FieldCaption(City), City);
+                        Error(CodeCityAlreadyExistsErr, FieldCaption(City), City);
                 end;
             end;
         }
@@ -112,8 +112,8 @@ table 225 "Post Code"
     }
 
     var
-        Text000: Label '%1 %2 already exists.';
         TimeZoneSelection: Codeunit "Time Zone Selection";
+        CodeCityAlreadyExistsErr: Label '%1 %2 already exists.', Comment = '%1 = Post code ; %2 = City name';
 
     procedure ValidateCity(var CityTxt: Text[30]; var PostCode: Code[20]; var CountyTxt: Text[30]; var CountryCode: Code[10]; UseDialog: Boolean)
     var
