@@ -780,6 +780,20 @@ codeunit 10 "Type Helper"
         exit(Result);
     end;
 
+    procedure GetInputDateTimeInUserTimeZone(InputDateTime: DateTime) Result: DateTime
+    var
+        TypeHelper: Codeunit "Type Helper";
+        DateTime: DotNet DateTime;
+        TimezoneOffset: Duration;
+    begin
+        if not TypeHelper.GetUserTimezoneOffset(TimezoneOffset) then
+            TimezoneOffset := 0;
+        DateTime := InputDateTime;
+        DateTime := DateTime.ToUniversalTime() + TimezoneOffset;
+        System.Evaluate(Result, DateTime.ToString());
+        exit(Result);
+    end;
+
     procedure ConvertDateTimeFromUTCToTimeZone(InputDateTime: DateTime; TimeZoneTxt: Text): DateTime
     var
         TimeZoneInfo: DotNet TimeZoneInfo;

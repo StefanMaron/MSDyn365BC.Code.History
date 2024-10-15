@@ -349,6 +349,7 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Confidential Information" = IM,
                   tabledata "Config. Media Buffer" = RIMD,
                   tabledata "Consolidation Account" = RIM,
+                  tabledata "Consolidation Log Entry" = RIMD,
                   tabledata "Consolidation Process" = RIM,
                   tabledata "Consolidation Setup" = RIM,
                   tabledata "Contact Alt. Addr. Date Range" = RIMD,

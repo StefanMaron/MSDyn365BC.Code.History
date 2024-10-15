@@ -472,11 +472,17 @@ codeunit 7311 "Whse. Worksheet-Create"
         Location: Record Location;
         TypeHelper: Codeunit "Type Helper";
         AvailQtyToPickBase: Decimal;
+        IsHandled: Boolean;
     begin
         AvailQtyToPickBase := WhseWkshLine."Qty. to Handle (Base)"; // When "Always Create Pick Line" is false, then "Qty. to Handle (Base)" is set to maximum available quantity for the item in the location
         if Location.Get(WhseWkshLine."Location Code") then
             if Location."Always Create Pick Line" then
                 AvailQtyToPickBase := WhseWkshLine.CalcAvailableQtyBase(); // Set the Qty. to handle to the available quantity for "Always Create Pick Line" when transferring warehouse shipment lines to warehouse worksheet lines
+
+        IsHandled := false;
+        OnAdjustQtyToHandleOnBeforeAssignQtyToHandle(WhseWkshLine, AvailQtyToPickBase, IsHandled);
+        if IsHandled then
+            exit;
 
         WhseWkshLine."Qty. to Handle" := TypeHelper.Minimum(AvailQtyToPickBase, WhseWkshLine."Qty. Outstanding");
         WhseWkshLine."Qty. to Handle (Base)" := WhseWkshLine.CalcBaseQty(WhseWkshLine."Qty. to Handle");
@@ -540,6 +546,11 @@ codeunit 7311 "Whse. Worksheet-Create"
 
     [IntegrationEvent(false, false)]
     local procedure OnFromJobPlanningLineOnBeforeCreateWhseWkshLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAdjustQtyToHandleOnBeforeAssignQtyToHandle(var WhseWorksheetLine: Record "Whse. Worksheet Line"; var AvailQtyToPickBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

@@ -207,6 +207,21 @@ table 370 "Excel Buffer"
         EndXmlTokenTxt: Label '</xml>', Locked = true;
         CellNotFoundErr: Label 'Cell %1 not found.', Comment = '%1 - cell name';
 
+        // Shared instances of the cell decorators that are reused to ensure the have the same object reference
+        // allowing the platform to avoid extra allocations.
+        BoldItalicDoubleUnderlinedCellDecorator: DotNet CellDecorator;
+        BoldItalicUnderlinedCellDecorator: DotNet CellDecorator;
+        BoldItalicCellDecorator: DotNet CellDecorator;
+        BoldDoubleUnderlinedCellDecorator: DotNet CellDecorator;
+        BoldUnderlinedCellDecorator: DotNet CellDecorator;
+        BoldCellDecorator: DotNet CellDecorator;
+        ItalicDoubleUnderlinedCellDecorator: DotNet CellDecorator;
+        ItalicUnderlinedCellDecorator: DotNet CellDecorator;
+        ItalicCellDecorator: DotNet CellDecorator;
+        DoubleUnderlinedCellDecorator: DotNet CellDecorator;
+        UnderlinedCellDecorator: DotNet CellDecorator;
+        CellDecorator: DotNet CellDecorator;
+
     procedure SetReadDateTimeInUtcDate(NewValue: Boolean)
     begin
         ReadDateTimeInUtcDate := NewValue;
@@ -608,59 +623,80 @@ table 370 "Excel Buffer"
     begin
         if IsBold and IsItalic then begin
             if IsDoubleUnderlined then begin
-                Decorator := XlWrkShtWriter.DefaultBoldItalicDoubleUnderlinedCellDecorator;
+                if (System.IsNull(BoldItalicDoubleUnderlinedCellDecorator)) then
+                    BoldItalicDoubleUnderlinedCellDecorator := XlWrkShtWriter.DefaultBoldItalicDoubleUnderlinedCellDecorator;
+                Decorator := BoldItalicDoubleUnderlinedCellDecorator;
                 exit;
             end;
             if IsUnderlined then begin
-                Decorator := XlWrkShtWriter.DefaultBoldItalicUnderlinedCellDecorator;
+                if (System.IsNull(BoldItalicUnderlinedCellDecorator)) then
+                    BoldItalicUnderlinedCellDecorator := XlWrkShtWriter.DefaultBoldItalicUnderlinedCellDecorator;
+                Decorator := BoldItalicUnderlinedCellDecorator;
                 exit;
             end;
-        end;
 
-        if IsBold and IsItalic then begin
-            Decorator := XlWrkShtWriter.DefaultBoldItalicCellDecorator;
-            exit;
+            if (System.IsNull(BoldItalicCellDecorator)) then
+                BoldItalicCellDecorator := XlWrkShtWriter.DefaultBoldItalicCellDecorator;
+            Decorator := BoldItalicCellDecorator;
+            exit
         end;
 
         if IsBold then begin
             if IsDoubleUnderlined then begin
-                Decorator := XlWrkShtWriter.DefaultBoldDoubleUnderlinedCellDecorator;
+                if (System.IsNull(BoldDoubleUnderlinedCellDecorator)) then
+                    BoldDoubleUnderlinedCellDecorator := XlWrkShtWriter.DefaultBoldDoubleUnderlinedCellDecorator;
+                Decorator := BoldDoubleUnderlinedCellDecorator;
                 exit;
             end;
             if IsUnderlined then begin
-                Decorator := XlWrkShtWriter.DefaultBoldUnderlinedCellDecorator;
+                if (System.IsNull(BoldUnderlinedCellDecorator)) then
+                    BoldUnderlinedCellDecorator := XlWrkShtWriter.DefaultBoldUnderlinedCellDecorator;
+                Decorator := BoldUnderlinedCellDecorator;
                 exit;
             end;
-        end;
 
-        if IsBold then begin
-            Decorator := XlWrkShtWriter.DefaultBoldCellDecorator;
+            if (System.IsNull(BoldCellDecorator)) then
+                BoldCellDecorator := XlWrkShtWriter.DefaultBoldCellDecorator;
+            Decorator := BoldCellDecorator;
             exit;
         end;
 
         if IsItalic then begin
             if IsDoubleUnderlined then begin
-                Decorator := XlWrkShtWriter.DefaultItalicDoubleUnderlinedCellDecorator;
+                if (System.IsNull(ItalicDoubleUnderlinedCellDecorator)) then
+                    ItalicDoubleUnderlinedCellDecorator := XlWrkShtWriter.DefaultItalicDoubleUnderlinedCellDecorator;
+                Decorator := ItalicDoubleUnderlinedCellDecorator;
                 exit;
             end;
             if IsUnderlined then begin
-                Decorator := XlWrkShtWriter.DefaultItalicUnderlinedCellDecorator;
+                if (System.IsNull(ItalicUnderlinedCellDecorator)) then
+                    ItalicUnderlinedCellDecorator := XlWrkShtWriter.DefaultItalicUnderlinedCellDecorator;
+                Decorator := ItalicUnderlinedCellDecorator;
                 exit;
             end;
-        end;
 
-        if IsItalic then begin
-            Decorator := XlWrkShtWriter.DefaultItalicCellDecorator;
+            if (System.IsNull(ItalicCellDecorator)) then
+                ItalicCellDecorator := XlWrkShtWriter.DefaultItalicCellDecorator;
+            Decorator := ItalicCellDecorator;
             exit;
         end;
 
-        if IsDoubleUnderlined then
-            Decorator := XlWrkShtWriter.DefaultDoubleUnderlinedCellDecorator
+        if IsDoubleUnderlined then begin
+            if (System.IsNull(DoubleUnderlinedCellDecorator)) then
+                DoubleUnderlinedCellDecorator := XlWrkShtWriter.DefaultDoubleUnderlinedCellDecorator;
+            Decorator := DoubleUnderlinedCellDecorator
+        end
         else
-            if IsUnderlined then
-                Decorator := XlWrkShtWriter.DefaultUnderlinedCellDecorator
-            else
-                Decorator := XlWrkShtWriter.DefaultCellDecorator;
+            if IsUnderlined then begin
+                if (System.IsNull(UnderlinedCellDecorator)) then
+                    UnderlinedCellDecorator := XlWrkShtWriter.DefaultUnderlinedCellDecorator;
+                Decorator := UnderlinedCellDecorator;
+            end
+            else begin
+                if (System.IsNull(CellDecorator)) then
+                    CellDecorator := XlWrkShtWriter.DefaultCellDecorator;
+                Decorator := CellDecorator;
+            end;
     end;
 
     procedure SetColumnWidth(ColName: Text[10]; NewColWidth: Decimal)
@@ -869,7 +905,10 @@ table 370 "Excel Buffer"
             // DO NOT TRANSLATE: Budget is used to define an Excel worksheet name. You must refer to Excel rules to change this term.
             11:
                 exit(Text022);
-        // DO NOT TRANSLATE: CostAcc is used to define an Excel range name. You must refer to Excel rules to change this term.
+            // DO NOT TRANSLATE: CostAcc is used to define an Excel range name. You must refer to Excel rules to change this term.
+            12:
+                exit('!');
+            // ! is the Excel code for reference to sheet.
         end;
     end;
 
@@ -1140,6 +1179,16 @@ table 370 "Excel Buffer"
           GetExcelReference(4) + RangeStartXlCol + GetExcelReference(4) + RangeStartXlRow +
           ':' +
           GetExcelReference(4) + RangeEndXlCol + GetExcelReference(4) + RangeEndXlRow);
+    end;
+
+    procedure CreateValidationRule(Range: Code[20]; SheetName: Text[250])
+    begin
+        XlWrkShtWriter.AddRangeDataValidation(
+            Range,
+            SheetName + GetExcelReference(12) +
+            GetExcelReference(4) + RangeStartXlCol + GetExcelReference(4) + RangeStartXlRow +
+            ':' +
+            GetExcelReference(4) + RangeEndXlCol + GetExcelReference(4) + RangeEndXlRow);
     end;
 
     procedure QuitExcel()

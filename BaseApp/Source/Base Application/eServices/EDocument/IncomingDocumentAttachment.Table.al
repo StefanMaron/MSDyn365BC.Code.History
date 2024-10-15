@@ -245,7 +245,7 @@ table 133 "Incoming Document Attachment"
             exit;
 
         if not CODEUNIT.Run(CODEUNIT::"Import Attachment - Inc. Doc.", Rec) then
-            Error('');
+            Error(GetLastErrorText());
     end;
 
     procedure NewAttachmentFromGenJnlLine(GenJournalLine: Record "Gen. Journal Line")

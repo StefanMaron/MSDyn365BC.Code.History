@@ -141,7 +141,7 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
             AccountStreet := GetField(RecordRef, Customer.FieldName(Address));
             AccountPostCode := GetField(RecordRef, Customer.FieldName("Post Code"));
             AccountCity := GetField(RecordRef, Customer.FieldName(City));
-            OnPrepareSOAPRequestBodyOnBeforeSetAccountDetails(RecordRef, VATRegistrationLog, AccountName, AccountStreet, AccountPostCode, AccountCity);
+            OnPrepareSOAPRequestBodyOnBeforeSetAccountDetails(RecordRef, VATRegistrationLog, AccountName, AccountStreet, AccountCity, AccountPostCode);
             VATRegistrationLog.SetAccountDetails(AccountName, AccountStreet, AccountCity, AccountPostCode);
         end;
 

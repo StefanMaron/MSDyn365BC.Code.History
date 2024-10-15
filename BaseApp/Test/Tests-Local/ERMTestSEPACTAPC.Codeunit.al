@@ -19,7 +19,7 @@ codeunit 144060 "ERM Test SEPA CT APC"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
         InvalidLengthTxt: Label 'The lengths are not identical';
-        NamespaceTxt: Label 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03';
+        NamespaceTxt: Label 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09';
         LibraryRandom: Codeunit "Library - Random";
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         Initialized: Boolean;

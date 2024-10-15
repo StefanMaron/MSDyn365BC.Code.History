@@ -468,7 +468,7 @@ report 5880 "Calc. Phys. Invt. Order Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetWhseEntryFilters(var WhseEntry: Record "Warehouse Entry"; ItemLedgEntry: Record "Item Ledger Entry"; Item: Record Item)
+    local procedure OnAfterSetWhseEntryFilters(var WhseEntry: Record "Warehouse Entry"; ItemLedgEntry: Record "Item Ledger Entry"; var Item: Record Item)
     begin
     end;
 

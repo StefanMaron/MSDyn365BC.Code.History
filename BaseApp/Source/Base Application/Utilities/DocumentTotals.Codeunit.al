@@ -610,6 +610,7 @@ codeunit 57 "Document Totals"
         OnAfterPurchaseLineSetFilters(TotalPurchaseLine2, PurchaseLine);
         TotalPurchaseLine2.CalcSums("Line Amount", Amount, "Amount Including VAT", "Inv. Discount Amount");
         VATAmount := TotalPurchaseLine2."Amount Including VAT" - TotalPurchaseLine2.Amount;
+        OnCalculatePurchasePageTotalsOnAfterCalculateVATAmount(TotalPurchaseLine, VATAmount, PurchaseLine, TotalPurchaseLine2);
         TotalPurchaseLine := TotalPurchaseLine2;
     end;
 
@@ -850,10 +851,16 @@ codeunit 57 "Document Totals"
         exit(GetCaptionWithCurrencyCode(CaptionClassTranslate(GetCaptionWithVATInfo(TotalLineAmountLbl, IncludesVAT)), CurrencyCode));
     end;
 
-    procedure SalesCheckNumberOfLinesLimit(SalesHeader: Record "Sales Header"): Boolean
+    procedure SalesCheckNumberOfLinesLimit(SalesHeader: Record "Sales Header") Result: Boolean
     var
         SalesLine: Record "Sales Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesCheckNumberOfLinesLimit(SalesHeader, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetFilter(Type, '<>%1', SalesLine.Type::" ");
@@ -1084,6 +1091,16 @@ codeunit 57 "Document Totals"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchaseCheckNumberOfLinesLimit(var PurchaseHeader: Record "Purchase Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesCheckNumberOfLinesLimit(var SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculatePurchasePageTotalsOnAfterCalculateVATAmount(var TotalPurchaseLine: Record "Purchase Line"; var VATAmount: Decimal; var PurchaseLine: Record "Purchase Line"; var TotalPurchaseLine2: Record "Purchase Line")
     begin
     end;
 }

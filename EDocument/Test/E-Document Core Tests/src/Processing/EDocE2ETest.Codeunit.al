@@ -828,7 +828,7 @@ codeunit 139624 "E-Doc E2E Test"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         // [FEATURE] [E-Document] [Processing] 
-        // [SCENARIO] Runtime failure in Send when send is async and check that Get Response does nothing
+        // [SCENARIO] Runtime failure in Send when send is async and check that Get Response is not invoked
 
         // [GIVEN] That we throw runtime error inside code that implements interface
         Initialize();
@@ -851,18 +851,8 @@ codeunit 139624 "E-Doc E2E Test"
         Assert.AreEqual(EDocumentServiceStatus.Status::"Sending Error", EDocumentServiceStatus.Status, IncorrectValueErr);
         Assert.AreEqual(EDocument.Status::Error, EDocument.Status, IncorrectValueErr);
 
-        // [WHEN] Get Response job queue is run
-        Assert.IsTrue(JobQueueEntry.FindJobQueueEntry(JobQueueEntry."Object Type to Run"::Codeunit, Codeunit::"E-Document Get Response"), IncorrectValueErr);
-        LibraryJobQueue.RunJobQueueDispatcher(JobQueueEntry);
-
-        // [THEN] Logs will not change as we exit early as document is not "pending response"
-        EDocumentServiceStatus.FindLast();
-        EDocumentService.FindLast();
-        EDocument.Get(EDocument."Entry No"); // Get after job queue run
-        Assert.AreEqual(EDocument."Entry No", EDocumentServiceStatus."E-Document Entry No", IncorrectValueErr);
-        Assert.AreEqual(EDocumentService.Code, EDocumentServiceStatus."E-Document Service Code", IncorrectValueErr);
-        Assert.AreEqual(EDocumentServiceStatus.Status::"Sending Error", EDocumentServiceStatus.Status, IncorrectValueErr);
-        Assert.AreEqual(EDocument.Status::Error, EDocument.Status, IncorrectValueErr);
+        // [WHEN] Get Response job queue is not run
+        Assert.IsFalse(JobQueueEntry.FindJobQueueEntry(JobQueueEntry."Object Type to Run"::Codeunit, Codeunit::"E-Document Get Response"), IncorrectValueErr);
 
         UnbindSubscription(EDocImplState);
     end;
@@ -876,7 +866,7 @@ codeunit 139624 "E-Doc E2E Test"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         // [FEATURE] [E-Document] [Processing] 
-        // [SCENARIO] Logged error in Send when send is async and check that Get Response does nothing
+        // [SCENARIO] Logged error in Send when send is async and check that Get Response is not invoked
 
         // [GIVEN] That we log error inside code that implements interface
         Initialize();
@@ -893,12 +883,8 @@ codeunit 139624 "E-Doc E2E Test"
         // [THEN] Verify that document is in error state
         VerifyStatusOnDocumentAndService(EDocument, Enum::"E-Document Status"::"Error", EDocumentService, EDocumentServiceStatus, Enum::"E-Document Service Status"::"Sending Error");
 
-        // [WHEN] Get Response job queue is run
-        Assert.IsTrue(JobQueueEntry.FindJobQueueEntry(JobQueueEntry."Object Type to Run"::Codeunit, Codeunit::"E-Document Get Response"), IncorrectValueErr);
-        LibraryJobQueue.RunJobQueueDispatcher(JobQueueEntry);
-
-        // [THEN] Logs will not change as we exit early as document is not "pending response"
-        VerifyStatusOnDocumentAndService(EDocument, Enum::"E-Document Status"::"Error", EDocumentService, EDocumentServiceStatus, Enum::"E-Document Service Status"::"Sending Error");
+        // [WHEN] Get Response job queue is not run
+        Assert.IsFalse(JobQueueEntry.FindJobQueueEntry(JobQueueEntry."Object Type to Run"::Codeunit, Codeunit::"E-Document Get Response"), IncorrectValueErr);
 
         UnbindSubscription(EDocImplState);
     end;

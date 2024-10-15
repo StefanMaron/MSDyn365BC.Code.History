@@ -591,7 +591,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                 if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then begin
                     ResetSalesOrderLineFromCRMSalesorderdetail(SourceRecordRef, DestinationRecordRef);
                     ApplySalesOrderDiscounts(SourceRecordRef, DestinationRecordRef);
-                    ChangeSalesOrderStatus(DestinationRecordRef, SalesHeader.Status::Released);
+                    ChangeValidateSalesOrderStatus(DestinationRecordRef, SalesHeader.Status::Released);
                     SetOrderNumberAndDocOccurenceNumber(SourceRecordRef, DestinationRecordRef);
                     CreateSalesOrderNotes(SourceRecordRef, DestinationRecordRef);
                 end;
@@ -732,6 +732,29 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         SourceRecordRef.GetTable(SalesHeader);
     end;
 
+    local procedure ChangeValidateSalesOrderStatus(var SourceRecordRef: RecordRef; NewStatus: Enum "Sales Document Status")
+    var
+        SalesHeader: Record "Sales Header";
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        ReleaseSalesDocument: Codeunit "Release Sales Document";
+    begin
+        if not CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
+            exit;
+
+        SalesHeader.GetBySystemId(SourceRecordRef.Field(SourceRecordRef.SystemIdNo).Value());
+
+        OnChangeSalesOrderStatusOnBeforeCompareStatus(SalesHeader, NewStatus);
+        if SalesHeader.Status = NewStatus then
+            exit;
+
+        if NewStatus = SalesHeader.Status::Released then
+            ReleaseSalesDocument.PerformManualRelease(SalesHeader)
+        else
+            ReleaseSalesDocument.PerformManualReopen(SalesHeader);
+
+        SourceRecordRef.GetTable(SalesHeader);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnBeforeModifyRecord', '', false, false)]
     procedure OnBeforeModifyRecord(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
     var
@@ -792,7 +815,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                 if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then begin
                     ResetSalesOrderLineFromCRMSalesorderdetail(SourceRecordRef, DestinationRecordRef);
                     ApplySalesOrderDiscounts(SourceRecordRef, DestinationRecordRef);
-                    ChangeSalesOrderStatus(DestinationRecordRef, SalesHeader.Status::Released);
+                    ChangeValidateSalesOrderStatus(DestinationRecordRef, SalesHeader.Status::Released);
                     CreateSalesOrderNotes(SourceRecordRef, DestinationRecordRef);
                 end;
         end;

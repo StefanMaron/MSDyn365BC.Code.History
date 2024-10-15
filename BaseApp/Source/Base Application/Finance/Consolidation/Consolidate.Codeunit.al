@@ -1128,7 +1128,7 @@ codeunit 432 Consolidate
         end;
     end;
 
-    local procedure CreateAndPostGenJnlLine(GenJnlLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry"; var DimBuf: Record "Dimension Buffer")
+    procedure CreateAndPostGenJnlLine(GenJnlLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry"; var DimBuf: Record "Dimension Buffer")
     var
         TempDimSetEntry2: Record "Dimension Set Entry" temporary;
         DimValue: Record "Dimension Value";

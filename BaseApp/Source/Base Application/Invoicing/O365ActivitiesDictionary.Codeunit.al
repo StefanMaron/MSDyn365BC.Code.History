@@ -6,18 +6,31 @@ codeunit 1310 "O365 Activities Dictionary"
     trigger OnRun()
     var
         ActivitiesCue: Record "Activities Cue";
-        results: Dictionary of [Text, Text];
+        Input: Text;
+        Inputs: Dictionary of [Text, Text];
+        Results: Dictionary of [Text, Text];
     begin
-        results.Add(ActivitiesCue.FieldName("Sales This Month"), Format(ActivitiesMgt.CalcSalesThisMonthAmount(false)));
-        results.Add(ActivitiesCue.FieldName("Overdue Sales Invoice Amount"), Format(ActivitiesMgt.OverdueSalesInvoiceAmount(false, true)));
-        results.Add(ActivitiesCue.FieldName("Overdue Purch. Invoice Amount"), Format(ActivitiesMgt.OverduePurchaseInvoiceAmount(false, true)));
-        results.Add(ActivitiesCue.FieldName("Top 10 Customer Sales YTD"), Format(ActivitiesMgt.CalcTop10CustomerSalesYTD()));
-        results.Add(ActivitiesCue.FieldName("Average Collection Days"), Format(ActivitiesMgt.CalcAverageCollectionDays()));
-        results.Add(ActivitiesCue.FieldName("S. Ord. - Reserved From Stock"), Format(ActivitiesMgt.CalcNoOfReservedFromStockSalesOrders()));
+        Inputs := Page.GetBackgroundParameters();
 
-        OnRunOnBeforeSetBackgroundTaskResult(results, ActivitiesCue);
+        foreach Input in Inputs.Keys do
+            case Input of
+                ActivitiesCue.FieldName("Sales This Month"):
+                    Results.Add(ActivitiesCue.FieldName("Sales This Month"), Format(ActivitiesMgt.CalcSalesThisMonthAmount(false)));
+                ActivitiesCue.FieldName("Overdue Sales Invoice Amount"):
+                    Results.Add(ActivitiesCue.FieldName("Overdue Sales Invoice Amount"), Format(ActivitiesMgt.OverdueSalesInvoiceAmount(false, true)));
+                ActivitiesCue.FieldName("Overdue Purch. Invoice Amount"):
+                    Results.Add(ActivitiesCue.FieldName("Overdue Purch. Invoice Amount"), Format(ActivitiesMgt.OverduePurchaseInvoiceAmount(false, true)));
+                ActivitiesCue.FieldName("Top 10 Customer Sales YTD"):
+                    Results.Add(ActivitiesCue.FieldName("Top 10 Customer Sales YTD"), Format(ActivitiesMgt.CalcTop10CustomerSalesYTD()));
+                ActivitiesCue.FieldName("Average Collection Days"):
+                    Results.Add(ActivitiesCue.FieldName("Average Collection Days"), Format(ActivitiesMgt.CalcAverageCollectionDays()));
+                ActivitiesCue.FieldName("S. Ord. - Reserved From Stock"):
+                    Results.Add(ActivitiesCue.FieldName("S. Ord. - Reserved From Stock"), Format(ActivitiesMgt.CalcNoOfReservedFromStockSalesOrders()));
+            end;
 
-        Page.SetBackgroundTaskResult(results);
+        OnRunOnBeforeSetBackgroundTaskResult(Results, ActivitiesCue);
+
+        Page.SetBackgroundTaskResult(Results);
     end;
 
     procedure FillActivitiesCue(DataList: Dictionary of [Text, Text]; var ActivitiesCue: record "Activities Cue")
