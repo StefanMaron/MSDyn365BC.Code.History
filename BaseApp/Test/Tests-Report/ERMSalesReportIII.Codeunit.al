@@ -2673,6 +2673,60 @@ codeunit 134984 "ERM Sales Report III"
         Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Log Interaction control is not visible');
     end;
 
+    [Test]
+    [HandlerFunctions('RHStandardSalesShipment,UndoShipmentConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure StandardSalesShipmentCorrectionLines()
+    var
+        SalesShipmentLine: Record "Sales Shipment Line";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 443284] Check Correction Lines not showing on Standard Sales Shipment Report.
+
+        // [GIVEN] Create and Post Sales Shipment and then undo the Shipment.
+        Initialize();
+        CreateAndPostSalesShipment(DocumentNo, CreateCustomer);
+
+        // [GIVEN] Undo the Shipment.
+        SalesShipmentLine.SetRange("Document No.", DocumentNo);
+        SalesShipmentLine.FindFirst();
+        LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
+
+        // [WHEN] Save Standard Sales Shipment Report.
+        SaveStandardSalesShipmentReportWithCorrectionLines(DocumentNo);
+
+        // [THEN] Verify Correction Lines.
+        LibraryReportDataset.LoadDataSetFile;
+        VerifyUndoneQuantityInStandardSalesShipmentReport(DocumentNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('RHStandardSalesShipment,UndoShipmentConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure StandardSalesShipmentWithOutCorrectionLines()
+    var
+        SalesShipmentLine: Record "Sales Shipment Line";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 443284] Check Correction Lines not showing on Standard Sales Shipment Report.
+
+        // [GIVEN] Create and Post Sales Shipment and then undo the Shipment.
+        Initialize();
+        CreateAndPostSalesShipment(DocumentNo, CreateCustomer);
+
+        // [GIVEN] Undo the Shipment.
+        SalesShipmentLine.SetRange("Document No.", DocumentNo);
+        SalesShipmentLine.FindFirst();
+        LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
+
+        // [WHEN] Save Standard Sales Shipment Report.
+        SaveStandardSalesShipmentReportWithOutCorrectionLines(DocumentNo);
+
+        // [THEN] Verify Correction Lines expecting as error.
+        LibraryReportDataset.LoadDataSetFile;
+        asserterror VerifyUndoneQuantityInStandardSalesShipmentReport(DocumentNo);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4386,6 +4440,46 @@ codeunit 134984 "ERM Sales Report III"
             Assert.IsTrue(
               LibraryReportValidation.CheckIfValueExistsOnSpecifiedWorksheet(Index, SalesHeader[Index]."No."), ExpectedCellValueErr);
         end;
+    end;
+
+    local procedure SaveStandardSalesShipmentReportWithCorrectionLines(No: Code[20])
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        StandardSalesShipment: Report "Standard Sales - Shipment";
+    begin
+        Clear(StandardSalesShipment);
+        SalesShipmentHeader.SetRange("No.", No);
+        StandardSalesShipment.SetTableView(SalesShipmentHeader);
+
+        StandardSalesShipment.InitializeRequest(false, false, true, false);
+        Commit();
+        StandardSalesShipment.Run();
+    end;
+
+    local procedure SaveStandardSalesShipmentReportWithOutCorrectionLines(No: Code[20])
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        StandardSalesShipment: Report "Standard Sales - Shipment";
+    begin
+        Clear(StandardSalesShipment);
+        SalesShipmentHeader.SetRange("No.", No);
+        StandardSalesShipment.SetTableView(SalesShipmentHeader);
+
+        StandardSalesShipment.InitializeRequest(false, false, false, false);
+        Commit();
+        StandardSalesShipment.Run();
+    end;
+
+    local procedure VerifyUndoneQuantityInStandardSalesShipmentReport(DocumentNo: Code[20])
+    var
+        SalesShipmentLine: Record "Sales Shipment Line";
+    begin
+        SalesShipmentLine.SetRange("Document No.", DocumentNo);
+        SalesShipmentLine.SetRange(Correction, true);
+        SalesShipmentLine.FindLast();
+        LibraryReportDataset.SetRange('LineNo_Line', SalesShipmentLine."Line No.");
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_Line', format(SalesShipmentLine.Quantity));
     end;
 
     [RequestPageHandler]

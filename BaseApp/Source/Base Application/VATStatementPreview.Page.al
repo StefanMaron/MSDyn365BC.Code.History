@@ -213,6 +213,7 @@ page 474 "VAT Statement Preview"
             Selection := PassedSelection;
             PeriodSelection := PassedPeriodSelection;
             DateFilter := PassedDateFilter;
+            Rec.SetFilter("Date Filter", PassedDateFilter);
         end else begin
             // NAVCZ
             if DateRowFilter <> '' then
