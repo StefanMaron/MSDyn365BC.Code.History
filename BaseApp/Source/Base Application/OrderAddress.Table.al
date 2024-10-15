@@ -47,7 +47,7 @@
 
             trigger OnLookup()
             begin
-                PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
+                LookupPostCode(Rec.FieldNo(City));
             end;
 
             trigger OnValidate()
@@ -108,7 +108,7 @@
 
             trigger OnLookup()
             begin
-                PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
+                LookupPostCode(Rec.FieldNo("Post Code"));
             end;
 
             trigger OnValidate()
@@ -187,6 +187,12 @@
         exit(StrSubstNo('%1 %2 %3 %4', Vend."No.", Vend.Name, Code, Name));
     end;
 
+    local procedure LookupPostCode(FieldNo: Integer)
+    begin
+        PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
+        OnAfterLookupPostCode(Rec, PostCode, FieldNo);
+    end;
+
     procedure DisplayMap()
     var
         OnlineMapSetup: Record "Online Map Setup";
@@ -197,6 +203,12 @@
             OnlineMapManagement.MakeSelection(DATABASE::"Order Address", GetPosition())
         else
             Message(Text001);
+    end;
+
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLookupPostCode(var OrderAddress: Record "Order Address"; var PostCode: Record "Post Code"; FieldNo: Integer)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

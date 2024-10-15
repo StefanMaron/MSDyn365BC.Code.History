@@ -483,5 +483,4 @@ page 1190 "Create Payment"
     begin
     end;
 }
-
 #endif

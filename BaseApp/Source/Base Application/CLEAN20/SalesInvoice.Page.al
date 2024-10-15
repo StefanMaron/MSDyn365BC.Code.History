@@ -1080,6 +1080,23 @@ page 43 "Sales Invoice"
                     end;
                 }
             }
+            group(History)
+            {
+                Caption = 'History';
+                action(PageInteractionLogEntries)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Interaction Log E&ntries';
+                    Image = InteractionLog;
+                    ShortCutKey = 'Ctrl+F7';
+                    ToolTip = 'View a list of interaction log entries related to this document.';
+
+                    trigger OnAction()
+                    begin
+                        Rec.ShowInteractionLogEntries();
+                    end;
+                }
+            }
         }
         area(processing)
         {

@@ -768,6 +768,7 @@ table 111 "Sales Shipment Line"
                    (SalesOrderHeader."No." <> SalesOrderLine."Document No.")
                 then
                     SalesOrderHeader.Get(SalesOrderLine."Document Type"::Order, "Order No.");
+                OnInsertInvLineFromShptLineOnAfterSalesOrderHeaderGet(SalesOrderHeader, SalesInvHeader);
 
                 PrepaymentMgt.TestSalesOrderLineForGetShptLines(SalesOrderLine);
                 InitCurrency("Currency Code");
@@ -863,7 +864,7 @@ table 111 "Sales Shipment Line"
             SalesLine."Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
             SalesLine."Dimension Set ID" := "Dimension Set ID";
             IsHandled := false;
-            OnBeforeInsertInvLineFromShptLine(Rec, SalesLine, SalesOrderLine, IsHandled);
+            OnBeforeInsertInvLineFromShptLine(Rec, SalesLine, SalesOrderLine, IsHandled, TransferOldExtLines);
             if not IsHandled then
                 SalesLine.Insert();
             OnAfterInsertInvLineFromShptLine(SalesLine, SalesOrderLine, NextLineNo, Rec);
@@ -1201,7 +1202,7 @@ table 111 "Sales Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertInvLineFromShptLine(var SalesShptLine: Record "Sales Shipment Line"; var SalesLine: Record "Sales Line"; SalesOrderLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforeInsertInvLineFromShptLine(var SalesShptLine: Record "Sales Shipment Line"; var SalesLine: Record "Sales Line"; SalesOrderLine: Record "Sales Line"; var IsHandled: Boolean; var TransferOldExtTextLines: Codeunit "Transfer Old Ext. Text Lines")
     begin
     end;
 
@@ -1212,6 +1213,11 @@ table 111 "Sales Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCodeInsertInvLineFromShptLine(var SalesShipmentLine: Record "Sales Shipment Line"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInvLineFromShptLineOnAfterSalesOrderHeaderGet(var SalesOrderHeader: Record "Sales Header"; var SalesInvHeader: Record "Sales Header")
     begin
     end;
 

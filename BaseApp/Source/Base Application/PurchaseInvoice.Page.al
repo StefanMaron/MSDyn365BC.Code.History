@@ -2206,7 +2206,8 @@ page 51 "Purchase Invoice"
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
 
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
-        IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
+        if not IsPurchaseLinesEditable then
+            IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
 
         WorkflowWebhookMgt.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
         PurchaseDocCheckFactboxVisible := DocumentErrorsMgt.BackgroundValidationEnabled();

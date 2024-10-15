@@ -86,18 +86,22 @@ codeunit 8 AccSchedManagement
     begin
         if not GeneralLedgerSetup.Get() then
             exit(false);
-        if FinancialReport.Get(GeneralLedgerSetup."Fin. Rep. for Balance Sheet") then
-            if (FinancialReport."Financial Report Row Group" = ScheduleName) then
-                exit(true);
-        if FinancialReport.Get(GeneralLedgerSetup."Fin. Rep. for Cash Flow Stmt") then
-            if (FinancialReport."Financial Report Row Group" = ScheduleName) then
-                exit(true);
-        if FinancialReport.Get(GeneralLedgerSetup."Fin. Rep. for Income Stmt.") then
-            if (FinancialReport."Financial Report Row Group" = ScheduleName) then
-                exit(true);
-        if FinancialReport.Get(GeneralLedgerSetup."Fin. Rep. for Retained Earn.") then
-            if (FinancialReport."Financial Report Row Group" = ScheduleName) then
-                exit(true);
+        if GeneralLedgerSetup."Fin. Rep. for Balance Sheet" <> '' then
+            if FinancialReport.Get(GeneralLedgerSetup."Fin. Rep. for Balance Sheet") then
+                if (FinancialReport."Financial Report Row Group" = ScheduleName) then
+                    exit(true);
+        if GeneralLedgerSetup."Fin. Rep. for Cash Flow Stmt" <> '' then
+            if FinancialReport.Get(GeneralLedgerSetup."Fin. Rep. for Cash Flow Stmt") then
+                if (FinancialReport."Financial Report Row Group" = ScheduleName) then
+                    exit(true);
+        if GeneralLedgerSetup."Fin. Rep. for Income Stmt." <> '' then
+            if FinancialReport.Get(GeneralLedgerSetup."Fin. Rep. for Income Stmt.") then
+                if (FinancialReport."Financial Report Row Group" = ScheduleName) then
+                    exit(true);
+        if GeneralLedgerSetup."Fin. Rep. for Retained Earn." <> '' then
+            if FinancialReport.Get(GeneralLedgerSetup."Fin. Rep. for Retained Earn.") then
+                if (FinancialReport."Financial Report Row Group" = ScheduleName) then
+                    exit(true);
         exit(false);
     end;
 
@@ -2516,12 +2520,12 @@ codeunit 8 AccSchedManagement
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCalcCellExit(var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean; var Result: Decimal)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCalcCellValueInEvaluateExpression(IsAccSchedLineExpression: Boolean; AccSchedLine: Record "Acc. Schedule Line"; ColumnLayout: Record "Column Layout"; Expression: Text; CalcAddCurr: Boolean; IsFilter: Boolean; var Result: Decimal; var IsHandled: Boolean)
     begin
     end;
@@ -2531,17 +2535,17 @@ codeunit 8 AccSchedManagement
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCalcGLAcc(var GLAcc: Record "G/L Account"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean; var ColValue: Decimal; var IsHandled: Boolean)
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCalcCFAcc(var CFAccount: Record "Cash Flow Account"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; var ColValue: Decimal; var IsHandled: Boolean)
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCalcCostType(var CostType: Record "Cost Type"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean; var ColValue: Decimal; var IsHandled: Boolean)
     begin
     end;

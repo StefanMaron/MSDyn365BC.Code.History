@@ -9890,5 +9890,4 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 }
-
 #endif

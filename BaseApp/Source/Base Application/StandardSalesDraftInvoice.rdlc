@@ -7337,6 +7337,9 @@ End Function
         <Field Name="Description_VATClauseLine">
           <DataField>Description_VATClauseLine</DataField>
         </Field>
+        <Field Name="Description2_VATClauseLine">
+          <DataField>Description2_VATClauseLine</DataField>
+        </Field>
         <Field Name="VATAmount_VATClauseLine">
           <DataField>VATAmount_VATClauseLine</DataField>
         </Field>

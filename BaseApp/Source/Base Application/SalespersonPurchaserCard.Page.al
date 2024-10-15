@@ -53,6 +53,11 @@ page 5116 "Salesperson/Purchaser Card"
                     Importance = Additional;
                     ToolTip = 'Specifies whether to limit access to data for the data subject during daily operations. This is useful, for example, when protecting data from changes while it is under privacy review.';
                 }
+                field("Blocked"; Rec.Blocked)
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies whether this Salesperson can be assigned for new documents';
+                }
             }
             group(Invoicing)
             {

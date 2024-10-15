@@ -29,6 +29,8 @@ codeunit 1305 "Sales-Quote to Invoice"
 
         ValidateSalesPersonOnSalesHeader(Rec, true, false);
 
+        OnRunOnBeforeRunLineChecks(Rec);
+
         CheckForBlockedLines();
         CheckForAssembleToOrderLines(Rec);
 
@@ -120,6 +122,7 @@ codeunit 1305 "Sales-Quote to Invoice"
     local procedure CreateSalesInvoiceLines(SalesInvoiceHeader: Record "Sales Header"; SalesQuoteHeader: Record "Sales Header"; var SalesQuoteLine: Record "Sales Line")
     var
         SalesInvoiceLine: Record "Sales Line";
+        SalesLineReserve: Codeunit "Sales Line-Reserve";
         IsHandled: Boolean;
     begin
         with SalesQuoteHeader do begin
@@ -140,6 +143,9 @@ codeunit 1305 "Sales-Quote to Invoice"
                         SalesInvoiceLine.InitQtyToShip();
                         OnBeforeInsertSalesInvoiceLine(SalesQuoteLine, SalesQuoteHeader, SalesInvoiceLine, SalesInvoiceHeader);
                         SalesInvoiceLine.Insert();
+
+                        SalesLineReserve.TransferSaleLineToSalesLine(SalesQuoteLine, SalesInvoiceLine, SalesQuoteLine."Outstanding Qty. (Base)");
+                        SalesLineReserve.VerifyQuantity(SalesInvoiceLine, SalesQuoteLine);
                         OnAfterInsertSalesInvoiceLine(SalesQuoteLine, SalesQuoteHeader, SalesInvoiceLine, SalesInvoiceHeader);
                     end;
                 until SalesQuoteLine.Next() = 0;
@@ -239,6 +245,11 @@ codeunit 1305 "Sales-Quote to Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateSalesInvoiceLinesOnBeforeSalesQuoteLineDeleteAll(QuoteSalesHeader: Record "Sales Header"; InvoiceSalesHeader: Record "Sales Header"; var QuoteSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeRunLineChecks(var SalesHeader: Record "Sales Header")
     begin
     end;
 }

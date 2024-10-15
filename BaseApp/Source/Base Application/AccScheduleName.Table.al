@@ -23,7 +23,6 @@ table 84 "Acc. Schedule Name"
             TableRelation = "Column Layout Name";
             DataClassification = CustomerContent;
             ObsoleteReason = 'Use now the Column Group property in the table Financial Report';
-#pragma warning disable AS0074
 #if not CLEAN22
             ObsoleteTag = '22.0';
             ObsoleteState = Pending;
@@ -31,7 +30,6 @@ table 84 "Acc. Schedule Name"
             ObsoleteTag = '25.0';
             ObsoleteState = Removed;
 #endif
-#pragma warning restore AS0074
         }
         field(4; "Analysis View Name"; Code[10])
         {
@@ -353,7 +351,6 @@ table 84 "Acc. Schedule Name"
         end;
     end;
 
-#pragma warning disable AS0074
 #if not CLEAN22
     [Obsolete('AccScheduleName is no longer printable directly as they are only row definitions, print instead related Financial Report by calling directly the Account Schedule Report with SetFinancialReportName or SetFinancialReportNameNonEditable.', '22.0')]
     procedure Print()
@@ -377,5 +374,4 @@ table 84 "Acc. Schedule Name"
     begin
     end;
 #endif
-#pragma warning restore AS0074
 }

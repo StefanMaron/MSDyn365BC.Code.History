@@ -191,6 +191,7 @@ table 5809 "Item Charge Assignment (Sales)"
     trigger OnDelete()
     begin
         TestField("Qty. Assigned", 0);
+        Validate("Qty. to Assign", 0);
     end;
 
     var

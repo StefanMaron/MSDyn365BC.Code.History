@@ -1003,7 +1003,7 @@ page 490 "Acc. Schedule Overview"
         NoOfColumns: Integer;
         ColumnOffset: Integer;
         // Constants
-        Text000Tok: Label 'DEFAULT';
+        Text000Tok: Label 'DEFAULT', MaxLength = 10;
         Text005Tok: Label '1,6,,Dimension %1 Filter';
         // Other page state
         [InDataSet]
@@ -1183,9 +1183,9 @@ page 490 "Acc. Schedule Overview"
             FinancialReportToLoadTemp.Init();
             // We get values from the other page setup variables
             if NewCurrentSchedName = '' then
-                NewCurrentSchedName := Text000Tok;
+                NewCurrentSchedName := CopyStr(Text000Tok, 1, 10);
             if NewCurrentColumnName = '' then
-                NewCurrentColumnName := Text000Tok;
+                NewCurrentColumnName := CopyStr(Text000Tok, 1, 10);
 
             FinancialReportToLoadTemp."Financial Report Row Group" := NewCurrentSchedName;
             FinancialReportToLoadTemp."Financial Report Column Group" := NewCurrentColumnName;
@@ -1199,9 +1199,9 @@ page 490 "Acc. Schedule Overview"
         end;
         // Default values
         if FinancialReportToLoadTemp."Financial Report Column Group" = '' then begin
-            FinancialReportToLoadTemp."Financial Report Column Group" := Text000Tok;
+            FinancialReportToLoadTemp."Financial Report Column Group" := CopyStr(Text000Tok, 1, 10);
             // (Every change to FinancialReportTemp."Financial Report Column Group" must be kept in sync with CurrentColumnName)
-            CurrentColumnName := Text000Tok;
+            CurrentColumnName := CopyStr(Text000Tok, 1, 10);
         end;
     end;
 

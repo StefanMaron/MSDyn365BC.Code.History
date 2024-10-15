@@ -1,4 +1,4 @@
-#if not CLEAN19
+﻿#if not CLEAN19
 codeunit 408 DimensionManagement
 {
     Permissions = TableData "Gen. Journal Template" = imd,
@@ -441,7 +441,7 @@ codeunit 408 DimensionManagement
         Separator: Text;
         LastErrorID: Integer;
     begin
-        OnBeforeCheckDimComb(DimComb);
+        OnBeforeCheckDimComb(DimComb, TempDimBuf);
 
         if not TempDimCombInitialized then begin
             TempDimCombInitialized := true;
@@ -3119,7 +3119,7 @@ codeunit 408 DimensionManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckDimComb(var DimensionCombination: Record "Dimension Combination")
+    local procedure OnBeforeCheckDimComb(var DimensionCombination: Record "Dimension Combination"; var TempDimensionBuffer: Record "Dimension Buffer" temporary)
     begin
     end;
 

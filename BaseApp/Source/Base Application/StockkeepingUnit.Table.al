@@ -1002,7 +1002,14 @@ table 5700 "Stockkeeping Unit"
     end;
 
     local procedure CheckTransferRoute()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckTransferRoute(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if not UpdateTransferLevels(Rec) then
             ShowLoopError();
 
@@ -1069,6 +1076,11 @@ table 5700 "Stockkeeping Unit"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyFromItem(var StockkeepingUnit: Record "Stockkeeping Unit"; Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckTransferRoute(var StockkeepingUnit: Record "Stockkeeping Unit"; var IsHandled: Boolean)
     begin
     end;
 

@@ -938,10 +938,16 @@
         PurchLine: Record "Purchase Line";
         DeferralTemplate: Record "Deferral Template";
         DeferralAccount: Code[20];
+        IsHandled: Boolean;
     begin
         PurchLine := PurchLineVar;
 
         if PurchLine."Deferral Code" = '' then
+            exit;
+
+        PurchPostInvoiceEvents.RunOnBeforeCreatePostedDeferralSchedule(PurchLine, IsHandled);
+
+        if IsHandled then
             exit;
 
         if DeferralTemplate.Get(PurchLine."Deferral Code") then

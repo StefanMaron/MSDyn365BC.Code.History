@@ -13,6 +13,11 @@ table 5447 "API Extension Upload"
             Caption = 'Schedule';
             DataClassification = SystemMetadata;
         }
+        field(3; "Schema Sync Mode"; Enum "Extension Sync Mode")
+        {
+            Caption = 'Schema Sync Mode';
+            DataClassification = SystemMetadata;
+        }
         field(20; Content; Blob)
         {
             Caption = 'Content';

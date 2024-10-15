@@ -659,16 +659,15 @@ table 302 "Finance Charge Memo Header"
         OnAfterTestNoSeries(Rec);
     end;
 
-    procedure GetNoSeriesCode(): Code[20]
+    procedure GetNoSeriesCode() NoSeriesCode: Code[20]
     var
-        NoSeriesCode: Code[20];
         IsHandled: Boolean;
     begin
         SalesSetup.Get();
         IsHandled := false;
         OnBeforeGetNoSeriesCode(Rec, SalesSetup, NoSeriesCode, IsHandled);
         if IsHandled then
-            exit;
+            exit(NoSeriesCode);
 
         NoSeriesCode := SalesSetup."Fin. Chrg. Memo Nos.";
 

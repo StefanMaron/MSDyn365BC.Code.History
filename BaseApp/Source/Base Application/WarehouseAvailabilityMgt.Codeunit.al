@@ -30,7 +30,7 @@ codeunit 7314 "Warehouse Availability Mgt."
                 end;
             Database::Job:
                 begin
-                    ReservEntry.SetSourceFilter(Database::"Job Planning Line", 2, SourceNo, SourceSubLineNo, true);
+                    ReservEntry.SetSourceFilter(Database::"Job Planning Line", 2, SourceNo, SourceLineNo, true);
                     ReservEntry.SetSourceFilter('', 0);
                 end;
             else

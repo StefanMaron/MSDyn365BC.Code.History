@@ -797,5 +797,4 @@ Page 1 "Company Information"
         SessionSetting.RequestSessionUpdate(false);
     end;
 }
-
 #endif

@@ -642,7 +642,14 @@
             TableRelation = Location WHERE("Use As In-Transit" = CONST(false));
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateLocationCode(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestStatusOpen();
                 if ("Location Code" <> xRec."Location Code") and
                    (xRec."Sell-to Customer No." = "Sell-to Customer No.")
@@ -860,7 +867,7 @@
         field(43; "Salesperson Code"; Code[20])
         {
             Caption = 'Salesperson Code';
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
 
             trigger OnValidate()
             var
@@ -1832,6 +1839,11 @@
             Caption = 'Bill-to IC Partner Code';
             Editable = false;
             TableRelation = "IC Partner";
+        }
+        field(127; "IC Reference Document No."; Code[20])
+        {
+            Caption = 'IC Reference Document No.';
+            Editable = false;
         }
         field(129; "IC Direction"; Enum "IC Direction Type")
         {
@@ -3280,6 +3292,7 @@
           Rec, SalesShptHeader, SalesInvHeader, SalesCrMemoHeader, ReturnRcptHeader,
           SalesInvHeaderPrepmt, SalesCrMemoHeaderPrepmt);
         UpdateOpportunity();
+        OnDeleteOnAfterPostSalesDeleteDeleteHeader(Rec);
 
         Validate("Applies-to ID", '');
         Validate("Incoming Document Entry No.", 0);
@@ -4132,7 +4145,7 @@
         UpdateCurrencyExchangeRates: Codeunit "Update Currency Exchange Rates";
         Updated: Boolean;
     begin
-        OnBeforeUpdateCurrencyFactor(Rec, Updated, CurrExchRate);
+        OnBeforeUpdateCurrencyFactor(Rec, Updated, CurrExchRate, xRec);
         if Updated then
             exit;
 
@@ -4493,8 +4506,10 @@
 
         if (OldDimSetID <> "Dimension Set ID") and (OldDimSetID <> 0) and guiallowed then
             if CouldDimensionsBeKept() then
-                if Confirm(DoYouWantToKeepExistingDimensionsQst) then
+                if Confirm(DoYouWantToKeepExistingDimensionsQst) then begin
                     "Dimension Set ID" := OldDimSetID;
+                    DimMgt.UpdateGlobalDimFromDimSetID(Rec."Dimension Set ID", Rec."Shortcut Dimension 1 Code", Rec."Shortcut Dimension 2 Code");
+                end;
 
         if (OldDimSetID <> "Dimension Set ID") and SalesLinesExist() then begin
             Modify();
@@ -4502,19 +4517,26 @@
         end;
     end;
 
-    local procedure CouldDimensionsBeKept(): Boolean;
+    local procedure CouldDimensionsBeKept() Result: Boolean;
+    var
+        IsHandled: Boolean;
     begin
-        if (xRec."Sell-to Customer No." <> '') and (xRec."Sell-to Customer No." <> Rec."Sell-to Customer No.") then
-            exit(false);
-        if (xRec."Bill-to Customer No." <> '') and (xRec."Bill-to Customer No." <> Rec."Bill-to Customer No.") then
-            exit(false);
+        IsHandled := false;
+        OnBeforeCouldDimensionsBeKept(Rec, xRec, Result, IsHandled);
+        if not IsHandled then begin
+            if (xRec."Sell-to Customer No." <> '') and (xRec."Sell-to Customer No." <> Rec."Sell-to Customer No.") then
+                exit(false);
+            if (xRec."Bill-to Customer No." <> '') and (xRec."Bill-to Customer No." <> Rec."Bill-to Customer No.") then
+                exit(false);
 
-        if (xRec."Location Code" <> '') and (xRec."location Code" <> Rec."Location Code") then
-            exit(true);
-        if (xRec."Salesperson Code" <> '') and (xRec."Salesperson Code" <> Rec."Salesperson Code") then
-            exit(true);
-        if (xRec."Responsibility Center" <> '') and (xRec."Responsibility Center" <> Rec."Responsibility Center") then
-            exit(true);
+            if (xRec."Location Code" <> '') and (xRec."location Code" <> Rec."Location Code") then
+                exit(true);
+            if (xRec."Salesperson Code" <> '') and (xRec."Salesperson Code" <> Rec."Salesperson Code") then
+                exit(true);
+            if (xRec."Responsibility Center" <> '') and (xRec."Responsibility Center" <> Rec."Responsibility Center") then
+                exit(true);
+        end;
+        OnAfterCouldDimensionsBeKept(Rec, xRec, Result);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -4743,7 +4765,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckReturnInfo(Rec, IsHandled);
+        OnBeforeCheckReturnInfo(Rec, IsHandled, xRec, BillTo);
         if IsHandled then
             exit;
 
@@ -5810,16 +5832,13 @@
     var
         SalesHeader: Record "Sales Header";
         Opportunity: Record Opportunity;
-        ConfirmManagement: Codeunit "Confirm Management";
     begin
         if "Opportunity No." <> OldOpportunityNo then begin
             if "Opportunity No." <> '' then
                 if Opportunity.Get("Opportunity No.") then begin
                     Opportunity.TestField(Status, Opportunity.Status::"In Progress");
                     if Opportunity."Sales Document No." <> '' then begin
-                        if ConfirmManagement.GetResponseOrDefault(
-                             StrSubstNo(Text048, Opportunity."Sales Document No.", Opportunity."No."), true)
-                        then begin
+                        if CofirmClearOpportunityNo(Opportunity) then begin
                             if SalesHeader.Get("Document Type"::Quote, Opportunity."Sales Document No.") then begin
                                 SalesHeader."Opportunity No." := '';
                                 OnLinkSalesDocWithOpportunityOnBeforeSalesHeaderModify(Rec, OldOpportunityNo, Opportunity);
@@ -5834,6 +5853,19 @@
             if (OldOpportunityNo <> '') and Opportunity.Get(OldOpportunityNo) then
                 UpdateOpportunityLink(Opportunity, Opportunity."Sales Document Type"::" ", '');
         end;
+    end;
+
+    local procedure CofirmClearOpportunityNo(Opportunity: Record Opportunity) Confirmed: Boolean
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCofirmClearOpportunityNo(Opportunity, Confirmed, IsHandled);
+        if IsHandled then
+            exit(Confirmed);
+
+        ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text048, Opportunity."Sales Document No.", Opportunity."No."), true)
     end;
 
     local procedure UpdateOpportunityLink(Opportunity: Record Opportunity; SalesDocumentType: Enum "Opportunity Document Type"; SalesHeaderNo: Code[20])
@@ -7601,6 +7633,8 @@
                 InteractionLogEntry.SetRange("Document Type", InteractionLogEntry."Document Type"::"Sales Ord. Cnfrmn.");
             "Document Type"::Quote:
                 InteractionLogEntry.SetRange("Document Type", InteractionLogEntry."Document Type"::"Sales Qte.");
+            "Document Type"::Invoice:
+                InteractionLogEntry.SetRange("Document Type", InteractionLogEntry."Document Type"::"Sales Draft Invoice");
         end;
 
         InteractionLogEntry.SetRange("Document No.", "No.");
@@ -8232,6 +8266,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCouldDimensionsBeKept(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterRecreateSalesLine(var SalesLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary)
     begin
     end;
@@ -8510,7 +8549,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckReturnInfo(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckReturnInfo(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; xSalesHeader: Record "Sales Header"; BillTo: Boolean)
     begin
     end;
 
@@ -8531,6 +8570,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateDimensionsFromValidateSalesPersonCode(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCofirmClearOpportunityNo(Opportunity: Record Opportunity; var Confirmed: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -8820,7 +8864,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateCurrencyFactor(var SalesHeader: Record "Sales Header"; var Updated: Boolean; var CurrencyExchangeRate: Record "Currency Exchange Rate")
+    local procedure OnBeforeUpdateCurrencyFactor(var SalesHeader: Record "Sales Header"; var Updated: Boolean; var CurrencyExchangeRate: Record "Currency Exchange Rate"; xSalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -8846,6 +8890,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateDocumentDate(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateLocationCode(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -8990,7 +9039,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateSalesLineAmounts(SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateSalesLineAmounts(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -9066,6 +9115,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteSalesLinesOnBeforeDeleteLine(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnAfterPostSalesDeleteDeleteHeader(var SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -9584,6 +9638,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcInvDiscForHeader(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCouldDimensionsBeKept(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

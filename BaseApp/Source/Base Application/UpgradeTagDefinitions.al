@@ -968,12 +968,15 @@ codeunit 9998 "Upgrade Tag Definitions"
     begin
         exit('MS-447067-GetVATDateFieldSalesPurchUpgrade-20220830');
     end;
-    
+
     procedure GetVATDateFieldIssuedDocsUpgrade(): Code[250]
     begin
         exit('MS-447067-GetVATDateFieldIssuedDocsUpgrade-20220830');
     end;
 
-
+    procedure GetPurchaserOnRequisitionLineUpdateTag(): Code[250]
+    begin
+        exit('MS-449640-GetPurchaserOnRequisitionLineUpdateTag-20221117');
+    end;
 }
 

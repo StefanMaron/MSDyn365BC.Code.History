@@ -103,6 +103,7 @@ codeunit 442 "Sales-Post Prepayments"
         CustLedgEntry: Record "Cust. Ledger Entry";
         TempSalesLines: Record "Sales Line" temporary;
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
+        DocumentTotals: Codeunit "Document Totals";
         Window: Dialog;
         GenJnlLineDocNo: Code[20];
         GenJnlLineExtDocNo: Code[35];
@@ -125,6 +126,10 @@ codeunit 442 "Sales-Post Prepayments"
         GLSetup.GetRecordOnce();
         SalesSetup.Get();
         with SalesHeader do begin
+
+            if (SalesSetup."Calc. Inv. Discount" and (Status = Status::Open)) then
+                DocumentTotals.SalesRedistributeInvoiceDiscountAmountsOnDocument(SalesHeader);
+
             CheckPrepmtDoc(SalesHeader, DocumentType);
 
             UpdateDocNos(SalesHeader, DocumentType, GenJnlLineDocNo, PostingNoSeriesCode, ModifyHeader);

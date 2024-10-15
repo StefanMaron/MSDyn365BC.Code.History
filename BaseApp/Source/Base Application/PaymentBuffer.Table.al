@@ -2,15 +2,16 @@ table 372 "Payment Buffer"
 {
     Caption = 'Payment Buffer';
     ReplicateData = false;
-#pragma warning disable AS0074
 #if CLEAN22
     TableType = Temporary;
+    ObsoleteReason = 'Replaced by Vendor Payment Buffer.';
+    ObsoleteState = Removed;
+    ObsoleteTag = '25.0';
 #else
-    ObsoleteReason = 'This table will be marked as temporary. Make sure you are not using this table to store records.';
+    ObsoleteReason = 'This table will be replaced by Vendor Payment Buffer.';
     ObsoleteState = Pending;
     ObsoleteTag = '22.0';
 #endif
-#pragma warning restore AS0074
 
     fields
     {
@@ -174,24 +175,10 @@ table 372 "Payment Buffer"
         OnCopyFieldsToGenJournalLine(Rec, GenJournalLine);
     end;
 
-#if not CLEAN21
-    [Obsolete('Use the Get function without the "Vendor Posting Group" parameter instead. This field is obsolete and will be removed from primary key.', '21.0')]
-    procedure Get(VendorNo: Code[20]; CurrencyCode: Code[10]; VendorLedgEntryNo: Integer; DimensionEntryNo: Integer; VendorPostingGroup: Code[20]) Result: Boolean
-    var
-        TempPaymentBuffer: Record "Payment Buffer" temporary;
+    procedure CopyFieldsFromVendorPaymentBuffer(TempVendorPaymentBuffer: Record "Vendor Payment Buffer")
     begin
-        TempPaymentBuffer.CopyFilters(Rec);
-        Reset();
-        SetRange("Vendor No.", VendorNo);
-        SetRange("Currency Code", CurrencyCode);
-        SetRange("Vendor Ledg. Entry No.", VendorLedgEntryNo);
-        SetRange("Dimension Entry No.", DimensionEntryNo);
-        if Count() > 1 then
-            SetRange("Vendor Posting Group", VendorPostingGroup);
-        Result := FindFirst();
-        CopyFilters(TempPaymentBuffer);
+        Rec.TransferFields(TempVendorPaymentBuffer, true, true);
     end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyFieldsFromVendorLedgerEntry(VendorLedgerEntrySource: Record "Vendor Ledger Entry"; var PaymentBufferTarget: Record "Payment Buffer")

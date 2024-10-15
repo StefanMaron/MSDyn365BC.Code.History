@@ -1,4 +1,4 @@
-﻿#if not CLEAN20
+#if not CLEAN20
 codeunit 1004 "Job Transfer Line"
 {
 
@@ -215,6 +215,7 @@ codeunit 1004 "Job Transfer Line"
         end else
             ValidateUnitCostAndPrice(JobJnlLine, SalesLine, SalesLine."Unit Cost", JobPlanningLine."Unit Price");
         JobJnlLine.Validate("Line Discount %", SalesLine."Line Discount %");
+
         OnAfterFromPlanningSalesLineToJnlLine(JobJnlLine, JobPlanningLine, SalesHeader, SalesLine, EntryType);
     end;
 
@@ -290,21 +291,21 @@ codeunit 1004 "Job Transfer Line"
         JobJnlLine."Country/Region Code" := JobPlanningLine."Country/Region Code";
         JobJnlLine."Source Code" := JobJournalTemplate."Source Code";
 
+        IsHandled := false;
+        OnFromPlanningLineToJnlLineOnBeforeCopyItemTracking(JobJnlLine, JobPlanningLine, IsHandled);
+        if not IsHandled then
+            ItemTrackingMgt.CopyItemTracking(JobPlanningLine.RowID1(), JobJnlLine.RowID1(), false);
+
         JobJnlLine.Validate(Quantity, JobPlanningLine."Qty. to Transfer to Journal");
         JobJnlLine.Validate("Qty. per Unit of Measure", JobPlanningLine."Qty. per Unit of Measure");
         JobJnlLine."Direct Unit Cost (LCY)" := JobPlanningLine."Direct Unit Cost (LCY)";
         JobJnlLine.Validate("Unit Cost", JobPlanningLine."Unit Cost");
         JobJnlLine.Validate("Unit Price", JobPlanningLine."Unit Price");
         JobJnlLine.Validate("Line Discount %", JobPlanningLine."Line Discount %");
+
         OnAfterFromPlanningLineToJnlLine(JobJnlLine, JobPlanningLine);
 
         JobJnlLine.UpdateDimensions();
-
-        IsHandled := false;
-        OnFromPlanningLineToJnlLineOnBeforeCopyItemTracking(JobJnlLine, JobPlanningLine, IsHandled);
-        if not IsHandled then
-            ItemTrackingMgt.CopyItemTracking(JobPlanningLine.RowID1(), JobJnlLine.RowID1(), false);
-
         JobJnlLine.Insert(true);
     end;
 
@@ -410,7 +411,9 @@ codeunit 1004 "Job Transfer Line"
         JobJnlLine.UpdateDimensions();
         ItemTrackingMgt.CopyItemTracking(JobPlanningLine.RowID1(), JobJnlLine.RowID1(), false);
 
+        OnFromWarehouseActivityLineToJnlLineOnBeforeJobJnlLineInsert(JobJnlLine, JobPlanningLine, WarehouseActivityLine);
         JobJnlLine.Insert(true);
+        OnFromWarehouseActivityLineToJnlLineOnAfterJobJnlLineInsert(JobJnlLine, JobPlanningLine, WarehouseActivityLine);
     end;
 
     procedure FromGenJnlLineToJnlLine(GenJnlLine: Record "Gen. Journal Line"; var JobJnlLine: Record "Job Journal Line")
@@ -855,6 +858,16 @@ codeunit 1004 "Job Transfer Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnFromPlanningLineToJnlLineOnBeforeCopyItemTracking(var JobJournalLine: Record "Job Journal Line"; var JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFromWarehouseActivityLineToJnlLineOnAfterJobJnlLineInsert(var JobJournalLine: Record "Job Journal Line"; var JobPlanningLine: Record "Job Planning Line"; var WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFromWarehouseActivityLineToJnlLineOnBeforeJobJnlLineInsert(var JobJournalLine: Record "Job Journal Line"; var JobPlanningLine: Record "Job Planning Line"; var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
 }

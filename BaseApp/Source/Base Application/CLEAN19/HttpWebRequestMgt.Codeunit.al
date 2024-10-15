@@ -212,6 +212,7 @@ codeunit 1297 "Http Web Request Mgt."
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure AddBodyAsText(BodyText: Text)
     var
         Encoding: DotNet Encoding;
@@ -319,6 +320,7 @@ codeunit 1297 "Http Web Request Mgt."
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure AddHeader("Key": Text; Value: Text)
     begin
         case Key of
