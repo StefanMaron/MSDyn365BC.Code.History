@@ -1031,6 +1031,38 @@ codeunit 134377 "ERM Sales Blanket Order"
         Assert.AreEqual(UnitPrice * QtyToShip * Discount / 100, SalesLine."Inv. Discount Amount", '');
     end;
 
+    [Test]
+    procedure LinkingSpecialOrderSalesOrderToBlanketOrder()
+    var
+        Location: Record Location;
+        BlanketSalesHeader: Record "Sales Header";
+        BlanketSalesLine: Record "Sales Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Special Order]
+        // [SCENARIO 409265] Stan can link special order sales to a blanket order.
+        Initialize();
+
+        LibraryWarehouse.CreateLocation(Location);
+
+        LibrarySales.CreateSalesDocumentWithItem(
+          BlanketSalesHeader, BlanketSalesLine, BlanketSalesHeader."Document Type"::"Blanket Order", '',
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(50, 100), Location.Code, WorkDate());
+
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, BlanketSalesHeader."Sell-to Customer No.",
+          BlanketSalesLine."No.", LibraryRandom.RandInt(10), Location.Code, WorkDate());
+        SalesLine.Validate("Special Order", true);
+        SalesLine.Modify(true);
+
+        SalesLine.Validate("Blanket Order No.", BlanketSalesHeader."No.");
+        SalesLine.Validate("Blanket Order Line No.", BlanketSalesLine."Line No.");
+
+        SalesLine.TestField("Blanket Order No.", BlanketSalesHeader."No.");
+        SalesLine.TestField("Blanket Order Line No.", BlanketSalesLine."Line No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -234,8 +234,7 @@ page 7018 "Purchase Price List"
         else
             ViewGroupIsVisible := not PriceUXManagement.IsAmountTypeFiltered(Rec);
 
-        CurrPage.Lines.Page.SetPriceType(Rec."Price Type");
-        CurrPage.Lines.Page.SetSubFormLinkFilter(ViewAmountType);
+        CurrPage.Lines.Page.SetHeader(Rec);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
