@@ -1184,7 +1184,7 @@ codeunit 147523 "SII Documents With EU Service"
 
     [Test]
     [Scope('OnPrem')]
-    procedure PurchInvWithVATAndECAmountVersion21()
+    procedure PurchInvWithVATAndECAmountVersion11bis()
     var
         PurchaseHeader: Record "Purchase Header";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -1192,7 +1192,7 @@ codeunit 147523 "SII Documents With EU Service"
         XMLDoc: DotNet XmlDocument;
     begin
         // [FEATURE] [Purchase] [Invoice]
-        // [SCENARIO 375398] CuotaDeducible is zero in the XML file for Purchase invoice with EC
+        // [SCENARIO 375398] CuotaDeducible is zero in the XML file for Purchase invoice with EC for version 1.1bis
 
         Initialize();
 
@@ -1205,7 +1205,7 @@ codeunit 147523 "SII Documents With EU Service"
         LibraryERM.FindVendorLedgerEntry(
           VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false));
 
-        // [GIVEN] SII version is 2.1
+        // [GIVEN] SII version is 1.1bis
         SIIXMLCreator.SetSIIVersionNo(SIIDocUploadState."Version No."::"2.1");
 
         // [WHEN] Create xml for Posted Purchase Invoice

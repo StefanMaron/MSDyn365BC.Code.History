@@ -15,6 +15,7 @@ codeunit 147559 "SII Complex Rules"
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         LibrarySII: Codeunit "Library - SII";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         IsInitialized: Boolean;
         UploadType: Option Regular,Intracommunity,RetryAccepted;
         IncorrectXMLDocErr: Label 'The XML document was not generated properly.';
@@ -731,7 +732,7 @@ codeunit 147559 "SII Complex Rules"
 
     [Test]
     [Scope('OnPrem')]
-    procedure ZeroCuotaDeducibleWhenExportPurchInvWithInvoiceTypeF2Version21()
+    procedure ZeroCuotaDeducibleWhenExportPurchInvWithInvoiceTypeF2Version11bis()
     var
         PurchaseHeader: Record "Purchase Header";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -740,7 +741,7 @@ codeunit 147559 "SII Complex Rules"
         XMLDoc: DotNet XmlDocument;
     begin
         // [FEATURE] [Purchase] [Invoice]
-        // [SCENARIO 375398] XML has value "0" in node "CuotaDeducible" for the Purchase Invoice with "Invoice Type" = "F2"
+        // [SCENARIO 375398] XML has value "0" in node "CuotaDeducible" for the Purchase Invoice with "Invoice Type" = "F2" and version 1.1bis
 
         Initialize();
 
@@ -748,7 +749,7 @@ codeunit 147559 "SII Complex Rules"
         PostPurchDocWithInvoiceType(
           VendorLedgerEntry, PurchaseHeader."Document Type"::Invoice, 0, PurchaseHeader."Invoice Type"::"F2 Simplified Invoice");
 
-        // [GIVEN] SII version is 2.1
+        // [GIVEN] SII version is 1.1bis
         SIIXMLCreator.SetSIIVersionNo(SIIDocUploadState."Version No."::"2.1");
 
         // [WHEN] Create xml for Posted Purchase Invoice
@@ -760,7 +761,7 @@ codeunit 147559 "SII Complex Rules"
 
     [Test]
     [Scope('OnPrem')]
-    procedure ZeroCuotaDeducibleWhenExportPurchInvWithInvoiceIDType03Version21()
+    procedure ZeroCuotaDeducibleWhenExportPurchInvWithInvoiceIDType03Version11bis()
     var
         PurchaseHeader: Record "Purchase Header";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -769,7 +770,7 @@ codeunit 147559 "SII Complex Rules"
         XMLDoc: DotNet XmlDocument;
     begin
         // [FEATURE] [Purchase] [Invoice]
-        // [SCENARIO 375398] XML has value "0" in node "CuotaDeducible" for the Purchase Invoice with "ID Type" = "03"
+        // [SCENARIO 375398] XML has value "0" in node "CuotaDeducible" for the Purchase Invoice with "ID Type" = "03" and version 1.1bis
 
         Initialize();
 
@@ -780,7 +781,7 @@ codeunit 147559 "SII Complex Rules"
         SIIDocUploadState.Validate(IDType, SIIDocUploadState.IDType::"03-Passport");
         SIIDocUploadState.Modify(true);
 
-        // [GIVEN] SII version is 2.1
+        // [GIVEN] SII version is 1.1bis
         SIIXMLCreator.SetSIIVersionNo(SIIDocUploadState."Version No."::"2.1");
 
         // [WHEN] Create xml for Posted Purchase Invoice
@@ -790,13 +791,153 @@ codeunit 147559 "SII Complex Rules"
         LibrarySII.ValidateElementByName(XMLDoc, 'sii:CuotaDeducible', SIIXMLCreator.FormatNumber(0));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ImporteTotalExistsForSalesInvWhenIncludeImporteTotalOptionEnabledInSetupForVersion11bis()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SIISetup: Record "SII Setup";
+        SIIDocUploadState: Record "SII Doc. Upload State";
+        SIIXMLCreator: Codeunit "SII XML Creator";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 380629] The "ImporteTotal" xml node exists in the sales invoice xml file if "Include ImporteTotal" option is enabled in the SII Setup and version is 1.1bis
+
+        Initialize();
+
+        // [GIVEN] "Include ImporteTotal" is enabled in the SII Setup
+        SIISetup.Get();
+        SIISetup.Validate("Include ImporteTotal", true);
+        SIISetup.Modify();
+
+        // [GIVEN] Sales invoice with "Invoice Type" = "F2" and amount equals 100
+        PostSalesDocWithInvoiceType(
+          CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, 0, CustLedgerEntry."Invoice Type"::"F2 Simplified Invoice");
+
+        // [GIVEN] SII version is 1.1bis
+        SIIXMLCreator.SetSIIVersionNo(SIIDocUploadState."Version No."::"2.1");
+
+        // [WHEN] Create xml for posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] Node "sii:ImporteTotal" contains value 100
+        CustLedgerEntry.CalcFields("Amount (LCY)");
+        LibrarySII.ValidateElementByName(XMLDoc, 'sii:ImporteTotal', SIIXMLCreator.FormatNumber(CustLedgerEntry."Amount (LCY)"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ImporteTotalDoesNotExistForSalesInvWhenIncludeImporteTotalOptionEnabledInSetupForVersion11bis()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SIISetup: Record "SII Setup";
+        SIIDocUploadState: Record "SII Doc. Upload State";
+        SIIXMLCreator: Codeunit "SII XML Creator";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 380629] The "ImporteTotal" xml node exists in the sales invoice xml file if "Include ImporteTotal" option is enabled in the SII Setup and version is 1.1bis
+
+        Initialize();
+
+        // [GIVEN] "Include ImporteTotal" is disabled in the SII Setup
+        SIISetup.Get();
+        SIISetup.Validate("Include ImporteTotal", false);
+        SIISetup.Modify();
+
+        // [GIVEN] Sales invoice with "Invoice Type" = "F2" and amount equals 100
+        PostSalesDocWithInvoiceType(
+          CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, 0, CustLedgerEntry."Invoice Type"::"F2 Simplified Invoice");
+
+        // [GIVEN] SII version is 1.1bis
+        SIIXMLCreator.SetSIIVersionNo(SIIDocUploadState."Version No."::"2.1");
+
+        // [WHEN] Create xml for posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] No "sii:ImporteTotal" xml node present in the xml file
+        LibrarySII.ValidateNoElementsByName(XMLDoc, 'sii:ImporteTotal');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ImporteTotalExistsForPurchInvWhenIncludeImporteTotalOptionEnabledInSetupForVersion11bis()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        SIISetup: Record "SII Setup";
+        SIIDocUploadState: Record "SII Doc. Upload State";
+        SIIXMLCreator: Codeunit "SII XML Creator";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 380629] The "ImporteTotal" xml node exists in the purchase invoice xml file if "Include ImporteTotal" option is enabled in the SII Setup and version is 1.1bis
+
+        Initialize();
+
+        // [GIVEN] "Include ImporteTotal" is enabled in the SII Setup
+        SIISetup.Get();
+        SIISetup.Validate("Include ImporteTotal", true);
+        SIISetup.Modify();
+
+        // [GIVEN] Purchase invoice with "Invoice Type" = "F2" and amount equals 100
+        PostPurchDoc(
+          VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, 0, VendorLedgerEntry."Invoice Type"::"F2 Simplified Invoice", 0);
+
+        // [GIVEN] SII version is 1.1bis
+        SIIXMLCreator.SetSIIVersionNo(SIIDocUploadState."Version No."::"2.1");
+
+        // [WHEN] Create xml for posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] Node "sii:ImporteTotal" contains value -100
+        VendorLedgerEntry.CalcFields("Amount (LCY)");
+        LibrarySII.ValidateElementByName(XMLDoc, 'sii:ImporteTotal', SIIXMLCreator.FormatNumber(-VendorLedgerEntry."Amount (LCY)"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ImporteTotalDoesNotExistForPurchInvWhenIncludeImporteTotalOptionEnabledInSetupForVersion11bis()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        SIISetup: Record "SII Setup";
+        SIIDocUploadState: Record "SII Doc. Upload State";
+        SIIXMLCreator: Codeunit "SII XML Creator";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 380629] The "ImporteTotal" xml node exists in the purchase invoice xml file if "Include ImporteTotal" option is enabled in the SII Setup and version is 1.1bis
+
+        Initialize();
+
+        // [GIVEN] "Include ImporteTotal" is disabled in the SII Setup
+        SIISetup.Get;
+        SIISetup.Validate("Include ImporteTotal", false);
+        SIISetup.Modify();
+
+        // [GIVEN] Purchase invoice with "Invoice Type" = "F2" and amount equals 100
+        PostPurchDoc(
+          VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, 0, VendorLedgerEntry."Invoice Type"::"F2 Simplified Invoice", 0);
+
+        // [GIVEN] SII version is 1.1bis
+        SIIXMLCreator.SetSIIVersionNo(SIIDocUploadState."Version No."::"2.1");
+
+        // [WHEN] Create xml for posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] No "sii:ImporteTotal" xml node present in the xml file
+        LibrarySII.ValidateNoElementsByName(XMLDoc, 'sii:ImporteTotal');
+    end;
+
     local procedure Initialize()
     begin
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
         LibrarySII.InitSetup(true, false);
         LibrarySII.BindSubscriptionJobQueue;
+        LibrarySetupStorage.Save(DATABASE::"SII Setup");
         IsInitialized := true;
     end;
 
@@ -806,7 +947,7 @@ codeunit 147559 "SII Complex Rules"
         SalesLine: Record "Sales Line";
         NegativeSalesLine: Record "Sales Line";
     begin
-        CreateSalesDocWithSpecialSchemeCode(SalesHeader, DocType, CorrType, SpecialSchemeCode);
+        CreateSalesDoc(SalesHeader, DocType, CorrType, 0, SpecialSchemeCode);
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.FindFirst;
@@ -846,19 +987,30 @@ codeunit 147559 "SII Complex Rules"
     end;
 
     local procedure PostSalesDocWithSpecialSchemeCode(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; CorrType: Option; SpecialSchemeCode: Option)
+    begin
+        PostSalesDoc(CustLedgerEntry, DocType, CorrType, 0, SpecialSchemeCode);
+    end;
+
+    local procedure PostSalesDocWithInvoiceType(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; CorrType: Option; InvoiceType: Option)
+    begin
+        PostSalesDoc(CustLedgerEntry, DocType, CorrType, InvoiceType, 0);
+    end;
+
+    local procedure PostSalesDoc(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; CorrType: Option; InvoiceType: Option; SpecialSchemeCode: Option)
     var
         SalesHeader: Record "Sales Header";
     begin
-        CreateSalesDocWithSpecialSchemeCode(SalesHeader, DocType, CorrType, SpecialSchemeCode);
+        CreateSalesDoc(SalesHeader, DocType, CorrType, InvoiceType, SpecialSchemeCode);
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocType, LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreateSalesDocWithSpecialSchemeCode(var SalesHeader: Record "Sales Header"; DocType: Option; CorrType: Option; SpecialSchemeCode: Option)
+    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; DocType: Option; CorrType: Option; InvoiceType: Option; SpecialSchemeCode: Option)
     var
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo);
         SalesHeader.Validate("Correction Type", CorrType);
+        SalesHeader.Validate("Invoice Type", InvoiceType);
         SalesHeader.Validate("Special Scheme Code", SpecialSchemeCode);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(

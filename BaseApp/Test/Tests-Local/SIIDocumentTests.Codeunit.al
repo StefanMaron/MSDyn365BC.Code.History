@@ -2061,7 +2061,7 @@ codeunit 147520 SIIDocumentTests
 
     [Test]
     [Scope('OnPrem')]
-    procedure FechaOperacionAfterPostingDateWhenSchemeCode14AndVersion21()
+    procedure FechaOperacionAfterPostingDateWhenSchemeCode14AndVersion11bis()
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         SalesHeader: Record "Sales Header";
@@ -2071,7 +2071,7 @@ codeunit 147520 SIIDocumentTests
         SalesInvoiceHeaderNo: Code[20];
     begin
         // [FEATURE] [Sales] [Shipment]
-        // [SCENARIO 375398] FechaOperacion xml node has value after the posting date in the sales invoice with the "Special Scheme Code" equals 14 and SII version equals 2.1
+        // [SCENARIO 375398] FechaOperacion xml node has value after the posting date in the sales invoice with the "Special Scheme Code" equals 14 and SII version equals 1.1bis
 
         Initialize();
 
@@ -2083,7 +2083,7 @@ codeunit 147520 SIIDocumentTests
         SalesInvoiceHeaderNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, SalesInvoiceHeaderNo);
 
-        // [GIVEN] SII Version is 2.1
+        // [GIVEN] SII Version is 1.1bis
         SIIXMLCreator.SetSIIVersionNo(SIIDocUploadState."Version No."::"2.1");
 
         // [WHEN] We create the xml to be transmitted for that transaction
@@ -2095,7 +2095,7 @@ codeunit 147520 SIIDocumentTests
 
     [Test]
     [Scope('OnPrem')]
-    procedure FechaOperacionAfterPostingDateDoesNotExistWhenSchemeCode01AndVersion21()
+    procedure FechaOperacionAfterPostingDateDoesNotExistWhenSchemeCode01AndVersion11bis()
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         SalesHeader: Record "Sales Header";
@@ -2107,7 +2107,7 @@ codeunit 147520 SIIDocumentTests
         OldWorkDate: Date;
     begin
         // [FEATURE] [Sales] [Shipment]
-        // [SCENARIO 375398] FechaOperacion xml node does not exist when shipment date after the posting date for in the sales invoice with the "Special Scheme Code" equals 14 and SII version equals 2.1
+        // [SCENARIO 375398] FechaOperacion xml node does not exist when shipment date after the posting date for in the sales invoice with the "Special Scheme Code" equals 14 and SII version equals 1.1bis
 
         Initialize();
 
@@ -2120,7 +2120,7 @@ codeunit 147520 SIIDocumentTests
         SalesInvoiceHeaderNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, SalesInvoiceHeaderNo);
 
-        // [GIVEN] SII Version is 2.1
+        // [GIVEN] SII Version is 1.1bis
         SIIXMLCreator.SetSIIVersionNo(SIIDocUploadState."Version No."::"2.1");
 
         // [WHEN] We create the xml to be transmitted for that transaction

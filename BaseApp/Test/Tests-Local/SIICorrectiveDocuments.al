@@ -1,4 +1,4 @@
-codeunit 147528 "SII Negative Invoices"
+codeunit 147528 "SII Corrective Documents"
 {
     // // [FEATURE] [SII]
 
@@ -18,6 +18,7 @@ codeunit 147528 "SII Negative Invoices"
         LibraryService: Codeunit "Library - Service";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySII: Codeunit "Library - SII";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         IsInitialized: Boolean;
         XPathPurchFacturaRecibidaTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasRecibidas/siiRL:RegistroLRFacturasRecibidas/siiRL:FacturaRecibida/';
         XPathPurchBaseImponibleTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasRecibidas/siiRL:RegistroLRFacturasRecibidas/siiRL:FacturaRecibida/sii:DesgloseFactura/sii:DesgloseIVA/sii:DetalleIVA/';
@@ -285,42 +286,184 @@ codeunit 147528 "SII Negative Invoices"
           XMLDoc, XPathPurchFacturaRecibidaTok, 'sii:CuotaDeducible', SIIXMLCreator.FormatNumber(TotalVATAmount));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CorrectiveSalesInvoiceWithR1Type()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 383654] Stan can send sales invoice with "Invoice Type" = "R1" to the SII in order to reflect the corrective invoice
+
+        Initialize();
+
+        // [GIVEN] "Include Importe Total" is enabled in the SII Setup
+        SetIncludeImporteTotalInSIISetup();
+
+        // [GIVEN] Sales invoice with "Invoice Type" = "R1"
+        PostSalesInvoiceWithRType(CustLedgerEntry, SalesLine, SalesHeader."Invoice Type"::"R1 Corrected Invoice");
+
+        // [WHEN] Generatel XML for posted document
+        Assert.IsTrue(
+          SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false),
+          'Xml Document was not Generated properly');
+
+        // [THEN] TipoFactura is "R1" in exported SII File
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathSalesFacturaExpedidaTok, 'sii:TipoFactura', 'R1');
+
+        // [THEN] TipoFactura is "R1" in exported SII File
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathSalesFacturaExpedidaTok, 'sii:TipoRectificativa', 'S');
+
+        // [THEN] ImporteTotal is positive in exported SII File
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathSalesFacturaExpedidaTok, 'sii:ImporteTotal', SIIXMLCreator.FormatNumber(SalesLine."Amount Including VAT"));
+
+        // [THEN] BaseRectificada is "0" in exported SII File
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathSalesFacturaExpedidaTok, 'sii:ImporteRectificacion/sii:BaseRectificada', SIIXMLCreator.FormatNumber(0));
+
+        // [THEN] CuotaRectificada is "0" in exported SII File
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathSalesFacturaExpedidaTok, 'sii:ImporteRectificacion/sii:CuotaRectificada', SIIXMLCreator.FormatNumber(0));
+
+        // [THEN] BaseImponible and CuotaRepercutida have positive values in exported SII file
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathSalesBaseImponibleTok, 'sii:BaseImponible', SIIXMLCreator.FormatNumber(SalesLine.Amount));
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathSalesBaseImponibleTok, 'sii:CuotaRepercutida',
+          SIIXMLCreator.FormatNumber((SalesLine."Amount Including VAT" - SalesLine.Amount)));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CorrectivePurchInvoiceWithR1Type()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 383654] Stan can send purchase invoice with "Invoice Type" = "R1" to the SII in order to reflect the corrective invoice
+
+        Initialize();
+
+        // [GIVEN] "Include Importe Total" is enabled in the SII Setup
+        SetIncludeImporteTotalInSIISetup();
+
+        // [GIVEN] Purchase invoice with "Invoice Type" = "R1"
+        PostPurchInvWithRType(VendorLedgerEntry, PurchaseLine, PurchaseHeader."Invoice Type"::"R1 Corrected Invoice");
+
+        // [WHEN] Generatel XML for posted document
+        Assert.IsTrue(
+          SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false),
+          'Xml Document was not Generated properly');
+
+        // [THEN] TipoFactura is "R1" in exported SII File
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathPurchFacturaRecibidaTok, 'sii:TipoFactura', 'R1');
+
+        // [THEN] TipoFactura is "R1" in exported SII File
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathPurchFacturaRecibidaTok, 'sii:TipoRectificativa', 'S');
+
+        // [THEN] ImporteTotal is positive in exported SII File
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathPurchFacturaRecibidaTok, 'sii:ImporteTotal', SIIXMLCreator.FormatNumber(PurchaseLine."Amount Including VAT"));
+
+        // [THEN] BaseRectificada is "0" in exported SII File`
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathPurchFacturaRecibidaTok, 'sii:ImporteRectificacion/sii:BaseRectificada', SIIXMLCreator.FormatNumber(0));
+
+        // [THEN] CuotaRectificada is "0" in exported SII File
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathPurchFacturaRecibidaTok, 'sii:ImporteRectificacion/sii:CuotaRectificada', SIIXMLCreator.FormatNumber(0));
+
+        // [THEN] BaseImponible and CuotaRepercutida have positive values in exported SII file
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathPurchBaseImponibleTok, 'sii:BaseImponible', SIIXMLCreator.FormatNumber(PurchaseLine.Amount));
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathPurchBaseImponibleTok, 'sii:CuotaSoportada',
+          SIIXMLCreator.FormatNumber((PurchaseLine."Amount Including VAT" - PurchaseLine.Amount)));
+    end;
+
     local procedure Initialize()
     begin
         Clear(SIIXMLCreator);
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
         LibrarySII.InitSetup(true, false);
         LibrarySII.BindSubscriptionJobQueue;
+        LibrarySetupStorage.Save(DATABASE::"SII Setup");
 
         IsInitialized := true;
+    end;
+
+    local procedure PostSalesInvoiceWithRType(var CustLedgerEntry: Record "Cust. Ledger Entry"; var SalesLine: Record "Sales Line"; RType: Option)
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        PostSalesDoc(CustLedgerEntry, SalesLine, SalesHeader."Document Type"::Invoice, 0, RType);
     end;
 
     local procedure PostSalesCrMemoWithFType(var CustLedgerEntry: Record "Cust. Ledger Entry"; var SalesLine: Record "Sales Line"; FType: Option)
     var
         SalesHeader: Record "Sales Header";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
+        PostSalesDoc(CustLedgerEntry, SalesLine, SalesHeader."Document Type"::"Credit Memo", FType, 0);
+    end;
+
+    local procedure PostSalesDoc(var CustLedgerEntry: Record "Cust. Ledger Entry"; var SalesLine: Record "Sales Line"; DocType: Integer; FType: Option; RType: Option)
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Invoice Type", RType);
         SalesHeader.Validate("Cr. Memo Type", FType);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
         LibraryERM.FindCustomerLedgerEntry(
-          CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", LibrarySales.PostSalesDocument(SalesHeader, true, true));
+          CustLedgerEntry, DocType, LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    local procedure PostPurchInvWithRType(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var PurchaseLine: Record "Purchase Line"; RType: Option)
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        PostPurchDoc(VendorLedgerEntry, PurchaseLine, PurchaseHeader."Document Type"::Invoice, 0, RType);
     end;
 
     local procedure PostPurchCrMemoWithFType(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var PurchaseLine: Record "Purchase Line"; FType: Option)
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", LibraryPurchase.CreateVendorNo);
+        PostPurchDoc(VendorLedgerEntry, PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", FType, 0);
+    end;
+
+    local procedure PostPurchDoc(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var PurchaseLine: Record "Purchase Line"; DocType: Option; FType: Option; RType: Integer)
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.Validate("Invoice Type", RType);
         PurchaseHeader.Validate("Cr. Memo Type", FType);
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Modify(true);
         LibraryERM.FindVendorLedgerEntry(
-          VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo",
+          VendorLedgerEntry, DocType,
           LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
@@ -364,6 +507,15 @@ codeunit 147528 "SII Negative Invoices"
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
         LibrarySII.FindCustLedgEntryForPostedServCrMemo(
           CustLedgerEntry, ServiceHeader."No.");
+    end;
+
+    local procedure SetIncludeImporteTotalInSIISetup()
+    var
+        SIISetup: Record "SII Setup";
+    begin
+        SIISetup.Get();
+        SIISetup.Validate("Include ImporteTotal", true);
+        SIISetup.Modify(true);
     end;
 }
 
