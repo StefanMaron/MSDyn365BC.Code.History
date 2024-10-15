@@ -45,7 +45,7 @@ page 6713 "OData Fields Export"
             WebServiceManagement.CreateTenantWebServiceFilterFromRecordRef(TenantWebServiceFilter, RecRef, TenantWebService.RecordId);
 
             TenantWebServiceOData.SetRange(TenantWebServiceID, TenantWebService.RecordId);
-            TenantWebServiceOData.FindFirst;
+            TenantWebServiceOData.FindFirst();
             ODataUtility.GenerateSelectText(TenantWebService."Service Name", TenantWebService."Object Type", SelectText);
             ODataUtility.GenerateODataV3FilterText(TenantWebService."Service Name", TenantWebService."Object Type", ODataV3FilterText);
             ODataUtility.GenerateODataV4FilterText(TenantWebService."Service Name", TenantWebService."Object Type", ODataV4FilterText);

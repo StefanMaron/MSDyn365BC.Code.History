@@ -22,7 +22,7 @@ report 8613 "Create Item Journal Lines"
 
                     StdItemJnlLine.SetRange("Journal Template Name", StdItemJnl."Journal Template Name");
                     StdItemJnlLine.SetRange("Standard Journal Code", StdItemJnl.Code);
-                    if StdItemJnlLine.FindSet then
+                    if StdItemJnlLine.FindSet() then
                         repeat
                             CopyItemJnlFromStdJnl(StdItemJnlLine, ItemJnlLine);
                             ItemJnlLine.Validate("Entry Type", EntryTypes);
@@ -72,7 +72,7 @@ report 8613 "Create Item Journal Lines"
 
                 ItemJnlLine.SetRange("Journal Template Name", JournalTemplate);
                 ItemJnlLine.SetRange("Journal Batch Name", BatchName);
-                if ItemJnlLine.FindLast then
+                if ItemJnlLine.FindLast() then
                     LineNo := ItemJnlLine."Line No." + 10000
                 else
                     LineNo := 10000;
@@ -271,7 +271,7 @@ report 8613 "Create Item Journal Lines"
         LastItemJnlLine.SetRange("Journal Template Name", StdItemJnl."Journal Template Name");
         LastItemJnlLine.SetRange("Journal Batch Name", JnlBatchName);
 
-        if LastItemJnlLine.FindLast then;
+        if LastItemJnlLine.FindLast() then;
     end;
 
     local procedure CopyItemJnlFromStdJnl(StdItemJnlLine: Record "Standard Item Journal Line"; var ItemJnlLine: Record "Item Journal Line")

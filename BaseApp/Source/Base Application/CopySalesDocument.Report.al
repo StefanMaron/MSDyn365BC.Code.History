@@ -328,7 +328,7 @@ report 292 "Copy Sales Document"
              CopyDocMgt.GetSalesDocumentType(FromDocType), FromDocNo, FromDocNoOccurrence, FromDocVersionNo)
         then begin
             FromSalesHeaderArchive.SetRange("No.", FromDocNo);
-            if FromSalesHeaderArchive.FindLast then begin
+            if FromSalesHeaderArchive.FindLast() then begin
                 FromDocNoOccurrence := FromSalesHeaderArchive."Doc. No. Occurrence";
                 FromDocVersionNo := FromSalesHeaderArchive."Version No.";
             end;
@@ -486,14 +486,6 @@ report 292 "Copy Sales Document"
         IncludeHeader := NewIncludeHeader;
         RecalculateLines := NewRecalcLines;
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by SetParameters().', '17.0')]
-    procedure InitializeRequest(NewDocType: Option; NewDocNo: Code[20]; NewIncludeHeader: Boolean; NewRecalcLines: Boolean)
-    begin
-        SetParameters("Sales Document Type From".FromInteger(NewDocType), NewDocNo, NewIncludeHeader, NewRecalcLines);
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOpenPage()

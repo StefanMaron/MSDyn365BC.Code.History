@@ -220,7 +220,7 @@ table 99000754 "Work Center"
 
             trigger OnValidate()
             begin
-                GetGLSetup;
+                GetGLSetup();
                 "Unit Cost" :=
                   Round(
                     "Direct Unit Cost" * (1 + "Indirect Cost %" / 100) + "Overhead Rate",
@@ -236,7 +236,7 @@ table 99000754 "Work Center"
 
             trigger OnValidate()
             begin
-                GetGLSetup;
+                GetGLSetup();
                 "Direct Unit Cost" :=
                   Round(("Unit Cost" - "Overhead Rate") / (1 + "Indirect Cost %" / 100),
                     GLSetup."Unit-Amount Rounding Precision");

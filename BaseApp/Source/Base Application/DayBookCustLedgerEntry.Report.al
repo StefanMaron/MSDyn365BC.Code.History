@@ -281,7 +281,7 @@ report 2501 "Day Book Cust. Ledger Entry"
                         DtldCustLedgEntry.Reset();
                         DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", "Cust. Ledger Entry"."Entry No.");
                         DtldCustLedgEntry.SetFilter("Entry Type", '<>%1', DtldCustLedgEntry."Entry Type"::Application);
-                        if DtldCustLedgEntry.FindSet then begin
+                        if DtldCustLedgEntry.FindSet() then begin
                             TransactionNoFilter := Format(DtldCustLedgEntry."Transaction No.");
                             while DtldCustLedgEntry.Next <> 0 do
                                 TransactionNoFilter := TransactionNoFilter + '|' + Format(DtldCustLedgEntry."Transaction No.");

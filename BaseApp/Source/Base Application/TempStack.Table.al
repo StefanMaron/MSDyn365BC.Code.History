@@ -40,7 +40,7 @@ table 9160 TempStack
 
     procedure Pop(var TopValue: RecordID): Boolean
     begin
-        if FindLast then begin
+        if FindLast() then begin
             TopValue := Value;
             Delete;
             LastIndex := LastIndex - 1;
@@ -51,7 +51,7 @@ table 9160 TempStack
 
     procedure Peek(var TopValue: RecordID): Boolean
     begin
-        if FindLast then begin
+        if FindLast() then begin
             TopValue := Value;
             exit(true);
         end;

@@ -55,7 +55,7 @@ report 11207 "SIE Export"
                         begin
                             Clear(SieDimensionPage);
                             SieDimensionPage.LookupMode(true);
-                            SieDimensionPage.Run;
+                            SieDimensionPage.Run();
                             ColumnDim := SieDimension.GetDimSelectionText;
                         end;
                     }
@@ -224,11 +224,11 @@ report 11207 "SIE Export"
                     WriteTransactionHeader(GLEntry);
 
                 DimensionSetEntry.SetRange("Dimension Set ID", GLEntry."Dimension Set ID");
-                if DimensionSetEntry.FindSet then begin
+                if DimensionSetEntry.FindSet() then begin
                     repeat
                         SieDimension.SetRange(Selected, true);
                         SieDimension.SetRange("Dimension Code", DimensionSetEntry."Dimension Code");
-                        if SieDimension.FindFirst then
+                        if SieDimension.FindFirst() then
                             DimensionString :=
                               DimensionString +
                               ' "' + Format(SieDimension."SIE Dimension") + '" "' + DimensionSetEntry."Dimension Value Code" + '"';

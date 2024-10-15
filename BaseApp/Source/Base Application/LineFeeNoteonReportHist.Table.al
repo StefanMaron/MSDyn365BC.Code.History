@@ -113,7 +113,7 @@ table 1053 "Line Fee Note on Report Hist."
 
         // insert Reminder Terms Translation records
         ReminderTermsTranslation.SetRange("Reminder Terms Code", ReminderLevel."Reminder Terms Code");
-        if ReminderTermsTranslation.FindSet then
+        if ReminderTermsTranslation.FindSet() then
             repeat
                 AddTextOnReport :=
                   GetLineFeeNoteOnReport(CustLedgerEntry, ReminderLevel, ReminderTermsTranslation."Note About Line Fee on Report", DueDate);
@@ -144,7 +144,7 @@ table 1053 "Line Fee Note on Report Hist."
             exit;
 
         ReminderLevel.SetRange("Reminder Terms Code", ReminderTerms.Code);
-        if ReminderLevel.FindSet then begin
+        if ReminderLevel.FindSet() then begin
             DueDate := CalcDate(ReminderLevel."Grace Period", CustLedgerEntry."Due Date");
             InsertTransLineFeeNoteOnReport(CustLedgerEntry, ReminderTerms, ReminderLevel, DueDate);
             while ReminderLevel.Next <> 0 do begin

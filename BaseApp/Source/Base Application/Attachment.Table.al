@@ -83,7 +83,7 @@ table 5062 Attachment
         "Last Time Modified" := Time;
 
         Attachment2.LockTable();
-        if Attachment2.FindLast then
+        if Attachment2.FindLast() then
             NextAttachmentNo := Attachment2."No." + 1
         else
             NextAttachmentNo := 1;
@@ -106,8 +106,10 @@ table 5062 Attachment
 
     var
         Text002: Label 'The attachment is empty.';
-        Text003: Label 'Attachment is already in use on this machine.';
+#if not CLEAN19
         Text004: Label 'The attachment file must be saved to disk before you can import it.\\Do you want to save the file?';
+        Text016: Label 'When you have finished working with a document, you should delete the associated temporary file. Please note that this will not delete the document.\\Do you want to delete the temporary file?';
+#endif
         Text005: Label 'Export Attachment';
         Text006: Label 'Import Attachment';
         Text007: Label 'All Files (*.*)|*.*';
@@ -116,7 +118,6 @@ table 5062 Attachment
         Text010: Label 'External file could not be removed.';
         Text014: Label 'You can only fax Microsoft Word documents.';
         Text015: Label 'The email cannot be displayed or has been deleted.';
-        Text016: Label 'When you have finished working with a document, you should delete the associated temporary file. Please note that this will not delete the document.\\Do you want to delete the temporary file?';
         Text020: Label 'An Outlook dialog box is open. Close it and try again.';
         CouldNotActivateOutlookErr: Label 'Cannot connect to Microsoft Outlook. If Microsoft Outlook is already running, make sure that you are not running either %1 or Microsoft Outlook as administrator. Close all instances of Microsoft Outlook and try again.', Comment = '%1 - product name';
         UnspecifiedOutlookErr: Label ' Microsoft Outlook cannot display the message. Make sure that Microsoft Outlook is configured with access to the message that you are trying to open.';
@@ -131,10 +132,6 @@ table 5062 Attachment
     procedure OpenAttachment(Caption: Text[260]; IsTemporary: Boolean; LanguageCode: Code[10])
     var
         SegmentLine: Record "Segment Line";
-#if not CLEAN17
-        WordManagement: Codeunit WordManagement;
-        FileName: Text;
-#endif
     begin
         if IsHTML then begin
             SegmentLine.Init();
@@ -152,29 +149,21 @@ table 5062 Attachment
 
         if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop] then
             ProcessWebAttachment(Caption + '.' + "File Extension")
-#if not CLEAN17
-        // Code being removed as the procedure ConstFilename will always throw an error and is being removed.
-        // This will cause DeleteFile to always throw an error that the file is in use.
-        // OpenWordAttachment is also being removed as it uses DotNet that cannot run on non-Windows client type.
-        else begin
-            FileName := ConstFilename;
-            if not DeleteFile(FileName) then
-                Error(Text003);
-            ExportAttachmentToClientFile(FileName);
-            if WordManagement.IsWordDocumentExtension("File Extension") then
-                WordManagement.OpenWordAttachment(Rec, FileName, Caption, IsTemporary, LanguageCode)
-            else begin
-                HyperLink(FileName);
-                if not "Read Only" then begin
-                    if Confirm(Text004, true) then
-                        ImportAttachmentFromClientFile(FileName, IsTemporary, false);
-                    DeleteFile(FileName);
-                end else
-                    if Confirm(Text016, true) then
-                        DeleteFile(FileName);
-            end;
+    end;
+
+    [Scope('OnPrem')]
+    procedure OpenAttachment(var SegLine: Record "Segment Line"; WordCaption: Text)
+    begin
+        if IsHTML() then begin
+            PreviewHTMLContent(SegLine);
+            exit;
         end;
-#endif
+
+        if "Storage Type" = "Storage Type"::Embedded then
+            CalcFields("Attachment File");
+
+        if SegLine."Word Template Code" = '' then
+            ProcessWebAttachment(WordCaption + '.' + "File Extension");
     end;
 
     procedure ShowAttachment(var SegLine: Record "Segment Line"; WordCaption: Text)
@@ -237,7 +226,6 @@ table 5062 Attachment
             if not WordManagement.CanRunWordApp then
                 ProcessWebAttachment(WordCaption + '.' + "File Extension")
             else
-#if CLEAN17
                 if not WordManagement.IsWordDocumentExtension("File Extension") then begin
                     ExportAttachmentToClientFile(FileName);
                     HyperLink(FileName);
@@ -249,23 +237,6 @@ table 5062 Attachment
                         if Confirm(Text016, true) then
                             DeleteFile(FileName);
                 end;
-#else
-                if WordManagement.IsWordDocumentExtension("File Extension") then begin
-                    OnRunAttachmentOnBeforeWordManagementRunMergedDocument(Rec, Handler);
-                    WordManagement.RunMergedDocument(SegLine, Rec, WordCaption, IsTemporary, IsVisible, Handler);
-                end else begin
-                    FileName := ConstFilename;
-                    ExportAttachmentToClientFile(FileName);
-                    HyperLink(FileName);
-                    if not "Read Only" then begin
-                        if Confirm(Text004, true) then
-                            ImportAttachmentFromClientFile(FileName, IsTemporary, false);
-                        DeleteFile(FileName);
-                    end else
-                        if Confirm(Text016, true) then
-                            DeleteFile(FileName);
-                end;
-#endif
 
         WordManagement.Deactivate(5062);
     end;
@@ -276,7 +247,7 @@ table 5062 Attachment
         ContentPreview: Page "Content Preview";
     begin
         ContentPreview.SetContent(AttachmentMgt.LoadHTMLContent(Rec, SegmentLine));
-        ContentPreview.RunModal;
+        ContentPreview.RunModal();
     end;
 
     [Scope('OnPrem')]
@@ -295,15 +266,8 @@ table 5062 Attachment
         ExportAttachmentToServerFile(ServerFileName);
 
         Path := FileMgt.Magicpath;
-#if not CLEAN17
-        if ExportToFile = '' then begin
-            ExportToFile := FileMgt.GetFileName(FileMgt.ClientTempFileName("File Extension"));
-            Path := '';
-        end;
-#else
         if ExportToFile = '' then
             Path := '';
-#endif
 
         FileFilter := UpperCase("File Extension") + ' (*.' + "File Extension" + ')|*.' + "File Extension";
         Success := Download(ServerFileName, Text005, Path, FileFilter, ExportToFile);
@@ -535,33 +499,11 @@ table 5062 Attachment
 
 #if not CLEAN19
     local procedure DeleteFile(FileName: Text): Boolean
-    var
-        I: Integer;
     begin
         if FileName = '' then
             exit(false);
 
-#if not CLEAN17
-        if not FileMgt.ClientFileExists(FileName) then
-            exit(true);
-
-        repeat
-            Sleep(250);
-            I := I + 1;
-        until FileMgt.DeleteClientFile(FileName) or (I = 25);
-        exit(not FileMgt.ClientFileExists(FileName));
-#else
         exit(true);
-#endif
-    end;
-#endif
-
-#if not CLEAN17
-    [Scope('OnPrem')]
-    [Obsolete('The local file system is not accessible, the procedure FileMgt.ClientTempFileName will always throw an error. This procedure will be removed.', '17.3')]
-    procedure ConstFilename() FileName: Text
-    begin
-        FileName := FileMgt.ClientTempFileName("File Extension");
     end;
 #endif
 
@@ -679,6 +621,24 @@ table 5062 Attachment
         Clear("Email Entry ID");
         "Email Entry ID".CreateOutStream(Stream);
         Stream.WriteText(EntryID);
+    end;
+
+    procedure GetEmailMessageUrl() Return: Text
+    var
+        InStream: InStream;
+    begin
+        CalcFields("Email Message Url");
+        "Email Message Url".CreateInStream(InStream);
+        InStream.ReadText(Return);
+    end;
+
+    procedure SetEmailMessageUrl(Url: Text)
+    var
+        OutStream: OutStream;
+    begin
+        Clear("Email Message Url");
+        "Email Message Url".CreateOutStream(OutStream);
+        OutStream.WriteText(url);
     end;
 
     procedure Read() Result: Text
@@ -836,9 +796,9 @@ table 5062 Attachment
         CopyStream(OutStream, InStream);
     end;
 
-#if not CLEAN19
-    [Obsolete('Replaced by event OnBeforeShowAttachment', '19.0')]
+#if not CLEAN20
     [IntegrationEvent(false, false)]
+    [Obsolete('Replaced with event OnBeforeShowAttachment.', '20.0')]
     local procedure OnBeforeRunAttachment(var SegLine: Record "Segment Line"; WordCaption: Text[260]; IsTemporary: Boolean; IsVisible: Boolean; Handler: Boolean; var iSHandled: Boolean)
     begin
     end;
@@ -864,7 +824,8 @@ table 5062 Attachment
     begin
     end;
 
-#if not CLEAN17
+#if not CLEAN20
+    [Obsolete('The event is no longer referenced as the code path calls .Net that is not supported on non-Windows client types. If needed, request a new event in ShowAttachment procedure.', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnRunAttachmentOnBeforeWordManagementRunMergedDocument(var Attachment: Record Attachment; var Handler: Boolean)
     begin

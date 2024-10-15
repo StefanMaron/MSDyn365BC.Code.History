@@ -67,22 +67,27 @@ page 5337 "CRM Coupled Fields"
         DeleteAll();
         IntegrationFieldMapping.Reset();
         IntegrationFieldMapping.SetRange("Integration Table Mapping Name", CouplingRecordBuffer."CRM Table Name");
-        if IntegrationFieldMapping.FindSet then
+        if IntegrationFieldMapping.FindSet() then
             repeat
                 Init;
-                case IntegrationFieldMapping.Direction of
-                    IntegrationFieldMapping.Direction::Bidirectional,
-                  IntegrationFieldMapping.Direction::ToIntegrationTable:
-                        "Field Name" :=
-                          GetFieldCaption(CouplingRecordBuffer."CRM Table ID", IntegrationFieldMapping."Integration Table Field No.");
-                    IntegrationFieldMapping.Direction::FromIntegrationTable:
-                        "Field Name" :=
-                          GetFieldCaption(CouplingRecordBuffer."NAV Table ID", IntegrationFieldMapping."Field No.");
-                end;
+                if CouplingRecordBuffer."Is Option" then
+                    "Field Name" := GetFieldCaption(CouplingRecordBuffer."NAV Table ID", IntegrationFieldMapping."Field No.")
+                else
+                    case IntegrationFieldMapping.Direction of
+                        IntegrationFieldMapping.Direction::Bidirectional,
+                      IntegrationFieldMapping.Direction::ToIntegrationTable:
+                            "Field Name" :=
+                              GetFieldCaption(CouplingRecordBuffer."CRM Table ID", IntegrationFieldMapping."Integration Table Field No.");
+                        IntegrationFieldMapping.Direction::FromIntegrationTable:
+                            "Field Name" :=
+                              GetFieldCaption(CouplingRecordBuffer."NAV Table ID", IntegrationFieldMapping."Field No.");
+                    end;
                 if IntegrationFieldMapping."Field No." <> 0 then
                     Value := GetFieldValue(NAVRecordRef, IntegrationFieldMapping."Field No.");
                 if CRMRecordIsSet and (IntegrationFieldMapping."Integration Table Field No." <> 0) then
                     "Integration Value" := GetFieldValue(CRMRecordRef, IntegrationFieldMapping."Integration Table Field No.");
+                if CouplingRecordBuffer."Is Option" then
+                    "Integration Value" := CouplingRecordBuffer."CRM Name";
                 Direction := IntegrationFieldMapping.Direction;
                 "Validate Field" := IntegrationFieldMapping."Validate Field";
                 Insert;

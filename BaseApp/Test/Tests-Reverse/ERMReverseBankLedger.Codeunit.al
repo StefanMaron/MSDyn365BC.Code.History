@@ -1,4 +1,4 @@
-codeunit 134134 "ERM Reverse Bank Ledger"
+﻿codeunit 134134 "ERM Reverse Bank Ledger"
 {
     EventSubscriberInstance = Manual;
     Subtype = Test;
@@ -19,6 +19,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         ReverseErr: Label 'You cannot reverse Bank Account Ledger Entry No. %1 because the entry is closed.', Locked = true;
@@ -45,7 +46,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         // Check Reverse Error on Bank Account is Blocked.
 
         // Setup: Create General Journal Line With Bank Account and Post it and Modify Bank Account for Blocked.
-        Initialize;
+        Initialize();
         with GenJournalLine do begin
             CreateAndPostGenJournalLine(
               GenJournalLine, "Document Type"::Payment, "Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
@@ -72,7 +73,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         // Check Reverse Error on Bank Account posted with Manual Check.
 
         // Setup: Create General Journal Line With Bank Account with Manual Check and Post it.
-        Initialize;
+        Initialize();
         with GenJournalLine do begin
             CreateAndPostGenJournalLine(
               GenJournalLine, "Document Type"::Payment, "Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
@@ -98,7 +99,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         // Check Reverse Error on Bank Account Posted with Void Check.
 
         // Setup: Create General Journal Line Post it With Bank Account and Run Void Check.
-        Initialize;
+        Initialize();
         with GenJournalLine do begin
             CreateAndPostGenJournalLine(
               GenJournalLine, "Document Type"::Payment, "Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
@@ -128,14 +129,17 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         // Check Reverse Error After Modify and Run Adjust Exchange Rate Batch Job for Customer.
 
         // Setup: Create General Journal Line With Customer and with Currency and Post it and Modify, Run Adjust Exchange Rate Batch Job.
-        Initialize;
+        Initialize();
         with GenJournalLine do begin
             CreateAndPostGenJournalLine(
               GenJournalLine, "Document Type"::" ", "Account Type"::Customer, LibrarySales.CreateCustomerNo,
               "Bank Payment Type"::" ", CreateCurrency, CreateBankAccount, LibraryRandom.RandDec(100, 2), '');
             ModifyCurrencyAndExchangeRate("Currency Code");
-            LibraryERM.RunAdjustExchangeRatesSimple("Currency Code", WorkDate, WorkDate);
-
+#if not CLEAN20
+            LibraryERM.RunAdjustExchangeRatesSimple("Currency Code", WorkDate(), WorkDate());
+#else
+            LibraryERM.RunExchRateAdjustmentSimple("Currency Code", WorkDate(), WorkDate());
+#endif
             // Exercise: Reverse Customer Ledger Entry.
             EntryNo := ReverseCustomerLedgerEntry("Document No.");
         end;
@@ -157,7 +161,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         // Check Reverse Error After Suggest Bank Reconciliation.
 
         // Setup: Create General Journal Line With Customer and Post it and Create, Suggest Bank Reconciliation.
-        Initialize;
+        Initialize();
         with GenJournalLine do begin
             CreateAndPostGenJournalLine(
               GenJournalLine, "Document Type"::" ", "Account Type"::Customer, LibrarySales.CreateCustomerNo,
@@ -185,7 +189,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         // Check Reverse Error After Suggest and Modify Bank Reconciliation and Post.
 
         // Setup: Create General Journal Line With Customer and Post it.
-        Initialize;
+        Initialize();
         with GenJournalLine do begin
             CreateAndPostGenJournalLine(
               GenJournalLine, "Document Type"::" ", "Account Type"::Customer, LibrarySales.CreateCustomerNo,
@@ -214,7 +218,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         // Check Reverse Error After Suggest and Modify Bank Reconciliation for Bank Post and Run Date Compress.
 
         // Setup: Create and Post General Journal Line. Create, Suggest and Modify Bank Reconciliation and Run Date Compress for Bank.
-        Initialize;
+        Initialize();
         DocumentNo := ReversAndCompressBankReconcltn(GenJournalLine."Account Type"::"Bank Account", CreateBankAccount);
 
         // Exercise: Reverse Bank Account Ledger Entry.
@@ -236,7 +240,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         // Check Reverse Error After Suggest and Modify Bank Reconciliation for Customer Post and Run Date Compress.
 
         // Setup: Create and Post General Journal Line. Create, Suggest and Modify Bank Reconciliation and Run Date Compress for Customer.
-        Initialize;
+        Initialize();
         DocumentNo := ReversAndCompressBankReconcltn(GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo);
 
         // Exercise: Reverse Customer Ledger Entry.
@@ -258,7 +262,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         // Check Reverse Error After Suggest and Modify Bank Reconciliation for Vendor Post and Run Date Compress.
 
         // Setup: Create and Post General Journal Line. Create, Suggest and Modify Bank Reconciliation and Run Date Compress for Vendor.
-        Initialize;
+        Initialize();
         DocumentNo := ReversAndCompressBankReconcltn(GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo);
 
         // Exercise: Reverse Vendor Ledger Entry.
@@ -309,7 +313,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Setup: Create and Post General Journal line with non-empty Document type.
-        Initialize;
+        Initialize();
         with GenJournalLine do begin
             CreateAndPostGenJournalLine(
               GenJournalLine, "Document Type"::Refund, "Account Type"::Customer, LibrarySales.CreateCustomerNo,
@@ -340,7 +344,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Setup: Create and Post General Journal line with bank Payment Type Manual Check.
-        Initialize;
+        Initialize();
         with GenJournalLine do begin
             CreateAndPostGenJournalLine(
               GenJournalLine, "Document Type"::" ", AccountType, AccountNo,
@@ -366,7 +370,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         // Test that sytem correctly void the check ledger entry and unapply the vendor ledger entry.
 
         // Setup: Create and apply the general journal line for vendor and then post it.
-        Initialize;
+        Initialize();
         with GenJournalLine do begin
             DocumentNo := ApplyGenJournalLineForBankPaymentType(GenJournalLine, "Account Type"::Vendor, LibraryPurchase.CreateVendorNo);
 
@@ -393,7 +397,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         // Test that sytem correctly void the check ledger entry and unapply the customer ledger entry.
 
         // Setup: Create and apply the general journal line for customer and then post it.
-        Initialize;
+        Initialize();
         with GenJournalLine do begin
             DocumentNo := ApplyGenJournalLineForBankPaymentType(GenJournalLine, "Account Type"::Customer, LibrarySales.CreateCustomerNo);
 
@@ -418,7 +422,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         // Test that system does not allow to void the computer check that has not been printed and posted.
 
         // Setup: Create General Journal line with Bank Payment Type Computer check.
-        Initialize;
+        Initialize();
         with GenJournalLine do begin
             CreateGenJournalLine(
               GenJournalLine, "Document Type"::Payment, "Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
@@ -442,7 +446,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
     begin
         // Test that system correctly apply and unapply the Bank Account ledger entries for Vendor.
         // Setup: Post Payment Journal for Vendor
-        Initialize;
+        Initialize();
         with GenJournalLine do begin
             CreateAndPostGenJournalLine(
               GenJournalLine, "Document Type"::Payment, "Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
@@ -474,7 +478,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
     begin
         // Test that system correctly apply and unapply the Check ledger entries for Vendor.
         // Setup: Post Payment Journal for Vendor and modify Bank Account Reconciliation Line with type "Check Ledger Entry".
-        Initialize;
+        Initialize();
         with GenJournalLine do begin
             CreateAndPostGenJournalLine(
               GenJournalLine, "Document Type"::Payment, "Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
@@ -510,7 +514,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
     begin
         // [FEATURE] [Bank Account Reconcilation]
         // [SCENARIO 379442] On reversal, Bank Account Ledger entry is closed along with reversal entry
-        Initialize;
+        Initialize();
         PostingDate := WorkDate;
 
         // [GIVEN] Posted payment "P1" to vendor "V" from bank "X" with amount 100
@@ -558,9 +562,9 @@ codeunit 134134 "ERM Reverse Bank Ledger"
     begin
         // [FEATURE] [Vendor] [Payment] [Check] [Void]
         // [SCENARIO 380591] Two voided Vendor Ledger Entries with empty Document Type after Void Check of two payments applied to Invoice and Credit Memo
-        Initialize;
+        Initialize();
 
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         BankAccountNo := CreateBankAccount;
         InvoiceAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
         CrMemoAmount := InvoiceAmount - LibraryRandom.RandDecInRange(100, 200, 2);
@@ -575,7 +579,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         SuggestVendorPayments(GenJournalLine, VendorNo, BankAccountNo);
         // [GIVEN] Print Check. New payment line (Computer Check) has been added to the journal with Amount = 100.
         PrintCheck(GenJournalLine, BankAccountNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         DocumentNo := GenJournalLine."Document No.";
         // [GIVEN] Post payment journal.
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -610,7 +614,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
     begin
         // [FEATURE] [FCY] [Check]
         // [SCENARIO 215422] Print check at diffent date for invoice posted in FCY.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency "C" having exchange Rate[1] = 2 at Date[1] = 01/01/2017 and Rate[2] = 3 at Date[2] = 01/02/2017
         StartDate := WorkDate;
@@ -640,7 +644,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         GenJournalLine.Insert();
         SuggestVendorPayments(GenJournalLine, Vendor."No.", BankAccountNo);
         GenJournalLine.SetRange("Account No.", Vendor."No.");
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLine.Validate("Currency Code", '');
         GenJournalLine.Validate(Amount, InvoiceAmount / ExchangeRate[2]);
         GenJournalLine.Modify(true);
@@ -651,7 +655,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         // [THEN] Check Ledger Entry created with Amount = 100 * Rate[2] = 300
         Currency.Initialize('');
         CheckLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
-        CheckLedgerEntry.FindFirst;
+        CheckLedgerEntry.FindFirst();
         CheckLedgerEntry.TestField(Amount, Round(InvoiceAmount / ExchangeRate[2], Currency."Amount Rounding Precision"));
     end;
 
@@ -666,7 +670,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
     begin
         // [SCENARIO 227412] Reversed Bank Account Ledger Entries are not visible on Bank Reconciliation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Gen Journal Line with Document No = "X" for Bank Account is posted and reversed
         with GenJournalLine do begin
@@ -678,7 +682,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
             LibraryERM.PostGeneralJnlLine(GenJournalLine);
         end;
         BankAccountLedgerEntry.SetRange("Bank Account No.", GenJournalLine."Bal. Account No.");
-        BankAccountLedgerEntry.FindFirst;
+        BankAccountLedgerEntry.FindFirst();
         ReverseBankAccountLedgerEntryNoErr(BankAccountLedgerEntry, GenJournalLine."Document No.");
 
         // [GIVEN] Second Gen Journal Line with Document No = "Y" for Bank Account is created (not reversed)
@@ -715,9 +719,9 @@ codeunit 134134 "ERM Reverse Bank Ledger"
     begin
         // [FEATURE] [Check] [Record Restriction]
         // [SCENARIO 228089] Check Ledger Entry does not have reference to Gen. Journal Line when payment is posted.
-        Initialize;
+        Initialize();
 
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         BankAccountNo := CreateBankAccount;
 
         // [GIVEN] Posted Invoice "I" for Vendor "V"
@@ -731,7 +735,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
 
         // [GIVEN] Printed check "C" for payment "P"
         PrintCheck(GenJournalLine, BankAccountNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
 
         // [GIVEN] Created "Check Ledger Entry" "ChLE" for check "C" with "Record ID To Print" = "P"
         CheckLedgerEntry.SetRange("Record ID to Print", GenJournalLine.RecordId);
@@ -753,7 +757,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
     begin
         // [FEATURE] [UI] [UT] [Report] [Suggest Bank Acc. Recon. Lines]
         // [SCENARIO 235885] REP 1496 "Suggest Bank Acc. Recon. Lines" has request option "Exclude Reversed Entries"
-        Initialize;
+        Initialize();
 
         LibraryERM.CreateBankAccount(BankAccount);
         Commit();
@@ -776,7 +780,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
     begin
         // [FEATURE] [Report] [Suggest Bank Acc. Recon. Lines]
         // [SCENARIO 235885] REP 1496 "Suggest Bank Acc. Recon. Lines" using "Exclude Reversed Entries" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank account with 3 ledger entries: two reversed and one normal
         CreatePostTwoPmtWithOneReversed(BankAccountNo, ReversedDocumentNo, DocumentNo, WorkDate);
@@ -809,7 +813,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
     begin
         // [FEATURE] [Report] [Suggest Bank Acc. Recon. Lines]
         // [SCENARIO 235885] REP 1496 "Suggest Bank Acc. Recon. Lines" using "Exclude Reversed Entries" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank account with 3 ledger entries: two reversed and one normal
         CreatePostTwoPmtWithOneReversed(BankAccountNo, ReversedDocumentNo, DocumentNo, WorkDate);
@@ -829,18 +833,23 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Reverse Bank Ledger");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
+
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Reverse Bank Ledger");
         LibraryFiscalYear.CreateClosedAccountingPeriods();
-        LibraryERMCountryData.DisableActivateChequeNoOnGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateLocalPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateLocalData;
+        LibraryERMCountryData.DisableActivateChequeNoOnGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateLocalPostingSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateLocalData();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
+
         isInitialized := true;
         Commit();
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reverse Bank Ledger");
     end;
 
@@ -986,7 +995,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         VendorNo: Code[20];
     begin
         BankAccountNo := CreateBankAccount;
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
 
         PostPaymentToVendor(GenJournalLine, VendorNo, PostingDate, BankAccountNo);
         ReversedDocumentNo := GenJournalLine."Document No.";
@@ -1000,15 +1009,19 @@ codeunit 134134 "ERM Reverse Bank Ledger"
     var
         DateComprRegister: Record "Date Compr. Register";
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        DateComprRetainFields: Record "Date Compr. Retain Fields";
         DateCompressBankAccLedger: Report "Date Compress Bank Acc. Ledger";
     begin
         // Run Date Compress VAT Entry Report with a closed Accounting Period.
         BankAccountLedgerEntry.SetRange("Document No.", DocumentNo);
         DateCompressBankAccLedger.SetTableView(BankAccountLedgerEntry);
+        DateComprRetainFields."Retain Document No." := true;
+        DateComprRetainFields."Retain Contact Code" := false;
+        DateComprRetainFields."Retain Journal Template Name" := false;
         DateCompressBankAccLedger.InitializeRequest(
-          PostingDate, PostingDate, DateComprRegister."Period Length"::Day, DocumentNo, true, false, '');
+          PostingDate, PostingDate, DateComprRegister."Period Length"::Day, DocumentNo, DateComprRetainFields, '', false);
         DateCompressBankAccLedger.UseRequestPage(false);
-        DateCompressBankAccLedger.Run;
+        DateCompressBankAccLedger.Run();
     end;
 
     local procedure FindBankAccReconciliationLines(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; BankAccReconciliation: Record "Bank Acc. Reconciliation")
@@ -1023,7 +1036,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
             SetRange("Posting Date", PostingDate);
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1031,7 +1044,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
     begin
         CheckLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
         CheckLedgerEntry.SetRange("Document No.", DocumentNo);
-        CheckLedgerEntry.FindFirst;
+        CheckLedgerEntry.FindFirst();
     end;
 
     local procedure GetBankAccountLastCheckNo(BankAccountNo: Code[20]): Code[20]
@@ -1072,7 +1085,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
     begin
         DateComprRegister.SetCurrentKey("Table ID", "Ending Date");
         DateComprRegister.SetRange("Table ID", DATABASE::"Bank Account Ledger Entry");
-        if DateComprRegister.FindLast then
+        if DateComprRegister.FindLast() then
             exit(DateComprRegister."Ending Date");
         exit(WorkDate);
     end;
@@ -1101,7 +1114,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst; // Modify Relational Exch. Rate with Less Random Amount.
+        CurrencyExchangeRate.FindFirst(); // Modify Relational Exch. Rate with Less Random Amount.
         CurrencyExchangeRate.Validate(
           "Relational Exch. Rate Amount", CurrencyExchangeRate."Relational Exch. Rate Amount" - LibraryRandom.RandInt(10));
         CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", CurrencyExchangeRate."Relational Exch. Rate Amount");
@@ -1137,7 +1150,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         ReversalEntry: Record "Reversal Entry";
     begin
         BankAccountLedgerEntry.SetRange("Document No.", DocumentNo);
-        BankAccountLedgerEntry.FindFirst;
+        BankAccountLedgerEntry.FindFirst();
         ReversalEntry.SetHideDialog(true);
         ReversalEntry.ReverseTransaction(BankAccountLedgerEntry."Transaction No.");
         BankAccountLedgerEntry.Find;
@@ -1149,7 +1162,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         ReversalEntry: Record "Reversal Entry";
     begin
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         ReversalEntry.SetHideDialog(true);
         asserterror ReversalEntry.ReverseTransaction(CustLedgerEntry."Transaction No.");
         exit(CustLedgerEntry."Entry No.");
@@ -1161,7 +1174,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         ReversalEntry: Record "Reversal Entry";
     begin
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         ReversalEntry.SetHideDialog(true);
         asserterror ReversalEntry.ReverseTransaction(VendorLedgerEntry."Transaction No.");
     end;
@@ -1173,7 +1186,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         SuggestBankAccReconLines.SetStmt(BankAccReconciliation);
         SuggestBankAccReconLines.InitializeRequest(BankAccReconciliation."Statement Date", BankAccReconciliation."Statement Date", false);
         SuggestBankAccReconLines.UseRequestPage(false);
-        SuggestBankAccReconLines.Run;
+        SuggestBankAccReconLines.Run();
     end;
 
     local procedure SuggestVendorPayments(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; BankAccountNo: Code[20])
@@ -1185,11 +1198,11 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         Vendor.SetRange("No.", VendorNo);
         SuggestVendorPayments.SetTableView(Vendor);
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
         LibraryVariableStorage.Enqueue(BankAccountNo);
         Commit();
         SuggestVendorPayments.UseRequestPage(true);
-        SuggestVendorPayments.RunModal;
+        SuggestVendorPayments.RunModal();
     end;
 
     local procedure PrintCheck(var GenJournalLine: Record "Gen. Journal Line"; BankAccountNo: Code[20])

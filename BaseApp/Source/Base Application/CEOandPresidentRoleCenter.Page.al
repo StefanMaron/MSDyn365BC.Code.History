@@ -246,6 +246,15 @@ page 9019 "CEO and President Role Center"
                 RunObject = Page "Contact List";
                 ToolTip = 'View a list of all your contacts.';
             }
+            action("Navi&gate")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Find entries...';
+                Image = Navigate;
+                RunObject = Page Navigate;
+                ShortCutKey = 'Ctrl+Alt+Q';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
+            }
         }
         area(sections)
         {

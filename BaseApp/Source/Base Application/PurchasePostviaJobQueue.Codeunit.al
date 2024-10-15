@@ -100,7 +100,7 @@ codeunit 98 "Purchase Post via Job Queue"
             "Object Type to Run" := "Object Type to Run"::Codeunit;
             "Object ID to Run" := CODEUNIT::"Purchase Post via Job Queue";
             "Record ID to Process" := PurchHeader.RecordId;
-            FillJobEntryFromPurchSetup(JobQueueEntry, PurchHeader."Print Posted Documents");
+            FillJobEntryFromPurchSetup(JobQueueEntry);
             FillJobEntryPurchDescription(JobQueueEntry, PurchHeader);
             "User Session ID" := SessionId;
             CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
@@ -108,7 +108,7 @@ codeunit 98 "Purchase Post via Job Queue"
         end;
     end;
 
-    local procedure FillJobEntryFromPurchSetup(var JobQueueEntry: Record "Job Queue Entry"; PostAndPrint: Boolean)
+    local procedure FillJobEntryFromPurchSetup(var JobQueueEntry: Record "Job Queue Entry")
     var
         PurchSetup: Record "Purchases & Payables Setup";
     begin

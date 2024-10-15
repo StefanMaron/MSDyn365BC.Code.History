@@ -114,6 +114,9 @@ table 1235 "XML Buffer"
         key(Key2; "Parent Entry No.", Type, "Node Number")
         {
         }
+        key(Key3; "Import ID")
+        {
+        }
     }
 
     fieldgroups
@@ -173,6 +176,13 @@ table 1235 "XML Buffer"
         XMLBufferReader: Codeunit "XML Buffer Reader";
     begin
         exit(XMLBufferReader.SaveToFile(ServerFilePath, Rec));
+    end;
+
+    procedure Save(var TempBlob: Codeunit "Temp Blob"): Boolean
+    var
+        XMLBufferReader: Codeunit "XML Buffer Reader";
+    begin
+        exit(XMLBufferReader.SaveToTempBlob(TempBlob, Rec));
     end;
 
     [Scope('OnPrem')]
@@ -292,7 +302,7 @@ table 1235 "XML Buffer"
             Copy(TempXMLBuffer, true)
         else begin
             XMLBuffer.SetRange("Import ID", TempXMLBuffer."Import ID");
-            if XMLBuffer.FindSet then
+            if XMLBuffer.FindSet() then
                 repeat
                     Rec := XMLBuffer;
                     Insert;
@@ -379,7 +389,7 @@ table 1235 "XML Buffer"
         TempResultXMLBuffer.SetRange("Parent Entry No.");
         TempResultXMLBuffer.SetRange(Type, TempResultXMLBuffer.Type::Attribute);
         TempResultXMLBuffer.SetRange(Name, 'xmlns:' + NamespacePrefix);
-        if TempResultXMLBuffer.FindFirst then
+        if TempResultXMLBuffer.FindFirst() then
             exit(TempResultXMLBuffer.Value);
     end;
 

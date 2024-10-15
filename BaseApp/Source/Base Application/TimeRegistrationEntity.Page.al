@@ -126,7 +126,7 @@ page 5513 "Time Registration Entity"
     begin
         if not LinesLoaded then begin
             LoadRecords(GetFilter(Id), GetFilter(Date), GetFilter("Employee Id"));
-            if not FindFirst then
+            if not FindFirst() then
                 exit(false);
             LinesLoaded := true;
         end;

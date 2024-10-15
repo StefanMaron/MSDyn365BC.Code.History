@@ -51,7 +51,7 @@ codeunit 5521 "Make Supply Orders (Yes/No)"
 
         CarryOutActionMsgPlan.UseRequestPage(false);
         CarryOutActionMsgPlan.SetDemandOrder(ReqLine, MfgUserTempl);
-        CarryOutActionMsgPlan.RunModal;
+        CarryOutActionMsgPlan.RunModal();
         Clear(CarryOutActionMsgPlan);
         CarriedOut := true;
 

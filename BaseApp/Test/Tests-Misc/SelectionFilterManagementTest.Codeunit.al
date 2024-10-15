@@ -27,7 +27,7 @@ codeunit 132537 SelectionFilterManagementTest
         SelectionString: Text;
     begin
         with Currency do begin
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 Code := '1';
                 Insert;
@@ -48,7 +48,7 @@ codeunit 132537 SelectionFilterManagementTest
         SelectionString: Text;
     begin
         with CustomerPriceGroup do begin
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 Code := '1';
                 Insert;
@@ -69,7 +69,7 @@ codeunit 132537 SelectionFilterManagementTest
         SelectionString: Text;
     begin
         with Location do begin
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 Code := '1';
                 Insert;
@@ -90,7 +90,7 @@ codeunit 132537 SelectionFilterManagementTest
         SelectionString: Text;
     begin
         with GLAccount do begin
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 "No." := '1';
                 Insert;
@@ -111,7 +111,7 @@ codeunit 132537 SelectionFilterManagementTest
         SelectionString: Text;
     begin
         with Customer do begin
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 "No." := '1';
                 Insert;
@@ -132,7 +132,7 @@ codeunit 132537 SelectionFilterManagementTest
         SelectionString: Text;
     begin
         with Contact do begin
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 "No." := '1';
                 Insert;
@@ -153,7 +153,7 @@ codeunit 132537 SelectionFilterManagementTest
         SelectionString: Text;
     begin
         with Vendor do begin
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 "No." := '1';
                 Insert;
@@ -174,7 +174,7 @@ codeunit 132537 SelectionFilterManagementTest
         SelectionString: Text;
     begin
         with Item do begin
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 "No." := '1';
                 Insert;
@@ -195,7 +195,7 @@ codeunit 132537 SelectionFilterManagementTest
         SelectionString: Text;
     begin
         with Resource do begin
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 "No." := '1';
                 Insert;
@@ -216,7 +216,7 @@ codeunit 132537 SelectionFilterManagementTest
         SelectionString: Text;
     begin
         with InventoryPostingGroup do begin
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 Code := '1';
                 Insert;
@@ -238,7 +238,7 @@ codeunit 132537 SelectionFilterManagementTest
         SelectionString: Text;
     begin
         with GLBudgetName do begin
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 Name := '1';
                 Insert;
@@ -259,7 +259,7 @@ codeunit 132537 SelectionFilterManagementTest
         SelectionString: Text;
     begin
         with BusinessUnit do begin
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 Code := '1';
                 Insert;
@@ -280,7 +280,7 @@ codeunit 132537 SelectionFilterManagementTest
         SelectionString: Text;
     begin
         with CustomerDiscountGroup do begin
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 Code := '1';
                 Insert;
@@ -302,7 +302,7 @@ codeunit 132537 SelectionFilterManagementTest
         SelectionString: Text;
     begin
         with ItemDiscountGroup do begin
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 Code := '1';
                 Insert;
@@ -323,7 +323,7 @@ codeunit 132537 SelectionFilterManagementTest
         SelectionString: Text;
     begin
         with ItemCategory do begin
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 Code := '1';
                 Insert;
@@ -344,7 +344,7 @@ codeunit 132537 SelectionFilterManagementTest
         SelectionString: Text;
     begin
         with DimensionValue do begin
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 Code := '1';
                 Insert;
@@ -427,7 +427,7 @@ codeunit 132537 SelectionFilterManagementTest
         SelectionString: Text;
     begin
         with ICPartner do begin
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 Code := '1';
                 Insert;
@@ -448,7 +448,7 @@ codeunit 132537 SelectionFilterManagementTest
         SelectionString: Text;
     begin
         with CashFlowForecast do begin
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 "No." := '1';
                 Insert;
@@ -469,7 +469,7 @@ codeunit 132537 SelectionFilterManagementTest
         SelectionString: Text;
     begin
         with CashFlowAccount do begin
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 "No." := '1';
                 Insert;
@@ -490,7 +490,7 @@ codeunit 132537 SelectionFilterManagementTest
         SelectionString: Text;
     begin
         with CostBudgetName do begin
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 Name := '1';
                 Insert;
@@ -511,7 +511,7 @@ codeunit 132537 SelectionFilterManagementTest
         SelectionString: Text;
     begin
         with CostCenter do begin
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 Code := '1';
                 Insert;
@@ -532,7 +532,7 @@ codeunit 132537 SelectionFilterManagementTest
         SelectionString: Text;
     begin
         with CostObject do begin
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 Code := '1';
                 Insert;
@@ -553,7 +553,7 @@ codeunit 132537 SelectionFilterManagementTest
         SelectionString: Text;
     begin
         with CostType do begin
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 "No." := '1';
                 Insert;
@@ -574,7 +574,7 @@ codeunit 132537 SelectionFilterManagementTest
         SelectionString: Text;
     begin
         with Campaign do begin
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 "No." := '1';
                 Insert;
@@ -595,7 +595,7 @@ codeunit 132537 SelectionFilterManagementTest
         SelectionString: Text;
     begin
         with LotNoInformation do begin
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 "Lot No." := '1';
                 Insert;
@@ -616,7 +616,7 @@ codeunit 132537 SelectionFilterManagementTest
         SelectionString: Text;
     begin
         with SerialNoInformation do begin
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 "Serial No." := '1';
                 Insert;
@@ -901,7 +901,7 @@ codeunit 132537 SelectionFilterManagementTest
         // [SCENARIO] GetSelectionFilter procedure can be used to get the filter on the primary key from the selected (marked) records.
 
         // [GIVEN] A table (Currency) with at least 1 record
-        if not Customer.FindFirst then begin
+        if not Customer.FindFirst() then begin
             Customer.Init;
             Customer."No." := 'ABC';
             Customer.Insert;

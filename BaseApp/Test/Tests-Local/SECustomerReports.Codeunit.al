@@ -60,7 +60,7 @@ codeunit 144026 "SE Customer Reports"
         // Check Total equal to Customer Balance(LCY) exist on Customer Statement Report.
 
         // Setup: Create and Post Sales Orders for same Customer.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         for Count := 1 to LibraryRandom.RandIntInRange(2, 4) do
             CreateAndPostSalesOrder(SalesHeader, Customer."No.");
@@ -87,7 +87,7 @@ codeunit 144026 "SE Customer Reports"
         // Check G/L Account value does not exist on Balance Sheet Report.
 
         // Setup: Create and Post Sales Orders.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount, GLAccount."Income/Balance"::"Balance Sheet");
         CreateAndPostSalesOrderwithGL(GLAccount."No.");
 
@@ -111,7 +111,7 @@ codeunit 144026 "SE Customer Reports"
         // Check G/L Account value does exist on Balance Sheet Report when print all is activated.
 
         // Setup: Create and Post Sales Orders.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount, GLAccount."Income/Balance"::"Balance Sheet");
         CreateAndPostSalesOrderwithGL(GLAccount."No.");
 
@@ -135,7 +135,7 @@ codeunit 144026 "SE Customer Reports"
         // Check G/L Account value does not exist on Income Statement Report.
 
         // Setup: Create and Post Sales Orders.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount, GLAccount."Income/Balance"::"Income Statement");
         CreateAndPostSalesOrderwithGL(GLAccount."No.");
 
@@ -174,7 +174,7 @@ codeunit 144026 "SE Customer Reports"
     local procedure Initialize()
     begin
         Clear(LibraryReportValidation);
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;
@@ -263,9 +263,9 @@ codeunit 144026 "SE Customer Reports"
         GLAccount.SetRange("No.", GLAccountNo);
         GLAccount.SetFilter("Date Filter", '%1..%2', CalcDate('<-CY>', WorkDate), CalcDate('<CY>', WorkDate));
         BalanceSheet.SetTableView(GLAccount);
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         Commit();
-        BalanceSheet.Run;
+        BalanceSheet.Run();
     end;
 
     local procedure SaveCustomerStatement(CustomerNo: Code[20])
@@ -293,7 +293,7 @@ codeunit 144026 "SE Customer Reports"
         GLAccount.SetRange("No.", GLAccountNo);
         GLAccount.SetFilter("Date Filter", '%1..%2', CalcDate('<-CY+1Y>', WorkDate), CalcDate('<CY+1Y>', WorkDate));
         IncomeStatement.SetTableView(GLAccount);
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         IncomeStatement.SaveAsExcel(LibraryReportValidation.GetFileName);
     end;
 

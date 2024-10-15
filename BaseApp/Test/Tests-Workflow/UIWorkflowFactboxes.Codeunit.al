@@ -40,7 +40,7 @@ codeunit 134339 "UI Workflow Factboxes"
         // [FEATURE] [Cash Receipt Journal]
         // [SCENARIO 209184] Batch workflow status factboxes are not visible when Cash Receipt Journal Page opens
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Journal batch with one or more journal lines
         CreateGeneralJournalBatchWithOneJournalLine(
@@ -69,7 +69,7 @@ codeunit 134339 "UI Workflow Factboxes"
         // [FEATURE] [Cash Receipt Journal]
         // [SCENARIO 209184] Batch workflow status factbox is visible on Cash Receipt Journal Page when the batch is sent for approval
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Journal batch with one or more journal lines
         SetupGenJnlBatchAndWorkflow(
@@ -100,7 +100,7 @@ codeunit 134339 "UI Workflow Factboxes"
         // [FEATURE] [Cash Receipt Journal]
         // [SCENARIO 209184] Batch workflow status factbox is not visible on Cash Receipt Journal Page when the approval is cancelled
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Journal batch with one or more journal lines
         SetupGenJnlBatchAndWorkflow(
@@ -133,7 +133,7 @@ codeunit 134339 "UI Workflow Factboxes"
         // [FEATURE] [Cash Receipt Journal]
         // [SCENARIO 209184] Line workflow status factbox is visible on Cash Receipt Journal Page when the line is sent for approval
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Journal batch with one or more journal lines
         SetupGenJnlBatchAndWorkflow(
@@ -164,7 +164,7 @@ codeunit 134339 "UI Workflow Factboxes"
         // [FEATURE] [Cash Receipt Journal]
         // [SCENARIO 209184] Line workflow status factbox is not visible on Cash Receipt Journal Page when the approval is cancelled
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Journal batch with one or more journal lines
         SetupGenJnlBatchAndWorkflow(
@@ -197,7 +197,7 @@ codeunit 134339 "UI Workflow Factboxes"
         // [FEATURE] [Payment Journal]
         // [SCENARIO 209184] Batch workflow status factboxes are not visible when Payment Journal Page opens
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Journal batch with one or more journal lines
         CreateGeneralJournalBatchWithOneJournalLine(
@@ -225,7 +225,7 @@ codeunit 134339 "UI Workflow Factboxes"
         // [FEATURE] [Payment Journal]
         // [SCENARIO 209184] Batch workflow status factbox is visible on Payment Journal Page when the batch is sent for approval
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Journal batch with one or more journal lines
         SetupGenJnlBatchAndWorkflow(
@@ -255,7 +255,7 @@ codeunit 134339 "UI Workflow Factboxes"
         // [FEATURE] [Payment Journal]
         // [SCENARIO 209184] Batch workflow status factbox is not visible on Payment Journal Page when the approval is cancelled
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Journal batch with one or more journal lines
         SetupGenJnlBatchAndWorkflow(
@@ -287,7 +287,7 @@ codeunit 134339 "UI Workflow Factboxes"
         // [FEATURE] [Payment Journal]
         // [SCENARIO 209184] Line workflow status factbox is visible on Payment Journal Page when the line is sent for approval
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Journal batch with one or more journal lines
         SetupGenJnlBatchAndWorkflow(
@@ -317,7 +317,7 @@ codeunit 134339 "UI Workflow Factboxes"
         // [FEATURE] [Payment Journal]
         // [SCENARIO 209184] Line workflow status factbox is not visible on Payment Journal Page when the approval is cancelled
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Journal batch with one or more journal lines
         SetupGenJnlBatchAndWorkflow(
@@ -344,8 +344,8 @@ codeunit 134339 "UI Workflow Factboxes"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"UI Workflow Factboxes");
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibraryVariableStorage.Clear;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryVariableStorage.Clear();
 
         Workflow.ModifyAll(Enabled, false, true);
         UserSetup.DeleteAll();

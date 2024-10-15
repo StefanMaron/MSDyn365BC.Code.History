@@ -19,12 +19,12 @@ codeunit 1707 "Exp. Mapping Foot Pos. Pay"
         DataExchLineDef.Init();
         DataExchLineDef.SetRange("Data Exch. Def Code", "Data Exch. Def Code");
         DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Footer);
-        if DataExchLineDef.FindFirst then begin
+        if DataExchLineDef.FindFirst() then begin
             DataExch.SetRange("Entry No.", "Entry No.");
-            if DataExch.FindFirst then begin
+            if DataExch.FindFirst() then begin
                 PositivePayFooter.Init();
                 PositivePayFooter.SetRange("Data Exch. Entry No.", "Entry No.");
-                if PositivePayFooter.FindFirst then begin
+                if PositivePayFooter.FindFirst() then begin
                     Window.Update(1, LineNo);
                     RecordRef.GetTable(PositivePayFooter);
                     PositivePayExportMgt.InsertDataExchLineForFlatFile(

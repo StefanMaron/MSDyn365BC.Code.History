@@ -213,7 +213,7 @@ report 11208 "SIE Import"
                         begin
                             Clear(SieDimensionPage);
                             SieDimensionPage.LookupMode(true);
-                            SieDimensionPage.Run;
+                            SieDimensionPage.Run();
                             ColumnDim := SieDimension.GetDimSelectionText;
                         end;
                     }

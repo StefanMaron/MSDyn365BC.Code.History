@@ -46,7 +46,7 @@ codeunit 134915 "ERM Online Mapping Setup"
         // Validate that default setup could be used.
 
         // Setup: Existing demo data is sufficient.
-        Initialize;
+        Initialize();
 
         // Exercise: Execute the default setup function of the Online Map Management code unit.
         OnlineMapManagement.SetupDefault;

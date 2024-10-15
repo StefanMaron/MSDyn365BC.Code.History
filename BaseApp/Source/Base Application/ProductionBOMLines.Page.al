@@ -201,7 +201,7 @@ page 99000788 "Production BOM Lines"
                     ProdBOMWhereUsed.SetProdBOM(ProdBomHeader, WorkDate);
                 end;
         end;
-        ProdBOMWhereUsed.RunModal;
+        ProdBOMWhereUsed.RunModal();
         Clear(ProdBOMWhereUsed);
     end;
 }

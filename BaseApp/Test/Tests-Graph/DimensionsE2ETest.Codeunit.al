@@ -38,7 +38,7 @@ codeunit 135531 "Dimensions E2E Test"
     begin
         // [SCENARIO] Use a GET method to retrieve the dimensions
         // [GIVEN] 2 dimensions in the table
-        Initialize;
+        Initialize();
         LibraryDimension.CreateDimension(Dimension);
         DimensionCode[1] := Dimension.Code;
         LibraryDimension.CreateDimension(Dimension);
@@ -67,7 +67,7 @@ codeunit 135531 "Dimensions E2E Test"
     begin
         // [SCENARIO] Use a GET method to retrieve the dimension values
         // [GIVEN] 2 dimension value codes of a specific dimension
-        Initialize;
+        Initialize();
         LibraryDimension.CreateDimension(Dimension);
 
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);

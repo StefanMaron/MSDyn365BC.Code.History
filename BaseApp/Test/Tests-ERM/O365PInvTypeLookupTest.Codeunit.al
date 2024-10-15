@@ -22,13 +22,13 @@ codeunit 134647 "O365 P. Inv. Type Lookup Test"
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
         // [SCENARIO] Show Type field in OnPrem environment
-        Initialize;
+        Initialize();
 
         // [GIVEN] An OnPrem environment
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
         // [WHEN] Opening a new Purchase Invoice
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
 
         // [THEN] The Type field is visible and the Subtype field is not
         Assert.IsTrue(PurchaseInvoice.PurchLines.Type.Visible, 'Regular type field should be visible for OnPrem');
@@ -42,12 +42,12 @@ codeunit 134647 "O365 P. Inv. Type Lookup Test"
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
         // [SCENARIO] Show the Subtype field in SaaS environment
-        Initialize;
+        Initialize();
 
         // [GIVEN] A SaaS environment
 
         // [WHEN] Opening a new Purchase Invoice
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
 
         // [THEN] The Subtype field is visible and the type field is not
         asserterror PurchaseInvoice.PurchLines.Type.Activate;
@@ -64,10 +64,10 @@ codeunit 134647 "O365 P. Inv. Type Lookup Test"
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
         // [SCENARIO] The lookup on Subtype contains the expected values for Purchase Invoice and all values can be selected.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Purchase Invoice
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
 
         TempOptionLookupBuffer.FillLookupBuffer(TempOptionLookupBuffer."Lookup Type"::Purchases);
         TempOptionLookupBuffer.FindSet();
@@ -90,10 +90,10 @@ codeunit 134647 "O365 P. Inv. Type Lookup Test"
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
         // [SCENARIO] A partial Subtype is entered into the Subtype field triggers autocomplete
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Purchase Invoice
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
 
         // [WHEN] Setting the Subtype on the Purchase Line to ac
         PurchaseInvoice.PurchLines.FilteredTypeField.SetValue(CopyStr(Format(PurchaseLine.Type::"G/L Account"), 1, 2));
@@ -119,10 +119,10 @@ codeunit 134647 "O365 P. Inv. Type Lookup Test"
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
         // [SCENARIO] A blank Subtype is entered into the Subtype field stays blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Purchase Invoice
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
 
         // [WHEN] Setting the Subtype on the Purchase Line to ' '
         PurchaseInvoice.PurchLines.FilteredTypeField.SetValue(' ');
@@ -143,10 +143,10 @@ codeunit 134647 "O365 P. Inv. Type Lookup Test"
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
         // [SCENARIO] When invalid values are entered into Subtype, an error is raised
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Purchase Invoice
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
 
         // [WHEN] Setting the Subtype to Fixed Asset on the Purchase Line
         PurchaseInvoice.PurchLines.FilteredTypeField.SetValue(Format(PurchaseLine.Type::"Fixed Asset"));
@@ -154,7 +154,7 @@ codeunit 134647 "O365 P. Inv. Type Lookup Test"
         PurchaseInvoice.PurchLines.FilteredTypeField.AssertEquals(PurchaseLine.Type::Item);
 
         // [WHEN] Setting the Subtype to a random value on the Purchase Line
-        PurchaseInvoice.PurchLines.FilteredTypeField.SetValue(LibraryUtility.GenerateGUID);
+        PurchaseInvoice.PurchLines.FilteredTypeField.SetValue(LibraryUtility.GenerateGUID());
         // [THEN] The Subtype is set to Item
         PurchaseInvoice.PurchLines.FilteredTypeField.AssertEquals(PurchaseLine.Type::Item);
     end;
@@ -167,10 +167,10 @@ codeunit 134647 "O365 P. Inv. Type Lookup Test"
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
         // [SCENARIO 252686] When Subtype is blank and non standard value is entered into Subtype, Subtype = Item is assigned.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A blank Purchase Invoice.
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
 
         // [WHEN] Setting the Subtype on the Sales Line to "AAA".
         PurchaseInvoice.PurchLines.FilteredTypeField.SetValue('AAA');
@@ -187,10 +187,10 @@ codeunit 134647 "O365 P. Inv. Type Lookup Test"
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
         // [SCENARIO 252686] When Subtype is not blank and non standard value is entered into Subtype, Subtype is not changed.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Purchase Invoice with a line with Subtype = G/L Account.
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         PurchaseInvoice.PurchLines.FilteredTypeField.SetValue(Format(PurchaseLine.Type::"G/L Account"));
 
         // [WHEN] Setting the Subtype on the Sales Line to "AAA".
@@ -219,8 +219,8 @@ codeunit 134647 "O365 P. Inv. Type Lookup Test"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 P. Inv. Type Lookup Test");
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibraryVariableStorage.Clear;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryVariableStorage.Clear();
     end;
 }
 

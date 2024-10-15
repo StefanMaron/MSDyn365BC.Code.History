@@ -8,6 +8,7 @@ table 897 "What's New Notified"
     ObsoleteState = Removed;
     ObsoleteReason = 'Temporary solution';
     ObsoleteTag = '19.0';
+    ReplicateData = false;
 
     DataClassification = SystemMetadata;
 

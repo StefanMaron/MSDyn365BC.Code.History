@@ -681,7 +681,7 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
     begin
         DimensionValue.SetRange("Global Dimension No.", GlobalDimensionNo);
         DimensionValue.SetRange("Dimension Value Type", DimensionValue."Dimension Value Type"::Standard);
-        DimensionValue.FindFirst;
+        DimensionValue.FindFirst();
         exit(DimensionValue.Code);
     end;
 

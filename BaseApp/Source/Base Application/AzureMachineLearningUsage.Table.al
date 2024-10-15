@@ -76,7 +76,7 @@ table 2002 "Azure Machine Learning Usage"
     begin
         if not EnvironmentInfo.IsSaaS then
             exit(false);
-        if not FindFirst then begin
+        if not FindFirst() then begin
             Init;
             "Last Date Updated" := Today;
             Insert;

@@ -614,7 +614,7 @@ page 9225 "Purch. Analysis by Dim Matrix"
                         ItemAnalysisViewToExcel.SetCommonFilters(
                           CurrentAnalysisArea.AsInteger(), CurrentItemAnalysisViewCode,
                           ItemAnalysisViewEntry, DateFilter, ItemFilter, Dim1Filter, Dim2Filter, Dim3Filter, LocationFilter);
-                        ItemAnalysisViewEntry.FindFirst;
+                        ItemAnalysisViewEntry.FindFirst();
                         ItemAnalysisViewToExcel.ExportData(
                           ItemAnalysisViewEntry, ShowColumnName, DateFilter, ItemFilter, BudgetFilter,
                           Dim1Filter, Dim2Filter, Dim3Filter, ShowActualBudget.AsInteger(), LocationFilter, ShowOppositeSign);
@@ -872,7 +872,8 @@ page 9225 "Purch. Analysis by Dim Matrix"
         Field32Visible: Boolean;
         Emphasize: Boolean;
 
-#if not CLEAN19
+#if not CLEAN20
+    [Obsolete('Replaced by procedure LoadMatrix()', '20.0')]
     procedure LoadVariables(ItemAnalysisView1: Record "Item Analysis View"; CurrentItemAnalysisViewCode1: Code[10]; CurrentAnalysisArea1: Option Sales,Purchase,Inventory; LineDimOption1: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3"; ColumnDimOption1: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3"; PeriodType1: Option; ValueType1: Option ,"Cost Amount","Sales Quantity"; RoundingFactor1: Option "None","1","1000","1000000"; ShowActualBudget1: Option "Actual Amounts","Budgeted Amounts",Variance,"Variance%","Index%"; MatrixColumnCaptions1: array[32] of Text[1024]; ShowOppositeSign1: Boolean; PeriodInitialized1: Boolean; ShowColumnName1: Boolean; NoOfRecordsLocal: Integer)
     begin
         LoadMartix(

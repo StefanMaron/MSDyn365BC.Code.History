@@ -44,7 +44,7 @@ codeunit 144022 "UT Intrastat SE"
     begin
         // Purpose of the test to validate  OnAfterGetRecord - Intrastat Jnl. Line trigger of Report ID - 593 "Intrastat - Make Disk Tax Auth".
         // Actual error Country/Region Code must have a value in Intrastat Jnl. Line: Journal Template Name=XXXXX, Journal Batch Name=XXXXX, Line No.=XXXX. It cannot be zero or empty.
-        Initialize;
+        Initialize();
         IntrastatLineValues := LibraryRandom.RandDec(100, 2);  // IntrastatLineValues used for Quantity, Net Weight and Amount.
         MakeDisketteWithEmptyFieldsOnIntrastatJournal(
           '', GetTransactionType, IntrastatLineValues, IntrastatLineValues, IntrastatLineValues, GetTariffNo);  // Using blank for Country Code.
@@ -59,7 +59,7 @@ codeunit 144022 "UT Intrastat SE"
     begin
         // Purpose of the test to validate  OnAfterGetRecord - Intrastat Jnl. Line trigger of Report ID - 593 "Intrastat - Make Disk Tax Auth".
         // Actual error Transaction Type must have a value in Intrastat Jnl. Line: Journal Template Name=XXXXX, Journal Batch Name=XXXXX, Line No.=XXXX. It cannot be zero or empty.
-        Initialize;
+        Initialize();
         IntrastatLineValues := LibraryRandom.RandDec(100, 2);  // IntrastatLineValues used for Quantity, Net Weight and Amount.
         MakeDisketteWithEmptyFieldsOnIntrastatJournal(
           GetCountryCode, '', IntrastatLineValues, IntrastatLineValues, IntrastatLineValues, GetTariffNo);  // Using blank for Transaction Type.
@@ -74,7 +74,7 @@ codeunit 144022 "UT Intrastat SE"
     begin
         // Purpose of the test to validate  OnAfterGetRecord - Intrastat Jnl. Line trigger of Report ID - 593 "Intrastat - Make Disk Tax Auth".
         // Actual error Total Weight must have a value in Intrastat Jnl. Line: Journal Template Name=XXXXX, Journal Batch Name=XXXXX, Line No.=XXXX. It cannot be zero or empty.
-        Initialize;
+        Initialize();
         IntrastatLineValues := LibraryRandom.RandDec(100, 2);  // IntrastatLineValues used for Quantity and Amount.
         MakeDisketteWithEmptyFieldsOnIntrastatJournal(
           GetCountryCode, GetTransactionType, 0, IntrastatLineValues, IntrastatLineValues, GetTariffNo);  // Using 0 for Net Weight.
@@ -89,7 +89,7 @@ codeunit 144022 "UT Intrastat SE"
     begin
         // Purpose of the test to validate  OnAfterGetRecord - Intrastat Jnl. Line trigger of Report ID - 593 "Intrastat - Make Disk Tax Auth".
         // Actual error Total Weight must have a value in Intrastat Jnl. Line: Journal Template Name=XXXXX, Journal Batch Name=XXXXX, Line No.=XXXX. It cannot be zero or empty.
-        Initialize;
+        Initialize();
         IntrastatLineValues := LibraryRandom.RandDec(100, 2);  // IntrastatLineValues used for Net Weight and Amount.
         MakeDisketteWithEmptyFieldsOnIntrastatJournal(
           GetCountryCode, GetTransactionType, IntrastatLineValues, 0, IntrastatLineValues, GetTariffNo);  // Using 0 for Quantity.
@@ -104,7 +104,7 @@ codeunit 144022 "UT Intrastat SE"
     begin
         // Purpose of the test to validate  OnAfterGetRecord - Intrastat Jnl. Line trigger of Report ID - 593 "Intrastat - Make Disk Tax Auth".
         // Actual error Stastical Value must have a value in Intrastat Jnl. Line: Journal Template Name=XXXXX, Journal Batch Name=XXXXX, Line No.=XXXX. It cannot be zero or empty.
-        Initialize;
+        Initialize();
         IntrastatLineValues := LibraryRandom.RandDec(100, 2);  // IntrastatLineValues used for Net Weight and Quantity.
         MakeDisketteWithEmptyFieldsOnIntrastatJournalError
         (
@@ -120,7 +120,7 @@ codeunit 144022 "UT Intrastat SE"
     begin
         // Purpose of the test to validate  OnAfterGetRecord - Intrastat Jnl. Line trigger of Report ID - 593 "Intrastat - Make Disk Tax Auth".
         // Actual error Tariff No. must have a value in Intrastat Jnl. Line: Journal Template Name=XXXXX, Journal Batch Name=XXXXX, Line No.=XXXX. It cannot be zero or empty.
-        Initialize;
+        Initialize();
         IntrastatLineValues := LibraryRandom.RandDec(100, 2);  // IntrastatLineValues used for Quantity, Net Weight and Amount.
         MakeDisketteWithEmptyFieldsOnIntrastatJournal(
           GetCountryCode, GetTransactionType, IntrastatLineValues, IntrastatLineValues, IntrastatLineValues, '');  // Using blank for Tariff No.
@@ -178,7 +178,7 @@ codeunit 144022 "UT Intrastat SE"
     begin
         // Purpose of the test to validate  OnAfterGetRecord - Intrastat Jnl. Line trigger of Report ID - 593 "Intrastat - Make Disk Tax Auth".
         // Actual error Please enter either Receipt or Shipment for the Type field.
-        Initialize;
+        Initialize();
         IntrastatLineValues := LibraryRandom.RandDec(100, 2);  // IntrastatLineValues used for Quantity, Net Weight and Amount.
         MakeDisketteWithInvalidValues(IntrastatLineValues, IntrastatLineValues, IntrastatLineValues, '');  // Using blank for Type.
     end;
@@ -193,7 +193,7 @@ codeunit 144022 "UT Intrastat SE"
     begin
         // Purpose of the test to validate  OnAfterGetRecord - Intrastat Jnl. Line trigger of Report ID - 593 "Intrastat - Make Disk Tax Auth".
         // Actual error Please enter either Receipt or Shipment for the Type field.
-        Initialize;
+        Initialize();
         IntrastatLineValues := LibraryRandom.RandDec(100, 2);  // IntrastatLineValues used for Quantity, Net Weight and Amount.
         MakeDisketteWithInvalidValues(
           IntrastatLineValues, IntrastatLineValues, IntrastatLineValues,
@@ -210,7 +210,7 @@ codeunit 144022 "UT Intrastat SE"
     begin
         // Purpose of the test to validate  OnAfterGetRecord - Intrastat Jnl. Line trigger of Report ID - 593 "Intrastat - Make Disk Tax Auth".
         // Actual error Total Weight exceeds the maximum value to be imported into IDEP.
-        Initialize;
+        Initialize();
         IntrastatLineValues := LibraryRandom.RandDec(100, 2);  // IntrastatLineValues used for Quantity and Amount.
         MakeDisketteWithInvalidValues(
           Power(LibraryRandom.RandDecInRange(15, 20, 4), 10), IntrastatLineValues, IntrastatLineValues,
@@ -227,7 +227,7 @@ codeunit 144022 "UT Intrastat SE"
     begin
         // Purpose of the test to validate  OnAfterGetRecord - Intrastat Jnl. Line trigger of Report ID - 593 "Intrastat - Make Disk Tax Auth".
         // Actual error Quantity exceeds the maximum value to be imported into IDEP.
-        Initialize;
+        Initialize();
         IntrastatLineValues := LibraryRandom.RandDec(100, 2);  // IntrastatLineValues used for Net Weight and Amount.
         MakeDisketteWithInvalidValues(
           IntrastatLineValues, Power(LibraryRandom.RandDecInRange(15, 20, 4), 10), IntrastatLineValues,
@@ -244,7 +244,7 @@ codeunit 144022 "UT Intrastat SE"
     begin
         // Purpose of the test to validate  OnAfterGetRecord - Intrastat Jnl. Line trigger of Report ID - 593 "Intrastat - Make Disk Tax Auth".
         // Actual error Statistical Value exceeds the maximum value to be imported into IDEP.
-        Initialize;
+        Initialize();
         IntrastatLineValues := LibraryRandom.RandDec(100, 2);  // IntrastatLineValues used for Quantity and Net Weight.
         MakeDisketteWithInvalidValues(
           IntrastatLineValues, IntrastatLineValues, Power(LibraryRandom.RandDecInRange(15, 20, 4), 10),
@@ -282,7 +282,7 @@ codeunit 144022 "UT Intrastat SE"
         // Purpose of the test to validate  OnAfterGetRecord - Intrastat Jnl. Line trigger of Report ID - 593 "Intrastat - Make Disk Tax Auth".
 
         // Setup: Create Intrastate Journal Line with Item No. having Tariff No. and Net Weight.
-        Initialize;
+        Initialize();
         IntrastatJournal.OpenEdit;
         IntrastatLineValues := LibraryRandom.RandDec(100, 2);  // IntrastatLineValues used for Quantity and Amount.
         CreateIntrastatJournalLine(
@@ -308,7 +308,7 @@ codeunit 144022 "UT Intrastat SE"
     begin
         // [FEATURE] [Report] [Intrastat - Checklist]
         // [SCENARIO 378015] "Transport Method" is not mandatory on Intrastat Journal Line when run "Intrastat - Checklist" report
-        Initialize;
+        Initialize();
 
         // [GIVEN] Intrastat journal line with "Transport Method" = '' and filled other mandatory fields
         CreateIntrastatJournalLine(
@@ -360,7 +360,7 @@ codeunit 144022 "UT Intrastat SE"
     var
         IntrastatSetup: Record "Intrastat Setup";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         IntrastatSetup.DeleteAll();
     end;
 
@@ -368,7 +368,7 @@ codeunit 144022 "UT Intrastat SE"
     var
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
     begin
-        if not IntrastatJnlTemplate.FindFirst then
+        if not IntrastatJnlTemplate.FindFirst() then
             LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate);
 
         IntrastatJnlBatch."Journal Template Name" := IntrastatJnlTemplate.Name;
@@ -414,7 +414,7 @@ codeunit 144022 "UT Intrastat SE"
         CountryRegion: Record "Country/Region";
     begin
         CountryRegion.SetFilter("Intrastat Code", '<>%1', '');
-        CountryRegion.FindFirst;
+        CountryRegion.FindFirst();
         exit(CountryRegion.Code);
     end;
 
@@ -422,7 +422,7 @@ codeunit 144022 "UT Intrastat SE"
     var
         TariffNumber: Record "Tariff Number";
     begin
-        TariffNumber.FindFirst;
+        TariffNumber.FindFirst();
         exit(TariffNumber."No.");
     end;
 
@@ -430,7 +430,7 @@ codeunit 144022 "UT Intrastat SE"
     var
         TransactionType: Record "Transaction Type";
     begin
-        TransactionType.FindFirst;
+        TransactionType.FindFirst();
         exit(TransactionType.Code);
     end;
 
@@ -444,7 +444,7 @@ codeunit 144022 "UT Intrastat SE"
         IntrastatChecklist.SetTableView(IntrastatJnlBatch);
         IntrastatChecklist.UseRequestPage(true);
         Commit();
-        IntrastatChecklist.RunModal;
+        IntrastatChecklist.RunModal();
     end;
 
     local procedure MakeDisketteFromIntrastatJournal(IntrastatJournal: TestPage "Intrastat Journal"; CurrentJnlBatchName: Code[10])

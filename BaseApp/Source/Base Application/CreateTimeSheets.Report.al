@@ -1,4 +1,4 @@
-﻿report 950 "Create Time Sheets"
+report 950 "Create Time Sheets"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Create Time Sheets';
@@ -116,7 +116,7 @@
             if NoOfPeriods = 0 then
                 NoOfPeriods := 1;
 
-            if TimeSheetHeader.FindLast then
+            if TimeSheetHeader.FindLast() then
                 StartingDate := TimeSheetHeader."Ending Date" + 1
             else
                 StartingDate := TimeSheetMgt.FindNearestTimeSheetStartDate(WorkDate);
@@ -166,11 +166,11 @@
             LastAccPeriodStartingDate := CalcDate('<CM>', StartingDate);
         end else begin
             AccountingPeriod.SetFilter("Starting Date", '..%1', StartingDate);
-            AccountingPeriod.FindLast;
+            AccountingPeriod.FindLast();
             FirstAccPeriodStartingDate := AccountingPeriod."Starting Date";
 
             AccountingPeriod.SetFilter("Starting Date", '..%1', LastDate);
-            AccountingPeriod.FindLast;
+            AccountingPeriod.FindLast();
             LastAccPeriodStartingDate := AccountingPeriod."Starting Date";
 
             AccountingPeriod.SetRange("Starting Date", FirstAccPeriodStartingDate, LastAccPeriodStartingDate);
@@ -236,7 +236,7 @@
         TimeSheetHeader.SetRange("Resource No.", Resource."No.");
         TimeSheetHeader.SetRange("Starting Date", StartingDate);
         TimeSheetHeader.SetRange("Ending Date", EndingDate);
-        if TimeSheetHeader.FindFirst then
+        if TimeSheetHeader.FindFirst() then
             exit(false);
 
         exit(true);

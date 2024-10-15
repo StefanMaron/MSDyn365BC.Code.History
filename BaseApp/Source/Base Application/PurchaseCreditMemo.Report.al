@@ -254,7 +254,7 @@ report 407 "Purchase - Credit Memo"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not DimSetEntry1.FindSet then
+                                if not DimSetEntry1.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if not Continue then
@@ -453,7 +453,7 @@ report 407 "Purchase - Credit Memo"
                             trigger OnAfterGetRecord()
                             begin
                                 if Number = 1 then begin
-                                    if not DimSetEntry2.FindSet then
+                                    if not DimSetEntry2.FindSet() then
                                         CurrReport.Break();
                                 end else
                                     if not Continue then
@@ -832,7 +832,7 @@ report 407 "Purchase - Credit Memo"
     trigger OnPostReport()
     begin
         if LogInteraction and not IsReportInPreviewMode then
-            if "Purch. Cr. Memo Hdr.".FindSet then
+            if "Purch. Cr. Memo Hdr.".FindSet() then
                 repeat
                     SegManagement.LogDocument(
                       16, "Purch. Cr. Memo Hdr."."No.", 0, 0, DATABASE::Vendor, "Purch. Cr. Memo Hdr."."Buy-from Vendor No.",

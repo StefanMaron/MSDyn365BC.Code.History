@@ -145,7 +145,7 @@ page 6401 "Flow Selector"
                     TempFlowUserEnvironmentBuffer.SetRange(Enabled, true);
 
                     // Remove any previous selection since user did not select anything
-                    if not TempFlowUserEnvironmentBuffer.FindFirst then begin
+                    if not TempFlowUserEnvironmentBuffer.FindFirst() then begin
                         if FlowUserEnvironmentConfig.Get(UserSecurityId) then
                             FlowUserEnvironmentConfig.Delete();
                         exit;
@@ -229,7 +229,7 @@ page 6401 "Flow Selector"
     [TryFunction]
     local procedure TryInitialize()
     begin
-        Initialize;
+        Initialize();
     end;
 
     [TryFunction]

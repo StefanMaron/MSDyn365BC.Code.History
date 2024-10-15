@@ -274,7 +274,7 @@ report 722 "Phys. Inventory List"
     local procedure CreateSNLotEntries(var ItemJnlLine: Record "Item Journal Line")
     begin
         EntryNo := 0;
-        if ItemJnlLine.FindSet then
+        if ItemJnlLine.FindSet() then
             repeat
                 if ItemJnlLine."Bin Code" <> '' then begin
                     if ItemTrackingMgt.GetWhseItemTrkgSetup(ItemJnlLine."Item No.") then
@@ -308,7 +308,7 @@ report 722 "Phys. Inventory List"
         ItemLedgEntry.SetRange("Location Code", LocationCode);
         ItemLedgEntry.SetFilter("Item Tracking", '<>%1', ItemLedgEntry."Item Tracking"::None);
 
-        if ItemLedgEntry.FindSet then
+        if ItemLedgEntry.FindSet() then
             repeat
                 CreateReservEntry(ItemJnlLine, ItemLedgEntry."Remaining Quantity",
                   ItemLedgEntry."Serial No.", ItemLedgEntry."Lot No.", ItemLedgEntry."Item Tracking");
@@ -329,7 +329,7 @@ report 722 "Phys. Inventory List"
         WhseEntry.SetRange("Variant Code", VariantCode);
         WhseEntry.SetRange("Unit of Measure Code", UnitOM);
 
-        if WhseEntry.FindSet then
+        if WhseEntry.FindSet() then
             repeat
                 if (WhseEntry."Lot No." <> '') and (WhseEntry."Serial No." <> '') then
                     CreateReservEntry(ItemJnlLine, WhseEntry."Qty. (Base)",
@@ -359,7 +359,7 @@ report 722 "Phys. Inventory List"
         ReservEntryBuffer.SetRange("Serial No.", SerialNo);
         ReservEntryBuffer.SetRange("Lot No.", LotNo);
 
-        if ReservEntryBuffer.FindSet then begin
+        if ReservEntryBuffer.FindSet() then begin
             repeat
                 if (ReservEntryBuffer."Source Ref. No." = ItemJournalLine."Line No.") and
                    (ReservEntryBuffer."Source ID" = ItemJournalLine."Journal Template Name") and

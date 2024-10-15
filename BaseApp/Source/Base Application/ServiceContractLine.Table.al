@@ -795,7 +795,7 @@ table 5964 "Service Contract Line"
             exit;
 
         if not ServContractHeader."Allow Unbalanced Amounts" then begin
-            LineAmount := CalculateOtherLineAmounts(ServContractHeader);
+            LineAmount := CalculateOtherLineAmounts();
 
             OldServContractHeader := ServContractHeader;
             if Deleting then
@@ -827,7 +827,7 @@ table 5964 "Service Contract Line"
         end;
     end;
 
-    local procedure CalculateOtherLineAmounts(ServContractHeader: Record "Service Contract Header") LineAmount: Decimal
+    local procedure CalculateOtherLineAmounts(): Decimal
     var
         ServContractLine2: Record "Service Contract Line";
     begin

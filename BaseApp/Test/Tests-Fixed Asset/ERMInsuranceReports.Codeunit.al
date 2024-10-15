@@ -31,7 +31,7 @@ codeunit 134980 "ERM Insurance Reports"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Insurance Reports");
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
 
         isInitialized := true;
         Commit();
@@ -55,7 +55,7 @@ codeunit 134980 "ERM Insurance Reports"
 
         // 1.Setup: Create Two Fixed Asset, Two Fixed Asset Depreciation Book, General Journal Batch,
         // Two Fixed Asset Journal Lines and Post.
-        Initialize;
+        Initialize();
         CreateTwoFixedAssets(FixedAsset, FixedAsset2, FADepreciationBook, FADepreciationBook2);
         CreateGeneralJournalBatch(GenJournalBatch);
         CreateFAGLJournalLines(GenJournalLine, FADepreciationBook, GenJournalBatch);
@@ -69,7 +69,7 @@ codeunit 134980 "ERM Insurance Reports"
         Clear(InsuranceUninsuredFAs);
         InsuranceUninsuredFAs.SetTableView(FixedAsset);
         Commit();
-        InsuranceUninsuredFAs.Run;
+        InsuranceUninsuredFAs.Run();
 
         // 3.Verify: Verify values on Report.
         LibraryReportDataset.LoadDataSetFile;
@@ -98,7 +98,7 @@ codeunit 134980 "ERM Insurance Reports"
 
         // 1.Setup: Create Two Fixed Asset, Two Fixed Asset Depreciation Book, Two Insurance,
         // General Journal Batch, Two Fixed Asset Journal Lines with Insurance and Post.
-        Initialize;
+        Initialize();
         CreateTwoFixedAssets(FixedAsset, FixedAsset2, FADepreciationBook, FADepreciationBook2);
         CreateInsurance(Insurance);
         CreateInsurance(Insurance2);
@@ -115,7 +115,7 @@ codeunit 134980 "ERM Insurance Reports"
         InsuranceAnalysis.InitializeRequest(true);
         InsuranceAnalysis.SetTableView(Insurance);
         Commit();
-        InsuranceAnalysis.Run;
+        InsuranceAnalysis.Run();
 
         // 3.Verify: Verify values on Report.
         LibraryReportDataset.LoadDataSetFile;
@@ -143,7 +143,7 @@ codeunit 134980 "ERM Insurance Reports"
 
         // 1.Setup: Create Two Fixed Asset, Two Fixed Asset Depreciation Book, Two Insurance,
         // General Journal Batch, Two Fixed Asset Journal Lines with Insurance and Post.
-        Initialize;
+        Initialize();
         CreateTwoFixedAssets(FixedAsset, FixedAsset2, FADepreciationBook, FADepreciationBook2);
         CreateInsurance(Insurance);
         CreateInsurance(Insurance2);
@@ -160,7 +160,7 @@ codeunit 134980 "ERM Insurance Reports"
         InsuranceAnalysis.InitializeRequest(false);
         InsuranceAnalysis.SetTableView(Insurance);
         Commit();
-        InsuranceAnalysis.Run;
+        InsuranceAnalysis.Run();
 
         // 3.Verify: Verify values on Report.
         LibraryReportDataset.LoadDataSetFile;
@@ -179,7 +179,7 @@ codeunit 134980 "ERM Insurance Reports"
         // Test and verify Insurance List Report.
 
         // 1.Setup: Create Insurance.
-        Initialize;
+        Initialize();
         CreateInsurance(Insurance);
 
         // 2.Exercise: Run the Report.
@@ -189,7 +189,7 @@ codeunit 134980 "ERM Insurance Reports"
         Clear(InsuranceList);
         InsuranceList.SetTableView(Insurance);
         Commit();
-        InsuranceList.Run;
+        InsuranceList.Run();
 
         // 3.Verify: Verify values on Report.
         LibraryReportDataset.LoadDataSetFile;
@@ -215,7 +215,7 @@ codeunit 134980 "ERM Insurance Reports"
 
         // 1.Setup: Create Two Fixed Asset, Two Fixed Asset Depreciation Book, Insurance, General Journal Batch,
         // Two Fixed Asset Journal Lines with Insurance and Post.
-        Initialize;
+        Initialize();
         CreateTwoFixedAssets(FixedAsset, FixedAsset2, FADepreciationBook, FADepreciationBook2);
         CreateInsurance(Insurance);
         CreateGeneralJournalBatch(GenJournalBatch);
@@ -230,7 +230,7 @@ codeunit 134980 "ERM Insurance Reports"
         Clear(InsuranceRegister);
         InsuranceRegister.SetTableView(InsuranceRegister2);
         Commit();
-        InsuranceRegister.Run;
+        InsuranceRegister.Run();
 
         // 3.Verify: Verify values on Report.
         LibraryReportDataset.LoadDataSetFile;
@@ -255,7 +255,7 @@ codeunit 134980 "ERM Insurance Reports"
 
         // 1.Setup: Create Fixed Asset, Fixed Asset Depreciation Book, Insurance, General Journal Batch,
         // Fixed Asset Journal Lines and Post.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset);
         CreateInsurance(Insurance);
@@ -270,7 +270,7 @@ codeunit 134980 "ERM Insurance Reports"
         Clear(InsuranceCoverageDetails);
         InsuranceCoverageDetails.SetTableView(Insurance);
         Commit();
-        InsuranceCoverageDetails.Run;
+        InsuranceCoverageDetails.Run();
 
         // 3.Verify: Verify values on Report.
         LibraryReportDataset.LoadDataSetFile;
@@ -293,7 +293,7 @@ codeunit 134980 "ERM Insurance Reports"
 
         // 1.Setup: Create Fixed Asset, Fixed Asset Depreciation Book, Insurance, General Journal Batch,
         // Fixed Asset Journal Lines and Post.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset);
         CreateInsurance(Insurance);
@@ -308,7 +308,7 @@ codeunit 134980 "ERM Insurance Reports"
         Clear(InsuranceTotValueInsured);
         InsuranceTotValueInsured.SetTableView(FixedAsset);
         Commit();
-        InsuranceTotValueInsured.Run;
+        InsuranceTotValueInsured.Run();
 
         // 3.Verify: Verify values on Report.
         LibraryReportDataset.LoadDataSetFile;
@@ -481,7 +481,7 @@ codeunit 134980 "ERM Insurance Reports"
         InsCoverageLedgerEntry: Record "Ins. Coverage Ledger Entry";
     begin
         InsCoverageLedgerEntry.SetRange("Insurance No.", Insurance."No.");
-        InsCoverageLedgerEntry.FindFirst;
+        InsCoverageLedgerEntry.FindFirst();
         LibraryReportDataset.SetRange('Ins__Coverage_Ledger_Entry__Posting_Date_', Format(InsCoverageLedgerEntry."Posting Date"));
         if not LibraryReportDataset.GetNextRow then
             Error(StrSubstNo(RowNotFoundErr, 'Ins__Coverage_Ledger_Entry__Posting_Date_', Format(InsCoverageLedgerEntry."Posting Date")));
@@ -503,7 +503,7 @@ codeunit 134980 "ERM Insurance Reports"
         InsCoverageLedgerEntry: Record "Ins. Coverage Ledger Entry";
     begin
         InsCoverageLedgerEntry.SetRange("FA No.", FANo);
-        InsCoverageLedgerEntry.FindFirst;
+        InsCoverageLedgerEntry.FindFirst();
         LibraryReportDataset.SetRange('Ins__Coverage_Ledger_Entry__FA_No__', FANo);
         if not LibraryReportDataset.GetNextRow then
             Error(StrSubstNo(RowNotFoundErr, 'Ins__Coverage_Ledger_Entry__FA_No__', FANo));
@@ -518,7 +518,7 @@ codeunit 134980 "ERM Insurance Reports"
         InsCoverageLedgerEntry: Record "Ins. Coverage Ledger Entry";
     begin
         InsCoverageLedgerEntry.SetRange("FA No.", FANo);
-        InsCoverageLedgerEntry.FindFirst;
+        InsCoverageLedgerEntry.FindFirst();
         LibraryReportDataset.SetRange('FANo', FANo);
         if not LibraryReportDataset.GetNextRow then
             Error(StrSubstNo(RowNotFoundErr, 'FANo', FANo));

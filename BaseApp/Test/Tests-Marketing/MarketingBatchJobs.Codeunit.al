@@ -30,7 +30,7 @@ codeunit 136207 "Marketing Batch Jobs"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Marketing Batch Jobs");
         // Clearing global variable.
         DescriptionForPage := '';
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Marketing Batch Jobs");
@@ -60,7 +60,7 @@ codeunit 136207 "Marketing Batch Jobs"
         // Test Logged segment, Follow Up Segment and Campaign Entries.
 
         // 1. Setup: Create Campaign, Interaction Template, Segment Header and Segment Line with Contact No.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateCampaign(Campaign);
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
         CreateSegment(SegmentHeader, Campaign."No.", InteractionTemplate.Code);
@@ -70,16 +70,16 @@ codeunit 136207 "Marketing Batch Jobs"
 
         // 3. Verify: Verify Campaign Entry, Logged Segment, Follow Up Segment created.
         CampaignEntry.SetRange("Campaign No.", SegmentHeader."Campaign No.");
-        CampaignEntry.FindFirst;
+        CampaignEntry.FindFirst();
         CampaignEntry.TestField("Segment No.", SegmentHeader."No.");
 
         LoggedSegment.SetRange("Segment No.", SegmentHeader."No.");
-        LoggedSegment.FindFirst;
+        LoggedSegment.FindFirst();
         LoggedSegment.CalcFields("No. of Campaign Entries");
         LoggedSegment.TestField("No. of Campaign Entries", 1);
 
         SegmentHeader2.SetRange("Campaign No.", Campaign."No.");
-        SegmentHeader2.FindFirst;
+        SegmentHeader2.FindFirst();
         SegmentHeader2.TestField(Description, StrSubstNo(Description, SegmentHeader."No."));
     end;
 
@@ -98,7 +98,7 @@ codeunit 136207 "Marketing Batch Jobs"
         // Test Campaign Entries successfully Canceled.
 
         // 1. Setup: Create Campaign, Interaction Template, Segment Header and Segment Line with Contact No.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateCampaign(Campaign);
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
         CreateSegment(SegmentHeader, Campaign."No.", InteractionTemplate.Code);
@@ -109,12 +109,12 @@ codeunit 136207 "Marketing Batch Jobs"
 
         // 3. Verify: Verify Campaign Entry and Interaction Log Entry successfully Canceled.
         CampaignEntry.SetRange("Campaign No.", SegmentHeader."Campaign No.");
-        CampaignEntry.FindFirst;
+        CampaignEntry.FindFirst();
         CampaignEntry.TestField("Segment No.", SegmentHeader."No.");
         CampaignEntry.TestField(Canceled, true);
 
         InteractionLogEntry.SetRange("Segment No.", SegmentHeader."No.");
-        InteractionLogEntry.FindFirst;
+        InteractionLogEntry.FindFirst();
         InteractionLogEntry.TestField(Canceled, true);
     end;
 
@@ -135,7 +135,7 @@ codeunit 136207 "Marketing Batch Jobs"
 
         // 1. Setup: Create Campaign, Interaction Template, Segment Header, Segment Line with Contact No., Run Log Segment Batch Job
         // for Created Segment and Canceled the Created Logged Segment.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateCampaign(Campaign);
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
 
@@ -147,7 +147,7 @@ codeunit 136207 "Marketing Batch Jobs"
         CampaignEntry.SetRange("Campaign No.", SegmentHeader."Campaign No.");
         DeleteCampaignEntries.SetTableView(CampaignEntry);
         DeleteCampaignEntries.UseRequestPage(false);
-        DeleteCampaignEntries.RunModal;
+        DeleteCampaignEntries.RunModal();
 
         // 3. Verify: Verify Campaign Entries and Interaction Log Entry are successfully Deleted.
         Assert.IsFalse(CampaignEntry.FindFirst, StrSubstNo(ExistError, CampaignEntry.TableCaption, SegmentHeader."Campaign No."));
@@ -173,19 +173,19 @@ codeunit 136207 "Marketing Batch Jobs"
 
         // 1. Setup: Create Interaction Template Code, Segment Header, Segment Line with Contact, Run Logged Segment Batch Job for Created
         // Segment and Canceled the Created Logged Segment.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateCampaign(Campaign);
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
         CreateSegment(SegmentHeader, Campaign."No.", InteractionTemplate.Code);
         RunLogSegment(SegmentHeader."No.", false);
         LoggedSegment.SetRange("Segment No.", SegmentHeader."No.");
-        LoggedSegment.FindFirst;
+        LoggedSegment.FindFirst();
         LoggedSegment.ToggleCanceledCheckmark;
 
         // 2. Exercise: Run Delete Logged Segments Batch Report.
         DeleteLoggedSegments.SetTableView(LoggedSegment);
         DeleteLoggedSegments.UseRequestPage(false);
-        DeleteLoggedSegments.RunModal;
+        DeleteLoggedSegments.RunModal();
 
         // 3. Verify: Verify Logged Segment deleted.
         Assert.IsFalse(LoggedSegment.FindFirst, StrSubstNo(ExistError, LoggedSegment.TableCaption, SegmentHeader."No."));
@@ -209,16 +209,16 @@ codeunit 136207 "Marketing Batch Jobs"
 
         // 2. Exercise: Close the Created Opportunity.
         Opportunity.SetRange("Contact No.", ContactNo);
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
         Opportunity.CloseOpportunity;
 
         // 3. Verify: Verify Opportunity successfully closed and Opportunity Entry created.
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
         Opportunity.TestField(Closed, true);
         Opportunity.TestField("Date Closed", WorkDate);
 
         OpportunityEntry.SetRange("Opportunity No.", Opportunity."No.");
-        OpportunityEntry.FindFirst;
+        OpportunityEntry.FindFirst();
         OpportunityEntry.TestField("Contact No.", ContactNo);
         OpportunityEntry.TestField("Date Closed", WorkDate);
 
@@ -244,13 +244,13 @@ codeunit 136207 "Marketing Batch Jobs"
         // Opportunity.
         CreateOpportunityWithContact(DefaultSalesCycleCode, ContactNo);
         Opportunity.SetRange("Contact No.", ContactNo);
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
         Opportunity.CloseOpportunity;
 
         // 2. Exercise: Run Delete Opportunity Batch Job.
         DeleteOpportunities.SetTableView(Opportunity);
         DeleteOpportunities.UseRequestPage(false);
-        DeleteOpportunities.RunModal;
+        DeleteOpportunities.RunModal();
 
         // 3. Verify: Verify Opportunity and Opportunity Entry are deleted.
         Assert.IsFalse(Opportunity.FindFirst, StrSubstNo(ExistError, Opportunity.TableCaption, ContactNo));
@@ -273,7 +273,7 @@ codeunit 136207 "Marketing Batch Jobs"
     begin
         // Covers document number 129098 - refer to TFS ID 161415.
         // [SCENARIO 275807] Processing Service Email Queue with Job Queue.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with Service Order with Email.
         LibrarySales.CreateCustomer(Customer);
@@ -289,7 +289,7 @@ codeunit 136207 "Marketing Batch Jobs"
         // [THEN] Service Email Queue created.
         ServiceEmailQueue.SetRange("Document Type", ServiceEmailQueue."Document Type"::"Service Order");
         ServiceEmailQueue.SetRange("Document No.", ServiceHeader."No.");
-        ServiceEmailQueue.FindFirst;
+        ServiceEmailQueue.FindFirst();
         ServiceEmailQueue.TestField("To Address", Customer."E-Mail");
     end;
 
@@ -308,7 +308,7 @@ codeunit 136207 "Marketing Batch Jobs"
         // Test Service E-Mail Queue successfully deleted.
 
         // 1. Setup: Create Service Header, Update Notify Customer to By E-Mail and Status to Finished on Service Header.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
         ServiceHeader.Validate("Notify Customer", ServiceHeader."Notify Customer"::"By Email");
@@ -320,7 +320,7 @@ codeunit 136207 "Marketing Batch Jobs"
         ServiceEmailQueue.SetRange("Document No.", ServiceHeader."No.");
         DeleteServiceEmailQueue.SetTableView(ServiceEmailQueue);
         DeleteServiceEmailQueue.UseRequestPage(false);
-        DeleteServiceEmailQueue.RunModal;
+        DeleteServiceEmailQueue.RunModal();
 
         // 3. Verify: Verify Service E-Mail Queue deleted.
         Assert.IsFalse(ServiceEmailQueue.FindFirst, StrSubstNo(ExistError, ServiceEmailQueue.TableCaption, ServiceHeader."No."));
@@ -339,7 +339,7 @@ codeunit 136207 "Marketing Batch Jobs"
         // Test To do successfully canceled with Type Team.
 
         // 1. Setup: Create Team.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateTeam(Team);
         DescriptionForPage := Team.Code;  // Assigning value to Global Variable.
 
@@ -347,12 +347,12 @@ codeunit 136207 "Marketing Batch Jobs"
         Task.SetRange("Team Code", Team.Code);
         TempTask.CreateTaskFromTask(Task);
 
-        Task.FindFirst;
+        Task.FindFirst();
         Task.Validate(Canceled, true);
         Task.Modify(true);
 
         // 3. Verify: Verify To-Do Canceled.
-        Task.FindFirst;
+        Task.FindFirst();
         Task.TestField(Canceled, true);
         Task.TestField(Status, Task.Status::Completed);
         Task.TestField("Date Closed", Today);
@@ -372,19 +372,19 @@ codeunit 136207 "Marketing Batch Jobs"
         // Test To do successfully deleted.
 
         // 1. Setup: Create Team, Create To-Do for Team and Canceled the Created To-Do.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateTeam(Team);
         DescriptionForPage := Team.Code;  // Assigning value to Global Variable.
         Task.SetRange("Team Code", Team.Code);
         TempTask.CreateTaskFromTask(Task);
-        Task.FindFirst;
+        Task.FindFirst();
         Task.Validate(Canceled, true);
         Task.Modify(true);
 
         // 2. Exercise: Run Delete To-Dos Batch Job.
         DeleteTasks.SetTableView(Task);
         DeleteTasks.UseRequestPage(false);
-        DeleteTasks.RunModal;
+        DeleteTasks.RunModal();
 
         // 3. Verify: Verify To-Do deleted.
         Assert.IsFalse(Task.FindFirst, StrSubstNo(ExistError, Task.TableCaption, Team.Code));
@@ -400,7 +400,7 @@ codeunit 136207 "Marketing Batch Jobs"
         // Check that no data exists in Contact Duplicate Search String Table after deleting the data from it.
 
         // 1. Setup: Update Marketing Setup.
-        Initialize;
+        Initialize();
         MarketingSetup.Get();
         UpdateMarketingSetup(false, false);
 
@@ -422,7 +422,7 @@ codeunit 136207 "Marketing Batch Jobs"
         // Check that data generated automatically in Contact Duplicate Search String Table after running Generate Duplicate Search String Batch Job.
 
         // 1. Setup: Update Marketing Setup and delete all the data from Contact Duplicate Search String Table.
-        Initialize;
+        Initialize();
         MarketingSetup.Get();
         UpdateMarketingSetup(false, false);
         ContDuplicateSearchString.DeleteAll();
@@ -441,7 +441,7 @@ codeunit 136207 "Marketing Batch Jobs"
         CampaignEntry: Record "Campaign Entry";
     begin
         CampaignEntry.SetRange("Campaign No.", CampaignNo);
-        CampaignEntry.FindFirst;
+        CampaignEntry.FindFirst();
         CampaignEntry.ToggleCanceledCheckmark;
     end;
 
@@ -453,9 +453,9 @@ codeunit 136207 "Marketing Batch Jobs"
         SalesCycle: Record "Sales Cycle";
     begin
         // Update Sale Cycle Code on Marketing Setup, Create Contact and Create opportunity for Contact.
-        Initialize;
-        DescriptionForPage := LibraryUtility.GenerateGUID;  // Assigning value to Global Variable.
-        SalesCycle.FindFirst;
+        Initialize();
+        DescriptionForPage := LibraryUtility.GenerateGUID();  // Assigning value to Global Variable.
+        SalesCycle.FindFirst();
         DefaultSalesCycleCode := UpdateDefaultSalesCycleCode(SalesCycle.Code);
         LibraryMarketing.CreateCompanyContact(Contact);
         Commit();
@@ -479,7 +479,7 @@ codeunit 136207 "Marketing Batch Jobs"
 
         LibraryMarketing.CreateSegmentLine(SegmentLine, SegmentHeader."No.");
         Contact.SetFilter("Salesperson Code", '<>''''');
-        Contact.FindFirst;
+        Contact.FindFirst();
         SegmentLine.Validate("Contact No.", Contact."No.");
         SegmentLine.Modify(true);
     end;
@@ -490,7 +490,7 @@ codeunit 136207 "Marketing Batch Jobs"
     begin
         Commit();  // Required to run test case successfully.
         Clear(GenerateDuplSearchString);
-        GenerateDuplSearchString.Run;
+        GenerateDuplSearchString.Run();
     end;
 
     local procedure RunLogSegment(SegmentNo: Code[20]; FollowUp: Boolean)
@@ -500,7 +500,7 @@ codeunit 136207 "Marketing Batch Jobs"
         LogSegment.SetSegmentNo(SegmentNo);
         LogSegment.InitializeRequest(false, FollowUp);
         LogSegment.UseRequestPage(false);
-        LogSegment.RunModal;
+        LogSegment.RunModal();
     end;
 
     local procedure UpdateMarketingSetup(MaintainDuplSearchStrings: Boolean; AutosearchForDuplicates: Boolean)
@@ -549,7 +549,7 @@ codeunit 136207 "Marketing Batch Jobs"
         TempOpportunityEntry.Validate("Action Taken", TempOpportunityEntry."Action Taken"::Won);
 
         CloseOpportunityCode.SetRange(Type, CloseOpportunityCode.Type::Won);
-        CloseOpportunityCode.FindFirst;
+        CloseOpportunityCode.FindFirst();
 
         TempOpportunityEntry.Validate("Close Opportunity Code", CloseOpportunityCode.Code);
         TempOpportunityEntry.Validate("Calcd. Current Value (LCY)", Random(10));  // Use Randon because value is not important.

@@ -129,7 +129,6 @@ page 1309 "O365 Getting Started"
 
     trigger OnInit()
     var
-        AllProfile: Record "All Profile";
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
     begin
         SetRange("User ID", UserId);

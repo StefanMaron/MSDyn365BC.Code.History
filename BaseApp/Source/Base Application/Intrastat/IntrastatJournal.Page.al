@@ -114,6 +114,7 @@
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the transport method, for the purpose of reporting to INTRASTAT.';
+                    Visible = false;
                 }
                 field("Entry/Exit Point"; "Entry/Exit Point")
                 {
@@ -140,6 +141,7 @@
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the total weight for the items in the item entry.';
+                    DecimalPlaces = 2 : 5;
                 }
                 field(Amount; Amount)
                 {
@@ -280,7 +282,7 @@
                     end;
 
                     GetItemEntries.SetIntrastatJnlLine(Rec);
-                    GetItemEntries.RunModal;
+                    GetItemEntries.RunModal();
                     Clear(GetItemEntries);
                 end;
             }

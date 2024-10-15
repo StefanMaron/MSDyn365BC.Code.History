@@ -84,7 +84,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         WarehouseJournalTemplate: Record "Warehouse Journal Template";
     begin
         // Setup: Create Warehouse Journal Line with Tracking Lines.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(TrackingAction::AssignLotNo);  // TrackingAction used in WhseItemTrackingLinesHandler.
         LibraryVariableStorage.Enqueue(true);  // LotNoBlank used in WhseItemTrackingLinesHandler.
         LibraryVariableStorage.Enqueue(false);  // AssignSerialAndLot used in WhseItemTrackingLinesHandler.
@@ -113,7 +113,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         Bin: Record Bin;
     begin
         // Setup : Create Purchase Order with Partial Receive and Invoice.
-        Initialize;
+        Initialize();
         CreateItemWithTrackingCode(Item, false, true);
         LibraryWarehouse.FindBin(Bin, LocationSilver.Code, '', 1);  // Use 1 for Bin Index.
         CreatePurchaseOrderForPartialShipmentAndInvoice(PurchaseHeader, PurchaseLine, Item."No.", LocationSilver.Code, Bin.Code);
@@ -134,7 +134,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     var
         WarehouseJournalTemplate: Record "Warehouse Journal Template";
     begin
-        Initialize;
+        Initialize();
         PostWarehouseJournalLine(WarehouseJournalTemplate.Type::Item);  // Warehouse Item Journal.
     end;
 
@@ -145,7 +145,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     var
         WarehouseJournalTemplate: Record "Warehouse Journal Template";
     begin
-        Initialize;
+        Initialize();
         PostWarehouseJournalLine(WarehouseJournalTemplate.Type::"Physical Inventory");  // Warehouse Physical Inventory.
     end;
 
@@ -183,7 +183,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         BinContent: Record "Bin Content";
     begin
         // Setup: Create Warehouse Journal Line. Create Bin Content.
-        Initialize;
+        Initialize();
         CreateItem(Item, '');
         FindBin(Bin, LocationWhite.Code, true);  // Find Bin for From Bin Code.
         FindBin(Bin2, LocationWhite.Code, false);  // Find Bin for To Bin Code.
@@ -211,7 +211,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     [Scope('OnPrem')]
     procedure RegisterWhseItemJournalWithSerialAndLotNoWithoutLotSpecific()
     begin
-        Initialize;
+        Initialize();
         RegisterWhseItemJournalWithItemTracking(false);  // Register Warehouse Journal Line With Serial and Lot No. without Lot Specific in Item Tracking Code.
     end;
 
@@ -220,7 +220,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     [Scope('OnPrem')]
     procedure RegisterWhseItemJournalWithSerialAndLotNo()
     begin
-        Initialize;
+        Initialize();
         RegisterWhseItemJournalWithItemTracking(true);  // Register Warehouse Journal Line with Serial and Lot No.
     end;
 
@@ -263,7 +263,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         ItemJournalLine: Record "Item Journal Line";
     begin
         // Setup: Create Warehouse Journal Line with Tracking Lines, Assign Serial No. and Lot No. on Warehouse Journal Line and Register.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(TrackingAction);
         LibraryVariableStorage.Enqueue(false);  // LotNoBlank used in WhseItemTrackingLinesHandler.
         LibraryVariableStorage.Enqueue(true);  // AssignSerialAndLot used in WhseItemTrackingLinesHandler.
@@ -298,7 +298,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         LotNo: Variant;
     begin
         // Setup: Update Bin Quantity by posting Item Journal Lines with Item Tracking.
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateBin(Bin, LocationSilver.Code, LibraryUtility.GenerateGUID, '', '');
         CreateItemWithTrackingCode(Item, false, true);
         CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::Item, false);
@@ -328,7 +328,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateItem(Item, '');
         CreateAndPostItemJournalLineWithBin(ItemJournalLine, Item."No.", Item."Base Unit of Measure");
 
@@ -353,7 +353,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateItem(Item, '');
         CreateAndPostItemJournalLineWithBin(ItemJournalLine, Item."No.", Item."Base Unit of Measure");
 
@@ -375,7 +375,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         WarehouseEntry: Record "Warehouse Entry";
     begin
         // Setup: Create Warehouse Journal Line.
-        Initialize;
+        Initialize();
         CreateBlockedItem(Item);
         FindBin(Bin, LocationWhite.Code, true);
         CreateWarehouseJournalLine(
@@ -405,7 +405,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         Quantity: Decimal;
     begin
         // Setup: Create Warehouse Journal Line with Tracking Lines, Assign Lot No. on Warehouse Journal Line and Register.
-        Initialize;
+        Initialize();
         CreateItemWithTrackingCode(Item, false, true);
         CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.");
         FindBin(Bin, LocationWhite.Code, true);
@@ -437,7 +437,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     [Scope('OnPrem')]
     procedure PostPhysicalInventoryJournalForCountingPeriodWithoutQuantityDifference()
     begin
-        Initialize;
+        Initialize();
         PostPhysicalInventoryJournalForCountingPeriod(false);  // Post Warehouse Journal without Difference in Quantity.
     end;
 
@@ -446,7 +446,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     [Scope('OnPrem')]
     procedure PostPhysicalInventoryJournalForCountingPeriodWithQuantityDifference()
     begin
-        Initialize;
+        Initialize();
         PostPhysicalInventoryJournalForCountingPeriod(true);  // Post Warehouse Journal with Difference in Quantity.
     end;
 
@@ -508,7 +508,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         ItemVariant: Record "Item Variant";
     begin
         // Setup: Create Item with Variant. Create Warehouse Journal line with Bin and Item Variant. Calculate and Post Warehouse Adjustment.
-        Initialize;
+        Initialize();
         CreateItem(Item, '');
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
         FindBin(Bin, LocationWhite.Code, true);
@@ -546,7 +546,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         Quantity: Decimal;
     begin
         // Setup: Create and Post Item Journal Line and Warehouse Physical Inventory Journal with Different location Code. Calculate and Post Warehouse Adjustment.
-        Initialize;
+        Initialize();
         CreateItem(Item, '');
         FindBin(Bin, LocationWhite.Code, true);
         CreateAndPostItemJournalLineWithBin(ItemJournalLine, Item."No.", Item."Base Unit of Measure");
@@ -583,7 +583,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         Quantity: Decimal;
     begin
         // Setup: Create and Post Warehouse Physical Inventory Journal with Multiple Unit of Measure and Item Variant. Calculate and Post Warehouse Adjustment.
-        Initialize;
+        Initialize();
         CreateItem(Item, '');
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
         CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.");
@@ -618,7 +618,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         NewSerialNo: Variant;
     begin
         // Setup: Create and Post Warehouse Receipt and Register Put Away.
-        Initialize;
+        Initialize();
         PostWarehouseReceiptAndRegisterPutAwayForSerialNo(RegisteredWhseActivityLine, '', LibraryRandom.RandInt(10), false);
 
         // Exercise: Create Warehouse Reclassification Journal.
@@ -643,7 +643,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     [Scope('OnPrem')]
     procedure RegisterReclassificationWithMultipleLotNoAndDifferentExpirationDate()
     begin
-        Initialize;
+        Initialize();
         RegisterReclassificationJournal(false);  // Register Warehouse Reclassification Journal with Multiple Lot and Different Expiration Date.
     end;
 
@@ -652,7 +652,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     [Scope('OnPrem')]
     procedure RegisterReclassificationWithMultipleExpirationDate()
     begin
-        Initialize;
+        Initialize();
         RegisterReclassificationJournal(true);  // Register Warehouse Reclassification Journal with Multiple Expiration Date on Lot No.
     end;
 
@@ -708,7 +708,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         SerialNo: Variant;
     begin
         // Setup: Post Warehouse Receipt, Update Expiration Date and Register Put Away.
-        Initialize;
+        Initialize();
         PostWarehouseReceiptAndRegisterPutAwayForSerialNo(RegisteredWhseActivityLine, '', LibraryRandom.RandInt(10), true);  // Used True to update Expiration Date.
 
         // Exercise: Create Warehouse Reclassification Journal.
@@ -736,7 +736,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         ItemJournalLine: Record "Item Journal Line";
     begin
         // Setup: Post Warehouse Receipt and Register Put Away.
-        Initialize;
+        Initialize();
         PostWarehouseReceiptAndRegisterPutAwayForSerialNo(RegisteredWhseActivityLine, '', LibraryRandom.RandInt(10), false);
 
         // Exercise: Create Item Reclassification Journal.
@@ -761,7 +761,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         Quantity: Decimal;
     begin
         // Setup: Create and Post Warehouse Receipt. Item Reclassification with Location as Require Receive to Basic Location.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
         LibraryWarehouse.CreateBin(Bin, LocationSilver2.Code, LibraryUtility.GenerateGUID, '', '');  // Create Bin for LocationSilver2
         LibraryWarehouse.CreateBin(Bin2, LocationSilver2.Code, LibraryUtility.GenerateGUID, '', '');  // Create Second Bin for LocationSilver2
@@ -795,7 +795,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         Item: Record Item;
     begin
         // Setup: Post Warehouse Receipt and Register Put Away. Create and Register Warehouse Physical Journal. Calculate Warehouse Adjustment.
-        Initialize;
+        Initialize();
         PostWarehouseReceiptAndRegisterPutAwayForSerialNo(RegisteredWhseActivityLine, '', LibraryRandom.RandInt(10), false);
         RunWarehouseCalculateInventory(WarehouseJournalLine, '', RegisteredWhseActivityLine."Location Code", '');
         Item.Get(RegisteredWhseActivityLine."Item No.");
@@ -822,7 +822,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         Quantity: Decimal;
     begin
         // Setup: Post Warehouse Receipt and Register Put Away. Create and Register Warehouse Physical Journal. Calculate and Post Warehouse Adjustment.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
         PostWarehouseReceiptAndRegisterPutAwayForSerialNo(RegisteredWhseActivityLine, '', Quantity, false);
         RunWarehouseCalculateInventory(
@@ -847,7 +847,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         WarehouseJournalLine: Record "Warehouse Journal Line";
     begin
         // Setup: Post Warehouse Receipt and Register Put Away. Create and Register Warehouse Physical Journal. Calculate Inventory on Physical Inventory Journal.
-        Initialize;
+        Initialize();
         PostWarehouseReceiptAndRegisterPutAwayForSerialNo(RegisteredWhseActivityLine, '', LibraryRandom.RandInt(10), false);
         RunWarehouseCalculateInventory(
           WarehouseJournalLine, '', RegisteredWhseActivityLine."Location Code", RegisteredWhseActivityLine."Item No.");
@@ -877,7 +877,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         Quantity: Decimal;
     begin
         // Setup: Post Warehouse Receipt and Register Put Away. Create and Register Warehouse Physical Journal. Calculate and Post Inventory on Physical Inventory Journal.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
         PostWarehouseReceiptAndRegisterPutAwayForSerialNo(RegisteredWhseActivityLine, '', Quantity, false);
         RunWarehouseCalculateInventory(
@@ -904,7 +904,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
     begin
         // Setup: Create Item with Item Variant. Post Warehouse Receipt and Register Put Away.
-        Initialize;
+        Initialize();
         CreateItemWithTrackingCode(Item, false, true);
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
         LibraryVariableStorage.Enqueue(TrackingAction::AssignLotNo);  // TrackingAction used in ItemTrackingLinesPageHandler.
@@ -938,7 +938,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         NewLotNo: Variant;
     begin
         // Setup: Post Warehouse Receipt and Register Put Away.
-        Initialize;
+        Initialize();
         CreateItemWithTrackingCode(Item, false, true);
         LibraryVariableStorage.Enqueue(TrackingAction::AssignLotNo);  // TrackingAction used in ItemTrackingLinesPageHandler.
         PostWarehouseReceiptAndRegisterPutAway(LocationWhite.Code, '', Item."No.", '', LibraryRandom.RandInt(10));
@@ -977,7 +977,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         NewLotNo: Variant;
     begin
         // Setup: Post Warehouse Receipt and Register Put Away.
-        Initialize;
+        Initialize();
         CreateItemWithTrackingCode(Item, true, true);
         LibraryVariableStorage.Enqueue(TrackingAction::AssignSerialAndLot);  // TrackingAction used in ItemTrackingLinesPageHandler.
         PostWarehouseReceiptAndRegisterPutAway(LocationWhite.Code, '', Item."No.", '', LibraryRandom.RandInt(5));
@@ -1020,7 +1020,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         Quantity: Decimal;
     begin
         // Setup: Create and Post Warehouse Receipt.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
         CreateItemWithTrackingCode(Item, false, true);
         CreateAndReleasePurchaseOrder(PurchaseHeader, LocationWhite.Code, '', Item."No.", false, Quantity);
@@ -1047,7 +1047,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateItemWithTrackingCode(Item, false, true);
         LibraryVariableStorage.Enqueue(TrackingAction::AssignLotNo);  // AssignLotNo for Page Handler - ItemTrackingLinesPageHandler.
         CreateAndPostItemJournalLineWithBinAndTracking(ItemJournalLine, Item."No.", Item."Base Unit of Measure", true);
@@ -1072,7 +1072,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         Quantity: Decimal;
     begin
         // Setup: Register Put Away from Warehouse Receipt using Purchase Order with Item Tracking.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
         CreateItemWithItemTrackingCode(Item, false, true);  // Create Item with Lot.
         LibraryVariableStorage.Enqueue(TrackingAction::AssignLotNo);  // TrackingAction used in ItemTrackingLinesPageHandler.
@@ -1091,7 +1091,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     [Scope('OnPrem')]
     procedure ErrorChangingNewLotNoOnItemReclassificationJournal()
     begin
-        Initialize;
+        Initialize();
         ItemReclassificationErrorWithNewLotNoAndNewSerialNo(false, true, TrackingAction::AssignLotNo, TrackingAction::SelectEntriesWithLot);
     end;
 
@@ -1100,7 +1100,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     [Scope('OnPrem')]
     procedure ErrorChangingNewSerialNoOnItemReclassificationJournal()
     begin
-        Initialize;
+        Initialize();
         ItemReclassificationErrorWithNewLotNoAndNewSerialNo(
           true, false, TrackingAction::AssignSerialNo, TrackingAction::SelectEntriesWithNewSerialNo);
     end;
@@ -1145,7 +1145,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         // Register Warehouse Journal Line for multiple times with blank No. Series in Whse. Journal Batch. Verify User ID is filled in Warehouse Entry.
 
         // Setup: Create Whse. Journal Batch with blank No. Series. Create Whse. Journal Line and register it.
-        Initialize;
+        Initialize();
         FindBin(Bin, LocationWhite.Code, true);
         CreateWarehouseJournalAndRegister(
           WarehouseJournalLine, Bin, WarehouseJournalTemplate.Type::Item, LibraryInventory.CreateItem(Item),
@@ -1227,7 +1227,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Wharehouse Item Journal] [Bin Content] [Item Tracking]
         // [SCENARIO 362621] Registering Whse Journal Line includes BinContent check filtering by "Lot No"
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
 
         // [GIVEN] Bin with Content for Item with Tracking
@@ -1268,7 +1268,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Wharehouse Item Journal] [Bin Content]
         // [SCENARIO 362621] Registering Whse Journal Line thows Error if Quantity is not sufficient for negative admt. without Tracking
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
 
         // [GIVEN] Bin with Content for Item
@@ -1313,7 +1313,7 @@ codeunit 137153 "SCM Warehouse - Journal"
 
         // [GIVEN] Warehouse journal line with "Item No."
         WhseJnlLine.Init();
-        WhseJnlLine."Item No." := LibraryUtility.GenerateGUID;
+        WhseJnlLine."Item No." := LibraryUtility.GenerateGUID();
 
         // [WHEN] Set "Unit of Measure Code" to empty string
         asserterror WhseJnlLine.Validate("Unit of Measure Code", '');
@@ -1335,7 +1335,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         // [SCENARIO 372282] Field "Unit of Measure Code" in warehouse journal can be empty if "Item No." is empty
 
         // [GIVEN] Warehouse journal line with empty "Item No."
-        Initialize;
+        Initialize();
         FindBin(Bin, LocationWhite.Code, true);
         CreateWarehouseJournalLine(WhseJnlLine, Bin, WarehouseJournalTemplate.Type::Item, '', 0, false);
 
@@ -1417,7 +1417,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Wharehouse Item Journal]
         // [SCENARIO 376074] Registering Wharehouse Item Journal with blank "Item No." should be prohibited
-        Initialize;
+        Initialize();
 
         // [GIVEN] Wharehouse Journal Line with blank "Item No."
         FindBin(Bin, LocationWhite.Code, true);
@@ -1514,7 +1514,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Item Tracking] [Warehouse Adjustment]
         // [SCENARIO 381478] "Lot No. Filter" from Item is applied when running "Calculate Whse. Adjustment" job.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked Item.
         // [GIVEN] Location with "Directed Put-away and Pick".
@@ -1549,7 +1549,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Item Tracking] [Warehouse Adjustment]
         // [SCENARIO 381478] "Serial No. Filter" from Item is applied when running "Calculate Whse. Adjustment" job.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Serial No.-tracked Item.
         // [GIVEN] Location with "Directed Put-away and Pick".
@@ -1586,7 +1586,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Rounding]
         // [SCENARIO 382095] When quantity in bin is turned to zero by registering warehouse journal, residual base quantity should be zeroed out too.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with alternate unit of measure "PACK" has contains 3 base units ("pcs").
         QtyInUOM := 3;
@@ -1623,7 +1623,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Rounding]
         // [SCENARIO 382095] When quantity in bin is turned to zero by registering warehouse journal, excessively written off base quantity should be zeroed out too.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with alternate unit of measure "PACK" has contains 3 base units ("pcs").
         QtyInUOM := 3;
@@ -1659,7 +1659,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Open Shop Floor Bin] [Bin] [Bin Content]
         // [SCENARIO 201466] Bin content automatically created by the warehouse journal registering routine, should not have the Max. Qty. limit
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "L" with directed put-away and pick
         LibraryWarehouse.CreateFullWMSLocation(Location, 1);
@@ -1676,7 +1676,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         // [THEN] Bin content for the bin "B" has "Max. Qty." = 0, "Fixed" = TRUE
         BinContent.SetRange("Location Code", Location.Code);
         BinContent.SetRange("Bin Code", Bin.Code);
-        BinContent.FindFirst;
+        BinContent.FindFirst();
         BinContent.TestField("Max. Qty.", 0);
         BinContent.TestField(Fixed, true);
     end;
@@ -1692,7 +1692,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Warehouse Register] [Purchase]
         // [SCENARIO 382088] Only one Warehouse Register is created for posting any quantity of lines in Purchase Order and also for undo receipt of a Purchase Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase order with two lines at Bin Mandatory Location
         CreatePurchaseOrderTwoLines(PurchaseHeader);
@@ -1724,7 +1724,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Warehouse Register] [Sale]
         // [SCENARIO 382088] Only one Warehouse Register is created for posting any quantity of lines in Sales Order and also for undo shipment of a Sales Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order with two lines at Bin Mandatory Location
         CreateSalesOrderTwoLines(SalesHeader);
@@ -1754,7 +1754,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Warehouse Register] [Transfer]
         // [SCENARIO 382088] Only one Warehouse Register is created for posting any quantity of lines in Transfer Order as Sipment and also as Receipt
-        Initialize;
+        Initialize();
 
         // [GIVEN] Transfer order with two lines at Bin Mandatory Location
         CreateTransferOrderTwoLines(TransferHeader);
@@ -1785,7 +1785,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Warehouse Register] [Service]
         // [SCENARIO 382088] Only one Warehouse Register is created for posting any quantity of lines in Service Order and also for undo shipment of a Service Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service order with two item lines at Bin Mandatory Location
         CreateServiceOrderTwoItemLines(ServiceHeader);
@@ -1816,7 +1816,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Warehouse Register] [Job]
         // [SCENARIO 382088] Only one Warehouse Register is created for posting any quantity of lines in Job Journal
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job Journal with two item lines at Bin Mandatory Location
         CreateJobJournalTwoItemLines(JobJournalLine);
@@ -1838,7 +1838,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Warehouse Register] [Item Journal]
         // [SCENARIO 382088] Only one Warehouse Register is created for posting any quantity of lines in Item Journal
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item Journal with two lines at Bin Mandatory Location
         CreateItemJournalTwoLines(ItemJournalBatch);
@@ -1862,7 +1862,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Warehouse Register] [Create Warehouse]
         // [SCENARIO 382088] Only one Warehouse Register is created when creating Warehouse Location for any quantity of Item Ledger Entries
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Item Ledger Entries at simple Location L
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
@@ -1876,7 +1876,7 @@ codeunit 137153 "SCM Warehouse - Journal"
 
         // [WHEN] Create Warehouse Location from L
         WarehouseRegisterLastNo := FindLastWarehouseRegisterNo;
-        CreateWarehouseLocation.RunModal;
+        CreateWarehouseLocation.RunModal();
 
         // [THEN] Only one Warehouse Register is created
         VerifyLastWarehouseRegisterNo(WarehouseRegisterLastNo + 1);
@@ -1890,7 +1890,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Warehouse Register] [Production Order]
         // [SCENARIO 382088] Only one Warehouse Register is created when Post Output Journal with any quantity of lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Output Journal With Two Lines at Bin Mandatory Location
         CreateOutputJournalTwoLines;
@@ -1913,7 +1913,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Warehouse Register] [Production Order]
         // [SCENARIO 382088] Only one Warehouse Register is created when Post Consumption Journal with any quantity of lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Consumption Journal With Two Lines at Bin Mandatory Location
         CreateConsumptionJournalTwoLines(ConsumptionItemJournalBatch);
@@ -1937,7 +1937,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Warehouse Register] [Production Order]
         // [SCENARIO 382088] Only one Warehouse Register is created when Post Flushed Consumption Production Journal with any quantity of lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Order with One Line of Flushing Consumption at Bin Mandatory Location
         ProdOrderLineLineNo := CreateProductionOrderFlushingConsumptionOneLine(ProductionOrder);
@@ -1960,7 +1960,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Warehouse Register] [Assembly]
         // [SCENARIO 382088] Only one Warehouse Register is created when Post Assembly with any quantity of components
-        Initialize;
+        Initialize();
 
         // [GIVEN] Assembly Order With Two Components at Bin Mandatory Location
         CreatePickedAssemblyOrderWithTwoComponents(AssemblyHeader);
@@ -1982,7 +1982,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Warehouse Register] [Warehouse Receipt]
         // [SCENARIO 382088] Only one Warehouse Register is created when Post Warehouse Receipt with any quantity of lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Warehouse Receipt with two lines
         CreatePurchaseOrderTwoLinesWithWhseReceipt(WhseReceiptLine);
@@ -2006,7 +2006,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Warehouse Register] [Warehouse Shipment] [Warehouse Activity]
         // [SCENARIO 382088] Only one Warehouse Register is created when Register Warehouse Activity or Post Warehouse Shipment with any quantity of lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order SO with Two Lines
         CreateSalesOrderTwoLinesWithWhseShipmentAndPick(WarehouseShipmentLine);
@@ -2037,7 +2037,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Warehouse Register] [Warehouse Journal]
         // [SCENARIO 382088] Only one Warehouse Register is created when Register Warehouse Journal Batch with any quantity of lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Warehouse Journal Batch with Two Lines
         CreateWarehouseJournalBatchWithTwoLines(WarehouseJournalLine);
@@ -2060,7 +2060,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Warehouse Register] [Warehouse Activity]
         // [SCENARIO 382088] Only one Warehouse Register is created when Post Warehouse Activity with any quantity of lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Warehouse Activity (Put-away) with Two Lines
         CreatePurchaseOrderTwoLinesWithPutaway(WarehouseActivityLine);
@@ -2091,7 +2091,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         // [FEATURE] [Order tracking] [Pick] [Reservation]
         // [SCENARIO 201721] Item tracking binding should be changed from purchase to item ledger when warehouse pick is registered
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location with shipment and pick required
         CreateComponentsLocationWithBin(Location, Bin);
@@ -2148,7 +2148,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         // [FEATURE] [Order tracking] [Pick] [Reservation]
         // [SCENARIO 201721] Item tracking binding should be changed from purchase to item ledger when item is partially picked and item stock is sufficient to cover the demand
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location with shipment and pick required
         CreateComponentsLocationWithBin(Location, Bin);
@@ -2214,7 +2214,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         // [FEATURE] [Order tracking] [Pick] [Reservation]
         // [SCENARIO 201721] Item tracking binding should be split between purchase and item ledger when item is partially picked and item stock is insufficient to cover the demand
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location with shipment and pick required
         CreateComponentsLocationWithBin(Location, Bin);
@@ -2273,7 +2273,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         // [FEATURE] [Item Tracking] [Order Tracking] [Pick] [Production]
         // [SCENARIO 201717] Reservation entries should be updated when a warehouse pick created from production component is registered after changing component quantity, and initial quantity was picked
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location with shipment and pick required
         CreateComponentsLocationWithBin(Location, Bin);
@@ -2328,7 +2328,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Warehouse Employee] [UT]
         // [SCENARIO 223342] Warehouse Journal cannot be opened if the current user is not set as warehouse employee.
-        Initialize;
+        Initialize();
 
         // [GIVEN] 3 Locations -  basic "Blue", "Silver" with mandatory bin, "White" with directed put-away and pick.
         // [GIVEN] No warehouse employee is set.
@@ -2426,7 +2426,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Warehouse Employee] [UT]
         // [SCENARIO 223342] Warehouse Journal is opened at default directed put-away and pick location defined for the current user in warehouse employee setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] 3 Locations -  basic "Blue", "Silver" with mandatory bin, "White" with directed put-away and pick.
         // [GIVEN] Current user is set as warehouse employee at "Blue" and "White" (default).
@@ -2461,7 +2461,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Warehouse Employee] [Warehouse Journal Batch] [UT]
         // [SCENARIO 223342] New Warehouse Journal Batch is created and Warehouse Journal with this batch is opened at default directed put-away and pick location defined for the current user.
-        Initialize;
+        Initialize();
 
         // [GIVEN] 3 Locations -  basic "Blue", "Silver" with mandatory bin, "White" with directed put-away and pick.
         // [GIVEN] Current user is set as warehouse employee at "White" (default).
@@ -2498,7 +2498,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Warehouse Employee] [Bin Creation Worksheet] [UT]
         // [SCENARIO 223342] Bin Creation Worksheet cannot be opened if the current user is not set as warehouse employee.
-        Initialize;
+        Initialize();
 
         // [GIVEN] 3 Locations -  basic "Blue", "Silver" with mandatory bin, "White" with directed put-away and pick.
         // [GIVEN] No warehouse employee is set.
@@ -2528,7 +2528,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Warehouse Employee] [Bin Creation Worksheet] [UT]
         // [SCENARIO 223342] Bin Creation Worksheet cannot be opened if location with mandatory bin is not defined for the current user in warehouse employee setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] 3 Locations -  basic "Blue", "Silver" with mandatory bin, "White" with directed put-away and pick.
         // [GIVEN] Current user is set as warehouse employee at "Blue".
@@ -2559,7 +2559,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Warehouse Employee] [Bin Creation Worksheet] [UT]
         // [SCENARIO 223342] Bin Creation Worksheet is opened at location with mandatory bin defined for the current user in warehouse employee setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] 3 Locations -  basic "Blue", "Silver" with mandatory bin, "White" with directed put-away and pick.
         // [GIVEN] Current user is set as warehouse employee at "Blue" and "Silver".
@@ -2592,7 +2592,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Warehouse Employee] [Bin Creation Worksheet] [UT]
         // [SCENARIO 223342] New Bin Creation Worksheet Name is created and Bin Creation Worksheet with this Name is opened at location with mandatory bin defined for the current user.
-        Initialize;
+        Initialize();
 
         // [GIVEN] 3 Locations -  basic "Blue", "Silver" with mandatory bin, "White" with directed put-away and pick.
         // [GIVEN] Current user is set as warehouse employee at "Silver".
@@ -2626,7 +2626,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         // [FEATURE] [Adjustment Bin] [UT]
         // [SCENARIO 230095] It should be possbile to enter adjustment bin in the field "From Bin Code" of the warehouse journal for an entry of type "Positive Adjustment"
 
-        Initialize;
+        Initialize();
 
         Bin.Get(LocationWhite.Code, LocationWhite."Adjustment Bin Code");
         MockBinContent(Bin);
@@ -2649,7 +2649,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         // [FEATURE] [Adjustment Bin] [UT]
         // [SCENARIO 230095] It should be possbile to enter adjustment bin in the field "To Bin Code" of the warehouse journal for an entry of type "Negative Adjustment"
 
-        Initialize;
+        Initialize();
 
         Bin.Get(LocationWhite.Code, LocationWhite."Adjustment Bin Code");
         MockBinContent(Bin);
@@ -2672,7 +2672,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         // [FEATURE] [Adjustment Bin] [UT]
         // [SCENARIO 230095] It should not be possbile to enter adjustment bin in neither "From Bin Code" nor "To Bon Code" of the warehouse journal for an entry of type "Movement"
 
-        Initialize;
+        Initialize();
 
         Bin.Get(LocationWhite.Code, LocationWhite."Adjustment Bin Code");
         MockBinContent(Bin);
@@ -2699,12 +2699,12 @@ codeunit 137153 "SCM Warehouse - Journal"
         // [FEATURE] [Whse. Reclassification Journal] [Item Tracking]
         // [SCENARIO 272025] When item tracking info is changed via warehouse reclassification journal, dimension values in item reclassification entries are inherited from the initial ILE
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item tracked by lot No.
         CreateItemWithTrackingCode(Item, false, true);
-        LotNo := LibraryUtility.GenerateGUID;
-        NewLotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
+        NewLotNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Post item stock on a "directed put-away and pick" location, assign dimensions to the inventory operation
         DimSetID := CreateDimensionSet;
@@ -2735,12 +2735,12 @@ codeunit 137153 "SCM Warehouse - Journal"
         // [FEATURE] [Whse. Reclassification Journal] [Item Tracking]
         // [SCENARIO 272025] When item tracking info is changed via whse. reclassification journal, dimension values in item reclassification entries are inherited from the initial ILE. Test for ledger entries wit different dim. sets
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item tracked by lot No.
         CreateItemWithTrackingCode(Item, false, true);
-        LotNo := LibraryUtility.GenerateGUID;
-        NewLotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
+        NewLotNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Post item stock on a "directed put-away and pick" location. Posting in two separate entries, assign different dimensions to each item journal line
         DimSetID[1] := CreateDimensionSet;
@@ -2777,7 +2777,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Adjustment Bin] [UT]
         // [SCENARIO 280195] A user cannot set Bin Code on warehouse journal line for positive adjustment if the adjustment bin does not exist.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location with directed put-away and pick.
         LibraryWarehouse.CreateFullWMSLocation(Location, 2);
@@ -2822,7 +2822,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Adjustment Bin] [UT]
         // [SCENARIO 280195] A user cannot set Bin Code on warehouse journal line for negative adjustment if the adjustment bin does not exist.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location with directed put-away and pick.
         LibraryWarehouse.CreateFullWMSLocation(Location, 2);
@@ -2871,9 +2871,9 @@ codeunit 137153 "SCM Warehouse - Journal"
         // [SCENARIO 300723] Item Journal Lines and Reservation Entry when repeat sequence of registering Warehouse Journal Line
         // [SCENARIO 300723] and calling Calculate Whse. Adjustment
         // Tracking Specification is used purely as buffer in this test
-        Initialize;
-        LotNo[1] := LibraryUtility.GenerateGUID;
-        LotNo[2] := LibraryUtility.GenerateGUID;
+        Initialize();
+        LotNo[1] := LibraryUtility.GenerateGUID();
+        LotNo[2] := LibraryUtility.GenerateGUID();
         InitEntryType(WhseItemJnlEntryType, 1, 0, 0, 1); // 1 = Positive, 0 = Negative Adjustment
         InitEntryType(ItemJnlEntryType, 2, 3, 3, 2); // 2 = Positive, 3 = Negative Adjustment
 
@@ -2935,9 +2935,9 @@ codeunit 137153 "SCM Warehouse - Journal"
         // [SCENARIO 300723] Item Journal Lines and Reservation Entry when Calculate Whse. Adjustment for several Warehouse Journal Lines
         // [SCENARIO 300723] in case total adjustment for each Lot is positive
         // Tracking Specification is used purely as buffer in this test
-        Initialize;
-        LotNo[1] := LibraryUtility.GenerateGUID;
-        LotNo[2] := LibraryUtility.GenerateGUID;
+        Initialize();
+        LotNo[1] := LibraryUtility.GenerateGUID();
+        LotNo[2] := LibraryUtility.GenerateGUID();
         InitEntryType(WhseItemJnlEntryType, 1, 0, 0, 1); // 1 = Positive, 0 = Negative Adjustment
 
         // [GIVEN] Item had stock of 200 PCS: Lot "L1" with 100 PCS and "L2" with 100 PCS
@@ -2972,7 +2972,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         // [THEN] Positive Adjustment Item Journal Line is created with 88 PCS (88 = 100 - 10 - 11 + 9)
         // [THEN] Reservation Entry for this Line and Lot "L1" has 23 PCS (23 = 30 - 6 - 5 + 4)
         // [THEN] Reservation Entry for this Line and Lot "L2" has 65 PCS (23 = 70 - 4 - 6 + 5)
-        TempTrackingSpecification.FindFirst;
+        TempTrackingSpecification.FindFirst();
         TempTrackingSpecification.CalcSums("Quantity (Base)", "Qty. to Handle (Base)");
         VerifyItemJnlLineAndReservationEntryQty(TempTrackingSpecification, 2);
     end;
@@ -2994,9 +2994,9 @@ codeunit 137153 "SCM Warehouse - Journal"
         // [SCENARIO 300723] Item Journal Lines and Reservation Entry when Calculate Whse. Adjustment for several Warehouse Journal Lines
         // [SCENARIO 300723] with two lots in case total adjustment for 1st Lot is positive and for 2nd Lot is negative
         // Tracking Specification is used purely as buffer in this test
-        Initialize;
-        LotNo[1] := LibraryUtility.GenerateGUID;
-        LotNo[2] := LibraryUtility.GenerateGUID;
+        Initialize();
+        LotNo[1] := LibraryUtility.GenerateGUID();
+        LotNo[2] := LibraryUtility.GenerateGUID();
         InitEntryType(WhseItemJnlEntryType, 1, 0, 0, 1); // 1 = Positive, 0 = Negative Adjustment
 
         // [GIVEN] Item had stock of 200 PCS: Lot "L1" with 100 PCS and "L2" with 100 PCS
@@ -3030,7 +3030,7 @@ codeunit 137153 "SCM Warehouse - Journal"
 
         // [THEN] Positive Adjustment Item Journal Line is created with 63 PCS (63 = 70 - 6 - 5 + 4)
         // [THEN] Reservation Entry for this Line and Lot "L1" has same 63 PCS
-        TempTrackingSpecification.FindFirst;
+        TempTrackingSpecification.FindFirst();
         TempTrackingSpecification.CalcSums("Quantity (Base)", "Qty. to Handle (Base)");
         VerifyItemJnlLineQuantity(Item."No.", 2, Abs(TempTrackingSpecification."Quantity (Base)"));
         VerifyReservationEntryQuantity(Item."No.", LotNo[1], TempTrackingSpecification."Quantity (Base)");
@@ -3053,7 +3053,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 301475] Previously used batch and location are selected when open Warehouse Journal Line page.
-        Initialize;
+        Initialize();
         ResetDefaultWhseLocation;
 
         // [GIVEN] Warehouse Location "L1".
@@ -3093,7 +3093,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 301475] Batch with default location is selected when open Warehouse Journal Line page for the first time.
-        Initialize;
+        Initialize();
         ResetDefaultWhseLocation;
 
         // [GIVEN] Warehouse Location "L" with "Bin Mandatory" = true and "Direct Put-away and Pick" = true.
@@ -3131,7 +3131,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 301475] First available batch and location are selected when open Warehouse Journal Line page using template where no batch has default location.
-        Initialize;
+        Initialize();
         ResetDefaultWhseLocation;
 
         // [GIVEN] Warehouse Location "L1".
@@ -3170,7 +3170,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 301475] New batch with default location is created and selected when open Warehouse Journal Line page using template with no batches.
-        Initialize;
+        Initialize();
         ResetDefaultWhseLocation;
 
         // [GIVEN] Warehouse Location "L" with "Bin Mandatory" = true and "Direct Put-away and Pick" = true.
@@ -3212,13 +3212,13 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Warehouse Adjustment] [Warehouse Item Journal] [Item Tracking]
         // [SCENARIO 317711] Running warehouse adjustment filtered by serial nos. creates item journal for quantity and item tracking that meets the filter.
-        Initialize;
+        Initialize();
         ResetDefaultWhseLocation;
 
         // [GIVEN] 10 serial nos.
         NoOfSN := ArrayLen(SerialNos);
         for i := 1 to NoOfSN do
-            SerialNos[i] := LibraryUtility.GenerateGUID;
+            SerialNos[i] := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Location with directed put-away and pick.
         LibraryWarehouse.CreateFullWMSLocation(Location, 2);
@@ -3249,11 +3249,11 @@ codeunit 137153 "SCM Warehouse - Journal"
         // [WHEN] Calculate warehouse adjustment filtered by serial nos. "S1"|"S10".
         Item.SetFilter("Serial No. Filter", '%1|%2', SerialNos[1], SerialNos[NoOfSN]);
         Item.SetRange("Location Filter", Location.Code);
-        LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate, LibraryUtility.GenerateGUID);
+        LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate, LibraryUtility.GenerateGUID());
 
         // [THEN] Item journal line for 2 pcs is created.
         ItemJournalLine.SetRange("Item No.", Item."No.");
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.TestField(Quantity, 2);
 
         // [THEN] Serial nos. "S1" and "S10" are assigned in the item tracking on the item journal line.
@@ -3286,7 +3286,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         // [FEATURE] [Warehouse Adjustment] [Adjustment Bin] [Zone]
         // [SCENARIO 329519] Warehouse adjustment takes only the current zone of the adjustment bin.
-        Initialize;
+        Initialize();
         ResetDefaultWhseLocation;
         Qty := LibraryRandom.RandInt(10);
 
@@ -3309,7 +3309,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         NewAdjmtZone.SetRange("Location Code", Location.Code);
         NewAdjmtZone.SetRange("Bin Type Code", OldAdjmtZone."Bin Type Code");
         NewAdjmtZone.SetFilter(Code, '<>%1', OldAdjmtZone.Code);
-        NewAdjmtZone.FindFirst;
+        NewAdjmtZone.FindFirst();
         AdjmtBin.Find;
         AdjmtBin."Zone Code" := NewAdjmtZone.Code;
         AdjmtBin.Modify();
@@ -3327,7 +3327,7 @@ codeunit 137153 "SCM Warehouse - Journal"
 
         // [THEN] An item journal line for 10 pcs is created.
         ItemJournalLine.SetRange("Item No.", Item."No.");
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.TestField(Quantity, Qty);
     end;
 
@@ -3480,8 +3480,8 @@ codeunit 137153 "SCM Warehouse - Journal"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Warehouse - Journal");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         CreateDefaultWarehouseEmployeeIfNotExists;
 
@@ -3489,10 +3489,10 @@ codeunit 137153 "SCM Warehouse - Journal"
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Warehouse - Journal");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         CreateLocationSetup;
-        NoSeriesSetup;
+        NoSeriesSetup();
         SetupAssembly;
 
         LibrarySetupStorage.Save(DATABASE::"Assembly Setup");
@@ -3608,7 +3608,7 @@ codeunit 137153 "SCM Warehouse - Journal"
 
         LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalBatch."Template Type"::Item, Bin."Location Code");
         for i := 1 to LibraryRandom.RandIntInRange(2, 5) do begin
-            LotOrSerialNos[i] := LibraryUtility.GenerateGUID;
+            LotOrSerialNos[i] := LibraryUtility.GenerateGUID();
             LibraryWarehouse.CreateWhseJournalLine(
               WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Bin."Location Code",
               Bin."Zone Code", Bin.Code, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", 1);
@@ -3732,7 +3732,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     local procedure CreateBinCreationWkshTemplate(var BinCreationWkshTemplate: Record "Bin Creation Wksh. Template")
     begin
         BinCreationWkshTemplate.Init();
-        BinCreationWkshTemplate.Validate(Name, LibraryUtility.GenerateGUID);
+        BinCreationWkshTemplate.Validate(Name, LibraryUtility.GenerateGUID());
         BinCreationWkshTemplate.Validate(Type, BinCreationWkshTemplate.Type::Bin);
         BinCreationWkshTemplate.Insert(true);
     end;
@@ -3741,7 +3741,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         BinCreationWkshName.Init();
         BinCreationWkshName.Validate("Worksheet Template Name", BinCreationWkshTemplateName);
-        BinCreationWkshName.Validate(Name, LibraryUtility.GenerateGUID);
+        BinCreationWkshName.Validate(Name, LibraryUtility.GenerateGUID());
         BinCreationWkshName.Validate("Location Code", LocationCode);
         BinCreationWkshName.Insert(true);
     end;
@@ -3846,7 +3846,7 @@ codeunit 137153 "SCM Warehouse - Journal"
 
     local procedure CreateItemWithPhysicalInventoryCountingPeriod(var Item: Record Item; var PhysInvtCountingPeriod: Record "Phys. Invt. Counting Period")
     begin
-        PhysInvtCountingPeriod.FindFirst;
+        PhysInvtCountingPeriod.FindFirst();
         LibraryInventory.CreateItem(Item);
         Item.Validate("Phys Invt Counting Period Code", PhysInvtCountingPeriod.Code);
         Item.Modify(true);
@@ -3953,7 +3953,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
 
         LibraryVariableStorage.Enqueue(TrackingAction::SetNewLotNoWithQty);
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
         LibraryVariableStorage.Enqueue(PurchaseLine."Quantity (Base)");
         LibraryVariableStorage.Enqueue(PurchaseLine."Qty. to Receive (Base)");
         LibraryVariableStorage.Enqueue(PurchaseLine."Qty. to Invoice (Base)");
@@ -4039,7 +4039,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         with WhseActivityLine do begin
             Init;
             "Activity Type" := "Activity Type"::Pick;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             "Line No." := 1000;
             "Qty. Outstanding (Base)" := LibraryRandom.RandInt(10);
             "Location Code" := BinContent."Location Code";
@@ -4411,7 +4411,7 @@ codeunit 137153 "SCM Warehouse - Journal"
 
         WhseReceiptLine.SetRange("Source Document", WhseReceiptLine."Source Document"::"Purchase Order");
         WhseReceiptLine.SetRange("Source No.", PurchaseHeader."No.");
-        WhseReceiptLine.FindFirst;
+        WhseReceiptLine.FindFirst();
     end;
 
     local procedure CreatePurchaseOrderTwoLinesWithPutaway(var WarehouseActivityLine: Record "Warehouse Activity Line")
@@ -4427,12 +4427,12 @@ codeunit 137153 "SCM Warehouse - Journal"
           WarehouseActivityHeader."Source Document"::"Purchase Order", PurchaseHeader."No.", true, false, false);
 
         WarehouseActivityHeader.SetRange("Location Code", Location.Code);
-        WarehouseActivityHeader.FindFirst;
+        WarehouseActivityHeader.FindFirst();
         LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
 
         WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityHeader.Type);
         WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
     end;
 
     local procedure CreatePurchaseOrderDefaultBin(var PurchaseHeader: Record "Purchase Header"; Location: Record Location; ItemNo: Code[20]; Quantity: Decimal)
@@ -4551,7 +4551,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         i: Integer;
     begin
         CreateLocationBinMandatory(Location);
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         LibraryService.CreateServiceItem(ServiceItem, CustomerNo);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CustomerNo);
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -4796,7 +4796,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         CreatePick(WarehouseShipmentHeader, WarehouseShipmentNo);
 
         WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
     end;
 
     local procedure CreateBinAndBinContent(var Bin: Record Bin; Item: Record Item; LocationCode: Code[10])
@@ -4893,7 +4893,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         WarehouseJournalLine: Record "Warehouse Journal Line";
     begin
         // Add Inventory for Item.
-        Initialize;
+        Initialize();
         CreateItem(Item, '');
         RegisterPutAwayFromWarehouseReceiptUsingPurchaseOrderWithItemTracking(
           PurchaseHeader, Item."No.", LibraryRandom.RandInt(10), false);
@@ -4913,7 +4913,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         Bin.SetRange(Code, BinCode);
         Bin.SetRange("Location Code", LocationCode);
-        Bin.FindFirst;
+        Bin.FindFirst();
         Bin.Delete(true);
     end;
 
@@ -4925,7 +4925,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         BinContent.SetRange("Bin Code", BinCode);
         BinContent.SetRange("Item No.", ItemNo);
         BinContent.SetRange("Lot No. Filter", LotNo);
-        BinContent.FindFirst;
+        BinContent.FindFirst();
         BinContent.Delete(true);
     end;
 
@@ -4987,7 +4987,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         DimensionSetEntry.SetRange("Dimension Set ID", DimSetID);
         DimensionSetEntry.SetRange("Dimension Code", DimValueCode);
-        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.FindFirst();
         exit(DimensionSetEntry."Dimension Value Code");
     end;
 
@@ -4995,13 +4995,13 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         RegisteredWhseActivityLine.SetRange("Action Type", RegisteredWhseActivityLine."Action Type"::Place);
         RegisteredWhseActivityLine.SetRange("Item No.", ItemNo);
-        RegisteredWhseActivityLine.FindFirst;
+        RegisteredWhseActivityLine.FindFirst();
     end;
 
     local procedure FindItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; ItemNo: Code[20])
     begin
         FilterItemJournalLine(ItemJournalLine, JournalTemplateName, JournalBatchName, ItemNo);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
     end;
 
     local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Entry Type"; LocationCode: Code[10]; ItemNo: Code[20]): Boolean
@@ -5017,14 +5017,14 @@ codeunit 137153 "SCM Warehouse - Journal"
         WarehouseActivityLine.SetRange("Source Document", SourceDocument);
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
     end;
 
     local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
     end;
 
     local procedure FindWarehouseJournalLine(var WarehouseJournalLine: Record "Warehouse Journal Line"; ItemNo: Code[20])
@@ -5033,7 +5033,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         WarehouseJournalLine.SetRange("Journal Batch Name", WarehouseJournalLine."Journal Batch Name");
         WarehouseJournalLine.SetRange("Location Code", WarehouseJournalLine."Location Code");
         WarehouseJournalLine.SetRange("Item No.", ItemNo);
-        WarehouseJournalLine.FindFirst;
+        WarehouseJournalLine.FindFirst();
     end;
 
     local procedure FindZone(var Zone: Record Zone; LocationCode: Code[10]; BinTypeCode: Code[10])
@@ -5041,14 +5041,14 @@ codeunit 137153 "SCM Warehouse - Journal"
         Zone.SetRange("Location Code", LocationCode);
         Zone.SetRange("Bin Type Code", BinTypeCode);
         Zone.SetRange("Cross-Dock Bin Zone", false);
-        Zone.FindFirst;
+        Zone.FindFirst();
     end;
 
     local procedure FindWarehouseJournalBatch(var WarehouseJournalBatch: Record "Warehouse Journal Batch"; JournalTemplateName: Code[10]; NoSeries: Code[20])
     begin
         WarehouseJournalBatch.SetRange("Journal Template Name", JournalTemplateName);
         WarehouseJournalBatch.SetRange("No. Series", NoSeries);
-        WarehouseJournalBatch.FindLast;
+        WarehouseJournalBatch.FindLast();
     end;
 
     local procedure FindWarehouseEntry(var WarehouseEntry: Record "Warehouse Entry"; JournalBatchName: Code[10]; EntryType: Option; ItemNo: Code[20])
@@ -5057,7 +5057,7 @@ codeunit 137153 "SCM Warehouse - Journal"
             SetRange("Journal Batch Name", JournalBatchName);
             SetRange("Entry Type", EntryType);
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -5065,7 +5065,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Released);
         ProdOrderLine.SetRange("Item No.", ItemNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure FindProdBOMLine(var ProductionBOMLine: Record "Production BOM Line"; ProductionBOMHeaderNo: Code[20]; ItemNo: Code[20])
@@ -5074,7 +5074,7 @@ codeunit 137153 "SCM Warehouse - Journal"
             SetRange("Production BOM No.", ProductionBOMHeaderNo);
             SetRange(Type, Type::Item);
             SetRange("No.", ItemNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -5083,7 +5083,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         WarehouseRegister: Record "Warehouse Register";
     begin
         LastWarehouseRegisterNo := 0;
-        if WarehouseRegister.FindLast then
+        if WarehouseRegister.FindLast() then
             LastWarehouseRegisterNo := WarehouseRegister."No.";
     end;
 
@@ -5098,7 +5098,7 @@ codeunit 137153 "SCM Warehouse - Journal"
             SetRange("Source Document", WarehouseRequest."Source Document"::"Assembly Consumption");
             SetRange("Source Type", DATABASE::"Assembly Line");
             SetRange("Source Subtype", AssemblyHeader."Document Type");
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -5192,7 +5192,7 @@ codeunit 137153 "SCM Warehouse - Journal"
 
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Location Code", LocationCode);
-        ItemLedgerEntry.FindLast;
+        ItemLedgerEntry.FindLast();
 
         exit(ItemLedgerEntry."Lot No.");
     end;
@@ -5204,7 +5204,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         ItemJournalLine2.SetRange("Journal Template Name", ItemJournalLine."Journal Template Name");
         ItemJournalLine2.SetRange("Journal Batch Name", ItemJournalLine."Journal Batch Name");
         ItemJournalLine2.SetRange("Item No.", ItemNo);
-        ItemJournalLine2.FindFirst;
+        ItemJournalLine2.FindFirst();
         ItemJournalLine2.Validate("Qty. (Phys. Inventory)", 0); // Value Zero Important for test.
         ItemJournalLine2.Modify(true);
         if Tracking then
@@ -5434,7 +5434,7 @@ codeunit 137153 "SCM Warehouse - Journal"
 
     local procedure UpdateItemTrackingLines(var ItemTrackingLines: TestPage "Item Tracking Lines"; TrackingQuantity: Decimal)
     begin
-        ItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateGUID);
+        ItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateGUID());
         ItemTrackingLines."Quantity (Base)".SetValue(TrackingQuantity / 2);
         LibraryVariableStorage.Enqueue(ItemTrackingLines."Lot No.".Value);
     end;
@@ -5463,7 +5463,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         with ProdOrderComponent do begin
             SetRange(Status, ProdOrderStatus);
             SetRange("Prod. Order No.", ProdOrderNo);
-            FindFirst;
+            FindFirst();
             Validate("Quantity per", NewQtyPer);
             Modify(true);
         end;
@@ -5508,7 +5508,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         ProductionBOMHeader: Record "Production BOM Header";
     begin
         ProductionBOMHeader.SetRange("No.", ProductionBOMNo);
-        ProductionBOMHeader.FindFirst;
+        ProductionBOMHeader.FindFirst();
         UpdateBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::"Under Development");
         UpdateBOMLineRoutingLinkCode(ProductionBOMNo, ItemNo, RoutingLinkCode);
         UpdateBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
@@ -5526,7 +5526,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         ItemJournalLine.SetRange("Journal Template Name", JournalTemplateName);
         ItemJournalLine.SetRange("Journal Batch Name", JournalBatchName);
-        ItemJournalLine.ModifyAll("Document No.", LibraryUtility.GenerateGUID);
+        ItemJournalLine.ModifyAll("Document No.", LibraryUtility.GenerateGUID());
     end;
 
     local procedure UpdateInventoryWithWhseItemJournal(var Item: Record Item; Location: Record Location; Quantity: Decimal)
@@ -5595,7 +5595,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         ItemJournalLine.SetRange("Journal Template Name", JournalTemplateName);
         ItemJournalLine.SetRange("Journal Batch Name", JournalBatchName);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
     end;
 
     local procedure VerifyItemJnlLineAndReservationEntryQty(TrackingSpecification: Record "Tracking Specification"; EntryType: Integer)
@@ -5605,7 +5605,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         ItemJournalLine.SetRange("Item No.", TrackingSpecification."Item No.");
         ItemJournalLine.SetRange("Line No.", TrackingSpecification."Source Ref. No.");
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.TestField(
           Quantity, Abs(TrackingSpecification."Quantity (Base)" + TrackingSpecification."Qty. to Handle (Base)"));
         ItemJournalLine.TestField("Entry Type", EntryType);
@@ -5613,12 +5613,12 @@ codeunit 137153 "SCM Warehouse - Journal"
         ReservationEntry.SetRange("Item No.", TrackingSpecification."Item No.");
         ReservationEntry.SetRange("Source Ref. No.", TrackingSpecification."Source Ref. No.");
         ReservationEntry.SetRange("Lot No.", TrackingSpecification."Lot No.");
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         ReservationEntry.TestField(Quantity, TrackingSpecification."Quantity (Base)");
         ReservationEntry.TestField("Quantity (Base)", TrackingSpecification."Quantity (Base)");
 
         ReservationEntry.SetRange("Lot No.", TrackingSpecification."New Lot No.");
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         ReservationEntry.TestField(Quantity, TrackingSpecification."Qty. to Handle (Base)");
         ReservationEntry.TestField("Quantity (Base)", TrackingSpecification."Qty. to Handle (Base)");
     end;
@@ -5630,7 +5630,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         ItemJournalLine.SetRange("Item No.", ItemNo);
         ItemJournalLine.SetRange("Entry Type", EntryType);
         Assert.RecordCount(ItemJournalLine, 1);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.TestField(Quantity, Qty);
         ItemJournalLine.TestField("Quantity (Base)", Qty);
     end;
@@ -5642,7 +5642,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         BinContent.SetRange("Location Code", Bin."Location Code");
         BinContent.SetRange("Bin Code", Bin.Code);
         BinContent.SetRange("Item No.", ItemNo);
-        BinContent.FindFirst;
+        BinContent.FindFirst();
         BinContent.CalcFields("Quantity (Base)");
         BinContent.TestField("Quantity (Base)", ExpectedQuantity);
     end;
@@ -5676,7 +5676,7 @@ codeunit 137153 "SCM Warehouse - Journal"
             SetRange("Entry Type", "Entry Type"::Transfer);
             SetRange(Positive, true);
             SetRange("Dimension Set ID", DimSetID);
-            FindFirst;
+            FindFirst();
 
             TestField("Global Dimension 1 Code", FindDimensionSetEntry(DimSetID, GLSetup."Global Dimension 1 Code"));
             TestField("Global Dimension 2 Code", FindDimensionSetEntry(DimSetID, GLSetup."Global Dimension 2 Code"));
@@ -5694,7 +5694,7 @@ codeunit 137153 "SCM Warehouse - Journal"
             SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::Transfer);
             SetFilter("Item Ledger Entry Quantity", '>0');
             SetRange("Dimension Set ID", DimSetID);
-            FindFirst;
+            FindFirst();
 
             TestField("Global Dimension 1 Code", FindDimensionSetEntry(DimSetID, GLSetup."Global Dimension 1 Code"));
             TestField("Global Dimension 2 Code", FindDimensionSetEntry(DimSetID, GLSetup."Global Dimension 2 Code"));
@@ -5711,7 +5711,7 @@ codeunit 137153 "SCM Warehouse - Journal"
             SetRange("Source Subtype", SourceSubtype);
             SetRange("Source ID", SourceID);
             SetRange("Reservation Status", ReservationStatus);
-            FindFirst;
+            FindFirst();
 
             TestField(Quantity, ExpectedQty);
             TestField("Lot No.", ExpectedLotNo);
@@ -5740,7 +5740,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         ReservationEntry.SetRange("Item No.", ItemNo);
         ReservationEntry.SetRange("Lot No.", LotNo);
         Assert.RecordCount(ReservationEntry, 1);
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         ReservationEntry.TestField(Quantity, Qty);
         ReservationEntry.TestField("Quantity (Base)", Qty);
     end;
@@ -5749,7 +5749,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         FilterItemJournalLine(ItemJournalLine, ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name", ItemNo);
         ItemJournalLine.SetRange("Location Code", LocationCode);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.TestField("Qty. (Phys. Inventory)", Quantity);
     end;
 
@@ -5767,7 +5767,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         FilterItemJournalLine(ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, ItemNo);
         ItemJournalLine.SetRange("Unit of Measure Code", UnitOfMeasureCode);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.TestField(Quantity, Quantity);
     end;
 
@@ -5798,7 +5798,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         FIlterWarehouseEntries(WarehouseEntry, EntryType, WarehouseJournalLine."Item No.", WarehouseJournalLine."Location Code");
         WarehouseEntry.SetRange("Journal Template Name", WarehouseJournalLine."Journal Template Name");
-        WarehouseEntry.FindFirst;
+        WarehouseEntry.FindFirst();
         WarehouseEntry.TestField(Quantity, Quantity);
         WarehouseEntry.TestField("Phys Invt Counting Period Code", WarehouseJournalLine."Phys Invt Counting Period Code");
         WarehouseEntry.TestField("Phys Invt Counting Period Type", WarehouseJournalLine."Phys Invt Counting Period Type");
@@ -5848,7 +5848,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         WarehouseEntry: Record "Warehouse Entry";
     begin
         FIlterWarehouseEntries(WarehouseEntry, EntryType, WarehouseJournalLine."Item No.", WarehouseJournalLine."Location Code");
-        WarehouseEntry.FindFirst;
+        WarehouseEntry.FindFirst();
         WarehouseEntry.TestField(Quantity, Quantity);
     end;
 
@@ -5870,7 +5870,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         FilterWarehouseJournalLine(
           WarehouseJournalLine, WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name",
           WarehouseJournalLine."Location Code");
-        WarehouseJournalLine.FindFirst;
+        WarehouseJournalLine.FindFirst();
         WarehouseJournalLine.TestField("Item No.", ItemNo);
         WarehouseJournalLine.TestField("Bin Code", Bin.Code);
         WarehouseJournalLine.TestField("Zone Code", Bin."Zone Code");
@@ -5882,7 +5882,7 @@ codeunit 137153 "SCM Warehouse - Journal"
           WarehouseJournalLine, WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name",
           WarehouseJournalLine."Location Code");
         WarehouseJournalLine.SetRange("Lot No.", LotNo);
-        WarehouseJournalLine.FindFirst;
+        WarehouseJournalLine.FindFirst();
         WarehouseJournalLine.TestField("Item No.", ItemNo);
         WarehouseJournalLine.TestField("Qty. (Phys. Inventory)", Quantity);
     end;
@@ -5914,7 +5914,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     var
         WarehouseRegister: Record "Warehouse Register";
     begin
-        WarehouseRegister.FindLast;
+        WarehouseRegister.FindLast();
         WarehouseRegister.TestField("No.", LastWarehouseRegisterNo);
     end;
 
@@ -5991,7 +5991,7 @@ codeunit 137153 "SCM Warehouse - Journal"
                     ItemTrackingLines."New Expiration Date".SetValue(WorkDate);
                 end;
             TrackingAction::EditSerialNo:
-                ItemTrackingLines."Serial No.".SetValue(LibraryUtility.GenerateGUID);
+                ItemTrackingLines."Serial No.".SetValue(LibraryUtility.GenerateGUID());
             TrackingAction::AssignSerialAndLot:
                 begin
                     TrackingQuantity2 := ItemTrackingLines.Quantity3.AsDEcimal;
@@ -6007,12 +6007,12 @@ codeunit 137153 "SCM Warehouse - Journal"
             TrackingAction::SelectEntriesWithLot:
                 begin
                     ItemTrackingLines."Select Entries".Invoke;
-                    ItemTrackingLines."New Lot No.".SetValue(LibraryUtility.GenerateGUID);
+                    ItemTrackingLines."New Lot No.".SetValue(LibraryUtility.GenerateGUID());
                 end;
             TrackingAction::SelectEntriesWithNewSerialNo:
                 begin
                     ItemTrackingLines."Select Entries".Invoke;
-                    ItemTrackingLines."New Serial No.".SetValue(LibraryUtility.GenerateGUID);
+                    ItemTrackingLines."New Serial No.".SetValue(LibraryUtility.GenerateGUID());
                 end;
         end;
         ItemTrackingLines.OK.Invoke;
@@ -6098,7 +6098,7 @@ codeunit 137153 "SCM Warehouse - Journal"
                 begin
                     WhseItemTrackingLines."Serial No.".AssistEdit;
                     LibraryVariableStorage.Enqueue(WhseItemTrackingLines."Serial No.".Value);
-                    WhseItemTrackingLines."New Serial No.".SetValue(LibraryUtility.GenerateGUID);
+                    WhseItemTrackingLines."New Serial No.".SetValue(LibraryUtility.GenerateGUID());
                     LibraryVariableStorage.Enqueue(WhseItemTrackingLines."New Serial No.".Value);
                     WhseItemTrackingLines."New Expiration Date".SetValue(WorkDate);
                 end;
@@ -6106,7 +6106,7 @@ codeunit 137153 "SCM Warehouse - Journal"
                 begin
                     WhseItemTrackingLines."Lot No.".AssistEdit;
                     LibraryVariableStorage.Enqueue(WhseItemTrackingLines."Lot No.".Value);
-                    WhseItemTrackingLines."New Lot No.".SetValue(LibraryUtility.GenerateGUID);
+                    WhseItemTrackingLines."New Lot No.".SetValue(LibraryUtility.GenerateGUID());
                     LibraryVariableStorage.Enqueue(WhseItemTrackingLines."New Lot No.".Value);
                     WhseItemTrackingLines."New Expiration Date".SetValue(WorkDate);
                 end;
@@ -6140,8 +6140,8 @@ codeunit 137153 "SCM Warehouse - Journal"
                     WhseItemTrackingLines."Serial No.".AssistEdit;
                     WhseItemTrackingLines.Quantity.SetValue(0);
                     WhseItemTrackingLines."Lot No.".AssistEdit;
-                    WhseItemTrackingLines."New Serial No.".SetValue(LibraryUtility.GenerateGUID);
-                    WhseItemTrackingLines."New Lot No.".SetValue(LibraryUtility.GenerateGUID);
+                    WhseItemTrackingLines."New Serial No.".SetValue(LibraryUtility.GenerateGUID());
+                    WhseItemTrackingLines."New Lot No.".SetValue(LibraryUtility.GenerateGUID());
                     LibraryVariableStorage.Enqueue(WhseItemTrackingLines."Serial No.".Value);
                     LibraryVariableStorage.Enqueue(WhseItemTrackingLines."New Serial No.".Value);
                     LibraryVariableStorage.Enqueue(WhseItemTrackingLines."Lot No.".Value);

@@ -114,7 +114,7 @@ codeunit 144019 "ERM Accrual Accounting"
     begin
         AutomaticAccLine.SetRange("Automatic Acc. No.", AutomaticAccNo);
         AutomaticAccLine.SetRange("Allocation %", AllocationPct);
-        AutomaticAccLine.FindFirst;
+        AutomaticAccLine.FindFirst();
         exit(AutomaticAccLine."G/L Account No.");
     end;
 
@@ -125,7 +125,7 @@ codeunit 144019 "ERM Accrual Accounting"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.SetRange("Posting Date", PostingDate);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualMsg);
     end;
 }

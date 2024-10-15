@@ -156,7 +156,7 @@ report 1320 "Notification Email"
     local procedure FindReceipientUser()
     begin
         ReceipientUser.SetRange("User Name", "Notification Entry"."Recipient User ID");
-        if not ReceipientUser.FindFirst then
+        if not ReceipientUser.FindFirst() then
             ReceipientUser.Init();
     end;
 

@@ -228,7 +228,7 @@ report 82 "Export Budget to Excel"
                 SelectedDim.SetRange("Object ID", REPORT::"Export Budget to Excel");
                 i := 0;
                 OnGLBudgetEntryPreDataItemOnAfterSelectedDimSetFilters(ColumnDimCode, i);
-                if BusUnit.FindFirst then begin
+                if BusUnit.FindFirst() then begin
                     i := i + 1;
                     BusUnitDimIndex := i;
                     BusUnitDimCode := CopyStr(UpperCase(BusUnit.TableCaption), 1, MaxStrLen(ColumnDimCode[1]));
@@ -411,7 +411,7 @@ report 82 "Export Budget to Excel"
             exit("G/L Budget Entry"."Business Unit Code");
         DimSetEntry.SetRange("Dimension Set ID", "G/L Budget Entry"."Dimension Set ID");
         DimSetEntry.SetRange("Dimension Code", DimCode);
-        if DimSetEntry.FindFirst then
+        if DimSetEntry.FindFirst() then
             exit(DimSetEntry."Dimension Value Code");
         exit('');
     end;
@@ -496,7 +496,7 @@ report 82 "Export Budget to Excel"
         StartDate := NewStartDate;
         NoOfPeriods := NewNoOfPeriods;
         PeriodLength := NewPeriodLength;
-        RoundingFactor := NewRoundingFactor;
+        RoundingFactor := "Analysis Rounding Factor".FromInteger(NewRoundingFactor);
     end;
 
     procedure SetFileNameSilent(NewFileName: Text)
@@ -593,7 +593,7 @@ report 82 "Export Budget to Excel"
         FieldRef: FieldRef;
     begin
         RecRef.GetTable(RecVariant);
-        if RecRef.FindSet then begin
+        if RecRef.FindSet() then begin
             DimensionRange[1, i] := RowNo;
             repeat
                 FieldRef := RecRef.Field(FieldID);

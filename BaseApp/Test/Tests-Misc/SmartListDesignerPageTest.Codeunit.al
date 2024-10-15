@@ -1,7 +1,11 @@
+#if not CLEAN19
 codeunit 138888 "SmartList Designer Page Test"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The SmartList Designer is not supported in Business Central';
+    ObsoleteTag = '20.0';
 
     trigger OnRun()
     begin
@@ -67,3 +71,4 @@ codeunit 138888 "SmartList Designer Page Test"
         SetupOpened: Boolean;
         IsInitialized: Boolean;
 }
+#endif

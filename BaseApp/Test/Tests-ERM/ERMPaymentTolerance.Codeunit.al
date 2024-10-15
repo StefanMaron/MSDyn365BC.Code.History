@@ -45,7 +45,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [SCENARIO] Partial Application using Vendor Ledger Entry and verify the same post application.
 
         // Setup: Setup Data for Apply Vendor Ledger Entries and using Random value for Amounts.
-        Initialize;
+        Initialize();
         SelectGenJournalBatch(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
@@ -74,7 +74,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [SCENARIO] Application using Applies to ID and verify vendor Ledger Entry post application.
 
         // Setup: Setup Data for Apply vendor Ledger Entries and using Random value for Amounts.
-        Initialize;
+        Initialize();
         SelectGenJournalBatch(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
@@ -107,7 +107,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [SCENARIO] Application using Applies to Document No. and verify vendor Ledger Entry post application.
 
         // Setup: Setup Data for Apply vendor Ledger Entries and using Random value for Amounts.
-        Initialize;
+        Initialize();
         SelectGenJournalBatch(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
@@ -141,7 +141,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [SCENARIO] Check GL Entry for Payment Tolerance Received after applying Payment with Payment Tolerance Warning.
 
         // Setup: Create Customer, Update General Ledger, Post Invoice and create Customer Payment.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(PostingAction::"Payment Tolerance Accounts");
         LibrarySales.CreateCustomer(Customer);
         TolerancePct := LibraryRandom.RandDec(100, 2);
@@ -176,7 +176,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [SCENARIO] Check GL Entry for Payment Tolerance Received after unapplying Payment.
 
         // Setup: Create Customer, Update General Ledger, Post Invoice and Apply Customer Payment.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(PostingAction::"Payment Tolerance Accounts");
         LibrarySales.CreateCustomer(Customer);
         TolerancePct := LibraryRandom.RandDec(100, 2);
@@ -215,7 +215,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [SCENARIO] Check Payment Tolerance Warning With Amount LCY on Sales Payment.
 
         // Setup: Create and Post Sales Invoice with Updated Payment Tolerance Warning.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(PostingAction::" ");
         TolerancePct := LibraryRandom.RandDec(10, 2);
         SetPmtTolerance(true, false, TolerancePct);
@@ -230,7 +230,7 @@ codeunit 134022 "ERM Payment Tolerance"
 
         // Verify: Verify that amount in GLEntry is same as calulated amount for payment with currency code.
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, CalcHalfToleranceAmount(Abs(GLEntry.Amount), TolerancePct, CurrencyCode), LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(
@@ -256,7 +256,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [SCENARIO] Check Payment Tolerance Warning With Amount LCY on Purchase Payment.
 
         // Setup: Create and Post Purchase Invoice with Updated Payment Tolerance Warning.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(PostingAction::" ");
         TolerancePct := LibraryRandom.RandDec(10, 2);
         SetPmtTolerance(true, false, TolerancePct);
@@ -271,7 +271,7 @@ codeunit 134022 "ERM Payment Tolerance"
 
         // Verify: Verify that amount in GLEntry is same as calulated amount for payment with currency code.
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, CalcHalfToleranceAmount(Abs(GLEntry.Amount), TolerancePct, CurrencyCode), LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(
@@ -291,7 +291,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [SCENARIO] Leave as remaining amount option within payment tolerance warning.
 
         // Setup: Create setup for payment tolerance. Create and post General Journal Lines.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(PostingAction::"Remaining Amount");
         CreateAndPostGenJournalLinesForCustomerWithPaymentToleranceSetup(
           GenJournalLine, LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2));
@@ -317,7 +317,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [SCENARIO] Post payment tolerance balance option within payment tolerance warning.
 
         // Setup: Create setup for payment tolerance. Create and post General Journal Lines.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(PostingAction::"Payment Tolerance Accounts");
         CreateAndPostGenJournalLinesForCustomerWithPaymentToleranceSetup(
           GenJournalLine, LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2));
@@ -343,7 +343,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [SCENARIO] Do not accept late payment discount option within payment discount warning.
 
         // Setup: Create setup for payment tolerance. Create and post General Journal Lines.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(PostingAction::"Remaining Amount");
         LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText('<' + Format(LibraryRandom.RandInt(5)) + 'D>');
         CreateAndPostGenJournalLinesWithPaymentDiscountToleranceSetup(GenJournalLine);
@@ -369,7 +369,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [SCENARIO] Post payment discount balance option within payment discount warning.
 
         // Setup: Create setup for payment tolerance. Create and post General Journal Lines.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(PostingAction::"Payment Tolerance Accounts");
         LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText('<' + Format(LibraryRandom.RandInt(5)) + 'D>');
         CreateAndPostGenJournalLinesWithPaymentDiscountToleranceSetup(GenJournalLine);
@@ -397,7 +397,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [SCENARIO] Check No Remaining Amount is left in Payment when Payment Tolerance Amount is adjusted.
 
         // Setup: Create and Post Sales Invoice with Updated Payment Tolerance Warning.
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(PostingAction::"Payment Tolerance Accounts");
         TolerancePct := 2 * LibraryRandom.RandInt(10);
@@ -429,7 +429,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 312699] Entries are closed when Payment is applied to Sales Invoice with the same amount within Payment Discount Grace Period
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Discount Grace Period = 10D, Payment Terms with Discount % = 5
         SetPmtTolerance(false, false, 0);
@@ -472,7 +472,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 312699] Entries are closed when Payment is applied to Sales Invoice with amount reduced by Payment Discount amount within Payment Discount Grace Period
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Discount Grace Period = 10D, Payment Terms with Discount % = 5
         SetPmtTolerance(false, false, 0);
@@ -515,7 +515,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 312699] Entries are closed when Payment is applied to Purchase Invoice with the same amount within Payment Discount Grace Period
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Discount Grace Period = 10D, Payment Terms with Discount % = 5
         SetPmtTolerance(false, false, 0);
@@ -558,7 +558,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 312699] Entries are closed when Payment is applied to Purchase Invoice with amount reduced by Payment Discount amount within Payment Discount Grace Period
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Discount Grace Period = 10D, Payment Terms with Discount % = 5
         SetPmtTolerance(false, false, 0);
@@ -603,7 +603,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [SCENARIO] Check No Remaining Amount is left in Payment when Payment Tolerance Amount is adjusted.
 
         // Setup: Create and Post Purchase Invoice with Updated Payment Tolerance Warning.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(PostingAction::"Payment Tolerance Accounts");
         TolerancePct := 2 * LibraryRandom.RandInt(10);
         SetPmtTolerance(true, false, TolerancePct);
@@ -622,10 +622,56 @@ codeunit 134022 "ERM Payment Tolerance"
         VerifyVendorPaymentRemainingAmountIsZero(GenJournalLine."Document No.");
     end;
 
+#if not CLEAN20
     [Test]
     [HandlerFunctions('MessageHandler,ApplyCustomerEntryPageHandlerForMultipleDocument,PostApplicationHandler')]
     [Scope('OnPrem')]
     procedure ApplySalesCreditMemoWithTwoRefunds()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        Index: Integer;
+        AdjustmentFactor: Decimal;
+        GenJournalLineAmount: Decimal;
+        CurrencyCode: Code[10];
+        CustomerNoToApply: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO] Check No Remaining Amount is left when a Credit Memo with Currency Code is applied to two refunds.
+
+        // Setup: Update Pmt. Discount Grace Period in General Ledger Setup. Create a Customer with Payment term code having Calc. Discount on Credit Memo.
+        // Create Currency with its currency exchange rate.
+        Initialize();
+        GenJournalLineAmount := 10 * LibraryRandom.RandDec(1000, 2);
+        LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText('<' + Format(LibraryRandom.RandInt(5)) + 'D>');
+        CustomerNoToApply := CreateCustomerWithPmtTerms(CreatePaymentTermsWithDiscOnCreditMemo);  // CustomerNoToApply is used in report handler
+        CurrencyCode := CreateCurrencyWithGainLossAccount;
+        AdjustmentFactor := CreateAndUpdateCurrencyExchangeRate(CurrencyCode);
+
+        // Exercise: Create and Post One Credit Memo with currency and two refunds. Apply it through Customer Ledger Entries. Run Adjust Currency Exchange Rate
+        // Batch job.
+        CreateGenJournalLineWithCurrencyCode(
+          GenJournalLine, CustomerNoToApply, CurrencyCode, GenJournalLine."Document Type"::"Credit Memo",
+          -GenJournalLineAmount, WorkDate, GenJournalLine."Account Type"::Customer);
+        PostGeneralJnlLine(GenJournalLine);
+        for Index := 1 to 2 do begin
+            CreateGenJournalLineWithCurrencyCode(
+              GenJournalLine, CustomerNoToApply, '', GenJournalLine."Document Type"::Refund,
+              (GenJournalLineAmount * AdjustmentFactor) / 2, CalcDate('<1D>', WorkDate), GenJournalLine."Account Type"::Customer);
+            PostGeneralJnlLine(GenJournalLine);
+        end;
+        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate, WorkDate);
+        LibraryVariableStorage.Enqueue(CustomerNoToApply);
+        ApplyCustomerLedgerEntries(CustomerNoToApply, GenJournalLine."Document Type"::"Credit Memo");
+
+        // Verify : Verify that no remaing amount is left in Refund and Credit Memo.
+        VerifyRefundAndCreditMemoRemainingAmountIsZero(CustomerNoToApply);
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('MessageHandler,ApplyCustomerEntryPageHandlerForMultipleDocument,PostApplicationHandler')]
+    [Scope('OnPrem')]
+    procedure ApplySalesCreditMemoWithTwoRefundsAndExchRateAdjmt()
     var
         GenJournalLine: Record "Gen. Journal Line";
         Index: Integer;
@@ -658,7 +704,7 @@ codeunit 134022 "ERM Payment Tolerance"
               (GenJournalLineAmount * AdjustmentFactor) / 2, CalcDate('<1D>', WorkDate), GenJournalLine."Account Type"::Customer);
             PostGeneralJnlLine(GenJournalLine);
         end;
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate, WorkDate);
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate, WorkDate);
         LibraryVariableStorage.Enqueue(CustomerNoToApply);
         ApplyCustomerLedgerEntries(CustomerNoToApply, GenJournalLine."Document Type"::"Credit Memo");
 
@@ -666,6 +712,7 @@ codeunit 134022 "ERM Payment Tolerance"
         VerifyRefundAndCreditMemoRemainingAmountIsZero(CustomerNoToApply);
     end;
 
+#if not CLEAN20
     [Test]
     [HandlerFunctions('MessageHandler,ApplyVendorEntryPageHandlerForMultipleDocument,PostApplicationHandler')]
     [Scope('OnPrem')]
@@ -683,7 +730,7 @@ codeunit 134022 "ERM Payment Tolerance"
 
         // Setup: Update Pmt. Discount Grace Period in General Ledger Setup. Create a Vendor with payment terms code.
         // Create Currency with its currency exchange rate.
-        Initialize;
+        Initialize();
         GenJournalLineAmount := 10 * LibraryRandom.RandDec(1000, 2);
         LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText('<' + Format(LibraryRandom.RandInt(5)) + 'D>');
         VendorNoToApply := CreateVendorWithPmtTerms(CreatePaymentTermsWithDiscOnCreditMemo);
@@ -711,6 +758,53 @@ codeunit 134022 "ERM Payment Tolerance"
         // Verify : Verify that no remaing amount is left in Invoice and Payments.
         VerifyInvoiceAndPaymentsRemainingAmountIsZero(VendorNoToApply);
     end;
+#endif
+
+    [Test]
+    [HandlerFunctions('MessageHandler,ApplyVendorEntryPageHandlerForMultipleDocument,PostApplicationHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyPurchInvoiceWithTwoPaymentsExchRateAdjmt()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        Index: Integer;
+        AdjustmentFactor: Decimal;
+        GenJournalLineAmount: Decimal;
+        CurrencyCode: Code[10];
+        VendorNoToApply: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO] Check No Remaining Amount is left when a Invoice with Currency Code is applied to two payments.
+
+        // Setup: Update Pmt. Discount Grace Period in General Ledger Setup. Create a Vendor with payment terms code.
+        // Create Currency with its currency exchange rate.
+        Initialize();
+        GenJournalLineAmount := 10 * LibraryRandom.RandDec(1000, 2);
+        LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText('<' + Format(LibraryRandom.RandInt(5)) + 'D>');
+        VendorNoToApply := CreateVendorWithPmtTerms(CreatePaymentTermsWithDiscOnCreditMemo);
+        CurrencyCode := CreateCurrencyWithGainLossAccount;
+        AdjustmentFactor := CreateAndUpdateCurrencyExchangeRate(CurrencyCode);
+
+        // Exercise: Create and Post One Invoice currency and two Payments. Apply it through Vendor Ledger Entries. Run Adjust Currency Exchange Rate
+        // Batch job.
+
+        CreateGenJournalLineWithCurrencyCode(
+          GenJournalLine, VendorNoToApply, CurrencyCode, GenJournalLine."Document Type"::Invoice,
+          -GenJournalLineAmount, WorkDate, GenJournalLine."Account Type"::Vendor);
+        PostGeneralJnlLine(GenJournalLine);
+
+        for Index := 1 to 2 do begin
+            CreateGenJournalLineWithCurrencyCode(
+              GenJournalLine, VendorNoToApply, '', GenJournalLine."Document Type"::Payment,
+              (GenJournalLineAmount * AdjustmentFactor) / 2, CalcDate('<1D>', WorkDate), GenJournalLine."Account Type"::Vendor);
+            PostGeneralJnlLine(GenJournalLine);
+        end;
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate, WorkDate);
+        LibraryVariableStorage.Enqueue(VendorNoToApply);
+        ApplyVendorLedgerEntries(VendorNoToApply, GenJournalLine."Document Type"::Invoice);
+
+        // Verify : Verify that no remaing amount is left in Invoice and Payments.
+        VerifyInvoiceAndPaymentsRemainingAmountIsZero(VendorNoToApply);
+    end;
 
     [Test]
     [Scope('OnPrem')]
@@ -724,7 +818,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [SCENARIO] Test the G/L entries after Posting of Purchase Invoice.
 
         // Setup: Create setup for Payment Tolerance.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetPmtTolerance(0);
 
         // Excercise: Create and Post Purchase Invoice.
@@ -749,7 +843,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [SCENARIO] Test the G/L entries after Posting of Purchase Credit Memo.
 
         // Setup: Create setup for Payment Tolerance. Create and post Purchase Invoice.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetPmtTolerance(0);
         PostedPurchaseInvoiceNo := CreateAndPostPurchaseInvoice(PurchaseLine);
 
@@ -779,7 +873,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [SCENARIO] Test the G/L entries after Posting of Payment Journal.
 
         // Setup: Create setup for Payment Tolerance. Create and post Purchase Invoice and Credit Memo.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetPmtTolerance(0);
         PostedPurchaseInvoiceNo := CreateAndPostPurchaseInvoice(PurchaseLine);
         PostedCreditMemoNo := CreateAndPostPurchaseCreditMemo(PurchaseLine, PostedPurchaseInvoiceNo);
@@ -810,7 +904,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [SCENARIO] Test the G/L entries after Posting of Sales Invoice.
 
         // Setup: Create setup for Payment Tolerance.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetPmtTolerance(0);
 
         // Excercise: Post Sales Invoice.
@@ -834,7 +928,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [SCENARIO] Test the G/L entries after Posting of Sales Credit Memo created by Copy Document.
 
         // Setup: Create setup for Payment Tolerance. Create and post Sales Invoice.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetPmtTolerance(0);
         PostedSalesInvoiceNo := CreateAndPostSalesInvoice(SalesLine);
 
@@ -863,7 +957,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [SCENARIO] Test the G/L entries after Posting of Cash Receipt Journal.
 
         // Setup: Create setup for Payment Tolerance. Create and post Sales Invoice and Credit Memo.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetPmtTolerance(0);
         PostedSalesInvoiceNo := CreateAndPostSalesInvoice(SalesLine);
         PostedCreditMemoNo := CreateAndPostSalesCreditMemo(SalesLine, PostedSalesInvoiceNo);
@@ -927,7 +1021,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 269739] Payment Discount Tolerance Warning is not shown when Stan sets "Applies-to Doc. No." for Customer when Amount of Gen. Journal Line is 0.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice "SI1" with Amount = "A1".
         Amount := CreateAndPostInvoiceOfGenJournalLineForCustomer(GenJournalLine, PaymentTerms);
@@ -960,7 +1054,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 269739] Payment Discount Tolerance Warning is shown when Stan sets "Applies-to Doc. No." for Customer when Amount of Gen. Journal Line is nonzero.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice "SI1" with Amount = "A1".
         AppliesToDocAmount := CreateAndPostInvoiceOfGenJournalLineForCustomer(GenJournalLine, PaymentTerms);
@@ -1025,7 +1119,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 269739] Payment Discount Tolerance Warning is shown when Stan updates Amount from zero when "Applies-to ID" is set.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice "SI1" with Amount = "A1".
         Amount := CreateAndPostInvoiceOfGenJournalLineForCustomer(GenJournalLine, PaymentTerms);
@@ -1192,7 +1286,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 269739] Payment Discount Tolerance Warning is not shown when Stan sets "Applies-to Doc. No." for Vendor when Amount of Gen. Journal Line is 0.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice "PI1" with Amount = "A1".
         Amount := CreateAndPostInvoiceOfGenJournalLineForVendor(GenJournalLine, PaymentTerms);
@@ -1225,7 +1319,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 269739] Payment Discount Tolerance Warning is shown when Stan sets "Applies-to Doc. No." for Vendor when Amount of Gen. Journal Line is nonzero.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice "PI1" with Amount = "A1"..
         AppliesToDocAmount := CreateAndPostInvoiceOfGenJournalLineForVendor(GenJournalLine, PaymentTerms);
@@ -1290,7 +1384,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 269739] Payment Discount Tolerance Warning is shown when Stan updates Amount from zero when "Applies-to ID" is set for Vendor.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice "PI1" with Amount = "A1".
         Amount := CreateAndPostInvoiceOfGenJournalLineForVendor(GenJournalLine, PaymentTerms);
@@ -1424,7 +1518,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 360872] Payment Discount Tolerance Warning absence if Journal Line Amount is Zero and applied through Applies-to Doc No. lookup
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Invoice
         Amount := CreateAndPostInvoiceOfGenJournalLineForCustomer(GenJournalLine, PaymentTerms);
         // [GIVEN] Cash Receipt Journal Line with zero amount, Posting Date in Payment Tolerance period
@@ -1456,7 +1550,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [FEATURE] [Payment Discount] [Sales]
         // [SCENARIO 372197] Payment Discount should be used for Balance calculation on "Apply Customer Entries" page after "Set Applies-to ID" when using partial Payment Tolerance
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Payment Tolerance %" = "X1"
         TolerancePct := LibraryRandom.RandDec(100, 2);
         SetPmtTolerance(true, false, TolerancePct);
@@ -1496,7 +1590,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [FEATURE] [Payment Discount] [Purchase]
         // [SCENARIO 372197] Payment Discount should be used for Balance calculation on "Apply Vendor Entries" page after "Set Applies-to ID" when using partial Payment Tolerance
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Payment Tolerance %" = "X1"
         TolerancePct := LibraryRandom.RandDec(100, 2);
         SetPmtTolerance(true, false, TolerancePct);
@@ -1537,7 +1631,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [FEATURE] [Sales] [Appln. Rounding Precision] [Payment Discount]
         // [SCENARIO 372197] Application Rounding Precision should not consider when apply Customer Ledger Entries with LCY and Payment Discount
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Payment Tolerance Warning" = Yes
         GLSetup.Get();
         TolerancePct := LibraryRandom.RandDec(100, 2);
@@ -1589,7 +1683,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [FEATURE] [Purchase] [Appln. Rounding Precision] [Payment Discount]
         // [SCENARIO 372197] Application Rounding Precision should not consider when apply Vendor Ledger Entries with LCY and Payment Discount
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Payment Tolerance Warning" = Yes
         GLSetup.Get();
         TolerancePct := LibraryRandom.RandDec(100, 2);
@@ -1787,7 +1881,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [FEATURE] [Sales] [Apply] [UI]
         // [SCENARIO 361036] Payment Discount Tolerance is accepted when Sales Credit Memo applies to Payment within Grace Period and option "Post as Payment Discount Tolerance" chosen in "Payment Discount Tolerance Warning"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Discount Tolerance Warning = Yes, "Payment Discount Grade Period" = 5D
         SetupTolerancePmtDiscTolScenario(PaymentTerms);
@@ -1823,7 +1917,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [FEATURE] [Purchase] [Apply] [UI]
         // [SCENARIO 361036] Payment Discount Tolerance is accepted when Purchase Credit Memo applies to Payment within Grace Period and option "Post as Payment Discount Tolerance" chosen in "Payment Discount Tolerance Warning"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Discount Tolerance Warning = Yes, "Payment Discount Grade Period" = 5D
         SetupTolerancePmtDiscTolScenario(PaymentTerms);
@@ -1862,7 +1956,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [FEATURE] [Sales] [Payment Discount]
         // [SCENARIO 382074] The "Payment Discount Amount" is calculated for one of two sales invoices which is fully applied to payment
 
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms);
 
         InvAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
@@ -1872,7 +1966,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [GIVEN] Invoice "I1" with "Amount" = 100, "Pmt Discount Possible" = 2
         // [GIVEN] Invoice "I2" with "Amount" = 100, "Pmt Discount Possible" = 2
         // [GIVEN] Payment with Amount = 150
-        CustNo := LibrarySales.CreateCustomerNo;
+        CustNo := LibrarySales.CreateCustomerNo();
         for i := 1 to 2 do
             CreateAndPostGenJnlLineWithPaymentTerms(
               GenJnlLine, GenJnlLine."Document Type"::Invoice, GenJnlLine."Account Type"::Customer,
@@ -1909,7 +2003,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [FEATURE] [Purchase] [Payment Discount]
         // [SCENARIO 382074] The "Payment Discount Amount" is calculated for one of two purchase invoices which is fully applied to payment
 
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms);
 
         InvAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
@@ -1919,7 +2013,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [GIVEN] Invoice "I1" with "Amount" = 100, "Pmt Discount Possible" = 2
         // [GIVEN] Invoice "I2" with "Amount" = 100, "Pmt Discount Possible" = 2
         // [GIVEN] Payment with Amount = 150
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         for i := 1 to 2 do
             CreateAndPostGenJnlLineWithPaymentTerms(
               GenJnlLine, GenJnlLine."Document Type"::Invoice, GenJnlLine."Account Type"::Vendor,
@@ -1956,7 +2050,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [FEATURE] [Sales]
         // [SCENARIO 55999] G/L Entry with "Sales. Pmt. Disc. Debit Acc." is created when post "Payment Discount (VAT Excl.)" entry with Full VAT
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Adjust for Payment Disc." option is on
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
 
@@ -2002,7 +2096,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [FEATURE] [Sales]
         // [SCENARIO 54761] G/L Entry with "Sales. Pmt. Disc. Debit Acc." is created when unapply "Payment Discount (VAT Excl.)" entry with Full VAT
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Adjust for Payment Disc." option is on
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
 
@@ -2053,7 +2147,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [FEATURE] [Sales]
         // [SCENARIO 378550] G/L Entry with "Sales Pmt. Tol. Debit Acc." is created when unapply "Payment Tolerance (VAT Excl.)" with low amount
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Adjust for Payment Disc." option is on
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -2110,7 +2204,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [FEATURE] [Purchase]
         // [SCENARIO 55999] G/L Entry with "Purch. Pmt. Disc. Credit Acc." is created when post "Payment Discount (VAT Excl.)" entry with Full VAT
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Adjust for Payment Disc." option is on
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
 
@@ -2156,7 +2250,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [FEATURE] [Purchase]
         // [SCENARIO 54761] G/L Entry with "Purch. Pmt. Disc. Credit Acc." is created when unapply "Payment Discount (VAT Excl.)" entry with Full VAT
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Adjust for Payment Disc." option is on
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
 
@@ -2207,7 +2301,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [FEATURE] [Purchase]
         // [SCENARIO 378550] G/L Entry with "Sales Pmt. Tol. Debit Acc." is created when post "Payment Tolerance (VAT Excl.)" with low amount
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Adjust for Payment Disc." option is on
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -2319,7 +2413,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [FEATURE] [Sales]
         // [SCENARIO 229966] Payment tolerance posting in case of LCY Payment to FCY Invoice, (Payment + Tolerance) = Invoice,
         // [SCENARIO 229966] currency with Max. Payment Tolerance Amount and Exchange:Relational ratio > 1
-        Initialize;
+        Initialize();
 
         // [GIVEN] GLSetup."Max. Payment Tolerance Amount" = 200 LCY
         // [GIVEN] Currency "X" with Exchange:Relational ratio = 2, "Max. Payment Tolerance Amount" = 200 FCY (= 100 LCY)
@@ -2361,7 +2455,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [FEATURE] [Sales] [Rounding]
         // [SCENARIO 229966] Payment tolerance posting in case of LCY Payment to FCY Invoice, (Payment + Tolerance) = Invoice (+0.01 FCY cent is rounded to zero LCY),
         // [SCENARIO 229966] currency with Max. Payment Tolerance Amount and Exchange:Relational ratio > 1
-        Initialize;
+        Initialize();
 
         // [GIVEN] GLSetup."Max. Payment Tolerance Amount" = 200 LCY
         // [GIVEN] Currency "X" with Exchange:Relational ratio = 2, "Max. Payment Tolerance Amount" = 200 FCY (= 100 LCY)
@@ -2404,7 +2498,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [FEATURE] [Sales] [Rounding]
         // [SCENARIO 229966] Payment tolerance posting in case of LCY Payment to FCY Invoice, (Payment + Tolerance) = Invoice (-0.01 FCY cent is rounded to zero LCY),
         // [SCENARIO 229966] currency with Max. Payment Tolerance Amount and Exchange:Relational ratio > 1
-        Initialize;
+        Initialize();
 
         // [GIVEN] GLSetup."Max. Payment Tolerance Amount" = 200 LCY
         // [GIVEN] Currency "X" with Exchange:Relational ratio = 2, "Max. Payment Tolerance Amount" = 200 FCY (= 100 LCY)
@@ -2448,7 +2542,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [FEATURE] [Sales]
         // [SCENARIO 229966] Payment posting in case of LCY Payment to FCY Invoice, (Payment + Tolerance) < Invoice,
         // [SCENARIO 229966] currency with Max. Payment Tolerance Amount and Exchange:Relational ratio > 1
-        Initialize;
+        Initialize();
 
         // [GIVEN] GLSetup."Max. Payment Tolerance Amount" = 200 LCY
         // [GIVEN] Currency "X" with Exchange:Relational ratio = 2, "Max. Payment Tolerance Amount" = 200 FCY (= 100 LCY)
@@ -2491,7 +2585,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [FEATURE] [Sales]
         // [SCENARIO 229966] Payment tolerance posting in case of LCY Payment to FCY Invoice, (Payment + Tolerance) > Invoice,
         // [SCENARIO 229966] currency with Max. Payment Tolerance Amount and Exchange:Relational ratio > 1
-        Initialize;
+        Initialize();
 
         // [GIVEN] GLSetup."Max. Payment Tolerance Amount" = 200 LCY
         // [GIVEN] Currency "X" with Exchange:Relational ratio = 2, "Max. Payment Tolerance Amount" = 200 FCY (= 100 LCY)
@@ -2534,7 +2628,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [FEATURE] [Purchase]
         // [SCENARIO 229966] Payment tolerance posting in case of LCY Payment to FCY Invoice, (Payment + Tolerance) = Invoice,
         // [SCENARIO 229966] currency with Max. Payment Tolerance Amount and Exchange:Relational ratio > 1
-        Initialize;
+        Initialize();
 
         // [GIVEN] GLSetup."Max. Payment Tolerance Amount" = 200 LCY
         // [GIVEN] Currency "X" with Exchange:Relational ratio = 2, "Max. Payment Tolerance Amount" = 200 FCY (= 100 LCY)
@@ -2577,7 +2671,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [FEATURE] [Purchase] [Rounding]
         // [SCENARIO 229966] Payment tolerance posting in case of LCY Payment to FCY Invoice, (Payment + Tolerance) = Invoice (+0.01 FCY cent is rounded to zero LCY),
         // [SCENARIO 229966] currency with Max. Payment Tolerance Amount and Exchange:Relational ratio > 1
-        Initialize;
+        Initialize();
 
         // [GIVEN] GLSetup."Max. Payment Tolerance Amount" = 200 LCY
         // [GIVEN] Currency "X" with Exchange:Relational ratio = 2, "Max. Payment Tolerance Amount" = 200 FCY (= 100 LCY)
@@ -2620,7 +2714,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [FEATURE] [Purchase] [Rounding]
         // [SCENARIO 229966] Payment tolerance posting in case of LCY Payment to FCY Invoice, (Payment + Tolerance) = Invoice (-0.01 FCY cent is rounded to zero LCY),
         // [SCENARIO 229966] currency with Max. Payment Tolerance Amount and Exchange:Relational ratio > 1
-        Initialize;
+        Initialize();
 
         // [GIVEN] GLSetup."Max. Payment Tolerance Amount" = 200 LCY
         // [GIVEN] Currency "X" with Exchange:Relational ratio = 2, "Max. Payment Tolerance Amount" = 200 FCY (= 100 LCY)
@@ -2664,7 +2758,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [FEATURE] [Purchase]
         // [SCENARIO 229966] Payment posting in case of LCY Payment to FCY Invoice, (Payment + Tolerance) < Invoice,
         // [SCENARIO 229966] currency with Max. Payment Tolerance Amount and Exchange:Relational ratio > 1
-        Initialize;
+        Initialize();
 
         // [GIVEN] GLSetup."Max. Payment Tolerance Amount" = 200 LCY
         // [GIVEN] Currency "X" with Exchange:Relational ratio = 2, "Max. Payment Tolerance Amount" = 200 FCY (= 100 LCY)
@@ -2707,7 +2801,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [FEATURE] [Purchase]
         // [SCENARIO 229966] Payment tolerance posting in case of LCY Payment to FCY Invoice, (Payment + Tolerance) > Invoice,
         // [SCENARIO 229966] currency with Max. Payment Tolerance Amount and Exchange:Relational ratio > 1
-        Initialize;
+        Initialize();
 
         // [GIVEN] GLSetup."Max. Payment Tolerance Amount" = 200 LCY
         // [GIVEN] Currency "X" with Exchange:Relational ratio = 2, "Max. Payment Tolerance Amount" = 200 FCY (= 100 LCY)
@@ -2745,14 +2839,14 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // [FEATURE] [Sales] [UI]
         // [SCENARIO 265704] On "Customer Ledger Entry" Page if you Apply Document twice no Max Payment Tolerance errors occur.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set "Max Payment Tolerance Amount" = "MPT".
         MaxPaymtToleranceAmt := LibraryRandom.RandDec(100, 2);
         SetPmtToleranceWithMaxAmount(true, false, 0, MaxPaymtToleranceAmt);
 
         // [GIVEN] Create Customer.
-        CustNo := LibrarySales.CreateCustomerNo;
+        CustNo := LibrarySales.CreateCustomerNo();
 
         // [GIVEN] Posted Invoice with Amount = "A" > "MPT".
         // [GIVEN] Posted Payment with Amount "B" > "A" - "MPT" and < "A".
@@ -2779,14 +2873,14 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // [FEATURE] [Purchase] [UI]
         // [SCENARIO 265704] On "Vendor Ledger Entry" Page if you Apply Document twice no Max Payment Tolerance errors occur.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set "Max Payment Tolerance Amount" = "MPT".
         MaxPaymtToleranceAmt := LibraryRandom.RandDec(100, 2);
         SetPmtToleranceWithMaxAmount(true, false, 0, MaxPaymtToleranceAmt);
 
         // [GIVEN] Create Vendor.
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
 
         // [GIVEN] Posted Invoice with Amount = "A" > "MPT".
         // [GIVEN] Posted Payment with Amount "B" > "A" - "MPT" and < "A".
@@ -2813,7 +2907,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 267495] Payment Tolerance Warning page with option "Post the Balance", "Applied Amount" = "Remaining Amount" of Applies-to Document, Balance = 0.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice "SI1" with Amount = "A1".
         AppliesToDocAmount := CreateAndPostInvoiceOfGenJournalLineForCustomer(GenJournalLine, PaymentTerms);
@@ -2851,7 +2945,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 267495] Payment Tolerance Warning page with option "Leave Amount", "Applied Amount" = MIN("Remaining Amount", Applying Amount), Balance =  "Remaining Amount" + Applying Amount.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice "SI1" with Amount = "A1".
         AppliesToDocAmount := CreateAndPostInvoiceOfGenJournalLineForCustomer(GenJournalLine, PaymentTerms);
@@ -2889,7 +2983,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 267495] Payment Tolerance Warning page with option "Post the Balance", "Applied Amount" = "Remaining Amount" of Applies-to Document, Balance = 0.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice "PI1" with Amount = "A1".
         AppliesToDocAmount := CreateAndPostInvoiceOfGenJournalLineForVendor(GenJournalLine, PaymentTerms);
@@ -2927,7 +3021,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 267495] Payment Tolerance Warning page with option "Leave Amount", "Applied Amount" = MIN("Remaining Amount", Applying Amount), Balance =  "Remaining Amount" + Applying Amount.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice "PI1" with Amount = "A1".
         AppliesToDocAmount := CreateAndPostInvoiceOfGenJournalLineForVendor(GenJournalLine, PaymentTerms);
@@ -2963,7 +3057,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 267495] Payment Tolerance Warning page with "Post the Balance" when apply posted Customer Entries, "Applied Amount" = Applies-to Doc."Remaining Amount", Balance = 0.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with Amount = "A1", Posted Payment with Amount = "A2".
         // [GIVEN] Difference between ABS("A2") and ABS("A1") is less or equal than Payment Tolerance.
@@ -2993,7 +3087,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 267495] Payment Tolerance Warning page with "Leave Amount" when apply posted Customer Entries, "Applied Amount" = MIN("Remaining Amount", Applying Amount), Balance =  "Remaining Amount" + Applying Amount.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with Amount = "A1", Posted Payment with Amount = "A2".
         // [GIVEN] Difference between ABS("A2") and ABS("A1") is less or equal than Payment Tolerance.
@@ -3023,7 +3117,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 267495] Payment Tolerance Warning page with "Post the Balance" when apply posted Vendor Entries, "Applied Amount" = Applies-to Doc."Remaining Amount", Balance = 0.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with Amount = "A1", Posted Payment with Amount = "A2".
         // [GIVEN] Difference between ABS("A2") and ABS("A1") is less or equal than Payment Tolerance.
@@ -3053,7 +3147,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 267495] Payment Tolerance Warning page with "Leave Amount" when apply posted Vendor Entries, "Applied Amount" = MIN("Remaining Amount", Applying Amount), Balance =  "Remaining Amount" + Applying Amount.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with Amount = "A1", Posted Payment with Amount = "A2".
         // [GIVEN] Difference between ABS("A2") and ABS("A1") is less or equal than Payment Tolerance.
@@ -3084,7 +3178,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // [FEATURE] [Sales] [UI]
         // [SCENARIO 267495] Payment Discount Tolerance and Payment Tolerance Warning pages show customer name
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post invoice and create payment for customer with Name = "CUSTNAME"
         CustomerName := LibraryRandom.RandText(MaxStrLen(DummyCustomer.Name));
@@ -3111,7 +3205,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // [FEATURE] [Purchase] [UI]
         // [SCENARIO 267495] Payment Discount Tolerance and Payment Tolerance Warning pages show vendor name
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post invoice and create payment for vendor with Name = "VENDNAME"
         VendorName := LibraryRandom.RandText(MaxStrLen(DummyVendor.Name));
@@ -3138,7 +3232,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // [FEATURE] [Sales] [UI]
         // [SCENARIO 400306] Payment Discount Tolerance Warning is shown when Stan looks up "Applies-to Doc. No." for Customer when Amount of Gen. Journal Line is 0.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C1" with Payment Tolerance Discount setup
         SetupTolerancePmtDiscTolScenario(PaymentTerms);
@@ -3187,7 +3281,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 342795] Invoice below pmt. disc. tolerance has remaining amount when applied to payment with greater amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Pmt. Disc. Tolerance Warning, Payment Discount Warning turned on in General Ledger Setup
         // [GIVEN] Payment Discount Grace Period = 3D, Payment Terms with Discount % = 5, Payment Tolerance % = 10
@@ -3237,7 +3331,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 342795] Invoice has remaining amount when applied to payment with greater amount within grace period and do not accept warnings
-        Initialize;
+        Initialize();
 
         // [GIVEN] Pmt. Disc. Tolerance Warning, Payment Discount Warning turned on in General Ledger Setup
         // [GIVEN] Payment Discount Grace Period = 3D, Payment Terms with Discount % = 5, Payment Tolerance % = 10
@@ -3296,7 +3390,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 342795] Invoice has remaining amount when applied to payment with greater amount within grace period and do not accept warnings
-        Initialize;
+        Initialize();
 
         // [GIVEN] Pmt. Disc. Tolerance Warning, Payment Discount Warning turned on in General Ledger Setup
         // [GIVEN] Payment Discount Grace Period = 3D, Payment Terms with Discount % = 5, Payment Tolerance % = 10
@@ -3347,7 +3441,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 342795] Invoice has remaining amount when applied to payment with greater amount within grace period and do not accept warnings
-        Initialize;
+        Initialize();
 
         // [GIVEN] Pmt. Disc. Tolerance Warning, Payment Discount Warning turned on in General Ledger Setup
         // [GIVEN] Payment Discount Grace Period = 3D, Payment Terms with Discount % = 5, Payment Tolerance % = 10
@@ -3413,7 +3507,7 @@ codeunit 134022 "ERM Payment Tolerance"
         PostedSalesDocNo: Code[20];
     begin
         // [SCENARIO 401363] Posting Reconciliation with Currency and payment tolerance should not leave opened applied Document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency "C" with Payment Tolerance % = 1 and Max. Payment Tolerance Amount = 1
         Currency.Get(LibraryERM.CreateCurrencyWithRandomExchRates());
@@ -3481,7 +3575,7 @@ codeunit 134022 "ERM Payment Tolerance"
         PostedPurchDocNo: Code[20];
     begin
         // [SCENARIO 401363] Posting Reconciliation with Currency and payment tolerance should not leave opened applied Document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency "C" with Payment Tolerance % = 1 and Max. Payment Tolerance Amount = 1
         Currency.Get(LibraryERM.CreateCurrencyWithRandomExchRates());
@@ -3536,23 +3630,25 @@ codeunit 134022 "ERM Payment Tolerance"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Payment Tolerance");
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
         // Setup demo data.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Payment Tolerance");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
-        LibraryERMCountryData.UpdateAccountInVendorPostingGroups;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.RemoveBlankGenJournalTemplate;
+        LibraryERMCountryData.UpdateAccountInVendorPostingGroups();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.RemoveBlankGenJournalTemplate();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
         isInitialized := true;
         Commit();
-        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Payment Tolerance");
     end;
 
@@ -3595,7 +3691,7 @@ codeunit 134022 "ERM Payment Tolerance"
         LibraryERM.SetApplyCustomerEntry(CustLedgerEntry, AmountToApply);
         CustLedgerEntry2.SetRange("Document No.", DocumentNo);
         CustLedgerEntry2.SetRange("Customer No.", CustLedgerEntry."Customer No.");
-        CustLedgerEntry2.FindFirst;
+        CustLedgerEntry2.FindFirst();
         CustLedgerEntry2.CalcFields("Remaining Amount");
         CustLedgerEntry2.Validate("Amount to Apply", CustLedgerEntry2."Remaining Amount");
         CustLedgerEntry2.Modify(true);
@@ -3613,7 +3709,7 @@ codeunit 134022 "ERM Payment Tolerance"
         LibraryERM.SetApplyVendorEntry(VendorLedgerEntry, AmountToApply);
         VendorLedgerEntry2.SetRange("Document No.", DocumentNo);
         VendorLedgerEntry2.SetRange("Vendor No.", VendorLedgerEntry."Vendor No.");
-        VendorLedgerEntry2.FindFirst;
+        VendorLedgerEntry2.FindFirst();
         VendorLedgerEntry2.CalcFields("Remaining Amount");
         VendorLedgerEntry2.Validate("Amount to Apply", VendorLedgerEntry2."Remaining Amount");
         VendorLedgerEntry2.Modify(true);
@@ -3638,7 +3734,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // Apply Vendor Entries.
         VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
         VendorLedgerEntry.SetRange(Open, true);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.Validate("Applies-to ID", GenJournalLine."Document No.");
         VendorLedgerEntry.Validate("Amount to Apply", AmountToApply);
         VendorLedgerEntry.Modify(true);
@@ -3655,7 +3751,7 @@ codeunit 134022 "ERM Payment Tolerance"
         VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
         VendorLedgerEntry.SetRange(Open, true);
         VendorLedgerEntry.SetRange("Document Type", AppliestoDocType);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         GenJournalLine.Validate("Applies-to Doc. Type", AppliestoDocType);
         GenJournalLine.Validate("Applies-to Doc. No.", VendorLedgerEntry."Document No.");
         GenJournalLine.Validate(Amount, AmountToApply);
@@ -3891,7 +3987,7 @@ codeunit 134022 "ERM Payment Tolerance"
         SalesCreditMemoCopyDocument(SalesHeader, SalesLine."Sell-to Customer No.", DocumentNo);
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindLast;
+        SalesLine.FindLast();
         SalesLine.Validate("Unit Price", SalesLine."Unit Price" + LibraryRandom.RandDec(10, 2));
         SalesLine.Modify(true);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
@@ -3937,7 +4033,7 @@ codeunit 134022 "ERM Payment Tolerance"
 
     local procedure CreatePostCustomerInvoiceAndPayment(var CustomerNo: Code[20]; var InvoiceNo: Code[20]; var PaymentNo: Code[20]; CurrencyCode: Code[10]; InvoiceAmountFCY: Decimal; PaymentAmountLCY: Decimal; MaxPmtTolAmountFCY: Decimal)
     begin
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         InvoiceNo := CreatePostSalesInvoiceFromJournal(CustomerNo, CurrencyCode, InvoiceAmountFCY);
         PaymentNo := CreatePostCustomerPayment(CustomerNo, PaymentAmountLCY);
         VerifyCustomerInvoiceMaxPaymentToleranceAndRemAmount(CustomerNo, InvoiceNo, MaxPmtTolAmountFCY, InvoiceAmountFCY);
@@ -3945,7 +4041,7 @@ codeunit 134022 "ERM Payment Tolerance"
 
     local procedure CreatePostVendorInvoiceAndPayment(var VendorNo: Code[20]; var InvoiceNo: Code[20]; var PaymentNo: Code[20]; CurrencyCode: Code[10]; InvoiceAmountFCY: Decimal; PaymentAmountLCY: Decimal; MaxPmtTolAmountFCY: Decimal)
     begin
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         InvoiceNo := CreatePostPurchaseInvoiceFromJournal(VendorNo, CurrencyCode, InvoiceAmountFCY);
         PaymentNo := CreatePostVendorPayment(VendorNo, PaymentAmountLCY);
         VerifyVendorInvoiceMaxPaymentToleranceAndRemAmount(VendorNo, InvoiceNo, -MaxPmtTolAmountFCY, -InvoiceAmountFCY);
@@ -3984,7 +4080,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         PurchaseCreditMemoCopyDocument(PurchaseHeader, PurchaseLine."Buy-from Vendor No.", DocumentNo);
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindLast;
+        PurchaseLine.FindLast();
         PurchaseLine.Validate("Direct Unit Cost", PurchaseLine."Direct Unit Cost" + LibraryRandom.RandDec(10, 2));
         PurchaseLine.Modify(true);
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
@@ -4224,7 +4320,7 @@ codeunit 134022 "ERM Payment Tolerance"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::"Cash Receipts");
-        if not GenJournalTemplate.FindFirst then
+        if not GenJournalTemplate.FindFirst() then
             CreateGeneralJournalTemplate(GenJournalTemplate, GenJournalTemplate.Type::"Cash Receipts");
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
 
@@ -4274,7 +4370,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CrMemoAmount: Decimal;
         PmtAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms);
 
         InvAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
@@ -4311,7 +4407,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CrMemoAmount: Decimal;
         PmtAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms);
 
         InvAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
@@ -4348,7 +4444,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CrMemoAmount: Decimal;
         PmtAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms);
         PaymentTerms.Validate("Calc. Pmt. Disc. on Cr. Memos", true);
         PaymentTerms.Modify(true);
@@ -4376,7 +4472,7 @@ codeunit 134022 "ERM Payment Tolerance"
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
         VendLedgEntry.SetRange("Document No.", DocumentNo);
-        VendLedgEntry.FindLast;
+        VendLedgEntry.FindLast();
         VendLedgEntry.CalcFields("Remaining Amount");
         exit(VendLedgEntry."Remaining Amount" - VendLedgEntry."Max. Payment Tolerance");
     end;
@@ -4386,7 +4482,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
         CustLedgEntry.SetRange("Document No.", DocumentNo);
-        CustLedgEntry.FindLast;
+        CustLedgEntry.FindLast();
         CustLedgEntry.CalcFields("Remaining Amount");
         exit(CustLedgEntry."Remaining Amount" - CustLedgEntry."Max. Payment Tolerance");
     end;
@@ -4545,14 +4641,14 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         CustLedgEntry.SetRange("Document Type", DocType);
         CustLedgEntry.SetRange("Customer No.", CustNo);
-        CustLedgEntry.FindFirst;
+        CustLedgEntry.FindFirst();
     end;
 
     local procedure FindVendLedgEntry(var VendLedgEntry: Record "Vendor Ledger Entry"; DocType: Enum "Gen. Journal Document Type"; VendNo: Code[20])
     begin
         VendLedgEntry.SetRange("Document Type", DocType);
         VendLedgEntry.SetRange("Vendor No.", VendNo);
-        VendLedgEntry.FindFirst;
+        VendLedgEntry.FindFirst();
     end;
 
     local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GLAccountNo: Code[20])
@@ -4560,7 +4656,7 @@ codeunit 134022 "ERM Payment Tolerance"
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     local procedure GetTransNoFromUnappliedCustDtldEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]): Integer
@@ -4571,7 +4667,7 @@ codeunit 134022 "ERM Payment Tolerance"
             SetRange("Document Type", DocType);
             SetRange("Document No.", DocNo);
             SetRange(Unapplied, true);
-            FindLast;
+            FindLast();
             exit("Transaction No.");
         end;
     end;
@@ -4584,7 +4680,7 @@ codeunit 134022 "ERM Payment Tolerance"
             SetRange("Document Type", DocType);
             SetRange("Document No.", DocNo);
             SetRange(Unapplied, true);
-            FindLast;
+            FindLast();
             exit("Transaction No.");
         end;
     end;
@@ -4596,7 +4692,7 @@ codeunit 134022 "ERM Payment Tolerance"
         Clear(ChangePaymentTolerance);
         ChangePaymentTolerance.InitializeRequest(AllCurrency, CurrencyCode, PaymentTolerancePercent, MaxPaymentToleranceAmount);
         ChangePaymentTolerance.UseRequestPage(false);
-        ChangePaymentTolerance.Run;
+        ChangePaymentTolerance.Run();
     end;
 
     local procedure InvokeApplyEntriesWithPmtToleranceInGeneralJournalPage(TemplateName: Code[10]; BatchName: Code[10])
@@ -4695,14 +4791,14 @@ codeunit 134022 "ERM Payment Tolerance"
         GenPostingSetup: Record "General Posting Setup";
     begin
         GenPostingSetup.Get(GenBusPostGroupCode, GenProdPostGroupCode);
-        GenPostingSetup."Sales Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo;
-        GenPostingSetup."Sales Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo;
-        GenPostingSetup."Sales Pmt. Tol. Debit Acc." := LibraryERM.CreateGLAccountNo;
-        GenPostingSetup."Sales Pmt. Tol. Credit Acc." := LibraryERM.CreateGLAccountNo;
-        GenPostingSetup."Purch. Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo;
-        GenPostingSetup."Purch. Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo;
-        GenPostingSetup."Purch. Pmt. Tol. Debit Acc." := LibraryERM.CreateGLAccountNo;
-        GenPostingSetup."Purch. Pmt. Tol. Credit Acc." := LibraryERM.CreateGLAccountNo;
+        GenPostingSetup."Sales Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo();
+        GenPostingSetup."Sales Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo();
+        GenPostingSetup."Sales Pmt. Tol. Debit Acc." := LibraryERM.CreateGLAccountNo();
+        GenPostingSetup."Sales Pmt. Tol. Credit Acc." := LibraryERM.CreateGLAccountNo();
+        GenPostingSetup."Purch. Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo();
+        GenPostingSetup."Purch. Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo();
+        GenPostingSetup."Purch. Pmt. Tol. Debit Acc." := LibraryERM.CreateGLAccountNo();
+        GenPostingSetup."Purch. Pmt. Tol. Credit Acc." := LibraryERM.CreateGLAccountNo();
         GenPostingSetup.Modify(true);
     end;
 
@@ -4711,7 +4807,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", 1);
         CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", 1);
         CurrencyExchangeRate.Modify(true);
@@ -4801,7 +4897,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.CalcFields("Remaining Amount");
         Assert.AreNearlyEqual(RemainingAmount, VendorLedgerEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(

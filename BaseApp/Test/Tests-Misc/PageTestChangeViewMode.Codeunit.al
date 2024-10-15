@@ -31,7 +31,7 @@ codeunit 137812 PageTestChangeViewMode
     var
         SalesOrderStatistics: TestPage "Sales Order Statistics";
     begin
-        Initialize;
+        Initialize();
         SalesOrderStatistics.OpenView;
 
         Assert.IsFalse(SalesOrderStatistics.InvDiscountAmount_General.Editable, 'Field should not be editable in View');
@@ -63,7 +63,7 @@ codeunit 137812 PageTestChangeViewMode
     var
         CompanyInformation: TestPage "Company Information";
     begin
-        Initialize;
+        Initialize();
         CompanyInformation.OpenView;
         Assert.IsFalse(CompanyInformation."System Indicator Text".Editable, 'Field should not be editable in View');
 
@@ -83,7 +83,7 @@ codeunit 137812 PageTestChangeViewMode
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        Initialize;
+        Initialize();
         SalesOrder.OpenView;
         Assert.IsFalse(SalesOrder.SalesLines.Editable, 'Field should not be editable in View');
 

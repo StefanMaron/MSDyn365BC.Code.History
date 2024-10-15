@@ -92,7 +92,7 @@ codeunit 144023 "SE Feature Bugs"
         // Test to verify Amount on Issued Fin. Charge Memo Statistics page after issue Finance Charge Memo.
 
         // Setup: Create and post Sales Order. Create Finance Charge Memos.
-        Initialize;
+        Initialize();
         CreateFinanceChargeTerms(FinanceChargeTerms);
         CustomerNo := CreateCustomerWithFinanceChargeTerms(FinanceChargeTerms.Code);
         DocumentNo := CreateAndPostSalesOrder(CustomerNo);
@@ -121,7 +121,7 @@ codeunit 144023 "SE Feature Bugs"
     begin
         // [FEATURE] [SIE Import/Export]
         // [SCENARIO 363105] SIE Export writes GLEntry's posting date to #TRANS  section
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post General Journal Line with Date = "D", GLAccount "ACC", Amount = "AMT"
         CreatePostGenJnlLineWithBalAcc(GenJournalLine);
@@ -150,7 +150,7 @@ codeunit 144023 "SE Feature Bugs"
     begin
         // [FEATURE] [SIE Export]
         // [SCENARIO 378125] SIE Export writes accounting period ending date to #RAR section
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create fiscal year with period less than calendar year
         CreateNextFiscalYear(LibraryRandom.RandIntInRange(5, 10), StartDate, EndDate);
@@ -176,7 +176,7 @@ codeunit 144023 "SE Feature Bugs"
     begin
         // [FEATURE] [SIE Export]
         // [SCENARIO 378125] SIE Export writes previous accounting period ending date to #RAR section
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create 2 fiscal years with period less than calendar year
         CreateNextFiscalYear(LibraryRandom.RandIntInRange(5, 10), PrevFYStartDate, PrevFYEndDate);
@@ -203,7 +203,7 @@ codeunit 144023 "SE Feature Bugs"
     begin
         // [FEATURE] [SIE Import/Export]
         // [SCENARIO 309471] SIE Import validates VAT and Posting fields from GLAccount posted in documents having spaces in No.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post General Journal Line with GLAccount "Acc"
         CreatePostGenJnlLineWithBalAcc(GenJournalLine);
@@ -225,7 +225,7 @@ codeunit 144023 "SE Feature Bugs"
         Commit();
         SIEImport.UseRequestPage(true);
         SIEImport.InitializeRequest(FileName);
-        SIEImport.RunModal;
+        SIEImport.RunModal();
 
         // [THEN] VAT and Posting fields on imported Gen. Journal Line are the same as on GLAccount
         VerifyImportedGenJnlLine(GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Account No.");
@@ -275,7 +275,7 @@ codeunit 144023 "SE Feature Bugs"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure AddLineWithEmptyKONTONoAndName(FileName: Text)
@@ -300,10 +300,10 @@ codeunit 144023 "SE Feature Bugs"
         DaysOverdue: Integer;
     begin
         IssuedFinChargeMemoHeader.SetRange("Customer No.", CustomerNo);
-        IssuedFinChargeMemoHeader.FindFirst;
+        IssuedFinChargeMemoHeader.FindFirst();
         IssuedFinChargeMemoLine.SetRange("Finance Charge Memo No.", IssuedFinChargeMemoHeader."No.");
         IssuedFinChargeMemoLine.SetRange("Document No.", DocumentNo);
-        IssuedFinChargeMemoLine.FindFirst;
+        IssuedFinChargeMemoLine.FindFirst();
         DaysOverdue := IssuedFinChargeMemoHeader."Due Date" - IssuedFinChargeMemoLine."Due Date";
         FinanceChargeMemoAmount :=
           Round(IssuedFinChargeMemoLine."Remaining Amount" * (DaysOverdue / InterestPeriod) *
@@ -316,7 +316,7 @@ codeunit 144023 "SE Feature Bugs"
     begin
         REPORT.Run(REPORT::"Create Finance Charge Memos");  // Opens CreateFinanceChargeMemosRequestPageHandler.
         FinanceChargeMemoHeader.SetRange("Customer No.", CustomerNo);
-        FinanceChargeMemoHeader.FindFirst;
+        FinanceChargeMemoHeader.FindFirst();
         LibraryERM.IssueFinanceChargeMemo(FinanceChargeMemoHeader);
     end;
 
@@ -393,7 +393,7 @@ codeunit 144023 "SE Feature Bugs"
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount.Validate("Gen. Prod. Posting Group", GenProductPostingGroup.Code);
         VATPostingSetup.SetFilter("VAT Calculation Type", '<>%1', VATPostingSetup."VAT Calculation Type"::"Full VAT");
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
         GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         GLAccount.Modify(true);
         exit(GLAccount."No.");
@@ -425,7 +425,7 @@ codeunit 144023 "SE Feature Bugs"
         Evaluate(PeriodLength, '<1M>');
         CreateFiscalYear.InitializeRequest(NumberOfMonth, PeriodLength, StartDate);
         CreateFiscalYear.UseRequestPage(false);
-        CreateFiscalYear.Run;
+        CreateFiscalYear.Run();
 
         EndDate := AccountingPeriod.GetFiscalYearEndDate(StartDate);
     end;
@@ -448,7 +448,7 @@ codeunit 144023 "SE Feature Bugs"
         AccountingPeriod: Record "Accounting Period";
     begin
         AccountingPeriod.SetRange("New Fiscal Year", true);
-        if AccountingPeriod.FindLast then
+        if AccountingPeriod.FindLast() then
             exit(AccountingPeriod."Starting Date");
 
         exit(CalcDate('<-CY>', WorkDate));
@@ -474,7 +474,7 @@ codeunit 144023 "SE Feature Bugs"
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
         SuggestVendorPayments.SetTableView(Vendor);
         Commit();  // Commit Required.
-        SuggestVendorPayments.Run;
+        SuggestVendorPayments.Run();
     end;
 
     local procedure RunSIEExport(GLAccountNo: Code[20]; StartDate: Date; EndDate: Date) FileName: Text
@@ -489,7 +489,7 @@ codeunit 144023 "SE Feature Bugs"
         SIEExport.UseRequestPage(true);
         SIEExport.SetTableView(GLAccount);
         SIEExport.InitializeRequest(FileName);
-        SIEExport.RunModal;
+        SIEExport.RunModal();
     end;
 
     local procedure RunSIEImport(FileName: Text)
@@ -508,7 +508,7 @@ codeunit 144023 "SE Feature Bugs"
         Vendor: Record Vendor;
     begin
         // Setup: Create and post Purchase Invoice and Purchase Credit Memo.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         LibraryERM.CreatePaymentTerms(PaymentTerms);
         CreateAndPostPurchaseDocument(
@@ -540,7 +540,7 @@ codeunit 144023 "SE Feature Bugs"
     begin
         GenJournalLine.SetRange("Applies-to Doc. Type", AppliesToDocType);
         GenJournalLine.SetRange("Account No.", AccountNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLine.TestField(Amount, Amount);
     end;
 
@@ -575,7 +575,7 @@ codeunit 144023 "SE Feature Bugs"
         GenJournalLine.SetRange("Journal Template Name", GenJournalTemplateName);
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatchName);
         GenJournalLine.SetRange("Account No.", GLAccount."No.");
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLine.TestField("Gen. Posting Type", GLAccount."Gen. Posting Type");
         GenJournalLine.TestField("Gen. Bus. Posting Group", GLAccount."Gen. Bus. Posting Group");
         GenJournalLine.TestField("Gen. Prod. Posting Group", GLAccount."Gen. Prod. Posting Group");

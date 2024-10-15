@@ -435,7 +435,7 @@ report 5970 "Service Contract"
     trigger OnPostReport()
     begin
         if LogInteraction and not IsReportInPreviewMode then
-            if "Service Contract Header".FindSet then
+            if "Service Contract Header".FindSet() then
                 repeat
                     if "Service Contract Header"."Contact No." <> '' then
                         SegManagement.LogDocument(23, "Service Contract Header"."Contract No.", 0, 0, DATABASE::Contact,

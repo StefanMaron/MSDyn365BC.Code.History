@@ -78,7 +78,7 @@ codeunit 144001 EU3Trade
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         // Find Posted Sales Invoice
-        SalesInvoiceHeader.FindLast;
+        SalesInvoiceHeader.FindLast();
 
         // Check that posted Sales Invoice has correct "EU 3-Party Trade"
         SalesInvoiceHeader.TestField("EU 3-Party Trade", EU3Trade);

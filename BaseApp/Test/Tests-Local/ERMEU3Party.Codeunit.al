@@ -136,7 +136,7 @@ codeunit 144003 "ERM EU 3-Party"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseHeader(PurchaseHeader, DocumentType, EUThirdPartyTrade, '');  // Blank for Customer No.
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(10, 2));  // Take random Quantity.
@@ -214,7 +214,7 @@ codeunit 144003 "ERM EU 3-Party"
         SalesLine: Record "Sales Line";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         SalesHeader.Validate("EU 3-Party Trade", EUThirdPartyTradeSales);
@@ -232,7 +232,7 @@ codeunit 144003 "ERM EU 3-Party"
         // Verify.
         PurchaseHeader.TestField("EU 3-Party Trade", EUThirdPartyTrade);
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.TestField("No.", SalesLine."No.");
         PurchaseLine.TestField(Quantity, SalesLine.Quantity);
     end;
@@ -275,7 +275,7 @@ codeunit 144003 "ERM EU 3-Party"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateSalesDocument(SalesHeader, DocumentType, Customer."No.", LibraryInventory.CreateItem(Item), '', EUThirdPartyTrade);  // Using Blank for Currency Code.
 
@@ -310,7 +310,7 @@ codeunit 144003 "ERM EU 3-Party"
         SalesHeader: Record "Sales Header";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateSalesDocument(
           SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.", LibraryInventory.CreateItem(Item), '', EUThirdPartyTrade);  // Using Blank for Currency Code.
@@ -358,7 +358,7 @@ codeunit 144003 "ERM EU 3-Party"
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateServiceDocument(ServiceHeader, DocumentType, EUThirdPartyTrade);
 
         // Exercise.
@@ -366,7 +366,7 @@ codeunit 144003 "ERM EU 3-Party"
 
         // Verify.
         ServiceInvoiceHeader.SetRange("Customer No.", ServiceHeader."Customer No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceHeader.TestField("EU 3-Party Trade", EUThirdPartyTrade);
     end;
 
@@ -396,7 +396,7 @@ codeunit 144003 "ERM EU 3-Party"
         ServiceHeader: Record "Service Header";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateServiceCreditMemo(ServiceHeader, DocumentType, EUThirdPartyTrade);
 
         // Exercise.
@@ -404,7 +404,7 @@ codeunit 144003 "ERM EU 3-Party"
 
         // Verify.
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", ServiceHeader."No.");
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         ServiceCrMemoHeader.TestField("EU 3-Party Trade", EUThirdPartyTrade);
     end;
 
@@ -416,7 +416,7 @@ codeunit 144003 "ERM EU 3-Party"
         // Test to verify Amount on VAT Statement Preview page for Purchase Invoice with EUThirdPartyTrade and without Currency.
 
         // Setup.
-        Initialize;
+        Initialize();
         VATStatementPreviewForPurchaseInvoiceWithEUThirdPartyTrade('');  // Using Blank for Currency Code.
     end;
 
@@ -430,7 +430,7 @@ codeunit 144003 "ERM EU 3-Party"
         // Test to verify Amount on VAT Statement Preview page for Purchase Invoice with EUThirdPartyTrade and Currency.
 
         // Setup: Create Currency with Exchange rate and update Additional Reporting Currency on General Ledger Setup.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyWithExchangeRate;
         UpdateAdditionalReportingCurrOnGeneralLedgerSetup(CurrencyCode);
         VATStatementPreviewForPurchaseInvoiceWithEUThirdPartyTrade(CurrencyCode);
@@ -474,7 +474,7 @@ codeunit 144003 "ERM EU 3-Party"
         // Test to verify Amount on VAT Statement Preview page for Sales Invoice with EUThirdPartyTrade and without Currency.
 
         // Setup.
-        Initialize;
+        Initialize();
         VATStatementPreviewForSalesInvoiceWithEUThirdPartyTrade('');  // Using Blank for Currency Code.
     end;
 
@@ -488,7 +488,7 @@ codeunit 144003 "ERM EU 3-Party"
         // Test to verify Amount on VAT Statement Preview page for Sales Invoice with EUThirdPartyTrade and Currency.
 
         // Setup: Create Currency with Exchange rate and update Additional Reporting Currency on General Ledger Setup.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyWithExchangeRate;
         UpdateAdditionalReportingCurrOnGeneralLedgerSetup(CurrencyCode);
         VATStatementPreviewForSalesInvoiceWithEUThirdPartyTrade(CurrencyCode);
@@ -541,7 +541,7 @@ codeunit 144003 "ERM EU 3-Party"
         // Test to verify Total Amount on VAT Statement report with EUThirdPartyTrade.
 
         // Setup: Create and Post Sales Invoice with EUThirdPartyTrade. Create VAT Statement Line.
-        Initialize;
+        Initialize();
         CreateVATPostingSetup(VATPostingSetup, false);
         CreateAndPostSalesInvoice(
           SalesLine, CreateCustomer(VATPostingSetup."VAT Bus. Posting Group"), '', VATPostingSetup."VAT Prod. Posting Group", true);  // Using Blank for Currency Code and True for EUThirdPartyTrade.
@@ -590,7 +590,7 @@ codeunit 144003 "ERM EU 3-Party"
         OldInvoiceRounding: Boolean;
     begin
         // Setup: Create Customer with VAT Registration No. Create a Sales Invoice with EUThirdParty Trade.
-        Initialize;
+        Initialize();
         OldInvoiceRounding := UpdateSalesReceivablesSetup(false);  // False for Invoice Rounding.
         CurrencyCode := CreateCurrencyWithExchangeRate;
         OldAdditionalReportingCurrency := UpdateAdditionalReportingCurrOnGeneralLedgerSetup(CurrencyCode);
@@ -621,7 +621,7 @@ codeunit 144003 "ERM EU 3-Party"
     begin
         // [FEATURE] [Purchase] [VAT]
         // [SCENARIO 225986] VAT Entry EU Third Party is TRUE if Posted Purchase Invoice EU Third Party is TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice "PI" with EU Third Party = TRUE
         // [WHEN] Post "PI"
@@ -639,7 +639,7 @@ codeunit 144003 "ERM EU 3-Party"
     begin
         // [FEATURE] [Purchase] [VAT]
         // [SCENARIO 225986] VAT Entry EU Third Party is FALSE if Posted Purchase Invoice EU Third Party is FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice "PI" with EU Third Party = FALSE
         // [WHEN] Post "PI"
@@ -650,7 +650,7 @@ codeunit 144003 "ERM EU 3-Party"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateAndPostPurchaseInvoice(var PurchaseLine: Record "Purchase Line"; CurrencyCode: Code[10])
@@ -679,7 +679,7 @@ codeunit 144003 "ERM EU 3-Party"
           SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo, CreateItem(VATProdPostingGroup), CurrencyCode, EUThirdPartyTrade);
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);  // Post as Ship and Invoice.
@@ -728,7 +728,7 @@ codeunit 144003 "ERM EU 3-Party"
         CountryRegion.Validate("EU Country/Region Code", CountryRegion.Code);
         CountryRegion.Modify(true);
         LibraryERM.CreateVATRegistrationNoFormat(VATRegistrationNoFormat, CountryRegion.Code);
-        VATRegistrationNoFormat.Validate(Format, CountryRegion.Code + LibraryUtility.GenerateGUID);
+        VATRegistrationNoFormat.Validate(Format, CountryRegion.Code + LibraryUtility.GenerateGUID());
         VATRegistrationNoFormat.Modify(true);
         Customer.Get(CreateCustomer(VATBusPostingGroup));
         Customer.Validate("Country/Region Code", CountryRegion.Code);
@@ -849,7 +849,7 @@ codeunit 144003 "ERM EU 3-Party"
         Purchasing: Record Purchasing;
     begin
         Purchasing.SetRange("Drop Shipment", true);
-        Purchasing.FindFirst;
+        Purchasing.FindFirst();
         exit(Purchasing.Code);
     end;
 
@@ -889,7 +889,7 @@ codeunit 144003 "ERM EU 3-Party"
     begin
         with VATEntry do begin
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             TestField("EU 3-Party Trade", EUThirdPartyTrade);
         end;
     end;

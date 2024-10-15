@@ -81,7 +81,7 @@ codeunit 139176 "CRM Statistics FactBox Test"
         HostPageName: Option CustomerCard,CustomerList,MiniCustomerCard,MiniCustomerList;
     begin
         // [FEATURE] [Customer List] [Case]
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         OpenCRMCasesFromCRMStatisticsFactBox(HostPageName::CustomerList);
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
@@ -93,7 +93,7 @@ codeunit 139176 "CRM Statistics FactBox Test"
         HostPageName: Option CustomerCard,CustomerList,MiniCustomerCard,MiniCustomerList;
     begin
         // [FEATURE] [Customer List] [Opportunity]
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         OpenCRMOpportunitiesFromCRMStatisticsFactBox(HostPageName::CustomerList);
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
@@ -105,7 +105,7 @@ codeunit 139176 "CRM Statistics FactBox Test"
         HostPageName: Option CustomerCard,CustomerList,MiniCustomerCard,MiniCustomerList;
     begin
         // [FEATURE] [Customer List] [Quote]
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         OpenCRMQuotesFromCRMStatisticsFactBox(HostPageName::CustomerList);
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
@@ -117,7 +117,7 @@ codeunit 139176 "CRM Statistics FactBox Test"
         HostPageName: Option CustomerCard,CustomerList,MiniCustomerCard,MiniCustomerList;
     begin
         // [FEATURE] [Customer Card] [Case]
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         OpenCRMCasesFromCRMStatisticsFactBox(HostPageName::CustomerCard);
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
@@ -129,7 +129,7 @@ codeunit 139176 "CRM Statistics FactBox Test"
         HostPageName: Option CustomerCard,CustomerList,MiniCustomerCard,MiniCustomerList;
     begin
         // [FEATURE] [Customer Card] [Opportunity]
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         OpenCRMOpportunitiesFromCRMStatisticsFactBox(HostPageName::CustomerCard);
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
@@ -141,7 +141,7 @@ codeunit 139176 "CRM Statistics FactBox Test"
         HostPageName: Option CustomerCard,CustomerList,MiniCustomerCard,MiniCustomerList;
     begin
         // [FEATURE] [Customer Card] [Quote]
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         OpenCRMQuotesFromCRMStatisticsFactBox(HostPageName::CustomerCard);
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
@@ -173,7 +173,7 @@ codeunit 139176 "CRM Statistics FactBox Test"
         HostPageName: Option CustomerCard,CustomerList,MiniCustomerCard,MiniCustomerList;
     begin
         // [FEATURE] [Customer Card]
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         CRMStatisticsFactBoxNotVisibleOnHostPage(HostPageName::CustomerCard);
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
@@ -185,7 +185,7 @@ codeunit 139176 "CRM Statistics FactBox Test"
         HostPageName: Option CustomerCard,CustomerList,MiniCustomerCard,MiniCustomerList;
     begin
         // [FEATURE] [Customer List]
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         CRMStatisticsFactBoxNotVisibleOnHostPage(HostPageName::CustomerList);
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
@@ -217,7 +217,7 @@ codeunit 139176 "CRM Statistics FactBox Test"
         HostPageName: Option CustomerCard,CustomerList,MiniCustomerCard,MiniCustomerList;
     begin
         // [FEATURE] [Customer Card]
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         CRMStatisticsFactBoxNotVisibleWhenCRMDisabled(HostPageName::CustomerCard);
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
@@ -229,7 +229,7 @@ codeunit 139176 "CRM Statistics FactBox Test"
         HostPageName: Option CustomerCard,CustomerList,MiniCustomerCard,MiniCustomerList;
     begin
         // [FEATURE] [Customer List]
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         CRMStatisticsFactBoxNotVisibleWhenCRMDisabled(HostPageName::CustomerList);
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;

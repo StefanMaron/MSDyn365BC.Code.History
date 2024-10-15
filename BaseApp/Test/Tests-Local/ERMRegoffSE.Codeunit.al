@@ -56,7 +56,7 @@ codeunit 144050 "ERM Regoff SE"
         // Check that Registered Office fields on Company Information exists.
 
         // Setup.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
 
         // Exercise.
@@ -92,7 +92,7 @@ codeunit 144050 "ERM Regoff SE"
         CompanyInformation: Record "Company Information";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
 
         // Exercise.
@@ -114,7 +114,7 @@ codeunit 144050 "ERM Regoff SE"
         // Verify that Registered Office field on Company Information exists and cannot accept input of length > 20.
 
         // Setup.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         RegisteredOffice := LibraryUTUtility.GetNewCode + NumberValue;  // Assign Registered Office value more than field length.
         TextCount := StrLen(RegisteredOffice);
@@ -146,7 +146,7 @@ codeunit 144050 "ERM Regoff SE"
         SalesHeader: Record "Sales Header";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         CreateSalesDocument(SalesHeader, DocumentType);
 
@@ -179,10 +179,10 @@ codeunit 144050 "ERM Regoff SE"
         SalesHeader: Record "Sales Header";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         CreateSalesDocument(SalesHeader, DocumentType);
-        UpdateCompanyInformation(CompanyInformation, LibraryUtility.GenerateGUID);
+        UpdateCompanyInformation(CompanyInformation, LibraryUtility.GenerateGUID());
 
         // Exercise.
         RunSalesReport(SalesHeader."Document Type", SalesHeader."No.", ReportID);
@@ -220,10 +220,10 @@ codeunit 144050 "ERM Regoff SE"
         DocumentNo: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         CreateSalesDocument(SalesHeader, DocumentType);
-        UpdateCompanyInformation(CompanyInformation, LibraryUtility.GenerateGUID);
+        UpdateCompanyInformation(CompanyInformation, LibraryUtility.GenerateGUID());
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Exercise.
@@ -245,7 +245,7 @@ codeunit 144050 "ERM Regoff SE"
     begin
         // [FEATURE] [Standard Import Export] [Dimensions]
         // [SCENARIO 381234] Changing of Shortcut dimension updates ShortCutDimNo in SIE Dimension
-        Initialize;
+        Initialize();
 
         // [GIVEN] SIE Dimension "D" not linked to any Shortcut Dimension
         LibraryDimension.CreateDimension(Dimension);
@@ -273,7 +273,7 @@ codeunit 144050 "ERM Regoff SE"
     begin
         // [FEATURE] [Standard Import Export] [Dimensions]
         // [SCENARIO 381234] Deleting of Shortcut dimension clears ShortCutDimNo in SIE Dimension to 0
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut Dimension 4 has value dimension "D"
         LibraryDimension.CreateDimension(Dimension);
@@ -307,7 +307,7 @@ codeunit 144050 "ERM Regoff SE"
     begin
         // [FEATURE] [Standard Import Export] [Dimensions]
         // [SCENARIO 381234] Replacing of Shortcut dimension updates ShortCutDimNo in SIE Dimension
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut Dimension 5 has dimension "D1"
         LibraryDimension.CreateDimension(Dimension1);
@@ -340,7 +340,7 @@ codeunit 144050 "ERM Regoff SE"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;

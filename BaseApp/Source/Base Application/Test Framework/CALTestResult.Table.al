@@ -153,7 +153,7 @@ table 130405 "CAL Test Result"
     var
         CALTestResult: Record "CAL Test Result";
     begin
-        if CALTestResult.FindLast then
+        if CALTestResult.FindLast() then
             exit(CALTestResult."No." + 1);
         exit(1);
     end;
@@ -168,7 +168,7 @@ table 130405 "CAL Test Result"
     procedure LastTestRunNo(): Integer
     begin
         SetCurrentKey("Test Run No.", "Codeunit ID", "Function Name", Platform);
-        if FindLast then;
+        if FindLast() then;
         exit("Test Run No.");
     end;
 
@@ -178,7 +178,7 @@ table 130405 "CAL Test Result"
     begin
         AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Codeunit);
         AllObjWithCaption.SetRange("Object ID", "Codeunit ID");
-        if AllObjWithCaption.FindFirst then
+        if AllObjWithCaption.FindFirst() then
             "Codeunit Name" := AllObjWithCaption."Object Name";
     end;
 }

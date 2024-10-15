@@ -45,7 +45,7 @@ codeunit 139177 "Navigate to CRM from NAV Test"
         HostPageName: Option CustomerCard,CustomerList,MiniCustomerCard,MiniCustomerList;
     begin
         // [FEATURE] [Customer Card]
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         NavigateToCRMAccountHyperlinkFromNAV(HostPageName::CustomerCard);
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
@@ -58,7 +58,7 @@ codeunit 139177 "Navigate to CRM from NAV Test"
         HostPageName: Option CustomerCard,CustomerList,MiniCustomerCard,MiniCustomerList;
     begin
         // [FEATURE] [Customer List]
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         NavigateToCRMAccountHyperlinkFromNAV(HostPageName::CustomerList);
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
@@ -97,7 +97,7 @@ codeunit 139177 "Navigate to CRM from NAV Test"
     begin
         // [FEATURE] [Case]
         // [SCENARIO] Navigate to CRM Case hyperlink from NAV CRM Cases page
-        Initialize;
+        Initialize();
 
         // [GIVEN] CRM is enabled, coupled customer and account with one CRM Case exist
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
@@ -125,7 +125,7 @@ codeunit 139177 "Navigate to CRM from NAV Test"
     begin
         // [FEATURE] [Opportunity]
         // [SCENARIO] Navigate to CRM Opportunity hyperlink from NAV CRM Opportunities page
-        Initialize;
+        Initialize();
 
         // [GIVEN] CRM is enabled, coupled customer and account with one CRM Opportunity exist
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
@@ -153,7 +153,7 @@ codeunit 139177 "Navigate to CRM from NAV Test"
     begin
         // [FEATURE] [Quote]
         // [SCENARIO] Navigate to CRM Quote hyperlink from NAV CRM Quotes page
-        Initialize;
+        Initialize();
 
         // [GIVEN] CRM is enabled, coupled customer and account with one CRM Quote exist
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
@@ -179,7 +179,7 @@ codeunit 139177 "Navigate to CRM from NAV Test"
     begin
         // [FEATURE] [Sales Order]
         // [SCENARIO] Navigate to CRM Sales Order hyperlink from NAV CRM Sales Order page
-        Initialize;
+        Initialize();
 
         // [GIVEN] CRM is enabled, a record exists in table CRM Salesorder
         LibraryCRMIntegration.CreateCRMSalesOrder(CRMSalesorder);
@@ -205,7 +205,7 @@ codeunit 139177 "Navigate to CRM from NAV Test"
         CRMAccount: Record "CRM Account";
     begin
         // Navigate to CRM Account hyperlink from NAV pages
-        Initialize;
+        Initialize();
 
         // [GIVEN] CRM is enabled, coupled customer and account exist
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
@@ -224,7 +224,7 @@ codeunit 139177 "Navigate to CRM from NAV Test"
         CRMTransactioncurrency: Record "CRM Transactioncurrency";
     begin
         // Navigate to CRM Transaction Currency hyperlink from NAV pages
-        Initialize;
+        Initialize();
 
         // [GIVEN] CRM is enabled, a coupled NAV Currency and CRM TransactionCurrency exists
         LibraryCRMIntegration.CreateCoupledCurrencyAndTransactionCurrency(Currency, CRMTransactioncurrency);

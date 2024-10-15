@@ -28,7 +28,7 @@ codeunit 132201 "Library - Inventory"
         CalculateInventory.SetTableView(Item);
         CalculateInventory.SetItemJnlLine(ItemJournalLine);
         CalculateInventory.InitializeRequest(PostingDate, ItemJournalLine."Document No.", ItemsNotOnInvt, ItemsWithNoTransactions);
-        CalculateInventory.Run;
+        CalculateInventory.Run();
     end;
 
     procedure CalculateInventoryForSingleItem(ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; PostingDate: Date; ItemsNotOnInvt: Boolean; ItemsWithNoTransactions: Boolean)
@@ -228,7 +228,7 @@ codeunit 132201 "Library - Inventory"
         CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", '', 1);
         LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
 
-        if not InventoryPostingGroup.FindFirst then
+        if not InventoryPostingGroup.FindFirst() then
             CreateInventoryPostingGroup(InventoryPostingGroup);
 
         Item.Validate(Description, Item."No.");  // Validation Description as No. because value is not important.
@@ -236,7 +236,7 @@ codeunit 132201 "Library - Inventory"
         Item.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
         Item.Validate("Inventory Posting Group", InventoryPostingGroup.Code);
 
-        if TaxGroup.FindFirst then
+        if TaxGroup.FindFirst() then
             Item.Validate("Tax Group Code", TaxGroup.Code);
 
         Item.Modify(true);
@@ -429,11 +429,11 @@ codeunit 132201 "Library - Inventory"
     begin
         LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
         LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
-        InventoryPostingGroup.FindFirst;
+        InventoryPostingGroup.FindFirst();
 
         ItemTemplate.Init();
         ItemTemplate.Validate(Code, LibraryUtility.GenerateRandomCode(ItemTemplate.FieldNo(Code), DATABASE::"Item Template"));
-        ItemTemplate.Validate("Template Name", LibraryUtility.GenerateGUID);
+        ItemTemplate.Validate("Template Name", LibraryUtility.GenerateGUID());
         ItemTemplate.Insert(true);
         ItemTemplate.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
         ItemTemplate.Validate("Inventory Posting Group", InventoryPostingGroup.Code);
@@ -685,7 +685,7 @@ codeunit 132201 "Library - Inventory"
 
         LibraryERM.FindGeneralPostingSetupInvtToGL(GeneralPostingSetup);
         LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
-        InventoryPostingGroup.FindFirst;
+        InventoryPostingGroup.FindFirst();
 
         Item.Validate(Description, Item."No.");  // Validation Description as No. because value is not important.
         Item.Validate("Base Unit of Measure", ItemUnitOfMeasure.Code);
@@ -693,7 +693,7 @@ codeunit 132201 "Library - Inventory"
         Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         Item.Validate("Inventory Posting Group", InventoryPostingGroup.Code);
 
-        if TaxGroup.FindFirst then
+        if TaxGroup.FindFirst() then
             Item.Validate("Tax Group Code", TaxGroup.Code);
 
         Item.Modify(true);
@@ -723,7 +723,7 @@ codeunit 132201 "Library - Inventory"
         // The IF condition is important because it grants flexibility to the function.
         if UnitOfMeasureCode = '' then begin
             UnitOfMeasure.SetFilter(Code, '<>%1', UnitOfMeasureCode);
-            UnitOfMeasure.FindFirst;
+            UnitOfMeasure.FindFirst();
             ItemUnitOfMeasure.Validate(Code, UnitOfMeasure.Code);
         end else
             ItemUnitOfMeasure.Validate(Code, UnitOfMeasureCode);
@@ -785,9 +785,9 @@ codeunit 132201 "Library - Inventory"
         UnitOfMeasure: Record "Unit of Measure";
         CatalogItemManagement: Codeunit "Catalog Item Management";
     begin
-        ItemCategory.FindFirst;
+        ItemCategory.FindFirst();
         CreateUnitOfMeasureCode(UnitOfMeasure);
-        ItemTemplate.FindFirst;
+        ItemTemplate.FindFirst();
 
         CreateNonStock(NonstockItem);
         NonstockItem.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
@@ -806,7 +806,7 @@ codeunit 132201 "Library - Inventory"
         UnitOfMeasure: Record "Unit of Measure";
         CatalogItemManagement: Codeunit "Catalog Item Management";
     begin
-        ItemCategory.FindFirst;
+        ItemCategory.FindFirst();
         CreateUnitOfMeasureCode(UnitOfMeasure);
 
         CreateNonStock(NonstockItem);
@@ -849,7 +849,7 @@ codeunit 132201 "Library - Inventory"
 
         CreateStockkeepingUnit.SetTableView(TmpItem);
         CreateStockkeepingUnit.UseRequestPage(false);
-        CreateStockkeepingUnit.Run;
+        CreateStockkeepingUnit.Run();
     end;
 
     procedure CreateStockkeepingUnitForLocationAndVariant(var StockkeepingUnit: Record "Stockkeeping Unit"; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10])
@@ -1033,7 +1033,7 @@ codeunit 132201 "Library - Inventory"
     begin
         Clear(PhysInvtCountManagement);
         PhysInvtCountManagement.InitFromItemJnl(ItemJournalLine);
-        PhysInvtCountManagement.Run;
+        PhysInvtCountManagement.Run();
     end;
 
     procedure DateComprItemBudgetEntries(var ItemBudgetEntry: Record "Item Budget Entry"; AnalysisAreaSelection: Option; StartDate: Date; EndDate: Date; PeriodLength: Option; Description: Text[50])
@@ -1055,7 +1055,7 @@ codeunit 132201 "Library - Inventory"
         DateCompItemBudgetEntries.SetTableView(TmpItemBudgetEntry);
         DateCompItemBudgetEntries.SetSkipAnalysisViewUpdateCheck();
         DateCompItemBudgetEntries.UseRequestPage(false);
-        DateCompItemBudgetEntries.RunModal;
+        DateCompItemBudgetEntries.RunModal();
     end;
 
     local procedure SetAnalysisViewDimensions(ObjectType: Option; ObjectId: Integer; var RetainDimensions: Text[250])
@@ -1118,7 +1118,7 @@ codeunit 132201 "Library - Inventory"
     begin
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.SetRange(Recurring, false);
-        if not ItemJournalTemplate.FindFirst then begin
+        if not ItemJournalTemplate.FindFirst() then begin
             CreateItemJournalTemplate(ItemJournalTemplate);
             ItemJournalTemplate.Validate(Type, ItemJournalTemplate.Type::Item);
             ItemJournalTemplate.Modify(true);
@@ -1129,12 +1129,12 @@ codeunit 132201 "Library - Inventory"
     begin
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
     end;
 
     procedure FindUnitOfMeasure(var UnitOfMeasure: Record "Unit of Measure")
     begin
-        if not UnitOfMeasure.FindFirst then
+        if not UnitOfMeasure.FindFirst() then
             CreateUnitOfMeasureCode(UnitOfMeasure);
     end;
 
@@ -1303,7 +1303,7 @@ codeunit 132201 "Library - Inventory"
         SaveAsStandardGenJournal.Initialise(GenJournalLine, GenJournalBatch);
         SaveAsStandardGenJournal.InitializeRequest(Code, '', SaveAmount);
         SaveAsStandardGenJournal.UseRequestPage(false);
-        SaveAsStandardGenJournal.RunModal;
+        SaveAsStandardGenJournal.RunModal();
         if not SaveAsStandardGenJournal.GetStdGeneralJournal(StandardGeneralJournal) then;
     end;
 
@@ -1312,7 +1312,7 @@ codeunit 132201 "Library - Inventory"
         // Find Item Journal Template for the given Template Type.
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplateType);
         ItemJournalTemplate.SetRange(Recurring, false);
-        if not ItemJournalTemplate.FindFirst then
+        if not ItemJournalTemplate.FindFirst() then
             CreateItemJournalTemplateByType(ItemJournalTemplate, ItemJournalTemplateType);
     end;
 
@@ -1323,7 +1323,7 @@ codeunit 132201 "Library - Inventory"
         ItemJournalBatch.SetRange("Journal Template Name", ItemJournalTemplateName);
 
         // If Item Journal Batch not found then create it.
-        if not ItemJournalBatch.FindFirst then
+        if not ItemJournalBatch.FindFirst() then
             CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplateName);
     end;
 
@@ -1400,7 +1400,7 @@ codeunit 132201 "Library - Inventory"
     var
         GeneralPostingSetup: Record "General Posting Setup";
     begin
-        if GeneralPostingSetup.FindSet then
+        if GeneralPostingSetup.FindSet() then
             repeat
                 if GeneralPostingSetup."Sales Account" = '' then
                     GeneralPostingSetup.Validate("Sales Account", LibraryERM.CreateGLAccountNo);
@@ -1428,7 +1428,7 @@ codeunit 132201 "Library - Inventory"
             until GeneralPostingSetup.Next = 0;
     end;
 
-    procedure UpdateInventorySetup(var InventorySetup: Record "Inventory Setup"; AutomaticCostPosting: Boolean; ExpectedCostPostingtoGL: Boolean; AutomaticCostAdjustment: Option; AverageCostCalcType: Enum "Average Cost Calculation Type"; AverageCostPeriod: Option)
+    procedure UpdateInventorySetup(var InventorySetup: Record "Inventory Setup"; AutomaticCostPosting: Boolean; ExpectedCostPostingtoGL: Boolean; AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type"; AverageCostCalcType: Enum "Average Cost Calculation Type"; AverageCostPeriod: Option)
     begin
         InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Posting", AutomaticCostPosting);
@@ -1444,11 +1444,11 @@ codeunit 132201 "Library - Inventory"
         InventoryPostingSetup: Record "Inventory Posting Setup";
         InventoryPostingGroup: Record "Inventory Posting Group";
     begin
-        if InventoryPostingGroup.FindSet then
+        if InventoryPostingGroup.FindSet() then
             repeat
                 InventoryPostingSetup.SetRange("Location Code", Location.Code);
                 InventoryPostingSetup.SetRange("Invt. Posting Group Code", InventoryPostingGroup.Code);
-                if not InventoryPostingSetup.FindFirst then
+                if not InventoryPostingSetup.FindFirst() then
                     CreateInventoryPostingSetup(InventoryPostingSetup, Location.Code, InventoryPostingGroup.Code);
                 InventoryPostingSetup.Validate("Inventory Account", LibraryERM.CreateGLAccountNo);
                 InventoryPostingSetup.Validate("Inventory Account (Interim)", LibraryERM.CreateGLAccountNo);
@@ -1508,7 +1508,7 @@ codeunit 132201 "Library - Inventory"
         ReservationEntry.SetRange("Source ID", SourceID);
         ReservationEntry.SetRange("Source Ref. No.", SourceRefNo);
         ReservationEntry.SetRange("Item No.", ItemNo);
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         ReservationEntry.TestField("Quantity (Base)", ExpectedQty);
         ReservationEntry.TestField("Lot No.");
     end;

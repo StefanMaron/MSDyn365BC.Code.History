@@ -271,7 +271,13 @@ codeunit 131305 "Library - ERM Country Data"
     var
         EntryRemainingAmount: Decimal;
     begin
-        Evaluate(EntryRemainingAmount, BankAccountLedgerEntries.Amount.Value);
+        if BankAccountLedgerEntries.Amount.Visible() then
+            EntryRemainingAmount := BankAccountLedgerEntries.Amount.AsDecimal()
+        else
+            if BankAccountLedgerEntries."Credit Amount".AsDecimal <> 0 then
+                EntryRemainingAmount := -BankAccountLedgerEntries."Credit Amount".AsDecimal()
+            else
+                EntryRemainingAmount := BankAccountLedgerEntries."Debit Amount".AsDecimal();
         exit(EntryRemainingAmount);
     end;
 
@@ -306,7 +312,7 @@ codeunit 131305 "Library - ERM Country Data"
     var
         GeneralPostingSetup: Record "General Posting Setup";
     begin
-        if GeneralPostingSetup.FindSet then
+        if GeneralPostingSetup.FindSet() then
             repeat
                 if GeneralPostingSetup."Inventory Adjmt. Account" = '' then
                     GeneralPostingSetup.Validate("Inventory Adjmt. Account", CreateGLAccount);

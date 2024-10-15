@@ -58,7 +58,7 @@ table 2158 "O365 Document Sent History"
                         JobQueueLogEntry.SetRange(ID, "Job Queue Entry ID");
                         JobQueueLogEntry.SetCurrentKey("Entry No.");
 
-                        if JobQueueLogEntry.FindLast then
+                        if JobQueueLogEntry.FindLast() then
                             "Job Completed" := JobQueueLogEntry."End Date/Time"
                         else
                             "Job Completed" := CurrentDateTime;
@@ -105,7 +105,7 @@ table 2158 "O365 Document Sent History"
         RecRef: RecordRef;
     begin
         SetRange("Job Queue Entry ID", JobQueueEntry.ID);
-        if FindFirst then begin
+        if FindFirst() then begin
             Validate("Job Last Status", "Job Last Status"::"In Process");
             exit(Modify(true));
         end;
@@ -139,7 +139,7 @@ table 2158 "O365 Document Sent History"
         JobQueueLogEntry: Record "Job Queue Log Entry";
     begin
         JobQueueLogEntry.SetRange(ID, "Job Queue Entry ID");
-        if not JobQueueLogEntry.FindFirst then
+        if not JobQueueLogEntry.FindFirst() then
             exit;
 
         JobQueueLogEntry.ShowErrorMessage;
@@ -150,7 +150,7 @@ table 2158 "O365 Document Sent History"
         JobQueueLogEntry: Record "Job Queue Log Entry";
     begin
         JobQueueLogEntry.SetRange(ID, "Job Queue Entry ID");
-        if not JobQueueLogEntry.FindFirst then
+        if not JobQueueLogEntry.FindFirst() then
             exit;
 
         exit(JobQueueLogEntry."Error Message");

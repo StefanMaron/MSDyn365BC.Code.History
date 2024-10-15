@@ -50,7 +50,7 @@ codeunit 144018 "ERM REFINV"
     begin
         // Verify Program create a correct Source Inv No. on Sales Credit Memo Header created from Copy Sales Document.
         // Setup.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostSalesInvoice(SalesLine);
 
         // Exercise.
@@ -73,7 +73,7 @@ codeunit 144018 "ERM REFINV"
     begin
         // Verify Program create a correct Source Inv No. on Sales Credit Memo Header created from Copy Sales Document with one Sales Credit Memo Line.
         // Setup.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostSalesInvoice(SalesLine);
         CreateSalesCreditMemoFromPage(SalesHeader, DocumentNo, SalesLine."Sell-to Customer No.", true);  // Using True for IncludeOrgInvInfo.
         SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", SalesHeader."No.");
@@ -104,7 +104,7 @@ codeunit 144018 "ERM REFINV"
     begin
         // Verify if new mandatory info is posted when running - Batch Post (2 Sales Invoices and 2 Credit Memos)
         // Setup.
-        Initialize;
+        Initialize();
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         LibrarySales.SetPostWithJobQueue(true);
@@ -139,7 +139,7 @@ codeunit 144018 "ERM REFINV"
     begin
         // Verify Program create a correct Source Inv No. on Sales Credit Memo Header created from Copy Sales Document with G/L Account.
         // Setup.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostSalesInvoiceWithGLAccount(SalesLine);
         CreateSalesCreditMemoFromPage(SalesHeader, DocumentNo, SalesLine."Sell-to Customer No.", true);  // Using True for IncludeOrgInvInfo.
         SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", SalesHeader."No.");
@@ -167,7 +167,7 @@ codeunit 144018 "ERM REFINV"
     begin
         // Verify Program create Sales Credit Memo without Source Inv No. on Header created from Copy Sales Document.
         // Setup.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostSalesInvoice(SalesLine);
 
         // Exercise.
@@ -190,7 +190,7 @@ codeunit 144018 "ERM REFINV"
     begin
         // Verify Program create and post Sales Credit Memo without Source Inv No. on Header created from Copy Sales Document.
         // Setup.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostSalesInvoice(SalesLine);
         CreateSalesCreditMemoFromPage(SalesHeader, DocumentNo, SalesLine."Sell-to Customer No.", false);
         SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", SalesHeader."No.");
@@ -207,7 +207,7 @@ codeunit 144018 "ERM REFINV"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateAndPostSalesInvoice(var SalesLine: Record "Sales Line"): Code[20]
@@ -282,7 +282,7 @@ codeunit 144018 "ERM REFINV"
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange("No.", No);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.Delete(true);
     end;
 
@@ -301,7 +301,7 @@ codeunit 144018 "ERM REFINV"
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange("No.", No);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.Validate(Quantity, Quantity);
         SalesLine.Validate("Line Amount", Round(LineAmount / 2, LibraryERM.GetAmountRoundingPrecision));
         SalesLine.Modify(true);

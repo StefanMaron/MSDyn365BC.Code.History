@@ -172,7 +172,7 @@ page 5875 "Physical Inventory Order"
                         CalcPhysInvtOrderLines: Report "Calc. Phys. Invt. Order Lines";
                     begin
                         CalcPhysInvtOrderLines.SetPhysInvtOrderHeader(Rec);
-                        CalcPhysInvtOrderLines.RunModal;
+                        CalcPhysInvtOrderLines.RunModal();
                         Clear(CalcPhysInvtOrderLines);
                     end;
                 }
@@ -189,7 +189,7 @@ page 5875 "Physical Inventory Order"
                         PhysInvtCountMgt: Codeunit "Phys. Invt. Count.-Management";
                     begin
                         PhysInvtCountMgt.InitFromPhysInvtOrder(Rec);
-                        PhysInvtCountMgt.Run;
+                        PhysInvtCountMgt.Run();
                         Clear(PhysInvtCountMgt);
                     end;
                 }
@@ -206,7 +206,7 @@ page 5875 "Physical Inventory Order"
                         CalcPhysInvtOrderBins: Report "Calc. Phys. Invt. Order (Bins)";
                     begin
                         CalcPhysInvtOrderBins.SetPhysInvtOrderHeader(Rec);
-                        CalcPhysInvtOrderBins.RunModal;
+                        CalcPhysInvtOrderBins.RunModal();
                         Clear(CalcPhysInvtOrderBins);
                     end;
                 }
@@ -223,7 +223,7 @@ page 5875 "Physical Inventory Order"
                         CopyPhysInvtOrder: Report "Copy Phys. Invt. Order";
                     begin
                         CopyPhysInvtOrder.SetPhysInvtOrderHeader(Rec);
-                        CopyPhysInvtOrder.RunModal;
+                        CopyPhysInvtOrder.RunModal();
                         Clear(CopyPhysInvtOrder);
                     end;
                 }

@@ -57,7 +57,7 @@ codeunit 431 "IC Outbox Export"
         ICOutboxTransaction: Record "IC Outbox Transaction";
     begin
         ICOutboxTransaction.SetRange("Transaction No.", ICOutboxTransactionNo);
-        if ICOutboxTransaction.FindFirst then begin
+        if ICOutboxTransaction.FindFirst() then begin
             ICOutboxTransaction."Line Action" := ICOutboxTransaction."Line Action"::"Send to IC Partner";
             ICOutboxTransaction.Modify();
             RunOutboxTransactions(ICOutboxTransaction);
@@ -67,6 +67,7 @@ codeunit 431 "IC Outbox Export"
     [Scope('OnPrem')]
     procedure ProcessAutoSendOutboxTransactionNo(ICOutboxTransactionNo: Integer)
     var
+        ICSetup: Record "IC Setup";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -74,20 +75,19 @@ codeunit 431 "IC Outbox Export"
         if IsHandled then
             exit;
 
-        CompanyInfo.Get();
-        if CompanyInfo."Auto. Send Transactions" then
+        ICSetup.Get();
+        if ICSetup."Auto. Send Transactions" then
             ModifyAndRunOutboxTransactionNo(ICOutboxTransactionNo);
     end;
 
     local procedure SendToExternalPartner(var ICOutboxTrans: Record "IC Outbox Transaction")
     var
+        ICSetup: Record "IC Setup";
         ICPartner: Record "IC Partner";
         EmailItem: Record "Email Item";
         MailHandler: Codeunit Mail;
         DocumentMailing: Codeunit "Document-Mailing";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
-        ICOutboxExportXML: XMLport "IC Outbox Imp/Exp";
-        EmailDialog: Page "Email Dialog";
         InStream: InStream;
         OFile: File;
         FileName: Text;
@@ -160,11 +160,7 @@ codeunit 431 "IC Outbox Export"
                             EmailItem."Send to" := ICPartner."Inbox Details";
                             EmailItem.Subject := StrSubstNo('%1 %2', ICOutboxTrans."Document Type", ICOutboxTrans."Document No.");
                             Commit();
-                            EmailDialog.SetValues(EmailItem, false, true);
-                            if EmailDialog.RunModal = Action::Cancel then
-                                exit;
 
-                            EmailDialog.GetRecord(EmailItem);
                             OFile.Open(FileName);
                             OFile.CreateInStream(InStream);
 
@@ -188,13 +184,15 @@ codeunit 431 "IC Outbox Export"
                               SourceTableIDs,
                               SourceIDs,
                               SourceRelationTypes);
-                        end else
+                        end else begin
+                            ICSetup.Get();
                             MailHandler.NewMessage(
                               ToName, CcName, '',
                               StrSubstNo(Text001, CompanyInfo.Name),
                               StrSubstNo(
-                                Text002, CompanyInfo.Name, CompanyInfo.FieldCaption("IC Partner Code"), CompanyInfo."IC Partner Code"),
+                                Text002, CompanyInfo.Name, ICSetup.FieldCaption("IC Partner Code"), ICSetup."IC Partner Code"),
                               FileName, false);
+                        end;
                     end;
                     OnSendToExternalPartnerOnAfterDocWasSent(ICPartner, FileName);
                     ICOutboxTrans.Find('-');
@@ -293,7 +291,7 @@ codeunit 431 "IC Outbox Export"
                     if not IsHandled then begin
                         MoveICTransToPartnerCompany.SetTableView(ICOutboxTrans);
                         MoveICTransToPartnerCompany.UseRequestPage := false;
-                        MoveICTransToPartnerCompany.Run;
+                        MoveICTransToPartnerCompany.Run();
                     end;
                     ICOutboxTrans.SetRange("Transaction No.");
                     if ICOutboxTrans."Line Action" = ICOutboxTrans."Line Action"::"Send to IC Partner" then
@@ -336,7 +334,7 @@ codeunit 431 "IC Outbox Export"
         PurchHeader: Record "Purchase Header";
         SalesHeader: Record "Sales Header";
     begin
-        if ICOutboxTransaction.FindSet then
+        if ICOutboxTransaction.FindSet() then
             repeat
                 if ICOutboxTransaction."Source Type" = ICOutboxTransaction."Source Type"::"Purchase Document" then
                     case ICOutboxTransaction."Document Type" of

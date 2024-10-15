@@ -388,7 +388,7 @@ table 5331 "CRM Integration Record"
         Clear("CRM ID");
         Reset;
         SetRange("CRM ID", CRMID);
-        if FindFirst then
+        if FindFirst() then
             if FindRecordId(RecId) then
                 Found := RecRef.Get(RecId);
     end;
@@ -732,7 +732,8 @@ table 5331 "CRM Integration Record"
         end;
     end;
 
-    local procedure IsSameFailureRepeatedTwice(RecRef: RecordRef; LastJobID: Guid; NewJobID: Guid): Boolean
+    [Scope('OnPrem')]
+    procedure IsSameFailureRepeatedTwice(RecRef: RecordRef; LastJobID: Guid; NewJobID: Guid): Boolean
     var
         IntegrationSynchJob: Record "Integration Synch. Job";
         IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
@@ -787,6 +788,7 @@ table 5331 "CRM Integration Record"
     procedure IsModifiedAfterLastSynchronizedRecord(RecordRef: RecordRef; CurrentModifiedOn: DateTime) IsModified: Boolean
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMOptionMapping: Record "CRM Option Mapping";
         TypeHelper: Codeunit "Type Helper";
         Handled: Boolean;
     begin
@@ -804,6 +806,13 @@ table 5331 "CRM Integration Record"
             if (CRMIntegrationRecord."Last Synch. CRM Result" = CRMIntegrationRecord."Last Synch. CRM Result"::Failure) and (CRMIntegrationRecord.Skipped = false) then
                 exit(true);
             exit(TypeHelper.CompareDateTime(CurrentModifiedOn, CRMIntegrationRecord."Last Synch. Modified On") > 0);
+        end;
+
+        CRMOptionMapping.SetRange("Record ID", RecordRef.RecordId);
+        if CRMOptionMapping.FindFirst() then begin
+            if (CRMOptionMapping."Last Synch. CRM Result" = CRMOptionMapping."Last Synch. CRM Result"::Failure) and (CRMOptionMapping.Skipped = false) then
+                exit(true);
+            exit(TypeHelper.CompareDateTime(CurrentModifiedOn, CRMOptionMapping."Last Synch. Modified On") > 0);
         end;
     end;
 

@@ -226,7 +226,7 @@ report 6646 "Sales - Return Receipt"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not DimSetEntry1.FindSet then
+                                if not DimSetEntry1.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if not Continue then
@@ -311,7 +311,7 @@ report 6646 "Sales - Return Receipt"
                             trigger OnAfterGetRecord()
                             begin
                                 if Number = 1 then begin
-                                    if not DimSetEntry2.FindSet then
+                                    if not DimSetEntry2.FindSet() then
                                         CurrReport.Break();
                                 end else
                                     if not Continue then
@@ -527,7 +527,7 @@ report 6646 "Sales - Return Receipt"
     trigger OnPostReport()
     begin
         if LogInteraction and not IsReportInPreviewMode then
-            if "Return Receipt Header".FindSet then
+            if "Return Receipt Header".FindSet() then
                 repeat
                     SegManagement.LogDocument(20, "Return Receipt Header"."No.", 0, 0, DATABASE::Customer,
                       "Return Receipt Header"."Bill-to Customer No.", "Return Receipt Header"."Salesperson Code",

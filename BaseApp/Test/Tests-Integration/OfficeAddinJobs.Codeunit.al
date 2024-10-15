@@ -31,7 +31,7 @@ codeunit 139060 "Office Add-in Jobs"
         // [SCENARIO] Test the parsing logic for the calendar appointment information
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Calendar appointment, where Subject is JobNo:JobTaskNo:PlanningLineNo
         OfficeAddinContext.Init();
@@ -61,7 +61,7 @@ codeunit 139060 "Office Add-in Jobs"
         // [FEATURE] [UI]
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] A job planning line exists for a resource.
         CreateJobPlanningLine(JobPlanningLine);
@@ -98,7 +98,7 @@ codeunit 139060 "Office Add-in Jobs"
         // [FEATURE] [UI]
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job Information
         CreateJobPlanningLine(JobPlanningLine);
@@ -119,7 +119,7 @@ codeunit 139060 "Office Add-in Jobs"
 
         // Cleanup Job Journal that was created by the LibraryJob.CreateJobJournalLineForPlan
         JobJournalTemplate.SetRange(Name, 'ZZZT');
-        if JobJournalTemplate.FindFirst then
+        if JobJournalTemplate.FindFirst() then
             JobJournalTemplate.Delete(true);
     end;
 
@@ -139,7 +139,7 @@ codeunit 139060 "Office Add-in Jobs"
         // [FEATURE] [UI]
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job Information
         CreateJobPlanningLine(JobPlanningLine);
@@ -156,9 +156,9 @@ codeunit 139060 "Office Add-in Jobs"
         // [GIVEN] Job Journal Template and Job Batch Template
         JobJournalTemplate.SetRange("Page ID", PAGE::"Job Journal");
         JobJournalTemplate.SetRange(Recurring, false);
-        JobJournalTemplate.FindFirst;
+        JobJournalTemplate.FindFirst();
         JobJournalBatch.SetRange("Journal Template Name", JobJournalTemplate.Name);
-        JobJournalBatch.FindFirst;
+        JobJournalBatch.FindFirst();
 
         // [GIVEN] User sets the journal template, journal batch and quantity
         OfficeJobJournal.JobJournalTemplate.Value(JobJournalTemplate.Name);
@@ -189,7 +189,7 @@ codeunit 139060 "Office Add-in Jobs"
         // [FEATURE] [UI]
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job Information
         CreateJobPlanningLine(JobPlanningLine);
@@ -197,7 +197,7 @@ codeunit 139060 "Office Add-in Jobs"
         // [GIVEN] A job Journal Template with multiple Journal Batches
         JobJournalTemplate.SetRange("Page ID", PAGE::"Job Journal");
         JobJournalTemplate.SetRange(Recurring, false);
-        JobJournalTemplate.FindFirst;
+        JobJournalTemplate.FindFirst();
         LibraryJob.CreateJobJournalBatch(JobJournalTemplate.Name, JobJournalBatch1);
         LibraryJob.CreateJobJournalBatch(JobJournalTemplate.Name, JobJournalBatch2);
 
@@ -231,7 +231,7 @@ codeunit 139060 "Office Add-in Jobs"
         // [FEATURE] [UI]
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job Information
         CreateJobPlanningLine(JobPlanningLine);
@@ -271,7 +271,7 @@ codeunit 139060 "Office Add-in Jobs"
         // [FEATURE] [UI]
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job Information
         CreateJobPlanningLine(JobPlanningLine);
@@ -309,7 +309,7 @@ codeunit 139060 "Office Add-in Jobs"
         // [FEATURE] [UI]
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job Information
         CreateJobPlanningLine(JobPlanningLine);
@@ -343,7 +343,7 @@ codeunit 139060 "Office Add-in Jobs"
         // [SCENARIO] User tries to enter a Job Journal Template with a non Job Journal Page Id
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job Information
         CreateJobPlanningLine(JobPlanningLine);
@@ -377,7 +377,7 @@ codeunit 139060 "Office Add-in Jobs"
         // [SCENARIO] User tries to enter a Job Journal Template that is Recurring
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job Information
         CreateJobPlanningLine(JobPlanningLine);
@@ -413,7 +413,7 @@ codeunit 139060 "Office Add-in Jobs"
         // [SCENARIO] User tries to enter a Batch Template that doesn't belong to the Journal Template
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job Information
         CreateJobPlanningLine(JobPlanningLine);
@@ -447,7 +447,7 @@ codeunit 139060 "Office Add-in Jobs"
         // [SCENARIO] Resource has modified the calendar appointment and job can't be found
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Calendar appoinment with Job information
         OfficeAddinContext.SetRange(Subject, CreateAppointmentSubject('123', '456', 789));
@@ -471,11 +471,11 @@ codeunit 139060 "Office Add-in Jobs"
         AddinManifestManagement.CreateDefaultAddins(OfficeAddin);
         JobJournalTemplate.SetRange("Page ID", PAGE::"Job Journal");
         JobJournalTemplate.SetRange(Recurring, false);
-        if not JobJournalTemplate.FindFirst then
+        if not JobJournalTemplate.FindFirst() then
             LibraryJob.CreateJobJournalTemplate(JobJournalTemplate);
 
         JobJournalBatch.SetRange("Journal Template Name", JobJournalTemplate.Name);
-        if not JobJournalBatch.FindFirst then
+        if not JobJournalBatch.FindFirst() then
             LibraryJob.CreateJobJournalBatch(JobJournalTemplate.Name, JobJournalBatch);
 
         Clear(LibraryOfficeHostProvider);

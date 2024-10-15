@@ -89,7 +89,7 @@ page 5784 "Filters to Get Source Docs."
 
                     GetSourceBatch.SetSkipBlockedItem(true);
                     GetSourceBatch.UseRequestPage(ShowRequestForm);
-                    GetSourceBatch.RunModal;
+                    GetSourceBatch.RunModal();
                     if GetSourceBatch.NotCancelled then
                         CurrPage.Close;
                 end;
@@ -116,7 +116,7 @@ page 5784 "Filters to Get Source Docs."
                     end;
                     SourceDocFilterCard.SetRecord(Rec);
                     SourceDocFilterCard.SetTableView(Rec);
-                    SourceDocFilterCard.RunModal;
+                    SourceDocFilterCard.RunModal();
                     CurrPage.Close;
                 end;
             }

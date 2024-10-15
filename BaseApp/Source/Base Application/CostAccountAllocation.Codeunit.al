@@ -40,14 +40,14 @@ codeunit 1104 "Cost Account Allocation"
 
         CostAllocationTarget.SetFilter(Base, '<>%1', CostAllocationTarget.Base::Static);
         Window.Update(1, Format(CostAllocationTarget.Count));
-        if CostAllocationSource.FindSet then
+        if CostAllocationSource.FindSet() then
             repeat
                 Window.Update(2, CostAllocationSource.ID);
 
                 CostAllocationTarget.Reset();
                 CostAllocationTarget.SetRange(ID, CostAllocationSource.ID);
                 CostAllocationTarget.SetFilter(Base, '<>%1', CostAllocationTarget.Base::Static);
-                if CostAllocationTarget.FindSet then
+                if CostAllocationTarget.FindSet() then
                     repeat
                         Window.Update(3, Format(CostAllocationTarget."Line No."));
                         CalcLineShare(CostAllocationTarget);
@@ -69,7 +69,7 @@ codeunit 1104 "Cost Account Allocation"
         CostAllocationTarget.Reset();
         CostAllocationTarget.SetRange(ID, CostAllocationSource.ID);
         CostAllocationTarget.SetFilter(Base, '<>%1', CostAllocationTarget.Base::Static);
-        if CostAllocationTarget.FindSet then
+        if CostAllocationTarget.FindSet() then
             repeat
                 CalcLineShare(CostAllocationTarget);
             until CostAllocationTarget.Next() = 0;
@@ -281,7 +281,7 @@ codeunit 1104 "Cost Account Allocation"
         if AccPeriod.IsEmpty() then
             exit;
 
-        if CostAllocationTarget."Date Filter Code" = 0 then
+        if CostAllocationTarget."Date Filter Code" = "Cost Allocation Target Period"::" " then
             exit;
 
         AccPeriod.SetFilter("Starting Date", '>%1', WorkDate);

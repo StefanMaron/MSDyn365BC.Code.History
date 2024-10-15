@@ -95,6 +95,9 @@ table 5800 "Item Charge"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "No.", Description, "Gen. Prod. Posting Group", "VAT Prod. Posting Group")
+        {
+        }
     }
 
     trigger OnDelete()
@@ -131,7 +134,7 @@ table 5800 "Item Charge"
             DimMgt.SaveDefaultDim(DATABASE::"Item Charge", "No.", FieldNumber, ShortcutDimCode);
             Modify;
         end;
-	
+
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 

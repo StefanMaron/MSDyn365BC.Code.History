@@ -91,6 +91,7 @@ page 99000867 "Finished Production Order"
             group(Schedule)
             {
                 Caption = 'Schedule';
+#if not CLEAN17
                 field("Starting Time"; StartingTime)
                 {
                     ApplicationArea = Manufacturing;
@@ -139,6 +140,7 @@ page 99000867 "Finished Production Order"
                     ObsoleteReason = 'Ending Date-Time field should be used instead.';
                     ObsoleteTag = '17.0';
                 }
+#endif
                 field("Starting Date-Time"; "Starting Date-Time")
                 {
                     ApplicationArea = Manufacturing;
@@ -342,7 +344,7 @@ page 99000867 "Finished Production Order"
             }
         }
     }
-
+#if not CLEAN17
     trigger OnAfterGetRecord()
     begin
         GetStartingEndingDateAndTime(StartingTime, StartingDate, EndingTime, EndingDate);
@@ -364,5 +366,6 @@ page 99000867 "Finished Production Order"
         StartingDate: Date;
         EndingDate: Date;
         DateAndTimeFieldVisible: Boolean;
+#endif
 }
 

@@ -161,7 +161,7 @@ codeunit 144017 "ERM VIP"
         GenJournalLine.Validate("Journal Batch Name", GenJournalBatch.Name);
         Commit();  // Commit required to run report.
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
-        SuggestVendorPayments.Run;
+        SuggestVendorPayments.Run();
     end;
 
     local procedure VerifyJournalLinesSuggested(JournalTemplateName: Code[10]; JournalBatchName: Code[10]; RecordExist: Boolean)

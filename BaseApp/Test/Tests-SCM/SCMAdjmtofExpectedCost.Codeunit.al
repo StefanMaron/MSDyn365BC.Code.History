@@ -28,7 +28,7 @@ codeunit 137018 "SCM Adjmt. of Expected Cost"
         ValueEntry: Record "Value Entry";
         Qty: Decimal;
     begin
-        Initialize;
+        Initialize();
         Qty := 100;
         // Inventory setup for test
         OldInventorySetup.Get();
@@ -74,16 +74,16 @@ codeunit 137018 "SCM Adjmt. of Expected Cost"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Adjmt. of Expected Cost");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Adjmt. of Expected Cost");
     end;
 
-    local procedure SetInventorySetup(InventorySetup: Record "Inventory Setup"; NewSetup: Boolean; AutomaticCostPosting: Boolean; ExpectedCostPosting: Boolean; AutomaticCostAdjustment: Integer)
+    local procedure SetInventorySetup(InventorySetup: Record "Inventory Setup"; NewSetup: Boolean; AutomaticCostPosting: Boolean; ExpectedCostPosting: Boolean; AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type")
     var
         SavedInventorySetup: Record "Inventory Setup";
     begin
@@ -116,7 +116,7 @@ codeunit 137018 "SCM Adjmt. of Expected Cost"
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
             SetRange(Type, Type::Item);
-            FindFirst;
+            FindFirst();
             Validate("Qty. to Invoice", QuantityToInv);
             Modify;
 
@@ -136,7 +136,7 @@ codeunit 137018 "SCM Adjmt. of Expected Cost"
         PurchRcptLine.SetCurrentKey("Buy-from Vendor No.");
         PurchRcptLine.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
         PurchRcptLine.SetRange(Type, PurchRcptLine.Type::Item);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
 
         // Purchase Order for Item Charge
         LibraryPurchase.CreatePurchHeader(PurchaseHeaderItemCharge, PurchaseHeader."Document Type", Vendor."No.");

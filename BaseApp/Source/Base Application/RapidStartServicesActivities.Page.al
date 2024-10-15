@@ -12,68 +12,41 @@ page 9075 "RapidStart Services Activities"
             cuegroup(Tables)
             {
                 Caption = 'Tables';
-                field(Promoted; Promoted)
+                field(Promoted; Rec.Promoted)
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Config. Tables";
                     ToolTip = 'Specifies the number of configuration tables that have been promoted. The documents are filtered by today''s date.';
                 }
-                field("Not Started"; "Not Started")
+                field("Not Started"; Rec."Not Started")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Config. Tables";
                     ToolTip = 'Specifies the number of configuration tables that have not been started. The documents are filtered by today''s date.';
                 }
-                field("In Progress"; "In Progress")
+                field("In Progress"; Rec."In Progress")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Config. Tables";
                     ToolTip = 'Specifies the number of configuration tables that are in progress. The documents are filtered by today''s date.';
                 }
-                field(Completed; Completed)
+                field(Completed; Rec.Completed)
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Config. Tables";
                     ToolTip = 'Specifies the number of configuration tables that have been completed. The documents are filtered by today''s date.';
                 }
-                field(Ignored; Ignored)
+                field(Ignored; Rec.Ignored)
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Config. Tables";
                     ToolTip = 'Specifies the number of configuration tables that you have designated to be ignored. The documents are filtered by today''s date.';
                 }
-                field(Blocked; Blocked)
+                field(Blocked; Rec.Blocked)
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Config. Tables";
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
-                }
-            }
-            cuegroup("My User Tasks")
-            {
-                Caption = 'My User Tasks';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with User Tasks Activities part';
-                ObsoleteTag = '17.0';
-                field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Pending User Tasks';
-                    Image = Checklist;
-                    ToolTip = 'Specifies the number of pending tasks that are assigned to you or to a group that you are a member of.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with User Tasks Activities part';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnDrillDown()
-                    var
-                        UserTaskList: Page "User Task List";
-                    begin
-                        UserTaskList.SetPageToShowMyPendingUserTasks;
-                        UserTaskList.Run;
-                    end;
                 }
             }
         }
@@ -85,16 +58,13 @@ page 9075 "RapidStart Services Activities"
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
 
-        SetRange("User ID Filter", UserId);
+        Rec.SetRange("User ID Filter", UserId());
     end;
-
-    var
-        UserTaskManagement: Codeunit "User Task Management";
 }
 

@@ -315,7 +315,6 @@ page 5116 "Salesperson/Purchaser Card"
                     Caption = 'Sent Emails';
                     Image = ShowList;
                     ToolTip = 'View a list of emails that you have sent to this salesperson/purchaser.';
-                    Visible = EmailImprovementFeatureEnabled;
 
                     trigger OnAction()
                     var
@@ -383,12 +382,9 @@ page 5116 "Salesperson/Purchaser Card"
     end;
 
     trigger OnOpenPage()
-    var
-        EmailFeature: Codeunit "Email Feature";
     begin
         CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
-        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
     end;
 
     var
@@ -396,6 +392,5 @@ page 5116 "Salesperson/Purchaser Card"
         CDSIntegrationEnabled: Boolean;
         CRMIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
-        EmailImprovementFeatureEnabled: Boolean;
 }
 

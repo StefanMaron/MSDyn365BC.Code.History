@@ -197,7 +197,7 @@ report 716 "Inventory Cost and Price List"
     trigger OnPreReport()
     begin
         ItemFilter := Item.GetFilters;
-        GetGLSetup;
+        GetGLSetup();
     end;
 
     var

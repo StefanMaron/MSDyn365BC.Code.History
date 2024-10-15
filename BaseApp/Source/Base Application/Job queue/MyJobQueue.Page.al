@@ -69,7 +69,7 @@ page 675 "My Job Queue"
                     trigger AddInReady()
                     begin
                         AddInReady := true;
-                        if not PrevLastJobQueueEntry.FindLast then
+                        if not PrevLastJobQueueEntry.FindLast() then
                             Clear(PrevLastJobQueueEntry);
                         CurrPage.PingPong.Ping(10000);
                     end;
@@ -78,7 +78,7 @@ page 675 "My Job Queue"
                     var
                         CurrLastJobQueueEntry: Record "Job Queue Entry";
                     begin
-                        if not CurrLastJobQueueEntry.FindLast then
+                        if not CurrLastJobQueueEntry.FindLast() then
                             Clear(CurrLastJobQueueEntry);
                         if (CurrLastJobQueueEntry.ID <> PrevLastJobQueueEntry.ID) or (CurrLastJobQueueEntry.Status <> PrevLastJobQueueEntry.Status) then
                             CurrPage.Update(false);

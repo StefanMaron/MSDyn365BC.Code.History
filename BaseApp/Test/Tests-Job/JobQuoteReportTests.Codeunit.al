@@ -38,9 +38,9 @@ codeunit 136314 "Job Quote Report Tests"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Job Quote Report Tests");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         RemoveReportLayout;
 
         IsInitialized := true;
@@ -63,7 +63,7 @@ codeunit 136314 "Job Quote Report Tests"
         JobPlanningLine: Record "Job Planning Line";
     begin
         // [GIVEN] A newly setup company, with a new job created
-        Initialize;
+        Initialize();
         SetReportLayoutForRDLC;
         // [WHEN] Job Quote report is run
         SetupForJobQuote(JobPlanningLine);
@@ -84,7 +84,7 @@ codeunit 136314 "Job Quote Report Tests"
         JobPlanningLine: Record "Job Planning Line";
     begin
         // [GIVEN] A newly setup company, with a new job created
-        Initialize;
+        Initialize();
         SetReportLayoutForRDLC;
         // [WHEN] Job Quote report is run
         SetupForJobQuote(JobPlanningLine);
@@ -106,7 +106,7 @@ codeunit 136314 "Job Quote Report Tests"
         JobList: TestPage "Job List";
     begin
         // [GIVEN] A newly setup company, with a new job created
-        Initialize;
+        Initialize();
         SetReportLayoutForCustomWord;
         SetupForJobQuote(JobPlanningLine);
 
@@ -150,24 +150,10 @@ codeunit 136314 "Job Quote Report Tests"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerTrue,MessageHandler,PostandSendPageHandlerYes,SendEmailModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure SendJobQuoteFromJobCardSMTPSetup() // To be removed together with deprecated SMTP objects
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
-    begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(false);
-        SendJobQuoteFromJobCardInternal();
-    end;
-
-    [Test]
     [HandlerFunctions('ConfirmHandlerTrue,MessageHandler,PostandSendPageHandlerYes,EmailEditorHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure SendJobQuoteFromJobCard()
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
     begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         SendJobQuoteFromJobCardInternal();
     end;
 
@@ -176,14 +162,12 @@ codeunit 136314 "Job Quote Report Tests"
         JobPlanningLine: Record "Job Planning Line";
         JobCard: TestPage "Job Card";
         LibraryWorkflow: Codeunit "Library - Workflow";
-        EmailFeature: Codeunit "Email Feature";
     begin
         // [GIVEN] A newly setup company, with a new job created
-        Initialize;
+        Initialize();
         SetReportLayoutForRDLC;
         SetupForJobQuote(JobPlanningLine);
-        if EmailFeature.IsEnabled() then
-            LibraryWorkflow.SetUpEmailAccount();
+        LibraryWorkflow.SetUpEmailAccount();
 
         // [THEN] Verify contents on Job Quote report
         VerifyJobQuoteReport(JobPlanningLine, QuantityTxt, UnitCostTxt, TotalCostTxt, JobTaskNoTxt);
@@ -304,7 +288,7 @@ codeunit 136314 "Job Quote Report Tests"
         CustomReportLayout.SetRange("Report ID", REPORT::"Job Quote");
         CustomReportLayout.SetRange("Company Name", CompanyName);
         CustomReportLayout.SetRange(Type, CustomReportLayout.Type::Word);
-        if CustomReportLayout.FindFirst then
+        if CustomReportLayout.FindFirst() then
             CustomReportLayoutCode := CustomReportLayout.Code;
 
         SetReportLayout(ReportLayoutSelection.Type::"Custom Layout", CustomReportLayoutCode);
@@ -352,7 +336,7 @@ codeunit 136314 "Job Quote Report Tests"
         // 3. Set up table buffer for report
         JobPlanningLine.SetFilter("Job No.", '=%1', Job."No.");
         JobPlanningLine.SetFilter("Line Type", '>%1', JobPlanningLine."Line Type"::Budget);
-        JobPlanningLine.FindFirst;
+        JobPlanningLine.FindFirst();
     end;
 
     local procedure RemoveReportLayout()
@@ -388,13 +372,6 @@ codeunit 136314 "Job Quote Report Tests"
             CustomReportSelection."Use for Email Attachment" := true;
             CustomReportSelection.Insert();
         end;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure SendEmailModalPageHandler(var EmailDialog: TestPage "Email Dialog")
-    begin
-        EmailDialog.Cancel.Invoke;
     end;
 
     [ModalPageHandler]

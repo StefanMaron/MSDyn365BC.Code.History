@@ -361,6 +361,10 @@ table 252 "General Posting Setup"
         {
             Caption = 'View All Accounts on Lookup';
         }
+        field(52; Blocked; Boolean)
+        {
+            Caption = 'Blocked';
+        }
         field(5600; "Purch. FA Disc. Account"; Code[20])
         {
             Caption = 'Purch. FA Disc. Account';
@@ -591,7 +595,7 @@ table 252 "General Posting Setup"
 
     local procedure MarkRecords()
     begin
-        if FindSet then
+        if FindSet() then
             repeat
                 Mark(true);
             until Next() = 0;
@@ -949,7 +953,7 @@ table 252 "General Posting Setup"
 
         TempAccountUseBuffer.Reset();
         TempAccountUseBuffer.SetCurrentKey("No. of Use");
-        if TempAccountUseBuffer.FindLast then begin
+        if TempAccountUseBuffer.FindLast() then begin
             RecFieldRef := RecRef.Field(AccountFieldNo);
             RecFieldRef.Value(TempAccountUseBuffer."Account No.");
         end;

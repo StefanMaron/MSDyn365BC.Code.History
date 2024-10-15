@@ -163,7 +163,7 @@ codeunit 131921 "Library - CAMT File Mgt."
         DataExchDef.Modify();
 
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
-        DataExchLineDef.FindFirst;
+        DataExchLineDef.FindFirst();
         DataExchLineDef.Namespace := CopyStr(NamespaceTxt, 1, MaxStrLen(DataExchLineDef.Namespace));
         DataExchLineDef.Modify();
     end;

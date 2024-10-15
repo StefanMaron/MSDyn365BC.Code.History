@@ -43,8 +43,8 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Kitting-D5B-ItemTracking");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         MfgSetup.Get();
         WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
@@ -66,7 +66,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         // Standard setup with LotSerial Kit and untracked Component items
         // with IT spec assigned on header.
 
-        Initialize;
+        Initialize();
 
         CreateTrackedItem(CompItem, Tracking::Untracked);
         CreateTrackedItem(KitItem, Tracking::LotSerial);
@@ -84,7 +84,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         CompItem: Record Item;
         CompItemLot: Record Item;
     begin
-        Initialize;
+        Initialize();
 
         // Item tracing for lot- and serial tracked components, and lotserial kit item
         // Post in Item Journal
@@ -120,7 +120,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         CompItem: Record Item;
         CompItemUntracked: Record Item;
     begin
-        Initialize;
+        Initialize();
 
         CreateTrackedItem(KitItem, Tracking::LotSerial);
         CreateTrackedItem(CompItem, Tracking::LotSerial);
@@ -143,7 +143,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         KitItem: Record Item;
         CompItem: Record Item;
     begin
-        Initialize;
+        Initialize();
 
         CreateTrackedItem(KitItem, Tracking::Lot);
         CreateTrackedItem(CompItem, Tracking::Untracked);
@@ -175,7 +175,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         // 2) Create AO for kit item with that UOM
         // 3) Assert that item tracking applies header UOM when tracking kits
 
-        Initialize;
+        Initialize();
 
         CreateTrackedItem(CompItem, Tracking::LotSerial);
         CreateTrackedItem(KitItem, Tracking::Untracked);
@@ -207,7 +207,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         // 2) Assign item tracking
         // 3) Post
 
-        Initialize;
+        Initialize();
 
         CreateTrackedItem(CompItem, Tracking::Lot);
         CreateTrackedItem(KitItem, Tracking::Untracked);
@@ -246,7 +246,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         // 2) Assign item tracking
         // 3) Post
 
-        Initialize;
+        Initialize();
 
         CreateTrackedItem(CompItem, Tracking::LotSerial);
         CreateTrackedItem(KitItem, Tracking::Untracked);
@@ -282,7 +282,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         // 3) Try to post without inbound item tracking
         // 4) Post without outbound item tracking
 
-        Initialize;
+        Initialize();
 
         CreateNonSpecOutBoundITCode(ItemTrackingCode);
 
@@ -312,7 +312,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         // 1) Post two Assembly Orders with same ITSpec
         // 2) Make sure that Lot/Serial Nos. are unavailable posting of second AO
 
-        Initialize;
+        Initialize();
 
         // Post AO with one Serial- and one Lot No. tracked item
         CreateTrackedItem(KitItem, Tracking::Untracked);
@@ -363,7 +363,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
     begin
         // Item tracking on header and lines, in combination with a resource line
 
-        Initialize;
+        Initialize();
 
         CreateTrackedItem(KitItem, Tracking::LotSerial);
         CreateTrackedItem(CompItemLot, Tracking::Lot);
@@ -398,7 +398,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         KitItem: Record Item;
         CompItem: Record Item;
     begin
-        Initialize;
+        Initialize();
 
         CreateTrackedItem(KitItem, Tracking::Untracked);
         CreateTrackedItem(CompItem, Tracking::Serial);
@@ -449,7 +449,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         // 2) Create AO for kit item with that UOM
         // 3) Assert that UOM is applied when assigning item tracking spec to header.
 
-        Initialize;
+        Initialize();
 
         CreateTrackedItem(CompItem, Tracking::Untracked);
         CreateTrackedItem(KitItem, Tracking::LotSerial);
@@ -490,7 +490,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         SalesOrderPage: TestPage "Sales Order";
     begin
         // test item tracking with assembly quotes
-        Initialize;
+        Initialize();
 
         CreateTrackedItem(KitItem, Tracking::LotSerial);
         CreateTrackedItem(CompItemUntracked, Tracking::Untracked);
@@ -502,7 +502,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         CreateSalesLineATO(SalesHeaderQuote, KitItem."No.", RandomQuantity(20) + 1);
 
         AssemblyHeaderQuote.SetRange("Item No.", KitItem."No.");
-        AssemblyHeaderQuote.FindFirst;
+        AssemblyHeaderQuote.FindFirst();
 
         CreateAssemblyLine(AssemblyHeaderQuote, AssemblyLineUntracked, CompItemUntracked, RandomQuantity(20));
         CreateAssemblyLine(AssemblyHeaderQuote, AssemblyLineLot, CompItemLot, RandomQuantity(20));
@@ -529,10 +529,10 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
 
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.SetRange("External Document No.", SalesHeaderQuote."External Document No.");
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
 
         AssemblyHeader.SetRange("Item No.", KitItem."No.");
-        AssemblyHeader.FindFirst;
+        AssemblyHeader.FindFirst();
 
         ValidateShadowAssemblyHeader(AssemblyHeader, AssemblyHeaderQuote);
         ValidateShadowAssemblyLine(AssemblyHeader);
@@ -565,7 +565,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
     begin
         // Error scenario with no IT on header.
 
-        Initialize;
+        Initialize();
 
         CreateTrackedItem(KitItem, Tracking::LotSerial);
         CreateTrackedItem(CompItem, Tracking::Untracked);
@@ -596,7 +596,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
     begin
         // Sunshine scenario with IT on header and lines.
 
-        Initialize;
+        Initialize();
 
         CreateTrackedItem(KitItem, Tracking::LotSerial);
         CreateTrackedItem(CompItemSerial, Tracking::Serial);
@@ -671,7 +671,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         // 2) Assign IT Spec for quantity < X
         // 3) Assert posting disallowed
 
-        Initialize;
+        Initialize();
 
         CreateTrackedItem(KitItem, Tracking::LotSerial);
         CreateTrackedItem(CompItem, Tracking::Untracked);
@@ -705,7 +705,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         AssemblyLine: Record "Assembly Line";
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         // 1. Create tracked assembly-to-order item, and untracked component.
         CreateTrackedItem(CompItem, Tracking::Untracked);
@@ -933,7 +933,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         SalesShipmentHeader: Record "Sales Shipment Header";
         ItemTracingPage: TestPage "Item Tracing";
     begin
-        Initialize;
+        Initialize();
 
         CreateTrackedItem(KitItem, Tracking::LotSerial);
         CreateTrackedItem(CompItem, Tracking::LotSerial);
@@ -977,7 +977,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         // Trace Serial No.
         ItemLedgerEntry.SetRange("Item No.", KitItem."No.");
         SalesShipmentHeader.SetRange("Order No.", SalesHeader."No.");
-        SalesShipmentHeader.FindFirst;
+        SalesShipmentHeader.FindFirst();
         ItemLedgerEntry.SetRange("Document No.", SalesShipmentHeader."No.");
         ItemLedgerEntry.FindSet();
         ItemLedgerEntry.Next(LibraryRandom.RandInt(ItemLedgerEntry.Count));
@@ -1126,7 +1126,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         AssemblyLine: Record "Assembly Line";
         NavigatePage: TestPage Navigate;
     begin
-        Initialize;
+        Initialize();
         CreateTrackedItem(KitItem, Tracking::LotSerial);
         CreateTrackedItem(CompItem, Tracking::Untracked);
 
@@ -1152,7 +1152,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         ItemLedgerEntry: Record "Item Ledger Entry";
         NavigatePage: TestPage Navigate;
     begin
-        Initialize;
+        Initialize();
         NavigatePage.OpenEdit;
         NavigatePage.SerialNoFilter.SetValue(
           LibraryUtility.GenerateRandomCode(ItemLedgerEntry.FieldNo("Serial No."), DATABASE::"Item Ledger Entry"));
@@ -1223,7 +1223,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
-        AssemblyLine.FindLast;
+        AssemblyLine.FindLast();
     end;
 
     local procedure CreateAssemblyLineResource(var AssemblyHeader: Record "Assembly Header"; Resource: Record Resource; Quantity: Integer)
@@ -1312,7 +1312,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
-        AssemblyLine.FindFirst;
+        AssemblyLine.FindFirst();
 
         repeat
             if AssemblyOrderPage.Lines.Type.Value = 'Item' then begin
@@ -1545,7 +1545,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
     begin
         ItemLedgerEntry.Reset();
         ItemLedgerEntry.SetRange("Item No.", PAR_ITPage_ItemNo);
-        if not ItemLedgerEntry.FindSet then
+        if not ItemLedgerEntry.FindSet() then
             exit;
 
         ItemTrackingLinesPage.New;
@@ -1781,7 +1781,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         ReservationEntry.SetFilter("Item Tracking", '<>%1', ReservationEntry."Item Tracking"::None);
         ActualQty := 0;
 
-        if ReservationEntry.FindSet then
+        if ReservationEntry.FindSet() then
             repeat
                 ActualQty += ReservationEntry."Quantity (Base)";
             until ReservationEntry.Next = 0;
@@ -1802,7 +1802,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         ItemTracingPage.OpenEdit;
 
         ItemLedgerEntry.SetRange("Item No.", KitItem);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
 
         if SetSerialNo then
             ItemTracingPage.SerialNoFilter.SetValue(ItemLedgerEntry."Serial No.");
@@ -1958,7 +1958,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         SalesShipmentHeader: Record "Sales Shipment Header";
     begin
         SalesShipmentHeader.SetRange("External Document No.", SalesHeader."External Document No.");
-        SalesShipmentHeader.FindFirst;
+        SalesShipmentHeader.FindFirst();
 
         Assert.AreEqual(
           ItemTracingPage.Description.Value,
@@ -1978,7 +1978,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         PostedAssemblyHeader: Record "Posted Assembly Header";
     begin
         PostedAssemblyHeader.SetRange("Order No.", AssemblyHeader."No.");
-        PostedAssemblyHeader.FindFirst;
+        PostedAssemblyHeader.FindFirst();
 
         Assert.AreEqual(
           ItemTracingPage.Description.Value,
@@ -1999,7 +1999,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         PostedAssemblyHeader: Record "Posted Assembly Header";
     begin
         PostedAssemblyHeader.SetRange("Order No.", AssemblyHeader."No.");
-        PostedAssemblyHeader.FindFirst;
+        PostedAssemblyHeader.FindFirst();
 
         Assert.AreEqual(
           ItemTracingPage.Description.Value,
@@ -2051,10 +2051,10 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         ItemLedgerEntry.SetRange("Item No.", AssemblyHeader."Item No.");
         ReservationEntry.SetRange("Item No.", AssemblyHeader."Item No.");
 
-        if ItemLedgerEntry.FindFirst then
+        if ItemLedgerEntry.FindFirst() then
             NavigatePage.SerialNoFilter.SetValue(ItemLedgerEntry."Serial No.")
         else begin
-            ReservationEntry.FindFirst;
+            ReservationEntry.FindFirst();
             NavigatePage.SerialNoFilter.SetValue(ReservationEntry."Serial No.");
         end;
 
@@ -2073,10 +2073,10 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         ItemLedgerEntry.SetRange("Item No.", AssemblyHeader."Item No.");
         ReservationEntry.SetRange("Item No.", AssemblyHeader."Item No.");
 
-        if ItemLedgerEntry.FindFirst then
+        if ItemLedgerEntry.FindFirst() then
             NavigatePage.LotNoFilter.SetValue(ItemLedgerEntry."Lot No.")
         else begin
-            ReservationEntry.FindFirst;
+            ReservationEntry.FindFirst();
             NavigatePage.LotNoFilter.SetValue(ReservationEntry."Lot No.");
         end;
 

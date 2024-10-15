@@ -99,7 +99,7 @@ codeunit 5351 "CRM Customer-Contact Link"
         CRMContact: Record "CRM Contact";
     begin
         CRMContact.SetRange(ParentCustomerIdType, CRMContact.ParentCustomerIdType::account);
-        if CRMContact.FindSet then
+        if CRMContact.FindSet() then
             repeat
                 if not IsNullGuid(CRMContact.ParentCustomerId) then
                     if FindCustomerByAccountId(CRMContact.ParentCustomerId, Customer) then
