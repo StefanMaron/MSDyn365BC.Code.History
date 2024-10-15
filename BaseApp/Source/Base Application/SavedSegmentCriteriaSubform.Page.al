@@ -15,7 +15,7 @@ page 5144 "Saved Segment Criteria Subform"
                 IndentationColumn = ActionTableIndent;
                 IndentationControls = ActionTable;
                 ShowCaption = false;
-                field("Line No."; "Line No.")
+                field("Line No."; Rec."Line No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the segment criteria line.';
@@ -29,7 +29,7 @@ page 5144 "Saved Segment Criteria Subform"
                     ToolTip = 'Specifies the type of information the line shows. There are two options: Action or Filter.';
                     Visible = false;
                 }
-                field(ActionTable; ActionTable)
+                field(ActionTable; ActionTable())
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Action/Table';
@@ -37,7 +37,7 @@ page 5144 "Saved Segment Criteria Subform"
                     StyleExpr = StyleIsStrong;
                     ToolTip = 'Specifies the actions that you have performed (adding or removing contacts) in order to define the segment criteria. The related table is shown under each action.';
                 }
-                field("Filter"; Filter)
+                field("Filter"; Filter())
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Filter';

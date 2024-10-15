@@ -3,7 +3,7 @@ codeunit 1634 "Setup Office Host Provider"
 
     trigger OnRun()
     begin
-        InitSetup;
+        InitSetup();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company-Initialize", 'OnCompanyInitialize', '', false, false)]

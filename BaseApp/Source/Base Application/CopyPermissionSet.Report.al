@@ -12,43 +12,22 @@ report 9802 "Copy Permission Set"
 
             trigger OnAfterGetRecord()
             var
-                SourcePermission: Record Permission;
-                SourceTenantPermission: Record "Tenant Permission";
                 PermissionSetLink: Record "Permission Set Link";
-                SourcePermissionSet: Record "Permission Set";
                 PermissionManager: Codeunit "Permission Manager";
+                PermissionSetRelation: Codeunit "Permission Set Relation";
             begin
-                CreateNewTenantPermissionSet(InputRoleID, Name);
+                PermissionSetRelation.CopyPermissionSet(InputRoleID, Name, "Role ID", "App ID", Scope, InputCopyType);
 
-                case Scope of
-                    Scope::System:
-                        begin
-                            SourcePermission.SetRange("Role ID", "Role ID");
-                            if not SourcePermission.FindSet() then
-                                exit;
-                            repeat
-                                CopyPermissionToNewTenantPermission(InputRoleID, SourcePermission);
-                            until SourcePermission.Next() = 0;
-                            if CreateLink then begin
-                                PermissionSetLink.Init();
-                                PermissionSetLink."Permission Set ID" := SourcePermission."Role ID";
-                                PermissionSetLink."Linked Permission Set ID" := InputRoleID;
-                                SourcePermissionSet.Get("Role ID");
-                                PermissionSetLink."Source Hash" := PermissionManager.GenerateHashForPermissionSet(SourcePermissionSet."Role ID");
-                                PermissionSetLink.Insert();
-                            end;
-                        end;
-                    Scope::Tenant:
-                        begin
-                            SourceTenantPermission.SetRange("App ID", "App ID");
-                            SourceTenantPermission.SetRange("Role ID", "Role ID");
-                            if SourceTenantPermission.FindSet() then
-                                repeat
-                                    CopyTenantPermissionToNewTenantPermission(InputRoleID, SourceTenantPermission);
-                                until SourceTenantPermission.Next() = 0;
-                        end;
-                end;
+                if Scope = Scope::System then
+                    if CreateLink then begin
+                        PermissionSetLink.Init();
+                        PermissionSetLink."Permission Set ID" := "Role ID";
+                        PermissionSetLink."Linked Permission Set ID" := InputRoleID;
+                        PermissionSetLink."Source Hash" := PermissionManager.GenerateHashForPermissionSet("Role ID");
+                        PermissionSetLink.Insert();
+                    end;
             end;
+
 
             trigger OnPreDataItem()
             begin
@@ -76,6 +55,12 @@ report 9802 "Copy Permission Set"
                         Caption = 'New Permission Set';
                         NotBlank = true;
                         ToolTip = 'Specifies the name of the new permission set after copying.';
+                    }
+                    field(CopyType; InputCopyType)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Copy operation';
+                        ToolTip = 'Specifies the type of copy to perform.';
                     }
                     field(CreateLink; CreateLink)
                     {
@@ -105,7 +90,7 @@ report 9802 "Copy Permission Set"
             IsScopeSystem :=
               TypeHelper.GetOptionNo(SourceAggregatePermissionSet.GetFilter(Scope), FieldRef.OptionMembers) =
               SourceAggregatePermissionSet.Scope::System;
-            IsCreateLinkEnabled := IsScopeSystem and PermissionPagesMgt.AppDbPermissionChangedNotificationEnabled;
+            IsCreateLinkEnabled := IsScopeSystem and PermissionPagesMgt.AppDbPermissionChangedNotificationEnabled();
             // defaulting value of flag
             CreateLink := IsCreateLinkEnabled;
         end;
@@ -124,11 +109,12 @@ report 9802 "Copy Permission Set"
     var
         PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
     begin
-        PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers;
+        PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers();
     end;
 
     var
         InputRoleID: Code[20];
+        InputCopyType: Enum "Permission Set Copy Type";
         CopySuccessMsg: Label 'New permission set, %1, has been created.', Comment = 'New permission set, D365 Basic Set, has been created.';
         MissingSourceErr: Label 'There is no permission set to copy from.';
         MultipleSourcesErr: Label 'You can only copy one permission set at a time.';
@@ -175,59 +161,6 @@ report 9802 "Copy Permission Set"
         AggregatePermissionSet.CopyFilters(FromAggregatePermissionSet);
         if AggregatePermissionSet.Count > 1 then
             Error(MultipleSourcesErr);
-    end;
-
-    local procedure CreateNewTenantPermissionSet(NewRoleID: Code[20]; FromAggregatePermissionSetName: Text[30])
-    var
-        TenantPermissionSet: Record "Tenant Permission Set";
-        ZeroGUID: Guid;
-    begin
-        if TenantPermissionSet.Get(ZeroGUID, NewRoleID) then
-            exit;
-
-        TenantPermissionSet.Init();
-        TenantPermissionSet."App ID" := ZeroGUID;
-        TenantPermissionSet."Role ID" := NewRoleID;
-        TenantPermissionSet.Name := FromAggregatePermissionSetName;
-        TenantPermissionSet.Insert();
-    end;
-
-    local procedure CopyPermissionToNewTenantPermission(NewRoleID: Code[20]; FromPermission: Record Permission)
-    var
-        TenantPermission: Record "Tenant Permission";
-        ZeroGUID: Guid;
-    begin
-        if TenantPermission.Get(ZeroGUID, NewRoleID, FromPermission."Object Type", FromPermission."Object ID") then
-            exit;
-
-        TenantPermission.Init();
-        TenantPermission."App ID" := ZeroGUID;
-        TenantPermission."Role ID" := NewRoleID;
-        TenantPermission."Object Type" := FromPermission."Object Type";
-        TenantPermission."Object ID" := FromPermission."Object ID";
-        TenantPermission."Read Permission" := FromPermission."Read Permission";
-        TenantPermission."Insert Permission" := FromPermission."Insert Permission";
-        TenantPermission."Modify Permission" := FromPermission."Modify Permission";
-        TenantPermission."Delete Permission" := FromPermission."Delete Permission";
-        TenantPermission."Execute Permission" := FromPermission."Execute Permission";
-        TenantPermission."Security Filter" := FromPermission."Security Filter";
-        TenantPermission.Insert();
-    end;
-
-    local procedure CopyTenantPermissionToNewTenantPermission(NewRoleID: Code[20]; FromTenantPermission: Record "Tenant Permission")
-    var
-        TenantPermission: Record "Tenant Permission";
-        ZeroGUID: Guid;
-    begin
-        if TenantPermission.Get(
-             FromTenantPermission."App ID", NewRoleID, FromTenantPermission."Object Type", FromTenantPermission."Object ID")
-        then
-            exit;
-
-        TenantPermission := FromTenantPermission;
-        TenantPermission."App ID" := ZeroGUID;
-        TenantPermission."Role ID" := NewRoleID;
-        TenantPermission.Insert();
     end;
 }
 

@@ -1,3 +1,4 @@
+#pragma warning disable AS0032
 page 9075 "RapidStart Services Activities"
 {
     Caption = 'Activities';
@@ -12,9 +13,10 @@ page 9075 "RapidStart Services Activities"
             cuegroup(Tables)
             {
                 Caption = 'Tables';
-                field(Promoted; Rec.Promoted)
+                field(PromotedField; Rec.Promoted)
                 {
                     ApplicationArea = Basic, Suite;
+                    Caption = 'Promoted';
                     DrillDownPageID = "Config. Tables";
                     ToolTip = 'Specifies the number of configuration tables that have been promoted. The documents are filtered by today''s date.';
                 }
@@ -67,4 +69,5 @@ page 9075 "RapidStart Services Activities"
         Rec.SetRange("User ID Filter", UserId());
     end;
 }
+#pragma warning restore AS0032
 

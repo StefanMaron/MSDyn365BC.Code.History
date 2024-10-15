@@ -3,7 +3,7 @@ codeunit 8622 "Config. Insert With Validation"
 
     trigger OnRun()
     begin
-        InsertWithValidation;
+        InsertWithValidation();
     end;
 
     var

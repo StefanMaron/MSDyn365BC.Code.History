@@ -30,7 +30,7 @@ table 5615 "FA Allocation"
                 if "Account No." = '' then
                     exit;
                 GLAcc.Get("Account No.");
-                GLAcc.CheckGLAcc;
+                GLAcc.CheckGLAcc();
                 if "Allocation Type" < "Allocation Type"::Gain then
                     GLAcc.TestField("Direct Posting");
                 Description := GLAcc.Name;
@@ -67,11 +67,9 @@ table 5615 "FA Allocation"
             MaxValue = 100;
             MinValue = 0;
         }
-        field(8; "Allocation Type"; Option)
+        field(8; "Allocation Type"; Enum "FA Allocation Type")
         {
             Caption = 'Allocation Type';
-            OptionCaption = 'Acquisition,Depreciation,Write-Down,Appreciation,Custom 1,Custom 2,Disposal,Maintenance,Gain,Loss,Book Value (Gain),Book Value (Loss)';
-            OptionMembers = Acquisition,Depreciation,"Write-Down",Appreciation,"Custom 1","Custom 2",Disposal,Maintenance,Gain,Loss,"Book Value (Gain)","Book Value (Loss)";
         }
         field(9; "Account Name"; Text[100])
         {
@@ -127,9 +125,10 @@ table 5615 "FA Allocation"
     end;
 
     var
-        Text000: Label 'You cannot rename a %1.';
         GLAcc: Record "G/L Account";
         DimMgt: Codeunit DimensionManagement;
+
+        Text000: Label 'You cannot rename a %1.';
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin

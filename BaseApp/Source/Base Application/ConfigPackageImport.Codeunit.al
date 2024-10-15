@@ -48,10 +48,10 @@ codeunit 8620 "Config. Package - Import"
     var
         ErrorCount: Integer;
     begin
-        ErrorCount := TempConfigSetup.ApplyPackages;
+        ErrorCount := TempConfigSetup.ApplyPackages();
         if ErrorCount > 0 then
             Error(ErrorsImportingPackageErr, ErrorCount, TempConfigSetup."Package Code");
-        TempConfigSetup.ApplyAnswers;
+        TempConfigSetup.ApplyAnswers();
     end;
 
     procedure ImportAndApplyRapidStartPackageStream(var TempBlob: Codeunit "Temp Blob")
@@ -65,8 +65,8 @@ codeunit 8620 "Config. Package - Import"
     procedure ImportRapidStartPackageStream(var TempBlob: Codeunit "Temp Blob"; var TempConfigSetup: Record "Config. Setup" temporary)
     var
         TempBlobUncompressed: Codeunit "Temp Blob";
-        InStream: InStream;
         RecordRef: RecordRef;
+        InStream: InStream;
     begin
         if TempConfigSetup.Get('ImportRS') then
             TempConfigSetup.Delete();

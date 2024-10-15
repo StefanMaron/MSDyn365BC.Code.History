@@ -19,7 +19,7 @@ report 5877 "Phys. Invt. Order - Test"
                 column(USERID; UserId)
                 {
                 }
-                column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+                column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
@@ -246,7 +246,7 @@ report 5877 "Phys. Invt. Order - Test"
                     trigger OnAfterGetRecord()
                     begin
                         OnBeforePhysInvtOrderLineOnAfterGetRecord("Phys. Invt. Order Line", ErrorCounter, ErrorText);
-                        LineIsEmpty := EmptyLine;
+                        LineIsEmpty := EmptyLine();
                         if not LineIsEmpty then begin
                             if not "Qty. Exp. Calculated" then
                                 AddError(StrSubstNo(MustBeErr, FieldCaption("Qty. Exp. Calculated"), true));
@@ -258,7 +258,7 @@ report 5877 "Phys. Invt. Order - Test"
                                     AddError(
                                       StrSubstNo(
                                         MustBeForErr,
-                                        Item.FieldCaption(Blocked), false, Item.TableCaption, "Item No."));
+                                        Item.FieldCaption(Blocked), false, Item.TableCaption(), "Item No."));
                             end else
                                 AddError(
                                   StrSubstNo(ItemDoesNotExistErr, "Item No."));
@@ -277,7 +277,7 @@ report 5877 "Phys. Invt. Order - Test"
                                   ErrorText2);
 
                             if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                                AddError(DimMgt.GetDimCombErr);
+                                AddError(DimMgt.GetDimCombErr());
                             DimSetEntry.SetRange("Dimension Set ID", "Dimension Set ID");
                         end;
                     end;
@@ -326,7 +326,7 @@ report 5877 "Phys. Invt. Order - Test"
                 PhysInvtOrderLine.Reset();
                 PhysInvtOrderLine.SetRange("Document No.", "No.");
                 if not PhysInvtOrderLine.FindFirst() then
-                    AddError(NothingToPostErr);
+                    AddError(DocumentErrorsMgt.GetNothingToPostErrorMsg());
             end;
         }
     }
@@ -366,7 +366,6 @@ report 5877 "Phys. Invt. Order - Test"
         MustNotBeClosignDateErr: Label '%1 must not be a closing date.', Comment = '%1 = field caption';
         FinishedTxt: Label 'Finished';
         NotAllowedDateRangeErr: Label '%1 is not within your allowed range of posting dates.', Comment = '%1 = field caption';
-        NothingToPostErr: Label 'There is nothing to post.';
         MustBeForErr: Label '%1 must be %2 for %3 %4.', Comment = '%1 = field caption, %2 = value, %3 = table caption, %4 = field caption';
         ItemDoesNotExistErr: Label 'Item %1 does not exist.', Comment = '%1 = Item No.';
         GLSetup: Record "General Ledger Setup";
@@ -375,6 +374,7 @@ report 5877 "Phys. Invt. Order - Test"
         Item: Record Item;
         DimSetEntry: Record "Dimension Set Entry";
         DimMgt: Codeunit DimensionManagement;
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         ErrorText: array[99] of Text[250];
         ErrorText2: Text[250];
         DimText: Text[120];
@@ -393,10 +393,10 @@ report 5877 "Phys. Invt. Order - Test"
         DimTextCaptionLbl: Label 'Line Dimensions';
         ErrorText_Number__Control41CaptionLbl: Label 'Warning!';
 
-    local procedure AddError(Text: Text[250])
+    local procedure AddError(Text: Text)
     begin
         ErrorCounter := ErrorCounter + 1;
-        ErrorText[ErrorCounter] := Text;
+        ErrorText[ErrorCounter] := CopyStr(Text, 1, MaxStrLen(ErrorText[ErrorCounter]));
     end;
 
     [IntegrationEvent(false, false)]

@@ -30,9 +30,9 @@ table 296 "Reminder Line"
             begin
                 if Type <> xRec.Type then begin
                     ReminderLine := Rec;
-                    Init;
+                    Init();
                     Type := ReminderLine.Type;
-                    GetReminderHeader;
+                    GetReminderHeader();
                     if Type = Type::"Line Fee" then begin
                         "Line Type" := "Line Type"::"Line Fee";
                         CustPostingGr.Get(ReminderHeader."Customer Posting Group");
@@ -59,9 +59,9 @@ table 296 "Reminder Line"
 
                 if Type <> Type::"Customer Ledger Entry" then
                     exit;
-                SetCustLedgEntryView;
+                SetCustLedgEntryView();
                 if CustLedgEntry.Get("Entry No.") then;
-                LookupCustLedgEntry;
+                LookupCustLedgEntry();
             end;
 
             trigger OnValidate()
@@ -74,7 +74,7 @@ table 296 "Reminder Line"
                     exit;
 
                 TestField(Type, Type::"Customer Ledger Entry");
-                GetReminderHeader;
+                GetReminderHeader();
                 CustLedgEntry.Get("Entry No.");
                 CustLedgEntry.TestField(Open, true);
                 CustLedgEntry.TestField("Customer No.", ReminderHeader."Customer No.");
@@ -82,7 +82,7 @@ table 296 "Reminder Line"
                     Error(
                       MustBeSameErr,
                       ReminderHeader.FieldCaption("Currency Code"),
-                      ReminderHeader.TableCaption, CustLedgEntry.TableCaption);
+                      ReminderHeader.TableCaption(), CustLedgEntry.TableCaption());
                 "Posting Date" := CustLedgEntry."Posting Date";
                 "Document Date" := CustLedgEntry."Document Date";
                 "Due Date" := CustLedgEntry."Due Date";
@@ -96,7 +96,7 @@ table 296 "Reminder Line"
 
                 "No. of Reminders" := GetNoOfReminderForCustLedgEntry("Entry No.");
 
-                CalcFinChrg;
+                CalcFinChrg();
             end;
         }
         field(6; "No. of Reminders"; Integer)
@@ -147,7 +147,7 @@ table 296 "Reminder Line"
 
             trigger OnLookup()
             begin
-                LookupDocNo;
+                LookupDocNo();
             end;
 
             trigger OnValidate()
@@ -162,7 +162,7 @@ table 296 "Reminder Line"
                 TestField(Type, Type::"Customer Ledger Entry");
                 "Entry No." := 0;
                 if "Document No." <> '' then begin
-                    SetCustLedgEntryView;
+                    SetCustLedgEntryView();
                     if "Document Type" <> "Document Type"::" " then
                         CustLedgEntry.SetRange("Document Type", "Document Type");
                     CustLedgEntry.SetRange("Document No.", "Document No.");
@@ -179,7 +179,7 @@ table 296 "Reminder Line"
         }
         field(13; "Original Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCodeFromHeader;
+            AutoFormatExpression = GetCurrencyCodeFromHeader();
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Original Amount';
@@ -187,7 +187,7 @@ table 296 "Reminder Line"
         }
         field(14; "Remaining Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCodeFromHeader;
+            AutoFormatExpression = GetCurrencyCodeFromHeader();
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Remaining Amount';
@@ -228,7 +228,7 @@ table 296 "Reminder Line"
         }
         field(16; Amount; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCodeFromHeader;
+            AutoFormatExpression = GetCurrencyCodeFromHeader();
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Amount';
@@ -245,7 +245,7 @@ table 296 "Reminder Line"
                 if (Type = Type::"Line Fee") and (Amount < 0) then
                     Error(MustBePositiveErr, FieldCaption(Amount));
 
-                GetReminderHeader;
+                GetReminderHeader();
                 Amount := Round(Amount, Currency."Amount Rounding Precision");
                 case "VAT Calculation Type" of
                     "VAT Calculation Type"::"Normal VAT",
@@ -278,7 +278,7 @@ table 296 "Reminder Line"
             begin
                 TestField(Type, Type::"Customer Ledger Entry");
                 TestField("Entry No.");
-                CalcFinChrg;
+                CalcFinChrg();
             end;
         }
         field(18; "Gen. Prod. Posting Group"; Code[20])
@@ -306,7 +306,7 @@ table 296 "Reminder Line"
         }
         field(21; "VAT Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCodeFromHeader;
+            AutoFormatExpression = GetCurrencyCodeFromHeader();
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'VAT Amount';
@@ -329,7 +329,7 @@ table 296 "Reminder Line"
 
             trigger OnValidate()
             begin
-                GetReminderHeader;
+                GetReminderHeader();
                 VATPostingSetup.Get(ReminderHeader."VAT Bus. Posting Group", "VAT Prod. Posting Group");
                 OnValidateVATProdPostingGroupOnAfterVATPostingSetupGet(VATPostingSetup, Rec);
                 "VAT %" := VATPostingSetup."VAT %";
@@ -392,7 +392,7 @@ table 296 "Reminder Line"
             begin
                 if Type <> Type::"Line Fee" then
                     exit;
-                SetCustLedgEntryView;
+                SetCustLedgEntryView();
                 if "Applies-to Document Type" <> "Applies-to Document Type"::" " then
                     CustLedgEntry.SetRange("Document Type", "Applies-to Document Type");
                 if "Applies-to Document No." <> '' then
@@ -400,7 +400,7 @@ table 296 "Reminder Line"
                 if CustLedgEntry.FindFirst() then;
                 CustLedgEntry.SetRange("Document Type");
                 CustLedgEntry.SetRange("Document No.");
-                LookupCustLedgEntry;
+                LookupCustLedgEntry();
             end;
 
             trigger OnValidate()
@@ -410,7 +410,7 @@ table 296 "Reminder Line"
                 TestField(Type, Type::"Line Fee");
                 "Entry No." := 0;
                 if "Applies-to Document No." <> '' then begin
-                    SetCustLedgEntryView;
+                    SetCustLedgEntryView();
                     if "Applies-to Document Type" <> "Applies-to Document Type"::" " then
                         CustLedgEntry.SetRange("Document Type", "Applies-to Document Type");
                     CustLedgEntry.SetRange("Document No.", "Applies-to Document No.");
@@ -429,12 +429,12 @@ table 296 "Reminder Line"
                     if LineFeeIssuedForReminderLevel(CustLedgEntry, NextLineFeeLevel) then
                         Error(LineFeeAlreadyIssuedErr, "Applies-to Document Type", "Applies-to Document No.", NextLineFeeLevel);
 
-                    GetReminderHeader;
+                    GetReminderHeader();
                     if CustLedgEntry."Currency Code" <> ReminderHeader."Currency Code" then
                         Error(
                           MustBeSameErr,
                           ReminderHeader.FieldCaption("Currency Code"),
-                          ReminderHeader.TableCaption, CustLedgEntry.TableCaption);
+                          ReminderHeader.TableCaption(), CustLedgEntry.TableCaption());
 
                     GetReminderLevel(ReminderLevel, NextLineFeeLevel, NextLineFeeLevel);
                     "Posting Date" := ReminderHeader."Posting Date";
@@ -581,7 +581,7 @@ table 296 "Reminder Line"
         if IsHandled then
             exit;
 
-        GetReminderHeader;
+        GetReminderHeader();
         "Interest Rate" := 0;
         Amount := 0;
         "VAT Amount" := 0;
@@ -657,7 +657,7 @@ table 296 "Reminder Line"
                             if CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Reminder then
                                 if IssuedReminderHeader.Get(CustLedgEntry."Document No.") then begin
                                     IssuedReminderHeader.CalcFields("Add. Fee per Line");
-                                    LineFee := IssuedReminderHeader."Add. Fee per Line" + IssuedReminderHeader.CalculateLineFeeVATAmount;
+                                    LineFee := IssuedReminderHeader."Add. Fee per Line" + IssuedReminderHeader.CalculateLineFeeVATAmount();
                                     Amount := Amount - LineFee * (ReminderHeader."Document Date" - InterestStartDate);
                                     if Amount < 0 then
                                         Amount := 0;
@@ -691,7 +691,7 @@ table 296 "Reminder Line"
         OnCalcFinChrgOnBeforeValidatePostingGroups(Rec, ReminderHeader, Amount);
         if Amount <> 0 then begin
             CustPostingGr.Get(ReminderHeader."Customer Posting Group");
-            GLAcc.Get(CustPostingGr.GetInterestAccount);
+            GLAcc.Get(CustPostingGr.GetInterestAccount());
             GLAcc.TestField("Gen. Prod. Posting Group");
             "Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
             Validate("VAT Prod. Posting Group", GLAcc."VAT Prod. Posting Group");
@@ -702,7 +702,7 @@ table 296 "Reminder Line"
 
     local procedure SetCustLedgEntryView()
     begin
-        GetReminderHeader;
+        GetReminderHeader();
         CustLedgEntry.SetCurrentKey("Customer No.", Open);
         CustLedgEntry.SetRange("Customer No.", ReminderHeader."Customer No.");
         CustLedgEntry.SetRange(Open, true);
@@ -724,7 +724,7 @@ table 296 "Reminder Line"
     begin
         if "Reminder No." <> ReminderHeader."No." then begin
             ReminderHeader.Get("Reminder No.");
-            ProcessReminderHeader;
+            ProcessReminderHeader();
         end;
     end;
 
@@ -736,7 +736,7 @@ table 296 "Reminder Line"
         ReminderHeader.TestField("Reminder Terms Code");
         ReminderTerms.Get(ReminderHeader."Reminder Terms Code");
         if ReminderHeader."Currency Code" = '' then
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         else begin
             Currency.Get(ReminderHeader."Currency Code");
             Currency.TestField("Amount Rounding Precision");
@@ -759,13 +759,13 @@ table 296 "Reminder Line"
     local procedure FillLineWithGLAccountData(GLAccountNo: Code[20])
     begin
         GLAcc.Get(GLAccountNo);
-        GLAcc.CheckGLAcc;
+        GLAcc.CheckGLAcc();
         if not "System-Created Entry" then
             GLAcc.TestField("Direct Posting", true);
         GLAcc.TestField("Gen. Prod. Posting Group");
         if Description = '' then
             Description := GLAcc.Name;
-        GetReminderHeader;
+        GetReminderHeader();
         "Tax Group Code" := GLAcc."Tax Group Code";
         "Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
         Validate("VAT Prod. Posting Group", GLAcc."VAT Prod. Posting Group");
@@ -808,7 +808,7 @@ table 296 "Reminder Line"
         IssuedReminderLine.SetRange(Type, IssuedReminderLine.Type::"Line Fee");
         IssuedReminderLine.SetRange("No. of Reminders", IssuedNoOfReminders);
         IssuedReminderLine.SetRange(Canceled, false);
-        exit(IssuedReminderLine.FindFirst);
+        exit(IssuedReminderLine.FindFirst())
     end;
 
     local procedure GetReminderLevel(var ReminderLevel: Record "Reminder Level"; LevelStart: Integer; LevelEnd: Integer)
@@ -856,7 +856,7 @@ table 296 "Reminder Line"
             if CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Reminder then
                 if IssuedReminderHeader.Get(CustLedgEntry."Document No.") then begin
                     IssuedReminderHeader.CalcFields("Add. Fee per Line");
-                    LineFee := IssuedReminderHeader."Add. Fee per Line" + IssuedReminderHeader.CalculateLineFeeVATAmount;
+                    LineFee := IssuedReminderHeader."Add. Fee per Line" + IssuedReminderHeader.CalculateLineFeeVATAmount();
                     CumAmount := CumAmount - LineFee * (ReminderHeader."Document Date" - InterestStartDate);
                     if CumAmount < 0 then
                         CumAmount := 0;
@@ -959,7 +959,7 @@ table 296 "Reminder Line"
                 UseDueDate := CalcDate('<-1D>', FinanceChargeInterestRate."Start Date");
                 CurrInterestRateStartDate := FinanceChargeInterestRate."Start Date";
                 UseInterestRate := FinanceChargeInterestRate."Interest Rate";
-                if FinanceChargeInterestRate.Next <> 0 then begin
+                if FinanceChargeInterestRate.Next() <> 0 then begin
                     if FinanceChargeInterestRate."Start Date" <= ReminderHeader."Document Date" then
                         UseCalcDate := CalcDate('<-1D>', FinanceChargeInterestRate."Start Date")
                     else

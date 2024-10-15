@@ -24,7 +24,7 @@ page 415 "G/L Account Balance"
 
                     trigger OnValidate()
                     begin
-                        UpdateSubForm;
+                        UpdateSubForm();
                     end;
                 }
                 field(DebitCreditTotals; DebitCreditTotals)
@@ -35,7 +35,7 @@ page 415 "G/L Account Balance"
 
                     trigger OnValidate()
                     begin
-                        UpdateSubForm;
+                        UpdateSubForm();
                     end;
                 }
                 field(PeriodType; PeriodType)
@@ -47,17 +47,17 @@ page 415 "G/L Account Balance"
                     trigger OnValidate()
                     begin
                         if PeriodType = PeriodType::"Accounting Period" then
-                            AccountingPerioPeriodTypeOnVal;
+                            AccountingPerioPeriodTypeOnVal();
                         if PeriodType = PeriodType::Year then
-                            YearPeriodTypeOnValidate;
+                            YearPeriodTypeOnValidate();
                         if PeriodType = PeriodType::Quarter then
-                            QuarterPeriodTypeOnValidate;
+                            QuarterPeriodTypeOnValidate();
                         if PeriodType = PeriodType::Month then
-                            MonthPeriodTypeOnValidate;
+                            MonthPeriodTypeOnValidate();
                         if PeriodType = PeriodType::Week then
-                            WeekPeriodTypeOnValidate;
+                            WeekPeriodTypeOnValidate();
                         if PeriodType = PeriodType::Day then
-                            DayPeriodTypeOnValidate;
+                            DayPeriodTypeOnValidate();
                     end;
                 }
                 field(AmountType; AmountType)
@@ -69,9 +69,9 @@ page 415 "G/L Account Balance"
                     trigger OnValidate()
                     begin
                         if AmountType = AmountType::"Balance at Date" then
-                            BalanceatDateAmountTypeOnValid;
+                            BalanceatDateAmountTypeOnValid();
                         if AmountType = AmountType::"Net Change" then
-                            NetChangeAmountTypeOnValidate;
+                            NetChangeAmountTypeOnValidate();
                     end;
                 }
             }
@@ -110,7 +110,6 @@ page 415 "G/L Account Balance"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Ledger E&ntries';
                     Image = GLRegisters;
-                    Promoted = false;
                     RunObject = Page "General Ledger Entries";
                     RunPageLink = "G/L Account No." = FIELD("No.");
                     RunPageView = SORTING("G/L Account No.");
@@ -159,11 +158,14 @@ page 415 "G/L Account Balance"
                 }
             }
         }
+        area(Promoted)
+        {
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     var
@@ -179,82 +181,82 @@ page 415 "G/L Account Balance"
 
     local procedure DayPeriodTypeOnPush()
     begin
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure WeekPeriodTypeOnPush()
     begin
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure MonthPeriodTypeOnPush()
     begin
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure QuarterPeriodTypeOnPush()
     begin
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure YearPeriodTypeOnPush()
     begin
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
-    local procedure AccountingPerioPeriodTypOnPush()
+    local procedure AccountingPerioPeriodTypeOnPush()
     begin
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure BalanceatDateAmountTypeOnPush()
     begin
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure NetChangeAmountTypeOnPush()
     begin
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure DayPeriodTypeOnValidate()
     begin
-        DayPeriodTypeOnPush;
+        DayPeriodTypeOnPush();
     end;
 
     local procedure WeekPeriodTypeOnValidate()
     begin
-        WeekPeriodTypeOnPush;
+        WeekPeriodTypeOnPush();
     end;
 
     local procedure MonthPeriodTypeOnValidate()
     begin
-        MonthPeriodTypeOnPush;
+        MonthPeriodTypeOnPush();
     end;
 
     local procedure QuarterPeriodTypeOnValidate()
     begin
-        QuarterPeriodTypeOnPush;
+        QuarterPeriodTypeOnPush();
     end;
 
     local procedure YearPeriodTypeOnValidate()
     begin
-        YearPeriodTypeOnPush;
+        YearPeriodTypeOnPush();
     end;
 
     local procedure AccountingPerioPeriodTypeOnVal()
     begin
-        AccountingPerioPeriodTypOnPush;
+        AccountingPerioPeriodTypeOnPush();
     end;
 
     local procedure NetChangeAmountTypeOnValidate()
     begin
-        NetChangeAmountTypeOnPush;
+        NetChangeAmountTypeOnPush();
     end;
 
     local procedure BalanceatDateAmountTypeOnValid()
     begin
-        BalanceatDateAmountTypeOnPush;
+        BalanceatDateAmountTypeOnPush();
     end;
 }
 

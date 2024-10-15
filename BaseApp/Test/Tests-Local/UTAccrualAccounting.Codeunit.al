@@ -47,7 +47,7 @@ codeunit 144025 "UT Accrual Accounting"
         AutomaticAccLine.OpenEdit;
         AutomaticAccLine.FILTER.SetFilter("G/L Account No.", GLAccountNo);
         AutomaticAccLine."Allocation %".AssertEquals(AllocationPct);
-        AutomaticAccLine.Close;
+        AutomaticAccLine.Close();
     end;
 
     [Test]
@@ -71,7 +71,7 @@ codeunit 144025 "UT Accrual Accounting"
         // Verify: Verify Dimension Value Code in Page Handler - EditDimensionSetEntriesModalPageHandler.
         LibraryVariableStorage.Enqueue(AutomaticAccHeader.AccLines."Shortcut Dimension 1 Code".Value);
         AutomaticAccHeader.AccLines.Dimensions.Invoke;
-        AutomaticAccHeader.Close;
+        AutomaticAccHeader.Close();
     end;
 
     [Test]
@@ -95,7 +95,7 @@ codeunit 144025 "UT Accrual Accounting"
         // Verify: Verify Dimension Value Code in Page Handler - EditDimensionSetEntriesModalPageHandler.
         LibraryVariableStorage.Enqueue(AutomaticAccHeader.AccLines."Shortcut Dimension 2 Code".Value);
         AutomaticAccHeader.AccLines.Dimensions.Invoke;
-        AutomaticAccHeader.Close;
+        AutomaticAccHeader.Close();
     end;
 
     local procedure Initialize()
@@ -133,7 +133,7 @@ codeunit 144025 "UT Accrual Accounting"
         AutomaticAccLine.New;
         AutomaticAccLine."Allocation %".SetValue(AllocationPct);
         AutomaticAccLine."G/L Account No.".SetValue(GLAccountNo);
-        AutomaticAccLine.Close;
+        AutomaticAccLine.Close();
     end;
 
     [ModalPageHandler]

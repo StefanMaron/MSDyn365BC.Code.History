@@ -23,12 +23,12 @@ page 435 "Reminder Lines"
 
                     trigger OnValidate()
                     begin
-                        TypeOnAfterValidate;
+                        TypeOnAfterValidate();
                         NoOnAfterValidate();
-                        SetShowMandatoryConditions
+                        SetShowMandatoryConditions();
                     end;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = TypeIsGLAccount;
@@ -39,25 +39,25 @@ page 435 "Reminder Lines"
                         NoOnAfterValidate();
                     end;
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting date of the customer ledger entry that this reminder line is for.';
                     Visible = false;
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = TypeIsCustomerLedgerEntry;
                     ToolTip = 'Specifies the document type of the customer ledger entry this reminder line is for.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = TypeIsCustomerLedgerEntry;
@@ -65,7 +65,7 @@ page 435 "Reminder Lines"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookupDocNo;
+                        LookupDocNo();
                     end;
 
                     trigger OnValidate()
@@ -73,7 +73,7 @@ page 435 "Reminder Lines"
                         CurrPage.Update();
                     end;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the due date of the customer ledger entry this reminder line is for.';
@@ -85,7 +85,7 @@ page 435 "Reminder Lines"
                     StyleExpr = DescriptionEmphasize;
                     ToolTip = 'Specifies an entry description, based on the contents of the Type field.';
                 }
-                field("Original Amount"; "Original Amount")
+                field("Original Amount"; Rec."Original Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
@@ -93,7 +93,7 @@ page 435 "Reminder Lines"
                     ToolTip = 'Specifies the original amount of the customer ledger entry that this reminder line is for.';
                     Visible = false;
                 }
-                field("Remaining Amount"; "Remaining Amount")
+                field("Remaining Amount"; Rec."Remaining Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
@@ -107,7 +107,7 @@ page 435 "Reminder Lines"
                     StyleExpr = AmountEmphasize;
                     ToolTip = 'Specifies the amount in the currency that is represented by the currency code on the reminder header.';
                 }
-                field("No. of Reminders"; "No. of Reminders")
+                field("No. of Reminders"; Rec."No. of Reminders")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -115,25 +115,25 @@ page 435 "Reminder Lines"
                     ToolTip = 'Specifies a number that indicates the reminder level.';
                     Visible = false;
                 }
-                field("Line Type"; "Line Type")
+                field("Line Type"; Rec."Line Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the reminder line.';
                     Visible = false;
                 }
-                field("Applies-to Document Type"; "Applies-to Document Type")
+                field("Applies-to Document Type"; Rec."Applies-to Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
                     Visible = false;
                 }
-                field("Applies-to Document No."; "Applies-to Document No.")
+                field("Applies-to Document No."; Rec."Applies-to Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
                     Visible = false;
                 }
-                field("VAT Amount"; "VAT Amount")
+                field("VAT Amount"; Rec."VAT Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT amount in the currency that is represented by the currency code on the reminder header.';
@@ -170,16 +170,16 @@ page 435 "Reminder Lines"
 
     trigger OnAfterGetCurrRecord()
     begin
-        SetShowMandatoryConditions;
+        SetShowMandatoryConditions();
     end;
 
     trigger OnAfterGetRecord()
     begin
         DescriptionIndent := 0;
-        DescriptionOnFormat;
-        OriginalAmountOnFormat;
-        RemainingAmountOnFormat;
-        AmountOnFormat;
+        DescriptionOnFormat();
+        OriginalAmountOnFormat();
+        RemainingAmountOnFormat();
+        AmountOnFormat();
     end;
 
     var
@@ -202,10 +202,10 @@ page 435 "Reminder Lines"
         OnBeforeInsertExtendedText(Rec);
 
         if TransferExtendedText.ReminderCheckIfAnyExtText(Rec, Unconditionally) then begin
-            CurrPage.SaveRecord;
+            CurrPage.SaveRecord();
             TransferExtendedText.InsertReminderExtText(Rec);
         end;
-        if TransferExtendedText.MakeUpdate then
+        if TransferExtendedText.MakeUpdate() then
             CurrPage.Update();
     end;
 

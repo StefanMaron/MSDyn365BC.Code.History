@@ -2,13 +2,10 @@ table 49 "Invoice Post. Buffer"
 {
     Caption = 'Invoice Post. Buffer';
     ReplicateData = false;
-#if CLEAN18
-        TableType = Temporary;
-#else
+    TableType = Temporary;
     ObsoleteState = Pending;
     ObsoleteTag = '18.0';
-    ObsoleteReason = 'This table will be marked as temporary. Please ensure you do not store any data in the table.';
-#endif
+    ObsoleteReason = 'Replaced by Invoice Posting Buffer table.';
 
     fields
     {
@@ -192,12 +189,10 @@ table 49 "Invoice Post. Buffer"
             Caption = 'FA Posting Date';
             DataClassification = SystemMetadata;
         }
-        field(5601; "FA Posting Type"; Option)
+        field(5601; "FA Posting Type"; Enum "Purchase FA Posting Type")
         {
             Caption = 'FA Posting Type';
             DataClassification = SystemMetadata;
-            OptionCaption = ' ,Acquisition Cost,Maintenance,,Appreciation';
-            OptionMembers = " ","Acquisition Cost",Maintenance,,Appreciation;
         }
         field(5602; "Depreciation Book Code"; Code[10])
         {
@@ -341,7 +336,7 @@ table 49 "Invoice Post. Buffer"
         if IsHandled then
             exit;
 
-        CurrencyLCY.InitRoundingPrecision;
+        CurrencyLCY.InitRoundingPrecision();
         GLSetup.Get();
         if GLSetup."Additional Reporting Currency" <> '' then
             CurrencyACY.Get(GLSetup."Additional Reporting Currency")
@@ -350,11 +345,11 @@ table 49 "Invoice Post. Buffer"
         "VAT Amount" := Round(
             CalcVATAmount(PricesInclVAT, DiscountAmount, "VAT %"),
             CurrencyLCY."Amount Rounding Precision",
-            CurrencyLCY.VATRoundingDirection);
+            CurrencyLCY.VATRoundingDirection());
         "VAT Amount (ACY)" := Round(
             CalcVATAmount(PricesInclVAT, DiscountAmountACY, "VAT %"),
             CurrencyACY."Amount Rounding Precision",
-            CurrencyACY.VATRoundingDirection);
+            CurrencyACY.VATRoundingDirection());
 
         if PricesInclVAT and ("VAT %" <> 0) then begin
             "VAT Base Amount" := DiscountAmount - "VAT Amount";
@@ -593,7 +588,7 @@ table 49 "Invoice Post. Buffer"
         OnBeforeInvPostBufferUpdate(Rec, InvoicePostBuffer);
 
         Rec := InvoicePostBuffer;
-        if Find then begin
+        if Find() then begin
             Amount += InvoicePostBuffer.Amount;
             "VAT Amount" += InvoicePostBuffer."VAT Amount";
             "VAT Base Amount" += InvoicePostBuffer."VAT Base Amount";
@@ -606,9 +601,9 @@ table 49 "Invoice Post. Buffer"
             if not InvoicePostBuffer."System-Created Entry" then
                 "System-Created Entry" := false;
             if "Deferral Code" = '' then
-                AdjustRoundingForUpdate;
+                AdjustRoundingForUpdate();
             OnBeforeInvPostBufferModify(Rec, InvoicePostBuffer);
-            Modify;
+            Modify();
             OnAfterInvPostBufferModify(Rec, InvoicePostBuffer);
             InvDefLineNo := "Deferral Line No.";
         end else begin
@@ -617,7 +612,7 @@ table 49 "Invoice Post. Buffer"
                 "Deferral Line No." := DeferralLineNo;
                 InvDefLineNo := "Deferral Line No.";
             end;
-            Insert;
+            Insert();
         end;
 
         OnAfterInvPostBufferUpdate(Rec, InvoicePostBuffer);

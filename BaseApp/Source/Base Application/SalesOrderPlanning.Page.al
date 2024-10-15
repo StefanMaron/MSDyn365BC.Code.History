@@ -1,7 +1,7 @@
 page 99000883 "Sales Order Planning"
 {
     Caption = 'Sales Order Planning';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     DataCaptionFields = "Sales Order No.";
     Editable = false;
     PageType = List;
@@ -15,18 +15,18 @@ page 99000883 "Sales Order Planning"
             repeater(Control2)
             {
                 ShowCaption = false;
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the item number of the sales order line.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
-                field("Planning Status"; "Planning Status")
+                field("Planning Status"; Rec."Planning Status")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the planning status of the production order, depending on the actual sales order.';
@@ -36,12 +36,12 @@ page 99000883 "Sales Order Planning"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the description of the item in the sales order line.';
                 }
-                field("Shipment Date"; "Shipment Date")
+                field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
                 }
-                field("Planned Quantity"; "Planned Quantity")
+                field("Planned Quantity"; Rec."Planned Quantity")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the quantity planned in this line.';
@@ -63,17 +63,17 @@ page 99000883 "Sales Order Planning"
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies how many of the actual items are available.';
                 }
-                field("Next Planning Date"; "Next Planning Date")
+                field("Next Planning Date"; Rec."Next Planning Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the next planning date.';
                 }
-                field("Expected Delivery Date"; "Expected Delivery Date")
+                field("Expected Delivery Date"; Rec."Expected Delivery Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the expected delivery date.';
                 }
-                field("Needs Replanning"; "Needs Replanning")
+                field("Needs Replanning"; Rec."Needs Replanning")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies if it is necessary or not to reschedule this line.';
@@ -124,8 +124,6 @@ page 99000883 "Sales Order Planning"
                         ApplicationArea = Planning;
                         Caption = 'Event';
                         Image = "Event";
-                        Promoted = true;
-                        PromotedCategory = Process;
                         ToolTip = 'View how the actual and the projected available balance of an item will develop over time according to supply and demand events.';
 
                         trigger OnAction()
@@ -133,7 +131,7 @@ page 99000883 "Sales Order Planning"
                             Item: Record Item;
                         begin
                             if Item.Get("Item No.") then
-                                ItemAvailFormsMgt.ShowItemAvailFromItem(Item, ItemAvailFormsMgt.ByEvent);
+                                ItemAvailFormsMgt.ShowItemAvailFromItem(Item, ItemAvailFormsMgt.ByEvent());
                         end;
                     }
                     action("<Action31>")
@@ -157,7 +155,7 @@ page 99000883 "Sales Order Planning"
                             Item: Record Item;
                         begin
                             if Item.Get("Item No.") then
-                                ItemAvailFormsMgt.ShowItemAvailFromItem(Item, ItemAvailFormsMgt.ByBOM);
+                                ItemAvailFormsMgt.ShowItemAvailFromItem(Item, ItemAvailFormsMgt.ByBOM());
                         end;
                     }
                 }
@@ -169,9 +167,6 @@ page 99000883 "Sales Order Planning"
                     ApplicationArea = Planning;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
 
@@ -199,9 +194,6 @@ page 99000883 "Sales Order Planning"
                     Caption = 'Update &Shipment Dates';
                     Ellipsis = true;
                     Image = UpdateShipment;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Update the Shipment Date field on lines with any changes that were made since you opened the Sales Order Planning window.';
 
                     trigger OnAction()
@@ -215,7 +207,7 @@ page 99000883 "Sales Order Planning"
                         if Choice = 0 then
                             exit;
 
-                        LastShipmentDate := WorkDate;
+                        LastShipmentDate := WorkDate();
 
                         SalesHeader.LockTable();
                         SalesHeader.Get(SalesHeader."Document Type"::Order, SalesHeader."No.");
@@ -241,7 +233,7 @@ page 99000883 "Sales Order Planning"
                                     SalesLine.Modify();
                                 until Next() = 0;
                         end;
-                        BuildForm;
+                        BuildForm();
                     end;
                 }
                 action("&Create Prod. Order")
@@ -250,14 +242,11 @@ page 99000883 "Sales Order Planning"
                     ApplicationArea = Manufacturing;
                     Caption = '&Create Prod. Order';
                     Image = CreateDocument;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Prepare to create a production order to fulfill the sales demand.';
 
                     trigger OnAction()
                     begin
-                        CreateProdOrder;
+                        CreateProdOrder();
                     end;
                 }
                 separator(Action32)
@@ -268,9 +257,6 @@ page 99000883 "Sales Order Planning"
                     ApplicationArea = Planning;
                     Caption = 'Order &Tracking';
                     Image = OrderTracking;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Tracks the connection of a supply to its corresponding demand. This can help you find the original demand that created a specific production order or purchase order.';
 
                     trigger OnAction()
@@ -285,8 +271,42 @@ page 99000883 "Sales Order Planning"
 
                         TrackingForm.SetSalesLine(SalesOrderLine);
                         TrackingForm.RunModal();
-                        BuildForm;
+                        BuildForm();
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("&Create Prod. Order_Promoted"; "&Create Prod. Order")
+                {
+                }
+                actionref("Order &Tracking_Promoted"; "Order &Tracking")
+                {
+                }
+                actionref("Update &Shipment Dates_Promoted"; "Update &Shipment Dates")
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                group("Category_Item Availability by")
+                {
+                    Caption = 'Item Availability by';
+
+                    actionref("<Action6>_Promoted"; "<Action6>")
+                    {
+                    }
+                    actionref("BOM Level_Promoted"; "BOM Level")
+                    {
+                    }
+                    actionref("<Action31>_Promoted"; "<Action31>")
+                    {
+                    }
                 }
             }
         }
@@ -298,13 +318,14 @@ page 99000883 "Sales Order Planning"
     end;
 
     var
-        Text000: Label 'All Lines to last Shipment Date,Each line own Shipment Date';
-        Text001: Label 'There is nothing to plan.';
         SalesHeader: Record "Sales Header";
         ReservEntry: Record "Reservation Entry";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         NewStatus: Enum "Production Order Status";
         NewOrderType: Enum "Create Production Order Type";
+
+        Text000: Label 'All Lines to last Shipment Date,Each line own Shipment Date';
+        Text001: Label 'There is nothing to plan.';
 
     procedure SetSalesOrder(SalesOrderNo: Code[20])
     begin
@@ -333,7 +354,7 @@ page 99000883 "Sales Order Planning"
         OnMakeLinesSetOnAfterSetFilters(SalesLine);
         if SalesLine.Find('-') then
             repeat
-                Init;
+                Init();
                 "Sales Order No." := SalesLine."Document No.";
                 "Sales Order Line No." := SalesLine."Line No.";
                 "Item No." := SalesLine."No.";
@@ -421,7 +442,7 @@ page 99000883 "Sales Order Planning"
         else
             Available := 0;
 
-        "Next Planning Date" := WorkDate;
+        "Next Planning Date" := WorkDate();
 
         CalculatePlanAndDelivDates(Item, "Next Planning Date", "Expected Delivery Date");
     end;
@@ -433,7 +454,7 @@ page 99000883 "Sales Order Planning"
         NextPlanningDate := CalcDate(Item."Lot Accumulation Period", NextPlanningDate);
 
         if (Available > 0) or ("Planning Status" <> "Planning Status"::None) then
-            ExpectedDeliveryDate := CalcDate(Item."Safety Lead Time", WorkDate)
+            ExpectedDeliveryDate := CalcDate(Item."Safety Lead Time", WorkDate())
         else
             ExpectedDeliveryDate :=
               CalcDate(Item."Safety Lead Time",
@@ -503,7 +524,7 @@ page 99000883 "Sales Order Planning"
             exit;
 
         if ShowCreateOrderForm then begin
-            if CreateOrderFromSales.RunModal <> ACTION::Yes then
+            if CreateOrderFromSales.RunModal() <> ACTION::Yes then
                 exit;
 
             CreateOrderFromSales.GetParameters(NewStatus, NewOrderType);
@@ -511,7 +532,7 @@ page 99000883 "Sales Order Planning"
             Clear(CreateOrderFromSales);
         end;
 
-        if not CreateOrders then
+        if not CreateOrders() then
             Message(Text001);
 
         SetRange("Planning Status");

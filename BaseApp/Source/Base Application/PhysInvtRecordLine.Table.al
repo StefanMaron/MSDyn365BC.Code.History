@@ -40,10 +40,10 @@ table 5878 "Phys. Invt. Record Line"
             var
                 TempPhysInvtRecordLine: Record "Phys. Invt. Record Line" temporary;
             begin
-                TestStatusOpen;
+                TestStatusOpen();
 
                 TempPhysInvtRecordLine := Rec;
-                Init;
+                Init();
                 "Item No." := TempPhysInvtRecordLine."Item No.";
 
                 OnValidateItemNoOnAfterInitFromTempRecord(Rec, TempPhysInvtRecordLine);
@@ -54,8 +54,8 @@ table 5878 "Phys. Invt. Record Line"
                 if "Item No." = '' then
                     exit;
 
-                GetPhysInvtRecordHeader;
-                GetItem;
+                GetPhysInvtRecordHeader();
+                GetItem();
                 Item.TestField(Blocked, false);
 
                 Validate(Description, Item.Description);
@@ -84,7 +84,7 @@ table 5878 "Phys. Invt. Record Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 TestField("Item No.");
 
                 if "Variant Code" = '' then
@@ -165,7 +165,7 @@ table 5878 "Phys. Invt. Record Line"
 
             trigger OnValidate()
             begin
-                GetItem;
+                GetItem();
                 "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
                 "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
                 "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
@@ -187,7 +187,7 @@ table 5878 "Phys. Invt. Record Line"
                 if ShouldCheckSerialNo then
                     if "Serial No." <> '' then
                         Error(QuantityCannotBeErr);
-                GetPhysInvtRecordHeader;
+                GetPhysInvtRecordHeader();
 
                 Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
 
@@ -197,7 +197,7 @@ table 5878 "Phys. Invt. Record Line"
                     FieldCaption("Qty. Rounding Precision"), FieldCaption(Quantity), FieldCaption("Quantity (Base)")
                 );
 
-                CheckSerialNo;
+                CheckSerialNo();
                 Recorded := true;
                 "Date Recorded" := PhysInvtRecordHeader."Date Recorded";
                 "Time Recorded" := PhysInvtRecordHeader."Time Recorded";
@@ -257,12 +257,12 @@ table 5878 "Phys. Invt. Record Line"
 
             trigger OnLookup()
             begin
-                ShowUsedTrackLines;
+                ShowUsedTrackLines();
             end;
 
             trigger OnValidate()
             begin
-                CheckSerialNo;
+                CheckSerialNo();
                 if "Serial No." <> '' then
                     Validate(Quantity, 1);
             end;
@@ -273,7 +273,7 @@ table 5878 "Phys. Invt. Record Line"
 
             trigger OnLookup()
             begin
-                ShowUsedTrackLines;
+                ShowUsedTrackLines();
             end;
         }
     }
@@ -305,17 +305,17 @@ table 5878 "Phys. Invt. Record Line"
 
     trigger OnDelete()
     begin
-        TestStatusOpen;
+        TestStatusOpen();
     end;
 
     trigger OnInsert()
     begin
-        TestStatusOpen;
+        TestStatusOpen();
     end;
 
     trigger OnModify()
     begin
-        TestStatusOpen;
+        TestStatusOpen();
     end;
 
     trigger OnRename()
@@ -355,7 +355,7 @@ table 5878 "Phys. Invt. Record Line"
 
     local procedure TestStatusOpen()
     begin
-        GetPhysInvtRecordHeader;
+        GetPhysInvtRecordHeader();
         PhysInvtRecordHeader.TestField(Status, PhysInvtRecordHeader.Status::Open);
     end;
 
@@ -376,7 +376,7 @@ table 5878 "Phys. Invt. Record Line"
         TempPhysInvtTracking: Record "Phys. Invt. Tracking" temporary;
         PhysInvtTrackingLines: Page "Phys. Invt. Tracking Lines";
     begin
-        GetItem;
+        GetItem();
 
         TempPhysInvtTracking.Reset();
         TempPhysInvtTracking.DeleteAll();
@@ -417,7 +417,7 @@ table 5878 "Phys. Invt. Record Line"
             PhysInvtTrackingLines.SetRecord(TempPhysInvtTracking);
             PhysInvtTrackingLines.SetSources(TempPhysInvtTracking);
             PhysInvtTrackingLines.LookupMode(true);
-            if PhysInvtTrackingLines.RunModal = ACTION::LookupOK then begin
+            if PhysInvtTrackingLines.RunModal() = ACTION::LookupOK then begin
                 PhysInvtTrackingLines.GetRecord(TempPhysInvtTracking);
                 Validate("Serial No.", TempPhysInvtTracking."Serial No.");
                 Validate("Lot No.", TempPhysInvtTracking."Lot No");

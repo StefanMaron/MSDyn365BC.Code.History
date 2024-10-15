@@ -29,40 +29,40 @@ page 271 "Res. Journal Template List"
                     ToolTip = 'Specifies if this journal will contain recurring entries.';
                     Visible = false;
                 }
-                field("Source Code"; "Source Code")
+                field("Source Code"; Rec."Source Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the source code that specifies where the entry was created.';
                     Visible = false;
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
                     Visible = false;
                 }
-                field("Page ID"; "Page ID")
+                field("Page ID"; Rec."Page ID")
                 {
                     ApplicationArea = Jobs;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the number of the page that is used to show the journal or worksheet that uses the template.';
                     Visible = false;
                 }
-                field("Test Report ID"; "Test Report ID")
+                field("Test Report ID"; Rec."Test Report ID")
                 {
                     ApplicationArea = Jobs;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the test report that is printed when, on the Actions tab in the Posting group, you choose Test Report.';
                     Visible = false;
                 }
-                field("Posting Report ID"; "Posting Report ID")
+                field("Posting Report ID"; Rec."Posting Report ID")
                 {
                     ApplicationArea = Jobs;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the posting report that you want associated with this journal.';
                     Visible = false;
                 }
-                field("Force Posting Report"; "Force Posting Report")
+                field("Force Posting Report"; Rec."Force Posting Report")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies whether a report is printed automatically when you post.';

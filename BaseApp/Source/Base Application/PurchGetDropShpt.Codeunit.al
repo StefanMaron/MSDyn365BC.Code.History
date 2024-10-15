@@ -105,7 +105,7 @@ codeunit 76 "Purch.-Get Drop Shpt."
                         OnBeforeSalesLineModify(SalesLine, PurchLine, SalesHeader);
                         SalesLine.Modify();
                         OnAfterSalesLineModify(SalesLine, PurchLine);
-                        ItemTrackingMgt.CopyItemTracking(SalesLine.RowID1, PurchLine.RowID1, true);
+                        ItemTrackingMgt.CopyItemTracking(SalesLine.RowID1(), PurchLine.RowID1(), true);
 
                         if TransferExtendedText.PurchCheckIfAnyExtText(PurchLine, false) then begin
                             TransferExtendedText.InsertPurchExtText(PurchLine);
@@ -128,14 +128,14 @@ codeunit 76 "Purch.-Get Drop Shpt."
                 if Confirm(Text010, false,
                   SalesHeader.FieldCaption("EU 3-Party Trade"), SalesHeader.TableName, SalesHeader."No.",
                   SalesHeader."EU 3-Party Trade", PurchHeader.FieldCaption("EU 3-Party Trade"),
-                  PurchHeader.TableCaption, PurchHeader."No.", PurchHeader."EU 3-Party Trade",
+                  PurchHeader.TableCaption(), PurchHeader."No.", PurchHeader."EU 3-Party Trade",
                   SalesHeader."EU 3-Party Trade") then
                     PurchHeader."EU 3-Party Trade" := SalesHeader."EU 3-Party Trade";
             // NTR End
 
             OnCodeOnBeforeModify(PurchHeader, SalesHeader);
 
-            Modify; // Only version check
+            Modify(); // Only version check
             SalesHeader.Modify(); // Only version check
         end;
         OnAfterCode(PurchHeader, SalesHeader);

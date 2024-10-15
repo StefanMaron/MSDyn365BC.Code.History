@@ -326,7 +326,7 @@ codeunit 131305 "Library - ERM Country Data"
                 if GeneralPostingSetup."Inventory Adjmt. Account" = '' then
                     GeneralPostingSetup.Validate("Inventory Adjmt. Account", CreateGLAccount);
                 GeneralPostingSetup.Modify(true);
-            until GeneralPostingSetup.Next = 0;
+            until GeneralPostingSetup.Next() = 0;
     end;
 }
 

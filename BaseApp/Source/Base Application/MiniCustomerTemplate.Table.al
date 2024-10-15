@@ -1,15 +1,10 @@
 table 1300 "Mini Customer Template"
 {
     Caption = 'Mini Customer Template';
-    ReplicateData = true;
+    ReplicateData = false;
     ObsoleteReason = 'Deprecate mini templates. Use table "Customer Templ." instead and for extensions.';
-#if not CLEAN18
-    ObsoleteState = Pending;
-    ObsoleteTag = '16.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '21.0';
-#endif
 
     fields
     {
@@ -37,34 +32,6 @@ table 1300 "Mini Customer Template"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-#if not CLEAN18
-            trigger OnLookup()
-            begin
-                PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
-            end;
-
-            trigger OnValidate()
-            var
-                PostCodeRec: Record "Post Code";
-            begin
-                if City <> '' then begin
-                    PostCodeRec.SetFilter("Search City", City);
-
-                    case PostCodeRec.Count of
-                        0:
-                            exit;
-                        1:
-                            PostCodeRec.FindFirst();
-                        else
-                            if PAGE.RunModal(PAGE::"Post Codes", PostCodeRec, PostCodeRec.Code) <> ACTION::LookupOK then
-                                exit;
-                    end;
-
-                    "Post Code" := PostCodeRec.Code;
-                    "Country/Region Code" := PostCodeRec."Country/Region Code";
-                end;
-            end;
-#endif
         }
         field(11; "Document Sending Profile"; Code[20])
         {
@@ -115,12 +82,6 @@ table 1300 "Mini Customer Template"
         {
             Caption = 'Country/Region Code';
             TableRelation = "Country/Region";
-#if not CLEAN18
-            trigger OnValidate()
-            begin
-                PostCode.CheckClearPostCodeCityCounty(City, "Post Code", County, "Country/Region Code", xRec."Country/Region Code");
-            end;
-#endif
         }
         field(42; "Print Statements"; Boolean)
         {
@@ -155,34 +116,6 @@ table 1300 "Mini Customer Template"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-#if not CLEAN18
-            trigger OnLookup()
-            begin
-                PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
-            end;
-
-            trigger OnValidate()
-            var
-                PostCodeRec: Record "Post Code";
-            begin
-                if "Post Code" <> '' then begin
-                    PostCodeRec.SetFilter(Code, "Post Code");
-
-                    case PostCodeRec.Count of
-                        0:
-                            exit;
-                        1:
-                            PostCodeRec.FindFirst();
-                        else
-                            if PAGE.RunModal(PAGE::"Post Codes", PostCodeRec, PostCodeRec.Code) <> ACTION::LookupOK then
-                                exit;
-                    end;
-
-                    City := PostCodeRec.City;
-                    "Country/Region Code" := PostCodeRec."Country/Region Code";
-                end;
-            end;
-#endif
         }
         field(92; County; Text[30])
         {
@@ -225,277 +158,5 @@ table 1300 "Mini Customer Template"
     fieldgroups
     {
     }
-
-#if not CLEAN18
-    trigger OnDelete()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-    begin
-        if ConfigTemplateHeader.Get(Code) then begin
-            ConfigTemplateManagement.DeleteRelatedTemplates(Code, DATABASE::"Default Dimension");
-            ConfigTemplateHeader.Delete(true);
-        end;
-    end;
-
-    trigger OnInsert()
-    var
-        FieldRefArray: array[23] of FieldRef;
-        RecRef: RecordRef;
-    begin
-        TestField("Template Name");
-        RecRef.GetTable(Rec);
-        CreateFieldRefArray(FieldRefArray, RecRef);
-
-        InsertConfigurationTemplateHeaderAndLines;
-    end;
-
-    trigger OnModify()
-    var
-        FieldRefArray: array[23] of FieldRef;
-        RecRef: RecordRef;
-    begin
-        TestField(Code);
-        TestField("Template Name");
-        RecRef.GetTable(Rec);
-        CreateFieldRefArray(FieldRefArray, RecRef);
-        ConfigTemplateManagement.UpdateConfigTemplateAndLines(Code, "Template Name", DATABASE::Customer, FieldRefArray);
-    end;
-
-    var
-        PostCode: Record "Post Code";
-        ConfigTemplateManagement: Codeunit "Config. Template Management";
-
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
-    procedure CreateFieldRefArray(var FieldRefArray: array[23] of FieldRef; RecRef: RecordRef)
-    var
-        I: Integer;
-    begin
-        I := 1;
-
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo(City)));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Document Sending Profile")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Credit Limit (LCY)")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Customer Posting Group")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Currency Code")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Customer Price Group")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Language Code")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Payment Terms Code")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Fin. Charge Terms Code")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Customer Disc. Group")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Country/Region Code")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Print Statements")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Payment Method Code")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Application Method")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Prices Including VAT")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Gen. Bus. Posting Group")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Post Code")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo(County)));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Reminder Terms Code")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("VAT Bus. Posting Group")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Block Payment Tolerance")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Allow Line Disc.")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Validate EU Vat Reg. No.")));
-        OnAfterCreateFieldRefArray(FieldRefArray, RecRef);
-    end;
-
-    local procedure AddToArray(var FieldRefArray: array[24] of FieldRef; var I: Integer; CurrFieldRef: FieldRef)
-    begin
-        FieldRefArray[I] := CurrFieldRef;
-        I += 1;
-    end;
-
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
-    procedure InitializeTempRecordFromConfigTemplate(var TempMiniCustomerTemplate: Record "Mini Customer Template" temporary; ConfigTemplateHeader: Record "Config. Template Header")
-    var
-        RecRef: RecordRef;
-    begin
-        TempMiniCustomerTemplate.Init();
-        TempMiniCustomerTemplate.Code := ConfigTemplateHeader.Code;
-        TempMiniCustomerTemplate."Template Name" := ConfigTemplateHeader.Description;
-        TempMiniCustomerTemplate.Insert();
-
-        RecRef.GetTable(TempMiniCustomerTemplate);
-
-        ConfigTemplateManagement.ApplyTemplateLinesWithoutValidation(ConfigTemplateHeader, RecRef);
-
-        RecRef.SetTable(TempMiniCustomerTemplate);
-    end;
-
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
-    procedure CreateConfigTemplateFromExistingCustomer(Customer: Record Customer; var TempMiniCustomerTemplate: Record "Mini Customer Template" temporary)
-    var
-        DimensionsTemplate: Record "Dimensions Template";
-        ConfigTemplateHeader: Record "Config. Template Header";
-        RecRef: RecordRef;
-        FieldRefArray: array[23] of FieldRef;
-        NewTemplateCode: Code[10];
-    begin
-        RecRef.GetTable(Customer);
-        CreateFieldRefArray(FieldRefArray, RecRef);
-
-        ConfigTemplateManagement.CreateConfigTemplateAndLines(NewTemplateCode, '', DATABASE::Customer, FieldRefArray);
-        ConfigTemplateHeader.Get(NewTemplateCode);
-        DimensionsTemplate.CreateTemplatesFromExistingMasterRecord(Customer."No.", NewTemplateCode, DATABASE::Customer);
-        OnCreateConfigTemplateFromExistingCustomerOnBeforeInitTempRec(Customer, TempMiniCustomerTemplate, ConfigTemplateHeader);
-        InitializeTempRecordFromConfigTemplate(TempMiniCustomerTemplate, ConfigTemplateHeader);
-    end;
-
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
-    procedure SaveAsTemplate(Customer: Record Customer)
-    var
-        TempMiniCustomerTemplate: Record "Mini Customer Template" temporary;
-        CustTemplateCard: Page "Cust. Template Card";
-    begin
-        CustTemplateCard.CreateFromCust(Customer);
-        CustTemplateCard.SetRecord(TempMiniCustomerTemplate);
-        CustTemplateCard.LookupMode := true;
-        if CustTemplateCard.RunModal = ACTION::LookupOK then;
-    end;
-
-    local procedure InsertConfigurationTemplateHeaderAndLines()
-    var
-        FieldRefArray: array[23] of FieldRef;
-        RecRef: RecordRef;
-    begin
-        RecRef.GetTable(Rec);
-        CreateFieldRefArray(FieldRefArray, RecRef);
-        ConfigTemplateManagement.CreateConfigTemplateAndLines(Code, "Template Name", DATABASE::Customer, FieldRefArray);
-    end;
-
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
-    procedure NewCustomerFromTemplate(var Customer: Record Customer): Boolean
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTemplates: Page "Config Templates";
-    begin
-        ConfigTemplateHeader.SetRange("Table ID", DATABASE::Customer);
-        ConfigTemplateHeader.SetRange(Enabled, true);
-
-        if ConfigTemplateHeader.Count = 1 then begin
-            ConfigTemplateHeader.FindFirst();
-            InsertCustomerFromTemplate(ConfigTemplateHeader, Customer);
-            exit(true);
-        end;
-
-        if (ConfigTemplateHeader.Count > 1) and GuiAllowed then begin
-            ConfigTemplates.SetTableView(ConfigTemplateHeader);
-            ConfigTemplates.LookupMode(true);
-            ConfigTemplates.SetNewMode;
-            if ConfigTemplates.RunModal = ACTION::LookupOK then begin
-                ConfigTemplates.GetRecord(ConfigTemplateHeader);
-                InsertCustomerFromTemplate(ConfigTemplateHeader, Customer);
-                exit(true);
-            end;
-        end;
-
-        exit(false);
-    end;
-
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
-    procedure UpdateCustomerFromTemplate(var Customer: Record Customer)
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        DimensionsTemplate: Record "Dimensions Template";
-        ConfigTemplates: Page "Config Templates";
-        CustomerRecRef: RecordRef;
-    begin
-        if GuiAllowed then begin
-            ConfigTemplateHeader.SetRange("Table ID", DATABASE::Customer);
-            ConfigTemplateHeader.SetRange(Enabled, true);
-            ConfigTemplates.SetTableView(ConfigTemplateHeader);
-            ConfigTemplates.LookupMode(true);
-            if ConfigTemplates.RunModal = ACTION::LookupOK then begin
-                ConfigTemplates.GetRecord(ConfigTemplateHeader);
-                CustomerRecRef.GetTable(Customer);
-                ConfigTemplateManagement.UpdateRecord(ConfigTemplateHeader, CustomerRecRef);
-                DimensionsTemplate.InsertDimensionsFromTemplates(ConfigTemplateHeader, Customer."No.", DATABASE::Customer);
-                CustomerRecRef.SetTable(Customer);
-                Customer.Find;
-            end;
-        end;
-    end;
-
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
-    procedure InsertCustomerFromTemplate(ConfigTemplateHeader: Record "Config. Template Header"; var Customer: Record Customer)
-    var
-        DimensionsTemplate: Record "Dimensions Template";
-        ConfigTemplateMgt: Codeunit "Config. Template Management";
-        RecRef: RecordRef;
-    begin
-        OnBeforeInsertCustomerFromTemplate(Rec, ConfigTemplateHeader, Customer);
-        Customer.SetInsertFromTemplate(true);
-        InitCustomerNo(Customer, ConfigTemplateHeader);
-        Customer.Insert(true);
-        RecRef.GetTable(Customer);
-        ConfigTemplateMgt.UpdateRecord(ConfigTemplateHeader, RecRef);
-        RecRef.SetTable(Customer);
-
-        DimensionsTemplate.InsertDimensionsFromTemplates(ConfigTemplateHeader, Customer."No.", DATABASE::Customer);
-        Customer.Find;
-        OnAfterInsertCustomerFromTemplate(Rec, ConfigTemplateHeader, Customer);
-    end;
-
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
-    procedure UpdateCustomersFromTemplate(var Customer: Record Customer)
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        DimensionsTemplate: Record "Dimensions Template";
-        ConfigTemplates: Page "Config Templates";
-        FldRef: FieldRef;
-        CustomerRecRef: RecordRef;
-    begin
-        if GuiAllowed then begin
-            ConfigTemplateHeader.SetRange("Table ID", DATABASE::Customer);
-            ConfigTemplateHeader.SetRange(Enabled, true);
-            ConfigTemplates.SetTableView(ConfigTemplateHeader);
-            ConfigTemplates.LookupMode(true);
-            if ConfigTemplates.RunModal = ACTION::LookupOK then begin
-                ConfigTemplates.GetRecord(ConfigTemplateHeader);
-                CustomerRecRef.GetTable(Customer);
-                if CustomerRecRef.FindSet() then
-                    repeat
-                        ConfigTemplateManagement.UpdateRecord(ConfigTemplateHeader, CustomerRecRef);
-                        FldRef := CustomerRecRef.Field(1);
-                        DimensionsTemplate.InsertDimensionsFromTemplates(ConfigTemplateHeader, Format(FldRef.Value), DATABASE::Customer);
-                    until CustomerRecRef.Next() = 0;
-                CustomerRecRef.SetTable(Customer);
-            end;
-        end;
-    end;
-
-    local procedure InitCustomerNo(var Customer: Record Customer; ConfigTemplateHeader: Record "Config. Template Header")
-    var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-    begin
-        if ConfigTemplateHeader."Instance No. Series" = '' then
-            exit;
-        NoSeriesMgt.InitSeries(ConfigTemplateHeader."Instance No. Series", '', 0D, Customer."No.", Customer."No. Series");
-    end;
-
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
-    [IntegrationEvent(false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterCreateFieldRefArray(var FieldRefArray: array[23] of FieldRef; RecRef: RecordRef)
-    begin
-    end;
-
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertCustomerFromTemplate(var MiniCustomerTemplate: Record "Mini Customer Template"; var ConfigTemplateHeader: Record "Config. Template Header"; var Customer: Record Customer)
-    begin
-    end;
-
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnCreateConfigTemplateFromExistingCustomerOnBeforeInitTempRec(Customer: Record Customer; var TempMiniCustomerTemplate: Record "Mini Customer Template" temporary; var ConfigTemplateHeader: Record "Config. Template Header")
-    begin
-    end;
-
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertCustomerFromTemplate(MiniCustomerTemplate: Record "Mini Customer Template"; ConfigTemplateHeader: Record "Config. Template Header"; var Customer: Record Customer)
-    begin
-    end;
-#endif
 }
 

@@ -6,7 +6,6 @@ page 1650 "Curr. Exch. Rate Service List"
     Editable = false;
     ModifyAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Setup';
     SourceTable = "Curr. Exch. Rate Update Setup";
     UsageCategory = Administration;
 
@@ -45,9 +44,6 @@ page 1650 "Curr. Exch. Rate Service List"
                 ApplicationArea = Suite;
                 Caption = 'Enable';
                 Image = Default;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Enable a service for keeping your for currency exchange rates up to date. You can then change the job that controls how often exchange rates are updated.';
 
                 trigger OnAction()
@@ -61,9 +57,6 @@ page 1650 "Curr. Exch. Rate Service List"
                 ApplicationArea = Suite;
                 Caption = 'Preview';
                 Image = ReviewWorksheet;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'Test the setup of the currency exchange rate service to make sure the service is working.';
 
                 trigger OnAction()
@@ -76,11 +69,34 @@ page 1650 "Curr. Exch. Rate Service List"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Enable_Promoted; Enable)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Setup', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(TestUpdate_Promoted; TestUpdate)
+                {
+                }
+            }
+        }
     }
 
     trigger OnOpenPage()
     begin
-        SetupService;
+        SetupService();
     end;
 }
 

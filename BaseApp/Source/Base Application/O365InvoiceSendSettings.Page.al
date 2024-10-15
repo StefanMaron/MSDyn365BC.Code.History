@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2132 "O365 Invoice Send Settings"
 {
     Caption = 'Invoice Send Options';
@@ -9,6 +10,9 @@ page 2132 "O365 Invoice Send Settings"
     RefreshOnActivate = true;
     SourceTable = "O365 Settings Menu";
     SourceTableTemporary = true;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -19,11 +23,11 @@ page 2132 "O365 Invoice Send Settings"
                 ShowCaption = false;
                 field(Title; Title)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                 }
                 field(Description; Description)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies a description of the invoice send setting.';
                 }
             }
@@ -36,7 +40,7 @@ page 2132 "O365 Invoice Send Settings"
         {
             action(Open)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Open';
                 Image = DocumentEdit;
                 Scope = Repeater;
@@ -45,7 +49,7 @@ page 2132 "O365 Invoice Send Settings"
 
                 trigger OnAction()
                 begin
-                    OpenPage;
+                    OpenPage();
                 end;
             }
         }
@@ -55,13 +59,13 @@ page 2132 "O365 Invoice Send Settings"
     begin
         if Title = EmailAccountTitleTxt then begin
             "Page ID" := PAGE::"Graph Mail Setup";
-            Description := GetEmailAccountDescription;
+            Description := GetEmailAccountDescription();
         end;
     end;
 
     trigger OnOpenPage()
     begin
-        InsertMenuItems;
+        InsertMenuItems();
     end;
 
     var
@@ -76,7 +80,7 @@ page 2132 "O365 Invoice Send Settings"
 
     local procedure InsertMenuItems()
     begin
-        InsertPageMenuItem(PAGE::"Graph Mail Setup", EmailAccountTitleTxt, GetEmailAccountDescription);
+        InsertPageMenuItem(PAGE::"Graph Mail Setup", EmailAccountTitleTxt, GetEmailAccountDescription());
         InsertPageMenuItem(PAGE::"O365 Email CC and BCC Settings", CCAndBCCTitleTxt, CCAndBCCDescriptionTxt);
         InsertPageMenuItem(PAGE::"O365 Default Invoice Email Msg", InvoiceEmailMessageTxt, InvoiceEmailMessageDescriptionTxt);
         InsertPageMenuItem(PAGE::"O365 Default Quote Email Msg", QuoteEmailMessageTxt, QuoteEmailMessageDescriptionTxt);
@@ -92,12 +96,12 @@ page 2132 "O365 Invoice Send Settings"
         if EmailScenario.GetEmailAccount(Enum::"Email Scenario"::Default, EmailAccount) then
             exit(CopyStr(EmailAccount."Email Address", 1, MaxStrLen(Description)));
 
-        if GraphMail.IsEnabled and GraphMail.HasConfiguration then
-            if GraphMailSetup.Get then
+        if GraphMail.IsEnabled() and GraphMail.HasConfiguration() then
+            if GraphMailSetup.Get() then
                 if GraphMailSetup."Sender Email" <> '' then
                     exit(CopyStr(GraphMailSetup."Sender Email", 1, MaxStrLen(Description)));
 
         exit(EmailAccountDescriptionTxt);
     end;
 }
-
+#endif

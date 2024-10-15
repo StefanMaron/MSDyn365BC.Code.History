@@ -164,7 +164,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         CustLedgerEntry.CalcFields("Remaining Amount");
         Assert.AreNearlyEqual(
           -GenJournalLine.Amount, CustLedgerEntry."Remaining Amount", GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountErr, CustLedgerEntry.FieldCaption("Remaining Amount"), -GenJournalLine.Amount, CustLedgerEntry.TableCaption));
+          StrSubstNo(AmountErr, CustLedgerEntry.FieldCaption("Remaining Amount"), -GenJournalLine.Amount, CustLedgerEntry.TableCaption()));
     end;
 
     [Test]
@@ -365,7 +365,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         Assert.AreNearlyEqual(
           -GenJournalLine.Amount, VendorLedgerEntry."Remaining Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountErr, VendorLedgerEntry.FieldCaption("Remaining Amount"), -GenJournalLine.Amount,
-            VendorLedgerEntry.TableCaption));
+            VendorLedgerEntry.TableCaption()));
     end;
 
     [Test]
@@ -467,11 +467,11 @@ codeunit 134918 "ERM Sales/Purchase Application"
         Assert.AreNearlyEqual(
           GenJournalLine.Amount, VendorLedgerEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountErr, VendorLedgerEntry.FieldCaption(Amount), GenJournalLine.Amount,
-            VendorLedgerEntry.TableCaption));
+            VendorLedgerEntry.TableCaption()));
         Assert.AreNearlyEqual(
           0, VendorLedgerEntry."Remaining Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountErr, VendorLedgerEntry.FieldCaption("Remaining Amount"), 0,
-            VendorLedgerEntry.TableCaption));
+            VendorLedgerEntry.TableCaption()));
     end;
 
     [Test]
@@ -910,7 +910,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // [WHEN] Sales Journal opens, it will look for a template of type Sales.  Not finding one, it will create Sale1.
         SalesJournal.OpenView;
         SalesJournal.New;
-        SalesJournal.Close;
+        SalesJournal.Close();
 
         GenJournalTemplate.Init();
         GenJournalTemplate.SetFilter(Name, 'SALES1');
@@ -1011,7 +1011,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
 
         // [THEN] Customer Card closed and Customer List does not contain any record.
         CustomerList."No.".AssertEquals('');
-        CustomerList.Close;
+        CustomerList.Close();
         Customer.Get(Customer."No.");
         Assert.AreEqual(NewName, Customer.Name, 'The customer should have the right new name');
     end;
@@ -1048,7 +1048,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
 
         // [THEN] Vendor Card closed and Vendor List does not contain any record.
         VendorList."No.".AssertEquals('');
-        VendorList.Close;
+        VendorList.Close();
     end;
 
     [Test]
@@ -1103,7 +1103,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         Contact.FindSet();
         repeat
             DuplicateManagement.MakeContIndex(Contact);
-        until Contact.Next = 0;
+        until Contact.Next() = 0;
 
         Assert.IsTrue(DuplicateManagement.DuplicateExist(Contact), 'The contacts should be duplicates');
 
@@ -1123,9 +1123,9 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // [WHEN] The customer card is closed
         // Using NEXT instead of OK because in the automated test the pages get focus/closed in such a
         // way that another modify call is done and a deadlock results. Does not repro manually.
-        CustomerCard.Next;
-        CustomerCard.Close;
-        CustomerList.Close;
+        CustomerCard.Next();
+        CustomerCard.Close();
+        CustomerList.Close();
 
         // [THEN] The customer is renamed, and all that without errors.
         Customer.Get(Customer."No.");
@@ -1528,7 +1528,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         Assert.AreNearlyEqual(
           OriginalPmtDiscPossible, CustLedgerEntry."Original Pmt. Disc. Possible", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountErr, CustLedgerEntry.FieldCaption("Remaining Amount"), OriginalPmtDiscPossible,
-            CustLedgerEntry.TableCaption));
+            CustLedgerEntry.TableCaption()));
     end;
 
     local procedure OpenAndVerifyVendorLedgerEntry(GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; OriginalPmtDiscPossible: Decimal; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type")
@@ -1545,7 +1545,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         Assert.AreNearlyEqual(
           OriginalPmtDiscPossible, VendorLedgerEntry."Original Pmt. Disc. Possible", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountErr, VendorLedgerEntry.FieldCaption("Remaining Amount"), OriginalPmtDiscPossible,
-            VendorLedgerEntry.TableCaption));
+            VendorLedgerEntry.TableCaption()));
     end;
 
     local procedure OpenCustLedgerEntryPage(DocumentType: Enum "Gen. Journal Document Type"; CustomerNo: Code[20])
@@ -1566,7 +1566,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // Exercise. Open Show Matrix page by Sales Analysis by Dimension Page.
         SalesAnalysisByDimensions.OpenEdit;
         SalesAnalysisByDimensions.CurrentItemAnalysisViewCode.SetValue(AnalysisViewCode);
-        SalesAnalysisByDimensions.LineDimCode.SetValue(Item.TableCaption);
+        SalesAnalysisByDimensions.LineDimCode.SetValue(Item.TableCaption());
         SalesAnalysisByDimensions.RoundingFactor.SetValue(RoundingFactor);
         SalesAnalysisByDimensions.ShowMatrix_Process.Invoke;
     end;
@@ -1677,7 +1677,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
             1:
                 begin
                     ApplyCustomerEntries."Document Type".AssertEquals(LibraryVariableStorage.DequeueInteger);
-                    ApplyCustomerEntries.Next;
+                    ApplyCustomerEntries.Next();
                     ApplyCustomerEntries."Document Type".AssertEquals(LibraryVariableStorage.DequeueInteger);
                 end;
             2:

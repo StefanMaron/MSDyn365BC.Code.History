@@ -3,7 +3,6 @@ page 6501 "Item Tracking Entries"
     Caption = 'Item Tracking Entries';
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Entry';
     SaveValues = true;
     SourceTable = "Item Ledger Entry";
 
@@ -19,17 +18,17 @@ page 6501 "Item Tracking Entries"
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies whether the item in the item ledge entry is positive.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the document number on the entry. The document is the voucher that the entry was based on, for example, a receipt.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the number of the item in the entry.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -41,7 +40,7 @@ page 6501 "Item Tracking Entries"
                     ToolTip = 'Specifies a description of the entry.';
                     Visible = false;
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies a serial number if the posted item carries such a number.';
@@ -54,7 +53,7 @@ page 6501 "Item Tracking Entries"
                             Rec."Item No.", Rec."Variant Code", "Item Tracking Type"::"Serial No.", Rec."Serial No.");
                     end;
                 }
-                field("Lot No."; "Lot No.")
+                field("Lot No."; Rec."Lot No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies a lot number if the posted item carries such a number.';
@@ -80,7 +79,7 @@ page 6501 "Item Tracking Entries"
                             Rec."Item No.", Rec."Variant Code", "Item Tracking Type"::"Package No.", Rec."Package No.");
                     end;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the code for the location that the entry is linked to.';
@@ -90,28 +89,28 @@ page 6501 "Item Tracking Entries"
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the number of units of the item in the item entry.';
                 }
-                field("Remaining Quantity"; "Remaining Quantity")
+                field("Remaining Quantity"; Rec."Remaining Quantity")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the quantity in the Quantity field that remains to be processed.';
                 }
-                field("Source Type"; "Source Type")
+                field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the source type that applies to the source number, shown in the Source No. field.';
                     Visible = false;
                 }
-                field("Warranty Date"; "Warranty Date")
+                field("Warranty Date"; Rec."Warranty Date")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the last day of warranty for the item on the line.';
                 }
-                field("Expiration Date"; "Expiration Date")
+                field("Expiration Date"; Rec."Expiration Date")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the last date that the item on the line can be used.';
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
@@ -146,8 +145,6 @@ page 6501 "Item Tracking Entries"
                     ApplicationArea = ItemTracking;
                     Caption = 'Serial No. Information Card';
                     Image = SNInfo;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'View or edit detailed information about the serial number.';
 
                     trigger OnAction()
@@ -166,8 +163,6 @@ page 6501 "Item Tracking Entries"
                     ApplicationArea = ItemTracking;
                     Caption = 'Lot No. Information Card';
                     Image = LotInfo;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'View or edit detailed information about the lot number.';
 
                     trigger OnAction()
@@ -207,8 +202,6 @@ page 6501 "Item Tracking Entries"
                 ApplicationArea = ItemTracking;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Category4;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
@@ -217,6 +210,27 @@ page 6501 "Item Tracking Entries"
                     Navigate.SetDoc("Posting Date", "Document No.");
                     Navigate.Run();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Entry', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
+                actionref("Serial No. Information Card_Promoted"; "Serial No. Information Card")
+                {
+                }
+                actionref("Lot No. Information Card_Promoted"; "Lot No. Information Card")
+                {
+                }
             }
         }
     }

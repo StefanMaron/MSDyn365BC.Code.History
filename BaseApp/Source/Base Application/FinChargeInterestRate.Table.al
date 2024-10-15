@@ -5,7 +5,8 @@ table 3010590 "Fin. Charge Interest Rate"
     ObsoleteReason = 'Merged to W1 table 572';
     ObsoleteState = Removed;
     ObsoleteTag = '15.0';
-
+    ReplicateData = false;
+    
     fields
     {
         field(1; "Fin. Charge Terms Code"; Code[10])

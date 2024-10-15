@@ -73,7 +73,7 @@ codeunit 132904 UserRenameTest
     begin
         UserCardPage.OpenNew();
         UserCardPage."User Name".SetValue(NewUserName);
-        UserCardPage.Close;
+        UserCardPage.Close();
     end;
 
     local procedure RenameUser(ChangeBy: Integer)
@@ -113,10 +113,10 @@ codeunit 132904 UserRenameTest
                     repeat
                         FieldRef := RecRef.Field(Field."No.");
                         FieldRef.Value := CopyStr(GivenUserName, 1, Field.Len);
-                    until Field.Next = 0;
+                    until Field.Next() = 0;
                 RecRef.Insert();
-                RecRef.Close;
-            until TempInteger.Next = 0;
+                RecRef.Close();
+            until TempInteger.Next() = 0;
     end;
 
     local procedure FindRelatedTableIDs(var TempInteger: Record "Integer")
@@ -132,7 +132,7 @@ codeunit 132904 UserRenameTest
                     TempInteger.Number := Field.TableNo;
                     TempInteger.Insert();
                 end;
-            until Field.Next = 0;
+            until Field.Next() = 0;
     end;
 
     local procedure RenameUserHelper(ChangeBy: Integer; OldName: Text; NewName: Text)
@@ -155,7 +155,7 @@ codeunit 132904 UserRenameTest
         User.FindFirst();
         UserCardPage.GoToRecord(User);
         UserCardPage."User Name".SetValue(NewUserName);
-        UserCardPage.Close;
+        UserCardPage.Close();
     end;
 
     local procedure RenameUserHelper_List(OldUserName: Text; NewUserName: Text)
@@ -168,7 +168,7 @@ codeunit 132904 UserRenameTest
         User.FindFirst();
         UsersPage.GoToRecord(User);
         UsersPage."User Name".SetValue(NewUserName);
-        UsersPage.Close;
+        UsersPage.Close();
     end;
 
     local procedure VerifyUserRelatedRecords(OldUserName: Text; NewUserName: Text)
@@ -193,8 +193,8 @@ codeunit 132904 UserRenameTest
                     FieldRef.SetRange(NewUserName);
 
                 Assert.IsTrue(RecRef.FindFirst, StrSubstNo(NewUserNameNotFound, Field.TableName, Field.FieldName));
-                RecRef.Close;
-            until Field.Next = 0;
+                RecRef.Close();
+            until Field.Next() = 0;
     end;
 
     [ConfirmHandler]

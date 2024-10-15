@@ -84,7 +84,7 @@ codeunit 134389 "ERM Customer Statistics"
         // Setup: Create Sales Invoice for Customer.
         Initialize();
         FindPaymentTerms(PaymentTerms);
-        CreateSalesInvoice(SalesHeader, CreateCustomerWithPaymentTerms(PaymentTerms.Code), WorkDate);
+        CreateSalesInvoice(SalesHeader, CreateCustomerWithPaymentTerms(PaymentTerms.Code), WorkDate());
 
         // Exercise.
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -402,8 +402,8 @@ codeunit 134389 "ERM Customer Statistics"
         CustomerLedgerEntries.First;
         Assert.AreEqual(CustLedgerEntry."Entry No.", CustomerLedgerEntries."Entry No.".AsInteger, '');
         Assert.IsFalse(CustomerLedgerEntries.Next, '');
-        CustomerLedgerEntries.Close;
-        CustomerList.Close;
+        CustomerLedgerEntries.Close();
+        CustomerList.Close();
     end;
 
     [Test]
@@ -431,8 +431,8 @@ codeunit 134389 "ERM Customer Statistics"
         CustomerLedgerEntries.First;
         Assert.AreEqual(CustLedgerEntry."Entry No.", CustomerLedgerEntries."Entry No.".AsInteger, '');
         Assert.IsFalse(CustomerLedgerEntries.Next, '');
-        CustomerLedgerEntries.Close;
-        CustomerCard.Close;
+        CustomerLedgerEntries.Close();
+        CustomerCard.Close();
     end;
 
     [Test]
@@ -467,8 +467,8 @@ codeunit 134389 "ERM Customer Statistics"
         CustomerLedgerEntries.First;
         Assert.AreEqual(CustLedgerEntry."Entry No.", CustomerLedgerEntries."Entry No.".AsInteger, '');
         Assert.IsFalse(CustomerLedgerEntries.Next, '');
-        CustomerLedgerEntries.Close;
-        CustomerList.Close;
+        CustomerLedgerEntries.Close();
+        CustomerList.Close();
     end;
 
     [Test]
@@ -503,8 +503,8 @@ codeunit 134389 "ERM Customer Statistics"
         CustomerLedgerEntries.First;
         Assert.AreEqual(CustLedgerEntry."Entry No.", CustomerLedgerEntries."Entry No.".AsInteger, '');
         Assert.IsFalse(CustomerLedgerEntries.Next, '');
-        CustomerLedgerEntries.Close;
-        CustomerCard.Close;
+        CustomerLedgerEntries.Close();
+        CustomerCard.Close();
     end;
 
     [Test]
@@ -712,7 +712,7 @@ codeunit 134389 "ERM Customer Statistics"
         MockDetailedCustLedgerEntryWithDueDate(DetailedCustLedgEntry[2], CustLedgerEntry[2]);
 
         // [WHEN] Set "Date Filter" = WORKDATE.
-        Customer.SetFilter("Date Filter", Format(WorkDate));
+        Customer.SetFilter("Date Filter", Format(WorkDate()));
 
         // [THEN] "Balance Due" = 200.
         Customer.CalcFields("Balance Due");
@@ -741,7 +741,7 @@ codeunit 134389 "ERM Customer Statistics"
         MockDetailedCustLedgerEntryWithPostingDate(DetailedCustLedgEntry[2], CustLedgerEntry, LibraryRandom.RandDate(-100));
 
         // [WHEN] Set "Date Filter" = WORKDATE.
-        Customer.SetFilter("Date Filter", Format(WorkDate));
+        Customer.SetFilter("Date Filter", Format(WorkDate()));
 
         // [THEN] "Balance Due" = 300.
         Customer.CalcFields("Balance Due");
@@ -793,13 +793,13 @@ codeunit 134389 "ERM Customer Statistics"
         LibrarySales.CreateCustomer(Customer);
 
         // [GIVEN] Post payment "PAYM1" on 01.01
-        PaymentDate[1] := CalcDate('<-CM>', WorkDate);
+        PaymentDate[1] := CalcDate('<-CM>', WorkDate());
         PostPaymentForCustomer(Customer."No.", PaymentDate[1]);
         // [GIVEN] Post payment "PAYM2" on 15.01
-        PaymentDate[2] := CalcDate('<-CM+14D>', WorkDate);
+        PaymentDate[2] := CalcDate('<-CM+14D>', WorkDate());
         PostPaymentForCustomer(Customer."No.", PaymentDate[2]);
         // [GIVEN] Post payment "PAYM3" on 31.01
-        PaymentDate[3] := CalcDate('<CM>', WorkDate);
+        PaymentDate[3] := CalcDate('<CM>', WorkDate());
         PostPaymentForCustomer(Customer."No.", PaymentDate[3]);
         // [GIVEN] Reverse payment "PAYM3"
         ReversePayment(Customer."No.", PaymentDate[3]);
@@ -829,13 +829,13 @@ codeunit 134389 "ERM Customer Statistics"
         LibrarySales.CreateCustomer(Customer);
 
         // [GIVEN] Post payment "PAYM1" on 01.01
-        PaymentDate[1] := CalcDate('<-CM>', WorkDate);
+        PaymentDate[1] := CalcDate('<-CM>', WorkDate());
         PostPaymentForCustomer(Customer."No.", PaymentDate[1]);
         // [GIVEN] Post payment "PAYM2" on 15.01
-        PaymentDate[2] := CalcDate('<-CM+14D>', WorkDate);
+        PaymentDate[2] := CalcDate('<-CM+14D>', WorkDate());
         PostPaymentForCustomer(Customer."No.", PaymentDate[2]);
         // [GIVEN] Post payment "PAYM3" on 31.01
-        PaymentDate[3] := CalcDate('<CM>', WorkDate);
+        PaymentDate[3] := CalcDate('<CM>', WorkDate());
         PostPaymentForCustomer(Customer."No.", PaymentDate[3]);
         // [GIVEN] Reverse payment "PAYM3"
         ReversePayment(Customer."No.", PaymentDate[3]);
@@ -953,7 +953,7 @@ codeunit 134389 "ERM Customer Statistics"
         SalesInfoPaneMgt: Codeunit "Sales Info-Pane Management";
         SalesOrder: TestPage "Sales Order";
     begin
-        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer, WorkDate);
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer, WorkDate());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, LibraryRandom.RandDec(10, 2));  // Using Random for Quantity.
 
         // Exercise.
@@ -1037,12 +1037,12 @@ codeunit 134389 "ERM Customer Statistics"
     local procedure CreateBasicCustLedgerEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; CustNo: Code[20])
     begin
         with CustLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(CustLedgEntry, FieldNo("Entry No."));
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Customer No." := CustNo;
             Open := true;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1056,26 +1056,26 @@ codeunit 134389 "ERM Customer Statistics"
     local procedure CreateClosedInvoiceCustLedgerEntryWithEmptyDueDate(var CustLedgEntry: Record "Cust. Ledger Entry"; CustNo: Code[20])
     begin
         with CustLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(CustLedgEntry, FieldNo("Entry No."));
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Customer No." := CustNo;
             "Document Type" := "Document Type"::Invoice;
             "Due Date" := 0D;
             Open := false;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure CreatePaymentDetailedCustLedgerEntryForCustLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustLedgEntryNo: Integer)
     begin
         with DetailedCustLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, FieldNo("Entry No."));
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Cust. Ledger Entry No." := CustLedgEntryNo;
             "Document Type" := "Document Type"::Payment;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1301,7 +1301,7 @@ codeunit 134389 "ERM Customer Statistics"
         SalesOrder.Control1906127307.Substitutions.AssertEquals(Substitutions);
         SalesOrder.Control1906127307.SalesPrices.AssertEquals(SalesPrices);
         SalesOrder.Control1906127307.SalesLineDiscounts.AssertEquals(SalesLineDiscounts);
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     local procedure VerifyCustomerStatisticsServiceItem(var CustomerStatistics: TestPage "Customer Statistics"; ExpectedCostAmount: Decimal; ExpectedProfitAmount: Decimal)
@@ -1348,7 +1348,7 @@ codeunit 134389 "ERM Customer Statistics"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure NoSeriesListPageHandler(var NoSeriesList: TestPage "No. Series List")
+    procedure NoSeriesListPageHandler(var NoSeriesList: TestPage "No. Series")
     begin
         NoSeriesList.OK.Invoke;
     end;

@@ -15,7 +15,7 @@ page 1207 "Direct Debit Collections"
         {
             repeater(Group)
             {
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -31,7 +31,7 @@ page 1207 "Direct Debit Collections"
                     Caption = 'Created Date-Time';
                     ToolTip = 'Specifies when the direct debit collection was created.';
                 }
-                field("Created by User"; "Created by User")
+                field("Created by User"; Rec."Created by User")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies which user created the direct debit collection.';
@@ -41,17 +41,17 @@ page 1207 "Direct Debit Collections"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the status of the direct debit collection. The following options exist.';
                 }
-                field("No. of Transfers"; "No. of Transfers")
+                field("No. of Transfers"; Rec."No. of Transfers")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how many direct debit transactions have been performed for the direct debit collection.';
                 }
-                field("To Bank Account No."; "To Bank Account No.")
+                field("To Bank Account No."; Rec."To Bank Account No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the bank account that the direct debit collection will be transferred to.';
                 }
-                field("To Bank Account Name"; "To Bank Account Name")
+                field("To Bank Account Name"; Rec."To Bank Account Name")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the name of the bank account that the direct debit collection will be transferred to.';
@@ -80,8 +80,6 @@ page 1207 "Direct Debit Collections"
                 ApplicationArea = Suite;
                 Caption = 'Create Direct Debit Collection';
                 Image = NewInvoice;
-                Promoted = true;
-                PromotedCategory = New;
                 RunObject = Report "Create Direct Debit Collection";
                 ToolTip = 'Create a direct-debit collection to collect invoice payments directly from a customer''s bank account based on direct-debit mandates.';
             }
@@ -93,13 +91,11 @@ page 1207 "Direct Debit Collections"
                 ApplicationArea = Suite;
                 Caption = 'Export Direct Debit File';
                 Image = ExportFile;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Save the entries for the direct-debit collection to a file that you send or upload to your electronic bank for processing.';
 
                 trigger OnAction()
                 begin
-                    Export;
+                    Export();
                 end;
             }
             action(Close)
@@ -107,13 +103,11 @@ page 1207 "Direct Debit Collections"
                 ApplicationArea = Suite;
                 Caption = 'Close Collection';
                 Image = Close;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Close a direct-debit collection so you begin to post payment receipts for related sales invoices. Once closed, you cannot register payments for the collection.';
 
                 trigger OnAction()
                 begin
-                    CloseCollection;
+                    CloseCollection();
                 end;
             }
             action(Post)
@@ -122,8 +116,6 @@ page 1207 "Direct Debit Collections"
                 Caption = 'Post Payment Receipts';
                 Ellipsis = true;
                 Image = ReceivablesPayables;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Post receipts of a payment for sales invoices. You can do this after the direct-debit collection is successfully processed by the bank.';
 
                 trigger OnAction()
@@ -143,12 +135,38 @@ page 1207 "Direct Debit Collections"
                 ApplicationArea = Suite;
                 Caption = 'Direct Debit Collect. Entries';
                 Image = EditLines;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Direct Debit Collect. Entries";
                 RunPageLink = "Direct Debit Collection No." = FIELD("No.");
                 ShortCutKey = 'Return';
                 ToolTip = 'View and edit entries that are generated for the direct-debit collection.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New';
+
+                actionref(NewCollection_Promoted; NewCollection)
+                {
+                }
+            }
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Export_Promoted; Export)
+                {
+                }
+                actionref(Close_Promoted; Close)
+                {
+                }
+                actionref(Post_Promoted; Post)
+                {
+                }
+                actionref(Entries_Promoted; Entries)
+                {
+                }
             }
         }
     }

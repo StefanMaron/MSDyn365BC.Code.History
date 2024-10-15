@@ -172,12 +172,12 @@ table 405 "Change Log Entry"
 
     trigger OnDelete()
     begin
-        CheckIfLogEntryCanBeDeleted;
+        CheckIfLogEntryCanBeDeleted();
     end;
 
     trigger OnInsert()
     begin
-        Protected := IsProtected;
+        Protected := IsProtected();
     end;
 
     var
@@ -216,7 +216,7 @@ table 405 "Change Log Entry"
         RecRef.Open("Table No.");
         RecRef.SetPosition("Primary Key");
         FriendlyName := RecRef.GetPosition(true);
-        RecRef.Close;
+        RecRef.Close();
 
         FriendlyName := DelChr(FriendlyName, '=', '()');
         p := StrPos(FriendlyName, 'CONST');
@@ -277,7 +277,7 @@ table 405 "Change Log Entry"
         AllObj.SetRange("Object Type", AllObj."Object Type"::Table);
         AllObj.SetRange("Object ID", "Table No.");
 
-        if not AllObj.IsEmpty and (Value <> '') and HasCultureNeutralValues then begin
+        if not AllObj.IsEmpty() and (Value <> '') and HasCultureNeutralValues then begin
             RecordRef.Open("Table No.");
             if RecordRef.FieldExist("Field No.") then begin
                 FieldRef := RecordRef.Field("Field No.");

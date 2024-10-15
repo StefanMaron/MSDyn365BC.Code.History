@@ -47,11 +47,11 @@ codeunit 134204 "Document Approval - Requests"
         ApprovalEntry.SetRange("Document No.", DocNo[1], DocNo[4]);
         ApprovalEntry.FindSet();
         Assert.AreEqual(ApprovalEntry.Status::Open, ApprovalEntry.Status, '');
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         Assert.AreEqual(ApprovalEntry.Status::Approved, ApprovalEntry.Status, '');
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         Assert.AreEqual(ApprovalEntry.Status::Approved, ApprovalEntry.Status, '');
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         Assert.AreEqual(ApprovalEntry.Status::Open, ApprovalEntry.Status, '');
     end;
 
@@ -81,11 +81,11 @@ codeunit 134204 "Document Approval - Requests"
         ApprovalEntry.FindSet();
         Assert.AreEqual(DocNo[1], ApprovalEntry."Document No.", '');
         Assert.AreEqual(ApprovalEntry.Status::Open, ApprovalEntry.Status, '');
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         Assert.AreEqual(ApprovalEntry.Status::Rejected, ApprovalEntry.Status, '');
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         Assert.AreEqual(ApprovalEntry.Status::Rejected, ApprovalEntry.Status, '');
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         Assert.AreEqual(ApprovalEntry.Status::Open, ApprovalEntry.Status, '');
     end;
 
@@ -120,11 +120,11 @@ codeunit 134204 "Document Approval - Requests"
         ApprovalEntry.FindSet();
         Assert.AreEqual(DocNo[1], ApprovalEntry."Document No.", '');
         Assert.AreEqual(UserSetup."User ID", ApprovalEntry."Approver ID", '');
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         Assert.AreEqual(UserSetup.Substitute, ApprovalEntry."Approver ID", '');
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         Assert.AreEqual(UserSetup.Substitute, ApprovalEntry."Approver ID", '');
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         Assert.AreEqual(UserSetup."User ID", ApprovalEntry."Approver ID", '');
     end;
 
@@ -160,7 +160,7 @@ codeunit 134204 "Document Approval - Requests"
                 ApprovalEntry."Approver ID" := MockUserSetup1."User ID";
                 ApprovalEntry."Sender ID" := UserId;
                 ApprovalEntry.Modify();
-            until ApprovalEntry.Next = 0;
+            until ApprovalEntry.Next() = 0;
 
         ApprovalsMgmt.DelegateApprovalRequests(ApprovalEntry);
 
@@ -170,11 +170,11 @@ codeunit 134204 "Document Approval - Requests"
         ApprovalEntry.FindSet();
         Assert.AreEqual(DocNo[1], ApprovalEntry."Document No.", '');
         Assert.AreEqual(UserSetup."User ID", ApprovalEntry."Approver ID", '');
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         Assert.AreEqual(MockUserSetup1.Substitute, ApprovalEntry."Approver ID", '');
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         Assert.AreEqual(MockUserSetup1.Substitute, ApprovalEntry."Approver ID", '');
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         Assert.AreEqual(UserSetup."User ID", ApprovalEntry."Approver ID", '');
     end;
 
@@ -210,7 +210,7 @@ codeunit 134204 "Document Approval - Requests"
             repeat
                 ApprovalEntry."Approver ID" := MockUserSetup1."User ID";
                 ApprovalEntry.Modify();
-            until ApprovalEntry.Next = 0;
+            until ApprovalEntry.Next() = 0;
 
         ApprovalsMgmt.DelegateApprovalRequests(ApprovalEntry);
 
@@ -220,11 +220,11 @@ codeunit 134204 "Document Approval - Requests"
         ApprovalEntry.FindSet();
         Assert.AreEqual(DocNo[1], ApprovalEntry."Document No.", '');
         Assert.AreEqual(UserSetup."User ID", ApprovalEntry."Approver ID", '');
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         Assert.AreEqual(MockUserSetup1.Substitute, ApprovalEntry."Approver ID", '');
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         Assert.AreEqual(MockUserSetup1.Substitute, ApprovalEntry."Approver ID", '');
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         Assert.AreEqual(UserSetup."User ID", ApprovalEntry."Approver ID", '');
     end;
 
@@ -257,7 +257,7 @@ codeunit 134204 "Document Approval - Requests"
             repeat
                 ApprovalEntry."Approver ID" := MockUserSetup1."User ID";
                 ApprovalEntry.Modify();
-            until ApprovalEntry.Next = 0;
+            until ApprovalEntry.Next() = 0;
 
         asserterror ApprovalsMgmt.DelegateApprovalRequests(ApprovalEntry);
 
@@ -295,21 +295,21 @@ codeunit 134204 "Document Approval - Requests"
             repeat
                 ApprovalEntry."Approver ID" := MockUserSetup1."User ID";
                 ApprovalEntry.Modify();
-            until ApprovalEntry.Next = 0;
+            until ApprovalEntry.Next() = 0;
 
         // Verify
         ApprovalEntries.OpenEdit;
         if ApprovalEntry.FindSet() then
             repeat
                 asserterror ApprovalEntries.GotoRecord(ApprovalEntry); // record is shown on the page.
-            until ApprovalEntry.Next = 0;
+            until ApprovalEntry.Next() = 0;
 
         ApprovalEntry.SetRange("Document No.", DocNo[3], DocNo[4]);
         if ApprovalEntry.FindSet() then
             repeat
                 ApprovalEntries.GotoRecord(ApprovalEntry);
                 Assert.AreEqual(true, ApprovalEntries."&Delegate".Enabled, 'Delegate action is expected to be enabled');
-            until ApprovalEntry.Next = 0;
+            until ApprovalEntry.Next() = 0;
     end;
 
     [Test]
@@ -454,7 +454,7 @@ codeunit 134204 "Document Approval - Requests"
     begin
         Clear(ApprovalEntry);
         with ApprovalEntry do begin
-            Init;
+            Init();
             Validate("Table ID", LibraryRandom.RandInt(100));
             Validate("Document Type", LibraryRandom.RandIntInRange(0, 5));
             Validate("Document No.", No);
@@ -473,7 +473,7 @@ codeunit 134204 "Document Approval - Requests"
         PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, No);
         Clear(ApprovalEntry);
         with ApprovalEntry do begin
-            Init;
+            Init();
             Validate("Table ID", DATABASE::"Purchase Header");
             Validate("Document Type", EnumAssignmentMgt.GetPurchApprovalDocumentType(PurchaseHeader."Document Type"));
             Validate("Document No.", PurchaseHeader."No.");

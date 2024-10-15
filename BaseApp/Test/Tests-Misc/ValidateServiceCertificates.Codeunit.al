@@ -108,7 +108,7 @@ codeunit 134295 "Validate Service Certificates"
         DotNetExceptionHandler: Codeunit "DotNet Exception Handler";
     begin
         Result := TryConnect(InputUri);
-        DotNetExceptionHandler.Collect;
+        DotNetExceptionHandler.Collect();
         OutputError := StrSubstNo('Failed to reach %1 due to error: %2', InputUri, DotNetExceptionHandler.GetMessage);
     end;
 
@@ -121,7 +121,7 @@ codeunit 134295 "Validate Service Certificates"
     begin
         Uri := Uri.Uri(InputUri);
         HttpWebRequest := HttpWebRequest.CreateHttp(Uri);
-        HttpWebResponse := HttpWebRequest.GetResponse;
+        HttpWebResponse := HttpWebRequest.GetResponse();
     end;
 
     local procedure AssertCertificateValidationFails(Address: Text; ConnectionResult: Boolean; OutputError: Text)

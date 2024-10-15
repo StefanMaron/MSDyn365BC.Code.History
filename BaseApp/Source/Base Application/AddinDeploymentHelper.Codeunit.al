@@ -22,12 +22,12 @@ codeunit 1640 "Add-in Deployment Helper"
         ManifestText: Text;
         ErrorText: Text;
     begin
-        InitializeExchangePSRunner;
+        InitializeExchangePSRunner();
         AddinManifestMgt.GenerateManifest(NewOfficeAddin, ManifestText);
 
         // Clear the credentials if the action fails and reset the PS object.
         if not RunManifestDeployer(ManifestText, NewOfficeAddin."Application ID") then begin
-            ExchangePowerShellRunner.ResetInitialization;
+            ExchangePowerShellRunner.ResetInitialization();
             ErrorText := GetLastErrorText;
             if ErrorText <> '' then
                 Error(ErrorText);
@@ -38,7 +38,7 @@ codeunit 1640 "Add-in Deployment Helper"
         NewOfficeAddin."Deployment Date" := Today;
         NewOfficeAddin.Modify();
 
-        UserPreference.SetRange("Instruction Code", InstructionMgt.OfficeUpdateNotificationCode);
+        UserPreference.SetRange("Instruction Code", InstructionMgt.OfficeUpdateNotificationCode());
         UserPreference.DeleteAll();
     end;
 
@@ -53,7 +53,7 @@ codeunit 1640 "Add-in Deployment Helper"
         DefaultUserEnableState: Text;
         EnabledState: Text;
     begin
-        InitializeExchangePSRunner;
+        InitializeExchangePSRunner();
 
         ExchangePowerShellRunner.GetApp(AppID, PSObj);
 
@@ -63,7 +63,7 @@ codeunit 1640 "Add-in Deployment Helper"
             ProvisionMode := 'Everyone';
         end;
 
-        Encoding := Encoding.UTF8Encoding;
+        Encoding := Encoding.UTF8Encoding();
         ManifestBytes := Encoding.GetBytes(ManifestText);
 
         // Add the add-in
@@ -90,23 +90,23 @@ codeunit 1640 "Add-in Deployment Helper"
     var
         AppID: Guid;
     begin
-        InitializeExchangePSRunner;
-        AppID := AddinManifestMgt.GetAppID(OfficeAddin.GetDefaultManifestText);
+        InitializeExchangePSRunner();
+        AppID := AddinManifestMgt.GetAppID(OfficeAddin.GetDefaultManifestText());
         ExchangePowerShellRunner.RemoveApp(AppID);
     end;
 
     local procedure InitializeExchangePSRunner()
     begin
-        ExchangePowerShellRunner.PromptForCredentials;
-        ExchangePowerShellRunner.InitializePSRunner;
-        ExchangePowerShellRunner.ValidateCredentials;
+        ExchangePowerShellRunner.PromptForCredentials();
+        ExchangePowerShellRunner.InitializePSRunner();
+        ExchangePowerShellRunner.ValidateCredentials();
     end;
 
     [Obsolete('End of support for Exchange PowerShell. Outlook Add-ins must be deployed manually or using Exchange Web Services with OAuth token.', '19.0')]
     [Scope('OnPrem')]
     procedure InitializeAndValidate()
     begin
-        InitializeExchangePSRunner;
+        InitializeExchangePSRunner();
     end;
 #endif
 
@@ -132,7 +132,7 @@ codeunit 1640 "Add-in Deployment Helper"
             if OfficeAddin.Breaking then
                 PAGE.RunModal(PAGE::"Office Update Available Dlg", OfficeAddin)
             else
-                if InstructionMgt.IsEnabled(InstructionMgt.OfficeUpdateNotificationCode) then
+                if InstructionMgt.IsEnabled(InstructionMgt.OfficeUpdateNotificationCode()) then
                     PAGE.RunModal(PAGE::"Office Update Available Dlg", OfficeAddin);
 
             CanContinue := not OfficeAddin.Breaking;

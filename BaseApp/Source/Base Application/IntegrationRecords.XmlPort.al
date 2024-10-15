@@ -39,7 +39,7 @@ xmlport 5151 "Integration Records"
                     RecID := Format("<Integration Record>"."Record ID");
                     RecordCount := RecordCount + 1;
                     if (MaxRecords > 0) and (RecordCount > MaxRecords) then
-                        currXMLport.Quit;
+                        currXMLport.Quit();
                 end;
             }
         }

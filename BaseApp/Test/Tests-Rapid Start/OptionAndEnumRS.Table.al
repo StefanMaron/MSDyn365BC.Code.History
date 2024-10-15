@@ -1,5 +1,7 @@
 table 136605 OptionAndEnumRS
 {
+    ReplicateData = false;
+
     fields
     {
         field(1; PK; Integer)

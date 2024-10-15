@@ -15,27 +15,32 @@ page 389 "Bank Account Statement List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Bank Account No."; "Bank Account No.")
+                field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the bank account that has been reconciled with this Bank Account Statement.';
                 }
-                field("Statement No."; "Statement No.")
+                field("Bank Account Name"; "Bank Account Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the name of the bank account that has been reconciled.';
+                }
+                field("Statement No."; Rec."Statement No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the bank''s statement that has been reconciled with the bank account.';
                 }
-                field("Statement Date"; "Statement Date")
+                field("Statement Date"; Rec."Statement Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date on the bank''s statement that has been reconciled with the bank account.';
                 }
-                field("Balance Last Statement"; "Balance Last Statement")
+                field("Balance Last Statement"; Rec."Balance Last Statement")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ending balance on the bank account statement from the last posted bank account reconciliation.';
                 }
-                field("Statement Ending Balance"; "Statement Ending Balance")
+                field("Statement Ending Balance"; Rec."Statement Ending Balance")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ending balance on the bank''s statement that has been reconciled with the bank account.';
@@ -69,9 +74,6 @@ page 389 "Bank Account Statement List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Undo';
                     Image = Undo;
-                    Promoted = true;
-                    PromotedOnly = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Reverse this bank statement and automatically create a new bank reconciliation with the same information so you can correct it before posting. This bank statement will be deleted.';
 
                     trigger OnAction()
@@ -91,9 +93,6 @@ page 389 "Bank Account Statement List"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 Scope = Repeater;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
@@ -103,6 +102,20 @@ page 389 "Bank Account Statement List"
                 begin
                     DocPrint.PrintBankAccStmt(Rec);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Print_Promoted; Print)
+                {
+                }
+                actionref(Undo_Promoted; Undo)
+                {
+                }
             }
         }
     }

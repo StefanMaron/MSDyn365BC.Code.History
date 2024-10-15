@@ -68,10 +68,9 @@ report 5901 "Service Item Line Labels"
                     for i := ColumnNo + 1 to NoOfColumns do
                         Clear(Addr[i]);
                     ColumnNo := 0;
-                end else begin
+                end else
                     if ColumnNo = NoOfColumns then
                         ColumnNo := 0;
-                end;
             end;
 
             trigger OnPreDataItem()

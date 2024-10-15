@@ -39,7 +39,7 @@ report 1016 "Job Quote"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(JobtableCaptJobFilter; TableCaption + ': ' + JobFilter)
@@ -266,8 +266,8 @@ report 1016 "Job Quote"
 
     trigger OnPreReport()
     begin
-        JobFilter := Job.GetFilters;
-        JobTaskFilter := "Job Planning Line".GetFilters;
+        JobFilter := Job.GetFilters();
+        JobTaskFilter := "Job Planning Line".GetFilters();
         CompanyLogoPosition := JobsSetup."Logo Position on Documents";
     end;
 

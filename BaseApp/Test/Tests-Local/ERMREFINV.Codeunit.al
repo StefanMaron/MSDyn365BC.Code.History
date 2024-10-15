@@ -333,7 +333,7 @@ codeunit 144018 "ERM REFINV"
         GLEntry.FindSet();
         repeat
             CreditAmount += GLEntry."Credit Amount";
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
         Assert.AreNearlyEqual(CreditAmount, Amount, LibraryERM.GetAmountRoundingPrecision, UnexpectedErr);
     end;
 

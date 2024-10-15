@@ -26,7 +26,7 @@ report 1510 "Copy Workflow"
 
     trigger OnPreReport()
     begin
-        CopyWorkflow;
+        CopyWorkflow();
     end;
 
     var
@@ -49,7 +49,7 @@ report 1510 "Copy Workflow"
             ToWorkflow.Category := FromWorkflow.Category;
         ToWorkflow.Modify();
 
-        CopyWorkflowSteps;
+        CopyWorkflowSteps();
     end;
 
     local procedure CopyWorkflowSteps()
@@ -61,7 +61,7 @@ report 1510 "Copy Workflow"
         ToWorkflowStep.SetRange("Workflow Code", ToWorkflow.Code);
         if not ToWorkflowStep.IsEmpty() then
             if not Confirm(StepsExistQst) then
-                CurrReport.Quit;
+                CurrReport.Quit();
 
         ToWorkflowStep.DeleteAll(true);
 
@@ -71,7 +71,7 @@ report 1510 "Copy Workflow"
                 ToWorkflowStep.Copy(FromWorkflowStep);
                 ToWorkflowStep."Workflow Code" := ToWorkflow.Code;
                 if FromWorkflowStepArgument.Get(FromWorkflowStep.Argument) then
-                    ToWorkflowStep.Argument := FromWorkflowStepArgument.Clone;
+                    ToWorkflowStep.Argument := FromWorkflowStepArgument.Clone();
                 ToWorkflowStep.Insert(true);
 
                 CopyWorkflowRules(FromWorkflowStep, ToWorkflowStep);

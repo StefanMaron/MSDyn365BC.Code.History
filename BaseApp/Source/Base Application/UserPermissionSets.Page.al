@@ -56,12 +56,20 @@ page 9808 "User Permission Sets"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Permissions';
                     Image = Permission;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    RunObject = Page Permissions;
+                    RunObject = Page "Expanded Permissions";
                     RunPageLink = "Role ID" = FIELD("Role ID");
                     ToolTip = 'View or edit a general listing of database objects and their access representing permissions that can be organized in permission sets to be assigned to users. NOTE: To view or edit the actual permissions that this user has through assigned permission sets, choose the Effective Permissions action.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Permissions_Promoted; Permissions)
+                {
                 }
             }
         }

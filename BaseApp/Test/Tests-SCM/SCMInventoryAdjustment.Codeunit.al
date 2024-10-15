@@ -279,7 +279,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         // Calculate Consumption Quantity for Item Ledger Entry.
         TempItem.FindSet();
         ItemConsumptionQuantity := SelectItemConsumptionQuantity(ProductionOrder.Quantity, TempItem."No.");
-        TempItem.Next;
+        TempItem.Next();
         ItemConsumptionQuantity2 := SelectItemConsumptionQuantity(ProductionOrder.Quantity, TempItem."No.");
 
         // Verify: Verification of Quantity for Consumption in Item Ledger Entry.
@@ -315,7 +315,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         TempItem.FindSet();
         ChildItemNo := TempItem."No.";
         ItemConsumptionQuantity := SelectItemConsumptionQuantity(ProductionOrder.Quantity, ChildItemNo);
-        TempItem.Next;
+        TempItem.Next();
         ChildItemNo2 := TempItem."No.";
         ItemConsumptionQuantity2 := SelectItemConsumptionQuantity(ProductionOrder.Quantity, ChildItemNo2);
 
@@ -381,7 +381,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         TempItem.FindSet();
         LastDirectCost := SelectItemCost(TempItem."No.", Item.FieldNo("Last Direct Cost"));
         ItemConsumptionQuantity := SelectItemConsumptionQuantity(ProductionOrder.Quantity, TempItem."No.");
-        TempItem.Next;
+        TempItem.Next();
         LastDirectCost2 := SelectItemCost(TempItem."No.", Item.FieldNo("Last Direct Cost"));
         ItemConsumptionQuantity2 := SelectItemConsumptionQuantity(ProductionOrder.Quantity, TempItem."No.");
         ConsumptionCostAmount := (ItemConsumptionQuantity * LastDirectCost) + (ItemConsumptionQuantity2 * LastDirectCost2);
@@ -611,7 +611,7 @@ codeunit 137037 "SCM Inventory Adjustment"
               PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, TempItem."No.", LibraryRandom.RandInt(10) + 100);  // Value important.
             PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));  // Random value not important.
             PurchaseLine.Modify(true);
-        until TempItem.Next = 0;
+        until TempItem.Next() = 0;
     end;
 
     local procedure CreateProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; var TempItem: Record Item temporary)
@@ -626,7 +626,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         repeat
             LibraryManufacturing.CreateProductionBOMLine(
               ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, TempItem."No.", LibraryRandom.RandInt(5));
-        until TempItem.Next = 0;
+        until TempItem.Next() = 0;
         ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
         ProductionBOMHeader.Modify(true);
     end;
@@ -724,7 +724,7 @@ codeunit 137037 "SCM Inventory Adjustment"
             if PurchaseLine."Qty. to Invoice" = 0 then
                 exit;
             UpdatePurchaseLine(PurchaseLine, PurchaseLine.FieldNo("Qty. to Invoice"), PurchaseLine."Qty. to Invoice" - 1);
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure SelectItemConsumptionQuantity(ProductionOrderQuantity: Integer; No: Code[20]): Decimal
@@ -763,7 +763,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         TempItem.FindSet();
         for Counter := 1 to TempItem.Count do begin
             ItemString := ItemString + TempItem."No." + '|';
-            TempItem.Next;
+            TempItem.Next();
         end;
         ItemString := ItemString + ItemNo;
         LibraryCosting.AdjustCostItemEntries(ItemString, '');
@@ -776,7 +776,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         // Verify Consumption quantities from Item Ledger Entry.
         SelectItemLedgerEntries(ItemLedgerEntry, DocumentNo, ItemLedgerEntry."Entry Type"::Consumption);
         ItemLedgerEntry.TestField(Quantity, -Quantity);
-        ItemLedgerEntry.Next;
+        ItemLedgerEntry.Next();
         ItemLedgerEntry.TestField(Quantity, -Quantity2);
     end;
 
@@ -793,7 +793,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         repeat
             ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
             ActualCostAmountConsumption += ItemLedgerEntry."Cost Amount (Actual)";
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
         Assert.AreNearlyEqual(
           ExpectedTotalCostAmount, ActualCostAmountConsumption, GeneralLedgerSetup."Inv. Rounding Precision (LCY)", ErrMsgAmounts);
     end;
@@ -827,7 +827,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         // Post Production Journal lines with modified Consumption Quantity.
         repeat
             CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
-        until ItemJournalLine.Next = 0;
+        until ItemJournalLine.Next() = 0;
     end;
 
     [ModalPageHandler]
@@ -850,7 +850,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         // Post Production Journal lines with modified Consumption Quantity.
         repeat
             CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
-        until ItemJournalLine.Next = 0;
+        until ItemJournalLine.Next() = 0;
     end;
 
     [ModalPageHandler]
@@ -866,7 +866,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         // Post Production Journal lines.
         repeat
             CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
-        until ItemJournalLine.Next = 0;
+        until ItemJournalLine.Next() = 0;
     end;
 }
 

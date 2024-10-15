@@ -15,6 +15,7 @@ codeunit 904 "Whse.-Assembly Release"
         OldLocationCode: Code[10];
         First: Boolean;
     begin
+        OldLocationCode := '';
         with AssemblyHeader do begin
             FilterAssemblyLine(AssemblyLine, "Document Type", "No.");
             if AssemblyLine.Find('-') then begin
@@ -87,8 +88,8 @@ codeunit 904 "Whse.-Assembly Release"
             WhsePickRqst."Document No." := AssemblyLine."Document No.";
             WhsePickRqst.Status := WhsePickRqst.Status::Released;
             WhsePickRqst."Location Code" := AssemblyLine."Location Code";
-            WhsePickRqst."Completely Picked" := AssemblyHeader.CompletelyPicked;
-            if WhsePickRqst."Completely Picked" and (not AssemblyLine.CompletelyPicked) then
+            WhsePickRqst."Completely Picked" := AssemblyHeader.CompletelyPicked();
+            if WhsePickRqst."Completely Picked" and (not AssemblyLine.CompletelyPicked()) then
                 WhsePickRqst."Completely Picked" := false;
             if not WhsePickRqst.Insert() then
                 WhsePickRqst.Modify();
@@ -115,13 +116,12 @@ codeunit 904 "Whse.-Assembly Release"
 
     local procedure GetLocation(var Location: Record Location; LocationCode: Code[10])
     begin
-        if LocationCode <> Location.Code then begin
+        if LocationCode <> Location.Code then
             if LocationCode = '' then begin
                 Location.GetLocationSetup(LocationCode, Location);
                 Location.Code := '';
             end else
                 Location.Get(LocationCode);
-        end;
     end;
 
     local procedure FilterAssemblyLine(var AssemblyLine: Record "Assembly Line"; DocumentType: Enum "Assembly Document Type"; DocumentNo: Code[20])
@@ -160,7 +160,7 @@ codeunit 904 "Whse.-Assembly Release"
             if AssemblyLine2.Find('-') then
                 // Other lines for same location exist in the order.
                 repeat
-                    if (not AssemblyLine2.CompletelyPicked) or
+                    if (not AssemblyLine2.CompletelyPicked()) or
                        (not (Location."Require Pick" and Location."Require Shipment"))
                     then
                         KeepWhseRqst := true; // if lines are incompletely picked.
@@ -168,12 +168,11 @@ codeunit 904 "Whse.-Assembly Release"
 
             OnDeleteLineOnBeforeDeleteWhseRqst(AssemblyLine2, KeepWhseRqst);
 
-            if not KeepWhseRqst then begin
+            if not KeepWhseRqst then
                 if Location."Require Shipment" then
                     DeleteWhsePickRqst(AssemblyLine, false)
                 else
                     DeleteWhseRqst(AssemblyLine, false);
-            end;
         end;
     end;
 

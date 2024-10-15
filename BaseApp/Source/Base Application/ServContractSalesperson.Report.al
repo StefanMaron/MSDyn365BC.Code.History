@@ -15,7 +15,7 @@ report 5978 "Serv. Contract - Salesperson"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ServCntrctFlt_ServContract; TableCaption + ': ' + ServContractFilter)
@@ -97,7 +97,7 @@ report 5978 "Serv. Contract - Salesperson"
 
     trigger OnPreReport()
     begin
-        ServContractFilter := "Service Contract Header".GetFilters;
+        ServContractFilter := "Service Contract Header".GetFilters();
     end;
 
     var

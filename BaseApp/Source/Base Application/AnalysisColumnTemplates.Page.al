@@ -48,8 +48,6 @@ page 7113 "Analysis Column Templates"
                 ApplicationArea = SalesAnalysis, PurchaseAnalysis;
                 Caption = '&Columns';
                 Image = Column;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Species the columns on which the analysis view shows data.';
 
                 trigger OnAction()
@@ -62,6 +60,17 @@ page 7113 "Analysis Column Templates"
                     AnalysisLine.FilterGroup := 0;
                     AnalysisReportMgt.OpenAnalysisColumnsForm(AnalysisLine, Name);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Columns_Promoted; Columns)
+                {
+                }
             }
         }
     }

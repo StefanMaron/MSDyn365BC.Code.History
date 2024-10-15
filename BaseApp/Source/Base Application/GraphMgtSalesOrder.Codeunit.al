@@ -108,7 +108,7 @@ codeunit 5495 "Graph Mgt - Sales Order"
         GraphMgtSalesOrderBuffer: Codeunit "Graph Mgt - Sales Order Buffer";
     begin
         UpdateIntegrationRecordIds(false);
-        GraphMgtSalesOrderBuffer.UpdateBufferTableRecords;
+        GraphMgtSalesOrderBuffer.UpdateBufferTableRecords();
     end;
 }
 

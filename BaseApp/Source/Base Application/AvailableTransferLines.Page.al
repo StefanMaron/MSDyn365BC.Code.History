@@ -171,10 +171,6 @@ page 99000896 "Available - Transfer Lines"
     end;
 
     var
-        Text000: Label 'Direction has not been set.';
-        Text001: Label 'Fully reserved.';
-        Text002: Label 'Do you want to cancel the reservation?';
-        Text003: Label 'Available Quantity is %1.';
         ReservEntry: Record "Reservation Entry";
         ReservEntry2: Record "Reservation Entry";
         ReservMgt: Codeunit "Reservation Management";
@@ -187,6 +183,11 @@ page 99000896 "Available - Transfer Lines"
         CaptionText: Text;
         TransferDirection: Enum "Transfer Direction";
         DirectionIsSet: Boolean;
+
+        Text000: Label 'Direction has not been set.';
+        Text001: Label 'Fully reserved.';
+        Text002: Label 'Do you want to cancel the reservation?';
+        Text003: Label 'Available Quantity is %1.';
 
     protected var
         QtyToReserve: Decimal;
@@ -208,7 +209,7 @@ page 99000896 "Available - Transfer Lines"
         ReservMgt.SetReservSource(SourceRecRef, Direction);
         CaptionText := ReservMgt.FilterReservFor(SourceRecRef, ReservEntry, Direction);
 
-        SetInbound(ReservMgt.IsPositive);
+        SetInbound(ReservMgt.IsPositive());
     end;
 
     local procedure CreateReservation(ReserveQuantity: Decimal; ReserveQuantityBase: Decimal)

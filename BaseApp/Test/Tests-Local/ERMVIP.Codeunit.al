@@ -183,7 +183,7 @@ codeunit 144017 "ERM VIP"
         LibraryVariableStorage.Dequeue(AlwaysInclCreditMemo);
         LibraryVariableStorage.Dequeue(VendorNo);
         SuggestVendorPayments.Vendor.SetFilter("No.", VendorNo);
-        SuggestVendorPayments.LastPaymentDate.SetValue(WorkDate);
+        SuggestVendorPayments.LastPaymentDate.SetValue(WorkDate());
         SuggestVendorPayments.AlwaysInclCreditMemo.SetValue(AlwaysInclCreditMemo);
         SuggestVendorPayments.StartingDocumentNo.SetValue(VendorNo);  // Value is not important.
         SuggestVendorPayments.OK.Invoke;

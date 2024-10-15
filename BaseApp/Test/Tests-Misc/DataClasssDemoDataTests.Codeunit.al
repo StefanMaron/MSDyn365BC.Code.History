@@ -46,7 +46,7 @@ codeunit 135153 "Data Classs Demo Data Tests"
                 TableMetadata.Get(DataSensitivity."Table No");
                 if (TableMetadata.TableType <> TableMetadata.TableType::Temporary) then
                     Error(UnclassifiedFieldsErr, DataSensitivity."Field No", DataSensitivity."Table No");
-            until DataSensitivity.Next = 0;
+            until DataSensitivity.Next() = 0;
 
         // [THEN] EUII EUPI fields are classified as Personal
         DataSensitivity.SetFilter("Data Classification", StrSubstNo('%1|%2',
@@ -179,10 +179,10 @@ codeunit 135153 "Data Classs Demo Data Tests"
 
         DataSensitivity.SetRange("Table No", DATABASE::"Sales Order Entity Buffer");
         Assert.RecordIsNotEmpty(DataSensitivity);
-
+#if not CLEAN21
         DataSensitivity.SetRange("Table No", DATABASE::"O365 Sales Document");
         Assert.RecordIsNotEmpty(DataSensitivity);
-
+#endif
         DataSensitivity.SetRange("Table No", DATABASE::"Purch. Inv. Entity Aggregate");
         Assert.RecordIsNotEmpty(DataSensitivity);
 

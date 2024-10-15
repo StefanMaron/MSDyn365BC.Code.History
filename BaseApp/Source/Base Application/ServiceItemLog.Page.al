@@ -2,7 +2,7 @@ page 5989 "Service Item Log"
 {
     ApplicationArea = Service;
     Caption = 'Service Item Log';
-    DataCaptionExpression = GetCaptionHeader;
+    DataCaptionExpression = GetCaptionHeader();
     Editable = false;
     PageType = List;
     SourceTable = "Service Item Log";
@@ -16,14 +16,14 @@ page 5989 "Service Item Log"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Service Item No."; "Service Item No.")
+                field("Service Item No."; Rec."Service Item No.")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the number of the event associated with the service item.';
                     Visible = ServiceItemNoVisible;
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
@@ -46,27 +46,27 @@ page 5989 "Service Item Log"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the previous value of the field, modified after the event takes place.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the document type of the service item associated with the event, such as contract, order, or quote.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the document number of the event associated with the service item.';
                 }
-                field("Change Date"; "Change Date")
+                field("Change Date"; Rec."Change Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date of the event.';
                 }
-                field("Change Time"; "Change Time")
+                field("Change Time"; Rec."Change Time")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the time of the event.';
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';

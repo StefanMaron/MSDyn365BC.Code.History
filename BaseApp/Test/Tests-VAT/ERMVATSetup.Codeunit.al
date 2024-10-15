@@ -24,6 +24,7 @@ codeunit 134047 "ERM VAT Setup"
         MultiCustomerMsg: Label 'This VAT registration number has already been entered for the following customers:\ %1';
         MultiVendorMsg: Label 'This VAT registration number has already been entered for the following vendors:\ %1';
         MultiContactMsg: Label 'This VAT registration number has already been entered for the following contacts:\ %1';
+        VATPostingSetupHasVATEntriesErr: Label 'You cannot change the VAT posting setup because it has been used to generate VAT entries. Changing the setup now can cause inconsistencies in your financial data.';
         LibraryUtility: Codeunit "Library - Utility";
         VendorNo: Code[20];
         CustomerNo: Code[20];
@@ -86,7 +87,7 @@ codeunit 134047 "ERM VAT Setup"
         // Verify: Check that Correct VAT Registration No. updated in Company Information.
         Assert.AreEqual(
           VATRegistrationNo, CompanyInformation."VAT Registration No.", StrSubstNo(VATFormatError, VATRegistrationNo,
-            CompanyInformation.TableCaption, CompanyInformation.Name));
+            CompanyInformation.TableCaption(), CompanyInformation.Name));
 
         // Tear Down: Rollback Company Information, Delete Country created during Setup.
         ModifyCompanyInformation(CompanyInformation, CountryRegionCodeOld);
@@ -145,7 +146,7 @@ codeunit 134047 "ERM VAT Setup"
 
         // Verify: Verify that Correct VAT Registration No. updated on Customer.
         Assert.AreEqual(
-          VATRegistrationNo, Customer."VAT Registration No.", StrSubstNo(VATFormatError, VATRegistrationNo, Customer.TableCaption,
+          VATRegistrationNo, Customer."VAT Registration No.", StrSubstNo(VATFormatError, VATRegistrationNo, Customer.TableCaption(),
             Customer."No."));
 
         // Tear Down: Rollback Company Information, Delete Customer and Countries created.
@@ -180,7 +181,7 @@ codeunit 134047 "ERM VAT Setup"
 
         // Verify: Verify that Correct VAT Registration No. updated on vendor.
         Assert.AreEqual(
-          VATRegistrationNo, Vendor."VAT Registration No.", StrSubstNo(VATFormatError, VATRegistrationNo, Vendor.TableCaption, Vendor."No."));
+          VATRegistrationNo, Vendor."VAT Registration No.", StrSubstNo(VATFormatError, VATRegistrationNo, Vendor.TableCaption(), Vendor."No."));
 
         // Tear Down: Rollback Vendor VAT Registration, Company Information and Delete Countries created.
         UpdateVendorVATRegistration(Vendor, Vendor2."VAT Registration No.");
@@ -240,7 +241,7 @@ codeunit 134047 "ERM VAT Setup"
 
         // Verify: Verify that correct VAT Registration No. updated on Contact.
         Assert.AreEqual(
-          VATRegistrationNo, Contact."VAT Registration No.", StrSubstNo(VATFormatError, VATRegistrationNo, Contact.TableCaption,
+          VATRegistrationNo, Contact."VAT Registration No.", StrSubstNo(VATFormatError, VATRegistrationNo, Contact.TableCaption(),
             Contact."No."));
 
         // Tear Down: Rollback Company Information, Delete Contact, Country Code.
@@ -291,7 +292,7 @@ codeunit 134047 "ERM VAT Setup"
         DeleteCountryRegion(CountryRegionCode);
 
         // Verify: Verify that Counrtry Region is no more after deletion.
-        Assert.IsFalse(CountryRegion.Get(CountryRegionCode), StrSubstNo(CountryRegionError, CountryRegion.TableCaption));
+        Assert.IsFalse(CountryRegion.Get(CountryRegionCode), StrSubstNo(CountryRegionError, CountryRegion.TableCaption()));
     end;
 
     [Test]
@@ -351,7 +352,7 @@ codeunit 134047 "ERM VAT Setup"
         // Verify: Verify that Correct VAT Registration No. updated on Customer and no warning appears.
         Assert.AreEqual(
           Vendor."VAT Registration No.", Customer."VAT Registration No.", StrSubstNo(VATFormatError, VATRegistrationNo,
-            Customer.TableCaption, Customer."No."));
+            Customer.TableCaption(), Customer."No."));
 
         // Tear Down: Delete Country, Customer and Vendor created.
         DeleteCountryRegion(CountryRegionCode);
@@ -615,7 +616,7 @@ codeunit 134047 "ERM VAT Setup"
           GLAccount."No.");
 
         // Exercise: Update Balance Account as GL Account in General Journal Line.
-        GLAccount.Next;
+        GLAccount.Next();
         UpdateBalanceAccountInGeneralJournalLine(GenJournalLine, GenJournalLine."Bal. Account Type"::"G/L Account", GLAccount."No.");
 
         // Verify: Verify that VAT Registration No. is blank on General Journal Line after updating Balance Account No.
@@ -930,6 +931,94 @@ codeunit 134047 "ERM VAT Setup"
         Contact[2].Delete();
     end;
 
+    [Test]
+    procedure TestVATPostingSetupChangeVATCalcTypeError() 
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        GLAccount: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        ItemNo: Code[20];
+        CustomerNo: Code[20];
+        VatPostingSetupTestPage: TestPage "VAT Posting Setup";
+    begin
+        
+        // [GIVEN] A posting setup exists
+        // [GIVEN] A sales invoice have been created
+        // [GIVEM] The sales invoice is posted
+        
+        // Setup.
+        LibrarySetupStorage.Restore();
+        LibraryRandom.SetSeed(1);  // Generate Random Seed using Random Number Generator.
+        
+        // Lazy Setup.
+        if IsInitialized then
+            exit;
+
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        IsInitialized := true;
+        Commit();
+        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
+        LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
+
+
+        CreateSalesDocWithPartQtyToShip(SalesHeader, SalesLine, 1, SalesHeader."Document Type"::Order);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+    
+        // [WHEN] Posting setup page is opened and VAT group is selected
+        VatPostingSetupTestPage.OpenEdit();
+        VatPostingSetupTestPage.Filter.SetFilter("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        VatPostingSetupTestPage.Filter.SetFilter("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+
+        // [THEN] Fail to modify VAT Calculation Type as VAT entries have been created when posting invoice
+        asserterror VatPostingSetupTestPage."VAT Calculation Type".SetValue(Enum::"Tax Calculation Type"::"Reverse Charge VAT");
+        Assert.ExpectedError(StrSubstNo(VATPostingSetupHasVATEntriesErr, VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group"));
+    end;  
+
+    local procedure CreateSalesDocWithPartQtyToShip(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; NoOfLine: Integer; DocumentType: Enum "Sales Document Type") TotalAmount: Decimal
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        Counter: Integer;
+    begin
+        // Take Random Quantity and Unit Price.
+        CreateSalesHeader(SalesHeader, VATPostingSetup, DocumentType, false);
+        for Counter := 1 to NoOfLine do begin  // Create Multiple Sales Line.
+            CreateSalesLine(SalesLine, SalesHeader, VATPostingSetup);
+            SalesLine.Validate("Qty. to Ship", SalesLine.Quantity / 2);
+            SalesLine.Modify(true);
+            TotalAmount += SalesLine."Qty. to Ship" * SalesLine."Unit Price";
+        end;
+    end;
+
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; var VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Enum "Sales Document Type"; PricesInclVAT: Boolean)
+    begin
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibrarySales.CreateSalesHeader(
+          SalesHeader, DocumentType,
+          LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+    end;
+
+    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; VATPostingSetup: Record "VAT Posting Setup")
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale),
+          LibraryRandom.RandInt(10) * 2); // need to have even Quantity
+        SalesLine.Validate("Unit Price", (1 + VATPostingSetup."VAT %" / 100) * LibraryRandom.RandIntInRange(100, 200)); // need to prevent rounding issues
+        SalesLine.Modify();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1074,13 +1163,13 @@ codeunit 134047 "ERM VAT Setup"
     local procedure CreateContact(var Contact: Record Contact)
     begin
         with Contact do begin
-            Init;
+            Init();
             Validate("No.", LibraryUtility.GenerateGUID());
             Type := Type::Company;
             "Company No." := "No.";
             Validate("Country/Region Code", 'DK');
             Validate("VAT Registration No.", Format(LibraryRandom.RandIntInRange(10000000, 99999999)));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1090,7 +1179,7 @@ codeunit 134047 "ERM VAT Setup"
         with Customer do begin
             Validate("Country/Region Code", 'DK');
             Validate("VAT Registration No.", Format(LibraryRandom.RandIntInRange(10000000, 99999999)));
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1100,7 +1189,7 @@ codeunit 134047 "ERM VAT Setup"
         with Vendor do begin
             Validate("Country/Region Code", 'DK');
             Validate("VAT Registration No.", Format(LibraryRandom.RandIntInRange(10000000, 99999999)));
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1217,7 +1306,7 @@ codeunit 134047 "ERM VAT Setup"
         GenJournalLine.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
         Assert.AreEqual(
           VATRegistrationNo, GenJournalLine."VAT Registration No.",
-          StrSubstNo(VATError, GenJournalLine.FieldCaption("VAT Registration No."), VATRegistrationNo, GenJournalLine.TableCaption));
+          StrSubstNo(VATError, GenJournalLine.FieldCaption("VAT Registration No."), VATRegistrationNo, GenJournalLine.TableCaption()));
     end;
 
     local procedure ExecuteUIHandler()

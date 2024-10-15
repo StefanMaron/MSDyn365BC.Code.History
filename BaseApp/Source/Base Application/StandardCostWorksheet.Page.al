@@ -22,7 +22,7 @@ page 5841 "Standard Cost Worksheet"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     Commit();
                     if PAGE.RunModal(0, StdCostWkshName) = ACTION::LookupOK then begin
                         CurrWkshName := StdCostWkshName.Name;
@@ -36,7 +36,7 @@ page 5841 "Standard Cost Worksheet"
 
                 trigger OnValidate()
                 begin
-                    CurrWkshNameOnAfterValidate;
+                    CurrWkshNameOnAfterValidate();
                 end;
             }
             repeater(Control1)
@@ -48,7 +48,7 @@ page 5841 "Standard Cost Worksheet"
                     Caption = 'Type';
                     ToolTip = 'Specifies the type of worksheet line.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -58,32 +58,32 @@ page 5841 "Standard Cost Worksheet"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the worksheet line.';
                 }
-                field("Standard Cost"; "Standard Cost")
+                field("Standard Cost"; Rec."Standard Cost")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the unit cost that is used as an estimation to be adjusted with variances later. It is typically used in assembly and production where costs can vary.';
                 }
-                field("New Standard Cost"; "New Standard Cost")
+                field("New Standard Cost"; Rec."New Standard Cost")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the updated value based on either the batch job or what you have entered manually.';
                 }
-                field("Indirect Cost %"; "Indirect Cost %")
+                field("Indirect Cost %"; Rec."Indirect Cost %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the percentage of the item''s last purchase cost that includes indirect costs, such as freight that is associated with the purchase of the item.';
                 }
-                field("New Indirect Cost %"; "New Indirect Cost %")
+                field("New Indirect Cost %"; Rec."New Indirect Cost %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the updated value based on either the batch job or what you have entered manually.';
                 }
-                field("Overhead Rate"; "Overhead Rate")
+                field("Overhead Rate"; Rec."Overhead Rate")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the overhead rate.';
                 }
-                field("New Overhead Rate"; "New Overhead Rate")
+                field("New Overhead Rate"; Rec."New Overhead Rate")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the updated value based on either the batch job or what you have entered manually.';
@@ -93,126 +93,126 @@ page 5841 "Standard Cost Worksheet"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that you have run the Implement Standard Cost Changes batch job.';
                 }
-                field("Replenishment System"; "Replenishment System")
+                field("Replenishment System"; Rec."Replenishment System")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the replenishment method for the items, for example, purchase or prod. order.';
                 }
-                field("Single-Lvl Material Cost"; "Single-Lvl Material Cost")
+                field("Single-Lvl Material Cost"; Rec."Single-Lvl Material Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the single-level material cost of the item.';
                     Visible = false;
                 }
-                field("New Single-Lvl Material Cost"; "New Single-Lvl Material Cost")
+                field("New Single-Lvl Material Cost"; Rec."New Single-Lvl Material Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the updated value based on either the batch job or what you have entered manually.';
                     Visible = false;
                 }
-                field("Single-Lvl Cap. Cost"; "Single-Lvl Cap. Cost")
+                field("Single-Lvl Cap. Cost"; Rec."Single-Lvl Cap. Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the single-level capacity cost of the item.';
                     Visible = false;
                 }
-                field("New Single-Lvl Cap. Cost"; "New Single-Lvl Cap. Cost")
+                field("New Single-Lvl Cap. Cost"; Rec."New Single-Lvl Cap. Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the updated value based on either the batch job or what you have entered manually.';
                     Visible = false;
                 }
-                field("Single-Lvl Subcontrd Cost"; "Single-Lvl Subcontrd Cost")
+                field("Single-Lvl Subcontrd Cost"; Rec."Single-Lvl Subcontrd Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the single-level subcontracted cost of the item.';
                     Visible = false;
                 }
-                field("New Single-Lvl Subcontrd Cost"; "New Single-Lvl Subcontrd Cost")
+                field("New Single-Lvl Subcontrd Cost"; Rec."New Single-Lvl Subcontrd Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the updated value based on either the batch job or what you have entered manually.';
                     Visible = false;
                 }
-                field("Single-Lvl Cap. Ovhd Cost"; "Single-Lvl Cap. Ovhd Cost")
+                field("Single-Lvl Cap. Ovhd Cost"; Rec."Single-Lvl Cap. Ovhd Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the single-level capacity overhead cost of the item.';
                     Visible = false;
                 }
-                field("New Single-Lvl Cap. Ovhd Cost"; "New Single-Lvl Cap. Ovhd Cost")
+                field("New Single-Lvl Cap. Ovhd Cost"; Rec."New Single-Lvl Cap. Ovhd Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the updated value based on either the batch job or what you have entered manually.';
                     Visible = false;
                 }
-                field("Single-Lvl Mfg. Ovhd Cost"; "Single-Lvl Mfg. Ovhd Cost")
+                field("Single-Lvl Mfg. Ovhd Cost"; Rec."Single-Lvl Mfg. Ovhd Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the single-level manufacturing overhead cost of the item.';
                     Visible = false;
                 }
-                field("New Single-Lvl Mfg. Ovhd Cost"; "New Single-Lvl Mfg. Ovhd Cost")
+                field("New Single-Lvl Mfg. Ovhd Cost"; Rec."New Single-Lvl Mfg. Ovhd Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the updated value based on either the batch job or what you have entered manually.';
                     Visible = false;
                 }
-                field("Rolled-up Material Cost"; "Rolled-up Material Cost")
+                field("Rolled-up Material Cost"; Rec."Rolled-up Material Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the rolled-up material cost of the item.';
                     Visible = false;
                 }
-                field("New Rolled-up Material Cost"; "New Rolled-up Material Cost")
+                field("New Rolled-up Material Cost"; Rec."New Rolled-up Material Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the updated rolled-up material cost based on either the batch job or what you have entered manually.';
                     Visible = false;
                 }
-                field("Rolled-up Cap. Cost"; "Rolled-up Cap. Cost")
+                field("Rolled-up Cap. Cost"; Rec."Rolled-up Cap. Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the rolled-up capacity cost of the item.';
                     Visible = false;
                 }
-                field("New Rolled-up Cap. Cost"; "New Rolled-up Cap. Cost")
+                field("New Rolled-up Cap. Cost"; Rec."New Rolled-up Cap. Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the updated value based on either the batch job or what you have entered manually.';
                     Visible = false;
                 }
-                field("Rolled-up Subcontrd Cost"; "Rolled-up Subcontrd Cost")
+                field("Rolled-up Subcontrd Cost"; Rec."Rolled-up Subcontrd Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the rolled-up subcontracted cost of the item.';
                     Visible = false;
                 }
-                field("New Rolled-up Subcontrd Cost"; "New Rolled-up Subcontrd Cost")
+                field("New Rolled-up Subcontrd Cost"; Rec."New Rolled-up Subcontrd Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the updated value based on either the batch job or what you have entered manually.';
                     Visible = false;
                 }
-                field("Rolled-up Cap. Ovhd Cost"; "Rolled-up Cap. Ovhd Cost")
+                field("Rolled-up Cap. Ovhd Cost"; Rec."Rolled-up Cap. Ovhd Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the rolled-up capacity overhead cost of the item.';
                     Visible = false;
                 }
-                field("New Rolled-up Cap. Ovhd Cost"; "New Rolled-up Cap. Ovhd Cost")
+                field("New Rolled-up Cap. Ovhd Cost"; Rec."New Rolled-up Cap. Ovhd Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the updated value based on either the batch job or what you have entered manually.';
                     Visible = false;
                 }
-                field("Rolled-up Mfg. Ovhd Cost"; "Rolled-up Mfg. Ovhd Cost")
+                field("Rolled-up Mfg. Ovhd Cost"; Rec."Rolled-up Mfg. Ovhd Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the rolled-up manufacturing overhead cost of the item.';
                     Visible = false;
                 }
-                field("New Rolled-up Mfg. Ovhd Cost"; "New Rolled-up Mfg. Ovhd Cost")
+                field("New Rolled-up Mfg. Ovhd Cost"; Rec."New Rolled-up Mfg. Ovhd Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the updated value based on either the batch job or what you have entered manually.';
@@ -249,8 +249,6 @@ page 5841 "Standard Cost Worksheet"
                     Caption = 'Suggest I&tem Standard Cost';
                     Ellipsis = true;
                     Image = SuggestItemCost;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Creates suggestions for changing the cost shares of standard costs on Item cards. Note that the suggested changes are not implemented.';
 
                     trigger OnAction()
@@ -270,8 +268,6 @@ page 5841 "Standard Cost Worksheet"
                     Caption = 'Suggest &Capacity Standard Cost';
                     Ellipsis = true;
                     Image = SuggestCapacity;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Create suggestions on new worksheet lines for changing the costs and cost shares of standard costs on work center, machine center, or resource cards.';
 
                     trigger OnAction()
@@ -304,8 +300,6 @@ page 5841 "Standard Cost Worksheet"
                     Caption = 'Roll Up Standard Cost';
                     Ellipsis = true;
                     Image = RollUpCosts;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Roll up the standard costs of assembled and manufactured items, for example, with changes in the standard cost of components and changes in the standard cost of production capacity and assembly resources. When you run the function, all changes to the standard costs in the worksheet are introduced in the associated production or assembly BOMs, and the costs are applied at each BOM level.';
 
                     trigger OnAction()
@@ -326,8 +320,6 @@ page 5841 "Standard Cost Worksheet"
                     Caption = '&Implement Standard Cost Changes';
                     Ellipsis = true;
                     Image = ImplementCostChanges;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Updates the changes in the standard cost in the Item table with the ones in the Standard Cost Worksheet table.';
 
                     trigger OnAction()
@@ -338,6 +330,26 @@ page 5841 "Standard Cost Worksheet"
                         ImplStdCostChg.SetStdCostWksh(CurrWkshName);
                         ImplStdCostChg.RunModal();
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Suggest I&tem Standard Cost_Promoted"; "Suggest I&tem Standard Cost")
+                {
+                }
+                actionref("Suggest &Capacity Standard Cost_Promoted"; "Suggest &Capacity Standard Cost")
+                {
+                }
+                actionref("Roll Up Standard Cost_Promoted"; "Roll Up Standard Cost")
+                {
+                }
+                actionref("&Implement Standard Cost Changes_Promoted"; "&Implement Standard Cost Changes")
+                {
                 }
             }
         }
@@ -375,7 +387,7 @@ page 5841 "Standard Cost Worksheet"
 
     local procedure CurrWkshNameOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         Commit();
         FilterGroup := 2;
         SetRange("Standard Cost Worksheet Name", CurrWkshName);

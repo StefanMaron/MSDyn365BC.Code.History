@@ -103,7 +103,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, Item."No.", Item."No.", '');
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
 
         // Verify: Verify Planning Worksheet lines for different Action Messages.
         // Action Message: Cancel.
@@ -174,7 +174,7 @@ codeunit 137054 "SCM Supply Planning"
             ReservePurchaseLine(GlobalPurchaseHeader[1]."No.");  // Reservation on Page Handler ReservationPageHandler.
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
 
         // Verify: Verify Planning Worksheet lines for different Action Messages.
         // Action Message: New.
@@ -243,7 +243,7 @@ codeunit 137054 "SCM Supply Planning"
         CreatePurchaseOrder(GlobalPurchaseHeader[1], Item."No.", SupplyQuantityValue[2], SupplyDateValue[2]);  // Dates based on WORKDATE.
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
 
         // Verify: Verify Planning Worksheet lines for Action Message: Reschedule and Change Quantity.
         VerifyRequisitionLine(
@@ -280,7 +280,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateSupplyQuantity(SupplyQuantityValue, DemandQuantityValue[1], LibraryRandom.RandDec(10, 2) + 40, 0, 0, 0);
         CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, Item."No.", Item."No.", '');
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
 
         // Exercise: Carry Out Action Message on Planning Worksheet lines.
         AcceptActionMessageAndCarryOutActionMessagePlan(Item."No.", PlanningLinesCountBeforeCarryOut);
@@ -332,7 +332,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, '', Item."No.", '');
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
 
         // Verify: Verify Planning Worksheet lines for different Action Messages.
         if ActionMessageReschedule then begin
@@ -402,7 +402,7 @@ codeunit 137054 "SCM Supply Planning"
         Item.SetRange("No.", Item."No.");
         if LocationCode <> '' then
             Item.SetRange("Location Filter", LocationCode);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
 
         // Verify: Verify Planning Worksheet lines for different Action Messages.
         VerifyRequisitionLine(
@@ -470,8 +470,8 @@ codeunit 137054 "SCM Supply Planning"
 
         LibraryInventory.CreateItem(Item);
         Quantity := LibraryRandom.RandDecInRange(100, 200, 2);
-        CreatePurchaseOrder(PurchaseHeader, Item."No.", Quantity, WorkDate);
-        CreateSalesOrder(SalesHeader, Item."No.", Quantity, WorkDate);
+        CreatePurchaseOrder(PurchaseHeader, Item."No.", Quantity, WorkDate());
+        CreateSalesOrder(SalesHeader, Item."No.", Quantity, WorkDate());
 
         SelectSalesLine(SalesLine, SalesHeader."No.");
         LibrarySales.AutoReserveSalesLine(SalesLine);
@@ -499,8 +499,8 @@ codeunit 137054 "SCM Supply Planning"
 
         LibraryInventory.CreateItem(Item);
         Quantity := LibraryRandom.RandDecInRange(100, 200, 2);
-        CreatePurchaseOrder(PurchaseHeader, Item."No.", Quantity, WorkDate);
-        CreateSalesOrder(SalesHeader, Item."No.", Quantity, WorkDate);
+        CreatePurchaseOrder(PurchaseHeader, Item."No.", Quantity, WorkDate());
+        CreateSalesOrder(SalesHeader, Item."No.", Quantity, WorkDate());
 
         SelectSalesLine(SalesLine, SalesHeader."No.");
         LibrarySales.AutoReserveSalesLine(SalesLine);
@@ -707,7 +707,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateSupplyDate(SupplyDateValue, GetRandomDateUsingWorkDate(5), 0D, 0D, 0D, 0D);  // Dates based on WORKDATE.
         CreateSupplyQuantity(SupplyQuantityValue, LibraryRandom.RandDec(10, 2) + 40, 0, 0, 0, 0);
         CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, '', Item."No.", '');
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
 
         // Exercise: Carry Out Action Message on Planning Worksheet lines.
         AcceptActionMessageAndCarryOutActionMessagePlan(Item."No.", PlanningLinesCountBeforeCarryOut);
@@ -749,7 +749,7 @@ codeunit 137054 "SCM Supply Planning"
         UpdateLocationForSales(GlobalSalesHeader[3]."No.", LocationBlue.Code);
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(90));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(90));  // Dates based on WORKDATE.
 
         // Verify: Verify Planning Worksheet lines for Action messages on all locations.
         VerifyRequisitionLine(Item."No.", RequisitionLine."Action Message"::New, DemandDateValue[1], 0, DemandQuantityValue[1], 0D, '', '');
@@ -796,7 +796,7 @@ codeunit 137054 "SCM Supply Planning"
         // Exercise: Calculate Regenerative Plan for Location Blue only.
         Item.SetRange("No.", Item."No.");
         Item.SetRange("Location Filter", LocationBlue.Code);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(90));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(90));  // Dates based on WORKDATE.
 
         // Verify: Verify Planning Worksheet lines for Location - Blue.
         VerifyRequisitionLine(
@@ -840,7 +840,7 @@ codeunit 137054 "SCM Supply Planning"
         // Exercise: Calculate Regenerative Plan for Location Red only.
         Item.SetRange("No.", Item."No.");
         Item.SetRange("Location Filter", LocationRed.Code);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(90));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(90));  // Dates based on WORKDATE.
 
         // Verify: Verify Planning Worksheet lines for Location - Red.
         VerifyRequisitionLine(
@@ -887,7 +887,7 @@ codeunit 137054 "SCM Supply Planning"
         // Exercise: Calculate Regenerative Plan with Variant Filter only.
         Item.SetRange("No.", Item."No.");
         Item.SetRange("Variant Filter", ItemVariant.Code);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(90));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(90));  // Dates based on WORKDATE.
 
         // Verify: Verify Planning Worksheet lines for Item with Variant.
         VerifyRequisitionLine(
@@ -927,7 +927,7 @@ codeunit 137054 "SCM Supply Planning"
 
         UpdateLocationForSales(GlobalSalesHeader[2]."No.", LocationRed.Code);
         UpdateLocationForSales(GlobalSalesHeader[3]."No.", LocationBlue.Code);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(90));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(90));  // Dates based on WORKDATE.
 
         // Exercise: Carry Out Action Message on Planning Worksheet lines.
         AcceptActionMessageAndCarryOutActionMessagePlan(Item."No.", PlanningLinesCountBeforeCarryOut);
@@ -949,10 +949,10 @@ codeunit 137054 "SCM Supply Planning"
         CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1Y>', '<1Y>', true, LibraryRandom.RandDec(5, 2) + 10, 0);  // Rescheduling Period, Lot Accumulation Period, Include Inventory, Safety Stock, Dampener Qty.
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(90));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(90));
 
         // Verify: Verify Planning Worksheet lines for Order Line generated for Safety Stock Qty.
-        VerifyRequisitionLine(Item."No.", RequisitionLine."Action Message"::New, WorkDate, 0, Item."Safety Stock Quantity", 0D, '', '');
+        VerifyRequisitionLine(Item."No.", RequisitionLine."Action Message"::New, WorkDate(), 0, Item."Safety Stock Quantity", 0D, '', '');
         VerifyRequisitionLineCount(1);  // Expected no of lines in Planning Worksheet. Value important.
     end;
 
@@ -986,11 +986,11 @@ codeunit 137054 "SCM Supply Planning"
         CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, '', Item."No.", '');
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(90));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(90));  // Dates based on WORKDATE.
 
         // Verify: Verify Planning Worksheet lines.
         VerifyRequisitionLine(
-          Item."No.", RequisitionLine."Action Message"::New, WorkDate, 0,
+          Item."No.", RequisitionLine."Action Message"::New, WorkDate(), 0,
           Item."Safety Stock Quantity" + DemandQuantityValue[1] + DemandQuantityValue[2] + DemandQuantityValue[3], 0D, '', '');
         VerifyRequisitionLine(Item."No.", RequisitionLine."Action Message"::Cancel, SupplyDateValue[1], SupplyQuantityValue[1], 0, 0D, '', '');
         VerifyRequisitionLineCount(2);  // Expected no of lines in Planning Worksheet. Value important.
@@ -1028,7 +1028,7 @@ codeunit 137054 "SCM Supply Planning"
         UpdateItemInventory(Item."No.", 2 * SafetyStockQty);  // Values important for test.
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(90));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(90));  // Dates based on WORKDATE.
 
         // Verify: Verify Planning Worksheet lines.
         VerifyRequisitionLine(
@@ -1067,7 +1067,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, '', Item."No.", '');
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(90));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(90));  // Dates based on WORKDATE.
 
         // Verify: Verify Planning Worksheet lines.
         VerifyRequisitionLine(
@@ -1098,11 +1098,11 @@ codeunit 137054 "SCM Supply Planning"
         CreateDemand(DemandDateValue, DemandQuantityValue, Item."No.", 3);  // Number of Sales Order.
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(90));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(90));  // Dates based on WORKDATE.
 
         // Verify: Verify Planning Worksheet lines.
         VerifyRequisitionLine(
-          Item."No.", RequisitionLine."Action Message"::New, WorkDate, 0, Item."Safety Stock Quantity" + DemandQuantityValue[1], 0D, '', '');
+          Item."No.", RequisitionLine."Action Message"::New, WorkDate(), 0, Item."Safety Stock Quantity" + DemandQuantityValue[1], 0D, '', '');
         VerifyRequisitionLine(
           Item."No.", RequisitionLine."Action Message"::New, DemandDateValue[2], 0, DemandQuantityValue[2] + DemandQuantityValue[3], 0D, '',
           '');
@@ -1131,7 +1131,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, '', Item."No.", '');
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(90));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(90));  // Dates based on WORKDATE.
 
         // Verify: Verify Planning Worksheet lines.
         VerifyRequisitionLine(Item."No.", RequisitionLine."Action Message"::Cancel, SupplyDateValue[1], SupplyQuantityValue[1], 0, 0D, '', '');
@@ -1167,7 +1167,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateSupplyDate(SupplyDateValue, GetRandomDateUsingWorkDate(20), 0D, 0D, 0D, 0D);  // Dates based on WORKDATE.
         CreateSupplyQuantity(SupplyQuantityValue, LibraryRandom.RandDec(5, 2) + 5, 0, 0, 0, 0);
         CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, '', Item."No.", '');
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(90));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(90));  // Dates based on WORKDATE.
 
         // Exercise: Carry Out Action Message on Planning Worksheet lines.
         AcceptActionMessageAndCarryOutActionMessagePlan(Item."No.", PlanningLinesCountBeforeCarryOut);
@@ -1214,7 +1214,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, '', Item."No.", '');
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));
 
         // Verify: Verify action messages if supply more than dampener else check that no lines is generated on Planning worksheet.
         if ActionMessageCancel then begin
@@ -1272,7 +1272,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, '', Item."No.", '');
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));
 
         // Verify: Verify planning worksheet.
         VerifyRequisitionLine(
@@ -1326,7 +1326,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, '', Item."No.", '');
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));
 
         // Verify: Verify planning worksheet.
         VerifyRequisitionLine(
@@ -1362,7 +1362,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, '', Item."No.", '');
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));
 
         // Verify: Verify planning worksheet.
         VerifyRequisitionLine(
@@ -1502,7 +1502,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, Item."No.", '', '');
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(30));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(30));
 
         // Verify: Verify planning worksheet.
         VerifyRequisitionLine(
@@ -1540,7 +1540,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateAndPostOutputJournal(Item."No.", GlobalProductionOrder[1]."No.");
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(30));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(30));
 
         // Verify: Verify planning worksheet.
         VerifyRequisitionLine(
@@ -1583,7 +1583,7 @@ codeunit 137054 "SCM Supply Planning"
         UpdateVariantOnSales(SalesLine, GlobalSalesHeader[1]."No.", ItemVariant.Code);
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(30));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(30));
 
         // Verify: Verify planning worksheet.
         VerifyRequisitionLine(
@@ -1628,7 +1628,7 @@ codeunit 137054 "SCM Supply Planning"
         UpdateVariantOnProduction(GlobalProductionOrder[2]."No.", GlobalProductionOrder[2].Status, ItemVariant.Code);
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(30));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(30));
 
         // Verify: Verify planning worksheet.
         VerifyRequisitionLine(
@@ -1690,9 +1690,9 @@ codeunit 137054 "SCM Supply Planning"
         CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, Item."No.", '', '');
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE
         if ChildItem then
-            LibraryPlanning.CalcRegenPlanForPlanWksh(Item2, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE
+            LibraryPlanning.CalcRegenPlanForPlanWksh(Item2, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE
 
         // Verify: Verify planning worksheet.
         VerifyRequisitionLine(Item."No.", RequisitionLine."Action Message"::Cancel, SupplyDateValue[1], SupplyQuantityValue[1], 0, 0D, '', '');
@@ -1755,7 +1755,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateSupplyQuantity(SupplyQuantityValue, DemandQuantityValue[2], DemandQuantityValue[2], DemandQuantityValue[2], 0, 0);
         CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, Item."No.", '', '');
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE
         UpdateItem(Item, Item.FieldNo("Production BOM No."), ProductionBOMHeader."No.");
 
         if ProductionComponent then
@@ -1821,7 +1821,7 @@ codeunit 137054 "SCM Supply Planning"
 
         // Exercise: Calculate Regenerative Plan.
         Item.SetFilter("No.", '%1|%2', Item."No.", Item2."No.");
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE
 
         // Verify: Verify planning worksheet.
         if Reschedule then begin
@@ -1907,13 +1907,13 @@ codeunit 137054 "SCM Supply Planning"
         CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, Item."No.", '', '');
 
         Item3.SetFilter("No.", '%1|%2', Item."No.", Item2."No.");
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item3, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item3, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE
         AcceptActionMessageAndCarryOutActionMessagePlan(Item."No.", PlanningLinesCountBeforeCarryOut);
         if CarryOutActionMsgForChild then
             AcceptActionMessageAndCarryOutActionMessagePlan(Item2."No.", PlanningLinesCountBeforeCarryOut);
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item3, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item3, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE
 
         // Verify: Verify planning worksheet.
         VerifyPlanningWorksheetEmpty(PlanningLinesCountBeforeCarryOut, Item."No.");
@@ -1962,7 +1962,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, Item."No.", Item2."No.", '');
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item2, WorkDate, GetRandomDateUsingWorkDate(60));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item2, WorkDate(), GetRandomDateUsingWorkDate(60));
 
         // Verify: Verify planning worksheet.
         VerifyRequisitionLine(
@@ -1996,7 +1996,7 @@ codeunit 137054 "SCM Supply Planning"
         SetupDemandWithBaseCalendar(Item, SalesHeader, CalcDate('<WD6>', GetRandomDateUsingWorkDate(30)), DefaultSafetyLeadTime);
 
         // Calculate Regenerative Plan on Planning worksheet.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));
 
         // Open Planning Worksheet page and go to the generated requisition line.
         FindRequisitionLine(RequisitionLine, Item."No.");
@@ -2090,7 +2090,7 @@ codeunit 137054 "SCM Supply Planning"
             VerifyPlanningWorksheet(
               PlanningWorksheet, RequisitionLine."Action Message"::"Resched. & Chg. Qty.", GlobalItemNo, DemandDateValue[1],
               SupplyQuantityValue[1], DemandQuantityValue[1], SupplyDateValue[1]);
-            PlanningWorksheet.Next;
+            PlanningWorksheet.Next();
             VerifyPlanningWorksheet(
               PlanningWorksheet, RequisitionLine."Action Message"::Cancel, GlobalItemNo, SupplyDateValue[2], SupplyQuantityValue[2], 0, 0D);
             VerifyRequisitionLineCount(2);  // Expected no of lines in Planning Worksheet. Value important.
@@ -2159,7 +2159,7 @@ codeunit 137054 "SCM Supply Planning"
 
         // Exercise: Calculate Regenerative Plan.
         Item.SetFilter("No.", '%1|%2', Item."No.", Item2."No.");
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));
 
         // Verify: Verify planning worksheet.
         VerifyRequisitionLine(Item."No.", RequisitionLine."Action Message"::Cancel, SupplyDateValue[2], SupplyQuantityValue[2], 0, 0D, '', '');
@@ -2218,11 +2218,11 @@ codeunit 137054 "SCM Supply Planning"
           LibraryRandom.RandInt(10) + 1100, 0, 0);
         CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, Item."No.", Item2."No.", '');
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));
         AcceptActionMessageAndCarryOutActionMessagePlan(Item."No.", PlanningLinesCountBeforeCarryOut);
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));
 
         // Verify: Verify planning worksheet.
         VerifyPlanningWorksheetEmpty(PlanningLinesCountBeforeCarryOut, Item."No.");
@@ -2241,7 +2241,7 @@ codeunit 137054 "SCM Supply Planning"
         UpdateItemInventory(Item."No.", LibraryRandom.RandDec(5, 2));
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
 
         // Verify: Verify Empty planning worksheet.
         RequisitionLine2.SetRange("No.", Item."No.");
@@ -2296,7 +2296,7 @@ codeunit 137054 "SCM Supply Planning"
         end;
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
 
         // Verify: Verify planning worksheet.
         if ChangeQuantityOnDemand then begin
@@ -2367,7 +2367,7 @@ codeunit 137054 "SCM Supply Planning"
             CalcRegenPlanAndCarryOutActionMessagePlan(Item, PlanningLinesCountBeforeCarryOut);
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
 
         // Verify: Verify planning worksheet. Verify that all the Planning Worksheet Lines are cleared after Carry Out Action message.
         if CarryOutActionMessage then
@@ -2416,7 +2416,7 @@ codeunit 137054 "SCM Supply Planning"
 
         // Verify: Verify planning worksheet.
         VerifyRequisitionLine(
-          Item."No.", RequisitionLine."Action Message"::New, WorkDate, 0, ProductionForecastEntry[1]."Forecast Quantity", 0D, '', '');
+          Item."No.", RequisitionLine."Action Message"::New, WorkDate(), 0, ProductionForecastEntry[1]."Forecast Quantity", 0D, '', '');
         VerifyRequisitionLineCount(1);  // Expected no of lines in Planning Worksheet. Value important.
 
         // Tear Down.
@@ -2499,7 +2499,7 @@ codeunit 137054 "SCM Supply Planning"
         VerifyRequisitionLine(Item."No.", RequisitionLine."Action Message"::Cancel, SupplyDateValue[3], SupplyQuantityValue[3], 0, 0D, '', '');
         if PostSalesOrder then begin
             VerifyRequisitionLine(
-              Item."No.", RequisitionLine."Action Message"::New, SelectDateWithSafetyLeadTime(WorkDate, -1), 0,
+              Item."No.", RequisitionLine."Action Message"::New, SelectDateWithSafetyLeadTime(WorkDate(), -1), 0,
               DemandQuantityValue[1] + DemandQuantityValue[2], 0D, '', '');
             VerifyRequisitionLine(
               Item."No.", RequisitionLine."Action Message"::Cancel, SupplyDateValue[1], SupplyQuantityValue[1], 0, 0D, '', '');
@@ -2590,14 +2590,14 @@ codeunit 137054 "SCM Supply Planning"
         VerifyRequisitionLine(Item."No.", RequisitionLine."Action Message"::Cancel, SupplyDateValue[3], SupplyQuantityValue[3], 0, 0D, '', '');
         if PostPurchaseOrder then begin
             VerifyRequisitionLine(
-              Item."No.", RequisitionLine."Action Message"::New, SelectDateWithSafetyLeadTime(WorkDate, -1), 0,
+              Item."No.", RequisitionLine."Action Message"::New, SelectDateWithSafetyLeadTime(WorkDate(), -1), 0,
               DemandQuantityValue[1] + DemandQuantityValue[2] - SupplyQuantityValue[2], 0D, '', '');
             VerifyRequisitionLine(
               Item."No.", RequisitionLine."Action Message"::New, ProductionForecastEntry[2]."Forecast Date", 0,
               ProductionForecastEntry[2]."Forecast Quantity" - DemandQuantityValue[2], 0D, '', '');
         end else begin
             VerifyRequisitionLine(
-              Item."No.", RequisitionLine."Action Message"::New, SelectDateWithSafetyLeadTime(WorkDate, -1), 0,
+              Item."No.", RequisitionLine."Action Message"::New, SelectDateWithSafetyLeadTime(WorkDate(), -1), 0,
               DemandQuantityValue[1] + DemandQuantityValue[2], 0D, '', '');
             VerifyRequisitionLine(
               Item."No.", RequisitionLine."Action Message"::"Resched. & Chg. Qty.", ProductionForecastEntry[2]."Forecast Date",
@@ -2658,7 +2658,7 @@ codeunit 137054 "SCM Supply Planning"
         CalcRegenPlanAndCarryOutActionMessagePlan(Item, PlanningLinesCountBeforeCarryOut);
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
 
         // Verify: Verify that all the Planning Worksheet Lines are cleared after Carry Out Action message.
         VerifyPlanningWorksheetEmpty(PlanningLinesCountBeforeCarryOut, Item."No.");
@@ -2724,7 +2724,7 @@ codeunit 137054 "SCM Supply Planning"
         end;
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
 
         // Verify: Verify Planning Worksheet lines.
         if Supply then begin
@@ -2799,7 +2799,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateSupplyQuantity(SupplyQuantityValue, DemandQuantityValue[1], LibraryRandom.RandDec(5, 2) + 10, 0, 0, 0);
         CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, '', Item."No.", '');
         UpdateUnitOfMeasureForPurchase(GlobalPurchaseHeader[1]."No.", ItemUnitOfMeasure.Code);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
 
         // Exercise: Accept and Carry out Action message.
         AcceptActionMessageAndCarryOutActionMessagePlan(Item."No.", PlanningLinesCountBeforeCarryOut);
@@ -2814,7 +2814,7 @@ codeunit 137054 "SCM Supply Planning"
 
         if CalculateRegenerativePlanAfterCarryOutActionMessage then begin
             // Exercise: Calculate Regenerative Plan.
-            LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
+            LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
 
             // Verify: Verify that all the Planning Worksheet Lines are cleared after Carry Out Action message.
             VerifyPlanningWorksheetEmpty(PlanningLinesCountBeforeCarryOut, Item."No.")
@@ -2843,7 +2843,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateDemand(DemandDateValue, DemandQuantityValue, Item."No.", 1);  // Number of Sales Order.
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
 
         // Verify: Verify Planning Worksheet lines.
         VerifyRequisitionLineForMaximumOrderQuantity(
@@ -2893,7 +2893,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateDemandQuantity(DemandQuantityValue, LibraryRandom.RandDec(5, 2) + 30, 0, 0);
         CreateDemand(DemandDateValue, DemandQuantityValue, Item."No.", 1);  // Number of Sales Order.
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
         AcceptActionMessageAndCarryOutActionMessagePlan(Item."No.", PlanningLinesCountBeforeCarryOut);
         UpdateQuantityForSales(SalesLine, GlobalSalesHeader[1]."No.", DemandQuantityValue[1] + 5);
 
@@ -2906,7 +2906,7 @@ codeunit 137054 "SCM Supply Planning"
         end;
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
 
         // Verify: Verify Planning Worksheet lines.
         if Supply then begin
@@ -2917,7 +2917,7 @@ codeunit 137054 "SCM Supply Planning"
               RequisitionLine2, Item."No.", RequisitionLine."Action Message"::"Resched. & Chg. Qty.", SalesLine."Shipment Date");
             VerifyQuantityAndDateOnRequisitionLine(
               RequisitionLine2, DemandDateValue[1], Item."Maximum Order Quantity", DemandQuantityValue[1] mod Item."Maximum Order Quantity");
-            RequisitionLine2.Next;
+            RequisitionLine2.Next();
             VerifyQuantityAndDateOnRequisitionLine(
               RequisitionLine2, SupplyDateValue[1], SalesLine.Quantity mod Item."Maximum Order Quantity", SupplyQuantityValue[1]);
         end else begin
@@ -2971,7 +2971,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateDemandQuantity(DemandQuantityValue, LibraryRandom.RandDec(5, 2) + 30, 0, 0);
         CreateDemand(DemandDateValue, DemandQuantityValue, Item."No.", 1);  // Number of Sales Order.
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
         AcceptActionMessageAndCarryOutActionMessagePlan(Item."No.", PlanningLinesCountBeforeCarryOut);
         UpdateQuantityForSales(SalesLine, GlobalSalesHeader[1]."No.", DemandQuantityValue[1] + 5);
         UpdateShipmentDateForSales(SalesLine, GlobalSalesHeader[1]."No.", GetRandomDateUsingWorkDate(15));
@@ -2980,14 +2980,14 @@ codeunit 137054 "SCM Supply Planning"
         CreateSupplyDate(SupplyDateValue, GetRandomDateUsingWorkDate(11), 0D, 0D, 0D, 0D);  // Dates based on WORKDATE.
         CreateSupplyQuantity(SupplyQuantityValue, LibraryRandom.RandDec(5, 2) + 60, 0, 0, 0, 0);
         CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, '', Item."No.", '');
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
         AcceptActionMessageAndCarryOutActionMessagePlan(Item."No.", PlanningLinesCountBeforeCarryOut);
 
         if ChangeQuantityOnPurchase then
             UpdateQuantityForPurchase(PurchaseLine, GlobalPurchaseHeader[1]."No.", Item."Maximum Order Quantity");
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
 
         // Verify: Verify Planning Worksheet Lines and all the Planning Worksheet Lines are cleared after Carry Out Action message.
         if ChangeQuantityOnPurchase then begin
@@ -3062,7 +3062,7 @@ codeunit 137054 "SCM Supply Planning"
         PlanningWorksheetQuantity := SelectItemQuantity(Item, FRQItem);
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
 
         if CarryOutActionMessage then begin
             // Exercise: Carry Out Action Message on Planning Worksheet lines.
@@ -3073,7 +3073,7 @@ codeunit 137054 "SCM Supply Planning"
         end else begin
             // Verify: Verify Planning Worksheet.
             VerifyRequisitionLine(
-              Item."No.", RequisitionLine."Action Message"::New, SelectDateWithSafetyLeadTime(WorkDate, 1), 0, PlanningWorksheetQuantity, 0D,
+              Item."No.", RequisitionLine."Action Message"::New, SelectDateWithSafetyLeadTime(WorkDate(), 1), 0, PlanningWorksheetQuantity, 0D,
               '', '');
             VerifyRequisitionLine(
               Item."No.", RequisitionLine."Action Message"::Cancel, SupplyDateValue[1], SupplyQuantityValue[1], 0, 0D, '', '');
@@ -3130,11 +3130,11 @@ codeunit 137054 "SCM Supply Planning"
         PlanningWorksheetQuantity := SelectItemQuantity(Item, FRQItem);
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
 
         // Verify: Verify Planning Worksheet.
         VerifyRequisitionLine(
-          Item."No.", RequisitionLine."Action Message"::New, SelectDateWithSafetyLeadTime(WorkDate, 1), 0, PlanningWorksheetQuantity, 0D, '',
+          Item."No.", RequisitionLine."Action Message"::New, SelectDateWithSafetyLeadTime(WorkDate(), 1), 0, PlanningWorksheetQuantity, 0D, '',
           '');
         VerifyRequisitionLine(
           Item."No.", RequisitionLine."Action Message"::"Change Qty.", SupplyDateValue[1], SupplyQuantityValue[1], DemandQuantityValue[1],
@@ -3178,11 +3178,11 @@ codeunit 137054 "SCM Supply Planning"
         PlanningWorksheetQuantity := SelectItemQuantity(Item, FRQItem);
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
 
         // Verify: Verify Planning Worksheet.
         VerifyRequisitionLine(
-          Item."No.", RequisitionLine."Action Message"::New, SelectDateWithSafetyLeadTime(WorkDate, 1), 0, PlanningWorksheetQuantity, 0D, '',
+          Item."No.", RequisitionLine."Action Message"::New, SelectDateWithSafetyLeadTime(WorkDate(), 1), 0, PlanningWorksheetQuantity, 0D, '',
           '');
         VerifyRequisitionLine(
           Item."No.", RequisitionLine."Action Message"::New, DemandDateValue[2], 0,
@@ -3237,11 +3237,11 @@ codeunit 137054 "SCM Supply Planning"
         PlanningWorksheetQuantity := SelectItemQuantity(Item, FRQItem);
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
 
         // Verify: Verify Planning Worksheet.
         VerifyRequisitionLine(
-          Item."No.", RequisitionLine."Action Message"::New, SelectDateWithSafetyLeadTime(WorkDate, 1), 0, PlanningWorksheetQuantity, 0D, '',
+          Item."No.", RequisitionLine."Action Message"::New, SelectDateWithSafetyLeadTime(WorkDate(), 1), 0, PlanningWorksheetQuantity, 0D, '',
           '');
         NewProdOrderDate := SelectDateWithSafetyLeadTime(DemandDateValue[1], 1);
         if FRQItem then
@@ -3289,17 +3289,17 @@ codeunit 137054 "SCM Supply Planning"
         CreateDemand(DemandDateValue, DemandQuantityValue, Item."No.", 1);  // Number of Sales Order.
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
 
         // Verify: Verify Planning Worksheet.
         if FRQItem then
             VerifyRequisitionLine(
-              Item."No.", RequisitionLine."Action Message"::New, SelectDateWithSafetyLeadTime(WorkDate, 1), 0, Item."Reorder Quantity", 0D, '', '')
+              Item."No.", RequisitionLine."Action Message"::New, SelectDateWithSafetyLeadTime(WorkDate(), 1), 0, Item."Reorder Quantity", 0D, '', '')
         else
             VerifyRequisitionLine(
-              Item."No.", RequisitionLine."Action Message"::New, SelectDateWithSafetyLeadTime(WorkDate, 1), 0,
+              Item."No.", RequisitionLine."Action Message"::New, SelectDateWithSafetyLeadTime(WorkDate(), 1), 0,
               Item."Maximum Inventory" - Item."Safety Stock Quantity", 0D, '', '');
-        VerifyRequisitionLine(Item."No.", RequisitionLine."Action Message"::New, WorkDate, 0, Item."Safety Stock Quantity", 0D, '', '');
+        VerifyRequisitionLine(Item."No.", RequisitionLine."Action Message"::New, WorkDate(), 0, Item."Safety Stock Quantity", 0D, '', '');
         VerifyRequisitionLineCount(2);  // Expected no of lines in Planning Worksheet. Value important.
     end;
 
@@ -3368,11 +3368,11 @@ codeunit 137054 "SCM Supply Planning"
         CreateDemand(DemandDateValue, DemandQuantityValue, Item."No.", 1);  // Number of Sales Order : 1.
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(30));  // Dates based on WORKDATE. Planning Period - 1 Month, covers Sales shipments.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(30));  // Dates based on WORKDATE. Planning Period - 1 Month, covers Sales shipments.
 
         // Verify: Verify Planning Worksheet.
         VerifyRequisitionLine(
-          Item."No.", RequisitionLine."Action Message"::New, SelectDateWithSafetyLeadTime(WorkDate, 1), 0, Item."Maximum Inventory", 0D, '', '');
+          Item."No.", RequisitionLine."Action Message"::New, SelectDateWithSafetyLeadTime(WorkDate(), 1), 0, Item."Maximum Inventory", 0D, '', '');
         VerifyRequisitionLine(Item."No.", RequisitionLine."Action Message"::New, DemandDateValue[1], 0, SalesQty, 0D, '', '');
         VerifyRequisitionLineCount(2);  // Expected no of lines in Planning Worksheet. Count Value important.
     end;
@@ -3418,7 +3418,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateDemand(DemandDateValue, DemandQuantityValue, Item."No.", 1);  // Number of Sales Order : 1.
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(30));  // Dates based on WORKDATE. Planning Period - 1 Month, must cover any shipments.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(30));  // Dates based on WORKDATE. Planning Period - 1 Month, must cover any shipments.
 
         // Verify: Verify Planning Worksheet.
         Item.CalcFields(Inventory);
@@ -3430,7 +3430,7 @@ codeunit 137054 "SCM Supply Planning"
             VerifyRequisitionLineCount(1);  // Expected no of lines in Planning Worksheet. Count Value important.
         end else begin
             VerifyRequisitionLine(
-              Item."No.", RequisitionLine."Action Message"::New, SelectDateWithSafetyLeadTime(WorkDate, 1), 0,
+              Item."No.", RequisitionLine."Action Message"::New, SelectDateWithSafetyLeadTime(WorkDate(), 1), 0,
               Item."Maximum Inventory" - Item.Inventory, 0D, '', '');
             VerifyRequisitionLine(
               Item."No.", RequisitionLine."Action Message"::New, DemandDateValue[1], 0, SalesQty - Item.Inventory, 0D, '', '');
@@ -3462,11 +3462,11 @@ codeunit 137054 "SCM Supply Planning"
         PlanningWorksheetQuantity := SelectItemQuantity(Item, false);  // False for Maximum Inventory.
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Date based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Date based on WORKDATE.
 
         // Verify: Verify Requisition lines on Planning Worksheet.
         VerifyRequisitionLine(
-          Item."No.", RequisitionLine."Action Message"::New, SelectDateWithSafetyLeadTime(WorkDate, 1), 0, PlanningWorksheetQuantity, 0D, '',
+          Item."No.", RequisitionLine."Action Message"::New, SelectDateWithSafetyLeadTime(WorkDate(), 1), 0, PlanningWorksheetQuantity, 0D, '',
           '');
         VerifyRequisitionLineCount(1);  // Expected no of lines in Planning Worksheet. Value important.
     end;
@@ -3610,7 +3610,7 @@ codeunit 137054 "SCM Supply Planning"
         PlanningWorksheetQuantity := SelectItemQuantity(Item, false);  // False for Maximum Inventory.
 
         // Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Date based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Date based on WORKDATE.
 
         // Exercise: Accept and Carry Out Action Message for Planning Worksheet lines.
         AcceptActionMessageAndCarryOutActionMessagePlan(Item."No.", PlanningLinesCountBeforeCarryOut);
@@ -3661,7 +3661,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateDemand(DemandDateValue, DemandQuantityValue, Item."No.", 1);  // Number of Sales Order.
 
         // Calculate Regenerative Plan and update Planning Flexibility to None on the generated Requisition Line.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(30));  // Date based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(30));  // Date based on WORKDATE.
         UpdatePlanningFlexibilityOnRequisition(Item."No.");
 
         // Exercise: Accept and Carry Out Action Message for Planning Worksheet lines.
@@ -3827,7 +3827,7 @@ codeunit 137054 "SCM Supply Planning"
         // to the Vendor, create a Lot-For-Lot Item, set the vendor as the supplier. Create a Sales Order, set the shipment date
         // of the sales line as Friday, set ManufacturingSetup."Default Safety Lead Time" to 0D.
         SetupDemandWithBaseCalendar(Item, SalesHeader, CalcDate('<WD5>', GetRandomDateUsingWorkDate(30)), 0);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60)); // Calculate Regenerative Plan on Planning worksheet
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60)); // Calculate Regenerative Plan on Planning worksheet
         SelectSalesLine(SalesLine, SalesHeader."No.");
         SelectRequisitionLineForActionMessage(
           RequisitionLine, Item."No.", RequisitionLine."Action Message"::New, SalesLine."Shipment Date");
@@ -3841,7 +3841,7 @@ codeunit 137054 "SCM Supply Planning"
           Item."No.", SalesLine."Shipment Date", SalesLine."Shipment Date", CalcDate('<-WD7>', SalesLine."Shipment Date"));
 
         // Exercise: Calculate Regenerative Plan on Planning worksheet again.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));
 
         // Verify: No requisition line exists for the item.
         FilterRequisitionLine(RequisitionLine, Item."No.");
@@ -3872,7 +3872,7 @@ codeunit 137054 "SCM Supply Planning"
         // Setup: Create Base Calendar, set Sunday as working day, other days as non-working day, Create Vendor, bind the calendar
         // to the Vendor, create a Lot-For-Lot Item, set the vendor as the supplier. Create a Sales Order, set the shipment date
         // of the sales line as Friday, set ManufacturingSetup."Default Safety Lead Time" to 0D.
-        SetupDemandWithBaseCalendar(Item, SalesHeader, CalcDate('<WD5>', WorkDate), 0);
+        SetupDemandWithBaseCalendar(Item, SalesHeader, CalcDate('<WD5>', WorkDate()), 0);
 
         // Exercise: Calculate Order Planning for Sales Order.
         LibraryPlanning.CalculateOrderPlanSales(RequisitionLine);
@@ -3921,7 +3921,7 @@ codeunit 137054 "SCM Supply Planning"
         UpdateItemReorderingPolicy(Item, Item."Reordering Policy"::"Maximum Qty.");
 
         // Exercise: Calculate Regenerative Plan on Planning worksheet.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));
 
         // Verify: Find the requistion line and verify calculating Due Date from Ending Date doesn't need to consider Vendor's calendar.
         FindRequisitionLine(RequisitionLine, Item."No.");
@@ -3956,7 +3956,7 @@ codeunit 137054 "SCM Supply Planning"
         UpdateItemLeadTimeCalculation(Item, LibraryRandom.RandInt(10));
 
         // Exercise: Calculate Regenerative Plan on Planning worksheet.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));
         FindRequisitionLine(RequisitionLine, Item."No.");
         OrderDate := RequisitionLine."Order Date";
 
@@ -3993,14 +3993,14 @@ codeunit 137054 "SCM Supply Planning"
         PostPositiveAdjustmentAndCreateSalesOrderWithThreeLines(Item, PositiveAdjustmentQuantity, MaxOrderQuantity);
 
         // [GIVEN] Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // [GIVEN] Carry out first line in Planning Worksheet with Quantity = 2 * "X".
         ChangeQuantityAndAcceptActionMessageInRequisitionLine(Item."No.", 2 * MaxOrderQuantity);
         LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
 
         // [WHEN] Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // [THEN] Planning Worksheet has one line with Quantity = "X".
         FilterRequisitionLine(RequisitionLine, Item."No.");
@@ -4049,11 +4049,11 @@ codeunit 137054 "SCM Supply Planning"
         OldBaseCalendarCode := UpdateCompanyInformationBaseCalendarCode(ServiceMgtSetup."Base Calendar Code");
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, CalcDate('<CY>', WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), CalcDate('<CY>', WorkDate()));
         FindRequisitionLine(RequisitionLine, Item."No.");
 
         // Verify: verify Order Date in created requisition line.
-        ExpectedDate := FindClosestWorkingDay(ServiceMgtSetup, WorkDate);
+        ExpectedDate := FindClosestWorkingDay(ServiceMgtSetup, WorkDate());
         Assert.AreEqual(ExpectedDate, RequisitionLine."Order Date", StrSubstNo(ReqLineOrderDateErr, ExpectedDate));
 
         // Tear Down.
@@ -4072,11 +4072,11 @@ codeunit 137054 "SCM Supply Planning"
         CreateItemWithVendorNoReorderingPolicy(Item);
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, CalcDate('<CY>', WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), CalcDate('<CY>', WorkDate()));
         FindRequisitionLine(RequisitionLine, Item."No.");
 
         // Verify: verify Order Date in created requisition line.
-        Assert.AreEqual(WorkDate, RequisitionLine."Order Date", StrSubstNo(ReqLineOrderDateErr, WorkDate));
+        Assert.AreEqual(WorkDate(), RequisitionLine."Order Date", StrSubstNo(ReqLineOrderDateErr, WorkDate()));
     end;
 
     [Test]
@@ -4101,11 +4101,11 @@ codeunit 137054 "SCM Supply Planning"
         UpdateVendorBaseCalendarCode(VendorNo, ServiceMgtSetup."Base Calendar Code");
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, CalcDate('<CY>', WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), CalcDate('<CY>', WorkDate()));
         FindRequisitionLine(RequisitionLine, Item."No.");
 
         // Verify: verify Order Date in created requisition line.
-        ExpectedDate := FindClosestWorkingDay(ServiceMgtSetup, WorkDate);
+        ExpectedDate := FindClosestWorkingDay(ServiceMgtSetup, WorkDate());
         Assert.AreEqual(ExpectedDate, RequisitionLine."Order Date", StrSubstNo(ReqLineOrderDateErr, ExpectedDate));
 
         // Tear Down.
@@ -4142,7 +4142,7 @@ codeunit 137054 "SCM Supply Planning"
         // to the Vendor, create a Lot-For-Lot Item, set the vendor as the supplier. Create a Sales Order, set the shipment date
         // of the sales line as Saturday, set ManufacturingSetup."Default Safety Lead Time" to random value.
         DefaultSafetyLeadTime := LibraryRandom.RandInt(10);
-        SetupDemandWithBaseCalendar(Item, SalesHeader, CalcDate('<WD6>', WorkDate), DefaultSafetyLeadTime);
+        SetupDemandWithBaseCalendar(Item, SalesHeader, CalcDate('<WD6>', WorkDate()), DefaultSafetyLeadTime);
 
         // Exercise: Calculate Order Planning for Sales Order.
         LibraryPlanning.CalculateOrderPlanSales(RequisitionLine);
@@ -4259,15 +4259,15 @@ codeunit 137054 "SCM Supply Planning"
           Item, Item."Replenishment System"::Purchase, LibraryRandom.RandInt(20),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(5),
           LibraryRandom.RandIntInRange(25, 28));
-        CreateSalesOrder(SalesHeader, Item."No.", Quantity, WorkDate);
+        CreateSalesOrder(SalesHeader, Item."No.", Quantity, WorkDate());
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(5));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(5));
 
         // Verify: Verify Quantity is correct without respecting by Order Multiple with Exception Line in Planning Worksheet.
         // Quantity equals to the demand in Sales order plus the Safety Stock Quantity.
         FindUntrackedPlanningElementLine(
-          UntrackedPlanningElement, Item."No.", StrSubstNo(ExceptionMsg, Item."Safety Stock Quantity", WorkDate));
+          UntrackedPlanningElement, Item."No.", StrSubstNo(ExceptionMsg, Item."Safety Stock Quantity", WorkDate()));
         VerifyQuantityOnRequisitionLine(
           Item."No.", UntrackedPlanningElement."Worksheet Line No.", Quantity + Item."Safety Stock Quantity");
     end;
@@ -4291,7 +4291,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateAndUpdateStockKeepingUnit(Item, LocationBlue.Code, Item."Replenishment System"::"Prod. Order");
 
         // Exercise: Calculate Plan in Requisition Worksheet.
-        CalculatePlanForReqWksh(Item, WorkDate, WorkDate);
+        CalculatePlanForReqWksh(Item, WorkDate(), WorkDate());
 
         // Verify: Verify the line with Replenishment = Prod. Order not be generated in Requisition Worksheet.
         FilterRequisitionLine(RequisitionLine, Item."No.");
@@ -4321,16 +4321,16 @@ codeunit 137054 "SCM Supply Planning"
 
         // Calculate Regenerative Plan and Carry Out Action Message.
         Item3.SetFilter("No.", '%1|%2', Item."No.", Item2."No.");
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item3, WorkDate, DemandDateValue[1]);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item3, WorkDate(), DemandDateValue[1]);
         AcceptActionMessageAndCarryOutActionMessagePlan(Item."No.", PlanningLinesCountBeforeCarryOut);
         AcceptActionMessageAndCarryOutActionMessagePlan(Item2."No.", PlanningLinesCountBeforeCarryOut);
 
         // Exercise: Update the Shipment Date within the rescheduling period on Sales Order, then Calculate Regenerative Plan.
         // Delete the first line in the Planning Worksheet then Re-Calculate Regenerative Plan.
         UpdateShipmentDateForSales(SalesLine, SalesHeader."No.", DemandDateValue[2]);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item3, WorkDate, DemandDateValue[2]);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item3, WorkDate(), DemandDateValue[2]);
         DeleteFirstRequisitionLine(10000); // Line No. is important, here is an empty line.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item3, WorkDate, DemandDateValue[2]);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item3, WorkDate(), DemandDateValue[2]);
 
         // Verify: Verify no error message pops up and there are two Requistion Lines for Parent Item and Child Item.
         VerifyRequisitionLineCount(2);
@@ -4353,7 +4353,7 @@ codeunit 137054 "SCM Supply Planning"
           LibraryRandom.RandInt(10) + 10, 0);
 
         // Exercise: Calculate Plan in Requisition Worksheet and update Replenishment to Prod. Order.
-        CalculatePlanForReqWksh(Item, WorkDate, WorkDate);
+        CalculatePlanForReqWksh(Item, WorkDate(), WorkDate());
         FindRequisitionLine(RequisitionLine, Item."No.");
         asserterror RequisitionLine.Validate("Replenishment System", RequisitionLine."Replenishment System"::"Prod. Order");
 
@@ -4414,7 +4414,7 @@ codeunit 137054 "SCM Supply Planning"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Qty);
 
         // [WHEN] Calculate Regenerative Plan
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));
 
         // [THEN] Two Requisition Line are created for Item: with Quantity = "M" and "Q" accordingly
         with ReqLine do begin
@@ -4455,7 +4455,7 @@ codeunit 137054 "SCM Supply Planning"
 
         // [GIVEN] Regenerative Plan for both items is calculated, action messages are accepted.
         Item.SetFilter("No.", '%1|%2', ProdItemNo, CompItemNo);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, CalcDate('<+1Y>', WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), CalcDate('<+1Y>', WorkDate()));
         AcceptActionMessageAndCarryOutActionMessagePlan(ProdItemNo, PlanningLinesCount);
         AcceptActionMessageAndCarryOutActionMessagePlan(CompItemNo, PlanningLinesCount);
 
@@ -4465,7 +4465,7 @@ codeunit 137054 "SCM Supply Planning"
             UpdateShipmentDateForSales(SalesLine, GlobalSalesHeader[i]."No.", DemandDateValue[i]);
 
         // [WHEN] Recalculate the Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, CalcDate('<+1Y>', WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), CalcDate('<+1Y>', WorkDate()));
 
         // [THEN] Due Dates for supplies of the component Item are suggested one day before "D1+", "D2+", "D3+".
         VerifyDueDatesOnRequisitionLine(CompItemNo, DemandDateValue);
@@ -4499,7 +4499,7 @@ codeunit 137054 "SCM Supply Planning"
         Assert.RecordCount(NameValueBuffer, 4);
         NameValueBuffer.FindSet();
         NameValueBuffer.TestField(Name, AvailabilityTok);
-        NameValueBuffer.Next;
+        NameValueBuffer.Next();
         VerifyNameValueBufferSequence(NameValueBuffer, ConfirmTok);
     end;
 
@@ -4531,7 +4531,7 @@ codeunit 137054 "SCM Supply Planning"
         Assert.RecordCount(NameValueBuffer, 4);
         NameValueBuffer.FindSet();
         NameValueBuffer.TestField(Name, AvailabilityTok);
-        NameValueBuffer.Next;
+        NameValueBuffer.Next();
         VerifyNameValueBufferSequence(NameValueBuffer, ConfirmTok);
     end;
 
@@ -4836,7 +4836,7 @@ codeunit 137054 "SCM Supply Planning"
 
         // [WHEN] Calculate regenerative plan for both "I" and "C".
         Item.SetFilter("No.", '%1|%2', AsmItem."No.", CompItem."No.");
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(90));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(90));
 
         // [THEN] 3 lines are created for the component item "C".
         FilterRequisitionLine(RequisitionLine, CompItem."No.");
@@ -4844,7 +4844,7 @@ codeunit 137054 "SCM Supply Planning"
 
         // [THEN] Quantities on these lines are equal to "Q1", "Q2", "Q3".
         for i := 1 to ArrayLen(DemandQuantityValue) do begin
-            RequisitionLine.Next;
+            RequisitionLine.Next();
             RequisitionLine.TestField(Quantity, DemandQuantityValue[i]);
         end;
     end;
@@ -4886,7 +4886,7 @@ codeunit 137054 "SCM Supply Planning"
 
         // [WHEN] Calculate Regenerative Plan.
         Item.SetRecFilter();
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));
 
         // [THEN] One Requisition Line is created. It has Action Message = "Reschedule", Original Due Date = 15.02.2021, Due Date = 20.02.2021, Quantity = 10.
         VerifyRequisitionLine(
@@ -4932,7 +4932,7 @@ codeunit 137054 "SCM Supply Planning"
 
         // [WHEN] Calculate Regenerative Plan.
         Item.SetRecFilter();
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));
 
         // [THEN] Two Requisition Lines are created. The first line has Action Message = "Resched. & Chg. Qty.", Original Due Date = 15.02.2021, Due Date = 20.02.2021, Original Quantity = 4, Quantity = 10.
         // [THEN] The second line has Action Message = "Change Qty.", Due Date = 20.02.2021, Original Quantity = 10, Quantity = 4.
@@ -4983,7 +4983,7 @@ codeunit 137054 "SCM Supply Planning"
 
         // [WHEN] Calculate Regenerative Plan.
         Item.SetRecFilter();
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));
 
         // [THEN] Two Requisition Lines are created. They have Action Message = "Reschedule", Original Due Date = 15.02.2021 / 16.02.2021, Due Date = 20.02.2021, Quantity = 10.
         VerifyRequisitionLineWithOriginalDueDate(
@@ -5033,7 +5033,7 @@ codeunit 137054 "SCM Supply Planning"
 
         // [WHEN] Calculate Regenerative Plan.
         Item.SetRecFilter();
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));
 
         // [THEN] Two Requisition Lines are created. The first line has Action Message = "Reschedule", Original Due Date = 15.02.2021, Due Date = 20.02.2021, Quantity = 10.
         // [THEN] The second line has Action Message = "Reschedule", Original Due Date = 16.02.2021, Due Date = 20.02.2021, Quantity = 4.
@@ -5084,7 +5084,7 @@ codeunit 137054 "SCM Supply Planning"
 
         // [WHEN] Calculate Regenerative Plan.
         Item.SetRecFilter();
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));
 
         // [THEN] Two Requisition Lines are created. They have Action Message = "Reschedule", Original Due Date = 12.02.2021 / 14.02.2021, Due Date = 16.02.2021 / 18.02.2021, Quantity = 10.
         VerifyRequisitionLine(
@@ -5134,7 +5134,7 @@ codeunit 137054 "SCM Supply Planning"
 
         // [WHEN] Calculate Regenerative Plan.
         Item.SetRecFilter();
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));
 
         // [THEN] Two Requisition Lines are created. They have Action Message = "Reschedule", Original Due Date = 12.02.2021 / 14.02.2021, Due Date = 16.02.2021 / 18.02.2021, Quantity = 10 and 4.
         VerifyRequisitionLine(
@@ -5356,7 +5356,7 @@ codeunit 137054 "SCM Supply Planning"
 
         // [GIVEN] Sales order for drop shipment.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), LocationBlue.Code, WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), LocationBlue.Code, WorkDate());
         SalesLine.Validate("Drop Shipment", true);
         SalesLine.Modify(true);
 
@@ -5490,7 +5490,7 @@ codeunit 137054 "SCM Supply Planning"
         UpdateItemVendorNo(Item, ''); // Clear the Vendor No. on Item Card.
 
         // Calculate Regenerative Plan on Planning worksheet.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));
         FindRequisitionLine(RequisitionLine, Item."No.");
 
         // Exercise: Fill in the Vendor No., then Due Date or Ending Date will be recalculated.
@@ -5514,7 +5514,7 @@ codeunit 137054 "SCM Supply Planning"
         // Setup: Create and update Item. Create Sales Order.
         Initialize();
         CreateAndUpdateOrderItem(Item);
-        CreateSalesOrder(SalesHeader, Item."No.", LibraryRandom.RandIntInRange(20, 30), WorkDate);
+        CreateSalesOrder(SalesHeader, Item."No.", LibraryRandom.RandIntInRange(20, 30), WorkDate());
 
         // Calculate Plan and Carry Out Action Message in Planning Worksheet.
         // Update Quantity and Shipment Date for Sales.
@@ -5524,12 +5524,12 @@ codeunit 137054 "SCM Supply Planning"
           SalesLine, SalesHeader."No.", GetRandomDateUsingWorkDate(LibraryRandom.RandInt(20)));
 
         // Exercise: Re-calc Plan for Planning Worksheet, then delete the Requisition Line.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, SalesLine."Shipment Date");
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), SalesLine."Shipment Date");
         FindRequisitionLine(RequisitionLine, Item."No.");
         RequisitionLine.Delete();
 
         // Verify: Verify the Excepted Receipt Date in Reservation Entry.
-        VerifyExpectedReceiptDateOnReservationEntry(Item."No.", WorkDate);
+        VerifyExpectedReceiptDateOnReservationEntry(Item."No.", WorkDate());
     end;
 
     local procedure CreateAndUpdateLocation(var Location: Record Location)
@@ -5569,12 +5569,12 @@ codeunit 137054 "SCM Supply Planning"
         DummyCount: Integer;
     begin
         SalesQuantity := Item."Maximum Inventory" + Item."Reorder Point" + 1;
-        CreateDemandDate(DemandDateValue, WorkDate, 0D, 0D); // Shipment Date is WORKDATE.
+        CreateDemandDate(DemandDateValue, WorkDate(), 0D, 0D); // Shipment Date is WORKDATE.
         CreateDemandQuantity(DemandQuantityValue, SalesQuantity, 0, 0);
         CreateDemand(DemandDateValue, DemandQuantityValue, Item."No.", 1); // Number of Sales Order : 1.
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate + 30); // Dates based on WORKDATE. Planning Period - 1 Month, covers Sales shipments.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate + 30); // Dates based on WORKDATE. Planning Period - 1 Month, covers Sales shipments.
         AcceptActionMessageAndCarryOutActionMessagePlan(Item."No.", DummyCount);
         AssemblyHeader.SetRange("Item No.", Item."No.");
         AssemblyHeader.FindFirst();
@@ -5844,7 +5844,7 @@ codeunit 137054 "SCM Supply Planning"
     local procedure ChangeQuantityAndAcceptActionMessageInRequisitionLine(ItemNo: Code[20]; MaximumOrderQuantity: Decimal)
     begin
         with RequisitionLine do begin
-            SelectRequisitionLineForActionMessage(RequisitionLine, ItemNo, "Action Message"::New, WorkDate);
+            SelectRequisitionLineForActionMessage(RequisitionLine, ItemNo, "Action Message"::New, WorkDate());
             Validate(Quantity, MaximumOrderQuantity);
             Validate("Accept Action Message", true);
             Modify(true);
@@ -5947,8 +5947,8 @@ codeunit 137054 "SCM Supply Planning"
     var
         DummyCount: Integer;
     begin
-        CreateSalesOrder(SalesHeader, Item."No.", Quantity, WorkDate);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, LibraryRandom.RandDate(7));
+        CreateSalesOrder(SalesHeader, Item."No.", Quantity, WorkDate());
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), LibraryRandom.RandDate(7));
         AcceptActionMessageAndCarryOutActionMessagePlan(Item."No.", DummyCount);
     end;
 
@@ -6188,7 +6188,7 @@ codeunit 137054 "SCM Supply Planning"
     local procedure GetRandomDateUsingWorkDate(Day: Integer) NewDate: Date
     begin
         // Calculating a New Date relative to work date for different supply and demands.
-        NewDate := CalcDate('<' + Format(Day) + 'D>', WorkDate);
+        NewDate := CalcDate('<' + Format(Day) + 'D>', WorkDate());
     end;
 
     local procedure GeneralSetupForPlanningWorksheet(var ManufacturingSetup: Record "Manufacturing Setup"; var Item: Record Item; var ProductionForecastEntry: array[3] of Record "Production Forecast Entry"; var RequisitionWkshName: Record "Requisition Wksh. Name"; CreatePurchOrder: Boolean; AddItemInventory: Boolean)
@@ -6222,7 +6222,7 @@ codeunit 137054 "SCM Supply Planning"
                 RequisitionLine.Validate("Vendor No.", VendorNo);
             RequisitionLine.Validate("Accept Action Message", true);
             RequisitionLine.Modify(true);
-        until RequisitionLine.Next = 0;
+        until RequisitionLine.Next() = 0;
     end;
 
     local procedure UpdateVariantOnSales(var SalesLine: Record "Sales Line"; SalesHeaderNo: Code[20]; VariantCode: Code[10])
@@ -6458,7 +6458,7 @@ codeunit 137054 "SCM Supply Planning"
         ManufacturingSetup.Get();
         CreatePurchaseOrderWithNewVendor(
           PurchaseHeader, Item."No.", LibraryRandom.RandDecInRange(11, 20, 2),
-          CalcDate(ManufacturingSetup."Default Safety Lead Time", CalcDate(Item."Lead Time Calculation", WorkDate)));
+          CalcDate(ManufacturingSetup."Default Safety Lead Time", CalcDate(Item."Lead Time Calculation", WorkDate())));
         PurchaseHeaderNo := PurchaseHeader."No.";
     end;
 
@@ -6484,7 +6484,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateLFLItem(Item, ItemReplenishmentSystem, '<1W>', '<1W>', true, 0, 0);
         CreateSalesOrderAndConnectedOrder(SalesHeader, Item, Quantity);
         UpdateQuantityForSales(SalesLine, SalesHeader."No.", Quantity + LibraryRandom.RandInt(5));
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, LibraryRandom.RandDate(60));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), LibraryRandom.RandDate(60));
     end;
 
     local procedure SetupItemCardScenario(var ItemCard: TestPage "Item Card")
@@ -6585,7 +6585,7 @@ codeunit 137054 "SCM Supply Planning"
 
     local procedure CalcRegenPlanAndCarryOutActionMessagePlan(Item: Record Item; var PlanningLinesCountBeforeCarryOut: Integer)
     begin
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));  // Dates based on WORKDATE.
         AcceptActionMessageAndCarryOutActionMessagePlan(Item."No.", PlanningLinesCountBeforeCarryOut);
     end;
 
@@ -6614,7 +6614,7 @@ codeunit 137054 "SCM Supply Planning"
         LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
         UpdateForecastOnManufacturingSetup(ProductionForecastName.Name, true);
         CreateAndUpdateProductionForecast(
-          ProductionForecastEntry[1], ProductionForecastName.Name, WorkDate, ItemNo, LibraryRandom.RandDec(5, 2) + 230);
+          ProductionForecastEntry[1], ProductionForecastName.Name, WorkDate(), ItemNo, LibraryRandom.RandDec(5, 2) + 230);
         if Multiple then begin
             CreateAndUpdateProductionForecast(
               ProductionForecastEntry[2], ProductionForecastName.Name, GetRandomDateUsingWorkDate(16), ItemNo,
@@ -6732,9 +6732,9 @@ codeunit 137054 "SCM Supply Planning"
         SalesLine: array[2] of Record "Sales Line";
     begin
         UpdateItemInventory(Item."No.", PositiveAdjustmentQuantity);
-        CreateSalesOrder(SalesHeader, Item."No.", MaximumOrderQuantity, WorkDate);
-        CreateSalesLine(SalesHeader, SalesLine[1], Item."No.", MaximumOrderQuantity, WorkDate);
-        CreateSalesLine(SalesHeader, SalesLine[2], Item."No.", MaximumOrderQuantity, WorkDate);
+        CreateSalesOrder(SalesHeader, Item."No.", MaximumOrderQuantity, WorkDate());
+        CreateSalesLine(SalesHeader, SalesLine[1], Item."No.", MaximumOrderQuantity, WorkDate());
+        CreateSalesLine(SalesHeader, SalesLine[2], Item."No.", MaximumOrderQuantity, WorkDate());
     end;
 
     local procedure SelectDateWithSafetyLeadTime(DateValue: Date; SignFactor: Integer): Date
@@ -6861,7 +6861,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         Quantity := LibraryRandom.RandInt(10);
 
-        Dates[1] := WorkDate;
+        Dates[1] := WorkDate();
         for i := 2 to ArrayLen(Dates) do // ascending sequence of dates
             Dates[i] := LibraryRandom.RandDateFrom(Dates[i - 1], LibraryRandom.RandInt(20));
 
@@ -6890,7 +6890,7 @@ codeunit 137054 "SCM Supply Planning"
         SelectSalesLine(SalesLine, GlobalSalesHeader[ReservToDocIndex]."No.");
         SalesLine.ShowReservation();
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, CalcDate('<+1Y>', WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), CalcDate('<+1Y>', WorkDate()));
     end;
 
     local procedure PrepareSupplyAndDemandWithDampenerQtyAndSafetyStock(var Item: Record Item; DampenerQty: Decimal; SafetyStock: Decimal; ExceedingQty: Decimal)
@@ -6908,7 +6908,7 @@ codeunit 137054 "SCM Supply Planning"
 
         CreateSupplyType(SupplyType, SupplyType::Purchase, SupplyType::Purchase, SupplyType::None, SupplyType::None, SupplyType::None);
         CreateSupplyQuantity(SupplyQuantityValue, LibraryRandom.RandIntInRange(30, 50), LibraryRandom.RandIntInRange(30, 50), 0, 0, 0);
-        CreateSupplyDate(SupplyDateValue, WorkDate, GetRandomDateUsingWorkDate(30), 0D, 0D, 0D);
+        CreateSupplyDate(SupplyDateValue, WorkDate(), GetRandomDateUsingWorkDate(30), 0D, 0D, 0D);
         CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, Item."No.", Item."No.", '');
 
         CreateDemandQuantity(
@@ -6949,17 +6949,17 @@ codeunit 137054 "SCM Supply Planning"
             else
                 EntryNo := 1;
 
-            Init;
+            Init();
             "Entry No." := EntryNo;
             Quantity := Qty;
             "Posting Date" := Date;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure SetDemandDates(var DemandDateValue: array[3] of Date; FromRange: Integer; ToRange: Integer)
     begin
-        DemandDateValue[1] := LibraryRandom.RandDateFromInRange(WorkDate, FromRange, ToRange);
+        DemandDateValue[1] := LibraryRandom.RandDateFromInRange(WorkDate(), FromRange, ToRange);
         DemandDateValue[2] := LibraryRandom.RandDateFromInRange(DemandDateValue[1], FromRange, ToRange);
         DemandDateValue[3] := LibraryRandom.RandDateFromInRange(DemandDateValue[2], FromRange, ToRange);
     end;
@@ -7100,7 +7100,7 @@ codeunit 137054 "SCM Supply Planning"
             Assert.IsTrue(
               RequisitionLine.Quantity <= Item."Maximum Order Quantity",
               StrSubstNo(MaximumOrderQuantityErr, RequisitionLine.Quantity, Item."Maximum Order Quantity"));
-        until RequisitionLine.Next = 0;
+        until RequisitionLine.Next() = 0;
 
         // Verify supply have met demand and Safety Stock Quantity.
         Item.CalcFields(Inventory);
@@ -7161,28 +7161,28 @@ codeunit 137054 "SCM Supply Planning"
         if ProdOrderLine.FindSet() then
             repeat
                 InsertTempItemLedgerEntry(TempItemLedgerEntry, ProdOrderLine.Quantity, ProdOrderLine."Due Date");
-            until ProdOrderLine.Next = 0;
+            until ProdOrderLine.Next() = 0;
 
         SalesLine.SetRange("No.", ItemNo);
         if SalesLine.FindSet() then
             repeat
                 InsertTempItemLedgerEntry(TempItemLedgerEntry, -SalesLine.Quantity, SalesLine."Shipment Date");
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
 
         TempItemLedgerEntry.SetCurrentKey("Item No.", "Posting Date");
         if TempItemLedgerEntry.FindSet() then
             repeat
                 ProjectedInventory += TempItemLedgerEntry.Quantity;
                 Assert.IsTrue(ProjectedInventory >= 0, ProjectedInventoryNegativeMsg);
-            until TempItemLedgerEntry.Next = 0;
+            until TempItemLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyNameValueBufferSequence(var NameValueBuffer: Record "Name/Value Buffer"; FirstToken: Text)
     begin
         NameValueBuffer.TestField(Name, FirstToken);
-        NameValueBuffer.Next;
+        NameValueBuffer.Next();
         NameValueBuffer.TestField(Name, ReservationEntryTok);
-        NameValueBuffer.Next;
+        NameValueBuffer.Next();
         NameValueBuffer.TestField(Name, ReservationEntryTok);
     end;
 
@@ -7280,7 +7280,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // Calculate Regenerative Plan using page.
         CalculatePlanPlanWksh.Item.SetFilter("No.", GlobalItemNo);
-        CalculatePlanPlanWksh.StartingDate.SetValue(WorkDate);
+        CalculatePlanPlanWksh.StartingDate.SetValue(WorkDate());
         CalculatePlanPlanWksh.EndingDate.SetValue(GetRandomDateUsingWorkDate(90));
         CalculatePlanPlanWksh.OK.Invoke;
     end;

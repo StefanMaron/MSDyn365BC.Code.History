@@ -234,7 +234,7 @@ codeunit 144002 "Automatic Acc. Group Posting"
           Round(-GenJournalLine."Amount (LCY)" * AutomaticAccLine."Allocation %" / 100));
 
         // [THEN] GLEntry2: "G/L Account No." = "ACC2", "Amount" = -30 (100 * -30%)
-        AutomaticAccLine.Next;
+        AutomaticAccLine.Next();
         VerifyGLEntryAmount(
           GenJournalLine."Document No.", AutomaticAccLine."G/L Account No.",
           Round(-GenJournalLine."Amount (LCY)" * AutomaticAccLine."Allocation %" / 100));
@@ -265,7 +265,7 @@ codeunit 144002 "Automatic Acc. Group Posting"
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryRandom.RandDecInRange(100, 200, 2));
-        GenJournalLine.Validate("Posting Date", CalcDate('<CM+1D>', WorkDate));
+        GenJournalLine.Validate("Posting Date", CalcDate('<CM+1D>', WorkDate()));
         GenJournalLine.Validate("Auto. Acc. Group", AutoAccGroupNo);
         GenJournalLine.Validate("Deferral Code", DeferralTemplate."Deferral Code");
         GenJournalLine.Modify(true);
@@ -307,7 +307,7 @@ codeunit 144002 "Automatic Acc. Group Posting"
 
         // [GIVEN] Purchase invoice for "G/L Account" = "GL-PI" with Amount = 100, "Auto. Acc. Group" = "AAG" and "Deferral Code" = "D"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
-        PurchaseHeader.Validate("Posting Date", CalcDate('<CM+1D>', WorkDate));
+        PurchaseHeader.Validate("Posting Date", CalcDate('<CM+1D>', WorkDate()));
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, 1);
@@ -353,7 +353,7 @@ codeunit 144002 "Automatic Acc. Group Posting"
 
         // [GIVEN] Sales invoice for "G/L Account" = "GL-PI" with Amount = 100, "Auto. Acc. Group" = "AAG" and "Deferral Code" = "D"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
-        SalesHeader.Validate("Posting Date", CalcDate('<CM+1D>', WorkDate));
+        SalesHeader.Validate("Posting Date", CalcDate('<CM+1D>', WorkDate()));
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
@@ -412,7 +412,7 @@ codeunit 144002 "Automatic Acc. Group Posting"
         // [GIVEN] Amount = 100, "Auto. Acc. Group" = "AG1" and Deferral Code = "D"
         // [GIVEN] Amount = 200, "Auto. Acc. Group" = "AG2" and Deferral Code = "D"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
-        PurchaseHeader.Validate("Posting Date", CalcDate('<CM+1D>', WorkDate));
+        PurchaseHeader.Validate("Posting Date", CalcDate('<CM+1D>', WorkDate()));
         PurchaseHeader.Modify(true);
         CreatePurchLineWithAccGroupAndDeferral(
           PurchaseLine, PurchaseHeader, LibraryERM.CreateGLAccountWithPurchSetup, AutoAccGroupNo1, DeferralTemplate."Deferral Code");
@@ -475,7 +475,7 @@ codeunit 144002 "Automatic Acc. Group Posting"
         // [GIVEN] Amount = 100, "Auto. Acc. Group" = "AG1" and Deferral Code = "D"
         // [GIVEN] Amount = 200, "Auto. Acc. Group" = "AG2" and Deferral Code = "D"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
-        SalesHeader.Validate("Posting Date", CalcDate('<CM+1D>', WorkDate));
+        SalesHeader.Validate("Posting Date", CalcDate('<CM+1D>', WorkDate()));
         SalesHeader.Modify(true);
         CreateSalesLineWithAccGroupAndDeferral(
           SalesLine, SalesHeader, LibraryERM.CreateGLAccountWithSalesSetup, AutoAccGroupNo1, DeferralTemplate."Deferral Code");
@@ -615,8 +615,8 @@ codeunit 144002 "Automatic Acc. Group Posting"
           DeferralTemplate."Start Date"::"Beginning of Next Period", PeriodCount);
 
         // [GIVEN] Posting Date restriction from 01/01/2019 to 31/12/2020
-        PostingDate := CalcDate('<-CY-1D>', WorkDate);
-        LibraryERM.SetAllowPostingFromTo(CalcDate('<-CY>', PostingDate), CalcDate('<CY>', WorkDate));
+        PostingDate := CalcDate('<-CY-1D>', WorkDate());
+        LibraryERM.SetAllowPostingFromTo(CalcDate('<-CY>', PostingDate), CalcDate('<CY>', WorkDate()));
 
         // [GIVEN] "Gen. Journal Line" with "Posting Date" = 31/12/2019, "Deferral Code" = "DT", "Auto Acc. Group" = "AAG" and "Amount" = 12000
         LibraryJournals.CreateGenJournalLineWithBatch(
@@ -665,7 +665,7 @@ codeunit 144002 "Automatic Acc. Group Posting"
 
         // [GIVEN] Sales invoice for "G/L Account" = "GL-PI" with Amount = 100, "Auto. Acc. Group" = "AAG" and "Deferral Code" = "D"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
-        SalesHeader.Validate("Posting Date", CalcDate('<CM+1D>', WorkDate));
+        SalesHeader.Validate("Posting Date", CalcDate('<CM+1D>', WorkDate()));
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
             SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
@@ -716,7 +716,7 @@ codeunit 144002 "Automatic Acc. Group Posting"
 
         // [GIVEN] Purchase invoice for "G/L Account" = "GL-PI" with Amount = 100, "Auto. Acc. Group" = "AAG" and "Deferral Code" = "D"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
-        PurchaseHeader.Validate("Posting Date", CalcDate('<CM+1D>', WorkDate));
+        PurchaseHeader.Validate("Posting Date", CalcDate('<CM+1D>', WorkDate()));
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
             PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
@@ -837,7 +837,7 @@ codeunit 144002 "Automatic Acc. Group Posting"
     begin
         GLSetup.Get();
         GLSetup."Additional Reporting Currency" :=
-          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1, LibraryRandom.RandDec(100, 2));
+          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, LibraryRandom.RandDec(100, 2));
         GLSetup.Modify(true);
     end;
 
@@ -863,7 +863,7 @@ codeunit 144002 "Automatic Acc. Group Posting"
     local procedure CreateAutomaticAccHeader(var AutomaticAccHeader: Record "Automatic Acc. Header"): Code[10]
     begin
         with AutomaticAccHeader do begin
-            Init;
+            Init();
             Validate("No.",
               LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Automatic Acc. Header"));
             Insert(true);
@@ -885,7 +885,7 @@ codeunit 144002 "Automatic Acc. Group Posting"
     local procedure CreateBalancedAutoAccLines(var AutomaticAccLine: Record "Automatic Acc. Line"; AutomaticAccNo: Code[10]; AllocationPct: Decimal; DimSetID: Integer)
     begin
         with AutomaticAccLine do begin
-            Init;
+            Init();
             Validate("Automatic Acc. No.", AutomaticAccNo);
             Validate("Line No.", 10000);
             Validate("G/L Account No.", LibraryERM.CreateGLAccountNo);
@@ -943,7 +943,7 @@ codeunit 144002 "Automatic Acc. Group Posting"
         RecRef: RecordRef;
     begin
         with AutomaticAccLine do begin
-            Init;
+            Init();
             Validate("Automatic Acc. No.", AutomaticAccNo);
             RecRef.GetTable(AutomaticAccLine);
             Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));
@@ -1108,7 +1108,7 @@ codeunit 144002 "Automatic Acc. Group Posting"
         CurrencyCode: Code[10];
         DocumentNo: Code[20];
     begin
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, LibraryRandom.RandDec(10, 2), 1);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandDec(10, 2), 1);
         with GenJournalLine do begin
             LibraryJournals.CreateGenJournalLineWithBatch(
               GenJournalLine, "Document Type"::" ", "Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
@@ -1116,7 +1116,7 @@ codeunit 144002 "Automatic Acc. Group Posting"
             Validate("Bal. Account No.", '');
             Validate("Auto. Acc. Group", AutomaticAccGroupNo);
             Validate("Currency Code", CurrencyCode);
-            Modify;
+            Modify();
             DocumentNo := "Document No.";
 
             LibraryERM.CreateGeneralJnlLine(
@@ -1124,7 +1124,7 @@ codeunit 144002 "Automatic Acc. Group Posting"
               "Document Type"::" ", "Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, -Amount);
             Validate("Document No.", DocumentNo);
             Validate("Currency Code", CurrencyCode);
-            Modify;
+            Modify();
         end;
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -1197,7 +1197,7 @@ codeunit 144002 "Automatic Acc. Group Posting"
     local procedure FilterGLEntryWithDocument(var GLEntry: Record "G/L Entry"; DocNo: Code[20])
     begin
         with GLEntry do begin
-            SetRange("Posting Date", WorkDate);
+            SetRange("Posting Date", WorkDate());
             SetRange("Document Type", "Document Type"::Invoice);
             SetRange("Document No.", DocNo);
         end;
@@ -1340,7 +1340,7 @@ codeunit 144002 "Automatic Acc. Group Posting"
                 GLEntry.FindLast();
                 Assert.AreEqual(
                   Round(GLEntry.Amount * ExchRate), GLEntry."Additional-Currency Amount",
-                  StrSubstNo(WrongValueErr, GLEntry.FieldCaption("Additional-Currency Amount"), GLEntry.TableCaption, GLEntry."Entry No."));
+                  StrSubstNo(WrongValueErr, GLEntry.FieldCaption("Additional-Currency Amount"), GLEntry.TableCaption(), GLEntry."Entry No."));
             until Next = 0;
         end;
     end;

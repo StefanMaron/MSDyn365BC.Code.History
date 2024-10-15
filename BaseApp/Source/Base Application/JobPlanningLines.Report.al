@@ -12,13 +12,13 @@ report 1006 "Job - Planning Lines"
         {
             DataItemTableView = SORTING("No.");
             PrintOnlyIfDetail = true;
-            column(No_Job; StrSubstNo('%1 %2 %3 %4', TableCaption, FieldCaption("No."), "No.", Description))
+            column(No_Job; StrSubstNo('%1 %2 %3 %4', TableCaption(), FieldCaption("No."), "No.", Description))
             {
             }
             dataitem("Integer"; "Integer")
             {
                 DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
-                column(CompanyName; COMPANYPROPERTY.DisplayName)
+                column(CompanyName; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(TodayFormatted; Format(Today, 0, 4))
@@ -301,7 +301,7 @@ report 1006 "Job - Planning Lines"
 
     trigger OnPreReport()
     begin
-        JTFilter := "Job Task".GetFilters;
+        JTFilter := "Job Task".GetFilters();
         JobFilter := "Job Task".GetFilter("Job No.");
         JobPlanningDateFilter := "Job Task".GetFilter("Planning Date Filter");
     end;

@@ -130,7 +130,7 @@ codeunit 134913 "ERM Purch Inv Disc With FA"
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          Amount, GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision", StrSubstNo(AmountError, Amount, GLEntry.TableCaption));
+          Amount, GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision", StrSubstNo(AmountError, Amount, GLEntry.TableCaption()));
     end;
 }
 

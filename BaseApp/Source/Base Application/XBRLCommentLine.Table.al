@@ -9,7 +9,8 @@ table 396 "XBRL Comment Line"
     ObsoleteState = Removed;
     ObsoleteTag = '23.0';
 #endif
-
+    ReplicateData = false;
+    
     fields
     {
         field(1; "XBRL Taxonomy Name"; Code[20])

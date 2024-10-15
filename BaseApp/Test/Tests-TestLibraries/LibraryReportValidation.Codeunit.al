@@ -57,7 +57,7 @@ codeunit 131002 "Library - Report Validation"
             OpenFile;
 
         FilterExcelBuffer(ExcelBuffer, ColumnValue);
-        exit(ExcelBuffer.FindFirst);
+        exit(ExcelBuffer.FindFirst())
     end;
 
     procedure CheckIfDecimalValueExists(Value: Decimal): Boolean
@@ -75,7 +75,7 @@ codeunit 131002 "Library - Report Validation"
         ExcelBuffer.SetRange(xlColID, Column);
         ExcelBuffer.SetRange("Cell Value as Text", ColumnValue);
 
-        exit(ExcelBuffer.FindFirst);
+        exit(ExcelBuffer.FindFirst())
     end;
 
     procedure CheckIfValueExistsOnSpecifiedWorksheet(WorksheetNo: Integer; ColumnValue: Text[250]): Boolean
@@ -88,7 +88,7 @@ codeunit 131002 "Library - Report Validation"
         ExcelBuffer.SetRange(Comment, Format(WorksheetNo));
         ExcelBuffer.SetRange("Cell Value as Text", ColumnValue);
 
-        exit(ExcelBuffer.FindFirst);
+        exit(ExcelBuffer.FindFirst())
     end;
 
     procedure CountDistinctRows(var ExcelBuffer: Record "Excel Buffer"): Integer
@@ -103,7 +103,7 @@ codeunit 131002 "Library - Report Validation"
                 TempExcelBuffer.Init();
                 TempExcelBuffer."Row No." := ExcelBuffer."Row No.";
                 if TempExcelBuffer.Insert() then;
-            until ExcelBuffer.Next = 0;
+            until ExcelBuffer.Next() = 0;
         exit(TempExcelBuffer.Count);
     end;
 
@@ -146,7 +146,7 @@ codeunit 131002 "Library - Report Validation"
                 TempExcelBuffer.Init();
                 TempExcelBuffer."Column No." := ExcelBuffer."Column No.";
                 if TempExcelBuffer.Insert() then;
-            until ExcelBuffer.Next = 0;
+            until ExcelBuffer.Next() = 0;
         exit(TempExcelBuffer.Count);
     end;
 
@@ -282,7 +282,7 @@ codeunit 131002 "Library - Report Validation"
                 repeat
                     RowValueSet[Counter] := ExcelBuffer2."Cell Value as Text";
                     Counter += 1;
-                until ExcelBuffer2.Next = 0;
+                until ExcelBuffer2.Next() = 0;
             RowNumber := ExcelBuffer."Row No.";
         end;
         if Counter = 1 then
@@ -312,7 +312,7 @@ codeunit 131002 "Library - Report Validation"
                 repeat
                     RowValueSet[Counter] := ExcelBuffer2."Cell Value as Text";
                     Counter += 1;
-                until ExcelBuffer2.Next = 0;
+                until ExcelBuffer2.Next() = 0;
             RowNumber := ExcelBuffer."Row No.";
         end;
         if Counter = 1 then
@@ -359,7 +359,7 @@ codeunit 131002 "Library - Report Validation"
                 else
                     ColumnValueSet[Counter] := '';
                 Counter += 1;
-            until ExcelBuffer.Next = 0;
+            until ExcelBuffer.Next() = 0;
         if Counter = 1 then
             Error(ValueNotFoundError);
     end;
@@ -522,7 +522,7 @@ codeunit 131002 "Library - Report Validation"
 
         ExcelBuffer.SetRange("Row No.", RowNo);
         ExcelBuffer.Get(RowNo, ColumnNo);
-        ExcelBuffer.Next;
+        ExcelBuffer.Next();
         exit(ExcelBuffer."Cell Value as Text");
     end;
 

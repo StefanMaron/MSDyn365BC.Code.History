@@ -130,14 +130,14 @@ page 2811 "Native - Sales Inv. Overview"
             exit;
         end;
 
-        SetCalculatedFields;
+        SetCalculatedFields();
         SalesInvoiceAggregator.RedistributeInvoiceDiscounts(Rec);
     end;
 
     trigger OnOpenPage()
     begin
         BindSubscription(NativeAPILanguageHandler);
-        SelectLatestVersion;
+        SelectLatestVersion();
     end;
 
     var

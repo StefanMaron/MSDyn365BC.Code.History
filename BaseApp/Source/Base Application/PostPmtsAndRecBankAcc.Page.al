@@ -8,7 +8,7 @@ page 417 "Post Pmts and Rec. Bank Acc."
     {
         area(Content)
         {
-            field("Balance Last Statement"; "Balance Last Statement")
+            field("Balance Last Statement"; Rec."Balance Last Statement")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Balance Last Statement';
@@ -26,7 +26,7 @@ page 417 "Post Pmts and Rec. Bank Acc."
                     end;
                 end;
             }
-            field("Statement Ending Balance"; "Statement Ending Balance")
+            field("Statement Ending Balance"; Rec."Statement Ending Balance")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Statement Ending Balance';

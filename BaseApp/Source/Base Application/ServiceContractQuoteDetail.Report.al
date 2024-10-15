@@ -305,7 +305,7 @@ report 5973 "Service Contract Quote-Detail"
             begin
                 FormatAddr.GetCompanyAddr("Responsibility Center", RespCenter, CompanyInfo, CompanyAddr);
                 FormatAddr.ServContractSellto(CustAddr, "Service Contract Header");
-                ShowShippingAddr := "Service Contract Header"."Ship-to Code" <> '';
+                ShowShippingAddr := "Ship-to Code" <> '';
                 if ShowShippingAddr then
                     FormatAddr.ServContractShipto(ShipToAddr, "Service Contract Header");
             end;

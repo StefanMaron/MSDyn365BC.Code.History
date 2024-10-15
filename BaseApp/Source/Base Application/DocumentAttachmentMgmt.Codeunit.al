@@ -1,4 +1,4 @@
-﻿codeunit 1173 "Document Attachment Mgmt"
+codeunit 1173 "Document Attachment Mgmt"
 {
     // // Code unit to manage document attachment to records.
 
@@ -14,7 +14,7 @@
         ShowAttachmentsTxt: Label 'Show Attachments';
         DeleteAttachmentsConfirmQst: Label 'Do you want to delete the attachments for this document?';
 
-    local procedure DeleteAttachedDocuments(RecRef: RecordRef)
+    procedure DeleteAttachedDocuments(RecRef: RecordRef)
     var
         DocumentAttachment: Record "Document Attachment";
     begin
@@ -922,17 +922,17 @@
         exit(false);
     end;
 
-    local procedure CopyAttachments(var FromRecRef: RecordRef; var ToRecRef: RecordRef)
+    procedure CopyAttachments(var FromRecRef: RecordRef; var ToRecRef: RecordRef)
     var
         FromDocumentAttachment: Record "Document Attachment";
         ToDocumentAttachment: Record "Document Attachment";
         FromFieldRef: FieldRef;
         ToFieldRef: FieldRef;
-        FromDocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
+        FromDocumentType: Enum "Incoming Document Type";
         FromLineNo: Integer;
         FromNo: Code[20];
         ToNo: Code[20];
-        ToDocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
+        ToDocumentType: Enum "Incoming Document Type";
         ToLineNo: Integer;
     begin
         FromDocumentAttachment.SetRange("Table ID", FromRecRef.Number);
@@ -987,7 +987,7 @@
                     FromDocumentAttachment.SetRange("Document Flow Purchase", true);
         end;
 
-        if FromDocumentAttachment.FindSet() then begin
+        if FromDocumentAttachment.FindSet() then
             repeat
                 Clear(ToDocumentAttachment);
                 ToDocumentAttachment.Init();
@@ -1022,7 +1022,6 @@
                 if not ToDocumentAttachment.Insert(true) then;
 
             until FromDocumentAttachment.Next() = 0;
-        end;
 
         // Copies attachments for header and then calls CopyAttachmentsForPostedDocsLines to copy attachments for lines.
     end;
@@ -1054,7 +1053,7 @@
         FromDocumentAttachment.SetRange("No.", FromNo);
 
         // Find any attached docs for headers (sales / purch)
-        if FromDocumentAttachment.FindSet() then begin
+        if FromDocumentAttachment.FindSet() then
             repeat
                 Clear(ToDocumentAttachment);
                 ToDocumentAttachment.Init();
@@ -1068,9 +1067,8 @@
                 OnCopyAttachmentsForPostedDocsOnBeforeToDocumentAttachmentInsert(FromDocumentAttachment, ToDocumentAttachment);
                 ToDocumentAttachment.Insert(true);
                 OnCopyAttachmentsForPostedDocsOnAfterToDocumentAttachmentInsert(FromDocumentAttachment, ToDocumentAttachment);
-
             until FromDocumentAttachment.Next() = 0;
-        end;
+
         CopyAttachmentsForPostedDocsLines(FromRecRef, ToRecRef);
     end;
 
@@ -1164,7 +1162,7 @@
 
         // Create a copy of all found attachments with new number [MoveToRecNo]
         // Need to do this because MODIFY does not support renaming keys for a record.
-        if DocumentAttachmentFound.FindSet() then begin
+        if DocumentAttachmentFound.FindSet() then
             repeat
                 Clear(DocumentAttachmentToCreate);
                 DocumentAttachmentToCreate.Init();
@@ -1172,7 +1170,6 @@
                 DocumentAttachmentToCreate.Validate("No.", MoveToRecNo);
                 DocumentAttachmentToCreate.Insert(true);
             until DocumentAttachmentFound.Next() = 0;
-        end;
 
         // Delete orphan attachments
         DocumentAttachmentFound.DeleteAll(true);

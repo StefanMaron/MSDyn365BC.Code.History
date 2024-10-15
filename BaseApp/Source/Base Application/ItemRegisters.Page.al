@@ -15,22 +15,22 @@ page 117 "Item Registers"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Creation Date"; "Creation Date")
+                field("Creation Date"; Rec."Creation Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the entries in the register were posted.';
                 }
-                field("Creation Time"; "Creation Time")
+                field("Creation Time"; Rec."Creation Time")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the time when the entries in the register were posted.';
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
@@ -42,52 +42,52 @@ page 117 "Item Registers"
                         UserMgt.DisplayUserInformation("User ID");
                     end;
                 }
-                field("Source Code"; "Source Code")
+                field("Source Code"; Rec."Source Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the source code that specifies where the entry was created.';
                 }
-                field("Journal Batch Name"; "Journal Batch Name")
+                field("Journal Batch Name"; Rec."Journal Batch Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the journal batch, a personalized journal layout, that the entries were posted from.';
                 }
-                field("From Entry No."; "From Entry No.")
+                field("From Entry No."; Rec."From Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the first item entry number in the register.';
                 }
-                field("To Entry No."; "To Entry No.")
+                field("To Entry No."; Rec."To Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last item entry number in the register.';
                 }
-                field("From Phys. Inventory Entry No."; "From Phys. Inventory Entry No.")
+                field("From Phys. Inventory Entry No."; Rec."From Phys. Inventory Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the first physical inventory ledger entry number in the register.';
                 }
-                field("To Phys. Inventory Entry No."; "To Phys. Inventory Entry No.")
+                field("To Phys. Inventory Entry No."; Rec."To Phys. Inventory Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last physical inventory ledger entry number in the register.';
                 }
-                field("From Value Entry No."; "From Value Entry No.")
+                field("From Value Entry No."; Rec."From Value Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the first value entry number in the register.';
                 }
-                field("To Value Entry No."; "To Value Entry No.")
+                field("To Value Entry No."; Rec."To Value Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last value entry number in this register.';
                 }
-                field("From Capacity Entry No."; "From Capacity Entry No.")
+                field("From Capacity Entry No."; Rec."From Capacity Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the first capacity entry number in the register.';
                 }
-                field("To Capacity Entry No."; "To Capacity Entry No.")
+                field("To Capacity Entry No."; Rec."To Capacity Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last capacity ledger entry number in this register.';
@@ -122,9 +122,6 @@ page 117 "Item Registers"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Item Ledger';
                     Image = ItemLedger;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Codeunit "Item Reg.-Show Ledger";
                     ToolTip = 'View the item ledger entries that resulted in the current register entry.';
                 }
@@ -133,9 +130,6 @@ page 117 "Item Registers"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Phys. Invent&ory Ledger';
                     Image = PhysicalInventoryLedger;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Codeunit "Item Reg.-Show Inventory Ledg.";
                     ToolTip = 'View the physical inventory ledger entries that resulted in the current register entry.';
                 }
@@ -144,9 +138,6 @@ page 117 "Item Registers"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Value Entries';
                     Image = ValueLedger;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Codeunit "Item Reg.- Show Value Entries";
                     ToolTip = 'View the value entries of the item on the document or journal line.';
                 }
@@ -155,9 +146,6 @@ page 117 "Item Registers"
                     ApplicationArea = Basic, Suite;
                     Caption = '&Capacity Ledger';
                     Image = CapacityLedger;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Codeunit "Item Reg.-Show Cap. Ledger";
                     ToolTip = 'View the capacity ledger entries that resulted in the current register entry.';
                 }
@@ -172,6 +160,26 @@ page 117 "Item Registers"
                 Image = Delete;
                 RunObject = Report "Delete Empty Item Registers";
                 ToolTip = 'Find and delete empty item registers.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Item Ledger_Promoted"; "Item Ledger")
+                {
+                }
+                actionref("Phys. Invent&ory Ledger_Promoted"; "Phys. Invent&ory Ledger")
+                {
+                }
+                actionref("Value Entries_Promoted"; "Value Entries")
+                {
+                }
+                actionref("&Capacity Ledger_Promoted"; "&Capacity Ledger")
+                {
+                }
             }
         }
     }

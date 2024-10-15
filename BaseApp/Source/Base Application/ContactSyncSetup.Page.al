@@ -5,7 +5,6 @@ page 6701 "Contact Sync. Setup"
     InsertAllowed = false;
     LinksAllowed = false;
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Filter,Logging';
     SourceTable = "Exchange Sync";
 
     layout
@@ -15,19 +14,19 @@ page 6701 "Contact Sync. Setup"
             group(General)
             {
                 Caption = 'General';
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Lookup = false;
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
                 }
-                field("Folder ID"; "Folder ID")
+                field("Folder ID"; Rec."Folder ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the public folder on the Exchange server that you want to use for your queue and storage folders.';
                 }
-                field("Last Sync Date Time"; "Last Sync Date Time")
+                field("Last Sync Date Time"; Rec."Last Sync Date Time")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last date/time that the Exchange server was synchronized.';
@@ -65,8 +64,6 @@ page 6701 "Contact Sync. Setup"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Validate Exchange Connection';
                     Image = ValidateEmailLoggingSetup;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Test that the provided exchange server connection works.';
 
                     trigger OnAction()
@@ -76,11 +73,11 @@ page 6701 "Contact Sync. Setup"
                         if O365SyncManagement.CreateExchangeConnection(Rec) then
                             Message(ConnectionSuccessMsg)
                         else begin
-                            ProgressWindow.Close;
+                            ProgressWindow.Close();
                             Error(ConnectionFailureErr);
                         end;
 
-                        ProgressWindow.Close;
+                        ProgressWindow.Close();
 
                         Session.LogMessage('0000ACM', SetupTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory());
                     end;
@@ -90,8 +87,6 @@ page 6701 "Contact Sync. Setup"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sync with Office 365';
                     Image = Refresh;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Synchronize with Office 365 based on last sync date and last modified date. All changes in Office 365 since the last sync date will be synchronized back.';
 
                     trigger OnAction()
@@ -106,8 +101,6 @@ page 6701 "Contact Sync. Setup"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Set Sync Filter';
                     Image = "Filter";
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Synchronize, but ignore the last synchronized and last modified dates. All changes will be pushed to Office 365 and take all contacts from your Exchange folder and sync back.';
 
                     trigger OnAction()
@@ -148,9 +141,39 @@ page 6701 "Contact Sync. Setup"
 
                     trigger OnAction()
                     begin
-                        DeleteActivityLog;
+                        DeleteActivityLog();
                     end;
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Validate Exchange Connection_Promoted"; "Validate Exchange Connection")
+                {
+                }
+                actionref(SyncO365_Promoted; SyncO365)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Filter', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(SetSyncFilter_Promoted; SetSyncFilter)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Logging', Comment = 'Generated from the PromotedActionCategories property index 4.';
             }
         }
     }
@@ -176,7 +199,7 @@ page 6701 "Contact Sync. Setup"
     local procedure GetUser(var User: Record User): Boolean
     begin
         User.SetRange("User Name", UserId);
-        exit(User.FindFirst);
+        exit(User.FindFirst());
     end;
 }
 

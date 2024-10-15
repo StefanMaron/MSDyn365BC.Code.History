@@ -5,19 +5,20 @@ codeunit 844 "Cash Flow Wksh.-Register Batch"
     trigger OnRun()
     begin
         CFWkshLine.Copy(Rec);
-        Code;
+        Code();
         Rec := CFWkshLine;
     end;
 
     var
-        Text1002: Label 'Checking lines        #2######\';
-        Text1005: Label 'Register lines         #3###### @4@@@@@@@@@@@@@';
         CFWkshLine: Record "Cash Flow Worksheet Line";
         LicPermission: Record "License Permission";
         CFWkshCheckLine: Codeunit "Cash Flow Wksh.- Check Line";
         Window: Dialog;
         StartLineNo: Integer;
         NoOfRecords: Integer;
+
+        Text1002: Label 'Checking lines        #2######\';
+        Text1005: Label 'Register lines         #3###### @4@@@@@@@@@@@@@';
 
     local procedure "Code"()
     var
@@ -33,12 +34,12 @@ codeunit 844 "Cash Flow Wksh.-Register Batch"
                 exit;
             end;
 
-            CreateWindow;
+            CreateWindow();
 
-            CheckLines;
-            RegisterLines;
+            CheckLines();
+            RegisterLines();
 
-            DeleteLines;
+            DeleteLines();
 
             Commit();
         end;

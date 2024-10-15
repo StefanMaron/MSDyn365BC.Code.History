@@ -89,19 +89,19 @@ report 6521 "Item Tracking Appendix"
                 {
                     DataItemTableView = SORTING(Number);
                     PrintOnlyIfDetail = false;
-                    column(SerialNo_ItemTrackingLine; TrackingSpecBuffer."Serial No.")
+                    column(SerialNo_ItemTrackingLine; TempTrackingSpecBuffer."Serial No.")
                     {
                     }
-                    column(No_ItemTrackingLine; TrackingSpecBuffer."Item No.")
+                    column(No_ItemTrackingLine; TempTrackingSpecBuffer."Item No.")
                     {
                     }
-                    column(Desc_ItemTrackingLine; TrackingSpecBuffer.Description)
+                    column(Desc_ItemTrackingLine; TempTrackingSpecBuffer.Description)
                     {
                     }
-                    column(Qty_ItemTrackingLine; TrackingSpecBuffer."Quantity (Base)")
+                    column(Qty_ItemTrackingLine; TempTrackingSpecBuffer."Quantity (Base)")
                     {
                     }
-                    column(LotNo; TrackingSpecBuffer."Lot No.")
+                    column(LotNo; TempTrackingSpecBuffer."Lot No.")
                     {
                     }
                     column(ShowGroup; ShowGroup)
@@ -136,27 +136,27 @@ report 6521 "Item Tracking Appendix"
                     trigger OnAfterGetRecord()
                     begin
                         if Number = 1 then
-                            TrackingSpecBuffer.FindSet
+                            TempTrackingSpecBuffer.FindSet()
                         else
-                            TrackingSpecBuffer.Next;
+                            TempTrackingSpecBuffer.Next();
 
-                        if TrackingSpecBuffer.Correction then
-                            TrackingSpecBuffer."Quantity (Base)" := -TrackingSpecBuffer."Quantity (Base)";
+                        if TempTrackingSpecBuffer.Correction then
+                            TempTrackingSpecBuffer."Quantity (Base)" := -TempTrackingSpecBuffer."Quantity (Base)";
 
                         ShowTotal := false;
-                        if IsStartNewGroup(TrackingSpecBuffer) then
+                        if IsStartNewGroup(TempTrackingSpecBuffer) then
                             ShowTotal := true;
 
                         ShowGroup := false;
-                        if (TrackingSpecBuffer."Source Ref. No." <> OldRefNo) or
-                           (TrackingSpecBuffer."Item No." <> OldNo)
+                        if (TempTrackingSpecBuffer."Source Ref. No." <> OldRefNo) or
+                           (TempTrackingSpecBuffer."Item No." <> OldNo)
                         then begin
-                            OldRefNo := TrackingSpecBuffer."Source Ref. No.";
-                            OldNo := TrackingSpecBuffer."Item No.";
+                            OldRefNo := TempTrackingSpecBuffer."Source Ref. No.";
+                            OldNo := TempTrackingSpecBuffer."Item No.";
                             TotalQty := 0;
                         end else
                             ShowGroup := true;
-                        TotalQty += TrackingSpecBuffer."Quantity (Base)";
+                        TotalQty += TempTrackingSpecBuffer."Quantity (Base)";
                     end;
 
                     trigger OnPreDataItem()
@@ -164,7 +164,7 @@ report 6521 "Item Tracking Appendix"
                         if TrackingSpecCount = 0 then
                             CurrReport.Break();
                         SetRange(Number, 1, TrackingSpecCount);
-                        TrackingSpecBuffer.SetCurrentKey("Source ID", "Source Type", "Source Subtype", "Source Batch Name",
+                        TempTrackingSpecBuffer.SetCurrentKey("Source ID", "Source Type", "Source Subtype", "Source Batch Name",
                           "Source Prod. Order Line", "Source Ref. No.");
                     end;
                 }
@@ -172,9 +172,9 @@ report 6521 "Item Tracking Appendix"
                 trigger OnAfterGetRecord()
                 begin
                     // exclude documents without Item Tracking
-                    if TrackingSpecCount = 0 then begin
+                    if TrackingSpecCount = 0 then
                         CurrReport.Break();
-                    end;
+
                     OldRefNo := 0;
                     ShowGroup := false;
                 end;
@@ -233,7 +233,7 @@ report 6521 "Item Tracking Appendix"
 
     trigger OnPreReport()
     begin
-        SetRecordFilter;
+        SetRecordFilter();
     end;
 
     var
@@ -241,7 +241,6 @@ report 6521 "Item Tracking Appendix"
         PurchaseHeader: Record "Purchase Header";
         SalesShipmentHdr: Record "Sales Shipment Header";
         SalesInvoiceHdr: Record "Sales Invoice Header";
-        TrackingSpecBuffer: Record "Tracking Specification" temporary;
         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
         FormatAddr: Codeunit "Format Address";
         DocNo: Code[20];
@@ -274,19 +273,22 @@ report 6521 "Item Tracking Appendix"
         LotNoCaptionLbl: Label 'Lot No.';
         SerialNoCaptionLbl: Label 'Serial No.';
 
+    protected var
+        TempTrackingSpecBuffer: Record "Tracking Specification" temporary;
+
     local procedure SetRecordFilter()
     begin
         case DocType of
             DocType::"Sales Quote", DocType::"Sales Order", DocType::"Sales Invoice",
           DocType::"Sales Credit Memo", DocType::"Sales Return Order":
-                FilterSalesHdr;
+                FilterSalesHdr();
             DocType::"Purch. Quote", DocType::"Purch. Order", DocType::"Purch. Invoice",
           DocType::"Purch. Credit Memo", DocType::"Purch. Return Order":
-                FilterPurchHdr;
+                FilterPurchHdr();
             DocType::"Sales Post. Shipment":
-                FilterSalesShip;
+                FilterSalesShip();
             DocType::"Sales Post. Invoice":
-                FilterSalesInv;
+                FilterSalesInv();
         end;
     end;
 
@@ -297,35 +299,35 @@ report 6521 "Item Tracking Appendix"
             DocType::"Sales Credit Memo", DocType::"Sales Return Order":
                 begin
                     if Nr = 1 then
-                        SalesHeader.FindSet
+                        SalesHeader.FindSet()
                     else
-                        SalesHeader.Next;
-                    HandleSales;
+                        SalesHeader.Next();
+                    HandleSales();
                 end;
             DocType::"Purch. Quote", DocType::"Purch. Order", DocType::"Purch. Invoice",
             DocType::"Purch. Credit Memo", DocType::"Purch. Return Order":
                 begin
                     if Nr = 1 then
-                        PurchaseHeader.FindSet
+                        PurchaseHeader.FindSet()
                     else
-                        PurchaseHeader.Next;
-                    HandlePurchase;
+                        PurchaseHeader.Next();
+                    HandlePurchase();
                 end;
             DocType::"Sales Post. Shipment":
                 begin
                     if Nr = 1 then
-                        SalesShipmentHdr.FindSet
+                        SalesShipmentHdr.FindSet()
                     else
-                        SalesShipmentHdr.Next;
-                    HandleShipment;
+                        SalesShipmentHdr.Next();
+                    HandleShipment();
                 end;
             DocType::"Sales Post. Invoice":
                 begin
                     if Nr = 1 then
-                        SalesInvoiceHdr.FindSet
+                        SalesInvoiceHdr.FindSet()
                     else
-                        SalesInvoiceHdr.Next;
-                    HandleInvoice;
+                        SalesInvoiceHdr.Next();
+                    HandleInvoice();
                 end;
         end;
     end;
@@ -334,7 +336,7 @@ report 6521 "Item Tracking Appendix"
     begin
         AddressSalesHdr(SalesHeader);
         TrackingSpecCount :=
-          ItemTrackingDocMgt.RetrieveDocumentItemTracking(TrackingSpecBuffer, SalesHeader."No.",
+          ItemTrackingDocMgt.RetrieveDocumentItemTracking(TempTrackingSpecBuffer, SalesHeader."No.",
             DATABASE::"Sales Header", SalesHeader."Document Type".AsInteger());
     end;
 
@@ -342,7 +344,7 @@ report 6521 "Item Tracking Appendix"
     begin
         AddressPurchaseHdr(PurchaseHeader);
         TrackingSpecCount :=
-          ItemTrackingDocMgt.RetrieveDocumentItemTracking(TrackingSpecBuffer, PurchaseHeader."No.",
+          ItemTrackingDocMgt.RetrieveDocumentItemTracking(TempTrackingSpecBuffer, PurchaseHeader."No.",
             DATABASE::"Purchase Header", PurchaseHeader."Document Type".AsInteger());
     end;
 
@@ -350,7 +352,7 @@ report 6521 "Item Tracking Appendix"
     begin
         AddressShipmentHdr(SalesShipmentHdr);
         TrackingSpecCount :=
-          ItemTrackingDocMgt.RetrieveDocumentItemTracking(TrackingSpecBuffer, SalesShipmentHdr."No.",
+          ItemTrackingDocMgt.RetrieveDocumentItemTracking(TempTrackingSpecBuffer, SalesShipmentHdr."No.",
             DATABASE::"Sales Shipment Header", 0);
     end;
 
@@ -358,7 +360,7 @@ report 6521 "Item Tracking Appendix"
     begin
         AddressInvoiceHdr(SalesInvoiceHdr);
         TrackingSpecCount :=
-          ItemTrackingDocMgt.RetrieveDocumentItemTracking(TrackingSpecBuffer, SalesInvoiceHdr."No.",
+          ItemTrackingDocMgt.RetrieveDocumentItemTracking(TempTrackingSpecBuffer, SalesInvoiceHdr."No.",
             DATABASE::"Sales Invoice Header", 0);
     end;
 
@@ -440,22 +442,22 @@ report 6521 "Item Tracking Appendix"
         end;
     end;
 
-    procedure IsStartNewGroup(var TrackingSpecBuffer: Record "Tracking Specification" temporary): Boolean
+    procedure IsStartNewGroup(var TempTrackingSpecification: Record "Tracking Specification" temporary): Boolean
     var
-        TrackingSpecBuffer2: Record "Tracking Specification" temporary;
+        TempTrackingSpecification2: Record "Tracking Specification" temporary;
         SourceRef: Integer;
     begin
-        TrackingSpecBuffer2 := TrackingSpecBuffer;
-        SourceRef := TrackingSpecBuffer2."Source Ref. No.";
-        if TrackingSpecBuffer.Next() = 0 then begin
-            TrackingSpecBuffer := TrackingSpecBuffer2;
+        TempTrackingSpecification2 := TempTrackingSpecification;
+        SourceRef := TempTrackingSpecification2."Source Ref. No.";
+        if TempTrackingSpecBuffer.Next() = 0 then begin
+            TempTrackingSpecification := TempTrackingSpecification2;
             exit(true);
         end;
-        if SourceRef <> TrackingSpecBuffer."Source Ref. No." then begin
-            TrackingSpecBuffer := TrackingSpecBuffer2;
+        if SourceRef <> TempTrackingSpecBuffer."Source Ref. No." then begin
+            TempTrackingSpecification := TempTrackingSpecification2;
             exit(true);
         end;
-        TrackingSpecBuffer := TrackingSpecBuffer2;
+        TempTrackingSpecification := TempTrackingSpecification2;
         exit(false);
     end;
 

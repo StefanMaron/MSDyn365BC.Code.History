@@ -48,11 +48,7 @@ page 247 "VAT Registration Log Details"
             action(Accept)
             {
                 ApplicationArea = Basic, Suite;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedIsBig = true;
                 Image = Approve;
-                PromotedCategory = Process;
                 Enabled = AcceptEnabled;
                 Caption = 'Accept';
                 ToolTip = 'Apply the value that the service returned to the account.';
@@ -68,11 +64,7 @@ page 247 "VAT Registration Log Details"
             action(AcceptAll)
             {
                 ApplicationArea = Basic, Suite;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedIsBig = true;
                 Image = Approve;
-                PromotedCategory = Process;
                 Enabled = AcceptAllEnabled;
                 Caption = 'Accept All';
                 ToolTip = 'Accept all returned values and update the account.';
@@ -86,11 +78,7 @@ page 247 "VAT Registration Log Details"
             action(Reset)
             {
                 ApplicationArea = Basic, Suite;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedIsBig = true;
                 Image = ResetStatus;
-                PromotedCategory = Process;
                 Enabled = ResetEnabled;
                 Caption = 'Reset';
                 ToolTip = 'Reset the value that was applied to the account.';
@@ -106,11 +94,7 @@ page 247 "VAT Registration Log Details"
             action(ResetAll)
             {
                 ApplicationArea = Basic, Suite;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedIsBig = true;
                 Image = ResetStatus;
-                PromotedCategory = Process;
                 Enabled = ResetAllEnabled;
                 Caption = 'Reset All';
                 ToolTip = 'Reset the values that were applied to the account.';
@@ -119,6 +103,26 @@ page 247 "VAT Registration Log Details"
                 begin
                     UpdateAllDetailsStatus(Rec.Status::Accepted, Rec.Status::"Not Valid");
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Accept_Promoted; Accept)
+                {
+                }
+                actionref(AcceptAll_Promoted; AcceptAll)
+                {
+                }
+                actionref(Reset_Promoted; Reset)
+                {
+                }
+                actionref(ResetAll_Promoted; ResetAll)
+                {
+                }
             }
         }
     }

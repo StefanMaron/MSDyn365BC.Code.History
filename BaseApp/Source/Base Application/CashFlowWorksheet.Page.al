@@ -5,7 +5,6 @@ page 841 "Cash Flow Worksheet"
     Caption = 'Cash Flow Worksheet';
     DelayedInsert = true;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Page,Line,Cash Flow';
     SaveValues = true;
     SourceTable = "Cash Flow Worksheet Line";
     UsageCategory = Tasks;
@@ -17,7 +16,7 @@ page 841 "Cash Flow Worksheet"
             repeater(Control1000)
             {
                 ShowCaption = false;
-                field("Cash Flow Date"; "Cash Flow Date")
+                field("Cash Flow Date"; Rec."Cash Flow Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the cash flow date that the entry is posted to.';
@@ -27,12 +26,12 @@ page 841 "Cash Flow Worksheet"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the entry is related to an overdue payment. ';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document that represents the forecast entry.';
                 }
-                field("Cash Flow Forecast No."; "Cash Flow Forecast No.")
+                field("Cash Flow Forecast No."; Rec."Cash Flow Forecast No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a number for the cash flow forecast.';
@@ -47,18 +46,18 @@ page 841 "Cash Flow Worksheet"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the worksheet.';
                 }
-                field("Source Type"; "Source Type")
+                field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the source type that applies to the source number that is shown in the Source No. field.';
                 }
-                field("Source No."; "Source No.")
+                field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = SourceNumEnabled;
                     ToolTip = 'Specifies the number of the source document that the entry originates from.';
                 }
-                field("Cash Flow Account No."; "Cash Flow Account No.")
+                field("Cash Flow Account No."; Rec."Cash Flow Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the cash flow account.';
@@ -68,18 +67,18 @@ page 841 "Cash Flow Worksheet"
                         CFAccName := CashFlowManagement.CashFlowAccountName("Cash Flow Account No.");
                     end;
                 }
-                field("Amount (LCY)"; "Amount (LCY)")
+                field("Amount (LCY)"; Rec."Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the worksheet line in LCY. Revenues are entered without a plus or minus sign. Expenses are entered with a minus sign.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -222,15 +221,13 @@ page 841 "Cash Flow Worksheet"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
             }
@@ -243,8 +240,6 @@ page 841 "Cash Flow Worksheet"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Card';
                     Image = EditLines;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     RunObject = Page "Cash Flow Forecast Card";
                     RunPageLink = "No." = FIELD("Cash Flow Forecast No.");
                     ShortCutKey = 'Shift+F7';
@@ -275,15 +270,12 @@ page 841 "Cash Flow Worksheet"
                     Caption = '&Suggest Worksheet Lines';
                     Ellipsis = true;
                     Image = Import;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+Ctrl+F';
                     ToolTip = 'Transfer information from the areas of general ledger, purchasing, sales, service, fixed assets, manual revenues, and manual expenses to the cash flow worksheet. You use the batch job to make a cash flow forecast.';
 
                     trigger OnAction()
                     begin
-                        DeleteErrors;
+                        DeleteErrors();
                         SuggestWkshLines.RunModal();
                         Clear(SuggestWkshLines);
                     end;
@@ -298,9 +290,6 @@ page 841 "Cash Flow Worksheet"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Register';
                     Image = Approve;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Update negative or positive amounts of cash inflows and outflows for the cash flow account by registering the worksheet lines. ';
 
@@ -316,14 +305,11 @@ page 841 "Cash Flow Worksheet"
                 ApplicationArea = Basic, Suite;
                 Caption = '&Show';
                 Image = View;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'View the actual cash flow forecast entries.';
 
                 trigger OnAction()
                 begin
-                    ShowSource;
+                    ShowSource();
                 end;
             }
             group("Page")
@@ -334,10 +320,6 @@ page 841 "Cash Flow Worksheet"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Edit in Excel';
                     Image = Excel;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
                     Visible = IsSaaSExcelAddinEnabled;
                     AccessByPermission = System "Allow Action Export To Excel" = X;
@@ -351,11 +333,56 @@ page 841 "Cash Flow Worksheet"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(SuggestWorksheetLines_Promoted; SuggestWorksheetLines)
+                {
+                }
+                actionref(Register_Promoted; Register)
+                {
+                }
+                actionref(ShowSource_Promoted; ShowSource)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Page', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(EditInExcel_Promoted; EditInExcel)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Cash Flow', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref(Card_Promoted; Card)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        ShowErrors;
+        ShowErrors();
         CFName := CashFlowManagement.CashFlowNameFullLength("Cash Flow Forecast No.");
         CFAccName := CashFlowManagement.CashFlowAccountName("Cash Flow Account No.");
     end;
@@ -368,7 +395,7 @@ page 841 "Cash Flow Worksheet"
 
     trigger OnClosePage()
     begin
-        DeleteErrors;
+        DeleteErrors();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -382,7 +409,7 @@ page 841 "Cash Flow Worksheet"
         ServerSetting: Codeunit "Server Setting";
     begin
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
-        DeleteErrors;
+        DeleteErrors();
     end;
 
     var
@@ -402,11 +429,11 @@ page 841 "Cash Flow Worksheet"
         ErrorMessage: Record "Error Message";
         TempErrorMessage: Record "Error Message" temporary;
     begin
-        if CashFlowSetup.Get then begin
+        if CashFlowSetup.Get() then begin
             ErrorMessage.SetRange("Context Record ID", CashFlowSetup.RecordId);
             ErrorMessage.CopyToTemp(TempErrorMessage);
             CurrPage.ErrorMessagesPart.PAGE.SetRecords(TempErrorMessage);
-            CurrPage.ErrorMessagesPart.PAGE.Update;
+            CurrPage.ErrorMessagesPart.PAGE.Update();
         end;
     end;
 
@@ -415,7 +442,7 @@ page 841 "Cash Flow Worksheet"
         CashFlowSetup: Record "Cash Flow Setup";
         ErrorMessage: Record "Error Message";
     begin
-        if CashFlowSetup.Get then begin
+        if CashFlowSetup.Get() then begin
             ErrorMessage.SetRange("Context Record ID", CashFlowSetup.RecordId);
             if ErrorMessage.FindFirst() then
                 ErrorMessage.DeleteAll(true);
@@ -423,3 +450,4 @@ page 841 "Cash Flow Worksheet"
         end;
     end;
 }
+

@@ -49,7 +49,7 @@ codeunit 420 "XBRL Management"
         XBRLLineConst: Record "XBRL Line Constant";
     begin
         with XBRLLineConst do begin
-            Reset;
+            Reset();
             SetRange("XBRL Taxonomy Name", XBRLTaxonomyLine."XBRL Taxonomy Name");
             SetRange("XBRL Taxonomy Line No.", XBRLTaxonomyLine."Line No.");
             SetRange("Starting Date", 0D, PeriodEndDate);
@@ -69,7 +69,7 @@ codeunit 420 "XBRL Management"
     begin
         Amount := 0;
         with XBRLGLMapLine do begin
-            Reset;
+            Reset();
             SetRange("XBRL Taxonomy Name", XBRLTaxonomyLine."XBRL Taxonomy Name");
             SetRange("XBRL Taxonomy Line No.", XBRLTaxonomyLine."Line No.");
             if Find('-') then
@@ -209,7 +209,7 @@ codeunit 420 "XBRL Management"
             AccountingPeriodRec.SetRange("New Fiscal Year", true);
         if not AccountingPeriodRec.Get(StartDate) then
             Error(Text003, StartDate);
-        AccountingPeriodRec.Next;
+        AccountingPeriodRec.Next();
         EndDate := CalcDate('<-1D>', AccountingPeriodRec."Starting Date");
         exit(EndDate);
     end;

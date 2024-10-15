@@ -1,8 +1,7 @@
-﻿page 51 "Purchase Invoice"
+page 51 "Purchase Invoice"
 {
     Caption = 'Purchase Invoice';
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Approve,Invoice,Posting,View,Request Approval,Incoming Document,Release,Navigate';
     RefreshOnActivate = true;
     SourceTable = "Purchase Header";
     SourceTableView = WHERE("Document Type" = FILTER(Invoice));
@@ -14,7 +13,7 @@
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
                     Importance = Standard;
@@ -27,7 +26,7 @@
                             CurrPage.Update();
                     end;
                 }
-                field("Buy-from Vendor No."; "Buy-from Vendor No.")
+                field("Buy-from Vendor No."; Rec."Buy-from Vendor No.")
                 {
                     ApplicationArea = All;
                     Caption = 'Vendor No.';
@@ -37,11 +36,12 @@
 
                     trigger OnValidate()
                     begin
+                        IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
                         OnAfterValidateBuyFromVendorNo(Rec, xRec);
                         CurrPage.Update();
                     end;
                 }
-                field("Buy-from Vendor Name"; "Buy-from Vendor Name")
+                field("Buy-from Vendor Name"; Rec."Buy-from Vendor Name")
                 {
                     ApplicationArea = All;
                     Caption = 'Vendor Name';
@@ -56,7 +56,7 @@
                     begin
                         OnAfterValidateBuyFromVendorNo(Rec, xRec);
 
-                        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
+                        if ApplicationAreaMgmtFacade.IsFoundationEnabled() then
                             PurchCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
 
                         CurrPage.Update();
@@ -67,7 +67,7 @@
                         exit(Rec.LookupBuyFromVendorName(Text));
                     end;
                 }
-                field("Posting Description"; "Posting Description")
+                field("Posting Description"; Rec."Posting Description")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies additional posting information for the document. After you post the document, the description can add detail to vendor and customer ledger entries.';
@@ -76,7 +76,7 @@
                 group("Buy-from")
                 {
                     Caption = 'Buy-from';
-                    field("Buy-from Address"; "Buy-from Address")
+                    field("Buy-from Address"; Rec."Buy-from Address")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Address';
@@ -84,7 +84,7 @@
                         QuickEntry = false;
                         ToolTip = 'Specifies the address of the vendor who ships the items.';
                     }
-                    field("Buy-from Address 2"; "Buy-from Address 2")
+                    field("Buy-from Address 2"; Rec."Buy-from Address 2")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Address 2';
@@ -92,7 +92,7 @@
                         QuickEntry = false;
                         ToolTip = 'Specifies additional address information.';
                     }
-                    field("Buy-from City"; "Buy-from City")
+                    field("Buy-from City"; Rec."Buy-from City")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'City';
@@ -104,7 +104,7 @@
                     {
                         ShowCaption = false;
                         Visible = IsBuyFromCountyVisible;
-                        field("Buy-from County"; "Buy-from County")
+                        field("Buy-from County"; Rec."Buy-from County")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'County';
@@ -113,7 +113,7 @@
                             ToolTip = 'Specifies the state, province or county of the address.';
                         }
                     }
-                    field("Buy-from Post Code"; "Buy-from Post Code")
+                    field("Buy-from Post Code"; Rec."Buy-from Post Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Post Code';
@@ -121,7 +121,7 @@
                         QuickEntry = false;
                         ToolTip = 'Specifies the postal code.';
                     }
-                    field("Buy-from Country/Region Code"; "Buy-from Country/Region Code")
+                    field("Buy-from Country/Region Code"; Rec."Buy-from Country/Region Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Country/Region';
@@ -134,7 +134,7 @@
                             IsBuyFromCountyVisible := FormatAddress.UseCounty("Buy-from Country/Region Code");
                         end;
                     }
-                    field("Buy-from Contact No."; "Buy-from Contact No.")
+                    field("Buy-from Contact No."; Rec."Buy-from Contact No.")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Contact No.';
@@ -184,20 +184,26 @@
                         ToolTip = 'Specifies the email address of the vendor contact person.';
                     }
                 }
-                field("Buy-from Contact"; "Buy-from Contact")
+                field("Buy-from Contact"; Rec."Buy-from Contact")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Contact';
                     Editable = "Buy-from Vendor No." <> '';
                     ToolTip = 'Specifies the name of the person to contact about shipment of the item from this vendor.';
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    begin
+                        Rec.LookupBuyFromContact();
+                        CurrPage.Update();
+                    end;
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
@@ -205,29 +211,35 @@
 
                     trigger OnValidate()
                     begin
-                        SaveInvoiceDiscountAmount;
+                        SaveInvoiceDiscountAmount();
                     end;
                 }
-                field("Due Date"; "Due Date")
+                field("VAT Reporting Date"; Rec."VAT Reporting Date")
+                {
+                    ApplicationArea = VAT;
+                    Editable = true;
+                    ToolTip = 'Specifies the date used to include entries on VAT reports in a VAT period. This is either the date that the document was created or posted, depending on your setting on the General Ledger Setup page.';
+                }
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies when the invoice is due. The program calculates the date using the Payment Terms Code and Document Date fields.';
                 }
-                field("Incoming Document Entry No."; "Incoming Document Entry No.")
+                field("Incoming Document Entry No."; Rec."Incoming Document Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the number of the incoming document that this purchase document is created for.';
                     Visible = false;
                 }
-                field("Vendor Invoice No."; "Vendor Invoice No.")
+                field("Vendor Invoice No."; Rec."Vendor Invoice No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = VendorInvoiceNoMandatory;
                     ToolTip = 'Specifies the document number of the original document you received from the vendor. You can require the document number for posting, or let it be optional. By default, it''s required, so that this document references the original. Making document numbers optional removes a step from the posting process. For example, if you attach the original invoice as a PDF, you might not need to enter the document number. To specify whether document numbers are required, in the Purchases & Payables Setup window, select or clear the Ext. Doc. No. Mandatory field.';
                 }
-                field("Purchaser Code"; "Purchaser Code")
+                field("Purchaser Code"; Rec."Purchaser Code")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
@@ -235,23 +247,23 @@
 
                     trigger OnValidate()
                     begin
-                        PurchaserCodeOnAfterValidate;
+                        PurchaserCodeOnAfterValidate();
                     end;
                 }
-                field("Vendor Order No."; "Vendor Order No.")
+                field("Vendor Order No."; Rec."Vendor Order No.")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the vendor''s order number.';
                     Visible = false;
                 }
-                field("Campaign No."; "Campaign No.")
+                field("Campaign No."; Rec."Campaign No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Importance = Additional;
                     ToolTip = 'Specifies the campaign number the document is linked to.';
                 }
-                field("Order Address Code"; "Order Address Code")
+                field("Order Address Code"; Rec."Order Address Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Alternate Vendor Address Code';
@@ -259,13 +271,13 @@
                     ToolTip = 'Specifies the order address of the related vendor.';
                     Enabled = Rec."Buy-from Vendor No." <> '';
                 }
-                field("Responsibility Center"; "Responsibility Center")
+                field("Responsibility Center"; Rec."Responsibility Center")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the code of the responsibility center, such as a distribution hub, that is associated with the involved user, company, customer, or vendor.';
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
@@ -278,7 +290,7 @@
                     StyleExpr = StatusStyleTxt;
                     ToolTip = 'Specifies whether the record is open, waiting to be approved, invoiced for prepayment, or released to the next stage of processing.';
                 }
-                field("Job Queue Status"; "Job Queue Status")
+                field("Job Queue Status"; Rec."Job Queue Status")
                 {
                     ApplicationArea = All;
                     Importance = Additional;
@@ -289,15 +301,15 @@
             part(PurchLines; "Purch. Invoice Subform")
             {
                 ApplicationArea = Basic, Suite;
-                Editable = "Buy-from Vendor No." <> '';
-                Enabled = "Buy-from Vendor No." <> '';
+                Editable = IsPurchaseLinesEditable;
+                Enabled = IsPurchaseLinesEditable;
                 SubPageLink = "Document No." = FIELD("No.");
                 UpdatePropagation = Both;
             }
             group("Invoice Details")
             {
                 Caption = 'Invoice Details';
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     Importance = Promoted;
@@ -309,42 +321,42 @@
                         if "Posting Date" <> 0D then
                             ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Posting Date")
                         else
-                            ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", WorkDate);
-                        if ChangeExchangeRate.RunModal = ACTION::OK then begin
-                            Validate("Currency Factor", ChangeExchangeRate.GetParameter);
-                            SaveInvoiceDiscountAmount;
+                            ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", WorkDate());
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then begin
+                            Validate("Currency Factor", ChangeExchangeRate.GetParameter());
+                            SaveInvoiceDiscountAmount();
                         end;
                         Clear(ChangeExchangeRate);
                     end;
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         PurchCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
                     end;
                 }
-                field("EU 3-Party Trade"; "EU 3-Party Trade")
+                field("EU 3-Party Trade"; Rec."EU 3-Party Trade")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Select this field if the purchase order is involved in an EU 3-party trade.';
                 }
-                field("Expected Receipt Date"; "Expected Receipt Date")
+                field("Expected Receipt Date"; Rec."Expected Receipt Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the date you expect to receive the items on the purchase document.';
                 }
-                field("Prices Including VAT"; "Prices Including VAT")
+                field("Prices Including VAT"; Rec."Prices Including VAT")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies if the Unit Price and Line Amount fields on document lines should be shown with or without VAT.';
 
                     trigger OnValidate()
                     begin
-                        PricesIncludingVATOnAfterValid;
+                        PricesIncludingVATOnAfterValid();
                     end;
                 }
-                field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
+                field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
@@ -353,65 +365,65 @@
                     var
                         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
 
-                        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
+                        if ApplicationAreaMgmtFacade.IsFoundationEnabled() then
                             PurchCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
                     end;
                 }
-                field("Vendor Posting Group"; "Vendor Posting Group")
+                field("Vendor Posting Group"; Rec."Vendor Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = IsPostingGroupEditable;
                     Importance = Additional;
                     ToolTip = 'Specifies the vendor''s market type to link business transactions to.';
                 }
-                field("Payment Terms Code"; "Payment Terms Code")
+                field("Payment Terms Code"; Rec."Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
                 }
-                field("Payment Method Code"; "Payment Method Code")
+                field("Payment Method Code"; Rec."Payment Method Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
                     Visible = IsPaymentMethodCodeVisible;
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the document.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
 
                     trigger OnValidate()
                     begin
-                        ShortcutDimension1CodeOnAfterV;
+                        ShortcutDimension1CodeOnAfterV();
                     end;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
 
                     trigger OnValidate()
                     begin
-                        ShortcutDimension2CodeOnAfterV;
+                        ShortcutDimension2CodeOnAfterV();
                     end;
                 }
-                field("Payment Discount %"; "Payment Discount %")
+                field("Payment Discount %"; Rec."Payment Discount %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the payment discount percent granted if payment is made on or before the date in the Pmt. Discount Date field.';
                 }
-                field("Pmt. Discount Date"; "Pmt. Discount Date")
+                field("Pmt. Discount Date"; Rec."Pmt. Discount Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
@@ -423,40 +435,40 @@
                     ToolTip = 'Specifies the name of the journal template in which the purchase header is to be posted.';
                     Visible = IsJournalTemplNameVisible;
                 }
-                field("Tax Liable"; "Tax Liable")
+                field("Tax Liable"; Rec."Tax Liable")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies if the customer or vendor is liable for sales tax.';
                 }
-                field("Tax Area Code"; "Tax Area Code")
+                field("Tax Area Code"; Rec."Tax Area Code")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
 
                     trigger OnValidate()
                     begin
-                        CurrPage.PurchLines.PAGE.RedistributeTotalsOnAfterValidate;
+                        CurrPage.PurchLines.PAGE.RedistributeTotalsOnAfterValidate();
                     end;
                 }
-                field("Shipment Method Code"; "Shipment Method Code")
+                field("Shipment Method Code"; Rec."Shipment Method Code")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the delivery conditions of the related shipment, such as free on board (FOB).';
                 }
-                field("Payment Reference"; "Payment Reference")
+                field("Payment Reference"; Rec."Payment Reference")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the payment of the purchase invoice.';
                 }
-                field("Creditor No."; "Creditor No.")
+                field("Creditor No."; Rec."Creditor No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the vendor who sent the purchase invoice.';
                 }
-                field("On Hold"; "On Hold")
+                field("On Hold"; Rec."On Hold")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
@@ -482,7 +494,7 @@
 
                             trigger OnValidate()
                             begin
-                                ValidateShippingOption;
+                                ValidateShippingOption();
                             end;
                         }
                         group(Control79)
@@ -492,13 +504,13 @@
                             {
                                 ShowCaption = false;
                                 Visible = ShipToOptions = ShipToOptions::Location;
-                                field("Location Code"; "Location Code")
+                                field("Location Code"; Rec."Location Code")
                                 {
                                     ApplicationArea = Location;
                                     ToolTip = 'Specifies a code for the location where you want the items to be placed when they are received.';
                                 }
                             }
-                            field("Ship-to Name"; "Ship-to Name")
+                            field("Ship-to Name"; Rec."Ship-to Name")
                             {
                                 ApplicationArea = Basic, Suite;
                                 Caption = 'Name';
@@ -506,7 +518,7 @@
                                 Importance = Additional;
                                 ToolTip = 'Specifies the name of the company at the address that you want the items on the purchase document to be shipped to.';
                             }
-                            field("Ship-to Address"; "Ship-to Address")
+                            field("Ship-to Address"; Rec."Ship-to Address")
                             {
                                 ApplicationArea = Basic, Suite;
                                 Caption = 'Address';
@@ -515,7 +527,7 @@
                                 QuickEntry = false;
                                 ToolTip = 'Specifies the address that you want the items on the purchase document to be shipped to.';
                             }
-                            field("Ship-to Address 2"; "Ship-to Address 2")
+                            field("Ship-to Address 2"; Rec."Ship-to Address 2")
                             {
                                 ApplicationArea = Basic, Suite;
                                 Caption = 'Address 2';
@@ -524,7 +536,7 @@
                                 QuickEntry = false;
                                 ToolTip = 'Specifies additional address information.';
                             }
-                            field("Ship-to City"; "Ship-to City")
+                            field("Ship-to City"; Rec."Ship-to City")
                             {
                                 ApplicationArea = Basic, Suite;
                                 Caption = 'City';
@@ -537,7 +549,7 @@
                             {
                                 ShowCaption = false;
                                 Visible = IsShipToCountyVisible;
-                                field("Ship-to County"; "Ship-to County")
+                                field("Ship-to County"; Rec."Ship-to County")
                                 {
                                     ApplicationArea = Basic, Suite;
                                     Caption = 'County';
@@ -547,7 +559,7 @@
                                     ToolTip = 'Specifies the state, province or county of the address.';
                                 }
                             }
-                            field("Ship-to Post Code"; "Ship-to Post Code")
+                            field("Ship-to Post Code"; Rec."Ship-to Post Code")
                             {
                                 ApplicationArea = Basic, Suite;
                                 Caption = 'Post Code';
@@ -556,7 +568,7 @@
                                 QuickEntry = false;
                                 ToolTip = 'Specifies the postal code of the address that you want the items on the purchase document to be shipped to.';
                             }
-                            field("Ship-to Country/Region Code"; "Ship-to Country/Region Code")
+                            field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                             {
                                 ApplicationArea = Basic, Suite;
                                 Caption = 'Country/Region';
@@ -565,7 +577,7 @@
                                 QuickEntry = false;
                                 ToolTip = 'Specifies the country/region code of the address that you want the items on the purchase document to be shipped to.';
                             }
-                            field("Ship-to Contact"; "Ship-to Contact")
+                            field("Ship-to Contact"; Rec."Ship-to Contact")
                             {
                                 ApplicationArea = Basic, Suite;
                                 Caption = 'Contact';
@@ -596,7 +608,7 @@
                     {
                         ShowCaption = false;
                         Visible = NOT (PayToOptions = PayToOptions::"Default (Vendor)");
-                        field("Pay-to Name"; "Pay-to Name")
+                        field("Pay-to Name"; Rec."Pay-to Name")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Name';
@@ -614,14 +626,14 @@
                                     if "Pay-to Vendor No." <> xRec."Pay-to Vendor No." then
                                         SetRange("Pay-to Vendor No.");
 
-                                CurrPage.SaveRecord;
-                                if ApplicationAreaMgmtFacade.IsFoundationEnabled then
+                                CurrPage.SaveRecord();
+                                if ApplicationAreaMgmtFacade.IsFoundationEnabled() then
                                     PurchCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
 
                                 CurrPage.Update(false);
                             end;
                         }
-                        field("Pay-to Address"; "Pay-to Address")
+                        field("Pay-to Address"; Rec."Pay-to Address")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Address';
@@ -631,7 +643,7 @@
                             QuickEntry = false;
                             ToolTip = 'Specifies the address of the vendor sending the invoice.';
                         }
-                        field("Pay-to Address 2"; "Pay-to Address 2")
+                        field("Pay-to Address 2"; Rec."Pay-to Address 2")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Address 2';
@@ -641,7 +653,7 @@
                             QuickEntry = false;
                             ToolTip = 'Specifies additional address information.';
                         }
-                        field("Pay-to City"; "Pay-to City")
+                        field("Pay-to City"; Rec."Pay-to City")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'City';
@@ -655,7 +667,7 @@
                         {
                             ShowCaption = false;
                             Visible = IsPayToCountyVisible;
-                            field("Pay-to County"; "Pay-to County")
+                            field("Pay-to County"; Rec."Pay-to County")
                             {
                                 ApplicationArea = Basic, Suite;
                                 Caption = 'County';
@@ -666,7 +678,7 @@
                                 ToolTip = 'Specifies the state, province or county of the address.';
                             }
                         }
-                        field("Pay-to Post Code"; "Pay-to Post Code")
+                        field("Pay-to Post Code"; Rec."Pay-to Post Code")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Post Code';
@@ -676,7 +688,7 @@
                             QuickEntry = false;
                             ToolTip = 'Specifies the postal code.';
                         }
-                        field("Pay-to Country/Region Code"; "Pay-to Country/Region Code")
+                        field("Pay-to Country/Region Code"; Rec."Pay-to Country/Region Code")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Country/Region';
@@ -691,7 +703,7 @@
                                 IsPayToCountyVisible := FormatAddress.UseCounty("Pay-to Country/Region Code");
                             end;
                         }
-                        field("Pay-to Contact No."; "Pay-to Contact No.")
+                        field("Pay-to Contact No."; Rec."Pay-to Contact No.")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Contact No.';
@@ -727,7 +739,7 @@
                             ExtendedDatatype = Email;
                             ToolTip = 'Specifies the email address of the vendor contact person.';
                         }
-                        field("Pay-to Contact"; "Pay-to Contact")
+                        field("Pay-to Contact"; Rec."Pay-to Contact")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Contact';
@@ -737,26 +749,124 @@
                         }
                     }
                 }
+                group("Remit-to")
+                {
+                    ShowCaption = false;
+                    field("Remit-to Code"; Rec."Remit-to Code")
+                    {
+                        Editable = "Buy-from Vendor No." <> '';
+                        ApplicationArea = Basic, Suite;
+                        Importance = Promoted;
+                        ToolTip = 'Specifies the code for the vendor''s remit address for this invoice.';
+
+                        trigger OnValidate()
+                        begin
+                            FillRemitToFields();
+                        end;
+                    }
+                    group("Remit-to information")
+                    {
+                        ShowCaption = false;
+                        Visible = "Remit-to Code" <> '';
+                        field("Remit-to Name"; RemitToAddress[1])
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Name';
+                            Editable = false;
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the name of the company at the address that you want the invoice to be remitted to.';
+                        }
+                        field("Remit-to Address"; RemitToAddress[2])
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Address';
+                            Editable = false;
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the address that you want the items on the purchase document to be remitted to.';
+                        }
+                        field("Remit-to Address 2"; RemitToAddress[3])
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Address 2';
+                            Editable = false;
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies additional address information.';
+                        }
+                        field("Remit-to City"; RemitToAddress[4])
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'City';
+                            Editable = false;
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the city of the address that you want the items on the purchase document to be remitted to.';
+                        }
+                        group("Remit-to County group")
+                        {
+                            ShowCaption = false;
+                            Visible = IsRemitToCountyVisible;
+                            field("Remit-to County"; RemitToAddress[5])
+                            {
+                                ApplicationArea = Basic, Suite;
+                                Caption = 'County';
+                                Editable = false;
+                                Importance = Additional;
+                                QuickEntry = false;
+                                ToolTip = 'Specifies the state, province or county of the address.';
+                            }
+                        }
+                        field("Remit-to Post Code"; RemitToAddress[6])
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Post Code';
+                            Editable = false;
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the postal code of the address that you want the items on the purchase document to be remitted to.';
+                        }
+                        field("Remit-to Country/Region Code"; RemitToAddress[7])
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Country/Region';
+                            Editable = false;
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the country/region code of the address that you want the items on the purchase document to be remitted to.';
+                        }
+                        field("Remit-to Contact"; RemitToAddress[8])
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Contact';
+                            Editable = false;
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the name of a contact person for the address that you want the items on the purchase document to be remitted to.';
+                        }
+                    }
+                }
             }
             group("Foreign Trade")
             {
                 Caption = 'Foreign Trade';
-                field("Transaction Specification"; "Transaction Specification")
+                field("Transaction Specification"; Rec."Transaction Specification")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies a specification of the document''s transaction, for the purpose of reporting to INTRASTAT.';
                 }
-                field("Transaction Type"; "Transaction Type")
+                field("Transaction Type"; Rec."Transaction Type")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the type of transaction that the document represents, for the purpose of reporting to INTRASTAT.';
                 }
-                field("Transport Method"; "Transport Method")
+                field("Transport Method"; Rec."Transport Method")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the transport method, for the purpose of reporting to INTRASTAT.';
                 }
-                field("Entry Point"; "Entry Point")
+                field("Entry Point"; Rec."Entry Point")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the code of the port of entry where the items pass into your country/region, for reporting to Intrastat.';
@@ -876,9 +986,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
 
@@ -894,8 +1001,6 @@
                     Caption = 'Vendor';
                     Enabled = "Buy-from Vendor No." <> '';
                     Image = Vendor;
-                    Promoted = true;
-                    PromotedCategory = Category11;
                     RunObject = Page "Vendor Card";
                     RunPageLink = "No." = FIELD("Buy-from Vendor No."),
                                   "Date Filter" = FIELD("Date Filter");
@@ -907,8 +1012,6 @@
                     ApplicationArea = Comments;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Purch. Comment Sheet";
                     RunPageLink = "Document Type" = FIELD("Document Type"),
                                   "No." = FIELD("No."),
@@ -922,16 +1025,13 @@
                     Caption = 'Dimensions';
                     Enabled = "No." <> '';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
-                        ShowDocDim;
-                        CurrPage.SaveRecord;
+                        ShowDocDim();
+                        CurrPage.SaveRecord();
                     end;
                 }
                 action(DocAttach)
@@ -939,8 +1039,6 @@
                     ApplicationArea = All;
                     Caption = 'Attachments';
                     Image = Attach;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
 
                     trigger OnAction()
@@ -960,17 +1058,12 @@
             group(IncomingDocument)
             {
                 Caption = 'Incoming Document';
-                Visible = false;
                 action(IncomingDocCard)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'View';
                     Enabled = HasIncomingDocument;
                     Image = ViewOrder;
-                    Promoted = true;
-                    PromotedCategory = Category9;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'View any incoming document records and file attachments that exist for the entry or document.';
 
                     trigger OnAction()
@@ -986,10 +1079,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Select';
                     Image = SelectLineToApply;
-                    Promoted = true;
-                    PromotedCategory = Category9;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Select an incoming document record and file attachment that you want to link to the entry or document.';
 
                     trigger OnAction()
@@ -1006,10 +1095,6 @@
                     Ellipsis = true;
                     Enabled = ("Incoming Document Entry No." = 0) AND ("No." <> '');
                     Image = Attach;
-                    Promoted = true;
-                    PromotedCategory = Category9;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Create an incoming document record by selecting a file to attach, and then link the incoming document record to the entry or document.';
                     Visible = CreateIncomingDocumentVisible;
 
@@ -1027,10 +1112,6 @@
                     Ellipsis = true;
                     Enabled = IncomingDocEmailAttachmentEnabled;
                     Image = SendElectronicDocument;
-                    Promoted = true;
-                    PromotedCategory = Category9;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Create an incoming document record by selecting an attachment from outlook email, and then link the incoming document record to the entry or document.';
                     Visible = CreateIncomingDocFromEmailAttachment;
 
@@ -1046,10 +1127,6 @@
                     Caption = 'Remove';
                     Enabled = HasIncomingDocument;
                     Image = RemoveLine;
-                    Promoted = true;
-                    PromotedCategory = Category9;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Remove an external document that has been recorded, manually or automatically, and attached as a file to a document or ledger entry.';
 
                     trigger OnAction()
@@ -1057,7 +1134,7 @@
                         IncomingDocument: Record "Incoming Document";
                     begin
                         if IncomingDocument.Get("Incoming Document Entry No.") then
-                            IncomingDocument.RemoveLinkToRelatedRecord;
+                            IncomingDocument.RemoveLinkToRelatedRecord();
                         "Incoming Document Entry No." := 0;
                         Modify(true);
                     end;
@@ -1071,10 +1148,6 @@
                     ApplicationArea = All;
                     Caption = 'Approve';
                     Image = Approve;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Approve the requested changes.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
@@ -1090,10 +1163,6 @@
                     ApplicationArea = All;
                     Caption = 'Reject';
                     Image = Reject;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Reject the approval request.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
@@ -1109,9 +1178,6 @@
                     ApplicationArea = All;
                     Caption = 'Delegate';
                     Image = Delegate;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ToolTip = 'Delegate the approval to a substitute approver.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
@@ -1127,9 +1193,6 @@
                     ApplicationArea = All;
                     Caption = 'Comments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ToolTip = 'View or add comments for the record.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
@@ -1149,10 +1212,6 @@
                     ApplicationArea = Suite;
                     Caption = 'Re&lease';
                     Image = ReleaseDoc;
-                    Promoted = true;
-                    PromotedCategory = Category10;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ShortCutKey = 'Ctrl+F9';
                     ToolTip = 'Release the document to the next stage of processing. You must reopen the document before you can make changes to it.';
 
@@ -1170,9 +1229,6 @@
                     Caption = 'Re&open';
                     Enabled = Status <> Status::Open;
                     Image = ReOpen;
-                    Promoted = true;
-                    PromotedCategory = Category10;
-                    PromotedOnly = true;
                     ToolTip = 'Reopen the document to change it after it has been approved. Approved documents have the Released status and must be opened before they can be changed.';
 
                     trigger OnAction()
@@ -1234,7 +1290,7 @@
 
                     trigger OnAction()
                     begin
-                        ApproveCalcInvDisc;
+                        ApproveCalcInvDisc();
                         PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
                     end;
                 }
@@ -1279,7 +1335,7 @@
                         Clear(MoveNegPurchLines);
                         MoveNegPurchLines.SetPurchHeader(Rec);
                         MoveNegPurchLines.RunModal();
-                        MoveNegPurchLines.ShowDocument;
+                        MoveNegPurchLines.ShowDocument();
                     end;
                 }
             }
@@ -1292,8 +1348,6 @@
                     ApplicationArea = Suite;
                     Caption = 'Approvals';
                     Image = Approvals;
-                    Promoted = true;
-                    PromotedCategory = Category8;
                     ToolTip = 'View a list of the records that are waiting to be approved. For example, you can see who requested the record to be approved, when it was sent, and when it is due to be approved.';
 
                     trigger OnAction()
@@ -1309,9 +1363,6 @@
                     Caption = 'Send A&pproval Request';
                     Enabled = NOT OpenApprovalEntriesExist AND CanRequestApprovalForFlow;
                     Image = SendApprovalRequest;
-                    Promoted = true;
-                    PromotedCategory = Category8;
-                    PromotedIsBig = true;
                     ToolTip = 'Request approval of the document.';
 
                     trigger OnAction()
@@ -1328,8 +1379,6 @@
                     Caption = 'Cancel Approval Re&quest';
                     Enabled = CanCancelApprovalForRecord OR CanCancelApprovalForFlow;
                     Image = CancelApprovalRequest;
-                    Promoted = true;
-                    PromotedCategory = Category8;
                     ToolTip = 'Cancel the approval request.';
 
                     trigger OnAction()
@@ -1351,8 +1400,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Create a flow';
                     Image = Flow;
-                    Promoted = true;
-                    PromotedCategory = Category8;
                     ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
                     Visible = IsSaaS;
 
@@ -1362,7 +1409,7 @@
                         FlowTemplateSelector: Page "Flow Template Selector";
                     begin
                         // Opens page 6400 where the user can use filtered templates to create new flows.
-                        FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetPurchasingTemplateFilter);
+                        FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetPurchasingTemplateFilter());
                         FlowTemplateSelector.Run();
                     end;
                 }
@@ -1371,8 +1418,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'See my flows';
                     Image = Flow;
-                    Promoted = true;
-                    PromotedCategory = Category8;
                     RunObject = Page "Flow Selector";
                     ToolTip = 'View and configure Power Automate flows that you created.';
                 }
@@ -1386,15 +1431,12 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'P&ost';
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
                     trigger OnAction()
                     begin
-                        VerifyTotal;
+                        VerifyTotal();
                         PostDocument(CODEUNIT::"Purch.-Post (Yes/No)", "Navigate After Posting"::"Posted Document");
                     end;
                 }
@@ -1403,8 +1445,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Preview Posting';
                     Image = ViewPostedOrder;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
@@ -1433,16 +1473,13 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Post and &Print';
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and print the document or journal. The values and quantities are posted to the related accounts.';
                     Visible = NOT IsOfficeAddin;
 
                     trigger OnAction()
                     begin
-                        VerifyTotal;
+                        VerifyTotal();
                         PostDocument(CODEUNIT::"Purch.-Post + Print", "Navigate After Posting"::"Do Nothing");
                     end;
                 }
@@ -1452,8 +1489,6 @@
                     Caption = 'Post and New';
                     Ellipsis = true;
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     ShortCutKey = 'Alt+F9';
                     ToolTip = 'Post the purchase document and create a new, empty one.';
 
@@ -1472,7 +1507,7 @@
 
                     trigger OnAction()
                     begin
-                        VerifyTotal;
+                        VerifyTotal();
                         REPORT.RunModal(REPORT::"Batch Post Purchase Invoices", true, true, Rec);
                         CurrPage.Update(false);
                     end;
@@ -1487,25 +1522,192 @@
 
                     trigger OnAction()
                     begin
-                        CancelBackgroundPosting;
+                        CancelBackgroundPosting();
                     end;
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                group(Category_Category6)
+                {
+                    Caption = 'Posting', Comment = 'Generated from the PromotedActionCategories property index 5.';
+                    ShowAs = SplitButton;
+
+                    actionref(Post_Promoted; Post)
+                    {
+                    }
+                    actionref(Preview_Promoted; Preview)
+                    {
+                    }
+                    actionref(PostAndNew_Promoted; PostAndNew)
+                    {
+                    }
+                    actionref(PostAndPrint_Promoted; PostAndPrint)
+                    {
+                    }
+                    actionref(PostBatch_Promoted; PostBatch)
+                    {
+                    }
+                }
+                group(Category_Category10)
+                {
+                    Caption = 'Release', Comment = 'Generated from the PromotedActionCategories property index 9.';
+                    ShowAs = SplitButton;
+
+                    actionref("Re&lease_Promoted"; "Re&lease")
+                    {
+                    }
+                    actionref(Reopen_Promoted; Reopen)
+                    {
+                    }
+                }
+            }
+            group(Category_Prepare)
+            {
+                Caption = 'Prepare';
+
+                actionref(CopyDocument_Promoted; CopyDocument)
+                {
+                }
+                actionref(GetRecurringPurchaseLines_Promoted; GetRecurringPurchaseLines)
+                {
+                }
+                group("Category_Incoming Document")
+                {
+                    Caption = 'Incoming Document';
+
+                    actionref(IncomingDocAttachFile_Promoted; IncomingDocAttachFile)
+                    {
+                    }
+                    actionref(SelectIncomingDoc_Promoted; SelectIncomingDoc)
+                    {
+                    }
+                    actionref(IncomingDocCard_Promoted; IncomingDocCard)
+                    {
+                    }
+                    actionref(RemoveIncomingDoc_Promoted; RemoveIncomingDoc)
+                    {
+                    }
+                    actionref(IncomingDocEmailAttachment_Promoted; IncomingDocEmailAttachment)
+                    {
+                    }
+                }
+                actionref(CalculateInvoiceDiscount_Promoted; CalculateInvoiceDiscount)
+                {
+                }
+                actionref(MoveNegativeLines_Promoted; MoveNegativeLines)
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Approve', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Approve_Promoted; Approve)
+                {
+                }
+                actionref(Reject_Promoted; Reject)
+                {
+                }
+                actionref(Comment_Promoted; Comment)
+                {
+                }
+                actionref(Delegate_Promoted; Delegate)
+                {
+                }
+            }
+            group(Category_Category8)
+            {
+                Caption = 'Request Approval', Comment = 'Generated from the PromotedActionCategories property index 7.';
+
+                actionref(SendApprovalRequest_Promoted; SendApprovalRequest)
+                {
+                }
+                actionref(CancelApprovalRequest_Promoted; CancelApprovalRequest)
+                {
+                }
+#if not CLEAN21
+                actionref(CreateFlow_Promoted; CreateFlow)
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+#if not CLEAN21
+                actionref(SeeFlows_Promoted; SeeFlows)
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Invoice', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+                actionref(DocAttach_Promoted; DocAttach)
+                {
+                }
+                actionref(Approvals_Promoted; Approvals)
+                {
+                }
+                separator(Navigate_Separator)
+                {
+                }
+                actionref(Vendor_Promoted; Vendor)
+                {
+                }
+            }
+            group(Category_Category7)
+            {
+                Caption = 'View', Comment = 'Generated from the PromotedActionCategories property index 6.';
+            }
+            group(Category_Category9)
+            {
+                Caption = 'Incoming Document', Comment = 'Generated from the PromotedActionCategories property index 8.';
+
+            }
+            group(Category_Category11)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 10.';
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
+        SetControlAppearance();
         CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
         CurrPage.ApprovalFactBox.PAGE.UpdateApprovalEntriesFromSourceRecord(RecordId);
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
-        SetControlAppearance;
         StatusStyleTxt := GetStatusStyleText();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        CalculateCurrentShippingAndPayToOption;
+        CalculateCurrentShippingAndPayToOption();
         BuyFromContact.GetOrClear("Buy-from Contact No.");
         PayToContact.GetOrClear("Pay-to Contact No.");
 
@@ -1514,8 +1716,8 @@
 
     trigger OnDeleteRecord(): Boolean
     begin
-        CurrPage.SaveRecord;
-        exit(ConfirmDeletion);
+        CurrPage.SaveRecord();
+        exit(ConfirmDeletion());
     end;
 
     trigger OnInit()
@@ -1527,12 +1729,12 @@
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        "Responsibility Center" := UserMgt.GetPurchasesFilter;
+        "Responsibility Center" := UserMgt.GetPurchasesFilter();
 
         if (not DocNoVisible) and ("No." = '') then
-            SetBuyFromVendorFromFilter;
+            SetBuyFromVendorFromFilter();
 
-        CalculateCurrentShippingAndPayToOption;
+        CalculateCurrentShippingAndPayToOption();
     end;
 
     trigger OnOpenPage()
@@ -1556,6 +1758,7 @@
 
         SetPostingGroupEditable();
         CheckShowBackgrValidationNotification();
+        FillRemitToFields();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -1565,7 +1768,7 @@
         ShowConfirmCloseUnposted := not DocumentIsPosted;
         OnQueryClosePageOnAfterCalcShowConfirmCloseUnposted(Rec, ShowConfirmCloseUnposted);
         if ShowConfirmCloseUnposted then
-            exit(ConfirmCloseUnposted);
+            exit(ConfirmCloseUnposted());
     end;
 
     var
@@ -1605,12 +1808,17 @@
         IsBuyFromCountyVisible: Boolean;
         IsPayToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+        IsRemitToCountyVisible: Boolean;
         PurchaseDocCheckFactboxVisible: Boolean;
         [InDataSet]
         IsJournalTemplNameVisible: Boolean;
         [InDataSet]
         IsPaymentMethodCodeVisible: Boolean;
+        [InDataSet]
         IsPostingGroupEditable: Boolean;
+        [InDataSet]
+        IsPurchaseLinesEditable: Boolean;
+        RemitToAddress: array[8] of Text[100];
 
     protected var
         ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";
@@ -1624,6 +1832,7 @@
         GLSetup.Get();
         IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
         IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
+        IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
     end;
 
     procedure LineModified()
@@ -1657,7 +1866,7 @@
         DocumentIsPosted := (not PurchaseHeader.Get("Document Type", "No.")) or IsScheduledPosting;
 
         if IsScheduledPosting then
-            CurrPage.Close;
+            CurrPage.Close();
         CurrPage.Update(false);
 
         IsHandled := false;
@@ -1670,16 +1879,14 @@
 
         case Navigate of
             "Navigate After Posting"::"Posted Document":
-                begin
-                    if IsOfficeAddin then begin
-                        PurchInvHeader.SetRange("Pre-Assigned No.", "No.");
-                        PurchInvHeader.SetRange("Order No.", '');
-                        if PurchInvHeader.FindFirst() then
-                            PAGE.Run(PAGE::"Posted Purchase Invoice", PurchInvHeader);
-                    end else
-                        if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode) then
-                            ShowPostedConfirmationMessage;
-                end;
+                if IsOfficeAddin then begin
+                    PurchInvHeader.SetRange("Pre-Assigned No.", "No.");
+                    PurchInvHeader.SetRange("Order No.", '');
+                    if PurchInvHeader.FindFirst() then
+                        PAGE.Run(PAGE::"Posted Purchase Invoice", PurchInvHeader);
+                end else
+                    if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode()) then
+                        ShowPostedConfirmationMessage();
             "Navigate After Posting"::"New Document":
                 if DocumentIsPosted then begin
                     Clear(PurchaseHeader);
@@ -1692,7 +1899,7 @@
         end;
     end;
 
-    local procedure VerifyTotal()
+    protected procedure VerifyTotal()
     var
         IsHandled: Boolean;
     begin
@@ -1701,20 +1908,20 @@
         if IsHandled then
             exit;
 
-        if not IsTotalValid then
+        if not IsTotalValid() then
             Error(TotalsMismatchErr);
     end;
 
     local procedure ApproveCalcInvDisc()
     begin
-        CurrPage.PurchLines.PAGE.ApproveCalcInvDisc;
+        CurrPage.PurchLines.PAGE.ApproveCalcInvDisc();
     end;
 
     local procedure SaveInvoiceDiscountAmount()
     var
         DocumentTotals: Codeunit "Document Totals";
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         DocumentTotals.PurchaseRedistributeInvoiceDiscountAmountsOnDocument(Rec);
         CurrPage.Update(false);
     end;
@@ -1762,13 +1969,14 @@
         WorkflowWebhookMgt: Codeunit "Workflow Webhook Management";
     begin
         HasIncomingDocument := "Incoming Document Entry No." <> 0;
-        SetExtDocNoMandatoryCondition;
+        SetExtDocNoMandatoryCondition();
 
-        IncomingDocEmailAttachmentEnabled := OfficeMgt.EmailHasAttachments;
+        IncomingDocEmailAttachmentEnabled := OfficeMgt.EmailHasAttachments();
         OpenApprovalEntriesExistForCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(RecordId);
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
 
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
+        IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
 
         WorkflowWebhookMgt.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
         PurchaseDocCheckFactboxVisible := DocumentErrorsMgt.BackgroundValidationEnabled();
@@ -1802,7 +2010,7 @@
         PurchInvHeader.SetRange("Order No.", '');
         if PurchInvHeader.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedPurchaseInvQst, PurchInvHeader."No."),
-                 InstructionMgt.ShowPostedConfirmationMessageCode)
+                 InstructionMgt.ShowPostedConfirmationMessageCode())
             then
                 InstructionMgt.ShowPostedDocument(PurchInvHeader, Page::"Purchase Invoice");
     end;
@@ -1827,21 +2035,37 @@
         if "Location Code" <> '' then
             ShipToOptions := ShipToOptions::Location
         else
-            if ShipToAddressEqualsCompanyShipToAddress then
+            if ShipToAddressEqualsCompanyShipToAddress() then
                 ShipToOptions := ShipToOptions::"Default (Company Address)"
             else
                 ShipToOptions := ShipToOptions::"Custom Address";
 
         case true of
-            ("Pay-to Vendor No." = "Buy-from Vendor No.") and BuyFromAddressEqualsPayToAddress:
+            ("Pay-to Vendor No." = "Buy-from Vendor No.") and BuyFromAddressEqualsPayToAddress():
                 PayToOptions := PayToOptions::"Default (Vendor)";
-            ("Pay-to Vendor No." = "Buy-from Vendor No.") and (not BuyFromAddressEqualsPayToAddress):
+            ("Pay-to Vendor No." = "Buy-from Vendor No.") and (not BuyFromAddressEqualsPayToAddress()):
                 PayToOptions := PayToOptions::"Custom Address";
             "Pay-to Vendor No." <> "Buy-from Vendor No.":
                 PayToOptions := PayToOptions::"Another Vendor";
         end;
 
         OnAfterCalculateCurrentShippingAndPayToOption(ShipToOptions, PayToOptions, Rec);
+    end;
+
+    local procedure FillRemitToFields()
+    var
+        RemitAddress: Record "Remit Address";
+        FormatAddr: Codeunit "Format Address";
+    begin
+        with RemitAddress do begin
+            SetRange("Vendor No.", "Buy-from Vendor No.");
+            SetRange(Code, "Remit-to Code");
+            if not IsEmpty() then begin
+                FindFirst();
+                FormatAddr.FormatAddr(RemitToAddress, Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
+                CurrPage.Update();
+            end;
+        end;
     end;
 
     [IntegrationEvent(true, false)]
@@ -1880,7 +2104,8 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnPostDocumentBeforeNavigateAfterPosting(var PurchaseHeader: Record "Purchase Header"; var PostingCodeunitID: Integer; var Navigate: Enum "Navigate After Posting"; DocumentIsPosted: Boolean; var IsHandled: Boolean)
+    local procedure OnPostDocumentBeforeNavigateAfterPosting(var PurchaseHeader: Record "Purchase Header"; var PostingCodeunitID: Integer; var Navigate: Enum "Navigate After Posting";
+                                                                                                                   DocumentIsPosted: Boolean; var IsHandled: Boolean)
     begin
     end;
 

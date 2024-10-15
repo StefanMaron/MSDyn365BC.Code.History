@@ -3,7 +3,6 @@ page 512 "Customer Disc. Groups"
     ApplicationArea = Basic, Suite;
     Caption = 'Customer Disc. Groups';
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Navigate';
     SourceTable = "Customer Discount Group";
     UsageCategory = Administration;
 
@@ -49,14 +48,12 @@ page 512 "Customer Disc. Groups"
             {
                 Caption = 'Cust. &Disc. Groups';
                 Image = Group;
-#if not CLEAN19
+#if not CLEAN21
                 action(SalesLineDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales &Line Discounts';
                     Image = SalesLineDisc;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View the sales line discounts that are available. These discount agreements can be for individual customers, for a group of customers, for all customers or for a campaign.';
                     ObsoleteState = Pending;
@@ -80,8 +77,6 @@ page 512 "Customer Disc. Groups"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Price Lists';
                     Image = SalesLineDisc;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or set up sales price lists with discounts for products that you sell to customers that belong to the customer discount group.';
 
@@ -98,8 +93,6 @@ page 512 "Customer Disc. Groups"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Discounts';
                     Image = SalesLineDisc;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or set up sales discounts for products that you sell to customers that belong to the customer discount group.';
 
@@ -111,6 +104,31 @@ page 512 "Customer Disc. Groups"
                         Rec.ToPriceSource(PriceSource);
                         PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Discount);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 3.';
+#if not CLEAN21
+                actionref(SalesLineDiscounts_Promoted; SalesLineDiscounts)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+#endif
+                actionref(PriceLists_Promoted; PriceLists)
+                {
+                }
+                actionref(DiscountLines_Promoted; DiscountLines)
+                {
                 }
             }
         }

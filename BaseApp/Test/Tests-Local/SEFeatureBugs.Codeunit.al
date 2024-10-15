@@ -128,12 +128,12 @@ codeunit 144023 "SE Feature Bugs"
         Commit();
 
         // [WHEN] Run SIE Export report
-        FileName := RunSIEExport(GenJournalLine."Account No.", WorkDate, WorkDate);
+        FileName := RunSIEExport(GenJournalLine."Account No.", WorkDate(), WorkDate());
 
         // [THEN] Exported file containes #TRANS line with Date = "D", GLAccount = "ACC", Amount = "AMT"
         ExpectedLine :=
           StrSubstNo('  #TRANS  %1  {}  %2  %3',
-            GenJournalLine."Account No.", FormatAmount(GenJournalLine.Amount), FormatDate(WorkDate));
+            GenJournalLine."Account No.", FormatAmount(GenJournalLine.Amount), FormatDate(WorkDate()));
         Assert.ExpectedMessage(
           ExpectedLine,
           LibraryTextFileValidation.FindLineWithValue(FileName, 1, StrLen(ExpectedLine), ExpectedLine));
@@ -210,7 +210,7 @@ codeunit 144023 "SE Feature Bugs"
         Commit();
 
         // [GIVEN] Exported file saved on the server
-        FileName := RunSIEExport(GenJournalLine."Account No.", WorkDate, WorkDate);
+        FileName := RunSIEExport(GenJournalLine."Account No.", WorkDate(), WorkDate());
 
         // [GIVEN] Add VAT and Posting setup to the 'Acc'
         ModifyGLAccountWithVatSetup(GenJournalLine."Account No.");
@@ -451,7 +451,7 @@ codeunit 144023 "SE Feature Bugs"
         if AccountingPeriod.FindLast() then
             exit(AccountingPeriod."Starting Date");
 
-        exit(CalcDate('<-CY>', WorkDate));
+        exit(CalcDate('<-CY>', WorkDate()));
     end;
 
     local procedure OpenIssuedFinChargeMemoStatisticsPage(CustomerNo: Code[20])
@@ -461,7 +461,7 @@ codeunit 144023 "SE Feature Bugs"
         IssuedFinChargeMemoList.OpenEdit;
         IssuedFinChargeMemoList.FILTER.SetFilter("Customer No.", CustomerNo);
         IssuedFinChargeMemoList.Statistics.Invoke;
-        IssuedFinChargeMemoList.Close;
+        IssuedFinChargeMemoList.Close();
     end;
 
     local procedure RunSuggestVendorPaymentsReport(GenJournalLine: Record "Gen. Journal Line"; No: Code[20])
@@ -590,7 +590,7 @@ codeunit 144023 "SE Feature Bugs"
         No: Variant;
     begin
         LibraryVariableStorage.Dequeue(No);
-        CreateFinanceChargeMemos.DocumentDate.SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+        CreateFinanceChargeMemos.DocumentDate.SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
         CreateFinanceChargeMemos.Customer.SetFilter("No.", No);
         CreateFinanceChargeMemos.OK.Invoke;
     end;
@@ -602,7 +602,7 @@ codeunit 144023 "SE Feature Bugs"
         AlwaysInclCreditMemo: Variant;
     begin
         LibraryVariableStorage.Dequeue(AlwaysInclCreditMemo);
-        SuggestVendorPayments.LastPaymentDate.SetValue(WorkDate);
+        SuggestVendorPayments.LastPaymentDate.SetValue(WorkDate());
         SuggestVendorPayments.StartingDocumentNo.SetValue(LibraryRandom.RandInt(10));
         SuggestVendorPayments.AlwaysInclCreditMemo.SetValue(AlwaysInclCreditMemo);
         SuggestVendorPayments.OK.Invoke;
@@ -615,7 +615,7 @@ codeunit 144023 "SE Feature Bugs"
         ExportType: Option "1. Year - End Balances","2. Periodic Balances","3. Object Balances","4. Transactions";
     begin
         SIEExport.ExportType.SetValue(ExportType::"4. Transactions");
-        SIEExport.FiscalYear.SetValue(Date2DMY(WorkDate, 3));
+        SIEExport.FiscalYear.SetValue(Date2DMY(WorkDate(), 3));
         SIEExport.OK.Invoke;
     end;
 

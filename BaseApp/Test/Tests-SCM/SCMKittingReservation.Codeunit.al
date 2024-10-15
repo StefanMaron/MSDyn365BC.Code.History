@@ -999,7 +999,7 @@ codeunit 137099 "SCM Kitting Reservation"
 
         // Update Inventory for Assembly Component Item with setting Lot No. and Expiration Date.
         Quantity := LibraryRandom.RandDec(10, 2);
-        ExpirationDate := CalcDate('<CY>', WorkDate);
+        ExpirationDate := CalcDate('<CY>', WorkDate());
         UpdateNoSeriesOnItemJournalBatch(ItemJournalBatch, ''); // No. Series as blank.
         CreateAndPostItemJournalLineWithLotNoAndExpirDate(ComponentItemNo, Quantity, ExpirationDate);
 
@@ -1032,13 +1032,13 @@ codeunit 137099 "SCM Kitting Reservation"
         CreateAndPostItemJournalLine(AsmItem."No.", 2 * Qty, false); // Use Tracking as False.
 
         // Create 2 Sales Orders with Assembly Item. Set "Qty. to Assemble to Order", "Requested Delivery Date" and "Promised Delivery Date"
-        CreateSalesOrderWithQtyToAssembleAndDeliveryDate(SalesHeader, AsmItem."No.", Qty, WorkDate, WorkDate);
+        CreateSalesOrderWithQtyToAssembleAndDeliveryDate(SalesHeader, AsmItem."No.", Qty, WorkDate(), WorkDate());
 
         LibraryVariableStorage.Enqueue(IsBeforeWorkDateMsg); // Enqueue for MessageHandler.
         CreateSalesOrderWithQtyToAssembleAndDeliveryDate(
           SalesHeader, AsmItem."No.", Qty + LibraryRandom.RandInt(10),
-          CalcDate(StrSubstNo('<-%1D>', LibraryRandom.RandInt(10)), WorkDate),
-          CalcDate(StrSubstNo('<+%1D>', LibraryRandom.RandInt(10)), WorkDate));
+          CalcDate(StrSubstNo('<-%1D>', LibraryRandom.RandInt(10)), WorkDate()),
+          CalcDate(StrSubstNo('<+%1D>', LibraryRandom.RandInt(10)), WorkDate()));
 
         // Create Sales Header
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
@@ -1121,7 +1121,7 @@ codeunit 137099 "SCM Kitting Reservation"
         UpdateQtyToHandleAndRegisterPick(AssemblyHeader."No.", Qty);
 
         // [GIVEN] Sales Order for item "C".
-        CreateSalesOrder(SalesHeader, SalesLine, WorkDate, CompItemNo, Qty, LocationWhite.Code, false, false);
+        CreateSalesOrder(SalesHeader, SalesLine, WorkDate(), CompItemNo, Qty, LocationWhite.Code, false, false);
 
         // [WHEN] Open reservation page for the sales line.
         LibraryVariableStorage.Enqueue(Qty);
@@ -1170,7 +1170,7 @@ codeunit 137099 "SCM Kitting Reservation"
         // [GIVEN] Sales Order for item "C" with lot "L" selected on the sales line.
         EnqueueValuesForItemTrackingLines(LotNo, Qty);
         EnqueueValuesForConfirmHandler(AvailabilityWarningsConfirmMessage, true);
-        CreateSalesOrder(SalesHeader, SalesLine, WorkDate, CompItemNo, Qty, LocationWhite.Code, false, true);
+        CreateSalesOrder(SalesHeader, SalesLine, WorkDate(), CompItemNo, Qty, LocationWhite.Code, false, true);
 
         // [WHEN] Open reservation page for the sales line.
         EnqueueValuesForConfirmHandler(LibraryInventory.GetReservConfirmText, true);
@@ -1324,7 +1324,7 @@ codeunit 137099 "SCM Kitting Reservation"
     begin
         FindAssemblyHeader(AssemblyHeader, ItemNo);
         LibraryAssembly.AddCompInventory(
-          AssemblyHeader, WorkDate, LibraryRandom.RandInt(50) + 100); // Large inventory for component items.
+          AssemblyHeader, WorkDate(), LibraryRandom.RandInt(50) + 100); // Large inventory for component items.
     end;
 
     local procedure ApplyItemTrkgAfterReserveQuantityOnAssemblyOrder(AssemblyLine: Record "Assembly Line")
@@ -1352,7 +1352,7 @@ codeunit 137099 "SCM Kitting Reservation"
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
         ManufacturingSetup.Get();
-        exit(CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate));
+        exit(CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate()));
     end;
 
     local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; Quantity: Decimal; UseTracking: Boolean) LotNo: Code[50]
@@ -1767,7 +1767,7 @@ codeunit 137099 "SCM Kitting Reservation"
         SalesLine: Record "Sales Line";
     begin
         CreateSalesOrder(
-          SalesHeader, SalesLine, WorkDate, ItemNo, LibraryRandom.RandInt(5), LocationCode, false, false); // Use Reserve and Tracking as FALSE.
+          SalesHeader, SalesLine, WorkDate(), ItemNo, LibraryRandom.RandInt(5), LocationCode, false, false); // Use Reserve and Tracking as FALSE.
         UpdateQtyToAssembleOnSalesLine(SalesLine, SalesLine.Quantity);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
@@ -1776,7 +1776,7 @@ codeunit 137099 "SCM Kitting Reservation"
     var
         SalesLine: Record "Sales Line";
     begin
-        CreateSalesOrder(SalesHeader, SalesLine, WorkDate, ItemNo, Qty, '', false, false); // Use Reserve and Tracking as FALSE.
+        CreateSalesOrder(SalesHeader, SalesLine, WorkDate(), ItemNo, Qty, '', false, false); // Use Reserve and Tracking as FALSE.
         with SalesLine do begin
             Validate("Qty. to Assemble to Order", Qty);
             Validate("Requested Delivery Date", RequestedDeliveryDate);
@@ -1905,7 +1905,7 @@ codeunit 137099 "SCM Kitting Reservation"
         PickWorksheetTestPage.Trap;
         PickWorksheetTestPage.OpenEdit;
         PickWorksheetTestPage."Get Warehouse Documents".Invoke;
-        PickWorksheetTestPage.Close;
+        PickWorksheetTestPage.Close();
     end;
 
     local procedure OpenItemTrackingFromSalesLine(var SalesLine: Record "Sales Line")
@@ -1938,7 +1938,7 @@ codeunit 137099 "SCM Kitting Reservation"
         UpdateQtyToHandleAndRegisterPick(AssemblyHeader."No.", QtyPicked);
 
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
-        AssemblyHeader.Find;
+        AssemblyHeader.Find();
         LibraryAssembly.FindPostedAssemblyHeaders(PostedAssemblyHeader, AssemblyHeader);
         PostedAssemblyHeader.FindFirst();
     end;
@@ -1956,7 +1956,7 @@ codeunit 137099 "SCM Kitting Reservation"
     begin
         AssemblyLine.Validate("Quantity to Consume", Quantity);
         AssemblyLine.Modify(true);
-        AssemblyHeader.Find;
+        AssemblyHeader.Find();
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');  // Expected Error as Blank.
     end;
 
@@ -2038,7 +2038,7 @@ codeunit 137099 "SCM Kitting Reservation"
 
     local procedure UpdateNoSeriesOnItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; NoSeries: Code[20])
     begin
-        ItemJournalBatch.Find;
+        ItemJournalBatch.Find();
         ItemJournalBatch.Validate("No. Series", NoSeries);
         ItemJournalBatch.Modify(true);
     end;
@@ -2084,7 +2084,7 @@ codeunit 137099 "SCM Kitting Reservation"
                 SignFactor := -1;
             ReservationEntry.Validate("Quantity (Base)", SignFactor * Quantity);
             ReservationEntry.Modify(true);
-        until ReservationEntry.Next = 0;
+        until ReservationEntry.Next() = 0;
     end;
 
     local procedure UpdateQuantityToShipOnSalesLine(var SalesLine: Record "Sales Line"; Quantity: Decimal)
@@ -2130,7 +2130,7 @@ codeunit 137099 "SCM Kitting Reservation"
 
     local procedure UpdateQtyToAssembleOnSalesLine(var SalesLine: Record "Sales Line"; QtyToAssemble: Decimal)
     begin
-        LibraryVariableStorage.Enqueue(StrSubstNo(BeforeWorkDateMsg, WorkDate));
+        LibraryVariableStorage.Enqueue(StrSubstNo(BeforeWorkDateMsg, WorkDate()));
         SalesLine.Validate("Qty. to Assemble to Order", QtyToAssemble);
         SalesLine.Modify(true);
     end;
@@ -2166,7 +2166,7 @@ codeunit 137099 "SCM Kitting Reservation"
         ReservationEntry: Record "Reservation Entry";
     begin
         ReservationEntry.SetRange("Item No.", ItemNo);
-        Assert.IsTrue(ReservationEntry.IsEmpty, StrSubstNo(ReservationEntryDelete, ReservationEntry.TableCaption));
+        Assert.IsTrue(ReservationEntry.IsEmpty, StrSubstNo(ReservationEntryDelete, ReservationEntry.TableCaption()));
     end;
 
     local procedure VerifyReservationEntryForExpirationDate(ItemNo: Code[20]; ExpirationDate: Date)
@@ -2190,8 +2190,8 @@ codeunit 137099 "SCM Kitting Reservation"
         Assert.AreEqual(AssemblyLine.Count, WhseWorksheetLine.Count, PickWorksheetLinesErr);
         repeat
             Assert.AreEqual(WhseWorksheetLine."Item No.", AssemblyLine."No.", ItemInPickWorksheetLinesErr);
-            AssemblyLine.Next;
-        until WhseWorksheetLine.Next = 0;
+            AssemblyLine.Next();
+        until WhseWorksheetLine.Next() = 0;
     end;
 
     local procedure VerifyPostedSalesInvoice(DocumentNo: Code[20]; Qty: Decimal)
@@ -2309,7 +2309,7 @@ codeunit 137099 "SCM Kitting Reservation"
                     Quantity := DequeueVariable;
                     LibraryVariableStorage.Dequeue(DequeueVariable);
                     Quantity2 := DequeueVariable;
-                    VerifyReservationEntries(Reservation, ItemLedgerEntry.TableCaption, Quantity);
+                    VerifyReservationEntries(Reservation, ItemLedgerEntry.TableCaption(), Quantity);
                     VerifyReservationEntries(Reservation, ReleasedProdOrderLine, Quantity);
                     VerifyReservationEntries(Reservation, PurchaseLineOrder, Quantity2);
                 end;
@@ -2321,7 +2321,7 @@ codeunit 137099 "SCM Kitting Reservation"
                     Quantity := DequeueVariable;
                     LibraryVariableStorage.Dequeue(DequeueVariable);
                     Quantity2 := DequeueVariable;
-                    VerifyReservationEntries(Reservation, ItemLedgerEntry.TableCaption, Quantity);
+                    VerifyReservationEntries(Reservation, ItemLedgerEntry.TableCaption(), Quantity);
                     Reservation.TotalAvailableQuantity.AssertEquals(Quantity2);
                 end;
         end;

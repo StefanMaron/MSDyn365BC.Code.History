@@ -1,4 +1,4 @@
-report 292 "Copy Sales Document"
+﻿report 292 "Copy Sales Document"
 {
     Caption = 'Copy Sales Document';
     ProcessingOnly = true;
@@ -27,7 +27,7 @@ report 292 "Copy Sales Document"
                         trigger OnValidate()
                         begin
                             FromDocNo := '';
-                            ValidateDocNo;
+                            ValidateDocNo();
                             if FromDocType <> FromDocType::"Posted Invoice" then
                                 IncludeOrgInvInfo := false;
                         end;
@@ -41,12 +41,12 @@ report 292 "Copy Sales Document"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            LookupDocNo;
+                            LookupDocNo();
                         end;
 
                         trigger OnValidate()
                         begin
-                            ValidateDocNo;
+                            ValidateDocNo();
                         end;
                     }
                     field(FromDocNoOccurrence; FromDocNoOccurrence)
@@ -87,7 +87,7 @@ report 292 "Copy Sales Document"
 
                         trigger OnValidate()
                         begin
-                            ValidateIncludeHeader;
+                            ValidateIncludeHeader();
                         end;
                     }
                     field(RecalculateLines; RecalculateLines)
@@ -172,9 +172,9 @@ report 292 "Copy Sales Document"
                 if FromSalesHeader."No." = '' then
                     FromDocNo := '';
             end;
-            ValidateDocNo;
+            ValidateDocNo();
 
-            OnAfterOpenPage;
+            OnAfterOpenPage();
         end;
 
         trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -210,6 +210,16 @@ report 292 "Copy Sales Document"
     end;
 
     var
+        IncludeOrgInvInfo: Boolean;
+        Text000: Label 'The price information may not be reversed correctly, if you copy a %1. If possible copy a %2 instead or use %3 functionality.';
+        Text001: Label 'Undo Shipment';
+        Text002: Label 'Undo Return Receipt';
+        DocNoNotSerErr: Label 'Select a document number to continue, or choose Cancel to close the page.';
+        Text11200: Label 'Can only be used for posted invoices.';
+
+    protected var
+        SalesHeader: Record "Sales Header";
+        FromSalesHeader: Record "Sales Header";
         FromSalesShptHeader: Record "Sales Shipment Header";
         FromSalesInvHeader: Record "Sales Invoice Header";
         FromReturnRcptHeader: Record "Return Receipt Header";
@@ -217,22 +227,12 @@ report 292 "Copy Sales Document"
         FromSalesHeaderArchive: Record "Sales Header Archive";
         SalesSetup: Record "Sales & Receivables Setup";
         CopyDocMgt: Codeunit "Copy Document Mgt.";
-        IncludeHeader: Boolean;
-        RecalculateLines: Boolean;
-        IncludeOrgInvInfo: Boolean;
-        Text11200: Label 'Can only be used for posted invoices.';
-        Text000: Label 'The price information may not be reversed correctly, if you copy a %1. If possible copy a %2 instead or use %3 functionality.';
-        Text001: Label 'Undo Shipment';
-        Text002: Label 'Undo Return Receipt';
-        DocNoNotSerErr: Label 'Select a document number to continue, or choose Cancel to close the page.';
-
-    protected var
-        SalesHeader: Record "Sales Header";
-        FromSalesHeader: Record "Sales Header";
         FromDocType: Enum "Sales Document Type From";
         FromDocNo: Code[20];
         FromDocNoOccurrence: Integer;
         FromDocVersionNo: Integer;
+        IncludeHeader: Boolean;
+        RecalculateLines: Boolean;
 
     procedure SetSalesHeader(var NewSalesHeader: Record "Sales Header")
     begin
@@ -274,11 +274,13 @@ report 292 "Copy Sales Document"
                         begin
                             FromSalesInvHeader.Get(FromDocNo);
                             FromSalesHeader.TransferFields(FromSalesInvHeader);
+                            OnValidateDocNoOnAfterTransferFieldsFromSalesInvHeader(FromSalesHeader, FromSalesInvHeader);
                         end;
                     FromDocType::"Posted Return Receipt":
                         begin
                             FromReturnRcptHeader.Get(FromDocNo);
                             FromSalesHeader.TransferFields(FromReturnRcptHeader);
+                            OnValidateDocNoOnAfterTransferFieldsFromReturnReceiptHeader(FromSalesHeader, FromReturnRcptHeader);
                             if SalesHeader."Document Type" in
                                [SalesHeader."Document Type"::Order, SalesHeader."Document Type"::Invoice]
                             then begin
@@ -290,6 +292,7 @@ report 292 "Copy Sales Document"
                         begin
                             FromSalesCrMemoHeader.Get(FromDocNo);
                             FromSalesHeader.TransferFields(FromSalesCrMemoHeader);
+                            OnValidateDocNoOnAfterTransferFieldsFromSalesCrMemoHeader(FromSalesHeader, FromSalesCrMemoHeader);
                         end;
                     FromDocType::"Arch. Quote",
                     FromDocType::"Arch. Order",
@@ -311,7 +314,7 @@ report 292 "Copy Sales Document"
           (SalesHeader."Bill-to Customer No." in [FromSalesHeader."Bill-to Customer No.", '']);
 
         OnBeforeValidateIncludeHeader(IncludeHeader, FromSalesHeader);
-        ValidateIncludeHeader;
+        ValidateIncludeHeader();
         OnAfterValidateIncludeHeader(IncludeHeader, RecalculateLines);
     end;
 
@@ -562,5 +565,21 @@ report 292 "Copy Sales Document"
     local procedure OnPreReportOnBeforeCopyDocMgtSetProperties(FromDocType: Enum "Sales Document Type From"; FromDocNo: Code[20]; SalesHeader: Record "Sales Header"; var ExactCostReversingMandatory: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateDocNoOnAfterTransferFieldsFromSalesInvHeader(FromSalesHeader: Record "Sales Header"; FromSalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateDocNoOnAfterTransferFieldsFromSalesCrMemoHeader(FromSalesHeader: Record "Sales Header"; FromSalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateDocNoOnAfterTransferFieldsFromReturnReceiptHeader(FromSalesHeader: Record "Sales Header"; FromReturnReceiptHeader: Record "Return Receipt Header")
+    begin
+    end;
+
 }
 

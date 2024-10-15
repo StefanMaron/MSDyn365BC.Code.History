@@ -167,7 +167,7 @@ codeunit 139023 "OSynch. Filter Tests"
             "Filter Type" := "Filter Type"::Condition;
             Type := Type::CONST;
             Value := 'AH';
-            "Record GUID" := CreateGuid;
+            "Record GUID" := CreateGuid();
 
             Insert(true);
             Assert.AreNotEqual('', FilterExpression, 'Unexpected filter result');
@@ -188,7 +188,7 @@ codeunit 139023 "OSynch. Filter Tests"
             Type := Type::CONST;
             Value := 'AH';
 
-            "Record GUID" := CreateGuid;
+            "Record GUID" := CreateGuid();
             Insert(true);
             Assert.AreNotEqual('', FilterExpression, 'Unexpected filter result');
             InsertExpression := FilterExpression;
@@ -206,7 +206,7 @@ codeunit 139023 "OSynch. Filter Tests"
     var
         OutlookSynchFilter: Record "Outlook Synch. Filter";
     begin
-        Assert.AreEqual('', OutlookSynchFilter.GetFieldCaption, 'Expected empty field name for cleared row');
+        Assert.AreEqual('', OutlookSynchFilter.GetFieldCaption(), 'Expected empty field name for cleared row');
     end;
 
     [Test]
@@ -331,7 +331,7 @@ codeunit 139023 "OSynch. Filter Tests"
 
             Assert.AreEqual(ExpectedIntegerValue, ActualIntegerValue, 'Expected option to evaluate to value');
 
-            Delete;
+            Delete();
         end;
     end;
 
@@ -351,7 +351,7 @@ codeunit 139023 "OSynch. Filter Tests"
 
             Assert.AreEqual(2, StrLen(GetFilterExpressionValue), 'Expected FilterExpressionValue convert empty string to two spaces');
 
-            Delete;
+            Delete();
         end;
     end;
 
@@ -373,7 +373,7 @@ codeunit 139023 "OSynch. Filter Tests"
               StrLen(Value), StrLen(GetFilterExpressionValue), 'Expected FilterExpressionValue to return same string length as value');
             Assert.IsTrue(Value = GetFilterExpressionValue, 'Expected FilterExpressionValue to return text as value');
 
-            Delete;
+            Delete();
         end;
     end;
 

@@ -5,7 +5,6 @@ page 615 "IC Inbox Transactions"
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Functions,Inbox Transaction,Actions';
     SourceTable = "IC Inbox Transaction";
     UsageCategory = Tasks;
 
@@ -27,15 +26,15 @@ page 615 "IC Inbox Transactions"
                         PartnerList: Page "IC Partner List";
                     begin
                         PartnerList.LookupMode(true);
-                        if not (PartnerList.RunModal = ACTION::LookupOK) then
+                        if not (PartnerList.RunModal() = ACTION::LookupOK) then
                             exit(false);
-                        Text := PartnerList.GetSelectionFilter;
+                        Text := PartnerList.GetSelectionFilter();
                         exit(true);
                     end;
 
                     trigger OnValidate()
                     begin
-                        PartnerFilterOnAfterValidate;
+                        PartnerFilterOnAfterValidate();
                     end;
                 }
                 field(ShowLines; ShowLines)
@@ -54,7 +53,7 @@ page 615 "IC Inbox Transactions"
                             ShowLines::"Created by Partner":
                                 SetRange("Transaction Source", "Transaction Source"::"Created by Partner");
                         end;
-                        ShowLinesOnAfterValidate;
+                        ShowLinesOnAfterValidate();
                     end;
                 }
                 field(ShowAction; ShowAction)
@@ -77,54 +76,54 @@ page 615 "IC Inbox Transactions"
                             ShowAction::Cancel:
                                 SetRange("Line Action", "Line Action"::Cancel);
                         end;
-                        ShowActionOnAfterValidate;
+                        ShowActionOnAfterValidate();
                     end;
                 }
             }
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Transaction No."; "Transaction No.")
+                field("Transaction No."; Rec."Transaction No.")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the transaction''s entry number.';
                 }
-                field("IC Partner Code"; "IC Partner Code")
+                field("IC Partner Code"; Rec."IC Partner Code")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the code of the intercompany partner that the transaction is related to if the entry was created from an intercompany transaction.';
                 }
-                field("Source Type"; "Source Type")
+                field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies whether the transaction was created in a journal, a sales document, or a purchase document.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the type of the related document.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the number of the related document.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the entry''s posting date.';
                 }
-                field("Transaction Source"; "Transaction Source")
+                field("Transaction Source"; Rec."Transaction Source")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies which company created the transaction.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
-                field("Line Action"; "Line Action")
+                field("Line Action"; Rec."Line Action")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies what action is taken for the line when you choose the Complete Line Actions action.';
@@ -159,14 +158,11 @@ page 615 "IC Inbox Transactions"
                     ApplicationArea = Intercompany;
                     Caption = 'Details';
                     Image = View;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedOnly = true;
                     ToolTip = 'View transaction details.';
 
                     trigger OnAction()
                     begin
-                        ShowDetails;
+                        ShowDetails();
                     end;
                 }
                 action(Comments)
@@ -174,8 +170,6 @@ page 615 "IC Inbox Transactions"
                     ApplicationArea = Intercompany;
                     Caption = 'Comments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "IC Comment Sheet";
                     RunPageLink = "Table Name" = CONST("IC Inbox Transaction"),
                                   "Transaction No." = FIELD("Transaction No."),
@@ -191,24 +185,29 @@ page 615 "IC Inbox Transactions"
             {
                 Caption = 'F&unctions';
                 Image = "Action";
+#if not CLEAN21
                 group("Set Line Action")
                 {
                     Caption = 'Set Line Action';
                     Image = SelectLineToApply;
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Not needed, will be removed.';
+                    ObsoleteTag = '21.0';
                 }
                 separator(Action38)
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Not needed, will be removed.';
+                    ObsoleteTag = '21.0';
                 }
+#endif
                 action("Complete Line Actions")
                 {
                     ApplicationArea = Intercompany;
                     Caption = 'Carry out Line Actions';
                     Ellipsis = true;
                     Image = CompleteLine;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ToolTip = 'Carry out the actions that are specified on the lines.';
 
                     trigger OnAction()
@@ -216,17 +215,19 @@ page 615 "IC Inbox Transactions"
                         RunInboxTransactions(Rec);
                     end;
                 }
+#if not CLEAN21
                 separator(Action9)
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Not needed, will be removed.';
+                    ObsoleteTag = '21.0';
                 }
+#endif
                 action("Import Transaction File")
                 {
                     ApplicationArea = Intercompany;
                     Caption = 'Import Transaction File';
                     Image = Import;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     RunObject = Codeunit "IC Inbox Import";
                     RunPageOnRec = true;
                     ToolTip = 'Import a file to create the transaction with.';
@@ -240,9 +241,6 @@ page 615 "IC Inbox Transactions"
                     ApplicationArea = Intercompany;
                     Caption = 'No Action';
                     Image = Cancel;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedOnly = true;
                     Scope = Repeater;
                     ToolTip = 'Sets the Line Action to No action so that the selected entries stay in the inbox.';
 
@@ -261,9 +259,6 @@ page 615 "IC Inbox Transactions"
                     ApplicationArea = Intercompany;
                     Caption = 'Accept';
                     Image = Approve;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedOnly = true;
                     Scope = Repeater;
                     ToolTip = 'Will accept the selected entries and create corresponding documents or journal lines.';
 
@@ -288,9 +283,6 @@ page 615 "IC Inbox Transactions"
                     ApplicationArea = Intercompany;
                     Caption = 'Return to IC Partner';
                     Image = Return;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedOnly = true;
                     Scope = Repeater;
                     ToolTip = 'Will move the selected to the outbox so you can send them back to IC partner.';
 
@@ -315,9 +307,6 @@ page 615 "IC Inbox Transactions"
                     ApplicationArea = Intercompany;
                     Caption = 'Cancel';
                     Image = Cancel;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedOnly = true;
                     Scope = Repeater;
                     ToolTip = 'Will delete the selected entries from the outbox.';
 
@@ -336,6 +325,63 @@ page 615 "IC Inbox Transactions"
                             RunInboxTransactions(ICInboxTransaction);
                     end;
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Details_Promoted; Details)
+                {
+                }
+                actionref("Complete Line Actions_Promoted"; "Complete Line Actions")
+                {
+                }
+                actionref(Comments_Promoted; Comments)
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Functions', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+#if not CLEAN21
+                actionref("Import Transaction File_Promoted"; "Import Transaction File")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Inbox Transaction', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Actions', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref(Accept_Promoted; Accept)
+                {
+                }
+                actionref(Cancel_Promoted; Cancel)
+                {
+                }
+                actionref("Return to IC Partner_Promoted"; "Return to IC Partner")
+                {
+                }
+                actionref("No Action_Promoted"; "No Action")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }
@@ -368,7 +414,7 @@ page 615 "IC Inbox Transactions"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         RunReport: Boolean;
     begin
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
+        if ApplicationAreaMgmtFacade.IsFoundationEnabled() then
             RunReport := false
         else
             RunReport := true;

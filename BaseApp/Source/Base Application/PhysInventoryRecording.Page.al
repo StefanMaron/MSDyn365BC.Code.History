@@ -11,12 +11,12 @@ page 5879 "Phys. Inventory Recording"
             group(General)
             {
                 Caption = 'General';
-                field("Order No."; "Order No.")
+                field("Order No."; Rec."Order No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the physical inventory order number that is linked to the physical inventory recording.';
                 }
-                field("Recording No."; "Recording No.")
+                field("Recording No."; Rec."Recording No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies a number that is assigned to the physical inventory recording, when you link a physical inventory recording to a physical inventory order.';
@@ -26,12 +26,12 @@ page 5879 "Phys. Inventory Recording"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the description of the inventory recording.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the location where the items must be counted.';
                 }
-                field("Person Responsible"; "Person Responsible")
+                field("Person Responsible"; Rec."Person Responsible")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the person responsible for performing this physical inventory recording.';
@@ -41,22 +41,22 @@ page 5879 "Phys. Inventory Recording"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies if the physical inventory recording is open or finished.';
                 }
-                field("Person Recorded"; "Person Recorded")
+                field("Person Recorded"; Rec."Person Recorded")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the user ID of the person who performed the physical inventory.';
                 }
-                field("Date Recorded"; "Date Recorded")
+                field("Date Recorded"; Rec."Date Recorded")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the date when the physical inventory was taken.';
                 }
-                field("Time Recorded"; "Time Recorded")
+                field("Time Recorded"; Rec."Time Recorded")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the time when the physical inventory was taken.';
                 }
-                field("Allow Recording Without Order"; "Allow Recording Without Order")
+                field("Allow Recording Without Order"; Rec."Allow Recording Without Order")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies that recording lines are automatically created for items that do not exist on the physical inventory order. This can only happen if none of the values in these four fields exist for an item on the order: Item No., Variant Code, Location Code, and Bin Code.';
@@ -113,8 +113,6 @@ page 5879 "Phys. Inventory Recording"
                     Caption = 'E&xport Recording Lines';
                     Ellipsis = true;
                     Image = Export;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Send the list of counted inventory items to a file.';
 
                     trigger OnAction()
@@ -135,8 +133,6 @@ page 5879 "Phys. Inventory Recording"
                     Caption = 'I&mport Recording Lines';
                     Ellipsis = true;
                     Image = Import;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Import a list of counted inventory items from a file.';
 
                     trigger OnAction()
@@ -157,8 +153,6 @@ page 5879 "Phys. Inventory Recording"
                     Caption = 'Fi&nish';
                     Ellipsis = true;
                     Image = Approve;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Codeunit "Phys. Invt. Rec.-Finish (Y/N)";
                     ShortCutKey = 'Ctrl+F9';
                     ToolTip = 'Indicate that counting is finished. After this, you can no longer change the physical inventory order. When finishing the physical inventory order, the expected quantity and the recorded quantities are compared and the differences calculated.';
@@ -169,8 +163,6 @@ page 5879 "Phys. Inventory Recording"
                     Caption = 'Reo&pen';
                     Ellipsis = true;
                     Image = ReOpen;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Codeunit "Phys. Invt. Rec.-Reopen (Y/N)";
                     ToolTip = 'Reopen the recording. This also reopens the related physical inventory order.';
                 }
@@ -181,14 +173,35 @@ page 5879 "Phys. Inventory Recording"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Print the recording document. The printed document has an empty column in which to write the counted quantities.';
 
                 trigger OnAction()
                 begin
                     DocPrint.PrintInvtRecording(Rec, true);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("E&xport Recording Lines_Promoted"; "E&xport Recording Lines")
+                {
+                }
+                actionref("I&mport Recording Lines_Promoted"; "I&mport Recording Lines")
+                {
+                }
+                actionref("Fi&nish_Promoted"; "Fi&nish")
+                {
+                }
+                actionref("Reo&pen_Promoted"; "Reo&pen")
+                {
+                }
+                actionref(Print_Promoted; Print)
+                {
+                }
             }
         }
     }

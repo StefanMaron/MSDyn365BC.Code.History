@@ -1,7 +1,7 @@
 page 619 "IC Inbox/Outbox Jnl. Line Dim."
 {
     Caption = 'Intercompany Inbox/Outbox Jnl. Line Dim.';
-    DataCaptionExpression = GetCaption;
+    DataCaptionExpression = GetCaption();
     DelayedInsert = true;
     PageType = List;
     SourceTable = "IC Inbox/Outbox Jnl. Line Dim.";
@@ -13,12 +13,12 @@ page 619 "IC Inbox/Outbox Jnl. Line Dim."
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Dimension Code"; "Dimension Code")
+                field("Dimension Code"; Rec."Dimension Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension.';
                 }
-                field("Dimension Value Code"; "Dimension Value Code")
+                field("Dimension Value Code"; Rec."Dimension Value Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension value.';

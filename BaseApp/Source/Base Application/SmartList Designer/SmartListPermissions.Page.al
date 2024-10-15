@@ -27,7 +27,7 @@ page 9848 "SmartList Permissions"
                     Editable = false;
                     ShowCaption = false;
 
-                    field("Role ID"; "Role ID")
+                    field("Role ID"; Rec."Role ID")
                     {
                         ApplicationArea = All;
                         Caption = 'Permission Set';
@@ -39,7 +39,7 @@ page 9848 "SmartList Permissions"
             }
             repeater(Group)
             {
-                field("Object ID"; "Object ID")
+                field("Object ID"; Rec."Object ID")
                 {
                     ApplicationArea = All;
                     LookupPageID = "Designed Query Objects";
@@ -50,7 +50,7 @@ page 9848 "SmartList Permissions"
                         CalcFields("Object Name");
                     end;
                 }
-                field("Object Name"; "Object Name")
+                field("Object Name"; Rec."Object Name")
                 {
                     ApplicationArea = All;
                     Caption = 'SmartList Name';

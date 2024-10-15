@@ -11,7 +11,7 @@ report 5626 "Insurance - Uninsured FAs"
         dataitem("Fixed Asset"; "Fixed Asset")
         {
             RequestFilterFields = "No.", "FA Class Code", "FA Subclass Code";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TodayFormatted; Format(Today, 0, 4))
@@ -110,8 +110,8 @@ report 5626 "Insurance - Uninsured FAs"
 
     trigger OnPreReport()
     begin
-        FAFilter := "Fixed Asset".GetFilters;
-        MakeAmountHeadLine;
+        FAFilter := "Fixed Asset".GetFilters();
+        MakeAmountHeadLine();
         FASetup.Get();
         FASetup.TestField("Insurance Depr. Book");
         DeprBook.Get(FASetup."Insurance Depr. Book");

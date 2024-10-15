@@ -93,7 +93,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // Verify: Verify Item Tracing Page for Posted Document.
         VerifyItemTracingLine(
-          ItemTracing, PurchRcptHeader.TableCaption, '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
+          ItemTracing, PurchRcptHeader.TableCaption(), '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
           ItemLedgerEntry."Location Code", ItemLedgerEntry.Quantity);
     end;
 
@@ -119,7 +119,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // Verify: Verify Item Tracing Page for Posted Document.
         VerifyNextItemTracingLine(
-          ItemTracing, PurchRcptHeader.TableCaption, '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
+          ItemTracing, PurchRcptHeader.TableCaption(), '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
           ItemLedgerEntry."Location Code", ItemLedgerEntry.Quantity);
     end;
 
@@ -145,7 +145,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // Verify: Verify Item Tracing Page for Posted Document.
         VerifyItemTracingLine(
-          ItemTracing, SalesShipmentHeader.TableCaption, '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
+          ItemTracing, SalesShipmentHeader.TableCaption(), '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
           ItemLedgerEntry."Location Code", -ItemLedgerEntry.Quantity);
     end;
 
@@ -171,7 +171,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // Verify: Verify Item Tracing Page for Posted Document.
         VerifyNextItemTracingLine(
-          ItemTracing, SalesShipmentHeader.TableCaption, '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
+          ItemTracing, SalesShipmentHeader.TableCaption(), '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
           ItemLedgerEntry."Location Code", -ItemLedgerEntry.Quantity);
     end;
 
@@ -198,22 +198,22 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // Verify: Verify Item Tracing Page for different Posted Documents.
         VerifyItemTracingLine(
-          ItemTracing, PurchRcptHeader.TableCaption, '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
+          ItemTracing, PurchRcptHeader.TableCaption(), '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
           TransferLine."Transfer-from Code", ItemLedgerEntry.Quantity);
         VerifyNextItemTracingLine(
-          ItemTracing, TransferShipmentHeader.TableCaption, '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
+          ItemTracing, TransferShipmentHeader.TableCaption(), '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
           TransferLine."Transfer-from Code", -ItemLedgerEntry.Quantity);
         VerifyNextItemTracingLine(
-          ItemTracing, TransferShipmentHeader.TableCaption, '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
+          ItemTracing, TransferShipmentHeader.TableCaption(), '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
           TransferLine."In-Transit Code", ItemLedgerEntry.Quantity);
         VerifyNextItemTracingLine(
-          ItemTracing, TransferReceiptHeader.TableCaption, '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
+          ItemTracing, TransferReceiptHeader.TableCaption(), '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
           TransferLine."In-Transit Code", -ItemLedgerEntry.Quantity);
         VerifyNextItemTracingLine(
-          ItemTracing, TransferReceiptHeader.TableCaption, '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
+          ItemTracing, TransferReceiptHeader.TableCaption(), '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
           TransferLine."Transfer-to Code", ItemLedgerEntry.Quantity);
         VerifyNextItemTracingLine(
-          ItemTracing, SalesShipmentHeader.TableCaption, '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
+          ItemTracing, SalesShipmentHeader.TableCaption(), '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
           TransferLine."Transfer-to Code", -ItemLedgerEntry.Quantity);
     end;
 
@@ -240,22 +240,22 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // Verify: Verify Item Tracing Page for different Posted Documents.
         VerifyItemTracingLine(
-          ItemTracing, SalesShipmentHeader.TableCaption, '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
+          ItemTracing, SalesShipmentHeader.TableCaption(), '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
           TransferLine."Transfer-to Code", -ItemLedgerEntry.Quantity);
         VerifyNextItemTracingLine(
-          ItemTracing, TransferReceiptHeader.TableCaption, '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
+          ItemTracing, TransferReceiptHeader.TableCaption(), '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
           TransferLine."Transfer-to Code", ItemLedgerEntry.Quantity);
         VerifyNextItemTracingLine(
-          ItemTracing, TransferReceiptHeader.TableCaption, '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
+          ItemTracing, TransferReceiptHeader.TableCaption(), '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
           TransferLine."In-Transit Code", -ItemLedgerEntry.Quantity);
         VerifyNextItemTracingLine(
-          ItemTracing, TransferShipmentHeader.TableCaption, '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
+          ItemTracing, TransferShipmentHeader.TableCaption(), '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
           TransferLine."In-Transit Code", ItemLedgerEntry.Quantity);
         VerifyNextItemTracingLine(
-          ItemTracing, TransferShipmentHeader.TableCaption, '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
+          ItemTracing, TransferShipmentHeader.TableCaption(), '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
           TransferLine."Transfer-from Code", -ItemLedgerEntry.Quantity);
         VerifyNextItemTracingLine(
-          ItemTracing, PurchRcptHeader.TableCaption, '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
+          ItemTracing, PurchRcptHeader.TableCaption(), '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
           TransferLine."Transfer-from Code", ItemLedgerEntry.Quantity);
     end;
 
@@ -282,7 +282,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // Verify: Verify Item Tracing Page with Trace Opposite From Line Option.
         VerifyItemTracingLine(
-          ItemTracing, PurchRcptHeader.TableCaption, '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
+          ItemTracing, PurchRcptHeader.TableCaption(), '', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
           ItemLedgerEntry."Location Code", ItemLedgerEntry.Quantity);
     end;
 
@@ -369,13 +369,13 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // Verify: Verify Item Tracing Page for different Posted Documents.
         VerifyItemTracingLine(
-          ItemTracing, SalesShipmentHeader.TableCaption, '', ItemLedgerEntry."Lot No.", Item."No.", NewLocation.Code, -PurchaseLine.Quantity);
+          ItemTracing, SalesShipmentHeader.TableCaption(), '', ItemLedgerEntry."Lot No.", Item."No.", NewLocation.Code, -PurchaseLine.Quantity);
         VerifyNextItemTracingLine(
-          ItemTracing, ItemLedgerEntry.TableCaption, '', ItemLedgerEntry."Lot No.", Item."No.", NewLocation.Code, PurchaseLine.Quantity);
+          ItemTracing, ItemLedgerEntry.TableCaption(), '', ItemLedgerEntry."Lot No.", Item."No.", NewLocation.Code, PurchaseLine.Quantity);
         VerifyNextItemTracingLine(
-          ItemTracing, ItemLedgerEntry.TableCaption, '', ItemLedgerEntry."Lot No.", Item."No.", Location.Code, -PurchaseLine.Quantity);
+          ItemTracing, ItemLedgerEntry.TableCaption(), '', ItemLedgerEntry."Lot No.", Item."No.", Location.Code, -PurchaseLine.Quantity);
         VerifyNextItemTracingLine(
-          ItemTracing, PurchRcptHeader.TableCaption, '', ItemLedgerEntry."Lot No.", Item."No.", Location.Code, PurchaseLine.Quantity);
+          ItemTracing, PurchRcptHeader.TableCaption(), '', ItemLedgerEntry."Lot No.", Item."No.", Location.Code, PurchaseLine.Quantity);
     end;
 
     [Test]
@@ -392,7 +392,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         // Verify Item Tracing Line using Trace Method Backward with Item Tracking for Positive Adjustment from Item Journal.
         Quantity := LibraryRandom.RandInt(10);
         SlAndLOTNoForPositiveAdjmt(
-          TraceMethod::"Usage -> Origin", SalesShipmentHeader.TableCaption, ItemLedgerEntry.TableCaption, Quantity, -Quantity, Quantity,
+          TraceMethod::"Usage -> Origin", SalesShipmentHeader.TableCaption(), ItemLedgerEntry.TableCaption(), Quantity, -Quantity, Quantity,
           false, true, TrackingOption::AssignLotNo);
     end;
 
@@ -410,7 +410,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         // Verify Item Tracing Line using Trace Method Forward with Item Tracking for Positive Adjustment from Item Journal.
         Quantity := LibraryRandom.RandInt(10);
         SlAndLOTNoForPositiveAdjmt(
-          TraceMethod::"Origin -> Usage", ItemLedgerEntry.TableCaption, SalesShipmentHeader.TableCaption, Quantity, Quantity, -Quantity,
+          TraceMethod::"Origin -> Usage", ItemLedgerEntry.TableCaption(), SalesShipmentHeader.TableCaption(), Quantity, Quantity, -Quantity,
           false, true, TrackingOption::AssignLotNo);
     end;
 
@@ -499,9 +499,9 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // Validate Item Tracing
         VerifyItemTracingLine(
-          ItemTracing, ItemLedgerEntry.TableCaption, ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.", ItemNo, '', Quantity3);
+          ItemTracing, ItemLedgerEntry.TableCaption(), ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.", ItemNo, '', Quantity3);
         VerifyNextItemTracingLine(
-          ItemTracing, ItemLedgerEntry.TableCaption, ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.", ItemNo, '', Quantity4);
+          ItemTracing, ItemLedgerEntry.TableCaption(), ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.", ItemNo, '', Quantity4);
     end;
 
     [Test]
@@ -652,7 +652,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         CompItemLedgerEntry.FindSet();
         repeat
             VerifySingleItemTracingLine(ItemTracing, CompItemLedgerEntry, CompItemLedgerEntry.Count);
-        until CompItemLedgerEntry.Next = 0;
+        until CompItemLedgerEntry.Next() = 0;
 
         // Check purchase entries for component item - should only be traced once per serial/lot/item.
         CompItemLedgerEntry.SetRange("Entry Type", CompItemLedgerEntry."Entry Type"::Purchase);
@@ -660,9 +660,9 @@ codeunit 137262 "SCM Invt Item Tracking III"
         CompItemLedgerEntry.FindSet();
         repeat
             VerifySingleItemTracingLine(ItemTracing, CompItemLedgerEntry, 1);
-        until CompItemLedgerEntry.Next = 0;
+        until CompItemLedgerEntry.Next() = 0;
 
-        ItemTracing.Close;
+        ItemTracing.Close();
         OpenItemTracingPage(ItemTracing, TopItemLedgerEntry."Item No.", '', '', TraceMethod);
         VerifyAlreadyTraced(ItemTracing);
     end;
@@ -699,7 +699,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // Verify: Verify Item Tracing Page for Posted Document.
         VerifyItemTracingLine(
-          ItemTracing, PurchRcptHeader.TableCaption, ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
+          ItemTracing, PurchRcptHeader.TableCaption(), ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
           ItemLedgerEntry."Location Code", ItemLedgerEntry.Quantity);
     end;
 
@@ -725,7 +725,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // Verify: Verify Item Tracing Page for Posted Document.
         VerifyNextItemTracingLine(
-          ItemTracing, PurchRcptHeader.TableCaption, ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
+          ItemTracing, PurchRcptHeader.TableCaption(), ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
           ItemLedgerEntry."Location Code", ItemLedgerEntry.Quantity);
     end;
 
@@ -751,7 +751,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // Verify: Verify Item Tracing Page for Posted Document.
         VerifyItemTracingLine(
-          ItemTracing, SalesShipmentHeader.TableCaption, ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.",
+          ItemTracing, SalesShipmentHeader.TableCaption(), ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.",
           ItemLedgerEntry."Item No.", ItemLedgerEntry."Location Code", -ItemLedgerEntry.Quantity);
     end;
 
@@ -777,7 +777,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // Verify: Verify Item Tracing Page for Posted Document.
         VerifyNextItemTracingLine(
-          ItemTracing, SalesShipmentHeader.TableCaption, ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.",
+          ItemTracing, SalesShipmentHeader.TableCaption(), ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.",
           ItemLedgerEntry."Item No.", ItemLedgerEntry."Location Code", -ItemLedgerEntry.Quantity);
     end;
 
@@ -804,22 +804,22 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // Verify: Verify Item Tracing Page for different Posted Documents.
         VerifyItemTracingLine(
-          ItemTracing, PurchRcptHeader.TableCaption, ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
+          ItemTracing, PurchRcptHeader.TableCaption(), ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
           TransferLine."Transfer-from Code", ItemLedgerEntry.Quantity);
         VerifyNextItemTracingLine(
-          ItemTracing, TransferShipmentHeader.TableCaption, ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.",
+          ItemTracing, TransferShipmentHeader.TableCaption(), ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.",
           ItemLedgerEntry."Item No.", TransferLine."Transfer-from Code", -ItemLedgerEntry.Quantity);
         VerifyNextItemTracingLine(
-          ItemTracing, TransferShipmentHeader.TableCaption, ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.",
+          ItemTracing, TransferShipmentHeader.TableCaption(), ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.",
           ItemLedgerEntry."Item No.", TransferLine."In-Transit Code", ItemLedgerEntry.Quantity);
         VerifyNextItemTracingLine(
-          ItemTracing, TransferReceiptHeader.TableCaption, ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.",
+          ItemTracing, TransferReceiptHeader.TableCaption(), ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.",
           ItemLedgerEntry."Item No.", TransferLine."In-Transit Code", -ItemLedgerEntry.Quantity);
         VerifyNextItemTracingLine(
-          ItemTracing, TransferReceiptHeader.TableCaption, ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.",
+          ItemTracing, TransferReceiptHeader.TableCaption(), ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.",
           ItemLedgerEntry."Item No.", TransferLine."Transfer-to Code", ItemLedgerEntry.Quantity);
         VerifyNextItemTracingLine(
-          ItemTracing, SalesShipmentHeader.TableCaption, ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.",
+          ItemTracing, SalesShipmentHeader.TableCaption(), ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.",
           ItemLedgerEntry."Item No.", TransferLine."Transfer-to Code", -ItemLedgerEntry.Quantity);
     end;
 
@@ -846,22 +846,22 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // Verify: Verify Item Tracing Page for different Posted Documents.
         VerifyItemTracingLine(
-          ItemTracing, SalesShipmentHeader.TableCaption, ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.",
+          ItemTracing, SalesShipmentHeader.TableCaption(), ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.",
           ItemLedgerEntry."Item No.", TransferLine."Transfer-to Code", -ItemLedgerEntry.Quantity);
         VerifyNextItemTracingLine(
-          ItemTracing, TransferReceiptHeader.TableCaption, ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.",
+          ItemTracing, TransferReceiptHeader.TableCaption(), ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.",
           ItemLedgerEntry."Item No.", TransferLine."Transfer-to Code", ItemLedgerEntry.Quantity);
         VerifyNextItemTracingLine(
-          ItemTracing, TransferReceiptHeader.TableCaption, ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.",
+          ItemTracing, TransferReceiptHeader.TableCaption(), ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.",
           ItemLedgerEntry."Item No.", TransferLine."In-Transit Code", -ItemLedgerEntry.Quantity);
         VerifyNextItemTracingLine(
-          ItemTracing, TransferShipmentHeader.TableCaption, ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.",
+          ItemTracing, TransferShipmentHeader.TableCaption(), ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.",
           ItemLedgerEntry."Item No.", TransferLine."In-Transit Code", ItemLedgerEntry.Quantity);
         VerifyNextItemTracingLine(
-          ItemTracing, TransferShipmentHeader.TableCaption, ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.",
+          ItemTracing, TransferShipmentHeader.TableCaption(), ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.",
           ItemLedgerEntry."Item No.", TransferLine."Transfer-from Code", -ItemLedgerEntry.Quantity);
         VerifyNextItemTracingLine(
-          ItemTracing, PurchRcptHeader.TableCaption, ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
+          ItemTracing, PurchRcptHeader.TableCaption(), ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
           TransferLine."Transfer-from Code", ItemLedgerEntry.Quantity);
     end;
 
@@ -888,7 +888,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // Verify: Verify Item Tracing Page with Trace Opposite From Line Option.
         VerifyItemTracingLine(
-          ItemTracing, PurchRcptHeader.TableCaption, ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
+          ItemTracing, PurchRcptHeader.TableCaption(), ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.",
           ItemLedgerEntry."Location Code", ItemLedgerEntry.Quantity);
     end;
 
@@ -977,14 +977,14 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // Verify: Verify Item Tracing Page for different Posted Documents.
         VerifyItemTracingLine(
-          ItemTracing, SalesShipmentHeader.TableCaption, ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.", Item."No.",
+          ItemTracing, SalesShipmentHeader.TableCaption(), ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.", Item."No.",
           NewLocation.Code, -1);
         VerifyNextItemTracingLine(
-          ItemTracing, ItemLedgerEntry.TableCaption, ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.", Item."No.", NewLocation.Code, 1);
+          ItemTracing, ItemLedgerEntry.TableCaption(), ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.", Item."No.", NewLocation.Code, 1);
         VerifyNextItemTracingLine(
-          ItemTracing, ItemLedgerEntry.TableCaption, ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.", Item."No.", Location.Code, -1);
+          ItemTracing, ItemLedgerEntry.TableCaption(), ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.", Item."No.", Location.Code, -1);
         VerifyNextItemTracingLine(
-          ItemTracing, PurchRcptHeader.TableCaption, ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.", Item."No.", Location.Code, 1);
+          ItemTracing, PurchRcptHeader.TableCaption(), ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.", Item."No.", Location.Code, 1);
     end;
 
     [Test]
@@ -1001,7 +1001,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         // Verify Item Tracing Line using Trace Method Backward with Item Tracking for Positive Adjustment from Item Journal.
         Quantity := LibraryRandom.RandInt(10);
         SlAndLOTNoForPositiveAdjmt(
-          TraceMethod::"Usage -> Origin", SalesShipmentHeader.TableCaption, ItemLedgerEntry.TableCaption, Quantity, -Quantity, Quantity,
+          TraceMethod::"Usage -> Origin", SalesShipmentHeader.TableCaption(), ItemLedgerEntry.TableCaption(), Quantity, -Quantity, Quantity,
           true, false, TrackingOption::AssignSerialLot);
     end;
 
@@ -1019,7 +1019,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         // Verify Item Tracing Line using Trace Method Forward with Item Tracking for Positive Adjustment from Item Journal.
         Quantity := LibraryRandom.RandInt(10);
         SlAndLOTNoForPositiveAdjmt(
-          TraceMethod::"Origin -> Usage", ItemLedgerEntry.TableCaption, SalesShipmentHeader.TableCaption, Quantity, Quantity, -Quantity,
+          TraceMethod::"Origin -> Usage", ItemLedgerEntry.TableCaption(), SalesShipmentHeader.TableCaption(), Quantity, Quantity, -Quantity,
           true, false, TrackingOption::AssignSerialLot);
     end;
 
@@ -1079,7 +1079,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         asserterror FindAndUpdateSalesLine(SalesHeader."No.", SalesHeader."Document Type");
 
         // Verify: Verify error while posting Sales Return Order with less quantity.
-        Assert.ExpectedError(StrSubstNo(ItemTrackingQuantityError, SalesLine."No.", SalesLine.TableCaption));
+        Assert.ExpectedError(StrSubstNo(ItemTrackingQuantityError, SalesLine."No.", SalesLine.TableCaption()));
     end;
 
     [Test]
@@ -1106,7 +1106,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         asserterror FindAndUpdateSalesLine(SalesHeader."No.", SalesHeader."Document Type");
 
         // Verify: Verify error while posting Sales Credit Memo with less quantity.
-        Assert.ExpectedError(StrSubstNo(ItemTrackingQuantityError, SalesLine."No.", SalesLine.TableCaption));
+        Assert.ExpectedError(StrSubstNo(ItemTrackingQuantityError, SalesLine."No.", SalesLine.TableCaption()));
     end;
 
     [Test]
@@ -1136,7 +1136,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         asserterror FindAndUpdatePurchaseLine(PurchaseHeader."No.", PurchaseHeader."Document Type");
 
         // Verify: Verify error while posting Purchase Return Order with less quantity.
-        Assert.ExpectedError(StrSubstNo(ItemTrackingQuantityError, PurchaseLine."No.", PurchaseLine.TableCaption));
+        Assert.ExpectedError(StrSubstNo(ItemTrackingQuantityError, PurchaseLine."No.", PurchaseLine.TableCaption()));
     end;
 
     [Test]
@@ -1166,7 +1166,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         asserterror FindAndUpdatePurchaseLine(PurchaseHeader."No.", PurchaseHeader."Document Type");
 
         // Verify: Verify error while posting Purchase Credit Memo with less quantity.
-        Assert.ExpectedError(StrSubstNo(ItemTrackingQuantityError, PurchaseLine."No.", PurchaseLine.TableCaption));
+        Assert.ExpectedError(StrSubstNo(ItemTrackingQuantityError, PurchaseLine."No.", PurchaseLine.TableCaption()));
     end;
 
     [Test]
@@ -2609,7 +2609,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // [GIVEN] Positive Reservation Entry with non-zero "Appl.-to Item Entry" and "Appl.-from Item Entry".
         with ReservationEntry do begin
-            Init;
+            Init();
             SetApplFromToItemEntry(ReservationEntry, true);
 
             // [WHEN] ClearApplFromToItemEntry called.
@@ -2632,7 +2632,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // [GIVEN] Negative Reservation Entry with non-zero "Appl.-to Item Entry" and "Appl.-from Item Entry".
         with ReservationEntry do begin
-            Init;
+            Init();
             SetApplFromToItemEntry(ReservationEntry, false);
 
             // [WHEN] ClearApplFromToItemEntry called.
@@ -2674,12 +2674,12 @@ codeunit 137262 "SCM Invt Item Tracking III"
         LibraryVariableStorage.Enqueue(TrackingOption::AssignSerialLot);
         LibraryVariableStorage.Enqueue(2 * QtyPerUoM);
         PurchaseLine.OpenItemTrackingLines();
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         SetPurchaseLineQtyToReceive(PurchaseLine, 2);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [WHEN] Post invoice on 5 boxes
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.Validate("Qty. to Invoice", 5);
         PurchaseLine.Modify(true);
         PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
@@ -2723,12 +2723,12 @@ codeunit 137262 "SCM Invt Item Tracking III"
         PostSalesShipmentWithTracking(SalesHeader, SalesLine, TrackingOption::SelectEntries, 3 * QtyPerUoM);
 
         // [GIVEN] Ship 2 boxes (24 base UoM)
-        SalesLine.Find;
+        SalesLine.Find();
         SetSalesLineQtyToShip(SalesLine, 2);
         PostSalesShipmentWithTracking(SalesHeader, SalesLine, TrackingOption::SelectEntries, 2 * QtyPerUoM);
 
         // [WHEN] Invoice 5 boxes
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.Validate("Qty. to Invoice", 5);
         SalesLine.Modify(true);
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
@@ -2762,15 +2762,15 @@ codeunit 137262 "SCM Invt Item Tracking III"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [GIVEN] Invoice 3 boxes (36 base UoM)
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PostPurchaseInvoiceWithTracking(PurchaseHeader, PurchaseLine, 3, 3 * QtyPerUoM);
 
         // [GIVEN] Invoice 2 boxes (24 base UoM)
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PostPurchaseInvoiceWithTracking(PurchaseHeader, PurchaseLine, 2, 2 * QtyPerUoM);
 
         // [WHEN] Invoice the last 1 box
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PostPurchaseInvoiceWithTracking(PurchaseHeader, PurchaseLine, 1, QtyPerUoM);
 
         // [THEN] Quantity invoiced is equal to quantity received in the receipt
@@ -2810,15 +2810,15 @@ codeunit 137262 "SCM Invt Item Tracking III"
         PostSalesShipmentWithTracking(SalesHeader, SalesLine, TrackingOption::SelectEntries, 6 * QtyPerUoM);
 
         // [GIVEN] Invoice 3 boxes (36 base UoM)
-        SalesLine.Find;
+        SalesLine.Find();
         PostSalesInvoiceWithTracking(SalesHeader, SalesLine, 3, 3 * QtyPerUoM);
 
         // [GIVEN] Invoice 2 boxes (24 base UoM)
-        SalesLine.Find;
+        SalesLine.Find();
         PostSalesInvoiceWithTracking(SalesHeader, SalesLine, 2, 2 * QtyPerUoM);
 
         // [WHEN] Invoice the last box
-        SalesLine.Find;
+        SalesLine.Find();
         PostSalesInvoiceWithTracking(SalesHeader, SalesLine, 1, QtyPerUoM);
 
         // [THEN] Quantity invoiced is equal to quantity received in the shipment
@@ -2915,7 +2915,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         // [GIVEN] Set "Quantity to Assemble" to 1 pc in the assembly order and post it. The first assembled serial no. = "S1".
         // [GIVEN] Set "Quantity to Assemble" to 1 pc in the assembly order again and post it. The second assembled serial no. = "S2".
         for i := 1 to 2 do begin
-            AssemblyHeader.Find;
+            AssemblyHeader.Find();
             AssemblyHeader.Validate("Quantity to Assemble", 1);
             AssemblyHeader.Modify(true);
             LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
@@ -2928,14 +2928,14 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
             // [THEN] Tracing shows the consumption of 1 pc of component "C" for the assembly.
             ItemTracing.Expand(true);
-            ItemTracing.Next;
+            ItemTracing.Next();
             ItemTracing."Item No.".AssertEquals(CompItem."No.");
             ItemTracing.Quantity.AssertEquals(-1);
 
             // [THEN] No more component consumption entries are displayed.
             Assert.IsFalse(ItemTracing.Next, WrongNoOfComponentEntriesErr);
 
-            ItemTracing.Close;
+            ItemTracing.Close();
         end;
 
         LibraryVariableStorage.AssertEmpty;
@@ -2970,7 +2970,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // [GIVEN] Sales order for item "I". Quantity = "Qty. to Assemble to Order" = "X".
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
 
         // [GIVEN] Open linked assembly order and assign lot no.
         LibraryAssembly.FindLinkedAssemblyOrder(
@@ -2984,7 +2984,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         // [WHEN] Find the posted invoice and open item tracking lines.
         SalesInvoiceLine.SetRange("Document No.", PostedInvoiceNo);
         SalesInvoiceLine.FindFirst();
-        SalesInvoiceLine.ShowItemTrackingLines;
+        SalesInvoiceLine.ShowItemTrackingLines();
 
         // [THEN] The item tracking entries are opened without an error.
         // [THEN] The quantity in the lot = "X".
@@ -3026,7 +3026,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ItemTrackingCode.Get(Item."Item Tracking Code");
         ItemTrackingCode.Validate("SN Warehouse Tracking", true);
         ItemTrackingCode.Modify(true);
-        SerialNo := NoSeriesManagement.GetNextNo(Item."Serial Nos.", WorkDate, false);
+        SerialNo := NoSeriesManagement.GetNextNo(Item."Serial Nos.", WorkDate(), false);
 
         // [GIVEN] Bin for Location PickFromBin
         LibraryWarehouse.CreateBin(PickFromBin, Location.Code, LibraryUtility.GenerateGUID, '', '');
@@ -3041,7 +3041,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // [GIVEN] Sales Order for Location with Item quantity = 1
         CreateAndReleaseSalesDocument(SalesHeader, Item."No.", Location.Code, ItemJournalLine.Quantity);
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
 
         // [GIVEN] Warehouse Shipment created from Sales Header
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
@@ -3154,7 +3154,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         if WhseTracking and (SignFactor > 0) then begin
             asserterror ItemJournalLine.Validate("Bin Code", BinCode);
             Assert.IsTrue(StrPos(GetLastErrorText, ItemTrackingExistErr) > 0, 'Actual:' + GetLastErrorText);
-            ClearLastError;
+            ClearLastError();
         end else
             ItemJournalLine.Validate("Bin Code", BinCode);
     end;
@@ -3166,7 +3166,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         JobJournal.CurrentJnlBatchName.SetValue(JobJournalLine."Journal Batch Name");
         JobJournal.FILTER.SetFilter("No.", JobJournalLine."No.");
         JobJournal."Bin Code".SetValue(BinCode);
-        JobJournal.Next; // Trigger the item existing error
+        JobJournal.Next(); // Trigger the item existing error
     end;
 
     local procedure ChangeBinAndVerifyOnJobJournal(JobJournalLine: Record "Job Journal Line"; BinCode: Code[20]; WhseTracking: Boolean; SignFactor: Integer)
@@ -3186,7 +3186,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         PurchaseOrder.OpenEdit;
         PurchaseOrder.FILTER.SetFilter("No.", DocNo);
         PurchaseOrder.PurchLines."Bin Code".SetValue(BinCode);
-        PurchaseOrder.PurchLines.Next; // Trigger the item existing error
+        PurchaseOrder.PurchLines.Next(); // Trigger the item existing error
     end;
 
     local procedure ChangeBinAndVerifyOnPurchaseLine(DocNo: Code[20]; BinCode: Code[20]; WhseTracking: Boolean; SignFactor: Integer)
@@ -3206,7 +3206,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ProdOrderComponents.OpenEdit;
         ProdOrderComponents.FILTER.SetFilter("Item No.", ItemNo);
         ProdOrderComponents."Bin Code".SetValue(BinCode);
-        ProdOrderComponents.Next; // Trigger the item existing error
+        ProdOrderComponents.Next(); // Trigger the item existing error
     end;
 
     local procedure ChangeBinAndVerifyOnProdOrderComponents(ItemNo: Code[20]; BinCode: Code[20]; WhseTracking: Boolean; SignFactor: Integer)
@@ -3796,7 +3796,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ReservationEntry: Record "Reservation Entry";
     begin
         with ReservationEntry do begin
-            Init;
+            Init();
             "Entry No." := EntryNo;
             Validate("Source Type", SourceType);
             Validate("Source Subtype", SalesLine."Document Type");
@@ -3806,7 +3806,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
             Validate("Source Ref. No.", SalesLine."Line No.");
             Validate(Positive, IsPositive);
             Validate("Quantity (Base)", 1);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -3826,7 +3826,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         with BinContent do begin
             Validate(Default, IsDefault);
             Validate(Fixed, true);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -3838,7 +3838,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         with ItemTrackingCode do begin
             "Lot Specific Tracking" := true;
             "Lot Warehouse Tracking" := true;
-            Modify;
+            Modify();
         end;
         LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode, '', ItemTrackingCode.Code);
     end;
@@ -3855,7 +3855,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         with SalesLine do begin
             Validate("Location Code", LocationCode);
             Validate("Bin Code", BinCode);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -3892,7 +3892,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
             SetRange(Receive, true);
             if FindFirst() then begin
                 BinTypeBuf := BinType;
-                Delete;
+                Delete();
             end;
         end;
     end;
@@ -4030,7 +4030,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
                     Nos[I] := ItemTrackingEntries."Lot No.".Value;
             end;
             I := I + 1;
-        until ItemTrackingEntries.Next = false;
+        until ItemTrackingEntries.Next() = false;
     end;
 
     local procedure GetSerialNoFromLastPostedItemLedgerEntry(ItemNo: Code[20]): Code[20]
@@ -4127,13 +4127,13 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ItemJournalLine.Validate("Bin Code", BinCode);
         ItemJournalLine.Modify(true);
 
-        SerialNo := NoSeriesManagement.GetNextNo(Item."Serial Nos.", WorkDate, false);
+        SerialNo := NoSeriesManagement.GetNextNo(Item."Serial Nos.", WorkDate(), false);
         LibraryVariableStorage.Enqueue(TrackingOption::AssignSerialLot);  // Enqueue value for ItemTrackingLinesPageHandler.
         ItemJnlLineReserve.CallItemTracking(ItemJournalLine, false);
 
         ReservationEntry.SetRange("Serial No.", SerialNo);
         ReservationEntry.FindFirst();
-        ReservationEntry.Validate("Expiration Date", CalcDate('<+1M>', WorkDate));
+        ReservationEntry.Validate("Expiration Date", CalcDate('<+1M>', WorkDate()));
         ReservationEntry.Modify(true);
 
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
@@ -4608,7 +4608,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
                     ItemTrackingLines."Serial No.".SetValue(No);
             end;
             ItemTrackingLines."Quantity (Base)".SetValue(Quantity);
-            ItemTrackingLines.Next;
+            ItemTrackingLines.Next();
         end;
     end;
 
@@ -4780,7 +4780,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
     local procedure VerifyNextItemTracingLine(ItemTracing: TestPage "Item Tracing"; Description: Text[1000]; SerialNo: Code[50]; LotNo: Code[50]; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
     begin
         ItemTracing.Expand(true);
-        ItemTracing.Next;
+        ItemTracing.Next();
         VerifyItemTracingLine(ItemTracing, Description, SerialNo, LotNo, ItemNo, LocationCode, Quantity);
     end;
 
@@ -4794,7 +4794,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
                     VerifySingleItemTracingLine(ItemTracing, ItemLedgerEntry, 1)
                 else
                     VerifySingleItemTracingLine(ItemTracing, ItemLedgerEntry, GetApplications(ItemLedgerEntry))
-            until ItemLedgerEntry.Next = 0;
+            until ItemLedgerEntry.Next() = 0;
     end;
 
     [Normal]
@@ -4813,7 +4813,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         if ItemTracing.First then
             ActCount := 1;
 
-        while ItemTracing.Next do begin
+        while ItemTracing.Next() do begin
             ActCount += 1;
             ItemTracing."Already Traced".AssertEquals(true); // If there are multiple occurences of the same inbound, the subsequent ones should be already traced.
         end;
@@ -4828,7 +4828,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ItemTracing.Expand(true);
         ItemTracing.First;
 
-        while ItemTracing.Next do
+        while ItemTracing.Next() do
             if ItemTracing."Already Traced".AsBoolean then begin
                 Description := Format(ItemTracing.Description);
                 ItemTracing."Go to Already-Traced History".Invoke;
@@ -4865,8 +4865,8 @@ codeunit 137262 "SCM Invt Item Tracking III"
         repeat
             Assert.AreEqual(
               ExpectedQtyPerUoM, ReservEntry."Qty. per Unit of Measure",
-              StrSubstNo(WrongFieldValueErr, ReservEntry.FieldCaption("Qty. per Unit of Measure"), ReservEntry.TableCaption));
-        until ReservEntry.Next = 0;
+              StrSubstNo(WrongFieldValueErr, ReservEntry.FieldCaption("Qty. per Unit of Measure"), ReservEntry.TableCaption()));
+        until ReservEntry.Next() = 0;
     end;
 
     local procedure GetApplications(ItemLedgerEntry: Record "Item Ledger Entry"): Integer
@@ -5027,7 +5027,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         repeat
             I += 1;
             ItemTrackingSummaryPage."Selected Quantity".SetValue(I <= TotalQtyToAssign);
-        until not ItemTrackingSummaryPage.Next;
+        until not ItemTrackingSummaryPage.Next();
 
         ItemTrackingSummaryPage.OK.Invoke;
     end;

@@ -261,7 +261,7 @@ codeunit 144026 "SE Customer Reports"
     begin
         Clear(BalanceSheet);
         GLAccount.SetRange("No.", GLAccountNo);
-        GLAccount.SetFilter("Date Filter", '%1..%2', CalcDate('<-CY>', WorkDate), CalcDate('<CY>', WorkDate));
+        GLAccount.SetFilter("Date Filter", '%1..%2', CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
         BalanceSheet.SetTableView(GLAccount);
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         Commit();
@@ -276,10 +276,10 @@ codeunit 144026 "SE Customer Reports"
     begin
         Clear(Statement);
         Customer.SetRange("No.", CustomerNo);
-        Customer.SetRange("Date Filter", WorkDate);
+        Customer.SetRange("Date Filter", WorkDate());
         Statement.SetTableView(Customer);
         LibraryReportValidation.SetFileName(Customer.TableCaption + Format(CustomerNo));
-        Statement.InitializeRequest(false, false, true, false, false, false, '1M+CM', DateChoice::"Due Date", true, WorkDate, WorkDate);
+        Statement.InitializeRequest(false, false, true, false, false, false, '1M+CM', DateChoice::"Due Date", true, WorkDate(), WorkDate());
         Statement.SaveAsExcel(LibraryReportValidation.GetFileName);
     end;
 
@@ -291,7 +291,7 @@ codeunit 144026 "SE Customer Reports"
     begin
         Clear(IncomeStatement);
         GLAccount.SetRange("No.", GLAccountNo);
-        GLAccount.SetFilter("Date Filter", '%1..%2', CalcDate('<-CY+1Y>', WorkDate), CalcDate('<CY+1Y>', WorkDate));
+        GLAccount.SetFilter("Date Filter", '%1..%2', CalcDate('<-CY+1Y>', WorkDate()), CalcDate('<CY+1Y>', WorkDate()));
         IncomeStatement.SetTableView(GLAccount);
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         IncomeStatement.SaveAsExcel(LibraryReportValidation.GetFileName);

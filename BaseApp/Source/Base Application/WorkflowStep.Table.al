@@ -130,7 +130,7 @@ table 1502 "Workflow Step"
                 end;
 
                 if (Type = Type::Response) and ("Function Name" <> '') then
-                    CreateResponseArgument;
+                    CreateResponseArgument();
             end;
         }
         field(15; Argument; Guid)
@@ -179,12 +179,12 @@ table 1502 "Workflow Step"
         WorkflowStepArgument: Record "Workflow Step Argument";
         ChildWorkflowStep: Record "Workflow Step";
     begin
-        CheckEditingIsAllowed;
-        UpdateReferredNextStepsInstances;
+        CheckEditingIsAllowed();
+        UpdateReferredNextStepsInstances();
 
         if WorkflowStepArgument.Get(Argument) then
             WorkflowStepArgument.Delete();
-        DeleteStepRules;
+        DeleteStepRules();
 
         // Change Previous Workflow Step ID to not point to the deleted step
         ChildWorkflowStep.SetRange("Workflow Code", "Workflow Code");
@@ -193,23 +193,23 @@ table 1502 "Workflow Step"
             repeat
                 ChildWorkflowStep.Validate("Previous Workflow Step ID", "Previous Workflow Step ID");
                 ChildWorkflowStep.Modify(true);
-            until ChildWorkflowStep.Next <> 1;
+            until ChildWorkflowStep.Next() <> 1;
     end;
 
     trigger OnInsert()
     begin
         TestField("Workflow Code");
-        CheckEditingIsAllowed;
+        CheckEditingIsAllowed();
     end;
 
     trigger OnModify()
     begin
-        CheckEditingIsAllowed;
+        CheckEditingIsAllowed();
     end;
 
     trigger OnRename()
     begin
-        CheckEditingIsAllowed;
+        CheckEditingIsAllowed();
     end;
 
     var
@@ -238,9 +238,9 @@ table 1502 "Workflow Step"
 
         // Avoid a deadlock when two processes are executting the following code
         // at same time (Get / Insert on the WorkflowStepArgument table)
-        WorkflowStepArgument.LockTable(true); 
+        WorkflowStepArgument.LockTable(true);
         if WorkflowStepArgument.Get(Argument) then
-            WorkflowStepInstance.Argument := WorkflowStepArgument.Clone;
+            WorkflowStepInstance.Argument := WorkflowStepArgument.Clone();
 
         WorkflowStepInstance."Original Workflow Code" := SubWorkflowStep."Workflow Code";
         WorkflowStepInstance."Original Workflow Step ID" := SubWorkflowStep.ID;
@@ -273,7 +273,7 @@ table 1502 "Workflow Step"
         WorkflowStepArgument: Record "Workflow Step Argument";
         ZeroGUID: Guid;
     begin
-        CheckEditingIsAllowed;
+        CheckEditingIsAllowed();
 
         TestField(Type, Type::"Event");
         TestField("Function Name");
@@ -284,7 +284,7 @@ table 1502 "Workflow Step"
             Modify(true);
         end;
 
-        DeleteStepRules;
+        DeleteStepRules();
     end;
 
     [Scope('OnPrem')]
@@ -302,15 +302,15 @@ table 1502 "Workflow Step"
         WorkflowEvent.Get("Function Name");
 
         if WorkflowStepArgument.Get(Argument) then
-            CurrentEventFilters := WorkflowStepArgument.GetEventFilters
+            CurrentEventFilters := WorkflowStepArgument.GetEventFilters()
         else
-            CurrentEventFilters := WorkflowEvent.CreateDefaultRequestPageFilters;
+            CurrentEventFilters := WorkflowEvent.CreateDefaultRequestPageFilters();
 
         UserClickedOK := WorkflowEvent.RunRequestPage(ReturnFilters, CurrentEventFilters);
         if UserClickedOK and (ReturnFilters <> CurrentEventFilters) then begin
-            CheckEditingIsAllowed;
-            if ReturnFilters = WorkflowEvent.CreateDefaultRequestPageFilters then
-                DeleteEventConditions
+            CheckEditingIsAllowed();
+            if ReturnFilters = WorkflowEvent.CreateDefaultRequestPageFilters() then
+                DeleteEventConditions()
             else begin
                 if IsNullGuid(Argument) then
                     CreateEventArgument(WorkflowStepArgument, Rec);
@@ -342,10 +342,10 @@ table 1502 "Workflow Step"
         end;
 
         WorkflowEventConditions.SetRule(TempWorkflowRule);
-        if WorkflowEventConditions.RunModal = ACTION::LookupOK then begin
+        if WorkflowEventConditions.RunModal() = ACTION::LookupOK then begin
             WorkflowEventConditions.GetRecord(TempWorkflowRule);
             if TempWorkflowRule."Field No." = 0 then
-                DeleteStepRules
+                DeleteStepRules()
             else begin
                 WorkflowRule.Copy(TempWorkflowRule);
                 if not WorkflowRule.Insert(true) then
@@ -457,7 +457,7 @@ table 1502 "Workflow Step"
         Workflow: Record Workflow;
     begin
         Workflow.Get("Workflow Code");
-        Workflow.CheckEditingIsAllowed;
+        Workflow.CheckEditingIsAllowed();
     end;
 
     procedure ToString(): Text
@@ -491,7 +491,7 @@ table 1502 "Workflow Step"
         if RecordRef.GetFilters <> '' then
             exit(RecordRef.GetFilters);
 
-        if HasArgumentsContent then
+        if HasArgumentsContent() then
             exit(ViewFilterDetailsTxt);
 
         exit('');
@@ -507,7 +507,7 @@ table 1502 "Workflow Step"
         WorkflowRule.SetRange("Workflow Code", "Workflow Code");
         WorkflowRule.SetRange("Workflow Step ID", ID);
         if WorkflowRule.FindFirst() then
-            exit(WorkflowRule.GetDisplayText);
+            exit(WorkflowRule.GetDisplayText());
 
         exit('');
     end;

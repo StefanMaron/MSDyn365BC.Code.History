@@ -2,7 +2,6 @@ page 5980 "Service Item Card"
 {
     Caption = 'Service Item Card';
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Navigate,Item';
     SourceTable = "Service Item";
 
     layout
@@ -12,7 +11,7 @@ page 5980 "Service Item Card"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     Importance = Promoted;
@@ -30,39 +29,52 @@ page 5980 "Service Item Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies a description of this item.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Service;
                     Importance = Promoted;
                     ToolTip = 'Specifies the item number linked to the service item.';
 
                     trigger OnValidate()
+                    var
+                        Item: Record "Item";
                     begin
                         CalcFields("Item Description");
+                        if "Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(true, "Item No.");
                     end;
                 }
-                field("Item Description"; "Item Description")
+                field("Item Description"; Rec."Item Description")
                 {
                     ApplicationArea = Service;
                     DrillDown = false;
                     ToolTip = 'Specifies the description of the item that the service item is linked to.';
                 }
-                field("Service Item Group Code"; "Service Item Group Code")
+                field("Service Item Group Code"; Rec."Service Item Group Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code of the service item group associated with this item.';
                 }
-                field("Service Price Group Code"; "Service Price Group Code")
+                field("Service Price Group Code"; Rec."Service Price Group Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code of the Service Price Group associated with this item.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
+                    ShowMandatory = VariantCodeMandatory;
+
+                    trigger OnValidate()
+                    var
+                        Item: Record "Item";
+                    begin
+                        if "Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(true, "Item No.");
+                    end;
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     AssistEdit = true;
@@ -90,17 +102,17 @@ page 5980 "Service Item Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies the status of the service item.';
                 }
-                field("Service Item Components"; "Service Item Components")
+                field("Service Item Components"; Rec."Service Item Components")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that there is a component for this service item.';
                 }
-                field("Search Description"; "Search Description")
+                field("Search Description"; Rec."Search Description")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies an alternate description to search for the service item.';
                 }
-                field("Response Time (Hours)"; "Response Time (Hours)")
+                field("Response Time (Hours)"; Rec."Response Time (Hours)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the estimated number of hours this item requires before service on it should be started.';
@@ -110,43 +122,43 @@ page 5980 "Service Item Card"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service priority for this item.';
                 }
-                field("Last Service Date"; "Last Service Date")
+                field("Last Service Date"; Rec."Last Service Date")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the date of the last service on this item.';
                 }
-                field("Warranty Starting Date (Parts)"; "Warranty Starting Date (Parts)")
+                field("Warranty Starting Date (Parts)"; Rec."Warranty Starting Date (Parts)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the starting date of the spare parts warranty for this item.';
                 }
-                field("Warranty Ending Date (Parts)"; "Warranty Ending Date (Parts)")
+                field("Warranty Ending Date (Parts)"; Rec."Warranty Ending Date (Parts)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the ending date of the spare parts warranty for this item.';
                 }
-                field("Warranty % (Parts)"; "Warranty % (Parts)")
+                field("Warranty % (Parts)"; Rec."Warranty % (Parts)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the percentage of spare parts costs covered by the warranty for the item.';
                 }
-                field("Warranty Starting Date (Labor)"; "Warranty Starting Date (Labor)")
+                field("Warranty Starting Date (Labor)"; Rec."Warranty Starting Date (Labor)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the starting date of the labor warranty for this item.';
                 }
-                field("Warranty Ending Date (Labor)"; "Warranty Ending Date (Labor)")
+                field("Warranty Ending Date (Labor)"; Rec."Warranty Ending Date (Labor)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the ending date of the labor warranty for this item.';
                 }
-                field("Warranty % (Labor)"; "Warranty % (Labor)")
+                field("Warranty % (Labor)"; Rec."Warranty % (Labor)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the percentage of labor costs covered by the warranty for this item.';
                 }
-                field("Preferred Resource"; "Preferred Resource")
+                field("Preferred Resource"; Rec."Preferred Resource")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the resource that the customer prefers for servicing of the item.';
@@ -155,7 +167,7 @@ page 5980 "Service Item Card"
             group(Customer)
             {
                 Caption = 'Customer';
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Service;
                     Importance = Promoted;
@@ -186,7 +198,7 @@ page 5980 "Service Item Card"
                         QuickEntry = false;
                         ToolTip = 'Specifies the address of the customer who owns this item.';
                     }
-                    field("Address 2"; "Address 2")
+                    field("Address 2"; Rec."Address 2")
                     {
                         ApplicationArea = Service;
                         DrillDown = false;
@@ -211,14 +223,14 @@ page 5980 "Service Item Card"
                             ToolTip = 'Specifies the state, province or county as a part of the address.';
                         }
                     }
-                    field("Post Code"; "Post Code")
+                    field("Post Code"; Rec."Post Code")
                     {
                         ApplicationArea = Service;
                         DrillDown = false;
                         QuickEntry = false;
                         ToolTip = 'Specifies the postal code.';
                     }
-                    field("Country/Region Code"; "Country/Region Code")
+                    field("Country/Region Code"; Rec."Country/Region Code")
                     {
                         ApplicationArea = Service;
                         QuickEntry = false;
@@ -232,13 +244,13 @@ page 5980 "Service Item Card"
                         ToolTip = 'Specifies the name of the person you regularly contact when you do business with the customer who owns this item.';
                     }
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Service;
                     DrillDown = false;
                     ToolTip = 'Specifies the customer phone number.';
                 }
-                field("Location of Service Item"; "Location of Service Item")
+                field("Location of Service Item"; Rec."Location of Service Item")
                 {
                     ApplicationArea = Location;
                     Importance = Promoted;
@@ -248,7 +260,7 @@ page 5980 "Service Item Card"
             group(Shipping)
             {
                 Caption = 'Shipping';
-                field("Ship-to Code"; "Ship-to Code")
+                field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Service;
                     Importance = Promoted;
@@ -256,21 +268,21 @@ page 5980 "Service Item Card"
 
                     trigger OnValidate()
                     begin
-                        UpdateShipToCode;
+                        UpdateShipToCode();
                         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
                     end;
                 }
                 group("Ship-to")
                 {
                     Caption = 'Ship-to';
-                    field("Ship-to Name"; "Ship-to Name")
+                    field("Ship-to Name"; Rec."Ship-to Name")
                     {
                         ApplicationArea = Service;
                         Caption = 'Name';
                         DrillDown = false;
                         ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                     }
-                    field("Ship-to Address"; "Ship-to Address")
+                    field("Ship-to Address"; Rec."Ship-to Address")
                     {
                         ApplicationArea = Service;
                         Caption = 'Address';
@@ -278,7 +290,7 @@ page 5980 "Service Item Card"
                         QuickEntry = false;
                         ToolTip = 'Specifies the address that the items are shipped to.';
                     }
-                    field("Ship-to Address 2"; "Ship-to Address 2")
+                    field("Ship-to Address 2"; Rec."Ship-to Address 2")
                     {
                         ApplicationArea = Service;
                         Caption = 'Address 2';
@@ -286,7 +298,7 @@ page 5980 "Service Item Card"
                         QuickEntry = false;
                         ToolTip = 'Specifies an additional part of the ship-to address, in case it is a long address.';
                     }
-                    field("Ship-to City"; "Ship-to City")
+                    field("Ship-to City"; Rec."Ship-to City")
                     {
                         ApplicationArea = Service;
                         Caption = 'City';
@@ -298,14 +310,14 @@ page 5980 "Service Item Card"
                     {
                         ShowCaption = false;
                         Visible = IsShipToCountyVisible;
-                        field("Ship-to County"; "Ship-to County")
+                        field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = Service;
                             Caption = 'County';
                             QuickEntry = false;
                         }
                     }
-                    field("Ship-to Post Code"; "Ship-to Post Code")
+                    field("Ship-to Post Code"; Rec."Ship-to Post Code")
                     {
                         ApplicationArea = Service;
                         Caption = 'Post Code';
@@ -314,13 +326,13 @@ page 5980 "Service Item Card"
                         QuickEntry = false;
                         ToolTip = 'Specifies the postal code of the address that the items are shipped to.';
                     }
-                    field("Ship-to Country/Region Code"; "Ship-to Country/Region Code")
+                    field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                     {
                         ApplicationArea = Service;
                         Caption = 'Country/Region';
                         QuickEntry = false;
                     }
-                    field("Ship-to Contact"; "Ship-to Contact")
+                    field("Ship-to Contact"; Rec."Ship-to Contact")
                     {
                         ApplicationArea = Service;
                         Caption = 'Contact';
@@ -329,7 +341,7 @@ page 5980 "Service Item Card"
                         ToolTip = 'Specifies the name of the contact person at the address that the items are shipped to.';
                     }
                 }
-                field("Ship-to Phone No."; "Ship-to Phone No.")
+                field("Ship-to Phone No."; Rec."Ship-to Phone No.")
                 {
                     ApplicationArea = Service;
                     DrillDown = false;
@@ -339,22 +351,22 @@ page 5980 "Service Item Card"
             group(Contract)
             {
                 Caption = 'Contract';
-                field("Default Contract Cost"; "Default Contract Cost")
+                field("Default Contract Cost"; Rec."Default Contract Cost")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the default contract cost of a service item that later will be included in a service contract or contract quote.';
                 }
-                field("Default Contract Value"; "Default Contract Value")
+                field("Default Contract Value"; Rec."Default Contract Value")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the default contract value of an item that later will be included in a service contract or contract quote.';
                 }
-                field("Default Contract Discount %"; "Default Contract Discount %")
+                field("Default Contract Discount %"; Rec."Default Contract Discount %")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a default contract discount percentage for an item, if this item will be part of a service contract.';
                 }
-                field("Service Contracts"; "Service Contracts")
+                field("Service Contracts"; Rec."Service Contracts")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that this service item is associated with one or more service contracts/quotes.';
@@ -363,7 +375,7 @@ page 5980 "Service Item Card"
             group(Vendor)
             {
                 Caption = 'Vendor';
-                field("Vendor No."; "Vendor No.")
+                field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the vendor for this item.';
@@ -373,18 +385,18 @@ page 5980 "Service Item Card"
                         CalcFields("Vendor Name");
                     end;
                 }
-                field("Vendor Name"; "Vendor Name")
+                field("Vendor Name"; Rec."Vendor Name")
                 {
                     ApplicationArea = Service;
                     DrillDown = false;
                     ToolTip = 'Specifies the vendor name for this item.';
                 }
-                field("Vendor Item No."; "Vendor Item No.")
+                field("Vendor Item No."; Rec."Vendor Item No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number that the vendor uses for this item.';
                 }
-                field("Vendor Item Name"; "Vendor Item Name")
+                field("Vendor Item Name"; Rec."Vendor Item Name")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name assigned to this item by the vendor.';
@@ -393,27 +405,27 @@ page 5980 "Service Item Card"
             group(Detail)
             {
                 Caption = 'Detail';
-                field("Sales Unit Cost"; "Sales Unit Cost")
+                field("Sales Unit Cost"; Rec."Sales Unit Cost")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the unit cost of this item when it was sold.';
                 }
-                field("Sales Unit Price"; "Sales Unit Price")
+                field("Sales Unit Price"; Rec."Sales Unit Price")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the unit price of this item when it was sold.';
                 }
-                field("Sales Date"; "Sales Date")
+                field("Sales Date"; Rec."Sales Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when this item was sold.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Installation Date"; "Installation Date")
+                field("Installation Date"; Rec."Installation Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when this item was installed at the customer''s site.';
@@ -455,9 +467,6 @@ page 5980 "Service Item Card"
                     ApplicationArea = Service;
                     Caption = '&Components';
                     Image = Components;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Service Item Component List";
                     RunPageLink = Active = CONST(true),
                                   "Parent Service Item No." = FIELD("No.");
@@ -469,9 +478,6 @@ page 5980 "Service Item Card"
                     ApplicationArea = Dimensions;
                     Caption = '&Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     RunObject = Page "Default Dimensions";
                     RunPageLink = "Table ID" = CONST(5940),
                                   "No." = FIELD("No.");
@@ -487,9 +493,6 @@ page 5980 "Service Item Card"
                         ApplicationArea = Service;
                         Caption = 'Statistics';
                         Image = Statistics;
-                        Promoted = true;
-                        PromotedCategory = Category5;
-                        PromotedIsBig = true;
                         RunObject = Page "Service Item Statistics";
                         RunPageLink = "No." = FIELD("No.");
                         ShortCutKey = 'F7';
@@ -539,8 +542,6 @@ page 5980 "Service Item Card"
                     ApplicationArea = Service;
                     Caption = 'Resource Skills';
                     Image = ResourceSkills;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Resource Skills";
                     RunPageLink = Type = CONST("Service Item"),
                                   "No." = FIELD("No.");
@@ -551,8 +552,6 @@ page 5980 "Service Item Card"
                     ApplicationArea = Service;
                     Caption = 'S&killed Resources';
                     Image = ResourceSkills;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'View the list of resources that have the skills required to handle service items.';
 
                     trigger OnAction()
@@ -567,8 +566,6 @@ page 5980 "Service Item Card"
                     ApplicationArea = Service;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Service Comment Sheet";
                     RunPageLink = "Table Name" = CONST("Service Item"),
                                   "Table Subtype" = CONST("0"),
@@ -635,9 +632,6 @@ page 5980 "Service Item Card"
                     ApplicationArea = Service;
                     Caption = 'Ser&vice Contracts';
                     Image = ServiceAgreement;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Serv. Contr. List (Serv. Item)";
                     RunPageLink = "Service Item No." = FIELD("No.");
                     RunPageView = SORTING("Service Item No.", "Contract Status");
@@ -653,8 +647,6 @@ page 5980 "Service Item Card"
                     ApplicationArea = Service;
                     Caption = 'Service Item Lo&g';
                     Image = Log;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Service Item Log";
                     RunPageLink = "Service Item No." = FIELD("No.");
                     ToolTip = 'View a list of the service document changes that have been logged. The program creates entries in the window when, for example, the response time or service order status changed, a resource was allocated, a service order was shipped or invoiced, and so on. Each line in this window identifies the event that occurred to the service document. The line contains the information about the field that was changed, its old and new value, the date and time when the change took place, and the ID of the user who actually made the changes.';
@@ -709,18 +701,62 @@ page 5980 "Service Item Card"
                 ApplicationArea = Service;
                 Caption = 'Service Line Item Label';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Service Item Line Labels";
                 ToolTip = 'View the list of service items on service orders. The report shows the order number, service item number, serial number, and the name of the item.';
             }
         }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("&Components_Promoted"; "&Components")
+                {
+                }
+                actionref("Ser&vice Contracts_Promoted"; "Ser&vice Contracts")
+                {
+                }
+                actionref("Resource Skills_Promoted"; "Resource Skills")
+                {
+                }
+                actionref("S&killed Resources_Promoted"; "S&killed Resources")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Item', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref("&Dimensions_Promoted"; "&Dimensions")
+                {
+                }
+                actionref(Action39_Promoted; Action39)
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+                actionref("Service Item Lo&g_Promoted"; "Service Item Lo&g")
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
+    var
+        Item: Record Item;
     begin
-        UpdateShipToCode;
+        UpdateShipToCode();
+        if "Variant Code" = '' then
+            VariantCodeMandatory := Item.IsVariantMandatory(true, "Item No.");
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -748,6 +784,7 @@ page 5980 "Service Item Card"
         SkilledResourceList: Page "Skilled Resource List";
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+        VariantCodeMandatory: Boolean;
 
     local procedure UpdateShipToCode()
     begin
@@ -769,7 +806,7 @@ page 5980 "Service Item Card"
     local procedure CustomerNoOnAfterValidate()
     begin
         if "Customer No." <> xRec."Customer No." then
-            UpdateShipToCode;
+            UpdateShipToCode();
     end;
 }
 

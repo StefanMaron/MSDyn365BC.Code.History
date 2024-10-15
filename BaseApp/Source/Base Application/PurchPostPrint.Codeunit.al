@@ -175,7 +175,7 @@ codeunit 92 "Purch.-Post + Print"
             exit;
 
         PurchRcptHeader."No." := PurchHeader."Last Receiving No.";
-        PurchRcptHeader.SetRecFilter;
+        PurchRcptHeader.SetRecFilter();
         PurchRcptHeader.PrintRecords(false);
     end;
 
@@ -193,7 +193,7 @@ codeunit 92 "Purch.-Post + Print"
             PurchInvHeader."No." := PurchHeader."No."
         else
             PurchInvHeader."No." := PurchHeader."Last Posting No.";
-        PurchInvHeader.SetRecFilter;
+        PurchInvHeader.SetRecFilter();
         PurchInvHeader.PrintRecords(false);
     end;
 
@@ -208,7 +208,7 @@ codeunit 92 "Purch.-Post + Print"
             exit;
 
         ReturnShptHeader."No." := PurchHeader."Last Return Shipment No.";
-        ReturnShptHeader.SetRecFilter;
+        ReturnShptHeader.SetRecFilter();
         ReturnShptHeader.PrintRecords(false);
     end;
 
@@ -226,7 +226,7 @@ codeunit 92 "Purch.-Post + Print"
             PurchCrMemoHdr."No." := PurchHeader."No."
         else
             PurchCrMemoHdr."No." := PurchHeader."Last Posting No.";
-        PurchCrMemoHdr.SetRecFilter;
+        PurchCrMemoHdr.SetRecFilter();
         PurchCrMemoHdr.PrintRecords(false);
     end;
 

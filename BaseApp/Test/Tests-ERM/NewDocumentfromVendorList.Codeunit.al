@@ -39,7 +39,7 @@ codeunit 134773 "New Document from Vendor List"
 
         PurchaseInvoice."Vendor Invoice No.".SetValue(
           LibraryUtility.GenerateRandomText(MaxStrLen(DummyPurchaseHeader."Vendor Invoice No.")));
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
 
         // Execute
         PurchaseInvoice.Trap;
@@ -82,7 +82,7 @@ codeunit 134773 "New Document from Vendor List"
 
         PurchaseOrder."Vendor Invoice No.".SetValue(
           LibraryUtility.GenerateRandomText(MaxStrLen(DummyPurchaseHeader."Vendor Invoice No.")));
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
 
         // Execute
         PurchaseOrder.Trap;
@@ -125,7 +125,7 @@ codeunit 134773 "New Document from Vendor List"
 
         PurchaseCreditMemo."Vendor Cr. Memo No.".SetValue(
           LibraryUtility.GenerateRandomText(MaxStrLen(DummyPurchaseHeader."Vendor Cr. Memo No.")));
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
 
         // Execute
         PurchaseCreditMemo.Trap;

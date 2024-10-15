@@ -8,7 +8,6 @@ page 9816 "Permission Set by User"
     ModifyAllowed = false;
     PageType = Worksheet;
     Permissions = TableData "Access Control" = rimd;
-    PromotedActionCategories = 'New,Process,Report,Browse';
     SourceTable = "Aggregate Permission Set";
 
     layout
@@ -27,7 +26,7 @@ page 9816 "Permission Set by User"
 
                     trigger OnValidate()
                     begin
-                        UpdateCompany;
+                        UpdateCompany();
                     end;
                 }
                 field(ShowDomainName; ShowDomainName)
@@ -45,7 +44,7 @@ page 9816 "Permission Set by User"
             repeater(Group)
             {
                 Caption = 'Permission Set';
-                field("Role ID"; "Role ID")
+                field("Role ID"; Rec."Role ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Permission Set';
@@ -56,14 +55,14 @@ page 9816 "Permission Set by User"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the record.';
                 }
-                field("App ID"; "App ID")
+                field("App ID"; Rec."App ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Extension ID';
                     ToolTip = 'Specifies the unique identifier for the extension. A unique identifier will be generated if a value is not provided.';
                     Visible = false;
                 }
-                field("App Name"; "App Name")
+                field("App Name"; Rec."App Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Extension Name';
@@ -221,16 +220,13 @@ page 9816 "Permission Set by User"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Permissions';
                 Image = Permission;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'View or edit which feature objects that users need to access and set up the related permissions in permission sets that you can assign to the users of the database.';
 
                 trigger OnAction()
                 var
-                    PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
+                    PermissionSetRelation: Codeunit "Permission Set Relation";
                 begin
-                    PermissionPagesMgt.ShowPermissions(Scope, "App ID", "Role ID", false);
+                    PermissionSetRelation.OpenPermissionSetPage(Rec.Name, Rec."Role ID", Rec."App ID", Rec.Scope);
                 end;
             }
         }
@@ -243,9 +239,6 @@ page 9816 "Permission Set by User"
                 Ellipsis = true;
                 Enabled = CanManageUsersOnTenant;
                 Image = Copy;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Create a copy of the selected permission set with a name that you specify.';
 
                 trigger OnAction()
@@ -264,14 +257,11 @@ page 9816 "Permission Set by User"
                 ApplicationArea = Basic, Suite;
                 Caption = 'All Columns Left';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'Jump to the left-most column.';
 
                 trigger OnAction()
                 begin
-                    PermissionPagesMgt.AllColumnsLeft;
+                    PermissionPagesMgt.AllColumnsLeft();
                 end;
             }
             action(ColumnLeft)
@@ -279,14 +269,11 @@ page 9816 "Permission Set by User"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Column Left';
                 Image = PreviousRecord;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'Jump one column to the left.';
 
                 trigger OnAction()
                 begin
-                    PermissionPagesMgt.ColumnLeft;
+                    PermissionPagesMgt.ColumnLeft();
                 end;
             }
             action(ColumnRight)
@@ -294,14 +281,11 @@ page 9816 "Permission Set by User"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Column Right';
                 Image = NextRecord;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'Jump one column to the right.';
 
                 trigger OnAction()
                 begin
-                    PermissionPagesMgt.ColumnRight;
+                    PermissionPagesMgt.ColumnRight();
                 end;
             }
             action(AllColumnsRight)
@@ -309,42 +293,74 @@ page 9816 "Permission Set by User"
                 ApplicationArea = Basic, Suite;
                 Caption = 'All Columns Right';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'Jump to the right-most column.';
 
                 trigger OnAction()
                 begin
-                    PermissionPagesMgt.AllColumnsRight;
+                    PermissionPagesMgt.AllColumnsRight();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Permissions_Promoted; Permissions)
+                {
+                }
+                actionref(CopyPermissionSet_Promoted; CopyPermissionSet)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Browse', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(AllColumnsLeft_Promoted; AllColumnsLeft)
+                {
+                }
+                actionref(ColumnLeft_Promoted; ColumnLeft)
+                {
+                }
+                actionref(ColumnRight_Promoted; ColumnRight)
+                {
+                }
+                actionref(AllColumnsRight_Promoted; AllColumnsRight)
+                {
+                }
             }
         }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        FindUsers;
+        FindUsers();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        FindUsers;
+        FindUsers();
     end;
 
     trigger OnInit()
     var
         UserPermissions: Codeunit "User Permissions";
     begin
-        CanManageUsersOnTenant := UserPermissions.CanManageUsersOnTenant(UserSecurityId);
+        CanManageUsersOnTenant := UserPermissions.CanManageUsersOnTenant(UserSecurityId());
     end;
 
     trigger OnOpenPage()
     var
         User: Record User;
     begin
-        SelectedCompany := CompanyName;
-        UpdateCompany;
+        SelectedCompany := CompanyName();
+        UpdateCompany();
         HideExternalUsers(User);
         NoOfRecords := User.Count();
         PermissionPagesMgt.Init(NoOfRecords, ArrayLen(UserNameCode));
@@ -377,16 +393,16 @@ page 9816 "Permission Set by User"
             repeat
                 i += 1;
                 if PermissionPagesMgt.IsInColumnsRange(i) then begin
-                    UserSecurityIDArr[i - PermissionPagesMgt.GetOffset] := User."User Security ID";
+                    UserSecurityIDArr[i - PermissionPagesMgt.GetOffset()] := User."User Security ID";
                     j := 0;
                     if not ShowDomainName then begin
                         j := StrPos(User."User Name", '\');
                         if j < 0 then
                             j := 0;
                     end;
-                    UserNameCode[i - PermissionPagesMgt.GetOffset] := CopyStr(User."User Name", j + 1, MaxStrLen(UserNameCode[1]));
-                    UserHasPermissionSet[i - PermissionPagesMgt.GetOffset] := UserHasPermission(Rec, User);
-                    AllUsersHavePermission := AllUsersHavePermission and UserHasPermissionSet[i - PermissionPagesMgt.GetOffset];
+                    UserNameCode[i - PermissionPagesMgt.GetOffset()] := CopyStr(User."User Name", j + 1, MaxStrLen(UserNameCode[1]));
+                    UserHasPermissionSet[i - PermissionPagesMgt.GetOffset()] := UserHasPermission(Rec, User);
+                    AllUsersHavePermission := AllUsersHavePermission and UserHasPermissionSet[i - PermissionPagesMgt.GetOffset()];
                 end else
                     if AllUsersHavePermission then
                         AllUsersHavePermission := UserHasPermission(Rec, User);
@@ -457,7 +473,7 @@ page 9816 "Permission Set by User"
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        if EnvironmentInfo.IsSaaS then
+        if EnvironmentInfo.IsSaaS() then
             User.SetFilter("License Type", '<>%1', User."License Type"::"External User");
     end;
 }

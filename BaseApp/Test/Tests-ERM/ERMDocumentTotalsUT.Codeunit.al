@@ -1140,8 +1140,8 @@ codeunit 134395 "ERM Document Totals UT"
         Currency: Record Currency;
     begin
         if not Currency.Get(CurrencyCode) then
-            Currency.InitRoundingPrecision;
-        exit(Round(Amount, Currency."Invoice Rounding Precision", Currency.InvoiceRoundingDirection))
+            Currency.InitRoundingPrecision();
+        exit(Round(Amount, Currency."Invoice Rounding Precision", Currency.InvoiceRoundingDirection()))
     end;
 }
 

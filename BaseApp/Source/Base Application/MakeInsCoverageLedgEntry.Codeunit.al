@@ -70,7 +70,7 @@ codeunit 5657 "Make Ins. Coverage Ledg. Entry"
             SetRange("Disposed FA", true);
             ModifyAll("Disposed FA", false);
             if InsDeprBookCode <> '' then begin
-                Reset;
+                Reset();
                 FADeprBook.SetRange("Depreciation Book Code", InsDeprBookCode);
                 FADeprBook.SetFilter("Disposal Date", '<>%1', 0D);
                 if FADeprBook.FindSet() then

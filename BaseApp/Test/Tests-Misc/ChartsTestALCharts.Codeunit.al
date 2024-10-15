@@ -32,7 +32,7 @@ codeunit 134210 "Charts - Test AL Charts"
         PeriodLength: Option;
     begin
         for PeriodLength := 0 to 4 do
-            VerifyCalcNoOfPeriods(WorkDate, WorkDate, PeriodLength, 1);
+            VerifyCalcNoOfPeriods(WorkDate(), WorkDate(), PeriodLength, 1);
     end;
 
     [Test]
@@ -42,7 +42,7 @@ codeunit 134210 "Charts - Test AL Charts"
         BusChartBuf: Record "Business Chart Buffer";
     begin
         BusChartBuf."Period Length" := BusChartBuf."Period Length"::Day;
-        VerifyCalcNoOfPeriods(WorkDate, WorkDate - 1, BusChartBuf."Period Length", 2);
+        VerifyCalcNoOfPeriods(WorkDate(), WorkDate() - 1, BusChartBuf."Period Length", 2);
     end;
 
     [Test]
@@ -54,7 +54,7 @@ codeunit 134210 "Charts - Test AL Charts"
         ToDate: Date;
     begin
         BusChartBuf."Period Length" := BusChartBuf."Period Length"::Day;
-        FromDate := WorkDate;
+        FromDate := WorkDate();
         ToDate := FromDate + LibraryRandom.RandInt(10);
         VerifyCalcNoOfPeriods(FromDate, ToDate, BusChartBuf."Period Length", ToDate - FromDate + 1);
     end;
@@ -102,9 +102,9 @@ codeunit 134210 "Charts - Test AL Charts"
         Number: Integer;
     begin
         Number := LibraryRandom.RandInt(100);
-        ToDate := CalcDate(StrSubstNo('<%1W>', Number), WorkDate);
+        ToDate := CalcDate(StrSubstNo('<%1W>', Number), WorkDate());
         BusChartBuf."Period Length" := BusChartBuf."Period Length"::Week;
-        VerifyCalcNoOfPeriods(WorkDate, ToDate, BusChartBuf."Period Length", Number + 1);
+        VerifyCalcNoOfPeriods(WorkDate(), ToDate, BusChartBuf."Period Length", Number + 1);
     end;
 
     [Test]
@@ -125,9 +125,9 @@ codeunit 134210 "Charts - Test AL Charts"
         Number: Integer;
     begin
         Number := LibraryRandom.RandInt(20);
-        ToDate := CalcDate(StrSubstNo('<%1M>', Number), WorkDate);
+        ToDate := CalcDate(StrSubstNo('<%1M>', Number), WorkDate());
         BusChartBuf."Period Length" := BusChartBuf."Period Length"::Month;
-        VerifyCalcNoOfPeriods(WorkDate, ToDate, BusChartBuf."Period Length", Number + 1);
+        VerifyCalcNoOfPeriods(WorkDate(), ToDate, BusChartBuf."Period Length", Number + 1);
     end;
 
     [Test]
@@ -139,9 +139,9 @@ codeunit 134210 "Charts - Test AL Charts"
         Number: Integer;
     begin
         Number := LibraryRandom.RandInt(10);
-        ToDate := CalcDate(StrSubstNo('<%1Q>', Number), WorkDate);
+        ToDate := CalcDate(StrSubstNo('<%1Q>', Number), WorkDate());
         BusChartBuf."Period Length" := BusChartBuf."Period Length"::Quarter;
-        VerifyCalcNoOfPeriods(WorkDate, ToDate, BusChartBuf."Period Length", Number + 1);
+        VerifyCalcNoOfPeriods(WorkDate(), ToDate, BusChartBuf."Period Length", Number + 1);
     end;
 
     [Test]
@@ -153,9 +153,9 @@ codeunit 134210 "Charts - Test AL Charts"
         Number: Integer;
     begin
         Number := LibraryRandom.RandInt(5);
-        ToDate := CalcDate(StrSubstNo('<%1Y>', Number), WorkDate);
+        ToDate := CalcDate(StrSubstNo('<%1Y>', Number), WorkDate());
         BusChartBuf."Period Length" := BusChartBuf."Period Length"::Year;
-        VerifyCalcNoOfPeriods(WorkDate, ToDate, BusChartBuf."Period Length", Number + 1);
+        VerifyCalcNoOfPeriods(WorkDate(), ToDate, BusChartBuf."Period Length", Number + 1);
     end;
 
     local procedure VerifyCalcNoOfPeriods(FromDate: Date; ToDate: Date; PeriodLength: Option; ExpectedValue: Integer)
@@ -222,7 +222,7 @@ codeunit 134210 "Charts - Test AL Charts"
         BusChartBuf: Record "Business Chart Buffer";
     begin
         asserterror BusChartBuf.Insert(true);
-        Assert.ExpectedError(StrSubstNo(NotAllowedInsertErrMsg, BusChartBuf.TableCaption))
+        Assert.ExpectedError(StrSubstNo(NotAllowedInsertErrMsg, BusChartBuf.TableCaption()))
     end;
 
     [Test]
@@ -235,7 +235,7 @@ codeunit 134210 "Charts - Test AL Charts"
         ActualInt: Integer;
     begin
         CreateChart(BusChartBuf, 1, 1);
-        ExpectedInt := Date2DMY(WorkDate, 3);
+        ExpectedInt := Date2DMY(WorkDate(), 3);
         BusChartBuf.SetValue(GetMeasureName(1), 0, ExpectedInt);
 
         BusChartBuf.GetValue(GetMeasureName(1), 0, Value);

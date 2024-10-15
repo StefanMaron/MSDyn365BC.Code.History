@@ -37,9 +37,9 @@ page 476 "Copy Tax Setup"
                     trigger OnValidate()
                     begin
                         if CopyMode = CopyMode::Custom then
-                            CustomCopyModeOnValidate;
+                            CustomCopyModeOnValidate();
                         if CopyMode = CopyMode::All then
-                            AllCopyModeOnValidate;
+                            AllCopyModeOnValidate();
                     end;
                 }
                 field(TaxGroups; CopyTable[1])
@@ -50,7 +50,7 @@ page 476 "Copy Tax Setup"
 
                     trigger OnValidate()
                     begin
-                        CopyTable1OnPush;
+                        CopyTable1OnPush();
                     end;
                 }
                 field(TaxJurisdictions; CopyTable[2])
@@ -61,7 +61,7 @@ page 476 "Copy Tax Setup"
 
                     trigger OnValidate()
                     begin
-                        CopyTable2OnPush;
+                        CopyTable2OnPush();
                     end;
                 }
                 field(TaxAreas; CopyTable[3])
@@ -72,7 +72,7 @@ page 476 "Copy Tax Setup"
 
                     trigger OnValidate()
                     begin
-                        CopyTable3OnPush;
+                        CopyTable3OnPush();
                     end;
                 }
                 field(TaxDetail; CopyTable[4])
@@ -83,7 +83,7 @@ page 476 "Copy Tax Setup"
 
                     trigger OnValidate()
                     begin
-                        CopyTable4OnPush;
+                        CopyTable4OnPush();
                     end;
                 }
             }
@@ -111,13 +111,10 @@ page 476 "Copy Tax Setup"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction in [ACTION::OK, ACTION::LookupOK] then
-            OKOnPush;
+            OKOnPush();
     end;
 
     var
-        Text000: Label 'You must select a company other than the current company.';
-        Text001: Label 'You must select a company from which to copy.';
-        Text002: Label 'Nothing was selected to copy.\You must select one or more tables to copy.';
         SourceCompany: Record Company;
         CopyTaxSetup: Codeunit "Copy Tax Setup From Company";
         CopyTable: array[4] of Boolean;
@@ -131,6 +128,10 @@ page 476 "Copy Tax Setup"
         TaxAreasEnable: Boolean;
         [InDataSet]
         TaxDetailEnable: Boolean;
+
+        Text000: Label 'You must select a company other than the current company.';
+        Text001: Label 'You must select a company from which to copy.';
+        Text002: Label 'Nothing was selected to copy.\You must select one or more tables to copy.';
 
     local procedure CopyTable1OnPush()
     begin
@@ -179,12 +180,12 @@ page 476 "Copy Tax Setup"
 
     local procedure AllCopyModeOnValidate()
     begin
-        AllCopyModeOnPush;
+        AllCopyModeOnPush();
     end;
 
     local procedure CustomCopyModeOnValidate()
     begin
-        CustomCopyModeOnPush;
+        CustomCopyModeOnPush();
     end;
 }
 

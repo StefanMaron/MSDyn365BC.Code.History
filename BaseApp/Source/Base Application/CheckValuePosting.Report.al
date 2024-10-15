@@ -12,7 +12,7 @@ report 30 "Check Value Posting"
         {
             DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
             PrintOnlyIfDetail = true;
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TodayFormatted; Format(Today, 0, 4))
@@ -216,10 +216,10 @@ report 30 "Check Value Posting"
                 trigger OnAfterGetRecord()
                 begin
                     "Table Caption" := ObjectTransl.TranslateObject(ObjectTransl."Object Type"::Table, "Table ID");
-                    DefaultDimBuffer."Table ID" := "Table ID";
 
-                    if not DefaultDimBuffer.Find then
-                        DefaultDimBuffer := DefaultDim1;
+                    TempDefaultDimmension."Table ID" := "Table ID";
+                    if not TempDefaultDimmension.Find() then
+                        TempDefaultDimmension := DefaultDim1;
                 end;
 
                 trigger OnPostDataItem()
@@ -347,9 +347,9 @@ report 30 "Check Value Posting"
                 trigger OnAfterGetRecord()
                 begin
                     "Table Caption" := ObjectTransl.TranslateObject(ObjectTransl."Object Type"::Table, "Table ID");
-                    DefaultDimBuffer."Table ID" := "Table ID";
 
-                    if DefaultDimBuffer.Find then
+                    TempDefaultDimmension."Table ID" := "Table ID";
+                    if TempDefaultDimmension.Find() then
                         CurrReport.Skip();
                 end;
 
@@ -429,16 +429,17 @@ report 30 "Check Value Posting"
     }
 
     var
+        Cust: Record Customer;
+        Vend: Record Vendor;
+        TempDefaultDimmension: Record "Default Dimension" temporary;
+        ObjectTransl: Record "Object Translation";
+        ErrorMessage: Text[250];
+
         Text000: Label 'You must not use a "%1" %2 when %3 is "%4".';
         Text001: Label '%1 must be %2.';
         Text002: Label '%1 %2 is mandatory.';
         Text003: Label '%1 %2 must not be mentioned.';
         Text004: Label '%1 %2 must be %3.';
-        Cust: Record Customer;
-        Vend: Record Vendor;
-        DefaultDimBuffer: Record "Default Dimension" temporary;
-        ObjectTransl: Record "Object Translation";
-        ErrorMessage: Text[250];
         AccountNoCaptionLbl: Label 'Account No.';
         CurrReportPageNoCaptionLbl: Label 'Page';
         CheckValuePostingCaptionLbl: Label 'Check Value Posting';

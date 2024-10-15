@@ -26,17 +26,17 @@ page 157 "Item Availability by Periods"
                     trigger OnValidate()
                     begin
                         if PeriodType = PeriodType::"Accounting Period" then
-                            PeriodPeriodTypeOnValidate;
+                            PeriodPeriodTypeOnValidate();
                         if PeriodType = PeriodType::Year then
-                            YearPeriodTypeOnValidate;
+                            YearPeriodTypeOnValidate();
                         if PeriodType = PeriodType::Quarter then
-                            QuarterPeriodTypeOnValidate;
+                            QuarterPeriodTypeOnValidate();
                         if PeriodType = PeriodType::Month then
-                            MonthPeriodTypeOnValidate;
+                            MonthPeriodTypeOnValidate();
                         if PeriodType = PeriodType::Week then
-                            WeekPeriodTypeOnValidate;
+                            WeekPeriodTypeOnValidate();
                         if PeriodType = PeriodType::Day then
-                            DayPeriodTypeOnValidate;
+                            DayPeriodTypeOnValidate();
                     end;
                 }
                 field(AmountType; AmountType)
@@ -48,9 +48,9 @@ page 157 "Item Availability by Periods"
                     trigger OnValidate()
                     begin
                         if AmountType = AmountType::"Balance at Date" then
-                            BalanceatDateAmountTypeOnValid;
+                            BalanceatDateAmountTypeOnValid();
                         if AmountType = AmountType::"Net Change" then
-                            NetChangeAmountTypeOnValidate;
+                            NetChangeAmountTypeOnValidate();
                     end;
                 }
             }
@@ -82,7 +82,7 @@ page 157 "Item Availability by Periods"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItem(Rec, ItemAvailFormsMgt.ByEvent);
+                            ItemAvailFormsMgt.ShowItemAvailFromItem(Rec, ItemAvailFormsMgt.ByEvent());
                         end;
                     }
                     action(Variant)
@@ -122,7 +122,7 @@ page 157 "Item Availability by Periods"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItem(Rec, ItemAvailFormsMgt.ByBOM);
+                            ItemAvailFormsMgt.ShowItemAvailFromItem(Rec, ItemAvailFormsMgt.ByBOM());
                         end;
                     }
                 }
@@ -139,7 +139,7 @@ page 157 "Item Availability by Periods"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction = ACTION::LookupOK then
-            LookupOKOnPush;
+            LookupOKOnPush();
     end;
 
     var
@@ -208,42 +208,42 @@ page 157 "Item Availability by Periods"
 
     local procedure DayPeriodTypeOnValidate()
     begin
-        DayPeriodTypeOnPush;
+        DayPeriodTypeOnPush();
     end;
 
     local procedure WeekPeriodTypeOnValidate()
     begin
-        WeekPeriodTypeOnPush;
+        WeekPeriodTypeOnPush();
     end;
 
     local procedure MonthPeriodTypeOnValidate()
     begin
-        MonthPeriodTypeOnPush;
+        MonthPeriodTypeOnPush();
     end;
 
     local procedure QuarterPeriodTypeOnValidate()
     begin
-        QuarterPeriodTypeOnPush;
+        QuarterPeriodTypeOnPush();
     end;
 
     local procedure YearPeriodTypeOnValidate()
     begin
-        YearPeriodTypeOnPush;
+        YearPeriodTypeOnPush();
     end;
 
     local procedure PeriodPeriodTypeOnValidate()
     begin
-        PeriodPeriodTypeOnPush;
+        PeriodPeriodTypeOnPush();
     end;
 
     local procedure NetChangeAmountTypeOnValidate()
     begin
-        NetChangeAmountTypeOnPush;
+        NetChangeAmountTypeOnPush();
     end;
 
     local procedure BalanceatDateAmountTypeOnValid()
     begin
-        BalanceatDateAmountTypeOnPush;
+        BalanceatDateAmountTypeOnPush();
     end;
 }
 

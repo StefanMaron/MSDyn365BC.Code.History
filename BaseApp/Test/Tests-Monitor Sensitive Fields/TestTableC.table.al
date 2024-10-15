@@ -1,7 +1,7 @@
-
 table 139063 "Test Table C"
 {
     DataClassification = SystemMetadata;
+    ReplicateData = false;
 
     fields
     {

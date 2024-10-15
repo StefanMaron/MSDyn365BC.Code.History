@@ -451,7 +451,7 @@ codeunit 144003 "ERM EU 3-Party"
           PurchaseLine."VAT Prod. Posting Group");
         LibraryVariableStorage.Enqueue(VATStatementLine."Statement Template Name");  // Enqueue for VATStatementTemplateListModalPageHandler.
         LibraryVariableStorage.Enqueue(
-          LibraryERM.ConvertCurrency(PurchaseLine."Line Amount" * PurchaseLine."VAT %" / 100, CurrencyCode, '', WorkDate));  // Enqueue for VATStatementPreviewPageHandler. Using Blank for ToCurrency.
+          LibraryERM.ConvertCurrency(PurchaseLine."Line Amount" * PurchaseLine."VAT %" / 100, CurrencyCode, '', WorkDate()));  // Enqueue for VATStatementPreviewPageHandler. Using Blank for ToCurrency.
         VATStatement.OpenEdit;
         VATStatement.CurrentStmtName.SetValue(VATStatementLine."Statement Name");
 
@@ -459,7 +459,7 @@ codeunit 144003 "ERM EU 3-Party"
         VATStatement."P&review".Invoke;  // Opens VATStatementTemplateListModalPageHandler and VATStatementPreviewPageHandler.
 
         // Verify: Verification is done in VATStatementPreviewPageHandler.
-        VATStatement.Close;
+        VATStatement.Close();
 
         // Tear Down.
         UpdatePurchasesPayablesSetup(OldInvoiceRounding);
@@ -514,7 +514,7 @@ codeunit 144003 "ERM EU 3-Party"
           SalesLine."VAT Prod. Posting Group");
         LibraryVariableStorage.Enqueue(VATStatementLine."Statement Template Name");  // Enqueue for VATStatementTemplateListModalPageHandler.
         LibraryVariableStorage.Enqueue(
-          LibraryERM.ConvertCurrency(-SalesLine."Line Amount" * SalesLine."VAT %" / 100, CurrencyCode, '', WorkDate));  // Enqueue for VATStatementPreviewPageHandler.  Using Blank for ToCurrency.
+          LibraryERM.ConvertCurrency(-SalesLine."Line Amount" * SalesLine."VAT %" / 100, CurrencyCode, '', WorkDate()));  // Enqueue for VATStatementPreviewPageHandler.  Using Blank for ToCurrency.
         VATStatement.OpenEdit;
         VATStatement.CurrentStmtName.SetValue(VATStatementLine."Statement Name");
 
@@ -522,7 +522,7 @@ codeunit 144003 "ERM EU 3-Party"
         VATStatement."P&review".Invoke;  // Opens VATStatementTemplateListModalPageHandler and VATStatementPreviewPageHandler.
 
         // Verify: Verification of Column Value is done in VATStatementPreviewPageHandler.
-        VATStatement.Close;
+        VATStatement.Close();
 
         // Tear Down.
         UpdateSalesReceivablesSetup(OldInvoiceRounding);
@@ -931,8 +931,8 @@ codeunit 144003 "ERM EU 3-Party"
     begin
         LibraryVariableStorage.Dequeue(VATStatementName);
         VATStatement."VAT Statement Name".SetFilter(Name, VATStatementName);
-        VATStatement.StartingDate.SetValue(WorkDate);
-        VATStatement.EndingDate.SetValue(WorkDate);
+        VATStatement.StartingDate.SetValue(WorkDate());
+        VATStatement.EndingDate.SetValue(WorkDate());
         VATStatement.ShowAmtInAddCurrency.SetValue(true);
         VATStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
@@ -945,8 +945,8 @@ codeunit 144003 "ERM EU 3-Party"
     begin
         LibraryVariableStorage.Dequeue(VATRegistrationNoFilter);
         VATVIESDeclarationTaxAuth.ShowAmountsInAddReportingCurrency.SetValue(true);
-        VATVIESDeclarationTaxAuth.StartingDate.SetValue(WorkDate);
-        VATVIESDeclarationTaxAuth.EndingDate.SetValue(WorkDate);
+        VATVIESDeclarationTaxAuth.StartingDate.SetValue(WorkDate());
+        VATVIESDeclarationTaxAuth.EndingDate.SetValue(WorkDate());
         VATVIESDeclarationTaxAuth.VATRegistrationNoFilter.SetValue(VATRegistrationNoFilter);
         VATVIESDeclarationTaxAuth.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;

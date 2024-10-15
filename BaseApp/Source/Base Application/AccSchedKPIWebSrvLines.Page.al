@@ -1,6 +1,6 @@
 page 196 "Acc. Sched. KPI Web Srv. Lines"
 {
-    Caption = 'Account Schedule KPI Web Service Setup';
+    Caption = 'Financial Report KPI Web Service Setup';
     PageType = ListPart;
     SourceTable = "Acc. Sched. KPI Web Srv. Line";
 
@@ -11,15 +11,17 @@ page 196 "Acc. Sched. KPI Web Srv. Lines"
             repeater(Control13)
             {
                 ShowCaption = false;
-                field("Acc. Schedule Name"; "Acc. Schedule Name")
+                field("Acc. Schedule Name"; Rec."Acc. Schedule Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the account schedule that the KPI web service is based on. To view or edit the selected account schedule, choose the Edit Account Schedule button.';
+                    Caption = 'Row definition';
+                    ToolTip = 'Specifies the row definition that the KPI web service is based on. To view or edit the selected financial report, choose the Edit Row Definition button.';
                 }
-                field("Acc. Schedule Description"; "Acc. Schedule Description")
+                field("Acc. Schedule Description"; Rec."Acc. Schedule Description")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the description of the account schedule that the KPI web service is based on.';
+                    Caption = 'Description';
+                    ToolTip = 'Specifies the description of the row definition that the KPI web service is based on.';
                 }
             }
         }
@@ -32,15 +34,15 @@ page 196 "Acc. Sched. KPI Web Srv. Lines"
             action(EditAccSchedule)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Edit Account Schedule';
-                ToolTip = 'Opens the Account Schedule window so that you can modify the account schedule.';
+                Caption = 'Edit Row Definition';
+                ToolTip = 'Opens the Row Definition window so that you can modify the selected row.';
 
                 trigger OnAction()
                 var
-                    AccSchedule: Page "Account Schedule";
+                    AccountSchedule: Page "Account Schedule";
                 begin
-                    AccSchedule.SetAccSchedName("Acc. Schedule Name");
-                    AccSchedule.Run();
+                    AccountSchedule.SetAccSchedName(Rec."Acc. Schedule Name");
+                    AccountSchedule.Run();
                 end;
             }
         }

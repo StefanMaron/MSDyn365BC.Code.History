@@ -888,6 +888,7 @@ codeunit 2580 "Dimension Correction Mgt"
         end;
     end;
 
+
     procedure UpdateAnalysisViewStatus(var DimensionCorrection: Record "Dimension Correction")
     var
         JobQueueEntry: Record "Job Queue Entry";

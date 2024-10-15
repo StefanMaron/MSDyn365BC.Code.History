@@ -487,8 +487,8 @@ page 230 "Res. Gr. Statistics"
 
     trigger OnAfterGetRecord()
     begin
-        if CurrentDate <> WorkDate then begin
-            CurrentDate := WorkDate;
+        if CurrentDate <> WorkDate() then begin
+            CurrentDate := WorkDate();
             DateFilterCalc.CreateAccountingPeriodFilter(ResGrDateFilter[1], ResGrDateName[1], CurrentDate, 0);
             DateFilterCalc.CreateFiscalYearFilter(ResGrDateFilter[2], ResGrDateName[2], CurrentDate, 0);
             DateFilterCalc.CreateFiscalYearFilter(ResGrDateFilter[3], ResGrDateName[3], CurrentDate, -1);
@@ -530,17 +530,14 @@ page 230 "Res. Gr. Statistics"
 
     var
         DateFilterCalc: Codeunit "DateFilter-Calc";
-        ResGrDateFilter: array[4] of Text[30];
         ResGrDateName: array[4] of Text[30];
         i: Integer;
         j: Integer;
         Chargeable: Boolean;
         CurrentDate: Date;
-        ResGrCapacity: array[4] of Decimal;
         ResGrUsageCost: array[4] of Decimal;
         UnitPrice: array[4] of Decimal;
         TotalUsageUnits: array[4] of Decimal;
-        UnusedCapacity: array[4] of Decimal;
         ResGrUsageUnits: array[4, 2] of Decimal;
         ResGrUsagePrice: array[4, 2] of Decimal;
         ChargeablePct: array[4] of Decimal;
@@ -548,6 +545,11 @@ page 230 "Res. Gr. Statistics"
         Profit: array[4] of Decimal;
         ResGrProfitPct: array[4] of Decimal;
         Text000: Label 'Placeholder';
+
+    protected var
+        ResGrDateFilter: array[4] of Text[30];
+        ResGrCapacity: array[4] of Decimal;
+        UnusedCapacity: array[4] of Decimal;
 
     local procedure CalcPercentage(PartAmount: Decimal; Base: Decimal): Decimal
     begin

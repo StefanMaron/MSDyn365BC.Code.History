@@ -9,6 +9,7 @@ table 399 "XBRL Schema"
     ObsoleteState = Removed;
     ObsoleteTag = '23.0';
 #endif
+    ReplicateData = false;
 
     fields
     {

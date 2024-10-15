@@ -63,23 +63,24 @@ table 1260 "Bank Data Conv. Service Setup"
 
     trigger OnDelete()
     begin
-        DeletePassword;
+        DeletePassword();
     end;
 
     var
         AzureKeyVault: Codeunit "Azure Key Vault";
         EnvironmentInfo: Codeunit "Environment Information";
-        UserNameSecretTxt: Label 'amcname', Locked = true;
-        PasswordSecretTxt: Label 'amcpassword', Locked = true;
         CompanyInformationMgt: Codeunit "Company Information Mgt.";
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
+
+        UserNameSecretTxt: Label 'amcname', Locked = true;
+        PasswordSecretTxt: Label 'amcpassword', Locked = true;
 
     [NonDebuggable]
     [Scope('OnPrem')]
     procedure SavePassword(PasswordText: Text)
     begin
         if IsNullGuid("Password Key") then
-            "Password Key" := CreateGuid;
+            "Password Key" := CreateGuid();
 
         IsolatedStorageManagement.Set("Password Key", PasswordText, DATASCOPE::Company);
     end;
@@ -87,8 +88,8 @@ table 1260 "Bank Data Conv. Service Setup"
     [Scope('OnPrem')]
     procedure GetUserName(): Text[50]
     begin
-        if DemoSaaSCompany and ("User Name" = '') then
-            exit(RetrieveSaaSUserName);
+        if DemoSaaSCompany() and ("User Name" = '') then
+            exit(RetrieveSaaSUserName());
 
         exit("User Name");
     end;
@@ -100,8 +101,8 @@ table 1260 "Bank Data Conv. Service Setup"
         Value: Text;
     begin
         // if Demo Company and empty User Name retrieve from Azure Key Vault
-        if DemoSaaSCompany and ("User Name" = '') then
-            exit(RetrieveSaaSPass);
+        if DemoSaaSCompany() and ("User Name" = '') then
+            exit(RetrieveSaaSPass());
 
         IsolatedStorageManagement.Get("Password Key", DATASCOPE::Company, Value);
         exit(Value);
@@ -116,7 +117,7 @@ table 1260 "Bank Data Conv. Service Setup"
     procedure HasUserName(): Boolean
     begin
         // if Demo Company try to retrieve from Azure Key Vault
-        if DemoSaaSCompany then
+        if DemoSaaSCompany() then
             exit(true);
 
         exit("User Name" <> '');
@@ -125,7 +126,7 @@ table 1260 "Bank Data Conv. Service Setup"
     [Scope('OnPrem')]
     procedure HasPassword(): Boolean
     begin
-        if DemoSaaSCompany and ("User Name" = '') then
+        if DemoSaaSCompany() and ("User Name" = '') then
             exit(true);
 
         exit(IsolatedStorageManagement.Contains("Password Key", DATASCOPE::Company));
@@ -149,6 +150,6 @@ table 1260 "Bank Data Conv. Service Setup"
 
     local procedure DemoSaaSCompany(): Boolean
     begin
-        exit(EnvironmentInfo.IsSaaS and CompanyInformationMgt.IsDemoCompany);
+        exit(EnvironmentInfo.IsSaaS() and CompanyInformationMgt.IsDemoCompany());
     end;
 }

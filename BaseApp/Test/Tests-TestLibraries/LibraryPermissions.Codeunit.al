@@ -130,7 +130,7 @@ codeunit 132214 "Library - Permissions"
         if UserGroupPlan.FindSet() then
             repeat
                 AddUserToUserGroupByCode(UserID, UserGroupPlan."User Group Code");
-            until UserGroupPlan.Next = 0;
+            until UserGroupPlan.Next() = 0;
     end;
 
     procedure AddUserToUserGroup(var UserGroup: Record "User Group"; var User: Record User; NewCompanyName: Text[30])
@@ -171,7 +171,7 @@ codeunit 132214 "Library - Permissions"
     procedure CreateUser(var User: Record User; NewUserName: Text[50]; IsWindowsUser: Boolean)
     begin
         User.Init();
-        User."User Security ID" := CreateGuid;
+        User."User Security ID" := CreateGuid();
         if NewUserName = '' then
             User."User Name" := CopyStr(GetGuidString, 1, MaxStrLen(User."User Name"))
         else
@@ -208,11 +208,11 @@ codeunit 132214 "Library - Permissions"
         UserProperty: Record "User Property";
     begin
         if UserProperty.Get(User."User Security ID") then begin
-            UserProperty."Authentication Object ID" := CreateGuid;
+            UserProperty."Authentication Object ID" := CreateGuid();
             UserProperty.Modify(true);
         end else begin
             UserProperty.Init();
-            UserProperty."Authentication Object ID" := CreateGuid;
+            UserProperty."Authentication Object ID" := CreateGuid();
             UserProperty."User Security ID" := User."User Security ID";
             UserProperty.Insert();
         end;
@@ -276,9 +276,9 @@ codeunit 132214 "Library - Permissions"
         UserID: Text[65];
     begin
         repeat
-            UserID := CreateGuid;
+            UserID := CreateGuid();
             User.SetRange("User Name", UserID);
-        until User.IsEmpty;
+        until User.IsEmpty();
         exit(UserID)
     end;
 
@@ -351,7 +351,7 @@ codeunit 132214 "Library - Permissions"
 
     local procedure GetGuidString(): Text
     begin
-        exit(DelChr(Format(CreateGuid), '=', '{-}'));
+        exit(DelChr(Format(CreateGuid()), '=', '{-}'));
     end;
 
     procedure GetMyUser(var User: Record User)

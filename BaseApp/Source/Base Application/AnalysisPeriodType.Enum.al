@@ -1,5 +1,6 @@
 enum 362 "Analysis Period Type"
 {
+    Extensible = true;
     AssignmentCompatibility = true;
 
     value(0; "Day") { Caption = 'Day'; }

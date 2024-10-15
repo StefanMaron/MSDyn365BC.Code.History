@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2304 "BC O365 Posted Sale Inv. Lines"
 {
     Caption = 'Sent Invoice Lines';
@@ -6,6 +7,9 @@ page 2304 "BC O365 Posted Sale Inv. Lines"
     InsertAllowed = false;
     PageType = ListPart;
     SourceTable = "Sales Invoice Line";
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -13,18 +17,18 @@ page 2304 "BC O365 Posted Sale Inv. Lines"
         {
             repeater(Group)
             {
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                     Visible = false;
                 }
                 field(Description; Description)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies a description of the item or service on the line.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     Importance = Additional;
@@ -33,59 +37,59 @@ page 2304 "BC O365 Posted Sale Inv. Lines"
                 }
                 field(LineQuantity; LineQuantity)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Quantity';
                     DecimalPlaces = 0 : 5;
                     Enabled = false;
                     ToolTip = 'Specifies the quantity of the item or service on the line.';
                 }
-                field("Unit of Measure"; "Unit of Measure")
+                field("Unit of Measure"; Rec."Unit of Measure")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Price Per';
                     ToolTip = 'Specifies the unit of measure code for the item.';
                 }
-                field("Unit Price"; "Unit Price")
+                field("Unit Price"; Rec."Unit Price")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = CurrencyFormat;
                     AutoFormatType = 11;
                     Caption = 'Price';
                     ToolTip = 'Specifies the price for one unit on the sales line.';
                 }
-                field("Line Discount %"; "Line Discount %")
+                field("Line Discount %"; Rec."Line Discount %")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                 }
                 field(VATProductPostingGroupDescription; VATProductPostingGroupDescription)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'VAT';
                     NotBlank = true;
                     QuickEntry = false;
                     ToolTip = 'Specifies the VAT group code for this item.';
                     Visible = IsUsingVAT;
                 }
-                field(LineAmountInclVAT; GetLineAmountInclVAT)
+                field(LineAmountInclVAT; GetLineAmountInclVAT())
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = CurrencyFormat;
                     AutoFormatType = 11;
                     Caption = 'Line Amount Incl. VAT';
                     ToolTip = 'Specifies the net amounts, including VAT and excluding any invoice discount, that must be paid for products on the line.';
                 }
-                field("Line Amount"; "Line Amount")
+                field("Line Amount"; Rec."Line Amount")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = CurrencyFormat;
                     AutoFormatType = 11;
                     Caption = 'Line Amount';
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
                     Visible = ShowOnlyOnBrick;
                 }
-                field("Price description"; "Price description")
+                field("Price description"; Rec."Price description")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Visible = ShowOnlyOnBrick;
                 }
             }
@@ -100,8 +104,8 @@ page 2304 "BC O365 Posted Sale Inv. Lines"
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
-        UpdatePriceDescription;
-        UpdateCurrencyFormat;
+        UpdatePriceDescription();
+        UpdateCurrencyFormat();
         if VATProductPostingGroup.Get("VAT Prod. Posting Group") then
             VATProductPostingGroupDescription := VATProductPostingGroup.Description
         else
@@ -114,7 +118,7 @@ page 2304 "BC O365 Posted Sale Inv. Lines"
     var
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
     begin
-        IsUsingVAT := O365SalesInitialSetup.IsUsingVAT;
+        IsUsingVAT := O365SalesInitialSetup.IsUsingVAT();
         ShowOnlyOnBrick := true;
     end;
 
@@ -135,12 +139,12 @@ page 2304 "BC O365 Posted Sale Inv. Lines"
         SalesInvoiceHeader.Get("Document No.");
         if SalesInvoiceHeader."Currency Code" = '' then begin
             GLSetup.Get();
-            CurrencySymbol := GLSetup.GetCurrencySymbol;
+            CurrencySymbol := GLSetup.GetCurrencySymbol();
         end else begin
             if Currency.Get(SalesInvoiceHeader."Currency Code") then;
-            CurrencySymbol := Currency.GetCurrencySymbol;
+            CurrencySymbol := Currency.GetCurrencySymbol();
         end;
         CurrencyFormat := StrSubstNo('%1<precision, 2:2><standard format, 0>', CurrencySymbol);
     end;
 }
-
+#endif

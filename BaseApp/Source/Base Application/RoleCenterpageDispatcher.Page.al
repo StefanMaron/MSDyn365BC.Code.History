@@ -32,7 +32,7 @@ page 9079 "Role Center Page Dispatcher"
     local procedure GetPageReplacement(var AllObjWithCaption: Record AllObjWithCaption)
     begin
         case AllObjWithCaption."Object ID" of
-#if not CLEAN19
+#if not CLEAN21
             Page::"Purchase Prices",
             Page::"Purchase Line Discounts":
                 if IsExtendedPriceCalculationEnabled() then
@@ -60,7 +60,7 @@ page 9079 "Role Center Page Dispatcher"
     local procedure GetReportReplacement(var AllObjWithCaption: Record AllObjWithCaption)
     begin
         case AllObjWithCaption."Object ID" of
-#if not CLEAN19
+#if not CLEAN21
             Report::"Price List":
                 if IsExtendedPriceCalculationEnabled() then
                     AllObjWithCaption."Object ID" := Report::"Item Price List";
@@ -78,7 +78,7 @@ page 9079 "Role Center Page Dispatcher"
         end;
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure IsExtendedPriceCalculationEnabled(): Boolean;
     var
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";

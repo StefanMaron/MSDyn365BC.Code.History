@@ -10,7 +10,7 @@ page 1030 "Job Cost Factbox"
     {
         area(content)
         {
-            field("No."; "No.")
+            field("No."; Rec."No.")
             {
                 ApplicationArea = Jobs;
                 Caption = 'Job No.';
@@ -18,7 +18,7 @@ page 1030 "Job Cost Factbox"
 
                 trigger OnDrillDown()
                 begin
-                    ShowDetails;
+                    ShowDetails();
                 end;
             }
             group("Budget Cost")
@@ -280,7 +280,7 @@ page 1030 "Job Cost Factbox"
     begin
         Clear(JobCalcStatistics);
         JobCalcStatistics.JobCalculateCommonFilters(Rec);
-        JobCalcStatistics.CalculateAmounts;
+        JobCalcStatistics.CalculateAmounts();
         JobCalcStatistics.GetLCYCostAmounts(CL);
         JobCalcStatistics.GetLCYPriceAmounts(PL);
     end;

@@ -259,7 +259,7 @@ codeunit 144050 "ERM Regoff SE"
         GeneralLedgerSetup.Modify(true);
 
         // [THEN] SIE Dimension "D" linked with ShortCutDimNo = 3
-        SIEDimension.Find;
+        SIEDimension.Find();
         SIEDimension.TestField(ShortCutDimNo, 3);
     end;
 
@@ -291,7 +291,7 @@ codeunit 144050 "ERM Regoff SE"
         GeneralLedgerSetup.Modify(true);
 
         // [THEN] SIE Dimension "D" has ShortCutDimNo = 0
-        SIEDimension.Find;
+        SIEDimension.Find();
         SIEDimension.TestField(ShortCutDimNo, 0);
     end;
 
@@ -332,9 +332,9 @@ codeunit 144050 "ERM Regoff SE"
 
         // [THEN] SIE Dimension "D1" has ShortCutDimNo = 0
         // [THEN] SIE Dimension "D2" has ShortCutDimNo = 5
-        SIEDimension1.Find;
+        SIEDimension1.Find();
         SIEDimension1.TestField(ShortCutDimNo, 0);
-        SIEDimension2.Find;
+        SIEDimension2.Find();
         SIEDimension2.TestField(ShortCutDimNo, 5);
     end;
 

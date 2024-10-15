@@ -156,7 +156,7 @@ codeunit 137035 "SCM PS Bugs-I"
 
         // Exercise : Run Adjust cost batch Job.
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // Verify : WIP Account.
         VerifyTotalWIPAccountAmount(Item."No.", ProdOrderNo);
@@ -204,7 +204,7 @@ codeunit 137035 "SCM PS Bugs-I"
         CreateItemJournalBatch(ItemJournalBatch);
         Item.SetRange("No.", Item."No.");
         LibraryCosting.CreateRevaluationJournal(
-          ItemJournalBatch, Item, WorkDate, ItemJournalLine."Document No.", CalculatePer::Item, false, false, false, CalculationBase::" ", false);
+          ItemJournalBatch, Item, WorkDate(), ItemJournalLine."Document No.", CalculatePer::Item, false, false, false, CalculationBase::" ", false);
 
         // 3. Verify : Inventory Value (Calculated) in Revaluation Journal with Inventory Value at Item card.
         InventoryValueCalculated := GetInventoryValue(Item."No.");
@@ -596,7 +596,7 @@ codeunit 137035 "SCM PS Bugs-I"
         GetSalesOrder(RequisitionLine, Item."No.");
         UpdateReqLine(RequisitionLine, Vendor."No.", Item."No.");
         LibraryPlanning.CarryOutReqWksh(
-          RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate,
+          RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate,
           StrSubstNo(RefText, RequisitionLine.FieldCaption("Vendor No."), RequisitionLine."Vendor No."));
 
         // Find Purchase Order and Post Reciept.Post Shipment,
@@ -808,7 +808,7 @@ codeunit 137035 "SCM PS Bugs-I"
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemReference."Item No.", LibraryRandom.RandInt(100));
         Assert.AreEqual(
-          ItemReference.Description, PurchaseLine.Description, StrSubstNo(WrongDescriptionInOrderErr, PurchaseHeader.TableCaption));
+          ItemReference.Description, PurchaseLine.Description, StrSubstNo(WrongDescriptionInOrderErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -830,7 +830,7 @@ codeunit 137035 "SCM PS Bugs-I"
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, ItemReference."Item No.", LibraryRandom.RandInt(100));
         Assert.AreEqual(
-          ItemReference.Description, SalesLine.Description, StrSubstNo(WrongDescriptionInOrderErr, SalesHeader.TableCaption));
+          ItemReference.Description, SalesLine.Description, StrSubstNo(WrongDescriptionInOrderErr, SalesHeader.TableCaption()));
     end;
 
     [Test]
@@ -875,7 +875,7 @@ codeunit 137035 "SCM PS Bugs-I"
         OutputJournal."Order Line No.".SetValue(ProdOrderLine2."Line No.");
         OutputJournal."Item No.".Lookup;
         OutputJournal."Order Line No.".AssertEquals(ProdOrderLine2."Line No.");
-        OutputJournal.Close;
+        OutputJournal.Close();
     end;
 
     [Test]
@@ -913,7 +913,7 @@ codeunit 137035 "SCM PS Bugs-I"
         PurchaseOrder.OK.Invoke;
 
         // [THEN] Expected receipt date is updated without warning
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.TestField("Expected Receipt Date", ReceiptDate - 1);
     end;
 
@@ -1130,7 +1130,7 @@ codeunit 137035 "SCM PS Bugs-I"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
@@ -1156,7 +1156,7 @@ codeunit 137035 "SCM PS Bugs-I"
         Item: Record Item;
     begin
         Item.SetFilter("No.", '%1|%2', ItemNo, ItemNo2);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-1M>', WorkDate), CalcDate('<-1M>', WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-1M>', WorkDate()), CalcDate('<-1M>', WorkDate()));
     end;
 
     local procedure CarryOutActMsgPlan(var RequisitionLine: Record "Requisition Line"; No: Code[20])
@@ -1736,7 +1736,7 @@ codeunit 137035 "SCM PS Bugs-I"
             ItemJournalLine.Validate("Starting Time", StartingTime);
             ItemJournalLine.Validate("Ending Time", StartingTime - LibraryRandom.RandInt(LibraryUtility.ConvertHoursToMilliSec(1)));
             ItemJournalLine.Modify(true);
-        until ItemJournalLine.Next = 0;
+        until ItemJournalLine.Next() = 0;
     end;
 
     local procedure UpdateProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProductionOrderNo: Code[20]; ItemNo: Code[20]; VariantCode: Code[10])
@@ -1798,14 +1798,14 @@ codeunit 137035 "SCM PS Bugs-I"
         repeat
             ItemUnitOfMeasure.Get(ProdOrderLine."Item No.", ProdOrderLine."Unit of Measure Code");
             ActualProdOrderQuantity += ProdOrderLine.Quantity * ItemUnitOfMeasure."Qty. per Unit of Measure";
-        until ProdOrderLine.Next = 0;
+        until ProdOrderLine.Next() = 0;
         ProductionOrder.Get(ProductionOrder.Status::Released, ProdOrderNo);
         FamilyLine.SetRange("Family No.", FamilyNo);
         FamilyLine.FindSet();
         repeat
             ItemUnitOfMeasure.Get(FamilyLine."Item No.", FamilyLine."Unit of Measure Code");
             ExpProdOrderQuantity += ProductionOrder.Quantity * FamilyLine.Quantity * ItemUnitOfMeasure."Qty. per Unit of Measure";
-        until FamilyLine.Next = 0;
+        until FamilyLine.Next() = 0;
         Assert.AreEqual(ExpProdOrderQuantity, ActualProdOrderQuantity, ErrMessageCostNotSame);
     end;
 
@@ -1828,7 +1828,7 @@ codeunit 137035 "SCM PS Bugs-I"
         ProdOrderComponent.FindSet();
         repeat
             ExpComponentCost += ProdOrderComponent."Unit Cost";
-        until ProdOrderComponent.Next = 0;
+        until ProdOrderComponent.Next() = 0;
         GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(UnitCost, ExpComponentCost, GeneralLedgerSetup."Amount Rounding Precision", ErrMessageCostNotSame);
     end;
@@ -1849,7 +1849,7 @@ codeunit 137035 "SCM PS Bugs-I"
         if GLEntry.FindSet() then
             repeat
                 TotalAmount += GLEntry.Amount;
-            until GLEntry.Next = 0;
+            until GLEntry.Next() = 0;
 
         // Verify Total WIP Account amount is Zero.
         Assert.AreEqual(0, TotalAmount, ErrMessageNotFoundZeroAmt);
@@ -1868,7 +1868,7 @@ codeunit 137035 "SCM PS Bugs-I"
         ValueEntry.FindSet();
         repeat
             ValueEntryActCost += ValueEntry."Cost Amount (Expected)";
-        until ValueEntry.Next = 0;
+        until ValueEntry.Next() = 0;
 
         ProductionOrder.Get(ProductionOrder.Status::Finished, ProdOrderNo);
         Item.Get(ItemNo);

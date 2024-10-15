@@ -13,7 +13,7 @@ codeunit 9004 "User Grp. Perm. Subscribers"
 
         UserGroupPermissionSet.SetRange("User Group Code", Rec.Code);
         UserGroupPermissionSet.DeleteAll(true);
-        Rec.Find;
+        Rec.Find();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"User Group Permission Set", 'OnBeforeInsertEvent', '', false, false)]
@@ -96,7 +96,7 @@ codeunit 9004 "User Grp. Perm. Subscribers"
         if Skip then
             exit;
 
-        // Do not change the App ID if the UsePermissionSetsFromExtensions server setting is set to false
+        // Do not change the App ID is the UsePermissionSetsFromExtensions server setting is set to false
         if not ServerSetting.GetUsePermissionSetsFromExtensions() then
             exit(UserGroupPermissionSet."App ID");
 

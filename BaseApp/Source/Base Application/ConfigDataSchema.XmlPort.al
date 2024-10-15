@@ -23,7 +23,7 @@ xmlport 8610 "Config. Data Schema"
 
                     trigger OnBeforePassVariable()
                     begin
-                        name := GetRootElementName;
+                        name := GetRootElementName();
                     end;
                 }
                 textelement("xsd:complexType")

@@ -66,7 +66,7 @@ report 1090 "Job Calc. Remaining Usage"
                             if GenJnlTemplate.Type <> GenJnlTemplate.Type::Jobs then begin
                                 GenJnlTemplate.Type := GenJnlTemplate.Type::Jobs;
                                 Error(Text001,
-                                  GenJnlTemplate.TableCaption, GenJnlTemplate.FieldCaption(Type), GenJnlTemplate.Type);
+                                  GenJnlTemplate.TableCaption(), GenJnlTemplate.FieldCaption(Type), GenJnlTemplate.Type);
                             end;
                         end;
                     }
@@ -123,7 +123,7 @@ report 1090 "Job Calc. Remaining Usage"
     trigger OnPreReport()
     begin
         JobCalcBatches.BatchError(PostingDate, DocNo);
-        JobCalcBatches.InitDiffBuffer;
+        JobCalcBatches.InitDiffBuffer();
     end;
 
     var

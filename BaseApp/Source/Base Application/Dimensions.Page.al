@@ -3,7 +3,6 @@ page 536 Dimensions
     ApplicationArea = Dimensions;
     Caption = 'Dimensions';
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Dimension';
     SourceTable = Dimension;
     UsageCategory = Administration;
 
@@ -24,12 +23,12 @@ page 536 Dimensions
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the name of the dimension code.';
                 }
-                field("Code Caption"; "Code Caption")
+                field("Code Caption"; Rec."Code Caption")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the caption of the dimension code. This is displayed as the name of dimension code fields.';
                 }
-                field("Filter Caption"; "Filter Caption")
+                field("Filter Caption"; Rec."Filter Caption")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the caption of the dimension code when used as a filter. This is displayed as the name of dimension filter fields.';
@@ -44,13 +43,13 @@ page 536 Dimensions
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
                 }
-                field("Map-to IC Dimension Code"; "Map-to IC Dimension Code")
+                field("Map-to IC Dimension Code"; Rec."Map-to IC Dimension Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies which intercompany dimension corresponds to the dimension on the line.';
                     Visible = false;
                 }
-                field("Consolidation Code"; "Consolidation Code")
+                field("Consolidation Code"; Rec."Consolidation Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code that is used for consolidation.';
@@ -86,9 +85,6 @@ page 536 Dimensions
                     ApplicationArea = Dimensions;
                     Caption = 'Dimension &Values';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     RunObject = Page "Dimension Values";
                     RunPageLink = "Dimension Code" = FIELD(Code);
                     ToolTip = 'View or edit the dimension values for the current dimension.';
@@ -98,9 +94,6 @@ page 536 Dimensions
                     ApplicationArea = Dimensions;
                     Caption = 'Account Type De&fault Dim.';
                     Image = DefaultDimension;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     RunObject = Page "Account Type Default Dim.";
                     RunPageLink = "Dimension Code" = FIELD(Code),
                                   "No." = CONST('');
@@ -111,9 +104,6 @@ page 536 Dimensions
                     ApplicationArea = Dimensions;
                     Caption = 'Allowed Dimension Values per Account';
                     Image = DefaultDimension;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     RunObject = Page "Dim. Values per Account";
                     RunPageLink = "Dimension Code" = FIELD(Code);
                     ToolTip = 'Specify allowed dimension values settings for accounts such as customers, vendors, or items.';
@@ -123,9 +113,6 @@ page 536 Dimensions
                     ApplicationArea = Dimensions;
                     Caption = 'Translations';
                     Image = Translations;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     RunObject = Page "Dimension Translations";
                     RunPageLink = Code = FIELD(Code);
                     ToolTip = 'View or edit translated dimensions. Translated item descriptions are automatically inserted on documents according to the language code.';
@@ -164,6 +151,30 @@ page 536 Dimensions
                                 ICMapping.MapOutgoingICDimensions(Dimension);
                             until Dimension.Next() = 0;
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Dimension', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Dimension &Values_Promoted"; "Dimension &Values")
+                {
+                }
+                actionref("Account Type De&fault Dim._Promoted"; "Account Type De&fault Dim.")
+                {
+                }
+                actionref("Allowed Dimension Values per Account_Promoted"; "Allowed Dimension Values per Account")
+                {
+                }
+                actionref(Translations_Promoted; Translations)
+                {
                 }
             }
         }

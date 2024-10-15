@@ -36,9 +36,6 @@ page 1116 "Cost Budget Names"
                 ApplicationArea = CostAccounting;
                 Caption = 'Cost Budget per Period';
                 Image = LedgerBudget;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 RunObject = Page "Cost Budget per Period";
                 RunPageLink = "Budget Filter" = FIELD(Name);
                 ShortCutKey = 'Return';
@@ -49,8 +46,6 @@ page 1116 "Cost Budget Names"
                 ApplicationArea = CostAccounting;
                 Caption = 'Cost Budget by Cost Center';
                 Image = LedgerBudget;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Cost Budget by Cost Center";
                 RunPageLink = "Budget Filter" = FIELD(Name);
                 ToolTip = 'View a summary of the amount budgeted for each cost center in different time periods.';
@@ -60,8 +55,6 @@ page 1116 "Cost Budget Names"
                 ApplicationArea = CostAccounting;
                 Caption = 'Cost Budget by Cost Object';
                 Image = LedgerBudget;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Cost Budget by Cost Object";
                 RunPageLink = "Budget Filter" = FIELD(Name);
                 ToolTip = 'View a summary of the amount budgeted for each cost object in different time periods.';
@@ -71,8 +64,6 @@ page 1116 "Cost Budget Names"
                 ApplicationArea = CostAccounting;
                 Caption = 'Cost Budget/Movement';
                 Image = LedgerBudget;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Cost Type Balance/Budget";
                 RunPageLink = "Budget Filter" = FIELD(Name);
                 ToolTip = 'View a summary of the net changes and the budgeted amounts for different time periods for the cost type that you select in the chart of cost types.';
@@ -88,6 +79,26 @@ page 1116 "Cost Budget Names"
                     Image = CopyCostBudgettoCOA;
                     RunObject = Report "Transfer Budget to Actual";
                     ToolTip = 'Transfer the budgeted costs to the actual costs of cost centers or cost objects. At the beginning of the year, some companies establish a cost budget and then transfer these budgeted costs to cost centers or cost objects. The budget entries can be transferred to a cost journal and posted as actual costs in the journal.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Cost Budget per Period_Promoted"; "Cost Budget per Period")
+                {
+                }
+                actionref("Cost Budget by Cost Center_Promoted"; "Cost Budget by Cost Center")
+                {
+                }
+                actionref("Cost Budget by Cost Object_Promoted"; "Cost Budget by Cost Object")
+                {
+                }
+                actionref("Cost Budget/Movement_Promoted"; "Cost Budget/Movement")
+                {
                 }
             }
         }

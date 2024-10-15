@@ -19,7 +19,7 @@ report 37 "Balance Comp. - Prev. Year"
             column(STRSUBSTNO_Text002_FYStartingDate_; StrSubstNo(Text002, FYStartingDate))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(STRSUBSTNO_Text016_Indent_; StrSubstNo(IndentationLevelCap, SelectStr(Indent + 1, IndentTxt)))
@@ -277,8 +277,8 @@ report 37 "Balance Comp. - Prev. Year"
 
                         trigger OnValidate()
                         begin
-                            SetEndingDate;
-                            SetPreviousDates;
+                            SetEndingDate();
+                            SetPreviousDates();
                         end;
                     }
                     field(PeriodEndingDate; PeriodEndingDate)
@@ -289,7 +289,7 @@ report 37 "Balance Comp. - Prev. Year"
 
                         trigger OnValidate()
                         begin
-                            SetPreviousDates;
+                            SetPreviousDates();
                         end;
                     }
                     field(PreviousStartingDate; PreviousStartingDate)
@@ -300,7 +300,7 @@ report 37 "Balance Comp. - Prev. Year"
 
                         trigger OnValidate()
                         begin
-                            CheckDates;
+                            CheckDates();
                         end;
                     }
                     field(PreviousEndingDate; PreviousEndingDate)
@@ -311,7 +311,7 @@ report 37 "Balance Comp. - Prev. Year"
 
                         trigger OnValidate()
                         begin
-                            CheckDates;
+                            CheckDates();
                         end;
                     }
                     field(RoundingFactor; RoundingFactor)
@@ -329,7 +329,7 @@ report 37 "Balance Comp. - Prev. Year"
 
                         trigger OnValidate()
                         begin
-                            CheckIndent;
+                            CheckIndent();
                         end;
                     }
                 }
@@ -347,7 +347,7 @@ report 37 "Balance Comp. - Prev. Year"
 
     trigger OnPreReport()
     begin
-        GLFilter := "G/L Account".GetFilters;
+        GLFilter := "G/L Account".GetFilters();
     end;
 
     var
@@ -356,7 +356,6 @@ report 37 "Balance Comp. - Prev. Year"
         GLIndent: Record "G/L Account";
         MatrixMgt: Codeunit "Matrix Management";
         RoundingFactor: Enum "Analysis Rounding Factor";
-        GLFilter: Text;
         ColumnValuesAsText: array[13] of Text[30];
         RoundingText: Text[80];
         PeriodStartingDate: Date;
@@ -392,6 +391,9 @@ report 37 "Balance Comp. - Prev. Year"
         Previous_Year_toCaptionLbl: Label 'Previous Year to';
         Previous_Year_PeriodCaptionLbl: Label 'Previous Year Period';
 
+    protected var
+        GLFilter: Text;
+
     procedure SetEndingDate()
     begin
         AccountingPeriod.Reset();
@@ -404,7 +406,7 @@ report 37 "Balance Comp. - Prev. Year"
     begin
         PreviousStartingDate := CalcDate(Text006, PeriodStartingDate);
         PreviousEndingDate := CalcDate(Text006, PeriodEndingDate);
-        CheckDates;
+        CheckDates();
     end;
 
     local procedure CheckDates()
@@ -445,29 +447,29 @@ report 37 "Balance Comp. - Prev. Year"
     begin
         if NewPeriodStartingDate <> 0D then begin
             PeriodStartingDate := NewPeriodStartingDate;
-            SetEndingDate;
-            SetPreviousDates;
+            SetEndingDate();
+            SetPreviousDates();
         end;
 
         if NewPeriodEndingDate <> 0D then begin
             PeriodEndingDate := NewPeriodEndingDate;
-            SetPreviousDates;
+            SetPreviousDates();
         end;
 
         if NewPreviousStartingDate <> 0D then begin
             PreviousStartingDate := NewPreviousStartingDate;
-            CheckDates;
+            CheckDates();
         end;
 
         if NewPreviousEndingDate <> 0D then begin
             PreviousEndingDate := NewPreviousEndingDate;
-            CheckDates;
+            CheckDates();
         end;
 
         RoundingFactor := "Analysis Rounding Factor".FromInteger(NewRoundingFactor);
         if NewIndent <> Indent::None then begin
             Indent := NewIndent;
-            CheckIndent;
+            CheckIndent();
         end;
     end;
 
@@ -481,10 +483,9 @@ report 37 "Balance Comp. - Prev. Year"
                     MaxIndent := Format(GLIndent.Indentation);
             until GLIndent.Next() = 0;
 
-        if Format(Indent) > MaxIndent then begin
+        if Format(Indent) > MaxIndent then
             if Indent <> Indent::None then
                 Error(Text015, SelectStr(Indent + 1, IndentTxt), MaxIndent);
-        end;
     end;
 }
 

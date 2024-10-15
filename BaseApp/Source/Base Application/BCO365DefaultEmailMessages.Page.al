@@ -1,7 +1,11 @@
+#if not CLEAN21
 page 2370 "BC O365 Default Email Messages"
 {
     Caption = 'Default Email Messages';
     PageType = StandardDialog;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -19,7 +23,7 @@ page 2370 "BC O365 Default Email Messages"
                         Caption = 'Default Invoice Email Message';
                         field(DefaultInvoiceEmailMessage; InvoiceEmailMessage)
                         {
-                            ApplicationArea = Basic, Suite, Invoicing;
+                            ApplicationArea = Invoicing, Basic, Suite;
                             Caption = 'Default Invoice Email Message';
                             MultiLine = true;
                             ShowCaption = false;
@@ -36,7 +40,7 @@ page 2370 "BC O365 Default Email Messages"
                         Caption = 'Default Estimate Email Message';
                         field(DefaultQuoteEmailMessage; QuoteEmailMessage)
                         {
-                            ApplicationArea = Basic, Suite, Invoicing;
+                            ApplicationArea = Invoicing, Basic, Suite;
                             Caption = 'Default Estimate Email Message';
                             MultiLine = true;
                             ShowCaption = false;
@@ -80,4 +84,4 @@ page 2370 "BC O365 Default Email Messages"
         InvoiceEmailMessage: Text;
         QuoteEmailMessage: Text;
 }
-
+#endif

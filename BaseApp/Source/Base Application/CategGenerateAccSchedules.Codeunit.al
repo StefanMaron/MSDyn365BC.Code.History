@@ -3,17 +3,18 @@ codeunit 571 "Categ. Generate Acc. Schedules"
 
     trigger OnRun()
     begin
-        CreateBalanceSheet;
-        CreateIncomeStatement;
-        CreateCashFlowStatement;
-        CreateRetainedEarningsStatement;
+        CreateBalanceSheet();
+        CreateIncomeStatement();
+        CreateCashFlowStatement();
+        CreateRetainedEarningsStatement();
     end;
 
     var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+
         TotalingTxt: Label 'Total %1', Comment = '%1 = Account category, e.g. Assets';
         Totaling2Txt: Label 'Total %1 & %2', Comment = '%1 and %2 = Account category, e.g. Assets';
         GrossProfitTxt: Label 'Gross Profit';
-        GeneralLedgerSetup: Record "General Ledger Setup";
         NetIncomeTxt: Label 'Net Income';
         AdjustmentsTxt: Label 'Adjustments to reconcile Net Income to net cash provided by operations:';
         NetCashProviededTxt: Label 'Net Cash Provided by %1', Comment = '%1=Operating Activities or Investing Activities';
@@ -27,6 +28,7 @@ codeunit 571 "Categ. Generate Acc. Schedules"
     [Scope('OnPrem')]
     procedure CreateBalanceSheet()
     var
+        FinancialReport: Record "Financial Report";
         AccScheduleName: Record "Acc. Schedule Name";
         AccScheduleLine: Record "Acc. Schedule Line";
         GLAccountCategory: Record "G/L Account Category";
@@ -36,8 +38,9 @@ codeunit 571 "Categ. Generate Acc. Schedules"
         EquityRowNo: Code[10];
     begin
         GLAccountCategoryMgt.GetGLSetup(GeneralLedgerSetup);
-        GeneralLedgerSetup.TestField("Acc. Sched. for Balance Sheet");
-        AccScheduleName.Get(GeneralLedgerSetup."Acc. Sched. for Balance Sheet");
+        GeneralLedgerSetup.TestField("Fin. Rep. for Balance Sheet");
+        FinancialReport.Get(GeneralLedgerSetup."Fin. Rep. for Balance Sheet");
+        AccScheduleName.Get(FinancialReport."Financial Report Row Group");
         AccScheduleLine.SetRange("Schedule Name", AccScheduleName.Name);
         AccScheduleLine.DeleteAll();
         AccScheduleLine."Schedule Name" := AccScheduleName.Name;
@@ -64,6 +67,7 @@ codeunit 571 "Categ. Generate Acc. Schedules"
     var
         AccScheduleName: Record "Acc. Schedule Name";
         AccScheduleLine: Record "Acc. Schedule Line";
+        FinancialReport: Record "Financial Report";
         GLAccountCategory: Record "G/L Account Category";
         GLAccountCategoryMgt: Codeunit "G/L Account Category Mgt.";
         RowNo: Integer;
@@ -78,8 +82,9 @@ codeunit 571 "Categ. Generate Acc. Schedules"
         TurnoverPrefix: Boolean;
     begin
         GLAccountCategoryMgt.GetGLSetup(GeneralLedgerSetup);
-        GeneralLedgerSetup.TestField("Acc. Sched. for Income Stmt.");
-        AccScheduleName.Get(GeneralLedgerSetup."Acc. Sched. for Income Stmt.");
+        GeneralLedgerSetup.TestField("Fin. Rep. for Income Stmt.");
+        FinancialReport.Get(GeneralLedgerSetup."Fin. Rep. for Income Stmt.");
+        AccScheduleName.Get(FinancialReport."Financial Report Row Group");
         AccScheduleLine.SetRange("Schedule Name", AccScheduleName.Name);
         AccScheduleLine.DeleteAll();
         AccScheduleLine."Schedule Name" := AccScheduleName.Name;
@@ -119,6 +124,7 @@ codeunit 571 "Categ. Generate Acc. Schedules"
     var
         AccScheduleName: Record "Acc. Schedule Name";
         AccScheduleLine: Record "Acc. Schedule Line";
+        FinancialReport: Record "Financial Report";
         GLAccountCategory: Record "G/L Account Category";
         GLAccountCategoryMgt: Codeunit "G/L Account Category Mgt.";
         PartStartRowNo: Integer;
@@ -130,8 +136,9 @@ codeunit 571 "Categ. Generate Acc. Schedules"
         CashBeginningRowNo: Code[10];
     begin
         GLAccountCategoryMgt.GetGLSetup(GeneralLedgerSetup);
-        GeneralLedgerSetup.TestField("Acc. Sched. for Cash Flow Stmt");
-        AccScheduleName.Get(GeneralLedgerSetup."Acc. Sched. for Cash Flow Stmt");
+        GeneralLedgerSetup.TestField("Fin. Rep. for Cash Flow Stmt");
+        FinancialReport.Get(GeneralLedgerSetup."Fin. Rep. for Cash Flow Stmt");
+        AccScheduleName.Get(FinancialReport."Financial Report Row Group");
         AccScheduleLine.SetRange("Schedule Name", AccScheduleName.Name);
         AccScheduleLine.DeleteAll();
         AccScheduleLine."Schedule Name" := AccScheduleName.Name;
@@ -141,7 +148,7 @@ codeunit 571 "Categ. Generate Acc. Schedules"
           Format(GLAccountCategory."Additional Report Definition"::"Operating Activities"), '', true, false, true, 0);
         AddAccShedLine(
           AccScheduleLine, RowNo, AccScheduleLine."Totaling Type"::"Posting Accounts",
-          NetIncomeTxt, GetIncomeStmtAccFilter, false, false, true, 0);
+          NetIncomeTxt, GetIncomeStmtAccFilter(), false, false, true, 0);
         PartStartRowNo := RowNo;
         AddAccShedLine(
           AccScheduleLine, RowNo, AccScheduleLine."Totaling Type"::"Posting Accounts",
@@ -210,7 +217,7 @@ codeunit 571 "Categ. Generate Acc. Schedules"
             repeat
                 AddAccShedLine(
                   AccScheduleLine, RowNo, AccScheduleLine."Totaling Type"::"Posting Accounts",
-                  GLAccountCategory.Description, GLAccountCategory.GetTotaling, false, false, false, 1);
+                  GLAccountCategory.Description, GLAccountCategory.GetTotaling(), false, false, false, 1);
             until GLAccountCategory.Next() = 0;
             // Last line in group should be underlined
             AccScheduleLine.Underline := true;
@@ -229,6 +236,7 @@ codeunit 571 "Categ. Generate Acc. Schedules"
     var
         AccScheduleName: Record "Acc. Schedule Name";
         AccScheduleLine: Record "Acc. Schedule Line";
+        FinancialReport: Record "Financial Report";
         GLAccountCategory: Record "G/L Account Category";
         GLAccountCategoryMgt: Codeunit "G/L Account Category Mgt.";
         RowNo: Integer;
@@ -237,8 +245,9 @@ codeunit 571 "Categ. Generate Acc. Schedules"
         DistributionRowNo: Code[10];
     begin
         GLAccountCategoryMgt.GetGLSetup(GeneralLedgerSetup);
-        GeneralLedgerSetup.TestField("Acc. Sched. for Retained Earn.");
-        AccScheduleName.Get(GeneralLedgerSetup."Acc. Sched. for Retained Earn.");
+        GeneralLedgerSetup.TestField("Fin. Rep. for Retained Earn.");
+        FinancialReport.Get(GeneralLedgerSetup."Fin. Rep. for Retained Earn.");
+        AccScheduleName.Get(FinancialReport."Financial Report Row Group");
         AccScheduleLine.SetRange("Schedule Name", AccScheduleName.Name);
         AccScheduleLine.DeleteAll();
         AccScheduleLine."Schedule Name" := AccScheduleName.Name;
@@ -254,7 +263,7 @@ codeunit 571 "Categ. Generate Acc. Schedules"
 
         AddAccShedLine(
           AccScheduleLine, RowNo, AccScheduleLine."Totaling Type"::"Posting Accounts",
-          NetIncomeTxt, GetIncomeStmtAccFilter, false, true, true, 0);
+          NetIncomeTxt, GetIncomeStmtAccFilter(), false, true, true, 0);
 
         AddAccShedLine(
           AccScheduleLine, RowNo, AccScheduleLine."Totaling Type"::Formula,
@@ -308,8 +317,8 @@ codeunit 571 "Categ. Generate Acc. Schedules"
         if ParentGLAccountCategory."Has Children" then begin
             AddAccShedLine(
               AccScheduleLine, RowNo, AccScheduleLine."Totaling Type"::"Posting Accounts",
-              ParentGLAccountCategory.Description, ParentGLAccountCategory.GetTotaling, true, false,
-              not ParentGLAccountCategory.PositiveNormalBalance, Indentation);
+              ParentGLAccountCategory.Description, ParentGLAccountCategory.GetTotaling(), true, false,
+              not ParentGLAccountCategory.PositiveNormalBalance(), Indentation);
             OnAfterAddParentAccSchedLineTotalingTypePostingAccounts(AccScheduleLine, ParentGLAccountCategory);
             FromRowNo := RowNo;
             GLAccountCategory.SetRange("Parent Entry No.", ParentGLAccountCategory."Entry No.");
@@ -323,23 +332,23 @@ codeunit 571 "Categ. Generate Acc. Schedules"
               AccScheduleLine, RowNo, AccScheduleLine."Totaling Type"::Formula,
               StrSubstNo(TotalingTxt, ParentGLAccountCategory.Description),
               StrSubstNo('%1..%2', FormatRowNo(FromRowNo, false), FormatRowNo(RowNo, false)), true, false,
-              not ParentGLAccountCategory.PositiveNormalBalance, Indentation);
+              not ParentGLAccountCategory.PositiveNormalBalance(), Indentation);
             OnAfterAddParentAccSchedLine(AccScheduleLine, ParentGLAccountCategory);
         end else begin
             // Retained Earnings element of Equity must include non-closed income statement.
-            TotalingFilter := ParentGLAccountCategory.GetTotaling;
+            TotalingFilter := ParentGLAccountCategory.GetTotaling();
             if ParentGLAccountCategory."Additional Report Definition" =
                ParentGLAccountCategory."Additional Report Definition"::"Retained Earnings"
             then begin
                 if TotalingFilter <> '' then
                     TotalingFilter += '|';
-                TotalingFilter += GetIncomeStmtAccFilter;
+                TotalingFilter += GetIncomeStmtAccFilter();
             end;
 
             AddAccShedLine(
               AccScheduleLine, RowNo, AccScheduleLine."Totaling Type"::"Posting Accounts",
               ParentGLAccountCategory.Description, CopyStr(TotalingFilter, 1, 250),
-              Indentation = 0, false, not ParentGLAccountCategory.PositiveNormalBalance, Indentation);
+              Indentation = 0, false, not ParentGLAccountCategory.PositiveNormalBalance(), Indentation);
             OnAfterAddAccSchedLine(AccScheduleLine, ParentGLAccountCategory, RowNo);
             AccScheduleLine.Show := AccScheduleLine.Show::"If Any Column Not Zero";
             AccScheduleLine.Modify();
@@ -390,7 +399,7 @@ codeunit 571 "Categ. Generate Acc. Schedules"
         GLAccountCategory.SetRange("Additional Report Definition", AdditionalReportingDefinition);
         if GLAccountCategory.FindSet() then
             repeat
-                Totaling := GLAccountCategory.GetTotaling;
+                Totaling := GLAccountCategory.GetTotaling();
                 if (AccFilter <> '') and (Totaling <> '') then
                     AccFilter += '|';
                 AccFilter += Totaling;

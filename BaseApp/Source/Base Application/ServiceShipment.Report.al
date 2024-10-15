@@ -1,4 +1,4 @@
-report 5913 "Service - Shipment"
+﻿report 5913 "Service - Shipment"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './ServiceShipment.rdlc';
@@ -277,7 +277,7 @@ report 5913 "Service - Shipment"
                         column(ShowLotSN; ShowLotSN)
                         {
                         }
-                        column(Type_ServiceShptItemLn; "Service Shipment Line".Type)
+                        column(Type_ServiceShptItemLn; Type)
                         {
                         }
                         column(Qty_ServiceShptItemLn; Quantity)
@@ -289,10 +289,10 @@ report 5913 "Service - Shipment"
                         column(No_ServiceShptItemLn; "No.")
                         {
                         }
-                        column(QtyInvoiced_ServShptLine; "Service Shipment Line"."Quantity Invoiced")
+                        column(QtyInvoiced_ServShptLine; "Quantity Invoiced")
                         {
                         }
-                        column(QtyConsumed_ServShptLine; "Service Shipment Line"."Quantity Consumed")
+                        column(QtyConsumed_ServShptLine; "Quantity Consumed")
                         {
                         }
                         column(LnNo_ServiceShptItemLn; "Line No.")
@@ -356,8 +356,8 @@ report 5913 "Service - Shipment"
                         begin
                             if ShowLotSN then
                                 TrackingSpecCount :=
-                                  ItemTrackingDocMgt.RetrieveDocumentItemTracking(TrackingSpecBuffer,
-                                    "Service Shipment Header"."No.", DATABASE::"Service Shipment Header", 0);
+                                  ItemTrackingDocMgt.RetrieveDocumentItemTracking(
+                                      TempTrackingSpecification, "Service Shipment Header"."No.", DATABASE::"Service Shipment Header", 0);
                         end;
 
                         trigger OnPreDataItem()
@@ -420,19 +420,19 @@ report 5913 "Service - Shipment"
                     dataitem(ItemTrackingLine; "Integer")
                     {
                         DataItemTableView = SORTING(Number);
-                        column(TrackingSpecBufItemNo; TrackingSpecBuffer."Item No.")
+                        column(TrackingSpecBufItemNo; TempTrackingSpecification."Item No.")
                         {
                         }
-                        column(TrackingSpecBufDesc; TrackingSpecBuffer.Description)
+                        column(TrackingSpecBufDesc; TempTrackingSpecification.Description)
                         {
                         }
-                        column(TrackingSpecBufLotNo; TrackingSpecBuffer."Lot No.")
+                        column(TrackingSpecBufLotNo; TempTrackingSpecification."Lot No.")
                         {
                         }
-                        column(TrackingSpecBufSerialNo; TrackingSpecBuffer."Serial No.")
+                        column(TrackingSpecBufSerialNo; TempTrackingSpecification."Serial No.")
                         {
                         }
-                        column(TrackingSpecBufQty; TrackingSpecBuffer."Quantity (Base)")
+                        column(TrackingSpecBufQty; TempTrackingSpecification."Quantity (Base)")
                         {
                         }
                         column(ShowTotal; ShowTotal)
@@ -464,28 +464,29 @@ report 5913 "Service - Shipment"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then
-                                TrackingSpecBuffer.FindSet
+                                TempTrackingSpecification.FindSet()
                             else
-                                TrackingSpecBuffer.Next;
+                                TempTrackingSpecification.Next();
 
-                            if not ShowCorrectionLines and TrackingSpecBuffer.Correction then
+                            if not ShowCorrectionLines and TempTrackingSpecification.Correction then
                                 CurrReport.Skip();
-                            if TrackingSpecBuffer.Correction then
-                                TrackingSpecBuffer."Quantity (Base)" := -TrackingSpecBuffer."Quantity (Base)";
+                            if TempTrackingSpecification.Correction then
+                                TempTrackingSpecification."Quantity (Base)" := -TempTrackingSpecification."Quantity (Base)";
 
                             ShowTotal := false;
-                            if ItemTrackingAppendix.IsStartNewGroup(TrackingSpecBuffer) then
+                            if ItemTrackingAppendix.IsStartNewGroup(TempTrackingSpecification) then
                                 ShowTotal := true;
 
                             ShowGroup := false;
-                            if (TrackingSpecBuffer."Source Ref. No." <> OldRefNo) or
-                               (TrackingSpecBuffer."Item No." <> OldNo) then begin
-                                OldRefNo := TrackingSpecBuffer."Source Ref. No.";
-                                OldNo := TrackingSpecBuffer."Item No.";
+                            if (TempTrackingSpecification."Source Ref. No." <> OldRefNo) or
+                               (TempTrackingSpecification."Item No." <> OldNo)
+                            then begin
+                                OldRefNo := TempTrackingSpecification."Source Ref. No.";
+                                OldNo := TempTrackingSpecification."Item No.";
                                 TotalQty := 0;
                             end else
                                 ShowGroup := true;
-                            TotalQty += TrackingSpecBuffer."Quantity (Base)";
+                            TotalQty += TempTrackingSpecification."Quantity (Base)";
                         end;
 
                         trigger OnPreDataItem()
@@ -493,8 +494,9 @@ report 5913 "Service - Shipment"
                             if TrackingSpecCount = 0 then
                                 CurrReport.Break();
                             SetRange(Number, 1, TrackingSpecCount);
-                            TrackingSpecBuffer.SetCurrentKey("Source ID", "Source Type", "Source Subtype", "Source Batch Name",
-                              "Source Prod. Order Line", "Source Ref. No.");
+                            TempTrackingSpecification.SetCurrentKey(
+                                "Source ID", "Source Type", "Source Subtype", "Source Batch Name",
+                                "Source Prod. Order Line", "Source Ref. No.");
                         end;
                     }
 
@@ -512,7 +514,7 @@ report 5913 "Service - Shipment"
                 trigger OnAfterGetRecord()
                 begin
                     if Number > 1 then begin
-                        CopyText := FormatDocument.GetCOPYText;
+                        CopyText := FormatDocument.GetCOPYText();
                         OutputNo += 1;
                     end;
                     TotalQty := 0;           // Item Tracking
@@ -520,7 +522,7 @@ report 5913 "Service - Shipment"
 
                 trigger OnPostDataItem()
                 begin
-                    if not IsReportInPreviewMode then
+                    if not IsReportInPreviewMode() then
                         CODEUNIT.Run(CODEUNIT::"Service Shpt.-Printed", "Service Shipment Header");
                 end;
 
@@ -602,8 +604,6 @@ report 5913 "Service - Shipment"
     end;
 
     var
-        Text002: Label 'Service - Shipment %1';
-        Text003: Label 'Page %1';
         SalesPurchPerson: Record "Salesperson/Purchaser";
         CompanyBankAccount: Record "Bank Account";
         CompanyInfo: Record "Company Information";
@@ -613,7 +613,7 @@ report 5913 "Service - Shipment"
         ServiceSetup: Record "Service Mgt. Setup";
         DimSetEntry: Record "Dimension Set Entry";
         RespCenter: Record "Responsibility Center";
-        TrackingSpecBuffer: Record "Tracking Specification" temporary;
+        TempTrackingSpecification: Record "Tracking Specification" temporary;
         ItemTrackingAppendix: Report "Item Tracking Appendix";
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
@@ -642,6 +642,9 @@ report 5913 "Service - Shipment"
         OutputNo: Integer;
         DimTxtArrLength: Integer;
         DimTxtArr: array[500] of Text[50];
+
+        Text002: Label 'Service - Shipment %1';
+        Text003: Label 'Page %1';
         ItemTrackingAppendixCaptionLbl: Label 'Item Tracking - Appendix';
         PhoneNoCaptionLbl: Label 'Phone No.';
         VATRegNoCaptionLbl: Label 'VAT Registration No.';
@@ -709,7 +712,7 @@ report 5913 "Service - Shipment"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     local procedure FormatAddressFields(var ServiceShipmentHeader: Record "Service Shipment Header")

@@ -301,7 +301,7 @@ codeunit 144022 "UT Intrastat SE"
 
         IntrastatJnlBatch."Journal Template Name" := IntrastatJnlTemplate.Name;
         IntrastatJnlBatch.Name := LibraryUTUtility.GetNewCode10;
-        IntrastatJnlBatch."Statistics Period" := Format(WorkDate, 0, LibraryFiscalYear.GetStatisticsPeriod());
+        IntrastatJnlBatch."Statistics Period" := Format(WorkDate(), 0, LibraryFiscalYear.GetStatisticsPeriod());
         IntrastatJnlBatch.Reported := false;
         IntrastatJnlBatch.Insert();
     end;
@@ -368,7 +368,7 @@ codeunit 144022 "UT Intrastat SE"
     begin
         IntrastatJournal.CurrentJnlBatchName.SetValue(CurrentJnlBatchName);
         IntrastatJournal.CreateFile.Invoke;  // Call IntrastatMakeDiskTaxAuthRequestPageHandler.
-        IntrastatJournal.Close;
+        IntrastatJournal.Close();
     end;
 
     local procedure RunIntrastatMakeDiskTaxAuth(IntrastatJnlLine: Record "Intrastat Jnl. Line"; FileName: Text)

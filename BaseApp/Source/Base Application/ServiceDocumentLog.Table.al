@@ -111,7 +111,7 @@ table 5912 "Service Document Log"
         if ServDocLog.FindSet() then
             repeat
                 Rec := ServDocLog;
-                Insert;
+                Insert();
             until ServDocLog.Next() = 0;
     end;
 

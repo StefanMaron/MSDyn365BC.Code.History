@@ -1,7 +1,11 @@
+#if not CLEAN21
 page 2347 "BC O365 Service Settings"
 {
     Caption = ' ';
     PageType = CardPart;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -12,7 +16,7 @@ page 2347 "BC O365 Service Settings"
                 ShowCaption = false;
                 field(ViesEnabled; VATRegNoSrvConfig.Enabled)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'VAT registration service';
                     Importance = Promoted;
                     ToolTip = 'Specifies if the service is enabled.';
@@ -28,7 +32,7 @@ page 2347 "BC O365 Service Settings"
             }
             field(TermsOfServiceLbl; TermsOfServiceLbl)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Editable = false;
                 ShowCaption = false;
 
@@ -36,7 +40,7 @@ page 2347 "BC O365 Service Settings"
                 var
                     VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
                 begin
-                    HyperLink(VATRegistrationLogMgt.GetServiceDisclaimerUR);
+                    HyperLink(VATRegistrationLogMgt.GetServiceDisclaimerUR());
                 end;
             }
         }
@@ -49,7 +53,7 @@ page 2347 "BC O365 Service Settings"
     trigger OnOpenPage()
     begin
         if not VATRegNoSrvConfig.FindFirst() then
-            InitVATRegNrValidationSetup;
+            InitVATRegNrValidationSetup();
     end;
 
     var
@@ -64,9 +68,9 @@ page 2347 "BC O365 Service Settings"
             exit;
 
         VATRegNoSrvConfig.Init();
-        VATRegNoSrvConfig."Service Endpoint" := VATLookupExtDataHndl.GetVATRegNrValidationWebServiceURL;
+        VATRegNoSrvConfig."Service Endpoint" := VATLookupExtDataHndl.GetVATRegNrValidationWebServiceURL();
         VATRegNoSrvConfig.Enabled := true;
         VATRegNoSrvConfig.Insert();
     end;
 }
-
+#endif

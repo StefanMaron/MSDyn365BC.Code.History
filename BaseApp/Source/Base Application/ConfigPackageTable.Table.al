@@ -171,10 +171,10 @@ table 8613 "Config. Package Table"
             trigger OnValidate()
             begin
                 if "Dimensions as Columns" then begin
-                    InitDimensionFields;
-                    UpdateDimensionsPackageData;
+                    InitDimensionFields();
+                    UpdateDimensionsPackageData();
                 end else
-                    DeleteDimensionFields;
+                    DeleteDimensionFields();
             end;
         }
         field(25; Filtered; Boolean)
@@ -255,7 +255,7 @@ table 8613 "Config. Package Table"
 
     trigger OnInsert()
     begin
-        InitPackageFields;
+        InitPackageFields();
     end;
 
     trigger OnRename()
@@ -264,16 +264,17 @@ table 8613 "Config. Package Table"
     end;
 
     var
+        ConfigValidateMgt: Codeunit "Config. Validate Management";
+        ConfigMgt: Codeunit "Config. Management";
+        ConfigPackageMgt: Codeunit "Config. Package Management";
+        i: Integer;
+
         Text001: Label 'You cannot use system table %1 in the package.';
         Text002: Label 'You cannot use the Dimensions as Columns function for table %1.';
         Text003: Label 'The Default Dimension and Dimension Value tables must be included in the package %1 to enable this option. The missing tables will be added to the package. Do you want to continue?';
         Text004: Label 'You cannot rename the configuration package table.';
         Text005: Label 'The setup of Dimensions as Columns was canceled.';
         Text010: Label 'Define the drill-down page in the %1 field.';
-        ConfigValidateMgt: Codeunit "Config. Validate Management";
-        ConfigMgt: Codeunit "Config. Management";
-        ConfigPackageMgt: Codeunit "Config. Package Management";
-        i: Integer;
         CannotAddParentErr: Label 'Cannot add a parent table. This table is already included in a three-level hierarchy, which is the maximum.';
         CannotBeItsOwnParentErr: Label 'Cannot add the parent table. A table cannot be its own parent or child.';
         CircularDependencyErr: Label 'Cannot add the parent table. The table is already the child of the selected tab.';
@@ -326,12 +327,19 @@ table 8613 "Config. Package Table"
         ConfigPackageField: Record "Config. Package Field";
         ConfigLine: Record "Config. Line";
         "Field": Record "Field";
+        ConfigPackage: Record "Config. Package";
         ProcessingOrder: Integer;
+        OldGlobalLanguageId: Integer;
         FieldsAdded: Boolean;
         ShouldAddField: Boolean;
     begin
         FieldsAdded := false;
         ConfigPackageMgt.SetFieldFilter(Field, "Table ID", 0);
+        ConfigPackage.Get("Package Code");
+        if ConfigPackage."Language ID" <> 0 then begin
+            OldGlobalLanguageId := GlobalLanguage;
+            GlobalLanguage(ConfigPackage."Language ID");
+        end;
         if Field.FindSet() then
             repeat
                 ShouldAddField := not ConfigPackageField.Get("Package Code", "Table ID", Field."No.") and
@@ -348,7 +356,8 @@ table 8613 "Config. Package Table"
                     FieldsAdded := true;
                 end;
             until Field.Next() = 0;
-
+        if ConfigPackage."Language ID" <> 0 then
+            GlobalLanguage(OldGlobalLanguageId);
         if FieldsAdded then begin
             ProcessingOrder := 0;
             SetProcessingOrderPrimaryKey("Package Code", "Table ID", ProcessingOrder);
@@ -378,8 +387,8 @@ table 8613 "Config. Package Table"
     var
         ConfigPackageField: Record "Config. Package Field";
         RecRef: RecordRef;
-        KeyRef: KeyRef;
         FieldRef: FieldRef;
+        KeyRef: KeyRef;
         KeyFieldCount: Integer;
     begin
         RecRef.Open(TableID);
@@ -432,7 +441,7 @@ table 8613 "Config. Package Table"
             repeat
                 i := i + 1;
                 ConfigPackageMgt.InsertPackageField(
-                  ConfigPackageField, "Package Code", "Table ID", ConfigMgt.DimensionFieldID + i,
+                  ConfigPackageField, "Package Code", "Table ID", ConfigMgt.DimensionFieldID() + i,
                   Dimension.Code, Dimension."Code Caption", true, false, false, true);
             until Dimension.Next() = 0;
     end;
@@ -471,7 +480,7 @@ table 8613 "Config. Package Table"
     begin
         ConfigPackageData.SetRange("Package Code", "Package Code");
         ConfigPackageData.SetRange("Table ID", "Table ID");
-        ConfigPackageData.SetRange("Field ID", ConfigMgt.DimensionFieldID, ConfigMgt.DimensionFieldID + 999);
+        ConfigPackageData.SetRange("Field ID", ConfigMgt.DimensionFieldID(), ConfigMgt.DimensionFieldID() + 999);
         ConfigPackageData.DeleteAll();
 
         ConfigPackageField.SetRange("Package Code", "Package Code");
@@ -496,7 +505,7 @@ table 8613 "Config. Package Table"
     begin
         ConfigPackageData.SetRange("Package Code", "Package Code");
         ConfigPackageData.SetRange("Table ID", "Table ID");
-        ConfigPackageData.SetRange("Field ID", ConfigMgt.DimensionFieldID, ConfigMgt.DimensionFieldID + 999);
+        ConfigPackageData.SetRange("Field ID", ConfigMgt.DimensionFieldID(), ConfigMgt.DimensionFieldID() + 999);
         exit(not ConfigPackageData.IsEmpty);
     end;
 
@@ -568,7 +577,7 @@ table 8613 "Config. Package Table"
         else begin
             ConfigLine.SetRange("Package Code", "Package Code");
             ConfigLine.SetRange("Table ID", "Table ID");
-            if ConfigLine.FindFirst and (ConfigLine."Page ID" > 0) then
+            if ConfigLine.FindFirst() and (ConfigLine."Page ID" > 0) then
                 PAGE.Run(ConfigLine."Page ID")
             else
                 Error(Text010, FieldCaption("Page ID"));
@@ -582,14 +591,14 @@ table 8613 "Config. Package Table"
 
     procedure ShowFilteredPackageFields(FilterValue: Text)
     begin
-        if InitPackageFields then
+        if InitPackageFields() then
             Commit();
 
         if "Dimensions as Columns" then
-            if not DimensionPackageDataExist then begin
-                if DimensionFieldsCount > 0 then
-                    DeleteDimensionFields;
-                InitDimensionFields;
+            if not DimensionPackageDataExist() then begin
+                if DimensionFieldsCount() > 0 then
+                    DeleteDimensionFields();
+                InitDimensionFields();
                 Commit();
             end;
 

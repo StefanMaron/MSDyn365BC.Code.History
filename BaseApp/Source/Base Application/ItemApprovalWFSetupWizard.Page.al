@@ -67,7 +67,7 @@ page 1812 "Item Approval WF Setup Wizard"
                     {
                         Caption = '';
                         InstructionalText = 'Choose who is authorized to approve or reject new or changed item cards.';
-                        field("Approver ID"; "Approver ID")
+                        field("Approver ID"; Rec."Approver ID")
                         {
                             ApplicationArea = Suite;
                             Caption = 'Approver';
@@ -75,7 +75,7 @@ page 1812 "Item Approval WF Setup Wizard"
 
                             trigger OnValidate()
                             begin
-                                CanEnableNext;
+                                CanEnableNext();
                             end;
                         }
                     }
@@ -88,14 +88,14 @@ page 1812 "Item Approval WF Setup Wizard"
                         Caption = '';
                         InstructionalText = 'Choose if the approval process starts automatically or if the user must start the process.';
                     }
-                    field("App. Trigger"; "App. Trigger")
+                    field("App. Trigger"; Rec."App. Trigger")
                     {
                         ApplicationArea = Suite;
                         Caption = 'The workflow starts when';
 
                         trigger OnValidate()
                         begin
-                            CanEnableNext;
+                            CanEnableNext();
                         end;
                     }
                 }
@@ -163,7 +163,7 @@ page 1812 "Item Approval WF Setup Wizard"
                                 Caption = 'is';
                                 ShowCaption = false;
                             }
-                            field("Field Operator"; "Field Operator")
+                            field("Field Operator"; Rec."Field Operator")
                             {
                                 ApplicationArea = Suite;
                                 Caption = 'Operator';
@@ -174,7 +174,7 @@ page 1812 "Item Approval WF Setup Wizard"
                     group("Para3.1.2")
                     {
                         Caption = 'Specify the message to display when the workflow starts.';
-                        field("Custom Message"; "Custom Message")
+                        field("Custom Message"; Rec."Custom Message")
                         {
                             ApplicationArea = Suite;
                             Caption = 'Message';
@@ -256,7 +256,7 @@ page 1812 "Item Approval WF Setup Wizard"
                     ApprovalWorkflowSetupMgt.ApplyItemWizardUserInput(Rec);
                     GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"Item Approval WF Setup Wizard");
 
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             }
         }
@@ -264,17 +264,17 @@ page 1812 "Item Approval WF Setup Wizard"
 
     trigger OnInit()
     begin
-        if not Get then begin
-            Init;
-            SetDefaultValues;
-            Insert;
+        if not Get() then begin
+            Init();
+            SetDefaultValues();
+            Insert();
         end;
-        LoadTopBanners;
+        LoadTopBanners();
     end;
 
     trigger OnOpenPage()
     begin
-        ShowIntroStep;
+        ShowIntroStep();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -316,52 +316,52 @@ page 1812 "Item Approval WF Setup Wizard"
             Step := Step - 1
         else begin
             if ItemApproverSetupVisible then
-                ValidateApprover;
+                ValidateApprover();
             if ItemAutoAppDetailsVisible then
-                ValidateFieldSelection;
+                ValidateFieldSelection();
             Step := Step + 1;
         end;
 
         case Step of
             Step::Intro:
-                ShowIntroStep;
+                ShowIntroStep();
             Step::"Item Approver Setup":
-                ShowApprovalUserSetupDetailsStep;
+                ShowApprovalUserSetupDetailsStep();
             Step::"Automatic Approval Setup":
                 if "App. Trigger" = "App. Trigger"::"The user changes a specific field"
                 then
-                    ShowItemApprovalDetailsStep
+                    ShowItemApprovalDetailsStep()
                 else
                     NextStep(Backwards);
             Step::Done:
-                ShowDoneStep;
+                ShowDoneStep();
         end;
         CurrPage.Update(true);
     end;
 
     local procedure ShowIntroStep()
     begin
-        ResetWizardControls;
+        ResetWizardControls();
         IntroVisible := true;
         BackEnabled := false;
     end;
 
     local procedure ShowApprovalUserSetupDetailsStep()
     begin
-        ResetWizardControls;
+        ResetWizardControls();
         ItemApproverSetupVisible := true;
     end;
 
     local procedure ShowItemApprovalDetailsStep()
     begin
-        ResetWizardControls;
+        ResetWizardControls();
         ItemAutoAppDetailsVisible := true;
         SetItemField(Field);
     end;
 
     local procedure ShowDoneStep()
     begin
-        ResetWizardControls;
+        ResetWizardControls();
         DoneVisible := true;
         NextEnabled := false;
         FinishEnabled := true;
@@ -402,7 +402,7 @@ page 1812 "Item Approval WF Setup Wizard"
         WorkflowCode: Code[20];
     begin
         TableNo := DATABASE::Item;
-        WorkflowCode := WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode);
+        WorkflowCode := WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode());
         if Workflow.Get(WorkflowCode) then begin
             WorkflowRule.SetRange("Workflow Code", WorkflowCode);
             if WorkflowRule.FindFirst() then begin
@@ -410,7 +410,7 @@ page 1812 "Item Approval WF Setup Wizard"
                 "Field Operator" := WorkflowRule.Operator;
             end;
             WorkflowStep.SetRange("Workflow Code", WorkflowCode);
-            WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.ShowMessageCode);
+            WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.ShowMessageCode());
             if WorkflowStep.FindFirst() then begin
                 WorkflowStepArgument.Get(WorkflowStep.Argument);
                 "Custom Message" := WorkflowStepArgument.Message;
@@ -469,13 +469,13 @@ page 1812 "Item Approval WF Setup Wizard"
             else
                 FieldRec.SetFilter("Field Caption", '%1', '@' + CaptionToFind + '*');
 
-        exit(FieldRec.FindFirst);
+        exit(FieldRec.FindFirst());
     end;
 
     local procedure LoadTopBanners()
     begin
-        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType)) and
-           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType))
+        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType())) and
+           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType()))
         then
             if MediaResourcesStandard.Get(MediaRepositoryStandard."Media Resources Ref") and
                MediaResourcesDone.Get(MediaRepositoryDone."Media Resources Ref")

@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2122 "O365 Incoming Doc. Attch. List"
 {
     Caption = 'Incoming Document Files';
@@ -6,6 +7,9 @@ page 2122 "O365 Incoming Doc. Attch. List"
     PageType = ListPart;
     PromotedActionCategories = 'New,Process,Report,Manage';
     SourceTable = "Incoming Document Attachment";
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -15,7 +19,7 @@ page 2122 "O365 Incoming Doc. Attch. List"
             {
                 field(Name; Name)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the name of the attached file.';
 
                     trigger OnDrillDown()
@@ -26,19 +30,19 @@ page 2122 "O365 Incoming Doc. Attch. List"
                 }
                 field(Type; Type)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the type of the attached file.';
                 }
-                field("File Extension"; "File Extension")
+                field("File Extension"; Rec."File Extension")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the file type of the attached file.';
                 }
-                field("Created Date-Time"; "Created Date-Time")
+                field("Created Date-Time"; Rec."Created Date-Time")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies when the incoming document line was created.';
                 }
@@ -52,7 +56,7 @@ page 2122 "O365 Incoming Doc. Attch. List"
         {
             action(DrillDown)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'View File';
                 Gesture = LeftSwipe;
                 Image = Picture;
@@ -69,7 +73,7 @@ page 2122 "O365 Incoming Doc. Attch. List"
             }
             action(Delete)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Delete';
                 Gesture = RightSwipe;
                 Image = Delete;
@@ -80,13 +84,13 @@ page 2122 "O365 Incoming Doc. Attch. List"
 
                 trigger OnAction()
                 begin
-                    Delete;
+                    Delete();
                     CurrPage.Update();
                 end;
             }
             action(Open)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Open';
                 ShortCutKey = 'Return';
                 ToolTip = 'Open the card for the selected record.';
@@ -147,4 +151,4 @@ page 2122 "O365 Incoming Doc. Attch. List"
         exit(Camera.IsAvailable());
     end;
 }
-
+#endif
