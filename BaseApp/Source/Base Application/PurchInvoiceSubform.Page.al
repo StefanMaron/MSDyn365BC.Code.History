@@ -151,6 +151,12 @@
                     ToolTip = 'Specifies the type of goods and services tax (GST) for the purchase line. You can select Acquisition, Self-Assessment, Rebate, New Housing Rebates, or Pension Rebate for the GST tax.';
                     Visible = false;
                 }
+                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
+                    Visible = false;
+                }
                 field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;

@@ -367,7 +367,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnLevel2OnAfterGetRecordOnBeforeBinCreateWksh(var Level: Code[20])
     begin
     end;

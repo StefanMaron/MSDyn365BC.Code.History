@@ -184,7 +184,7 @@
         end;
     end;
 
-    local procedure CheckWarehouseActivityLine(WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; Location: Record Location)
+    local procedure CheckWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; Location: Record Location)
     begin
         WarehouseActivityLine.TestField("Item No.");
         if Location."Bin Mandatory" then begin
@@ -1081,7 +1081,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCheckWarehouseActivityLine(WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; Location: Record Location)
+    local procedure OnAfterCheckWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; Location: Record Location)
     begin
     end;
 
