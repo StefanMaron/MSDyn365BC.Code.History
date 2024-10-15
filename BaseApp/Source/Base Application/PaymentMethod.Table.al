@@ -184,7 +184,13 @@ table 289 "Payment Method"
     local procedure CheckGLAcc(AccNo: Code[20])
     var
         GLAcc: Record "G/L Account";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckGLAcc(Rec, CurrFieldNo, AccNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if AccNo <> '' then begin
             GLAcc.Get(AccNo);
             GLAcc.CheckGLAcc;
@@ -209,6 +215,11 @@ table 289 "Payment Method"
             exit(PaymentMethodTranslation.Description);
 
         exit(Description);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckGLAcc(var PaymentMethod: Record "Payment Method"; CurrFieldNo: Integer; AccNo: Code[20]; var IsHandled: Boolean)
+    begin
     end;
 }
 

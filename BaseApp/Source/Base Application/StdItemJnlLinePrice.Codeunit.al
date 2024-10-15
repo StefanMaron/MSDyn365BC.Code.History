@@ -131,6 +131,7 @@ codeunit 7027 "Std. Item Jnl. Line - Price" implements "Line With Price"
         PriceCalculationBuffer."Variant Code" := StandardItemJournalLine."Variant Code";
         PriceCalculationBuffer."Location Code" := StandardItemJournalLine."Location Code";
         PriceCalculationBuffer.Validate("Currency Code", '');
+        PriceCalculationBuffer."Document Date" := WorkDate();
 
         // Tax
         PriceCalculationBuffer."Prices Including Tax" := false;
@@ -169,7 +170,7 @@ codeunit 7027 "Std. Item Jnl. Line - Price" implements "Line With Price"
                         PriceCalculated := true;
                     end;
                 CurrPriceType::Purchase:
-                    StandardItemJournalLine."Unit Amount" := PriceListLine."Unit Cost";
+                    StandardItemJournalLine."Unit Amount" := PriceListLine."Direct Unit Cost";
             end;
         OnAfterSetPrice(StandardItemJournalLine, PriceListLine, AmountType);
     end;

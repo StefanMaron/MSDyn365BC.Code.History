@@ -1,4 +1,4 @@
-page 475 "VAT Statement Preview Line"
+﻿page 475 "VAT Statement Preview Line"
 {
     Caption = 'Lines';
     Editable = false;
@@ -16,7 +16,7 @@ page 475 "VAT Statement Preview Line"
                 ShowCaption = false;
                 field("Row No."; "Row No.")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a number that identifies the line.';
                 }
                 field("VAT Statement Cipher"; "VAT Statement Cipher")
@@ -26,27 +26,27 @@ page 475 "VAT Statement Preview Line"
                 }
                 field(Description; Description)
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the VAT statement line.';
                 }
                 field(Type; Type)
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies what the VAT statement line will include.';
                 }
                 field("Amount Type"; "Amount Type")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the VAT statement line shows the VAT amounts, or the base amounts on which the VAT is calculated.';
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
                 field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
                 field("Tax Jurisdiction Code"; "Tax Jurisdiction Code")
@@ -175,7 +175,7 @@ page 475 "VAT Statement Preview Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCalcColumnValue(VATStmtLine2, TotalAmount, TotalEmpty, TotalBase, TotalUnrealizedAmount, TotalUnrealizedBase, Level, IsHandled);
+        OnBeforeCalcColumnValue(VATStmtLine2, TotalAmount, TotalEmpty, TotalBase, TotalUnrealizedAmount, TotalUnrealizedBase, Level, IsHandled, Selection, PeriodSelection, false, UseAmtsInAddCurr, Rec);
         if IsHandled then
             exit;
 
@@ -248,7 +248,7 @@ page 475 "VAT Statement Preview Line"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeCalcColumnValue(VATStmtLine2: Record "VAT Statement Line"; var TotalAmount: Decimal; var TotalEmpty: Decimal; var TotalBase: Decimal; var TotalUnrealizedAmount: Decimal; var TotalUnrealizedBase: Decimal; Level: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeCalcColumnValue(VATStmtLine2: Record "VAT Statement Line"; var TotalAmount: Decimal; var TotalEmpty: Decimal; var TotalBase: Decimal; var TotalUnrealizedAmount: Decimal; var TotalUnrealizedBase: Decimal; Level: Integer; var IsHandled: Boolean; Selection: Enum "VAT Statement Report Selection"; PeriodSelection: Enum "VAT Statement Report Period Selection"; PrintInIntegers: Boolean; UseAmtsInAddCurr: Boolean; var VATStatementLine: Record "VAT Statement Line")
     begin
     end;
 

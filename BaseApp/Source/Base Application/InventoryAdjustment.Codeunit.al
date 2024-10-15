@@ -1,4 +1,4 @@
-codeunit 5895 "Inventory Adjustment"
+﻿codeunit 5895 "Inventory Adjustment"
 {
     Permissions = TableData Item = rm,
                   TableData "Item Ledger Entry" = rm,
@@ -1560,6 +1560,7 @@ codeunit 5895 "Inventory Adjustment"
             OrigItemLedgEntry.Get("Item Ledger Entry No.");
             ItemJnlLine.Adjustment := ("Order Type" = "Order Type"::Assembly) and (OrigItemLedgEntry."Invoiced Quantity" <> 0);
 
+            OnPostOutputOnBeforePostItemJnlLine(ItemJnlLine, OrigValueEntry, InvtAdjmtBuf);
             PostItemJnlLine(ItemJnlLine, OrigValueEntry, InvtAdjmtBuf."Cost Amount (Actual)", InvtAdjmtBuf."Cost Amount (Actual) (ACY)");
 
             OrigItemLedgEntry.Get("Item Ledger Entry No.");
@@ -1747,6 +1748,8 @@ codeunit 5895 "Inventory Adjustment"
             ItemJnlLine."Applies-to Value Entry" := "Entry No.";
             ItemJnlLine."Return Reason Code" := "Return Reason Code";
         end;
+
+        OnAfterInitAdjmtJnlLine(ItemJnlLine, OrigValueEntry);
     end;
 
     local procedure PostItemJnlLine(ItemJnlLine: Record "Item Journal Line"; OrigValueEntry: Record "Value Entry"; NewAdjustedCost: Decimal; NewAdjustedCostACY: Decimal)
@@ -1970,7 +1973,14 @@ codeunit 5895 "Inventory Adjustment"
     end;
 
     local procedure OpenWindow()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOpenWindow(IsHandled);
+        if IsHandled then
+            exit;
+
         Window.Open(
           Text000 +
           '#1########################\\' +
@@ -1983,6 +1993,8 @@ codeunit 5895 "Inventory Adjustment"
     end;
 
     local procedure UpDateWindow(NewWindowAdjmtLevel: Integer; NewWindowItem: Code[20]; NewWindowAdjust: Text[20]; NewWindowFWLevel: Integer; NewWindowEntry: Integer; NewWindowOutbndEntry: Integer)
+    var
+        IsHandled: Boolean;
     begin
         WindowAdjmtLevel := NewWindowAdjmtLevel;
         WindowItem := NewWindowItem;
@@ -1990,6 +2002,11 @@ codeunit 5895 "Inventory Adjustment"
         WindowFWLevel := NewWindowFWLevel;
         WindowEntry := NewWindowEntry;
         WindowOutbndEntry := NewWindowOutbndEntry;
+
+        IsHandled := false;
+        OnBeforeUpdateWindow(IsHandled);
+        if IsHandled then
+            exit;
 
         if IsTimeForUpdate then begin
             if not WindowIsOpen then
@@ -2611,6 +2628,16 @@ codeunit 5895 "Inventory Adjustment"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenWindow(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateWindow(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateItemUnitCost(var TempAvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point" temporary; var IsHandled: Boolean)
     begin
     end;
@@ -2672,6 +2699,16 @@ codeunit 5895 "Inventory Adjustment"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateItemUnitCostOnBeforeModifyItemNotStandardCostingMethod(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostOutputOnBeforePostItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; OrigValueEntry: Record "Value Entry"; InvtAdjmtBuf: Record "Inventory Adjustment Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitAdjmtJnlLine(var ItemJnlLine: Record "Item Journal Line"; OrigValueEntry: Record "Value Entry")
     begin
     end;
 }

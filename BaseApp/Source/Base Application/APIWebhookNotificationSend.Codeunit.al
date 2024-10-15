@@ -1269,17 +1269,26 @@ codeunit 6154 "API Webhook Notification Send"
     local procedure HasLastModifiedDateTimeField(var APIWebhookSubscription: Record "API Webhook Subscription"): Boolean
     var
         ApiWebhookEntity: Record "Api Webhook Entity";
+        PageControlField: Record "Page Control Field";
         RecordRef: RecordRef;
-        FieldRef: FieldRef;
-        Result: Boolean;
     begin
         if not APIWebhookNotificationMgt.GetEntity(APIWebhookSubscription, ApiWebhookEntity) then
             exit(false);
 
-        RecordRef.Open(ApiWebhookEntity."Table No.");
-        Result := APIWebhookNotificationMgt.FindLastModifiedDateTimeField(RecordRef, FieldRef);
+        if ApiWebhookEntity."Object Type" <> ApiWebhookEntity."Object Type"::Page then
+            exit(false);
 
-        exit(Result);
+        PageControlField.SetRange(PageNo, ApiWebhookEntity."Object ID");
+        PageControlField.SetRange(ControlName, 'lastModifiedDateTime');
+        PageControlField.SetFilter(Visible, '%1', '@true');
+        if not PageControlField.FindFirst() then
+            exit(false);
+
+        RecordRef.Open(PageControlField.TableNo);
+        if RecordRef.Field(PageControlField.FieldNo).Type <> FieldType::DateTime then
+            exit(false);
+
+        exit(true);
     end;
 
     local procedure GetActiveSubscriptions(): Boolean

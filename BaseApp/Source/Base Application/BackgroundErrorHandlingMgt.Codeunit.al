@@ -7,6 +7,7 @@ codeunit 9079 "Background Error Handling Mgt."
 
     var
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
+        NullJSONTxt: Label 'null', Locked = true;
 
     procedure CleanTempErrorMessages(var TempErrorMessage: Record "Error Message" temporary; ErrorHandlingParameters: Record "Error Handling Parameters")
     begin
@@ -29,21 +30,17 @@ codeunit 9079 "Background Error Handling Mgt."
     local procedure CheckCleanDeletedGenJnlLinesErrors(var TempErrorMessage: Record "Error Message" temporary)
     var
         TempGenJnlLine: Record "Gen. Journal Line" temporary;
-        GenJnlLine: Record "Gen. Journal Line";
     begin
-        if JournalErrorsMgt.GetDeletedGenJnlLine(TempGenJnlLine, true) then begin
+        if JournalErrorsMgt.GetDeletedGenJnlLine(TempGenJnlLine, false) then begin
             TempErrorMessage.Reset();
             if TempGenJnlLine.FindSet() then
                 repeat
-                    GenJnlLine.SetRange("Journal Template Name", TempGenJnlLine."Journal Template Name");
-                    GenJnlLine.SetRange("Journal Batch Name", TempGenJnlLine."Journal Batch Name");
-                    GenJnlLine.SetRange("Document No.", TempGenJnlLine."Document No.");
-                    GenJnlLine.SetRange("Posting Date", TempGenJnlLine."Posting Date");
-                    if GenJnlLine.FindSet() then
-                        repeat
-                            TempErrorMessage.SetRange("Context Record ID", GenJnlLine.RecordId);
-                            TempErrorMessage.DeleteAll();
-                        until GenJnlLine.Next() = 0;
+                    TempErrorMessage.SetRange("Context Record ID", TempGenJnlLine.RecordId);
+                    TempErrorMessage.DeleteAll();
+
+                    CleanDocumentRelatedErrors(
+                        TempErrorMessage, TempGenJnlLine."Journal Template Name", TempGenJnlLine."Journal Batch Name",
+                        TempGenJnlLine."Document No.", TempGenJnlLine."Posting Date");
                 until TempGenJnlLine.Next() = 0;
         end;
     end;
@@ -89,5 +86,70 @@ codeunit 9079 "Background Error Handling Mgt."
 
         if ErrorHandlingParameters."Full Batch Check" then
             JournalErrorsMgt.SetFullBatchCheck(false);
+    end;
+
+    procedure PackDeletedDocumentsToArgs(var Args: Dictionary of [Text, Text])
+    var
+        TempGenJnlLine: Record "Gen. Journal Line" temporary;
+    begin
+        if JournalErrorsMgt.GetDeletedGenJnlLine(TempGenJnlLine, true) then begin
+            TempGenJnlLine.FindSet();
+            repeat
+                Args.Add(Format(TempGenJnlLine."Line No."), DeletedDocumentToJson(TempGenJnlLine));
+            until TempGenJnlLine.Next() = 0;
+        end;
+    end;
+
+    local procedure DeletedDocumentToJson(TempGenJnlLine: Record "Gen. Journal Line" temporary) JSON: Text
+    var
+        JObject: JsonObject;
+    begin
+        JObject.Add(TempGenJnlLine.FieldName("Document No."), TempGenJnlLine."Document No.");
+        JObject.Add(TempGenJnlLine.FieldName("Posting Date"), TempGenJnlLine."Posting Date");
+        JObject.WriteTo(JSON);
+    end;
+
+    local procedure ParseDeletedDocument(JSON: Text; var TempGenJnlLine: Record "Gen. Journal Line" temporary): Boolean
+    var
+        JObject: JsonObject;
+        DocumentNo: Text;
+        PostingDateText: Text;
+    begin
+        if NullJSONTxt <> JSON then begin
+            if not JObject.ReadFrom(JSON) then
+                exit(false);
+            if not GetJsonKeyValue(JObject, TempGenJnlLine.FieldName("Document No."), DocumentNo) then
+                exit(false);
+            if not GetJsonKeyValue(JObject, TempGenJnlLine.FieldName("Posting Date"), PostingDateText) then
+                exit(false);
+
+            TempGenJnlLine.Init();
+            TempGenJnlLine."Document No." := CopyStr(DocumentNo, 1, MaxStrLen(TempGenJnlLine."Document No."));
+            Evaluate(TempGenJnlLine."Posting Date", PostingDateText);
+
+            exit(true);
+        end;
+    end;
+
+    local procedure GetJsonKeyValue(var JObject: JsonObject; KeyName: Text; var KeyValue: Text): Boolean
+    var
+        JToken: JsonToken;
+    begin
+        if not JObject.Get(KeyName, JToken) then
+            exit(false);
+
+        KeyValue := JToken.AsValue().AsText();
+        exit(true);
+    end;
+
+    procedure GetDeletedDocumentsFromArgs(Args: Dictionary of [Text, Text]; var TempGenJnlLine: Record "Gen. Journal Line" temporary)
+    var
+        JSON: Text;
+    begin
+        foreach JSON in Args.Values do
+            if ParseDeletedDocument(JSON, TempGenJnlLine) then begin
+                TempGenJnlLine."Line No." += 10000;
+                TempGenJnlLine.Insert();
+            end;
     end;
 }

@@ -3124,6 +3124,158 @@ codeunit 134106 "ERM Prepayment V"
         Assert.ExpectedError(CannotChangePrepmtAmtDiffVAtPctErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostPurchInvoiceAfterGetReceiptLinesWithPrepmtAndAdjustedQtyToInvoiceOnOrder()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchGetReceipt: Codeunit "Purch.-Get Receipt";
+        VendorNo: Code[20];
+        ItemNo: array[2] of Code[20];
+        PurchReceiptNo: Code[20];
+        PurchInvoiceNo: Code[20];
+        PrepmtPerc: Decimal;
+        Qty: Decimal;
+        QtyToReceive: Decimal;
+        UnitCost: Decimal;
+        ExpectedPrepmtPerLine: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Receipt] [Invoice] [Get Receipt Lines]
+        // [SCENARIO 372022] Prepayment amount is deducted correctly on posting invoice created via "Get Receipt Lines" when "Qty. to Invoice" = 0 on the purchase order.
+        Initialize();
+        PrepmtPerc := LibraryRandom.RandIntInRange(10, 90);
+        Qty := LibraryRandom.RandIntInRange(11, 20);
+        QtyToReceive := Qty / 2;
+        UnitCost := LibraryRandom.RandIntInRange(100, 200);
+
+        // [GIVEN] Two items.
+        PrepareVendorAndTwoItemsWithSetup(VATPostingSetup, VendorNo, ItemNo, LibraryRandom.RandInt(20));
+
+        // [GIVEN] Purchase order with 25% prepayment.
+        // [GIVEN] Two purchase lines, one per item. Quantity = 10, "Qty. to Receive" = 5, "Direct Unit Cost" = 200.
+        CreatePurchaseHeader(PurchaseHeader, VendorNo, PrepmtPerc, false);
+        CreateCustomItemPurchaseLine(PurchaseLine, PurchaseHeader, ItemNo[1], Qty, UnitCost);
+        UpdatePurchQtyToReceive(PurchaseLine, QtyToReceive);
+        CreateCustomItemPurchaseLine(PurchaseLine, PurchaseHeader, ItemNo[2], Qty, UnitCost);
+        UpdatePurchQtyToReceive(PurchaseLine, QtyToReceive);
+
+        // [GIVEN] Post the prepayment invoice.
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        // [GIVEN] Post the receipt.
+        PurchReceiptNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Set "Qty. to Invoice" on both lines to 0.
+        FindPurchaseLine(PurchaseLine, PurchaseHeader, ItemNo[1]);
+        UpdatePurchQtyToInvoice(PurchaseLine, 0);
+        FindPurchaseLine(PurchaseLine, PurchaseHeader, ItemNo[2]);
+        UpdatePurchQtyToInvoice(PurchaseLine, 0);
+
+        // [WHEN] Create purchase invoice using "Get Receipt Lines".
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        PurchRcptLine.SetRange("Document No.", PurchReceiptNo);
+        PurchGetReceipt.SetPurchHeader(PurchaseHeader);
+        PurchGetReceipt.CreateInvLines(PurchRcptLine);
+
+        ExpectedPrepmtPerLine := Qty * UnitCost * (PrepmtPerc / 100) * (QtyToReceive / Qty);
+
+        // [THEN] "Prepmt. Amount to Deduct" on each invoice line = 250.
+        FindPurchaseLine(PurchaseLine, PurchaseHeader, ItemNo[1]);
+        PurchaseLine.TestField("Prepmt Amt to Deduct", ExpectedPrepmtPerLine);
+        FindPurchaseLine(PurchaseLine, PurchaseHeader, ItemNo[2]);
+        PurchaseLine.TestField("Prepmt Amt to Deduct", ExpectedPrepmtPerLine);
+
+        // [THEN] The purchase invoice can be posted.
+        PurchInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] The amount deducted from the prepayment account = -500 (2 * 250).
+        GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
+        VerifyGLEntry(-ExpectedPrepmtPerLine * 2, PurchInvoiceNo, GeneralPostingSetup."Purch. Prepayments Account");
+
+        // Tear down.
+        TearDownVATPostingSetup(VATPostingSetup."VAT Bus. Posting Group");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostSalesInvoiceAfterGetShipmentLinesWithPrepmtAndAdjustedQtyToInvoiceOnOrder()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        SalesGetShipment: Codeunit "Sales-Get Shipment";
+        CustomerNo: Code[20];
+        ItemNo: array[2] of Code[20];
+        SalesShipmentNo: Code[20];
+        SalesInvoiceNo: Code[20];
+        PrepmtPerc: Decimal;
+        Qty: Decimal;
+        QtyToShip: Decimal;
+        UnitPrice: Decimal;
+        ExpectedPrepmtPerLine: Decimal;
+    begin
+        // [FEATURE] [Sales] [Shipment] [Invoice] [Get Shipment Lines]
+        // [SCENARIO 372022] Prepayment amount is deducted correctly on posting invoice created via "Get Shipment Lines" when "Qty. to Invoice" = 0 on the sales order.
+        Initialize();
+        PrepmtPerc := LibraryRandom.RandIntInRange(10, 90);
+        Qty := LibraryRandom.RandIntInRange(11, 20);
+        QtyToShip := Qty / 2;
+        UnitPrice := LibraryRandom.RandIntInRange(100, 200);
+
+        // [GIVEN] Two items.
+        PrepareCustomerAndTwoItemsWithSetup(VATPostingSetup, CustomerNo, ItemNo, LibraryRandom.RandInt(20));
+
+        // [GIVEN] Sales order with 25% prepayment.
+        // [GIVEN] Two sales lines, one per item. Quantity = 10, "Qty. to Ship" = 5, "Unit Price" = 200.
+        CreateSalesHeader(SalesHeader, CustomerNo, PrepmtPerc, false);
+        CreateCustomItemSalesLine(SalesLine, SalesHeader, ItemNo[1], Qty, UnitPrice);
+        UpdateSalesQtyToShip(SalesLine, QtyToShip);
+        CreateCustomItemSalesLine(SalesLine, SalesHeader, ItemNo[2], Qty, UnitPrice);
+        UpdateSalesQtyToShip(SalesLine, QtyToShip);
+
+        // [GIVEN] Post the prepayment invoice.
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [GIVEN] Post the shipment.
+        SalesShipmentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [GIVEN] Set "Qty. to Invoice" on both lines to 0.
+        FindSalesLine(SalesLine, SalesHeader, ItemNo[1]);
+        UpdateSalesQtyToInvoice(SalesLine, 0);
+        FindSalesLine(SalesLine, SalesHeader, ItemNo[2]);
+        UpdateSalesQtyToInvoice(SalesLine, 0);
+
+        // [WHEN] Create sales invoice using "Get Shipment Lines".
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        SalesShipmentLine.SetRange("Document No.", SalesShipmentNo);
+        SalesGetShipment.SetSalesHeader(SalesHeader);
+        SalesGetShipment.CreateInvLines(SalesShipmentLine);
+
+        ExpectedPrepmtPerLine := Qty * UnitPrice * (PrepmtPerc / 100) * (QtyToShip / Qty);
+
+        // [THEN] "Prepmt. Amount to Deduct" on each invoice line = 250.
+        FindSalesLine(SalesLine, SalesHeader, ItemNo[1]);
+        SalesLine.TestField("Prepmt Amt to Deduct", ExpectedPrepmtPerLine);
+        FindSalesLine(SalesLine, SalesHeader, ItemNo[2]);
+        SalesLine.TestField("Prepmt Amt to Deduct", ExpectedPrepmtPerLine);
+
+        // [THEN] The sales invoice can be posted.
+        SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] The amount deducted from the prepayment account = 500 (2 * 250).
+        GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
+        VerifyGLEntry(ExpectedPrepmtPerLine * 2, SalesInvoiceNo, GeneralPostingSetup."Sales Prepayments Account");
+
+        // Tear down.
+        TearDownVATPostingSetup(VATPostingSetup."VAT Bus. Posting Group");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3842,8 +3994,17 @@ codeunit 134106 "ERM Prepayment V"
     local procedure UpdatePurchQtyToReceive(var PurchaseLine: Record "Purchase Line"; QtyToReceive: Decimal)
     begin
         with PurchaseLine do begin
-            Find;
+            Find();
             Validate("Qty. to Receive", QtyToReceive);
+            Modify(true);
+        end;
+    end;
+
+    local procedure UpdatePurchQtyToInvoice(var PurchaseLine: Record "Purchase Line"; QtyToInvoice: Decimal)
+    begin
+        with PurchaseLine do begin
+            Find();
+            Validate("Qty. to Invoice", QtyToInvoice);
             Modify(true);
         end;
     end;
@@ -3851,8 +4012,17 @@ codeunit 134106 "ERM Prepayment V"
     local procedure UpdateSalesQtyToShip(var SalesLine: Record "Sales Line"; QtyToShip: Decimal)
     begin
         with SalesLine do begin
-            Find;
+            Find();
             Validate("Qty. to Ship", QtyToShip);
+            Modify(true);
+        end;
+    end;
+
+    local procedure UpdateSalesQtyToInvoice(var SalesLine: Record "Sales Line"; QtyToInvoice: Decimal)
+    begin
+        with SalesLine do begin
+            Find();
+            Validate("Qty. to Invoice", QtyToInvoice);
             Modify(true);
         end;
     end;

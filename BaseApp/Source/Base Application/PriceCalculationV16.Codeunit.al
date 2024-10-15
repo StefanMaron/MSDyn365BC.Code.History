@@ -34,6 +34,8 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
         AmountType: Enum "Price Amount Type";
         FoundPrice: Boolean;
     begin
+        if not HasAccess(CurrLineWithPrice.GetPriceType(), AmountType::Discount) then
+            exit;
         if not CurrLineWithPrice.IsDiscountAllowed() then
             exit;
         CurrLineWithPrice.Verify();
@@ -53,6 +55,8 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
         AmountType: Enum "Price Amount Type";
         FoundPrice: Boolean;
     begin
+        if not HasAccess(CurrLineWithPrice.GetPriceType(), AmountType::Price) then
+            exit;
         CurrLineWithPrice.Verify();
         if not CurrLineWithPrice.CopyToBuffer(PriceCalculationBufferMgt) then
             exit;
@@ -105,6 +109,32 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
         Found := FindPriceLines(AmountType::Price, ShowAll, TempPriceListLine);
     end;
 
+    local procedure HasAccess(PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type"): Boolean;
+    var
+        PurchaseDiscountAccess: Record "Purchase Discount Access";
+        PurchasePriceAccess: Record "Purchase Price Access";
+        SalesDiscountAccess: Record "Sales Discount Access";
+        SalesPriceAccess: Record "Sales Price Access";
+    begin
+        case PriceType of
+            "Price Type"::Purchase:
+                case AmountType of
+                    "Price Amount Type"::Discount:
+                        exit(PurchaseDiscountAccess.ReadPermission());
+                    "Price Amount Type"::Price:
+                        exit(PurchasePriceAccess.ReadPermission());
+                end;
+            "Price Type"::Sale:
+                case AmountType of
+                    "Price Amount Type"::Discount:
+                        exit(SalesDiscountAccess.ReadPermission());
+                    "Price Amount Type"::Price:
+                        exit(SalesPriceAccess.ReadPermission());
+                end;
+        end;
+        exit(true);
+    end;
+
     procedure IsDiscountExists(ShowAll: Boolean) Result: Boolean;
     var
         TempPriceListLine: Record "Price List Line" temporary;
@@ -139,6 +169,8 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
         PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
         GetPriceLine: Page "Get Price Line";
     begin
+        if not HasAccess(CurrLineWithPrice.GetPriceType(), AmountType) then
+            exit;
         CurrLineWithPrice.Verify();
         if not CurrLineWithPrice.CopyToBuffer(PriceCalculationBufferMgt) then
             exit;
@@ -231,7 +263,7 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
                 PriceListLine."Price Type"::Sale:
                     Result := IsBetterPrice(PriceListLine, PriceListLine."Unit Price", BestPriceListLine);
                 PriceListLine."Price Type"::Purchase:
-                    Result := IsBetterPrice(PriceListLine, PriceListLine."Unit Cost", BestPriceListLine);
+                    Result := IsBetterPrice(PriceListLine, PriceListLine."Direct Unit Cost", BestPriceListLine);
             end;
         OnAfterIsBetterLine(PriceListLine, AmountType, BestPriceListLine, Result);
     end;

@@ -1602,6 +1602,37 @@ codeunit 134141 "ERM Bank Reconciliation"
         LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
+    [Test]
+    [HandlerFunctions('GenJnlPageHandler')]
+    [Scope('OnPrem')]
+    procedure TransferToGenJnlLineWithEmptyDocNo()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        // [SCENARIO 369129] Report "Trans. Bank Rec. To Gen. Jnl." creates Gen. Journal lines with sequential numbers according to No. series.
+        Initialize();
+
+        // [GIVEN] 2 Bank Account reconciliation lines with empty Document No.
+        CreateBankReconciliation(BankAccReconciliation, CreateBankAccount(), BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        CreateBankAccReconciliationLineWithDocNo(BankAccReconciliation, BankAccReconciliationLine, '');
+        CreateBankAccReconciliationLineWithDocNo(BankAccReconciliation, BankAccReconciliationLine, '');
+
+        // [GIVEN] Gen. Journal Template and Gen. Journal Batch with No. series.
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode());
+        GenJournalBatch.Modify(true);
+
+        // [WHEN] Report "Trans. Bank Rec. To Gen. Jnl." is run for Gen. Journal batch.
+        TransferToGenJnlReport(BankAccReconciliation, GenJournalBatch);
+
+        // [THEN] Reconciliation lines are transfered to Gen. Journal with sequential numbers according to No. series.
+        VerifyGenJournalLineDocNosSequential(GenJournalTemplate.Name, GenJournalBatch.Name);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Bank Reconciliation");
@@ -1911,6 +1942,13 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccReconciliationLine.Validate("Statement Amount", Amount);
         BankAccReconciliationLine.Validate("Transaction Date", Date);
         BankAccReconciliationLine.Validate(Description, VendorNo);
+        BankAccReconciliationLine.Modify(true);
+    end;
+
+    local procedure CreateBankAccReconciliationLineWithDocNo(BankAccReconciliation: Record "Bank Acc. Reconciliation"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; DocumentNo: Code[20])
+    begin
+        CreateBankAccReconLine(BankAccReconciliationLine, BankAccReconciliation);
+        BankAccReconciliationLine.Validate("Document No.", DocumentNo);
         BankAccReconciliationLine.Modify(true);
     end;
 
@@ -2283,6 +2321,21 @@ codeunit 134141 "ERM Bank Reconciliation"
         GenJournalLine.TestField("Bal. Account Type", BalAccountType);
         GenJournalLine.TestField("Bal. Account No.", BAlAccountNo);
         GenJournalLine.TestField(Amount, ExpectedAmount);
+    end;
+
+    local procedure VerifyGenJournalLineDocNosSequential(GenJournalTemplateName: Code[10]; GenJournalBatchName: Code[10])
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        DocumentNo: Code[20];
+    begin
+        GenJournalLine.SetRange("Journal Template Name", GenJournalTemplateName);
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatchName);
+        GenJournalLine.FindSet();
+        DocumentNo := GenJournalLine."Document No.";
+        NoSeriesManagement.IncrementNoText(DocumentNo, 1);
+        GenJournalLine.Next();
+        GenJournalLine.TestField("Document No.", DocumentNo);
     end;
 
     local procedure VerifyGLEntryAmount(DocNo: Code[20]; AccNo: Code[20]; ExpectedAmount: Decimal)

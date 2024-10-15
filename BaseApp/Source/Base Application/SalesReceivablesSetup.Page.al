@@ -40,7 +40,7 @@ page 459 "Sales & Receivables Setup"
                 field("Shipment on Ship and Invoice"; "Shipment on Ship and Invoice")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies that a sales order can be delivered and invoiced in one operation (posting, shipment, and invoice).';
+                    ToolTip = 'Specifies that the sales shipment document is issued automatically when a sales order is posted with the Ship & Invoice option.';
                 }
                 field("Return Receipt on Credit Memo"; "Return Receipt on Credit Memo")
                 {

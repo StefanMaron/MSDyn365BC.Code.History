@@ -13,6 +13,7 @@ codeunit 134159 "Test Price Calculation - V16"
         Assert: Codeunit Assert;
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryJob: Codeunit "Library - Job";
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
@@ -24,13 +25,14 @@ codeunit 134159 "Test Price Calculation - V16"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+        ResType: Option Resource,"Group(Resource)",All;
         IsInitialized: Boolean;
         AllowLineDiscErr: Label 'Allow Line Disc. must have a value in Sales Line';
         PickedWrongMinQtyErr: Label 'The quantity in the line is below the minimum quantity of the picked price list line.';
         CampaignActivatedMsg: Label 'Campaign %1 is now activated.';
 
     [Test]
-    procedure T010_SalesLineAddsActivatedCampaignOnHeaderAsSource()
+    procedure T001_SalesLineAddsActivatedCampaignOnHeaderAsSource()
     var
         Campaign: Array[5] of Record Campaign;
         Contact: Record Contact;
@@ -65,7 +67,7 @@ codeunit 134159 "Test Price Calculation - V16"
     end;
 
     [Test]
-    procedure T011_SalesLineAddsActivatedCustomerCampaignAsSource()
+    procedure T002_SalesLineAddsActivatedCustomerCampaignAsSource()
     var
         Campaign: Array[5] of Record Campaign;
         Contact: Record Contact;
@@ -99,7 +101,7 @@ codeunit 134159 "Test Price Calculation - V16"
     end;
 
     [Test]
-    procedure T012_SalesLineAddsActivatedContactCampaignAsSource()
+    procedure T003_SalesLineAddsActivatedContactCampaignAsSource()
     var
         Campaign: Array[5] of Record Campaign;
         Contact: Record Contact;
@@ -132,47 +134,729 @@ codeunit 134159 "Test Price Calculation - V16"
         VerifyCampaignSource(SalesLinePrice, Campaign[5]."No.", 2);
     end;
 
-    local procedure CreateCustomerWithContactAndActivatedCampaigns(var Customer: Record Customer; var Contact: Record Contact; var Campaign: Array[5] of Record Campaign; SkipCustomerCampaign: Boolean)
+    [Test]
+    procedure T010_SalesLinePriceCopyToBufferWithoutPostingDate()
     var
-        CampaignTargetGr: Record "Campaign Target Group";
-        i: Integer;
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        SalesLine: Record "Sales Line";
+        SalesLinePrice: Codeunit "Sales Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
     begin
-        LibraryMarketing.CreateCampaign(Campaign[1]);
+        // [FEATURE] [UT] [Sales]
+        Initialize();
+        // [GIVEN] Sales Line, where 'Posting Date' is <blank>, while WorkDate is '250120'
+        SalesLine."Posting Date" := 0D;
+        SalesLine.Type := SalesLine.Type::"G/L Account";
+        SalesLine."No." := LibraryERM.CreateGLAccountNo();
 
-        LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
-        if not SkipCustomerCampaign then begin
+        // [GIVEN] Initialize LineWithPrice with SalesLine, no Header set
+        LineWithPrice := SalesLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, SalesLine);
 
-            CampaignTargetGr.Init();
-            CampaignTargetGr.Type := CampaignTargetGr.Type::Customer;
-            CampaignTargetGr."No." := Customer."No.";
-            for i := 2 to 3 do begin
-                LibraryMarketing.CreateCampaign(Campaign[i]);
-                CampaignTargetGr."Campaign No." := Campaign[i]."No.";
-                CampaignTargetGr.Insert();
-            end;
-        end;
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
 
-        CampaignTargetGr.Init();
-        CampaignTargetGr.Type := CampaignTargetGr.Type::Contact;
-        CampaignTargetGr."No." := Contact."No.";
-        for i := 4 to 5 do begin
-            LibraryMarketing.CreateCampaign(Campaign[i]);
-            CampaignTargetGr."Campaign No." := Campaign[i]."No.";
-            CampaignTargetGr.Insert();
-        end;
+        // [THEN] Buffer, where "Document Date" is '250120'(from WorkDate)
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", WorkDate());
     end;
 
-    local procedure VerifyCampaignSource(SalesLinePrice: Codeunit "Sales Line - Price"; CampaignNo: code[20]; ExpectedCount: Integer)
+    [Test]
+    procedure T011_SalesLinePriceCopyToBufferWithoutHeader()
     var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        SalesLine: Record "Sales Line";
+        SalesLinePrice: Codeunit "Sales Line - Price";
         PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
-        TempPriceSource: Record "Price Source" temporary;
+        LineWithPrice: Interface "Line With Price";
     begin
-        SalesLinePrice.CopyToBuffer(PriceCalculationBufferMgt);
-        PriceCalculationBufferMgt.GetSources(TempPriceSource);
-        TempPriceSource.SetRange("Source Type", TempPriceSource."Source Type"::Campaign);
-        Assert.RecordCount(TempPriceSource, ExpectedCount);
-        TempPriceSource.SetRange("Source No.", CampaignNo);
-        TempPriceSource.FindFirst();
+        // [FEATURE] [UT] [Sales]
+        Initialize();
+        // [GIVEN] Sales Line, where 'Posting Date' is '300120', while WorkDate is '250120'
+        SalesLine."Posting Date" := WorkDate() + 5;
+        SalesLine.Type := SalesLine.Type::"G/L Account";
+        SalesLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with SalesLine, no Header set
+        LineWithPrice := SalesLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, SalesLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '300120'(from Line."Posting Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", SalesLine."Posting Date");
+    end;
+
+    [Test]
+    procedure T012_SalesLinePriceCopyToBufferWithHeaderBlankNo()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLinePrice: Codeunit "Sales Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Sales]
+        Initialize();
+        // [GIVEN] Sales Header, where "Document Type" is Invoice, "No." is <blank>, "Posting Date" is '300120', "Order Date" is '290120'
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
+        SalesHeader."No." := '';
+        SalesHeader."Posting Date" := WorkDate() + 5;
+        SalesHeader."Order Date" := SalesHeader."Posting Date" - 1;
+
+        // [GIVEN] Sales Line, where 'Posting Date' is '310120', while WorkDate is '250120'
+        SalesLine."Posting Date" := SalesHeader."Posting Date" + 1;
+        SalesLine.Type := SalesLine.Type::"G/L Account";
+        SalesLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with SalesLine and Header
+        LineWithPrice := SalesLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, SalesHeader, SalesLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '310120' (from Line."Posting Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", SalesLine."Posting Date");
+    end;
+
+    [Test]
+    procedure T013_SalesLinePriceCopyToBufferWithHeaderInvoice()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLinePrice: Codeunit "Sales Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Sales]
+        Initialize();
+        // [GIVEN] Sales Header, where "Document Type" is Invoice, "No." is 'X', "Posting Date" is '300120', "Order Date" is '290120'
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
+        SalesHeader."No." := LibraryRandom.RandText(20);
+        SalesHeader."Posting Date" := WorkDate() + 5;
+        SalesHeader."Order Date" := SalesHeader."Posting Date" - 1;
+
+        // [GIVEN] Sales Line, where 'Posting Date' is '310120', while WorkDate is '250120'
+        SalesLine."Posting Date" := SalesHeader."Posting Date" + 1;
+        SalesLine.Type := SalesLine.Type::"G/L Account";
+        SalesLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with SalesLine and Header
+        LineWithPrice := SalesLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, SalesHeader, SalesLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '300120' (from Header."Posting Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", SalesHeader."Posting Date");
+    end;
+
+    [Test]
+    procedure T014_SalesLinePriceCopyToBufferWithHeaderOrder()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLinePrice: Codeunit "Sales Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Sales]
+        Initialize();
+        // [GIVEN] Sales Header, where "Document Type" is Order, "No." is 'X', "Posting Date" is '300120', "Order Date" is '290120'
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
+        SalesHeader."No." := LibraryRandom.RandText(20);
+        SalesHeader."Posting Date" := WorkDate() + 5;
+        SalesHeader."Order Date" := SalesHeader."Posting Date" - 1;
+        // [GIVEN] Sales Line, where 'Order Date' is '310120', while WorkDate is '250120'
+        SalesLine."Posting Date" := SalesHeader."Posting Date" + 1;
+        SalesLine.Type := SalesLine.Type::"G/L Account";
+        SalesLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with SalesLine and Header
+        LineWithPrice := SalesLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, SalesHeader, SalesLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '290120' (from Header."Order Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", SalesHeader."Order Date");
+    end;
+
+    [Test]
+    procedure T015_ServiceLinePriceCopyToBufferWithoutPostingDate()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        ServiceLine: Record "Service Line";
+        ServiceLinePrice: Codeunit "Service Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Service]
+        Initialize();
+        // [GIVEN] Service Line, where 'Posting Date' is <blank>, while WorkDate is '250120'
+        ServiceLine."Posting Date" := 0D;
+        ServiceLine.Type := ServiceLine.Type::"G/L Account";
+        ServiceLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with ServiceLine, no Header set
+        LineWithPrice := ServiceLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, ServiceLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '250120'(from WorkDate)
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", WorkDate());
+    end;
+
+    [Test]
+    procedure T016_ServiceLinePriceCopyToBufferWithoutHeader()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        ServiceLine: Record "Service Line";
+        ServiceLinePrice: Codeunit "Service Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Service]
+        Initialize();
+        // [GIVEN] Service Line, where 'Posting Date' is '300120', while WorkDate is '250120'
+        ServiceLine."Posting Date" := WorkDate() + 5;
+        ServiceLine.Type := ServiceLine.Type::"G/L Account";
+        ServiceLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with ServiceLine, no Header set
+        LineWithPrice := ServiceLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, ServiceLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '300120'(from Line."Posting Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", ServiceLine."Posting Date");
+    end;
+
+    [Test]
+    procedure T017_ServiceLinePriceCopyToBufferWithHeaderBlankNo()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceLinePrice: Codeunit "Service Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Service]
+        Initialize();
+        // [GIVEN] Service Header, where "Document Type" is Invoice, "No." is <blank>, "Posting Date" is '300120', "Order Date" is '290120'
+        ServiceHeader."Document Type" := ServiceHeader."Document Type"::Invoice;
+        ServiceHeader."No." := '';
+        ServiceHeader."Posting Date" := WorkDate() + 5;
+        ServiceHeader."Order Date" := ServiceHeader."Posting Date" - 1;
+
+        // [GIVEN] Service Line, where 'Posting Date' is '310120', while WorkDate is '250120'
+        ServiceLine."Posting Date" := ServiceHeader."Posting Date" + 1;
+        ServiceLine.Type := ServiceLine.Type::"G/L Account";
+        ServiceLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with ServiceLine and Header
+        LineWithPrice := ServiceLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, ServiceHeader, ServiceLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '310120' (from Line."Posting Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", ServiceLine."Posting Date");
+    end;
+
+    [Test]
+    procedure T018_ServiceLinePriceCopyToBufferWithHeaderInvoice()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceLinePrice: Codeunit "Service Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Service]
+        Initialize();
+        // [GIVEN] Service Header, where "Document Type" is Invoice, "No." is 'X', "Posting Date" is '300120', "Order Date" is '290120'
+        ServiceHeader."Document Type" := ServiceHeader."Document Type"::Invoice;
+        ServiceHeader."No." := LibraryRandom.RandText(20);
+        ServiceHeader."Posting Date" := WorkDate() + 5;
+        ServiceHeader."Order Date" := ServiceHeader."Posting Date" - 1;
+
+        // [GIVEN] Service Line, where 'Posting Date' is '310120', while WorkDate is '250120'
+        ServiceLine."Posting Date" := ServiceHeader."Posting Date" + 1;
+        ServiceLine.Type := ServiceLine.Type::"G/L Account";
+        ServiceLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with ServiceLine and Header
+        LineWithPrice := ServiceLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, ServiceHeader, ServiceLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '300120' (from Header."Posting Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", ServiceHeader."Posting Date");
+    end;
+
+    [Test]
+    procedure T019_ServiceLinePriceCopyToBufferWithHeaderOrder()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceLinePrice: Codeunit "Service Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Service]
+        Initialize();
+        // [GIVEN] Service Header, where "Document Type" is Order, "No." is 'X', "Posting Date" is '300120', "Order Date" is '290120'
+        ServiceHeader."Document Type" := ServiceHeader."Document Type"::Order;
+        ServiceHeader."No." := LibraryRandom.RandText(20);
+        ServiceHeader."Posting Date" := WorkDate() + 5;
+        ServiceHeader."Order Date" := ServiceHeader."Posting Date" - 1;
+        // [GIVEN] Service Line, where 'Order Date' is '310120', while WorkDate is '250120'
+        ServiceLine."Posting Date" := ServiceHeader."Posting Date" + 1;
+        ServiceLine.Type := ServiceLine.Type::"G/L Account";
+        ServiceLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with ServiceLine and Header
+        LineWithPrice := ServiceLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, ServiceHeader, ServiceLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '290120' (from Header."Order Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", ServiceHeader."Order Date");
+    end;
+
+    [Test]
+    procedure T020_PurchaseLinePriceCopyToBufferWithoutPostingDate()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLinePrice: Codeunit "Purchase Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Purchase]
+        Initialize();
+        // [GIVEN] Purchase Line, while WorkDate is '250120'
+        PurchaseLine.Type := PurchaseLine.Type::"G/L Account";
+        PurchaseLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with PurchaseLine, no Header set
+        LineWithPrice := PurchaseLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, PurchaseLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '250120'(from WorkDate)
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", WorkDate());
+    end;
+
+    [Test]
+    procedure T021_PurchaseLinePriceCopyToBufferWithHeaderInvoice()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLinePrice: Codeunit "Purchase Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Purchase]
+        Initialize();
+        // [GIVEN] Purchase Header, where "Document Type" is Invoice, "No." is 'X', "Posting Date" is '300120', "Order Date" is '290120'
+        PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Invoice;
+        PurchaseHeader."No." := LibraryRandom.RandText(20);
+        PurchaseHeader."Posting Date" := WorkDate() + 5;
+        PurchaseHeader."Order Date" := PurchaseHeader."Posting Date" - 1;
+
+        // [GIVEN] Purchase Line, while WorkDate is '250120'
+        PurchaseLine.Type := PurchaseLine.Type::"G/L Account";
+        PurchaseLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with PurchaseLine and Header
+        LineWithPrice := PurchaseLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, PurchaseHeader, PurchaseLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '300120' (from Header."Posting Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", PurchaseHeader."Posting Date");
+    end;
+
+    [Test]
+    procedure T022_PurchaseLinePriceCopyToBufferWithHeaderOrder()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLinePrice: Codeunit "Purchase Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Purchase]
+        Initialize();
+        // [GIVEN] Purchase Header, where "Document Type" is Order, "No." is 'X', "Posting Date" is '300120', "Order Date" is '290120'
+        PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
+        PurchaseHeader."No." := LibraryRandom.RandText(20);
+        PurchaseHeader."Posting Date" := WorkDate() + 5;
+        PurchaseHeader."Order Date" := PurchaseHeader."Posting Date" - 1;
+        // [GIVEN] Purchase Line, while WorkDate is '250120'
+        PurchaseLine.Type := PurchaseLine.Type::"G/L Account";
+        PurchaseLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with PurchaseLine and Header
+        LineWithPrice := PurchaseLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, PurchaseHeader, PurchaseLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '290120' (from Header."Order Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", PurchaseHeader."Order Date");
+    end;
+
+    [Test]
+    procedure T025_ItemJournalLinePriceCopyToBufferWithoutPostingDate()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalLinePrice: Codeunit "Item Journal Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Item Journal]
+        Initialize();
+        // [GIVEN] Item Journal Line, while WorkDate is '250120'
+        ItemJournalLine.Type := ItemJournalLine.Type::Resource;
+        ItemJournalLine."Item No." := LibraryInventory.CreateItemNo();
+
+        // [GIVEN] Initialize LineWithPrice with ItemJournalLine
+        LineWithPrice := ItemJournalLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, ItemJournalLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '250120'(from WorkDate)
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", WorkDate());
+    end;
+
+    [Test]
+    procedure T026_ItemJournalLinePriceCopyToBufferWithPostingDate()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalLinePrice: Codeunit "Item Journal Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Item Journal]
+        Initialize();
+        // [GIVEN] Item Journal Line, where "Posting Date" is 300120, while WorkDate is '250120'
+        ItemJournalLine."Posting Date" := WorkDate() + 5;
+        ItemJournalLine."Item No." := LibraryInventory.CreateItemNo();
+
+        // [GIVEN] Initialize LineWithPrice with ItemJournalLine
+        LineWithPrice := ItemJournalLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, ItemJournalLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '300120'(from ItemJournalLine."Posting Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", ItemJournalLine."Posting Date");
+    end;
+
+    [Test]
+    procedure T027_StandardItemJournalLinePriceCopyToBufferWithoutPostingDate()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        StandardItemJournalLine: Record "Standard Item Journal Line";
+        StdItemJnlLinePrice: Codeunit "Std. Item Jnl. Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Standard Item Journal]
+        Initialize();
+        // [GIVEN] Item Journal Line, while WorkDate is '250120'
+        StandardItemJournalLine."Item No." := LibraryInventory.CreateItemNo();
+
+        // [GIVEN] Initialize LineWithPrice with StandardItemJournalLine
+        LineWithPrice := StdItemJnlLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, StandardItemJournalLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '250120'(from WorkDate)
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", WorkDate());
+    end;
+
+    [Test]
+    procedure T028_JobJournalLinePriceCopyToBufferWithoutPostingDate()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        Job: Record Job;
+        JobJournalLine: Record "Job Journal Line";
+        JobJournalLinePrice: Codeunit "Job Journal Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Job Journal]
+        Initialize();
+        // [GIVEN] Job Journal Line, while WorkDate is '250120'
+        LibraryJob.CreateJob(Job);
+        JobJournalLine."Job No." := Job."No.";
+        JobJournalLine.Type := JobJournalLine.Type::"G/L Account";
+        JobJournalLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with JobJournalLine
+        LineWithPrice := JobJournalLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, JobJournalLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '250120'(from WorkDate)
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", WorkDate());
+    end;
+
+    [Test]
+    procedure T029_JobJournalLinePriceCopyToBufferWithPostingDate()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        Job: Record Job;
+        JobJournalLine: Record "Job Journal Line";
+        JobJournalLinePrice: Codeunit "Job Journal Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Job Journal]
+        Initialize();
+        // [GIVEN] Job Journal Line, where "Posting Date" is 300120, while WorkDate is '250120'
+        LibraryJob.CreateJob(Job);
+        JobJournalLine."Job No." := Job."No.";
+        JobJournalLine."Posting Date" := WorkDate() + 5;
+        JobJournalLine.Type := JobJournalLine.Type::"G/L Account";
+        JobJournalLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with JobJournalLine
+        LineWithPrice := JobJournalLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, JobJournalLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '300120'(from JobJournalLine."Posting Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", JobJournalLine."Posting Date");
+    end;
+
+    [Test]
+    procedure T030_JobPlanningLinePriceCopyToBufferWithoutPostingDate()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        Job: Record Job;
+        JobPlanningLine: Record "Job Planning Line";
+        JobPlanningLinePrice: Codeunit "Job Planning Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Job Planning]
+        Initialize();
+        // [GIVEN] Job Planning Line, where "Planning Date" is <blank>, while WorkDate is '250120'
+        LibraryJob.CreateJob(Job);
+        JobPlanningLine."Job No." := Job."No.";
+        JobPlanningLine.Type := JobPlanningLine.Type::"G/L Account";
+        JobPlanningLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with JobPlanningLine
+        LineWithPrice := JobPlanningLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, JobPlanningLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '250120'(from WorkDate)
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", WorkDate());
+    end;
+
+    [Test]
+    procedure T031_JobPlanningLinePriceCopyToBufferWithPostingDate()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        Job: Record Job;
+        JobPlanningLine: Record "Job Planning Line";
+        JobPlanningLinePrice: Codeunit "Job Planning Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Job Planning]
+        Initialize();
+        // [GIVEN] Job Planning Line, where "Planning Date" is 300120, while WorkDate is '250120'
+        LibraryJob.CreateJob(Job);
+        JobPlanningLine."Job No." := Job."No.";
+        JobPlanningLine."Planning Date" := WorkDate() + 5;
+        JobPlanningLine.Type := JobPlanningLine.Type::"G/L Account";
+        JobPlanningLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with JobPlanningLine
+        LineWithPrice := JobPlanningLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, JobPlanningLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '300120'(from JobPlanningLine."Planning Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", JobPlanningLine."Planning Date");
+    end;
+
+    [Test]
+    procedure T032_RequisitionLinePriceCopyToBufferWithoutPostingDate()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        RequisitionLine: Record "Requisition Line";
+        RequisitionLinePrice: Codeunit "Requisition Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Requisition Line]
+        Initialize();
+        // [GIVEN] Requisition Line, where "Order Date" is <blank>, while WorkDate is '250120'
+        RequisitionLine.Type := RequisitionLine.Type::"G/L Account";
+        RequisitionLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with RequisitionLine
+        LineWithPrice := RequisitionLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, RequisitionLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '250120'(from WorkDate)
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", WorkDate());
+    end;
+
+    [Test]
+    procedure T033_RequisitionLinePriceCopyToBufferWithPostingDate()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        RequisitionLine: Record "Requisition Line";
+        RequisitionLinePrice: Codeunit "Requisition Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Requisition Line]
+        Initialize();
+        // [GIVEN] Requisition Line, where "Order Date" is 300120, while WorkDate is '250120'
+        RequisitionLine."Order Date" := WorkDate() + 5;
+        RequisitionLine.Type := RequisitionLine.Type::"G/L Account";
+        RequisitionLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with RequisitionLine
+        LineWithPrice := RequisitionLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, RequisitionLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '300120'(from RequisitionLine."Order Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", RequisitionLine."Order Date");
+    end;
+
+    [Test]
+    procedure T034_ResJournalLinePriceCopyToBufferWithoutPostingDate()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        ResJournalLine: Record "Res. Journal Line";
+        ResJournalLinePrice: Codeunit "Res. Journal Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Resource Journal]
+        Initialize();
+        // [GIVEN] Res. Journal Line, where "Posting Date" is <blank>, while WorkDate is '250120'
+        ResJournalLine."Resource No." := LibraryResource.CreateResourceNo();
+
+        // [GIVEN] Initialize LineWithPrice with ResJournalLine
+        LineWithPrice := ResJournalLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, ResJournalLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '250120'(from WorkDate)
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", WorkDate());
+    end;
+
+    [Test]
+    procedure T035_ResJournalLinePriceCopyToBufferWithPostingDate()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        Job: Record Job;
+        ResJournalLine: Record "Res. Journal Line";
+        ResJournalLinePrice: Codeunit "Res. Journal Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Resource Journal]
+        Initialize();
+        // [GIVEN] Res. Journal Line, where "Posting Date" is 300120, while WorkDate is '250120'
+        ResJournalLine."Posting Date" := WorkDate() + 5;
+        ResJournalLine."Resource No." := LibraryResource.CreateResourceNo();
+
+        // [GIVEN] Initialize LineWithPrice with ResJournalLine
+        LineWithPrice := ResJournalLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, ResJournalLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '300120'(from ResJournalLine."Posting Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", ResJournalLine."Posting Date");
     end;
 
     [Test]
@@ -1669,7 +2353,654 @@ codeunit 134159 "Test Price Calculation - V16"
         LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
     end;
 
+    [Test]
+    procedure T240_SalesLineGetsCustomerSourcesForResource()
+    var
+        Campaign: Array[5] of Record Campaign;
+        Contact: Record Contact;
+        Customer: Record Customer;
+        CustomerDiscountGroup: Record "Customer Discount Group";
+        CustomerPriceGroup: Record "Customer Price Group";
+        Resource: Record Resource;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TempPriceSource: Record "Price Source" temporary;
+        SalesLinePrice: Codeunit "Sales Line - Price";
+    begin
+        // [FEATURE] [Sales] [Resource] [UT]
+        Initialize();
+        // [GIVEN] Customer 'A' has one activated Campaign 'CustCmp', "Primary Contact No." is 'C'
+        // [GIVEN] Contact 'C' has one activated Campaign 'ContCmp'
+        CreateCustomerWithContactAndActivatedCampaigns(Customer, Contact, Campaign, False);
+        // [GIVEN] Customer 'A', where "Customer Discount Group" is 'CDG', "Customer Price Group" is 'CPG'
+        SetGroupsOnCustomer(Customer, CustomerDiscountGroup, CustomerPriceGroup);
+
+        // [GIVEN] Invoice for customer 'A', where 'Campaign No.' is 'HdrCmp'
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        SalesHeader.Validate("Campaign No.", Campaign[1]."No.");
+        SalesHeader.Modify(true);
+        // [GIVEN] with one line, where "Type" is 'Resource', "No." is 'X'
+        LibraryResource.CreateResource(Resource, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Resource, Resource."No.", 0);
+
+        // [WHEN] SetLine()
+        SalesLinePrice.SetLine("Price Type"::Sale, SalesHeader, SalesLine);
+
+        // [THEN] List of sources contains: All Jobs, All Customers, Customer 'A', 'CPG', 'CDG', Contact 'C', Campaign 'HdrCmp'
+        GetSources(SalesLinePrice, TempPriceSource);
+        VerifySaleResourceSources(TempPriceSource, Customer, Contact);
+        TempPriceSource.SetRange("Source Type", "Price Source Type"::Campaign);
+        TempPriceSource.SetRange("Source No.", Campaign[1]."No.");
+        Assert.RecordCount(TempPriceSource, 1);
+    end;
+
+    [Test]
+    procedure T241_ServiceLineGetsCustomerSourcesForResource()
+    var
+        Campaign: Array[5] of Record Campaign;
+        Contact: Record Contact;
+        Customer: Record Customer;
+        CustomerDiscountGroup: Record "Customer Discount Group";
+        CustomerPriceGroup: Record "Customer Price Group";
+        Resource: Record Resource;
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        TempPriceSource: Record "Price Source" temporary;
+        ServiceLinePrice: Codeunit "Service Line - Price";
+    begin
+        // [FEATURE] [Service] [Resource] [UT]
+        Initialize();
+        // [GIVEN] Customer 'A' has one activated Campaign 'CustCmp', "Primary Contact No." is 'C'
+        // [GIVEN] Contact 'C' has one activated Campaign 'ContCmp'
+        CreateCustomerWithContactAndActivatedCampaigns(Customer, Contact, Campaign, False);
+        // [GIVEN] Customer 'A', where "Customer Discount Group" is 'CDG', "Customer Price Group" is 'CPG'
+        SetGroupsOnCustomer(Customer, CustomerDiscountGroup, CustomerPriceGroup);
+
+        // [GIVEN] Invoice for customer 'A'
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, Customer."No.");
+        // [GIVEN] with one line, where "Type" is 'Resource', "No." is 'X'
+        LibraryResource.CreateResource(Resource, '');
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, Resource."No.");
+
+        // [WHEN] SetLine()
+        ServiceLinePrice.SetLine("Price Type"::Sale, ServiceHeader, ServiceLine);
+
+        // [THEN] List of sources contains: All Jobs, All Customers, Customer 'A', 'CPG', 'CDG', Contact 'C', but no Campaign
+        GetSources(ServiceLinePrice, TempPriceSource);
+        VerifySaleResourceSources(TempPriceSource, Customer, Contact);
+        TempPriceSource.SetRange("Source Type", "Price Source Type"::Campaign);
+        Assert.RecordIsEmpty(TempPriceSource);
+    end;
+
+    [Test]
+    procedure T242_PurchaseLineGetsVendorSourcesForResource()
+    var
+        Campaign: Record Campaign;
+        Contact: Record Contact;
+        Resource: Record Resource;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        TempPriceSource: Record "Price Source" temporary;
+        Vendor: Record Vendor;
+        PurchaseLinePrice: Codeunit "Purchase Line - Price";
+    begin
+        // [FEATURE] [Purchase] [Resource] [UT]
+        Initialize();
+        // [GIVEN] Vendor 'V', where "Primary Contact No." is 'C'
+        CreateVendorWithContactAndCampaign(Vendor, Contact, Campaign);
+
+        // [GIVEN] Invoice for Vendor 'V', where 'Campaign No.' is 'HdrCmp'
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        PurchaseHeader.Validate("Campaign No.", Campaign."No.");
+        PurchaseHeader.Modify(true);
+        // [GIVEN] with one line, where "Type" is 'Resource', "No." is 'X'
+        LibraryResource.CreateResource(Resource, '');
+        LibraryPurchase.CreatePurchaseLineSimple(PurchaseLine, PurchaseHeader);
+        PurchaseLine.Type := PurchaseLine.Type::Resource;
+        PurchaseLine."No." := Resource."No.";
+        PurchaseLine.Modify(true);
+
+        // [WHEN] SetLine()
+        PurchaseLinePrice.SetLine("Price Type"::Sale, PurchaseHeader, PurchaseLine);
+
+        // [THEN] List of sources contains: All Vendors, Vendor 'V', Contact 'C', Campaign 'HdrCmp', No 'All Jobs'
+        GetSources(PurchaseLinePrice, TempPriceSource);
+        VerifyPurchaseResourceSources(TempPriceSource, Vendor, Contact);
+        TempPriceSource.SetRange("Source Type", "Price Source Type"::Campaign);
+        TempPriceSource.SetRange("Source No.", Campaign."No.");
+        Assert.RecordCount(TempPriceSource, 1);
+    end;
+
+    [Test]
+    procedure T250_ResourceCostNoPriceLine()
+    var
+        Resource: Record Resource;
+        ResourceGroup: Record "Resource Group";
+        ResJournalLine: Record "Res. Journal Line";
+    begin
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for purchasing all assets.
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+
+        // [GIVEN] Resource 'X', where "Resource Group No." is 'A', "Direct Unit Cost" is 30, "Unit Cost" is 45
+        CreateResourceWithGroup(Resource, ResourceGroup);
+
+        // [GIVEN] ResJournalLine, where "Entry Type" is 'Purchase', "Resource No." is 'X', "Work Type Code" is 'WT'
+        ResJournalLine.Init();
+        ResJournalLine.Validate("Entry Type", ResJournalLine."Entry Type"::Purchase);
+
+        // [WHEN] Validate "Resource No." as 'X'
+        ResJournalLine.Validate("Resource No.", Resource."No.");
+
+        // [THEN] "Unit Cost", "Direct Unit Cost" is taken from the Resource card
+        ResJournalLine.TestField("Unit Cost", Resource."Unit Cost");
+        ResJournalLine.TestField("Direct Unit Cost", Resource."Direct Unit Cost");
+    end;
+
+    [Test]
+    procedure T251_ResourceCostResPriceLine()
+    var
+        PriceListLine: Record "Price List Line";
+        WTPriceListLine: Record "Price List Line";
+        Resource: Record Resource;
+        ResourceGroup: Record "Resource Group";
+        ResJournalLine: Record "Res. Journal Line";
+        WorkType: Record "Work Type";
+    begin
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for purchasing all assets.
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+
+        // [GIVEN] Work Type 'WT'
+        LibraryResource.CreateWorkType(WorkType);
+        // [GIVEN] Resource 'X', where "Resource Group No." is 'A', "Direct Unit Cost" is 30, "Unit Cost" is 45
+        CreateResourceWithGroup(Resource, ResourceGroup);
+
+        // [GIVEN] Resource Price Line, for Resource 'X', "Work Type Code" is <blank>
+        CreateResourcePurchPriceLine(PriceListLine, "Price Asset Type"::Resource, Resource."No.", '');
+        // [GIVEN] Resource Price Line, for Resource 'X', "Work Type Code" is 'WT'
+        CreateResourcePurchPriceLine(WTPriceListLine, "Price Asset Type"::Resource, Resource."No.", WorkType.Code);
+
+        // [GIVEN] ResJournalLine, where "Entry Type" is 'Purchase', "Resource No." is 'X', "Work Type Code" is 'WT'
+        ResJournalLine.Init();
+        ResJournalLine.Validate("Entry Type", ResJournalLine."Entry Type"::Purchase);
+
+        // [WHEN] Validate "Resource No." as 'X'
+        ResJournalLine.Validate("Resource No.", Resource."No.");
+
+        // [THEN] "Unit Cost", "Direct Unit Cost" is taken from the Resource Price Line
+        ResJournalLine.TestField("Unit Cost", PriceListLine."Unit Cost");
+        ResJournalLine.TestField("Direct Unit Cost", PriceListLine."Direct Unit Cost");
+    end;
+
+    [Test]
+    procedure T252_ResourceCostResGroupPriceLine()
+    var
+        PriceListLine: Record "Price List Line";
+        WTPriceListLine: Record "Price List Line";
+        Resource: Record Resource;
+        ResourceGroup: Record "Resource Group";
+        ResJournalLine: Record "Res. Journal Line";
+        WorkType: Record "Work Type";
+    begin
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for purchasing all assets.
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+
+        // [GIVEN] Work Type 'WT'
+        LibraryResource.CreateWorkType(WorkType);
+        // [GIVEN] Resource 'X', where "Resource Group No." is 'A', "Direct Unit Cost" is 30, "Unit Cost" is 45
+        CreateResourceWithGroup(Resource, ResourceGroup);
+
+        // [GIVEN] Resource Price Line, for Resource Group 'A', "Work Type Code" is <blank>
+        CreateResourcePurchPriceLine(PriceListLine, "Price Asset Type"::"Resource Group", ResourceGroup."No.", '');
+        // [GIVEN] Resource Price Line, for Resource Group 'A', "Work Type Code" is 'WT'
+        CreateResourcePurchPriceLine(WTPriceListLine, "Price Asset Type"::"Resource Group", ResourceGroup."No.", WorkType.Code);
+
+        // [GIVEN] ResJournalLine, where "Entry Type" is 'Purchase', "Resource No." is 'X', "Work Type Code" is 'WT'
+        ResJournalLine.Init();
+        ResJournalLine.Validate("Entry Type", ResJournalLine."Entry Type"::Purchase);
+
+        // [WHEN] Validate "Resource No." as 'X'
+        ResJournalLine.Validate("Resource No.", Resource."No.");
+
+        // [THEN] "Unit Cost", "Direct Unit Cost" is taken from the Resource Group Price Line
+        ResJournalLine.TestField("Unit Cost", PriceListLine."Unit Cost");
+        ResJournalLine.TestField("Direct Unit Cost", PriceListLine."Direct Unit Cost");
+    end;
+
+    [Test]
+    procedure T253_ResourceCostResAllPriceLine()
+    var
+        PriceListLine: Record "Price List Line";
+        WTPriceListLine: Record "Price List Line";
+        Resource: Record Resource;
+        ResourceGroup: Record "Resource Group";
+        ResJournalLine: Record "Res. Journal Line";
+        WorkType: Record "Work Type";
+    begin
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for purchasing all assets.
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+
+        // [GIVEN] Work Type 'WT'
+        LibraryResource.CreateWorkType(WorkType);
+        // [GIVEN] Resource 'X', where "Resource Group No." is 'A', "Direct Unit Cost" is 30, "Unit Cost" is 45
+        CreateResourceWithGroup(Resource, ResourceGroup);
+
+        // [GIVEN] Resource Price Line, for Resource <blank> (All), "Work Type Code" is <blank>
+        CreateResourcePurchPriceLine(PriceListLine, "Price Asset Type"::Resource, '', '');
+        // [GIVEN] Resource Price Line, for Resource <blank> (All), "Work Type Code" is 'WT'
+        CreateResourcePurchPriceLine(WTPriceListLine, "Price Asset Type"::Resource, '', WorkType.Code);
+
+        // [GIVEN] ResJournalLine, where "Entry Type" is 'Purchase', "Resource No." is 'X', "Work Type Code" is 'WT'
+        ResJournalLine.Init();
+        ResJournalLine.Validate("Entry Type", ResJournalLine."Entry Type"::Purchase);
+
+        // [WHEN] Validate "Resource No." as 'X'
+        ResJournalLine.Validate("Resource No.", Resource."No.");
+
+        // [THEN] "Unit Cost", "Direct Unit Cost" is taken from the Resource All Price Line
+        ResJournalLine.TestField("Unit Cost", PriceListLine."Unit Cost");
+        ResJournalLine.TestField("Direct Unit Cost", PriceListLine."Direct Unit Cost");
+    end;
+
+    [Test]
+    procedure T254_ResourceCostResAndResGroupPriceLines()
+    var
+        PriceListLine: array[2] of Record "Price List Line";
+        WTPriceListLine: array[2] of Record "Price List Line";
+        Resource: Record Resource;
+        ResourceGroup: Record "Resource Group";
+        ResJournalLine: Record "Res. Journal Line";
+        WorkType: Record "Work Type";
+    begin
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for purchasing all assets.
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+
+        // [GIVEN] Work Type 'WT'
+        LibraryResource.CreateWorkType(WorkType);
+        // [GIVEN] Resource 'X', where "Resource Group No." is 'A', "Direct Unit Cost" is 30, "Unit Cost" is 45
+        CreateResourceWithGroup(Resource, ResourceGroup);
+
+        // [GIVEN] Resource Price Line, for Resource 'X', "Work Type Code" is <blank>
+        CreateResourcePurchPriceLine(PriceListLine[1], "Price Asset Type"::Resource, Resource."No.", '');
+        // [GIVEN] Resource Price Line, for Resource Group 'A', "Work Type Code" is <blank>
+        CreateResourcePurchPriceLine(PriceListLine[2], "Price Asset Type"::"Resource Group", ResourceGroup."No.", '');
+        // [GIVEN] Resource Price Line, for Resource 'X', "Work Type Code" is 'WT'
+        CreateResourcePurchPriceLine(WTPriceListLine[1], "Price Asset Type"::Resource, Resource."No.", WorkType.Code);
+        // [GIVEN] Resource Price Line, for Resource Group 'A', "Work Type Code" is 'WT'
+        CreateResourcePurchPriceLine(WTPriceListLine[2], "Price Asset Type"::"Resource Group", ResourceGroup."No.", WorkType.Code);
+
+        // [GIVEN] ResJournalLine, where "Entry Type" is 'Purchase', "Resource No." is 'X', "Work Type Code" is 'WT'
+        ResJournalLine.Init();
+        ResJournalLine.Validate("Entry Type", ResJournalLine."Entry Type"::Purchase);
+
+        // [WHEN] Validate "Resource No." as 'X'
+        ResJournalLine.Validate("Resource No.", Resource."No.");
+
+        // [THEN] "Unit Cost", "Direct Unit Cost" is taken from the Resource Price Line
+        ResJournalLine.TestField("Unit Cost", PriceListLine[1]."Unit Cost");
+        ResJournalLine.TestField("Direct Unit Cost", PriceListLine[1]."Direct Unit Cost");
+    end;
+
+    [Test]
+    procedure T255_ResourceCostResAllAndResGroupPriceLines()
+    var
+        PriceListLine: array[2] of Record "Price List Line";
+        WTPriceListLine: array[2] of Record "Price List Line";
+        Resource: Record Resource;
+        ResourceGroup: Record "Resource Group";
+        ResJournalLine: Record "Res. Journal Line";
+        WorkType: Record "Work Type";
+    begin
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for purchasing all assets.
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+
+        // [GIVEN] Work Type 'WT'
+        LibraryResource.CreateWorkType(WorkType);
+        // [GIVEN] Resource 'X', where "Resource Group No." is 'A', "Direct Unit Cost" is 30, "Unit Cost" is 45
+        CreateResourceWithGroup(Resource, ResourceGroup);
+
+        // [GIVEN] Resource Price Line, for Resource <blank> (All), "Work Type Code" is <blank>
+        CreateResourcePurchPriceLine(PriceListLine[1], "Price Asset Type"::Resource, '', '');
+        // [GIVEN] Resource Price Line, for Resource Group 'A', "Work Type Code" is <blank>
+        CreateResourcePurchPriceLine(PriceListLine[2], "Price Asset Type"::"Resource Group", ResourceGroup."No.", '');
+        // [GIVEN] Resource Price Line, for Resource <blank> (All), "Work Type Code" is 'WT'
+        CreateResourcePurchPriceLine(WTPriceListLine[1], "Price Asset Type"::Resource, '', WorkType.Code);
+        // [GIVEN] Resource Price Line, for Resource Group 'A', "Work Type Code" is 'WT'
+        CreateResourcePurchPriceLine(WTPriceListLine[2], "Price Asset Type"::"Resource Group", ResourceGroup."No.", WorkType.Code);
+
+        // [GIVEN] ResJournalLine, where "Entry Type" is 'Purchase', "Resource No." is 'X', "Work Type Code" is 'WT'
+        ResJournalLine.Init();
+        ResJournalLine.Validate("Entry Type", ResJournalLine."Entry Type"::Purchase);
+
+        // [WHEN] Validate "Resource No." as 'X'
+        ResJournalLine.Validate("Resource No.", Resource."No.");
+
+        // [THEN] "Unit Cost", "Direct Unit Cost" is taken from the Resource Group Price Line
+        ResJournalLine.TestField("Unit Cost", PriceListLine[2]."Unit Cost");
+        ResJournalLine.TestField("Direct Unit Cost", PriceListLine[2]."Direct Unit Cost");
+    end;
+
+    [Test]
+    procedure T256_ResourceCostResAndResGrAndResAllPriceLines()
+    var
+        PriceListLine: array[3] of Record "Price List Line";
+        WTPriceListLine: array[3] of Record "Price List Line";
+        Resource: Record Resource;
+        ResourceGroup: Record "Resource Group";
+        ResJournalLine: Record "Res. Journal Line";
+        WorkType: Record "Work Type";
+    begin
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for purchasing all assets.
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+
+        // [GIVEN] Work Type 'WT'
+        LibraryResource.CreateWorkType(WorkType);
+        // [GIVEN] Resource 'X', where "Resource Group No." is 'A', "Direct Unit Cost" is 30, "Unit Cost" is 45
+        CreateResourceWithGroup(Resource, ResourceGroup);
+
+        // [GIVEN] Resource Price Line, for Resource 'X', "Work Type Code" is <blank>
+        CreateResourcePurchPriceLine(PriceListLine[1], "Price Asset Type"::Resource, Resource."No.", '');
+        // [GIVEN] Resource Price Line, for Resource Group 'A', "Work Type Code" is <blank>
+        CreateResourcePurchPriceLine(PriceListLine[2], "Price Asset Type"::"Resource Group", ResourceGroup."No.", '');
+        // [GIVEN] Resource Price Line, for Resource <blank> (All), "Work Type Code" is <blank>
+        CreateResourcePurchPriceLine(PriceListLine[3], "Price Asset Type"::Resource, '', '');
+        // [GIVEN] Resource Price Line, for Resource 'X', "Work Type Code" is 'WT'
+        CreateResourcePurchPriceLine(WTPriceListLine[1], "Price Asset Type"::Resource, Resource."No.", WorkType.Code);
+        // [GIVEN] Resource Price Line, for Resource Group 'A', "Work Type Code" is 'WT'
+        CreateResourcePurchPriceLine(WTPriceListLine[2], "Price Asset Type"::"Resource Group", ResourceGroup."No.", WorkType.Code);
+        // [GIVEN] Resource Price Line, for Resource <blank> (All), "Work Type Code" is 'WT'
+        CreateResourcePurchPriceLine(WTPriceListLine[3], "Price Asset Type"::Resource, '', WorkType.Code);
+
+        // [GIVEN] ResJournalLine, where "Entry Type" is 'Purchase', "Resource No." is 'X', "Work Type Code" is 'WT'
+        ResJournalLine.Init();
+        ResJournalLine.Validate("Entry Type", ResJournalLine."Entry Type"::Purchase);
+
+        // [WHEN] Validate "Resource No." as 'X'
+        ResJournalLine.Validate("Resource No.", Resource."No.");
+
+        // [THEN] "Unit Cost", "Direct Unit Cost" is taken from the Resource Price Line
+        ResJournalLine.TestField("Unit Cost", PriceListLine[1]."Unit Cost");
+        ResJournalLine.TestField("Direct Unit Cost", PriceListLine[1]."Direct Unit Cost");
+    end;
+
+    [Test]
+    procedure T260_ResWorkTypeCostNoPriceLine()
+    var
+        Resource: Record Resource;
+        ResourceGroup: Record "Resource Group";
+        ResJournalLine: Record "Res. Journal Line";
+        WorkType: Record "Work Type";
+    begin
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for purchasing all assets.
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+
+        // [GIVEN] Work Type 'WT'
+        LibraryResource.CreateWorkType(WorkType);
+        // [GIVEN] Resource 'X', where "Resource Group No." is 'A', "Direct Unit Cost" is 30, "Unit Cost" is 45
+        CreateResourceWithGroup(Resource, ResourceGroup);
+
+        // [GIVEN] ResJournalLine, where "Entry Type" is 'Purchase', "Resource No." is 'X'
+        ResJournalLine.Init();
+        ResJournalLine.Validate("Entry Type", ResJournalLine."Entry Type"::Purchase);
+        ResJournalLine.Validate("Resource No.", Resource."No.");
+
+        // [WHEN] Validate "Work Type Code" as 'WT'
+        ResJournalLine.Validate("Work Type Code", WorkType.Code);
+
+        // [THEN] "Unit Cost", "Direct Unit Cost" is taken from the Resource card
+        ResJournalLine.TestField("Unit Cost", Resource."Unit Cost");
+        ResJournalLine.TestField("Direct Unit Cost", Resource."Direct Unit Cost");
+    end;
+
+    [Test]
+    procedure T261_ResWorkTypeCostResPriceLine()
+    var
+        PriceListLine: Record "Price List Line";
+        WTPriceListLine: Record "Price List Line";
+        Resource: Record Resource;
+        ResourceGroup: Record "Resource Group";
+        ResJournalLine: Record "Res. Journal Line";
+        WorkType: Record "Work Type";
+    begin
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for purchasing all assets.
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+
+        // [GIVEN] Work Type 'WT'
+        LibraryResource.CreateWorkType(WorkType);
+        // [GIVEN] Resource 'X', where "Resource Group No." is 'A', "Direct Unit Cost" is 30, "Unit Cost" is 45
+        CreateResourceWithGroup(Resource, ResourceGroup);
+
+        // [GIVEN] Resource Price Line, for Resource 'X', "Work Type Code" is <blank>
+        CreateResourcePurchPriceLine(PriceListLine, "Price Asset Type"::Resource, Resource."No.", '');
+        // [GIVEN] Resource Price Line, for Resource 'X', "Work Type Code" is 'WT'
+        CreateResourcePurchPriceLine(WTPriceListLine, "Price Asset Type"::Resource, Resource."No.", WorkType.Code);
+
+        // [GIVEN] ResJournalLine, where "Entry Type" is 'Purchase', "Resource No." is 'X'
+        ResJournalLine.Init();
+        ResJournalLine.Validate("Entry Type", ResJournalLine."Entry Type"::Purchase);
+        ResJournalLine.Validate("Resource No.", Resource."No.");
+
+        // [WHEN] Validate "Work Type Code" as 'WT'
+        ResJournalLine.Validate("Work Type Code", WorkType.Code);
+
+
+        // [THEN] "Unit Cost", "Direct Unit Cost" is taken from the Resource Price Line with Work Type 'WT'
+        ResJournalLine.TestField("Unit Cost", WTPriceListLine."Unit Cost");
+        ResJournalLine.TestField("Direct Unit Cost", WTPriceListLine."Direct Unit Cost");
+    end;
+
+    [Test]
+    procedure T262_ResWorkTypeCostResGroupPriceLine()
+    var
+        PriceListLine: Record "Price List Line";
+        WTPriceListLine: Record "Price List Line";
+        Resource: Record Resource;
+        ResourceGroup: Record "Resource Group";
+        ResJournalLine: Record "Res. Journal Line";
+        WorkType: Record "Work Type";
+    begin
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for purchasing all assets.
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+
+        // [GIVEN] Work Type 'WT'
+        LibraryResource.CreateWorkType(WorkType);
+        // [GIVEN] Resource 'X', where "Resource Group No." is 'A', "Direct Unit Cost" is 30, "Unit Cost" is 45
+        CreateResourceWithGroup(Resource, ResourceGroup);
+
+        // [GIVEN] Resource Price Line, for Resource Group 'A', "Work Type Code" is <blank>
+        CreateResourcePurchPriceLine(PriceListLine, "Price Asset Type"::"Resource Group", ResourceGroup."No.", '');
+        // [GIVEN] Resource Price Line, for Resource Group 'A', "Work Type Code" is 'WT'
+        CreateResourcePurchPriceLine(WTPriceListLine, "Price Asset Type"::"Resource Group", ResourceGroup."No.", WorkType.Code);
+
+        // [GIVEN] ResJournalLine, where "Entry Type" is 'Purchase', "Resource No." is 'X'
+        ResJournalLine.Init();
+        ResJournalLine.Validate("Entry Type", ResJournalLine."Entry Type"::Purchase);
+        ResJournalLine.Validate("Resource No.", Resource."No.");
+
+        // [WHEN] Validate "Work Type Code" as 'WT'
+        ResJournalLine.Validate("Work Type Code", WorkType.Code);
+
+        // [THEN] "Unit Cost", "Direct Unit Cost" is taken from the Resource Group Price Line with Work Type 'WT'
+        ResJournalLine.TestField("Unit Cost", WTPriceListLine."Unit Cost");
+        ResJournalLine.TestField("Direct Unit Cost", WTPriceListLine."Direct Unit Cost");
+    end;
+
+    [Test]
+    procedure T263_ResWorkTypeCostResAllPriceLine()
+    var
+        PriceListLine: Record "Price List Line";
+        WTPriceListLine: Record "Price List Line";
+        Resource: Record Resource;
+        ResourceGroup: Record "Resource Group";
+        ResJournalLine: Record "Res. Journal Line";
+        WorkType: Record "Work Type";
+    begin
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for purchasing all assets.
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+
+        // [GIVEN] Work Type 'WT'
+        LibraryResource.CreateWorkType(WorkType);
+        // [GIVEN] Resource 'X', where "Resource Group No." is 'A', "Direct Unit Cost" is 30, "Unit Cost" is 45
+        CreateResourceWithGroup(Resource, ResourceGroup);
+
+        // [GIVEN] Resource Price Line, for Resource <blank> (All), "Work Type Code" is <blank>
+        CreateResourcePurchPriceLine(PriceListLine, "Price Asset Type"::Resource, '', '');
+        // [GIVEN] Resource Price Line, for Resource <blank> (All), "Work Type Code" is 'WT'
+        CreateResourcePurchPriceLine(WTPriceListLine, "Price Asset Type"::Resource, '', WorkType.Code);
+
+        // [GIVEN] ResJournalLine, where "Entry Type" is 'Purchase', "Resource No." is 'X'
+        ResJournalLine.Init();
+        ResJournalLine.Validate("Entry Type", ResJournalLine."Entry Type"::Purchase);
+        ResJournalLine.Validate("Resource No.", Resource."No.");
+
+        // [WHEN] Validate "Work Type Code" as 'WT'
+        ResJournalLine.Validate("Work Type Code", WorkType.Code);
+
+        // [THEN] "Unit Cost", "Direct Unit Cost" is taken from the Resource All Price Line with Work Type 'WT'
+        ResJournalLine.TestField("Unit Cost", WTPriceListLine."Unit Cost");
+        ResJournalLine.TestField("Direct Unit Cost", WTPriceListLine."Direct Unit Cost");
+    end;
+
+    [Test]
+    procedure T264_ResWorkTypeCostResAndResGroupPriceLines()
+    var
+        PriceListLine: array[2] of Record "Price List Line";
+        WTPriceListLine: array[2] of Record "Price List Line";
+        Resource: Record Resource;
+        ResourceGroup: Record "Resource Group";
+        ResJournalLine: Record "Res. Journal Line";
+        WorkType: Record "Work Type";
+    begin
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for purchasing all assets.
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+
+        // [GIVEN] Work Type 'WT'
+        LibraryResource.CreateWorkType(WorkType);
+        // [GIVEN] Resource 'X', where "Resource Group No." is 'A', "Direct Unit Cost" is 30, "Unit Cost" is 45
+        CreateResourceWithGroup(Resource, ResourceGroup);
+
+        // [GIVEN] Resource Price Line, for Resource 'X', "Work Type Code" is <blank>
+        CreateResourcePurchPriceLine(PriceListLine[1], "Price Asset Type"::Resource, Resource."No.", '');
+        // [GIVEN] Resource Price Line, for Resource Group 'A', "Work Type Code" is <blank>
+        CreateResourcePurchPriceLine(PriceListLine[2], "Price Asset Type"::"Resource Group", ResourceGroup."No.", '');
+        // [GIVEN] Resource Price Line, for Resource 'X', "Work Type Code" is 'WT'
+        CreateResourcePurchPriceLine(WTPriceListLine[1], "Price Asset Type"::Resource, Resource."No.", WorkType.Code);
+        // [GIVEN] Resource Price Line, for Resource Group 'A', "Work Type Code" is 'WT'
+        CreateResourcePurchPriceLine(WTPriceListLine[2], "Price Asset Type"::"Resource Group", ResourceGroup."No.", WorkType.Code);
+
+        // [GIVEN] ResJournalLine, where "Entry Type" is 'Purchase', "Resource No." is 'X'
+        ResJournalLine.Init();
+        ResJournalLine.Validate("Entry Type", ResJournalLine."Entry Type"::Purchase);
+        ResJournalLine.Validate("Resource No.", Resource."No.");
+
+        // [WHEN] Validate "Work Type Code" as 'WT'
+        ResJournalLine.Validate("Work Type Code", WorkType.Code);
+
+        // [THEN] "Unit Cost", "Direct Unit Cost" is taken from the Resource Price Line with Work Type 'WT'
+        ResJournalLine.TestField("Unit Cost", WTPriceListLine[1]."Unit Cost");
+        ResJournalLine.TestField("Direct Unit Cost", WTPriceListLine[1]."Direct Unit Cost");
+    end;
+
+    [Test]
+    procedure T265_ResWorkTypeCostResAllAndResGroupPriceLines()
+    var
+        PriceListLine: array[2] of Record "Price List Line";
+        WTPriceListLine: array[2] of Record "Price List Line";
+        Resource: Record Resource;
+        ResourceGroup: Record "Resource Group";
+        ResJournalLine: Record "Res. Journal Line";
+        WorkType: Record "Work Type";
+    begin
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for purchasing all assets.
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+
+        // [GIVEN] Work Type 'WT'
+        LibraryResource.CreateWorkType(WorkType);
+        // [GIVEN] Resource 'X', where "Resource Group No." is 'A', "Direct Unit Cost" is 30, "Unit Cost" is 45
+        CreateResourceWithGroup(Resource, ResourceGroup);
+
+        // [GIVEN] Resource Price Line, for Resource <blank> (All), "Work Type Code" is <blank>
+        CreateResourcePurchPriceLine(PriceListLine[1], "Price Asset Type"::Resource, '', '');
+        // [GIVEN] Resource Price Line, for Resource Group 'A', "Work Type Code" is <blank>
+        CreateResourcePurchPriceLine(PriceListLine[2], "Price Asset Type"::"Resource Group", ResourceGroup."No.", '');
+        // [GIVEN] Resource Price Line, for Resource <blank> (All), "Work Type Code" is 'WT'
+        CreateResourcePurchPriceLine(WTPriceListLine[1], "Price Asset Type"::Resource, '', WorkType.Code);
+        // [GIVEN] Resource Price Line, for Resource Group 'A', "Work Type Code" is 'WT'
+        CreateResourcePurchPriceLine(WTPriceListLine[2], "Price Asset Type"::"Resource Group", ResourceGroup."No.", WorkType.Code);
+
+        // [GIVEN] ResJournalLine, where "Entry Type" is 'Purchase', "Resource No." is 'X'
+        ResJournalLine.Init();
+        ResJournalLine.Validate("Entry Type", ResJournalLine."Entry Type"::Purchase);
+        ResJournalLine.Validate("Resource No.", Resource."No.");
+
+        // [WHEN] Validate "Work Type Code" as 'WT'
+        ResJournalLine.Validate("Work Type Code", WorkType.Code);
+
+        // [THEN] "Unit Cost", "Direct Unit Cost" is taken from the Resource Group Price Line with Work Type 'WT'
+        ResJournalLine.TestField("Unit Cost", WTPriceListLine[2]."Unit Cost");
+        ResJournalLine.TestField("Direct Unit Cost", WTPriceListLine[2]."Direct Unit Cost");
+    end;
+
+    [Test]
+    procedure T266_ResWorkTypeCostResAndResGrAndResAllPriceLines()
+    var
+        PriceListLine: array[3] of Record "Price List Line";
+        WTPriceListLine: array[3] of Record "Price List Line";
+        Resource: Record Resource;
+        ResourceGroup: Record "Resource Group";
+        ResJournalLine: Record "Res. Journal Line";
+        WorkType: Record "Work Type";
+    begin
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for purchasing all assets.
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+
+        // [GIVEN] Work Type 'WT'
+        LibraryResource.CreateWorkType(WorkType);
+        // [GIVEN] Resource 'X', where "Resource Group No." is 'A', "Direct Unit Cost" is 30, "Unit Cost" is 45
+        CreateResourceWithGroup(Resource, ResourceGroup);
+
+        // [GIVEN] Resource Price Line, for Resource 'X', "Work Type Code" is <blank>
+        CreateResourcePurchPriceLine(PriceListLine[1], "Price Asset Type"::Resource, Resource."No.", '');
+        // [GIVEN] Resource Price Line, for Resource Group 'A', "Work Type Code" is <blank>
+        CreateResourcePurchPriceLine(PriceListLine[2], "Price Asset Type"::"Resource Group", ResourceGroup."No.", '');
+        // [GIVEN] Resource Price Line, for Resource <blank> (All), "Work Type Code" is <blank>
+        CreateResourcePurchPriceLine(PriceListLine[3], "Price Asset Type"::Resource, '', '');
+        // [GIVEN] Resource Price Line, for Resource 'X', "Work Type Code" is 'WT'
+        CreateResourcePurchPriceLine(WTPriceListLine[1], "Price Asset Type"::Resource, Resource."No.", WorkType.Code);
+        // [GIVEN] Resource Price Line, for Resource Group 'A', "Work Type Code" is 'WT'
+        CreateResourcePurchPriceLine(WTPriceListLine[2], "Price Asset Type"::"Resource Group", ResourceGroup."No.", WorkType.Code);
+        // [GIVEN] Resource Price Line, for Resource <blank> (All), "Work Type Code" is 'WT'
+        CreateResourcePurchPriceLine(WTPriceListLine[3], "Price Asset Type"::Resource, '', WorkType.Code);
+
+        // [GIVEN] ResJournalLine, where "Entry Type" is 'Purchase', "Resource No." is 'X'
+        ResJournalLine.Init();
+        ResJournalLine.Validate("Entry Type", ResJournalLine."Entry Type"::Purchase);
+        ResJournalLine.Validate("Resource No.", Resource."No.");
+
+        // [WHEN] Validate "Work Type Code" as 'WT'
+        ResJournalLine.Validate("Work Type Code", WorkType.Code);
+
+        // [THEN] "Unit Cost", "Direct Unit Cost" is taken from the Resource Price Line with Work Type 'WT'
+        ResJournalLine.TestField("Unit Cost", WTPriceListLine[1]."Unit Cost");
+        ResJournalLine.TestField("Direct Unit Cost", WTPriceListLine[1]."Direct Unit Cost");
+    end;
+
     local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryVariableStorage.Clear();
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Price Calculation - V16");
@@ -1677,6 +3008,7 @@ codeunit 134159 "Test Price Calculation - V16"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test Price Calculation - V16");
+        LibraryERMCountryData.CreateVATData();
         LibraryPriceCalculation.EnableExtendedPriceCalculation();
         isInitialized := true;
         Commit;
@@ -1833,6 +3165,45 @@ codeunit 134159 "Test Price Calculation - V16"
         PriceListLine.Modify();
     end;
 
+    local procedure CreateCustomerWithContactAndActivatedCampaigns(var Customer: Record Customer; var Contact: Record Contact; var Campaign: Array[5] of Record Campaign; SkipCustomerCampaign: Boolean)
+    var
+        CampaignTargetGr: Record "Campaign Target Group";
+        i: Integer;
+    begin
+        LibraryMarketing.CreateCampaign(Campaign[1]);
+
+        LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
+        if not SkipCustomerCampaign then begin
+
+            CampaignTargetGr.Init();
+            CampaignTargetGr.Type := CampaignTargetGr.Type::Customer;
+            CampaignTargetGr."No." := Customer."No.";
+            for i := 2 to 3 do begin
+                LibraryMarketing.CreateCampaign(Campaign[i]);
+                CampaignTargetGr."Campaign No." := Campaign[i]."No.";
+                CampaignTargetGr.Insert();
+            end;
+        end;
+
+        CampaignTargetGr.Init();
+        CampaignTargetGr.Type := CampaignTargetGr.Type::Contact;
+        CampaignTargetGr."No." := Contact."No.";
+        for i := 4 to 5 do begin
+            LibraryMarketing.CreateCampaign(Campaign[i]);
+            CampaignTargetGr."Campaign No." := Campaign[i]."No.";
+            CampaignTargetGr.Insert();
+        end;
+    end;
+
+    local procedure CreateVendorWithContactAndCampaign(var Vendor: Record Vendor; var Contact: Record Contact; var Campaign: Record Campaign)
+    begin
+        LibraryMarketing.CreateCampaign(Campaign);
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryMarketing.CreateCompanyContact(Contact);
+        Vendor."Primary Contact No." := Contact."No.";
+        Vendor.Modify();
+    end;
+
     local procedure CreatePriceLine(var PriceListLine: Record "Price List Line"; Customer: Record Customer; Item: Record Item; AllowLineDisc: Boolean)
     begin
         LibraryPriceCalculation.CreateSalesPriceLine(
@@ -1863,6 +3234,28 @@ codeunit 134159 "Test Price Calculation - V16"
         Resource.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         Resource.Modify(true);
         exit(Resource."No.");
+    end;
+
+    local procedure CreateResourceWithGroup(var Resource: Record Resource; var ResourceGroup: Record "Resource Group")
+    begin
+        LibraryResource.CreateResourceGroup(ResourceGroup);
+        LibraryResource.CreateResource(Resource, '');
+        Resource."Direct Unit Cost" := LibraryRandom.RandDec(100, 2);
+        Resource."Unit Cost" := Resource."Unit Cost" * 1.5;
+        Resource."Resource Group No." := ResourceGroup."No.";
+        Resource.Modify();
+    end;
+
+    local procedure CreateResourcePurchPriceLine(var PriceListLine: Record "Price List Line"; AssetType: Enum "Price Asset Type"; AssetNo: Code[20]; WorkTypeCode: Code[10])
+    var
+        myInt: Integer;
+    begin
+        LibraryPriceCalculation.CreatePurchPriceLine(PriceListLine, '', "Price Source Type"::"All Jobs", '', AssetType, AssetNo);
+        PriceListLine."Work Type Code" := WorkTypeCode;
+        PriceListLine."Direct Unit Cost" := LibraryRandom.RandDec(100, 2);
+        PriceListLine."Unit Cost" := PriceListLine."Direct Unit Cost" * 1.3;
+        PriceListLine.Status := PriceListLine.Status::Active;
+        PriceListLine.Modify();
     end;
 
     local procedure CreateServiceLineWithResource(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; ServiceItemNo: Code[20])
@@ -1918,6 +3311,15 @@ codeunit 134159 "Test Price Calculation - V16"
         PriceListLine.DeleteAll();
     end;
 
+    local procedure SetGroupsOnCustomer(var Customer: Record Customer; var CustomerDiscountGroup: Record "Customer Discount Group"; var CustomerPriceGroup: Record "Customer Price Group")
+    begin
+        LibraryERM.CreateCustomerDiscountGroup(CustomerDiscountGroup);
+        LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
+        Customer."Customer Disc. Group" := CustomerDiscountGroup.Code;
+        Customer."Customer Price Group" := CustomerPriceGroup.Code;
+        Customer.Modify();
+    end;
+
     local procedure MockBuffer(PriceType: enum "Price Type"; CurrencyCode: Code[10]; CurrencyFactor: Decimal; var PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.")
     var
         PriceCalculationBuffer: Record "Price Calculation Buffer";
@@ -1932,10 +3334,83 @@ codeunit 134159 "Test Price Calculation - V16"
         PriceCalculationBufferMgt.Set(PriceCalculationBuffer, DummyPriceSourceList);
     end;
 
+    local procedure GetSources(PurchaseLinePrice: Codeunit "Purchase Line - Price"; var TempPriceSource: Record "Price Source" temporary): Boolean;
+    var
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+    begin
+        PurchaseLinePrice.CopyToBuffer(PriceCalculationBufferMgt);
+        exit(PriceCalculationBufferMgt.GetSources(TempPriceSource));
+    end;
+
+    local procedure GetSources(SalesLinePrice: Codeunit "Sales Line - Price"; var TempPriceSource: Record "Price Source" temporary): Boolean;
+    var
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+    begin
+        SalesLinePrice.CopyToBuffer(PriceCalculationBufferMgt);
+        exit(PriceCalculationBufferMgt.GetSources(TempPriceSource));
+    end;
+
+    local procedure GetSources(ServiceLinePrice: Codeunit "Service Line - Price"; var TempPriceSource: Record "Price Source" temporary): Boolean;
+    var
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+    begin
+        ServiceLinePrice.CopyToBuffer(PriceCalculationBufferMgt);
+        exit(PriceCalculationBufferMgt.GetSources(TempPriceSource));
+    end;
+
+    local procedure VerifyCampaignSource(SalesLinePrice: Codeunit "Sales Line - Price"; CampaignNo: code[20]; ExpectedCount: Integer)
+    var
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        TempPriceSource: Record "Price Source" temporary;
+    begin
+        SalesLinePrice.CopyToBuffer(PriceCalculationBufferMgt);
+        PriceCalculationBufferMgt.GetSources(TempPriceSource);
+        TempPriceSource.SetRange("Source Type", TempPriceSource."Source Type"::Campaign);
+        Assert.RecordCount(TempPriceSource, ExpectedCount);
+        TempPriceSource.SetRange("Source No.", CampaignNo);
+        TempPriceSource.FindFirst();
+    end;
+
     local procedure VerifyLineDiscount(var SalesLine: Record "Sales Line"; LineDisc: Decimal)
     begin
         SalesLine.TestField("Line Discount %", LineDisc);
         SalesLine.TestField("Allow Line Disc.", LineDisc > 0);
+    end;
+
+    local procedure VerifyPurchaseResourceSources(var TempPriceSource: Record "Price Source" temporary; Vendor: Record Vendor; Contact: Record Contact)
+    begin
+        TempPriceSource.SetRange("Source Type", "Price Source Type"::"All Jobs");
+        Assert.RecordIsEmpty(TempPriceSource);
+
+        TempPriceSource.SetRange("Source Type", "Price Source Type"::"All Vendors");
+        Assert.RecordCount(TempPriceSource, 1);
+        TempPriceSource.SetRange("Source Type", "Price Source Type"::Vendor);
+        TempPriceSource.SetRange("Source No.", Vendor."No.");
+        Assert.RecordCount(TempPriceSource, 1);
+        TempPriceSource.SetRange("Source Type", "Price Source Type"::Contact);
+        TempPriceSource.SetRange("Source No.", Contact."No.");
+        Assert.RecordCount(TempPriceSource, 1);
+    end;
+
+    local procedure VerifySaleResourceSources(var TempPriceSource: Record "Price Source" temporary; Customer: Record Customer; Contact: Record Contact)
+    begin
+        TempPriceSource.SetRange("Source Type", "Price Source Type"::"All Jobs");
+        Assert.RecordCount(TempPriceSource, 1);
+
+        TempPriceSource.SetRange("Source Type", "Price Source Type"::"All Customers");
+        Assert.RecordCount(TempPriceSource, 1);
+        TempPriceSource.SetRange("Source Type", "Price Source Type"::Customer);
+        TempPriceSource.SetRange("Source No.", Customer."No.");
+        Assert.RecordCount(TempPriceSource, 1);
+        TempPriceSource.SetRange("Source Type", "Price Source Type"::"Customer Disc. Group");
+        TempPriceSource.SetRange("Source No.", Customer."Customer Disc. Group");
+        Assert.RecordCount(TempPriceSource, 1);
+        TempPriceSource.SetRange("Source Type", "Price Source Type"::"Customer Price Group");
+        TempPriceSource.SetRange("Source No.", Customer."Customer Price Group");
+        Assert.RecordCount(TempPriceSource, 1);
+        TempPriceSource.SetRange("Source Type", "Price Source Type"::Contact);
+        TempPriceSource.SetRange("Source No.", Contact."No.");
+        Assert.RecordCount(TempPriceSource, 1);
     end;
 
     [ModalPageHandler]

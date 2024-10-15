@@ -312,7 +312,8 @@ table 1513 "Notification Schedule"
     procedure ScheduleNotification(NotificationEntry: Record "Notification Entry")
     begin
         // Try to get a schedule if none exist use the default record values
-        if Get(NotificationEntry."Recipient User ID", NotificationEntry.Type) then;
+        if not Get(NotificationEntry."Recipient User ID", NotificationEntry.Type) then
+            if Get('', NotificationEntry.Type) then;
 
         Schedule;
     end;

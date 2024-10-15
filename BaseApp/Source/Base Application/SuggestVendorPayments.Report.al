@@ -535,6 +535,7 @@ report 393 "Suggest Vendor Payments"
         LastLineNo: Integer;
         NextEntryNo: Integer;
         DueDateOffset: DateFormula;
+        [InDataSet]
         UseDueDateAsPostingDate: Boolean;
         StopPayments: Boolean;
         DocNoPerLine: Boolean;
@@ -885,7 +886,7 @@ report 393 "Suggest Vendor Payments"
 
             TempPaymentBuffer.CopyFieldsToGenJournalLine(GenJnlLine);
 
-            OnBeforeUpdateGnlJnlLineDimensionsFromTempBuffer(GenJnlLine, TempPaymentBuffer);
+            OnBeforeUpdateGnlJnlLineDimensionsFromTempBuffer(GenJnlLine, TempPaymentBuffer, SummarizePerVend);
             UpdateDimensions(GenJnlLine);
             Insert;
             GenJnlLineInserted := true;
@@ -1274,7 +1275,7 @@ report 393 "Suggest Vendor Payments"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateGnlJnlLineDimensionsFromTempBuffer(var GenJournalLine: Record "Gen. Journal Line"; TempPaymentBuffer: Record "Payment Buffer" temporary)
+    local procedure OnBeforeUpdateGnlJnlLineDimensionsFromTempBuffer(var GenJournalLine: Record "Gen. Journal Line"; TempPaymentBuffer: Record "Payment Buffer" temporary; SummarizePerVend: Boolean)
     begin
     end;
 

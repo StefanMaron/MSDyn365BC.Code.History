@@ -5,7 +5,7 @@ page 18 "G/L Account List"
     DataCaptionFields = "Search Name";
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Account';
+    PromotedActionCategories = 'New,Process,Report,Account,Prices & Discounts';
     RefreshOnActivate = true;
     SourceTable = "G/L Account";
 
@@ -247,6 +247,7 @@ page 18 "G/L Account List"
                     Caption = 'Sales Prices';
                     Image = Price;
                     Promoted = true;
+                    PromotedCategory = Category5;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or edit sales prices for the account.';
 
@@ -264,6 +265,7 @@ page 18 "G/L Account List"
                     Caption = 'Purchase Prices';
                     Image = Costs;
                     Promoted = true;
+                    PromotedCategory = Category5;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or edit purchase prices for the account.';
 

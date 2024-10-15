@@ -1,4 +1,4 @@
-xmlport 1601 "Sales Credit Memo - PEPPOL 2.1"
+﻿xmlport 1601 "Sales Credit Memo - PEPPOL 2.1"
 {
     Caption = 'Sales Credit Memo - PEPPOL 2.1';
     Direction = Export;
@@ -241,11 +241,12 @@ xmlport 1601 "Sales Credit Memo - PEPPOL 2.1"
                 trigger OnAfterGetRecord()
                 begin
                     PEPPOLMgt.GetAdditionalDocRefInfo(
-                      AdditionalDocumentReferenceID,
-                      AdditionalDocRefDocumentType,
-                      URI,
-                      mimeCode,
-                      EmbeddedDocumentBinaryObject);
+                        SalesHeader,
+                        AdditionalDocumentReferenceID,
+                        AdditionalDocRefDocumentType,
+                        URI,
+                        mimeCode,
+                        EmbeddedDocumentBinaryObject);
 
                     if AdditionalDocumentReferenceID = '' then
                         currXMLport.Skip;

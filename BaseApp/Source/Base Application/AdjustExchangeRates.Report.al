@@ -661,28 +661,8 @@ report 595 "Adjust Exchange Rates"
                 end;
 
                 trigger OnPostDataItem()
-                var
-                    GLReg: Record "G/L Register";
                 begin
-                    if PostSettlement then begin
-                        GenJnlPostLine.GetGLReg(GLReg);
-                        if GLReg."No." <> 0 then begin
-                            GLReg."To VAT Entry No." := NewVATEntry."Entry No.";
-                            GLReg.Modify();
-                        end else
-                            if NewVATEntry."Entry No." >= FirstVATEntry then begin
-                                GLReg.LockTable();
-                                GLReg.FindLast;
-                                GLReg.Init();
-                                GLReg."No." := GLReg."No." + 1;
-                                GLReg."Creation Date" := Today;
-                                GLReg."Source Code" := SourceCodeSetup."Exchange Rate Adjmt.";
-                                GLReg."User ID" := UserId;
-                                GLReg."From VAT Entry No." := FirstVATEntry;
-                                GLReg."To VAT Entry No." := NewVATEntry."Entry No.";
-                                GLReg.Insert();
-                            end;
-                    end;
+                    UpdateGLRegToVATEntryNo();
                 end;
 
                 trigger OnPreDataItem()
@@ -1362,6 +1342,7 @@ report 595 "Adjust Exchange Rates"
         Vendor_Document_type: Integer;
         CorrRevChargeEntryNo: Integer;
         VATEntriesCaptionLbl: Label 'VAT Entries';
+        NextVATEntryNo: Integer;
 
     local procedure PostAdjmt(GLAccNo: Code[20]; PostingAmount: Decimal; AdjBase2: Decimal; CurrencyCode2: Code[10]; var DimSetEntry: Record "Dimension Set Entry"; PostingDate2: Date; ICCode: Code[20]) TransactionNo: Integer
     begin
@@ -2514,6 +2495,32 @@ report 595 "Adjust Exchange Rates"
         end;
     end;
 
+    local procedure UpdateGLRegToVATEntryNo()
+    var
+        GLRegister: Record "G/L Register";
+    begin
+        if PostSettlement then begin
+            GenJnlPostLine.GetGLReg(GLRegister);
+            if GLRegister."No." <> 0 then begin
+                GLRegister."To VAT Entry No." := NewVATEntry."Entry No.";
+                GLRegister.Modify();
+            end else
+                if NewVATEntry."Entry No." >= FirstVATEntry then begin
+                    GLRegister.LockTable();
+                    GLRegister.FindLast;
+                    GLRegister.Init();
+                    GLRegister."No." := GLRegister."No." + 1;
+                    GLRegister."Creation Date" := Today();
+                    GLRegister."Creation Time" := Time();
+                    GLRegister."Source Code" := SourceCodeSetup."Exchange Rate Adjmt.";
+                    GLRegister."User ID" := UserId();
+                    GLRegister."From VAT Entry No." := FirstVATEntry;
+                    GLRegister."To VAT Entry No." := NewVATEntry."Entry No.";
+                    GLRegister.Insert();
+                end;
+        end;
+    end;
+
     [Scope('OnPrem')]
     procedure CalculateBilMoG(var AdjAmt2: Decimal; RemAmtLCY: Decimal; OrigRemAmtLCY: Decimal; DueDate: Date)
     begin
@@ -2655,6 +2662,7 @@ report 595 "Adjust Exchange Rates"
             GenJnlLine.Validate(Amount, FixAmount);
 
             if PostSettlement then begin
+                UpdateGLRegToVATEntryNo();
                 Clear(GenJnlPostLine);
                 PostGenJnlLine(GenJnlLine, TempDimSetEntry);
                 GLEntry.FindLast;
@@ -2709,7 +2717,13 @@ report 595 "Adjust Exchange Rates"
             NewVATEntry."VAT Difference" := 0;
             NewVATEntry."Add.-Curr. VAT Difference" := 0;
             NewVATEntry."Exchange Rate Adjustment" := true;
-            if PostSettlement then begin
+
+            if not PostSettlement then
+                if VATEntryNoToModify = 0 then
+                    NewVATEntry."Entry No." := GetNextVATEntryNo()
+                else
+                    NewVATEntry."Entry No." := VATEntryNoToModify
+            else begin
                 if VATEntryNoToModify <> 0 then begin
                     NewVATEntry."Entry No." := VATEntryNoToModify;
                     NewVATEntry.Modify
@@ -2719,7 +2733,8 @@ report 595 "Adjust Exchange Rates"
                     NewVATEntry.Insert();
                 end;
                 if NewVATEntry.Amount <> 0 then
-                    VATEntryLink.InsertLink(GLEntry."Entry No.", NewVATEntry."Entry No.");
+                    if not VATEntryLink.Get(GLEntry."Entry No.", NewVATEntry."Entry No.") then
+                        VATEntryLink.InsertLink(GLEntry."Entry No.", NewVATEntry."Entry No.");
                 if CorrRevChargeEntryNo <> 0 then begin
                     GLEntry.Get(CorrRevChargeEntryNo);
                     VATEntryLink.InsertLink(GLEntry."Entry No.", NewVATEntry."Entry No.");
@@ -2731,6 +2746,17 @@ report 595 "Adjust Exchange Rates"
 
         if PostSettlement then
             "VAT Entry".Modify();
+    end;
+
+    local procedure GetNextVATEntryNo(): Integer
+    begin
+        if NextVATEntryNo = 0 then begin
+            VATEntry.SetCurrentKey("Entry No.");
+            NextVATEntryNo := VATEntry."Entry No." + 1;
+        end
+        else
+            NextVATEntryNo += 1;
+        exit(NextVATEntryNo);
     end;
 
     [IntegrationEvent(TRUE, false)]

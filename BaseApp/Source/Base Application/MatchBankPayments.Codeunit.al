@@ -1309,6 +1309,9 @@
         Nearness: Integer;
         Disable: Boolean;
     begin
+        if StrLen(Description) < (StrLen(CustVendValue) * GetCloseMatchTreshold() / GetNormalizingFactor()) then
+            exit(0);
+
         Description := RecordMatchMgt.Trim(Description);
 
         OnDisableStringNearnessMatch(Disable);

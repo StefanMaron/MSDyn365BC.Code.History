@@ -395,7 +395,13 @@ codeunit 5459 "JSON Management"
         JObject2: DotNet JObject;
         JProperty: DotNet JProperty;
         ValueText: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAddJPropertyToJObject(JObject, JProperty, propertyName, value, IsHandled);
+        if IsHandled then
+            exit;
+
         case true of
             value.IsDotNet:
                 begin
@@ -726,6 +732,11 @@ codeunit 5459 "JSON Management"
         end;
 
         exit(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddJPropertyToJObject(var JObject: DotNet "JObject"; var JProperty: DotNet "JProperty"; propertyName: Text; value: Variant; var IsHandled: Boolean)
+    begin
     end;
 }
 
