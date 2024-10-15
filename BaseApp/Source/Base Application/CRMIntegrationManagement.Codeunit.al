@@ -9,7 +9,7 @@ codeunit 5330 "CRM Integration Management"
 
     var
         CRMEntityUrlTemplateTxt: Label '%1/main.aspx?pagetype=entityrecord&etn=%2&id=%3', Locked = true;
-        NewestUIAppIdParameterTxt: Label '&appId=%1', Locked = true;
+        NewestUIAppIdParameterTxt: Label '&appid=%1', Locked = true;
         UnableToResolveCRMEntityNameFrmTableIDErr: Label 'The application is not designed to integrate table %1 with %2.', Comment = '%1 = table ID (numeric), %2 = CRM Product Name';
         CouplingNotFoundErr: Label 'The record is not coupled to %1.', Comment = '%1 = CRM Product Name';
         NoCardPageActionDefinedForTableIdErr: Label 'The open page action is not supported for Table %1.', Comment = '%1 = Table ID';

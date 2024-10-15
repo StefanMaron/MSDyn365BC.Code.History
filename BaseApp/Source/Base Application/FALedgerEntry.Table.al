@@ -467,6 +467,8 @@ table 5601 "FA Ledger Entry"
         GenJnlLine."FA Reclassification Entry" := "Reclassification Entry";
         GenJnlLine."Index Entry" := "Index Entry";
         GenJnlLine."Line No." := NextLineNo;
+        GenJnlLine."Shortcut Dimension 1 Code" := "Global Dimension 1 Code";
+        GenJnlLine."Shortcut Dimension 2 Code" := "Global Dimension 2 Code";
         GenJnlLine."Dimension Set ID" := "Dimension Set ID";
 
         OnAfterMoveToGenJnlLine(GenJnlLine, Rec);
@@ -496,6 +498,8 @@ table 5601 "FA Ledger Entry"
         FAJnlLine."FA Reclassification Entry" := "Reclassification Entry";
         FAJnlLine."Index Entry" := "Index Entry";
         FAJnlLine."Line No." := NextLineNo;
+        FAJnlLine."Shortcut Dimension 1 Code" := "Global Dimension 1 Code";
+        FAJnlLine."Shortcut Dimension 2 Code" := "Global Dimension 2 Code";
         FAJnlLine."Dimension Set ID" := "Dimension Set ID";
 
         OnAfterMoveToFAJnlLine(FAJnlLine, Rec);
