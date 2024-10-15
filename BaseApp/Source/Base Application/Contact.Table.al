@@ -3316,6 +3316,7 @@
           ("Country/Region Code" <> ContactBeforeModify."Country/Region Code") or
           ("Fax No." <> ContactBeforeModify."Fax No.") or
           ("Telex Answer Back" <> ContactBeforeModify."Telex Answer Back") or
+          ("Registration Number" <> ContactBeforeModify."Registration Number") or
           ("VAT Registration No." <> ContactBeforeModify."VAT Registration No.") or
           ("Enterprise No." <> ContactBeforeModify."Enterprise No.") or
           ("Post Code" <> ContactBeforeModify."Post Code") or
