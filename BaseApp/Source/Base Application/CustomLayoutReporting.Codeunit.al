@@ -26,6 +26,7 @@ codeunit 8800 "Custom Layout Reporting"
         TempEmailNameValueBuffer: Record "Name/Value Buffer" temporary;
         TempEraseFileNameValueBuffer: Record "Name/Value Buffer" temporary;
         TempBlobIndicesNameValueBuffer: Record "Name/Value Buffer" temporary;
+        TempNameValueBufferUniqueFiles: Record "Name/Value Buffer" temporary;
         TempBlobList: Codeunit "Temp Blob List";
         RequestPageParametersHelper: Codeunit "Request Page Parameters Helper";
         FileManagement: Codeunit "File Management";
@@ -514,6 +515,7 @@ codeunit 8800 "Custom Layout Reporting"
     local procedure EmailReport(var DataRecRef: RecordRef; ReportID: Integer; CustomReportSelection: Record "Custom Report Selection")
     var
         MailManagement: Codeunit "Mail Management";
+        ReceiverRecord: RecordRef;
         FieldRef1: FieldRef;
         FieldRef2: FieldRef;
         ReportRecordVariant: Variant;
@@ -557,7 +559,8 @@ codeunit 8800 "Custom Layout Reporting"
             exit;
 
         AnyOutputExists := true;
-        TryEmailReport(TempPdfFilePath, PdfFileName, TempEmailBodyFilePath, CustomReportSelection, FieldRef2);
+        ReceiverRecord := FieldRef1.Record();
+        TryEmailReport(TempPdfFilePath, PdfFileName, TempEmailBodyFilePath, CustomReportSelection, ReceiverRecord, FieldRef2);
     end;
 
     local procedure PreviewReport(var DataRecRef: RecordRef; ReportID: Integer; CustomReportLayoutCode: Code[20])
@@ -644,6 +647,7 @@ codeunit 8800 "Custom Layout Reporting"
         EndDate: Text;
         ReportParameters: Text;
         FileBaseName: Text;
+        AppendIndex: Integer;
     begin
         ReportParameters := GetRequestParametersText(ReportID);
 
@@ -670,6 +674,15 @@ codeunit 8800 "Custom Layout Reporting"
         OnGenerateFileNameOnAfterAssignFileName(FileName, ReportID, Extension, DataRecRef);
 
         FileName := FileManagement.StripNotsupportChrInFileName(FileName);
+
+        FileBaseName := FileName;
+        TempNameValueBufferUniqueFiles.SetRange(Name, FileName);
+        while not TempNameValueBufferUniqueFiles.IsEmpty() and (StrLen(FileName) <= 250) do begin
+            AppendIndex += 1;
+            FileName := FileManagement.AppendFileNameWithIndex(FileBaseName, AppendIndex);
+            TempNameValueBufferUniqueFiles.SetRange(Name, FileName)
+        end;
+        TempNameValueBufferUniqueFiles.AddNewEntry(CopyStr(FileName, 1, 250), '');
 
         if FilePath <> '' then
             FileName := FileManagement.CombinePath(FilePath, FileName);
@@ -1161,13 +1174,15 @@ codeunit 8800 "Custom Layout Reporting"
     end;
 
     [TryFunction]
-    local procedure TryEmailReport(TempFilePath: Text[250]; FileName: Text[250]; TempEmailBodyFilePath: Text[250]; var CustomReportSelection: Record "Custom Report Selection"; var FieldRef2: FieldRef)
+    local procedure TryEmailReport(TempFilePath: Text[250]; FileName: Text[250]; TempEmailBodyFilePath: Text[250]; var CustomReportSelection: Record "Custom Report Selection"; var ReceiverRecord: RecordRef; var FieldRef2: FieldRef)
     var
         DocumentMailing: Codeunit "Document-Mailing";
         TempBlob: Codeunit "Temp Blob";
         SourceReference: RecordRef;
         AttachmentStream: Instream;
         MailSent: Boolean;
+        SourceTableIDs, SourceRelationTypes : List of [Integer];
+        SourceIDs: List of [Guid];
     begin
         FileManagement.BLOBImportFromServerFile(TempBlob, TempFilePath);
         TempBlob.CreateInStream(AttachmentStream);
@@ -1175,10 +1190,18 @@ codeunit 8800 "Custom Layout Reporting"
         SourceReference.GetTable(CustomReportSelection);
         SourceReference.GetBySystemId(CustomReportSelection.SystemId);
 
+        SourceTableIDs.Add(SourceReference.Number());
+        SourceIDs.Add(SourceReference.Field(SourceReference.SystemIdNo()).Value());
+        SourceRelationTypes.Add(Enum::"Email Relation Type"::"Primary Source".AsInteger());
+
+        SourceTableIDs.Add(ReceiverRecord.Number());
+        SourceIDs.Add(ReceiverRecord.Field(ReceiverRecord.SystemIdNo()).Value());
+        SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
+
         MailSent :=
             DocumentMailing.EmailFile(
                 AttachmentStream, FileName, TempEmailBodyFilePath, '', CustomReportSelection.GetSendToEmail(true),
-                StrSubstNo('%1', FieldRef2.Value), true, CustomReportSelection.Usage.AsInteger(), SourceReference);
+                StrSubstNo('%1', FieldRef2.Value), true, CustomReportSelection.Usage.AsInteger(), SourceTableIDs, SourceIDs, SourceRelationTypes);
         if Exists(TempFilePath) then begin
             TempEraseFileNameValueBuffer.AddNewEntry(TempFilePath, Format(FieldRef2.Value));
             if not MailSent then

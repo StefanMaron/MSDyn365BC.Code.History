@@ -31,8 +31,8 @@ codeunit 8898 "Map Email Source"
         DocAttachment.SetRange("No.", SourceRecordRef.Field(FieldNo).Value());
         if (FieldNo > 0) and DocAttachment.FindSet() then
             repeat
-                EmailRelatedAttachments."Attachment Name" := 
-                    CopyStr(StrSubstNo(FileFormatTxt, DocAttachment."File Name", DocAttachment."File Extension"), 
+                EmailRelatedAttachments."Attachment Name" :=
+                    CopyStr(StrSubstNo(FileFormatTxt, DocAttachment."File Name", DocAttachment."File Extension"),
                         1,
                         MaxStrLen(EmailRelatedAttachments."Attachment Name")
                     );
@@ -54,7 +54,7 @@ codeunit 8898 "Map Email Source"
     begin
         if (AttachmentTableID <> Database::"Document Attachment") then
             exit;
-        
+
         if not DocAttachment.GetBySystemId(AttachmentSystemID) then
             exit;
 
@@ -97,5 +97,5 @@ codeunit 8898 "Map Email Source"
     end;
 
     var
-        FileFormatTxt: Label '%1.%2', Comment='%1=File Name, %2=File Extension', Locked=true;
+        FileFormatTxt: Label '%1.%2', Comment='%1=File Name, %2=File Extension', Locked = true;
 }

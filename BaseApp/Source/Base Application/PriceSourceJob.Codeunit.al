@@ -68,6 +68,7 @@ codeunit 7036 "Price Source - Job" implements "Price Source"
         JobTask: Record "Job Task";
     begin
         if PriceSource."Source Type" = "Price Source Type"::Job then begin
+            JobTask.SetRange("Job Task Type", JobTask."Job Task Type"::Posting);
             JobTask.SetRange("Job No.", PriceSource."Source No.");
             if JobTask.FindSet() then
                 repeat
