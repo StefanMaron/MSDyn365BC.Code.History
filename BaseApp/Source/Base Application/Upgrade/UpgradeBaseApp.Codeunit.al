@@ -1,10 +1,7 @@
 ﻿codeunit 104000 "Upgrade - BaseApp"
 {
     Subtype = Upgrade;
-
-    trigger OnRun()
-    begin
-    end;
+    Permissions = TableData "User Group Plan" = rimd;
 
     var
         ExcelTemplateIncomeStatementTxt: Label 'ExcelTemplateIncomeStatement', Locked = true;

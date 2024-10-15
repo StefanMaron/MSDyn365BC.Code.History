@@ -439,6 +439,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         ReminderHeader: Record "Reminder Header";
         ReminderLine: Record "Reminder Line";
         GeneralLedgerSetup: Record "General Ledger Setup";
+        Customer: Record Customer;
         ReminderStatistics: TestPage "Reminder Statistics";
         TotalAmount: Decimal;
     begin
@@ -450,8 +451,11 @@ codeunit 134907 "ERM Invoice and Reminder"
         UpdateGLSetupInvRoundingPrecision();
         GeneralLedgerSetup.Get();
 
-        // [GIVEN] Reminder with G/L Accout Line = 1912.41
-        CreateReminderHeader(ReminderHeader, CreateCustomer());
+        // [GIVEN] Reminder with G/L Account Line = 1912.41
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Reminder Terms Code", CreateReminderTerms);
+        Customer.Modify(true);
+        CreateReminderHeader(ReminderHeader, Customer."No.");
         CreateReminderLineForInvRounding(
             ReminderLine, ReminderHeader, GeneralLedgerSetup."Amount Rounding Precision");
 
@@ -477,6 +481,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         ReminderHeader: Record "Reminder Header";
         ReminderLine: Record "Reminder Line";
         GeneralLedgerSetup: Record "General Ledger Setup";
+        Customer: Record Customer;
         IssuedReminderHeader: Record "Issued Reminder Header";
     begin
         // [FEATURE] [Invoice Rounding]
@@ -488,7 +493,10 @@ codeunit 134907 "ERM Invoice and Reminder"
         GeneralLedgerSetup.Get();
 
         // [GIVEN] Reminder with G/L Account Line = 1912.41
-        CreateReminderHeader(ReminderHeader, CreateCustomer());
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Reminder Terms Code", CreateReminderTerms);
+        Customer.Modify(true);
+        CreateReminderHeader(ReminderHeader, Customer."No.");
         CreateReminderLineForInvRounding(
             ReminderLine, ReminderHeader, GeneralLedgerSetup."Amount Rounding Precision");
 
@@ -513,6 +521,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         GeneralLedgerSetup: Record "General Ledger Setup";
         IssuedReminderHeader: Record "Issued Reminder Header";
         IssuedReminderLine: Record "Issued Reminder Line";
+        Customer: Record Customer;
         InvRoundingAmountAmount: Decimal;
     begin
         // [FEATURE] [Invoice Rounding]
@@ -524,7 +533,10 @@ codeunit 134907 "ERM Invoice and Reminder"
         GeneralLedgerSetup.Get();
 
         // [GIVEN] Finance Charge Memo with G/L Accout Line = 1912.41
-        CreateReminderHeader(ReminderHeader, CreateCustomer());
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Reminder Terms Code", CreateReminderTerms);
+        Customer.Modify(true);
+        CreateReminderHeader(ReminderHeader, Customer."No.");
         CreateReminderLineForInvRounding(
             ReminderLine, ReminderHeader, GeneralLedgerSetup."Amount Rounding Precision");
 
