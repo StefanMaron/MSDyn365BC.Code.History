@@ -91,7 +91,7 @@ codeunit 1001 "Job Post-Line"
         Job: Record Job;
         JobPlanningLine: Record "Job Planning Line";
         JobPlanningLineInvoice: Record "Job Planning Line Invoice";
-        JobLedgEntryNo: Integer;
+        DummyJobLedgEntryNo: Integer;
         JobLineChecked: Boolean;
         IsHandled: Boolean;
     begin
@@ -126,7 +126,6 @@ codeunit 1001 "Job Post-Line"
                     JobPlanningLineInvoice.Delete(true);
                     JobPlanningLineInvoice."Document Type" := JobPlanningLineInvoice."Document Type"::"Posted Invoice";
                     JobPlanningLineInvoice."Document No." := SalesLine."Document No.";
-                    JobLedgEntryNo := FindNextJobLedgEntryNo(JobPlanningLineInvoice);
                     JobPlanningLineInvoice.Insert(true);
 
                     JobPlanningLineInvoice."Invoiced Date" := SalesHeader."Posting Date";
@@ -134,7 +133,6 @@ codeunit 1001 "Job Post-Line"
                       CalcLineAmountLCY(JobPlanningLine, JobPlanningLineInvoice."Quantity Transferred");
                     JobPlanningLineInvoice."Invoiced Cost Amount (LCY)" :=
                       JobPlanningLineInvoice."Quantity Transferred" * JobPlanningLine."Unit Cost (LCY)";
-                    JobPlanningLineInvoice."Job Ledger Entry No." := JobLedgEntryNo;
                     JobPlanningLineInvoice.Modify();
                 end;
             SalesHeader."Document Type"::"Credit Memo":
@@ -144,7 +142,6 @@ codeunit 1001 "Job Post-Line"
                     JobPlanningLineInvoice.Delete(true);
                     JobPlanningLineInvoice."Document Type" := JobPlanningLineInvoice."Document Type"::"Posted Credit Memo";
                     JobPlanningLineInvoice."Document No." := SalesLine."Document No.";
-                    JobLedgEntryNo := FindNextJobLedgEntryNo(JobPlanningLineInvoice);
                     JobPlanningLineInvoice.Insert(true);
 
                     JobPlanningLineInvoice."Invoiced Date" := SalesHeader."Posting Date";
@@ -152,12 +149,11 @@ codeunit 1001 "Job Post-Line"
                       CalcLineAmountLCY(JobPlanningLine, JobPlanningLineInvoice."Quantity Transferred");
                     JobPlanningLineInvoice."Invoiced Cost Amount (LCY)" :=
                       JobPlanningLineInvoice."Quantity Transferred" * JobPlanningLine."Unit Cost (LCY)";
-                    JobPlanningLineInvoice."Job Ledger Entry No." := JobLedgEntryNo;
                     JobPlanningLineInvoice.Modify();
                 end;
         end;
 
-        OnBeforeJobPlanningLineUpdateQtyToInvoice(SalesHeader, SalesLine, JobPlanningLine, JobPlanningLineInvoice, JobLedgEntryNo);
+        OnBeforeJobPlanningLineUpdateQtyToInvoice(SalesHeader, SalesLine, JobPlanningLine, JobPlanningLineInvoice, DummyJobLedgEntryNo);
 
         JobPlanningLine.UpdateQtyToInvoice;
         JobPlanningLine.Modify();
@@ -245,7 +241,7 @@ codeunit 1001 "Job Post-Line"
             TempSalesLineJob.Insert();
             InsertTempJobJournalLine(JobJnlLine, TempSalesLineJob."Line No.");
         end else
-            JobJnlPostLine.RunWithCheck(JobJnlLine);
+            PostSalesJobJournalLine(JobJnlLine);
     end;
 
     procedure CalcLineAmountLCY(JobPlanningLine: Record "Job Planning Line"; Qty: Decimal): Decimal
@@ -449,7 +445,7 @@ codeunit 1001 "Job Post-Line"
                     TempJobJournalLine.FindFirst;
                     JobJnlPostLine.SetGLEntryNo(GLEntryNo);
                     OnPostSalesGLAccountsOnBeforeJobJnlPostLine(TempJobJournalLine, TempSalesLineJob);
-                    JobJnlPostLine.RunWithCheck(TempJobJournalLine);
+                    PostSalesJobJournalLine(TempJobJournalLine);
                 until Next = 0;
                 DeleteAll();
             end;
@@ -463,6 +459,8 @@ codeunit 1001 "Job Post-Line"
         TempJobJournalLine.Insert();
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by UpdateJobLedgerEntryNoOnJobPlanLineInvoice()', '20.0')]
     procedure FindNextJobLedgEntryNo(JobPlanningLineInvoice: Record "Job Planning Line Invoice"): Integer
     var
         RelatedJobPlanningLineInvoice: Record "Job Planning Line Invoice";
@@ -475,7 +473,7 @@ codeunit 1001 "Job Post-Line"
             exit(RelatedJobPlanningLineInvoice."Job Ledger Entry No." + 1);
         exit(JobLedgEntry.GetLastEntryNo() + 1);
     end;
-
+#endif
     local procedure CheckCurrency(Job: Record Job; SalesHeader: Record "Sales Header"; JobPlanningLine: Record "Job Planning Line")
     var
         IsHandled: Boolean;
@@ -493,6 +491,28 @@ codeunit 1001 "Job Post-Line"
         end else begin
             Job.TestField("Currency Code", '');
             JobPlanningLine.TestField("Currency Code", '');
+        end;
+    end;
+
+    local procedure PostSalesJobJournalLine(var JobJournalLine: Record "Job Journal Line")
+    var
+        JobLedgerEntryNo: Integer;
+    begin
+        JobLedgerEntryNo := JobJnlPostLine.RunWithCheck(JobJournalLine);
+        UpdateJobLedgerEntryNoOnJobPlanLineInvoice(JobJournalLine, JobLedgerEntryNo);
+    end;
+
+    local procedure UpdateJobLedgerEntryNoOnJobPlanLineInvoice(JobJournalLine: Record "Job Journal Line"; JobLedgerEntryNo: Integer)
+    var
+        JobPlanningLineInvoice: Record "Job Planning Line Invoice";
+    begin
+        JobPlanningLineInvoice.SetRange("Job No.", JobJournalLine."Job No.");
+        JobPlanningLineInvoice.SetRange("Job Task No.", JobJournalLine."Job Task No.");
+        JobPlanningLineInvoice.SetRange("Document No.", JobJournalLine."Document No.");
+        JobPlanningLineInvoice.SetRange("Line No.", JobJournalLine."Line No.");
+        if JobPlanningLineInvoice.FindFirst() then begin
+            JobPlanningLineInvoice."Job Ledger Entry No." := JobLedgerEntryNo;
+            JobPlanningLineInvoice.Modify();
         end;
     end;
 

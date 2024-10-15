@@ -3206,6 +3206,78 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesLine.TestField("Transport Method", TargetSalesHeader."Transport Method");
     end;
 
+    [Test]
+    procedure PurchaseHeaderForeignTradeFieldsAreNotCopied()
+    var
+        SourcePurchaseHeader: Record "Purchase Header";
+        TargetPurchaseHeader: Record "Purchase Header";
+        OldTargetPurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Purchase] [Intrastat]
+        // [SCENARIO 418426] Purchase header's Foreign trade fields (Intrastat) are not copied
+        Initialize();
+
+        // [GIVEN] Purchase Order "PO1" with "Transaction Specification" = "TS1"
+        LibraryPurchase.CreatePurchHeader(
+            SourcePurchaseHeader, SourcePurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        UpdatePurchaseHeaderWithRandomForeignTradeDetails(SourcePurchaseHeader);
+
+        // [GIVEN] Purchase Order "PO2" with "Transaction Specification" = "TS2"
+        LibraryPurchase.CreatePurchHeader(
+            TargetPurchaseHeader, TargetPurchaseHeader."Document Type"::Order, SourcePurchaseHeader."Buy-from Vendor No.");
+        UpdatePurchaseHeaderWithRandomForeignTradeDetails(TargetPurchaseHeader);
+        OldTargetPurchaseHeader := TargetPurchaseHeader;
+
+        // [WHEN] Invoke from order "PO2" Get Document Lines with Include Header action and use order "PO1" as source document
+        RunCopyPurchaseDoc(
+            SourcePurchaseHeader."No.", TargetPurchaseHeader,
+            MapperPurchaseHeaders(SourcePurchaseHeader."Document Type"), true, false);
+
+        // [THEN] Order "PO2" header "Transaction Specification" = "TS2"
+        TargetPurchaseHeader.Find();
+        TargetPurchaseHeader.TestField(Area, OldTargetPurchaseHeader.Area);
+        TargetPurchaseHeader.TestField("Entry Point", OldTargetPurchaseHeader."Entry Point");
+        TargetPurchaseHeader.TestField("Transaction Specification", OldTargetPurchaseHeader."Transaction Specification");
+        TargetPurchaseHeader.TestField("Transaction Type", OldTargetPurchaseHeader."Transaction Type");
+        TargetPurchaseHeader.TestField("Transport Method", OldTargetPurchaseHeader."Transport Method");
+    end;
+
+    [Test]
+    procedure SalesHeaderForeignTradeFieldsAreNotCopied()
+    var
+        SourceSalesHeader: Record "Sales Header";
+        TargetSalesHeader: Record "Sales Header";
+        OldTargetSalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Intrastat]
+        // [SCENARIO 418426] Sales header's Foreign trade fields (Intrastat) are not copied
+        Initialize();
+
+        // [GIVEN] Sales Order "SO1" with "Transaction Specification" = "TS1"
+        LibrarySales.CreateSalesHeader(
+            SourceSalesHeader, SourceSalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        UpdateSalesHeaderWithRandomForeignTradeDetails(SourceSalesHeader);
+
+        // [GIVEN] Sales Order "SO2" with "Transaction Specification" = "TS2"
+        LibrarySales.CreateSalesHeader(
+            TargetSalesHeader, TargetSalesHeader."Document Type"::Order, SourceSalesHeader."Sell-to Customer No.");
+        UpdateSalesHeaderWithRandomForeignTradeDetails(TargetSalesHeader);
+        OldTargetSalesHeader := TargetSalesHeader;
+
+        // [WHEN] Invoke from order "PO2" Get Document Lines with Include Header action and use order "SO1" as source document
+        RunCopySalesDoc(
+            SourceSalesHeader."No.", TargetSalesHeader,
+            MapperSalesHeaders(SourceSalesHeader."Document Type"), false, false);
+
+        // [THEN] Order "PO2" header "Transaction Specification" = "TS2"
+        TargetSalesHeader.Find();
+        TargetSalesHeader.TestField(Area, OldTargetSalesHeader.Area);
+        TargetSalesHeader.TestField("Exit Point", OldTargetSalesHeader."Exit Point");
+        TargetSalesHeader.TestField("Transaction Specification", OldTargetSalesHeader."Transaction Specification");
+        TargetSalesHeader.TestField("Transaction Type", OldTargetSalesHeader."Transaction Type");
+        TargetSalesHeader.TestField("Transport Method", OldTargetSalesHeader."Transport Method");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
