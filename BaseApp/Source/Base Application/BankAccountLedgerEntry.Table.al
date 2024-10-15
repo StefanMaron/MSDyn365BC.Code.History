@@ -296,7 +296,7 @@ table 271 "Bank Account Ledger Entry"
         {
             SumIndexFields = Amount, "Amount (LCY)", "Debit Amount", "Credit Amount", "Debit Amount (LCY)", "Credit Amount (LCY)";
         }
-        key(Key3; "Bank Account No.", Open)
+        key(Key3; "Bank Account No.", Open, "Posting Date", "Statement No.", "Statement Status", "Statement Line No.")
         {
         }
         key(Key4; "Document Type", "Bank Account No.", "Posting Date")
@@ -426,23 +426,29 @@ table 271 "Bank Account Ledger Entry"
         end;
     end;
 
-    procedure IsApplied() IsApplied: Boolean
+    procedure GetAppliedStatementNo(): Code[20]
     var
         CheckLedgerEntry: Record "Check Ledger Entry";
     begin
-        CheckLedgerEntry.SetRange("Bank Account No.", "Bank Account No.");
-        CheckLedgerEntry.SetRange("Bank Account Ledger Entry No.", "Entry No.");
+        CheckLedgerEntry.SetRange("Bank Account No.", Rec."Bank Account No.");
+        CheckLedgerEntry.SetRange("Bank Account Ledger Entry No.", Rec."Entry No.");
         CheckLedgerEntry.SetRange(Open, true);
         CheckLedgerEntry.SetRange("Statement Status", CheckLedgerEntry."Statement Status"::"Check Entry Applied");
         CheckLedgerEntry.SetFilter("Statement No.", '<>%1', '');
         CheckLedgerEntry.SetFilter("Statement Line No.", '<>%1', 0);
-        IsApplied := not CheckLedgerEntry.IsEmpty();
+        if not CheckLedgerEntry.IsEmpty() then
+            exit(CheckLedgerEntry."Statement No.");
 
-        IsApplied := IsApplied or
-          (("Statement Status" = "Statement Status"::"Bank Acc. Entry Applied") and
-           ("Statement No." <> '') and ("Statement Line No." <> 0));
+        if ((Rec."Statement Status" = Rec."Statement Status"::"Bank Acc. Entry Applied") and
+           (Rec."Statement No." <> '') and (Rec."Statement Line No." <> 0)) then
+           exit(Rec."Statement No.");
 
-        exit(IsApplied);
+        exit('');
+   end;
+
+    procedure IsApplied(): Boolean
+    begin
+        exit(GetAppliedStatementNo() <> '');
     end;
 
     procedure SetStyle(): Text

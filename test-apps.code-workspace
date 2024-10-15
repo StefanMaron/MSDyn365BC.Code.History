@@ -198,6 +198,9 @@
       "path": "./INGST/Test/India GST Tests"
     },
     {
+      "path": "./INChargeGroup/Test/India Charge Group Tests"
+    },
+    {
       "path": "./Email - SMTP Connector/Test/Email - SMTP Connector Tests"
     },
     {

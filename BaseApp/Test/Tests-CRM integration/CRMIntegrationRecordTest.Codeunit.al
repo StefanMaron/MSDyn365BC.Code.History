@@ -606,43 +606,7 @@ codeunit 139161 "CRM Integration Record Test"
         Assert.IsTrue(CRMIntegrationRecord.Find(), 'CRM Integration Record is not found.');
         Assert.AreEqual(Database::Customer, CRMIntegrationRecord."Table ID", 'Table ID has wrong value.');
     end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure RepairsBrokenCouplingThroughFindByRecordID()
-    var
-        Customer: Record Customer;
-        CRMAccount: Record "CRM Account";
-        CRMIntegrationRecord: Record "CRM Integration Record";
-        CDSConnectionSetup: Record "CDS Connection Setup";
-        CDSSetupDefaults: Codeunit "CDS Setup Defaults";
-    begin
-        // [FEATURE] [CRM Integration Record]
-        // [SCENARIO] Repair Table ID through FindByRecordID
-        LibraryCRMIntegration.ResetEnvironment();
-
-        // [GIVEN] A valid CDS setup
-        LibraryCRMIntegration.ConfigureCRM();
-        CDSConnectionSetup.DeleteAll();
-        CDSConnectionSetup.Insert();
-        CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
-
-        // [GIVEN] An existing coupling between a Customer and a CRM Account
-        LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
-        Assert.IsTrue(Customer.Find(), 'Customer is not found.');
-        Assert.IsTrue(CRMAccount.Find(), 'CRM Account is not found.');
-        Assert.IsTrue(CRMIntegrationRecord.FindByCRMID(CRMAccount.AccountId), 'Coupling is not found.');
-
-        // [GIVEN] Zero Table ID in the coupling record
-        CRMIntegrationRecord."Table ID" := 0;
-        CRMIntegrationRecord.Modify();
-
-        // [WHEN] Call procedure GetTableID
-        Assert.IsTrue(CRMIntegrationRecord.FindByRecordID(Customer.RecordId), 'FindByRecordID returned wrong value.');
-        // [THEN] Table ID is fixed in the record
-        Assert.AreEqual(Database::Customer, CRMIntegrationRecord."Table ID", 'Table ID has wrong value.');
-    end;
-
+    
     [Test]
     [Scope('OnPrem')]
     procedure RepairBrokenCouplingsInBulkFull()

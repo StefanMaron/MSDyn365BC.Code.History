@@ -1,6 +1,7 @@
 table 221 "Gen. Jnl. Allocation"
 {
     Caption = 'Gen. Jnl. Allocation';
+    Permissions = tabledata "Gen. Jnl. Allocation" = R;
 
     fields
     {

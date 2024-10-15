@@ -255,13 +255,40 @@ table 133 "Incoming Document Attachment"
 
     procedure NewAttachmentFromDocument(EntryNo: Integer; TableID: Integer; DocumentType: Option; DocumentNo: Code[20])
     begin
-        SetRange("Incoming Document Entry No.", EntryNo);
-        SetRange("Document Table No. Filter", TableID);
-        SetRange("Document Type Filter", DocumentType);
-        SetRange("Document No. Filter", DocumentNo);
+        ApplyFiltersForDocument(EntryNo, TableID, DocumentType, DocumentNo);
         NewAttachment();
         SendNotifActionCompleted();
     end;
+
+    procedure NewAttachmentFromPurchaseDocument(PurchaseHeader: Record "Purchase Header"; FileName: Text[250]; var TempBlob: Codeunit "Temp Blob")
+    begin
+        NewAttachmentFromDocument(
+          PurchaseHeader."Incoming Document Entry No.",
+          DATABASE::"Purchase Header",
+          PurchaseHeader."Document Type".AsInteger(),
+          PurchaseHeader."No.",
+          FileName,
+          TempBlob);
+    end;
+
+    procedure NewAttachmentFromDocument(EntryNo: Integer; TableID: Integer; DocumentType: Option; DocumentNo: Code[20]; FileName: Text[250]; var TempBlob: Codeunit "Temp Blob")
+    var
+        ImportAttachmentIncDoc: Codeunit "Import Attachment - Inc. Doc.";
+    begin
+        ApplyFiltersForDocument(EntryNo, TableID, DocumentType, DocumentNo);
+        ImportAttachmentIncDoc.ImportAttachment(Rec, FileName, TempBlob);
+        if GuiAllowed() then
+            SendNotifActionCompleted();
+    end;
+
+    local procedure ApplyFiltersForDocument(EntryNo: Integer; TableID: Integer; DocumentType: Option; DocumentNo: Code[20])
+    begin
+        Rec.SetRange("Incoming Document Entry No.", EntryNo);
+        Rec.SetRange("Document Table No. Filter", TableID);
+        Rec.SetRange("Document Type Filter", DocumentType);
+        Rec.SetRange("Document No. Filter", DocumentNo);
+    end;
+
 
     procedure NewAttachmentFromPostedDocument(DocumentNo: Code[20]; PostingDate: Date)
     begin
