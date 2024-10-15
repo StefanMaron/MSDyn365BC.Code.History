@@ -412,7 +412,7 @@
                     if not Reverse and not AdvanceSettle then
                         GetRelationDocumentsInvoice(TempCFDIRelationDocument, TempDocumentHeader, DATABASE::"Sales Invoice Header");
                     CheckSalesDocument(
-                      SalesInvoiceHeader, TempDocumentHeader, TempDocumentLine, TempCFDIRelationDocument, SalesInvoiceHeader."Source Code");
+                      SalesInvoiceHeader, TempDocumentHeader, TempDocumentLine, TempCFDIRelationDocument, SalesInvoiceHeader."Source Code", Prepayment);
                     DateTimeFirstReqSent := GetDateTimeOfFirstReqSalesInv(SalesInvoiceHeader);
                 end;
             DATABASE::"Sales Cr.Memo Header":
@@ -424,7 +424,7 @@
                     GetRelationDocumentsCreditMemo(
                       TempCFDIRelationDocument, TempDocumentHeader, SalesCrMemoHeader."No.", DATABASE::"Sales Cr.Memo Header");
                     CheckSalesDocument(
-                      SalesCrMemoHeader, TempDocumentHeader, TempDocumentLine, TempCFDIRelationDocument, SalesCrMemoHeader."Source Code");
+                      SalesCrMemoHeader, TempDocumentHeader, TempDocumentLine, TempCFDIRelationDocument, SalesCrMemoHeader."Source Code", false);
                     DateTimeFirstReqSent := GetDateTimeOfFirstReqSalesCr(SalesCrMemoHeader);
                 end;
             DATABASE::"Service Invoice Header":
@@ -436,7 +436,7 @@
                     if not Reverse and not AdvanceSettle then
                         GetRelationDocumentsInvoice(TempCFDIRelationDocument, TempDocumentHeader, DATABASE::"Service Invoice Header");
                     CheckSalesDocument(
-                      ServiceInvoiceHeader, TempDocumentHeader, TempDocumentLine, TempCFDIRelationDocument, ServiceInvoiceHeader."Source Code");
+                      ServiceInvoiceHeader, TempDocumentHeader, TempDocumentLine, TempCFDIRelationDocument, ServiceInvoiceHeader."Source Code", false);
                     DateTimeFirstReqSent := GetDateTimeOfFirstReqServInv(ServiceInvoiceHeader);
                 end;
             DATABASE::"Service Cr.Memo Header":
@@ -448,7 +448,7 @@
                     GetRelationDocumentsCreditMemo(
                       TempCFDIRelationDocument, TempDocumentHeader, ServiceCrMemoHeader."No.", DATABASE::"Service Cr.Memo Header");
                     CheckSalesDocument(
-                      ServiceCrMemoHeader, TempDocumentHeader, TempDocumentLine, TempCFDIRelationDocument, ServiceCrMemoHeader."Source Code");
+                      ServiceCrMemoHeader, TempDocumentHeader, TempDocumentLine, TempCFDIRelationDocument, ServiceCrMemoHeader."Source Code", false);
                     DateTimeFirstReqSent := GetDateTimeOfFirstReqServCr(ServiceCrMemoHeader);
                 end;
             DATABASE::"Sales Shipment Header":
@@ -2596,14 +2596,10 @@
     local procedure CreateXMLDocument33AdvancePayment(var TempDocumentHeader: Record "Document Header" temporary; var TempDocumentLine: Record "Document Line" temporary; DateTimeFirstReqSent: Text[50]; SignedString: Text; Certificate: Text; CertificateSerialNo: Text[250]; var XMLDoc: DotNet XmlDocument; SubTotal: Decimal; RetainAmt: Decimal)
     var
         Customer: Record Customer;
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
         SATUtilities: Codeunit "SAT Utilities";
         XMLCurrNode: DotNet XmlNode;
         XMLNewChild: DotNet XmlNode;
-        TaxCode: Code[10];
-        TaxType: Option Translado,Retencion;
-        TotalTaxes: Decimal;
-        TaxAmount: Decimal;
-        TaxPercentage: Decimal;
     begin
         InitXMLAdvancePayment(XMLDoc, XMLCurrNode);
         GetCustomer(Customer, TempDocumentHeader."Bill-to/Pay-To No.", false);
@@ -2615,10 +2611,13 @@
             AddAttribute(XMLDoc, XMLCurrNode, 'FormaPago', SATUtilities.GetSATPaymentMethod("Payment Method Code"));
             AddAttribute(XMLDoc, XMLCurrNode, 'NoCertificado', CertificateSerialNo);
             AddAttribute(XMLDoc, XMLCurrNode, 'Certificado', Certificate);
-            AddAttribute(XMLDoc, XMLCurrNode, 'SubTotal', FormatDecimal(Round(SubTotal, 1, '='), 0));
-            AddAttribute(XMLDoc, XMLCurrNode, 'Moneda', 'XXX');
+            AddAttribute(XMLDoc, XMLCurrNode, 'SubTotal', FormatAmount(SubTotal));
 
-            AddAttribute(XMLDoc, XMLCurrNode, 'Total', FormatDecimal(Round(SubTotal + RetainAmt, 1, '='), 0));
+            AddAttribute(XMLDoc, XMLCurrNode, 'Moneda', ConvertCurrency("Currency Code"));
+            if ConvertCurrency("Currency Code") <> GLSetup."LCY Code" then
+                AddAttribute(XMLDoc, XMLCurrNode, 'TipoCambio', FormatDecimal(1 / "Currency Factor", 6));
+
+            AddAttribute(XMLDoc, XMLCurrNode, 'Total', FormatAmount(SubTotal + RetainAmt));
             AddAttribute(XMLDoc, XMLCurrNode, 'TipoDeComprobante', 'I'); // Ingreso
             AddAttribute(XMLDoc, XMLCurrNode, 'Exportacion', "CFDI Export Code");
 
@@ -2631,7 +2630,7 @@
             // Receptor
             AddNodeReceptor(
               XMLDoc, XMLCurrNode, Customer, Customer."CFDI Customer Name",
-              GetSATPostalCode("SAT Address ID", Customer."Location Code", Customer."Post Code"), 'P01');
+              GetSATPostalCode("SAT Address ID", Customer."Location Code", Customer."Post Code"), "CFDI Purpose");
 
             // Conceptos
             AddElementCFDI(XMLCurrNode, 'Conceptos', '', DocNameSpace, XMLNewChild);
@@ -2641,87 +2640,25 @@
             // Just ONE concept
             AddElementCFDI(XMLCurrNode, 'Concepto', '', DocNameSpace, XMLNewChild);
             XMLCurrNode := XMLNewChild;
-            AddAttribute(XMLDoc, XMLCurrNode, 'ClaveProdServ', '84111506');
+            AddAttribute(XMLDoc, XMLCurrNode, 'ClaveProdServ', '84111506'); // 84111506 “Servicios de facturación”
             AddAttribute(XMLDoc, XMLCurrNode, 'Cantidad', Format(1));
             AddAttribute(XMLDoc, XMLCurrNode, 'ClaveUnidad', 'ACT');
             AddAttribute(XMLDoc, XMLCurrNode, 'Descripcion', 'Anticipo bien o servicio');
 
-            AddAttribute(XMLDoc, XMLCurrNode, 'ValorUnitario', FormatDecimal(Round(SubTotal, 1, '='), 0));
-            AddAttribute(XMLDoc, XMLCurrNode, 'Importe', FormatDecimal(Round(SubTotal, 1, '='), 0));
-            AddAttribute(XMLDoc, XMLCurrNode, 'Descuento', FormatDecimal(0, 0));
+            AddAttribute(XMLDoc, XMLCurrNode, 'ValorUnitario', FormatAmount(SubTotal));
+            AddAttribute(XMLDoc, XMLCurrNode, 'Importe', FormatAmount(SubTotal));
 
-            TempDocumentLine.SetRange("Document No.", "No.");
-            TempDocumentLine.SetFilter(Type, '<>%1', TempDocumentLine.Type::" ");
-            if TempDocumentLine.FindSet() then begin
-                TaxAmount := TempDocumentLine."Amount Including VAT" - TempDocumentLine.Amount;
-                if TaxAmount <> 0 then begin
-                    // Impuestos per line
-                    AddElementCFDI(XMLCurrNode, 'Impuestos', '', DocNameSpace, XMLNewChild);
-                    XMLCurrNode := XMLNewChild;
-
-                    // Impuestos->Traslados/Retenciones
-                    AddElementCFDI(XMLCurrNode, 'Traslados', '', DocNameSpace, XMLNewChild);
-                    XMLCurrNode := XMLNewChild;
-
-                    AddElementCFDI(XMLCurrNode, 'Traslado', '', DocNameSpace, XMLNewChild);
-                    TaxPercentage := GetTaxPercentage(TempDocumentLine.Amount, TaxAmount);
-                    TaxCode := TaxCodeFromTaxRate(TaxPercentage / 100, TaxType::Translado);
-                    XMLCurrNode := XMLNewChild;
-                    AddAttribute(XMLDoc, XMLCurrNode, 'Base', FormatAmount(TempDocumentLine.Amount));
-
-                    AddAttribute(XMLDoc, XMLCurrNode, 'Impuesto', TaxCode); // Used to be IVA
-                    if (TempDocumentLine."VAT %" <> 0) or (TaxAmount <> 0) then begin // When Sales Tax code is % then Tasa, else Exento
-                        AddAttribute(XMLDoc, XMLCurrNode, 'TipoFactor', 'Tasa');
-                        AddAttribute(XMLDoc, XMLCurrNode, 'TasaOCuota', PadStr(FormatAmount(TaxPercentage / 100), 8, '0'));
-                        AddAttribute(XMLDoc, XMLCurrNode, 'Importe',
-                          FormatDecimal(TaxAmount, 0))
-                    end else
-                        AddAttribute(XMLDoc, XMLCurrNode, 'TipoFactor', 'Exento');
-                    XMLCurrNode := XMLCurrNode.ParentNode;
-                    XMLCurrNode := XMLCurrNode.ParentNode;
-                    XMLCurrNode := XMLCurrNode.ParentNode;
-                    // End of tax info per line
-                end;
+            FilterDocumentLines(TempDocumentLine, "No.");
+            if TempDocumentLine.FindFirst() then begin
+                AddAttribute(XMLDoc, XMLCurrNode, 'ObjetoImp', GetSubjectToTaxCode(TempDocumentLine));
+                AddNodeImpuestoPerLine(TempDocumentLine, TempDocumentLine, XMLDoc, XMLCurrNode, XMLNewChild);
+                InsertTempVATAmountLine(TempVATAmountLine, TempDocumentLine);
             end;
+            XMLCurrNode := XMLCurrNode.ParentNode; // Concepto
+            XMLCurrNode := XMLCurrNode.ParentNode; // Conceptos
 
-            XMLCurrNode := XMLCurrNode.ParentNode;
-            XMLCurrNode := XMLCurrNode.ParentNode;
-
-            TempDocumentLine.SetRange("Document No.", "No.");
-            TempDocumentLine.SetFilter(Type, '<>%1', TempDocumentLine.Type::" ");
-            if TempDocumentLine.FindSet() then begin
-                TaxAmount := TempDocumentLine."Amount Including VAT" - TempDocumentLine.Amount;
-                if TaxAmount <> 0 then begin
-                    // Impuestos per line
-                    AddElementCFDI(XMLCurrNode, 'Impuestos', '', DocNameSpace, XMLNewChild);
-                    XMLCurrNode := XMLNewChild;
-
-                    // Impuestos->Traslados
-                    AddElementCFDI(XMLCurrNode, 'Traslados', '', DocNameSpace, XMLNewChild);
-                    XMLCurrNode := XMLNewChild;
-
-                    AddElementCFDI(XMLCurrNode, 'Traslado', '', DocNameSpace, XMLNewChild);
-                    TaxPercentage := GetTaxPercentage(TempDocumentLine.Amount, TaxAmount);
-                    TaxCode := TaxCodeFromTaxRate(TaxPercentage / 100, TaxType::Translado);
-                    XMLCurrNode := XMLNewChild;
-                    // AddAttribute(XMLDoc,XMLCurrNode,'Base',FormatAmount(TempDocumentLine.Amount));
-
-                    AddAttribute(XMLDoc, XMLCurrNode, 'Impuesto', TaxCode); // Used to be IVA
-                    if (TempDocumentLine."VAT %" <> 0) or (TaxAmount <> 0) then begin // When Sales Tax code is % then Tasa, else Exento
-                        AddAttribute(XMLDoc, XMLCurrNode, 'TipoFactor', 'Tasa');
-                        AddAttribute(XMLDoc, XMLCurrNode, 'TasaOCuota', PadStr(FormatAmount(TaxPercentage / 100), 8, '0'));
-                        AddAttribute(XMLDoc, XMLCurrNode, 'Importe',
-                          FormatDecimal(TaxAmount, 0))
-                    end else
-                        AddAttribute(XMLDoc, XMLCurrNode, 'TipoFactor', 'Exento');
-                    TotalTaxes := TotalTaxes + TaxAmount;
-                    // End of tax info per line
-                end;
-            end;
-            XMLCurrNode := XMLCurrNode.ParentNode;
-            XMLCurrNode := XMLCurrNode.ParentNode;
-            if TotalTaxes <> 0 then
-                AddAttribute(XMLDoc, XMLCurrNode, 'TotalImpuestosTrasladados', FormatDecimal(TotalTaxes, 0)); // TotalImpuestosTrasladados
+            CreateXMLDocument33TaxAmountLines(
+                TempVATAmountLine, XMLDoc, XMLCurrNode, XMLNewChild, TempDocumentLine."Amount Including VAT" - TempDocumentLine.Amount, 0);
         end;
     end;
 
@@ -3302,17 +3239,14 @@
     procedure CreateOriginalStr33AdvancePayment(var TempDocumentHeader: Record "Document Header" temporary; var TempDocumentLine: Record "Document Line" temporary; DateTimeFirstReqSent: Text; SubTotal: Decimal; RetainAmt: Decimal; var TempBlob: Codeunit "Temp Blob")
     var
         Customer: Record Customer;
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
         SATUtilities: Codeunit "SAT Utilities";
         OutStream: OutStream;
-        TaxCode: Code[10];
-        TaxType: Option Translado,Retencion;
-        TotalTaxes: Decimal;
-        TaxAmount: Decimal;
-        TaxPercentage: Decimal;
     begin
         if not Export then
             GetCompanyInfo;
         GetCustomer(Customer, TempDocumentHeader."Bill-to/Pay-To No.", false);
+
         with TempDocumentHeader do begin
             Clear(TempBlob);
             TempBlob.CreateOutStream(OutStream);
@@ -3321,10 +3255,13 @@
             WriteOutStr(OutStream, DateTimeFirstReqSent + '|'); // Fecha
             WriteOutStr(OutStream, SATUtilities.GetSATPaymentMethod("Payment Method Code") + '|'); // FormaPago
             WriteOutStr(OutStream, GetCertificateSerialNo + '|'); // NoCertificado
-            WriteOutStr(OutStream, FormatDecimal(Round(SubTotal, 1, '='), 0) + '|'); // SubTotal
-            WriteOutStr(OutStream, 'XXX|'); // Moneda
+            WriteOutStr(OutStream, FormatAmount(SubTotal) + '|'); // SubTotal
 
-            WriteOutStr(OutStream, FormatDecimal(Round(SubTotal + RetainAmt, 1, '='), 0) + '|'); // Total
+            WriteOutStr(OutStream, ConvertCurrency("Currency Code") + '|'); // Moneda
+            if ConvertCurrency("Currency Code") <> GLSetup."LCY Code" then
+                WriteOutStr(OutStream, FormatDecimal(1 / "Currency Factor", 6) + '|'); // TipoCambio
+
+            WriteOutStr(OutStream, FormatAmount(SubTotal + RetainAmt) + '|'); // Total
             WriteOutStr(OutStream, Format('I') + '|'); // TipoDeComprobante
             WriteOutStr(OutStream, "CFDI Export Code" + '|'); // Exportacion
 
@@ -3337,63 +3274,24 @@
             // Customer information (Receptor)
             AddStrReceptor(
               OutStream, Customer, Customer."CFDI Customer Name",
-              GetSATPostalCode("SAT Address ID", Customer."Location Code", Customer."Post Code"), 'P01');
+              GetSATPostalCode("SAT Address ID", Customer."Location Code", Customer."Post Code"), "CFDI Purpose");
 
             // Write the one line
-            WriteOutStr(OutStream, '84111506|'); // ClaveProdServ
-                                                 // OutStream.WRITETEXT(TempDocumentLine."No." + '|'); // NoIdentificacion
+            WriteOutStr(OutStream, '84111506|'); // ClaveProdServ // 84111506 “Servicios de facturación”
             WriteOutStr(OutStream, Format(1) + '|'); // Cantidad
             WriteOutStr(OutStream, 'ACT|'); // ClaveUnidad
             WriteOutStr(OutStream, 'Anticipo bien o servicio|'); // Descripcion
-            WriteOutStr(OutStream, FormatDecimal(Round(SubTotal, 1, '='), 0) + '|'); // ValorUnitario
-            WriteOutStr(OutStream, FormatDecimal(Round(SubTotal, 1, '='), 0) + '|'); // Importe
-            WriteOutStr(OutStream, FormatDecimal(0, 0) + '|'); // Descuento
+            WriteOutStr(OutStream, FormatAmount(SubTotal) + '|'); // ValorUnitario
+            WriteOutStr(OutStream, FormatAmount(SubTotal) + '|'); // Importe
 
-            TempDocumentLine.SetRange("Document No.", "No.");
-            TempDocumentLine.SetFilter(Type, '<>%1', TempDocumentLine.Type::" ");
-            if TempDocumentLine.FindSet() then begin
-                TaxAmount := TempDocumentLine."Amount Including VAT" - TempDocumentLine.Amount;
-                if TaxAmount <> 0 then begin
-                    WriteOutStr(OutStream, FormatAmount(TempDocumentLine.Amount) + '|'); // Base
-                    TaxPercentage := GetTaxPercentage(TempDocumentLine.Amount, TaxAmount);
-                    // TaxCode := TaxCodeFromTaxRate(TempDocumentLine."VAT %" / 100,TaxType::Translado);
-                    TaxCode := TaxCodeFromTaxRate(TaxPercentage / 100, TaxType::Translado);
-
-                    WriteOutStr(OutStream, TaxCode + '|'); // Impuesto
-                    if (TempDocumentLine."VAT %" <> 0) or (TaxAmount <> 0) then begin// When Sales Tax code is % then Tasa, else Exento
-                        WriteOutStr(OutStream, 'Tasa' + '|'); // TipoFactor
-                                                              // OutStream.WRITETEXT(PADSTR(FormatAmount(TempDocumentLine."VAT %" / 100),8,'0') + '|'); // TasaOCuota
-                        WriteOutStr(OutStream, PadStr(FormatAmount(TaxPercentage / 100), 8, '0') + '|'); // TasaOCuota
-                        WriteOutStr(OutStream,
-                          FormatDecimal(TaxAmount, 0) + '|') // Importe
-                    end else
-                        WriteOutStr(OutStream, 'Exento' + '|'); // TipoFactor
-                end;
+            FilterDocumentLines(TempDocumentLine, "No.");
+            if TempDocumentLine.FindFirst() then begin
+                WriteOutStr(outstream, GetSubjectToTaxCode(TempDocumentLine) + '|'); // ObjetoImp
+                AddStrImpuestoPerLine(TempDocumentLine, TempDocumentLine, OutStream);
+                InsertTempVATAmountLine(TempVATAmountLine, TempDocumentLine);
             end;
 
-            TempDocumentLine.SetRange("Document No.", "No.");
-            TempDocumentLine.SetFilter(Type, '<>%1', TempDocumentLine.Type::" ");
-            if TempDocumentLine.FindSet() then
-                repeat
-                    TaxAmount := TempDocumentLine."Amount Including VAT" - TempDocumentLine.Amount;
-                    if TaxAmount <> 0 then begin
-                        // OutStream.WRITETEXT(FormatAmount(TempDocumentLine.Amount) + '|'); // Base
-                        TaxPercentage := GetTaxPercentage(TempDocumentLine.Amount, TaxAmount);
-                        TaxCode := TaxCodeFromTaxRate(TaxPercentage / 100, TaxType::Translado);
-
-                        WriteOutStr(OutStream, TaxCode + '|'); // Impuesto
-                        if (TempDocumentLine."VAT %" <> 0) or (TaxAmount <> 0) then begin// When Sales Tax code is % then Tasa, else Exento
-                            WriteOutStr(OutStream, 'Tasa' + '|'); // TipoFactor
-                            WriteOutStr(OutStream, PadStr(FormatAmount(TaxPercentage / 100), 8, '0') + '|'); // TasaOCuota
-                            WriteOutStr(OutStream,
-                              FormatDecimal(TaxAmount, 0) + '|') // Importe
-                        end else
-                            WriteOutStr(OutStream, 'Exento' + '|'); // TipoFactor
-                        TotalTaxes := TotalTaxes + TaxAmount;
-                    end;
-                until TempDocumentLine.Next() = 0;
-            if TotalTaxes <> 0 then
-                WriteOutStr(OutStream, FormatDecimal(TotalTaxes, 0) + '|'); // TotalImpuestosTrasladados
+            CreateOriginalStr33TaxAmountLines(TempVATAmountLine, OutStream, TempDocumentLine."Amount Including VAT" - TempDocumentLine.Amount, 0);
             WriteOutStrAllowOneCharacter(OutStream, '|');
         end;
     end;
@@ -3850,19 +3748,24 @@
     local procedure InitXMLAdvancePayment(var XMLDoc: DotNet XmlDocument; var XMLCurrNode: DotNet XmlNode)
     var
         XMLDOMManagement: Codeunit "XML DOM Management";
+        RootXMLNode: DotNet XmlNode;
     begin
         // Create instance
         if IsNull(XMLDoc) then
             XMLDoc := XMLDoc.XmlDocument();
 
         // Root element
-        DocNameSpace := 'http://www.sat.gob.mx/cfd/4';
-        XMLDOMManagement.LoadXMLDocumentFromText('<?xml version="1.0" encoding="UTF-8" ?> ' +
-          '<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ' +
-          'xsi:schemaLocation="http://www.sat.gob.mx/cfd/4 http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd ' +
-          'http://www.sat.gob.mx/Pagos http://www.sat.gob.mx/sitio_internet/cfd/Pagos/Pagos10.xsd"></cfdi:Comprobante>',
-          XMLDoc);
 
+        RootXMLNode := XMLDoc.DocumentElement;
+        XMLDOMManagement.AddRootElementWithPrefix(XMLDoc, 'Comprobante', 'cfdi', CFDINamespaceTxt, RootXMLNode);
+        XMLDOMManagement.AddDeclaration(XMLDoc, '1.0', 'UTF-8', '');
+        XMLDOMManagement.AddAttribute(RootXMLNode, 'xmlns:cfdi', CFDINamespaceTxt);
+        XMLDOMManagement.AddAttribute(RootXMLNode, 'xmlns:xsi', XSINamespaceTxt);
+        XMLDOMManagement.AddAttributeWithPrefix(
+          RootXMLNode, 'schemaLocation', 'xsi', XSINamespaceTxt,
+          StrSubstNo(SchemaLocation1xsdTxt, CFDINamespaceTxt, CFDIXSDLocationTxt));
+
+        DocNameSpace := 'http://www.sat.gob.mx/cfd/4';
         XMLCurrNode := XMLDoc.DocumentElement;
     end;
 
@@ -6625,11 +6528,6 @@ IsVATExemptLine(TempDocumentLine));
         OnAfterGetCartaPorteDistinationData(DestinationRFCNo, ForeignRegId, FiscalResidence, TempDocumentHeader);
     end;
 
-    local procedure GetTaxPercentage(Amount: Decimal; Tax: Decimal): Decimal
-    begin
-        exit(Round(Tax / Amount, 0.01, '=') * 100);
-    end;
-
     local procedure GetTaxCode(VATPct: Decimal; VATAmount: Decimal) TaxCode: Code[10]
     var
         TaxType: Option Translado,Retencion;
@@ -7034,7 +6932,7 @@ IsVATExemptLine(TempDocumentLine));
         until CFDITransportOperatorFrom.Next() = 0;
     end;
 
-    local procedure CheckSalesDocument(DocumentVariant: Variant; TempDocumentHeader: Record "Document Header" temporary; var TempDocumentLine: Record "Document Line" temporary; var TempCFDIRelationDocument: Record "CFDI Relation Document" temporary; SourceCode: Code[10])
+    local procedure CheckSalesDocument(DocumentVariant: Variant; TempDocumentHeader: Record "Document Header" temporary; var TempDocumentLine: Record "Document Line" temporary; var TempCFDIRelationDocument: Record "CFDI Relation Document" temporary; SourceCode: Code[10]; IsPrepayment: Boolean)
     var
         TempErrorMessage: Record "Error Message" temporary;
     begin
@@ -7045,7 +6943,7 @@ IsVATExemptLine(TempDocumentLine));
         CheckCertificates(TempErrorMessage);
         CheckCustomer(TempErrorMessage, TempDocumentHeader."Bill-to/Pay-To No.");
         CheckDocumentHeader(TempErrorMessage, DocumentVariant, TempDocumentHeader, SourceCode);
-        CheckDocumentLine(TempErrorMessage, DocumentVariant, TempDocumentLine, TempDocumentHeader."Foreign Trade");
+        CheckDocumentLine(TempErrorMessage, DocumentVariant, TempDocumentLine, TempDocumentHeader."Foreign Trade", IsPrepayment);
         CheckCFDIRelations(TempErrorMessage, TempCFDIRelationDocument, TempDocumentHeader, DocumentVariant);
 
         if TempErrorMessage.HasErrors(false) then
@@ -7225,7 +7123,7 @@ IsVATExemptLine(TempDocumentLine));
         end;
     end;
 
-    local procedure CheckDocumentLine(var TempErrorMessage: Record "Error Message" temporary; DocumentVariant: Variant; var DocumentLine: Record "Document Line"; ForeignTrade: Boolean)
+    local procedure CheckDocumentLine(var TempErrorMessage: Record "Error Message" temporary; DocumentVariant: Variant; var DocumentLine: Record "Document Line"; ForeignTrade: Boolean; IsPrepayment: Boolean)
     var
         Item: Record Item;
         ItemCharge: Record "Item Charge";
@@ -7244,17 +7142,18 @@ IsVATExemptLine(TempDocumentLine));
                 LogIfEmpty(LineVariant, DocumentLine.FieldNo(Description), "Message Type"::Error);
                 LogIfEmpty(LineVariant, DocumentLine.FieldNo("Unit Price/Direct Unit Cost"), "Message Type"::Error);
                 LogIfEmpty(LineVariant, DocumentLine.FieldNo("Amount Including VAT"), "Message Type"::Error);
-                if DocumentLine.Type <> DocumentLine.Type::"Fixed Asset" then
+                if not (DocumentLine.Type in [DocumentLine.Type::"G/L Account", DocumentLine.Type::"Fixed Asset"]) then
                     LogIfEmpty(LineVariant, DocumentLine.FieldNo("Unit of Measure Code"), "Message Type"::Error);
-                if DocumentLine."Retention Attached to Line No." = 0 then
-                    if DocumentLine.Type = DocumentLine.Type::"G/L Account" then
-                        LogMessage(
-                            LineVariant, DocumentLine.FieldNo(Type), "Message Type"::Error,
-                            StrSubstNo(
-                                WrongFieldValueErr,
-                                DocumentLine.Type, DocumentLine.FieldCaption(Type), LineTableCaption))
-                    else
-                        LogIfEmpty(DocumentLine, DocumentLine.FieldNo("Unit of Measure Code"), "Message Type"::Error);
+                if not IsPrepayment then
+                    if DocumentLine."Retention Attached to Line No." = 0 then
+                        if DocumentLine.Type = DocumentLine.Type::"G/L Account" then
+                            LogMessage(
+                                LineVariant, DocumentLine.FieldNo(Type), "Message Type"::Error,
+                                StrSubstNo(
+                                    WrongFieldValueErr,
+                                    DocumentLine.Type, DocumentLine.FieldCaption(Type), LineTableCaption))
+                        else
+                            LogIfEmpty(DocumentLine, DocumentLine.FieldNo("Unit of Measure Code"), "Message Type"::Error);
 
                 if (DocumentLine.Type = DocumentLine.Type::Item) and Item.Get(DocumentLine."No.") then
                     LogIfEmpty(Item, Item.FieldNo("SAT Item Classification"), "Message Type"::Error);
