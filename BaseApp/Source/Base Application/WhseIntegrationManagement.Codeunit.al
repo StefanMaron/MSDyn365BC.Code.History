@@ -92,6 +92,8 @@ codeunit 7317 "Whse. Integration Management"
 
     procedure AllowPutawayOrQCBinsOnly(var BinType: Record "Bin Type")
     begin
+        OnBeforeAllowPutawayOrQCBinsOnly(BinType);
+
         if BinType.Receive or BinType.Ship or BinType.Pick then
             Error(Text004, BinType.FieldCaption(Receive), BinType.FieldCaption(Ship), BinType.FieldCaption(Pick));
     end;
@@ -189,6 +191,11 @@ codeunit 7317 "Whse. Integration Management"
             repeat
                 CheckLocationCode(Location, DATABASE::"Work Center", WorkCenter."No.");
             until WorkCenter.Next = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAllowPutawayOrQCBinsOnly(var BinType: Record "Bin Type")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

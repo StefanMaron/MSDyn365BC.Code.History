@@ -433,6 +433,40 @@ codeunit 131001 "Library - Dimension"
         OnVerifyShorcutDimCodesUpdatedOnDimSetIDValidationLocal(TempAllObj, DimSetID, GlobalDim1ValueCode, GlobalDim2ValueCode);
     end;
 
+    [Scope('OnPrem')]
+    procedure GetTableNosWithGlobalDimensionCode(var TableBuffer: Record "Integer" temporary)
+    begin
+        AddTable(TableBuffer, DATABASE::"Salesperson/Purchaser");
+        AddTable(TableBuffer, DATABASE::"G/L Account");
+        AddTable(TableBuffer, DATABASE::Customer);
+        AddTable(TableBuffer, DATABASE::Vendor);
+        AddTable(TableBuffer, DATABASE::Item);
+        AddTable(TableBuffer, DATABASE::"Resource Group");
+        AddTable(TableBuffer, DATABASE::Resource);
+        AddTable(TableBuffer, DATABASE::Job);
+        AddTable(TableBuffer, DATABASE::"Bank Account");
+        AddTable(TableBuffer, DATABASE::"Cash Flow Manual Revenue");
+        AddTable(TableBuffer, DATABASE::"Cash Flow Manual Expense");
+        AddTable(TableBuffer, DATABASE::Campaign);
+        AddTable(TableBuffer, DATABASE::"Customer Template");
+        AddTable(TableBuffer, DATABASE::Employee);
+        AddTable(TableBuffer, DATABASE::"Fixed Asset");
+        AddTable(TableBuffer, DATABASE::Insurance);
+        AddTable(TableBuffer, DATABASE::"Responsibility Center");
+        AddTable(TableBuffer, DATABASE::"Item Charge");
+        AddTable(TableBuffer, DATABASE::"Work Center");
+
+        OnGetTableNosWithGlobalDimensionCode(TableBuffer);
+    end;
+
+    local procedure AddTable(var TableBuffer: Record "Integer" temporary; TableID: Integer)
+    begin
+        if not TableBuffer.Get(TableID) then begin
+            TableBuffer.Number := TableID;
+            TableBuffer.Insert;
+        end;
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, 483, 'OnBeforeScheduleTask', '', false, false)]
     local procedure OnBeforeScheduleTask(TableNo: Integer; var DoNotScheduleTask: Boolean; var TaskID: Guid)
     begin
@@ -453,6 +487,11 @@ codeunit 131001 "Library - Dimension"
 
     [IntegrationEvent(false, false)]
     local procedure OnVerifyShorcutDimCodesUpdatedOnDimSetIDValidationLocal(var TempAllObj: Record AllObj temporary; DimSetID: Integer; GlobalDim1ValueCode: Code[20]; GlobalDim2ValueCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetTableNosWithGlobalDimensionCode(var TableBuffer: Record "Integer" temporary)
     begin
     end;
 }

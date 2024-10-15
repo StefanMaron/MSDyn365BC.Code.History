@@ -1542,11 +1542,10 @@ codeunit 137096 "SCM Kitting - ATO"
             // Assert hard link entry
             AssertOption::"Hard link":
                 if DeleteOption = DeleteOption::"Zero Quantity on SOL" then
-                    if (SalesDocumentType = SalesDocumentType::Order) and not WithEntries then
-                        // If Qty is 0 on SOL in Order and no entries then hard link is deleted
-                        LibraryAssembly.VerifyHardLinkEntry(SalesLine, AssemblyHeader, 0)
+                    if (SalesDocumentType = SalesDocumentType::Order) and WithEntries then
+                        LibraryAssembly.VerifyHardLinkEntry(SalesLine, AssemblyHeader, 1)
                     else
-                        LibraryAssembly.VerifyHardLinkEntry(SalesLine, AssemblyHeader, 1) // Hard link is not deleted
+                        LibraryAssembly.VerifyHardLinkEntry(SalesLine, AssemblyHeader, 0)
                 else
                     // Deleted in all other cases
                     LibraryAssembly.VerifyHardLinkEntry(SalesLine, AssemblyHeader, 0);
@@ -5651,6 +5650,52 @@ codeunit 137096 "SCM Kitting - ATO"
         Item.TestField(Inventory, 5);
 
         LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('MsgHandler')]
+    [Scope('OnPrem')]
+    procedure CanCreateBlanketATODespiteDisabledManualSeriesNos()
+    var
+        AssemblySetup: Record "Assembly Setup";
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        AssembleToOrderLink: Record "Assemble-to-Order Link";
+        AssemblyHeader: Record "Assembly Header";
+    begin
+        // [FEATURE] [Sales] [Blanket Order] [No. Series]
+        // [SCENARIO 328542] Blocked manual series no. for blanket assembly orders does not prevent from creating a new linked assembly.
+        Initialize;
+
+        // [GIVEN] No. Series "B-ASM" for blanket assembly order nos. with disabled "Manual Nos." flag.
+        LibraryUtility.CreateNoSeries(NoSeries, true, false, false);
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
+        AssemblySetup.Get;
+        AssemblySetup.Validate("Blanket Assembly Order Nos.", NoSeries.Code);
+        AssemblySetup.Modify(true);
+
+        // [GIVEN] Assembled item "I".
+        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", 2, 0, 0, 1, Item."Costing Method"::FIFO);
+
+        // [GIVEN] Create sales blanket order with item "I", set "Qty. to Assemble to Order" = "Quantity".
+        // [GIVEN] A linked assembly blanket order is created in the background.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::"Blanket Order", '', Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
+        SetQtyToAssembleToOrder(SalesLine, SalesLine.Quantity);
+
+        // [GIVEN] Clear "Qty. to Assemble to Order".
+        // [GIVEN] That deletes the assembly blanket order together the Assemble-to-Order link.
+        SetQtyToAssembleToOrder(SalesLine, 0);
+        Assert.IsFalse(AssembleToOrderLink.AsmExistsForSalesLine(SalesLine), '');
+
+        // [WHEN] Set "Qty. to Assemble to Order" back to "Quantity".
+        SetQtyToAssembleToOrder(SalesLine, SalesLine.Quantity);
+
+        // [THEN] A new linked assembly blanket order is created.
+        FindLinkedAssemblyOrder(AssemblyHeader, SalesHeader."Document Type", SalesHeader."No.");
     end;
 
     [ModalPageHandler]

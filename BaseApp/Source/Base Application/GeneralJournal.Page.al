@@ -625,6 +625,18 @@
                 fixed(Control1901776101)
                 {
                     ShowCaption = false;
+                    group("Number of Lines")
+                    {
+                        Caption = 'Number of Lines';
+                        field(NumberOfJournalRecords; Count)
+                        {
+                            ApplicationArea = All;
+                            AutoFormatType = 1;
+                            ShowCaption = false;
+                            Editable = false;
+                            ToolTip = 'Specifies the number of lines in the current journal batch.';
+                        }
+                    }
                     group("Account Name")
                     {
                         Caption = 'Account Name';
@@ -1721,7 +1733,7 @@
         IsSaaS := EnvironmentInfo.IsSaaS;
         SetDataForSimpleModeOnOpen;
 
-        if IsSimplePage and (CurrentDocNo = '') then
+        if IsSimplePage and (CurrentDocNo = '') and GenJnlManagement.IsBatchNoSeriesEmpty(CurrentJnlBatchName, Rec) then
             Message(DocumentNumberMsg);
     end;
 
@@ -1980,38 +1992,26 @@
     local procedure GetTotalDebitAmt(): Decimal
     var
         GenJournalLine: Record "Gen. Journal Line";
-        TotalDebitAmt: Decimal;
     begin
         if IsSimplePage then begin
-            Clear(TotalDebitAmt);
-            GenJournalLine.Reset;
             GenJournalLine.SetRange("Journal Template Name", "Journal Template Name");
             GenJournalLine.SetRange("Journal Batch Name", "Journal Batch Name");
             GenJournalLine.SetRange("Document No.", CurrentDocNo);
-            if GenJournalLine.Find('-') then
-                repeat
-                    TotalDebitAmt := TotalDebitAmt + GenJournalLine."Debit Amount";
-                until GenJournalLine.Next = 0;
-            exit(TotalDebitAmt);
+            GenJournalLine.CalcSums("Debit Amount");
+            exit(GenJournalLine."Debit Amount");
         end
     end;
 
     local procedure GetTotalCreditAmt(): Decimal
     var
         GenJournalLine: Record "Gen. Journal Line";
-        TotalCreditAmt: Decimal;
     begin
         if IsSimplePage then begin
-            Clear(TotalCreditAmt);
-            GenJournalLine.Reset;
             GenJournalLine.SetRange("Journal Template Name", "Journal Template Name");
             GenJournalLine.SetRange("Journal Batch Name", "Journal Batch Name");
             GenJournalLine.SetRange("Document No.", CurrentDocNo);
-            if GenJournalLine.Find('-') then
-                repeat
-                    TotalCreditAmt := TotalCreditAmt + GenJournalLine."Credit Amount";
-                until GenJournalLine.Next = 0;
-            exit(TotalCreditAmt);
+            GenJournalLine.CalcSums("Credit Amount");
+            exit(GenJournalLine."Credit Amount");
         end
     end;
 

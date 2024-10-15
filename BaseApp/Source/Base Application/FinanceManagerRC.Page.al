@@ -697,8 +697,9 @@ page 8901 "Finance Manager Role Center"
                     }
                     action("Report Selection - Bank Acc.")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Report Selections Bank Account';
-                        RunObject = Page "Report Selection - Bank Acc.";
+                        RunObject = page "Report Selection - Bank Acc.";
                     }
                     action("Payment Terms")
                     {
@@ -854,8 +855,9 @@ page 8901 "Finance Manager Role Center"
                     }
                     action("Cost Journal Templates")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Cost Journal Templates';
-                        RunObject = Page "Cost Journal Templates";
+                        RunObject = page "Cost Journal Templates";
                     }
                 }
             }
@@ -1155,6 +1157,7 @@ page 8901 "Finance Manager Role Center"
                     }
                     action("Report Selection Reminder and")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Report Selections Reminder/Fin. Charge';
                         RunObject = Page "Report Selection - Reminder";
                     }
@@ -1944,6 +1947,7 @@ page 8901 "Finance Manager Role Center"
                 }
                 action("Incoming Documents Setup")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Incoming Documents Setup';
                     RunObject = Page "Incoming Documents Setup";
                 }

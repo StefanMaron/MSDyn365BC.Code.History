@@ -29,32 +29,63 @@ page 99000820 "Prod. Order Capacity Need"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Starting Time"; "Starting Time")
+                field("Starting Time"; StartingTime)
                 {
                     ApplicationArea = Manufacturing;
+                    Caption = 'Starting Time';
                     ToolTip = 'Specifies the starting time of the capacity need.';
+
+                    trigger OnValidate()
+                    begin
+                        Validate("Starting Time", StartingTime);
+                        CurrPage.Update(true);
+                    end;
                 }
                 field("Starting Date-Time"; "Starting Date-Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the date and the starting time, which are combined in a format called "starting date-time".';
                     Visible = false;
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(false);
+                    end;
                 }
-                field("Ending Time"; "Ending Time")
+                field("Ending Time"; EndingTime)
                 {
                     ApplicationArea = Manufacturing;
+                    Caption = 'Ending Time';
                     ToolTip = 'Specifies the ending time of the capacity need.';
+
+                    trigger OnValidate()
+                    begin
+                        Validate("Ending Time", EndingTime);
+                        CurrPage.Update(true);
+                    end;
                 }
                 field("Ending Date-Time"; "Ending Date-Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the date and the ending time, which are combined in a format called "ending date-time".';
                     Visible = false;
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(false);
+                    end;
                 }
-                field(Date; Date)
+                field(Date; CurrDate)
                 {
                     ApplicationArea = Manufacturing;
+                    Caption = 'Date';
                     ToolTip = 'Specifies the date when this capacity need occurred.';
+
+                    trigger OnValidate()
+                    begin
+                        Validate(Date, CurrDate);
+                        CurrPage.Update(true);
+                    end;
                 }
                 field("Send-Ahead Type"; "Send-Ahead Type")
                 {
@@ -91,5 +122,15 @@ page 99000820 "Prod. Order Capacity Need"
     actions
     {
     }
+
+    trigger OnAfterGetRecord()
+    begin
+        GetStartingEndingDateAndTime(StartingTime, EndingTime, CurrDate);
+    end;
+
+    var
+        StartingTime: Time;
+        EndingTime: Time;
+        CurrDate: Date;
 }
 

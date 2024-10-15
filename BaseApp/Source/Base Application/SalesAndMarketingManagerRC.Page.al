@@ -709,8 +709,8 @@ page 8907 "Sales & Marketing Manager RC"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Coupled Data Synchronization Errors';
-                    RunObject = Page "CRM Skipped Records";
-                    AccessByPermission = TableData 5331 = R;
+                    RunObject = page "CRM Skipped Records";
+                    AccessByPermission = tabledata 5331 = R;
                 }
             }
             group("Group16")
@@ -732,7 +732,7 @@ page 8907 "Sales & Marketing Manager RC"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Report Selections Sales';
-                    RunObject = Page "Report Selection - Sales";
+                    RunObject = page "Report Selection - Sales";
                 }
                 action("Standard Sales Codes")
                 {
@@ -821,8 +821,9 @@ page 8907 "Sales & Marketing Manager RC"
                     }
                     action("Customer Disc. Groups")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Customer Discount Groups';
-                        RunObject = Page "Customer Disc. Groups";
+                        RunObject = page "Customer Disc. Groups";
                     }
                 }
                 group("Group19")
@@ -848,8 +849,9 @@ page 8907 "Sales & Marketing Manager RC"
                     }
                     action("Inventory Setup")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Inventory Setup';
-                        RunObject = Page "Inventory Setup";
+                        RunObject = page "Inventory Setup";
                     }
                 }
                 group("Group20")

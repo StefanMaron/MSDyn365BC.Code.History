@@ -22,12 +22,12 @@ page 8900 "Administrator Main Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Extension Management';
-                        RunObject = Page "Extension Management";
+                        RunObject = page "Extension Management";
                     }
                     action("Profiles")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Profiles';
+                        Caption = 'Profiles (Roles)';
                         RunObject = page "Profile List";
                     }
                     action("Devices")
@@ -405,11 +405,13 @@ page 8900 "Administrator Main Role Center"
                     Caption = 'Data Exchange';
                     action("Import from a Data File")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Import from a Data File';
                         RunObject = page "Import Data";
                     }
                     action("Export to a Data File")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Export to a Data File';
                         RunObject = page "Export Data";
                     }

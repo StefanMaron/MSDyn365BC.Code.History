@@ -39,6 +39,20 @@ codeunit 132585 "Assisted Setup Test Library"
         AssistedSetup.Modify(true);
     end;
 
+    /// <summary>Changes the status of an Assisted Setup to Completed.</summary>
+    /// <param name="PageID">The page ID that should be opened when the user clicks on the setup.</param>
+    procedure SetStatusToCompleted(PageID: Integer)
+    var
+        AssistedSetup: Record "Assisted Setup";
+    begin
+        if not AssistedSetup.Get(PageID) then
+            exit;
+        if AssistedSetup.Completed then
+            exit;
+        AssistedSetup.Validate(Completed, true);
+        AssistedSetup.Modify(true);
+    end;
+
     /// <summary> Calls the event that asks subscribers to register respective setups.</summary>
     procedure CallOnRegister()
     var

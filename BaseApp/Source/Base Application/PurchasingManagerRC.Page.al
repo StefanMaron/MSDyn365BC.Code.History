@@ -264,7 +264,7 @@ page 8905 "Purchasing Manager Role Center"
                     // {
                     //     ApplicationArea = Suite;
                     //     Caption = 'Order';
-                    //     RunObject = Codeunit 8815;
+                    //     RunObject = codeunit 8815;
                     // }
                     action("Purchasing Deferral Summary")
                     {
@@ -715,29 +715,33 @@ page 8905 "Purchasing Manager Role Center"
                 }
                 action("Item Journal Templates")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Item Journal Templates';
-                    RunObject = Page "Item Journal Templates";
+                    RunObject = page "Item Journal Templates";
                 }
                 action("Salespeople")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Salespeople/Purchasers';
-                    RunObject = Page "Salespersons/Purchasers";
+                    RunObject = page "Salespersons/Purchasers";
                 }
                 action("Item Disc. Groups")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Item Discount Groups';
-                    RunObject = Page "Item Disc. Groups";
+                    RunObject = page "Item Disc. Groups";
                 }
                 action("Item Tracking Codes")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Item Tracking Codes';
-                    RunObject = Page "Item Tracking Codes";
+                    RunObject = page "Item Tracking Codes";
                 }
                 action("Inventory Setup")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Inventory Setup';
-                    RunObject = Page "Inventory Setup";
+                    RunObject = page "Inventory Setup";
                 }
                 action("Requisition Worksheets1")
                 {

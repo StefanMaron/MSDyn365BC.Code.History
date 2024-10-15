@@ -170,6 +170,8 @@ codeunit 950 "Time Sheet Management"
             TimeSheetHeader.CalcFields(Quantity);
             AbsenceQty := TimeSheetHeader.Quantity;
         end;
+
+        OnAfterCalcActSchedFactBoxData(TimeSheetHeader, TotalQtyText, TotalPresenceQty, AbsenceQty);
     end;
 
     procedure FormatActualSched(ActualQty: Decimal; ScheduledQty: Decimal): Text[30]
@@ -395,6 +397,7 @@ codeunit 950 "Time Sheet Management"
                 TimeSheetLine.Validate(Type, TimeSheetLine.Type::Job);
                 TimeSheetLine.Validate("Job No.", TempJobPlanningLine."Job No.");
                 TimeSheetLine.Validate("Job Task No.", TempJobPlanningLine."Job Task No.");
+                OnCreateLinesFromJobPlanningOnBeforeTimeSheetLineInsert(TimeSheetLine, TempJobPlanningLine);
                 TimeSheetLine.Insert;
             until TempJobPlanningLine.Next = 0;
     end;
@@ -411,7 +414,13 @@ codeunit 950 "Time Sheet Management"
     var
         JobPlanningLine: Record "Job Planning Line";
         SkipLine: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFillJobPlanningBuffer(JobPlanningLine, JobPlanningLineBuffer, TimeSheetHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         JobPlanningLine.SetRange(Type, JobPlanningLine.Type::Resource);
         JobPlanningLine.SetRange("No.", TimeSheetHeader."Resource No.");
         JobPlanningLine.SetRange("Planning Date", TimeSheetHeader."Starting Date", TimeSheetHeader."Ending Date");
@@ -495,37 +504,35 @@ codeunit 950 "Time Sheet Management"
     end;
 
     procedure CreateTSLineFromServiceLine(ServiceLine: Record "Service Line"; DocumentNo: Code[20]; Chargeable: Boolean)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateTSLineFromServiceLine(ServiceLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with ServiceLine do
             if "Time Sheet No." = '' then
                 CreateTSLineFromDocLine(
-                  DATABASE::"Service Line",
-                  "No.",
-                  "Posting Date",
-                  DocumentNo,
-                  "Document No.",
-                  "Line No.",
-                  "Work Type Code",
-                  Chargeable,
-                  Description,
-                  -"Qty. to Ship");
+                  DATABASE::"Service Line", "No.", "Posting Date", DocumentNo, "Document No.", "Line No.",
+                  "Work Type Code", Chargeable, Description, -"Qty. to Ship");
     end;
 
     procedure CreateTSLineFromServiceShptLine(ServiceShipmentLine: Record "Service Shipment Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateTSLineFromServiceShptLine(ServiceShipmentLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with ServiceShipmentLine do
             if "Time Sheet No." = '' then
                 CreateTSLineFromDocLine(
-                  DATABASE::"Service Shipment Line",
-                  "No.",
-                  "Posting Date",
-                  "Document No.",
-                  "Order No.",
-                  "Order Line No.",
-                  "Work Type Code",
-                  true,
-                  Description,
-                  -"Qty. Shipped Not Invoiced");
+                  DATABASE::"Service Shipment Line", "No.", "Posting Date", "Document No.", "Order No.", "Order Line No.",
+                  "Work Type Code", true, Description, -"Qty. Shipped Not Invoiced");
     end;
 
     local procedure CreateTSLineFromDocLine(TableID: Integer; ResourceNo: Code[20]; PostingDate: Date; DocumentNo: Code[20]; OrderNo: Code[20]; OrderLineNo: Integer; WorkTypeCode: Code[10]; Chargbl: Boolean; Desc: Text[100]; Quantity: Decimal)
@@ -766,6 +773,8 @@ codeunit 950 "Time Sheet Management"
                         ActivityCaption := FieldCaption("Service Order No.");
                         ActivityID := "Service Order No.";
                     end;
+                else
+                    OnGetActivityInfoCaseTypeElse(TimeSheetLine, ActivitySubCaption, ActivitySubID, ActivityCaption, ActivityID);
             end;
     end;
 
@@ -875,12 +884,42 @@ codeunit 950 "Time Sheet Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcActSchedFactBoxData(var TimeSheetHeader: Record "Time Sheet Header"; var TotalQtyText: Text; var TotalPresenceQty: Decimal; var AbsenceQty: Decimal);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCheckInsertJobPlanningLine(JobPlanningLine: Record "Job Planning Line"; var JobPlanningLineBuffer: Record "Job Planning Line"; var SkipLine: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateTSLineFromServiceLine(var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateTSLineFromServiceShptLine(var ServiceShipmentLine: Record "Service Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFillJobPlanningBuffer(var JobPlanningLine: Record "Job Planning Line"; var JobPlanningLineBuffer: Record "Job Planning Line"; TimeSheetHeader: Record "Time Sheet Header"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeToTimeSheetLineInsert(var ToTimeSheetLine: Record "Time Sheet Line"; FromTimeSheetLine: Record "Time Sheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateLinesFromJobPlanningOnBeforeTimeSheetLineInsert(var TimeSheetLine: Record "Time Sheet Line"; var JobPlanningLine: Record "Job Planning Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetActivityInfoCaseTypeElse(var TimeSheetLine: Record "Time Sheet Line"; var ActivityCaption: Text[30]; var ActivityID: Code[20]; var ActivitySubCaption: Text[30]; var ActivitySubID: Code[20]);
     begin
     end;
 }

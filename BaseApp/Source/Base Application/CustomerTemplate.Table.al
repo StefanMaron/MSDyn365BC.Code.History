@@ -175,9 +175,11 @@ table 5105 "Customer Template"
         OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
 
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
-        DimMgt.SaveDefaultDim(DATABASE::"Customer Template", Code, FieldNumber, ShortcutDimCode);
-        Modify;
-
+        if not IsTemporary then begin
+            DimMgt.SaveDefaultDim(DATABASE::"Customer Template", Code, FieldNumber, ShortcutDimCode);
+            Modify;
+        end;
+	
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 

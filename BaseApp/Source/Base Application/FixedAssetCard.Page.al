@@ -432,7 +432,7 @@
                     PromotedCategory = Process;
                     RunObject = Page "Maintenance Registration";
                     RunPageLink = "FA No." = FIELD("No.");
-                    ToolTip = 'View or edit maintenance codes for the various types of maintenance, repairs, and services performed on your fixed assets. You can then enter the code in the Maintenance Code field on journals.';
+                    ToolTip = 'View or edit the date and description regarding the maintenance of the fixed asset.';
                 }
                 action("FA Posting Types Overview")
                 {
@@ -744,7 +744,7 @@
     var
         FASubclass: Record "FA Subclass";
     begin
-        if "FA Posting Group" <> '' then
+        if FADepreciationBook."FA Posting Group" <> '' then
             exit;
 
         if FASubclass.Get("FA Subclass Code") then;
@@ -769,6 +769,8 @@
             Simple := true;
         end else
             Simple := false;
+
+        OnAfterLoadDepreciationBooks(Rec, Simple);
     end;
 
     local procedure SetNoFieldVisible()
@@ -783,6 +785,11 @@
         if FADepreciationBook."Disposal Date" > 0D then
             exit(0);
         exit(FADepreciationBook."Book Value");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLoadDepreciationBooks(FixedAsset: Record "Fixed Asset"; var Simple: Boolean);
+    begin
     end;
 }
 

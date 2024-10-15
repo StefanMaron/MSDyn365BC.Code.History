@@ -134,7 +134,14 @@ codeunit 311 "Item-Check Avail."
         OldSalesLine: Record "Sales Line";
         CompanyInfo: Record "Company Information";
         LookAheadDate: Date;
+        IsHandled: Boolean;
+        IsWarning: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesLineShowWarning(SalesLine, IsWarning, IsHandled);
+        if IsHandled then
+            exit(IsWarning);
+
         if SalesLine."Drop Shipment" then
             exit(false);
         if SalesLine.IsNonInventoriableItem then
@@ -208,13 +215,16 @@ codeunit 311 "Item-Check Avail."
     end;
 
     local procedure SetFilterOnItem(var Item: Record Item; ItemNo: Code[20]; ItemVariantCode: Code[10]; ItemLocationCode: Code[10]; ShipmentDate: Date)
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeSetFilterOnItem(Item, ItemNo, ItemVariantCode, ItemLocationCode, ShipmentDate, UseOrderPromise, IsHandled);
+
         Item.Get(ItemNo);
         Item.SetRange("No.", ItemNo);
         Item.SetRange("Variant Filter", ItemVariantCode);
         Item.SetRange("Location Filter", ItemLocationCode);
         Item.SetRange("Drop Shipment Filter", false);
-
         if UseOrderPromise then
             Item.SetRange("Date Filter", 0D, ShipmentDate)
         else
@@ -553,9 +563,16 @@ codeunit 311 "Item-Check Avail."
     var
         Item: Record Item;
         SalesSetup: Record "Sales & Receivables Setup";
+        IsHandled: Boolean;
+        ShowWarning: Boolean;
     begin
         if not Item.Get(ItemNo) then
             exit(false);
+
+        IsHandled := false;
+        OnBeforeShowWarningForThisItem(Item, ShowWarning, IsHandled);
+        if IsHandled then
+            exit(ShowWarning);
 
         if Item.IsNonInventoriableType then
             exit(false);
@@ -597,6 +614,21 @@ codeunit 311 "Item-Check Avail."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterItemJnlLineShowWarning(var ItemJournalLine: Record "Item Journal Line"; var ItemNetChange: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesLineShowWarning(SalesLine: Record "Sales Line"; var IsWarning: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetFilterOnItem(var Item: Record Item; ItemNo: Code[20]; ItemVariantCode: Code[10]; ItemLocationCode: Code[10]; ShipmentDate: Date; UseOrderPromise: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowWarningForThisItem(Item: Record Item; var ShowWarning: Boolean; var IsHandled: Boolean)
     begin
     end;
 

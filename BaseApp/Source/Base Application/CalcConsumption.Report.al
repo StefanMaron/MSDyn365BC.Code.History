@@ -38,6 +38,8 @@ report 5405 "Calc. Consumption"
                 trigger OnPreDataItem()
                 begin
                     SetFilter("Flushing Method", '<>%1&<>%2', "Flushing Method"::Backward, "Flushing Method"::"Pick + Backward");
+
+                    OnAfterPreDataItemProdOrderComp("Prod. Order Component");
                 end;
             }
 
@@ -289,6 +291,11 @@ report 5405 "Calc. Consumption"
 
     [IntegrationEvent(false, false)]
     local procedure OnAssignItemTrackingOnBeforeTempReservEntryModify(var TempReservationEntry: Record "Reservation Entry" temporary; ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPreDataItemProdOrderComp(var ProdOrderComponent: Record "Prod. Order Component");
     begin
     end;
 }
