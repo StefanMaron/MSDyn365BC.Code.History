@@ -4,7 +4,7 @@
     "brief":  "Used for testing that no transactions are invoked",
     "description":  "This app is used for testing that the transactions are not executed. If any transaction is detected with this extension published we will throw an error.",
     "publisher":  "Microsoft",
-    "version":  "16.14.27266.0",
+    "version":  "16.15.28500.0",
     "platform":  "16.0.0.0",
     "dependencies":  [
 

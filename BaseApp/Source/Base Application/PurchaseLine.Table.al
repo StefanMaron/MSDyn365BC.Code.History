@@ -1241,6 +1241,8 @@
                     "Bin Code" := '';
                     Evaluate("Inbound Whse. Handling Time", '<0D>');
                     Validate("Inbound Whse. Handling Time");
+                    Evaluate("Safety Lead Time", '<0D>');
+                    Validate("Safety Lead Time");
                     InitOutstanding;
                     InitQtyToReceive;
                 end;

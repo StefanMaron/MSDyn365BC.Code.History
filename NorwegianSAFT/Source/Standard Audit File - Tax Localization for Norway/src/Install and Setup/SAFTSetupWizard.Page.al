@@ -4,6 +4,8 @@ page 10674 "SAF-T Setup Wizard"
     PageType = NavigatePage;
     SourceTable = "SAF-T Mapping Range";
     RefreshOnActivate = true;
+    ApplicationArea = Basic, Suite;
+    UsageCategory = Administration;
 
     layout
     {
