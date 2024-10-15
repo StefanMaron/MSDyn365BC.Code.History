@@ -38,6 +38,8 @@ codeunit 134150 "ERM Intrastat Journal"
         OnDelIntrastatContactErr: Label 'You cannot delete contact number %1 because it is set up as an Intrastat contact in the Intrastat Setup window.', Comment = '1 - Contact No';
         OnDelVendorIntrastatContactErr: Label 'You cannot delete vendor number %1 because it is set up as an Intrastat contact in the Intrastat Setup window.', Comment = '1 - Vendor No';
         ShptMethodCodeErr: Label 'Wrong Shipment Method Code';
+        StatPeriodFormatErr: Label 'You must specify the statistics period in the format MMYY, such as 0122 for January, 2022.';
+        StatPeriodMonthErr: Label 'Please check the month number.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2383,7 +2385,7 @@ codeunit 134150 "ERM Intrastat Journal"
     procedure IntrastatExport2021()
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        FileName: Text;
+        FileTempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Intrastat] [Export]
         // [SCENARIO 402338] Intrastat journal basic file export in format of 2021
@@ -2391,36 +2393,56 @@ codeunit 134150 "ERM Intrastat Journal"
         IntrastatJnlLine.DeleteAll();
 
         // [GIVEN] Intrastat journal line
-        PrepareIntrastatJnlLine(IntrastatJnlLine);
+        PrepareIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
 
         // [WHEN] Export Intrastat journal to file using format 2021
-        FileName := RunIntrastatExport(IntrastatJnlLine, ExportFormat::"2021");
+        RunIntrastatExport(FileTempBlob, IntrastatJnlLine, ExportFormat::"2021");
 
         // [THEN] Basic fields are exported in format of 2021
         // [THEN] Total Weight value is rounded up to integer
-        VerifyIntrastatExportedFile2021(FileName, IntrastatJnlLine);
+        VerifyIntrastatExportedFile2021(FileTempBlob, IntrastatJnlLine);
     end;
 
     [Test]
-    procedure IntrastatExport2022()
+    procedure IntrastatExport2022_SingleShipment()
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        FileName: Text;
+        FileTempBlob: Codeunit "Temp Blob";
     begin
-        // [FEATURE] [Intrastat] [Export]
-        // [SCENARIO 402338] Intrastat journal basic file export in format of 2022
+        // [FEATURE] [Intrastat] [Export] [Shipment]
+        // [SCENARIO 390312] Single shipment Intrastat journal line basic file export in format of 2022
         Initialize();
         IntrastatJnlLine.DeleteAll();
 
-        // [GIVEN] Intrastat journal line
-        PrepareIntrastatJnlLine(IntrastatJnlLine);
+        // [GIVEN] Shipment Intrastat journal line
+        PrepareIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
 
         // [WHEN] Export Intrastat journal to file using format 2022
-        FileName := RunIntrastatExport(IntrastatJnlLine, ExportFormat::"2022");
+        RunIntrastatExport(FileTempBlob, IntrastatJnlLine, ExportFormat::"2022");
 
         // [THEN] Basic fields are exported in format of 2022
-        // [THEN] Total Weight value is rounded up to integer
-        VerifyIntrastatExportedFile2022(FileName, IntrastatJnlLine);
+        VerifyIntrastatExportedFile2022_Shipment(FileTempBlob, IntrastatJnlLine);
+    end;
+
+    [Test]
+    procedure IntrastatExport2022_SingleReceipt()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        FileTempBlob: Codeunit "Temp Blob";
+    begin
+        // [FEATURE] [Intrastat] [Export] [Receipt]
+        // [SCENARIO 420025] Single receipt Intrastat journal line basic file export in format of 2022
+        Initialize();
+        IntrastatJnlLine.DeleteAll();
+
+        // [GIVEN] Receipt Intrastat journal line
+        PrepareIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
+
+        // [WHEN] Export Intrastat journal to file using format 2022
+        RunIntrastatExport(FileTempBlob, IntrastatJnlLine, ExportFormat::"2022");
+
+        // [THEN] Basic fields are exported in format of 2022
+        VerifyIntrastatExportedFile2022_Receipt(FileTempBlob, IntrastatJnlLine);
     end;
 
     [Test]
@@ -2433,6 +2455,150 @@ codeunit 134150 "ERM Intrastat Journal"
         Assert.AreEqual(1, IntraJnlManagement.RoundTotalWeight(1), '');
         Assert.AreEqual(2, IntraJnlManagement.RoundTotalWeight(1.123), '');
         Assert.AreEqual(2, IntraJnlManagement.RoundTotalWeight(1.789), '');
+    end;
+
+    [Test]
+    procedure GetPartnerVATIDTransferShipment()
+    var
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        CountryRegion: Record "Country/Region";
+        FromLocation: Record Location;
+        ToLocation: Record Location;
+        InTransitLocation: Record Location;
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Partner VAT ID] [Transfer Order] [In-Transit]
+        // [SCENARIO 417835] Partner VAT ID of Transfer Shipment (using In-Transit location)
+        Initialize();
+
+        // [GIVEN] Local location "A", local In-Transit location "B", EU foreign location "C"
+        // [GIVEN] Item "I" on local location "A"
+        CreateCountryRegion(CountryRegion, true);
+        ItemNo := CreateItem();
+        CreateFromToLocations(FromLocation, ToLocation, CountryRegion.Code);
+        CreateAndPostPurchaseItemJournalLine(FromLocation.Code, ItemNo);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(InTransitLocation);
+        InTransitLocation.Validate("Use As In-Transit", true);
+        InTransitLocation.Modify(true);
+
+        // [GIVEN] Transfer Order to transfer item "I" from location "A" to "C" using In-Transit location "B"
+        // [GIVEN] Transfer Order's "Partner VAT ID" = "X"
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code, InTransitLocation.Code);
+        TransferHeader.Validate("Partner VAT ID", LibraryUtility.GenerateGUID());
+        TransferHeader.Modify(true);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, 1);
+
+        // [GIVEN] Transfer Order is Shipped and Receipt
+        LibraryWarehouse.PostTransferOrder(TransferHeader, true, true);
+
+        // [WHEN] Invoke Get Entries from Intrastat journal
+        CreateIntrastatJnlLineAndGetEntries(IntrastatJnlLine, CalcDate('<CM-1M+1D>', WorkDate()), CalcDate('<CM>', WorkDate()));
+
+        // [THEN] Intrastat journal line is created and has "Partner VAT ID" = "X"
+        IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlLine."Journal Template Name");
+        IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlLine."Journal Batch Name");
+        IntrastatJnlLine.SetRange("Item No.", ItemNo);
+        IntrastatJnlLine.FindFirst();
+        IntrastatJnlLine.TestField("Partner VAT ID", TransferHeader."Partner VAT ID");
+    end;
+
+    [Test]
+    procedure GetPartnerVATIDDirectTransferShipment()
+    var
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        CountryRegion: Record "Country/Region";
+        FromLocation: Record Location;
+        ToLocation: Record Location;
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Partner VAT ID] [Transfer Order] [Direct Transfer]
+        // [SCENARIO 417834] Partner VAT ID of Transfer Shipment (direct transfer)
+        Initialize();
+
+        // [GIVEN] Local location "A", EU foreign location "B"
+        // [GIVEN] Item "I" on local location "A"
+        CreateCountryRegion(CountryRegion, true);
+        ItemNo := CreateItem();
+        CreateFromToLocations(FromLocation, ToLocation, CountryRegion.Code);
+        CreateAndPostPurchaseItemJournalLine(FromLocation.Code, ItemNo);
+
+        // [GIVEN] Transfer Order to transfer item "I" from location "A" to "C" (direct transfer)
+        // [GIVEN] Transfer Order's "Partner VAT ID" = "X"
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code, '');
+        TransferHeader.Validate("Direct Transfer", true);
+        TransferHeader.Validate("Partner VAT ID", LibraryUtility.GenerateGUID());
+        TransferHeader.Modify(true);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, 1);
+
+        // [GIVEN] Transfer Order is Shipped and Receipt
+        LibraryWarehouse.PostTransferOrder(TransferHeader, true, true);
+
+        // [WHEN] Invoke Get Entries from Intrastat journal
+        CreateIntrastatJnlLineAndGetEntries(IntrastatJnlLine, CalcDate('<CM-1M+1D>', WorkDate()), CalcDate('<CM>', WorkDate()));
+
+        // [THEN] Intrastat journal line is created and has "Partner VAT ID" = "X"
+        IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlLine."Journal Template Name");
+        IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlLine."Journal Batch Name");
+        IntrastatJnlLine.SetRange("Item No.", ItemNo);
+        IntrastatJnlLine.FindFirst();
+        IntrastatJnlLine.TestField("Partner VAT ID", TransferHeader."Partner VAT ID");
+    end;
+
+    [Test]
+    procedure BatchStatisticsPeriodFormatValidation()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+    begin
+        // [FEATURE] [UI] [UT]
+        // [SCENARIO 419963] Intrastat journal batch "Statistics Period" validation
+        Initialize();
+
+        asserterror IntrastatJnlBatch.Validate("Statistics Period", '12345');
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StatPeriodFormatErr);
+
+        asserterror IntrastatJnlBatch.Validate("Statistics Period", '2201');
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StatPeriodMonthErr);
+
+        IntrastatJnlBatch.Validate("Statistics Period", '0122'); // MMYY
+    end;
+
+    [Test]
+    procedure IntrastatExportBlankedCouuntyrOfOriginIntrastatCode()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        CountryRegion: Record "Country/Region";
+        FileTempBlob: Codeunit "Temp Blob";
+        FileInStream: InStream;
+        Values: List of [Text];
+        Line: Text;
+    begin
+        // [FEATURE] [Intrastat] [Export] [Country Of Origin]
+        // [SCENARIO 420221] Intrastat journal file export in case of blanked "Intrastat Code" of Country Of Origin
+        Initialize();
+        IntrastatJnlLine.DeleteAll();
+
+        // [GIVEN] Intrastat journal line with Country Of Origin "X" having blanked "Intrastat Code"
+        PrepareIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
+        CountryRegion.Get(IntrastatJnlLine."Country/Region of Origin Code");
+        CountryRegion."Intrastat Code" := '';
+        CountryRegion.Modify();
+
+        // [WHEN] Export Intrastat journal to file using format 2022
+        RunIntrastatExport(FileTempBlob, IntrastatJnlLine, ExportFormat::"2022");
+
+        // [THEN] Country Of Origin is exported with "X" value
+        FileTempBlob.CreateInStream(FileInStream);
+        FileInStream.ReadText(Line);
+        FileInStream.ReadText(Line);
+        Values := Line.Split(',');
+        Values.Get(9, Line);
+        Assert.AreEqual(CountryRegion.Code, Line, '');
     end;
 
     local procedure Initialize()
@@ -2492,9 +2658,10 @@ codeunit 134150 "ERM Intrastat Journal"
         end;
     end;
 
-    local procedure PrepareIntrastatJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    local procedure PrepareIntrastatJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; Type: Option)
     begin
         CreateIntrastatJnlLine(IntrastatJnlLine);
+        IntrastatJnlLine.Type := Type;
         IntrastatJnlLine."Tariff No." := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(9, 0), 1, 9);
         IntrastatJnlLine."Country/Region Code" := CreateCountryRegionWithIntrastatCode(false);
         IntrastatJnlLine."Country/Region of Origin Code" := CreateCountryRegionWithIntrastatCode(false);
@@ -2524,11 +2691,12 @@ codeunit 134150 "ERM Intrastat Journal"
 
     local procedure CreateCountryRegion(var CountryRegion: Record "Country/Region"; IsEUCountry: Boolean)
     begin
-        LibraryERM.CreateCountryRegion(CountryRegion);
+        CountryRegion.Code :=
+            LibraryUtility.GenerateRandomCodeWithLength(CountryRegion.FieldNo(Code), Database::"Country/Region", 3);
         CountryRegion.Validate("Intrastat Code", CopyStr(LibraryUtility.GenerateRandomAlphabeticText(3, 0), 1, 3));
         if IsEUCountry then
             CountryRegion.Validate("EU Country/Region Code", CopyStr(LibraryUtility.GenerateRandomAlphabeticText(3, 0), 1, 3));
-        CountryRegion.Modify(true);
+        CountryRegion.Insert(true);
     end;
 
     local procedure CreateCountryRegionWithIntrastatCode(IsEUIntrastat: Boolean): Code[10]
@@ -2785,7 +2953,7 @@ codeunit 134150 "ERM Intrastat Journal"
     end;
 
     local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; PostingDate: Date; DocumentType: Enum "Sales Document Type"; Type: Enum "Sales Line Type"; No: Code[20];
-                                                                                                                                                                   NoOfLines: Integer)
+                                                                                                                                                                               NoOfLines: Integer)
     var
         i: Integer;
     begin
@@ -2949,7 +3117,9 @@ codeunit 134150 "ERM Intrastat Journal"
           ItemLedgerEntry, DocumentNo, ServiceHeader."Document Type"::"Credit Memo", ShipToCustomerNo, BillToCustomerNo, ItemNo);
     end;
 
-    local procedure CreatePostServiceDoc(var ItemLedgerEntry: Record "Item Ledger Entry"; var DocumentNo: Code[20]; DocumentType: Enum "Service Document Type"; ShipToCustomerNo: Code[20]; BillToCustomerNo: Code[20]; ItemNo: Code[20])
+    local procedure CreatePostServiceDoc(var ItemLedgerEntry: Record "Item Ledger Entry"; var DocumentNo: Code[20]; DocumentType: Enum "Service Document Type"; ShipToCustomerNo: Code[20];
+                                                                                                                                      BillToCustomerNo: Code[20];
+                                                                                                                                      ItemNo: Code[20])
     var
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
@@ -3046,15 +3216,15 @@ codeunit 134150 "ERM Intrastat Journal"
         GetItemLedgerEntries.Run;
     end;
 
-    local procedure RunIntrastatExport(IntrastatJnlLine: Record "Intrastat Jnl. Line"; ExportFormat: Enum "Intrastat Export Format") FileName: Text
+    local procedure RunIntrastatExport(var FileTempBlob: Codeunit "Temp Blob"; IntrastatJnlLine: Record "Intrastat Jnl. Line"; ExportFormat: Enum "Intrastat Export Format")
     var
         IntrastatMakeDiskTaxAuth: Report "Intrastat - Make Disk Tax Auth";
-        FileManagement: Codeunit "File Management";
+        FileOutStream: OutStream;
     begin
-        FileName := FileManagement.ServerTempFileName('txt');
+        FileTempBlob.CreateOutStream(FileOutStream);
         IntrastatJnlLine.SetRange(Type, IntrastatJnlLine.Type);
         IntrastatJnlLine.SetRecFilter();
-        IntrastatMakeDiskTaxAuth.InitializeRequestWithExportFormat(FileName, ExportFormat);
+        IntrastatMakeDiskTaxAuth.InitializeRequest(FileOutStream, ExportFormat);
         IntrastatMakeDiskTaxAuth.SetTableView(IntrastatJnlLine);
         IntrastatMakeDiskTaxAuth.UseRequestPage(false);
         IntrastatMakeDiskTaxAuth.Run();
@@ -3334,26 +3504,25 @@ codeunit 134150 "ERM Intrastat Journal"
         IntrastatJournal.GetEntries.Invoke;
     end;
 
-    local procedure VerifyIntrastatExportedFile2021(FileName: Text; IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    local procedure VerifyIntrastatExportedFile2021(var FileTempBlob: Codeunit "Temp Blob"; IntrastatJnlLine: Record "Intrastat Jnl. Line")
     var
         CompanyInformation: Record "Company Information";
         Values: List of [Text];
-        File: File;
+        FileInStream: InStream;
         Line: Text;
         header: Text;
     begin
-        File.TextMode(true);
-        File.Open(FileName);
+        FileTempBlob.CreateInStream(FileInStream);
 
-        File.Read(Line);
+        FileInStream.ReadText(Line);
         CompanyInformation.Get();
         header :=
             'T,' +
             DelChr(CompanyInformation."VAT Registration No.", '=', DelChr(CompanyInformation."VAT Registration No.", '=', '0123456789')) +
-            ',,' + CopyStr(CompanyInformation.Name, 1, 30) + ',X,A';
+            ',,' + CopyStr(CompanyInformation.Name, 1, 30) + ',X,D';
         Assert.AreEqual(header, CopyStr(Line, 1, StrLen(header)), '');
 
-        File.Read(Line);
+        FileInStream.ReadText(Line);
         Values := Line.Split(',');
         Assert.AreEqual(8, Values.Count(), '');
 
@@ -3375,27 +3544,26 @@ codeunit 134150 "ERM Intrastat Journal"
         Assert.AreEqual(IntrastatJnlLine."Document No.", Line, '');
     end;
 
-    local procedure VerifyIntrastatExportedFile2022(FileName: Text; IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    local procedure VerifyIntrastatExportedFile2022_Shipment(var FileTempBlob: Codeunit "Temp Blob"; IntrastatJnlLine: Record "Intrastat Jnl. Line")
     var
         CompanyInformation: Record "Company Information";
         CountryRegion: Record "Country/Region";
         Values: List of [Text];
-        File: File;
+        FileInStream: InStream;
         Line: Text;
         header: Text;
     begin
-        File.TextMode(true);
-        File.Open(FileName);
+        FileTempBlob.CreateInStream(FileInStream);
 
-        File.Read(Line);
+        FileInStream.ReadText(Line);
         CompanyInformation.Get();
         header :=
             'T,' +
             DelChr(CompanyInformation."VAT Registration No.", '=', DelChr(CompanyInformation."VAT Registration No.", '=', '0123456789')) +
-            ',,' + CopyStr(CompanyInformation.Name, 1, 30) + ',X,A';
+            ',,' + CopyStr(CompanyInformation.Name, 1, 30) + ',X,D';
         Assert.AreEqual(header, CopyStr(Line, 1, StrLen(header)), '');
 
-        File.Read(Line);
+        FileInStream.ReadText(Line);
         Values := Line.Split(',');
         Assert.AreEqual(10, Values.Count(), '');
 
@@ -3419,6 +3587,47 @@ codeunit 134150 "ERM Intrastat Journal"
         CountryRegion.GET(IntrastatJnlLine."Country/Region of Origin Code");
         Assert.AreEqual(CountryRegion."Intrastat Code", Line, '');
         Values.Get(10, Line);
+        Assert.AreEqual(IntrastatJnlLine."Document No.", Line, '');
+    end;
+
+    local procedure VerifyIntrastatExportedFile2022_Receipt(var FileTempBlob: Codeunit "Temp Blob"; IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    var
+        CompanyInformation: Record "Company Information";
+        CountryRegion: Record "Country/Region";
+        Values: List of [Text];
+        FileInStream: InStream;
+        Line: Text;
+        header: Text;
+    begin
+        FileTempBlob.CreateInStream(FileInStream);
+
+        FileInStream.ReadText(Line);
+        CompanyInformation.Get();
+        header :=
+            'T,' +
+            DelChr(CompanyInformation."VAT Registration No.", '=', DelChr(CompanyInformation."VAT Registration No.", '=', '0123456789')) +
+            ',,' + CopyStr(CompanyInformation.Name, 1, 30) + ',X,A';
+        Assert.AreEqual(header, CopyStr(Line, 1, StrLen(header)), '');
+
+        FileInStream.ReadText(Line);
+        Values := Line.Split(',');
+        Assert.AreEqual(8, Values.Count(), '');
+
+        Values.Get(1, Line);
+        Assert.AreEqual(IntrastatJnlLine."Tariff No.", Line, '');
+        Values.Get(2, Line);
+        Assert.AreEqual(FORMAT(IntrastatJnlLine."Statistical Value", 0, 1), Line, '');
+        Values.Get(3, Line);
+        Assert.AreEqual(IntrastatJnlLine."Shpt. Method Code", Line, '');
+        Values.Get(4, Line);
+        Assert.AreEqual(IntrastatJnlLine."Transaction Type", Line, '');
+        Values.Get(5, Line);
+        Assert.AreEqual(FORMAT(ROUND(IntrastatJnlLine."Total Weight", 1, '>'), 0, 1), Line, '');
+        Values.Get(6, Line);
+        Assert.AreEqual(FORMAT(IntrastatJnlLine.Quantity, 0, 1), Line, '');
+        Values.Get(7, Line);
+        Assert.AreEqual(IntrastatJnlLine."Country/Region Code", Line, '');
+        Values.Get(8, Line);
         Assert.AreEqual(IntrastatJnlLine."Document No.", Line, '');
     end;
 
