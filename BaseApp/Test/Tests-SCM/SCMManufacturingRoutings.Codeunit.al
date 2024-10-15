@@ -1898,6 +1898,90 @@ codeunit 137082 "SCM Manufacturing - Routings"
         System.WorkDate(CurrWorkDate);
     end;
 
+    [Test]
+    procedure ChangingDueDateNotGivingAnyErrorWhenReleasedProductionOrderWithParallelRouting()
+    var
+        WorkCenter: array[4] of Record "Work Center";
+        CapacityUnitOfMeasure: array[2] of Record "Capacity Unit of Measure";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        ProductionOrder: Record "Production Order";
+        LeadTimeMgt: Codeunit "Lead-Time Management";
+        ItemNo: Code[20];
+        ShopCalendarCode: Code[10];
+    begin
+        // [SCENARIO 485872] Change Due Date on Released Production Order generated message: The Prod. Order Routing Line does not exist.
+        Initialize();
+
+        // [GIVEN] Capacity Unit of Measure in Days
+        LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure[1], CapacityUnitOfMeasure[1].Type::Minutes);
+        LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure[2], CapacityUnitOfMeasure[2].Type::Days);
+
+        // [GIVEN] Calendar with working days from 8AM till 4PM
+        ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarFullWorkingWeekCustomTime(080000T, 160000T);
+
+        // [GIVEN] Four work centers with Queue Times for unit of measure DAYS
+        CreateWorkCenterWithCalendarForDAYS(WorkCenter[1], 1, CapacityUnitOfMeasure[1].Code, CapacityUnitOfMeasure[2].Code, ShopCalendarCode);
+        CreateWorkCenterWithCalendarForDAYS(WorkCenter[2], 0, CapacityUnitOfMeasure[1].Code, '', ShopCalendarCode);
+        CreateWorkCenterWithCalendarForDAYS(WorkCenter[3], 0.5, CapacityUnitOfMeasure[1].Code, CapacityUnitOfMeasure[2].Code, ShopCalendarCode);
+        CreateWorkCenterWithCalendarForDAYS(WorkCenter[4], 2, CapacityUnitOfMeasure[1].Code, CapacityUnitOfMeasure[2].Code, ShopCalendarCode);
+
+        // [GIVEN] Create a routing with 10 operations
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Parallel);
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '10', RoutingLine.Type::"Work Center", WorkCenter[1]."No.");
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '20', RoutingLine.Type::"Work Center", WorkCenter[3]."No.");
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '50', RoutingLine.Type::"Work Center", WorkCenter[3]."No.");
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '55', RoutingLine.Type::"Work Center", WorkCenter[4]."No.");
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '56', RoutingLine.Type::"Work Center", WorkCenter[2]."No.");
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '60', RoutingLine.Type::"Work Center", WorkCenter[3]."No.");
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '61', RoutingLine.Type::"Work Center", WorkCenter[2]."No.");
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '70', RoutingLine.Type::"Work Center", WorkCenter[4]."No.");
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '90', RoutingLine.Type::"Work Center", WorkCenter[1]."No.");
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '99', RoutingLine.Type::"Work Center", WorkCenter[2]."No.");
+
+        // [GIVEN] Setup sequential execution of the operations by filling the previous and next operation no.
+        UpdateSequentialExecution(RoutingHeader."No.", '', '10', '', '20|60', 100);
+        UpdateSequentialExecution(RoutingHeader."No.", '', '20', '10', '50|55', 240);
+        UpdateSequentialExecution(RoutingHeader."No.", '', '50', '20', '56', 180);
+        UpdateSequentialExecution(RoutingHeader."No.", '', '55', '20', '56', 60);
+        UpdateSequentialExecution(RoutingHeader."No.", '', '56', '50|55', '61', 0);
+        UpdateSequentialExecution(RoutingHeader."No.", '', '60', '10', '61', 240);
+        UpdateSequentialExecution(RoutingHeader."No.", '', '61', '56|60', '70|90', 0);
+        UpdateSequentialExecution(RoutingHeader."No.", '', '70', '61', '99', 10320);
+        UpdateSequentialExecution(RoutingHeader."No.", '', '90', '61', '99', 780);
+        UpdateSequentialExecution(RoutingHeader."No.", '', '99', '70|90', '', 120);
+
+        // [GIVEN] Certiy Routing Version
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify();
+
+        // [GIVEN] Item with Routing No. and without Production BOM
+        ItemNo := CreateItemWithRoutingAndProductionBOM(RoutingHeader."No.", '');
+
+        // [GIVEN] Create and refresh Released Production Order with due date current_year-05-11
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, "Production Order Status"::Released, ProductionOrder."Source Type"::Item, ItemNo, 1);
+        //ProductionOrder.Validate("Due Date", DMY2Date(11, 5, Date2DMY(WorkDate(), 3)));
+        ProductionOrder.Validate("Due Date", WorkDate());
+        ProductionOrder."Ending Date" := LeadTimeMgt.PlannedEndingDate(ProductionOrder."Source No.", ProductionOrder."Location Code", '', ProductionOrder."Due Date", '', 2);
+        ProductionOrder."Starting Date" := ProductionOrder."Ending Date";
+        ProductionOrder."Starting Date-Time" := CreateDateTime(ProductionOrder."Starting Date", ProductionOrder."Starting Time");
+        ProductionOrder."Ending Date-Time" := CreateDateTime(ProductionOrder."Ending Date", ProductionOrder."Ending Time");
+        ProductionOrder.Modify();
+
+        // [WHEN] Refersh Production Order backward
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [VERIFY] Verify: Posting specific Production Journal Line and changing due date for Production Order not raising any error
+        PostProductionJournal(ProductionOrder."No.", '20');
+        UpdateDueDateOnReleasedProductionOrder(ProductionOrder."No.", CalcDate('<' + Format(LibraryRandom.RandIntInRange(1, 3)) + 'D>', WorkDate()));
+        PostProductionJournal(ProductionOrder."No.", '90');
+        UpdateDueDateOnReleasedProductionOrder(ProductionOrder."No.", CalcDate('<' + Format(LibraryRandom.RandIntInRange(4, 6)) + 'D>', WorkDate()));
+        PostProductionJournal(ProductionOrder."No.", '50');
+        UpdateDueDateOnReleasedProductionOrder(ProductionOrder."No.", CalcDate('<' + Format(LibraryRandom.RandIntInRange(7, 9)) + 'D>', WorkDate()));
+        PostProductionJournal(ProductionOrder."No.", '70');
+        UpdateDueDateOnReleasedProductionOrder(ProductionOrder."No.", CalcDate('<' + Format(LibraryRandom.RandIntInRange(10, 12)) + 'D>', WorkDate()));
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Manufacturing - Routings");
@@ -2132,6 +2216,30 @@ codeunit 137082 "SCM Manufacturing - Routings"
         WorkCenter.Validate("Queue Time Unit of Meas. Code", QueueUoMCode);
         WorkCenter.Modify(true);
         LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, DMY2Date(1, 1, Date2DMY(Today(), 3)), DMY2Date(31, 12, Date2DMY(Today(), 3)));
+    end;
+
+    procedure PostProductionJournal(ProdOrderNo: Code[20]; OperationNo: Code[10])
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        ItemJournalLine.SetRange("Order No.", ProdOrderNo);
+        ItemJournalLine.SetRange("Operation No.", OperationNo);
+        if ItemJournalLine.FindFirst() then begin
+            ItemJournalLine.Validate(Finished, true);
+            ItemJournalLine.Modify(true);
+            // Post Production Journal line
+            CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
+        end;
+    end;
+
+    local procedure UpdateDueDateOnReleasedProductionOrder(ProdOrderNo: Code[20]; DueDate: Date)
+    var
+        ReleasedProductionOrder: TestPage "Released Production Order";
+    begin
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.FILTER.SetFilter("No.", ProdOrderNo);
+        ReleasedProductionOrder."Due Date".SetValue(DueDate);
+        ReleasedProductionOrder.OK().Invoke();
     end;
 
     [ModalPageHandler]

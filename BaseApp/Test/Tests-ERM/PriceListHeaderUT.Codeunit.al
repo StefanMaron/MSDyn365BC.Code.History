@@ -279,9 +279,11 @@ codeunit 134118 "Price List Header UT"
     var
         NewPriceListHeader: Record "Price List Header";
         PriceListHeader: Record "Price List Header";
+        PriceListHeaderPreStartingDateChange: Record "Price List Header";
         JobNo: Code[20];
     begin
         // [FEATURE] [Job Task]
+        // [SCENARIO 486161] "Filter Source No." value is not changed when changing "Starting Date" on the price list.
         Initialize();
         // [GIVEN] Price Source, where "Source Type" = 'Job Task', "Job Task No." is 'JT', Job No." is 'J'
         NewSourceJobTask(PriceListHeader);
@@ -295,6 +297,17 @@ codeunit 134118 "Price List Header UT"
         PriceListHeader.Validate("Source No.", NewPriceListHeader."Source No.");
 
         // [THEN] "Source No." is 'X', "Parent Source No." = 'J', "Source ID" is 'A', "Source Type" = 'Job Task'
+        PriceListHeader.Testfield("Source Type", PriceListHeader."Source Type"::"Job Task");
+        PriceListHeader.Testfield("Parent Source No.", JobNo);
+        PriceListHeader.Testfield("Source No.", NewPriceListHeader."Source No.");
+        PriceListHeader.Testfield("Source ID", NewPriceListHeader."Source ID");
+
+        // [WHEN] Set "Starting Date" as Today
+        PriceListHeaderPreStartingDateChange := PriceListHeader;
+        PriceListHeader.Validate("Starting Date", Today());
+
+        // [THEN] "Filter Source No." and other values are not changed
+        PriceListHeader.TestField("Filter Source No.", PriceListHeaderPreStartingDateChange."Filter Source No.");
         PriceListHeader.Testfield("Source Type", PriceListHeader."Source Type"::"Job Task");
         PriceListHeader.Testfield("Parent Source No.", JobNo);
         PriceListHeader.Testfield("Source No.", NewPriceListHeader."Source No.");

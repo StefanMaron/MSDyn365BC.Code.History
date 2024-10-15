@@ -7,7 +7,7 @@ report 99001020 "Carry Out Action Msg. - Plan."
     {
         dataitem("Requisition Line"; "Requisition Line")
         {
-            DataItemTableView = SORTING("Worksheet Template Name", "Journal Batch Name", "Vendor No.", "Sell-to Customer No.", "Ship-to Code", "Order Address Code", "Currency Code", "Ref. Order Type", "Ref. Order Status", "Ref. Order No.", "Location Code", "Transfer-from Code");
+            DataItemTableView = SORTING("Worksheet Template Name", "Journal Batch Name", "Vendor No.", "Sell-to Customer No.", "Ship-to Code", "Order Address Code", "Currency Code", "Ref. Order Type", "Ref. Order Status", "Ref. Order No.", "Low-Level Code", "Location Code", "Transfer-from Code");
             RequestFilterHeading = 'Planning Line';
 
             trigger OnAfterGetRecord()

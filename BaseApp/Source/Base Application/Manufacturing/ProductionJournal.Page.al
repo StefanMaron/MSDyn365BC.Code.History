@@ -603,8 +603,13 @@ page 5510 "Production Journal"
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
+                    var
+                        ItemJnlLine: Record "Item Journal Line";
                     begin
-                        ShowPreview();
+                        MarkRelevantRec(ItemJnlLine);
+                        ItemJnlLine.PreviewPostItemJnlFromProduction();
+
+                        SetFilterGroup();
                         CurrPage.Update(false);
                     end;
                 }
@@ -1007,6 +1012,24 @@ page 5510 "Production Journal"
             until Rec.Next() = 0;
     end;
 
+    protected procedure MarkRelevantRec(var ItemJournalLine: Record "Item Journal Line")
+    begin
+        ItemJournalLine := Rec;
+        if ItemJournalLine.FindSet() then begin
+            repeat
+                case ItemJournalLine."Entry Type" of
+                    "Item Ledger Entry Type"::Consumption:
+                        if ItemJournalLine."Quantity (Base)" <> 0 then
+                            ItemJournalLine.Mark(true);
+                    "Item Ledger Entry Type"::Output:
+                        if not ItemJournalLine.TimeIsEmpty() or (ItemJournalLine."Output Quantity (Base)" <> 0) or (ItemJournalLine."Scrap Quantity (Base)" <> 0) then
+                            ItemJournalLine.Mark(true);
+                end;
+            until ItemJournalLine.Next() = 0;
+            ItemJournalLine.MarkedOnly(true);
+        end;
+    end;
+
     protected procedure InsertTempRec()
     begin
         if TempItemJnlLine.Find('-') then
@@ -1174,17 +1197,6 @@ page 5510 "Production Journal"
           DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
 
         Clear(DimMgt);
-    end;
-
-    local procedure ShowPreview()
-    begin
-        DeleteTempRec();
-
-        Rec.PreviewPostItemJnlFromProduction();
-        InsertTempRec();
-
-        SetFilterGroup();
-        CurrPage.Update(false);
     end;
 
     [IntegrationEvent(false, false)]

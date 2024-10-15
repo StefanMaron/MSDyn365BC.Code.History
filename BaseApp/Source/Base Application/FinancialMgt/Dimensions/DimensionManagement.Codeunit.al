@@ -2906,6 +2906,19 @@
         Page.Run(Page::"Default Dimension Priorities", DefaultDimPriority);
     end;
 
+    procedure CheckDefaultDimensionHasCodeMandatory(TableID: array[10] of Integer; No: array[10] of Code[20]) CodeMandatory: Boolean
+    var
+        TempDefaultDim: Record "Default Dimension" temporary;
+    begin
+        CollectDefaultDimsToCheck(TableID, No, TempDefaultDim);
+        TempDefaultDim.Reset();
+        TempDefaultDim.SetRange("Value Posting", TempDefaultDim."Value Posting"::"Code Mandatory");
+        if not TempDefaultDim.IsEmpty() then
+            CodeMandatory := true;
+
+        exit(CodeMandatory);
+    end;
+
 #if not CLEAN20
     local procedure CreateDimArrayFromDefaultDimSources(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var DefaultDimSource2: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20]; var ListPostiion: Integer)
     var
