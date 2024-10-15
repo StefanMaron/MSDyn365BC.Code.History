@@ -186,19 +186,11 @@ table 5902 "Service Line"
             TableRelation = Location;
 
             trigger OnValidate()
-            var
-                Item: Record Item;
             begin
-                TestStatusOpen;
-                UpdateWithWarehouseShip;
-                GetServHeader;
+                TestStatusOpen();
+                UpdateWithWarehouseShip();
+                GetServHeader();
                 if Type = Type::Item then begin
-                    // Location code in allowed only for inventoriable items
-                    if "Location Code" <> '' then begin
-                        GetItem(Item);
-                        Item.TestField(Type, Item.Type::Inventory);
-                    end;
-
                     if Quantity <> 0 then
                         WhseValidateSourceLine.ServiceLineVerifyChange(Rec, xRec);
                     if "Location Code" <> xRec."Location Code" then begin
@@ -1487,11 +1479,15 @@ table 5902 "Service Line"
 
             trigger OnValidate()
             var
+                Item: Record Item;
                 WMSManagement: Codeunit "WMS Management";
                 WhseIntegrationManagement: Codeunit "Whse. Integration Management";
             begin
                 TestField("Location Code");
                 TestField(Type, Type::Item);
+
+                GetItem(Item);
+                Item.TestField(Type, Item.Type::Inventory);
 
                 if "Bin Code" <> '' then
                     if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice] then
@@ -3582,7 +3578,7 @@ table 5902 "Service Line"
         "Location Code" := '';
         if Type = Type::Resource then
             "Location Code" := ServOrderMgt.FindResLocationCode("No.", ServHeader."Order Date");
-        if ("Location Code" = '') and (not IsNonInventoriableItem) then
+        if "Location Code" = '' then
             "Location Code" := ServHeader."Location Code";
 
         OnInitHeaderDefaultsOnAfterAssignLocationCode(Rec, ServHeader);
@@ -4149,7 +4145,7 @@ table 5902 "Service Line"
         if IsHandled then
             exit;
 
-        if Type <> Type::Item then
+        if (Type <> Type::Item) or IsNonInventoriableItem() then
             exit;
 
         "Bin Code" := '';
@@ -5852,7 +5848,7 @@ table 5902 "Service Line"
     var
         Location: Record Location;
     begin
-        if ("Document Type" <> "Document Type"::Order) or (Type <> Type::Item) then
+        if ("Document Type" <> "Document Type"::Order) or IsNonInventoriableItem() then
             exit(false);
         exit(Location.RequireReceive("Location Code") or Location.RequireShipment("Location Code"));
     end;
@@ -6254,6 +6250,18 @@ table 5902 "Service Line"
         exit(Item.IsNonInventoriableType);
     end;
 
+    procedure IsInventoriableItem(): Boolean
+    var
+        Item: Record Item;
+    begin
+        if Type <> Type::Item then
+            exit(false);
+        if "No." = '' then
+            exit(false);
+        GetItem(Item);
+        exit(Item.IsInventoriableType());
+    end;
+    
     local procedure UpdateDimSetupFromDimSetID(var TableID: array[10] of Integer; var No: array[10] of Code[20]; InheritFromDimSetID: Integer)
     var
         TempDimSetEntry: Record "Dimension Set Entry" temporary;

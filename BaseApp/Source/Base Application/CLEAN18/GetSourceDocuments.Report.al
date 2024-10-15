@@ -349,7 +349,7 @@ report 5753 "Get Source Documents"
                         if IsHandled then
                             CurrReport.Skip();
 
-                        if "Location Code" = "Warehouse Request"."Location Code" then
+                        if ("Location Code" = "Warehouse Request"."Location Code") and IsInventoriableItem() then
                             case RequestType of
                                 RequestType::Ship:
                                     if WhseActivityCreate.CheckIfFromServiceLine2ShptLin("Service Line") then begin

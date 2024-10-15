@@ -254,6 +254,7 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
             Error(ToPayAmountExceededErr);
 
         InitGenJnlLineFromVendLedgEntry(VendorLedgerEntry, GenJournalLine, GenJournalLine."Document Type"::" ");
+        GenJournalLine."Adv. Letter Template Code CZZ" := PurchAdvLetterHeaderCZZ."Advance Letter Code";
         GenJournalLine.Correction := true;
         GenJournalLine.SetCurrencyFactor(VendorLedgerEntry."Currency Code", VendorLedgerEntry."Original Currency Factor");
         GenJournalLine.Amount := -Amount;
@@ -263,6 +264,7 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
         VendorLedgerEntry.CalcFields("Remaining Amount");
         VendorLedgerEntry."Amount to Apply" := VendorLedgerEntry."Remaining Amount";
         VendorLedgerEntry."Applies-to ID" := ApplId;
+        VendorLedgerEntry."Adv. Letter Template Code CZZ" := PurchAdvLetterHeaderCZZ."Advance Letter Code";
         Codeunit.Run(Codeunit::"Vend. Entry-Edit", VendorLedgerEntry);
 
         GenJournalLine."Applies-to ID" := ApplId;
@@ -271,6 +273,7 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
         OnAfterPostPaymentRepos(GenJournalLine, PurchAdvLetterHeaderCZZ);
 
         InitGenJnlLineFromVendLedgEntry(VendorLedgerEntry, GenJournalLine, GenJournalLine."Document Type"::" ");
+        GenJournalLine."Adv. Letter Template Code CZZ" := PurchAdvLetterHeaderCZZ."Advance Letter Code";
         GenJournalLine."Adv. Letter No. (Entry) CZZ" := PurchAdvLetterHeaderCZZ."No.";
         GenJournalLine."Use Advance G/L Account CZZ" := true;
         GenJournalLine.SetCurrencyFactor(VendorLedgerEntry."Currency Code", VendorLedgerEntry."Original Currency Factor");
@@ -715,6 +718,7 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
         UnapplyVendLedgEntry(VendorLedgerEntryPay, GenJnlPostLine);
 
         InitGenJnlLineFromVendLedgEntry(VendorLedgerEntryAdv, GenJournalLine, GenJournalLine."Document Type"::" ");
+        GenJournalLine."Adv. Letter Template Code CZZ" := PurchAdvLetterHeaderCZZ."Advance Letter Code";
         GenJournalLine.Correction := true;
         GenJournalLine."Adv. Letter No. (Entry) CZZ" := PurchAdvLetterEntryCZZ."Purch. Adv. Letter No.";
         GenJournalLine."Use Advance G/L Account CZZ" := true;
@@ -743,6 +747,7 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
             GenJournalLine."Shortcut Dimension 1 Code", GenJournalLine."Shortcut Dimension 2 Code", GenJournalLine."Dimension Set ID", false);
 
         InitGenJnlLineFromVendLedgEntry(VendorLedgerEntryAdv, GenJournalLine, GenJournalLine."Document Type"::" ");
+        GenJournalLine."Adv. Letter Template Code CZZ" := PurchAdvLetterHeaderCZZ."Advance Letter Code";
         GenJournalLine.SetCurrencyFactor(PurchAdvLetterEntryCZZ."Currency Code", PurchAdvLetterEntryCZZ."Currency Factor");
         GenJournalLine.Amount := PurchAdvLetterEntryCZZ.Amount;
         GenJournalLine."Amount (LCY)" := PurchAdvLetterEntryCZZ."Amount (LCY)";
@@ -867,6 +872,7 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
         PurchAdvLetterHeaderCZZ.Get(PurchAdvLetterEntryCZZ."Purch. Adv. Letter No.");
 
         InitGenJnlLineFromVendLedgEntry(VendorLedgerEntry, GenJournalLine, GenJournalLine."Document Type"::" ");
+        GenJournalLine."Adv. Letter Template Code CZZ" := PurchAdvLetterHeaderCZZ."Advance Letter Code";
         GenJournalLine.Correction := true;
         GenJournalLine.SetCurrencyFactor(PurchAdvLetterEntryCZZ."Currency Code", PurchAdvLetterEntryCZZ."Currency Factor");
         GenJournalLine.Amount := ReverseAmount;
@@ -887,6 +893,7 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
         end;
 
         InitGenJnlLineFromVendLedgEntry(VendorLedgerEntry, GenJournalLine, GenJournalLine."Document Type"::" ");
+        GenJournalLine."Adv. Letter Template Code CZZ" := PurchAdvLetterHeaderCZZ."Advance Letter Code";
         GenJournalLine."Adv. Letter No. (Entry) CZZ" := PurchAdvLetterEntryCZZ."Purch. Adv. Letter No.";
         GenJournalLine."Use Advance G/L Account CZZ" := true;
         GenJournalLine.SetCurrencyFactor(PurchAdvLetterEntryCZZ."Currency Code", PurchAdvLetterEntryCZZ."Currency Factor");
@@ -1585,6 +1592,7 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
                         VendorLedgerEntry1.Get(PurchAdvLetterEntryCZZ."Vendor Ledger Entry No.");
                         if RemAmount <> 0 then begin
                             InitGenJnlLineFromVendLedgEntry(VendorLedgerEntry1, GenJournalLine, GenJournalLine."Document Type"::" ");
+                            GenJournalLine."Adv. Letter Template Code CZZ" := PurchAdvLetterHeaderCZZ."Advance Letter Code";
                             GenJournalLine.Correction := true;
                             GenJournalLine."External Document No." := ExternalDocumentNo;
                             GenJournalLine."Document No." := VATDocumentNo;
@@ -1630,6 +1638,7 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
 
                         if RemAmount <> 0 then begin
                             InitGenJnlLineFromVendLedgEntry(VendorLedgerEntry1, GenJournalLine, GenJournalLine."Document Type"::Payment);
+                            GenJournalLine."Adv. Letter Template Code CZZ" := PurchAdvLetterHeaderCZZ."Advance Letter Code";
                             GenJournalLine.Correction := true;
                             GenJournalLine."External Document No." := ExternalDocumentNo;
                             GenJournalLine."Document No." := VATDocumentNo;
@@ -2108,6 +2117,7 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
                         UnapplyVendLedgEntry(VendorLedgerEntry, GenJnlPostLine);
 
                         InitGenJnlLineFromVendLedgEntry(VendorLedgerEntry, GenJournalLine, VendorLedgerEntry."Document Type"::" ");
+                        GenJournalLine."Adv. Letter Template Code CZZ" := PurchAdvLetterHeaderCZZ."Advance Letter Code";
                         GenJournalLine.Correction := true;
                         GenJournalLine."Adv. Letter No. (Entry) CZZ" := PurchAdvLetterEntryCZZ."Purch. Adv. Letter No.";
                         GenJournalLine."Use Advance G/L Account CZZ" := true;
@@ -2137,6 +2147,7 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
                             GenJournalLine."Shortcut Dimension 1 Code", GenJournalLine."Shortcut Dimension 2 Code", GenJournalLine."Dimension Set ID", false);
 
                         InitGenJnlLineFromVendLedgEntry(VendorLedgerEntry, GenJournalLine, GenJournalLine."Document Type"::" ");
+                        GenJournalLine."Adv. Letter Template Code CZZ" := PurchAdvLetterHeaderCZZ."Advance Letter Code";
                         GenJournalLine.Correction := true;
                         GenJournalLine.SetCurrencyFactor(PurchAdvLetterEntryCZZ."Currency Code", PurchAdvLetterEntryCZZ."Currency Factor");
                         GenJournalLine.Correction := true;
