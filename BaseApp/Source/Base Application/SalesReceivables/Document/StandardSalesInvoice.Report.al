@@ -837,7 +837,7 @@ report 1306 "Standard Sales - Invoice"
                     TotalVATBaseOnVATAmtLine += "VAT Base";
                     TotalVATAmountOnVATAmtLine += "VAT Amount";
 
-                    if ShowVATClause("VAT Clause Code") then begin
+                    if ShowVATClause("VAT Clause Code") and ShouldInsertVATClauseLine() then begin
                         VATClauseLine := VATAmountLine;
                         if VATClauseLine.Insert() then;
                     end;
@@ -1705,6 +1705,21 @@ report 1306 "Standard Sales - Invoice"
         OnBeforeFormatLineValues(CurrLine, FormattedQuantity, FormattedUnitPrice, FormattedVATPct, FormattedLineAmount, IsHandled);
         if not IsHandled then
             FormatDocument.SetSalesInvoiceLine(CurrLine, FormattedQuantity, FormattedUnitPrice, FormattedVATPct, FormattedLineAmount);
+    end;
+
+    local procedure ShouldInsertVATClauseLine(): Boolean
+    var
+        TempVATClauseLine: Record "VAT Amount Line" temporary;
+    begin
+        if VATAmountLine."VAT Amount" <> 0 then
+            exit(true);
+
+        TempVATClauseLine.Copy(VATClauseLine, true);
+        TempVATClauseLine.SetRange("VAT Identifier", VATAmountLine."VAT Identifier");
+        TempVATClauseLine.SetRange("VAT Clause Code", VATAmountLine."VAT Clause Code");
+        TempVATClauseLine.SetRange("VAT Amount", VATAmountLine."VAT Amount");
+
+        exit(TempVATClauseLine.IsEmpty());
     end;
 
     [IntegrationEvent(false, false)]
