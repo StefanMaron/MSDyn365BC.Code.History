@@ -468,6 +468,7 @@ table 5330 "CRM Connection Setup"
         end;
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure HasPassword(): Boolean
     begin
@@ -647,6 +648,7 @@ table 5330 "CRM Connection Setup"
             ShowError(UserCRMSetupTxt, StrSubstNo(CannotResolveUserFromConnectionSetupErr, CRMProductName.SHORT));
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure GetPassword(): Text
     var
@@ -876,6 +878,7 @@ table 5330 "CRM Connection Setup"
             end;
     end;
 
+    [NonDebuggable]
     procedure UpdateFromWizard(var SourceCRMConnectionSetup: Record "CRM Connection Setup"; PasswordText: Text)
     begin
         if not Get then begin
@@ -999,6 +1002,7 @@ table 5330 "CRM Connection Setup"
         Validate("Auto Create Sales Orders", false);
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure SetCRMSOPEnabledWithCredentials(AdminEmail: Text[250]; AdminPassword: Text; SOPIntegrationEnable: Boolean)
     var

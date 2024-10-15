@@ -3597,6 +3597,7 @@ codeunit 7201 "CDS Integration Impl."
         exit(false);
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure UpdateConnectionSetupFromWizard(var SourceCDSConnectionSetup: Record "CDS Connection Setup"; PasswordText: Text)
     var

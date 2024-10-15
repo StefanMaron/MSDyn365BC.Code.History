@@ -2230,8 +2230,7 @@ page 21 "Customer Card"
         if NewMode then
             CreateCustomerFromTemplate
         else
-            if FoundationOnly then
-                StartBackgroundCalculations();
+            StartBackgroundCalculations();
         ActivateFields;
         SetCreditLimitStyle();
 
