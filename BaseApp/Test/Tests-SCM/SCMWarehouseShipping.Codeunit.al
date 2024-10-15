@@ -800,7 +800,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
         LibraryVariableStorage.Enqueue(ItemTrackingMode::"Select Entries");  // Enqueue ItemTrackingMode for ItemTrackingPageHandler.
         CreateAndReleaseSalesOrderWithMultipleLinesAndItemTracking(
           SalesHeader, SalesLine, LocationWhite.Code, '', Item."No.", '', Quantity, 0, false, true);  // Taking True for Item Tracking. Taking O for Quantity of blank line.
-        GetSourceDocumentOnWarehouseShipment(WarehouseShipmentHeader, LocationWhite.Code);
+        GetSourceDocumentOnWarehouseShipment(WarehouseShipmentHeader, LocationWhite.Code, false);
 
         // Exercise: Create Pick from the Warehouse Shipment.
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
@@ -867,7 +867,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         ModifyRequisitionLineAndCarryOutActionMessagePlan(Item."No.");
         RegisterPutAwayFromPurchaseOrder(Item."No.");
-        GetSourceDocumentOnWarehouseShipment(WarehouseShipmentHeader, LocationWhite2.Code);
+        GetSourceDocumentOnWarehouseShipment(WarehouseShipmentHeader, LocationWhite2.Code, false);
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
         RegisterWarehouseActivity(
           WarehouseActivityHeader."Source Document"::"Sales Order", SalesHeader."No.", WarehouseActivityLine."Activity Type"::Pick);
@@ -1709,7 +1709,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
           SalesHeader, Item, Bin, LocationSilver.Code, Quantity, ItemUnitOfMeasure."Qty. per Unit of Measure");
 
         // [GIVEN] Calling Get Source Document On Warehouse Shipment.
-        GetSourceDocumentOnWarehouseShipment(WarehouseShipmentHeader, LocationSilver.Code);
+        GetSourceDocumentOnWarehouseShipment(WarehouseShipmentHeader, LocationSilver.Code, false);
 
         // [WHEN] Create Pick on Warehouse Shipment.
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
@@ -3784,6 +3784,43 @@ codeunit 137151 "SCM Warehouse - Shipping"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure GetSourceDocumentsOnWarehouseShipmentDoNotFillQtyToHandle()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        Qty: Decimal;
+    begin
+        // [SCENARIO 436708] "Qty. to Ship" is not filled for Warehouse Shipment Lines in case "Do Not Fill Qty. to Handle" is set on "Filters to Get Source Docs" report.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Location with required shipment.
+        LibraryInventory.CreateItem(Item);
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Sales order.
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Location.Code, Item."No.", Qty);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [WHEN] Create warehouse shipment header and get source documents. Set "Do Not Fill Qty. to Handle" = TRUE.
+        GetSourceDocumentOnWarehouseShipment(WarehouseShipmentHeader, Location.Code, true);
+
+        // [THEN] "Qty. to Ship" = 0 on warehouse shipment line.
+        FindWarehouseShipmentLine(WarehouseShipmentLine, WarehouseShipmentLine."Source Document"::"Sales Order", SalesHeader."No.");
+        WarehouseShipmentLine.SetRange("Location Code", Location.Code);
+        WarehouseShipmentLine.SetRange("Item No.", Item."No.");
+        WarehouseShipmentLine.FindFirst();
+        WarehouseShipmentLine.TestField(Quantity, Qty);
+        WarehouseShipmentLine.TestField("Qty. to Ship", 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5343,12 +5380,19 @@ codeunit 137151 "SCM Warehouse - Shipping"
         GetSourceDocuments.RunModal;
     end;
 
-    local procedure GetSourceDocumentOnWarehouseShipment(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; LocationCode: Code[10])
+    local procedure GetSourceDocumentOnWarehouseShipment(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; LocationCode: Code[10]; DoNotFillQtyToHandle: Boolean)
     var
         WarehouseSourceFilter: Record "Warehouse Source Filter";
+        GetSourceDocuments: Report "Get Source Documents";
     begin
         CreateWarehouseShipmentHeaderWithLocation(WarehouseShipmentHeader, LocationCode);
-        LibraryWarehouse.GetSourceDocumentsShipment(WarehouseShipmentHeader, WarehouseSourceFilter, LocationCode);
+        GetSourceDocuments.SetOneCreatedShptHeader(WarehouseShipmentHeader);
+        WarehouseSourceFilter.SetFilters(GetSourceDocuments, LocationCode);
+        GetSourceDocuments.SetDoNotFillQtytoHandle(DoNotFillQtyToHandle);
+        GetSourceDocuments.SetHideDialog(true);
+        GetSourceDocuments.SetSkipBlockedItem(true);
+        GetSourceDocuments.UseRequestPage(false);
+        GetSourceDocuments.RunModal();
     end;
 
     local procedure GetWarehouseDocumentOnWhseWorksheetLine(var WhseWorksheetName: Record "Whse. Worksheet Name"; LocationCode: Code[10])
