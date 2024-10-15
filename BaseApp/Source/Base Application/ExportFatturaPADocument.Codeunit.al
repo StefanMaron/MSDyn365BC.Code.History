@@ -430,9 +430,7 @@ codeunit 12179 "Export FatturaPA Document"
             AddGroupElement('DettaglioLinee');
             AddNonEmptyElement('NumeroLinea', Format(TempFatturaLine."Line No."));
 
-            if (TempFatturaLine.Type = 'Item') and
-               Item.Get(TempFatturaLine."No.") and (Item.GTIN <> '')
-            then begin
+            if TempFatturaLine.GetItem(Item) then begin
                 AddGroupElement('CodiceArticolo');
                 AddNonEmptyElement('CodiceTipo', 'GTIN');
                 AddNonEmptyLastElement('CodiceValore', Item.GTIN);

@@ -63,6 +63,7 @@ table 6700 "Exchange Sync"
         EncryptionIsNotActivatedQst: Label 'Data encryption is not activated. It is recommended that you encrypt data. \Do you want to open the Data Encryption Management window?';
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure SetExchangeAccountPassword(PasswordText: Text)
     begin

@@ -2045,6 +2045,7 @@ page 50 "Purchase Order"
 
     local procedure VATBusPostingGroupOnAfterValid()
     begin
+        CurrPage.PurchLines.Page.ForceTotalsCalculation();
         CurrPage.Update;
     end;
 

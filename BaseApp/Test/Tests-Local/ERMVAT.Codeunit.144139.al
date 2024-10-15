@@ -1312,6 +1312,52 @@ codeunit 144139 "ERM VAT"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('CalcAndPostVATSettlementNoParamsRequestPageHandler')]
+    procedure VATPeriodWhenRunCalcPostVATSttlmtWithPostSet()
+    var
+        VATPostingSetup: array[3] of Record "VAT Posting Setup";
+        VATEntry: array[3] of Record "VAT Entry";
+        PostedDocNo: array[3] of Code[20];
+        VATSettlementDocNo: Code[20];
+        SettlementVATEntryNo: array[3] of Integer;
+        VATPeriod: Code[10];
+    begin
+        // [FEATURE] [Report] [Sales]
+        // [SCENARIO 405806] VAT Period for Settlement VAT Entries when run Calc. and Post VAT Settlement report with Post option set on posted Sales Invoices.
+        Initialize();
+        UpdateLastSettlementDateOnGLSetup();
+
+        // [GIVEN] Three posted Sales Invoices. Three VAT Entries with Entry No. 901, 902, 903 are created. 902 has Amount = 0.
+        CreateThreeVATPostingSetup(VATPostingSetup, VATCalculationType::"Normal VAT");
+        PostedDocNo[1] := CreateAndPostSalesInvoice(VATPostingSetup[1]);
+        PostedDocNo[2] := CreateAndPostSalesInvoice(VATPostingSetup[2]);
+        PostedDocNo[3] := CreateAndPostSalesInvoice(VATPostingSetup[3]);
+
+        // [WHEN] Run report Calc. And Post VAT Settlement with Post option set. Show VAT Entries option is set. Ending Date is 31.08.2021.
+        VATSettlementDocNo := LibraryUtility.GenerateGUID();
+        RunCalcAndPostVATSettlementReportWithInitialize(VATSettlementDocNo, VATPostingSetup, true);
+        UpdatePeriodicSettlementVATEntry();
+
+        // [THEN] Two VAT Entries with Entry No. 904, 905 and with Type "Settlement" and VAT Period = '2021/08' were created.
+        VATPeriod := GetVATPeriod(CalcDate('<CM>', WorkDate()));
+        GetSettlementVATEntryNo(SettlementVATEntryNo[1], VATPostingSetup[1], VATSettlementDocNo);
+        GetSettlementVATEntryNo(SettlementVATEntryNo[3], VATPostingSetup[3], VATSettlementDocNo);
+        VerifyVATEntryVATPeriod(SettlementVATEntryNo[1], VATPeriod);
+        VerifyVATEntryVATPeriod(SettlementVATEntryNo[3], VATPeriod);
+
+        // [THEN] VAT Period was set to '2021/08' for VAT Entries 901 and 903.
+        FindVATEntries(VATEntry, VATPostingSetup, PostedDocNo, VATEntry[1].Type::Sale);
+        VerifyVATEntryVATPeriod(VATEntry[1]."Entry No.", VATPeriod);
+        VerifyVATEntryVATPeriod(VATEntry[2]."Entry No.", '');
+        VerifyVATEntryVATPeriod(VATEntry[3]."Entry No.", VATPeriod);
+
+        // tear down
+        DeletePeriodicSettlementVATEntry(WorkDate());
+        DeletePeriodicSettlementVATEntry(CalcDate('<1M>', WorkDate()));
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -1765,6 +1811,16 @@ codeunit 144139 "ERM VAT"
         exit(CalcDate('<1D>', GeneralLedgerSetup."Last Settlement Date"));  // 1D is required as Starting date for Calc. and Post VAT Settlement report should be the next Day of Last Settlement Date.
     end;
 
+    local procedure GetVATPeriod(EndingDate: Date): Code[10]
+    var
+        Year: Text[4];
+        Month: Text[2];
+    begin
+        Year := Format(Date2DMY(EndingDate, 3));
+        Month := ConvertStr(Format(Date2DMY(EndingDate, 2), 2), ' ', '0');
+        exit(StrSubstNo('%1/%2', Year, Month));
+    end;
+
     local procedure RunCalcAndPostVATSettlementReport()
     var
         GLAccount: Record "G/L Account";
@@ -2001,6 +2057,14 @@ codeunit 144139 "ERM VAT"
             VATEntry[i].TestField("Closed by Entry No.", SettlementVATEntryNo[i]);
     end;
 
+    local procedure VerifyVATEntryVATPeriod(VATEntryNo: Integer; VATPeriod: Code[10])
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.Get(VATEntryNo);
+        VATEntry.TestField("VAT Period", VATPeriod);
+    end;
+
     local procedure VerifyVATEntryNoInVATSettlementReportResults(VATEntry: array[3] of Record "VAT Entry"; SettlementVATEntryNo: array[3] of Integer)
     var
         Node: DotNet XmlNode;
@@ -2102,6 +2166,12 @@ codeunit 144139 "ERM VAT"
         FileName := LibraryReportDataset.GetFileName();
         LibraryVariableStorage.Enqueue(FileName);
         CalcAndPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), FileName);
+    end;
+
+    [RequestPageHandler]
+    procedure CalcAndPostVATSettlementNoParamsRequestPageHandler(var CalcAndPostVATSettlement: TestRequestPage "Calc. and Post VAT Settlement")
+    begin
+        CalcAndPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]

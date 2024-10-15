@@ -142,6 +142,74 @@ codeunit 144208 "FatturaPA Unit Tests"
         VerifyVATLineDescription(TempFatturaLine, VATRate[2], '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure FatturaLineGetItemFunction_NotItem()
+    var
+        FatturaLine: Record "Fattura Line";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+    begin
+        // [SCENARIO 406393] Function GetItem of Fattura Line table returns false if Type is not item
+
+        Initialize();
+        FatturaLine.Type := Format(SalesLine.Type::"G/L Account");
+        Assert.IsFalse(FatturaLine.GetItem(Item), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FatturaLineGetItemFunction_ItemNotFound()
+    var
+        FatturaLine: Record "Fattura Line";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+    begin
+        // [SCENARIO 406393] Function GetItem of Fattura Line table returns false if Item is not found
+
+        Initialize();
+        FatturaLine.Type := Format(SalesLine.Type::Item);
+        Assert.IsFalse(FatturaLine.GetItem(Item), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FatturaLineGetItemFunction_ItemHasBlankGTIN()
+    var
+        FatturaLine: Record "Fattura Line";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+    begin
+        // [SCENARIO 406393] Function GetItem of Fattura Line table returns false if Item has blank GTIN
+
+        Initialize();
+        LibraryInventory.CreateItem(Item);
+        FatturaLine.Type := Format(SalesLine.Type::Item);
+        FatturaLine."No." := Item."No.";
+        Assert.IsFalse(FatturaLine.GetItem(Item), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FatturaLineGetItemFunction_ItemExistsWithGTIN()
+    var
+        FatturaLine: Record "Fattura Line";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        LineItem: Record Item;
+    begin
+        // [SCENARIO 406393] Function GetItem of Fattura Line table returns true if Item has GTIN
+
+        Initialize();
+        LibraryInventory.CreateItem(Item);
+        Item.GTIN := LibraryUtility.GenerateGUID;
+        Item.Modify();
+        FatturaLine.Type := Format(SalesLine.Type::Item);
+        FatturaLine."No." := Item."No.";
+        Assert.IsTrue(FatturaLine.GetItem(LineItem), '');
+        LineItem.TestField("No.", Item."No.");
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;

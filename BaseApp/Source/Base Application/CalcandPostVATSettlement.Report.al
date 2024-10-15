@@ -464,11 +464,8 @@
 
                             // Close current VAT entries
                             if PostSettlement and (NextVATEntryNo <> 0) then begin
-                                VATEntry.ModifyAll("Closed by Entry No.", NextVATEntryNo);
-                                VATEntry.ModifyAll(Closed, true);
-                                VATEntry.SetRange(Closed, true);
-                                VATEntry.ModifyAll("VAT Period", VATPeriod);
-                                VATEntry.SetRange(Closed, false);
+                                CloseVATEntriesOnPostSettlement(VATEntry, NextVATEntryNo);
+                                UpdateVATPeriodOnSettlementVATEntry(NextVATEntryNo);
                             end;
 
                             FinalUndVATAmnt += TotalVATNondeducAmnt;
@@ -1217,13 +1214,23 @@
         GLSetup."Last Settlement Date" := EndDateReq;
         GLSetup.Modify();
     end;
-    
+
     local procedure SetVatPostingSetupToGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup")
     begin
         GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Settlement;
         GenJnlLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         GenJnlLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
         GenJnlLine."VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
+    end;
+
+    local procedure CloseVATEntriesOnPostSettlement(var VATEntry: Record "VAT Entry"; NextVATEntryNo: Integer)
+    begin
+        VATEntry.ModifyAll("Closed by Entry No.", NextVATEntryNo);
+        VATEntry.ModifyAll(Closed, true);
+
+        VATEntry.SetRange(Closed, true);
+        VATEntry.ModifyAll("VAT Period", VATPeriod);
+        VATEntry.SetRange(Closed, false);
     end;
 
     local procedure GetSettlementVATEntryNo(PostVATSettlement: Boolean; IsPostingAllowed: Boolean): Integer
@@ -1256,6 +1263,16 @@
     begin
         if LastVATEntryNo <> 0 then
             NextVATEntryNo := LastVATEntryNo;
+    end;
+
+    local procedure UpdateVATPeriodOnSettlementVATEntry(SettlementVATEntryNo: Integer)
+    var
+        SttlmtVATEntry: Record "VAT Entry";
+    begin
+        if SttlmtVATEntry.Get(SettlementVATEntryNo) then begin
+            SttlmtVATEntry.Validate("VAT Period", VATPeriod);
+            SttlmtVATEntry.Modify(true);
+        end;
     end;
 
     [IntegrationEvent(false, false)]

@@ -2195,6 +2195,7 @@
             CallNotificationCheck := false;
         end;
         StatusStyleTxt := GetStatusStyleText();
+        SetControlVisibility();
     end;
 
     trigger OnAfterGetRecord()
@@ -2414,6 +2415,7 @@
 
     local procedure Prepayment37OnAfterValidate()
     begin
+        CurrPage.SalesLines.Page.ForceTotalsCalculation();
         CurrPage.Update;
     end;
 

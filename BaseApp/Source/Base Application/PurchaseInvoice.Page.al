@@ -1630,6 +1630,7 @@ page 51 "Purchase Invoice"
 
     local procedure ShortcutDimension2CodeOnAfterV()
     begin
+        CurrPage.PurchLines.Page.ForceTotalsCalculation();
         CurrPage.Update;
     end;
 

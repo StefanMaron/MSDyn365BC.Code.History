@@ -1274,6 +1274,11 @@ page 6631 "Sales Return Order Subform"
             SendLineInvoiceDiscountResetNotification;
     end;
 
+    procedure ForceTotalsCalculation()
+    begin
+        DocumentTotals.SalesDocTotalsNotUpToDate();
+    end;
+
     local procedure ReverseReservedQtySign(): Decimal
     begin
         CalcFields("Reserved Quantity");

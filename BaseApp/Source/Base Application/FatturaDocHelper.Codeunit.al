@@ -880,6 +880,7 @@ codeunit 12184 "Fattura Doc. Helper"
         ServiceShipmentHeader: Record "Service Shipment Header";
         ServiceShipmentLine: Record "Service Shipment Line";
         TempLineNumberBuffer: Record "Line Number Buffer" temporary;
+        SalesLine: Record "Sales Line";
         ShptNo: Code[20];
         FatturaProjectCode: Code[15];
         FatturaTenderCode: Code[15];
@@ -897,7 +898,9 @@ codeunit 12184 "Fattura Doc. Helper"
                 FatturaTenderCode := '';
                 CustomerPurchOrderNo := '';
                 ShptNo := Format(LineRecRef.Field(ShipmentNoFieldNo).Value);
-                if (Format(LineRecRef.Field(LineTypeFieldNo).Value) = 'Item') and (ShptNo <> '') then begin
+                if (Format(LineRecRef.Field(LineTypeFieldNo).Value) = GetOptionCaptionValue(SalesLine.Type::Item)) and
+                   (ShptNo <> '')
+                then begin
                     if TempFatturaHeader."Entry Type" = TempFatturaHeader."Entry Type"::Sales then begin
                         SalesShipmentHeader.Get(ShptNo);
                         ShipmentDate := SalesShipmentHeader."Shipment Date";
@@ -915,7 +918,7 @@ codeunit 12184 "Fattura Doc. Helper"
                       TempShptFatturaLine, i, ShptNo, ShipmentDate, FatturaProjectCode, FatturaTenderCode,
                       CustomerPurchOrderNo, IsSplitPaymentLine(LineRecRef));
                 end;
-                if Format(LineRecRef.Field(LineTypeFieldNo).Value) = 'G/L Account' then
+                if Format(LineRecRef.Field(LineTypeFieldNo).Value) = GetOptionCaptionValue(SalesLine.Type::"G/L Account") then
                     InsertShipmentBuffer(TempShptFatturaLine, i, '', TempFatturaHeader."Posting Date", '', '', '', IsSplitPaymentLine(LineRecRef));
                 if TempFatturaHeader."Order No." <> '' then begin
                     TempLineNumberBuffer.Init();
@@ -1414,6 +1417,18 @@ codeunit 12184 "Fattura Doc. Helper"
         FatturaDocumentType.SetRange("Credit Memo", true);
         if FatturaDocumentType.FindFirst() then
             exit(FatturaDocumentType."No.");
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetOptionCaptionValue(IntValue: Integer): Text
+    var
+        SalesLine: Record "Sales Line";
+        RecRef: RecordRef;
+        FieldRef: FieldRef;
+    begin
+        RecRef.Open(DATABASE::"Sales Line");
+        FieldRef := RecRef.Field(SalesLine.FieldNo(Type));
+        exit(SelectStr(IntValue + 1, FieldRef.OptionCaption()));
     end;
 
     [Scope('OnPrem')]
