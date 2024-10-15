@@ -1707,7 +1707,62 @@ Fields!ShptMethodDesc.Value)</Hidden>
               <Top>117.2pt</Top>
               <Height>11pt</Height>
               <Width>3.15cm</Width>
+              <ZIndex>21</ZIndex>
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+              </Style>
+            </Textbox>
+            <Textbox Name="TransferOrderNoTextbox">
+              <CanGrow>true</CanGrow>
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value EvaluationMode="Auto">=Fields!No_TransferHdr.Value</Value>
+                      <Style>
+                        <FontFamily>Segoe UI</FontFamily>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style />
+                </Paragraph>
+              </Paragraphs>
+              <Top>128.2pt</Top>
+              <Left>1.2565in</Left>
+              <Height>11pt</Height>
+              <Width>2.41296in</Width>
               <ZIndex>22</ZIndex>
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+              </Style>
+            </Textbox>
+            <Textbox Name="TransferOrderNoCaptionTextbox">
+              <CanGrow>true</CanGrow>
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value EvaluationMode="Auto">=Fields!TransferOrderNoCaption.Value</Value>
+                      <Style>
+                        <FontFamily>Segoe UI</FontFamily>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style />
+                </Paragraph>
+              </Paragraphs>
+              <Top>128.2pt</Top>
+              <Height>11pt</Height>
+              <Width>3.15cm</Width>
+              <ZIndex>23</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -1967,6 +2022,9 @@ End Function</Code>
       <Fields>
         <Field Name="No_TransferHdr">
           <DataField>No_TransferHdr</DataField>
+        </Field>
+        <Field Name="TransferOrderNoCaption">
+          <DataField>TransferOrderNoCaption</DataField>
         </Field>
         <Field Name="CopyCaption">
           <DataField>CopyCaption</DataField>

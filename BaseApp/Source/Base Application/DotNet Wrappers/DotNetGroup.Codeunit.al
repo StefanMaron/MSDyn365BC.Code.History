@@ -1,5 +1,8 @@
 codeunit 3054 DotNet_Group
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This codeunit is obsolete. Use the Groups table in the Regex Module instead.';
+    ObsoleteTag = '18.0';
 
     trigger OnRun()
     begin

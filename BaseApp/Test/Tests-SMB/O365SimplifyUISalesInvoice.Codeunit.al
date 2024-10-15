@@ -4650,11 +4650,13 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     var
         SalesSetup: Record "Sales & Receivables Setup";
         NoSeries: Record "No. Series";
+        DocumentNoVisiblity: Codeunit DocumentNoVisibility;
     begin
         SalesSetup.Get();
         NoSeries.Get(SalesSetup."Quote Nos.");
         NoSeries.Validate("Manual Nos.", false);
         NoSeries.Modify(true);
+        Clear(DocumentNoVisiblity); // to clear caching
     end;
 
     local procedure ExcludeFromComparisment(FieldRef: FieldRef; FieldListToExclude: List of [Text]): Boolean

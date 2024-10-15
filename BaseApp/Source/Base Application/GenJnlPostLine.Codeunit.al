@@ -1424,7 +1424,7 @@
 
             GLReg."To VAT Entry No." := NextVATEntryNo - 1;
             GLReg."To Entry No." := GlobalGLEntry."Entry No.";
-            UpdateGLReg(IsTransactionConsistent);
+            UpdateGLReg(IsTransactionConsistent, GenJnlLine);
         end;
         GlobalGLEntry.Consistent(IsTransactionConsistent);
 
@@ -1437,12 +1437,12 @@
         OnAfterFinishPosting(GlobalGLEntry, GLReg, IsTransactionConsistent, GenJnlLine);
     end;
 
-    local procedure UpdateGLReg(IsTransactionConsistent: Boolean)
+    local procedure UpdateGLReg(IsTransactionConsistent: Boolean; var GenJnlLine: Record "Gen. Journal Line")
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateGLReg(IsTransactionConsistent, IsGLRegInserted, GLReg, IsHandled);
+        OnBeforeUpdateGLReg(IsTransactionConsistent, IsGLRegInserted, GLReg, IsHandled, GenJnlLine, GlobalGLEntry);
         if IsHandled then
             exit;
 
@@ -6787,7 +6787,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateGLReg(IsTransactionConsistent: Boolean; var IsGLRegInserted: Boolean; var GLReg: Record "G/L Register"; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateGLReg(IsTransactionConsistent: Boolean; var IsGLRegInserted: Boolean; var GLReg: Record "G/L Register"; var IsHandled: Boolean; var GenJnlLine: Record "Gen. Journal Line"; GlobalGLEntry: Record "G/L Entry")
     begin
     end;
 
