@@ -295,6 +295,7 @@ codeunit 5930 ServAllocationManagement
                 ServOrderAlloc2.Posted := true;
                 if ServOrderAlloc2.Status = ServOrderAlloc2.Status::Active then
                     ServOrderAlloc2.Status := ServOrderAlloc2.Status::Finished;
+                OnSetServOrderAllocStatusOnBeforeServOrderAlloc2Modify(ServOrderAlloc, ServOrderAlloc2, ServHeader);
                 ServOrderAlloc2.Modify();
             until ServOrderAlloc.Next() = 0;
     end;
@@ -342,6 +343,11 @@ codeunit 5930 ServAllocationManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateAllocationEntry(DocumentType: Integer; DocumentNo: Code[20]; ServItemLineNo: Integer; ServItemNo: Code[20]; ServSerialNo: Code[50]; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetServOrderAllocStatusOnBeforeServOrderAlloc2Modify(var ServiceOrderAllocation: Record "Service Order Allocation"; var ServiceOrderAllocation2: Record "Service Order Allocation"; var ServiceHeader: Record "Service Header")
     begin
     end;
 }

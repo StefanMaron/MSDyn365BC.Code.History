@@ -521,7 +521,103 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                     SetOrderNumberAndDocOccurenceNumber(SourceRecordRef, DestinationRecordRef);
                     CreateSalesOrderNotes(SourceRecordRef, DestinationRecordRef);
                 end;
+            'CRM Product-Item':
+                CreateUnitGroupAndItemUnitOfMeasure(SourceRecordRef, DestinationRecordRef);
+            'CRM Product-Resource':
+                CreateUnitGroupAndResourceUnitOfMeasure(SourceRecordRef, DestinationRecordRef);
         end;
+    end;
+
+    local procedure CreateUnitGroupAndItemUnitOfMeasure(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        CRMProduct: Record "CRM Product";
+        Item: Record Item;
+        UnitGroup: Record "Unit Group";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
+        UnitGroupRecordRef: RecordRef;
+        ItemUnitOfMeasureRecordRef: RecordRef;
+    begin
+        IntegrationTableMapping.SetRange("Table ID", Database::"Unit Group");
+        IntegrationTableMapping.SetRange("Integration Table ID", Database::"CRM Uomschedule");
+        if IntegrationTableMapping.FindFirst() then
+            if not IntegrationTableMapping."Synch. Only Coupled Records" then begin
+                IntegrationTableMapping.SetRange("Table ID", Database::"Item Unit of Measure");
+                IntegrationTableMapping.SetRange("Integration Table ID", Database::"CRM Uom");
+                if IntegrationTableMapping.FindFirst() then
+                    if not IntegrationTableMapping."Synch. Only Coupled Records" then begin
+                        SourceRecordRef.SetTable(CRMProduct);
+                        DestinationRecordRef.SetTable(Item);
+
+                        if UnitGroup.Get(UnitGroup."Source Type"::Item, Item.SystemId) then begin
+                            CRMIntegrationRecord.CoupleRecordIdToCRMID(UnitGroup.RecordId, CRMProduct.DefaultUoMScheduleId);
+                            UnitGroup.SetRange(SystemId, UnitGroup.SystemId);
+                            UnitGroupRecordRef.GetTable(UnitGroup);
+                            CRMIntegrationTableSynch.SynchRecordsToIntegrationTable(UnitGroupRecordRef, false, false);
+                        end;
+
+                        if not ItemUnitOfMeasure.Get(Item."No.", Item."Base Unit of Measure") then begin
+                            ItemUnitOfMeasure.Init();
+                            ItemUnitOfMeasure.Validate("Item No.", Item."No.");
+                            ItemUnitOfMeasure.Validate(Code, Item."Base Unit of Measure");
+                            ItemUnitOfMeasure."Qty. per Unit of Measure" := 1;
+                            ItemUnitOfMeasure.Insert();
+
+                            CRMIntegrationRecord.CoupleRecordIdToCRMID(ItemUnitOfMeasure.RecordId, CRMProduct.DefaultUoMId);
+                            ItemUnitOfMeasure.SetRange(SystemId, ItemUnitOfMeasure.SystemId);
+                            ItemUnitOfMeasureRecordRef.GetTable(ItemUnitOfMeasure);
+                            CRMIntegrationTableSynch.SynchRecordsToIntegrationTable(ItemUnitOfMeasureRecordRef, false, false);
+                        end;
+                    end;
+            end;
+    end;
+
+    local procedure CreateUnitGroupAndResourceUnitOfMeasure(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        CRMProduct: Record "CRM Product";
+        Resource: Record Resource;
+        UnitGroup: Record "Unit Group";
+        ResourceUnitOfMeasure: Record "Resource Unit of Measure";
+        CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
+        UnitGroupRecordRef: RecordRef;
+        ResourceUnitOfMeasureRecordRef: RecordRef;
+    begin
+        IntegrationTableMapping.SetRange("Table ID", Database::"Unit Group");
+        IntegrationTableMapping.SetRange("Integration Table ID", Database::"CRM Uomschedule");
+        if IntegrationTableMapping.FindFirst() then
+            if not IntegrationTableMapping."Synch. Only Coupled Records" then begin
+                IntegrationTableMapping.SetRange("Table ID", Database::"Resource Unit of Measure");
+                IntegrationTableMapping.SetRange("Integration Table ID", Database::"CRM Uom");
+                if IntegrationTableMapping.FindFirst() then
+                    if not IntegrationTableMapping."Synch. Only Coupled Records" then begin
+                        SourceRecordRef.SetTable(CRMProduct);
+                        DestinationRecordRef.SetTable(Resource);
+
+                        if UnitGroup.Get(UnitGroup."Source Type"::Resource, Resource.SystemId) then begin
+                            CRMIntegrationRecord.CoupleRecordIdToCRMID(UnitGroup.RecordId, CRMProduct.DefaultUoMScheduleId);
+                            UnitGroup.SetRange(SystemId, UnitGroup.SystemId);
+                            UnitGroupRecordRef.GetTable(UnitGroup);
+                            CRMIntegrationTableSynch.SynchRecordsToIntegrationTable(UnitGroupRecordRef, false, false);
+                        end;
+
+                        if not ResourceUnitOfMeasure.Get(Resource."No.", Resource."Base Unit of Measure") then begin
+                            ResourceUnitOfMeasure.Init();
+                            ResourceUnitOfMeasure.Validate("Resource No.", Resource."No.");
+                            ResourceUnitOfMeasure.Validate(Code, Resource."Base Unit of Measure");
+                            ResourceUnitOfMeasure."Qty. per Unit of Measure" := 1;
+                            ResourceUnitOfMeasure.Insert();
+
+                            CRMIntegrationRecord.CoupleRecordIdToCRMID(ResourceUnitOfMeasure.RecordId, CRMProduct.DefaultUoMId);
+                            ResourceUnitOfMeasure.SetRange(SystemId, ResourceUnitOfMeasure.SystemId);
+                            ResourceUnitOfMeasureRecordRef.GetTable(ResourceUnitOfMeasure);
+                            CRMIntegrationTableSynch.SynchRecordsToIntegrationTable(ResourceUnitOfMeasureRecordRef, false, false);
+                        end;
+                    end;
+            end;
     end;
 
     local procedure ChangeSalesOrderStateCode(var SourceRecordRef: RecordRef; NewStateCode: Option)

@@ -20,6 +20,7 @@ codeunit 136506 "New Time Sheet Experience"
         LibraryJob: Codeunit "Library - Job";
         LibraryResource: Codeunit "Library - Resource";
         Assert: Codeunit Assert;
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
         TimeSheetV2Enabled: Boolean;
         DescriptionTxt: Label 'Week %1', Comment = '%1 - week number';
@@ -31,6 +32,8 @@ codeunit 136506 "New Time Sheet Experience"
         navUserEmailTxt: Label 'navuser@email.com', Locked = true;
         TimeSheetCardOwnerUserIDFilter: Text;
         TimeSheetArchiveCardOwnerUserIDFilter: Text;
+        UnexpectedTxt: Label 'Unexpected message.';
+        ReopenDisabledTxt: Label 'Reopen must be disabled';
 
     [Test]
     [Scope('OnPrem')]
@@ -1804,6 +1807,113 @@ codeunit 136506 "New Time Sheet Experience"
         UnbindSubscription(NewTimeSheetExperience);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure S458927_CreateLinesFromJobPlanning_SkipInvalidJobPlanningLines()
+    var
+        TimeSheetHeader: Record "Time Sheet Header";
+        TimeSheetLine: Record "Time Sheet Line";
+        ResourcesSetup: Record "Resources Setup";
+        Resource: Record Resource;
+        Job: array[3] of Record Job;
+        JobTask: array[3] of Record "Job Task";
+        JobPlanningLine: array[3] of Record "Job Planning Line";
+        DateRecord: Record Date;
+        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
+        TimeSheetMgt: Codeunit "Time Sheet Management";
+    begin
+        // [FEATURE] [UT] [Create lines from job planning]
+        // [SCENARIO 458927] "Create lines from job planning" skips "Job Planning Line" if Job.Blocked = All or Job.Status = Completed.
+        // [SCENARIO 458927] Create 3 Jobs: J1 with Blocked = All, J2 with default Blocked and Status, J3 in Status = Completed.
+        // [SCENARIO 458927] Verify that "Create lines from job planning" only processed J2.
+        Initialize();
+        EnableTimeSheetV2(NewTimeSheetExperience);
+
+        // [GIVEN] Set "Time Sheet by Job Approval" in "Resources Setup"
+        ResourcesSetup.Get();
+        ResourcesSetup."Time Sheet by Job Approval" := ResourcesSetup."Time Sheet by Job Approval"::Never;
+        ResourcesSetup.Modify();
+
+        // [GIVEN] Create Time Sheet
+        LibraryTimeSheet.CreateTimeSheet(TimeSheetHeader, false);
+
+        Resource.Get(TimeSheetHeader."Resource No.");
+
+        DateRecord.SetRange("Period Type", DateRecord."Period Type"::Date);
+        DateRecord.SetFilter("Period Start", '%1..', TimeSheetHeader."Starting Date");
+        DateRecord.SetRange("Period No.", ResourcesSetup."Time Sheet First Weekday" + 1);
+        DateRecord.FindFirst();
+
+        // [GIVEN] Create Job "J1" with Blocked = All
+        CreateJobWithJobPlanning(Resource, DateRecord, Job[1], JobTask[1], JobPlanningLine[1]);
+        Job[1].Validate(Blocked, Job[1].Blocked::All);
+        Job[1].Modify();
+
+        // [GIVEN] Create Job "J2" with default Blocked and Status
+        CreateJobWithJobPlanning(Resource, DateRecord, Job[2], JobTask[2], JobPlanningLine[2]);
+
+        // [GIVEN] Create Job "J3" in Status = Completed
+        CreateJobWithJobPlanning(Resource, DateRecord, Job[3], JobTask[3], JobPlanningLine[3]);
+        Job[3].Validate(Status, Job[3].Status::Completed);
+        Job[3].Modify();
+
+        // [WHEN] Run action "Create lines from job planning"
+        TimeSheetMgt.CreateLinesFromJobPlanning(TimeSheetHeader);
+
+        // [THEN] Verify that only 1 line has been created
+        TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
+        Assert.RecordCount(TimeSheetLine, 1);
+
+        // [THEN] Verify that line is created for "J2"
+        TimeSheetLine.FindFirst();
+        TimeSheetLine.TestField(Type, TimeSheetLine.Type::Job);
+        TimeSheetLine.TestField("Job No.", Job[2]."No.");
+        TimeSheetLine.TestField("Job Task No.", JobTask[2]."Job Task No.");
+
+        UnbindSubscription(NewTimeSheetExperience);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerVerify')]
+    [Scope('OnPrem')]
+    procedure VerifyEmpoloymentDateWarningTimeSheet()
+    var
+        TimeSheetHeader: Record "Time Sheet Header";
+        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
+        TimeSheetCard: TestPage "Time Sheet Card";
+        Resource: Record Resource;
+    begin
+        // [SCENARIO 459803] Resources are able to enter time in time sheets prior to the date in their Employment Date field without error
+        Initialize();
+
+        // [GIVEN] Enable Time Sheet V2
+        EnableTimeSheetV2(NewTimeSheetExperience);
+
+        // [GIVEN] Create time sheet with 5 open lines
+        CreateTimeSheetWithLines(TimeSheetHeader, false, false, false);
+
+        // [GIVEN] Add Employment Date greater thane timesheet creation date
+        Resource.Get(TimeSheetHeader."Resource No.");
+        Resource.Validate("Employment Date", CalcDate('<+1M>', TimeSheetHeader."Starting Date"));
+        Resource.Modify();
+
+        // [GIVEN] Open time sheet card
+        TimeSheetCard.OpenEdit();
+        TimeSheetCard.Filter.SetFilter("No.", TimeSheetHeader."No.");
+
+        // [THEN] Action "Reopen" is disabled
+        Assert.IsFalse(TimeSheetCard.ReopenSubmitted.Enabled(), ReopenDisabledTxt);
+       
+        // [WHEN] Run action "Submit"
+        // [THEN] Verify Employment Date warning message on handler page.
+        TimeSheetCard.Submit.Invoke();
+
+        // [VERIFY] All 5 lines are submitted
+        VerifyTimeSheetLinesStatus(TimeSheetHeader."No.", "Time Sheet Status"::Submitted);
+
+        UnbindSubscription(NewTimeSheetExperience);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2040,6 +2150,26 @@ codeunit 136506 "New Time Sheet Experience"
         until FromTimeSheetDetail.Next() = 0;
     end;
 
+    local procedure CreateJobWithJobPlanning(Resource: Record Resource; Date: Record Date; var Job: Record Job; var JobTask: Record "Job Task"; var JobPlanningLine: Record "Job Planning Line")
+    begin
+        LibraryJob.CreateJob(Job);
+        Job.Validate("Person Responsible", Resource."No.");
+        Job.Modify();
+
+        LibraryJob.CreateJobTask(Job, JobTask);
+        JobTask.Validate(Description, 'Job Task Description Test');
+        JobTask.Modify();
+
+        JobPlanningLine.Init();
+        JobPlanningLine."Job No." := Job."No.";
+        JobPlanningLine."Job Task No." := JobTask."Job Task No.";
+        JobPlanningLine."Planning Date" := Date."Period Start";
+        JobPlanningLine."No." := Resource."No.";
+        JobPlanningLine.Quantity := LibraryRandom.RandDec(10, 2);
+        JobPlanningLine."Unit Cost" := LibraryRandom.RandDec(10, 2);
+        JobPlanningLine.Insert();
+    end;
+
     procedure GetTimeSheetCardOwnerUserIDFilter(): Text
     begin
         exit(TimeSheetCardOwnerUserIDFilter);
@@ -2059,6 +2189,18 @@ codeunit 136506 "New Time Sheet Experience"
     [Scope('OnPrem')]
     procedure ConfirmHandlerYes(Question: Text; var Reply: Boolean)
     begin
+        Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerVerify(Question: Text; var Reply: Boolean)
+    var
+        TimeSheetNo: Variant;
+        EmploymentDate: Variant;
+        TimeSheetTxt: Label 'Time Sheet';
+    begin
+        Assert.IsTrue(StrPos(Question, TimeSheetTxt) > 0, UnexpectedTxt); // [VERIFY] Timesheet Employment Date message 
         Reply := true;
     end;
 

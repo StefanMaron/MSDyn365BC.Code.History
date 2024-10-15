@@ -31,6 +31,7 @@
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         LibraryTemplates: Codeunit "Library - Templates";
+        LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         isInitialized: Boolean;
         VATAmountErr: Label 'VAT Amount must be %1 in VAT Amount Line.', Comment = '%1 = Amount';
         FieldErr: Label 'Number of Lines for Purchase Line and Purchase Receipt Line must be Equal.';
@@ -58,6 +59,7 @@
         PurchaseAccountIsMissingTxt: Label 'Purch. Account is missing in General Posting Setup.';
         PurchaseVatAccountIsMissingTxt: Label 'Purchase VAT Account is missing in VAT Posting Setup.';
         CannotAllowInvDiscountErr: Label 'The value of the Allow Invoice Disc. field is not valid when the VAT Calculation Type field is set to "Full VAT".';
+        DocumentNoErr: Label 'Document No. are not equal.';
 
     [Test]
     [Scope('OnPrem')]
@@ -3067,6 +3069,80 @@
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('GetReceiptLinesPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyDeferralEntry()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseHeader2: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GLAccount: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        PostedDeferralHeader: Record "Posted Deferral Header";
+        DocumentNo: Code[20];
+        DeferralCode: Code[10];
+        PostingDate: Date;
+    begin
+        // [SCENARIO 458652] error message appears when posting a Purchase/Sales Invoice with Deferral Code get from Receipt/Shipment Lines
+        Initialize();
+
+        // [GIVEN] Create Deferral Template and Posting date within open accounting period
+        DeferralCode := CreateDeferralTemplate();
+        LibraryVariableStorage.Enqueue(DeferralCode);
+        PostingDate := CalcDate('<+1D>', LibraryFiscalYear.GetFirstPostingDate(false));
+
+        // [GIVEN] Create Vendor
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+
+        // [GIVEN] Create GL Account and upate Daeferral Template and VAT prod Posting Group
+        CreateGLAccount(GLAccount);
+        GLAccount.Validate("Default Deferral Template Code", DeferralCode);
+        GLAccount.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
+        GLAccount.Modify();
+
+        // [THEN] Create VATPosting Setup 
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, Vendor."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group");
+        VATPostingSetup."Purchase VAT Account" := LibraryERM.CreateGLAccountNo();
+        VATPostingSetup.Modify();
+
+        // [GIVEN] Create Purchase Order and update Posting date in accounting period
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.Validate("Posting Date", PostingDate);
+        PurchaseHeader.Modify();
+
+        // [GIVEN] Create Purchase Line  and update "Qty. to Receive" and "Direct Unit Cost"
+        LibraryPurchase.CreatePurchaseLine(
+         PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 2 * LibraryRandom.RandInt(20));
+        PurchaseLine.Validate("Qty. to Receive", PurchaseLine.Quantity);
+        PurchaseLine.Validate("Direct Unit Cost", 100 + LibraryRandom.RandDec(10, 2));
+        PurchaseLine.Modify(true);
+
+        // [THEN] Post Purchase Receipt
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] CReate Purchase Invoice and update Posting date within accounting period
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader2, PurchaseHeader2."Document Type"::Invoice, PurchaseHeader."Buy-from Vendor No.");
+        PurchaseHeader2.Validate("Posting Date", PostingDate);
+        PurchaseHeader2.Modify();
+
+        // [THEN] Open Purchase Invoice and CLick on get Receipt line from action 
+        OpenPurchaseInvoiceAndGetReceiptLine(PurchaseHeader2."No.");
+        PurchaseHeader2.Get(PurchaseHeader2."Document Type", PurchaseHeader2."No.");
+
+        // [WHEN] Post the created Purchase Invoice.
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader2, true, true);
+
+        // [VERIFY] No error will come and Purchase Invoice will post with deferral schedule and verify Posted Deferral Schedule have entry
+        PostedDeferralHeader.SetRange("Document Type", 7);
+        PostedDeferralHeader.SetFilter("Document No.", DocumentNo);
+        PostedDeferralHeader.FindFirst();
+        Assert.AreEqual(DocumentNo, PostedDeferralHeader."Document No.", DocumentNoErr);
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -4243,6 +4319,33 @@
         PurchaseLine.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         PurchaseLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreateGLAccount(var GLAccount: Record "G/L Account")
+    var
+        DeffaralVariant: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(DeffaralVariant);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+        GLAccount.Validate("Direct Posting", true);
+        GLAccount.Validate("Default Deferral Template Code", DeffaralVariant);
+        GLAccount.Modify(true);
+    end;
+
+    local procedure CreateDeferralTemplate(): code[10]
+    var
+        DeferralTemplate: Record "Deferral Template";
+    begin
+        DeferralTemplate.Init();
+        DeferralTemplate."Deferral Code" := LibraryUtility.GenerateRandomCode(DeferralTemplate.FieldNo("Deferral Code"), DATABASE::"Deferral Template");
+        DeferralTemplate."Deferral Account" := LibraryERM.CreateGLAccountNo();
+        DeferralTemplate."Deferral %" := 100;
+        DeferralTemplate."Calc. Method" := DeferralTemplate."Calc. Method"::"Straight-Line";
+        DeferralTemplate."Start Date" := DeferralTemplate."Start Date"::"Posting Date";
+        DeferralTemplate."No. of Periods" := 3;
+        DeferralTemplate.Insert();
+
+        exit(DeferralTemplate."Deferral Code");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePostUpdateOrderLineModifyTempLine', '', false, false)]

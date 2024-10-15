@@ -222,7 +222,10 @@ codeunit 1387 "Employee Templ. Mgt."
         if not CanBeUpdatedFromTemplate(EmployeeTempl) then
             exit;
 
-        ApplyEmployeeTemplate(Employee, EmployeeTempl, GetUpdateExistingValuesParam());
+        if not GetUpdateExistingValuesParam() then
+            exit;
+
+        ApplyEmployeeTemplate(Employee, EmployeeTempl, true);
     end;
 
     local procedure CanBeUpdatedFromTemplate(var EmployeeTempl: Record "Employee Templ."): Boolean

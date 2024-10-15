@@ -3032,6 +3032,152 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         VerifyItemDimensions(Database::Item, Item."No.", Database::"Item Templ.", ItemTempl.Code);
     end;
 
+
+    [Test]
+    [HandlerFunctions('CustomerTempModalFormHandler,ConfirmHandlerFalse')]
+    procedure VerifyCustomerNotUpdateWhenApplyTemplateFalse()
+    var
+        Customer: Record Customer;
+        CustomerTempl: Record "Customer Templ.";
+        CustomerCard: TestPage "Customer Card";
+    begin
+        // [SCENARIO 459233] Customer template is applied to customer record even though a user cancels the process.
+        Initialize();
+
+        // [GIVEN] Create Customer and set Blocked as Blank
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Blocked := Customer.Blocked::" ";
+        Customer.Modify();
+
+        // [GIVEN] Create Customer template and set blocked to Ship
+        LibraryTemplates.CreateCustomerTemplateWithDataAndDimensions(CustomerTempl);
+        CustomerTempl.Blocked := CustomerTempl.Blocked::Ship;
+        CustomerTempl.Modify();
+
+        // [GIVEN] Enqueue the variable 
+        LibraryVariableStorage.Enqueue(CustomerTempl.Code);
+
+        // [WHEN] Open the Customer card and Apply template
+        CustomerCard.OpenEdit();
+        CustomerCard.GoToRecord(Customer);
+        CustomerCard.ApplyTemplate.Invoke();
+
+        // [VERIFY] Veriy Customer card is not modify from Customer template.
+        Customer.Find();
+        Assert.AreEqual(Customer.Blocked::" ", Customer.Blocked, '');
+    end;
+
+    [Test]
+    [HandlerFunctions('VendorTempModalFormHandler,ConfirmHandlerFalse')]
+    procedure VerifyVendorNotUpdateWhenApplyTemplateFalse()
+    var
+        Vendor: Record Vendor;
+        VendorTempl: Record "Vendor Templ.";
+        VendorCard: TestPage "Vendor Card";
+    begin
+        // [SCENARIO 459233] Vendor template is applied to Vendor record even though a user cancels the process.
+        Initialize();
+
+        // [GIVEN] Create Vendor and set Blocked as Blank
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Blocked := Vendor.Blocked::" ";
+        Vendor.Modify();
+
+        // [GIVEN] Create Vendor template and set blocked to Ship
+        LibraryTemplates.CreateVendorTemplateWithDataAndDimensions(VendorTempl);
+        VendorTempl.Blocked := VendorTempl.Blocked::Payment;
+        VendorTempl.Modify();
+
+        // [GIVEN] Enqueue the variable 
+        LibraryVariableStorage.Enqueue(VendorTempl.Code);
+
+        // [WHEN] Open the Vendor card and Apply template
+        VendorCard.OpenEdit();
+        VendorCard.GoToRecord(Vendor);
+        VendorCard.ApplyTemplate.Invoke();
+
+        // [VERIFY] Veriy Vendor card is not modify from Vendor template.
+        Vendor.Find();
+        Assert.AreEqual(Vendor.Blocked::" ", Vendor.Blocked, '');
+    end;
+
+    [Test]
+    [HandlerFunctions('EmployeeTempModalFormHandler,ConfirmHandlerFalse')]
+    procedure VerifyEmployeeNotUpdateWhenApplyTemplateFalse()
+    var
+        Employee: Record Employee;
+        EmployeeTempl: Record "Employee Templ.";
+        EmployeeCard: TestPage "Employee Card";
+        EmployeeTemplMgt: Codeunit "Employee Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 353440] Create new employee with one template
+        Initialize();
+
+        // [GIVEN] Create Employee and set Gender as Blank
+        LibraryHumanResource.CreateEmployee(Employee);
+        Employee.Gender := Employee.Gender::" ";
+        Employee.Modify();
+
+        // [GIVEN] Create Employee template and set Gender as Male
+        LibraryTemplates.CreateEmployeeTemplateWithDataAndDimensions(EmployeeTempl);
+        EmployeeTempl.Gender := EmployeeTempl.Gender::Male;
+        EmployeeTempl.Modify();
+
+        // [GIVEN] Enqueue the variable 
+        LibraryVariableStorage.Enqueue(EmployeeTempl.Code);
+
+        // [WHEN] Open the Employee card and Apply template
+        EmployeeCard.OpenEdit();
+        EmployeeCard.GoToRecord(Employee);
+        EmployeeCard.ApplyTemplate.Invoke();
+
+        // [VERIFY] Verify Employee card is not modify from Employee template.
+        Employee.Find();
+        Assert.AreEqual(Employee.Gender::" ", Employee.Gender, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemTemplCreateItemFromNonstockUTWithItemTemplate()
+    var
+        Item: Record Item;
+        ItemTempl: Record "Item Templ.";
+        NonstockItem: Record "Nonstock Item";
+        CountryRegion: Record "Country/Region";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+        CatalogItemManagement: Codeunit "Catalog Item Management";
+    begin
+        // [SCENARIO 459688] Create Item from Catalog Item with Item Template where some fields are not applied to created item
+        Initialize();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetItemTemplateFeatureEnabled(true);
+        UnbindSubscription(CustVendItemEmplTemplates);
+
+        // [GIVEN] Create Item Template with data
+        LibraryTemplates.CreateItemTemplateWithData(ItemTempl);
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        ItemTempl.Validate("Tariff No.", LibraryUtility.GenerateGUID());
+        ItemTempl.Validate("Flushing Method", ItemTempl."Flushing Method"::"Pick + Forward");
+        Evaluate(ItemTempl."Safety Lead Time", '<2D>');
+        ItemTempl.Validate("Country/Region of Origin Code", CountryRegion.Code);
+        ItemTempl.Modify(true);
+
+        // [GIVEN] Create Nonstock item (Catalog Item)
+        CreateNonstockItem(NonstockItem, ItemTempl.Code);
+
+        // [WHEN] Create new Item
+        CatalogItemManagement.CreateItemFromNonstock(NonstockItem);
+        Item.Get(NonstockItem."Vendor Item No.");
+
+        // [VERIFY] Verify: Item inserted with data from template
+        VerifyItem(Item, ItemTempl);
+        Item.TestField("Tariff No.", ItemTempl."Tariff No.");
+        Item.TestField("Flushing Method", ItemTempl."Flushing Method");
+        Item.TestField("Safety Lead Time", ItemTempl."Safety Lead Time");
+        Item.TestField("Country/Region of Origin Code", ItemTempl."Country/Region of Origin Code");
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Cust/Vend/Item/Empl Templates");
@@ -3609,10 +3755,52 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         CustomerCard.OK().Invoke();
     end;
 
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CustomerTempModalFormHandler(var CustomerTemplateList: Page "Select Customer Templ. List"; var Reply: Action)
+    var
+        CustomerTemplate: Record "Customer Templ.";
+    begin
+        CustomerTemplate.Init();  // Required to initialize the variable.
+        CustomerTemplate.Get(LibraryVariableStorage.DequeueText);
+        CustomerTemplateList.SetRecord(CustomerTemplate);
+        Reply := Action::LookupOK;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure VendorTempModalFormHandler(var VendorTemplateList: Page "Select Vendor Templ. List"; var Reply: Action)
+    var
+        VendorTemplate: Record "Vendor Templ.";
+    begin
+        VendorTemplate.Init();  // Required to initialize the variable.
+        VendorTemplate.Get(LibraryVariableStorage.DequeueText);
+        VendorTemplateList.SetRecord(VendorTemplate);
+        Reply := Action::LookupOK;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure EmployeeTempModalFormHandler(var EmployeeTemplateList: Page "Select Employee Templ. List"; var Reply: Action)
+    var
+        EmployeeTemplate: Record "Employee Templ.";
+    begin
+        EmployeeTemplate.Init();  // Required to initialize the variable.
+        EmployeeTemplate.Get(LibraryVariableStorage.DequeueText);
+        EmployeeTemplateList.SetRecord(EmployeeTemplate);
+        Reply := Action::LookupOK;
+    end;
+
     [ConfirmHandler]
     procedure ConfirmHandler(Queation: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerFalse(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Customer Templ. Mgt.", 'OnAfterIsEnabled', '', false, false)]

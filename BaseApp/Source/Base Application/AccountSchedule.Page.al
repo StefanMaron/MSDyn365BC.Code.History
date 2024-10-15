@@ -430,8 +430,10 @@ page 104 "Account Schedule"
 
     trigger OnOpenPage()
     var
+        FinancialReportMgt: Codeunit "Financial Report Mgt.";
         OriginalSchedName: Code[10];
     begin
+        FinancialReportMgt.LaunchEditRowsWarningNotification();
         OriginalSchedName := CurrentSchedName;
         AccSchedManagement.OpenAndCheckSchedule(CurrentSchedName, Rec);
         if CurrentSchedName <> OriginalSchedName then
