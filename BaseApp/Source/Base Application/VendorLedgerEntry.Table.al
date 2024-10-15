@@ -541,6 +541,10 @@
         {
             Caption = 'Applies-to Ext. Doc. No.';
         }
+        field(175; "Invoice Received Date"; Date)
+        {
+
+        }
         field(288; "Recipient Bank Account"; Code[20])
         {
             Caption = 'Recipient Bank Account';
@@ -637,7 +641,7 @@
             Caption = 'Remit-to Code';
             TableRelation = "Remit Address".Code WHERE("Vendor No." = FIELD("Vendor No."));
         }
-        field(10701; "VAT Reporting Date"; Date) 
+        field(10701; "VAT Reporting Date"; Date)
         {
             Caption = 'VAT Date';
         }
@@ -1009,6 +1013,7 @@
         "Vendor No." := GenJnlLine."Account No.";
         "Posting Date" := GenJnlLine."Posting Date";
         "Document Date" := GenJnlLine."Document Date";
+        "Invoice Received Date" := GenJnlLine."Invoice Received Date";
         "Document Type" := GenJnlLine."Document Type";
         "Document No." := GenJnlLine."Document No.";
         "External Document No." := GenJnlLine."External Document No.";
