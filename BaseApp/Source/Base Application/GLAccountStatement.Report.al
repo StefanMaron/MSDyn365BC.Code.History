@@ -115,7 +115,7 @@ report 10842 "G/L Account Statement"
                 column(ExtDocNo_GLEntry; "External Document No.")
                 {
                 }
-                column(Balance_GLEntry; Balance)
+                column(Balance_GLEntry; GLAccBalance)
                 {
                     AutoCalcField = false;
                 }
@@ -164,7 +164,7 @@ report 10842 "G/L Account Statement"
                                     CurrReport.Skip();
                         end;
 
-                    Balance := Balance + "G/L Entry"."Debit Amount" - "G/L Entry"."Credit Amount";
+                    GLAccBalance := GLAccBalance + "G/L Entry"."Debit Amount" - "G/L Entry"."Credit Amount";
                 end;
 
                 trigger OnPreDataItem()
@@ -238,7 +238,7 @@ report 10842 "G/L Account Statement"
         EvaluationDateStr: Text;
         ApplicationStatus: Option All,Applied,"Not Applied";
         EvaluationDate: Date;
-        Balance: Decimal;
+        GLAccBalance: Decimal;
         TotalDebit: Decimal;
         TotalCredit: Decimal;
         TotalBalance: Decimal;

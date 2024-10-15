@@ -2094,6 +2094,39 @@ codeunit 137280 "SCM Inventory Basic"
         Item.Find();
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure LeadTimeCalculationOnItemFromNonstock()
+    var
+        Vendor: Record Vendor;
+        NonstockItem: Record "Nonstock Item";
+        Item: Record Item;
+        CatalogItemManagement: Codeunit "Catalog Item Management";
+        LeadTimeFormula: DateFormula;
+    begin
+        // [FEATURE] [Nonstock Items] [Lead Time Calculation]
+        // [SCENARIO 416830] Lead Time Calculation in an item created from a nonstock item.
+        Initialize();
+
+        LibraryPurchase.CreateVendor(Vendor);
+        Evaluate(LeadTimeFormula, '<1M>');
+        Vendor.Validate("Lead Time Calculation", LeadTimeFormula);
+        Vendor.Modify(true);
+
+        LibraryInventory.CreateNonStock(NonstockItem);
+        NonstockItem.Validate("Vendor No.", Vendor."No.");
+        NonstockItem.Validate(
+          "Vendor Item No.", LibraryUtility.GenerateRandomCode(NonstockItem.FieldNo("Vendor Item No."), DATABASE::"Nonstock Item"));
+        NonstockItem.Validate("Item Template Code", SelectItemTemplateCode());
+        NonstockItem.Modify(true);
+        UpdateItemTemplate(NonstockItem."Item Template Code");
+
+        CatalogItemManagement.NonstockAutoItem(NonstockItem);
+
+        Item.Get(NonstockItem."Vendor Item No.");
+        Item.TestField("Lead Time Calculation", Vendor."Lead Time Calculation");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
