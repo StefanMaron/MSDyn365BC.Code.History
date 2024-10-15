@@ -160,6 +160,7 @@ codeunit 1004 "Job Transfer Line"
     begin
         OnBeforeFromPlanningSalesLineToJnlLine(JobPlanningLine, SalesHeader, SalesLine, JobJnlLine, EntryType);
 
+        JobJnlLine."Line No." := SalesLine."Line No.";
         JobJnlLine."Job No." := JobPlanningLine."Job No.";
         JobJnlLine."Job Task No." := JobPlanningLine."Job Task No.";
         JobJnlLine.Type := JobPlanningLine.Type;
@@ -469,10 +470,7 @@ codeunit 1004 "Job Transfer Line"
             JobJnlLine.Validate("Job Task No.", "Job Task No.");
             JobTask.Get("Job No.", "Job Task No.");
             JobJnlLine.Validate("Posting Date", PurchHeader."Posting Date");
-            if Type = Type::"G/L Account" then
-                JobJnlLine.Validate(Type, JobJnlLine.Type::"G/L Account")
-            else
-                JobJnlLine.Validate(Type, JobJnlLine.Type::Item);
+            JobJournalLineValidateType(JobJnlLine, PurchLine);
             OnFromPurchaseLineToJnlLineOnBeforeValidateNo(JobJnlLine, PurchLine);
             JobJnlLine.Validate("No.", "No.");
             JobJnlLine.Validate("Variant Code", "Variant Code");
@@ -606,6 +604,21 @@ codeunit 1004 "Job Transfer Line"
         OnAfterFromPurchaseLineToJnlLine(JobJnlLine, PurchHeader, PurchInvHeader, PurchCrMemoHeader, PurchLine, SourceCode);
     end;
 
+    local procedure JobJournalLineValidateType(var JobJournalLine: Record "Job Journal Line"; PurchaseLine: Record "Purchase Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeJobJournalLineValidateType(JobJournalLine, PurchaseLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if PurchaseLine.Type = PurchaseLine.Type::"G/L Account" then
+            JobJournalLine.Validate(Type, JobJournalLine.Type::"G/L Account")
+        else
+            JobJournalLine.Validate(Type, JobJournalLine.Type::Item);
+    end;
+
     procedure FromSalesHeaderToPlanningLine(SalesLine: Record "Sales Line"; CurrencyFactor: Decimal)
     var
         JobPlanningLine: Record "Job Planning Line";
@@ -722,6 +735,11 @@ codeunit 1004 "Job Transfer Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFromPurchaseLineToJnlLine(PurchHeader: Record "Purchase Header"; PurchInvHeader: Record "Purch. Inv. Header"; PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; PurchLine: Record "Purchase Line"; SourceCode: Code[10]; var JobJnlLine: Record "Job Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeJobJournalLineValidateType(var JobJournalLine: Record "Job Journal Line"; PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 

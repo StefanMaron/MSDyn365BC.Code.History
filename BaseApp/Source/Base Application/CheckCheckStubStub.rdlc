@@ -795,9 +795,9 @@
                 </Paragraph>
               </Paragraphs>
               <Top>0.53081in</Top>
-              <Left>6.60533in</Left>
+              <Left>5.61171in</Left>
               <Height>0.16654in</Height>
-              <Width>0.82677in</Width>
+              <Width>1.82039in</Width>
               <ZIndex>1</ZIndex>
               <Visibility>
                 <Hidden>=iif(ReportItems!CheckStyle.Value = 0, false, true)</Hidden>
@@ -823,9 +823,9 @@
                 </Paragraph>
               </Paragraphs>
               <Top>0.69736in</Top>
-              <Left>6.60533in</Left>
+              <Left>5.61171in</Left>
               <Height>0.16654in</Height>
-              <Width>0.82677in</Width>
+              <Width>1.82039in</Width>
               <ZIndex>2</ZIndex>
               <Visibility>
                 <Hidden>=iif(ReportItems!CheckStyle.Value = 0, false, true)</Hidden>

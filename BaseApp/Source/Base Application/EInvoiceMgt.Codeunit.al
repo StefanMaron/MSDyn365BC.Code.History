@@ -855,10 +855,8 @@
 
     local procedure CancelESalesInvoice(var SalesInvHeader: Record "Sales Invoice Header")
     var
-        XMLDOMManagement: Codeunit "XML DOM Management";
+        SalesInvoiceHeaderSubst: Record "Sales Invoice Header";
         XMLDoc: DotNet XmlDocument;
-        XMLCurrNode: DotNet XmlNode;
-        XMLNewChild: DotNet XmlNode;
         Response: Text;
         OutStr: OutStream;
         CancelDateTime: Text[50];
@@ -869,30 +867,17 @@
         DocType := 'Sales Invoice';
         Session.LogMessage('0000C7C', StrSubstNo(CancelDocMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
 
-        // Create instance
-        if IsNull(XMLDoc) then
-            XMLDoc := XMLDoc.XmlDocument;
+        SalesInvHeader.TestField("CFDI Cancellation Reason Code");
+        if CancellationReasonRequired(SalesInvHeader."CFDI Cancellation Reason Code") then
+            SalesInvoiceHeaderSubst.Get(SalesInvHeader."Substitution Document No.");
 
-        DocNameSpace := 'http://www.sat.gob.mx/cfd/3';
-        XMLDOMManagement.LoadXMLDocumentFromText('<?xml version="1.0" encoding="UTF-8" ?> <CancelaCFD /> ', XMLDoc);
-        XMLCurrNode := XMLDoc.DocumentElement;
-        AddElement(XMLCurrNode, 'Cancelacion', '', '', XMLNewChild);
-        XMLCurrNode := XMLNewChild;
-        with SalesInvHeader do begin
-            CancelDateTime := FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(SalesInvHeader)));
-            AddAttribute(XMLDoc, XMLCurrNode, 'Fecha', CancelDateTime);
-            "Date/Time Canceled" := CancelDateTime;
-            AddAttribute(XMLDoc, XMLCurrNode, 'RfcEmisor', CompanyInfo."RFC No.");
-            AddElement(XMLCurrNode, 'Folios', '', '', XMLNewChild);
-            XMLCurrNode := XMLNewChild;
-            AddElement(XMLCurrNode, 'Folio', '', '', XMLNewChild);
-            XMLCurrNode := XMLNewChild;
-            AddAttribute(XMLDoc, XMLCurrNode, 'FechaTimbrado', "Date/Time Stamped");
-            AddAttribute(XMLDoc, XMLCurrNode, 'UUID', "Fiscal Invoice Number PAC");
-            AddAttribute(XMLDoc, XMLCurrNode, 'MotivoCancelacion', '02');
-            "Original Document XML".CreateOutStream(OutStr);
-            XMLDoc.Save(OutStr);
-        end;
+        CancelDateTime := FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(SalesInvHeader)));
+        SalesInvHeader."Date/Time Canceled" := CancelDateTime;
+        SalesInvHeader."Original Document XML".CreateOutStream(OutStr);
+        CancelXMLDocument(
+          XMLDoc, OutStr,
+          CancelDateTime, SalesInvHeader."Date/Time Stamped", SalesInvHeader."Fiscal Invoice Number PAC",
+          SalesInvHeader."CFDI Cancellation Reason Code", SalesInvoiceHeaderSubst."Fiscal Invoice Number PAC");
 
         Response := InvokeMethod(XMLDoc, MethodType::Cancel);
 
@@ -911,10 +896,8 @@
 
     local procedure CancelESalesCrMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     var
-        XMLDOMManagement: Codeunit "XML DOM Management";
+        SalesCrMemoHeaderSubst: Record "Sales Cr.Memo Header";
         XMLDoc: DotNet XmlDocument;
-        XMLCurrNode: DotNet XmlNode;
-        XMLNewChild: DotNet XmlNode;
         Response: Text;
         OutStr: OutStream;
         CancelDateTime: Text[50];
@@ -925,30 +908,17 @@
         DocType := 'Sales Cr.Memo';
         Session.LogMessage('0000C7C', StrSubstNo(CancelDocMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
 
-        // Create instance
-        if IsNull(XMLDoc) then
-            XMLDoc := XMLDoc.XmlDocument;
+        SalesCrMemoHeader.TestField("CFDI Cancellation Reason Code");
+        if CancellationReasonRequired(SalesCrMemoHeader."CFDI Cancellation Reason Code") then
+            SalesCrMemoHeaderSubst.Get(SalesCrMemoHeader."Substitution Document No.");
 
-        DocNameSpace := 'http://www.sat.gob.mx/cfd/3';
-        XMLDOMManagement.LoadXMLDocumentFromText('<?xml version="1.0" encoding="UTF-8" ?> <CancelaCFD /> ', XMLDoc);
-        XMLCurrNode := XMLDoc.DocumentElement;
-        AddElement(XMLCurrNode, 'Cancelacion', '', '', XMLNewChild);
-        XMLCurrNode := XMLNewChild;
-        with SalesCrMemoHeader do begin
-            CancelDateTime := FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(SalesCrMemoHeader)));
-            AddAttribute(XMLDoc, XMLCurrNode, 'Fecha', CancelDateTime);
-            "Date/Time Canceled" := CancelDateTime;
-            AddAttribute(XMLDoc, XMLCurrNode, 'RfcEmisor', CompanyInfo."RFC No.");
-            AddElement(XMLCurrNode, 'Folios', '', '', XMLNewChild);
-            XMLCurrNode := XMLNewChild;
-            AddElement(XMLCurrNode, 'Folio', '', '', XMLNewChild);
-            XMLCurrNode := XMLNewChild;
-            AddAttribute(XMLDoc, XMLCurrNode, 'FechaTimbrado', "Date/Time Stamped");
-            AddAttribute(XMLDoc, XMLCurrNode, 'UUID', "Fiscal Invoice Number PAC");
-            AddAttribute(XMLDoc, XMLCurrNode, 'MotivoCancelacion', '02');
-            "Original Document XML".CreateOutStream(OutStr);
-            XMLDoc.Save(OutStr);
-        end;
+        CancelDateTime := FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(SalesCrMemoHeader)));
+        SalesCrMemoHeader."Date/Time Canceled" := CancelDateTime;
+        SalesCrMemoHeader."Original Document XML".CreateOutStream(OutStr);
+        CancelXMLDocument(
+          XMLDoc, OutStr,
+          CancelDateTime, SalesCrMemoHeader."Date/Time Stamped", SalesCrMemoHeader."Fiscal Invoice Number PAC",
+          SalesCrMemoHeader."CFDI Cancellation Reason Code", SalesCrMemoHeaderSubst."Fiscal Invoice Number PAC");
 
         Response := InvokeMethod(XMLDoc, MethodType::Cancel);
 
@@ -967,10 +937,8 @@
 
     local procedure CancelEServiceInvoice(var ServiceInvHeader: Record "Service Invoice Header")
     var
-        XMLDOMManagement: Codeunit "XML DOM Management";
+        ServiceInvoiceHeaderSubst: Record "Service Invoice Header";
         XMLDoc: DotNet XmlDocument;
-        XMLCurrNode: DotNet XmlNode;
-        XMLNewChild: DotNet XmlNode;
         Response: Text;
         OutStr: OutStream;
         CancelDateTime: Text[50];
@@ -981,30 +949,17 @@
         DocType := 'Service Invoice';
         Session.LogMessage('0000C7C', StrSubstNo(CancelDocMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
 
-        // Create instance
-        if IsNull(XMLDoc) then
-            XMLDoc := XMLDoc.XmlDocument;
+        ServiceInvHeader.TestField("CFDI Cancellation Reason Code");
+        if CancellationReasonRequired(ServiceInvHeader."CFDI Cancellation Reason Code") then
+            ServiceInvoiceHeaderSubst.Get(ServiceInvHeader."Substitution Document No.");
 
-        DocNameSpace := 'http://www.sat.gob.mx/cfd/3';
-        XMLDOMManagement.LoadXMLDocumentFromText('<?xml version="1.0" encoding="UTF-8" ?> <CancelaCFD /> ', XMLDoc);
-        XMLCurrNode := XMLDoc.DocumentElement;
-        AddElement(XMLCurrNode, 'Cancelacion', '', '', XMLNewChild);
-        XMLCurrNode := XMLNewChild;
-        with ServiceInvHeader do begin
-            CancelDateTime := FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(ServiceInvHeader)));
-            AddAttribute(XMLDoc, XMLCurrNode, 'Fecha', CancelDateTime);
-            "Date/Time Canceled" := CancelDateTime;
-            AddAttribute(XMLDoc, XMLCurrNode, 'RfcEmisor', CompanyInfo."RFC No.");
-            AddElement(XMLCurrNode, 'Folios', '', '', XMLNewChild);
-            XMLCurrNode := XMLNewChild;
-            AddElement(XMLCurrNode, 'Folio', '', '', XMLNewChild);
-            XMLCurrNode := XMLNewChild;
-            AddAttribute(XMLDoc, XMLCurrNode, 'FechaTimbrado', "Date/Time Stamped");
-            AddAttribute(XMLDoc, XMLCurrNode, 'UUID', "Fiscal Invoice Number PAC");
-            AddAttribute(XMLDoc, XMLCurrNode, 'MotivoCancelacion', '02');
-            "Original Document XML".CreateOutStream(OutStr);
-            XMLDoc.Save(OutStr);
-        end;
+        CancelDateTime := FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(ServiceInvHeader)));
+        ServiceInvHeader."Date/Time Canceled" := CancelDateTime;
+        ServiceInvHeader."Original Document XML".CreateOutStream(OutStr);
+        CancelXMLDocument(
+          XMLDoc, OutStr,
+          CancelDateTime, ServiceInvHeader."Date/Time Stamped", ServiceInvHeader."Fiscal Invoice Number PAC",
+          ServiceInvHeader."CFDI Cancellation Reason Code", ServiceInvoiceHeaderSubst."Substitution Document No.");
 
         Response := InvokeMethod(XMLDoc, MethodType::Cancel);
 
@@ -1023,10 +978,8 @@
 
     local procedure CancelEServiceCrMemo(var ServiceCrMemoHeader: Record "Service Cr.Memo Header")
     var
-        XMLDOMManagement: Codeunit "XML DOM Management";
+        ServiceCrMemoHeaderSubst: Record "Service Cr.Memo Header";
         XMLDoc: DotNet XmlDocument;
-        XMLCurrNode: DotNet XmlNode;
-        XMLNewChild: DotNet XmlNode;
         Response: Text;
         OutStr: OutStream;
         CancelDateTime: Text[50];
@@ -1037,30 +990,17 @@
         DocType := 'Service Cr.Memo';
         Session.LogMessage('0000C7C', StrSubstNo(CancelDocMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
 
-        // Create instance
-        if IsNull(XMLDoc) then
-            XMLDoc := XMLDoc.XmlDocument;
+        ServiceCrMemoHeader.TestField("CFDI Cancellation Reason Code");
+        if CancellationReasonRequired(ServiceCrMemoHeader."CFDI Cancellation Reason Code") then
+            ServiceCrMemoHeaderSubst.Get(ServiceCrMemoHeader."Substitution Document No.");
 
-        DocNameSpace := 'http://www.sat.gob.mx/cfd/3';
-        XMLDOMManagement.LoadXMLDocumentFromText('<?xml version="1.0" encoding="UTF-8" ?> <CancelaCFD /> ', XMLDoc);
-        XMLCurrNode := XMLDoc.DocumentElement;
-        AddElement(XMLCurrNode, 'Cancelacion', '', '', XMLNewChild);
-        XMLCurrNode := XMLNewChild;
-        with ServiceCrMemoHeader do begin
-            CancelDateTime := FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(ServiceCrMemoHeader)));
-            AddAttribute(XMLDoc, XMLCurrNode, 'Fecha', CancelDateTime);
-            "Date/Time Canceled" := CancelDateTime;
-            AddAttribute(XMLDoc, XMLCurrNode, 'RfcEmisor', CompanyInfo."RFC No.");
-            AddElement(XMLCurrNode, 'Folios', '', '', XMLNewChild);
-            XMLCurrNode := XMLNewChild;
-            AddElement(XMLCurrNode, 'Folio', '', '', XMLNewChild);
-            XMLCurrNode := XMLNewChild;
-            AddAttribute(XMLDoc, XMLCurrNode, 'FechaTimbrado', "Date/Time Stamped");
-            AddAttribute(XMLDoc, XMLCurrNode, 'UUID', "Fiscal Invoice Number PAC");
-            AddAttribute(XMLDoc, XMLCurrNode, 'MotivoCancelacion', '02');
-            "Original Document XML".CreateOutStream(OutStr);
-            XMLDoc.Save(OutStr);
-        end;
+        CancelDateTime := FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(ServiceCrMemoHeader)));
+        ServiceCrMemoHeader."Date/Time Canceled" := CancelDateTime;
+        ServiceCrMemoHeader."Original Document XML".CreateOutStream(OutStr);
+        CancelXMLDocument(
+          XMLDoc, OutStr,
+          CancelDateTime, ServiceCrMemoHeader."Date/Time Stamped", ServiceCrMemoHeader."Fiscal Invoice Number PAC",
+          ServiceCrMemoHeader."CFDI Cancellation Reason Code", ServiceCrMemoHeaderSubst."Fiscal Invoice Number PAC");
 
         Response := InvokeMethod(XMLDoc, MethodType::Cancel);
 
@@ -1079,40 +1019,25 @@
 
     local procedure CancelESalesShipment(var SalesShipmentHeader: Record "Sales Shipment Header")
     var
-        XMLDOMManagement: Codeunit "XML DOM Management";
+        SalesShipmentHeaderSubst: Record "Sales Shipment Header";
         XMLDoc: DotNet XmlDocument;
-        XMLCurrNode: DotNet XmlNode;
-        XMLNewChild: DotNet XmlNode;
         Response: Text;
         OutStr: OutStream;
         CancelDateTime: Text[50];
     begin
         DocType := 'Sales Shipment';
 
-        // Create instance
-        if IsNull(XMLDoc) then
-            XMLDoc := XMLDoc.XmlDocument();
+        SalesShipmentHeader.TestField("CFDI Cancellation Reason Code");
+        if CancellationReasonRequired(SalesShipmentHeader."CFDI Cancellation Reason Code") then
+            SalesShipmentHeaderSubst.Get(SalesShipmentHeader."Substitution Document No.");
 
-        DocNameSpace := 'http://www.sat.gob.mx/cfd/3';
-        XMLDOMManagement.LoadXMLDocumentFromText('<?xml version="1.0" encoding="UTF-8" ?> <CancelaCFD /> ', XMLDoc);
-        XMLCurrNode := XMLDoc.DocumentElement;
-        AddElement(XMLCurrNode, 'Cancelacion', '', '', XMLNewChild);
-        XMLCurrNode := XMLNewChild;
-        with SalesShipmentHeader do begin
-            CancelDateTime := FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(SalesShipmentHeader)));
-            AddAttribute(XMLDoc, XMLCurrNode, 'Fecha', CancelDateTime);
-            "Date/Time Canceled" := CancelDateTime;
-            AddAttribute(XMLDoc, XMLCurrNode, 'RfcEmisor', CompanyInfo."RFC No.");
-            AddElement(XMLCurrNode, 'Folios', '', '', XMLNewChild);
-            XMLCurrNode := XMLNewChild;
-            AddElement(XMLCurrNode, 'Folio', '', '', XMLNewChild);
-            XMLCurrNode := XMLNewChild;
-            AddAttribute(XMLDoc, XMLCurrNode, 'FechaTimbrado', "Date/Time Stamped");
-            AddAttribute(XMLDoc, XMLCurrNode, 'UUID', "Fiscal Invoice Number PAC");
-            AddAttribute(XMLDoc, XMLCurrNode, 'MotivoCancelacion', '02');
-            "Original Document XML".CreateOutStream(OutStr);
-            XMLDoc.Save(OutStr);
-        end;
+        CancelDateTime := FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(SalesShipmentHeader)));
+        SalesShipmentHeader."Date/Time Canceled" := CancelDateTime;
+        SalesShipmentHeader."Original Document XML".CreateOutStream(OutStr);
+        CancelXMLDocument(
+          XMLDoc, OutStr,
+          CancelDateTime, SalesShipmentHeader."Date/Time Stamped", SalesShipmentHeader."Fiscal Invoice Number PAC",
+          SalesShipmentHeader."CFDI Cancellation Reason Code", SalesShipmentHeaderSubst."Fiscal Invoice Number PAC");
 
         Response := InvokeMethod(XMLDoc, MethodType::Cancel);
 
@@ -1129,40 +1054,25 @@
 
     local procedure CancelETransferShipment(var TransferShipmentHeader: Record "Transfer Shipment Header")
     var
-        XMLDOMManagement: Codeunit "XML DOM Management";
+        TransferShipmentHeaderSubst: Record "Transfer Shipment Header";
         XMLDoc: DotNet XmlDocument;
-        XMLCurrNode: DotNet XmlNode;
-        XMLNewChild: DotNet XmlNode;
         Response: Text;
         OutStr: OutStream;
         CancelDateTime: Text[50];
     begin
         DocType := 'Transfer Shipment';
 
-        // Create instance
-        if IsNull(XMLDoc) then
-            XMLDoc := XMLDoc.XmlDocument();
+        TransferShipmentHeader.TestField("CFDI Cancellation Reason Code");
+        if CancellationReasonRequired(TransferShipmentHeader."CFDI Cancellation Reason Code") then
+            TransferShipmentHeaderSubst.Get(TransferShipmentHeader."Substitution Document No.");
 
-        DocNameSpace := 'http://www.sat.gob.mx/cfd/3';
-        XMLDOMManagement.LoadXMLDocumentFromText('<?xml version="1.0" encoding="UTF-8" ?> <CancelaCFD /> ', XMLDoc);
-        XMLCurrNode := XMLDoc.DocumentElement;
-        AddElement(XMLCurrNode, 'Cancelacion', '', '', XMLNewChild);
-        XMLCurrNode := XMLNewChild;
-        with TransferShipmentHeader do begin
-            CancelDateTime := FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(TransferShipmentHeader)));
-            AddAttribute(XMLDoc, XMLCurrNode, 'Fecha', CancelDateTime);
-            "Date/Time Canceled" := CancelDateTime;
-            AddAttribute(XMLDoc, XMLCurrNode, 'RfcEmisor', CompanyInfo."RFC No.");
-            AddElement(XMLCurrNode, 'Folios', '', '', XMLNewChild);
-            XMLCurrNode := XMLNewChild;
-            AddElement(XMLCurrNode, 'Folio', '', '', XMLNewChild);
-            XMLCurrNode := XMLNewChild;
-            AddAttribute(XMLDoc, XMLCurrNode, 'FechaTimbrado', "Date/Time Stamped");
-            AddAttribute(XMLDoc, XMLCurrNode, 'UUID', "Fiscal Invoice Number PAC");
-            AddAttribute(XMLDoc, XMLCurrNode, 'MotivoCancelacion', '02');
-            "Original Document XML".CreateOutStream(OutStr);
-            XMLDoc.Save(OutStr);
-        end;
+        CancelDateTime := FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(TransferShipmentHeader)));
+        TransferShipmentHeader."Date/Time Canceled" := CancelDateTime;
+        TransferShipmentHeader."Original Document XML".CreateOutStream(OutStr);
+        CancelXMLDocument(
+          XMLDoc, OutStr,
+          CancelDateTime, TransferShipmentHeader."Date/Time Stamped", TransferShipmentHeader."Fiscal Invoice Number PAC",
+          TransferShipmentHeader."CFDI Cancellation Reason Code", TransferShipmentHeaderSubst."Fiscal Invoice Number PAC");
 
         Response := InvokeMethod(XMLDoc, MethodType::Cancel);
 
@@ -1179,41 +1089,27 @@
 
     local procedure CancelEPayment(var CustLedgerEntry: Record "Cust. Ledger Entry")
     var
-        XMLDOMManagement: Codeunit "XML DOM Management";
+        CustLedgerEntrySubst: Record "Cust. Ledger Entry";
         OutStr: OutStream;
         XMLDoc: DotNet XmlDocument;
-        XMLCurrNode: DotNet XmlNode;
-        XMLNewChild: DotNet XmlNode;
         Response: Text;
         CancelDateTime: Text[50];
     begin
         DocType := 'payment';
         Session.LogMessage('0000C7C', StrSubstNo(CancelDocMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
 
-        // Create instance
-        if IsNull(XMLDoc) then
-            XMLDoc := XMLDoc.XmlDocument;
+        CustLedgerEntry.TestField("CFDI Cancellation Reason Code");
+        if CancellationReasonRequired(CustLedgerEntry."CFDI Cancellation Reason Code") then
+            CustLedgerEntrySubst.Get(CustLedgerEntry."Substitution Entry No.");
 
-        DocNameSpace := 'http://www.sat.gob.mx/cfd/3';
-        XMLDOMManagement.LoadXMLDocumentFromText('<?xml version="1.0" encoding="UTF-8" ?> <CancelaCFD /> ', XMLDoc);
-        XMLCurrNode := XMLDoc.DocumentElement;
-        AddElement(XMLCurrNode, 'Cancelacion', '', '', XMLNewChild);
-        XMLCurrNode := XMLNewChild;
-        with CustLedgerEntry do begin
-            CancelDateTime := FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromCustomer("Customer No.")));
-            AddAttribute(XMLDoc, XMLCurrNode, 'Fecha', CancelDateTime);
-            "Date/Time Canceled" := CancelDateTime;
-            AddAttribute(XMLDoc, XMLCurrNode, 'RfcEmisor', CompanyInfo."RFC No.");
-            AddElement(XMLCurrNode, 'Folios', '', '', XMLNewChild);
-            XMLCurrNode := XMLNewChild;
-            AddElement(XMLCurrNode, 'Folio', '', '', XMLNewChild);
-            XMLCurrNode := XMLNewChild;
-            AddAttribute(XMLDoc, XMLCurrNode, 'FechaTimbrado', "Date/Time Stamped");
-            AddAttribute(XMLDoc, XMLCurrNode, 'UUID', "Fiscal Invoice Number PAC");
-            AddAttribute(XMLDoc, XMLCurrNode, 'MotivoCancelacion', '02');
-            "Original Document XML".CreateOutStream(OutStr);
-            XMLDoc.Save(OutStr);
-        end;
+        CancelDateTime :=
+          FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromCustomer(CustLedgerEntry."Customer No.")));
+        CustLedgerEntry."Date/Time Canceled" := CancelDateTime;
+        CustLedgerEntry."Original Document XML".CreateOutStream(OutStr);
+        CancelXMLDocument(
+          XMLDoc, OutStr,
+          CancelDateTime, CustLedgerEntry."Date/Time Stamped", CustLedgerEntry."Fiscal Invoice Number PAC",
+          CustLedgerEntry."CFDI Cancellation Reason Code", CustLedgerEntrySubst."Fiscal Invoice Number PAC");
 
         Response := InvokeMethod(XMLDoc, MethodType::Cancel);
 
@@ -1228,6 +1124,35 @@
         CustLedgerEntry.Modify();
 
         Session.LogMessage('0000C7D', StrSubstNo(CancelDocSuccessMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
+    end;
+
+    local procedure CancelXMLDocument(var XMLDoc: DotNet XmlDocument; var OutStr: OutStream; CancelDateTime: Text[50]; DateTimeStamped: Text; FiscalinvoiceNumberPAC: Text; CancellationReason: Text; SubstitutionDocumentUUID: Text)
+    var
+        XMLDOMManagement: Codeunit "XML DOM Management";
+        XMLCurrNode: DotNet XmlNode;
+        XMLNewChild: DotNet XmlNode;
+    begin
+        // Create instance
+        if IsNull(XMLDoc) then
+            XMLDoc := XMLDoc.XmlDocument;
+
+        DocNameSpace := 'http://www.sat.gob.mx/cfd/3';
+        XMLDOMManagement.LoadXMLDocumentFromText('<?xml version="1.0" encoding="UTF-8" ?> <CancelaCFD /> ', XMLDoc);
+        XMLCurrNode := XMLDoc.DocumentElement;
+        AddElement(XMLCurrNode, 'Cancelacion', '', '', XMLNewChild);
+        XMLCurrNode := XMLNewChild;
+
+        AddAttribute(XMLDoc, XMLCurrNode, 'Fecha', CancelDateTime);
+        AddAttribute(XMLDoc, XMLCurrNode, 'RfcEmisor', CompanyInfo."RFC No.");
+        AddElement(XMLCurrNode, 'Folios', '', '', XMLNewChild);
+        XMLCurrNode := XMLNewChild;
+        AddElement(XMLCurrNode, 'Folio', '', '', XMLNewChild);
+        XMLCurrNode := XMLNewChild;
+        AddAttribute(XMLDoc, XMLCurrNode, 'FechaTimbrado', DateTimeStamped);
+        AddAttribute(XMLDoc, XMLCurrNode, 'UUID', FiscalinvoiceNumberPAC);
+        AddAttribute(XMLDoc, XMLCurrNode, 'MotivoCancelacion', CancellationReason);
+        AddAttribute(XMLDoc, XMLCurrNode, 'FolioSustitucion', SubstitutionDocumentUUID);
+        XMLDoc.Save(OutStr);
     end;
 
     local procedure ProcessResponseESalesInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header"; "Action": Option; Reverse: Boolean)
@@ -5966,6 +5891,15 @@
         end;
     end;
 
+    local procedure CancellationReasonRequired(ReasonCode: Code[10]): Boolean
+    var
+        CFDICancellationReason: Record "CFDI Cancellation Reason";
+    begin
+        if not CFDICancellationReason.Get(ReasonCode) then
+            exit(false);
+        exit(CFDICancellationReason."Substitution Number Required");
+    end;
+
     local procedure GetLineVarFromDocumentLine(var LineVariant: Variant; var TableCaption: Text; TableID: Integer; DocumentLine: Record "Document Line")
     var
         SalesInvoiceLine: Record "Sales Invoice Line";
@@ -6062,6 +5996,13 @@
     local procedure TransferShipmentHeaserInsertCFDIOperators(var TransferHeader: Record "Transfer Header"; var TransferShipmentHeader: Record "Transfer Shipment Header")
     begin
         InsertTransferShipmentCFDITransportOperators(TransferHeader, TransferShipmentHeader."No.");
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, 103, 'OnBeforeCustLedgEntryModify', '', false, false)]
+    local procedure UpdateCustomerLedgerEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; FromCustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+        CustLedgEntry.Validate("CFDI Cancellation Reason Code", FromCustLedgEntry."CFDI Cancellation Reason Code");
+        CustLedgEntry.Validate("Substitution Entry No.", FromCustLedgEntry."Substitution Entry No.");
     end;
 
     [IntegrationEvent(false, false)]

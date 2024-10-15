@@ -2,6 +2,8 @@ table 27016 "SAT Tax Scheme"
 {
     Caption = 'SAT Tax Scheme';
     DataPerCompany = false;
+    DrillDownPageID = "SAT Tax Schemas";
+    LookupPageID = "SAT Tax Schemas";
 
     fields
     {

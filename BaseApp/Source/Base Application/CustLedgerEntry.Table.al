@@ -692,6 +692,17 @@ table 21 "Cust. Ledger Entry"
             Caption = 'Date/Time First Req. Sent';
             Editable = false;
         }
+        field(27002; "CFDI Cancellation Reason Code"; Code[10])
+        {
+            Caption = 'CFDI Cancellation Reason Code';
+            TableRelation = "CFDI Cancellation Reason";
+        }
+        field(27003; "Substitution Entry No."; Integer)
+        {
+            Caption = 'Substitution Entry No.';
+            TableRelation = "Cust. Ledger Entry" WHERE ("Document Type" = FILTER (Payment),
+                                                        "Electronic Document Status" = FILTER ("Stamp Received"));
+        }
     }
 
     keys

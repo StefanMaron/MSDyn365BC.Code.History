@@ -2,6 +2,8 @@ table 27018 "SAT Payment Method"
 {
     Caption = 'SAT Payment Method';
     DataPerCompany = false;
+    DrillDownPageID = "SAT Payment Methods";
+    LookupPageID = "SAT Payment Methods";
 
     fields
     {

@@ -168,15 +168,15 @@ page 5905 "Service Lines"
                 field("Tax Liable"; "Tax Liable")
                 {
                     ApplicationArea = SalesTax;
-                    Editable = false;
+                    Editable = true;
                     ToolTip = 'Specifies that items, resources, or costs on the current service line are liable for sales tax.';
-                    Visible = false;
+                    Visible = true;
                 }
                 field("Tax Area Code"; "Tax Area Code")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
-                    Visible = false;
+                    Visible = true;
                 }
                 field("Tax Group Code"; "Tax Group Code")
                 {
