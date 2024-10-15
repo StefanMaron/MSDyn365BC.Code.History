@@ -3813,6 +3813,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // [FEATURE] [Item Tracking] [Lot Warehouse Tracking] [Use Expiration Dates] [Production BOM] [Released Production Order] [Warehpuse Pick]
         // [SCENARIO 463293] Create Warehouse Pick from Production Order for Item with FEFO Picking when earlier Lots are already picked for another Production Order.
+        // [SCENARIO 476832] "To-Production Bin Code" must be dedicated bin.
         Initialize();
 
         QuantityToUse := 10;
@@ -3864,8 +3865,10 @@ codeunit 137072 "SCM Production Orders II"
         LibraryWarehouse.CreateBin(Bin[1], Location.Code, LibraryUtility.GenerateGUID(), '', '');
         Location.Validate("Shipment Bin Code", Bin[1].Code);
 
-        // [GIVEN] Create Bin "B2" and set it as "To-Production Bin Code" at Location.
+        // [GIVEN] Create Bin "B2" as Dedicated and set it as "To-Production Bin Code" at Location.
         LibraryWarehouse.CreateBin(Bin[2], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        Bin[2].Validate(Dedicated, true);
+        Bin[2].Modify(true);
         Location.Validate("To-Production Bin Code", Bin[2].Code);
 
         // [GIVEN] Create Bin "B3" and set it as "From-Production Bin Code" at Location.

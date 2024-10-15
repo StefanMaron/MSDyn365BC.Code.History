@@ -1016,7 +1016,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=CDec(Sum(Fields!AmountExclInvDisc.Value))</Value>
+                                                    <Value>=CDec(Fields!SalesInvHeaderTotalAmountExclInvDiscount.Value)</Value>
                                                     <Style>
                                                       <Format>=Fields!AmountExclInvDisc_Control79Format.Value</Format>
                                                     </Style>
@@ -1119,7 +1119,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=CDec(Sum(Fields!TempSalesInvoiceLine_Amount___AmountExclInvDisc.Value))</Value>
+                                                    <Value>=CDec(Fields!SalesInvHeaderTotalInvDiscountAmount.Value)</Value>
                                                     <Style>
                                                       <Format>=Fields!TempSalesInvoiceLine_Amount___AmountExclInvDiscFormat.Value</Format>
                                                     </Style>
@@ -1222,7 +1222,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=CDec(Sum(Fields!TempSalesInvoiceLine__Amount_Including_VAT____TempSalesInvoiceLine_Amount.Value))</Value>
+                                                    <Value>=CDec(Fields!SalesInvHeaderTotalVATAmount.Value)</Value>
                                                     <Style>
                                                       <Format>=Fields!TempSalesInvoiceLine__Amount_Including_VAT____TempSalesInvoiceLine_AmountFormat.Value</Format>
                                                     </Style>
@@ -1394,7 +1394,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=CDec(Sum(Fields!TempSalesInvoiceLine__Amount_Including_VAT_.Value))</Value>
+                                                    <Value>=CDec(Fields!SalesInvHeaderTotalAmountInclVAT.Value)</Value>
                                                     <Style>
                                                       <Format>=Fields!TempSalesInvoiceLine__Amount_Including_VAT_Format.Value</Format>
                                                     </Style>
@@ -4834,6 +4834,30 @@ End Function
         </Field>
         <Field Name="UsoCFDICaption">
           <DataField>UsoCFDICaption</DataField>
+        </Field>
+        <Field Name="SalesInvHeaderTotalAmountExclInvDiscount">
+          <DataField>SalesInvHeaderTotalAmountExclInvDiscount</DataField>
+        </Field>
+        <Field Name="SalesInvHeaderTotalAmountExclInvDiscountFormat">
+          <DataField>SalesInvHeaderTotalAmountExclInvDiscountFormat</DataField>
+        </Field>
+        <Field Name="SalesInvHeaderTotalAmountInclVAT">
+          <DataField>SalesInvHeaderTotalAmountInclVAT</DataField>
+        </Field>
+        <Field Name="SalesInvHeaderTotalAmountInclVATFormat">
+          <DataField>SalesInvHeaderTotalAmountInclVATFormat</DataField>
+        </Field>
+        <Field Name="SalesInvHeaderTotalVATAmount">
+          <DataField>SalesInvHeaderTotalVATAmount</DataField>
+        </Field>
+        <Field Name="SalesInvHeaderTotalVATAmountFormat">
+          <DataField>SalesInvHeaderTotalVATAmountFormat</DataField>
+        </Field>
+        <Field Name="SalesInvHeaderTotalInvDiscountAmount">
+          <DataField>SalesInvHeaderTotalInvDiscountAmount</DataField>
+        </Field>
+        <Field Name="SalesInvHeaderTotalInvDiscountAmountFormat">
+          <DataField>SalesInvHeaderTotalInvDiscountAmountFormat</DataField>
         </Field>
         <Field Name="AmountExclInvDisc">
           <DataField>AmountExclInvDisc</DataField>

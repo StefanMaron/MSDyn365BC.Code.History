@@ -488,6 +488,8 @@ page 379 "Bank Acc. Reconciliation"
             UpdatedBankAccountLESubpageStementDate := Rec."Statement Date";
             UpdatedBankAccountLESystemId := Rec.SystemId;
         end;
+
+        CurrPage.ApplyBankLedgerEntries.Page.SetBankRecDateFilter(Rec.MatchCandidateFilterDate());
         CurrPage.ApplyBankLedgerEntries.Page.AssignBankAccReconciliation(Rec);
     end;
 
