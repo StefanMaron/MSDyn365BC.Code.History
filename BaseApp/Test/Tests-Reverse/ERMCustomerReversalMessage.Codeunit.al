@@ -216,7 +216,7 @@ codeunit 134127 "ERM Customer Reversal Message"
         // Setup: Create Customer, Make document line and Post from General Journal and set "Privacy Blocked" := TRUE;
         TransactionNo := CommonReversalSetup(Customer, DocumentType, BlockedType, Amount);
         Customer.Validate("Privacy Blocked", true);
-        Customer.Modify;
+        Customer.Modify();
 
         // Exercise: Reverse Invoice entries for Blocked Customer.
         ReversalEntry.SetHideDialog(true);
@@ -429,7 +429,7 @@ codeunit 134127 "ERM Customer Reversal Message"
         LibraryERMCountryData.UpdateLocalData;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Customer Reversal Message");
     end;
 

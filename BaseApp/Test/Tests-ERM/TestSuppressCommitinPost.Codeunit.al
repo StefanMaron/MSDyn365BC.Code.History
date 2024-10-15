@@ -209,7 +209,7 @@ codeunit 134071 "Test Suppress Commit in Post"
         // Setup
         Initialize();
         LibrarySales.CreateSalesInvoice(SalesHeader);
-        Commit;
+        Commit();
 
         // Exercise
         CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
@@ -230,7 +230,7 @@ codeunit 134071 "Test Suppress Commit in Post"
         // Setup
         Initialize();
         LibrarySales.CreateSalesInvoice(SalesHeader);
-        Commit;
+        Commit();
 
         // Exercise
         SalesPost.SetSuppressCommit(true);
@@ -251,7 +251,7 @@ codeunit 134071 "Test Suppress Commit in Post"
         // Setup
         Initialize();
         LibrarySales.CreateSalesInvoice(SalesHeader);
-        Commit;
+        Commit();
 
         // Exercise
         SalesPost.SetPreviewMode(true);
@@ -275,12 +275,12 @@ codeunit 134071 "Test Suppress Commit in Post"
         LibrarySales.CreateSalesOrder(SalesHeader);
         SalesHeader.Ship := true;
         SalesHeader.Invoice := true;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         LibrarySales.CreateSalesOrder(SalesHeader2);
         SalesHeader2.Ship := true;
         SalesHeader2.Invoice := true;
-        SalesHeader2.Modify;
+        SalesHeader2.Modify();
 
         // [WHEN] The same Sales-post is called for 2 different sales orders
         SalesPost.Run(SalesHeader);
@@ -302,11 +302,11 @@ codeunit 134071 "Test Suppress Commit in Post"
         Initialize();
         LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
         PurchaseHeader.Receive := true;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
 
         LibraryPurchase.CreatePurchaseOrder(PurchaseHeader2);
         PurchaseHeader2.Receive := true;
-        PurchaseHeader2.Modify;
+        PurchaseHeader2.Modify();
 
         // [WHEN] The same Purch-post is called for 2 different purchase orders
         PurchPost.Run(PurchaseHeader);
@@ -326,7 +326,7 @@ codeunit 134071 "Test Suppress Commit in Post"
         // Setup
         Initialize();
         CreateSalesOrderForPrePayment(SalesHeader);
-        Commit;
+        Commit();
 
         // Exercise
         SalesPostPrepayments.SetSuppressCommit(false);
@@ -356,7 +356,7 @@ codeunit 134071 "Test Suppress Commit in Post"
         // Setup
         Initialize();
         CreateSalesOrderForPrePayment(SalesHeader);
-        Commit;
+        Commit();
 
         // Exercise
         SalesPostPrepayments.SetSuppressCommit(true);
@@ -387,7 +387,7 @@ codeunit 134071 "Test Suppress Commit in Post"
         Initialize();
         CreateSalesOrderWithSpecialOrderAndDropShipment(SalesHeader);
         CreateRequisitionLines(RequisitionLine, SalesHeader);
-        Commit;
+        Commit();
 
         // Exercise
         CarryOutActionsOnReqWksheetWithCommit(RequisitionLine);
@@ -413,7 +413,7 @@ codeunit 134071 "Test Suppress Commit in Post"
         Initialize();
         CreateSalesOrderWithSpecialOrderAndDropShipment(SalesHeader);
         CreateRequisitionLines(RequisitionLine, SalesHeader);
-        Commit;
+        Commit();
 
         // Exercise
         CarryOutActionsOnReqWksheetWithoutCommit(RequisitionLine);
@@ -444,7 +444,7 @@ codeunit 134071 "Test Suppress Commit in Post"
         // Setup
         Initialize();
         CreateTransferOrder(TransferHeader, Item, OriginalQuantity, TransferQuantity, FromLocationCode, ToLocationCode);
-        Commit;
+        Commit();
 
         // Exercise
         PostTransferOrderWithCommit(TransferHeader);
@@ -477,7 +477,7 @@ codeunit 134071 "Test Suppress Commit in Post"
         // Setup
         Initialize();
         CreateTransferOrder(TransferHeader, Item, OriginalQuantity, TransferQuantity, FromLocationCode, ToLocationCode);
-        Commit;
+        Commit();
 
         // Exercise
         PostTransferOrderWithoutCommit(TransferHeader);
@@ -788,7 +788,7 @@ codeunit 134071 "Test Suppress Commit in Post"
 
     local procedure FindSpecialOrderAndDropShipmentSalesLine(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SpecialOrder: Boolean; DropShipment: Boolean)
     begin
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange(Type, SalesLine.Type::Item);
@@ -839,7 +839,7 @@ codeunit 134071 "Test Suppress Commit in Post"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        PurchaseLine.Reset;
+        PurchaseLine.Reset();
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", SalesLine."No.");
@@ -849,7 +849,7 @@ codeunit 134071 "Test Suppress Commit in Post"
 
     local procedure FindSpecialOrderPurchaseLine(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; SalesLine: Record "Sales Line")
     begin
-        PurchaseLine.Reset;
+        PurchaseLine.Reset();
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("No.", SalesLine."No.");
         PurchaseLine.SetRange("Special Order Sales No.", SalesLine."Document No.");
@@ -858,7 +858,7 @@ codeunit 134071 "Test Suppress Commit in Post"
 
     local procedure FindDropShipmentPurchaseLine(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; SalesLine: Record "Sales Line")
     begin
-        PurchaseLine.Reset;
+        PurchaseLine.Reset();
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("No.", SalesLine."No.");
         PurchaseLine.SetRange("Sales Order No.", SalesLine."Document No.");
@@ -1074,10 +1074,10 @@ codeunit 134071 "Test Suppress Commit in Post"
         CreateCustomerForPrePayment(Customer, GLAccount);
         NoSeries.Get(LibraryERM.CreateNoSeriesCode);
         NoSeries."Date Order" := true;
-        NoSeries.Modify;
+        NoSeries.Modify();
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         SalesHeader."Prepayment No. Series" := NoSeries.Code;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", CopyStr(GLAccount.Name, 1, 20), 1);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
         SalesLine.Modify(true);
@@ -1098,7 +1098,7 @@ codeunit 134071 "Test Suppress Commit in Post"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         VATPostingSetup.SetRange("VAT Bus. Posting Group", VATBusPostingGroup);
-        VATPostingSetup.DeleteAll;
+        VATPostingSetup.DeleteAll();
     end;
 
     local procedure VerifyPrePaymentAmounts(SalesHeader: Record "Sales Header"; PrePaymentAmount: Decimal)

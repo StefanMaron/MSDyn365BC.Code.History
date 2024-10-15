@@ -755,7 +755,7 @@ codeunit 139056 "Outlook Add-in Commands"
         VendorNo := CreateCompanyContactWithVendorWithEmail(Email, VendorContactNo);
         CustomerNo := CreateCompanyContactWithCustomerWithEmail(Email, CustomerContactNo);
 
-        Contact.Init;
+        Contact.Init();
         Contact.Type := Contact.Type::Person;
         Contact."E-Mail" := Email;
         Contact."Company No." := CustomerContactNo;
@@ -839,7 +839,7 @@ codeunit 139056 "Outlook Add-in Commands"
 
         AddinManifestManagement.CreateDefaultAddins(OfficeAddin);
         Clear(TempOfficeAddinContext);
-        TempOfficeAddinContext.Init;
+        TempOfficeAddinContext.Init();
         AddinManifestManagement.GetAddinByHostType(OfficeAddin, OfficeHostType.OutlookItemRead);
         TempOfficeAddinContext.SetRange(Version, OfficeAddin.Version);
         Clear(LibraryOfficeHostProvider);
@@ -862,7 +862,7 @@ codeunit 139056 "Outlook Add-in Commands"
         OfficeManagement: Codeunit "Office Management";
         OfficeHost: DotNet OfficeHost;
     begin
-        OfficeAddinContext.DeleteAll;
+        OfficeAddinContext.DeleteAll();
         SetOfficeHostUnAvailable;
 
         SetOfficeHostProvider(CODEUNIT::"Library - Office Host Provider");
@@ -876,8 +876,8 @@ codeunit 139056 "Outlook Add-in Commands"
     begin
         // Test Providers checks whether we have registered Host in NameValueBuffer or not
         if NameValueBuffer.Get(SessionId) then begin
-            NameValueBuffer.Delete;
-            Commit;
+            NameValueBuffer.Delete();
+            Commit();
         end;
     end;
 
@@ -885,9 +885,9 @@ codeunit 139056 "Outlook Add-in Commands"
     var
         OfficeAddinSetup: Record "Office Add-in Setup";
     begin
-        OfficeAddinSetup.Get;
+        OfficeAddinSetup.Get();
         OfficeAddinSetup."Office Host Codeunit ID" := ProviderId;
-        OfficeAddinSetup.Modify;
+        OfficeAddinSetup.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -988,7 +988,7 @@ codeunit 139056 "Outlook Add-in Commands"
         No := SMBOfficePages.CreateContactFromVendor(Email, ContactNo, NewBusRelCode, true);
         Contact.Get(ContactNo);
         Contact.Type := Contact.Type::Company;
-        Contact.Modify;
+        Contact.Modify();
 
         TempOfficeAddinContext.SetFilter(Email, Email);
     end;

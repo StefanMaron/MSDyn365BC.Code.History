@@ -10,10 +10,15 @@ codeunit 1637 "Office Document Handler"
     var
         DocDoesNotExistMsg: Label 'Cannot find a document with the number %1.', Comment = '%1=The document number the hyperlink is attempting to open.';
         SuggestedItemsDisabledTxt: Label 'The suggested line items page has been disabled by the user.', Locked = true;
+        DocumentMatchedTelemetryTxt: Label 'Outlook Document View loaded%1  Documents matched: %2%1  Document Series: %3%1  Document Type: %4', Locked = true;
+        CreateSalesDocTelemetryTxt: Label 'Creating Sales %1 from Outlook add-in.', Locked = true;
+        CreatePurchDocTelemetryTxt: Label 'Creating Purchase %1 from Outlook add-in.', Locked = true;
 
     procedure RedirectToDocument(TempOfficeAddinContext: Record "Office Add-in Context" temporary)
     var
         TempOfficeDocumentSelection: Record "Office Document Selection" temporary;
+        OfficeMgt: Codeunit "Office Management";
+        TypeHelper: Codeunit "Type Helper";
         DocNos: DotNet String;
         Separator: DotNet String;
         DocNo: Code[20];
@@ -24,6 +29,13 @@ codeunit 1637 "Office Document Handler"
             TempOfficeAddinContext."Regular Expression Match" := DocNo;
             CollectDocumentMatches(TempOfficeDocumentSelection, DocNo, TempOfficeAddinContext);
         end;
+
+        SendTraceTag('0000ACS', Officemgt.GetOfficeAddinTelemetryCategory(), Verbosity::Normal,
+            StrSubstNo(DocumentMatchedTelemetryTxt,
+                TypeHelper.NewLine(),
+                TempOfficeDocumentSelection.Count(),
+                Format(TempOfficeDocumentSelection.Series),
+                Format(TempOfficeDocumentSelection."Document Type")), DataClassification::SystemMetadata);
 
         case TempOfficeDocumentSelection.Count of
             0:
@@ -126,13 +138,13 @@ codeunit 1637 "Office Document Handler"
 
     local procedure CreateDocumentMatchRecord(var TempOfficeDocumentSelection: Record "Office Document Selection" temporary; Series: Option; DocType: Option; DocNo: Code[20]; Posted: Boolean; DocDate: Date)
     begin
-        TempOfficeDocumentSelection.Init;
+        TempOfficeDocumentSelection.Init();
         TempOfficeDocumentSelection.Validate("Document No.", DocNo);
         TempOfficeDocumentSelection.Validate("Document Date", DocDate);
         TempOfficeDocumentSelection.Validate("Document Type", DocType);
         TempOfficeDocumentSelection.Validate(Series, Series);
         TempOfficeDocumentSelection.Validate(Posted, Posted);
-        if not TempOfficeDocumentSelection.Insert then;
+        if not TempOfficeDocumentSelection.Insert() then;
     end;
 
     local procedure DocumentDoesNotExist(DocumentNo: Text[250])
@@ -399,7 +411,7 @@ codeunit 1637 "Office Document Handler"
         OfficeMgt.GetContext(TempOfficeAddinContext);
         if TempOfficeAddinContext.IsAppointment then begin
             if OfficeInvoice.Get(TempOfficeAddinContext."Item ID", Rec."No.", false) then
-                OfficeInvoice.Delete;
+                OfficeInvoice.Delete();
         end;
     end;
 
@@ -410,12 +422,12 @@ codeunit 1637 "Office Document Handler"
         if ItemID = '' then
             exit;
 
-        OfficeInvoice.Init;
+        OfficeInvoice.Init();
         OfficeInvoice."Item ID" := ItemID;
         OfficeInvoice."Document No." := DocNo;
         OfficeInvoice.Posted := Posted;
-        if not OfficeInvoice.Insert then
-            OfficeInvoice.Modify;
+        if not OfficeInvoice.Insert() then
+            OfficeInvoice.Modify();
     end;
 
     [EventSubscriber(ObjectType::Page, 1637, 'OnDisableMessage', '', false, false)]
@@ -425,7 +437,8 @@ codeunit 1637 "Office Document Handler"
         OfficeMgt: Codeunit "Office Management";
     begin
         InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.AutomaticLineItemsDialogCode);
-        SendTraceTag('00001KG', OfficeMgt.TraceCategory, VERBOSITY::Verbose, SuggestedItemsDisabledTxt, DATACLASSIFICATION::SystemMetadata);
+        SendTraceTag('00001KG', OfficeMgt.GetOfficeAddinTelemetryCategory(), Verbosity::Normal,
+            SuggestedItemsDisabledTxt, DataClassification::SystemMetadata);
     end;
 
     [EventSubscriber(ObjectType::Table, 38, 'OnAfterInsertEvent', '', false, false)]
@@ -440,6 +453,9 @@ codeunit 1637 "Office Document Handler"
         if not OfficeMgt.IsAvailable then
             exit;
 
+        SendTraceTag('0000ACY', OfficeMgt.GetOfficeAddinTelemetryCategory(), Verbosity::Normal,
+            StrSubstNo(CreatePurchDocTelemetryTxt, Format(Rec."Document Type")), DataClassification::SystemMetadata);
+
         HeaderRecRef.GetTable(Rec);
         GenerateLinesForDocument(HeaderRecRef);
     end;
@@ -452,6 +468,9 @@ codeunit 1637 "Office Document Handler"
     begin
         if not OfficeMgt.IsAvailable then
             exit;
+
+        SendTraceTag('0000ACZ', OfficeMgt.GetOfficeAddinTelemetryCategory(), Verbosity::Normal,
+            StrSubstNo(CreateSalesDocTelemetryTxt, Format(Rec."Document Type")), DataClassification::SystemMetadata);
 
         // Do not generate lines if there was already a quote
         if Rec."Quote No." <> '' then
@@ -493,7 +512,7 @@ codeunit 1637 "Office Document Handler"
             OfficeMgt.GetContext(TempOfficeAddinContext);
             EmailBody := OfficeMgt.GetEmailBody(TempOfficeAddinContext);
             OnGenerateLinesFromText(HeaderRecRef, TempOfficeSuggestedLineItem, EmailBody);
-            Commit;
+            Commit();
 
             ConvertSuggestedLinesToDocumentLines(TempOfficeSuggestedLineItem, HeaderRecRef);
         end;

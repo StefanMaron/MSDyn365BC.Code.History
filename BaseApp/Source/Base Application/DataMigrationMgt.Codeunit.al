@@ -19,7 +19,7 @@ codeunit 1798 "Data Migration Mgt."
             DataMigrationStatus.SetRange(Status, DataMigrationStatus.Status::Pending);
             DataMigrationFacade.OnFillStagingTables;
             // Close the transaction here otherwise the CODEUNIT.RUN cannot be invoked
-            Commit;
+            Commit();
         end else
             DataMigrationStatus.SetRange(Status, DataMigrationStatus.Status::"Completed with Errors");
 
@@ -90,7 +90,7 @@ codeunit 1798 "Data Migration Mgt."
                   DataMigrationStatus."Destination Table ID", DataMigrationStatus.Status::"In Progress");
                 DataMigrationError.ClearEntryNoStagingTable(DataMigrationStatus."Migration Type",
                   DataMigrationStatus."Destination Table ID");
-                Commit; // save the dashboard before calling the extension codeunit
+                Commit(); // save the dashboard before calling the extension codeunit
                 if CODEUNIT.Run(DataMigrationStatus."Migration Codeunit To Run") then begin
                     DataMigrationStatus.Get(DataMigrationStatus."Migration Type", DataMigrationStatus."Destination Table ID");
                     if DataMigrationStatus."Migrated Number" = 0 then
@@ -109,7 +109,7 @@ codeunit 1798 "Data Migration Mgt."
                       DataMigrationStatus.Status::Failed);
                 end;
             end;
-        Commit; // save the dashboard as the job could fail on the next task
+        Commit(); // save the dashboard as the job could fail on the next task
     end;
 
     local procedure StagingTableEntityMigration(DataMigrationStatus: Record "Data Migration Status"; BaseAppCodeunitToRun: Integer; Retry: Boolean)
@@ -128,7 +128,7 @@ codeunit 1798 "Data Migration Mgt."
                 if AbortRequested then
                     exit;
 
-                DataMigrationError.Reset;
+                DataMigrationError.Reset();
                 if not Retry or
                    (Retry and
                     DataMigrationError.FindEntry(DataMigrationStatus."Migration Type",
@@ -137,12 +137,12 @@ codeunit 1798 "Data Migration Mgt."
                 then begin
                     Count += 1;
 
-                    TempDataMigrationParametersBatch.Init;
+                    TempDataMigrationParametersBatch.Init();
                     TempDataMigrationParametersBatch.Key := Count;
                     TempDataMigrationParametersBatch."Migration Type" := DataMigrationStatus."Migration Type";
                     TempDataMigrationParametersBatch."Staging Table Migr. Codeunit" := DataMigrationStatus."Migration Codeunit To Run";
                     TempDataMigrationParametersBatch."Staging Table RecId To Process" := StagingTableRecRef.RecordId;
-                    TempDataMigrationParametersBatch.Insert;
+                    TempDataMigrationParametersBatch.Insert();
 
                     DataMigrationError.ClearEntry(DataMigrationStatus."Migration Type",
                       DataMigrationStatus."Destination Table ID",
@@ -150,10 +150,10 @@ codeunit 1798 "Data Migration Mgt."
                 end;
                 if Count = 100 then begin
                     // try to process batch
-                    Commit; // to save the transaction that has deleted the errors
+                    Commit(); // to save the transaction that has deleted the errors
                     ProcessBatch(DataMigrationStatus, BaseAppCodeunitToRun, TempDataMigrationParametersBatch, Count);
                     Count := 0;
-                    TempDataMigrationParametersBatch.DeleteAll;
+                    TempDataMigrationParametersBatch.DeleteAll();
                 end;
             until StagingTableRecRef.Next = 0;
 
@@ -161,7 +161,7 @@ codeunit 1798 "Data Migration Mgt."
                 exit;
 
             if Count > 0 then begin
-                Commit; // to save the transaction that has deleted the errors
+                Commit(); // to save the transaction that has deleted the errors
                 ProcessBatch(DataMigrationStatus, BaseAppCodeunitToRun, TempDataMigrationParametersBatch, Count);
             end;
         end;
@@ -187,26 +187,26 @@ codeunit 1798 "Data Migration Mgt."
             // the batch was processed fine, update the dashboard
             DataMigrationStatusFacade.IncrementMigratedRecordCount(DataMigrationStatus."Migration Type",
               DataMigrationStatus."Destination Table ID", Count);
-            Commit; // save the dashboard status before calling the next Codeunit.RUN
+            Commit(); // save the dashboard status before calling the next Codeunit.RUN
         end else begin
             // the batch processing failed
             TempDataMigrationParametersBatch.FindSet;
             repeat
                 // process one by one
-                TempDataMigrationParametersSingle.DeleteAll;
-                TempDataMigrationParametersSingle.Init;
+                TempDataMigrationParametersSingle.DeleteAll();
+                TempDataMigrationParametersSingle.Init();
                 TempDataMigrationParametersSingle.TransferFields(TempDataMigrationParametersBatch);
-                TempDataMigrationParametersSingle.Insert;
+                TempDataMigrationParametersSingle.Insert();
 
                 if CODEUNIT.Run(BaseAppCodeunitToRun, TempDataMigrationParametersSingle) then begin
                     // single record processing succeeded, update dashboard
                     DataMigrationStatusFacade.IncrementMigratedRecordCount(DataMigrationStatus."Migration Type",
                       DataMigrationStatus."Destination Table ID", 1);
-                    Commit; // save the dashboard status before calling the next Codeunit.RUN
+                    Commit(); // save the dashboard status before calling the next Codeunit.RUN
                 end else begin
                     DataMigrationError.CreateEntry(DataMigrationStatus."Migration Type",
                       DataMigrationStatus."Destination Table ID", TempDataMigrationParametersSingle."Staging Table RecId To Process");
-                    Commit; // save the new errors discovered
+                    Commit(); // save the new errors discovered
                 end;
             until TempDataMigrationParametersBatch.Next = 0;
         end;
@@ -226,7 +226,7 @@ codeunit 1798 "Data Migration Mgt."
     local procedure CheckAbortRequestedAndMigrateEntity(var DataMigrationStatus: Record "Data Migration Status"; DestinationTableId: Integer; BaseAppCodeunitToRun: Integer; ReRun: Boolean): Boolean
     begin
         if AbortRequested then begin
-            DataMigrationStatus.Reset;
+            DataMigrationStatus.Reset();
             DataMigrationStatus.SetRange("Migration Type", DataMigrationStatus."Migration Type");
             SetAbortStatus(DataMigrationStatus);
             OnAfterMigrationFinished(DataMigrationStatus, true, StartTime, ReRun);
@@ -240,7 +240,7 @@ codeunit 1798 "Data Migration Mgt."
     local procedure CheckAbortAndMigrateRemainingEntities(DataMigrationStatus: Record "Data Migration Status"; Retry: Boolean)
     begin
         if AbortRequested then begin
-            DataMigrationStatus.Reset;
+            DataMigrationStatus.Reset();
             DataMigrationStatus.SetRange("Migration Type", DataMigrationStatus."Migration Type");
             SetAbortStatus(DataMigrationStatus);
             OnAfterMigrationFinished(DataMigrationStatus, true, StartTime, Retry);
@@ -363,7 +363,7 @@ codeunit 1798 "Data Migration Mgt."
         if CheckExistingData then
             CheckDataAlreadyExist(MigrationType, Retry);
 
-        DataMigrationStatus.Reset;
+        DataMigrationStatus.Reset();
         DataMigrationStatus.SetRange("Migration Type", MigrationType);
         if not Retry then begin
             DataMigrationStatus.SetRange(Status, DataMigrationStatus.Status::Pending);
@@ -371,12 +371,12 @@ codeunit 1798 "Data Migration Mgt."
                 repeat
                     DataMigrationError.SetRange("Migration Type", MigrationType);
                     DataMigrationError.SetRange("Destination Table ID", DataMigrationStatus."Destination Table ID");
-                    DataMigrationError.DeleteAll;
+                    DataMigrationError.DeleteAll();
                 until DataMigrationStatus.Next = 0;
         end else
             DataMigrationStatus.SetRange(Status, DataMigrationStatus.Status::"Completed with Errors");
 
-        Commit; // commit the dashboard changes so the OnRun call on the migration codeunit will not fail because of this uncommited transaction
+        Commit(); // commit the dashboard changes so the OnRun call on the migration codeunit will not fail because of this uncommited transaction
 
         if Retry then
             JobParameters := RetryTxt;

@@ -33,11 +33,11 @@ codeunit 9180 "Generic Chart Mgt"
         FilterText: Text[250];
         CaptionCode: Code[10];
     begin
-        TempGenericChartSetup.DeleteAll;
+        TempGenericChartSetup.DeleteAll();
         Clear(TempGenericChartSetup);
-        TempGenericChartCaptionsBuf.DeleteAll;
+        TempGenericChartCaptionsBuf.DeleteAll();
         Clear(TempGenericChartCaptionsBuf);
-        TempGenericChartMemoBuf.DeleteAll;
+        TempGenericChartMemoBuf.DeleteAll();
         Clear(TempGenericChartMemoBuf);
         if not GetChartBuilder(Chart, chartBuilder) then
             exit;
@@ -86,7 +86,7 @@ codeunit 9180 "Generic Chart Mgt"
 
         // Measures:
         with TempGenericChartYAxis do begin
-            DeleteAll;
+            DeleteAll();
             CaptionCode := RequiredMeasureCode;
             for i := 0 to chartBuilder.MeasureCount - 1 do begin
                 Init;
@@ -433,22 +433,22 @@ codeunit 9180 "Generic Chart Mgt"
     [Scope('OnPrem')]
     procedure GetQueryColumnList(var TempGenericChartQueryColumn: Record "Generic Chart Query Column" temporary; ObjID: Integer; ColFilter: Integer; FilteringLookup: Boolean)
     var
-        NAVAppObjectMetadata: Record "NAV App Object Metadata";
+        ApplicationObjectMetadata: Record "Application Object Metadata";
         AllObj: Record AllObj;
         metaData: DotNet QueryMetadataReader;
         inStream: InStream;
     begin
         // Colfilter: = 0: All, 1: Only text etc (X- and Z-Axis), 2: Only decimal and integer (Y-axis)
         Clear(TempGenericChartQueryColumn);
-        TempGenericChartQueryColumn.DeleteAll;
+        TempGenericChartQueryColumn.DeleteAll();
 
         AllObj.Get(AllObj."Object Type"::Query, ObjID);
-        if not NAVAppObjectMetadata.Get(AllObj."App Package ID", NAVAppObjectMetadata."Object Type"::Query, ObjID) then
+        if not ApplicationObjectMetadata.Get(AllObj."App Runtime Package ID", ApplicationObjectMetadata."Object Type"::Query, ObjID) then
             exit;
-        if not NAVAppObjectMetadata.Metadata.HasValue then
+        if not ApplicationObjectMetadata.Metadata.HasValue then
             exit;
-        NAVAppObjectMetadata.CalcFields(Metadata);
-        NAVAppObjectMetadata.Metadata.CreateInStream(inStream);
+        ApplicationObjectMetadata.CalcFields(Metadata);
+        ApplicationObjectMetadata.Metadata.CreateInStream(inStream);
 
         // Load into Query Metadata Reader and retrieve values
         metaData := metaData.FromStream(inStream);
@@ -530,7 +530,7 @@ codeunit 9180 "Generic Chart Mgt"
                 repeat
                     j += 1;
                     TempGenericChartQueryColumn."Entry No." := j;
-                until TempGenericChartQueryColumn.Insert;
+                until TempGenericChartQueryColumn.Insert();
             end;
         end;
     end;
@@ -603,7 +603,7 @@ codeunit 9180 "Generic Chart Mgt"
     [Scope('OnPrem')]
     procedure ChartCustomization(var TempChart: Record Chart temporary): Boolean
     begin
-        TempChart.Insert;
+        TempChart.Insert();
         if NoOfMeasuresApplied(TempChart) > GetMaxNoOfMeasures then begin
             Message(Text003, GetMaxNoOfMeasures);
             exit(false);
@@ -700,7 +700,7 @@ codeunit 9180 "Generic Chart Mgt"
         i: Integer;
     begin
         with TempGenericChartFilter do begin
-            DeleteAll;
+            DeleteAll();
             case TempGenericChartSetup."Source Type" of
                 TempGenericChartSetup."Source Type"::Table:
                     for i := 0 to chartBuilder.TableFilterCount - 1 do begin
@@ -850,7 +850,7 @@ codeunit 9180 "Generic Chart Mgt"
             repeat
                 LanguageId := Language.GetLanguageId(TempGenericChartCaptionsBuf."Language Code");
                 if LanguageId <> 0 then
-                    MultilanguageText.SetText(LanguageId,TempGenericChartCaptionsBuf.Caption);
+                    MultilanguageText.SetText(LanguageId, TempGenericChartCaptionsBuf.Caption);
             until TempGenericChartCaptionsBuf.Next = 0;
         TempGenericChartCaptionsBuf.SetRange(Code)
     end;
@@ -862,14 +862,14 @@ codeunit 9180 "Generic Chart Mgt"
         Index: Integer;
     begin
         TempGenericChartCaptionsBuf.SetRange(Code, CaptionCode);
-        TempGenericChartCaptionsBuf.DeleteAll;
+        TempGenericChartCaptionsBuf.DeleteAll();
         TempGenericChartCaptionsBuf.Code := CaptionCode;
         for Index := 0 to MultilanguageText.Count - 1 do begin
             LanguageCode := Language.GetLanguageCode(MultilanguageText.GetWindowsLanguageIdAt(Index));
             if LanguageCode <> '' then begin
                 TempGenericChartCaptionsBuf."Language Code" := LanguageCode;
                 TempGenericChartCaptionsBuf.Caption := MultilanguageText.GetTextAt(Index);
-                if TempGenericChartCaptionsBuf.Insert then;
+                if TempGenericChartCaptionsBuf.Insert() then;
             end;
         end;
         TempGenericChartCaptionsBuf.SetRange(Code)
@@ -886,7 +886,7 @@ codeunit 9180 "Generic Chart Mgt"
             repeat
                 Language.GetLanguageId(TempGenericChartMemoBuf."Language Code");
                 if LanguageId <> 0 then
-                    MultilanguageText.SetText(LanguageId,TempGenericChartMemoBuf.GetMemoText);
+                    MultilanguageText.SetText(LanguageId, TempGenericChartMemoBuf.GetMemoText);
             until TempGenericChartMemoBuf.Next = 0;
         TempGenericChartMemoBuf.SetRange(Code)
     end;
@@ -898,14 +898,14 @@ codeunit 9180 "Generic Chart Mgt"
         Index: Integer;
     begin
         TempGenericChartMemoBuf.SetRange(Code, MemoCode);
-        TempGenericChartMemoBuf.DeleteAll;
+        TempGenericChartMemoBuf.DeleteAll();
         TempGenericChartMemoBuf.Code := MemoCode;
         for Index := 0 to MultilanguageText.Count - 1 do begin
             LanguageCode := Language.GetLanguageCode(MultilanguageText.GetWindowsLanguageIdAt(Index));
             if LanguageCode <> '' then begin
                 TempGenericChartMemoBuf."Language Code" := LanguageCode;
                 TempGenericChartMemoBuf.SetMemoText(MultilanguageText.GetTextAt(Index));
-                if TempGenericChartMemoBuf.Insert then;
+                if TempGenericChartMemoBuf.Insert() then;
             end;
         end;
         TempGenericChartMemoBuf.SetRange(Code);

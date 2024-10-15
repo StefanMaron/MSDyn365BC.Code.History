@@ -53,7 +53,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Costing Rollup Sev 4");
     end;
 
@@ -138,12 +138,12 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         LibraryPatterns.MAKEItemChargePurchaseLine(PurchaseLine, ItemCharge, PurchaseHeader, 1, 1500);
         SalesShptLine."Item Charge Base Amount" := PurchaseLine.Amount;
-        SalesShptLine.Modify;
+        SalesShptLine.Modify();
         LibraryPurchase.CreateItemChargeAssignment(ItemChargeAssignmentPurch, PurchaseLine, ItemCharge,
           ItemChargeAssignmentPurch."Applies-to Doc. Type"::"Sales Shipment",
           SalesShptLine."Document No.", SalesShptLine."Line No.",
           SalesShptLine."No.", 1, 1500);
-        ItemChargeAssignmentPurch.Insert;
+        ItemChargeAssignmentPurch.Insert();
         ItemChargeAssgntPurch.SuggestAssgnt(PurchaseLine, PurchaseLine.Quantity, PurchaseLine."Line Amount");
 
         // Execute: Adjust and post to G/L.
@@ -220,7 +220,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::FIFO, LibraryRandom.RandDec(10, 2));
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
         Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
-        Item.Modify;
+        Item.Modify();
 
         LotNo := LibraryUtility.GenerateRandomCode(ReservationEntry.FieldNo("Lot No."), DATABASE::"Reservation Entry");
         Qty := LibraryRandom.RandDecInRange(100, 200, 2);
@@ -367,7 +367,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
 
         // Verify: the unit cost on the item card is updated when we have negative qty on hand
         Item.Get(Item."No.");
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(UnitAmount, Item."Unit Cost", GeneralLedgerSetup."Amount Rounding Precision",
           'Item unit cost is updated in situations with negative qty on hand');
     end;
@@ -458,7 +458,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         ItemLedgerEntry.SetRange("Item No.", ParentItem."No.");
         ItemLedgerEntry.FindFirst;
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ParentItem.Get(ParentItem."No.");
         ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
         Assert.AreNearlyEqual(ParentItem."Unit Cost" * ItemLedgerEntry.Quantity,
@@ -541,7 +541,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
           'Component specified in its alternative unit of measure');
 
         // Verify: The unit cost of the component has been updated to reflect the UOM used
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ChildItem.Get(ChildItem."No.");
         Assert.AreNearlyEqual(ProdOrderLine."Unit Cost",
           ChildItem."Unit Cost" * NonBaseChildItemUOM."Qty. per Unit of Measure",
@@ -811,9 +811,9 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         Initialize;
 
         // Setup: Create new inventory period ending date being 20 days from WORKDATE
-        InventoryPeriod.Init;
+        InventoryPeriod.Init();
         InventoryPeriod."Ending Date" := CalcDate('<20D>', WorkDate);
-        InventoryPeriod.Insert;
+        InventoryPeriod.Insert();
 
         // Setup: Make item, post purchase, post sales.
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, 0);

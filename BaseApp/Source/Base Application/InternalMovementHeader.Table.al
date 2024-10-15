@@ -11,7 +11,7 @@ table 7346 "Internal Movement Header"
 
             trigger OnValidate()
             begin
-                InvtSetup.Get;
+                InvtSetup.Get();
                 if "No." <> xRec."No." then begin
                     NoSeriesMgt.TestManual(InvtSetup."Internal Movement Nos.");
                     "No. Series" := '';
@@ -117,11 +117,9 @@ table 7346 "Internal Movement Header"
         {
             Caption = 'Due Date';
         }
-        field(12; "Sorting Method"; Option)
+        field(12; "Sorting Method"; Enum "Warehouse Internal Sorting Method")
         {
             Caption = 'Sorting Method';
-            OptionCaption = ' ,Item,Shelf or Bin,Due Date';
-            OptionMembers = " ",Item,"Shelf or Bin","Due Date";
 
             trigger OnValidate()
             begin
@@ -150,7 +148,7 @@ table 7346 "Internal Movement Header"
 
     trigger OnInsert()
     begin
-        InvtSetup.Get;
+        InvtSetup.Get();
         if "No." = '' then begin
             InvtSetup.TestField("Internal Movement Nos.");
             NoSeriesMgt.InitSeries(
@@ -182,7 +180,7 @@ table 7346 "Internal Movement Header"
         InternalMovementLine: Record "Internal Movement Line";
         SequenceNo: Integer;
     begin
-        InternalMovementLine.Reset;
+        InternalMovementLine.Reset();
         InternalMovementLine.SetRange("No.", "No.");
         case "Sorting Method" of
             "Sorting Method"::Item:
@@ -197,13 +195,15 @@ table 7346 "Internal Movement Header"
                 end;
             "Sorting Method"::"Due Date":
                 InternalMovementLine.SetCurrentKey("No.", "Due Date");
+            else
+                OnSortWhseDocOnCaseSortingMethodElse(Rec);
         end;
 
         if InternalMovementLine.Find('-') then begin
             SequenceNo := 10000;
             repeat
                 InternalMovementLine."Sorting Sequence No." := SequenceNo;
-                InternalMovementLine.Modify;
+                InternalMovementLine.Modify();
                 SequenceNo := SequenceNo + 10000;
             until InternalMovementLine.Next = 0;
         end;
@@ -211,7 +211,7 @@ table 7346 "Internal Movement Header"
 
     procedure AssistEdit(): Boolean
     begin
-        InvtSetup.Get;
+        InvtSetup.Get();
         InvtSetup.TestField("Internal Movement Nos.");
         if NoSeriesMgt.SelectSeries(InvtSetup."Internal Movement Nos.", xRec."No. Series", "No. Series")
         then begin
@@ -261,7 +261,7 @@ table 7346 "Internal Movement Header"
 
     procedure LookupInternalMovementHeader(var InternalMovementHeader: Record "Internal Movement Header")
     begin
-        Commit;
+        Commit();
         InternalMovementHeader.FilterGroup := 2;
         InternalMovementHeader.SetRange("Location Code");
         if PAGE.RunModal(0, InternalMovementHeader) = ACTION::LookupOK then;
@@ -275,12 +275,12 @@ table 7346 "Internal Movement Header"
         WhseCommentLine: Record "Warehouse Comment Line";
     begin
         InternalMovementLine.SetRange("No.", "No.");
-        InternalMovementLine.DeleteAll;
+        InternalMovementLine.DeleteAll();
 
         WhseCommentLine.SetRange("Table Name", WhseCommentLine."Table Name"::"Internal Movement");
         WhseCommentLine.SetRange(Type, WhseCommentLine.Type::" ");
         WhseCommentLine.SetRange("No.", "No.");
-        WhseCommentLine.DeleteAll;
+        WhseCommentLine.DeleteAll();
 
         ItemTrackingMgt.DeleteWhseItemTrkgLines(
           DATABASE::"Internal Movement Line", 0, "No.", '', 0, 0, '', false);
@@ -327,6 +327,11 @@ table 7346 "Internal Movement Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenInternalMovementHeader(var InternalMovementHeader: Record "Internal Movement Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSortWhseDocOnCaseSortingMethodElse(var InternalMovementHeader: Record "Internal Movement Header")
     begin
     end;
 }

@@ -14,9 +14,9 @@ report 5687 "Copy Depreciation Book"
             begin
                 Window.Update(1, "No.");
                 if Inactive or Blocked then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if not FADeprBook.Get("No.", DeprBookCode) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if not FADeprBook2.Get("No.", DeprBookCode2) then begin
                     FADeprBook2 := FADeprBook;
                     FADeprBook2."Depreciation Book Code" := DeprBookCode2;
@@ -169,7 +169,7 @@ report 5687 "Copy Depreciation Book"
         trigger OnOpenPage()
         begin
             if DeprBookCode = '' then begin
-                FASetup.Get;
+                FASetup.Get();
                 DeprBookCode := FASetup."Default Depr. Book";
             end;
         end;
@@ -236,7 +236,7 @@ report 5687 "Copy Depreciation Book"
         FAInsertGLAcc: Codeunit "FA Insert G/L Account";
     begin
         if FirstGenJnl then begin
-            GenJnlLine.LockTable;
+            GenJnlLine.LockTable();
             FAJnlSetup.GenJnlName(DeprBook2, GenJnlLine, GenJnlNextLineNo);
             NoSeries2 := FAJnlSetup.GetGenNoSeries(GenJnlLine);
             if DocumentNo = '' then
@@ -270,7 +270,7 @@ report 5687 "Copy Depreciation Book"
     local procedure InsertFAJnlLine(var FALedgEntry: Record "FA Ledger Entry")
     begin
         if FirstFAJnl then begin
-            FAJnlLine.LockTable;
+            FAJnlLine.LockTable();
             FAJnlSetup.FAJnlName(DeprBook2, FAJnlLine, FAJnlNextLineNo);
             NoSeries3 := FAJnlSetup.GetFANoSeries(FAJnlLine);
             if DocumentNo = '' then

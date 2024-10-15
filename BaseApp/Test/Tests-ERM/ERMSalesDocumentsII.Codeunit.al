@@ -28,6 +28,7 @@ codeunit 134386 "ERM Sales Documents II"
         LibraryResource: Codeunit "Library - Resource";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         isInitialized: Boolean;
         AmountErr: Label '%1 must be %2 in %3.', Comment = '%1 = Field Name, %2 = Amount, %3 = Table Name';
         PostingErr: Label 'There is nothing to post.';
@@ -42,7 +43,7 @@ codeunit 134386 "ERM Sales Documents II"
         RecurrentExpiredDateErr: Label 'No sales invoice must be created for expired Valid To Date in Standard Customer Sales Code.';
         IncorrectSalesTypeToCopyPricesErr: Label 'To copy sales prices, The Sales Type Filter field must contain Customer.';
         MultipleCustomersSelectedErr: Label 'More than one customer uses these sales prices. To copy prices, the Sales Code Filter field must contain one customer only.';
-        NotExistingFreightGLAccNoErr: Label 'The field %1 of table Sales & Receivables Setup contains a value (%2) that cannot be found in the related table', Comment = '%1 - caption of "Freight G/L Acc. No.", %2 - G/L Account No.';
+        NotExistingFreightGLAccNoErr: Label 'The field Freight G/L Acc. No. of table Sales & Receivables Setup contains a value (%1) that cannot be found in the related table', Comment = '%1 - G\L Acc No';
         ShipToAdressTestValueTxt: Label 'ShipToAdressTestValue';
         EmptyStartingDateRecIsNotFoundErr: Label 'The record with empty starting date field is not found.';
         WorkStartingDateRecIsNotFoundErr: Label 'The record with specified starting date (%1) is not found.';
@@ -177,7 +178,7 @@ codeunit 134386 "ERM Sales Documents II"
         ModifyUnitPrice(SalesHeader);
         PostedSaleInvoiceNo := PostSalesOrder(SalesHeader);
         LibrarySales.CreateSalesHeader(SalesHeader2, SalesHeader2."Document Type"::Invoice, SalesHeader."Sell-to Customer No.");
-        Commit;  // COMMIT is required here.
+        Commit();  // COMMIT is required here.
 
         // Exercise: Copy Sales Document.
         SalesCopyDocument(SalesHeader2, PostedSaleInvoiceNo, DocumentType::"Posted Invoice", false);
@@ -199,7 +200,7 @@ codeunit 134386 "ERM Sales Documents II"
         // Check Document Date correct on sales invoice created from reccuring report
         Initialize;
         CreateStandardSalesLinesWithItemForCustomer(StandardSalesLine, StandardCustomerSalesCode);
-        Commit;
+        Commit();
 
         DocumentDate := WorkDate + LibraryRandom.RandInt(10);
         SalesHeader.Get(SalesHeader."Document Type"::Invoice, RunReccuringSalesIvoice(DocumentDate, StandardSalesLine));
@@ -222,8 +223,8 @@ codeunit 134386 "ERM Sales Documents II"
 
         CreateStandardSalesLinesWithItemForCustomer(StandardSalesLine, StandardCustomerSalesCode);
         StandardCustomerSalesCode."Valid To date" := WorkDate - LibraryRandom.RandInt(10);
-        StandardCustomerSalesCode.Modify;
-        Commit;
+        StandardCustomerSalesCode.Modify();
+        Commit();
         DocumentDate := WorkDate + LibraryRandom.RandInt(10);
         Assert.IsFalse(
           SalesHeader.Get(SalesHeader."Document Type"::Invoice, RunReccuringSalesIvoice(DocumentDate, StandardSalesLine)),
@@ -516,14 +517,17 @@ codeunit 134386 "ERM Sales Documents II"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         SalesPrice: Record "Sales Price";
         SalesInvoice: TestPage "Sales Invoice";
+        PriceListLine: Record "Price List Line";
     begin
         // Verify that the Unit Price of the Sales Price of the Item gets populated on the Sales Invoice Line created for that particular Customer and Item.
 
         // Setup: Set StockOut warning and Credit Warnings,Create a Customer and an Item and set its Sales Price taking random Minimum Quantity and Unit Price.
         Initialize;
+        PriceListLine.DeleteAll();
         UpdateSalesReceivablesSetup(false, SalesReceivablesSetup."Credit Warnings"::"Credit Limit");
         CreateSalesPriceWithUnitPrice(
           SalesPrice, CreateCustomer, CreateItem, LibraryRandom.RandDec(5, 2), LibraryRandom.RandDec(10, 2));
+        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
 
         // Exercise: Create a Sales Invoice for the new Item with Quantity same as Minimum Quantity of Sales Price.
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, SalesPrice."Sales Code");
@@ -543,6 +547,7 @@ codeunit 134386 "ERM Sales Documents II"
         SalesHeader: Record "Sales Header";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         SalesPrice: Record "Sales Price";
+        PriceListLine: Record "Price List Line";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         SalesInvoice: TestPage "Sales Invoice";
         UnitPrice: Decimal;
@@ -552,6 +557,7 @@ codeunit 134386 "ERM Sales Documents II"
 
         // Setup: Set Stock Out warning and Credit Warnings, Create 2 Customers and set Credit Limit for 2nd Customer taking random values.
         Initialize;
+        PriceListLine.DeleteAll();
         UpdateSalesReceivablesSetup(false, SalesReceivablesSetup."Credit Warnings"::"Credit Limit");
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateCustomer(Customer2);
@@ -566,6 +572,7 @@ codeunit 134386 "ERM Sales Documents II"
         CreateSalesPriceWithUnitPrice(
           SalesPrice, Customer."No.", CreateItem, LibraryRandom.RandDec(5, 2), LibraryRandom.RandDec(10, 2));
         CreateSalesPriceWithUnitPrice(SalesPrice, Customer2."No.", SalesPrice."Item No.", SalesPrice."Minimum Quantity", UnitPrice);
+        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
 
         // Create a Sales Invoice for the new Item for 1st Customer with Quantity more than Minimum Quantity of Sales Price.
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
@@ -656,7 +663,7 @@ codeunit 134386 "ERM Sales Documents II"
         VATPostingSetup.SetFilter("VAT Bus. Posting Group", '<>%1', InvSalesHeader."VAT Bus. Posting Group");
         VATPostingSetup.FindFirst;
         InvSalesHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        InvSalesHeader.Modify;
+        InvSalesHeader.Modify();
         SalesLine.Validate("Document Type", InvSalesHeader."Document Type");
         SalesLine.Validate("Document No.", InvSalesHeader."No.");
 
@@ -721,7 +728,7 @@ codeunit 134386 "ERM Sales Documents II"
         SalesHeader.Validate("External Document No.", SalesHeader."Sell-to Customer No.");
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, SalesLine."No.", -LibraryRandom.RandDec(10, 2));
-        Commit;
+        Commit();
         OpenSalesReturnOrder(SalesHeader."No.");
         SalesHeader2.SetRange("Document Type", SalesHeader2."Document Type"::Order);
         SalesHeader2.SetRange("External Document No.", SalesHeader."External Document No.");
@@ -776,13 +783,17 @@ codeunit 134386 "ERM Sales Documents II"
         SalesPrice: Record "Sales Price";
         SalesLineDiscount: Record "Sales Line Discount";
         SalesLine: Record "Sales Line";
+        PriceListLine: Record "Price List Line";
     begin
         // Verify Sales unit Price and Line Discount.
 
         // Setup: Create Sales Price and Sales Line Discount.
         Initialize;
+        PriceListLine.DeleteAll();
         CreateSalesPrice(SalesPrice);
         CreateSalesLineDiscount(SalesLineDiscount, SalesPrice);
+        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
+        CopyFromToPriceListLine.CopyFrom(SalesLineDiscount, PriceListLine);
 
         // Exercise: Create Sales Order.
         CreateSalesOrder(SalesLine, SalesPrice);
@@ -999,7 +1010,7 @@ codeunit 134386 "ERM Sales Documents II"
 
         // Setup: Create Dimension Value.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.CreateDimensionValue(DimensionValue1, GeneralLedgerSetup."Shortcut Dimension 1 Code");
         LibraryDimension.CreateDimensionValue(DimensionValue2, GeneralLedgerSetup."Shortcut Dimension 2 Code");
 
@@ -1119,7 +1130,7 @@ codeunit 134386 "ERM Sales Documents II"
         LibraryVariableStorage.Enqueue(SalesHeader."Sell-to Customer No.");
         LibraryVariableStorage.Enqueue(SalesHeader."Sell-to Customer No.");
         LibrarySales.CreateSalesHeader(SalesHeader2, SalesHeader2."Document Type"::Invoice, SalesHeader."Sell-to Customer No.");
-        Commit;
+        Commit();
 
         // Exercise: Copy Sales Document.
         SalesCopyDocument(SalesHeader2, PostedSaleInvoiceNo, DocumentType::"Posted Invoice", false);
@@ -1211,7 +1222,7 @@ codeunit 134386 "ERM Sales Documents II"
 
         // [GIVEN] Sales - Calc Discount By Type calculation
         SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, SalesHeader);
-        Commit; // Commit to close transaction.
+        Commit(); // Commit to close transaction.
 
         // [WHEN] Delete Sales Line with Item
         DeleteSalesLine(SalesHeader."No.", SalesLine.Type::Item, Item."No.");
@@ -1257,7 +1268,7 @@ codeunit 134386 "ERM Sales Documents II"
 
         // [GIVEN] Sales - Calc Discount By Type calculation
         SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, SalesHeader);
-        Commit; // Commit to close transaction.
+        Commit(); // Commit to close transaction.
 
         // [WHEN] Delete Sales Line with Item
         DeleteSalesLine(SalesHeader."No.", SalesLine.Type::Item, Item."No.");
@@ -1588,7 +1599,7 @@ codeunit 134386 "ERM Sales Documents II"
         SalesLine.TestField("No.", Item."No.");
 
         // Tear down
-        SalesLine.Delete;
+        SalesLine.Delete();
     end;
 
     [Test]
@@ -2239,10 +2250,10 @@ codeunit 134386 "ERM Sales Documents II"
         Initialize;
 
         LibrarySales.CreateStandardTextWithExtendedText(StandardText, DummyText);
-        SalesLine.Init;
+        SalesLine.Init();
         SalesLine.Type := SalesLine.Type::" ";
         SalesLine."No." := StandardText.Code;
-        SalesLine.Insert;
+        SalesLine.Insert();
 
         StandardText.Rename(LibraryUtility.GenerateGUID);
 
@@ -2568,10 +2579,10 @@ codeunit 134386 "ERM Sales Documents II"
         // [GIVEN] G/L Account "GGG" of non-posting type
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount."Account Type" := GLAccount."Account Type"::"Begin-Total";
-        GLAccount.Modify;
+        GLAccount.Modify();
 
         // [WHEN] Set "GGG" as Freight G/L Acc. in Sales Receivables Setup
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         asserterror SalesReceivablesSetup.Validate("Freight G/L Acc. No.", GLAccount."No.");
 
         // [THEN] "Account Type must be equal to 'Posting'" error appears
@@ -2593,10 +2604,10 @@ codeunit 134386 "ERM Sales Documents II"
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount."Account Type" := GLAccount."Account Type"::Posting;
         GLAccount.Blocked := true;
-        GLAccount.Modify;
+        GLAccount.Modify();
 
         // [WHEN] Set "GGG" as Freight G/L Acc. in Sales Receivables Setup
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         asserterror SalesReceivablesSetup.Validate("Freight G/L Acc. No.", GLAccount."No.");
 
         // [THEN] "Blocked must be equal to 'No'" error appears
@@ -2703,7 +2714,7 @@ codeunit 134386 "ERM Sales Documents II"
         CreateSalesPriceWithUnitPrice(
           SalesPrice, CopyFromCustomerNo, LibraryInventory.CreateItemNo, 0, LibraryRandom.RandDec(100, 2));
         SalesPrice."Sales Code" := CopyToCustomerNo;
-        SalesPrice.Insert;
+        SalesPrice.Insert();
 
         // [GIVEN] Opened "Sales Prices" page. "Sales Type Filter" is "Customer", "Sales Code Filter" is "X"
         SalesPrices.OpenEdit;
@@ -2769,7 +2780,7 @@ codeunit 134386 "ERM Sales Documents II"
           SalesPrice, CopyFromCustomerNo, LibraryInventory.CreateItemNo, 0, LibraryRandom.RandDec(100, 2));
         ExistingSalesPrice := SalesPrice;
         ExistingSalesPrice."Sales Code" := CopyToCustomerNo;
-        ExistingSalesPrice.Insert;
+        ExistingSalesPrice.Insert();
 
         SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::Customer);
         SalesPrice.SetRange("Sales Code", CopyFromCustomerNo);
@@ -2938,10 +2949,10 @@ codeunit 134386 "ERM Sales Documents II"
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount."Account Type" := GLAccount."Account Type"::Posting;
         GLAccount."Gen. Prod. Posting Group" := '';
-        GLAccount.Modify;
+        GLAccount.Modify();
 
         // [WHEN] Set "GGG" as Freight G/L Acc. in Sales Receivables Setup
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         asserterror SalesReceivablesSetup.Validate("Freight G/L Acc. No.", GLAccount."No.");
 
         // [THEN] "Gen. Prod. Posting Group must have a value in G/L Account" error appears
@@ -2961,10 +2972,9 @@ codeunit 134386 "ERM Sales Documents II"
 
         Initialize;
         GLAccNo := LibraryUtility.GenerateGUID;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         asserterror SalesReceivablesSetup.Validate("Freight G/L Acc. No.", GLAccNo);
-        Assert.ExpectedError(
-            StrSubstNo(NotExistingFreightGLAccNoErr, SalesReceivablesSetup.FieldCaption("Freight G/L Acc. No."), GLAccNo));
+        Assert.ExpectedError(StrSubstNo(NotExistingFreightGLAccNoErr, GLAccNo));
     end;
 
     [Test]
@@ -2977,7 +2987,7 @@ codeunit 134386 "ERM Sales Documents II"
         // [SCENARIO 213392] "Freight G/L Acc." can be validated blank in Sales Receivables Setup
 
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Freight G/L Acc. No.", '');
         SalesReceivablesSetup.TestField("Freight G/L Acc. No.", '');
     end;
@@ -3172,7 +3182,7 @@ codeunit 134386 "ERM Sales Documents II"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         SalesHeader."Ship-to Name" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(SalesHeader."Ship-to Name")), 1, MaxStrLen(SalesHeader."Ship-to Name"));
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         CustomerMgt.CalculateShipToBillToOptions(ShipToOptions, BillToOptions, SalesHeader);
         Assert.AreEqual(Format(ShipToOptions::"Custom Address"), Format(ShipToOptions), '');
@@ -3195,7 +3205,7 @@ codeunit 134386 "ERM Sales Documents II"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         SalesHeader."Ship-to Name 2" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(SalesHeader."Ship-to Name 2")), 1, MaxStrLen(SalesHeader."Ship-to Name 2"));
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         CustomerMgt.CalculateShipToBillToOptions(ShipToOptions, BillToOptions, SalesHeader);
         Assert.AreEqual(Format(ShipToOptions::"Custom Address"), Format(ShipToOptions), '');
@@ -3219,7 +3229,7 @@ codeunit 134386 "ERM Sales Documents II"
         SalesHeader."Ship-to Address" :=
           CopyStr(
             LibraryUtility.GenerateRandomText(MaxStrLen(SalesHeader."Ship-to Address")), 1, MaxStrLen(SalesHeader."Ship-to Address"));
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         CustomerMgt.CalculateShipToBillToOptions(ShipToOptions, BillToOptions, SalesHeader);
         Assert.AreEqual(Format(ShipToOptions::"Custom Address"), Format(ShipToOptions), '');
@@ -3511,7 +3521,7 @@ codeunit 134386 "ERM Sales Documents II"
 
         CreateSaleHeader(SalesHeader, SalesHeader."Document Type"::Order);
         SalesHeader."Ship-to Address" := '';
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         // [WHEN] SalesHeaderCheck is called
         BindSubscription(ERMSalesDocumentsII);
@@ -3704,7 +3714,7 @@ codeunit 134386 "ERM Sales Documents II"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales Documents II");
     end;
 
@@ -3712,7 +3722,7 @@ codeunit 134386 "ERM Sales Documents II"
     local procedure ChangeSalesHeaderOnCustomerCreditLimitNotExceeded(var Sender: Record "Sales Header")
     begin
         Sender."Ship-to Address" := ShipToAdressTestValueTxt;
-        Sender.Modify;
+        Sender.Modify();
     end;
 
     local procedure CreateTwoVATPostingSetups(var VATPostingSetup: array[2] of Record "VAT Posting Setup")
@@ -3911,7 +3921,7 @@ codeunit 134386 "ERM Sales Documents II"
     begin
         CreateItemJournalLine(ItemJournalLine, CreateItemWithItemTrackingCode);
         ItemNo := ItemJournalLine."Item No.";
-        Commit;
+        Commit();
         ItemJournal.OpenEdit;
         ItemJournal.CurrentJnlBatchName.SetValue(ItemJournalLine."Journal Batch Name");
         LibraryVariableStorage.Enqueue(true); // TRUE to handle Item Tracking Lines Page for Assigning Serial No.
@@ -4033,10 +4043,10 @@ codeunit 134386 "ERM Sales Documents II"
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer.Name := LibraryUtility.GenerateGUID;
-        Customer.Modify;
+        Customer.Modify();
         LibrarySales.CreateCustomer(CustomerBillTo);
         CustomerBillTo.Name := LibraryUtility.GenerateGUID;
-        CustomerBillTo.Modify;
+        CustomerBillTo.Modify();
         Customer.Validate("Bill-to Customer No.", CustomerBillTo."No.");
         Customer.Modify(true);
     end;
@@ -4137,7 +4147,7 @@ codeunit 134386 "ERM Sales Documents II"
 
     local procedure CreatePostCodeWithCode(var PostCode: Record "Post Code"; "Code": Code[20])
     begin
-        PostCode.Init;
+        PostCode.Init();
         PostCode.Validate(Code, Code);
         PostCode.Validate(
           City,
@@ -4334,7 +4344,7 @@ codeunit 134386 "ERM Sales Documents II"
         StandardSalesLine.Type := StandardSalesLine.Type::Item;
         StandardSalesLine.Quantity := LibraryRandom.RandInt(10);
         StandardSalesLine."No." := CreateItem;
-        StandardSalesLine.Modify;
+        StandardSalesLine.Modify();
 
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateCustomerSalesCode(StandardCustomerSalesCode, Customer."No.", StandardSalesCode.Code);
@@ -4372,9 +4382,9 @@ codeunit 134386 "ERM Sales Documents II"
     begin
         LibraryERM.FindGenBusinessPostingGroup(GenBusinessPostingGroup);
         LibraryERM.FindVATBusinessPostingGroup(VATBusinessPostingGroup);
-        TempCustomer.Init;
+        TempCustomer.Init();
         TempCustomer.Validate("No.", GenerateCustomerNo);
-        TempCustomer.Insert;
+        TempCustomer.Insert();
         TempCustomer.Validate("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
         TempCustomer.Validate("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
         TempCustomer.Validate("Customer Posting Group", LibrarySales.FindCustomerPostingGroup);
@@ -4424,16 +4434,16 @@ codeunit 134386 "ERM Sales Documents II"
 
     local procedure CreateSalesPriceWithMinimumQuantity(var SalesPrice: Record "Sales Price"; MinQty: Decimal)
     begin
-        SalesPrice.Init;
+        SalesPrice.Init();
         SalesPrice.Validate("Sales Type", SalesPrice."Sales Type"::"All Customers");
         SalesPrice.Validate("Item No.", LibraryInventory.CreateItemNo);
         SalesPrice.Validate("Minimum Quantity", MinQty);
         SalesPrice.Insert(true);
     end;
 
-    local procedure CreateSalesPriceWithStartingDate(var SalesPrice: Record "Sales Price"; SalesType: Option;ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; StartingDate: Date)
+    local procedure CreateSalesPriceWithStartingDate(var SalesPrice: Record "Sales Price"; SalesType: Option; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; StartingDate: Date)
     begin
-        SalesPrice.Init;
+        SalesPrice.Init();
         SalesPrice.Validate("Sales Type", SalesType);
         SalesPrice.Validate("Item No.", ItemNo);
         SalesPrice.Validate("Unit of Measure Code", UnitOfMeasureCode);
@@ -4443,7 +4453,7 @@ codeunit 134386 "ERM Sales Documents II"
 
     local procedure CreateSalesPriceWithoutStartingDate(var SalesPrice: Record "Sales Price"; SalesType: Option; ItemNo: Code[20]; UnitOfMeasureCode: Code[10])
     begin
-        SalesPrice.Init;
+        SalesPrice.Init();
         SalesPrice.Validate("Sales Type", SalesType);
         SalesPrice.Validate("Item No.", ItemNo);
         SalesPrice.Validate("Unit of Measure Code", UnitOfMeasureCode);
@@ -4524,7 +4534,7 @@ codeunit 134386 "ERM Sales Documents II"
         LibraryUtility.CreateNoSeries(NoSeries, true, ManualNos, false);
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
         NoSeriesLine."Starting No." := LibraryUtility.GenerateGUID;
-        NoSeriesLine.Modify;
+        NoSeriesLine.Modify();
         exit(NoSeries.Code);
     end;
 
@@ -4538,7 +4548,7 @@ codeunit 134386 "ERM Sales Documents II"
         ContactBusinessRelation.FindFirst;
         Contact.Get(ContactBusinessRelation."Contact No.");
         Customer.Contact := Contact.Name;
-        Customer.Modify;
+        Customer.Modify();
 
         ContactNew := Contact;
         ContactNew.Type := ContactNew.Type::Person;
@@ -5035,7 +5045,7 @@ codeunit 134386 "ERM Sales Documents II"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Blanket Order Nos.", CreateNoSeriesWithManualNos(ManualNos));
         SalesReceivablesSetup.Validate("Invoice Nos.", CreateNoSeriesWithManualNos(ManualNos));
         SalesReceivablesSetup.Validate("Order Nos.", CreateNoSeriesWithManualNos(ManualNos));
@@ -5228,7 +5238,7 @@ codeunit 134386 "ERM Sales Documents II"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Calc. Inv. Discount", CalcInvDiscount);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -5437,10 +5447,10 @@ codeunit 134386 "ERM Sales Documents II"
 
     local procedure CreateStandardSalesCode(var StandardSalesCode: Record "Standard Sales Code")
     begin
-        StandardSalesCode.Init;
+        StandardSalesCode.Init();
         StandardSalesCode.Code := LibraryUtility.GenerateRandomCode(StandardSalesCode.FieldNo(Code), DATABASE::"Standard Sales Code");
         StandardSalesCode.Validate(Description, LibraryUtility.GenerateRandomText(MaxStrLen(StandardSalesCode.Description)));
-        StandardSalesCode.Insert;
+        StandardSalesCode.Insert();
     end;
 
     local procedure CreateStandardCustomerSalesCode(var StandardCustomerSalesCode: Record "Standard Customer Sales Code"; CodeStandardSalesCode: Code[10])
@@ -5448,18 +5458,18 @@ codeunit 134386 "ERM Sales Documents II"
         StandardSalesCode: Record "Standard Sales Code";
     begin
         StandardSalesCode.Get(CodeStandardSalesCode);
-        StandardSalesCode.Init;
+        StandardSalesCode.Init();
         StandardCustomerSalesCode.Code := StandardSalesCode.Code;
         StandardCustomerSalesCode.Insert(true);
     end;
 
     local procedure CreateStandardPurchaseCode(var StandardPurchaseCode: Record "Standard Purchase Code")
     begin
-        StandardPurchaseCode.Init;
+        StandardPurchaseCode.Init();
         StandardPurchaseCode.Code :=
           LibraryUtility.GenerateRandomCode(StandardPurchaseCode.FieldNo(Code), DATABASE::"Standard Purchase Code");
         StandardPurchaseCode.Validate(Description, LibraryUtility.GenerateRandomText(MaxStrLen(StandardPurchaseCode.Description)));
-        StandardPurchaseCode.Insert;
+        StandardPurchaseCode.Insert();
     end;
 
     local procedure CreateStandardVendorPurchaseCode(var StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code"; CodeStandardPurchaseCode: Code[10])
@@ -5467,7 +5477,7 @@ codeunit 134386 "ERM Sales Documents II"
         StandardPurchaseCode: Record "Standard Purchase Code";
     begin
         StandardPurchaseCode.Get(CodeStandardPurchaseCode);
-        StandardPurchaseCode.Init;
+        StandardPurchaseCode.Init();
         StandardVendorPurchaseCode.Code := StandardPurchaseCode.Code;
         StandardVendorPurchaseCode.Insert(true);
     end;

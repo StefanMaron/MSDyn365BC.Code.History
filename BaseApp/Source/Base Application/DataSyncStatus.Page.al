@@ -48,7 +48,7 @@ page 6250 "Data Sync Status"
 
     local procedure PostingErrors(JournalBatchName: Text)
     begin
-        GenJournalLine.Reset;
+        GenJournalLine.Reset();
         GenJournalLine.SetRange("Journal Template Name", JnlTemplateNameTxt);
         GenJournalLine.SetFilter("Journal Batch Name", JournalBatchName);
         if GenJournalLine.FindSet() then

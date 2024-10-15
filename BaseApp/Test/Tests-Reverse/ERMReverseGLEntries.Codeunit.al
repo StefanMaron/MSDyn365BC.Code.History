@@ -559,8 +559,8 @@ codeunit 134131 "ERM Reverse GL Entries"
           LibraryRandom.RandDecInRange(100, 200, 2), '');
         GenJournalLine."Check Printed" := true;
         GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::"Bank Account";
-        GenJournalLine.Modify;
-        Commit;
+        GenJournalLine.Modify();
+        Commit();
 
         CreateCheckLedgerForEmployee(GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -653,8 +653,8 @@ codeunit 134131 "ERM Reverse GL Entries"
           LibraryRandom.RandDecInRange(100, 200, 2), '');
         GenJournalLine."Check Printed" := true;
         GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::"Bank Account";
-        GenJournalLine.Modify;
-        Commit;
+        GenJournalLine.Modify();
+        Commit();
 
         CreateCheckLedgerForEmployee(GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -804,7 +804,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateLocalData;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reverse GL Entries");
     end;
 
@@ -888,7 +888,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         GeneralLedgerSetup: Record "General Ledger Setup";
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         AllowPostingFrom := GeneralLedgerSetup."Allow Posting From";
         AllowPostingTo := GeneralLedgerSetup."Allow Posting To";
         UpdateGeneralLedgerSetup(0D, 0D); // Update General Ledger Setup Date Range fields with OD value.
@@ -1069,8 +1069,8 @@ codeunit 134131 "ERM Reverse GL Entries"
         GenJournalLine."Check Printed" := true;
         GenJournalLine."Bank Payment Type" := GenJournalLine."Bank Payment Type"::"Computer Check";
         GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::"Bank Account";
-        GenJournalLine.Modify;
-        Commit;
+        GenJournalLine.Modify();
+        Commit();
         CreateCheckLedger(GenJournalLine);
     end;
 
@@ -1080,14 +1080,14 @@ codeunit 134131 "ERM Reverse GL Entries"
         CheckLedgerEntry2: Record "Check Ledger Entry";
         NextCheckEntryNo: Integer;
     begin
-        CheckLedgerEntry2.LockTable;
-        CheckLedgerEntry2.Reset;
+        CheckLedgerEntry2.LockTable();
+        CheckLedgerEntry2.Reset();
         if CheckLedgerEntry2.FindLast then
             NextCheckEntryNo := CheckLedgerEntry2."Entry No." + 1
         else
             NextCheckEntryNo := 1;
 
-        CheckLedgerEntry.Init;
+        CheckLedgerEntry.Init();
         CheckLedgerEntry."Entry No." := NextCheckEntryNo;
         CheckLedgerEntry."Bank Account No." := GenJournalLine."Bal. Account No.";
         CheckLedgerEntry."Document Type" := CheckLedgerEntry."Document Type"::Payment;
@@ -1096,7 +1096,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         CheckLedgerEntry."Bank Payment Type" := CheckLedgerEntry."Bank Payment Type"::"Computer Check";
         CheckLedgerEntry."Entry Status" := CheckLedgerEntry."Entry Status"::Printed;
         CheckLedgerEntry.Insert(true);
-        Commit;
+        Commit();
     end;
 
     local procedure CreateCheckLedgerForEmployee(GenJournalLine: Record "Gen. Journal Line")
@@ -1105,14 +1105,14 @@ codeunit 134131 "ERM Reverse GL Entries"
         CheckLedgerEntry2: Record "Check Ledger Entry";
         NextCheckEntryNo: Integer;
     begin
-        CheckLedgerEntry2.LockTable;
-        CheckLedgerEntry2.Reset;
+        CheckLedgerEntry2.LockTable();
+        CheckLedgerEntry2.Reset();
         if CheckLedgerEntry2.FindLast then
             NextCheckEntryNo := CheckLedgerEntry2."Entry No." + 1
         else
             NextCheckEntryNo := 1;
 
-        CheckLedgerEntry.Init;
+        CheckLedgerEntry.Init();
         CheckLedgerEntry."Entry No." := NextCheckEntryNo;
         CheckLedgerEntry."Bal. Account Type" := GenJournalLine."Bal. Account Type"::Employee;
         CheckLedgerEntry."Bank Account No." := GenJournalLine."Bal. Account No.";
@@ -1124,7 +1124,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         CheckLedgerEntry."Bank Payment Type" := CheckLedgerEntry."Bank Payment Type"::"Computer Check";
         CheckLedgerEntry."Entry Status" := CheckLedgerEntry."Entry Status"::Printed;
         CheckLedgerEntry.Insert(true);
-        Commit;
+        Commit();
     end;
 
     local procedure DateCompressForGLEntries(DocumentNo: Code[20])
@@ -1186,14 +1186,14 @@ codeunit 134131 "ERM Reverse GL Entries"
         DimensionTranslation: Record "Dimension Translation";
         DimensionSelectionBuffer: Record "Dimension Selection Buffer";
     begin
-        DimensionSelectionBuffer.DeleteAll;
+        DimensionSelectionBuffer.DeleteAll();
         DimensionTranslation.FindSet;
         if DimensionSelectionBuffer.IsEmpty then
             repeat
                 if not DimensionSelectionBuffer.Get(DimensionTranslation.Code) then begin
                     DimensionSelectionBuffer.Validate(Code, DimensionTranslation.Code);
                     DimensionSelectionBuffer.Validate(Selected, true);
-                    DimensionSelectionBuffer.Insert;
+                    DimensionSelectionBuffer.Insert();
                 end;
             until DimensionTranslation.Next = 0;
         DimensionSelectionBuffer.SetDimSelection(3, 98, '', RetainDimText, DimensionSelectionBuffer);
@@ -1234,7 +1234,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         // Using assignment to avoid validation errors.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Allow Posting From" := AllowPostingFrom;
         GeneralLedgerSetup."Allow Posting To" := AllowPostingTo;
         GeneralLedgerSetup.Modify(true);

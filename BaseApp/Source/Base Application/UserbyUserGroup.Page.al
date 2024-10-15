@@ -272,7 +272,7 @@ page 9838 "User by User Group"
     var
         UserGroup: Record "User Group";
     begin
-        NoOfRecords := UserGroup.Count;
+        NoOfRecords := UserGroup.Count();
         PermissionPagesMgt.Init(NoOfRecords, ArrayLen(UserGroupCodeArr));
         SelectedCompany := CompanyName;
         HideExternalUsers;

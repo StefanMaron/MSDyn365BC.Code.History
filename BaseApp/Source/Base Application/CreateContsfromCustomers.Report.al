@@ -21,10 +21,10 @@ report 5195 "Create Conts. from Customers"
                     SetRange("Link to Table", "Link to Table"::Customer);
                     SetRange("No.", Customer."No.");
                     if FindFirst then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
-                Cont.Init;
+                Cont.Init();
                 Cont.TransferFields(Customer);
                 Cont."No." := '';
                 OnBeforeSetSkipDefaults(Customer, Cont);
@@ -56,16 +56,13 @@ report 5195 "Create Conts. from Customers"
             begin
                 Window.Close;
 
-                if DuplicateContactExist then begin
-                    Commit;
-                    PAGE.RunModal(PAGE::"Contact Duplicates");
-                end;
+                if DuplicateContactExist then
+                    DuplMgt.Notify();
             end;
 
             trigger OnPreDataItem()
             begin
-                Window.Open(Text000 +
-                  Text001, "No.");
+                Window.Open(Text000 + Text001, "No.");
             end;
         }
     }
@@ -87,14 +84,22 @@ report 5195 "Create Conts. from Customers"
     }
 
     trigger OnPreReport()
+    var
+        cnt: Integer;
     begin
-        RMSetup.Get;
+        RMSetup.Get();
         RMSetup.TestField("Bus. Rel. Code for Customers");
+        cnt := Customer.Count();
+        if GuiAllowed then
+            if cnt > 100 then
+                if not Confirm(StrSubstNo(TooManyRecordsQst, cnt)) then
+                    CurrReport.Quit();
     end;
 
     var
         Text000: Label 'Processing customers...\\';
         Text001: Label 'Customer No.    #1##########';
+        TooManyRecordsQst: Label 'This process will take several minutes because it involves %1 customers. It is recommended that you schedule the process to run as a background task.\\Do you want to start the process immediately anyway?', Comment = '%1 = number of records';
         RMSetup: Record "Marketing Setup";
         Cont: Record Contact;
         ContBusRel: Record "Contact Business Relation";

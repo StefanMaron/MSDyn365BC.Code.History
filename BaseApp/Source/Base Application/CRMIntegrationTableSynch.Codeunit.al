@@ -9,10 +9,15 @@ codeunit 5340 "CRM Integration Table Synch."
         OriginalJobQueueEntry: Record "Job Queue Entry";
         ConnectionName: Text;
         LatestModifiedOn: array[2] of DateTime;
+        testConnectionHandled: Boolean;
+        isHandled: Boolean;
     begin
-        ConnectionName := InitConnection;
-        if not CRMConnectionSetup.TryReadSystemUsers then
-            Error(GetLastErrorText);
+        OnBeforeRun(Rec, IsHandled);
+        If IsHandled then
+            exit;
+
+        ConnectionName := InitConnection();
+        TestConnection();
 
         if "Int. Table UID Field Type" = Field.Type::Option then
             SynchOption(Rec)
@@ -22,7 +27,7 @@ codeunit 5340 "CRM Integration Table Synch."
                 LatestModifiedOn[2] := PerformScheduledSynchToIntegrationTable(Rec);
             if Direction in [Direction::FromIntegrationTable, Direction::Bidirectional] then
                 LatestModifiedOn[1] :=
-                  PerformScheduledSynchFromIntegrationTable(Rec, CRMConnectionSetup.GetIntegrationUserID);
+                  PerformScheduledSynchFromIntegrationTable(Rec, GetIntegrationUserId());
             UpdateTableMappingModifiedOn(Rec, LatestModifiedOn);
             SetOriginalCRMJobQueueEntryReady(Rec, OriginalJobQueueEntry);
         end;
@@ -47,8 +52,14 @@ codeunit 5340 "CRM Integration Table Synch."
     local procedure InitConnection() ConnectionName: Text
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        initConnectionHandled: Boolean;
     begin
-        CRMConnectionSetup.Get;
+        CRMIntegrationManagement.OnInitCDSConnection(ConnectionName, initConnectionHandled);
+        if initConnectionHandled then
+            exit(ConnectionName);
+
+        CRMConnectionSetup.Get();
         if not CRMConnectionSetup."Is Enabled" then
             Error(ConnectionNotEnabledErr, CRMProductName.FULL);
 
@@ -61,11 +72,44 @@ codeunit 5340 "CRM Integration Table Synch."
         ClearCache;
     end;
 
+    local procedure GetIntegrationUserId(): Guid
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        IntegrationUserId: Guid;
+        handled: Boolean;
+    begin
+        CRMIntegrationManagement.OnGetCDSIntegrationUserId(IntegrationUserId, handled);
+        if handled then
+            exit(IntegrationUserId);
+
+        exit(CRMConnectionSetup.GetIntegrationUserID());
+    end;
+
+    local procedure TestConnection()
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        testConnectionHandled: Boolean;
+    begin
+        CRMIntegrationManagement.OnTestCDSConnection(testConnectionHandled);
+        if not testConnectionHandled then
+            if not CRMConnectionSetup.TryReadSystemUsers then
+                Error(GetLastErrorText);
+    end;
+
     local procedure CloseConnection(ConnectionName: Text)
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        closeConnectionHandled: Boolean;
     begin
         ClearCache;
+
+        CRMIntegrationManagement.OnCloseCDSConnection(ConnectionName, closeConnectionHandled);
+        if closeConnectionHandled then
+            exit;
+
         CRMConnectionSetup.UnregisterConnectionWithName(ConnectionName);
     end;
 
@@ -97,7 +141,7 @@ codeunit 5340 "CRM Integration Table Synch."
         // Exclude modifications by background job
         if not IntegrationTableMapping."Delete After Synchronization" then begin
             ModifyByFieldRef := CRMRecordRef.Field(GetModifyByFieldNo(IntegrationTableMapping."Integration Table ID"));
-            if Format(ModifyByFieldRef.Type) <> 'GUID' then
+            if ModifyByFieldRef.Type <> FieldType::GUID then
                 Error(ModifiedByFieldMustBeGUIDErr, ModifyByFieldRef.Name, CRMRecordRef.Name);
             ModifyByFieldRef.SetFilter('<>%1', IntegrationUserId);
         end;
@@ -164,8 +208,8 @@ codeunit 5340 "CRM Integration Table Synch."
     var
         TempNameValueBufferWithValue: Record "Name/Value Buffer" temporary;
     begin
-        CollectOptionValues(FieldRef.OptionMembers, TempNameValueBuffer);
-        CollectOptionValues(FieldRef.OptionCaption, TempNameValueBufferWithValue);
+        CollectOptionValues(FieldRef.OptionMembers, TempNameValueBuffer, FieldRef);
+        CollectOptionValues(FieldRef.OptionCaption, TempNameValueBufferWithValue, FieldRef);
         MergeBuffers(TempNameValueBuffer, TempNameValueBufferWithValue);
         exit(TempNameValueBuffer.FindSet);
     end;
@@ -178,14 +222,14 @@ codeunit 5340 "CRM Integration Table Synch."
         exit(IntegrationRecord.FindSet);
     end;
 
-    local procedure CollectOptionValues(OptionString: Text; var TempNameValueBuffer: Record "Name/Value Buffer" temporary)
+    local procedure CollectOptionValues(OptionString: Text; var TempNameValueBuffer: Record "Name/Value Buffer" temporary; FieldRef: FieldRef)
     var
         CommaPos: Integer;
         OptionValue: Text;
         OptionValueInt: Integer;
     begin
-        OptionValueInt := 0;
-        TempNameValueBuffer.DeleteAll;
+        OptionValueInt := 1;
+        TempNameValueBuffer.DeleteAll();
         while StrLen(OptionString) > 0 do begin
             CommaPos := StrPos(OptionString, ',');
             if CommaPos = 0 then begin
@@ -196,8 +240,8 @@ codeunit 5340 "CRM Integration Table Synch."
                 OptionString := CopyStr(OptionString, CommaPos + 1);
             end;
             if DelChr(OptionValue, '=', ' ') <> '' then begin
-                TempNameValueBuffer.Init;
-                TempNameValueBuffer.ID := OptionValueInt;
+                TempNameValueBuffer.Init();
+                TempNameValueBuffer.ID := FieldRef.GetEnumValueOrdinal(OptionValueInt);
                 TempNameValueBuffer.Name := CopyStr(OptionValue, 1, MaxStrLen(TempNameValueBuffer.Name));
                 TempNameValueBuffer.Insert
             end;
@@ -215,7 +259,7 @@ codeunit 5340 "CRM Integration Table Synch."
                         Modify
                     end;
                 until Next = 0;
-            TempNameValueBufferWithValue.DeleteAll;
+            TempNameValueBufferWithValue.DeleteAll();
         end;
     end;
 
@@ -238,7 +282,7 @@ codeunit 5340 "CRM Integration Table Synch."
                 RecordRef.Close;
                 if FillCodeBufferFromOption(FieldRef, TempNameValueBuffer) then begin
                     CRMOptionMapping.SetRange("Table ID", IntegrationTableMapping."Table ID");
-                    CRMOptionMapping.DeleteAll;
+                    CRMOptionMapping.DeleteAll();
 
                     RecordRef.Open(IntegrationTableMapping."Table ID");
                     KeyRef := RecordRef.KeyIndex(1);
@@ -247,19 +291,19 @@ codeunit 5340 "CRM Integration Table Synch."
                         NewPK := CopyStr(TempNameValueBuffer.Name, 1, FieldRef.Length);
                         FieldRef.SetRange(NewPK);
                         if not RecordRef.FindFirst then begin
-                            RecordRef.Init;
+                            RecordRef.Init();
                             FieldRef.Value := NewPK;
                             RecordRef.Insert(true);
                         end;
 
-                        CRMOptionMapping.Init;
+                        CRMOptionMapping.Init();
                         CRMOptionMapping."Record ID" := RecordRef.RecordId;
                         CRMOptionMapping."Option Value" := TempNameValueBuffer.ID;
                         CRMOptionMapping."Option Value Caption" := TempNameValueBuffer.Value;
                         CRMOptionMapping."Table ID" := IntegrationTableMapping."Table ID";
                         CRMOptionMapping."Integration Table ID" := IntegrationTableMapping."Integration Table ID";
                         CRMOptionMapping."Integration Field ID" := IntegrationTableMapping."Integration Table UID Fld. No.";
-                        CRMOptionMapping.Insert;
+                        CRMOptionMapping.Insert();
                     until TempNameValueBuffer.Next = 0;
                     RecordRef.Close;
                 end;
@@ -499,8 +543,8 @@ codeunit 5340 "CRM Integration Table Synch."
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
     begin
-        TempCRMIntegrationRecord.Reset;
-        TempCRMIntegrationRecord.DeleteAll;
+        TempCRMIntegrationRecord.Reset();
+        TempCRMIntegrationRecord.DeleteAll();
 
         CRMIntegrationRecord.SetRange("Table ID", ForTable);
         if not CRMIntegrationRecord.FindSet then
@@ -508,12 +552,17 @@ codeunit 5340 "CRM Integration Table Synch."
 
         repeat
             TempCRMIntegrationRecord.Copy(CRMIntegrationRecord, false);
-            TempCRMIntegrationRecord.Insert;
+            TempCRMIntegrationRecord.Insert();
         until CRMIntegrationRecord.Next = 0;
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnQueryPostFilterIgnoreRecord(SourceRecordRef: RecordRef; var IgnoreRecord: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRun(IntegrationTableMapping: Record "Integration Table Mapping"; var IsHandled: Boolean)
     begin
     end;
 

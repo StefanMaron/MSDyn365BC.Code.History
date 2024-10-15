@@ -75,12 +75,12 @@ codeunit 5814 "Undo Return Shipment Line"
 
             Find('-');
             repeat
-                TempGlobalItemLedgEntry.Reset;
+                TempGlobalItemLedgEntry.Reset();
                 if not TempGlobalItemLedgEntry.IsEmpty then
-                    TempGlobalItemLedgEntry.DeleteAll;
-                TempGlobalItemEntryRelation.Reset;
+                    TempGlobalItemLedgEntry.DeleteAll();
+                TempGlobalItemEntryRelation.Reset();
                 if not TempGlobalItemEntryRelation.IsEmpty then
-                    TempGlobalItemEntryRelation.DeleteAll;
+                    TempGlobalItemEntryRelation.DeleteAll();
 
                 if not HideDialog then
                     Window.Open(Text001);
@@ -123,7 +123,7 @@ codeunit 5814 "Undo Return Shipment Line"
                     JobItem := (Type = Type::Item) and ("Job No." <> '');
             until Next = 0;
 
-            InvtSetup.Get;
+            InvtSetup.Get();
             if InvtSetup."Automatic Cost Adjustment" <>
                InvtSetup."Automatic Cost Adjustment"::Never
             then begin
@@ -205,9 +205,9 @@ codeunit 5814 "Undo Return Shipment Line"
         with ReturnShptLine do begin
             DocLineNo := GetCorrectionLineNo(ReturnShptLine);
 
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             ReturnShptHeader.Get("Document No.");
-            ItemJnlLine.Init;
+            ItemJnlLine.Init();
             ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::Purchase;
             ItemJnlLine."Item No." := "No.";
             ItemJnlLine."Unit of Measure Code" := "Unit of Measure Code";
@@ -270,7 +270,7 @@ codeunit 5814 "Undo Return Shipment Line"
         NewReturnShptLine: Record "Return Shipment Line";
     begin
         with OldReturnShptLine do begin
-            NewReturnShptLine.Init;
+            NewReturnShptLine.Init();
             NewReturnShptLine.Copy(OldReturnShptLine);
             NewReturnShptLine."Line No." := DocLineNo;
             NewReturnShptLine."Appl.-to Item Entry" := "Item Shpt. Entry No.";
@@ -283,7 +283,7 @@ codeunit 5814 "Undo Return Shipment Line"
             NewReturnShptLine.Correction := true;
             NewReturnShptLine."Dimension Set ID" := "Dimension Set ID";
             OnBeforeNewReturnShptLineInsert(NewReturnShptLine, OldReturnShptLine);
-            NewReturnShptLine.Insert;
+            NewReturnShptLine.Insert();
             OnAfterNewReturnShptLineInsert(NewReturnShptLine, OldReturnShptLine);
 
             InsertItemEntryRelation(TempGlobalItemEntryRelation, NewReturnShptLine);
@@ -309,7 +309,7 @@ codeunit 5814 "Undo Return Shipment Line"
             repeat
                 ItemEntryRelation := TempItemEntryRelation;
                 ItemEntryRelation.TransferFieldsReturnShptLine(NewReturnShptLine);
-                ItemEntryRelation.Insert;
+                ItemEntryRelation.Insert();
             until TempItemEntryRelation.Next = 0;
     end;
 

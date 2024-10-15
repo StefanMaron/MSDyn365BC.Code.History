@@ -40,7 +40,7 @@ codeunit 1560 "Workflow Imp. / Exp. Mgt"
         if TrySelectStr(2, NewWorkflowCodes, TempWorkflowCode) then
             Error(MoreThanOneWorkflowImportErr);
 
-        FromWorkflow.Init;
+        FromWorkflow.Init();
         FromWorkflow.Code := CopyStr(Format(CreateGuid), 1, MaxStrLen(Workflow.Code));
         FromWorkflow.ImportFromBlob(TempBlob);
 

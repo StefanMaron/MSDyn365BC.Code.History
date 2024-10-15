@@ -458,7 +458,7 @@ xmlport 1501 "Import / Export Workflow"
 
                         trigger OnAfterAssignField()
                         begin
-                            if "Workflow Category".Insert then;
+                            if "Workflow Category".Insert() then;
                         end;
                     }
                 }

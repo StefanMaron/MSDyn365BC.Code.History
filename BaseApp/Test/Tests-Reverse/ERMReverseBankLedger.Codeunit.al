@@ -532,20 +532,20 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         BankAccReconciliationLine.CalcSums("Statement Amount");
         BankAccReconciliation.Validate("Statement Ending Balance", BankAccReconciliationLine."Statement Amount");
         BankAccReconciliation.Modify(true);
-        Commit;
+        Commit();
 
         // [WHEN] Post Bank Account Reconcilation for "X"
         LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
 
         // [THEN] All Bank Account Ledger Entries of "X" are closed
-        BankAccountLedgerEntry.Reset;
+        BankAccountLedgerEntry.Reset();
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
         BankAccountLedgerEntry.SetRange(Open, true);
         Assert.RecordIsEmpty(BankAccountLedgerEntry);
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,VoidCheckPageHandler,SuggestVendorPayments_RPH')]
+    [HandlerFunctions('MessageHandler,VoidCheckPageHandler')]
     [Scope('OnPrem')]
     procedure TwoVoidedVLEAfterVoidCheckOfTwoPmt()
     var
@@ -595,7 +595,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,SuggestVendorPayments_RPH')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PrintLCYCheckAppliedToFCYInvoice()
     var
@@ -637,14 +637,14 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         Clear(GenJournalLine);
         CreatePaymentJournal(GenJournalLine);
         GenJournalLine.Validate("Posting Date", StartDate + 1);
-        GenJournalLine.Insert;
+        GenJournalLine.Insert();
         SuggestVendorPayments(GenJournalLine, Vendor."No.", BankAccountNo);
         GenJournalLine.SetRange("Account No.", Vendor."No.");
         GenJournalLine.FindFirst;
         GenJournalLine.Validate("Currency Code", '');
         GenJournalLine.Validate(Amount, InvoiceAmount / ExchangeRate[2]);
         GenJournalLine.Modify(true);
-        Commit;
+        Commit();
         // [WHEN] Print Check
         PrintCheck(GenJournalLine, BankAccountNo);
 
@@ -704,7 +704,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,SuggestVendorPayments_RPH')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure RemoveRecordIDToPrintFromCgeckLedgerEntryAfterPostPayment()
     var
@@ -756,7 +756,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         Initialize;
 
         LibraryERM.CreateBankAccount(BankAccount);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Suggest Bank Acc. Recon. Lines", true, false, BankAccount);
 
         Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, ''); // visible
@@ -839,7 +839,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateLocalData;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reverse Bank Ledger");
     end;
 
@@ -971,7 +971,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, CreatePaymentJournalTemplate);
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
         GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
@@ -1045,7 +1045,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         exit(SourceCodeSetup."General Journal");
     end;
 
@@ -1053,7 +1053,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         exit(SourceCodeSetup."Payment Journal");
     end;
 
@@ -1061,7 +1061,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         exit(SourceCodeSetup."Financially Voided Check");
     end;
 
@@ -1184,10 +1184,10 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         Vendor.SetRange("No.", VendorNo);
         SuggestVendorPayments.SetTableView(Vendor);
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);
-        LibraryVariableStorage.Enqueue(BankAccountNo);
-        Commit;
-        SuggestVendorPayments.UseRequestPage(true);
+        SuggestVendorPayments.InitializeRequest(
+          CalcDate('<2M>', WorkDate), false, 0, false, CalcDate('<2M>', WorkDate), LibraryUtility.GenerateGUID, false,
+          GenJournalLine."Bal. Account Type"::"Bank Account", BankAccountNo, GenJournalLine."Bank Payment Type"::"Computer Check");
+        SuggestVendorPayments.UseRequestPage(false);
         SuggestVendorPayments.RunModal;
     end;
 
@@ -1306,22 +1306,6 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         LibraryVariableStorage.Enqueue(SuggestBankAccReconLines.ExcludeReversedEntries.Visible);
         LibraryVariableStorage.Enqueue(SuggestBankAccReconLines.ExcludeReversedEntries.Enabled);
         SuggestBankAccReconLines.Cancel.Invoke;
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SuggestVendorPayments_RPH(var SuggestVendorPayments: TestRequestPage "Suggest Vendor Payments")
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        SuggestVendorPayments.LastPaymentDate.SetValue(CalcDate('<2M>', WorkDate));
-        SuggestVendorPayments.PostingDate.SetValue(CalcDate('<2M>', WorkDate));
-        SuggestVendorPayments.StartingDocumentNo.SetValue(LibraryVariableStorage.DequeueText);
-        SuggestVendorPayments.BalAccountType.SetValue(GenJournalLine."Bal. Account Type"::"Bank Account");
-        SuggestVendorPayments.BalAccountNo.SetValue(LibraryVariableStorage.DequeueText);
-        SuggestVendorPayments.BankPaymentType.SetValue(GenJournalLine."Bank Payment Type"::"Computer Check");
-        SuggestVendorPayments.AlwaysInclCreditMemo.SetValue(true);
-        SuggestVendorPayments.OK.Invoke;
     end;
 
     [EventSubscriber(ObjectType::Report, 1496, 'OnPreDataItemBankAccount', '', false, false)]

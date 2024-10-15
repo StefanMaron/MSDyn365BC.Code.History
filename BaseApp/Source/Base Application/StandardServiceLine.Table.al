@@ -15,11 +15,9 @@ table 5997 "Standard Service Line"
             Caption = 'Line No.';
             Editable = false;
         }
-        field(3; Type; Option)
+        field(3; Type; Enum "Service Line Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,Item,Resource,Cost,G/L Account';
-            OptionMembers = " ",Item,Resource,Cost,"G/L Account";
 
             trigger OnValidate()
             var
@@ -227,7 +225,7 @@ table 5997 "Standard Service Line"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         StdServCode.Get("Standard Service Code");
     end;
 
@@ -295,7 +293,7 @@ table 5997 "Standard Service Line"
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
 
         TableID[1] := Type1;
         No[1] := No1;

@@ -1,4 +1,4 @@
-﻿page 6641 "Purchase Return Order Subform"
+page 6641 "Purchase Return Order Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -186,7 +186,7 @@
                     trigger OnDrillDown()
                     begin
                         CurrPage.SaveRecord;
-                        Commit;
+                        Commit();
                         ShowReservationEntries(true);
                         UpdateForm(true);
                     end;
@@ -970,7 +970,7 @@
         ReservePurchLine: Codeunit "Purch. Line-Reserve";
     begin
         if (Quantity <> 0) and ItemExists("No.") then begin
-            Commit;
+            Commit();
             if not ReservePurchLine.DeleteLineConfirm(Rec) then
                 exit(false);
             ReservePurchLine.DeleteLine(Rec);
@@ -986,7 +986,7 @@
 
     trigger OnInit()
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Purchases);
         IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled;
         Currency.InitRoundingPrecision;
@@ -1032,9 +1032,7 @@
         InvDiscAmountEditable: Boolean;
         TypeAsText: Text[30];
         ItemChargeStyleExpression: Text;
-        IsCommentLine: Boolean;
         IsFoundation: Boolean;
-        IsBlankNumber: Boolean;
         UnitofMeasureCodeIsChangeable: Boolean;
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
         CurrPageIsEditable: Boolean;
@@ -1046,6 +1044,10 @@
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
+
+    protected var
+        IsBlankNumber: Boolean;
+        IsCommentLine: Boolean;
 
     procedure ApproveCalcInvDisc()
     begin

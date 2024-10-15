@@ -28,7 +28,7 @@ report 5885 "Calc. Phys. Invt. Order (Bins)"
                 LastItemNo := '';
                 LastVariantCode := '';
 
-                WhseEntry.Reset;
+                WhseEntry.Reset();
                 WhseEntry.SetCurrentKey("Location Code", "Bin Code", "Item No.", "Variant Code");
                 WhseEntry.SetRange("Location Code", "Location Code");
                 WhseEntry.SetRange("Bin Code", Code);
@@ -79,10 +79,10 @@ report 5885 "Calc. Phys. Invt. Order (Bins)"
                 PhysInvtOrderHeader.TestField("No.");
                 PhysInvtOrderHeader.TestField(Status, PhysInvtOrderHeader.Status::Open);
 
-                PhysInvtOrderHeader.LockTable;
-                PhysInvtOrderLine.LockTable;
+                PhysInvtOrderHeader.LockTable();
+                PhysInvtOrderLine.LockTable();
 
-                PhysInvtOrderLine.Reset;
+                PhysInvtOrderLine.Reset();
                 PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader."No.");
                 if PhysInvtOrderLine.FindLast then
                     NextLineNo := PhysInvtOrderLine."Line No." + 10000
@@ -179,7 +179,7 @@ report 5885 "Calc. Phys. Invt. Order (Bins)"
             if CalcQtyExpected then
                 PhysInvtOrderLine.CalcQtyAndTrackLinesExpected;
             OnBeforePhysInvtOrderLineModify(PhysInvtOrderLine, CalcQtyExpected);
-            PhysInvtOrderLine.Modify;
+            PhysInvtOrderLine.Modify();
             NextLineNo := NextLineNo + 10000;
             LineCount := LineCount + 1;
         end;

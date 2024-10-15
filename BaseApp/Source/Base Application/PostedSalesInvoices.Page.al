@@ -1,4 +1,4 @@
-﻿page 143 "Posted Sales Invoices"
+page 143 "Posted Sales Invoices"
 {
     AdditionalSearchTerms = 'posted bill';
     ApplicationArea = Basic, Suite;
@@ -41,7 +41,7 @@
                 field("Sell-to Customer Name"; "Sell-to Customer Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Customer';
+                    Caption = 'Customer Name';
                     ToolTip = 'Specifies the name of the customer that you shipped the items on the invoice to.';
                 }
                 field("Currency Code"; "Currency Code")
@@ -288,6 +288,13 @@
         }
         area(factboxes)
         {
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = CONST(112),
+                              "No." = FIELD("No.");
+            }
             part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
             {
                 ApplicationArea = Basic, Suite;
@@ -486,6 +493,24 @@
                     SalesInvHeader := Rec;
                     CurrPage.SetSelectionFilter(SalesInvHeader);
                     SalesInvHeader.EmailRecords(true);
+                end;
+            }
+            action(AttachAsPDF)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Attach as PDF';
+                Image = PrintAttachment;
+                Promoted = true;
+                PromotedCategory = Category7;
+                ToolTip = 'Create a PDF file and attach it to the document.';
+
+                trigger OnAction()
+                var
+                    SalesInvHeader: Record "Sales Invoice Header";
+                begin
+                    SalesInvHeader := Rec;
+                    CurrPage.SetSelectionFilter(SalesInvHeader);
+                    PrintToDocumentAttachment(SalesInvHeader);
                 end;
             }
             action(Navigate)

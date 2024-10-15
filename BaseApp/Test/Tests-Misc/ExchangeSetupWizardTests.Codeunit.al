@@ -23,7 +23,6 @@ codeunit 139310 "Exchange Setup Wizard Tests"
     procedure VerifyStatusNotCompletedWhenNotFinished()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
         ExchangeSetupWizard: TestPage "Exchange Setup Wizard";
     begin
         // [GIVEN] A newly setup company
@@ -34,7 +33,7 @@ codeunit 139310 "Exchange Setup Wizard Tests"
         ExchangeSetupWizard.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Exchange Setup Wizard"), 'Exchange Setup status should not be completed.');
+        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Exchange Setup Wizard"), 'Exchange Setup status should not be completed.');
     end;
 
     [Test]
@@ -44,7 +43,6 @@ codeunit 139310 "Exchange Setup Wizard Tests"
     procedure VerifyStatusNotCompletedWhenExitRightAway()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
         ExchangeSetupWizard: TestPage "Exchange Setup Wizard";
     begin
         // [GIVEN] A newly setup company
@@ -56,7 +54,7 @@ codeunit 139310 "Exchange Setup Wizard Tests"
         ExchangeSetupWizard.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Exchange Setup Wizard"), 'Exchange Setup status should not be completed.');
+        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Exchange Setup Wizard"), 'Exchange Setup status should not be completed.');
     end;
 
     [Test]
@@ -66,7 +64,6 @@ codeunit 139310 "Exchange Setup Wizard Tests"
     procedure VerifyWizardNotExitedWhenConfirmIsNo()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
         ExchangeSetupWizard: TestPage "Exchange Setup Wizard";
     begin
         // [GIVEN] A newly setup company
@@ -78,7 +75,7 @@ codeunit 139310 "Exchange Setup Wizard Tests"
         ExchangeSetupWizard.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Exchange Setup Wizard"), 'Exchange Setup status should not be completed.');
+        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Exchange Setup Wizard"), 'Exchange Setup status should not be completed.');
     end;
 
     [Test]
@@ -196,7 +193,6 @@ codeunit 139310 "Exchange Setup Wizard Tests"
     procedure VerifyStatusCompletedWhenFinished()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
         ExchangeSetupWizard: TestPage "Exchange Setup Wizard";
     begin
         // [GIVEN] A newly setup company
@@ -207,7 +203,7 @@ codeunit 139310 "Exchange Setup Wizard Tests"
         ExchangeSetupWizard.ActionFinish.Invoke;
 
         // [THEN] Status of the setup step is set to Completed
-        Assert.IsTrue(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Exchange Setup Wizard"), 'Exchange Setup status should be completed.');
+        Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"Exchange Setup Wizard"), 'Exchange Setup status should be completed.');
     end;
 
     [Test]
@@ -332,9 +328,9 @@ codeunit 139310 "Exchange Setup Wizard Tests"
         AzureADMgtSetup: Record "Azure AD Mgt. Setup";
         AzureADAppSetup: Record "Azure AD App Setup";
     begin
-        AzureADMgtSetup.Get;
+        AzureADMgtSetup.Get();
         AzureADMgtSetup."Auth Flow Codeunit ID" := ProviderCodeunit;
-        AzureADMgtSetup.Modify;
+        AzureADMgtSetup.Modify();
 
         with AzureADAppSetup do
             if not Get then begin

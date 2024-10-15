@@ -13,10 +13,10 @@ codeunit 7 "GLBudget-Open"
         end;
         if SearchForName then begin
             if not GLBudgetName.FindFirst then begin
-                GLBudgetName.Init;
+                GLBudgetName.Init();
                 GLBudgetName.Name := Text000;
                 GLBudgetName.Description := Text001;
-                GLBudgetName.Insert;
+                GLBudgetName.Insert();
             end;
             SetFilter("Budget Filter", GLBudgetName.Name);
         end;
@@ -35,7 +35,7 @@ codeunit 7 "GLBudget-Open"
         with GLAccount do begin
             GlobalDim1Filter := GetFilter("Global Dimension 1 Filter");
             GlobalDim2Filter := GetFilter("Global Dimension 2 Filter");
-            GLSetup.Get;
+            GLSetup.Get();
             GlobalDim1FilterEnable :=
               (GLSetup."Global Dimension 1 Code" <> '') and
               (GlobalDim1Filter = '');

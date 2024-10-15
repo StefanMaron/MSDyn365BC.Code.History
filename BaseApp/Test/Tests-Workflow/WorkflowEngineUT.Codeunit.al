@@ -61,7 +61,7 @@ codeunit 134300 "Workflow Engine UT"
 
         Guid := CreateGuid;
 
-        EventWorkflowStepInstance.Init;
+        EventWorkflowStepInstance.Init();
         EventWorkflowStepInstance.ID := Guid;
         EventWorkflowStepInstance."Workflow Code" := Workflow.Code;
         EventWorkflowStepInstance."Workflow Step ID" := 1;
@@ -70,7 +70,7 @@ codeunit 134300 "Workflow Engine UT"
         EventWorkflowStepInstance."Function Name" := WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode;
         EventWorkflowStepInstance.Insert(true);
 
-        ResponseWorkflowStepInstance.Init;
+        ResponseWorkflowStepInstance.Init();
         ResponseWorkflowStepInstance.ID := Guid;
         ResponseWorkflowStepInstance."Workflow Code" := Workflow.Code;
         ResponseWorkflowStepInstance."Workflow Step ID" := 2;
@@ -80,7 +80,7 @@ codeunit 134300 "Workflow Engine UT"
         ResponseWorkflowStepInstance."Previous Workflow Step ID" := 1;
         ResponseWorkflowStepInstance.Insert(true);
 
-        SecResponseWorkflowStepInstance.Init;
+        SecResponseWorkflowStepInstance.Init();
         SecResponseWorkflowStepInstance.ID := Guid;
         SecResponseWorkflowStepInstance."Workflow Code" := Workflow.Code;
         SecResponseWorkflowStepInstance."Workflow Step ID" := 3;
@@ -532,7 +532,7 @@ codeunit 134300 "Workflow Engine UT"
         CreateAnyResponseWorkflowStep(ResponseWorkflowStep, Workflow, EventWorkflowStep.ID);
 
         Workflow.Enabled := true;
-        Workflow.Modify;
+        Workflow.Modify();
 
         // Exercise
         WorkflowCard.OpenEdit;
@@ -566,7 +566,7 @@ codeunit 134300 "Workflow Engine UT"
         EntryPoint := LibraryWorkflow.InsertEntryPointEventStep(Workflow, '');
         WorkflowStep.Get(Workflow.Code, EntryPoint);
         WorkflowStep.Type := WorkflowStep.Type::Response;
-        WorkflowStep.Modify;
+        WorkflowStep.Modify();
 
         // Exercise
         WorkflowCard.OpenEdit;
@@ -600,7 +600,7 @@ codeunit 134300 "Workflow Engine UT"
         EntryPoint := LibraryWorkflow.InsertEntryPointEventStep(Workflow, '');
         WorkflowStep.Get(Workflow.Code, EntryPoint);
         WorkflowStep.Type := WorkflowStep.Type::"Sub-Workflow";
-        WorkflowStep.Modify;
+        WorkflowStep.Modify();
 
         // Exercise
         WorkflowCard.OpenEdit;
@@ -1042,7 +1042,7 @@ codeunit 134300 "Workflow Engine UT"
         // Setup
         WorkflowStep.Get(Workflow.Code, EventStep);
         WorkflowStep."Previous Workflow Step ID" := 1000000;
-        WorkflowStep.Modify;
+        WorkflowStep.Modify();
 
         // Exercise
         asserterror Workflow.Validate(Enabled, true);
@@ -1308,7 +1308,7 @@ codeunit 134300 "Workflow Engine UT"
         Initialize;
 
         // Setup
-        WorkflowStepInstance.Init;
+        WorkflowStepInstance.Init();
         Variant := WorkflowStepInstance;
 
         // Exercise
@@ -1344,7 +1344,7 @@ codeunit 134300 "Workflow Engine UT"
         LibraryWorkflow.EnableWorkflow(Workflow);
 
         // Exercise
-        WorkflowStepInstance.Init;
+        WorkflowStepInstance.Init();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", '', 0);
         Result := WorkflowManagement.FindWorkflowStepInstance(PurchaseHeader, PurchaseHeader, WorkflowStepInstance,
@@ -1416,7 +1416,7 @@ codeunit 134300 "Workflow Engine UT"
         WorkflowStep.Get(Workflow.Code, StepId);
 
         Workflow.Validate(Template, true);
-        Workflow.Modify;
+        Workflow.Modify();
 
         // Exercise
         WorkflowStep.Validate(Description, 'Test');
@@ -1450,7 +1450,7 @@ codeunit 134300 "Workflow Engine UT"
         WorkflowStepArgument.Get(WorkflowStep.Argument);
 
         Workflow.Validate(Template, true);
-        Workflow.Modify;
+        Workflow.Modify();
 
         // Exercise
         WorkflowStepArgument.Validate("Link Target Page", 10);
@@ -1480,7 +1480,7 @@ codeunit 134300 "Workflow Engine UT"
         EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
             WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode);
 
-        WorkflowStep.Init;
+        WorkflowStep.Init();
         WorkflowStep."Workflow Code" := Workflow.Code;
         WorkflowStep."Function Name" := WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitExceededCode;
         WorkflowStep."Previous Workflow Step ID" := 0;
@@ -1521,7 +1521,7 @@ codeunit 134300 "Workflow Engine UT"
         EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
             WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode);
 
-        WorkflowStep.Init;
+        WorkflowStep.Init();
         WorkflowStep."Workflow Code" := Workflow.Code;
         WorkflowStep."Function Name" := WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitExceededCode;
         WorkflowStep."Previous Workflow Step ID" := 0;
@@ -1563,7 +1563,7 @@ codeunit 134300 "Workflow Engine UT"
         LibraryWorkflow.InsertEntryPointEventStep(Workflow,
           WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode);
 
-        WorkflowStep.Init;
+        WorkflowStep.Init();
         WorkflowStep."Workflow Code" := Workflow.Code;
         WorkflowStep."Function Name" := WorkflowEventHandling.RunWorkflowOnAfterInsertGeneralJournalLineCode;
         WorkflowStep."Previous Workflow Step ID" := 0;
@@ -1815,7 +1815,7 @@ codeunit 134300 "Workflow Engine UT"
         // [THEN] The Workflow record manager throws an error.
 
         // Setup
-        Customer.Init;
+        Customer.Init();
         for Index := 1 to 100 do
             WorkflowRecordManagement.BackupRecord(Customer);
 
@@ -1848,24 +1848,24 @@ codeunit 134300 "Workflow Engine UT"
         Initialize;
         OldValue := LibraryRandom.RandDecInRange(1000000, 2000000, 2);
 
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.Decimal := OldValue;
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         RecRef.GetTable(DataTypeBuffer);
 
-        WorkflowRecordChange.Init;
+        WorkflowRecordChange.Init();
         WorkflowRecordChange."Table No." := DATABASE::"Data Type Buffer";
         WorkflowRecordChange."Field No." := DataTypeBuffer.FieldNo(Decimal);
         WorkflowRecordChange."Old Value" := Format(OldValue, 0, 9);
         WorkflowRecordChange."Record ID" := RecRef.RecordId;
-        WorkflowRecordChange.Insert;
+        WorkflowRecordChange.Insert();
 
         OldValueText := WorkflowRecordChange.GetFormattedOldValue(true);
 
         // Verify
         Assert.AreEqual(Format(OldValue), OldValueText, 'The value was not formatted correctly');
-        DataTypeBuffer.Delete;
+        DataTypeBuffer.Delete();
     end;
 
     [Test]
@@ -1886,24 +1886,24 @@ codeunit 134300 "Workflow Engine UT"
         Initialize;
         OldValue := LibraryRandom.RandIntInRange(1000000, 2000000);
 
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.ID := OldValue;
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         RecRef.GetTable(DataTypeBuffer);
 
-        WorkflowRecordChange.Init;
+        WorkflowRecordChange.Init();
         WorkflowRecordChange."Table No." := DATABASE::"Data Type Buffer";
         WorkflowRecordChange."Field No." := DataTypeBuffer.FieldNo(ID);
         WorkflowRecordChange."Old Value" := Format(OldValue, 0, 9);
         WorkflowRecordChange."Record ID" := RecRef.RecordId;
-        WorkflowRecordChange.Insert;
+        WorkflowRecordChange.Insert();
 
         OldValueText := WorkflowRecordChange.GetFormattedOldValue(true);
 
         // Verify
         Assert.AreEqual(Format(OldValue), OldValueText, 'The value was not formatted correctly');
-        DataTypeBuffer.Delete;
+        DataTypeBuffer.Delete();
     end;
 
     [Test]
@@ -1924,24 +1924,24 @@ codeunit 134300 "Workflow Engine UT"
         Initialize;
         OldValue := DataTypeBuffer.Option::option1;
 
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.Option := OldValue;
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         RecRef.GetTable(DataTypeBuffer);
 
-        WorkflowRecordChange.Init;
+        WorkflowRecordChange.Init();
         WorkflowRecordChange."Table No." := DATABASE::"Data Type Buffer";
         WorkflowRecordChange."Field No." := DataTypeBuffer.FieldNo(Option);
         WorkflowRecordChange."Old Value" := Format(OldValue, 0, 9);
         WorkflowRecordChange."Record ID" := RecRef.RecordId;
-        WorkflowRecordChange.Insert;
+        WorkflowRecordChange.Insert();
 
         OldValueText := WorkflowRecordChange.GetFormattedOldValue(true);
 
         // Verify
         Assert.AreEqual(Format(DataTypeBuffer.Option), OldValueText, 'The value was not formatted correctly');
-        DataTypeBuffer.Delete;
+        DataTypeBuffer.Delete();
     end;
 
     [Test]
@@ -1962,24 +1962,24 @@ codeunit 134300 "Workflow Engine UT"
         Initialize;
         OldValue := Today;
 
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.Date := OldValue;
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         RecRef.GetTable(DataTypeBuffer);
 
-        WorkflowRecordChange.Init;
+        WorkflowRecordChange.Init();
         WorkflowRecordChange."Table No." := DATABASE::"Data Type Buffer";
         WorkflowRecordChange."Field No." := DataTypeBuffer.FieldNo(Date);
         WorkflowRecordChange."Old Value" := Format(OldValue, 0, 9);
         WorkflowRecordChange."Record ID" := RecRef.RecordId;
-        WorkflowRecordChange.Insert;
+        WorkflowRecordChange.Insert();
 
         OldValueText := WorkflowRecordChange.GetFormattedOldValue(true);
 
         // Verify
         Assert.AreEqual(Format(OldValue), OldValueText, 'The value was not formatted correctly');
-        DataTypeBuffer.Delete;
+        DataTypeBuffer.Delete();
     end;
 
     [Test]
@@ -2000,24 +2000,24 @@ codeunit 134300 "Workflow Engine UT"
         Initialize;
         OldValue := CurrentDateTime;
 
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.DateTime := OldValue;
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         RecRef.GetTable(DataTypeBuffer);
 
-        WorkflowRecordChange.Init;
+        WorkflowRecordChange.Init();
         WorkflowRecordChange."Table No." := DATABASE::"Data Type Buffer";
         WorkflowRecordChange."Field No." := DataTypeBuffer.FieldNo(DateTime);
         WorkflowRecordChange."Old Value" := Format(OldValue, 0, 9);
         WorkflowRecordChange."Record ID" := RecRef.RecordId;
-        WorkflowRecordChange.Insert;
+        WorkflowRecordChange.Insert();
 
         OldValueText := WorkflowRecordChange.GetFormattedOldValue(true);
 
         // Verify
         Assert.AreEqual(Format(OldValue), OldValueText, 'The value was not formatted correctly');
-        DataTypeBuffer.Delete;
+        DataTypeBuffer.Delete();
     end;
 
     [Test]
@@ -2038,24 +2038,24 @@ codeunit 134300 "Workflow Engine UT"
         Initialize;
         OldValue := Time;
 
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.Time := OldValue;
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         RecRef.GetTable(DataTypeBuffer);
 
-        WorkflowRecordChange.Init;
+        WorkflowRecordChange.Init();
         WorkflowRecordChange."Table No." := DATABASE::"Data Type Buffer";
         WorkflowRecordChange."Field No." := DataTypeBuffer.FieldNo(Time);
         WorkflowRecordChange."Old Value" := Format(OldValue, 0, 9);
         WorkflowRecordChange."Record ID" := RecRef.RecordId;
-        WorkflowRecordChange.Insert;
+        WorkflowRecordChange.Insert();
 
         OldValueText := WorkflowRecordChange.GetFormattedOldValue(true);
 
         // Verify
         Assert.AreEqual(Format(OldValue), OldValueText, 'The value was not formatted correctly');
-        DataTypeBuffer.Delete;
+        DataTypeBuffer.Delete();
     end;
 
     [Test]
@@ -2076,24 +2076,24 @@ codeunit 134300 "Workflow Engine UT"
         Initialize;
         OldValue := true;
 
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.Boolean := OldValue;
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         RecRef.GetTable(DataTypeBuffer);
 
-        WorkflowRecordChange.Init;
+        WorkflowRecordChange.Init();
         WorkflowRecordChange."Table No." := DATABASE::"Data Type Buffer";
         WorkflowRecordChange."Field No." := DataTypeBuffer.FieldNo(Boolean);
         WorkflowRecordChange."Old Value" := Format(OldValue, 0, 9);
         WorkflowRecordChange."Record ID" := RecRef.RecordId;
-        WorkflowRecordChange.Insert;
+        WorkflowRecordChange.Insert();
 
         OldValueText := WorkflowRecordChange.GetFormattedOldValue(true);
 
         // Verify
         Assert.AreEqual(Format(OldValue), OldValueText, 'The value was not formatted correctly');
-        DataTypeBuffer.Delete;
+        DataTypeBuffer.Delete();
     end;
 
     [Test]
@@ -2114,24 +2114,24 @@ codeunit 134300 "Workflow Engine UT"
         Initialize;
         Evaluate(OldValue, '<+2D>');
 
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.DateFormula := OldValue;
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         RecRef.GetTable(DataTypeBuffer);
 
-        WorkflowRecordChange.Init;
+        WorkflowRecordChange.Init();
         WorkflowRecordChange."Table No." := DATABASE::"Data Type Buffer";
         WorkflowRecordChange."Field No." := DataTypeBuffer.FieldNo(DateFormula);
         WorkflowRecordChange."Old Value" := Format(OldValue, 0, 9);
         WorkflowRecordChange."Record ID" := RecRef.RecordId;
-        WorkflowRecordChange.Insert;
+        WorkflowRecordChange.Insert();
 
         OldValueText := WorkflowRecordChange.GetFormattedOldValue(true);
 
         // Verify
         Assert.AreEqual(Format(OldValue), OldValueText, 'The value was not formatted correctly');
-        DataTypeBuffer.Delete;
+        DataTypeBuffer.Delete();
     end;
 
     [Test]
@@ -2152,24 +2152,24 @@ codeunit 134300 "Workflow Engine UT"
         Initialize;
         OldValue := LibraryRandom.RandIntInRange(1000000, 2000000);
 
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.Duration := OldValue;
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         RecRef.GetTable(DataTypeBuffer);
 
-        WorkflowRecordChange.Init;
+        WorkflowRecordChange.Init();
         WorkflowRecordChange."Table No." := DATABASE::"Data Type Buffer";
         WorkflowRecordChange."Field No." := DataTypeBuffer.FieldNo(Duration);
         WorkflowRecordChange."Old Value" := Format(OldValue, 0, 9);
         WorkflowRecordChange."Record ID" := RecRef.RecordId;
-        WorkflowRecordChange.Insert;
+        WorkflowRecordChange.Insert();
 
         OldValueText := WorkflowRecordChange.GetFormattedOldValue(true);
 
         // Verify
         Assert.AreEqual(Format(OldValue), OldValueText, 'The value was not formatted correctly');
-        DataTypeBuffer.Delete;
+        DataTypeBuffer.Delete();
     end;
 
     [Test]
@@ -2190,24 +2190,24 @@ codeunit 134300 "Workflow Engine UT"
         Initialize;
         OldValue := LibraryRandom.RandIntInRange(1000000000, 2000000000);
 
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.BigInteger := OldValue;
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         RecRef.GetTable(DataTypeBuffer);
 
-        WorkflowRecordChange.Init;
+        WorkflowRecordChange.Init();
         WorkflowRecordChange."Table No." := DATABASE::"Data Type Buffer";
         WorkflowRecordChange."Field No." := DataTypeBuffer.FieldNo(BigInteger);
         WorkflowRecordChange."Old Value" := Format(OldValue, 0, 9);
         WorkflowRecordChange."Record ID" := RecRef.RecordId;
-        WorkflowRecordChange.Insert;
+        WorkflowRecordChange.Insert();
 
         OldValueText := WorkflowRecordChange.GetFormattedOldValue(true);
 
         // Verify
         Assert.AreEqual(Format(OldValue), OldValueText, 'The value was not formatted correctly');
-        DataTypeBuffer.Delete;
+        DataTypeBuffer.Delete();
     end;
 
     [Test]
@@ -2228,24 +2228,24 @@ codeunit 134300 "Workflow Engine UT"
         Initialize;
         OldValue := 'TESTCODE';
 
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.Code := OldValue;
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         RecRef.GetTable(DataTypeBuffer);
 
-        WorkflowRecordChange.Init;
+        WorkflowRecordChange.Init();
         WorkflowRecordChange."Table No." := DATABASE::"Data Type Buffer";
         WorkflowRecordChange."Field No." := DataTypeBuffer.FieldNo(Code);
         WorkflowRecordChange."Old Value" := Format(OldValue, 0, 9);
         WorkflowRecordChange."Record ID" := RecRef.RecordId;
-        WorkflowRecordChange.Insert;
+        WorkflowRecordChange.Insert();
 
         OldValueText := WorkflowRecordChange.GetFormattedOldValue(true);
 
         // Verify
         Assert.AreEqual(Format(OldValue), OldValueText, 'The value was not formatted correctly');
-        DataTypeBuffer.Delete;
+        DataTypeBuffer.Delete();
     end;
 
     [Test]
@@ -2265,24 +2265,24 @@ codeunit 134300 "Workflow Engine UT"
         // Setup
         OldValue := 'TestText';
 
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.Text := OldValue;
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         RecRef.GetTable(DataTypeBuffer);
 
-        WorkflowRecordChange.Init;
+        WorkflowRecordChange.Init();
         WorkflowRecordChange."Table No." := DATABASE::"Data Type Buffer";
         WorkflowRecordChange."Field No." := DataTypeBuffer.FieldNo(Text);
         WorkflowRecordChange."Old Value" := Format(OldValue, 0, 9);
         WorkflowRecordChange."Record ID" := RecRef.RecordId;
-        WorkflowRecordChange.Insert;
+        WorkflowRecordChange.Insert();
 
         OldValueText := WorkflowRecordChange.GetFormattedOldValue(true);
 
         // Verify
         Assert.AreEqual(Format(OldValue), OldValueText, 'The value was not formatted correctly');
-        DataTypeBuffer.Delete;
+        DataTypeBuffer.Delete();
     end;
 
     [Test]
@@ -2305,12 +2305,12 @@ codeunit 134300 "Workflow Engine UT"
         EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
             WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode);
 
-        WorkflowStep.Init;
+        WorkflowStep.Init();
         WorkflowStep."Workflow Code" := Workflow.Code;
         WorkflowStep."Function Name" := '';
         WorkflowStep."Previous Workflow Step ID" := EntryPointEventStepId;
         WorkflowStep.Type := WorkflowStep.Type::"Event";
-        WorkflowStep.Insert;
+        WorkflowStep.Insert();
 
         // Exercise
         asserterror Workflow.Validate(Enabled, true);
@@ -2339,12 +2339,12 @@ codeunit 134300 "Workflow Engine UT"
         EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
             WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode);
 
-        WorkflowStep.Init;
+        WorkflowStep.Init();
         WorkflowStep."Workflow Code" := Workflow.Code;
         WorkflowStep."Function Name" := '';
         WorkflowStep."Previous Workflow Step ID" := EntryPointEventStepId;
         WorkflowStep.Type := WorkflowStep.Type::Response;
-        WorkflowStep.Insert;
+        WorkflowStep.Insert();
 
         // Exercise
         asserterror Workflow.Validate(Enabled, true);
@@ -2375,7 +2375,7 @@ codeunit 134300 "Workflow Engine UT"
 
         WorkflowStep.Get(Workflow.Code, EntryPointEventStepId);
         WorkflowStep.Type := WorkflowStep.Type::"Sub-Workflow";
-        WorkflowStep.Modify;
+        WorkflowStep.Modify();
 
         // Exercise
         asserterror Workflow.Validate(Enabled, true);
@@ -2461,17 +2461,17 @@ codeunit 134300 "Workflow Engine UT"
     begin
         LibraryWorkflow.DeleteAllExistingWorkflows;
 
-        JobQueueEntry.DeleteAll;
+        JobQueueEntry.DeleteAll();
 
-        ApprovalEntry.DeleteAll;
-        NotificationEntry.DeleteAll;
+        ApprovalEntry.DeleteAll();
+        NotificationEntry.DeleteAll();
 
         LibraryVariableStorage.Clear;
     end;
 
     local procedure CreateAnyEvent(var WorkflowEvent: Record "Workflow Event"; TableID: Integer)
     begin
-        WorkflowEvent.Init;
+        WorkflowEvent.Init();
         WorkflowEvent."Function Name" := LibraryUtility.GenerateGUID;
         WorkflowEvent.Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(WorkflowEvent.Description)), 1,
             MaxStrLen(WorkflowEvent.Description));
@@ -2481,7 +2481,7 @@ codeunit 134300 "Workflow Engine UT"
 
     local procedure CreateAnyResponse(var WorkflowResponse: Record "Workflow Response")
     begin
-        WorkflowResponse.Init;
+        WorkflowResponse.Init();
         WorkflowResponse."Function Name" := LibraryUtility.GenerateGUID;
         WorkflowResponse.Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(WorkflowResponse.Description)), 1,
             MaxStrLen(WorkflowResponse.Description));

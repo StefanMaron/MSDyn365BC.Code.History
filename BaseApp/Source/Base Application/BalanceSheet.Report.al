@@ -18,9 +18,6 @@ report 11200 "Balance sheet"
             column(Period______PeriodText; 'Period: ' + PeriodText)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
@@ -106,7 +103,7 @@ report 11200 "Balance sheet"
                 trigger OnAfterGetRecord()
                 begin
                     if not PrintOut then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
             }
 

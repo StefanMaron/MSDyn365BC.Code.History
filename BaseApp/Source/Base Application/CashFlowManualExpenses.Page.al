@@ -1,4 +1,4 @@
-﻿page 859 "Cash Flow Manual Expenses"
+page 859 "Cash Flow Manual Expenses"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Cash Flow Manual Expenses';

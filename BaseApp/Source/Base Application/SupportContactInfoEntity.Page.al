@@ -62,7 +62,7 @@ page 9166 "Support Contact Info. Entity"
         SupportContactInformation: Record "Support Contact Information";
     begin
         if SupportContactInformation.IsEmpty then begin
-            SupportContactInformation.Init;
+            SupportContactInformation.Init();
             SupportContactInformation.Insert(true);
         end;
     end;

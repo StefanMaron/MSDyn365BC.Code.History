@@ -18,10 +18,10 @@ codeunit 1238 "Suggest Col. Definition - Json"
         with DataExchColumnDef do begin
             SetRange("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
             SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
-            DeleteAll;
+            DeleteAll();
             ColumnNo := 0;
 
-            TempXMLBuffer.Reset;
+            TempXMLBuffer.Reset();
             if TempXMLBuffer.FindSet then
                 repeat
                     ColumnNo += 10000;

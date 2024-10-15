@@ -125,7 +125,7 @@ table 1502 "Workflow Step"
                             WorkflowRule.SetRange("Workflow Step ID", ID);
                             WorkflowRule.SetRange("Workflow Step Instance ID", EmptyGuid);
                             if not WorkflowRule.IsEmpty then
-                                WorkflowRule.DeleteAll;
+                                WorkflowRule.DeleteAll();
                         end;
                 end;
 
@@ -183,7 +183,7 @@ table 1502 "Workflow Step"
         UpdateReferredNextStepsInstances;
 
         if WorkflowStepArgument.Get(Argument) then
-            WorkflowStepArgument.Delete;
+            WorkflowStepArgument.Delete();
         DeleteStepRules;
 
         // Change Previous Workflow Step ID to not point to the deleted step
@@ -224,7 +224,7 @@ table 1502 "Workflow Step"
         WorkflowStepArgument: Record "Workflow Step Argument";
         WorkflowStepInstance: Record "Workflow Step Instance";
     begin
-        WorkflowStepInstance.Init;
+        WorkflowStepInstance.Init();
         WorkflowStepInstance.ID := WorkflowInstanceID;
         WorkflowStepInstance."Workflow Code" := WorkflowCode;
         WorkflowStepInstance."Workflow Step ID" := ID;
@@ -407,7 +407,7 @@ table 1502 "Workflow Step"
     begin
         WorkflowStep.TestField(Type, WorkflowStep.Type::"Event");
 
-        WorkflowStepArgument.Init;
+        WorkflowStepArgument.Init();
         WorkflowStepArgument.Type := WorkflowStepArgument.Type::"Event";
         WorkflowStepArgument.Insert(true);
 
@@ -424,7 +424,7 @@ table 1502 "Workflow Step"
         TempWorkflowStepBuffer.SetFilter("Event Step ID", '0|%1', LookupID);
         TempWorkflowStepBuffer.SetFilter("Response Step ID", '0|%1', LookupID);
         if TempWorkflowStepBuffer.FindFirst then;
-        TempWorkflowStepBuffer.Reset;
+        TempWorkflowStepBuffer.Reset();
         if PAGE.RunModal(PAGE::"Workflow Steps", TempWorkflowStepBuffer) = ACTION::LookupOK then begin
             LookupID := TempWorkflowStepBuffer."Event Step ID" + TempWorkflowStepBuffer."Response Step ID";
             exit(true);
@@ -516,7 +516,7 @@ table 1502 "Workflow Step"
         TestField(Type, Type::Response);
 
         if IsNullGuid(Argument) or (not WorkflowStepArgument.Get(Argument)) then begin
-            WorkflowStepArgument.Init;
+            WorkflowStepArgument.Init();
             WorkflowStepArgument.Type := WorkflowStepArgument.Type::Response;
             WorkflowStepArgument."Response Function Name" := "Function Name";
             WorkflowStepArgument.Insert(true);
@@ -560,7 +560,7 @@ table 1502 "Workflow Step"
         WorkflowRule: Record "Workflow Rule";
     begin
         if FindWorkflowRules(WorkflowRule) then
-            WorkflowRule.DeleteAll;
+            WorkflowRule.DeleteAll();
     end;
 
     local procedure InstantiateStepRules(InstanceID: Guid)

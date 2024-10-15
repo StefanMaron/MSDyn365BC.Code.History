@@ -25,7 +25,7 @@ codeunit 7318 "Bin Create"
             repeat
                 BinCreate(BinCreateLine);
             until BinCreateLine.Next = 0;
-            BinCreateLine.DeleteAll;
+            BinCreateLine.DeleteAll();
         end else
             Message(Text001);
     end;
@@ -36,7 +36,7 @@ codeunit 7318 "Bin Create"
             if EmptyLine then
                 exit;
 
-            Bin.Init;
+            Bin.Init();
             Bin.Code := "Bin Code";
             Bin.Description := Description;
             Bin."Location Code" := "Location Code";

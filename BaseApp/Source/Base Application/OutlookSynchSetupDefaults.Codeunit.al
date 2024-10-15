@@ -275,7 +275,7 @@ codeunit 5312 "Outlook Synch. Setup Defaults"
               OutlookSynchDependency."Record GUID", OutlookSynchEntity1."Table No.", 1, OutlookSynchFilter.Type::FIELD, "Table No.", 5, '');
             OutlookSynchDependency."Table Relation" :=
               OutlookSynchSetupMgt.ComposeFilterExpression(OutlookSynchDependency."Record GUID", 1);
-            OutlookSynchDependency.Modify;
+            OutlookSynchDependency.Modify();
 
             InsertODependency("Synch. Entity Code", "Element No.", Text111);
             OutlookSynchDependency.Get("Synch. Entity Code", "Element No.", Text111);
@@ -285,7 +285,7 @@ codeunit 5312 "Outlook Synch. Setup Defaults"
               OutlookSynchField."Master Table No.", 5, '');
             OutlookSynchDependency."Table Relation" :=
               OutlookSynchSetupMgt.ComposeFilterExpression(OutlookSynchDependency."Record GUID", 1);
-            OutlookSynchDependency.Modify;
+            OutlookSynchDependency.Modify();
 
             InsertOutlookSynchField("Synch. Entity Code", "Element No.", "Table No.", "Outlook Collection", 'Name', false, true, 5050, 2, '', 2);
         end;
@@ -600,7 +600,7 @@ codeunit 5312 "Outlook Synch. Setup Defaults"
 
     local procedure InsertDefaultDependency(OutlookSynchEntity1: Record "Outlook Synch. Entity"; DependEntityElemCode: Code[10]; DependEntityElemOCollection: Text)
     begin
-        OutlookSynchEntityElement.Reset;
+        OutlookSynchEntityElement.Reset();
         OutlookSynchEntityElement.SetRange("Synch. Entity Code", DependEntityElemCode);
         OutlookSynchEntityElement.SetRange("Outlook Collection", DependEntityElemOCollection);
         if OutlookSynchEntityElement.FindFirst then begin
@@ -624,7 +624,7 @@ codeunit 5312 "Outlook Synch. Setup Defaults"
                 OutlookSynchDependency.Condition := OutlookSynchSetupMgt.ComposeFilterExpression(OutlookSynchDependency."Record GUID", 0);
             OutlookSynchDependency."Table Relation" :=
               OutlookSynchSetupMgt.ComposeFilterExpression(OutlookSynchDependency."Record GUID", 1);
-            OutlookSynchDependency.Modify;
+            OutlookSynchDependency.Modify();
         end
     end;
 

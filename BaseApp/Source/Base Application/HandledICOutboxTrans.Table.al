@@ -154,7 +154,7 @@ table 416 "Handled IC Outbox Trans."
         ICCommentLine.SetRange("Table Name", ICCommentLine."Table Name"::"Handled IC Outbox Transaction");
         ICCommentLine.SetRange("Transaction No.", TransactionNo);
         ICCommentLine.SetRange("IC Partner Code", ICPartnerCode);
-        ICCommentLine.DeleteAll;
+        ICCommentLine.DeleteAll();
     end;
 
     [IntegrationEvent(false, false)]

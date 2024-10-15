@@ -45,5 +45,17 @@ codeunit 152 "User Permissions"
     begin
         exit(UserPermissionsImpl.CanManageUsersOnTenant(UserSecurityId));
     end;
+
+    /// <summary>
+    /// Checks whether custom permissions are assigned to the user.
+    /// </summary>
+    /// <param name="UserSecurityId">The security ID of the user to check for.</param>
+    /// <returns>True if the user with the given user security ID has custom permissions; false otherwise.</returns>  
+    procedure HasUserCustomPermissions(UserSecurityId: Guid): Boolean
+    var
+        UserPermissionsImpl: Codeunit "User Permissions Impl.";
+    begin
+        exit(UserPermissionsImpl.HasUserCustomPermissions(UserSecurityId));
+    end;
 }
 

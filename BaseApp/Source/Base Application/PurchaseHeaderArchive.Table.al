@@ -7,11 +7,9 @@ table 5109 "Purchase Header Archive"
 
     fields
     {
-        field(1; "Document Type"; Option)
+        field(1; "Document Type"; Enum "Purchase Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = 'Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order';
-            OptionMembers = Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         }
         field(2; "Buy-from Vendor No."; Code[20])
         {
@@ -208,11 +206,9 @@ table 5109 "Purchase Header Archive"
         {
             Caption = 'On Hold';
         }
-        field(52; "Applies-to Doc. Type"; Option)
+        field(52; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(53; "Applies-to Doc. No."; Code[20])
         {
@@ -406,11 +402,9 @@ table 5109 "Purchase Header Archive"
             Caption = 'Ship-to Country/Region Code';
             TableRelation = "Country/Region";
         }
-        field(94; "Bal. Account Type"; Option)
+        field(94; "Bal. Account Type"; enum "Payment Balance Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Bank Account';
-            OptionMembers = "G/L Account","Bank Account";
         }
         field(95; "Order Address Code"; Code[10])
         {
@@ -776,13 +770,13 @@ table 5109 "Purchase Header Archive"
         PurchaseLineArchive.SetRange("Document No.", "No.");
         PurchaseLineArchive.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");
         PurchaseLineArchive.SetRange("Version No.", "Version No.");
-        PurchaseLineArchive.DeleteAll;
+        PurchaseLineArchive.DeleteAll();
 
         PurchCommentLineArch.SetRange("Document Type", "Document Type");
         PurchCommentLineArch.SetRange("No.", "No.");
         PurchCommentLineArch.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");
         PurchCommentLineArch.SetRange("Version No.", "Version No.");
-        PurchCommentLineArch.DeleteAll;
+        PurchCommentLineArch.DeleteAll();
 
         DeferralHeaderArchive.SetRange("Deferral Doc. Type", DeferralUtilities.GetPurchDeferralDocType);
         DeferralHeaderArchive.SetRange("Document Type", "Document Type");

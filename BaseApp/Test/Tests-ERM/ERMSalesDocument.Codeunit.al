@@ -26,6 +26,7 @@ codeunit 134385 "ERM Sales Document"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         ArchiveManagement: Codeunit ArchiveManagement;
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo","Arch. Quote","Arch. Order","Arch. Blanket Order","Arch. Return Order";
         isInitialized: Boolean;
         VATAmountError: Label 'VAT %1 must be %2 in %3.';
@@ -89,7 +90,7 @@ codeunit 134385 "ERM Sales Document"
         SalesHeader.CalcFields(Amount);
 
         // Verify: Check VAT Amount on Sales Return Line.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(
           SalesHeader.Amount * SalesLine."VAT %" / 100, VATAmountLine."VAT Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(VATAmountError, VATAmountLine.FieldCaption("VAT Amount"), SalesHeader.Amount * SalesLine."VAT %" / 100,
@@ -169,7 +170,7 @@ codeunit 134385 "ERM Sales Document"
         LineAmount := (SalesLine.Quantity * SalesLine."Unit Price") * ((100 - SalesLine."Line Discount %") / 100);
 
         // Verify: Verify Line Discount Amount.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(
           LineAmount, SalesLine."Line Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(FieldError, SalesLine.FieldCaption("Line Amount"), LineAmount, SalesLine.TableCaption));
@@ -276,7 +277,7 @@ codeunit 134385 "ERM Sales Document"
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer);
         DocumentNo := SalesHeader."No.";
 
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::"Return Order");
         SalesHeader.Insert(true);  // Using Copy Document feature need New record only without Customer.
 
@@ -394,12 +395,16 @@ codeunit 134385 "ERM Sales Document"
         TempSalesLine: Record "Sales Line" temporary;
         SalesLineDiscount: Record "Sales Line Discount";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        PriceListLine: Record "Price List Line";
     begin
         // Test post a Sales Return Order and verify GL Entry for the Line Discount Amount.
 
         // 1. Setup: Setup Line Discount and create a Sales Return Order.
         Initialize;
+        PriceListLine.DeleteAll();
         SetupLineDiscount(SalesLineDiscount);
+        CopyFromToPriceListLine.CopyFrom(SalesLineDiscount, PriceListLine);
+
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", SalesLineDiscount."Sales Code");
         SalesLinesWithLineDiscount(SalesLine, SalesHeader, SalesLineDiscount);
         CopySalesLines(TempSalesLine, SalesLine);
@@ -528,7 +533,7 @@ codeunit 134385 "ERM Sales Document"
         // Verify: Verify GL Entry for Partial Sales Invoice.
         CustomerPostingGroup.Get(SalesHeader."Customer Posting Group");
         FindGLEntry(GLEntry, DocumentNo, CustomerPostingGroup."Receivables Account");
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(
           TotalAmount, GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(FieldError, GLEntry.FieldCaption(Amount), TotalAmount, GLEntry.TableCaption));
@@ -693,7 +698,7 @@ codeunit 134385 "ERM Sales Document"
         LibraryERM.CreatePaymentMethod(PaymentMethod);
         PaymentMethod.Validate("Bal. Account Type", PaymentMethod."Bal. Account Type"::"G/L Account");
         PaymentMethod.Validate("Bal. Account No.", GLAccount."No.");
-        PaymentMethod.Modify;
+        PaymentMethod.Modify();
 
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, CreateCustomer);
@@ -706,7 +711,7 @@ codeunit 134385 "ERM Sales Document"
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Verify: Verify GL and Customer Ledger Entry for Amount and SalesPerson Code.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindGLEntry(GLEntry, DocumentNo, PaymentMethod."Bal. Account No.");
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
@@ -742,7 +747,7 @@ codeunit 134385 "ERM Sales Document"
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Customer, Customer."No.", LibraryRandom.RandDec(100, 2));
         GenJournalLine.Validate("Posting Date", CalcDate('<-1Y>', WorkDate));
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
@@ -1834,7 +1839,7 @@ codeunit 134385 "ERM Sales Document"
         // [SCENARIO 377813] Sales Header should have init value "Optional" for field "Reserve"
         Initialize;
 
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.TestField(Reserve, SalesHeader.Reserve::Optional);
     end;
 
@@ -1855,7 +1860,7 @@ codeunit 134385 "ERM Sales Document"
         Customer.Modify(true);
 
         // [GIVEN] Sales Header with "Sell-to Customer No." = "C"
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
 
         // [WHEN] Insert Sales Header
@@ -1882,7 +1887,7 @@ codeunit 134385 "ERM Sales Document"
         Customer.Modify(true);
 
         // [GIVEN] Sales Header with Reserve = Optional
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Insert(true);
 
         // [WHEN] Set "Sell-to Customer No." to "C" in Sales Header
@@ -1919,7 +1924,7 @@ codeunit 134385 "ERM Sales Document"
         // [THEN] TempAnalysisColumn must contain the records for T2 only.
         AnalysisColumn.SetRange("Analysis Area", AnalysisLine."Analysis Area");
         AnalysisColumn.SetRange("Analysis Column Template", ColumnName[2]);
-        TempAnalysisColumn.Reset;
+        TempAnalysisColumn.Reset();
 
         Assert.RecordCount(TempAnalysisColumn, AnalysisColumn.Count);
 
@@ -2892,7 +2897,7 @@ codeunit 134385 "ERM Sales Document"
 
         CreateCustomersWithSameName(Customer1, Customer2);
 
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Invoice);
         SalesHeader.Insert(true);
         SalesHeader.TestField("No.");
@@ -2936,7 +2941,7 @@ codeunit 134385 "ERM Sales Document"
 
         CreateCustomersWithSameName(Customer1, Customer2);
 
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Invoice);
         SalesHeader.Insert(true);
         SalesHeader.TestField("No.");
@@ -2983,7 +2988,7 @@ codeunit 134385 "ERM Sales Document"
 
         CreateCustomersWithSameName(Customer1, Customer2);
 
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Invoice);
         SalesHeader.Insert(true);
         SalesHeader.TestField("No.");
@@ -3027,9 +3032,9 @@ codeunit 134385 "ERM Sales Document"
 
         CreateCustomersWithSameName(Customer1, Customer2);
         Customer2.Name := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(100, 0), 1, MaxStrLen(Customer2.Name));
-        Customer2.Modify; // we don't need duplicate names in this test
+        Customer2.Modify(); // we don't need duplicate names in this test
 
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Invoice);
         SalesHeader.Insert(true);
         SalesHeader.TestField("No.");
@@ -3081,7 +3086,7 @@ codeunit 134385 "ERM Sales Document"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdateLocalData;
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -3135,10 +3140,10 @@ codeunit 134385 "ERM Sales Document"
         AccountingPeriod: Record "Accounting Period";
     begin
         if AccountingPeriod.GetFiscalYearStartDate(WorkDate) = 0D then begin
-            AccountingPeriod.Init;
+            AccountingPeriod.Init();
             AccountingPeriod."Starting Date" := CalcDate('<-CY>', WorkDate);
             AccountingPeriod."New Fiscal Year" := true;
-            AccountingPeriod.Insert;
+            AccountingPeriod.Insert();
         end;
     end;
 
@@ -3353,7 +3358,7 @@ codeunit 134385 "ERM Sales Document"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.FindFirst;
         SalesLine."Line No." += 10000;
-        SalesLine.Insert;
+        SalesLine.Insert();
     end;
 
     local procedure SetInvDiscForCustomer(): Code[20]
@@ -3572,9 +3577,9 @@ codeunit 134385 "ERM Sales Document"
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesSetup.GET;
+        SalesSetup.Get();
         SalesSetup."Copy Line Descr. to G/L Entry" := CopyLineDescrToGLEntry;
-        SalesSetup.MODIFY;
+        SalesSetup.Modify();
     end;
 
     local procedure CreateSalesOrderWithUniqueDescriptionLines(var SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary; Type: Option)
@@ -3597,9 +3602,9 @@ codeunit 134385 "ERM Sales Document"
                 LibraryUtility.GenerateRandomAlphabeticText(MAXSTRLEN(SalesLine.Description), 1),
                 1,
                 MAXSTRLEN(SalesLine.Description));
-            SalesLine.MODIFY;
+            SalesLine.Modify();
             TempSalesLine := SalesLine;
-            TempSalesLine.INSERT;
+            TempSalesLine.Insert();
         END;
     end;
 
@@ -3796,9 +3801,9 @@ codeunit 134385 "ERM Sales Document"
     begin
         FindSalesLines(SalesLine2);
         repeat
-            SalesLine.Init;
+            SalesLine.Init();
             SalesLine := SalesLine2;
-            SalesLine.Insert;
+            SalesLine.Insert();
         until SalesLine2.Next = 0;
     end;
 
@@ -3939,7 +3944,7 @@ codeunit 134385 "ERM Sales Document"
         SalesLine: Record "Sales Line";
     begin
         FindSalesLine(SalesLine, SalesHeader);
-        SalesLine.Delete;
+        SalesLine.Delete();
     end;
 
     local procedure InitSetupForSalesDocumentWithBinContent(var SalesLine: Record "Sales Line"): Code[20]
@@ -3978,7 +3983,7 @@ codeunit 134385 "ERM Sales Document"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;  // Fix for Number Series Error.
+        SalesReceivablesSetup.Get();  // Fix for Number Series Error.
         SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -3988,7 +3993,7 @@ codeunit 134385 "ERM Sales Document"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         NoSeries: Record "No. Series";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         NoSeries.Get(SalesReceivablesSetup."Posted Invoice Nos.");
         OldDateOrder := NoSeries."Date Order";
         NoSeries.Validate("Date Order", DateOrder);
@@ -4024,7 +4029,7 @@ codeunit 134385 "ERM Sales Document"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Exact Cost Reversing Mandatory", NewExactCostReversingMandatory);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -4073,7 +4078,7 @@ codeunit 134385 "ERM Sales Document"
             1000000:
                 AnalysisColumn."Rounding Factor" := AnalysisColumn."Rounding Factor"::"1000000";
         end;
-        AnalysisColumn.Modify;
+        AnalysisColumn.Modify();
     end;
 
     local procedure ModifyVATPostingSetupVATRateAndClauseCode(var VATPostingSetup: Record "VAT Posting Setup"; VATRate: Decimal; VATClauseCode: Code[20])
@@ -4124,7 +4129,7 @@ codeunit 134385 "ERM Sales Document"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Credit Warnings", CreditWarnings);
         SalesReceivablesSetup.Validate("Stockout Warning", StockoutWarning);
         SalesReceivablesSetup.Modify(true);
@@ -4219,7 +4224,7 @@ codeunit 134385 "ERM Sales Document"
         GeneralLedgerSetup: Record "General Ledger Setup";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindSalesCrMemoHeader(SalesCrMemoHeader, ReturnOrderNo);
         FindCustLedgerEntry(CustLedgerEntry, SalesCrMemoHeader."No.", CustLedgerEntry."Document Type"::"Credit Memo");
         Assert.AreNearlyEqual(Amount, CustLedgerEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
@@ -4232,7 +4237,7 @@ codeunit 134385 "ERM Sales Document"
         GLEntry: Record "G/L Entry";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindSalesCrMemoHeader(SalesCrMemoHeader, ReturnOrderNo);
         FindGLEntry(GLEntry, SalesCrMemoHeader."No.", AccountNo);
         Assert.AreNearlyEqual(Amount, GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
@@ -4245,7 +4250,7 @@ codeunit 134385 "ERM Sales Document"
         GeneralPostingSetup: Record "General Posting Setup";
         GLEntry: Record "G/L Entry";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GeneralPostingSetup."Sales Inv. Disc. Account");
@@ -4261,7 +4266,7 @@ codeunit 134385 "ERM Sales Document"
         VATEntry: Record "VAT Entry";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindSalesCrMemoHeader(SalesCrMemoHeader, ReturnOrderNo);
         FindVATEntry(VATEntry, SalesCrMemoHeader."No.");
         Assert.AreNearlyEqual(VATAmount, -VATEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
@@ -4275,7 +4280,7 @@ codeunit 134385 "ERM Sales Document"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         TotalCostAmount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindSalesCrMemoHeader(SalesCrMemoHeader, ReturnOrderNo);
         FindValueEntry(ValueEntry, ValueEntry."Document Type"::"Sales Credit Memo", SalesCrMemoHeader."No.");
         repeat
@@ -4365,7 +4370,7 @@ codeunit 134385 "ERM Sales Document"
         GeneralLedgerSetup: Record "General Ledger Setup";
         VATAmountSalesLine: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindSalesLines(SalesLine);
         repeat
             VATAmountSalesLine := SalesLine."Line Amount" * (1 + SalesLine."VAT %" / 100);
@@ -4380,7 +4385,7 @@ codeunit 134385 "ERM Sales Document"
         GLEntry: Record "G/L Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetFilter(Amount, '>0');
         Assert.AreNearlyEqual(
@@ -4406,7 +4411,7 @@ codeunit 134385 "ERM Sales Document"
         VATEntry: Record "VAT Entry";
         TotalVATAmount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.FindSet;
         repeat
@@ -4422,7 +4427,7 @@ codeunit 134385 "ERM Sales Document"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
         CustLedgerEntry.FindFirst;
         CustLedgerEntry.CalcFields("Amount (LCY)");
@@ -4436,7 +4441,7 @@ codeunit 134385 "ERM Sales Document"
         GeneralLedgerSetup: Record "General Ledger Setup";
         LineDiscountAmount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindSalesLines(SalesLine);
         repeat
             LineDiscountAmount := Round(SalesLine.Quantity * SalesLine."Unit Price" * SalesLine."Line Discount %" / 100);
@@ -4451,7 +4456,7 @@ codeunit 134385 "ERM Sales Document"
         GeneralLedgerSetup: Record "General Ledger Setup";
         InvoiceDiscountAmount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindSalesLines(SalesLine);
         repeat
             InvoiceDiscountAmount := Round(SalesLine."Line Amount" * CustInvoiceDisc."Discount %" / 100);

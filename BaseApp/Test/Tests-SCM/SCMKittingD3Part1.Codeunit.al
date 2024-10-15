@@ -69,11 +69,11 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
-        MfgSetup.Get;
+        MfgSetup.Get();
         WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
         LibraryCosting.AdjustCostItemEntries('', '');
         LibraryCosting.PostInvtCostToGL(false, WorkDate2, '');
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Kitting - D3 - Part 1");
     end;
@@ -606,7 +606,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         ShortcutDimensionCode: Code[20];
         DimensionSetID: Integer;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         if Num = 1 then
             ShortcutDimensionCode := GeneralLedgerSetup."Shortcut Dimension 1 Code"
         else
@@ -1093,7 +1093,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
           InventorySetup."Average Cost Period"::Day);
 
         // Exercise.
-        PostedAssemblyHeader.Reset;
+        PostedAssemblyHeader.Reset();
         PostedAssemblyHeader.SetRange("Order No.", AssemblyHeaderNo);
         PostedAssemblyHeader.FindFirst;
         if PerPostingGroup then
@@ -1385,7 +1385,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         Item.Validate("Overhead Rate", 5);
         Item.Validate("Single-Level Capacity Cost", 7);
         Item.Validate("Single-Level Cap. Ovhd Cost", 11);
-        Item.Modify;
+        Item.Modify();
 
         BOMComponent.SetRange("Parent Item No.", Item."No.");
         if BOMComponent.FindSet then

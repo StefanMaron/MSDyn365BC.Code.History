@@ -134,7 +134,7 @@ codeunit 134070 "ERM Delete Posting Groups"
         // [FEATURE] [Inventory]
         // [GIVEN] new Inventory Posting Setup, where "Location" = 'A',"Inv. Posting Group Code" = 'B'
         Location.Code := CopyStr(LibraryRandom.RandText(10), 1, MaxStrLen(Location.Code));
-        Location.Insert;
+        Location.Insert();
         LibraryInventory.CreateInventoryPostingGroup(InventoryPostingGroup);
         LibraryInventory.CreateInventoryPostingSetup(InventoryPostingSetup, Location.Code, InventoryPostingGroup.Code);
 
@@ -143,7 +143,7 @@ codeunit 134070 "ERM Delete Posting Groups"
         ValueEntry."Entry No." += 1;
         ValueEntry."Location Code" := Location.Code;
         ValueEntry."Inventory Posting Group" := InventoryPostingGroup.Code;
-        ValueEntry.Insert;
+        ValueEntry.Insert();
 
         // [WHEN] Delete General Posting Setup
         asserterror InventoryPostingSetup.Delete(true);
@@ -174,7 +174,7 @@ codeunit 134070 "ERM Delete Posting Groups"
         GLEntry."Entry No." += 1;
         GLEntry."Gen. Bus. Posting Group" := GeneralPostingSetup."Gen. Bus. Posting Group";
         GLEntry."Gen. Prod. Posting Group" := GeneralPostingSetup."Gen. Prod. Posting Group";
-        GLEntry.Insert;
+        GLEntry.Insert();
 
         // [WHEN] Delete General Posting Setup
         asserterror GeneralPostingSetup.Delete(true);
@@ -205,7 +205,7 @@ codeunit 134070 "ERM Delete Posting Groups"
         GLEntry."Entry No." += 1;
         GLEntry."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         GLEntry."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
-        GLEntry.Insert;
+        GLEntry.Insert();
 
         // [WHEN] Delete VAT Posting Setup
         asserterror VATPostingSetup.Delete(true);
@@ -222,7 +222,7 @@ codeunit 134070 "ERM Delete Posting Groups"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Delete Posting Groups");
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Delete Posting Groups");
     end;
 }

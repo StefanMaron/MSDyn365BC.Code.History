@@ -157,7 +157,7 @@ table 5769 "Warehouse Setup"
 
     procedure GetNextReference(): Integer
     begin
-        LockTable;
+        LockTable();
         Get;
         "Last Whse. Posting Ref. No." := "Last Whse. Posting Ref. No." + 1;
         Modify;

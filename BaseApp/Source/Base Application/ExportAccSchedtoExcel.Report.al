@@ -28,17 +28,17 @@ report 29 "Export Acc. Sched. to Excel"
                   '@1@@@@@@@@@@@@@@@@@@@@@\');
                 Window.Update(1, 0);
                 AccSchedLine.SetFilter(Show, '<>%1', AccSchedLine.Show::No);
-                TotalRecNo := AccSchedLine.Count;
+                TotalRecNo := AccSchedLine.Count();
                 RecNo := 0;
 
-                TempExcelBuffer.DeleteAll;
+                TempExcelBuffer.DeleteAll();
                 Clear(TempExcelBuffer);
 
                 AccSchedName.Get(AccSchedLine.GetRangeMin("Schedule Name"));
                 AccSchedManagement.CheckAnalysisView(AccSchedName.Name, ColumnLayout.GetRangeMin("Column Layout Name"), true);
                 if AccSchedName."Analysis View Name" <> '' then
                     AnalysisView.Get(AccSchedName."Analysis View Name");
-                GLSetup.Get;
+                GLSetup.Get();
 
                 RowNo := 1;
                 EnterCell(RowNo, 1, Text001, false, false, true, false, '', TempExcelBuffer."Cell Type"::Text);
@@ -212,7 +212,7 @@ report 29 "Export Acc. Sched. to Excel"
 
     local procedure EnterCell(RowNo: Integer; ColumnNo: Integer; CellValue: Text[250]; Bold: Boolean; Italic: Boolean; UnderLine: Boolean; DoubleUnderLine: Boolean; Format: Text[30]; CellType: Option)
     begin
-        TempExcelBuffer.Init;
+        TempExcelBuffer.Init();
         TempExcelBuffer.Validate("Row No.", RowNo);
         TempExcelBuffer.Validate("Column No.", ColumnNo);
         TempExcelBuffer."Cell Value as Text" := CellValue;
@@ -228,7 +228,7 @@ report 29 "Export Acc. Sched. to Excel"
         end;
         TempExcelBuffer.NumberFormat := Format;
         TempExcelBuffer."Cell Type" := CellType;
-        TempExcelBuffer.Insert;
+        TempExcelBuffer.Insert();
     end;
 
     local procedure GetDimFilterCaption(DimFilterNo: Integer): Text[80]

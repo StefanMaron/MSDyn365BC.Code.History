@@ -193,12 +193,6 @@ page 11207 "Automatic Acc. Line"
         AutoHead: Record "Automatic Acc. Header";
         Text19003018: Label 'Balance';
 
-    [Scope('OnPrem')]
-    procedure ShowDimensions()
-    begin
-        Rec.ShowDimensions;
-    end;
-
     local procedure AfterGetCurrentRecord()
     begin
         xRec := Rec;

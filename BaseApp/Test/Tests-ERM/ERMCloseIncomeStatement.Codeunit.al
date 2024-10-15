@@ -29,7 +29,7 @@ codeunit 134228 "ERM Close Income Statement"
         ConfirmCloseAccPeriodQst: Label 'This function closes the fiscal year from %1 to %2. Once the fiscal year is closed it cannot be opened again, and the periods in the fiscal year cannot be changed.\\Do you want to close the fiscal year?';
         ConfirmDeleteGLAccountQst: Label 'Note that accounting regulations may require that you save accounting data for a certain number of years. Are you sure you want to delete the G/L account?';
         CannotDeleteGLAccGLEntryFoundAfterDateErr: Label 'You cannot delete G/L account %1 because it has ledger entries posted after %2.';
-        CannotDeleteGLAccountBadSetupErr: Label 'Check G/L Acc. Deletion After must have a value in General Ledger Setup: Primary Key=. It cannot be zero or empty.';
+        CannotDeleteGLAccountBadSetupErr: Label 'Allow G/L Acc. Deletion Before must have a value in General Ledger Setup: Primary Key=. It cannot be zero or empty.';
         UnexpectedConfirmErr: Label 'Unexpected confirm handler: %1';
 
     [Test]
@@ -127,8 +127,8 @@ codeunit 134228 "ERM Close Income Statement"
         CreateAndPostGenJnlLine(GenJournalLine, GLAccount."No.", -Amount);
 
         LibraryFiscalYear.CloseFiscalYear;
-        GenJournalLine.Reset;
-        GenJournalLine.Init;
+        GenJournalLine.Reset();
+        GenJournalLine.Init();
         GenJournalLine."Document No." := LibraryUtility.GenerateGUID;
         // [WHEN] Run "Close Income Statement"
         CloseIncomeStatement(GenJournalLine, IncStr(GenJournalLine."Document No."));
@@ -191,7 +191,7 @@ codeunit 134228 "ERM Close Income Statement"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
         DocumentNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate, false);
-        Commit;
+        Commit();
 
         // [WHEN] Run "Close Income Statement"
         CloseIncomeStatement(GenJournalLine, IncStr(GenJournalLine."Document No."));
@@ -392,8 +392,8 @@ codeunit 134228 "ERM Close Income Statement"
 
         MockGLBudgetEntry(GLBudgetEntry, GLAccount."No.", AllowDeleteDate);
         GLEntry.SetRange("G/L Account No.", GLAccount."No.");
-        GLEntry.DeleteAll;
-        Commit;
+        GLEntry.DeleteAll();
+        Commit();
 
         LibraryVariableStorage.Enqueue(false);
         asserterror GLAccount.Delete(true);
@@ -420,8 +420,8 @@ codeunit 134228 "ERM Close Income Statement"
         LibraryFiscalYear.UpdateAllowGAccDeletionBeforeDateOnGLSetup(LibraryFiscalYear.GetPastNewYearDate(5));
         IntitializeGLAccountWithClosedEntriesClosedAccountingPeriod(GLAccount);
 
-        AccountingPeriod.DeleteAll;
-        Commit;
+        AccountingPeriod.DeleteAll();
+        Commit();
 
         asserterror GLAccount.Delete(true);
 
@@ -527,7 +527,7 @@ codeunit 134228 "ERM Close Income Statement"
 
         LibraryERMCountryData.CreateVATData;
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Close Income Statement");
@@ -550,7 +550,7 @@ codeunit 134228 "ERM Close Income Statement"
     begin
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount.Validate("Income/Balance", GLAccount."Income/Balance"::"Balance Sheet");
-        GLAccount.Modify;
+        GLAccount.Modify();
         exit(GLAccount."No.");
     end;
 
@@ -571,7 +571,7 @@ codeunit 134228 "ERM Close Income Statement"
         Currency.Validate("Residual Gains Account", Currency."Realized Gains Acc.");
         Currency.Validate("Residual Losses Account", Currency."Realized Losses Acc.");
         Currency.Modify(true);
-        Commit;  // Required to run the Test Case on RTC.
+        Commit();  // Required to run the Test Case on RTC.
 
         // Create Exchange Rate.
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
@@ -607,7 +607,7 @@ codeunit 134228 "ERM Close Income Statement"
         // take any Random Amount from 1 to 1000.
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
         GenJournalBatch."Bal. Account No." := CreateBalanceGLAccountNo;
-        GenJournalBatch.Modify;
+        GenJournalBatch.Modify();
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
         for Counter := 1 to LibraryRandom.RandIntInRange(2, 5) do begin
             LibraryERM.CreateGeneralJnlLine(
@@ -627,7 +627,7 @@ codeunit 134228 "ERM Close Income Statement"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::Customer, '', 0);
-        Commit;
+        Commit();
     end;
 
     local procedure CreateNewJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -720,7 +720,7 @@ codeunit 134228 "ERM Close Income Statement"
         CreateAndPostGenJnlLine(GenJournalLine, GLAccount."No.", Amount);
         CreateAndPostGenJnlLine(GenJournalLine, GLAccount."No.", -Amount);
 
-        Commit;
+        Commit();
         LibraryFiscalYear.CloseFiscalYear;
     end;
 
@@ -730,7 +730,7 @@ codeunit 134228 "ERM Close Income Statement"
         GLBudgetEntry."G/L Account No." := GLAccountNo;
         GLBudgetEntry.Date := EntryDate;
         GLBudgetEntry."Budget Name" := LibraryUtility.GenerateGUID;
-        GLBudgetEntry.Insert;
+        GLBudgetEntry.Insert();
     end;
 
     local procedure PostGeneralJournalLinesAndCloseIncomeStatement(var GenJournalLine: Record "Gen. Journal Line") DocumentNo: Code[20]
@@ -761,7 +761,7 @@ codeunit 134228 "ERM Close Income Statement"
         LibraryVariableStorage.Enqueue(ClosePerBusinessUnit);
         LibraryVariableStorage.Enqueue(UseDimensions);
 
-        Commit;  // commit requires to run report.
+        Commit();  // commit requires to run report.
         REPORT.Run(REPORT::"Close Income Statement");
     end;
 
@@ -770,7 +770,7 @@ codeunit 134228 "ERM Close Income Statement"
         SelectedDimension: Record "Selected Dimension";
     begin
         with SelectedDimension do begin
-            DeleteAll;
+            DeleteAll();
 
             DimSetEntry.FindSet;
             repeat
@@ -788,11 +788,11 @@ codeunit 134228 "ERM Close Income Statement"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         // Update Additional Reporting Currency.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         OldAdditionalReportingCurrency := GeneralLedgerSetup."Additional Reporting Currency";
         GeneralLedgerSetup."Additional Reporting Currency" := CurrencyCode;
         GeneralLedgerSetup.Modify(true);
-        Commit;  // Required to run the Test Case on RTC because Modal Form Pops Up after modifying General Ledger Setup.
+        Commit();  // Required to run the Test Case on RTC because Modal Form Pops Up after modifying General Ledger Setup.
     end;
 
     local procedure VerifyDocumentNoInGLEntry(PostingDate: Date; SourceCode: Code[10]; DocumentNo: Code[20])

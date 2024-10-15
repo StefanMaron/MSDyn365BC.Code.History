@@ -49,15 +49,15 @@ codeunit 76 "Purch.-Get Drop Shpt."
                     exit;
             end;
 
-            LockTable;
+            LockTable();
             SalesHeader.TestField("Document Type", SalesHeader."Document Type"::Order);
             TestField("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
             TestField("Ship-to Code", SalesHeader."Ship-to Code");
             if DropShptOrderExists(SalesHeader) then
                 AddShipToAddress(SalesHeader, true);
 
-            PurchLine.LockTable;
-            SalesLine.LockTable;
+            PurchLine.LockTable();
+            SalesLine.LockTable();
 
             PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
             PurchLine.SetRange("Document No.", "No.");
@@ -86,7 +86,7 @@ codeunit 76 "Purch.-Get Drop Shpt."
                               ItemUnitofMeasure."Qty. per Unit of Measure",
                               SalesLine.FieldCaption(Quantity));
 
-                    PurchLine.Init;
+                    PurchLine.Init();
                     PurchLine."Document Type" := PurchLine."Document Type"::Order;
                     PurchLine."Document No." := "No.";
                     PurchLine."Line No." := NextLineNo;
@@ -99,7 +99,7 @@ codeunit 76 "Purch.-Get Drop Shpt."
                     Evaluate(PurchLine."Inbound Whse. Handling Time", '<0D>');
                     PurchLine.Validate("Inbound Whse. Handling Time");
                     OnBeforePurchaseLineInsert(PurchLine, SalesLine);
-                    PurchLine.Insert;
+                    PurchLine.Insert();
                     OnAfterPurchaseLineInsert(PurchLine);
 
                     NextLineNo := NextLineNo + 10000;
@@ -109,7 +109,7 @@ codeunit 76 "Purch.-Get Drop Shpt."
                     SalesLine."Purchase Order No." := PurchLine."Document No.";
                     SalesLine."Purch. Order Line No." := PurchLine."Line No.";
                     OnBeforeSalesLineModify(SalesLine, PurchLine);
-                    SalesLine.Modify;
+                    SalesLine.Modify();
                     OnAfterSalesLineModify(SalesLine, PurchLine);
                     ItemTrackingMgt.CopyItemTracking(SalesLine.RowID1, PurchLine.RowID1, true);
 
@@ -141,11 +141,11 @@ codeunit 76 "Purch.-Get Drop Shpt."
             OnCodeOnBeforeModify(PurchHeader, SalesHeader);
 
             Modify; // Only version check
-            SalesHeader.Modify; // Only version check
+            SalesHeader.Modify(); // Only version check
         end;
     end;
 
-    local procedure GetDescription(var PurchaseLine: Record "Purchase Line"; SalesLine: Record "Sales Line")
+    procedure GetDescription(var PurchaseLine: Record "Purchase Line"; SalesLine: Record "Sales Line")
     var
         Item: Record Item;
     begin

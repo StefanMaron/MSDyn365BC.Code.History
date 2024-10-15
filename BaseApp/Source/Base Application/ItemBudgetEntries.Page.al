@@ -1,4 +1,4 @@
-﻿page 7133 "Item Budget Entries"
+page 7133 "Item Budget Entries"
 {
     ApplicationArea = ItemBudget;
     Caption = 'Item Budget Entries';
@@ -260,7 +260,7 @@
             ItemBudgetName.FindFirst;
         end;
         CurrPage.Editable := not ItemBudgetName.Blocked;
-        GLSetup.Get;
+        GLSetup.Get();
         GlobalDimension1CodeEnable := GLSetup."Global Dimension 1 Code" <> '';
         GlobalDimension2CodeEnable := GLSetup."Global Dimension 2 Code" <> '';
         BudgetDimension1CodeEnable := ItemBudgetName."Budget Dimension 1 Code" <> '';

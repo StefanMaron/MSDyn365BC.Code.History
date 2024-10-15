@@ -43,7 +43,7 @@ codeunit 231 "Gen. Jnl.-Post"
         with GenJnlLine do begin
             GenJnlTemplate.Get("Journal Template Name");
             if GenJnlTemplate.Type = GenJnlTemplate.Type::Jobs then begin
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 if GenJnlTemplate."Source Code" = SourceCodeSetup."Job G/L WIP" then
                     Error(Text006, GenJnlTemplate.FieldCaption("Source Code"), GenJnlTemplate.TableCaption,
                       SourceCodeSetup.FieldCaption("Job G/L WIP"), SourceCodeSetup.TableCaption);
@@ -58,7 +58,7 @@ codeunit 231 "Gen. Jnl.-Post"
 
             if "Account Type" = "Account Type"::"Fixed Asset" then begin
                 FALedgEntry.SetRange("FA No.", "Account No.");
-                FALedgEntry.SetRange("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
+                FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::Depreciation);
                 if FALedgEntry.FindFirst and "Depr. Acquisition Cost" and not HideDialog then
                     if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text005, FieldCaption("Depr. Acquisition Cost")), true) then
                         exit;

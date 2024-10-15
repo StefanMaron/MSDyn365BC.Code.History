@@ -37,11 +37,11 @@ codeunit 139183 "CRM Integration Mapping"
         // [GIVEN] Mapping 'Normal', where "Delete After Synchronization" is 'No'
         IntegrationTableMapping[1].Name := 'Normal';
         IntegrationTableMapping[1]."Delete After Synchronization" := false;
-        IntegrationTableMapping[1].Insert;
+        IntegrationTableMapping[1].Insert();
         // [GIVEN] Mapping 'DelAfterSync', where "Delete After Synchronization" is 'Yes'
         IntegrationTableMapping[2].Name := 'DelAfterSync';
         IntegrationTableMapping[2]."Delete After Synchronization" := true;
-        IntegrationTableMapping[2].Insert;
+        IntegrationTableMapping[2].Insert();
 
         // [WHEN] Open "Integration Table Mapping List" page
         IntegrationTableMappingList.Trap;
@@ -104,7 +104,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [GIVEN] Third field mapping defined for another table mapping
         IntegrationFieldMapping."No." := 0;
         IntegrationFieldMapping."Integration Table Mapping Name" := 'Y';
-        IntegrationFieldMapping.Insert;
+        IntegrationFieldMapping.Insert();
 
         CreateIntegrationFieldMapping(IntegrationFieldMapping, IntegrationTableMapping.Name, NAVField[2], CRMField[2]);
 
@@ -242,17 +242,17 @@ codeunit 139183 "CRM Integration Mapping"
         // [SCENARIO] Integration Synch. Job Log shows jobs related to the current mapping, sorted by descending "Start Date/Time"
         // [GIVEN] Integration Table Mapping 'Y'
         IntegrationTableMapping.DeleteAll(true);
-        IntegrationTableMapping.Init;
+        IntegrationTableMapping.Init();
         IntegrationTableMapping.Name := 'Y';
         IntegrationTableMapping."Table ID" := DATABASE::Customer;
-        IntegrationTableMapping.Insert;
+        IntegrationTableMapping.Insert();
         // [GIVEN] Integration Sync Job for 'Y' and for 'X'
         IntegrationSynchJob[1].ID := CreateGuid;
         IntegrationSynchJob[1]."Integration Table Mapping Name" := IntegrationTableMapping.Name;
-        IntegrationSynchJob[1].Insert;
+        IntegrationSynchJob[1].Insert();
         IntegrationSynchJob[2].ID := CreateGuid;
         IntegrationSynchJob[2]."Integration Table Mapping Name" := 'X';
-        IntegrationSynchJob[2].Insert;
+        IntegrationSynchJob[2].Insert();
 
         // [WHEN] Run "View Integration Synch. Job Log" on the mapping list page
         IntegrationSynchJobList.Trap;
@@ -278,24 +278,24 @@ codeunit 139183 "CRM Integration Mapping"
     begin
         IntegrationTableMapping.DeleteAll(true);
         // [GIVEN] the Table Mapping "Y" with 1 Field Mapping record
-        IntegrationTableMapping.Init;
+        IntegrationTableMapping.Init();
         IntegrationTableMapping.Name := 'Y';
-        IntegrationTableMapping.Insert;
+        IntegrationTableMapping.Insert();
 
-        IntegrationFieldMapping.Init;
+        IntegrationFieldMapping.Init();
         IntegrationFieldMapping."Integration Table Mapping Name" := IntegrationTableMapping.Name;
         IntegrationFieldMapping."No." := 0;
-        IntegrationFieldMapping.Insert;
+        IntegrationFieldMapping.Insert();
 
         // [GIVEN] the Table Mapping "X" with 1 Field Mapping record
-        IntegrationTableMapping.Init;
+        IntegrationTableMapping.Init();
         IntegrationTableMapping.Name := 'X';
-        IntegrationTableMapping.Insert;
+        IntegrationTableMapping.Insert();
 
-        IntegrationFieldMapping.Init;
+        IntegrationFieldMapping.Init();
         IntegrationFieldMapping."Integration Table Mapping Name" := IntegrationTableMapping.Name;
         IntegrationFieldMapping."No." := 0;
-        IntegrationFieldMapping.Insert;
+        IntegrationFieldMapping.Insert();
 
         // [WHEN] Delete the Table Mapping "X"
         IntegrationTableMapping.Get('X');
@@ -321,39 +321,39 @@ codeunit 139183 "CRM Integration Mapping"
         // [FEATURE] [Option Mapping]
         IntegrationTableMapping.DeleteAll(true);
         // [GIVEN] the Table Mapping for "Payment Terms" table mapped to a CRM option field PaymentTermsCode
-        IntegrationTableMapping.Init;
+        IntegrationTableMapping.Init();
         IntegrationTableMapping.Name := 'X';
         IntegrationTableMapping."Table ID" := DATABASE::"Payment Terms";
         IntegrationTableMapping."Integration Table ID" := DATABASE::"CRM Account";
         IntegrationTableMapping."Integration Table UID Fld. No." := 15;
-        IntegrationTableMapping.Insert;
+        IntegrationTableMapping.Insert();
 
         // [GIVEN] CRM Option Mapping table contains 4 records:
-        CRMOptionMapping.DeleteAll;
+        CRMOptionMapping.DeleteAll();
         // [GIVEN] 1 record, where "Table ID" is not equal to one set in Integration Table Mapping
-        CRMOptionMapping.Init;
+        CRMOptionMapping.Init();
         CRMOptionMapping."Table ID" := DATABASE::"Shipping Agent";
         CRMOptionMapping."Integration Table ID" := DATABASE::"CRM Account";
         CRMOptionMapping."Integration Field ID" := 15;
         PaymentTerms.Find('-');
         CRMOptionMapping."Record ID" := PaymentTerms.RecordId;
-        CRMOptionMapping.Insert;
+        CRMOptionMapping.Insert();
         // [GIVEN] 1 record, where "Integration Table ID" is not equal to one set in Integration Table Mapping
         CRMOptionMapping."Table ID" := DATABASE::"Payment Terms";
         CRMOptionMapping."Integration Table ID" := DATABASE::"CRM Contact";
         PaymentTerms.Next;
         CRMOptionMapping."Record ID" := PaymentTerms.RecordId;
-        CRMOptionMapping.Insert;
+        CRMOptionMapping.Insert();
         // [GIVEN] 1 record, where all "Table ID","Integration Table ID","Integration Field ID" equal to ones set in Integration Table Mapping
         CRMOptionMapping."Integration Table ID" := DATABASE::"CRM Account";
         PaymentTerms.Next;
         CRMOptionMapping."Record ID" := PaymentTerms.RecordId;
-        CRMOptionMapping.Insert;
+        CRMOptionMapping.Insert();
         // [GIVEN] 1 record, where "Integration Field ID" is not equal to one set in Integration Table Mapping
         CRMOptionMapping."Integration Field ID" := 16;
         PaymentTerms.Next;
         CRMOptionMapping."Record ID" := PaymentTerms.RecordId;
-        CRMOptionMapping.Insert;
+        CRMOptionMapping.Insert();
 
         // [WHEN] Delete the Table Mapping
         IntegrationTableMapping.Delete(true);
@@ -384,7 +384,7 @@ codeunit 139183 "CRM Integration Mapping"
         GUIDFieldNo := Field."No.";
 
         // [GIVEN] The Table Mapping, where "Integration Table ID" := "CRM Account"
-        IntegrationTableMapping.Init;
+        IntegrationTableMapping.Init();
         IntegrationTableMapping."Integration Table ID" := DATABASE::"CRM Account";
 
         // [WHEN] Validate "Integration Table UID Fld. No." with an ID = '1'
@@ -415,7 +415,7 @@ codeunit 139183 "CRM Integration Mapping"
         CurrDT := CreateTwoCRMAccountsModifiedIn(CRMAccount, 200);
 
         // [GIVEN] the CRM Account mapping, where "Synch. Int. Tbl. Mod. On Fltr." is <blank> and "Synch. Modified On Filter" is '10:30'.
-        IntegrationTableMapping.Init;
+        IntegrationTableMapping.Init();
         IntegrationTableMapping."Integration Table ID" := DATABASE::"CRM Account";
         IntegrationTableMapping."Int. Tbl. Modified On Fld. No." := CRMAccount.FieldNo(ModifiedOn);
         IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr." := 0DT;
@@ -447,7 +447,7 @@ codeunit 139183 "CRM Integration Mapping"
         CurrDT := CreateTwoCRMAccountsModifiedIn(CRMAccount, 200);
 
         // [GIVEN] the CRM Account mapping, where "Synch. Int. Tbl. Mod. On Fltr." is '10:30' and "Synch. Modified On Filter" is '10:28'.
-        IntegrationTableMapping.Init;
+        IntegrationTableMapping.Init();
         IntegrationTableMapping."Integration Table ID" := DATABASE::"CRM Account";
         IntegrationTableMapping."Int. Tbl. Modified On Fld. No." := CRMAccount.FieldNo(ModifiedOn);
         IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr." := CurrDT + 100;
@@ -492,7 +492,7 @@ codeunit 139183 "CRM Integration Mapping"
         Initialize;
 
         VerifyMapping(
-          IntegrationTableMapping, DATABASE::Customer, DATABASE::"CRM Account", CRMAccount.FieldNo(AccountId), 19, 0);
+          IntegrationTableMapping, DATABASE::Customer, DATABASE::"CRM Account", CRMAccount.FieldNo(AccountId), 20, 0);
         VerifyFieldMapping(IntegrationTableMapping, Customer.FieldNo("Salesperson Code"), CRMAccount.FieldNo(OwnerId), true);
         VerifyFieldMapping(IntegrationTableMapping, Customer.FieldNo(County), CRMAccount.FieldNo(Address1_StateOrProvince), false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
@@ -687,7 +687,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [FEATURE] [Shipping Agent]
         Initialize;
         // [GIVEN] "Shipping Agent" is empty
-        ShippingAgent.DeleteAll;
+        ShippingAgent.DeleteAll();
         // [WHEN] Reset CRM Configuration
         ResetCRMConfiguration;
         // [THEN] "Shipping Agent" is NOT empty
@@ -700,18 +700,18 @@ codeunit 139183 "CRM Integration Mapping"
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    procedure ShippingAgentMappedToShippingMethodCodeOption()
+    procedure ShippingAgentMappedToShippingMethodCodeEnum()
     var
         CRMAccount: Record "CRM Account";
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
         // [FEATURE] [Shipping Agent]
-        // [SCENARIO] "Shipping Agent" is mapped to options of the field "CRM Account".Address1_ShippingMethodCode
+        // [SCENARIO] "Shipping Agent" is mapped to options of the field "CRM Account".Address1_ShippingMethodCodeEnum
         Initialize;
 
         VerifyMapping(
           IntegrationTableMapping, DATABASE::"Shipping Agent", DATABASE::"CRM Account",
-          CRMAccount.FieldNo(Address1_ShippingMethodCode), 1, 2);
+          CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum), 1, 2);
         VerifyUIDFieldIsOpton(IntegrationTableMapping.Name);
         VerifyNoJobQueueEntry(IntegrationTableMapping);
     end;
@@ -727,7 +727,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [FEATURE] [Shipment Method]
         Initialize;
         // [GIVEN] "Shipment Method" is empty
-        ShipmentMethod.DeleteAll;
+        ShipmentMethod.DeleteAll();
         // [WHEN] Reset CRM Configuration
         ResetCRMConfiguration;
         // [GIVEN] "Shipment Method" is NOT empty
@@ -740,17 +740,17 @@ codeunit 139183 "CRM Integration Mapping"
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    procedure ShipmentMethodMappedToFreightTermsCodeOption()
+    procedure ShipmentMethodMappedToFreightTermsCodeEnum()
     var
         CRMAccount: Record "CRM Account";
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
         // [FEATURE] [Shipment Method]
-        // [SCENARIO] "Shipment Method" is mapped to options of the field "CRM Account".Address1_FreightTermsCode
+        // [SCENARIO] "Shipment Method" is mapped to options of the field "CRM Account".Address1_FreightTermsCodeEnum
         Initialize;
 
         VerifyMapping(
-          IntegrationTableMapping, DATABASE::"Shipment Method", DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCode), 1, 2);
+          IntegrationTableMapping, DATABASE::"Shipment Method", DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCodeEnum), 1, 2);
         VerifyUIDFieldIsOpton(IntegrationTableMapping.Name);
         VerifyNoJobQueueEntry(IntegrationTableMapping);
     end;
@@ -766,7 +766,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [FEATURE] [Payment Terms]
         Initialize;
         // [GIVEN] "Payment Terms" is empty
-        PaymentTerms.DeleteAll;
+        PaymentTerms.DeleteAll();
         // [WHEN] Reset CRM Configuration
         ResetCRMConfiguration;
         // [THEN] "Payment Terms" is NOT empty
@@ -779,17 +779,17 @@ codeunit 139183 "CRM Integration Mapping"
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    procedure PaymentTermsMappedToPaymentTermsCodeOption()
+    procedure PaymentTermsMappedToPaymentTermsCodeEnum()
     var
         CRMAccount: Record "CRM Account";
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
         // [FEATURE] [Payment Terms]
-        // [SCENARIO] "Payment Terms" is mapped to options of the field "CRM Account".PaymentTermsCode
+        // [SCENARIO] "Payment Terms" is mapped to options of the field "CRM Account".PaymentTermsCodeEnum
         Initialize;
 
         VerifyMapping(
-          IntegrationTableMapping, DATABASE::"Payment Terms", DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCode), 1, 2);
+          IntegrationTableMapping, DATABASE::"Payment Terms", DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCodeEnum), 1, 2);
         VerifyUIDFieldIsOpton(IntegrationTableMapping.Name);
         VerifyNoJobQueueEntry(IntegrationTableMapping);
     end;
@@ -806,7 +806,7 @@ codeunit 139183 "CRM Integration Mapping"
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
     begin
         Initialize;
-        CRMConnectionSetup.DeleteAll;
+        CRMConnectionSetup.DeleteAll();
         // [GIVEN] No table mappings exists
         IntegrationTableMapping.DeleteAll(true);
         // [WHEN] Calling GetPrioritizedMappingList()
@@ -814,7 +814,7 @@ codeunit 139183 "CRM Integration Mapping"
         CRMSetupDefaults.GetPrioritizedMappingList(TempNameValueBuffer);
         Assert.AreEqual(0, TempNameValueBuffer.Count, 'Did not expect any mappings to be returned');
 
-        TempNameValueBuffer.DeleteAll;
+        TempNameValueBuffer.DeleteAll();
         IntegrationTableMapping.DeleteAll(true);
         // [GIVEN] Default mapping setup
         LibraryCRMIntegration.ConfigureCRM;
@@ -827,7 +827,7 @@ codeunit 139183 "CRM Integration Mapping"
         CRMSetupDefaults.GetPrioritizedMappingList(TempNameValueBuffer);
 
         // [THEN] A list with all the normal mappings to GUID fields are returned
-        IntegrationTableMapping.Reset;
+        IntegrationTableMapping.Reset();
         IntegrationTableMapping.SetRange("Int. Table UID Field Type", Field.Type::GUID);
         IntegrationTableMapping.SetRange("Delete After Synchronization", false);
         Assert.AreEqual(
@@ -868,21 +868,21 @@ codeunit 139183 "CRM Integration Mapping"
         OptionCount: Integer;
         TotalCount: Integer;
     begin
-        CRMConnectionSetup.DeleteAll;
+        CRMConnectionSetup.DeleteAll();
         IntegrationTableMapping.DeleteAll(true);
         // [GIVEN] Default mapping setup, where are 14 mappings and 3 of them are for Options.
         LibraryCRMIntegration.ConfigureCRM;
         ResetCRMConfiguration;
 
-        TotalCount := IntegrationTableMapping.Count;
+        TotalCount := IntegrationTableMapping.Count();
         IntegrationTableMapping.SetRange("Int. Table UID Field Type", Field.Type::Option);
-        OptionCount := IntegrationTableMapping.Count;
+        OptionCount := IntegrationTableMapping.Count();
 
         // [WHEN] Calling GetPrioritizedMappingList()
         CRMSetupDefaults.GetPrioritizedMappingList(TempNameValueBuffer);
 
         // [THEN] The list contains 11 elements, because Options are excluded
-        TempNameValueBuffer.Reset;
+        TempNameValueBuffer.Reset();
         Assert.AreEqual(TotalCount - OptionCount, TempNameValueBuffer.Count, 'Total count of the list');
     end;
 
@@ -898,8 +898,8 @@ codeunit 139183 "CRM Integration Mapping"
         // [GIVEN] Reset CRM Configuration
         ResetCRMConfiguration;
         // [GIVEN] "Payment Terms" and "CRM Option Mapping" are empty
-        PaymentTerms.DeleteAll;
-        CRMOptionMapping.DeleteAll;
+        PaymentTerms.DeleteAll();
+        CRMOptionMapping.DeleteAll();
 
         // [WHEN] SynchronizeNow on "Payment Terms" table mapping record
         IntegrationTableMapping.SetRange("Table ID", DATABASE::"Payment Terms");
@@ -924,10 +924,10 @@ codeunit 139183 "CRM Integration Mapping"
         // [GIVEN] Reset CRM Configuration
         ResetCRMConfiguration;
         // [GIVEN] Currency 'X'
-        Currency.DeleteAll;
+        Currency.DeleteAll();
         LibraryERM.CreateCurrency(Currency);
         Currency.Description := LibraryUtility.GenerateGUID;
-        Currency.Modify;
+        Currency.Modify();
         LibraryERM.CreateExchangeRate(Currency.Code, Today, 1, 10);
 
         // [WHEN] Synchronize Currency 'X'
@@ -949,10 +949,10 @@ codeunit 139183 "CRM Integration Mapping"
         // [GIVEN] Reset CRM Configuration
         ResetCRMConfiguration;
         // [GIVEN] Currency 'X'
-        Currency.DeleteAll;
+        Currency.DeleteAll();
         LibraryERM.CreateCurrency(Currency);
         Currency.Description := LibraryUtility.GenerateGUID;
-        Currency.Modify;
+        Currency.Modify();
         LibraryERM.CreateExchangeRate(Currency.Code, Today, 1, 10);
         // [GIVEN] All fields in mapping are disabled
         IntegrationFieldMapping.SetRange("Integration Table Mapping Name", 'CURRENCY');
@@ -981,10 +981,10 @@ codeunit 139183 "CRM Integration Mapping"
         // [GIVEN] Reset CRM Configuration
         ResetCRMConfiguration;
         // [GIVEN] Currency 'X'
-        Currency.DeleteAll;
+        Currency.DeleteAll();
         LibraryERM.CreateCurrency(Currency);
         Currency.Description := LibraryUtility.GenerateGUID;
-        Currency.Modify;
+        Currency.Modify();
         LibraryERM.CreateExchangeRate(Currency.Code, Today, 1, 10);
         // [GIVEN] CurrencySymbol and CurrencyName in mapping are disabled, ISOCurrencyCode is enabled
         IntegrationFieldMapping.SetRange("Integration Table Mapping Name", 'CURRENCY');
@@ -1070,7 +1070,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [GIVEN] "BillTo_Country" field contains existing NAV Country code
         LibraryERM.CreateCountryRegion(Country);
         CRMSalesorder.BillTo_Country := Country.Code;
-        CRMSalesorder.Modify;
+        CRMSalesorder.Modify();
 
         // [WHEN] Run 'Create in NAV'
         Assert.IsTrue(CRMSalesOrderToSalesOrder.CreateInNAV(CRMSalesorder, SalesHeader), 'CreateInNAV returned FALSE');
@@ -1129,7 +1129,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [GIVEN] "ShipTo_Country" field contains existing NAV Country code
         LibraryERM.CreateCountryRegion(Country);
         CRMSalesorder.ShipTo_Country := Country.Code;
-        CRMSalesorder.Modify;
+        CRMSalesorder.Modify();
 
         // [WHEN] Run 'Create in NAV'
         Assert.IsTrue(CRMSalesOrderToSalesOrder.CreateInNAV(CRMSalesorder, SalesHeader), 'CreateInNAV returned FALSE');
@@ -1176,24 +1176,24 @@ codeunit 139183 "CRM Integration Mapping"
         ResetCRMConfiguration;
 
         // [GIVEN] Posted Sales Invoice, where "Payment Terms" = "Net45", "Shipping Agent" = "WillCall"
-        ExpectedShippingMethodCode := CRMInvoice.ShippingMethodCode::WillCall;
-        ExpectedPaymentTermsCode := CRMInvoice.PaymentTermsCode::Net45;
+        ExpectedShippingMethodCode := CRMInvoice.ShippingMethodCodeEnum::WillCall;
+        ExpectedPaymentTermsCode := CRMInvoice.PaymentTermsCodeEnum::Net45;
 
-        SalesInvoiceHeader.Init;
+        SalesInvoiceHeader.Init();
         SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID;
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         SalesInvoiceHeader."Sell-to Customer No." := Customer."No.";
-        GLSetup.Get;
+        GLSetup.Get();
         LibraryCRMIntegration.CreateCRMTransactionCurrency(CRMTransactioncurrency, CopyStr(GLSetup."LCY Code", 1, 5));
         CRMOptionMapping.FindRecordID(
-          DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_ShippingMethodCode), ExpectedShippingMethodCode);
+          DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum), ExpectedShippingMethodCode);
         SalesInvoiceHeader."Shipping Agent Code" :=
           CopyStr(CRMOptionMapping.GetRecordKeyValue, 1, MaxStrLen(SalesInvoiceHeader."Shipping Agent Code"));
         CRMOptionMapping.FindRecordID(
-          DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCode), ExpectedPaymentTermsCode);
+          DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCodeEnum), ExpectedPaymentTermsCode);
         SalesInvoiceHeader."Payment Terms Code" :=
           CopyStr(CRMOptionMapping.GetRecordKeyValue, 1, MaxStrLen(SalesInvoiceHeader."Payment Terms Code"));
-        SalesInvoiceHeader.Insert;
+        SalesInvoiceHeader.Insert();
 
         // [WHEN] Create the new coupled CRM Invoice
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
@@ -1207,8 +1207,8 @@ codeunit 139183 "CRM Integration Mapping"
         Assert.IsTrue(CRMCouplingManagement.IsRecordCoupledToCRM(SalesInvoiceHeader.RecordId), 'Invoice is not coupled.');
         CRMIntegrationRecord.FindIDFromRecordID(SalesInvoiceHeader.RecordId, CRMId);
         CRMInvoice.Get(CRMId);
-        CRMInvoice.TestField(ShippingMethodCode, ExpectedShippingMethodCode);
-        CRMInvoice.TestField(PaymentTermsCode, ExpectedPaymentTermsCode);
+        CRMInvoice.TestField(ShippingMethodCodeEnum, ExpectedShippingMethodCode);
+        CRMInvoice.TestField(PaymentTermsCodeEnum, ExpectedPaymentTermsCode);
         // [THEN] Notification "Syncronization is started." is shown.
         // Handled by SyncStartedNotificationHandler
         // [THEN] Job Queue Entry and Integration Table Mapping records are removed
@@ -1241,7 +1241,7 @@ codeunit 139183 "CRM Integration Mapping"
 
         // [GIVEN] CRM Contact's "TransactionCurrencyId" set to 'X'
         CRMContact.TransactionCurrencyId := CRMTransactioncurrency.TransactionCurrencyId;
-        CRMContact.Modify;
+        CRMContact.Modify();
 
         // [WHEN] Transfer mapped fields 'CRM Contact-Contact'
         SourceRecordRef.GetTable(CRMContact);
@@ -1283,7 +1283,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [GIVEN] CRM Contact, where TransactionCurrencyId is blank
         Clear(CRMTransactioncurrency);
         CRMContact.TransactionCurrencyId := CRMTransactioncurrency.TransactionCurrencyId;
-        CRMContact.Modify;
+        CRMContact.Modify();
         // [GIVEN] Contact, where Currency Code = 'X'
         Contact."Currency Code" := Currency.Code;
         Contact.Modify(true);
@@ -1333,7 +1333,7 @@ codeunit 139183 "CRM Integration Mapping"
 
         // [GIVEN] CRM Contact, where TransactionCurrencyId = LCY
         CRMContact.TransactionCurrencyId := LCYGUID;
-        CRMContact.Modify;
+        CRMContact.Modify();
         // [GIVEN] Contact, where Currency Code = 'X'
         Contact."Currency Code" := Currency.Code;
         Contact.Modify(true);
@@ -1377,7 +1377,7 @@ codeunit 139183 "CRM Integration Mapping"
         LibraryCRMIntegration.CreateCoupledCurrencyAndTransactionCurrency(Currency, CRMTransactioncurrency);
         // [GIVEN] Contact's "Currency Code" set to 'X'
         Contact.Validate("Currency Code", Currency.Code);
-        Contact.Modify;
+        Contact.Modify();
 
         // [WHEN] Transfer mapped fields 'Contact-CRM Contact'
         SourceRecordRef.GetTable(Contact);
@@ -1415,7 +1415,7 @@ codeunit 139183 "CRM Integration Mapping"
         LibraryCRMIntegration.CreateCRMAccountWithCoupledOwner(CRMAccount);
         LibraryCRMIntegration.CreateCRMContactWithParentAccount(CRMContact, CRMAccount);
         CRMContact.Address1_StateOrProvince := 'Texas';
-        CRMContact.Modify;
+        CRMContact.Modify();
         CRMIntegrationRecord.CoupleRecordIdToCRMID(Contact.RecordId, CRMContact.ContactId);
         // [WHEN] Synchronize CRM Contact to Contact
         IntegrationTableMapping.Get('CONTACT');
@@ -1475,7 +1475,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [GIVEN] Coupled Customer and CRM Account, where "Address1_StateOrProvince" set to 'Texas'
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         CRMAccount.Address1_StateOrProvince := 'Texas';
-        CRMAccount.Modify;
+        CRMAccount.Modify();
 
         // [WHEN] Synchronize CRM Account to Customer
         IntegrationTableMapping.Get('CUSTOMER');
@@ -1503,7 +1503,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [GIVEN] Coupled CRM Account and Customer, where "County" set to 'Texas'
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         Customer.County := 'Texas';
-        Customer.Modify;
+        Customer.Modify();
 
         // [WHEN] Synchronizing the customer
         IntegrationTableMapping.Get('CUSTOMER');
@@ -1532,7 +1532,7 @@ codeunit 139183 "CRM Integration Mapping"
         for i := 1 to 2 do begin
             LibraryCRMIntegration.CreateCRMAccount(CRMAccount[i]);
             CRMAccount[i].Name := Format(CreateGuid);
-            CRMAccount[i].Modify;
+            CRMAccount[i].Modify();
         end;
 
         // [GIVEN] The CUSTOMER mapping, where "Integration Table Filter" is Name=A
@@ -1568,7 +1568,7 @@ codeunit 139183 "CRM Integration Mapping"
         for i := 1 to 2 do begin
             LibraryCRMIntegration.CreateCRMContact(CRMContact[i]);
             CRMContact[i].FullName := Format(CreateGuid);
-            CRMContact[i].Modify;
+            CRMContact[i].Modify();
         end;
 
         // [GIVEN] The CONTACT mapping, where "Integration Table Filter" is FullName=A
@@ -1604,7 +1604,7 @@ codeunit 139183 "CRM Integration Mapping"
         for i := 1 to 2 do begin
             LibraryCRMIntegration.CreateCRMOpportunity(CRMOpportunity[i]);
             CRMOpportunity[i].Name := Format(CreateGuid);
-            CRMOpportunity[i].Modify;
+            CRMOpportunity[i].Modify();
         end;
 
         // [GIVEN] The OPPORTUNITY mapping, where "Integration Table Filter" is Name=A
@@ -1638,10 +1638,10 @@ codeunit 139183 "CRM Integration Mapping"
 
         // [GIVEN] CRM Products with Name=A, Name=B and Name=C
         for i := 1 to 3 do begin
-            CRMProduct[i].Init;
+            CRMProduct[i].Init();
             CRMProduct[i].ProductId := CreateGuid;
             CRMProduct[i].Name := Format(CreateGuid);
-            CRMProduct[i].Insert;
+            CRMProduct[i].Insert();
         end;
 
         // [GIVEN] The ITEM-PRODUCT mapping, where "Integration Table Filter" is Name=A
@@ -1685,7 +1685,7 @@ codeunit 139183 "CRM Integration Mapping"
         for i := 1 to 2 do begin
             LibraryCRMIntegration.CreateCRMTransactionCurrency(CRMTransactioncurrency[i], 'USD');
             CRMTransactioncurrency[i].CurrencyName := Format(CreateGuid);
-            CRMTransactioncurrency[i].Modify;
+            CRMTransactioncurrency[i].Modify();
         end;
 
         // [GIVEN] The CURRENCY mapping, where "Integration Table Filter" is CurrencyName=A
@@ -1719,10 +1719,10 @@ codeunit 139183 "CRM Integration Mapping"
 
         // [GIVEN] CRM Uomschedules with Name=A and Name=B
         for i := 1 to 2 do begin
-            CRMUomschedule[i].Init;
+            CRMUomschedule[i].Init();
             CRMUomschedule[i].UoMScheduleId := CreateGuid;
             CRMUomschedule[i].Name := Format(CreateGuid);
-            CRMUomschedule[i].Insert;
+            CRMUomschedule[i].Insert();
         end;
 
         // [GIVEN] The UNIT OF MEASURE mapping, where "Integration Table Filter" is Name=AAAAA
@@ -1756,7 +1756,7 @@ codeunit 139183 "CRM Integration Mapping"
         LibraryCRMIntegration.CreateIntegrationTableMappingCustomer(IntegrationTableMapping);
 
         // [GIVEN] Mock unregistered connection
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup.TestField("Is Enabled", true);
         CRMConnectionSetup.UnregisterConnection;
         UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, GetDefaultTableConnection(TABLECONNECTIONTYPE::CRM));
@@ -1785,7 +1785,7 @@ codeunit 139183 "CRM Integration Mapping"
         LibraryCRMIntegration.ResetEnvironment;
         LibraryCRMIntegration.ConfigureCRM;
 
-        CRMConnectionSetup.DeleteAll;
+        CRMConnectionSetup.DeleteAll();
         UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, '');
         LibraryCRMIntegration.CreateCRMConnectionSetup('', '@@test@@', true);
 
@@ -1801,7 +1801,7 @@ codeunit 139183 "CRM Integration Mapping"
         TempIntegrationFieldMapping."Integration Table Mapping Name" := IntegrationTableMappingName;
         TempIntegrationFieldMapping."Source Field No." := SourceFieldNo;
         TempIntegrationFieldMapping."Destination Field No." := DestinationFieldNo;
-        TempIntegrationFieldMapping.Insert;
+        TempIntegrationFieldMapping.Insert();
     end;
 
     local procedure AddTempTableMapping(MappingName: Code[20])
@@ -1812,7 +1812,7 @@ codeunit 139183 "CRM Integration Mapping"
         IntegrationTableMapping."Parent Name" := IntegrationTableMapping.Name;
         IntegrationTableMapping.Name := LibraryUtility.GenerateGUID;
         IntegrationTableMapping."Delete After Synchronization" := true;
-        IntegrationTableMapping.Insert;
+        IntegrationTableMapping.Insert();
     end;
 
     local procedure CreateCRMSalesorder(var CRMSalesorder: Record "CRM Salesorder")
@@ -1829,48 +1829,48 @@ codeunit 139183 "CRM Integration Mapping"
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         CRMSalesorder.CustomerId := CRMAccount.AccountId;
         CRMSalesorder.CustomerIdType := CRMSalesorder.CustomerIdType::account;
-        GLSetup.Get;
+        GLSetup.Get();
         LibraryCRMIntegration.CreateCRMTransactionCurrency(
           CRMTransactioncurrency, CopyStr(GLSetup."LCY Code", 1, 5));
         CRMSalesorder.TransactionCurrencyId := CRMTransactioncurrency.TransactionCurrencyId;
-        CRMSalesorder.Modify;
+        CRMSalesorder.Modify();
     end;
 
     local procedure CreateIntegrationFieldMapping(var IntegrationFieldMapping: Record "Integration Field Mapping"; TableMappingName: Code[20]; NAVField: Record "Field"; CRMField: Record "Field")
     begin
-        IntegrationFieldMapping.Init;
+        IntegrationFieldMapping.Init();
         IntegrationFieldMapping."Integration Table Mapping Name" := TableMappingName;
         IntegrationFieldMapping."No." := 0;
         IntegrationFieldMapping."Field No." := NAVField."No.";
         IntegrationFieldMapping."Integration Table Field No." := CRMField."No.";
-        IntegrationFieldMapping.Insert;
+        IntegrationFieldMapping.Insert();
     end;
 
     local procedure CreateIntegrationTableMapping(var IntegrationTableMapping: Record "Integration Table Mapping"; NAVField: Record "Field"; CRMField: Record "Field")
     begin
-        IntegrationTableMapping.Init;
+        IntegrationTableMapping.Init();
         IntegrationTableMapping.Name := LibraryUtility.GenerateGUID;
         IntegrationTableMapping."Table ID" := NAVField.TableNo;
         IntegrationTableMapping."Integration Table ID" := CRMField.TableNo;
-        IntegrationTableMapping.Insert;
+        IntegrationTableMapping.Insert();
     end;
 
     local procedure CreateTwoCRMAccountsModifiedIn(var CRMAccount: Record "CRM Account"; Duration: Duration) FirstDT: DateTime
     begin
-        CRMAccount.DeleteAll;
+        CRMAccount.DeleteAll();
         LibraryCRMIntegration.CreateCRMAccount(CRMAccount);
         FirstDT := CRMAccount.ModifiedOn;
         LibraryCRMIntegration.CreateCRMAccount(CRMAccount);
         CRMAccount.ModifiedOn := FirstDT + Duration;
-        CRMAccount.Modify;
+        CRMAccount.Modify();
     end;
 
     local procedure FillSalesOrderOptionFields(var CRMSalesorder: Record "CRM Salesorder")
     begin
-        CRMSalesorder.ShippingMethodCode := CRMSalesorder.ShippingMethodCode::WillCall;
-        CRMSalesorder.PaymentTermsCode := CRMSalesorder.PaymentTermsCode::"2%10Net30";
-        CRMSalesorder.FreightTermsCode := CRMSalesorder.FreightTermsCode::NoCharge;
-        CRMSalesorder.Modify;
+        CRMSalesorder.ShippingMethodCodeEnum := CRMSalesorder.ShippingMethodCodeEnum::WillCall;
+        CRMSalesorder.PaymentTermsCodeEnum := CRMSalesorder.PaymentTermsCodeEnum::"2%10Net30";
+        CRMSalesorder.FreightTermsCodeEnum := CRMSalesorder.FreightTermsCodeEnum::NoCharge;
+        CRMSalesorder.Modify();
     end;
 
     local procedure FindFieldsToPair(var CRMField: array[2] of Record "Field"; var NAVField: array[2] of Record "Field")
@@ -1938,13 +1938,13 @@ codeunit 139183 "CRM Integration Mapping"
     begin
         SalesHeader.TestField(
           "Shipping Agent Code",
-          GetCRMOptionCode(DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_ShippingMethodCode), CRMSalesorder.ShippingMethodCode));
+          GetCRMOptionCode(DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum), CRMSalesorder.ShippingMethodCodeEnum));
         SalesHeader.TestField(
           "Payment Terms Code",
-          GetCRMOptionCode(DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCode), CRMSalesorder.PaymentTermsCode));
+          GetCRMOptionCode(DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCodeEnum), CRMSalesorder.PaymentTermsCodeEnum));
         SalesHeader.TestField(
           "Shipment Method Code",
-          GetCRMOptionCode(DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCode), CRMSalesorder.FreightTermsCode));
+          GetCRMOptionCode(DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCodeEnum), CRMSalesorder.FreightTermsCodeEnum));
     end;
 
     local procedure VerifyFieldMapping(IntegrationTableMapping: Record "Integration Table Mapping"; FieldID: Integer; IntegrationFieldID: Integer; NotNull: Boolean)
@@ -1970,7 +1970,7 @@ codeunit 139183 "CRM Integration Mapping"
         IntegrationTableMapping.TestField("Integration Table UID Fld. No.", UIDFieldID);
         IntegrationTableMapping.TestField(Direction, ExpectedDirection);
 
-        IntegrationFieldMapping.Init;
+        IntegrationFieldMapping.Init();
         IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
         Assert.RecordCount(IntegrationFieldMapping, FieldCount);
 
@@ -1978,7 +1978,7 @@ codeunit 139183 "CRM Integration Mapping"
         IntegrationFieldMapping."Integration Table Mapping Name" := IntegrationTableMapping.Name;
         IntegrationFieldMapping."Field No." := 9999;
         IntegrationFieldMapping."Integration Table Field No." := 9999;
-        IntegrationFieldMapping.Insert;
+        IntegrationFieldMapping.Insert();
 
         Assert.RecordCount(IntegrationFieldMapping, FieldCount + 1);
 
@@ -1991,7 +1991,7 @@ codeunit 139183 "CRM Integration Mapping"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId);
         Assert.RecordCount(JobQueueEntry, ExpectedCount);
         if JobQueueEntry.FindFirst then begin
@@ -2008,7 +2008,7 @@ codeunit 139183 "CRM Integration Mapping"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId);
         Assert.RecordIsEmpty(JobQueueEntry);
     end;
@@ -2039,14 +2039,20 @@ codeunit 139183 "CRM Integration Mapping"
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
         CRMOrganization: Record "CRM Organization";
+        CDSConnectionSetup: Record "CDS Connection Setup";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
+        CDSSetupDefaults: Codeunit "CDS Setup Defaults";
     begin
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
+        CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
+        CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Person;
+        CDSConnectionSetup.Modify();
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
+        CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
         LibraryCRMIntegration.CreateCRMOrganization;
         CRMOrganization.FindFirst;
         CRMConnectionSetup.BaseCurrencyId := CRMOrganization.BaseCurrencyId;
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
     end;
 
     local procedure TransferMappedFields(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var TempIntegrationFieldMapping: Record "Temp Integration Field Mapping" temporary; OnlyTransferModifiedFields: Boolean): Boolean
@@ -2054,7 +2060,7 @@ codeunit 139183 "CRM Integration Mapping"
         IntegrationRecordSynch: Codeunit "Integration Record Synch.";
         CRMIntTableSubscriber: Codeunit "CRM Int. Table. Subscriber";
     begin
-        Commit;
+        Commit();
         CRMIntTableSubscriber.ClearCache;
         IntegrationRecordSynch.SetParameters(SourceRecordRef, DestinationRecordRef, OnlyTransferModifiedFields);
         IntegrationRecordSynch.SetFieldMapping(TempIntegrationFieldMapping);

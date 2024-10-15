@@ -62,12 +62,10 @@ table 49 "Invoice Post. Buffer"
             DataClassification = SystemMetadata;
             TableRelation = "Gen. Product Posting Group";
         }
-        field(12; "VAT Calculation Type"; Option)
+        field(12; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(14; "VAT Base Amount"; Decimal)
         {
@@ -328,7 +326,7 @@ table 49 "Invoice Post. Buffer"
         GLSetup: Record "General Ledger Setup";
     begin
         CurrencyLCY.InitRoundingPrecision;
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Additional Reporting Currency" <> '' then
             CurrencyACY.Get(GLSetup."Additional Reporting Currency")
         else
@@ -541,10 +539,10 @@ table 49 "Invoice Post. Buffer"
             if TempInvoicePostBuffer.Find then begin
                 TempInvoicePostBuffer.Amount += InvoicePostBuffer.Amount;
                 TempInvoicePostBuffer."Amount (ACY)" += InvoicePostBuffer."Amount (ACY)";
-                TempInvoicePostBuffer.Modify;
+                TempInvoicePostBuffer.Modify();
             end else begin
                 TempInvoicePostBuffer := InvoicePostBuffer;
-                TempInvoicePostBuffer.Insert;
+                TempInvoicePostBuffer.Insert();
             end;
         end;
     end;
@@ -595,7 +593,7 @@ table 49 "Invoice Post. Buffer"
         PurchaseHeader: Record "Purchase Header";
         PurchSetup: record "Purchases & Payables Setup";
     begin
-        PurchSetup.get;
+        PurchSetup.Get();
         PurchaseHeader.get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         UpdateEntryDescription(
             PurchSetup."Copy Line Descr. to G/L Entry",
@@ -609,7 +607,7 @@ table 49 "Invoice Post. Buffer"
         SalesHeader: Record "Sales Header";
         SalesSetup: record "Sales & Receivables Setup";
     begin
-        SalesSetup.get;
+        SalesSetup.Get();
         SalesHeader.get(SalesLine."Document Type", SalesLine."Document No.");
         UpdateEntryDescription(
             SalesSetup."Copy Line Descr. to G/L Entry",
@@ -623,7 +621,7 @@ table 49 "Invoice Post. Buffer"
         ServiceHeader: Record "Service Header";
         ServiceSetup: record "Service Mgt. Setup";
     begin
-        ServiceSetup.get;
+        ServiceSetup.Get();
         ServiceHeader.get(ServiceLine."Document Type", ServiceLine."Document No.");
         UpdateEntryDescription(
             ServiceSetup."Copy Line Descr. to G/L Entry",

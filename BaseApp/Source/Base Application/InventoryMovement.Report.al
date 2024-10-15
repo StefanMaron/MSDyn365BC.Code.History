@@ -154,30 +154,30 @@ report 7321 "Inventory Movement"
                        (Quantity > 0) and
                        (ActivityType in [ActivityType::Pick, ActivityType::Movement])
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if ("Entry Type" in ["Entry Type"::"Negative Adjmt.", "Entry Type"::Sale, "Entry Type"::Consumption]) and
                        (Quantity < 0) and
                        (ActivityType in [ActivityType::Pick, ActivityType::Movement])
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if ("Entry Type" in ["Entry Type"::"Positive Adjmt.", "Entry Type"::Purchase, "Entry Type"::Output]) and
                        (Quantity < 0) and
                        (ActivityType in [ActivityType::"Put-away", ActivityType::Movement])
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if ("Entry Type" in ["Entry Type"::"Negative Adjmt.", "Entry Type"::Sale, "Entry Type"::Consumption]) and
                        (Quantity > 0) and
                        (ActivityType in [ActivityType::"Put-away", ActivityType::Movement])
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if ("Entry Type" <> "Entry Type"::Transfer) and
                        (ActivityType = ActivityType::Movement)
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()

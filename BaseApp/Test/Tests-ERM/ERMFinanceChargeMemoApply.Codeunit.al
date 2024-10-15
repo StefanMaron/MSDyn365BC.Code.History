@@ -89,7 +89,7 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Finance Charge Memo Apply");
     end;
 
@@ -189,7 +189,7 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
 
         // Set Workdate according to Finance Charge Terms with Grace Period and Due Date Calculation.
         WorkDate := CalcDate(FinanceChargeTerms."Grace Period", CalcDate(FinanceChargeTerms."Due Date Calculation", WorkDate));
-        FinanceChargeMemoHeader.Init;
+        FinanceChargeMemoHeader.Init();
         FinanceChargeMemoHeader.Insert(true);
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
         CustLedgerEntry.FindFirst;
@@ -265,7 +265,7 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CustLedgerEntry.SetRange("Document Type", GenJournalLine."Document Type");
         CustLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");
         CustLedgerEntry.SetRange("Customer No.", GenJournalLine."Account No.");

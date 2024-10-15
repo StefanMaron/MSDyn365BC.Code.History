@@ -180,10 +180,10 @@ report 408 "Purchase - Receipt"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry1.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -207,7 +207,7 @@ report 408 "Purchase - Receipt"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Purch. Rcpt. Line"; "Purch. Rcpt. Line")
@@ -260,10 +260,10 @@ report 408 "Purchase - Receipt"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry2.FindSet then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -287,14 +287,14 @@ report 408 "Purchase - Receipt"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end;
                         }
 
                         trigger OnAfterGetRecord()
                         begin
                             if (not ShowCorrectionLines) and Correction then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
 
                             DimSetEntry2.SetRange("Dimension Set ID", "Dimension Set ID");
                         end;
@@ -305,7 +305,7 @@ report 408 "Purchase - Receipt"
                             while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) do
                                 MoreLines := Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange("Line No.", 0, "Line No.");
                         end;
                     }
@@ -322,7 +322,7 @@ report 408 "Purchase - Receipt"
                         trigger OnPreDataItem()
                         begin
                             if "Purch. Rcpt. Header"."Buy-from Vendor No." = "Purch. Rcpt. Header"."Pay-to Vendor No." then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(Total2; "Integer")
@@ -467,7 +467,7 @@ report 408 "Purchase - Receipt"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         OnAfterInitReport;
     end;

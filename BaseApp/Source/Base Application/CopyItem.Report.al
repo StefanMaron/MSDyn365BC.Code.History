@@ -2,6 +2,9 @@ report 730 "Copy Item"
 {
     Caption = 'Copy Item';
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Copy Item page';
+    ObsoleteTag = '16.0';
 
     dataset
     {
@@ -49,7 +52,7 @@ report 730 "Copy Item"
 
                         trigger OnAssistEdit()
                         begin
-                            InvtSetup.Get;
+                            InvtSetup.Get();
                             InvtSetup.TestField("Item Nos.");
                             NoSeriesMgt.SelectSeries(InvtSetup."Item Nos.", SourceItem."No. Series", TargetNoSeries);
                             TargetItemNo := '';
@@ -195,7 +198,7 @@ report 730 "Copy Item"
         trigger OnOpenPage()
         begin
             SourceItem := TempItem;
-            InvtSetup.Get;
+            InvtSetup.Get();
             TargetNoSeries := InvtSetup."Item Nos.";
 
             OnAfterOpenPage;
@@ -228,7 +231,7 @@ report 730 "Copy Item"
         if (TargetItemNo = '') and (TargetNoSeries = '') then
             Error(SpecifyTargetItemNoErr);
 
-        InvtSetup.Get;
+        InvtSetup.Get();
 
         for i := 1 to NumberOfCopies do
             CopyItem(i);
@@ -279,7 +282,7 @@ report 730 "Copy Item"
 
         if not (CopySalesLineDisc or CopyPurchLineDisc) then begin
             TargetItem."Item Disc. Group" := '';
-            TargetItem.Modify;
+            TargetItem.Modify();
         end;
 
         CopyItemPicture(SourceItem, TargetItem);
@@ -372,10 +375,10 @@ report 730 "Copy Item"
     begin
         if CopyPic then begin
             ToItem.Picture := FromItem.Picture;
-            ToItem.Modify;
+            ToItem.Modify();
         end else begin
             Clear(ToItem.Picture);
-            ToItem.Modify;
+            ToItem.Modify();
         end;
     end;
 
@@ -394,7 +397,7 @@ report 730 "Copy Item"
                 TargetRecRef := SourceRecRef.Duplicate;
                 TargetFieldRef := TargetRecRef.Field(FieldNo);
                 TargetFieldRef.Value(ToItemNo);
-                TargetRecRef.Insert;
+                TargetRecRef.Insert();
             until SourceRecRef.Next = 0;
     end;
 
@@ -411,7 +414,7 @@ report 730 "Copy Item"
                 TargetRecRef := SourceRecRef.Duplicate;
                 TargetFieldRef := TargetRecRef.Field(FieldNo);
                 TargetFieldRef.Value(ToItemNo);
-                TargetRecRef.Insert;
+                TargetRecRef.Insert();
             until SourceRecRef.Next = 0;
     end;
 
@@ -444,7 +447,7 @@ report 730 "Copy Item"
                 ToItem."Sales Unit of Measure" := '';
                 ToItem."Purch. Unit of Measure" := '';
                 ToItem."Put-away Unit of Measure Code" := '';
-                ToItem.Modify;
+                ToItem.Modify();
             end;
     end;
 
@@ -496,12 +499,12 @@ report 730 "Copy Item"
                     repeat
                         NewExtendedTextLine.TransferFields(ExtendedTextLine);
                         NewExtendedTextLine."No." := TargetItem."No.";
-                        NewExtendedTextLine.Insert;
+                        NewExtendedTextLine.Insert();
                     until ExtendedTextLine.Next = 0;
 
                 NewExtendedTextHeader.TransferFields(ExtendedTextHeader);
                 NewExtendedTextHeader."No." := TargetItem."No.";
-                NewExtendedTextHeader.Insert;
+                NewExtendedTextHeader.Insert();
             until ExtendedTextHeader.Next = 0;
 
         OnAfterCopyExtendedTexts(SourceItem, TargetItem);
@@ -539,16 +542,16 @@ report 730 "Copy Item"
                 repeat
                     NewDefaultDim.TransferFields(DefaultDim);
                     NewDefaultDim."No." := ToItem."No.";
-                    NewDefaultDim.Insert;
+                    NewDefaultDim.Insert();
                 until DefaultDim.Next = 0;
             ToItem."Global Dimension 1 Code" := FromItem."Global Dimension 1 Code";
             ToItem."Global Dimension 2 Code" := FromItem."Global Dimension 2 Code";
-            ToItem.Modify;
+            ToItem.Modify();
         end else
             if CopyGenItemInfo then begin
                 ToItem."Global Dimension 1 Code" := '';
                 ToItem."Global Dimension 2 Code" := '';
-                ToItem.Modify;
+                ToItem.Modify();
             end;
     end;
 
@@ -580,6 +583,7 @@ report 730 "Copy Item"
         CopyItemRelatedTableFromRecRef(RecRef, ResourceSkill.FieldNo("No."), FromItemNo, ToItemNo);
     end;
 
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     local procedure CopyItemSalesPrices(FromItemNo: Code[20]; ToItemNo: Code[20])
     var
         SalesPrice: Record "Sales Price";
@@ -590,6 +594,7 @@ report 730 "Copy Item"
         CopyItemRelatedTable(DATABASE::"Sales Price", SalesPrice.FieldNo("Item No."), FromItemNo, ToItemNo);
     end;
 
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     local procedure CopySalesLineDiscounts(FromItemNo: Code[20]; ToItemNo: Code[20])
     var
         SalesLineDiscount: Record "Sales Line Discount";
@@ -604,6 +609,7 @@ report 730 "Copy Item"
         CopyItemRelatedTableFromRecRef(RecRef, SalesLineDiscount.FieldNo(Code), FromItemNo, ToItemNo);
     end;
 
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     local procedure CopyPurchasePrices(FromItemNo: Code[20]; ToItemNo: Code[20])
     var
         PurchasePrice: Record "Purchase Price";
@@ -614,6 +620,7 @@ report 730 "Copy Item"
         CopyItemRelatedTable(DATABASE::"Purchase Price", PurchasePrice.FieldNo("Item No."), FromItemNo, ToItemNo);
     end;
 
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     local procedure CopyPurchaseLineDiscounts(FromItemNo: Code[20]; ToItemNo: Code[20])
     var
         PurchLineDiscount: Record "Purchase Line Discount";

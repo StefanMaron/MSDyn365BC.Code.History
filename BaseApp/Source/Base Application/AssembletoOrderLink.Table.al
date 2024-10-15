@@ -6,11 +6,9 @@ table 904 "Assemble-to-Order Link"
 
     fields
     {
-        field(1; "Assembly Document Type"; Option)
+        field(1; "Assembly Document Type"; Enum "Sales Document Type")
         {
             Caption = 'Assembly Document Type';
-            OptionCaption = 'Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order';
-            OptionMembers = Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         }
         field(2; "Assembly Document No."; Code[20])
         {
@@ -27,11 +25,9 @@ table 904 "Assemble-to-Order Link"
             OptionCaption = ' ,Sale';
             OptionMembers = " ",Sale;
         }
-        field(12; "Document Type"; Option)
+        field(12; "Document Type"; Enum "Sales Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = 'Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order';
-            OptionMembers = Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         }
         field(13; "Document No."; Code[20])
         {
@@ -78,6 +74,7 @@ table 904 "Assemble-to-Order Link"
         Text007: Label 'A %1 exists for the %2. \\If you want to record and post a different %3, then you must do this in the %4 field on the related %1.';
         Text008: Label '%1 %2', Comment = 'Key Value, say: %1=Line No. %2=10000';
         UOMMgt: Codeunit "Unit of Measure Management";
+        HideConfirm: Boolean;
 
     procedure UpdateAsmFromSalesLine(var NewSalesLine: Record "Sales Line")
     begin
@@ -268,7 +265,7 @@ table 904 "Assemble-to-Order Link"
 
             if GetAsmHeader then begin
                 AsmHeader.Delete(true);
-                AsmHeader.Init;
+                AsmHeader.Init();
             end;
         end;
     end;
@@ -282,7 +279,7 @@ table 904 "Assemble-to-Order Link"
         if IsHandled then
             exit;
 
-        AsmHeader.Init;
+        AsmHeader.Init();
         AsmHeader.Validate("Document Type", NewDocType);
         AsmHeader."No." := NewDocNo;
         OnBeforeAsmHeaderInsert(AsmHeader);
@@ -352,7 +349,7 @@ table 904 "Assemble-to-Order Link"
             ToSalesOrderLine.TestField("No.", FromSalesLine."No.");
 
             if GetAsmHeader then begin
-                ToAsmOrderHeader.Init;
+                ToAsmOrderHeader.Init();
                 CopyAsmToNewAsmOrder(AsmHeader, ToAsmOrderHeader, true);
 
                 Init;
@@ -513,7 +510,7 @@ table 904 "Assemble-to-Order Link"
     begin
         GetAsmHeader;
 
-        AsmHeaderReserve.FilterReservFor(ReservEntry, AsmHeader);
+        AsmHeader.SetReservationFilters(ReservEntry);
         AsmHeaderReserve.DeleteLine(AsmHeader);
     end;
 
@@ -521,20 +518,19 @@ table 904 "Assemble-to-Order Link"
     var
         ReservEntry: Record "Reservation Entry";
         Item: Record Item;
-        AsmHeaderReserve: Codeunit "Assembly Header-Reserve";
     begin
         GetAsmHeader;
 
-        TrackingSpecification.Reset;
-        TrackingSpecification.DeleteAll;
+        TrackingSpecification.Reset();
+        TrackingSpecification.DeleteAll();
 
-        AsmHeaderReserve.FilterReservFor(ReservEntry, AsmHeader);
+        AsmHeader.SetReservationFilters(ReservEntry);
         if ReservEntry.Find('-') then begin
             Item.Get(AsmHeader."Item No.");
             repeat
                 if ReservEntry.TrackingExists then begin
                     TrackingSpecification.TransferFields(ReservEntry);
-                    TrackingSpecification.Insert;
+                    TrackingSpecification.Insert();
 
                     QtyTracked += ReservEntry.Quantity;
                     QtyTrackedBase += ReservEntry."Quantity (Base)";
@@ -557,15 +553,13 @@ table 904 "Assemble-to-Order Link"
         ReservEntry.SetPointerFilter;
         ReservEntry.SetTrackingFilterFromReservEntry(ReservEntry);
         TrackingSpecification.TransferFields(ReservEntry);
-        TrackingSpecification.SetTracking('', '', 0D, 0D);
+        TrackingSpecification.SetTrackingBlank;
         OnRemoveTrackingFromReservationOnAfterSetTracking(TrackingSpecification);
 
         ItemTrackingCodeRec.Get(ItemTrackingCode);
         ReservEngineMgt.AddItemTrackingToTempRecSet(
-          ReservEntry, TrackingSpecification,
-          TrackingSpecification."Quantity (Base)", QtyToAdd,
-          ItemTrackingCodeRec."SN Specific Tracking",
-          ItemTrackingCodeRec."Lot Specific Tracking");
+            ReservEntry, TrackingSpecification, TrackingSpecification."Quantity (Base)",
+            QtyToAdd, ItemTrackingCodeRec);
 
         OnAfterRemoveTrackingFromReservation(ReservEntry, TrackingSpecification, ItemTrackingCodeRec);
     end;
@@ -573,6 +567,7 @@ table 904 "Assemble-to-Order Link"
     local procedure RestoreItemTracking(var TrackingSpecification: Record "Tracking Specification"; SalesLine: Record "Sales Line")
     var
         ReservEntry: Record "Reservation Entry";
+        FromTrackingSpecification: Record "Tracking Specification";
         CreateReservEntry: Codeunit "Create Reserv. Entry";
     begin
         GetAsmHeader;
@@ -590,10 +585,11 @@ table 904 "Assemble-to-Order Link"
                   DATABASE::"Assembly Header", AsmHeader."Document Type", AsmHeader."No.", '', 0, 0,
                   AsmHeader."Qty. per Unit of Measure", 0, TrackingSpecification."Quantity (Base)",
                   TrackingSpecification."Serial No.", TrackingSpecification."Lot No.");
-                CreateReservEntry.CreateReservEntryFrom(
-                  DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", '', 0, SalesLine."Line No.",
-                  AsmHeader."Qty. per Unit of Measure",
-                  TrackingSpecification."Serial No.", TrackingSpecification."Lot No.");
+
+                FromTrackingSpecification.InitFromSalesLine(SalesLine);
+                FromTrackingSpecification."Qty. per Unit of Measure" := AsmHeader."Qty. per Unit of Measure";
+                FromTrackingSpecification.CopyTrackingFromTrackingSpec(TrackingSpecification);
+                CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
 
                 OnRestoreItemTrackingOnAfterCreateReservEntryFrom(TrackingSpecification);
 
@@ -601,7 +597,7 @@ table 904 "Assemble-to-Order Link"
                   AsmHeader."Item No.", AsmHeader."Variant Code", AsmHeader."Location Code", AsmHeader.Description,
                   AsmHeader."Due Date", AsmHeader."Due Date", 0, 0);
             until TrackingSpecification.Next = 0;
-        TrackingSpecification.DeleteAll;
+        TrackingSpecification.DeleteAll();
     end;
 
     local procedure CopyAsmToNewAsmOrder(FromAsmHeader: Record "Assembly Header"; var ToAsmOrderHeader: Record "Assembly Header"; CopyComments: Boolean)
@@ -659,13 +655,17 @@ table 904 "Assemble-to-Order Link"
         CompItem: Record Item;
         Res: Record Resource;
         Currency: Record Currency;
-        SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
+        PriceCalculationMgt: codeunit "Price Calculation Mgt.";
+        SalesLinePrice: Codeunit "Sales Line - Price";
+        PriceCalculation: Interface "Price Calculation";
+        PriceType: Enum "Price Type";
         UnitPrice: Decimal;
     begin
         SalesLine.TestField(Quantity);
         SalesLine.TestField("Qty. to Asm. to Order (Base)");
-        if not Confirm(Text001) then
-            exit;
+        if not HideConfirm then
+            if not Confirm(Text001) then
+                exit;
         if not AsmExistsForSalesLine(SalesLine) then
             exit;
         if not GetAsmHeader then
@@ -719,7 +719,11 @@ table 904 "Assemble-to-Order Link"
                     CompSalesLine."Allow Line Disc." := false;
 
                     OnRollUpPriceOnBeforeFindSalesLinePrice(SalesHeader, CompSalesLine);
-                    SalesPriceCalcMgt.FindSalesLinePrice(SalesHeader, CompSalesLine, SalesLine.FieldNo("No."));
+
+                    SalesLinePrice.SetLine(PriceType::Sale, SalesHeader, CompSalesLine);
+                    PriceCalculationMgt.GetHandler(SalesLinePrice, PriceCalculation);
+                    CompSalesLine.ApplyPrice(SalesLine.FieldNo("No."), PriceCalculation);
+
                     OnRollUpPriceOnAfterFindSalesLinePrice(SalesHeader, CompSalesLine);
 
                     UnitPrice += CompSalesLine."Unit Price" * AsmLine.Quantity;
@@ -738,8 +742,9 @@ table 904 "Assemble-to-Order Link"
     begin
         SalesLine.TestField(Quantity);
         SalesLine.TestField("Qty. to Asm. to Order (Base)");
-        if not Confirm(Text002) then
-            exit;
+        if not HideConfirm then
+            if not Confirm(Text002) then
+                exit;
         if not AsmExistsForSalesLine(SalesLine) then
             exit;
         if not GetAsmHeader then
@@ -817,16 +822,16 @@ table 904 "Assemble-to-Order Link"
         if SalesLine."Qty. to Assemble to Order" = 0 then
             exit(false);
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         if not SalesSetup."Stockout Warning" then
             exit(false);
 
-        TempAsmHeader.Init;
+        TempAsmHeader.Init();
         TempAsmHeader."Document Type" := SalesLine."Document Type";
         if SalesLine.AsmToOrderExists(AsmHeader) then
             TempAsmHeader := AsmHeader;
         TransAvailSalesLineToAsmHeader(TempAsmHeader, SalesLine);
-        TempAsmHeader.Insert;
+        TempAsmHeader.Insert();
 
         AsmLine.SetRange("Document Type", AsmHeader."Document Type");
         AsmLine.SetRange("Document No.", AsmHeader."No.");
@@ -842,14 +847,14 @@ table 904 "Assemble-to-Order Link"
         if SalesLine."Qty. to Assemble to Order" = 0 then
             exit(false);
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         if not SalesSetup."Stockout Warning" then
             exit(false);
 
-        TempAsmHeader.Init;
+        TempAsmHeader.Init();
         TempAsmHeader."Document Type" := SalesLine."Document Type";
         TransAvailSalesLineToAsmHeader(TempAsmHeader, SalesLine);
-        TempAsmHeader.Insert;
+        TempAsmHeader.Insert();
 
         if not Recalculate then
             exit(TransAvailAsmLinesToAsmLines(FromAsmHeader, TempAsmHeader, TempAsmLine, true));
@@ -863,14 +868,14 @@ table 904 "Assemble-to-Order Link"
         if SalesLine."Qty. to Assemble to Order" = 0 then
             exit(false);
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         if not SalesSetup."Stockout Warning" then
             exit(false);
 
-        TempAsmHeader.Init;
+        TempAsmHeader.Init();
         TempAsmHeader."Document Type" := SalesLine."Document Type";
         TransAvailSalesLineToAsmHeader(TempAsmHeader, SalesLine);
-        TempAsmHeader.Insert;
+        TempAsmHeader.Insert();
 
         if not Recalculate then
             exit(TransAvailPstdAsmLnsToAsmLns(FromPostedAsmHeader, TempAsmHeader, TempAsmLine));
@@ -913,7 +918,7 @@ table 904 "Assemble-to-Order Link"
 
                 if ToAsmLine.UpdateAvailWarning then
                     ShowAsmWarning := true;
-                ToAsmLine.Insert;
+                ToAsmLine.Insert();
             until FromAsmLine.Next = 0;
 
         exit(ShowAsmWarning);
@@ -928,7 +933,7 @@ table 904 "Assemble-to-Order Link"
         BOMComponent.SetRange(Type, BOMComponent.Type::Item);
         if BOMComponent.Find('-') then
             repeat
-                ToAsmLine.Init;
+                ToAsmLine.Init();
                 ToAsmLine."Line No." += 10000;
                 TransAvailAsmHeaderToAsmLine(ToAsmLine, ToAsmHeader);
                 TransAvailBOMCompToAsmLine(ToAsmLine, BOMComponent);
@@ -936,7 +941,7 @@ table 904 "Assemble-to-Order Link"
 
                 if ToAsmLine.UpdateAvailWarning then
                     ShowAsmWarning := true;
-                ToAsmLine.Insert;
+                ToAsmLine.Insert();
             until BOMComponent.Next = 0;
 
         exit(ShowAsmWarning);
@@ -957,7 +962,7 @@ table 904 "Assemble-to-Order Link"
 
                 if ToAsmLine.UpdateAvailWarning then
                     ShowAsmWarning := true;
-                ToAsmLine.Insert;
+                ToAsmLine.Insert();
             until FromPostedAsmLine.Next = 0;
 
         exit(ShowAsmWarning);
@@ -987,7 +992,7 @@ table 904 "Assemble-to-Order Link"
         AsmLine."Quantity per" := BOMComponent."Quantity per";
         AsmLine."Unit of Measure Code" := BOMComponent."Unit of Measure Code";
         if not ItemUOM.Get(BOMComponent."No.", BOMComponent."Unit of Measure Code") then
-            ItemUOM.Init;
+            ItemUOM.Init();
         AsmLine."Qty. per Unit of Measure" := ItemUOM."Qty. per Unit of Measure";
     end;
 
@@ -1032,7 +1037,7 @@ table 904 "Assemble-to-Order Link"
         exit(AsmExistsForSalesLine(SalesLine));
     end;
 
-    local procedure GetAsmHeader(): Boolean
+    procedure GetAsmHeader(): Boolean
     begin
         if (AsmHeader."Document Type" = "Assembly Document Type") and
            (AsmHeader."No." = "Assembly Document No.")
@@ -1041,7 +1046,7 @@ table 904 "Assemble-to-Order Link"
         exit(AsmHeader.Get("Assembly Document Type", "Assembly Document No."));
     end;
 
-    local procedure GetATOLink(AssemblyHeader: Record "Assembly Header") LinkFound: Boolean
+    procedure GetATOLink(AssemblyHeader: Record "Assembly Header") LinkFound: Boolean
     begin
         LinkFound := Get(AssemblyHeader."Document Type", AssemblyHeader."No.");
         if LinkFound then
@@ -1133,8 +1138,9 @@ table 904 "Assemble-to-Order Link"
     begin
         if AsmHeader.Status <> AsmHeader.Status::Released then
             exit;
-        if not Confirm(Text006, false, AsmHeader.Status::Open) then
-            ItemCheckAvail.RaiseUpdateInterruptedError;
+        if not HideConfirm then
+            if not Confirm(Text006, false, AsmHeader.Status::Open) then
+                ItemCheckAvail.RaiseUpdateInterruptedError;
         ReleaseAssemblyDoc.Reopen(AsmHeader);
     end;
 
@@ -1216,7 +1222,7 @@ table 904 "Assemble-to-Order Link"
         AssemblyHeader: Record "Assembly Header";
         TempAssemblyHeader: Record "Assembly Header" temporary;
     begin
-        TempAssemblyHeader.DeleteAll;
+        TempAssemblyHeader.DeleteAll();
         with AssembleToOrderLink do begin
             SetCurrentKey(Type, "Document Type", "Document No.", "Document Line No.");
             SetRange(Type, Type::Sale);
@@ -1227,7 +1233,7 @@ table 904 "Assemble-to-Order Link"
                     if not TempAssemblyHeader.Get("Assembly Document Type", "Assembly Document No.") then
                         if AssemblyHeader.Get("Assembly Document Type", "Assembly Document No.") then begin
                             TempAssemblyHeader := AssemblyHeader;
-                            TempAssemblyHeader.Insert;
+                            TempAssemblyHeader.Insert();
                         end;
                 until Next = 0;
         end;
@@ -1244,6 +1250,11 @@ table 904 "Assemble-to-Order Link"
             repeat
                 AsmHeader.AutoReserveAsmLine(AssemblyLine);
             until AssemblyLine.Next = 0;
+    end;
+
+    procedure SetHideConfirm(NewHideConfirm: Boolean)
+    begin
+        HideConfirm := NewHideConfirm;
     end;
 
     [IntegrationEvent(false, false)]

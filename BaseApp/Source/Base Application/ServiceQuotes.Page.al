@@ -1,4 +1,4 @@
-﻿page 9317 "Service Quotes"
+page 9317 "Service Quotes"
 {
     ApplicationArea = Service;
     Caption = 'Service Quotes';
@@ -235,7 +235,7 @@
                     trigger OnAction()
                     begin
                         CalcInvDiscForHeader;
-                        Commit;
+                        Commit();
                         PAGE.RunModal(PAGE::"Service Statistics", Rec);
                     end;
                 }

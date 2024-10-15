@@ -149,7 +149,7 @@ codeunit 133769 "Daily Report Tests"
         REPORT.Run(REPORT::"Day Book Cust. Ledger Entry");  // Opens DayBookCustLedgerEntryRequestPageHandler.
 
         // Verify: Verify Customer Ledger Entry Filters, VAT Amount and VAT Base on Report Day Book Customer Ledger Entry.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists(
           'CustLedgFilter',
@@ -218,7 +218,7 @@ codeunit 133769 "Daily Report Tests"
         REPORT.Run(REPORT::"Day Book Vendor Ledger Entry");  // Opens DayBookVendorLedgerEntryRequestPageHandler.
 
         // Verify: Verify Vendor Ledger Entry Filters, VAT Amount and VAT Base on Report Day Book Vendor Ledger Entry.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists(
           'VendLedgFilter',
@@ -374,7 +374,7 @@ codeunit 133769 "Daily Report Tests"
         Vendor: Record Vendor;
     begin
         Vendor."No." := LibraryUTUtility.GetNewCode;
-        Vendor.Insert;
+        Vendor.Insert();
         exit(Vendor."No.");
     end;
 
@@ -389,7 +389,7 @@ codeunit 133769 "Daily Report Tests"
         Customer."Reminder Terms Code" := CreateReminderTerms;
         Customer."Customer Posting Group" := CustomerPostingGroupCode;
         Customer."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
-        Customer.Insert;
+        Customer.Insert();
         exit(Customer."No.");
     end;
 
@@ -410,7 +410,7 @@ codeunit 133769 "Daily Report Tests"
         CustLedgerEntry."Transaction No." := GLEntry."Transaction No.";
         CustLedgerEntry."Closed by Entry No." := CustLedgerEntry."Entry No.";
         CustLedgerEntry."Pmt. Disc. Given (LCY)" := LibraryRandom.RandDec(10, 2);
-        CustLedgerEntry.Insert;
+        CustLedgerEntry.Insert();
 
         // Required inside DayBookCustLedgerEntryRequestPageHandler.
         LibraryVariableStorage.Enqueue(CustLedgerEntry."Customer No.");
@@ -438,7 +438,7 @@ codeunit 133769 "Daily Report Tests"
         VendorLedgerEntry."Remaining Pmt. Disc. Possible" := LibraryRandom.RandDec(10, 2); // Using Random value less than Amount.
         VendorLedgerEntry."Pmt. Disc. Rcd.(LCY)" := LibraryRandom.RandDec(10, 2);
         VendorLedgerEntry."Pmt. Discount Date" := WorkDate;
-        VendorLedgerEntry.Modify;
+        VendorLedgerEntry.Modify();
 
         // Required inside DayBookVendorLedgerEntryRequestPageHandler.
         LibraryVariableStorage.Enqueue(VendorLedgerEntry."Vendor No.");
@@ -477,7 +477,7 @@ codeunit 133769 "Daily Report Tests"
         VATEntry."VAT Difference" := LibraryRandom.RandDec(10, 2);
         VATEntry.Amount := LibraryRandom.RandDec(10, 2);
         VATEntry."Posting Date" := WorkDate;
-        VATEntry.Insert;
+        VATEntry.Insert();
     end;
 
     local procedure VerifyValuesOnReport(ElementName: Text; ElementName2: Text; ExpectedValue: Variant; ExpectedValue2: Variant)
@@ -498,7 +498,7 @@ codeunit 133769 "Daily Report Tests"
         ReminderTerms: Record "Reminder Terms";
     begin
         ReminderTerms.Code := LibraryUTUtility.GetNewCode10;
-        ReminderTerms.Insert;
+        ReminderTerms.Insert();
         CreateReminderLevel(ReminderTerms.Code);
         exit(ReminderTerms.Code);
     end;
@@ -512,7 +512,7 @@ codeunit 133769 "Daily Report Tests"
         GLEntry."G/L Account No." := LibraryUTUtility.GetNewCode;
         GLEntry."Document No." := LibraryUTUtility.GetNewCode;
         GLEntry."Transaction No." := SelectGLEntryTransactionNo;
-        GLEntry.Insert;
+        GLEntry.Insert();
     end;
 
     local procedure CreateVendorLedgerEntryWithGLEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50]; VendorNo: Code[20]; AmountToApply: Decimal; DocumentType: Option)
@@ -520,7 +520,7 @@ codeunit 133769 "Daily Report Tests"
         GLEntry: Record "G/L Entry";
     begin
         CreateGLEntry(GLEntry);
-        VendorLedgerEntry.Init;
+        VendorLedgerEntry.Init();
         VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
         VendorLedgerEntry."Vendor No." := VendorNo;
         VendorLedgerEntry."Posting Date" := WorkDate;
@@ -531,14 +531,14 @@ codeunit 133769 "Daily Report Tests"
         VendorLedgerEntry."Transaction No." := GLEntry."Transaction No.";
         VendorLedgerEntry.Open := true;
         VendorLedgerEntry."Closed by Entry No." := VendorLedgerEntry."Entry No.";
-        VendorLedgerEntry.Insert;
+        VendorLedgerEntry.Insert();
     end;
 
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
     begin
         VATPostingSetup."VAT Bus. Posting Group" := LibraryUTUtility.GetNewCode10;
         VATPostingSetup."VAT Prod. Posting Group" := CreateVATProductPostingGroup;
-        VATPostingSetup.Insert;
+        VATPostingSetup.Insert();
     end;
 
     local procedure CreateCustomerPostingGroup(VATProdPostingGroup: Code[20]): Code[20]
@@ -550,7 +550,7 @@ codeunit 133769 "Daily Report Tests"
         CustomerPostingGroup.Code := LibraryUTUtility.GetNewCode10;
         CustomerPostingGroup."Additional Fee Account" := GLAccountNo;
         CustomerPostingGroup."Interest Account" := GLAccountNo;
-        CustomerPostingGroup.Insert;
+        CustomerPostingGroup.Insert();
         exit(CustomerPostingGroup.Code);
     end;
 
@@ -562,7 +562,7 @@ codeunit 133769 "Daily Report Tests"
         ReminderLevel."No." := 1;  // Using 1 for Reminder Level first.
         Evaluate(ReminderLevel."Grace Period", ('<' + Format(LibraryRandom.RandInt(5)) + 'D>'));
         ReminderLevel."Additional Fee (LCY)" := LibraryRandom.RandDec(10, 2);
-        ReminderLevel.Insert;
+        ReminderLevel.Insert();
     end;
 
     local procedure SelectGLEntryTransactionNo(): Integer
@@ -579,7 +579,7 @@ codeunit 133769 "Daily Report Tests"
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
         VATProductPostingGroup.Code := LibraryUTUtility.GetNewCode10;
-        VATProductPostingGroup.Insert;
+        VATProductPostingGroup.Insert();
         exit(VATProductPostingGroup.Code);
     end;
 
@@ -590,7 +590,7 @@ codeunit 133769 "Daily Report Tests"
         GLAccount."No." := LibraryUTUtility.GetNewCode;
         GLAccount."VAT Prod. Posting Group" := VATProdPostingGroup;
         GLAccount."Gen. Prod. Posting Group" := CreateGeneralPostingSetup(VATProdPostingGroup);
-        GLAccount.Insert;
+        GLAccount.Insert();
         exit(GLAccount."No.");
     end;
 
@@ -599,7 +599,7 @@ codeunit 133769 "Daily Report Tests"
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         GeneralPostingSetup."Gen. Prod. Posting Group" := CreateGenProductPostingGroup(DefVATProdPostingGroup);
-        GeneralPostingSetup.Insert;
+        GeneralPostingSetup.Insert();
         exit(GeneralPostingSetup."Gen. Prod. Posting Group");
     end;
 
@@ -609,7 +609,7 @@ codeunit 133769 "Daily Report Tests"
     begin
         GenProductPostingGroup.Code := LibraryUTUtility.GetNewCode10;
         GenProductPostingGroup."Def. VAT Prod. Posting Group" := DefVATProdPostingGroup;
-        GenProductPostingGroup.Insert;
+        GenProductPostingGroup.Insert();
         exit(GenProductPostingGroup.Code);
     end;
 
@@ -619,7 +619,7 @@ codeunit 133769 "Daily Report Tests"
     begin
         LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, CustomerNo);
         SalesHeader."Posting Date" := PostingDate;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         exit(LibrarySales.PostSalesDocument(SalesHeader, false, true));
     end;
 
@@ -629,7 +629,7 @@ codeunit 133769 "Daily Report Tests"
     begin
         LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, VendorNo);
         PurchaseHeader."Posting Date" := PostingDate;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true));
     end;
 

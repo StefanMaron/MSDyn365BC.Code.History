@@ -10,7 +10,7 @@ codeunit 132910 "System Information Test"
     var
         Assert: Codeunit Assert;
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
-        ErrorOccurredErr: Label 'Error occurred.', Comment = 'Locked';
+        ErrorOccurredErr: Label 'Error occurred.', Locked = true;
         ErrorTwoOccurredErr: Label 'Error 2 occurred';
 
     [Test]
@@ -34,7 +34,6 @@ codeunit 132910 "System Information Test"
         Assert.IsTrue(SystemInformationTestPage.ErrorCallStack.Visible, 'Expected Error Callstack to be visible');
         Assert.IsTrue(SystemInformationTestPage.ErrorText.Visible, 'Expected Error Text to be visible');
         Assert.IsTrue(SystemInformationTestPage.ErrorCode.Visible, 'Expected Error Code to be visible');
-        Assert.IsTrue(SystemInformationTestPage.ErrorObject.Visible, 'Expected Error Object to be visible');
 
         SystemInformationTestPage.Close;
     end;
@@ -106,7 +105,6 @@ codeunit 132910 "System Information Test"
         Assert.IsFalse(SystemInformationTestPage.ErrorCallStack.Visible, 'Expected Error Callstack to not be visible');
         Assert.IsFalse(SystemInformationTestPage.ErrorText.Visible, 'Expected Error Text to not be visible');
         Assert.IsFalse(SystemInformationTestPage.ErrorCode.Visible, 'Expected Error Code to not be visible');
-        Assert.IsFalse(SystemInformationTestPage.ErrorObject.Visible, 'Expected Error Object to not be visible');
 
         SystemInformationTestPage.Close;
     end;

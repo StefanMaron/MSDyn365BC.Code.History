@@ -931,7 +931,7 @@ codeunit 134389 "ERM Customer Statistics"
         LibraryInventory.CreateServiceTypeItem(Item);
         Item.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
         Item.Validate("Unit Price", Item."Unit Cost" + LibraryRandom.RandDec(100, 2));
-        Item.Modify;
+        Item.Modify();
 
         // [GIVEN] Create customer "CUST"
         CustomerNo := LibrarySales.CreateCustomerNo;
@@ -970,7 +970,7 @@ codeunit 134389 "ERM Customer Statistics"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Customer Statistics");
     end;
 
@@ -1148,7 +1148,7 @@ codeunit 134389 "ERM Customer Statistics"
     var
         SalesLine: Record "Sales Line";
     begin
-        SalesLine.Init;
+        SalesLine.Init();
         SalesLine."Document Type" := DocType;
         SalesLine."Document No." :=
           LibraryUtility.GenerateRandomCode(SalesLine.FieldNo("Document No."), DATABASE::"Sales Line");
@@ -1156,21 +1156,21 @@ codeunit 134389 "ERM Customer Statistics"
         SalesLine."Outstanding Amount (LCY)" := OutstandingAmountLCY;
         SalesLine."Shipped Not Invoiced (LCY)" := ShippedNotInvoicedLCY;
         SalesLine."Return Rcd. Not Invd. (LCY)" := RetRcvdNotInvoicedLCY;
-        SalesLine.Insert;
+        SalesLine.Insert();
     end;
 
     local procedure MockServLine(CustNo: Code[20]; DocType: Option; OutstandingAmountLCY: Decimal; ShippedNotInvoicedLCY: Decimal)
     var
         ServiceLine: Record "Service Line";
     begin
-        ServiceLine.Init;
+        ServiceLine.Init();
         ServiceLine."Document Type" := DocType;
         ServiceLine."Document No." :=
           LibraryUtility.GenerateRandomCode(ServiceLine.FieldNo("Document No."), DATABASE::"Service Line");
         ServiceLine."Bill-to Customer No." := CustNo;
         ServiceLine."Outstanding Amount (LCY)" := OutstandingAmountLCY;
         ServiceLine."Shipped Not Invoiced (LCY)" := ShippedNotInvoicedLCY;
-        ServiceLine.Insert;
+        ServiceLine.Insert();
     end;
 
     local procedure FindCurrency(var Currency: Record Currency)
@@ -1303,7 +1303,7 @@ codeunit 134389 "ERM Customer Statistics"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         OldCreditWarnings := SalesReceivablesSetup."Credit Warnings";
         SalesReceivablesSetup.Validate("Credit Warnings", CreditWarnings);
         SalesReceivablesSetup.Modify(true);

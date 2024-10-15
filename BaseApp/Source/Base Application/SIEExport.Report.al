@@ -116,7 +116,7 @@ report 11207 "SIE Export"
         PrevAccPeriodStart := AccountingPeriod.GetFiscalYearStartDate(AccPeriodStart - 1);
         PrevAccPeriodEnd := AccountingPeriod.GetFiscalYearEndDate(AccPeriodStart - 1);
 
-        GLSetup.Get;
+        GLSetup.Get();
         case ExportType of
             ExportType::"1. Year - End Balances":
                 SIEType1;
@@ -177,7 +177,7 @@ report 11207 "SIE Export"
         DialogWindow.Update(1, '');
         DialogWindow.Update(2, ExportType);
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         ExportFile.Write(StrSubstNo('#FLAGGA  %1', 0));
         ExportFile.Write(StrSubstNo('#PROGRAM  "%1"  "%2"', 'Microsoft Dynamics NAV', ApplicationSystemConstants.ApplicationVersion));
         ExportFile.Write(StrSubstNo('#FORMAT  %1', 'PC8'));
@@ -213,7 +213,7 @@ report 11207 "SIE Export"
         DocNo := '';
         GLEntry.SetCurrentKey("Document No.", "Posting Date");
         GLEntry.SetFilter("Posting Date", AccountDateFilter);
-        CounterTotal := GLEntry.Count;
+        CounterTotal := GLEntry.Count();
         if GLEntry.Find('-') then
             repeat
                 DimensionString := '';
@@ -303,7 +303,7 @@ report 11207 "SIE Export"
     procedure GLAccountPost()
     begin
         GLAccount := "G/L Account";
-        CounterTotal := GLAccount.Count;
+        CounterTotal := GLAccount.Count();
         Counter := 0;
         GLAccount.CopyFilters("G/L Account");
         if GLAccount.Find('-') then
@@ -349,10 +349,10 @@ report 11207 "SIE Export"
     procedure PeriodicPost()
     begin
         Counter := 0;
-        GLAccountRec.Reset;
+        GLAccountRec.Reset();
         GLAccountRec.CopyFilters("G/L Account");
         GLAccountRec.SetRange("Account Type", GLAccountRec."Account Type"::Posting);
-        CounterTotal := GLAccountRec.Count;
+        CounterTotal := GLAccountRec.Count();
         if GLAccountRec.Find('-') then
             repeat
                 Counter := Counter + 1;
@@ -364,7 +364,7 @@ report 11207 "SIE Export"
                             DimensionValue.SetRange("Dimension Code", SieDimension."Dimension Code");
                             if DimensionValue.Find('-') then
                                 repeat
-                                    GLAccount.Reset;
+                                    GLAccount.Reset();
                                     if DimensionValue."Dimension Code" = GLSetup."Global Dimension 1 Code" then begin
                                         GLAccount.SetFilter("Global Dimension 1 Filter", DimensionValue.Code);
                                         GLAccount.SetFilter("Global Dimension 2 Filter", '');
@@ -404,7 +404,7 @@ report 11207 "SIE Export"
                                 until DimensionValue.Next = 0;
                         until SieDimension.Next = 0;
                 end;
-                GLAccount.Reset;
+                GLAccount.Reset();
                 GLAccount := GLAccountRec;
                 GLAccount.SetFilter("Global Dimension 1 Filter", '');
                 GLAccount.SetFilter("Global Dimension 2 Filter", '');
@@ -420,7 +420,7 @@ report 11207 "SIE Export"
                     ExportFile.Write(StrSubstNo('#PSALDO  %1  %2  %3  {} %4', -1, Format(FormatDate(GLAccount2.GetRangeMax
                             ("Date Filter")), 6), GLAccount2."No.", FormatAmount(GLAccount2."Net Change")));
                 if AccountBudgetFilter <> '' then begin
-                    GLAccount.Reset;
+                    GLAccount.Reset();
                     GLAccount.SetFilter("Global Dimension 1 Filter", '');
                     GLAccount.SetFilter("Global Dimension 2 Filter", '');
                     GLAccount.SetFilter("Date Filter", AccountDateFilter);
@@ -443,7 +443,7 @@ report 11207 "SIE Export"
     [Scope('OnPrem')]
     procedure ObjectBalance()
     begin
-        CounterTotal := GLAccount.Count;
+        CounterTotal := GLAccount.Count();
         GLAccount.CopyFilters("G/L Account");
         if GLAccount.Find('-') then
             repeat
@@ -455,7 +455,7 @@ report 11207 "SIE Export"
                         DimensionValue.SetRange("Dimension Code", SieDimension."Dimension Code");
                         if DimensionValue.Find('-') then
                             repeat
-                                GLAccount.Reset;
+                                GLAccount.Reset();
                                 if DimensionValue."Dimension Code" = GLSetup."Global Dimension 1 Code" then
                                     GLAccount.SetFilter("Global Dimension 1 Filter", DimensionValue.Code);
                                 if DimensionValue."Dimension Code" = GLSetup."Global Dimension 2 Code" then
@@ -532,7 +532,7 @@ report 11207 "SIE Export"
     [Scope('OnPrem')]
     procedure SetGLFilterPrev(var GLAccountFiltered: Record "G/L Account")
     begin
-        GLAccountFiltered.Reset;
+        GLAccountFiltered.Reset();
         GLAccountFiltered := GLAccount;
         GLAccountFiltered.CopyFilters(GLAccount);
         GLAccountFiltered.SetRange("Date Filter", PrevAccPeriodStart, PrevAccPeriodEnd);

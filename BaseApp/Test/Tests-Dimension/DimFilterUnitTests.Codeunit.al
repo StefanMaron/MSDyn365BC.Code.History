@@ -425,7 +425,7 @@ codeunit 134822 "DimFilter Unit Tests"
         // [SCENARIO 213937] If there is no Dimension for Company, error should appear on openning "Dimension Combination" page
 
         // [GIVEN] Delete the Dimension Values.
-        Dimension.DeleteAll;
+        Dimension.DeleteAll();
 
         // [WHEN] Open "Dimension Combinations" page
         asserterror DimensionCombinations.OpenEdit;
@@ -611,13 +611,13 @@ codeunit 134822 "DimFilter Unit Tests"
         while StrPos(DimFilter, '|') <> 0 do begin
             Evaluate(DimSetID, CopyStr(DimFilter, 1, StrPos(DimFilter, '|') - 1));
             if TempActualDimSetEntry.Get(DimSetID) then
-                TempActualDimSetEntry.Delete;
+                TempActualDimSetEntry.Delete();
             DimFilter := CopyStr(DimFilter, StrPos(DimFilter, '|') + 1);
         end;
         // Delete the last value in string
         Evaluate(DimSetID, DimFilter);
         if TempActualDimSetEntry.Get(DimSetID) then
-            TempActualDimSetEntry.Delete;
+            TempActualDimSetEntry.Delete();
     end;
 
     [ModalPageHandler]

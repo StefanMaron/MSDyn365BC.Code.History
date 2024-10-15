@@ -16,13 +16,13 @@ report 11208 "SIE Import"
                 DialogWindow.Update(1, Round(ImportFile.Pos / ImportFile.Len * 10000, 1.0));
 
                 if ImportFile.Len = ImportFile.Pos then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 ImportFile.Read(FileText);
                 FileText := ReplaceTab(FileText);
                 FileText := Ansi2Ascii(FileText);
 
-                TempSieBuffer.Init;
+                TempSieBuffer.Init();
                 TempSieBuffer."Entry No." := NextEntryNo;
                 FileText := DelChr(FileText, '<', ' ');
                 Pos1 := GetPos1(FileText);
@@ -71,7 +71,7 @@ report 11208 "SIE Import"
                 if Pos1 < StrLen(FileText) then
                     TempSieBuffer."Import Field 8" := ClChr(GetNextField(CopyStr(FileText, Pos1, StrLen(FileText))));
 
-                TempSieBuffer.Insert;
+                TempSieBuffer.Insert();
                 NextEntryNo += 1;
             end;
 
@@ -96,7 +96,7 @@ report 11208 "SIE Import"
                         CreateGenJnlLine;
                     'KONTO':
                         if InsertNewAccount then begin
-                            GLAccount.Init;
+                            GLAccount.Init();
                             GLAccount.Validate("No.", DelChr("Import Field 2", '=', ' '));
                             GLAccount.Validate(Name, CopyStr(DelChr("Import Field 3", '=', '"'), 1, 30));
                             if (CopyStr(GLAccount."No.", 1, 1) = '1') or (CopyStr(GLAccount."No.", 1, 1) = '2') then
@@ -104,7 +104,7 @@ report 11208 "SIE Import"
                             else
                                 GLAccount."Income/Balance" := GLAccount."Income/Balance"::"Income Statement";
                             GLAccount."Direct Posting" := true;
-                            OK := GLAccount.Insert;
+                            OK := GLAccount.Insert();
                         end;
                     'VER':
                         begin
@@ -131,7 +131,7 @@ report 11208 "SIE Import"
             trigger OnPostDataItem()
             begin
                 DialogWindow.Close;
-                DeleteAll;
+                DeleteAll();
             end;
 
             trigger OnPreDataItem()
@@ -374,11 +374,11 @@ report 11208 "SIE Import"
     begin
         if DocNo = '' then
             DocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", WorkDate, false);
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         GenJnlLine."Journal Template Name" := GenJnlBatch."Journal Template Name";
         GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
         GenJnlLine."Line No." := NextLineNo;
-        GenJnlLine.Insert;
+        GenJnlLine.Insert();
         GenJnlLine.SetUpNewLine(GenJnlLine, GenJnlLine."Balance (LCY)", true);
         GenJnlLine.Validate("Account Type", GenJnlLine."Account Type"::"G/L Account");
         GenJnlLine."Posting Date" := PostingDate;
@@ -393,7 +393,7 @@ report 11208 "SIE Import"
         if StrLen("SIE Import Buffer"."Import Field 3") > 2 then
             GetDimValue(GenJnlLine);
 
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
         NextLineNo += 10000;
     end;
 
@@ -439,12 +439,12 @@ report 11208 "SIE Import"
                         GenJnlLine.ValidateShortcutDimCode(8, Dim2)
                     else begin
                             DimensionManagement.GetDimensionSet(TempDimSetEntry, GenJnlLine."Dimension Set ID");
-                            TempDimSetEntry.Init;
+                            TempDimSetEntry.Init();
                             TempDimSetEntry."Dimension Code" := SieDimension."Dimension Code";
                             TempDimSetEntry."Dimension Value Code" := Dim2;
                             DimensionValue.Get(SieDimension."Dimension Code", Dim2);
                             TempDimSetEntry."Dimension Value ID" := DimensionValue."Dimension Value ID";
-                            TempDimSetEntry.Insert;
+                            TempDimSetEntry.Insert();
                             GenJnlLine."Dimension Set ID" := DimensionManagement.GetDimensionSetID(TempDimSetEntry);
                         end;
                 end;

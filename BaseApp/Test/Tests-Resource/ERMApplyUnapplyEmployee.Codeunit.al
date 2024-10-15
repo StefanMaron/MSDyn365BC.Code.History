@@ -256,7 +256,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
         Amount := LibraryRandom.RandDec(EmployeeLedgerEntry.Amount, 2);
         CreateGeneralJournalLine(GenJournalLine, 1, Employee."No.", GenJournalLine."Document Type"::Payment, Amount);  // Taken 1 and 0 to create only one General Journal line with zero amount.
         GenJournalLine."Applies-to Doc. No." := PostedDocumentNo;
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
 
         // Exericse.
         LibraryLowerPermissions.AddO365HREdit;
@@ -394,8 +394,8 @@ codeunit 134114 "ERM Apply Unapply Employee"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Apply Unapply Employee");
         LibrarySetupStorage.Restore;
         LibraryVariableStorage.Clear;
-        EmployeePostingGroup.DeleteAll;
-        Employee.DeleteAll;
+        EmployeePostingGroup.DeleteAll();
+        Employee.DeleteAll();
         CreateEmployeePostingGroup(LibraryERM.CreateGLAccountNoWithDirectPosting);
 
         if IsInitialized then
@@ -411,7 +411,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
         LibraryERMCountryData.UpdateLocalData;
 
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -493,7 +493,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         SourceCodeSetup.Validate("Unapplied Purch. Entry Appln.", UnappliedPurchEntryAppln);
         SourceCodeSetup.Modify(true);
     end;
@@ -721,7 +721,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
     var
         EmployeePostingGroup: Record "Employee Posting Group";
     begin
-        EmployeePostingGroup.Init;
+        EmployeePostingGroup.Init();
         EmployeePostingGroup.Validate(Code, LibraryUtility.GenerateGUID);
         EmployeePostingGroup.Validate("Payables Account", ExpenseAccNo);
         EmployeePostingGroup.Insert(true);

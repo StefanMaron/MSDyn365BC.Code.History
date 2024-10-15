@@ -24,11 +24,9 @@ table 272 "Check Ledger Entry"
         {
             Caption = 'Posting Date';
         }
-        field(5; "Document Type"; Option)
+        field(5; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(6; "Document No."; Code[20])
         {
@@ -58,11 +56,9 @@ table 272 "Check Ledger Entry"
             OptionCaption = 'Total Check,Partial Check';
             OptionMembers = "Total Check","Partial Check";
         }
-        field(12; "Bank Payment Type"; Option)
+        field(12; "Bank Payment Type"; Enum "Bank Payment Type")
         {
             Caption = 'Bank Payment Type';
-            OptionCaption = ' ,Computer Check,Manual Check,Electronic Payment';
-            OptionMembers = " ","Computer Check","Manual Check","Electronic Payment";
         }
         field(13; "Entry Status"; Option)
         {
@@ -76,11 +72,9 @@ table 272 "Check Ledger Entry"
             OptionCaption = ' ,Printed,Voided,Posted,Financially Voided';
             OptionMembers = " ",Printed,Voided,Posted,"Financially Voided";
         }
-        field(15; "Bal. Account Type"; Option)
+        field(15; "Bal. Account Type"; Enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset,IC Partner,Employee';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner",Employee;
         }
         field(16; "Bal. Account No."; Code[20])
         {
@@ -207,7 +201,6 @@ table 272 "Check Ledger Entry"
         "Document No." := BankAccLedgEntry."Document No.";
         "External Document No." := BankAccLedgEntry."External Document No.";
         Description := BankAccLedgEntry.Description;
-        "Bank Payment Type" := "Bank Payment Type";
         "Bal. Account Type" := BankAccLedgEntry."Bal. Account Type";
         "Bal. Account No." := BankAccLedgEntry."Bal. Account No.";
         "Entry Status" := "Entry Status"::Posted;

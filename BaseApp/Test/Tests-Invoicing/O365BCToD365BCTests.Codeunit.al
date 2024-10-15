@@ -32,7 +32,7 @@ codeunit 138956 "O365 BC To D365 BC Tests"
         // [GIVEN] A clean Invoicing App
         LibraryVariableStorage.Clear;
         ApplicationArea('#Invoicing');
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         LibraryLowerPermissions.SetInvoiceApp;
 
@@ -79,25 +79,6 @@ codeunit 138956 "O365 BC To D365 BC Tests"
 
         // [THEN] Users lands in Evaluation company
         // Assert in Hyper link handler
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestBusinessCentralTrialTileVisibilityFromKeyVault()
-    var
-        O365SetupMgmt: Codeunit "O365 Setup Mgmt";
-    begin
-        // [GIVEN] A clean Invoicing App
-        Init;
-        LibraryLowerPermissions.SetInvoiceApp;
-
-        // [WHEN] User key vault is set for visibilty false
-        SetupKeyVault;
-
-        // [THEN] Users doesn't see the tile
-        Assert.IsFalse(O365SetupMgmt.GetBusinessCentralTrialVisibilityFromKeyVault, 'Key vault setup is not hiding the tile feature');
-
-        CleanupKeyVault;
     end;
 
     [Test]
@@ -158,7 +139,7 @@ codeunit 138956 "O365 BC To D365 BC Tests"
         LibraryVariableStorage.Clear;
         EventSubscriberInvoicingApp.Clear;
         ApplicationArea('#Invoicing');
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
         if IsInitialized then
@@ -213,7 +194,7 @@ codeunit 138956 "O365 BC To D365 BC Tests"
     begin
         Company.SetRange(Name, CompanyName);
         if Company.FindFirst then
-            Company.Delete;
+            Company.Delete();
     end;
 
     local procedure SetupKeyVault()

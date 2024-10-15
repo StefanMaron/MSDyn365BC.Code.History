@@ -105,9 +105,9 @@ table 5083 Team
     var
         TeamSalesperson: Record "Team Salesperson";
     begin
-        TeamSalesperson.Reset;
+        TeamSalesperson.Reset();
         TeamSalesperson.SetRange("Team Code", Code);
-        TeamSalesperson.DeleteAll;
+        TeamSalesperson.DeleteAll();
     end;
 }
 

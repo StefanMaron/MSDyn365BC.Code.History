@@ -14,7 +14,7 @@ codeunit 2160 "Calendar Event Mangement"
     var
         CalendarEvent: Record "Calendar Event";
     begin
-        CalendarEvent.Init;
+        CalendarEvent.Init();
         CalendarEvent.Validate(Description, Description);
         CalendarEvent.Validate("Scheduled Date", ScheduledDate);
         CalendarEvent.Validate("Object ID to Run", CodeunitNo);
@@ -30,7 +30,7 @@ codeunit 2160 "Calendar Event Mangement"
     var
         CalendarEvent: Record "Calendar Event";
     begin
-        CalendarEvent.Init;
+        CalendarEvent.Init();
         CalendarEvent.Validate(Description, Description);
         CalendarEvent.Validate("Scheduled Date", ScheduledDate);
         CalendarEvent.Validate("Object ID to Run", CodeunitNo);
@@ -44,7 +44,7 @@ codeunit 2160 "Calendar Event Mangement"
     var
         CalendarEvent: Record "Calendar Event";
     begin
-        CalendarEvent.Init;
+        CalendarEvent.Init();
         CalendarEvent.Validate(Description, Description);
         CalendarEvent.Validate("Scheduled Date", Today);
         CalendarEvent.Validate(Type, CalendarEvent.Type::System);
@@ -121,7 +121,7 @@ codeunit 2160 "Calendar Event Mangement"
     var
         OtherCalendarEvent: Record "Calendar Event";
     begin
-        JobQueueEntry.LockTable;
+        JobQueueEntry.LockTable();
         JobQueueEntry.Find;
 
         if CalendarEvent."Scheduled Date" > GetNextJobQueueRunDate(JobQueueEntry) then begin
@@ -167,7 +167,7 @@ codeunit 2160 "Calendar Event Mangement"
         if FindJobQueue(JobQueueEntry) then
             exit;
 
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := CODEUNIT::"Calendar Event Execution";
         JobQueueEntry."Maximum No. of Attempts to Run" := 3;
@@ -221,9 +221,9 @@ codeunit 2160 "Calendar Event Mangement"
 
     local procedure GetCalendarEventUserConfiguration(var CalendarEventUserConfig: Record "Calendar Event User Config.")
     begin
-        CalendarEventUserConfig.LockTable;
+        CalendarEventUserConfig.LockTable();
         if not CalendarEventUserConfig.Get(UserId) then begin
-            CalendarEventUserConfig.Init;
+            CalendarEventUserConfig.Init();
             CalendarEventUserConfig.Validate(User, UserId);
             if not CalendarEventUserConfig.Insert(true) then // Insert failed, possibly because it was just inserted in another session
                 CalendarEventUserConfig.Get(UserId); // Try to get the record one more time before failing

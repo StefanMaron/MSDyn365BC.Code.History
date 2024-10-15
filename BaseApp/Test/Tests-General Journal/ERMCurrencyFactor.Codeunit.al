@@ -206,7 +206,7 @@ codeunit 134077 "ERM Currency Factor"
         LibraryERMCountryData.RemoveBlankGenJournalTemplate;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Currency Factor");
     end;
 
@@ -215,7 +215,7 @@ codeunit 134077 "ERM Currency Factor"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         ApplyCustomerEntries: Page "Apply Customer Entries";
     begin
-        CustLedgerEntry.SetRange("Document Type", SalesHeader."Document Type");
+        CustLedgerEntry.SetRange("Document Type", SalesHeader."Document Type".AsInteger());
         CustLedgerEntry.SetRange("Customer No.", SalesHeader."Sell-to Customer No.");
         CustLedgerEntry.FindFirst;
         ApplyCustomerEntries.SetCustLedgEntry(CustLedgerEntry);

@@ -23,7 +23,7 @@ codeunit 135507 "Company Info. Entity E2E Test"
             exit;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -38,7 +38,7 @@ codeunit 135507 "Company Info. Entity E2E Test"
         Initialize;
 
         // [GIVEN] The company information record exists and has values assigned to the fields contained in complex types.
-        CompanyInformation.Get;
+        CompanyInformation.Get();
 
         // [WHEN] The user calls GET for the given Company Information.
         TargetURL := LibraryGraphMgt.CreateTargetURL(CompanyInformation.Id, PAGE::"Company Information Entity", ServiceNameTxt);
@@ -62,7 +62,7 @@ codeunit 135507 "Company Info. Entity E2E Test"
         Initialize;
 
         // [Given] A company information exists.
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.Name := LibraryUtility.GenerateGUID;
         ModifiedName := CompanyInformation.Name;
         RequestBody := GetSimpleCompanyInformationJSON(CompanyInformation);
@@ -75,7 +75,7 @@ codeunit 135507 "Company Info. Entity E2E Test"
         VerifyPropertyInJSON(Response, 'displayName', ModifiedName);
 
         // [THEN] The record in the database contains the new values.
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.TestField(Name, ModifiedName);
     end;
 
@@ -92,7 +92,7 @@ codeunit 135507 "Company Info. Entity E2E Test"
         Initialize;
 
         // [GIVEN] A company information record exists with an address.
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.Address := LibraryUtility.GenerateGUID;
         CompanyInformation."Address 2" := LibraryUtility.GenerateGUID;
         RequestBody := GetCompanyInformationWithAddressJSON(CompanyInformation);
@@ -105,7 +105,7 @@ codeunit 135507 "Company Info. Entity E2E Test"
         VerifyAddressIncompanyInformation(Response, CompanyInformation);
 
         // [THEN] The company information in the database contains the updated values.
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         VerifyAddressIncompanyInformation(Response, CompanyInformation);
     end;
 
@@ -122,7 +122,7 @@ codeunit 135507 "Company Info. Entity E2E Test"
         Initialize;
 
         // [GIVEN] A company information exists with an address.
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         RequestBody := '{ "address" : null }';
 
         // [WHEN] A user makes a PATCH request to the company information.
@@ -130,7 +130,7 @@ codeunit 135507 "Company Info. Entity E2E Test"
         LibraryGraphMgt.PatchToWebService(TargetURL, RequestBody, Response);
 
         // [THEN] The response contains the updated company information.
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         VerifyAddressIncompanyInformation(Response, CompanyInformation);
 
         // [THEN] The company information address fields are empty.
@@ -147,7 +147,7 @@ codeunit 135507 "Company Info. Entity E2E Test"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         Assert.AreNotEqual('', CompanyInformationJSON, EmptyJSONErr);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
 
         VerifyPropertyInJSON(CompanyInformationJSON, 'displayName', CompanyInformation.Name);
         VerifyPropertyInJSON(CompanyInformationJSON, 'phoneNumber', CompanyInformation."Phone No.");

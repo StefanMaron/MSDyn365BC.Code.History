@@ -446,7 +446,7 @@ page 7158 "Sales Analysis by Dimensions"
     begin
         CurrentAnalysisArea := CurrentAnalysisArea::Sales;
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         ItemAnalysisMgt.AnalysisViewSelection(
           CurrentAnalysisArea, CurrentItemAnalysisViewCode, ItemAnalysisView, ItemStatisticsBuffer,

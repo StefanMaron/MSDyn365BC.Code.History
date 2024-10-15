@@ -487,9 +487,9 @@ report 1305 "Standard Sales - Order Conf."
                     trigger OnPreDataItem()
                     begin
                         if not DisplayAssemblyInformation then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         if not AsmInfoExistsForLine then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         SetRange("Document Type", AsmHeader."Document Type");
                         SetRange("Document No.", AsmHeader."No.");
                     end;
@@ -530,7 +530,7 @@ report 1305 "Standard Sales - Order Conf."
                     while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) and (Amount = 0) do
                         MoreLines := Next(-1) <> 0;
                     if not MoreLines then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     SetRange("Line No.", 0, "Line No.");
                     TransHeaderAmount := 0;
                     PrevLineAmount := 0;
@@ -551,7 +551,7 @@ report 1305 "Standard Sales - Order Conf."
                 trigger OnAfterGetRecord()
                 begin
                     if WorkDescriptionInstream.EOS then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     WorkDescriptionInstream.ReadText(WorkDescriptionLine);
                 end;
 
@@ -563,7 +563,7 @@ report 1305 "Standard Sales - Order Conf."
                 trigger OnPreDataItem()
                 begin
                     if not ShowWorkDescription then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     Header."Work Description".CreateInStream(WorkDescriptionInstream, TEXTENCODING::UTF8);
                 end;
             }
@@ -656,7 +656,7 @@ report 1305 "Standard Sales - Order Conf."
 
                     if "VAT Clause Code" <> '' then begin
                         VATClauseLine := VATAmountLine;
-                        if VATClauseLine.Insert then;
+                        if VATClauseLine.Insert() then;
                     end;
                 end;
 
@@ -668,7 +668,7 @@ report 1305 "Standard Sales - Order Conf."
                     TotalVATBaseLCY := 0;
                     TotalVATAmountLCY := 0;
 
-                    VATClauseLine.DeleteAll;
+                    VATClauseLine.DeleteAll();
                 end;
             }
             dataitem(VATClauseLine; "VAT Amount Line")
@@ -701,9 +701,9 @@ report 1305 "Standard Sales - Order Conf."
                 trigger OnAfterGetRecord()
                 begin
                     if "VAT Clause Code" = '' then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     if not VATClause.Get("VAT Clause Code") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     VATClause.GetDescription(Header);
                 end;
             }
@@ -818,8 +818,8 @@ report 1305 "Standard Sales - Order Conf."
                 FirstLineHasBeenOutput := false;
                 Clear(Line);
                 Clear(SalesPost);
-                VATAmountLine.DeleteAll;
-                Line.DeleteAll;
+                VATAmountLine.DeleteAll();
+                Line.DeleteAll();
                 SalesPost.GetSalesLines(Header, Line, 0);
                 Line.CalcVATAmountLines(0, Header, Line, VATAmountLine);
                 Line.UpdateVATOnLines(0, Header, Line, VATAmountLine);
@@ -927,10 +927,10 @@ report 1305 "Standard Sales - Order Conf."
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         CompanyInfo.SetAutoCalcFields(Picture);
-        CompanyInfo.Get;
-        SalesSetup.Get;
+        CompanyInfo.Get();
+        SalesSetup.Get();
         CompanyInfo.VerifyAndSetPaymentInfo;
     end;
 
@@ -1107,7 +1107,7 @@ report 1305 "Standard Sales - Order Conf."
 
     local procedure CreateReportTotalLines()
     begin
-        ReportTotalsLine.DeleteAll;
+        ReportTotalsLine.DeleteAll();
         if (TotalInvDiscAmount <> 0) or (TotalAmountVAT <> 0) then
             ReportTotalsLine.Add(SubtotalLbl, TotalSubTotal, true, false, false);
         if TotalInvDiscAmount <> 0 then begin

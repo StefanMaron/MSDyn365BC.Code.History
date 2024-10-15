@@ -231,7 +231,7 @@ page 6036 "Service Lines Subform"
     var
         ServLine: Record "Service Line";
     begin
-        TempServLine.Reset;
+        TempServLine.Reset();
         TempServLine.CopyFilters(Rec);
         TempServLine.SetRange("Document Type", "Document Type");
         TempServLine.SetRange("Document No.", "Document No.");
@@ -242,7 +242,7 @@ page 6036 "Service Lines Subform"
             if not ServLine.FindFirst then
                 exit(false);
             TempServLine := ServLine;
-            TempServLine.Insert;
+            TempServLine.Insert();
         end;
         if "Line No." = TempServLine."Line No." then
             exit(true);

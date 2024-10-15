@@ -729,7 +729,7 @@ codeunit 134103 "ERM Prepayment IV"
 
         // Copy Document on New Purchase Order Page with Modify Vendor Invoice No and Posting Date then Post Prepayment Invoice.
         LibraryPurchase.CreatePurchHeader(PurchaseHeader2, PurchaseHeader."Document Type", PurchaseHeader."Buy-from Vendor No.");
-        Commit;  // COMMIT is required here.
+        Commit();  // COMMIT is required here.
         PurchaseCopyDocument(PurchaseHeader2, PurchaseHeader."No.", DocumentType::Order);
 
         PurchaseOrder.OpenEdit;
@@ -797,7 +797,7 @@ codeunit 134103 "ERM Prepayment IV"
 
         // Copy Document on New Sales Order Page with Modify Posting Date then Post Prepayment Invoice.
         LibrarySales.CreateSalesHeader(SalesHeader2, SalesHeader."Document Type", SalesHeader."Sell-to Customer No.");
-        Commit;  // COMMIT is required here.
+        Commit();  // COMMIT is required here.
         SalesCopyDocument(SalesHeader2, SalesHeader."No.", DocumentType::Order);
 
         SalesOrder.OpenEdit;
@@ -1908,7 +1908,7 @@ codeunit 134103 "ERM Prepayment IV"
         // [GIVEN] Reopen Sales Order. Change "Posting Date" = "D2"
         LibrarySales.ReopenSalesDocument(SalesHeader);
         SalesHeader.Validate("Posting Date", NewPostingDate);
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         // [WHEN] Post Sales Order (Invoice)
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
@@ -1961,7 +1961,7 @@ codeunit 134103 "ERM Prepayment IV"
         // [GIVEN] Reopen Purchase Order, change "Posting Date" = D2
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
         PurchaseHeader.Validate("Posting Date", NewPostingDate);
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
 
         // [WHEN] Post Purchase Order (Invoice)
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true); // Invoice
@@ -2014,7 +2014,7 @@ codeunit 134103 "ERM Prepayment IV"
         // [GIVEN] Reopen Sales Order. Change "Posting Date" = "D2"
         LibrarySales.ReopenSalesDocument(SalesHeader);
         SalesHeader.Validate("Posting Date", NewPostingDate);
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         // [WHEN] Post Sales Order
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -2067,7 +2067,7 @@ codeunit 134103 "ERM Prepayment IV"
         // [GIVEN] Reopen Purchase Order, change "Posting Date" = D2
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
         PurchaseHeader.Validate("Posting Date", NewPostingDate);
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
 
         // [WHEN] Post Purchase Order
         DocumentNo := PostPurchaseDocument(PurchaseHeader, true, true);
@@ -2871,6 +2871,54 @@ codeunit 134103 "ERM Prepayment IV"
         Assert.RecordIsEmpty(PurchaseLineInvoice);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ResourcePurchaseLineForPrepaymentPct()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Resource]
+        // [SCENARIO 289386] Verify prepayment % for resource purchase line
+        Initialize;
+
+        // [GIVEN] Purchase order with prepayment %
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.Validate("Prepayment %", LibraryRandom.RandIntInRange(10, 90));
+        PurchaseHeader.Modify(true);
+
+        // [WHEN] Add resource purchase order line
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, '', 1);
+
+        // [THEN] Resource purchase line has the same prepayment % as purchase header
+        VerifyPurchaseLineForPrepaymentPct(PurchaseHeader);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostPrepaymentForResourcePurchaseLine()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GLAccountNo: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Resource]
+        // [SCENARIO 289386] Post purchase order and prepayment invoice for resource purchase line
+        Initialize;
+
+        // [GIVEN] Purchase order with resource line and posted preapyment invoice
+        CreatePurchaseOrderWithResourceLineAndPrepayment(PurchaseHeader, PurchaseLine, GLAccountNo);
+
+        // [WHEN] Finally post purchase order
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Modify(true);
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] G/L entry with GLAccountNo exists
+        VerifyGLEntry(DocumentNo, -(PurchaseLine.Amount / 100 * PurchaseLine."Prepayment %"), GLAccountNo, LibraryERM.GetAmountRoundingPrecision);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2891,7 +2939,7 @@ codeunit 134103 "ERM Prepayment IV"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Prepayment IV");
     end;
 
@@ -3748,7 +3796,7 @@ codeunit 134103 "ERM Prepayment IV"
         Vendor.Get(CreateVendorWithCurrencyAndPrepaymentPct(CurrencyCode));
         Vendor.Validate("Prepayment %", 100);
         Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        Vendor.Modify;
+        Vendor.Modify();
 
         GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0);
         GLAccount.Get(GLAccountNo);
@@ -3776,7 +3824,7 @@ codeunit 134103 "ERM Prepayment IV"
         Customer.Get(CreateCustomerWithCurrencyAndPrepaymentPct(CurrencyCode));
         Customer.Validate("Prepayment %", 100);
         Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        Customer.Modify;
+        Customer.Modify();
 
         GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0);
         GLAccount.Get(GLAccountNo);
@@ -4169,7 +4217,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         PrepmtInvoiceNo := GetPostedDocumentNo(PurchaseHeader."Prepayment No. Series");
         PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         PurchasePostPrepayments.Invoice(PurchaseHeader);
         exit(PrepmtInvoiceNo);
     end;
@@ -4502,6 +4550,27 @@ codeunit 134103 "ERM Prepayment IV"
             Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
             Assert.AreEqual(ExpectedAmountInclVAT, "Amount Including VAT", FieldCaption("Amount Including VAT"));
         end;
+    end;
+
+    local procedure CreatePurchaseOrderWithResourceLineAndPrepayment(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var GLAccountNo: Code[20])
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.Validate("Prepayment %", LibraryRandom.RandIntInRange(10, 90));
+        PurchaseHeader.Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, '', 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(100));
+        PurchaseLine.Modify();
+
+        GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
+        GeneralPostingSetup.Validate("Purch. Prepayments Account", LibraryERM.CreateGLAccountWithPurchSetup());
+        GeneralPostingSetup.Modify(true);
+
+        GLAccountNo := GeneralPostingSetup."Purch. Prepayments Account";
+
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
     end;
 
     [ConfirmHandler]

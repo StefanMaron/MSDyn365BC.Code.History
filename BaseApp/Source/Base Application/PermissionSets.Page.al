@@ -129,6 +129,31 @@ page 9802 "Permission Sets"
                     RunObject = Page "Permission Set by User Group";
                     ToolTip = 'View or edit the available permission sets and apply permission sets to existing user groups.';
                 }
+                action("Show Permission Conflicts Overview")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show Permission Conflicts Overview';
+                    Image = Permission;
+                    RunObject = Page "Permission Conflicts Overview";
+                    ToolTip = 'View the permission sets that provide more permissions than product licenses allow.';
+                    Visible = IsSaaS;
+                }
+                action("Show Permission Conflicts")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show Permission Conflicts';
+                    Image = Permission;
+                    ToolTip = 'View details about the permission set that provides more permissions than the license allows.';
+                    Visible = IsSaas;
+
+                    trigger OnAction()
+                    var
+                        PermissionConflict: Page "Permission Conflicts";
+                    begin
+                        PermissionConflict.SetPermissionSetId("Role ID");
+                        PermissionConflict.Run();
+                    end;
+                }
             }
             group("User Groups")
             {
@@ -278,7 +303,7 @@ page 9802 "Permission Sets"
                             repeat
                                 Permission.SetRange("Object ID", TableMetadata.ID);
                                 TenantPermission.SetRange("Object ID", TableMetadata.ID);
-                                PermissionsCount += Permission.Count + TenantPermission.Count;
+                                PermissionsCount += Permission.Count + TenantPermission.Count();
                                 Permission.DeleteAll();
                                 TenantPermission.DeleteAll();
                             until TableMetadata.Next() = 0;
@@ -316,21 +341,23 @@ page 9802 "Permission Sets"
             Error(CannotDeletePermissionSetErr);
 
         PermissionSetLink.SetRange("Linked Permission Set ID", "Role ID");
-        PermissionSetLink.DeleteAll;
+        PermissionSetLink.DeleteAll();
 
         UserGroupPermissionSet.SetRange("Role ID", "Role ID");
-        UserGroupPermissionSet.DeleteAll;
+        UserGroupPermissionSet.DeleteAll();
 
         TenantPermissionSet.Get("App ID", "Role ID");
-        TenantPermissionSet.Delete;
+        TenantPermissionSet.Delete();
 
         CurrPage.Update;
         exit(true);
     end;
 
     trigger OnInit()
+    var
+        UserPermissions: Codeunit "User Permissions";
     begin
-        CanManageUsersOnTenant := PermissionManager.CanManageUsersOnTenant(UserSecurityId);
+        CanManageUsersOnTenant := UserPermissions.CanManageUsersOnTenant(UserSecurityId);
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -341,11 +368,11 @@ page 9802 "Permission Sets"
     begin
         PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers;
 
-        TenantPermissionSet.Init;
+        TenantPermissionSet.Init();
         TenantPermissionSet."App ID" := ZeroGUID;
         TenantPermissionSet."Role ID" := "Role ID";
         TenantPermissionSet.Name := Name;
-        TenantPermissionSet.Insert;
+        TenantPermissionSet.Insert();
 
         Insert;
         Get(Type::"User-Defined", "Role ID");
@@ -366,7 +393,7 @@ page 9802 "Permission Sets"
                 TenantPermissionSet.Get(xRec."App ID", "Role ID");
             end;
             TenantPermissionSet.Name := Name;
-            TenantPermissionSet.Modify;
+            TenantPermissionSet.Modify();
             CurrPage.Update(false);
             exit(true);
         end;
@@ -383,11 +410,14 @@ page 9802 "Permission Sets"
     trigger OnOpenPage()
     var
         PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
+        EnvironmentInfo: Codeunit "Environment Information";
     begin
-        PermissionPagesMgt.CheckAndRaiseNotificationIfAppDBPermissionSetsChanged;
-        FillRecordBuffer;
+        IsSaas := EnvironmentInfo.IsSaaS();
 
-        if PermissionManager.IsIntelligentCloud then
+        PermissionPagesMgt.CheckAndRaiseNotificationIfAppDBPermissionSetsChanged();
+        FillRecordBuffer();
+
+        if PermissionManager.IsIntelligentCloud() then
             SetRange("Role ID", IntelligentCloudTok);
     end;
 
@@ -413,11 +443,11 @@ page 9802 "Permission Sets"
         CanManageUsersOnTenant: Boolean;
         [InDataSet]
         IsPermissionSetEditable: Boolean;
+        IsSaas: Boolean;
         CannotDeletePermissionSetErr: Label 'You can only delete user-created or copied permission sets.';
         ExportExtensionSchemaQst: Label 'Do you want to export permission sets in a schema that is supported by the extension package?';
         IntelligentCloudTok: Label 'INTELLIGENT CLOUD', Locked = true;
         ObsoletePermissionsMsg: Label '%1 obsolete permissions were removed.', Comment = '%1 = number of deleted records.';
         NothingToRemoveMsg: Label 'There is nothing to remove.';
-        IsOnPrem: Boolean;
 }
 

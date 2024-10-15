@@ -90,7 +90,7 @@ codeunit 136140 "Service Order Release"
 
         // Execute: Delete a Released Order
         ServiceHeaderNo := ServiceHeader."No.";
-        ServiceHeader.Delete;
+        ServiceHeader.Delete();
 
         // Verify: Delete has succeeded.
         Assert.AreEqual(false, ServiceHeader.Get(ServiceHeader."Document Type", ServiceHeaderNo), 'Unable to fetch record after delete');
@@ -111,7 +111,7 @@ codeunit 136140 "Service Order Release"
 
         // Execute: Delete a Released Order
         ServiceHeaderNo := ServiceHeader."No.";
-        ServiceHeader.Delete;
+        ServiceHeader.Delete();
 
         // Verify: Delete has succeeded.
         Assert.AreEqual(false, ServiceHeader.Get(ServiceHeader."Document Type", ServiceHeaderNo), 'Unable to fetch record after delete');
@@ -3156,7 +3156,7 @@ codeunit 136140 "Service Order Release"
         WMSFullLocation := GetWhiteLocation;
         YellowLocationCode := CreateYellowLocation(Location);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, WMSFullLocation, true);
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Order Release");
     end;
 
@@ -3191,7 +3191,7 @@ codeunit 136140 "Service Order Release"
         ServiceLine.SetHideReplacementDialog(true);
         ServiceLine.Validate("Location Code", LocationCode);
         ServiceLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
-        ServiceLine.Modify;
+        ServiceLine.Modify();
         exit(ServiceLine."Line No.");
     end;
 
@@ -3772,7 +3772,7 @@ codeunit 136140 "Service Order Release"
         ServiceLine.FindSet;
         repeat
             TempServiceLine := ServiceLine;
-            TempServiceLine.Insert;
+            TempServiceLine.Insert();
         until ServiceLine.Next = 0;
     end;
 

@@ -191,10 +191,10 @@ report 416 "Archived Purchase Order"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry1.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -218,7 +218,7 @@ report 416 "Archived Purchase Order"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Purchase Line Archive"; "Purchase Line Archive")
@@ -229,7 +229,7 @@ report 416 "Archived Purchase Order"
 
                         trigger OnPreDataItem()
                         begin
-                            CurrReport.Break;
+                            CurrReport.Break();
                         end;
                     }
                     dataitem(RoundLoop; "Integer")
@@ -436,10 +436,10 @@ report 416 "Archived Purchase Order"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry2.FindSet then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -463,7 +463,7 @@ report 416 "Archived Purchase Order"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                                 DimSetEntry2.SetRange("Dimension Set ID", "Purchase Line Archive"."Dimension Set ID");
                             end;
@@ -494,7 +494,7 @@ report 416 "Archived Purchase Order"
 
                         trigger OnPostDataItem()
                         begin
-                            PurchLineArch.DeleteAll;
+                            PurchLineArch.DeleteAll();
                         end;
 
                         trigger OnPreDataItem()
@@ -508,7 +508,7 @@ report 416 "Archived Purchase Order"
                                 MoreLines := PurchLineArch.Next(-1) <> 0;
 
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             PurchLineArch.SetRange("Line No.", 0, PurchLineArch."Line No.");
                             SetRange(Number, 1, PurchLineArch.Count);
@@ -669,7 +669,7 @@ report 416 "Archived Purchase Order"
                         trigger OnPreDataItem()
                         begin
                             if VATAmount = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange(Number, 1, VATAmountLine.Count);
                         end;
                     }
@@ -765,7 +765,7 @@ report 416 "Archived Purchase Order"
                                ("Purchase Header Archive"."Currency Code" = '') or
                                (VATAmountLine.GetTotalVATAmount = 0)
                             then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             SetRange(Number, 1, VATAmountLine.Count);
                             Clear(VALVATBaseLCY);
@@ -842,7 +842,7 @@ report 416 "Archived Purchase Order"
                         trigger OnPreDataItem()
                         begin
                             if "Purchase Header Archive"."Buy-from Vendor No." = "Purchase Header Archive"."Pay-to Vendor No." then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(Total3; "Integer")
@@ -888,7 +888,7 @@ report 416 "Archived Purchase Order"
                         trigger OnPreDataItem()
                         begin
                             if ("Purchase Header Archive"."Sell-to Customer No." = '') and (ShipToAddr[1] = '') then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(PrepmtLoop; "Integer")
@@ -1003,10 +1003,10 @@ report 416 "Archived Purchase Order"
                             begin
                                 if Number = 1 then begin
                                     if not PrepmtDimSetEntry.FindSet then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -1032,10 +1032,10 @@ report 416 "Archived Purchase Order"
                         begin
                             if Number = 1 then begin
                                 if not PrepmtInvBuf.Find('-') then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if PrepmtInvBuf.Next = 0 then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             if ShowInternalInfo then
                                 PrepmtDimSetEntry.SetRange("Dimension Set ID", PrepmtInvBuf."Dimension Set ID");
@@ -1181,7 +1181,7 @@ report 416 "Archived Purchase Order"
                         trigger OnPreDataItem()
                         begin
                             if not PrepmtInvBuf.Find('-') then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                 }
@@ -1193,19 +1193,19 @@ report 416 "Archived Purchase Order"
                     TempPurchLine: Record "Purchase Line" temporary;
                 begin
                     Clear(PurchLineArch);
-                    PurchLineArch.DeleteAll;
+                    PurchLineArch.DeleteAll();
                     PurchLineArchive.SetRange("Document Type", "Purchase Header Archive"."Document Type");
                     PurchLineArchive.SetRange("Document No.", "Purchase Header Archive"."No.");
                     PurchLineArchive.SetRange("Version No.", "Purchase Header Archive"."Version No.");
                     if PurchLineArchive.FindSet then
                         repeat
                             PurchLineArch := PurchLineArchive;
-                            PurchLineArch.Insert;
+                            PurchLineArch.Insert();
                             TempPurchLine.TransferFields(PurchLineArchive);
-                            TempPurchLine.Insert;
+                            TempPurchLine.Insert();
                         until PurchLineArchive.Next = 0;
 
-                    VATAmountLine.DeleteAll;
+                    VATAmountLine.DeleteAll();
 
                     TempPurchHeader.TransferFields("Purchase Header Archive");
                     TempPurchLine."Prepayment Line" := true;  // used as flag in CalcVATAmountLines -> not invoice rounding
@@ -1292,8 +1292,8 @@ report 416 "Archived Purchase Order"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
-        CompanyInfo.Get;
+        GLSetup.Get();
+        CompanyInfo.Get();
     end;
 
     var

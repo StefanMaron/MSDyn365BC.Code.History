@@ -11,7 +11,7 @@ table 7331 "Whse. Internal Put-away Header"
 
             trigger OnValidate()
             begin
-                WhseSetup.Get;
+                WhseSetup.Get();
                 if "No." <> xRec."No." then begin
                     NoSeriesMgt.TestManual(WhseSetup."Whse. Internal Put-away Nos.");
                     "No. Series" := '';
@@ -168,11 +168,9 @@ table 7331 "Whse. Internal Put-away Header"
                 end;
             end;
         }
-        field(12; "Sorting Method"; Option)
+        field(12; "Sorting Method"; Enum "Warehouse Internal Sorting Method")
         {
             Caption = 'Sorting Method';
-            OptionCaption = ' ,Item,Shelf or Bin,Due Date';
-            OptionMembers = " ",Item,"Shelf or Bin","Due Date";
 
             trigger OnValidate()
             begin
@@ -209,7 +207,7 @@ table 7331 "Whse. Internal Put-away Header"
 
     trigger OnInsert()
     begin
-        WhseSetup.Get;
+        WhseSetup.Get();
         if "No." = '' then begin
             WhseSetup.TestField("Whse. Internal Put-away Nos.");
             NoSeriesMgt.InitSeries(
@@ -243,7 +241,7 @@ table 7331 "Whse. Internal Put-away Header"
     var
         SequenceNo: Integer;
     begin
-        WhseInternalPutAwayLine.Reset;
+        WhseInternalPutAwayLine.Reset();
         WhseInternalPutAwayLine.SetRange("No.", "No.");
         case "Sorting Method" of
             "Sorting Method"::Item:
@@ -258,13 +256,15 @@ table 7331 "Whse. Internal Put-away Header"
                 end;
             "Sorting Method"::"Due Date":
                 WhseInternalPutAwayLine.SetCurrentKey("No.", "Due Date");
+            else
+                OnSortWhseDocOnCaseSortingMethodElse(Rec);
         end;
 
         if WhseInternalPutAwayLine.Find('-') then begin
             SequenceNo := 10000;
             repeat
                 WhseInternalPutAwayLine."Sorting Sequence No." := SequenceNo;
-                WhseInternalPutAwayLine.Modify;
+                WhseInternalPutAwayLine.Modify();
                 SequenceNo := SequenceNo + 10000;
             until WhseInternalPutAwayLine.Next = 0;
         end;
@@ -284,7 +284,7 @@ table 7331 "Whse. Internal Put-away Header"
 
     procedure AssistEdit(OldWhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header"): Boolean
     begin
-        WhseSetup.Get;
+        WhseSetup.Get();
         with WhseInternalPutAwayHeader do begin
             WhseInternalPutAwayHeader := Rec;
             WhseSetup.TestField("Whse. Internal Put-away Nos.");
@@ -349,7 +349,7 @@ table 7331 "Whse. Internal Put-away Header"
 
     procedure LookupInternalPutAwayHeader(var WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header")
     begin
-        Commit;
+        Commit();
         if UserId <> '' then begin
             WhseInternalPutAwayHeader.FilterGroup := 2;
             WhseInternalPutAwayHeader.SetRange("Location Code");
@@ -366,7 +366,7 @@ table 7331 "Whse. Internal Put-away Header"
     var
         Location: Record Location;
     begin
-        Commit;
+        Commit();
         Location.FilterGroup := 2;
         Location.SetRange(Code);
         if PAGE.RunModal(PAGE::"Locations with Warehouse List", Location) = ACTION::LookupOK then
@@ -386,16 +386,16 @@ table 7331 "Whse. Internal Put-away Header"
         WhseCommentLine: Record "Warehouse Comment Line";
     begin
         WhseInternalPutAwayLine.SetRange("No.", "No.");
-        WhseInternalPutAwayLine.DeleteAll;
+        WhseInternalPutAwayLine.DeleteAll();
 
         WhsePutAwayRqst.SetRange("Document Type", WhsePutAwayRqst."Document Type"::"Internal Put-away");
         WhsePutAwayRqst.SetRange("Document No.", "No.");
-        WhsePutAwayRqst.DeleteAll;
+        WhsePutAwayRqst.DeleteAll();
 
         WhseCommentLine.SetRange("Table Name", WhseCommentLine."Table Name"::"Internal Put-away");
         WhseCommentLine.SetRange(Type, WhseCommentLine.Type::" ");
         WhseCommentLine.SetRange("No.", "No.");
-        WhseCommentLine.DeleteAll;
+        WhseCommentLine.DeleteAll();
 
         ItemTrackingMgt.DeleteWhseItemTrkgLines(
           DATABASE::"Whse. Internal Put-away Line", 0, "No.", '', 0, 0, '', false);
@@ -404,12 +404,17 @@ table 7331 "Whse. Internal Put-away Header"
     procedure CheckPutawayRequired(LocationCode: Code[10])
     begin
         if LocationCode = '' then begin
-            WhseSetup.Get;
+            WhseSetup.Get();
             WhseSetup.TestField("Require Put-away");
         end else begin
             GetLocation(LocationCode);
             Location.TestField("Require Put-away");
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSortWhseDocOnCaseSortingMethodElse(WhseInternalPutawayHeader: Record "Whse. Internal Put-away Header")
+    begin
     end;
 }
 

@@ -1,4 +1,4 @@
-﻿page 9347 "Purchase Order Archives"
+page 9347 "Purchase Order Archives"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Purchase Order Archives';

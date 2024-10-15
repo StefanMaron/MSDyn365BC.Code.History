@@ -38,7 +38,7 @@ codeunit 136600 "ERM RS Questionnaire"
             exit;
 
         isInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -186,7 +186,7 @@ codeunit 136600 "ERM RS Questionnaire"
 
         // [GIVEN] Create new Config. Questionnaire, Question Area for Customer table, update Questions.
         SetupQuestionnaireTestScenario(ConfigQuestionnaire, ConfigQuestionArea, DATABASE::Customer);
-        CustomerCount := Customer.Count;
+        CustomerCount := Customer.Count();
 
         // [WHEN] Input random Answer for Name field of Customer table and Apply Answers.
         ConfigQuestion.SetRange(Question, Customer.FieldCaption(Name) + '?');  // Every Question has a ? symbol at the end.
@@ -360,7 +360,7 @@ codeunit 136600 "ERM RS Questionnaire"
 
         // [GIVEN] Create new Config. Questionnaire, Question Area for Customer table, update Questions.
         SetupQuestionnaireTestScenario(ConfigQuestionnaire, ConfigQuestionArea, DATABASE::Customer);
-        CustomerCount := Customer.Count;
+        CustomerCount := Customer.Count();
 
         // [WHEN] Input Answer having wrong type for Print Statements Boolean field of Customer table and apply.
         ConfigQuestion.SetRange(Question, Customer.FieldCaption("Print Statements") + '?');  // Every Question has a ? symbol at the end.
@@ -467,7 +467,7 @@ codeunit 136600 "ERM RS Questionnaire"
         XMLDOMManagement.LoadXMLNodeFromText(
           '<?xml version="1.0" encoding="UTF-16" standalone="yes"?>' + XMLText, RootXmlNode);
 
-        ConfigQuestionnaire.Delete;
+        ConfigQuestionnaire.Delete();
         QuestionnaireManagement.ImportQuestionnaireXMLDocument(RootXmlNode.OwnerDocument);
 
         Assert.IsTrue(ConfigQuestionnaire.Get(QuestionnaireCode), SimpleXMLNotImportedError);
@@ -507,7 +507,7 @@ codeunit 136600 "ERM RS Questionnaire"
 
         ConfigQuestionnaire.Delete(true);
 
-        ConfigQuestion.Reset;
+        ConfigQuestion.Reset();
         QuestionnaireManagement.ImportQuestionnaireXMLDocument(RootXmlNode.OwnerDocument);
 
         Assert.IsTrue(
@@ -540,8 +540,8 @@ codeunit 136600 "ERM RS Questionnaire"
         QuestionnaireXML := QuestionnaireXML.XmlDocument;
         QuestionnaireManagement.GenerateQuestionnaireXMLDocument(QuestionnaireXML, ConfigQuestionnaire);
 
-        ConfigQuestion.Reset;
-        ConfigQuestion.DeleteAll;
+        ConfigQuestion.Reset();
+        ConfigQuestion.DeleteAll();
         QuestionnaireManagement.ImportQuestionnaireXMLDocument(QuestionnaireXML);
 
         ConfigQuestion.Get(QuestionnaireCode, QuestionAreaCode, QuestionNo);
@@ -694,9 +694,9 @@ codeunit 136600 "ERM RS Questionnaire"
     begin
         FindQuestion(ConfigQuestion, ConfigQuestionArea);
         repeat
-            ConfigQuestionOld.Init;
+            ConfigQuestionOld.Init();
             ConfigQuestionOld := ConfigQuestion;
-            ConfigQuestionOld.Insert;
+            ConfigQuestionOld.Insert();
         until ConfigQuestion.Next = 0;
     end;
 
@@ -791,10 +791,10 @@ codeunit 136600 "ERM RS Questionnaire"
     var
         ConfigQuestionnaire: Record "Config. Questionnaire";
     begin
-        ConfigQuestionnaire.Init;
+        ConfigQuestionnaire.Init();
         ConfigQuestionnaire.Validate(Code, Code);
         ConfigQuestionnaire.Insert(true);  // Cannot be done through Library as we need same code.
-        Commit;  // Commit is required by the test case.
+        Commit();  // Commit is required by the test case.
     end;
 
     local procedure ModifyDescriptionQuestionnaire(ConfigQuestionnaire: Record "Config. Questionnaire"; Description: Text[30])
@@ -965,7 +965,7 @@ codeunit 136600 "ERM RS Questionnaire"
 
     local procedure InitConfigQuestion(ConfigQuestionnaireCode: Code[10]; ConfigQuestionAreaCode: Code[10]; var ConfigQuestion: Record "Config. Question")
     begin
-        ConfigQuestion.Init;
+        ConfigQuestion.Init();
         ConfigQuestion.Validate("Questionnaire Code", ConfigQuestionnaireCode);
         ConfigQuestion.Validate("Question Area Code", ConfigQuestionAreaCode);
         ConfigQuestion.Validate("No.", 1);
@@ -973,7 +973,7 @@ codeunit 136600 "ERM RS Questionnaire"
 
     local procedure CreatePostingGLAccount(var GLAccount: Record "G/L Account")
     begin
-        GLAccount.Init;
+        GLAccount.Init();
         GLAccount.Validate("No.", GenerateGLAccountNoFromGUID);
         GLAccount.Validate("Account Type", GLAccount."Account Type"::Posting);
         GLAccount.Insert(true);

@@ -168,7 +168,7 @@ codeunit 134307 "Workflow Cond. Eval. Tests"
         // Setup
         CreatePurchaseInvoiceWithRelatedRecords(AmountPurchaseHeader, PurchaseLine, Vendor);
         PurchaseLine.Validate("Direct Unit Cost", 50);
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
         ZeroAmountPurchaseHeader.SetRange("VAT Bus. Posting Group", Vendor."VAT Bus. Posting Group");
         CreatePurchaseInvoice(ZeroAmountPurchaseHeader);
 
@@ -426,7 +426,7 @@ codeunit 134307 "Workflow Cond. Eval. Tests"
 
     local procedure CreateAnyPurchaseHeaderEvent(var WorkflowEvent: Record "Workflow Event")
     begin
-        WorkflowEvent.Init;
+        WorkflowEvent.Init();
         WorkflowEvent."Function Name" := LibraryUtility.GenerateGUID;
         WorkflowEvent.Description := LibraryUtility.GenerateGUID;
         WorkflowEvent."Table ID" := DATABASE::"Purchase Header";

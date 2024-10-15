@@ -14,7 +14,7 @@ table 11207 "SIE Dimension"
                 if Dimension.Get("Dimension Code") then
                     Name := Dimension.Name;
 
-                GLSetup.Get;
+                GLSetup.Get();
                 if GLSetup."Shortcut Dimension 1 Code" = "Dimension Code" then
                     ShortCutDimNo := 1;
                 if GLSetup."Shortcut Dimension 2 Code" = "Dimension Code" then

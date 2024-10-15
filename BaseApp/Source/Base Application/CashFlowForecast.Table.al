@@ -97,12 +97,10 @@ table 840 "Cash Flow Forecast"
             Caption = 'Account No. Filter';
             FieldClass = FlowFilter;
         }
-        field(18; "Source Type Filter"; Option)
+        field(18; "Source Type Filter"; Enum "Cash Flow Source Type")
         {
             Caption = 'Source Type Filter';
             FieldClass = FlowFilter;
-            OptionCaption = ' ,Receivables,Payables,Liquid Funds,Cash Flow Manual Expense,Cash Flow Manual Revenue,Sales Order,Purchase Order,Fixed Assets Budget,Fixed Assets Disposal,Service Orders,G/L Budget,,,Job,Tax,Azure AI';
-            OptionMembers = " ",Receivables,Payables,"Liquid Funds","Cash Flow Manual Expense","Cash Flow Manual Revenue","Sales Order","Purchase Order","Fixed Assets Budget","Fixed Assets Disposal","Service Orders","G/L Budget",,,Job,Tax,"Azure AI";
         }
         field(19; "Cash Flow Date Filter"; Date)
         {
@@ -155,21 +153,21 @@ table 840 "Cash Flow Forecast"
         if GetShowInChart then
             CFSetup.SetChartRoleCenterCFNo('');
 
-        CFAccountComment.Reset;
+        CFAccountComment.Reset();
         CFAccountComment.SetRange("Table Name", CFAccountComment."Table Name"::"Cash Flow Forecast");
         CFAccountComment.SetRange("No.", "No.");
-        CFAccountComment.DeleteAll;
+        CFAccountComment.DeleteAll();
 
-        CFForecastEntry.Reset;
+        CFForecastEntry.Reset();
         CFForecastEntry.SetCurrentKey("Cash Flow Forecast No.");
         CFForecastEntry.SetRange("Cash Flow Forecast No.", "No.");
-        CFForecastEntry.DeleteAll;
+        CFForecastEntry.DeleteAll();
     end;
 
     trigger OnInsert()
     begin
         if "No." = '' then begin
-            CFSetup.Get;
+            CFSetup.Get();
             CFSetup.TestField("Cash Flow Forecast No. Series");
             NoSeriesMgt.InitSeries(CFSetup."Cash Flow Forecast No. Series", xRec."No. Series", 0D, "No.", "No. Series");
         end;
@@ -191,10 +189,10 @@ table 840 "Cash Flow Forecast"
     begin
         with CashFlowForecast do begin
             CashFlowForecast := Rec;
-            CFSetup.Get;
+            CFSetup.Get();
             CFSetup.TestField("Cash Flow Forecast No. Series");
             if NoSeriesMgt.SelectSeries(CFSetup."Cash Flow Forecast No. Series", OldCashFlowForecast."No. Series", "No. Series") then begin
-                CFSetup.Get;
+                CFSetup.Get();
                 CFSetup.TestField("Cash Flow Forecast No. Series");
                 NoSeriesMgt.SetSeries("No.");
                 Rec := CashFlowForecast;
@@ -326,9 +324,9 @@ table 840 "Cash Flow Forecast"
         else
             NewCashFlowNo := '';
 
-        CFSetup.Get;
+        CFSetup.Get();
         CFSetup.Validate("CF No. on Chart in Role Center", NewCashFlowNo);
-        CFSetup.Modify;
+        CFSetup.Modify();
         exit(GetShowInChart);
     end;
 

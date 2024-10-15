@@ -320,7 +320,7 @@ page 2157 "O365 Sales Invoice Line Card"
     var
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         if TaxSetup.Get then;
         Currency.InitRoundingPrecision;
         O365SalesInvoiceMgmt.ConstructCurrencyFormatString(Rec, CurrencyFormat);

@@ -43,7 +43,7 @@ table 5642 "Depreciation Table Header"
 
     trigger OnDelete()
     begin
-        DeprTableLine.LockTable;
+        DeprTableLine.LockTable();
         DeprTableLine.SetRange("Depreciation Table Code", Code);
         DeprTableLine.DeleteAll(true);
     end;

@@ -194,7 +194,7 @@ page 6052 "Service Contract Subform"
         if "Contract Status" = "Contract Status"::Signed then begin
             ServContractLine.CopyFilters(Rec);
             CurrPage.SetSelectionFilter(ServContractLine);
-            NoOfSelectedLines := ServContractLine.Count;
+            NoOfSelectedLines := ServContractLine.Count();
             if NoOfSelectedLines = 1 then
                 CreateCreditfromContractLines.SetSelectionFilterNo(NoOfSelectedLines);
         end;

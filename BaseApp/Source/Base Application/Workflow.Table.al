@@ -94,6 +94,9 @@ table 1501 Workflow
         key(Key2; Enabled)
         {
         }
+        key(Key3; Template)
+        {
+        }
     }
 
     fieldgroups
@@ -245,7 +248,7 @@ table 1501 Workflow
             exit;
 
         FindWorkflowStepInstance(WorkflowStepInstance, WorkflowStep, InstanceID);
-        LeafCount := LeafWorkflowStepQueue.Count;
+        LeafCount := LeafWorkflowStepQueue.Count();
 
         while LeafWorkflowStepQueue.Count > 0 do begin
             LeafWorkflowStep.FindByAttributes(LeafWorkflowStepQueue.Dequeue);
@@ -688,7 +691,7 @@ table 1501 Workflow
         WorkflowStep.SetRange("Function Name", FunctionName);
         if WorkflowStep.FindSet then
             repeat
-                NewWorkflowStep.Init;
+                NewWorkflowStep.Init();
                 NewWorkflowStep.Validate("Workflow Code", Code);
                 NewWorkflowStep.Validate(Type, NewType);
                 NewWorkflowStep.Validate("Function Name", NewFunctionName);

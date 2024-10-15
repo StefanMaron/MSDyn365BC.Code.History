@@ -196,7 +196,7 @@ codeunit 134612 "Test Editing Permissions"
         LibraryLowerPermissions.SetOutsideO365Scope;
         CreateNewPermissionSet(PermissionSetRoleID);
         AssertTenantPermissionSetNotContainingTableDataTenantPermission(NewPermissionSetRoleID, NewPermissionTableDataObjectID);
-        Commit;
+        Commit();
 
         LibraryVariableStorage.Enqueue(NewPermissionSetRoleID); // 1st time is for the request page handler
         // enabled criteria for the option to notify depends on the source being a System permission set
@@ -233,7 +233,7 @@ codeunit 134612 "Test Editing Permissions"
 
         ExtensionPermissionSetAppID := CreateNewExtensionPermissionSet(ExtensionPermissionSetRoleID);
         AssertTenantPermissionSetNotContainingTableDataTenantPermission(NewPermissionSetRoleID, NewPermissionTableDataObjectID);
-        Commit;
+        Commit();
 
         LibraryVariableStorage.Enqueue(NewPermissionSetRoleID); // 1st time is for the request page handler
         // enabled criteria for the option to notify depends on the source being a System permission set
@@ -298,7 +298,7 @@ codeunit 134612 "Test Editing Permissions"
 
         LibraryLowerPermissions.SetOutsideO365Scope;
         CreateNewPermissionSet(PermissionSetRoleID);
-        Commit;
+        Commit();
 
         LibraryVariableStorage.Enqueue(NewPermissionSetRoleID); // 1st time is for the request page handler
         LibraryVariableStorage.Enqueue(true);
@@ -337,7 +337,7 @@ codeunit 134612 "Test Editing Permissions"
         NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
 
         ExtensionPermissionSetAppID := CreateNewExtensionPermissionSet(ExtensionPermissionSetRoleID);
-        Commit;
+        Commit();
 
         LibraryVariableStorage.Enqueue(NewPermissionSetRoleID); // 1st time is for the request page handler
         LibraryVariableStorage.Enqueue(false);
@@ -395,7 +395,7 @@ codeunit 134612 "Test Editing Permissions"
 
         LibraryLowerPermissions.SetOutsideO365Scope;
         CreateNewPermissionSet(PermissionSetRoleID);
-        Commit;
+        Commit();
 
         LibraryVariableStorage.Enqueue(NewPermissionSetRoleID); // 1st time is for the request page handler
         // enabled criteria for the option to notify depends on the source being a System permission set
@@ -428,7 +428,7 @@ codeunit 134612 "Test Editing Permissions"
         NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
 
         ExtensionPermissionSetAppID := CreateNewExtensionPermissionSet(ExtensionPermissionSetRoleID);
-        Commit;
+        Commit();
 
         LibraryVariableStorage.Enqueue(NewPermissionSetRoleID); // 1st time is for the request page handler
         // enabled criteria for the option to notify depends on the source being a System permission set
@@ -766,7 +766,7 @@ codeunit 134612 "Test Editing Permissions"
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
         NewPermissionSet1 := GenerateRandomTenantPermissionSetRoleID;
         LibraryVariableStorage.Enqueue(NewPermissionSet1);
-        Commit;
+        Commit();
         // enabled criteria for the option to notify depends on the source being a System permission set
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(NewPermissionSet1); // for the message handler
@@ -774,7 +774,7 @@ codeunit 134612 "Test Editing Permissions"
 
         NewPermissionSet2 := GenerateRandomTenantPermissionSetRoleID;
         LibraryVariableStorage.Enqueue(NewPermissionSet2);
-        Commit;
+        Commit();
         // enabled criteria for the option to notify depends on the source being a System permission set
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(NewPermissionSet2); // for the message handler
@@ -782,7 +782,7 @@ codeunit 134612 "Test Editing Permissions"
 
         NewPermissionSet3 := GenerateRandomTenantPermissionSetRoleID;
         LibraryVariableStorage.Enqueue(NewPermissionSet3);
-        Commit;
+        Commit();
         // enabled criteria for the option to notify depends on the source being a System permission set
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(NewPermissionSet3); // for the message handler
@@ -792,9 +792,9 @@ codeunit 134612 "Test Editing Permissions"
         LibraryLowerPermissions.SetOutsideO365Scope;
         PermissionSet.Get(PermissionSetRoleIDThatIsLaterChanged);
         PermissionSet.Hash := 'Some new hash';
-        PermissionSet.Modify;
+        PermissionSet.Modify();
         PermissionSet.Get(PermissionSetRoleIDThatIsLaterDeleted);
-        PermissionSet.Delete;
+        PermissionSet.Delete();
 
         // Exercise: Stan opens the permission set page and ensures that the only 2 records show up
         PermissionSets.Trap;
@@ -831,14 +831,14 @@ codeunit 134612 "Test Editing Permissions"
         TenantPermissionSetRoleID := GenerateRandomPermissionSetRoleID;
         CreateNewTenantPermissionSet(TenantPermissionSetRoleID);
         TenantPermission.SetRange("Role ID", TenantPermissionSetRoleID);
-        TenantPermission.DeleteAll;
+        TenantPermission.DeleteAll();
         LibraryPermissions.AddTenantPermission(
           ZeroGuid, TenantPermissionSetRoleID, TenantPermission."Object Type"::"Table Data", DATABASE::Customer);
         LibraryPermissions.AddTenantPermission(
           ZeroGuid, TenantPermissionSetRoleID, TenantPermission."Object Type"::"Table Data", DATABASE::"Sales Line");
         TenantPermission.Get(ZeroGuid, TenantPermissionSetRoleID, TenantPermission."Object Type"::"Table Data", DATABASE::"Sales Line");
         TenantPermission."Read Permission" := TenantPermission."Read Permission"::Indirect;
-        TenantPermission.Modify;
+        TenantPermission.Modify();
 
         // Setup - open the permissions page
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
@@ -882,7 +882,7 @@ codeunit 134612 "Test Editing Permissions"
         TenantPermissionSetRoleID := GenerateRandomPermissionSetRoleID;
         CreateNewTenantPermissionSet(TenantPermissionSetRoleID);
         TenantPermission.SetRange("Role ID", TenantPermissionSetRoleID);
-        TenantPermission.DeleteAll;
+        TenantPermission.DeleteAll();
         LibraryPermissions.AddTenantPermission(
           ZeroGuid, TenantPermissionSetRoleID, TenantPermission."Object Type"::"Table Data", DATABASE::"Sales Header");
 
@@ -920,7 +920,7 @@ codeunit 134612 "Test Editing Permissions"
         TenantPermissionSetRoleID := GenerateRandomPermissionSetRoleID;
         CreateNewTenantPermissionSet(TenantPermissionSetRoleID);
         TenantPermission.SetRange("Role ID", TenantPermissionSetRoleID);
-        TenantPermission.DeleteAll;
+        TenantPermission.DeleteAll();
         LibraryPermissions.AddTenantPermission(
           ZeroGuid, TenantPermissionSetRoleID, TenantPermission."Object Type"::"Table Data", DATABASE::"Sales Header");
         LibraryPermissions.AddTenantPermission(
@@ -928,7 +928,7 @@ codeunit 134612 "Test Editing Permissions"
         TenantPermission.Get(ZeroGuid, TenantPermissionSetRoleID, TenantPermission."Object Type"::"Table Data", DATABASE::Customer);
         TenantPermission."Read Permission" := TenantPermission."Read Permission"::" ";
         TenantPermission."Insert Permission" := TenantPermission."Insert Permission"::Indirect;
-        TenantPermission.Modify;
+        TenantPermission.Modify();
 
         // Setup - open the permissions page
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
@@ -1211,10 +1211,10 @@ codeunit 134612 "Test Editing Permissions"
         // Delete the newly created Permission Set
         TenantPermission.SetRange("App ID", ZeroGuid);
         TenantPermission.SetRange("Role ID", NewPermissionSetRoleID);
-        TenantPermission.DeleteAll;
+        TenantPermission.DeleteAll();
 
         TenantPermissionSet.Get(ZeroGuid, NewPermissionSetRoleID);
-        TenantPermissionSet.DeleteAll;
+        TenantPermissionSet.DeleteAll();
 
         // Exercise
         TempBlob.CreateInStream(Instr);
@@ -1257,7 +1257,7 @@ codeunit 134612 "Test Editing Permissions"
 
         // GIVEN - No permissions for the permission set
         TenantPermission.SetRange("Role ID", NewPermissionSetRoleID);
-        TenantPermission.DeleteAll;
+        TenantPermission.DeleteAll();
 
         // WHEN - Open the permissions for this permission set
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
@@ -1350,7 +1350,7 @@ codeunit 134612 "Test Editing Permissions"
 
         // GIVEN - No permissions for the permission set
         TenantPermission.SetRange("Role ID", NewPermissionSetRoleID);
-        TenantPermission.DeleteAll;
+        TenantPermission.DeleteAll();
 
         // WHEN - Open the permissions for this permission set
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
@@ -1393,7 +1393,7 @@ codeunit 134612 "Test Editing Permissions"
 
         LibraryVariableStorage.Clear;
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
-        PermissionSetLink.DeleteAll;
+        PermissionSetLink.DeleteAll();
     end;
 
     local procedure GenerateRandomPermissionSetRoleID(): Code[20]
@@ -1511,7 +1511,7 @@ codeunit 134612 "Test Editing Permissions"
         ZeroGUID: Guid;
     begin
         TenantPermissionSet.Get(ZeroGUID, ExistingRoleID);
-        TenantPermissionSet.Delete;
+        TenantPermissionSet.Delete();
     end;
 
     local procedure CopyPermissionSetToNewTenantPermissionSet(SourcePermissionSetRoleID: Code[20]; AppId: Guid)

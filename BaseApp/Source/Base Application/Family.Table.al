@@ -65,7 +65,7 @@ table 99000773 Family
         FamilyLine: Record "Family Line";
     begin
         FamilyLine.SetRange("Family No.", "No.");
-        FamilyLine.DeleteAll;
+        FamilyLine.DeleteAll();
     end;
 
     trigger OnModify()

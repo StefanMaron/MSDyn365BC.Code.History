@@ -109,7 +109,6 @@ page 1190 "Create Payment"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Payment Type';
-                    OptionCaption = ' ,Computer Check,Manual Check,Electronic Payment,Electronic Payment-IAT';
                     ToolTip = 'Specifies the code for the payment type to be used for the entry on the payment journal line.';
                 }
             }
@@ -162,7 +161,7 @@ page 1190 "Create Payment"
         NextDocNo: Code[20];
         JournalBatchName: Code[10];
         JournalTemplateName: Code[10];
-        BankPaymentType: Option " ","Computer Check","Manual Check","Electronic Payment","Electronic Payment-IAT";
+        BankPaymentType: Enum "Bank Payment Type";
         StartingDocumentNoErr: Label 'The value in the Starting Document No. field must have a number so that we can assign the next number in the series.';
         BatchNumberNotFilledErr: Label 'You must fill the Batch Name field.';
         PostingDateNotFilledErr: Label 'You must fill the Posting Date field.';
@@ -289,7 +288,7 @@ page 1190 "Create Payment"
                     Validate("Journal Batch Name", JournalBatchName);
                     LastLineNo += 10000;
                     "Line No." := LastLineNo;
-                    if TempPaymentBuffer."Vendor Ledg. Entry Doc. Type" = TempPaymentBuffer."Vendor Ledg. Entry Doc. Type"::Invoice then
+                    if "Document Type" = "Document Type"::Invoice then
                         "Document Type" := "Document Type"::Payment
                     else
                         "Document Type" := "Document Type"::Refund;
@@ -347,7 +346,7 @@ page 1190 "Create Payment"
         DimSetIDArr: array[10] of Integer;
     begin
         with GenJnlLine do begin
-            if "Dimension Set ID" = 0 then begin
+            IF "Dimension Set ID" = 0 then begin
                 NewDimensionID := "Dimension Set ID";
 
                 DimBuf.Reset();
@@ -365,11 +364,11 @@ page 1190 "Create Payment"
                 "Dimension Set ID" := NewDimensionID;
 
                 CreateDim(
-                  DimMgt.TypeToTableID1("Account Type"), "Account No.",
-                  DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
-                  DATABASE::Job, "Job No.",
-                  DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                  DATABASE::Campaign, "Campaign No.");
+                DimMgt.TypeToTableID1("Account Type"), "Account No.",
+                DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
+                DATABASE::Job, "Job No.",
+                DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
+                DATABASE::Campaign, "Campaign No.");
                 if NewDimensionID <> "Dimension Set ID" then begin
                     DimSetIDArr[1] := "Dimension Set ID";
                     DimSetIDArr[2] := NewDimensionID;

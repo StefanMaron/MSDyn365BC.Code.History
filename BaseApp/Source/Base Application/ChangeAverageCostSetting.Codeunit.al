@@ -7,9 +7,9 @@ codeunit 5810 "Change Average Cost Setting"
         WindowUpdateDateTime := CurrentDateTime;
         WindowIsOpen := false;
 
-        AvgCostAdjmtEntryPoint.LockTable;
-        LockTable;
-        AccPeriod.LockTable;
+        AvgCostAdjmtEntryPoint.LockTable();
+        LockTable();
+        AccPeriod.LockTable();
 
         Modify;
 
@@ -26,7 +26,7 @@ codeunit 5810 "Change Average Cost Setting"
             repeat
                 AccPeriod."Average Cost Period" := "Average Cost Period";
                 AccPeriod."Average Cost Calc. Type" := "Average Cost Calc. Type";
-                AccPeriod.Modify;
+                AccPeriod.Modify();
             until AccPeriod.Next = 0;
         end;
 
@@ -35,7 +35,7 @@ codeunit 5810 "Change Average Cost Setting"
         if WindowIsOpen then
             Window.Close;
 
-        Commit;
+        Commit();
     end;
 
     var
@@ -84,11 +84,11 @@ codeunit 5810 "Change Average Cost Setting"
 
     local procedure ProcessItemAvgCostPoint(var Item: Record Item; StartingValuationDate: Date)
     begin
-        InvtSetup.Get;
-        AvgCostAdjmtEntryPoint.Reset;
+        InvtSetup.Get();
+        AvgCostAdjmtEntryPoint.Reset();
         AvgCostAdjmtEntryPoint.SetRange("Item No.", Item."No.");
         AvgCostAdjmtEntryPoint.SetFilter("Valuation Date", '>=%1', StartingValuationDate);
-        AvgCostAdjmtEntryPoint.DeleteAll;
+        AvgCostAdjmtEntryPoint.DeleteAll();
 
         with ValueEntry do begin
             Reset;
@@ -115,7 +115,7 @@ codeunit 5810 "Change Average Cost Setting"
                     SetRange("Variant Code");
                 until Next = 0;
                 Item."Cost is Adjusted" := false;
-                Item.Modify;
+                Item.Modify();
             end;
         end;
     end;

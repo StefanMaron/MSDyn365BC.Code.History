@@ -111,10 +111,10 @@ codeunit 134662 "Export Framework Scenario Test"
         DataExchDef."Reading/Writing Codeunit" := CODEUNIT::"Exp. Writing Gen. Jnl.";
         DataExchDef."Reading/Writing XMLport" := XMLPORT::"Export Generic CSV";
         DataExchDef."Ext. Data Handling Codeunit" := CODEUNIT::"Save Data Exch. Blob Sample";
-        DataExchDef.Modify;
+        DataExchDef.Modify();
 
         DataExchMapping."Mapping Codeunit" := CODEUNIT::"Export Mapping";
-        DataExchMapping.Modify;
+        DataExchMapping.Modify();
     end;
 
     local procedure VerifyFileContent(DataExch: Record "Data Exch."; FirstValue: Text; SecondValue: Text)

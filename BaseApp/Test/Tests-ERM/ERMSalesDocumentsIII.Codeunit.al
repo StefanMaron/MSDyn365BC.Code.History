@@ -26,7 +26,9 @@ codeunit 134387 "ERM Sales Documents III"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         isInitialized: Boolean;
         AmountErr: Label '%1 must be %2 in %3.', Comment = '.';
         CustomerMustBeDeletedErr: Label 'Customer must be deleted.';
@@ -48,7 +50,6 @@ codeunit 134387 "ERM Sales Documents III"
         SalesLnTypeErr: Label 'Type must be equal to ''Item''  in Sales Line: Document Type=Credit Memo, Document No.=%1, Line No.=%2. Current value is '' ''.', Comment = '.';
         WhseShipmentIsRequiredErr: Label 'Warehouse Shipment is required for Line No.';
         WhseReceiveIsRequiredErr: Label 'Warehouse Receive is required for Line No.';
-        WrongErrorReturnedErr: Label 'Wrong error returned: %1.';
         SalesOrderArchiveRespCenterErr: Label 'Sales Order Archives displays documents for Responisbility Center that should not be shown for current user';
         DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
         InvDiscAmtInSalesInvErr: Label 'Incorrect Inv. Discount Amount in Sales Invoice Line created by Get Shipment Lines function.';
@@ -59,7 +60,7 @@ codeunit 134387 "ERM Sales Documents III"
         InvoiceDiscountChangedErr: Label 'Invoice Discount % must not be auto calculated for header on open page.';
         QuoteNoMustBeVisibleErr: Label 'Quote No. must be visible.';
         QuoteNoMustNotBeVisibleErr: Label 'Quote No. must not be visible.';
-        ZeroQuantityInLineErr: Label 'One or more document lines with a value in the Item No. field do not have a quantity specified.';
+        ZeroQuantityInLineErr: Label 'One or more document lines with a value in the No. field do not have a quantity specified.';
         WrongReportInvokedErr: Label 'Wrong report invoked.';
         ConfirmDownloadPostedShipmentQst: Label 'You can also download the Sales - Shipment document now. Alternatively, you can access it from the Posted Sales Shipments window later.\\Do you want to download the Sales - Shipment document now?';
         LinesNotUpdatedMsg: Label 'You have changed %1 on the sales header, but it has not been changed on the existing sales lines.', Comment = 'You have changed Order Date on the sales header, but it has not been changed on the existing sales lines.';
@@ -68,7 +69,7 @@ codeunit 134387 "ERM Sales Documents III"
         SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.';
         TaxAreaCodeInvalidErr: Label 'The Tax Area does not exist. Identification fields and values: Code=''%1''';
         UnitPriceChangedMsg: Label 'The unit price for %1 %2 that was copied from the posted document has been changed.';
-        ConfirmZeroQuantityPostingMsg: Label 'One or more document lines with a value in the Item No. field do not have a quantity specified. \Do you want to continue?';
+        ConfirmZeroQuantityPostingMsg: Label 'One or more document lines with a value in the No. field do not have a quantity specified. \Do you want to continue?';
 
     [Test]
     [Scope('OnPrem')]
@@ -629,7 +630,7 @@ codeunit 134387 "ERM Sales Documents III"
         // [SCENARIO] The error is thrown when Get "Return Receipt No." after create Credit Memo without Return Receipt on Credit Memo.
 
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         // [GIVEN] "Return Receipt on Credit Memo" = "No" in Sales Receivables Setup
         UpdateSalesSetup(false, SalesReceivablesSetup."Exact Cost Reversing Mandatory");
 
@@ -1057,9 +1058,9 @@ codeunit 134387 "ERM Sales Documents III"
 
         // Setup: Update Setup, create Sales Order with Item Tracking and post.
         Initialize;
-        InventorySetup.Get;
+        InventorySetup.Get();
         LibrarySales.SetCalcInvDiscount(false);
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         LibraryInventory.UpdateInventorySetup(
           InventorySetup, InventorySetup."Automatic Cost Posting", InventorySetup."Expected Cost Posting to G/L",
           InventorySetup."Automatic Cost Adjustment"::Always, InventorySetup."Average Cost Calc. Type",
@@ -1154,17 +1155,20 @@ codeunit 134387 "ERM Sales Documents III"
     begin
         // Unit test
         asserterror SalesDocLineQtyValidation(2);  // 2 => Invoice
-        Assert.IsTrue(StrPos(GetLastErrorText, WhseShipmentIsRequiredErr) > 0, StrSubstNo(WrongErrorReturnedErr, GetLastErrorText));
-        NotificationLifecycleMgt.RecallAllNotifications;
+        Assert.ExpectedError(WhseShipmentIsRequiredErr);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure CreateSalesCrMemoLineWhiteLocationQtyError()
+    var
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         // Unit test
         asserterror SalesDocLineQtyValidation(3);  // 3 => Credit Memo
-        Assert.IsTrue(StrPos(GetLastErrorText, WhseReceiveIsRequiredErr) > 0, StrSubstNo(WrongErrorReturnedErr, GetLastErrorText));
+        Assert.ExpectedError(WhseReceiveIsRequiredErr);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -1193,7 +1197,7 @@ codeunit 134387 "ERM Sales Documents III"
         Initialize;
         CreateSalesDocumentWithItem(SalesHeader, SalesHeader."Document Type"::Order);
         SalesHeader.Validate("Shipping Advice", SalesHeader."Shipping Advice"::Complete);
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         ModifyAndAddSalesLine(SalesHeader, WithZeroLine);
 
         // Exercise and Verify.
@@ -1413,7 +1417,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
         SalesLine.Validate("Qty. to Ship", 0);
-        SalesLine.Modify;
+        SalesLine.Modify();
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
 
         // [GIVEN] Post Sales Order as Ship and Invoice for second line
@@ -1827,6 +1831,7 @@ codeunit 134387 "ERM Sales Documents III"
         // [SCENARIO 382356] It should be possible to update sales price via Sales Line Factbox after reopening a released sales order
 
         Initialize;
+        LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V15");
 
         // [GIVEN] Sales price "P" for item "I"
         CreateSalesPriceForItemAndAllCustomers(SalesPrice);
@@ -1841,7 +1846,54 @@ codeunit 134387 "ERM Sales Documents III"
         SalesOrder.OpenEdit;
         SalesOrder.GotoRecord(SalesHeader);
         // COMMIT required to preserve the sales order from rollback after the first error
-        Commit;
+        Commit();
+
+        // [GIVEN] Drill down to sales prices from the Sales Line Factbox and try to update the sales price
+        // [GIVEN] Update fails, because the order is not in "Open" status
+        // This action initializes the internal variable SalesHeader in Sales Lines Factbox
+        asserterror SalesOrder.Control1906127307.SalesPrices.DrillDown;
+
+        // [GIVEN] Reopen the sales order
+        SalesOrder.Reopen.Invoke;
+
+        // [WHEN] Drill down to sales prices from the Sales Line Factbox and try to update the sales price
+        SalesOrder.Control1906127307.SalesPrices.DrillDown;
+
+        // [THEN] Price in the sales order line is successfully updated
+        SalesLine.Find;
+        SalesLine.TestField("Unit Price", SalesPrice."Unit Price");
+    end;
+
+    [Test]
+    [HandlerFunctions('GetSalesPricePageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesLineFactboxPriceLineUpdatedInReopenedOrder()
+    var
+        SalesPrice: Record "Sales Price";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [FEATURE] [Order] [Best Price] [Sales Line Factbox] [UI]
+        // [SCENARIO 382356] It should be possible to update sales price via Sales Line Factbox after reopening a released sales order
+
+        Initialize;
+        LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+
+        // [GIVEN] Sales price "P" for item "I"
+        CreateSalesPriceForItemAndAllCustomers(SalesPrice);
+
+        // [GIVEN] Sales order "S" for item "I"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, SalesPrice."Item No.", LibraryRandom.RandInt(10));
+
+        // [GIVEN] Release the sales order
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        SalesOrder.OpenEdit;
+        SalesOrder.GotoRecord(SalesHeader);
+        // COMMIT required to preserve the sales order from rollback after the first error
+        Commit();
 
         // [GIVEN] Drill down to sales prices from the Sales Line Factbox and try to update the sales price
         // [GIVEN] Update fails, because the order is not in "Open" status
@@ -1873,6 +1925,43 @@ codeunit 134387 "ERM Sales Documents III"
         // [SCENARIO 382356] It should not be possible to update sales price via Sales Line Factbox after releasing the sales order
 
         Initialize;
+        LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V15");
+
+        // [GIVEN] Sales price "P" for item "I"
+        CreateSalesPriceForItemAndAllCustomers(SalesPrice);
+
+        // [GIVEN] Sales order "S" for item "I"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, SalesPrice."Item No.", LibraryRandom.RandInt(10));
+
+        SalesOrder.OpenEdit;
+        SalesOrder.GotoRecord(SalesHeader);
+
+        // [GIVEN] Release the sales order
+        SalesOrder.Release.Invoke;
+
+        // [WHEN] Drill down to sales prices from the Sales Line Factbox and try to update the sales price
+        asserterror SalesOrder.Control1906127307.SalesPrices.DrillDown;
+
+        // [THEN] Update fails with an error: "Status must be equal to Open in Sales Header"
+        Assert.ExpectedError(StrSubstNo(SalesHeaderStatusErr, SalesHeader."Document Type", SalesHeader."No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('GetSalesPricePageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesLineFactboxPriceLineNotUpdatedInReleasedOrder()
+    var
+        SalesPrice: Record "Sales Price";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [FEATURE] [Order] [Best Price] [Sales Line Factbox] [UI]
+        // [SCENARIO 382356] It should not be possible to update sales price via Sales Line Factbox after releasing the sales order
+
+        Initialize;
+        LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
 
         // [GIVEN] Sales price "P" for item "I"
         CreateSalesPriceForItemAndAllCustomers(SalesPrice);
@@ -1954,7 +2043,7 @@ codeunit 134387 "ERM Sales Documents III"
         // [SCENARIO 382442] Return Order posted as "Receive" should have correct "Document No." according to "Return Receipt No. Series" and "Document Type" in associated Item Ledger Entry
 
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
 
         // [GIVEN] "Return Receipt on Credit Memo" = "No" in Sales Receivables Setup
         UpdateSalesSetup(false, SalesReceivablesSetup."Exact Cost Reversing Mandatory");
@@ -2477,12 +2566,12 @@ codeunit 134387 "ERM Sales Documents III"
         // [SCENARIO 226743] If "Posted Invoice Nos." and "Invoice Nos." No. Series are the same, then on deletion of Sales Invoice before posting, then confirmation for creation of empty posted invoice must appear
 
         // [GIVEN] "Posted Invoice Nos." and "Invoice Nos." No. Series are the same
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Invoice Nos.", SalesReceivablesSetup."Posted Invoice Nos.");
         SalesReceivablesSetup.Modify(true);
 
         // [GIVEN] Sales Invoice with "No." = 1111
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Invoice);
         SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo);
         SalesHeader.Insert(true);
@@ -2871,16 +2960,19 @@ codeunit 134387 "ERM Sales Documents III"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        PriceListLine: Record "Price List Line";
     begin
         // [FEATURE] [Credit Memo] [Line Discount] [Get Document Lines to Reverse]
         // [SCEANRIO 258074] Line discount % in sales credit memo line is not recalculated if the line is copied from a posted invoice
 
         Initialize;
+        PriceListLine.DeleteAll();
 
         // [GIVEN] Sales line discount 10% for item "I" and customer "C", minimum quantity is 20
         CreateSalesLineDiscount(
           SalesLineDiscount, LibraryInventory.CreateItemNo, LibrarySales.CreateCustomerNo,
           LibraryRandom.RandIntInRange(10, 20), LibraryRandom.RandInt(10));
+        CopyFromToPriceListLine.CopyFrom(SalesLineDiscount, PriceListLine);
 
         // [GIVEN] Sales order for customer "C", 20 pcs of item "I" are sold
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, SalesLineDiscount."Sales Code");
@@ -2920,14 +3012,18 @@ codeunit 134387 "ERM Sales Documents III"
         SalesLineDiscount: Record "Sales Line Discount";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        PriceListLine: Record "Price List Line";
     begin
         // [FEATURE] [Credit Memo] [Line Discount]
         // [SCEANRIO 258074] Line discount % in sales credit memo line is recalculated on validating quantity if the line is created manually
+        Initialize;
+        PriceListLine.DeleteAll();
 
         // [GIVEN] Sales line discount 10% for item "I" and customer "C", minimum quantity is 20
         CreateSalesLineDiscount(
           SalesLineDiscount, LibraryInventory.CreateItemNo, LibrarySales.CreateCustomerNo,
           LibraryRandom.RandIntInRange(10, 20), LibraryRandom.RandInt(10));
+        CopyFromToPriceListLine.CopyFrom(SalesLineDiscount, PriceListLine);
 
         // [GIVEN] Sales credit memo for customer "C", 20 pcs of item "I"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", SalesLineDiscount."Sales Code");
@@ -3018,7 +3114,7 @@ codeunit 134387 "ERM Sales Documents III"
         Initialize;
 
         CreateSalesDocumentWithTwoLinesSecondLineQuantityZero(SalesHeader, SalesHeader."Document Type"::Invoice);
-        Commit;
+        Commit();
 
         SalesInvoice.OpenView;
         SalesInvoice.GotoRecord(SalesHeader);
@@ -3040,7 +3136,7 @@ codeunit 134387 "ERM Sales Documents III"
         Initialize;
 
         CreateSalesDocumentWithTwoLinesSecondLineQuantityZero(SalesHeader, SalesHeader."Document Type"::Invoice);
-        Commit;
+        Commit();
 
         SalesInvoiceList.OpenView;
         SalesInvoiceList.GotoRecord(SalesHeader);
@@ -3062,7 +3158,7 @@ codeunit 134387 "ERM Sales Documents III"
         Initialize;
 
         CreateSalesDocumentWithTwoLinesSecondLineQuantityZero(SalesHeader, SalesHeader."Document Type"::Quote);
-        Commit;
+        Commit();
 
         SalesQuote.OpenView;
         SalesQuote.GotoRecord(SalesHeader);
@@ -3087,7 +3183,7 @@ codeunit 134387 "ERM Sales Documents III"
         Initialize;
 
         CreateSalesDocumentWithTwoLinesSecondLineQuantityZero(SalesHeader, SalesHeader."Document Type"::Quote);
-        Commit;
+        Commit();
 
         SalesQuotes.OpenView;
         SalesQuotes.GotoRecord(SalesHeader);
@@ -3113,7 +3209,7 @@ codeunit 134387 "ERM Sales Documents III"
 
         CreateSalesDocumentWithTwoLinesSecondLineQuantityZero(SalesHeader, SalesHeader."Document Type"::Order);
         CreateSalesDocumentWithTwoLinesSecondLineQuantityZero(SalesHeader, SalesHeader."Document Type"::Order);
-        Commit;
+        Commit();
 
         SalesOrder.OpenView;
         SalesOrder.GotoRecord(SalesHeader);
@@ -3135,7 +3231,7 @@ codeunit 134387 "ERM Sales Documents III"
         Initialize;
 
         CreateSalesDocumentWithTwoLinesSecondLineQuantityZero(SalesHeader, SalesHeader."Document Type"::Order);
-        Commit;
+        Commit();
 
         SalesOrderList.OpenView;
         SalesOrderList.GotoRecord(SalesHeader);
@@ -3157,7 +3253,7 @@ codeunit 134387 "ERM Sales Documents III"
         Initialize;
 
         CreateSalesDocumentWithTwoLinesSecondLineQuantityZero(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
-        Commit;
+        Commit();
 
         SalesCreditMemo.OpenView;
         SalesCreditMemo.GotoRecord(SalesHeader);
@@ -3179,7 +3275,7 @@ codeunit 134387 "ERM Sales Documents III"
         Initialize;
 
         CreateSalesDocumentWithTwoLinesSecondLineQuantityZero(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
-        Commit;
+        Commit();
 
         SalesCreditMemos.OpenView;
         SalesCreditMemos.GotoRecord(SalesHeader);
@@ -3201,7 +3297,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibraryApplicationArea.EnableFoundationSetup;
 
         CreateSalesDocumentWithTwoLinesSecondLineQuantityZero(SalesHeader, SalesHeader."Document Type"::Invoice);
-        Commit;
+        Commit();
 
         SalesInvoice.OpenView;
         SalesInvoice.GotoRecord(SalesHeader);
@@ -3225,7 +3321,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibraryApplicationArea.EnableFoundationSetup;
 
         CreateSalesDocumentWithTwoLinesSecondLineQuantityZero(SalesHeader, SalesHeader."Document Type"::Invoice);
-        Commit;
+        Commit();
 
         SalesInvoiceList.OpenView;
         SalesInvoiceList.GotoRecord(SalesHeader);
@@ -3249,7 +3345,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibraryApplicationArea.EnableFoundationSetup;
 
         CreateSalesDocumentWithTwoLinesSecondLineQuantityZero(SalesHeader, SalesHeader."Document Type"::Quote);
-        Commit;
+        Commit();
 
         SalesQuote.OpenView;
         SalesQuote.GotoRecord(SalesHeader);
@@ -3273,7 +3369,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibraryApplicationArea.EnableFoundationSetup;
 
         CreateSalesDocumentWithTwoLinesSecondLineQuantityZero(SalesHeader, SalesHeader."Document Type"::Quote);
-        Commit;
+        Commit();
 
         SalesQuotes.OpenView;
         SalesQuotes.GotoRecord(SalesHeader);
@@ -3297,7 +3393,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibraryApplicationArea.EnableFoundationSetup;
 
         CreateSalesDocumentWithTwoLinesSecondLineQuantityZero(SalesHeader, SalesHeader."Document Type"::Order);
-        Commit;
+        Commit();
 
         SalesOrder.OpenView;
         SalesOrder.GotoRecord(SalesHeader);
@@ -3321,7 +3417,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibraryApplicationArea.EnableFoundationSetup;
 
         CreateSalesDocumentWithTwoLinesSecondLineQuantityZero(SalesHeader, SalesHeader."Document Type"::Order);
-        Commit;
+        Commit();
 
         SalesOrderList.OpenView;
         SalesOrderList.GotoRecord(SalesHeader);
@@ -3345,7 +3441,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibraryApplicationArea.EnableFoundationSetup;
 
         CreateSalesDocumentWithTwoLinesSecondLineQuantityZero(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
-        Commit;
+        Commit();
 
         SalesCreditMemo.OpenView;
         SalesCreditMemo.GotoRecord(SalesHeader);
@@ -3369,7 +3465,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibraryApplicationArea.EnableFoundationSetup;
 
         CreateSalesDocumentWithTwoLinesSecondLineQuantityZero(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
-        Commit;
+        Commit();
 
         SalesCreditMemos.OpenView;
         SalesCreditMemos.GotoRecord(SalesHeader);
@@ -3391,10 +3487,12 @@ codeunit 134387 "ERM Sales Documents III"
         SalesPrice: Record "Sales Price";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        PriceListLine: Record "Price List Line";
     begin
         // [FEATURE] [Order] [Sales Price] [Bill-to Customer]
         // [SCENARIO 301121] Unit Price in a Sales Doc with specified Bill-to Customer gets the price from existing Sales Price
         Initialize;
+        PriceListLine.DeleteAll();
 
         // [GIVEN] Create Customers
         LibrarySales.CreateCustomer(BillToCustomer);
@@ -3409,6 +3507,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibrarySales.CreateSalesPrice(
           SalesPrice, Item."No.", SalesPrice."Sales Type"::Customer, BillToCustomer."No.",
           WorkDate, '', '', '', 0, LibraryRandom.RandIntInRange(101, 200));
+        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
 
         // [GIVEN] Create a Sales Order for the Sell-to Customer and specify a different Bill-to Customer
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, SellToCustomer."No.");
@@ -3431,11 +3530,13 @@ codeunit 134387 "ERM Sales Documents III"
         SalesPrice: Record "Sales Price";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        PriceListLine: Record "Price List Line";
     begin
         // [FEATURE] [Order] [Sales Price]
         // [SCENARIO 269258] Zero sales price must be respected over price from item card when creating sales order
 
         Initialize;
+        PriceListLine.DeleteAll();
 
         // [GIVEN] Create customer
         LibrarySales.CreateCustomer(Customer);
@@ -3448,6 +3549,7 @@ codeunit 134387 "ERM Sales Documents III"
         // [GIVEN] Create zero sales price for the item - customer combination
         LibrarySales.CreateSalesPrice(
           SalesPrice, Item."No.", SalesPrice."Sales Type"::Customer, Customer."No.", WorkDate, '', '', '', 0, 0);
+        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
 
         // [GIVEN] Create sales order for the customer
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
@@ -4046,10 +4148,12 @@ codeunit 134387 "ERM Sales Documents III"
         SalesLine: Record "Sales Line";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ZeroQuantityPrice: Decimal;
+        PriceListLine: Record "Price List Line";
     begin
         // [FEATURE] [Credit Memo] [Sales Price] [Get Document Lines to Reverse]
         // [SCENARIO 304556] Message appears about recalculated Unit Price on Credit type Sales Line copied from posted document
         Initialize;
+        PriceListLine.DeleteAll();
 
         // [GIVEN] Sales Price 10 for item "I" and customer "C", minimum quantity is 0
         LibrarySales.CreateSalesPrice(
@@ -4061,6 +4165,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibrarySales.CreateSalesPrice(
           SalesPrice, SalesPrice."Item No.", SalesPrice."Sales Type", SalesPrice."Sales Code",
           WorkDate, '', '', '', LibraryRandom.RandIntInRange(10, 20), LibraryRandom.RandDec(SalesPrice."Unit Price", 2));
+        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
 
         // [GIVEN] Sales order for customer "C", 20 pcs of item "I" are sold
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, SalesPrice."Sales Code");
@@ -4105,11 +4210,13 @@ codeunit 134387 "ERM Sales Documents III"
         SalesPrice: Record "Sales Price";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        PriceListLine: Record "Price List Line";
         ZeroQuantityPrice: Decimal;
     begin
         // [FEATURE] [Credit Memo] [Sales Price]
         // [SCENARIO 304556] Unit Price in Sales Credit Memo line is recalculated without messages if the line is created manually
         Initialize;
+        PriceListLine.DeleteAll();
 
         // [GIVEN] Sales Price 10 for item "I" and customer "C", minimum quantity is 0
         LibrarySales.CreateSalesPrice(
@@ -4121,6 +4228,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibrarySales.CreateSalesPrice(
           SalesPrice, SalesPrice."Item No.", SalesPrice."Sales Type", SalesPrice."Sales Code",
           WorkDate, '', '', '', LibraryRandom.RandIntInRange(10, 20), LibraryRandom.RandDec(SalesPrice."Unit Price", 2));
+        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
 
         // [GIVEN] Sales credit memo for customer "C", 20 pcs of item "I" (Unit Price = 8)
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", SalesPrice."Sales Code");
@@ -4374,8 +4482,8 @@ codeunit 134387 "ERM Sales Documents III"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         if not IntrastatSetup.Get then begin
-            IntrastatSetup.Init;
-            IntrastatSetup.Insert;
+            IntrastatSetup.Init();
+            IntrastatSetup.Insert();
         end;
         LibraryERM.SetDefaultTransactionTypesInIntrastatSetup;
 
@@ -4386,7 +4494,7 @@ codeunit 134387 "ERM Sales Documents III"
         ReportSelections.ModifyAll("Report ID", REPORT::"Sales - Quote");
 
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales Documents III");
     end;
@@ -4482,12 +4590,12 @@ codeunit 134387 "ERM Sales Documents III"
     var
         ItemSubstitution: Record "Item Substitution";
     begin
-        ItemSubstitution.Init;
+        ItemSubstitution.Init();
         ItemSubstitution.Validate(Type, ItemSubstitution.Type::Item);
         ItemSubstitution.Validate("No.", ItemNo);
         ItemSubstitution.Validate("Substitute Type", ItemSubstitution."Substitute Type"::Item);
         ItemSubstitution.Validate("Substitute No.", CreateItemAndExtendedText(AutoExtText));
-        ItemSubstitution.Insert;
+        ItemSubstitution.Insert();
     end;
 
     local procedure CreateItemTrackingCode(): Code[10]
@@ -4646,10 +4754,12 @@ codeunit 134387 "ERM Sales Documents III"
     local procedure CreateSalesPriceForItemAndAllCustomers(var SalesPrice: Record "Sales Price")
     var
         Item: Record Item;
+        PriceListLine: Record "Price List Line";
     begin
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesPrice(
           SalesPrice, Item."No.", SalesPrice."Sales Type"::"All Customers", '', WorkDate, '', '', '', 0, LibraryRandom.RandDec(100, 2));
+        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
     end;
 
     local procedure CreateCustomerWithPostCodeAndCity(var Customer: Record Customer)
@@ -4675,7 +4785,7 @@ codeunit 134387 "ERM Sales Documents III"
 
     local procedure CreatePostCode(var PostCode: Record "Post Code"; "Code": Code[20])
     begin
-        PostCode.Init;
+        PostCode.Init();
         PostCode.Validate(Code, Code);
         PostCode.Validate(
           City,
@@ -4695,7 +4805,7 @@ codeunit 134387 "ERM Sales Documents III"
 
     local procedure CreateCityForPostCode(var PostCode: Record "Post Code"; City: Text[30])
     begin
-        PostCode.Init;
+        PostCode.Init();
         PostCode.Validate(
           Code,
           CopyStr(
@@ -4934,7 +5044,7 @@ codeunit 134387 "ERM Sales Documents III"
     begin
         FindSalesLine(SalesLine, DocumentType, DocumentNo, SalesLine.Type::Item);
         SalesLine.Validate("Return Reason Code", ReturnReasonCode);
-        SalesLine.Modify;
+        SalesLine.Modify();
     end;
 
     local procedure ModifySalesLine(DocumentType: Option; DocumentNo: Code[20]; LineType: Option; NewQuantity: Decimal; NewUnitPrice: Decimal; NewLineDiscountAmt: Decimal)
@@ -4982,7 +5092,7 @@ codeunit 134387 "ERM Sales Documents III"
     begin
         FindSalesLine(SalesLine, SalesHeader."Document Type", SalesHeader."No.", SalesLine.Type::"G/L Account");
         CODEUNIT.Run(CODEUNIT::"Sales-Get Return Receipts", SalesLine);
-        SalesLine.Delete;  // Delete Older Sales Line.
+        SalesLine.Delete();  // Delete Older Sales Line.
     end;
 
     local procedure GetShipmentLinesForSalesInvoice(var SalesHeader: Record "Sales Header"; SalesOrderNo: Code[20])
@@ -5054,7 +5164,7 @@ codeunit 134387 "ERM Sales Documents III"
     var
         CustomerCard: TestPage "Customer Card";
     begin
-        Commit;
+        Commit();
         CustomerCard.OpenEdit;
         CustomerCard.FILTER.SetFilter("No.", CustomerNo);
         CustomerCard.City.SetValue(City);
@@ -5067,7 +5177,7 @@ codeunit 134387 "ERM Sales Documents III"
     var
         CustomerCard: TestPage "Customer Card";
     begin
-        Commit;
+        Commit();
         CustomerCard.OpenEdit;
         CustomerCard.FILTER.SetFilter("No.", CustomerNo);
         CustomerCard."Post Code".SetValue(PostCode);
@@ -5091,7 +5201,7 @@ codeunit 134387 "ERM Sales Documents III"
     var
         CertificateOfSupply: Record "Certificate of Supply";
     begin
-        CertificateOfSupply.Init;
+        CertificateOfSupply.Init();
         CertificateOfSupply.SetRange("Document Type", CertificateOfSupply."Document Type"::"Sales Shipment");
         CertificateOfSupply.SetRange("Customer/Vendor No.", CustomerNo);
         REPORT.Run(REPORT::"Certificate of Supply", true, false, CertificateOfSupply);
@@ -5102,7 +5212,7 @@ codeunit 134387 "ERM Sales Documents III"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         // Update VAT Rounding Type in General Ledger Setup.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         OldVATRoundingType := GeneralLedgerSetup."VAT Rounding Type";
         GeneralLedgerSetup.Validate("VAT Rounding Type", VATRoundingType);
         GeneralLedgerSetup.Modify(true);
@@ -5119,7 +5229,7 @@ codeunit 134387 "ERM Sales Documents III"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Return Receipt on Credit Memo", ReturnReceiptonCreditMemo);
         SalesReceivablesSetup.Validate("Exact Cost Reversing Mandatory", ExactCostReversingMandatory);
         SalesReceivablesSetup.Modify(true);
@@ -5129,7 +5239,7 @@ codeunit 134387 "ERM Sales Documents III"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Shipment on Invoice", ShipmentOnInvoice);
         SalesReceivablesSetup.Validate("Return Receipt on Credit Memo", RetRcptOnCrMemo);
         SalesReceivablesSetup.Validate("Exact Cost Reversing Mandatory", ExactCostReversingMandatory);
@@ -5180,7 +5290,7 @@ codeunit 134387 "ERM Sales Documents III"
         GeneralLedgerSetup: Record "General Ledger Setup";
         TotalGLAmount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetFilter(Amount, '>0');
@@ -5360,10 +5470,10 @@ codeunit 134387 "ERM Sales Documents III"
           SalesHeader, SalesLine, DocumentType, '',
           '', LibraryRandom.RandDecInRange(10, 20, 2), '', LibraryRandom.RandDate(10));
 
-        SalesHeader.Delete;
+        SalesHeader.Delete();
 
         SalesHeader."Transaction Type" := '';
-        SalesHeader.Insert;
+        SalesHeader.Insert();
 
         SalesHeader.TestField("Transaction Type", '');
     end;
@@ -5381,21 +5491,21 @@ codeunit 134387 "ERM Sales Documents III"
         // DocType: 2 = Invoice, 3 = Credit Memo
         // SETUP:
         LibraryWarehouse.CreateFullWMSLocation(Location, 3);
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."Document Type" := DocType;
         SalesHeader.Status := SalesHeader.Status::Open;
         i := 0;
         repeat
             i += 1;
             SalesHeader."No." := 'TEST' + Format(i);
-        until SalesHeader.Insert;
+        until SalesHeader.Insert();
         SalesLine."Document Type" := DocType;
         SalesLine."Document No." := SalesHeader."No.";
         SalesLine."Line No." := 10000;
         SalesLine.Type := SalesLine.Type::Item;
         SalesLine."No." := LibraryInventory.CreateItemNo;
         SalesLine."Location Code" := Location.Code;
-        SalesLine.Insert;
+        SalesLine.Insert();
         case DocType of
             2:  // Invoice
                 begin
@@ -5590,10 +5700,18 @@ codeunit 134387 "ERM Sales Documents III"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure GetSalesPricePageHandler(var GetSalesPrice: TestPage "Get Sales Price")
+    procedure GetSalesPricePageHandler(var GetSalesPrice: TestPage "Get Sales Price") // Native
     begin
         GetSalesPrice.First;
         GetSalesPrice.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GetPriceLinePageHandler(var GetPriceLine: TestPage "Get Price Line")
+    begin
+        GetPriceLine.First;
+        GetPriceLine.OK.Invoke;
     end;
 
     [StrMenuHandler]

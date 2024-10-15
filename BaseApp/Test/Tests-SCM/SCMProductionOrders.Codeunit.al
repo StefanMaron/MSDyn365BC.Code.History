@@ -90,7 +90,7 @@ codeunit 137069 "SCM Production Orders"
         LibrarySales.CreateSalesOrder(SalesHeader);
         LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
         // [GIVEN] "Shortcut Dimension 1 Code" is 'A', "Shortcut Dimension 2 Code" is 'B'
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Shortcut Dimension 1 Code");
         SalesLine.Validate("Shortcut Dimension 1 Code", DimensionValue.Code);
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Shortcut Dimension 2 Code");
@@ -1657,10 +1657,10 @@ codeunit 137069 "SCM Production Orders"
         // [GIVEN] Item with "Low-Level Code" = "X"
         LibraryInventory.CreateItem(Item);
         Item."Low-Level Code" := LibraryRandom.RandInt(100);
-        Item.Modify;
+        Item.Modify();
 
         // [WHEN] Item No. in Sales Planning Line is set and validated
-        SalesPlanningLine.Init;
+        SalesPlanningLine.Init();
         SalesPlanningLine.Validate("Item No.", Item."No.");
 
         // [THEN] "Low-Level Code" in Sales Planning Line is "X"
@@ -2089,7 +2089,7 @@ codeunit 137069 "SCM Production Orders"
         Initialize;
 
         // [GIVEN] Prod. Order Routing Line with blank "Routing No."
-        ProdOrderRoutingLine.Init;
+        ProdOrderRoutingLine.Init();
 
         // [WHEN] Insert Prod. Order Routing Line
         asserterror ProdOrderRoutingLine.Insert(true);
@@ -2747,7 +2747,7 @@ codeunit 137069 "SCM Production Orders"
         // [GIVEN] 3 record links associated with the production order "PO"
         NoOfLinks := 3;
         for I := 1 to NoOfLinks do
-          CreateRecordLink(ProductionOrder, RecordLink.Type::Note);
+            CreateRecordLink(ProductionOrder, RecordLink.Type::Note);
 
         // [WHEN] Change status of the production order "PO" from "Firm Planned" to "Released"
         LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Released, WorkDate, false);
@@ -3142,7 +3142,7 @@ codeunit 137069 "SCM Production Orders"
         RecordLink: Record "Record Link";
         Index: Integer;
         NoOfLinkTypeLinks: Integer;
-        RecordLinkURL1: array [2] of Text[2048];
+        RecordLinkURL1: array[2] of Text[2048];
     begin
         // [FEATURE] [Record Link]
         // [SCENARIO 311224] If several Link Type Record Links are associated with a Production Order, all links are updated when the order Status is changed
@@ -3157,8 +3157,8 @@ codeunit 137069 "SCM Production Orders"
 
         // [GIVEN] 2 Link Type Record Links for the Order
         for Index := 1 to NoOfLinkTypeLinks do begin
-          RecordLink.Get(CreateRecordLink(ProductionOrder, RecordLink.Type::Link));
-          RecordLinkURL1[Index] := RecordLink.URL1;
+            RecordLink.Get(CreateRecordLink(ProductionOrder, RecordLink.Type::Link));
+            RecordLinkURL1[Index] := RecordLink.URL1;
         end;
 
         // [GIVEN] Note Type Record Link for the Order
@@ -3175,8 +3175,8 @@ codeunit 137069 "SCM Production Orders"
 
         RecordLink.FindSet;
         for Index := 1 to NoOfLinkTypeLinks do begin
-          RecordLink.TestField(URL1, RecordLinkURL1[Index]);
-          RecordLink.Next;
+            RecordLink.TestField(URL1, RecordLinkURL1[Index]);
+            RecordLink.Next;
         end;
 
         RecordLink.TestField(Type, RecordLink.Type::Note);
@@ -3452,7 +3452,7 @@ codeunit 137069 "SCM Production Orders"
         CreateLocationSetup;
         ItemJournalSetup;
         ConsumptionJournalSetup;
-        Commit;
+        Commit();
 
         Initialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Production Orders");
@@ -3463,13 +3463,13 @@ codeunit 137069 "SCM Production Orders"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Validate("Posted Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -3571,7 +3571,7 @@ codeunit 137069 "SCM Production Orders"
         RecordLink.Company := CompanyName;
         RecordLink."User ID" := UserId;
         RecordLink."To User ID" := UserId;
-        RecordLink.Insert;
+        RecordLink.Insert();
         exit(RecordLink."Link ID");
     end;
 
@@ -3590,7 +3590,7 @@ codeunit 137069 "SCM Production Orders"
         CreateSalesOrder(SalesHeader, SalesLine, Item."No.", LibraryRandom.RandDec(10, 2));
         SalesLine.Validate("Location Code", LocationCode);
         SalesLine."Bin Code" := BinCode;
-        SalesLine.Modify;
+        SalesLine.Modify();
     end;
 
     local procedure CreateStockkeepingUnit(LocationCode: Code[10]; ItemNo: Code[20]; ReplenishmentSystem: Option)
@@ -3958,7 +3958,7 @@ codeunit 137069 "SCM Production Orders"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
     end;
 
@@ -5199,7 +5199,7 @@ codeunit 137069 "SCM Production Orders"
 
     [EventSubscriber(ObjectType::Codeunit, 6501, 'OnBeforeAssistEditTrackingNo', '', false, false)]
     [Scope('OnPrem')]
-    procedure CheckTrackingSpecOnBeforeAssistEditTrackingNoEvent(var TempTrackingSpecification: Record "Tracking Specification" temporary; var SearchForSupply: Boolean; CurrentSignFactor: Integer; LookupMode: Option "Serial No.","Lot No."; MaxQuantity: Decimal)
+    procedure CheckTrackingSpecOnBeforeAssistEditTrackingNoEvent(var TempTrackingSpecification: Record "Tracking Specification" temporary; var SearchForSupply: Boolean; CurrentSignFactor: Integer; LookupMode: Enum "Item Tracking Type"; MaxQuantity: Decimal)
     var
         ProdOrderComponent: Record "Prod. Order Component";
     begin

@@ -388,7 +388,7 @@ codeunit 2003 "ML Prediction Management"
             for ColumnNo := 1 to MaxNoFeatures do begin
                 if ColumnNo <= LastFeatureIndex then begin
                     FieldRef := RecRef.Field(FeatureNumbers[ColumnNo]);
-                    if Format(FieldRef.Class) = 'FlowField' then
+                    if FieldRef.Class = FieldClass::FlowField then
                         FieldRef.CalcField;
                     AzureMLConnector.AddInputValue(Format(FieldRef.Value, 0, 9));
                     AzureMLConnector.AddParameter(StrSubstNo('featuretype%1', ColumnNo), Format(FieldRef.Type));
@@ -397,7 +397,7 @@ codeunit 2003 "ML Prediction Management"
             end;
 
             FieldRef := RecRef.Field(LabelNo);
-            if Format(FieldRef.Class) = 'FlowField' then
+            if FieldRef.Class = FieldClass::FlowField then
                 FieldRef.CalcField;
             AzureMLConnector.AddInputValue(Format(FieldRef.Value, 0, 9));
             AzureMLConnector.AddParameter('labeltype', Format(FieldRef.Type));

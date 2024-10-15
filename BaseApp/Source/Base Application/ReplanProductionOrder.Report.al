@@ -24,7 +24,7 @@ report 99001026 "Replan Production Order"
                         PlanLevel: Integer;
                     begin
                         if "Routing Status" = "Routing Status"::Finished then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         PlanLevel := "Prod. Order Line"."Planning Level Code";
 
@@ -38,7 +38,7 @@ report 99001026 "Replan Production Order"
                                     PlanLevel := ProdOrderLine."Planning Level Code";
                             until (ProdOrderLine.Next = 0) or (PlanLevel > "Prod. Order Line"."Planning Level Code");
 
-                        ProdOrderLine.Reset;
+                        ProdOrderLine.Reset();
 
                         if PlanLevel = "Prod. Order Line"."Planning Level Code" then begin
                             if Direction = Direction::Forward then begin
@@ -101,7 +101,7 @@ report 99001026 "Replan Production Order"
                         CompItem.Get("Item No.");
 
                         if CalcMethod = CalcMethod::"No Levels" then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         CompItem.SetRange("Variant Filter", "Variant Code");
                         CompItem.SetRange("Location Filter", "Location Code");
@@ -119,7 +119,7 @@ report 99001026 "Replan Production Order"
                         AvailabilityMgt.ExpectedQtyOnHand(CompItem, true, 0, ReqQty, "Due Date");
 
                         if ReqQty >= 0 then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         ReqQty := Abs(ReqQty);
                         if ReqQty > "Remaining Qty. (Base)" then
@@ -129,7 +129,7 @@ report 99001026 "Replan Production Order"
                         ReqQty += InvtProfileOffsetting.AdjustReorderQty(ReqQty, SKU, 0, 0);
 
                         if ReqQty = 0 then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         MainProdOrder.Get("Production Order".Status, "Prod. Order No.");
 
@@ -151,7 +151,7 @@ report 99001026 "Replan Production Order"
                             ProdOrder.Validate(Quantity, ReqQty);
                             ProdOrder."Location Code" := "Location Code";
                             OnProdOrderCompOnAfterGetRecordOnBeforeProdOrderModify(ProdOrder, MainProdOrder, "Prod. Order Component");
-                            ProdOrder.Modify;
+                            ProdOrder.Modify();
 
                             IsHandled := false;
                             OnProdOrderCompOnAfterGetRecordOnBeforeCreateProdOrderLines(ProdOrder, IsHandled);
@@ -162,7 +162,7 @@ report 99001026 "Replan Production Order"
                             ProdOrderLine.Find('-');
 
                             Modify;
-                            ProdOrderLine.Modify;
+                            ProdOrderLine.Modify();
 
                             ProdOrderLine.SetRange(Status, Status);
                             ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
@@ -175,7 +175,7 @@ report 99001026 "Replan Production Order"
 
                             Modify;
                         end;
-                        ReservMgt.SetProdOrderComponent("Prod. Order Component");
+                        ReservMgt.SetReservSource("Prod. Order Component");
                         ReservMgt.AutoTrack("Remaining Qty. (Base)");
                     end;
 
@@ -203,7 +203,7 @@ report 99001026 "Replan Production Order"
             trigger OnAfterGetRecord()
             begin
                 if (CalcMethod = CalcMethod::"One level") and not First then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 Window.Update(1, Status);
                 Window.Update(2, "No.");
@@ -231,7 +231,7 @@ report 99001026 "Replan Production Order"
             trigger OnPreDataItem()
             begin
                 First := true;
-                MfgSetup.Get;
+                MfgSetup.Get();
 
                 Window.Open(
                   Text000 +
@@ -285,7 +285,7 @@ report 99001026 "Replan Production Order"
 
     trigger OnPreReport()
     begin
-        MfgSetup.Get;
+        MfgSetup.Get();
     end;
 
     var
@@ -340,7 +340,7 @@ report 99001026 "Replan Production Order"
     begin
         with ProdOrderLine do begin
             SetCalledFromComponent(true);
-            LockTable;
+            LockTable();
             SetRange(Status, ProdOrder.Status);
             SetRange("Prod. Order No.", ProdOrder."No.");
             if Find('-') then

@@ -42,7 +42,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
 
         LibraryRapidStart.SetAPIServicesEnabled(false);
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM RS Fld. Validate and Apply");
     end;
 
@@ -50,7 +50,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
     var
         LibraryResource: Codeunit "Library - Resource";
     begin
-        Resource.Init;
+        Resource.Init();
         Resource.Validate("No.", LibraryUtility.GenerateRandomCode(Resource.FieldNo("No."), DATABASE::Resource));
         Resource.Insert(true);
 
@@ -105,7 +105,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
           ConfigPackage.Code, ConfigPackageTable."Table ID", ResourcePrice.FieldNo(Code), FieldPriorityWithDependency);
 
         if not SavePackageRecord then
-            ResourcePrice.Delete;
+            ResourcePrice.Delete();
     end;
 
     local procedure GenerateSimplePackage(UseInvalidGLAccountCode: Boolean; SavePackageRecord: Boolean; ValidateFields: Boolean; var ConfigPackage: Record "Config. Package"; var CustPostingGroupCode: Code[20]; var GLAccountNo: Code[20])
@@ -125,7 +125,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         end;
 
         if SavePackageRecord then
-            CustPostingGroup.Insert;
+            CustPostingGroup.Insert();
 
         CustPostingGroupCode := CustPostingGroup.Code;
         GLAccountNo := CustPostingGroup."Receivables Account";
@@ -212,7 +212,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
     var
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
-        SalesCrMemoLine.Init;
+        SalesCrMemoLine.Init();
         SalesCrMemoLine."IC Partner Ref. Type" := OptionNo;
         CheckGetOptionNo(Format(SalesCrMemoLine."IC Partner Ref. Type"), OptionNo);
     end;
@@ -346,7 +346,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
 
         CustPostingGroup.Get(CustPostingGroupCode);
         CustPostingGroup."Receivables Account" := '';
-        CustPostingGroup.Modify;
+        CustPostingGroup.Modify();
 
         LibraryRapidStart.ApplyPackage(ConfigPackage, false);
 
@@ -867,9 +867,9 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
     var
         ODataEdmType: Record "OData Edm Type";
     begin
-        ODataEdmType.Init;
+        ODataEdmType.Init();
         ODataEdmType.Key := LibraryUtility.GenerateGUID;
-        ODataEdmType.Insert;
+        ODataEdmType.Insert();
     end;
 
     [Test]
@@ -893,10 +893,10 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
 
         // [GIVEN] API Services are not enabled, Integration Records do not exist.
         InsertODataEdmTypeEntry;
-        Customer.Delete;
-        IntegrationRecord.DeleteAll;
+        Customer.Delete();
+        IntegrationRecord.DeleteAll();
         LibraryRapidStart.SetAPIServicesEnabled(false);
-        Commit;
+        Commit();
         // [WHEN] Data is applied
         LibraryRapidStart.ApplyPackage(ConfigPackage, false);
 
@@ -927,10 +927,10 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
 
         // [GIVEN] API Services are enabled, Integration Records do not exist.
         InsertODataEdmTypeEntry;
-        Customer.Delete;
-        IntegrationRecord.DeleteAll;
+        Customer.Delete();
+        IntegrationRecord.DeleteAll();
         LibraryRapidStart.SetAPIServicesEnabled(true);
-        Commit;
+        Commit();
         // [WHEN] Data is applied
         LibraryRapidStart.ApplyPackage(ConfigPackage, false);
 

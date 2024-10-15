@@ -67,12 +67,12 @@ codeunit 131009 "Library - Setup Storage"
         RecordRefDestination: RecordRef;
         Index: Integer;
     begin
-        Index := TempIntegerStoredTables.Count;
+        Index := TempIntegerStoredTables.Count();
         while Index > 0 do begin
             RecordRefSource := RecordRefStorage[Index];
             RecordRefDestination.Open(RecordRefSource.Number);
             CopyFields(RecordRefSource, RecordRefDestination);
-            RecordRefDestination.Modify;
+            RecordRefDestination.Modify();
             RecordRefDestination.Close;
             Index -= 1;
         end;
@@ -94,7 +94,7 @@ codeunit 131009 "Library - Setup Storage"
     begin
         for i := 1 to RecordRefSource.FieldCount do begin
             SourceFieldRef := RecordRefSource.FieldIndex(i);
-            if Format(SourceFieldRef.Class) = 'Normal' then begin
+            if SourceFieldRef.Class = FieldClass::Normal then begin
                 DestinationFieldRef := RecordRefDestination.Field(SourceFieldRef.Number);
                 DestinationFieldRef.Value(SourceFieldRef.Value)
             end;

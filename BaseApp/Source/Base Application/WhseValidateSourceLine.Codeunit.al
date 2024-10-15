@@ -124,6 +124,7 @@ codeunit 5777 "Whse. Validate Source Line"
     var
         NewRecRef: RecordRef;
         OldRecRef: RecordRef;
+        OverReceiptMgt: Codeunit "Over-Receipt Mgt.";
     begin
         if not WhseLinesExist(
              DATABASE::"Purchase Line", NewPurchLine."Document Type", NewPurchLine."Document No.",
@@ -146,7 +147,8 @@ codeunit 5777 "Whse. Validate Source Line"
             VerifyFieldNotChanged(NewRecRef, OldRecRef, FieldNo("Special Order Sales No."));
             VerifyFieldNotChanged(NewRecRef, OldRecRef, FieldNo("Special Order Sales Line No."));
             VerifyFieldNotChanged(NewRecRef, OldRecRef, FieldNo("Job No."));
-            VerifyFieldNotChanged(NewRecRef, OldRecRef, FieldNo(Quantity));
+            if not OverReceiptMgt.IsQuantityUpdatedFromWarehouseOverReceipt(NewPurchLine) then
+                VerifyFieldNotChanged(NewRecRef, OldRecRef, FieldNo(Quantity));
             VerifyFieldNotChanged(NewRecRef, OldRecRef, FieldNo("Qty. to Receive"));
         end;
 

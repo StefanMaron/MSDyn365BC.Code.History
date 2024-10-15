@@ -1,4 +1,4 @@
-﻿page 9243 "Res. Group Capacity Matrix"
+page 9243 "Res. Group Capacity Matrix"
 {
     Caption = 'Res. Group Capacity Matrix';
     Editable = true;

@@ -53,12 +53,10 @@ table 954 "Time Sheet Header Archive"
             Editable = false;
             FieldClass = FlowField;
         }
-        field(30; "Status Filter"; Option)
+        field(30; "Status Filter"; Enum "Time Sheet Status")
         {
             Caption = 'Status Filter';
             FieldClass = FlowFilter;
-            OptionCaption = 'Open,Submitted,Rejected,Approved';
-            OptionMembers = Open,Submitted,Rejected,Approved;
         }
         field(31; "Job No. Filter"; Code[20])
         {
@@ -117,7 +115,7 @@ table 954 "Time Sheet Header Archive"
 
         TimeSheetCmtLineArchive.SetRange("No.", "No.");
         TimeSheetCmtLineArchive.SetRange("Time Sheet Line No.", 0);
-        TimeSheetCmtLineArchive.DeleteAll;
+        TimeSheetCmtLineArchive.DeleteAll();
     end;
 
     var

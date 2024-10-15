@@ -493,7 +493,7 @@ codeunit 137087 "SCM Order Planning - II"
         LibraryPlanning.CalculateOrderPlanSales(RequisitionLine);
         ExpectedQuantity := Quantity;
         OpenOrderPlanningPage(OrderPlanning, SalesHeader."No.", Item."No.");
-        Commit;
+        Commit();
 
         // Exercise and Verify : Click on Assist edit of Available to transfer from order planning page. Check That the value on Get alternative supply page is same as expected, Verification is done under Page Handler.
         OrderPlanning.AvailableForTransfer.AssistEdit;
@@ -523,7 +523,7 @@ codeunit 137087 "SCM Order Planning - II"
         CreateSalesOrder(SalesHeader, Item."No.", LocationBlue2.Code, Quantity, Quantity);
         LibraryPlanning.CalculateOrderPlanSales(RequisitionLine);
         OpenOrderPlanningPage(OrderPlanning, SalesHeader."No.", Item."No.");
-        Commit;
+        Commit();
 
         // Exercise : Click On Assist Edit Of Available To Transfer, Select the value and click OK on Order Planning Page.
         OrderPlanning.AvailableForTransfer.AssistEdit;
@@ -1156,7 +1156,7 @@ codeunit 137087 "SCM Order Planning - II"
         CreateLocationWithBin(Location, Bin, true, false, false, true, true);
 
         // [GIVEN] Modify Whse. Setup in order to catch expected errors when posting
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         WarehouseSetup.Validate(
           "Receipt Posting Policy", WarehouseSetup."Receipt Posting Policy"::"Stop and show the first posting error");
         WarehouseSetup.Validate(
@@ -1174,13 +1174,13 @@ codeunit 137087 "SCM Order Planning - II"
         // [GIVEN] Create user setup with posting date restrictions in order to cause expected error when the Whse. Shipment is posted
         if UserSetup.Get(UserId) then
             UserSetup.Delete(true);
-        UserSetup.Init;
+        UserSetup.Init();
         UserSetup.Validate("User ID", UserId);
         UserSetup.Validate("Allow Posting From", WorkDate + 1);
         UserSetup.Insert(true);
 
         // [GIVEN] Try to post Whse. Shipment
-        Commit;
+        Commit();
         asserterror LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
 
         // [GIVEN] Catch an expected posting date error
@@ -1319,7 +1319,7 @@ codeunit 137087 "SCM Order Planning - II"
         CreateLocationSetup;
         NoSeriesSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Order Planning - II");
     end;
 
@@ -1329,7 +1329,7 @@ codeunit 137087 "SCM Order Planning - II"
     begin
         Clear(DemandTypeGlobal);
         Clear(ExpectedQuantity);
-        RequisitionLine.DeleteAll;
+        RequisitionLine.DeleteAll();
         ClearManufacturingUserTemplate;
     end;
 
@@ -1338,11 +1338,11 @@ codeunit 137087 "SCM Order Planning - II"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
     end;
@@ -1395,7 +1395,7 @@ codeunit 137087 "SCM Order Planning - II"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         LibraryInventory.CreateItem(Item);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Item.Validate("Costing Method", Item."Costing Method"::Standard);
         Item.Validate("Unit Cost", LibraryRandom.RandDec(20, 2));
         Item.Validate("Replenishment System", ReplenishmentSystem);
@@ -1739,7 +1739,7 @@ codeunit 137087 "SCM Order Planning - II"
         Language: Record Language;
         RandNum: Integer;
     begin
-        Language.Init;
+        Language.Init();
         RandNum := LibraryRandom.RandIntInRange(1, Language.Count);
         Language.Next(RandNum);
         exit(Language.Code);
@@ -1865,9 +1865,9 @@ codeunit 137087 "SCM Order Planning - II"
 
     local procedure UpdateSalesReceivablesSetup(var SalesReceivablesSetup2: Record "Sales & Receivables Setup")
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup2 := SalesReceivablesSetup;
-        SalesReceivablesSetup2.Insert;
+        SalesReceivablesSetup2.Insert();
 
         SalesReceivablesSetup.Validate("Credit Warnings", SalesReceivablesSetup."Credit Warnings"::"No Warning");
         SalesReceivablesSetup.Validate("Stockout Warning", false);
@@ -2179,7 +2179,7 @@ codeunit 137087 "SCM Order Planning - II"
 
     local procedure RestoreSalesReceivableSetup(TempSalesReceivablesSetup: Record "Sales & Receivables Setup" temporary)
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Credit Warnings", TempSalesReceivablesSetup."Credit Warnings");
         SalesReceivablesSetup.Validate("Stockout Warning", TempSalesReceivablesSetup."Stockout Warning");
         SalesReceivablesSetup.Modify(true);
