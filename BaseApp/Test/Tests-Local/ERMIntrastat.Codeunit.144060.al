@@ -2033,13 +2033,12 @@ codeunit 144060 "ERM Intrastat"
           TextFile, FormatNum(Format(Round(IntrastatJnlLine[1].Amount, 1) + Round(IntrastatJnlLine[2].Amount, 1)), 13), 1, 100, 13, 0);
 
         // [THEN] Amount in file on the 1st line equals to ROUND(Line[1].Amount) = ROUND(0.01) = 0
-        // Bug id 432374: The length of service export entry is 131
         LibrarySpesometro.VerifyValue(
-          TextFile, FormatNum(Format(Round(IntrastatJnlLine[1].Amount, 1)), 13), 1, GetServiceLineOffset(0) + 43, 13, 0);
+          TextFile, FormatNum(Format(Round(IntrastatJnlLine[1].Amount, 1)), 13), 1, GetLineOffset(0) + 43, 13, 0);
 
         // [THEN] Amount in file on the 2nd line equals to ROUND(Line[2].Amount) = ROUND(1.49) = 1
         LibrarySpesometro.VerifyValue(
-          TextFile, FormatNum(Format(Round(IntrastatJnlLine[2].Amount, 1)), 13), 1, GetServiceLineOffset(3) + 43, 13, 0);
+          TextFile, FormatNum(Format(Round(IntrastatJnlLine[2].Amount, 1)), 13), 1, GetLineOffset(3) + 43, 13, 0);
 
         LibraryVariableStorage.AssertEmpty;
     end;
