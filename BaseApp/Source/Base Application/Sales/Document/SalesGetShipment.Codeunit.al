@@ -420,7 +420,7 @@ codeunit 64 "Sales-Get Shipment"
         OrderNo: Code[20];
         Handled: Boolean;
     begin
-        OnBeforeCopyDocumentAttachments(SalesHeader2, Handled);
+        OnBeforeCopyDocumentAttachments(SalesHeader2, Handled, OrderNoList);
         if Handled then
             exit;
         OrderSalesHeader.ReadIsolation := IsolationLevel::ReadCommitted;
@@ -540,7 +540,7 @@ codeunit 64 "Sales-Get Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCopyDocumentAttachments(var DestinationSalesHeader: Record "Sales Header"; var Handled: Boolean)
+    local procedure OnBeforeCopyDocumentAttachments(var DestinationSalesHeader: Record "Sales Header"; var Handled: Boolean; var OrderNoList: List of [Code[20]])
     begin
     end;
 }

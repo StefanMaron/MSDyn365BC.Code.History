@@ -383,7 +383,14 @@ page 50 "Purchase Order"
                     ToolTip = 'Specifies the currency of amounts on the purchase document.';
 
                     trigger OnAssistEdit()
+                    var
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeCurrencyCodeOnAssistEdit(Rec, xRec, IsHandled);
+                        if IsHandled then
+                            exit;
+
                         Clear(ChangeExchangeRate);
                         if Rec."Posting Date" <> 0D then
                             ChangeExchangeRate.SetParameter(Rec."Currency Code", Rec."Currency Factor", Rec."Posting Date")
@@ -2815,6 +2822,11 @@ page 50 "Purchase Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateCurrentShippingAndPayToOption(var PurchaseHeader: Record "Purchase Header"; var ShipToOptions: Option "Default (Company Address)",Location,"Customer Address","Custom Address"; var PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCurrencyCodeOnAssistEdit(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 }
