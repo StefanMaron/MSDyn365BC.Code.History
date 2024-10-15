@@ -2237,6 +2237,7 @@
         SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
         UpdateDocHasRegimeCode();
         StatusStyleTxt := GetStatusStyleText();
+        SetControlVisibility();
     end;
 
     trigger OnAfterGetRecord()
@@ -2463,6 +2464,7 @@
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
+        CurrPage.SalesLines.Page.ForceTotalsCalculation();
         CurrPage.Update;
     end;
 

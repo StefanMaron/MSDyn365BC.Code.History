@@ -373,7 +373,8 @@ page 41 "Sales Quote"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update
+                        CurrPage.SalesLines.Page.ForceTotalsCalculation();
+                        CurrPage.Update();
                     end;
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")

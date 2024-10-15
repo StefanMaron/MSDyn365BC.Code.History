@@ -1268,8 +1268,8 @@
                             CopyJobGLAccPriceToJobPlanLine(JobPlanningLine, JobGLAccPrice)
                         else begin
                             JobGLAccPrice.SetRange("Job Task No.", '');
-                            if JobGLAccPrice.FindFirst then;
-                            CopyJobGLAccPriceToJobPlanLine(JobPlanningLine, JobGLAccPrice);
+                            if JobGLAccPrice.FindFirst then
+                                CopyJobGLAccPriceToJobPlanLine(JobPlanningLine, JobGLAccPrice);
                         end;
                     end;
             end;

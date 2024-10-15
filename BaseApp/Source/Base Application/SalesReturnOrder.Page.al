@@ -1611,6 +1611,7 @@ page 6630 "Sales Return Order"
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
+        CurrPage.SalesLines.Page.ForceTotalsCalculation();
         CurrPage.Update;
     end;
 

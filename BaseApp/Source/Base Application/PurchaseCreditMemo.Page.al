@@ -1690,6 +1690,7 @@ page 52 "Purchase Credit Memo"
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
+        CurrPage.PurchLines.Page.ForceTotalsCalculation();
         CurrPage.Update;
     end;
 
