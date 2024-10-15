@@ -277,7 +277,7 @@ page 9073 "Small Business Owner Act."
         end;
         SetFilter("Due Date Filter", '<=%1', WorkDate);
         SetFilter("Overdue Date Filter", '<%1', WorkDate);
-        SetFilter("User ID Filter", UserId);
+        SetRange("User ID Filter", UserId);
 
         CalculateCueFieldValues;
     end;

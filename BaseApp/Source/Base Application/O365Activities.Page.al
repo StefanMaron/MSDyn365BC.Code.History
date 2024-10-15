@@ -501,7 +501,7 @@ page 1310 "O365 Activities"
             NewRecord := true;
         end;
 
-        SetFilter("User ID Filter", UserId);
+        SetRange("User ID Filter", UserId);
         SetFilter("Due Next Week Filter", '%1..%2', CalcDate('<1D>', WorkDate()), CalcDate('<1W>', WorkDate()));
 
         HasCamera := Camera.IsAvailable();

@@ -105,18 +105,21 @@
 
         case TableID of
             DATABASE::Customer:
-                CheckCust(VATRegNo, Number);
+                if not CheckCust(VATRegNo, Number) then
+                    exit(false);
             DATABASE::Vendor:
-                CheckVendor(VATRegNo, Number);
+                if not CheckVendor(VATRegNo, Number) then
+                    exit(false);
             DATABASE::Contact:
-                CheckContact(VATRegNo, Number);
+                if not CheckContact(VATRegNo, Number) then
+                    exit(false);
             else
                 OnTestTable(VATRegNo, CountryCode, Number, TableID);
         end;
         exit(true);
     end;
 
-    local procedure CheckCust(VATRegNo: Text[20]; Number: Code[20])
+    local procedure CheckCust(VATRegNo: Text[20]; Number: Code[20]): Boolean
     var
         Cust: Record Customer;
         EnvInfoProxy: Codeunit "Env. Info Proxy";
@@ -148,11 +151,15 @@
                 AppendString(TextString, Finish, CustomerIdentification);
             until (Cust.Next = 0) or Finish;
         end;
-        if not Check then
+        if not Check then begin
             Message(StrSubstNo(Text002, TextString));
+            exit(false);
+        end;
+
+        exit(true);
     end;
 
-    local procedure CheckVendor(VATRegNo: Text[20]; Number: Code[20])
+    local procedure CheckVendor(VATRegNo: Text[20]; Number: Code[20]): Boolean
     var
         Vend: Record Vendor;
         Check: Boolean;
@@ -177,11 +184,15 @@
                 AppendString(TextString, Finish, Vend."No.");
             until (Vend.Next = 0) or Finish;
         end;
-        if not Check then
+        if not Check then begin
             Message(StrSubstNo(Text003, TextString));
+            exit(false);
+        end;
+
+        exit(true);
     end;
 
-    local procedure CheckContact(VATRegNo: Text[20]; Number: Code[20])
+    local procedure CheckContact(VATRegNo: Text[20]; Number: Code[20]): Boolean
     var
         Cont: Record Contact;
         Check: Boolean;
@@ -206,8 +217,12 @@
                 AppendString(TextString, Finish, Cont."No.");
             until (Cont.Next = 0) or Finish;
         end;
-        if not Check then
+        if not Check then begin
             Message(StrSubstNo(Text004, TextString));
+            exit(false);
+        end;
+
+        exit(true);
     end;
 
     procedure Compare(VATRegNo: Text[20]; Format: Text[20]): Boolean

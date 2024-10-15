@@ -16,6 +16,11 @@ table 248 "VAT Reg. No. Srv Config"
         {
             Caption = 'Service Endpoint';
         }
+        field(10; "Default Template Code"; Code[20])
+        {
+            Caption = 'Default Template Code';
+            TableRelation = "VAT Reg. No. Srv. Template";
+        }
     }
 
     keys

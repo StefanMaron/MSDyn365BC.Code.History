@@ -190,7 +190,7 @@ codeunit 134462 "ERM Copy Item"
         ItemVariant: Record "Item Variant";
         Comment: Text[80];
     begin
-        // [FEATURE] [Comments]
+        // [FEATURE] [Comments] [Item Variant]
         // [SCENARIO] Copy item with comment lines and Item Variant
         Initialize();
         // [GIVEN] Create item with comment and item variant
@@ -1157,6 +1157,37 @@ codeunit 134462 "ERM Copy Item"
 
         // [THEN] Copy Item page has "Source Item No." = "I2"
         Assert.AreEqual(Item[2]."No.", LibraryVariableStorage.DequeueText(), 'Invalid Source Item No.');
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyItemPageHandler')]
+    [Scope('OnPrem')]
+    procedure CopyItemVariantWithTargetItemId()
+    var
+        Item: Record Item;
+        CopyItemBuffer: Record "Copy Item Buffer";
+        ItemVariant: Record "Item Variant";
+    begin
+        // [FEATURE] [Item Variant]
+        // [SCENARIO 371182] Item Variant copy has "Item Id" of the Item's created copy
+        Initialize();
+
+        // [GIVEN] Create item with item variant
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+
+        // [WHEN] Run copy item report with Item Variant = "Yes"
+        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID;
+        CopyItemBuffer."Item Variants" := true;
+        EnqueueValuesForCopyItemPageHandler(CopyItemBuffer);
+        CopyItem(Item."No.");
+
+        // [THEN] Item Variant copied with "Item Id" of the target item
+        Item.Get(CopyItemBuffer."Target Item No.");
+        ItemVariant.Get(CopyItemBuffer."Target Item No.", ItemVariant.Code);
+        ItemVariant.TestField("Item Id", Item.SystemId);
+
+        NotificationLifecycleMgt.RecallAllNotifications;
     end;
 
     local procedure Initialize()

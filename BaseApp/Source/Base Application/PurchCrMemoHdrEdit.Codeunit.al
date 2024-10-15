@@ -9,7 +9,9 @@ codeunit 10767 "Purch. Cr. Memo Hdr. - Edit"
     begin
         PurchCrMemoHdr := Rec;
         PurchCrMemoHdr.LockTable();
-        PurchCrMemoHdr.Find;
+        PurchCrMemoHdr.Find();
+        PurchCrMemoHdr."Operation Description" := "Operation Description";
+        PurchCrMemoHdr."Operation Description 2" := "Operation Description 2";
         PurchCrMemoHdr."Special Scheme Code" := "Special Scheme Code";
         PurchCrMemoHdr."Cr. Memo Type" := "Cr. Memo Type";
         PurchCrMemoHdr."Correction Type" := "Correction Type";

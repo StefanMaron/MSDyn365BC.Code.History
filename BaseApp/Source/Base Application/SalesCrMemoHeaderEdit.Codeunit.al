@@ -9,7 +9,9 @@ codeunit 10766 "Sales Cr.Memo Header - Edit"
     begin
         SalesCrMemoHeader := Rec;
         SalesCrMemoHeader.LockTable();
-        SalesCrMemoHeader.Find;
+        SalesCrMemoHeader.Find();
+        SalesCrMemoHeader."Operation Description" := "Operation Description";
+        SalesCrMemoHeader."Operation Description 2" := "Operation Description 2";
         SalesCrMemoHeader."Special Scheme Code" := "Special Scheme Code";
         SalesCrMemoHeader."Cr. Memo Type" := "Cr. Memo Type";
         SalesCrMemoHeader."Correction Type" := "Correction Type";

@@ -601,6 +601,50 @@ codeunit 137250 "SCM Inventory Order Tracking"
         // Verify: Verify Order Tracking for Simulated Production Order Line. Verification done in OrderTrackingHdrPageHandler.
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure NoOrderTrackingForItemJournalLine()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        ReservationManagement: Codeunit "Reservation Management";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Item Journal]
+        // [SCENARIO 372762] No order tracking is created for item journal line.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Item with enabled Order Tracking.
+        LibraryVariableStorage.Enqueue(OrderTrackingPolicyMsg);
+        CreateItem(Item, Item."Replenishment System"::Purchase, Item."Order Tracking Policy"::"Tracking & Action Msg.");
+
+        // [GIVEN] Create and post item journal line for 10 pcs.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create item journal line for -10 pcs.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', -Qty);
+
+        // [WHEN] Auto-track the negative item journal line.
+        ReservationManagement.SetItemJnlLine(ItemJournalLine);
+        ReservationManagement.AutoTrack(ItemJournalLine.Quantity);
+
+        // [THEN] No order tracking has been established between inventory and the negative adjustment.
+        ReservationEntry.SetRange("Item No.", Item."No.");
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Tracking);
+        Assert.RecordIsEmpty(ReservationEntry);
+
+        // [THEN] All remaining stock is tracked as "Surplus".
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
+        ReservationEntry.CalcSums(Quantity);
+        ReservationEntry.TestField(Quantity, Qty);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
