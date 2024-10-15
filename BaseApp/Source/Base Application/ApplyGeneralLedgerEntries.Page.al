@@ -391,7 +391,7 @@ page 11309 "Apply General Ledger Entries"
         ShowAmount: Decimal;
         ShowTotalAppliedAmount: Decimal;
 
-
+#pragma warning disable AS0022 // False positive due to a compiler bug fix
     [Scope('OnPrem')]
     procedure SetApplId(var GLEntryBuf: Record "G/L Entry Application Buffer")
     begin
@@ -407,6 +407,7 @@ page 11309 "Apply General Ledger Entries"
                 ShowTotalAppliedAmount -= GLEntryBuf."Remaining Amount";
         end;
     end;
+#pragma warning restore AS0022
 
     local procedure CheckGLEntryBufIsOpen(GLEntryApplicationBuffer: Record "G/L Entry Application Buffer")
     begin

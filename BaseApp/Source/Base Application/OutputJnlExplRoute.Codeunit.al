@@ -118,6 +118,7 @@ codeunit 5406 "Output Jnl.-Expl. Route"
                       ProdOrderLine."Unit of Measure Code",
                       ProdOrderLine."Remaining Quantity",
                       true);
+                    OnAfterInsertOutputJnlLineWithoutRtngLine(ItemJnlLine, ProdOrderLine, ProdOrderRtngLine, NextLineNo);
                     ItemTrackingMgt.CopyItemTracking(ProdOrderLine.RowID1, LastItemJnlLine.RowID1, false);
                 end;
         until ProdOrderLine.Next = 0;
@@ -178,6 +179,11 @@ codeunit 5406 "Output Jnl.-Expl. Route"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertItemJnlLine(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertOutputJnlLineWithoutRtngLine(var ItemJournalLine: Record "Item Journal Line"; var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var NextLineNo: Integer)
     begin
     end;
 

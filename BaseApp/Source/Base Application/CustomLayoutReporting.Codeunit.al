@@ -494,6 +494,8 @@ codeunit 8800 "Custom Layout Reporting"
 
     local procedure PrintReport(var DataRecRef: RecordRef; ReportID: Integer)
     begin
+        OnBeforePrintReport(DataRecRef, ReportID);
+
         if SupressOutput then
             exit;
 
@@ -626,10 +628,10 @@ codeunit 8800 "Custom Layout Reporting"
         end else
             ObjectName := StrSubstNo('%1', IteratorJoinFieldRef.Value);
 
-        exit(GenerateFileName(ObjectName, ReportID, Extension, FilePath));
+        exit(GenerateFileName(ObjectName, ReportID, Extension, FilePath, DataRecRef));
     end;
 
-    local procedure GenerateFileName(ObjectName: Text; ReportID: Integer; Extension: Text; FilePath: Text): Text
+    local procedure GenerateFileName(ObjectName: Text; ReportID: Integer; Extension: Text; FilePath: Text; DataRecRef: RecordRef): Text
     var
         FileName: Text;
         EndDate: Text;
@@ -657,6 +659,8 @@ codeunit 8800 "Custom Layout Reporting"
             FileName := FileBaseName + GetFileNameForPart(ObjectName) + GetFileNameAsOfPart(EndDate) + Extension
         else
             FileName := FileBaseName + GetFileNameForPart(ObjectName) + Extension;
+
+        OnGenerateFileNameOnAfterAssignFileName(FileName, ReportID, Extension, DataRecRef);
 
         FileName := FileManagement.StripNotsupportChrInFileName(FileName);
 
@@ -764,7 +768,7 @@ codeunit 8800 "Custom Layout Reporting"
                     break;
                 end;
 
-                StoreRequestParameters(RequestPageParameters);
+                StoreRequestParameters(LocalRepId, RequestPageParameters);
                 SaveReportRequestPageParameters(LocalRepId, RequestPageParameters);
                 // Validate output type and get a file save path, if necessary, only prompt for windows clients that are not in test mode
                 SetOutputType(LocalRepId);
@@ -814,14 +818,12 @@ codeunit 8800 "Custom Layout Reporting"
         SupressOutput := SupressOutputFlag;
     end;
 
-    local procedure StoreRequestParameters(Parameters: Text)
+    local procedure StoreRequestParameters(ReportID: Integer; Parameters: Text)
     var
         TempBlob: Codeunit "Temp Blob";
         OutStr: OutStream;
-        ReportID: Integer;
         Index: Integer;
     begin
-        Evaluate(ReportID, RequestPageParametersHelper.GetReportID(Parameters));
         // Insert or Modify - based on if it exists already or not
         TempBlob.CreateOutStream(OutStr);
         OutStr.WriteText(Parameters);
@@ -878,6 +880,7 @@ codeunit 8800 "Custom Layout Reporting"
     var
         ReportSaved: Boolean;
     begin
+        OnBeforeCallReportSaveAs(ReportID, ReportFormatValue);
         ReportSaved := REPORT.SaveAs(ReportID, RequestParameterText, ReportFormatValue, FileStream, RecRef);
 
         if not ReportSaved then
@@ -1482,7 +1485,22 @@ codeunit 8800 "Custom Layout Reporting"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCallReportSaveAs(ReportID: Integer; ReportFormatValue: ReportFormat)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintReport(var DataRecRef: RecordRef; ReportID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeRunReportWithCustomReportSelection(var DataRecRef: RecordRef; var ReportID: Integer; var CustomReportSelection: Record "Custom Report Selection"; var EmailPrintIfEmailIsMissing: Boolean; var TempBlobIndicesNameValueBuffer: Record "Name/Value Buffer" temporary; var TempBlobList: Codeunit "Temp Blob List"; var OutputType: Option; var AnyOutputExists: Boolean; var InHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGenerateFileNameOnAfterAssignFileName(var FileName: Text; ReportID: Integer; Extension: Text; DataRecRef: RecordRef)
     begin
     end;
 }

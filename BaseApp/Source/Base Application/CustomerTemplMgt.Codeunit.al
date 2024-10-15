@@ -21,12 +21,12 @@ codeunit 1381 "Customer Templ. Mgt."
         Customer.Insert(true);
         Customer.SetInsertFromTemplate(false);
 
-        ApplyTemplate(Customer, CustomerTempl);
-        InsertDimensions(Customer."No.", CustomerTempl.Code);
+        ApplyCustomerTemplate(Customer, CustomerTempl);
 
         exit(true);
     end;
 
+    [Obsolete('Function is not used and not required.', '18.0')]
     procedure InsertCustomerFromContact(var Customer: Record Customer; Contact: Record Contact): Boolean
     var
         CustomerTempl: Record "Customer Templ.";
@@ -47,6 +47,12 @@ codeunit 1381 "Customer Templ. Mgt."
         InsertDimensions(Customer."No.", CustomerTempl.Code);
 
         exit(true);
+    end;
+
+    procedure ApplyCustomerTemplate(var Customer: Record Customer; CustomerTempl: Record "Customer Templ.")
+    begin
+        ApplyTemplate(Customer, CustomerTempl);
+        InsertDimensions(Customer."No.", CustomerTempl.Code);
     end;
 
     local procedure ApplyTemplate(var Customer: Record Customer; CustomerTempl: Record "Customer Templ.")
@@ -73,9 +79,15 @@ codeunit 1381 "Customer Templ. Mgt."
         Customer.Modify(true);
     end;
 
+    procedure SelectCustomerTemplateFromContact(var CustomerTempl: Record "Customer Templ."; Contact: Record Contact): Boolean
+    begin
+        CustomerTempl.SetRange("Contact Type", Contact.Type);
+        exit(SelectCustomerTemplate(CustomerTempl));
+    end;
+
     local procedure SelectCustomerTemplate(var CustomerTempl: Record "Customer Templ."): Boolean
     var
-        CustomerTemplList: Page "Customer Templ. List";
+        SelectCustomerTemplList: Page "Select Customer Templ. List";
     begin
         if CustomerTempl.Count = 1 then begin
             CustomerTempl.FindFirst();
@@ -83,10 +95,10 @@ codeunit 1381 "Customer Templ. Mgt."
         end;
 
         if (CustomerTempl.Count > 1) and GuiAllowed then begin
-            CustomerTemplList.SetTableView(CustomerTempl);
-            CustomerTemplList.LookupMode(true);
-            if CustomerTemplList.RunModal() = Action::LookupOK then begin
-                CustomerTemplList.GetRecord(CustomerTempl);
+            SelectCustomerTemplList.SetTableView(CustomerTempl);
+            SelectCustomerTemplList.LookupMode(true);
+            if SelectCustomerTemplList.RunModal() = Action::LookupOK then begin
+                SelectCustomerTemplList.GetRecord(CustomerTempl);
                 exit(true);
             end;
         end;
@@ -109,7 +121,8 @@ codeunit 1381 "Customer Templ. Mgt."
                 DestDefaultDimension.Validate("Dimension Code", SourceDefaultDimension."Dimension Code");
                 DestDefaultDimension.Validate("Dimension Value Code", SourceDefaultDimension."Dimension Value Code");
                 DestDefaultDimension.Validate("Value Posting", SourceDefaultDimension."Value Posting");
-                DestDefaultDimension.Insert(true);
+                if not DestDefaultDimension.Get(DestDefaultDimension."Table ID", DestDefaultDimension."No.", DestDefaultDimension."Dimension Code") then
+                    DestDefaultDimension.Insert(true);
             until SourceDefaultDimension.Next() = 0;
     end;
 
@@ -139,13 +152,63 @@ codeunit 1381 "Customer Templ. Mgt."
         OnTemplatesAreNotEmpty(Result, IsHandled);
     end;
 
-    local procedure IsEnabled() Result: Boolean
+    procedure IsEnabled() Result: Boolean
     var
         TemplateFeatureMgt: Codeunit "Template Feature Mgt.";
     begin
         Result := TemplateFeatureMgt.IsEnabled();
 
         OnAfterIsEnabled(Result);
+    end;
+
+    procedure UpdateCustomerFromTemplate(var Customer: Record Customer)
+    var
+        IsHandled: Boolean;
+    begin
+        OnUpdateCustomerFromTemplate(Customer, IsHandled);
+    end;
+
+    local procedure UpdateFromTemplate(var Customer: Record Customer; var IsHandled: Boolean)
+    var
+        CustomerTempl: Record "Customer Templ.";
+    begin
+        if not CanBeUpdatedFromTemplate(CustomerTempl, IsHandled) then
+            exit;
+
+        ApplyCustomerTemplate(Customer, CustomerTempl);
+    end;
+
+    procedure UpdateCustomersFromTemplate(var Customer: Record Customer)
+    var
+        IsHandled: Boolean;
+    begin
+        OnUpdateCustomersFromTemplate(Customer, IsHandled);
+    end;
+
+    local procedure UpdateMultipleFromTemplate(var Customer: Record Customer; var IsHandled: Boolean)
+    var
+        CustomerTempl: Record "Customer Templ.";
+    begin
+        if not CanBeUpdatedFromTemplate(CustomerTempl, IsHandled) then
+            exit;
+
+        if Customer.FindSet() then
+            repeat
+                ApplyCustomerTemplate(Customer, CustomerTempl);
+            until Customer.Next() = 0;
+    end;
+
+    local procedure CanBeUpdatedFromTemplate(var CustomerTempl: Record "Customer Templ."; var IsHandled: Boolean): Boolean
+    begin
+        if not IsEnabled() then
+            exit(false);
+
+        IsHandled := true;
+
+        if not SelectCustomerTemplate(CustomerTempl) then
+            exit(false);
+
+        exit(true);
     end;
 
     [IntegrationEvent(false, false)]
@@ -160,6 +223,16 @@ codeunit 1381 "Customer Templ. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnTemplatesAreNotEmpty(var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCustomerFromTemplate(var Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCustomersFromTemplate(var Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 
@@ -179,5 +252,23 @@ codeunit 1381 "Customer Templ. Mgt."
             exit;
 
         Result := CustomerTemplatesAreNotEmpty(IsHandled);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Customer Templ. Mgt.", 'OnUpdateCustomerFromTemplate', '', false, false)]
+    local procedure OnUpdateCustomerFromTemplateHandler(var Customer: Record Customer; var IsHandled: Boolean)
+    begin
+        if IsHandled then
+            exit;
+
+        UpdateFromTemplate(Customer, IsHandled);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Customer Templ. Mgt.", 'OnUpdateCustomersFromTemplate', '', false, false)]
+    local procedure OnUpdateCustomersFromTemplateHandler(var Customer: Record Customer; var IsHandled: Boolean)
+    begin
+        if IsHandled then
+            exit;
+
+        UpdateMultipleFromTemplate(Customer, IsHandled);
     end;
 }

@@ -182,7 +182,11 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
         LineCount: Text[20];
         ServiceLevelCode: Code[10];
         ChargeBearer: Code[10];
+        BtchBookg: Text[250];
     begin
+        BtchBookg := 'false';
+        OnBeforeAddPaymentInformation(PaymentHistoryLine, BankAcc, BtchBookg);
+
         XMLParent := XMLNodeCurr;
         AddElement(XMLNodeCurr, 'PmtInf', '', '', XMLNewChild);
         XMLNodeCurr := XMLNewChild;
@@ -219,7 +223,7 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
         AddElement(XMLNodeCurr, 'PmtInfId', PaymentInformationId, '', XMLNewChild);
         AddElement(XMLNodeCurr, 'PmtMtd', 'TRF', '', XMLNewChild);
 
-        AddElement(XMLNodeCurr, 'BtchBookg', 'false', '', XMLNewChild);
+        AddElement(XMLNodeCurr, 'BtchBookg', BtchBookg, '', XMLNewChild);
 
         LocalFunctionalityMgt.GetPmtHistLineCountAndAmtPmtInf(TotalAmount, LineCount, "Payment History", PaymentHistoryLine);
         AddElement(XMLNodeCurr, 'NbOfTxs', LineCount, '', XMLNewChild);
@@ -433,6 +437,11 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
         if CurrencyCode = '' then
             exit(GLSetup."LCY Code");
         exit(CurrencyCode);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddPaymentInformation(PaymentHistoryLine: Record "Payment History Line"; var BankAccount: Record "Bank Account"; var BatchBookg: Text[250])
+    begin
     end;
 
     [IntegrationEvent(false, false)]

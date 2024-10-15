@@ -115,6 +115,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         ProposalLinesProcessedMsg: Label 'The proposal lines were processed.';
         DifferentCurrencyQst: Label 'One of the applied document currency codes is different from the bank account''s currency code. This will lead to different currencies in the detailed ledger entries between the document and the applied payment. Document details:\Account Type: %1-%2\Ledger Entry No.: %3\Document Currency: %4\Bank Currency: %5\\Do you want to continue?', Comment = '%1 - account type (vendor\customer), %2 - account number, %3 - ledger entry no., %4 - document currency code, %5 - bank currency code';
         ProcessProposalLinesQst: Label 'Process proposal lines?';
+        AmountToApplyIsChangedQst: Label 'The amount has been adjusted in one or more applied entries. All CBG statement lines will be created using the adjusted amounts.\\Do you want to apply the corrected amounts to all lines in this CBG statement?';
 
     [Test]
     [Scope('OnPrem')]
@@ -2570,7 +2571,6 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     [Scope('OnPrem')]
     procedure ApplyUnapplyCBGStatementWithPaymentTolerance()
     var
-        GeneralLedgerSetup: Record "General Ledger Setup";
         CustomerBankAccount: Record "Customer Bank Account";
         GenJournalLine: Record "Gen. Journal Line";
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -2595,10 +2595,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         InvoiceAmount := LibraryRandom.RandDecInRange(1000, 1100, 2);
 
         LibraryPmtDiscSetup.SetPmtToleranceWarning(true);
-        GeneralLedgerSetup.Get();
-        GeneralLedgerSetup.Validate("Payment Tolerance %", PaymentTolerancePct);
-        GeneralLedgerSetup.Validate("Max. Payment Tolerance Amount", 0);
-        GeneralLedgerSetup.Modify(true);
+        UpdatePaymentToleranceSettingsInGLSetup(PaymentTolerancePct);
 
         InitCustomerForExport(CustomerBankAccount, ExportProtocolCode, BankAccountNo);
 
@@ -2664,6 +2661,494 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
           CustomerBankAccount."Customer No.", CustLedgerEntry."Document Type"::Payment, -PaymentAmount, -PaymentAmount, true);
     end;
 
+    [Test]
+    [HandlerFunctions('ApplyToIDModalPageHandler,PaymentToleranceWarningVerifyValuesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure BalanceInPaymToleranceWarningForCustomerInCBGStatement()
+    var
+        Customer: Record Customer;
+        GenJournalLine: Record "Gen. Journal Line";
+        CBGStatementLine: Record "CBG Statement Line";
+        BankGiroJournal: TestPage "Bank/Giro Journal";
+        BankAccountNo: Code[20];
+        PaymentTolerancePct: Decimal;
+        InvoiceAmount: Decimal;
+        PaymentDiscountAmount: Decimal;
+        PaymentAmount: Decimal;
+    begin
+        // [FEATURE] [Customer] [Payment] [Invoice] [Payment Tolerance] [UI]
+        // [SCENARIO 370410] Payment tolerance warning message shows correct balance of customer invoice after Stan changes amount on Bank/Giro Journal line.
+        Initialize();
+        PaymentTolerancePct := LibraryRandom.RandIntInRange(6, 10);
+        PaymentDiscountAmount := LibraryRandom.RandInt(5);
+        InvoiceAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        PaymentAmount := InvoiceAmount * (1 - PaymentTolerancePct / 100);
+
+        // [GIVEN] Enable "Payment Tolerance Warning" and set "Payment Tolerance %" = 7 in G/L Setup.
+        LibraryPmtDiscSetup.SetPmtToleranceWarning(true);
+        UpdatePaymentToleranceSettingsInGLSetup(PaymentTolerancePct);
+
+        // [GIVEN] Customer with bank account.
+        Customer.Get(CreateCustomer);
+
+        // [GIVEN] Post invoice for the customer. Amount = 1000.00, "Payment Discount %" = 2.
+        CreateGeneralJournal(GenJournalLine, Customer."No.", GenJournalLine."Account Type"::Customer, InvoiceAmount);
+        GenJournalLine.Validate("Payment Discount %", PaymentDiscountAmount);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Create new Bank/Giro Statement, select the customer and apply the statement to the posted invoice.
+        BankAccountNo := OpenBankGiroJournalListPage(CreateBankAccount);
+        BankGiroJournal.OpenEdit();
+        BankGiroJournal.FILTER.SetFilter("Account No.", BankAccountNo);
+        BankGiroJournal.Subform."Account Type".SetValue(CBGStatementLine."Account Type"::Customer);
+        BankGiroJournal.Subform."Account No.".SetValue(Customer."No.");
+        BankGiroJournal.Subform.ApplyEntries.Invoke();
+
+        // [WHEN] Adjust the credit amount to 950.00. This amount is within the payment tolerance (>=930.00) but outside the limit of the payment discount (<980.00)
+        BankGiroJournal.Subform.Credit.SetValue(PaymentAmount);
+
+        // [THEN] The payment tolerance warning is shown.
+        // [THEN] The "Balance" amount in the warning shows 50.00.
+        Assert.AreNearlyEqual(
+          InvoiceAmount - PaymentAmount, LibraryVariableStorage.DequeueDecimal(), LibraryERM.GetAmountRoundingPrecision(),
+          'Wrong balance in Payment Tolerance warning.');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyToIDVendorModalPageHandler,PaymentToleranceWarningVerifyValuesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure BalanceInPaymToleranceWarningForVendorInCBGStatement()
+    var
+        Vendor: Record Vendor;
+        GenJournalLine: Record "Gen. Journal Line";
+        CBGStatementLine: Record "CBG Statement Line";
+        BankGiroJournal: TestPage "Bank/Giro Journal";
+        BankAccountNo: Code[20];
+        PaymentTolerancePct: Decimal;
+        InvoiceAmount: Decimal;
+        PaymentDiscountAmount: Decimal;
+        PaymentAmount: Decimal;
+    begin
+        // [FEATURE] [Vendor] [Payment] [Invoice] [Payment Tolerance] [UI]
+        // [SCENARIO 370410] Payment tolerance warning message shows correct balance of vendor invoice after Stan changes amount on Bank/Giro Journal line.
+        Initialize();
+        PaymentTolerancePct := LibraryRandom.RandIntInRange(6, 10);
+        PaymentDiscountAmount := LibraryRandom.RandInt(5);
+        InvoiceAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        PaymentAmount := InvoiceAmount * (1 - PaymentTolerancePct / 100);
+
+        // [GIVEN] Enable "Payment Tolerance Warning" and set "Payment Tolerance %" = 7 in G/L Setup.
+        LibraryPmtDiscSetup.SetPmtToleranceWarning(true);
+        UpdatePaymentToleranceSettingsInGLSetup(PaymentTolerancePct);
+
+        // [GIVEN] Vendor with bank account.
+        Vendor.Get(CreateVendor);
+
+        // [GIVEN] Post invoice for the vendor. Amount = 1000.00, "Payment Discount %" = 2.
+        CreateGeneralJournal(GenJournalLine, Vendor."No.", GenJournalLine."Account Type"::Vendor, -InvoiceAmount);
+        GenJournalLine.Validate("Payment Discount %", PaymentDiscountAmount);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Create new Bank/Giro Statement, select the vendor and apply the statement to the posted invoice.
+        BankAccountNo := OpenBankGiroJournalListPage(CreateBankAccount);
+        BankGiroJournal.OpenEdit();
+        BankGiroJournal.FILTER.SetFilter("Account No.", BankAccountNo);
+        BankGiroJournal.Subform."Account Type".SetValue(CBGStatementLine."Account Type"::Vendor);
+        BankGiroJournal.Subform."Account No.".SetValue(Vendor."No.");
+        BankGiroJournal.Subform.ApplyEntries.Invoke();
+
+        // [WHEN] Adjust the debit amount to 950.00. This amount is within the payment tolerance (>=930.00) but outside the limit of the payment discount (<980.00)
+        BankGiroJournal.Subform.Debit.SetValue(PaymentAmount);
+
+        // [THEN] The payment tolerance warning is shown.
+        // [THEN] The "Balance" amount in the warning shows 50.00.
+        Assert.AreNearlyEqual(
+          PaymentAmount - InvoiceAmount, LibraryVariableStorage.DequeueDecimal(), LibraryERM.GetAmountRoundingPrecision(),
+          'Wrong balance in Payment Tolerance warning.');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandler,RequestPageHandlerExportSEPAISO20022,PaymentHistoryListModalPageHandler,ConfirmHandlerOption,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateCBGStatementLineForVendorAfterAdjExchRateGain()
+    var
+        VendorBankAccount: Record "Vendor Bank Account";
+        CBGStatement: Record "CBG Statement";
+        PaymentHistoryLine: Record "Payment History Line";
+        CBGBankAccountNo: Code[20];
+        InvoiceNo: array[3] of Code[10];
+        CurrencyCode: Code[10];
+        Amount: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Vendor] [CBG Statement] [Currency]
+        // [SCENARIO 364832] Insert vendor's payment history after exh. rate adjustment with gains accepting confirmation to apply adjusted amount
+        Initialize();
+
+        // [GIVEN] Posted purchase invoices in FCY with total Amount (LCY) = -400, Payment History is created and exported
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        InitVendorSettingsWithBankAccount(VendorBankAccount, CBGBankAccountNo, '');
+        CreateMultiplePurchaseInvoices(InvoiceNo, VendorBankAccount."Vendor No.", CurrencyCode);
+        PreparePaymentHistory(VendorBankAccount."Vendor No.", CBGBankAccountNo);
+
+        // [GIVEN] Exch. rate is updated, unrealized gain = 100 after exch. rate adjustment, total Amount (LCY) = -300
+        UpdateExchRate(CurrencyCode, 2);
+        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
+
+        // [WHEN] Inserted payment history in Bank/Giro Journal confirm 'True' to apply adjusted amount
+        LibraryVariableStorage.Enqueue(true);
+        InsertProcessPaymentHistoryLine(CBGStatement, CBGBankAccountNo);
+
+        // [THEN] Confirmation message about adjusted amount in one or more entries is shown
+        // [THEN] CBG Statement Line is created with adjusted amount of invoices = -300
+        Assert.ExpectedMessage(AmountToApplyIsChangedQst, LibraryVariableStorageConfirmHandler.DequeueText);
+        for i := 1 to ArrayLen(InvoiceNo) do
+            Amount += GetVendInvoiceAdjustedAmount(VendorBankAccount."Vendor No.", InvoiceNo[i]);
+        FindPaymentHistoryLine(
+          PaymentHistoryLine, CBGBankAccountNo, PaymentHistoryLine."Account Type"::Vendor, VendorBankAccount."Vendor No.");
+        VerifyCBGStatementLine(CBGStatement, PaymentHistoryLine.Identification, Amount);
+
+        LibraryVariableStorageConfirmHandler.AssertEmpty();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandler,RequestPageHandlerExportSEPAISO20022,PaymentHistoryListModalPageHandler,ConfirmHandlerOption,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateCBGStatementLineForVendorAfterAdjExchRateLoss()
+    var
+        VendorBankAccount: Record "Vendor Bank Account";
+        CBGStatement: Record "CBG Statement";
+        PaymentHistoryLine: Record "Payment History Line";
+        CBGBankAccountNo: Code[20];
+        InvoiceNo: array[3] of Code[10];
+        CurrencyCode: Code[10];
+        Amount: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Vendor] [CBG Statement] [Currency]
+        // [SCENARIO 364832] Insert vendor's payment history after exh. rate adjustment with losses accepting confirmation to apply adjusted amount
+        Initialize();
+
+        // [GIVEN] Posted purchase invoices in FCY with total Amount (LCY) = -400, Payment History is created and exported
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        InitVendorSettingsWithBankAccount(VendorBankAccount, CBGBankAccountNo, '');
+        CreateMultiplePurchaseInvoices(InvoiceNo, VendorBankAccount."Vendor No.", CurrencyCode);
+        PreparePaymentHistory(VendorBankAccount."Vendor No.", CBGBankAccountNo);
+
+        // [GIVEN] Exch. rate is updated, unrealized loss = -100 after exch. rate adjustment, total Amount (LCY) = -500
+        UpdateExchRate(CurrencyCode, 0.5);
+        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
+
+        // [WHEN] Inserted payment history in Bank/Giro Journal confirm 'True' to apply adjusted amount
+        LibraryVariableStorage.Enqueue(true);
+        InsertProcessPaymentHistoryLine(CBGStatement, CBGBankAccountNo);
+
+        // [THEN] Confirmation message about adjusted amount in one or more entries is shown
+        // [THEN] CBG Statement Line is created with adjusted amount of invoices = -500
+        Assert.ExpectedMessage(AmountToApplyIsChangedQst, LibraryVariableStorageConfirmHandler.DequeueText);
+        for i := 1 to ArrayLen(InvoiceNo) do
+            Amount += GetVendInvoiceAdjustedAmount(VendorBankAccount."Vendor No.", InvoiceNo[i]);
+        FindPaymentHistoryLine(
+          PaymentHistoryLine, CBGBankAccountNo, PaymentHistoryLine."Account Type"::Vendor, VendorBankAccount."Vendor No.");
+        VerifyCBGStatementLine(CBGStatement, PaymentHistoryLine.Identification, Amount);
+
+        LibraryVariableStorageConfirmHandler.AssertEmpty();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandler,RequestPageHandlerExportSEPAISO20022,PaymentHistoryListModalPageHandler,ConfirmHandlerOption,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateCBGStatementLineForVendorAfterAdjExchRateUseOrigAmount()
+    var
+        VendorBankAccount: Record "Vendor Bank Account";
+        CBGStatement: Record "CBG Statement";
+        PaymentHistoryLine: Record "Payment History Line";
+        CBGBankAccountNo: Code[20];
+        InvoiceNo: array[3] of Code[10];
+        CurrencyCode: Code[10];
+    begin
+        // [FEATURE] [Vendor] [CBG Statement] [Currency]
+        // [SCENARIO 364832] Insert vendor's payment history after exh. rate adjustment when decline confirmation to apply adjusted amount
+        Initialize();
+
+        // [GIVEN] Posted purchase invoices in FCY with total Amount (LCY) = -400, Payment History is created and exported
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        InitVendorSettingsWithBankAccount(VendorBankAccount, CBGBankAccountNo, '');
+        CreateMultiplePurchaseInvoices(InvoiceNo, VendorBankAccount."Vendor No.", CurrencyCode);
+        PreparePaymentHistory(VendorBankAccount."Vendor No.", CBGBankAccountNo);
+
+        // [GIVEN] Exch. rate is updated, unrealized loss = -100 after exch. rate adjustment, total Amount (LCY) = -500
+        UpdateExchRate(CurrencyCode, 0.5);
+        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
+
+        // [WHEN] Inserted payment history in Bank/Giro Journal confirm 'false' to decline using of adjusted amount
+        LibraryVariableStorage.Enqueue(false);
+        InsertProcessPaymentHistoryLine(CBGStatement, CBGBankAccountNo);
+
+        // [THEN] Confirmation message about adjusted amount in one or more entries is shown
+        // [THEN] CBG Statement Line is created with original amount taken from payment history line = -400
+        Assert.ExpectedMessage(AmountToApplyIsChangedQst, LibraryVariableStorageConfirmHandler.DequeueText);
+        FindPaymentHistoryLine(
+          PaymentHistoryLine, CBGBankAccountNo, PaymentHistoryLine."Account Type"::Vendor, VendorBankAccount."Vendor No.");
+        VerifyCBGStatementLine(CBGStatement, PaymentHistoryLine.Identification, PaymentHistoryLine.Amount);
+
+        LibraryVariableStorageConfirmHandler.AssertEmpty();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandler,RequestPageHandlerExportSEPAISO20022,PaymentHistoryListModalPageHandler,ConfirmHandlerOption,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateCBGStatementLineForVendorAfterAdjExchRateTwoCurrencies()
+    var
+        VendorBankAccount: Record "Vendor Bank Account";
+        CBGStatement: Record "CBG Statement";
+        PurchaseLine: Record "Purchase Line";
+        PaymentHistoryLine: Record "Payment History Line";
+        CBGBankAccountNo: Code[20];
+        InvoiceNo: Code[20];
+        CurrencyCode: Code[10];
+        CurrencyCodeAdj: Code[10];
+    begin
+        // [FEATURE] [Vendor] [CBG Statement] [Currency]
+        // [SCENARIO 364832] Insert vendor's payment history after exh. rate adjustment of second invoice accepting confirmation to apply adjusted amount
+        Initialize();
+
+        // [GIVEN] Posted purchase invoices "Inv1" and "Inv2" in different currencies "Cur1" and "Cur2"
+        // [GIVEN] "Inv2" has Amount (LCY) = -400, Payment History is created and exported
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        CurrencyCodeAdj := LibraryERM.CreateCurrencyWithRandomExchRates;
+        InitVendorSettingsWithBankAccount(VendorBankAccount, CBGBankAccountNo, '');
+        CreateAndPostPurchaseDocument(
+          PurchaseLine, PurchaseLine."Document Type"::Invoice, 1, LibraryRandom.RandDecInRange(100, 200, 2),
+          VendorBankAccount."Vendor No.", WorkDate(), CurrencyCode);
+        InvoiceNo :=
+          CreateAndPostPurchaseDocument(
+            PurchaseLine, PurchaseLine."Document Type"::Invoice, 1, LibraryRandom.RandDecInRange(100, 200, 2),
+            VendorBankAccount."Vendor No.", WorkDate(), CurrencyCodeAdj);
+        PreparePaymentHistory(VendorBankAccount."Vendor No.", CBGBankAccountNo);
+
+        // [GIVEN] Exch. rate is updated for "Cur2", unrealized gain = 100 after exch. rate adjustment, "Inv2" has Amount (LCY) = -300
+        UpdateExchRate(CurrencyCodeAdj, 2);
+        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCodeAdj, WorkDate(), WorkDate());
+
+        // [WHEN] Inserted payment history in Bank/Giro Journal confirm 'True' to apply adjusted amount
+        LibraryVariableStorage.Enqueue(true);
+        InsertProcessPaymentHistoryLine(CBGStatement, CBGBankAccountNo);
+
+        // [THEN] Confirmation message about adjusted amount in one or more entries is shown
+        // [THEN] CBG Statement Line is created with original amount of "Inv1" taken from payment history line
+        // [THEN] CBG Statement Line is created with adjusted amount of "Inv2" = -300
+        Assert.ExpectedMessage(AmountToApplyIsChangedQst, LibraryVariableStorageConfirmHandler.DequeueText);
+        FindPaymentHistoryLineForCurrency(
+          PaymentHistoryLine, CBGBankAccountNo, PaymentHistoryLine."Account Type"::Vendor, VendorBankAccount."Vendor No.", CurrencyCode);
+        VerifyCBGStatementLine(
+          CBGStatement, PaymentHistoryLine.Identification, PaymentHistoryLine.Amount);
+        FindPaymentHistoryLineForCurrency(
+          PaymentHistoryLine, CBGBankAccountNo, PaymentHistoryLine."Account Type"::Vendor, VendorBankAccount."Vendor No.", CurrencyCodeAdj);
+        VerifyCBGStatementLine(
+          CBGStatement, PaymentHistoryLine.Identification, GetVendInvoiceAdjustedAmount(VendorBankAccount."Vendor No.", InvoiceNo));
+
+        LibraryVariableStorageConfirmHandler.AssertEmpty();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandler,RequestPageHandlerExportSEPAISO20022,PaymentHistoryListModalPageHandler,ConfirmHandlerOption,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateCBGStatementLineForCustomerAfterAdjExchRateGain()
+    var
+        CustomerBankAccount: Record "Customer Bank Account";
+        CBGStatement: Record "CBG Statement";
+        PaymentHistoryLine: Record "Payment History Line";
+        CBGBankAccountNo: Code[20];
+        InvoiceNo: array[3] of Code[10];
+        CurrencyCode: Code[10];
+        Amount: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Customer] [CBG Statement] [Currency]
+        // [SCENARIO 364832] Insert customer's payment history after exh. rate adjustment with gains accepting confirmation to apply adjusted amount
+        Initialize();
+
+        // [GIVEN] Posted sales invoices in FCY with toal Amount (LCY) = 400, Payment History is created and exported
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        InitCustomerSettingsWithBankAccount(CustomerBankAccount, CBGBankAccountNo, '');
+        CreateMultipleSalesInvoices(InvoiceNo, CustomerBankAccount."Customer No.", CurrencyCode);
+        PreparePaymentHistory(CustomerBankAccount."Customer No.", CBGBankAccountNo);
+
+        // [GIVEN] Exch. rate is updated, unrealized gain = 100 after exch. rate adjustment, total Amount (LCY) = 500
+        UpdateExchRate(CurrencyCode, 0.5);
+        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
+
+        // [WHEN] Inserted payment history in Bank/Giro Journal confirm 'True' to apply adjusted amount
+        LibraryVariableStorage.Enqueue(true);
+        InsertProcessPaymentHistoryLine(CBGStatement, CBGBankAccountNo);
+
+        // [THEN] Confirmation message about adjusted amount in one or more entries is shown
+        // [THEN] CBG Statement Line is created with adjusted amount of invoices = 500
+        Assert.ExpectedMessage(AmountToApplyIsChangedQst, LibraryVariableStorageConfirmHandler.DequeueText);
+        for i := 1 to ArrayLen(InvoiceNo) do
+            Amount += GetCustInvoiceAdjustedAmount(CustomerBankAccount."Customer No.", InvoiceNo[i]);
+        FindPaymentHistoryLine(
+          PaymentHistoryLine, CBGBankAccountNo, PaymentHistoryLine."Account Type"::Customer, CustomerBankAccount."Customer No.");
+        VerifyCBGStatementLine(CBGStatement, PaymentHistoryLine.Identification, Amount);
+
+        LibraryVariableStorageConfirmHandler.AssertEmpty();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandler,RequestPageHandlerExportSEPAISO20022,PaymentHistoryListModalPageHandler,ConfirmHandlerOption,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateCBGStatementLineForCustomerAfterAdjExchRateLoss()
+    var
+        CustomerBankAccount: Record "Customer Bank Account";
+        CBGStatement: Record "CBG Statement";
+        PaymentHistoryLine: Record "Payment History Line";
+        CBGBankAccountNo: Code[20];
+        InvoiceNo: array[3] of Code[10];
+        CurrencyCode: Code[10];
+        Amount: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Customer] [CBG Statement] [Currency]
+        // [SCENARIO 364832] Insert customer's payment history after exh. rate adjustment with losses accepting confirmation to apply adjusted amount
+        Initialize();
+
+        // [GIVEN] Posted sales invoices in FCY with total Amount (LCY) = 400, Payment History is created and exported
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        InitCustomerSettingsWithBankAccount(CustomerBankAccount, CBGBankAccountNo, '');
+        CreateMultipleSalesInvoices(InvoiceNo, CustomerBankAccount."Customer No.", CurrencyCode);
+        PreparePaymentHistory(CustomerBankAccount."Customer No.", CBGBankAccountNo);
+
+        // [GIVEN] Exch. rate is updated, unrealized loss = -100 after exch. rate adjustment, total Amount (LCY) = 300
+        UpdateExchRate(CurrencyCode, 2);
+        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
+
+        // [WHEN] Inserted payment history in Bank/Giro Journal confirm 'True' to apply adjusted amount
+        LibraryVariableStorage.Enqueue(true);
+        InsertProcessPaymentHistoryLine(CBGStatement, CBGBankAccountNo);
+
+        // [THEN] Confirmation message about adjusted amount in one or more entries is shown
+        // [THEN] CBG Statement Line is created with adjusted amount of invoices = 300
+        Assert.ExpectedMessage(AmountToApplyIsChangedQst, LibraryVariableStorageConfirmHandler.DequeueText);
+        for i := 1 to ArrayLen(InvoiceNo) do
+            Amount += GetCustInvoiceAdjustedAmount(CustomerBankAccount."Customer No.", InvoiceNo[i]);
+        FindPaymentHistoryLine(
+          PaymentHistoryLine, CBGBankAccountNo, PaymentHistoryLine."Account Type"::Customer, CustomerBankAccount."Customer No.");
+        VerifyCBGStatementLine(CBGStatement, PaymentHistoryLine.Identification, Amount);
+
+        LibraryVariableStorageConfirmHandler.AssertEmpty();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandler,RequestPageHandlerExportSEPAISO20022,PaymentHistoryListModalPageHandler,ConfirmHandlerOption,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateCBGStatementLineForCustomerAfterAdjExchRateUseOrigAmount()
+    var
+        CustomerBankAccount: Record "Customer Bank Account";
+        CBGStatement: Record "CBG Statement";
+        PaymentHistoryLine: Record "Payment History Line";
+        CBGBankAccountNo: Code[20];
+        InvoiceNo: array[3] of Code[10];
+        CurrencyCode: Code[10];
+    begin
+        // [FEATURE] [Customer] [CBG Statement] [Currency]
+        // [SCENARIO 364832] Insert customer's payment history after exh. rate adjustment when decline confirmation to apply adjusted amount
+        Initialize();
+
+        // [GIVEN] Posted sales invoices in FCY with total Amount (LCY) = 400, Payment History is created and exported
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        InitCustomerSettingsWithBankAccount(CustomerBankAccount, CBGBankAccountNo, '');
+        CreateMultipleSalesInvoices(InvoiceNo, CustomerBankAccount."Customer No.", CurrencyCode);
+        PreparePaymentHistory(CustomerBankAccount."Customer No.", CBGBankAccountNo);
+
+        // [GIVEN] Exch. rate is updated, unrealized gain = 100 after exch. rate adjustment, total Amount (LCY) = 500
+        UpdateExchRate(CurrencyCode, 0.5);
+        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
+
+        // [WHEN] Inserted payment history in Bank/Giro Journal confirm 'false' to decline using of adjusted amount
+        LibraryVariableStorage.Enqueue(false);
+        InsertProcessPaymentHistoryLine(CBGStatement, CBGBankAccountNo);
+
+        // [THEN] Confirmation message about adjusted amount in one or more entries is shown
+        // [THEN] CBG Statement Line is created with original amount taken from payment history line = 400
+        Assert.ExpectedMessage(AmountToApplyIsChangedQst, LibraryVariableStorageConfirmHandler.DequeueText);
+        FindPaymentHistoryLine(
+          PaymentHistoryLine, CBGBankAccountNo, PaymentHistoryLine."Account Type"::Customer, CustomerBankAccount."Customer No.");
+        VerifyCBGStatementLine(CBGStatement, PaymentHistoryLine.Identification, PaymentHistoryLine.Amount);
+
+        LibraryVariableStorageConfirmHandler.AssertEmpty();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandler,RequestPageHandlerExportSEPAISO20022,PaymentHistoryListModalPageHandler,ConfirmHandlerOption,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateCBGStatementLineForCustomerAfterAdjExchRateTwoCurrencies()
+    var
+        CustomerBankAccount: Record "Customer Bank Account";
+        CBGStatement: Record "CBG Statement";
+        SalesLine: Record "Sales Line";
+        PaymentHistoryLine: Record "Payment History Line";
+        CBGBankAccountNo: Code[20];
+        InvoiceNo: Code[20];
+        CurrencyCode: Code[10];
+        CurrencyCodeAdj: Code[10];
+    begin
+        // [FEATURE] [Customer] [CBG Statement] [Currency]
+        // [SCENARIO 364832] Insert customer's payment history after exh. rate adjustment of second invoice accepting confirmation to apply adjusted amount
+        Initialize();
+
+        // [GIVEN] Posted sales invoices "Inv1" and "Inv2" in different currencies "Cur1" and "Cur2"
+        // [GIVEN] "Inv2" has Amount (LCY) = 400, Payment History is created and exported
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        CurrencyCodeAdj := LibraryERM.CreateCurrencyWithRandomExchRates;
+        InitCustomerSettingsWithBankAccount(CustomerBankAccount, CBGBankAccountNo, '');
+        CreateAndPostSalesDocument(
+          SalesLine, SalesLine."Document Type"::Invoice, CustomerBankAccount."Customer No.", WorkDate(), CurrencyCode);
+        InvoiceNo :=
+          CreateAndPostSalesDocument(
+            SalesLine, SalesLine."Document Type"::Invoice, CustomerBankAccount."Customer No.", WorkDate(), CurrencyCodeAdj);
+        PreparePaymentHistory(CustomerBankAccount."Customer No.", CBGBankAccountNo);
+
+        // [GIVEN] Exch. rate is updated for "Cur2", unrealized gain = 100 after exch. rate adjustment, "Inv2" has Amount (LCY) = 500
+        UpdateExchRate(CurrencyCodeAdj, 0.5);
+        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCodeAdj, WorkDate(), WorkDate());
+
+        // [WHEN] Inserted payment history in Bank/Giro Journal confirm 'True' to apply adjusted amount
+        LibraryVariableStorage.Enqueue(true);
+        InsertProcessPaymentHistoryLine(CBGStatement, CBGBankAccountNo);
+
+        // [THEN] Confirmation message about adjusted amount in one or more entries is shown
+        // [THEN] CBG Statement Line is created with original amount of "Inv1" taken from payment history line
+        // [THEN] CBG Statement Line is created with adjusted amount of "Inv2" = 500
+        Assert.ExpectedMessage(AmountToApplyIsChangedQst, LibraryVariableStorageConfirmHandler.DequeueText);
+        FindPaymentHistoryLineForCurrency(
+          PaymentHistoryLine, CBGBankAccountNo, PaymentHistoryLine."Account Type"::Customer, CustomerBankAccount."Customer No.",
+          CurrencyCode);
+        VerifyCBGStatementLine(
+          CBGStatement, PaymentHistoryLine.Identification, PaymentHistoryLine.Amount);
+        FindPaymentHistoryLineForCurrency(
+          PaymentHistoryLine, CBGBankAccountNo, PaymentHistoryLine."Account Type"::Customer, CustomerBankAccount."Customer No.",
+          CurrencyCodeAdj);
+        VerifyCBGStatementLine(
+          CBGStatement, PaymentHistoryLine.Identification, GetCustInvoiceAdjustedAmount(CustomerBankAccount."Customer No.", InvoiceNo));
+
+        LibraryVariableStorageConfirmHandler.AssertEmpty();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -2690,21 +3175,15 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
     local procedure PrepareCBGStatementPostingForCutomerWithDifferentCurrencies(var CBGStatement: Record "CBG Statement"; var CustomerNo: Code[20]; var LedgerEntryNo: Integer; CBGBankCurrency: Code[10]; DocumentCurrency: Code[10])
     var
-        SalesLine: Record 37;
-        CustomerBankAccount: Record 287;
-        BankAccount: Record 270;
-        CustLedgerEntry: Record 21;
+        SalesLine: Record "Sales Line";
+        CustomerBankAccount: Record "Customer Bank Account";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
         CBGBankAccountNo: Code[20];
-        ExportProtocolCode: Code[20];
     begin
-        InitCustomerForExport(CustomerBankAccount, ExportProtocolCode, CBGBankAccountNo);
-        BankAccount.Get(CBGBankAccountNo);
-        BankAccount.Validate("Currency Code", CBGBankCurrency);
-        BankAccount.Modify(true);
-        LibraryNLLocalization.CheckAndCreateFreelyTransferableMaximum(BankAccount."Country/Region Code", BankAccount."Currency Code");
+        InitCustomerSettingsWithBankAccount(CustomerBankAccount, CBGBankAccountNo, CBGBankCurrency);
 
         CreateAndPostSalesDocument(
-          SalesLine, SalesLine."Document Type"::Invoice, CustomerBankAccount."Customer No.", WORKDATE, DocumentCurrency);
+          SalesLine, SalesLine."Document Type"::Invoice, CustomerBankAccount."Customer No.", WorkDate(), DocumentCurrency);
         FindCustLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, CustomerBankAccount."Customer No.");
         GetEntriesProcessAndExportProposalCreateCBGStatementAndInsertPaymentHistory(
           CBGStatement, CustomerBankAccount."Customer No.", CustomerBankAccount."Bank Account No.", CBGBankAccountNo);
@@ -2714,22 +3193,16 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
     local procedure PrepareCBGStatementPostingForVendorWithDifferentCurrencies(var CBGStatement: Record "CBG Statement"; var VendorNo: Code[20]; var LedgerEntryNo: Integer; CBGBankCurrency: Code[10]; DocumentCurrency: Code[10])
     var
-        PurchaseLine: Record 39;
-        VendorBankAccount: Record 288;
-        BankAccount: Record 270;
-        VendorLedgerEntry: Record 25;
+        PurchaseLine: Record "Purchase Line";
+        VendorBankAccount: Record "Vendor Bank Account";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
         CBGBankAccountNo: Code[20];
-        ExportProtocolCode: Code[20];
     begin
-        InitVendorForExport(VendorBankAccount, ExportProtocolCode, CBGBankAccountNo);
-        BankAccount.Get(CBGBankAccountNo);
-        BankAccount.Validate("Currency Code", CBGBankCurrency);
-        BankAccount.Modify(true);
-        LibraryNLLocalization.CheckAndCreateFreelyTransferableMaximum(BankAccount."Country/Region Code", BankAccount."Currency Code");
+        InitVendorSettingsWithBankAccount(VendorBankAccount, CBGBankAccountNo, CBGBankCurrency);
 
         CreateAndPostPurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Invoice, 1, LibraryRandom.RandDecInRange(100, 200, 2),
-          VendorBankAccount."Vendor No.", WORKDATE, DocumentCurrency);
+          VendorBankAccount."Vendor No.", WorkDate(), DocumentCurrency);
         FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, VendorBankAccount."Vendor No.");
         GetEntriesProcessAndExportProposalCreateCBGStatementAndInsertPaymentHistory(
           CBGStatement, VendorBankAccount."Vendor No.", VendorBankAccount."Bank Account No.", CBGBankAccountNo);
@@ -2738,14 +3211,9 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     end;
 
     local procedure GetEntriesProcessAndExportProposalCreateCBGStatementAndInsertPaymentHistory(var CBGStatement: Record "CBG Statement"; AccountNo: Code[20]; AccountBankCode: Text[30]; CBGBankAccountNo: Code[20])
-    var
-        CBGJournalTelebankInterface: Codeunit "CBG Journal Telebank Interface";
     begin
-        GetEntriesViaReportRun(AccountNo, AccountBankCode);
-        ProcessProposalViaCodeunitRun(AccountBankCode);
-        ExportPaymentHistoryViaTable(AccountBankCode);
-        CreateCBGStatementWithBankAccount(CBGStatement, CBGBankAccountNo);
-        CBGJournalTelebankInterface.InsertPaymentHistory(CBGStatement);
+        PreparePaymentHistory(AccountNo, AccountBankCode);
+        InsertProcessPaymentHistoryLine(CBGStatement, CBGBankAccountNo);
         CBGStatement.SetRecFilter();
     end;
 
@@ -3040,7 +3508,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         end;
     end;
 
-    local procedure CreateCBGStatementLineAddInfo(var CBGStatementLineAddInfo: Record 11000006; GenJournalTemplateName: Code[10]; CBGStatementNo: Integer; CBGStatementLineNo: Integer; InformationType: Enum "CBG Statement Information Type"; Description: Text[80]);
+    local procedure CreateCBGStatementLineAddInfo(var CBGStatementLineAddInfo: Record "CBG Statement Line Add. Info."; GenJournalTemplateName: Code[10]; CBGStatementNo: Integer; CBGStatementLineNo: Integer; InformationType: Enum "CBG Statement Information Type"; Description: Text[80]);
     begin
         CBGStatementLineAddInfo.Init();
         CBGStatementLineAddInfo.Validate("Journal Template Name", GenJournalTemplateName);
@@ -3330,7 +3798,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         BankAccount.Validate("Bank Account No.", FindBankAccountNo);
         BankAccount.Validate(IBAN, CompanyInformation.IBAN);
         BankAccount.Validate("SWIFT Code", SwiftCodeTxt);  // fixed format.
-        BankAccount.Validate("Min. Balance", -LibraryRandom.RandDecInRange(500, 1000, 2));  // Using random value greater than 500 for Min. Balance. Value is important for test.
+        BankAccount.Validate("Min. Balance", -LibraryRandom.RandDecInRange(5000, 10000, 2));
         BankAccount.Validate("Country/Region Code", CompanyInformation."Country/Region Code");
         BankAccount.Validate("Account Holder Name", BankAccount.Name);  // Taking Bank Account Name as Account Holder Name. Value is not important for test.
         BankAccount.Validate("Account Holder Address", BankAccount.Name);  // Taking Bank Account Name as Account Holder Address. Value is not important for test.
@@ -3602,6 +4070,28 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         exit(Employee."No.");
     end;
 
+    local procedure CreateMultipleSalesInvoices(var InvoiceNo: array[3] of Code[20]; CustomerNo: Code[20]; CurrencyCode: Code[10])
+    var
+        SalesLine: Record "Sales Line";
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(InvoiceNo) do
+            InvoiceNo[i] :=
+              CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::Invoice, CustomerNo, WorkDate(), CurrencyCode);
+    end;
+
+    local procedure CreateMultiplePurchaseInvoices(var InvoiceNo: array[3] of Code[20]; VendorNo: Code[20]; CurrencyCode: Code[10])
+    var
+        PurchaseLine: Record "Purchase Line";
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(InvoiceNo) do
+            InvoiceNo[i] :=
+              CreateAndPostPurchaseDocument(
+                PurchaseLine, PurchaseLine."Document Type"::Invoice, 1, LibraryRandom.RandDecInRange(100, 200, 2),
+                VendorNo, WorkDate(), CurrencyCode);
+    end;
+
     local procedure EnableUpdateOnPosting()
     var
         AnalysisView: Record "Analysis View";
@@ -3665,6 +4155,12 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         PaymentHistoryLine.FindFirst;
     end;
 
+    local procedure FindPaymentHistoryLineForCurrency(var PaymentHistoryLine: Record "Payment History Line"; OurBank: Code[20]; AccountType: Option; AccountNo: Code[20]; CurrencyCode: Code[10])
+    begin
+        PaymentHistoryLine.SetRange("Foreign Currency", CurrencyCode);
+        FindPaymentHistoryLine(PaymentHistoryLine, OurBank, AccountType, AccountNo);
+    end;
+
     local procedure FindDetailLine(var DetailLine: Record "Detail Line"; SerialNo: Integer)
     begin
         DetailLine.SetRange("Serial No. (Entry)", SerialNo);
@@ -3712,6 +4208,30 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         exit(GLSetup.GetCurrencyCode(''));
     end;
 
+    local procedure GetCustInvoiceAdjustedAmount(CustomerNo: Code[20]; InvoiceNo: Code[20]): Decimal
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        CustLedgerEntry.SetRange("Document No.", InvoiceNo);
+        FindCustLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, CustomerNo);
+        exit(
+          -Round(
+            (CustLedgerEntry."Original Amount" - CustLedgerEntry."Original Pmt. Disc. Possible") /
+            CustLedgerEntry."Adjusted Currency Factor"));
+    end;
+
+    local procedure GetVendInvoiceAdjustedAmount(VendorNo: Code[20]; InvoiceNo: Code[20]): Decimal
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        VendorLedgerEntry.SetRange("Document No.", InvoiceNo);
+        FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, VendorNo);
+        exit(
+          -Round(
+            (VendorLedgerEntry."Original Amount" - VendorLedgerEntry."Original Pmt. Disc. Possible") /
+            VendorLedgerEntry."Adjusted Currency Factor"));
+    end;
+
     local procedure SelectGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
     begin
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
@@ -3752,6 +4272,30 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         PaymentHistory.ExportToPaymentFile();
     end;
 
+    local procedure InitCustomerSettingsWithBankAccount(var CustomerBankAccount: Record "Customer Bank Account"; var BankAccountNo: Code[20]; BankCurrencyCode: Code[10])
+    var
+        BankAccount: Record "Bank Account";
+        ExportProtocolCode: Code[20];
+    begin
+        InitCustomerForExport(CustomerBankAccount, ExportProtocolCode, BankAccountNo);
+        BankAccount.Get(BankAccountNo);
+        BankAccount.Validate("Currency Code", BankCurrencyCode);
+        BankAccount.Modify(true);
+        LibraryNLLocalization.CheckAndCreateFreelyTransferableMaximum(BankAccount."Country/Region Code", BankAccount."Currency Code");
+    end;
+
+    local procedure InitVendorSettingsWithBankAccount(var VendorBankAccount: Record "Vendor Bank Account"; var BankAccountNo: Code[20]; BankCurrencyCode: Code[10])
+    var
+        BankAccount: Record "Bank Account";
+        ExportProtocolCode: Code[20];
+    begin
+        InitVendorForExport(VendorBankAccount, ExportProtocolCode, BankAccountNo);
+        BankAccount.Get(BankAccountNo);
+        BankAccount.Validate("Currency Code", BankCurrencyCode);
+        BankAccount.Modify(true);
+        LibraryNLLocalization.CheckAndCreateFreelyTransferableMaximum(BankAccount."Country/Region Code", BankAccount."Currency Code");
+    end;
+
     local procedure InitCustomerForExport(var CustomerBankAccount: Record "Customer Bank Account"; var ExportProtocolCode: Code[20]; var BalAccountNo: Code[20])
     begin
         ExportProtocolCode := CreateAndUpdateExportProtocol;
@@ -3764,6 +4308,14 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         ExportProtocolCode := CreateAndUpdateExportProtocol;
         BalAccountNo := CreateBankAccountWithDetails;
         CreateVendorBankAccountAndUpdateVendor(VendorBankAccount, ExportProtocolCode, BalAccountNo, false);
+    end;
+
+    local procedure InsertProcessPaymentHistoryLine(var CBGStatement: Record "CBG Statement"; BankAccountNo: Code[20])
+    var
+        CBGJournalTelebankInterface: Codeunit "CBG Journal Telebank Interface";
+    begin
+        CreateCBGStatementWithBankAccount(CBGStatement, BankAccountNo);
+        CBGJournalTelebankInterface.InsertPaymentHistory(CBGStatement);
     end;
 
     local procedure ProcessAndExportPaymentTelebank(var VendorBankAccount: Record "Vendor Bank Account"; BankAccountNo: Code[20])
@@ -4001,6 +4553,13 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         end;
     end;
 
+    local procedure PreparePaymentHistory(AccountNo: Code[20]; AccountBankCode: Text[30])
+    begin
+        GetEntriesViaReportRun(AccountNo, AccountBankCode);
+        ProcessProposalViaCodeunitRun(AccountBankCode);
+        ExportPaymentHistoryViaTable(AccountBankCode);
+    end;
+
     local procedure ScenarioOfPmtToleranceGracePeriod(var BankGiroJournal: TestPage "Bank/Giro Journal"; var InvoiceNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BankAccountNo: Code[30]; Amount: Decimal; PmtDiscDate: Date; BalAccountNo: Code[20]; ExportProtocolCode: Code[20])
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -4057,6 +4616,27 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         BankGiroJournal.FILTER.SetFilter("Account No.", AccountNo);
         BankGiroJournal."Document Date".SetValue(CalcDate('<1D>', WorkDate));  // Update Date greater than Workdate.
         BankGiroJournal.Close;
+    end;
+
+    local procedure UpdateExchRate(CurrencyCode: Code[10]; multiplier: Decimal)
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
+        CurrencyExchangeRate.FindFirst();
+        CurrencyExchangeRate."Adjustment Exch. Rate Amount" := CurrencyExchangeRate."Adjustment Exch. Rate Amount" * multiplier;
+        CurrencyExchangeRate."Exchange Rate Amount" := CurrencyExchangeRate."Exchange Rate Amount" * multiplier;
+        CurrencyExchangeRate.Modify();
+    end;
+
+    local procedure UpdatePaymentToleranceSettingsInGLSetup(PaymentTolerancePct: Decimal)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Payment Tolerance %", PaymentTolerancePct);
+        GeneralLedgerSetup.Validate("Max. Payment Tolerance Amount", 0);
+        GeneralLedgerSetup.Modify(true);
     end;
 
     local procedure UpdateProposalLine(var ProposalLine: Record "Proposal Line"; OurBankNo: Code[30]; AccountNo: Code[20]; NatureOfThePayment: Option)
@@ -4208,6 +4788,17 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
             TestField("Remaining Amount", ExpectedRemaningAmount);
             TestField(Open, ExpectedOpen);
         end;
+    end;
+
+    local procedure VerifyCBGStatementLine(CBGStatement: Record "CBG Statement"; Identification: Code[80]; ExpectedAmount: Decimal)
+    var
+        CBGStatementLine: Record "CBG Statement Line";
+    begin
+        CBGStatementLine.SetRange("Journal Template Name", CBGStatement."Journal Template Name");
+        CBGStatementLine.SetRange("No.", CBGStatement."No.");
+        CBGStatementLine.SetRange(Identification, Identification);
+        CBGStatementLine.FindFirst();
+        CBGStatementLine.TestField(Amount, ExpectedAmount);
     end;
 
     [ModalPageHandler]
@@ -4425,6 +5016,14 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     procedure PaymentToleranceWarningModalPageHandler(var PaymentToleranceWarning: TestPage "Payment Tolerance Warning")
     begin
         PaymentToleranceWarning.Posting.SetValue(LibraryVariableStorage.DequeueInteger());
+        PaymentToleranceWarning.Yes.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PaymentToleranceWarningVerifyValuesModalPageHandler(var PaymentToleranceWarning: TestPage "Payment Tolerance Warning")
+    begin
+        LibraryVariableStorage.Enqueue(PaymentToleranceWarning.BalanceAmount.AsDecimal());
         PaymentToleranceWarning.Yes.Invoke();
     end;
 }

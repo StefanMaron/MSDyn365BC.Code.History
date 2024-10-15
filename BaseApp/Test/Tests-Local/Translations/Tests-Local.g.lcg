@@ -230,6 +230,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cash Bank Giro Journal - NamedType ProcessProposalLinesQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 757409969 - NamedType 455107495" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The amount has been adjusted in one or more applied entries. All CBG statement lines will be created using the adjusted amounts.\\Do you want to apply the corrected amounts to all lines in this CBG statement?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cash Bank Giro Journal - NamedType AmountToApplyIsChangedQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 450493964 - NamedType 1578357169" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[MEI 12APRIL 13, SP 888298+]]></Val>
@@ -570,24 +579,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Tax Authority - NamedType NodeNotFoundMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2918154554 - NamedType 2430516340" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<Precision,2:2><Standard Format,0>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit ERM Tax Authority - NamedType DecimalFormatTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2918154554 - NamedType 2812979497" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<Year4>-<Month,2>-<Day,2>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit ERM Tax Authority - NamedType DateFormatTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2918154554 - NamedType 3617301402" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1452,15 +1443,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT TAB EVAT - NamedType TestFieldCap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 132898044 - NamedType 3171945639" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<+CQ>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit UT TAB EVAT II - NamedType CurrentQuarterTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 132898044 - NamedType 51223463" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

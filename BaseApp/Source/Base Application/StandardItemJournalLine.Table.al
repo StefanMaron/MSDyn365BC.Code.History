@@ -853,7 +853,7 @@ table 753 "Standard Item Journal Line"
                 UnitCost := Round(UnitCost, GLSetup."Unit-Amount Rounding Precision");
     end;
 
-    local procedure GetSKU(): Boolean
+    local procedure GetSKU() Result: Boolean
     begin
         if (SKU."Location Code" = "Location Code") and
            (SKU."Item No." = "Item No.") and
@@ -863,7 +863,8 @@ table 753 "Standard Item Journal Line"
         if SKU.Get("Location Code", "Item No.", "Variant Code") then
             exit(true);
 
-        exit(false);
+        Result := false;
+        OnAfterGetSKU(Rec, Result);
     end;
 
     local procedure GetUnitAmount(CalledByFieldNo: Integer)
@@ -909,6 +910,11 @@ table 753 "Standard Item Journal Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterGetLineWithPrice(var LineWithPrice: Interface "Line With Price")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetSKU(StandardItemJournalLine: Record "Standard Item Journal Line"; var Result: Boolean)
     begin
     end;
 

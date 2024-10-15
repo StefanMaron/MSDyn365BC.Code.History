@@ -109,6 +109,7 @@ codeunit 5810 "Change Average Cost Setting"
                         SetRange("Location Code", "Location Code");
                         SetRange("Variant Code", "Variant Code");
                     end;
+                    OnProcessItemAvgCostPointOnBeforeFindLastValueEntry(ValueEntry);
                     if Find('+') then;
                     SetRange("Valuation Date");
                     SetRange("Location Code");
@@ -198,6 +199,11 @@ codeunit 5810 "Change Average Cost Setting"
             AccountingPeriod := Rec;
 
         UpdateAvgCostFromAccPeriodChg(AccountingPeriod);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessItemAvgCostPointOnBeforeFindLastValueEntry(var ValueEntry: Record "Value Entry")
+    begin
     end;
 }
 

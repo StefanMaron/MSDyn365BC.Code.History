@@ -117,6 +117,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
         end;
         LineNo := 0; // Global variable
         PlanningTransparency.SetTemplAndWorksheet(CurrTemplateName, CurrWorksheetName);
+
+        OnAfterInitVariables(InventoryProfile);
     end;
 
     local procedure CreateTempSKUForLocation(ItemNo: Code[20]; LocationCode: Code[10])
@@ -811,13 +813,13 @@ codeunit 99000854 "Inventory Profile Offsetting"
     var
         SKU: Record "Stockkeeping Unit";
         Location: Record Location;
-        PlanningGetParameters: Codeunit "Planning-Get Parameters";
         WMSManagement: Codeunit "WMS Management";
         VersionManagement: Codeunit VersionManagement;
         State: Option DemandExist,SupplyExist,BothExist;
         DemandBool: Boolean;
         SupplyBool: Boolean;
         TransitLocation: Boolean;
+        IsHandled: Boolean;
     begin
         CreateTempSKUForComponentsLocation(Item);
 
@@ -826,25 +828,10 @@ codeunit 99000854 "Inventory Profile Offsetting"
         Item.CopyFilter("Variant Filter", SKU."Variant Code");
         Item.CopyFilter("Location Filter", SKU."Location Code");
 
-        if SKU.FindSet then begin
-            repeat
-                PlanningGetParameters.AdjustInvalidSettings(SKU);
-                if (SKU."Safety Stock Quantity" <> 0) or (SKU."Reorder Point" <> 0) or
-                   (SKU."Reorder Quantity" <> 0) or (SKU."Maximum Inventory" <> 0)
-                then begin
-                    TempSKU.TransferFields(SKU);
-                    if TempSKU.Insert() then;
-                    while (TempSKU."Replenishment System" = TempSKU."Replenishment System"::Transfer) and
-                          (TempSKU."Reordering Policy" <> TempSKU."Reordering Policy"::" ")
-                    do begin
-                        TempSKU."Location Code" := TempSKU."Transfer-from Code";
-                        TransferPlanningParameters(TempSKU);
-                        if TempSKU."Reordering Policy" <> TempSKU."Reordering Policy"::" " then
-                            InsertTempSKU;
-                    end;
-                end;
-            until SKU.Next = 0;
-        end else
+        OnFindCombinationOnBeforeSKUFindSet(SKU, Item);
+        if SKU.FindSet then
+            FillSkUBuffer(SKU)
+        else
             if (not InvtSetup."Location Mandatory") and (ManufacturingSetup."Components at Location" = '') then
                 CreateTempSKUForLocation(
                   Item."No.",
@@ -853,6 +840,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
         Clear(DemandInvtProfile);
         Clear(SupplyInvtProfile);
+        OnFindCombinationOnBeforeFilterDemandAndSupply(DemandInvtProfile, SupplyInvtProfile);
         DemandInvtProfile.SetCurrentKey(
           "Item No.", "Variant Code", "Location Code", "Due Date", "Attribute Priority", "Order Priority");
         SupplyInvtProfile.SetCurrentKey(
@@ -874,6 +862,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
                 TempSKU."Location Code" := SupplyInvtProfile."Location Code";
                 OnFindCombinationAfterAssignTempSKU(TempSKU, SupplyInvtProfile);
             end;
+
+            IsHandled := false;
+            OnFindCombinationOnBeforeSetState(TempSKU, Item, IsHandled);
+            if IsHandled then
+                exit;
 
             if DemandBool and SupplyBool then
                 State := State::BothExist
@@ -927,13 +920,50 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
         Item.CopyFilter("Location Filter", TempSKU."Location Code");
         Item.CopyFilter("Variant Filter", TempSKU."Variant Code");
+
+        OnAfterFindCombination(DemandInvtProfile, SupplyInvtProfile);
+    end;
+
+    local procedure FillSkUBuffer(var SKU: Record "Stockkeeping Unit")
+    var
+        PlanningGetParameters: Codeunit "Planning-Get Parameters";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFillSkUBuffer(SKU, TempSKU, IsHandled);
+        if IsHandled then
+            exit;
+
+        repeat
+            PlanningGetParameters.AdjustInvalidSettings(SKU);
+            if (SKU."Safety Stock Quantity" <> 0) or (SKU."Reorder Point" <> 0) or
+               (SKU."Reorder Quantity" <> 0) or (SKU."Maximum Inventory" <> 0)
+            then begin
+                TempSKU.TransferFields(SKU);
+                if TempSKU.Insert() then;
+                while (TempSKU."Replenishment System" = TempSKU."Replenishment System"::Transfer) and
+                      (TempSKU."Reordering Policy" <> TempSKU."Reordering Policy"::" ")
+                do begin
+                    TempSKU."Location Code" := TempSKU."Transfer-from Code";
+                    TransferPlanningParameters(TempSKU);
+                    if TempSKU."Reordering Policy" <> TempSKU."Reordering Policy"::" " then
+                        InsertTempSKU();
+                end;
+            end;
+        until SKU.Next() = 0;
     end;
 
     local procedure InsertTempSKU()
     var
         SKU2: Record "Stockkeeping Unit";
         PlanningGetParameters: Codeunit "Planning-Get Parameters";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertTempSKU(TempSKU, IsHandled);
+        if IsHandled then
+            exit;
+
         with TempSKU do
             if not Find('=') then begin
                 PlanningGetParameters.SetLotForLot();
@@ -967,6 +997,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
     begin
         PlanningGetParameters.AtSKU(SKU2, SKU."Item No.", SKU."Variant Code", SKU."Location Code");
         SKU := SKU2;
+
+        OnAfterTransferPlanningParameters(SKU);
     end;
 
     local procedure DeleteTracking(var SKU: Record "Stockkeeping Unit"; ToDate: Date; var SupplyInventoryProfile: Record "Inventory Profile")
@@ -1271,6 +1303,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         UpdateTempSKUTransferLevels;
 
         TempSKU.SetCurrentKey("Item No.", "Transfer-Level Code");
+        OnPlanItemOnBeforeTempSKUFind(TempSKU);
         if TempSKU.Find('-') then
             repeat
                 IsReorderPointPlanning :=
@@ -1440,6 +1473,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                                 Error(Text001, SelectStr(NextState + 1, NextStateTxt));
                         end;
                 end;
+                OnPlanItemOnAfterTempSKULoop(TempSKU, ReqLine);
             until TempSKU.Next = 0;
 
         SetAcceptAction(TempSKU."Item No.");
@@ -1781,6 +1815,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
         SupplyInvtProfile.SetRange("Special Order", false);
         DemandInvtProfile.SetRange("Drop Shipment", false);
         DemandInvtProfile.SetRange("Special Order", false);
+
+        OnAfterPlanItemSetInvtProfileFilters(DemandInvtProfile, SupplyInvtProfile);
     end;
 
     local procedure FilterDemandSupplyRelatedToSKU(var InventoryProfile: Record "Inventory Profile")
@@ -2320,18 +2356,23 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     local procedure SetQtyToHandle(var TrkgReservEntry: Record "Reservation Entry")
+    var
+        WarehouseAvailabilityMgt: Codeunit "Warehouse Availability Mgt.";
+        TypeHelper: Codeunit "Type Helper";
+        PickedQty: Decimal;
     begin
-        if not TrkgReservEntry.TrackingExists then
-            exit;
+        with TrkgReservEntry do begin
+            if not TrackingExists() then
+                exit;
 
-        if (TrkgReservEntry."Reservation Status" = TrkgReservEntry."Reservation Status"::Tracking) and
-           (TrkgReservEntry."Source Type" = DATABASE::"Sales Line") and not TrkgReservEntry.Positive
-        then begin
-            TrkgReservEntry."Qty. to Handle (Base)" := 0;
-            TrkgReservEntry."Qty. to Invoice (Base)" := 0;
-        end else begin
-            TrkgReservEntry."Qty. to Handle (Base)" := TrkgReservEntry."Quantity (Base)";
-            TrkgReservEntry."Qty. to Invoice (Base)" := TrkgReservEntry."Quantity (Base)";
+            "Qty. to Handle (Base)" := "Quantity (Base)";
+            "Qty. to Invoice (Base)" := "Quantity (Base)";
+
+            PickedQty := WarehouseAvailabilityMgt.CalcQtyRegisteredPick(TrkgReservEntry);
+            if PickedQty > 0 then begin
+                "Qty. to Handle (Base)" := TypeHelper.Maximum(-PickedQty, "Quantity (Base)");
+                "Qty. to Invoice (Base)" := "Qty. to Handle (Base)";
+            end;
         end;
 
         OnAfterSetQtyToHandle(TrkgReservEntry);
@@ -2679,6 +2720,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
             QtyToOrder :=
               Round((TempSKU."Reorder Point" - ProjectedInventory) / TempSKU."Reorder Quantity" + 0.000000001, 1, '>') *
               TempSKU."Reorder Quantity";
+
+        OnAfterCalcOrderQty(TempSKU, NeededQty, ProjectedInventory, SupplyLineNo, QtyToOrder);
     end;
 
     local procedure CalcSalesOrderQty(AsmLine: Record "Assembly Line") QtyOnSalesOrder: Decimal
@@ -2823,6 +2866,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
             SetRange("Transfer-from Code", InventoryProfile."Location Code");
             SetRange("Location Code", LocationCode);
             SetFilter("Action Message", '<>%1', "Action Message"::New);
+            OnSyncTransferDemandWithReqLineOnAfterSetFilters(TransferReqLine, InventoryProfile, LocationCode, CurrTemplateName, CurrWorksheetName);
             if FindFirst then
                 TransferReqLineToInvProfiles(InventoryProfile, TransferReqLine);
         end;
@@ -4983,6 +5027,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcOrderQty(TempSKU: Record "Stockkeeping Unit" temporary; NeededQty: Decimal; ProjectedInventory: Decimal; SupplyLineNo: Integer; var QtyToOrder: Decimal);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetComponents(var RequisitionLine: Record "Requisition Line");
     begin
     end;
@@ -5003,7 +5052,67 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeFillSkUBuffer(var SKU: Record "Stockkeeping Unit"; var TempSKU: Record "Stockkeeping Unit" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertInventoryProfile(RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPlanItemOnAfterTempSKULoop(var TempSKU: Record "Stockkeeping Unit"; var ReqLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSyncTransferDemandWithReqLineOnAfterSetFilters(var TransferReqLine: Record "Requisition Line"; var InventoryProfile: Record "Inventory Profile"; LocationCode: Code[10]; CurrTemplateName: Code[10]; CurrWorksheetName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindCombinationOnBeforeSKUFindSet(var SKU: Record "Stockkeeping Unit"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindCombinationOnBeforeFilterDemandAndSupply(var DemandInvtProfile: Record "Inventory Profile"; var SupplyInvtProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPlanItemSetInvtProfileFilters(var DemandInvtProfile: Record "Inventory Profile"; var SupplyInvtProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPlanItemOnBeforeTempSKUFind(var TempSKU: Record "Stockkeeping Unit" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferPlanningParameters(var SKU: Record "Stockkeeping Unit")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertTempSKU(var TempSKU: Record "Stockkeeping Unit" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFindCombination(var DemandInvtProfile: Record "Inventory Profile"; var SupplyInvtProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitVariables(var InventoryProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindCombinationOnBeforeSetState(var TempSKU: Record "Stockkeeping Unit" temporary; var Item: Record Item; var IsHandled: Boolean)
     begin
     end;
 }

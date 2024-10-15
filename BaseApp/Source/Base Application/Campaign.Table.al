@@ -375,6 +375,7 @@ table 5071 Campaign
     trigger OnRename()
     begin
         DimMgt.RenameDefaultDim(DATABASE::Campaign, xRec."No.", "No.");
+        CommentLine.RenameCommentLine(CommentLine."Table Name"::Campaign, xRec."No.", "No.");
         "Last Date Modified" := Today;
     end;
 
@@ -385,6 +386,7 @@ table 5071 Campaign
         Campaign: Record Campaign;
         RMCommentLine: Record "Rlshp. Mgt. Comment Line";
         CampaignEntry: Record "Campaign Entry";
+        CommentLine: Record "Comment Line";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         DimMgt: Codeunit DimensionManagement;
         CampaignMgmt: Codeunit "Campaign Target Group Mgt";

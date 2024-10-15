@@ -1,4 +1,4 @@
-codeunit 5777 "Whse. Validate Source Line"
+﻿codeunit 5777 "Whse. Validate Source Line"
 {
 
     trigger OnRun()
@@ -16,7 +16,13 @@ codeunit 5777 "Whse. Validate Source Line"
     var
         NewRecRef: RecordRef;
         OldRecRef: RecordRef;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesLineVerifyChange(NewSalesLine, OldSalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if not WhseLinesExist(
              DATABASE::"Sales Line", NewSalesLine."Document Type".AsInteger(), NewSalesLine."Document No.", NewSalesLine."Line No.", 0,
              NewSalesLine.Quantity)
@@ -125,7 +131,13 @@ codeunit 5777 "Whse. Validate Source Line"
         NewRecRef: RecordRef;
         OldRecRef: RecordRef;
         OverReceiptMgt: Codeunit "Over-Receipt Mgt.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePurchaseLineVerifyChange(NewPurchLine, OldPurchLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if not WhseLinesExist(
              DATABASE::"Purchase Line", NewPurchLine."Document Type".AsInteger(), NewPurchLine."Document No.",
              NewPurchLine."Line No.", 0, NewPurchLine.Quantity)
@@ -166,7 +178,14 @@ codeunit 5777 "Whse. Validate Source Line"
     end;
 
     procedure TransLineVerifyChange(var NewTransLine: Record "Transfer Line"; var OldTransLine: Record "Transfer Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransLineVerifyChange(NewTransLine, OldTransLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with NewTransLine do begin
             if WhseLinesExist(DATABASE::"Transfer Line", 0, "Document No.", "Line No.", 0, Quantity) then begin
                 TransLineCommonVerification(NewTransLine, OldTransLine);
@@ -334,8 +353,7 @@ codeunit 5777 "Whse. Validate Source Line"
                                (Quantity >= 0)
                             then begin
                                 QtyRemainingToBePicked := Quantity - AssemblyLine.CalcQtyPickedNotConsumed;
-                                if QtyRemainingToBePicked > 0 then
-                                    Error(Text002, "Order No.", QtyRemainingToBePicked);
+                                CheckQtyRemainingToBePickedForAssemblyConsumption(NewItemJnlLine, OldItemJnlLine, QtyRemainingToBePicked);
                                 QtyChecked := true;
                             end;
 
@@ -354,8 +372,7 @@ codeunit 5777 "Whse. Validate Source Line"
                                 QtyRemainingToBePicked :=
                                   Quantity - CalcNextLevelProdOutput(ProdOrderComp) -
                                   ProdOrderComp."Qty. Picked" + ProdOrderComp."Expected Quantity" - ProdOrderComp."Remaining Quantity";
-                                if QtyRemainingToBePicked > 0 then
-                                    Error(Text002, "Order No.", QtyRemainingToBePicked);
+                                CheckQtyRemainingToBePickedForConsumption(NewItemJnlLine, OldItemJnlLine, ProdOrderComp, QtyRemainingToBePicked);
                                 QtyChecked := true;
                             end;
 
@@ -404,6 +421,36 @@ codeunit 5777 "Whse. Validate Source Line"
         end;
 
         OnAfterItemLineVerifyChange(NewItemJnlLine, OldItemJnlLine);
+    end;
+
+    local procedure CheckQtyRemainingToBePickedForAssemblyConsumption(var NewItemJnlLine: Record "Item Journal Line"; var OldItemJnlLine: Record "Item Journal Line"; QtyRemainingToBePicked: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckQtyRemainingToBePickedForAssemblyConsumption(NewItemJnlLine, OldItemJnlLine, IsHandled, QtyRemainingToBePicked);
+        if IsHandled then
+            exit;
+
+        CheckQtyRemainingToBePicked(QtyRemainingToBePicked, NewItemJnlLine."Order No.");
+    end;
+
+    local procedure CheckQtyRemainingToBePickedForConsumption(var NewItemJnlLine: Record "Item Journal Line"; var OldItemJnlLine: Record "Item Journal Line"; ProdOrderComp: Record "Prod. Order Component"; QtyRemainingToBePicked: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckQtyRemainingToBePickedForConsumption(NewItemJnlLine, OldItemJnlLine, IsHandled, ProdOrderComp);
+        if IsHandled then
+            exit;
+
+        CheckQtyRemainingToBePicked(QtyRemainingToBePicked, NewItemJnlLine."Order No.");
+    end;
+
+    local procedure CheckQtyRemainingToBePicked(QtyRemainingToBePicked: Decimal; OrderNo: Code[20])
+    begin
+        if QtyRemainingToBePicked > 0 then
+            Error(Text002, OrderNo, QtyRemainingToBePicked);
     end;
 
     procedure ProdOrderLineVerifyChange(var NewProdOrderLine: Record "Prod. Order Line"; var OldProdOrderLine: Record "Prod. Order Line")
@@ -593,6 +640,31 @@ codeunit 5777 "Whse. Validate Source Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssemblyLineDelete(var AssemblyLine: Record "Assembly Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckQtyRemainingToBePickedForAssemblyConsumption(var NewItemJnlLine: Record "Item Journal Line"; var OldItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean; var QtyRemainingToBePicked: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckQtyRemainingToBePickedForConsumption(var NewItemJnlLine: Record "Item Journal Line"; var OldItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean; ProdOrderComp: Record "Prod. Order Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchaseLineVerifyChange(var NewPurchLine: Record "Purchase Line"; var OldPurchLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesLineVerifyChange(var NewSalesLine: Record "Sales Line"; var OldSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransLineVerifyChange(var NewTransLine: Record "Transfer Line"; var OldTransLine: Record "Transfer Line"; var IsHandled: Boolean)
     begin
     end;
 

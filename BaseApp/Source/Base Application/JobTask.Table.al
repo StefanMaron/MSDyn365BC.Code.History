@@ -141,7 +141,7 @@ table 1001 "Job Task"
                                                                            "Job Task No." = FIELD(FILTER(Totaling)),
                                                                            "Entry Type" = CONST(Usage),
                                                                            "Posting Date" = FIELD("Posting Date Filter")));
-            Caption = 'Usage (Total Cost)';
+            Caption = 'Actual (Total Cost)';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -154,7 +154,7 @@ table 1001 "Job Task"
                                                                             "Job Task No." = FIELD(FILTER(Totaling)),
                                                                             "Entry Type" = CONST(Usage),
                                                                             "Posting Date" = FIELD("Posting Date Filter")));
-            Caption = 'Usage (Total Price)';
+            Caption = 'Actual (Total Price)';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -193,7 +193,7 @@ table 1001 "Job Task"
                                                                              "Job Task No." = FIELD(FILTER(Totaling)),
                                                                              "Entry Type" = CONST(Sale),
                                                                              "Posting Date" = FIELD("Posting Date Filter")));
-            Caption = 'Billable (Invoiced Price)';
+            Caption = 'Invoiced (Total Price)';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -206,7 +206,7 @@ table 1001 "Job Task"
                                                                             "Job Task No." = FIELD(FILTER(Totaling)),
                                                                             "Entry Type" = CONST(Sale),
                                                                             "Posting Date" = FIELD("Posting Date Filter")));
-            Caption = 'Billable (Invoiced Cost)';
+            Caption = 'Invoiced (Total Cost)';
             Editable = false;
             FieldClass = FlowField;
         }

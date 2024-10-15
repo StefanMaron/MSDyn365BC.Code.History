@@ -1,4 +1,4 @@
-xmlport 1602 "Sales Invoice - PEPPOL 2.0"
+﻿xmlport 1602 "Sales Invoice - PEPPOL 2.0"
 {
     Caption = 'Sales Invoice - PEPPOL 2.0';
     Direction = Export;
@@ -211,11 +211,12 @@ xmlport 1602 "Sales Invoice - PEPPOL 2.0"
                 trigger OnAfterGetRecord()
                 begin
                     PEPPOLMgt.GetAdditionalDocRefInfo(
-                      AdditionalDocumentReferenceID,
-                      AdditionalDocRefDocumentType,
-                      URI,
-                      mimeCode,
-                      EmbeddedDocumentBinaryObject);
+                        SalesHeader,
+                        AdditionalDocumentReferenceID,
+                        AdditionalDocRefDocumentType,
+                        URI,
+                        mimeCode,
+                        EmbeddedDocumentBinaryObject);
 
                     if AdditionalDocumentReferenceID = '' then
                         currXMLport.Skip;
