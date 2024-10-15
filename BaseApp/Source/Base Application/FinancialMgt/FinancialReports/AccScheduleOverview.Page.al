@@ -1215,7 +1215,14 @@ page 490 "Acc. Schedule Overview"
         if TempFinancialReport.DateFilter = '' then
             AccSchedManagement.FindPeriod(Rec, '', TempFinancialReport.PeriodType)
         else
-            Rec.SetFilter("Date Filter", TempFinancialReport.DateFilter);
+            if not TrySetFilter(TempFinancialReport.DateFilter) then
+                AccSchedManagement.FindPeriod(Rec, '', TempFinancialReport.PeriodType);
+    end;
+
+    [TryFunction]
+    local procedure TrySetFilter(DateFilter: Text)
+    begin
+        Rec.SetFilter("Date Filter", DateFilter);
     end;
 
     local procedure LoadFinancialReportFilters(FinancialReportCode: Code[10]; var FinancialReportToLoadTemp: Record "Financial Report" temporary): Boolean
@@ -1464,7 +1471,7 @@ page 490 "Acc. Schedule Overview"
         CurrentCashFlowFilter := TempFinancialReport.CashFlowFilter;
         OnAfterSetDimFilters(
             Rec, DimNo, DimValueFilter, CurrentCostCenterFilter, CurrentCostObjectFilter, CurrentCostBudgetFilter,
-            CurrentGLBudgetFilter, CurrentCashFlowFilter);
+            CurrentGLBudgetFilter, CurrentCashFlowFilter, AnalysisView, TempFinancialReport);
 
         TempFinancialReport.CostCenterFilter := CopyStr(CurrentCostCenterFilter, 1, MaxStrLen(TempFinancialReport.CostCenterFilter));
         TempFinancialReport.CostObjectFilter := CopyStr(CurrentCostObjectFilter, 1, MaxStrLen(TempFinancialReport.CostObjectFilter));
@@ -1851,7 +1858,7 @@ page 490 "Acc. Schedule Overview"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetDimFilters(var AccScheduleLine: Record "Acc. Schedule Line"; var DimNo: Integer; var DimValueFilter: Text; var CostCenterFilter: Text; var CostObjectFilter: Text; var CurrentCostBudgetFilter: Text; var CurrentGLBudgetFilter: Text; var CurrentCashFlowFilter: Text)
+    local procedure OnAfterSetDimFilters(var AccScheduleLine: Record "Acc. Schedule Line"; var DimNo: Integer; var DimValueFilter: Text; var CostCenterFilter: Text; var CostObjectFilter: Text; var CurrentCostBudgetFilter: Text; var CurrentGLBudgetFilter: Text; var CurrentCashFlowFilter: Text; AnalysisView: Record "Analysis View"; var TempFinancialReport: Record "Financial Report" temporary)
     begin
     end;
 

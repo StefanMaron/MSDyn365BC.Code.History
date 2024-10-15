@@ -1327,6 +1327,48 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         Assert.AreEqual(FirstLineNo, BankAccountLedgerEntry."Statement Line No.", 'Second BLE should be matched with the first bank rec. line since the match is acceptable (same amount although not same description) ');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure FilterNotUpdatingWhenMovingFromOneBankAccReconRecordToAnother()
+    var
+        BankAccReconciliation: array[2] of Record "Bank Acc. Reconciliation";
+        BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        FilteredPostingDate: array[2] of Text;
+        BankAccountNo: Code[20];
+        StatementNo: Code[20];
+        DocumentNo: Code[20];
+        Amount: Decimal;
+        PostingDate: Date;
+        Description: Text[50];
+    begin
+        // [SCENARIO 474655] The filter for the Bank Account Ledger Entries of the Bank Acc. Reconciliation page is not updated when going from one Bank Acc. Rec to the next one using the arrows
+        Initialize();
+
+        // [GIVEN] Setup: Create input data e.g. Posting Date, Bank account No., Statement No., Doc no., Description, and Amount
+        CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
+
+        // [GIVEN] Create different Bank Account Ledger Entries
+        CreateBankAccLedgerEntry(BankAccountNo, PostingDate + 1, DocumentNo, '', Amount, Description);
+        CreateBankAccLedgerEntry(BankAccountNo, PostingDate + 10, DocumentNo, '', Amount, Description);
+
+        // [GIVEN] Create a Bank Acc Reconciliation with Different Statement Date
+        CreateBankAccRecWithStatementDate(BankAccReconciliation[1], BankAccountNo, StatementNo, PostingDate);
+        CreateBankAccRecWithStatementDate(BankAccReconciliation[1], BankAccountNo, StatementNo + '1', PostingDate + 10);
+
+        // [THEN] Open Bank Account Reconcialiation Page and move to next record.
+        BankAccReconciliationPage.OpenView();
+        BankAccReconciliation[2].SetRange("Bank Account No.", BankAccountNo);
+        BankAccReconciliation[2].FindSet();
+        BankAccReconciliationPage.GoToRecord(BankAccReconciliation[2]);
+        FilteredPostingDate[1] := BankAccReconciliationPage.ApplyBankLedgerEntries.Filter.GetFilter("Posting Date");
+        BankAccReconciliationPage.Next();
+        FilteredPostingDate[2] := BankAccReconciliationPage.ApplyBankLedgerEntries.Filter.GetFilter("Posting Date");
+
+        // [VERIFY] Verify: Both filters are different
+        Assert.IsTrue(FilteredPostingDate[1] <> FilteredPostingDate[2], '');
+    end;
+
     local procedure Initialize()
     var
         LibraryApplicationArea: Codeunit "Library - Application Area";
@@ -1588,6 +1630,19 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         Assert.IsTrue(BankAccountLedgerEntry.IsEmpty, 'There should be no entries left.');
 
         asserterror BankAccReconciliation.Find();
+    end;
+
+    local procedure CreateBankAccRecWithStatementDate(
+        var BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccountNo: Code[20];
+        StatementNo: Code[20];
+        StatementDate: Date)
+    begin
+        BankAccReconciliation.Init();
+        BankAccReconciliation."Bank Account No." := BankAccountNo;
+        BankAccReconciliation."Statement No." := StatementNo;
+        BankAccReconciliation."Statement Date" := StatementDate;
+        BankAccReconciliation.Insert();
     end;
 
     [RequestPageHandler]

@@ -728,9 +728,13 @@ page 9308 "Purchase Invoices"
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
+        PreAssignedNo: Code[20];
+        xLastPostingNo: Code[20];
         IsHandled: Boolean;
     begin
         LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
+        PreAssignedNo := Rec."No.";
+        xLastPostingNo := Rec."Last Posting No.";
 
         SendToPosting(PostingCodeunitID);
 
@@ -740,15 +744,18 @@ page 9308 "Purchase Invoices"
             exit;
 
         if ApplicationAreaMgmtFacade.IsFoundationEnabled() then
-            ShowPostedConfirmationMessage();
+            ShowPostedConfirmationMessage(PreAssignedNo, xLastPostingNo);
     end;
 
-    local procedure ShowPostedConfirmationMessage()
+    local procedure ShowPostedConfirmationMessage(PreAssignedNo: Code[20]; xLastPostingNo: Code[20])
     var
         PurchInvHeader: Record "Purch. Inv. Header";
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
-        PurchInvHeader.SetRange("Pre-Assigned No.", "No.");
+        if (Rec."Last Posting No." <> '') and (Rec."Last Posting No." <> xLastPostingNo) then
+            PurchInvHeader.SetRange("No.", Rec."Last Posting No.")
+        else
+            PurchInvHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
         PurchInvHeader.SetRange("Order No.", '');
         if PurchInvHeader.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedPurchaseInvQst, PurchInvHeader."No."),

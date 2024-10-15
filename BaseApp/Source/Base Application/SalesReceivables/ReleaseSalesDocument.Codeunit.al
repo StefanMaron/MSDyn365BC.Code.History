@@ -8,6 +8,7 @@
     begin
         OnBeforeOnRun(Rec);
         SalesHeader.Copy(Rec);
+        OnRunOnAfterCopy(Rec, SalesHeader);
         SalesHeader.SetHideValidationDialog(Rec.GetHideValidationDialog());
         Code();
         Rec := SalesHeader;
@@ -408,7 +409,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReleaseSalesDoc(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var IsHandled: Boolean; SkipCheckReleaseRestrictions: Boolean)
+    local procedure OnBeforeReleaseSalesDoc(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var IsHandled: Boolean; var SkipCheckReleaseRestrictions: Boolean)
     begin
     end;
 
@@ -564,6 +565,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReleaseATOs(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterCopy(var SalesHeader: Record "Sales Header"; var SalesHeaderCopy: Record "Sales Header")
     begin
     end;
 }

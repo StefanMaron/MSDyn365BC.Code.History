@@ -425,7 +425,10 @@ codeunit 5940 ServContractManagement
         Cust.Get(ServHeader2."Customer No.");
         ServHeader2."Responsibility Center" := ServContract2."Responsibility Center";
 
-        Cust.CheckBlockedCustOnDocs(Cust, ServHeader2."Document Type", false, false);
+	IsHandled := false;
+        OnCreateServHeaderOnBeforeCheckBlockedCustOnDocs(ServHeader2, ServContract2, IsHandled);
+        if not IsHandled then
+    	    Cust.CheckBlockedCustOnDocs(Cust, ServHeader2."Document Type", false, false);
 
         GLSetup.Get();
         if GLSetup."VAT in Use" then
@@ -776,7 +779,11 @@ codeunit 5940 ServContractManagement
         ServHeader2."Customer No." := ServContract."Customer No.";
         ServHeader2."Responsibility Center" := ServContract."Responsibility Center";
         Cust.Get(ServHeader2."Customer No.");
-        Cust.CheckBlockedCustOnDocs(Cust, ServHeader2."Document Type", false, false);
+	
+	IsHandled := false;
+        OnCreateOrGetCreditHeaderOnBeforeCheckBlockedCustOnDocs(ServHeader2, ServContract, IsHandled);
+        if not IsHandled then
+            Cust.CheckBlockedCustOnDocs(Cust, ServHeader2."Document Type", false, false);
         if GLSetup."VAT in Use" then
             Cust.TestField("Gen. Bus. Posting Group");
         ServHeader2.Name := Cust.Name;
@@ -848,6 +855,7 @@ codeunit 5940 ServContractManagement
         ServLine2.Description := StrSubstNo('%1 - %2', Format(PeriodStarts), Format(PeriodEnds));
         ServLine2."Line No." := NextLine;
         ServLine2."Posting Date" := PeriodStarts;
+        OnCreateCreditLineOnBeforeServLineHeadingInsert(ServLine2, ServHeader2, ServContract);
         ServLine2.Insert();
 
         NextLine := NextLine + 10000;
@@ -1468,7 +1476,13 @@ codeunit 5940 ServContractManagement
     var
         TableIDArr: array[10] of Integer;
         NumberArr: array[10] of Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckDimValuePosting(ServContract, LineNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if LineNo = 0 then begin
             TableIDArr[1] := DATABASE::Customer;
             NumberArr[1] := ServContract."Bill-to Customer No.";
@@ -1997,7 +2011,13 @@ codeunit 5940 ServContractManagement
     var
         ServiceContractHeader2: Record "Service Contract Header";
         PrevCustNo: Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckMultipleCurrenciesForCustomers(ServiceContractHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with ServiceContractHeader2 do begin
             Copy(ServiceContractHeader);
             SetCurrentKey("Bill-to Customer No.", "Contract Type", "Combine Invoices", "Next Invoice Date");
@@ -2062,6 +2082,8 @@ codeunit 5940 ServContractManagement
             Quantity := -1;
             "Charged Qty." := -1;
         end;
+
+        OnAfterInitServLedgEntry(ServLedgEntry, ServContractHeader);
     end;
 
     procedure GetInvoicePeriodText(InvoicePeriod: Enum "Service Contract Header Invoice Period") InvPeriodText: Text[4]
@@ -2813,13 +2835,43 @@ codeunit 5940 ServContractManagement
     end;
 
     [IntegrationEvent(false, false)]
-     local procedure OnChangeCustNoOnServContractOnAfterGetCust(Customer: Record Customer; var ServiceContractHeader: Record "Service Contract Header") 
-     begin
-     end;
+    local procedure OnChangeCustNoOnServContractOnAfterGetCust(Customer: Record Customer; var ServiceContractHeader: Record "Service Contract Header")
+    begin
+    end;
 
-     [IntegrationEvent(false, false)]
-     local procedure OnAfterChangeCustNoOnServItem(var ServiceItem: Record "Service Item") 
-     begin
-     end; 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterChangeCustNoOnServItem(var ServiceItem: Record "Service Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateServHeaderOnBeforeCheckBlockedCustOnDocs(var ServiceHeader: Record "Service Header"; ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDimValuePosting(ServiceContractHeader: Record "Service Contract Header"; LineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckMultipleCurrenciesForCustomers(var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateCreditLineOnBeforeServLineHeadingInsert(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; ServiceContractHeader: Record "Service Contract Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateOrGetCreditHeaderOnBeforeCheckBlockedCustOnDocs(var ServiceHeader: Record "Service Header"; ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitServLedgEntry(var ServiceLedgerEntry: Record "Service Ledger Entry"; ServiceContractHeader: Record "Service Contract Header")
+    begin
+    end;
 }
 

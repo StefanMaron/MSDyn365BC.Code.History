@@ -55,6 +55,8 @@ codeunit 10085 "A/P Magnetic Media Management"
 
         Codes[4, 1] := 'NEC-01';
         Codes[4, 4] := 'NEC-04';
+
+        OnRunOnAfterInitCodeValues(Codes);
     end;
 
     var
@@ -337,6 +339,11 @@ codeunit 10085 "A/P Magnetic Media Management"
             ActualCodePos := StrLen(CodeNos) + 1;
         CodeNos := InsStr(CodeNos, AmountCode, ActualCodePos);
         ActualCodePosArray[ExpectedCodePos] := ActualCodePos + 1;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterInitCodeValues(var Codes: array[4, 30] of Code[10]);
+    begin
     end;
 }
 

@@ -1164,7 +1164,12 @@ table 1382 "Item Templ."
         ItemTemplRecRef: RecordRef;
         ItemFieldRef: FieldRef;
         ItemTemplFieldRef: FieldRef;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateItemField(Rec, FieldId, IsHandled);
+        if IsHandled then
+            exit;
         ItemTemplRecRef.GetTable(Rec);
         ItemRecRef.Open(Database::Item, true);
         TransferFieldValues(ItemTemplRecRef, ItemRecRef, false);
@@ -1203,6 +1208,11 @@ table 1382 "Item Templ."
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyTemplateOnBeforeModify(SourceItemTempl: Record "Item Templ."; SavedItemTempl: Record "Item Templ."; var ItemTempl: Record "Item Templ.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateItemField(var ItemTempl: record "Item Templ."; FieldId: Integer; var IsHandled: Boolean)
     begin
     end;
 }

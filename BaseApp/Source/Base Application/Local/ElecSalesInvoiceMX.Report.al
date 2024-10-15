@@ -13,6 +13,7 @@ report 10477 "Elec. Sales Invoice MX"
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.", "Sell-to Customer No.", "Bill-to Customer No.", "Ship-to Code", "No. Printed";
             RequestFilterHeading = 'Sales Invoice';
+            CalcFields = Amount, "Amount Including VAT", "Invoice Discount Amount";
             column(Sales_Invoice_Header_No_; "No.")
             {
             }
@@ -354,6 +355,18 @@ report 10477 "Elec. Sales Invoice MX"
                     {
                     }
                     column(UsoCFDICaption; UsoCFDILbl)
+                    {
+                    }
+                    column(SalesInvHeaderTotalAmountExclInvDiscount; "Sales Invoice Header".Amount + "Sales Invoice Header"."Invoice Discount Amount")
+                    {
+                    }
+                    column(SalesInvHeaderTotalAmountInclVAT; "Sales Invoice Header"."Amount Including VAT")
+                    {
+                    }
+                    column(SalesInvHeaderTotalVATAmount; "Sales Invoice Header"."Amount Including VAT" - "Sales Invoice Header".Amount)
+                    {
+                    }
+                    column(SalesInvHeaderTotalInvDiscountAmount; -"Sales Invoice Header"."Invoice Discount Amount")
                     {
                     }
                     dataitem(SalesInvLine; "Integer")

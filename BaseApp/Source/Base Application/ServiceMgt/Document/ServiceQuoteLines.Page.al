@@ -734,40 +734,46 @@ page 5966 "Service Quote Lines"
     end;
 
     trigger OnOpenPage()
+    var
+        IsHandled: Boolean;
     begin
-        Clear(SelectionFilter);
-        SetSelectionFilter();
+        IsHandled := false;
+        OnBeforeOnOpenPage(Rec, FaultAreaCodeVisible, SymptomCodeVisible, FaultCodeVisible, ResolutionCodeVisible, IsHandled);
+        if not IsHandled then begin
+            Clear(SelectionFilter);
+            SetSelectionFilter();
 
-        ServMgtSetup.Get();
-        case ServMgtSetup."Fault Reporting Level" of
-            ServMgtSetup."Fault Reporting Level"::None:
-                begin
-                    FaultAreaCodeVisible := false;
-                    SymptomCodeVisible := false;
-                    FaultCodeVisible := false;
-                    ResolutionCodeVisible := false;
-                end;
-            ServMgtSetup."Fault Reporting Level"::Fault:
-                begin
-                    FaultAreaCodeVisible := false;
-                    SymptomCodeVisible := false;
-                    FaultCodeVisible := true;
-                    ResolutionCodeVisible := true;
-                end;
-            ServMgtSetup."Fault Reporting Level"::"Fault+Symptom":
-                begin
-                    FaultAreaCodeVisible := false;
-                    SymptomCodeVisible := true;
-                    FaultCodeVisible := true;
-                    ResolutionCodeVisible := true;
-                end;
-            ServMgtSetup."Fault Reporting Level"::"Fault+Symptom+Area (IRIS)":
-                begin
-                    FaultAreaCodeVisible := true;
-                    SymptomCodeVisible := true;
-                    FaultCodeVisible := true;
-                    ResolutionCodeVisible := true;
-                end;
+            ServMgtSetup.Get();
+            case ServMgtSetup."Fault Reporting Level" of
+                ServMgtSetup."Fault Reporting Level"::None:
+                    begin
+                        FaultAreaCodeVisible := false;
+                        SymptomCodeVisible := false;
+                        FaultCodeVisible := false;
+                        ResolutionCodeVisible := false;
+                    end;
+                ServMgtSetup."Fault Reporting Level"::Fault:
+                    begin
+                        FaultAreaCodeVisible := false;
+                        SymptomCodeVisible := false;
+                        FaultCodeVisible := true;
+                        ResolutionCodeVisible := true;
+                    end;
+                ServMgtSetup."Fault Reporting Level"::"Fault+Symptom":
+                    begin
+                        FaultAreaCodeVisible := false;
+                        SymptomCodeVisible := true;
+                        FaultCodeVisible := true;
+                        ResolutionCodeVisible := true;
+                    end;
+                ServMgtSetup."Fault Reporting Level"::"Fault+Symptom+Area (IRIS)":
+                    begin
+                        FaultAreaCodeVisible := true;
+                        SymptomCodeVisible := true;
+                        FaultCodeVisible := true;
+                        ResolutionCodeVisible := true;
+                    end;
+            end;
         end;
 
         OnAfterOnOpenPage(ServMgtSetup, FaultAreaCodeVisible, SymptomCodeVisible, FaultCodeVisible, ResolutionCodeVisible);
@@ -794,6 +800,7 @@ page 5966 "Service Quote Lines"
     procedure Initialize(ServItemLine: Integer)
     begin
         ServItemLineNo := ServItemLine;
+        OnAfterInitialize(Rec, ServItemLineNo, SelectionFilter);
     end;
 
     procedure SetSelectionFilter()
@@ -860,12 +867,22 @@ page 5966 "Service Quote Lines"
     end;
 
     [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnOpenPage(var ServiceLine: Record "Service Line"; var FaultAreaCodeVisible: Boolean; var SymptomCodeVisible: Boolean; var FaultCodeVisible: Boolean; var ResolutionCodeVisible: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
     local procedure OnAfterOnOpenPage(var ServMgtSetup: Record "Service Mgt. Setup"; var FaultAreaCodeVisible: Boolean; var SymptomCodeVisible: Boolean; var FaultCodeVisible: Boolean; var ResolutionCodeVisible: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertExtendedText(var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterInitialize(var ServiceLine: Record "Service Line"; var ServItemLineNo: Integer; var SelectionFilter: Option "All Service Lines","Lines per Selected Service Item","Lines Not Item Related");
     begin
     end;
 }
