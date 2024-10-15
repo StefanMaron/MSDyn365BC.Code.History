@@ -51,6 +51,7 @@ codeunit 134900 "ERM Batch Job"
         NotPaidPrepaymentErr: Label 'There are unpaid prepayment invoices related to the document of type Order with the number %1.';
         NotPaidPurchPrepaymentErr: Label 'There are unpaid prepayment invoices that are related to the document of type Order with the number %1.';
         TestPageIsNotOpenErr: Label 'The TestPage is not open.';
+        WrongValErr: Label '%1 must be %2 in %3.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1087,16 +1088,12 @@ codeunit 134900 "ERM Batch Job"
         CreatePurchHeader(PurchHeader, SalesHeader."Sell-to Customer No.", '');
         DistIntegration.GetSpecialOrders(PurchHeader);
         Commit();
-        asserterror LibraryPurchase.GetDropShipment(PurchHeader);
-
-        // [THEN] Verify Error message.
-        Assert.ExpectedError(StrSubstNo(ShipToNameErr, PurchHeader.FieldCaption("Ship-to Name"), PurchHeader."No.", SalesHeader."No."));
 
         // [THEN] Verify Purchasing Code, Ship-to Name, Ship-to Address on Purchase Order with Special Order.
         SelectSalesLineWithSpecialOrder(SalesLine, SalesHeader);
         VerifyPurchasingCodeAndSpecialOrderOnPurchaseLine(SalesLine, PurchHeader."No.");
         Location.Get(SalesHeader."Location Code");
-        VerifyPurchShippingDetails(PurchHeader, Location.Name, Location.Address);
+        VerifyPurchShippingDetails(PurchHeader, SalesHeader."Sell-to Customer Name", SalesHeader."Sell-to Address");
     end;
 
     [Test]
@@ -2578,6 +2575,35 @@ codeunit 134900 "ERM Batch Job"
             SalesInvoiceHeader.FindFirst();
             SalesInvoiceHeader.TestField("Company Bank Account Code", SalesHeader[Index]."Company Bank Account Code");
         end;
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesListPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyPurchaseLineWithSalesPurchasingCodeShippingAddressNotChanged()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: array[2] of Record "Purchase Header";
+        PurchaseHeaderNo: Code[20];
+    begin
+        // [FEATURE] [Special Order] [Purchase]
+        // [SCENARIO 472833: After getting Special order into Purchase order, the previously entered shipping address of the customer is changed to Location address.
+        Initialize();
+
+        // [GIVEN] Create and Update Sales Order with Purchasing Code.
+        CreateAndUpdatePurchasingCodeOnSalesDocumentWithLocation(SalesHeader, SalesLine);
+
+        // [WHEN] Create a new Purchase Order and Get Special Orders
+        PurchaseHeaderNo := CreatePurchaseOrder(SalesHeader."Sell-to Customer No.");
+        PurchaseHeader[1].Get(PurchaseHeader[1]."Document Type"::Order, PurchaseHeaderNo);
+        GetSpecialOrder(PurchaseHeader[2], PurchaseHeaderNo);
+
+        // [THEN] Verify Purchasing Code and Spacial Order on Purchase Line same as Sales line.
+        VerifyPurchasingCodeAndSpecialOrderOnPurchaseLine(SalesLine, PurchaseHeaderNo);
+
+        // [VERIFY] Ship-to Name & Ship-to Address on Purchase Header
+        VerifyShiptoNameAndAddressBeforeAndAfterGetSpecialOrderOnPurchaseHeader(PurchaseHeader);
     end;
 
     local procedure Initialize()
@@ -4269,6 +4295,66 @@ codeunit 134900 "ERM Batch Job"
     local procedure ExecuteUIHandlers()
     begin
         if Confirm('') then;
+    end;
+
+    local procedure CreateAndUpdatePurchasingCodeOnSalesDocumentWithLocation(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    var
+        Customer: Record Customer;
+    begin
+        CreateCustomerWithAddress(Customer, CreateLocation);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        CreateSpecialOrderLine(SalesLine, SalesHeader);
+    end;
+
+    local procedure CreatePurchaseOrder(SellToCustomerNo: Code[20]): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader,
+            PurchaseHeader.
+            "Document Type"::Order,
+            LibraryPurchase.CreateVendorNo);
+
+        PurchaseHeader.Validate("Vendor Invoice No.",
+          CopyStr(
+            LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("Vendor Invoice No."),
+            Database::"Purchase Header"),
+            1,
+            LibraryUtility.GetFieldLength(Database::"Purchase Header", PurchaseHeader.FieldNo("Vendor Invoice No."))));
+        PurchaseHeader.Validate("Sell-to Customer No.", SellToCustomerNo);
+        PurchaseHeader.Modify(true);
+
+        exit(PurchaseHeader."No.");
+    end;
+
+    local procedure GetSpecialOrder(var PurchaseHeader: Record "Purchase Header"; PurchDocNo: Code[20])
+    var
+        DistIntegration: Codeunit "Dist. Integration";
+    begin
+        PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchDocNo);
+        DistIntegration.GetSpecialOrders(PurchaseHeader);
+    end;
+
+    local procedure VerifyShiptoNameAndAddressBeforeAndAfterGetSpecialOrderOnPurchaseHeader(PurchaseHeader: array[2] of Record "Purchase Header")
+    begin
+        Assert.AreEqual(
+            PurchaseHeader[1]."Ship-to Name",
+            PurchaseHeader[2]."Ship-to Name",
+            StrSubstNo(
+                WrongValErr,
+                PurchaseHeader[2].FieldCaption("Ship-to Name"),
+                PurchaseHeader[1]."Ship-to Name",
+                PurchaseHeader[2].TableCaption));
+
+        Assert.AreEqual(
+            PurchaseHeader[1]."Ship-to Address",
+            PurchaseHeader[2]."Ship-to Address",
+            StrSubstNo(
+                WrongValErr,
+                PurchaseHeader[2].FieldCaption("Ship-to Address"),
+                PurchaseHeader[1]."Ship-to Address",
+                PurchaseHeader[2].TableCaption));
     end;
 
     [RequestPageHandler]

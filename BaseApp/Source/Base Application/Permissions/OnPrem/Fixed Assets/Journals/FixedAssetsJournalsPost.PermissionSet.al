@@ -67,6 +67,7 @@ permissionset 2018 "Fixed Assets Journals - Post"
                   tabledata "VAT Rate Change Conversion" = R,
                   tabledata "VAT Rate Change Log Entry" = Ri,
                   tabledata "VAT Rate Change Setup" = r,
+                  tabledata "VAT Reporting Code" = R,
                   tabledata "VAT Setup Posting Groups" = r,
                   tabledata "VAT Setup" = R,
                   tabledata "VAT Posting Parameters" = R,

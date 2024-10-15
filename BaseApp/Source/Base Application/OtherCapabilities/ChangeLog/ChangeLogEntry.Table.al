@@ -176,33 +176,9 @@ table 405 "Change Log Entry"
     {
     }
 
-    trigger OnDelete()
-    begin
-        CheckIfLogEntryCanBeDeleted();
-    end;
-
     trigger OnInsert()
     begin
         Protected := IsProtected();
-    end;
-
-    var
-        GLEntryExistsErr: Label 'You cannot delete change log entry %1 because G/L entry %2 exists.', Comment = '%1 - entry number of Change Log Entry, %2 - entry number of G/L Entry.';
-
-    local procedure CheckIfLogEntryCanBeDeleted()
-    var
-        GLEntry: Record "G/L Entry";
-        IsHandled: Boolean;
-    begin
-        OnBeforeCheckIfLogEntryCanBeDeleted(Rec, IsHandled);
-        if IsHandled then
-            exit;
-
-        case "Table No." of
-            DATABASE::"G/L Entry":
-                if GLEntry.Get("Primary Key Field 1 Value") then
-                    Error(GLEntryExistsErr, "Entry No.", "Primary Key Field 1 Value");
-        end;
     end;
 
     [Obsolete('Replaced by GetFullPrimaryKeyFriendlyName procedure.', '18.0')]
@@ -311,9 +287,14 @@ table 405 "Change Log Entry"
     begin
     end;
 
+#if not CLEAN23
+#pragma warning disable AA0228
+    [Obsolete('This event is no longer in use. The protection is enforced on the retention policy for Change Log Entry.', '23.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckIfLogEntryCanBeDeleted(var ChangeLogEntry: Record "Change Log Entry"; var IsHandled: Boolean)
     begin
     end;
+#pragma warning restore AA0228
+#endif
 }
 #pragma warning restore AS0039

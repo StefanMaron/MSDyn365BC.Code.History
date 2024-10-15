@@ -90,6 +90,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         if ApplyUnapplyParameters."Document No." = '' then
             ApplyUnapplyParameters."Document No." := CustLedgEntry."Document No.";
 
+        OnApplyOnBeforeCustPostApplyCustLedgEntry(CustLedgEntry, ApplyUnapplyParameters);
         CustPostApplyCustLedgEntry(CustLedgEntry, ApplyUnapplyParameters);
         exit(true);
     end;
@@ -158,7 +159,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
 
         EntryNoBeforeApplication := FindLastApplDtldCustLedgEntry();
 
-        OnBeforePostApplyCustLedgEntry(GenJnlLine, CustLedgEntry, GenJnlPostLine);
+        OnBeforePostApplyCustLedgEntry(GenJnlLine, CustLedgEntry, GenJnlPostLine, ApplyUnapplyParameters);
         GenJnlPostLine.CustPostApplyCustLedgEntry(GenJnlLine, CustLedgEntry);
         OnAfterPostApplyCustLedgEntry(GenJnlLine, CustLedgEntry, GenJnlPostLine);
 
@@ -350,6 +351,8 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         CheckPostingDate(ApplyUnapplyParameters, MaxPostingDate);
         if ApplyUnapplyParameters."Posting Date" < DtldCustLedgEntry2."Posting Date" then
             Error(MustNotBeBeforeErr);
+
+        OnPostUnApplyCustomerCommitOnBeforeFilterDtldCustLedgEntry(DtldCustLedgEntry2, ApplyUnapplyParameters);
         if DtldCustLedgEntry2."Transaction No." = 0 then begin
             DtldCustLedgEntry.SetCurrentKey("Application No.", "Customer No.", "Entry Type");
             DtldCustLedgEntry.SetRange("Application No.", DtldCustLedgEntry2."Application No.");
@@ -394,7 +397,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         if not HideProgressWindow then
             Window.Open(UnapplyingMsg);
 
-        OnBeforePostUnapplyCustLedgEntry(GenJnlLine, CustLedgEntry, DtldCustLedgEntry2, GenJnlPostLine);
+        OnBeforePostUnapplyCustLedgEntry(GenJnlLine, CustLedgEntry, DtldCustLedgEntry2, GenJnlPostLine, ApplyUnapplyParameters);
         CollectAffectedLedgerEntries(TempCustLedgerEntry, DtldCustLedgEntry2);
         GenJnlPostLine.UnapplyCustLedgEntry(GenJnlLine, DtldCustLedgEntry2);
         RunCustExchRateAdjustment(GenJnlLine, TempCustLedgerEntry);
@@ -763,12 +766,12 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostApplyCustLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    local procedure OnBeforePostApplyCustLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; ApplyUnapplyParameters: Record "Apply Unapply Parameters")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostUnapplyCustLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry"; DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    local procedure OnBeforePostUnapplyCustLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry"; DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; ApplyUnapplyParameters: Record "Apply Unapply Parameters")
     begin
     end;
 
@@ -834,6 +837,16 @@ codeunit 226 "CustEntry-Apply Posted Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnApplyOnBeforePmtTolCust(CustLedgEntry: Record "Cust. Ledger Entry"; var PaymentToleranceMgt: Codeunit "Payment Tolerance Management"; PreviewMode: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyOnBeforeCustPostApplyCustLedgEntry(CustLedgerEntry: Record "Cust. Ledger Entry"; var ApplyUnapplyParameters: Record "Apply Unapply Parameters")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostUnApplyCustomerCommitOnBeforeFilterDtldCustLedgEntry(DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry"; ApplyUnapplyParameters: Record "Apply Unapply Parameters")
     begin
     end;
 }

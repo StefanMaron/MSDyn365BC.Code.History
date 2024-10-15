@@ -9,7 +9,7 @@ codeunit 5052 AttachmentManagement
         Text000Msg: Label 'Send attachments...\\';
         Text001Msg: Label 'Preparing';
         Text002Msg: Label 'Deliver misc.';
-        Text008Msg: Label 'You must select an interaction template with an attachment.';
+        Text008Msg: Label 'The interaction template has no attachment for the selected language code.';
         AttachmentTok: Label 'Attachment';
 
     [Scope('OnPrem')]

@@ -256,7 +256,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                 (DestinationFieldRef.Record().Number() in [Database::Customer, Database::Vendor, Database::Currency, Database::Contact, Database::"Salesperson/Purchaser"]) then
                 exit;
 
-        if (DestinationFieldRef.Record().Number() = Database::"Sales Line") and (DestinationFieldRef.Number() = SalesLine.FieldNo("No.")) then
+        if (SourceFieldRef.Record().Number() = Database::"CRM Salesorderdetail") and (DestinationFieldRef.Record().Number() = Database::"Sales Line") and (DestinationFieldRef.Number() = SalesLine.FieldNo("No.")) then
             if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
                 if AddWriteInProductNo(SourceFieldRef, NewValue) then begin
                     IsValueFound := true;

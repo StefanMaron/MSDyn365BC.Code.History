@@ -1255,7 +1255,13 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         CRMIntegrationRecord: Record "CRM Integration Record";
         RecID: RecordID;
         CRMID: Guid;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindNewValueForCoupledRecordPK(IntegrationTableMapping, SourceFieldRef, DestinationFieldRef, NewValue, IsValueFound, IsHandled);
+        if IsHandled then
+            exit(IsValueFound);
+
         if CRMSynchHelper.FindNewValueForSpecialMapping(SourceFieldRef, NewValue) then
             exit(true);
         case IntegrationTableMapping.Direction of
@@ -1547,6 +1553,11 @@ codeunit 7205 "CDS Int. Table. Subscriber"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindParentCRMAccountForContact(SourceRecordRef: RecordRef; Silent: Boolean; var AccountId: Guid; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindNewValueForCoupledRecordPK(IntegrationTableMapping: Record "Integration Table Mapping"; SourceFieldRef: FieldRef; DestinationFieldRef: FieldRef; var NewValueVariant: Variant; var IsValueFound: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

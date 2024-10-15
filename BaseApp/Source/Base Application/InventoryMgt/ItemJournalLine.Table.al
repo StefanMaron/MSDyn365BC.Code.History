@@ -4641,6 +4641,8 @@
             else
                 OnLookUpTrackingSummaryOnCaseOrderTypeElse(Rec, TempTrackingSpecification, TrackingType);
         end;
+
+        OnAfterLookUpTrackingSummary(Rec, TempTrackingSpecification, TrackingType);
     end;
 
     local procedure CheckSerialNoQty()
@@ -5266,7 +5268,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateLocationCode(ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean);
+    local procedure OnBeforeValidateLocationCode(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean);
     begin
     end;
 
@@ -5404,6 +5406,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitRevalJnlLine(var ItemJournalLine: Record "Item Journal Line"; ItemLedgEntry2: Record "Item Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLookUpTrackingSummary(var ItemJournalLine: Record "Item Journal Line"; TempTrackingSpecification: Record "Tracking Specification" temporary; TrackingType: Enum "Item Tracking Type")
     begin
     end;
 }

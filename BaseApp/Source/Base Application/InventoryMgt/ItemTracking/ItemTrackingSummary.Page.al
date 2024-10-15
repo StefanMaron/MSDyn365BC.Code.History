@@ -106,6 +106,7 @@ page 6500 "Item Tracking Summary"
                     trigger OnDrillDown()
                     begin
                         DrillDownBinContent(Rec.FieldNo("Bin Content"));
+                        OnAfterDrillDownBinContent(TempReservEntry);
                     end;
                 }
                 field("Selected Quantity"; Rec."Selected Quantity")
@@ -239,7 +240,7 @@ page 6500 "Item Tracking Summary"
             until ReservEntry.Next() = 0;
 
         xEntrySummary.Copy(Rec);
-        OnSetSourcesOnAfterxEntrySummarySetview(xEntrySummary);
+        OnSetSourcesOnAfterxEntrySummarySetview(xEntrySummary, TempReservEntry);
 
         Rec.Reset();
         Rec.DeleteAll();
@@ -391,6 +392,8 @@ page 6500 "Item Tracking Summary"
                     PAGE.RunModal(PAGE::"Avail. - Item Tracking Lines", TempReservEntry);
                 end;
         end;
+
+        OnAfterDrillDownEntries(TempReservEntry);
     end;
 
     protected procedure DrillDownBinContent(FieldNumber: Integer)
@@ -469,7 +472,17 @@ page 6500 "Item Tracking Summary"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSetSourcesOnAfterxEntrySummarySetview(var xEntrySummary: Record "Entry Summary")
+    local procedure OnSetSourcesOnAfterxEntrySummarySetview(var xEntrySummary: Record "Entry Summary"; TempReservEntry: Record "Reservation Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDrillDownEntries(TempReservationEntry: Record "Reservation Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDrillDownBinContent(TempReservationEntry: Record "Reservation Entry" temporary)
     begin
     end;
 }
