@@ -262,7 +262,7 @@ codeunit 6503 "Item Tracking Doc. Management"
                 DATABASE::"Service Invoice Header":
                     RetrieveTrackingServiceInvoice(TempTrackingSpecBuffer, SourceID);
                 else begin
-                        OnRetrieveDocumentItemTracking(TempTrackingSpecBuffer, SourceID, Found, SourceType, SourceSubType);
+                        OnRetrieveDocumentItemTracking(TempTrackingSpecBuffer, SourceID, Found, SourceType, SourceSubType, RetrieveAsmItemTracking);
                         if not Found then
                             Error(TableNotSupportedErr, SourceType);
                     end;
@@ -933,7 +933,7 @@ codeunit 6503 "Item Tracking Doc. Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRetrieveDocumentItemTracking(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; SourceID: Code[20]; var Found: Boolean; SourceType: Integer; SourceSubType: Option)
+    local procedure OnRetrieveDocumentItemTracking(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; SourceID: Code[20]; var Found: Boolean; SourceType: Integer; SourceSubType: Option; RetrieveAsmItemTracking: Boolean)
     begin
     end;
 

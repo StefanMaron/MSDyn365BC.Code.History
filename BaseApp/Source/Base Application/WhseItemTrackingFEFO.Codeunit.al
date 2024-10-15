@@ -53,6 +53,7 @@
             else
                 SetRange("Expiration Date", 0D);
             SetRange("Location Code", Location.Code);
+            OnSummarizeInventoryFEFOOnAfterItemLedgEntrySetFilters(ItemLedgEntry, ItemNo, HasExpirationDate);
             if IsEmpty() then
                 exit;
 
@@ -92,7 +93,7 @@
         ReservedQty := 0;
 
         ItemLedgerEntryReserve.FilterReservFor(ReservationEntry, ItemLedgerEntry);
-        ReservationEntry.SetRange("Reservation Status",ReservationEntry."Reservation Status"::Reservation);
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
         if ReservationEntry.FindSet() then
             repeat
                 OppositeReservationEntry.Get(ReservationEntry."Entry No.", not ReservationEntry.Positive);
@@ -186,7 +187,14 @@
 #endif
 
     procedure InsertEntrySummaryFEFO(ItemTrackingSetup: Record "Item Tracking Setup"; ExpirationDate: Date)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertEntrySummaryFEFOProcedure(ItemTrackingSetup, TempGlobalEntrySummary, LastSummaryEntryNo, StrictExpirationPosting, ExpirationDate, HasExpiredItems, IsHandled);
+        if IsHandled then
+            exit;
+
         if (not StrictExpirationPosting) or (ExpirationDate >= WorkDate) then begin
             TempGlobalEntrySummary.Init();
             TempGlobalEntrySummary."Entry No." := LastSummaryEntryNo + 1;
@@ -337,6 +345,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertEntrySummaryFEFOProcedure(ItemTrackingSetup: Record "Item Tracking Setup"; var TempGlobalEntrySummary: Record "Entry Summary" temporary; var LastSummaryEntryNo: Integer; StrictExpirationPosting: Boolean; ExpirationDate: Date; var HasExpiredItems: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSource(SourceType2: Integer; SourceSubType2: Integer; SourceNo2: Code[20]; SourceLineNo2: Integer; SourceSubLineNo2: Integer)
     begin
     end;
@@ -358,6 +371,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnSummarizeInventoryFEFOOnBeforeInsertEntrySummaryFEFO(var TempGlobalEntrySummary: Record "Entry Summary" temporary; ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSummarizeInventoryFEFOOnAfterItemLedgEntrySetFilters(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; HasExpirationDate: Boolean)
     begin
     end;
 }

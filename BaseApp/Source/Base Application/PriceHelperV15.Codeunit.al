@@ -20,8 +20,6 @@ codeunit 7019 "Price Helper - V15"
         TargetJobGLAccountPrice: Record "Job G/L Account Price";
     begin
         SourceJobItemPrice.SetRange("Job No.", SourceJob."No.");
-        SourceJobItemPrice.SetRange("Currency Code", SourceJob."Currency Code");
-
         if SourceJobItemPrice.FindSet() then
             repeat
                 TargetJobItemPrice.TransferFields(SourceJobItemPrice, true);
@@ -30,7 +28,6 @@ codeunit 7019 "Price Helper - V15"
             until SourceJobItemPrice.Next() = 0;
 
         SourceJobResourcePrice.SetRange("Job No.", SourceJob."No.");
-        SourceJobResourcePrice.SetRange("Currency Code", SourceJob."Currency Code");
         if SourceJobResourcePrice.FindSet() then
             repeat
                 TargetJobResourcePrice.TransferFields(SourceJobResourcePrice, true);
@@ -39,7 +36,6 @@ codeunit 7019 "Price Helper - V15"
             until SourceJobResourcePrice.Next() = 0;
 
         SourceJobGLAccountPrice.SetRange("Job No.", SourceJob."No.");
-        SourceJobGLAccountPrice.SetRange("Currency Code", SourceJob."Currency Code");
         if SourceJobGLAccountPrice.FindSet() then
             repeat
                 TargetJobGLAccountPrice.TransferFields(SourceJobGLAccountPrice, true);

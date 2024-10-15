@@ -100,6 +100,7 @@
     var
         DimSetEntry: Record "Dimension Set Entry";
     begin
+        OnBeforeGetDimensionSetIDProcedure(DimSetEntry2);
         exit(DimSetEntry.GetDimensionSetID(DimSetEntry2));
     end;
 
@@ -313,7 +314,7 @@
     local procedure GetLastDimErrorID(): Integer
     begin
         if ErrorMessageMgt.IsActive then
-            exit(ErrorMessageMgt.GetLastErrorID);
+            exit(ErrorMessageMgt.GetCachedLastErrorID());
         exit(LastErrorMessage.ID);
     end;
 
@@ -696,7 +697,7 @@
         NewDimSetID: Integer;
         IsHandled: Boolean;
     begin
-        OnBeforeGetDefaultDimID(TableID, No, SourceCode, GlobalDim1Code, GlobalDim2Code, InheritFromDimSetID, InheritFromTableNo);
+        OnBeforeGetDefaultDimID(TableID, No, SourceCode, GlobalDim1Code, GlobalDim2Code, InheritFromDimSetID, InheritFromTableNo, DimVal);
 
         GetGLSetup(GLSetupShortcutDimCode);
         if InheritFromDimSetID > 0 then
@@ -965,7 +966,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeValidateDimValueCode(FieldNumber, ShortcutDimCode, IsHandled, GLSetupShortcutDimCode);
+        OnBeforeValidateDimValueCode(FieldNumber, ShortcutDimCode, IsHandled, GLSetupShortcutDimCode, DimVal);
         if IsHandled then
             exit;
 
@@ -992,6 +993,7 @@
         DimVal: Record "Dimension Value";
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
     begin
+        OnBeforeValidateShortcutDimValues(DimVal);
         ValidateDimValueCode(FieldNumber, ShortcutDimCode);
         DimVal."Dimension Code" := GLSetupShortcutDimCode[FieldNumber];
         if ShortcutDimCode <> '' then begin
@@ -1335,7 +1337,7 @@
         Result: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckDimValue(DimCode, DimValCode, Result, IsHandled);
+        OnBeforeCheckDimValue(DimCode, DimValCode, Result, IsHandled, DimVal);
         if IsHandled then
             exit(Result);
 
@@ -1644,6 +1646,7 @@
     var
         DimValue: Record "Dimension Value";
     begin
+        OnBeforeConvertDimValuetoICDimVal(DimValue);
         if DimValue.Get(FromDim, FromDimValue) then
             ICDimValueCode := DimValue."Map-to IC Dimension Value Code";
 
@@ -1961,6 +1964,7 @@
         DimValue: Record "Dimension Value";
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
     begin
+        OnBeforeCreateDimSetIDFromICDocDim(DimValue);
         if ICDocDim.Find('-') then
             repeat
                 DimValue.Get(
@@ -1976,6 +1980,7 @@
         DimValue: Record "Dimension Value";
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
     begin
+        OnBeforeCreateDimSetIDFromICJnlLineDim(DimValue);
         if ICInboxOutboxJnlLineDim.Find('-') then
             repeat
                 DimValue.Get(
@@ -1991,6 +1996,7 @@
     var
         DimValue: Record "Dimension Value";
     begin
+        OnBeforeCopyDimBufToDimSetEntry(DimValue);
         with FromDimBuf do
             if FindSet then
                 repeat
@@ -2007,6 +2013,7 @@
         DimValue: Record "Dimension Value";
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
     begin
+        OnBeforeCreateDimSetIDFromDimBuf(DimValue);
         if DimBuf.FindSet then
             repeat
                 DimValue.Get(DimBuf."Dimension Code", DimBuf."Dimension Value Code");
@@ -2223,7 +2230,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreateDimSetFromJobTaskDim(JobNo, JobTaskNo, GlobalDimVal1, GlobalDimVal2, NewDimSetID, IsHandled);
+        OnBeforeCreateDimSetFromJobTaskDim(JobNo, JobTaskNo, GlobalDimVal1, GlobalDimVal2, NewDimSetID, IsHandled, DimValue);
         if IsHandled then
             exit(NewDimSetID);
 
@@ -2372,6 +2379,7 @@
         TempDimensionValue: Record "Dimension Value" temporary;
         CheckStr: Text;
     begin
+        OnBeforeParseDimParam(DimensionValue);
         // Possible input values: blank filter, code or code with *
         if DelChr(DimValueFilter) = '' then
             exit(DimValueFilter);
@@ -2384,6 +2392,7 @@
 
         AddTempDimValueFromTotaling(TempDimensionValue, CheckStr, DimensionCode, DimValueFilter);
 
+        OnParseDimParamOnBeforeTempDimensionValueFindSet(TempDimensionValue);
         if TempDimensionValue.FindSet then
             repeat
                 ResultTxt += TempDimensionValue.Code + '|'
@@ -2659,7 +2668,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckDimValue(DimCode: Code[20]; DimValCode: Code[20]; var Result: Boolean; var IsHandled: Boolean);
+    local procedure OnBeforeCheckDimValue(DimCode: Code[20]; DimValCode: Code[20]; var Result: Boolean; var IsHandled: Boolean; var DimVal: Record "Dimension Value");
     begin
     end;
 
@@ -2679,12 +2688,42 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDimensionSetIDProcedure(var DimensionSetEntry: Record "Dimension Set Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckICDimValue(ICDimCode: Code[20]; ICDimValCode: Code[20]; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckValuePosting(TableID: array[10] of Integer; No: array[10] of Code[20]; var TempDimBuf: Record "Dimension Buffer" temporary; var IsChecked: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConvertDimValuetoICDimVal(var DimValue: Record "Dimension Value")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDimSetIDFromICDocDim(var DimValue: Record "Dimension Value")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDimSetIDFromICJnlLineDim(var DimValue: Record "Dimension Value")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyDimBufToDimSetEntry(var DimValue: Record "Dimension Value")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDimSetIDFromDimBuf(var DimValue: Record "Dimension Value")
     begin
     end;
 
@@ -2704,7 +2743,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetDefaultDimID(var TableID: array[10] of Integer; var No: array[10] of Code[20]; SourceCode: Code[20]; var GlobalDim1Code: Code[20]; var GlobalDim2Code: Code[20]; InheritFromDimSetID: Integer; InheritFromTableNo: Integer)
+    local procedure OnBeforeGetDefaultDimID(var TableID: array[10] of Integer; var No: array[10] of Code[20]; SourceCode: Code[20]; var GlobalDim1Code: Code[20]; var GlobalDim2Code: Code[20]; InheritFromDimSetID: Integer; InheritFromTableNo: Integer; var DimVal: Record "Dimension Value")
     begin
     end;
 
@@ -2749,6 +2788,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeParseDimParam(var DimensionValue: Record "Dimension Value")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSaveDefaultDim(TableID: Integer; No: Code[20]; FieldNumber: Integer; ShortcutDimCode: Code[20]; var IsHandled: Boolean);
     begin
     end;
@@ -2764,12 +2808,22 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateDimValueCode(FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean; var GLSetupShortcutDimCode: array[8] of Code[20])
+    local procedure OnBeforeValidateDimValueCode(FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean; var GLSetupShortcutDimCode: array[8] of Code[20]; var DimVal: Record "Dimension Value")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShortcutDimValues(var DimVal: Record "Dimension Value")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnGetRecDefaultDimID(RecVariant: Variant; CurrFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20]; var SourceCode: Code[20]; var InheritFromDimSetID: Integer; var InheritFromTableNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnParseDimParamOnBeforeTempDimensionValueFindSet(var DimensionValue: Record "Dimension Value")
     begin
     end;
 
@@ -2859,7 +2913,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateDimSetFromJobTaskDim(JobNo: Code[20]; JobTaskNo: Code[20]; var GlobalDimVal1: Code[20]; var GlobalDimVal2: Code[20]; var NewDimSetID: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeCreateDimSetFromJobTaskDim(JobNo: Code[20]; JobTaskNo: Code[20]; var GlobalDimVal1: Code[20]; var GlobalDimVal2: Code[20]; var NewDimSetID: Integer; var IsHandled: Boolean; var DimValue: Record "Dimension Value")
     begin
     end;
 }

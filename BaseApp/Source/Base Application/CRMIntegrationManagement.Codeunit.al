@@ -117,6 +117,7 @@ codeunit 5330 "CRM Integration Management"
         BrokenCouplingsFoundAndMarkedAsSkippedTotalTxt: Label 'Broken couplings were found and marked as skipped. Total count: %1.', Locked = true;
         NoBrokenCouplingsFoundTxt: Label 'No broken couplings were found.', Locked = true;
         UnitGroupMappingFeatureIdTok: Label 'UnitGroupMapping', Locked = true;
+        CurrencySymbolMappingFeatureIdTok: Label 'CurrencySymbolMapping', Locked = true;
 
     procedure IsCRMIntegrationEnabled(): Boolean
     var
@@ -3292,6 +3293,12 @@ codeunit 5330 "CRM Integration Management"
         exit(true);
     end;
 
+    [TryFunction]
+    local procedure TryOpen(var RecRef: RecordRef; TableId: Integer)
+    begin
+        RecRef.Open(TableId);
+    end;
+
     procedure SetCoupledFlag(CRMIntegrationRecord: Record "CRM Integration Record"; NewValue: Boolean): Boolean
     var
         RecRef: RecordRef;
@@ -3301,7 +3308,9 @@ codeunit 5330 "CRM Integration Management"
         if CRMIntegrationRecord."Table ID" = 0 then
             exit(false);
 
-        RecRef.Open(CRMIntegrationRecord."Table ID");
+        if not TryOpen(RecRef, CRMIntegrationRecord."Table ID") then
+            exit(false);
+
         if not RecRef.GetBySystemId(CRMIntegrationRecord."Integration ID") then
             exit(false);
 
@@ -3340,6 +3349,24 @@ codeunit 5330 "CRM Integration Management"
             exit(false);
         CoupledToCRMFldRef := RecRef.Field(FieldNo);
         exit(true);
+    end;
+
+    procedure IsCurrencySymbolMappingEnabled() FeatureEnabled: Boolean;
+    var
+        FeatureManagementFacade: Codeunit "Feature Management Facade";
+    begin
+        FeatureEnabled := FeatureManagementFacade.IsEnabled(CurrencySymbolMappingFeatureIdTok);
+        OnIsCurrencySymbolMappingEnabled(FeatureEnabled);
+    end;
+
+    procedure GetCurrencySymbolMappingFeatureKey(): Text[50]
+    begin
+        exit(CurrencySymbolMappingFeatureIdTok);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsCurrencySymbolMappingEnabled(var FeatureEnabled: Boolean)
+    begin
     end;
 
     procedure IsUnitGroupMappingEnabled() FeatureEnabled: Boolean;

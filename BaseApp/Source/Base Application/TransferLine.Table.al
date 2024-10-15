@@ -92,6 +92,7 @@
                 Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
 
                 "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
+                OnValidateQuantityOnAfterCalcQuantityBase(Rec, xRec);
                 if ((Quantity * "Quantity Shipped") < 0) or
                    (Abs(Quantity) < Abs("Quantity Shipped"))
                 then
@@ -143,13 +144,8 @@
                     WhseValidateSourceLine.TransLineVerifyChange(Rec, xRec);
                 end;
 
-                if "Qty. to Ship" > "Outstanding Quantity" then
-                    if "Outstanding Quantity" > 0 then
-                        Error(
-                          Text005,
-                          "Outstanding Quantity")
-                    else
-                        Error(Text006);
+                CheckItemCanBeShipped();
+
                 "Qty. to Ship (Base)" := CalcBaseQty("Qty. to Ship", FieldCaption("Qty. to Ship"), FieldCaption("Qty. to Ship (Base)"));
                 UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Ship", "Qty. to Ship (Base)", "Quantity Shipped", "Qty. Shipped (Base)");
 
@@ -329,7 +325,14 @@
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQuantityBase(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if CurrFieldNo <> 0 then
                     TestStatusOpen;
                 TestField("Qty. per Unit of Measure", 1);
@@ -349,7 +352,14 @@
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQtyToShipBase(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Qty. per Unit of Measure", 1);
                 Validate("Qty. to Ship", "Qty. to Ship (Base)");
             end;
@@ -367,7 +377,14 @@
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQtyToReceiveBase(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Qty. per Unit of Measure", 1);
                 Validate("Qty. to Receive", "Qty. to Receive (Base)");
             end;
@@ -1252,6 +1269,24 @@
                 ItemCheckAvail.RaiseUpdateInterruptedError;
     end;
 
+    local procedure CheckItemCanBeShipped()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckItemCanBeShipped(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Qty. to Ship" > "Outstanding Quantity" then
+            if "Outstanding Quantity" > 0 then
+                Error(
+                  Text005,
+                  "Outstanding Quantity")
+            else
+                Error(Text006);
+    end;
+
     procedure OpenItemTrackingLines(Direction: Enum "Transfer Direction")
     begin
         TestField("Item No.");
@@ -1797,6 +1832,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckItemCanBeShipped(var TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckTransferHeader(TransferHeader: Record "Transfer Header"; var IsHandled: Boolean; TransferLine: Record "Transfer Line"; xTransferLine: Record "Transfer Line");
     begin
     end;
@@ -1842,6 +1882,21 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantityBase(var TransferLine: Record "Transfer Line"; var xTransferLine: Record "Transfer Line"; FieldNumber: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQtyToShipBase(var TransferLine: Record "Transfer Line"; var xTransferLine: Record "Transfer Line"; FieldNumber: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQtyToReceiveBase(var TransferLine: Record "Transfer Line"; var xTransferLine: Record "Transfer Line"; FieldNumber: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeVerifyReserveTransferLineQuantity(var TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
     begin
     end;
@@ -1878,6 +1933,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateQuantityOnBeforeTransLineVerifyChange(var TransferLine: Record "Transfer Line"; xTransferLine: Record "Transfer Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQuantityOnAfterCalcQuantityBase(var TransferLine: Record "Transfer Line"; xTransferLine: Record "Transfer Line")
     begin
     end;
 

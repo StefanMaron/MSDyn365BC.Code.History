@@ -716,11 +716,12 @@ table 5200 Employee
 
     procedure DisplayMap()
     var
-        MapPoint: Record "Online Map Setup";
-        MapMgt: Codeunit "Online Map Management";
+        OnlineMapSetup: Record "Online Map Setup";
+        OnlineMapManagement: Codeunit "Online Map Management";
     begin
-        if MapPoint.FindFirst then
-            MapMgt.MakeSelection(DATABASE::Employee, GetPosition)
+        OnlineMapSetup.SetRange(Enabled, true);
+        if OnlineMapSetup.FindFirst then
+            OnlineMapManagement.MakeSelection(DATABASE::Employee, GetPosition)
         else
             Message(Text000);
     end;

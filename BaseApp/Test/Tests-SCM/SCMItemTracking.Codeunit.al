@@ -2307,7 +2307,7 @@ codeunit 137405 "SCM Item Tracking"
         CreateItem(Item, CreateItemTrackingCodeLotSerial, '', '');
 
         // [GIVEN] Post inventory with serial no. = "S1", lot no. = "L1", expiration date = "EXP-1".
-        MockItemEntryWithSerialAndLot(Item."No.", SerialNos[1], LotNos[1]);
+        MockItemEntryWithSerialAndLot(Item."No.", SerialNos[1], LotNos[1], WorkDate());
 
         // [GIVEN] Item journal line.
         // [GIVEN] Open item tracking and set a line with serial no. = "S1", lot no. = "L1".
@@ -3944,6 +3944,134 @@ codeunit 137405 "SCM Item Tracking"
         WarehouseActivityLine.TestField(Quantity, 1);
     end;
 
+    [Test]
+    procedure LotNoInfoExpiredInventoryDoesNotIncludeItemEntriesWithNoExpirationDate()
+    var
+        LotNoInformation: Record "Lot No. Information";
+        LotNoInformationCard: TestPage "Lot No. Information Card";
+        ItemNo: Code[20];
+        LotNo: array[2] of Code[20];
+    begin
+        // [FEATURE] [Lot No. Information] [UT]
+        // [SCENARIO 414220] "Expired Inventory" in Lot No. Information does not include item entries without expiration date.
+        Initialize();
+
+        ItemNo := LibraryInventory.CreateItemNo();
+        LotNo[1] := LibraryUtility.GenerateGUID();
+        LotNo[2] := LibraryUtility.GenerateGUID();
+
+        MockItemEntryWithSerialAndLot(ItemNo, '', LotNo[1], 0D);
+        MockItemEntryWithSerialAndLot(ItemNo, '', LotNo[2], WorkDate() - 1);
+
+        LibraryItemTracking.CreateLotNoInformation(LotNoInformation, ItemNo, '', LotNo[1]);
+        LibraryItemTracking.CreateLotNoInformation(LotNoInformation, ItemNo, '', LotNo[2]);
+
+        LotNoInformationCard.OpenView();
+        LotNoInformationCard.FILTER.SetFilter("Lot No.", LotNo[1]);
+        LotNoInformationCard."Expired Inventory".AssertEquals(0);
+        LotNoInformationCard.FILTER.SetFilter("Lot No.", LotNo[2]);
+        LotNoInformationCard."Expired Inventory".AssertEquals(LotNoInformationCard."Expired Inventory".AsDEcimal());
+        LotNoInformationCard.Close();
+    end;
+
+    [Test]
+    procedure SerialNoInfoExpiredInventoryDoesNotIncludeItemEntriesWithNoExpirationDate()
+    var
+        SerialNoInformation: Record "Serial No. Information";
+        SerialNoInformationCard: TestPage "Serial No. Information Card";
+        ItemNo: Code[20];
+        SerialNo: array[2] of Code[20];
+    begin
+        // [FEATURE] [Serial No. Information] [UT]
+        // [SCENARIO 414220] "Expired Inventory" in Serial No. Information does not include item entries without expiration date.
+        Initialize();
+
+        ItemNo := LibraryInventory.CreateItemNo();
+        SerialNo[1] := LibraryUtility.GenerateGUID();
+        SerialNo[2] := LibraryUtility.GenerateGUID();
+
+        MockItemEntryWithSerialAndLot(ItemNo, SerialNo[1], '', 0D);
+        MockItemEntryWithSerialAndLot(ItemNo, SerialNo[2], '', WorkDate() - 1);
+
+        LibraryItemTracking.CreateSerialNoInformation(SerialNoInformation, ItemNo, '', SerialNo[1]);
+        LibraryItemTracking.CreateSerialNoInformation(SerialNoInformation, ItemNo, '', SerialNo[2]);
+
+        SerialNoInformationCard.OpenView();
+        SerialNoInformationCard.FILTER.SetFilter("Serial No.", SerialNo[1]);
+        SerialNoInformationCard."Expired Inventory".AssertEquals(0);
+        SerialNoInformationCard.FILTER.SetFilter("Serial No.", SerialNo[2]);
+        SerialNoInformationCard."Expired Inventory".AssertEquals(SerialNoInformationCard."Expired Inventory".AsDEcimal());
+        SerialNoInformationCard.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesGetAvailabilityModalPageHandler,ConfirmHandlerTrue')]
+    procedure NoAvailWarningForNonSpecificLotTracking()
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SerialNo: Code[20];
+        LotNo: Code[20];
+    begin
+        // [SCENARIO 409128] No availability warning in item tracking lines for non-specific lot tracking.
+        Initialize();
+        SerialNo := LibraryUtility.GenerateGUID();
+        LotNo := LibraryUtility.GenerateGUID();
+
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, true, false);
+        ItemTrackingCode.Validate("Lot Sales Outbound Tracking", true);
+        ItemTrackingCode.Modify(true);
+
+        CreateItem(Item, ItemTrackingCode.Code, '', '');
+
+        CreateSalesOrder(SalesHeader, SalesLine, Item."No.", 1);
+        LibraryVariableStorage.Enqueue(SerialNo);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(SalesLine."Quantity (Base)");
+        SalesLine.OpenItemTrackingLines();
+
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Serial No. must not be available.');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Lot No. must be available.');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesGetAvailabilityModalPageHandler,ConfirmHandlerTrue')]
+    procedure NoAvailWarningForNonSpecificSerialNoTracking()
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SerialNo: Code[20];
+        LotNo: Code[20];
+    begin
+        // [SCENARIO 409128] No availability warning in item tracking lines for non-specific serial no. tracking.
+        Initialize();
+        SerialNo := LibraryUtility.GenerateGUID();
+        LotNo := LibraryUtility.GenerateGUID();
+
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
+        ItemTrackingCode.Validate("SN Sales Outbound Tracking", true);
+        ItemTrackingCode.Modify(true);
+
+        CreateItem(Item, ItemTrackingCode.Code, '', '');
+
+        CreateSalesOrder(SalesHeader, SalesLine, Item."No.", 1);
+        LibraryVariableStorage.Enqueue(SerialNo);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(SalesLine."Quantity (Base)");
+        SalesLine.OpenItemTrackingLines();
+
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Serial No. must be available.');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Lot No. must not be available.');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4880,7 +5008,7 @@ codeunit 137405 "SCM Item Tracking"
         TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
     end;
 
-    local procedure MockItemEntryWithSerialAndLot(ItemNo: Code[20]; SerialNo: Code[50]; LotNo: Code[50])
+    local procedure MockItemEntryWithSerialAndLot(ItemNo: Code[20]; SerialNo: Code[50]; LotNo: Code[50]; ExpirationDate: Date)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
@@ -4894,7 +5022,7 @@ codeunit 137405 "SCM Item Tracking"
             "Remaining Quantity" := Quantity;
             Open := true;
             Positive := true;
-            "Expiration Date" := WorkDate;
+            "Expiration Date" := ExpirationDate;
             Insert;
         end;
     end;
@@ -5856,6 +5984,18 @@ codeunit 137405 "SCM Item Tracking"
         end;
 
         ItemTrkgLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    procedure ItemTrackingLinesGetAvailabilityModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        ItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText());
+        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+        LibraryVariableStorage.Enqueue(ItemTrackingLines.AvailabilitySerialNo.AsBoolean);
+        LibraryVariableStorage.Enqueue(ItemTrackingLines.AvailabilityLotNo.AsBoolean);
+
+        ItemTrackingLines.OK.Invoke();
     end;
 
     [ModalPageHandler]

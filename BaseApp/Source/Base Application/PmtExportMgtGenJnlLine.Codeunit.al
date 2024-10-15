@@ -247,12 +247,13 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
             Init;
             "Data Exch Entry No." := DataExchEntryNo;
             "Sender Bank Account Code" := GenJnlLine."Bal. Account No.";
+            "Sender Bank Name" := BankAccount.Name;
 
             if VendorBankAccount.Get(GenJnlLine."Account No.", GenJnlLine."Recipient Bank Account") then begin
                 Amount := GenJnlLine.Amount;
                 "Currency Code" := GeneralLedgerSetup.GetCurrencyCode(GenJnlLine."Currency Code");
                 "Recipient Bank Acc. No." :=
-                  CopyStr(VendorBankAccount.GetBankAccountNo, 1, MaxStrLen("Recipient Bank Acc. No."));
+                    CopyStr(VendorBankAccount.GetBankAccountNo, 1, MaxStrLen("Recipient Bank Acc. No."));
                 "Recipient Reg. No." := VendorBankAccount."Bank Branch No.";
                 "Recipient Acc. No." := VendorBankAccount."Bank Account No.";
                 "Recipient Bank Country/Region" := VendorBankAccount."Country/Region Code";
@@ -260,6 +261,8 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
                 "Recipient Bank Address" := CopyStr(VendorBankAccount.Address, 1, 35);
                 "Recipient Bank City" := CopyStr(VendorBankAccount."Post Code" + VendorBankAccount.City, 1, 35);
                 "Recipient Bank BIC" := VendorBankAccount."SWIFT Code";
+                "Recipient Bank County" := VendorBankAccount.County;
+                "Recipient Bank Post Code" := VendorBankAccount."Post Code";
             end else
                 if GenJnlLine."Creditor No." <> '' then begin
                     Amount := GenJnlLine."Amount (LCY)";
@@ -269,6 +272,7 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
             "Recipient Name" := CopyStr(Vendor.Name, 1, 35);
             "Recipient Address" := CopyStr(Vendor.Address, 1, 35);
             "Recipient City" := CopyStr(Vendor."Post Code" + ' ' + Vendor.City, 1, 35);
+            "Recipient Email Address" := Vendor."E-Mail";
             "Transfer Date" := GenJnlLine."Posting Date";
             "Message to Recipient 1" := CopyStr(GenJnlLine."Message to Recipient", 1, 35);
             "Message to Recipient 2" := CopyStr(GenJnlLine."Message to Recipient", 36, 70);

@@ -231,7 +231,15 @@ page 497 "Reservation Entries"
     }
 
     trigger OnModifyRecord(): Boolean
+    var
+        Result: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnModifyRecord(Rec, xRec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         ReservEngineMgt.ModifyReservEntry(xRec, "Quantity (Base)", Description, true);
         exit(false);
     end;
@@ -410,6 +418,11 @@ page 497 "Reservation Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterLookupReserved(var ReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnModifyRecord(var ReservEntry: Record "Reservation Entry"; xReservEntry: Record "Reservation Entry"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

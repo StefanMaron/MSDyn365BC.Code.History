@@ -86,7 +86,7 @@ page 1341 "Cust. Template Card"
                 field("Validate EU Vat Reg. No."; "Validate EU Vat Reg. No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the VAT registration number has been validated by the VAT number validation service.';
+                    ToolTip = 'Specifies if the VAT registration number will be specified in the EU VAT Registration No. Check page so that it is validated against the VAT registration number validation service.';
                 }
                 group(PostingDetails)
                 {

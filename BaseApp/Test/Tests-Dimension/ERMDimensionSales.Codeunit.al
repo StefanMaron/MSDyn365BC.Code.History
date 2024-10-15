@@ -1003,20 +1003,51 @@ codeunit 134475 "ERM Dimension Sales"
     end;
 
     [Test]
+    procedure SalesInvoiceMultipleLinesAndDimensionsWithNormalVAT()
+    var
+        Customer: Record Customer;
+        GLAccount: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeader: Record "Sales Header";
+        VATEntry: Record "VAT Entry";
+    begin
+        // [FEATURE] [Reverse Charge VAT] [VAT] [Dimension] [Rounding]
+        // [SCENARIO 378079] The system distributes the rounding remainder between the lines of the posted document when "VAT Calculation Type" = "Normal VAT"
+        Initialize();
+
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 23);
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
+
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Customer.Modify(true);
+
+        GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale));
+
+        CreateDocumentWith258and350Lines(SalesHeader, Customer, GLAccount);
+
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        VATEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Assert.RecordCount(VATEntry, 5);
+
+        VATEntry.CalcSums(Amount);
+        VATEntry.TestField(Amount, -31.79);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure SalesInvoiceMultipleLinesAndDimensionsWithReverseChargeVAT()
     var
         Customer: Record Customer;
         GLAccount: Record "G/L Account";
         VATPostingSetup: Record "VAT Posting Setup";
-        DimensionValue: array[5] of Record "Dimension Value";
         SalesHeader: Record "Sales Header";
-        SalesLine: array[5] of Record "Sales Line";
         VATEntry: Record "VAT Entry";
-        Index: Integer;
     begin
         // [FEATURE] [Reverse Charge VAT] [VAT] [Dimension] [Rounding]
-        // [SCENARIO 377909] System posts zero amounts in VAT Entries when it posts lines with "VAT Calculation Type" = Reverse Charge VAT
-
+        // [SCENARIO 378079] The system distributes the rounding remainder between the lines of the posted document when "VAT Calculation Type" = "Reverse Charge VAT"
         Initialize();
 
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", 23);
@@ -1027,22 +1058,9 @@ codeunit 134475 "ERM Dimension Sales"
         Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         Customer.Modify(true);
 
-        GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
+        GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale));
 
-        LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
-        for Index := 2 to ArrayLen(DimensionValue) do
-            LibraryDimension.CreateDimensionValue(DimensionValue[Index], DimensionValue[1]."Dimension Code");
-
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
-        for Index := 1 to ArrayLen(DimensionValue) do begin
-            LibrarySales.CreateSalesLine(SalesLine[Index], SalesHeader, SalesLine[Index].Type::"G/L Account", GLAccount."No.", 1);
-            SalesLine[Index].Validate("Shortcut Dimension 1 Code", DimensionValue[Index].Code);
-            SalesLine[Index].Validate("Unit Price", 25.8);
-            SalesLine[Index].Modify(true);
-        end;
-
-        SalesLine[Index].Validate("Unit Price", 35.0);
-        SalesLine[Index].Modify(true);
+        CreateDocumentWith258and350Lines(SalesHeader, Customer, GLAccount);
 
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -1053,27 +1071,109 @@ codeunit 134475 "ERM Dimension Sales"
         VATEntry.TestField(Amount, 0);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceMultipleLinesAndDimensionsWithNormalVATFCY()
+    var
+        GLAccount: Record "G/L Account";
+        Customer: Record Customer;
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeader: Record "Sales Header";
+        VATEntry: Record "VAT Entry";
+        CurrencyCode: Code[10];
+        DocumentNo: Code[20];
+        ExpectedVATAmount: array[5] of Decimal;
+    begin
+        // [FEATURE] [Reverse Charge VAT] [VAT] [Dimension] [Rounding] [FCY]
+        // [SCENARIO 401316] System calculates VAT Amount in currency's values and then converts to LCY amounts for Normal VAT
+        Initialize();
+
+        CurrencyCode := CreateCurrencyWithRelationalExchangeRate(4.3976);
+
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 23);
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
+
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Customer.Validate("Currency Code", CurrencyCode);
+        Customer.Modify(true);
+
+        GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale));
+
+        CreateDocumentWith258and350Lines(SalesHeader, Customer, GLAccount);
+
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        VATEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Assert.RecordCount(VATEntry, 5);
+
+        VATEntry.CalcSums(Amount);
+        VATEntry.TestField(Amount, -139.8);
+
+        InitializeExpectedVATAmounts(ExpectedVATAmount, -35.4, -26.12, -26.08, -26.12, -26.08);
+        VerifyVATEntriesAmount(VATPostingSetup."VAT Prod. Posting Group", DocumentNo, ExpectedVATAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceMultipleLinesAndDimensionsWithReverseChargeVATFCY()
+    var
+        Customer: Record Customer;
+        GLAccount: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeader: Record "Sales Header";
+        VATEntry: Record "VAT Entry";
+        CurrencyCode: Code[10];
+    begin
+        // [FEATURE] [Reverse Charge VAT] [VAT] [Dimension] [Rounding] [FCY]
+        // [SCENARIO 401316] System does not calculate VAT Amount for  Reverse Charge VAT
+        Initialize();
+
+        CurrencyCode := CreateCurrencyWithRelationalExchangeRate(4.3976);
+
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", 23);
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
+
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Customer.Validate("Currency Code", CurrencyCode);
+        Customer.Modify(true);
+
+        GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale));
+
+        CreateDocumentWith258and350Lines(SalesHeader, Customer, GLAccount);
+
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        VATEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        VATEntry.CalcSums(Amount);
+        VATEntry.TestField(Amount, 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Dimension Sales");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         // Lazy Setup.
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Dimension Sales");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         IsInitialized := true;
         Commit();
 
-        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Dimension Sales");
     end;
 
@@ -1096,6 +1196,15 @@ codeunit 134475 "ERM Dimension Sales"
         LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
     end;
 
+    local procedure InitializeExpectedVATAmounts(var ExpectedVATAmount: array[5] of Decimal; Amount1: Decimal; Amount2: Decimal; Amount3: Decimal; Amount4: Decimal; Amount5: Decimal)
+    begin
+        ExpectedVATAmount[1] := Amount1;
+        ExpectedVATAmount[2] := Amount2;
+        ExpectedVATAmount[3] := Amount3;
+        ExpectedVATAmount[4] := Amount4;
+        ExpectedVATAmount[5] := Amount5;
+    end;
+
     local procedure ChangeDimensionOnSalesHeader(var SalesHeader: Record "Sales Header"; ShortcutDimensionCode: Code[20])
     var
         DimensionSetEntry: Record "Dimension Set Entry";
@@ -1108,6 +1217,44 @@ codeunit 134475 "ERM Dimension Sales"
           "Shortcut Dimension 1 Code",
           FindDifferentDimensionValue(DimensionSetEntry."Dimension Code", DimensionSetEntry."Dimension Value Code"));
         SalesHeader.Modify(true);
+    end;
+
+    local procedure CreateDocumentWith258and350Lines(var SalesHeader: Record "Sales Header"; var Customer: Record Customer; var GLAccount: Record "G/L Account")
+    var
+        DimensionValue: array[5] of Record "Dimension Value";
+        SalesLine: array[5] of Record "Sales Line";
+        Index: Integer;
+    begin
+        LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
+        for Index := 2 to ArrayLen(DimensionValue) do
+            LibraryDimension.CreateDimensionValue(DimensionValue[Index], DimensionValue[1]."Dimension Code");
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        for Index := 1 to ArrayLen(DimensionValue) do begin
+            LibrarySales.CreateSalesLine(SalesLine[Index], SalesHeader, SalesLine[Index].Type::"G/L Account", GLAccount."No.", 1);
+            SalesLine[Index].Validate("Shortcut Dimension 1 Code", DimensionValue[Index].Code);
+            SalesLine[Index].Validate("Unit Price", 25.8);
+            SalesLine[Index].Modify(true);
+        end;
+
+        SalesLine[Index].Validate("Unit Price", 35.0);
+        SalesLine[Index].Modify(true);
+    end;
+
+    local procedure CreateCurrencyWithRelationalExchangeRate(RelationalExchangeRate: Decimal): Code[10]
+    var
+        Currency: Record Currency;
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        LibraryERM.CreateCurrency(Currency);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate());
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", 1);
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", RelationalExchangeRate);
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", 1);
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", RelationalExchangeRate);
+        CurrencyExchangeRate.Modify(true);
+
+        exit(Currency.Code);
     end;
 
     local procedure CopyDimensionSetEntry(var TempDimensionSetEntry: Record "Dimension Set Entry" temporary; var DimensionSetEntry: Record "Dimension Set Entry")
@@ -1750,6 +1897,26 @@ codeunit 134475 "ERM Dimension Sales"
         TempDimensionSetEntry.SetRange("Dimension Code", DimensionValue."Dimension Code");
         TempDimensionSetEntry.FindFirst;
         TempDimensionSetEntry.TestField("Dimension Value Code", DimensionValue.Code);
+    end;
+
+    local procedure VerifyVATEntriesAmount(VATProdPostingGroup: Code[20]; DocumentNo: Code[20]; ExpectedVATAmount: array[5] of Decimal)
+    var
+        VATEntry: Record "VAT Entry";
+        Index: Integer;
+    begin
+        VATEntry.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        Assert.RecordCount(VATEntry, ArrayLen(ExpectedVATAmount));
+
+        Index := 0;
+        VATEntry.FindSet();
+        repeat
+            Index += 1;
+            Assert.AreEqual(
+              ExpectedVATAmount[Index],
+              VATEntry.Amount,
+              StrSubstNo('Incorrect Amount in "VAT Entry"[%1]', Index));
+        until VATEntry.Next() = 0;
     end;
 
     [ConfirmHandler]

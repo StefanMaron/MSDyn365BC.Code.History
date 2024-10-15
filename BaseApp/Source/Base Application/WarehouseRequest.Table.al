@@ -72,6 +72,13 @@ table 5765 "Warehouse Request"
             Editable = false;
             TableRelation = "Shipping Agent";
         }
+        field(9; "Shipping Agent Service Code"; Code[10])
+        {
+            AccessByPermission = TableData "Shipping Agent Services" = R;
+            Caption = 'Shipping Agent Service Code';
+            Editable = false;
+            TableRelation = "Shipping Agent Services";
+        }
         field(10; "Shipping Advice"; Enum "Sales Header Shipping Advice")
         {
             Caption = 'Shipping Advice';

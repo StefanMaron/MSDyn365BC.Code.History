@@ -546,6 +546,7 @@ codeunit 136400 "Resource Employee"
     local procedure Initialize()
     var
         EmployeeTempl: Record "Employee Templ.";
+        OnlineMapSetup: Record "Online Map Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Resource Employee");
         EmployeeTempl.DeleteAll(true);
@@ -557,6 +558,7 @@ codeunit 136400 "Resource Employee"
 
         LibraryTemplates.EnableTemplatesFeature();
         LibraryHumanResource.SetupEmployeeNumberSeries;
+        OnlineMapSetup.ModifyAll(Enabled, true);
 
         IsInitialized := true;
         Commit();

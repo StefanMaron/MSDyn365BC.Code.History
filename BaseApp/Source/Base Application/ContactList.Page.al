@@ -842,11 +842,7 @@ page 5052 "Contact List"
 
                         trigger OnAction()
                         begin
-#if not CLEAN18
-                            CreateCustomer(ChooseCustomerTemplate());
-#else
-                            CreateCustomerFromTemplate(ChooseNewCustomerTemplate());
-#endif
+                            CreateCustomer();
                         end;
                     }
                     action(Vendor)

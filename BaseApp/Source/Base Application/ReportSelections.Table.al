@@ -1,4 +1,4 @@
-table 77 "Report Selections"
+﻿table 77 "Report Selections"
 {
     Caption = 'Report Selections';
 
@@ -144,6 +144,8 @@ table 77 "Report Selections"
         MailingJobCategoryTok: Label 'Sending invoices via email';
         MailingJobCategoryCodeTok: Label 'SENDINV', Comment = 'Must be max. 10 chars and no spacing. (Send Invoice)';
         FileManagement: Codeunit "File Management";
+        RecordDoesNotMatchErr: Label 'The record that will be sent does not match the original record. The original record was changed or deleted. Please verify that the record exists, or try to re-send the remittance advice from the vendor ledger entries.';
+        JobQueueParameterStringTok: Label '%1|%2|%3|%4|%5|%6|%7', Locked = true;
 
     procedure NewRecord()
     begin
@@ -175,11 +177,14 @@ table 77 "Report Selections"
     var
         ReportSelections: Record "Report Selections";
         ReportLayoutSelection: Record "Report Layout Selection";
+        ShowEmailBodyDefinedError: Boolean;
     begin
         if "Use for Email Body" then begin
             ReportSelections.SetEmailBodyUsageFilters(Usage);
             ReportSelections.SetFilter(Sequence, '<>%1', Sequence);
-            if not ReportSelections.IsEmpty() then
+            ShowEmailBodyDefinedError := not ReportSelections.IsEmpty();
+            OnCheckEmailBodyUsageOnAfterCalcShowEmailBodyDefinedError(Rec, ReportSelections, ShowEmailBodyDefinedError);
+            if ShowEmailBodyDefinedError then
                 Error(EmailBodyIsAlreadyDefinedErr, Usage);
 
             if "Email Body Layout Code" = '' then
@@ -738,9 +743,9 @@ table 77 "Report Selections"
 
         IsHandled := false;
         OnBeforeGetEmailBodyCustomer(
-            ReportUsage.AsInteger(), RecordVariant, TempBodyReportSelections, CustNo, CustEmailAddress, EmailBodyText, IsHandled);
+            ReportUsage.AsInteger(), RecordVariant, TempBodyReportSelections, CustNo, CustEmailAddress, EmailBodyText, IsHandled, Result);
         if IsHandled then
-            exit;
+            exit(Result);
 
         if CustEmailAddress = '' then
             CustEmailAddress := GetEmailAddressIgnoringLayout(ReportUsage, RecordVariant, CustNo);
@@ -908,17 +913,34 @@ table 77 "Report Selections"
         RecRef: RecordRef;
         ReportUsage: Integer;
         DocNo: Code[20];
+        DocNos: Text;
         DocName: Text[150];
         No: Code[20];
+        FieldNo: Integer;
         ParamString: Text;
     begin
         // Called from codeunit 260 OnRun trigger - in a background process.
-        RecRef.Get(JobQueueEntry."Record ID to Process");
-        RecRef.LockTable();
-        RecRef.Find;
-        RecRef.SetRecFilter;
         ParamString := JobQueueEntry."Parameter String";  // Are set in function SendEmailToCust
-        GetJobQueueParameters(ParamString, ReportUsage, DocNo, DocName, No);
+
+        GetJobQueueParameters(ParamString, ReportUsage, DocNos, DocName, No, FieldNo);
+
+        if FieldNo <> 0 then begin
+            RecRef.Open(JobQueueEntry."Record ID to Process".TableNo);
+            RecRef.Field(FieldNo).SetFilter(DocNos);
+            RecRef.LockTable();
+            RecRef.FindSet();
+            RecRef.Next(0);
+        end else begin
+            RecRef.Get(JobQueueEntry."Record ID to Process");
+            RecRef.LockTable();
+            RecRef.Find();
+            RecRef.SetRecFilter();
+        end;
+
+        if not DocNos.Contains('|') then
+            DocNo := CopyStr(DocNos, 1, MaxStrLen(DocNo));
+
+        VerifyRecordBySystemId(ParamString, ReportUsage, RecRef);
         OnSendEmailInBackgroundOnAfterGetJobQueueParameters(RecRef, ParamString);
 
         if ParamString = 'Vendor' then
@@ -927,12 +949,27 @@ table 77 "Report Selections"
             SendEmailToCustDirectly("Report Selection Usage".FromInteger(ReportUsage), RecRef, DocNo, DocName, false, No);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced with GetJobQueueParameters where DocNo is now Text instead of Code[20] and an additional parameter, FieldNo, to allow combination of multiple records.', '20.0')]
     procedure GetJobQueueParameters(var ParameterString: Text; var ReportUsage: Integer; var DocNo: Code[20]; var DocName: Text[150]; var CustNo: Code[20]) WasSuccessful: Boolean
+    var
+        DocNos: Text;
+        FieldNo: Integer;
+    begin
+        WasSuccessful := GetJobQueueParameters(ParameterString, ReportUsage, DocNos, DocName, CustNo, FieldNo);
+        DocNo := CopyStr(DocNos, 1, MaxStrLen(DocNo));
+    end;
+#endif
+
+    procedure GetJobQueueParameters(var ParameterString: Text; var ReportUsage: Integer; var DocNos: Text; var DocName: Text[150]; var CustNo: Code[20]; var FieldNo: Integer) WasSuccessful: Boolean
     begin
         WasSuccessful := Evaluate(ReportUsage, GetNextJobQueueParam(ParameterString));
-        WasSuccessful := WasSuccessful and Evaluate(DocNo, GetNextJobQueueParam(ParameterString));
+        WasSuccessful := WasSuccessful and Evaluate(DocNos, GetNextJobQueueParam(ParameterString));
         WasSuccessful := WasSuccessful and Evaluate(DocName, GetNextJobQueueParam(ParameterString));
         WasSuccessful := WasSuccessful and Evaluate(CustNo, GetNextJobQueueParam(ParameterString));
+        WasSuccessful := WasSuccessful and Evaluate(FieldNo, GetNextJobQueueParam(ParameterString));
+
+        DocNos := DocNos.Replace(',', '|');
     end;
 
     procedure RunGetNextJobQueueParam(var Parameter: Text): Text
@@ -1013,13 +1050,9 @@ table 77 "Report Selections"
         with TempAttachReportSelections do
             repeat
                 if CanSaveReportAsPDF(TempAttachReportSelections."Report ID") then begin
-                    FileManagement.BLOBImportFromServerFile(
-                        TempBlob,
-                        SaveReportAsPDF(
-                            "Report ID", RecordVariant, "Custom Report Layout Code", "Report Selection Usage".FromInteger(ReportUsage)));
-
+                    Clear(TempBlob);
+                    SaveReportAsPDFInTempBlob(TempBlob, "Report ID", RecordVariant, "Custom Report Layout Code", "Report Selection Usage".FromInteger(ReportUsage));
                     SaveDocumentAttachmentFromRecRef(RecRef, TempAttachReportSelections, DocumentNo, AccountNo, TempBlob, NumberOfReportsAttached);
-
                 end;
             until Next() = 0;
 
@@ -1080,15 +1113,22 @@ table 77 "Report Selections"
         exit(Report.RdlcLayout(ReportId, DummyInStream) or Report.WordLayout(ReportId, DummyInStream));
     end;
 
-    procedure SendEmailToCust(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ShowDialog: Boolean; CustNo: Code[20])
+    procedure SendEmailToCust(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ShowDialog: Boolean; CustNo: Code[20]; DocNoFieldNo: Integer)
     var
+        DummyJobQueueEntry: Record "Job Queue Entry";
         O365DocumentSentHistory: Record "O365 Document Sent History";
         GraphMail: Codeunit "Graph Mail";
+        SelectionFilterManagement: Codeunit SelectionFilterManagement;
         RecRef: RecordRef;
         ReportUsageEnum: Enum "Report Selection Usage";
         UpdateDocumentSentHistory: Boolean;
         Handled: Boolean;
         ParameterString: Text;
+        RecFilter: Text;
+        ParameterStringLen: Integer;
+        MaxAvailableLength: Integer;
+        LastComma: Integer;
+        CurrentFilter: Text;
     begin
         OnBeforeSendEmailToCust(ReportUsage, RecordVariant, DocNo, DocName, ShowDialog, CustNo, Handled);
         if Handled then
@@ -1116,12 +1156,48 @@ table 77 "Report Selections"
 
         RecRef.GetTable(RecordVariant);
         if RecRef.FindSet() then
-            repeat
-                ParameterString := StrSubstNo('%1|%2|%3|%4|', ReportUsage, DocNo, DocName, CustNo);
+            if DocNo = '' then begin
+                RecRef.CurrentKeyIndex(1);
+
+                // Generate filterstring for doc-nos
+                RecFilter := SelectionFilterManagement.GetSelectionFilter(RecRef, DocNoFieldNo, false);
+                RecFilter := RecFilter.Replace('|', ',');
+
+                // Get length of Parameter String without the filter
+                ParameterStringLen := StrLen(StrSubstNo(JobQueueParameterStringTok, ReportUsage, '', DocName, CustNo, DocNoFieldNo, '', ''));
+                MaxAvailableLength := MaxStrLen(DummyJobQueueEntry."Parameter String") - ParameterStringLen;
+
+                // Loop through the filter and create job queues until all filters are covered
+                while StrLen(RecFilter) > MaxAvailableLength do begin
+                    CurrentFilter := RecFilter.Substring(1, MaxAvailableLength);
+                    LastComma := CurrentFilter.LastIndexOf(',');
+                    CurrentFilter := CurrentFilter.Substring(1, LastComma);
+                    RecFilter := RecFilter.Substring(LastComma + 1);
+
+                    ParameterString := StrSubstNo(JobQueueParameterStringTok, ReportUsage, CurrentFilter, DocName, CustNo, DocNoFieldNo, '', '');
+                    OnSendEmailToCustOnAfterSetParameterString(RecRef, ParameterString);
+                    EnqueueMailingJob(RecRef.RecordId, ParameterString, DocName);
+                end;
+
+                // Final loop
+                ParameterString := StrSubstNo(JobQueueParameterStringTok, ReportUsage, RecFilter, DocName, CustNo, DocNoFieldNo, '', '');
                 OnSendEmailToCustOnAfterSetParameterString(RecRef, ParameterString);
                 EnqueueMailingJob(RecRef.RecordId, ParameterString, DocName);
-            until RecRef.Next() = 0;
+            end else
+                repeat
+                    ParameterString := StrSubstNo(JobQueueParameterStringTok, ReportUsage, DocNo, DocName, CustNo, DocNoFieldNo, '', '');
+                    OnSendEmailToCustOnAfterSetParameterString(RecRef, ParameterString);
+                    EnqueueMailingJob(RecRef.RecordId, ParameterString, DocName);
+                until RecRef.Next() = 0;
     end;
+
+#if not CLEAN20
+    [Obsolete('Replaced with overload with an additional parameter, DocNoFieldNo.', '20.0')]
+    procedure SendEmailToCust(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ShowDialog: Boolean; CustNo: Code[20])
+    begin
+        SendEmailToCust(ReportUsage, RecordVariant, DocNo, DocName, ShowDialog, CustNo, 0)
+    end;
+#endif
 
     procedure ShouldSendToCustDirectly(ReportUsageEnum: Enum "Report Selection Usage"; RecordVariant: Variant; CustNo: Code[20]): Boolean
     begin
@@ -1145,16 +1221,31 @@ table 77 "Report Selections"
         exit(MailManagement.IsEnabled());
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced with overload with an additional parameter, VendorNoFieldNo.', '20.0')]
     procedure SendEmailToVendor(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ShowDialog: Boolean; VendorNo: Code[20])
+    begin
+        SendEmailToVendor(ReportUsage, RecordVariant, DocNo, DocName, ShowDialog, VendorNo, 0);
+    end;
+#endif
+
+    procedure SendEmailToVendor(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ShowDialog: Boolean; VendorNo: Code[20]; VendorNoFieldNo: Integer)
     var
         O365DocumentSentHistory: Record "O365 Document Sent History";
+        DummyJobQueueEntry: Record "Job Queue Entry";
         GraphMail: Codeunit "Graph Mail";
+        SelectionFilterManagement: Codeunit SelectionFilterManagement;
         RecRef: RecordRef;
         ReportUsageEnum: Enum "Report Selection Usage";
         VendorEmail: Text[250];
         UpdateDocumentSentHistory: Boolean;
         Handled: Boolean;
         ParameterString: Text;
+        ParameterStringLen: Integer;
+        MaxAvailableLength: Integer;
+        LastComma: Integer;
+        CurrentFilter: Text;
+        RecFilter: Text;
     begin
         OnBeforeSendEmailToVendor(ReportUsage, RecordVariant, DocNo, DocName, ShowDialog, VendorNo, Handled);
         if Handled then
@@ -1183,11 +1274,53 @@ table 77 "Report Selections"
 
         RecRef.GetTable(RecordVariant);
         if RecRef.FindSet() then
-            repeat
-                ParameterString := StrSubstNo('%1|%2|%3|%4|%5', ReportUsage, DocNo, DocName, VendorNo, 'Vendor');
+            if DocNo = '' then begin
+                RecRef.CurrentKeyIndex(1);
+
+                // Generate filterstring for doc-nos
+                RecFilter := SelectionFilterManagement.GetSelectionFilter(RecRef, VendorNoFieldNo, false);
+                RecFilter := RecFilter.Replace('|', ',');
+
+                // Get length of Parameter String without the filter
+                if IsRecordSystemIdVerificationRequired(ReportUsage, RecRef.Number) then
+                    ParameterString := StrSubstNo(JobQueueParameterStringTok, ReportUsage, '', DocName, VendorNo, VendorNoFieldNo, RecRef.Field(RecRef.SystemIdNo).Value, 'Vendor')
+                else
+                    ParameterString := StrSubstNo(JobQueueParameterStringTok, ReportUsage, '', DocName, VendorNo, VendorNoFieldNo, '', 'Vendor');
+                ParameterStringLen := StrLen(ParameterString);
+                MaxAvailableLength := MaxStrLen(DummyJobQueueEntry."Parameter String") - ParameterStringLen;
+
+                // Loop through the filter and create job queues until all filters are covered
+                while StrLen(RecFilter) > MaxAvailableLength do begin
+                    CurrentFilter := RecFilter.Substring(1, MaxAvailableLength);
+                    LastComma := CurrentFilter.LastIndexOf(',');
+                    CurrentFilter := CurrentFilter.Substring(1, LastComma);
+                    RecFilter := RecFilter.Substring(LastComma + 1);
+
+                    if IsRecordSystemIdVerificationRequired(ReportUsage, RecRef.Number) then
+                        ParameterString := StrSubstNo(JobQueueParameterStringTok, ReportUsage, CurrentFilter, DocName, VendorNo, VendorNoFieldNo, RecRef.Field(RecRef.SystemIdNo).Value, 'Vendor')
+                    else
+                        ParameterString := StrSubstNo(JobQueueParameterStringTok, ReportUsage, CurrentFilter, DocName, VendorNo, VendorNoFieldNo, '', 'Vendor');
+                    OnSendEmailToCustOnAfterSetParameterString(RecRef, ParameterString);
+                    EnqueueMailingJob(RecRef.RecordId, ParameterString, DocName);
+                end;
+
+                // Final loop
+                if IsRecordSystemIdVerificationRequired(ReportUsage, RecRef.Number) then
+                    ParameterString := StrSubstNo(JobQueueParameterStringTok, ReportUsage, RecFilter, DocName, VendorNo, VendorNoFieldNo, RecRef.Field(RecRef.SystemIdNo).Value, 'Vendor')
+                else
+                    ParameterString := StrSubstNo(JobQueueParameterStringTok, ReportUsage, RecFilter, DocName, VendorNo, VendorNoFieldNo, '', 'Vendor');
+
                 OnSendEmailToVendorOnAfterSetParameterString(RecRef, ParameterString);
                 EnqueueMailingJob(RecRef.RecordId, ParameterString, DocName);
-            until RecRef.Next() = 0;
+            end else
+                repeat
+                    if IsRecordSystemIdVerificationRequired(ReportUsage, RecRef.Number) then
+                        ParameterString := StrSubstNo(JobQueueParameterStringTok, ReportUsage, DocNo, DocName, VendorNo, VendorNoFieldNo, RecRef.Field(RecRef.SystemIdNo).Value, 'Vendor')
+                    else
+                        ParameterString := StrSubstNo(JobQueueParameterStringTok, ReportUsage, DocNo, DocName, VendorNo, VendorNoFieldNo, '', 'Vendor');
+                    OnSendEmailToVendorOnAfterSetParameterString(RecRef, ParameterString);
+                    EnqueueMailingJob(RecRef.RecordId, ParameterString, DocName);
+                until RecRef.Next() = 0;
     end;
 
     local procedure SendEmailToCustDirectly(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ShowDialog: Boolean; CustNo: Code[20]): Boolean
@@ -1332,6 +1465,7 @@ table 77 "Report Selections"
                     EmailAddress := CopyStr(
                         GetNextEmailAddressFromCustomReportSelection(CustomReportSelection, DefaultEmailAddress, Usage, Sequence),
                         1, MaxStrLen(EmailAddress));
+                    Clear(TempBlob);
                     SaveReportAsPDFInTempBlob(TempBlob, "Report ID", DocumentRecord, "Custom Report Layout Code", ReportUsage);
                     TempBlob.CreateInStream(AttachmentStream);
 
@@ -1355,17 +1489,19 @@ table 77 "Report Selections"
     var
         TempReportSelections: Record "Report Selections" temporary;
         ElectronicDocumentFormat: Record "Electronic Document Format";
-        ServerAttachmentFilePath: Text[250];
+        TempBlob: Codeunit "Temp Blob";
+        AttachmentInStream: InStream;
         ClientAttachmentFileName: Text;
     begin
         OnBeforeSetReportLayout(RecordVariant, ReportUsage.AsInteger());
         FindReportUsageForCust(ReportUsage, CustNo, TempReportSelections);
         with TempReportSelections do
             repeat
-                ServerAttachmentFilePath := SaveReportAsPDF("Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
+                Clear(TempBlob);
+                SaveReportAsPDFInTempBlob(TempBlob, "Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
+                TempBlob.CreateInStream(AttachmentInStream);
                 ClientAttachmentFileName := ElectronicDocumentFormat.GetAttachmentFileName(DocNo, DocName, 'pdf');
-                FileManagement.DownloadHandler(
-                    ServerAttachmentFilePath, '', '', FileManagement.GetToFilterText('', ClientAttachmentFileName), ClientAttachmentFileName);
+                DownloadFromStream(AttachmentInStream, '', '', FileManagement.GetToFilterText('', ClientAttachmentFileName), ClientAttachmentFileName);
             until Next() = 0;
     end;
 
@@ -1383,17 +1519,19 @@ table 77 "Report Selections"
     var
         TempReportSelections: Record "Report Selections" temporary;
         ElectronicDocumentFormat: Record "Electronic Document Format";
-        ServerAttachmentFilePath: Text[250];
+        TempBlob: Codeunit "Temp Blob";
+        AttachmentInStream: InStream;
         ClientAttachmentFileName: Text;
     begin
         OnBeforeSetReportLayout(RecordVariant, ReportUsage.AsInteger());
         FindReportUsageForVend(ReportUsage, VendorNo, TempReportSelections);
         with TempReportSelections do
             repeat
-                ServerAttachmentFilePath := SaveReportAsPDF("Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
+                Clear(TempBlob);
+                SaveReportAsPDFInTempBlob(TempBlob, "Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
+                TempBlob.CreateInStream(AttachmentInStream);
                 ClientAttachmentFileName := ElectronicDocumentFormat.GetAttachmentFileName(DocNo, DocName, 'pdf');
-                FileManagement.DownloadHandler(
-                    ServerAttachmentFilePath, '', '', FileManagement.GetToFilterText('', ClientAttachmentFileName), ClientAttachmentFileName);
+                DownloadFromStream(AttachmentInStream, '', '', FileManagement.GetToFilterText('', ClientAttachmentFileName), ClientAttachmentFileName);
             until Next() = 0;
     end;
 
@@ -1411,19 +1549,19 @@ table 77 "Report Selections"
     var
         TempReportSelections: Record "Report Selections" temporary;
         ElectronicDocumentFormat: Record "Electronic Document Format";
-        ServerAttachmentTempBlob: Codeunit "Temp Blob";
-        ServerAttachmentInStream: InStream;
-        ServerAttachmentFilePath: Text;
+        AttachmentTempBlob: Codeunit "Temp Blob";
+        AttachmentInStream: InStream;
     begin
         OnBeforeSetReportLayout(RecordVariant, ReportUsage.AsInteger());
         FindReportUsageForCust(ReportUsage, CustNo, TempReportSelections);
         with TempReportSelections do
             repeat
-                ServerAttachmentFilePath := SaveReportAsPDF("Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
-                FileManagement.BLOBImportFromServerFile(ServerAttachmentTempBlob, ServerAttachmentFilePath);
-                ServerAttachmentTempBlob.CreateInStream(ServerAttachmentInStream);
+                Clear(AttachmentTempBlob);
+                SaveReportAsPDFInTempBlob(
+                    AttachmentTempBlob, "Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
+                AttachmentTempBlob.CreateInStream(AttachmentInStream);
                 DataCompression.AddEntry(
-                  ServerAttachmentInStream, ElectronicDocumentFormat.GetAttachmentFileName(DocNo, Format(Usage), 'pdf'));
+                    AttachmentInStream, ElectronicDocumentFormat.GetAttachmentFileName(DocNo, Format(Usage), 'pdf'));
             until Next() = 0;
     end;
 
@@ -1441,19 +1579,19 @@ table 77 "Report Selections"
     var
         TempReportSelections: Record "Report Selections" temporary;
         ElectronicDocumentFormat: Record "Electronic Document Format";
-        ServerAttachmentTempBlob: Codeunit "Temp Blob";
-        ServerAttachmentInStream: InStream;
-        ServerAttachmentFilePath: Text;
+        AttachmentTempBlob: Codeunit "Temp Blob";
+        AttachmentInStream: InStream;
     begin
         OnBeforeSetReportLayout(RecordVariant, ReportUsage.AsInteger());
         FindReportUsageForVend(ReportUsage, VendorNo, TempReportSelections);
         with TempReportSelections do
             repeat
-                ServerAttachmentFilePath := SaveReportAsPDF("Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
-                FileManagement.BLOBImportFromServerFile(ServerAttachmentTempBlob, ServerAttachmentFilePath);
-                ServerAttachmentTempBlob.CreateInStream(ServerAttachmentInStream);
+                Clear(AttachmentTempBlob);
+                SaveReportAsPDFInTempBlob(
+                    AttachmentTempBlob, "Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
+                AttachmentTempBlob.CreateInStream(AttachmentInStream);
                 DataCompression.AddEntry(
-                    ServerAttachmentInStream, ElectronicDocumentFormat.GetAttachmentFileName(DocNo, Format(Usage), 'pdf'));
+                    AttachmentInStream, ElectronicDocumentFormat.GetAttachmentFileName(DocNo, Format(Usage), 'pdf'));
             until Next() = 0;
     end;
 
@@ -1621,13 +1759,21 @@ table 77 "Report Selections"
         if not IsHandled then begin
             TempBlob.CreateOutStream(OutStream);
             LastUsedParameters := CustomLayoutReporting.GetReportRequestPageParameters(ReportID);
-            Report.SaveAs(ReportID, LastUsedParameters, ReportFormat::Pdf, OutStream, RecordVariant);
+            Report.SaveAs(ReportID, LastUsedParameters, ReportFormat::Pdf, OutStream, GetRecRef(RecordVariant));
         end;
         OnAfterSaveReportAsPDF(ReportID, RecordVariant, LayoutCode, '', true, TempBlob);
 
         ReportLayoutSelectionLocal.SetTempLayoutSelected('');
 
         Commit();
+    end;
+
+    local procedure GetRecRef(RecVariant: Variant) RecRef: RecordRef
+    begin
+        if RecVariant.IsRecordRef() then
+            exit(RecVariant);
+        if RecVariant.IsRecord() then
+            RecRef.GetTable(RecVariant);
     end;
 
     local procedure SaveReportAsHTML(ReportID: Integer; RecordVariant: Variant; LayoutCode: Code[20]; ReportUsage: Enum "Report Selection Usage") FilePath: Text[250]
@@ -1920,6 +2066,23 @@ table 77 "Report Selections"
         exit(TempReportSelections.FindFirst());
     end;
 
+    local procedure VerifyRecordBySystemId(var ParamString: Text; ReportUsage: Integer; RecRef: RecordRef)
+    var
+        SrcRecSysId: Guid;
+    begin
+        if not IsRecordSystemIdVerificationRequired(ReportUsage, RecRef.Number) then
+            exit;
+
+        Evaluate(SrcRecSysId, GetNextJobQueueParam(ParamString));
+        if not RecRef.GetBySystemId(SrcRecSysId) then
+            Error(RecordDoesNotMatchErr);
+    end;
+
+    local procedure IsRecordSystemIdVerificationRequired(ReportUsage: Integer; TableId: Integer): Boolean
+    begin
+        exit((ReportUsage = "Report Selection Usage"::"V.Remittance".AsInteger()) and (TableId = Database::"Gen. Journal Line"));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetCustomReportSelection(var CustomReportSelection: Record "Custom Report Selection"; AccountNo: Code[20]; TableNo: Integer)
     begin
@@ -2026,7 +2189,7 @@ table 77 "Report Selections"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetEmailBodyCustomer(ReportUsage: Integer; RecordVariant: Variant; var TempBodyReportSelections: Record "Report Selections" temporary; CustNo: Code[20]; var CustEmailAddress: Text[250]; var EmailBodyText: Text; var IsHandled: Boolean)
+    local procedure OnBeforeGetEmailBodyCustomer(ReportUsage: Integer; RecordVariant: Variant; var TempBodyReportSelections: Record "Report Selections" temporary; CustNo: Code[20]; var CustEmailAddress: Text[250]; var EmailBodyText: Text; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
 
@@ -2066,7 +2229,7 @@ table 77 "Report Selections"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSaveDocumentAttachmentFromRecRef(RecRef: RecordRef; var TempAttachReportSelections: Record "Report Selections"; DocumentNo: Code[20]; AccountNo: Code[20]; var TempBlob: Codeunit "Temp Blob"; var IsHandled: Boolean; NumberOfReportsAttached: Integer)
+    local procedure OnBeforeSaveDocumentAttachmentFromRecRef(RecRef: RecordRef; var TempAttachReportSelections: Record "Report Selections"; DocumentNo: Code[20]; AccountNo: Code[20]; var TempBlob: Codeunit "Temp Blob"; var IsHandled: Boolean; var NumberOfReportsAttached: Integer)
     begin
     end;
 
@@ -2077,6 +2240,11 @@ table 77 "Report Selections"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSendEmailDirectly(var ReportSelections: Record "Report Selections"; ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; FoundBody: Boolean; FoundAttachment: Boolean; ServerEmailBodyFilePath: Text[250]; var DefaultEmailAddress: Text[250]; ShowDialog: Boolean; var TempAttachReportSelections: Record "Report Selections" temporary; var CustomReportSelection: Record "Custom Report Selection"; var AllEmailsWereSuccessful: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckEmailBodyUsageOnAfterCalcShowEmailBodyDefinedError(var Rec: Record "Report Selections"; var ReportSelections: Record "Report Selections"; var ShowEmailBodyDefinedError: Boolean)
     begin
     end;
 

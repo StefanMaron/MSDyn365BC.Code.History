@@ -607,7 +607,7 @@ codeunit 139183 "CRM Integration Mapping"
         Initialize;
 
         VerifyMapping(
-          IntegrationTableMapping, DATABASE::"Sales Invoice Header", DATABASE::"CRM Invoice", CRMInvoice.FieldNo(InvoiceId), 25, 1);
+          IntegrationTableMapping, DATABASE::"Sales Invoice Header", DATABASE::"CRM Invoice", CRMInvoice.FieldNo(InvoiceId), 26, 1);
         VerifyFieldMapping(IntegrationTableMapping, SalesInvoiceHeader.FieldNo("Salesperson Code"), CRMInvoice.FieldNo(OwnerId), true);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
     end;
@@ -1963,7 +1963,7 @@ codeunit 139183 "CRM Integration Mapping"
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
         VerifyMapping(
-                  IntegrationTableMapping, DATABASE::"Sales Invoice Header", DATABASE::"CRM Invoice", CRMInvoice.FieldNo(InvoiceId), 25, 1);
+                  IntegrationTableMapping, DATABASE::"Sales Invoice Header", DATABASE::"CRM Invoice", CRMInvoice.FieldNo(InvoiceId), 26, 1);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
         VerifyMapping(
@@ -2100,7 +2100,7 @@ codeunit 139183 "CRM Integration Mapping"
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
         VerifyMapping(
-                  IntegrationTableMapping, DATABASE::"Sales Invoice Header", DATABASE::"CRM Invoice", CRMInvoice.FieldNo(InvoiceId), 25, 1);
+                  IntegrationTableMapping, DATABASE::"Sales Invoice Header", DATABASE::"CRM Invoice", CRMInvoice.FieldNo(InvoiceId), 26, 1);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
         VerifyMapping(

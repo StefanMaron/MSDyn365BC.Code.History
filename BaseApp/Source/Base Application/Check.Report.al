@@ -585,8 +585,7 @@
                             GenJnlLine3."Account Type" := GenJnlLine3."Account Type"::"Bank Account";
                             GenJnlLine3.Validate("Account No.", BankAcc2."No.");
                             if BalancingType <> BalancingType::"G/L Account" then
-                                GenJnlLine3.Description :=
-                                    StrSubstNo(Text014, SelectStr(BalancingType.AsInteger() + 1, Text062), BalancingNo);
+                                GenJnlLine3.Description := StrSubstNo(Text014, BalancingType, BalancingNo);
                             GenJnlLine3.Validate(Amount, -TotalLineAmount);
                             GenJnlLine3."Bank Payment Type" := GenJnlLine3."Bank Payment Type"::"Computer Check";
                             GenJnlLine3."Check Printed" := true;
@@ -954,7 +953,6 @@
         DocDate: Date;
         JournalPostingDate: Date;
         i: Integer;
-        Text062: Label 'G/L Account,Customer,Vendor,Bank Account';
         CurrencyCode2: Code[10];
         NetAmount: Text[30];
         LineAmount2: Decimal;

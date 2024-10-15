@@ -551,6 +551,7 @@ codeunit 139166 "Integration Record Synch. Test"
 
     local procedure CreateComparisonTypeRow(var ComparisonType: Record "Comparison Type")
     var
+        OutStream: OutStream;
         LastKey: Integer;
     begin
         if ComparisonType.FindLast() then
@@ -569,6 +570,8 @@ codeunit 139166 "Integration Record Synch. Test"
         ComparisonType."Option Field" := 3;
         ComparisonType."Text Field" := 'This is text';
         ComparisonType."Time Field" := Time();
+        ComparisonType."Blob Field".CreateOutStream(OutStream, TextEncoding::UTF8);
+        OutStream.Write('Long text in blob');
         ComparisonType."GUID Field" := CreateGuid();
         ComparisonType.Insert();
         ComparisonType."Record ID Field" := ComparisonType.RecordId();
@@ -662,8 +665,25 @@ codeunit 139166 "Integration Record Synch. Test"
         repeat
             SourceFieldRef := SourceRecordRef.Field(Field."No.");
             DestinationFieldRef := DestinationRecordRef.Field(Field."No.");
-            Assert.IsTrue(SourceFieldRef.Value = DestinationFieldRef.Value, 'Expected the two fields to match');
+            if SourceFieldRef.Type <> FieldType::Blob then
+                Assert.IsTrue(SourceFieldRef.Value = DestinationFieldRef.Value, 'Expected the two fields to match')
+            else
+                Assert.IsTrue(GetTextValue(SourceFieldRef) = GetTextValue(DestinationFieldRef), 'Expected the two fields to match')
         until Field.Next = 0;
+    end;
+
+    local procedure GetTextValue(var FieldRef: FieldRef): Text
+    var
+        TempBlob: Codeunit "Temp Blob";
+        InStream: InStream;
+        FieldValue: Text;
+    begin
+        if FieldRef.Type <> FieldType::Blob then
+            exit(Format(FieldRef.Value));
+        TempBlob.FromFieldRef(FieldRef);
+        TempBlob.CreateInStream(InStream, TextEncoding::UTF8);
+        InStream.Read(FieldValue);
+        exit(FieldValue);
     end;
 }
 

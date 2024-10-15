@@ -221,6 +221,8 @@
     begin
         InsertReservEntry."Warranty Date" := WarrantyDate;
         InsertReservEntry."Expiration Date" := ExpirationDate;
+
+        OnAfterSetDates(InsertReservEntry);
     end;
 
     procedure SetQtyToHandleAndInvoice(QtyToHandleBase: Decimal; QtyToInvoiceBase: Decimal)
@@ -319,6 +321,7 @@
     var
         NewReservEntry: Record "Reservation Entry";
         ReservEntry: Record "Reservation Entry";
+        CarriedReservationEntry: Record "Reservation Entry";
         Location: Record Location;
         CarriedItemTrackingSetup: Record "Item Tracking Setup";
         ItemTrkgMgt: Codeunit "Item Tracking Management";
@@ -355,6 +358,8 @@
         if QtyToHandleThisLine = 0 then
             exit(xTransferQty * CurrSignFactor);
 
+        OnTransferReservEntryOnBeforeTransferFields(OldReservEntry, UseQtyToHandle, UseQtyToInvoice, CurrSignFactor);
+
         NewReservEntry.TransferFields(OldReservEntry, false);
 
         NewReservEntry."Entry No." := OldReservEntry."Entry No.";
@@ -372,6 +377,7 @@
 
                 // If an order-to-order supply is being posted, item tracking must be carried to the related demand:
                 if (TransferQty >= 0) and (NewReservEntry.Binding = NewReservEntry.Binding::"Order-to-Order") then begin
+                    CarriedReservationEntry := InsertReservEntry;
                     CarriedItemTrackingSetup.CopyTrackingFromReservEntry(NewReservEntry);
                     if not UseQtyToHandle then
                         // the IT is set only in Consumption/Output Journal and we need to update all fields properly
@@ -482,7 +488,7 @@
             if NewReservEntry."Qty. to Handle (Base)" = 0 then
                 NewReservEntry.Validate("Quantity (Base)");
             NewReservEntry.CopyTrackingFromItemTrackingSetup(CarriedItemTrackingSetup);
-            OnTransferReservEntryOnBeforeUpdateItemTracking(NewReservEntry);
+            OnTransferReservEntryOnBeforeUpdateItemTracking(NewReservEntry, CarriedReservationEntry);
             NewReservEntry.UpdateItemTracking;
             if NewReservEntry.Modify then;
         end;
@@ -806,7 +812,7 @@
             until TempTrkgSpec4.Next() = 0;
     end;
 
-    local procedure SplitReservEntry(var ReservEntry: Record "Reservation Entry"; var ReservEntry2: Record "Reservation Entry"; TrackingSpecificationExists: Boolean; var FirstSplit: Boolean): Boolean
+    local procedure SplitReservEntry(var ReservEntry: Record "Reservation Entry"; var ReservEntry2: Record "Reservation Entry"; TrackingSpecificationExists: Boolean; var FirstSplit: Boolean) Result: Boolean
     var
         OldReservEntryQty: Decimal;
     begin
@@ -847,7 +853,8 @@
             TempTrkgSpec2.Delete();
         end;
 
-        exit(true);
+        Result := true;
+        OnAfterSplitReservEntry(ReservEntry2, TempTrkgSpec2, Result);
     end;
 
     local procedure CreateWhseItemTrkgLines(ReservEntry: Record "Reservation Entry")
@@ -934,6 +941,8 @@
         CurrSourceRefNo: Integer;
         ReachedEndOfResvEntries: Boolean;
     begin
+        OnBeforeUpdateItemTrackingAfterPosting(ReservEntry);
+
         if not ReservEntry.FindSet(true) then
             exit;
 
@@ -1009,6 +1018,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSplitReservEntry(var ReservEntry2: Record "Reservation Entry"; TempTrackingSpecificaion: Record "Tracking Specification"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreateEntry(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10])
     begin
     end;
@@ -1030,6 +1044,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetNewTrackingFromItemJnlLine(var InsertReservEntry: Record "Reservation Entry"; ItemJnlLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetDates(var ReservationEntry: Record "Reservation Entry")
     begin
     end;
 
@@ -1119,6 +1138,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateItemTrackingAfterPosting(var ReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateEntryOnAfterCollectTrackingSpecificationTempTrkgSpec2(var TempTrkgSpec2: Record "Tracking Specification" temporary; ReservEntry2: Record "Reservation Entry"; var TrackingSpecificationExists: Boolean)
     begin
     end;
@@ -1144,7 +1168,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTransferReservEntryOnBeforeUpdateItemTracking(var ReservationEntry: Record "Reservation Entry")
+    local procedure OnTransferReservEntryOnBeforeUpdateItemTracking(var ReservationEntry: Record "Reservation Entry"; CarriedReservationEntry: Record "Reservation Entry")
     begin
     end;
 
@@ -1155,6 +1179,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferReservEntryOnBeforeNewReservEntryModify(var NewReservEntry: Record "Reservation Entry"; IsPartnerRecord: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferReservEntryOnBeforeTransferFields(var OldReservationEntry: Record "Reservation Entry"; var UseQtyToHandle: Boolean; var UseQtyToInvoice: Boolean; var CurrSignFactor: Integer)
     begin
     end;
 
