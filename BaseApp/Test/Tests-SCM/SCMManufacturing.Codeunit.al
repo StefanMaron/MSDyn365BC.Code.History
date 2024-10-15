@@ -1215,6 +1215,75 @@ codeunit 137404 "SCM Manufacturing"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure RefreshingPlanningLinesWithMultipleBOMVersions()
+    var
+        Item: Record Item;
+        RequisitionLine: Record "Requisition Line";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionBOMVersion1: Record "Production BOM Version";
+        ProductionBOMVersion2: Record "Production BOM Version";
+        Components1: Dictionary of [Code[20], Decimal];
+        Components2: Dictionary of [Code[20], Decimal];
+        Direction: Option Forward,Backward;
+        ChildBOMNo: Code[20];
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Planning Worksheet] [Production BOM Version]
+        // [SCENARIO] When refreshing planning lines, system should consider selected BOM version.
+        Initialize();
+
+        // [GIVEN] Create Item with Lot for Lot Reordering Policy and Prod. Order Replanisment System.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        Item.Modify();
+
+        // [GIEN] Create Child Production BOM with random item and qty. 
+        ChildBOMNo := CreateProductionBOM(Item."Base Unit of Measure");
+
+        // [GIVEN] Create Production BOM Header and two same Production BOM Versions and certify all.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
+
+        CreateProductionBOMVersion(ProductionBOMVersion1, ProductionBOMHeader."No.", Item."Base Unit of Measure", 0D, ProductionBOMLine.Type::"Production BOM", ChildBOMNo, 1);
+        ModifyProductionBOMVersionStatus(ProductionBOMVersion1, ProductionBOMVersion1.Status::Certified);
+
+        CreateProductionBOMVersion(ProductionBOMVersion2, ProductionBOMHeader."No.", Item."Base Unit of Measure", 0D, ProductionBOMLine.Type::"Production BOM", ChildBOMNo, 1);
+        ModifyProductionBOMVersionStatus(ProductionBOMVersion2, ProductionBOMVersion2.Status::Certified);
+
+        ModifyStatusInProductionBOM(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        // [GIVEN] Update Item with Production BOM No. 
+        Item.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item.Modify();
+        Commit();
+
+        // [GIVEN] Create Requisition Worksheet Line for Item. Last Production BOM Version should be selected.
+        CreateRequisitionWorksheetLineForItem(Item, RequisitionLine);
+        RequisitionLine.TestField("Production BOM Version Code", ProductionBOMVersion2."Version Code");
+
+        //[GIVEN] Refresh Planning Line and get Components.
+        LibraryPlanning.RefreshPlanningLine(RequisitionLine, Direction::Backward, true, true);
+        GetReqLineComponents(Components1, RequisitionLine);
+        Assert.IsTrue(Components1.Count > 0, 'Components1 should not be empty');
+
+        // [WHEN] Change Production BOM Version Code in Requisition Line and Refresh Planning Line.
+        RequisitionLine.Validate("Production BOM Version Code", ProductionBOMVersion1."Version Code");
+        RequisitionLine.Modify();
+        LibraryPlanning.RefreshPlanningLine(RequisitionLine, Direction::Backward, true, true);
+
+        // [THEN] Components after refreshing Planning Line should be the same like for first version.
+        GetReqLineComponents(Components2, RequisitionLine);
+
+        foreach ItemNo in Components1.Keys do begin
+            Assert.IsTrue(Components2.ContainsKey(ItemNo), 'Component ' + ItemNo + ' should be present in Components2');
+            Assert.AreEqual(Components1.Get(ItemNo), Components2.Get(ItemNo), 'Component ' + ItemNo + ' should have the same quantity');
+        end;
+
+    end;
+
+    [Test]
     [HandlerFunctions('MessageHandler,ConfirmHandlerTrue')]
     [Scope('OnPrem')]
     procedure CalculateConsumptionAfterRefreshProductionOrder()
@@ -6393,6 +6462,35 @@ codeunit 137404 "SCM Manufacturing"
         ProductionBOMLine2.TestField(Position, ProductionBOMLine1.Position);
         ProductionBOMLine2.TestField("Position 2", ProductionBOMLine1."Position 2");
         ProductionBOMLine2.TestField("Position 3", ProductionBOMLine1."Position 3");
+    end;
+
+    local procedure GetReqLineComponents(var Components: Dictionary of [Code[20], Decimal]; RequisitionLine: Record "Requisition Line")
+    var
+        PlanningComponent: Record "Planning Component";
+    begin
+        Clear(Components);
+
+        PlanningComponent.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
+        PlanningComponent.SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
+        PlanningComponent.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
+        if PlanningComponent.FindSet() then
+            repeat
+                Components.Add(PlanningComponent."Item No.", PlanningComponent.Quantity);
+            until PlanningComponent.Next() = 0;
+    end;
+
+    local procedure CreateRequisitionWorksheetLineForItem(Item: Record Item; var RequisitionLine: Record "Requisition Line")
+    var
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+    begin
+        CreateRequisitionWorksheetName(RequisitionWkshName);
+        LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
+        RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
+        RequisitionLine.Validate("No.", Item."No.");
+        RequisitionLine.Validate("Ending Date", WorkDate());
+        RequisitionLine.Validate("Due Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Use random Due Date.
+        RequisitionLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));  // Use random Quantity.
+        RequisitionLine.Modify(true);
     end;
 
     local procedure SetProducionBOMLinePositionFields(var ProductionBOMLine: Record "Production BOM Line")

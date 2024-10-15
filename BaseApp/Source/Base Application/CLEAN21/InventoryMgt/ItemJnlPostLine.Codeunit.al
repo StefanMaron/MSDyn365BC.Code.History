@@ -7222,6 +7222,19 @@ codeunit 22 "Item Jnl.-Post Line"
         Error(Text027);
     end;
 
+    procedure MarkAppliedInboundItemEntriesForAdjustment(OutboundItemLedgerEntryNo: Integer)
+    var
+        InboundItemLedgerEntry: Record "Item Ledger Entry";
+        ItemApplicationEntry: Record "Item Application Entry";
+    begin
+        if ItemApplicationEntry.GetInboundEntriesTheOutbndEntryAppliedTo(OutboundItemLedgerEntryNo) then
+            repeat
+                InboundItemLedgerEntry.SetLoadFields("Applied Entry to Adjust");
+                InboundItemLedgerEntry.Get(ItemApplicationEntry."Inbound Item Entry No.");
+                InboundItemLedgerEntry.SetAppliedEntryToAdjust(true);
+            until ItemApplicationEntry.Next() = 0;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnVerifyInvoicedQtyOnAfterGetSalesShipmentHeader(ItemLedgEntry2: Record "Item Ledger Entry"; var IsHandled: Boolean)
     begin

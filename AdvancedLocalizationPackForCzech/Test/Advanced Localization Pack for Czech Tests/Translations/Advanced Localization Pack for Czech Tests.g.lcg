@@ -14,15 +14,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Applying G/L Entries CZA - NamedType UnexpectedRemAmtErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1818142358 - Method 2297029718 - NamedType 1612705530" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Dimension value code must be equal to job No.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Dim. Automatic Creation CZA - Method AutomaticCreateDefaultDimension - NamedType DimensionValueErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1818142358 - Method 3477233760 - NamedType 1528326998" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Dimension value name must be equal to job setup name.]]></Val>
@@ -30,6 +21,33 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Dim. Automatic Creation CZA - Method AutomaticCreateDimensionValueDescription - NamedType DimensionNameErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1818142358 - Method 678554768 - NamedType 1612705530" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Dimension value code must be equal to fixed asset No.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Dim. Automatic Creation CZA - Method AutomaticCreateFixedAssetDefaultDimension - NamedType DimensionValueErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1818142358 - Method 4065825711 - NamedType 1612705530" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Dimension value code must be equal to job No.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Dim. Automatic Creation CZA - Method AutomaticCreateJobDefaultDimension - NamedType DimensionValueErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1818142358 - Method 1882916209 - NamedType 1612705530" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Dimension value code must be equal to location Code]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Dim. Automatic Creation CZA - Method AutomaticCreateLocationDefaultDimension - NamedType DimensionValueErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1818142358 - Method 4244145147 - NamedType 1528326998" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
