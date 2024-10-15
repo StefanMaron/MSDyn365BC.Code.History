@@ -529,6 +529,8 @@
 
             Modify;
         end;// with header
+
+        OnAfterPostDocumentLines(ServHeader, ServInvHeader, ServInvLine, ServCrMemoHeader, ServCrMemoLine);
     end;
 
     local procedure PostServiceItemLine(ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; RemQtyToBeInvoicedBase: Decimal; RemQtyToBeInvoiced: Decimal; RemQtyToBeConsumedBase: Decimal; RemQtyToBeConsumed: Decimal; var WarrantyNo: Integer)
@@ -583,6 +585,7 @@
     begin
         with ServLine do begin
             TempServLine := ServLine;
+            OnPostServiceResourceLineOnBeforeCalcSLEDivideAmount(ServLine);
             ServPostingJnlsMgt.CalcSLEDivideAmount("Qty. to Ship", ServHeader, TempServLine, TempVATAmountLineForSLE);
 
             if Ship and ("Document Type" = "Document Type"::Order) then
@@ -884,7 +887,7 @@
                   "Service Comment Table Name"::"Service Invoice Header".AsInteger(),
                   "No.", ServInvHeader."No.", "Document Type".AsInteger());
 
-            OnAfterPrepareInvoiceHeader(ServInvHeader, ServHeader);
+            OnAfterPrepareInvoiceHeader(ServInvHeader, ServHeader, ServItemLine);
             exit(ServInvHeader."No.");
         end;
     end;
@@ -1855,7 +1858,7 @@
                 repeat
                     if Quantity <> 0 then begin
                         OldInvDiscountAmount := "Inv. Discount Amount";
-
+                        OnUpdateServLinesOnPostOrderOnBeforeCalcQuantityShipped(ServLine);
                         if Ship then begin
                             "Quantity Shipped" := "Quantity Shipped" + "Qty. to Ship";
                             "Qty. Shipped (Base)" := "Qty. Shipped (Base)" + "Qty. to Ship (Base)";
@@ -1885,6 +1888,7 @@
                             "Qty. Invoiced (Base)" := "Qty. Invoiced (Base)" + "Qty. to Invoice (Base)";
                         end;
 
+                        OnUpdateServLinesOnPostOrderOnBeforeInitOutstanding(ServLine);
                         InitOutstanding;
                         InitQtyToShip;
 
@@ -2332,6 +2336,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterPostDocumentLines(var ServHeader: Record "Service Header"; var ServInvHeader: Record "Service Invoice Header"; var ServInvLine: Record "Service Invoice Line"; var ServCrMemoHeader: Record "Service Cr.Memo Header"; var ServCrMemoLine: Record "Service Cr.Memo Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterPrepareDocument(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line")
     begin
     end;
@@ -2342,7 +2351,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPrepareInvoiceHeader(var ServiceInvHeader: Record "Service Invoice Header"; ServiceHeader: Record "Service Header")
+    local procedure OnAfterPrepareInvoiceHeader(var ServiceInvHeader: Record "Service Invoice Header"; ServiceHeader: Record "Service Header"; var ServItemLine: Record "Service Item Line")
     begin
     end;
 
@@ -2553,6 +2562,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostServiceResourceLineOnBeforeCalcSLEDivideAmount(var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPrepareDocumentOnAfterSetPServItemLineFilters(var PServItemLine: Record "Service Item Line")
     begin
     end;
@@ -2569,6 +2583,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateShptLinesOnInvOnAfterServiceShptLineModify(ServiceLine: Record "Service Line"; ServiceInvoiceHeader: Record "Service Invoice Header"; ServiceShipmentHeader: Record "Service Shipment Header"; ServiceShipmentLine: Record "Service Shipment Line"; TempTrackingSpecification: Record "Tracking Specification" temporary; TrackingSpecificationExists: Boolean; QtyToBeInvoiced: Decimal; QtyToBeInvoicedBase: Decimal; QtyToBeConsumed: Decimal; QtyToBeConsumedBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateServLinesOnPostOrderOnBeforeCalcQuantityShipped(var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateServLinesOnPostOrderOnBeforeInitOutstanding(var ServiceLine: Record "Service Line")
     begin
     end;
 

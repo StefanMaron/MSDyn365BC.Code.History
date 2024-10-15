@@ -281,18 +281,28 @@ report 10085 "Aged Accounts Payable NA"
                     DataItemTableView = SORTING(Number);
                     column(AmountDueToPrint; -AmountDueToPrint)
                     {
+                        AutoFormatExpression = "Vendor Ledger Entry"."Currency Code";
+                        AutoFormatType = 1;
                     }
                     column(AmountDue_1_; -AmountDue[1])
                     {
+                        AutoFormatExpression = "Vendor Ledger Entry"."Currency Code";
+                        AutoFormatType = 1;
                     }
                     column(AmountDue_2_; -AmountDue[2])
                     {
+                        AutoFormatExpression = "Vendor Ledger Entry"."Currency Code";
+                        AutoFormatType = 1;
                     }
                     column(AmountDue_3_; -AmountDue[3])
                     {
+                        AutoFormatExpression = "Vendor Ledger Entry"."Currency Code";
+                        AutoFormatType = 1;
                     }
                     column(AmountDue_4_; -AmountDue[4])
                     {
+                        AutoFormatExpression = "Vendor Ledger Entry"."Currency Code";
+                        AutoFormatType = 1;
                     }
                     column(AgingDate; AgingDate)
                     {
@@ -308,51 +318,81 @@ report 10085 "Aged Accounts Payable NA"
                     }
                     column(AmountDueToPrint_Control63; -AmountDueToPrint)
                     {
+                        AutoFormatExpression = "Vendor Ledger Entry"."Currency Code";
+                        AutoFormatType = 1;
                     }
                     column(AmountDue_1__Control64; -AmountDue[1])
                     {
+                        AutoFormatExpression = "Vendor Ledger Entry"."Currency Code";
+                        AutoFormatType = 1;
                     }
                     column(AmountDue_2__Control65; -AmountDue[2])
                     {
+                        AutoFormatExpression = "Vendor Ledger Entry"."Currency Code";
+                        AutoFormatType = 1;
                     }
                     column(AmountDue_3__Control66; -AmountDue[3])
                     {
+                        AutoFormatExpression = "Vendor Ledger Entry"."Currency Code";
+                        AutoFormatType = 1;
                     }
                     column(AmountDue_4__Control67; -AmountDue[4])
                     {
+                        AutoFormatExpression = "Vendor Ledger Entry"."Currency Code";
+                        AutoFormatType = 1;
                     }
                     column(Vendor_Ledger_Entry___Currency_Code_; "Vendor Ledger Entry"."Currency Code")
                     {
                     }
                     column(AmountDueToPrint_Control68; -AmountDueToPrint)
                     {
+                        AutoFormatExpression = "Vendor Ledger Entry"."Currency Code";
+                        AutoFormatType = 1;
                     }
                     column(AmountDue_1__Control69; -AmountDue[1])
                     {
+                        AutoFormatExpression = "Vendor Ledger Entry"."Currency Code";
+                        AutoFormatType = 1;
                     }
                     column(AmountDue_2__Control70; -AmountDue[2])
                     {
+                        AutoFormatExpression = "Vendor Ledger Entry"."Currency Code";
+                        AutoFormatType = 1;
                     }
                     column(AmountDue_3__Control71; -AmountDue[3])
                     {
+                        AutoFormatExpression = "Vendor Ledger Entry"."Currency Code";
+                        AutoFormatType = 1;
                     }
                     column(AmountDue_4__Control72; -AmountDue[4])
                     {
+                        AutoFormatExpression = "Vendor Ledger Entry"."Currency Code";
+                        AutoFormatType = 1;
                     }
                     column(AmountDueToPrint_Control74; -AmountDueToPrint)
                     {
+                        AutoFormatExpression = "Vendor Ledger Entry"."Currency Code";
+                        AutoFormatType = 1;
                     }
                     column(AmountDue_1__Control75; -AmountDue[1])
                     {
+                        AutoFormatExpression = "Vendor Ledger Entry"."Currency Code";
+                        AutoFormatType = 1;
                     }
                     column(AmountDue_2__Control76; -AmountDue[2])
                     {
+                        AutoFormatExpression = "Vendor Ledger Entry"."Currency Code";
+                        AutoFormatType = 1;
                     }
                     column(AmountDue_3__Control77; -AmountDue[3])
                     {
+                        AutoFormatExpression = "Vendor Ledger Entry"."Currency Code";
+                        AutoFormatType = 1;
                     }
                     column(AmountDue_4__Control78; -AmountDue[4])
                     {
+                        AutoFormatExpression = "Vendor Ledger Entry"."Currency Code";
+                        AutoFormatType = 1;
                     }
                     column(PercentString_1__Control5; PercentString[1])
                     {
@@ -371,18 +411,28 @@ report 10085 "Aged Accounts Payable NA"
                     }
                     column(AmountDueToPrint_Control81; -AmountDueToPrint)
                     {
+                        AutoFormatExpression = "Vendor Ledger Entry"."Currency Code";
+                        AutoFormatType = 1;
                     }
                     column(AmountDue_1__Control82; -AmountDue[1])
                     {
+                        AutoFormatExpression = "Vendor Ledger Entry"."Currency Code";
+                        AutoFormatType = 1;
                     }
                     column(AmountDue_2__Control83; -AmountDue[2])
                     {
+                        AutoFormatExpression = "Vendor Ledger Entry"."Currency Code";
+                        AutoFormatType = 1;
                     }
                     column(AmountDue_3__Control84; -AmountDue[3])
                     {
+                        AutoFormatExpression = "Vendor Ledger Entry"."Currency Code";
+                        AutoFormatType = 1;
                     }
                     column(AmountDue_4__Control85; -AmountDue[4])
                     {
+                        AutoFormatExpression = "Vendor Ledger Entry"."Currency Code";
+                        AutoFormatType = 1;
                     }
                     column(PercentString_1__Control87; PercentString[1])
                     {

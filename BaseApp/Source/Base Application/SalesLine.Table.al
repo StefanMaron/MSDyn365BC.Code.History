@@ -1418,8 +1418,8 @@
                 IsHandled: Boolean;
             begin
                 TestStatusOpen();
-                if "Prepmt. Amt. Inv." <> 0 then
-                    Error(CannotChangeVATGroupWithPrepmInvErr);
+                CheckPrepmtAmtInvEmpty();
+
                 VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
                 "VAT Difference" := 0;
 
@@ -3268,14 +3268,7 @@
         CleanSpecialOrderFieldsAndCheckAssocPurchOrder();
         CatalogItemMgt.DelNonStockSales(Rec);
 
-        if "Document Type" = "Document Type"::"Blanket Order" then begin
-            SalesLine2.Reset();
-            SalesLine2.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
-            SalesLine2.SetRange("Blanket Order No.", "Document No.");
-            SalesLine2.SetRange("Blanket Order Line No.", "Line No.");
-            if SalesLine2.FindFirst then
-                SalesLine2.TestField("Blanket Order Line No.", 0);
-        end;
+        CheckLinkedBlanketOrderLineOnDelete();
 
         if Type = Type::Item then begin
             ATOLink.DeleteAsmFromSalesLine(Rec);
@@ -4353,6 +4346,38 @@
             end;
     end;
 
+    local procedure CheckPrepmtAmtInvEmpty()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckPrepmtAmtInvEmpty(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Prepmt. Amt. Inv." <> 0 then
+            Error(CannotChangeVATGroupWithPrepmInvErr);
+    end;
+
+    local procedure CheckLinkedBlanketOrderLineOnDelete()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckLinkedBlanketOrderLineOnDelete(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Document Type" = "Document Type"::"Blanket Order" then begin
+            SalesLine2.Reset();
+            SalesLine2.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
+            SalesLine2.SetRange("Blanket Order No.", "Document No.");
+            SalesLine2.SetRange("Blanket Order Line No.", "Line No.");
+            if SalesLine2.FindFirst() then
+                SalesLine2.TestField("Blanket Order Line No.", 0);
+        end;
+    end;
+
     procedure UpdateAmounts()
     var
         SalesCrMemoHdr: Record "Sales Cr.Memo Header";
@@ -4942,6 +4967,8 @@
         OnBeforeCallItemTracking(Rec, IsHandled);
         if not IsHandled then
             ReserveSalesLine.CallItemTracking(Rec);
+
+        OnAfterOpenItemTrackingLines(Rec);
     end;
 
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20])
@@ -7062,7 +7089,7 @@
                 Type := xRec.Type;
         end;
 
-        OnAfterInitType(Rec, xRec);
+        OnAfterInitType(Rec, xRec, SalesHeader);
     end;
 
     procedure CalcSalesTaxLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
@@ -7699,6 +7726,7 @@
     var
         LineDiscountPct: Decimal;
         IsHandled: Boolean;
+        IsOutOfStandardDiscPctRange: Boolean;
     begin
         IsHandled := false;
         OnBeforeUpdateLineDiscPct(Rec, IsHandled, Currency);
@@ -7709,7 +7737,9 @@
             LineDiscountPct := Round(
                 "Line Discount Amount" / Round(Quantity * "Unit Price", Currency."Amount Rounding Precision") * 100,
                 0.00001);
-            if not (LineDiscountPct in [0 .. 100]) then
+            IsOutOfStandardDiscPctRange := not (LineDiscountPct in [0 .. 100]);
+            OnUpdateLineDiscPctOnAfterCalcIsOutOfStandardDiscPctRange(Rec, IsOutOfStandardDiscPctRange);
+            if IsOutOfStandardDiscPctRange then
                 Error(LineDiscountPctErr);
             "Line Discount %" := LineDiscountPct;
         end else
@@ -7854,6 +7884,12 @@
         Error(Text039, -QtyReturned, ItemLedgEntry.FieldCaption("Document No."), ItemLedgEntry."Document No.", -QtyNotReturned);
     end;
 
+    procedure ShowDeferralSchedule()
+    begin
+        GetSalesHeader();
+        ShowDeferrals(SalesHeader."Posting Date", SalesHeader."Currency Code");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignFieldsForNo(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
@@ -7996,6 +8032,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterOpenItemTrackingLines(SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterShowNonStock(var SalesLine: Record "Sales Line"; NonstockItem: Record "Nonstock Item")
     begin
     end;
@@ -8072,6 +8113,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckItemAvailable(var SalesLine: Record "Sales Line"; CalledByFieldNo: Integer; var IsHandled: Boolean; CurrentFieldNo: Integer; xSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckLinkedBlanketOrderLineOnDelete(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -8351,7 +8397,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitType(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    local procedure OnAfterInitType(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -8487,6 +8533,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnShowItemChargeAssgntOnBeforeCalcItemCharge(var SalesLine: Record "Sales Line"; var ItemChargeAssgntLineAmt: Decimal; Currency: Record Currency; var IsHandled: Boolean; var ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateLineDiscPctOnAfterCalcIsOutOfStandardDiscPctRange(var SalesLine: Record "Sales Line"; var IsOutOfStandardDiscPctRange: Boolean)
     begin
     end;
 
@@ -8880,12 +8931,6 @@
     begin
     end;
 
-    procedure ShowDeferralSchedule()
-    begin
-        GetSalesHeader();
-        ShowDeferrals(SalesHeader."Posting Date", SalesHeader."Currency Code");
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckWarehouse(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
@@ -8928,6 +8973,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckPromisedDeliveryDate(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPrepmtAmtInvEmpty(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 

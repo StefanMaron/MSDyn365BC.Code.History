@@ -910,6 +910,90 @@ codeunit 144006 "UT REP Job"
         LibraryReportDataset.AssertElementWithValueExists('AmtPostedToGL_1_', JobLedgerEntry."Amt. Posted to G/L");
     end;
 
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure GetItemDescriptionWithGLAccountJobActualToBudgetCostLong()
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        GLAccount: Record "G/L Account";
+        JobActualToBudgetCost: Report "Job Actual to Budget (Cost)";
+        GLAccountName: Text[50];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 388422] Report 10210 GetItemDescription can handle description of size 100
+        Initialize();
+
+        // [GIVEN] G/L Account was created
+        CreateGLAccount(GLAccount);
+
+        // [GIVEN] G/L Account Name has length 100
+        GLAccount.Validate(Name, LibraryRandom.RandText(100));
+        GLAccount.Modify(true);
+
+        // [WHEN] Run Function GetItemDescription of Report Job Actual to Budget (Cost) with GL Account.
+        GLAccountName := JobActualToBudgetCost.GetItemDescription(JobPlanningLine.Type::"G/L Account", GLAccount."No.");
+
+        // [THEN] No error and the result is first 50 symbols of name
+        Assert.AreEqual(CopyStr(GLAccount.Name, 1, 50), GLAccountName, 'Names must be equal.');
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure GetItemDescriptionWithGLAccountJobActualToBudgetPriceLong()
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        GLAccount: Record "G/L Account";
+        JobActualToBudgetPrice: Report "Job Actual to Budget (Price)";
+        GLAccountName: Text[50];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 388422] Report 10211 GetItemDescription can handle description of size 100
+        Initialize();
+
+        // [GIVEN] G/L Account was created
+        CreateGLAccount(GLAccount);
+
+        // [GIVEN] G/L Account Name has length 100
+        GLAccount.Validate(Name, LibraryRandom.RandText(100));
+        GLAccount.Modify(true);
+
+        // [WHEN] Run Function GetItemDescription of Report Job Actual to Budget (Price) with GL Account.
+        GLAccountName := JobActualToBudgetPrice.GetItemDescription(JobPlanningLine.Type::"G/L Account", GLAccount."No.");
+
+        // [THEN] No error and the result is first 50 symbols of name
+        Assert.AreEqual(CopyStr(GLAccount.Name, 1, 50), GLAccountName, 'Names must be equal.');
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure GetItemDescriptionWithGLAccountJobCostBudgetLong()
+    var
+        GLAccount: Record "G/L Account";
+        JobPlanningLine: Record "Job Planning Line";
+        JobCostBudget: Report "Job Cost Budget";
+        GLAccountName: Text[50];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 388422] Report 10215 GetItemDescription can handle description of size 100
+        Initialize();
+
+        // [GIVEN] G/L Account was created
+        CreateGLAccount(GLAccount);
+
+        // [GIVEN] G/L Account Name has length 100
+        GLAccount.Validate(Name, LibraryRandom.RandText(100));
+        GLAccount.Modify(true);
+
+        // [WHEN] Run Function GetItemDescription of Report Job Cost Budget with GL Account.
+        GLAccountName := JobCostBudget.GetItemDescription(JobPlanningLine.Type::"G/L Account", GLAccount."No.");
+
+        // [THEN] No error and the result is first 50 symbols of name
+        Assert.AreEqual(CopyStr(GLAccount.Name, 1, 50), GLAccountName, 'Names must be equal.');
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;

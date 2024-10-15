@@ -67,6 +67,39 @@ codeunit 142087 "ERM Nec Report"
         LibraryReportDataset.AssertElementWithValueExists('GetAmtNEC04', PurchaseLine."Line Amount");
     end;
 
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentsRequestPageHandler,MessageHandler,Vendor1099NecChangeCurrYearRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ChangeYearInNecReport()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        OldWorkDate: Date;
+    begin
+        // [SCENARIO 389400] Stan can change the year on the NEC report's request page to see the actual data
+
+        // [GIVEN] Purchase invoice with NEC-01 code with Date = 01.01.2021
+        Initialize();
+        CreateAndPostPurchaseOrder(PurchaseHeader, PurchaseLine, IRS1099CodeNec01Lbl);
+        PostGenJournalLineAfterSuggestVendorPaymentMsg(PurchaseHeader."Buy-from Vendor No.");
+
+        // [GIVEN] Work date is "01.01.2022"
+        OldWorkDate := WorkDate();
+        WorkDate := CalcDate('<1Y>', WorkDate());
+
+        // [WHEN] Run Vendor 1099 NEC Report and set year = 2021
+        LibraryVariableStorage.Enqueue(Date2DMY(OldWorkDate, 3));
+        REPORT.Run(REPORT::"Vendor 1099 Nec");
+
+        // [THEN] "NEC-01" value exists in the Report
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('GetAmtNEC01', PurchaseLine."Line Amount");
+        LibraryVariableStorage.AssertEmpty();
+
+        // Tear down
+        Workdate := OldWorkDate;
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -174,6 +207,18 @@ codeunit 142087 "ERM Nec Report"
     begin
         LibraryVariableStorage.Dequeue(No);
         Vendor1099Nec.Vendor.SetFilter("No.", No);
+        Vendor1099Nec.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure Vendor1099NecChangeCurrYearRequestPageHandler(var Vendor1099Nec: TestRequestPage "Vendor 1099 Nec")
+    var
+        No: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(No);
+        Vendor1099Nec.Vendor.SetFilter("No.", No);
+        Vendor1099Nec.Year.SetValue(LibraryVariableStorage.DequeueText());
         Vendor1099Nec.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }

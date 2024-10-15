@@ -57,7 +57,13 @@ codeunit 5986 "Serv-Amounts Mgt."
         TotalAmountACY: Decimal;
         TotalVATBase: Decimal;
         TotalVATBaseACY: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFillInvPostingBuffer(InvPostingBuffer, ServiceLine, ServiceLineACY, ServiceHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         GLSetup.Get();
         if GLSetup."VAT in Use" then
             if (ServiceLine."Gen. Bus. Posting Group" <> GenPostingSetup."Gen. Bus. Posting Group") or
@@ -836,6 +842,11 @@ codeunit 5986 "Serv-Amounts Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateInvPostBuffer(var InvoicePostBuffer: Record "Invoice Post. Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFillInvPostingBuffer(var InvPostingBuffer: array[2] of Record "Invoice Post. Buffer"; var ServiceLine: Record "Service Line"; var ServiceLineACY: Record "Service Line"; ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 

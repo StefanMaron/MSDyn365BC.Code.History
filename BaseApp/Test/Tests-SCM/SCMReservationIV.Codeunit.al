@@ -2676,6 +2676,175 @@ codeunit 137271 "SCM Reservation IV"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler')]
+    procedure EstablishingSpecificReservationForDocumentLineWithOrderTracking()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ReservationEntry: Record "Reservation Entry";
+        LotNo: Code[20];
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Item Tracking] [Order Tracking] [Planning]
+        // [SCENARIO 385519] Stan can establish a lot-specific reservation on sales line that is partially reserved from inventory and partially tracked from another supply.
+        Initialize(false);
+        LotNo := LibraryUtility.GenerateGUID();
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Lot-tracked item.
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', CreateItemTrackingCode(false, true));
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        Item.Modify(true);
+
+        // [GIVEN] Post 1 pc of the item to inventory. Assign lot "L".
+        ItemUnitOfMeasure.Get(Item."No.", Item."Base Unit of Measure");
+        PostItemJournalLineWithUOMAndLot(Item."No.", Qty, ItemUnitOfMeasure, TrackingOption::AssignGivenLotNo, LotNo);
+
+        // [GIVEN] Create sales order for 2 pcs, auto reserve 1 pc, do not specify lot no.
+        CreateSalesOrderWithAutoReservation(SalesLine, Item."No.", '', Qty);
+        SalesLine.Validate(Quantity, 2 * Qty);
+        SalesLine.Validate("Qty. to Ship", Qty);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Purchase order for 1 pc.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", Qty, '', WorkDate());
+
+        // [GIVEN] Calculate regenerative plan to establish order tracking between the purchase and the sales order.
+        // [GIVEN] 1 pc on the sales line is now reserved from inventory and another 1 pc is tracked against the purchase.
+        Item.SetRecFilter();
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
+
+        // [WHEN] Open item tracking for the sales line and select lot no. "L".
+        SalesLine.Find();
+        LibraryVariableStorage.Enqueue(TrackingOption::AssignGivenLotNo);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Qty);
+        SalesLine.OpenItemTrackingLines();
+
+        // [THEN] The reservation between the sales and inventory becomes lot-specific.
+        FindReservationEntry(ReservationEntry, Item."No.", DATABASE::"Sales Line", ReservationEntry."Reservation Status"::Reservation);
+        ReservationEntry.TestField("Lot No.", LotNo);
+
+        // [THEN] The sales order can be partially shipped.
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        SalesLine.Find();
+        SalesLine.TestField("Quantity Shipped", Qty);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler')]
+    procedure ItemTrackingOnSalesLineFromPickWithBreakbulk()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+        Location: Record Location;
+        Zone: Record Zone;
+        Bin: Record Bin;
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        LotNos: array[2] of Code[20];
+    begin
+        // [FEATURE] [Item Tracking] [Pick] [Shipment] [Sales] [Breakbulk] [Unit of Measure]
+        // [SCENARIO 388429] Item tracking is properly created from a pick with breakbulk lines.
+        Initialize(false);
+
+        // [GIVEN] Make sure warehouse shipment posting will be interrupted at the first error.
+        WarehouseSetup.Get();
+        WarehouseSetup.Validate(
+          "Shipment Posting Policy", WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error");
+        WarehouseSetup.Modify(true);
+
+        // [GIVEN] Lot-tracked item with base unit of measure "PCS" and alternate unit of measure "BOX". 1 "BOX" = 100 "PCS"
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', CreateItemTrackingCode(false, true));
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 100);
+
+        // [GIVEN] Location with directed put-away and pick.
+        CreateWarehouseLocation(Location);
+        LibraryWarehouse.FindZone(Zone, Location.Code, LibraryWarehouse.SelectBinType(false, false, true, true), false);
+        LibraryWarehouse.FindBin(Bin, Location.Code, Zone.Code, 1);
+
+        // [GIVEN] Create purchase order with two lines.
+        // [GIVEN] 1st line: 5 "PCS", lot no. = "L1".
+        // [GIVEN] 2nd line: 1 "BOX", lot no. = "L2".
+        // [GIVEN] Release the order and post warehouse receipt.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        PurchaseHeader.Validate("Location Code", Location.Code);
+        PurchaseHeader.Modify(true);
+        CreatePurchaseLineWithAlternateUOMAndLotTracking(PurchaseLine, LotNos[1], PurchaseHeader, Item."No.", Item."Base Unit of Measure", 5);
+        CreatePurchaseLineWithAlternateUOMAndLotTracking(PurchaseLine, LotNos[2], PurchaseHeader, Item."No.", ItemUnitOfMeasure.Code, 1);
+        CreateWarehouseReceipt(PurchaseLine);
+        PostWarehouseReceipt(WarehouseReceiptLine."Source Document"::"Purchase Order", PurchaseHeader."No.");
+
+        // [GIVEN] Open put-away and change the bin code where the lot "L2" is placed into.
+        // [GIVEN] Register the put-away.
+        WarehouseActivityLine.Reset();
+        WarehouseActivityLine.SetRange("Lot No.", LotNos[2]);
+        FindWhseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Activity Type"::"Put-away", Location.Code, PurchaseHeader."No.",
+          WarehouseActivityLine."Action Type"::Place);
+        WarehouseActivityLine.Validate("Bin Code", Bin.Code);
+        WarehouseActivityLine.Modify(true);
+        RegisterWarehouseActivity(
+          PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::"Put-away", PurchaseHeader."Location Code",
+          WarehouseActivityLine."Action Type"::Place);
+
+        // [GIVEN] Sales order for 20 pcs.
+        // [GIVEN] Release the order, create shipment and pick.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 20, Location.Code, WorkDate);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        CreatePick(Location.Code, SalesHeader."No.");
+
+        // [GIVEN] Adjust the warehouse pick as follows:
+        // [GIVEN] Pick 5 "PCS" of lot "L1", add lot "L2" to breakbulk lines, pick 10 "PCS" of lot "L2".
+        WarehouseActivityLine.Reset();
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.SetRange("Item No.", Item."No.");
+        ProcessNextWhseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Action Type"::Take, 5, 5, LotNos[1]);
+        ProcessNextWhseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Action Type"::Place, 5, 5, LotNos[1]);
+        ProcessNextWhseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Action Type"::Take, 1, 1, LotNos[2]);
+        ProcessNextWhseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Action Type"::Place, 100, 100, LotNos[2]);
+        ProcessNextWhseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Action Type"::Take, 15, 10, LotNos[2]);
+        ProcessNextWhseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Action Type"::Place, 15, 10, LotNos[2]);
+
+        // [WHEN] Register the pick.
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] The warehouse shipment can be posted.
+        WarehouseShipmentHeader.Get(
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No."));
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // [THEN] The sales line is shipped for 15 "PCS".
+        SalesLine.Find();
+        SalesLine.TestField("Quantity Shipped", 15);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize(Enable: Boolean)
     var
         InventorySetup: Record "Inventory Setup";
@@ -2696,6 +2865,7 @@ codeunit 137271 "SCM Reservation IV"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
+        LibrarySetupStorage.Save(DATABASE::"Warehouse Setup");
 
         isInitialized := true;
         Commit();
@@ -3105,6 +3275,16 @@ codeunit 137271 "SCM Reservation IV"
         PurchaseLine.Modify(true);
     end;
 
+    local procedure CreatePurchaseLineWithAlternateUOMAndLotTracking(var PurchaseLine: Record "Purchase Line"; var NewLotNo: Code[20]; PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; Qty: Decimal)
+    begin
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Qty);
+        PurchaseLine.Validate("Unit of Measure Code", UnitOfMeasureCode);
+        PurchaseLine.Modify(true);
+        LibraryVariableStorage.Enqueue(TrackingOption::AssignLot);
+        PurchaseLine.OpenItemTrackingLines();
+        NewLotNo := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(NewLotNo));
+    end;
+
     local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; No: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
     var
         SalesHeader: Record "Sales Header";
@@ -3450,6 +3630,17 @@ codeunit 137271 "SCM Reservation IV"
           WarehouseActivityLine."Action Type"::Place);
         WarehouseShipmentHeader.Get(DocumentNo);
         LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, true);
+    end;
+
+    local procedure ProcessNextWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActionType: Option; Qty: Decimal; QtyToHandle: Decimal; LotNo: Code[20])
+    begin
+        WarehouseActivityLine.Next();
+        WarehouseActivityLine.TestField("Action Type", ActionType);
+        WarehouseActivityLine.TestField(Quantity, Qty);
+
+        WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
+        WarehouseActivityLine.Validate("Lot No.", LotNo);
+        WarehouseActivityLine.Modify(true);
     end;
 
     local procedure RegisterWarehouseActivity(SourceNo: Code[20]; ActivityType: Option; LocationCode: Code[10]; ActionType: Option)

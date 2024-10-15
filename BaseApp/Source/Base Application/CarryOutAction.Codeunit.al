@@ -180,7 +180,7 @@
             ReqLine2."Qty. per UOM (Demand)" := 0;
             ReqLine2."Unit Of Measure Code (Demand)" := '';
         end;
-        OnCarryOutToReqWkshOnBeforeReqLineInsert(ReqLine2);
+        OnCarryOutToReqWkshOnBeforeReqLineInsert(ReqLine2, ReqWkshTempName, ReqJournalName, LineNo);
         ReqLine2.Insert();
 
         ReqLineReserve.TransferReqLineToReqLine(ReqLine, ReqLine2, 0, true);
@@ -551,6 +551,7 @@
                     MfgSetup.TestField("Firm Planned Order Nos.");
             end;
 
+            OnInsertProdOrderOnBeforeProdOrderInit(ReqLine);
             ProdOrder.Init();
             if ProdOrderChoice = ProdOrderChoice::"Firm Planned & Print" then
                 ProdOrder.Status := ProdOrder.Status::"Firm Planned"
@@ -609,6 +610,7 @@
         else
             NextLineNo := 10000;
 
+        OnInsertProdOrderLineOnBeforeProdOrderLineInit(ReqLine, Item);
         ProdOrderLine.Init();
         ProdOrderLine.BlockDynamicTracking(true);
         ProdOrderLine.Status := ProdOrder.Status;
@@ -914,6 +916,8 @@
         ReqLineReserve.TransferReqLineToTransLine(ReqLine, TransLine, ReqLine."Quantity (Base)", false);
         if ReqLine.Reserve then
             ReserveBindingOrderToTrans(TransLine, ReqLine);
+
+        OnAfterInsertTransLine(TransHeader);
     end;
 
     procedure PrintTransferOrders()
@@ -1097,6 +1101,7 @@
         PlanningComponent.SetRange("Worksheet Line No.", ReqLine."Line No.");
         if PlanningComponent.Find('-') then
             repeat
+                OnTransferBOMOnBeforeProdOrderComp2Init(PlanningComponent);
                 ProdOrderComp2.Init();
                 ProdOrderComp2.Status := ProdOrder.Status;
                 ProdOrderComp2."Prod. Order No." := ProdOrder."No.";
@@ -1530,6 +1535,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertTransLine(var TransHeader: Record "Transfer Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterTransferAsmPlanningComp(var PlanningComponent: Record "Planning Component"; var AssemblyLine: Record "Assembly Line")
     begin
     end;
@@ -1626,7 +1636,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCarryOutToReqWkshOnBeforeReqLineInsert(var ReqLine: Record "Requisition Line");
+    local procedure OnCarryOutToReqWkshOnBeforeReqLineInsert(var ReqLine: Record "Requisition Line"; var ReqWkshTempName: Code[10]; var ReqJournalName: Code[10]; var LineNo: Integer);
     begin
     end;
 
@@ -1637,6 +1647,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertProdOrderLineWithReqLine(var ProdOrderLine: Record "Prod. Order Line"; var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertProdOrderLineOnBeforeProdOrderLineInit(var ReqLine: Record "Requisition Line"; var Item: Record Item)
     begin
     end;
 
@@ -1652,6 +1667,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertProdOrderLineOnAfterProdOrderLineInsert(var ProdOrderLine: Record "Prod. Order Line"; var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertProdOrderOnBeforeProdOrderInit(var ReqLine: Record "Requisition Line")
     begin
     end;
 
@@ -1687,6 +1707,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnTransOrderChgAndResheduleOnBeforeTransLineModify(var ReqLine: Record "Requisition Line"; var TransLine: Record "Transfer Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferBOMOnBeforeProdOrderComp2Init(var PlanningComponent: Record "Planning Component")
     begin
     end;
 
