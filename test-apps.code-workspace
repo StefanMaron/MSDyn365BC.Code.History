@@ -49,10 +49,10 @@
       "path": "./EU3PartyTradePurchase/test/EU 3-Party Trade Purchase Tests"
     },
     {
-      "path": "./EDocument/Test/E-Document Core Tests"
+      "path": "./Shopify/test/Shopify Connector Test"
     },
     {
-      "path": "./Shopify/test/Shopify Connector Test"
+      "path": "./EDocument Core/Test/E-Document Core Tests"
     },
     {
       "path": "./testframework/testlibraries"

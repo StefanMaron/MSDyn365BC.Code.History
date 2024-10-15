@@ -16,6 +16,13 @@ page 850 "Cash Flow Forecast Entries"
     {
         area(content)
         {
+            group(Disclaimer)
+            {
+                Caption = ' ';
+                ShowCaption = false;
+                Editable = false;
+                InstructionalText = 'AI generated suggestions may not always be accurate. Please validate results for correctness before using content provided.';
+            }
             repeater(Control1000)
             {
                 ShowCaption = false;

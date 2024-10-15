@@ -1707,19 +1707,19 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccount: Record "Bank Account";
         CurrencyCode: Code[10];
     begin
-        // [SCENARIO 540188] Issue with Currency Code in the Bank Accounts when using the same currency code as the local currency
+        // [SCENARIO 540188] No error while entering G/L Account in Bal. Account No. when Bank Account used with local Currency
         Initialize();
 
         // [GIVEN] Create Currency Code X with Exchange Rate and set as local currency
         CurrencyCode := CreateCurrencyAndExchangeRate(LibraryRandom.RandDecInRange(1, 1, 0));
         UpdateCurrencyCodeOnGLSetup(CurrencyCode);
 
-        // [WHEN] Create Bank Account and update Currency Code X
+        // [THEN] Create Bank Account and update Currency Code X
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount.Validate("Currency Code", CurrencyCode);
         BankAccount.Modify(true);
 
-        // [WHEN] Create Payment Line for Bank when Account Type: Bank Account
+        // [THEN] Create Payment Line for Bank when Account Type: Bank Account
         CreateBankPayment(
             GenJournalLine, GenJournalLine."Account Type"::"Bank Account", BankAccount."No.",
             GenJournalLine."Bal. Account Type"::"G/L Account", '', LibraryRandom.RandDecInRange(100, 200, 2));
@@ -1740,24 +1740,24 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccount: Record "Bank Account";
         CurrencyCode: Code[10];
     begin
-        // [SCENARIO 540188] Issue with Currency Code in the Bank Accounts when using the same currency code as the local currency
+        // [SCENARIO 540188] No error while entering G/L Account in Account No. when Bank Account used with local Currency
         Initialize();
 
         // [GIVEN] Create Currency Code X with Exchange Rate and set as local currency
         CurrencyCode := CreateCurrencyAndExchangeRate(LibraryRandom.RandDecInRange(1, 1, 0));
         UpdateCurrencyCodeOnGLSetup(CurrencyCode);
 
-        // [WHEN] Create Bank Account and update Currency Code X
+        // [THEN] Create Bank Account and update Currency Code X
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount.Validate("Currency Code", CurrencyCode);
         BankAccount.Modify(true);
 
-        // [WHEN] Create Payment Line for Bank when Account Type: G/L Account
+        // [THEN] Create Payment Line for Bank when Account Type: G/L Account
         CreateBankPayment(
             GenJournalLine, GenJournalLine."Account Type"::"G/L Account", '',
             GenJournalLine."Bal. Account Type"::"Bank Account", BankAccount."No.", LibraryRandom.RandDecInRange(100, 200, 2));
 
-        // [WHEN] Validating Bal. Account No. has been validated without any error
+        // [WHEN] Validating Account No. has been validated without any error
         GenJournalLine.Validate("Account No.", LibraryERM.CreateGLAccountNo());
         GenJournalLine.Modify(true);
 
