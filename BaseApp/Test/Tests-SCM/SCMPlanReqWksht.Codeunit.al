@@ -52,7 +52,10 @@
         QuantityImbalanceErr: Label '%1 on %2-%3 causes the %4 and %5 to be out of balance. Rounding of the field %5 results to 0.';
         InvalidReplenishmentOptionErr: Label 'Replenishment System must be equal to';
         WrongPrecisionItemAndUOMExpectedQtyErr: Label 'The value in the Rounding Precision field on the Item page, and Qty. Rounding Precision field on the Item Unit of Measure page, are causing the rounding precision for the Expected Quantity field to be incorrect.';
-
+        CalculateLowLevelCodeConfirmQst: Label 'Calculate low-level code?';
+        ItemFilterLbl: Label '%1|%2|%3', Comment = '%1 = Item, %2 = Item 2, %3 = Item 3';
+        RequisitionLineMustBeFoundErr: Label 'Requisition Line must be found.';
+        BinCodeErr: Label '%1 must be %2 in %3', Comment = '%1 = Bin Code, %2 = Bin Code value, %3 = Planning Component';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -4144,6 +4147,195 @@
         Assert.IsTrue(RequisitionLine."Starting Date-Time" <= RequisitionLine."Ending Date-Time", 'Starting Date-Time must be less or equal to Ending Date-Time');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure ComponentsArePlannedWhenProdBOMStatusIsNewButProdBOMVersionStatusIsCertified()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+        Item3: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        InventorySetup: Record "Inventory Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMVersion: Record "Production BOM Version";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionBOMLine2: Record "Production BOM Line";
+        Salesheader: Record "Sales Header";
+        RequisitionLine: Record "Requisition Line";
+        LowLevelCodeCalculator: Codeunit "Low-Level Code Calculator";
+    begin
+        // [SCENARIO 498471] Components are planned in Planning Worksheet even when Status of Production BOM is New or Under Development but the Status of its active Production BOM Version is Certified.
+        Initialize();
+
+        // [GIVEN] Validate Location Mandatory and Item Nos. in Inventory Setup.
+        InventorySetup.Get();
+        InventorySetup.Validate("Location Mandatory", false);
+        InventorySetup.Validate("Item Nos.", '');
+        InventorySetup.Modify(true);
+
+        // [GIVEN] Validate Dynamic Low-Level Code and Combined MPS/MRP Calculation in Manufacturing Setup.
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Dynamic Low-Level Code", true);
+        ManufacturingSetup.Validate("Combined MPS/MRP Calculation", true);
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create Unit of Measure Code.
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+
+        // [GIVEN] Create Item 2 without No. Series.
+        CreateItemWithoutNoSeries(Item2, UnitOfMeasure, ItemUnitOfMeasure, Item."Replenishment System"::Purchase);
+
+        // [GIVEN] Create Item 3 without No. Series.
+        CreateItemWithoutNoSeries(Item3, UnitOfMeasure, ItemUnitOfMeasure, Item."Replenishment System"::Purchase);
+
+        // [GIVEN] Create Item without No. Series and Validate Replenishment System.
+        CreateItemWithoutNoSeries(Item, UnitOfMeasure, ItemUnitOfMeasure, Item."Replenishment System"::"Prod. Order");
+
+        // [GIVEN] Create Production BOM.
+        CreateProductionBOM(ProductionBOMHeader, ProductionBOMLine, Item2, Item3);
+
+        // [GIVEN] Create Production BOM Version.
+        CreateProductionBOMVersion(ProductionBOMVersion, ProductionBOMHeader, ProductionBOMLine2, Item2, Item3);
+
+        // [GIVEN] Update Production BOM Version Status.
+        ProductionBomVersion.Validate(Status, ProductionBOMVersion.Status::Certified);
+        ProductionBomVersion.Modify(true);
+
+        // [GIVEN] Update Production BOM Status.
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        // [GIVEN] Validate Production BOM No. in Item.
+        Item.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item.Modify(true);
+
+        // [GIVEN] Create Sales Order.
+        CreateSalesOrder(Salesheader, Item);
+
+        // [GIVEN] Update Production BOM Status.
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::New);
+
+        // [GIVEN] Calculate Low Level Code.
+        LibraryVariableStorage.Enqueue(CalculateLowLevelCodeConfirmQst);
+        LowLevelCodeCalculator.Run();
+
+        // [GIVEN] Run Calculate Regenerative Plan.
+        RunCalculateRegenerativePlan(StrSubstNo(ItemFilterLbl, Item."No.", Item2."No.", Item3."No."), '');
+
+        // [WHEN] Find Requisition Line of Item 2.
+        RequisitionLine.SetRange("No.", Item2."No.");
+
+        // [VERIFY] Requisition Line of Item 2 is found.
+        Assert.IsFalse(RequisitionLine.IsEmpty(), RequisitionLineMustBeFoundErr);
+
+        // [WHEN] Find Requisition Line of Item 3.
+        RequisitionLine.SetRange("No.", Item3."No.");
+
+        // [VERIFY] Requisition Line of Item 3 is found.
+        Assert.IsFalse(RequisitionLine.IsEmpty(), RequisitionLineMustBeFoundErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalcRegPlanningPopulatesBinCodeinPlanningComponentBasedOnSKUFlushingMethod()
+    var
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        Bin: Record Bin;
+        Bin2: Record Bin;
+        Location: Record Location;
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        StockKeepingUnit: Record "Stockkeeping Unit";
+        StockKeepingUnit2: Record "Stockkeeping Unit";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        Salesheader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PlanningComponent: Record "Planning Component";
+    begin
+        // [SCENARIO 497596] When Calculate Regenerative Planning in Planning Worksheet, it populates Bin Code in Planning Component based on Flushing Method of SKU card of Component Item.
+        Initialize();
+
+        // [GIVEN] Create Location.
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+
+        // [GIVEN] Create Bin.
+        LibraryWarehouse.CreateBin(Bin, Location.Code, Bin.Code, '', '');
+
+        // [GIVEN] Create Bin 2.
+        LibraryWarehouse.CreateBin(Bin2, Location.Code, Bin2.Code, '', '');
+
+        // [GIVEN] Validate Open Shop Floor Bin Code and To-Production Bin Code in Location.
+        Location.Validate("Open Shop Floor Bin Code", Bin.Code);
+        Location.Validate("To-Production Bin Code", Bin2.Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create Unit of Measure Code.
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+
+        // [GIVEN] Create Component Item.
+        CreateItemWithoutNoSeries(CompItem, UnitOfMeasure, ItemUnitOfMeasure, CompItem."Replenishment System"::Purchase);
+
+        // [GIVEN] Create Stock Keeping Unit.
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockKeepingUnit, Location.Code, CompItem."No.", '');
+        StockKeepingUnit.Validate("Flushing Method", StockKeepingUnit."Flushing Method"::Forward);
+        StockKeepingUnit.Modify(true);
+
+        // [GIVEN] Create Production Item.
+        CreateItemWithoutNoSeries(ProdItem, UnitOfMeasure, ItemUnitOfMeasure, ProdItem."Replenishment System"::"Prod. Order");
+
+        // [GIVEN] Create Stock Keeping Unit 2.
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockKeepingUnit2, Location.Code, ProdItem."No.", '');
+
+        // [GIVEN] Create Production BOM Header.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ProdItem."Base Unit of Measure");
+
+        // [GIVEN] Create Production BOM Line.
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader,
+            ProductionBOMLine,
+            '',
+            ProductionBOMLine.Type::Item,
+            CompItem."No.",
+            LibraryRandom.RandInt(0));
+
+        // [GIVEN] Update Production BOM Status.
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        // [GIVEN] Validate Production BOM No. in Production Item.
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [GIVEN] Create Sales Order.
+        CreateSalesOrder(Salesheader, ProdItem);
+
+        // [GIVEN] Find and Validate Location in Sales Line.
+        SalesLine.SetRange("Document No.", Salesheader."No.");
+        SalesLine.FindFirst();
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Run Calculate Regenerative Plan.
+        RunCalculateRegenerativePlan(ProdItem."No.", '');
+
+        // [WHEN] Find Planning Component.
+        PlanningComponent.SetRange("Item No.", CompItem."No.");
+        PlanningComponent.FindFirst();
+
+        // [VERIFY] Open Shop Floor Bin Code in Location and Bin Code in Planning Component are same.
+        Assert.AreEqual(
+            Bin.Code,
+            PlanningComponent."Bin Code",
+            StrSubstNo(
+                BinCodeErr,
+                PlanningComponent.FieldCaption("Bin Code"),
+                Bin.Code,
+                PlanningComponent.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -5586,6 +5778,150 @@
             ParentItem[i].Validate("Production BOM No.", ProductionBOMHeader."No.");
             ParentItem[i].Modify(true);
         end;
+    end;
+
+    local procedure CreateProductionBOMVersion(
+        var ProductionBOMVersion: Record "Production BOM Version";
+        var ProductionBOMHeader: Record "Production BOM Header";
+        var ProductionBOMLine: Record "Production BOM Line";
+        Item: Record Item;
+        Item2: Record Item)
+    begin
+        LibraryManufacturing.CreateProductionBOMVersion(
+            ProductionBOMVersion,
+            ProductionBOMHeader."No.",
+            Format(LibraryRandom.RandText(2)),
+            Item."Base Unit of Measure");
+
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader,
+            ProductionBOMLine,
+            ProductionBOMVersion."Version Code",
+            ProductionBOMLine.Type::Item,
+            Item."No.",
+            LibraryRandom.RandIntInRange(3, 3));
+
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader,
+            ProductionBOMLine,
+            ProductionBOMVersion."Version Code",
+            ProductionBOMLine.Type::Item,
+            Item2."No.",
+            LibraryRandom.RandIntInRange(3, 3));
+    end;
+
+    local procedure CreateProductionBOM(
+        var ProductionBOMHeader: Record "Production BOM Header";
+        var ProductionBOMLine: Record "Production BOM Line";
+        Item: Record Item;
+        Item2: Record Item)
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader,
+            ProductionBOMLine,
+            '',
+            ProductionBOMLine.Type::Item,
+            Item2."No.",
+            LibraryRandom.RandIntInRange(2, 2));
+
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader,
+            ProductionBOMLine,
+            '',
+            ProductionBOMLine.Type::Item,
+            Item2."No.",
+            LibraryRandom.RandIntInRange(2, 2));
+    end;
+
+    local procedure CreateSalesOrder(var Salesheader: Record "Sales Header"; Item: Record Item)
+    var
+        Customer: Record Customer;
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        VATPostingSetup.SetRange("VAT Prod. Posting Group", Item."VAT Prod. Posting Group");
+        VATPostingSetup.FindFirst();
+
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Customer.Modify(true);
+
+        LibrarySales.CreateSalesHeader(Salesheader, Salesheader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(
+            SalesLine,
+            Salesheader,
+            SalesLine.Type::Item,
+            Item."No.",
+            LibraryRandom.RandInt(0));
+    end;
+
+    local procedure CreateItemWithoutNoSeries(
+        var Item: Record Item;
+        var UnitOfMeasure: Record "Unit of Measure";
+        var ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ReplenishmentSystem: Enum "Replenishment System")
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        InventoryPostingGroup: Record "Inventory Posting Group";
+    begin
+        Item.Init();
+        Item."No." := Format(LibraryRandom.RandText(4));
+        Item.Insert(true);
+
+        LibraryInventory.CreateItemUnitOfMeasure(
+            ItemUnitOfMeasure,
+            Item."No.",
+            UnitOfMeasure.Code,
+            LibraryRandom.RandInt(0));
+
+        CreateVATPostingGroup(VATPostingSetup);
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        LibraryInventory.CreateInventoryPostingGroup(InventoryPostingGroup);
+
+        Item.Validate(Description, Item."No.");
+        Item.Validate("Base Unit of Measure", UnitOfMeasure.Code);
+        Item.Validate(Type, Item.Type::Inventory);
+        Item.Validate("Replenishment System", ReplenishmentSystem);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        Item.Validate("Inventory Posting Group", InventoryPostingGroup.Code);
+        Item.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Item.Modify(true);
+    end;
+
+    local procedure RunCalculateRegenerativePlan(ItemFilterTxt: Text; LocationCode: Code[10])
+    var
+        Item: Record Item;
+    begin
+        Item.SetFilter("No.", ItemFilterTxt);
+        Item.Validate("Location Filter", LocationCode);
+
+        LibraryPlanning.CalcRegenPlanForPlanWksh(
+            Item,
+            CalcDate('<-CM>', WorkDate()),
+            CalcDate('<CM>', WorkDate()));
+    end;
+
+    local procedure CreateVATPostingGroup(var VATPostingSetup: Record "VAT Posting Setup")
+    var
+        VATProdPostingGroup: Record "VAT Product Posting Group";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+    begin
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProdPostingGroup.Code);
+    end;
+
+    local procedure CreateGeneralPostingSetup(var GeneralPostingSetup: Record "General Posting Setup")
+    var
+        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
+        GenProductPostingSetup: Record "Gen. Product Posting Group";
+    begin
+        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
+        LibraryERM.CreateGenProdPostingGroup(GenProductPostingSetup);
+        LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, GenBusinessPostingGroup.Code, GenProductPostingSetup.Code);
     end;
 
     [RequestPageHandler]

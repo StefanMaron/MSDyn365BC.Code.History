@@ -3479,9 +3479,6 @@
             DeleteItemChargeAssignment("Document Type", "Document No.", "Line No.");
         end;
 
-        if Type = Type::"Charge (Item)" then
-            DeleteChargeChargeAssgnt("Document Type", "Document No.", "Line No.");
-
         if ("Document Type" = "Document Type"::Order) then
             CapableToPromise.RemoveReqLines("Document No.", "Line No.", 0, false);
 
@@ -3519,6 +3516,9 @@
             "Inv. Disc. Amount to Invoice" := 0;
             UpdateAmounts();
         end;
+
+        if Type = Type::"Charge (Item)" then
+            DeleteChargeChargeAssgnt("Document Type", "Document No.", "Line No.");
 
         if "Deferral Code" <> '' then
             DeferralUtilities.DeferralCodeOnDelete(
