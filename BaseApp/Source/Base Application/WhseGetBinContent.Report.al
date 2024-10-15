@@ -457,6 +457,7 @@ report 7391 "Whse. Get Bin Content"
     begin
         with WarehouseEntry do begin
             TempTrackingSpecification.Init();
+            TempTrackingSpecification."Item No." := "Item No.";
             TempTrackingSpecification.SetSkipSerialNoQtyValidation(true);
             TempTrackingSpecification.Validate("Serial No.", "Serial No.");
             TempTrackingSpecification.SetSkipSerialNoQtyValidation(false);

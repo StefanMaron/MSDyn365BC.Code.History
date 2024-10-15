@@ -56,7 +56,7 @@ codeunit 5616 "Depreciation Calculation"
         NumbefOfDeprDays := 1 + EndingDay - StartingDay + 30 * (EndingMonth - StartingMonth) +
           360 * (EndingYear - StartingYear);
 
-        OnAfterDeprDays(StartingDate, EndingDate, NumbefOfDeprDays);
+        OnAfterDeprDays(StartingDate, EndingDate, NumbefOfDeprDays, Year365Days);
     end;
 
     procedure ToMorrow(ThisDate: Date; Year365Days: Boolean; UseAccountingPeriod: Boolean): Date
@@ -181,7 +181,13 @@ codeunit 5616 "Depreciation Calculation"
         EntryDates: array[4] of Date;
         LocalDate: Date;
         i: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetFirstDeprDate(FANo, DeprBookCode, Year365Days, LocalDate, IsHandled);
+        if IsHandled then
+            exit(LocalDate);
+
         with FALedgEntry do begin
             SetFAFilter(FALedgEntry, FANo, DeprBookCode, true);
             SetRange("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
@@ -536,7 +542,7 @@ codeunit 5616 "Depreciation Calculation"
         exit(StrSubstNo(DeprBookCodeErr, DeprBookCode));
     end;
 
-    local procedure DeprDays365(StartingDate: Date; EndingDate: Date): Integer
+    procedure DeprDays365(StartingDate: Date; EndingDate: Date): Integer
     var
         StartingYear: Integer;
         EndingYear: Integer;
@@ -610,12 +616,17 @@ codeunit 5616 "Depreciation Calculation"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterDeprDays(StartingDate: Date; EndingDate: Date; var NumberOfDeprDays: Integer)
+    local procedure OnAfterDeprDays(StartingDate: Date; EndingDate: Date; var NumberOfDeprDays: Integer; Year365Days: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcRounding(DeprBook: Record "Depreciation Book"; var DeprAmount: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetFirstDeprDate(FixedAssetNo: Code[20]; DepreciationBookCode: Code[10]; Year365Days: Boolean; var LocalDate: Date; var IsHandled: Boolean)
     begin
     end;
 }

@@ -147,7 +147,7 @@ page 1560 "Report Settings"
                         CalcFields("Option Data");
 
                     ObjectOptions.TransferFields(Rec);
-                    ObjectOptions."Parameter Name" := StrSubstNo(CopyTxt, "Parameter Name");
+                    ObjectOptions."Parameter Name" := CopyStr(StrSubstNo(CopyTxt, "Parameter Name"), 1, MaxStrLen(ObjectOptions."Parameter Name"));
                     ObjectOptions.Insert(true);
                 end;
             }

@@ -395,11 +395,14 @@ codeunit 5611 "Calculate Normal Depreciation"
                   DepreciationCalc.DeprDays(
                     DeprStartingDate, DepreciationCalc.Yesterday(FirstDeprDate, Year365Days, DeprBook."Use Accounting Period"),
                     Year365Days, DeprBook."Use Accounting Period");
-            if RemainingLife < 1 then
-                exit(-BookValue);
+            if RemainingLife < 1 then begin
+                Result := -BookValue;
+                OnCalcSLAmountOnAfterCalcResultForRemainingLifeExpired(FA, FADeprBook, BookValue, Result);
+                exit(Result);
+            end;
 
             IsHandled := false;
-            OnAfterCalcSL(FA, FADeprBook, UntilDate, BookValue, DeprBasis, DeprYears, NumberOfDays, DaysInFiscalYear, Result, IsHandled, RemainingLife);
+            OnAfterCalcSL(FA, FADeprBook, UntilDate, BookValue, DeprBasis, DeprYears, NumberOfDays, DaysInFiscalYear, Result, IsHandled, RemainingLife, FirstDeprDate);
             if IsHandled then
                 exit(Result);
 
@@ -1019,7 +1022,7 @@ codeunit 5611 "Calculate Normal Depreciation"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcSL(FixedAsset: Record "Fixed Asset"; FADepreciationBook: Record "FA Depreciation Book"; UntilDate: Date; BookValue: Decimal; DeprBasis: Decimal; DeprYears: Decimal; NumberOfDays: Integer; DaysInFiscalYear: Integer; var ExitValue: Decimal; var IsHandled: Boolean; var RemainingLife: Decimal)
+    local procedure OnAfterCalcSL(FixedAsset: Record "Fixed Asset"; FADepreciationBook: Record "FA Depreciation Book"; UntilDate: Date; BookValue: Decimal; DeprBasis: Decimal; DeprYears: Decimal; NumberOfDays: Integer; DaysInFiscalYear: Integer; var ExitValue: Decimal; var IsHandled: Boolean; var RemainingLife: Decimal; var FirstDeprDate: Date)
     begin
     end;
 
@@ -1042,6 +1045,11 @@ codeunit 5611 "Calculate Normal Depreciation"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcSLAmountOnAfterCalcFromSLPercent(FixedAsset: Record "Fixed Asset"; FADepreciationBook: Record "FA Depreciation Book"; BookValue: Decimal; DeprBasis: Decimal; DaysInFiscalYear: Integer; NumberOfDays: Integer; SLPercent: Decimal; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcSLAmountOnAfterCalcResultForRemainingLifeExpired(FixedAsset: Record "Fixed Asset"; FADepreciationBook: Record "FA Depreciation Book"; BookValue: Decimal; var Result: Decimal)
     begin
     end;
 

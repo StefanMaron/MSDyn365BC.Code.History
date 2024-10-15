@@ -1317,7 +1317,11 @@
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        exit(CopyStr(Format("Statement No.") + '-' + Format("Statement Line No."), 1, MaxStrLen(CustLedgerEntry."Applies-to ID")));
+        exit(
+            CopyStr(
+                "Bank Account No." + '-' + Format("Statement No.") + '-' + Format("Statement Line No."),
+                1,
+                MaxStrLen(CustLedgerEntry."Applies-to ID")));
     end;
 
     procedure GetDescription(): Text[100]
