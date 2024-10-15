@@ -703,6 +703,8 @@ table 290 "VAT Amount Line"
     end;
 
     procedure CopyFromPurchInvLine(PurchInvLine: Record "Purch. Inv. Line")
+    var
+        PurchInvHeader: Record "Purch. Inv. Header";
     begin
         "VAT Identifier" := PurchInvLine."VAT Identifier";
         "VAT Calculation Type" := PurchInvLine."VAT Calculation Type";
@@ -726,11 +728,18 @@ table 290 "VAT Amount Line"
           PurchInvLine."Amount Including VAT" - PurchInvLine.Amount - PurchInvLine."VAT Difference";
         "VAT Difference" := PurchInvLine."VAT Difference";
         "VAT Base (Lowered)" := PurchInvLine."VAT Base Amount";
+        if "VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT" then begin
+            if PurchInvHeader.Get(PurchInvLine."Document No.") then;
+            if PurchInvHeader."VAT Base Discount %" <> 0 then
+                "VAT Base (Lowered)" := "VAT Base (Lowered)" * (1 - PurchInvHeader."VAT Base Discount %" / 100);
+        end;
 
         OnAfterCopyFromPurchInvLine(Rec, PurchInvLine);
     end;
 
     procedure CopyFromPurchCrMemoLine(PurchCrMemoLine: Record "Purch. Cr. Memo Line")
+    var
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
     begin
         "VAT Identifier" := PurchCrMemoLine."VAT Identifier";
         "VAT Calculation Type" := PurchCrMemoLine."VAT Calculation Type";
@@ -754,7 +763,11 @@ table 290 "VAT Amount Line"
           PurchCrMemoLine."Amount Including VAT" - PurchCrMemoLine.Amount - PurchCrMemoLine."VAT Difference";
         "VAT Difference" := PurchCrMemoLine."VAT Difference";
         "VAT Base (Lowered)" := PurchCrMemoLine."VAT Base Amount";
-
+        if "VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT" then begin
+            if PurchCrMemoHdr.Get(PurchCrMemoLine."Document No.") then;
+            if PurchCrMemoHdr."VAT Base Discount %" <> 0 then
+                "VAT Base (Lowered)" := "VAT Base (Lowered)" * (1 - PurchCrMemoHdr."VAT Base Discount %" / 100);
+        end;
         OnAfterCopyFromPurchCrMemoLine(Rec, PurchCrMemoLine);
     end;
 

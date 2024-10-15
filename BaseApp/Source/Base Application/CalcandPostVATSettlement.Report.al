@@ -591,6 +591,8 @@
 
     trigger OnPostReport()
     begin
+        if GenJnlPostLine.IsGLEntryInconsistent() then
+            GenJnlPostLine.ShowInconsistentEntries();
         OnAfterPostReport();
     end;
 
@@ -798,7 +800,7 @@
                     "VAT Posting Setup".TestField("Sales VAT Account");
                     GenJnlLine."Account No." := "VAT Posting Setup"."Sales VAT Account";
                     CopyAmounts(GenJnlLine, VATEntry);
-                    OnBeforePostGenJnlLineReverseChargeVAT(GenJnlLine2, VATEntry, VATAmount, VATAmountAddCurr);
+                    OnBeforePostGenJnlLineReverseChargeVAT(GenJnlLine, VATEntry, VATAmount, VATAmountAddCurr);
                     if PostSettlement then
                         PostGenJnlLine(GenJnlLine);
 
@@ -852,7 +854,7 @@
                 end;
         end;
     end;
-    
+
     local procedure SetVatPostingSetupToGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup")
     begin
         GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Settlement;

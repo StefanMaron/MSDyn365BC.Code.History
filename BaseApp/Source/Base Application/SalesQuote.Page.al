@@ -46,7 +46,6 @@ page 41 "Sales Quote"
                     ApplicationArea = All;
                     Caption = 'Customer Name';
                     Importance = Promoted;
-                    NotBlank = true;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the name of the customer who will receive the products and be billed by default.';
 
@@ -55,10 +54,11 @@ page 41 "Sales Quote"
                         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
                     begin
                         SelltoCustomerNoOnAfterValidate(Rec, xRec);
-                        CurrPage.Update();
 
                         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
                             SalesCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
+
+                        CurrPage.Update();
                     end;
 
                     trigger OnLookup(var Text: Text): Boolean
@@ -138,6 +138,15 @@ page 41 "Sales Quote"
                         Caption = 'Contact No.';
                         Importance = Additional;
                         ToolTip = 'Specifies the number of the contact person that the sales document will be sent to.';
+
+                        trigger OnLookup(var Text: Text): Boolean
+                        begin
+                            if not SelltoContactLookup() then
+                                exit(false);
+                            Text := Rec."Sell-to Contact No.";
+                            CurrPage.Update();
+                            exit(true);
+                        end;
 
                         trigger OnValidate()
                         begin
@@ -858,7 +867,7 @@ page 41 "Sales Quote"
                 field("Area"; Area)
                 {
                     ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
+                    ToolTip = 'Specifies the country or region of origin for the purpose of Intrastat reporting.';
                 }
                 field("Language Code"; "Language Code")
                 {
