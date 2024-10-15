@@ -308,7 +308,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
         ManufacturingSetup.Modify(true);
     end;
 
-    local procedure CreateProdOrderItemSetup(var Item: Record Item; FlushingMethod: Option; NoBOMLine: Integer)
+    local procedure CreateProdOrderItemSetup(var Item: Record Item; FlushingMethod: Enum "Flushing Method"; NoBOMLine: Integer)
     var
         ProductionBOMHeader: Record "Production BOM Header";
         RoutingHeader: Record "Routing Header";
@@ -320,7 +320,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
         UpdateItem(Item, ProductionBOMHeader."No.", RoutingHeader."No.");
     end;
 
-    local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Option)
+    local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System")
     begin
         // Random values used are important for test.
         LibraryManufacturing.CreateItemManufacturing(
@@ -330,7 +330,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
         Item.Modify(true);
     end;
 
-    local procedure CreateProdBOM(var ProductionBOMHeader: Record "Production BOM Header"; ReplenishmentSystem: Option; BaseUnitOfMeasure: Code[10]; NoBOMLine: Integer)
+    local procedure CreateProdBOM(var ProductionBOMHeader: Record "Production BOM Header"; ReplenishmentSystem: Enum "Replenishment System"; BaseUnitOfMeasure: Code[10]; NoBOMLine: Integer)
     var
         ProductionBOMLine: Record "Production BOM Line";
         Item: Record Item;
@@ -351,7 +351,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
     end;
 
     [Normal]
-    local procedure CreateRouting(var RoutingHeader: Record "Routing Header"; FlushingMethod: Option)
+    local procedure CreateRouting(var RoutingHeader: Record "Routing Header"; FlushingMethod: Enum "Flushing Method")
     var
         RoutingLine: Record "Routing Line";
         WorkCenter: Record "Work Center";
@@ -380,7 +380,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
           RoutingLine, RoutingHeader, CenterNo, OperationNo, LibraryRandom.RandInt(5), LibraryRandom.RandInt(5));
     end;
 
-    local procedure CreateSetupWorkCenter(var WorkCenter: Record "Work Center"; FlushingMethod: Option)
+    local procedure CreateSetupWorkCenter(var WorkCenter: Record "Work Center"; FlushingMethod: Enum "Flushing Method")
     begin
         LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
         WorkCenter.Validate("Flushing Method", FlushingMethod);
@@ -449,7 +449,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
             exit(RoutingLine."Operation No.");
     end;
 
-    local procedure FindProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderNo: Code[20]; Type: Option)
+    local procedure FindProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderNo: Code[20]; Type: Enum "Capacity Type")
     begin
         ProdOrderRoutingLine.SetRange(Status, ProdOrderRoutingLine.Status::Planned);
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderNo);
@@ -457,7 +457,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
         ProdOrderRoutingLine.FindSet;
     end;
 
-    local procedure FindRoutingLine(var RoutingLine: Record "Routing Line"; RoutingNo: Code[20]; Type: Option; No: Code[20])
+    local procedure FindRoutingLine(var RoutingLine: Record "Routing Line"; RoutingNo: Code[20]; Type: Enum "Capacity Type"; No: Code[20])
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
         RoutingLine.SetRange(Type, Type);
@@ -492,7 +492,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
         Assert.AreEqual(ExpectedlAllocatedTime, ActualAllocatedTime, ErrAllocatedTimeMustBeSame);
     end;
 
-    local procedure VerifyRunSetupTime(ProductionOrder: Record "Production Order"; Type: Option)
+    local procedure VerifyRunSetupTime(ProductionOrder: Record "Production Order"; Type: Enum "Capacity Type")
     var
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
         RoutingLine: Record "Routing Line";

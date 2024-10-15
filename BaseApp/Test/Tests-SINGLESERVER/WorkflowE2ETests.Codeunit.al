@@ -693,7 +693,7 @@ codeunit 134302 "Workflow E2E Tests"
         exit(not NotificationEntry.IsEmpty);
     end;
 
-    local procedure FindApprovalEntry(var ApprovalEntry: Record "Approval Entry"; TableID: Integer; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindApprovalEntry(var ApprovalEntry: Record "Approval Entry"; TableID: Integer; DocumentType: Enum "Approval Document Type"; DocumentNo: Code[20])
     begin
         ApprovalEntry.SetRange("Table ID", TableID);
         ApprovalEntry.SetRange("Document Type", DocumentType);
@@ -782,7 +782,7 @@ codeunit 134302 "Workflow E2E Tests"
         UserSetup.Modify();
     end;
 
-    local procedure CheckPurchInvStatus(DocumentNo: Code[20]; Status: Option)
+    local procedure CheckPurchInvStatus(DocumentNo: Code[20]; Status: Enum "Purchase Document Status")
     var
         PurchaseHeader: Record "Purchase Header";
     begin

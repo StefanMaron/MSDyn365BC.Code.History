@@ -369,7 +369,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
         end;
     end;
 
-    local procedure VerifyContactCompany(var CompanyNo: Code[20]; LinkToTable: Option; No: Code[20])
+    local procedure VerifyContactCompany(var CompanyNo: Code[20]; LinkToTable: Enum "Contact Business Relation Link To Table"; No: Code[20])
     var
         ContactBusinessRelation: Record "Contact Business Relation";
     begin

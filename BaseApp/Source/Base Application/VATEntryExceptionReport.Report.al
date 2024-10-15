@@ -157,10 +157,10 @@ report 10511 "VAT Entry Exception Report"
                 if not TempVATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
                     SetupVATCalculationType := SetupVATCalculationType::Missing
                 else
-                    SetupVATCalculationType := TempVATPostingSetup."VAT Calculation Type";
+                    SetupVATCalculationType := TempVATPostingSetup."VAT Calculation Type".AsInteger();
 
                 if CheckVATCalculationTypes then
-                    if "VAT Calculation Type" <> SetupVATCalculationType then begin
+                    if "VAT Calculation Type".AsInteger() <> SetupVATCalculationType then begin
                         AddErrorText(
                           ErrorText,
                           Text1041001 + FieldCaption("VAT Calculation Type") +

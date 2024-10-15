@@ -167,7 +167,7 @@ codeunit 144061 "ERM PSREPORTING"
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));  // Using Random Quantity.
     end;
 
-    local procedure CreateAnalysisLine(ItemAnalysisViewAnalysisArea: Option; Type: Option; Range: Code[20]): Code[10]
+    local procedure CreateAnalysisLine(ItemAnalysisViewAnalysisArea: Option; Type: Enum "Analysis Line Type"; Range: Code[20]): Code[10]
     var
         AnalysisLine: Record "Analysis Line";
         AnalysisLineTemplate: Record "Analysis Line Template";
@@ -180,7 +180,7 @@ codeunit 144061 "ERM PSREPORTING"
         exit(AnalysisLine."Analysis Line Template Name");
     end;
 
-    local procedure CreateAnalysisColumnWithItemLedgerEntryType(ItemAnalysisViewAnalysisArea: Option; ItemLedgerEntryTypeFilter: Text[250]; ValueType: Option): Code[10]
+    local procedure CreateAnalysisColumnWithItemLedgerEntryType(ItemAnalysisViewAnalysisArea: Option; ItemLedgerEntryTypeFilter: Text[250]; ValueType: Enum "Analysis Value Type"): Code[10]
     var
         AnalysisColumnTemplate: Record "Analysis Column Template";
         AnalysisColumn: Record "Analysis Column";
@@ -201,7 +201,7 @@ codeunit 144061 "ERM PSREPORTING"
         exit(AnalysisColumnTemplate.Name);
     end;
 
-    local procedure CreateItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Option)
+    local procedure CreateItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Enum "Item Journal Template Type")
     var
         ItemJournalTemplate: Record "Item Journal Template";
     begin

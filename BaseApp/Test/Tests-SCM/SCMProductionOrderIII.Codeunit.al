@@ -486,7 +486,7 @@ codeunit 137079 "SCM Production Order III"
         LibraryPlanning.CarryOutAMSubcontractWksh(RequisitionLine);
         FindPurchaseOrderLine(PurchaseLine, Item."No.");
         if AssignTracking then begin
-            asserterror PurchaseLine.OpenItemTrackingLines;
+            asserterror PurchaseLine.OpenItemTrackingLines();
 
             // Verify: Verify the Tracking error on Purchase Line. Verify the Quantity on Purchase Line created.
             Assert.ExpectedError(ItemTrackingErr);
@@ -3847,7 +3847,7 @@ codeunit 137079 "SCM Production Order III"
         end;
     end;
 
-    local procedure CreateProdItemWithScrapAndFlushingMethod(var Item: Record Item; var ChildItemNo: Code[20]; FlushingMethod: Option; QtyPer: Decimal; MultipleRoutingLine: Boolean; ScrapFactor: Decimal; FixedScrapQuantity: Decimal; Tracking: Boolean)
+    local procedure CreateProdItemWithScrapAndFlushingMethod(var Item: Record Item; var ChildItemNo: Code[20]; FlushingMethod: Enum "Flushing Method"; QtyPer: Decimal; MultipleRoutingLine: Boolean; ScrapFactor: Decimal; FixedScrapQuantity: Decimal; Tracking: Boolean)
     var
         ChildItem: Record Item;
     begin
@@ -3945,7 +3945,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
         ProdOrderLine.FindFirst;
-        ProdOrderLine.OpenItemTrackingLines;  // Invokes ItemTrackingPageHandler.
+        ProdOrderLine.OpenItemTrackingLines();  // Invokes ItemTrackingPageHandler.
     end;
 
     local procedure CalculateAndPostConsumptionJournal(ProductionOrderNo: Code[20])
@@ -4081,7 +4081,7 @@ codeunit 137079 "SCM Production Order III"
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
 
-    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; Status: Option; SourceNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; BinCode: Code[20])
+    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; BinCode: Code[20])
     begin
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, ProductionOrder."Source Type"::Item, SourceNo, Quantity);
         ProductionOrder.Validate("Location Code", LocationCode);
@@ -4289,7 +4289,7 @@ codeunit 137079 "SCM Production Order III"
         CreateAndPostItemJournalLine(ChildItem2."No.", LibraryRandom.RandInt(100), '', '');
     end;
 
-    local procedure CreateAndRefreshProductionOrderWithSourceTypeFamily(var ProductionOrder: Record "Production Order"; Status: Option; SourceNo: Code[20]; Quantity: Decimal)
+    local procedure CreateAndRefreshProductionOrderWithSourceTypeFamily(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20]; Quantity: Decimal)
     begin
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, ProductionOrder."Source Type"::Family, SourceNo, Quantity);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
@@ -4528,7 +4528,7 @@ codeunit 137079 "SCM Production Order III"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
     end;
 
-    local procedure CreateRoutingWithScrapAndFlushingMethod(var Item: Record Item; FlushingMethod: Option; MultipleRoutingLine: Boolean; ScrapFactor: Decimal; FixedScrapQuantity: Decimal)
+    local procedure CreateRoutingWithScrapAndFlushingMethod(var Item: Record Item; FlushingMethod: Enum "Flushing Method"; MultipleRoutingLine: Boolean; ScrapFactor: Decimal; FixedScrapQuantity: Decimal)
     var
         WorkCenter: Record "Work Center";
         RoutingHeader: Record "Routing Header";
@@ -4672,7 +4672,7 @@ codeunit 137079 "SCM Production Order III"
         CreateAndPostItemJournalLine(ItemNo2, Quantity, LocationCode, BinCode);
     end;
 
-    local procedure OpenProductionJournalPage(var ProductionOrder: Record "Production Order"; ItemNo: Code[20]; ItemNo2: Code[20]; Quantity: Decimal; EntryType: Option)
+    local procedure OpenProductionJournalPage(var ProductionOrder: Record "Production Order"; ItemNo: Code[20]; ItemNo2: Code[20]; Quantity: Decimal; EntryType: Enum "Item Ledger Document Type")
     var
         ProdOrderLine: Record "Prod. Order Line";
     begin
@@ -4684,7 +4684,7 @@ codeunit 137079 "SCM Production Order III"
         LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
     end;
 
-    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Option; ItemNo: Code[20])
+    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20])
     begin
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
@@ -4705,7 +4705,7 @@ codeunit 137079 "SCM Production Order III"
         ProdOrderLine.FindFirst;
     end;
 
-    local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderStatus: Option; ProdOrderNo: Code[20])
+    local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20])
     begin
         with ProdOrderLine do begin
             SetRange(Status, ProdOrderStatus);
@@ -4731,7 +4731,7 @@ codeunit 137079 "SCM Production Order III"
         PurchaseLine.FindFirst;
     end;
 
-    local procedure FindWarehouseReceiptNo(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Option; SourceNo: Code[20])
+    local procedure FindWarehouseReceiptNo(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
@@ -4898,7 +4898,7 @@ codeunit 137079 "SCM Production Order III"
         end;
     end;
 
-    local procedure FilterValueEntry(var ValueEntry: Record "Value Entry"; DocumentNo: Code[20]; ItemLedgerEntryType: Option)
+    local procedure FilterValueEntry(var ValueEntry: Record "Value Entry"; DocumentNo: Code[20]; ItemLedgerEntryType: Enum "Item Ledger Document Type")
     begin
         ValueEntry.SetRange("Item Ledger Entry Type", ItemLedgerEntryType);
         ValueEntry.SetRange("Document No.", DocumentNo);
@@ -4922,7 +4922,7 @@ codeunit 137079 "SCM Production Order III"
         end;
     end;
 
-    local procedure MockProductionOrder(var ProductionOrder: Record "Production Order"; ProdOrderStatus: Option)
+    local procedure MockProductionOrder(var ProductionOrder: Record "Production Order"; ProdOrderStatus: Enum "Production Order Status")
     begin
         with ProductionOrder do begin
             Init;
@@ -5039,14 +5039,14 @@ codeunit 137079 "SCM Production Order III"
         ManufacturingSetup.Modify(true);
     end;
 
-    local procedure UpdateOrderTrackingPolicyOnItem(var Item: Record Item; OrderTrackingPolicy: Option)
+    local procedure UpdateOrderTrackingPolicyOnItem(var Item: Record Item; OrderTrackingPolicy: Enum "Order Tracking Policy")
     begin
         LibraryVariableStorage.Enqueue(TrackingMsg);  // Enqueue variable for use in MessageHandler.
         Item.Validate("Order Tracking Policy", OrderTrackingPolicy);
         Item.Modify(true);
     end;
 
-    local procedure UpdateItemParametersForPlanning(var Item: Record Item; ReplenishmentSystem: Option; ReorderingPolicy: Option)
+    local procedure UpdateItemParametersForPlanning(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; ReorderingPolicy: Enum "Reordering Policy")
     var
         Vendor: Record Vendor;
     begin
@@ -5100,7 +5100,7 @@ codeunit 137079 "SCM Production Order III"
         WarehouseActivityLine.Modify(true);
     end;
 
-    local procedure UpdateFlushingMethodOnItem(var Item: Record Item; FlushingMethod: Option)
+    local procedure UpdateFlushingMethodOnItem(var Item: Record Item; FlushingMethod: Enum "Flushing Method")
     begin
         Item.Validate("Flushing Method", FlushingMethod);
         Item.Modify(true);
@@ -5135,7 +5135,7 @@ codeunit 137079 "SCM Production Order III"
         Item.Modify(true);
     end;
 
-    local procedure UpdateItemForLotTrackingAndFlushingMethod(var Item: Record Item; FlushingMethod: Option)
+    local procedure UpdateItemForLotTrackingAndFlushingMethod(var Item: Record Item; FlushingMethod: Enum "Flushing Method")
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
@@ -5306,7 +5306,7 @@ codeunit 137079 "SCM Production Order III"
         RoutingLine.Modify(true);
     end;
 
-    local procedure UpdateFlushingMethodOnWorkCenter(var WorkCenter: Record "Work Center"; FlushingMethod: Option)
+    local procedure UpdateFlushingMethodOnWorkCenter(var WorkCenter: Record "Work Center"; FlushingMethod: Enum "Flushing Method")
     begin
         WorkCenter.Validate("Flushing Method", FlushingMethod);
         WorkCenter.Modify(true);
@@ -5356,7 +5356,7 @@ codeunit 137079 "SCM Production Order III"
         end;
     end;
 
-    local procedure VerifyValueEntryForEntryType(EntryType: Option; DocumentNo: Code[20]; ItemLedgerEntryQuantity: Decimal; CostPostedToGL: Decimal; InvoicedQuantity: Decimal; CostPerUnit: Decimal; CostAmountActual: Decimal)
+    local procedure VerifyValueEntryForEntryType(EntryType: Enum "Cost Entry Type"; DocumentNo: Code[20]; ItemLedgerEntryQuantity: Decimal; CostPostedToGL: Decimal; InvoicedQuantity: Decimal; CostPerUnit: Decimal; CostAmountActual: Decimal)
     var
         ValueEntry: Record "Value Entry";
     begin
@@ -5386,7 +5386,7 @@ codeunit 137079 "SCM Production Order III"
         ProdOrderLine.TestField("Due Date", DueDate);
     end;
 
-    local procedure VerifyItemLedgerEntry(EntryType: Option; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
+    local procedure VerifyItemLedgerEntry(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
@@ -5478,7 +5478,7 @@ codeunit 137079 "SCM Production Order III"
         end;
     end;
 
-    local procedure VerifyRequisitionLine(No: Code[20]; ActionMessage: Option; Quantity: Decimal; DueDate: Date)
+    local procedure VerifyRequisitionLine(No: Code[20]; ActionMessage: Enum "Action Message Type"; Quantity: Decimal; DueDate: Date)
     var
         RequisitionLine: Record "Requisition Line";
     begin
@@ -5488,7 +5488,7 @@ codeunit 137079 "SCM Production Order III"
         RequisitionLine.TestField("Due Date", DueDate);
     end;
 
-    local procedure VerifyRequisitionLineWithLocation(ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; ActionMessage: Option)
+    local procedure VerifyRequisitionLineWithLocation(ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; ActionMessage: Enum "Action Message Type")
     var
         RequisitionLine: Record "Requisition Line";
     begin
@@ -5534,7 +5534,7 @@ codeunit 137079 "SCM Production Order III"
         ProductionOrderStatistics.MaterialCost_ActualCost.AssertEquals(ActualCost);
     end;
 
-    local procedure VerifyReservationEntry(ItemNo: Code[20]; Quantity: Decimal; ReservationStatus: Option; LocationCode: Code[10])
+    local procedure VerifyReservationEntry(ItemNo: Code[20]; Quantity: Decimal; ReservationStatus: Enum "Reservation Status"; LocationCode: Code[10])
     var
         ReservationEntry: Record "Reservation Entry";
     begin
@@ -5606,7 +5606,7 @@ codeunit 137079 "SCM Production Order III"
         WarehouseActivityLine.TestField("Qty. (Base)", Quantity);
     end;
 
-    local procedure VerifyValueEntry(ItemNo: Code[20]; DocumentNo: Code[20]; ItemLedgerEntryType: Option; CostAmountActual: Decimal)
+    local procedure VerifyValueEntry(ItemNo: Code[20]; DocumentNo: Code[20]; ItemLedgerEntryType: Enum "Item Ledger Document Type"; CostAmountActual: Decimal)
     var
         ValueEntry: Record "Value Entry";
     begin
@@ -5630,7 +5630,7 @@ codeunit 137079 "SCM Production Order III"
         end;
     end;
 
-    local procedure VerifyProdOrderComponent(ProdOrderNo: Code[20]; Status: Option; ItemNo: Code[20]; QtyPicked: Decimal)
+    local procedure VerifyProdOrderComponent(ProdOrderNo: Code[20]; Status: Enum "Production Order Status"; ItemNo: Code[20]; QtyPicked: Decimal)
     var
         ProdOrderComponent: Record "Prod. Order Component";
     begin

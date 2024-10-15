@@ -135,16 +135,18 @@ page 9094 "Vendor Statistics FactBox"
     end;
 
     var
-        TotalAmountLCY: Decimal;
         Text000: Label 'Overdue Amounts (LCY) as of %1';
         ShowVendorNo: Boolean;
+
+    protected var
+        TotalAmountLCY: Decimal;
 
     local procedure ShowDetails()
     begin
         PAGE.Run(PAGE::"Vendor Card", Rec);
     end;
 
-    [Obsolete('Visibility of the Vendor No. can be controlled through personalizaition or PTE', '16.0')]
+    [Obsolete('Visibility of the Vendor No. can be controlled through personalizaition or PTE', '17.0')]
     procedure SetVendorNoVisibility(Visible: Boolean)
     begin
         ShowVendorNo := Visible;

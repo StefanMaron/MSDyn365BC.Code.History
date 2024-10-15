@@ -9,7 +9,7 @@ page 5480 "Account Entity"
     EntitySetName = 'accounts';
     InsertAllowed = false;
     ModifyAllowed = false;
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = "G/L Account";
 
@@ -20,7 +20,7 @@ page 5480 "Account Entity"
             repeater(Control2)
             {
                 ShowCaption = false;
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'Id', Locked = true;

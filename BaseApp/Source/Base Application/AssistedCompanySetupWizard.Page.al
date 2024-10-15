@@ -158,7 +158,7 @@ page 1803 "Assisted Company Setup Wizard"
                                 exit;
                             if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then begin
                                 VATRegistrationLogMgt.ValidateVATRegNoWithVIES(ResultRecordRef, Rec, "Primary Key",
-                                  VATRegistrationLog."Account Type"::"Company Information", "Country/Region Code");
+                                  VATRegistrationLog."Account Type"::"Company Information".AsInteger(), "Country/Region Code");
                                 ResultRecordRef.SetTable(Rec);
                             end;
                         end;
@@ -525,7 +525,7 @@ page 1803 "Assisted Company Setup Wizard"
     var
         AssistedSetup: Codeunit "Assisted Setup";
     begin
-        if CloseAction = ACTION::OK then 
+        if CloseAction = ACTION::OK then
             if AssistedSetup.ExistsAndIsNotComplete(PAGE::"Assisted Company Setup Wizard") then
                 if not Confirm(NotSetUpQst, false) then
                     Error('');

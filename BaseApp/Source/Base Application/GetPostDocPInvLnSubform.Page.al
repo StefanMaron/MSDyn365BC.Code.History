@@ -53,6 +53,15 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
                     Visible = false;
+                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '17.0';
+                }
+                field("Item Reference No."; "Item Reference No.")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the referenced item number.';
+                    Visible = ItemReferenceVisible;
                 }
                 field("Variant Code"; "Variant Code")
                 {
@@ -260,7 +269,7 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Item &Tracking Lines")
@@ -335,6 +344,11 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
         exit(RealSteps);
     end;
 
+    trigger OnOpenPage()
+    begin
+        SetItemReferenceVisibility();
+    end;
+
     var
         ToPurchHeader: Record "Purchase Header";
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -350,6 +364,8 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
         ShowRec: Boolean;
         [InDataSet]
         DocumentNoHideValue: Boolean;
+        [InDataSet]
+        ItemReferenceVisible: Boolean;
 
     local procedure IsFirstDocLine(): Boolean
     var
@@ -460,6 +476,13 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
     begin
         if not IsFirstDocLine then
             DocumentNoHideValue := true;
+    end;
+
+    local procedure SetItemReferenceVisibility()
+    var
+        ItemReferenceMgt: Codeunit "Item Reference Management";
+    begin
+        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 }
 

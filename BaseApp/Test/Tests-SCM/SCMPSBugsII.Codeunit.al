@@ -599,7 +599,7 @@ codeunit 137036 "SCM PS Bugs - II"
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, false, true, false);
     end;
 
-    local procedure CreateSalesDocumentSetup(ItemReplenishmentSystem: Option; DocumentType: Option): Code[20]
+    local procedure CreateSalesDocumentSetup(ItemReplenishmentSystem: Enum "Replenishment System"; DocumentType: Enum "Sales Document Type"): Code[20]
     var
         Item: Record Item;
         SalesHeader: Record "Sales Header";
@@ -648,7 +648,7 @@ codeunit 137036 "SCM PS Bugs - II"
         CreatePurchOrderDropShipment(PurchaseHeader, SalesLine);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; ItemNo: Code[20])
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20])
     begin
         // Random Values not important.
         LibrarySales.CreateSalesDocumentWithItem(
@@ -689,7 +689,7 @@ codeunit 137036 "SCM PS Bugs - II"
         GetSalesOrders.Run;
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
@@ -846,7 +846,7 @@ codeunit 137036 "SCM PS Bugs - II"
         exit(LibraryDimension.CreateDimSet(OldDimSetID, Dimension.Code, DimensionValue.Code));
     end;
 
-    local procedure SetQuantityPickedOnProdOrderComponent(ProdOrderStatus: Option; ProdOrderNo: Code[20]; Quantity: Decimal)
+    local procedure SetQuantityPickedOnProdOrderComponent(ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20]; Quantity: Decimal)
     var
         ProdOrderComponent: Record "Prod. Order Component";
     begin
@@ -993,7 +993,7 @@ codeunit 137036 "SCM PS Bugs - II"
         ProdOrderComponent.TestField("Dimension Set ID", DimensionSetId);
     end;
 
-    local procedure VerifyProductionOrderComponentPickedQuantity(ProdOrderStatus: Option; ProdOrderNo: Code[20]; ExpectedQty: Decimal)
+    local procedure VerifyProductionOrderComponentPickedQuantity(ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20]; ExpectedQty: Decimal)
     var
         ProdOrderComponent: Record "Prod. Order Component";
     begin

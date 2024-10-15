@@ -36,6 +36,42 @@ report 6631 "Return Order Confirmation"
             column(InvDiscAmtCaption; InvDiscAmtCaptionLbl)
             {
             }
+            column(SellToContactPhoneNoLbl; SellToContactPhoneNoLbl)
+            {
+            }
+            column(SellToContactMobilePhoneNoLbl; SellToContactMobilePhoneNoLbl)
+            {
+            }
+            column(SellToContactEmailLbl; SellToContactEmailLbl)
+            {
+            }
+            column(BillToContactPhoneNoLbl; BillToContactPhoneNoLbl)
+            {
+            }
+            column(BillToContactMobilePhoneNoLbl; BillToContactMobilePhoneNoLbl)
+            {
+            }
+            column(BillToContactEmailLbl; BillToContactEmailLbl)
+            {
+            }
+            column(SellToContactPhoneNo; SellToContact."Phone No.")
+            {
+            }
+            column(SellToContactMobilePhoneNo; SellToContact."Mobile Phone No.")
+            {
+            }
+            column(SellToContactEmail; SellToContact."E-Mail")
+            {
+            }
+            column(BillToContactPhoneNo; BillToContact."Phone No.")
+            {
+            }
+            column(BillToContactMobilePhoneNo; BillToContact."Mobile Phone No.")
+            {
+            }
+            column(BillToContactEmail; BillToContact."E-Mail")
+            {
+            }
             dataitem(CopyLoop; "Integer")
             {
                 DataItemTableView = SORTING(Number);
@@ -458,7 +494,7 @@ report 6631 "Return Order Confirmation"
                                 "Sales Line"."No." := '';
                             end;
 
-                            TypeInt := "Sales Line".Type;
+                            TypeInt := "Sales Line".Type.AsInteger();
                             SalesLineLineNo := "Sales Line"."Line No.";
                         end;
 
@@ -685,6 +721,8 @@ report 6631 "Return Order Confirmation"
 
                 FormatAddressFields("Sales Header");
                 FormatDocumentFields("Sales Header");
+                if SellToContact.Get("Sell-to Contact No.") then;
+                if BillToContact.Get("Bill-to Contact No.") then;
 
                 DimSetEntry1.SetRange("Dimension Set ID", "Dimension Set ID");
             end;
@@ -798,6 +836,8 @@ report 6631 "Return Order Confirmation"
         DimSetEntry2: Record "Dimension Set Entry";
         RespCenter: Record "Responsibility Center";
         CurrExchRate: Record "Currency Exchange Rate";
+        SellToContact: Record Contact;
+        BillToContact: Record Contact;
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
@@ -868,6 +908,12 @@ report 6631 "Return Order Confirmation"
         VATAmountCaptionLbl: Label 'VAT Amount';
         VATIdentifierCaptionLbl: Label 'VAT Identifier';
         InvDiscAmtCaptionLbl: Label 'Invoice Discount Amount';
+        SellToContactPhoneNoLbl: Label 'Sell-to Contact Phone No.';
+        SellToContactMobilePhoneNoLbl: Label 'Sell-to Contact Mobile Phone No.';
+        SellToContactEmailLbl: Label 'Sell-to Contact E-Mail';
+        BillToContactPhoneNoLbl: Label 'Bill-to Contact Phone No.';
+        BillToContactMobilePhoneNoLbl: Label 'Bill-to Contact Mobile Phone No.';
+        BillToContactEmailLbl: Label 'Bill-to Contact E-Mail';
 
     procedure InitLogInteraction()
     begin

@@ -55,7 +55,7 @@ codeunit 144005 "UT REP Doclay"
           PurchaseHeader."Document Type"::"Blanket Order", REPORT::"Blanket Purchase Order GB", PurchHeaderCap);
     end;
 
-    local procedure OnAfterGetCopyLoopPurchaseDocument(DocumentType: Option; ReportID: Option; DocumentNoCaption: Text[30])
+    local procedure OnAfterGetCopyLoopPurchaseDocument(DocumentType: Enum "Purchase Document Type"; ReportID: Option; DocumentNoCaption: Text[30])
     var
         No: Code[20];
     begin
@@ -135,7 +135,7 @@ codeunit 144005 "UT REP Doclay"
         OnAfterGetRoundLoopSalesDocument(SalesHeader."Document Type"::"Blanket Order", REPORT::"Blanket Sales Order GB", SalesHeaderCap);
     end;
 
-    local procedure OnAfterGetRoundLoopSalesDocument(DocumentType: Option; ReportID: Option; DocumentNoCaption: Text[30])
+    local procedure OnAfterGetRoundLoopSalesDocument(DocumentType: Enum "Sales Document Type"; ReportID: Option; DocumentNoCaption: Text[30])
     var
         No: Code[20];
     begin
@@ -186,7 +186,7 @@ codeunit 144005 "UT REP Doclay"
         exit(PurchInvHeader."No.");
     end;
 
-    local procedure CreatePurchaseDocument(DocumentType: Option): Code[20]
+    local procedure CreatePurchaseDocument(DocumentType: Enum "Purchase Document Type"): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -205,7 +205,7 @@ codeunit 144005 "UT REP Doclay"
         exit(PurchaseLine."Document No.");
     end;
 
-    local procedure CreateSalesDocument(DocumentType: Option): Code[20]
+    local procedure CreateSalesDocument(DocumentType: Enum "Sales Document Type"): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";

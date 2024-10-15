@@ -154,28 +154,23 @@ codeunit 7025 "Requisition Line - Price" implements "Line With Price"
 
     procedure SetPrice(AmountType: Enum "Price Amount Type"; PriceListLine: Record "Price List Line")
     begin
-        case AmountType of
-            AmountType::Cost:
-                begin
-                    RequisitionLine."Direct Unit Cost" := PriceListLine."Unit Cost";
-                    if PriceListLine.IsRealLine() then
-                        DiscountIsAllowed := PriceListLine."Allow Line Disc.";
-                    PriceCalculated := true;
-                end;
-            AmountType::Discount:
-                RequisitionLine."Line Discount %" := PriceListLine."Line Discount %";
+        if AmountType = AmountType::Discount then
+            RequisitionLine."Line Discount %" := PriceListLine."Line Discount %"
+        else begin
+            RequisitionLine."Direct Unit Cost" := PriceListLine."Unit Cost";
+            if PriceListLine.IsRealLine() then
+                DiscountIsAllowed := PriceListLine."Allow Line Disc.";
+            PriceCalculated := true;
         end;
         OnAfterSetPrice(RequisitionLine, PriceListLine, AmountType);
     end;
 
     procedure ValidatePrice(AmountType: enum "Price Amount Type")
     begin
-        case AmountType of
-            AmountType::Discount:
-                RequisitionLine.Validate("Line Discount %");
-            AmountType::Cost:
-                RequisitionLine.Validate("Direct Unit Cost");
-        end;
+        if AmountType = AmountType::Discount then
+            RequisitionLine.Validate("Line Discount %")
+        else
+            RequisitionLine.Validate("Direct Unit Cost");
     end;
 
     procedure Update(AmountType: enum "Price Amount Type")

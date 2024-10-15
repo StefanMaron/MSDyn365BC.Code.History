@@ -8,6 +8,9 @@ page 2800 "Native - KPIs Entity"
     ModifyAllowed = false;
     PageType = List;
     SourceTable = "O365 Sales Cue";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'These objects will be removed';
+    ObsoleteTag = '17.0';
 
     layout
     {

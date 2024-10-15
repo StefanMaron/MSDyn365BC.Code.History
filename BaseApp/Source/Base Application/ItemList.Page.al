@@ -281,7 +281,10 @@ page 31 "Item List"
                 ApplicationArea = All;
                 SubPageLink = "Source Type" = CONST(Item),
                               "Source No." = FIELD("No.");
-                Visible = SocialListeningVisible;
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
+                ObsoleteTag = '17.0';
             }
             part(Control26; "Social Listening Setup FactBox")
             {
@@ -289,7 +292,10 @@ page 31 "Item List"
                 SubPageLink = "Source Type" = CONST(Item),
                               "Source No." = FIELD("No.");
                 UpdatePropagation = Both;
-                Visible = SocialListeningSetupVisible;
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
+                ObsoleteTag = '17.0';
             }
             part(Control1901314507; "Item Invoicing FactBox")
             {
@@ -508,7 +514,24 @@ page 31 "Item List"
                     Promoted = true;
                     PromotedCategory = Category4;
                     PromotedOnly = true;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Item Reference feature.';
+                    ObsoleteTag = '17.0';
                     RunObject = Page "Item Cross Reference Entries";
+                    RunPageLink = "Item No." = FIELD("No.");
+                    Scope = Repeater;
+                    ToolTip = 'Set up a customer''s or vendor''s own identification of the selected item. Cross-references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
+                }
+                action("Item Refe&rences")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Item References';
+                    Visible = ItemReferenceVisible;
+                    Image = Change;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    PromotedOnly = true;
+                    RunObject = Page "Item Reference Entries";
                     RunPageLink = "Item No." = FIELD("No.");
                     Scope = Repeater;
                     ToolTip = 'Set up a customer''s or vendor''s own identification of the selected item. Cross-references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
@@ -610,7 +633,7 @@ page 31 "Item List"
                     Image = Entries;
                     action("Ledger E&ntries")
                     {
-                        ApplicationArea = Advanced;
+                        ApplicationArea = Suite;
                         Caption = 'Ledger E&ntries';
                         Image = ItemLedger;
                         //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
@@ -649,7 +672,7 @@ page 31 "Item List"
                     }
                     action("&Value Entries")
                     {
-                        ApplicationArea = Advanced;
+                        ApplicationArea = Suite;
                         Caption = '&Value Entries';
                         Image = ValueLedger;
                         RunObject = Page "Value Entries";
@@ -668,7 +691,7 @@ page 31 "Item List"
                         var
                             ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
                         begin
-                            ItemTrackingDocMgt.ShowItemTrackingForMasterData(3, '', "No.", '', '', '', '');
+                            ItemTrackingDocMgt.ShowItemTrackingForEntity(3, '', "No.", '', '');
                         end;
                     }
                     action("&Warehouse Entries")
@@ -692,7 +715,11 @@ page 31 "Item List"
                     Caption = 'Special Prices';
                     Image = Price;
                     Scope = Repeater;
+                    Visible = not ExtendedPriceEnabled;
                     ToolTip = 'Set up different prices for the selected item. An item price is automatically used on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnAction()
                     begin
@@ -705,7 +732,11 @@ page 31 "Item List"
                     Caption = 'Special Discounts';
                     Image = LineDiscount;
                     Scope = Repeater;
+                    Visible = not ExtendedPriceEnabled;
                     ToolTip = 'Set up different discounts for the selected item. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnAction()
                     begin
@@ -717,9 +748,11 @@ page 31 "Item List"
                     ApplicationArea = Suite;
                     Caption = 'Special Prices & Discounts Overview';
                     Image = PriceWorksheet;
-                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedCategory = Category6;
+                    Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View the special prices and line discounts that you grant for this item when certain criteria are met, such as vendor, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnAction()
                     var
@@ -739,7 +772,50 @@ page 31 "Item List"
                     PromotedCategory = Category6;
                     RunObject = Page "Sales Price Worksheet";
                     ToolTip = 'Change to the unit price for the item or specify how you want to enter changes in the price agreement for one customer, a group of customers, or all customers.';
-                    Visible = NOT IsOnPhone;
+                    Visible = not IsOnPhone and not ExtendedPriceEnabled;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+                action(SalesPriceLists)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Price Lists (Prices)';
+                    Image = Price;
+                    Scope = Repeater;
+                    Visible = ExtendedPriceEnabled;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    PromotedIsBig = true;
+                    ToolTip = 'Set up different prices for the item. An item price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        Rec.ShowPriceListLines(PriceType::Sale, AmountType::Price);
+                    end;
+                }
+                action(SalesPriceListsDiscounts)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Price Lists (Discounts)';
+                    Image = LineDiscount;
+                    Scope = Repeater;
+                    Visible = ExtendedPriceEnabled;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    PromotedIsBig = true;
+                    ToolTip = 'Set up different discounts for the item. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        Rec.ShowPriceListLines(PriceType::Sale, AmountType::Discount);
+                    end;
                 }
             }
             group(PeriodicActivities)
@@ -1539,9 +1615,13 @@ page 31 "Item List"
 
                         trigger OnAction()
                         var
+                            Item: Record Item;
                             CRMCouplingManagement: Codeunit "CRM Coupling Management";
+                            RecRef: RecordRef;
                         begin
-                            CRMCouplingManagement.RemoveCoupling(RecordId);
+                            CurrPage.SetSelectionFilter(Item);
+                            RecRef.GetTable(Item);
+                            CRMCouplingManagement.RemoveCoupling(RecRef);
                         end;
                     }
                 }
@@ -1894,7 +1974,11 @@ page 31 "Item List"
                     RunObject = Page "Purchase Prices";
                     RunPageLink = "Item No." = FIELD("No.");
                     RunPageView = SORTING("Item No.");
+                    Visible = not ExtendedPriceEnabled;
                     ToolTip = 'Set up different prices for the item. An item price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
                 }
                 action("Set Special Discounts")
                 {
@@ -1903,14 +1987,22 @@ page 31 "Item List"
                     Image = LineDiscount;
                     RunObject = Page "Purchase Line Discounts";
                     RunPageLink = "Item No." = FIELD("No.");
+                    Visible = not ExtendedPriceEnabled;
                     ToolTip = 'Set up different discounts for the item. An item discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
                 }
                 action(PurchPricesDiscountsOverview)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Special Prices & Discounts Overview';
                     Image = PriceWorksheet;
+                    Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View the special prices and line discounts that you grant for this item when certain criteria are met, such as vendor, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnAction()
                     var
@@ -1918,6 +2010,40 @@ page 31 "Item List"
                     begin
                         PurchasesPriceAndLineDisc.LoadItem(Rec);
                         PurchasesPriceAndLineDisc.RunModal;
+                    end;
+                }
+                action(PurchPriceLists)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Purchase Price Lists (Prices)';
+                    Image = Price;
+                    Visible = ExtendedPriceEnabled;
+                    Scope = Repeater;
+                    ToolTip = 'Set up different prices for the item. An item price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        Rec.ShowPriceListLines(PriceType::Purchase, AmountType::Price);
+                    end;
+                }
+                action(PurchPriceListsDiscounts)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Purchase Price Lists (Discounts)';
+                    Image = LineDiscount;
+                    Visible = ExtendedPriceEnabled;
+                    Scope = Repeater;
+                    ToolTip = 'Set up different discounts for the item. An item discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        Rec.ShowPriceListLines(PriceType::Purchase, AmountType::Discount);
                     end;
                 }
             }
@@ -2089,13 +2215,17 @@ page 31 "Item List"
         SocialListeningSetup: Record "Social Listening Setup";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         ClientTypeManagement: Codeunit "Client Type Management";
+        ItemReferenceMgt: Codeunit "Item Reference Management";
+
     begin
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
         with SocialListeningSetup do
             SocialListeningSetupVisible := Get and "Show on Customers" and "Accept License Agreement" and ("Solution ID" <> '');
         IsFoundationEnabled := ApplicationAreaMgmtFacade.IsFoundationEnabled;
         SetWorkflowManagementEnabledState;
         IsOnPhone := ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Phone;
+        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     var
@@ -2107,28 +2237,34 @@ page 31 "Item List"
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         ClientTypeManagement: Codeunit "Client Type Management";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         SkilledResourceList: Page "Skilled Resource List";
+
+    protected var
         IsFoundationEnabled: Boolean;
-        [InDataSet]
-        SocialListeningSetupVisible: Boolean;
-        [InDataSet]
-        SocialListeningVisible: Boolean;
         CRMIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
+        ExtendedPriceEnabled: Boolean;
         OpenApprovalEntriesExist: Boolean;
         EnabledApprovalWorkflowsExist: Boolean;
         CanCancelApprovalForRecord: Boolean;
         IsOnPhone: Boolean;
         RunOnTempRec: Boolean;
         EventFilter: Text;
-        PowerBIVisible: Boolean;
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
+        RunOnPickItem: Boolean;
         [InDataSet]
         IsNonInventoriable: Boolean;
         [InDataSet]
         IsInventoriable: Boolean;
-        RunOnPickItem: Boolean;
+        [InDataSet]
+        ItemReferenceVisible: Boolean;
+        PowerBIVisible: Boolean;
+        [InDataSet]
+        SocialListeningSetupVisible: Boolean;
+        [InDataSet]
+        SocialListeningVisible: Boolean;
 
     procedure SelectActiveItems(): Text
     var
@@ -2241,6 +2377,7 @@ page 31 "Item List"
             until TempItemFilteredFromPickItem.Next = 0;
     end;
 
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     local procedure ShowLineDiscounts()
     var
         SalesLineDiscount: Record "Sales Line Discount";
@@ -2251,6 +2388,7 @@ page 31 "Item List"
         Page.Run(Page::"Sales Line Discounts", SalesLineDiscount);
     end;
 
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     local procedure ShowPrices()
     var
         SalesPrice: Record "Sales Price";

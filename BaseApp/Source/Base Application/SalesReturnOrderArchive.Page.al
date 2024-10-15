@@ -83,6 +83,33 @@ page 6627 "Sales Return Order Archive"
                         Importance = Additional;
                         ToolTip = 'Specifies the number of the contact person at the billing address.';
                     }
+                    field(SellToPhoneNo; SellToContact."Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the contact person that the sales document will be sent to.';
+                    }
+                    field(SellToMobilePhoneNo; SellToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Mobile Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the contact person that the sales document will be sent to.';
+                    }
+                    field(SellToEmail; SellToContact."E-Mail")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Email';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the contact person that the sales document will be sent to.';
+                    }
                 }
                 field("Sell-to Contact"; "Sell-to Contact")
                 {
@@ -326,6 +353,33 @@ page 6627 "Sales Return Order Archive"
                         Caption = 'Contact';
                         ToolTip = 'Specifies the name of the contact person at the shipping address.';
                     }
+                    field(BillToContactPhoneNo; BillToContact."Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the person you should contact at the customer you are sending the invoice to.';
+                    }
+                    field(BillToContactMobilePhoneNo; BillToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Mobile Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the person you should contact at the customer you are sending the invoice to.';
+                    }
+                    field(BillToContactEmail; BillToContact."E-Mail")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Email';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the person you should contact at the customer you are sending the invoice to.';
+                    }
                 }
             }
             group("Foreign Trade")
@@ -437,7 +491,7 @@ page 6627 "Sales Return Order Archive"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Co&mments")
@@ -489,7 +543,15 @@ page 6627 "Sales Return Order Archive"
         }
     }
 
+    trigger OnAfterGetRecord()
+    begin
+        if SellToContact.Get("Sell-to Contact No.") then;
+        if BillToContact.Get("Bill-to Contact No.") then;
+    end;
+
     var
+        SellToContact: Record Contact;
+        BillToContact: Record Contact;
         DocPrint: Codeunit "Document-Print";
 
     local procedure PricesIncludingVATOnAfterValid()

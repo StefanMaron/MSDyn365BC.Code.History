@@ -1,4 +1,4 @@
-﻿codeunit 64 "Sales-Get Shipment"
+codeunit 64 "Sales-Get Shipment"
 {
     TableNo = "Sales Line";
 

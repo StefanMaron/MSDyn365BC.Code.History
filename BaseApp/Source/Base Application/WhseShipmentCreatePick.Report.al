@@ -1,4 +1,4 @@
-﻿report 7318 "Whse.-Shipment - Create Pick"
+report 7318 "Whse.-Shipment - Create Pick"
 {
     Caption = 'Whse.-Shipment - Create Pick';
     ProcessingOnly = true;
@@ -171,7 +171,6 @@
                         ApplicationArea = Warehouse;
                         Caption = 'Sorting Method for Activity Lines';
                         MultiLine = true;
-                        OptionCaption = ' ,Item,Document,Shelf or Bin,Due Date,Destination,Bin Ranking,Action Type';
                         ToolTip = 'Specifies the method by which the lines in the instruction will be sorted. The options are by item, document, shelf or bin (if the location uses bins, this functions as the bin code), due date, bin ranking, or action type.';
                     }
                     field(BreakbulkFilter; BreakbulkFilter)
@@ -229,7 +228,7 @@
         OnBeforeSortWhseActivHeaders(WhseActivHeader, FirstActivityNo, LastActivityNo, HideNothingToHandleErr);
         if WhseActivHeader.Find('-') then begin
             repeat
-                if SortActivity > 0 then
+                if SortActivity <> SortActivity::None then
                     WhseActivHeader.SortWhseDoc;
             until WhseActivHeader.Next = 0;
 
@@ -265,11 +264,10 @@
         FirstActivityNo: Code[20];
         LastActivityNo: Code[20];
         AssignedID: Code[50];
-        SortActivity: Option " ",Item,Document,"Shelf or Bin","Due Date",Destination,"Bin Ranking","Action Type";
+        SortActivity: Enum "Whse. Activity Sorting Method";
         PrintDoc: Boolean;
         EverythingHandled: Boolean;
         WhseWkshLineFound: Boolean;
-        HideValidationDialog: Boolean;
         HideNothingToHandleErr: Boolean;
         DoNotFillQtytoHandle: Boolean;
         BreakbulkFilter: Boolean;
@@ -279,14 +277,21 @@
         MultipleActivAndWhseShptCreatedMsg: Label '%1 activities no. %2 to %3 have been created.\For Warehouse Shipment lines that have existing Pick Worksheet lines, no %4 lines have been created.%5', Comment = '%1=WhseActivHeader.Type;%2=First Whse. Activity No.;%3=Last Whse. Activity No.;%4=WhseActivHeader.Type;%5=Concatenates ExpiredItemMessageText';
         NothingToHandleErr: Label 'There is nothing to handle.';
 
+    protected var
+        HideValidationDialog: Boolean;
+
     procedure SetWhseShipmentLine(var WhseShptLine2: Record "Warehouse Shipment Line"; WhseShptHeader2: Record "Warehouse Shipment Header")
+    var
+        SortingMethod: Option;
     begin
         WhseShptLine.Copy(WhseShptLine2);
         WhseShptHeader := WhseShptHeader2;
         AssignedID := WhseShptHeader2."Assigned User ID";
         GetLocation(WhseShptLine."Location Code");
 
-        OnAfterSetWhseShipmentLine(WhseShptLine, WhseShptHeader, SortActivity);
+        SortingMethod := SortActivity.AsInteger();
+        OnAfterSetWhseShipmentLine(WhseShptLine, WhseShptHeader, SortingMethod);
+        SortActivity := "Whse. Activity Sorting Method".FromInteger(SortingMethod);
     end;
 
     procedure GetResultMessage(): Boolean
@@ -344,7 +349,7 @@
         end;
     end;
 
-    procedure Initialize(AssignedID2: Code[50]; SortActivity2: Option " ",Item,Document,"Shelf/Bin No.","Due Date","Ship-To","Bin Ranking","Action Type"; PrintDoc2: Boolean; DoNotFillQtytoHandle2: Boolean; BreakbulkFilter2: Boolean)
+    procedure Initialize(AssignedID2: Code[50]; SortActivity2: Enum "Whse. Activity Sorting Method"; PrintDoc2: Boolean; DoNotFillQtytoHandle2: Boolean; BreakbulkFilter2: Boolean)
     begin
         AssignedID := AssignedID2;
         SortActivity := SortActivity2;

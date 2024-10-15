@@ -19,7 +19,6 @@ page 5097 "Create Task"
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Type';
-                    OptionCaption = ' ,,Phone Call';
                     ToolTip = 'Specifies the type of the Task.';
                     Visible = IsSoftwareAsAService;
 
@@ -32,7 +31,6 @@ page 5097 "Create Task"
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Type';
-                    OptionCaption = ' ,Meeting,Phone Call';
                     ToolTip = 'Specifies the type of the Task.';
                     Visible = NOT IsSoftwareAsAService;
 

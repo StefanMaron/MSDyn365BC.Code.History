@@ -41,10 +41,19 @@ codeunit 6061 "Hybrid Deployment Handler"
         InstanceId := DotNet_HybridDeployment.DisableReplication(SourceProduct);
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, 6060, 'OnDisableDataLakeMigration', '', false, false)]
+    local procedure HandleDisableDataLakeMigration(var InstanceId: Text)
+    begin
+        if not CanHandle() then
+            exit;
+
+        InstanceId := DotNet_HybridDeployment.DisableDataLakeMigration(SourceProduct);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, 6060, 'OnEnableReplication', '', false, false)]
     local procedure HandleEnableReplication(OnPremiseConnectionString: Text; DatabaseType: Text; IntegrationRuntimeName: Text; NotificationUrl: Text; ClientState: Text; SubscriptionId: Text; ServiceNotificationUrl: Text; ServiceClientState: Text; ServiceSubscriptionId: Text; var InstanceId: Text)
     begin
-        if not CanHandle then
+        if not CanHandle() then
             exit;
 
         InstanceId :=
@@ -56,7 +65,7 @@ codeunit 6061 "Hybrid Deployment Handler"
     [EventSubscriber(ObjectType::Codeunit, 6060, 'OnGetIntegrationRuntimeKeys', '', false, false)]
     local procedure HandleGetIntegrationRuntimeKeys(var InstanceId: Text)
     begin
-        if not CanHandle then
+        if not CanHandle() then
             exit;
 
         InstanceId := DotNet_HybridDeployment.GetIntegrationRuntimeKey(SourceProduct);
@@ -65,7 +74,7 @@ codeunit 6061 "Hybrid Deployment Handler"
     [EventSubscriber(ObjectType::Codeunit, 6060, 'OnGetReplicationRunStatus', '', false, false)]
     local procedure HandleGetReplicationRunStatus(var InstanceId: Text; RunId: Text)
     begin
-        if not CanHandle then
+        if not CanHandle() then
             exit;
 
         InstanceId := DotNet_HybridDeployment.GetReplicationRunStatus(SourceProduct, RunId);
@@ -74,7 +83,7 @@ codeunit 6061 "Hybrid Deployment Handler"
     [EventSubscriber(ObjectType::Codeunit, 6060, 'OnGetRequestStatus', '', false, false)]
     local procedure HandleGetRequestStatus(InstanceId: Text; var JsonOutput: Text; var Status: Text)
     begin
-        if not CanHandle then
+        if not CanHandle() then
             exit;
 
         Status := DotNet_HybridDeployment.GetRequestStatus(InstanceId, JsonOutput);
@@ -83,7 +92,7 @@ codeunit 6061 "Hybrid Deployment Handler"
     [EventSubscriber(ObjectType::Codeunit, 6060, 'OnGetVersionInformation', '', false, false)]
     local procedure HandleGetVersionInformation(var InstanceId: Text)
     begin
-        if not CanHandle then
+        if not CanHandle() then
             exit;
 
         InstanceId := DotNet_HybridDeployment.GetVersionInformation(SourceProduct);
@@ -92,11 +101,20 @@ codeunit 6061 "Hybrid Deployment Handler"
     [EventSubscriber(ObjectType::Codeunit, 6060, 'OnInitialize', '', false, false)]
     local procedure HandleInitialize(SourceProductId: Text)
     begin
-        if not CanHandle then
+        if not CanHandle() then
             exit;
 
         SourceProduct := SourceProductId;
         DotNet_HybridDeployment.Initialize;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, 6060, 'OnInitiateDataLakeMigration', '', false, false)]
+    local procedure HandleInitiateDataLakeMigration(var InstanceId: Text; StorageAccountName: Text; StorageAccountKey: Text)
+    begin
+        if not CanHandle() then
+            exit;
+
+        InstanceId := DotNet_HybridDeployment.InitiateDataLakeMigration(SourceProduct, StorageAccountName, StorageAccountKey);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 6060, 'OnPrepareTablesForReplication', '', false, false)]
@@ -104,7 +122,7 @@ codeunit 6061 "Hybrid Deployment Handler"
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        if not CanHandle then
+        if not CanHandle() then
             exit;
 
         if EnvironmentInfo.IsSaaS then
@@ -116,7 +134,7 @@ codeunit 6061 "Hybrid Deployment Handler"
     [EventSubscriber(ObjectType::Codeunit, 6060, 'OnRegenerateIntegrationRuntimeKeys', '', false, false)]
     local procedure HandleRegenerateIntegrationRuntimeKeys(var InstanceId: Text)
     begin
-        if not CanHandle then
+        if not CanHandle() then
             exit;
 
         InstanceId := DotNet_HybridDeployment.RegenerateIntegrationRuntimeKey(SourceProduct);
@@ -125,7 +143,7 @@ codeunit 6061 "Hybrid Deployment Handler"
     [EventSubscriber(ObjectType::Codeunit, 6060, 'OnRunReplication', '', false, false)]
     local procedure HandleRunReplication(var InstanceId: Text; ReplicationType: Integer)
     begin
-        if not CanHandle then
+        if not CanHandle() then
             exit;
 
         InstanceId := DotNet_HybridDeployment.RunReplication(SourceProduct, ReplicationType)
@@ -134,7 +152,7 @@ codeunit 6061 "Hybrid Deployment Handler"
     [EventSubscriber(ObjectType::Codeunit, 6060, 'OnRunUpgrade', '', false, false)]
     local procedure HandleRunUpgrade(var InstanceId: Text)
     begin
-        if not CanHandle then
+        if not CanHandle() then
             exit;
 
         InstanceId := DotNet_HybridDeployment.RunUpgrade(SourceProduct)
@@ -143,7 +161,7 @@ codeunit 6061 "Hybrid Deployment Handler"
     [EventSubscriber(ObjectType::Codeunit, 6060, 'OnSetReplicationSchedule', '', false, false)]
     local procedure HandleSetReplicationSchedule(ReplicationFrequency: Text; DaysToRun: Text; TimeToRun: Time; Activate: Boolean; var InstanceId: Text)
     begin
-        if not CanHandle then
+        if not CanHandle() then
             exit;
 
         InstanceId := DotNet_HybridDeployment.SetReplicationSchedule(SourceProduct, ReplicationFrequency, DaysToRun, TimeToRun, Activate);

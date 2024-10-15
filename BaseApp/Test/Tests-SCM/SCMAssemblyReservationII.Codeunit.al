@@ -47,30 +47,22 @@ codeunit 137925 "SCM Assembly Reservation II"
 
         MockReservEntry(
           ReservEntry, DATABASE::"Assembly Header",
-          AssemblyHeader."No.", AssemblyHeader."Document Type", 0,
-          QtyBase, Qty);
+          AssemblyHeader."No.", AssemblyHeader."Document Type".AsInteger(), 0, QtyBase, Qty);
         MockReservEntry(
           ReservEntry, DATABASE::"Assembly Header",
-          AssemblyHeader."No.", AssemblyHeader."Document Type", 0,
-          QtyBase2, Qty2);
+          AssemblyHeader."No.", AssemblyHeader."Document Type".AsInteger(), 0, QtyBase2, Qty2);
 
         // Insert entries that are not from Assembly Order to test filters
         // Another Assembly Order
         MockReservEntry(
-          ReservEntry, DATABASE::"Assembly Header",
-          IDcode20('any'), AssemblyHeader."Document Type", 0,
-          11, 33);
+          ReservEntry, DATABASE::"Assembly Header", IDcode20('any'), AssemblyHeader."Document Type".AsInteger(), 0, 11, 33);
         // Assembly Line Table
         MockReservEntry(
-          ReservEntry, DATABASE::"Assembly Line",
-          AssemblyHeader."No.", AssemblyHeader."Document Type", 0,
-          12, 44);
+          ReservEntry, DATABASE::"Assembly Line", AssemblyHeader."No.", AssemblyHeader."Document Type".AsInteger(), 0, 12, 44);
         // Assembly Qoute
         AssemblyHeader2."Document Type" := AssemblyHeader2."Document Type"::Quote;
         MockReservEntry(
-          ReservEntry, DATABASE::"Assembly Header",
-          AssemblyHeader."No.", AssemblyHeader2."Document Type", 0,
-          5, 22);
+          ReservEntry, DATABASE::"Assembly Header", AssemblyHeader."No.", AssemblyHeader2."Document Type".AsInteger(), 0, 5, 22);
 
         // Test calculated fields
         AssemblyHeader.CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
@@ -91,7 +83,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         // Test procedure SummEntryNo on TAB337
         AssemblyHeader."Document Type" := AssemblyHeader."Document Type"::Order;
 
-        MockReservEntry(ReservEntry, DATABASE::"Assembly Header", 'ANY', AssemblyHeader."Document Type", 0, 0, 0);
+        MockReservEntry(ReservEntry, DATABASE::"Assembly Header", 'ANY', AssemblyHeader."Document Type".AsInteger(), 0, 0, 0);
 
         // Offset for Assembly Header is 141 and subtype (as integer) is added
         Assert.AreEqual(142, ReservEntry.SummEntryNo, 'Assembly Header has the wrong offset in Reservation');
@@ -117,7 +109,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         // Verification
         ReservEntryFoundByLinkToSource :=
           FindLastRerservationByLink(
-            DATABASE::"Assembly Header", AssemblyHeader."Document Type", AssemblyHeader."No.", 0, ReservEntry);
+            DATABASE::"Assembly Header", AssemblyHeader."Document Type".AsInteger(), AssemblyHeader."No.", 0, ReservEntry);
         Assert.IsTrue(ReservEntryFoundByLinkToSource, 'Reservation Entry NOT created for Assembly Order'); // Verifies link
 
         VerifyReservationEntryFields(
@@ -136,7 +128,7 @@ codeunit 137925 "SCM Assembly Reservation II"
 
         ReservEntryFoundByLinkToSource :=
           FindLastRerservationByLink(
-            DATABASE::"Assembly Header", AssemblyHeader."Document Type", AssemblyHeader."No.", 0, ReservEntry);
+            DATABASE::"Assembly Header", AssemblyHeader."Document Type".AsInteger(), AssemblyHeader."No.", 0, ReservEntry);
         Assert.IsFalse(ReservEntryFoundByLinkToSource, 'Reservation Entry NOT deleted for Assembly Order');
 
         asserterror Error('') // roll back
@@ -179,7 +171,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         // Create Reservation Entry
         TrackingSpecification.InitTrackingSpecification(
           DATABASE::"Sales Line",
-          SalesLine."Document Type",
+          SalesLine."Document Type".AsInteger(),
           SalesLine."Document No.",
           '',
           0, SalesLine."Line No.",
@@ -242,26 +234,16 @@ codeunit 137925 "SCM Assembly Reservation II"
         // Create Reservation Entry
         SalesLineReserve.SetBinding(ReservEntry2.Binding::"Order-to-Order");
         TrackingSpecification.InitTrackingSpecification(
-          DATABASE::"Assembly Header",
-          AssemblyHeader."Document Type",
-          AssemblyHeader."No.",
-          '',
-          0, 0,
-          AssemblyHeader."Variant Code",
-          AssemblyHeader."Location Code", '', '',
-          AssemblyHeader."Qty. per Unit of Measure");
+          DATABASE::"Assembly Header", AssemblyHeader."Document Type".AsInteger(), AssemblyHeader."No.", '', 0, 0,
+          AssemblyHeader."Variant Code", AssemblyHeader."Location Code", '', '', AssemblyHeader."Qty. per Unit of Measure");
         SalesLineReserve.CreateReservationSetFrom(TrackingSpecification);
         SalesLineReserve.CreateReservation(
-          SalesLine,
-          AssemblyHeader.Description,
-          AssemblyHeader."Due Date",
-          0, QtyToReserve,
-          '', '');
+          SalesLine, AssemblyHeader.Description, AssemblyHeader."Due Date", 0, QtyToReserve, '', '');
 
         // Verification
         ReservEntryFoundByLinkToSource :=
           FindLastRerservationByLink(
-            DATABASE::"Assembly Header", AssemblyHeader."Document Type", AssemblyHeader."No.", 0, ReservEntry);
+            DATABASE::"Assembly Header", AssemblyHeader."Document Type".AsInteger(), AssemblyHeader."No.", 0, ReservEntry);
         Assert.IsTrue(ReservEntryFoundByLinkToSource, 'Reservation Entry NOT created for Assembly Order'); // Verifies link
         Assert.AreEqual(ReservEntry2.Binding::"Order-to-Order", ReservEntry.Binding, 'Order binding is not set');
 
@@ -322,7 +304,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         // Verify
         ReservEntryFoundByLinkToSource :=
           FindLastRerservationByLink(
-            DATABASE::"Assembly Header", AssemblyHeader."Document Type", AssemblyHeader."No.", 0, ReservEntry);
+            DATABASE::"Assembly Header", AssemblyHeader."Document Type".AsInteger(), AssemblyHeader."No.", 0, ReservEntry);
         Assert.IsTrue(ReservEntryFoundByLinkToSource, 'Reservation Entry NOT created for Assembly Order');
 
         AssemblyHeader.CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
@@ -374,7 +356,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         // Verify
         ReservEntryFoundByLinkToSource :=
           FindLastRerservationByLink(
-            DATABASE::"Assembly Header", AssemblyHeader."Document Type", AssemblyHeader."No.", 0, ReservEntry);
+            DATABASE::"Assembly Header", AssemblyHeader."Document Type".AsInteger(), AssemblyHeader."No.", 0, ReservEntry);
         Assert.IsTrue(ReservEntryFoundByLinkToSource, 'Reservation Entry NOT created for Assembly Order');
 
         VerifyReservationEntryFields(
@@ -442,7 +424,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         // Verify
         ReservEntryFoundByLinkToSource :=
           FindLastRerservationByLink(
-            DATABASE::"Assembly Header", AssemblyHeader."Document Type", AssemblyHeader."No.", 0, ReservEntry);
+            DATABASE::"Assembly Header", AssemblyHeader."Document Type".AsInteger(), AssemblyHeader."No.", 0, ReservEntry);
         Assert.IsTrue(ReservEntryFoundByLinkToSource, 'Reservation Entry NOT created for Assembly Order');
 
         AssemblyHeader.CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
@@ -498,7 +480,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         // Verify
         ReservEntryFoundByLinkToSource :=
           FindLastRerservationByLink(
-            DATABASE::"Assembly Header", AssemblyHeader."Document Type", AssemblyHeader."No.", 0, ReservEntry);
+            DATABASE::"Assembly Header", AssemblyHeader."Document Type".AsInteger(), AssemblyHeader."No.", 0, ReservEntry);
         Assert.IsTrue(ReservEntryFoundByLinkToSource, 'Reservation Entry NOT created for Assembly Order');
 
         VerifyReservationEntryFields(
@@ -571,7 +553,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         // Verify
         ReservEntryFoundByLinkToSource :=
           FindLastRerservationByLink(
-            DATABASE::"Assembly Header", AssemblyHeader."Document Type", AssemblyHeader."No.", 0, ReservEntry);
+            DATABASE::"Assembly Header", AssemblyHeader."Document Type".AsInteger(), AssemblyHeader."No.", 0, ReservEntry);
         Assert.IsTrue(ReservEntryFoundByLinkToSource, 'Reservation Entry NOT created for Assembly Order');
 
         VerifyReservationEntryFields(
@@ -607,35 +589,31 @@ codeunit 137925 "SCM Assembly Reservation II"
 
         MockReservEntry(
           ReservEntry, DATABASE::"Assembly Line",
-          AssemblyLine."Document No.", AssemblyLine."Document Type", AssemblyLine."Line No.",
+          AssemblyLine."Document No.", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Line No.",
           QtyBase, Qty);
         MockReservEntry(
           ReservEntry, DATABASE::"Assembly Line",
-          AssemblyLine."Document No.", AssemblyLine."Document Type", AssemblyLine."Line No.",
+          AssemblyLine."Document No.", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Line No.",
           QtyBase2, Qty2);
 
         // Insert entries that are not from Assembly Order to test filters
         // Another Assembly Line
         MockReservEntry(
           ReservEntry, DATABASE::"Assembly Line",
-          AssemblyLine."Document No.", AssemblyLine."Document Type", 20000,
-          3, 21);
+          AssemblyLine."Document No.", AssemblyLine."Document Type".AsInteger(), 20000, 3, 21);
         // Another Assembly Order
         MockReservEntry(
           ReservEntry, DATABASE::"Assembly Line",
-          IDcode20('any'), AssemblyLine."Document Type", AssemblyLine."Line No.",
-          4, 16);
+          IDcode20('any'), AssemblyLine."Document Type".AsInteger(), AssemblyLine."Line No.", 4, 16);
         // Assembly Header Table
         MockReservEntry(
           ReservEntry, DATABASE::"Assembly Header",
-          AssemblyLine."Document No.", AssemblyLine."Document Type", AssemblyLine."Line No.",
-          12, 45);
+          AssemblyLine."Document No.", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Line No.", 12, 45);
         // Assembly Qoute
         AssemblyLine2."Document Type" := AssemblyLine2."Document Type"::Quote;
         MockReservEntry(
           ReservEntry, DATABASE::"Assembly Line",
-          AssemblyLine."Document No.", AssemblyLine2."Document Type", AssemblyLine."Line No.",
-          27, 77);
+          AssemblyLine."Document No.", AssemblyLine2."Document Type".AsInteger(), AssemblyLine."Line No.", 27, 77);
 
         // Test calculated fields
         AssemblyLine.CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
@@ -657,7 +635,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         // Test procedure SummEntryNo on TAB337
         AssemblyLine."Document Type" := AssemblyLine."Document Type"::Order;
 
-        MockReservEntry(ReservEntry, DATABASE::"Assembly Line", 'ANY', AssemblyLine."Document Type", 0, 0, 0);
+        MockReservEntry(ReservEntry, DATABASE::"Assembly Line", 'ANY', AssemblyLine."Document Type".AsInteger(), 0, 0, 0);
 
         // Offset for Assembly Line is 151 and subtype (as integer) is added
         Assert.AreEqual(152, ReservEntry.SummEntryNo, 'Assembly Line has the wrong offset in Reservation');
@@ -701,27 +679,16 @@ codeunit 137925 "SCM Assembly Reservation II"
 
         // Create Reservation Entry
         TrackingSpecification.InitTrackingSpecification(
-          DATABASE::"Assembly Header",
-          AssemblyHeader."Document Type",
-          AssemblyHeader."No.",
-          '',
-          0, 0,
-          AssemblyHeader."Variant Code",
-          AssemblyHeader."Location Code", '', '',
-          AssemblyHeader."Qty. per Unit of Measure");
+          DATABASE::"Assembly Header", AssemblyHeader."Document Type".AsInteger(), AssemblyHeader."No.", '', 0, 0,
+          AssemblyHeader."Variant Code", AssemblyHeader."Location Code", '', '', AssemblyHeader."Qty. per Unit of Measure");
         AssemblyLineReserve.CreateReservationSetFrom(TrackingSpecification);
         AssemblyLineReserve.CreateReservation(
-          AssemblyLine,
-          AssemblyHeader.Description,
-          AssemblyHeader."Due Date",
-          0,
-          QtyToReserve,
-          '', '');
+          AssemblyLine, AssemblyHeader.Description, AssemblyHeader."Due Date", 0, QtyToReserve, '', '');
 
         // Verification
         ReservEntryFoundByLinkToSource :=
           FindLastRerservationByLink(
-            DATABASE::"Assembly Line", AssemblyLine."Document Type", AssemblyLine."Document No.", AssemblyLine."Line No.", ReservEntry);
+            DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", AssemblyLine."Line No.", ReservEntry);
         Assert.IsTrue(ReservEntryFoundByLinkToSource, 'Reservation Entry NOT created for Assembly Order Line'); // Verifies link
 
         VerifyReservationEntryFields(
@@ -740,7 +707,7 @@ codeunit 137925 "SCM Assembly Reservation II"
 
         ReservEntryFoundByLinkToSource :=
           FindLastRerservationByLink(
-            DATABASE::"Assembly Line", AssemblyLine."Document Type", AssemblyLine."Document No.", AssemblyLine."Line No.", ReservEntry);
+            DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", AssemblyLine."Line No.", ReservEntry);
         Assert.IsFalse(ReservEntryFoundByLinkToSource, 'Reservation Entry NOT deleted for Assembly Order');
 
         asserterror Error('') // roll back
@@ -791,7 +758,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         // Verify
         ReservEntryFoundByLinkToSource :=
           FindLastRerservationByLink(
-            DATABASE::"Assembly Line", AssemblyLine."Document Type", AssemblyLine."Document No.", AssemblyLine."Line No.", ReservEntry);
+            DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", AssemblyLine."Line No.", ReservEntry);
         Assert.IsTrue(ReservEntryFoundByLinkToSource, 'Reservation Entry NOT created for Assembly Order');
 
         AssemblyLine.CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
@@ -844,7 +811,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         // Verify
         ReservEntryFoundByLinkToSource :=
           FindLastRerservationByLink(
-            DATABASE::"Assembly Line", AssemblyLine."Document Type", AssemblyLine."Document No.", AssemblyLine."Line No.", ReservEntry);
+            DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", AssemblyLine."Line No.", ReservEntry);
         Assert.IsTrue(ReservEntryFoundByLinkToSource, 'Reservation Entry NOT created for Assembly Order');
 
         VerifyReservationEntryFields(
@@ -912,7 +879,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         // Verify
         ReservEntryFoundByLinkToSource :=
           FindLastRerservationByLink(
-            DATABASE::"Assembly Line", AssemblyLine."Document Type", AssemblyLine."Document No.", AssemblyLine."Line No.", ReservEntry);
+            DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", AssemblyLine."Line No.", ReservEntry);
         Assert.IsTrue(ReservEntryFoundByLinkToSource, 'Reservation Entry NOT created for Assembly Order');
 
         AssemblyLine.CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
@@ -969,7 +936,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         // Verify
         ReservEntryFoundByLinkToSource :=
           FindLastRerservationByLink(
-            DATABASE::"Assembly Line", AssemblyLine."Document Type", AssemblyLine."Document No.", AssemblyLine."Line No.", ReservEntry);
+            DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", AssemblyLine."Line No.", ReservEntry);
         Assert.IsTrue(ReservEntryFoundByLinkToSource, 'Reservation Entry NOT created for Assembly Order');
 
         VerifyReservationEntryFields(
@@ -1045,7 +1012,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         // Verify Test
         ReservEntryFoundByLinkToSource :=
           FindLastRerservationByLink(
-            DATABASE::"Assembly Line", AssemblyLine."Document Type", AssemblyLine."Document No.", AssemblyLine."Line No.", ReservEntry);
+            DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", AssemblyLine."Line No.", ReservEntry);
         Assert.IsTrue(ReservEntryFoundByLinkToSource, 'Reservation Entry NOT created for Assembly Line');
 
         VerifyReservationEntryFields(
@@ -1083,7 +1050,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         // Verify Test
         ReservEntryFoundByLinkToSource :=
           FindLastRerservationByLink(
-            DATABASE::"Assembly Header", AssemblyHeader."Document Type", AssemblyHeader."No.", 0, ReservEntry);
+            DATABASE::"Assembly Header", AssemblyHeader."Document Type".AsInteger(), AssemblyHeader."No.", 0, ReservEntry);
         Assert.IsTrue(ReservEntryFoundByLinkToSource, 'Reservation Entry NOT created for Assembly Line');
 
         // Due Date moved before Shipment Date in sales
@@ -1092,7 +1059,7 @@ codeunit 137925 "SCM Assembly Reservation II"
 
         // Verify date is moved in Reservation Entry
         FindLastRerservationByLink(
-          DATABASE::"Assembly Header", AssemblyHeader."Document Type", AssemblyHeader."No.", 0, ReservEntry);
+          DATABASE::"Assembly Header", AssemblyHeader."Document Type".AsInteger(), AssemblyHeader."No.", 0, ReservEntry);
         Assert.AreEqual(
           AssemblyHeader."Due Date", ReservEntry."Expected Receipt Date",
           StrSubstNo('Reservation date should be moved to %1.', AssemblyHeader."Due Date"));
@@ -1128,7 +1095,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         // Verify Test
         ReservEntryFoundByLinkToSource :=
           FindLastRerservationByLink(
-            DATABASE::"Assembly Header", AssemblyHeader."Document Type", AssemblyHeader."No.", 0, ReservEntry);
+            DATABASE::"Assembly Header", AssemblyHeader."Document Type".AsInteger(), AssemblyHeader."No.", 0, ReservEntry);
         Assert.IsTrue(ReservEntryFoundByLinkToSource, 'Reservation Entry NOT created for Assembly Line');
 
         // Change quantity up
@@ -1144,7 +1111,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         Clear(ReservEntry);
         ReservEntryFoundByLinkToSource :=
           FindLastRerservationByLink(
-            DATABASE::"Assembly Header", AssemblyHeader."Document Type", AssemblyHeader."No.", 0, ReservEntry);
+            DATABASE::"Assembly Header", AssemblyHeader."Document Type".AsInteger(), AssemblyHeader."No.", 0, ReservEntry);
         Assert.IsTrue(ReservEntryFoundByLinkToSource, 'Reservation Entry NOT created for Assembly Line');
         Assert.AreEqual(
           OldAssemblyHeader.Quantity, ReservEntry.Quantity,
@@ -1173,7 +1140,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         // Verify Test
         ReservEntryFoundByLinkToSource :=
           FindLastRerservationByLink(
-            DATABASE::"Assembly Header", AssemblyHeader."Document Type", AssemblyHeader."No.", 0, ReservEntry);
+            DATABASE::"Assembly Header", AssemblyHeader."Document Type".AsInteger(), AssemblyHeader."No.", 0, ReservEntry);
         Assert.IsTrue(ReservEntryFoundByLinkToSource, 'Reservation Entry NOT created for Assembly Line');
 
         // Change quantity down
@@ -1189,7 +1156,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         Clear(ReservEntry);
         ReservEntryFoundByLinkToSource :=
           FindLastRerservationByLink(
-            DATABASE::"Assembly Header", AssemblyHeader."Document Type", AssemblyHeader."No.", 0, ReservEntry);
+            DATABASE::"Assembly Header", AssemblyHeader."Document Type".AsInteger(), AssemblyHeader."No.", 0, ReservEntry);
         Assert.IsTrue(ReservEntryFoundByLinkToSource, 'Reservation Entry NOT created for Assembly Line');
         Assert.AreEqual(
           NewAssemblyHeader.Quantity, ReservEntry.Quantity,
@@ -1217,7 +1184,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         // Verify Test
         ReservEntryFoundByLinkToSource :=
           FindLastRerservationByLink(
-            DATABASE::"Assembly Line", AssemblyLine."Document Type", AssemblyLine."Document No.", AssemblyLine."Line No.", ReservEntry);
+            DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", AssemblyLine."Line No.", ReservEntry);
         Assert.IsTrue(ReservEntryFoundByLinkToSource, 'Reservation Entry NOT created for Assembly Line');
 
         // Date is moved after expected receipt date in purchase
@@ -1226,7 +1193,7 @@ codeunit 137925 "SCM Assembly Reservation II"
 
         // Verify date is moved in Reservation Entry
         FindLastRerservationByLink(
-          DATABASE::"Assembly Line", AssemblyLine."Document Type", AssemblyLine."Document No.", AssemblyLine."Line No.", ReservEntry);
+          DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", AssemblyLine."Line No.", ReservEntry);
         Assert.AreEqual(
           AssemblyLine."Due Date", ReservEntry."Shipment Date",
           StrSubstNo('Reservation date should be moved to %1.', AssemblyLine."Due Date"));
@@ -1262,7 +1229,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         // Verify Test
         ReservEntryFoundByLinkToSource :=
           FindLastRerservationByLink(
-            DATABASE::"Assembly Line", AssemblyLine."Document Type", AssemblyLine."Document No.", AssemblyLine."Line No.", ReservEntry);
+            DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", AssemblyLine."Line No.", ReservEntry);
         Assert.IsTrue(ReservEntryFoundByLinkToSource, 'Reservation Entry NOT created for Assembly Line');
 
         // Change quantity up
@@ -1280,7 +1247,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         Clear(ReservEntry);
         ReservEntryFoundByLinkToSource :=
           FindLastRerservationByLink(
-            DATABASE::"Assembly Line", AssemblyLine."Document Type", AssemblyLine."Document No.", AssemblyLine."Line No.", ReservEntry);
+            DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", AssemblyLine."Line No.", ReservEntry);
         Assert.IsTrue(ReservEntryFoundByLinkToSource, 'Reservation Entry NOT created for Assembly Line');
         Assert.AreEqual(
           -OldAssemblyLine.Quantity, ReservEntry.Quantity,
@@ -1309,7 +1276,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         // Verify Test
         ReservEntryFoundByLinkToSource :=
           FindLastRerservationByLink(
-            DATABASE::"Assembly Line", AssemblyLine."Document Type", AssemblyLine."Document No.", AssemblyLine."Line No.", ReservEntry);
+            DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", AssemblyLine."Line No.", ReservEntry);
         Assert.IsTrue(ReservEntryFoundByLinkToSource, 'Reservation Entry NOT created for Assembly Line');
 
         // Change quantity down
@@ -1327,7 +1294,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         Clear(ReservEntry);
         ReservEntryFoundByLinkToSource :=
           FindLastRerservationByLink(
-            DATABASE::"Assembly Line", AssemblyLine."Document Type", AssemblyLine."Document No.", AssemblyLine."Line No.", ReservEntry);
+            DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", AssemblyLine."Line No.", ReservEntry);
         Assert.IsTrue(ReservEntryFoundByLinkToSource, 'Reservation Entry NOT created for Assembly Line');
         Assert.AreEqual(
           -NewAssemblyLine.Quantity, ReservEntry.Quantity,
@@ -1390,7 +1357,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         // Create Reservation Entry
         TrackingSpecification.InitTrackingSpecification(
           DATABASE::"Purchase Line",
-          PurchLine."Document Type",
+          PurchLine."Document Type".AsInteger(),
           PurchLine."Document No.",
           '',
           0, PurchLine."Line No.",
@@ -1435,7 +1402,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         // Create Reservation Entry
         TrackingSpecification.InitTrackingSpecification(
           DATABASE::"Sales Line",
-          SalesLine."Document Type",
+          SalesLine."Document Type".AsInteger(),
           SalesLine."Document No.",
           '',
           0, SalesLine."Line No.",
@@ -1504,7 +1471,7 @@ codeunit 137925 "SCM Assembly Reservation II"
           ItemNo, LocationCode, VariantCode, Date, Qty, RemainingQty, QtyPrUnit);
     end;
 
-    local procedure MockAsmHeader(var AssemblyHeader: Record "Assembly Header"; DocNo: Code[20]; DocumentType: Integer; ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; Date: Date; Qty: Decimal; RemainingQty: Decimal; QtyPrUnit: Decimal)
+    local procedure MockAsmHeader(var AssemblyHeader: Record "Assembly Header"; DocNo: Code[20]; DocumentType: Enum "Assembly Document Type"; ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; Date: Date; Qty: Decimal; RemainingQty: Decimal; QtyPrUnit: Decimal)
     begin
         AssemblyHeader.Init();
         AssemblyHeader."Document Type" := DocumentType;

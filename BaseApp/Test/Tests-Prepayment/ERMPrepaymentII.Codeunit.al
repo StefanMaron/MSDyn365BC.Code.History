@@ -34,7 +34,7 @@ codeunit 134101 "ERM Prepayment II"
         ReceiptLinesErr: Label 'Wrong number of receipt lines in "Get Receipt Lines" page.';
         ShipmentLinesDocNoErr: Label 'Wrong Document No. in shipment line in "Get Shipment Lines" page.';
         ReceiptLinesDocNoErr: Label 'Wrong Document No. in receipt line in "Get Receipt Lines" page.';
-        VATCalculationType: Option "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
+        VATCalculationType: Enum "Tax Calculation Type";
         PrepmtLineAmtErr: Label 'Prepmt. Line Amount Excl. VAT cannot be more than';
 
     [Test]
@@ -1851,7 +1851,7 @@ codeunit 134101 "ERM Prepayment II"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Prepayment II");
     end;
 
-    local procedure ApplyGeneralJournal(DocumentType: Option; AccountNo: Code[20])
+    local procedure ApplyGeneralJournal(DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20])
     var
         GeneralJournal: TestPage "General Journal";
     begin
@@ -2049,7 +2049,7 @@ codeunit 134101 "ERM Prepayment II"
         exit(Resource."No.");
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SellToCustomerNo: Code[20]; Type: Option; No: Code[20]; PrePaymentPct: Decimal; CurrencyCode: Code[10])
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SellToCustomerNo: Code[20]; Type: Enum "Sales Line Type"; No: Code[20]; PrePaymentPct: Decimal; CurrencyCode: Code[10])
     begin
         // Using Random for Quantity and Unit Price.
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, SellToCustomerNo);
@@ -2068,7 +2068,7 @@ codeunit 134101 "ERM Prepayment II"
         exit(CreateSalesLineWithResource(SalesLine, SalesHeader, LineGLAccount));
     end;
 
-    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Option; No: Code[20])
+    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; No: Code[20])
     begin
         // Take Quantity and Unit Price with Random values. Lower bound is important for test.
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, 10);
@@ -2131,14 +2131,14 @@ codeunit 134101 "ERM Prepayment II"
         JobTask.FindFirst;
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.FindSet;
     end;
 
-    local procedure FindSalesLineAmount(DocumentType: Option; DocumentNo: Code[20]) TotalLineAmount: Decimal
+    local procedure FindSalesLineAmount(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]) TotalLineAmount: Decimal
     var
         SalesLine: Record "Sales Line";
     begin
@@ -2230,14 +2230,14 @@ codeunit 134101 "ERM Prepayment II"
         exit(CurrencyExchangeRate."Relational Exch. Rate Amount");
     end;
 
-    local procedure ModifyPurchaseQtyToInvoice(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; DocumentNo: Code[20]; LineNo: Integer)
+    local procedure ModifyPurchaseQtyToInvoice(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; LineNo: Integer)
     begin
         PurchaseLine.Get(DocumentType, DocumentNo, LineNo);
         PurchaseLine.Validate("Qty. to Invoice", PurchaseLine."Qty. to Invoice" / 2);
         PurchaseLine.Modify(true);
     end;
 
-    local procedure ModifyPurchaseQtyToReceive(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; DocumentNo: Code[20]; LineNo: Integer)
+    local procedure ModifyPurchaseQtyToReceive(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; LineNo: Integer)
     begin
         PurchaseLine.Get(DocumentType, DocumentNo, LineNo);
         PurchaseLine.Validate("Qty. to Receive", PurchaseLine.Quantity / 2);
@@ -2252,14 +2252,14 @@ codeunit 134101 "ERM Prepayment II"
         SalesHeader.Modify(true);
     end;
 
-    local procedure ModifySalesQtyToInvoice(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20]; LineNo: Integer)
+    local procedure ModifySalesQtyToInvoice(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; LineNo: Integer)
     begin
         SalesLine.Get(DocumentType, DocumentNo, LineNo);
         SalesLine.Validate("Qty. to Invoice", SalesLine."Qty. to Invoice" / 2);
         SalesLine.Modify(true);
     end;
 
-    local procedure ModifySalesQtyToShip(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20]; LineNo: Integer)
+    local procedure ModifySalesQtyToShip(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; LineNo: Integer)
     begin
         SalesLine.Get(DocumentType, DocumentNo, LineNo);
         SalesLine.Validate("Qty. to Ship", SalesLine."Qty. to Ship" / 2);
@@ -2275,14 +2275,12 @@ codeunit 134101 "ERM Prepayment II"
     end;
 
     local procedure PostPaymentToPrepaymentInvoicePurchase(AccountNo: Code[20]; PrepmtInvoiceNo: Code[20])
-    var
-        DummyGenJournalLine: Record "Gen. Journal Line";
     begin
         PostPaymentToInvoice(
-          DummyGenJournalLine."Account Type"::Vendor, AccountNo, PrepmtInvoiceNo, -GetPurchaseInvAmount(PrepmtInvoiceNo));
+          "Gen. Journal Account Type"::Vendor, AccountNo, PrepmtInvoiceNo, -GetPurchaseInvAmount(PrepmtInvoiceNo));
     end;
 
-    local procedure PostPaymentToInvoice(AccountType: Integer; AccountNo: Code[20]; DocumentNo: Code[20]; Amount: Decimal)
+    local procedure PostPaymentToInvoice(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentNo: Code[20]; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -2439,7 +2437,7 @@ codeunit 134101 "ERM Prepayment II"
         Assert.AreEqual(JobNo, GLEntry."Job No.", StrSubstNo(ValidationErr, GLEntry.FieldCaption("Job No."), JobNo));
     end;
 
-    local procedure VerifyPurchInvLine(DocumentNo: Code[20]; Type: Option; No: Code[20]; Quantity: Decimal; LineAmount: Decimal)
+    local procedure VerifyPurchInvLine(DocumentNo: Code[20]; Type: Enum "Purchase Line Type"; No: Code[20]; Quantity: Decimal; LineAmount: Decimal)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         PurchInvLine: Record "Purch. Inv. Line";
@@ -2479,7 +2477,7 @@ codeunit 134101 "ERM Prepayment II"
         end;
     end;
 
-    local procedure VerifySalesInvoiceLine(DocumentNo: Code[20]; Type: Option; No: Code[20]; Quantity: Decimal; LineAmount: Decimal)
+    local procedure VerifySalesInvoiceLine(DocumentNo: Code[20]; Type: Enum "Sales Line Type"; No: Code[20]; Quantity: Decimal; LineAmount: Decimal)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         SalesInvoiceLine: Record "Sales Invoice Line";
@@ -2563,7 +2561,7 @@ codeunit 134101 "ERM Prepayment II"
             Validate("Qty. to Invoice", QtyToReceive);
             Modify(true);
             LibraryVariableStorage.Enqueue(QtyToReceive);
-            ShowItemChargeAssgnt;
+            ShowItemChargeAssgnt();
             exit(Round("Direct Unit Cost" * "Qty. to Invoice", GeneralLedgerSetup."Amount Rounding Precision"));
         end;
     end;
@@ -2767,13 +2765,13 @@ codeunit 134101 "ERM Prepayment II"
         end;
     end;
 
-    local procedure VerifyStatusOnSalesHeader(var SalesHeader: Record "Sales Header"; ExpectedStatus: Option)
+    local procedure VerifyStatusOnSalesHeader(var SalesHeader: Record "Sales Header"; ExpectedStatus: Enum "Sales Document Status")
     begin
         SalesHeader.Find;
         SalesHeader.TestField(Status, ExpectedStatus);
     end;
 
-    local procedure VerifyStatusOnPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; ExpectedStatus: Option)
+    local procedure VerifyStatusOnPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; ExpectedStatus: Enum "Purchase Document Status")
     begin
         PurchaseHeader.Find;
         PurchaseHeader.TestField(Status, ExpectedStatus);

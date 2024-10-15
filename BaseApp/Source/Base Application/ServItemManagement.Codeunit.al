@@ -78,7 +78,7 @@ codeunit 5920 ServItemManagement
                         end;
 
                         InitNewServItemComponent(NewServItemComponent, ServLine, ServItemComponent."Line No.", ServHeader."Posting Date");
-                        TempTrackingSpecification.SetSourceFilter(DATABASE::"Service Line", "Document Type", "Document No.", "Line No.", false);
+                        TempTrackingSpecification.SetSourceFilter(DATABASE::"Service Line", "Document Type".AsInteger(), "Document No.", "Line No.", false);
                         TrackingLinesExist := TempTrackingSpecification.Find('-');
                         if TrackingLinesExist then begin
                             NewServItemComponent."Serial No." := TempTrackingSpecification."Serial No.";
@@ -122,7 +122,7 @@ codeunit 5920 ServItemManagement
                         else
                             ComponentLine := 0;
 
-                        TempTrackingSpecification.SetSourceFilter(DATABASE::"Service Line", "Document Type", "Document No.", "Line No.", false);
+                        TempTrackingSpecification.SetSourceFilter(DATABASE::"Service Line", "Document Type".AsInteger(), "Document No.", "Line No.", false);
                         TrackingLinesExist := TempTrackingSpecification.Find('-');
 
                         for x := 1 to "Qty. to Ship" do begin
@@ -173,10 +173,10 @@ codeunit 5920 ServItemManagement
         OnAfterInitNewServItemComponent(NewServItemComponent, ServiceLine);
     end;
 
-    local procedure InsertServItemComponent(var ServiceItemComponent: Record "Service Item Component"; BOMComponent: Record "BOM Component"; BOMComponent2: Record "BOM Component"; SalesHeader: Record "Sales Header"; SalesShipmentLine: Record "Sales Shipment Line")
+    procedure InsertServiceItemComponent(var ServiceItemComponent: Record "Service Item Component"; BOMComponent: Record "BOM Component"; BOMComponent2: Record "BOM Component"; SalesHeader: Record "Sales Header"; SalesShipmentLine: Record "Sales Shipment Line")
     begin
         with ServiceItemComponent do begin
-            Init;
+            Init();
             Active := true;
             "Parent Service Item No." := ServItem."No.";
             "Line No." := NextLineNo;
@@ -187,7 +187,7 @@ codeunit 5920 ServItemManagement
             "Serial No." := '';
             "Variant Code" := BOMComponent2."Variant Code";
             OnBeforeInsertServItemComponent(ServiceItemComponent, ServItem, SalesHeader, SalesShipmentLine, BOMComponent, BOMComponent2);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -205,7 +205,7 @@ codeunit 5920 ServItemManagement
         WarrantyStartDate: Date;
     begin
         IsHandled := false;
-        OnBeforeCreateServItemOnSalesLineShpt(SalesHeader, SalesLine, SalesShipmentLine, IsHandled);
+        OnBeforeCreateServItemOnSalesLineShpt(SalesHeader, SalesLine, SalesShipmentLine, IsHandled, TempReservEntry);
         if IsHandled then
             exit;
 
@@ -278,7 +278,7 @@ codeunit 5920 ServItemManagement
                     if SalesHeader."Currency Code" <> '' then
                         ServItem.Validate(
                           "Sales Unit Price",
-                          AmountToLCY(
+                          CalcAmountLCY(
                             Round(SalesLine."Unit Price" /
                               ItemUnitOfMeasure."Qty. per Unit of Measure", GLSetup."Unit-Amount Rounding Precision"),
                             SalesHeader."Currency Factor",
@@ -303,7 +303,7 @@ codeunit 5920 ServItemManagement
                             if PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, SalesLine."Purchase Order No.") then
                                 WarrantyStartDate := PurchaseHeader."Posting Date";
                     end;
-                    CalcServiceItemWarrantyDates(
+                    CalcServiceWarrantyDates(
                       ServItem, WarrantyStartDate, ItemTrackingCode."Warranty Date Formula", ServMgtSetup."Default Warranty Duration");
 
                     OnCreateServItemOnSalesLineShpt(ServItem, SalesHeader, SalesLine);
@@ -329,7 +329,7 @@ codeunit 5920 ServItemManagement
                                     repeat
                                         for Index := 1 to Round(BOMComp2."Quantity per", 1) do begin
                                             NextLineNo := NextLineNo + 10000;
-                                            InsertServItemComponent(ServItemComponent, BOMComp, BOMComp2, SalesHeader, SalesShipmentLine);
+                                            InsertServiceItemComponent(ServItemComponent, BOMComp, BOMComp2, SalesHeader, SalesShipmentLine);
                                             Clear(TempServiceItemComp);
                                             TempServiceItemComp := ServItemComponent;
                                             TempServiceItemComp.Insert();
@@ -349,7 +349,7 @@ codeunit 5920 ServItemManagement
         end;
     end;
 
-    local procedure CalcServiceItemWarrantyDates(var ServiceItem: Record "Service Item"; StartingWarrantyDate: Date; ItemTrackingWarrantyDateFormula: DateFormula; ServMgtSetupDefaultWarrantyDuration: DateFormula)
+    procedure CalcServiceWarrantyDates(var ServiceItem: Record "Service Item"; StartingWarrantyDate: Date; ItemTrackingWarrantyDateFormula: DateFormula; ServMgtSetupDefaultWarrantyDuration: DateFormula)
     begin
         ServiceItem."Warranty Starting Date (Parts)" := StartingWarrantyDate;
         ServiceItem."Warranty Starting Date (Labor)" := StartingWarrantyDate;
@@ -443,7 +443,7 @@ codeunit 5920 ServItemManagement
         ServInvoiceLine.ModifyAll("Service Item No.", ServItemLine."Service Item No.");
     end;
 
-    local procedure AmountToLCY(FCAmount: Decimal; CurrencyFactor: Decimal; CurrencyCode: Code[10]; CurrencyDate: Date): Decimal
+    procedure CalcAmountLCY(FCAmount: Decimal; CurrencyFactor: Decimal; CurrencyCode: Code[10]; CurrencyDate: Date): Decimal
     var
         CurrExchRate: Record "Currency Exchange Rate";
         Currency: Record Currency;
@@ -627,7 +627,7 @@ codeunit 5920 ServItemManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateServItemOnSalesLineShpt(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesShipmentLine: Record "Sales Shipment Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCreateServItemOnSalesLineShpt(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesShipmentLine: Record "Sales Shipment Line"; var IsHandled: Boolean; var TempReservEntry: Record "Reservation Entry")
     begin
     end;
 

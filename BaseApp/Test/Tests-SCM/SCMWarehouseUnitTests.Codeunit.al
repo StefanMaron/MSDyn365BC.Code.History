@@ -703,7 +703,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
                     WarehouseShipmentLine."Location Code" := SalesLine."Location Code";
                     WarehouseShipmentLine."Bin Code" := PlaceBinCode;
                     WarehouseShipmentLine."Source Type" := DATABASE::"Sales Line";
-                    WarehouseShipmentLine."Source Subtype" := SalesLine."Document Type";
+                    WarehouseShipmentLine."Source Subtype" := SalesLine."Document Type".AsInteger();
                     WarehouseShipmentLine."Source No." := SalesLine."Document No.";
                     WarehouseShipmentLine."Source Line No." := SalesLine."Line No.";
                     WarehouseShipmentLine."Shipment Date" := SalesLine."Shipment Date";
@@ -737,7 +737,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
                     WhseDocType := WarehouseActivityLine."Whse. Document Type"::Assembly;
                     WhseDocNo := AssemblyLine."Document No.";
                     SourceType := DATABASE::"Assembly Line";
-                    SourceSubtype := AssemblyLine."Document Type";
+                    SourceSubtype := AssemblyLine."Document Type".AsInteger();
                     SourceNo := AssemblyLine."Document No.";
                     SourceLineNo := AssemblyLine."Line No.";
                     SourceSubLineNo := 0;
@@ -762,7 +762,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
                     WhseDocType := WarehouseActivityLine."Whse. Document Type"::Production;
                     WhseDocNo := ProdOrderComponent."Prod. Order No.";
                     SourceType := DATABASE::"Prod. Order Component";
-                    SourceSubtype := ProdOrderComponent.Status;
+                    SourceSubtype := ProdOrderComponent.Status.AsInteger();
                     SourceNo := ProdOrderComponent."Prod. Order No.";
                     SourceLineNo := ProdOrderComponent."Line No.";
                     SourceSubLineNo := ProdOrderComponent."Prod. Order Line No.";
@@ -1037,7 +1037,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         PurchaseLine.Validate("Unit of Measure Code", UnitOfMeasure.Code);
         PurchaseLine.Modify(true);
 
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
     end;
 
     local procedure GetItemTrackingLotNo(PurchaseLine: Record "Purchase Line"): Code[20]
@@ -1284,7 +1284,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         ItemLedgerEntry.FindFirst;
         ReservationEntry.FindLast;
         VSTF330787CreateReservation(ReservationEntry."Entry No." + 1, false,
-          DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.",
+          DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.",
           -0.16667, -ItemLedgerEntry.Quantity, ItemUnitOfMeasure."Qty. per Unit of Measure", LotNo);
         VSTF330787CreateReservation(ReservationEntry."Entry No." + 1, true,
           DATABASE::"Item Ledger Entry", 0, '', ItemLedgerEntry."Entry No.",
@@ -1297,7 +1297,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
 
         ItemLedgerEntry.FindLast;
         VSTF330787CreateReservation(ReservationEntry."Entry No." + 2, false,
-          DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.",
+          DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.",
           -0.16667, -ItemLedgerEntry.Quantity, ItemUnitOfMeasure."Qty. per Unit of Measure", LotNo);
         VSTF330787CreateReservation(ReservationEntry."Entry No." + 2, true,
           DATABASE::"Item Ledger Entry", 0, '', ItemLedgerEntry."Entry No.",
@@ -1311,7 +1311,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         ItemLedgerEntry.FindLast;
         QtyFromCasILE := 104.4;
         VSTF330787CreateReservation(ReservationEntry."Entry No." + 3, false,
-          DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.",
+          DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.",
           -9.66666, -QtyFromCasILE, ItemUnitOfMeasure."Qty. per Unit of Measure", LotNo);
         VSTF330787CreateReservation(ReservationEntry."Entry No." + 3, true,
           DATABASE::"Item Ledger Entry", 0, '', ItemLedgerEntry."Entry No.",
@@ -1339,7 +1339,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         WarehouseShipmentLine."Location Code" := SalesLine."Location Code";
         WarehouseShipmentLine."Bin Code" := VSTF330787CreateBin(WarehouseShipmentLine."Location Code");
         WarehouseShipmentLine."Source Type" := DATABASE::"Sales Line";
-        WarehouseShipmentLine."Source Subtype" := SalesLine."Document Type";
+        WarehouseShipmentLine."Source Subtype" := SalesLine."Document Type".AsInteger();
         WarehouseShipmentLine."Source No." := SalesLine."Document No.";
         WarehouseShipmentLine."Source Line No." := SalesLine."Line No.";
         WarehouseShipmentLine."Shipment Date" := SalesLine."Shipment Date";
@@ -1941,7 +1941,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         ProdOrderComponent.Insert();
 
         WarehouseRequest."Source Document" := WarehouseRequest."Source Document"::"Prod. Consumption";
-        WarehouseRequest."Source Subtype" := ProdOrderComponent.Status;
+        WarehouseRequest."Source Subtype" := ProdOrderComponent.Status.AsInteger();
         WarehouseRequest."Source No." := ProdOrderComponent."Prod. Order No.";
         WarehouseRequest."Location Code" := ProdOrderComponent."Location Code";
     end;
@@ -1984,7 +1984,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         WarehouseActivityHeader.Type := ActivityType;
         WarehouseActivityHeader."No." := LibraryUtility.GenerateGUID;
         WarehouseActivityHeader."Source Type" := DATABASE::"Prod. Order Component";
-        WarehouseActivityHeader."Source Subtype" := ProdOrderComponent.Status;
+        WarehouseActivityHeader."Source Subtype" := ProdOrderComponent.Status.AsInteger();
         WarehouseActivityHeader."Source No." := ProdOrderComponent."Prod. Order No.";
         WarehouseActivityHeader."Location Code" := ProdOrderComponent."Location Code";
         if ActivityType = WarehouseActivityHeader.Type::"Invt. Movement" then
@@ -2174,7 +2174,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         SalesLine."Qty. to Ship" := QtyToShip;
         SalesLine.Insert();
 
-        SourceSubtype := SalesLine."Document Type";
+        SourceSubtype := SalesLine."Document Type".AsInteger();
         SourceNo := SalesLine."Document No.";
         SourceLineNo := SalesLine."Line No.";
     end;

@@ -208,7 +208,7 @@ codeunit 134930 "ERM Applies-To Doc. No."
     procedure DocTypeChangedFromBlankToPaymentForCustAccTypeWhenLookUpApplToDocNoWithInvoiceDocType()
     var
         GenJournalLine: Record "Gen. Journal Line";
-        PostedDocType: Option;
+        PostedDocType: Enum "Gen. Journal Document Type";
         PostedDocNo: Code[20];
     begin
         // [FEATURE] [Invoice] [Lookup]
@@ -240,7 +240,7 @@ codeunit 134930 "ERM Applies-To Doc. No."
     procedure DocTypeChangedFromBlankToPaymentForVendAccTypeWhenLookUpApplToDocNoWithInvoiceDocType()
     var
         GenJournalLine: Record "Gen. Journal Line";
-        PostedDocType: Option;
+        PostedDocType: Enum "Gen. Journal Document Type";
         PostedDocNo: Code[20];
     begin
         // [FEATURE] [Invoice] [Lookup]
@@ -272,7 +272,7 @@ codeunit 134930 "ERM Applies-To Doc. No."
     procedure DocTypeNotChangedFromBlankForEmplAccTypeWhenLookUpApplToDocNoWithPaymentDocType()
     var
         GenJournalLine: Record "Gen. Journal Line";
-        PostedDocType: Option;
+        PostedDocType: Enum "Gen. Journal Document Type";
         PostedDocNo: Code[20];
     begin
         // [FEATURE] [Payment] [Lookup]
@@ -323,7 +323,7 @@ codeunit 134930 "ERM Applies-To Doc. No."
         GenJournalLine.TestField("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
     end;
 
-    local procedure PrepareGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; PostedDocType: Option; var PostedDocNo: Code[20]; Sign: Integer)
+    local procedure PrepareGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; PostedDocType: Enum "Gen. Journal Document Type"; var PostedDocNo: Code[20]; Sign: Integer)
     begin
         PostedDocNo :=
           CreateAndPostGenJournalLine(PostedDocType, AccountType, CreateAccountNo(AccountType), Sign);
@@ -331,7 +331,7 @@ codeunit 134930 "ERM Applies-To Doc. No."
           GenJournalLine, DocumentType, AccountType, '', 0);
     end;
 
-    local procedure CreateAndPostGenJournalLine(DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Sign: Integer): Code[20]
+    local procedure CreateAndPostGenJournalLine(DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Sign: Integer): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -341,7 +341,7 @@ codeunit 134930 "ERM Applies-To Doc. No."
         exit(GenJournalLine."Document No.");
     end;
 
-    local procedure CreatePaymentLineWithAccountTypeAndBalAccountType(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Integer; BalAccountType: Integer)
+    local procedure CreatePaymentLineWithAccountTypeAndBalAccountType(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; BalAccountType: Enum "Gen. Journal Account Type")
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Payment, AccountType, '', 0);
@@ -349,7 +349,7 @@ codeunit 134930 "ERM Applies-To Doc. No."
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateAccountNo(AccountType: Option): Code[20]
+    local procedure CreateAccountNo(AccountType: Enum "Gen. Journal Account Type"): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin

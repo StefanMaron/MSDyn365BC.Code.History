@@ -27,7 +27,7 @@ codeunit 130800 "Library - Extension Perm."
         InsertUKPostcodeGetAddressIOPermissions;
         InsertXeroPermissions;
         InsertImageAnalysisPermissions;
-        InsertAccountantPortalPermissions;
+        InsertCompanyHubPermissions;
         InsertC52012MigrationPermissions;
         InsertAnonymousDataSharingPermissions;
         InsertQuickBooksOnlineDataMigrationPermissions;
@@ -42,12 +42,14 @@ codeunit 130800 "Library - Extension Perm."
         Commit();
     end;
 
-    local procedure InsertAccountantPortalPermissions()
+    local procedure InsertCompanyHubPermissions()
     begin
         InsertExtensionObjectDefaultPermissions(1151, 1, 1, 1, 1);
         InsertExtensionObjectDefaultPermissions(1152, 1, 1, 1, 1);
         InsertExtensionObjectDefaultPermissions(1153, 1, 1, 1, 1);
         InsertExtensionObjectDefaultPermissions(1154, 1, 1, 1, 1);
+        InsertExtensionObjectDefaultPermissions(1155, 1, 1, 1, 1);
+        InsertExtensionObjectDefaultPermissions(1156, 1, 1, 1, 1);
     end;
 
     local procedure InsertMicrosoftWalletPermissions()

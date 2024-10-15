@@ -682,7 +682,7 @@ codeunit 134177 "WF Demo SalesOrder CL Approval"
         Assert.ExpectedMessage(Variant, Message)
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; Amount: Decimal)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; Amount: Decimal)
     var
         SalesLine: Record "Sales Line";
     begin
@@ -749,7 +749,7 @@ codeunit 134177 "WF Demo SalesOrder CL Approval"
         SalesOrder.Close;
     end;
 
-    local procedure VerifySalesDocumentStatus(SalesHeader: Record "Sales Header"; Status: Option)
+    local procedure VerifySalesDocumentStatus(SalesHeader: Record "Sales Header"; Status: Enum "Sales Document Status")
     begin
         SalesHeader.SetRecFilter;
         SalesHeader.FindFirst;
@@ -771,14 +771,14 @@ codeunit 134177 "WF Demo SalesOrder CL Approval"
         ApprovalEntry.TestField("Approver ID", ApproverID);
     end;
 
-    local procedure VerifyApprovalEntry(ApprovalEntry: Record "Approval Entry"; SenderId: Code[50]; ApproverId: Code[50]; Status: Option)
+    local procedure VerifyApprovalEntry(ApprovalEntry: Record "Approval Entry"; SenderId: Code[50]; ApproverId: Code[50]; Status: Enum "Approval Status")
     begin
         ApprovalEntry.TestField("Sender ID", SenderId);
         ApprovalEntry.TestField("Approver ID", ApproverId);
         ApprovalEntry.TestField(Status, Status);
     end;
 
-    local procedure VerifyApprovalRequests(SalesHeader: Record "Sales Header"; ExpectedNumberOfApprovalEntries: Integer; SenderUserID: Code[50]; ApproverUserID1: Code[50]; ApproverUserID2: Code[50]; Status1: Option; Status2: Option)
+    local procedure VerifyApprovalRequests(SalesHeader: Record "Sales Header"; ExpectedNumberOfApprovalEntries: Integer; SenderUserID: Code[50]; ApproverUserID1: Code[50]; ApproverUserID2: Code[50]; Status1: Enum "Approval Status"; Status2: Enum "Approval Status")
     var
         ApprovalEntry: Record "Approval Entry";
     begin

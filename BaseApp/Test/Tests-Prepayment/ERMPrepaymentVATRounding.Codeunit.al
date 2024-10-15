@@ -996,7 +996,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
           SalesHeader, SalesHeader."Document Type"::Order, CustomerNo, CurrencyCode, PricesInclVAT, CompressPrepmt, 0);
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20]; CurrencyCode: Code[10]; PricesIncludingVAT: Boolean; CompressPrepmt: Boolean; PrepmtPct: Decimal)
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; CurrencyCode: Code[10]; PricesIncludingVAT: Boolean; CompressPrepmt: Boolean; PrepmtPct: Decimal)
     begin
         with SalesHeader do begin
             LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
@@ -1246,7 +1246,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         end;
     end;
 
-    local procedure CreateAndApplyPaymentToInvoice(AccountType: Option; CVNo: Code[20]; AppliestoDocNo: Code[20]; CurrencyCode: Code[10]; PaymentAmount: Decimal)
+    local procedure CreateAndApplyPaymentToInvoice(AccountType: Enum "Gen. Journal Account Type"; CVNo: Code[20]; AppliestoDocNo: Code[20]; CurrencyCode: Code[10]; PaymentAmount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -1391,7 +1391,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
           PurchHeader, PurchHeader."Document Type"::Order, VendorNo, CurrencyCode, PricesInclVAT, CompressPrepmt, 0);
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20]; CurrencyCode: Code[10]; PricesIncludingVAT: Boolean; CompressPrepmt: Boolean; PrepmtPct: Decimal)
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; CurrencyCode: Code[10]; PricesIncludingVAT: Boolean; CompressPrepmt: Boolean; PrepmtPct: Decimal)
     begin
         with PurchaseHeader do begin
             LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);

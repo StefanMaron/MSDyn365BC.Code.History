@@ -281,7 +281,7 @@ report 10572 "Sales - Invoice GB"
                         }
                         column(LineAmt_SalesInvcLine; "Line Amount")
                         {
-                            AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode;
+                            AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Desc_SalesInvcLine; Description)
@@ -301,7 +301,7 @@ report 10572 "Sales - Invoice GB"
                         }
                         column(UnitPrice_SalesInvcLine; "Unit Price")
                         {
-                            AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode;
+                            AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode();
                             AutoFormatType = 2;
                         }
                         column(LineDisc_SalesInvcLine; "Line Discount %")
@@ -315,7 +315,7 @@ report 10572 "Sales - Invoice GB"
                         }
                         column(ReverseCharge_SalesInvcLine; "Reverse Charge")
                         {
-                            AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode;
+                            AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(SalesSetupInvcWording; SalesSetup."Invoice Wording")
@@ -341,7 +341,7 @@ report 10572 "Sales - Invoice GB"
                         }
                         column(InvDiscAmt_SalesInvcLine; -"Inv. Discount Amount")
                         {
-                            AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode;
+                            AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TotalText; TotalText)
@@ -349,17 +349,17 @@ report 10572 "Sales - Invoice GB"
                         }
                         column(Amt_SalesInvcLine; Amount)
                         {
-                            AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode;
+                            AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmtIncludVATAmt; "Amount Including VAT" - Amount)
                         {
-                            AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode;
+                            AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmtIncludVAT_SalesInvcLine; "Amount Including VAT")
                         {
-                            AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode;
+                            AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATAmtLineVATAmtText; VATAmountLine.VATAmountText)
@@ -388,17 +388,17 @@ report 10572 "Sales - Invoice GB"
                         }
                         column(AmountLCY; AmountLCY)
                         {
-                            AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode;
+                            AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmountIncLCYAmountLCY; AmountIncLCY - AmountLCY)
                         {
-                            AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode;
+                            AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmountIncLCY; AmountIncLCY)
                         {
-                            AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode;
+                            AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(CurrencyCode_SalesInvcHeader; "Sales Invoice Header"."Currency Code")
@@ -567,7 +567,7 @@ report 10572 "Sales - Invoice GB"
                             DataItemTableView = SORTING(Number);
                             column(VATAmountLineVATBase; VATAmountLine."VAT Base")
                             {
-                                AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode;
+                                AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode();
                                 AutoFormatType = 1;
                             }
                             column(VATAmountLineVATAmount; VATAmountLine."VAT Amount")

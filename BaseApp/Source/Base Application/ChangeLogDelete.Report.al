@@ -3,6 +3,9 @@ report 510 "Change Log - Delete"
     Caption = 'Change Log - Delete';
     Permissions = TableData "Change Log Entry" = rid;
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The functionality has been replaced with the retention policy module in system application.';
+    ObsoleteTag = '17.0';
 
     dataset
     {
@@ -19,6 +22,7 @@ report 510 "Change Log - Delete"
             trigger OnPreDataItem()
             begin
                 SetRange(Protected, false);
+                SetRange("Field Log Entry Feature", "Field Log Entry Feature"::"Change Log");
                 DeleteAll();
             end;
         }

@@ -278,7 +278,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         exit(Item."No.");
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; BuyFromVendorNo: Code[20]; No: Code[20])
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; BuyFromVendorNo: Code[20]; No: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -288,7 +288,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; SellToCustomerNo: Code[20]; No: Code[20])
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; SellToCustomerNo: Code[20]; No: Code[20])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -321,14 +321,14 @@ codeunit 144038 "ERM Sales Purch Documents"
         Vendor.Modify(true);
     end;
 
-    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.FindFirst;
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
@@ -344,7 +344,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         GLBudgetNamesPage.EditBudget.Invoke;
     end;
 
-    local procedure SetupForSalesDocumentWithRevCharge(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure SetupForSalesDocumentWithRevCharge(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin

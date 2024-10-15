@@ -111,6 +111,7 @@ page 5056 "Contact Alt. Address Card"
                 field("Fax No."; "Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
+                    Importance = Additional;
                     ToolTip = 'Specifies the fax number for the alternate address.';
                 }
                 field("Telex No."; "Telex No.")

@@ -30,6 +30,7 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cause of Absence");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Header Archive");
         ClassifyMakingTaxDigital;
+        OnAfterClassifyCountrySpecificTables();
     end;
 
     local procedure ClassifyPayableEmployeeLedgerEntry()
@@ -239,5 +240,9 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"MTD-Liability");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"MTD-Payment");
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterClassifyCountrySpecificTables()
+    begin
+    end;
+}

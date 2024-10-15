@@ -359,7 +359,7 @@ codeunit 144007 "VAT On Sales/Purchase Document"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; Quantity: Decimal; ReturnQtyToShip: Decimal; QtyToReceive: Decimal) VATAmount: Decimal
+    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; Quantity: Decimal; ReturnQtyToShip: Decimal; QtyToReceive: Decimal) VATAmount: Decimal
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         Item: Record Item;
@@ -383,7 +383,7 @@ codeunit 144007 "VAT On Sales/Purchase Document"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreateAndPostSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; Quantity: Decimal; ReturnQtyToReceive: Decimal; QtyToShip: Decimal) VATAmount: Decimal
+    local procedure CreateAndPostSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; Quantity: Decimal; ReturnQtyToReceive: Decimal; QtyToShip: Decimal) VATAmount: Decimal
     var
         Customer: Record Customer;
         GeneralLedgerSetup: Record "General Ledger Setup";

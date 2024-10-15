@@ -80,7 +80,6 @@ report 742 "VAT Report Request Page"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Include VAT entries';
-                        OptionCaption = 'Open,Closed,Open and Closed';
                         ShowMandatory = true;
                         ToolTip = 'Specifies whether to include VAT entries based on their status. For example, Open is useful when submitting for the first time, Open and Closed is useful when resubmitting.';
                     }
@@ -88,7 +87,6 @@ report 742 "VAT Report Request Page"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Include VAT entries';
-                        OptionCaption = 'Before and Within Period,Within Period';
                         ShowMandatory = true;
                         ToolTip = 'Specifies whether to include VAT entries only from the specified period, or also from previous periods within the specified year.';
                     }
@@ -189,8 +187,8 @@ report 742 "VAT Report Request Page"
     }
 
     var
-        Selection: Option Open,Closed,"Open and Closed";
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        Selection: Enum "VAT Statement Report Selection";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
         [InDataSet]
         PeriodIsEditable: Boolean;
         WrongVATSatementSetupErr: Label 'VAT statement template %1 name %2 has a wrong setup. There must be nine rows, each with a value between 1 and 9 for the Box No. field.', Comment = '1 - statement template name, 2 - statement name';

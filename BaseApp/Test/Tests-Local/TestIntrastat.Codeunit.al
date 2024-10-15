@@ -309,7 +309,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlBatch.Modify(true);
     end;
 
-    local procedure CreateAndPostSalesDoc(DocumentType: Option; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreateAndPostSalesDoc(DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -319,7 +319,7 @@ codeunit 134153 "Test Intrastat"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure CreateAndPostPurchDoc(DocumentType: Option; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreateAndPostPurchDoc(DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";

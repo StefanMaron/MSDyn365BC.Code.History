@@ -47,7 +47,7 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
 
         if ServLineToCheck.FindSet then begin
             ReservationEntry."Source Type" := DATABASE::"Service Line";
-            ReservationEntry."Source Subtype" := ServHeader."Document Type";
+            ReservationEntry."Source Subtype" := ServHeader."Document Type".AsInteger();
             SignFactor := CreateReservEntry.SignFactor(ReservationEntry);
             repeat
                 // Only Item where no SerialNo or LotNo is required
@@ -58,7 +58,7 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
                     Inbound := (ServLineToCheck.Quantity * SignFactor) > 0;
                     ItemTrackingCode.Code := Item."Item Tracking Code";
                     ItemTrackingMgt.GetItemTrackingSetup(
-                        ItemTrackingCode, ItemJnlLine."Entry Type"::Sale, Inbound, ItemTrackingSetup);
+                        ItemTrackingCode, ItemJnlLine."Entry Type"::Sale.AsInteger(), Inbound, ItemTrackingSetup);
                     CheckServLine := not ItemTrackingSetup.TrackingRequired();
                     if CheckServLine then
                         CheckServLine := CheckTrackingExists(ServLineToCheck);
@@ -89,10 +89,10 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
         ReservEntry: Record "Reservation Entry";
     begin
         TrackingSpecification.SetSourceFilter(
-          DATABASE::"Service Line", ServLine."Document Type", ServLine."Document No.", ServLine."Line No.", true);
+          DATABASE::"Service Line", ServLine."Document Type".AsInteger(), ServLine."Document No.", ServLine."Line No.", true);
         TrackingSpecification.SetSourceFilter('', 0);
         ReservEntry.SetSourceFilter(
-          DATABASE::"Service Line", ServLine."Document Type", ServLine."Document No.", ServLine."Line No.", true);
+          DATABASE::"Service Line", ServLine."Document Type".AsInteger(), ServLine."Document No.", ServLine."Line No.", true);
         ReservEntry.SetSourceFilter('', 0);
 
         TrackingSpecification.SetRange(Correction, false);
@@ -113,13 +113,13 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
         ReservEntry: Record "Reservation Entry";
     begin
         TrackingSpecification.SetSourceFilter(
-          DATABASE::"Service Line", ServLine."Document Type", ServLine."Document No.", ServLine."Line No.", true);
+          DATABASE::"Service Line", ServLine."Document Type".AsInteger(), ServLine."Document No.", ServLine."Line No.", true);
         TrackingSpecification.SetSourceFilter('', 0);
         TrackingSpecification.CalcSums("Quantity Handled (Base)");
         TrackingQtyHandled := TrackingSpecification."Quantity Handled (Base)";
 
         ReservEntry.SetSourceFilter(
-          DATABASE::"Service Line", ServLine."Document Type", ServLine."Document No.", ServLine."Line No.", true);
+          DATABASE::"Service Line", ServLine."Document Type".AsInteger(), ServLine."Document No.", ServLine."Line No.", true);
         ReservEntry.SetSourceFilter('', 0);
         if ReservEntry.FindSet then
             repeat
@@ -172,7 +172,7 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
                 repeat
                     TempTrackingSpecification := TempHandlingSpecification;
                     TempTrackingSpecification."Source Type" := SrcType;
-                    TempTrackingSpecification."Source Subtype" := "Document Type";
+                    TempTrackingSpecification."Source Subtype" := "Document Type".AsInteger();
                     TempTrackingSpecification."Source ID" := "Document No.";
                     TempTrackingSpecification."Source Batch Name" := '';
                     TempTrackingSpecification."Source Prod. Order Line" := 0;

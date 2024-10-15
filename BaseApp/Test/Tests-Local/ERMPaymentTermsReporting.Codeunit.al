@@ -174,7 +174,8 @@ codeunit 144062 "ERM Payment Terms Reporting"
 
         Initialize;
         LibraryLowerPermissions.SetO365Setup;
-        LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Payment, 0, '', 0);
+        LibraryJournals.CreateGenJournalLineWithBatch(
+            GenJournalLine, GenJournalLine."Document Type"::Payment, "Gen. Journal Account Type"::"G/L Account", '', 0);
         GenJournalLine.TestField("Invoice Receipt Date", 0D);
     end;
 
@@ -245,7 +246,8 @@ codeunit 144062 "ERM Payment Terms Reporting"
 
         Initialize;
         LibraryLowerPermissions.SetO365Setup;
-        LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Invoice, 0, '', 0);
+        LibraryJournals.CreateGenJournalLineWithBatch(
+            GenJournalLine, GenJournalLine."Document Type"::Invoice, "Gen. Journal Account Type"::"G/L Account", '', 0);
         ExpectedDate := GenJournalLine."Invoice Receipt Date";
         GenJournalLine.Validate("Document Date", WorkDate + 1);
         GenJournalLine.TestField("Invoice Receipt Date", ExpectedDate);
@@ -1164,7 +1166,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
         exit(Vendor."No.");
     end;
 
-    local procedure MockVendLedEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; ExcludeFromPmtPracticesReport: Boolean; DocType: Option; PostingDate: Date; DocumentDate: Date; InvoiceReceiptDate: Date; DueDate: Date; IsOpen: Boolean): Integer
+    local procedure MockVendLedEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; ExcludeFromPmtPracticesReport: Boolean; DocType: Enum "Gen. Journal Document Type"; PostingDate: Date; DocumentDate: Date; InvoiceReceiptDate: Date; DueDate: Date; IsOpen: Boolean): Integer
     begin
         with VendorLedgerEntry do begin
             Init;
@@ -1181,7 +1183,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
         end;
     end;
 
-    local procedure MockVendLedEntryNo(ExcludeFromPmtPracticesReport: Boolean; DocType: Option; PostingDate: Date; DocumentDate: Date; InvoiceReceiptDate: Date; DueDate: Date; IsOpen: Boolean): Integer
+    local procedure MockVendLedEntryNo(ExcludeFromPmtPracticesReport: Boolean; DocType: Enum "Gen. Journal Document Type"; PostingDate: Date; DocumentDate: Date; InvoiceReceiptDate: Date; DueDate: Date; IsOpen: Boolean): Integer
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -1190,7 +1192,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
         exit(VendorLedgerEntry."Entry No.");
     end;
 
-    local procedure MockApplDtldVendLedgEntry(VendLedgEntryNo: Integer; AppliedVendLedgEntryNo: Integer; DocType: Option): Integer
+    local procedure MockApplDtldVendLedgEntry(VendLedgEntryNo: Integer; AppliedVendLedgEntryNo: Integer; DocType: Enum "Gen. Journal Document Type"): Integer
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin

@@ -71,7 +71,7 @@ codeunit 144024 "UT REP VATREP"
         CreateAndVerifyPurchaseDocumentTest(PurchaseLine."Document Type"::Invoice);
     end;
 
-    local procedure CreateAndVerifyPurchaseDocumentTest(DocumentType: Option)
+    local procedure CreateAndVerifyPurchaseDocumentTest(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -144,7 +144,7 @@ codeunit 144024 "UT REP VATREP"
         CreateSalesDocumentAndVerifySalesDocumentTest(SalesLine."Document Type"::Invoice);
     end;
 
-    local procedure CreateSalesDocumentAndVerifySalesDocumentTest(DocumentType: Option)
+    local procedure CreateSalesDocumentAndVerifySalesDocumentTest(DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -314,7 +314,7 @@ codeunit 144024 "UT REP VATREP"
         exit(PurchaseHeader."No.");
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Option)
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -363,7 +363,7 @@ codeunit 144024 "UT REP VATREP"
         SalesCrMemoLine.Insert();
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Option)
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -403,7 +403,7 @@ codeunit 144024 "UT REP VATREP"
         SalesInvoiceLine.Insert();
     end;
 
-    local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; Type: Option; Base: Decimal; VATProdPostingSetup: Code[20]; VATBusPostingSetup: Code[20]; BillToPayToNo: Code[20])
+    local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; Type: Enum "General Posting Type"; Base: Decimal; VATProdPostingSetup: Code[20]; VATBusPostingSetup: Code[20]; BillToPayToNo: Code[20])
     var
         VATEntry2: Record "VAT Entry";
     begin

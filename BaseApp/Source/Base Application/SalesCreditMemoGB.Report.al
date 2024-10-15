@@ -281,7 +281,7 @@ report 10573 "Sales - Credit Memo GB"
                         }
                         column(SalesCrMemoLineLineAmount; "Line Amount")
                         {
-                            AutoFormatExpression = "Sales Cr.Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Sales Cr.Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Desc_SalesCrMemoLine; Description)
@@ -301,7 +301,7 @@ report 10573 "Sales - Credit Memo GB"
                         }
                         column(UnitPrice_SalesCrMemoLine; "Unit Price")
                         {
-                            AutoFormatExpression = "Sales Cr.Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Sales Cr.Memo Line".GetCurrencyCode();
                             AutoFormatType = 2;
                         }
                         column(LineDisc_SalesCrMemoLine; "Line Discount %")
@@ -312,7 +312,7 @@ report 10573 "Sales - Credit Memo GB"
                         }
                         column(ReverseChrg_SalesCrMemoLine; "Reverse Charge")
                         {
-                            AutoFormatExpression = "Sales Cr.Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Sales Cr.Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATBasDisc_SalesCrMemoHeader; "Sales Cr.Memo Header"."VAT Base Discount %")
@@ -335,7 +335,7 @@ report 10573 "Sales - Credit Memo GB"
                         }
                         column(InvDiscAmt_SalesCrMemoLine; -"Inv. Discount Amount")
                         {
-                            AutoFormatExpression = "Sales Cr.Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Sales Cr.Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TotalText; TotalText)
@@ -343,7 +343,7 @@ report 10573 "Sales - Credit Memo GB"
                         }
                         column(Amt_SalesCrMemoLine; Amount)
                         {
-                            AutoFormatExpression = "Sales Cr.Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Sales Cr.Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TotalExclVATText; TotalExclVATText)
@@ -354,12 +354,12 @@ report 10573 "Sales - Credit Memo GB"
                         }
                         column(AmtIncludVAT_SalesCrMemoLine; "Amount Including VAT")
                         {
-                            AutoFormatExpression = "Sales Cr.Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Sales Cr.Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmtIncludingVATAmt; "Amount Including VAT" - Amount)
                         {
-                            AutoFormatExpression = "Sales Cr.Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Sales Cr.Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATAmountLineVATAmountText; VATAmountLine.VATAmountText)
@@ -379,12 +379,12 @@ report 10573 "Sales - Credit Memo GB"
                         }
                         column(AmountIncLCYAmountLCY; AmountIncLCY - AmountLCY)
                         {
-                            AutoFormatExpression = "Sales Cr.Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Sales Cr.Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmountIncLCY; AmountIncLCY)
                         {
-                            AutoFormatExpression = "Sales Cr.Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Sales Cr.Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TotalExclVATTextLCY; TotalExclVATTextLCY)
@@ -392,7 +392,7 @@ report 10573 "Sales - Credit Memo GB"
                         }
                         column(AmountLCY; AmountLCY)
                         {
-                            AutoFormatExpression = "Sales Cr.Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Sales Cr.Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(CurCode_SalesCrMemoHeader; "Sales Cr.Memo Header"."Currency Code")

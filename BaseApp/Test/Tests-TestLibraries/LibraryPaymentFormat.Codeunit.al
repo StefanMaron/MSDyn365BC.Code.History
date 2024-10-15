@@ -11,7 +11,7 @@ codeunit 130101 "Library - Payment Format"
     procedure CreateDataExchDef(var DataExchDef: Record "Data Exch. Def"; DataHandlingCodeunit: Integer; ValidationCodeunit: Integer; ReadingWritingCodeunit: Integer; ReadingWritingXMLport: Integer; ExternalDataHandlingCodeunit: Integer; UserFeedbackCodeunit: Integer)
     begin
         DataExchDef.InsertRecForExport(
-          LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID, DataExchDef.Type::"Payment Export",
+          LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID, DataExchDef.Type::"Payment Export".AsInteger(),
           ReadingWritingXMLport, DataExchDef."File Type"::"Variable Text");
         DataExchDef.Validate("Ext. Data Handling Codeunit", ExternalDataHandlingCodeunit);
         DataExchDef.Validate("Reading/Writing Codeunit", ReadingWritingCodeunit);

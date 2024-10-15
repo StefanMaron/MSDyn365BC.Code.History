@@ -39,7 +39,6 @@ codeunit 134330 "ERM Purchase Credit Memo"
         WhseShipmentIsRequiredErr: Label 'Warehouse Shipment is required for Line No.';
         WrongErrorReturnedErr: Label 'Wrong error returned: %1.', Comment = '%1 = Error Text';
         WrongCurrCodeDuringCopyErr: Label 'Currency Code must be equal to ''%1''  in Purchase Header: Document Type=%2, No.=%3. Current value is ''%4''.', Comment = '%1 = Currency Code, %2 = Document Type, %3 = Document No., %4 = Currency Code';
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
         ContactShouldNotBeEditableErr: Label 'Contact should not be editable when vendor is not selected.';
         ContactShouldBeEditableErr: Label 'Contact should be editable when vendorr is selected.';
         PostedDocType: Option PostedReturnShipments,PostedInvoices;
@@ -69,7 +68,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         CreatePurchCrMemoWithCurrency(NewPurchaseHeader);
 
         // Use CopyDocument for new Credit Memo
-        asserterror CreditMemoWithCopyDocument(NewPurchaseHeader, DocType::"Posted Invoice", PostedInvoiceNo, false, true);
+        asserterror CreditMemoWithCopyDocument(NewPurchaseHeader, "Purchase Document Type From"::"Posted Invoice", PostedInvoiceNo, false, true);
         Assert.ExpectedError(
           StrSubstNo(
             WrongCurrCodeDuringCopyErr, PurchaseHeader."Currency Code",
@@ -400,7 +399,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
         PurchaseHeader.Insert(true);
 
-        CreditMemoWithCopyDocument(PurchaseHeader, DocType::Order, PurchaseOrderNo, true, false);
+        CreditMemoWithCopyDocument(PurchaseHeader, "Purchase Document Type From"::Order, PurchaseOrderNo, true, false);
 
         // Verify: Verify that Correct Item No. and Quantity copied from Purchase Order to Purchase Credit Memo Line.
         PurchaseLine2.SetRange("Document Type", PurchaseHeader."Document Type");
@@ -521,7 +520,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
 
         // Exercise: Create Purchase Credit Memo Header, copy the Purchase Invoice to Purchase Credit Memo and post.
         CreatePurchaseHeader(PurchaseHeader2, PurchaseHeader2."Document Type"::"Credit Memo", PurchaseHeader."Buy-from Vendor No.");
-        CreditMemoWithCopyDocument(PurchaseHeader2, DocType::"Posted Invoice", PostedPurchaseInvoiceNo, false, false);
+        CreditMemoWithCopyDocument(PurchaseHeader2, "Purchase Document Type From"::"Posted Invoice", PostedPurchaseInvoiceNo, false, false);
         GetPurchaseLine(PurchaseLine, PurchaseHeader2."Document Type", PurchaseHeader2."No.");
         PostedCreditMemoNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader2, true, true);
 
@@ -620,7 +619,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         CreatePurchaseInvoiceWithVAT(PurchaseHeader, VATPostingSetup);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         CreatePurchaseHeader(PurchaseHeader2, PurchaseHeader2."Document Type"::"Credit Memo", PurchaseHeader."Buy-from Vendor No.");
-        CreditMemoWithCopyDocument(PurchaseHeader2, DocType::"Posted Invoice", DocumentNo, false, false);
+        CreditMemoWithCopyDocument(PurchaseHeader2, "Purchase Document Type From"::"Posted Invoice", DocumentNo, false, false);
         GetAndUpdatePurchaseLine(PurchaseLine, PurchaseHeader2."Document Type", PurchaseHeader2."No.");
         VATAmount := Round(Round(PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost") * VATPostingSetup."VAT %" / 100);
 
@@ -682,7 +681,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         CreatePurchaseInvoice(PurchaseHeader);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         CreatePurchaseHeader(PurchaseHeader2, PurchaseHeader2."Document Type"::"Return Order", PurchaseHeader."Buy-from Vendor No.");
-        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader2, DocType::"Posted Invoice", DocumentNo, false, true);  // Set TRUE for Include Header and FALSE for Recalculate Lines.
+        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader2, "Purchase Document Type From"::"Posted Invoice", DocumentNo, false, true);  // Set TRUE for Include Header and FALSE for Recalculate Lines.
         DocumentNo2 := LibraryPurchase.PostPurchaseDocument(PurchaseHeader2, true, false);  // Using global variable DocumentNo2 due to need in verification.
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", PurchaseHeader2."Buy-from Vendor No.");
         GetPostedDocumentLines(PurchaseHeader."No.", PostedDocType::PostedReturnShipments);
@@ -995,7 +994,6 @@ codeunit 134330 "ERM Purchase Credit Memo"
         PurchaseHeaderSrc: Record "Purchase Header";
         PurchaseHeaderDst: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
         DocumentNo: Code[20];
         UnitPrice: Decimal;
         DiscountAmt: Decimal;
@@ -1014,7 +1012,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         // [WHEN] Create new Purchase Credit Memo using Copy Document
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeaderDst, PurchaseHeaderDst."Document Type"::"Credit Memo", PurchaseHeaderSrc."Buy-from Vendor No.");
-        LibraryPurchase.CopyPurchaseDocument(PurchaseHeaderDst, DocType::"Posted Invoice", DocumentNo, true, false);
+        LibraryPurchase.CopyPurchaseDocument(PurchaseHeaderDst, "Purchase Document Type From"::"Posted Invoice", DocumentNo, true, false);
 
         // [THEN] Purchase Credit Memo "Line Discount Amount" = 1
         GetPurchaseLine(PurchaseLine, PurchaseHeaderDst."Document Type", PurchaseHeaderDst."No.");
@@ -1392,14 +1390,14 @@ codeunit 134330 "ERM Purchase Credit Memo"
         CODEUNIT.Run(CODEUNIT::"Purch.-Get Return Shipments", PurchaseLine);
     end;
 
-    local procedure CreatePurchDocWithPriceInclVAT(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; BuyFromVendorNo: Code[20]; PricesIncludingVAT: Boolean)
+    local procedure CreatePurchDocWithPriceInclVAT(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; BuyFromVendorNo: Code[20]; PricesIncludingVAT: Boolean)
     begin
         CreatePurchaseHeader(PurchaseHeader, DocumentType, BuyFromVendorNo);
         PurchaseHeader.Validate("Prices Including VAT", PricesIncludingVAT);
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20])
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
@@ -1443,7 +1441,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         end;
     end;
 
-    local procedure CreatePurchaseInvoiceLine(PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20])
+    local procedure CreatePurchaseInvoiceLine(PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -1478,12 +1476,12 @@ codeunit 134330 "ERM Purchase Credit Memo"
         exit(Item."No.");
     end;
 
-    local procedure CreditMemoWithCopyDocument(var PurchaseHeader: Record "Purchase Header"; DocType: Option; DocNo: Code[20]; IncludeHeader: Boolean; RecalcLines: Boolean)
+    local procedure CreditMemoWithCopyDocument(var PurchaseHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type From"; DocNo: Code[20]; IncludeHeader: Boolean; RecalcLines: Boolean)
     var
         CopyPurchaseDocument: Report "Copy Purchase Document";
     begin
         CopyPurchaseDocument.SetPurchHeader(PurchaseHeader);
-        CopyPurchaseDocument.InitializeRequest(DocType, DocNo, IncludeHeader, RecalcLines);
+        CopyPurchaseDocument.SetParameters(DocType, DocNo, IncludeHeader, RecalcLines);
         CopyPurchaseDocument.UseRequestPage(false);
         CopyPurchaseDocument.Run;
     end;
@@ -1499,7 +1497,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         end;
     end;
 
-    local procedure ModifyPurchaseLine(DocumentType: Option; DocumentNo: Code[20]; NewQuantity: Decimal; NewDirectUnitCost: Decimal; NewLineDiscountAmt: Decimal)
+    local procedure ModifyPurchaseLine(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; NewQuantity: Decimal; NewDirectUnitCost: Decimal; NewLineDiscountAmt: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -1519,13 +1517,13 @@ codeunit 134330 "ERM Purchase Credit Memo"
           VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Percentage, LibraryERM.CreateGLAccountNo, LibraryERM.CreateGLAccountNo);
     end;
 
-    local procedure FilterOnPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FilterOnPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
     end;
 
-    local procedure GetVATAmountOnGLEntry(DocumentNo: Code[20]; DocumentType: Option): Decimal
+    local procedure GetVATAmountOnGLEntry(DocumentNo: Code[20]; DocumentType: Enum "Purchase Document Type"): Decimal
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -1535,7 +1533,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         exit(GLEntry."VAT Amount");
     end;
 
-    local procedure GetPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure GetPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
     begin
         FilterOnPurchaseLine(PurchaseLine, DocumentType, DocumentNo);
         PurchaseLine.SetFilter(Type, '<>%1', PurchaseLine.Type::" ");
@@ -1552,7 +1550,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         PurchaseCreditMemo.GetPostedDocumentLinesToReverse.Invoke;
     end;
 
-    local procedure GetAndUpdatePurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure GetAndUpdatePurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
     begin
         // Enter Random value for Direct Unit Cost.
         GetPurchaseLine(PurchaseLine, DocumentType, DocumentNo);
@@ -1601,7 +1599,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         VATPostingSetup.Modify(true);
     end;
 
-    local procedure VerifyVATAmountOnGLEntry(DocumentType: Option; DocumentNo: Code[20]; VATAmount: Decimal)
+    local procedure VerifyVATAmountOnGLEntry(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; VATAmount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin

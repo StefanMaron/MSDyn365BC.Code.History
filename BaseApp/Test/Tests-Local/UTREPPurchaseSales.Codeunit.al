@@ -499,7 +499,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         LibraryVariableStorage.Enqueue(PurchInvHeader."No.");  // Enqueue required for PurchaseCreditMemoGBRequestPageHandler.
     end;
 
-    local procedure CreatePostedPurchaseInvoiceLine(var PurchInvLine: Record "Purch. Inv. Line"; Type: Option; DocumentNo: Code[20]; No: Code[20])
+    local procedure CreatePostedPurchaseInvoiceLine(var PurchInvLine: Record "Purch. Inv. Line"; Type: Enum "Purchase Line Type"; DocumentNo: Code[20]; No: Code[20])
     begin
         PurchInvLine."Line No." := SelectPurchaseInvoiceLineNo(DocumentNo);
         PurchInvLine."Document No." := DocumentNo;
@@ -521,7 +521,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         LibraryVariableStorage.Enqueue(PurchCrMemoHeader."No.");  // Enqueue required for PurchaseCreditMemoGBRequestPageHandler.
     end;
 
-    local procedure CreatePostedPurchaseCreditMemoLine(var PurchCrMemoLine: Record "Purch. Cr. Memo Line"; Type: Option; DocumentNo: Code[20]; No: Code[20])
+    local procedure CreatePostedPurchaseCreditMemoLine(var PurchCrMemoLine: Record "Purch. Cr. Memo Line"; Type: Enum "Purchase Line Type"; DocumentNo: Code[20]; No: Code[20])
     begin
         PurchCrMemoLine."Line No." := SelectPurchaseCreditMemoLineNo(DocumentNo);
         PurchCrMemoLine."Document No." := DocumentNo;
@@ -531,7 +531,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         PurchCrMemoLine.Insert();
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; ResponsibilityCenter: Code[10])
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; ResponsibilityCenter: Code[10])
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -739,7 +739,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         exit(IssuedFinChargeMemoHeader."No.")
     end;
 
-    local procedure CreateIssuedReminder(Type: Option; Amount: Decimal): Code[20]
+    local procedure CreateIssuedReminder(Type: Enum "Reminder Source Type"; Amount: Decimal): Code[20]
     var
         IssuedReminderHeader: Record "Issued Reminder Header";
         IssuedReminderLine: Record "Issued Reminder Line";

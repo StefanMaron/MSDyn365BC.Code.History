@@ -178,6 +178,7 @@ codeunit 6300 "Azure AD Mgt."
 
     local procedure GetBaseUrl(RedirectUrl: Text): Text
     var
+
         BaseIndex: Integer;
         EndBaseUrlIndex: Integer;
         Baseurl: Text;
@@ -312,3 +313,4 @@ codeunit 6300 "Azure AD Mgt."
         end;
     end;
 }
+

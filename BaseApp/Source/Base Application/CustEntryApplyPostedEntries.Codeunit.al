@@ -1,4 +1,4 @@
-﻿codeunit 226 "CustEntry-Apply Posted Entries"
+codeunit 226 "CustEntry-Apply Posted Entries"
 {
     EventSubscriberInstance = Manual;
     Permissions = TableData "Cust. Ledger Entry" = rimd;

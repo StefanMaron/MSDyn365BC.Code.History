@@ -529,7 +529,11 @@ page 76 "Resource Card"
                     RunObject = Page "Resource Costs";
                     RunPageLink = Type = CONST(Resource),
                                   Code = FIELD("No.");
+                    Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View or change detailed information about costs for the resource.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
                 }
                 action(Prices)
                 {
@@ -541,7 +545,47 @@ page 76 "Resource Card"
                     RunObject = Page "Resource Prices";
                     RunPageLink = Type = CONST(Resource),
                                   Code = FIELD("No.");
+                    Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View or edit prices for the resource.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+                action(PurchPriceLists)
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Costs';
+                    Image = ResourceCosts;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or change detailed information about costs for the resource.';
+
+                    trigger OnAction()
+                    var
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        Rec.ShowPriceListLines(PriceType::Purchase, AmountType::Any);
+                    end;
+                }
+                action(SalesPriceLists)
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Prices';
+                    Image = LineDiscount;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or edit prices for the resource.';
+
+                    trigger OnAction()
+                    var
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        Rec.ShowPriceListLines(PriceType::Sale, AmountType::Any);
+                    end;
                 }
             }
             group("Plan&ning")
@@ -702,13 +746,16 @@ page 76 "Resource Card"
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
         SetNoFieldVisible;
         IsCountyVisible := FormatAddress.UseCounty("Country/Region Code");
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
     end;
 
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         FormatAddress: Codeunit "Format Address";
         CRMIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
+        ExtendedPriceEnabled: Boolean;
         LookupAddressLbl: Label 'Lookup address from postcode';
         IsAddressLookupTextEnabled: Boolean;
         NoFieldVisible: Boolean;

@@ -108,7 +108,7 @@ page 380 "Bank Acc. Reconciliation Lines"
                 field(TotalDiff; TotalDiff + Difference)
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = GetCurrencyCode;
+                    AutoFormatExpression = GetCurrencyCode();
                     AutoFormatType = 1;
                     Caption = 'Total Difference';
                     Editable = false;
@@ -124,7 +124,7 @@ page 380 "Bank Acc. Reconciliation Lines"
                 field(Balance; Balance + "Statement Amount")
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = GetCurrencyCode;
+                    AutoFormatExpression = GetCurrencyCode();
                     AutoFormatType = 1;
                     Caption = 'Balance';
                     Editable = false;
@@ -134,7 +134,7 @@ page 380 "Bank Acc. Reconciliation Lines"
                 field(TotalBalance; TotalBalance + "Statement Amount")
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = GetCurrencyCode;
+                    AutoFormatExpression = GetCurrencyCode();
                     AutoFormatType = 1;
                     Caption = 'Total Balance';
                     Editable = false;

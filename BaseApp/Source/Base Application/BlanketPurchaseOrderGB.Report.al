@@ -340,7 +340,7 @@ report 10579 "Blanket Purchase Order GB"
 
                             DimSetEntry2.SetRange("Dimension Set ID", "Purchase Line"."Dimension Set ID");
 
-                            TypeNo_PurchaseLine := "Purchase Line".Type;
+                            TypeNo_PurchaseLine := "Purchase Line".Type.AsInteger();
                         end;
 
                         trigger OnPostDataItem()

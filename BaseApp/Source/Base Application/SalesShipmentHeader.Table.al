@@ -480,7 +480,7 @@ table 110 "Sales Shipment Header"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(5050; "Campaign No."; Code[20])
@@ -614,7 +614,7 @@ table 110 "Sales Shipment Header"
             exit;
 
         DocumentSendingProfile.Send(
-          DummyReportSelections.Usage::"S.Shipment", Rec, "No.", "Sell-to Customer No.",
+          DummyReportSelections.Usage::"S.Shipment".AsInteger(), Rec, "No.", "Sell-to Customer No.",
           ReportDistributionMgt.GetFullDocumentTypeText(Rec), FieldNo("Sell-to Customer No."), FieldNo("No."));
     end;
 
@@ -629,7 +629,7 @@ table 110 "Sales Shipment Header"
             if IsHandled then
                 exit;
 
-            ReportSelection.PrintWithGUIYesNo(
+            ReportSelection.PrintWithDialogForCust(
               ReportSelection.Usage::"S.Shipment", SalesShptHeader, ShowRequestForm, FieldNo("Bill-to Customer No."));
         end;
     end;
@@ -647,7 +647,7 @@ table 110 "Sales Shipment Header"
             exit;
 
         DocumentSendingProfile.TrySendToEMail(
-          DummyReportSelections.Usage::"S.Shipment", Rec, FieldNo("No."),
+          DummyReportSelections.Usage::"S.Shipment".AsInteger(), Rec, FieldNo("No."),
           ReportDistributionMgt.GetFullDocumentTypeText(Rec), FieldNo("Bill-to Customer No."), ShowDialog);
     end;
 
@@ -662,7 +662,7 @@ table 110 "Sales Shipment Header"
 
     procedure StartTrackingSite()
     begin
-        HyperLink(GetTrackingInternetAddr);
+        HyperLink(GetTrackingInternetAddr());
     end;
 
     procedure ShowDimensions()
@@ -690,9 +690,47 @@ table 110 "Sales Shipment Header"
         end;
     end;
 
+    procedure GetCustomerVATRegistrationNumber(): Text
+    begin
+        exit("VAT Registration No.");
+    end;
+
+    procedure GetCustomerVATRegistrationNumberLbl(): Text
+    begin
+        if "VAT Registration No." = '' then
+            exit('');
+        exit(FieldCaption("VAT Registration No."));
+    end;
+
+    procedure GetCustomerGlobalLocationNumber(): Text
+    var
+        Customer: Record Customer;
+    begin
+        if Customer.Get("Sell-to Customer No.") then
+            exit(Customer.GLN);
+        exit('');
+    end;
+
+    procedure GetCustomerGlobalLocationNumberLbl(): Text
+    var
+        Customer: Record Customer;
+    begin
+        if Customer.Get("Sell-to Customer No.") then
+            exit(Customer.FieldCaption(GLN));
+        exit('');
+    end;
+
+    procedure GetLegalStatement(): Text
+    var
+        SalesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesSetup.Get();
+        exit(SalesSetup.GetLegalStatement());
+    end;
+
+    [Obsolete('Moved to table 291 Shipping Agent GetTrackingInternetAddr()', '17.0')]
     procedure GetTrackingInternetAddr(): Text
     var
-        HttpStr: Text;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -700,14 +738,9 @@ table 110 "Sales Shipment Header"
         if IsHandled then
             exit;
 
-        HttpStr := 'http://';
         TestField("Shipping Agent Code");
         ShippingAgent.Get("Shipping Agent Code");
-        TrackingInternetAddr := StrSubstNo(ShippingAgent."Internet Address", "Package Tracking No.");
-
-        if StrPos(TrackingInternetAddr, HttpStr) = 0 then
-            TrackingInternetAddr := HttpStr + TrackingInternetAddr;
-        exit(TrackingInternetAddr);
+        exit(ShippingAgent.GetTrackingInternetAddr("Package Tracking No."));
     end;
 
     procedure GetWorkDescription(): Text
@@ -735,6 +768,7 @@ table 110 "Sales Shipment Header"
     begin
     end;
 
+    [Obsolete('Moved to table 291 Shipping Agent OnBeforeGetTrackingInternetAddr', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetTrackingInternetAddr(var SalesShipmentHeader: Record "Sales Shipment Header"; var TrackingInternetAddr: Text; var IsHandled: Boolean)
     begin

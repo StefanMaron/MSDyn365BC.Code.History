@@ -12,14 +12,16 @@ codeunit 139194 "CDS Connection Wizard Tests"
         Assert: Codeunit Assert;
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         CryptographyManagement: Codeunit "Cryptography Management";
-        CDSEnvironmentURLEmptyErr: Label 'You must specify the URL of your CDS environment.';
+        NoEnvironmentSelectedErr: Label 'To sign in the administrator user you must specify an environment.';
         VisibleTxt: Label 'Visible';
         ShouldBeErr: Label '%1 should be %2', Comment = '%1=filed name, %2=visibility';
         ShouldNotBeErr: Label '%1 should not be %2', Comment = '%1=filed name, %2=visibility';
         ButtonTxt: Label 'Button';
         WrongCredentialsErr: Label 'A URL, user name and password are required.';
         WrongConnectionStringErr: Label 'Wrong connection string generated';
-        MustUseHttpsErr: Label 'The application is set up to support secure connections (HTTPS) to the CDS environment only. You cannot use HTTP.';
+        MustUseHttpsErr: Label 'The application is set up to support secure connections (HTTPS) to the Common Data Service environment only. You cannot use HTTP.';
+        MissingClientIdOrSecretOnPremErr: Label 'You must register an Azure Active Directory application that will be used to connect to the Common Data Service environment and specify the application id, secret and redirect URL in the Common Data Service Connection Setup page.', Comment = 'Common Data Service and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+
 
     [Test]
     [HandlerFunctions('ConfirmYesHandler')]
@@ -97,12 +99,15 @@ codeunit 139194 "CDS Connection Wizard Tests"
         CDSConnectionSetupWizard.Trap();
         PAGE.Run(PAGE::"CDS Connection Setup Wizard");
 
-        // [WHEN] User does not fill CDS Environment URL and press Next
+        // [WHEN] User does not fill CDS Environment URL presses Sign in with administrator user
+        CDSConnectionSetupWizard.ActionNext.Invoke();
+        CDSConnectionSetupWizard.ActionNext.Invoke();
         CDSConnectionSetupWizard.ServerAddress.SetValue('');
-        asserterror CDSConnectionSetupWizard.ActionNext.Invoke();
 
-        // [THEN] Error message appears that CDS Environment URL should not be empty
-        Assert.ExpectedError(CDSEnvironmentURLEmptyErr);
+        asserterror CDSConnectionSetupWizard.SignInAdmin.Drilldown();
+
+        // [THEN] Error message appears that an environment should be specified.
+        Assert.ExpectedError(NoEnvironmentSelectedErr);
     end;
 
     [Test]
@@ -118,11 +123,10 @@ codeunit 139194 "CDS Connection Wizard Tests"
         CDSConnectionSetupWizard.OpenEdit();
 
         // [GIVEN] Second page of Wizard is opened
-        CDSConnectionSetupWizard.ServerAddress.SetValue('https://test.dynamics.com');
         CDSConnectionSetupWizard.ActionNext.Invoke();
         Assert.IsTrue(
-          CDSConnectionSetupWizard.Email.Visible(),
-          StrSubstNo(ShouldBeErr, CDSConnectionSetupWizard.Email.Caption(), VisibleTxt));
+          CDSConnectionSetupWizard."Client Id".Visible(),
+          StrSubstNo(ShouldBeErr, CDSConnectionSetupWizard."Client Id".Caption(), VisibleTxt));
 
         // [WHEN] User press Back
         CDSConnectionSetupWizard.ActionBack.Invoke();
@@ -130,29 +134,31 @@ codeunit 139194 "CDS Connection Wizard Tests"
         // [THEN] First page of Wizard is opened.
         Assert.IsFalse(
           CDSConnectionSetupWizard.Email.Visible(),
-          StrSubstNo(ShouldNotBeErr, CDSConnectionSetupWizard.Email.Caption(), VisibleTxt));
+          StrSubstNo(ShouldNotBeErr, CDSConnectionSetupWizard."Client Id".Caption(), VisibleTxt));
+
     end;
 
     [Test]
     [HandlerFunctions('ConfirmYesHandler')]
     [Scope('OnPrem')]
-    procedure VerifyWizardEmptyCredentialsError()
+    procedure VerifyWizardEmptyClientIDAndSecretError()
     var
         CDSConnectionSetupWizard: TestPage "CDS Connection Setup Wizard";
     begin
-        // [SCENARIO 197282] If credentials not filled user cannot finish Wizard
+        // [SCENARIO 197282] If client id and secret are not filled user cannot sign in with admin 
         Initialize();
 
-        // [GIVEN] CDS Connection Wizard is opened, credentials not filled
+        // [GIVEN] CDS Connection Wizard is opened, client id and secret are not filled
         CDSConnectionSetupWizard.OpenEdit();
-        CDSConnectionSetupWizard.ServerAddress.SetValue('https://test.dynamics.com');
         CDSConnectionSetupWizard.ActionNext.Invoke();
+        CDSConnectionSetupWizard.ActionNext.Invoke();
+        CDSConnectionSetupWizard.ServerAddress.SetValue('https://test.dynamics.com');
 
-        // [WHEN] Finish action button is invoked
-        asserterror CDSConnectionSetupWizard.ActionFinish.Invoke();
+        // [WHEN] User presses Sign in with administrator
+        asserterror CDSConnectionSetupWizard.SignInAdmin.Drilldown();
 
         // [THEN] Error message appears stating user should fill synch user credentials
-        Assert.ExpectedError(WrongCredentialsErr);
+        Assert.ExpectedError(MissingClientIdOrSecretOnPremErr);
     end;
 
     [Test]
@@ -208,24 +214,25 @@ codeunit 139194 "CDS Connection Wizard Tests"
     var
         CDSConnectionSetupWizard: TestPage "CDS Connection Setup Wizard";
         Email: Text;
+        Username: Text;
     begin
         // [SCENARIO 211412] CDS Connection Wizard allow entering email for CDS server address not containing 'dynamics.com'
         Initialize();
 
         // [GIVEN] CDS Connection Setup Wizard is opened
         // [GIVEN] Server address = "https://cds.abc.com"
-
         CDSConnectionSetupWizard.Trap();
         PAGE.Run(PAGE::"CDS Connection Setup Wizard");
         CDSConnectionSetupWizard.ServerAddress.SetValue('https://cds.abc.com');
-        Email := 'abc@abc.com';
+
+        Username := 'abc\abc';
         CDSConnectionSetupWizard.ActionNext.Invoke();
 
         // [WHEN] Sync user email entered
-        CDSConnectionSetupWizard.Email.SetValue(Email);
+        CDSConnectionSetupWizard.Email.SetValue(Username);
 
         // [THEN] No error appear
-        CDSConnectionSetupWizard.Email.AssertEquals(Email);
+        CDSConnectionSetupWizard.Email.AssertEquals(Username);
     end;
 
     [Test]
@@ -234,7 +241,7 @@ codeunit 139194 "CDS Connection Wizard Tests"
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
         CDSConnectionSetupWizard: TestPage "CDS Connection Setup Wizard";
-        Email: Text;
+        Username: Text;
     begin
         // [SCENARIO 211819] CDS Connection Wizard allow entering email for CDS server address not containing 'dynamics.com' when setup already exists
         Initialize();
@@ -249,14 +256,14 @@ codeunit 139194 "CDS Connection Wizard Tests"
         CDSConnectionSetupWizard.Trap();
         PAGE.Run(PAGE::"CDS Connection Setup Wizard");
         CDSConnectionSetupWizard.ServerAddress.SetValue('https://cds.abc.com');
-        Email := 'abc@abc.com';
+        Username := 'abc\abc';
         CDSConnectionSetupWizard.ActionNext.Invoke();
 
         // [WHEN] Sync user email entered
-        CDSConnectionSetupWizard.Email.SetValue(Email);
+        CDSConnectionSetupWizard.Email.SetValue(Username);
 
         // [THEN] No error appear
-        CDSConnectionSetupWizard.Email.AssertEquals(Email);
+        CDSConnectionSetupWizard.Email.AssertEquals(Username);
     end;
 
     local procedure Initialize()

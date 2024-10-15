@@ -355,7 +355,7 @@ page 900 "Assembly Order"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Item Tracking Lines")
@@ -370,7 +370,7 @@ page 900 "Assembly Order"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
                 action("Co&mments")
@@ -630,6 +630,18 @@ page 900 "Assembly Order"
                         ShowAvailability;
                     end;
                 }
+                action("Refresh availability warnings")
+                {
+                    ApplicationArea = Assembly;
+                    Caption = 'Refresh Availability';
+                    Image = RefreshLines;
+                    ToolTip = 'Check items availability and refresh warnings';
+
+                    trigger OnAction()
+                    begin
+                        UpdateWarningOnLines()
+                    end;
+                }
                 action("Update Unit Cost")
                 {
                     ApplicationArea = Basic, Suite;
@@ -668,7 +680,7 @@ page 900 "Assembly Order"
 
                     trigger OnAction()
                     begin
-                        ShowReservation;
+                        ShowReservation();
                     end;
                 }
                 action("Copy Document")
@@ -739,7 +751,7 @@ page 900 "Assembly Order"
 
                     trigger OnAction()
                     begin
-                        ShowTracking;
+                        ShowTracking();
                     end;
                 }
             }
@@ -834,6 +846,8 @@ page 900 "Assembly Order"
 
     var
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+
+    protected var
         [InDataSet]
         IsUnitCostEditable: Boolean;
         [InDataSet]

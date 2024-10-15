@@ -74,7 +74,7 @@ codeunit 136129 "Service Order Tracking"
         ServiceOrderWithTracking(LocationA, Item."Order Tracking Policy"::"Tracking Only");
 
         // 2. Exercise: Run Order Tracking page from Service Line.
-        ServiceLine.ShowTracking; // Page Handler ServiceOrderTrackingPage
+        ServiceLine.ShowTracking(); // Page Handler ServiceOrderTrackingPage
 
         // 3. Verification will happen through the Test Page for Order Tracking,
         // The global ServiceLine and PurchaseLine is used for verification.
@@ -97,7 +97,7 @@ codeunit 136129 "Service Order Tracking"
 
         // 2. Exercise: Run Order Tracking page from Purchase Line.
         PurchaseOrderSubform.SetRecord(PurchaseLine);
-        PurchaseOrderSubform.ShowTracking; // Page Handler PurchaseOrderTrackingPage
+        PurchaseOrderSubform.ShowTracking(); // Page Handler PurchaseOrderTrackingPage
 
         // 3. Verification will happen through the Test Page for Order Tracking,
         // The global ServiceLine and PurchaseLine is used for verification.
@@ -118,7 +118,7 @@ codeunit 136129 "Service Order Tracking"
         ServiceOrderWithTracking(LocationA, Item."Order Tracking Policy"::None);
 
         // 2. Exercise: Run Order Tracking page from Service Line.
-        ServiceLine.ShowTracking; // Page Handler NoTrackingPage
+        ServiceLine.ShowTracking(); // Page Handler NoTrackingPage
 
         // 3. Verification will happen through the Test Page for Order Tracking,
         // The global ServiceLine and PurchaseLine is used for verification.
@@ -139,7 +139,7 @@ codeunit 136129 "Service Order Tracking"
         ServiceOrderWithTracking(LocationB, Item."Order Tracking Policy"::"Tracking Only");
 
         // 2. Exercise: Run Order Tracking page from Service Line.
-        ServiceLine.ShowTracking; // Page Handler NoTrackingPage
+        ServiceLine.ShowTracking(); // Page Handler NoTrackingPage
 
         // 3. Verification will happen through the Test Page for Order Tracking,
         // The global ServiceLine and PurchaseLine is used for verification.
@@ -165,10 +165,10 @@ codeunit 136129 "Service Order Tracking"
 
         CreateAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", PurchaseLine.Quantity);
         TrackingAction := TrackingAction::SelectEntries;  // Assign global variable for page handler.
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         // 2. Exercise.
-        ServiceLine.ShowReservation;  // Open Reservation to Invoke page handler.
+        ServiceLine.ShowReservation();  // Open Reservation to Invoke page handler.
 
         // 3. Verify: Verification of Serial No. is done in SerialNoItemTrackingListPageHandler page handler.
         ServiceLine.CalcFields("Reserved Quantity");
@@ -191,7 +191,7 @@ codeunit 136129 "Service Order Tracking"
         TrackingAction := TrackingAction::SelectEntries;  // Assign global variable for page handler.
 
         // 2. Exercise.
-        asserterror ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        asserterror ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         // 3. Verify: Verify Error.
         Assert.ExpectedError(ExpectedError);
@@ -215,10 +215,10 @@ codeunit 136129 "Service Order Tracking"
 
         CreateAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", PurchaseLine.Quantity);
         TrackingAction := TrackingAction::SelectEntries;  // Assign global variable for page handler.
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         // 2. Exercise.
-        ServiceLine.ShowReservation;  // Open Reservation to Invoke page handler.
+        ServiceLine.ShowReservation();  // Open Reservation to Invoke page handler.
 
         // 3. Verify: Verification of Lot No. is done in LotNoItemTrackingListPageHandler page handler.
         ServiceLine.CalcFields("Reserved Quantity");
@@ -246,7 +246,7 @@ codeunit 136129 "Service Order Tracking"
         TrackingAction := TrackingAction::SelectEntries;  // Assign global variable for page handler.
 
         // 2. Exercise: Open Service Lines page.
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         // 3. Verify: Verification done in VerifyItemTrackingSummaryPageHandler.
     end;
@@ -272,7 +272,7 @@ codeunit 136129 "Service Order Tracking"
         TrackingAction := TrackingAction::SelectEntries;  // Assign global variable for page handler.
 
         // 2. Exercise.
-        asserterror ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        asserterror ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         // 3. Verify: Verify error.
         Assert.ExpectedError(StrSubstNo(SelectedQuantityError, Quantity));
@@ -299,7 +299,7 @@ codeunit 136129 "Service Order Tracking"
         TrackingAction := TrackingAction::SelectEntries;  // Assign global variable for page handler.
 
         // 2. Exercise.
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         // 3. Verify: Verification done in 'VerifyItemTrackingLinesPageHandler' page handler.
     end;
@@ -325,7 +325,7 @@ codeunit 136129 "Service Order Tracking"
         TrackingAction := TrackingAction::SelectEntries;  // Assign global variable for page handler.
 
         // 2. Exercise.
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         // 3. Verify: Verification done in 'VerifyItemTrackingLinesPageHandler' page handler.
     end;
@@ -351,7 +351,7 @@ codeunit 136129 "Service Order Tracking"
 
         CreateAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", PurchaseLine.Quantity);
         TrackingAction := TrackingAction::SelectEntries;  // Assign global variable for page handler.
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
 
         // 2. Exercise: Post Service Order as Ship.
@@ -408,7 +408,7 @@ codeunit 136129 "Service Order Tracking"
         CreateAndPostItemJournalLine(ItemJournalLine, CreateItemWithItemTrackingCode(FindItemTrackingCode(false, true)));
         CreateAndUpdateServiceLine(ServiceLine, ItemJournalLine."Item No.", ItemJournalLine.Quantity);
         LibraryVariableStorage.Enqueue(TrackingActionForSerialNo::SelectEntries);
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking Assign And Select Page Handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking Assign And Select Page Handler.
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
 
         // 2. Exercise: Post Service Order.
@@ -442,7 +442,7 @@ codeunit 136129 "Service Order Tracking"
         TrackingAction := TrackingAction::SelectEntries;  // Assign global variable for page handler.
 
         // 2. Exercise: Open Service Lines page.
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         // 3. Verify: Verification done in 'VerifyInformationItemTrackingSummaryPageHandlerForLotNo' page handler.
     end;
@@ -468,7 +468,7 @@ codeunit 136129 "Service Order Tracking"
         TrackingAction := TrackingAction::SelectEntries;  // Assign global variable for page handler.
 
         // 2. Exercise: Open Service Lines page.
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         // 3. Verify: Verification done in 'VerifyInformationItemTrackingSummaryPageHandlerForSerialNo' page handler.
     end;
@@ -494,7 +494,7 @@ codeunit 136129 "Service Order Tracking"
         TrackingAction := TrackingAction::SelectEntries;  // Assign global variable for page handler.
 
         // 2. Exercise: Open Service Lines page.
-        asserterror ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        asserterror ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         // 3. Verify: Verify error.
         Assert.ExpectedError(StrSubstNo(NegativeSelectedQuantityError, -Quantity));
@@ -536,7 +536,7 @@ codeunit 136129 "Service Order Tracking"
         end;
     end;
 
-    local procedure ServiceOrderWithTracking(ServiceLocation: Code[10]; TrackingPolicy: Option)
+    local procedure ServiceOrderWithTracking(ServiceLocation: Code[10]; TrackingPolicy: Enum "Order Tracking Policy")
     var
         Item: Record Item;
     begin
@@ -568,7 +568,7 @@ codeunit 136129 "Service Order Tracking"
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, LibraryRandom.RandDec(10, 2));
     end;
 
-    local procedure CreateItemWithTrackingPolicy(var Item: Record Item; OrderTrackingPolicy: Option)
+    local procedure CreateItemWithTrackingPolicy(var Item: Record Item; OrderTrackingPolicy: Enum "Order Tracking Policy")
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Order Tracking Policy", OrderTrackingPolicy);
@@ -623,7 +623,7 @@ codeunit 136129 "Service Order Tracking"
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItemWithItemTrackingCode(FindItemTrackingCode(LotSpecific, SNSpecific)),
           LibraryRandom.RandInt(10));
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
     end;
 
     local procedure CreateAndUpdateServiceLine(var ServiceLine: Record "Service Line"; No: Code[20]; PurchaseLineQuantity: Decimal)
@@ -647,7 +647,7 @@ codeunit 136129 "Service Order Tracking"
     begin
         CreateAndUpdateServiceLine(ServiceLine, ItemNo, Quantity);
         TrackingAction := TrackingAction::AssignSerialNo;
-        ServiceLine.OpenItemTrackingLines;
+        ServiceLine.OpenItemTrackingLines();
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
     end;
 

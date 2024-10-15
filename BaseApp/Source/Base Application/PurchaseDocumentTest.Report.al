@@ -868,7 +868,7 @@ report 402 "Purchase Document - Test"
                                 if Quantity <> 0 then begin
                                     if "No." = '' then
                                         AddError(StrSubstNo(Text006, FieldCaption("No.")));
-                                    if Type = 0 then
+                                    if Type = Type::" " then
                                         AddError(StrSubstNo(Text006, FieldCaption(Type)));
                                 end else
                                     if Amount <> 0 then
@@ -891,7 +891,7 @@ report 402 "Purchase Document - Test"
                                         CheckRcptLines("Purchase Line");
                                 end;
 
-                                if (Type >= Type::"G/L Account") and ("Qty. to Invoice" <> 0) then
+                                if (Type <> Type::" ") and ("Qty. to Invoice" <> 0) then
                                     if not ApplicationAreaMgmt.IsSalesTaxEnabled then
                                         if not GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group") then
                                             AddError(
@@ -940,7 +940,7 @@ report 402 "Purchase Document - Test"
                                     if not DimMgt.CheckDimIDComb("Dimension Set ID") then
                                         AddError(DimMgt.GetDimCombErr);
 
-                                    TableID[1] := DimMgt.TypeToTableID3(Type);
+                                    TableID[1] := DimMgt.TypeToTableID3(Type.AsInteger());
                                     No[1] := "No.";
                                     TableID[2] := DATABASE::Job;
                                     No[2] := "Job No.";
@@ -1998,7 +1998,7 @@ report 402 "Purchase Document - Test"
                             AddError(StrSubstNo(Text008, Resource.TableCaption, "No."));
                     end
                 else begin
-                        OnCheckPurchLineCaseTypeElse(Type, "No.", ErrorText);
+                        OnCheckPurchLineCaseTypeElse(Type.AsInteger(), "No.", ErrorText);
                         if ErrorText <> '' then
                             AddError(ErrorText);
                     end;
@@ -2210,7 +2210,7 @@ report 402 "Purchase Document - Test"
             if not Job.Get("Job No.") then
                 AddError(StrSubstNo(Text053, Job.TableCaption, "Job No."))
             else
-                if Job.Blocked > Job.Blocked::" " then
+                if Job.Blocked <> Job.Blocked::" " then
                     AddError(
                       StrSubstNo(
                         Text041, Job.FieldCaption(Blocked), Job.Blocked, Job.TableCaption, "Job No."));
@@ -2260,7 +2260,7 @@ report 402 "Purchase Document - Test"
         SourceCodesetup.Get();
 
         with PurchLine do begin
-            TableID[1] := DimMgt.TypeToTableID3(Type);
+            TableID[1] := DimMgt.TypeToTableID3(Type.AsInteger());
             No[1] := "No.";
             TableID[2] := DATABASE::Job;
             No[2] := "Job No.";

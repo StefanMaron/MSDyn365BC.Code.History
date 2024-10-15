@@ -263,14 +263,14 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
         exit(Item."No.");
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option) DocumentNo: Code[20]
+    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type") DocumentNo: Code[20]
     begin
         // Create a Purchase Document Without Currency.
         CreatePurchaseDocument(PurchaseHeader, DocumentType, CreateItem, '');
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; ItemNo: Code[20]; CurrencyCode: Code[10])
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20]; CurrencyCode: Code[10])
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -347,7 +347,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
         VendorDocumentNos.Run;
     end;
 
-    local procedure UpdateAndPostPurchaseDocument(DocumentType: Option) DocumentNo: Code[20]
+    local procedure UpdateAndPostPurchaseDocument(DocumentType: Enum "Purchase Document Type") DocumentNo: Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin

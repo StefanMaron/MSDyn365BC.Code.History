@@ -131,7 +131,7 @@ codeunit 144028 "UT REP UKGEN"
         OnAfterGetRecordDimLoopSalesOrderReport(SalesHeader."Document Type"::Order, REPORT::"Order Confirmation GB")
     end;
 
-    local procedure OnAfterGetRecordDimLoopSalesOrderReport(DocumentType: Option; ReportID: Integer)
+    local procedure OnAfterGetRecordDimLoopSalesOrderReport(DocumentType: Enum "Sales Document Type"; ReportID: Integer)
     var
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
@@ -168,7 +168,7 @@ codeunit 144028 "UT REP UKGEN"
           PurchaseHeader."Document Type"::"Blanket Order", REPORT::"Blanket Purchase Order GB", 'DimText_DimensionLoop1', '%1 - %2');
     end;
 
-    local procedure PurchaseOrderWithDimension(DocumentType: Option; ReportID: Integer; ElementName: Text; ExpectedNode: Text)
+    local procedure PurchaseOrderWithDimension(DocumentType: Enum "Purchase Document Type"; ReportID: Integer; ElementName: Text; ExpectedNode: Text)
     var
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
@@ -390,7 +390,7 @@ codeunit 144028 "UT REP UKGEN"
         DimensionSetEntry.Insert();
     end;
 
-    local procedure CreatePurchaseDocumentWithDimension(var DimensionSetEntry: Record "Dimension Set Entry"; DocumentType: Option)
+    local procedure CreatePurchaseDocumentWithDimension(var DimensionSetEntry: Record "Dimension Set Entry"; DocumentType: Enum "Sales Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -458,7 +458,7 @@ codeunit 144028 "UT REP UKGEN"
         LibraryVariableStorage.Enqueue(SalesInvoiceHeader."No.");  // Enqueue value for use in SalesInvoiceGBRequestPageHandler.
     end;
 
-    local procedure CreateSalesDocumentWithDimension(var DimensionSetEntry: Record "Dimension Set Entry"; DocumentType: Option)
+    local procedure CreateSalesDocumentWithDimension(var DimensionSetEntry: Record "Dimension Set Entry"; DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -471,7 +471,7 @@ codeunit 144028 "UT REP UKGEN"
         LibraryVariableStorage.Enqueue(SalesHeader."No.");
     end;
 
-    local procedure CreateSalesDocumentWithFormatAddress(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesDocumentWithFormatAddress(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     begin
         MockSalesDocument(SalesHeader, DocumentType);
         SalesHeader."Bill-to Country/Region Code" := MockCountryRegionWithFormatAddress;
@@ -482,20 +482,20 @@ codeunit 144028 "UT REP UKGEN"
         LibraryVariableStorage.Enqueue(SalesHeader."No.");
     end;
 
-    local procedure MockSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure MockSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     begin
         MockSalesHeader(SalesHeader, DocumentType);
         MockSalesLine(SalesHeader."Document Type", SalesHeader."No.");
     end;
 
-    local procedure MockSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure MockSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     begin
         SalesHeader."Document Type" := DocumentType;
         SalesHeader."No." := LibraryUTUtility.GetNewCode;
         SalesHeader.Insert();
     end;
 
-    local procedure MockSalesLine(DocumentType: Option; DocumentNo: Code[20])
+    local procedure MockSalesLine(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     var
         SalesLine: Record "Sales Line";
     begin

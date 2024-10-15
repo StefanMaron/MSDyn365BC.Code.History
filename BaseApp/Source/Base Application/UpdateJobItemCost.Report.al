@@ -100,9 +100,7 @@ report 1095 "Update Job Item Cost"
 
                                 ValueEntry2.SetRange("Job Ledger Entry No.", 0);
 
-                                ValueEntry2.ModifyAll("Job No.", ValueEntry."Job No.");
-                                ValueEntry2.ModifyAll("Job Task No.", ValueEntry."Job Task No.");
-                                ValueEntry2.ModifyAll("Job Ledger Entry No.", ValueEntry."Job Ledger Entry No.");
+                                ModifyAllValueEntries(ValueEntry2, ValueEntry);
                             end;
                         end;
                         PostTotalCostAdjustment("Job Ledger Entry", JobLedgerEntryCostValue, JobLedgerEntryCostValueACY);

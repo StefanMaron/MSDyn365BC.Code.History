@@ -1,7 +1,6 @@
 table 10523 "GovTalk Setup"
 {
     Caption = 'GovTalk Setup';
-    Permissions = TableData "Service Password" = rimd;
 
     fields
     {

@@ -57,7 +57,7 @@ codeunit 144051 "UT REP Check"
         exit(BankAccount."No.")
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20])
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin

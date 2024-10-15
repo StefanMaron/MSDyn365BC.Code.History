@@ -23,6 +23,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
+        LibraryTemplates: Codeunit "Library - Templates";
         IsInitialized: Boolean;
         TransferLineNotExistsErrorTxt: Label 'Transfer lines does not exists after change of Transfer-From location. ', Locked = true;
 
@@ -313,6 +314,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Location Trans. Plan-based E2E");
 
+        LibraryTemplates.DisableTemplatesFeature();
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;

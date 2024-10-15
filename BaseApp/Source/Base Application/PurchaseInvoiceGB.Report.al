@@ -253,7 +253,7 @@ report 10577 "Purchase - Invoice GB"
                         DataItemTableView = SORTING("Document No.", "Line No.");
                         column(LineAmount_PurchInvLine; "Line Amount")
                         {
-                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Description_PurchInvLine; Description)
@@ -276,7 +276,7 @@ report 10577 "Purchase - Invoice GB"
                         }
                         column(DirUnitCost_PurchInvLine; "Direct Unit Cost")
                         {
-                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode();
                             AutoFormatType = 2;
                         }
                         column(LineDiscount_PurchInvLine; "Line Discount %")
@@ -304,7 +304,7 @@ report 10577 "Purchase - Invoice GB"
                         }
                         column(InvDiscAmt_PurchInvLine; -"Inv. Discount Amount")
                         {
-                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TotalText; TotalText)
@@ -312,7 +312,7 @@ report 10577 "Purchase - Invoice GB"
                         }
                         column(Amount_PurchInvLine; Amount)
                         {
-                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TotalInclVATText; TotalInclVATText)
@@ -320,12 +320,12 @@ report 10577 "Purchase - Invoice GB"
                         }
                         column(AmtIncVAT_PurchInvLine; "Amount Including VAT")
                         {
-                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmountIncludingVATAmount; "Amount Including VAT" - Amount)
                         {
-                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATAmtLineVATAmountText; VATAmountLine.VATAmountText)
@@ -354,17 +354,17 @@ report 10577 "Purchase - Invoice GB"
                         }
                         column(AmountLCY; AmountLCY)
                         {
-                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmountIncLCYAmountLCY; AmountIncLCY - AmountLCY)
                         {
-                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmountIncLCY; AmountIncLCY)
                         {
-                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(CurrCode_PurchInvHeader; "Purch. Inv. Header"."Currency Code")

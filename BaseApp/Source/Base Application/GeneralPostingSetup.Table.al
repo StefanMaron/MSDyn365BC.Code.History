@@ -844,7 +844,7 @@ table 252 "General Posting Setup"
         OnAfterSuggestInvtAccounts(Rec, RecRef);
     end;
 
-    local procedure SuggestAccount(var RecRef: RecordRef; AccountFieldNo: Integer)
+    protected procedure SuggestAccount(var RecRef: RecordRef; AccountFieldNo: Integer)
     var
         TempAccountUseBuffer: Record "Account Use Buffer" temporary;
         RecFieldRef: FieldRef;

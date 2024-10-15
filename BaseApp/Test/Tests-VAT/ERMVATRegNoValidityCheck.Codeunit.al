@@ -17,6 +17,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryTemplates: Codeunit "Library - Templates";
         WrongLogEntryOnPageErr: Label 'Unexpected entry in VAT Registration Log page.';
         NamespaceTxt: Label 'urn:ec.europa.eu:taxud:vies:services:checkVat:types', Locked = true;
         VATTxt: Label 'vat';
@@ -1381,13 +1382,14 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM VAT Reg. No Validity Check");
         LibrarySetupStorage.Save(DATABASE::"Company Information");
+        LibraryTemplates.DisableTemplatesFeature();
 
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM VAT Reg. No Validity Check");
     end;
 
-    local procedure InitializeVATRegistrationLog(var VATRegistrationLog: Record "VAT Registration Log"; AccountType: Option; AccountNo: Code[20])
+    local procedure InitializeVATRegistrationLog(var VATRegistrationLog: Record "VAT Registration Log"; AccountType: Enum "VAT Registration Log Account Type"; AccountNo: Code[20])
     begin
         VATRegistrationLog.SetRange("Account Type", AccountType);
         VATRegistrationLog.SetRange("Account No.", AccountNo);
@@ -1591,7 +1593,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         Assert.AreEqual(ExpectedOutput, VATRegistrationLog.GetVATRegNo, GetVATRegNoErr);
     end;
 
-    local procedure VerifyVATRegLogEntry(VATRegistrationLog: Record "VAT Registration Log"; AccountType: Option; AccountNo: Code[20]; VATRegistrationNo: Text[20]; ExpectedStatus: Option)
+    local procedure VerifyVATRegLogEntry(VATRegistrationLog: Record "VAT Registration Log"; AccountType: Enum "VAT Registration Log Account Type"; AccountNo: Code[20]; VATRegistrationNo: Text[20]; ExpectedStatus: Option)
     begin
         VATRegistrationLog.TestField("Account Type", AccountType);
         VATRegistrationLog.TestField("Account No.", AccountNo);

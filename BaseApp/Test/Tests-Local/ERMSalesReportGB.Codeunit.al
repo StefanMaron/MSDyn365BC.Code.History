@@ -129,7 +129,7 @@ codeunit 144039 "ERM Sales Report GB"
         exit(Customer."No.");
     end;
 
-    local procedure CreateAndPostSalesDocumentWithDueDate(var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; DocumentType: Option; CurrencyCode: Code[10]; Invoice: Boolean; DueDate: Date): Code[20]
+    local procedure CreateAndPostSalesDocumentWithDueDate(var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type"; CurrencyCode: Code[10]; Invoice: Boolean; DueDate: Date): Code[20]
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -139,7 +139,7 @@ codeunit 144039 "ERM Sales Report GB"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, Invoice));
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; CurrencyCode: Code[10])
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; CurrencyCode: Code[10])
     var
         SalesHeader: Record "Sales Header";
     begin

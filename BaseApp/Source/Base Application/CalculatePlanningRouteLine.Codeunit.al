@@ -109,7 +109,7 @@ codeunit 99000810 "Calculate Planning Route Line"
         ProdOrderCapNeed."Operation No." := PlanningRoutingLine."Operation No.";
         ProdOrderCapNeed."Work Center Group Code" := PlanningRoutingLine."Work Center Group Code";
 
-        ProdOrderCapNeed.Status := ReqLine."Ref. Order Status";
+        ProdOrderCapNeed.Status := "Production Order Status".FromInteger(ReqLine."Ref. Order Status");
         ProdOrderCapNeed."Prod. Order No." := ReqLine."Ref. Order No.";
         ProdOrderCapNeed."Routing No." := ReqLine."Routing No.";
         ProdOrderCapNeed."Routing Reference No." := ReqLine."Line No.";
@@ -179,7 +179,7 @@ codeunit 99000810 "Calculate Planning Route Line"
         NextCapNeedLineNo := NextCapNeedLineNo + 1;
 
         OnAfterCreatePlanningCapNeed(
-            NextCapNeedLineNo, PlanningRoutingLine, ReqLine, NeedDate, StartingTime, EndingTime, TimeType, NeedQty,
+            NextCapNeedLineNo, PlanningRoutingLine, ReqLine, NeedDate, StartingTime, EndingTime, TimeType.AsInteger(), NeedQty,
             ConCurrCap, CalendarEntry, LotSize, RemainNeedQty, FirstInBatch, Direction);
     end;
 
@@ -360,7 +360,7 @@ codeunit 99000810 "Calculate Planning Route Line"
         TestForError(Text001, Text002, PlanningRoutingLine."Starting Date");
     end;
 
-    local procedure LoadCapForward(CapType: Option "Work Center","Machine Center"; CapNo: Code[20]; TimeType: Enum "Routing Time Type"; Write: Boolean)
+    local procedure LoadCapForward(CapType: Enum "Capacity Type"; CapNo: Code[20]; TimeType: Enum "Routing Time Type"; Write: Boolean)
     var
         IsHandled: Boolean;
     begin
@@ -402,7 +402,7 @@ codeunit 99000810 "Calculate Planning Route Line"
                 CalendarMgt.TimeFactor(WorkCenter."Unit of Measure Code"),
                 WorkCenter."Calendar Rounding Precision");
 
-        LoadCapBack(PlanningRoutingLine.Type, PlanningRoutingLine."No.", 3, false);
+        LoadCapBack(PlanningRoutingLine.Type, PlanningRoutingLine."No.", RoutingTimeType::"Move Time", false);
     end;
 
     local procedure CalcWaitTimeBack()
@@ -422,7 +422,7 @@ codeunit 99000810 "Calculate Planning Route Line"
                 CalendarMgt.TimeFactor(WorkCenter."Unit of Measure Code"),
                 WorkCenter."Calendar Rounding Precision");
 
-        LoadCapBack(PlanningRoutingLine.Type, PlanningRoutingLine."No.", 2, false);
+        LoadCapBack(PlanningRoutingLine.Type, PlanningRoutingLine."No.", RoutingTimeType::"Wait Time", false);
     end;
 
     local procedure GetSendAheadStartingTime(PlanningRoutingLineNext: Record "Planning Routing Line"; var SendAheadLotSize: Decimal): Boolean
@@ -628,7 +628,7 @@ codeunit 99000810 "Calculate Planning Route Line"
                 TempWorkCenter := WorkCenter;
                 WorkCenter."Unit of Measure Code" := WorkCenter2."Unit of Measure Code";
                 WorkCenter."Calendar Rounding Precision" := WorkCenter2."Calendar Rounding Precision";
-                LoadCapBack(PlanningRoutingLine2.Type, PlanningRoutingLine2."No.", 4, false);
+                LoadCapBack(PlanningRoutingLine2.Type, PlanningRoutingLine2."No.", RoutingTimeType::"Queue Time", false);
                 WorkCenter."Unit of Measure Code" := TempWorkCenter."Unit of Measure Code";
                 WorkCenter."Calendar Rounding Precision" := TempWorkCenter."Calendar Rounding Precision";
             end;
@@ -658,9 +658,9 @@ codeunit 99000810 "Calculate Planning Route Line"
                 ResourceIsConstrained := ConstrainedCapacity.Get(Type, "No.");
                 ParentIsConstrained := ParentWorkCenter.Get(Type::"Work Center", "Work Center No.");
                 if ResourceIsConstrained or ParentIsConstrained then
-                    FinitelyLoadCapBack(1, ConstrainedCapacity, ResourceIsConstrained, ParentWorkCenter, ParentIsConstrained)
+                    FinitelyLoadCapBack(RoutingTimeType::"Run Time", ConstrainedCapacity, ResourceIsConstrained, ParentWorkCenter, ParentIsConstrained)
                 else
-                    LoadCapBack(Type, "No.", 1, true);
+                    LoadCapBack(Type, "No.", RoutingTimeType::"Run Time", true);
             end;
 
             ProdEndingDate := PlanningRoutingLine."Starting Date";
@@ -675,9 +675,9 @@ codeunit 99000810 "Calculate Planning Route Line"
             ResourceIsConstrained := ConstrainedCapacity.Get(Type, "No.");
             ParentIsConstrained := ParentWorkCenter.Get(Type::"Work Center", "Work Center No.");
             if ResourceIsConstrained or ParentIsConstrained then
-                FinitelyLoadCapBack(0, ConstrainedCapacity, ResourceIsConstrained, ParentWorkCenter, ParentIsConstrained)
+                FinitelyLoadCapBack(RoutingTimeType::"Setup Time", ConstrainedCapacity, ResourceIsConstrained, ParentWorkCenter, ParentIsConstrained)
             else
-                LoadCapBack(Type, "No.", 0, true);
+                LoadCapBack(Type, "No.", RoutingTimeType::"Setup Time", true);
         end;
 
         PlanningRoutingLine."Starting Date" := ProdEndingDate;
@@ -764,13 +764,13 @@ codeunit 99000810 "Calculate Planning Route Line"
             ProdStartingDate := "Starting Date";
             ProdStartingTime := "Starting Time";
             RemainNeedQty := SetupTime;
-            LoadCapForward(Type, "No.", 0, false);
+            LoadCapForward(Type, "No.", RoutingTimeType::"Setup Time", false);
             RemainNeedQty := RunTime;
-            LoadCapForward(Type, "No.", 1, false);
+            LoadCapForward(Type, "No.", RoutingTimeType::"Run Time", false);
             RemainNeedQty := WaitTime;
-            LoadCapForward(Type, "No.", 2, false);
+            LoadCapForward(Type, "No.", RoutingTimeType::"Wait Time", false);
             RemainNeedQty := MoveTime;
-            LoadCapForward(Type, "No.", 3, false);
+            LoadCapForward(Type, "No.", RoutingTimeType::"Move Time", false);
             PlanningRoutingLine := xPlanningRoutingLine;
 
             "Starting Date" := ProdStartingDate;
@@ -900,7 +900,7 @@ codeunit 99000810 "Calculate Planning Route Line"
             CalendarMgt.TimeFactor(WorkCenter."Unit of Measure Code"),
             WorkCenter."Calendar Rounding Precision");
         RemainNeedQty += InputQtyDiffTime;
-        LoadCapForward(PlanningRoutingLine.Type, PlanningRoutingLine."No.", 4, false);
+        LoadCapForward(PlanningRoutingLine.Type, PlanningRoutingLine."No.", RoutingTimeType::"Queue Time", false);
         RemainNeedQty := GetSetupTimeBaseUOM;
         UpdateDates := true;
 
@@ -908,9 +908,9 @@ codeunit 99000810 "Calculate Planning Route Line"
             ResourceIsConstrained := ConstrainedCapacity.Get(Type, "No.");
             ParentIsConstrained := ParentWorkCenter.Get(Type::"Work Center", "Work Center No.");
             if (RemainNeedQty > 0) and (ResourceIsConstrained or ParentIsConstrained) then
-                FinitelyLoadCapForward(0, ConstrainedCapacity, ResourceIsConstrained, ParentWorkCenter, ParentIsConstrained)
+                FinitelyLoadCapForward(RoutingTimeType::"Setup Time", ConstrainedCapacity, ResourceIsConstrained, ParentWorkCenter, ParentIsConstrained)
             else
-                LoadCapForward(Type, "No.", 0, true);
+                LoadCapForward(Type, "No.", RoutingTimeType::"Setup Time", true);
         end;
 
         FirstInBatch := true;
@@ -938,9 +938,9 @@ codeunit 99000810 "Calculate Planning Route Line"
                 ResourceIsConstrained := ConstrainedCapacity.Get(Type, "No.");
                 ParentIsConstrained := ParentWorkCenter.Get(Type::"Work Center", "Work Center No.");
                 if (RemainNeedQty > 0) and (ResourceIsConstrained or ParentIsConstrained) then
-                    FinitelyLoadCapForward(1, ConstrainedCapacity, ResourceIsConstrained, ParentWorkCenter, ParentIsConstrained)
+                    FinitelyLoadCapForward(RoutingTimeType::"Run Time", ConstrainedCapacity, ResourceIsConstrained, ParentWorkCenter, ParentIsConstrained)
                 else
-                    LoadCapForward(Type, "No.", 1, true);
+                    LoadCapForward(Type, "No.", RoutingTimeType::"Run Time", true);
             end;
 
             ProdStartingDate := PlanningRoutingLine."Ending Date";
@@ -953,14 +953,14 @@ codeunit 99000810 "Calculate Planning Route Line"
             CalendarMgt.TimeFactor(PlanningRoutingLine."Wait Time Unit of Meas. Code") /
             CalendarMgt.TimeFactor(WorkCenter."Unit of Measure Code"),
             WorkCenter."Calendar Rounding Precision");
-        LoadCapForward(PlanningRoutingLine.Type, PlanningRoutingLine."No.", 2, false);
+        LoadCapForward(PlanningRoutingLine.Type, PlanningRoutingLine."No.", RoutingTimeType::"Wait Time", false);
         RemainNeedQty :=
           Round(
             PlanningRoutingLine."Move Time" *
             CalendarMgt.TimeFactor(PlanningRoutingLine."Move Time Unit of Meas. Code") /
             CalendarMgt.TimeFactor(WorkCenter."Unit of Measure Code"),
             WorkCenter."Calendar Rounding Precision");
-        LoadCapForward(PlanningRoutingLine.Type, PlanningRoutingLine."No.", 3, false);
+        LoadCapForward(PlanningRoutingLine.Type, PlanningRoutingLine."No.", RoutingTimeType::"Move Time", false);
 
         PlanningRoutingLine.UpdateDatetime;
         PlanningRoutingLine.Modify();
@@ -1055,7 +1055,7 @@ codeunit 99000810 "Calculate Planning Route Line"
         ConCurrCap := PlanningRoutingLine."Concurrent Capacities";
         xConCurrCap := 1;
 
-        LastProdOrderCapNeed.SetFilters(PlanningRoutingLine.Type, PlanningRoutingLine."No.");
+        LastProdOrderCapNeed.SetCapacityFilters(PlanningRoutingLine.Type, PlanningRoutingLine."No.");
 
         CalendarEntry.SetCapacityFilters(PlanningRoutingLine.Type, PlanningRoutingLine."No.");
         CalendarEntry.SetFilter("Starting Date-Time", '<= %1', ProdEndingDateTime);
@@ -1159,7 +1159,6 @@ codeunit 99000810 "Calculate Planning Route Line"
         AbscenseAvailCap: Decimal;
         SetupTime: Decimal;
         DampTime: Decimal;
-        TimeTypeInt: Integer;
     begin
         CalculateDailyLoad(
           AvailCap, DampTime, CapacityConstrainedResource, ResourceIsConstrained, ParentCapacityConstrainedResource, ParentIsConstrained);
@@ -1172,10 +1171,9 @@ codeunit 99000810 "Calculate Planning Route Line"
           Round(AvailCap *
             CalendarMgt.TimeFactor(WorkCenter."Unit of Measure Code") *
             100 / CalendarEntry.Efficiency / ConCurrCap, 1, '>');
-        TimeTypeInt := TimeType;
         AbscenseAvailCap :=
           CalculateRoutingLine.CalcAvailQtyBase(
-            CalendarEntry, ProdEndingDate, ProdEndingTime, TimeTypeInt, ConCurrCap, IsForward,
+            CalendarEntry, ProdEndingDate, ProdEndingTime, TimeType, ConCurrCap, IsForward,
             CurrentTimeFactor, CurrentRounding);
         AvailCap := Min(AbscenseAvailCap, AvailCap);
     end;
@@ -1198,7 +1196,7 @@ codeunit 99000810 "Calculate Planning Route Line"
         ConCurrCap := PlanningRoutingLine."Concurrent Capacities";
         xConCurrCap := 1;
 
-        NextProdOrderCapNeed.SetFilters(PlanningRoutingLine.Type, PlanningRoutingLine."No.");
+        NextProdOrderCapNeed.SetCapacityFilters(PlanningRoutingLine.Type, PlanningRoutingLine."No.");
 
         CalendarEntry.SetCapacityFilters(PlanningRoutingLine.Type, PlanningRoutingLine."No.");
         CalendarEntry.SetFilter("Starting Date-Time", '>= %1', ProdStartingDateTimeSubOneDay);

@@ -30,7 +30,7 @@ codeunit 5971 "Service Header Apply"
             CustLedgEntry.SetRange(Open, true);
             CustLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
             if CustLedgEntry.FindFirst then begin
-                "Applies-to Doc. Type" := 0;
+                "Applies-to Doc. Type" := "Applies-to Doc. Type"::" ";
                 "Applies-to Doc. No." := '';
             end else
                 "Applies-to ID" := '';

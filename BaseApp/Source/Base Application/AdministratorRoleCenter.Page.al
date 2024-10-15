@@ -14,6 +14,14 @@ page 9018 "Administrator Role Center"
                 {
                     ApplicationArea = Basic, Suite;
                 }
+                part("User Tasks Activities"; "User Tasks Activities")
+                {
+                    ApplicationArea = Suite;
+                }
+                part("Emails"; "Email Activities")
+                {
+                    ApplicationArea = Basic, Suite;
+                }
                 part(Control58; "CRM Synch. Job Status Part")
                 {
                     ApplicationArea = Basic, Suite;
@@ -580,7 +588,7 @@ page 9018 "Administrator Role Center"
                     ApplicationArea = Basic, Suite;
                     Caption = 'SMTP Mai&l Setup';
                     Image = MailSetup;
-                    RunObject = Page "SMTP Mail Setup";
+                    RunObject = Codeunit "Open Mail Setup Page";
                     ToolTip = 'Set up the integration and security of the mail server at your site that handles email.';
                 }
                 action("Profile Quest&ionnaire Setup")

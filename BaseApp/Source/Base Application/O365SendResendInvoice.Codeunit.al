@@ -63,8 +63,7 @@ codeunit 2104 "O365 Send + Resend Invoice"
                 exit(false);
 
             EmailRecords(false);
-            SendTraceTag('0000243', SentInvoiceCategoryLbl, VERBOSITY::Normal,
-              InvoiceSentTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000243', InvoiceSentTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SentInvoiceCategoryLbl);
             Message(InvoiceSendingMsg);
         end;
 
@@ -94,8 +93,7 @@ codeunit 2104 "O365 Send + Resend Invoice"
                 "Document Type"::Quote:
                     begin
                         EmailRecords(false);
-                        SendTraceTag('0000244', EstimateCategoryLbl, VERBOSITY::Normal,
-                          QuoteSentTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
+                        Session.LogMessage('0000244', QuoteSentTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EstimateCategoryLbl);
                         if ShowMessage then
                             Message(EstimateSendingMsg);
                     end;
@@ -106,8 +104,7 @@ codeunit 2104 "O365 Send + Resend Invoice"
                             Invoice := true;
                             Ship := true;
                             if not Modify(true) then
-                                SendTraceTag('000079U', SentInvoiceCategoryLbl, VERBOSITY::Warning,
-                                  ModifyFailedBeforePostingTelemetryMsg, DATACLASSIFICATION::SystemMetadata);
+                                Session.LogMessage('000079U', ModifyFailedBeforePostingTelemetryMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SentInvoiceCategoryLbl);
                         end;
 
                         if GuiAllowed then begin
@@ -117,8 +114,7 @@ codeunit 2104 "O365 Send + Resend Invoice"
                         end;
 
                         SendToPosting(CODEUNIT::"Sales-Post + Email");
-                        SendTraceTag('0000245', DraftInvoiceCategoryLbl, VERBOSITY::Normal,
-                          DraftInvoiceSentTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
+                        Session.LogMessage('0000245', DraftInvoiceSentTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DraftInvoiceCategoryLbl);
                         if ShowMessage then
                             Message(InvoiceSendingMsg);
                     end;
@@ -191,7 +187,7 @@ codeunit 2104 "O365 Send + Resend Invoice"
                         Error(CustomerDoesNotExistQuoteErr, "Sell-to Customer Name");
                 end;
 
-            CheckNextNoSeriesIsAvailable("Document Type"::Invoice);
+            CheckNextNoSeriesIsAvailable("Document Type"::Invoice.AsInteger());
 
             // Verify all coupons are still valid
             O365CouponClaim.SetRange("Document Type Filter", "Document Type");

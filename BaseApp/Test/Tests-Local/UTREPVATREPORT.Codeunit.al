@@ -50,7 +50,7 @@ codeunit 144003 "UT REP VAT REPORT"
         CreateSalesDocumentAndVerifySalesDocumentTest(SalesLine."Document Type"::Invoice);
     end;
 
-    local procedure CreateSalesDocumentAndVerifySalesDocumentTest(DocumentType: Option)
+    local procedure CreateSalesDocumentAndVerifySalesDocumentTest(DocumentType: Enum "Sales Document Type")
     var
         VATPostingSetup: Record "VAT Posting Setup";
         SalesLine: Record "Sales Line";
@@ -79,7 +79,7 @@ codeunit 144003 "UT REP VAT REPORT"
         LibraryVariableStorage.Clear;
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Option)
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
     begin

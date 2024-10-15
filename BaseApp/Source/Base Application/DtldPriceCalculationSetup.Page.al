@@ -1,12 +1,9 @@
 page 7008 "Dtld. Price Calculation Setup"
 {
-    Caption = 'Detailed Price Calculation Setup';
+    Caption = 'Exceptions for';
     DataCaptionExpression = Heading;
     PageType = List;
     SourceTable = "Dtld. Price Calculation Setup";
-    // ApplicationArea and UsageCategory properties should be enabled by an extension
-    // ApplicationArea = Basic, Suite;
-    // UsageCategory = Administration;
     DelayedInsert = true;
 
     layout
@@ -16,89 +13,96 @@ page 7008 "Dtld. Price Calculation Setup"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(SetupCode; "Setup Code")
+                field(SetupCode; Rec."Setup Code")
                 {
-                    ApplicationArea = Suite;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a price calculation setup code.';
                     Visible = IsSetupCodeVisible;
                 }
-                field(CalculationMethod; Method)
+                field(CalculationMethod; Rec.Method)
                 {
-                    ApplicationArea = Suite;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a price calculation method.';
                     Visible = IsSetupCodeVisible;
                 }
-                field(Implementation; Implementation)
-                {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies a price calculation implemetation name.';
-                    Visible = IsSetupCodeVisible;
-                    DrillDown = false;
-                }
-                field(PriceType; Type)
+                field(PriceType; Rec.Type)
                 {
                     Visible = IsSetupCodeVisible;
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies what type of amount to calculate - price or cost.';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies what type of amount to calculate - sale or purchase.';
                 }
-                field(AssetType; "Asset Type")
+                field(AssetType; Rec."Asset Type")
                 {
-                    Visible = IsSetupCodeVisible;
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies an asset type.';
+                    Visible = IsAssetNoEditable;
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies a product type.';
                 }
-                field(AssetNo; "Asset No.")
+                field(AssetNo; Rec."Asset No.")
                 {
+                    Visible = IsAssetNoEditable;
                     Editable = IsAssetNoEditable;
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies an asset number.';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies a product number.';
                 }
-                field(SourceGroup; "Source Group")
+                field(SourceGroup; Rec."Source Group")
                 {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies a source group.';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies a source group (customer, vendor, job).';
                 }
-                field(SourceNo; "Source No.")
+                field(SourceNo; Rec."Source No.")
                 {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies a source number.';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies a number of the entity (customer, vendor, job) that prices are applied to.';
                 }
-                field(Enabled; Enabled)
+                field(Enabled; Rec.Enabled)
                 {
-                    ApplicationArea = Suite;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the implementation codeunit is enabled.';
+                }
+                field(Implementation; Rec.Implementation)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies a price calculation implementation name.';
+                    Editable = false;
+                    AssistEdit = true;
+
+                    trigger OnAssistEdit()
+                    begin
+                        PriceUXManagement.PickAlternateImplementation(Rec);
+                    end;
                 }
             }
         }
     }
 
-    var
-        IsSetupCodeVisible: Boolean;
-        IsAssetNoEditable: Boolean;
-        Heading: text;
-
     trigger OnOpenPage()
-    var
-        DtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup";
     begin
-        IsSetupCodeVisible := GetFilter("Setup Code") = '';
-        if not IsSetupCodeVisible then begin
-            DtldPriceCalculationSetup.Validate("Setup Code", GetRangeMax("Setup Code"));
-            Heading :=
-                StrSubstNo('%1 %2 (%3) %4',
-                    DtldPriceCalculationSetup.Type, DtldPriceCalculationSetup."Asset Type",
-                    DtldPriceCalculationSetup.Method, DtldPriceCalculationSetup.Implementation);
-        end;
-    end;
-
-    trigger OnAfterGetRecord()
-    begin
-        IsAssetNoEditable := "Asset Type" <> "Asset Type"::" ";
+        PriceUXManagement.TestAlternateImplementation(CurrPriceCalculationSetup);
+        Rec.FilterGroup(2);
+        Rec.SetRange("Group Id", CurrPriceCalculationSetup."Group Id");
+        Rec.FilterGroup(0);
+        IsSetupCodeVisible := CurrPriceCalculationSetup.Code = '';
+        IsAssetNoEditable := CurrPriceCalculationSetup."Asset Type" <> CurrPriceCalculationSetup."Asset Type"::" ";
+        Heading :=
+            StrSubstNo('%1 %2 (%3) %4',
+                CurrPriceCalculationSetup.Type, CurrPriceCalculationSetup."Asset Type",
+                CurrPriceCalculationSetup.Method, CurrPriceCalculationSetup.Implementation);
     end;
 
     trigger OnNewRecord(BelowXRec: Boolean)
     begin
-        if GetFilter("Setup Code") <> '' then
-            Validate("Setup Code", GetRangeMin("Setup Code"));
+        Rec.Validate("Setup Code", PriceUXManagement.GetFirstAlternateSetupCode(CurrPriceCalculationSetup));
+    end;
+
+    var
+        CurrPriceCalculationSetup: Record "Price Calculation Setup";
+        PriceUXManagement: Codeunit "Price UX Management";
+        IsSetupCodeVisible: Boolean;
+        IsAssetNoEditable: Boolean;
+        Heading: text;
+
+    procedure Set(PriceCalculationSetup: Record "Price Calculation Setup")
+    begin
+        CurrPriceCalculationSetup := PriceCalculationSetup;
     end;
 }

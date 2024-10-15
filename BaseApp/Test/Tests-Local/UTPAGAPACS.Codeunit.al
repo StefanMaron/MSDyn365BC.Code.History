@@ -111,7 +111,7 @@ codeunit 144010 "UT PAG APACS"
         PreviewCheckPaymentJournal(true, GenJournalLine."Account Type"::"Fixed Asset", CreateFixedAsset);
     end;
 
-    local procedure PreviewCheckPaymentJournal(CheckPrinted: Boolean; AccountType: Option; AccountNo: Code[20])
+    local procedure PreviewCheckPaymentJournal(CheckPrinted: Boolean; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         DocumentNo: Code[20];
     begin
@@ -182,7 +182,7 @@ codeunit 144010 "UT PAG APACS"
         exit(Vendor."No.");
     end;
 
-    local procedure CreateGenJournalLine(CheckPrinted: Boolean; AccountType: Option; AccountNo: Code[20]): Code[20]
+    local procedure CreateGenJournalLine(CheckPrinted: Boolean; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalLine2: Record "Gen. Journal Line";

@@ -232,7 +232,7 @@ report 10578 "Purchase - Credit Memo GB"
                         DataItemTableView = SORTING("Document No.", "Line No.");
                         column(LineAmt_PurchCrMemoLine; "Line Amount")
                         {
-                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Desc_PurchCrMemoLine; Description)
@@ -270,7 +270,7 @@ report 10578 "Purchase - Credit Memo GB"
                         }
                         column(DirUnitCost_PurchCrMemoLine; "Direct Unit Cost")
                         {
-                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode();
                             AutoFormatType = 2;
                         }
                         column(LineDisc_PurchCrMemoLine; "Line Discount %")
@@ -310,7 +310,7 @@ report 10578 "Purchase - Credit Memo GB"
                         }
                         column(InvDiscAmt_PurchCrMemoLine; -"Inv. Discount Amount")
                         {
-                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TotalText; TotalText)
@@ -318,7 +318,7 @@ report 10578 "Purchase - Credit Memo GB"
                         }
                         column(Amt_PurchCrMemoLine; Amount)
                         {
-                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TotalExclVATText; TotalExclVATText)
@@ -329,12 +329,12 @@ report 10578 "Purchase - Credit Memo GB"
                         }
                         column(AmtIncVAT_PurchCrMemoLine; "Amount Including VAT")
                         {
-                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmtIncVATAmt_PurchCrMemoLine; "Amount Including VAT" - Amount)
                         {
-                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATAmtLineVATAmtText; VATAmountLine.VATAmountText)
@@ -357,17 +357,17 @@ report 10578 "Purchase - Credit Memo GB"
                         }
                         column(AmountIncLCYAmountLCY; AmountIncLCY - AmountLCY)
                         {
-                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmountIncLCY; AmountIncLCY)
                         {
-                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmountLCY; AmountLCY)
                         {
-                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(LineNo_PurchCrMemoLine; "Line No.")
@@ -449,7 +449,7 @@ report 10578 "Purchase - Credit Memo GB"
                         begin
                             if (Type = Type::"G/L Account") and (not ShowInternalInfo) then
                                 "No." := '';
-                            TypeofPCML := Type;
+                            TypeofPCML := Type.AsInteger();
 
                             VATAmountLine.Init();
                             VATAmountLine."VAT Identifier" := "Purch. Cr. Memo Line"."VAT Identifier";

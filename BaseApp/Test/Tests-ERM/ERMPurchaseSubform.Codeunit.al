@@ -4104,7 +4104,7 @@ codeunit 134394 "ERM Purchase Subform"
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
     end;
 
-    local procedure CreatePurchaseHeaderWithCurrencyCode(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option): Code[10]
+    local procedure CreatePurchaseHeaderWithCurrencyCode(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"): Code[10]
     var
         CurrencyCode: Code[10];
     begin
@@ -4115,7 +4115,7 @@ codeunit 134394 "ERM Purchase Subform"
         exit(CurrencyCode);
     end;
 
-    local procedure CreatePurchaseDocumentWithCurrency(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var Item: Record Item; var CurrencyCode: Code[10]; DocumentType: Option; ExchangeRate: Decimal)
+    local procedure CreatePurchaseDocumentWithCurrency(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var Item: Record Item; var CurrencyCode: Code[10]; DocumentType: Enum "Purchase Document Type"; ExchangeRate: Decimal)
     begin
         CurrencyCode :=
           LibraryERM.CreateCurrencyWithExchangeRate(LibraryRandom.RandDate(-10), ExchangeRate, ExchangeRate);

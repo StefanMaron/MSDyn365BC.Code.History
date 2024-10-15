@@ -208,7 +208,7 @@ report 5801 "Invt. Valuation - Cost Spec."
             ValuationDate := WorkDate;
 
         for i := 1 to ArrayLen(EntryTypeDescription) do begin
-            ValueEntry."Entry Type" := i - 1;
+            ValueEntry."Entry Type" := "Cost Entry Type".FromInteger(i - 1);
             EntryTypeDescription[i] := Format(ValueEntry."Entry Type");
         end;
 
@@ -302,12 +302,12 @@ report 5801 "Invt. Valuation - Cost Spec."
             if Find('-') then
                 repeat
                     if "Partial Revaluation" then
-                        SumUnitCost(TotalCostTotal["Entry Type" + 1],
+                        SumUnitCost(TotalCostTotal["Entry Type".AsInteger() + 1],
                           "Cost Amount (Actual)" + "Cost Amount (Expected)", "Valued Quantity")
                     else
-                        SumUnitCost(TotalCostTotal["Entry Type" + 1],
+                        SumUnitCost(TotalCostTotal["Entry Type".AsInteger() + 1],
                           "Cost Amount (Actual)" + "Cost Amount (Expected)", ItemLedgerEntry.Quantity);
-                    NoOfEntries["Entry Type" + 1] := 1;
+                    NoOfEntries["Entry Type".AsInteger() + 1] := 1;
                 until Next = 0;
         end;
     end;

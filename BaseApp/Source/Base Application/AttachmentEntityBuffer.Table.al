@@ -2,6 +2,10 @@ table 5509 "Attachment Entity Buffer"
 {
     Caption = 'Attachment Entity Buffer';
     ReplicateData = false;
+    // TableType = Temporary;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Table will be marked as TableType=Temporary. Make sure  you are not using this table to store records';
+    ObsoleteTag = '17.0';
 
     fields
     {
@@ -27,6 +31,11 @@ table 5509 "Attachment Entity Buffer"
             Caption = 'Content';
             DataClassification = SystemMetadata;
             SubType = Bitmap;
+        }
+        field(12; "Document Type"; Enum "Attachment Entity Buffer Document Type")
+        {
+            Caption = 'Document Type';
+            DataClassification = SystemMetadata;
         }
         field(8000; Id; Guid)
         {

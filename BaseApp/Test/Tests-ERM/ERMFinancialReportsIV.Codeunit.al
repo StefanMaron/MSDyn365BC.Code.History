@@ -21,12 +21,12 @@ codeunit 134992 "ERM Financial Reports IV"
         LibraryReportValidation: Codeunit "Library - Report Validation";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        PostingDateError: Label 'Enter the posting date.';
-        DocumentNoError: Label 'Enter the document no.';
-        SettlementAccountError: Label 'Enter the settlement account.';
+        PostingDateErr: Label 'Enter the posting date.';
+        DocumentNoErr: Label 'Enter the document no.';
+        SettlementAccountErr: Label 'Enter the settlement account';
         IsInitialized: Boolean;
-        SameAmountError: Label 'Amount must be same.';
-        NoDataRowErr: Label 'There is no dataset row corresponding to Element Name %1 with value %2';
+        SameAmountErr: Label 'Amount must be same.';
+        NoDataRowErr: Label 'There is no dataset row corresponding to Element Name %1 with value %2', Comment = '%1 = Element Name, %2 = Element Value';
         TooManyWorksheetsErr: Label 'Expected single worksheet';
 
     [Test]
@@ -37,7 +37,7 @@ codeunit 134992 "ERM Financial Reports IV"
         GenJournalLine: Record "Gen. Journal Line";
         VATPostingSetup: Record "VAT Posting Setup";
         Vendor: Record Vendor;
-        Selection: Option Open,Closed,"Open and Closed";
+        Selection: Enum "VAT Statement Report Selection";
     begin
         // Test VAT Statement Report for Purchase with Open VAT Entries.
 
@@ -60,7 +60,7 @@ codeunit 134992 "ERM Financial Reports IV"
         Customer: Record Customer;
         GenJournalLine: Record "Gen. Journal Line";
         VATPostingSetup: Record "VAT Posting Setup";
-        Selection: Option Open,Closed,"Open and Closed";
+        Selection: Enum "VAT Statement Report Selection";
     begin
         // Test VAT Statement Report for Sales with Open VAT Entries.
 
@@ -82,7 +82,7 @@ codeunit 134992 "ERM Financial Reports IV"
     var
         VATPostingSetup: Record "VAT Posting Setup";
         VATEntry: Record "VAT Entry";
-        Selection: Option Open,Closed,"Open and Closed";
+        Selection: Enum "VAT Statement Report Selection";
     begin
         // Test VAT Statement Report for Purchase with Closed VAT Entries.
 
@@ -101,7 +101,7 @@ codeunit 134992 "ERM Financial Reports IV"
     var
         VATPostingSetup: Record "VAT Posting Setup";
         VATEntry: Record "VAT Entry";
-        Selection: Option Open,Closed,"Open and Closed";
+        Selection: Enum "VAT Statement Report Selection";
     begin
         // Test VAT Statement Report for Sales with Closed VAT Entries.
 
@@ -131,7 +131,7 @@ codeunit 134992 "ERM Financial Reports IV"
         asserterror CalcAndPostVATSettlement.Run;
 
         // Verify: Verify that Posting Date not filled error appears.
-        Assert.ExpectedError(StrSubstNo(PostingDateError));
+        Assert.ExpectedError(StrSubstNo(PostingDateErr));
     end;
 
     [Test]
@@ -152,7 +152,7 @@ codeunit 134992 "ERM Financial Reports IV"
         asserterror CalcAndPostVATSettlement.Run;
 
         // Verify: Verify that Document No. not filled error appears.
-        Assert.ExpectedError(StrSubstNo(DocumentNoError));
+        Assert.ExpectedError(StrSubstNo(DocumentNoErr));
     end;
 
     [Test]
@@ -173,7 +173,7 @@ codeunit 134992 "ERM Financial Reports IV"
         asserterror CalcAndPostVATSettlement.Run;
 
         // Verify: Verify that Settement Account No. not filled error appears.
-        Assert.ExpectedError(StrSubstNo(SettlementAccountError));
+        Assert.ExpectedError(StrSubstNo(SettlementAccountErr));
     end;
 
     [Test]
@@ -275,10 +275,10 @@ codeunit 134992 "ERM Financial Reports IV"
         LibraryReportDataset.SetRange('VATRegNo', Customer."VAT Registration No.");
         Assert.AreEqual(
           -CalculateBase(Customer."No.", 'Yes|No'), LibraryReportDataset.Sum('TotalValueofItemSupplies'),
-          SameAmountError);
+          SameAmountErr);
         Assert.AreEqual(
           -CalculateBase(Customer."No.", 'Yes'), LibraryReportDataset.Sum('EU3PartyItemTradeAmt'),
-          SameAmountError);
+          SameAmountErr);
     end;
 
     [Test]
@@ -483,7 +483,7 @@ codeunit 134992 "ERM Financial Reports IV"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Financial Reports IV");
     end;
 
-    local procedure FindVATPostingSetupFromVATEntries(var VATPostingSetup: Record "VAT Posting Setup"; EntryType: Option)
+    local procedure FindVATPostingSetupFromVATEntries(var VATPostingSetup: Record "VAT Posting Setup"; EntryType: Enum "Tax Calculation Type")
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -496,7 +496,7 @@ codeunit 134992 "ERM Financial Reports IV"
         end;
     end;
 
-    local procedure CalcAndPostVATSettlementWithPostingOption(AccountType: Option; AccountNo: Code[20]; GenPostingType: Option; SignFactor: Integer; Post: Boolean)
+    local procedure CalcAndPostVATSettlementWithPostingOption(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; GenPostingType: Enum "General Posting Type"; SignFactor: Integer; Post: Boolean)
     var
         VATPostingSetup: Record "VAT Posting Setup";
         VATEntry: Record "VAT Entry";
@@ -515,7 +515,7 @@ codeunit 134992 "ERM Financial Reports IV"
         LibraryReportDataset.AssertElementWithValueExists('GenJnlLineVATAmount', Amount);
     end;
 
-    local procedure CalculateVATEntryAmount(var VATEntry: Record "VAT Entry"; VATPostingSetup: Record "VAT Posting Setup"; Type: Option; Closed: Boolean) TotalAmount: Decimal
+    local procedure CalculateVATEntryAmount(var VATEntry: Record "VAT Entry"; VATPostingSetup: Record "VAT Posting Setup"; Type: Enum "Tax Calculation Type"; Closed: Boolean) TotalAmount: Decimal
     begin
         VATEntry.SetRange(Type, Type);
         VATEntry.SetRange(Closed, Closed);
@@ -525,7 +525,7 @@ codeunit 134992 "ERM Financial Reports IV"
         TotalAmount := VATEntry.Amount;
     end;
 
-    local procedure CreateAndPostGeneralJournalLine(var VATPostingSetup: Record "VAT Posting Setup"; AccountType: Option; AccountNo: Code[20]; GenPostingType: Option; SignFactor: Integer)
+    local procedure CreateAndPostGeneralJournalLine(var VATPostingSetup: Record "VAT Posting Setup"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; GenPostingType: Enum "General Posting Type"; SignFactor: Integer)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
@@ -555,7 +555,7 @@ codeunit 134992 "ERM Financial Reports IV"
         Customer.Modify(true);
     end;
 
-    local procedure CreateGLAccountWithVAT(VATPostingSetup: Record "VAT Posting Setup"; GenPostingType: Option): Code[20]
+    local procedure CreateGLAccountWithVAT(VATPostingSetup: Record "VAT Posting Setup"; GenPostingType: Enum "General Posting Type"): Code[20]
     var
         GeneralPostingSetup: Record "General Posting Setup";
         GLAccount: Record "G/L Account";
@@ -571,7 +571,7 @@ codeunit 134992 "ERM Financial Reports IV"
         exit(GLAccount."No.");
     end;
 
-    local procedure CreateVATStatementTemplateAndLine(var VATStatementLine: Record "VAT Statement Line"; VATPostingSetup: Record "VAT Posting Setup"; GenPostingType: Option)
+    local procedure CreateVATStatementTemplateAndLine(var VATStatementLine: Record "VAT Statement Line"; VATPostingSetup: Record "VAT Posting Setup"; GenPostingType: Enum "General Posting Type")
     var
         VATStatementTemplate: Record "VAT Statement Template";
         VATStatementName: Record "VAT Statement Name";
@@ -632,7 +632,7 @@ codeunit 134992 "ERM Financial Reports IV"
         exit(Item."No.");
     end;
 
-    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Option; No: Code[20])
+    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; No: Code[20])
     begin
         // Create Sales Document with Random Quantity and Unit Price.
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, LibraryRandom.RandDec(100, 2) * 100);
@@ -673,7 +673,7 @@ codeunit 134992 "ERM Financial Reports IV"
         VATEntry.FindSet;
     end;
 
-    local procedure PostSalesOrderWithVATSetup(CustomerNo: Code[20]; EU3PartyTrade: Boolean; Type: Option; No: Code[20])
+    local procedure PostSalesOrderWithVATSetup(CustomerNo: Code[20]; EU3PartyTrade: Boolean; Type: Enum "Sales Line Type"; No: Code[20])
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -700,7 +700,7 @@ codeunit 134992 "ERM Financial Reports IV"
         CalcAndPostVATSettlement.Run;
     end;
 
-    local procedure SaveVATStatementReport(Name: Code[10]; Selection: Option; PeriodSelection: Option)
+    local procedure SaveVATStatementReport(Name: Code[10]; Selection: Enum "VAT Statement Report Selection"; PeriodSelection: Enum "VAT Statement Report Period Selection")
     var
         VATStatementLine: Record "VAT Statement Line";
         VATStatementName: Record "VAT Statement Name";
@@ -724,12 +724,12 @@ codeunit 134992 "ERM Financial Reports IV"
         PurchasesPayablesSetup.Modify(true);
     end;
 
-    local procedure VATStatementForDifferentEntries(VATPostingSetup: Record "VAT Posting Setup"; EntryType: Option; Selection: Option; Closed: Boolean)
+    local procedure VATStatementForDifferentEntries(VATPostingSetup: Record "VAT Posting Setup"; EntryType: Enum "Tax Calculation Type"; Selection: Enum "VAT Statement Report Selection"; Closed: Boolean)
     var
         VATStatementLine: Record "VAT Statement Line";
         VATStatementTemplate: Record "VAT Statement Template";
         VATEntry: Record "VAT Entry";
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
         Amount: Decimal;
     begin
         // Calculate VAT Entry Amount according to entry type, Create VAT Statement Template and VAT Statement Line.
@@ -769,11 +769,11 @@ codeunit 134992 "ERM Financial Reports IV"
         LibraryReportDataset.LoadDataSetFile;
         Assert.AreEqual(
           LibraryReportDataset.Sum('GenJnlLineVATBaseAmount'), -VATEntry.Base,
-          SameAmountError);
+          SameAmountErr);
 
         Assert.AreEqual(
           LibraryReportDataset.Sum('GenJnlLineVATAmount'), -VATEntry.Amount,
-          SameAmountError);
+          SameAmountErr);
     end;
 
     [RequestPageHandler]

@@ -19,12 +19,13 @@ codeunit 99000769 "Production BOM-Check"
         RtngLine: Record "Routing Line";
         MfgSetup: Record "Manufacturing Setup";
         VersionMgt: Codeunit VersionManagement;
-        CalcLowLevel: Codeunit "Calculate Low-Level Code";
         Window: Dialog;
         NoOfItems: Integer;
         ItemCounter: Integer;
 
     procedure "Code"(var ProdBOMHeader: Record "Production BOM Header"; VersionCode: Code[20])
+    var
+        CalcLowLevel: Codeunit "Calculate Low-Level Code";
     begin
         ProdBOMHeader.TestField("Unit of Measure Code");
         MfgSetup.Get();

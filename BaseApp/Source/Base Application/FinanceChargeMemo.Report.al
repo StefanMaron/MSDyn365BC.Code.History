@@ -281,7 +281,7 @@ report 118 "Finance Charge Memo"
                     }
                     column(AmtVATAmt_IssuedFinChrgMemoHeader; Amount + "VAT Amount")
                     {
-                        AutoFormatExpression = "Issued Fin. Charge Memo Line".GetCurrencyCode;
+                        AutoFormatExpression = "Issued Fin. Charge Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
                     column(TotalInclVATText; TotalInclVATText)
