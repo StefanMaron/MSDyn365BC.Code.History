@@ -72,6 +72,7 @@ page 5932 "Report Selection - Service"
 
     trigger OnOpenPage()
     begin
+        InitUsageFilter();
         SetUsageFilter(false);
     end;
 
@@ -103,6 +104,34 @@ page 5932 "Report Selection - Service"
         end;
         FilterGroup(0);
         CurrPage.Update;
+    end;
+
+    local procedure InitUsageFilter()
+    var
+        DummyReportSelections: Record "Report Selections";
+    begin
+        if GetFilter(Usage) <> '' then begin
+            if Evaluate(DummyReportSelections.Usage, GetFilter(Usage)) then
+                case DummyReportSelections.Usage of
+                    Usage::"SM.Quote":
+                        ReportUsage2 := ReportUsage2::Quote;
+                    Usage::"SM.Order":
+                        ReportUsage2 := ReportUsage2::Order;
+                    Usage::"SM.Shipment":
+                        ReportUsage2 := ReportUsage2::Shipment;
+                    Usage::"SM.Invoice":
+                        ReportUsage2 := ReportUsage2::Invoice;
+                    Usage::"SM.Credit Memo":
+                        ReportUsage2 := ReportUsage2::"Credit Memo";
+                    Usage::"SM.Contract Quote":
+                        ReportUsage2 := ReportUsage2::"Contract Quote";
+                    Usage::"SM.Contract":
+                        ReportUsage2 := ReportUsage2::Contract;
+                    Usage::"SM.Test":
+                        ReportUsage2 := ReportUsage2::"Service Document - Test";
+                end;
+            SetRange(Usage);
+        end;
     end;
 }
 

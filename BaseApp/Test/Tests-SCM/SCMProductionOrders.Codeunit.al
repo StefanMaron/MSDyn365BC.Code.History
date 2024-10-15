@@ -44,7 +44,7 @@ codeunit 137069 "SCM Production Orders"
         FirmPlannedProdOrderCreatedTxt: Label 'Firm Planned Prod. Order';
         SerialNoErr: Label 'Serial No does not exist.';
         NumberOfLineEqualErr: Label 'Number of Lines must be same.';
-        QtyToHandleErr: Label 'Qty. to Handle (Base) in Tracking Specification for Item No';
+        QtyToHandleErr: Label 'Qty. to Handle (Base) in the item tracking assigned to the document line for item';
         LotNoErr: Label 'You must assign a lot number for item %1.', Comment = '%1 - Item No.';
         ProductionBOMCertifiedStatusErr: Label 'Status must be equal to ''Certified''  in Production BOM Header';
         ProductionOrderErr: Label 'The Production Order does not exist';

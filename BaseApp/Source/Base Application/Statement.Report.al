@@ -934,7 +934,7 @@ report 116 Statement
         LastStatmntNo_CustCaptionLbl: Label 'Statement No.';
         PostDate_DtldCustLedgEntriesCaptionLbl: Label 'Posting Date';
         DueDate_CustLedgEntry2CaptionLbl: Label 'Due Date';
-        CustBalanceCaptionLbl: Label 'Balance';
+        CustBalanceCaptionLbl: Label 'Running Total';
         CustBalanceAmt_CustLedgEntryHdrCaptionLbl: Label 'Continued';
         CustBal_CustLedgEntryFooterCaptionLbl: Label 'Total';
         RemainAmt_CustLedgEntry2CaptionLbl: Label 'Continued';
