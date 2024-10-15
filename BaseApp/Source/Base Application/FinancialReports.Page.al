@@ -66,6 +66,25 @@ page 108 "Financial Reports"
     {
         area(processing)
         {
+            action(ViewFinancialReport)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'View Financial Report';
+                Image = View;
+                Promoted = true;
+                PromotedCategory = Process;
+                ToolTip = 'View the financial report.';
+                AboutTitle = 'View Financial Report';
+                AboutText = 'This action will open the financial report in a sandbox like environment, where all changes are saved to the user and not the report';
+                trigger OnAction()
+                var
+                    AccScheduleOverview: Page "Acc. Schedule Overview";
+                begin
+                    AccScheduleOverview.SetFinancialReportName(Rec.Name);
+                    AccScheduleOverview.SetViewOnlyMode(true);
+                    AccScheduleOverview.Run();
+                end;
+            }
             action(EditRowGroup)
             {
                 ApplicationArea = Basic, Suite;
@@ -168,8 +187,9 @@ page 108 "Financial Reports"
                 Promoted = true;
                 PromotedCategory = Process;
                 PromotedIsBig = true;
-                ToolTip = 'Edit the selected financial report.';
-
+                AboutTitle = 'Edit Financial Report';
+                AboutText = 'This action will open the financial report in edit mode, where all changes are visible to other users';
+                ToolTip = 'Edit the default values on the selected financial report.';
                 trigger OnAction()
                 var
                     AccSchedOverview: Page "Acc. Schedule Overview";

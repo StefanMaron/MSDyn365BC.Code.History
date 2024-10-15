@@ -151,6 +151,11 @@ page 5335 "Integration Table Mapping List"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the action to take when a coupled record is updated in both of the connected applications.';
                 }
+                field("Disable Event Job Resch."; Rec."Disable Event Job Resch.")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies if event-based rescheduling of synchronization jobs should be turned off for this table mapping.';
+                }
             }
         }
     }
