@@ -583,6 +583,82 @@ codeunit 142072 "UT PAG SWS46"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyPaymentDiscountDeductionOnPaymentJournalDetailFactfox()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        InvoiceNo: Code[20];
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [Payment Journal]
+        // [SCENARIO 469089] The "Payment Journal Details factbox displays incorrect figures for Payment Discount Deduction
+        ResetGenJnlTemplate();
+
+        // [GIVEN] Create new Vendor "V" and Posted Invoice "I" with Amount "X"
+        VendorNo := CreateVendorWithPmtTerms();
+        InvoiceNo := PostGenJournalInvoice(GenJournalLine."Account Type"::Vendor, VendorNo, -LibraryRandom.RandDec(1000, 2));
+
+        // [THEN] Find Posted Vendor Ledger Entry based on Posted "I"
+        FindVendorLedgerEntry(InvoiceNo, VendorNo, VendorLedgerEntry);
+
+        // [GIVEN] Payment Journal "J" with "V" in "Account No."
+        CreateGeneralJournalLine(GenJournalLine, GenJournalTemplate.Type::Payments);
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        UpdateGenJournalLineAmountAndAccount(
+            GenJournalLine,
+            -(VendorLedgerEntry."Remaining Amount" - VendorLedgerEntry."Remaining Pmt. Disc. Possible"),
+            GenJournalLine."Account Type"::Vendor,
+            VendorNo);
+
+        // [WHEN] "I" is applied to "J"
+        UpdateAppliesToDocPaymentJournal(VendorLedgerEntry, GenJournalLine."Journal Batch Name");
+
+        // [THEN] "Payment" = -"X" and "Remaining After Payment" = 0 in Payment Journal Fact Box"
+        VerifyPaymentAmountsPaymentJournalWithAppliedEntries(GenJournalLine, -GenJournalLine.Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyVendorEntriesHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyPaymentDiscountDeductionOnPaymentJournalDetailFactfoxWithAppliedEntries()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        InvoiceNo: Code[20];
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [Payment Journal]
+        // [SCENARIO 469089] The "Payment Journal Details factbox displays incorrect figures for Payment Discount Deduction
+        // [GIVEN] Posted Invoice "I" with Amount "X" for Vendor "V"
+        ResetGenJnlTemplate();
+
+        // [GIVEN] Create new Vendor "V" and Posted Invoice "I" with Amount "X"
+        VendorNo := CreateVendorWithPmtTerms();
+        InvoiceNo := PostGenJournalInvoice(GenJournalLine."Account Type"::Vendor, VendorNo, -LibraryRandom.RandDec(100, 2));
+
+        // [THEN] Find Posted Vendor Ledger Entry based on Posted "I"
+        FindVendorLedgerEntry(InvoiceNo, VendorNo, VendorLedgerEntry);
+
+        // [GIVEN] Payment Journal "J" with "V" in "Account No."
+        CreateGeneralJournalLine(GenJournalLine, GenJournalTemplate.Type::Payments);
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        UpdateGenJournalLineAmountAndAccount(
+            GenJournalLine,
+            -(VendorLedgerEntry."Remaining Amount" - VendorLedgerEntry."Remaining Pmt. Disc. Possible"),
+            GenJournalLine."Account Type"::Vendor,
+            VendorNo);
+
+        // [WHEN] "I" is applied to "J"
+        UpdateAppliesToDocPaymentJournalWithAppliedEntries(GenJournalLine."Journal Batch Name");
+
+        // [THEN] "Payment" = -"X" and "Remaining After Payment" = 0 in Payment Journal Fact Box"
+        VerifyPaymentAmountsPaymentJournalWithAppliedEntries(GenJournalLine, -GenJournalLine.Amount);
+    end;
+
     local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Enum "Gen. Journal Template Type")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -911,6 +987,23 @@ codeunit 142072 "UT PAG SWS46"
     begin
         GenJournalTemplate.SetRange("No. Series", '');
         GenJournalTemplate.DeleteAll();
+    end;
+
+    local procedure CreateVendorWithPmtTerms(): Code[20]
+    var
+        Vendor: Record Vendor;
+        PaymentTerms: Record "Payment Terms";
+    begin
+        LibraryERM.CreatePaymentTerms(PaymentTerms);
+        Evaluate(PaymentTerms."Due Date Calculation", '<1M>');
+        Evaluate(PaymentTerms."Discount Date Calculation", '<8D>');
+        PaymentTerms.Validate("Discount %", LibraryRandom.RandInt(90));
+        PaymentTerms.Modify();
+
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Payment Terms Code", PaymentTerms.Code);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     [ModalPageHandler]
