@@ -6110,9 +6110,7 @@
             LockTable();
             if FindSet() then
                 repeat
-                    if not ZeroAmountLine(QtyType) and
-                       ((PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice) or ("Prepmt. Amt. Inv." = 0))
-                    then begin
+                    if not ZeroAmountLine(QtyType) then begin
                         OnUpdateVATOnLinesOnBeforeProcessPurchLine(PurchLine, PurchHeader, VATAmountLine, QtyType);
                         DeferralAmount := GetDeferralAmount;
                         VATAmountLine.Get("VAT Identifier", "VAT Calculation Type", "Tax Group Code", "Tax Area Code", "Use Tax", "Line Amount" >= 0);
