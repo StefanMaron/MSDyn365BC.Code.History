@@ -802,7 +802,7 @@
                                     RunIncrementDocumentNo(true);
                                     TempPaymentBuffer.Amount := TempPayableVendorLedgerEntry.Amount;
                                     Window2.Update(1, VendLedgEntry."Vendor No.");
-                                    OnMakeGenJnlLinesOnBeforeTempPaymentBufferInsert(TempPaymentBuffer, VendLedgEntry);
+                                    OnMakeGenJnlLinesOnBeforeTempPaymentBufferInsert(TempPaymentBuffer, VendLedgEntry, TempPayableVendorLedgerEntry);
                                     TempPaymentBuffer.Insert();
                                 end;
                                 VendLedgEntry."Applies-to ID" := TempPaymentBuffer."Document No.";
@@ -1326,7 +1326,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnMakeGenJnlLinesOnBeforeTempPaymentBufferInsert(var TempPaymentBuffer: Record "Payment Buffer" temporary; VendorLederEntry: Record "Vendor Ledger Entry")
+    local procedure OnMakeGenJnlLinesOnBeforeTempPaymentBufferInsert(var TempPaymentBuffer: Record "Payment Buffer" temporary; VendorLederEntry: Record "Vendor Ledger Entry"; TempPayableVendorLedgerEntry: Record "Payable Vendor Ledger Entry" temporary)
     begin
     end;
 

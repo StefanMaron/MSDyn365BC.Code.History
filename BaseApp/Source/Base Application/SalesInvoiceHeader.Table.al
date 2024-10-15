@@ -1123,7 +1123,7 @@ table 112 "Sales Invoice Header"
     begin
         TempBlob.FromRecord(Rec, FieldNo("Work Description"));
         TempBlob.CreateInStream(InStream, TEXTENCODING::UTF8);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
+        exit(TypeHelper.TryReadAsTextWithSepAndFieldErrMsg(InStream, TypeHelper.LFSeparator(), FieldName("Work Description")));
     end;
 
     procedure GetCurrencySymbol(): Text[10]

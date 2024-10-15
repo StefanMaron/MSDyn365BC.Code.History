@@ -1916,6 +1916,13 @@ codeunit 6516 "Package Management"
             Error(InventoryNotAvailableOrReservedErr, WhseActivLine.FieldCaption("Package No."), WhseActivLine."Package No.");
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse.-Activity-Post", 'OnAfterAvailabilityError', '', false, false)]
+    local procedure WhseActivityPostOnAfterAvailabilityError(WhseActivLine: Record "Warehouse Activity Line")
+    begin
+        if WhseActivLine."Package No." <> '' then
+            Error(InventoryNotAvailableOrReservedErr, WhseActivLine.FieldCaption("Package No."), WhseActivLine."Package No.");
+    end;
+
     // ItemTrackingDataCollection.Codeunit.al
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Data Collection", 'OnAssistEditTrackingNoOnLookupModeElseCase', '', false, false)]

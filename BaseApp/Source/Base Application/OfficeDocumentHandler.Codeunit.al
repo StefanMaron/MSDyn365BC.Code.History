@@ -287,7 +287,13 @@ codeunit 1637 "Office Document Handler"
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnOpenIndividualSalesDocumentOnBeforeOpenPage(TempOfficeDocumentSelection, TempOfficeAddinContext, IsHandled);
+        if IsHandled then
+            exit;
+
         with TempOfficeDocumentSelection do
             if not Posted then
                 if SalesHeader.Get("Document Type", "Document No.") then
@@ -317,7 +323,13 @@ codeunit 1637 "Office Document Handler"
         PurchaseHeader: Record "Purchase Header";
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnOpenIndividualPurchaseDocumentOnBeforeOpenPage(TempOfficeDocumentSelection, TempOfficeAddinContext, IsHandled);
+        if IsHandled then
+            exit;
+
         with TempOfficeDocumentSelection do
             if not Posted then
                 if PurchaseHeader.Get("Document Type", "Document No.") then
@@ -540,6 +552,16 @@ codeunit 1637 "Office Document Handler"
 
     [IntegrationEvent(false, false)]
     local procedure OnGenerateLinesFromText(var HeaderRecRef: RecordRef; var TempOfficeSuggestedLineItem: Record "Office Suggested Line Item" temporary; EmailBody: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenIndividualSalesDocumentOnBeforeOpenPage(var TempOfficeDocumentSelection: Record "Office Document Selection" temporary; var TempOfficeAddinContext: Record "Office Add-in Context" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenIndividualPurchaseDocumentOnBeforeOpenPage(var TempOfficeDocumentSelection: Record "Office Document Selection" temporary; var TempOfficeAddinContext: Record "Office Add-in Context" temporary; var IsHandled: Boolean)
     begin
     end;
 }

@@ -5,7 +5,6 @@ page 1803 "Assisted Company Setup Wizard"
     InsertAllowed = false;
     LinksAllowed = false;
     PageType = NavigatePage;
-    PromotedActionCategories = 'New,Process,Report,Step 4,Step 5';
     ShowFilter = false;
     SourceTable = "Config. Setup";
     SourceTableTemporary = true;
@@ -53,53 +52,58 @@ page 1803 "Assisted Company Setup Wizard"
                     InstructionalText = 'Choose Next so you can specify basic company information.';
                 }
             }
+#if not CLEAN21
+#pragma warning disable
             group(Control18)
             {
                 ShowCaption = false;
-                Visible = SelectTypeVisible AND TypeSelectionEnabled;
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Configuration package importing logic is seperated from this wizard, after introducting checklist.';
+                ObsoleteTag = '21.0';
                 group("Standard Setup")
                 {
                     Caption = 'Standard Setup';
                     InstructionalText = 'The company will be ready to use when Setup has completed.';
-                    Visible = StandardVisible;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Configuration package importing logic is seperated from this wizard, after introducting checklist.';
+                    ObsoleteTag = '21.0';
                     field(Standard; TypeStandard)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Set up as Standard';
-
-                        trigger OnValidate()
-                        begin
-                            if TypeStandard then
-                                TypeEvaluation := false;
-                            CalcCompanyData();
-                        end;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Configuration package importing logic is seperated from this wizard, after introducting checklist.';
+                        ObsoleteTag = '21.0';
                     }
                 }
                 group("Evaluation Setup")
                 {
                     Caption = 'Evaluation Setup';
                     InstructionalText = 'The company will be set up in demonstration mode for exploring and testing.';
-                    Visible = EvaluationVisible;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Configuration package importing logic is seperated from this wizard, after introducting checklist.';
+                    ObsoleteTag = '21.0';
                     field(Evaluation; TypeEvaluation)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Set up as Evaluation';
-
-                        trigger OnValidate()
-                        begin
-                            if TypeEvaluation then
-                                TypeStandard := false;
-                            CalcCompanyData();
-                        end;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Configuration package importing logic is seperated from this wizard, after introducting checklist.';
+                        ObsoleteTag = '21.0';
                     }
                 }
                 group(Important)
                 {
                     Caption = 'Important';
                     InstructionalText = 'You cannot change your choice of setup after you choose Next.';
-                    Visible = TypeStandard OR TypeEvaluation;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Configuration package importing logic is seperated from this wizard, after introducting checklist.';
+                    ObsoleteTag = '21.0';
                 }
             }
+#pragma warning restore
+#endif
             group(Control56)
             {
                 ShowCaption = false;
@@ -502,9 +506,6 @@ page 1803 "Assisted Company Setup Wizard"
 
                 trigger OnAction()
                 begin
-                    if (Step = Step::"Select Type") and not (TypeStandard or TypeEvaluation) then
-                        if not Confirm(NoSetupTypeSelectedQst, false) then
-                            Error('');
                     NextStep(false);
                 end;
             }
@@ -522,10 +523,8 @@ page 1803 "Assisted Company Setup Wizard"
                     AssistedCompanySetup: Codeunit "Assisted Company Setup";
                     ErrorText: Text;
                 begin
-                    StartConfigPackageImport();
-                    AssistedCompanySetup.WaitForPackageImportToComplete();
                     BankAccount.TransferFields(TempBankAccount, true);
-                    AssistedCompanySetup.ApplyUserInput(Rec, BankAccount, AccountingPeriodStartDate, TypeEvaluation);
+                    AssistedCompanySetup.ApplyUserInput(Rec, BankAccount, AccountingPeriodStartDate, false);
 
                     UpdateCompanyDisplayNameIfNameChanged();
 
@@ -559,12 +558,10 @@ page 1803 "Assisted Company Setup Wizard"
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        CompanyData := CompanyData::None;
         Clear(AccountingPeriodStartDate);
 
         ResetWizardControls();
         ShowIntroStep();
-        TypeSelectionEnabled := LoadConfigTypes() and not PackageImported();
 
         if EnvironmentInfo.IsSaaS() then
             GetCompanyDetailsFromMicrosoft365();
@@ -594,30 +591,26 @@ page 1803 "Assisted Company Setup Wizard"
 #if not CLEAN19
         InventorySetup: Record "Inventory Setup";
 #endif
-        AssistedCompanySetup: Codeunit "Assisted Company Setup";
         ClientTypeManagement: Codeunit "Client Type Management";
         CompanyInfoNotification: Notification;
         AccountingPeriodStartDate: Date;
 #if not CLEAN19
         UserAccountingPeriodStartDate: Date;
 #endif
-        CompanyData: Option "Evaluation Data","Standard Data","None","Extended Data","Full No Data";
+#if not CLEAN21
         TypeStandard: Boolean;
         TypeEvaluation: Boolean;
-        Step: Option Intro,Sync,"Select Type","Company Details","Communication Details","Payment Details",Done;
+#endif
+        Step: Option Intro,"Company Details","Communication Details","Payment Details",Done;
         BackEnabled: Boolean;
         NextEnabled: Boolean;
         FinishEnabled: Boolean;
         TopBannerVisible: Boolean;
         IntroVisible: Boolean;
-        SelectTypeVisible: Boolean;
         CompanyDetailsVisible: Boolean;
         CommunicationDetailsVisible: Boolean;
         PaymentDetailsVisible: Boolean;
         DoneVisible: Boolean;
-        TypeSelectionEnabled: Boolean;
-        StandardVisible: Boolean;
-        EvaluationVisible: Boolean;
 #if not CLEAN19
         SkipAccountingPeriod: Boolean;
 #endif
@@ -626,7 +619,6 @@ page 1803 "Assisted Company Setup Wizard"
         NotificationSent: Boolean;
         CompanyInfoDownloadedMsg: Label 'The information on this page was downloaded from Microsoft 365. Before you proceed, verify that it''s correct.';
         NotSetUpQst: Label 'The application is not set up. This guide will display the next time you sign in. If you do not want the guide to start, go to the Companies page and turn off the guide.\\Are you sure that you want to close this guide?';
-        NoSetupTypeSelectedQst: Label 'You have not selected a type of setup. If you proceed, Business Central will not be fully functional until you manually complete the required setups, or run this assisted setup guide again.\\Do you want to continue?';
         HelpLbl: Label 'Learn more about setting up your company';
         HelpLinkTxt: Label 'http://go.microsoft.com/fwlink/?LinkId=746160', Locked = true;
 #if not CLEAN19
@@ -661,21 +653,8 @@ page 1803 "Assisted Company Setup Wizard"
         case Step of
             Step::Intro:
                 ShowIntroStep();
-            Step::Sync:
-                ShowSyncStep(Backwards);
-            Step::"Select Type":
-                begin
-                    HideCompanyInfoDownloadedFromOfficeNotification();
-                    if not TypeSelectionEnabled then
-                        NextStep(Backwards)
-                    else
-                        ShowSelectTypeStep();
-                end;
             Step::"Company Details":
-                if TypeEvaluation then begin
-                    Step := Step::Done;
-                    ShowDoneStep();
-                end else begin
+                begin
                     SendCompanyInfoDownloadedFromOfficeNotification();
                     ShowCompanyDetailsStep();
                 end;
@@ -703,16 +682,6 @@ page 1803 "Assisted Company Setup Wizard"
     begin
         IntroVisible := true;
         BackEnabled := false;
-    end;
-
-    local procedure ShowSyncStep(Backwards: Boolean)
-    begin
-        NextStep(Backwards);
-    end;
-
-    local procedure ShowSelectTypeStep()
-    begin
-        SelectTypeVisible := true;
     end;
 
     local procedure ShowCompanyDetailsStep()
@@ -746,7 +715,6 @@ page 1803 "Assisted Company Setup Wizard"
 
         // Tabs
         IntroVisible := false;
-        SelectTypeVisible := false;
         CompanyDetailsVisible := false;
         CommunicationDetailsVisible := false;
         PaymentDetailsVisible := false;
@@ -778,49 +746,6 @@ page 1803 "Assisted Company Setup Wizard"
 #endif
 
         Insert();
-    end;
-
-    local procedure CalcCompanyData()
-    begin
-        CompanyData := CompanyData::None;
-        if TypeStandard then
-            CompanyData := CompanyData::"Standard Data";
-        if TypeEvaluation then
-            CompanyData := CompanyData::"Evaluation Data";
-    end;
-
-    local procedure StartConfigPackageImport()
-    begin
-        if not TypeSelectionEnabled then
-            exit;
-        if CompanyData in [CompanyData::None, CompanyData::"Full No Data"] then
-            exit;
-        if AssistedCompanySetup.IsCompanySetupInProgress(CompanyName) then
-            exit;
-        AssistedCompanySetup.FillCompanyData(CompanyName, CompanyData);
-    end;
-
-    local procedure LoadConfigTypes(): Boolean
-    begin
-        StandardVisible :=
-          AssistedCompanySetup.ExistsConfigurationPackageFile(CompanyData::"Standard Data");
-        EvaluationVisible :=
-          AssistedCompanySetup.ExistsConfigurationPackageFile(CompanyData::"Evaluation Data");
-        exit(StandardVisible or EvaluationVisible);
-    end;
-
-    local procedure PackageImported(): Boolean
-    var
-        AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
-    begin
-        if not AssistedCompanySetupStatus.Get(CompanyName) then begin
-            AssistedCompanySetupStatus.Validate("Company Name", CompanyName);
-            AssistedCompanySetupStatus.Validate(Enabled, true);
-            AssistedCompanySetupStatus.Validate("Package Imported", false);
-            AssistedCompanySetupStatus.Validate("Import Failed", false);
-            AssistedCompanySetupStatus.Insert();
-        end;
-        exit(AssistedCompanySetupStatus."Package Imported" or AssistedCompanySetupStatus."Import Failed");
     end;
 
     local procedure LoadTopBanners()

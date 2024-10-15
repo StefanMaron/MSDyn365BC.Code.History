@@ -311,6 +311,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Dim Code, %2 = Dim Value, %3 - table caption.]D;]A;(LookupHint=Codeunit ERM Dimension Allowed by Acc. - NamedType DimValueNotAllowedForAccountTypeErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2240449890 - NamedType 557899779" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The Dim. Value per Account does not exist. Identification fields and values: Table ID='%1',No.='%2',Dimension Code='%3',Dimension Value Code='%4']]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Table ID, %2= No., %3= Dimension Code, %4= Dimension Value Code]D;]A;(LookupHint=Codeunit ERM Dimension Allowed by Acc. - NamedType ExpectedErrLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2240449890 - NamedType 2843121800" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[There are no dimension values for allowed values filter %1.]]></Val>
@@ -327,6 +336,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension Allowed by Acc. - NamedType NoAllowedValuesSelectedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2240449890 - NamedType 1649760598" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No record expected.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension Allowed by Acc. - NamedType NoRecordExpected)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2240449890 - NamedType 3316495890" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

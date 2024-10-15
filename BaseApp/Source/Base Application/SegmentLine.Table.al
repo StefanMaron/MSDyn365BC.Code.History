@@ -1164,6 +1164,7 @@
         HTMLAttachment: Boolean;
         HTMLContentBodyText: Text;
         CustomLayoutCode: Code[20];
+        ShouldAssignStep: Boolean;
     begin
         OnBeforeFinishSegLineWizard(Rec, IsFinish);
 
@@ -1173,7 +1174,9 @@
         if Flag then begin
             CheckStatus();
 
-            if "Opportunity No." = '' then
+            ShouldAssignStep := "Opportunity No." = '';
+            OnFinishSegLineWizardOnBeforeAssignEmptyOpportunityStep(Rec, ShouldAssignStep);
+            if ShouldAssignStep then
                 "Wizard Step" := "Wizard Step"::"6";
 
             if not HTMLAttachment then
@@ -1711,6 +1714,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateInteractionFromInteractLogEntry(var SegmentLine: Record "Segment Line"; var Salesperson: Record "Salesperson/Purchaser")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinishSegLineWizardOnBeforeAssignEmptyOpportunityStep(var SegmentLine: Record "Segment Line"; var ShouldAssignStep: Boolean)
     begin
     end;
 }

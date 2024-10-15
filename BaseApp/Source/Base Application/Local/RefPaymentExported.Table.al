@@ -70,13 +70,15 @@ table 32000002 "Ref. Payment - Exported"
                     Error(Text1090002, FieldCaption("Payment Date"), WorkDate());
             end;
         }
+#pragma warning disable AS0044
         field(7; "Document Type"; Option)
         {
             Caption = 'Document Type';
             Editable = false;
-            OptionCaption = ' ,Invoice,Credit Memo';
-            OptionMembers = " ",Invoice,"Credit Memo";
+            OptionCaption = ' ,Payment,Invoice,Credit Memo';
+            OptionMembers = " ",Payment,Invoice,"Credit Memo";
         }
+#pragma warning restore AS0044
         field(8; "Document No."; Code[20])
         {
             Caption = 'Document No.';
