@@ -178,11 +178,18 @@ report 5871 "Item - Able to Make (Timeline)"
         ShowBy: Option Item,Assembly,Production;
 
     local procedure GenerateAvailTrend(CurrDate: Date): Boolean
+    var
+        IsHandled: Boolean;
     begin
         CalcBOMTree.SetShowTotalAvailability(true);
         case ShowBy of
             ShowBy::Item:
-                CalcBOMTree.GenerateTreeForItem(Item, TempBOMBuffer, CurrDate, 1);
+                begin
+                    IsHandled := false;
+                    OnGenerateAvailTrendOnBeforeGenerateTreeForItem(Item, TempBOMBuffer, CurrDate, IsHandled);
+                    If not IsHandled then
+                        CalcBOMTree.GenerateTreeForItem(Item, TempBOMBuffer, CurrDate, 1);
+                end;
             ShowBy::Assembly:
                 begin
                     AsmHeader."Due Date" := CurrDate;
@@ -255,5 +262,9 @@ report 5871 "Item - Able to Make (Timeline)"
         Item2.SetRange("Date Filter", 0D, Date);
         ItemAvailFormsMgt.CalculateNeed(Item2, GrossReqQty, PlannedOrderReceipt, SchRcptQty, PlannedOrderReleases);
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnGenerateAvailTrendOnBeforeGenerateTreeForItem(var Item: Record "Item"; var BOMBuffer: Record "BOM Buffer" temporary; CurrDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+}
