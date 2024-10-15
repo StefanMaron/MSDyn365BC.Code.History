@@ -21,7 +21,13 @@ codeunit 925 "Assembly Header-Reserve"
     procedure CreateReservation(var AssemblyHeader: Record "Assembly Header"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForReservEntry: Record "Reservation Entry")
     var
         ShipmentDate: Date;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateReservation(AssemblyHeader, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry, FromTrackingSpecification, IsHandled);
+        if IsHandled then
+            exit;
+
         if FromTrackingSpecification."Source Type" = 0 then
             Error(Text001);
 
@@ -129,15 +135,15 @@ codeunit 925 "Assembly Header-Reserve"
 
     procedure DeleteLine(var AssemblyHeader: Record "Assembly Header")
     begin
-        with AssemblyHeader do begin
-            ReservMgt.SetReservSource(AssemblyHeader);
-            if DeleteItemTracking then
-                ReservMgt.SetItemTrackingHandling(1); // Allow Deletion
-            ReservMgt.DeleteReservEntries(true, 0);
-            ReservMgt.ClearActionMessageReferences();
-            CalcFields("Reserved Qty. (Base)");
-            AssignForPlanning(AssemblyHeader);
-        end;
+        OnBeforeDeleteLine(AssemblyHeader);
+
+        ReservMgt.SetReservSource(AssemblyHeader);
+        if DeleteItemTracking then
+            ReservMgt.SetItemTrackingHandling(1); // Allow Deletion
+        ReservMgt.DeleteReservEntries(true, 0);
+        ReservMgt.ClearActionMessageReferences();
+        AssemblyHeader.CalcFields("Reserved Qty. (Base)");
+        AssignForPlanning(AssemblyHeader);
     end;
 
     procedure VerifyChange(var NewAssemblyHeader: Record "Assembly Header"; var OldAssemblyHeader: Record "Assembly Header")
@@ -531,6 +537,16 @@ codeunit 925 "Assembly Header-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCallItemTracking(var AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteLine(var AssemblyHeader: Record "Assembly Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateReservation(var AssemblyHeader: Record "Assembly Header"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForReservationEntry: Record "Reservation Entry"; FromTrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean)
     begin
     end;
 }

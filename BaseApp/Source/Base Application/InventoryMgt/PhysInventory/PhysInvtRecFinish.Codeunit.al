@@ -79,19 +79,23 @@ codeunit 5876 "Phys. Invt. Rec.-Finish"
                         Window.Update(2, LineCount);
 
                     if not PhysInvtRecordLine.EmptyLine() then begin
-                        PhysInvtRecordLine.TestField("Item No.");
-                        PhysInvtRecordLine.TestField(Recorded, true);
-                        if PhysInvtRecordLine."Location Code" <> '' then begin
-                            Location.Get(PhysInvtRecordLine."Location Code");
-                            CheckLocationDirectedPutAwayAndPick();
-                            if Location."Bin Mandatory" then
-                                PhysInvtRecordLine.TestField("Bin Code")
-                            else
+                        IsHandled := false;
+                        OnCodeOnBeforeCheckPhysInvtRecordLine(PhysInvtRecordLine, IsHandled);
+                        if not IsHandled then begin
+                            PhysInvtRecordLine.TestField("Item No.");
+                            PhysInvtRecordLine.TestField(Recorded, true);
+                            if PhysInvtRecordLine."Location Code" <> '' then begin
+                                Location.Get(PhysInvtRecordLine."Location Code");
+                                CheckLocationDirectedPutAwayAndPick();
+                                if Location."Bin Mandatory" then
+                                    PhysInvtRecordLine.TestField("Bin Code")
+                                else
+                                    PhysInvtRecordLine.TestField("Bin Code", '');
+                            end else begin
+                                if InvtSetup."Location Mandatory" then
+                                    PhysInvtRecordLine.TestField("Location Code");
                                 PhysInvtRecordLine.TestField("Bin Code", '');
-                        end else begin
-                            if InvtSetup."Location Mandatory" then
-                                PhysInvtRecordLine.TestField("Location Code");
-                            PhysInvtRecordLine.TestField("Bin Code", '');
+                            end;
                         end;
                         IsHandled := false;
                         OnBeforeGetSamePhysInvtOrderLine(PhysInvtOrderLine, PhysInvtRecordLine, NoOfOrderLines, ErrorText, IsHandled);
@@ -186,6 +190,11 @@ codeunit 5876 "Phys. Invt. Rec.-Finish"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePhysInvtOrderLineInsert(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; PhysInvtRecordLine: Record "Phys. Invt. Record Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeCheckPhysInvtRecordLine(PhysInvtRecordLine: Record "Phys. Invt. Record Line"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -837,6 +837,8 @@
         CostObject.Name := DimValue.Name;
         CostObject."Line Type" := DimValue."Dimension Value Type";
         CostObject.Blocked := DimValue.Blocked;
+
+        OnAfterCopyDimValueToCostObject(DimValue, CostObject);
     end;
 
     procedure InsertCostBudgetRegister(CostBudgetEntryNo: Integer; CostBudgetName: Code[10]; CostBudgetAmount: Decimal): Integer
@@ -1021,6 +1023,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnGetCostTypesFromChartDirectOnAfterSetFilters(var GLAccount: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyDimValueToCostObject(DimValue: Record "Dimension Value"; var CostObject: Record "Cost Object")
     begin
     end;
 }

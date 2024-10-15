@@ -110,6 +110,8 @@ table 6509 "Whse. Item Entry Relation"
         SetRange("Source ID", SourceID);
         if SourceRefNo >= 0 then
             SetRange("Source Ref. No.", SourceRefNo);
+
+        OnAfterSetSourceFilter(Rec, SourceType, SourceSubtype, SourceID, SourceRefNo, SourceKey);
     end;
 
     procedure SetSourceFilter(SourceBatchName: Code[10]; SourceProdOrderLine: Integer)
@@ -126,6 +128,11 @@ table 6509 "Whse. Item Entry Relation"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromTrackingSpec(var WhseItemEntryRelation: Record "Whse. Item Entry Relation"; TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSourceFilter(var WhseItemEntryRelation: Record "Whse. Item Entry Relation"; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer; SourceKey: Boolean)
     begin
     end;
 }

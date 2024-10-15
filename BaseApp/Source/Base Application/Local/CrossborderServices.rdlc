@@ -2076,12 +2076,6 @@ End Function</Code>
         <Field Name="Crossborder_Services___by_Type_of_ServiceCaption">
           <DataField>Crossborder_Services___by_Type_of_ServiceCaption</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO_Control1160031Caption">
-          <DataField>CurrReport_PAGENO_Control1160031Caption</DataField>
-        </Field>
-        <Field Name="Total_Caption_Control1160037">
-          <DataField>Total_Caption_Control1160037</DataField>
-        </Field>
       </Fields>
       <Query>
         <DataSourceName>DataSource</DataSourceName>

@@ -1,7 +1,7 @@
 report 11111 "Crossborder Services"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './CrossborderServices.rdlc';
+    RDLCLayout = './Local/CrossborderServices.rdlc';
     Caption = 'Crossborder Services';
 
     dataset

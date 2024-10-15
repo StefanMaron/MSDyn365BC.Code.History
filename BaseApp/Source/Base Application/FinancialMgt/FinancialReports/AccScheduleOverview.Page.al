@@ -680,11 +680,11 @@ page 490 "Acc. Schedule Overview"
                     if IsHandled then
                         exit;
                     if TempFinancialReport.Name <> '' then
-                        AccSched.SetFinancialReportName(TempFinancialReport.Name)
-                    else begin
+                        AccSched.SetFinancialReportName(TempFinancialReport.Name);
+                    if TempFinancialReport."Financial Report Row Group" <> '' then
                         AccSched.SetAccSchedName(TempFinancialReport."Financial Report Row Group");
+                    if TempFinancialReport."Financial Report Column Group" <> '' then
                         AccSched.SetColumnLayoutName(TempFinancialReport."Financial Report Column Group");
-                    end;
                     DateFilter2 := Rec.GetFilter("Date Filter");
                     GLBudgetFilter2 := Rec.GetFilter("G/L Budget Filter");
                     CostBudgetFilter2 := Rec.GetFilter("Cost Budget Filter");

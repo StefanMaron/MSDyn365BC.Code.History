@@ -19,6 +19,7 @@ codeunit 139086 "Azure AD Mgt. Tests"
         ValidResourceUrlTxt: Label 'http://contoso.com/a/valid/resource', Locked = true;
         ValidResourceNameTxt: Label 'Azure Service', Locked = true;
         ValidGuestTenantTxt: Label 'fabrikam.contoso.biz', Locked = true;
+        CouldNotGetAccessTokenErr: Label 'Could not get access token.';
 
     [Test]
     [Scope('OnPrem')]
@@ -123,16 +124,17 @@ codeunit 139086 "Azure AD Mgt. Tests"
         AzureAdMgt: Codeunit "Azure AD Mgt.";
         Result: Text;
     begin
-        // [SCENARIO] In a SaaS environment, user calls GetAccessToken with no dialog and recieves a blank token because there is not one available in the cache.
+        // [SCENARIO] In a SaaS environment, user calls GetAccessToken and gets an error because there is not one available in the cache.
 
         // [GIVEN] SaaS environment with no token available at all.
         Initialize(false, false, false, true, true);
 
-        // [WHEN] The user invokes GetAccessToken method requesting no dialog.
-        Result := AzureAdMgt.GetAccessToken(ValidResourceUrlTxt, ValidResourceNameTxt, false);
-
-        // [THEN] The user recieves a blank access token.
-        Assert.AreEqual('', Result, 'The access token should be an empty string.');
+        // [WHEN] The user invokes GetAccessToken method.
+        // [THEN] An error occurs.
+        asserterror AzureAdMgt.GetAccessToken(ValidResourceUrlTxt, ValidResourceNameTxt, false);
+        
+        // [THEN] The error message is as expected.
+        Assert.ExpectedError(CouldNotGetAccessTokenErr);
     end;
 
     [Test]
@@ -190,25 +192,6 @@ codeunit 139086 "Azure AD Mgt. Tests"
 
         // [THEN] The user recieves the access token from the cache.
         Assert.AreEqual('TokenFromCacheWithCredentials', Result, 'The access token should be pulling from the On-Prem cache.');
-    end;
-
-    [Test]
-    [HandlerFunctions('AzureADAccessDialogHandler')]
-    [Scope('OnPrem')]
-    procedure GetAccessTokenSaasWithDialogNoTokenAvailableOpensDialog()
-    var
-        AzureAdMgt: Codeunit "Azure AD Mgt.";
-    begin
-        // [SCENARIO] In a SaaS environment, user calls GetAccessToken with dialog and NAV opens the Azure AD Access Dialog.
-
-        // [GIVEN] SaaS environment with no token available.
-        Initialize(false, false, false, true, true);
-
-        // [WHEN] The user invokes GetAccessToken method requesting no dialog.
-        AzureAdMgt.GetAccessToken(ValidResourceUrlTxt, ValidResourceNameTxt, true);
-
-        // [THEN] The user recieves the access token from the cache.
-        // Test will fail if attached modal handler is not invoked
     end;
 
     [Test]

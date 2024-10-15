@@ -1,7 +1,7 @@
-﻿report 5912 "Service - Credit Memo"
+report 5912 "Service - Credit Memo"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './ServiceCreditMemo.rdlc';
+    RDLCLayout = './ServiceMgt/Document/ServiceCreditMemo.rdlc';
     Caption = 'Service - Credit Memo';
     Permissions = TableData "Sales Shipment Buffer" = rimd;
 
@@ -621,6 +621,7 @@
             trigger OnAfterGetRecord()
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
+                FormatAddr.SetLanguageCode("Language Code");
 
                 FormatAddressFields("Service Cr.Memo Header");
                 FormatDocumentFields("Service Cr.Memo Header");

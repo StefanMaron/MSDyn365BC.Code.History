@@ -1,7 +1,7 @@
 report 11109 "Paragraph 131 Export"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './Paragraph131Export.rdlc';
+    RDLCLayout = './Local/Paragraph131Export.rdlc';
     Caption = 'Paragraph 131 Export';
 
     dataset

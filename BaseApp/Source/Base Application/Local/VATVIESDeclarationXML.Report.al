@@ -1,7 +1,7 @@
 report 11108 "VAT - VIES Declaration XML"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './VATVIESDeclarationXML.rdlc';
+    RDLCLayout = './Local/VATVIESDeclarationXML.rdlc';
     Caption = 'VAT - VIES Declaration XML';
     ProcessingOnly = false;
 

@@ -2,7 +2,7 @@
 report 502 "Intrastat - Checklist"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './Intrastat/IntrastatChecklist.rdlc';
+    RDLCLayout = './InventoryMgt/Intrastat/IntrastatChecklist.rdlc';
     ApplicationArea = BasicEU;
     Caption = 'Intrastat - Checklist';
     UsageCategory = ReportsAndAnalysis;

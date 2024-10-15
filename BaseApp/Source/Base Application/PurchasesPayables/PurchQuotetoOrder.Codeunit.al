@@ -51,7 +51,10 @@ codeunit 96 "Purch.-Quote to Order"
         if not IsHandled then begin
             ApprovalsMgmt.DeleteApprovalEntries(RecordId);
             PurchCommentLine.DeleteComments("Document Type".AsInteger(), "No.");
-            DeleteLinks();
+            IsHandled := false;
+            OnBeforeDeleteLinks(Rec, IsHandled);
+            if not IsHandled then
+                DeleteLinks();
             Delete();
             PurchQuoteLine.DeleteAll();
         end;
@@ -287,6 +290,11 @@ codeunit 96 "Purch.-Quote to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferQuoteToOrderLinesOnAfterVerifyQuantity(var PurchOrderLine: Record "Purchase Line"; PurchOrderHeader: Record "Purchase Header"; PurchQuoteLine: Record "Purchase Line"; PurchQuoteHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteLinks(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 }

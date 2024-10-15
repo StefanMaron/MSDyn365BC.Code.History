@@ -404,6 +404,7 @@
         VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
         "VAT Amount" := Round(Amount * VATPostingSetup."VAT %" / 100);
         "VAT Amount (ACY)" := Round("Amount (ACY)" * VATPostingSetup."VAT %" / 100, Currency."Amount Rounding Precision");
+        OnAfterUpdateVATAmounts(Rec, Currency);
     end;
 
     [IntegrationEvent(false, false)]
@@ -443,6 +444,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeFillFromGLAcc(var PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterUpdateVATAmounts(var PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; Currency: Record Currency)
     begin
     end;
 }
