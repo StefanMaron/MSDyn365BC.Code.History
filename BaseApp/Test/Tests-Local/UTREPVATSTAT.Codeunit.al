@@ -17,7 +17,7 @@ codeunit 142064 "UT REP VATSTAT"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
 
     [Test]
-    [HandlerFunctions('GLVATReconciliationReportHandler')]
+    [HandlerFunctions('GLVATReconciliationReportHandler,ConfirmHandlerTRUE')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure OnPreDataItemLCYCodeGLVATReconciliation()
@@ -40,7 +40,7 @@ codeunit 142064 "UT REP VATSTAT"
     end;
 
     [Test]
-    [HandlerFunctions('GLVATReconciliationReportHandler')]
+    [HandlerFunctions('GLVATReconciliationReportHandler,ConfirmHandlerTRUE')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure OnPreReportNoOfEntriesGLVATReconciliation()
@@ -62,7 +62,7 @@ codeunit 142064 "UT REP VATSTAT"
     end;
 
     [Test]
-    [HandlerFunctions('GLVATReconciliationSelectionReportHandler')]
+    [HandlerFunctions('GLVATReconciliationSelectionReportHandler,ConfirmHandlerTRUE')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure OnPreReportSelectionAllGLVATReconciliation()
@@ -83,7 +83,7 @@ codeunit 142064 "UT REP VATSTAT"
     end;
 
     [Test]
-    [HandlerFunctions('GLVATReconciliationClosedEntryReportHandler')]
+    [HandlerFunctions('GLVATReconciliationClosedEntryReportHandler,ConfirmHandlerTRUE')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure OnPreReportSelectionClosedGLVATReconciliation()
@@ -104,7 +104,7 @@ codeunit 142064 "UT REP VATSTAT"
     end;
 
     [Test]
-    [HandlerFunctions('AddCurrencyVATAdvNotAccProofReportHandler')]
+    [HandlerFunctions('AddCurrencyVATAdvNotAccProofReportHandler,ConfirmHandlerTRUE')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure OnPreDataItemAddCurrencyGLVATReconciliation()
@@ -129,7 +129,7 @@ codeunit 142064 "UT REP VATSTAT"
     end;
 
     [Test]
-    [HandlerFunctions('AddCurrencyVATAdvNotAccProofReportHandler')]
+    [HandlerFunctions('AddCurrencyVATAdvNotAccProofReportHandler,ConfirmHandlerTRUE')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure OnAfterGetRecordAddCurrencyGLVATReconciliation()
@@ -154,7 +154,7 @@ codeunit 142064 "UT REP VATSTAT"
     end;
 
     [Test]
-    [HandlerFunctions('GLVATReconciliationClosedEntryReportHandler')]
+    [HandlerFunctions('GLVATReconciliationClosedEntryReportHandler,ConfirmHandlerTRUE')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure OnAfterGetRecordTotalAmountGLVATReconciliation()

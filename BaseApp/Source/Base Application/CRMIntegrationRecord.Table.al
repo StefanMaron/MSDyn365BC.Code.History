@@ -149,6 +149,7 @@ table 5331 "CRM Integration Record"
     var
         IntegrationRecordNotFoundErr: Label 'The integration record for entity %1 was not found.';
         CRMIdAlreadyMappedErr: Label 'Cannot couple %1 to this %3 record, because the %3 record is already coupled to %2.', Comment = '%1 ID of the record, %2 ID of the already mapped record, %3 = Dataverse service name';
+        RecordRefAlreadyMappedErr: Label 'Cannot couple %1 to this %3 record, because the %3 record is already coupled to %2.', Comment = '%1 ID of the record, %2 ID of the already mapped record, %3 = table caption';
         RecordIdAlreadyMappedErr: Label 'Cannot couple the %2 record to %1, because %1 is already coupled to another %2 record.', Comment = '%1 ID from the record, %2 ID of the already mapped record';
         ZeroTableIdErr: Label 'Table ID must be specified.';
         ZeroTableIdTxt: Label 'Table ID is zero in CRM Integration Record. System ID: %1, CRM ID: %2', Locked = true;
@@ -419,14 +420,19 @@ table 5331 "CRM Integration Record"
     procedure FindSystemIdByRecordId(var SysId: Guid; RecId: RecordId): Boolean
     var
         RecRef: RecordRef;
-        SystemIdFieldRef: FieldRef;
     begin
         if not RecRef.Get(RecId) then
             exit(false);
 
-        SystemIdFieldRef := RecRef.Field(RecRef.SystemIdNo());
-        Evaluate(SysId, Format(SystemIdFieldRef.Value()));
+        exit(FindSystemIdByRecordRef(SysId, RecRef));
+    end;
 
+    procedure FindSystemIdByRecordRef(var SysId: Guid; RecordRef: RecordRef): Boolean
+    begin
+        if RecordRef.Number() = 0 then
+            exit(false);
+
+        SysId := RecordRef.Field(RecordRef.SystemIdNo()).Value();
         exit(not IsNullGuid(SysId));
     end;
 
@@ -474,6 +480,16 @@ table 5331 "CRM Integration Record"
         end;
     end;
 
+    procedure FindIDFromRecordRef(SourceRecordRef: RecordRef; var DestinationCRMID: Guid): Boolean
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+    begin
+        if FindRowFromRecordRef(SourceRecordRef, CRMIntegrationRecord) then begin
+            DestinationCRMID := CRMIntegrationRecord."CRM ID";
+            exit(true);
+        end;
+    end;
+
     local procedure FindIntegrationIDFromCRMID(SourceCRMID: Guid; DestinationTableID: Integer; var DestinationIntegrationID: Guid): Boolean
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
@@ -514,6 +530,36 @@ table 5331 "CRM Integration Record"
         end;
     end;
 
+    procedure CoupleCRMIDToRecordRef(CRMID: Guid; RecordRef: RecordRef)
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMIntegrationRecord2: Record "CRM Integration Record";
+        ErrCRMID: Guid;
+        SysId: Guid;
+    begin
+        if not FindSystemIdByRecordRef(SysId, RecordRef) then
+            Error(IntegrationRecordNotFoundErr, Format(RecordRef.RecordId(), 0, 1));
+
+        // Find coupling between CRMID and TableNo
+        if not FindRowFromCRMID(CRMID, RecordRef.Number(), CRMIntegrationRecord) then
+            // Find rogue coupling beteen CRMID and table 0
+            if not FindRowFromCRMID(CRMID, 0, CRMIntegrationRecord) then begin
+                // Find other coupling to the record
+                if CRMIntegrationRecord2.FindIDFromRecordRef(RecordRef, ErrCRMID) then
+                    Error(RecordRefAlreadyMappedErr, CRMId, ErrCRMID, RecordRef.Caption());
+
+                CRMIntegrationRecord.InsertRecord(CRMID, SysId, RecordRef.Number());
+                exit;
+            end;
+
+        // Update Integration ID
+        if CRMIntegrationRecord."Integration ID" <> SysId then begin
+            if CRMIntegrationRecord2.FindIDFromRecordRef(RecordRef, ErrCRMID) then
+                Error(RecordRefAlreadyMappedErr, CRMId, ErrCRMID, RecordRef.Caption());
+            CRMIntegrationRecord.SetNewIntegrationId(SysId);
+        end;
+    end;
+
     procedure CoupleRecordIdToCRMID(RecordID: RecordID; CRMID: Guid)
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
@@ -541,6 +587,21 @@ table 5331 "CRM Integration Record"
     begin
         if not FindSystemIdByRecordId(SysId, RecordID) then
             Error(IntegrationRecordNotFoundErr, Format(RecordID, 0, 1));
+
+        if FindRowFromIntegrationID(SysId, CRMIntegrationRecord) then begin
+            Copy(CRMIntegrationRecord);
+            CRMIntegrationRecord.Delete(true);
+            exit(true);
+        end;
+    end;
+
+    procedure RemoveCouplingToRecord(RecordRef: RecordRef): Boolean
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        SysId: Guid;
+    begin
+        if not FindSystemIdByRecordRef(SysId, RecordRef) then
+            Error(IntegrationRecordNotFoundErr, RecordRef.Field(RecordRef.SystemIdNo()).Value());
 
         if FindRowFromIntegrationID(SysId, CRMIntegrationRecord) then begin
             Copy(CRMIntegrationRecord);
@@ -723,6 +784,29 @@ table 5331 "CRM Integration Record"
         end;
     end;
 
+    procedure IsModifiedAfterLastSynchronizedRecord(RecordRef: RecordRef; CurrentModifiedOn: DateTime) IsModified: Boolean
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        TypeHelper: Codeunit "Type Helper";
+        Handled: Boolean;
+    begin
+        if RecordRef.Number() = 0 then
+            exit(false);
+
+        if IsNullGuid(RecordRef.Field(RecordRef.SystemIdNo()).Value()) then
+            exit(false);
+
+        OnBeforeIsModifiedAfterLastSynchronizedRecord(RecordRef.RecordId(), CurrentModifiedOn, IsModified, Handled);
+        if Handled then
+            exit(IsModified);
+
+        if FindRowFromRecordRef(RecordRef, CRMIntegrationRecord) then begin
+            if (CRMIntegrationRecord."Last Synch. CRM Result" = CRMIntegrationRecord."Last Synch. CRM Result"::Failure) and (CRMIntegrationRecord.Skipped = false) then
+                exit(true);
+            exit(TypeHelper.CompareDateTime(CurrentModifiedOn, CRMIntegrationRecord."Last Synch. Modified On") > 0);
+        end;
+    end;
+
     local procedure UncoupleCRMIDIfRecordDeleted(TableId: Integer; IntegrationId: Guid): Boolean
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
@@ -755,6 +839,22 @@ table 5331 "CRM Integration Record"
             if Found then
                 if CRMIntegrationRecord."Table ID" = 0 then begin
                     CRMIntegrationRecord."Table ID" := SourceRecordID.TableNo();
+                    CRMIntegrationRecord.Modify();
+                end;
+        end;
+        exit(Found);
+    end;
+
+    local procedure FindRowFromRecordRef(SourceRecordRef: RecordRef; var CRMIntegrationRecord: Record "CRM Integration Record"): Boolean
+    var
+        SysId: Guid;
+        Found: Boolean;
+    begin
+        if FindSystemIdByRecordRef(SysId, SourceRecordRef) then begin
+            Found := FindRowFromIntegrationID(SysId, CRMIntegrationRecord);
+            if Found then
+                if CRMIntegrationRecord."Table ID" = 0 then begin
+                    CRMIntegrationRecord."Table ID" := SourceRecordRef.Number();
                     CRMIntegrationRecord.Modify();
                 end;
         end;

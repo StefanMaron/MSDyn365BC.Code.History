@@ -35,19 +35,21 @@ codeunit 1253 "Change Bank Rec. Statement No."
     var
         TempBankAccReconciliation: Record "Bank Acc. Reconciliation" temporary;
         TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary;
+        TempBankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer" temporary;
     begin
         UpdateAppliedBankLedgerEntries(BankAccReconciliation, NewStatementNo);
         UpdateAppliedCheckLedgerEntries(BankAccReconciliation, NewStatementNo);
 
-        MoveBankAccReconiliationToBuffers(BankAccReconciliation, TempBankAccReconciliation, TempBankAccReconciliationLine);
+        MoveBankAccReconiliationToBuffers(BankAccReconciliation, TempBankAccReconciliation, TempBankAccReconciliationLine, TempBankAccRecMatchBuffer);
 
         CreateBankAccReconciliationWithNewStatementNo(
-            BankAccReconciliation, TempBankAccReconciliation, TempBankAccReconciliationLine, NewStatementNo);
+            BankAccReconciliation, TempBankAccReconciliation, TempBankAccReconciliationLine, TempBankAccRecMatchBuffer, NewStatementNo);
     end;
 
-    local procedure MoveBankAccReconiliationToBuffers(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var TempBankAccReconciliation: Record "Bank Acc. Reconciliation" temporary; var TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary)
+    local procedure MoveBankAccReconiliationToBuffers(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var TempBankAccReconciliation: Record "Bank Acc. Reconciliation" temporary; var TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary; var TempBankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer" temporary)
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        BankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer";
     begin
         TempBankAccReconciliation.TransferFields(BankAccReconciliation);
         TempBankAccReconciliation.Insert();
@@ -62,11 +64,21 @@ codeunit 1253 "Change Bank Rec. Statement No."
                 TempBankAccReconciliationLine.Insert();
             until BankAccReconciliationLine.Next() = 0;
         BankAccReconciliationLine.DeleteAll();
+
+        BankAccRecMatchBuffer.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
+        BankAccRecMatchBuffer.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        if BankAccRecMatchBuffer.FindSet() then
+            repeat
+                TempBankAccRecMatchBuffer.TransferFields(BankAccRecMatchBuffer);
+                TempBankAccRecMatchBuffer.Insert();
+            until BankAccRecMatchBuffer.Next() = 0;
+        BankAccRecMatchBuffer.DeleteAll();
     end;
 
-    local procedure CreateBankAccReconciliationWithNewStatementNo(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var TempBankAccReconciliation: Record "Bank Acc. Reconciliation" temporary; var TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary; NewStatementNo: Code[20])
+    local procedure CreateBankAccReconciliationWithNewStatementNo(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var TempBankAccReconciliation: Record "Bank Acc. Reconciliation" temporary; var TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary; var TempBankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer" temporary; NewStatementNo: Code[20])
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        BankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer";
     begin
         BankAccReconciliation.TransferFields(TempBankAccReconciliation);
         BankAccReconciliation."Statement No." := NewStatementNo;
@@ -78,6 +90,13 @@ codeunit 1253 "Change Bank Rec. Statement No."
                 BankAccReconciliationLine."Statement No." := NewStatementNo;
                 BankAccReconciliationLine.Insert();
             until TempBankAccReconciliationLine.Next() = 0;
+
+        if TempBankAccRecMatchBuffer.FindSet() then
+            repeat
+                BankAccRecMatchBuffer.TransferFields(TempBankAccRecMatchBuffer);
+                BankAccRecMatchBuffer."Statement No." := NewStatementNo;
+                BankAccRecMatchBuffer.Insert();
+            until TempBankAccRecMatchBuffer.Next() = 0;
     end;
 
     local procedure UpdateAppliedBankLedgerEntries(BankAccReconciliation: Record "Bank Acc. Reconciliation"; NewStatementNo: Code[20])

@@ -114,7 +114,8 @@ page 830 "Workflow Webhook Entries"
                     WorkflowStepInstance: Record "Workflow Step Instance";
                     WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
                 begin
-                    WorkflowStepInstance.SetRange(ID, "Workflow Step Instance ID");
+                    WorkflowStepInstance.SetLoadFields("Workflow Code");
+                    WorkflowStepInstance.SetRange(ID, Rec."Workflow Step Instance ID");
 
                     if WorkflowStepInstance.FindFirst then
                         WorkflowWebhookManagement.SendWebhookNotificaton(WorkflowStepInstance);

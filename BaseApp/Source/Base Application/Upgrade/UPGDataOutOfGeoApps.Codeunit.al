@@ -1,10 +1,14 @@
-#if not CLEAN19
 codeunit 14060 "UPG Data Out Of Geo. Apps"
 {
     Subtype = Upgrade;
 
     trigger OnUpgradePerDatabase()
+    var
+        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade('') then
+            exit;
+         
         AddDataOutOfGeoApps();
     end;
 
@@ -34,4 +38,3 @@ codeunit 14060 "UPG Data Out Of Geo. Apps"
             DataOutOfGeoApp.Add(AppID);
     end;
 }
-#endif

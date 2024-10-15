@@ -18,6 +18,10 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         CRMUnitGroupExistsAndIsInactiveErr: Label 'The %1 %2 already exists in %3, but it cannot be synchronized, because it is inactive.', Comment = '%1=table caption: Unit Group,%2=The name of the indicated Unit Group;%3=product name';
         CRMUnitGroupContainsMoreThanOneUoMErr: Label 'The %4 %1 %2 contains more than one %3. This setup cannot be used for synchronization.', Comment = '%1=table caption: Unit Group,%2=The name of the indicated Unit Group,%3=table caption: Unit., %4 = Dataverse service name';
         CustomerHasChangedErr: Label 'Cannot create the invoice in %2. The customer from the original %2 sales order %1 was changed or is no longer coupled.', Comment = '%1=CRM sales order number, %2 = Dataverse service name';
+        ItemUnitOfMeasureDoesNotExistErr: Label 'Cannot create the invoice in %1. The item unit of measure %2 does not exist.', Comment = '%1= Dataverse service name, %2=item unit of measure code';
+        NotCoupledItemUoMErr: Label 'Cannot create the invoice in %1. The item unit of measure %2 is not coupled to a %1 unit.', Comment = '%1= ataverse service name", %2=item unit of measure code';
+        ResourceUnitOfMeasureDoesNotExistErr: Label 'Cannot create the invoice in %1. The resource unit of measure %2 does not exist.', Comment = '%1= Dataverse service name, %2=resource unit of measure code';
+        NotCoupledResourceUoMErr: Label 'Cannot create the invoice in %1. The resource unit of measure %2 is not coupled to a %1 unit.', Comment = '%1= ataverse service name", %2=resource unit of measure code';
         NoCoupledSalesInvoiceHeaderErr: Label 'Cannot find the coupled %1 invoice header.', Comment = '%1 = Dataverse service name';
         RecordMustBeCoupledErr: Label '%1 %2 must be coupled to a record in %3.', Comment = '%1 =field caption, %2 = field value, %3 - product name ';
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
@@ -35,6 +39,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         CRMUnitGroupNotFoundErr: Label 'CRM Unit Group %1 does not exist.', Comment = '%1 - unit group name';
         CRMUnitNotFoundErr: Label 'CRM Unit %1 with Unit Group Id %2 does not exist.', Comment = '%1 - unit name, %2 - unit group id';
         SynchingSalesSpecificEntityTxt: Label 'Synching a %1 specific entity.', Locked = true;
+        FailedToGetPostedSalesInvoiceTxt: Label 'Failed to get posted sales invoice %1 from SQL database. Flushing the cache and retrying.', Locked = true;
 
     procedure ClearCache()
     begin
@@ -396,6 +401,10 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                 UpdateCRMInvoiceAfterInsertRecord(SourceRecordRef, DestinationRecordRef);
             'Sales Invoice Line-CRM Invoicedetail':
                 UpdateCRMInvoiceDetailsAfterInsertRecord(SourceRecordRef, DestinationRecordRef);
+            'Item Unit of Measure-CRM Uom':
+                UpdateCRMUomFromItemAfterInsertRecord(SourceRecordRef);
+            'Resource Unit of Measure-CRM Uom':
+                UpdateCRMUomFromResourceAfterInsertRecord(SourceRecordRef);
         end;
     end;
 
@@ -779,6 +788,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         SourceLinesRecordRef: RecordRef;
         TaxAmount: Decimal;
     begin
+        Commit();
         SourceRecordRef.SetTable(SalesInvoiceHeader);
         DestinationRecordRef.SetTable(CRMInvoice);
 
@@ -806,6 +816,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         end;
         CRMInvoice.Modify();
         CRMSynchHelper.UpdateCRMInvoiceStatus(CRMInvoice, SalesInvoiceHeader);
+        Commit();
     end;
 
     local procedure UpdateCRMInvoiceBeforeInsertRecord(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
@@ -831,12 +842,12 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         SourceRecordRef.SetTable(SalesInvoiceHeader);
         DestinationRecordRef.SetTable(CRMInvoice);
 
-        // Shipment Method Code -> go to table Shipment Method, and from there extract the description and add it to
-        if ShipmentMethod.Get(SalesInvoiceHeader."Shipment Method Code") then begin
-            Clear(CRMInvoice.Description);
-            CRMInvoice.Description.CreateOutStream(OutStream, TEXTENCODING::UTF16);
-            OutStream.WriteText(ShipmentMethod.Description);
-        end;
+        if not CRMInvoice.Description.HasValue() then
+            // Shipment Method Code -> go to table Shipment Method, and from there extract the description and add it to
+            if ShipmentMethod.Get(SalesInvoiceHeader."Shipment Method Code") then begin
+                CRMInvoice.Description.CreateOutStream(OutStream, TEXTENCODING::UTF16);
+                OutStream.WriteText(ShipmentMethod.Description);
+            end;
 
         if CRMSalesOrderToSalesOrder.GetCRMSalesOrder(CRMSalesorder, SalesInvoiceHeader."Your Reference") then begin
             CRMInvoice.OpportunityId := CRMSalesorder.OpportunityId;
@@ -910,7 +921,14 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         DestinationRecordRef.SetTable(CRMInvoicedetail);
 
         // Get the NAV and CRM invoice headers
-        SalesInvoiceHeader.Get(SalesInvoiceLine."Document No.");
+        if not SalesInvoiceHeader.Get(SalesInvoiceLine."Document No.") then begin
+            // if the Get fails, wait for 5 seconds, flush the cache and retry once more
+            // this is necessary because lines synch is done in a separate thread from invoice synch, and invoice may not be in the SQL database yet
+            Session.LogMessage('0000G8C', StrSubstNo(FailedToGetPostedSalesInvoiceTxt, SalesInvoiceLine."Document No."), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            Sleep(5000);
+            Database.SelectLatestVersion();
+            SalesInvoiceHeader.Get(SalesInvoiceLine."Document No.");
+        end;
         if not CRMIntegrationRecord.FindIDFromRecordID(SalesInvoiceHeader.RecordId(), CRMSalesInvoiceHeaderId) then
             Error(NoCoupledSalesInvoiceHeaderErr, CRMProductName.CDSServiceName());
 
@@ -1131,8 +1149,13 @@ codeunit 5341 "CRM Int. Table. Subscriber"
             AdditionalFieldsWereModified := true;
 
         // Create or update the default price list
-        if CRMSynchHelper.UpdateCRMPriceListItem(CRMProduct) then
-            AdditionalFieldsWereModified := true;
+        if not CRMIntegrationManagement.IsUnitGroupMappingEnabled() then begin
+            if CRMSynchHelper.UpdateCRMPriceListItem(CRMProduct) then
+                AdditionalFieldsWereModified := true;
+        end else
+            if CRMSynchHelper.UpdateCRMPriceListItems(CRMProduct) then
+                AdditionalFieldsWereModified := true;
+
 
         // Update the Vendor Name
         if CRMSynchHelper.UpdateCRMProductVendorNameIfChanged(CRMProduct) then
@@ -1155,10 +1178,49 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         CRMProduct: Record "CRM Product";
     begin
         DestinationRecordRef.SetTable(CRMProduct);
-        CRMSynchHelper.UpdateCRMPriceListItem(CRMProduct);
+        if not CRMIntegrationManagement.IsUnitGroupMappingEnabled() then
+            CRMSynchHelper.UpdateCRMPriceListItem(CRMProduct)
+        else
+            CRMSynchHelper.UpdateCRMPriceListItems(CRMProduct);
         CRMSynchHelper.SetCRMProductStateToActive(CRMProduct);
         CRMProduct.Modify();
         DestinationRecordRef.GetTable(CRMProduct);
+    end;
+
+    local procedure UpdateCRMUomFromItemAfterInsertRecord(SourceRecordRef: RecordRef)
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMProduct: Record "CRM Product";
+        ItemRecordRef: RecordRef;
+        SourceFieldRef: FieldRef;
+        CRMProductId: Guid;
+    begin
+        SourceFieldRef := SourceRecordRef.Field(ItemUnitOfMeasure.FieldNo("Item No."));
+        Item.Get(SourceFieldRef.Value());
+        ItemRecordRef.GetTable(Item);
+        if CRMIntegrationRecord.FindIDFromRecordRef(ItemRecordRef, CRMProductId) then
+            if CRMProduct.Get(CRMProductId) then
+                CRMSynchHelper.UpdateCRMPriceListItems(CRMProduct);
+    end;
+
+    local procedure UpdateCRMUomFromResourceAfterInsertRecord(SourceRecordRef: RecordRef)
+    var
+        Resource: Record Resource;
+        ResourceUnitOfMeasure: Record "Resource Unit of Measure";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMProduct: Record "CRM Product";
+        ResourceRecordRef: RecordRef;
+        SourceFieldRef: FieldRef;
+        CRMProductId: Guid;
+    begin
+        SourceFieldRef := SourceRecordRef.Field(ResourceUnitOfMeasure.FieldNo("Resource No."));
+        Resource.Get(SourceFieldRef.Value());
+        ResourceRecordRef.GetTable(Resource);
+        if CRMIntegrationRecord.FindIDFromRecordRef(ResourceRecordRef, CRMProductId) then
+            if CRMProduct.Get(CRMProductId) then
+                CRMSynchHelper.UpdateCRMPriceListItems(CRMProduct);
     end;
 
     local procedure UpdateCRMProductBeforeInsertRecord(var DestinationRecordRef: RecordRef)
@@ -1365,11 +1427,16 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         Item: Record Item;
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         UnitGroup: Record "Unit Group";
+        CRMIntegrationRecord: Record "CRM Integration Record";
         CRMUom: Record "CRM Uom";
         CRMUomschedule: Record "CRM Uomschedule";
+        CRMProduct: Record "CRM Product";
+        ItemRecordRef: RecordRef;
         SourceFieldRef: FieldRef;
         DestinationFieldRef: FieldRef;
         CRMUomscheduleId: Guid;
+        CRMProductId: Guid;
+        AdditionalFieldsWereModified: Boolean;
     begin
         DestinationFieldRef := DestinationRecordRef.Field(CRMUom.FieldNo(UoMScheduleId));
         SourceFieldRef := SourceRecordRef.Field(ItemUnitOfMeasure.FieldNo("Item No."));
@@ -1389,8 +1456,16 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         end;
         if CRMUomscheduleId <> CRMUomschedule.UoMScheduleId then begin
             DestinationFieldRef.Value := CRMUomschedule.UoMScheduleId;
-            exit(true);
+            AdditionalFieldsWereModified := true;
         end;
+
+        ItemRecordRef.GetTable(Item);
+        if CRMIntegrationRecord.FindIDFromRecordRef(ItemRecordRef, CRMProductId) then
+            if CRMProduct.Get(CRMProductId) then
+                if CRMSynchHelper.UpdateCRMPriceListItems(CRMProduct) then
+                    AdditionalFieldsWereModified := true;
+
+        exit(AdditionalFieldsWereModified);
     end;
 
     local procedure UpdateCRMUomFromResourceAfterTransferRecordFields(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef): Boolean
@@ -1398,11 +1473,16 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         Resource: Record Resource;
         ResourceUnitOfMeasure: Record "Resource Unit of Measure";
         UnitGroup: Record "Unit Group";
+        CRMIntegrationRecord: Record "CRM Integration Record";
         CRMUom: Record "CRM Uom";
         CRMUomschedule: Record "CRM Uomschedule";
+        CRMProduct: Record "CRM Product";
+        ResourceRecordRef: RecordRef;
         SourceFieldRef: FieldRef;
         DestinationFieldRef: FieldRef;
         CRMUomscheduleId: Guid;
+        CRMProductId: Guid;
+        AdditionalFieldsWereModified: Boolean;
     begin
         DestinationFieldRef := DestinationRecordRef.Field(CRMUom.FieldNo(UoMScheduleId));
         SourceFieldRef := SourceRecordRef.Field(ResourceUnitOfMeasure.FieldNo("Resource No."));
@@ -1422,8 +1502,16 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         end;
         if CRMUomscheduleId <> CRMUomschedule.UoMScheduleId then begin
             DestinationFieldRef.Value := CRMUomschedule.UoMScheduleId;
-            exit(true);
+            AdditionalFieldsWereModified := true;
         end;
+
+        ResourceRecordRef.GetTable(Resource);
+        if CRMIntegrationRecord.FindIDFromRecordRef(ResourceRecordRef, CRMProductId) then
+            if CRMProduct.Get(CRMProductId) then
+                if CRMSynchHelper.UpdateCRMPriceListItems(CRMProduct) then
+                    AdditionalFieldsWereModified := true;
+
+        exit(AdditionalFieldsWereModified);
     end;
 
     local procedure CoupleAndSyncUnitGroup(var UnitGroup: Record "Unit Group")
@@ -1568,8 +1656,14 @@ codeunit 5341 "CRM Int. Table. Subscriber"
 
     local procedure InitializeCRMInvoiceLineWithProductDetails(var CRMInvoicedetail: Record "CRM Invoicedetail"; SalesInvoiceLine: Record "Sales Invoice Line")
     var
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ResourceUnitOfMeasure: Record "Resource Unit of Measure";
         CRMProduct: Record "CRM Product";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        ItemUnitOfMeasureRecordRef: RecordRef;
+        ResourceUnitOfMeasureRecordRef: RecordRef;
         CRMProductId: Guid;
+        CRMUoMId: Guid;
     begin
         CRMProductId := FindCRMProductId(SalesInvoiceLine);
         if IsNullGuid(CRMProductId) then begin
@@ -1581,7 +1675,33 @@ codeunit 5341 "CRM Int. Table. Subscriber"
             // There is a coupled product or resource in CRM, transfer data from there
             CRMProduct.Get(CRMProductId);
             CRMInvoicedetail.ProductId := CRMProduct.ProductId;
-            CRMInvoicedetail.UoMId := CRMProduct.DefaultUoMId;
+            if CRMIntegrationManagement.IsUnitGroupMappingEnabled() then
+                case SalesInvoiceLine.Type of
+                    SalesInvoiceLine.Type::Item:
+                        begin
+                            if not ItemUnitOfMeasure.Get(SalesInvoiceLine."No.", SalesInvoiceLine."Unit of Measure Code") then
+                                Error(ItemUnitOfMeasureDoesNotExistErr, CRMProductName.CDSServiceName(), SalesInvoiceLine."Unit of Measure Code");
+
+                            ItemUnitOfMeasureRecordRef.GetTable(ItemUnitOfMeasure);
+                            if not CRMIntegrationRecord.FindIDFromRecordRef(ItemUnitOfMeasureRecordRef, CRMUoMId) then
+                                Error(NotCoupledItemUoMErr, CRMProductName.CDSServiceName(), SalesInvoiceLine."Unit of Measure Code");
+
+                            CRMInvoicedetail.UoMId := CRMUoMId;
+                        end;
+                    SalesInvoiceLine.Type::Resource:
+                        begin
+                            if not ResourceUnitOfMeasure.Get(SalesInvoiceLine."No.", SalesInvoiceLine."Unit of Measure Code") then
+                                Error(ResourceUnitOfMeasureDoesNotExistErr, CRMProductName.CDSServiceName(), SalesInvoiceLine."Unit of Measure Code");
+
+                            ResourceUnitOfMeasureRecordRef.GetTable(ResourceUnitOfMeasure);
+                            if not CRMIntegrationRecord.FindIDFromRecordRef(ResourceUnitOfMeasureRecordRef, CRMUoMId) then
+                                Error(NotCoupledResourceUoMErr, CRMProductName.CDSServiceName(), SalesInvoiceLine."Unit of Measure Code");
+
+                            CRMInvoicedetail.UoMId := CRMUoMId;
+                        end;
+                end
+            else
+                CRMInvoicedetail.UoMId := CRMProduct.DefaultUoMId;
         end;
     end;
 
@@ -1770,6 +1890,9 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         RecID: RecordID;
         CRMID: Guid;
     begin
+        OnFindNewValueForCoupledRecordPK(IntegrationTableMapping, SourceFieldRef, DestinationFieldRef, NewValue, IsValueFound);
+        if IsValueFound then
+            exit(true);
         if CRMSynchHelper.FindNewValueForSpecialMapping(SourceFieldRef, NewValue) then
             exit(true);
         case IntegrationTableMapping.Direction of
@@ -1809,6 +1932,11 @@ codeunit 5341 "CRM Int. Table. Subscriber"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateCRMInvoiceBeforeInsertRecord(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindNewValueForCoupledRecordPK(IntegrationTableMapping: Record "Integration Table Mapping"; SourceFieldRef: FieldRef; DestinationFieldRef: FieldRef; var NewValue: Variant; var IsValueFound: Boolean)
     begin
     end;
 }

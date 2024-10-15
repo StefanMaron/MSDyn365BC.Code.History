@@ -280,7 +280,7 @@ codeunit 144050 "ERM Finance Reports"
     end;
 
     [Test]
-    [HandlerFunctions('ApplyCustomerEntriesHandler,VATAdvNotAccProofReqPageHandler')]
+    [HandlerFunctions('ApplyCustomerEntriesHandler,VATAdvNotAccProofReqPageHandler,ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure GLVATReconciliationWithUnrealizedVATTrueAndPmtDisc()
     var
@@ -291,7 +291,7 @@ codeunit 144050 "ERM Finance Reports"
     end;
 
     [Test]
-    [HandlerFunctions('ApplyCustomerEntriesHandler,VATAdvNotAccProofReqPageHandler')]
+    [HandlerFunctions('ApplyCustomerEntriesHandler,VATAdvNotAccProofReqPageHandler,ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure GLVATReconciliationWithUnrealizedVATFalseAndPmtDisc()
     var
@@ -322,7 +322,7 @@ codeunit 144050 "ERM Finance Reports"
     end;
 
     [Test]
-    [HandlerFunctions('ApplyCustomerEntriesHandler,VATAdvNotAccProofReqPageHandler')]
+    [HandlerFunctions('ApplyCustomerEntriesHandler,VATAdvNotAccProofReqPageHandler,ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure GLVATReconciliationWithUnrealizedVATTrueMultipleDisc()
     var
@@ -333,7 +333,7 @@ codeunit 144050 "ERM Finance Reports"
     end;
 
     [Test]
-    [HandlerFunctions('ApplyCustomerEntriesHandler,VATAdvNotAccProofReqPageHandler')]
+    [HandlerFunctions('ApplyCustomerEntriesHandler,VATAdvNotAccProofReqPageHandler,ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure GLVATReconciliationWithUnrealizedVATFalseMultipleDisc()
     var
@@ -691,6 +691,13 @@ codeunit 144050 "ERM Finance Reports"
         GLVATReconciliation.EndDateReq.SetValue(Format(WorkDate));  // Setting value for control End Date.
         GLVATReconciliation.PeriodSelection.SetValue(Format(PeriodSelection::"Within Period"));  // Setting value for control Period Selection.
         GLVATReconciliation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerYes(QuestionText: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 

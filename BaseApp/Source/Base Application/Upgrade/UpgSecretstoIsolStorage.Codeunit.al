@@ -7,7 +7,12 @@ codeunit 104020 "Upg Secrets to Isol. Storage"
     end;
 
     trigger OnUpgradePerCompany()
+    var
+        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
+            exit;
+
         MoveServicePasswordToIsolatedStorage();
         MoveGraphMailRefreshCodeToIsolatedStorage();
         MoveAzureADAppSetupSecretToIsolatedStorage();

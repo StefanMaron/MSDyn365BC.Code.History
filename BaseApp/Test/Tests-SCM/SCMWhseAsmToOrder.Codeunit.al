@@ -2209,6 +2209,39 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure FromAsmBinCodeAsDefaultBinForAssemblyToOrder()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        ShipBin: Record Bin;
+        FromAsmBin: Record Bin;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        AssemblyHeader: Record "Assembly Header";
+    begin
+        // [FEATURE] [Bin]
+        // [SCENARIO 406250] "From-Assembly Bin Code" is used as a default bin code for assembly-to-order.
+        Initialize();
+
+        CreateATOItem(Item);
+
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, true);
+        LibraryWarehouse.CreateBin(ShipBin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBin(FromAsmBin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        Location.Validate("Shipment Bin Code", ShipBin.Code);
+        Location.Validate("From-Assembly Bin Code", FromAsmBin.Code);
+        Location.Modify(true);
+
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '',
+            Item."No.", LibraryRandom.RandInt(10), Location.Code, WorkDate());
+
+        LibraryAssembly.FindLinkedAssemblyOrder(
+            AssemblyHeader, SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        AssemblyHeader.TestField("Bin Code", FromAsmBin.Code);
+    end;
+
     local procedure CreateAsmItemWithAsmBOMAndAddInventory(var Item: Record Item; var Location: Record Location)
     var
         ChildItem: Record Item;
