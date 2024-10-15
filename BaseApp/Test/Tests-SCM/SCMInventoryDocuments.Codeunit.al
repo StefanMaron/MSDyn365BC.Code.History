@@ -30,7 +30,7 @@ codeunit 137140 "SCM Inventory Documents"
         RoundingErr: Label 'is of lesser precision than expected';
         ItemNoErr: Label 'Item No. are not equal';
         UnitOfMeasureCodeErr: Label 'Unit of Measure Code are not equal';
-        UnitCostErr: Label 'Unit Code are not equal';
+        UnitCostErr: Label 'Unit Cost are not equal';
         DimensionErr: Label 'Expected dimension should be %1.', Comment = '%1=Value';
 
     [Test]
@@ -459,6 +459,65 @@ codeunit 137140 "SCM Inventory Documents"
         // Verify
         asserterror InvtDocumentLine.Validate(Quantity, -1);
         Assert.ExpectedError('cannot be negative');
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandler,EnterQuantityToCreateModalPageHandler,NotCopiedAppliesValuesMessageHandler')]
+    [Scope('OnPrem')]
+    procedure CopyInvReceiptFromPostedInvReceiptWithItemTrackedLines()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        SNTrackedItem: Record Item;
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        InvtRcptHeader: Record "Invt. Receipt Header";
+        CopyInvtDocMgt: Codeunit "Copy Invt. Document Mgt.";
+    begin
+        // [FEATURE] [Item Receipt] [Item Tracking] [Copy Document]
+        // [SCENARIO 307763] Posting item receipt with multiple serial nos. generates a separate warehouse entry for each serial no.
+        Initialize();
+
+        // [GIVEN] Location
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Serial No. tracked item and item without tracking.
+        CreateSNTrackedItem(SNTrackedItem);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create item receipt, with 2 lines, assign 5 serial nos. to the line with tracking.
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Receipt, Location.Code);
+        LibraryInventory.CreateInvtDocumentLine(InvtDocumentHeader, InvtDocumentLine, Item."No.", LibraryRandom.RandInt(100), LibraryRandom.RandInt(10));
+        LibraryInventory.CreateInvtDocumentLine(InvtDocumentHeader, InvtDocumentLine, SNTrackedItem."No.", LibraryRandom.RandInt(100), LibraryRandom.RandInt(10));
+        LibraryVariableStorage.Enqueue(ItemTrackingAction::AssignSerialNo);
+        InvtDocumentLine.OpenItemTrackingLines();
+
+        // [GIVEN] Post the item receipt.
+        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
+
+        // [GIVEN] Find posted Inventory Receipt.
+        InvtRcptHeader.SetRange("Receipt No.", InvtDocumentHeader."No.");
+        InvtRcptHeader.FindLast();
+
+        // [GIVEN] Init new Inventory Receipt.
+        InvtDocumentHeader.Init();
+        InvtDocumentHeader."Document Type" := InvtDocumentHeader."Document Type"::Receipt;
+        InvtDocumentHeader.InitRecord();
+        InvtDocumentHeader.Insert();
+
+        // [WHEN] [THAN] Coping from posted Inventory Receipt with NewFillAppliesFields = true will be done without error
+        CopyInvtDocMgt.SetProperties(true, false, false, false, true);
+        CopyInvtDocMgt.CopyItemDoc(Enum::"Invt. Doc. Document Type From"::"Posted Receipt", InvtRcptHeader."No.", InvtDocumentHeader);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure NotCopiedAppliesValuesMessageHandler(Msg: Text[1024])
+    var
+        InvDocCopyIssue: Label 'Inventory Document copying issue.';
+        LinesNotAppliedMsg: Label 'There is 1 document line(s) with Item Tracking which requires manual specify of apply to/from numbers within Item Tracking Lines';
+    begin
+        Assert.IsTrue(StrPos(Msg, LinesNotAppliedMsg) > 0, InvDocCopyIssue);
     end;
 
     [Test]
@@ -1027,6 +1086,53 @@ codeunit 137140 "SCM Inventory Documents"
             InvtShipment."Shortcut Dimension 1 Code".Value,
             InvtShipment.ShipmentLines."Shortcut Dimension 1 Code".Value,
             StrSubstNo(DimensionErr, InvtShipment."Shortcut Dimension 1 Code".Value));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyUnitCostWithDiffBaseUOM()
+    var
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Location: Record Location;
+        Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        // [SCENARIO 469309] Unit cost is not populated when item no. is entered or Uom is changed in Inventory receipt lines
+        Initialize();
+
+        // [GIVEN] Create Location with Inventory Posting Setup
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create Item and one Item Unit of Measure Code
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Add Unit cost in the Item
+        Item."Unit Cost" := LibraryRandom.RandDec(10, 2);
+        Item.Modify();
+
+        // [GIVEN] Create New Unit of Measure Code.
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+
+        // [GIVEN] Create new Item Unit of Measure Code.
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitOfMeasure.Code, 2);
+
+        // [GIVEN] Create Inventory Receipt with Location Code and update Posting No. on Inventory Receipt Document.
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Receipt, Location.Code);
+        InvtDocumentHeader."Posting No." := LibraryUtility.GenerateGUID();
+        InvtDocumentHeader.Modify();
+
+        // [GIVEN] Create Inventory Receipt Line and update Unit of Measure Code other than Base Unit of Measure Code
+        LibraryInventory.CreateInvtDocumentLine(
+        InvtDocumentHeader, InvtDocumentLine, Item."No.", Item."Unit Cost", LibraryRandom.RandDec(10, 2));
+        InvtDocumentLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        InvtDocumentLine.Modify();
+
+        // [VERIFY] Verify Unit Cost will update when Base Unit Of Measure Code is Change to new Unit of Measure Code. 
+        Assert.AreEqual(Item."Unit Cost" * ItemUnitOfMeasure."Qty. per Unit of Measure", InvtDocumentLine."Unit Cost", UnitCostErr);
     end;
 
     local procedure Initialize()

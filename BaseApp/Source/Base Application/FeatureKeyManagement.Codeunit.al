@@ -4,9 +4,11 @@ codeunit 265 "Feature Key Management"
 
     var
         FeatureManagementFacade: Codeunit "Feature Management Facade";
-        AllowMultipleCustVendPostingGroupsTxt: Label 'AllowMultipleCustVendPostingGroups', Locked = true;
-        ExtensibleExchangeRateAdjustmentTxt: Label 'ExtensibleExchangeRateAdjustment', Locked = true;
-        ExtensibleInvoicePostingEngineTxt: Label 'ExtensibleInvoicePostingEngine', Locked = true;
+        FeatureCannotBeEnabledErr: Label 'Feature ''%1'' cannot be enabled for Production environment. This feature replace old implememtation by new one and currently made available as developer preview for extension update only.', Comment = '%1 - feature description';
+        FeatureShouldBeEnabledErr: Label 'You need to enable this feature first: %1', Comment = '%1 - feature name';
+        AllowMultipleCustVendPostingGroupsLbl: Label 'AllowMultipleCustVendPostingGroups', Locked = true;
+        ExtensibleExchangeRateAdjustmentLbl: Label 'ExtensibleExchangeRateAdjustment', Locked = true;
+        ExtensibleInvoicePostingEngineLbl: Label 'ExtensibleInvoicePostingEngine', Locked = true;
 #if not CLEAN21
         ModernActionBarLbl: Label 'ModernActionBar', Locked = true;
 #endif
@@ -35,17 +37,27 @@ codeunit 265 "Feature Key Management"
 
     local procedure GetAllowMultipleCustVendPostingGroupsFeatureKey(): Text[50]
     begin
-        exit(AllowMultipleCustVendPostingGroupsTxt);
+        exit(AllowMultipleCustVendPostingGroupsLbl);
     end;
 
     local procedure GetExtensibleExchangeRateAdjustmentFeatureKey(): Text[50]
     begin
-        exit(ExtensibleExchangeRateAdjustmentTxt);
+        exit(ExtensibleExchangeRateAdjustmentLbl);
     end;
 
     local procedure GetExtensibleInvoicePostingEngineFeatureKey(): Text[50]
     begin
-        exit(ExtensibleInvoicePostingEngineTxt);
+        exit(ExtensibleInvoicePostingEngineLbl);
+    end;
+
+    internal procedure GetFeatureCannotBeEnabledErr(): Text
+    begin
+        exit(FeatureCannotBeEnabledErr);
+    end;
+
+    internal procedure GetFeatureShouldBeEnabledErr(): Text
+    begin
+        exit(FeatureShouldBeEnabledErr);
     end;
 
 #if not CLEAN21
@@ -59,8 +71,28 @@ codeunit 265 "Feature Key Management"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Feature Management Facade", 'OnAfterFeatureEnableConfirmed', '', false, false)]
     local procedure HandleOnAfterFeatureEnableConfirmed(var FeatureKey: Record "Feature Key")
     var
+        RequiredFeatureKey: Record "Feature Key";
+        EnvironmentInformation: Codeunit "Environment Information";
         FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
+        // Check feature dependencies and if feature can be enabled for Production environment
+        case FeatureKey.ID of
+            ExtensibleExchangeRateAdjustmentLbl:
+                if EnvironmentInformation.IsSaaS() and EnvironmentInformation.IsProduction() then
+                    error(FeatureCannotBeEnabledErr, FeatureKey.Description);
+            ExtensibleInvoicePostingEngineLbl:
+                if EnvironmentInformation.IsSaaS() and EnvironmentInformation.IsProduction() then
+                    error(FeatureCannotBeEnabledErr, FeatureKey.Description);
+            AllowMultipleCustVendPostingGroupsLbl:
+                begin
+                    if EnvironmentInformation.IsSaaS() and EnvironmentInformation.IsProduction() then
+                        error(FeatureCannotBeEnabledErr, FeatureKey.Description);
+                    RequiredFeatureKey.Get(ExtensibleExchangeRateAdjustmentLbl);
+                    if RequiredFeatureKey.Enabled <> RequiredFeatureKey.Enabled::"All Users" then
+                        error(FeatureShouldBeEnabledErr, RequiredFeatureKey.Description);
+                end;
+        end;
+
         if FeatureKey.ID = ModernActionBarLbl then
             FeatureTelemetry.LogUptake('0000I8D', ModernActionBarLbl, Enum::"Feature Uptake Status"::Discovered);
     end;
