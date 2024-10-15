@@ -663,7 +663,7 @@ page 900 "Assembly Order"
 
                     trigger OnAction()
                     begin
-                        UpdateWarningOnLines()
+                        Rec.UpdateWarningOnLines();
                     end;
                 }
                 action("Update Unit Cost")
@@ -845,7 +845,6 @@ page 900 "Assembly Order"
     begin
         IsUnitCostEditable := not IsStandardCostItem;
         IsAsmToOrderEditable := not IsAsmToOrder;
-        UpdateWarningOnLines();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -865,6 +864,7 @@ page 900 "Assembly Order"
     begin
         IsUnitCostEditable := true;
         IsAsmToOrderEditable := true;
+        Rec.UpdateWarningOnLines();
     end;
 
     var

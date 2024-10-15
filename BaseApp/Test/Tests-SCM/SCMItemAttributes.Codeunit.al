@@ -2463,6 +2463,41 @@ codeunit 137413 "SCM Item Attributes"
         TempNewItemAttributeValue.TestField(Value, '0');
     end;
 
+    [Test]
+    [HandlerFunctions('FilterItemAttributesHandler')]
+    procedure FilteringByItemAttributeOfDateType()
+    var
+        ItemAttribute: Record "Item Attribute";
+        ItemAttributeValue: Record "Item Attribute Value";
+        Item: Record Item;
+        ItemList: TestPage "Item List";
+    begin
+        // [SCENARIO 428893] Filtering by item attribute of type = Date.
+        Initialize();
+
+        // [GIVEN] Item Attribute "A" of type = Date. Set value = '25/01/2024' (DD/MM/YYYY).
+        LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Date, '');
+        LibraryInventory.CreateItemAttributeValue(ItemAttributeValue, ItemAttribute.ID, Format(WorkDate()));
+
+        // [GIVEN] Create item "I" and assign item attribute "A" to it.
+        LibraryInventory.CreateItem(Item);
+        SetItemAttributeValue(Item, ItemAttributeValue);
+
+        // [WHEN] Filter items by attributes - select attribute "A" and value '25'.
+        ItemList.OpenView();
+        LibraryVariableStorage.Enqueue(1);
+        LibraryVariableStorage.Enqueue(ItemAttribute.Name);
+        LibraryVariableStorage.Enqueue(Format(Date2DMY(WorkDate(), 1)));
+        ItemList.FilterByAttributes.Invoke();
+
+        // [THEN] The item "I" is found.
+        Assert.AreEqual(Item."No.", ItemList.FILTER.GetFilter("No."), '');
+        ItemList.First();
+        Assert.AreEqual(Item."No.", ItemList."No.".Value, '');
+
+        ItemList.Close();
+    end;
+
     local procedure Initialize()
     var
         ItemAttribute: Record "Item Attribute";
