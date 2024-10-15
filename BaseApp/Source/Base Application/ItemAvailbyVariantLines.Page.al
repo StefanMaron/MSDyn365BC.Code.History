@@ -342,7 +342,7 @@ page 5415 "Item Avail. by Variant Lines"
 
     local procedure ShowItemAvailLineList(What: Integer)
     begin
-        SetItemFilter;
+        SetItemFilter();
         ItemAvailFormsMgt.ShowItemAvailLineList(Item, What);
     end;
 
@@ -350,7 +350,7 @@ page 5415 "Item Avail. by Variant Lines"
     var
         DummyQtyAvailable: Decimal;
     begin
-        SetItemFilter;
+        SetItemFilter();
         ItemAvailFormsMgt.CalcAvailQuantities(
           Item, AmountType = AmountType::"Balance at Date",
           GrossRequirement, PlannedOrderRcpt, ScheduledRcpt,

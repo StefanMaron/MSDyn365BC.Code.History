@@ -39,7 +39,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
 
         // [WHEN] Sales tax setup wizard is canceled
         RunWizardToCompletion(SalesTaxSetupWizard, TempSalesTaxSetupWizard);
-        SalesTaxSetupWizard.Close;
+        SalesTaxSetupWizard.Close();
 
         // [THEN] Status of the setup step is still set to Not Completed
         Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, PAGE::"Sales Tax Setup Wizard"), 'Guided Experience status should not be completed.');
@@ -61,7 +61,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
         // [WHEN] Sales tax setup wizard is canceled
         SalesTaxSetupWizard.Trap;
         PAGE.Run(PAGE::"Sales Tax Setup Wizard");
-        SalesTaxSetupWizard.Close;
+        SalesTaxSetupWizard.Close();
 
         // [THEN] Status of the setup step is still set to Not Completed
         Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, PAGE::"Sales Tax Setup Wizard"), 'Guided Experience status should not be completed.');
@@ -863,7 +863,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
         SalesTaxSetupWizard: Record "Sales Tax Setup Wizard";
         TaxSetup: Record "Tax Setup";
     begin
-        GeneralLedgerSetup."Allow G/L Acc. Deletion Before" := WorkDate;
+        GeneralLedgerSetup."Allow G/L Acc. Deletion Before" := WorkDate();
         GeneralLedgerSetup.Modify();
 
         SalesTaxSetupWizard.DeleteAll();

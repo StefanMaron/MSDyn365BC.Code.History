@@ -452,7 +452,7 @@ codeunit 139053 "Office Addin Popout"
         // Verify "New Sales Quote" action is visible.
         Assert.IsTrue(CustomerCard.NewSalesQuoteAddin.Visible, 'New Sales Quote (add-in) should be visible');
         Assert.IsFalse(CustomerCard.NewSalesQuote.Visible, 'New Sales Quote shouldn''t be visible.');
-        CustomerCard.Close;
+        CustomerCard.Close();
     end;
 
     [PageHandler]
@@ -462,7 +462,7 @@ codeunit 139053 "Office Addin Popout"
         // Verify "New Sales Invoice" action is visible.
         Assert.IsTrue(CustomerCard.NewSalesInvoiceAddin.Visible, 'New Sales Invoice (add-in) should be visible.');
         Assert.IsFalse(CustomerCard.NewSalesInvoice.Visible, 'New Sales Invoice shouldn''t be visible.');
-        CustomerCard.Close;
+        CustomerCard.Close();
     end;
 
     [PageHandler]
@@ -472,7 +472,7 @@ codeunit 139053 "Office Addin Popout"
         // Verify "New Sales Credit Memo" action is visible.
         Assert.IsTrue(CustomerCard.NewSalesCreditMemoAddin.Visible, 'New Sales Credit Memo (add-in) should be visible.');
         Assert.IsFalse(CustomerCard.NewSalesCreditMemo.Visible, 'New Sales Credit Memo shoudln''t be visible.');
-        CustomerCard.Close;
+        CustomerCard.Close();
     end;
 
     [PageHandler]
@@ -493,7 +493,7 @@ codeunit 139053 "Office Addin Popout"
         // Validate Vendor Address is copied over to new Purchase Invoice
         PurchaseInvoice."Buy-from Address".AssertEquals(VendorCard.Address.Value);
 
-        VendorCard.Close;
+        VendorCard.Close();
     end;
 
     [PageHandler]
@@ -507,7 +507,7 @@ codeunit 139053 "Office Addin Popout"
         LibraryVariableStorage.Enqueue(VendorCard.Address.Value);
         VendorCard.NewPurchaseCrMemo.Invoke;
 
-        VendorCard.Close;
+        VendorCard.Close();
     end;
 
     [PageHandler]

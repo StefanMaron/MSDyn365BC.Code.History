@@ -16,7 +16,7 @@ codeunit 10120 "Bank Rec.-Post"
 
     trigger OnRun()
     begin
-        ClearAll;
+        ClearAll();
 
         BankRecHeader := Rec;
         with BankRecHeader do begin
@@ -111,13 +111,13 @@ codeunit 10120 "Bank Rec.-Post"
             OnRunOnBeforeBankAccountModify(BankAccount, BankRecHeader, PostedBankRecHeader);
             BankAccount.Modify();
 
-            Delete;
+            Delete();
 
             Commit();
-            Window.Close;
+            Window.Close();
         end;
         if GLSetup."Bank Rec. Adj. Doc. Nos." <> '' then
-            NoSeriesMgt.SaveNoSeries;
+            NoSeriesMgt.SaveNoSeries();
         Rec := BankRecHeader;
         UpdateAnalysisView.UpdateAll(0, true);
     end;
@@ -342,7 +342,7 @@ codeunit 10120 "Bank Rec.-Post"
                 else
                     "Bank Ledger Entry No." := GLEntry."Entry No.";
                 "Check Ledger Entry No." := 0;
-                Modify;
+                Modify();
                 UpdateLedgers(BankRecLine2, SetStatus::Posted);
             end;
     end;

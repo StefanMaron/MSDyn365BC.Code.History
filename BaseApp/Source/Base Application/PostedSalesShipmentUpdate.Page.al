@@ -16,20 +16,20 @@ page 1350 "Posted Sales Shipment - Update"
         {
             group(General)
             {
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the record.';
                 }
-                field("Sell-to Customer Name"; "Sell-to Customer Name")
+                field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Customer';
                     Editable = false;
                     ToolTip = 'Specifies the name of customer at the sell-to address.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -39,21 +39,21 @@ page 1350 "Posted Sales Shipment - Update"
             group(Shipping)
             {
                 Caption = 'Shipping';
-                field("Shipping Agent Code"; "Shipping Agent Code")
+                field("Shipping Agent Code"; Rec."Shipping Agent Code")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Agent';
                     Editable = true;
                     ToolTip = 'Specifies which shipping agent is used to transport the items on the sales document to the customer.';
                 }
-                field("Shipping Agent Service Code"; "Shipping Agent Service Code")
+                field("Shipping Agent Service Code"; Rec."Shipping Agent Service Code")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Agent Service';
                     Editable = true;
                     ToolTip = 'Specifies which shipping agent service is used to transport the items on the sales document to the customer.';
                 }
-                field("Package Tracking No."; "Package Tracking No.")
+                field("Package Tracking No."; Rec."Package Tracking No.")
                 {
                     ApplicationArea = Suite;
                     Editable = true;
@@ -63,12 +63,12 @@ page 1350 "Posted Sales Shipment - Update"
             group("Electronic Document")
             {
                 Caption = 'Electronic Document';
-                field("CFDI Cancellation Reason Code"; "CFDI Cancellation Reason Code")
+                field("CFDI Cancellation Reason Code"; Rec."CFDI Cancellation Reason Code")
                 {
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the reason for the cancellation as a code.';
                 }
-                field("Substitution Document No."; "Substitution Document No.")
+                field("Substitution Document No."; Rec."Substitution Document No.")
                 {
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the document number that replaces the canceled one. It is required when the cancellation reason is 01.';
@@ -89,7 +89,7 @@ page 1350 "Posted Sales Shipment - Update"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction = ACTION::LookupOK then
-            if RecordChanged then
+            if RecordChanged() then
                 CODEUNIT.Run(CODEUNIT::"Shipment Header - Edit", Rec);
     end;
 

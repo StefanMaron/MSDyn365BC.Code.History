@@ -86,7 +86,7 @@ codeunit 144015 "Bank Account Reconciliation"
         // Setup: Create Number Series, Create and Post Payment journal, Create Bank Reconciliation with Adjustment Lines.
         Initialize();
         CreateNoSeries(NoSeriesLine);
-        DocumentNo := NoSeriesManagement.GetNextNo(NoSeriesLine."Series Code", WorkDate, false);  // FALSE for Modify Series.
+        DocumentNo := NoSeriesManagement.GetNextNo(NoSeriesLine."Series Code", WorkDate(), false);  // FALSE for Modify Series.
         UpdateGeneralLedgerSetup(OldNoSeriesCode, NoSeriesLine."Series Code");
         BalanceAccountNo := CreateGeneralJournalLine(GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -330,7 +330,7 @@ codeunit 144015 "Bank Account Reconciliation"
     local procedure CreateBankRecLine(var BankRecLine: Record "Bank Rec. Line"; BankRecHeader: Record "Bank Rec. Header"; DepositCleared: Boolean)
     begin
         with BankRecLine do begin
-            Init;
+            Init();
             "Bank Account No." := BankRecHeader."Bank Account No.";
             "Statement No." := BankRecHeader."Statement No.";
             "Record Type" := "Record Type"::Deposit;
@@ -343,7 +343,7 @@ codeunit 144015 "Bank Account Reconciliation"
             Amount := LibraryRandom.RandDec(100, 2);
             Cleared := DepositCleared;
             "External Document No." := LibraryUtility.GenerateRandomCode(FieldNo("External Document No."), DATABASE::"Bank Rec. Line");
-            Modify;
+            Modify();
         end;
     end;
 
@@ -423,7 +423,7 @@ codeunit 144015 "Bank Account Reconciliation"
             "Dimension Code" := DimensionValue."Dimension Code";
             "Dimension Value Code" := DimensionValue.Code;
             "Dimension Value ID" := DimensionValue."Dimension Value ID";
-            Insert;
+            Insert();
         end;
         exit(DimMgt.GetDimensionSetID(TempDimSetEntry));
     end;

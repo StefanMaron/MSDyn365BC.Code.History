@@ -387,7 +387,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         Initialize();
 
         // Exercise: Create Tax Area Line and General Journal Line using Tax Setup
-        CreateAndPostGenJournalWithTaxDetail(GenJournalLine, WorkDate);
+        CreateAndPostGenJournalWithTaxDetail(GenJournalLine, WorkDate());
 
         // Verify: Verify Amount after posting General Journal Line with GST/HST in G/L Entry.
         VerifyGLEntryAmount(GenJournalLine);
@@ -504,7 +504,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         Initialize();
 
         // Exercise: Create Tax Area Line and General Journal Line using Tax Setup.
-        CreateAndPostGenJournalWithTaxDetail(GenJournalLine, WorkDate);
+        CreateAndPostGenJournalWithTaxDetail(GenJournalLine, WorkDate());
 
         // Verify: Verify VAT Entry values after posting General Journal Line with GST/HST in G/L Entry.
         VerifyVATEntry(
@@ -1311,7 +1311,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // [GIVEN] Purchase invoice with Currency, "Tax Liable" = TRUE, "Tax Area Code" = "NOTAX", "Provincial Tax Area Code" = "PROVTAX" and G/L Account line
         GLAccountNo := CreateGLAccount('', TaxableTaxGroupCode);
         CreatePurchaseInvoiceWithProvTaxSetup(
-          PurchaseHeader, LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 0.74783, 0.74783),
+          PurchaseHeader, LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 0.74783, 0.74783),
           NoTaxAreaCode, ProvTaxAreaCode, GLAccountNo, 100);
 
         // [WHEN] Post the purchase invoice
@@ -1547,7 +1547,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
 
         // [THEN] Amount Including VAT <> 0
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         Assert.AreNotEqual(0, PurchaseLine."Amount Including VAT", PurchaseLine.FieldCaption("Amount Including VAT"));
     end;
 
@@ -1574,7 +1574,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
 
         // [THEN] Amount Including VAT = 125
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         Assert.AreEqual(AmountInclVAT, PurchaseLine."Amount Including VAT", PurchaseLine.FieldCaption("Amount Including VAT"));
     end;
 
@@ -1599,7 +1599,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         LibrarySales.ReopenSalesDocument(SalesHeader);
 
         // [THEN] Amount Including VAT <> 0
-        SalesLine.Find;
+        SalesLine.Find();
         Assert.AreNotEqual(0, SalesLine."Amount Including VAT", SalesLine.FieldCaption("Amount Including VAT"));
         UpdateCustomer(SalesHeader."Bill-to Customer No.");
     end;
@@ -1626,7 +1626,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         LibrarySales.ReopenSalesDocument(SalesHeader);
 
         // [THEN] Amount Including VAT = 125
-        SalesLine.Find;
+        SalesLine.Find();
         Assert.AreEqual(AmountInclVAT, SalesLine."Amount Including VAT", SalesLine.FieldCaption("Amount Including VAT"));
         UpdateCustomer(SalesHeader."Bill-to Customer No.");
     end;
@@ -1732,7 +1732,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         PurchaseOrder.OpenEdit;
         PurchaseOrder.GotoRecord(PurchaseHeader);
         PurchaseOrder.Statistics.Invoke;  // Opens Page Handler - PurchaseOrderStatsPageHandler
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
 
         // [THEN] No error message appear
         // "Tax Amount" Assertion is done in PurchaseOrderStatsPageHandler
@@ -1916,7 +1916,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // [GIVEN] Last line is nontaxable
         CreateCustomPurchaseInvoice_TFS210430(
           PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
-          TaxAreaCode, TaxGroupCode, LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1, 1));
+          TaxAreaCode, TaxGroupCode, LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, 1));
 
         // [WHEN] Post the invoice
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1948,7 +1948,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // [GIVEN] Last line is nontaxable
         CreateCustomSalesInvoice_TFS210430(
           SalesHeader, SalesHeader."Document Type"::Invoice,
-          TaxAreaCode, TaxGroupCode, LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1, 1));
+          TaxAreaCode, TaxGroupCode, LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, 1));
 
         // [WHEN] Post the invoice
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1980,7 +1980,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // [GIVEN] Last line is nontaxable
         CreateCustomPurchaseInvoice_TFS210430(
           PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
-          TaxAreaCode, TaxGroupCode, LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1, 1));
+          TaxAreaCode, TaxGroupCode, LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, 1));
 
         // [WHEN] Post the invoice
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -2012,7 +2012,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // [GIVEN] Last line is nontaxable
         CreateCustomSalesInvoice_TFS210430(
           SalesHeader, SalesHeader."Document Type"::Invoice,
-          TaxAreaCode, TaxGroupCode, LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1, 1));
+          TaxAreaCode, TaxGroupCode, LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, 1));
 
         // [WHEN] Post the invoice
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -2159,7 +2159,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // [GIVEN] Purchase invoice with FCY, several lines with custom amounts, including negative
         CreateCustomPurchaseInvoice_TFS212811(
           PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
-          TaxAreaCode, TaxGroupCode, LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1, 1));
+          TaxAreaCode, TaxGroupCode, LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, 1));
 
         // [WHEN] Post the invoice
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -2190,7 +2190,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // [GIVEN] Sales invoice with FCY, several lines with custom amounts, including negative
         CreateCustomSalesInvoice_TFS212811(
           SalesHeader, SalesHeader."Document Type"::Invoice,
-          TaxAreaCode, TaxGroupCode, LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1, 1));
+          TaxAreaCode, TaxGroupCode, LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, 1));
 
         // [WHEN] Post the invoice
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -2221,7 +2221,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // [GIVEN] Purchase invoice with FCY, several lines with custom amounts, including negative
         CreateCustomPurchaseInvoice_TFS212811(
           PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
-          TaxAreaCode, TaxGroupCode, LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1, 1));
+          TaxAreaCode, TaxGroupCode, LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, 1));
 
         // [WHEN] Post the invoice
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -2252,7 +2252,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // [GIVEN] Sales invoice with FCY, several lines with custom amounts, including negative
         CreateCustomSalesInvoice_TFS212811(
           SalesHeader, SalesHeader."Document Type"::Invoice,
-          TaxAreaCode, TaxGroupCode, LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1, 1));
+          TaxAreaCode, TaxGroupCode, LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, 1));
 
         // [WHEN] Post the invoice
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -2603,7 +2603,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // [GIVEN] Last line is nontaxable
         CreateCustomPurchaseInvoice_TFS210430(
           PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
-          TaxAreaCode, TaxGroupCode, LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1, 1));
+          TaxAreaCode, TaxGroupCode, LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, 1));
 
         // [WHEN] Validate "Tax Area" header value on a purchase invoice page
         ValidatePurchaseInvoiceTaxAreaThroughPage(PurchaseHeader, TaxAreaCode);
@@ -2632,7 +2632,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // [GIVEN] Last line is nontaxable
         CreateCustomPurchaseInvoice_TFS210430(
           PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
-          TaxAreaCode, TaxGroupCode, LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1, 1));
+          TaxAreaCode, TaxGroupCode, LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, 1));
 
         // [WHEN] Validate "Tax Area" header value on a purchase invoice page
         ValidatePurchaseInvoiceTaxAreaThroughPage(PurchaseHeader, TaxAreaCode);
@@ -2840,7 +2840,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // [GIVEN] Last line is nontaxable
         CreateCustomSalesInvoice_TFS210430(
           SalesHeader, SalesHeader."Document Type"::Invoice,
-          TaxAreaCode, TaxGroupCode, LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1, 1));
+          TaxAreaCode, TaxGroupCode, LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, 1));
 
         // [WHEN] Validate "Tax Area" header value on a purchase invoice page
         ValidateSalesInvoiceTaxAreaThroughPage(SalesHeader, TaxAreaCode);
@@ -2868,7 +2868,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // [GIVEN] Last line is nontaxable
         CreateCustomSalesInvoice_TFS210430(
           SalesHeader, SalesHeader."Document Type"::Invoice,
-          TaxAreaCode, TaxGroupCode, LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1, 1));
+          TaxAreaCode, TaxGroupCode, LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, 1));
 
         // [WHEN] Validate "Tax Area" header value on a purchase invoice page
         ValidateSalesInvoiceTaxAreaThroughPage(SalesHeader, TaxAreaCode);
@@ -3075,7 +3075,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         repeat
             LibraryReportValidation.VerifyCellValueByRef('P', RowNo, 1, LibraryReportValidation.FormatDecimalValue(SalesLine."Unit Price"));
             RowNo += 1;
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     [Test]
@@ -3160,7 +3160,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         Assert.ExpectedError(
           StrSubstNo(
             UseTaxCannotBeSetErr,
-            PurchaseLine.FieldCaption("Use Tax"), TaxDetail.TableCaption,
+            PurchaseLine.FieldCaption("Use Tax"), TaxDetail.TableCaption(),
             TaxDetail."Tax Jurisdiction Code", TaxDetail."Tax Group Code"));
     end;
 
@@ -4414,7 +4414,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         TaxAreaCode := CreateTaxAreaLineWithTaxDetail(TaxDetail, TaxDetail2, false, DummyTaxCountry::CA);
         FindVATPostingSetup(VATPostingSetup);
-        CreatePurchaseHeaderWithTaxArea(PurchaseHeader, DocumentType, CreateCurrencyWithCustomExchRate(WorkDate, 1.0339), TaxAreaCode);
+        CreatePurchaseHeaderWithTaxArea(PurchaseHeader, DocumentType, CreateCurrencyWithCustomExchRate(WorkDate(), 1.0339), TaxAreaCode);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
           CreateItem(VATPostingSetup."VAT Prod. Posting Group", TaxDetail."Tax Group Code"), LibraryRandom.RandInt(10));
@@ -4463,7 +4463,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         TaxAreaCode := CreateTaxAreaLineWithTaxDetail(TaxDetail, TaxDetail2, false, TaxCountry);
         FindVATPostingSetup(VATPostingSetup);
-        CreateSalesHeaderWithTaxArea(SalesHeader, DocumentType, CreateCurrencyWithCustomExchRate(WorkDate, 1.0339), TaxAreaCode);
+        CreateSalesHeaderWithTaxArea(SalesHeader, DocumentType, CreateCurrencyWithCustomExchRate(WorkDate(), 1.0339), TaxAreaCode);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(VATPostingSetup."VAT Prod. Posting Group", TaxDetail."Tax Group Code"),
           LibraryRandom.RandInt(10));
@@ -4502,7 +4502,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         FindVATPostingSetup(VATPostingSetup);
         LibraryService.CreateServiceHeader(
           ServiceHeader, DocumentType, CreateCustomer(TaxAreaCode));
-        ServiceHeader.Validate("Currency Code", CreateCurrencyWithCustomExchRate(WorkDate, 1.0339));
+        ServiceHeader.Validate("Currency Code", CreateCurrencyWithCustomExchRate(WorkDate(), 1.0339));
         ServiceHeader.Modify(true);
 
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
@@ -4526,7 +4526,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         TaxGroupCode: Code[20];
         CurrencyCode: Code[10];
     begin
-        CurrencyCode := CreateCurrencyWithCustomExchRate(WorkDate, 0.8);
+        CurrencyCode := CreateCurrencyWithCustomExchRate(WorkDate(), 0.8);
         TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
 
         LibraryERM.CreatePrepaymentVATSetup(
@@ -4712,10 +4712,10 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     var
         SalesOrderList: Page "Sales Order List";
     begin
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         Clear(SalesOrderList);
         if SkipShowingLinesWithoutVAT then
-            SalesOrderList.SkipShowingLinesWithoutVAT;
+            SalesOrderList.SkipShowingLinesWithoutVAT();
         SalesOrderList.SetTableView(SalesHeader);
         SalesOrderList.Run();
     end;
@@ -4724,10 +4724,10 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     var
         PurchaseOrderList: Page "Purchase Order List";
     begin
-        PurchaseHeader.SetRecFilter;
+        PurchaseHeader.SetRecFilter();
         Clear(PurchaseOrderList);
         if SkipShowingLinesWithoutVAT then
-            PurchaseOrderList.SkipShowingLinesWithoutVAT;
+            PurchaseOrderList.SkipShowingLinesWithoutVAT();
         PurchaseOrderList.SetTableView(PurchaseHeader);
         PurchaseOrderList.Run();
     end;
@@ -4753,7 +4753,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
           "Qty. to Invoice", Round(PurchaseLine."Qty. to Invoice" / LibraryRandom.RandIntInRange(3, 5)));
         PurchaseLine.Modify(true);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        PurchaseLine.Find;
+        PurchaseLine.Find();
     end;
 
     local procedure CreatePurchInvWithJobTask(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; TaxDetail: Record "Tax Detail"; JobTask: Record "Job Task"; TaxAreaCode: Code[20])
@@ -4841,8 +4841,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FANo, DepreciationBookCode);
         FADepreciationBook.Validate("Depreciation Book Code", DepreciationBookCode);
-        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate);
-        FADepreciationBook.Validate("Depreciation Ending Date", WorkDate);
+        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate());
+        FADepreciationBook.Validate("Depreciation Ending Date", WorkDate());
         FADepreciationBook.Validate("FA Posting Group", FAPostingGroup);
         FADepreciationBook.Modify(true);
     end;
@@ -5406,7 +5406,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
             Modify(true);
         end;
         LibraryERM.CreateExchangeRate(
-          Currency.Code, WorkDate, LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
+          Currency.Code, WorkDate(), LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
         exit(Currency.Code);
     end;
 
@@ -5436,7 +5436,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
             "Tax Area Code for Key" := LibraryERMTax.CreateTaxArea_US;
             "Tax Base Amount FCY" := TaxBaseAmountFCY;
             "Tax %" := TaxPct;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -5571,14 +5571,14 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
 
     local procedure PrintStandardSalesOrderConfReport(SalesHeader: Record "Sales Header")
     begin
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         Commit();
         REPORT.Run(REPORT::"Standard Sales - Order Conf.", true, false, SalesHeader);
     end;
 
     local procedure PrintSalesOrderReport(SalesHeader: Record "Sales Header")
     begin
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         Commit();
         REPORT.Run(REPORT::"Sales Order", true, false, SalesHeader);
     end;
@@ -5662,7 +5662,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         TaxDetail: Record "Tax Detail";
     begin
         with TaxDetail do begin
-            Get(TaxJurisdictionCode, TaxGroupCode, TaxType, WorkDate);
+            Get(TaxJurisdictionCode, TaxGroupCode, TaxType, WorkDate());
             Validate("Expense/Capitalize", NewValue);
             Modify(true);
         end;
@@ -5675,7 +5675,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         ReportLayoutSelectionPage.OpenEdit;
         ReportLayoutSelectionPage.FILTER.SetFilter("Report ID", Format(ReportID));
         ReportLayoutSelectionPage.Type.SetValue(NewType);
-        ReportLayoutSelectionPage.Close;
+        ReportLayoutSelectionPage.Close();
     end;
 
     local procedure ValidatePurchaseInvoiceTaxAreaThroughPage(var PurchaseHeader: Record "Purchase Header"; TaxAreaCode: Code[20])
@@ -5685,8 +5685,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         PurchaseInvoice.OpenEdit;
         PurchaseInvoice.GotoRecord(PurchaseHeader);
         PurchaseInvoice."Tax Area Code".SetValue(TaxAreaCode);
-        PurchaseInvoice.Close;
-        PurchaseHeader.Find;
+        PurchaseInvoice.Close();
+        PurchaseHeader.Find();
     end;
 
     local procedure ValidatePurchaseInvoiceTaxLiableThroughPage(var PurchaseHeader: Record "Purchase Header"; NewTaxLiable: Boolean)
@@ -5696,8 +5696,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         PurchaseInvoice.OpenEdit;
         PurchaseInvoice.GotoRecord(PurchaseHeader);
         PurchaseInvoice."Tax Liable".SetValue(NewTaxLiable);
-        PurchaseInvoice.Close;
-        PurchaseHeader.Find;
+        PurchaseInvoice.Close();
+        PurchaseHeader.Find();
     end;
 
     local procedure ValidatePurchaseCreditMemoTaxAreaThroughPage(var PurchaseHeader: Record "Purchase Header"; TaxAreaCode: Code[20])
@@ -5707,8 +5707,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         PurchaseCreditMemo.OpenEdit;
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
         PurchaseCreditMemo."Tax Area Code".SetValue(TaxAreaCode);
-        PurchaseCreditMemo.Close;
-        PurchaseHeader.Find;
+        PurchaseCreditMemo.Close();
+        PurchaseHeader.Find();
     end;
 
     local procedure ValidatePurchaseCreditMemoTaxLiableThroughPage(var PurchaseHeader: Record "Purchase Header"; NewTaxLiable: Boolean)
@@ -5718,8 +5718,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         PurchaseCreditMemo.OpenEdit;
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
         PurchaseCreditMemo."Tax Liable".SetValue(NewTaxLiable);
-        PurchaseCreditMemo.Close;
-        PurchaseHeader.Find;
+        PurchaseCreditMemo.Close();
+        PurchaseHeader.Find();
     end;
 
     local procedure ValidatePurchaseOrderTaxAreaThroughPage(var PurchaseHeader: Record "Purchase Header"; TaxAreaCode: Code[20])
@@ -5729,8 +5729,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         PurchaseOrder.OpenEdit;
         PurchaseOrder.GotoRecord(PurchaseHeader);
         PurchaseOrder."Tax Area Code".SetValue(TaxAreaCode);
-        PurchaseOrder.Close;
-        PurchaseHeader.Find;
+        PurchaseOrder.Close();
+        PurchaseHeader.Find();
     end;
 
     local procedure ValidatePurchaseOrderTaxLiableThroughPage(var PurchaseHeader: Record "Purchase Header"; NewTaxLiable: Boolean)
@@ -5740,8 +5740,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         PurchaseOrder.OpenEdit;
         PurchaseOrder.GotoRecord(PurchaseHeader);
         PurchaseOrder."Tax Liable".SetValue(NewTaxLiable);
-        PurchaseOrder.Close;
-        PurchaseHeader.Find;
+        PurchaseOrder.Close();
+        PurchaseHeader.Find();
     end;
 
     local procedure ValidatePurchaseReturnOrderTaxAreaThroughPage(var PurchaseHeader: Record "Purchase Header"; TaxAreaCode: Code[20])
@@ -5751,8 +5751,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         PurchaseReturnOrder.OpenEdit;
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
         PurchaseReturnOrder."Tax Area Code".SetValue(TaxAreaCode);
-        PurchaseReturnOrder.Close;
-        PurchaseHeader.Find;
+        PurchaseReturnOrder.Close();
+        PurchaseHeader.Find();
     end;
 
     local procedure ValidatePurchaseReturnOrderTaxLiableThroughPage(var PurchaseHeader: Record "Purchase Header"; NewTaxLiable: Boolean)
@@ -5762,8 +5762,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         PurchaseReturnOrder.OpenEdit;
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
         PurchaseReturnOrder."Tax Liable".SetValue(NewTaxLiable);
-        PurchaseReturnOrder.Close;
-        PurchaseHeader.Find;
+        PurchaseReturnOrder.Close();
+        PurchaseHeader.Find();
     end;
 
     local procedure ValidatePurchaseBlanketOrderTaxAreaThroughPage(var PurchaseHeader: Record "Purchase Header"; TaxAreaCode: Code[20])
@@ -5773,8 +5773,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         BlanketPurchaseOrder.OpenEdit;
         BlanketPurchaseOrder.GotoRecord(PurchaseHeader);
         BlanketPurchaseOrder."Tax Area Code".SetValue(TaxAreaCode);
-        BlanketPurchaseOrder.Close;
-        PurchaseHeader.Find;
+        BlanketPurchaseOrder.Close();
+        PurchaseHeader.Find();
     end;
 
     local procedure ValidatePurchaseBlanketOrderTaxLiableThroughPage(var PurchaseHeader: Record "Purchase Header"; NewTaxLiable: Boolean)
@@ -5784,8 +5784,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         BlanketPurchaseOrder.OpenEdit;
         BlanketPurchaseOrder.GotoRecord(PurchaseHeader);
         BlanketPurchaseOrder."Tax Liable".SetValue(NewTaxLiable);
-        BlanketPurchaseOrder.Close;
-        PurchaseHeader.Find;
+        BlanketPurchaseOrder.Close();
+        PurchaseHeader.Find();
     end;
 
     local procedure ValidatePurchaseQuoteTaxAreaThroughPage(var PurchaseHeader: Record "Purchase Header"; TaxAreaCode: Code[20])
@@ -5795,8 +5795,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         PurchaseQuote.OpenEdit;
         PurchaseQuote.GotoRecord(PurchaseHeader);
         PurchaseQuote."Tax Area Code".SetValue(TaxAreaCode);
-        PurchaseQuote.Close;
-        PurchaseHeader.Find;
+        PurchaseQuote.Close();
+        PurchaseHeader.Find();
     end;
 
     local procedure ValidatePurchaseQuoteTaxLiableThroughPage(var PurchaseHeader: Record "Purchase Header"; NewTaxLiable: Boolean)
@@ -5806,8 +5806,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         PurchaseQuote.OpenEdit;
         PurchaseQuote.GotoRecord(PurchaseHeader);
         PurchaseQuote."Tax Liable".SetValue(NewTaxLiable);
-        PurchaseQuote.Close;
-        PurchaseHeader.Find;
+        PurchaseQuote.Close();
+        PurchaseHeader.Find();
     end;
 
     local procedure ValidateSalesInvoiceTaxAreaThroughPage(var SalesHeader: Record "Sales Header"; TaxAreaCode: Code[20])
@@ -5817,8 +5817,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         SalesInvoice.OpenEdit;
         SalesInvoice.GotoRecord(SalesHeader);
         SalesInvoice."Tax Area Code".SetValue(TaxAreaCode);
-        SalesInvoice.Close;
-        SalesHeader.Find;
+        SalesInvoice.Close();
+        SalesHeader.Find();
     end;
 
     local procedure ValidateSalesInvoiceTaxLiableThroughPage(var SalesHeader: Record "Sales Header"; NewTaxLiable: Boolean)
@@ -5828,8 +5828,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         SalesInvoice.OpenEdit;
         SalesInvoice.GotoRecord(SalesHeader);
         SalesInvoice."Tax Liable".SetValue(NewTaxLiable);
-        SalesInvoice.Close;
-        SalesHeader.Find;
+        SalesInvoice.Close();
+        SalesHeader.Find();
     end;
 
     local procedure ValidateSalesCreditMemoTaxAreaThroughPage(var SalesHeader: Record "Sales Header"; TaxAreaCode: Code[20])
@@ -5839,8 +5839,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         SalesCreditMemo.OpenEdit;
         SalesCreditMemo.GotoRecord(SalesHeader);
         SalesCreditMemo."Tax Area Code".SetValue(TaxAreaCode);
-        SalesCreditMemo.Close;
-        SalesHeader.Find;
+        SalesCreditMemo.Close();
+        SalesHeader.Find();
     end;
 
     local procedure ValidateSalesCreditMemoTaxLiableThroughPage(var SalesHeader: Record "Sales Header"; NewTaxLiable: Boolean)
@@ -5850,8 +5850,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         SalesCreditMemo.OpenEdit;
         SalesCreditMemo.GotoRecord(SalesHeader);
         SalesCreditMemo."Tax Liable".SetValue(NewTaxLiable);
-        SalesCreditMemo.Close;
-        SalesHeader.Find;
+        SalesCreditMemo.Close();
+        SalesHeader.Find();
     end;
 
     local procedure ValidateSalesOrderTaxAreaThroughPage(var SalesHeader: Record "Sales Header"; TaxAreaCode: Code[20])
@@ -5861,8 +5861,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         SalesOrder.OpenEdit;
         SalesOrder.GotoRecord(SalesHeader);
         SalesOrder."Tax Area Code".SetValue(TaxAreaCode);
-        SalesOrder.Close;
-        SalesHeader.Find;
+        SalesOrder.Close();
+        SalesHeader.Find();
     end;
 
     local procedure ValidateSalesOrderTaxLiableThroughPage(var SalesHeader: Record "Sales Header"; NewTaxLiable: Boolean)
@@ -5872,8 +5872,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         SalesOrder.OpenEdit;
         SalesOrder.GotoRecord(SalesHeader);
         SalesOrder."Tax Liable".SetValue(NewTaxLiable);
-        SalesOrder.Close;
-        SalesHeader.Find;
+        SalesOrder.Close();
+        SalesHeader.Find();
     end;
 
     local procedure ValidateSalesReturnOrderTaxAreaThroughPage(var SalesHeader: Record "Sales Header"; TaxAreaCode: Code[20])
@@ -5883,8 +5883,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         SalesReturnOrder.OpenEdit;
         SalesReturnOrder.GotoRecord(SalesHeader);
         SalesReturnOrder."Tax Area Code".SetValue(TaxAreaCode);
-        SalesReturnOrder.Close;
-        SalesHeader.Find;
+        SalesReturnOrder.Close();
+        SalesHeader.Find();
     end;
 
     local procedure ValidateSalesReturnOrderTaxLiableThroughPage(var SalesHeader: Record "Sales Header"; NewTaxLiable: Boolean)
@@ -5894,8 +5894,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         SalesReturnOrder.OpenEdit;
         SalesReturnOrder.GotoRecord(SalesHeader);
         SalesReturnOrder."Tax Liable".SetValue(NewTaxLiable);
-        SalesReturnOrder.Close;
-        SalesHeader.Find;
+        SalesReturnOrder.Close();
+        SalesHeader.Find();
     end;
 
     local procedure ValidateSalesBlanketOrderTaxAreaThroughPage(var SalesHeader: Record "Sales Header"; TaxAreaCode: Code[20])
@@ -5905,8 +5905,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         BlanketSalesOrder.OpenEdit;
         BlanketSalesOrder.GotoRecord(SalesHeader);
         BlanketSalesOrder."Tax Area Code".SetValue(TaxAreaCode);
-        BlanketSalesOrder.Close;
-        SalesHeader.Find;
+        BlanketSalesOrder.Close();
+        SalesHeader.Find();
     end;
 
     local procedure ValidateSalesBlanketOrderTaxLiableThroughPage(var SalesHeader: Record "Sales Header"; NewTaxLiable: Boolean)
@@ -5916,7 +5916,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         BlanketSalesOrder.OpenEdit;
         BlanketSalesOrder.GotoRecord(SalesHeader);
         BlanketSalesOrder."Tax Liable".SetValue(NewTaxLiable);
-        SalesHeader.Find;
+        SalesHeader.Find();
     end;
 
     local procedure ValidateSalesQuoteTaxAreaThroughPage(var SalesHeader: Record "Sales Header"; TaxAreaCode: Code[20])
@@ -5926,8 +5926,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         SalesQuote.OpenEdit;
         SalesQuote.GotoRecord(SalesHeader);
         SalesQuote."Tax Area Code".SetValue(TaxAreaCode);
-        SalesQuote.Close;
-        SalesHeader.Find;
+        SalesQuote.Close();
+        SalesHeader.Find();
     end;
 
     local procedure ValidateSalesQuoteTaxLiableThroughPage(var SalesHeader: Record "Sales Header"; NewTaxLiable: Boolean)
@@ -5937,8 +5937,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         SalesQuote.OpenEdit;
         SalesQuote.GotoRecord(SalesHeader);
         SalesQuote."Tax Liable".SetValue(NewTaxLiable);
-        SalesQuote.Close;
-        SalesHeader.Find;
+        SalesQuote.Close();
+        SalesHeader.Find();
     end;
 
     local procedure SetupTFS358890SalesTaxLine(var SalesTaxAmountLine: Record "Sales Tax Amount Line")
@@ -6018,7 +6018,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption));
+          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyGLEntryAmount(GenJournalLine: Record "Gen. Journal Line")
@@ -6030,7 +6030,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           GenJournalLine.Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption));
+          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyVATEntry(DocumentType: Option; DocumentNo: Code[20]; Amount: Decimal; GSTHST: Option)
@@ -6043,7 +6043,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         VATEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountError, VATEntry.FieldCaption(Base), VATEntry.Base, VATEntry.TableCaption));
+          StrSubstNo(AmountError, VATEntry.FieldCaption(Base), VATEntry.Base, VATEntry.TableCaption()));
     end;
 
     local procedure VerifyJobLedgerEntryTotalCost(JobNo: Code[20]; DocumentNo: Code[20]; ExpectedAmount: Decimal)

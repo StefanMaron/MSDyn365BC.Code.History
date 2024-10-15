@@ -69,7 +69,7 @@ codeunit 134329 "ERM Purchase Return Order"
         PurchaseLine.FindSet();
         repeat
             PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
     end;
 
     [Test]
@@ -100,7 +100,7 @@ codeunit 134329 "ERM Purchase Return Order"
           PurchaseHeader.Amount * PurchaseLine."VAT %" / 100, VATAmountLine."VAT Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(
             VATAmountError, VATAmountLine.FieldCaption("VAT Amount"), PurchaseHeader.Amount * PurchaseLine."VAT %" / 100,
-            VATAmountLine.TableCaption));
+            VATAmountLine.TableCaption()));
     end;
 
     [Test]
@@ -258,7 +258,7 @@ codeunit 134329 "ERM Purchase Return Order"
         Location.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
@@ -479,7 +479,7 @@ codeunit 134329 "ERM Purchase Return Order"
         // [WHEN] Run Batch Post Purch. Ret. Orders Report with Work Date as Posting Date and all field.
         ShipReq := true;
         InvReq := true;
-        PostingDateReq := WorkDate;
+        PostingDateReq := WorkDate();
         ReplacePostingDate := true;
         ReplaceDocumentDate := true;
         CalcInvDiscount := true;
@@ -519,7 +519,7 @@ codeunit 134329 "ERM Purchase Return Order"
         // [WHEN] Run Batch Post Purch. Ret. Orders Report with Work Date as Posting Date and all field.
         ShipReq := true;
         InvReq := true;
-        PostingDateReq := WorkDate;
+        PostingDateReq := WorkDate();
         ReplacePostingDate := true;
         ReplaceDocumentDate := true;
         CalcInvDiscount := true;
@@ -653,7 +653,7 @@ codeunit 134329 "ERM Purchase Return Order"
         // Exercise: Run Batch Post Purch. Ret. Orders Report with all Fields.
         ShipReq := true;
         InvReq := true;
-        PostingDateReq := WorkDate;
+        PostingDateReq := WorkDate();
         ReplacePostingDate := true;
         ReplaceDocumentDate := true;
         CalcInvDiscount := true;
@@ -685,7 +685,7 @@ codeunit 134329 "ERM Purchase Return Order"
         // Exercise: Run Batch Post Purch. Ret. Orders Report with all Fields.
         ShipReq := true;
         InvReq := true;
-        PostingDateReq := WorkDate;
+        PostingDateReq := WorkDate();
         ReplacePostingDate := true;
         ReplaceDocumentDate := true;
         CalcInvDiscount := true;
@@ -949,7 +949,7 @@ codeunit 134329 "ERM Purchase Return Order"
 
         // [GIVEN] Next number from no. series "Return Receipt No. Series" is "X"
         ExpectedReturnShipmentNo :=
-          LibraryUtility.GetNextNoFromNoSeries(PurchaseHeader."Return Shipment No. Series", WorkDate);
+          LibraryUtility.GetNextNoFromNoSeries(PurchaseHeader."Return Shipment No. Series", WorkDate());
 
         // [WHEN] Post Purchase Return Order as "Shipment"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -1552,7 +1552,7 @@ codeunit 134329 "ERM Purchase Return Order"
         Commit();  // COMMIT need before run report.
 
         // Set filter to current record.
-        PurchaseHeader.SetRecFilter;
+        PurchaseHeader.SetRecFilter();
 
         Clear(BatchPostPurchRetOrders);
         BatchPostPurchRetOrders.SetTableView(PurchaseHeader);
@@ -1567,7 +1567,7 @@ codeunit 134329 "ERM Purchase Return Order"
         ModifyPurchaseLine(PurchaseLine, PurchaseHeader);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure SetupLineDiscount(var PurchaseLineDiscount: Record "Purchase Line Discount")
     var
         Item: Record Item;
@@ -1576,7 +1576,7 @@ codeunit 134329 "ERM Purchase Return Order"
         // Enter Random Values for "Minimum Quantity" and "Line Discount %".
         Item.Get(CreateItem);
         LibraryERM.CreateLineDiscForVendor(
-          PurchaseLineDiscount, Item."No.", CreateVendor, WorkDate, '', '', Item."Base Unit of Measure", LibraryRandom.RandInt(10));
+          PurchaseLineDiscount, Item."No.", CreateVendor, WorkDate(), '', '', Item."Base Unit of Measure", LibraryRandom.RandInt(10));
         PurchaseLineDiscount.Validate("Line Discount %", LibraryRandom.RandInt(10));
         PurchaseLineDiscount.Modify(true);
     end;
@@ -1597,7 +1597,7 @@ codeunit 134329 "ERM Purchase Return Order"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure UpdateInventorySetup(AutomaticCostAdjustment: Option)
+    local procedure UpdateInventorySetup(AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type")
     var
         InventorySetup: Record "Inventory Setup";
     begin
@@ -1643,11 +1643,11 @@ codeunit 134329 "ERM Purchase Return Order"
         ReturnShipmentLine.FindSet();
         repeat
             TotalAmount += ReturnShipmentLine.Quantity * ReturnShipmentLine."Direct Unit Cost";
-        until ReturnShipmentLine.Next = 0;
+        until ReturnShipmentLine.Next() = 0;
         GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(
           Amount, TotalAmount, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(LineAmountError, Amount, ReturnShipmentLine.TableCaption));
+          StrSubstNo(LineAmountError, Amount, ReturnShipmentLine.TableCaption()));
     end;
 
     local procedure VerifyPostedCreditMemo(ReturnOrderNo: Code[20]; AppliestoDocNo: Code[20])
@@ -1659,10 +1659,10 @@ codeunit 134329 "ERM Purchase Return Order"
         Assert.AreEqual(PurchCrMemoHdr."Applies-to Doc. Type"::Invoice, PurchCrMemoHdr."Applies-to Doc. Type"::Invoice,
           StrSubstNo(
             FieldError, PurchCrMemoHdr.FieldCaption("Applies-to Doc. Type"), PurchCrMemoHdr."Applies-to Doc. Type"::Invoice,
-            PurchCrMemoHdr.TableCaption));
+            PurchCrMemoHdr.TableCaption()));
         Assert.AreEqual(
           AppliestoDocNo, PurchCrMemoHdr."Applies-to Doc. No.",
-          StrSubstNo(FieldError, PurchCrMemoHdr.FieldCaption("Applies-to Doc. No."), AppliestoDocNo, PurchCrMemoHdr.TableCaption));
+          StrSubstNo(FieldError, PurchCrMemoHdr.FieldCaption("Applies-to Doc. No."), AppliestoDocNo, PurchCrMemoHdr.TableCaption()));
     end;
 
     local procedure VerifyGLEntry(ReturnOrderNo: Code[20]; Amount: Decimal)
@@ -1678,7 +1678,7 @@ codeunit 134329 "ERM Purchase Return Order"
         GLEntry.FindLast();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
+          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyItemLedgerEntry(PurchaseLine: Record "Purchase Line")
@@ -1724,7 +1724,7 @@ codeunit 134329 "ERM Purchase Return Order"
         VendorLedgerEntry.CalcFields(Amount);
         Assert.AreNearlyEqual(
           Amount, VendorLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountError, VendorLedgerEntry.FieldCaption(Amount), Amount, VendorLedgerEntry.TableCaption));
+          StrSubstNo(AmountError, VendorLedgerEntry.FieldCaption(Amount), Amount, VendorLedgerEntry.TableCaption()));
     end;
 
     local procedure VerifyVATEntry(DocumentNo: Code[20]; DocumentType: Enum "Purchase Document Type"; VATAmount: Decimal)
@@ -1736,7 +1736,7 @@ codeunit 134329 "ERM Purchase Return Order"
         VATEntry.FindFirst();
         Assert.AreNearlyEqual(
           VATAmount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(VATAmountError, VATEntry.FieldCaption(Amount), VATEntry.Amount, VATEntry.TableCaption));
+          StrSubstNo(VATAmountError, VATEntry.FieldCaption(Amount), VATEntry.Amount, VATEntry.TableCaption()));
     end;
 
     local procedure VerifyValueEntries(ReturnOrderNo: Code[20]; CostAmount: Decimal)
@@ -1754,10 +1754,10 @@ codeunit 134329 "ERM Purchase Return Order"
         ValueEntry.FindSet();
         repeat
             TotalCostAmount += ValueEntry."Cost Amount (Actual)";
-        until ValueEntry.Next = 0;
+        until ValueEntry.Next() = 0;
         Assert.AreNearlyEqual(
           -CostAmount, TotalCostAmount, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(FieldError, ValueEntry.FieldCaption("Cost Amount (Actual)"), TotalCostAmount, ValueEntry.TableCaption));
+          StrSubstNo(FieldError, ValueEntry.FieldCaption("Cost Amount (Actual)"), TotalCostAmount, ValueEntry.TableCaption()));
     end;
 
     local procedure VerifyLineDiscountAmount(ReturnOrderNo: Code[20]; LineDiscountAmount: Decimal)
@@ -1772,7 +1772,7 @@ codeunit 134329 "ERM Purchase Return Order"
         PurchCrMemoLine.SetRange("Document No.", PurchCrMemoHdr."No.");
         PurchCrMemoLine.FindFirst();
         Assert.AreNearlyEqual(LineDiscountAmount, PurchCrMemoLine."Line Discount Amount", GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(FieldError, PurchCrMemoLine.FieldCaption("Line Discount Amount"), LineDiscountAmount, PurchCrMemoLine.TableCaption));
+          StrSubstNo(FieldError, PurchCrMemoLine.FieldCaption("Line Discount Amount"), LineDiscountAmount, PurchCrMemoLine.TableCaption()));
     end;
 
     local procedure VerifyInvoiceDiscountAmount(ReturnOrderNo: Code[20]; InvoiceDiscountAmount: Decimal)
@@ -1790,7 +1790,7 @@ codeunit 134329 "ERM Purchase Return Order"
         Assert.AreNearlyEqual(
           InvoiceDiscountAmount, VendorLedgerEntry."Inv. Discount (LCY)", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(
-            FieldError, VendorLedgerEntry.FieldCaption("Inv. Discount (LCY)"), InvoiceDiscountAmount, VendorLedgerEntry.TableCaption));
+            FieldError, VendorLedgerEntry.FieldCaption("Inv. Discount (LCY)"), InvoiceDiscountAmount, VendorLedgerEntry.TableCaption()));
     end;
 
     local procedure VerifyLocationOnCreditMemo(ReturnOrderNo: Code[20]; LocationCode: Code[20])
@@ -1804,7 +1804,7 @@ codeunit 134329 "ERM Purchase Return Order"
         PurchCrMemoLine.FindFirst();
         Assert.AreEqual(
           LocationCode, PurchCrMemoLine."Location Code",
-          StrSubstNo(FieldError, PurchCrMemoLine.FieldCaption("Location Code"), LocationCode, PurchCrMemoLine.TableCaption));
+          StrSubstNo(FieldError, PurchCrMemoLine.FieldCaption("Location Code"), LocationCode, PurchCrMemoLine.TableCaption()));
     end;
 
     local procedure VerifyCurrencyOnPostedOrder(ReturnOrderNo: Code[20]; CurrencyCode: Code[10])
@@ -1815,7 +1815,7 @@ codeunit 134329 "ERM Purchase Return Order"
         PurchCrMemoHdr.FindFirst();
         Assert.AreEqual(
           CurrencyCode, PurchCrMemoHdr."Currency Code",
-          StrSubstNo(FieldError, PurchCrMemoHdr.FieldCaption("Currency Code"), CurrencyCode, PurchCrMemoHdr.TableCaption));
+          StrSubstNo(FieldError, PurchCrMemoHdr.FieldCaption("Currency Code"), CurrencyCode, PurchCrMemoHdr.TableCaption()));
     end;
 
     local procedure VerifyReturnShipmentLine(PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20])

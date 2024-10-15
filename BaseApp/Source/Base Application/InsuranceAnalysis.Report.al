@@ -11,7 +11,7 @@ report 5620 "Insurance - Analysis"
         dataitem(Insurance; Insurance)
         {
             RequestFilterFields = "No.", "FA Class Code", "FA Subclass Code";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
@@ -136,7 +136,7 @@ report 5620 "Insurance - Analysis"
 
     trigger OnPreReport()
     begin
-        InsuranceFilter := Insurance.GetFilters;
+        InsuranceFilter := Insurance.GetFilters();
     end;
 
     var

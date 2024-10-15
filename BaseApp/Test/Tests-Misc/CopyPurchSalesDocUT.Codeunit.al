@@ -114,7 +114,7 @@ codeunit 134338 "Copy Purch/Sales Doc UT"
         Assert.AreEqual(DAN_ID, GlobalLanguage, StrSubstNo(SwitchedToLanguageIsNotEqualToTargetTxt, DAN_ID, GlobalLanguage));
 
         // [WHEN] Switch back to DEU language through TranslationHelper.RestoreGlobalLanguage (no params) function
-        TranslationHelper.RestoreGlobalLanguage;
+        TranslationHelper.RestoreGlobalLanguage();
 
         // [THEN] Standard GLOBALLANGUAGE() returns ID of DEU.
         Assert.AreEqual(DEU_ID, GlobalLanguage, StrSubstNo(RestoredLanguageIsNotEqualToTargetTxt, DAN_ID, GlobalLanguage));
@@ -195,7 +195,7 @@ codeunit 134338 "Copy Purch/Sales Doc UT"
     local procedure CreateNewSalesHeader(CustomerNo: Code[20]; var SalesHeader: Record "Sales Header")
     begin
         with SalesHeader do begin
-            Init;
+            Init();
             Insert(true);
             Validate("Sell-to Customer No.", CustomerNo);
             Modify(true);
@@ -205,7 +205,7 @@ codeunit 134338 "Copy Purch/Sales Doc UT"
     local procedure CreateNewPurchaseHeader(VendorNo: Code[20]; var PurchaseHeader: Record "Purchase Header")
     begin
         with PurchaseHeader do begin
-            Init;
+            Init();
             "Document Type" := "Document Type"::Order; // US and CA has not initialized Quote Nos. in Purch. Setup
             Insert(true);
             Validate("Buy-from Vendor No.", VendorNo);

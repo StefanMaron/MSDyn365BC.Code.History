@@ -316,10 +316,10 @@ codeunit 144023 "ERM VAT O365"
         VATEntry.FindFirst();
         Assert.AreNearlyEqual(
           VATEntry.Base, Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, VATEntry.FieldCaption(Base), Amount, VATEntry.TableCaption));
+          StrSubstNo(AmountErr, VATEntry.FieldCaption(Base), Amount, VATEntry.TableCaption()));
         Assert.AreNearlyEqual(
           VATEntry.Amount, VATAmount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, VATEntry.FieldCaption(Amount), VATAmount, VATEntry.TableCaption));
+          StrSubstNo(AmountErr, VATEntry.FieldCaption(Amount), VATAmount, VATEntry.TableCaption()));
     end;
 
     local procedure VerifyVATAmountForPostApplication(GLAcountNo: Code[20]; GenPostingType: Option; Amount: Decimal; SourceCode: Code[20])
@@ -332,7 +332,7 @@ codeunit 144023 "ERM VAT O365"
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           GLEntry.Amount, Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
+          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyVATEntryForPostApplication(Amount: Decimal; VATAmount: Decimal)
@@ -345,17 +345,17 @@ codeunit 144023 "ERM VAT O365"
         VATEntry.FindSet();
         Assert.AreNearlyEqual(
           VATEntry.Base, Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, VATEntry.FieldCaption(Base), Amount, VATEntry.TableCaption));
+          StrSubstNo(AmountErr, VATEntry.FieldCaption(Base), Amount, VATEntry.TableCaption()));
         Assert.AreNearlyEqual(
           VATEntry.Amount, VATAmount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, VATEntry.FieldCaption(Amount), VATAmount, VATEntry.TableCaption));
-        VATEntry.Next;
+          StrSubstNo(AmountErr, VATEntry.FieldCaption(Amount), VATAmount, VATEntry.TableCaption()));
+        VATEntry.Next();
         Assert.AreNearlyEqual(
           VATEntry.Base, -Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, VATEntry.FieldCaption(Base), -Amount, VATEntry.TableCaption));
+          StrSubstNo(AmountErr, VATEntry.FieldCaption(Base), -Amount, VATEntry.TableCaption()));
         Assert.AreNearlyEqual(
           VATEntry.Amount, -VATAmount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, VATEntry.FieldCaption(Amount), -VATAmount, VATEntry.TableCaption));
+          StrSubstNo(AmountErr, VATEntry.FieldCaption(Amount), -VATAmount, VATEntry.TableCaption()));
     end;
 
     local procedure VerifyVATAmountOnGLEntry(DocumentNo: Code[20]; DocumentType: Option; GLAcountNo: Code[20]; Amount: Decimal)
@@ -368,7 +368,7 @@ codeunit 144023 "ERM VAT O365"
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           GLEntry.Amount, -Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), -Amount, GLEntry.TableCaption));
+          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), -Amount, GLEntry.TableCaption()));
     end;
 }
 

@@ -212,7 +212,7 @@ page 9014 "Job Resource Manager RC"
             {
                 Caption = 'Administration';
                 Image = Administration;
-#if not CLEAN19
+#if not CLEAN21
                 action("Resource Costs")
                 {
                     ApplicationArea = Jobs;
@@ -302,7 +302,7 @@ page 9014 "Job Resource Manager RC"
                 RunObject = Report "Adjust Resource Costs/Prices";
                 ToolTip = 'Adjust one or more fields on the resource card. For example, you can change the direct unit cost by 10 percent on all resources from a specific resource group. The changes are processed immediately after the batch job is started. The fields on the resource card that are dependent on the adjusted field are also changed.';
             }
-#if not CLEAN19
+#if not CLEAN21
             action("Resource P&rice Changes")
             {
                 ApplicationArea = Jobs;

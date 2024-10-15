@@ -47,17 +47,17 @@ table 323 "VAT Business Posting Group"
 
     trigger OnInsert()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     trigger OnModify()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     trigger OnRename()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     local procedure SetLastModifiedDateTime()

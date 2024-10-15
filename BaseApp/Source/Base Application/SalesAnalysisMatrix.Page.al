@@ -13,7 +13,7 @@ page 9207 "Sales Analysis Matrix"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Row Ref. No."; "Row Ref. No.")
+                field("Row Ref. No."; Rec."Row Ref. No.")
                 {
                     ApplicationArea = SalesAnalysis;
                     Style = Strong;
@@ -530,7 +530,7 @@ page 9207 "Sales Analysis Matrix"
                         CellValue := AnalysisReportMgt.CalcCell(Rec, AnalysisColumn, false);
                     MatrixData[i] := MatrixMgt.RoundAmount(CellValue, AnalysisColumn."Rounding Factor");
                     MatrixRounding[i] := AnalysisColumn."Rounding Factor";
-                    CachedContainsError[i] := FindError;
+                    CachedContainsError[i] := FindError();
                 end;
                 SetStyle(i);
                 i := i + 1;
@@ -581,13 +581,11 @@ page 9207 "Sales Analysis Matrix"
         AnalysisColumn.SetRange("Analysis Column Template", AnalysisColumn."Analysis Column Template");
         AnalysisColumn.SetRange("Line No.", FirstLineNo, LastLineNo);
         AnalysisColumn.SetFilter(Show, '<>%1', AnalysisColumn.Show::Never);
-        SetVisible;
+        SetVisible();
     end;
 
     var
-        AnalysisColumn: Record "Analysis Column";
         AnalysisColumn2: Record "Analysis Column";
-        AnalysisReportMgt: Codeunit "Analysis Report Management";
         MatrixMgt: Codeunit "Matrix Management";
         MatrixColumnCaptions: array[32] of Text[1024];
         i: Integer;
@@ -726,6 +724,10 @@ page 9207 "Sales Analysis Matrix"
         [InDataSet]
         Field32Style: Text;
 
+    protected var
+        AnalysisColumn: Record "Analysis Column";
+        AnalysisReportMgt: Codeunit "Analysis Report Management";
+
     procedure Load(AnalysisColumn1: Record "Analysis Column"; MatrixColumnCaptions1: array[32] of Text[1024]; FirstLineNo1: Integer; LastLineNo1: Integer)
     begin
         AnalysisColumn.Copy(AnalysisColumn1);
@@ -743,16 +745,16 @@ page 9207 "Sales Analysis Matrix"
         if HorizontalRecord.Find('-') then
             while n <> HorizontalRecordOrdinal do begin
                 n := n + 1;
-                HorizontalRecord.Next;
+                HorizontalRecord.Next();
             end;
     end;
 
     local procedure FindError(): Boolean
     begin
-        if AnalysisReportMgt.GetDivisionError or
-           AnalysisReportMgt.GetPeriodError or
-           AnalysisReportMgt.GetFormulaError or
-           AnalysisReportMgt.GetCyclicError
+        if AnalysisReportMgt.GetDivisionError() or
+           AnalysisReportMgt.GetPeriodError() or
+           AnalysisReportMgt.GetFormulaError() or
+           AnalysisReportMgt.GetCyclicError()
         then
             exit(true);
 

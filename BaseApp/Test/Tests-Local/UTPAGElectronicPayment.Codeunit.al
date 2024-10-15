@@ -35,7 +35,7 @@ codeunit 141039 "UT PAG Electronic Payment"
         Assert.IsTrue(BankAccountCard.IBAN.Enabled, ControlEnabledMsg);
         Assert.IsFalse(BankAccountCard."Client No.".Enabled, ControlDisabledMsg);
         Assert.IsFalse(BankAccountCard."Client Name".Enabled, ControlDisabledMsg);
-        BankAccountCard.Close;
+        BankAccountCard.Close();
     end;
 
     [Test]
@@ -59,7 +59,7 @@ codeunit 141039 "UT PAG Electronic Payment"
         Assert.IsTrue(BankAccountCard.IBAN.Enabled, ControlEnabledMsg);
         Assert.IsFalse(BankAccountCard."Client No.".Enabled, ControlDisabledMsg);
         Assert.IsFalse(BankAccountCard."Client Name".Enabled, ControlDisabledMsg);
-        BankAccountCard.Close;
+        BankAccountCard.Close();
     end;
 
     [Test]
@@ -83,7 +83,7 @@ codeunit 141039 "UT PAG Electronic Payment"
         Assert.IsTrue(BankAccountCard.IBAN.Enabled, ControlEnabledMsg);
         Assert.IsTrue(BankAccountCard."Client No.".Enabled, ControlDisabledMsg);
         Assert.IsTrue(BankAccountCard."Client Name".Enabled, ControlDisabledMsg);
-        BankAccountCard.Close;
+        BankAccountCard.Close();
     end;
 
     local procedure CreateBankAccount(): Code[20]

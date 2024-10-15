@@ -108,7 +108,7 @@ codeunit 136141 "Service Order Release validate"
         ServiceOrderTP.OpenNew();
         ServiceOrderTP.GotoRecord(ServHeader);
         ServiceOrderTP.ServItemLines."Service Lines".Invoke;
-        ServiceOrderTP.Close;
+        ServiceOrderTP.Close();
     end;
 
     [Test]
@@ -172,7 +172,7 @@ codeunit 136141 "Service Order Release validate"
             asserterror
               ServiceLine.Validate("Needed by Date", CalcDate('<+6M>', NeedDate))
         else
-            asserterror ServiceLine.Validate("Needed by Date", WorkDate);
+            asserterror ServiceLine.Validate("Needed by Date", WorkDate());
     end;
 
     [Test]
@@ -217,7 +217,7 @@ codeunit 136141 "Service Order Release validate"
             asserterror
               ServiceLine.Validate("Planned Delivery Date", CalcDate('<+6M>', PlanDate))
         else
-            asserterror ServiceLine.Validate("Planned Delivery Date", WorkDate);
+            asserterror ServiceLine.Validate("Planned Delivery Date", WorkDate());
     end;
 
     [Test]
@@ -274,7 +274,7 @@ codeunit 136141 "Service Order Release validate"
         ServiceOrderTP.OpenNew();
         ServiceOrderTP.GotoRecord(ServHeader);
         ServiceOrderTP.ServItemLines."Service Lines".Invoke;
-        ServiceOrderTP.Close;
+        ServiceOrderTP.Close();
     end;
 
     [Test]

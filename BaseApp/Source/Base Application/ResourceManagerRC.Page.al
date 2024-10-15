@@ -21,7 +21,7 @@ page 8906 "Resource Manager Role Center"
                     Caption = 'Resource Groups';
                     RunObject = page "Resource Groups";
                 }
-#if not CLEAN19
+#if not CLEAN21
                 action("Resource Price Changes")
                 {
                     ApplicationArea = Jobs;
@@ -145,7 +145,7 @@ page 8906 "Resource Manager Role Center"
                         Caption = 'Resource List';
                         RunObject = Report "Resource List";
                     }
-#if not CLEAN19
+#if not CLEAN21
                     action("Resource - Price List")
                     {
                         ApplicationArea = Jobs;
@@ -187,7 +187,7 @@ page 8906 "Resource Manager Role Center"
                         Caption = 'Units of Measure';
                         RunObject = page "Units of Measure";
                     }
-#if not CLEAN19
+#if not CLEAN21
                     action("Costs")
                     {
                         ApplicationArea = Basic, Suite;

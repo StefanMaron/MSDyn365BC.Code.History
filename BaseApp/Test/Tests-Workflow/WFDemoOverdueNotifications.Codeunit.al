@@ -44,8 +44,8 @@ codeunit 134186 "WF Demo Overdue Notifications"
         Initialize();
         EnableOverdueWorkflow;
 
-        LibraryWorkflow.CopyWorkflowTemplate(ApprovalWorkflowPurchaseDoc, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
-        LibraryWorkflow.CopyWorkflowTemplate(ApprovalWorkflowSalesDoc, WorkflowSetup.SalesInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(ApprovalWorkflowPurchaseDoc, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
+        LibraryWorkflow.CopyWorkflowTemplate(ApprovalWorkflowSalesDoc, WorkflowSetup.SalesInvoiceApprovalWorkflowCode());
 
         ChangeApprovalWorkflowsWithDueDateFormula(ApprovalWorkflowPurchaseDoc, 0);
         ChangeApprovalWorkflowsWithDueDateFormula(ApprovalWorkflowSalesDoc, 0);
@@ -189,7 +189,7 @@ codeunit 134186 "WF Demo Overdue Notifications"
             repeat
                 Workflow.Validate(Enabled, false);
                 Workflow.Modify(true);
-            until Workflow.Next = 0;
+            until Workflow.Next() = 0;
     end;
 
     local procedure ChangeApprovalWorkflowsWithDueDateFormula(Workflow: Record Workflow; DueDateDelay: Integer)

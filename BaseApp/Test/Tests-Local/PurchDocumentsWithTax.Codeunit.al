@@ -230,7 +230,7 @@ codeunit 144024 "Purch. Documents With Tax"
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, ReqWkshTemplate.Name, RequisitionWkshName.Name);
         LibraryPlanning.GetSalesOrders(SalesLine, RequisitionLine, RetrieveDimensionsFrom::Item);
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
     end;
 
     local procedure UpdateAndPostPurchaseOrder(var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; DirectUnitCost: Decimal): Code[20]
@@ -270,14 +270,14 @@ codeunit 144024 "Purch. Documents With Tax"
         EntryType: Variant;
         Quantity: Variant;
     begin
-        AverageCostCalcOverview.Next;
+        AverageCostCalcOverview.Next();
         LibraryVariableStorage.Dequeue(EntryType);
         LibraryVariableStorage.Dequeue(Quantity);
         LibraryVariableStorage.Dequeue(CostAmountActual);
         AverageCostCalcOverview."Entry Type".AssertEquals(EntryType);
         AverageCostCalcOverview.Quantity.AssertEquals(Quantity);
         AverageCostCalcOverview."Cost Amount (Actual)".AssertEquals(CostAmountActual);
-        AverageCostCalcOverview.Next;
+        AverageCostCalcOverview.Next();
     end;
 
     local procedure VerifyValueEntries(ItemLedgerEntryType: Option; DocumentNo: Code[20]; ValueQuantity: Decimal; CostAmountExpected: Decimal)
@@ -299,7 +299,7 @@ codeunit 144024 "Purch. Documents With Tax"
         AverageCostCalcOverview.Expand(true);
         VerifyAverageCostCalcOverview(AverageCostCalcOverview);
         AverageCostCalcOverview.Expand(true);
-        AverageCostCalcOverview.Next;
+        AverageCostCalcOverview.Next();
         VerifyAverageCostCalcOverview(AverageCostCalcOverview);
     end;
 

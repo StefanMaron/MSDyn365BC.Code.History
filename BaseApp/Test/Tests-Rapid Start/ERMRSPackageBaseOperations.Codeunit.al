@@ -730,7 +730,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         ConfigPackageManagement.UpdateConfigLinePackageData(ConfigPackageDataCode);
 
         // [THEN] Config. Package Data Value = 2147483647 + 5 + 10000
-        ConfigPackageData.Find;
+        ConfigPackageData.Find();
         Assert.AreEqual(Format(LineNo + ShiftLineNo + 10000L), ConfigPackageData.Value, ConfigPackageData.FieldCaption(Value));
     end;
 
@@ -764,7 +764,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         ConfigPackageManagement.UpdateConfigLinePackageData(ConfigPackageDataCode);
 
         // [THEN] Config. Package Data Value = 50000 + 2147483647 + 10000
-        ConfigPackageData.Find;
+        ConfigPackageData.Find();
         Assert.AreEqual(Format(LineNo + ShiftLineNo + 10000L), ConfigPackageData.Value, ConfigPackageData.FieldCaption(Value));
     end;
 
@@ -1347,7 +1347,7 @@ codeunit 136610 "ERM RS Package Base Operations"
               ProcessingOrder,
               ConfigPackageField."Processing Order",
               StrSubstNo(Fields_WrongProcessingOrderErr, ConfigPackageField.FieldName("Processing Order"), ProcessingOrder));
-        until ConfigPackageField.Next = 0;
+        until ConfigPackageField.Next() = 0;
     end;
 
     local procedure GetTables_Report_Run(PackageCode: Code[20]; WithDataOnly: Boolean)
@@ -1543,7 +1543,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         ConfigSelection.First;
         repeat
             ConfigSelection.Selected.SetValue(true);
-        until ConfigSelection.Next;
+        until ConfigSelection.Next();
         ConfigSelection.OK.Invoke;
     end;
 

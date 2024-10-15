@@ -14,7 +14,7 @@ codeunit 99000841 "Item Ledger Entry-Reserve"
 
     procedure Caption(ItemLedgEntry: Record "Item Ledger Entry") CaptionText: Text
     begin
-        CaptionText := ItemLedgEntry.GetSourceCaption;
+        CaptionText := ItemLedgEntry.GetSourceCaption();
     end;
 
     local procedure DrillDownTotalQuantity(SourceRecRef: RecordRef; EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry"; Location: Record Location; MaxQtyToReserve: Decimal)
@@ -146,7 +146,7 @@ codeunit 99000841 "Item Ledger Entry-Reserve"
         if MatchThisTable(SourceRecRef.Number) then begin
             SourceRecRef.SetTable(ItemLedgerEntry);
             ItemLedgerEntry.SetReservationFilters(ReservEntry);
-            CaptionText := ItemLedgerEntry.GetSourceCaption;
+            CaptionText := ItemLedgerEntry.GetSourceCaption();
         end;
     end;
 

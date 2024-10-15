@@ -288,7 +288,7 @@ page 5470 "Item Entity"
 
     trigger OnAfterGetRecord()
     begin
-        SetCalculatedFields;
+        SetCalculatedFields();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -301,7 +301,7 @@ page 5470 "Item Entity"
 
         GraphCollectionMgtItem.InsertItem(Rec, TempFieldSet, BaseUnitOfMeasureJSONText);
 
-        SetCalculatedFields;
+        SetCalculatedFields();
         exit(false);
     end;
 
@@ -327,14 +327,14 @@ page 5470 "Item Entity"
             TransferFields(Item, true);
         end;
 
-        SetCalculatedFields;
+        SetCalculatedFields();
 
         exit(false);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        ClearCalculatedFields;
+        ClearCalculatedFields();
     end;
 
     var

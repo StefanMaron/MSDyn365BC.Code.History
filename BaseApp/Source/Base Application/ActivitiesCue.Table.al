@@ -34,7 +34,7 @@ table 1313 "Activities Cue"
         }
         field(6; "Sales This Month"; Decimal)
         {
-            AutoFormatExpression = GetAmountFormat;
+            AutoFormatExpression = GetAmountFormat();
             AutoFormatType = 11;
             Caption = 'Sales This Month';
             DecimalPlaces = 0 : 0;
@@ -47,14 +47,14 @@ table 1313 "Activities Cue"
         }
         field(8; "Overdue Purch. Invoice Amount"; Decimal)
         {
-            AutoFormatExpression = GetAmountFormat;
+            AutoFormatExpression = GetAmountFormat();
             AutoFormatType = 11;
             Caption = 'Overdue Purch. Invoice Amount';
             DecimalPlaces = 0 : 0;
         }
         field(9; "Overdue Sales Invoice Amount"; Decimal)
         {
-            AutoFormatExpression = GetAmountFormat;
+            AutoFormatExpression = GetAmountFormat();
             AutoFormatType = 11;
             Caption = 'Overdue Sales Invoice Amount';
             DecimalPlaces = 0 : 0;
@@ -199,9 +199,9 @@ table 1313 "Activities Cue"
         CurrencySymbol: Text[10];
     begin
         GeneralLedgerSetup.Get();
-        CurrencySymbol := GeneralLedgerSetup.GetCurrencySymbol;
+        CurrencySymbol := GeneralLedgerSetup.GetCurrencySymbol();
 
-        if UserPersonalization.Get(UserSecurityId) and (CurrencySymbol <> '') then
+        if UserPersonalization.Get(UserSecurityId()) and (CurrencySymbol <> '') then
             case UserPersonalization."Locale ID" of
                 1030, // da-DK
               1053, // sv-Se
@@ -223,7 +223,7 @@ table 1313 "Activities Cue"
                     exit(CurrencySymbol + '<Precision,0:0><Standard Format,0>');
             end;
 
-        exit(GetDefaultAmountFormat);
+        exit(GetDefaultAmountFormat());
     end;
 
     local procedure GetDefaultAmountFormat(): Text

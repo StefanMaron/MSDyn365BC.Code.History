@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2102 "O365 Sales Month Summary"
 {
     Caption = 'Invoiced this Month';
@@ -9,6 +10,9 @@ page 2102 "O365 Sales Month Summary"
     PageType = Card;
     SourceTable = "Name/Value Buffer";
     SourceTableTemporary = true;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -16,7 +20,7 @@ page 2102 "O365 Sales Month Summary"
         {
             usercontrol(Chart; "Microsoft.Dynamics.Nav.Client.BusinessChart")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
 
                 trigger DataPointClicked(point: DotNet BusinessChartDataPoint)
                 begin
@@ -35,7 +39,7 @@ page 2102 "O365 Sales Month Summary"
                     GLSetup.Get();
 
                     O365SalesStatistics.GenerateWeeklyOverview(TempNameValueBuffer, SelectedMonth);
-                    O365SalesStatistics.GenerateChart(CurrPage.Chart, TempNameValueBuffer, WeekTxt, StrSubstNo(AmountTxt, GLSetup.GetCurrencySymbol));
+                    O365SalesStatistics.GenerateChart(CurrPage.Chart, TempNameValueBuffer, WeekTxt, StrSubstNo(AmountTxt, GLSetup.GetCurrencySymbol()));
                 end;
 
                 trigger Refresh()
@@ -47,12 +51,12 @@ page 2102 "O365 Sales Month Summary"
                     GLSetup.Get();
 
                     O365SalesStatistics.GenerateWeeklyOverview(TempNameValueBuffer, SelectedMonth);
-                    O365SalesStatistics.GenerateChart(CurrPage.Chart, TempNameValueBuffer, WeekTxt, StrSubstNo(AmountTxt, GLSetup.GetCurrencySymbol));
+                    O365SalesStatistics.GenerateChart(CurrPage.Chart, TempNameValueBuffer, WeekTxt, StrSubstNo(AmountTxt, GLSetup.GetCurrencySymbol()));
                 end;
             }
             part(O365MonthlyCustomerListpart; "O365 Monthly Customer Listpart")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
             }
         }
     }
@@ -70,7 +74,7 @@ page 2102 "O365 Sales Month Summary"
         else
             SelectedMonth := TypeHelper.GetLocalizedMonthToInt(Name);
 
-        ShowCustomers;
+        ShowCustomers();
 
         if Insert() then;
     end;
@@ -85,4 +89,5 @@ page 2102 "O365 Sales Month Summary"
         CurrPage.O365MonthlyCustomerListpart.PAGE.InsertData(SelectedMonth);
     end;
 }
+#endif
 

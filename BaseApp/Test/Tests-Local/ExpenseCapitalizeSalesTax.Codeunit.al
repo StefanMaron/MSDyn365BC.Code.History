@@ -82,7 +82,7 @@
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         with PurchaseLine do begin
-            Find;
+            Find();
             Assert.AreNearlyEqual(
               UnitAmount, "A. Rcd. Not Inv. Ex. VAT (LCY)", 0.01,
               StrSubstNo(WrongAmountErr, FieldName("A. Rcd. Not Inv. Ex. VAT (LCY)"), TableName));
@@ -112,7 +112,7 @@
 
         // [GIVEN] Tax is reset for Purchase Line
         ReleasePurchaseDocument.Reopen(PurchaseHeader);
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.Validate("Tax Liable", false);
         PurchaseLine.Validate("Tax Area Code", '');
         PurchaseLine.Validate("Tax Group Code", '');
@@ -122,7 +122,7 @@
         ReleasePurchaseDocument.PerformManualRelease(PurchaseHeader);
 
         // [THEN] Purchase Line has "Tax To Be Expensed" is 0
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.TestField("Tax To Be Expensed", 0);
     end;
 
@@ -566,7 +566,9 @@
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
+        VATEntry: Record "VAT Entry";
     begin
+        VATEntry.DeleteAll();
         LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
@@ -593,7 +595,7 @@
         ExchangeRateAmount: Decimal;
     begin
         ExchangeRateAmount := LibraryRandom.RandDecInRange(10, 20, 2);
-        exit(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchangeRateAmount, ExchangeRateAmount));
+        exit(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchangeRateAmount, ExchangeRateAmount));
     end;
 
     local procedure CreateGLAccount(var GLAccount: Record "G/L Account"; VATProdPostingGroup: Code[20]; TaxGroupCode: Code[20])
@@ -705,7 +707,7 @@
 
     local procedure CreateTaxDetail(var TaxDetail: Record "Tax Detail"; TaxJurisdictionCode: Code[10]; TaxGroupCode: Code[20]; SalesTaxRate: Decimal; ExpenseTax: Boolean)
     begin
-        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", WorkDate);
+        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", SalesTaxRate);
         TaxDetail.Validate("Expense/Capitalize", ExpenseTax);
         TaxDetail.Modify(true);
@@ -815,7 +817,7 @@
     local procedure PostPurchaseDocSaveLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
     begin
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
@@ -847,7 +849,7 @@
         OldUseVendorTaxAreaCode: Boolean;
     begin
         with PurchaseSetup do begin
-            Get;
+            Get();
             OldUseVendorTaxAreaCode := "Use Vendor's Tax Area Code";
             Validate("Use Vendor's Tax Area Code", NewUseVendorTaxAreaCode);
             Modify(true);

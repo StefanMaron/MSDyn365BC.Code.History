@@ -5,12 +5,12 @@ codeunit 5779 "Whse.-Printed"
     trigger OnRun()
     begin
         LockTable();
-        Find;
+        Find();
         "No. Printed" := "No. Printed" + 1;
         "Date of Last Printing" := Today;
         "Time of Last Printing" := Time;
         OnBeforeModify(Rec);
-        Modify;
+        Modify();
         Commit();
     end;
 

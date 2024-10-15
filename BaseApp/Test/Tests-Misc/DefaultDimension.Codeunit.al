@@ -113,7 +113,7 @@ codeunit 134487 "Default Dimension"
                 TableMetadata.Get(TempAllObjWithCaption."Object ID");
                 if TableMetadata.ObsoleteState = TableMetadata.ObsoleteState::No then
                     ValidateNotExistingNo(TempAllObjWithCaption."Object ID", RenameMasterRecord(TempAllObjWithCaption."Object ID"));
-            until TempAllObjWithCaption.Next = 0;
+            until TempAllObjWithCaption.Next() = 0;
     end;
 
     [Test]
@@ -153,7 +153,7 @@ codeunit 134487 "Default Dimension"
             // [THEN] The lines was not added to Default Dimension.
             DefaultDimension.SetRange("No.", '');
             Assert.RecordIsEmpty(DefaultDimension);
-        until TableNo.Next = 0;
+        until TableNo.Next() = 0;
     end;
 
     local procedure RenameMasterRecord(TableID: Integer) PK: Code[20]
@@ -196,7 +196,7 @@ codeunit 134487 "Default Dimension"
     begin
         RecRef.Open(TableID);
         TableCaption := RecRef.Caption;
-        RecRef.Close;
+        RecRef.Close();
     end;
 
     local procedure NewRecord(TableID: Integer) PK: Code[20]
@@ -211,7 +211,7 @@ codeunit 134487 "Default Dimension"
         FieldRef := KeyRef.FieldIndex(1);
         FieldRef.Value := PK;
         Assert.IsTrue(RecRef.Insert, 'INSERT has failed');
-        RecRef.Close;
+        RecRef.Close();
     end;
 
     local procedure RenameRecord(TableID: Integer; PK: Code[20]) NewPK: Code[20]
@@ -227,7 +227,7 @@ codeunit 134487 "Default Dimension"
         FieldRef.SetRange(PK);
         RecRef.FindFirst();
         Assert.IsTrue(RecRef.Rename(NewPK), 'RENAME has failed');
-        RecRef.Close;
+        RecRef.Close();
     end;
 
     local procedure PKContainsOneField(TableID: Integer) Result: Boolean
@@ -238,7 +238,7 @@ codeunit 134487 "Default Dimension"
         RecRef.Open(TableID);
         KeyRef := RecRef.KeyIndex(1);
         Result := KeyRef.FieldCount = 1;
-        RecRef.Close;
+        RecRef.Close();
     end;
 
     local procedure VerifyRenamedDefaultDimensions(DefaultDimension: array[2] of Record "Default Dimension"; TableID: Integer; PK: Code[20]; NewPK: Code[20])

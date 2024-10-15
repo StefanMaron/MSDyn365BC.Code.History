@@ -29,4 +29,3 @@ table 282 "Entry/Exit Point"
     {
     }
 }
-

@@ -1,4 +1,4 @@
-report 699 "Calculate Plan - Req. Wksh."
+﻿report 699 "Calculate Plan - Req. Wksh."
 {
     Caption = 'Calculate Plan - Req. Wksh.';
     ProcessingOnly = true;
@@ -28,7 +28,7 @@ report 699 "Calculate Plan - Req. Wksh."
                 ActionMessageEntry.LockTable();
 
                 IsHandled := false;
-                OnBeforeDeleteReqLines(Item, PurchReqLine, ReqLineExtern, IsHandled, InvtProfileOffsetting);
+                OnBeforeDeleteReqLines(Item, PurchReqLine, ReqLineExtern, IsHandled, InventoryProfileOffsetting);
                 if not IsHandled then begin
                     PurchReqLine.SetRange("No.", "No.");
                     PurchReqLine.ModifyAll("Accept Action Message", false);
@@ -210,20 +210,20 @@ report 699 "Calculate Plan - Req. Wksh."
     end;
 
     var
+        ActionMessageEntry: Record "Action Message Entry";
+        PlanningAssignment: Record "Planning Assignment";
+        CurrWorksheetType: Option Requisition,Planning;
+        PeriodLength: Integer;
+        ReqWkshTemplateFilter: Code[50];
+        ReqWkshFilter: Code[50];
+        Counter: Integer;
+
         Text002: Label 'Enter a starting date.';
         Text003: Label 'Enter an ending date.';
         Text004: Label 'The ending date must not be before the order date.';
         Text005: Label 'You must not use a variant filter when calculating MPS from a forecast.';
         Text006: Label 'Calculating the plan...\\';
         Text007: Label 'Item No.  #1##################';
-        ActionMessageEntry: Record "Action Message Entry";
-        PlanningAssignment: Record "Planning Assignment";
-        InvtProfileOffsetting: Codeunit "Inventory Profile Offsetting";
-        CurrWorksheetType: Option Requisition,Planning;
-        PeriodLength: Integer;
-        ReqWkshTemplateFilter: Code[50];
-        ReqWkshFilter: Code[50];
-        Counter: Integer;
 
     protected var
         MfgSetup: Record "Manufacturing Setup";
@@ -231,6 +231,7 @@ report 699 "Calculate Plan - Req. Wksh."
         ReqLine: Record "Requisition Line";
         ReqLineExtern: Record "Requisition Line";
         PurchReqLine: Record "Requisition Line";
+        InventoryProfileOffsetting: Codeunit "Inventory Profile Offsetting";
         Window: Dialog;
         CurrTemplateName: Code[10];
         CurrWorksheetName: Code[10];
@@ -254,7 +255,7 @@ report 699 "Calculate Plan - Req. Wksh."
         ToDate := EndDate;
     end;
 
-    local procedure InitializeFromMfgSetup()
+    procedure InitializeFromMfgSetup()
     var
         IsHandled: Boolean;
     begin
@@ -267,7 +268,7 @@ report 699 "Calculate Plan - Req. Wksh."
         UseForecast := MfgSetup."Current Production Forecast";
     end;
 
-    local procedure SetParamAndCalculatePlanFromWorksheet()
+    procedure SetParamAndCalculatePlanFromWorksheet()
     var
         IsHandled: Boolean;
     begin
@@ -276,12 +277,11 @@ report 699 "Calculate Plan - Req. Wksh."
         if IsHandled then
             exit;
 
-                InvtProfileOffsetting.SetParm(UseForecast, ExcludeForecastBefore, CurrWorksheetType, PriceCalculationMethod);
-                InvtProfileOffsetting.CalculatePlanFromWorksheet(Item, MfgSetup, CurrTemplateName, CurrWorksheetName, FromDate, ToDate, true, RespectPlanningParm);
-
+        InventoryProfileOffsetting.SetParm(UseForecast, ExcludeForecastBefore, CurrWorksheetType, PriceCalculationMethod);
+        InventoryProfileOffsetting.CalculatePlanFromWorksheet(Item, MfgSetup, CurrTemplateName, CurrWorksheetName, FromDate, ToDate, true, RespectPlanningParm);
     end;
 
-    local procedure ValidatePriceCalcMethod()
+    procedure ValidatePriceCalcMethod()
     var
         Vendor: Record Vendor;
     begin
@@ -289,7 +289,7 @@ report 699 "Calculate Plan - Req. Wksh."
             PriceCalculationMethod := Vendor.GetPriceCalculationMethod();
     end;
 
-    local procedure SkipPlanningForItemOnReqWksh(Item: Record Item): Boolean
+    procedure SkipPlanningForItemOnReqWksh(Item: Record Item): Boolean
     var
         SkipPlanning: Boolean;
         IsHandled: Boolean;

@@ -5,7 +5,6 @@ page 516 "Sales Lines"
     Editable = false;
     LinksAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Line';
     SourceTable = "Sales Line";
     UsageCategory = Lists;
 
@@ -16,22 +15,22 @@ page 516 "Sales Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of document that you are about to create.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document number.';
                 }
-                field("Sell-to Customer No."; "Sell-to Customer No.")
+                field("Sell-to Customer No."; Rec."Sell-to Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the customer.';
                 }
-                field("Line No."; "Line No.")
+                field("Line No."; Rec."Line No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line number.';
@@ -42,12 +41,12 @@ page 516 "Sales Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of entity that will be posted for this sales line, such as Item, Resource, or G/L Account. The type that you enter in this field determines what you can select in the No. field.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -58,19 +57,19 @@ page 516 "Sales Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the entry of the product to be sold. To add a non-transactional text line, fill in the Description field only.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies information in addition to the description.';
                     Visible = false;
                 }
-                field("Package Tracking No."; "Package Tracking No.")
+                field("Package Tracking No."; Rec."Package Tracking No.")
                 {
                     ToolTip = 'Specifies the shipping agent''s package number.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the inventory location from which the items sold should be picked and where the inventory decrease is registered.';
@@ -86,47 +85,47 @@ page 516 "Sales Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how many units are being sold.';
                 }
-                field("Qty. to Ship"; "Qty. to Ship")
+                field("Qty. to Ship"; Rec."Qty. to Ship")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the quantity of items that remain to be shipped.';
                     Visible = false;
                 }
-                field("Reserved Qty. (Base)"; "Reserved Qty. (Base)")
+                field("Reserved Qty. (Base)"; Rec."Reserved Qty. (Base)")
                 {
                     ApplicationArea = Reservation;
                     ToolTip = 'Specifies the value in the Reserved Quantity field, expressed in the base unit of measure.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Line Amount"; "Line Amount")
+                field("Line Amount"; Rec."Line Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
                 }
-                field("Job No."; "Job No.")
+                field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the related job. If you fill in this field and the Job Task No. field, then a job ledger entry will be posted together with the sales line.';
                     Visible = false;
                 }
-                field("Work Type Code"; "Work Type Code")
+                field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies which work type the resource applies to when the sale is related to a job.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -186,12 +185,12 @@ page 516 "Sales Lines"
                                                                   Blocked = CONST(false));
                     Visible = false;
                 }
-                field("Shipment Date"; "Shipment Date")
+                field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
                 }
-                field("Outstanding Quantity"; "Outstanding Quantity")
+                field("Outstanding Quantity"; Rec."Outstanding Quantity")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how many units on the order line have not yet been shipped.';
@@ -213,9 +212,6 @@ page 516 "Sales Lines"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show Document';
                     Image = View;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'Open the document that the selected line exists on.';
 
@@ -233,9 +229,6 @@ page 516 "Sales Lines"
                     ApplicationArea = Reservation;
                     Caption = 'Reservation Entries';
                     Image = ReservationLedger;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'View the entries for every reservation that is made, either manually or automatically.';
 
                     trigger OnAction()
@@ -248,10 +241,7 @@ page 516 "Sales Lines"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
-                    ShortCutKey = 'Ctrl+Alt+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -259,6 +249,31 @@ page 516 "Sales Lines"
                         OpenItemTrackingLines();
                     end;
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Show Document_Promoted"; "Show Document")
+                {
+                }
+                actionref("Item &Tracking Lines_Promoted"; "Item &Tracking Lines")
+                {
+                }
+                actionref("Reservation Entries_Promoted"; "Reservation Entries")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }

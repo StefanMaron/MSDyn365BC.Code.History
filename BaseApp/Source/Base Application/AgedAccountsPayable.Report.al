@@ -1,8 +1,8 @@
-report 322 "Aged Accounts Payable"
+﻿report 322 "Aged Accounts Payable"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './AgedAccountsPayable.rdlc';
-    Caption = 'Aged Accounts Payable';    
+    Caption = 'Aged Accounts Payable';
     DataAccessIntent = ReadOnly;
 
     dataset
@@ -331,7 +331,7 @@ report 322 "Aged Accounts Payable"
                                     DetailedVendorLedgerEntry."Entry Type"::"Initial Entry") and
                                    (VendorLedgEntryEndingDate."Posting Date" > EndingDate) and
                                    (AgingBy <> AgingBy::"Posting Date")
-                                then begin
+                                then
                                     if (VendorLedgEntryEndingDate."Document Date" <= EndingDate) and
                                        (VendorLedgEntryEndingDate."Posting Date" <= EndingDate)
                                     then
@@ -342,8 +342,7 @@ report 322 "Aged Accounts Payable"
                                            (AgingBy = AgingBy::"Due Date")
                                         then
                                             DetailedVendorLedgerEntry."Posting Date" :=
-                                              VendorLedgEntryEndingDate."Due Date"
-                                end;
+                                              VendorLedgEntryEndingDate."Due Date";
 
                                 if (DetailedVendorLedgerEntry."Posting Date" <= EndingDate) or
                                    (TempVendorLedgEntry.Open and
@@ -417,7 +416,7 @@ report 322 "Aged Accounts Payable"
                     trigger OnPostDataItem()
                     begin
                         if not PrintAmountInLCY then
-                            UpdateCurrencyTotals;
+                            UpdateCurrencyTotals();
                     end;
 
                     trigger OnPreDataItem()
@@ -618,7 +617,7 @@ report 322 "Aged Accounts Payable"
         trigger OnOpenPage()
         begin
             if EndingDate = 0D then
-                EndingDate := WorkDate;
+                EndingDate := WorkDate();
             if Format(PeriodLength) = '' then
                 Evaluate(PeriodLength, '<1M>');
         end;
@@ -636,11 +635,11 @@ report 322 "Aged Accounts Payable"
 
         GLSetup.Get();
 
-        CalcDates;
-        CreateHeadings;
+        CalcDates();
+        CreateHeadings();
 
         TodayFormatted := TypeHelper.GetFormattedCurrentDateTimeInUserTimeZone('f');
-        CompanyDisplayName := COMPANYPROPERTY.DisplayName;
+        CompanyDisplayName := COMPANYPROPERTY.DisplayName();
 
         if UseExternalDocNo then
             DocNoCaption := ExternalDocumentNoCaptionLbl
@@ -658,14 +657,12 @@ report 322 "Aged Accounts Payable"
         TempCurrencyAmount: Record "Currency Amount" temporary;
         DetailedVendorLedgerEntry: Record "Detailed Vendor Ledg. Entry";
         TypeHelper: Codeunit "Type Helper";
+        PeriodLength: DateFormula;
         GrandTotalVLERemaingAmtLCY: array[5] of Decimal;
         GrandTotalVLEAmtLCY: Decimal;
-        VendorFilter: Text;
         PrintAmountInLCY: Boolean;
         EndingDate: Date;
         AgingBy: Option "Due Date","Posting Date","Document Date";
-        PeriodLength: DateFormula;
-        PrintDetails: Boolean;
         UseExternalDocNo: Boolean;
         HeadingType: Option "Date Interval","Number of Days";
         NewPagePerVendor: Boolean;
@@ -675,17 +672,22 @@ report 322 "Aged Accounts Payable"
         Text000: Label 'Not Due';
         AfterTok: Label 'After';
         CurrencyCode: Code[10];
+        NumberOfCurrencies: Integer;
+        PageGroupNo: Integer;
+        TodayFormatted: Text;
+        CompanyDisplayName: Text;
+        DocNoCaption: Text;
+        DocumentNo: Code[35];
+
         Text002: Label 'days';
         Text004: Label 'Aged by %1';
         Text005: Label 'Total for %1';
         Text006: Label 'Aged as of %1';
         Text007: Label 'Aged by %1';
-        NumberOfCurrencies: Integer;
         Text009: Label 'Due Date,Posting Date,Document Date';
         Text010: Label 'The Date Formula %1 cannot be used. Try to restate it, for example, by using 1M+CM instead of CM+1M.';
-        PageGroupNo: Integer;
-        EnterDateFormulaErr: Label 'Enter a date formula in the Period Length field.';
         Text027: Label '-%1', Comment = 'Negating the period length: %1 is the period length';
+        EnterDateFormulaErr: Label 'Enter a date formula in the Period Length field.';
         AgedAcctPayableCaptionLbl: Label 'Aged Accounts Payable';
         CurrReportPageNoCaptionLbl: Label 'Page';
         AllAmtsinLCYCaptionLbl: Label 'All Amounts in LCY';
@@ -700,18 +702,16 @@ report 322 "Aged Accounts Payable"
         CurrencyCaptionLbl: Label 'Currency Code';
         TotalLCYCaptionLbl: Label 'Total (LCY)';
         CurrencySpecificationCaptionLbl: Label 'Currency Specification';
-        TodayFormatted: Text;
-        CompanyDisplayName: Text;
-        DocNoCaption: Text;
-        DocumentNo: Code[35];
 
     protected var
         TempVendorLedgEntry: Record "Vendor Ledger Entry" temporary;
+        VendorFilter: Text;
+        PrintDetails: Boolean;
 
     local procedure CalcDates()
     var
-        i: Integer;
         PeriodLength2: DateFormula;
+        i: Integer;
     begin
         if not Evaluate(PeriodLength2, StrSubstNo(Text027, PeriodLength)) then
             Error(EnterDateFormulaErr);
@@ -767,7 +767,7 @@ report 322 "Aged Accounts Payable"
             if Get(VendorLedgEntry."Entry No.") then
                 exit;
             TempVendorLedgEntry := VendorLedgEntry;
-            Insert;
+            Insert();
             if PrintAmountInLCY then begin
                 Clear(TempCurrency);
                 TempCurrency."Amount Rounding Precision" := GLSetup."Amount Rounding Precision";
@@ -806,26 +806,26 @@ report 322 "Aged Accounts Payable"
             for i := 1 to ArrayLen(TotalVendorLedgEntry) do begin
                 "Currency Code" := CurrencyCode;
                 Date := PeriodStartDate[i];
-                if Find then begin
+                if Find() then begin
                     Amount := Amount + TotalVendorLedgEntry[i]."Remaining Amount";
-                    Modify;
+                    Modify();
                 end else begin
                     "Currency Code" := CurrencyCode;
                     Date := PeriodStartDate[i];
                     Amount := TotalVendorLedgEntry[i]."Remaining Amount";
-                    Insert;
+                    Insert();
                 end;
             end;
             "Currency Code" := CurrencyCode;
             Date := DMY2Date(31, 12, 9999);
-            if Find then begin
+            if Find() then begin
                 Amount := Amount + TotalVendorLedgEntry[1].Amount;
-                Modify;
+                Modify();
             end else begin
                 "Currency Code" := CurrencyCode;
                 Date := DMY2Date(31, 12, 9999);
                 Amount := TotalVendorLedgEntry[1].Amount;
-                Insert;
+                Insert();
             end;
         end;
     end;

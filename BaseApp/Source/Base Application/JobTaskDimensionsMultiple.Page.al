@@ -12,7 +12,7 @@ page 1006 "Job Task Dimensions Multiple"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Dimension Code"; "Dimension Code")
+                field("Dimension Code"; Rec."Dimension Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the dimension that the dimension value filter will be linked to. To select a dimension codes, which are set up in the Dimensions window, click the drop-down arrow in the field.';
@@ -23,7 +23,7 @@ page 1006 "Job Task Dimensions Multiple"
                             Error(Text000, TableCaption);
                     end;
                 }
-                field("Dimension Value Code"; "Dimension Value Code")
+                field("Dimension Value Code"; Rec."Dimension Value Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the dimension value that the dimension value filter will be linked to. To select a value code, which are set up in the Dimensions window, choose the drop-down arrow in the field.';
@@ -44,7 +44,7 @@ page 1006 "Job Task Dimensions Multiple"
     trigger OnDeleteRecord(): Boolean
     begin
         "Multiple Selection Action" := "Multiple Selection Action"::Delete;
-        Modify;
+        Modify();
         exit(false);
     end;
 
@@ -58,7 +58,7 @@ page 1006 "Job Task Dimensions Multiple"
         SetRange("Dimension Code", "Dimension Code");
         if not Find('-') and ("Dimension Code" <> '') then begin
             "Multiple Selection Action" := "Multiple Selection Action"::Change;
-            Insert;
+            Insert();
         end;
         SetRange("Dimension Code");
         exit(false);
@@ -67,19 +67,19 @@ page 1006 "Job Task Dimensions Multiple"
     trigger OnModifyRecord(): Boolean
     begin
         "Multiple Selection Action" := "Multiple Selection Action"::Change;
-        Modify;
+        Modify();
         exit(false);
     end;
 
     trigger OnOpenPage()
     begin
-        GetDefaultDim;
+        GetDefaultDim();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction = ACTION::LookupOK then
-            LookupOKOnPush;
+            LookupOKOnPush();
     end;
 
     var
@@ -164,7 +164,7 @@ page 1006 "Job Task Dimensions Multiple"
         Dim: Record Dimension;
         RecNo: Integer;
     begin
-        Reset;
+        Reset();
         DeleteAll();
         if Dim.Find('-') then
             repeat
@@ -182,11 +182,11 @@ page 1006 "Job Task Dimensions Multiple"
                                       "Multiple Selection Action" + 10;
                                     "Dimension Value Code" := '';
                                 end;
-                            Modify;
+                            Modify();
                             RecNo := RecNo + 1;
                         end else begin
                             Rec := TempJobTaskDim2;
-                            Insert;
+                            Insert();
                             RecNo := RecNo + 1;
                         end;
                     until TempJobTaskDim2.Next() = 0;
@@ -198,11 +198,11 @@ page 1006 "Job Task Dimensions Multiple"
                         "Multiple Selection Action" :=
                           "Multiple Selection Action" + 10;
                         "Dimension Value Code" := '';
-                        Modify;
+                        Modify();
                     end;
             until Dim.Next() = 0;
 
-        Reset;
+        Reset();
         SetCurrentKey("Dimension Code");
         SetFilter(
           "Multiple Selection Action", '<>%1', "Multiple Selection Action"::Delete)
@@ -210,7 +210,7 @@ page 1006 "Job Task Dimensions Multiple"
 
     local procedure LookupOKOnPush()
     begin
-        SetCommonJobTaskDim;
+        SetCommonJobTaskDim();
     end;
 
     local procedure DimensionValueCodeOnFormat(Text: Text[1024])

@@ -57,7 +57,7 @@ codeunit 951 "Time Sheet Approval Management"
                 exit;
             if Type = Type::" " then
                 FieldError(Type);
-            TestStatus;
+            TestStatus();
             CalcFields("Total Quantity");
             if "Total Quantity" = 0 then
                 Error(
@@ -73,7 +73,7 @@ codeunit 951 "Time Sheet Approval Management"
                 Type::Service:
                     TestField("Service Order No.");
             end;
-            UpdateApproverID;
+            UpdateApproverID();
             Status := Status::Submitted;
             OnSubmitOnBeforeTimeSheetLineModify(TimeSheetLine);
             Modify(true);
@@ -125,7 +125,7 @@ codeunit 951 "Time Sheet Approval Management"
             TestField(Posted, false);
             CheckApproverPermissions(TimeSheetLine);
             CheckLinkedServiceDoc(TimeSheetLine);
-            UpdateApproverID;
+            UpdateApproverID();
             Status := Status::Submitted;
             OnReopenApprovedOnBeforeTimeSheetLineModify(TimeSheetLine);
             Modify(true);
@@ -248,10 +248,9 @@ codeunit 951 "Time Sheet Approval Management"
             exit;
 
         UserSetup.Get(UserId);
-        if not UserSetup."Time Sheet Admin." then begin
+        if not UserSetup."Time Sheet Admin." then
             if TimeSheetLine."Approver ID" <> UpperCase(UserId) then
                 Error(Text002);
-        end;
     end;
 
     local procedure CheckLinkedServiceDoc(TimeSheetLine: Record "Time Sheet Line")
@@ -389,7 +388,7 @@ codeunit 951 "Time Sheet Approval Management"
         ServMgtSetup: Record "Service Mgt. Setup";
         TimeSheetMgt: Codeunit "Time Sheet Management";
     begin
-        if ServMgtSetup.Get and ServMgtSetup."Copy Time Sheet to Order" then begin
+        if ServMgtSetup.Get() and ServMgtSetup."Copy Time Sheet to Order" then begin
             ServHeader.Get(ServHeader."Document Type"::Order, TimeSheetLine."Service Order No.");
             TimeSheetMgt.CreateServDocLinesFromTSLine(ServHeader, TimeSheetLine);
         end;

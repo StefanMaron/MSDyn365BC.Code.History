@@ -40,7 +40,7 @@ codeunit 50 "SaaS Log In Management"
             exit(false);
 
         if not GuiAllowed then begin
-            if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::OData, CLIENTTYPE::ODataV4] then begin
+            if ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::OData, CLIENTTYPE::ODataV4] then begin
                 SuppressApprovalForTrial := false;
                 OnSuppressApprovalForTrial(SuppressApprovalForTrial);
                 if not SuppressApprovalForTrial then
@@ -49,9 +49,9 @@ codeunit 50 "SaaS Log In Management"
             exit;
         end;
 
-        if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone] then begin
+        if ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone] then begin
             Message(CanNotOpenCompanyFromDevicelMsg, Company.Name);
-            ChangeToEvaluationCompany;
+            ChangeToEvaluationCompany();
             // Just to be sure that we do not save the Trial License State on the server side
             Error('');
         end;
@@ -90,13 +90,13 @@ codeunit 50 "SaaS Log In Management"
     var
         ThirtyDayTrialDialog: Page "Thirty Day Trial Dialog";
     begin
-        if not ShouldShowTermsAndConditions(CompanyName) then
+        if not ShouldShowTermsAndConditions(CompanyName()) then
             exit;
 
         ThirtyDayTrialDialog.RunModal();
 
-        if not ThirtyDayTrialDialog.Confirmed then begin
-            ChangeToEvaluationCompany;
+        if not ThirtyDayTrialDialog.Confirmed() then begin
+            ChangeToEvaluationCompany();
             // Just to be sure that we do not save the Trial License State on the server side
             Error('');
         end;
@@ -111,6 +111,6 @@ codeunit 50 "SaaS Log In Management"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"LogInManagement", 'OnShowTermsAndConditions', '', false, false)]
     local procedure OnShowTermsAndConditionsSubscriber()
     begin
-        ShowTermsAndConditionsOnOpenCompany;
+        ShowTermsAndConditionsOnOpenCompany();
     end;
 }

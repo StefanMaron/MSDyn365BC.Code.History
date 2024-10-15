@@ -178,10 +178,10 @@ report 1316 "Standard Statement"
                 column(CurrReportPageNoCaption; CurrReportPageNoCaptionLbl)
                 {
                 }
-                column(CompanyLegalOffice; CompanyInfo.GetLegalOffice)
+                column(CompanyLegalOffice; CompanyInfo.GetLegalOffice())
                 {
                 }
-                column(CompanyLegalOffice_Lbl; CompanyInfo.GetLegalOfficeLbl)
+                column(CompanyLegalOffice_Lbl; CompanyInfo.GetLegalOfficeLbl())
                 {
                 }
                 dataitem(CurrencyLoop; "Integer")
@@ -497,7 +497,7 @@ report 1316 "Standard Statement"
                             CustLedgerEntry.SetRange("Customer No.", Customer."No.");
                             CustLedgerEntry.SetRange("Posting Date", 0D, EndDate);
                             CustLedgerEntry.SetRange("Currency Code", TempCurrency2.Code);
-                            EntriesExists := not CustLedgerEntry.IsEmpty;
+                            EntriesExists := not CustLedgerEntry.IsEmpty();
                         until EntriesExists;
                         Cust2 := Customer;
                         Cust2.SetRange("Date Filter", 0D, StartDate - 1);
@@ -642,7 +642,7 @@ report 1316 "Standard Statement"
                     trigger OnPreDataItem()
                     begin
                         if not IncludeAgingBand then
-                            CurrReport.Break
+                            CurrReport.Break();
                     end;
                 }
             }
@@ -694,15 +694,15 @@ report 1316 "Standard Statement"
 
             trigger OnPreDataItem()
             begin
-                VerifyDates;
+                VerifyDates();
                 AgingBandEndingDate := EndDate;
-                CalcAgingBandDates;
+                CalcAgingBandDates();
 
                 CompanyInfo.Get();
                 FormatAddr.Company(CompanyAddr, CompanyInfo);
                 CompanyInfo.CalcFields(Picture);
 
-                PopulateTempCurrencies;
+                PopulateTempCurrencies();
 
                 if PrintAllHavingBal and not PrintAllHavingEntry then begin
                     SetRange("Date Filter", 0D, EndDate);
@@ -835,17 +835,17 @@ report 1316 "Standard Statement"
 
                             case SupportedOutputMethod of
                                 SupportedOutputMethod::Print:
-                                    ChosenOutputMethod := CustomLayoutReporting.GetPrintOption;
+                                    ChosenOutputMethod := CustomLayoutReporting.GetPrintOption();
                                 SupportedOutputMethod::Preview:
-                                    ChosenOutputMethod := CustomLayoutReporting.GetPreviewOption;
+                                    ChosenOutputMethod := CustomLayoutReporting.GetPreviewOption();
                                 SupportedOutputMethod::Word:
-                                    ChosenOutputMethod := CustomLayoutReporting.GetWordOption;
+                                    ChosenOutputMethod := CustomLayoutReporting.GetWordOption();
                                 SupportedOutputMethod::PDF:
-                                    ChosenOutputMethod := CustomLayoutReporting.GetPDFOption;
+                                    ChosenOutputMethod := CustomLayoutReporting.GetPDFOption();
                                 SupportedOutputMethod::Email:
-                                    ChosenOutputMethod := CustomLayoutReporting.GetEmailOption;
+                                    ChosenOutputMethod := CustomLayoutReporting.GetEmailOption();
                                 SupportedOutputMethod::XML:
-                                    ChosenOutputMethod := CustomLayoutReporting.GetXMLOption;
+                                    ChosenOutputMethod := CustomLayoutReporting.GetXMLOption();
                             end;
                         end;
                     }
@@ -880,7 +880,7 @@ report 1316 "Standard Statement"
             if CurrReport.UseRequestPage then
                 InitInteractionLog();
             LogInteractionEnable := LogInteraction;
-            InitRequestPageDataInternal;
+            InitRequestPageDataInternal();
         end;
     }
 
@@ -920,7 +920,7 @@ report 1316 "Standard Statement"
     var
         CusNo: Code[20];
     begin
-        if not IsReportInPreviewMode then
+        if not IsReportInPreviewMode() then
             foreach CusNo in PrintedCustomersList do
                 if Customer.Get(CusNo) then begin
                     Customer."Last Statement No." := Customer."Last Statement No." + 1;
@@ -937,13 +937,10 @@ report 1316 "Standard Statement"
     trigger OnPreReport()
     begin
         StartDateTime := CurrentDateTime();
-        InitRequestPageDataInternal;
+        InitRequestPageDataInternal();
     end;
 
     var
-        EntriesLbl: Label 'Entries %1', Comment = '%1 = Currency code';
-        OverdueEntriesLbl: Label 'Overdue Entries %1', Comment = '%1=Currency code';
-        StatementLbl: Label 'Statement ';
         GLSetup: Record "General Ledger Setup";
         SalesSetup: Record "Sales & Receivables Setup";
         CompanyInfo: Record "Company Information";
@@ -958,6 +955,8 @@ report 1316 "Standard Statement"
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         SegManagement: Codeunit SegManagement;
+        PeriodLength: DateFormula;
+        PeriodLength2: DateFormula;
         PrintedCustomersList: List of [Code[20]];
         PrintLine: Boolean;
         LogInteraction: Boolean;
@@ -968,23 +967,40 @@ report 1316 "Standard Statement"
         Description: Text[100];
         StartBalance: Decimal;
         CurrencyCode3: Code[10];
+        DateChoice: Option "Due Date","Posting Date";
+        AgingDate: array[5] of Date;
+        AgingBandEndingDate: Date;
+        AgingBandCurrencyCode: Code[20];
+        [InDataSet]
+        LogInteractionEnable: Boolean;
+        isInitialized: Boolean;
+        IsFirstLoop: Boolean;
+        IsFirstPrintLine: Boolean;
+        IsNewCustCurrencyGroup: Boolean;
+        AgingDateHeader1: Text;
+        AgingDateHeader2: Text;
+        AgingDateHeader3: Text;
+        AgingDateHeader4: Text;
+        SupportedOutputMethod: Option Print,Preview,Word,PDF,Email,XML;
+        ChosenOutputMethod: Integer;
+        PrintIfEmailIsMissing: Boolean;
+        [InDataSet]
+        ShowPrintIfEmailIsMissing: Boolean;
+        CustBalance2: Decimal;
+        FirstRecordPrinted: Boolean;
+
+        EntriesLbl: Label 'Entries %1', Comment = '%1 = Currency code';
+        OverdueEntriesLbl: Label 'Overdue Entries %1', Comment = '%1=Currency code';
+        StatementLbl: Label 'Statement ';
         MulticurrencyAppLbl: Label 'Multicurrency Application';
         PaymentDiscountLbl: Label 'Payment Discount';
         RoundingLbl: Label 'Rounding';
-        PeriodLength: DateFormula;
-        PeriodLength2: DateFormula;
-        DateChoice: Option "Due Date","Posting Date";
-        AgingDate: array[5] of Date;
         AgingBandPeriodErr: Label 'You must specify the Aging Band Period Length.';
-        AgingBandEndingDate: Date;
         AgingBandEndErr: Label 'You must specify Aging Band Ending Date.';
         AgedSummaryLbl: Label 'Aged Summary by %1 (%2 by %3)', Comment = '%1=Report aging band end date, %2=Aging band period, %3=Type of deadline (''due date'', ''posting date'') as given in DuePostingDateLbl';
         PeriodLengthErr: Label 'Period Length is out of range.';
-        AgingBandCurrencyCode: Code[20];
         DuePostingDateLbl: Label 'Due Date,Posting Date';
         WriteoffsLbl: Label 'Application Writeoffs';
-        [InDataSet]
-        LogInteractionEnable: Boolean;
         PeriodSeparatorLbl: Label '-%1', Comment = 'Negating the period length: %1 is the period length';
         StatementCaptionLbl: Label 'Statement';
         PhoneNo_CompanyInfoCaptionLbl: Label 'Phone No.';
@@ -1000,7 +1016,6 @@ report 1316 "Standard Statement"
         DueDate_CustLedgEntry2CaptionLbl: Label 'Due Date';
         CustBalanceCaptionLbl: Label 'Running Total';
         beforeCaptionLbl: Label '..before';
-        isInitialized: Boolean;
         CompanyInfoHomepageCaptionLbl: Label 'Home Page';
         CompanyInfoEmailCaptionLbl: Label 'Email';
         DocDateCaptionLbl: Label 'Document Date';
@@ -1008,26 +1023,12 @@ report 1316 "Standard Statement"
         BlankStartDateErr: Label 'Start Date must have a value.';
         BlankEndDateErr: Label 'End Date must have a value.';
         StartDateLaterTheEndDateErr: Label 'Start date must be earlier than End date.';
-        IsFirstLoop: Boolean;
         CurrReportPageNoCaptionLbl: Label 'Page';
-        IsFirstPrintLine: Boolean;
-        IsNewCustCurrencyGroup: Boolean;
-        AgingDateHeader1: Text;
-        AgingDateHeader2: Text;
-        AgingDateHeader3: Text;
-        AgingDateHeader4: Text;
-        SupportedOutputMethod: Option Print,Preview,Word,PDF,Email,XML;
-        ChosenOutputMethod: Integer;
-        PrintIfEmailIsMissing: Boolean;
-        [InDataSet]
-        ShowPrintIfEmailIsMissing: Boolean;
-        CustBalance2: Decimal;
         GreetingLbl: Label 'Hello';
         ClosingLbl: Label 'Sincerely';
         BodyLbl: Label 'Thank you for your business. Your statement is attached to this message.';
         TelemetryCategoryTxt: Label 'Report', Locked = true;
         CustomerStatementReportGeneratedTxt: Label 'Customer Statement report generated.', Locked = true;
-        FirstRecordPrinted: Boolean;
 
     protected var
         CustBalance: Decimal;
@@ -1082,7 +1083,7 @@ report 1316 "Standard Statement"
     begin
         TempAgingBandBuf.Init();
         TempAgingBandBuf."Currency Code" := CurrencyCode;
-        if not TempAgingBandBuf.Find then
+        if not TempAgingBandBuf.Find() then
             TempAgingBandBuf.Insert();
         I := 1;
         GoOn := true;
@@ -1136,7 +1137,7 @@ report 1316 "Standard Statement"
 
     procedure InitializeRequest(NewPrintEntriesDue: Boolean; NewPrintAllHavingEntry: Boolean; NewPrintAllHavingBal: Boolean; NewPrintReversedEntries: Boolean; NewPrintUnappliedEntries: Boolean; NewIncludeAgingBand: Boolean; NewPeriodLength: Text[30]; NewDateChoice: Option "Due Date","Posting Date"; NewLogInteraction: Boolean; NewStartDate: Date; NewEndDate: Date)
     begin
-        InitRequestPageDataInternal;
+        InitRequestPageDataInternal();
 
         PrintEntriesDue := NewPrintEntriesDue;
         PrintAllHavingEntry := NewPrintAllHavingEntry;
@@ -1155,7 +1156,7 @@ report 1316 "Standard Statement"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     procedure InitRequestPageDataInternal()
@@ -1194,7 +1195,7 @@ report 1316 "Standard Statement"
         CustLedgerEntry.Reset();
         CustLedgerEntry.SetCurrentKey("Currency Code");
         TempCurrency2.Init();
-        while CustLedgerEntry.FindFirst do begin
+        while CustLedgerEntry.FindFirst() do begin
             TempCurrency2.Code := CustLedgerEntry."Currency Code";
             TempCurrency2.Insert();
             CustLedgerEntry.SetFilter("Currency Code", '>%1', CustLedgerEntry."Currency Code");

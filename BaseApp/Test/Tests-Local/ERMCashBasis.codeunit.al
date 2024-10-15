@@ -651,7 +651,7 @@ codeunit 144056 "ERM Cash Basis"
         Currency.Validate("Realized Gains Acc.", LibraryERM.CreateGLAccountNo);
         Currency.Validate("Unrealized Losses Acc.", LibraryERM.CreateGLAccountNo);
         Currency.Modify(true);
-        CreateCurrencyExchangeRate(Currency.Code, WorkDate, RateFactor);
+        CreateCurrencyExchangeRate(Currency.Code, WorkDate(), RateFactor);
         CreateCurrencyExchangeRate(Currency.Code, PostingDate, RateFactor2);
     end;
 
@@ -728,7 +728,7 @@ codeunit 144056 "ERM Cash Basis"
 
     local procedure GeneralSetupForRealizedVAT(var Currency: Record Currency; var VATPostingSetup: Record "VAT Posting Setup"; UnrealizedVATType: Option; var ItemNo: Code[20]; var PostingDate: Date; var RateFactor: Decimal; var RateFactor2: Decimal)
     begin
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandIntInRange(2, 6)) + 'M>', WorkDate);
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandIntInRange(2, 6)) + 'M>', WorkDate());
         RateFactor := LibraryRandom.RandDec(3, 2); // Using Random Range value for Currency Exch. Rate factor.
         RateFactor2 := RateFactor + LibraryRandom.RandDec(3, 2);
         CreateCurrencyWithDifferentExchangeRate(Currency, PostingDate, RateFactor, RateFactor2);

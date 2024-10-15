@@ -89,7 +89,7 @@ codeunit 5507 "Graph Mgt - Sales Credit Memo"
         GraphMgtSalCrMemoBuf: Codeunit "Graph Mgt - Sal. Cr. Memo Buf.";
     begin
         UpdateIntegrationRecordIds(false);
-        GraphMgtSalCrMemoBuf.UpdateBufferTableRecords;
+        GraphMgtSalCrMemoBuf.UpdateBufferTableRecords();
     end;
 }
 

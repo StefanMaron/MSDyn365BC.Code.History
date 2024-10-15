@@ -27,7 +27,6 @@ codeunit 134882 "ERM Exch. Rate Adjmt. Bank"
         SetHandler: Boolean;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure BankAdjustExchRateForHigher()
     begin
@@ -37,7 +36,6 @@ codeunit 134882 "ERM Exch. Rate Adjmt. Bank"
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure BankAdjustExchRateForLower()
     begin
@@ -84,7 +82,6 @@ codeunit 134882 "ERM Exch. Rate Adjmt. Bank"
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure GLEntryAdjmtWithNegativeAmount()
     var
@@ -114,7 +111,6 @@ codeunit 134882 "ERM Exch. Rate Adjmt. Bank"
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure GLEntryAdjmtWithPositiveAmount()
     var
@@ -144,7 +140,6 @@ codeunit 134882 "ERM Exch. Rate Adjmt. Bank"
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure GLEntryAdjustExchRateForGainOrLoss()
     var
@@ -165,7 +160,7 @@ codeunit 134882 "ERM Exch. Rate Adjmt. Bank"
         Initialize();
         CurrencyCode := CreateCurrency();
         ExchRateAmount := LibraryRandom.RandDec(100, 2);
-        FirstStartingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate);
+        FirstStartingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate());
         DeleteExistingExchangeRates(CurrencyCode);
         CreateExchangeRateWithFixRelationalAmount(CurrencyCode, WorkDate(), ExchRateAmount);
         CreateExchangeRateWithFixRelationalAmount(CurrencyCode, FirstStartingDate, ExchRateAmount + LibraryRandom.RandDec(10, 2));
@@ -188,11 +183,11 @@ codeunit 134882 "ERM Exch. Rate Adjmt. Bank"
         FindGLEntry(GLEntry, Currency.Code, Currency."Realized Gains Acc.", GLEntry."Document Type"::" ");
         Assert.AreNearlyEqual(
           -GLEntryAmount, GLEntry.Amount, Currency."Amount Rounding Precision",
-          StrSubstNo(GLEntryAmountErr, GLEntry.FieldCaption(Amount), -Amount, GLEntry.TableCaption));
+          StrSubstNo(GLEntryAmountErr, GLEntry.FieldCaption(Amount), -Amount, GLEntry.TableCaption()));
         FindGLEntry(GLEntry, Currency.Code, Currency."Realized Losses Acc.", GLEntry."Document Type"::" ");
         Assert.AreNearlyEqual(
           -GLEntryAmount2, GLEntry.Amount, Currency."Amount Rounding Precision",
-          StrSubstNo(GLEntryAmountErr, GLEntry.FieldCaption(Amount), -Amount2, GLEntry.TableCaption));
+          StrSubstNo(GLEntryAmountErr, GLEntry.FieldCaption(Amount), -Amount2, GLEntry.TableCaption()));
     end;
 
     local procedure Initialize()
@@ -214,7 +209,7 @@ codeunit 134882 "ERM Exch. Rate Adjmt. Bank"
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateLocalPostingSetup();
-        LibraryERM.SetJournalTemplNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         IsInitialized := true;
         Commit();
@@ -519,11 +514,11 @@ codeunit 134882 "ERM Exch. Rate Adjmt. Bank"
         GLEntry.FindSet();
         repeat
             GLEntryAmount += GLEntry.Amount;
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
         Currency.Get(DocumentNo);
         Assert.AreNearlyEqual(
           Amount, GLEntryAmount, Currency."Invoice Rounding Precision",
-          StrSubstNo(GLEntryAmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
+          StrSubstNo(GLEntryAmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyGLEntry(CurrencyCode: Code[10]; DocumentNo: Code[20]; Amount: Decimal; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
@@ -536,7 +531,7 @@ codeunit 134882 "ERM Exch. Rate Adjmt. Bank"
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, Currency."Amount Rounding Precision",
           StrSubstNo(
-            AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption, GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
+            AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption(), GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
     end;
 
     local procedure VerifyGLEntryForDocument(DocumentNo: Code[20]; AccountNo: Code[20]; EntryAmount: Decimal)
@@ -581,7 +576,7 @@ codeunit 134882 "ERM Exch. Rate Adjmt. Bank"
             VATAmount :=
               Round(
                 Amount * VATPostingSetup."VAT %" / (100 + VATPostingSetup."VAT %"), Currency."Amount Rounding Precision",
-                Currency.VATRoundingDirection);
+                Currency.VATRoundingDirection());
         exit(Round(Amount - VATAmount, Currency."Amount Rounding Precision"));
     end;
 
@@ -615,13 +610,6 @@ codeunit 134882 "ERM Exch. Rate Adjmt. Bank"
     procedure MessageHandler(Message: Text[1024])
     begin
         // To handle the message.
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure StatisticsMessageHandler(Message: Text[1024])
-    begin
-        Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
     end;
 }
 

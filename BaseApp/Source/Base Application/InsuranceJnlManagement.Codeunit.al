@@ -159,7 +159,7 @@ codeunit 5656 InsuranceJnlManagement
             if not InsuranceJnlBatch.FindFirst() then begin
                 InsuranceJnlBatch.Init();
                 InsuranceJnlBatch."Journal Template Name" := CurrentJnlTemplateName;
-                InsuranceJnlBatch.SetupNewBatch;
+                InsuranceJnlBatch.SetupNewBatch();
                 InsuranceJnlBatch.Name := Text002;
                 InsuranceJnlBatch.Description := Text003;
                 InsuranceJnlBatch.Insert(true);

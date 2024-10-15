@@ -35,7 +35,7 @@ table 6706 "Booking Service Mapping"
 
     procedure Map(ItemNo: Code[20]; ServiceID: Text[50]; Mailbox: Text[80])
     begin
-        Init;
+        Init();
         "Item No." := ItemNo;
         "Service ID" := ServiceID;
         "Booking Mailbox" := Mailbox;

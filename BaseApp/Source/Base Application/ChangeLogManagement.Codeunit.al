@@ -49,7 +49,7 @@ codeunit 423 "Change Log Management"
         end;
 
         if not ChangeLogSetupRead then begin
-            if ChangeLogSetup.Get then;
+            if ChangeLogSetup.Get() then;
             ChangeLogSetupRead := true;
         end;
 
@@ -81,7 +81,7 @@ codeunit 423 "Change Log Management"
         OnAfterGetDatabaseTableTriggerSetup(TempChangeLogSetupTable, LogInsert, LogModify, LogDelete, LogRename);
     end;
 
-    local procedure IsLogActive(TableNumber: Integer; FieldNumber: Integer; TypeOfChange: Option Insertion,Modification,Deletion): Boolean
+    procedure IsLogActive(TableNumber: Integer; FieldNumber: Integer; TypeOfChange: Option Insertion,Modification,Deletion): Boolean
     var
         IsActive: Boolean;
         IsHandled: Boolean;
@@ -95,7 +95,7 @@ codeunit 423 "Change Log Management"
             exit(true);
 
         if not ChangeLogSetupRead then begin
-            if ChangeLogSetup.Get then;
+            if ChangeLogSetup.Get() then;
             ChangeLogSetupRead := true;
         end;
 
@@ -202,7 +202,7 @@ codeunit 423 "Change Log Management"
             OnAfterIsAlwaysLoggedTable(TableID, AlwaysLogTable);
     end;
 
-    local procedure InsertLogEntry(var FldRef: FieldRef; var xFldRef: FieldRef; var RecRef: RecordRef; TypeOfChange: Enum "Change Log Entry Type"; IsReadable: Boolean)
+    procedure InsertLogEntry(var FldRef: FieldRef; var xFldRef: FieldRef; var RecRef: RecordRef; TypeOfChange: Enum "Change Log Entry Type"; IsReadable: Boolean)
     var
         ChangeLogEntry: Record "Change Log Entry";
         KeyFldRef: FieldRef;
@@ -446,6 +446,7 @@ codeunit 423 "Change Log Management"
 
     procedure EvaluateTextToFieldRef(InputText: Text; var FieldRef: FieldRef): Boolean
     var
+        DateFormulaVar: DateFormula;
         IntVar: Integer;
         DecimalVar: Decimal;
         DateVar: Date;
@@ -455,7 +456,6 @@ codeunit 423 "Change Log Management"
         DurationVar: Duration;
         BigIntVar: BigInteger;
         GUIDVar: Guid;
-        DateFormulaVar: DateFormula;
     begin
         if FieldRef.Class in [FieldClass::FlowField, FieldClass::FlowFilter] then
             exit(true);

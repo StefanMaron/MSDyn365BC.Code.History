@@ -1,4 +1,4 @@
-﻿codeunit 2581 "Dim Correction Run"
+codeunit 2581 "Dim Correction Run"
 {
     TableNo = "Job Queue Entry";
     Permissions = tabledata "G/L Entry" = rimd;

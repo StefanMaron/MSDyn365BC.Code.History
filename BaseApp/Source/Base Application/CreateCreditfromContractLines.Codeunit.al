@@ -31,12 +31,11 @@ codeunit 5945 CreateCreditfromContractLines
             LinesToDelete := 0;
             if CreditNoteNo <> '' then
                 Message(Text000, CreditNoteNo);
-            if ServItemLineExist then begin
-                if LinesToDelete = 1 then begin
-                    Message(Text002, LowerCase(TableCaption));
-                end else
+            if ServItemLineExist then
+                if LinesToDelete = 1 then
+                    Message(Text002, LowerCase(TableCaption))
+                else
                     Message(Text001);
-            end;
             ServItemLineExist := false;
             CreditNoteNo := '';
         end;

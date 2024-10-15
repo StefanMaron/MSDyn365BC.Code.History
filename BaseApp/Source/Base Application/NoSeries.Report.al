@@ -9,7 +9,7 @@ report 21 "No. Series"
         dataitem("No. Series"; "No. Series")
         {
             RequestFilterFields = "Code";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(No__Series__TABLECAPTION__________NoSeriesFilter; TableCaption + ': ' + NoSeriesFilter)
@@ -170,8 +170,8 @@ report 21 "No. Series"
 
     trigger OnPreReport()
     begin
-        NoSeriesFilter := "No. Series".GetFilters;
-        NoSeriesLineFilter := "No. Series Line".GetFilters;
+        NoSeriesFilter := "No. Series".GetFilters();
+        NoSeriesLineFilter := "No. Series Line".GetFilters();
     end;
 
     var

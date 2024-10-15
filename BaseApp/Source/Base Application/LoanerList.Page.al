@@ -15,7 +15,7 @@ page 5923 "Loaner List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -25,7 +25,7 @@ page 5923 "Loaner List"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a description of the loaner.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies an additional description of the loaner.';
@@ -35,12 +35,12 @@ page 5923 "Loaner List"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the loaner has been lent to a customer.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the document type of the loaner entry.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service document for the service item that was lent.';
@@ -102,8 +102,6 @@ page 5923 "Loaner List"
                 ApplicationArea = Service;
                 Caption = 'New Service Order';
                 Image = Document;
-                Promoted = true;
-                PromotedCategory = New;
                 RunObject = Page "Service Order";
                 RunPageMode = Create;
                 ToolTip = 'Create an order for specific service work to be performed on a customer''s item. ';
@@ -128,6 +126,17 @@ page 5923 "Loaner List"
                     begin
                         ServLoanerMgt.Receive(Rec);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New';
+
+                actionref("New Service Order_Promoted"; "New Service Order")
+                {
                 }
             }
         }

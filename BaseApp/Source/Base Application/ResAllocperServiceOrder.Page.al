@@ -37,9 +37,9 @@ page 6008 "Res. Alloc. per Service Order"
 
                     trigger OnValidate()
                     begin
-                        DateControl;
+                        DateControl();
                         SetMatrixColumns("Matrix Page Step Type"::Initial);
-                        PeriodTypeOnAfterValidate;
+                        PeriodTypeOnAfterValidate();
                     end;
                 }
                 field(DateFilter; DateFilter)
@@ -50,9 +50,9 @@ page 6008 "Res. Alloc. per Service Order"
 
                     trigger OnValidate()
                     begin
-                        DateControl;
+                        DateControl();
                         SetMatrixColumns("Matrix Page Step Type"::Initial);
-                        DateFilterOnAfterValidate;
+                        DateFilterOnAfterValidate();
                     end;
                 }
                 field(ColumnsSet; ColumnsSet)
@@ -75,9 +75,6 @@ page 6008 "Res. Alloc. per Service Order"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Show Matrix';
                 Image = ShowMatrix;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Open the matrix window to see data according to the specified values.';
 
                 trigger OnAction()
@@ -96,10 +93,6 @@ page 6008 "Res. Alloc. per Service Order"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Previous Set';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
@@ -112,15 +105,29 @@ page 6008 "Res. Alloc. per Service Order"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Next Set';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
                 begin
                     SetMatrixColumns("Matrix Page Step Type"::Next);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Previous Set_Promoted"; "Previous Set")
+                {
+                }
+                actionref(ShowMatrix_Promoted; ShowMatrix)
+                {
+                }
+                actionref("Next Set_Promoted"; "Next Set")
+                {
+                }
             }
         }
     }

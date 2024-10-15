@@ -11,7 +11,7 @@ page 5371 "CRM Synch. Job Status Part"
             cuegroup(Control1)
             {
                 ShowCaption = false;
-                field("Failed Synch. Jobs"; "Failed Synch. Jobs")
+                field("Failed Synch. Jobs"; Rec."Failed Synch. Jobs")
                 {
                     ApplicationArea = Suite;
                     DrillDownPageID = "CRM Synch. Job Queue";

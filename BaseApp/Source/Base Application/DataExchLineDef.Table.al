@@ -91,7 +91,7 @@ table 1227 "Data Exch. Line Def"
         Validate(Code, NewCode);
         Validate(Name, NewName);
         Validate("Column Count", ColumnCount);
-        Insert;
+        Insert();
     end;
 
     [Scope('OnPrem')]
@@ -122,7 +122,7 @@ table 1227 "Data Exch. Line Def"
             DataExchFieldMapping.SetRange("Field ID", FieldId);
         end;
         if DataExchFieldMapping.FindFirst() then
-            exit(DataExchFieldMapping.GetPath);
+            exit(DataExchFieldMapping.GetPath());
         exit('');
     end;
 }

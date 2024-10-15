@@ -209,7 +209,7 @@ codeunit 144013 "Sales Documents With Tax"
         RunGetSalesOrdersReport(RequisitionLine, SalesLine2."Document No.");
 
         // Exercise: Create Purchase Order by Carry Out Action Message Action.
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');  // Blank value for Your Reference.
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');  // Blank value for Your Reference.
 
         // Verify: Verify Purchase Order is created by Carry Out Action.
         SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
@@ -426,13 +426,13 @@ codeunit 144013 "Sales Documents With Tax"
             "Unit Price" := UnitPrice;
             "Line Amount" := LineAmount;
             Amount := LineAmount;
-            Modify;
+            Modify();
         end;
     end;
 
     local procedure CreateTaxDetail(var TaxDetail: Record "Tax Detail"; TaxJurisdictionCode: Code[10]; TaxGroupCode: Code[20]; TaxBelowMaximum: Decimal)
     begin
-        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", WorkDate);
+        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", TaxBelowMaximum);
         TaxDetail.Modify(true);
     end;
@@ -542,7 +542,7 @@ codeunit 144013 "Sales Documents With Tax"
         GeneralJournal.OpenEdit;
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         GeneralJournal."Apply Entries".Invoke;  // Opens handler - ApplyCustomerEntriesModalPageHandler.
-        GeneralJournal.Close;
+        GeneralJournal.Close();
     end;
 
     local procedure FilterOnPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20])
@@ -583,7 +583,7 @@ codeunit 144013 "Sales Documents With Tax"
         PostedSalesInvoice.OpenEdit;
         PostedSalesInvoice.FILTER.SetFilter("No.", No);
         PostedSalesInvoice.Statistics.Invoke;
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
     end;
 
     local procedure UpdateGeneralLedgerSetup(var OldUnrealizedVAT: Boolean; NewUnrealizedVAT: Boolean)

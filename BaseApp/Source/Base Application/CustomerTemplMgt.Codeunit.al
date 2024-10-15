@@ -16,6 +16,7 @@ codeunit 1381 "Customer Templ. Mgt."
 
     procedure CreateCustomerFromTemplate(var Customer: Record Customer; var IsHandled: Boolean) Result: Boolean
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         CustomerTempl: Record "Customer Templ.";
     begin
         IsHandled := false;
@@ -40,32 +41,6 @@ codeunit 1381 "Customer Templ. Mgt."
         OnAfterCreateCustomerFromTemplate(Customer, CustomerTempl);
         exit(true);
     end;
-
-#if not CLEAN18
-    [Obsolete('Function is not used and not required.', '18.0')]
-    procedure InsertCustomerFromContact(var Customer: Record Customer; Contact: Record Contact): Boolean
-    var
-        CustomerTempl: Record "Customer Templ.";
-    begin
-        if not IsEnabled() then
-            exit(false);
-
-        CustomerTempl.SetRange("Contact Type", Contact.Type);
-        if not SelectCustomerTemplate(CustomerTempl) then
-            exit(false);
-
-        Customer.SetInsertFromContact(true);
-        Customer.Init();
-        Customer.Insert(true);
-        Customer.SetInsertFromContact(false);
-
-        ApplyTemplate(Customer, CustomerTempl, false);
-        InsertDimensions(Customer."No.", CustomerTempl.Code, Database::Customer, Database::"Customer Templ.");
-        Customer.Get(Customer."No.");
-
-        exit(true);
-    end;
-#endif
 
     procedure ApplyCustomerTemplate(var Customer: Record Customer; CustomerTempl: Record "Customer Templ.")
     begin
@@ -321,7 +296,7 @@ codeunit 1381 "Customer Templ. Mgt."
         if CustomerTempl.FindLast() and (IncStr(CustomerTempl.Code) <> '') then
             CustomerTemplCode := CustomerTempl.Code
         else
-            CustomerTemplCode := CopyStr(Customer.TableCaption, 1, 4) + '000001';
+            CustomerTemplCode := CopyStr(Customer.TableCaption(), 1, 4) + '000001';
 
         while CustomerTempl.Get(CustomerTemplCode) do
             CustomerTemplCode := IncStr(CustomerTemplCode);
@@ -585,19 +560,6 @@ codeunit 1381 "Customer Templ. Mgt."
     procedure OpenCustomerTemplListPage(Notification: Notification)
     begin
         Page.Run(Page::"Customer Templ. List");
-    end;
-#endif
-#if not CLEAN18
-    [EventSubscriber(ObjectType::Page, Page::"Customer Template List", 'OnOpenPageEvent', '', false, false)]
-    local procedure CustomerTemplateListOnOpenPageEventHandler()
-    begin
-        ShowContactConversionTemplatesNotification();
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Customer Template Card", 'OnOpenPageEvent', '', false, false)]
-    local procedure CustomerTemplateCardOnOpenPageEventHandler()
-    begin
-        ShowContactConversionTemplatesNotification();
     end;
 #endif
 

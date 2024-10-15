@@ -13,54 +13,6 @@ codeunit 144008 "UT COD Address"
         Assert: Codeunit Assert;
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
 
-#if not CLEAN18
-    // [Test]
-    [HandlerFunctions('CustomerTemplateListModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure CreateNewCustomerWithoutStateServOrderManagement()
-    var
-        CustomerTemplate: Record "Customer Template";
-        ServiceHeader: Record "Service Header";
-        ServOrderManagement: Codeunit ServOrderManagement;
-    begin
-        // Purpose of the test is to validate CreateNewCustomer Function of Codeunit 5900 - ServOrderManagement.
-
-        // Setup: Service Header. Create Customer Template without State.
-        Initialize();
-        CreateServiceHeader(ServiceHeader);
-        CreateCustomerTemplate(CustomerTemplate, '');  // Blank value for State.
-
-        // Exercise: Create New Customer, Transaction Model - AutoCommit required as the explicit Commit used on OnValidate Trigger of Customer No in Table 5900 - Service Header.
-        ServOrderManagement.CreateNewCustomer(ServiceHeader);
-
-        // Verify: Verify County on Customer, State as blank in Customer Template so County updated in Customer from County field of Service Header.
-        VerifyCustomerCounty(ServiceHeader."Customer No.", ServiceHeader.County);
-    end;
-
-    // [Test]
-    [HandlerFunctions('CustomerTemplateListModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure CreateNewCustomerWithStateServOrderManagement()
-    var
-        CustomerTemplate: Record "Customer Template";
-        ServiceHeader: Record "Service Header";
-        ServOrderManagement: Codeunit ServOrderManagement;
-    begin
-        // Purpose of the test is to validate CreateNewCustomer Function of Codeunit 5900 - ServOrderManagement.
-
-        // Setup: Service Header. Create Customer Template with State.
-        Initialize();
-        CreateServiceHeader(ServiceHeader);
-        CreateCustomerTemplate(CustomerTemplate, LibraryUTUtility.GetNewCode);
-
-        // Exercise: Create New Customer, Transaction Model - AutoCommit required as the explicit Commit used on OnValidate Trigger of Customer No in Table 5900 - Service Header.
-        ServOrderManagement.CreateNewCustomer(ServiceHeader);
-
-        // Verify: Verify County on Customer, State not blank in Customer Template so County updated in Customer from State field of Customer Template.
-        VerifyCustomerCounty(ServiceHeader."Customer No.", CustomerTemplate.State);
-    end;
-#endif
-
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -309,17 +261,6 @@ codeunit 144008 "UT COD Address"
         Customer.Insert();
     end;
 
-#if not CLEAN18
-    local procedure CreateCustomerTemplate(var CustomerTemplate: Record "Customer Template"; State: Text[30])
-    begin
-        CustomerTemplate.Code := LibraryUTUtility.GetNewCode10;
-        CustomerTemplate.State := State;
-        CustomerTemplate."Customer Posting Group" := CreateCustomerPostingGroup;
-        CustomerTemplate.Insert();
-        LibraryVariableStorage.Enqueue(CustomerTemplate.Code);  // Enqueue value required in CustomerTemplateListModalPageHandler.
-    end;
-#endif
-
     local procedure CreateCustomerPostingGroup(): Code[20]
     var
         CustomerPostingGroup: Record "Customer Posting Group";
@@ -383,18 +324,5 @@ codeunit 144008 "UT COD Address"
         Customer.TestField(Address, AddressArray[2]);
         Assert.AreEqual(PostalAddress, AddressArray[3], 'Value must be Equal.');
     end;
-
-#if not CLEAN18
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure CustomerTemplateListModalPageHandler(var CustomerTemplateList: TestPage "Customer Template List")
-    var
-        "Code": Variant;
-    begin
-        LibraryVariableStorage.Dequeue(Code);
-        CustomerTemplateList.FILTER.SetFilter(Code, Code);
-        CustomerTemplateList.OK.Invoke;
-    end;
-#endif
 }
 

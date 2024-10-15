@@ -22,7 +22,7 @@ page 7111 "Analysis Type List"
                     ApplicationArea = SalesAnalysis, PurchaseAnalysis;
                     ToolTip = 'Specifies a description of the analysis type.';
                 }
-                field("Value Type"; "Value Type")
+                field("Value Type"; Rec."Value Type")
                 {
                     ApplicationArea = SalesAnalysis, PurchaseAnalysis;
                     ToolTip = 'Specifies the value type that the analysis type is based on.';
@@ -53,10 +53,19 @@ page 7111 "Analysis Type List"
                 ApplicationArea = SalesAnalysis, PurchaseAnalysis;
                 Caption = '&Setup';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Analysis Types";
                 ToolTip = 'Set up the analysis type.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Setup_Promoted"; "&Setup")
+                {
+                }
             }
         }
     }

@@ -15,7 +15,7 @@ report 99000764 "Prod. Order - Precalc. Time"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Line; Line)
@@ -210,7 +210,7 @@ report 99000764 "Prod. Order - Precalc. Time"
 
             trigger OnPreDataItem()
             begin
-                ProdOrderFilter := GetFilters;
+                ProdOrderFilter := GetFilters();
             end;
         }
     }

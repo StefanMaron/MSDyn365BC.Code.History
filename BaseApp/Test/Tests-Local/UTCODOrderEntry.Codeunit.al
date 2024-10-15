@@ -194,7 +194,7 @@ codeunit 142072 "UT COD Order Entry"
         SalesHeader."No." := LibraryUTUtility.GetNewCode;
         SalesHeader."Sell-to Customer No." := CreateCustomer;
         SalesHeader."Bill-to Customer No." := SalesHeader."Sell-to Customer No.";
-        SalesHeader."Posting Date" := WorkDate;
+        SalesHeader."Posting Date" := WorkDate();
         SalesHeader.Insert();
 
         SalesLine."Document Type" := SalesHeader."Document Type";

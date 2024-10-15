@@ -80,7 +80,7 @@ codeunit 134500 "ERM Cash Manager"
         // 3.Verification: Error occurs while changing Currency Code on Bank Account.
         Assert.AreNotEqual(
           0, StrPos(GetLastErrorText, BankAccount."No."),
-          StrSubstNo(CurrencyErrorErr, BankAccount.FieldCaption(Balance), BankAccount.TableCaption));
+          StrSubstNo(CurrencyErrorErr, BankAccount.FieldCaption(Balance), BankAccount.TableCaption()));
     end;
 
     [Test]
@@ -225,7 +225,7 @@ codeunit 134500 "ERM Cash Manager"
         // 3.Verification: Verify Posted Vat Amount.
         Currency.Get(CurrencyCode);
         FindVATEntry(VATEntry, GenJournalLine."Document No.");
-        Assert.AreEqual(1, VATEntry.Count, StrSubstNo(NoOfVATEntryErrorErr, VATEntry.TableCaption, 1));
+        Assert.AreEqual(1, VATEntry.Count, StrSubstNo(NoOfVATEntryErrorErr, VATEntry.TableCaption(), 1));
         Assert.AreNearlyEqual(
           VATEntry.Amount,
           LibraryERM.ConvertCurrency(GenJournalLine.Amount, CurrencyCode, '', LibraryERM.FindEarliestDateForExhRate) *
@@ -254,7 +254,7 @@ codeunit 134500 "ERM Cash Manager"
         // 3.Verification: Error occurs while using Blocked Bank Account in General Journal.
         Assert.AreNotEqual(
           0, StrPos(GetLastErrorText, BankAccount."No."),
-          StrSubstNo(BankAccountBlockedErrorErr, BankAccount.FieldCaption(Blocked), BankAccount.TableCaption));
+          StrSubstNo(BankAccountBlockedErrorErr, BankAccount.FieldCaption(Blocked), BankAccount.TableCaption()));
 
         // 4.TearDown: Roll back the Previous Bank Account.
         UnBlockedBankAccount(BankAccount);
@@ -335,7 +335,7 @@ codeunit 134500 "ERM Cash Manager"
         // 3.Verification: Error occurs while Posting General Journal with Computer Check option before Check is printed.
         Assert.AreEqual(
           StrSubstNo(
-            CheckPrintErrorErr, GenJournalLine.TableCaption, GenJournalLine.FieldCaption("Journal Template Name"),
+            CheckPrintErrorErr, GenJournalLine.TableCaption(), GenJournalLine.FieldCaption("Journal Template Name"),
             GenJournalLine."Journal Template Name", GenJournalLine.FieldCaption("Journal Batch Name"),
             GenJournalLine."Journal Batch Name", GenJournalLine.FieldCaption("Line No."), GenJournalLine."Line No."),
           GetLastErrorText,
@@ -397,61 +397,6 @@ codeunit 134500 "ERM Cash Manager"
 
         // [THEN] We should see the entry of one bank but not from the other.
         // On PageHandler CountCheckLedgerEntries
-    end;
-
-    [Test]
-    [HandlerFunctions('ApplyCheckLedgerEntriesPageHandler')]
-    [Scope('OnPrem')]
-    procedure ApplyBankRecLineToCheckEntry()
-    var
-        CheckLedgerEntry: Record "Check Ledger Entry";
-        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
-        BankAccReconciliation: Record "Bank Acc. Reconciliation";
-        BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
-    begin
-        // Setup.
-        SetupBankAccRecForApplication(BankAccReconciliationLine.Type::"Check Ledger Entry",
-          BankAccReconciliation, BankAccReconciliationLine);
-
-        // Exercise.
-        BankAccReconciliationPage.OpenEdit;
-        BankAccReconciliationPage.GotoRecord(BankAccReconciliation);
-        BankAccReconciliationPage.StmtLine.ApplyEntries.Invoke;
-
-        // Verify.
-        BankAccReconciliationLine.Get(
-          BankAccReconciliationLine."Statement Type",
-          BankAccReconciliationLine."Bank Account No.",
-          BankAccReconciliationLine."Statement No.",
-          BankAccReconciliationLine."Statement Line No.");
-        BankAccReconciliationLine.TestField("Applied Amount", BankAccReconciliationLine."Statement Amount");
-        BankAccReconciliationLine.TestField("Applied Entries", 1);
-
-        CheckLedgerEntry.SetRange("Bank Account No.", BankAccReconciliationLine."Bank Account No.");
-        CheckLedgerEntry.FindFirst();
-        CheckLedgerEntry.TestField("Statement No.", BankAccReconciliationLine."Statement No.");
-        CheckLedgerEntry.TestField("Statement Line No.", BankAccReconciliationLine."Statement Line No.");
-        BankAccReconciliationLine.TestField("Check No.", CheckLedgerEntry."Check No.");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ApplyBankRecLineToCheckEntryNegative()
-    var
-        BankAccReconciliation: Record "Bank Acc. Reconciliation";
-        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
-        BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
-    begin
-        // Setup.
-        SetupBankAccRecForApplication(BankAccReconciliationLine.Type::"Bank Account Ledger Entry",
-          BankAccReconciliation, BankAccReconciliationLine);
-
-        // Exercise.
-        BankAccReconciliationPage.OpenEdit;
-        BankAccReconciliationPage.GotoRecord(BankAccReconciliation);
-
-        // Verify.
-        Assert.IsFalse(BankAccReconciliationPage.StmtLine.ApplyEntries.Enabled, 'Action should be disabled.');
     end;
 
     [Test]
@@ -518,8 +463,7 @@ codeunit 134500 "ERM Cash Manager"
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         NewBankAccount: Record "Bank Account";
     begin
-        // Test whether the Application allows posting the Bank Reconciliation when the value in the Total Difference
-        // field is equal to sum total of all values shown in the Difference column of various lines.
+        // Test that the Application doesn't allow posting the Bank Reconciliation when there is unapplied difference (line type Difference is deprecated)
 
         // 1.Setup: Create Bank Account with "Statement No." and "Balance Last Statement" fields Value, Find Customer,
         // Create and Post General Journal Line, and Create "Bank Acc. Reconciliation" using Bank Account.
@@ -535,11 +479,8 @@ codeunit 134500 "ERM Cash Manager"
         UpdateBalanceLastStatement(BankAccReconciliation);
 
         // 2.Exercise: Post "Bank Acc. Reconciliation".
-        LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
-
-        // 3.Verification: Verify Error Occurs when Value in Statement Ending Balance field is different from the Total Balance.
-        NewBankAccount.Get(BankAccount."No.");
-        NewBankAccount.TestField("Balance Last Statement", BankAccReconciliation."Statement Ending Balance");
+        // 3.Verification: Verify Error Occurs
+        AssertError LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
     end;
 
     [Test]
@@ -685,7 +626,7 @@ codeunit 134500 "ERM Cash Manager"
         UpdateOnPageBalanceLastStatement(BankAccount."No.", BalanceLastStatement);
 
         // 3. Verify: Balance Last Statement is updated
-        BankAccount.Find;
+        BankAccount.Find();
         BankAccount.TestField("Balance Last Statement", BalanceLastStatement);
     end;
 
@@ -828,7 +769,7 @@ codeunit 134500 "ERM Cash Manager"
         REPORT.Run(REPORT::Check, true, false, GenJournalLine);
 
         // [THEN] Bank Account "Last Check No." was not changed
-        BankAccount.Find;
+        BankAccount.Find();
         BankAccount.TestField("Last Check No.", LastCheckNo);
 
         LibraryVariableStorage.AssertEmpty;
@@ -861,7 +802,7 @@ codeunit 134500 "ERM Cash Manager"
         REPORT.Run(REPORT::"Check (Stub/Stub/Check)", true, false, GenJournalLine);
 
         // [THEN] Bank Account "Last Check No." was not changed
-        BankAccount.Find;
+        BankAccount.Find();
         BankAccount.TestField("Last Check No.", LastCheckNo);
 
         LibraryVariableStorage.AssertEmpty;
@@ -894,7 +835,7 @@ codeunit 134500 "ERM Cash Manager"
         REPORT.Run(REPORT::"Check (Stub/Check/Stub)", true, false, GenJournalLine);
 
         // [THEN] Bank Account "Last Check No." was not changed
-        BankAccount.Find;
+        BankAccount.Find();
         BankAccount.TestField("Last Check No.", LastCheckNo);
 
         LibraryVariableStorage.AssertEmpty;
@@ -927,7 +868,7 @@ codeunit 134500 "ERM Cash Manager"
         REPORT.Run(REPORT::"Check (Check/Stub/Stub)", true, false, GenJournalLine);
 
         // [THEN] Bank Account "Last Check No." was not changed
-        BankAccount.Find;
+        BankAccount.Find();
         BankAccount.TestField("Last Check No.", LastCheckNo);
 
         LibraryVariableStorage.AssertEmpty;
@@ -960,7 +901,7 @@ codeunit 134500 "ERM Cash Manager"
         REPORT.Run(REPORT::"Three Checks per Page", true, false, GenJournalLine);
 
         // [THEN] Bank Account "Last Check No." was not changed
-        BankAccount.Find;
+        BankAccount.Find();
         BankAccount.TestField("Last Check No.", LastCheckNo);
 
         LibraryVariableStorage.AssertEmpty;
@@ -993,7 +934,7 @@ codeunit 134500 "ERM Cash Manager"
         REPORT.Run(REPORT::Check, true, false, GenJournalLine);
 
         // [THEN] Bank Account "Last Check No." was updated to the next value
-        BankAccount.Find;
+        BankAccount.Find();
         Assert.AreNotEqual(BankAccount."Last Check No.", LastCheckNo, 'Last Check No. must be updated');
         BankAccount.TestField("Last Check No.", IncStr(LastCheckNo));
 
@@ -1027,7 +968,7 @@ codeunit 134500 "ERM Cash Manager"
         REPORT.Run(REPORT::"Check (Stub/Stub/Check)", true, false, GenJournalLine);
 
         // [THEN] Bank Account "Last Check No." was updated to the next value
-        BankAccount.Find;
+        BankAccount.Find();
         Assert.AreNotEqual(BankAccount."Last Check No.", LastCheckNo, 'Last Check No. must be updated');
         BankAccount.TestField("Last Check No.", IncStr(LastCheckNo));
 
@@ -1061,7 +1002,7 @@ codeunit 134500 "ERM Cash Manager"
         REPORT.Run(REPORT::"Check (Stub/Check/Stub)", true, false, GenJournalLine);
 
         // [THEN] Bank Account "Last Check No." was updated to the next value
-        BankAccount.Find;
+        BankAccount.Find();
         Assert.AreNotEqual(BankAccount."Last Check No.", LastCheckNo, 'Last Check No. must be updated');
         BankAccount.TestField("Last Check No.", IncStr(LastCheckNo));
 
@@ -1095,7 +1036,7 @@ codeunit 134500 "ERM Cash Manager"
         REPORT.Run(REPORT::"Check (Check/Stub/Stub)", true, false, GenJournalLine);
 
         // [THEN] Bank Account "Last Check No." was updated to the next value
-        BankAccount.Find;
+        BankAccount.Find();
         Assert.AreNotEqual(BankAccount."Last Check No.", LastCheckNo, 'Last Check No. must be updated');
         BankAccount.TestField("Last Check No.", IncStr(LastCheckNo));
 
@@ -1129,7 +1070,7 @@ codeunit 134500 "ERM Cash Manager"
         REPORT.Run(REPORT::"Three Checks per Page", true, false, GenJournalLine);
 
         // [THEN] Bank Account "Last Check No." was updated to the next value
-        BankAccount.Find;
+        BankAccount.Find();
         Assert.AreNotEqual(BankAccount."Last Check No.", LastCheckNo, 'Last Check No. must be updated');
         BankAccount.TestField("Last Check No.", IncStr(LastCheckNo));
 
@@ -1194,7 +1135,7 @@ codeunit 134500 "ERM Cash Manager"
         exit(CheckLedgerEntry."Entry No.");
     end;
 
-    local procedure SetupBankAccRecForApplication(LineType: Option; var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    local procedure SetupBankAccRecForApplication(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
     var
         BankAccount: Record "Bank Account";
         Vendor: Record Vendor;
@@ -1216,7 +1157,6 @@ codeunit 134500 "ERM Cash Manager"
         CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.");
 
         LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
-        BankAccReconciliationLine.Validate(Type, LineType);
         BankAccReconciliationLine.Validate("Statement Amount", -GenJournalLine.Amount);
         BankAccReconciliationLine.Modify(true);
     end;
@@ -1260,7 +1200,7 @@ codeunit 134500 "ERM Cash Manager"
     begin
         LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo,
           BankAccReconciliation."Statement Type"::"Bank Reconciliation");
-        BankAccReconciliation.Validate("Statement Date", WorkDate);
+        BankAccReconciliation.Validate("Statement Date", WorkDate());
         BankAccReconciliation.Modify(true);
     end;
 
@@ -1365,7 +1305,6 @@ codeunit 134500 "ERM Cash Manager"
     local procedure CreateBankAccReconciliationLn(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; BankAccReconciliation: Record "Bank Acc. Reconciliation")
     begin
         LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
-        BankAccReconciliationLine.Validate(Type, BankAccReconciliationLine.Type::Difference);
         BankAccReconciliationLine.Validate(Difference, LibraryRandom.RandDec(50, 2));  // Using RANDOM for Amount.
         BankAccReconciliationLine.Modify(true);
     end;
@@ -1416,7 +1355,7 @@ codeunit 134500 "ERM Cash Manager"
     local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20])
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.SetRange("Posting Date", WorkDate);
+        VATEntry.SetRange("Posting Date", WorkDate());
         VATEntry.FindFirst();
     end;
 
@@ -1521,7 +1460,7 @@ codeunit 134500 "ERM Cash Manager"
         Clear(SuggestBankAccReconLines);
         BankAccount.SetRange("No.", BankAccount."No.");
         SuggestBankAccReconLines.SetTableView(BankAccount);
-        SuggestBankAccReconLines.InitializeRequest(WorkDate, WorkDate, false);
+        SuggestBankAccReconLines.InitializeRequest(WorkDate(), WorkDate(), false);
         SuggestBankAccReconLines.UseRequestPage(false);
         SuggestBankAccReconLines.SetStmt(BankAccReconciliation);
         SuggestBankAccReconLines.Run();
@@ -1681,7 +1620,7 @@ codeunit 134500 "ERM Cash Manager"
         CheckRequestPage.LastCheckNo.SetValue(Format(LastCheckNo));
         CheckRequestPage.OneCheckPerVendorPerDocumentNo.SetValue(true);
         CheckRequestPage.ReprintChecks.SetValue(true);
-        CheckRequestPage.SaveAsPdf(Format(CreateGuid));
+        CheckRequestPage.SaveAsPdf(Format(CreateGuid()));
     end;
 
     [RequestPageHandler]
@@ -1698,7 +1637,7 @@ codeunit 134500 "ERM Cash Manager"
         CheckRequestPage.BankAccount.SetValue(Format(BankAccountNo));
         CheckRequestPage.LastCheckNo.SetValue(Format(LastCheckNo));
         CheckRequestPage.TestPrinting.SetValue(TestPrint);
-        CheckRequestPage.SaveAsPdf(Format(CreateGuid));
+        CheckRequestPage.SaveAsPdf(Format(CreateGuid()));
     end;
 
     [RequestPageHandler]
@@ -1715,7 +1654,7 @@ codeunit 134500 "ERM Cash Manager"
         CheckStubStubCheck.BankAccount.SetValue(Format(BankAccountNo));
         CheckStubStubCheck.UseCheckNo.SetValue(Format(UseCheckNo));
         CheckStubStubCheck.TestPrint.SetValue(TestPrint);
-        CheckStubStubCheck.SaveAsPdf(Format(CreateGuid));
+        CheckStubStubCheck.SaveAsPdf(Format(CreateGuid()));
     end;
 
     [RequestPageHandler]
@@ -1732,7 +1671,7 @@ codeunit 134500 "ERM Cash Manager"
         CheckStubCheckStub.BankAccount.SetValue(Format(BankAccountNo));
         CheckStubCheckStub.UseCheckNo.SetValue(Format(UseCheckNo));
         CheckStubCheckStub.TestPrint.SetValue(TestPrint);
-        CheckStubCheckStub.SaveAsPdf(Format(CreateGuid));
+        CheckStubCheckStub.SaveAsPdf(Format(CreateGuid()));
     end;
 
     [RequestPageHandler]
@@ -1749,7 +1688,7 @@ codeunit 134500 "ERM Cash Manager"
         CheckCheckStubStub.BankAccount.SetValue(Format(BankAccountNo));
         CheckCheckStubStub.UseCheckNo.SetValue(Format(UseCheckNo));
         CheckCheckStubStub.TestPrint.SetValue(TestPrint);
-        CheckCheckStubStub.SaveAsPdf(Format(CreateGuid));
+        CheckCheckStubStub.SaveAsPdf(Format(CreateGuid()));
     end;
 
     [RequestPageHandler]
@@ -1766,7 +1705,7 @@ codeunit 134500 "ERM Cash Manager"
         ThreeChecksPerPage.BankAccount.SetValue(Format(BankAccountNo));
         ThreeChecksPerPage.LastCheckNo.SetValue(Format(LastCheckNo));
         ThreeChecksPerPage.TestPrinting.SetValue(TestPrint);
-        ThreeChecksPerPage.SaveAsPdf(Format(CreateGuid));
+        ThreeChecksPerPage.SaveAsPdf(Format(CreateGuid()));
     end;
 
     local procedure CreateGenJnlLinesWithDifferentCurrencies(var GenJournalLine: Record "Gen. Journal Line"; BankAccountNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; CurrencyCode: Code[10]; var BatchName: Code[10]; var TemplateName: Code[10]) Amount: Decimal
@@ -1798,15 +1737,6 @@ codeunit 134500 "ERM Cash Manager"
         GenJournalLine.Validate("Document No.", DocNo);
         GenJournalLine.Modify(true);
         Amount += GenJournalLine."Amount (LCY)";
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure ApplyCheckLedgerEntriesPageHandler(var ApplyCheckLedgerEntries: TestPage "Apply Check Ledger Entries")
-    begin
-        ApplyCheckLedgerEntries.First;
-        ApplyCheckLedgerEntries.LineApplied.SetValue(true);
-        ApplyCheckLedgerEntries.OK.Invoke;
     end;
 
     [PageHandler]

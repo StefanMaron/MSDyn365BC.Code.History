@@ -25,7 +25,7 @@ table 9185 "Generic Chart Captions Buffer"
         }
         field(4; "Language Name"; Text[50])
         {
-            CalcFormula = Lookup (Language.Name WHERE(Code = FIELD("Language Code")));
+            CalcFormula = Lookup(Language.Name WHERE(Code = FIELD("Language Code")));
             Caption = 'Language Name';
             FieldClass = FlowField;
         }
@@ -53,12 +53,12 @@ table 9185 "Generic Chart Captions Buffer"
     begin
         if Get(CodeIn, LanguageCode) then begin
             Caption := CaptionIn;
-            Modify
+            Modify();
         end else begin
             Code := CodeIn;
             "Language Code" := LanguageCode;
             Caption := CaptionIn;
-            Insert
+            Insert();
         end
     end;
 }

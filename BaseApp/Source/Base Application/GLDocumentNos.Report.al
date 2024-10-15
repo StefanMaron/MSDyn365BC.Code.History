@@ -10,7 +10,7 @@ report 23 "G/L Document Nos."
         {
             DataItemTableView = SORTING("Document No.");
             RequestFilterFields = "Document No.";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(STRSUBSTNO_Text004_GLEntryFilter_; StrSubstNo(Text004, GLEntryFilter))
@@ -171,15 +171,10 @@ report 23 "G/L Document Nos."
 
     trigger OnPreReport()
     begin
-        GLEntryFilter := "G/L Entry".GetFilters;
+        GLEntryFilter := "G/L Entry".GetFilters();
     end;
 
     var
-        Text000: Label 'No number series has been used for the following entries:';
-        Text001: Label 'The number series %1 %2 has been used for the following entries:';
-        Text002: Label 'There is a gap in the number series.';
-        Text003: Label 'The documents are not listed according to Posting Date because they were not entered in that order.';
-        Text004: Label 'G/L Entry: %1';
         NoSeries: Record "No. Series";
         SourceCode: Record "Source Code";
         GLEntryFilter: Text;
@@ -192,6 +187,12 @@ report 23 "G/L Document Nos."
         ErrorCounter: Integer;
         PageGroupNo: Integer;
         NextPageGroupNo: Integer;
+
+        Text000: Label 'No number series has been used for the following entries:';
+        Text001: Label 'The number series %1 %2 has been used for the following entries:';
+        Text002: Label 'There is a gap in the number series.';
+        Text003: Label 'The documents are not listed according to Posting Date because they were not entered in that order.';
+        Text004: Label 'G/L Entry: %1';
         G_L_Document_Nos_CaptionLbl: Label 'G/L Document Nos.';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         SourceCode_DescriptionCaptionLbl: Label 'Source Description';

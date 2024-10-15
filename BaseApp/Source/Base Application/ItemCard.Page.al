@@ -2,7 +2,6 @@
 {
     Caption = 'Item Card';
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Item,History,Prices & Discounts,Approve,Request Approval';
     RefreshOnActivate = true;
     SourceTable = Item;
 
@@ -16,7 +15,7 @@
             group(Item)
             {
                 Caption = 'Item';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
                     Importance = Standard;
@@ -25,7 +24,7 @@
 
                     trigger OnAssistEdit()
                     begin
-                        if AssistEdit then
+                        if AssistEdit() then
                             CurrPage.Update();
                     end;
                 }
@@ -50,12 +49,12 @@
 
                     trigger OnValidate()
                     begin
-                        EnableControls;
+                        EnableControls();
                     end;
                 }
-                field("Base Unit of Measure"; "Base Unit of Measure")
+                field("Base Unit of Measure"; Rec."Base Unit of Measure")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Importance = Promoted;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the base unit used to measure the item, such as piece, box, or pallet. The base unit of measure also serves as the conversion basis for alternate units of measure.';
@@ -66,7 +65,7 @@
                         Get("No.");
                     end;
                 }
-                field("Last Date Modified"; "Last Date Modified")
+                field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
@@ -79,7 +78,7 @@
                     Importance = Additional;
                     ToolTip = 'Specifies the Global Trade Item Number (GTIN) for the item. For example, the GTIN is used with bar codes to track items, and when sending and receiving documents electronically. The GTIN number typically contains a Universal Product Code (UPC), or European Article Number (EAN).';
                 }
-                field("Item Category Code"; "Item Category Code")
+                field("Item Category Code"; Rec."Item Category Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the category that the item belongs to. Item categories also contain any assigned item attributes.';
@@ -87,32 +86,52 @@
                     trigger OnValidate()
                     begin
                         CurrPage.ItemAttributesFactbox.PAGE.LoadItemAttributesData("No.");
-                        EnableCostingControls;
+                        EnableCostingControls();
                     end;
                 }
-                field("Service Item Group"; "Service Item Group")
+                field("Manufacturer Code"; "Manufacturer Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies a code for the manufacturer of the catalog item.';
+                    Visible = False;
+                }
+                field("Service Item Group"; Rec."Service Item Group")
                 {
                     ApplicationArea = Service;
                     Importance = Additional;
                     ToolTip = 'Specifies the code of the service item group that the item belongs to.';
                 }
-                field("Automatic Ext. Texts"; "Automatic Ext. Texts")
+                field("Automatic Ext. Texts"; Rec."Automatic Ext. Texts")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies that an extended text that you have set up will be added automatically on sales or purchase documents for this item.';
                 }
-                field("Common Item No."; "Common Item No.")
+                field("Common Item No."; Rec."Common Item No.")
                 {
                     ApplicationArea = Intercompany;
                     Importance = Additional;
                     ToolTip = 'Specifies the unique common item number that the intercompany partners agree upon.';
                 }
-                field("Purchasing Code"; "Purchasing Code")
+                field("Purchasing Code"; Rec."Purchasing Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for a special procurement method, such as drop shipment.';
+                }
+                field(VariantMandatoryDefaultYes; "Variant Mandatory if Exists")
+                {
+                    ApplicationArea = Basic, Suite;
+                    OptionCaption = 'Default (Yes),No,Yes';
+                    ToolTip = 'Specifies whether a variant must be selected if variants exist for the item. ';
+                    Visible = ShowVariantMandatoryDefaultYes;
+                }
+                field(VariantMandatoryDefaultNo; "Variant Mandatory if Exists")
+                {
+                    ApplicationArea = Basic, Suite;
+                    OptionCaption = 'Default (No),No,Yes';
+                    ToolTip = 'Specifies whether a variant must be selected if variants exist for the item. ';
+                    Visible = not ShowVariantMandatoryDefaultYes;
                 }
             }
             group(InventoryGrp)
@@ -122,18 +141,18 @@
                 AboutTitle = 'For items on inventory';
                 AboutText = 'Here are settings and information for an item that is kept on inventory. See or update the available inventory, current orders, physical volume and weight, and settings for low inventory handling.';
 
-                field("Shelf No."; "Shelf No.")
+                field("Shelf No."; Rec."Shelf No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies where to find the item in the warehouse. This is informational only.';
                 }
-                field("Created From Nonstock Item"; "Created From Nonstock Item")
+                field("Created From Nonstock Item"; Rec."Created From Nonstock Item")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies that the item was created from a catalog item.';
                 }
-                field("Search Description"; "Search Description")
+                field("Search Description"; Rec."Search Description")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
@@ -176,45 +195,45 @@
                     ToolTip = 'Specifies how many units, such as pieces, boxes, or cans, of the item are in inventory.';
                     Visible = NOT IsFoundationEnabled;
                 }
-                field("Qty. on Purch. Order"; "Qty. on Purch. Order")
+                field("Qty. on Purch. Order"; Rec."Qty. on Purch. Order")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how many units of the item are inbound on purchase orders, meaning listed on outstanding purchase order lines.';
                 }
-                field("Qty. on Prod. Order"; "Qty. on Prod. Order")
+                field("Qty. on Prod. Order"; Rec."Qty. on Prod. Order")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies how many units of the item are allocated to production orders, meaning listed on outstanding production order lines.';
                 }
-                field("Qty. on Component Lines"; "Qty. on Component Lines")
+                field("Qty. on Component Lines"; Rec."Qty. on Component Lines")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies how many units of the item are allocated as production order components, meaning listed under outstanding production order lines.';
                 }
-                field("Qty. on Sales Order"; "Qty. on Sales Order")
+                field("Qty. on Sales Order"; Rec."Qty. on Sales Order")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how many units of the item are allocated to sales orders, meaning listed on outstanding sales orders lines.';
                 }
-                field("Qty. on Service Order"; "Qty. on Service Order")
+                field("Qty. on Service Order"; Rec."Qty. on Service Order")
                 {
                     ApplicationArea = Service;
                     Importance = Additional;
                     ToolTip = 'Specifies how many units of the item are allocated to service orders, meaning listed on outstanding service order lines.';
                 }
-                field("Qty. on Job Order"; "Qty. on Job Order")
+                field("Qty. on Job Order"; Rec."Qty. on Job Order")
                 {
                     ApplicationArea = Jobs;
                     Importance = Additional;
                     ToolTip = 'Specifies how many units of the item are allocated to jobs, meaning listed on outstanding job planning lines.';
                 }
-                field("Qty. on Assembly Order"; "Qty. on Assembly Order")
+                field("Qty. on Assembly Order"; Rec."Qty. on Assembly Order")
                 {
                     ApplicationArea = Assembly;
                     Importance = Additional;
                     ToolTip = 'Specifies how many units of the item are allocated to assembly orders, which is how many are listed on outstanding assembly order headers.';
                 }
-                field("Qty. on Asm. Component"; "Qty. on Asm. Component")
+                field("Qty. on Asm. Component"; Rec."Qty. on Asm. Component")
                 {
                     ApplicationArea = Assembly;
                     Importance = Additional;
@@ -223,7 +242,6 @@
                 field(StockoutWarningDefaultYes; "Stockout Warning")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Stockout Warning';
                     Editable = IsInventoriable;
                     OptionCaption = 'Default (Yes),No,Yes';
                     ToolTip = 'Specifies if a warning is displayed when you enter a quantity on a sales document that brings the item''s inventory below zero.';
@@ -232,7 +250,6 @@
                 field(StockoutWarningDefaultNo; "Stockout Warning")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Stockout Warning';
                     OptionCaption = 'Default (No),No,Yes';
                     ToolTip = 'Specifies if a warning is displayed when you enter a quantity on a sales document that brings the item''s inventory below zero.';
                     Visible = ShowStockoutWarningDefaultNo;
@@ -255,53 +272,53 @@
                     ToolTip = 'Specifies if you can post a transaction that will bring the item''s inventory below zero.';
                     Visible = ShowPreventNegInventoryDefaultNo;
                 }
-                field("Net Weight"; "Net Weight")
+                field("Net Weight"; Rec."Net Weight")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the net weight of the item.';
                 }
-                field("Gross Weight"; "Gross Weight")
+                field("Gross Weight"; Rec."Gross Weight")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the gross weight of the item.';
                 }
-                field("Unit Volume"; "Unit Volume")
+                field("Unit Volume"; Rec."Unit Volume")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the volume of one unit of the item.';
                 }
-                field("SAT Item Classification"; "SAT Item Classification")
+                field("SAT Item Classification"; Rec."SAT Item Classification")
                 {
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the classification required for reporting to the Mexican tax authorities (SAT)';
                 }
-                field("SAT Hazardous Material"; "SAT Hazardous Material")
+                field("SAT Hazardous Material"; Rec."SAT Hazardous Material")
                 {
                     ApplicationArea = BasicMX;
                     Importance = Additional;
                     ToolTip = 'Specifies the type of hazardous material being transported.';
                 }
-                field("SAT Packaging Type"; "SAT Packaging Type")
+                field("SAT Packaging Type"; Rec."SAT Packaging Type")
                 {
                     ApplicationArea = BasicMX;
                     Importance = Additional;
                     ToolTip = 'Specifies the type of packaging that is required to transport the hazardous material.';
                 }
-                field("Over-Receipt Code"; "Over-Receipt Code")
+                field("Over-Receipt Code"; Rec."Over-Receipt Code")
                 {
                     ApplicationArea = All;
                     Visible = OverReceiptAllowed;
                     ToolTip = 'Specifies the policy that will be used for the item if more items than ordered are received.';
                 }
-                field("Trans. Ord. Receipt (Qty.)"; "Trans. Ord. Receipt (Qty.)")
+                field("Trans. Ord. Receipt (Qty.)"; Rec."Trans. Ord. Receipt (Qty.)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the quantity of the items that remains to be received but are not yet shipped as the difference between the Quantity and the Quantity Shipped fields.';
                     Visible = false;
                 }
-                field("Trans. Ord. Shipment (Qty.)"; "Trans. Ord. Shipment (Qty.)")
+                field("Trans. Ord. Shipment (Qty.)"; Rec."Trans. Ord. Shipment (Qty.)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the quantity of the items that remains to be shipped as the difference between the Quantity and the Quantity Shipped fields.';
@@ -317,17 +334,17 @@
                 group("Cost Details")
                 {
                     Caption = 'Cost Details';
-                    field("Costing Method"; "Costing Method")
+                    field("Costing Method"; Rec."Costing Method")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies how the item''s cost flow is recorded and whether an actual or budgeted value is capitalized and used in the cost calculation.';
 
                         trigger OnValidate()
                         begin
-                            EnableCostingControls;
+                            EnableCostingControls();
                         end;
                     }
-                    field("Standard Cost"; "Standard Cost")
+                    field("Standard Cost"; Rec."Standard Cost")
                     {
                         ApplicationArea = Basic, Suite;
                         Enabled = StandardCostEnable;
@@ -340,7 +357,7 @@
                             ShowAvgCalcItem.DrillDownAvgCostAdjmtPoint(Rec)
                         end;
                     }
-                    field("Unit Cost"; "Unit Cost")
+                    field("Unit Cost"; Rec."Unit Cost")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = UnitCostEditable;
@@ -361,30 +378,30 @@
                             ShowAvgCalcItem.DrillDownAvgCostAdjmtPoint(Rec)
                         end;
                     }
-                    field("Indirect Cost %"; "Indirect Cost %")
+                    field("Indirect Cost %"; Rec."Indirect Cost %")
                     {
                         ApplicationArea = Basic, Suite;
                         Enabled = IsInventoriable;
                         Importance = Additional;
                         ToolTip = 'Specifies the percentage of the item''s last purchase cost that includes indirect costs, such as freight that is associated with the purchase of the item.';
                     }
-                    field("Last Direct Cost"; "Last Direct Cost")
+                    field("Last Direct Cost"; Rec."Last Direct Cost")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ToolTip = 'Specifies the most recent direct unit cost of the item.';
                     }
-                    field("Net Invoiced Qty."; "Net Invoiced Qty.")
+                    field("Net Invoiced Qty."; Rec."Net Invoiced Qty.")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies how many units of the item in inventory have been invoiced.';
                     }
-                    field("Cost is Adjusted"; "Cost is Adjusted")
+                    field("Cost is Adjusted"; Rec."Cost is Adjusted")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies whether the item''s unit cost has been adjusted, either automatically or manually.';
                     }
-                    field("Cost is Posted to G/L"; "Cost is Posted to G/L")
+                    field("Cost is Posted to G/L"; Rec."Cost is Posted to G/L")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
@@ -410,7 +427,7 @@
                             UpdateSpecialPriceListsTxt(PriceType::Purchase);
                         end;
                     }
-#if not CLEAN19
+#if not CLEAN21
                     field(SpecialPurchPricesAndDiscountsTxt; SpecialPurchPricesAndDiscountsTxt)
                     {
                         ApplicationArea = Suite;
@@ -447,7 +464,7 @@
                                     end;
                             end;
 
-                            UpdateSpecialPricesAndDiscountsTxt;
+                            UpdateSpecialPricesAndDiscountsTxt();
                         end;
                     }
 #endif
@@ -455,14 +472,14 @@
                 group("Posting Details")
                 {
                     Caption = 'Posting Details';
-                    field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                    field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Promoted;
                         ShowMandatory = true;
                         ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                     }
-                    field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
+                    field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
@@ -470,13 +487,13 @@
                         ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                         Visible = UseVAT;
                     }
-                    field("Tax Group Code"; "Tax Group Code")
+                    field("Tax Group Code"; Rec."Tax Group Code")
                     {
                         ApplicationArea = SalesTax;
                         Importance = Promoted;
                         ToolTip = 'Specifies the tax group that is used to calculate and post sales tax.';
                     }
-                    field("Inventory Posting Group"; "Inventory Posting Group")
+                    field("Inventory Posting Group"; Rec."Inventory Posting Group")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = IsInventoriable;
@@ -484,7 +501,7 @@
                         ShowMandatory = IsInventoriable;
                         ToolTip = 'Specifies links between business transactions made for the item and an inventory account in the general ledger, to group amounts for that item type.';
                     }
-                    field("Default Deferral Template Code"; "Default Deferral Template Code")
+                    field("Default Deferral Template Code"; Rec."Default Deferral Template Code")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Default Deferral Template';
@@ -494,12 +511,12 @@
                 group(ForeignTrade)
                 {
                     Caption = 'Foreign Trade';
-                    field("Tariff No."; "Tariff No.")
+                    field("Tariff No."; Rec."Tariff No.")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies a code for the item''s tariff number.';
                     }
-                    field("Country/Region of Origin Code"; "Country/Region of Origin Code")
+                    field("Country/Region of Origin Code"; Rec."Country/Region of Origin Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
@@ -513,21 +530,21 @@
                 AboutTitle = 'Track prices and profits';
                 AboutText = 'Specify a basic price and the related profit for this item, and define special prices and discounts to certain customers. In either case, the prices defined here can be overridden at the time a document is posted.';
 
-                field("Unit Price"; "Unit Price")
+                field("Unit Price"; Rec."Unit Price")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Editable = PriceEditable;
                     Importance = Promoted;
                     ToolTip = 'Specifies the price of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
                 }
-                field(CalcUnitPriceExclVAT; CalcUnitPriceExclVAT)
+                field(CalcUnitPriceExclVAT; CalcUnitPriceExclVAT())
                 {
                     ApplicationArea = Basic, Suite;
                     CaptionClass = '2,0,' + FieldCaption("Unit Price");
                     Importance = Additional;
                     ToolTip = 'Specifies the unit price excluding VAT.';
                 }
-                field("Price Includes VAT"; "Price Includes VAT")
+                field("Price Includes VAT"; Rec."Price Includes VAT")
                 {
                     ApplicationArea = VAT;
                     Importance = Additional;
@@ -539,7 +556,7 @@
                             exit;
                     end;
                 }
-                field("Price/Profit Calculation"; "Price/Profit Calculation")
+                field("Price/Profit Calculation"; Rec."Price/Profit Calculation")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
@@ -547,10 +564,10 @@
 
                     trigger OnValidate()
                     begin
-                        EnableControls;
+                        EnableControls();
                     end;
                 }
-                field("Profit %"; "Profit %")
+                field("Profit %"; Rec."Profit %")
                 {
                     ApplicationArea = Basic, Suite;
                     DecimalPlaces = 2 : 2;
@@ -577,7 +594,7 @@
                         UpdateSpecialPriceListsTxt(PriceType::Sale);
                     end;
                 }
-#if not CLEAN19
+#if not CLEAN21
                 field(SpecialPricesAndDiscountsTxt; SpecialPricesAndDiscountsTxt)
                 {
                     ApplicationArea = Basic, Suite;
@@ -616,40 +633,40 @@
                                 end;
                         end;
 
-                        UpdateSpecialPricesAndDiscountsTxt;
+                        UpdateSpecialPricesAndDiscountsTxt();
                     end;
                 }
 #endif
-                field("Allow Invoice Disc."; "Allow Invoice Disc.")
+                field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies if the item should be included in the calculation of an invoice discount on documents where the item is traded.';
                 }
-                field("Item Disc. Group"; "Item Disc. Group")
+                field("Item Disc. Group"; Rec."Item Disc. Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies an item group code that can be used as a criterion to grant a discount when the item is sold to a certain customer.';
                 }
-                field("Sales Unit of Measure"; "Sales Unit of Measure")
+                field("Sales Unit of Measure"; Rec."Sales Unit of Measure")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the unit of measure code used when you sell the item.';
                 }
-                field("Sales Blocked"; "Sales Blocked")
+                field("Sales Blocked"; Rec."Sales Blocked")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the item cannot be entered on sales documents, except return orders and credit memos, and journals.';
                 }
-                field("Application Wksh. User ID"; "Application Wksh. User ID")
+                field("Application Wksh. User ID"; Rec."Application Wksh. User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the ID of a user who is working in the Application Worksheet window.';
                     Visible = false;
                 }
-                field("VAT Bus. Posting Gr. (Price)"; "VAT Bus. Posting Gr. (Price)")
+                field("VAT Bus. Posting Gr. (Price)"; Rec."VAT Bus. Posting Gr. (Price)")
                 {
                     ApplicationArea = Advanced;
                     ToolTip = 'Specifies the VAT business posting group for customers for whom you want the sales price including VAT to apply.';
@@ -670,7 +687,7 @@
                         Validate("Replenishment System", ItemReplenishmentSystem);
                     end;
                 }
-                field("Lead Time Calculation"; "Lead Time Calculation")
+                field("Lead Time Calculation"; Rec."Lead Time Calculation")
                 {
                     ApplicationArea = Assembly, Planning;
                     ToolTip = 'Specifies a date formula for the amount of time it takes to replenish the item.';
@@ -678,22 +695,22 @@
                 group(Purchase)
                 {
                     Caption = 'Purchase';
-                    field("Vendor No."; "Vendor No.")
+                    field("Vendor No."; Rec."Vendor No.")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the vendor code of who supplies this item by default.';
                     }
-                    field("Vendor Item No."; "Vendor Item No.")
+                    field("Vendor Item No."; Rec."Vendor Item No.")
                     {
                         ApplicationArea = Planning;
                         ToolTip = 'Specifies the number that the vendor uses for this item.';
                     }
-                    field("Purch. Unit of Measure"; "Purch. Unit of Measure")
+                    field("Purch. Unit of Measure"; Rec."Purch. Unit of Measure")
                     {
                         ApplicationArea = Planning;
                         ToolTip = 'Specifies the unit of measure code used when you purchase the item.';
                     }
-                    field("Purchasing Blocked"; "Purchasing Blocked")
+                    field("Purchasing Blocked"; Rec."Purchasing Blocked")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies that the item cannot be entered on purchase documents, except return orders and credit memos, and journals.';
@@ -702,44 +719,44 @@
                 group(Replenishment_Production)
                 {
                     Caption = 'Production';
-                    field("Manufacturing Policy"; "Manufacturing Policy")
+                    field("Manufacturing Policy"; Rec."Manufacturing Policy")
                     {
                         ApplicationArea = Manufacturing;
                         ToolTip = 'Specifies if additional orders for any related components are calculated.';
                     }
-                    field("Routing No."; "Routing No.")
+                    field("Routing No."; Rec."Routing No.")
                     {
                         ApplicationArea = Manufacturing;
                         ToolTip = 'Specifies the number of the production routing that the item is used in.';
                     }
-                    field("Production BOM No."; "Production BOM No.")
+                    field("Production BOM No."; Rec."Production BOM No.")
                     {
                         ApplicationArea = Manufacturing;
                         ToolTip = 'Specifies the number of the production BOM that the item represents.';
                     }
-                    field("Rounding Precision"; "Rounding Precision")
+                    field("Rounding Precision"; Rec."Rounding Precision")
                     {
                         ApplicationArea = Manufacturing;
                         ToolTip = 'Specifies how calculated consumption quantities are rounded when entered on consumption journal lines.';
                     }
-                    field("Flushing Method"; "Flushing Method")
+                    field("Flushing Method"; Rec."Flushing Method")
                     {
                         ApplicationArea = Manufacturing;
                         ToolTip = 'Specifies how consumption of the item (component) is calculated and handled in production processes. Manual: Enter and post consumption in the consumption journal manually. Forward: Automatically posts consumption according to the production order component lines when the first operation starts. Backward: Automatically calculates and posts consumption according to the production order component lines when the production order is finished. Pick + Forward / Pick + Backward: Variations with warehousing.';
                     }
-                    field("Overhead Rate"; "Overhead Rate")
+                    field("Overhead Rate"; Rec."Overhead Rate")
                     {
                         ApplicationArea = Basic, Suite;
                         Enabled = IsInventoriable;
                         Importance = Additional;
                         ToolTip = 'Specifies the item''s indirect cost as an absolute amount.';
                     }
-                    field("Scrap %"; "Scrap %")
+                    field("Scrap %"; Rec."Scrap %")
                     {
                         ApplicationArea = Manufacturing;
                         ToolTip = 'Specifies the percentage of the item that you expect to be scrapped in the production process.';
                     }
-                    field("Lot Size"; "Lot Size")
+                    field("Lot Size"; Rec."Lot Size")
                     {
                         ApplicationArea = Manufacturing;
                         ToolTip = 'Specifies the default number of units of the item that are processed in one production operation. This affects standard cost calculations and capacity planning. If the item routing includes fixed costs such as setup time, the value in this field is used to calculate the standard cost and distribute the setup costs. During demand planning, this value is used together with the value in the Default Dampener % field to ignore negligible changes in demand and avoid re-planning. Note that if you leave the field blank, it will be threated as 1.';
@@ -749,7 +766,7 @@
                 {
                     Caption = 'Assembly';
                     Visible = IsInventoriable;
-                    field("Assembly Policy"; "Assembly Policy")
+                    field("Assembly Policy"; Rec."Assembly Policy")
                     {
                         ApplicationArea = Assembly;
                         ToolTip = 'Specifies which default order flow is used to supply this assembly item.';
@@ -776,7 +793,7 @@
             {
                 Caption = 'Planning';
                 Visible = IsInventoriable;
-                field("Reordering Policy"; "Reordering Policy")
+                field("Reordering Policy"; Rec."Reordering Policy")
                 {
                     ApplicationArea = Planning;
                     Importance = Promoted;
@@ -793,25 +810,25 @@
                     Importance = Additional;
                     ToolTip = 'Specifies if and how the item will be reserved. Never: It is not possible to reserve the item. Optional: You can reserve the item manually. Always: The item is automatically reserved from demand, such as sales orders, against inventory, purchase orders, assembly orders, and production orders.';
                 }
-                field("Order Tracking Policy"; "Order Tracking Policy")
+                field("Order Tracking Policy"; Rec."Order Tracking Policy")
                 {
                     ApplicationArea = Planning;
                     Importance = Promoted;
                     ToolTip = 'Specifies if and how order tracking entries are created and maintained between supply and its corresponding demand.';
                 }
-                field("Stockkeeping Unit Exists"; "Stockkeeping Unit Exists")
+                field("Stockkeeping Unit Exists"; Rec."Stockkeeping Unit Exists")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies that a stockkeeping unit exists for this item.';
                 }
-                field("Dampener Period"; "Dampener Period")
+                field("Dampener Period"; Rec."Dampener Period")
                 {
                     ApplicationArea = Planning;
                     Enabled = DampenerPeriodEnable;
                     Importance = Additional;
                     ToolTip = 'Specifies a period of time during which you do not want the planning system to propose to reschedule existing supply orders forward. The dampener period limits the number of insignificant rescheduling of existing supply to a later date if that new date is within the dampener period. The dampener period function is only initiated if the supply can be rescheduled to a later date and not if the supply can be rescheduled to an earlier date. Accordingly, if the suggested new supply date is after the dampener period, then the rescheduling suggestion is not blocked. If the lot accumulation period is less than the dampener period, then the dampener period is dynamically set to equal the lot accumulation period. This is not shown in the value that you enter in the Dampener Period field. The last demand in the lot accumulation period is used to determine whether a potential supply date is in the dampener period. If this field is empty, then the value in the Default Dampener Period field in the Manufacturing Setup window applies. The value that you enter in the Dampener Period field must be a date formula, and one day (1D) is the shortest allowed period.';
                 }
-                field("Dampener Quantity"; "Dampener Quantity")
+                field("Dampener Quantity"; Rec."Dampener Quantity")
                 {
                     ApplicationArea = Planning;
                     Enabled = DampenerQtyEnable;
@@ -823,13 +840,13 @@
                     ApplicationArea = OrderPromising;
                     ToolTip = 'Specifies if the item is included in availability calculations to promise a shipment date for its parent item.';
                 }
-                field("Safety Lead Time"; "Safety Lead Time")
+                field("Safety Lead Time"; Rec."Safety Lead Time")
                 {
                     ApplicationArea = Planning;
                     Enabled = SafetyLeadTimeEnable;
                     ToolTip = 'Specifies a date formula to indicate a safety lead time that can be used as a buffer period for production and other delays.';
                 }
-                field("Safety Stock Quantity"; "Safety Stock Quantity")
+                field("Safety Stock Quantity"; Rec."Safety Stock Quantity")
                 {
                     ApplicationArea = Planning;
                     Enabled = SafetyStockQtyEnable;
@@ -838,7 +855,7 @@
                 group(LotForLotParameters)
                 {
                     Caption = 'Lot-for-Lot Parameters';
-                    field("Include Inventory"; "Include Inventory")
+                    field("Include Inventory"; Rec."Include Inventory")
                     {
                         ApplicationArea = Planning;
                         Enabled = IncludeInventoryEnable;
@@ -846,16 +863,16 @@
 
                         trigger OnValidate()
                         begin
-                            EnablePlanningControls
+                            EnablePlanningControls();
                         end;
                     }
-                    field("Lot Accumulation Period"; "Lot Accumulation Period")
+                    field("Lot Accumulation Period"; Rec."Lot Accumulation Period")
                     {
                         ApplicationArea = Planning;
                         Enabled = LotAccumulationPeriodEnable;
                         ToolTip = 'Specifies a period in which multiple demands are accumulated into one supply order when you use the Lot-for-Lot reordering policy.';
                     }
-                    field("Rescheduling Period"; "Rescheduling Period")
+                    field("Rescheduling Period"; Rec."Rescheduling Period")
                     {
                         ApplicationArea = Planning;
                         Enabled = ReschedulingPeriodEnable;
@@ -868,33 +885,33 @@
                     group(Control64)
                     {
                         ShowCaption = false;
-                        field("Reorder Point"; "Reorder Point")
+                        field("Reorder Point"; Rec."Reorder Point")
                         {
                             ApplicationArea = Planning;
                             Enabled = ReorderPointEnable;
                             ToolTip = 'Specifies a stock quantity that sets the inventory below the level that you must replenish the item.';
                         }
-                        field("Reorder Quantity"; "Reorder Quantity")
+                        field("Reorder Quantity"; Rec."Reorder Quantity")
                         {
                             ApplicationArea = Planning;
                             Enabled = ReorderQtyEnable;
                             ToolTip = 'Specifies a standard lot size quantity to be used for all order proposals.';
                         }
-                        field("Maximum Inventory"; "Maximum Inventory")
+                        field("Maximum Inventory"; Rec."Maximum Inventory")
                         {
                             ApplicationArea = Planning;
                             Enabled = MaximumInventoryEnable;
                             ToolTip = 'Specifies a quantity that you want to use as a maximum inventory level.';
                         }
                     }
-                    field("Overflow Level"; "Overflow Level")
+                    field("Overflow Level"; Rec."Overflow Level")
                     {
                         ApplicationArea = Planning;
                         Enabled = OverflowLevelEnable;
                         Importance = Additional;
                         ToolTip = 'Specifies a quantity you allow projected inventory to exceed the reorder point, before the system suggests to decrease supply orders.';
                     }
-                    field("Time Bucket"; "Time Bucket")
+                    field("Time Bucket"; Rec."Time Bucket")
                     {
                         ApplicationArea = Planning;
                         Enabled = TimeBucketEnable;
@@ -908,19 +925,19 @@
                     group(Control61)
                     {
                         ShowCaption = false;
-                        field("Minimum Order Quantity"; "Minimum Order Quantity")
+                        field("Minimum Order Quantity"; Rec."Minimum Order Quantity")
                         {
                             ApplicationArea = Planning;
                             Enabled = MinimumOrderQtyEnable;
                             ToolTip = 'Specifies a minimum allowable quantity for an item order proposal.';
                         }
-                        field("Maximum Order Quantity"; "Maximum Order Quantity")
+                        field("Maximum Order Quantity"; Rec."Maximum Order Quantity")
                         {
                             ApplicationArea = Planning;
                             Enabled = MaximumOrderQtyEnable;
                             ToolTip = 'Specifies a maximum allowable quantity for an item order proposal.';
                         }
-                        field("Order Multiple"; "Order Multiple")
+                        field("Order Multiple"; Rec."Order Multiple")
                         {
                             ApplicationArea = Planning;
                             Enabled = OrderMultipleEnable;
@@ -933,7 +950,7 @@
             {
                 Caption = 'Item Tracking';
                 Visible = IsInventoriable;
-                field("Item Tracking Code"; "Item Tracking Code")
+                field("Item Tracking Code"; Rec."Item Tracking Code")
                 {
                     ApplicationArea = ItemTracking;
                     Importance = Promoted;
@@ -941,20 +958,20 @@
 
                     trigger OnValidate()
                     begin
-                        SetExpirationCalculationEditable;
+                        SetExpirationCalculationEditable();
                     end;
                 }
-                field("Serial Nos."; "Serial Nos.")
+                field("Serial Nos."; Rec."Serial Nos.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies a number series code to assign consecutive serial numbers to items produced.';
                 }
-                field("Lot Nos."; "Lot Nos.")
+                field("Lot Nos."; Rec."Lot Nos.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the number series code that will be used when assigning lot numbers.';
                 }
-                field("Expiration Calculation"; "Expiration Calculation")
+                field("Expiration Calculation"; Rec."Expiration Calculation")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = ExpirationCalculationEditable;
@@ -970,61 +987,61 @@
             {
                 Caption = 'Warehouse';
                 Visible = IsInventoriable;
-                field("Warehouse Class Code"; "Warehouse Class Code")
+                field("Warehouse Class Code"; Rec."Warehouse Class Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the warehouse class code for the item.';
                 }
-                field("Special Equipment Code"; "Special Equipment Code")
+                field("Special Equipment Code"; Rec."Special Equipment Code")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Additional;
                     ToolTip = 'Specifies the code of the equipment that warehouse employees must use when handling the item.';
                 }
-                field("Put-away Template Code"; "Put-away Template Code")
+                field("Put-away Template Code"; Rec."Put-away Template Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the put-away template by which the program determines the most appropriate zone and bin for storage of the item after receipt.';
                 }
-                field("Put-away Unit of Measure Code"; "Put-away Unit of Measure Code")
+                field("Put-away Unit of Measure Code"; Rec."Put-away Unit of Measure Code")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Promoted;
                     ToolTip = 'Specifies the code of the item unit of measure in which the program will put the item away.';
                 }
-                field("Phys Invt Counting Period Code"; "Phys Invt Counting Period Code")
+                field("Phys Invt Counting Period Code"; Rec."Phys Invt Counting Period Code")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Promoted;
                     ToolTip = 'Specifies the code of the counting period that indicates how often you want to count the item in a physical inventory.';
                 }
-                field("Last Phys. Invt. Date"; "Last Phys. Invt. Date")
+                field("Last Phys. Invt. Date"; Rec."Last Phys. Invt. Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the date on which you last posted the results of a physical inventory for the item to the item ledger.';
                 }
-                field("Last Counting Period Update"; "Last Counting Period Update")
+                field("Last Counting Period Update"; Rec."Last Counting Period Update")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the last date on which you calculated the counting period. It is updated when you use the function Calculate Counting Period.';
                 }
-                field("Next Counting Start Date"; "Next Counting Start Date")
+                field("Next Counting Start Date"; Rec."Next Counting Start Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the starting date of the next counting period.';
                 }
-                field("Next Counting End Date"; "Next Counting End Date")
+                field("Next Counting End Date"; Rec."Next Counting End Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the ending date of the next counting period.';
                 }
-                field("Identifier Code"; "Identifier Code")
+                field("Identifier Code"; Rec."Identifier Code")
                 {
                     ApplicationArea = Advanced;
                     Importance = Additional;
                     ToolTip = 'Specifies a unique code for the item in terms that are useful for automatic data capture.';
                 }
-                field("Use Cross-Docking"; "Use Cross-Docking")
+                field("Use Cross-Docking"; Rec."Use Cross-Docking")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Additional;
@@ -1090,15 +1107,12 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Attributes';
                     Image = Category;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ToolTip = 'View or edit the item''s attributes, such as color, size, or other characteristics that help to describe the item.';
 
                     trigger OnAction()
                     begin
                         PAGE.RunModal(PAGE::"Item Attribute Value Editor", Rec);
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         CurrPage.ItemAttributesFactbox.PAGE.LoadItemAttributesData("No.");
                     end;
                 }
@@ -1108,9 +1122,6 @@
                     Caption = 'Adjust Inventory';
                     Enabled = IsInventoriable;
                     Image = InventoryCalculation;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ToolTip = 'Increase or decrease the item''s inventory quantity manually by entering a new quantity. Adjusting the inventory quantity manually may be relevant after a physical count or if you do not record purchased quantities.';
                     Visible = IsFoundationEnabled;
 
@@ -1147,10 +1158,6 @@
                     ApplicationArea = Comments;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     RunObject = Page "Comment Sheet";
                     RunPageLink = "Table Name" = CONST(Item),
                                   "No." = FIELD("No.");
@@ -1161,10 +1168,6 @@
                     ApplicationArea = All;
                     Caption = 'Attachments';
                     Image = Attach;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
 
                     trigger OnAction()
@@ -1181,14 +1184,12 @@
             group(PricesandDiscounts)
             {
                 Caption = 'Sales Prices & Discounts';
-#if not CLEAN19
+#if not CLEAN21
                 action("Set Special Prices")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Prices';
                     Image = Price;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     Visible = not ExtendedPriceEnabled;
                     ToolTip = 'Set up sales prices for the item. An item price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
                     ObsoleteState = Pending;
@@ -1208,8 +1209,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Discounts';
                     Image = LineDiscount;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     Visible = not ExtendedPriceEnabled;
                     ToolTip = 'Set up sales discounts for the item. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
                     ObsoleteState = Pending;
@@ -1231,8 +1230,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Prices & Discounts Overview';
                     Image = PriceWorksheet;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View the sales prices and line discounts that you grant for this item when certain criteria are met, such as vendor, quantity, or ending date.';
                     ObsoleteState = Pending;
@@ -1255,8 +1252,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Prices';
                     Image = Price;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'Set up sales prices for the item. An item price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
 
@@ -1275,8 +1270,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Discounts';
                     Image = LineDiscount;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'Set up sales discounts for the item. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
 
@@ -1293,14 +1286,12 @@
             group(PurchPricesandDiscounts)
             {
                 Caption = 'Purchase Prices & Discounts';
-#if not CLEAN19
+#if not CLEAN21
                 action(Action86)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Purchase Prices';
                     Image = Price;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     Visible = not ExtendedPriceEnabled;
                     RunObject = Page "Purchase Prices";
                     RunPageLink = "Item No." = FIELD("No.");
@@ -1315,8 +1306,6 @@
                     ApplicationArea = Suite;
                     Caption = 'Purchase Discounts';
                     Image = LineDiscount;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     Visible = not ExtendedPriceEnabled;
                     RunObject = Page "Purchase Line Discounts";
                     RunPageLink = "Item No." = FIELD("No.");
@@ -1330,8 +1319,6 @@
                     ApplicationArea = Suite;
                     Caption = 'Purchase Prices & Discounts Overview';
                     Image = PriceWorksheet;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View the purchase prices and line discounts that you grant for this item when certain criteria are met, such as vendor, quantity, or ending date.';
                     ObsoleteState = Pending;
@@ -1353,8 +1340,6 @@
                     ApplicationArea = Suite;
                     Caption = 'Purchase Prices';
                     Image = Price;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'Set up purchase prices for the item. An item price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
 
@@ -1374,8 +1359,6 @@
                     ApplicationArea = Suite;
                     Caption = 'Purchase Discounts';
                     Image = LineDiscount;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'Set up purchase discounts for the item. An item discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
 
@@ -1397,9 +1380,6 @@
                     ApplicationArea = All;
                     Caption = 'Approve';
                     Image = Approve;
-                    Promoted = true;
-                    PromotedCategory = Category7;
-                    PromotedIsBig = true;
                     ToolTip = 'Approve the requested changes.';
                     Visible = OpenApprovalEntriesExistCurrUser;
 
@@ -1415,9 +1395,6 @@
                     ApplicationArea = All;
                     Caption = 'Reject';
                     Image = Reject;
-                    Promoted = true;
-                    PromotedCategory = Category7;
-                    PromotedIsBig = true;
                     ToolTip = 'Reject the approval request.';
                     Visible = OpenApprovalEntriesExistCurrUser;
 
@@ -1433,8 +1410,6 @@
                     ApplicationArea = All;
                     Caption = 'Delegate';
                     Image = Delegate;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     ToolTip = 'Delegate the approval to a substitute approver.';
                     Visible = OpenApprovalEntriesExistCurrUser;
 
@@ -1450,8 +1425,6 @@
                     ApplicationArea = All;
                     Caption = 'Comments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     ToolTip = 'View or add comments for the record.';
                     Visible = OpenApprovalEntriesExistCurrUser;
 
@@ -1473,9 +1446,6 @@
                     Caption = 'Send A&pproval Request';
                     Enabled = (NOT OpenApprovalEntriesExist) AND EnabledApprovalWorkflowsExist AND CanRequestApprovalForFlow;
                     Image = SendApprovalRequest;
-                    Promoted = true;
-                    PromotedCategory = Category8;
-                    PromotedOnly = true;
                     ToolTip = 'Request approval to change the record.';
 
                     trigger OnAction()
@@ -1492,9 +1462,6 @@
                     Caption = 'Cancel Approval Re&quest';
                     Enabled = OpenApprovalEntriesExist OR CanCancelApprovalForFlow;
                     Image = CancelApprovalRequest;
-                    Promoted = true;
-                    PromotedCategory = Category8;
-                    PromotedOnly = true;
                     ToolTip = 'Cancel the approval request.';
 
                     trigger OnAction()
@@ -1512,11 +1479,8 @@
                     action(CreateFlow)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Create a flow';
+                        Caption = 'Create a Power Automate approval flow';
                         Image = Flow;
-                        Promoted = true;
-                        PromotedCategory = Category8;
-                        PromotedOnly = true;
                         ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
                         Visible = IsSaaS;
 
@@ -1526,21 +1490,24 @@
                             FlowTemplateSelector: Page "Flow Template Selector";
                         begin
                             // Opens page 6400 where the user can use filtered templates to create new Flows.
-                            FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetItemTemplateFilter);
+                            FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetItemTemplateFilter());
                             FlowTemplateSelector.Run();
                         end;
                     }
+#if not CLEAN21
                     action(SeeFlows)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'See my flows';
                         Image = Flow;
-                        Promoted = true;
-                        PromotedCategory = Category8;
-                        PromotedOnly = true;
                         RunObject = Page "Flow Selector";
                         ToolTip = 'View and configure Power Automate flows that you created.';
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
+                        ObsoleteTag = '21.0';
                     }
+#endif
                 }
             }
             group(Workflow)
@@ -1684,8 +1651,6 @@
                 ApplicationArea = Basic, Suite;
                 Caption = 'Item Journal';
                 Image = Journals;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Item Journal";
                 ToolTip = 'Open a list of journals where you can adjust the physical quantity of items on inventory.';
             }
@@ -1694,8 +1659,6 @@
                 ApplicationArea = Warehouse;
                 Caption = 'Item Reclassification Journal';
                 Image = Journals;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Item Reclass. Journal";
                 ToolTip = 'Change information on item ledger entries, such as dimensions, location codes, bin codes, and serial or lot numbers.';
             }
@@ -1714,7 +1677,6 @@
             {
                 Caption = 'Item Turnover';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Item Turnover";
@@ -1724,8 +1686,6 @@
             {
                 Caption = 'Item Transaction Detail';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Item Transaction Detail";
                 ToolTip = 'View detailed purchase, sales, and adjustment information about the items in your inventory. This report lists transactions by the item that they pertain to. If an item has variants, each variant''s transactions are listed separately.';
             }
@@ -1733,7 +1693,6 @@
             {
                 Caption = 'Serial Number Status/Aging';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Top __ Inventory Items";
@@ -1743,7 +1702,6 @@
             {
                 Caption = 'Issue History';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Issue History";
@@ -1753,7 +1711,6 @@
             {
                 Caption = 'Item Sales by Customer';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Item Sales by Customer";
@@ -1763,7 +1720,6 @@
             {
                 Caption = 'Picking List by Item';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Picking List by Item";
@@ -1773,8 +1729,6 @@
             {
                 Caption = 'Sales Order Status';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Sales Order Status";
                 ToolTip = 'View the status of partially filled or unfilled orders so you can determine what effect filling these orders may have on your inventory. NOTE: The Amount Remaining column may include sales taxes and therefore may not match the result of multiplying the remaining amount times the unit price and subtracting the discounts.';
             }
@@ -1782,7 +1736,6 @@
             {
                 Caption = 'Serial Number Sold History';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Serial Number Sold History";
@@ -1792,7 +1745,6 @@
             {
                 Caption = 'Vendor Purchases by Item';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Vendor Purchases by Item";
@@ -1803,7 +1755,6 @@
                 ApplicationArea = Basic, Suite;
                 Caption = 'Item/Vendor Catalog';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Item/Vendor Catalog";
@@ -1813,8 +1764,6 @@
             {
                 Caption = 'Purchase Order Status';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Purchase Order Status";
                 ToolTip = 'View outstanding purchase orders, including partial receipts and orders not yet received.';
             }
@@ -2014,9 +1963,6 @@
                     ApplicationArea = Suite;
                     Caption = 'Approvals';
                     Image = Approvals;
-                    Promoted = true;
-                    PromotedCategory = Category8;
-                    PromotedOnly = true;
                     ToolTip = 'View a list of the records that are waiting to be approved. For example, you can see who requested the record to be approved, when it was sent, and when it is due to be approved.';
 
                     trigger OnAction()
@@ -2124,6 +2070,8 @@
             {
                 Caption = 'Availability';
                 Image = ItemAvailability;
+                Enabled = IsInventoriable;
+
                 action(ItemsByLocation)
                 {
                     AccessByPermission = TableData Location = R;
@@ -2150,7 +2098,7 @@
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItem(Rec, ItemAvailFormsMgt.ByEvent);
+                            ItemAvailFormsMgt.ShowItemAvailFromItem(Rec, ItemAvailFormsMgt.ByEvent());
                         end;
                     }
                     action(Period)
@@ -2216,7 +2164,7 @@
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItem(Rec, ItemAvailFormsMgt.ByBOM);
+                            ItemAvailFormsMgt.ShowItemAvailFromItem(Rec, ItemAvailFormsMgt.ByBOM());
                         end;
                     }
                     action("Unit of Measure")
@@ -2481,7 +2429,7 @@
                         var
                             ProdBOMWhereUsed: Page "Prod. BOM Where-Used";
                         begin
-                            ProdBOMWhereUsed.SetItem(Rec, WorkDate);
+                            ProdBOMWhereUsed.SetItem(Rec, WorkDate());
                             ProdBOMWhereUsed.RunModal();
                         end;
                     }
@@ -2599,6 +2547,269 @@
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(CopyItem_Promoted; CopyItem)
+                {
+                }
+                actionref(AdjustInventory_Promoted; AdjustInventory)
+                {
+                }
+                actionref("&Create Stockkeeping Unit_Promoted"; "&Create Stockkeeping Unit")
+                {
+                }
+                actionref(ApplyTemplate_Promoted; ApplyTemplate)
+                {
+                }
+#if not CLEAN21
+                actionref("Item Journal_Promoted"; "Item Journal")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+#if not CLEAN21
+                actionref("Item Reclassification Journal_Promoted"; "Item Reclassification Journal")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Approve', Comment = 'Generated from the PromotedActionCategories property index 6.';
+
+                actionref(Approve_Promoted; Approve)
+                {
+                }
+                actionref(Reject_Promoted; Reject)
+                {
+                }
+                actionref(Delegate_Promoted; Delegate)
+                {
+                }
+                actionref(Comment_Promoted; Comment)
+                {
+                }
+            }
+            group(Category_Category8)
+            {
+                Caption = 'Request Approval', Comment = 'Generated from the PromotedActionCategories property index 7.';
+
+                actionref(SendApprovalRequest_Promoted; SendApprovalRequest)
+                {
+                }
+                actionref(CancelApprovalRequest_Promoted; CancelApprovalRequest)
+                {
+                }
+#if not CLEAN21
+                actionref(CreateFlow_Promoted; CreateFlow)
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+#if not CLEAN21
+                actionref(SeeFlows_Promoted; SeeFlows)
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Item', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Attachments_Promoted; Attachments)
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref(ApprovalEntries_Promoted; ApprovalEntries)
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+                actionref("&Phys. Inventory Ledger Entries_Promoted"; "&Phys. Inventory Ledger Entries")
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+
+                separator(Navigate_Separator)
+                {
+                }
+
+                group("Category_Item Availability by")
+                {
+                    Caption = 'Item Availability by';
+
+                    actionref("<Action110>_Promoted"; "<Action110>")
+                    {
+                    }
+                    actionref("BOM Level_Promoted"; "BOM Level")
+                    {
+                    }
+                    actionref(Period_Promoted; Period)
+                    {
+                    }
+                    actionref(Variant_Promoted; Variant)
+                    {
+                    }
+                    actionref(Location_Promoted; Location)
+                    {
+                    }
+                    actionref(Lot_Promoted; Lot)
+                    {
+                    }
+                    actionref("Unit of Measure_Promoted"; "Unit of Measure")
+                    {
+                    }
+                }
+                actionref(Attributes_Promoted; Attributes)
+                {
+                }
+                actionref(BOMStructure_Promoted; BOMStructure)
+                {
+                }
+                actionref(ItemsByLocation_Promoted; ItemsByLocation)
+                {
+                }
+                actionref("Cost Shares_Promoted"; "Cost Shares")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'History', Comment = 'Generated from the PromotedActionCategories property index 4.';
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Prices & Discounts', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+#if not CLEAN19
+                actionref("Set Special Prices_Promoted"; "Set Special Prices")
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+#endif
+                actionref(SalesPriceLists_Promoted; SalesPriceLists)
+                {
+                }
+                actionref(PurchPriceLists_Promoted; PurchPriceLists)
+                {
+                }
+#if not CLEAN19
+                actionref(PricesDiscountsOverview_Promoted; PricesDiscountsOverview)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+#endif
+#if not CLEAN19
+                actionref("Set Special Discounts_Promoted"; "Set Special Discounts")
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+#endif
+#if not CLEAN19
+                actionref(PurchPricesDiscountsOverview_Promoted; PurchPricesDiscountsOverview)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+#endif
+                actionref(SalesPriceListsDiscounts_Promoted; SalesPriceListsDiscounts)
+                {
+                }
+                actionref(PurchPriceListsDiscounts_Promoted; PurchPriceListsDiscounts)
+                {
+                }
+#if not CLEAN19
+                actionref(Action86_Promoted; Action86)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+#endif
+#if not CLEAN19
+                actionref(Action85_Promoted; Action85)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+#endif
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
+                actionref("Item Transaction Detail_Promoted"; "Item Transaction Detail")
+                {
+                }
+                actionref("Sales Order Status_Promoted"; "Sales Order Status")
+                {
+                }
+                actionref("Purchase Order Status_Promoted"; "Purchase Order Status")
+                {
+                }
+            }
+            group(Category_Synchronize)
+            {
+                Caption = 'Synchronize';
+                Visible = CRMIntegrationEnabled;
+
+                group(Category_Coupling)
+                {
+                    Caption = 'Coupling';
+                    ShowAs = SplitButton;
+
+                    actionref(ManageCRMCoupling_Promoted; ManageCRMCoupling)
+                    {
+                    }
+                    actionref(DeleteCRMCoupling_Promoted; DeleteCRMCoupling)
+                    {
+                    }
+                }
+                actionref(CRMSynchronizeNow_Promoted; CRMSynchronizeNow)
+                {
+                }
+                actionref(CRMGoToProduct_Promoted; CRMGoToProduct)
+                {
+                }
+                actionref(ShowLog_Promoted; ShowLog)
+                {
+                }
+                actionref("Unit Group_Promoted"; "Unit Group")
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
@@ -2613,7 +2824,7 @@
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
         WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
     begin
-        CreateItemFromTemplate;
+        CreateItemFromTemplate();
 
         if CRMIntegrationEnabled then begin
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
@@ -2643,21 +2854,21 @@
     begin
         if not GuiAllowed then
             exit;
-        InitControls;
-        EventFilter := WorkflowEventHandling.RunWorkflowOnSendItemForApprovalCode + '|' +
-          WorkflowEventHandling.RunWorkflowOnItemChangedCode;
+        InitControls();
+        EventFilter := WorkflowEventHandling.RunWorkflowOnSendItemForApprovalCode() + '|' +
+          WorkflowEventHandling.RunWorkflowOnItemChangedCode();
 
         EnabledApprovalWorkflowsExist := WorkflowManagement.EnabledWorkflowExist(DATABASE::Item, EventFilter);
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        InsertItemUnitOfMeasure;
+        InsertItemUnitOfMeasure();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        OnNewRec
+        OnNewRec();
     end;
 
     trigger OnOpenPage()
@@ -2691,8 +2902,9 @@
             if IntegrationTableMapping.Get('ITEM-PRODUCT') then
                 BlockedFilterApplied := IntegrationTableMapping.GetTableFilter().Contains('Field54=1(0)');
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
-        EnableShowStockOutWarning;
-        EnableShowShowEnforcePositivInventory;
+        EnableShowStockOutWarning();
+        EnableShowShowEnforcePositivInventory();
+        EnableShowVariantMandatory();
     end;
 
     var
@@ -2721,7 +2933,8 @@
         PurchPriceListsText: Text;
         CreateNewTxt: Label 'Create New...';
         ViewExistingTxt: Label 'View Existing Prices and Discounts...';
-#if not CLEAN19
+        ShowVariantMandatoryDefaultYes: Boolean;
+#if not CLEAN21
         SpecialPricesAndDiscountsTxt: Text;
         CreateNewSpecialPriceTxt: Label 'Create New Special Price...';
         CreateNewSpecialDiscountTxt: Label 'Create New Special Discount...';
@@ -2790,16 +3003,16 @@
         ItemLedgerEntry: Record "Item Ledger Entry";
         PriceType: Enum "Price Type";
     begin
-        IsService := IsServiceType;
-        IsNonInventoriable := IsNonInventoriableType;
-        IsInventoriable := IsInventoriableType;
+        IsService := IsServiceType();
+        IsNonInventoriable := IsNonInventoriableType();
+        IsInventoriable := IsInventoriableType();
 
         if IsNonInventoriable then
             "Stockout Warning" := "Stockout Warning"::No;
 
         if GuiAllowed() and (Type = Type::Inventory) then begin
             ItemLedgerEntry.SetRange("Item No.", "No.");
-            UnitCostEditable := ItemLedgerEntry.IsEmpty;
+            UnitCostEditable := ItemLedgerEntry.IsEmpty();
         end else
             UnitCostEditable := true;
 
@@ -2809,7 +3022,7 @@
         EnablePlanningControls();
         EnableCostingControls();
 
-#if not CLEAN19
+#if not CLEAN21
         if not ExtendedPriceEnabled then
             UpdateSpecialPricesAndDiscountsTxt()
         else
@@ -2817,7 +3030,7 @@
 #else
         UpdateSpecialPriceListsTxt(PriceType::Any);
 #endif
-        SetExpirationCalculationEditable;
+        SetExpirationCalculationEditable();
     end;
 
     local procedure OnNewRec()
@@ -2826,7 +3039,7 @@
     begin
         if GuiAllowed then
             if "No." = '' then
-                if DocumentNoVisibility.ItemNoSeriesIsDefault then
+                if DocumentNoVisibility.ItemNoSeriesIsDefault() then
                     NewMode := true;
     end;
 
@@ -2838,7 +3051,15 @@
         ShowStockoutWarningDefaultYes := SalesSetup."Stockout Warning";
         ShowStockoutWarningDefaultNo := not ShowStockoutWarningDefaultYes;
 
-        EnableShowShowEnforcePositivInventory;
+        EnableShowShowEnforcePositivInventory();
+    end;
+
+    local procedure EnableShowVariantMandatory()
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        InventorySetup.Get();
+        ShowVariantMandatoryDefaultYes := InventorySetup."Variant Mandatory if Exists";
     end;
 
     local procedure InsertItemUnitOfMeasure()
@@ -2924,7 +3145,7 @@
         OnAfterInitControls();
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     local procedure UpdateSpecialPricesAndDiscountsTxt()
     var
@@ -2981,12 +3202,12 @@
         end else
             if ItemTemplMgt.TemplatesAreNotEmpty() then
                 if not ItemTemplMgt.IsOpenBlankCardConfirmed() then begin
-                    CurrPage.Close;
+                    CurrPage.Close();
                     exit;
                 end;
 
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-            if (Item."No." = '') and InventorySetup.Get then
+        if ApplicationAreaMgmtFacade.IsFoundationEnabled() then
+            if (Item."No." = '') and InventorySetup.Get() then
                 Validate("Costing Method", InventorySetup."Default Costing Method");
     end;
 
@@ -2994,7 +3215,7 @@
     var
         DocumentNoVisibility: Codeunit DocumentNoVisibility;
     begin
-        NoFieldVisible := DocumentNoVisibility.ItemNoIsVisible;
+        NoFieldVisible := DocumentNoVisibility.ItemNoIsVisible();
     end;
 
     local procedure SetExpirationCalculationEditable()

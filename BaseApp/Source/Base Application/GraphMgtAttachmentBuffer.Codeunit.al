@@ -223,7 +223,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
             UnlinkedAttachment.Insert(true, true);
         end;
 
-        UnlinkedAttachment.Find;
+        UnlinkedAttachment.Find();
 
         if FindLinkedAttachment(TempAttachmentEntityBuffer.Id, IncomingDocumentAttachment) then begin
             AttachmentId := IncomingDocumentAttachment.SystemId;
@@ -909,8 +909,8 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
     var
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
         IncomingDocument: Record "Incoming Document";
-        DocumentVariant: Variant;
         DocumentRecordRef: RecordRef;
+        DocumentVariant: Variant;
     begin
         IncomingDocumentAttachment.SetFilter(SystemId, AttachmentId);
         if not IncomingDocumentAttachment.FindFirst() then
@@ -1024,7 +1024,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
                 exit;
             end;
             SearchSalesInvoiceEntityAggregate.Copy(SalesInvoiceEntityAggregate);
-            if SearchSalesInvoiceEntityAggregate.Next <> 0 then
+            if SearchSalesInvoiceEntityAggregate.Next() <> 0 then
                 ErrorMsg := MultipleDocumentsFoundForIdErr;
             exit;
         end;
@@ -1036,7 +1036,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
                 exit;
             end;
             SearchPurchInvEntityAggregate.Copy(PurchInvEntityAggregate);
-            if SearchPurchInvEntityAggregate.Next <> 0 then
+            if SearchPurchInvEntityAggregate.Next() <> 0 then
                 ErrorMsg := MultipleDocumentsFoundForIdErr;
             exit;
         end;
@@ -1048,7 +1048,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
                 exit;
             end;
             SearchSalesQuoteEntityBuffer.Copy(SalesQuoteEntityBuffer);
-            if SearchSalesQuoteEntityBuffer.Next <> 0 then
+            if SearchSalesQuoteEntityBuffer.Next() <> 0 then
                 ErrorMsg := MultipleDocumentsFoundForIdErr;
             exit;
         end;
@@ -1103,7 +1103,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
     local procedure FindLinkedAttachment(AttachmentId: Guid; var IncomingDocumentAttachment: Record "Incoming Document Attachment"): Boolean
     begin
         IncomingDocumentAttachment.SetRange(SystemId, AttachmentId);
-        exit(IncomingDocumentAttachment.FindFirst);
+        exit(IncomingDocumentAttachment.FindFirst());
     end;
 
     local procedure FindUnlinkedAttachment(AttachmentId: Guid; var UnlinkedAttachment: Record "Unlinked Attachment"): Boolean
@@ -1130,6 +1130,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
             exit;
         end;
 
+        DummyGLEntryNo := 0;
         Value := DummyGLEntryNo;
         if TypeHelper.Evaluate(Value, DocumentIdFilter, '', 'en-US') then begin
             GLEntry.SetFilter("Entry No.", DocumentIdFilter);
@@ -1553,13 +1554,13 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         MemoryStream: DotNet MemoryStream;
         ContentLength: Integer;
     begin
-        if not TempBlob.HasValue then
+        if not TempBlob.HasValue() then
             exit(0);
         TempBlob.CreateInStream(InStream);
-        MemoryStream := MemoryStream.MemoryStream;
+        MemoryStream := MemoryStream.MemoryStream();
         CopyStream(MemoryStream, InStream);
         ContentLength := MemoryStream.Length;
-        MemoryStream.Close;
+        MemoryStream.Close();
         exit(ContentLength);
     end;
 

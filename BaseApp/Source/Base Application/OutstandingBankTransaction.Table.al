@@ -98,9 +98,9 @@
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccNo);
         BankAccountLedgerEntry.SetRange(Open, true);
         TempOutstandingBankTransactionCopy.DeleteAll();
-        if BankAccountLedgerEntry.FindSet() then begin
+        if BankAccountLedgerEntry.FindSet() then
             repeat
-                RemainingAmt := BankAccountLedgerEntry.Amount - GetAppliedAmount(BankAccountLedgerEntry."Entry No.");
+                    RemainingAmt := BankAccountLedgerEntry.Amount - GetAppliedAmount(BankAccountLedgerEntry."Entry No.");
                 if RemainingAmt <> 0 then begin
                     TempOutstandingBankTransaction.Init();
                     CreateTheDepositHeaderLine(TempOutstandingBankTransaction, TempOutstandingBankTransactionCopy, BankAccountLedgerEntry);
@@ -121,7 +121,6 @@
                     TempOutstandingBankTransaction.Insert();
                 end;
             until BankAccountLedgerEntry.Next() = 0;
-        end;
     end;
 
     procedure CreateTheDepositHeaderLine(var TempOutstandingBankTransaction: Record "Outstanding Bank Transaction" temporary; var TempOutstandingBankTransactionCopy: Record "Outstanding Bank Transaction" temporary; BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
@@ -185,7 +184,7 @@
 
     procedure CopyFromBankAccLedgerEntry(BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; BankTransacType: Integer; StatementType: Integer; StatementNo: Code[20]; RemainingAmt: Decimal; IndentationValue: Integer)
     begin
-        Init;
+        Init();
         "Entry No." := BankAccountLedgerEntry."Entry No.";
         "Posting Date" := BankAccountLedgerEntry."Posting Date";
         "Document Type" := BankAccountLedgerEntry."Document Type".AsInteger();
@@ -197,7 +196,7 @@
         "Statement Type" := StatementType;
         "Statement No." := StatementNo;
         Indentation := IndentationValue;
-        Insert;
+        Insert();
     end;
 
     procedure GetAppliedAmount(EntryNo: Integer) AppliedAmt: Decimal
@@ -205,11 +204,10 @@
         AppliedPaymentEntry: Record "Applied Payment Entry";
     begin
         AppliedPaymentEntry.SetRange("Applies-to Entry No.", EntryNo);
-        if AppliedPaymentEntry.FindSet() then begin
+        if AppliedPaymentEntry.FindSet() then
             repeat
-                AppliedAmt += AppliedPaymentEntry."Applied Amount";
+                    AppliedAmt += AppliedPaymentEntry."Applied Amount";
             until AppliedPaymentEntry.Next() = 0;
-        end;
 
         exit(AppliedAmt);
     end;

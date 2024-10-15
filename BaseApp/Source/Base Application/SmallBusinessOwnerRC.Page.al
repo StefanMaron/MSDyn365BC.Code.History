@@ -128,7 +128,7 @@ page 9020 "Small Business Owner RC"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'List Price Sheet';
-#if not CLEAN19
+#if not CLEAN21
                 RunPageView = WHERE("Object Type" = CONST(Report), "Object ID" = CONST(10148)); // "List Price Sheet"
                 RunObject = Page "Role Center Page Dispatcher";
 #else
@@ -767,7 +767,7 @@ page 9020 "Small Business Owner RC"
                     RunObject = Page "Resource Groups";
                     ToolTip = 'View all resource groups.';
                 }
-#if not CLEAN19
+#if not CLEAN21
                 action("Resource Price Changes")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1051,7 +1051,7 @@ page 9020 "Small Business Owner RC"
                 RunObject = Page "Purchase Journal";
                 ToolTip = 'Open the list of purchase journals where you can batch post purchase transactions to G/L, bank, customer, vendor and fixed assets accounts.';
             }
-#if not CLEAN19
+#if not CLEAN21
             action("Sales Price &Worksheet")
             {
                 ApplicationArea = Basic, Suite;

@@ -23,28 +23,28 @@ page 7151 "Item Analysis View List"
                     ApplicationArea = SalesAnalysis, PurchaseAnalysis, InventoryAnalysis;
                     ToolTip = 'Specifies the name of the analysis view.';
                 }
-                field("Include Budgets"; "Include Budgets")
+                field("Include Budgets"; Rec."Include Budgets")
                 {
                     ApplicationArea = ItemBudget;
                     ToolTip = 'Specifies whether to include an update of analysis view budget entries, when updating an analysis view.';
                 }
-                field("Last Date Updated"; "Last Date Updated")
+                field("Last Date Updated"; Rec."Last Date Updated")
                 {
                     ApplicationArea = SalesAnalysis, PurchaseAnalysis, InventoryAnalysis;
                     Editable = false;
                     ToolTip = 'Specifies the date on which the analysis view was last updated.';
                 }
-                field("Dimension 1 Code"; "Dimension 1 Code")
+                field("Dimension 1 Code"; Rec."Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies one of the four dimensions that you can include in an analysis view.';
                 }
-                field("Dimension 2 Code"; "Dimension 2 Code")
+                field("Dimension 2 Code"; Rec."Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies one of the four dimensions that you can include in an analysis view.';
                 }
-                field("Dimension 3 Code"; "Dimension 3 Code")
+                field("Dimension 3 Code"; Rec."Dimension 3 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies one of the four dimensions that you can include in an analysis view.';
@@ -108,10 +108,19 @@ page 7151 "Item Analysis View List"
                 ApplicationArea = SalesAnalysis, PurchaseAnalysis, InventoryAnalysis;
                 Caption = '&Update';
                 Image = Refresh;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Codeunit "Update Item Analysis View";
                 ToolTip = 'Get the latest entries into the analysis view.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Update_Promoted"; "&Update")
+                {
+                }
             }
         }
     }

@@ -26,7 +26,7 @@ codeunit 5456 "Graph Connection Setup"
 
     procedure ConstructConnectionString(EntityEndpoint: Text; EntityListEndpoint: Text; ResourceUri: Text; ResourceRoles: Text) ConnectionString: Text
     begin
-        if IsS2SAuthenticationEnabled then
+        if IsS2SAuthenticationEnabled() then
             ConnectionString := S2SConnectionStringTxt
         else
             ConnectionString := PwdConnectionStringTxt;
@@ -41,7 +41,7 @@ codeunit 5456 "Graph Connection Setup"
     var
         WebhookManagement: Codeunit "Webhook Management";
     begin
-        exit(WebhookManagement.GetNotificationUrl);
+        exit(WebhookManagement.GetNotificationUrl());
     end;
 
     procedure GetInboundConnectionName(TableID: Integer) ConnectionName: Text
@@ -83,7 +83,7 @@ codeunit 5456 "Graph Connection Setup"
 
     procedure RegisterConnections()
     begin
-        OnRegisterConnections;
+        OnRegisterConnections();
     end;
 
     [Scope('OnPrem')]

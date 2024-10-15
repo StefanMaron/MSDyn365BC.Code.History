@@ -137,7 +137,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         asserterror ReversalEntry.ReverseTransaction(TransactionNo);
 
         // Verify: Verify User gets error message about associated unrealized VAT entry
-        Assert.ExpectedError(StrSubstNo(UnrealizedVATReverseErr, VATEntry.TableCaption, VATEntry."Entry No."));
+        Assert.ExpectedError(StrSubstNo(UnrealizedVATReverseErr, VATEntry.TableCaption(), VATEntry."Entry No."));
 
         ResetUnrealizedVATType;
     end;
@@ -166,7 +166,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         asserterror ReversalEntry.ReverseTransaction(TransactionNo);
 
         // Verify: Verify User gets error message about associated unrealized VAT entry
-        Assert.ExpectedError(StrSubstNo(UnrealizedVATReverseErr, VATEntry.TableCaption, VATEntry."Entry No."));
+        Assert.ExpectedError(StrSubstNo(UnrealizedVATReverseErr, VATEntry.TableCaption(), VATEntry."Entry No."));
 
         ResetUnrealizedVATType;
     end;
@@ -530,7 +530,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         GLEntry.FindSet();
         repeat
             Assert.AreEqual(true, GLEntry.Reversed, ReverseSignErr);
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyGLRegister(GLRegisterNo: Integer)
@@ -552,7 +552,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         BankAccountLedgerEntry.FindSet();
         repeat
             Assert.AreEqual(true, BankAccountLedgerEntry.Reversed, ReverseSignErr);
-        until BankAccountLedgerEntry.Next = 0;
+        until BankAccountLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyVATEntry(DocumentNo: Code[20])
@@ -565,7 +565,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         VATEntry.FindSet();
         repeat
             Assert.AreEqual(true, VATEntry.Reversed, ReverseSignErr);
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
     end;
 
     local procedure VerifyUnapplyCustLedgEntry(DocumentNo: Code[20])
@@ -588,7 +588,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         CustLedgerEntry.FindSet();
         repeat
             Assert.AreEqual(true, CustLedgerEntry.Reversed, ReverseSignErr);
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyUnapplyVendLedgEntry(DocumentNo: Code[20])
@@ -611,7 +611,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         VendorLedgerEntry.FindSet();
         repeat
             Assert.AreEqual(true, VendorLedgerEntry.Reversed, ReverseSignErr);
-        until VendorLedgerEntry.Next = 0;
+        until VendorLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyGLEntryReversed(DocumentNo: Code[20])

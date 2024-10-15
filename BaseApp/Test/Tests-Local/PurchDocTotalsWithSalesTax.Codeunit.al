@@ -67,7 +67,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
           PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDEcimal,
           0,
           PreAmounts);
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
 
         PurchaseLine.Validate("Tax Group Code", TaxGroupCode);
         PurchaseLine.Modify(true);
@@ -76,7 +76,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         OpenPurchaseInvoicePageEdit(PurchaseInvoice, PurchaseHeader);
         PurchaseInvoice.PurchLines.InvoiceDiscountAmount.SetValue(
           PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDEcimal * InvDiscAmtPct);
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
 
         // [THEN] Total amounts match Purchase Header amounts
         // Reopen the window with the updated record
@@ -91,13 +91,13 @@ codeunit 142057 PurchDocTotalsWithSalesTax
 
         // Calculate the CustInvoiceDiscountPct
         PurchaseLine := OriginalPurchaseLine;
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PreAmounts[FieldType::DiscountPercent] := PurchCalcDiscByType.GetVendInvoiceDiscountPct(PurchaseLine);
         PurchaseHeader.CalcFields("Invoice Discount Amount", Amount, "Amount Including VAT");
         TotalTax := PurchaseHeader."Amount Including VAT" - PurchaseHeader.Amount;
 
         VerifyFieldValues(PurchaseHeader, PreAmounts, PostAmounts, TotalTax, RoundingPrecision);
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     [Test]
@@ -135,7 +135,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         // For purchasing, we have to set the cost of the line
         // Clear out the initial Tax Group Code, defaults to a value we cannot use
         PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(LibraryRandom.RandInt(1000));
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
 
         PurchaseLine.Validate("Tax Group Code", TaxGroupCode);
         PurchaseLine.Modify(true);
@@ -143,14 +143,14 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         OpenPurchaseInvoicePageEdit(PurchaseInvoice, PurchaseHeader);
         PurchaseInvoice.PurchLines.InvoiceDiscountAmount.SetValue(
           PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDEcimal * InvDiscAmtPct);
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
 
         // Reopen the window with the updated record
         OpenPurchaseInvoicePageView(PurchaseInvoice, PurchaseHeader);
 
         // Calculate the CustInvoiceDiscountPct
         PurchaseLine := OriginalPurchaseLine;
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseHeader.CalcFields("Invoice Discount Amount", Amount, "Amount Including VAT");
 
         SetCompareAmounts(PurchaseHeader."Invoice Discount Amount",
@@ -171,7 +171,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
           PurchInvHeader."Amount Including VAT", 0, PurchPostedAmounts);
 
         VerifyPostedFieldValues(PurchHeaderAmounts, PurchPostedAmounts);
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     [Test]
@@ -218,7 +218,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
           PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDEcimal,
           0,
           PreAmounts);
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
 
         PurchaseLine.Validate("Tax Group Code", TaxGroupCode);
         PurchaseLine.Validate("Recalculate Invoice Disc.", false);
@@ -228,7 +228,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         OpenPurchaseCrMemoPageEdit(PurchaseCreditMemo, PurchaseHeader);
         PurchaseCreditMemo.PurchLines."Invoice Discount Amount".SetValue(
           PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDEcimal * InvDiscAmtPct);
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
 
         // [THEN] Total amounts match Purchase Header amounts
         // Reopen the window with the updated record
@@ -243,7 +243,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
 
         // Calculate the CustInvoiceDiscountPct
         PurchaseLine := OriginalPurchaseLine;
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseHeader.CalcFields("Invoice Discount Amount", Amount, "Amount Including VAT");
         TotalTax := PurchaseHeader."Amount Including VAT" - PurchaseHeader.Amount;
 
@@ -285,7 +285,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         // For purchasing, we have to set the cost of the line
         // Clear out the initial Tax Group Code, defaults to a value we cannot use
         PurchaseCreditMemo.PurchLines."Direct Unit Cost".SetValue(LibraryRandom.RandInt(1000));
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
 
         PurchaseLine.Validate("Tax Group Code", TaxGroupCode);
         PurchaseLine.Modify(true);
@@ -293,14 +293,14 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         OpenPurchaseCrMemoPageEdit(PurchaseCreditMemo, PurchaseHeader);
         PurchaseCreditMemo.PurchLines."Invoice Discount Amount".SetValue(
           PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDEcimal * InvDiscAmtPct);
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
 
         // Reopen the window with the updated record
         OpenPurchaseCrMemoPageView(PurchaseCreditMemo, PurchaseHeader);
 
         // Calculate the CustInvoiceDiscountPct
         PurchaseLine := OriginalPurchaseLine;
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseHeader.CalcFields("Invoice Discount Amount", Amount, "Amount Including VAT");
 
         // [WHEN] User posts the Purchase Invoice
@@ -361,7 +361,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AssertEquals(Round(2 * PurchaseLine.Amount));
         PurchaseInvoice.PurchLines."Total VAT Amount".AssertEquals(Round(2 * PurchaseLine.Amount * TaxPercent / 100));
         PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AssertEquals(Round(2 * PurchaseLine.Amount * (100 + TaxPercent) / 100));
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     [Test]
@@ -390,7 +390,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         // Create excise tax to be used by purchase invoice
         TaxPercent := LibraryRandom.RandIntInRange(10, 20);
         LibraryERM.CreateTaxGroup(TaxGroup);
-        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Excise Tax", WorkDate);
+        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Excise Tax", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", TaxPercent);
         TaxDetail.Validate("Expense/Capitalize", false);
         TaxDetail.Modify(true);
@@ -420,7 +420,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AssertEquals(0);
         PurchaseInvoice.PurchLines."Total VAT Amount".AssertEquals(Round(2 * PurchaseLine.Quantity * TaxPercent));
         PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AssertEquals(0 + 2 * PurchaseLine.Quantity * TaxPercent);
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     [Test]
@@ -452,7 +452,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         // Create excise tax to be used by purchase invoice
         TaxPercent := LibraryRandom.RandIntInRange(10, 20);
         LibraryERM.CreateTaxGroup(TaxGroup);
-        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Excise Tax", WorkDate);
+        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Excise Tax", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", TaxPercent);
         TaxDetail.Validate("Expense/Capitalize", false);
         TaxDetail.Modify(true);
@@ -485,7 +485,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AssertEquals(0 + 2 * PurchaseLine.Quantity * TaxPercent);
         Assert.AreEqual(0, PurchaseHeader.Amount, 'PurchaseHeader.Amount is incorrect');
         Assert.AreEqual(2 * PurchaseLine.Quantity * TaxPercent, PurchaseHeader."Amount Including VAT", 'PurchaseHeader."Amount Including VAT" is incorrect');
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
 
         // Post invoice and verify amounts
         LibraryLowerPermissions.SetPurchDocsPost;
@@ -622,7 +622,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         TaxGroup: Record "Tax Group";
     begin
         LibraryERM.CreateTaxGroup(TaxGroup);
-        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate);
+        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", TaxPercent);
         TaxDetail.Validate("Expense/Capitalize", ExpenseCapitalize);
         TaxDetail.Modify(true);

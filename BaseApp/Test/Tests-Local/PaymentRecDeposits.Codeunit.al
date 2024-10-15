@@ -59,12 +59,12 @@ codeunit 142059 "Payment Rec Deposits"
         PmtReconJnl.TestReport.Invoke;
 
         // [THEN] Verify outstanding deposits are included and report totals correct
-        BankAccRecon.CalcFields("Total Difference");
+        BankAccRecon.CalcFields("Total Difference", "Total Transaction Amount");
         LibraryVariableStorage.AssertEmpty;
         VerifyBankAccReconReportData(
           DepositHeader."Total Deposit Amount",
           0,
-          BankAccRecon."Statement Ending Balance",
+          BankAccRecon."Balance Last Statement" + BankAccRecon."Total Transaction Amount",
           DepositHeader."Total Deposit Amount",
           BankAccRecon."Total Difference");
     end;
@@ -104,12 +104,12 @@ codeunit 142059 "Payment Rec Deposits"
         PmtReconJnl.TestReport.Invoke;
 
         // [THEN] Verify outstanding transactions and deposits are included and report totals correct
-        BankAccRecon.CalcFields("Total Difference");
+        BankAccRecon.CalcFields("Total Difference", "Total Transaction Amount");
         LibraryVariableStorage.AssertEmpty;
         VerifyBankAccReconReportData(
           CustAmount + DepositHeader."Total Deposit Amount",
           0,
-          BankAccRecon."Statement Ending Balance",
+          BankAccRecon."Balance Last Statement" + BankAccRecon."Total Transaction Amount",
           CustAmount + DepositHeader."Total Deposit Amount",
           BankAccRecon."Total Difference");
     end;
@@ -144,13 +144,13 @@ codeunit 142059 "Payment Rec Deposits"
         Commit();
         PmtReconJnl.TestReport.Invoke;
 
-        // [THEN] Verify deposits are not included in the outstanding when applied and report totals correct
-        BankAccRecon.CalcFields("Total Difference");
+        // [THEN] Verify deposits are not included in the outstanding when applied and report totals correctv
+        BankAccRecon.CalcFields("Total Difference", "Total Transaction Amount");
         LibraryVariableStorage.AssertEmpty;
         VerifyBankAccReconReportData(
           0,
           0,
-          BankAccRecon."Statement Ending Balance",
+          BankAccRecon."Balance Last Statement" + BankAccRecon."Total Transaction Amount",
           DepositHeader."Total Deposit Amount",
           BankAccRecon."Total Difference");
     end;
@@ -187,7 +187,7 @@ codeunit 142059 "Payment Rec Deposits"
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         PmtReconJnl.First;
         HandlePmtEntries(PmtReconJnl);
-        PmtReconJnl.Next;
+        PmtReconJnl.Next();
         HandlePmtEntries(PmtReconJnl);
         Commit();
         BankAccRecon.Get(BankAccRecon."Statement Type", BankAccRecon."Bank Account No.", BankAccRecon."Statement No.");
@@ -198,12 +198,12 @@ codeunit 142059 "Payment Rec Deposits"
         PmtReconJnl.TestReport.Invoke;
 
         // [THEN] Verify only not applied transactions show as outstanding and report totals correct
-        BankAccRecon.CalcFields("Total Difference");
+        BankAccRecon.CalcFields("Total Difference", "Total Transaction Amount");
         LibraryVariableStorage.AssertEmpty;
         VerifyBankAccReconReportData(
           AmountArray[2],
           0,
-          BankAccRecon."Statement Ending Balance",
+          BankAccRecon."Balance Last Statement" + BankAccRecon."Total Transaction Amount",
           AmountArray[1] + AmountArray[2] + AmountArray[3],
           BankAccRecon."Total Difference");
     end;
@@ -379,7 +379,7 @@ codeunit 142059 "Payment Rec Deposits"
         repeat
             EntryNoArray[i] += BankAccLedgEntry."Entry No.";
             i := i + 1;
-        until BankAccLedgEntry.Next = 0;
+        until BankAccLedgEntry.Next() = 0;
     end;
 
     local procedure ImportBankStmt(var BankAccRecon: Record "Bank Acc. Reconciliation"; var TempBlobUTF8: Codeunit "Temp Blob")
@@ -642,7 +642,7 @@ codeunit 142059 "Payment Rec Deposits"
         repeat
             AmountArray[i] += BankAccLedgEntry.Amount;
             i += 1;
-        until BankAccLedgEntry.Next = 0;
+        until BankAccLedgEntry.Next() = 0;
     end;
 
     local procedure ImportBankStmtAndUpdateBankAccReconTable(var BankAccRecon: Record "Bank Acc. Reconciliation"; var TempBlobUTF8: Codeunit "Temp Blob")

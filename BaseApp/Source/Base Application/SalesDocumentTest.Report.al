@@ -23,7 +23,7 @@
             column(STRSUBSTNO_Text014_SalesHeaderFilter_; StrSubstNo(Text014, SalesHeaderFilter))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Summarize; Summarize)
@@ -134,7 +134,7 @@
                 column(TIME_Control1029002; Time)
                 {
                 }
-                column(CompanyInformation_Name_Control1029003; COMPANYPROPERTY.DisplayName)
+                column(CompanyInformation_Name_Control1029003; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(USERID_Control1029006; UserId)
@@ -716,7 +716,7 @@
                         column(TotalInclVATText_Control191; TotalInclVATText)
                         {
                         }
-                        column(VATAmountLine_VATAmountText; VATAmountLine.VATAmountText)
+                        column(VATAmountLine_VATAmountText; TempVATAmountLine.VATAmountText())
                         {
                         }
                         column(VATBaseAmount___VATAmount; VATBaseAmount + VATAmount)
@@ -865,7 +865,7 @@
                             if Number = 1 then
                                 TempSalesLine.Find('-')
                             else
-                                TempSalesLine.Next;
+                                TempSalesLine.Next();
                             "Sales Line" := TempSalesLine;
 
                             with "Sales Line" do begin
@@ -937,7 +937,7 @@
                                         CustLedgEntry.SetRange("Customer No.", "Sales Header"."Bill-to Customer No.");
                                         CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
                                         CustLedgEntry.SetRange("Document No.", "Sales Header"."Applies-to Doc. No.");
-                                        if (not CustLedgEntry.FindLast) and (not ApplNoError) then begin
+                                        if (not CustLedgEntry.FindLast()) and (not ApplNoError) then begin
                                             ApplNoError := true;
                                             AddError(
                                               StrSubstNo(
@@ -950,7 +950,7 @@
                                         AddError(
                                           StrSubstNo(
                                             Text017,
-                                            VATPostingSetup.TableCaption, "VAT Bus. Posting Group", "VAT Prod. Posting Group"));
+                                            VATPostingSetup.TableCaption(), "VAT Bus. Posting Group", "VAT Prod. Posting Group"));
                                     if VATPostingSetup."VAT Calculation Type" = VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT" then
                                         if ("Sales Header"."VAT Registration No." = '') and (not VATNoError) then begin
                                             VATNoError := true;
@@ -1002,12 +1002,12 @@
                                             AddError(
                                               StrSubstNo(
                                                 Text017,
-                                                GenPostingSetup.TableCaption, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group"));
+                                                GenPostingSetup.TableCaption(), "Gen. Bus. Posting Group", "Gen. Prod. Posting Group"));
                                     if not VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
                                         AddError(
                                           StrSubstNo(
                                             Text017,
-                                            VATPostingSetup.TableCaption, "VAT Bus. Posting Group", "VAT Prod. Posting Group"));
+                                            VATPostingSetup.TableCaption(), "VAT Bus. Posting Group", "VAT Prod. Posting Group"));
                                 end;
 
                                 if "Prepayment %" > 0 then
@@ -1047,12 +1047,12 @@
                                     if "Line No." > OrigMaxLineNo then begin
                                         AddDimToTempLine("Sales Line", TempDimSetEntry);
                                         if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                                            AddError(DimMgt.GetDimCombErr);
+                                            AddError(DimMgt.GetDimCombErr());
                                         if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                                            AddError(DimMgt.GetDimValuePostingErr);
+                                            AddError(DimMgt.GetDimValuePostingErr());
                                     end else begin
                                         if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                                            AddError(DimMgt.GetDimCombErr);
+                                            AddError(DimMgt.GetDimCombErr());
 
                                         TableID[1] := DimMgt.SalesLineTypeToTableID(Type);
                                         No[1] := "No.";
@@ -1060,7 +1060,7 @@
                                         No[2] := "Job No.";
                                         OnBeforeCheckDimValuePostingLine("Sales Line", TableID, No);
                                         if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                                            AddError(DimMgt.GetDimValuePostingErr);
+                                            AddError(DimMgt.GetDimValuePostingErr());
                                     end;
                             end;
                             totAmount := totAmount + "Sales Line"."Line Amount";
@@ -1073,17 +1073,17 @@
                                             SalesTaxCalculate.CallExternalTaxEngineForSales("Sales Header", true)
                                         else
                                             SalesTaxCalculate.EndSalesTaxCalculation("Sales Header"."Posting Date");
-                                        SalesTaxCalculate.GetSalesTaxAmountLineTable(SalesTaxAmountLine);
+                                        SalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxAmountLine);
                                     end;
-                                    VATAmount := SalesTaxAmountLine.GetTotalTaxAmountFCY;
-                                    VATBaseAmount := SalesTaxAmountLine.GetTotalTaxBase;
-                                    OnAfterCalculateSalesTax(VATBaseAmount, VATAmount, SalesTaxAmountLine);
+                                    VATAmount := TempSalesTaxAmountLine.GetTotalTaxAmountFCY();
+                                    VATBaseAmount := TempSalesTaxAmountLine.GetTotalTaxBase;
+                                    OnAfterCalculateSalesTax(VATBaseAmount, VATAmount, TempSalesTaxAmountLine);
                                 end;
 
                                 if SalesTax then
-                                    TaxText := SalesTaxAmountLine.TaxAmountText
+                                    TaxText := TempSalesTaxAmountLine.TaxAmountText
                                 else
-                                    TaxText := VATAmountLine.VATAmountText;
+                                    TaxText := TempVATAmountLine.VATAmountText;
                             end;
                         end;
 
@@ -1110,109 +1110,109 @@
                     dataitem(VATCounter; "Integer")
                     {
                         DataItemTableView = SORTING(Number);
-                        column(VATAmountLine__VAT_Amount_; VATAmountLine."VAT Amount")
+                        column(VATAmountLine__VAT_Amount_; TempVATAmountLine."VAT Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__VAT_Base_; VATAmountLine."VAT Base")
+                        column(VATAmountLine__VAT_Base_; TempVATAmountLine."VAT Base")
                         {
                             AutoFormatExpression = "Sales Line"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Invoice_Discount_Amount_; VATAmountLine."Invoice Discount Amount")
+                        column(VATAmountLine__Invoice_Discount_Amount_; TempVATAmountLine."Invoice Discount Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Inv__Disc__Base_Amount_; VATAmountLine."Inv. Disc. Base Amount")
+                        column(VATAmountLine__Inv__Disc__Base_Amount_; TempVATAmountLine."Inv. Disc. Base Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Line_Amount_; VATAmountLine."Line Amount")
+                        column(VATAmountLine__Line_Amount_; TempVATAmountLine."Line Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__VAT_Amount__Control150; VATAmountLine."VAT Amount")
+                        column(VATAmountLine__VAT_Amount__Control150; TempVATAmountLine."VAT Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__VAT_Base__Control151; VATAmountLine."VAT Base")
+                        column(VATAmountLine__VAT_Base__Control151; TempVATAmountLine."VAT Base")
                         {
                             AutoFormatExpression = "Sales Line"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__VAT___; VATAmountLine."VAT %")
+                        column(VATAmountLine__VAT___; TempVATAmountLine."VAT %")
                         {
                             DecimalPlaces = 0 : 5;
                         }
-                        column(VATAmountLine__VAT_Identifier_; VATAmountLine."VAT Identifier")
+                        column(VATAmountLine__VAT_Identifier_; TempVATAmountLine."VAT Identifier")
                         {
                         }
-                        column(VATAmountLine__Invoice_Discount_Amount__Control173; VATAmountLine."Invoice Discount Amount")
-                        {
-                            AutoFormatExpression = "Sales Header"."Currency Code";
-                            AutoFormatType = 1;
-                        }
-                        column(VATAmountLine__Inv__Disc__Base_Amount__Control171; VATAmountLine."Inv. Disc. Base Amount")
+                        column(VATAmountLine__Invoice_Discount_Amount__Control173; TempVATAmountLine."Invoice Discount Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Line_Amount__Control169; VATAmountLine."Line Amount")
+                        column(VATAmountLine__Inv__Disc__Base_Amount__Control171; TempVATAmountLine."Inv. Disc. Base Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__VAT_Amount__Control175; VATAmountLine."VAT Amount")
+                        column(VATAmountLine__Line_Amount__Control169; TempVATAmountLine."Line Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__VAT_Base__Control176; VATAmountLine."VAT Base")
+                        column(VATAmountLine__VAT_Amount__Control175; TempVATAmountLine."VAT Amount")
+                        {
+                            AutoFormatExpression = "Sales Header"."Currency Code";
+                            AutoFormatType = 1;
+                        }
+                        column(VATAmountLine__VAT_Base__Control176; TempVATAmountLine."VAT Base")
                         {
                             AutoFormatExpression = "Sales Line"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Invoice_Discount_Amount__Control177; VATAmountLine."Invoice Discount Amount")
+                        column(VATAmountLine__Invoice_Discount_Amount__Control177; TempVATAmountLine."Invoice Discount Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Inv__Disc__Base_Amount__Control178; VATAmountLine."Inv. Disc. Base Amount")
+                        column(VATAmountLine__Inv__Disc__Base_Amount__Control178; TempVATAmountLine."Inv. Disc. Base Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Line_Amount__Control179; VATAmountLine."Line Amount")
+                        column(VATAmountLine__Line_Amount__Control179; TempVATAmountLine."Line Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__VAT_Amount__Control181; VATAmountLine."VAT Amount")
+                        column(VATAmountLine__VAT_Amount__Control181; TempVATAmountLine."VAT Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__VAT_Base__Control182; VATAmountLine."VAT Base")
+                        column(VATAmountLine__VAT_Base__Control182; TempVATAmountLine."VAT Base")
                         {
                             AutoFormatExpression = "Sales Line"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Invoice_Discount_Amount__Control183; VATAmountLine."Invoice Discount Amount")
+                        column(VATAmountLine__Invoice_Discount_Amount__Control183; TempVATAmountLine."Invoice Discount Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Inv__Disc__Base_Amount__Control184; VATAmountLine."Inv. Disc. Base Amount")
+                        column(VATAmountLine__Inv__Disc__Base_Amount__Control184; TempVATAmountLine."Inv. Disc. Base Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Line_Amount__Control185; VATAmountLine."Line Amount")
+                        column(VATAmountLine__Line_Amount__Control185; TempVATAmountLine."Line Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
@@ -1256,12 +1256,12 @@
 
                         trigger OnAfterGetRecord()
                         begin
-                            VATAmountLine.GetLine(Number);
+                            TempVATAmountLine.GetLine(Number);
                         end;
 
                         trigger OnPreDataItem()
                         begin
-                            SetRange(Number, 1, VATAmountLine.Count);
+                            SetRange(Number, 1, TempVATAmountLine.Count);
                         end;
                     }
                     dataitem(SalesTaxCounter; "Integer")
@@ -1270,47 +1270,47 @@
                         column(SalesHeader__Currency_Code_; "Sales Header"."Currency Code")
                         {
                         }
-                        column(SalesTaxAmountLine__Tax_Amount_; SalesTaxAmountLine."Tax Amount")
+                        column(SalesTaxAmountLine__Tax_Amount_; TempSalesTaxAmountLine."Tax Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(SalesTaxAmountLine__Tax_Amount__Control1020000; SalesTaxAmountLine."Tax Amount")
+                        column(SalesTaxAmountLine__Tax_Amount__Control1020000; TempSalesTaxAmountLine."Tax Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(SalesTaxAmountLine__Tax_Area_Code_for_Key_; SalesTaxAmountLine."Tax Area Code for Key")
+                        column(SalesTaxAmountLine__Tax_Area_Code_for_Key_; TempSalesTaxAmountLine."Tax Area Code for Key")
                         {
                             AutoFormatType = 1;
                         }
-                        column(SalesTaxAmountLine__Tax_Base_Amount_; SalesTaxAmountLine."Tax Base Amount")
+                        column(SalesTaxAmountLine__Tax_Base_Amount_; TempSalesTaxAmountLine."Tax Base Amount")
                         {
                             AutoFormatType = 1;
                         }
-                        column(SalesTaxAmountLine__Inv__Disc__Base_Amount_; SalesTaxAmountLine."Inv. Disc. Base Amount")
+                        column(SalesTaxAmountLine__Inv__Disc__Base_Amount_; TempSalesTaxAmountLine."Inv. Disc. Base Amount")
                         {
                             AutoFormatType = 1;
                         }
-                        column(SalesTaxAmountLine__Invoice_Discount_Amount_; SalesTaxAmountLine."Invoice Discount Amount")
+                        column(SalesTaxAmountLine__Invoice_Discount_Amount_; TempSalesTaxAmountLine."Invoice Discount Amount")
                         {
                             AutoFormatType = 1;
                         }
-                        column(SalesTaxAmountLine__Tax___; SalesTaxAmountLine."Tax %")
+                        column(SalesTaxAmountLine__Tax___; TempSalesTaxAmountLine."Tax %")
                         {
                             AutoFormatType = 1;
                         }
-                        column(SalesTaxAmountLine__Tax_Amount__Control1020011; SalesTaxAmountLine."Tax Amount")
-                        {
-                            AutoFormatExpression = "Sales Header"."Currency Code";
-                            AutoFormatType = 1;
-                        }
-                        column(SalesTaxAmountLine__Tax_Amount__Control1020022; SalesTaxAmountLine."Tax Amount")
+                        column(SalesTaxAmountLine__Tax_Amount__Control1020011; TempSalesTaxAmountLine."Tax Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(SalesTaxAmountLine__Tax_Amount__Control1020014; SalesTaxAmountLine."Tax Amount")
+                        column(SalesTaxAmountLine__Tax_Amount__Control1020022; TempSalesTaxAmountLine."Tax Amount")
+                        {
+                            AutoFormatExpression = "Sales Header"."Currency Code";
+                            AutoFormatType = 1;
+                        }
+                        column(SalesTaxAmountLine__Tax_Amount__Control1020014; TempSalesTaxAmountLine."Tax Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
@@ -1366,18 +1366,18 @@
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then
-                                SalesTaxAmountLine.Find('-')
+                                TempSalesTaxAmountLine.Find('-')
                             else
-                                SalesTaxAmountLine.Next;
+                                TempSalesTaxAmountLine.Next();
 
                             if SalesTaxCountry = SalesTaxCountry::CA then
-                                SalesTaxAmountLine."Tax Amount" := Round(SalesTaxAmountLine."Tax Amount", GLSetup."Amount Rounding Precision")
+                                TempSalesTaxAmountLine."Tax Amount" := Round(TempSalesTaxAmountLine."Tax Amount", GLSetup."Amount Rounding Precision")
                             else begin
-                                SalesTaxAmountLine."Tax Amount" += RemSalesTaxAmt;
+                                TempSalesTaxAmountLine."Tax Amount" += RemSalesTaxAmt;
                                 RemSalesTaxAmt :=
-                                  SalesTaxAmountLine."Tax Amount" - Round(
-                                    SalesTaxAmountLine."Tax Amount", GLSetup."Amount Rounding Precision");
-                                SalesTaxAmountLine."Tax Amount" := Round(SalesTaxAmountLine."Tax Amount", GLSetup."Amount Rounding Precision");
+                                  TempSalesTaxAmountLine."Tax Amount" - Round(
+                                    TempSalesTaxAmountLine."Tax Amount", GLSetup."Amount Rounding Precision");
+                                TempSalesTaxAmountLine."Tax Amount" := Round(TempSalesTaxAmountLine."Tax Amount", GLSetup."Amount Rounding Precision");
                             end;
                         end;
 
@@ -1386,8 +1386,8 @@
                             if not SalesTax then
                                 CurrReport.Break();
 
-                            SetRange(Number, 1, SalesTaxAmountLine.Count);
-                            SalesTaxAmountLine.Reset();
+                            SetRange(Number, 1, TempSalesTaxAmountLine.Count);
+                            TempSalesTaxAmountLine.Reset();
                             RemSalesTaxAmt := 0;
                         end;
                     }
@@ -1498,20 +1498,20 @@
                     begin
                         Clear(TempSalesLine);
                         Clear(SalesPost);
-                        VATAmountLine.DeleteAll();
+                        TempVATAmountLine.DeleteAll();
                         TempSalesLine.DeleteAll();
                         SalesPost.GetSalesLines("Sales Header", TempSalesLine, 1);
                         OnAfterSalesPostGetSalesLines("Sales Header", TempSalesLine);
-                        TempSalesLine.CalcVATAmountLines(0, "Sales Header", TempSalesLine, VATAmountLine);
-                        TempSalesLine.UpdateVATOnLines(0, "Sales Header", TempSalesLine, VATAmountLine);
-                        VATAmount := VATAmountLine.GetTotalVATAmount;
-                        VATBaseAmount := VATAmountLine.GetTotalVATBase;
+                        TempSalesLine.CalcVATAmountLines(0, "Sales Header", TempSalesLine, TempVATAmountLine);
+                        TempSalesLine.UpdateVATOnLines(0, "Sales Header", TempSalesLine, TempVATAmountLine);
+                        VATAmount := TempVATAmountLine.GetTotalVATAmount();
+                        VATBaseAmount := TempVATAmountLine.GetTotalVATBase();
                         VATDiscountAmount :=
-                          VATAmountLine.GetTotalVATDiscount("Sales Header"."Currency Code", "Sales Header"."Prices Including VAT");
+                          TempVATAmountLine.GetTotalVATDiscount("Sales Header"."Currency Code", "Sales Header"."Prices Including VAT");
                         if SalesTax then begin
-                            SalesTaxAmountLine.DeleteAll();
-                            OnBeforeCalculateSalesTax("Sales Header", SalesTaxAmountLine, SalesTaxCalculationOverridden);
-                            SalesTaxCalculate.StartSalesTaxCalculation;
+                            TempSalesTaxAmountLine.DeleteAll();
+                            OnBeforeCalculateSalesTax("Sales Header", TempSalesTaxAmountLine, SalesTaxCalculationOverridden);
+                            SalesTaxCalculate.StartSalesTaxCalculation();
                         end;
                     end;
                 }
@@ -1631,7 +1631,7 @@
                 end;
 
                 if not (Ship or Invoice or Receive) then
-                    AddError(Text012);
+                    AddError(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 
                 if Invoice then
                     if not ("Document Type" in ["Document Type"::"Return Order", "Document Type"::"Credit Memo"]) then
@@ -1694,7 +1694,7 @@
                         AddError(StrSubstNo(Text006, FieldCaption("External Document No.")));
 
                 if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                    AddError(DimMgt.GetDimCombErr);
+                    AddError(DimMgt.GetDimCombErr());
 
                 TableID[1] := DATABASE::Customer;
                 No[1] := "Bill-to Customer No.";
@@ -1706,7 +1706,7 @@
                 No[5] := "Responsibility Center";
                 OnBeforeCheckDimValuePostingHeader("Sales Header", TableID, No);
                 if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                    AddError(DimMgt.GetDimValuePostingErr);
+                    AddError(DimMgt.GetDimValuePostingErr());
 
                 OnAfterCheckSalesDoc("Sales Header", ErrorText, ErrorCounter);
 
@@ -1836,7 +1836,7 @@
 
     trigger OnPreReport()
     begin
-        SalesHeaderFilter := "Sales Header".GetFilters;
+        SalesHeaderFilter := "Sales Header".GetFilters();
     end;
 
     var
@@ -1851,7 +1851,6 @@
         Text008: Label '%1 %2 does not exist.';
         Text009: Label '%1 must not be a closing date.';
         Text010: Label '%1 is not within your allowed range of posting dates.';
-        Text012: Label 'There is nothing to post.';
         Text013: Label '%1 must be entered on the purchase order header.';
         Text014: Label 'Sales Document: %1';
         Text015: Label '%1 must be %2.';
@@ -1892,11 +1891,11 @@
         GenPostingSetup: Record "General Posting Setup";
         VATPostingSetup: Record "VAT Posting Setup";
         CustLedgEntry: Record "Cust. Ledger Entry";
-        VATAmountLine: Record "VAT Amount Line" temporary;
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
-        SalesTaxAmountLine: Record "Sales Tax Amount Line" temporary;
+        TempSalesTaxAmountLine: Record "Sales Tax Amount Line" temporary;
         FA: Record "Fixed Asset";
         FADeprBook: Record "FA Depreciation Book";
         InvtPeriod: Record "Inventory Period";
@@ -1904,6 +1903,7 @@
         FormatAddr: Codeunit "Format Address";
         DimMgt: Codeunit DimensionManagement;
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         SalesPost: Codeunit "Sales-Post";
         SalesHeaderFilter: Text;
         SellToAddr: array[8] of Text[100];
@@ -2025,10 +2025,10 @@
         ContinuedCaption_Control223Lbl: Label 'Continued';
         SalesTaxCalculationOverridden: Boolean;
 
-    local procedure AddError(Text: Text[250])
+    local procedure AddError(Text: Text)
     begin
         ErrorCounter := ErrorCounter + 1;
-        ErrorText[ErrorCounter] := Text;
+        ErrorText[ErrorCounter] := CopyStr(Text, 1, MaxStrLen(ErrorText[ErrorCounter]));
     end;
 
     local procedure CheckShptLines(SalesLine2: Record "Sales Line")
@@ -2059,7 +2059,7 @@
                         if not DimMgt.CheckDimIDConsistency(
                              TempDimSetEntry, TempPostedDimSetEntry, DATABASE::"Sales Line", DATABASE::"Sales Shipment Line")
                         then
-                            AddError(DimMgt.GetDocDimConsistencyErr);
+                            AddError(DimMgt.GetDocDimConsistencyErr());
                         if SaleShptLine."Sell-to Customer No." <> "Sell-to Customer No." then
                             AddError(
                               StrSubstNo(
@@ -2154,7 +2154,7 @@
                         if not DimMgt.CheckDimIDConsistency(
                              TempDimSetEntry, TempPostedDimSetEntry, DATABASE::"Sales Line", DATABASE::"Return Receipt Line")
                         then
-                            AddError(DimMgt.GetDocDimConsistencyErr);
+                            AddError(DimMgt.GetDocDimConsistencyErr());
                         if ReturnRcptLine."Sell-to Customer No." <> "Sell-to Customer No." then
                             AddError(
                               StrSubstNo(
@@ -2311,17 +2311,17 @@
                                     AddError(
                                       StrSubstNo(
                                         Text007,
-                                        GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption, "No."));
+                                        GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption(), "No."));
                                 if not GLAcc."Direct Posting" and ("Line No." <= OrigMaxLineNo) then
                                     AddError(
                                       StrSubstNo(
                                         Text007,
-                                        GLAcc.FieldCaption("Direct Posting"), true, GLAcc.TableCaption, "No."));
+                                        GLAcc.FieldCaption("Direct Posting"), true, GLAcc.TableCaption(), "No."));
                             end else
                                 AddError(
                                   StrSubstNo(
                                     Text008,
-                                    GLAcc.TableCaption, "No."));
+                                    GLAcc.TableCaption(), "No."));
                     end;
                 Type::Item:
                     begin
@@ -2334,7 +2334,7 @@
                                     AddError(
                                       StrSubstNo(
                                         Text007,
-                                        Item.FieldCaption(Blocked), false, Item.TableCaption, "No."));
+                                        Item.FieldCaption(Blocked), false, Item.TableCaption(), "No."));
                                 if Item.Reserve = Item.Reserve::Always then begin
                                     CalcFields("Reserved Quantity");
                                     if "Document Type" in ["Document Type"::"Return Order", "Document Type"::"Credit Memo"] then begin
@@ -2354,7 +2354,7 @@
                                 AddError(
                                   StrSubstNo(
                                     Text008,
-                                    Item.TableCaption, "No."));
+                                    Item.TableCaption(), "No."));
                     end;
                 Type::Resource:
                     begin
@@ -2366,17 +2366,17 @@
                                 AddError(
                                   StrSubstNo(
                                     Text007,
-                                    Res.FieldCaption("Privacy Blocked"), false, Res.TableCaption, "No."));
+                                    Res.FieldCaption("Privacy Blocked"), false, Res.TableCaption(), "No."));
                             if Res.Blocked then
                                 AddError(
                                   StrSubstNo(
                                     Text007,
-                                    Res.FieldCaption(Blocked), false, Res.TableCaption, "No."));
+                                    Res.FieldCaption(Blocked), false, Res.TableCaption(), "No."));
                         end else
                             AddError(
                               StrSubstNo(
                                 Text008,
-                                Res.TableCaption, "No."));
+                                Res.TableCaption(), "No."));
                     end;
                 Type::"Fixed Asset":
                     begin
@@ -2388,12 +2388,12 @@
                                     AddError(
                                       StrSubstNo(
                                         Text007,
-                                        FA.FieldCaption(Blocked), false, FA.TableCaption, "No."));
+                                        FA.FieldCaption(Blocked), false, FA.TableCaption(), "No."));
                                 if FA.Inactive then
                                     AddError(
                                       StrSubstNo(
                                         Text007,
-                                        FA.FieldCaption(Inactive), false, FA.TableCaption, "No."));
+                                        FA.FieldCaption(Inactive), false, FA.TableCaption(), "No."));
                                 if "Depreciation Book Code" = '' then
                                     AddError(StrSubstNo(Text006, FieldCaption("Depreciation Book Code")))
                                 else
@@ -2401,12 +2401,12 @@
                                         AddError(
                                           StrSubstNo(
                                             Text017,
-                                            FADeprBook.TableCaption, "No.", "Depreciation Book Code"));
+                                            FADeprBook.TableCaption(), "No.", "Depreciation Book Code"));
                             end else
                                 AddError(
                                   StrSubstNo(
                                     Text008,
-                                    FA.TableCaption, "No."));
+                                    FA.TableCaption(), "No."));
                     end;
                 else begin
                         OnCheckSalesLineCaseTypeElse(Type.AsInteger(), "No.", ErrorTextLocal);
@@ -2443,12 +2443,12 @@
                         AddError(
                           StrSubstNo(
                             Text045,
-                            Cust.FieldCaption(Blocked), Cust.Blocked, Cust.TableCaption, "Sell-to Customer No."))
+                            Cust.FieldCaption(Blocked), Cust.Blocked, Cust.TableCaption(), "Sell-to Customer No."))
                 end else
                     AddError(
                       StrSubstNo(
                         Text008,
-                        Cust.TableCaption, "Sell-to Customer No."));
+                        Cust.TableCaption(), "Sell-to Customer No."));
         end;
     end;
 
@@ -2470,12 +2470,12 @@
                             AddError(
                               StrSubstNo(
                                 Text045,
-                                Cust.FieldCaption(Blocked), false, Cust.TableCaption, "Bill-to Customer No."));
+                                Cust.FieldCaption(Blocked), false, Cust.TableCaption(), "Bill-to Customer No."));
                     end else
                         AddError(
                           StrSubstNo(
                             Text008,
-                            Cust.TableCaption, "Bill-to Customer No."));
+                            Cust.TableCaption(), "Bill-to Customer No."));
             end;
     end;
 
@@ -2494,7 +2494,7 @@
                 else begin
                     if not UserSetupManagement.TestAllowedPostingDate("Posting Date", TempErrorText) then
                         AddError(TempErrorText);
-                    if IsInvtPosting then begin
+                    if IsInvtPosting() then begin
                         InvtPeriodEndDate := "Posting Date";
                         if not InvtPeriod.IsValidDate(InvtPeriodEndDate) then
                             AddError(

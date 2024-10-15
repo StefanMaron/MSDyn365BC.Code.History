@@ -99,7 +99,7 @@ codeunit 137033 "SCM Item Journal"
 
         // Update Stockout Warning to original value.
         UpdateSalesReceivableSetup(StockoutWarning);
-        ItemJournalLines.Close;
+        ItemJournalLines.Close();
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
@@ -1054,7 +1054,7 @@ codeunit 137033 "SCM Item Journal"
 
         // [THEN] Error "Block Movement must not be All in Bin Location Code="TL",Code="B"." occurs.
         Assert.ExpectedError(
-          StrSubstNo(FIELDERRORErr, Bin.FieldCaption("Block Movement"), Format(Bin."Block Movement"::All), Bin.TableCaption));
+          StrSubstNo(FIELDERRORErr, Bin.FieldCaption("Block Movement"), Format(Bin."Block Movement"::All), Bin.TableCaption()));
     end;
 
     [Test]
@@ -1075,7 +1075,7 @@ codeunit 137033 "SCM Item Journal"
 
         // [THEN] Error "Block Movement must not be Inbound in Bin Location Code="TL",Code="B"." occurs.
         Assert.ExpectedError(
-          StrSubstNo(FIELDERRORErr, Bin.FieldCaption("Block Movement"), Format(Bin."Block Movement"::Inbound), Bin.TableCaption));
+          StrSubstNo(FIELDERRORErr, Bin.FieldCaption("Block Movement"), Format(Bin."Block Movement"::Inbound), Bin.TableCaption()));
     end;
 
     [Test]
@@ -1200,7 +1200,7 @@ codeunit 137033 "SCM Item Journal"
         // [GIVEN] Linked "Reservation Entry" record with Quantity = 100
         MockReservationEntry(ReservationEntry, ItemJournalLine);
         // [GIVEN] Ensure "Item Journal Line"."Reserved Quantity" = 100 after FIND
-        ItemJournalLine.Find;
+        ItemJournalLine.Find();
         ItemJournalLine.TestField("Reserved Quantity");
 
         // [WHEN] Perform COD 13 "Item Jnl.-Post Batch".RUN()
@@ -1241,7 +1241,7 @@ codeunit 137033 "SCM Item Journal"
         Item.SetFilter("No.", '%1|%2', Item."No.", ItemJournalLine."Item No.");
 
         // [WHEN] Run report Calculate Inventory for both Items
-        LibraryInventory.CalculateInventory(ItemJournalLine, Item, WorkDate, false, false);
+        LibraryInventory.CalculateInventory(ItemJournalLine, Item, WorkDate(), false, false);
 
         // [THEN] Item Journal Line is created for Item "I2"
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalLine."Journal Template Name");
@@ -1271,7 +1271,7 @@ codeunit 137033 "SCM Item Journal"
         // [FEATURE] [UT] [UI] [Applies-to Entry]
         // [SCENARIO 338231] "Applies-to Entry" field lookup shows Item Ledger entries with no filter on "Positive" when Item Reclassification Journal line quantity is = 0
         Initialize();
-        ItemLedgerEntry.DeleteAll;
+        ItemLedgerEntry.DeleteAll();
 
         // [GIVEN] Item with inventory stock, e.g. "positive" and Open Item Ledger Entry
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
@@ -1320,7 +1320,7 @@ codeunit 137033 "SCM Item Journal"
         // [FEATURE] [UT] [UI] [Applies-to Entry]
         // [SCENARIO 338231] "Applies-to Entry" field lookup shows Item Ledger entries with "Positive" = TRUE value when Item Reclassification Journal line quantity is positive
         Initialize();
-        ItemLedgerEntry.DeleteAll;
+        ItemLedgerEntry.DeleteAll();
 
         // [GIVEN] Item with inventory stock, e.g. "positive" and Open Item Ledger Entry
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
@@ -1368,7 +1368,7 @@ codeunit 137033 "SCM Item Journal"
         // [FEATURE] [UT] [UI] [Applies-to Entry]
         // [SCENARIO 338231] "Applies-to Entry" field lookup shows Item Ledger entries with "Positive" = FALSE value when Item Reclassification Journal line quantity is negative
         Initialize();
-        ItemLedgerEntry.DeleteAll;
+        ItemLedgerEntry.DeleteAll();
 
         // [GIVEN] Item with inventory stock, e.g. "positive" and Open Item Ledger Entry
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
@@ -2131,7 +2131,7 @@ codeunit 137033 "SCM Item Journal"
     local procedure MockReservationEntry(var ReservationEntry: Record "Reservation Entry"; ItemJournalLine: Record "Item Journal Line")
     begin
         with ReservationEntry do begin
-            Init;
+            Init();
             "Source Type" := DATABASE::"Item Journal Line";
             "Source ID" := ItemJournalLine."Journal Template Name";
             "Source Batch Name" := ItemJournalLine."Journal Batch Name";
@@ -2140,7 +2140,7 @@ codeunit 137033 "SCM Item Journal"
             "Source Prod. Order Line" := 0;
             "Reservation Status" := "Reservation Status"::Reservation;
             Quantity := LibraryRandom.RandDecInRange(1000, 2000, 2);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2150,7 +2150,7 @@ codeunit 137033 "SCM Item Journal"
         repeat
             TempItemJournalLine := ItemJournalLine;
             TempItemJournalLine.Insert();
-        until ItemJournalLine.Next = 0;
+        until ItemJournalLine.Next() = 0;
     end;
 
     local procedure ItemReclassJournalPageLookupAtAppliesToEntry(JournalBatchName: Code[10]; DocumentNo: Code[20]; ItemNo: Code[20])
@@ -2163,7 +2163,7 @@ codeunit 137033 "SCM Item Journal"
         ItemReclassJournal.FILTER.SetFilter("Item No.", ItemNo);
         ItemReclassJournal.First;
         ItemReclassJournal."Applies-to Entry".Lookup;
-        ItemReclassJournal.Close;
+        ItemReclassJournal.Close();
     end;
 
     local procedure SaveAsStandardJournal(var ItemJournalBatch: Record "Item Journal Batch"; var ItemJournalLine: Record "Item Journal Line"; SaveUnitAmount: Boolean; SaveQuantity: Boolean; StandardItemJournalCode: Code[10]) "Code": Code[10]
@@ -2241,7 +2241,7 @@ codeunit 137033 "SCM Item Journal"
         repeat
             ItemJournalLine.Validate(Quantity, ItemJournalLine.Quantity + LibraryRandom.RandInt(5));
             ItemJournalLine.Modify(true);
-        until ItemJournalLine.Next = 0;
+        until ItemJournalLine.Next() = 0;
         CopyItemJournalLinesToTemp(TempItemJournalLine, ItemJournalLine);
         SaveAsStandardJournal(ItemJournalBatch, ItemJournalLine, true, true, StandardItemJournalCode);
     end;
@@ -2273,11 +2273,11 @@ codeunit 137033 "SCM Item Journal"
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        ItemLedgerEntry.Init;
+        ItemLedgerEntry.Init();
         ItemLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(ItemLedgerEntry, ItemLedgerEntry.FieldNo("Entry No."));
         ItemLedgerEntry."Entry Type" := ItemLedgerEntry."Entry Type"::"Negative Adjmt.";
-        ItemLedgerEntry."Document Date" := WorkDate;
-        ItemLedgerEntry."Posting Date" := WorkDate;
+        ItemLedgerEntry."Document Date" := WorkDate();
+        ItemLedgerEntry."Posting Date" := WorkDate();
         ItemLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
         ItemLedgerEntry."Location Code" := LocationCode;
         ItemLedgerEntry."Item No." := ItemNo;
@@ -2291,7 +2291,7 @@ codeunit 137033 "SCM Item Journal"
     local procedure RecalcUnitAmountItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch")
     begin
         SelectItemJournalLine(ItemJournalLine, ItemJournalBatch);
-        ItemJournalLine.RecalculateUnitAmount;
+        ItemJournalLine.RecalculateUnitAmount();
     end;
 
     local procedure UpdateItemJournalUnitCost(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch")
@@ -2309,7 +2309,7 @@ codeunit 137033 "SCM Item Journal"
             ItemJournalLine.Validate(
               "Document No.", LibraryUtility.GenerateRandomCode(ItemJournalLine.FieldNo("Document No."), DATABASE::"Item Journal Line"));
             ItemJournalLine.Modify(true);
-        until ItemJournalLine.Next = 0;
+        until ItemJournalLine.Next() = 0;
     end;
 
     local procedure UpdateInventory(ItemNo: Code[20]; LocationCode: Code[10]; Quantuty: Decimal)
@@ -2336,7 +2336,7 @@ codeunit 137033 "SCM Item Journal"
         repeat
             Assert.AreEqual(TempItemJournalLine.Amount, ItemJournalLine.Amount, ItemJournalAmountErr);
             ItemJournalLine.Next
-        until TempItemJournalLine.Next = 0;
+        until TempItemJournalLine.Next() = 0;
     end;
 
     local procedure VerifyStandardJournalEntry(JournalTemplateName: Code[10]; StandardItemJournalCode: Code[10])
@@ -2359,7 +2359,7 @@ codeunit 137033 "SCM Item Journal"
             ItemLedgerEntry.SetRange("Entry Type", TempItemJournalLine."Entry Type");
             ItemLedgerEntry.FindFirst();
             Assert.AreEqual(TempItemJournalLine.Quantity, Abs(ItemLedgerEntry.Quantity), QuantityErr);
-        until TempItemJournalLine.Next = 0;
+        until TempItemJournalLine.Next() = 0;
     end;
 
     local procedure VerifyItemLedgerEntryForQty(var ItemJournalLine: Record "Item Journal Line")
@@ -2515,7 +2515,7 @@ codeunit 137033 "SCM Item Journal"
         for i := 1 to NoOfIterations do begin
             ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
             ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
-            ItemTrackingLines.Next;
+            ItemTrackingLines.Next();
         end;
     end;
 
@@ -2546,7 +2546,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // Verify auto calc field is reset
         ItemJournalLine.TestField("Reserved Quantity");
-        ItemJournalLine.Find;
+        ItemJournalLine.Find();
         ItemJournalLine.TestField("Reserved Quantity", 0);
     end;
 

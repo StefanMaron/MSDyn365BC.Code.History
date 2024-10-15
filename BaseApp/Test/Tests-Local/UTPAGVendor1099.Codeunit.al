@@ -129,7 +129,7 @@ codeunit 142081 "UT PAG Vendor 1099"
         VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
         VendorLedgerEntry."Document Type" := DocumentType;
         VendorLedgerEntry."Vendor No." := VendorNo;
-        VendorLedgerEntry."Posting Date" := WorkDate;
+        VendorLedgerEntry."Posting Date" := WorkDate();
         VendorLedgerEntry.Open := true;
         VendorLedgerEntry."IRS 1099 Code" := IRS1099Code;
         VendorLedgerEntry."IRS 1099 Amount" := -IRSAmount;

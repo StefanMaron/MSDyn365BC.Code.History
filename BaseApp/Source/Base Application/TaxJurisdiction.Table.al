@@ -83,7 +83,7 @@ table 320 "Tax Jurisdiction"
             begin
                 TaxDetail.SetRange("Tax Jurisdiction Code", Code);
                 TaxDetail.ModifyAll("Calculate Tax on Tax", "Calculate Tax on Tax");
-                Modify;
+                Modify();
             end;
         }
         field(14; "Adjust for Payment Discount"; Boolean)
@@ -135,14 +135,14 @@ table 320 "Tax Jurisdiction"
 
     trigger OnDelete()
     begin
-        DeleteDetailLines;
+        DeleteDetailLines();
     end;
 
     trigger OnInsert()
     begin
         FeatureTelemetry.LogUptake('1000HN3', CanGSTTok, Enum::"Feature Uptake Status"::"Set up");
-        SetDefaults;
-        InsertDetailLines;
+        SetDefaults();
+        InsertDetailLines();
     end;
 
     var
@@ -183,10 +183,10 @@ table 320 "Tax Jurisdiction"
 
     procedure CreateTaxJurisdiction(NewJurisdictionCode: Code[10])
     begin
-        Init;
+        Init();
         Code := NewJurisdictionCode;
         Description := NewJurisdictionCode;
-        SetDefaults;
+        SetDefaults();
         if Insert(true) then;
     end;
 
@@ -220,7 +220,7 @@ table 320 "Tax Jurisdiction"
         TaxDetail."Tax Jurisdiction Code" := Code;
         TaxDetail."Tax Group Code" := '';
         TaxDetail."Tax Type" := TaxDetail."Tax Type"::"Sales and Use Tax";
-        TaxDetail."Effective Date" := WorkDate;
+        TaxDetail."Effective Date" := WorkDate();
         TaxDetail.Insert();
 
         if TaxSetup."Non-Taxable Tax Group Code" <> '' then begin
@@ -228,7 +228,7 @@ table 320 "Tax Jurisdiction"
             TaxDetail."Tax Jurisdiction Code" := Code;
             TaxDetail."Tax Group Code" := TaxSetup."Non-Taxable Tax Group Code";
             TaxDetail."Tax Type" := TaxDetail."Tax Type"::"Sales and Use Tax";
-            TaxDetail."Effective Date" := WorkDate;
+            TaxDetail."Effective Date" := WorkDate();
             TaxDetail.Insert();
         end;
     end;
@@ -252,7 +252,7 @@ table 320 "Tax Jurisdiction"
         TaxJurisdictionTranslation: Record "Tax Jurisdiction Translation";
         Language: Codeunit Language;
     begin
-        if TaxJurisdictionTranslation.Get(Code, Language.GetUserLanguageCode) then
+        if TaxJurisdictionTranslation.Get(Code, Language.GetUserLanguageCode()) then
             exit(CopyStr(TaxJurisdictionTranslation.Description, 1, 50));
 
         exit(CopyStr(Description, 1, 50));

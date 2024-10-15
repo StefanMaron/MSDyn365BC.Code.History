@@ -293,7 +293,7 @@ codeunit 134388 "ERM Sales Tax"
         TaxGroup: Record "Tax Group";
     begin
         LibraryERM.CreateTaxGroup(TaxGroup);
-        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate);
+        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate());
     end;
 
     local procedure CreateTaxJurisditionWithTaxArea(var TaxJurisdiction: Record "Tax Jurisdiction"; var TaxArea: Record "Tax Area")
@@ -309,7 +309,7 @@ codeunit 134388 "ERM Sales Tax"
     begin
         VATEntry.Init();
         VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FieldNo("Entry No."));
-        VATEntry."Posting Date" := WorkDate;
+        VATEntry."Posting Date" := WorkDate();
         VATEntry."Tax Type" := VATEntry."Tax Type"::"Sales Tax Only";
         VATEntry.Type := VATEntry.Type::Sale;
         VATEntry."Tax Group Code" := TaxDetail."Tax Group Code";

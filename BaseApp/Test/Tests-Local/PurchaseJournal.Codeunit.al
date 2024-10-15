@@ -58,7 +58,7 @@ codeunit 144014 "Purchase Journal"
         CreateGeneralJournalLine(GenJournalLine, GenJournalBatch);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         FindGeneralJournalBatch(GenJournalBatch, GenJournalBatch."Journal Template Name", GenJournalBatch."Bal. Account No.");
-        DocumentNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate, false);  // FALSE for Modify Series.
+        DocumentNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate(), false);  // FALSE for Modify Series.
 
         // Exercise: Create Purchase Journal.
         LibraryERM.CreateGeneralJnlLine(

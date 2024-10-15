@@ -15,7 +15,7 @@ report 99000766 "Prod. Order - Picking List"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ItemTableCaptionFilter; TableCaption + ': ' + ItemFilter)
@@ -117,8 +117,8 @@ report 99000766 "Prod. Order - Picking List"
 
     trigger OnPreReport()
     begin
-        ItemFilter := Item.GetFilters;
-        ComponentFilter := "Prod. Order Component".GetFilters;
+        ItemFilter := Item.GetFilters();
+        ComponentFilter := "Prod. Order Component".GetFilters();
     end;
 
     var

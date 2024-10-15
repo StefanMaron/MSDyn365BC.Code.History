@@ -15,7 +15,7 @@ page 5770 "Warehouse Put-away"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
@@ -35,41 +35,41 @@ page 5770 "Warehouse Put-away"
                     Lookup = false;
                     ToolTip = 'Specifies the location where the warehouse activity takes place. ';
                 }
-                field("Breakbulk Filter"; "Breakbulk Filter")
+                field("Breakbulk Filter"; Rec."Breakbulk Filter")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies that the intermediate Take and Place lines will not show as put-away, pick, or movement lines, when the quantity in the larger unit of measure is being put-away, picked or moved completely.';
 
                     trigger OnValidate()
                     begin
-                        BreakbulkFilterOnAfterValidate;
+                        BreakbulkFilterOnAfterValidate();
                     end;
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
-                field("Assignment Date"; "Assignment Date")
+                field("Assignment Date"; Rec."Assignment Date")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the date when the user was assigned the activity.';
                 }
-                field("Assignment Time"; "Assignment Time")
+                field("Assignment Time"; Rec."Assignment Time")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the time when the user was assigned the activity.';
                 }
-                field("Sorting Method"; "Sorting Method")
+                field("Sorting Method"; Rec."Sorting Method")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the method by which the lines are sorted on the warehouse header, such as Item or Document.';
 
                     trigger OnValidate()
                     begin
-                        SortingMethodOnAfterValidate;
+                        SortingMethodOnAfterValidate();
                     end;
                 }
             }
@@ -155,8 +155,6 @@ page 5770 "Warehouse Put-away"
                     ApplicationArea = Warehouse;
                     Caption = 'Registered Put-aways';
                     Image = RegisteredDocs;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Registered Whse. Activity List";
                     RunPageLink = Type = FIELD(Type),
                                   "Whse. Activity No." = FIELD("No.");
@@ -180,7 +178,7 @@ page 5770 "Warehouse Put-away"
 
                     trigger OnAction()
                     begin
-                        AutofillQtyToHandle;
+                        AutofillQtyToHandle();
                     end;
                 }
                 action("Delete Qty. to Handle")
@@ -192,7 +190,7 @@ page 5770 "Warehouse Put-away"
 
                     trigger OnAction()
                     begin
-                        DeleteQtyToHandle;
+                        DeleteQtyToHandle();
                     end;
                 }
                 separator(Action23)
@@ -208,15 +206,12 @@ page 5770 "Warehouse Put-away"
                     ApplicationArea = Warehouse;
                     Caption = '&Register Put-away';
                     Image = RegisterPutAway;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Record that the items have been put away.';
 
                     trigger OnAction()
                     begin
-                        RegisterPutAwayYesNo;
+                        RegisterPutAwayYesNo();
                     end;
                 }
             }
@@ -226,14 +221,41 @@ page 5770 "Warehouse Put-away"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
                 begin
                     WhseActPrint.PrintPutAwayHeader(Rec);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("&Register Put-away_Promoted"; "&Register Put-away")
+                {
+                }
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+                group("Category_Qty. to Handle")
+                {
+                    Caption = 'Qty. to Handle';
+                    ShowAs = SplitButton;
+
+                    actionref("Autofill Qty. to Handle_Promoted"; "Autofill Qty. to Handle")
+                    {
+                    }
+                    actionref("Delete Qty. to Handle_Promoted"; "Delete Qty. to Handle")
+                    {
+                    }
+                }
+                actionref("Registered Put-aways_Promoted"; "Registered Put-aways")
+                {
+                }
             }
         }
     }
@@ -252,7 +274,7 @@ page 5770 "Warehouse Put-away"
     var
         WMSManagement: Codeunit "WMS Management";
     begin
-        ErrorIfUserIsNotWhseEmployee;
+        ErrorIfUserIsNotWhseEmployee();
         FilterGroup(2); // set group of filters user cannot change
         SetFilter("Location Code", WMSManagement.GetWarehouseEmployeeLocationFilter(UserId));
         FilterGroup(0); // set filter group back to standard
@@ -264,17 +286,17 @@ page 5770 "Warehouse Put-away"
 
     local procedure AutofillQtyToHandle()
     begin
-        CurrPage.WhseActivityLines.PAGE.AutofillQtyToHandle;
+        CurrPage.WhseActivityLines.PAGE.AutofillQtyToHandle();
     end;
 
     local procedure DeleteQtyToHandle()
     begin
-        CurrPage.WhseActivityLines.PAGE.DeleteQtyToHandle;
+        CurrPage.WhseActivityLines.PAGE.DeleteQtyToHandle();
     end;
 
     local procedure RegisterPutAwayYesNo()
     begin
-        CurrPage.WhseActivityLines.PAGE.RegisterPutAwayYesNo;
+        CurrPage.WhseActivityLines.PAGE.RegisterPutAwayYesNo();
     end;
 
     local procedure SortingMethodOnAfterValidate()

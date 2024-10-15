@@ -180,7 +180,7 @@ codeunit 142087 "ERM Nec Report"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         LibraryVariableStorage.Enqueue(VendorNo);
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         SuggestVendorPaymentUsingPageMsg(GenJournalLine);
         FindAndPostGenJourLineAfterSuggestVendorPayment(GenJournalLine);
         LibraryVariableStorage.Enqueue(VendorNo);

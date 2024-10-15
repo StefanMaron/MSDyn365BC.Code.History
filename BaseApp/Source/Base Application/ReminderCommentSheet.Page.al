@@ -42,7 +42,7 @@ page 442 "Reminder Comment Sheet"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetUpNewLine;
+        SetUpNewLine();
     end;
 
     var

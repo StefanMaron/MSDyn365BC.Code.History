@@ -215,7 +215,7 @@ codeunit 144010 "Service Documents With Tax"
     local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Option; CustomerNo: Code[20]; TaxAreaCode: Code[20])
     begin
         LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, CustomerNo);
-        ServiceHeader.Validate("Posting Date", WorkDate);
+        ServiceHeader.Validate("Posting Date", WorkDate());
         ServiceHeader.Validate("Tax Area Code", TaxAreaCode);
         ServiceHeader.Validate("Tax Liable", true);
         ServiceHeader.Modify(true);
@@ -252,7 +252,7 @@ codeunit 144010 "Service Documents With Tax"
         LibraryERM.CreateTaxGroup(TaxGroup);
         CreateTaxArea(TaxArea, false);
         LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
-        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, TaxGroup.Code, TaxDetail."Tax Type"::"Sales and Use Tax", WorkDate);
+        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, TaxGroup.Code, TaxDetail."Tax Type"::"Sales and Use Tax", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", LibraryRandom.RandDec(10, 2));
         TaxDetail.Validate("Tax Above Maximum", TaxDetail."Tax Below Maximum" + LibraryRandom.RandDec(10, 2));
         TaxDetail.Modify(true);
@@ -278,7 +278,7 @@ codeunit 144010 "Service Documents With Tax"
         Currency: Record Currency;
     begin
         LibraryERM.CreateCurrency(Currency);
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate());
         CurrencyExchangeRate.Validate("Exchange Rate Amount", LibraryRandom.RandDec(10, 2));
         CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", LibraryRandom.RandDec(10, 2));

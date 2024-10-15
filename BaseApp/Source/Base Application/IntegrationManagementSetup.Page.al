@@ -73,9 +73,6 @@ page 5515 "Integration Management Setup"
                 ApplicationArea = All;
                 Caption = 'Schedule Job';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Schedules generation of Integration Records.';
 
                 trigger OnAction()
@@ -104,9 +101,6 @@ page 5515 "Integration Management Setup"
                 ApplicationArea = All;
                 Caption = 'Reset Setup';
                 Image = Restore;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
 
                 ToolTip = 'Resets the data on this page to default.';
 
@@ -128,9 +122,6 @@ page 5515 "Integration Management Setup"
                 ApplicationArea = All;
                 Caption = 'Enable all';
                 Image = EnableAllBreakpoints;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
 
                 ToolTip = 'Enables all tables.';
 
@@ -145,9 +136,6 @@ page 5515 "Integration Management Setup"
                 ApplicationArea = All;
                 Caption = 'Disable all';
                 Image = DisableAllBreakpoints;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
 
                 ToolTip = 'Disables all tables.';
 
@@ -155,6 +143,26 @@ page 5515 "Integration Management Setup"
                 begin
                     Rec.ModifyAll(Enabled, false);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(SetupIntegrationManagement_Promoted; SetupIntegrationManagement)
+                {
+                }
+                actionref(ResetIntegrationTables_Promoted; ResetIntegrationTables)
+                {
+                }
+                actionref(EnableAll_Promoted; EnableAll)
+                {
+                }
+                actionref(DisableAll_Promoted; DisableAll)
+                {
+                }
             }
         }
     }

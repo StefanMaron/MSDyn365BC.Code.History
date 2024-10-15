@@ -17,7 +17,7 @@ codeunit 7714 "ADCS WS"
         XMLDOMManagement.LoadXMLDocumentFromText(Document, InputXmlDocument);
         ADCSManagement.ProcessDocument(InputXmlDocument);
         ADCSManagement.GetOutboundDocument(OutputXmlDocument);
-        Document := OutputXmlDocument.OuterXml;
+        Document := OutputXmlDocument.OuterXml();
     end;
 }
 

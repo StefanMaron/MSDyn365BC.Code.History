@@ -375,7 +375,7 @@ codeunit 144011 "Prepayment Sales"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         Clear(NoSeriesManagement);
-        exit(NoSeriesManagement.GetNextNo(NoSeries, WorkDate, false));  // Required for Prepayment Invoice and Prepayment Credit Memo.
+        exit(NoSeriesManagement.GetNextNo(NoSeries, WorkDate(), false));  // Required for Prepayment Invoice and Prepayment Credit Memo.
     end;
 
     local procedure PostPrepaymentInvoiceAndReleaseSalesOrder(var SalesHeader: Record "Sales Header")
@@ -413,7 +413,7 @@ codeunit 144011 "Prepayment Sales"
     local procedure CreateTaxGroupWithDetail(var TaxGroup: Record "Tax Group"; var TaxDetail: Record "Tax Detail"; TaxJurisdictionCode: Code[10])
     begin
         LibraryERM.CreateTaxGroup(TaxGroup);
-        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate);
+        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate());
     end;
 
     local procedure CreateTaxAreaWithDetail(var TaxGroup: Record "Tax Group"): Code[20]

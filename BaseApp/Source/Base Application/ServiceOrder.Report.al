@@ -164,7 +164,7 @@ report 5900 "Service Order"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not DimSetEntry1.Find('-') then
+                                if not DimSetEntry1.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if not Continue then
@@ -175,8 +175,7 @@ report 5900 "Service Order"
                             repeat
                                 OldDimText := DimText;
                                 if DimText = '' then
-                                    DimText := StrSubstNo(
-                                        '%1 %2', DimSetEntry1."Dimension Code", DimSetEntry1."Dimension Value Code")
+                                    DimText := StrSubstNo('%1 %2', DimSetEntry1."Dimension Code", DimSetEntry1."Dimension Value Code")
                                 else
                                     DimText :=
                                       StrSubstNo(
@@ -479,7 +478,7 @@ report 5900 "Service Order"
                             trigger OnAfterGetRecord()
                             begin
                                 if Number = 1 then begin
-                                    if not DimSetEntry2.Find('-') then
+                                    if not DimSetEntry2.FindSet() then
                                         CurrReport.Break();
                                 end else
                                     if not Continue then
@@ -490,8 +489,7 @@ report 5900 "Service Order"
                                 repeat
                                     OldDimText := DimText;
                                     if DimText = '' then
-                                        DimText := StrSubstNo(
-                                            '%1 %2', DimSetEntry2."Dimension Code", DimSetEntry2."Dimension Value Code")
+                                        DimText := StrSubstNo('%1 %2', DimSetEntry2."Dimension Code", DimSetEntry2."Dimension Value Code")
                                     else
                                         DimText :=
                                           StrSubstNo(
@@ -527,12 +525,12 @@ report 5900 "Service Order"
                                     ExchangeFactor := 1
                                 else
                                     ExchangeFactor := "Service Header"."Currency Factor";
-                                SalesTaxCalculate.StartSalesTaxCalculation;
+                                SalesTaxCalculate.StartSalesTaxCalculation();
                                 SalesTaxCalculate.AddServiceLine("Service Line");
                                 SalesTaxCalculate.EndSalesTaxCalculation("Posting Date");
                                 SalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxAmountLine);
                                 OnAfterCalculateSalesTax("Service Header", "Service Line", TempSalesTaxAmountLine);
-                                GrossAmt := Amt + TempSalesTaxAmountLine.GetTotalTaxAmountFCY;
+                                GrossAmt := Amt + TempSalesTaxAmountLine.GetTotalTaxAmountFCY();
                             end else begin
                                 if "Quantity Invoiced" = 0 then
                                     CurrReport.Skip();
@@ -541,6 +539,7 @@ report 5900 "Service Order"
                                 Amt := Round((Qty * "Unit Price") * (1 - "Line Discount %" / 100));
                                 GrossAmt := (1 + "VAT %" / 100) * Amt;
                             end;
+
                             TotalAmt += Amt;
                             TotalGrossAmt += GrossAmt;
                         end;
@@ -593,7 +592,7 @@ report 5900 "Service Order"
                 trigger OnAfterGetRecord()
                 begin
                     if Number > 1 then begin
-                        CopyText := FormatDocument.GetCOPYText;
+                        CopyText := FormatDocument.GetCOPYText();
                         OutputNo += 1;
                     end;
                 end;
@@ -605,6 +604,7 @@ report 5900 "Service Order"
                         NoOfLoops := 1;
                     CopyText := '';
                     SetRange(Number, 1, NoOfLoops);
+
                     OutputNo := 1;
                 end;
             }
@@ -687,8 +687,6 @@ report 5900 "Service Order"
     end;
 
     var
-        Text001: Label 'Service Order %1';
-        Text002: Label 'Page %1';
         CompanyInfo: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";
@@ -717,6 +715,9 @@ report 5900 "Service Order"
         GrossAmt: Decimal;
         TotalAmt: Decimal;
         TotalGrossAmt: Decimal;
+
+        Text001: Label 'Service Order %1';
+        Text002: Label 'Page %1';
         Contract_No_CaptionLbl: Label 'Contract No.';
         Service_Header___Order_Date_CaptionLbl: Label 'Order Date';
         Invoice_toCaptionLbl: Label 'Invoice to';

@@ -24,7 +24,7 @@ table 5612 "FA Depreciation Book"
 
             trigger OnValidate()
             begin
-                ModifyDeprFields;
+                ModifyDeprFields();
                 case "Depreciation Method" of
                     "Depreciation Method"::"Straight-Line":
                         begin
@@ -74,7 +74,7 @@ table 5612 "FA Depreciation Book"
                             "Use DB% First Fiscal Year" := false;
                         end;
                 end;
-                TestHalfYearConventionMethod;
+                TestHalfYearConventionMethod();
             end;
         }
         field(4; "Depreciation Starting Date"; Date)
@@ -84,8 +84,8 @@ table 5612 "FA Depreciation Book"
 
             trigger OnValidate()
             begin
-                ModifyDeprFields;
-                CalcDeprPeriod;
+                ModifyDeprFields();
+                CalcDeprPeriod();
             end;
         }
         field(5; "Straight-Line %"; Decimal)
@@ -96,9 +96,9 @@ table 5612 "FA Depreciation Book"
 
             trigger OnValidate()
             begin
-                ModifyDeprFields;
+                ModifyDeprFields();
                 if ("Straight-Line %" <> 0) and not LinearMethod() then
-                    DeprMethodError;
+                    DeprMethodError();
                 AdjustLinearMethod("No. of Depreciation Years", "Fixed Depr. Amount");
             end;
         }
@@ -130,7 +130,7 @@ table 5612 "FA Depreciation Book"
 
                 "No. of Depreciation Months" := Round("No. of Depreciation Years" * 12, 0.00000001);
                 AdjustLinearMethod("Straight-Line %", "Fixed Depr. Amount");
-                "Depreciation Ending Date" := CalcEndingDate;
+                "Depreciation Ending Date" := CalcEndingDate();
             end;
         }
         field(7; "No. of Depreciation Months"; Decimal)
@@ -152,13 +152,13 @@ table 5612 "FA Depreciation Book"
                         Error(FiscalYear365Err);
 
                 TestField("Depreciation Starting Date");
-                ModifyDeprFields;
-                if ("No. of Depreciation Months" <> 0) and not LinearMethod then
-                    DeprMethodError;
+                ModifyDeprFields();
+                if ("No. of Depreciation Months" <> 0) and not LinearMethod() then
+                    DeprMethodError();
 
                 "No. of Depreciation Years" := Round("No. of Depreciation Months" / 12, 0.00000001);
                 AdjustLinearMethod("Straight-Line %", "Fixed Depr. Amount");
-                "Depreciation Ending Date" := CalcEndingDate;
+                "Depreciation Ending Date" := CalcEndingDate();
             end;
         }
         field(8; "Fixed Depr. Amount"; Decimal)
@@ -169,9 +169,9 @@ table 5612 "FA Depreciation Book"
 
             trigger OnValidate()
             begin
-                ModifyDeprFields;
-                if ("Fixed Depr. Amount" <> 0) and not LinearMethod then
-                    DeprMethodError;
+                ModifyDeprFields();
+                if ("Fixed Depr. Amount" <> 0) and not LinearMethod() then
+                    DeprMethodError();
                 AdjustLinearMethod("Straight-Line %", "No. of Depreciation Years");
             end;
         }
@@ -186,9 +186,9 @@ table 5612 "FA Depreciation Book"
             begin
                 if "Declining-Balance %" >= 100 then
                     FieldError("Declining-Balance %", Text001);
-                ModifyDeprFields;
-                if ("Declining-Balance %" <> 0) and not DecliningMethod then
-                    DeprMethodError;
+                ModifyDeprFields();
+                if ("Declining-Balance %" <> 0) and not DecliningMethod() then
+                    DeprMethodError();
             end;
         }
         field(10; "Depreciation Table Code"; Code[10])
@@ -198,9 +198,9 @@ table 5612 "FA Depreciation Book"
 
             trigger OnValidate()
             begin
-                ModifyDeprFields;
-                if ("Depreciation Table Code" <> '') and not UserDefinedMethod then
-                    DeprMethodError;
+                ModifyDeprFields();
+                if ("Depreciation Table Code" <> '') and not UserDefinedMethod() then
+                    DeprMethodError();
             end;
         }
         field(11; "Final Rounding Amount"; Decimal)
@@ -211,7 +211,7 @@ table 5612 "FA Depreciation Book"
 
             trigger OnValidate()
             begin
-                ModifyDeprFields;
+                ModifyDeprFields();
             end;
         }
         field(12; "Ending Book Value"; Decimal)
@@ -222,7 +222,7 @@ table 5612 "FA Depreciation Book"
 
             trigger OnValidate()
             begin
-                ModifyDeprFields;
+                ModifyDeprFields();
             end;
         }
         field(13; "FA Posting Group"; Code[20])
@@ -232,7 +232,7 @@ table 5612 "FA Depreciation Book"
 
             trigger OnValidate()
             begin
-                ModifyDeprFields;
+                ModifyDeprFields();
             end;
         }
         field(14; "Depreciation Ending Date"; Date)
@@ -252,7 +252,7 @@ table 5612 "FA Depreciation Book"
                 ModifyDeprFields();
                 OnBeforeCalculateDepreEndingDate(Rec, "Depreciation Ending Date", IsHandled);
                 if not IsHandled then
-                    CalcDeprPeriod;
+                    CalcDeprPeriod();
             end;
         }
         field(15; "Acquisition Cost"; Decimal)
@@ -477,7 +477,7 @@ table 5612 "FA Depreciation Book"
 
             trigger OnValidate()
             begin
-                ModifyDeprFields;
+                ModifyDeprFields();
             end;
         }
         field(41; "Fixed Depr. Amount below Zero"; Decimal)
@@ -489,7 +489,7 @@ table 5612 "FA Depreciation Book"
 
             trigger OnValidate()
             begin
-                ModifyDeprFields;
+                ModifyDeprFields();
                 "Depr. below Zero %" := 0;
                 if "Fixed Depr. Amount below Zero" > 0 then begin
                     DeprBook.Get("Depreciation Book Code");
@@ -509,9 +509,9 @@ table 5612 "FA Depreciation Book"
 
             trigger OnValidate()
             begin
-                ModifyDeprFields;
-                if ("First User-Defined Depr. Date" <> 0D) and not UserDefinedMethod then
-                    DeprMethodError;
+                ModifyDeprFields();
+                if ("First User-Defined Depr. Date" <> 0D) and not UserDefinedMethod() then
+                    DeprMethodError();
             end;
         }
         field(44; "Use FA Ledger Check"; Boolean)
@@ -527,7 +527,7 @@ table 5612 "FA Depreciation Book"
                     TestField("Fixed Depr. Amount below Zero", 0);
                     TestField("Depr. below Zero %", 0);
                 end;
-                ModifyDeprFields;
+                ModifyDeprFields();
             end;
         }
         field(45; "Last Maintenance Date"; Date)
@@ -544,7 +544,7 @@ table 5612 "FA Depreciation Book"
 
             trigger OnValidate()
             begin
-                ModifyDeprFields;
+                ModifyDeprFields();
                 "Fixed Depr. Amount below Zero" := 0;
                 if "Depr. below Zero %" > 0 then begin
                     DeprBook.Get("Depreciation Book Code");
@@ -570,7 +570,7 @@ table 5612 "FA Depreciation Book"
 
             trigger OnValidate()
             begin
-                ModifyDeprFields;
+                ModifyDeprFields();
             end;
         }
         field(51; "Depr. Ending Date (Custom 1)"; Date)
@@ -579,7 +579,7 @@ table 5612 "FA Depreciation Book"
 
             trigger OnValidate()
             begin
-                ModifyDeprFields;
+                ModifyDeprFields();
             end;
         }
         field(52; "Accum. Depr. % (Custom 1)"; Decimal)
@@ -592,7 +592,7 @@ table 5612 "FA Depreciation Book"
 
             trigger OnValidate()
             begin
-                ModifyDeprFields;
+                ModifyDeprFields();
             end;
         }
         field(53; "Depr. This Year % (Custom 1)"; Decimal)
@@ -611,7 +611,7 @@ table 5612 "FA Depreciation Book"
 
             trigger OnValidate()
             begin
-                ModifyDeprFields;
+                ModifyDeprFields();
             end;
         }
         field(55; Description; Text[100])
@@ -644,8 +644,8 @@ table 5612 "FA Depreciation Book"
 
             trigger OnValidate()
             begin
-                ModifyDeprFields;
-                TestHalfYearConventionMethod;
+                ModifyDeprFields();
+                TestHalfYearConventionMethod();
             end;
         }
         field(60; "Use DB% First Fiscal Year"; Boolean)
@@ -658,7 +658,7 @@ table 5612 "FA Depreciation Book"
                     if not (("Depreciation Method" = "Depreciation Method"::"DB1/SL") or
                             ("Depreciation Method" = "Depreciation Method"::"DB2/SL"))
                     then
-                        DeprMethodError;
+                        DeprMethodError();
             end;
         }
         field(61; "Temp. Ending Date"; Date)
@@ -676,7 +676,7 @@ table 5612 "FA Depreciation Book"
 
             trigger OnValidate()
             begin
-                ModifyDeprFields;
+                ModifyDeprFields();
             end;
         }
         field(70; "Default FA Depreciation Book"; Boolean)
@@ -780,14 +780,15 @@ table 5612 "FA Depreciation Book"
     end;
 
     var
+        FAMoveEntries: Codeunit "FA MoveEntries";
+        FADateCalc: Codeunit "FA Date Calculation";
+        DepreciationCalc: Codeunit "Depreciation Calculation";
+
         Text000: Label 'You cannot rename a %1.';
         Text001: Label 'must not be 100';
         Text002: Label '%1 is later than %2.';
         Text003: Label 'must not be %1';
         Text004: Label 'untitled';
-        FAMoveEntries: Codeunit "FA MoveEntries";
-        FADateCalc: Codeunit "FA Date Calculation";
-        DepreciationCalc: Codeunit "Depreciation Calculation";
         OnlyOneDefaultDeprBookErr: Label 'Only one fixed asset depreciation book can be marked as the default book';
         FiscalYear365Err: Label 'An ending date for depreciation cannot be calculated automatically when the Fiscal Year 365 Days option is chosen. You must manually enter the ending date.';
 
@@ -956,7 +957,7 @@ table 5612 "FA Depreciation Book"
         FALedgEntry: Record "FA Ledger Entry";
     begin
         if "Disposal Date" > 0D then
-            ShowBookValueAfterDisposal
+            ShowBookValueAfterDisposal()
         else begin
             SetBookValueFiltersOnFALedgerEntry(FALedgEntry);
             PAGE.Run(0, FALedgEntry);
@@ -1003,7 +1004,7 @@ table 5612 "FA Depreciation Book"
         FASetup: Record "FA Setup";
     begin
         FASetup.Get();
-        exit(FADepreciationBook.Get(FANo, FASetup."Default Depr. Book") and FADepreciationBook.RecIsReadyForAcquisition);
+        exit(FADepreciationBook.Get(FANo, FASetup."Default Depr. Book") and FADepreciationBook.RecIsReadyForAcquisition());
     end;
 
     procedure RecIsReadyForAcquisition(): Boolean

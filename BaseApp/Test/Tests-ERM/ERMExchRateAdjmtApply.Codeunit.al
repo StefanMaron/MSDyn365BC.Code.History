@@ -45,12 +45,12 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         ClearGeneralJournalLine(GenJournalBatch);
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer,
-          CreateCustomer, CurrencyCode, LibraryRandom.RandDec(100, 2), WorkDate - 1);
+          CreateCustomer, CurrencyCode, LibraryRandom.RandDec(100, 2), WorkDate() - 1);
         // [GIVEN] Posted Payment in Currency "Y" on another date with higher exchange rate
-        CreateCurrencyExchRate(CurrencyCode, WorkDate, 1.1);
+        CreateCurrencyExchRate(CurrencyCode, WorkDate(), 1.1);
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer,
-          GenJournalLine."Account No.", CurrencyCode, -GenJournalLine.Amount, WorkDate);
+          GenJournalLine."Account No.", CurrencyCode, -GenJournalLine.Amount, WorkDate());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [WHEN] Payment is applied to Invoice
@@ -84,12 +84,12 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         ClearGeneralJournalLine(GenJournalBatch);
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor,
-          CreateVendor, CurrencyCode, -LibraryRandom.RandDec(100, 2), WorkDate - 1);
+          CreateVendor, CurrencyCode, -LibraryRandom.RandDec(100, 2), WorkDate() - 1);
         // [GIVEN] Posted Payment in Currency "Y" on another date with higher exchange rate
-        CreateCurrencyExchRate(CurrencyCode, WorkDate, 1.1);
+        CreateCurrencyExchRate(CurrencyCode, WorkDate(), 1.1);
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor,
-          GenJournalLine."Account No.", CurrencyCode, -GenJournalLine.Amount, WorkDate);
+          GenJournalLine."Account No.", CurrencyCode, -GenJournalLine.Amount, WorkDate());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [WHEN] Payment is applied to Invoice
@@ -102,7 +102,6 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     end;
 
     [Test]
-    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure ApplyAdjustExchRateHigherCust()
     var
@@ -115,7 +114,6 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     end;
 
     [Test]
-    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure ApplyAdjustExchRateLowerCust()
     var
@@ -128,7 +126,6 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     end;
 
     [Test]
-    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure ApplyAdjustExchRateHigherVend()
     var
@@ -141,7 +138,6 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     end;
 
     [Test]
-    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure ApplydjustExchRateLowerVend()
     var
@@ -168,10 +164,10 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         ClearGeneralJournalLine(GenJournalBatch);
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer,
-          CreateCustomer, '', LibraryRandom.RandDec(100, 2), WorkDate);
+          CreateCustomer, '', LibraryRandom.RandDec(100, 2), WorkDate());
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer,
-          GenJournalLine."Account No.", '', -GenJournalLine.Amount, WorkDate);
+          GenJournalLine."Account No.", '', -GenJournalLine.Amount, WorkDate());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Exercise: Apply and Post Invoice to Payment from Customer Ledger Entry.
@@ -184,7 +180,6 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     end;
 
     [Test]
-    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure RealizedLossDetailedLedgerVend()
     var
@@ -196,7 +191,6 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     end;
 
     [Test]
-    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure RealizedGainDetailedLedgerVend()
     var
@@ -208,7 +202,6 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     end;
 
     [Test]
-    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure RealizedLossDetailedLedgerCust()
     var
@@ -220,7 +213,6 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     end;
 
     [Test]
-    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure RealizedGainDetailedLedgerCust()
     var
@@ -232,7 +224,6 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure VendorUnrealizedLossInvoiceDebitCredit()
     var
@@ -250,10 +241,10 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         Currency.Get(CreateCurrencyWithExchRate(-LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Vendor, CreateVendorWithCurrency(Currency.Code), WorkDate - 1, -1, false);
+          GenJournalLine."Account Type"::Vendor, CreateVendorWithCurrency(Currency.Code), WorkDate() - 1, -1, false);
 
         // [WHEN] Run Adjust Exch. Rate on workdate
-        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate, WorkDate);
+        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate(), WorkDate());
 
         // [THEN] Unrealized Loss entry is posted with Debit Amount = 0 and Credit Amount = 100
         FindVendorLedgerEntry(
@@ -264,7 +255,6 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure VendorUnrealizedLossPaymentDebitCredit()
     var
@@ -282,10 +272,10 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         Currency.Get(CreateCurrencyWithExchRate(LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Vendor, CreateVendorWithCurrency(Currency.Code), WorkDate - 1, 1, false);
+          GenJournalLine."Account Type"::Vendor, CreateVendorWithCurrency(Currency.Code), WorkDate() - 1, 1, false);
 
         // [WHEN] Run Adjust Exch. Rate on workdate
-        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate, WorkDate);
+        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate(), WorkDate());
 
         // [THEN] Unrealized Loss entry is posted with Debit Amount = 0 and Credit Amount = 100
         FindVendorLedgerEntry(
@@ -296,7 +286,6 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure VendorUnrealizedGainInvoiceDebitCredit()
     var
@@ -314,10 +303,10 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         Currency.Get(CreateCurrencyWithExchRate(LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Vendor, CreateVendorWithCurrency(Currency.Code), WorkDate - 1, -1, false);
+          GenJournalLine."Account Type"::Vendor, CreateVendorWithCurrency(Currency.Code), WorkDate() - 1, -1, false);
 
         // [WHEN] Run Adjust Exch. Rate on workdate
-        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate, WorkDate);
+        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate(), WorkDate());
 
         // [THEN] Unrealized Gain entry is posted with Debit Amount = 100 and Credit Amount = 0
         FindVendorLedgerEntry(
@@ -328,7 +317,6 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure VendorUnrealizedGainPaymentDebitCredit()
     var
@@ -346,10 +334,10 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         Currency.Get(CreateCurrencyWithExchRate(-LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Vendor, CreateVendorWithCurrency(Currency.Code), WorkDate - 1, 1, false);
+          GenJournalLine."Account Type"::Vendor, CreateVendorWithCurrency(Currency.Code), WorkDate() - 1, 1, false);
 
         // [WHEN] Run Adjust Exch. Rate on workdate
-        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate, WorkDate);
+        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate(), WorkDate());
 
         // [THEN] Unrealized Gain entry is posted with Debit Amount = 100 and Credit Amount = 0
         FindVendorLedgerEntry(
@@ -360,7 +348,6 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure CustomerUnrealizedLossInvoiceDebitCredit()
     var
@@ -378,10 +365,10 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         Currency.Get(CreateCurrencyWithExchRate(LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Customer, CreateCustomerWithCurrency(Currency.Code), WorkDate - 1, 1, false);
+          GenJournalLine."Account Type"::Customer, CreateCustomerWithCurrency(Currency.Code), WorkDate() - 1, 1, false);
 
         // [WHEN] Run Adjust Exch. Rate on workdate
-        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate, WorkDate);
+        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate(), WorkDate());
 
         // [THEN] Unrealized Loss entry is posted with Debit Amount = 0 and Credit Amount = 100
         FindCustomerLedgerEntry(
@@ -392,7 +379,6 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure CustomerUnrealizedLossPaymentDebitCredit()
     var
@@ -410,10 +396,10 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         Currency.Get(CreateCurrencyWithExchRate(-LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Customer, CreateCustomerWithCurrency(Currency.Code), WorkDate - 1, -1, false);
+          GenJournalLine."Account Type"::Customer, CreateCustomerWithCurrency(Currency.Code), WorkDate() - 1, -1, false);
 
         // [WHEN] Run Adjust Exch. Rate on workdate
-        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate, WorkDate);
+        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate(), WorkDate());
 
         // [THEN] Unrealized Loss entry is posted with Debit Amount = 0 and Credit Amount = 100
         FindCustomerLedgerEntry(
@@ -424,7 +410,6 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure CustomerUnrealizedGainInvoiceDebitCredit()
     var
@@ -442,10 +427,10 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         Currency.Get(CreateCurrencyWithExchRate(-LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Customer, CreateCustomerWithCurrency(Currency.Code), WorkDate - 1, 1, false);
+          GenJournalLine."Account Type"::Customer, CreateCustomerWithCurrency(Currency.Code), WorkDate() - 1, 1, false);
 
         // [WHEN] Run Adjust Exch. Rate on workdate
-        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate, WorkDate);
+        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate(), WorkDate());
 
         // [THEN] Unrealized Gain entry is posted with Debit Amount = 100 and Credit Amount = 0
         FindCustomerLedgerEntry(
@@ -456,7 +441,6 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure CustomerUnrealizedGainPaymentDebitCredit()
     var
@@ -474,10 +458,10 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         Currency.Get(CreateCurrencyWithExchRate(LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Customer, CreateCustomerWithCurrency(Currency.Code), WorkDate - 1, -1, false);
+          GenJournalLine."Account Type"::Customer, CreateCustomerWithCurrency(Currency.Code), WorkDate() - 1, -1, false);
 
         // [WHEN] Run Adjust Exch. Rate on workdate
-        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate, WorkDate);
+        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate(), WorkDate());
 
         // [THEN] Unrealized Gain entry is posted with Debit Amount = 100 and Credit Amount = 0
         FindCustomerLedgerEntry(
@@ -488,7 +472,6 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure VendorUnrealizedLossInvoiceDebitCreditCorrection()
     var
@@ -506,10 +489,10 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         Currency.Get(CreateCurrencyWithExchRate(-LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Vendor, CreateVendorWithCurrency(Currency.Code), WorkDate - 1, -1, true);
+          GenJournalLine."Account Type"::Vendor, CreateVendorWithCurrency(Currency.Code), WorkDate() - 1, -1, true);
 
         // [WHEN] Run Adjust Exch. Rate on workdate
-        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate, WorkDate);
+        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate(), WorkDate());
 
         // [THEN] Unrealized Loss entry is posted with Debit Amount = -100 and Credit Amount = 0
         FindVendorLedgerEntry(
@@ -520,7 +503,6 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure VendorUnrealizedLossPaymentDebitCreditCorrection()
     var
@@ -538,10 +520,10 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         Currency.Get(CreateCurrencyWithExchRate(LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Vendor, CreateVendorWithCurrency(Currency.Code), WorkDate - 1, 1, true);
+          GenJournalLine."Account Type"::Vendor, CreateVendorWithCurrency(Currency.Code), WorkDate() - 1, 1, true);
 
         // [WHEN] Run Adjust Exch. Rate on workdate
-        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate, WorkDate);
+        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate(), WorkDate());
 
         // [THEN] Unrealized Loss entry is posted with Debit Amount = -100 and Credit Amount = 0
         FindVendorLedgerEntry(
@@ -552,7 +534,6 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure VendorUnrealizedGainInvoiceDebitCreditCorrection()
     var
@@ -570,10 +551,10 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         Currency.Get(CreateCurrencyWithExchRate(LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Vendor, CreateVendorWithCurrency(Currency.Code), WorkDate - 1, -1, true);
+          GenJournalLine."Account Type"::Vendor, CreateVendorWithCurrency(Currency.Code), WorkDate() - 1, -1, true);
 
         // [WHEN] Run Adjust Exch. Rate on workdate
-        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate, WorkDate);
+        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate(), WorkDate());
 
         // [THEN] Unrealized Gain entry is posted with Debit Amount = 0 and Credit Amount = -100
         FindVendorLedgerEntry(
@@ -584,7 +565,6 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure VendorUnrealizedGainPaymentDebitCreditCorrection()
     var
@@ -602,10 +582,10 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         Currency.Get(CreateCurrencyWithExchRate(-LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Vendor, CreateVendorWithCurrency(Currency.Code), WorkDate - 1, 1, true);
+          GenJournalLine."Account Type"::Vendor, CreateVendorWithCurrency(Currency.Code), WorkDate() - 1, 1, true);
 
         // [WHEN] Run Adjust Exch. Rate on workdate
-        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate, WorkDate);
+        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate(), WorkDate());
 
         // [THEN] Unrealized Gain entry is posted with Debit Amount = 0 and Credit Amount = -100
         FindVendorLedgerEntry(
@@ -616,7 +596,6 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure CustomerUnrealizedLossInvoiceDebitCreditCorrection()
     var
@@ -634,10 +613,10 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         Currency.Get(CreateCurrencyWithExchRate(LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Customer, CreateCustomerWithCurrency(Currency.Code), WorkDate - 1, 1, true);
+          GenJournalLine."Account Type"::Customer, CreateCustomerWithCurrency(Currency.Code), WorkDate() - 1, 1, true);
 
         // [WHEN] Run Adjust Exch. Rate on workdate
-        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate, WorkDate);
+        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate(), WorkDate());
 
         // [THEN] Unrealized Loss entry is posted with Debit Amount = -100 and Credit Amount = 0
         FindCustomerLedgerEntry(
@@ -648,7 +627,6 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure CustomerUnrealizedLossPaymentDebitCreditCorrection()
     var
@@ -666,10 +644,10 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         Currency.Get(CreateCurrencyWithExchRate(-LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Customer, CreateCustomerWithCurrency(Currency.Code), WorkDate - 1, -1, true);
+          GenJournalLine."Account Type"::Customer, CreateCustomerWithCurrency(Currency.Code), WorkDate() - 1, -1, true);
 
         // [WHEN] Run Adjust Exch. Rate on workdate
-        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate, WorkDate);
+        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate(), WorkDate());
 
         // [THEN] Unrealized Loss entry is posted with Debit Amount = -100 and Credit Amount = 0
         FindCustomerLedgerEntry(
@@ -680,7 +658,6 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure CustomerUnrealizedGainInvoiceDebitCreditCorrection()
     var
@@ -698,10 +675,10 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         Currency.Get(CreateCurrencyWithExchRate(-LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Customer, CreateCustomerWithCurrency(Currency.Code), WorkDate - 1, 1, true);
+          GenJournalLine."Account Type"::Customer, CreateCustomerWithCurrency(Currency.Code), WorkDate() - 1, 1, true);
 
         // [WHEN] Run Adjust Exch. Rate on workdate
-        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate, WorkDate);
+        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate(), WorkDate());
 
         // [THEN] Unrealized Gain entry is posted with Debit Amount = 0 and Credit Amount = -100
         FindCustomerLedgerEntry(
@@ -712,7 +689,6 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure CustomerUnrealizedGainPaymentDebitCreditCorrection()
     var
@@ -730,10 +706,10 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         Currency.Get(CreateCurrencyWithExchRate(LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Customer, CreateCustomerWithCurrency(Currency.Code), WorkDate - 1, -1, true);
+          GenJournalLine."Account Type"::Customer, CreateCustomerWithCurrency(Currency.Code), WorkDate() - 1, -1, true);
 
         // [WHEN] Run Adjust Exch. Rate on workdate
-        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate, WorkDate);
+        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate(), WorkDate());
 
         // [THEN] Unrealized Gain entry is posted with Debit Amount = 0 and Credit Amount = -100
         FindCustomerLedgerEntry(
@@ -753,7 +729,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
             exit;
 
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         IsInitialized := true;
         Commit();
@@ -816,7 +792,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         // Setup: Create and Post General Journal Line for Refund and Credit Memo with Difference Currency Exchange Rate Amount.
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::"Credit Memo", AccountType, AccountNo,
-          CreateCurrency, Amount, WorkDate);
+          CreateCurrency, Amount, WorkDate());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Create New Exchange Rate and Run Adjust Exchange Rate Report.
@@ -890,14 +866,14 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         LibraryERM.SetAddReportingCurrency(CurrencyCode);
         ClearGeneralJournalLine(GenJournalBatch);
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice, AccountType, AccountNo, CurrencyCode, Amount, WorkDate);
+          GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice, AccountType, AccountNo, CurrencyCode, Amount, WorkDate());
         DocumentNo := GenJournalLine."Document No.";
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         ModifyExchangeRate(CurrencyExchangeRate, CurrencyCode, ExchRateAmt);
         CreateGeneralJournalLine(
           GenJournalLine2, GenJournalBatch, GenJournalLine2."Document Type"::Payment, AccountType,
-          AccountNo, GenJournalLine."Currency Code", -GenJournalLine.Amount / 2, WorkDate);
+          AccountNo, GenJournalLine."Currency Code", -GenJournalLine.Amount / 2, WorkDate());
         Amount := GenJournalLine2.Amount * ExchRateAmt / CurrencyExchangeRate."Exchange Rate Amount";
         LibraryERM.PostGeneralJnlLine(GenJournalLine2);
         exit(Amount);
@@ -1018,7 +994,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     local procedure CreateCurrencyWithExchRate(Delta: Decimal) CurrencyCode: Code[10]
     begin
         CurrencyCode := CreateCurrency;
-        CreateCurrencyExchRate(CurrencyCode, WorkDate, 1 + Delta);
+        CreateCurrencyExchRate(CurrencyCode, WorkDate(), 1 + Delta);
     end;
 
     local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; PostingDate: Date)
@@ -1096,7 +1072,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         repeat
             NewGenJournalLine := GenJournalLine;
             NewGenJournalLine.Insert();
-        until GenJournalLine.Next = 0;
+        until GenJournalLine.Next() = 0;
     end;
 
     local procedure VerifyACYAmountOnGLEntriesOfLastTransaction(AddCurrencyCode: Code[10])
@@ -1140,7 +1116,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         Currency.Get(DetailedCustLedgEntry."Currency Code");
         Assert.AreNearlyEqual(
           Amount, DetailedCustLedgEntry."Amount (LCY)", Currency."Amount Rounding Precision",
-          StrSubstNo(AmountErr, DetailedCustLedgEntry.FieldCaption("Amount (LCY)"), Amount, DetailedCustLedgEntry.TableCaption,
+          StrSubstNo(AmountErr, DetailedCustLedgEntry.FieldCaption("Amount (LCY)"), Amount, DetailedCustLedgEntry.TableCaption(),
             DetailedCustLedgEntry.FieldCaption("Entry No."), DetailedCustLedgEntry."Entry No."));
     end;
 
@@ -1155,7 +1131,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         Currency.Get(DetailedVendorLedgEntry."Currency Code");
         Assert.AreNearlyEqual(
           Amount, DetailedVendorLedgEntry."Amount (LCY)", Currency."Amount Rounding Precision",
-          StrSubstNo(AmountErr, DetailedVendorLedgEntry.FieldCaption("Amount (LCY)"), Amount, DetailedVendorLedgEntry.TableCaption,
+          StrSubstNo(AmountErr, DetailedVendorLedgEntry.FieldCaption("Amount (LCY)"), Amount, DetailedVendorLedgEntry.TableCaption(),
             DetailedVendorLedgEntry.FieldCaption("Entry No."), DetailedVendorLedgEntry."Entry No."));
     end;
 
@@ -1180,18 +1156,4 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         DetailedCustLedgEntry.TestField("Debit Amount (LCY)", DebitAmount);
         DetailedCustLedgEntry.TestField("Credit Amount (LCY)", CreditAmount);
     end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure MessageHandler(Message: Text[1024])
-    begin
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure NothingAdjustedMessageHandler(Message: Text[1024])
-    begin
-        Assert.ExpectedMessage(NothingToAdjustTxt, Message);
-    end;
 }
-

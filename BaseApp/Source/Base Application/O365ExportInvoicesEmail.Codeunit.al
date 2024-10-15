@@ -1,5 +1,9 @@
+#if not CLEAN21
 codeunit 2129 "O365 Export Invoices + Email"
 {
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     trigger OnRun()
     begin
@@ -93,14 +97,14 @@ codeunit 2129 "O365 Export Invoices + Email"
             Error(NoInvoicesExportedErr);
 
         TempExcelBuffer.Reset();
-        InsertHeaderTextForSalesInvoices;
-        InsertHeaderTextForSalesLines;
-        InsertSalesInvoices;
+        InsertHeaderTextForSalesInvoices();
+        InsertHeaderTextForSalesLines();
+        InsertSalesInvoices();
 
         ServerFileName := FileManagement.ServerTempFileName('xlsx');
         TempExcelBuffer.CreateBook(ServerFileName, InvoicesSheetNameTxt);
         TempExcelBuffer.WriteSheet(InvoicesSheetNameTxt, CompanyName, UserId);
-        TempExcelBuffer.CloseBook;
+        TempExcelBuffer.CloseBook();
     end;
 
     local procedure EnterCell(RowNo: Integer; ColumnNo: Integer; CellValue: Variant)
@@ -122,12 +126,12 @@ codeunit 2129 "O365 Export Invoices + Email"
         EnterCell(RowNo, 7, SalesInvoiceHeader."Document Date");
         EnterCell(RowNo, 8, SalesInvoiceHeader."Due Date");
         EnterCell(RowNo, 9, SalesInvoiceHeader."Tax Liable");
-        EnterCell(RowNo, 10, SalesInvoiceHeader.GetWorkDescription);
+        EnterCell(RowNo, 10, SalesInvoiceHeader.GetWorkDescription());
         EnterCell(RowNo, 11, SalesInvoiceHeader.Amount);
         EnterCell(RowNo, 12, SalesInvoiceHeader."Amount Including VAT");
         EnterCell(RowNo, 13, SalesInvoiceHeader."Invoice Discount Amount");
 
-        if CompanyInformation.IsCanada then begin
+        if CompanyInformation.IsCanada() then begin
             GetTaxSummarizedLines(TempSalesTaxAmountLine);
             if TempSalesTaxAmountLine.FindSet() then
                 repeat
@@ -142,7 +146,7 @@ codeunit 2129 "O365 Export Invoices + Email"
                 until TempSalesTaxAmountLine.Next() = 0;
         end;
 
-        if CompanyInformation.IsCanada then
+        if CompanyInformation.IsCanada() then
             ColNo := 17
         else
             ColNo := 14;
@@ -185,7 +189,7 @@ codeunit 2129 "O365 Export Invoices + Email"
         EnterCell(RowNo, 11, NetTotalFieldTxt);
         EnterCell(RowNo, 12, TotalIncludingVatFieldTxt);
         EnterCell(RowNo, 13, SalesInvoiceHeader.FieldCaption("Invoice Discount Amount"));
-        if CompanyInformation.IsCanada then begin
+        if CompanyInformation.IsCanada() then begin
             EnterCell(RowNo, 14, GSTAmountTxt);
             EnterCell(RowNo, 15, PSTAmountTxt);
             EnterCell(RowNo, 16, HSTAmountTxt);
@@ -222,20 +226,18 @@ codeunit 2129 "O365 Export Invoices + Email"
 
     local procedure InsertSalesInvoices()
     begin
-        if SalesInvoiceHeader.FindSet() then begin
+        if SalesInvoiceHeader.FindSet() then
             repeat
                 RowNo := RowNo + 1;
                 SalesInvoiceHeader.CalcFields(Amount, "Amount Including VAT", "Work Description", "Invoice Discount Amount");
-                InsertSalesInvoiceSummary;
+                InsertSalesInvoiceSummary();
                 SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
-                if SalesInvoiceLine.FindSet() then begin
+                if SalesInvoiceLine.FindSet() then
                     repeat
                         LineRowNo := LineRowNo + 1;
-                        InsertSalesLineItem;
+                        InsertSalesLineItem();
                     until SalesInvoiceLine.Next() = 0;
-                end;
             until SalesInvoiceHeader.Next() = 0;
-        end;
     end;
 
     local procedure GetDocumentStatus(SalesInvoiceHeader: Record "Sales Invoice Header") Status: Text
@@ -255,7 +257,7 @@ codeunit 2129 "O365 Export Invoices + Email"
     begin
         if not TaxArea.Get(SalesInvoiceHeader."Tax Area Code") then
             exit;
-        SalesTaxCalculate.StartSalesTaxCalculation;
+        SalesTaxCalculate.StartSalesTaxCalculation();
         if TaxArea."Use External Tax Engine" then
             SalesTaxCalculate.CallExternalTaxEngineForDoc(DATABASE::"Sales Invoice Header", 0, SalesInvoiceHeader."No.")
         else begin
@@ -267,4 +269,5 @@ codeunit 2129 "O365 Export Invoices + Email"
         SalesTaxCalculate.GetSummarizedSalesTaxTable(TempSalesTaxAmountLine);
     end;
 }
+#endif
 

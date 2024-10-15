@@ -504,7 +504,7 @@ report 10408 "Bank Reconciliation"
 
             trigger OnAfterGetRecord()
             begin
-                SetupRecord;
+                SetupRecord();
 
                 Difference :=
                   ("G/L Balance" +
@@ -547,7 +547,7 @@ report 10408 "Bank Reconciliation"
                                 PrintOutstandingChecks := true;
                                 PrintOutstandingDeposits := true;
                             end;
-                            PrintDetailsOnAfterValidate;
+                            PrintDetailsOnAfterValidate();
                         end;
                     }
                     field(PrintChecks; PrintChecks)
@@ -604,7 +604,7 @@ report 10408 "Bank Reconciliation"
 
         trigger OnOpenPage()
         begin
-            SetupRequestForm;
+            SetupRequestForm();
         end;
     }
 
@@ -688,12 +688,12 @@ report 10408 "Bank Reconciliation"
 
     procedure SetupRequestForm()
     begin
-        PageSetupRequestForm;
+        PageSetupRequestForm();
     end;
 
     local procedure PrintDetailsOnAfterValidate()
     begin
-        SetupRequestForm;
+        SetupRequestForm();
     end;
 
     local procedure PageSetupRequestForm()

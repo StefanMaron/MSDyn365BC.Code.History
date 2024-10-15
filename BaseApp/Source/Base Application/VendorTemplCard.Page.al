@@ -21,7 +21,7 @@ page 1386 "Vendor Templ. Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the template.';
                 }
-                field("Contact Type"; "Contact Type")
+                field("Contact Type"; Rec."Contact Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of contact that will be used to create a vendor with the template.';
@@ -31,33 +31,33 @@ page 1386 "Vendor Templ. Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies which transactions with the vendor that cannot be processed, for example a vendor that is declared insolvent.';
                 }
-                field("No. Series"; "No. Series")
+                field("No. Series"; Rec."No. Series")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number series that will be used to assign numbers to vendors.';
                 }
-                field("Purchaser Code"; "Purchaser Code")
+                field("Purchaser Code"; Rec."Purchaser Code")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies which purchaser is assigned to the vendor.';
                     Visible = false;
                 }
-                field("Privacy Blocked"; "Privacy Blocked")
+                field("Privacy Blocked"; Rec."Privacy Blocked")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies whether to limit access to data for the data subject during daily operations. This is useful, for example, when protecting data from changes while it is under privacy review.';
                     Visible = false;
                 }
-                field("Disable Search by Name"; "Disable Search by Name")
+                field("Disable Search by Name"; Rec."Disable Search by Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies that you can change vendor name in the document.';
                     Visible = false;
                 }
-                field("Responsibility Center"; "Responsibility Center")
+                field("Responsibility Center"; Rec."Responsibility Center")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
@@ -74,13 +74,13 @@ page 1386 "Vendor Templ. Card"
                     ToolTip = 'Specifies the vendor''s address.';
                     Visible = false;
                 }
-                field("Address 2"; "Address 2")
+                field("Address 2"; Rec."Address 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies additional address information.';
                     Visible = false;
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
@@ -95,7 +95,7 @@ page 1386 "Vendor Templ. Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vendor''s city.';
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code.';
@@ -110,7 +110,7 @@ page 1386 "Vendor Templ. Card"
                         ToolTip = 'Specifies the state, province or county as a part of the address.';
                     }
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vendor''s telephone number.';
@@ -124,7 +124,7 @@ page 1386 "Vendor Templ. Card"
                     ToolTip = 'Specifies the vendor''s mobile telephone number.';
                     Visible = false;
                 }
-                field("E-Mail"; "E-Mail")
+                field("E-Mail"; Rec."E-Mail")
                 {
                     ApplicationArea = Basic, Suite;
                     ExtendedDatatype = EMail;
@@ -132,20 +132,20 @@ page 1386 "Vendor Templ. Card"
                     ToolTip = 'Specifies the vendor''s email address.';
                     Visible = false;
                 }
-                field("Fax No."; "Fax No.")
+                field("Fax No."; Rec."Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the vendor''s fax number.';
                     Visible = false;
                 }
-                field("Home Page"; "Home Page")
+                field("Home Page"; Rec."Home Page")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vendor''s web site.';
                     Visible = false;
                 }
-                field("Our Account No."; "Our Account No.")
+                field("Our Account No."; Rec."Our Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies your account number with the vendor, if you have one.';
@@ -154,12 +154,12 @@ page 1386 "Vendor Templ. Card"
                 group(Contact)
                 {
                     Caption = 'Contact';
-                    field("Language Code"; "Language Code")
+                    field("Language Code"; Rec."Language Code")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the language that is used when translating specified text on documents to foreign business partner, such as an item description on an order confirmation.';
                     }
-                    field("Document Sending Profile"; "Document Sending Profile")
+                    field("Document Sending Profile"; Rec."Document Sending Profile")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the preferred method of sending documents to this vendor.';
@@ -169,13 +169,13 @@ page 1386 "Vendor Templ. Card"
             group(Invoicing)
             {
                 Caption = 'Invoicing';
-                field("VAT Registration No."; "VAT Registration No.")
+                field("VAT Registration No."; Rec."VAT Registration No.")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the vendor''s VAT registration number.';
                     Visible = false;
                 }
-                field("EORI Number"; "EORI Number")
+                field("EORI Number"; Rec."EORI Number")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Economic Operators Registration and Identification number that is used when you exchange information with the customs authorities due to trade into or out of the European Union.';
@@ -188,47 +188,47 @@ page 1386 "Vendor Templ. Card"
                     ToolTip = 'Specifies the vendor in connection with electronic document receiving.';
                     Visible = false;
                 }
-                field("Tax Liable"; "Tax Liable")
+                field("Tax Liable"; Rec."Tax Liable")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies if the customer is liable for sales tax.';
                     Visible = false;
                 }
-                field("Tax Area Code"; "Tax Area Code")
+                field("Tax Area Code"; Rec."Tax Area Code")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies a tax area code for the company.';
                     Visible = false;
                 }
-                field("Validate EU Vat Reg. No."; "Validate EU Vat Reg. No.")
+                field("Validate EU Vat Reg. No."; Rec."Validate EU Vat Reg. No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the VAT registration number will be specified in the EU VAT Registration No. Check page so that it is validated against the VAT registration number validation service.';
                 }
-                field("Pay-to Vendor No."; "Pay-to Vendor No.")
+                field("Pay-to Vendor No."; Rec."Pay-to Vendor No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the number of a different vendor whom you pay for products delivered by the vendor on the vendor card.';
                 }
-                field("Bank Communication"; "Bank Communication")
+                field("Bank Communication"; Rec."Bank Communication")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the language of the check image.';
                 }
-                field("Invoice Disc. Code"; "Invoice Disc. Code")
+                field("Invoice Disc. Code"; Rec."Invoice Disc. Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the vendor''s invoice discount code. When you set up a new vendor card, the number you have entered in the No. field is automatically inserted.';
                 }
-                field("Prices Including VAT"; "Prices Including VAT")
+                field("Prices Including VAT"; Rec."Prices Including VAT")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies if the Unit Price and Line Amount fields on document lines should be shown with or without VAT.';
                 }
-                field("Price Calculation Method"; "Price Calculation Method")
+                field("Price Calculation Method"; Rec."Price Calculation Method")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
@@ -238,20 +238,20 @@ page 1386 "Vendor Templ. Card"
                 group(PostingDetails)
                 {
                     Caption = 'Posting details';
-                    field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
+                    field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Promoted;
                         ShowMandatory = true;
                         ToolTip = 'Specifies the vendor''s trade type to link transactions made for this vendor with the appropriate general ledger account according to the general posting setup.';
                     }
-                    field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
+                    field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                     }
-                    field("Vendor Posting Group"; "Vendor Posting Group")
+                    field("Vendor Posting Group"; Rec."Vendor Posting Group")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Promoted;
@@ -262,7 +262,7 @@ page 1386 "Vendor Templ. Card"
                 group(ForeignTrade)
                 {
                     Caption = 'Foreign Trade';
-                    field("Currency Code"; "Currency Code")
+                    field("Currency Code"; Rec."Currency Code")
                     {
                         ApplicationArea = Suite;
                         ToolTip = 'Specifies the default currency on purchase documents or journal lines that you create for the vendor.';
@@ -272,27 +272,27 @@ page 1386 "Vendor Templ. Card"
             group(Payments)
             {
                 Caption = 'Payments';
-                field("Prepayment %"; "Prepayment %")
+                field("Prepayment %"; Rec."Prepayment %")
                 {
                     ApplicationArea = Prepayments;
                     Importance = Additional;
                     ToolTip = 'Specifies a prepayment percentage that applies to all orders for this vendor, regardless of the items or services on the order lines.';
                     Visible = false;
                 }
-                field("Application Method"; "Application Method")
+                field("Application Method"; Rec."Application Method")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies how to apply payments to entries for this vendor.';
                 }
-                field("Payment Terms Code"; "Payment Terms Code")
+                field("Payment Terms Code"; Rec."Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ShowMandatory = true;
                     ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
                 }
-                field("Payment Method Code"; "Payment Method Code")
+                field("Payment Method Code"; Rec."Payment Method Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
@@ -304,18 +304,18 @@ page 1386 "Vendor Templ. Card"
                     ToolTip = 'Specifies the importance of the vendor when suggesting payments using the Suggest Vendor Payments function.';
                     Visible = false;
                 }
-                field("Fin. Charge Terms Code"; "Fin. Charge Terms Code")
+                field("Fin. Charge Terms Code"; Rec."Fin. Charge Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies how the vendor calculates finance charges.';
                 }
-                field("Block Payment Tolerance"; "Block Payment Tolerance")
+                field("Block Payment Tolerance"; Rec."Block Payment Tolerance")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to allow a payment tolerance for the vendor.';
                 }
-                field("Partner Type"; "Partner Type")
+                field("Partner Type"; Rec."Partner Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the vendor is a person or a company.';
@@ -326,62 +326,62 @@ page 1386 "Vendor Templ. Card"
                     Importance = Additional;
                     ToolTip = 'Specifies for Intrastat reporting if the vendor is a person or a company.';
                 }
-                field("Cash Flow Payment Terms Code"; "Cash Flow Payment Terms Code")
+                field("Cash Flow Payment Terms Code"; Rec."Cash Flow Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a payment term that will be used for calculating cash flow.';
                 }
-                field("IRS 1099 Code"; "IRS 1099 Code")
+                field("IRS 1099 Code"; Rec."IRS 1099 Code")
                 {
                     ApplicationArea = BasicUS;
                     Importance = Additional;
                     ToolTip = 'Specifies a 1099 code for the vendor.';
                 }
-                field("FATCA filing requirement"; "FATCA filing requirement")
+                field("FATCA filing requirement"; Rec."FATCA filing requirement")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the vendor is set up to require FATCA filing.';
                 }
-                field("Federal ID No."; "Federal ID No.")
+                field("Federal ID No."; Rec."Federal ID No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the vendor''s Taxpayer Identification Number (TIN). The vendor is assigned this number by the tax authorities.';
                 }
-                field("Tax Identification Type"; "Tax Identification Type")
+                field("Tax Identification Type"; Rec."Tax Identification Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the tax identification type for the customer. This information is used for tax reporting. The identification type used for a customer depends on whether the customer is classified as a company or as a person.';
                 }
-                field("RFC No."; "RFC No.")
+                field("RFC No."; Rec."RFC No.")
                 {
                     ApplicationArea = BasicMX;
                     Importance = Additional;
                     ToolTip = 'Specifies the federal registration number for taxpayers.';
                 }
-                field("CURP No."; "CURP No.")
+                field("CURP No."; Rec."CURP No.")
                 {
                     ApplicationArea = BasicMX;
                     Importance = Additional;
                     ToolTip = 'Specifies the unique fiscal card identification number. The CURP number must contain 18 digits.';
                 }
-                field("State Inscription"; "State Inscription")
+                field("State Inscription"; Rec."State Inscription")
                 {
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the tax ID number that is assigned by state tax authorities to every person or corporation.';
                 }
-                field("Creditor No."; "Creditor No.")
+                field("Creditor No."; Rec."Creditor No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the vendor.';
                     Visible = false;
                 }
-                field("Check Date Format"; "Check Date Format")
+                field("Check Date Format"; Rec."Check Date Format")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how the date will appear on the printed check image for this bank account.';
                 }
-                field("Check Date Separator"; "Check Date Separator")
+                field("Check Date Separator"; Rec."Check Date Separator")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the character that separates Month, Day and Year of the date that prints on the check image.';
@@ -390,31 +390,31 @@ page 1386 "Vendor Templ. Card"
             group(Receiving)
             {
                 Caption = 'Receiving';
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     Importance = Promoted;
                     ToolTip = 'Specifies the warehouse location where items from the vendor must be received by default.';
                 }
-                field("Shipment Method Code"; "Shipment Method Code")
+                field("Shipment Method Code"; Rec."Shipment Method Code")
                 {
                     ApplicationArea = Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the delivery conditions of the related shipment, such as free on board (FOB).';
                 }
-                field("Shipping Agent Code"; "Shipping Agent Code")
+                field("Shipping Agent Code"; Rec."Shipping Agent Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
                 }
-                field("Base Calendar Code"; "Base Calendar Code")
+                field("Base Calendar Code"; Rec."Base Calendar Code")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
                     ToolTip = 'Specifies a customizable calendar for delivery planning that holds the vendor''s working days and holidays.';
                     Visible = false;
                 }
-                field("Over-Receipt Code"; "Over-Receipt Code")
+                field("Over-Receipt Code"; Rec."Over-Receipt Code")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the policy that will be used for the vendor if more items than ordered are received.';
@@ -433,8 +433,6 @@ page 1386 "Vendor Templ. Card"
                 ApplicationArea = Dimensions;
                 Caption = 'Dimensions';
                 Image = Dimensions;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Default Dimensions";
                 RunPageLink = "Table ID" = const(1383),
                               "No." = field(Code);
@@ -445,8 +443,6 @@ page 1386 "Vendor Templ. Card"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Copy Template';
                 Image = Copy;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Copies all information to the current template from the selected one.';
 
                 trigger OnAction()
@@ -463,6 +459,20 @@ page 1386 "Vendor Templ. Card"
                         CopyFromTemplate(VendorTempl);
                     end;
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(CopyTemplate_Promoted; CopyTemplate)
+                {
+                }
             }
         }
     }

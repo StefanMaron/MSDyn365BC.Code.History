@@ -22,7 +22,7 @@ codeunit 130300 "Library - Demo Data"
             GeneralPostingSetup.TestField("COGS Account");
             GeneralPostingSetup.TestField("Inventory Adjmt. Account");
             GeneralPostingSetup.TestField("Direct Cost Applied Account");
-        until GeneralPostingSetup.Next = 0;
+        until GeneralPostingSetup.Next() = 0;
     end;
 }
 

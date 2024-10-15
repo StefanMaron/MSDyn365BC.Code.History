@@ -68,7 +68,7 @@ codeunit 138200 "Normal DemoData"
                 GeneralPostingSetup.TestField("Sales Account");
                 GeneralPostingSetup.TestField("Purch. Account");
             end;
-        until GeneralPostingSetup.Next = 0;
+        until GeneralPostingSetup.Next() = 0;
     end;
 
     [Test]
@@ -359,7 +359,7 @@ codeunit 138200 "Normal DemoData"
         // [FEATURE] [VAT Return Period]
         // [SCENARIO 258181] TAB 743 "VAT Report Setup" default setup
         with VATReportSetup do begin
-            Get;
+            Get();
             TestField("VAT Return Period No. Series");
             TestField("Report Version", '');
             TestField("Period Reminder Calculation", DummyDateFormula);
@@ -472,18 +472,6 @@ codeunit 138200 "Normal DemoData"
         // [SCENARIO] Tax Group NONTAXABLE should be one of 5 group
         TaxGroup.Get(NONTAXABLETok);
         Assert.RecordCount(TaxGroup, 5);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CountItemConfigTemplates()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-    begin
-        // [FEATURE] [Item] [Config. Template]
-        // [SCENARIO] There should be 3 Item Config. Templates
-        ConfigTemplateHeader.SetRange("Table ID", DATABASE::Item);
-        Assert.RecordCount(ConfigTemplateHeader, 3);
     end;
 
     [Test]

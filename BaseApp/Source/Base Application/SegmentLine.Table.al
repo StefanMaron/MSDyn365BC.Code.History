@@ -103,7 +103,7 @@
             trigger OnValidate()
             begin
                 if xRec."Campaign No." <> "Campaign No." then
-                    SetCampaignTargetGroup;
+                    SetCampaignTargetGroup();
             end;
         }
         field(5; "Salesperson Code"; Code[20])
@@ -127,7 +127,7 @@
                 if ErrorText <> '' then
                     Error(
                       StrSubstNo('%1%2',
-                        StrSubstNo(Text000, FieldCaption("Correspondence Type"), "Correspondence Type", TableCaption, "Line No."),
+                        StrSubstNo(Text000, FieldCaption("Correspondence Type"), "Correspondence Type", TableCaption(), "Line No."),
                         ErrorText));
             end;
         }
@@ -284,7 +284,7 @@
             trigger OnValidate()
             begin
                 if xRec."Campaign Target" <> "Campaign Target" then
-                    SetCampaignTargetGroup;
+                    SetCampaignTargetGroup();
             end;
         }
         field(18; "Contact Company Name"; Text[100])
@@ -302,7 +302,7 @@
 
             trigger OnLookup()
             begin
-                LanguageCodeOnLookup;
+                LanguageCodeOnLookup();
             end;
 
             trigger OnValidate()
@@ -547,9 +547,6 @@
     end;
 
     var
-        Text000: Label '%1 = %2 can not be specified for %3 %4.\';
-        Text001: Label 'Inherited';
-        Text002: Label 'Unique';
         SegHeader: Record "Segment Header";
         Cont: Record Contact;
         Salesperson: Record "Salesperson/Purchaser";
@@ -560,13 +557,17 @@
         TempInterLogEntryCommentLine: Record "Inter. Log Entry Comment Line" temporary;
         AttachmentManagement: Codeunit AttachmentManagement;
         ClientTypeManagement: Codeunit "Client Type Management";
+        CampaignTargetGrMgt: Codeunit "Campaign Target Group Mgt";
+        Mail: Codeunit Mail;
+        ResumedAttachmentNo: Integer;
+
+        Text000: Label '%1 = %2 can not be specified for %3 %4.\';
+        Text001: Label 'Inherited';
+        Text002: Label 'Unique';
         NoAttachmentErr: Label 'No attachment found. You must either add an attachment or choose a template in the Word Template Code field on the Interaction Template page.';
         Text005: Label 'You must fill in the %1 field.';
         Text004: Label 'The program has stopped importing the attachment at your request.';
         Text006: Label 'Your Segment is now empty.\Do you want to reset number of criteria actions?';
-        CampaignTargetGrMgt: Codeunit "Campaign Target Group Mgt";
-        Mail: Codeunit Mail;
-        ResumedAttachmentNo: Integer;
         Text007: Label 'Do you want to finish this interaction later?';
         Text008: Label 'The correspondence type for this interaction is Email, which requires an interaction template with an attachment or Word template. To continue, you can either change the correspondence type for the contact, select an interaction template that has a different correspondence type, or select a template that ignores the contact correspondence type.';
         Text009: Label 'You must select a contact to interact with.';
@@ -606,7 +607,7 @@
 
     procedure AttachmentText(): Text[30]
     begin
-        if AttachmentInherited then
+        if AttachmentInherited() then
             exit(Text001);
 
         if "Attachment No." <> 0 then
@@ -720,14 +721,14 @@
         if Rec."Word Template Code" <> '' then
             Error(WordTemplateUsedErr);
 
-        if UniqueAttachmentExists then begin
+        if UniqueAttachmentExists() then begin
             if SegInteractLanguage.Get("Segment No.", "Line No.", "Language Code") then
                 if SegInteractLanguage."Attachment No." <> 0 then
-                    SegInteractLanguage.ExportAttachment;
+                    SegInteractLanguage.ExportAttachment();
         end else
             if SegInteractLanguage.Get("Segment No.", 0, "Language Code") then
                 if SegInteractLanguage."Attachment No." <> 0 then
-                    SegInteractLanguage.ExportAttachment;
+                    SegInteractLanguage.ExportAttachment();
     end;
 
     procedure RemoveAttachment()
@@ -770,7 +771,7 @@
         TempSegmentLine.SetRange("Contact No.", TempSegmentLine."Contact No.");
         TempSegmentLine.SetRange("Campaign No.", TempSegmentLine."Campaign No.");
 
-        TempSegmentLine.StartWizard2;
+        TempSegmentLine.StartWizard2();
     end;
 
     local procedure FindLanguage(InteractTmplCode: Code[10]; ContactLanguageCode: Code[10]) Language: Code[10]
@@ -780,7 +781,7 @@
         InteractTmpl: Record "Interaction Template";
     begin
         if SegHeader.Get("Segment No.") then begin
-            if not UniqueAttachmentExists and
+            if not UniqueAttachmentExists() and
                ("Interaction Template Code" = SegHeader."Interaction Template Code")
             then begin
                 if SegInteractLanguage.Get("Segment No.", 0, ContactLanguageCode) then
@@ -801,13 +802,12 @@
                             Language := SegInteractLanguage."Language Code";
                     end;
                 end;
-        end else begin  // Create Interaction:
+        end else  // Create Interaction:
             if InteractTemplLanguage.Get(InteractTmplCode, ContactLanguageCode) then
                 Language := ContactLanguageCode
             else
                 if InteractTmpl.Get(InteractTmplCode) then
                     Language := InteractTmpl."Language Code (Default)";
-        end;
     end;
 
     procedure AttachmentInherited(): Boolean
@@ -837,13 +837,12 @@
         Attachment: Record Attachment;
         InteractTemplLanguage: Record "Interaction Tmpl. Language";
     begin
-        if InteractTemplLanguage.Get("Interaction Template Code", "Language Code") then begin
+        if InteractTemplLanguage.Get("Interaction Template Code", "Language Code") then
             if Attachment.Get(InteractTemplLanguage."Attachment No.") then
                 "Attachment No." := InteractTemplLanguage."Attachment No."
             else
                 "Attachment No." := 0;
-        end;
-        Modify;
+        Modify();
     end;
 
     local procedure UniqueAttachmentExists(): Boolean
@@ -928,7 +927,7 @@
         SetRange("Contact No.", Contact."No.");
         Validate("Contact No.", Contact."No.");
 
-        "Salesperson Code" := FindSalespersonByUserEmail;
+        "Salesperson Code" := FindSalespersonByUserEmail();
         if "Salesperson Code" = '' then
             "Salesperson Code" := Contact."Salesperson Code";
 
@@ -1009,12 +1008,12 @@
     begin
         Init();
         if Contact.Get(Opportunity."Contact Company No.") then begin
-            Contact.CheckIfPrivacyBlockedGeneric;
+            Contact.CheckIfPrivacyBlockedGeneric();
             Validate("Contact No.", Contact."Company No.");
             SetRange("Contact No.", "Contact No.");
         end;
         if Contact.Get(Opportunity."Contact No.") then begin
-            Contact.CheckIfPrivacyBlockedGeneric;
+            Contact.CheckIfPrivacyBlockedGeneric();
             Validate("Contact No.", Contact."No.");
             SetRange("Contact No.", "Contact No.");
         end;
@@ -1077,10 +1076,10 @@
             "Campaign Description" := Campaign.Description;
         if Opp.Get("Opportunity No.") then
             "Opportunity Description" := Opp.Description;
-        "Wizard Contact Name" := GetContactName;
+        "Wizard Contact Name" := GetContactName();
         "Wizard Step" := "Wizard Step"::"1";
         "Interaction Successful" := true;
-        Validate(Date, WorkDate);
+        Validate(Date, WorkDate());
         "Time of Interaction" := DT2Time(RoundDateTime(CurrentDateTime + 1000, 60000, '>'));
         Insert();
 
@@ -1168,11 +1167,11 @@
     begin
         OnBeforeFinishSegLineWizard(Rec, IsFinish);
 
-        HTMLAttachment := IsHTMLAttachment;
+        HTMLAttachment := IsHTMLAttachment();
         Flag := GetFinishInteractionFlag(IsFinish);
 
         if Flag then begin
-            CheckStatus;
+            CheckStatus();
 
             if "Opportunity No." = '' then
                 "Wizard Step" := "Wizard Step"::"6";
@@ -1183,7 +1182,7 @@
             "Attempt Failed" := not "Interaction Successful";
             Subject := Description;
             if not HTMLAttachment then
-                ProcessPostponedAttachment;
+                ProcessPostponedAttachment();
             Send := (IsFinish and ("Correspondence Type" <> "Correspondence Type"::" "));
             OnFinishWizardOnAfterSetSend(Rec, Send);
             if Send and HTMLAttachment then begin
@@ -1199,9 +1198,9 @@
                     TempAttachment.WriteHTMLCustomLayoutAttachment(HTMLContentBodyText, CustomLayoutCode);
                     Commit();
                 end;
-                if not (ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone]) then
-                    if Mail.GetErrorDesc <> '' then
-                        Error(Text025, Mail.GetErrorDesc, PRODUCTNAME.Full);
+                if not (ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone]) then
+                    if Mail.GetErrorDesc() <> '' then
+                        Error(Text025, Mail.GetErrorDesc(), PRODUCTNAME.Full());
             end;
         end;
 
@@ -1287,7 +1286,7 @@
 
     local procedure LoadTempAttachment(ForceReload: Boolean)
     begin
-        if not ForceReload and TempAttachment."Attachment File".HasValue then
+        if not ForceReload and TempAttachment."Attachment File".HasValue() then
             exit;
         Attachment.Get("Attachment No.");
         Attachment.CalcFields("Attachment File");
@@ -1295,7 +1294,7 @@
         TempAttachment.WizEmbeddAttachment(Attachment);
         TempAttachment."No." := 0;
         TempAttachment."Read Only" := false;
-        if Attachment.IsHTML then
+        if Attachment.IsHTML() then
             TempAttachment."File Extension" := Attachment."File Extension";
         TempAttachment.Insert();
     end;
@@ -1314,12 +1313,12 @@
         OldContentBodyText: Text;
         CustomLayoutCode: Code[20];
     begin
-        TempAttachment.Find;
+        TempAttachment.Find();
         TempAttachment.ReadHTMLCustomLayoutAttachment(OldContentBodyText, CustomLayoutCode);
         TempAttachment.WriteHTMLCustomLayoutAttachment(NewContentBodyText, CustomLayoutCode);
     end;
 
-    local procedure ProcessPostponedAttachment()
+    procedure ProcessPostponedAttachment()
     begin
         if "Attachment No." <> 0 then begin
             LoadTempAttachment(false);
@@ -1369,7 +1368,7 @@
             "Contact Alt. Address Code" := ContAltAddrCode;
         if TableNo = DATABASE::"To-do" then
             "To-do No." := Task."No.";
-        StartWizard2;
+        StartWizard2();
     end;
 
     procedure StartWizard2()
@@ -1391,7 +1390,7 @@
 
         if Campaign.Get(GetFilter("Campaign No.")) then
             "Campaign Description" := Campaign.Description;
-        "Wizard Contact Name" := GetContactName;
+        "Wizard Contact Name" := GetContactName();
 
         Insert();
         Validate("Interaction Template Code", InteractionTmplSetup."Outg. Calls");
@@ -1481,14 +1480,14 @@
 
     procedure IsHTMLAttachment(): Boolean
     begin
-        if not TempAttachment.Find then
+        if not TempAttachment.Find() then
             exit(false);
-        exit(TempAttachment.IsHTML);
+        exit(TempAttachment.IsHTML());
     end;
 
     procedure PreviewSegLineHTMLContent()
     begin
-        TempAttachment.Find;
+        TempAttachment.Find();
         TempAttachment.ShowAttachment(Rec, '');
     end;
 
@@ -1501,7 +1500,7 @@
 
         if SegHeader.Get("Segment No.") then begin
             SegInteractLanguage.SetRange("Segment No.", "Segment No.");
-            if UniqueAttachmentExists or
+            if UniqueAttachmentExists() or
                ("Interaction Template Code" <> SegHeader."Interaction Template Code")
             then
                 SegInteractLanguage.SetRange("Segment Line No.", "Line No.")
@@ -1514,16 +1513,16 @@
                 "Attachment No." := SegInteractLanguage."Attachment No.";
                 Rec."Word Template Code" := SegInteractLanguage."Word Template Code";
                 Subject := SegInteractLanguage.Subject;
-                Modify;
+                Modify();
             end else
                 Get("Segment No.", "Line No.");
         end else begin  // Create Interaction
             InteractionTmplLanguage.SetRange("Interaction Template Code", "Interaction Template Code");
             if PAGE.RunModal(0, InteractionTmplLanguage) = ACTION::LookupOK then begin
                 "Language Code" := InteractionTmplLanguage."Language Code";
-                Modify;
+                Modify();
             end;
-            SetInteractionAttachment;
+            SetInteractionAttachment();
         end;
     end;
 
@@ -1572,7 +1571,7 @@
         TenantWebService.FindFirst();
 
         RecRef.Open(DATABASE::"Segment Line");
-        RecRef.SetView(GetView);
+        RecRef.SetView(GetView());
 
         ODataFieldsExport.SetExportData(TenantWebService, RecRef);
         ODataFieldsExport.RunModal();

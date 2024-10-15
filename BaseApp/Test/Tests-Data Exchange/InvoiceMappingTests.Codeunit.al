@@ -350,7 +350,7 @@ codeunit 139158 "Invoice Mapping Tests"
         SetupDataExchTable(DataExch);
         SetupValidIntermediateTable(DataExch, BuyFromVendor, Item1, Item2, Currency, 1);
         InsertIntermediateTableRowWithRecordNoAndOptional(DataExch, DATABASE::"Purchase Header"
-          , PurchaseHeader.FieldNo("Posting Date"), Format(WorkDate), 1, 0, false);
+          , PurchaseHeader.FieldNo("Posting Date"), Format(WorkDate()), 1, 0, false);
         InsertIntermediateTableRowWithRecordNoAndOptional(DataExch, DATABASE::"Purchase Header"
           , PurchaseHeader.FieldNo("Due Date"), '', 1, 0, false);
         // Excercise
@@ -536,7 +536,7 @@ codeunit 139158 "Invoice Mapping Tests"
         asserterror CODEUNIT.Run(CODEUNIT::"Map Incoming Doc to Purch Doc", DataExch);
         Assert.ExpectedError(
           StrSubstNo(ValueErr, PurchaseHeader.FieldCaption("Document Type"),
-            PurchaseHeader.TableCaption, DummyIntermediateDataImport.TableCaption));
+            PurchaseHeader.TableCaption(), DummyIntermediateDataImport.TableCaption()));
     end;
 
     [Test]
@@ -577,7 +577,7 @@ codeunit 139158 "Invoice Mapping Tests"
         asserterror CODEUNIT.Run(CODEUNIT::"Map Incoming Doc to Purch Doc", DataExch);
         Assert.ExpectedError(
           StrSubstNo(ValueErr, PurchaseHeader.FieldCaption("Buy-from Vendor No."),
-            PurchaseHeader.TableCaption, DummyIntermediateDataImport.TableCaption));
+            PurchaseHeader.TableCaption(), DummyIntermediateDataImport.TableCaption()));
     end;
 
     [Test]
@@ -597,7 +597,7 @@ codeunit 139158 "Invoice Mapping Tests"
         // Excercise
         asserterror CODEUNIT.Run(CODEUNIT::"Map Incoming Doc to Purch Doc", DataExch);
         Assert.ExpectedError(
-          StrSubstNo(ValueErr, PurchaseLine.FieldCaption(Type), PurchaseLine.TableCaption, DummyIntermediateDataImport.TableCaption));
+          StrSubstNo(ValueErr, PurchaseLine.FieldCaption(Type), PurchaseLine.TableCaption(), DummyIntermediateDataImport.TableCaption()));
     end;
 
     [Test]
@@ -617,7 +617,7 @@ codeunit 139158 "Invoice Mapping Tests"
         // Excercise
         asserterror CODEUNIT.Run(CODEUNIT::"Map Incoming Doc to Purch Doc", DataExch);
         Assert.ExpectedError(
-          StrSubstNo(ValueErr, PurchaseLine.FieldCaption("No."), PurchaseLine.TableCaption, DummyIntermediateDataImport.TableCaption));
+          StrSubstNo(ValueErr, PurchaseLine.FieldCaption("No."), PurchaseLine.TableCaption(), DummyIntermediateDataImport.TableCaption()));
     end;
 
     [Test]
@@ -663,7 +663,7 @@ codeunit 139158 "Invoice Mapping Tests"
         // Excercise
         asserterror CODEUNIT.Run(CODEUNIT::"Map Incoming Doc to Purch Doc", DataExch);
         Assert.ExpectedError(
-          StrSubstNo(ValueErr, PurchaseLine.FieldCaption(Quantity), PurchaseLine.TableCaption, DummyIntermediateDataImport.TableCaption));
+          StrSubstNo(ValueErr, PurchaseLine.FieldCaption(Quantity), PurchaseLine.TableCaption(), DummyIntermediateDataImport.TableCaption()));
     end;
 
     [Test]
@@ -894,7 +894,7 @@ codeunit 139158 "Invoice Mapping Tests"
         IntermediateDataImport: Record "Intermediate Data Import";
     begin
         with IntermediateDataImport do begin
-            Init;
+            Init();
             "Data Exch. No." := DataExch."Entry No.";
             "Table ID" := TableID;
             "Record No." := RecordNo;
@@ -902,7 +902,7 @@ codeunit 139158 "Invoice Mapping Tests"
             Value := Val;
             "Validate Only" := IsOptional;
             "Parent Record No." := ParentRecordNo;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -916,7 +916,7 @@ codeunit 139158 "Invoice Mapping Tests"
             SetRange("Field ID", FieldID);
             FindFirst();
             Value := Val;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -985,10 +985,10 @@ codeunit 139158 "Invoice Mapping Tests"
         DataExchField: Record "Data Exch. Field";
     begin
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
-        Assert.IsFalse(DataExchField.FindFirst, StrSubstNo(TableNotEmptiedErr, DataExchField.TableCaption, DataExch."Entry No."));
+        Assert.IsFalse(DataExchField.FindFirst, StrSubstNo(TableNotEmptiedErr, DataExchField.TableCaption(), DataExch."Entry No."));
         IntermediateDataImport.SetRange("Data Exch. No.", DataExch."Entry No.");
         Assert.IsFalse(
-          IntermediateDataImport.FindFirst, StrSubstNo(TableNotEmptiedErr, IntermediateDataImport.TableCaption, DataExch."Entry No."));
+          IntermediateDataImport.FindFirst, StrSubstNo(TableNotEmptiedErr, IntermediateDataImport.TableCaption(), DataExch."Entry No."));
     end;
 
     local procedure CalculateTotalsForCreatedDoc(DataExch: Record "Data Exch."): Decimal

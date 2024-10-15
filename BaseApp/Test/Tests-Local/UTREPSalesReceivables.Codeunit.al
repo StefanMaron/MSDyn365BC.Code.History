@@ -591,7 +591,7 @@ codeunit 142070 "UT REP Sales Receivables"
 
     local procedure CreateCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
-        CreateCustomerLedgerEntryOnDate(CustLedgerEntry, CreateCustomer, WorkDate);
+        CreateCustomerLedgerEntryOnDate(CustLedgerEntry, CreateCustomer, WorkDate());
     end;
 
     local procedure CreateCustomerLedgerEntryOnDate(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; PostingDate: Date)
@@ -616,7 +616,7 @@ codeunit 142070 "UT REP Sales Receivables"
         Customer.Get(CreateCustomerWithDimension);
         CustLedgerEntry."Entry No." :=
           LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
-        CustLedgerEntry."Posting Date" := WorkDate;
+        CustLedgerEntry."Posting Date" := WorkDate();
         CustLedgerEntry."Customer No." := Customer."No.";
         CustLedgerEntry."Global Dimension 1 Code" := Customer."Global Dimension 1 Code";
         CustLedgerEntry."Global Dimension 2 Code" := Customer."Global Dimension 2 Code";
@@ -663,7 +663,7 @@ codeunit 142070 "UT REP Sales Receivables"
     local procedure CreateDetailedCustomerLedgerEntryWithNegativeAmount(CustomerLedgerEntryNo: Integer; CustomerNo: Code[20])
     begin
         CreateDetailedCustomerLedgerEntryOnDate(
-          CustomerLedgerEntryNo, CustomerNo, WorkDate, -LibraryRandom.RandDec(10, 2)); // Amount less than 0 required.
+          CustomerLedgerEntryNo, CustomerNo, WorkDate(), -LibraryRandom.RandDec(10, 2)); // Amount less than 0 required.
     end;
 
     local procedure CreateDetailedCustomerLedgerEntryOnDate(CustomerLedgerEntryNo: Integer; CustomerNo: Code[20]; PostingDate: Date; EntryAmount: Decimal)
@@ -815,7 +815,7 @@ codeunit 142070 "UT REP Sales Receivables"
         ValueEntry."Source No." := CustomerNo;
         ValueEntry."Item Ledger Entry Type" := ValueEntry."Item Ledger Entry Type"::Sale;
         ValueEntry."Item No." := ItemNo;
-        ValueEntry."Posting Date" := WorkDate;
+        ValueEntry."Posting Date" := WorkDate();
         ValueEntry.Insert();
         LibraryVariableStorage.Enqueue(ValueEntry."Source No.");  // Enqueue required for CustomerItemStatisticsRequestPageHandler and CustomerItemStatByPurchaserRequestPageHandler.
     end;

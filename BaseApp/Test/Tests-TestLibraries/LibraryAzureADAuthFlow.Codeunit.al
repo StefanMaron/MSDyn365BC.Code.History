@@ -22,7 +22,7 @@ codeunit 131015 "Library - Azure AD Auth Flow"
     var
         AzureADMgtSetup: Record "Azure AD Mgt. Setup";
     begin
-        if AzureADMgtSetup.Get then
+        if AzureADMgtSetup.Get() then
             exit(AzureADMgtSetup."Auth Flow Codeunit ID" = CODEUNIT::"Library - Azure AD Auth Flow");
 
         exit(false);
@@ -33,7 +33,7 @@ codeunit 131015 "Library - Azure AD Auth Flow"
     var
         Uri: DotNet Uri;
     begin
-        if CanHandle then
+        if CanHandle() then
             AzureADAuthFlow := AzureADAuthFlow.ALAzureAdCodeGrantFlow(Uri.Uri(RedirectUri));
     end;
 
@@ -82,7 +82,7 @@ codeunit 131015 "Library - Azure AD Auth Flow"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Azure AD Auth Flow", 'OnCheckProvider', '', false, false)]
     local procedure OnCheckProvider(var Result: Boolean)
     begin
-        if CanHandle then
+        if CanHandle() then
             Result := true;
     end;
 
@@ -91,7 +91,7 @@ codeunit 131015 "Library - Azure AD Auth Flow"
     var
         ServiceFactory: DotNet ServiceWrapperFactory;
     begin
-        if CanHandle then
+        if CanHandle() then
             Service := ServiceFactory.CreateServiceWrapper2013;
     end;
 

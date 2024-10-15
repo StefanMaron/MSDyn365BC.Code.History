@@ -53,7 +53,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         // Verify: Check Reminder Line Currency Error.
         Assert.AreEqual(
           StrSubstNo(ReminderLineError, ReminderHeader.FieldCaption("Currency Code"),
-            ReminderHeader.TableCaption, CustLedgerEntry.TableCaption), GetLastErrorText, 'Error must be same.');
+            ReminderHeader.TableCaption(), CustLedgerEntry.TableCaption()), GetLastErrorText, 'Error must be same.');
     end;
 
     [Test]
@@ -85,7 +85,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         Assert.AreNearlyEqual(
           SalesInvoiceHeader."Amount Including VAT", RemainingAmount, Currency."Appln. Rounding Precision",
           StrSubstNo(AmountError, SalesInvoiceHeader."Amount Including VAT",
-            ReminderLine.TableCaption));
+            ReminderLine.TableCaption()));
     end;
 
     [Test]
@@ -110,12 +110,12 @@ codeunit 134907 "ERM Invoice and Reminder"
         // [GIVEN] Payment Terms "PT" where "Due Date Calculation" = 1W
         // [GIVEN] Customer "C" where "Payment Terms Code" = "PT" and "Reminder Terms Code" = "RT"
         Evaluate(WeekDateFormula, '<1W>');
-        ReminderPostingDate[1] := CalcDate('<3W+1D>', WorkDate);
+        ReminderPostingDate[1] := CalcDate('<3W+1D>', WorkDate());
         ReminderPostingDate[2] := CalcDate('<1W+1D>', ReminderPostingDate[1]);
         CreateCustomerWithPaymentAndReminderTerms(Customer, WeekDateFormula);
 
         // [GIVEN] Posted invoice "I[1]" for customer "C" where "Posting Date" = 01/01/17
-        InvoiceDocNo[1] := PostSalesInvoice(Customer."No.", WorkDate);
+        InvoiceDocNo[1] := PostSalesInvoice(Customer."No.", WorkDate());
 
         // [GIVEN] Issued reminder for invoice "I[1]" where "Posting Date" = 22/01/17 (>3W from "I[1]"."Posting Date")
         RunCreateReminders(Customer, DummyCustLedgerEntry, false, ReminderPostingDate[1]);
@@ -125,7 +125,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         REPORT.RunModal(REPORT::"Issue Reminders", false, true, ReminderHeader);
 
         // [GIVEN] Posted invoice "I[2]" for customer "C" where "Posting Date" = 06/01/17 (>"I[1]"."Posting Date" and <"I[1]"."Postsing Date" + 1W)
-        InvoiceDocNo[2] := PostSalesInvoice(Customer."No.", CalcDate(WeekDateFormula, WorkDate) - 1);
+        InvoiceDocNo[2] := PostSalesInvoice(Customer."No.", CalcDate(WeekDateFormula, WorkDate()) - 1);
 
         // [GIVEN] Reminder for customer "C" with "Posting Date" = 01/02/2017 (>3W from "I[2]"."Posting Date")
         // [WHEN] Run report "Create Reminders" where "Overdues Only" = TRUE
@@ -158,12 +158,12 @@ codeunit 134907 "ERM Invoice and Reminder"
         // [GIVEN] Payment Terms "PT" where "Due Date Calculation" = 1W
         // [GIVEN] Customer "C" where "Payment Terms Code" = "PT" and "Reminder Terms Code" = "RT"
         Evaluate(WeekDateFormula, '<1W>');
-        ReminderPostingDate[1] := CalcDate('<3W+1D>', WorkDate);
+        ReminderPostingDate[1] := CalcDate('<3W+1D>', WorkDate());
         ReminderPostingDate[2] := CalcDate('<1W+1D>', ReminderPostingDate[1]);
         CreateCustomerWithPaymentAndReminderTerms(Customer, WeekDateFormula);
 
         // [GIVEN] Posted invoice "I[1]" for customer "C" where "Posting Date" = 01/01/17
-        InvoiceDocNo[1] := PostSalesInvoice(Customer."No.", WorkDate);
+        InvoiceDocNo[1] := PostSalesInvoice(Customer."No.", WorkDate());
 
         // [GIVEN] Issued reminder for invoice "I[1]" where "Posting Date" = 22/01/17 (>3W from "I[1]"."Posting Date")
         RunCreateReminders(Customer, DummyCustLedgerEntry, false, ReminderPostingDate[1]);
@@ -173,7 +173,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         REPORT.RunModal(REPORT::"Issue Reminders", false, true, ReminderHeader);
 
         // [GIVEN] Posted invoice "I[2]" for customer "C" where "Posting Date" = 06/01/17 (>"I[1]"."Posting Date" and <"I[1]"."Postsing Date" + 1W)
-        InvoiceDocNo[2] := PostSalesInvoice(Customer."No.", CalcDate(WeekDateFormula, WorkDate) - 1);
+        InvoiceDocNo[2] := PostSalesInvoice(Customer."No.", CalcDate(WeekDateFormula, WorkDate()) - 1);
 
         // [GIVEN] Reminder for customer "C" with "Posting Date" = 01/02/2017 (>3W from "I[2]"."Posting Date")
         // [WHEN] Run report "Create Reminders" where "Overdues Only" = FALSE
@@ -197,7 +197,7 @@ codeunit 134907 "ERM Invoice and Reminder"
 
         // [GIVEN] Issued reminder with line
         MockIssuedReminder(IssuedReminderHeader);
-        IssuedReminderHeader.SetRecFilter;
+        IssuedReminderHeader.SetRecFilter();
         Commit();
 
         // [WHEN] Run report "Reminder"
@@ -308,7 +308,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         // [GIVEN] Customer with Reminder Terms having 2 levels and "Post Interest" enabled for second level
         CustomerNo := CreateCustomerWithPaymentReminderFinChargeTerms(WeekDateFormula);
 
-        InvoicePostingDate[1] := WorkDate;
+        InvoicePostingDate[1] := WorkDate();
         InvoicePostingDate[2] := CalcDate(WeekDateFormula, InvoicePostingDate[1]);
         ReminderPostingDate[1] := CalcDate(WeekDateFormula, InvoicePostingDate[2]);
         ReminderPostingDate[2] := CalcDate(WeekDateFormula, ReminderPostingDate[1]) + 1;
@@ -353,17 +353,17 @@ codeunit 134907 "ERM Invoice and Reminder"
         // [GIVEN] Payment Terms "PT" where "Due Date Calculation" = 1W
         // [GIVEN] Customer "C" where "Payment Terms Code" = "PT" and "Reminder Terms Code" = "RT"
         Evaluate(WeekDateFormula, '<1W>');
-        ReminderPostingDate[1] := CalcDate('<1M+5D>', WorkDate);
+        ReminderPostingDate[1] := CalcDate('<1M+5D>', WorkDate());
         ReminderPostingDate[2] := CalcDate('<1W+5D>', ReminderPostingDate[1]);
         ReminderPostingDate[3] := CalcDate('<1W>', ReminderPostingDate[2]);
 
         CreateCustomerWithPaymentAndReminderTerms(Customer, WeekDateFormula);
 
         // [GIVEN] Posted invoice "I[1]" for customer "C" where "Posting Date" = 01/01/17, "Due Date = 18/01/17
-        InvoiceDocNo[1] := PostSalesInvoiceWithDueDate(Customer."No.", WorkDate, CalcDate('<2W+4D>', WorkDate));
+        InvoiceDocNo[1] := PostSalesInvoiceWithDueDate(Customer."No.", WorkDate(), CalcDate('<2W+4D>', WorkDate()));
 
         // [GIVEN] Posted invoice "I[2]" for customer "C" where "Posting Date" = 01/01/17, "Due Date = 12/02/17
-        InvoiceDocNo[2] := PostSalesInvoiceWithDueDate(Customer."No.", WorkDate, CalcDate('<1M+1W+5D>', WorkDate));
+        InvoiceDocNo[2] := PostSalesInvoiceWithDueDate(Customer."No.", WorkDate(), CalcDate('<1M+1W+5D>', WorkDate()));
 
         // [GIVEN] Issued reminder for invoice "I[1]" where "Posting Date" = 05/02/17
         RunCreateReminders(Customer, DummyCustLedgerEntry, false, ReminderPostingDate[1]);
@@ -645,7 +645,7 @@ codeunit 134907 "ERM Invoice and Reminder"
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         LibrarySetupStorage.SaveGeneralLedgerSetup();
         IsInitialized := true;
@@ -655,10 +655,10 @@ codeunit 134907 "ERM Invoice and Reminder"
 
     local procedure PrepareInvoiceAndReminderPostingDates(var InvoicePostingDate: array[3] of Date; var ReminderPostingDate: array[3] of Date)
     begin
-        InvoicePostingDate[1] := WorkDate;
+        InvoicePostingDate[1] := WorkDate();
         InvoicePostingDate[2] := CalcDate('<1W>', InvoicePostingDate[1]) - 1;
         InvoicePostingDate[3] := CalcDate('<1W>', InvoicePostingDate[2]) - 1;
-        ReminderPostingDate[1] := CalcDate('<3W+1D>', WorkDate);
+        ReminderPostingDate[1] := CalcDate('<3W+1D>', WorkDate());
         ReminderPostingDate[2] := CalcDate('<1W+1D>', ReminderPostingDate[1]);
         ReminderPostingDate[3] := CalcDate('<1W+1D>', ReminderPostingDate[2]);
     end;
@@ -704,8 +704,8 @@ codeunit 134907 "ERM Invoice and Reminder"
         CreateFinanceChargeInterestRates(FinanceChargeInterestRate, FinanceChargeTerms.Code, CalcDate('<-1D>', WorkDate()));
         Customer.Get(MIRHelperFunctions.UpdateFinChargeTermsOnCustomer(FinanceChargeTerms.Code));
         MIRHelperFunctions.CreateAndPostSalesInvoiceBySalesJournal(Customer."No.");
-        CreationDate := CalcDate('<' + Format(2 * LibraryRandom.RandInt(5)) + 'M>', WorkDate);
-        Customer.SetRecFilter;
+        CreationDate := CalcDate('<' + Format(2 * LibraryRandom.RandInt(5)) + 'M>', WorkDate());
+        Customer.SetRecFilter();
         CreateFinanceChargeMemos.SetTableView(Customer);
         CreateFinanceChargeMemos.InitializeRequest(CreationDate, CreationDate);
         CreateFinanceChargeMemos.UseRequestPage(false);
@@ -781,7 +781,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         Customer.Validate("Reminder Terms Code", ReminderTerms.Code);
         Customer.Modify(true);
 
-        Customer.SetRecFilter;
+        Customer.SetRecFilter();
     end;
 
     [Scope('OnPrem')]
@@ -845,7 +845,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         SuggestReminderLines.UseRequestPage(false);
         SuggestReminderLines.Run();
 
-        ReminderHeader.SetRecFilter;
+        ReminderHeader.SetRecFilter();
     end;
 
     local procedure CreateReminderTerms(): Code[10]
@@ -1091,14 +1091,14 @@ codeunit 134907 "ERM Invoice and Reminder"
         with CustLedgerEntry do begin
             if FindLast() then
                 LastEntryNo := "Entry No.";
-            Init;
+            Init();
             "Entry No." := LastEntryNo + 1;
             "Customer No." := CustomerNo;
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Document Type" := DocumentType;
             "Document No." := CustomerNo;
             "Last Issued Reminder Level" := LastIssuedReminderLevel;
-            Insert;
+            Insert();
         end;
     end;
 

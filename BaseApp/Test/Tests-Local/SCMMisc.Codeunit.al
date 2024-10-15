@@ -60,7 +60,7 @@ codeunit 144020 "SCM Misc."
 
         // [GIVEN] Calculate Plan for Items.
         Item.SetFilter("No.", CopyStr(ItemFilter, 2));
-        CalculatePlanForRequisitionWorksheet(RequisitionWkshName, Item, WorkDate, WorkDate);
+        CalculatePlanForRequisitionWorksheet(RequisitionWkshName, Item, WorkDate(), WorkDate());
 
         // [WHEN] Carry Out Action Message.
         CarryOutRequisitionPlan(RequisitionWkshName);
@@ -102,7 +102,7 @@ codeunit 144020 "SCM Misc."
         CreateSalesLines(SalesHeader, Item."No.", '', NoOfSalesLines);
 
         // [GIVEN] Calculate requisition plan for item "I"
-        CalculatePlanForRequisitionWorksheet(RequisitionWkshName, Item, WorkDate, WorkDate);
+        CalculatePlanForRequisitionWorksheet(RequisitionWkshName, Item, WorkDate(), WorkDate());
 
         // [WHEN] Carry out requisition plan
         CarryOutRequisitionPlan(RequisitionWkshName);
@@ -225,7 +225,7 @@ codeunit 144020 "SCM Misc."
         GetDropShipmentSalesOrders(SalesLine, RequisitionLine);
 
         // [WHEN] Carry Out Action Message
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
 
         // [THEN] One Purchase Order is created for both Sales Lines
         PurchaseHeader.SetRange("Buy-from Vendor No.", Item."Vendor No.");
@@ -319,7 +319,7 @@ codeunit 144020 "SCM Misc."
         RequisitionLine.SetRange("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
         RequisitionLine.SetRange("Journal Batch Name", RequisitionWkshName.Name);
         RequisitionLine.FindFirst();
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
     end;
 
     local procedure CreateAndUpdateLocation(var Location: Record Location; RequirePutAway: Boolean; RequirePick: Boolean; RequireReceive: Boolean; RequireShipment: Boolean; BinMandatory: Boolean)
@@ -583,7 +583,7 @@ codeunit 144020 "SCM Misc."
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         with PurchasesPayablesSetup do begin
-            Get;
+            Get();
             PrevValue := "Use Vendor's Tax Area Code";
             Validate("Use Vendor's Tax Area Code", NewValue);
             Modify(true);

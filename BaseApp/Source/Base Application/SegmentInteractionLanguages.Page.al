@@ -1,7 +1,7 @@
 page 5155 "Segment Interaction Languages"
 {
     Caption = 'Segment Interaction Languages';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     PageType = List;
     SourceTable = "Segment Interaction Language";
 
@@ -12,7 +12,7 @@ page 5155 "Segment Interaction Languages"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Language Code"; "Language Code")
+                field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the language that is used when translating specified text on documents to foreign business partner, such as an item description on an order confirmation.';
@@ -27,7 +27,7 @@ page 5155 "Segment Interaction Languages"
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the subject text. The text in the field is used as the subject in e-mails and Word documents.';
                 }
-                field(AttachmentText; AttachmentText)
+                field(AttachmentText; AttachmentText())
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Attachment';
@@ -36,9 +36,9 @@ page 5155 "Segment Interaction Languages"
                     trigger OnAssistEdit()
                     begin
                         if "Attachment No." = 0 then
-                            CreateAttachment
+                            CreateAttachment()
                         else
-                            OpenAttachment;
+                            OpenAttachment();
 
                         CurrPage.Update();
                     end;
@@ -78,7 +78,7 @@ page 5155 "Segment Interaction Languages"
 
                     trigger OnAction()
                     begin
-                        OpenAttachment;
+                        OpenAttachment();
                     end;
                 }
                 action(Create)
@@ -91,7 +91,7 @@ page 5155 "Segment Interaction Languages"
 
                     trigger OnAction()
                     begin
-                        CreateAttachment;
+                        CreateAttachment();
                     end;
                 }
                 action("Copy &From")
@@ -104,7 +104,7 @@ page 5155 "Segment Interaction Languages"
 
                     trigger OnAction()
                     begin
-                        CopyFromAttachment;
+                        CopyFromAttachment();
                     end;
                 }
                 action(Import)
@@ -117,7 +117,7 @@ page 5155 "Segment Interaction Languages"
 
                     trigger OnAction()
                     begin
-                        ImportAttachment;
+                        ImportAttachment();
                     end;
                 }
                 action("E&xport")
@@ -130,7 +130,7 @@ page 5155 "Segment Interaction Languages"
 
                     trigger OnAction()
                     begin
-                        ExportAttachment;
+                        ExportAttachment();
                     end;
                 }
                 action(Remove)

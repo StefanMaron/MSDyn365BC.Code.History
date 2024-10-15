@@ -168,12 +168,12 @@ codeunit 134255 "Delete Bank Reconciliation"
     local procedure CreateBankAccRec(var BankAccRecon: Record "Bank Acc. Reconciliation"; BankAccNo: Code[20]; StatementNo: Code[20]; StatementDate: Date)
     begin
         with BankAccRecon do begin
-            Init;
+            Init();
             "Bank Account No." := BankAccNo;
             "Statement No." := StatementNo;
             "Statement Date" := StatementDate;
             "Statement Type" := "Statement Type"::"Bank Reconciliation";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -242,7 +242,6 @@ codeunit 134255 "Delete Bank Reconciliation"
     begin
         SuggestBankAccReconLines.StartingDate.SetValue(LedgerEntryDate);
         SuggestBankAccReconLines.EndingDate.SetValue(LedgerEntryDate);
-        SuggestBankAccReconLines.IncludeChecks.SetValue(true);
         SuggestBankAccReconLines.OK().Invoke();
     end;
 

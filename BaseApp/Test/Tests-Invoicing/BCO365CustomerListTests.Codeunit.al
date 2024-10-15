@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138943 "BC O365 Customer List Tests"
 {
     Subtype = Test;
@@ -60,7 +61,7 @@ codeunit 138943 "BC O365 Customer List Tests"
         Initialize();
 
         // [GIVEN] A posted invoice with due date today
-        SalesInvoiceHeader.Get(SendInvoice(WorkDate));
+        SalesInvoiceHeader.Get(SendInvoice(WorkDate()));
         SalesInvoiceHeader.CalcFields(Amount, "Amount Including VAT");
 
         // [WHEN] The customer list is opened
@@ -88,7 +89,7 @@ codeunit 138943 "BC O365 Customer List Tests"
         Initialize();
 
         // [GIVEN] A posted invoice with due date yesterday
-        SalesInvoiceHeader.Get(SendInvoice(WorkDate - 1));
+        SalesInvoiceHeader.Get(SendInvoice(WorkDate() - 1));
         SalesInvoiceHeader.CalcFields(Amount, "Amount Including VAT");
 
         // [WHEN] The customer list is opened
@@ -162,7 +163,7 @@ codeunit 138943 "BC O365 Customer List Tests"
         BCO365SalesCustomerCard.BlockedStatus.SetValue(false);
 
         // [THEN] A pop up is displayed (in handler)
-        BCO365SalesCustomerCard.Close;
+        BCO365SalesCustomerCard.Close();
     end;
 
     [Test]
@@ -203,7 +204,7 @@ codeunit 138943 "BC O365 Customer List Tests"
         O365C2GraphEventSettings: Record "O365 C2Graph Event Settings";
         LibraryAzureKVMockMgmt: Codeunit "Library - Azure KV Mock Mgmt.";
     begin
-        EventSubscriberInvoicingApp.Clear;
+        EventSubscriberInvoicingApp.Clear();
         LibraryWorkflow.SetUpEmailAccount();
         LibraryVariableStorage.Clear();
         if IsInitialized then
@@ -212,7 +213,7 @@ codeunit 138943 "BC O365 Customer List Tests"
         LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider;
         LibraryAzureKVMockMgmt.EnsureSecretNameIsAllowed('SmtpSetup');
 
-        if not O365C2GraphEventSettings.Get then
+        if not O365C2GraphEventSettings.Get() then
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
@@ -249,7 +250,7 @@ codeunit 138943 "BC O365 Customer List Tests"
         BCO365SalesInvoice.GotoKey(SalesHeader."Document Type"::Invoice, InvoiceNo);
         BCO365SalesInvoice."Document Date".SetValue(DueDate - 5);
         BCO365SalesInvoice."Due Date".SetValue(DueDate);
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
         SalesHeader.Get(SalesHeader."Document Type"::Invoice, InvoiceNo);
         LibraryVariableStorage.Enqueue(SalesHeader);
         exit(LibraryInvoicingApp.SendInvoice(InvoiceNo));
@@ -330,4 +331,4 @@ codeunit 138943 "BC O365 Customer List Tests"
     begin
     end;
 }
-
+#endif

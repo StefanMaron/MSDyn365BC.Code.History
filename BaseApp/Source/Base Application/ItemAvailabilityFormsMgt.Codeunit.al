@@ -6,18 +6,19 @@ codeunit 353 "Item Availability Forms Mgt"
     end;
 
     var
-        Text012: Label 'Do you want to change %1 from %2 to %3?', Comment = '%1=FieldCaption, %2=OldDate, %3=NewDate';
         ItemAvailByBOMLevel: Page "Item Availability by BOM Level";
         ForecastName: Code[10];
         AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM;
         QtyByUnitOfMeasure: Decimal;
+
+        Text012: Label 'Do you want to change %1 from %2 to %3?', Comment = '%1=FieldCaption, %2=OldDate, %3=NewDate';
 
     local procedure CalcItemPlanningFields(var Item: Record Item; CalculateTransferQuantities: Boolean)
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
         with Item do begin
-            Init;
+            Init();
             CalcFields(
               "Qty. on Purch. Order",
               "Qty. on Sales Order",
@@ -845,8 +846,8 @@ codeunit 353 "Item Availability Forms Mgt"
             if ForecastName <> '' then
                 ItemAvailByEvent.SetForecastName(ForecastName);
         end;
-        if ItemAvailByEvent.RunModal = ACTION::LookupOK then begin
-            NewDate := ItemAvailByEvent.GetSelectedDate;
+        if ItemAvailByEvent.RunModal() = ACTION::LookupOK then begin
+            NewDate := ItemAvailByEvent.GetSelectedDate();
             if (NewDate <> 0D) and (NewDate <> OldDate) then
                 if Confirm(Text012, true, FieldCaption, OldDate, NewDate) then
                     exit(true);
@@ -871,8 +872,8 @@ codeunit 353 "Item Availability Forms Mgt"
             ItemAvailByLoc.LookupMode(true);
         ItemAvailByLoc.SetRecord(Item);
         ItemAvailByLoc.SetTableView(Item);
-        if ItemAvailByLoc.RunModal = ACTION::LookupOK then begin
-            NewLocationCode := ItemAvailByLoc.GetLastLocation;
+        if ItemAvailByLoc.RunModal() = ACTION::LookupOK then begin
+            NewLocationCode := ItemAvailByLoc.GetLastLocation();
             if OldLocationCode <> NewLocationCode then
                 if Confirm(Text012, true, FieldCaption, OldLocationCode, NewLocationCode) then
                     exit(true);
@@ -897,8 +898,8 @@ codeunit 353 "Item Availability Forms Mgt"
             ItemAvailByPeriods.LookupMode(true);
         ItemAvailByPeriods.SetRecord(Item);
         ItemAvailByPeriods.SetTableView(Item);
-        if ItemAvailByPeriods.RunModal = ACTION::LookupOK then begin
-            NewDate := ItemAvailByPeriods.GetLastDate;
+        if ItemAvailByPeriods.RunModal() = ACTION::LookupOK then begin
+            NewDate := ItemAvailByPeriods.GetLastDate();
             if OldDate <> NewDate then
                 if Confirm(Text012, true, FieldCaption, OldDate, NewDate) then
                     exit(true);
@@ -923,8 +924,8 @@ codeunit 353 "Item Availability Forms Mgt"
             ItemAvailByVariant.LookupMode(true);
         ItemAvailByVariant.SetRecord(Item);
         ItemAvailByVariant.SetTableView(Item);
-        if ItemAvailByVariant.RunModal = ACTION::LookupOK then begin
-            NewVariant := ItemAvailByVariant.GetLastVariant;
+        if ItemAvailByVariant.RunModal() = ACTION::LookupOK then begin
+            NewVariant := ItemAvailByVariant.GetLastVariant();
             if OldVariant <> NewVariant then
                 if Confirm(Text012, true, FieldCaption, OldVariant, NewVariant) then
                     exit(true);
@@ -968,8 +969,8 @@ codeunit 353 "Item Availability Forms Mgt"
             ItemAvailByUOM.LookupMode(true);
         ItemAvailByUOM.SetRecord(Item);
         ItemAvailByUOM.SetTableView(Item);
-        if ItemAvailByUOM.RunModal = ACTION::LookupOK then begin
-            NewUoMCode := ItemAvailByUOM.GetLastUOM;
+        if ItemAvailByUOM.RunModal() = ACTION::LookupOK then begin
+            NewUoMCode := ItemAvailByUOM.GetLastUOM();
             if OldUoMCode <> NewUoMCode then
                 if Confirm(Text012, true, FieldCaption, OldUoMCode, NewUoMCode) then
                     exit(true);
@@ -996,8 +997,8 @@ codeunit 353 "Item Availability Forms Mgt"
     begin
         if FieldCaption <> '' then
             ItemAvailByBOMLevel.LookupMode(true);
-        if ItemAvailByBOMLevel.RunModal = ACTION::LookupOK then begin
-            NewDate := ItemAvailByBOMLevel.GetSelectedDate;
+        if ItemAvailByBOMLevel.RunModal() = ACTION::LookupOK then begin
+            NewDate := ItemAvailByBOMLevel.GetSelectedDate();
             if OldDate <> NewDate then
                 if Confirm(Text012, true, FieldCaption, OldDate, NewDate) then
                     exit(true);

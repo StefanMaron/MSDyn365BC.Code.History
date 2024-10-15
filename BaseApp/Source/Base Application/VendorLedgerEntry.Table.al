@@ -608,6 +608,11 @@
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
                                                                                     "Global Dimension No." = const(8)));
         }
+        field(1000; "Remit-to Code"; Code[20])
+        {
+            Caption = 'Remit-to Code';
+            TableRelation = "Remit Address".Code WHERE("Vendor No." = FIELD("Vendor No."));
+        }
         field(10020; "IRS 1099 Code"; Code[10])
         {
             Caption = 'IRS 1099 Code';
@@ -820,8 +825,8 @@
         DtldVendLedgEntry.CopyFilter("Initial Entry Global Dim. 1", VendLedgEntry."Global Dimension 1 Code");
         DtldVendLedgEntry.CopyFilter("Initial Entry Global Dim. 2", VendLedgEntry."Global Dimension 2 Code");
         VendLedgEntry.SetCurrentKey("Vendor No.", "Posting Date");
-        VendLedgEntry.SetFilter("Date Filter", '..%1', WorkDate);
-        VendLedgEntry.SetFilter("Due Date", '<%1', WorkDate);
+        VendLedgEntry.SetFilter("Date Filter", '..%1', WorkDate());
+        VendLedgEntry.SetFilter("Due Date", '<%1', WorkDate());
         VendLedgEntry.SetFilter("Remaining Amount", '<>%1', 0);
         OnBeforeDrillDownOnOverdueEntries(VendLedgEntry, DtldVendLedgEntry, DrillDownPageID);
         PAGE.Run(DrillDownPageID, VendLedgEntry);
@@ -845,7 +850,7 @@
     var
         DimMgt: Codeunit DimensionManagement;
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "Entry No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "Entry No."));
     end;
 
     procedure SetStyle() Result: Text
@@ -858,7 +863,7 @@
             exit(Result);
 
         if Open then begin
-            if WorkDate > "Due Date" then
+            if WorkDate() > "Due Date" then
                 exit('Unfavorable')
         end else
             if "Closed at Date" > "Due Date" then
@@ -909,6 +914,8 @@
         "Exported to Payment File" := GenJnlLine."Exported to Payment File";
         "IRS 1099 Code" := GenJnlLine."IRS 1099 Code";
         "IRS 1099 Amount" := GenJnlLine."IRS 1099 Amount";
+        if (GenJnlLine."Remit-to Code" <> '') then
+            "Remit-to Code" := GenJnlLine."Remit-to Code";
 
         OnAfterCopyVendLedgerEntryFromGenJnlLine(Rec, GenJnlLine);
     end;

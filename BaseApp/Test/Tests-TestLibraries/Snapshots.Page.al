@@ -79,7 +79,7 @@ page 130013 Snapshots
 
                 trigger OnAction()
                 begin
-                    RefreshPage;
+                    RefreshPage();
                 end;
             }
             action("<Take Snapshot>")
@@ -94,7 +94,7 @@ page 130013 Snapshots
                 trigger OnAction()
                 begin
                     SnapshotMgt.InitSnapshot('SNAPSHOT' + Format(SnapshotMgt.GetAvailableSnapshotNo), true);
-                    RefreshPage;
+                    RefreshPage();
                 end;
             }
             action("<Restore Snapshot>")
@@ -109,7 +109,7 @@ page 130013 Snapshots
                 trigger OnAction()
                 begin
                     SnapshotMgt.RestoreSnapshot("Snapshot No.");
-                    RefreshPage;
+                    RefreshPage();
                 end;
             }
         }
@@ -118,7 +118,7 @@ page 130013 Snapshots
     trigger OnDeleteRecord(): Boolean
     begin
         SnapshotMgt.DeleteSnapshot("Snapshot No.");
-        RefreshPage;
+        RefreshPage();
         exit(true);
     end;
 
@@ -130,7 +130,7 @@ page 130013 Snapshots
     trigger OnOpenPage()
     begin
         UpdateDisabledFlag;
-        RefreshPage;
+        RefreshPage();
     end;
 
     var

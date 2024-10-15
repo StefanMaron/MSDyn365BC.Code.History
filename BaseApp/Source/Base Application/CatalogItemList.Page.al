@@ -19,23 +19,23 @@ page 5726 "Catalog Item List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Vendor Item No."; "Vendor Item No.")
+                field("Vendor Item No."; Rec."Vendor Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number that the vendor uses for this item.';
                 }
-                field("Manufacturer Code"; "Manufacturer Code")
+                field("Manufacturer Code"; Rec."Manufacturer Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for the manufacturer of the catalog item.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the item number that the program has generated for this catalog item.';
                     Visible = false;
                 }
-                field("Vendor No."; "Vendor No.")
+                field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the vendor from whom you can purchase the catalog item.';
@@ -45,58 +45,47 @@ page 5726 "Catalog Item List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the catalog item.';
                 }
-                field("Unit of Measure"; "Unit of Measure")
+                field("Unit of Measure"; Rec."Unit of Measure")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the name of the item or resource''s unit of measure, such as piece or hour.';
                 }
-                field("Published Cost"; "Published Cost")
+                field("Published Cost"; Rec."Published Cost")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the published cost or vendor list price for the catalog item.';
                 }
-                field("Negotiated Cost"; "Negotiated Cost")
+                field("Negotiated Cost"; Rec."Negotiated Cost")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the price you negotiated to pay for the catalog item.';
                 }
-                field("Unit Price"; "Unit Price")
+                field("Unit Price"; Rec."Unit Price")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the price of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
                 }
-                field("Gross Weight"; "Gross Weight")
+                field("Gross Weight"; Rec."Gross Weight")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the gross weight, including the weight of any packaging, of the catalog item.';
                 }
-                field("Net Weight"; "Net Weight")
+                field("Net Weight"; Rec."Net Weight")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the net weight of the item. The weight of packaging materials is not included.';
                 }
-#if not CLEAN18
-                field("Item Template Code"; "Item Template Code")
-                {
-                    ApplicationArea = Advanced;
-                    ToolTip = 'Specifies the code for the item template used for this catalog item.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This control will be removed with other functionality related to "old" templates. Use "Item Templ. Code" control instead.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-#endif
-                field("Item Templ. Code"; "Item Templ. Code")
+                field("Item Templ. Code"; Rec."Item Templ. Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the item template used for this catalog item.';
                 }
-                field("Last Date Modified"; "Last Date Modified")
+                field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date on which the catalog item card was last modified.';
                 }
-                field("Bar Code"; "Bar Code")
+                field("Bar Code"; Rec."Bar Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bar code of the catalog item.';
@@ -155,8 +144,6 @@ page 5726 "Catalog Item List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Catalog Item Sales';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Catalog Item Sales";
                 ToolTip = 'View a list of item sales for each catalog item during a selected time period. It can be used to review a company''s sale of catalog items.';
             }
@@ -165,11 +152,21 @@ page 5726 "Catalog Item List"
                 ApplicationArea = Suite;
                 Caption = 'Item Substitutions';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Item Substitutions";
                 ToolTip = 'View or edit any substitute items that are set up to be traded instead of the item in case it is not available.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Reports';
+
+                actionref("Catalog Item Sales_Promoted"; "Catalog Item Sales")
+                {
+                }
             }
         }
     }

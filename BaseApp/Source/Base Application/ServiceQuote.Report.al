@@ -152,7 +152,7 @@ report 5902 "Service Quote"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not DimSetEntry1.Find('-') then
+                                if not DimSetEntry1.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if not Continue then
@@ -163,8 +163,7 @@ report 5902 "Service Quote"
                             repeat
                                 OldDimText := DimText;
                                 if DimText = '' then
-                                    DimText := StrSubstNo(
-                                        '%1 %2', DimSetEntry1."Dimension Code", DimSetEntry1."Dimension Value Code")
+                                    DimText := StrSubstNo('%1 %2', DimSetEntry1."Dimension Code", DimSetEntry1."Dimension Value Code")
                                 else
                                     DimText :=
                                       StrSubstNo(
@@ -467,7 +466,7 @@ report 5902 "Service Quote"
                             trigger OnAfterGetRecord()
                             begin
                                 if Number = 1 then begin
-                                    if not DimSetEntry2.Find('-') then
+                                    if not DimSetEntry2.FindSet() then
                                         CurrReport.Break();
                                 end else
                                     if not Continue then
@@ -478,8 +477,7 @@ report 5902 "Service Quote"
                                 repeat
                                     OldDimText := DimText;
                                     if DimText = '' then
-                                        DimText := StrSubstNo(
-                                            '%1 %2', DimSetEntry2."Dimension Code", DimSetEntry2."Dimension Value Code")
+                                        DimText := StrSubstNo('%1 %2', DimSetEntry2."Dimension Code", DimSetEntry2."Dimension Value Code")
                                     else
                                         DimText :=
                                           StrSubstNo(
@@ -513,12 +511,12 @@ report 5902 "Service Quote"
                                 ExchangeFactor := 1
                             else
                                 ExchangeFactor := "Service Header"."Currency Factor";
-                            SalesTaxCalculate.StartSalesTaxCalculation;
+                            SalesTaxCalculate.StartSalesTaxCalculation();
                             SalesTaxCalculate.AddServiceLine("Service Line");
                             SalesTaxCalculate.EndSalesTaxCalculation("Posting Date");
                             SalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxAmountLine);
                             OnAfterCalculateSalesTax("Service Header", "Service Line", TempSalesTaxAmountLine);
-                            GrossAmt := Amt + TempSalesTaxAmountLine.GetTotalTaxAmountFCY;
+                            GrossAmt := Amt + TempSalesTaxAmountLine.GetTotalTaxAmountFCY();
 
                             TotAmt := TotAmt + Amt;
                             TotGrossAmt := TotGrossAmt + GrossAmt;
@@ -566,13 +564,13 @@ report 5902 "Service Quote"
                     TotGrossAmt := 0;
 
                     if Number > 1 then
-                        CopyText := FormatDocument.GetCOPYText;
+                        CopyText := FormatDocument.GetCOPYText();
                     OutputNo += 1;
                 end;
 
                 trigger OnPostDataItem()
                 begin
-                    if not IsReportInPreviewMode then
+                    if not IsReportInPreviewMode() then
                         CODEUNIT.Run(CODEUNIT::"Service-Printed", "Service Header");
                 end;
 
@@ -677,7 +675,7 @@ report 5902 "Service Quote"
 
     trigger OnPostReport()
     begin
-        if LogInteraction and not IsReportInPreviewMode then
+        if LogInteraction and not IsReportInPreviewMode() then
             if "Service Header".FindSet() then
                 repeat
                     if "Service Header"."Contact No." <> '' then
@@ -690,8 +688,6 @@ report 5902 "Service Quote"
     end;
 
     var
-        Text001: Label 'Service Quote %1';
-        Text002: Label 'Page %1';
         CompanyInfo: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";
@@ -724,6 +720,9 @@ report 5902 "Service Quote"
         OutputNo: Integer;
         [InDataSet]
         LogInteractionEnable: Boolean;
+
+        Text001: Label 'Service Quote %1';
+        Text002: Label 'Page %1';
         Service_Header___Order_Date_CaptionLbl: Label 'Order Date';
         Invoice_toCaptionLbl: Label 'Invoice to';
         CompanyInfo__Phone_No__CaptionLbl: Label 'Phone No.';
@@ -745,7 +744,7 @@ report 5902 "Service Quote"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     local procedure FormatAddressFields(var ServiceHeader: Record "Service Header")

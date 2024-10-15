@@ -28,17 +28,17 @@ page 492 "Item Availability by Location"
                     trigger OnValidate()
                     begin
                         if ItemPeriodLength = ItemPeriodLength::"Accounting Period" then
-                            PeriodItemPeriodLengthOnValida;
+                            PeriodItemPeriodLengthOnValida();
                         if ItemPeriodLength = ItemPeriodLength::Year then
-                            YearItemPeriodLengthOnValidate;
+                            YearItemPeriodLengthOnValidate();
                         if ItemPeriodLength = ItemPeriodLength::Quarter then
-                            QuarterItemPeriodLengthOnValid;
+                            QuarterItemPeriodLengthOnValid();
                         if ItemPeriodLength = ItemPeriodLength::Month then
-                            MonthItemPeriodLengthOnValidat;
+                            MonthItemPeriodLengthOnValidat();
                         if ItemPeriodLength = ItemPeriodLength::Week then
-                            WeekItemPeriodLengthOnValidate;
+                            WeekItemPeriodLengthOnValidate();
                         if ItemPeriodLength = ItemPeriodLength::Day then
-                            DayItemPeriodLengthOnValidate;
+                            DayItemPeriodLengthOnValidate();
                     end;
                 }
                 field(AmountType; AmountType)
@@ -50,9 +50,9 @@ page 492 "Item Availability by Location"
                     trigger OnValidate()
                     begin
                         if AmountType = AmountType::"Balance at Date" then
-                            BalanceatDateAmountTypeOnValid;
+                            BalanceatDateAmountTypeOnValid();
                         if AmountType = AmountType::"Net Change" then
-                            NetChangeAmountTypeOnValidate;
+                            NetChangeAmountTypeOnValidate();
                     end;
                 }
                 field(DateFilter; DateFilter)
@@ -92,7 +92,7 @@ page 492 "Item Availability by Location"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItem(Rec, ItemAvailFormsMgt.ByEvent);
+                            ItemAvailFormsMgt.ShowItemAvailFromItem(Rec, ItemAvailFormsMgt.ByEvent());
                         end;
                     }
                     action(Period)
@@ -132,7 +132,7 @@ page 492 "Item Availability by Location"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItem(Rec, ItemAvailFormsMgt.ByBOM);
+                            ItemAvailFormsMgt.ShowItemAvailFromItem(Rec, ItemAvailFormsMgt.ByBOM());
                         end;
                     }
                 }
@@ -145,10 +145,6 @@ page 492 "Item Availability by Location"
                 ApplicationArea = Location;
                 Caption = 'Previous Period';
                 Image = PreviousRecord;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Show the information based on the previous period. If you set the View by field to Day, the date filter changes to the day before.';
 
                 trigger OnAction()
@@ -162,9 +158,6 @@ page 492 "Item Availability by Location"
                 ApplicationArea = Location;
                 Caption = 'Next Period';
                 Image = NextRecord;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Show the information based on the next period. If you set the View by field to Day, the date filter changes to the day before.';
 
                 trigger OnAction()
@@ -172,6 +165,20 @@ page 492 "Item Availability by Location"
                     FindPeriod('>=');
                     UpdateSubForm();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(PreviousPeriod_Promoted; PreviousPeriod)
+                {
+                }
+                actionref(NextPeriod_Promoted; NextPeriod)
+                {
+                }
             }
         }
     }
@@ -286,42 +293,42 @@ page 492 "Item Availability by Location"
 
     local procedure DayItemPeriodLengthOnValidate()
     begin
-        DayItemPeriodLengthOnPush;
+        DayItemPeriodLengthOnPush();
     end;
 
     local procedure WeekItemPeriodLengthOnValidate()
     begin
-        WeekItemPeriodLengthOnPush;
+        WeekItemPeriodLengthOnPush();
     end;
 
     local procedure MonthItemPeriodLengthOnValidat()
     begin
-        MonthItemPeriodLengthOnPush;
+        MonthItemPeriodLengthOnPush();
     end;
 
     local procedure QuarterItemPeriodLengthOnValid()
     begin
-        QuarterItemPeriodLengthOnPush;
+        QuarterItemPeriodLengthOnPush();
     end;
 
     local procedure YearItemPeriodLengthOnValidate()
     begin
-        YearItemPeriodLengthOnPush;
+        YearItemPeriodLengthOnPush();
     end;
 
     local procedure PeriodItemPeriodLengthOnValida()
     begin
-        PeriodItemPeriodLengthOnPush;
+        PeriodItemPeriodLengthOnPush();
     end;
 
     local procedure NetChangeAmountTypeOnValidate()
     begin
-        NetChangeAmountTypeOnPush;
+        NetChangeAmountTypeOnPush();
     end;
 
     local procedure BalanceatDateAmountTypeOnValid()
     begin
-        BalanceatDateAmountTypeOnPush;
+        BalanceatDateAmountTypeOnPush();
     end;
 }
 

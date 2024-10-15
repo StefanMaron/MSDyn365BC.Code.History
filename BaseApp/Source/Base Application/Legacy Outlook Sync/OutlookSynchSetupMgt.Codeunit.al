@@ -58,7 +58,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
         Clear(OObjLibrary);
         if not CanLoadType(OObjLibrary) then
             Error(Text014);
-        OObjLibrary := OObjLibrary.OutlookObjectLibrary;
+        OObjLibrary := OObjLibrary.OutlookObjectLibrary();
 
         for Counter := 1 to OObjLibrary.ItemsCount do begin
             TempOSynchLookupName.Init();
@@ -80,7 +80,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
         Clear(OObjLibrary);
         if not CanLoadType(OObjLibrary) then
             Error(Text014);
-        OObjLibrary := OObjLibrary.OutlookObjectLibrary;
+        OObjLibrary := OObjLibrary.OutlookObjectLibrary();
 
         PropertyList := OObjLibrary.GetItem(ItemName);
 
@@ -105,7 +105,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
         Clear(OObjLibrary);
         if not CanLoadType(OObjLibrary) then
             Error(Text014);
-        OObjLibrary := OObjLibrary.OutlookObjectLibrary;
+        OObjLibrary := OObjLibrary.OutlookObjectLibrary();
 
         PropertyList := OObjLibrary.GetItem(ItemName);
 
@@ -132,7 +132,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
         Clear(OObjLibrary);
         if not CanLoadType(OObjLibrary) then
             Error(Text014);
-        OObjLibrary := OObjLibrary.OutlookObjectLibrary;
+        OObjLibrary := OObjLibrary.OutlookObjectLibrary();
 
         PropertyList := OObjLibrary.GetItem(ItemName);
 
@@ -157,7 +157,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
         CollectionName: Text;
     begin
         with OSynchEntityElement do begin
-            Reset;
+            Reset();
             SetRange("Synch. Entity Code", SynchEntityCode);
             SetFilter("Outlook Collection", '<>%1', '');
 
@@ -228,7 +228,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
         Clear(OObjLibrary);
         if not CanLoadType(OObjLibrary) then
             Error(Text014);
-        OObjLibrary := OObjLibrary.OutlookObjectLibrary;
+        OObjLibrary := OObjLibrary.OutlookObjectLibrary();
 
         PropertyList := OObjLibrary.GetItem(ItemName);
 
@@ -311,7 +311,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
                 TempOSynchFilter.Insert();
             until OSynchFilter.Next() = 0;
 
-        LookUpOk := OSynchFiltersForm.RunModal = ACTION::OK;
+        LookUpOk := OSynchFiltersForm.RunModal() = ACTION::OK;
         ShowWarning := LookUpOk and ((OSynchFilter.Count = 0) and (MasterTableNo <> 0));
 
         if ShowWarning or (not LookUpOk) then begin
@@ -340,7 +340,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
         Clear(OObjLibrary);
         if not CanLoadType(OObjLibrary) then
             Error(Text014);
-        OObjLibrary := OObjLibrary.OutlookObjectLibrary;
+        OObjLibrary := OObjLibrary.OutlookObjectLibrary();
 
         if OSynchFieldIn."Table No." = 0 then
             Field.Get(OSynchFieldIn."Master Table No.", OSynchFieldIn."Field No.")
@@ -380,7 +380,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
                           OSynchUserSetup."Synch. Entity Code",
                           OSynchUserSetup."Synch. Direction",
                           OSynchUserSetup.FieldCaption("Synch. Direction"),
-                          OSynchUserSetup.TableCaption);
+                          OSynchUserSetup.TableCaption());
                 end else begin
                     if EntityList = '' then
                         EntityList := OSynchDependency."Depend. Synch. Entity Code"
@@ -393,8 +393,8 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
                 exit(true);
 
             if StrPos(EntityList, ',') = 0 then
-                Error(Text004, EntityList, OSynchUserSetup.TableCaption);
-            Error(Text006, EntityList, OSynchUserSetup.TableCaption);
+                Error(Text004, EntityList, OSynchUserSetup.TableCaption());
+            Error(Text006, EntityList, OSynchUserSetup.TableCaption());
         end;
 
         exit(true);
@@ -416,7 +416,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
         Clear(OObjLibrary);
         if not CanLoadType(OObjLibrary) then
             Error(Text014);
-        OObjLibrary := OObjLibrary.OutlookObjectLibrary;
+        OObjLibrary := OObjLibrary.OutlookObjectLibrary();
 
         TempOSynchLookupName.Reset();
         TempOSynchLookupName.DeleteAll();
@@ -516,7 +516,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
         Clear(OObjLibrary);
         if not CanLoadType(OObjLibrary) then
             Error(Text014);
-        OObjLibrary := OObjLibrary.OutlookObjectLibrary;
+        OObjLibrary := OObjLibrary.OutlookObjectLibrary();
 
         for Counter := 1 to OObjLibrary.ItemsCount do begin
             TempOSynchLookupName.Init();
@@ -544,7 +544,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
         Clear(OObjLibrary);
         if not CanLoadType(OObjLibrary) then
             Error(Text014);
-        OObjLibrary := OObjLibrary.OutlookObjectLibrary;
+        OObjLibrary := OObjLibrary.OutlookObjectLibrary();
 
         PropertyList := OObjLibrary.GetItem(ItemName);
 
@@ -576,7 +576,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
         if IsNull(OObjLibrary) then
             if not CanLoadType(OObjLibrary) then
                 Error(Text014);
-        OObjLibrary := OObjLibrary.OutlookObjectLibrary;
+        OObjLibrary := OObjLibrary.OutlookObjectLibrary();
 
         PropertyList := OObjLibrary.GetItem(ItemName);
 
@@ -615,7 +615,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
         Clear(OObjLibrary);
         if not CanLoadType(OObjLibrary) then
             Error(Text014);
-        OObjLibrary := OObjLibrary.OutlookObjectLibrary;
+        OObjLibrary := OObjLibrary.OutlookObjectLibrary();
 
         PropertyList := OObjLibrary.GetItem(ItemName);
 
@@ -669,12 +669,12 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
             Delimiter := '';
             repeat
                 FilterLength := StrLen(TempString) +
-                  StrLen(OSynchFilter.GetFieldCaption) + StrLen(Format(OSynchFilter.Type)) + StrLen(OSynchFilter.Value);
+                  StrLen(OSynchFilter.GetFieldCaption()) + StrLen(Format(OSynchFilter.Type)) + StrLen(OSynchFilter.Value);
                 if FilterLength + StrLen(TempString) > MaxStrLen(TempString) - 5 then
                     Error(Text003, Format(MaxStrLen(TempString)));
                 TempString :=
                   StrSubstNo('%1%2%3=%4(%5)',
-                    TempString, Delimiter, OSynchFilter.GetFieldCaption, Format(OSynchFilter.Type), OSynchFilter.Value);
+                    TempString, Delimiter, OSynchFilter.GetFieldCaption(), Format(OSynchFilter.Type), OSynchFilter.Value);
                 Delimiter := ',';
             until OSynchFilter.Next() = 0;
 
@@ -716,10 +716,10 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
                     begin
                         MasterFieldRef := SynchRecRef.Field(OSynchFilterIn."Master Table Field No.");
                         TempStr := StrSubstNo('FILTER(%1)', OSynchTypeConversion.ReplaceFilterChars(Format(MasterFieldRef.Value)));
-                        FilterLength := StrLen(FilterString) + StrLen(Delimiter) + StrLen(OSynchFilterIn.GetFieldCaption) + StrLen(TempStr);
+                        FilterLength := StrLen(FilterString) + StrLen(Delimiter) + StrLen(OSynchFilterIn.GetFieldCaption()) + StrLen(TempStr);
                         if FilterLength > 1000 then
                             Error(Text003, Format(1000));
-                        FilterString := StrSubstNo('%1%2%3=%4', FilterString, Delimiter, OSynchFilterIn.GetFieldCaption, TempStr);
+                        FilterString := StrSubstNo('%1%2%3=%4', FilterString, Delimiter, OSynchFilterIn.GetFieldCaption(), TempStr);
                     end;
             end;
             Delimiter := ',';
@@ -777,7 +777,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
             FilterValue := PadStr(FilterValue, Field.Len);
 
         OSynchFilterIn.Init();
-        OSynchFilterIn."Record GUID" := CreateGuid;
+        OSynchFilterIn."Record GUID" := CreateGuid();
         OSynchFilterIn."Filter Type" := OSynchFilterIn."Filter Type"::Condition;
         OSynchFilterIn."Line No." := OSynchFilterIn."Line No." + 10000;
         OSynchFilterIn."Table No." := TableID;
@@ -827,7 +827,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
         if IsNull(OObjLibrary) then
             if not CanLoadType(OObjLibrary) then
                 Error(Text014);
-        OObjLibrary := OObjLibrary.OutlookObjectLibrary;
+        OObjLibrary := OObjLibrary.OutlookObjectLibrary();
 
         if OSynchFieldIn."Element No." = 0 then begin
             PropertyList := OObjLibrary.GetItem(OSynchFieldIn."Outlook Object");

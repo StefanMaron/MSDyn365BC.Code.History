@@ -18,17 +18,17 @@ page 1367 "Monitored Field Log Entries"
         {
             repeater(group)
             {
-                field("Change Timestamp"; "Date and Time")
+                field("Change Timestamp"; Rec."Date and Time")
                 {
                     ToolTip = 'Specifies the data and time when the change occurred.';
                     ApplicationArea = Basic, Suite;
                 }
-                field("Modified By"; "User ID")
+                field("Modified By"; Rec."User ID")
                 {
                     ToolTip = 'Specifies the username of the person who changed the value in the monitored field.';
                     ApplicationArea = Basic, Suite;
                 }
-                field("Table No"; "Table No.")
+                field("Table No"; Rec."Table No.")
                 {
                     ToolTip = 'Specifies the identifier of the table that includes the monitored field.';
                     ApplicationArea = Basic, Suite;
@@ -37,29 +37,29 @@ page 1367 "Monitored Field Log Entries"
                         MonitorSensitiveFieldData.OpenChangedRecordPage("Table No.", "Field No.", "Changed Record SystemId");
                     end;
                 }
-                field("Table Caption"; "Table Caption")
+                field("Table Caption"; Rec."Table Caption")
                 {
                     ToolTip = 'Specifies the name of the table that includes the monitored field.';
                     ApplicationArea = Basic, Suite;
                 }
-                field("Field No"; "Field No.")
+                field("Field No"; Rec."Field No.")
                 {
                     ToolTip = 'Specifies the identifier of the field that is being monitored.';
                     ApplicationArea = Basic, Suite;
                     Enabled = false;
                     DrillDown = false;
                 }
-                field("Field Caption"; "Field Caption")
+                field("Field Caption"; Rec."Field Caption")
                 {
                     ToolTip = 'Specifies the name of the field that is being monitored.';
                     ApplicationArea = Basic, Suite;
                 }
-                field("Notification Status"; "Notification Status")
+                field("Notification Status"; Rec."Notification Status")
                 {
                     ToolTip = 'Specifies whether notification was sent, failed or was turned off';
                     ApplicationArea = Basic, Suite;
                 }
-                field("Type of Change"; "Type of Change")
+                field("Type of Change"; Rec."Type of Change")
                 {
                     ToolTip = 'Specifies type of change';
                     ApplicationArea = Basic, Suite;
@@ -87,11 +87,7 @@ page 1367 "Monitored Field Log Entries"
             {
                 ToolTip = 'Show entries for changes that were made to fields that you are monitoring.';
                 ApplicationArea = Basic, Suite;
-                Promoted = true;
                 Image = Start;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Visible = not IsMonitoredFieldsEntriesShown;
                 Caption = 'Show Monitored Field Entries';
 
@@ -106,11 +102,7 @@ page 1367 "Monitored Field Log Entries"
             {
                 ToolTip = 'Hide entries for changes that were made to fields that you are monitoring.';
                 ApplicationArea = Basic, Suite;
-                Promoted = true;
                 Image = Start;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Visible = IsMonitoredFieldsEntriesShown;
                 Caption = 'Hide Monitored Field Entries';
 
@@ -132,6 +124,20 @@ page 1367 "Monitored Field Log Entries"
                 AccessByPermission = tabledata "Retention Policy Setup" = R;
                 RunPageMode = View;
                 Ellipsis = true;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Show Monitoring Setup Entries_Promoted"; "Show Monitoring Setup Entries")
+                {
+                }
+                actionref("Hide Monitoring Setup Entries_Promoted"; "Hide Monitoring Setup Entries")
+                {
+                }
             }
         }
     }

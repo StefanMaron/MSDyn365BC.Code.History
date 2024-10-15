@@ -28,12 +28,12 @@ codeunit 3032 DotNet_BinaryReader
 
     procedure Close()
     begin
-        DotNetBinaryReader.Close;
+        DotNetBinaryReader.Close();
     end;
 
     procedure Dispose()
     begin
-        DotNetBinaryReader.Dispose;
+        DotNetBinaryReader.Dispose();
     end;
 
     procedure ReadByte(): Byte

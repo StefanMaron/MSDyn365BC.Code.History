@@ -28,7 +28,7 @@ report 5979 "Copy Service Document"
                         trigger OnValidate()
                         begin
                             DocNo := '';
-                            ValidateDocNo;
+                            ValidateDocNo();
                         end;
                     }
                     field(DocNo; DocNo)
@@ -39,12 +39,12 @@ report 5979 "Copy Service Document"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            LookupDocNo;
+                            LookupDocNo();
                         end;
 
                         trigger OnValidate()
                         begin
-                            ValidateDocNo;
+                            ValidateDocNo();
                         end;
                     }
                     field("FromServContractHeader.""Customer No."""; FromServContractHeader."Customer No.")
@@ -110,10 +110,10 @@ report 5979 "Copy Service Document"
     begin
         if DocNo = '' then
             Error(Text004);
-        ValidateDocNo;
+        ValidateDocNo();
         if FromServContractHeader."Ship-to Code" <> ServContractHeader."Ship-to Code" then
             if not ConfirmManagement.GetResponseOrDefault(Text003, true) then
-                CurrReport.Quit;
+                CurrReport.Quit();
         AllLinesCopied := CopyDocMgt.CopyServContractLines(ServContractHeader, DocType, DocNo, OutServContractLine);
     end;
 
@@ -138,7 +138,7 @@ report 5979 "Copy Service Document"
     local procedure ValidateDocNo()
     begin
         if DocNo = '' then
-            FromServContractHeader.Init
+            FromServContractHeader.Init()
         else begin
             FromServContractHeader.Init();
             FromServContractHeader.Get(DocType, DocNo);
@@ -169,7 +169,7 @@ report 5979 "Copy Service Document"
         FromServContractHeader.SetRange("Ship-to Code", ServContractHeader."Ship-to Code");
         if PAGE.RunModal(0, FromServContractHeader) = ACTION::LookupOK then
             DocNo := FromServContractHeader."Contract No.";
-        ValidateDocNo;
+        ValidateDocNo();
     end;
 
     procedure InitializeRequest(DocumentType: Option; DocumentNo: Code[20])

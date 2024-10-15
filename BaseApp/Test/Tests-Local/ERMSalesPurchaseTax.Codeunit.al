@@ -945,7 +945,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         SalesLine.Validate("Currency Code", CreateCurrency);
         SalesLine.Modify(true);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
-        AmountLCY := LibraryERM.ConvertCurrency(SalesLine."Line Amount", SalesLine."Currency Code", '', WorkDate);
+        AmountLCY := LibraryERM.ConvertCurrency(SalesLine."Line Amount", SalesLine."Currency Code", '', WorkDate());
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Exercise & Verify: Setup Gen. Journal Line using Currency and verify G/L Entry.
@@ -1355,7 +1355,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         asserterror LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
 
         // Verify: Verify Error will appear while posting Service Document Without Description.
-        Assert.ExpectedError(StrSubstNo(DescriptionErr, ServiceLine.TableCaption, ServiceHeader."Document Type"));
+        Assert.ExpectedError(StrSubstNo(DescriptionErr, ServiceLine.TableCaption(), ServiceHeader."Document Type"));
     end;
 
     [Test]
@@ -1924,7 +1924,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
             AmountErr,
             SalesLineNegative.FieldCaption("Amount Including VAT"),
             -SalesLinePositive."Amount Including VAT",
-            SalesLineNegative.TableCaption));
+            SalesLineNegative.TableCaption()));
     end;
 
     [Test]
@@ -1960,7 +1960,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
             AmountErr,
             PurchaseLineNegative.FieldCaption("Amount Including VAT"),
             -PurchaseLinePositive."Amount Including VAT",
-            PurchaseLineNegative.TableCaption));
+            PurchaseLineNegative.TableCaption()));
     end;
 
     [Test]
@@ -1973,6 +1973,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         GenJnlLine: Record "Gen. Journal Line";
+        VATEntry: Record "VAT Entry";
         TaxAreaCode: Code[20];
         DocNo: Code[20];
     begin
@@ -1981,6 +1982,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
 
         // [GIVEN] Unrealized Sales Tax setup. Tax Jurisdiction with "Unreal. Tax Acc. (Sales)" = "X"
         Initialize();
+        VATEntry.DeleteAll();
         LibraryERM.SetUnrealizedVAT(true);
         SetupUnrealTaxJurisdiction(TaxAreaCode, TaxDetail, TaxJurisdiction, TaxDetail."Tax Type"::"Sales Tax Only");
         CreateSalesTaxVATPostingSetup(VATPostingSetup);
@@ -2020,6 +2022,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         PurchHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
         GenJnlLine: Record "Gen. Journal Line";
+        VATEntry: Record "VAT Entry";
         TaxAreaCode: Code[20];
         DocNo: Code[20];
     begin
@@ -2028,6 +2031,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
 
         // [GIVEN] Unrealized Purchase Tax setup. Tax Jurisdiction with "Unreal. Tax Acc. (Purchase)" = "X"
         Initialize();
+        VATEntry.DeleteAll();
         LibraryERM.SetUnrealizedVAT(true);
         SetupUnrealTaxJurisdiction(TaxAreaCode, TaxDetail, TaxJurisdiction, TaxDetail."Tax Type"::"Sales Tax Only");
         CreateSalesTaxVATPostingSetup(VATPostingSetup);
@@ -2764,6 +2768,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         PurchHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
         GenJnlLine: Record "Gen. Journal Line";
+        VATEntry: Record "VAT Entry";
         TaxAreaCode: Code[20];
         DocNo: Code[20];
         TaxAmount: Decimal;
@@ -2773,6 +2778,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
 
         // [GIVEN] Unrealized Purchase Tax setup. Tax Jurisdiction with "Unreal. Rev. Charge (Purch.)" = "X" and "Reverse Charge (Purchases)" = "Y"
         Initialize();
+        VATEntry.DeleteAll();
         LibraryERM.SetUnrealizedVAT(true);
         SetupUnrealTaxJurisdiction(TaxAreaCode, TaxDetail, TaxJurisdiction, TaxDetail."Tax Type"::"Sales and Use Tax");
         CreateSalesTaxVATPostingSetup(VATPostingSetup);
@@ -2813,6 +2819,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         PurchHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
         GenJnlLine: Record "Gen. Journal Line";
+        VATEntry: Record "VAT Entry";
         TaxAreaCode: Code[20];
         DocNo: Code[20];
     begin
@@ -2821,6 +2828,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
 
         // [GIVEN] Unrealized Purchase Tax setup. Tax Jurisdiction with "Unreal. Rev. Charge (Purch.)" = "X" and "Reverse Charge (Purchases)" = "Y"
         Initialize();
+        VATEntry.DeleteAll();
         LibraryERM.SetUnrealizedVAT(true);
         SetupUnrealTaxJurisdiction(TaxAreaCode, TaxDetail, TaxJurisdiction, TaxDetail."Tax Type"::"Sales and Use Tax");
         CreateSalesTaxVATPostingSetup(VATPostingSetup);
@@ -3102,7 +3110,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         UpdatePurchaseLineAmount(PurchaseLine, Quantity, Cost);
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
-        PurchaseLine.Find;
+        PurchaseLine.Find();
     end;
 
     local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option): Decimal
@@ -3161,7 +3169,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         UpdateSalesLineAmount(SalesLine, Quantity, Price);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         LibrarySales.ReleaseSalesDocument(SalesHeader);
-        SalesLine.Find;
+        SalesLine.Find();
     end;
 
     local procedure CreateSalesDocumentWithTwoTaxAreaLines(var SalesLine: Record "Sales Line"; DocumentType: Option; TaxBelowMaximum1: Decimal; TaxBelowMaximum2: Decimal; Country: Option; Qty: Decimal; UnitPrice: Decimal): Code[20]
@@ -3833,10 +3841,10 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption));
+          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption()));
         Assert.AreNearlyEqual(
           VATAmount, GLEntry."VAT Amount", LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, GLEntry.FieldCaption("VAT Amount"), GLEntry."VAT Amount", GLEntry.TableCaption));
+          StrSubstNo(AmountErr, GLEntry.FieldCaption("VAT Amount"), GLEntry."VAT Amount", GLEntry.TableCaption()));
     end;
 
     local procedure VerifyGLEntryDoesNotExist(DocumentNo: Code[20]; GLAccountNo: Code[20])
@@ -3864,10 +3872,10 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         VATEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, VATEntry.FieldCaption(Base), VATEntry.Base, VATEntry.TableCaption));
+          StrSubstNo(AmountErr, VATEntry.FieldCaption(Base), VATEntry.Base, VATEntry.TableCaption()));
         Assert.AreNearlyEqual(
           VATAmount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, VATEntry.FieldCaption(Amount), VATEntry.Amount, VATEntry.TableCaption));
+          StrSubstNo(AmountErr, VATEntry.FieldCaption(Amount), VATEntry.Amount, VATEntry.TableCaption()));
     end;
 
     local procedure VerifyGLEntryAmount(DocumentNo: Code[20]; BalAccountNo: Code[20]; Amount: Decimal)
@@ -3879,7 +3887,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption));
+          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyGSTHSTFieldOnJournalLine(GenJournalBatch: Record "Gen. Journal Batch"; GSTHST: Option)

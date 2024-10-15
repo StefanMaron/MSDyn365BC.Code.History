@@ -179,7 +179,7 @@ codeunit 144017 "ERM Tax Entry"
         LibraryERM.CreateTaxGroup(TaxGroup);
         LibraryERM.CreateTaxDetail(
           TaxDetail, CreateSalesTaxJurisdictionWithUnrealizedType(UnrealizedVATType),
-          TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate);
+          TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", LibraryRandom.RandIntInRange(1, 3));  // Using RANDOM value for Tax Below Maximum.
         TaxDetail.Modify(true);
     end;
@@ -231,7 +231,7 @@ codeunit 144017 "ERM Tax Entry"
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption));
+          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption()));
     end;
 }
 

@@ -150,7 +150,7 @@ table 2850 "Native - API Tax Setup"
 #if not CLEAN20
     trigger OnDelete()
     begin
-        DeleteRecord;
+        DeleteRecord();
     end;
 
     var
@@ -166,7 +166,7 @@ table 2850 "Native - API Tax Setup"
         if not IsTemporary then
             Error(RecordMustBeTemporaryErr);
 
-        if not TempTaxAreaBuffer.LoadRecords then
+        if not TempTaxAreaBuffer.LoadRecords() then
             exit;
 
         LoadFromTaxArea(TempTaxAreaBuffer);
@@ -189,7 +189,7 @@ table 2850 "Native - API Tax Setup"
                     Clear(Rec);
                     DeleteAll();
 
-                    if not TempTaxAreaBuffer.LoadRecords then
+                    if not TempTaxAreaBuffer.LoadRecords() then
                         exit;
 
                     if not TempTaxAreaBuffer.Get(CurrentId) then
@@ -203,14 +203,14 @@ table 2850 "Native - API Tax Setup"
                     Clear(Rec);
                     DeleteAll();
 
-                    if not TempTaxGroupBuffer.LoadRecords then
+                    if not TempTaxGroupBuffer.LoadRecords() then
                         exit;
 
                     if not TempTaxGroupBuffer.Get(CurrentId) then
                         exit;
 
                     LoadFromTaxGroup(TempTaxGroupBuffer);
-                    Insert;
+                    Insert();
                     GetBySystemId(CurrentId)
                 end;
         end;
@@ -222,7 +222,7 @@ table 2850 "Native - API Tax Setup"
     begin
         case TempTaxAreaBuffer.Type of
             TempTaxAreaBuffer.Type::VAT:
-                LoadVATSettings;
+                LoadVATSettings();
             TaxAreaBuffer.Type::"Sales Tax":
                 OnLoadSalesTaxSettings(Rec, TempTaxAreaBuffer);
         end;
@@ -249,7 +249,7 @@ table 2850 "Native - API Tax Setup"
 
         OnCanDeleteTaxSetup(PreventDelete, Rec);
 
-        if GeneralLedgerSetup.UseVat or PreventDelete then
+        if GeneralLedgerSetup.UseVat() or PreventDelete then
             Error(CannotDeleteSetupErr);
 
         if TaxArea.Get(Code) then
@@ -260,13 +260,13 @@ table 2850 "Native - API Tax Setup"
     var
         TempTaxGroupBuffer: Record "Tax Group Buffer" temporary;
     begin
-        if not TempTaxGroupBuffer.LoadRecords then
+        if not TempTaxGroupBuffer.LoadRecords() then
             exit;
 
         repeat
             Clear(Rec);
             LoadFromTaxGroup(TempTaxGroupBuffer);
-            Insert;
+            Insert();
         until TempTaxGroupBuffer.Next() = 0;
     end;
 
@@ -279,11 +279,11 @@ table 2850 "Native - API Tax Setup"
         TransferFields(TempTaxGroupBuffer, true);
         "Last Modified Date Time" := TempTaxGroupBuffer."Last Modified DateTime";
 
-        if not VATPostingSetup.Get(O365TemplateManagement.GetDefaultVATBusinessPostingGroup, Code) then
+        if not VATPostingSetup.Get(O365TemplateManagement.GetDefaultVATBusinessPostingGroup(), Code) then
             exit;
 
         "VAT Percentage" := VATPostingSetup."VAT %";
-        Default := Code = O365TemplateManagement.GetDefaultVATProdPostingGroup;
+        Default := Code = O365TemplateManagement.GetDefaultVATProdPostingGroup();
 
         // VAT Regulation Reference = Vat clause
         if not VATClause.Get(VATPostingSetup."VAT Clause Code") then begin
@@ -325,7 +325,7 @@ table 2850 "Native - API Tax Setup"
         VATClause.GetBySystemId("VAT Regulation Reference ID");
 
         if PreviousNativeAPITaxSetup."VAT Regulation Reference ID" <> "VAT Regulation Reference ID" then begin
-            VATPostingSetup.Get(O365TemplateManagement.GetDefaultVATBusinessPostingGroup, Code);
+            VATPostingSetup.Get(O365TemplateManagement.GetDefaultVATBusinessPostingGroup(), Code);
             VATPostingSetup.Validate("VAT Clause Code", VATClause.Code);
             VATPostingSetup.Modify(true);
         end;
@@ -343,7 +343,7 @@ table 2850 "Native - API Tax Setup"
         O365TemplateManagement: Codeunit "O365 Template Management";
     begin
         if PreviousNativeAPITaxSetup."VAT Percentage" <> "VAT Percentage" then begin
-            VATPostingSetup.Get(O365TemplateManagement.GetDefaultVATBusinessPostingGroup, Code);
+            VATPostingSetup.Get(O365TemplateManagement.GetDefaultVATBusinessPostingGroup(), Code);
             VATPostingSetup.Validate("VAT %", "VAT Percentage");
             VATPostingSetup.Modify(true);
 
@@ -365,7 +365,7 @@ table 2850 "Native - API Tax Setup"
         if IsNullGuid(TaxAreaId) then
             exit;
 
-        if GeneralLedgerSetup.UseVat then begin
+        if GeneralLedgerSetup.UseVat() then begin
             if not VATBusinessPostingGroup.GetBySystemId(TaxAreaId) then
                 exit;
 

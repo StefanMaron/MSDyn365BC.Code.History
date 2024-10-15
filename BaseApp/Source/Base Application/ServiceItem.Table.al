@@ -46,10 +46,10 @@ table 5940 "Service Item"
                         if "Item No." <> '' then
                             Error(
                               Text003,
-                              FieldCaption("Serial No."), "Serial No.", TableCaption, ServItem."No.");
+                              FieldCaption("Serial No."), "Serial No.", TableCaption(), ServItem."No.");
                         Message(
                           Text003,
-                          FieldCaption("Serial No."), "Serial No.", TableCaption, ServItem."No.")
+                          FieldCaption("Serial No."), "Serial No.", TableCaption(), ServItem."No.")
                     end;
                 end;
 
@@ -74,7 +74,7 @@ table 5940 "Service Item"
                 end else begin
                     if not CancelResSkillAssignment then begin
                         if CancelResSkillChanges then
-                            ResSkillMgt.SkipValidationDialogs;
+                            ResSkillMgt.SkipValidationDialogs();
 
                         if not ResSkillMgt.ChangeResSkillRelationWithGroup(
                              ResSkill.Type::"Service Item",
@@ -86,7 +86,7 @@ table 5940 "Service Item"
                             Error('');
 
                         if CancelResSkillChanges then begin
-                            ResSkillMgt.DropGlobals;
+                            ResSkillMgt.DropGlobals();
                             CancelResSkillChanges := false;
                         end else
                             CancelResSkillChanges := true;
@@ -103,7 +103,7 @@ table 5940 "Service Item"
                             "Response Time (Hours)" := ServItemGr."Default Response Time (Hours)";
                     end;
                 end;
-                Modify;
+                Modify();
             end;
         }
         field(4; Description; Text[100])
@@ -128,7 +128,7 @@ table 5940 "Service Item"
             begin
                 if Status <> xRec.Status then begin
                     if (Status = Status::Installed) and ("Installation Date" = 0D) then
-                        "Installation Date" := WorkDate;
+                        "Installation Date" := WorkDate();
                     ServLogMgt.ServItemStatusChange(Rec, xRec);
                 end;
             end;
@@ -157,14 +157,14 @@ table 5940 "Service Item"
                     exit;
 
                 if "Customer No." <> xRec."Customer No." then begin
-                    if CheckifActiveServContLineExist then
-                        Error(Text004, FieldCaption("Customer No."), "Customer No.", TableCaption, "No.");
+                    if CheckifActiveServContLineExist() then
+                        Error(Text004, FieldCaption("Customer No."), "Customer No.", TableCaption(), "No.");
                     ServItemLinesExistErr(FieldCaption("Customer No."));
                     ShouldConfirmChange := ServLedgEntryExist();
                     OnValidateCustomerNoOnAfterCalcShouldConfirmChange(Rec, CurrFieldNo, ShouldConfirmChange);
                     if ShouldConfirmChange then
                         if not ConfirmManagement.GetResponseOrDefault(
-                             StrSubstNo(Text017, TableCaption, FieldCaption("Customer No.")), true)
+                             StrSubstNo(Text017, TableCaption(), FieldCaption("Customer No.")), true)
                         then begin
                             "Customer No." := xRec."Customer No.";
                             exit;
@@ -189,14 +189,14 @@ table 5940 "Service Item"
                 ConfirmManagement: Codeunit "Confirm Management";
             begin
                 if "Ship-to Code" <> xRec."Ship-to Code" then begin
-                    if CheckifActiveServContLineExist then
+                    if CheckifActiveServContLineExist() then
                         Error(
                           Text004,
-                          FieldCaption("Ship-to Code"), "Ship-to Code", TableCaption, "No.");
+                          FieldCaption("Ship-to Code"), "Ship-to Code", TableCaption(), "No.");
                     ServItemLinesExistErr(FieldCaption("Ship-to Code"));
-                    if ServLedgEntryExist then
+                    if ServLedgEntryExist() then
                         if not ConfirmManagement.GetResponseOrDefault(
-                             StrSubstNo(Text017, TableCaption, FieldCaption("Customer No.")), true)
+                             StrSubstNo(Text017, TableCaption(), FieldCaption("Customer No.")), true)
                         then begin
                             "Ship-to Code" := xRec."Ship-to Code";
                             exit;
@@ -229,7 +229,7 @@ table 5940 "Service Item"
                     end;
                     if not CancelResSkillAssignment then begin
                         if CancelResSkillChanges then
-                            ResSkillMgt.SkipValidationDialogs;
+                            ResSkillMgt.SkipValidationDialogs();
                         if not ResSkillMgt.ChangeResSkillRelationWithItem(
                              ResSkill.Type::"Service Item",
                              "No.",
@@ -240,7 +240,7 @@ table 5940 "Service Item"
                         then
                             Error('');
                         if CancelResSkillChanges then begin
-                            ResSkillMgt.DropGlobals;
+                            ResSkillMgt.DropGlobals();
                             CancelResSkillChanges := false;
                         end else
                             CancelResSkillChanges := true;
@@ -257,7 +257,7 @@ table 5940 "Service Item"
                             Validate(Description, Item.Description);
                         OnAfterAssignItemValues(Rec, xRec, Item, CurrFieldNo);
                         if "Service Item Components" then begin
-                            DeleteServItemComponents;
+                            DeleteServItemComponents();
                             CalcFields("Service Item Components");
                         end;
                     end else begin
@@ -278,7 +278,7 @@ table 5940 "Service Item"
                           "Item No.");
 
                 ServLogMgt.ServItemItemNoChange(Rec, xRec);
-                Modify;
+                Modify();
             end;
         }
         field(11; "Unit of Measure Code"; Code[10])
@@ -301,7 +301,7 @@ table 5940 "Service Item"
             trigger OnValidate()
             begin
                 ServMgtSetup.Get();
-                Currency.InitRoundingPrecision;
+                Currency.InitRoundingPrecision();
                 if (ServMgtSetup."Contract Value Calc. Method" =
                     ServMgtSetup."Contract Value Calc. Method"::"Based on Unit Price") and
                    ("Sales Unit Price" <> xRec."Sales Unit Price")
@@ -320,7 +320,7 @@ table 5940 "Service Item"
             trigger OnValidate()
             begin
                 ServMgtSetup.Get();
-                Currency.InitRoundingPrecision;
+                Currency.InitRoundingPrecision();
                 "Default Contract Cost" :=
                   Round("Sales Unit Cost" * ServMgtSetup."Contract Value %" / 100,
                     Currency."Unit-Amount Rounding Precision");
@@ -780,7 +780,7 @@ table 5940 "Service Item"
                 SkilledResourceList.LookupMode(true);
                 if Resource.Get("Preferred Resource") then
                     SkilledResourceList.SetRecord(Resource);
-                if SkilledResourceList.RunModal = ACTION::LookupOK then begin
+                if SkilledResourceList.RunModal() = ACTION::LookupOK then begin
                     SkilledResourceList.GetRecord(Resource);
                     "Preferred Resource" := Resource."No.";
                 end;
@@ -986,11 +986,11 @@ table 5940 "Service Item"
     begin
         MoveEntries.MoveServiceItemLedgerEntries(Rec);
 
-        ResultDescription := CheckIfCanBeDeleted;
+        ResultDescription := CheckIfCanBeDeleted();
         if ResultDescription <> '' then
             Error(ResultDescription);
 
-        DeleteServItemComponents;
+        DeleteServItemComponents();
 
         ServCommentLine.Reset();
         ServCommentLine.SetRange("Table Name", ServCommentLine."Table Name"::"Service Item");
@@ -1036,13 +1036,6 @@ table 5940 "Service Item"
     end;
 
     var
-        Text000: Label 'You cannot delete %1 %2,because it is attached to a service order.';
-        Text001: Label 'You cannot delete %1 %2, because it is used as %3 for %1 %4.';
-        Text002: Label 'You cannot delete %1 %2, because it belongs to one or more contracts.';
-        Text003: Label '%1 %2 already exists in %3 %4.';
-        Text004: Label 'You cannot change %1 %2 because the %3 %4 belongs to one or more contracts.';
-        Text007: Label '%1 cannot be later than %2.';
-        FieldUpdateConfirmQst: Label 'You have changed %1 on the service item, but it has not been changed on the associated service orders/quotes.\You must update them manually.', Comment = '%1 = field name';
         ServMgtSetup: Record "Service Mgt. Setup";
         ServItem: Record "Service Item";
         ServItemGr: Record "Service Item Group";
@@ -1061,10 +1054,18 @@ table 5940 "Service Item"
         ServLogMgt: Codeunit ServLogManagement;
         MoveEntries: Codeunit MoveEntries;
         ResSkillMgt: Codeunit "Resource Skill Mgt.";
-        Text017: Label 'Service ledger entries exist for this %1\\ Do you want to change the %2?';
         DimMgt: Codeunit DimensionManagement;
         CancelResSkillChanges: Boolean;
         CancelResSkillAssignment: Boolean;
+
+        Text000: Label 'You cannot delete %1 %2,because it is attached to a service order.';
+        Text001: Label 'You cannot delete %1 %2, because it is used as %3 for %1 %4.';
+        Text002: Label 'You cannot delete %1 %2, because it belongs to one or more contracts.';
+        Text003: Label '%1 %2 already exists in %3 %4.';
+        Text004: Label 'You cannot change %1 %2 because the %3 %4 belongs to one or more contracts.';
+        Text007: Label '%1 cannot be later than %2.';
+        FieldUpdateConfirmQst: Label 'You have changed %1 on the service item, but it has not been changed on the associated service orders/quotes.\You must update them manually.', Comment = '%1 = field name';
+        Text017: Label 'Service ledger entries exist for this %1\\ Do you want to change the %2?';
         ChgCustomerErr: Label 'You cannot change the %1 in the service item because of the following outstanding service order line:\\ Order %2, line %3, service item number %4, serial number %5, customer %6, ship-to code %7.', Comment = '%1 - Field Caption; %2 - Service Order No.;%3 - Serice Line No.;%4 - Service Item No.;%5 - Serial No.;%6 - Customer No.;%7 - Ship to Code.';
         ChangeItemQst: Label 'Changing the %1 will delete the existing %2 on the %2 list.\\Do you want to change the %1?', Comment = '%1 - Field Caption, %2 - Field Caption';
 
@@ -1087,7 +1088,7 @@ table 5940 "Service Item"
         ServItemLine.Reset();
         ServItemLine.SetCurrentKey("Service Item No.");
         ServItemLine.SetRange("Service Item No.", "No.");
-        exit(ServItemLine.FindFirst);
+        exit(ServItemLine.FindFirst())
     end;
 
     procedure MessageIfServItemLinesExist(ChangedFieldName: Text[100])
@@ -1095,7 +1096,7 @@ table 5940 "Service Item"
         MessageText: Text;
         ShowMessage: Boolean;
     begin
-        ShowMessage := ServItemLinesExist;
+        ShowMessage := ServItemLinesExist();
         MessageText := StrSubstNo(FieldUpdateConfirmQst, ChangedFieldName);
         OnBeforeMessageIfServItemLinesExist(Rec, ChangedFieldName, MessageText, ShowMessage);
         if ShowMessage then
@@ -1120,7 +1121,7 @@ table 5940 "Service Item"
         if IsHandled then
             exit;
 
-        if ServItemLinesExist then
+        if ServItemLinesExist() then
             Error(
               ChgCustomerErr,
               ChangedFieldName,
@@ -1135,7 +1136,7 @@ table 5940 "Service Item"
           "Service Item No. (Serviced)", "Entry Type", "Moved from Prepaid Acc.",
           Type, "Posting Date", Open);
         ServLedgEntry.SetRange("Service Item No. (Serviced)", "No.");
-        exit(ServLedgEntry.FindFirst);
+        exit(ServLedgEntry.FindFirst())
     end;
 
     local procedure CheckifActiveServContLineExist(): Boolean
@@ -1158,7 +1159,7 @@ table 5940 "Service Item"
         if IsHandled then
             exit(Result);
 
-        if ServItemLinesExist then
+        if ServItemLinesExist() then
             exit(
               StrSubstNo(
                 Text000,
@@ -1172,7 +1173,7 @@ table 5940 "Service Item"
             exit(
               StrSubstNo(
                 Text001,
-                TableCaption, "No.", ServItemComponent.TableCaption, ServItemComponent."Parent Service Item No."));
+                TableCaption, "No.", ServItemComponent.TableCaption(), ServItemComponent."Parent Service Item No."));
 
         ServContractLine.Reset();
         ServContractLine.SetCurrentKey("Service Item No.", "Contract Status");
@@ -1181,7 +1182,7 @@ table 5940 "Service Item"
         if ServContractLine.Find('-') then
             if ServContract.Get(ServContractLine."Contract Type", ServContractLine."Contract No.") then
                 exit(
-                  StrSubstNo(Text002, TableCaption, "No."));
+                  StrSubstNo(Text002, TableCaption(), "No."));
 
         exit(MoveEntries.CheckIfServiceItemCanBeDeleted(ServiceLedgerEntry, "No."));
     end;

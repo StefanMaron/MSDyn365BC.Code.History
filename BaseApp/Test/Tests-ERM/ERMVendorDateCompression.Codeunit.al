@@ -42,7 +42,7 @@ codeunit 134033 "ERM Vendor Date Compression"
         NoOfEntries := ComputeNoOfWeek(FirstPostingDate, LastPostingDate);
 
         // Verify: Verify No. of Entries after Date Compression by Week.
-        Assert.AreEqual(NoOfEntries, GetVendorLedgerEntries(VendorNo), StrSubstNo(CountError, NoOfEntries, VendorLedgerEntry.TableCaption));
+        Assert.AreEqual(NoOfEntries, GetVendorLedgerEntries(VendorNo), StrSubstNo(CountError, NoOfEntries, VendorLedgerEntry.TableCaption()));
     end;
 
     [Test]
@@ -91,7 +91,7 @@ codeunit 134033 "ERM Vendor Date Compression"
         NoOfEntries := 1 + (Date2DMY(LastPostingDate, PeriodOption) - Date2DMY(FirstPostingDate, PeriodOption));
 
         // Verify: Verify No. of Entries after Date Compression for Month/Year selected.
-        Assert.AreEqual(NoOfEntries, GetVendorLedgerEntries(VendorNo), StrSubstNo(CountError, NoOfEntries, VendorLedgerEntry.TableCaption));
+        Assert.AreEqual(NoOfEntries, GetVendorLedgerEntries(VendorNo), StrSubstNo(CountError, NoOfEntries, VendorLedgerEntry.TableCaption()));
     end;
 
     local procedure Initialize()
@@ -238,10 +238,10 @@ codeunit 134033 "ERM Vendor Date Compression"
         repeat
             VendorLedgerEntry.CalcFields(Amount);
             VendorLedgerEntryAmt += VendorLedgerEntry.Amount;
-        until VendorLedgerEntry.Next = 0;
+        until VendorLedgerEntry.Next() = 0;
         Assert.AreEqual(
           JnlLinePaymentAmt, VendorLedgerEntryAmt, StrSubstNo(AmountError, VendorLedgerEntry.FieldCaption(Amount),
-            JnlLinePaymentAmt, VendorLedgerEntry.TableCaption, VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
+            JnlLinePaymentAmt, VendorLedgerEntry.TableCaption(), VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
     end;
 }
 

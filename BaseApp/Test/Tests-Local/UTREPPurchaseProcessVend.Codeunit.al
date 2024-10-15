@@ -59,7 +59,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
 
         // Setup: Create Vendor and Vendor Ledger Entry without Currency.
         Initialize();
-        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate, Vendor.Blocked::" ");  // Due Date - WORKDATE.
+        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate(), Vendor.Blocked::" ");  // Due Date - WORKDATE.
 
         // Exercise.
         LibraryLowerPermissions.SetPurchDocsCreate;
@@ -70,7 +70,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         LibraryReportDataset.AssertElementWithValueExists(FilterStringCap, StrSubstNo('%1: %2', Vendor.FieldCaption("No."), Vendor."No."));
         LibraryReportDataset.AssertElementWithValueExists(
           FilterString2Cap, StrSubstNo('%1: %2', VendorLedgerEntry.FieldCaption("Vendor No."), VendorLedgerEntry."Vendor No."));
-        LibraryReportDataset.AssertElementWithValueExists('Subtitle', '(Open Entries Due as of' + ' ' + Format(WorkDate, 0, 4) + ')');  // Used for Date format - January 01,0001.
+        LibraryReportDataset.AssertElementWithValueExists('Subtitle', '(Open Entries Due as of' + ' ' + Format(WorkDate(), 0, 4) + ')');  // Used for Date format - January 01,0001.
     end;
 
     [Test]
@@ -109,7 +109,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         // Create Vendor for different Blocked options and create Vendor Ledger Entry.
-        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate, Blocked);  // Due Date - WORKDATE.
+        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate(), Blocked);  // Due Date - WORKDATE.
 
         // Exercise.
         LibraryLowerPermissions.SetPurchDocsCreate;
@@ -136,7 +136,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         // Setup: Run Report Open Vendor Entries to verify RemainingAmountPrint is updated with Vendor Ledger Entry Remaining Amount.
         Initialize();
         CurrencyCode := CreateCurrency;
-        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, CurrencyCode, CurrencyCode, WorkDate, Vendor.Blocked::" ");  // Due Date - WORKDATE.
+        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, CurrencyCode, CurrencyCode, WorkDate(), Vendor.Blocked::" ");  // Due Date - WORKDATE.
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
 
         // Exercise.
@@ -163,7 +163,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         // Setup: Run Report Open Vendor Entries to verify RemainingAmountPrint is updated with Vendor Ledger Entry Remaining Amount(LCY).
         Initialize();
         CreateVendorLedgerEntry(
-          VendorLedgerEntry, Vendor, '', '', CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'D>', WorkDate), Vendor.Blocked::" ");  // Due Date Less than End Date of Report Open Vendor Entries.
+          VendorLedgerEntry, Vendor, '', '', CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'D>', WorkDate()), Vendor.Blocked::" ");  // Due Date Less than End Date of Report Open Vendor Entries.
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
 
         // Exercise.
@@ -196,7 +196,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         CurrencyExchangeRate2.SetFilter("Currency Code", '<>%1', CurrencyExchangeRate."Currency Code");
         CurrencyExchangeRate2.FindFirst();
         CreateVendorLedgerEntry(
-          VendorLedgerEntry, Vendor, CurrencyExchangeRate."Currency Code", CurrencyExchangeRate2."Currency Code", WorkDate,
+          VendorLedgerEntry, Vendor, CurrencyExchangeRate."Currency Code", CurrencyExchangeRate2."Currency Code", WorkDate(),
           Vendor.Blocked::" ");  // Due Date - WORKDATE;
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
 
@@ -228,7 +228,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
 
         // Setup: Create Vendor and Vendor Ledger Entry without Currency.
         Initialize();
-        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate, Vendor.Blocked::" ");  // Due Date - WORKDATE.
+        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate(), Vendor.Blocked::" ");  // Due Date - WORKDATE.
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
 
         // Exercise.
@@ -280,13 +280,13 @@ codeunit 144002 "UT REP Purchase Process Vend"
 
         // Exercise.
         LibraryVariableStorage.Enqueue(Vendor."No.");  // Required inside TopVendorListRequestPageHandler.
-        Vendor.SetRange("Date Filter", WorkDate);
+        Vendor.SetRange("Date Filter", WorkDate());
         LibraryLowerPermissions.SetVendorView;
         RunTopVendorListReport(Vendor, TopType::"Balances ($)");
 
         // Verify: Verify the SubTitle after running Top __ Vendor List Report.
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists(SubTitleCap, '(by Balance Due as of' + ' ' + Format(WorkDate) + ')');
+        LibraryReportDataset.AssertElementWithValueExists(SubTitleCap, '(by Balance Due as of' + ' ' + Format(WorkDate()) + ')');
     end;
 
     [Test]
@@ -302,10 +302,10 @@ codeunit 144002 "UT REP Purchase Process Vend"
         // Purpose of the test is to validate Vendor - OnAfterGetRecord trigger of the Report ID: 10102, Top __ Vendor List for TopType of Balances.
         // Setup.
         Initialize();
-        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate, Vendor.Blocked::" ");  // Due Date - WORKDATE.
+        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate(), Vendor.Blocked::" ");  // Due Date - WORKDATE.
 
         // Exercise.
-        Vendor.SetRange("Date Filter", WorkDate);
+        Vendor.SetRange("Date Filter", WorkDate());
         LibraryLowerPermissions.SetVendorView;
         RunTopVendorListReport(Vendor, TopType::"Balances ($)");
 
@@ -328,10 +328,10 @@ codeunit 144002 "UT REP Purchase Process Vend"
         // Purpose of the test is to validate Vendor - OnAfterGetRecord trigger of the Report ID: 10102, Top __ Vendor List for TopType of Purchases.
         // Setup.
         Initialize();
-        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate, Vendor.Blocked::" ");  // Due Date - WORKDATE.
+        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate(), Vendor.Blocked::" ");  // Due Date - WORKDATE.
 
         // Exercise.
-        Vendor.SetRange("Date Filter", WorkDate);
+        Vendor.SetRange("Date Filter", WorkDate());
         LibraryLowerPermissions.SetVendorView;
         RunTopVendorListReport(Vendor, TopType::"Purchases ($)");
 
@@ -354,7 +354,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
 
         // Setup: Run Report Vendor Account Detail to verify AmountToPrint is updated with Vendor Ledger Entry Amount(LCY).
         Initialize();
-        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate, Vendor.Blocked::" ");  // Due Date - WORKDATE.
+        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate(), Vendor.Blocked::" ");  // Due Date - WORKDATE.
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
 
         // Exercise.
@@ -386,7 +386,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         // Setup: Run Report Vendor Account Detail to verify AmountToPrint is updated with Vendor Ledger Entry Amount.
         Initialize();
         CurrencyCode := CreateCurrency;
-        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, CurrencyCode, CurrencyCode, WorkDate, Vendor.Blocked::" ");  // Due Date - WORKDATE.
+        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, CurrencyCode, CurrencyCode, WorkDate(), Vendor.Blocked::" ");  // Due Date - WORKDATE.
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
 
         // Exercise.
@@ -418,7 +418,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         CurrencyExchangeRate2.SetFilter("Currency Code", '<>%1', CurrencyExchangeRate."Currency Code");
         CurrencyExchangeRate2.FindFirst();
         CreateVendorLedgerEntry(
-          VendorLedgerEntry, Vendor, CurrencyExchangeRate."Currency Code", CurrencyExchangeRate2."Currency Code", WorkDate,
+          VendorLedgerEntry, Vendor, CurrencyExchangeRate."Currency Code", CurrencyExchangeRate2."Currency Code", WorkDate(),
           Vendor.Blocked::" ");  // Due Date - WORKDATE;
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
 
@@ -450,7 +450,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
 
         // Setup: Create Vendor Ledger Entry without Currency.
         Initialize();
-        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate, Vendor.Blocked::" ");  // Due Date - WORKDATE.
+        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate(), Vendor.Blocked::" ");  // Due Date - WORKDATE.
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
 
         // Exercise.
@@ -474,7 +474,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         // Purpose of the test is to validate OnPreReport of Report ID - 10103 Vendor Account Detail for Accounts with Balances.
         // Setup.
         Initialize();
-        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate, Vendor.Blocked::" ");  // Due Date - WORKDATE.
+        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate(), Vendor.Blocked::" ");  // Due Date - WORKDATE.
 
         // Exercise.
         LibraryLowerPermissions.SetVendorView;
@@ -545,7 +545,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         // Purpose of the test is to validate OnAfterGetRecord - Vendor Trigger of Report ID - 10106 Vendor - Listing for Vendor Balance and Vendor Filter.
         // Setup.
         Initialize();
-        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate, Vendor.Blocked::" ");  // Due Date - WORKDATE.
+        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate(), Vendor.Blocked::" ");  // Due Date - WORKDATE.
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
 
         // Exercise.
@@ -573,7 +573,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         // Setup.
         Initialize();
         CreatePaymentTerms(PaymentTerms);
-        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate, Vendor.Blocked::" ");  // Due Date - WORKDATE.
+        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate(), Vendor.Blocked::" ");  // Due Date - WORKDATE.
         Vendor."Payment Terms Code" := PaymentTerms.Code;
         Vendor.Modify();
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
@@ -618,7 +618,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         LibraryReportDataset.AssertElementWithValueExists(FilterStringCap, StrSubstNo('%1: %2', Vendor.FieldCaption("No."), Vendor."No."));
         LibraryReportDataset.AssertElementWithValueExists(
           'Value_Entry__TABLECAPTION__________FilterString2',
-          StrSubstNo('%1: %2: %3', ValueEntry.TableCaption, ValueEntry.FieldCaption("Source No."), ValueEntry."Source No."));
+          StrSubstNo('%1: %2: %3', ValueEntry.TableCaption(), ValueEntry.FieldCaption("Source No."), ValueEntry."Source No."));
         LibraryReportDataset.AssertElementWithValueExists(
           'TotalDays', (ValueEntry."Posting Date" - PurchInvHeader."Order Date") * ValueEntry."Invoiced Quantity");
         LibraryReportDataset.AssertElementWithValueExists(ItemDescriptionCap, Item.Description);
@@ -773,7 +773,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         // Purpose of the test is to validate OnAfterGetRecord -  VendorLedgerEntry Trigger of Repor ID -10108 AP - Vendor Register.
         // Setup.
         Initialize();
-        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate, Vendor.Blocked::" ");  // Due Date - WORKDATE.
+        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate(), Vendor.Blocked::" ");  // Due Date - WORKDATE.
         UpdateVendorName(Vendor);
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
         LibraryVariableStorage.Enqueue(Vendor."No.");  // Required inside APVendorRegisterRequestPageHandler.
@@ -824,7 +824,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
 
         // Setup: Create Vendor Ledger Entry and Detailed Vendor Ledger Entry of Initial Document Type Payment.
         Initialize();
-        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate, Vendor.Blocked::" ");  // Due Date - WORKDATE.
+        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate(), Vendor.Blocked::" ");  // Due Date - WORKDATE.
         UpdateVendLedgerEntryDiscounts(VendorLedgerEntry);
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
         UpdateInitialDocumentTypeDetailedVendorLedgerEntry(
@@ -859,7 +859,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
 
         // Setup: Create VendorLedger Entry of Document Type Invoice and Detailed Vendor Ledger Entry of Initial Document Type Finance Charge Memo.
         Initialize();
-        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate, Vendor.Blocked::" ");  // Due Date - WORKDATE.
+        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate(), Vendor.Blocked::" ");  // Due Date - WORKDATE.
         UpdateVendLedgerEntryDiscounts(VendorLedgerEntry);
         UpdateVendorLedgerEntry(VendorLedgerEntry);  // Update Document Type Invoice.
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
@@ -927,7 +927,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Vendor No." := Vendor."No.";
         VendorLedgerEntry."Currency Code" := CurrencyCode2;
-        VendorLedgerEntry."Posting Date" := WorkDate;
+        VendorLedgerEntry."Posting Date" := WorkDate();
         VendorLedgerEntry."Due Date" := DueDate;
         VendorLedgerEntry."External Document No." := LibraryUTUtility.GetNewCode;
         VendorLedgerEntry.Open := true;
@@ -948,7 +948,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendorLedgerEntryNo;
         DetailedVendorLedgEntry.Amount := -LibraryRandom.RandDec(10, 2);  // Amount less than 0 required.
         DetailedVendorLedgEntry."Amount (LCY)" := -DetailedVendorLedgEntry.Amount;
-        DetailedVendorLedgEntry."Posting Date" := WorkDate;
+        DetailedVendorLedgEntry."Posting Date" := WorkDate();
         DetailedVendorLedgEntry."Vendor No." := VendorNo;
         DetailedVendorLedgEntry."Entry Type" := DetailedVendorLedgEntry."Entry Type"::"Initial Entry";
         DetailedVendorLedgEntry.Insert(true);
@@ -981,7 +981,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         ValueEntry."Source No." := VendorNo;
         ValueEntry."Item Ledger Entry Type" := ValueEntry."Item Ledger Entry Type"::Purchase;
         ValueEntry."Item No." := ItemNo;
-        ValueEntry."Posting Date" := WorkDate;
+        ValueEntry."Posting Date" := WorkDate();
         ValueEntry."Invoiced Quantity" := LibraryRandom.RandDec(10, 2);
         ValueEntry."External Document No." := LibraryUTUtility.GetNewCode;
         ValueEntry.Insert();
@@ -992,7 +992,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
     begin
         PurchInvHeader."No." := LibraryUTUtility.GetNewCode;
         PurchInvHeader."Vendor Invoice No." := VendorInvoiceNo;
-        PurchInvHeader."Order Date" := WorkDate;
+        PurchInvHeader."Order Date" := WorkDate();
         PurchInvHeader."Posting Date" := PostingDate;
         PurchInvHeader.Insert();
     end;
@@ -1081,7 +1081,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
     [Scope('OnPrem')]
     procedure OpenVendorEntriesEndingDateRequestPageHandler(var OpenVendorEntries: TestRequestPage "Open Vendor Entries")
     begin
-        OpenVendorEntries.EndingDate.AssertEquals(WorkDate);
+        OpenVendorEntries.EndingDate.AssertEquals(WorkDate());
     end;
 
     [RequestPageHandler]
@@ -1220,7 +1220,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
     [Scope('OnPrem')]
     procedure VendorPurchaseStatisticsStartingDateRequestPageHandler(var VendorPurchaseStatistics: TestRequestPage "Vendor Purchase Statistics")
     begin
-        VendorPurchaseStatistics.StartDate.AssertEquals(WorkDate);
+        VendorPurchaseStatistics.StartDate.AssertEquals(WorkDate());
         VendorPurchaseStatistics.LengthOfPeriods.AssertEquals('1M');  // Default value is 1 Month.
     end;
 

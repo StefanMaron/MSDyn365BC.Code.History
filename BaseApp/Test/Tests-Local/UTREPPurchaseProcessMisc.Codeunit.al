@@ -368,7 +368,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         // Verify: Verify the Subtitle after running Cash Requirements By Due Date Report.
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists(
-          TitleCap, '(' + 'Summary for payments as of' + ' ' + Format(WorkDate, 0, 4) + ')');
+          TitleCap, '(' + 'Summary for payments as of' + ' ' + Format(WorkDate(), 0, 4) + ')');
     end;
 
     [Test]
@@ -391,7 +391,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
 
         // Verify: Verify the Subtitle after running Cash Requirements By Due Date Report.
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists(TitleCap, '(' + 'Detail for payments as of' + ' ' + Format(WorkDate, 0, 4) + ')');
+        LibraryReportDataset.AssertElementWithValueExists(TitleCap, '(' + 'Detail for payments as of' + ' ' + Format(WorkDate(), 0, 4) + ')');
     end;
 
     [Test]
@@ -414,7 +414,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
 
         // Verify: Verify the Payment date String after running Cash Application Report.
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('PaymentDateString', '(For Payment on ' + Format(WorkDate, 0, 4) + ')');
+        LibraryReportDataset.AssertElementWithValueExists('PaymentDateString', '(For Payment on ' + Format(WorkDate(), 0, 4) + ')');
     end;
 
     [Test]
@@ -557,7 +557,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         PurchaseLine.Type := PurchaseLine.Type::Item;
         PurchaseLine."Amt. Rcd. Not Invoiced" := LibraryRandom.RandDec(10, 2);
         PurchaseLine."Buy-from Vendor No." := BuyFromVendorNo;
-        PurchaseLine."Expected Receipt Date" := WorkDate;
+        PurchaseLine."Expected Receipt Date" := WorkDate();
         PurchaseLine."Outstanding Quantity" := LibraryRandom.RandDec(10, 2);
         PurchaseLine.Quantity := LibraryRandom.RandDec(10, 2);
         PurchaseLine.Insert();
@@ -570,9 +570,9 @@ codeunit 144004 "UT REP Purchase Process Misc"
         VendorLedgerEntry2.FindLast();
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Vendor No." := VendorNo;
-        VendorLedgerEntry."Posting Date" := WorkDate;
-        VendorLedgerEntry."Due Date" := WorkDate;
-        VendorLedgerEntry."Pmt. Discount Date" := WorkDate;
+        VendorLedgerEntry."Posting Date" := WorkDate();
+        VendorLedgerEntry."Due Date" := WorkDate();
+        VendorLedgerEntry."Pmt. Discount Date" := WorkDate();
         VendorLedgerEntry."Purchase (LCY)" := LibraryRandom.RandDec(10, 2);
         VendorLedgerEntry."Accepted Payment Tolerance" := LibraryRandom.RandDec(10, 2);
         VendorLedgerEntry."Original Pmt. Disc. Possible" := -LibraryRandom.RandDec(10, 2);
@@ -616,7 +616,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         BankAccount: Record "Bank Account";
     begin
         BankAccount.FindFirst();
-        BankAccount.SetRange("Date Filter", WorkDate);
+        BankAccount.SetRange("Date Filter", WorkDate());
         CheckLedgerEntry."Entry No." := SelectCheckLedgerEntryNo;
         CheckLedgerEntry."Bank Account No." := BankAccount."No.";
         CheckLedgerEntry.Amount := LibraryRandom.RandDec(10, 2);
@@ -672,7 +672,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         Currency.Code := LibraryUTUtility.GetNewCode10;
         Currency.Insert();
         CurrencyExchangeRate."Currency Code" := Currency.Code;
-        CurrencyExchangeRate."Starting Date" := WorkDate;
+        CurrencyExchangeRate."Starting Date" := WorkDate();
         CurrencyExchangeRate."Exchange Rate Amount" := LibraryRandom.RandDec(10, 2);
         CurrencyExchangeRate."Relational Exch. Rate Amount" := LibraryRandom.RandDec(10, 2);
         CurrencyExchangeRate.Insert();
@@ -885,7 +885,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         CashApplication.PaymentDate.SetValue(0D);  // Blank Payment Date.
         CashApplication.TakePaymentDiscounts.SetValue(true);
-        CashApplication.LastDiscDateToTake.SetValue(CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));  // Last Discount Date less than WORKDATE.
+        CashApplication.LastDiscDateToTake.SetValue(CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));  // Last Discount Date less than WORKDATE.
         CashApplication.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -896,7 +896,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         PrintDetail: Variant;
     begin
         LibraryVariableStorage.Dequeue(PrintDetail);
-        CashRequirementsByDueDate.ForPaymentOn.SetValue(WorkDate);
+        CashRequirementsByDueDate.ForPaymentOn.SetValue(WorkDate());
         CashRequirementsByDueDate.PrintDetail.SetValue(PrintDetail);
         CashRequirementsByDueDate.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
@@ -970,7 +970,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     [Scope('OnPrem')]
     procedure SuggestVendorPaymentsRequestPageHandler(var SuggestVendorPayments: TestRequestPage "Suggest Vendor Payments")
     begin
-        SuggestVendorPayments.LastPaymentDate.SetValue(WorkDate);
+        SuggestVendorPayments.LastPaymentDate.SetValue(WorkDate());
         SuggestVendorPayments.StartingDocumentNo.SetValue(LibraryUTUtility.GetNewCode10);
         SuggestVendorPayments.OK.Invoke;
     end;
@@ -988,7 +988,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         Currency: Record Currency;
         CurrencyResult: Text;
     begin
-        if not GLSetup.Get then
+        if not GLSetup.Get() then
             exit(CaptionExpression);
 
         if GLSetup."LCY Code" = '' then

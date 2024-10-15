@@ -15,7 +15,7 @@ page 1113 "Cost Accounting Setup"
             group(General)
             {
                 Caption = 'General';
-                field("Starting Date for G/L Transfer"; "Starting Date for G/L Transfer")
+                field("Starting Date for G/L Transfer"; Rec."Starting Date for G/L Transfer")
                 {
                     ApplicationArea = CostAccounting;
                     MultiLine = true;
@@ -25,28 +25,28 @@ page 1113 "Cost Accounting Setup"
                     begin
                         if not Confirm(Text001, true, "Starting Date for G/L Transfer") then
                             Error(Text003);
-                        Modify;
+                        Modify();
                     end;
                 }
-                field("Align G/L Account"; "Align G/L Account")
+                field("Align G/L Account"; Rec."Align G/L Account")
                 {
                     ApplicationArea = CostAccounting;
                     MultiLine = true;
                     ToolTip = 'Specifies how changes in the chart of accounts are carried over to the chart of cost types.';
                 }
-                field("Align Cost Center Dimension"; "Align Cost Center Dimension")
+                field("Align Cost Center Dimension"; Rec."Align Cost Center Dimension")
                 {
                     ApplicationArea = Dimensions;
                     MultiLine = true;
                     ToolTip = 'Specifies how changes in dimensions are carried over to the chart of cost centers.';
                 }
-                field("Align Cost Object Dimension"; "Align Cost Object Dimension")
+                field("Align Cost Object Dimension"; Rec."Align Cost Object Dimension")
                 {
                     ApplicationArea = Dimensions;
                     MultiLine = true;
                     ToolTip = 'Specifies how changes in dimensions are carried over to the chart of cost centers.';
                 }
-                field("Auto Transfer from G/L"; "Auto Transfer from G/L")
+                field("Auto Transfer from G/L"; Rec."Auto Transfer from G/L")
                 {
                     ApplicationArea = CostAccounting;
                     MultiLine = true;
@@ -59,7 +59,7 @@ page 1113 "Cost Accounting Setup"
                                 Error(Text003);
                     end;
                 }
-                field("Check G/L Postings"; "Check G/L Postings")
+                field("Check G/L Postings"; Rec."Check G/L Postings")
                 {
                     ApplicationArea = CostAccounting;
                     MultiLine = true;
@@ -69,12 +69,12 @@ page 1113 "Cost Accounting Setup"
             group(Allocation)
             {
                 Caption = 'Allocation';
-                field("Last Allocation ID"; "Last Allocation ID")
+                field("Last Allocation ID"; Rec."Last Allocation ID")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies a number series for allocations.';
                 }
-                field("Last Allocation Doc. No."; "Last Allocation Doc. No.")
+                field("Last Allocation Doc. No."; Rec."Last Allocation Doc. No.")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the last document number that is assigned to all the entries that were generated with the same allocation ID during allocation.';
@@ -83,13 +83,13 @@ page 1113 "Cost Accounting Setup"
             group("Cost Accounting Dimensions")
             {
                 Caption = 'Cost Accounting Dimensions';
-                field("Cost Center Dimension"; "Cost Center Dimension")
+                field("Cost Center Dimension"; Rec."Cost Center Dimension")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the cost center code. The code serves as a default value for cost posting that is captured later in the cost journal.';
                 }
-                field("Cost Object Dimension"; "Cost Object Dimension")
+                field("Cost Object Dimension"; Rec."Cost Object Dimension")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
@@ -127,10 +127,10 @@ page 1113 "Cost Accounting Setup"
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Reset();
+        if not Get() then begin
+            Init();
+            Insert();
         end;
     end;
 

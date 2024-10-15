@@ -61,8 +61,8 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         ApplyPaymentAutomatically(GenJnlLine, VendLedgerEntry);
 
         // Post-Setup
-        Assert.IsTrue(GenJnlLine."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine.TableCaption));
-        Assert.IsTrue(VendLedgerEntry."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry.TableCaption));
+        Assert.IsTrue(GenJnlLine."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine.TableCaption()));
+        Assert.IsTrue(VendLedgerEntry."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry.TableCaption()));
 
         // Exercise
         PmtExportMgtGenJnlLine.ExportJournalPaymentFileYN(GenJnlLine);
@@ -95,9 +95,9 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         ApplyPaymentAutomatically(GenJnlLine, VendLedgerEntry);
 
         // Post-Setup
-        Assert.IsFalse(GenJnlLine."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine.TableCaption));
+        Assert.IsFalse(GenJnlLine."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine.TableCaption()));
         SetGenJournalLineExported(GenJnlLine, true);
-        Assert.IsFalse(VendLedgerEntry."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry.TableCaption));
+        Assert.IsFalse(VendLedgerEntry."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry.TableCaption()));
 
         // Exercise
         PmtExportMgtGenJnlLine.ExportJournalPaymentFileYN(GenJnlLine);
@@ -130,8 +130,8 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         ApplyPaymentAutomatically(GenJnlLine, VendLedgerEntry);
 
         // Post-Setup
-        Assert.IsTrue(GenJnlLine."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine.TableCaption));
-        Assert.IsTrue(VendLedgerEntry."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry.TableCaption));
+        Assert.IsTrue(GenJnlLine."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine.TableCaption()));
+        Assert.IsTrue(VendLedgerEntry."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry.TableCaption()));
 
         // Exercise
         PmtExportMgtGenJnlLine.ExportJournalPaymentFileYN(GenJnlLine);
@@ -166,8 +166,8 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         ApplyPaymentAutomatically(GenJnlLine, VendLedgerEntry);
 
         // Post-Setup
-        Assert.IsFalse(GenJnlLine."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine.TableCaption));
-        Assert.IsFalse(VendLedgerEntry."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry.TableCaption));
+        Assert.IsFalse(GenJnlLine."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine.TableCaption()));
+        Assert.IsFalse(VendLedgerEntry."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry.TableCaption()));
 
         // Exercise
         asserterror PmtExportMgtGenJnlLine.ExportJournalPaymentFileYN(GenJnlLine);
@@ -204,10 +204,10 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         ApplyPaymentAutomatically(GenJnlLine2, VendLedgerEntry2);
 
         // Post-Setup
-        Assert.IsFalse(GenJnlLine1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine1.TableCaption));
-        Assert.IsTrue(GenJnlLine2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine2.TableCaption));
-        Assert.IsFalse(VendLedgerEntry1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry1.TableCaption));
-        Assert.IsTrue(VendLedgerEntry2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry2.TableCaption));
+        Assert.IsFalse(GenJnlLine1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine1.TableCaption()));
+        Assert.IsTrue(GenJnlLine2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine2.TableCaption()));
+        Assert.IsFalse(VendLedgerEntry1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry1.TableCaption()));
+        Assert.IsTrue(VendLedgerEntry2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry2.TableCaption()));
 
         // Pre-Exercise
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
@@ -251,11 +251,11 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         ApplyPaymentAutomatically(GenJnlLine2, VendLedgerEntry2);
 
         // Post-Setup
-        Assert.IsFalse(GenJnlLine1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine1.TableCaption));
-        Assert.IsFalse(GenJnlLine2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine2.TableCaption));
+        Assert.IsFalse(GenJnlLine1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine1.TableCaption()));
+        Assert.IsFalse(GenJnlLine2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine2.TableCaption()));
         SetGenJournalLineExported(GenJnlLine2, true);
-        Assert.IsFalse(VendLedgerEntry1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry1.TableCaption));
-        Assert.IsFalse(VendLedgerEntry2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry2.TableCaption));
+        Assert.IsFalse(VendLedgerEntry1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry1.TableCaption()));
+        Assert.IsFalse(VendLedgerEntry2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry2.TableCaption()));
 
         // Pre-Exercise
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
@@ -299,10 +299,10 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         ApplyPaymentAutomatically(GenJnlLine2, VendLedgerEntry2);
 
         // Post-Setup
-        Assert.IsFalse(GenJnlLine1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine1.TableCaption));
-        Assert.IsTrue(GenJnlLine2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine2.TableCaption));
-        Assert.IsFalse(VendLedgerEntry1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry1.TableCaption));
-        Assert.IsTrue(VendLedgerEntry2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry2.TableCaption));
+        Assert.IsFalse(GenJnlLine1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine1.TableCaption()));
+        Assert.IsTrue(GenJnlLine2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine2.TableCaption()));
+        Assert.IsFalse(VendLedgerEntry1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry1.TableCaption()));
+        Assert.IsTrue(VendLedgerEntry2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry2.TableCaption()));
 
         // Pre-Exercise
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
@@ -348,10 +348,10 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         ApplyPaymentAutomatically(GenJnlLine2, VendLedgerEntry2);
 
         // Post-Setup
-        Assert.IsFalse(GenJnlLine1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine1.TableCaption));
-        Assert.IsFalse(GenJnlLine2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine2.TableCaption));
-        Assert.IsFalse(VendLedgerEntry1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry1.TableCaption));
-        Assert.IsFalse(VendLedgerEntry2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry2.TableCaption));
+        Assert.IsFalse(GenJnlLine1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine1.TableCaption()));
+        Assert.IsFalse(GenJnlLine2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine2.TableCaption()));
+        Assert.IsFalse(VendLedgerEntry1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry1.TableCaption()));
+        Assert.IsFalse(VendLedgerEntry2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry2.TableCaption()));
 
         // Pre-Exercise
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
@@ -417,7 +417,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         CreateCustLedgerEntry(CustLedgerEntry1, CustLedgerEntry1."Document Type"::Refund, true);
 
         // Post-Setup
-        Assert.IsTrue(CustLedgerEntry1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, CustLedgerEntry1.TableCaption));
+        Assert.IsTrue(CustLedgerEntry1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, CustLedgerEntry1.TableCaption()));
 
         // Pre-Exercise
         CustLedgerEntry2.SetRange("Entry No.", CustLedgerEntry1."Entry No.");
@@ -448,7 +448,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         CreateCustLedgerEntry(CustLedgerEntry1, CustLedgerEntry1."Document Type"::Refund, false);
 
         // Post-Setup
-        Assert.IsFalse(CustLedgerEntry1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, CustLedgerEntry1.TableCaption));
+        Assert.IsFalse(CustLedgerEntry1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, CustLedgerEntry1.TableCaption()));
 
         // Pre-Exercise
         CustLedgerEntry2.SetRange("Entry No.", CustLedgerEntry1."Entry No.");
@@ -458,7 +458,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         asserterror PmtExportMgtCustLedgEntry.ExportCustPaymentFileYN(CustLedgerEntry2);
 
         // Verify
-        Assert.ExpectedError(StrSubstNo(BankAccNotFoundErr, BankAccount.TableCaption));
+        Assert.ExpectedError(StrSubstNo(BankAccNotFoundErr, BankAccount.TableCaption()));
     end;
 
     [Test]
@@ -519,7 +519,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         // Verify
         Assert.ExpectedError(
           StrSubstNo(WrongFieldValueErr, CustLedgerEntry.FieldCaption("Document Type"),
-            CustLedgerEntry.TableCaption, CustLedgerEntry."Document Type"::Refund));
+            CustLedgerEntry.TableCaption(), CustLedgerEntry."Document Type"::Refund));
     end;
 
     [Test]
@@ -567,7 +567,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         // Verify
         Assert.ExpectedError(
           StrSubstNo(MissingPaymentExportFormatErr, BankAccount.FieldCaption("Payment Export Format"),
-            BankAccount.TableCaption, BankAccount.FieldCaption("No."), BankAccount."No."));
+            BankAccount.TableCaption(), BankAccount.FieldCaption("No."), BankAccount."No."));
     end;
 
     [Test]
@@ -591,8 +591,8 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         ApplyPaymentManually(GenJnlLine, VendLedgerEntry, GenJnlLine."Document No.");
 
         // Post-Setup
-        Assert.IsTrue(GenJnlLine."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine.TableCaption));
-        Assert.IsTrue(VendLedgerEntry."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry.TableCaption));
+        Assert.IsTrue(GenJnlLine."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine.TableCaption()));
+        Assert.IsTrue(VendLedgerEntry."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry.TableCaption()));
 
         // Exercise
         PmtExportMgtGenJnlLine.ExportJournalPaymentFileYN(GenJnlLine);
@@ -625,9 +625,9 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         ApplyPaymentManually(GenJnlLine, VendLedgerEntry, GenJnlLine."Document No.");
 
         // Post-Setup
-        Assert.IsFalse(GenJnlLine."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine.TableCaption));
+        Assert.IsFalse(GenJnlLine."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine.TableCaption()));
         SetGenJournalLineExported(GenJnlLine, true);
-        Assert.IsFalse(VendLedgerEntry."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry.TableCaption));
+        Assert.IsFalse(VendLedgerEntry."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry.TableCaption()));
 
         // Exercise
         PmtExportMgtGenJnlLine.ExportJournalPaymentFileYN(GenJnlLine);
@@ -660,8 +660,8 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         ApplyPaymentManually(GenJnlLine, VendLedgerEntry, GenJnlLine."Document No.");
 
         // Post-Setup
-        Assert.IsTrue(GenJnlLine."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine.TableCaption));
-        Assert.IsTrue(VendLedgerEntry."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry.TableCaption));
+        Assert.IsTrue(GenJnlLine."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine.TableCaption()));
+        Assert.IsTrue(VendLedgerEntry."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry.TableCaption()));
 
         // Exercise
         PmtExportMgtGenJnlLine.ExportJournalPaymentFileYN(GenJnlLine);
@@ -696,8 +696,8 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         ApplyPaymentManually(GenJnlLine, VendLedgerEntry, GenJnlLine."Document No.");
 
         // Post-Setup
-        Assert.IsFalse(GenJnlLine."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine.TableCaption));
-        Assert.IsFalse(VendLedgerEntry."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry.TableCaption));
+        Assert.IsFalse(GenJnlLine."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine.TableCaption()));
+        Assert.IsFalse(VendLedgerEntry."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry.TableCaption()));
 
         // Exercise
         asserterror PmtExportMgtGenJnlLine.ExportJournalPaymentFileYN(GenJnlLine);
@@ -734,10 +734,10 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         ApplyPaymentManually(GenJnlLine2, VendLedgerEntry2, GenJnlLine1."Document No."); // use the same Applies-to ID for both
 
         // Post-Setup
-        Assert.IsFalse(GenJnlLine1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine1.TableCaption));
-        Assert.IsTrue(GenJnlLine2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine2.TableCaption));
-        Assert.IsFalse(VendLedgerEntry1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry1.TableCaption));
-        Assert.IsTrue(VendLedgerEntry2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry2.TableCaption));
+        Assert.IsFalse(GenJnlLine1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine1.TableCaption()));
+        Assert.IsTrue(GenJnlLine2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine2.TableCaption()));
+        Assert.IsFalse(VendLedgerEntry1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry1.TableCaption()));
+        Assert.IsTrue(VendLedgerEntry2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry2.TableCaption()));
 
         // Pre-Exercise
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
@@ -781,11 +781,11 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         ApplyPaymentManually(GenJnlLine2, VendLedgerEntry2, GenJnlLine1."Document No."); // use the same Applies-to ID for both
 
         // Post-Setup
-        Assert.IsFalse(GenJnlLine1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine1.TableCaption));
-        Assert.IsFalse(GenJnlLine2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine2.TableCaption));
+        Assert.IsFalse(GenJnlLine1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine1.TableCaption()));
+        Assert.IsFalse(GenJnlLine2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine2.TableCaption()));
         SetGenJournalLineExported(GenJnlLine2, true);
-        Assert.IsFalse(VendLedgerEntry1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry1.TableCaption));
-        Assert.IsFalse(VendLedgerEntry2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry2.TableCaption));
+        Assert.IsFalse(VendLedgerEntry1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry1.TableCaption()));
+        Assert.IsFalse(VendLedgerEntry2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry2.TableCaption()));
 
         // Pre-Exercise
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
@@ -829,10 +829,10 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         ApplyPaymentManually(GenJnlLine2, VendLedgerEntry2, GenJnlLine1."Document No."); // use the same Applies-to ID for both
 
         // Post-Setup
-        Assert.IsFalse(GenJnlLine1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine1.TableCaption));
-        Assert.IsTrue(GenJnlLine2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine2.TableCaption));
-        Assert.IsFalse(VendLedgerEntry1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry1.TableCaption));
-        Assert.IsTrue(VendLedgerEntry2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry2.TableCaption));
+        Assert.IsFalse(GenJnlLine1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine1.TableCaption()));
+        Assert.IsTrue(GenJnlLine2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine2.TableCaption()));
+        Assert.IsFalse(VendLedgerEntry1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry1.TableCaption()));
+        Assert.IsTrue(VendLedgerEntry2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry2.TableCaption()));
 
         // Pre-Exercise
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
@@ -878,10 +878,10 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         ApplyPaymentManually(GenJnlLine2, VendLedgerEntry2, GenJnlLine1."Document No."); // use the same Applies-to ID for both
 
         // Post-Setup
-        Assert.IsFalse(GenJnlLine1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine1.TableCaption));
-        Assert.IsFalse(GenJnlLine2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine2.TableCaption));
-        Assert.IsFalse(VendLedgerEntry1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry1.TableCaption));
-        Assert.IsFalse(VendLedgerEntry2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry2.TableCaption));
+        Assert.IsFalse(GenJnlLine1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine1.TableCaption()));
+        Assert.IsFalse(GenJnlLine2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, GenJnlLine2.TableCaption()));
+        Assert.IsFalse(VendLedgerEntry1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry1.TableCaption()));
+        Assert.IsFalse(VendLedgerEntry2."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry2.TableCaption()));
 
         // Pre-Exercise
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
@@ -1162,7 +1162,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         CreateVendorLedgerEntry(VendLedgerEntry1, VendLedgerEntry1."Document Type"::Payment, true);
 
         // Post-Setup
-        Assert.IsTrue(VendLedgerEntry1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry1.TableCaption));
+        Assert.IsTrue(VendLedgerEntry1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry1.TableCaption()));
 
         // Pre-Exercise
         VendLedgerEntry2.SetRange("Entry No.", VendLedgerEntry1."Entry No.");
@@ -1193,7 +1193,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         CreateVendorLedgerEntry(VendLedgerEntry1, VendLedgerEntry1."Document Type"::Payment, false);
 
         // Post-Setup
-        Assert.IsFalse(VendLedgerEntry1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry1.TableCaption));
+        Assert.IsFalse(VendLedgerEntry1."Exported to Payment File", StrSubstNo(PmtDataExportingFlagErr, VendLedgerEntry1.TableCaption()));
 
         // Pre-Exercise
         VendLedgerEntry2.SetRange("Entry No.", VendLedgerEntry1."Entry No.");
@@ -1203,7 +1203,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         asserterror PmtExportMgtVendLedgEntry.ExportVendorPaymentFileYN(VendLedgerEntry2);
 
         // Verify
-        Assert.ExpectedError(StrSubstNo(BankAccNotFoundErr, BankAccount.TableCaption));
+        Assert.ExpectedError(StrSubstNo(BankAccNotFoundErr, BankAccount.TableCaption()));
     end;
 
     [Test]
@@ -1264,7 +1264,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         // Verify
         Assert.ExpectedError(
           StrSubstNo(WrongFieldValueErr, VendLedgerEntry.FieldCaption("Document Type"),
-            VendLedgerEntry.TableCaption, VendLedgerEntry."Document Type"::Payment));
+            VendLedgerEntry.TableCaption(), VendLedgerEntry."Document Type"::Payment));
     end;
 
     [Test]
@@ -1699,7 +1699,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         RecRef.Open(DATABASE::"Payment Export Data");
 
         if GetLastErrorCode = 'TestField' then
-            ExpectedError := StrSubstNo(ExpectedTestFieldErrorErr, RecRef.Field(FieldNo).Caption, TempPmtExportData.TableCaption, 1)
+            ExpectedError := StrSubstNo(ExpectedTestFieldErrorErr, RecRef.Field(FieldNo).Caption, TempPmtExportData.TableCaption(), 1)
         else begin
             ExpectedError :=
               StrSubstNo(IncorrectLengthOfValuesErr,
@@ -1997,13 +1997,13 @@ codeunit 132571 "Payment Export Mgt Unit Test"
           GenJnlLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryRandom.RandDec(1000, 2));
 
         // [GIVEN] Filter on General Journal Line "B"
-        GenJnlLine.SetRecFilter;
+        GenJnlLine.SetRecFilter();
 
         // [WHEN] Post General Journal Line "B"
         CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJnlLine);
 
         // [THEN] Posting Exch. Field is not removed
-        DataExchField.SetRecFilter;
+        DataExchField.SetRecFilter();
         Assert.RecordIsNotEmpty(DataExchField);
     end;
 
@@ -2056,7 +2056,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         with GenJnlLine do begin
             Validate("Applies-to Doc. Type", AppliesToDocType);
             Validate("Applies-to Doc. No.", AppliesToDocNo);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2067,7 +2067,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
 
         with GenJnlLine do begin
             Validate("Applies-to ID", AppliesToID);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2114,7 +2114,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
             "Bank Branch No." := BankBranchNo;
             "Bank Account No." := BankAccountNo;
             IBAN := '';
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2144,10 +2144,10 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         PaymentMethod: Record "Payment Method";
     begin
         with CustLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LastCustLedgerEntryNo + 1000;
             "Customer No." := LibrarySales.CreateCustomerNo();
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Document Type" := DocumentType;
             "Document No." := LibraryUtility.GenerateGUID();
             Open := true;
@@ -2160,7 +2160,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
             "Recipient Bank Account" := LibraryUtility.GenerateGUID();
             "Message to Recipient" := LibraryUtility.GenerateGUID();
             "Exported to Payment File" := Exported;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2172,7 +2172,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
             "Bank Branch No." := CopyStr(BankBranchNo, 1, MaxStrLen("Bank Branch No."));
             "Bank Account No." := BankAccountNo;
             IBAN := NewIBAN;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2183,20 +2183,20 @@ codeunit 132571 "Payment Export Mgt Unit Test"
             "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
             "Bal. Account No." := BalAccountNo;
             "Allow Payment Export" := true;
-            Modify;
+            Modify();
         end;
     end;
 
     local procedure CreateGenJournalLine(var GenJnlLine: Record "Gen. Journal Line"; GenJnlBatch: Record "Gen. Journal Batch"; VendLedgerEntry: Record "Vendor Ledger Entry")
     begin
         with GenJnlLine do begin
-            Init;
+            Init();
             "Journal Template Name" := GenJnlBatch."Journal Template Name";
             "Journal Batch Name" := GenJnlBatch.Name;
             "Line No." := LibraryRandom.RandInt(10000);
             "Account Type" := "Account Type"::Vendor;
             "Account No." := VendLedgerEntry."Vendor No.";
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Document Type" := "Document Type"::Payment;
             "Document No." := LibraryUtility.GenerateGUID();
             "External Document No." := LibraryUtility.GenerateGUID();
@@ -2206,7 +2206,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
             "Payment Method Code" := VendLedgerEntry."Payment Method Code";
             "Recipient Bank Account" := LibraryUtility.GenerateGUID();
             "Message to Recipient" := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2216,10 +2216,10 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         VendorBankAccount: Record "Vendor Bank Account";
     begin
         with VendLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LastVendorLedgerEntryNo + 1000;
             "Vendor No." := LibraryPurchase.CreateVendorNo();
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Document Type" := DocumentType;
             "Document No." := LibraryUtility.GenerateGUID();
             Open := true;
@@ -2233,7 +2233,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
             "Recipient Bank Account" := VendorBankAccount.Code;
             "Message to Recipient" := LibraryUtility.GenerateGUID();
             "Exported to Payment File" := Exported;
-            Insert;
+            Insert();
         end;
         CreateDtldVendLedgEntry(VendLedgerEntry);
     end;
@@ -2246,7 +2246,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
             "Bank Branch No." := BankBranchNo;
             "Bank Account No." := BankAccountNo;
             IBAN := NewIBAN;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2281,7 +2281,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         GenJournalLine.FindSet();
         repeat
             if PaymentExportGenJnlCheck.Run(GenJournalLine) then;
-        until GenJournalLine.Next = 0;
+        until GenJournalLine.Next() = 0;
     end;
 
     local procedure MockDataExchNo(): Integer
@@ -2289,9 +2289,9 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         DataExch: Record "Data Exch.";
     begin
         with DataExch do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(DataExch, FieldNo("Entry No."));
-            Insert;
+            Insert();
             exit("Entry No.");
         end;
     end;
@@ -2299,10 +2299,10 @@ codeunit 132571 "Payment Export Mgt Unit Test"
     local procedure MockDataExchField(var DataExchField: Record "Data Exch. Field"; PostExchNo: Integer)
     begin
         with DataExchField do begin
-            Init;
+            Init();
             "Data Exch. No." := PostExchNo;
             "Line No." := LibraryRandom.RandInt(100);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2313,7 +2313,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
     begin
         RecRef.Open(DATABASE::"Vendor Ledger Entry");
         with DtldVendLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
             "Vendor Ledger Entry No." := VendLedgEntry."Entry No.";
             "Entry Type" := "Entry Type"::"Initial Entry";
@@ -2324,7 +2324,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
             "Amount (LCY)" := Amount;
             "Vendor No." := VendLedgEntry."Vendor No.";
             "Ledger Entry Amount" := true;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2468,7 +2468,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         repeat
             LineNo += 1;
             AreEqualRecords(ExpectedDataExchField, ActualDataExchField, StrSubstNo(TableErrorMsg, Msg, LineNo));
-        until (ExpectedDataExchField.Next = 0) or (ActualDataExchField.Next = 0);
+        until (ExpectedDataExchField.Next() = 0) or (ActualDataExchField.Next() = 0);
         Assert.AreEqual(ExpectedDataExchField.Count, ActualDataExchField.Count, 'Row count does not match');
     end;
 

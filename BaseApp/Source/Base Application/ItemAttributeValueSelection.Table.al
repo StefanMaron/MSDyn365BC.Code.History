@@ -14,7 +14,7 @@ table 7504 "Item Attribute Value Selection"
                 ItemAttribute: Record "Item Attribute";
             begin
                 FindItemAttributeCaseInsensitive(ItemAttribute);
-                CheckForDuplicate;
+                CheckForDuplicate();
                 CheckIfBlocked(ItemAttribute);
                 AdjustAttributeName(ItemAttribute);
                 ValidateChangedAttribute(ItemAttribute);
@@ -34,6 +34,10 @@ table 7504 "Item Attribute Value Selection"
             begin
                 if Value = '' then
                     exit;
+
+                DateValue := 0D;
+                DecimalValue := 0;
+                IntegerValue := 0;
 
                 ItemAttribute.Get("Attribute ID");
                 if FindItemAttributeValueCaseSensitive(ItemAttributeValue) then
@@ -252,13 +256,13 @@ table 7504 "Item Attribute Value Selection"
         ItemAttribute.Get(TempItemAttributeValue."Attribute ID");
         "Attribute Name" := ItemAttribute.Name;
         "Attribute Type" := ItemAttribute.Type;
-        Value := TempItemAttributeValue.GetValueInCurrentLanguageWithoutUnitOfMeasure;
+        Value := TempItemAttributeValue.GetValueInCurrentLanguageWithoutUnitOfMeasure();
         Blocked := TempItemAttributeValue.Blocked;
         "Unit of Measure" := ItemAttribute."Unit of Measure";
         "Inherited-From Table ID" := DefinedOnTableID;
         "Inherited-From Key Value" := DefinedOnKeyValue;
         OnInsertRecordOnBeforeItemAttrValueSelectionInsert(Rec, TempItemAttributeValue);
-        Insert;
+        Insert();
     end;
 
     local procedure ValidateType(Variant: Variant; ValueToValidate: Text; ItemAttribute: Record "Item Attribute")
@@ -300,7 +304,7 @@ table 7504 "Item Attribute Value Selection"
     begin
         ItemAttributeValue.SetRange("Attribute ID", "Attribute ID");
         ItemAttributeValue.SetRange(Value, Value);
-        exit(ItemAttributeValue.FindFirst);
+        exit(ItemAttributeValue.FindFirst());
     end;
 
     local procedure FindItemAttributeValueCaseInsensitive(var ItemAttributeValue: Record "Item Attribute Value"): Boolean
@@ -387,12 +391,12 @@ table 7504 "Item Attribute Value Selection"
             Evaluate(ValDecimal, ItemAttributeValueSelection.Value);
             ItemAttributeValue.SetRange("Numeric Value", ValDecimal);
         end else
-            if IsNotBlankDate then begin
+            if IsNotBlankDate() then begin
                 Evaluate(ValDate, ItemAttributeValueSelection.Value);
                 ItemAttributeValue.SetRange("Date Value", ValDate);
             end else
                 ItemAttributeValue.SetRange(Value, ItemAttributeValueSelection.Value);
-        exit(ItemAttributeValue.FindFirst);
+        exit(ItemAttributeValue.FindFirst());
     end;
 
     procedure GetAttributeValueID(var TempItemAttributeValueToInsert: Record "Item Attribute Value" temporary): Integer

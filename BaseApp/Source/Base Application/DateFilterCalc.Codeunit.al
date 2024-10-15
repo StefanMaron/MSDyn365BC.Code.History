@@ -6,9 +6,10 @@ codeunit 358 "DateFilter-Calc"
     end;
 
     var
-        Text000: Label 'Fiscal Year %1';
         AccountingPeriod: Record "Accounting Period";
         StartDate: Date;
+
+        Text000: Label 'Fiscal Year %1';
 
     procedure CreateFiscalYearFilter(var "Filter": Text[30]; var Name: Text[30]; Date: Date; NextStep: Integer)
     begin
@@ -57,7 +58,7 @@ codeunit 358 "DateFilter-Calc"
             Name := StrSubstNo(Text000, Format(Date2DMY(StartDate, 3)))
         else
             Name := AccountingPeriod.Name;
-        if AccountingPeriod.Next <> 0 then
+        if AccountingPeriod.Next() <> 0 then
             Filter := Format(StartDate) + '..' + Format(AccountingPeriod."Starting Date" - 1)
         else begin
             Filter := Format(StartDate) + '..' + Format(DMY2Date(31, 12, 9999));

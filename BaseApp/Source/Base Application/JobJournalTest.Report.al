@@ -20,7 +20,7 @@ report 1005 "Job Journal - Test"
             {
                 DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
                 PrintOnlyIfDetail = true;
-                column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+                column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(Job_Journal_Batch___Journal_Template_Name_; "Job Journal Batch"."Journal Template Name")
@@ -212,7 +212,7 @@ report 1005 "Job Journal - Test"
                         TempErrorText: Text[250];
                         IsHandled: Boolean;
                     begin
-                        if EmptyLine then
+                        if EmptyLine() then
                             exit;
 
                         MakeRecurringTexts("Job Journal Line");
@@ -225,10 +225,9 @@ report 1005 "Job Journal - Test"
                             if "Job No." <> '' then
                                 if "Job Task No." = '' then
                                     AddError(StrSubstNo(Text001, FieldCaption("Job Task No.")))
-                                else begin
+                                else
                                     if not JT.Get("Job No.", "Job Task No.") then
-                                        AddError(StrSubstNo(Text015, JT.TableCaption, "Job Task No."))
-                                end;
+                                        AddError(StrSubstNo(Text015, JT.TableCaption(), "Job Task No."));
 
                         if Type <> Type::"G/L Account" then
                             if "Gen. Prod. Posting Group" = '' then
@@ -237,7 +236,7 @@ report 1005 "Job Journal - Test"
                                 if not GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group") then
                                     AddError(
                                       StrSubstNo(
-                                        Text004, GenPostingSetup.TableCaption,
+                                        Text004, GenPostingSetup.TableCaption(),
                                         "Gen. Bus. Posting Group", "Gen. Prod. Posting Group"));
 
                         if "Document No." = '' then
@@ -303,7 +302,7 @@ report 1005 "Job Journal - Test"
                         end;
 
                         if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                            AddError(DimMgt.GetDimCombErr);
+                            AddError(DimMgt.GetDimCombErr());
 
                         TableID[1] := DATABASE::Job;
                         No[1] := "Job No.";
@@ -314,7 +313,7 @@ report 1005 "Job Journal - Test"
                         OnAfterAssignDimTableID("Job Journal Line", TableID, No);
 
                         if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                            AddError(DimMgt.GetDimValuePostingErr);
+                            AddError(DimMgt.GetDimValuePostingErr());
                     end;
 
                     trigger OnPreDataItem()
@@ -325,12 +324,12 @@ report 1005 "Job Journal - Test"
                                 AddError(
                                   StrSubstNo(
                                     Text000, FieldCaption("Posting Date")));
-                            SetRange("Posting Date", 0D, WorkDate);
+                            SetRange("Posting Date", 0D, WorkDate());
                             if GetFilter("Expiration Date") <> '' then
                                 AddError(
                                   StrSubstNo(
                                     Text000, FieldCaption("Expiration Date")));
-                            SetFilter("Expiration Date", '%1 | %2..', 0D, WorkDate);
+                            SetFilter("Expiration Date", '%1 | %2..', 0D, WorkDate());
                         end;
 
                         if "Job Journal Batch"."No. Series" <> '' then
@@ -375,24 +374,10 @@ report 1005 "Job Journal - Test"
 
     trigger OnPreReport()
     begin
-        JobJnlLineFilter := "Job Journal Line".GetFilters;
+        JobJnlLineFilter := "Job Journal Line".GetFilters();
     end;
 
     var
-        Text000: Label '%1 cannot be filtered when you post recurring journals.';
-        Text001: Label '%1 must be specified.';
-        Text002: Label 'Job %1 does not exist.';
-        Text003: Label '%1 must not be %2 for job %3.';
-        Text004: Label '%1 %2 %3 does not exist.';
-        Text005: Label 'Resource %1 does not exist.';
-        Text006: Label '%1 must be %2 for resource %3.';
-        Text007: Label 'Item %1 does not exist.';
-        Text008: Label '%1 must be %2 for item %3.';
-        Text009: Label '%1 must not be a closing date.';
-        Text010: Label 'The lines are not listed according to posting date because they were not entered in that order.';
-        Text011: Label '%1 is not within your allowed range of posting dates.';
-        Text012: Label 'There is a gap in the number series.';
-        Text013: Label '%1 cannot be specified.';
         AccountingPeriod: Record "Accounting Period";
         Job: Record Job;
         JT: Record "Job Task";
@@ -415,6 +400,21 @@ report 1005 "Job Journal - Test"
         OldDimText: Text[120];
         ShowDim: Boolean;
         Continue: Boolean;
+
+        Text000: Label '%1 cannot be filtered when you post recurring journals.';
+        Text001: Label '%1 must be specified.';
+        Text002: Label 'Job %1 does not exist.';
+        Text003: Label '%1 must not be %2 for job %3.';
+        Text004: Label '%1 %2 %3 does not exist.';
+        Text005: Label 'Resource %1 does not exist.';
+        Text006: Label '%1 must be %2 for resource %3.';
+        Text007: Label 'Item %1 does not exist.';
+        Text008: Label '%1 must be %2 for item %3.';
+        Text009: Label '%1 must not be a closing date.';
+        Text010: Label 'The lines are not listed according to posting date because they were not entered in that order.';
+        Text011: Label '%1 is not within your allowed range of posting dates.';
+        Text012: Label 'There is a gap in the number series.';
+        Text013: Label '%1 cannot be specified.';
         Text015: Label '%1 %2 does not exist.';
         Job_Journal_Batch___Journal_Template_Name_CaptionLbl: Label 'Journal Template';
         Job_Journal_Batch__NameCaptionLbl: Label 'Journal Batch';
@@ -457,10 +457,9 @@ report 1005 "Job Journal - Test"
         else
             if not Job.Get(JobJournalLine."Job No.") then
                 AddError(StrSubstNo(Text002, JobJournalLine."Job No."))
-            else begin
+            else
                 if Job.Blocked <> Job.Blocked::" " then
                     AddError(StrSubstNo(Text003, Job.FieldCaption(Blocked), Job.Blocked, JobJournalLine."Job No."));
-            end;
     end;
 
     local procedure MakeRecurringTexts(var JobJnlLine2: Record "Job Journal Line")

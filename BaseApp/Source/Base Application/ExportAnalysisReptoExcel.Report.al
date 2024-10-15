@@ -99,7 +99,7 @@ report 7113 "Export Analysis Rep. to Excel"
                     EnterFilterInCell(
                       RowNo,
                       GLSetup."LCY Code",
-                      Currency.TableCaption,
+                      Currency.TableCaption(),
                       '',
                       TempExcelBuffer."Cell Type"::Text);
                 end;
@@ -137,10 +137,10 @@ report 7113 "Export Analysis Rep. to Excel"
                           AnalysisLine.Underline,
                           '',
                           TempExcelBuffer."Cell Type"::Text);
-                        if ColumnLayout.Find('-') then begin
+                        if ColumnLayout.Find('-') then
                             repeat
                                 ColumnValue := AnalysisReportManagement.CalcCell(AnalysisLine, ColumnLayout, false);
-                                if AnalysisReportManagement.GetDivisionError then
+                                if AnalysisReportManagement.GetDivisionError() then
                                     ColumnValue := 0;
                                 ColumnNo := ColumnNo + 1;
                                 EnterCell(
@@ -153,24 +153,23 @@ report 7113 "Export Analysis Rep. to Excel"
                                   '',
                                   TempExcelBuffer."Cell Type"::Number)
                             until ColumnLayout.Next() = 0;
-                        end;
                     until AnalysisLine.Next() = 0;
                 end;
 
-                Window.Close;
+                Window.Close();
 
                 if DoUpdateExistingWorksheet then begin
                     TempExcelBuffer.UpdateBook(ServerFileName, SheetName);
                     TempExcelBuffer.WriteSheet('', CompanyName, UserId);
-                    TempExcelBuffer.CloseBook;
+                    TempExcelBuffer.CloseBook();
                     if not TestMode then
                         TempExcelBuffer.OpenExcelWithName(ClientFileName);
                 end else begin
                     TempExcelBuffer.CreateBook(ServerFileName, AnalysisTemplateName);
                     TempExcelBuffer.WriteSheet(AnalysisLine.Description, CompanyName, UserId);
-                    TempExcelBuffer.CloseBook;
+                    TempExcelBuffer.CloseBook();
                     if not TestMode then
-                        TempExcelBuffer.OpenExcel;
+                        TempExcelBuffer.OpenExcel();
                 end;
             end;
         }
@@ -193,9 +192,6 @@ report 7113 "Export Analysis Rep. to Excel"
     }
 
     var
-        Text000: Label 'Analyzing Data...\\';
-        Text001: Label 'Filters';
-        Text002: Label 'Update Workbook';
         AnalysisLineTemplate: Record "Analysis Line Template";
         AnalysisLine: Record "Analysis Line";
         ColumnLayout: Record "Analysis Column";
@@ -211,8 +207,12 @@ report 7113 "Export Analysis Rep. to Excel"
         SheetName: Text[250];
         AnalysisTemplateName: Code[10];
         DoUpdateExistingWorksheet: Boolean;
-        ExcelFileExtensionTok: Label '.xlsx', Locked = true;
         TestMode: Boolean;
+
+        Text000: Label 'Analyzing Data...\\';
+        Text001: Label 'Filters';
+        Text002: Label 'Update Workbook';
+        ExcelFileExtensionTok: Label '.xlsx', Locked = true;
 
     procedure SetOptions(var AnalysisLine2: Record "Analysis Line"; ColumnLayoutName2: Code[10]; NewAnalysisTemplateName: Code[10])
     begin

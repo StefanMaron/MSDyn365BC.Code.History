@@ -24,7 +24,7 @@ codeunit 142095 "Test Tax Setup Wizard"
     begin
         // Init. Start with an empty table
         LibraryLowerPermissions.SetInvoiceApp;
-        if SalesTaxSetupWizard.Get then
+        if SalesTaxSetupWizard.Get() then
             SalesTaxSetupWizard.Delete();
 
         // Execute the wizard, let the wizard decide a tax area code
@@ -44,7 +44,7 @@ codeunit 142095 "Test Tax Setup Wizard"
     begin
         // Init. Start with an empty table
         LibraryLowerPermissions.SetInvoiceApp;
-        if SalesTaxSetupWizard.Get then
+        if SalesTaxSetupWizard.Get() then
             SalesTaxSetupWizard.Delete();
 
         // Execute the wizard first time, let the wizard decide a tax area code
@@ -69,7 +69,7 @@ codeunit 142095 "Test Tax Setup Wizard"
     begin
         // Init. Start with an empty table
         LibraryLowerPermissions.SetInvoiceApp;
-        if SalesTaxSetupWizard.Get then
+        if SalesTaxSetupWizard.Get() then
             SalesTaxSetupWizard.Delete();
 
         // Execute the wizard first time, let the wizard decide a tax area code
@@ -95,7 +95,7 @@ codeunit 142095 "Test Tax Setup Wizard"
 
         if not ValidateMode then begin
             LibraryERM.CreateGLAccount(GLAccount);
-            GLAccount.Find;
+            GLAccount.Find();
             if GLAccount."Income/Balance" <> GLAccount."Income/Balance"::"Balance Sheet" then begin
                 GLAccount."Income/Balance" := GLAccount."Income/Balance"::"Balance Sheet";
                 GLAccount.Modify();
@@ -162,7 +162,7 @@ codeunit 142095 "Test Tax Setup Wizard"
             TaxDetail.SetRange("Tax Type", TaxDetail."Tax Type"::"Sales and Use Tax");
             TaxDetail.FindLast();
             TotalSalesTaxRate += TaxDetail."Tax Below Maximum";
-        until TaxAreaLine.Next = 0;
+        until TaxAreaLine.Next() = 0;
         Assert.AreEqual(SalesTaxRate, TotalSalesTaxRate, 'Wrong sales tax rate sum');
     end;
 }

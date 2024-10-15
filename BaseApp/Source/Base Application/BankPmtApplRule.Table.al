@@ -16,8 +16,8 @@ table 1252 "Bank Pmt. Appl. Rule"
 
             trigger OnValidate()
             begin
-                if (Priority > GetMaximumPriorityNo) or (Priority < 1) then
-                    Error(WrongPriorityNoErr, FieldCaption(Priority), 1, GetMaximumPriorityNo);
+                if (Priority > GetMaximumPriorityNo()) or (Priority < 1) then
+                    Error(WrongPriorityNoErr, FieldCaption(Priority), 1, GetMaximumPriorityNo());
             end;
         }
         field(3; "Related Party Matched"; Option)
@@ -102,7 +102,7 @@ table 1252 "Bank Pmt. Appl. Rule"
         if BankPmtApplRule.FindSet() then
             repeat
                 TransferFields(BankPmtApplRule);
-                Insert;
+                Insert();
             until BankPmtApplRule.Next() = 0;
     end;
 
@@ -178,7 +178,7 @@ table 1252 "Bank Pmt. Appl. Rule"
     var
         ConfidenceRangeScore: Integer;
     begin
-        ConfidenceRangeScore := (MatchConfidence + 1) * GetConfidenceScoreRange;
+        ConfidenceRangeScore := (MatchConfidence + 1) * GetConfidenceScoreRange();
 
         // Update the score based on priority
         exit(ConfidenceRangeScore - NewPriority);
@@ -191,7 +191,7 @@ table 1252 "Bank Pmt. Appl. Rule"
 
     local procedure GetMaximumPriorityNo(): Integer
     begin
-        exit(GetConfidenceScoreRange - 1);
+        exit(GetConfidenceScoreRange() - 1);
     end;
 
     procedure GetMatchConfidence(MatchQuality: Integer): Integer
@@ -199,10 +199,10 @@ table 1252 "Bank Pmt. Appl. Rule"
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         OptionNo: Integer;
     begin
-        if MatchQuality = GetTextMapperScore then
+        if MatchQuality = GetTextMapperScore() then
             exit(BankAccReconciliationLine."Match Confidence"::"High - Text-to-Account Mapping");
 
-        OptionNo := MatchQuality div GetConfidenceScoreRange;
+        OptionNo := MatchQuality div GetConfidenceScoreRange();
         case OptionNo of
             "Match Confidence"::None:
                 exit(BankAccReconciliationLine."Match Confidence"::None);
@@ -217,17 +217,17 @@ table 1252 "Bank Pmt. Appl. Rule"
 
     procedure GetLowestScoreInRange(AssignedScore: Integer): Integer
     begin
-        exit((AssignedScore div GetConfidenceScoreRange) * GetConfidenceScoreRange);
+        exit((AssignedScore div GetConfidenceScoreRange()) * GetConfidenceScoreRange());
     end;
 
     procedure GetHighestScoreInRange(AssignedScore: Integer): Integer
     begin
-        exit(GetLowestScoreInRange(AssignedScore) + GetConfidenceScoreRange);
+        exit(GetLowestScoreInRange(AssignedScore) + GetConfidenceScoreRange());
     end;
 
     procedure GetHighestPossibleScore(): Integer
     begin
-        exit(GetConfidenceScoreRange * ("Match Confidence"::High + 1));
+        exit(GetConfidenceScoreRange() * ("Match Confidence"::High + 1));
     end;
 
     procedure InsertDefaultMatchingRules()

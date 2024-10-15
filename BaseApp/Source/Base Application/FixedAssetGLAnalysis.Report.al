@@ -11,7 +11,7 @@ report 5610 "Fixed Asset - G/L Analysis"
         dataitem("Fixed Asset"; "Fixed Asset")
         {
             RequestFilterFields = "No.", "FA Class Code", "FA Subclass Code", "Budgeted Asset";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TodayFormatted; Format(Today, 0, 4))
@@ -130,7 +130,7 @@ report 5610 "Fixed Asset - G/L Analysis"
             begin
                 if not FADeprBook.Get("No.", DeprBookCode) then
                     CurrReport.Skip();
-                if SkipRecord then
+                if SkipRecord() then
                     CurrReport.Skip();
 
                 if GroupTotals = GroupTotals::"FA Posting Group" then
@@ -159,7 +159,7 @@ report 5610 "Fixed Asset - G/L Analysis"
                     CurrReport.Skip();
                 for i := 1 to 3 do
                     GroupAmounts[i] := 0;
-                MakeGroupHeadLine;
+                MakeGroupHeadLine();
             end;
 
             trigger OnPreDataItem()
@@ -181,16 +181,16 @@ report 5610 "Fixed Asset - G/L Analysis"
                         SetCurrentKey("FA Posting Group");
                 end;
 
-                FAPostingType.CreateTypes;
-                FADateType.CreateTypes;
+                FAPostingType.CreateTypes();
+                FADateType.CreateTypes();
                 CheckDateType(DateType1, DateTypeNo1);
                 CheckDateType(DateType2, DateTypeNo2);
                 CheckPostingType(PostingType1, PostingTypeNo1);
                 CheckPostingType(PostingType2, PostingTypeNo2);
                 CheckPostingType(PostingType3, PostingTypeNo3);
-                MakeGroupTotalText;
+                MakeGroupTotalText();
                 FAGenReport.ValidateDates(StartingDate, EndingDate);
-                MakeDateHeadLine;
+                MakeDateHeadLine();
                 MakeAmountHeadLine(3, PostingType1, PostingTypeNo1, Period1);
                 MakeAmountHeadLine(4, PostingType2, PostingTypeNo2, Period2);
                 MakeAmountHeadLine(5, PostingType3, PostingTypeNo3, Period3);
@@ -313,7 +313,7 @@ report 5610 "Fixed Asset - G/L Analysis"
 
         trigger OnOpenPage()
         begin
-            GetFASetup;
+            GetFASetup();
         end;
     }
 
@@ -324,13 +324,13 @@ report 5610 "Fixed Asset - G/L Analysis"
     trigger OnPreReport()
     begin
         DeprBook.Get(DeprBookCode);
-        FAFilter := "Fixed Asset".GetFilters;
+        FAFilter := "Fixed Asset".GetFilters();
 
         if GroupTotals = GroupTotals::"FA Posting Group" then
             FAGenReport.SetFAPostingGroup("Fixed Asset", DeprBook.Code);
 
         FAGenReport.AppendPostingDateFilter(FAFilter, StartingDate, EndingDate);
-        DeprBookText := StrSubstNo('%1%2 %3', DeprBook.TableCaption, ':', DeprBookCode);
+        DeprBookText := StrSubstNo('%1%2 %3', DeprBook.TableCaption(), ':', DeprBookCode);
         if PrintDetails then begin
             FANo := "Fixed Asset".FieldCaption("No.");
             FADescription := "Fixed Asset".FieldCaption(Description);
@@ -338,12 +338,6 @@ report 5610 "Fixed Asset - G/L Analysis"
     end;
 
     var
-        Text000: Label 'Group Total';
-        Text001: Label 'Group Totals';
-        Text002: Label '%1 must be specified only together with the types %2, %3, %4 or %5.';
-        Text003: Label 'The date type %1 is not a valid option.';
-        Text004: Label 'The posting type %1 is not a valid option.';
-        Text005: Label '%1 has been modified in fixed asset %2.';
         FASetup: Record "FA Setup";
         DeprBook: Record "Depreciation Book";
         FADeprBook: Record "FA Depreciation Book";
@@ -382,6 +376,13 @@ report 5610 "Fixed Asset - G/L Analysis"
         PrintDetails: Boolean;
         SalesReport: Boolean;
         TypeExist: Boolean;
+
+        Text000: Label 'Group Total';
+        Text001: Label 'Group Totals';
+        Text002: Label '%1 must be specified only together with the types %2, %3, %4 or %5.';
+        Text003: Label 'The date type %1 is not a valid option.';
+        Text004: Label 'The posting type %1 is not a valid option.';
+        Text005: Label '%1 has been modified in fixed asset %2.';
         Text006: Label ' ,FA Class,FA Subclass,FA Location,Main Asset,Global Dimension 1,Global Dimension 2,FA Posting Group';
         CurrReportPageNoCaptionLbl: Label 'Page';
         FixedAssetGLAnalysisCptnLbl: Label 'Fixed Asset - G/L Analysis';
@@ -559,8 +560,8 @@ report 5610 "Fixed Asset - G/L Analysis"
             FASetup.Get();
             DeprBookCode := FASetup."Default Depr. Book";
         end;
-        FAPostingType.CreateTypes;
-        FADateType.CreateTypes;
+        FAPostingType.CreateTypes();
+        FADateType.CreateTypes();
     end;
 }
 

@@ -139,7 +139,7 @@ codeunit 141010 "UT REP Intercompany"
         CostAmountActual: Decimal;
     begin
         // Setup: Create Item Ledger Entry, Item Register, Value Entry.
-        CreateItemLedgerEntry(ItemLedgerEntry, LibraryUTUtility.GetNewCode, Quantity, WorkDate);
+        CreateItemLedgerEntry(ItemLedgerEntry, LibraryUTUtility.GetNewCode, Quantity, WorkDate());
         CreateItemRegister(ItemLedgerEntry."Entry No.", SourceCode);
         CostAmountActual := CreateValueEntry(ItemLedgerEntry);
 
@@ -205,7 +205,7 @@ codeunit 141010 "UT REP Intercompany"
     begin
         // Setup: Create Item, Item Ledger Entry and Stockkeeping Unit.
         CreateItem(Item);
-        CreateItemLedgerEntry(ItemLedgerEntry, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate);
+        CreateItemLedgerEntry(ItemLedgerEntry, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate());
         CreateStockkeepingUnit(Item."No.");
         LibraryVariableStorage.Enqueue(UseStockKeepingUnit);  // Enqueue value in handler - OverStockRequestPageHandler.
 
@@ -266,7 +266,7 @@ codeunit 141010 "UT REP Intercompany"
         Initialize();
         CreateItem(Item);
         CreateItemLedgerEntry(ItemLedgerEntry, Item."No.", LibraryRandom.RandDec(10, 2),
-          CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'D' + '>', WorkDate));  // Posting Date before WORKDATE is required.
+          CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'D' + '>', WorkDate()));  // Posting Date before WORKDATE is required.
         CostAmountActual := CreateValueEntry(ItemLedgerEntry);
 
         // Exercise.
@@ -414,7 +414,7 @@ codeunit 141010 "UT REP Intercompany"
         // Setup: Update General Ledger Setup. Create Item, Item Ledger Entry and Value Entry.
         UpdateGLSetupAdditionalReportingCurrency(AdditionalReportingCurrency);
         CreateItem(Item);
-        CreateItemLedgerEntry(ItemLedgerEntry, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate);
+        CreateItemLedgerEntry(ItemLedgerEntry, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate());
         CostAmountActual := CreateValueEntry(ItemLedgerEntry);
         LibraryVariableStorage.Enqueue(UseAdditionalReportingCurrency);  // Enqueue value - InventoryToGLReconcileRequestPageHandler, InventoryValuationRequestPageHandler.
 
@@ -443,7 +443,7 @@ codeunit 141010 "UT REP Intercompany"
         // Setup: Create Item, Item Ledger Entry and Value Entry.
         Initialize();
         CreateItem(Item);
-        CreateItemLedgerEntry(ItemLedgerEntry, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate);
+        CreateItemLedgerEntry(ItemLedgerEntry, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate());
         CreateValueEntry(ItemLedgerEntry);
 
         // Exercise.
@@ -472,7 +472,7 @@ codeunit 141010 "UT REP Intercompany"
         // Setup: Create Item, Item Ledger Entry and Value Entry.
         Initialize();
         CreateItem(Item);
-        CreateItemLedgerEntry(ItemLedgerEntry, Item."No.", LibraryRandom.RandDecInRange(10, 100, 2), WorkDate);
+        CreateItemLedgerEntry(ItemLedgerEntry, Item."No.", LibraryRandom.RandDecInRange(10, 100, 2), WorkDate());
         CostAmountActual := CreateValueEntry(ItemLedgerEntry);
         MaximumPurchaseAmount := CostAmountActual + LibraryRandom.RandDec(10, 2);  // Random value added to make MaximumPurchaseAmount greater than Purchases (LCY) of Item.
         MaximumPurchaseQuantity := ItemLedgerEntry."Invoiced Quantity" + LibraryRandom.RandDec(10, 2);  // Random value added to make MaximumPurchaseQuantity greater than Purchases (Qty.) of Item.
@@ -510,7 +510,7 @@ codeunit 141010 "UT REP Intercompany"
         // Setup: Create Item, Item Ledger Entry and Value Entry.
         Initialize();
         CreateItem(Item);
-        CreateItemLedgerEntry(ItemLedgerEntry, Item."No.", LibraryRandom.RandDecInRange(10, 100, 2), WorkDate);
+        CreateItemLedgerEntry(ItemLedgerEntry, Item."No.", LibraryRandom.RandDecInRange(10, 100, 2), WorkDate());
         CostAmountActual := CreateValueEntry(ItemLedgerEntry);
         MinimumPurchaseAmount := CostAmountActual - LibraryRandom.RandDec(10, 2);  // Random value subtracted to make MinimumPurchaseAmount less than Purchases (LCY) of Item.
         MinimumPurchaseQuantity := ItemLedgerEntry."Invoiced Quantity" - LibraryRandom.RandDec(10, 2);  // Random value subtracted to make MinimumPurchaseQuantity less than Purchases (Qty.) of Item.
@@ -602,9 +602,9 @@ codeunit 141010 "UT REP Intercompany"
         // Setup: Create Item, Item Ledger Entry, Prior Item Ledger Entry and Value Entry.
         Initialize();
         CreateItem(Item);
-        CreateItemLedgerEntry(ItemLedgerEntry, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate);
+        CreateItemLedgerEntry(ItemLedgerEntry, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate());
         UpdateItemLedgerEntryVariantCode(ItemLedgerEntry, CreateItemVariant(Item."No."));
-        CreateItemLedgerEntry(ItemLedgerEntry2, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate - 1);  // Prior Item Ledger Entry.
+        CreateItemLedgerEntry(ItemLedgerEntry2, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate() - 1);  // Prior Item Ledger Entry.
         CostAmountActual := CreateValueEntry(ItemLedgerEntry2);
         UpdateValueEntryPostingDate(ItemLedgerEntry2."Entry No.");
 
@@ -986,7 +986,7 @@ codeunit 141010 "UT REP Intercompany"
     begin
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntryNo);
         ValueEntry.FindFirst();
-        ValueEntry."Posting Date" := WorkDate;
+        ValueEntry."Posting Date" := WorkDate();
         ValueEntry.Modify();
     end;
 

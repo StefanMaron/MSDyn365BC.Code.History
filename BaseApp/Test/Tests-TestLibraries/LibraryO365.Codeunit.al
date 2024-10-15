@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 131922 "Library - O365"
 {
 
@@ -29,16 +30,16 @@ codeunit 131922 "Library - O365"
         if ItemConfigTemplateHeader.FindFirst() then;
 
         with O365SalesInitialSetup do begin
-            Init;
+            Init();
             Validate("Default Payment Method Code", CHECKTxt);
             Validate("Default Payment Terms Code", X14DAYSTxt);
             Validate("Tax Type", "Tax Type"::VAT);
 
             if VATProductPostingGroup.FindSet() then
                 Validate("Normal VAT Prod. Posting Gr.", VATProductPostingGroup.Code);
-            if VATProductPostingGroup.Next <> 0 then
+            if VATProductPostingGroup.Next() <> 0 then
                 Validate("Reduced VAT Prod. Posting Gr.", VATProductPostingGroup.Code);
-            if VATProductPostingGroup.Next <> 0 then
+            if VATProductPostingGroup.Next() <> 0 then
                 Validate("Zero VAT Prod. Posting Gr.", VATProductPostingGroup.Code);
 
             Validate("Sales Quote No. Series", LibraryERM.CreateNoSeriesCode);
@@ -63,4 +64,4 @@ codeunit 131922 "Library - O365"
         ConfigTemplateHeader.Insert();
     end;
 }
-
+#endif

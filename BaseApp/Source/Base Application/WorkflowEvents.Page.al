@@ -33,19 +33,19 @@ page 1520 "Workflow Events"
 
     trigger OnAfterGetCurrRecord()
     begin
-        StyleTxt := GetStyle;
+        StyleTxt := GetStyle();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        StyleTxt := GetStyle;
+        StyleTxt := GetStyle();
     end;
 
     trigger OnOpenPage()
     var
         WorkflowWebhookEvents: Codeunit "Workflow Webhook Events";
     begin
-        SetFilter("Function Name", '<>%1', WorkflowWebhookEvents.WorkflowWebhookResponseReceivedEventCode);
+        SetFilter("Function Name", '<>%1', WorkflowWebhookEvents.WorkflowWebhookResponseReceivedEventCode());
     end;
 
     var
@@ -53,7 +53,7 @@ page 1520 "Workflow Events"
 
     local procedure GetStyle(): Text
     begin
-        if HasPredecessors then
+        if HasPredecessors() then
             exit('Strong');
         exit('');
     end;

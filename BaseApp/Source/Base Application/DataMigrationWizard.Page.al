@@ -131,7 +131,7 @@ page 1808 "Data Migration Wizard"
 
                             trigger OnValidate()
                             begin
-                                SetPosting;
+                                SetPosting();
                             end;
                         }
                         group(Control60)
@@ -146,7 +146,7 @@ page 1808 "Data Migration Wizard"
 
                                 trigger OnValidate()
                                 begin
-                                    SetPosting;
+                                    SetPosting();
                                 end;
                             }
                         }
@@ -473,7 +473,7 @@ page 1808 "Data Migration Wizard"
 
                 trigger OnAction()
                 begin
-                    NextAction;
+                    NextAction();
                 end;
             }
             action(ActionApply)
@@ -487,7 +487,7 @@ page 1808 "Data Migration Wizard"
 
                 trigger OnAction()
                 begin
-                    NextAction;
+                    NextAction();
                 end;
             }
             action(ActionFinish)
@@ -503,7 +503,7 @@ page 1808 "Data Migration Wizard"
                     GuidedExperience: Codeunit "Guided Experience";
                 begin
                     GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"Data Migration Wizard");
-                    CurrPage.Close;
+                    CurrPage.Close();
                     if ShowOverviewPage then
                         PAGE.Run(PAGE::"Data Migration Overview");
                 end;
@@ -513,17 +513,17 @@ page 1808 "Data Migration Wizard"
 
     trigger OnInit()
     begin
-        LoadTopBanners;
+        LoadTopBanners();
     end;
 
     trigger OnOpenPage()
     var
         DataMigrationMgt: Codeunit "Data Migration Mgt.";
     begin
-        OnRegisterDataMigrator;
+        OnRegisterDataMigrator();
         if FindFirst() then;
-        ResetWizardControls;
-        ShowIntroStep;
+        ResetWizardControls();
+        ShowIntroStep();
         DataMigrationMgt.CheckMigrationInProgress(false);
         ShowCostingMethodNotification();
     end;
@@ -616,7 +616,7 @@ page 1808 "Data Migration Wizard"
                     OnHideSelected(HideSelected);
                     CurrPage.DataMigrationEntities.PAGE.SetShowBalance(ShowBalance);
                     CurrPage.DataMigrationEntities.PAGE.SetHideSelected(HideSelected);
-                    OnValidateSettings;
+                    OnValidateSettings();
                     OnDataImport(Handled);
                     if not Handled then
                         Error('');
@@ -665,7 +665,7 @@ page 1808 "Data Migration Wizard"
 
     local procedure NextStep(Backwards: Boolean)
     begin
-        ResetWizardControls;
+        ResetWizardControls();
 
         if Backwards then
             Step := Step - 1
@@ -674,23 +674,23 @@ page 1808 "Data Migration Wizard"
 
         case Step of
             Step::Intro:
-                ShowIntroStep;
+                ShowIntroStep();
             Step::ChooseSource:
-                ShowChooseSourceStep;
+                ShowChooseSourceStep();
             Step::Import:
-                ShowImportStep;
+                ShowImportStep();
             Step::Apply:
-                ShowApplyStep;
+                ShowApplyStep();
             Step::Done:
-                ShowDoneStep;
+                ShowDoneStep();
             Step::PostingGroupIntro:
-                ShowPostingGroupIntroStep;
+                ShowPostingGroupIntroStep();
             Step::AccountSetup1:
-                ShowFirstAccountStep;
+                ShowFirstAccountStep();
             Step::AccountSetup2:
-                ShowSecondAccountStep;
+                ShowSecondAccountStep();
             Step::ShowPostingGroupDoneStep:
-                ShowPostingGroupDoneStep;
+                ShowPostingGroupDoneStep();
         end;
         CurrPage.Update(true);
     end;
@@ -724,7 +724,7 @@ page 1808 "Data Migration Wizard"
         OnHasAdvancedApply(OpenAdvancedApplyVisible);
         OnShowPostingOptions(ShowPostingOptions);
         if ShowPostingOptions then begin
-            PostingDate := WorkDate;
+            PostingDate := WorkDate();
             CurrPage.DataMigrationEntities.PAGE.SetPostingInfromation(
               BallancesPostingOption = BallancesPostingOption::"Post balances for me", PostingDate);
         end;
@@ -824,8 +824,8 @@ page 1808 "Data Migration Wizard"
 
     local procedure LoadTopBanners()
     begin
-        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType)) and
-           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType))
+        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType())) and
+           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType()))
         then
             if MediaResourcesStandard.Get(MediaRepositoryStandard."Media Resources Ref") and
                MediaResourcesDone.Get(MediaRepositoryDone."Media Resources Ref")

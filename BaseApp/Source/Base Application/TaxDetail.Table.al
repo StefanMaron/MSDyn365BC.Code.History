@@ -135,7 +135,7 @@ table 322 "Tax Detail"
 
     local procedure ApplyCommonFilters(TaxJurisdictionCode: Code[20]; TaxGroupCode: Code[20]; TaxType: Option; EffectiveDate: Date)
     begin
-        Reset;
+        Reset();
         SetRange("Tax Jurisdiction Code", TaxJurisdictionCode);
         SetRange("Tax Group Code", TaxGroupCode);
         SetRange("Tax Type", TaxType);
@@ -192,7 +192,7 @@ table 322 "Tax Detail"
     begin
         if TaxGroupCode = '' then
             exit;
-        if TaxSetup.Get then
+        if TaxSetup.Get() then
             if TaxSetup."Non-Taxable Tax Group Code" = TaxGroupCode then
                 Error(CannotChangeNonTaxableGroupCodeErr);
         if NewTaxRate = GetSalesTaxRate(TaxAreaCode, TaxGroupCode, EffectiveDate, true) then
@@ -283,15 +283,15 @@ table 322 "Tax Detail"
         SetRange("Effective Date", EffectiveDate);
         LockTable();
         if not FindLast() then begin
-            Init;
+            Init();
             "Tax Jurisdiction Code" := TaxJurisdictionCode;
             "Tax Group Code" := TaxGroupCode;
             "Tax Type" := TaxType;
             "Effective Date" := EffectiveDate;
-            Insert;
+            Insert();
         end;
         "Tax Below Maximum" := NewTaxRate;
-        Modify;
+        Modify();
     end;
 }
 

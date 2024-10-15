@@ -3,10 +3,10 @@ codeunit 1420 "Doc. Exch. Serv.- Doc. Status"
 
     trigger OnRun()
     begin
-        CheckPostedInvoices;
-        CheckPostedCrMemos;
-        CheckPostedServiceInvoices;
-        CheckPostedServiceCrMemos;
+        CheckPostedInvoices();
+        CheckPostedCrMemos();
+        CheckPostedServiceInvoices();
+        CheckPostedServiceCrMemos();
     end;
 
     var

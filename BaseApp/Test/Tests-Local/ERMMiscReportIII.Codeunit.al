@@ -475,7 +475,7 @@ codeunit 142062 "ERM Misc. Report III"
         SalesLine: Record "Sales Line";
     begin
         // Verify Purchase Advice Report using filters.
-        RunAndVerifyPurchaseAdviceReport(SalesLine, WorkDate, SalesLine."No.");
+        RunAndVerifyPurchaseAdviceReport(SalesLine, WorkDate(), SalesLine."No.");
     end;
 
     local procedure RunAndVerifyPurchaseAdviceReport(var SalesLine: Record "Sales Line"; DateFilter: Date; No: Code[20])
@@ -513,7 +513,7 @@ codeunit 142062 "ERM Misc. Report III"
         PurchaseLine: Record "Purchase Line";
     begin
         // Verify Purchase Order Status Report With filters.
-        RunAndVerifyPurchaseOrderStatusReport(PurchaseLine, WorkDate, PurchaseLine."No.");
+        RunAndVerifyPurchaseOrderStatusReport(PurchaseLine, WorkDate(), PurchaseLine."No.");
     end;
 
     local procedure RunAndVerifyPurchaseOrderStatusReport(var PurchaseLine: Record "Purchase Line"; DateFilter: Date; No: Code[20])
@@ -538,7 +538,7 @@ codeunit 142062 "ERM Misc. Report III"
     procedure GSTHSTInternetFileTransferWithBlankStartDate()
     begin
         // Verify the error thrown when report GST/HST Internet File Transfer is run without Start Date.
-        GSTHSTInternetFileTransferWithoutMandatoryFilters(0D, WorkDate, 'Start Date');  // Taking 0D for Starting Date.
+        GSTHSTInternetFileTransferWithoutMandatoryFilters(0D, WorkDate(), 'Start Date');  // Taking 0D for Starting Date.
     end;
 
     [Test]
@@ -547,7 +547,7 @@ codeunit 142062 "ERM Misc. Report III"
     procedure GSTHSTInternetFileTransferWithBlankEndDate()
     begin
         // Verify the error thrown when report GST/HST Internet File Transfer is run without End Date.
-        GSTHSTInternetFileTransferWithoutMandatoryFilters(WorkDate, 0D, 'End Date');  // Taking 0D for End Date.
+        GSTHSTInternetFileTransferWithoutMandatoryFilters(WorkDate(), 0D, 'End Date');  // Taking 0D for End Date.
     end;
 
     local procedure GSTHSTInternetFileTransferWithoutMandatoryFilters(StartDate: Date; EndDate: Date; DateString: Text[10])
@@ -1567,7 +1567,7 @@ codeunit 142062 "ERM Misc. Report III"
 
         // [WHEN] Report "Purchase Advice" is being printed to PDF
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order);
-        RunPurchaseAdviceReport(WorkDate, SalesLine."No.", false);
+        RunPurchaseAdviceReport(WorkDate(), SalesLine."No.", false);
 
         // [THEN] No RDLC rendering errors
     end;
@@ -1643,7 +1643,7 @@ codeunit 142062 "ERM Misc. Report III"
         CreateSalesDocumentWithItem(SalesLine, SalesLine."Document Type"::Order, Item."No.", 5);
 
         // [WHEN] Run Purchase Advice report per item.
-        RunPurchaseAdviceReport(WorkDate, Item."No.", false);
+        RunPurchaseAdviceReport(WorkDate(), Item."No.", false);
 
         // [THEN] The report suggests reordering 110 pcs (105 to reach the maximum inventory and round up to 110).
         LibraryReportDataset.LoadDataSetFile();
@@ -1686,7 +1686,7 @@ codeunit 142062 "ERM Misc. Report III"
         SalesLine.Modify(true);
 
         // [WHEN] Run Purchase Advice report per SKU.
-        RunPurchaseAdviceReport(WorkDate, Item."No.", true);
+        RunPurchaseAdviceReport(WorkDate(), Item."No.", true);
 
         // [THEN] The report suggests reordering 90 pcs (55 to reach reorder point, round up to 80 = 2 orders for 40 pcs, round up to 90).
         LibraryReportDataset.LoadDataSetFile();
@@ -1847,7 +1847,7 @@ codeunit 142062 "ERM Misc. Report III"
                   AccountType, AccountNo, "Account Type"::"G/L Account", GLAccount."No.", PurchaseAmount);
             // Test MAX length = 35 (TFS ID: 305391)
             "External Document No." := CopyStr(LibraryUtility.GenerateRandomXMLText(35), 1);
-            Modify;
+            Modify();
 
             SetRange("Account No.", AccountNo);
             LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -2111,7 +2111,7 @@ codeunit 142062 "ERM Misc. Report III"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         LibraryERM.CreateExchRate(
-          CurrencyExchangeRate, CurrencyCode, CalcDate(StrSubstNo('<-%1M>', LibraryRandom.RandIntInRange(4, 8)), WorkDate));
+          CurrencyExchangeRate, CurrencyCode, CalcDate(StrSubstNo('<-%1M>', LibraryRandom.RandIntInRange(4, 8)), WorkDate()));
         CurrencyExchangeRate.Validate("Exchange Rate Amount", LibraryRandom.RandDecInDecimalRange(50, 100, 2));
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount",
           LibraryRandom.RandIntInRange(2, 5) * CurrencyExchangeRate."Exchange Rate Amount");
@@ -2361,7 +2361,7 @@ codeunit 142062 "ERM Misc. Report III"
         ExpLogInteraction: Boolean;
     begin
         InteractionLogEntry.SetRange("Document No.", DocumentNo);
-        ExpLogInteraction := InteractionLogEntry.IsEmpty;
+        ExpLogInteraction := InteractionLogEntry.IsEmpty();
         Assert.AreEqual(ExpLogInteraction, ActualLogInteraction, ValueMustMatch)
     end;
 
@@ -2795,7 +2795,7 @@ codeunit 142062 "ERM Misc. Report III"
         LibraryVariableStorage.Dequeue(Show);
         TopVendorList.Show.SetValue(Show);
         TopVendorList.Vendor.SetFilter("No.", VendorNo);
-        TopVendorList.Vendor.SetFilter("Date Filter", Format(WorkDate));
+        TopVendorList.Vendor.SetFilter("Date Filter", Format(WorkDate()));
         TopVendorList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -2806,7 +2806,7 @@ codeunit 142062 "ERM Misc. Report III"
         ItemNo: Variant;
     begin
         LibraryVariableStorage.Dequeue(ItemNo);
-        ItemTurnover.Item.SetFilter("Date Filter", Format(WorkDate));
+        ItemTurnover.Item.SetFilter("Date Filter", Format(WorkDate()));
         ItemTurnover.Item.SetFilter("No.", ItemNo);
         ItemTurnover.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;

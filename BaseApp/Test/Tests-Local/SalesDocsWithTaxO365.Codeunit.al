@@ -256,7 +256,7 @@ codeunit 144022 "Sales Docs With Tax O365"
         GLAccountRealized := CreateGLAccount;
         GLAccountResidual := CreateGLAccount;
 
-        SetupDate := CalcDate('<CY-1Y+1D>', WorkDate);
+        SetupDate := CalcDate('<CY-1Y+1D>', WorkDate());
         IncrementDateExpr := StrSubstNo('<+%1D>', LibraryRandom.RandInt(20));
         Evaluate(DateFormula, IncrementDateExpr);
         PostingDate := CalcDate(DateFormula, SetupDate);
@@ -721,7 +721,7 @@ codeunit 144022 "Sales Docs With Tax O365"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             "Additional Reporting Currency" := AdditionalReportingCurrency;
             Modify(true);
         end;

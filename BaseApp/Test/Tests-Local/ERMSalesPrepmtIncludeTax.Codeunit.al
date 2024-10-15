@@ -75,7 +75,7 @@
             SalesLine.Validate(Quantity, 2 * SalesLine.Quantity);
             SalesLine.Validate("Line Discount %", 0);
             SalesLine.Modify();
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure VerifyPrepmtAmountsInLines(SalesHeader: Record "Sales Header")
@@ -86,7 +86,7 @@
         repeat
             SalesLine.TestField("Line Amount", SalesLine."Prepmt. Line Amount");
             SalesLine.TestField("Prepmt. Line Amount", SalesLine."Prepmt. Amt. Inv.");
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     [Test]
@@ -127,7 +127,7 @@
     begin
         SalesHeader."Prepmt. Include Tax" := true;
         PrepareSOwithPostedPrepmtInv(SalesHeader, SalesLine, 3, FindTaxAreaCode, FindItem, true);
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.Validate("Qty. to Ship", SalesLine."Qty. to Ship" - 1);
         SalesLine.Modify();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -182,7 +182,7 @@
         repeat
             SalesLine.Validate("Qty. to Ship", 0);
             SalesLine.Modify(true);
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
 
         // [WHEN] Ship and Invoice the 1st line
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -259,7 +259,7 @@
         SalesInv1 := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [GIVEN] First sales line is posted with Qty = 2
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.Validate("Qty. to Ship", 2);
         SalesLine.Modify(true);
         SalesInv2 := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -312,7 +312,7 @@
         SalesInv1 := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [GIVEN] First sales line is posted with Qty = 2
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.Validate("Qty. to Ship", 2);
         SalesLine.Modify(true);
         SalesInv2 := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -401,7 +401,7 @@
         PostSalesPrepmtInvoice(SalesHeader);
 
         // [GIVEN] "Amount including VAT" on the sales order line = "X".
-        SalesLine.Find;
+        SalesLine.Find();
         AmountInclVAT := SalesLine."Amount Including VAT";
 
         // [GIVEN] Partially ship and invoice the order.
@@ -415,7 +415,7 @@
         SalesOrder."Posting Date".SetValue(LibraryRandom.RandDate(60));
 
         // [THEN] "Amount including VAT" has not been changed and is still equal to "X".
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.TestField("Amount Including VAT", AmountInclVAT);
     end;
 
@@ -467,7 +467,7 @@
         PrepmtAmount := Round(SalesHeader."Amount Including VAT" * PrepmtPct / 100);
 
         // [GIVEN] Sales order is posted partially with 'Qty. to ship' = 1
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.Validate("Qty. to Ship", Quantity);
         SalesLine.Modify(true);
         Invoice1 := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -548,7 +548,7 @@
             Validate("Prices Including VAT", false);
             Validate("Compress Prepayment", true);
             Validate("Prepmt. Include Tax", PrepmtInclTax);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -595,7 +595,7 @@
         LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
         TaxJurisdiction.Validate("Tax Account (Sales)", LibraryERM.CreateGLAccountNo);
         TaxJurisdiction.Modify(true);
-        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", WorkDate);
+        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", TaxBelowMax);
         TaxDetail.Modify(true);
         LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxAreaCode, TaxJurisdiction.Code);
@@ -611,7 +611,7 @@
         repeat
             TaxJurisdiction.Get(TaxDetail."Tax Jurisdiction Code");
             GLAccFilter += TaxJurisdiction."Tax Account (Sales)" + '|';
-        until TaxDetail.Next = 0;
+        until TaxDetail.Next() = 0;
         GLAccFilter := CopyStr(GLAccFilter, 1, StrLen(GLAccFilter) - 1);
     end;
 
@@ -708,7 +708,7 @@
             GLAccount.Validate("VAT Prod. Posting Group", SalesLine."VAT Prod. Posting Group");
             GLAccount.Modify(true);
             "Sales Prepayments Account" := GLAccount."No.";
-            Modify;
+            Modify();
         end;
     end;
 
@@ -727,7 +727,7 @@
             SetRange("Source Type", "Source Type"::Customer);
             SetRange("Source No.", CustNo);
             FindLast();
-            Reset;
+            Reset();
             SetRange("Transaction No.", "Transaction No.");
             CustPostingGroup.Get(CustPostingGroupCode);
             SetRange("G/L Account No.", CustPostingGroup."Invoice Rounding Account");

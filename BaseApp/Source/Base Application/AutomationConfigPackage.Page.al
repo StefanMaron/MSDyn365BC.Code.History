@@ -114,10 +114,11 @@ page 5432 "Automation - Config. Package"
     end;
 
     var
+        AutomationAPIManagement: Codeunit "Automation - API Management";
+
         ApplyOrImportInProgressImportErr: Label 'Cannot import a package while import or apply is in progress.';
         ApplyOrImportInProgressApplyErr: Label 'Cannot apply a package while import or apply is in progress.';
         ImportNotCompletedErr: Label 'Import Status is not completed. You must import the package before you apply it.';
-        AutomationAPIManagement: Codeunit "Automation - API Management";
         MissingRapisStartFileErr: Label 'Please upload a Rapid Start File, before running the import.';
 
     [ServiceEnabled]
@@ -127,19 +128,19 @@ page 5432 "Automation - Config. Package"
         ODataActionManagement: Codeunit "OData Action Management";
         ImportSessionID: Integer;
     begin
-        if IsImportOrApplyPending then
+        if IsImportOrApplyPending() then
             Error(ApplyOrImportInProgressImportErr);
 
         TenantConfigPackageFile.SetAutoCalcFields(Content);
         if not TenantConfigPackageFile.Get(Code) then
             Error(MissingRapisStartFileErr);
-        if not TenantConfigPackageFile.Content.HasValue then
+        if not TenantConfigPackageFile.Content.HasValue() then
             Error(MissingRapisStartFileErr);
 
         Validate("Import Status", "Import Status"::Scheduled);
         Modify(true);
 
-        if TASKSCHEDULER.CanCreateTask then
+        if TASKSCHEDULER.CanCreateTask() then
             TASKSCHEDULER.CreateTask(
               CODEUNIT::"Automation - Import RSPackage", CODEUNIT::"Automation - Failure RSPackage", true, CompanyName, CurrentDateTime + 200,
               RecordId)
@@ -159,7 +160,7 @@ page 5432 "Automation - Config. Package"
         ODataActionManagement: Codeunit "OData Action Management";
         ImportSessionID: Integer;
     begin
-        if IsImportOrApplyPending then
+        if IsImportOrApplyPending() then
             Error(ApplyOrImportInProgressApplyErr);
 
         if "Import Status" <> "Import Status"::Completed then
@@ -168,7 +169,7 @@ page 5432 "Automation - Config. Package"
         Validate("Apply Status", "Apply Status"::Scheduled);
         Modify(true);
 
-        if TASKSCHEDULER.CanCreateTask then
+        if TASKSCHEDULER.CanCreateTask() then
             TASKSCHEDULER.CreateTask(
               CODEUNIT::"Automation - Apply RSPackage", CODEUNIT::"Automation - Failure RSPackage", true, CompanyName, CurrentDateTime + 200,
               RecordId)

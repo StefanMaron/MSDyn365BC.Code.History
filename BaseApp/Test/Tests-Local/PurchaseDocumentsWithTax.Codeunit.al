@@ -71,7 +71,7 @@ codeunit 144012 "Purchase Documents With Tax"
         PurchaseOrder.OpenView;
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseLine."Document No.");
         PurchaseOrder.Statistics.Invoke;
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
     end;
 
     [Test]
@@ -248,7 +248,7 @@ codeunit 144012 "Purchase Documents With Tax"
         GLAccountRealized := CreateGLAccount;
         GLAccountResidual := CreateGLAccount;
 
-        SetupDate := CalcDate('<CY-1Y+1D>', WorkDate);
+        SetupDate := CalcDate('<CY-1Y+1D>', WorkDate());
         IncrementDateExpr := StrSubstNo('<+%1D>', LibraryRandom.RandInt(20));
         PostingDate := CalcDate(IncrementDateExpr, SetupDate);
 
@@ -343,7 +343,7 @@ codeunit 144012 "Purchase Documents With Tax"
     var
         TaxDetail: Record "Tax Detail";
     begin
-        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", WorkDate);
+        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", LibraryRandom.RandDec(10, 2));
         TaxDetail.Modify(true);
     end;
@@ -518,7 +518,7 @@ codeunit 144012 "Purchase Documents With Tax"
         PurchInvHeader.CalcFields(Amount);
         Assert.AreNearlyEqual(
           ExpectedAmount, PurchInvHeader.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, PurchInvHeader.FieldCaption(Amount), ExpectedAmount, PurchInvHeader.TableCaption));
+          StrSubstNo(AmountErr, PurchInvHeader.FieldCaption(Amount), ExpectedAmount, PurchInvHeader.TableCaption()));
     end;
 
     local procedure VerifyGeneralLedgerEntry(DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal; Quantity: Decimal)
@@ -591,7 +591,7 @@ codeunit 144012 "Purchase Documents With Tax"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             "Additional Reporting Currency" := AdditionalReportingCurrency;
             Modify(true);
         end;

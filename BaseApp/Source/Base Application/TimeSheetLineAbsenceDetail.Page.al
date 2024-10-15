@@ -12,7 +12,7 @@ page 969 "Time Sheet Line Absence Detail"
             group(General)
             {
                 Caption = 'General';
-                field("Cause of Absence Code"; "Cause of Absence Code")
+                field("Cause of Absence Code"; Rec."Cause of Absence Code")
                 {
                     ApplicationArea = Jobs, BasicHR;
                     Editable = AllowEdit;
@@ -37,14 +37,14 @@ page 969 "Time Sheet Line Absence Detail"
         AllowEdit := GetAllowEdit(0, ManagerRole);
     end;
 
-    var
+    protected var
         ManagerRole: Boolean;
         AllowEdit: Boolean;
 
     procedure SetParameters(TimeSheetLine: Record "Time Sheet Line"; NewManagerRole: Boolean)
     begin
         Rec := TimeSheetLine;
-        Insert;
+        Insert();
         ManagerRole := NewManagerRole;
     end;
 }

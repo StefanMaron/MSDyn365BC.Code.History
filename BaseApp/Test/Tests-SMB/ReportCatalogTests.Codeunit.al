@@ -46,8 +46,8 @@ codeunit 139125 ReportCatalogTests
         CustomerStatement.AgingBandby.AssertEquals(DateChoice::"Due Date");
         CustomerStatement.LogInteraction.AssertEquals(true);
 
-        CustomerStatement."Start Date".AssertEquals(AccountingPeriodMgt.FindFiscalYear(WorkDate));
-        CustomerStatement."End Date".AssertEquals(WorkDate);
+        CustomerStatement."Start Date".AssertEquals(AccountingPeriodMgt.FindFiscalYear(WorkDate()));
+        CustomerStatement."End Date".AssertEquals(WorkDate());
 
         SavedPDFFile := FileManagement.ServerTempFileName('.pdf');
         CustomerStatement.SaveAsPdf(SavedPDFFile);

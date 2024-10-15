@@ -29,7 +29,7 @@ codeunit 131904 "Library - Time Sheet"
         if Initialized then
             exit;
 
-        if not ResourcesSetup.Get then begin
+        if not ResourcesSetup.Get() then begin
             ResourcesSetup.Init();
             ResourcesSetup.Insert();
         end;
@@ -238,7 +238,7 @@ codeunit 131904 "Library - Time Sheet"
     procedure CreateWorkType(var WorkType: Record "Work Type"; ResourceBUOM: Code[10])
     begin
         WorkType.Init();
-        WorkType.Validate(Code, CopyStr(Format(CreateGuid), 1, MaxStrLen(WorkType.Code)));
+        WorkType.Validate(Code, CopyStr(Format(CreateGuid()), 1, MaxStrLen(WorkType.Code)));
         WorkType.Insert(true);
         WorkType.Validate(Description, 'test work type');
         WorkType.Validate("Unit of Measure Code", ResourceBUOM);
@@ -361,7 +361,7 @@ codeunit 131904 "Library - Time Sheet"
             repeat
                 TimeSheetLine := TempTimeSheetLine;
                 TimeSheetLine.Insert();
-            until TempTimeSheetLine.Next = 0;
+            until TempTimeSheetLine.Next() = 0;
     end;
 
     procedure InitAssemblyBackwayScenario(var TimeSheetHeader: Record "Time Sheet Header"; var AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; TimeSheetExists: Boolean)
@@ -389,7 +389,7 @@ codeunit 131904 "Library - Time Sheet"
             Date := TimeSheetHeader."Starting Date";
         end else begin
             // set up without tine sheet; create resource
-            Date := WorkDate;
+            Date := WorkDate();
             CreateUserSetup(UserSetup, false);
             CreateTimeSheetResource(Resource);
             Resource.Validate("Time Sheet Owner User ID", UserSetup."User ID");

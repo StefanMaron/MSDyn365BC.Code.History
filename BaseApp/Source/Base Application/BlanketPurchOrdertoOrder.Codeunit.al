@@ -21,9 +21,9 @@ codeunit 97 "Blanket Purch. Order to Order"
 
         ValidatePurchaserOnPurchHeader(Rec, true, false);
 
-        CheckForBlockedLines;
+        CheckForBlockedLines();
 
-        if QtyToReceiveIsZero then
+        if QtyToReceiveIsZero() then
             Error(Text002);
 
         PurchSetup.Get();
@@ -78,7 +78,7 @@ codeunit 97 "Blanket Purch. Order to Order"
                     PurchOrderLine."Shortcut Dimension 1 Code" := PurchBlanketOrderLine."Shortcut Dimension 1 Code";
                     PurchOrderLine."Shortcut Dimension 2 Code" := PurchBlanketOrderLine."Shortcut Dimension 2 Code";
                     PurchOrderLine."Dimension Set ID" := PurchBlanketOrderLine."Dimension Set ID";
-                    PurchOrderLine.DefaultDeferralCode;
+                    PurchOrderLine.DefaultDeferralCode();
                     if IsPurchOrderLineToBeInserted(PurchOrderLine) then begin
                         OnBeforeInsertPurchOrderLine(PurchOrderLine, PurchOrderHeader, PurchBlanketOrderLine, Rec);
                         PurchOrderLine.Insert();
@@ -118,8 +118,6 @@ codeunit 97 "Blanket Purch. Order to Order"
     end;
 
     var
-        QuantityCheckErr: Label '%1 of %2 %3 in %4 %5 cannot be more than %6.\%7\%8 - %9 = %6.', Comment = '%1: FIELDCAPTION("Qty. to Receive (Base)"); %2: Field(Type); %3: Field(No.); %4: FIELDCAPTION("Line No."); %5: Field(Line No.); %6: Decimal Qty Difference; %7: Text001; %8: Field(Outstanding Qty. (Base)); %9: Decimal Quantity On Orders';
-        Text001: Label '%1 - Unposted %1 = Possible %2';
         PurchBlanketOrderLine: Record "Purchase Line";
         PurchOrderHeader: Record "Purchase Header";
         PurchOrderLine: Record "Purchase Line";
@@ -127,6 +125,9 @@ codeunit 97 "Blanket Purch. Order to Order"
         PurchLine: Record "Purchase Line";
         PurchLineReserve: Codeunit "Purch. Line-Reserve";
         QuantityOnOrders: Decimal;
+
+        QuantityCheckErr: Label '%1 of %2 %3 in %4 %5 cannot be more than %6.\%7\%8 - %9 = %6.', Comment = '%1: FIELDCAPTION("Qty. to Receive (Base)"); %2: Field(Type); %3: Field(No.); %4: FIELDCAPTION("Line No."); %5: Field(Line No.); %6: Decimal Qty Difference; %7: Text001; %8: Field(Outstanding Qty. (Base)); %9: Decimal Quantity On Orders';
+        Text001: Label '%1 - Unposted %1 = Possible %2';
         Text002: Label 'There is nothing to create.';
 
     local procedure CalcQuantityOnOrders()
@@ -211,21 +212,22 @@ codeunit 97 "Blanket Purch. Order to Order"
             PurchOrderHeader.Status := PurchOrderHeader.Status::Open;
             PurchOrderHeader."No." := '';
             OnCreatePurchHeaderOnBeforePurchOrderHeaderInitRecord(PurchOrderHeader, PurchHeader);
-            PurchOrderHeader.InitRecord;
+            PurchOrderHeader.InitRecord();
             PurchOrderLine.LockTable();
             OnBeforeInsertPurchOrderHeader(PurchOrderHeader, PurchHeader);
             StandardCodesMgt.SetSkipRecurringLines(true);
             PurchOrderHeader.SetStandardCodesMgt(StandardCodesMgt);
             PurchOrderHeader.Insert(true);
+            OnCreatePurchHeaderOnAfterPurchOrderHeaderInsert(PurchHeader, PurchOrderHeader);
 
             if "Order Date" = 0D then
-                PurchOrderHeader."Order Date" := WorkDate
+                PurchOrderHeader."Order Date" := WorkDate()
             else
                 PurchOrderHeader."Order Date" := "Order Date";
             if "Posting Date" <> 0D then
                 PurchOrderHeader."Posting Date" := "Posting Date";
             if PurchOrderHeader."Posting Date" = 0D then
-                PurchOrderHeader."Posting Date" := WorkDate;
+                PurchOrderHeader."Posting Date" := WorkDate();
 
             PurchOrderHeader.InitFromPurchHeader(PurchHeader);
             PurchOrderHeader.Validate("Posting Date");
@@ -394,6 +396,11 @@ codeunit 97 "Blanket Purch. Order to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforeCheckModifyPurchBlanketOrderLine(var PurchOrderLine: Record "Purchase Line"; var PurchBlanketOrderLine: Record "Purchase Line"; var PurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePurchHeaderOnAfterPurchOrderHeaderInsert(PurchHeader: Record "Purchase Header"; var PurchOrderHeader: Record "Purchase Header")
     begin
     end;
 }

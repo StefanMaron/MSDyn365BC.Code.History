@@ -49,10 +49,10 @@ page 1447 "Headline RC Prod. Planner"
     end;
 
     var
+        RCHeadlinesPageCommon: Codeunit "RC Headlines Page Common";
         [InDataSet]
         DefaultFieldsVisible: Boolean;
         [InDataSet]
         UserGreetingVisible: Boolean;
-        RCHeadlinesPageCommon: Codeunit "RC Headlines Page Common";
 }
 

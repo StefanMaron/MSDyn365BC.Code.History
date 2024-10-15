@@ -21,7 +21,7 @@ page 1384 "Item Templ. Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the template.';
                 }
-                field("No. Series"; "No. Series")
+                field("No. Series"; Rec."No. Series")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number series that will be used to assign numbers to items.';
@@ -35,12 +35,12 @@ page 1384 "Item Templ. Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example an item that is placed in quarantine.';
                 }
-                field("Sales Blocked"; "Sales Blocked")
+                field("Sales Blocked"; Rec."Sales Blocked")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the item cannot be entered on sales documents, except return orders and credit memos, and journals.';
                 }
-                field("Purchasing Blocked"; "Purchasing Blocked")
+                field("Purchasing Blocked"; Rec."Purchasing Blocked")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the item cannot be entered on purchase documents, except return orders and credit memos, and journals.';
@@ -50,38 +50,44 @@ page 1384 "Item Templ. Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the item card represents a physical inventory unit (Inventory), a labor time unit (Service), or a physical unit that is not tracked in inventory (Non-Inventory).';
                 }
-                field("Base Unit of Measure"; "Base Unit of Measure")
+                field("Base Unit of Measure"; Rec."Base Unit of Measure")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the base unit used to measure the item, such as piece, box, or pallet. The base unit of measure also serves as the conversion basis for alternate units of measure.';
                 }
-                field("Item Category Code"; "Item Category Code")
+                field("Item Category Code"; Rec."Item Category Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the category that the item belongs to. Item categories also contain any assigned item attributes.';
                 }
-                field("Service Item Group"; "Service Item Group")
+                field("Manufacturer Code"; "Manufacturer Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies a code for the manufacturer of the catalog item.';
+                    Visible = False;
+                }
+                field("Service Item Group"; Rec."Service Item Group")
                 {
                     ApplicationArea = Service;
                     Importance = Additional;
                     ToolTip = 'Specifies the code of the service item group that the item belongs to.';
                 }
-                field("Automatic Ext. Texts"; "Automatic Ext. Texts")
+                field("Automatic Ext. Texts"; Rec."Automatic Ext. Texts")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies that an extended text that you have set up will be added automatically on sales or purchase documents for this item.';
                 }
-                field("Common Item No."; "Common Item No.")
+                field("Common Item No."; Rec."Common Item No.")
                 {
                     ApplicationArea = Intercompany;
                     Importance = Additional;
                     ToolTip = 'Specifies the unique common item number that the intercompany partners agree upon.';
                     Visible = false;
                 }
-                field("Purchasing Code"; "Purchasing Code")
+                field("Purchasing Code"; Rec."Purchasing Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
@@ -99,49 +105,49 @@ page 1384 "Item Templ. Card"
             group(InventoryGrp)
             {
                 Caption = 'Inventory';
-                field("Shelf No."; "Shelf No.")
+                field("Shelf No."; Rec."Shelf No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies where to find the item in the warehouse. This is informational only.';
                 }
-                field("Net Weight"; "Net Weight")
+                field("Net Weight"; Rec."Net Weight")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the net weight of the item.';
                     Visible = false;
                 }
-                field("Gross Weight"; "Gross Weight")
+                field("Gross Weight"; Rec."Gross Weight")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the gross weight of the item.';
                     Visible = false;
                 }
-                field("Unit Volume"; "Unit Volume")
+                field("Unit Volume"; Rec."Unit Volume")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the volume of one unit of the item.';
                     Visible = false;
                 }
-                field("SAT Item Classification"; "SAT Item Classification")
+                field("SAT Item Classification"; Rec."SAT Item Classification")
                 {
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the classification required for reporting to the Mexican tax authorities (SAT)';
                 }
-                field("SAT Hazardous Material"; "SAT Hazardous Material")
+                field("SAT Hazardous Material"; Rec."SAT Hazardous Material")
                 {
                     ApplicationArea = BasicMX;
                     Importance = Additional;
                     ToolTip = 'Specifies the type of hazardous material being transported.';
                 }
-                field("SAT Packaging Type"; "SAT Packaging Type")
+                field("SAT Packaging Type"; Rec."SAT Packaging Type")
                 {
                     ApplicationArea = BasicMX;
                     Importance = Additional;
                     ToolTip = 'Specifies the type of packaging that is required to transport the hazardous material.';
                 }
-                field("Over-Receipt Code"; "Over-Receipt Code")
+                field("Over-Receipt Code"; Rec."Over-Receipt Code")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the policy that will be used for the item if more items than ordered are received.';
@@ -154,25 +160,25 @@ page 1384 "Item Templ. Card"
                 group(CostDetails)
                 {
                     Caption = 'Cost Details';
-                    field("Standard Cost"; "Standard Cost")
+                    field("Standard Cost"; Rec."Standard Cost")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the unit cost that is used as an estimation to be adjusted with variances later. It is typically used in assembly and production where costs can vary.';
                         Visible = false;
                     }
-                    field("Unit Cost"; "Unit Cost")
+                    field("Unit Cost"; Rec."Unit Cost")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Promoted;
                         ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                         Visible = false;
                     }
-                    field("Costing Method"; "Costing Method")
+                    field("Costing Method"; Rec."Costing Method")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies how the item''s cost flow is recorded and whether an actual or budgeted value is capitalized and used in the cost calculation.';
                     }
-                    field("Indirect Cost %"; "Indirect Cost %")
+                    field("Indirect Cost %"; Rec."Indirect Cost %")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the percentage of the item''s last purchase cost that includes indirect costs, such as freight that is associated with the purchase of the item.';
@@ -181,33 +187,33 @@ page 1384 "Item Templ. Card"
                 group(PostingDetails)
                 {
                     Caption = 'Posting Details';
-                    field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                    field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Promoted;
                         ShowMandatory = true;
                         ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                     }
-                    field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
+                    field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ShowMandatory = true;
                         ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                     }
-                    field("Tax Group Code"; "Tax Group Code")
+                    field("Tax Group Code"; Rec."Tax Group Code")
                     {
                         ApplicationArea = SalesTax;
                         Importance = Promoted;
                         ToolTip = 'Specifies the tax group that is used to calculate and post sales tax.';
                     }
-                    field("Inventory Posting Group"; "Inventory Posting Group")
+                    field("Inventory Posting Group"; Rec."Inventory Posting Group")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Promoted;
                         ToolTip = 'Specifies links between business transactions made for the item and an inventory account in the general ledger, to group amounts for that item type.';
                     }
-                    field("Default Deferral Template Code"; "Default Deferral Template Code")
+                    field("Default Deferral Template Code"; Rec."Default Deferral Template Code")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Default Deferral Template';
@@ -218,12 +224,12 @@ page 1384 "Item Templ. Card"
                 group(ForeignTrade)
                 {
                     Caption = 'Foreign Trade';
-                    field("Tariff No."; "Tariff No.")
+                    field("Tariff No."; Rec."Tariff No.")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies a code for the item''s tariff number.';
                     }
-                    field("Country/Region of Origin Code"; "Country/Region of Origin Code")
+                    field("Country/Region of Origin Code"; Rec."Country/Region of Origin Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
@@ -235,43 +241,43 @@ page 1384 "Item Templ. Card"
             group(PricesAndSales)
             {
                 Caption = 'Prices & Sales';
-                field("Unit Price"; "Unit Price")
+                field("Unit Price"; Rec."Unit Price")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the price of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
                     Visible = false;
                 }
-                field("Price Includes VAT"; "Price Includes VAT")
+                field("Price Includes VAT"; Rec."Price Includes VAT")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies if the Unit Price and Line Amount fields on sales document lines for this item should be shown with or without VAT.';
                 }
-                field("Price/Profit Calculation"; "Price/Profit Calculation")
+                field("Price/Profit Calculation"; Rec."Price/Profit Calculation")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the relationship between the Unit Cost, Unit Price, and Profit Percentage fields associated with this item.';
                 }
-                field("Profit %"; "Profit %")
+                field("Profit %"; Rec."Profit %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the profit margin that you want to sell the item at. You can enter a profit percentage manually or have it entered according to the Price/Profit Calculation field';
                 }
-                field("Allow Invoice Disc."; "Allow Invoice Disc.")
+                field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies whether to include the item when calculating an invoice discount on documents where the item is traded.';
                 }
-                field("Item Disc. Group"; "Item Disc. Group")
+                field("Item Disc. Group"; Rec."Item Disc. Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies an item group code that can be used as a criterion to grant a discount when the item is sold to a certain customer.';
                 }
-                field("VAT Bus. Posting Gr. (Price)"; "VAT Bus. Posting Gr. (Price)")
+                field("VAT Bus. Posting Gr. (Price)"; Rec."VAT Bus. Posting Gr. (Price)")
                 {
                     ApplicationArea = Advanced;
                     ToolTip = 'Specifies the VAT business posting group for customers for whom you want the sales price including VAT to apply.';
@@ -281,14 +287,14 @@ page 1384 "Item Templ. Card"
             group(Replenishment)
             {
                 Caption = 'Replenishment';
-                field("Replenishment System"; "Replenishment System")
+                field("Replenishment System"; Rec."Replenishment System")
                 {
                     ApplicationArea = Assembly, Planning;
                     Caption = 'Replenishment System';
                     Importance = Promoted;
                     ToolTip = 'Specifies the type of supply order created by the planning system when the item needs to be replenished.';
                 }
-                field("Lead Time Calculation"; "Lead Time Calculation")
+                field("Lead Time Calculation"; Rec."Lead Time Calculation")
                 {
                     ApplicationArea = Assembly, Planning;
                     ToolTip = 'Specifies a date formula for the amount of time it takes to replenish the item.';
@@ -296,12 +302,12 @@ page 1384 "Item Templ. Card"
                 group(Purchase)
                 {
                     Caption = 'Purchase';
-                    field("Vendor No."; "Vendor No.")
+                    field("Vendor No."; Rec."Vendor No.")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the vendor code of who supplies this item by default.';
                     }
-                    field("Vendor Item No."; "Vendor Item No.")
+                    field("Vendor Item No."; Rec."Vendor Item No.")
                     {
                         ApplicationArea = Planning;
                         ToolTip = 'Specifies the number that the vendor uses for this item.';
@@ -311,49 +317,49 @@ page 1384 "Item Templ. Card"
                 group(Replenishment_Production)
                 {
                     Caption = 'Production';
-                    field("Manufacturing Policy"; "Manufacturing Policy")
+                    field("Manufacturing Policy"; Rec."Manufacturing Policy")
                     {
                         ApplicationArea = Manufacturing;
                         ToolTip = 'Specifies if additional orders for any related components are calculated.';
                     }
-                    field("Routing No."; "Routing No.")
+                    field("Routing No."; Rec."Routing No.")
                     {
                         ApplicationArea = Manufacturing;
                         ToolTip = 'Specifies the number of the production routing that the item is used in.';
                         Visible = false;
                     }
-                    field("Production BOM No."; "Production BOM No.")
+                    field("Production BOM No."; Rec."Production BOM No.")
                     {
                         ApplicationArea = Manufacturing;
                         ToolTip = 'Specifies the number of the production BOM that the item represents.';
                         Visible = false;
                     }
-                    field("Rounding Precision"; "Rounding Precision")
+                    field("Rounding Precision"; Rec."Rounding Precision")
                     {
                         ApplicationArea = Manufacturing;
                         ToolTip = 'Specifies how calculated consumption quantities are rounded when entered on consumption journal lines.';
                         Visible = false;
                     }
-                    field("Flushing Method"; "Flushing Method")
+                    field("Flushing Method"; Rec."Flushing Method")
                     {
                         ApplicationArea = Manufacturing;
                         ToolTip = 'Specifies how consumption of the item (component) is calculated and handled in production processes. Manual: Enter and post consumption in the consumption journal manually. Forward: Automatically posts consumption according to the production order component lines when the first operation starts. Backward: Automatically calculates and posts consumption according to the production order component lines when the production order is finished. Pick + Forward / Pick + Backward: Variations with warehousing.';
                         Visible = false;
                     }
-                    field("Overhead Rate"; "Overhead Rate")
+                    field("Overhead Rate"; Rec."Overhead Rate")
                     {
                         ApplicationArea = Manufacturing;
                         Importance = Additional;
                         ToolTip = 'Specifies the item''s indirect cost as an absolute amount.';
                         Visible = false;
                     }
-                    field("Scrap %"; "Scrap %")
+                    field("Scrap %"; Rec."Scrap %")
                     {
                         ApplicationArea = Manufacturing;
                         ToolTip = 'Specifies the percentage of the item that you expect to be scrapped in the production process.';
                         Visible = false;
                     }
-                    field("Lot Size"; "Lot Size")
+                    field("Lot Size"; Rec."Lot Size")
                     {
                         ApplicationArea = Manufacturing;
                         ToolTip = 'Specifies the default number of units of the item that are processed in one production operation. This affects standard cost calculations and capacity planning. If the item routing includes fixed costs such as setup time, the value in this field is used to calculate the standard cost and distribute the setup costs. During demand planning, this value is used together with the value in the Default Dampener % field to ignore negligible changes in demand and avoid re-planning. Note that if you leave the field blank, it will be threated as 1.';
@@ -363,7 +369,7 @@ page 1384 "Item Templ. Card"
                 group(Replenishment_Assembly)
                 {
                     Caption = 'Assembly';
-                    field("Assembly Policy"; "Assembly Policy")
+                    field("Assembly Policy"; Rec."Assembly Policy")
                     {
                         ApplicationArea = Assembly;
                         ToolTip = 'Specifies which default order flow is used to supply this assembly item.';
@@ -373,7 +379,7 @@ page 1384 "Item Templ. Card"
             group(Planning)
             {
                 Caption = 'Planning';
-                field("Reordering Policy"; "Reordering Policy")
+                field("Reordering Policy"; Rec."Reordering Policy")
                 {
                     ApplicationArea = Planning;
                     Importance = Promoted;
@@ -391,14 +397,14 @@ page 1384 "Item Templ. Card"
                     ToolTip = 'Specifies if and how the item will be reserved. Never: It is not possible to reserve the item. Optional: You can reserve the item manually. Always: The item is automatically reserved from demand, such as sales orders, against inventory, purchase orders, assembly orders, and production orders.';
                     Visible = false;
                 }
-                field("Order Tracking Policy"; "Order Tracking Policy")
+                field("Order Tracking Policy"; Rec."Order Tracking Policy")
                 {
                     ApplicationArea = Planning;
                     Importance = Promoted;
                     ToolTip = 'Specifies if and how order tracking entries are created and maintained between supply and its corresponding demand.';
                     Visible = false;
                 }
-                field("Dampener Period"; "Dampener Period")
+                field("Dampener Period"; Rec."Dampener Period")
                 {
                     ApplicationArea = Planning;
                     Importance = Additional;
@@ -406,7 +412,7 @@ page 1384 "Item Templ. Card"
                     Visible = false;
                     Enabled = DampenerPeriodEnable;
                 }
-                field("Dampener Quantity"; "Dampener Quantity")
+                field("Dampener Quantity"; Rec."Dampener Quantity")
                 {
                     ApplicationArea = Planning;
                     Importance = Additional;
@@ -420,14 +426,14 @@ page 1384 "Item Templ. Card"
                     ToolTip = 'Specifies if the item is included in availability calculations to promise a shipment date for its parent item.';
                     Visible = false;
                 }
-                field("Safety Lead Time"; "Safety Lead Time")
+                field("Safety Lead Time"; Rec."Safety Lead Time")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies a date formula to indicate a safety lead time that can be used as a buffer period for production and other delays.';
                     Visible = false;
                     Enabled = SafetyLeadTimeEnable;
                 }
-                field("Safety Stock Quantity"; "Safety Stock Quantity")
+                field("Safety Stock Quantity"; Rec."Safety Stock Quantity")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies a quantity of stock to have in inventory to protect against supply-and-demand fluctuations during replenishment lead time.';
@@ -438,7 +444,7 @@ page 1384 "Item Templ. Card"
                 {
                     Visible = false;
                     Caption = 'Lot-for-Lot Parameters';
-                    field("Include Inventory"; "Include Inventory")
+                    field("Include Inventory"; Rec."Include Inventory")
                     {
                         ApplicationArea = Planning;
                         ToolTip = 'Specifies that the inventory quantity is included in the projected available balance when replenishment orders are calculated.';
@@ -450,14 +456,14 @@ page 1384 "Item Templ. Card"
                             EnablePlanningControls()
                         end;
                     }
-                    field("Lot Accumulation Period"; "Lot Accumulation Period")
+                    field("Lot Accumulation Period"; Rec."Lot Accumulation Period")
                     {
                         ApplicationArea = Planning;
                         ToolTip = 'Specifies a period in which multiple demands are accumulated into one supply order when you use the Lot-for-Lot reordering policy.';
                         Visible = false;
                         Enabled = LotAccumulationPeriodEnable;
                     }
-                    field("Rescheduling Period"; "Rescheduling Period")
+                    field("Rescheduling Period"; Rec."Rescheduling Period")
                     {
                         ApplicationArea = Planning;
                         ToolTip = 'Specifies a period within which any suggestion to change a supply date always consists of a Reschedule action and never a Cancel + New action.';
@@ -471,20 +477,20 @@ page 1384 "Item Templ. Card"
                     group(Control64)
                     {
                         ShowCaption = false;
-                        field("Reorder Point"; "Reorder Point")
+                        field("Reorder Point"; Rec."Reorder Point")
                         {
                             ApplicationArea = Planning;
                             ToolTip = 'Specifies a stock quantity that sets the inventory below the level that you must replenish the item.';
                             Enabled = ReorderPointEnable;
                         }
-                        field("Reorder Quantity"; "Reorder Quantity")
+                        field("Reorder Quantity"; Rec."Reorder Quantity")
                         {
                             ApplicationArea = Planning;
                             ToolTip = 'Specifies a standard lot size quantity to be used for all order proposals.';
                             Visible = false;
                             Enabled = ReorderQtyEnable;
                         }
-                        field("Maximum Inventory"; "Maximum Inventory")
+                        field("Maximum Inventory"; Rec."Maximum Inventory")
                         {
                             ApplicationArea = Planning;
                             ToolTip = 'Specifies a quantity that you want to use as a maximum inventory level.';
@@ -492,7 +498,7 @@ page 1384 "Item Templ. Card"
                             Enabled = MaximumInventoryEnable;
                         }
                     }
-                    field("Overflow Level"; "Overflow Level")
+                    field("Overflow Level"; Rec."Overflow Level")
                     {
                         ApplicationArea = Planning;
                         Importance = Additional;
@@ -500,7 +506,7 @@ page 1384 "Item Templ. Card"
                         Visible = false;
                         Enabled = OverflowLevelEnable;
                     }
-                    field("Time Bucket"; "Time Bucket")
+                    field("Time Bucket"; Rec."Time Bucket")
                     {
                         ApplicationArea = Planning;
                         Importance = Additional;
@@ -515,20 +521,20 @@ page 1384 "Item Templ. Card"
                     group(Control61)
                     {
                         ShowCaption = false;
-                        field("Minimum Order Quantity"; "Minimum Order Quantity")
+                        field("Minimum Order Quantity"; Rec."Minimum Order Quantity")
                         {
                             ApplicationArea = Planning;
                             ToolTip = 'Specifies a minimum allowable quantity for an item order proposal.';
                             Enabled = MinimumOrderQtyEnable;
                         }
-                        field("Maximum Order Quantity"; "Maximum Order Quantity")
+                        field("Maximum Order Quantity"; Rec."Maximum Order Quantity")
                         {
                             ApplicationArea = Planning;
                             ToolTip = 'Specifies a maximum allowable quantity for an item order proposal.';
                             Visible = false;
                             Enabled = MaximumOrderQtyEnable;
                         }
-                        field("Order Multiple"; "Order Multiple")
+                        field("Order Multiple"; Rec."Order Multiple")
                         {
                             ApplicationArea = Planning;
                             ToolTip = 'Specifies a parameter used by the planning system to modify the quantity of planned supply orders.';
@@ -541,23 +547,23 @@ page 1384 "Item Templ. Card"
             group(ItemTracking)
             {
                 Caption = 'Item Tracking';
-                field("Item Tracking Code"; "Item Tracking Code")
+                field("Item Tracking Code"; Rec."Item Tracking Code")
                 {
                     ApplicationArea = ItemTracking;
                     Importance = Promoted;
                     ToolTip = 'Specifies how serial or lot numbers assigned to the item are tracked in the supply chain.';
                 }
-                field("Serial Nos."; "Serial Nos.")
+                field("Serial Nos."; Rec."Serial Nos.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies a number series code to assign consecutive serial numbers to items produced.';
                 }
-                field("Lot Nos."; "Lot Nos.")
+                field("Lot Nos."; Rec."Lot Nos.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the number series code that will be used when assigning lot numbers.';
                 }
-                field("Expiration Calculation"; "Expiration Calculation")
+                field("Expiration Calculation"; Rec."Expiration Calculation")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the date formula for calculating the expiration date on the item tracking line. Note: This field will be ignored if the involved item has Require Expiration Date Entry set to Yes on the Item Tracking Code page.';
@@ -567,30 +573,30 @@ page 1384 "Item Templ. Card"
             group(Warehouse)
             {
                 Caption = 'Warehouse';
-                field("Warehouse Class Code"; "Warehouse Class Code")
+                field("Warehouse Class Code"; Rec."Warehouse Class Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the warehouse class code for the item.';
                 }
-                field("Special Equipment Code"; "Special Equipment Code")
+                field("Special Equipment Code"; Rec."Special Equipment Code")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Additional;
                     ToolTip = 'Specifies the code of the equipment that warehouse employees must use when handling the item.';
                 }
-                field("Put-away Template Code"; "Put-away Template Code")
+                field("Put-away Template Code"; Rec."Put-away Template Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the put-away template by which the program determines the most appropriate zone and bin for storage of the item after receipt.';
                 }
-                field("Phys Invt Counting Period Code"; "Phys Invt Counting Period Code")
+                field("Phys Invt Counting Period Code"; Rec."Phys Invt Counting Period Code")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Promoted;
                     ToolTip = 'Specifies the code of the counting period that indicates how often you want to count the item in a physical inventory.';
                     Visible = false;
                 }
-                field("Use Cross-Docking"; "Use Cross-Docking")
+                field("Use Cross-Docking"; Rec."Use Cross-Docking")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Additional;
@@ -610,8 +616,6 @@ page 1384 "Item Templ. Card"
                 ApplicationArea = Dimensions;
                 Caption = 'Dimensions';
                 Image = Dimensions;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Default Dimensions";
                 RunPageLink = "Table ID" = const(1382),
                               "No." = field(Code);
@@ -622,8 +626,6 @@ page 1384 "Item Templ. Card"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Copy Template';
                 Image = Copy;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Copies all information to the current template from the selected one.';
 
                 trigger OnAction()
@@ -640,6 +642,20 @@ page 1384 "Item Templ. Card"
                         CopyFromTemplate(ItemTempl);
                     end;
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(CopyTemplate_Promoted; CopyTemplate)
+                {
+                }
             }
         }
     }

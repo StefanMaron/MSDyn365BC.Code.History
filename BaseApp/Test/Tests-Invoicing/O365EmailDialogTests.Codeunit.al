@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138925 "O365 Email Dialog Tests"
 {
     Subtype = Test;
@@ -71,7 +72,7 @@ codeunit 138925 "O365 Email Dialog Tests"
 
         // [GIVEN] A posted invoice
         PostedInvoiceNo := SendInvoice(LibraryInvoicingApp.CreateInvoice);
-        EventSubscriberInvoicingApp.Clear;
+        EventSubscriberInvoicingApp.Clear();
 
         // [WHEN] A sent invoice is sent
         ReSendInvoice(PostedInvoiceNo);
@@ -679,13 +680,13 @@ codeunit 138925 "O365 Email Dialog Tests"
     begin
         BindActiveDirectoryMockEvents;
         LibraryWorkflow.SetUpEmailAccount();
-        EventSubscriberInvoicingApp.Clear;
+        EventSubscriberInvoicingApp.Clear();
         LibraryVariableStorage.AssertEmpty;
         Clear(CancelEmail);
         O365DocumentSentHistory.DeleteAll();
         ModifyEmailParameter := true;
 
-        if not O365C2GraphEventSettings.Get then
+        if not O365C2GraphEventSettings.Get() then
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
@@ -856,7 +857,7 @@ codeunit 138925 "O365 Email Dialog Tests"
         BCO365SalesInvoice.Lines.New;
         BCO365SalesInvoice.Lines.Description.Value(LibraryInvoicingApp.CreateItemWithPrice);
         LibraryVariableStorage.Enqueue(BCO365SalesInvoice.NextInvoiceNo.Value);
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
     end;
 
     [ModalPageHandler]
@@ -891,4 +892,4 @@ codeunit 138925 "O365 Email Dialog Tests"
         Assert.Fail('No notification should be thrown.');
     end;
 }
-
+#endif

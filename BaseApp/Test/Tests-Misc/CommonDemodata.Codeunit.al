@@ -34,7 +34,7 @@ codeunit 138500 "Common Demodata"
                 Assert.AreEqual(
                   1, StrPos(ConfigTemplateHeader.Code, TableNamePrefix),
                   StrSubstNo('Template code %1 should start with %2', ConfigTemplateHeader.Code, TableNamePrefix));
-            until ConfigTemplateHeader.Next = 0;
+            until ConfigTemplateHeader.Next() = 0;
     end;
 
     [Test]
@@ -175,7 +175,7 @@ codeunit 138500 "Common Demodata"
             repeat
                 InventoryPostingSetup.SetRange("Location Code", Location.Code);
                 Assert.RecordIsNotEmpty(InventoryPostingSetup);
-            until Location.Next = 0;
+            until Location.Next() = 0;
     end;
 
     [Test]

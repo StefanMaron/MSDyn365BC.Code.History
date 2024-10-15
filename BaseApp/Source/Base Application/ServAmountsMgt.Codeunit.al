@@ -1,4 +1,4 @@
-﻿codeunit 5986 "Serv-Amounts Mgt."
+codeunit 5986 "Serv-Amounts Mgt."
 {
     Permissions = TableData "Invoice Post. Buffer" = imd,
                   TableData "General Posting Setup" = imd,
@@ -133,7 +133,7 @@
             InvPostingBufferCalcInvoiceDiscountAmount(InvoicePostBuffer, ServiceLine, ServiceLineACY, ServiceHeader);
             if (InvoicePostBuffer.Amount <> 0) or (InvoicePostBuffer."Amount (ACY)" <> 0) then begin
                 InvoicePostBuffer.SetAccount(
-                  GenPostingSetup.GetSalesInvDiscAccount, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
+                  GenPostingSetup.GetSalesInvDiscAccount(), TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
                 InvoicePostBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
                 if ServiceLine."Line Discount %" = 100 then begin
                     InvoicePostBuffer."VAT Base Amount" := 0;
@@ -153,7 +153,7 @@
             InvPostingBufferCalcLineDiscountAmount(InvoicePostBuffer, ServiceLine, ServiceLineACY, ServiceHeader);
             if (InvoicePostBuffer.Amount <> 0) or (InvoicePostBuffer."Amount (ACY)" <> 0) then begin
                 InvoicePostBuffer.SetAccount(
-                  GenPostingSetup.GetSalesLineDiscAccount, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
+                  GenPostingSetup.GetSalesLineDiscAccount(), TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
                 InvoicePostBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
                 UpdateInvoicePostBuffer(TempInvoicePostBuffer, InvoicePostBuffer, ServiceLine);
             end;
@@ -173,10 +173,10 @@
             else
                 if ServiceLine."Document Type" = ServiceLine."Document Type"::"Credit Memo" then
                     InvoicePostBuffer.SetAccount(
-                      GenPostingSetup.GetSalesCrMemoAccount, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY)
+                      GenPostingSetup.GetSalesCrMemoAccount(), TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY)
                 else
                     InvoicePostBuffer.SetAccount(
-                      GenPostingSetup.GetSalesAccount, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
+                      GenPostingSetup.GetSalesAccount(), TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
         end;
         InvoicePostBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
 
@@ -242,7 +242,7 @@
         LineAmountExpected: Decimal;
         LineDiscountAmountExpected: Decimal;
     begin
-        if RoundingLineInserted and (RoundingLineNo = ServiceLine."Line No.") then
+        if RoundingLineInserted() and (RoundingLineNo = ServiceLine."Line No.") then
             exit;
 
         OnBeforeDivideAmount(ServiceHeader, ServiceLine, QtyType, ServLineQty, TempVATAmountLine, TempVATAmountLineRemainder);
@@ -292,21 +292,21 @@
                     if "VAT Calculation Type" = "VAT Calculation Type"::"Sales Tax" then
                         "VAT %" := TempVATAmountLine."VAT %";
                     TempVATAmountLineRemainder := TempVATAmountLine;
-                    if not TempVATAmountLineRemainder.Find then begin
+                    if not TempVATAmountLineRemainder.Find() then begin
                         TempVATAmountLineRemainder.Init();
                         TempVATAmountLineRemainder.Insert();
                     end;
 
                     case QtyType of
                         QtyType::Shipping:
-                            if ("Qty. to Consume" <> 0) or (ServLineQty <= MaxQtyToInvoice) then
+                            if ("Qty. to Consume" <> 0) or (ServLineQty <= MaxQtyToInvoice()) then
                                 ChargeableQty := ServLineQty
                             else
-                                ChargeableQty := MaxQtyToInvoice;
+                                ChargeableQty := MaxQtyToInvoice();
                         QtyType::Invoicing:
                             ChargeableQty := ServLineQty;
                         else
-                            ChargeableQty := CalcChargeableQty;
+                            ChargeableQty := CalcChargeableQty();
                     end;
 
                     LineAmountExpected := Round(ChargeableQty * "Unit Price", Currency."Amount Rounding Precision");
@@ -345,9 +345,9 @@
                             TempVATAmountLineRemainder."Amount Including VAT" := 0;
                         end else begin
                             TempVATAmountLineRemainder."VAT Amount" +=
-                              TempVATAmountLine."VAT Amount" * CalcLineAmount / TempVATAmountLine.CalcLineAmount;
+                              TempVATAmountLine."VAT Amount" * CalcLineAmount() / TempVATAmountLine.CalcLineAmount();
                             TempVATAmountLineRemainder."Amount Including VAT" +=
-                              TempVATAmountLine."Amount Including VAT" * CalcLineAmount / TempVATAmountLine.CalcLineAmount;
+                              TempVATAmountLine."Amount Including VAT" * CalcLineAmount() / TempVATAmountLine.CalcLineAmount();
                         end;
                         if "Line Discount %" <> 100 then
                             "Amount Including VAT" :=
@@ -367,13 +367,13 @@
                     end else
                         if "VAT Calculation Type" = "VAT Calculation Type"::"Full VAT" then begin
                             if "Line Discount %" <> 100 then
-                                "Amount Including VAT" := CalcLineAmount
+                                "Amount Including VAT" := CalcLineAmount()
                             else
                                 "Amount Including VAT" := 0;
                             Amount := 0;
                             "VAT Base Amount" := 0;
                         end else begin
-                            Amount := CalcLineAmount;
+                            Amount := CalcLineAmount();
                             "VAT Base Amount" :=
                               Round(
                                 Amount * (1 - ServiceHeader."VAT Base Discount %" / 100), Currency."Amount Rounding Precision");
@@ -381,7 +381,7 @@
                                 TempVATAmountLineRemainder."VAT Amount" := 0
                             else
                                 TempVATAmountLineRemainder."VAT Amount" +=
-                                  TempVATAmountLine."VAT Amount" * CalcLineAmount / TempVATAmountLine.CalcLineAmount;
+                                  TempVATAmountLine."VAT Amount" * CalcLineAmount() / TempVATAmountLine.CalcLineAmount();
                             if "Line Discount %" <> 100 then
                                 "Amount Including VAT" :=
                                   Amount + Round(TempVATAmountLineRemainder."VAT Amount", Currency."Amount Rounding Precision")
@@ -407,9 +407,9 @@
 
         with ServiceLine do begin
             IncrAmount(ServiceLine, TotalServiceLine, ServiceHeader."Prices Including VAT");
-            Increment(TotalServiceLine."Net Weight", Round(ServLineQty * "Net Weight", UOMMgt.WeightRndPrecision));
-            Increment(TotalServiceLine."Gross Weight", Round(ServLineQty * "Gross Weight", UOMMgt.WeightRndPrecision));
-            Increment(TotalServiceLine."Unit Volume", Round(ServLineQty * "Unit Volume", UOMMgt.CubageRndPrecision));
+            Increment(TotalServiceLine."Net Weight", Round(ServLineQty * "Net Weight", UOMMgt.WeightRndPrecision()));
+            Increment(TotalServiceLine."Gross Weight", Round(ServLineQty * "Gross Weight", UOMMgt.WeightRndPrecision()));
+            Increment(TotalServiceLine."Unit Volume", Round(ServLineQty * "Unit Volume", UOMMgt.CubageRndPrecision()));
             Increment(TotalServiceLine.Quantity, ServLineQty);
             if "Units per Parcel" > 0 then
                 Increment(
@@ -423,7 +423,7 @@
                 if ("Document Type" in ["Document Type"::Quote]) and
                    (ServiceHeader."Posting Date" = 0D)
                 then
-                    UseDate := WorkDate
+                    UseDate := WorkDate()
                 else
                     UseDate := ServiceHeader."Posting Date";
 
@@ -518,7 +518,7 @@
             Round(
               TotalServiceLine."Amount Including VAT",
               Currency."Invoice Rounding Precision",
-              Currency.InvoiceRoundingDirection),
+              Currency.InvoiceRoundingDirection()),
             Currency."Amount Rounding Precision");
 
         OnBeforeInvoiceRoundingAmount(
@@ -526,20 +526,20 @@
         if InvoiceRoundingAmount <> 0 then begin
             CustPostingGr.Get(ServiceHeader."Customer Posting Group");
             with ServiceLine do begin
-                Init;
+                Init();
                 BiggestLineNo += 10000;
                 "System-Created Entry" := true;
                 if UseTempData then begin
                     "Line No." := 0;
                     Type := Type::"G/L Account";
                     TempServiceLineForCalc := ServiceLine;
-                    TempServiceLineForCalc.Validate("No.", CustPostingGr.GetInvRoundingAccount);
+                    TempServiceLineForCalc.Validate("No.", CustPostingGr.GetInvRoundingAccount());
                     ServiceLine := TempServiceLineForCalc;
                 end else begin
                     "Line No." := BiggestLineNo;
                     RoundingServiceLine := ServiceLine;
                     RoundingServiceLine.Validate(Type, Type::"G/L Account");
-                    RoundingServiceLine.Validate("No.", CustPostingGr.GetInvRoundingAccount);
+                    RoundingServiceLine.Validate("No.", CustPostingGr.GetInvRoundingAccount());
                     ServiceLine := RoundingServiceLine;
                 end;
                 "Tax Area Code" := '';
@@ -688,7 +688,7 @@
             RoundingLineIsInserted := false;
             if OldServLine.Find('-') then
                 repeat
-                    if not RoundingLineInserted then
+                    if not RoundingLineInserted() then
                         ServLine := OldServLine;
                     case QtyType of
                         QtyType::Invoicing:
@@ -724,7 +724,7 @@
 
                     ServLine.Quantity := ServLineQty;
                     if ServLineQty <> 0 then begin
-                        if (ServLine.Amount <> 0) and not RoundingLineInserted then
+                        if (ServLine.Amount <> 0) and not RoundingLineInserted() then
                             if TotalServiceLine.Amount = 0 then
                                 TotalServiceLine."VAT %" := ServLine."VAT %"
                             else
@@ -746,7 +746,7 @@
                         NewServLine := ServLine;
                         if NewServLine.Insert() then;
                     end;
-                    if RoundingLineInserted then
+                    if RoundingLineInserted() then
                         LastLineRetrieved := true
                     else begin
                         BiggestLineNo := MAX(BiggestLineNo, OldServLine."Line No.");
@@ -762,7 +762,7 @@
     local procedure GetCurrency(CurrencyCode: Code[10]; var Currency2: Record Currency)
     begin
         if CurrencyCode = '' then
-            Currency2.InitRoundingPrecision
+            Currency2.InitRoundingPrecision()
         else begin
             Currency2.Get(CurrencyCode);
             Currency2.TestField("Amount Rounding Precision");

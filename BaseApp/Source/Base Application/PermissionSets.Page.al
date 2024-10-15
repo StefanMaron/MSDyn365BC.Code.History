@@ -24,9 +24,9 @@ page 9802 "Permission Sets"
                 field(PermissionSet; "Role ID")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Permission Set';
+                    Caption = 'Permission Set Name';
                     Editable = IsPermissionSetEditable;
-                    ToolTip = 'Specifies the permission set.';
+                    ToolTip = 'Specifies the name of the permission set.';
 
                     trigger OnValidate()
                     var
@@ -36,18 +36,26 @@ page 9802 "Permission Sets"
                         PermissionPagesMgt.VerifyPermissionSetRoleID(Rec."Role ID");
                         RenameTenantPermissionSet();
                     end;
+
+                    trigger OnDrillDown()
+                    var
+                        PermisssionSetRelation: Codeunit "Permission Set Relation";
+                    begin
+                        PermisssionSetRelation.OpenPermissionSetPage(Rec.Name, Rec."Role ID", Rec."App ID", Rec.Scope);
+                    end;
                 }
                 field(Name; Name)
                 {
+                    Caption = 'Description';
                     ApplicationArea = Basic, Suite;
                     Editable = IsPermissionSetEditable;
-                    ToolTip = 'Specifies the name of the record.';
+                    ToolTip = 'Specifies the description of the record.';
 
                     trigger OnValidate()
                     var
                         PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
                     begin
-                        PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers;
+                        PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers();
                     end;
                 }
                 field(Type; Type)
@@ -59,7 +67,7 @@ page 9802 "Permission Sets"
                     AboutTitle = 'The source of the permission set';
                     AboutText = 'You can modify or delete permission sets that your organization created but not those that are built-in (System). Extensions can define permission sets that are also not editable and that will be removed if the extension is uninstalled.';
                 }
-                field("App Name"; "App Name")
+                field("App Name"; Rec."App Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Extension Name';
@@ -85,6 +93,12 @@ page 9802 "Permission Sets"
                 SubPageLink = "Role ID" = FIELD("Role ID"),
                               "App ID" = FIELD("App ID");
             }
+            part("Included Permission Sets"; "Included PermissionSet FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Included Permission Sets';
+                Editable = false;
+            }
         }
     }
 
@@ -96,19 +110,17 @@ page 9802 "Permission Sets"
             {
                 Caption = 'Permissions';
                 Image = Permission;
+#if not CLEAN21
                 action(Permissions)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Permissions';
+                    Caption = 'Permissions (legacy)';
                     Image = Permission;
-                    Promoted = true;
-                    PromotedOnly = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     Scope = Repeater;
                     ToolTip = 'View or edit which feature objects users need to access, and set up the related permissions in permission sets that you can assign to the users of the database.';
-                    AboutTitle = 'View permission details';
-                    AboutText = 'Go here to see which permissions the selected permission set defines for which objects.';
+                    ObsoleteReason = 'Replaced by the PermissionSetContent action.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '21.0';
 
                     trigger OnAction()
                     var
@@ -117,6 +129,24 @@ page 9802 "Permission Sets"
                     begin
                         GetSelectionFilter(AggregatePermissionSet);
                         PermissionPagesMgt.ShowPermissions(AggregatePermissionSet, false)
+                    end;
+                }
+#endif
+                action(PermissionSetContent)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Permissions';
+                    Image = Permission;
+                    Scope = Repeater;
+                    ToolTip = 'View or edit which feature objects users need to access, and set up the related permissions in permission sets that you can assign to the users.';
+                    AboutTitle = 'View permission set details';
+                    AboutText = 'Go here to see which permissions the selected permission set defines for which objects.';
+
+                    trigger OnAction()
+                    var
+                        PermisssionSetRelation: Codeunit "Permission Set Relation";
+                    begin
+                        PermisssionSetRelation.OpenPermissionSetPage(Rec.Name, Rec."Role ID", Rec."App ID", Rec.Scope);
                     end;
                 }
                 action("Permission Set by User")
@@ -196,9 +226,6 @@ page 9802 "Permission Sets"
                     Ellipsis = true;
                     Enabled = CanManageUsersOnTenant;
                     Image = Copy;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'Create a copy of the selected permission set with a name that you specify.';
 
                     trigger OnAction()
@@ -214,12 +241,12 @@ page 9802 "Permission Sets"
                         CopyPermissionSet.SetTableView(AggregatePermissionSet);
                         CopyPermissionSet.RunModal();
 
-                        if AggregatePermissionSet.Get(AggregatePermissionSet.Scope::Tenant, ZeroGuid, CopyPermissionSet.GetNewRoleID) then begin
-                            Init;
-                            TransferFields(AggregatePermissionSet);
-                            SetType;
-                            Insert;
-                            Get(Type, "Role ID");
+                        if AggregatePermissionSet.Get(AggregatePermissionSet.Scope::Tenant, ZeroGuid, CopyPermissionSet.GetNewRoleID()) then begin
+                            Rec.Init();
+                            Rec.TransferFields(AggregatePermissionSet);
+                            Rec.SetType();
+                            Rec.Insert();
+                            Rec.Get(Rec.Type, Rec."Role ID");
                         end;
                     end;
                 }
@@ -229,20 +256,46 @@ page 9802 "Permission Sets"
                     Caption = 'Import Permission Sets';
                     Enabled = CanManageUsersOnTenant;
                     Image = Import;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = false;
-                    PromotedOnly = true;
                     ToolTip = 'Import a file with permissions.';
 
                     trigger OnAction()
                     var
                         PermissionSetBuffer: Record "Permission Set Buffer";
+                        TempBlob: Codeunit "Temp Blob";
+                        ImportPermissionSets: XmlPort "Import Permission Sets";
+#if not CLEAN21
+                        ImportTenantPermissionSets: XmlPort "Import Tenant Permission Sets";
+#endif
+                        FileName: Text;
+                        InStream: InStream;
+                        OutStream: OutStream;
+                        UpdateExistingPermissions: Boolean;
                     begin
+                        UploadIntoStream('Import', '', '', FileName, InStream);
+                        TempBlob.CreateOutStream(OutStream);
+                        CopyStream(OutStream, InStream);
+
+                        TempBlob.CreateInStream(InStream);
+                        UpdateExistingPermissions := Confirm(UpdateExistingPermissionsLbl, true);
+#if not CLEAN21
+                        if IsImportNewVersion(InStream) then begin
+                            ImportPermissionSets.SetSource(InStream);
+                            ImportPermissionSets.SetUpdatePermissions(UpdateExistingPermissions);
+                            ImportPermissionSets.Import();
+                        end else begin
+                            ImportTenantPermissionSets.SetSource(InStream);
+                            ImportTenantPermissionSets.SetUpdatePermissions(UpdateExistingPermissions);
+                            ImportTenantPermissionSets.Import();
+                        end;
+#else
+                            ImportPermissionSets.SetSource(InStream);
+                            ImportPermissionSets.SetUpdatePermissions(UpdateExistingPermissions);
+                            ImportPermissionSets.Import();
+#endif
+
                         PermissionSetBuffer := Rec;
-                        XMLPORT.Run(XMLPORT::"Import Tenant Permission Sets", true, true);
-                        FillRecordBuffer;
-                        if Get(PermissionSetBuffer.Type, PermissionSetBuffer."Role ID") then;
+                        Rec.FillRecordBuffer();
+                        if Rec.Get(PermissionSetBuffer.Type, PermissionSetBuffer."Role ID") then;
                     end;
                 }
                 action(ExportPermissionSets)
@@ -250,36 +303,48 @@ page 9802 "Permission Sets"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Export Permission Sets';
                     Image = Export;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = false;
-                    PromotedOnly = true;
                     ToolTip = 'Export one or more permission sets to a file.';
 
                     trigger OnAction()
                     var
-                        AggregatePermissionSet: Record "Aggregate Permission Set";
+                        TenantPermissionSet: Record "Tenant Permission Set";
+                        MetadataPermissionSet: Record "Metadata Permission Set";
                         TempBlob: Codeunit "Temp Blob";
                         EnvironmentInfo: Codeunit "Environment Information";
                         FileManagement: Codeunit "File Management";
-                        ExportPermissionSets: XMLport "Export Permission Sets";
+                        ExportPermissionSetsSystem: Xmlport "Export Permission Sets System";
+                        ExportPermissionSetsTenant: XmlPort "Export Permission Sets Tenant";
                         OutStr: OutStream;
                     begin
-                        GetSelectionFilter(AggregatePermissionSet);
+                        if Rec.Type = Rec.Type::System then
+                            GetSelectionFilter(MetadataPermissionSet)
+                        else
+                            GetSelectionFilter(TenantPermissionSet);
 
-                        if EnvironmentInfo.IsSandbox then
+                        if EnvironmentInfo.IsSandbox() then
                             if Confirm(ExportExtensionSchemaQst) then begin
                                 TempBlob.CreateOutStream(OutStr);
-                                ExportPermissionSets.SetExportToExtensionSchema(true);
-                                ExportPermissionSets.SetTableView(AggregatePermissionSet);
-                                ExportPermissionSets.SetDestination(OutStr);
-                                ExportPermissionSets.Export;
+
+                                if Rec.Type = Rec.Type::System then begin
+                                    ExportPermissionSetsSystem.SetExportToExtensionSchema(true);
+                                    ExportPermissionSetsSystem.SetTableView(MetadataPermissionSet);
+                                    ExportPermissionSetsSystem.SetDestination(OutStr);
+                                    ExportPermissionSetsSystem.Export();
+                                end else begin
+                                    ExportPermissionSetsTenant.SetExportToExtensionSchema(true);
+                                    ExportPermissionSetsTenant.SetTableView(TenantPermissionSet);
+                                    ExportPermissionSetsTenant.SetDestination(OutStr);
+                                    ExportPermissionSetsTenant.Export();
+                                end;
 
                                 FileManagement.BLOBExport(TempBlob, FileManagement.ServerTempFileName('xml'), true);
                                 exit;
                             end;
 
-                        XMLPORT.Run(XMLPORT::"Export Permission Sets", false, false, AggregatePermissionSet);
+                        if Rec.Type = Rec.Type::System then
+                            XmlPort.Run(XmlPort::"Export Permission Sets System", false, false, MetadataPermissionSet)
+                        else
+                            XmlPort.Run(XmlPort::"Export Permission Sets Tenant", false, false, TenantPermissionSet);
                     end;
                 }
                 action(RemoveObsoletePermissions)
@@ -348,11 +413,32 @@ page 9802 "Permission Sets"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Permissions_Promoted; PermissionSetContent)
+                {
+                }
+                actionref(CopyPermissionSet_Promoted; CopyPermissionSet)
+                {
+                }
+                actionref(ImportPermissionSets_Promoted; ImportPermissionSets)
+                {
+                }
+                actionref(ExportPermissionSets_Promoted; ExportPermissionSets)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
         IsPermissionSetEditable := Type = Type::"User-Defined";
+        CurrPage."Included Permission Sets".Page.UpdateIncludedPermissionSets(Rec."Role ID");
     end;
 
     trigger OnAfterGetRecord()
@@ -367,7 +453,7 @@ page 9802 "Permission Sets"
         UserGroupPermissionSet: Record "User Group Permission Set";
         PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
     begin
-        PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers;
+        PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers();
 
         if Type <> Type::"User-Defined" then
             Error(CannotDeletePermissionSetErr);
@@ -391,7 +477,7 @@ page 9802 "Permission Sets"
         ServerSettings: Codeunit "Server Setting";
     begin
         UsePermissionSetsFromExtensions := ServerSettings.GetUsePermissionSetsFromExtensions();
-        CanManageUsersOnTenant := UserPermissions.CanManageUsersOnTenant(UserSecurityId);
+        CanManageUsersOnTenant := UserPermissions.CanManageUsersOnTenant(UserSecurityId());
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -456,7 +542,63 @@ page 9802 "Permission Sets"
         if PermissionManager.IsIntelligentCloud() then
             SetRange("Role ID", IntelligentCloudTok);
     end;
+#if not CLEAN21
+    local procedure IsImportNewVersion(InStream: InStream): Boolean
+    var
+        XmlDoc: XmlDocument;
+        XmlList: XmlNodeList;
+        XmlRoot: XmlElement;
+        XmlAttributes: XmlAttributeCollection;
+        XmlAttribute: XmlAttribute;
+        Counter: Integer;
+    begin
+        XmlDocument.ReadFrom(InStream, XmlDoc);
+        XmlDoc.GetRoot(XmlRoot);
+        XmlAttributes := XmlRoot.Attributes();
+        for Counter := 1 to XmlAttributes.Count() do begin
+            XmlAttributes.Get(Counter, XmlAttribute);
+            if XmlAttribute.Name = 'Version' then
+                exit(true);
+        end;
+        exit(false);
+    end;
+#endif
 
+    local procedure GetSelectionFilter(var TenantPermissionSet: Record "Tenant Permission Set")
+    var
+        PermissionSetBuffer: Record "Permission Set Buffer";
+    begin
+        TenantPermissionSet.Reset();
+        PermissionSetBuffer.CopyFilters(Rec);
+        CurrPage.SetSelectionFilter(Rec);
+        if Rec.FindSet() then
+            repeat
+                if TenantPermissionSet.Get("App ID", "Role ID") then
+                    TenantPermissionSet.Mark(true);
+            until Next() = 0;
+        TenantPermissionSet.MarkedOnly(true);
+        Reset();
+        CopyFilters(PermissionSetBuffer);
+    end;
+
+    local procedure GetSelectionFilter(var MetadataPermissionSet: Record "Metadata Permission Set")
+    var
+        PermissionSetBuffer: Record "Permission Set Buffer";
+    begin
+        MetadataPermissionSet.Reset();
+        PermissionSetBuffer.CopyFilters(Rec);
+        CurrPage.SetSelectionFilter(Rec);
+        if FindSet() then
+            repeat
+                if MetadataPermissionSet.Get("App ID", "Role ID") then
+                    MetadataPermissionSet.Mark(true);
+            until Next() = 0;
+        MetadataPermissionSet.MarkedOnly(true);
+        Reset();
+        CopyFilters(PermissionSetBuffer);
+    end;
+
+#if not CLEAN21
     local procedure GetSelectionFilter(var AggregatePermissionSet: Record "Aggregate Permission Set")
     var
         PermissionSetBuffer: Record "Permission Set Buffer";
@@ -473,6 +615,7 @@ page 9802 "Permission Sets"
         Reset();
         CopyFilters(PermissionSetBuffer);
     end;
+#endif
 
     var
         PermissionManager: Codeunit "Permission Manager";
@@ -486,5 +629,6 @@ page 9802 "Permission Sets"
         IntelligentCloudTok: Label 'INTELLIGENT CLOUD', Locked = true;
         ObsoletePermissionsMsg: Label '%1 obsolete permissions were removed.', Comment = '%1 = number of deleted records.';
         NothingToRemoveMsg: Label 'There is nothing to remove.';
+        UpdateExistingPermissionsLbl: Label 'Update existing permissions and permission sets';
 }
 

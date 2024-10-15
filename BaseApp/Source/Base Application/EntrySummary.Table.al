@@ -90,7 +90,7 @@ table 338 "Entry Summary"
                 AvailableToSelect: Decimal;
             begin
                 if "Bin Active" and ("Total Available Quantity" > "Bin Content") then begin
-                    AvailableToSelect := QtyAvailableToSelectFromBin;
+                    AvailableToSelect := QtyAvailableToSelectFromBin();
                     if "Selected Quantity" > AvailableToSelect then
                         Error(Text001, AvailableToSelect);
                 end else

@@ -77,7 +77,7 @@ xmlport 10 "IC G/L Account Import/Export"
 
             if Inserted > 0 then
                 if Inserted = 1 then
-                    MsgTxt := StrSubstNo(Text001, Inserted, OrgICGLAcc.TableCaption)
+                    MsgTxt := StrSubstNo(Text001, Inserted, OrgICGLAcc.TableCaption())
                 else
                     MsgTxt := StrSubstNo(Text002, Inserted);
 
@@ -85,7 +85,7 @@ xmlport 10 "IC G/L Account Import/Export"
                 if MsgTxt <> '' then
                     MsgTxt := MsgTxt + '\';
                 if Modified = 1 then
-                    MsgTxt := MsgTxt + StrSubstNo(Text003, Modified, OrgICGLAcc.TableCaption)
+                    MsgTxt := MsgTxt + StrSubstNo(Text003, Modified, OrgICGLAcc.TableCaption())
                 else
                     MsgTxt := MsgTxt + StrSubstNo(Text004, Modified);
             end;
@@ -94,7 +94,7 @@ xmlport 10 "IC G/L Account Import/Export"
                 if MsgTxt <> '' then
                     MsgTxt := MsgTxt + '\';
                 if Deleted = 1 then
-                    MsgTxt := MsgTxt + StrSubstNo(Text005, Deleted, OrgICGLAcc.TableCaption)
+                    MsgTxt := MsgTxt + StrSubstNo(Text005, Deleted, OrgICGLAcc.TableCaption())
                 else
                     MsgTxt := MsgTxt + StrSubstNo(Text006, Deleted);
             end;

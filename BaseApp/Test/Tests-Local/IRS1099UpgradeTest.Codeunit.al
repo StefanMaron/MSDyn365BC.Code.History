@@ -326,22 +326,22 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         LibraryVariableStorage.Enqueue(StrSubstNo(ConfirmIRS1099CodeUpdateQst, Vendor."IRS 1099 Code", NewIRSCode));
         Vendor.Validate("IRS 1099 Code", NewIRSCode);
 
-        VendorLedgerEntry.Find;
+        VendorLedgerEntry.Find();
         VendorLedgerEntry.TestField("IRS 1099 Code", Vendor."IRS 1099 Code");
 
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         PurchaseHeader.TestField("IRS 1099 Code", Vendor."IRS 1099 Code");
 
-        PurchInvHeader.Find;
+        PurchInvHeader.Find();
         PurchInvHeader.TestField("IRS 1099 Code", Vendor."IRS 1099 Code");
 
-        PurchCrMemoHdr.Find;
+        PurchCrMemoHdr.Find();
         PurchCrMemoHdr.TestField("IRS 1099 Code", Vendor."IRS 1099 Code");
 
-        GenJournalLineAccount.Find;
+        GenJournalLineAccount.Find();
         GenJournalLineAccount.TestField("IRS 1099 Code", Vendor."IRS 1099 Code");
 
-        GenJournalLineBalAccount.Find;
+        GenJournalLineBalAccount.Find();
         GenJournalLineBalAccount.TestField("IRS 1099 Code", Vendor."IRS 1099 Code");
 
         LibraryVariableStorage.AssertEmpty;
@@ -474,22 +474,22 @@ codeunit 144030 "IRS 1099 Upgrade Test"
 
         Vendor.Validate("IRS 1099 Code", NewIRSCode);
 
-        VendorLedgerEntry.Find;
+        VendorLedgerEntry.Find();
         VendorLedgerEntry.TestField("IRS 1099 Code", '');
 
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         PurchaseHeader.TestField("IRS 1099 Code", '');
 
-        PurchInvHeader.Find;
+        PurchInvHeader.Find();
         PurchInvHeader.TestField("IRS 1099 Code", '');
 
-        PurchCrMemoHdr.Find;
+        PurchCrMemoHdr.Find();
         PurchCrMemoHdr.TestField("IRS 1099 Code", '');
 
-        GenJournalLineAccount.Find;
+        GenJournalLineAccount.Find();
         GenJournalLineAccount.TestField("IRS 1099 Code", '');
 
-        GenJournalLineBalAccount.Find;
+        GenJournalLineBalAccount.Find();
         GenJournalLineBalAccount.TestField("IRS 1099 Code", '');
     end;
 
@@ -737,7 +737,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         VendorLedgerEntry.Init();
         VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
         VendorLedgerEntry."Vendor No." := VendNo;
-        VendorLedgerEntry."Posting Date" := WorkDate;
+        VendorLedgerEntry."Posting Date" := WorkDate();
         VendorLedgerEntry."Document Type" := DocType;
         VendorLedgerEntry."IRS 1099 Code" := 'DIV-05';
         VendorLedgerEntry.Insert();

@@ -185,7 +185,7 @@ codeunit 135519 "IRS 1099 Code Entity E2E Test"
         JSONManagement: Codeunit "JSON Management";
         JsonObject: DotNet JObject;
     begin
-        JSONManagement.InitializeEmptyObject;
+        JSONManagement.InitializeEmptyObject();
         JSONManagement.GetJSONObject(JsonObject);
         if IRS1099FormBox.Code = '' then
             IRS1099FormBox.Code := GetNextIRS1099FormBoxID;
@@ -195,7 +195,7 @@ codeunit 135519 "IRS 1099 Code Entity E2E Test"
         JSONManagement.AddJPropertyToJObject(JsonObject, 'code', IRS1099FormBox.Code);
         JSONManagement.AddJPropertyToJObject(JsonObject, 'displayName', IRS1099FormBox.Description);
 
-        IRS1099FormBoxJSON := JSONManagement.WriteObjectToString;
+        IRS1099FormBoxJSON := JSONManagement.WriteObjectToString();
     end;
 
     local procedure VerifyPropertyInJSON(JSON: Text; PropertyName: Text; ExpectedValue: Text)

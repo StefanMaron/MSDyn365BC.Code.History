@@ -1,8 +1,12 @@
+#if not CLEAN21
 page 2315 "BC O365 Settings"
 {
     Caption = 'Configure Invoicing';
     PageType = Card;
     RefreshOnActivate = true;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -13,7 +17,7 @@ page 2315 "BC O365 Settings"
                 ShowCaption = false;
                 part(GraphMailPage; "BC O365 Graph Mail Settings")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Email account';
                     UpdatePropagation = Both;
                 }
@@ -29,7 +33,7 @@ page 2315 "BC O365 Settings"
 
                 part(SmtpMailPage; "Email Scenarios FactBox") // Original part has been removed, Email Scenarios Factbox as dummy and part is not visible
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Email account';
                     UpdatePropagation = Both;
                     Visible = false;
@@ -41,50 +45,50 @@ page 2315 "BC O365 Settings"
 #endif
             part("Email settings"; "BC O365 Email Settings Part")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Email settings';
             }
             part("Invoice and estimate numbers"; "BC O365 No. Series Settings")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Invoice and estimate numbers';
             }
             part(Payments; "BC O365 Payments Settings")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Payments';
             }
             part("Payment instructions"; "BC O365 Payment Instr Settings")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Payment instructions';
             }
             part("Tax rates"; "BC O365 Tax Settings List")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Tax rates';
             }
             part("Payment services"; "BC O365 Payment Services")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Payment services';
                 UpdatePropagation = Both;
                 Visible = PaymentServicesVisible;
             }
             part("VAT registration no."; "BC O365 Business Info Settings")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'VAT registration no.';
             }
             part(Services; "BC O365 Service Settings")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Services';
                 Visible = false;
             }
             part("Intuit QuickBooks"; "BC O365 Quickbooks Settings")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Intuit QuickBooks';
                 Visible = QuickBooksVisible;
                 ObsoleteState = Pending;
@@ -100,7 +104,7 @@ page 2315 "BC O365 Settings"
                     InstructionalText = 'Share an overview of sent invoices in an email.';
                     field(ExportInvoices; ExportInvoicesLbl)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Editable = false;
                         ShowCaption = false;
 
@@ -123,9 +127,9 @@ page 2315 "BC O365 Settings"
         TempPaymentServiceSetup: Record "Payment Service Setup" temporary;
     begin
         TempPaymentServiceSetup.OnRegisterPaymentServiceProviders(TempPaymentServiceSetup);
-        PaymentServicesVisible := not TempPaymentServiceSetup.IsEmpty;
+        PaymentServicesVisible := not TempPaymentServiceSetup.IsEmpty();
 
-        QuickBooksVisible := O365SalesManagement.GetQuickBooksVisible;
+        QuickBooksVisible := O365SalesManagement.GetQuickBooksVisible();
     end;
 
     var
@@ -134,4 +138,4 @@ page 2315 "BC O365 Settings"
         ExportInvoicesLbl: Label 'Send invoice overview';
         QuickBooksVisible: Boolean;
 }
-
+#endif

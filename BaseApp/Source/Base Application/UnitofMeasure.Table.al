@@ -90,17 +90,17 @@ table 204 "Unit of Measure"
 
     trigger OnInsert()
     begin
-        SetLastDateTimeModified;
+        SetLastDateTimeModified();
     end;
 
     trigger OnModify()
     begin
-        SetLastDateTimeModified;
+        SetLastDateTimeModified();
     end;
 
     trigger OnRename()
     begin
-        UpdateItemBaseUnitOfMeasure;
+        UpdateItemBaseUnitOfMeasure();
     end;
 
     var
@@ -121,7 +121,7 @@ table 204 "Unit of Measure"
         UnitOfMeasureTranslation: Record "Unit of Measure Translation";
         Language: Codeunit Language;
     begin
-        if UnitOfMeasureTranslation.Get(Code, Language.GetUserLanguageCode) then
+        if UnitOfMeasureTranslation.Get(Code, Language.GetUserLanguageCode()) then
             exit(UnitOfMeasureTranslation.Description);
         exit(Description);
     end;
@@ -133,7 +133,7 @@ table 204 "Unit of Measure"
         if UnitOfMeasure.FindSet() then
             repeat
                 TempUnitOfMeasure := UnitOfMeasure;
-                TempUnitOfMeasure.Description := UnitOfMeasure.GetDescriptionInCurrentLanguage;
+                TempUnitOfMeasure.Description := UnitOfMeasure.GetDescriptionInCurrentLanguage();
                 TempUnitOfMeasure.Insert();
             until UnitOfMeasure.Next() = 0;
     end;

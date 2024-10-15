@@ -27,7 +27,7 @@ codeunit 139007 "Test Instruction Mgt. SaaS"
 
         // Verify
         // Instruction is not displayed
-        SalesInvoice.Close;
+        SalesInvoice.Close();
     end;
 
     [Test]

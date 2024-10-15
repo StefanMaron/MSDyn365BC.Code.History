@@ -57,33 +57,33 @@
                     "Account Type"::"G/L Account":
                         begin
                             if BankAcc2."Check Date Format" = BankAcc2."Check Date Format"::" " then
-                                Error(USText006, BankAcc2.FieldCaption("Check Date Format"), BankAcc2.TableCaption, BankAcc2."No.");
+                                Error(USText006, BankAcc2.FieldCaption("Check Date Format"), BankAcc2.TableCaption(), BankAcc2."No.");
                             if BankAcc2."Bank Communication" = BankAcc2."Bank Communication"::"S Spanish" then
-                                Error(USText007, BankAcc2.FieldCaption("Bank Communication"), BankAcc2.TableCaption, BankAcc2."No.");
+                                Error(USText007, BankAcc2.FieldCaption("Bank Communication"), BankAcc2.TableCaption(), BankAcc2."No.");
                         end;
                     "Account Type"::Customer:
                         begin
                             Cust.Get("Account No.");
                             if Cust."Check Date Format" = Cust."Check Date Format"::" " then
-                                Error(USText006, Cust.FieldCaption("Check Date Format"), Cust.TableCaption, "Account No.");
+                                Error(USText006, Cust.FieldCaption("Check Date Format"), Cust.TableCaption(), "Account No.");
                             if Cust."Bank Communication" = Cust."Bank Communication"::"S Spanish" then
-                                Error(USText007, Cust.FieldCaption("Bank Communication"), Cust.TableCaption, "Account No.");
+                                Error(USText007, Cust.FieldCaption("Bank Communication"), Cust.TableCaption(), "Account No.");
                         end;
                     "Account Type"::Vendor:
                         begin
                             Vend.Get("Account No.");
                             if Vend."Check Date Format" = Vend."Check Date Format"::" " then
-                                Error(USText006, Vend.FieldCaption("Check Date Format"), Vend.TableCaption, "Account No.");
+                                Error(USText006, Vend.FieldCaption("Check Date Format"), Vend.TableCaption(), "Account No.");
                             if Vend."Bank Communication" = Vend."Bank Communication"::"S Spanish" then
-                                Error(USText007, Vend.FieldCaption("Bank Communication"), Vend.TableCaption, "Account No.");
+                                Error(USText007, Vend.FieldCaption("Bank Communication"), Vend.TableCaption(), "Account No.");
                         end;
                     "Account Type"::"Bank Account":
                         begin
                             BankAcc.Get("Account No.");
                             if BankAcc."Check Date Format" = BankAcc."Check Date Format"::" " then
-                                Error(USText006, BankAcc.FieldCaption("Check Date Format"), BankAcc.TableCaption, "Account No.");
+                                Error(USText006, BankAcc.FieldCaption("Check Date Format"), BankAcc.TableCaption(), "Account No.");
                             if BankAcc."Bank Communication" = BankAcc."Bank Communication"::"S Spanish" then
-                                Error(USText007, BankAcc.FieldCaption("Bank Communication"), BankAcc.TableCaption, "Account No.");
+                                Error(USText007, BankAcc.FieldCaption("Bank Communication"), BankAcc.TableCaption(), "Account No.");
                         end;
                 end;
             end;
@@ -523,7 +523,7 @@
                         Decimals: Decimal;
                         CheckLedgEntryAmount: Decimal;
                     begin
-                        if not TestPrint then begin
+                        if not TestPrint then
                             with GenJnlLine do begin
                                 CheckLedgEntry.Init();
                                 CheckLedgEntry."Bank Account No." := BankAcc2."No.";
@@ -553,7 +553,7 @@
                                     if BankAcc2."Currency Code" <> '' then
                                         Currency.Get(BankAcc2."Currency Code")
                                     else
-                                        Currency.InitRoundingPrecision;
+                                        Currency.InitRoundingPrecision();
                                     CheckLedgEntryAmount := CheckLedgEntry.Amount;
                                     Decimals := CheckLedgEntry.Amount - Round(CheckLedgEntry.Amount, 1, '<');
                                     if StrLen(Format(Decimals)) < StrLen(Format(Currency."Amount Rounding Precision")) then
@@ -584,8 +584,8 @@
                                     DescriptionLine[2] := DescriptionLine[1];
                                     VoidText := Text022;
                                 end;
-                            end;
-                        end else begin
+                            end
+                        else begin
                             CheckLedgEntry.Init();
                             CheckLedgEntry."Bank Account No." := BankAcc2."No.";
                             CheckLedgEntry."Posting Date" := GenJnlLine."Posting Date";
@@ -781,6 +781,8 @@
             }
 
             trigger OnAfterGetRecord()
+            var
+                RemitAddress: Record "Remit Address";
             begin
                 if OneCheckPrVendor and ("Currency Code" <> '') and
                    ("Currency Code" <> Currency.Code)
@@ -860,7 +862,7 @@
                                     Error(Cust.GetPrivacyBlockedGenericErrorText(Cust));
 
                                 if Cust.Blocked = Cust.Blocked::All then
-                                    Error(Text064, Cust.FieldCaption(Blocked), Cust.Blocked, Cust.TableCaption, Cust."No.");
+                                    Error(Text064, Cust.FieldCaption(Blocked), Cust.Blocked, Cust.TableCaption(), Cust."No.");
                                 Cust.Contact := '';
                                 FormatAddr.Customer(CheckToAddr, Cust);
                                 if BankAcc2."Currency Code" <> "Currency Code" then
@@ -885,9 +887,16 @@
                                     Error(Vend.GetPrivacyBlockedGenericErrorText(Vend));
 
                                 if Vend.Blocked in [Vend.Blocked::All, Vend.Blocked::Payment] then
-                                    Error(Text064, Vend.FieldCaption(Blocked), Vend.Blocked, Vend.TableCaption, Vend."No.");
+                                    Error(Text064, Vend.FieldCaption(Blocked), Vend.Blocked, Vend.TableCaption(), Vend."No.");
                                 Vend.Contact := '';
-                                FormatAddr.Vendor(CheckToAddr, Vend);
+
+                                if GenJnlLine."Remit-to Code" = '' then
+                                    FormatAddr.Vendor(CheckToAddr, Vend)
+                                else begin
+                                    RemitAddress.Get(GenJnlLine."Remit-to Code", GenJnlLine."Account No.");
+                                    FormatAddr.VendorRemitToAddress(CheckToAddr, RemitAddress);
+                                end;
+
                                 if BankAcc2."Currency Code" <> "Currency Code" then
                                     Error(Text005);
                                 if Vend."Purchaser Code" <> '' then
@@ -926,7 +935,7 @@
                                   CheckStyle);
                             end;
                         BalancingType::Employee:
-                            ApplyBalancingTypeOfEmployee;
+                            ApplyBalancingTypeOfEmployee();
                     end;
 
                     CheckDateText :=
@@ -1004,7 +1013,7 @@
 
                         trigger OnValidate()
                         begin
-                            InputBankAccount;
+                            InputBankAccount();
                         end;
                     }
                     field(LastCheckNo; UseCheckNo)
@@ -1079,27 +1088,6 @@
     end;
 
     var
-        Text000: Label 'Preview is not allowed.';
-        Text001: Label 'Last Check No. must be filled in.';
-        Text002: Label 'Filters on %1 and %2 are not allowed.';
-        Text003: Label 'XXXXXXXXXXXXXXXX';
-        Text004: Label 'must be entered.';
-        Text005: Label 'The Bank Account and the General Journal Line must have the same currency.';
-        Text008: Label 'Both Bank Accounts must have the same currency.';
-        Text010: Label 'XXXXXXXXXX';
-        Text011: Label 'XXXX';
-        Text013: Label '%1 already exists.';
-        Text014: Label 'Check for %1 %2';
-        Text016: Label 'In the Check report, One Check per Vendor and Document No.\must not be activated when Applies-to ID is specified in the journal lines.';
-        Text019: Label 'Total';
-        Text020: Label 'The total amount of check %1 is %2. The amount must be positive.';
-        Text021: Label 'VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID';
-        Text022: Label 'NON-NEGOTIABLE';
-        Text023: Label 'Test print';
-        Text024: Label 'XXXX.XX';
-        Text025: Label 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
-        Text030: Label ' is already applied to %1 %2 for customer %3.';
-        Text031: Label ' is already applied to %1 %2 for vendor %3.';
         CompanyInfo: Record "Company Information";
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         SalesPurchPerson: Record "Salesperson/Purchaser";
@@ -1159,6 +1147,28 @@
         CurrencyCode2: Code[10];
         NetAmount: Text[30];
         LineAmount2: Decimal;
+
+        Text000: Label 'Preview is not allowed.';
+        Text001: Label 'Last Check No. must be filled in.';
+        Text002: Label 'Filters on %1 and %2 are not allowed.';
+        Text003: Label 'XXXXXXXXXXXXXXXX';
+        Text004: Label 'must be entered.';
+        Text005: Label 'The Bank Account and the General Journal Line must have the same currency.';
+        Text008: Label 'Both Bank Accounts must have the same currency.';
+        Text010: Label 'XXXXXXXXXX';
+        Text011: Label 'XXXX';
+        Text013: Label '%1 already exists.';
+        Text014: Label 'Check for %1 %2';
+        Text016: Label 'In the Check report, One Check per Vendor and Document No.\must not be activated when Applies-to ID is specified in the journal lines.';
+        Text019: Label 'Total';
+        Text020: Label 'The total amount of check %1 is %2. The amount must be positive.';
+        Text021: Label 'VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID';
+        Text022: Label 'NON-NEGOTIABLE';
+        Text023: Label 'Test print';
+        Text024: Label 'XXXX.XX';
+        Text025: Label 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+        Text030: Label ' is already applied to %1 %2 for customer %3.';
+        Text031: Label ' is already applied to %1 %2 for vendor %3.';
         Text063: Label 'Net Amount %1';
         Text064: Label '%1 must not be %2 for %3 %4.';
         Text065: Label 'Subtotal';
@@ -1220,6 +1230,7 @@
         DocDate := CustLedgEntry2."Document Date";
         PostingDesc := CustLedgEntry2.Description;
         CurrencyCode2 := CustLedgEntry2."Currency Code";
+
         CustLedgEntry2.CalcFields("Remaining Amount");
 
         LineAmount :=
@@ -1424,7 +1435,7 @@
         CustLedgEntry1.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
         CustLedgEntry1.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
         CustLedgEntry1.SetRange("Customer No.", BalancingNo);
-        CustLedgEntry1.Find('-');
+        CustLedgEntry1.FindFirst();
         CustUpdateAmounts(CustLedgEntry1, RemainingAmount);
     end;
 
@@ -1435,7 +1446,7 @@
         VendLedgEntry1.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
         VendLedgEntry1.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
         VendLedgEntry1.SetRange("Vendor No.", BalancingNo);
-        VendLedgEntry1.Find('-');
+        VendLedgEntry1.FindFirst();
         VendUpdateAmounts(VendLedgEntry1, RemainingAmount);
     end;
 
@@ -1551,6 +1562,5 @@
     local procedure OnAfterAssignGenJnlLineDocNoAndAccountType(var GenJnlLine: Record "Gen. Journal Line"; PreviousDocumentNo: Code[20]; ApplyMethod: Option)
     begin
     end;
-
 }
 

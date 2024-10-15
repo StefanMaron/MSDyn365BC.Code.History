@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138961 "BC O365 Payment Tests"
 {
     Subtype = Test;
@@ -79,7 +80,7 @@ codeunit 138961 "BC O365 Payment Tests"
         // [WHEN] Default Payment terms is changed
         BCO365Settings.OpenEdit;
         BCO365Settings.Payments.PaymentTermsCode.AssistEdit;
-        BCO365Settings.Close;
+        BCO365Settings.Close();
 
         // [THEN] A new invoice for an existing customer uses the existing payment terms
         BCO365SalesInvoice.OpenNew();
@@ -103,7 +104,7 @@ codeunit 138961 "BC O365 Payment Tests"
         // [WHEN] Default Payment terms is changed
         BCO365Settings.OpenEdit;
         BCO365Settings.Payments.PaymentTermsCode.AssistEdit;
-        BCO365Settings.Close;
+        BCO365Settings.Close();
 
         // [THEN] A new invoice for a new customer uses the existing payment terms
         BCO365SalesInvoice.OpenNew();
@@ -136,7 +137,7 @@ codeunit 138961 "BC O365 Payment Tests"
         Assert.AreEqual(
           O365SalesInitialSetup."Default Payment Terms Code", BCO365SalesInvoice."Payment Terms Code".Value,
           'Default payment terms is not assigned correctly to the invoice');
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
 
         // [WHEN] Default Payment terms code is changed
         PaymentTerms.Get(O365SalesInitialSetup."Default Payment Terms Code");
@@ -149,7 +150,7 @@ codeunit 138961 "BC O365 Payment Tests"
         Assert.AreEqual(
           DefaultPaymentTermsCode, BCO365Settings.Payments.PaymentTermsCode.Value,
           'Default payment terms is not updated correctly');
-        BCO365Settings.Close;
+        BCO365Settings.Close();
 
         // [THEN] The invoice is updated to reflect the new code
         SalesHeader.FindLast();
@@ -186,16 +187,16 @@ codeunit 138961 "BC O365 Payment Tests"
         BCO365SalesInvoice."Sell-to Customer Name".Value(LibraryInvoicingApp.CreateCustomer);
         BCO365SalesInvoice.Lines.Description.Value(LibraryInvoicingApp.CreateItem);
         Assert.AreEqual(
-          CalcDate(StrSubstNo('+%1D', PaymentTermsDays), WorkDate), BCO365SalesInvoice."Due Date".AsDate,
+          CalcDate(StrSubstNo('+%1D', PaymentTermsDays), WorkDate()), BCO365SalesInvoice."Due Date".AsDate,
           'Due date is not updated correctly');
 
         // [WHEN] The payment terms on the invoice is changed
         // [THEN] the new due date is used
         BCO365SalesInvoice."Payment Terms Code".AssistEdit;
         Assert.AreEqual(
-          CalcDate(StrSubstNo('+%1D', PaymentTermsDays), WorkDate), BCO365SalesInvoice."Due Date".AsDate,
+          CalcDate(StrSubstNo('+%1D', PaymentTermsDays), WorkDate()), BCO365SalesInvoice."Due Date".AsDate,
           'Due date is not updated correctly');
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
@@ -250,7 +251,7 @@ codeunit 138961 "BC O365 Payment Tests"
         Customer.SetRange(Name, ExistingCustomerName);
         Customer.FindFirst();
         BCO365SalesCustomerCard.GotoRecord(Customer);
-        BCO365SalesCustomerCard.Close;
+        BCO365SalesCustomerCard.Close();
 
         // [WHEN] The existing posted invoice can be opened with no errors
         BCO365PostedSalesInvoice.OpenView;
@@ -266,14 +267,14 @@ codeunit 138961 "BC O365 Payment Tests"
         // [WHEN] The existing draft invoice can be opened with no errors
         BCO365SalesInvoice.OpenEdit;
         BCO365SalesInvoice.GotoKey(SalesHeader."Document Type"::Invoice, ExistingInvoiceNo);
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
 
         // [WHEN] An invoice for an existing customer can be send and paid with no errors
         BCO365SalesInvoice.OpenNew();
         BCO365SalesInvoice."Sell-to Customer Name".Value(ExistingCustomerName);
         BCO365SalesInvoice.Lines.Description.Value(LibraryInvoicingApp.CreateItem);
         BCO365SalesInvoice.Lines."Unit Price".SetValue(100.59);
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
         SalesHeader.FindLast();
         AddPaymentForInvoice(LibraryInvoicingApp.SendInvoice(SalesHeader."No."));
 
@@ -356,7 +357,7 @@ codeunit 138961 "BC O365 Payment Tests"
         Customer.SetRange(Name, ExistingCustomerName);
         Customer.FindFirst();
         BCO365SalesCustomerCard.GotoRecord(Customer);
-        BCO365SalesCustomerCard.Close;
+        BCO365SalesCustomerCard.Close();
 
         // [WHEN] The existing posted invoice can be opened with no errors
         BCO365PostedSalesInvoice.OpenView;
@@ -372,14 +373,14 @@ codeunit 138961 "BC O365 Payment Tests"
         // [WHEN] The existing draft invoice can be opened with no errors
         BCO365SalesInvoice.OpenEdit;
         BCO365SalesInvoice.GotoKey(SalesHeader."Document Type"::Invoice, ExistingInvoiceNo);
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
 
         // [WHEN] An invoice for an existing customer can be send and paid with no errors
         BCO365SalesInvoice.OpenNew();
         BCO365SalesInvoice."Sell-to Customer Name".Value(ExistingCustomerName);
         BCO365SalesInvoice.Lines.Description.Value(LibraryInvoicingApp.CreateItem);
         BCO365SalesInvoice.Lines."Unit Price".SetValue(100.59);
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
         SalesHeader.FindLast();
         AddPaymentForInvoice(LibraryInvoicingApp.SendInvoice(SalesHeader."No."));
 
@@ -473,7 +474,7 @@ codeunit 138961 "BC O365 Payment Tests"
         BindActiveDirectoryMockEvents;
 
         LibraryVariableStorage.AssertEmpty;
-        EventSubscriberInvoicingApp.Clear;
+        EventSubscriberInvoicingApp.Clear();
         ApplicationArea('#Invoicing');
         O365SalesInitialSetup.Get();
         Clear(PreviousPaymentMethodCode);
@@ -486,7 +487,7 @@ codeunit 138961 "BC O365 Payment Tests"
         LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider;
         LibraryAzureKVMockMgmt.EnsureSecretNameIsAllowed('SmtpSetup');
 
-        if not O365C2GraphEventSettings.Get then
+        if not O365C2GraphEventSettings.Get() then
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
@@ -621,4 +622,4 @@ codeunit 138961 "BC O365 Payment Tests"
           'An unexpected notification was sent.');
     end;
 }
-
+#endif

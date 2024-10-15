@@ -38,11 +38,11 @@ codeunit 139480 "Notification Lifecycle Tests"
         Initialize();
 
         // [GIVEN] A notification, a record that triggered the notification and a context of the creation of the notification (a cause)
-        NotificationId := CreateGuid;
+        NotificationId := CreateGuid();
         Notification.Id := NotificationId;
         Notification.Message := NotificationMsg;
         LibrarySales.CreateCustomer(Customer); // Represents the cause object of the notification (on what?)
-        AdditionalContextId := CreateGuid; // Represents the cause of the notification (why?)
+        AdditionalContextId := CreateGuid(); // Represents the cause of the notification (why?)
 
         // [WHEN] I register the context of the notification
         LibraryLowerPermissions.SetO365Basic;
@@ -80,7 +80,7 @@ codeunit 139480 "Notification Lifecycle Tests"
         Initialize();
 
         // [GIVEN] A notification, a record that triggered the notification and a context of the creation of the notification (a cause)
-        NotificationId := CreateGuid;
+        NotificationId := CreateGuid();
         Notification.Id := NotificationId;
         Notification.Message := NotificationMsg;
         LibrarySales.CreateCustomer(Customer); // Represents the cause object of the notification (on what?)
@@ -122,7 +122,7 @@ codeunit 139480 "Notification Lifecycle Tests"
         DummyNotification.Message := NotificationMsg;
         DummyNotificationWithContext.Message := NotificationMsg;
         LibrarySales.CreateCustomer(Customer); // Represents the cause object of the notification (on what?)
-        AdditionalContextId := CreateGuid;
+        AdditionalContextId := CreateGuid();
 
         // [WHEN] I register the context of the notification
         LibraryLowerPermissions.SetO365Basic;
@@ -137,7 +137,7 @@ codeunit 139480 "Notification Lifecycle Tests"
         repeat
             Assert.IsFalse(IsNullGuid(TempNotificationContext."Notification ID"), 'Unexpected notification GUID in NotificationContext');
             Assert.AreEqual(Customer.RecordId, TempNotificationContext."Record ID", 'Unexpected Record ID in NotificationContext');
-        until TempNotificationContext.Next = 0;
+        until TempNotificationContext.Next() = 0;
         Cleanup;
     end;
 
@@ -158,10 +158,10 @@ codeunit 139480 "Notification Lifecycle Tests"
 
         // [GIVEN] A notification, a record that triggered the notification and a context of the creation of the notification (a cause)
         LibrarySales.CreateCustomer(Customer); // Represents the cause object of the notification (on what?)
-        AdditionalContextId := CreateGuid; // Represents the cause of the notification (why?)
-        NotificationToRemove1.Id := CreateGuid;
+        AdditionalContextId := CreateGuid(); // Represents the cause of the notification (why?)
+        NotificationToRemove1.Id := CreateGuid();
         NotificationToRemove1.Message := NotificationMsg;
-        NotificationToRemove2.Id := CreateGuid;
+        NotificationToRemove2.Id := CreateGuid();
         NotificationToRemove2.Message := NotificationMsg;
         NotificationLifecycleMgt.SendNotificationWithAdditionalContext(NotificationToRemove1, Customer.RecordId, AdditionalContextId);
         NotificationLifecycleMgt.SendNotificationWithAdditionalContext(NotificationToRemove2, Customer.RecordId, AdditionalContextId);
@@ -199,14 +199,14 @@ codeunit 139480 "Notification Lifecycle Tests"
 
         // [GIVEN] 3 notifications, a record that triggered the notifications and 2 different contexts of the creation of the notifications (2 different causes)
         LibrarySales.CreateCustomer(Customer); // Represents the cause object of the notification (on what?)
-        NotificationToRecall1.Id := CreateGuid;
+        NotificationToRecall1.Id := CreateGuid();
         NotificationToRecall1.Message := NotificationMsg;
-        NotificationToRecall2.Id := CreateGuid;
+        NotificationToRecall2.Id := CreateGuid();
         NotificationToRecall2.Message := NotificationMsg;
-        NotificationToKeep.Id := CreateGuid;
+        NotificationToKeep.Id := CreateGuid();
         NotificationToKeep.Message := NotificationMsg;
-        AdditionalContextId := CreateGuid; // Represents the cause of the notification that will be deleted (why?)
-        AdditionalContextIdThatRemains := CreateGuid; // Represents the cause of the notification that will remain (why?)
+        AdditionalContextId := CreateGuid(); // Represents the cause of the notification that will be deleted (why?)
+        AdditionalContextIdThatRemains := CreateGuid(); // Represents the cause of the notification that will remain (why?)
         NotificationLifecycleMgt.SendNotificationWithAdditionalContext(NotificationToRecall1, Customer.RecordId, AdditionalContextId);
         NotificationLifecycleMgt.SendNotificationWithAdditionalContext(NotificationToRecall2, Customer.RecordId, AdditionalContextId);
         NotificationLifecycleMgt.SendNotificationWithAdditionalContext(
@@ -251,7 +251,7 @@ codeunit 139480 "Notification Lifecycle Tests"
         Initialize();
 
         // [GIVEN] A notification, a record that triggered the notification and a context of the creation of the notification (a cause)
-        NotificationId := CreateGuid; // Represents the notification
+        NotificationId := CreateGuid(); // Represents the notification
         NotificationToInsertTwice.Id := NotificationId;
         NotificationToInsertTwice.Message := NotificationMsg;
         LibrarySales.CreateCustomer(Customer); // Represents the cause object of the notification (on what?)
@@ -293,9 +293,9 @@ codeunit 139480 "Notification Lifecycle Tests"
 
         // [GIVEN] Two notifications, a record that triggered the notification
         LibrarySales.CreateCustomer(Customer); // Represents the cause object of the notification (on what?)
-        NotificationToRecall1.Id := CreateGuid;
+        NotificationToRecall1.Id := CreateGuid();
         NotificationToRecall1.Message := NotificationMsg;
-        NotificationToRecall2.Id := CreateGuid;
+        NotificationToRecall2.Id := CreateGuid();
         NotificationToRecall2.Message := NotificationMsg;
         NotificationLifecycleMgt.SendNotification(NotificationToRecall1, Customer.RecordId);
         NotificationLifecycleMgt.SendNotification(NotificationToRecall2, Customer.RecordId);
@@ -332,11 +332,11 @@ codeunit 139480 "Notification Lifecycle Tests"
         // [GIVEN] 3 notifications, 2 records that triggered the notifications
         LibrarySales.CreateCustomer(Customer); // Represents the cause object of the notification (on what?)
         LibrarySales.CreateSalesInvoice(SalesHeader); // Represents the cause object of a third notification
-        NotificationToRecall1.Id := CreateGuid;
+        NotificationToRecall1.Id := CreateGuid();
         NotificationToRecall1.Message := NotificationMsg;
-        NotificationToRecall2.Id := CreateGuid;
+        NotificationToRecall2.Id := CreateGuid();
         NotificationToRecall2.Message := NotificationMsg;
-        NotificationToKeep.Id := CreateGuid;
+        NotificationToKeep.Id := CreateGuid();
         NotificationToKeep.Message := NotificationMsg;
         NotificationLifecycleMgt.SendNotification(NotificationToRecall1, Customer.RecordId);
         NotificationLifecycleMgt.SendNotification(NotificationToRecall2, Customer.RecordId);
@@ -380,13 +380,13 @@ codeunit 139480 "Notification Lifecycle Tests"
         // [GIVEN] 4 notifications, 2 records that triggered the notifications
         LibrarySales.CreateCustomer(Customer); // Represents the cause object of the first 2 notifications
         LibrarySales.CreateSalesInvoice(SalesHeader); // Represents the cause object of the next 2 notifications
-        NotificationToRecall1.Id := CreateGuid;
+        NotificationToRecall1.Id := CreateGuid();
         NotificationToRecall1.Message := NotificationMsg;
-        NotificationToRecall2.Id := CreateGuid;
+        NotificationToRecall2.Id := CreateGuid();
         NotificationToRecall2.Message := NotificationMsg;
-        NotificationToRecall3.Id := CreateGuid;
+        NotificationToRecall3.Id := CreateGuid();
         NotificationToRecall3.Message := NotificationMsg;
-        NotificationToRecall4.Id := CreateGuid;
+        NotificationToRecall4.Id := CreateGuid();
         NotificationToRecall4.Message := NotificationMsg;
         NotificationLifecycleMgt.SendNotification(NotificationToRecall1, Customer.RecordId);
         NotificationLifecycleMgt.SendNotification(NotificationToRecall2, Customer.RecordId);
@@ -430,9 +430,9 @@ codeunit 139480 "Notification Lifecycle Tests"
         LibrarySales.CreateCustomer(InitialCustomer); // Represents the cause object of the notification (on what?)
         LibrarySales.CreateCustomer(FinalCustomer);
         LibrarySales.CreateSalesInvoice(SalesHeader); // Represents the cause object of a third notification
-        NotificationToKeep.Id := CreateGuid;
+        NotificationToKeep.Id := CreateGuid();
         NotificationToKeep.Message := NotificationMsg;
-        NotificationToUpdate.Id := CreateGuid;
+        NotificationToUpdate.Id := CreateGuid();
         NotificationToUpdate.Message := NotificationMsg;
 
         NotificationLifecycleMgt.SendNotification(NotificationToKeep, SalesHeader.RecordId);
@@ -493,11 +493,11 @@ codeunit 139480 "Notification Lifecycle Tests"
         Customer.Delete(); // delete them from the database. They have now a record ID but they do not exist in the database.
         SalesHeader.Delete();
 
-        CustomerNotification.Id := CreateGuid;
+        CustomerNotification.Id := CreateGuid();
         CustomerNotification.Message := NotificationMsg;
-        SalesHeaderNotification.Id := CreateGuid;
+        SalesHeaderNotification.Id := CreateGuid();
         SalesHeaderNotification.Message := NotificationMsg;
-        AdditionalContextId := CreateGuid;
+        AdditionalContextId := CreateGuid();
 
         // [WHEN] We send the notifications for these records
         LibraryLowerPermissions.SetO365Basic;
@@ -551,102 +551,102 @@ codeunit 139480 "Notification Lifecycle Tests"
         // [WHEN] We close a page that allows for posting
         // [THEN] The Notification Licecycle Mgt framework is enabled,
         // in case the posting failed and the after posting subscriber was not called to enable the framework again.
-        NotificationLifecycleMgt.DisableSubscribers;
+        NotificationLifecycleMgt.DisableSubscribers();
         AssemblyOrder.OpenView;
         Assert.IsFalse(NotificationLifecycleMgt.AreSubscribersDisabled,
           'Notification Lifecycle Mgt should be enabled after opening assembly order.');
-        NotificationLifecycleMgt.DisableSubscribers;
-        AssemblyOrder.Close;
+        NotificationLifecycleMgt.DisableSubscribers();
+        AssemblyOrder.Close();
         Assert.IsFalse(NotificationLifecycleMgt.AreSubscribersDisabled,
           'Notification Lifecycle Mgt should be enabled after closing assembly order.');
 
-        NotificationLifecycleMgt.DisableSubscribers;
+        NotificationLifecycleMgt.DisableSubscribers();
         AssemblyQuote.OpenView;
         Assert.IsFalse(NotificationLifecycleMgt.AreSubscribersDisabled,
           'Notification Lifecycle Mgt should be enabled after opening assembly quote.');
-        NotificationLifecycleMgt.DisableSubscribers;
-        AssemblyQuote.Close;
+        NotificationLifecycleMgt.DisableSubscribers();
+        AssemblyQuote.Close();
         Assert.IsFalse(NotificationLifecycleMgt.AreSubscribersDisabled,
           'Notification Lifecycle Mgt should be enabled after closing assembly quote.');
 
-        NotificationLifecycleMgt.DisableSubscribers;
+        NotificationLifecycleMgt.DisableSubscribers();
         SalesQuote.OpenView;
         Assert.IsFalse(NotificationLifecycleMgt.AreSubscribersDisabled,
           'Notification Lifecycle Mgt should be enabled after opening sales quote.');
-        NotificationLifecycleMgt.DisableSubscribers;
-        SalesQuote.Close;
+        NotificationLifecycleMgt.DisableSubscribers();
+        SalesQuote.Close();
         Assert.IsFalse(NotificationLifecycleMgt.AreSubscribersDisabled,
           'Notification Lifecycle Mgt should be enabled after closing sales quote.');
 
-        NotificationLifecycleMgt.DisableSubscribers;
+        NotificationLifecycleMgt.DisableSubscribers();
         SalesOrder.OpenView;
         Assert.IsFalse(NotificationLifecycleMgt.AreSubscribersDisabled,
           'Notification Lifecycle Mgt should be enabled after opening sales order.');
-        NotificationLifecycleMgt.DisableSubscribers;
-        SalesOrder.Close;
+        NotificationLifecycleMgt.DisableSubscribers();
+        SalesOrder.Close();
         Assert.IsFalse(NotificationLifecycleMgt.AreSubscribersDisabled,
           'Notification Lifecycle Mgt should be enabled after closing sales order.');
 
-        NotificationLifecycleMgt.DisableSubscribers;
+        NotificationLifecycleMgt.DisableSubscribers();
         SalesInvoice.OpenView;
         Assert.IsFalse(NotificationLifecycleMgt.AreSubscribersDisabled,
           'Notification Lifecycle Mgt should be enabled after opening sales invoice.');
-        NotificationLifecycleMgt.DisableSubscribers;
-        SalesInvoice.Close;
+        NotificationLifecycleMgt.DisableSubscribers();
+        SalesInvoice.Close();
         Assert.IsFalse(NotificationLifecycleMgt.AreSubscribersDisabled,
           'Notification Lifecycle Mgt should be enabled closing sales invoice.');
 
-        NotificationLifecycleMgt.DisableSubscribers;
+        NotificationLifecycleMgt.DisableSubscribers();
         SalesCreditMemo.OpenView;
         Assert.IsFalse(NotificationLifecycleMgt.AreSubscribersDisabled,
           'Notification Lifecycle Mgt should be enabled after opening sales credit memo.');
-        NotificationLifecycleMgt.DisableSubscribers;
-        SalesCreditMemo.Close;
+        NotificationLifecycleMgt.DisableSubscribers();
+        SalesCreditMemo.Close();
         Assert.IsFalse(NotificationLifecycleMgt.AreSubscribersDisabled,
           'Notification Lifecycle Mgt should be enabled after closing sales credit memo.');
 
-        NotificationLifecycleMgt.DisableSubscribers;
+        NotificationLifecycleMgt.DisableSubscribers();
         PurchaseQuote.OpenView;
         Assert.IsFalse(NotificationLifecycleMgt.AreSubscribersDisabled,
           'Notification Lifecycle Mgt should be enabled after opening purchase quote.');
-        NotificationLifecycleMgt.DisableSubscribers;
-        PurchaseQuote.Close;
+        NotificationLifecycleMgt.DisableSubscribers();
+        PurchaseQuote.Close();
         Assert.IsFalse(NotificationLifecycleMgt.AreSubscribersDisabled,
           'Notification Lifecycle Mgt should be enabled after closing purchase quote.');
 
-        NotificationLifecycleMgt.DisableSubscribers;
+        NotificationLifecycleMgt.DisableSubscribers();
         PurchaseOrder.OpenView;
         PurchaseOrder.New; // to make sure the confirm handler will not be called
         Assert.IsFalse(NotificationLifecycleMgt.AreSubscribersDisabled,
           'Notification Lifecycle Mgt should be enabled after opening purchase order.');
-        NotificationLifecycleMgt.DisableSubscribers;
-        PurchaseOrder.Close;
+        NotificationLifecycleMgt.DisableSubscribers();
+        PurchaseOrder.Close();
         Assert.IsFalse(NotificationLifecycleMgt.AreSubscribersDisabled,
           'Notification Lifecycle Mgt should be enabled after closing purchase order.');
 
-        NotificationLifecycleMgt.DisableSubscribers;
+        NotificationLifecycleMgt.DisableSubscribers();
         PurchaseInvoice.OpenView;
         Assert.IsFalse(NotificationLifecycleMgt.AreSubscribersDisabled,
           'Notification Lifecycle Mgt should be enabled after opening purchase invoice.');
-        NotificationLifecycleMgt.DisableSubscribers;
-        PurchaseInvoice.Close;
+        NotificationLifecycleMgt.DisableSubscribers();
+        PurchaseInvoice.Close();
         Assert.IsFalse(NotificationLifecycleMgt.AreSubscribersDisabled,
           'Notification Lifecycle Mgt should be enabled closing purchase invoice.');
 
-        NotificationLifecycleMgt.DisableSubscribers;
+        NotificationLifecycleMgt.DisableSubscribers();
         PurchaseCreditMemo.OpenView;
         Assert.IsFalse(NotificationLifecycleMgt.AreSubscribersDisabled,
           'Notification Lifecycle Mgt should be enabled after opening purchase credit memo.');
-        NotificationLifecycleMgt.DisableSubscribers;
-        PurchaseCreditMemo.Close;
+        NotificationLifecycleMgt.DisableSubscribers();
+        PurchaseCreditMemo.Close();
         Assert.IsFalse(NotificationLifecycleMgt.AreSubscribersDisabled,
           'Notification Lifecycle Mgt should be enabled after closing purchase credit memo.');
 
-        NotificationLifecycleMgt.DisableSubscribers;
+        NotificationLifecycleMgt.DisableSubscribers();
         ItemJournalLines.OpenView;
         Assert.IsFalse(NotificationLifecycleMgt.AreSubscribersDisabled,
           'Notification Lifecycle Mgt should be enabled after opening item journal lines.');
-        ItemJournalLines.Close;
+        ItemJournalLines.Close();
     end;
 
     local procedure Initialize()

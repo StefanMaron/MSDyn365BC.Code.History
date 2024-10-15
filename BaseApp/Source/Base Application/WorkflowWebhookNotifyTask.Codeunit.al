@@ -44,7 +44,7 @@ codeunit 1546 "Workflow Webhook Notify Task"
 
         WorkflowWebhookNotification.Initialize(RetryCount, WaitTime);
         WorkflowWebhookNotification.SendNotification(WorkflowWebhookEntryTable."Data ID",
-          WorkflowWebhookEntryTable."Workflow Step Instance ID", WorkflowWebhookSubscriptionTable.GetNotificationUrl, ContactEmail);
+          WorkflowWebhookEntryTable."Workflow Step Instance ID", WorkflowWebhookSubscriptionTable.GetNotificationUrl(), ContactEmail);
     end;
 
     [IntegrationEvent(false, false)]

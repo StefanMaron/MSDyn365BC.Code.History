@@ -211,7 +211,7 @@ codeunit 137062 "SCM Sales & Receivables"
         // Change sales price UOM from UOM to <blank>.
         SalesPrice.DeleteAll(true);
         LibraryCosting.CreateSalesPrice(
-          SalesPrice, "Sales Price Type"::"All Customers", '', Item."No.", WorkDate, '', ItemVariant.Code, SalesPriceUnitOfMeasure, 0);
+          SalesPrice, "Sales Price Type"::"All Customers", '', Item."No.", WorkDate(), '', ItemVariant.Code, SalesPriceUnitOfMeasure, 0);
         SalesPrice.Validate("Unit Price", UnitSalesPrice);
         SalesPrice.Modify(true);
 
@@ -332,7 +332,7 @@ codeunit 137062 "SCM Sales & Receivables"
 
         // Change purchase price UOM from UOM to <blank>.
         PurchasePrice.DeleteAll(true);
-        LibraryCosting.CreatePurchasePrice(PurchasePrice, VendorNo, Item."No.", WorkDate, '', ItemVariant.Code, PurchPriceUnitOfMeasure, 0);
+        LibraryCosting.CreatePurchasePrice(PurchasePrice, VendorNo, Item."No.", WorkDate(), '', ItemVariant.Code, PurchPriceUnitOfMeasure, 0);
         PurchasePrice.Validate("Direct Unit Cost", UnitPurchasePrice);
         PurchasePrice.Modify(true);
         CopyAllPurchPriceToPriceListLine();
@@ -495,7 +495,7 @@ codeunit 137062 "SCM Sales & Receivables"
         Initialize(false);
         LibrarySales.SetStockoutWarning(false);
 
-        LineDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate);
+        LineDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate());
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItem(Item2);
         LibraryInventory.CreateItem(Item3);
@@ -509,7 +509,7 @@ codeunit 137062 "SCM Sales & Receivables"
 
         // Create a Sales Order with one line of BOM.
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
-        SalesHeader.Validate("Shipment Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+        SalesHeader.Validate("Shipment Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
         SalesHeader.Validate("Location Code", '');
         SalesHeader.Modify(true);
 
@@ -542,7 +542,7 @@ codeunit 137062 "SCM Sales & Receivables"
         // Create a Purchase Order with one line of BOM and verify Purchase line.
         // 1. Setup: Create Child and Parent Item.
         Initialize(false);
-        LineDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate);
+        LineDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate());
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItem(Item2);
         LibraryInventory.CreateItem(Item3);
@@ -556,7 +556,7 @@ codeunit 137062 "SCM Sales & Receivables"
 
         // Create a Purchase Order with one line of BOM.
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
-        PurchaseHeader.Validate("Expected Receipt Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+        PurchaseHeader.Validate("Expected Receipt Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
         PurchaseHeader.Validate("Location Code", '');
         PurchaseHeader.Modify(true);
 
@@ -802,21 +802,6 @@ codeunit 137062 "SCM Sales & Receivables"
 
         // Verify: Check posted entry for Item Reference No.
         VerifyItemRefNoInItemLedgerEntry(DocumentNo, ItemReference."Reference No.");
-
-#if not CLEAN18
-        if DiscontinueRefNo then begin
-            DiscontinueItemReference(ItemReference);
-            CreateSalesDocument(
-              SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", LibraryRandom.RandDec(10, 2));
-
-            // Exercise: Check that the Discontinued Reference No. throws an error when uupdated in Sales Line.
-            // asserterror UpdateItemRefNoSalesLine(SalesLine, ItemReference."Reference No.");
-
-            // Verify: Verify Item Reference No. error.
-            // Bug 361020
-            // Assert.ExpectedError(StrSubstNo(ItemReferenceErr, ItemReference."Reference No."));
-        end;
-#endif
     end;
 
     [Test]
@@ -1322,15 +1307,6 @@ codeunit 137062 "SCM Sales & Receivables"
         PurchaseLine.Modify(true);
     end;
 
-#if not CLEAN18
-    local procedure DiscontinueItemReference(var ItemReference: Record "Item Reference")
-    begin
-        // Update Item Reference - Discontinue Bar Code as True.
-        ItemReference.Validate("Discontinue Bar Code", true);
-        ItemReference.Modify(true);
-    end;
-#endif
-
     local procedure UpdateItemRefNoSalesLine(SalesLine: Record "Sales Line"; ReferenceNo: Code[20])
     begin
         // Set a Discontinued Reference No. on Sales Line to generate an error.
@@ -1396,7 +1372,7 @@ codeunit 137062 "SCM Sales & Receivables"
             i += 1;
             Assert.AreEqual(TrimSpaces(SelectStr(i, DepartmentCodes)), ItemBudgetEntry."Global Dimension 1 Code", DimensionErr);
             Assert.AreEqual(TrimSpaces(SelectStr(i, ProjectCodes)), ItemBudgetEntry."Global Dimension 2 Code", DimensionErr);
-        until ItemBudgetEntry.Next = 0;
+        until ItemBudgetEntry.Next() = 0;
     end;
 
 #if not CLEAN19
@@ -1436,7 +1412,7 @@ codeunit 137062 "SCM Sales & Receivables"
               TrimSpaces(SelectStr(i, NumsNewRecords)), Format(DateComprRegister."No. of New Records"), 'Check created records');
             Assert.AreEqual(
               TrimSpaces(SelectStr(i, NumsDelRecords)), Format(DateComprRegister."No. Records Deleted"), 'Check deleted records');
-        until DateComprRegister.Next = 0;
+        until DateComprRegister.Next() = 0;
     end;
 
 #if not CLEAN19
@@ -1477,7 +1453,7 @@ codeunit 137062 "SCM Sales & Receivables"
         repeat
             Assert.AreEqual(LineDate, PurchaseLine."Expected Receipt Date",
               ' Wrong Shipment Date of purchase line ' + Format(PurchaseLine."Line No."));
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure VerifySalesLine(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; ExpectedCount: Integer; LineDate: Date)
@@ -1495,7 +1471,7 @@ codeunit 137062 "SCM Sales & Receivables"
         repeat
             Assert.AreEqual(LineDate, SalesLine."Shipment Date",
               ' Wrong Shipment Date of sales line ' + Format(SalesLine."Line No."));
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure VerifyValueEntriesForSalesOrder(DocumentNo: Code[20])
@@ -1551,11 +1527,11 @@ codeunit 137062 "SCM Sales & Receivables"
         SalesLine.SetRange("Document No.", SalesLine."Document No.");
         SalesLine.FindSet();
         VerifySalesLineDetails(SalesLine, SalesLine.Type::" ", '', ParentItem."No.", ParentItem.Description);
-        SalesLine.Next;
+        SalesLine.Next();
         VerifySalesLineDetails(SalesLine, SalesLine.Type::" ", '', '', ParentItemExtText);
-        SalesLine.Next;
+        SalesLine.Next();
         VerifySalesLineDetails(SalesLine, SalesLine.Type::Item, ChildItem."No.", ParentItem."No.", ChildItem.Description);
-        SalesLine.Next;
+        SalesLine.Next();
         VerifySalesLineDetails(SalesLine, SalesLine.Type::" ", '', '', ChildItemExtText);
     end;
 

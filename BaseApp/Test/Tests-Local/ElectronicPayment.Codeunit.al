@@ -111,7 +111,7 @@ codeunit 141037 "Electronic Payment"
 
         // Exercise.
         PaymentJournal.Post.Invoke;
-        PaymentJournal.Close;
+        PaymentJournal.Close();
 
         // Verify: Verify Vendor balance after post payment.
         VerifyVendorBalance(PurchaseLine."Buy-from Vendor No.");
@@ -149,9 +149,9 @@ codeunit 141037 "Electronic Payment"
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
 
         // Verify
-        NoSeriesLine.Find;
+        NoSeriesLine.Find();
         Assert.AreEqual(OldLastNoUsed, NoSeriesLine."Last No. Used",
-          StrSubstNo(WrongValueErr, NoSeriesLine.TableCaption, NoSeriesLine.FieldCaption("Last No. Used")));
+          StrSubstNo(WrongValueErr, NoSeriesLine.TableCaption(), NoSeriesLine.FieldCaption("Last No. Used")));
     end;
 
     local procedure Initialize()
@@ -290,8 +290,8 @@ codeunit 141037 "Electronic Payment"
     begin
         LibraryUtility.CreateNoSeries(NoSeries, false, false, false);
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
-        NoSeriesMgt.GetNextNo(NoSeries.Code, WorkDate, true);
-        NoSeriesLine.Find;
+        NoSeriesMgt.GetNextNo(NoSeries.Code, WorkDate(), true);
+        NoSeriesLine.Find();
     end;
 
     local procedure UpdateGenJnlBatch(var GenJnlBatch: Record "Gen. Journal Batch"; BankAccountNo: Code[20]; NoSeriesCode: Code[20])
@@ -312,7 +312,7 @@ codeunit 141037 "Electronic Payment"
         CheckNo := Format(LibraryRandom.RandInt(10));
 
         with CheckLedgerEntry do begin
-            Init;
+            Init();
             "Bank Account No." := BankAccount."No.";
             "Posting Date" := GenJnlLine."Posting Date";
             "Document No." := CheckNo;
@@ -330,7 +330,7 @@ codeunit 141037 "Electronic Payment"
             "Document No." := CheckNo;
             "Bank Payment Type" := "Bank Payment Type"::"Computer Check";
             "Check Printed" := true;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -343,7 +343,7 @@ codeunit 141037 "Electronic Payment"
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           GenJournalLine.Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption));
+          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyVendorBalance(VendorNo: Code[20])
@@ -365,7 +365,7 @@ codeunit 141037 "Electronic Payment"
     begin
         LibraryVariableStorage.Dequeue(VendorNo);
         LibraryVariableStorage.Dequeue(BankAccountNo);
-        SuggestVendorPayments.LastPaymentDate.SetValue(CalcDate(Format(LibraryRandom.RandInt(3)) + 'M', WorkDate));  // Using Random for Months.
+        SuggestVendorPayments.LastPaymentDate.SetValue(CalcDate(Format(LibraryRandom.RandInt(3)) + 'M', WorkDate()));  // Using Random for Months.
         SuggestVendorPayments.SummarizePerVendor.SetValue(true);
         SuggestVendorPayments.StartingDocumentNo.SetValue(LibraryRandom.RandInt(10));
         SuggestVendorPayments.BalAccountType.SetValue(GenJournalLine."Bal. Account Type"::"Bank Account");

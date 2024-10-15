@@ -15,7 +15,7 @@ table 1650 "Curr. Exch. Rate Update Setup"
                 DataExchCode: Code[20];
             begin
                 if "Data Exch. Def Code" = '' then begin
-                    DataExchCode := SuggestDataExchangeCode;
+                    DataExchCode := SuggestDataExchangeCode();
                     CreateDataExchangeDefinition(DataExchCode);
                     Validate("Data Exch. Def Code", DataExchCode);
                 end;
@@ -41,12 +41,12 @@ table 1650 "Curr. Exch. Rate Update Setup"
                     Rec."Enabled" := CustomerConsentMgt.ConfirmUserConsent();
 
                 if Rec.Enabled then begin
-                    VerifyServiceURL;
-                    VerifyDataExchangeLineDefinition;
-                    AutoUpdateExchangeRates;
-                    LogTelemetryWhenServiceEnabled;
+                    VerifyServiceURL();
+                    VerifyDataExchangeLineDefinition();
+                    AutoUpdateExchangeRates();
+                    LogTelemetryWhenServiceEnabled();
                 end else
-                    LogTelemetryWhenServiceDisabled;
+                    LogTelemetryWhenServiceDisabled();
             end;
         }
         field(10; "Service Provider"; Text[30])
@@ -91,7 +91,7 @@ table 1650 "Curr. Exch. Rate Update Setup"
 
     trigger OnInsert()
     begin
-        LogTelemetryWhenServiceCreated;
+        LogTelemetryWhenServiceCreated();
     end;
 
     var
@@ -114,7 +114,7 @@ table 1650 "Curr. Exch. Rate Update Setup"
         InStream: InStream;
     begin
         CalcFields("Web Service URL");
-        if "Web Service URL".HasValue then begin
+        if "Web Service URL".HasValue() then begin
             "Web Service URL".CreateInStream(InStream);
             InStream.Read(ServiceURL);
         end;
@@ -131,7 +131,7 @@ table 1650 "Curr. Exch. Rate Update Setup"
 
         "Web Service URL".CreateOutStream(OutStream);
         OutStream.Write(ServiceURL);
-        Modify;
+        Modify();
     end;
 
     local procedure EnsureURLIsHttpAndValidUri(ServiceURL: Text)
@@ -216,7 +216,7 @@ table 1650 "Curr. Exch. Rate Update Setup"
             if JobQueueEntry.FindJobQueueEntry(JobQueueEntry."Object Type to Run"::Codeunit,
                  CODEUNIT::"Update Currency Exchange Rates")
             then
-                JobQueueEntry.Cancel;
+                JobQueueEntry.Cancel();
     end;
 
     procedure VerifyDataExchangeLineDefinition()
@@ -234,7 +234,7 @@ table 1650 "Curr. Exch. Rate Update Setup"
 
     procedure VerifyServiceURL()
     begin
-        if not "Web Service URL".HasValue then
+        if not "Web Service URL".HasValue() then
             Error(MissingServiceURLErr, FieldCaption("Web Service URL"));
     end;
 

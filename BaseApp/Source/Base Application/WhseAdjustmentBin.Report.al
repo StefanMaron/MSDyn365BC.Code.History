@@ -14,7 +14,7 @@ report 7320 "Whse. Adjustment Bin"
         {
             DataItemTableView = SORTING("Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code");
             RequestFilterFields = "Location Code", "Item No.";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TodayFormated; Format(Today, 0, 4))
@@ -197,7 +197,7 @@ report 7320 "Whse. Adjustment Bin"
                 if Location.Code <> "Location Code" then begin
                     Location.Get("Location Code");
                     if Location."Adjustment Bin Code" = '' then
-                        CurrReport.Skip
+                        CurrReport.Skip()
                         ;
                     SetRange("Bin Code", Location."Adjustment Bin Code");
                     if not Find('-') then
@@ -245,7 +245,7 @@ report 7320 "Whse. Adjustment Bin"
 
     trigger OnPreReport()
     begin
-        WhseEntryFilter := "Warehouse Entry".GetFilters;
+        WhseEntryFilter := "Warehouse Entry".GetFilters();
     end;
 
     var

@@ -14,6 +14,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Bank Account Reconciliation - NamedType WrongFieldValueErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3778703352 - NamedType 500532366" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to open the bank account statement?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Bank Recon. with Matching - NamedType OpenBankStatementPageQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3778703352 - NamedType 1909587369" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 was not refreshed.]]></Val>

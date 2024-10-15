@@ -12,7 +12,7 @@ page 5922 "Loaner Card"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     Importance = Promoted;
@@ -30,22 +30,22 @@ page 5922 "Loaner Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies a description of the loaner.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies an additional description of the loaner.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the unit price of the loaner.';
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the serial number for the loaner for the service item.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
@@ -55,12 +55,12 @@ page 5922 "Loaner Card"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the loaner has been lent to a customer.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the document type of the loaner entry.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service document for the service item that was lent.';
@@ -70,7 +70,7 @@ page 5922 "Loaner Card"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
                 }
-                field("Last Date Modified"; "Last Date Modified")
+                field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the loaner card was last modified.';
@@ -136,8 +136,6 @@ page 5922 "Loaner Card"
                     ApplicationArea = Service;
                     Caption = '&Receive';
                     Image = ReceiveLoaner;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Record that the loaner is received at your company.';
 
                     trigger OnAction()
@@ -146,6 +144,17 @@ page 5922 "Loaner Card"
                     begin
                         ServLoanerMgt.Receive(Rec);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Receive_Promoted"; "&Receive")
+                {
                 }
             }
         }

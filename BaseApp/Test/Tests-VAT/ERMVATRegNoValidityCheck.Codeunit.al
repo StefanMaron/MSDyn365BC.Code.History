@@ -57,11 +57,11 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         VerifyVATRegLogEntry(
           VATRegistrationLog, VATRegistrationLog."Account Type"::Contact, Contact."No.",
           Contact."VAT Registration No.", VATRegistrationLog.Status::"Not Verified");
-        VATRegistrationLog.Next;
+        VATRegistrationLog.Next();
         VerifyVATRegLogEntry(
           VATRegistrationLog, VATRegistrationLog."Account Type"::Vendor, Vendor."No.",
           Vendor."VAT Registration No.", VATRegistrationLog.Status::"Not Verified");
-        VATRegistrationLog.Next;
+        VATRegistrationLog.Next();
         VerifyVATRegLogEntry(
           VATRegistrationLog, VATRegistrationLog."Account Type"::Customer, Customer."No.",
           Customer."VAT Registration No.", VATRegistrationLog.Status::"Not Verified");
@@ -264,7 +264,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         VATRegistrationLogCount := VATRegistrationLog.Count();
         VATRegistrationLog.Ascending(false);
         VATRegistrationLog.FindFirst();
-        EmptyVATResponseDoc := EmptyVATResponseDoc.XmlDocument;
+        EmptyVATResponseDoc := EmptyVATResponseDoc.XmlDocument();
         Commit();
 
         asserterror VATRegistrationLogMgt.LogVerification(VATRegistrationLog, EmptyVATResponseDoc, NamespaceTxt);
@@ -603,7 +603,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
 
         // [WHEN] Call GetCountryCode procedure for VAT Registration Log line
         // [THEN] Procedure returns code "EUC"
-        Assert.AreEqual(CountryRegion."EU Country/Region Code", VATRegistrationLog.GetCountryCode, GetCountryCodeErr);
+        Assert.AreEqual(CountryRegion."EU Country/Region Code", VATRegistrationLog.GetCountryCode(), GetCountryCodeErr);
     end;
 
     [Test]
@@ -625,7 +625,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         // [WHEN] Call GetCountryCode procedure for VAT Registration Log line
         // [THEN] Procedure returns "Country/Region Code" from Company Information
         CompanyInformation.Get();
-        Assert.AreEqual(CompanyInformation."Country/Region Code", VATRegistrationLog.GetCountryCode, GetCountryCodeErr);
+        Assert.AreEqual(CompanyInformation."Country/Region Code", VATRegistrationLog.GetCountryCode(), GetCountryCodeErr);
     end;
 
     [Test]
@@ -649,7 +649,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         // [THEN] Procedure returns "Country/Region Code" from Company Information
         DummyCompanyInformation.Get();
         DummyCompanyInformation.Delete();
-        Assert.AreEqual('', VATRegistrationLog.GetCountryCode, GetCountryCodeErr);
+        Assert.AreEqual('', VATRegistrationLog.GetCountryCode(), GetCountryCodeErr);
     end;
 
     [Test]
@@ -674,7 +674,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
 
         // [THEN] "Country/Region does not exist" error appears
         Assert.ExpectedError(
-          StrSubstNo(CountryRegionDoesNotExistErr, CountryRegion.TableCaption));
+          StrSubstNo(CountryRegionDoesNotExistErr, CountryRegion.TableCaption()));
     end;
 
     [Test]
@@ -698,7 +698,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
 
         // [WHEN] Call GetCountryCode procedure for VAT Registration Log line
         // [THEN] Procedure returns code "CCC"
-        Assert.AreEqual(CountryRegion.Code, VATRegistrationLog.GetCountryCode, GetCountryCodeErr);
+        Assert.AreEqual(CountryRegion.Code, VATRegistrationLog.GetCountryCode(), GetCountryCodeErr);
     end;
 
     [Test]
@@ -872,7 +872,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         // [SCENARIO 254093] TAB248.GetVATRegNoURL throws error 'VAT Reg. No. Validation Setup is not enabled.' when table is empty
         VATRegNoSrvConfig.DeleteAll();
 
-        asserterror VATRegNoSrvConfig.GetVATRegNoURL;
+        asserterror VATRegNoSrvConfig.GetVATRegNoURL();
         Assert.ExpectedError(VATRegNoVIESSettingIsNotEnabledErr);
     end;
 
@@ -889,7 +889,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         VATRegNoSrvConfig.Init();
         VATRegNoSrvConfig.Insert();
 
-        asserterror VATRegNoSrvConfig.GetVATRegNoURL;
+        asserterror VATRegNoSrvConfig.GetVATRegNoURL();
         Assert.ExpectedError(VATRegNoVIESSettingIsNotEnabledErr);
     end;
 
@@ -908,7 +908,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         VATRegNoSrvConfig.Enabled := true;
         VATRegNoSrvConfig.Insert();
 
-        asserterror VATRegNoSrvConfig.GetVATRegNoURL;
+        asserterror VATRegNoSrvConfig.GetVATRegNoURL();
         Assert.ExpectedError('Service Endpoint must have a value in VAT Reg. No. Srv Config: Entry No.=0.');
     end;
 
@@ -1003,11 +1003,11 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         SalesHeader.Validate("VAT Registration No.", LibraryERM.GenerateVATRegistrationNo(Customer[1]."Country/Region Code"));
 
         // [THEN] Customer "C1" has new VAT Registration No. "CCC"
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("VAT Registration No.", SalesHeader."VAT Registration No.");
 
         // [THEN] Customer "C2" has old VAT Registration No. "AAA"
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("VAT Registration No.", VATRegistrationNo[2]);
 
         // Tear Down
@@ -1047,11 +1047,11 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         SalesHeader.Validate("VAT Registration No.", LibraryERM.GenerateVATRegistrationNo(Customer[2]."Country/Region Code"));
 
         // [THEN] Customer "C1" has old VAT Registration No. "AAA"
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("VAT Registration No.", VATRegistrationNo[1]);
 
         // [THEN] Customer "C2" has new VAT Registration No. "CCC"
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("VAT Registration No.", SalesHeader."VAT Registration No.");
 
         // Tear Down
@@ -1093,7 +1093,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         VATNode: DotNet XmlNode;
         InvalidNode: DotNet XmlNode;
     begin
-        XMLDoc := XMLDoc.XmlDocument;
+        XMLDoc := XMLDoc.XmlDocument();
         XMLDOMMgt.AddRootElementWithPrefix(XMLDoc, VATTxt, '', NamespaceTxt, VATNode);
         XMLDOMMgt.AddElement(VATNode, ValidTxt, 'false', NamespaceTxt, InvalidNode);
     end;
@@ -1104,7 +1104,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         VATNode: DotNet XmlNode;
         InvalidNode: DotNet XmlNode;
     begin
-        XMLDoc := XMLDoc.XmlDocument;
+        XMLDoc := XMLDoc.XmlDocument();
         XMLDOMMgt.AddRootElementWithPrefix(XMLDoc, VATTxt, '', NamespaceTxt, VATNode);
         XMLDOMMgt.AddElement(VATNode, ValidTxt, 'true', NamespaceTxt, InvalidNode);
         XMLDOMMgt.AddElement(VATNode, NameTxt, ValidatedName, NamespaceTxt, InvalidNode);
@@ -1118,7 +1118,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         InvalidNode: DotNet XmlNode;
         I: Integer;
     begin
-        XMLDoc := XMLDoc.XmlDocument;
+        XMLDoc := XMLDoc.XmlDocument();
         XMLDOMMgt.AddRootElementWithPrefix(XMLDoc, VATTxt, '', NamespaceTxt, VATNode);
         for I := 1 to 500 do begin
             XMLDOMMgt.AddElement(VATNode, ValidTxt, 'true', NamespaceTxt, InvalidNode);
@@ -1140,13 +1140,13 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
     local procedure CreateContact(var Contact: Record Contact)
     begin
         with Contact do begin
-            Init;
+            Init();
             Validate("No.", LibraryUtility.GenerateGUID());
             Type := Type::Company;
             "Company No." := "No.";
             Validate("Country/Region Code", 'DK');
             Validate("VAT Registration No.", Format(LibraryRandom.RandIntInRange(10000000, 99999999)));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1156,7 +1156,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         with Customer do begin
             Validate("Country/Region Code", 'DK');
             Validate("VAT Registration No.", Format(LibraryRandom.RandIntInRange(10000000, 99999999)));
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1166,7 +1166,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         with Vendor do begin
             Validate("Country/Region Code", 'DK');
             Validate("VAT Registration No.", Format(LibraryRandom.RandIntInRange(10000000, 99999999)));
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1209,7 +1209,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         VATRegistrationLog."VAT Registration No." := InputVATRegNo;
         VATRegistrationLog."Country/Region Code" := InputCountryCode;
         VATRegistrationLog.Insert();
-        Assert.AreEqual(ExpectedOutput, VATRegistrationLog.GetVATRegNo, GetVATRegNoErr);
+        Assert.AreEqual(ExpectedOutput, VATRegistrationLog.GetVATRegNo(), GetVATRegNoErr);
     end;
 
     local procedure VerifyVATRegLogEntry(VATRegistrationLog: Record "VAT Registration Log"; AccountType: Enum "VAT Registration Log Account Type"; AccountNo: Code[20]; VATRegistrationNo: Text[20]; ExpectedStatus: Option)

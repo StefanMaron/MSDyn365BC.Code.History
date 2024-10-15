@@ -1223,7 +1223,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
             "No." := LibraryUTUtility.GetNewCode;
             "Tax Area Code" := TaxAreaCode;
             Status := Status::Released;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1248,7 +1248,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
             "Unit Price" := UnitPrice;
             "Line Amount" := LineAmount;
             Amount := LineAmount;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1317,10 +1317,10 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         TaxAreaLine: Record "Tax Area Line";
     begin
         with TaxAreaLine do begin
-            Init;
+            Init();
             "Tax Area" := TaxAreaCode;
             "Tax Jurisdiction Code" := TaxJurisdictionCode;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1367,7 +1367,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         ServiceCreditMemos.OpenEdit;
         ServiceCreditMemos.FILTER.SetFilter("No.", No);
         ServiceCreditMemos.Statistics.Invoke;  // Opens Handler - ServiceStatisticsPageHandler and ServiceStatsPageHandler.
-        ServiceCreditMemos.Close;
+        ServiceCreditMemos.Close();
     end;
 
     local procedure OpenStatisticsPageForSalesQuote(No: Code[20])
@@ -1377,7 +1377,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         SalesQuotes.OpenEdit;
         SalesQuotes.FILTER.SetFilter("No.", No);
         SalesQuotes.Statistics.Invoke;  // Opens Handler - SalesStatisticsPageHandler and SalesQuotesStatsPageHandler.
-        SalesQuotes.Close;
+        SalesQuotes.Close();
     end;
 
     local procedure OpenStatisticsPageForSalesOrder(No: Code[20])
@@ -1387,7 +1387,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         SalesOrderList.OpenEdit;
         SalesOrderList.FILTER.SetFilter("No.", No);
         SalesOrderList.Statistics.Invoke;  // Opens Handler - SalesOrderStatisticsPageHandler and SalesOrderStatsPageHandler.
-        SalesOrderList.Close;
+        SalesOrderList.Close();
     end;
 
     local procedure OpenStatisticsPageForSalesInvoice(No: Code[20])
@@ -1397,7 +1397,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         SalesInvoiceList.OpenEdit;
         SalesInvoiceList.FILTER.SetFilter("No.", No);
         SalesInvoiceList.Statistics.Invoke;  // Opens Handler - SalesOrderStatisticsPageHandler and SalesOrderStatsPageHandler.
-        SalesInvoiceList.Close;
+        SalesInvoiceList.Close();
     end;
 
     local procedure OpenStatisticsPageForBlanketSalesOrder(No: Code[20])
@@ -1407,7 +1407,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         BlanketSalesOrders.OpenEdit;
         BlanketSalesOrders.FILTER.SetFilter("No.", No);
         BlanketSalesOrders.Statistics.Invoke;  // Opens Handler - SalesOrderStatisticsPageHandler and SalesOrderStatsPageHandler.
-        BlanketSalesOrders.Close;
+        BlanketSalesOrders.Close();
     end;
 
     local procedure OpenStatisticsPageForSalesReturnOrder(No: Code[20])
@@ -1417,7 +1417,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         SalesReturnOrderList.OpenEdit;
         SalesReturnOrderList.FILTER.SetFilter("No.", No);
         SalesReturnOrderList.Statistics.Invoke;  // Opens Handler - SalesOrderStatisticsPageHandler and SalesOrderStatsPageHandler.
-        SalesReturnOrderList.Close;
+        SalesReturnOrderList.Close();
     end;
 
     local procedure OpenStatisticsPageForSalesCreditMemo(No: Code[20])
@@ -1427,7 +1427,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         SalesCreditMemos.OpenEdit;
         SalesCreditMemos.FILTER.SetFilter("No.", No);
         SalesCreditMemos.Statistics.Invoke;  // Opens Handler - SalesStatisticsPageHandler and SalesOrderStatsPageHandler.
-        SalesCreditMemos.Close;
+        SalesCreditMemos.Close();
     end;
 
     local procedure OpenStatisticsPageForPurchaseOrder(No: Code[20])
@@ -1437,7 +1437,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         PurchaseOrderList.OpenEdit;
         PurchaseOrderList.FILTER.SetFilter("No.", No);
         PurchaseOrderList.Statistics.Invoke;  // Opens Handler - PurchaseOrderStatsPageHandler and PurchaseOrderStatisticsPageHandler.
-        PurchaseOrderList.Close;
+        PurchaseOrderList.Close();
     end;
 
     local procedure OpenStatisticsPageForPurchaseReturnOrder(No: Code[20])
@@ -1447,7 +1447,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         PurchaseReturnOrderList.OpenEdit;
         PurchaseReturnOrderList.FILTER.SetFilter("No.", No);
         PurchaseReturnOrderList.Statistics.Invoke;  // Opens Handler - PurchaseOrderStatsPageHandler and PurchaseOrderStatisticsPageHandler.
-        PurchaseReturnOrderList.Close;
+        PurchaseReturnOrderList.Close();
     end;
 
     local procedure OpenStatisticsPageForBlanketPurchaseOrder(No: Code[20])
@@ -1457,7 +1457,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         BlanketPurchaseOrders.OpenEdit;
         BlanketPurchaseOrders.FILTER.SetFilter("No.", No);
         BlanketPurchaseOrders.Statistics.Invoke;  // Opens Handler - PurchaseOrderStatisticsPageHandler and PurchaseOrderStatsPageHandler.
-        BlanketPurchaseOrders.Close;
+        BlanketPurchaseOrders.Close();
     end;
 
     local procedure OpenStatisticsPageForPurchaseQuote(No: Code[20])
@@ -1467,7 +1467,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         PurchaseQuotes.OpenEdit;
         PurchaseQuotes.FILTER.SetFilter("No.", No);
         PurchaseQuotes.Statistics.Invoke;  // Opens Handler - PurchaseStatsPageHandler and PurchaseStatisticsPageHandler.
-        PurchaseQuotes.Close;
+        PurchaseQuotes.Close();
     end;
 
     local procedure OpenStatisticsPageForPurchaseCreditMemo(No: Code[20])
@@ -1477,7 +1477,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         PurchaseCreditMemos.OpenEdit;
         PurchaseCreditMemos.FILTER.SetFilter("No.", No);
         PurchaseCreditMemos.Statistics.Invoke;  // Opens Handler-  PurchaseStatsPageHandler and PurchaseStatisticsPageHandler..
-        PurchaseCreditMemos.Close;
+        PurchaseCreditMemos.Close();
     end;
 
     local procedure OpenStatisticsPageForPurchaseInvoice(No: Code[20])
@@ -1487,7 +1487,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         PurchaseInvoices.OpenEdit;
         PurchaseInvoices.FILTER.SetFilter("No.", No);
         PurchaseInvoices.Statistics.Invoke;  // Opens Handler - PurchaseStatsPageHandler and PurchaseStatisticsPageHandler.
-        PurchaseInvoices.Close;
+        PurchaseInvoices.Close();
     end;
 
     local procedure OpenStatisticsPageForServiceInvoice(No: Code[20])
@@ -1497,7 +1497,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         ServiceInvoices.OpenEdit;
         ServiceInvoices.FILTER.SetFilter("No.", No);
         ServiceInvoices.Statistics.Invoke;  // Opens Handler - ServiceStatsPageHandler and ServiceStatisticsPageHandler.
-        ServiceInvoices.Close;
+        ServiceInvoices.Close();
     end;
 
     local procedure UpdateInvoiceRoundingOnSalesReceivablesSetup(InvoiceRounding: Boolean) OldInvoiceRounding: Boolean

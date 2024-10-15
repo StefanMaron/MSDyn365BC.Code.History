@@ -22,7 +22,7 @@ page 422 "G/L Balance/Budget"
                     trigger OnValidate()
                     begin
                         FindPeriod('');
-                        ClosingEntryFilterOnAfterValid;
+                        ClosingEntryFilterOnAfterValid();
                     end;
                 }
                 field(PeriodType; PeriodType)
@@ -36,17 +36,17 @@ page 422 "G/L Balance/Budget"
                         OnBeforeValidatePeriodType(PeriodType);
 
                         if PeriodType = PeriodType::"Accounting Period" then
-                            AccountingPerioPeriodTypeOnVal;
+                            AccountingPerioPeriodTypeOnVal();
                         if PeriodType = PeriodType::Year then
-                            YearPeriodTypeOnValidate;
+                            YearPeriodTypeOnValidate();
                         if PeriodType = PeriodType::Quarter then
-                            QuarterPeriodTypeOnValidate;
+                            QuarterPeriodTypeOnValidate();
                         if PeriodType = PeriodType::Month then
-                            MonthPeriodTypeOnValidate;
+                            MonthPeriodTypeOnValidate();
                         if PeriodType = PeriodType::Week then
-                            WeekPeriodTypeOnValidate;
+                            WeekPeriodTypeOnValidate();
                         if PeriodType = PeriodType::Day then
-                            DayPeriodTypeOnValidate;
+                            DayPeriodTypeOnValidate();
                     end;
                 }
                 field(AmountType; AmountType)
@@ -58,9 +58,9 @@ page 422 "G/L Balance/Budget"
                     trigger OnValidate()
                     begin
                         if AmountType = AmountType::"Balance at Date" then
-                            BalanceatDateAmountTypeOnValid;
+                            BalanceatDateAmountTypeOnValid();
                         if AmountType = AmountType::"Net Change" then
-                            NetChangeAmountTypeOnValidate;
+                            NetChangeAmountTypeOnValidate();
                     end;
                 }
                 field(DateFilter; DateFilter)
@@ -97,10 +97,10 @@ page 422 "G/L Balance/Budget"
                         GLAccList: Page "G/L Account List";
                     begin
                         GLAccList.LookupMode(true);
-                        if not (GLAccList.RunModal = ACTION::LookupOK) then
+                        if not (GLAccList.RunModal() = ACTION::LookupOK) then
                             exit(false);
 
-                        Text := GLAccList.GetSelectionFilter;
+                        Text := GLAccList.GetSelectionFilter();
                         exit(true);
                     end;
 
@@ -203,7 +203,7 @@ page 422 "G/L Balance/Budget"
                 IndentationColumn = NameIndent;
                 IndentationControls = Name;
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Suite;
                     Style = Strong;
@@ -217,7 +217,7 @@ page 422 "G/L Balance/Budget"
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the name of the general ledger account.';
                 }
-                field("Income/Balance"; "Income/Balance")
+                field("Income/Balance"; Rec."Income/Balance")
                 {
                     ApplicationArea = Suite;
                     Style = Strong;
@@ -225,7 +225,7 @@ page 422 "G/L Balance/Budget"
                     ToolTip = 'Specifies whether a general ledger account is an income statement account or a balance sheet account.';
                     Visible = IncomeBalanceVisible;
                 }
-                field("Debit Amount"; "Debit Amount")
+                field("Debit Amount"; Rec."Debit Amount")
                 {
                     ApplicationArea = Suite;
                     BlankNumbers = BlankNegAndZero;
@@ -233,7 +233,7 @@ page 422 "G/L Balance/Budget"
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the total of the ledger entries that represent debits.';
                 }
-                field("Credit Amount"; "Credit Amount")
+                field("Credit Amount"; Rec."Credit Amount")
                 {
                     ApplicationArea = Suite;
                     BlankNumbers = BlankNegAndZero;
@@ -241,7 +241,7 @@ page 422 "G/L Balance/Budget"
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
                 }
-                field("Net Change"; "Net Change")
+                field("Net Change"; Rec."Net Change")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -250,7 +250,7 @@ page 422 "G/L Balance/Budget"
                     ToolTip = 'Specifies the net change in the account balance during the time period in the Date Filter field.';
                     Visible = false;
                 }
-                field("Budgeted Debit Amount"; "Budgeted Debit Amount")
+                field("Budgeted Debit Amount"; Rec."Budgeted Debit Amount")
                 {
                     ApplicationArea = Suite;
                     Style = Strong;
@@ -259,11 +259,11 @@ page 422 "G/L Balance/Budget"
 
                     trigger OnValidate()
                     begin
-                        CalcFormFields;
-                        BudgetedDebitAmountOnAfterVali;
+                        CalcFormFields();
+                        BudgetedDebitAmountOnAfterVali();
                     end;
                 }
-                field("Budgeted Credit Amount"; "Budgeted Credit Amount")
+                field("Budgeted Credit Amount"; Rec."Budgeted Credit Amount")
                 {
                     ApplicationArea = Suite;
                     Style = Strong;
@@ -272,11 +272,11 @@ page 422 "G/L Balance/Budget"
 
                     trigger OnValidate()
                     begin
-                        CalcFormFields;
-                        BudgetedCreditAmountOnAfterVal;
+                        CalcFormFields();
+                        BudgetedCreditAmountOnAfterVal();
                     end;
                 }
-                field("Budgeted Amount"; "Budgeted Amount")
+                field("Budgeted Amount"; Rec."Budgeted Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -287,8 +287,8 @@ page 422 "G/L Balance/Budget"
 
                     trigger OnValidate()
                     begin
-                        CalcFormFields;
-                        BudgetedAmountOnAfterValidate;
+                        CalcFormFields();
+                        BudgetedAmountOnAfterValidate();
                     end;
                 }
                 field(BudgetPct; BudgetPct)
@@ -347,7 +347,6 @@ page 422 "G/L Balance/Budget"
                     ApplicationArea = Suite;
                     Caption = 'Ledger E&ntries';
                     Image = GLRegisters;
-                    Promoted = false;
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = Process;
                     RunObject = Page "General Ledger Entries";
@@ -397,8 +396,6 @@ page 422 "G/L Balance/Budget"
                 ApplicationArea = Suite;
                 Caption = 'Previous Period';
                 Image = PreviousRecord;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Show the information based on the previous period. If you set the View by field to Day, the date filter changes to the day before.';
 
                 trigger OnAction()
@@ -411,8 +408,6 @@ page 422 "G/L Balance/Budget"
                 ApplicationArea = Suite;
                 Caption = 'Next Period';
                 Image = NextRecord;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Show the information based on the next period. If you set the View by field to Day, the date filter changes to the day before.';
 
                 trigger OnAction()
@@ -472,13 +467,27 @@ page 422 "G/L Balance/Budget"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Previous Period_Promoted"; "Previous Period")
+                {
+                }
+                actionref("Next Period_Promoted"; "Next Period")
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
         NameIndent := 0;
-        CalcFormFields;
-        FormatLine;
+        CalcFormFields();
+        FormatLine();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -489,7 +498,7 @@ page 422 "G/L Balance/Budget"
     trigger OnOpenPage()
     begin
         GLSetup.Get();
-        InitDefaultFilters;
+        InitDefaultFilters();
         CODEUNIT.Run(CODEUNIT::"GLBudget-Open", Rec);
         FindPeriod('');
     end;
@@ -690,50 +699,50 @@ page 422 "G/L Balance/Budget"
 
     local procedure DayPeriodTypeOnValidate()
     begin
-        DayPeriodTypeOnPush;
-        DayPeriodTypeOnAfterValidate;
+        DayPeriodTypeOnPush();
+        DayPeriodTypeOnAfterValidate();
     end;
 
     local procedure WeekPeriodTypeOnValidate()
     begin
-        WeekPeriodTypeOnPush;
-        WeekPeriodTypeOnAfterValidate;
+        WeekPeriodTypeOnPush();
+        WeekPeriodTypeOnAfterValidate();
     end;
 
     local procedure MonthPeriodTypeOnValidate()
     begin
-        MonthPeriodTypeOnPush;
-        MonthPeriodTypeOnAfterValidate;
+        MonthPeriodTypeOnPush();
+        MonthPeriodTypeOnAfterValidate();
     end;
 
     local procedure QuarterPeriodTypeOnValidate()
     begin
-        QuarterPeriodTypeOnPush;
-        QuarterPeriodTypeOnAfterValida;
+        QuarterPeriodTypeOnPush();
+        QuarterPeriodTypeOnAfterValida();
     end;
 
     local procedure YearPeriodTypeOnValidate()
     begin
-        YearPeriodTypeOnPush;
-        YearPeriodTypeOnAfterValidate;
+        YearPeriodTypeOnPush();
+        YearPeriodTypeOnAfterValidate();
     end;
 
     local procedure AccountingPerioPeriodTypeOnVal()
     begin
-        AccountingPerioPeriodTypOnPush;
-        AccountingPerioPeriodTypeOnAft;
+        AccountingPerioPeriodTypOnPush();
+        AccountingPerioPeriodTypeOnAft();
     end;
 
     local procedure NetChangeAmountTypeOnValidate()
     begin
-        NetChangeAmountTypeOnPush;
-        NetChangeAmountTypeOnAfterVali;
+        NetChangeAmountTypeOnPush();
+        NetChangeAmountTypeOnAfterVali();
     end;
 
     local procedure BalanceatDateAmountTypeOnValid()
     begin
-        BalanceatDateAmountTypeOnPush;
-        BalanceatDateAmountTypeOnAfter;
+        BalanceatDateAmountTypeOnPush();
+        BalanceatDateAmountTypeOnAfter();
     end;
 
     local procedure InitDefaultFilters()

@@ -6,7 +6,6 @@ page 5349 "CRM Case List"
     InsertAllowed = false;
     LinksAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Dynamics 365 Sales';
     SourceTable = "CRM Incident";
     SourceTableView = SORTING(Title);
     UsageCategory = Lists;
@@ -58,8 +57,6 @@ page 5349 "CRM Case List"
                     ApplicationArea = Suite;
                     Caption = 'Case';
                     Image = CoupledOrder;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'View the case.';
 
                     trigger OnAction()
@@ -68,6 +65,21 @@ page 5349 "CRM Case List"
                     begin
                         HyperLink(CRMIntegrationManagement.GetCRMEntityUrlFromCRMID(DATABASE::"CRM Incident", IncidentId));
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Dynamics 365 Sales', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(CRMGoToCase_Promoted; CRMGoToCase)
+                {
                 }
             }
         }

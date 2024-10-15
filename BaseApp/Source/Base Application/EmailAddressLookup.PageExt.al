@@ -29,7 +29,7 @@ pageextension 8900 "Email Address Lookup" extends "Email Address Lookup"
                         JobPage.SetSelectionFilter(JobResponsibility);
                         ContactNoFilter := GetContactsFilter(JobResponsibility);
 
-                        // Pretty print selection in text field
+                        // Pretty print selection in text field 
                         JobSelection := '';
                         if JobResponsibility.FindSet() then
                             repeat
@@ -75,9 +75,6 @@ pageextension 8900 "Email Address Lookup" extends "Email Address Lookup"
             action(Contacts)
             {
                 ApplicationArea = All;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Category4;
                 Caption = 'Contacts';
                 ToolTip = 'Add addresses from Contacts.';
                 Image = ContactPerson;
@@ -92,9 +89,6 @@ pageextension 8900 "Email Address Lookup" extends "Email Address Lookup"
             action(Customers)
             {
                 ApplicationArea = All;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Category4;
                 Caption = 'Customers';
                 ToolTip = 'Add addresses from Customers.';
                 Image = Customer;
@@ -109,9 +103,6 @@ pageextension 8900 "Email Address Lookup" extends "Email Address Lookup"
             action(Vendors)
             {
                 ApplicationArea = All;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Category4;
                 Caption = 'Vendors';
                 ToolTip = 'Add addresses from Vendors.';
                 Image = Vendor;
@@ -126,9 +117,6 @@ pageextension 8900 "Email Address Lookup" extends "Email Address Lookup"
             action(Employees)
             {
                 ApplicationArea = All;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Category4;
                 Caption = 'Employees';
                 ToolTip = 'Add addresses from Employees.';
                 Image = Employee;
@@ -139,6 +127,21 @@ pageextension 8900 "Email Address Lookup" extends "Email Address Lookup"
                 end;
             }
 
+        }
+        addlast(Category_Category4)
+        {
+            actionref(Contacts_Promoted; Contacts)
+            {
+            }
+            actionref(Customers_Promoted; Customers)
+            {
+            }
+            actionref(Vendors_Promoted; Vendors)
+            {
+            }
+            actionref(Employees_Promoted; Employees)
+            {
+            }
         }
     }
 

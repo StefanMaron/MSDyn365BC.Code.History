@@ -80,7 +80,7 @@
             PurchLine.Validate(Quantity, 2 * PurchLine.Quantity);
             PurchLine.Validate("Line Discount %", 0);
             PurchLine.Modify();
-        until PurchLine.Next = 0;
+        until PurchLine.Next() = 0;
     end;
 
     local procedure VerifyPrepmtAmountsInLines(PurchHeader: Record "Purchase Header")
@@ -91,7 +91,7 @@
         repeat
             PurchLine.TestField("Line Amount", PurchLine."Prepmt. Line Amount");
             PurchLine.TestField("Prepmt. Line Amount", PurchLine."Prepmt. Amt. Inv.");
-        until PurchLine.Next = 0;
+        until PurchLine.Next() = 0;
     end;
 
     [Test]
@@ -103,7 +103,7 @@
     begin
         PurchHeader."Prepmt. Include Tax" := true;
         PreparePOwithPostedPrepmtInv(PurchHeader, PurchLine, 3);
-        PurchLine.Find;
+        PurchLine.Find();
         PurchLine.Validate("Qty. to Receive", 1);
         PurchLine.Modify();
 
@@ -129,7 +129,7 @@
     begin
         PurchHeader."Prepmt. Include Tax" := true;
         PreparePOwithPostedPrepmtInv(PurchHeader, PurchLine, 3);
-        PurchLine.Find;
+        PurchLine.Find();
         PurchLine.Validate("Qty. to Receive", PurchLine."Qty. to Receive" - 1);
         PurchLine.Modify();
         PostPurchOrder(PurchHeader);
@@ -178,7 +178,7 @@
         repeat
             PurchLine.Validate("Qty. to Receive", 0);
             PurchLine.Modify(true);
-        until PurchLine.Next = 0;
+        until PurchLine.Next() = 0;
 
         // [WHEN] Receive and Invoice the third line
         PostPurchOrder(PurchHeader);
@@ -302,7 +302,7 @@
         PrepmtAmount := Round(PurchaseHeader."Amount Including VAT" * PrepmtPct / 100);
 
         // [GIVEN] Purchase order is posted partially with 'Qty. to receive' = 1
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.Validate("Qty. to Receive", Quantity);
         PurchaseLine.Modify(true);
         Invoice1 := PostPurchOrder(PurchaseHeader);
@@ -371,7 +371,7 @@
             Validate("Compress Prepayment", true);
             Validate("Prepmt. Include Tax", PrepmtInclTax);
             Validate("Tax Area Code", TaxAreaCode);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -403,7 +403,7 @@
         LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
         TaxJurisdiction.Validate("Tax Account (Purchases)", LibraryERM.CreateGLAccountNo);
         TaxJurisdiction.Modify(true);
-        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", WorkDate);
+        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", TaxBelowMax);
         TaxDetail.Modify(true);
         LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxAreaCode, TaxJurisdiction.Code);
@@ -419,7 +419,7 @@
         repeat
             TaxJurisdiction.Get(TaxDetail."Tax Jurisdiction Code");
             GLAccFilter += TaxJurisdiction."Tax Account (Purchases)" + '|';
-        until TaxDetail.Next = 0;
+        until TaxDetail.Next() = 0;
         GLAccFilter := CopyStr(GLAccFilter, 1, StrLen(GLAccFilter) - 1);
     end;
 
@@ -525,7 +525,7 @@
         Currency: Record Currency;
     begin
         LibraryERM.CreateCurrency(Currency);
-        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate, ExchRateAmount, ExchRateAmount);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), ExchRateAmount, ExchRateAmount);
         exit(Currency.Code);
     end;
 
@@ -553,7 +553,7 @@
             GLAccount.SetRange("VAT Prod. Posting Group", PurchLine."VAT Prod. Posting Group");
             GLAccount.FindFirst();
             "Purch. Prepayments Account" := GLAccount."No.";
-            Modify;
+            Modify();
         end;
     end;
 
@@ -578,7 +578,7 @@
             SetRange("Source Type", "Source Type"::Vendor);
             SetRange("Source No.", VendNo);
             FindLast();
-            Reset;
+            Reset();
             SetRange("Transaction No.", "Transaction No.");
             VendPostingGroup.Get(VendPostingGroupCode);
             SetRange("G/L Account No.", VendPostingGroup."Invoice Rounding Account");

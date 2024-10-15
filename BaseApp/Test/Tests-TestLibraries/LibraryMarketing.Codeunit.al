@@ -113,7 +113,7 @@ codeunit 131900 "Library - Marketing"
         Task.Validate(Type, TaskType);
         Task.Validate("Contact No.", CreateCompanyContactNo);
         Task.Validate("Salesperson Code", Salesperson.Code);
-        Task.Validate(Date, WorkDate);
+        Task.Validate(Date, WorkDate());
         Task.Validate("Start Time", Time);
         Task.Validate(Duration, LibraryRandom.RandIntInRange(60000, 60000000));
         Task.Insert(true);
@@ -157,7 +157,7 @@ codeunit 131900 "Library - Marketing"
         Contact.Validate(Name, Contact."No.");  // Validating Name as No. because value is not important.
         Contact.Validate("Salesperson Code", SalespersonPurchaser.Code);
         Contact.Validate(Type, Type);
-        Contact.TypeChange;
+        Contact.TypeChange();
         Contact.Modify(true);
     end;
 
@@ -269,40 +269,6 @@ codeunit 131900 "Library - Marketing"
         CreateBusinessRelationBetweenContactAndVendor(ContactBusinessRelation, Contact."No.", Vendor."No.");
     end;
 
-#if not CLEAN18
-    procedure CreateCustomerFromContact(var Customer: Record Customer; Contact: Record Contact)
-    var
-        ContactBusinessRelation: Record "Contact Business Relation";
-        CustomerTemplate: Record "Customer Template";
-        CountryRegion: Record "Country/Region";
-        GeneralPostingSetup: Record "General Posting Setup";
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        Contact.SetHideValidationDialog(true);
-        CustomerTemplate.SetRange("Contact Type", Contact.Type);
-        if not CustomerTemplate.FindFirst() then begin
-            LibrarySales.CreateCustomerTemplate(CustomerTemplate);
-            LibraryERM.CreateCountryRegion(CountryRegion);
-            LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
-            LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-
-            LibrarySales.CreateCustomerTemplate(CustomerTemplate);
-            CustomerTemplate.Validate("Country/Region Code", CountryRegion.Code); // Country/Region filled in order to prevent automatical assignment of Customer Template on Sell-To Contact No. - OnValidate
-            CustomerTemplate.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
-            CustomerTemplate.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            CustomerTemplate.Validate("Customer Posting Group", LibrarySales.FindCustomerPostingGroup);
-            CustomerTemplate.Modify(true);
-        end;
-        Contact.CreateCustomer(CustomerTemplate.Code);
-
-        ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
-        ContactBusinessRelation.SetRange("Contact No.", Contact."No.");
-        ContactBusinessRelation.FindFirst();
-
-        Customer.Get(ContactBusinessRelation."No.");
-    end;
-#endif
-
     procedure CreateInteractionGroup(var InteractionGroup: Record "Interaction Group")
     begin
         InteractionGroup.Init();
@@ -368,7 +334,7 @@ codeunit 131900 "Library - Marketing"
         SalesCycle: Record "Sales Cycle";
     begin
         with Opportunity do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateGUID();
             Validate("Contact No.", ContactNo);
             Contact.Get(ContactNo);
@@ -412,7 +378,7 @@ codeunit 131900 "Library - Marketing"
         ContactProfileAnswer: Record "Contact Profile Answer";
     begin
         with ContactProfileAnswer do begin
-            Init;
+            Init();
             Validate("Contact No.", ContactNo);
             Validate("Profile Questionnaire Code", ProfileQuestionnaireCode);
             Validate("Line No.", LineNo);
@@ -492,9 +458,6 @@ codeunit 131900 "Library - Marketing"
         SalesHeader.Init();
         SalesHeader.Insert(true);
         SalesHeader.Validate("Sell-to Contact No.", SellToContactNo);
-#if not CLEAN18
-        SalesHeader.Validate("Sell-to Customer Template Code", SellToCustomerTemplateCode);
-#endif
         SalesHeader.Modify(true);
     end;
 
@@ -505,9 +468,6 @@ codeunit 131900 "Library - Marketing"
         SalesHeader.SetHideValidationDialog(true);
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Quote);
         SalesHeader.Validate("Sell-to Contact No.", SellToContactNo);
-#if not CLEAN18
-        SalesHeader.Validate("Sell-to Customer Template Code", SellToCustomerTemplateCode);
-#endif
         SalesHeader.Modify(true);
     end;
 
@@ -595,7 +555,7 @@ codeunit 131900 "Library - Marketing"
         CustomReportLayout: Record "Custom Report Layout";
     begin
         with CustomReportLayout do begin
-            Init;
+            Init();
             "Report ID" := REPORT::"Email Merge";
             Type := Type::Word;
             Description := StrSubstNo('%1-%2', Format(REPORT::"Email Merge"), Code);
@@ -638,13 +598,6 @@ codeunit 131900 "Library - Marketing"
     begin
         Contact.FindSet();
     end;
-
-#if not CLEAN18
-    procedure FindCustomerTemplate(var CustomerTemplate: Record "Customer Template")
-    begin
-        CustomerTemplate.FindFirst();
-    end;
-#endif
 
     procedure FindEmailMergeCustomLayoutNo(): Code[20]
     var

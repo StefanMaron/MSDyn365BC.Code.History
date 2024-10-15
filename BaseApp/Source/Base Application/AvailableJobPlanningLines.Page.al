@@ -176,9 +176,6 @@ page 1032 "Available - Job Planning Lines"
     end;
 
     var
-        Text000: Label 'Fully reserved.';
-        Text001: Label 'Do you want to cancel the reservation?';
-        Text003: Label 'Available Quantity is %1.';
         ReservEntry: Record "Reservation Entry";
         ReservEntry2: Record "Reservation Entry";
         ReservMgt: Codeunit "Reservation Management";
@@ -190,6 +187,10 @@ page 1032 "Available - Job Planning Lines"
         NewQtyReservedBase: Decimal;
         CaptionText: Text;
         CurrentSubType: Option;
+
+        Text000: Label 'Fully reserved.';
+        Text001: Label 'Do you want to cancel the reservation?';
+        Text003: Label 'Available Quantity is %1.';
 
     protected var
         QtyToReserve: Decimal;
@@ -272,12 +273,12 @@ page 1032 "Available - Job Planning Lines"
         Rec.SetFilter("Planning Date", ReservMgt.GetAvailabilityFilter(ReservEntry."Shipment Date"));
         case CurrentSubType of
             0, 1, 2, 4:
-                if ReservMgt.IsPositive then
+                if ReservMgt.IsPositive() then
                     Rec.SetFilter("Quantity (Base)", '<0')
                 else
                     Rec.SetFilter("Quantity (Base)", '>0');
             3, 5:
-                if not ReservMgt.IsPositive then
+                if not ReservMgt.IsPositive() then
                     Rec.SetFilter("Quantity (Base)", '<0')
                 else
                     Rec.SetFilter("Quantity (Base)", '>0');

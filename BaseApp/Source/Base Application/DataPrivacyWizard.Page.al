@@ -107,7 +107,7 @@ page 1180 "Data Privacy Wizard"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            Reset;
+                            Reset();
                             DeleteAll();
                             if PAGE.RunModal(PAGE::"Data Subject", Rec) = ACTION::LookupOK then begin
                                 EntityType := "Table Caption";
@@ -136,8 +136,9 @@ page 1180 "Data Privacy Wizard"
                             Resource: Record Resource;
                             Employee: Record Employee;
                             SalespersonPurchaser: Record "Salesperson/Purchaser";
-                            DataPrivacyEntities: Record "Data Privacy Entities" temporary;
+                            TempDataPrivacyEntities: Record "Data Privacy Entities" temporary;
                             User: Record User;
+                            DataClassificationMgt: Codeunit "Data Classification Mgt.";
                             CustomerList: Page "Customer List";
                             VendorList: Page "Vendor List";
                             ContactList: Page "Contact List";
@@ -145,21 +146,20 @@ page 1180 "Data Privacy Wizard"
                             EmployeeList: Page "Employee List";
                             SalespersonsPurchasers: Page "Salespersons/Purchasers";
                             Users: Page Users;
-                            DataClassificationMgt: Codeunit "Data Classification Mgt.";
                             Instream: InStream;
                             FilterAsText: Text;
                         begin
-                            DataClassificationMgt.RaiseOnGetDataPrivacyEntities(DataPrivacyEntities);
+                            DataClassificationMgt.RaiseOnGetDataPrivacyEntities(TempDataPrivacyEntities);
                             if EntityTypeTableNo = DATABASE::Customer then begin
-                                if DataPrivacyEntities.Get(DATABASE::Customer) then begin
-                                    DataPrivacyEntities.CalcFields("Entity Filter");
-                                    DataPrivacyEntities."Entity Filter".CreateInStream(Instream);
+                                if TempDataPrivacyEntities.Get(DATABASE::Customer) then begin
+                                    TempDataPrivacyEntities.CalcFields("Entity Filter");
+                                    TempDataPrivacyEntities."Entity Filter".CreateInStream(Instream);
                                     Instream.ReadText(FilterAsText);
                                 end;
                                 CustomerList.LookupMode := true;
                                 Customer.SetView(FilterAsText);
                                 CustomerList.SetTableView(Customer);
-                                if CustomerList.RunModal = ACTION::LookupOK then begin
+                                if CustomerList.RunModal() = ACTION::LookupOK then begin
                                     CustomerList.GetRecord(Customer);
                                     if Customer."Privacy Blocked" then
                                         Message(DataSubjectBlockedMsg);
@@ -167,15 +167,15 @@ page 1180 "Data Privacy Wizard"
                                 end;
                             end else
                                 if EntityTypeTableNo = DATABASE::Vendor then begin
-                                    if DataPrivacyEntities.Get(DATABASE::Vendor) then begin
-                                        DataPrivacyEntities.CalcFields("Entity Filter");
-                                        DataPrivacyEntities."Entity Filter".CreateInStream(Instream);
+                                    if TempDataPrivacyEntities.Get(DATABASE::Vendor) then begin
+                                        TempDataPrivacyEntities.CalcFields("Entity Filter");
+                                        TempDataPrivacyEntities."Entity Filter".CreateInStream(Instream);
                                         Instream.ReadText(FilterAsText);
                                     end;
                                     VendorList.LookupMode := true;
                                     Vendor.SetView(FilterAsText);
                                     VendorList.SetTableView(Vendor);
-                                    if VendorList.RunModal = ACTION::LookupOK then begin
+                                    if VendorList.RunModal() = ACTION::LookupOK then begin
                                         VendorList.GetRecord(Vendor);
                                         if Vendor."Privacy Blocked" then
                                             Message(DataSubjectBlockedMsg);
@@ -183,15 +183,15 @@ page 1180 "Data Privacy Wizard"
                                     end;
                                 end else
                                     if EntityTypeTableNo = DATABASE::Contact then begin
-                                        if DataPrivacyEntities.Get(DATABASE::Contact) then begin
-                                            DataPrivacyEntities.CalcFields("Entity Filter");
-                                            DataPrivacyEntities."Entity Filter".CreateInStream(Instream);
+                                        if TempDataPrivacyEntities.Get(DATABASE::Contact) then begin
+                                            TempDataPrivacyEntities.CalcFields("Entity Filter");
+                                            TempDataPrivacyEntities."Entity Filter".CreateInStream(Instream);
                                             Instream.ReadText(FilterAsText);
                                         end;
                                         ContactList.LookupMode := true;
                                         Contact.SetView(FilterAsText);
                                         ContactList.SetTableView(Contact);
-                                        if ContactList.RunModal = ACTION::LookupOK then begin
+                                        if ContactList.RunModal() = ACTION::LookupOK then begin
                                             ContactList.GetRecord(Contact);
                                             if Contact."Privacy Blocked" then
                                                 Message(DataSubjectBlockedMsg);
@@ -199,15 +199,15 @@ page 1180 "Data Privacy Wizard"
                                         end;
                                     end else
                                         if EntityTypeTableNo = DATABASE::Resource then begin
-                                            if DataPrivacyEntities.Get(DATABASE::Resource) then begin
-                                                DataPrivacyEntities.CalcFields("Entity Filter");
-                                                DataPrivacyEntities."Entity Filter".CreateInStream(Instream);
+                                            if TempDataPrivacyEntities.Get(DATABASE::Resource) then begin
+                                                TempDataPrivacyEntities.CalcFields("Entity Filter");
+                                                TempDataPrivacyEntities."Entity Filter".CreateInStream(Instream);
                                                 Instream.ReadText(FilterAsText);
                                             end;
                                             ResourceList.LookupMode := true;
                                             Resource.SetView(FilterAsText);
                                             ResourceList.SetTableView(Resource);
-                                            if ResourceList.RunModal = ACTION::LookupOK then begin
+                                            if ResourceList.RunModal() = ACTION::LookupOK then begin
                                                 ResourceList.GetRecord(Resource);
                                                 if Resource."Privacy Blocked" then
                                                     Message(DataSubjectBlockedMsg);
@@ -216,7 +216,7 @@ page 1180 "Data Privacy Wizard"
                                         end else
                                             if EntityTypeTableNo = DATABASE::Employee then begin
                                                 EmployeeList.LookupMode := true;
-                                                if EmployeeList.RunModal = ACTION::LookupOK then begin
+                                                if EmployeeList.RunModal() = ACTION::LookupOK then begin
                                                     EmployeeList.GetRecord(Employee);
                                                     if Employee."Privacy Blocked" then
                                                         Message(DataSubjectBlockedMsg);
@@ -225,7 +225,7 @@ page 1180 "Data Privacy Wizard"
                                             end else
                                                 if EntityTypeTableNo = DATABASE::"Salesperson/Purchaser" then begin
                                                     SalespersonsPurchasers.LookupMode := true;
-                                                    if SalespersonsPurchasers.RunModal = ACTION::LookupOK then begin
+                                                    if SalespersonsPurchasers.RunModal() = ACTION::LookupOK then begin
                                                         SalespersonsPurchasers.GetRecord(SalespersonPurchaser);
                                                         if SalespersonPurchaser."Privacy Blocked" then
                                                             Message(DataSubjectBlockedMsg);
@@ -234,13 +234,13 @@ page 1180 "Data Privacy Wizard"
                                                 end else
                                                     if EntityTypeTableNo = DATABASE::User then begin
                                                         Users.LookupMode := true;
-                                                        if Users.RunModal = ACTION::LookupOK then begin
+                                                        if Users.RunModal() = ACTION::LookupOK then begin
                                                             Users.GetRecord(User);
                                                             EntityNo := User."User Name";
                                                         end;
                                                     end;
-													
-                                            OnDrillDownForEntityNumber(EntityTypeTableNo, EntityNo); // Integration point to external devs
+
+                            OnDrillDownForEntityNumber(EntityTypeTableNo, EntityNo); // Integration point to external devs
 
                             NextActionEnabled := EntityNo <> '';
                             PreviewActionEnabled := EntityNo <> '';
@@ -262,7 +262,7 @@ page 1180 "Data Privacy Wizard"
                                     EnsurePartnerPersonExists(TempDataPrivacyEntities, RecRef, NoPartnerPeopleErr, EntityNo);
                                     EnsureEntityIsNotPrivacyBlocked(TempDataPrivacyEntities, RecRef);
 
-                                    RecRef.Close;
+                                    RecRef.Close();
                                 end else
                                     if EntityTypeTableNo in [DATABASE::Contact, DATABASE::Resource] then begin
                                         RecRef.Open(EntityTypeTableNo);
@@ -271,7 +271,7 @@ page 1180 "Data Privacy Wizard"
                                         EnsurePartnerPersonExists(TempDataPrivacyEntities, RecRef, NoPersonErr, EntityNo);
                                         EnsureEntityIsNotPrivacyBlocked(TempDataPrivacyEntities, RecRef);
 
-                                        RecRef.Close;
+                                        RecRef.Close();
                                     end else
                                         if EntityTypeTableNo in [DATABASE::Employee, DATABASE::"Salesperson/Purchaser"] then begin
                                             RecRef.Open(EntityTypeTableNo);
@@ -279,19 +279,19 @@ page 1180 "Data Privacy Wizard"
                                             EnsureEntityExists(TempDataPrivacyEntities, RecRef, EntityNo);
                                             EnsureEntityIsNotPrivacyBlocked(TempDataPrivacyEntities, RecRef);
 
-                                            RecRef.Close;
+                                            RecRef.Close();
                                         end else
                                             if EntityTypeTableNo = DATABASE::User then begin
                                                 RecRef.Open(EntityTypeTableNo);
 
                                                 EnsureEntityExists(TempDataPrivacyEntities, RecRef, EntityNo);
 
-                                                RecRef.Close;
+                                                RecRef.Close();
                                             end;
                             end;
 
                             OnEntityNoValidate(EntityTypeTableNo, EntityNo); // Integration point to external devs
-							
+
                             NextActionEnabled := EntityNo <> '';
                             PreviewActionEnabled := EntityNo <> '';
                         end;
@@ -564,7 +564,7 @@ page 1180 "Data Privacy Wizard"
                         ConfigPackages.Editable := true;
                         ConfigPackages.Run();
                     end;
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             }
         }
@@ -572,18 +572,18 @@ page 1180 "Data Privacy Wizard"
 
     trigger OnInit()
     begin
-        LoadTopBanners;
+        LoadTopBanners();
         CurrentPage := 1;
         PrivacyURL := PrivacyUrlTxt;
     end;
 
     trigger OnOpenPage()
     var
-        DataPrivacyEntities: Record "Data Privacy Entities" temporary;
+        TempDataPrivacyEntities: Record "Data Privacy Entities" temporary;
         DataClassificationMgt: Codeunit "Data Classification Mgt.";
     begin
-        EnableControls;
-        DataClassificationMgt.RaiseOnGetDataPrivacyEntities(DataPrivacyEntities);
+        EnableControls();
+        DataClassificationMgt.RaiseOnGetDataPrivacyEntities(TempDataPrivacyEntities);
     end;
 
     var
@@ -621,8 +621,8 @@ page 1180 "Data Privacy Wizard"
 
     local procedure LoadTopBanners()
     begin
-        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType)) and
-           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType))
+        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType())) and
+           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType()))
         then
             if MediaResourcesStandard.Get(MediaRepositoryStandard."Media Resources Ref") and
                MediaResourcesDone.Get(MediaRepositoryDone."Media Resources Ref")
@@ -639,7 +639,7 @@ page 1180 "Data Privacy Wizard"
 
     local procedure EnableControls()
     begin
-        ResetControls;
+        ResetControls();
         AvailableOptionsDescription := OptionsDescriptionTxt;
     end;
 
@@ -705,14 +705,14 @@ page 1180 "Data Privacy Wizard"
         FieldRef := RecRef.Field(FieldNo);
         FieldRef.SetRange(Filter);
     end;
-	
+
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     internal procedure OnDrillDownForEntityNumber(EntityTypeTableNo: Integer; var EntityNo: Code[50])
     begin
     end;
-	
-	[IntegrationEvent(false, false)]
+
+    [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     internal procedure OnEntityNoValidate(EntityTypeTableNo: Integer; var EntityNo: Code[50])
     begin

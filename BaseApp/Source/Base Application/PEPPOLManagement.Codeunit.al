@@ -471,7 +471,7 @@
         PmtTerms: Record "Payment Terms";
     begin
         if SalesHeader."Payment Terms Code" = '' then
-            PmtTerms.Init
+            PmtTerms.Init()
         else begin
             PmtTerms.Get(SalesHeader."Payment Terms Code");
             PmtTerms.TranslateDescription(PmtTerms, SalesHeader."Language Code");
@@ -653,19 +653,15 @@
         with SalesLine do
             case Type of
                 Type::Item, Type::Resource:
-                    begin
-                        if UOM.Get("Unit of Measure Code") then
-                            unitCode := UOM."International Standard Code"
-                        else
-                            Error(NoUnitOfMeasureErr, "Document Type", "Document No.", FieldCaption("Unit of Measure Code"));
-                    end;
+                    if UOM.Get("Unit of Measure Code") then
+                        unitCode := UOM."International Standard Code"
+                    else
+                        Error(NoUnitOfMeasureErr, "Document Type", "Document No.", FieldCaption("Unit of Measure Code"));
                 Type::"G/L Account", Type::"Fixed Asset", Type::"Charge (Item)":
-                    begin
-                        if UOM.Get("Unit of Measure Code") then
-                            unitCode := UOM."International Standard Code"
-                        else
-                            unitCode := UoMforPieceINUNECERec20ListIDTxt;
-                    end;
+                    if UOM.Get("Unit of Measure Code") then
+                        unitCode := UOM."International Standard Code"
+                    else
+                        unitCode := UoMforPieceINUNECERec20ListIDTxt;
             end;
     end;
 
@@ -831,7 +827,7 @@
     local procedure GetSalesperson(SalesHeader: Record "Sales Header"; var Salesperson: Record "Salesperson/Purchaser")
     begin
         if SalesHeader."Salesperson Code" = '' then
-            Salesperson.Init
+            Salesperson.Init()
         else
             Salesperson.Get(SalesHeader."Salesperson Code");
     end;
@@ -864,7 +860,7 @@
         if not VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group") then
             VATPostingSetup.Init();
         with VATAmtLine do begin
-            Init;
+            Init();
             "VAT Identifier" := FORMAT(SalesLine."VAT %");
             "VAT Calculation Type" := SalesLine."VAT Calculation Type";
             "Tax Group Code" := SalesLine."Tax Group Code";
@@ -880,7 +876,7 @@
             IsHandled := false;
             OnGetTotalsOnBeforeInsertVATAmtLine(SalesLine, VATAmtLine, VATPostingSetup, IsHandled);
             if not IsHandled then
-                if InsertLine then begin
+                if InsertLine() then begin
                     "Line Amount" += SalesLine."Line Amount";
                     Modify();
                 end;
@@ -1141,7 +1137,7 @@
                     if Position = 1 then
                         Found := SalesInvoiceHeader.Find('-')
                     else
-                        Found := SalesInvoiceHeader.Next <> 0;
+                        Found := SalesInvoiceHeader.Next() <> 0;
                     if Found then
                         SalesHeader.TransferFields(SalesInvoiceHeader);
                 end;
@@ -1150,7 +1146,7 @@
                     if Position = 1 then
                         Found := ServiceInvoiceHeader.Find('-')
                     else
-                        Found := ServiceInvoiceHeader.Next <> 0;
+                        Found := ServiceInvoiceHeader.Next() <> 0;
                     if Found then
                         TransferHeaderToSalesHeader(ServiceInvoiceHeader, SalesHeader);
                 end;
@@ -1170,7 +1166,7 @@
                     if Position = 1 then
                         Found := SalesInvoiceLine.Find('-')
                     else
-                        Found := SalesInvoiceLine.Next <> 0;
+                        Found := SalesInvoiceLine.Next() <> 0;
                     if Found then
                         SalesLine.TransferFields(SalesInvoiceLine);
                 end;
@@ -1179,7 +1175,7 @@
                     if Position = 1 then
                         Found := ServiceInvoiceLine.Find('-')
                     else
-                        Found := ServiceInvoiceLine.Next <> 0;
+                        Found := ServiceInvoiceLine.Next() <> 0;
                     if Found then begin
                         TransferLineToSalesLine(ServiceInvoiceLine, SalesLine);
                         SalesLine.Type := MapServiceLineTypeToSalesLineTypeEnum(ServiceInvoiceLine.Type);
@@ -1201,7 +1197,7 @@
                     if Position = 1 then
                         Found := SalesCrMemoHeader.Find('-')
                     else
-                        Found := SalesCrMemoHeader.Next <> 0;
+                        Found := SalesCrMemoHeader.Next() <> 0;
                     if Found then
                         SalesHeader.TransferFields(SalesCrMemoHeader);
                 end;
@@ -1210,7 +1206,7 @@
                     if Position = 1 then
                         Found := ServiceCrMemoHeader.Find('-')
                     else
-                        Found := ServiceCrMemoHeader.Next <> 0;
+                        Found := ServiceCrMemoHeader.Next() <> 0;
                     if Found then
                         TransferHeaderToSalesHeader(ServiceCrMemoHeader, SalesHeader);
                 end;
@@ -1231,7 +1227,7 @@
                     if Position = 1 then
                         Found := SalesCrMemoLine.Find('-')
                     else
-                        Found := SalesCrMemoLine.Next <> 0;
+                        Found := SalesCrMemoLine.Next() <> 0;
                     if Found then
                         SalesLine.TransferFields(SalesCrMemoLine);
                 end;
@@ -1240,7 +1236,7 @@
                     if Position = 1 then
                         Found := ServiceCrMemoLine.Find('-')
                     else
-                        Found := ServiceCrMemoLine.Next <> 0;
+                        Found := ServiceCrMemoLine.Next() <> 0;
                     if Found then begin
                         TransferLineToSalesLine(ServiceCrMemoLine, SalesLine);
                         SalesLine.Type := MapServiceLineTypeToSalesLineTypeEnum(ServiceCrMemoLine.Type);

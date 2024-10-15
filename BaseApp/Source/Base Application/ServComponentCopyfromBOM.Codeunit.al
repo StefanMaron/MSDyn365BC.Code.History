@@ -19,10 +19,10 @@ codeunit 5921 "ServComponent-Copy from BOM"
         BOMComp.SetCurrentKey("Parent Item No.", "Line No.");
         BOMComp.SetRange("Parent Item No.", ServItem."Item No.");
         BOMComp.SetRange(Type, BOMComp.Type::Item);
-        if BOMComp.Find('-') then begin
+        if BOMComp.Find('-') then
             repeat
                 if BOMComp."Quantity per" <> Round(BOMComp."Quantity per", 1) then
-                    Error(Text001, ServItem.TableCaption, BOMComp.FieldCaption("Quantity per"));
+                    Error(Text001, ServItem.TableCaption(), BOMComp.FieldCaption("Quantity per"));
                 for Index := 1 to BOMComp."Quantity per" do begin
                     LineNo := LineNo + 10000;
                     Item.Get(BOMComp."No.");
@@ -42,19 +42,20 @@ codeunit 5921 "ServComponent-Copy from BOM"
                     if not ServItemComponent.Insert() then
                         ServItemComponent.Modify();
                 end;
-            until BOMComp.Next() = 0;
-        end else
+            until BOMComp.Next() = 0
+        else
             ShowBOMComponentNotFoundError();
     end;
 
     var
-        Text000: Label '%1 for %2 %3 cannot be found.';
         ServItem: Record "Service Item";
         BOMComp: Record "BOM Component";
         ServItemComponent: Record "Service Item Component";
         Item: Record Item;
         LineNo: Integer;
         Index: Integer;
+
+        Text000: Label '%1 for %2 %3 cannot be found.';
         Text001: Label 'You cannot copy the component list for this %1 from BOM. The %2 of one or more BOM components is not a whole number.';
 
     local procedure ShowBOMComponentNotFoundError()
@@ -66,7 +67,7 @@ codeunit 5921 "ServComponent-Copy from BOM"
         if IsHandled then
             exit;
 
-        Error(Text000, BOMComp.TableCaption, ServItem.FieldCaption("Item No."), ServItem."Item No.");
+        Error(Text000, BOMComp.TableCaption(), ServItem.FieldCaption("Item No."), ServItem."Item No.");
     end;
 
     [IntegrationEvent(false, false)]

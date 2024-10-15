@@ -360,7 +360,7 @@ codeunit 136902 "Resource Reports"
           Round(
             CurrencyExchangeRate.ExchangeAmtLCYToFCY(
               WorkDate, Currency.Code, Resource."Unit Price",
-              CurrencyExchangeRate.ExchangeRate(WorkDate, Currency.Code)),
+              CurrencyExchangeRate.ExchangeRate(WorkDate(), Currency.Code)),
             Currency."Unit-Amount Rounding Precision");
 
         // 2. Exercise: Run the Resource - Price List Report with Currency.
@@ -398,7 +398,7 @@ codeunit 136902 "Resource Reports"
     local procedure CreateCurrencyExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10])
     begin
         // Create Currency Exchange Rate with Exchange Rate Amount, Relational Exch. Rate Amount as Random values.
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, WorkDate);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, WorkDate());
         CurrencyExchangeRate.Validate("Exchange Rate Amount", LibraryRandom.RandDec(10, 2));
         CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
 
@@ -434,7 +434,7 @@ codeunit 136902 "Resource Reports"
     local procedure CreateResourceJournalLine(var ResJournalLine: Record "Res. Journal Line"; ResJournalBatch: Record "Res. Journal Batch"; ResourceNo: Code[20]; WorkTypeCode: Code[10]; EntryType: Enum "Res. Journal Line Entry Type")
     begin
         LibraryResource.CreateResJournalLine(ResJournalLine, ResJournalBatch."Journal Template Name", ResJournalBatch.Name);
-        ResJournalLine.Validate("Posting Date", WorkDate);
+        ResJournalLine.Validate("Posting Date", WorkDate());
         ResJournalLine.Validate("Entry Type", EntryType);
         ResJournalLine.Validate("Resource No.", ResourceNo);
         ResJournalLine.Validate("Work Type Code", WorkTypeCode);

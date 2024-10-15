@@ -25,7 +25,7 @@ report 1141 "Delete Old Cost Entries"
                         if YearEndDate <> CalcDate('<CY>', YearEndDate) then
                             Error(Text001, YearEndDate);
 
-                        if WorkDate - YearEndDate < 365 then
+                        if WorkDate() - YearEndDate < 365 then
                             Error(Text002, YearEndDate);
 
                         if not Confirm(Text003, false, YearEndDate) then

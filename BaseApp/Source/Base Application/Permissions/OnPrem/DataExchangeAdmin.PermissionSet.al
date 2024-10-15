@@ -9,6 +9,8 @@ permissionset 2066 "Data Exchange - Admin"
                   tabledata "Data Exch. Field Mapping" = RIMD,
                   tabledata "Data Exch. Line Def" = RIMD,
                   tabledata "Data Exch. Mapping" = RIMD,
+                  tabledata "Data Exch. Field Grouping" = RIMD,
+                  tabledata "Data Exch. FlowField Gr. Buff." = RIMD,
                   tabledata "Doc. Exch. Service Setup" = RIMD,
                   tabledata "Postcode Service Config" = RIMD,
                   tabledata "Referenced XML Schema" = RIMD,

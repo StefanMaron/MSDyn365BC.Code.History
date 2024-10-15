@@ -84,7 +84,7 @@ codeunit 132205 "Library - Kitting"
         InvtPostingGroup: Record "Inventory Posting Group";
         noSeriesMgt: Codeunit NoSeriesManagement;
     begin
-        Item.Get(ItemCreate(noSeriesMgt.GetNextNo(CreateNoSeries, WorkDate, true), ITEM_DESC, UOM, Price, Cost));
+        Item.Get(ItemCreate(noSeriesMgt.GetNextNo(CreateNoSeries, WorkDate(), true), ITEM_DESC, UOM, Price, Cost));
         CreateInvPostGroup(InvtPostingGroup);
         Item.Validate("Inventory Posting Group", InvtPostingGroup.Code);
         Item.Modify();
@@ -106,7 +106,7 @@ codeunit 132205 "Library - Kitting"
         noSeriesMgt: Codeunit NoSeriesManagement;
     begin
         if Number = '' then
-            Number := noSeriesMgt.GetNextNo(CreateNoSeries, WorkDate, true);
+            Number := noSeriesMgt.GetNextNo(CreateNoSeries, WorkDate(), true);
         Item.Get(ItemCreate(Number, ITEM_DESC, UOM, Price, Cost));
         CreateInvPostGroup(InvtPostingGroup);
         Item.Validate("Inventory Posting Group", InvtPostingGroup.Code);
@@ -128,7 +128,7 @@ codeunit 132205 "Library - Kitting"
         InvtPostingGroup: Record "Inventory Posting Group";
         noSeriesMgt: Codeunit NoSeriesManagement;
     begin
-        Item.Get(ItemCreate(noSeriesMgt.GetNextNo(CreateNoSeries, WorkDate, true), ITEM_DESC, UOM, Price, Cost));
+        Item.Get(ItemCreate(noSeriesMgt.GetNextNo(CreateNoSeries, WorkDate(), true), ITEM_DESC, UOM, Price, Cost));
         Item."Lot Size" := Lot;
         CreateInvPostGroup(InvtPostingGroup);
         Item.Validate("Inventory Posting Group", InvtPostingGroup.Code);
@@ -150,7 +150,7 @@ codeunit 132205 "Library - Kitting"
         InvtPostingGroup: Record "Inventory Posting Group";
         noSeriesMgt: Codeunit NoSeriesManagement;
     begin
-        Item.Get(ItemCreate(noSeriesMgt.GetNextNo(CreateNoSeries, WorkDate, true), ITEM_DESC, UOM, Price, Cost));
+        Item.Get(ItemCreate(noSeriesMgt.GetNextNo(CreateNoSeries, WorkDate(), true), ITEM_DESC, UOM, Price, Cost));
         Item."Lot Size" := Lot;
         CreateInvPostGroup(InvtPostingGroup);
         Item.Validate("Inventory Posting Group", InvtPostingGroup.Code);
@@ -174,7 +174,7 @@ codeunit 132205 "Library - Kitting"
         noSeriesMgt: Codeunit NoSeriesManagement;
     begin
         if Number = '' then
-            Number := noSeriesMgt.GetNextNo(CreateNoSeries, WorkDate, true);
+            Number := noSeriesMgt.GetNextNo(CreateNoSeries, WorkDate(), true);
         Item.Get(ItemCreate(Number, ITEM_DESC, UOM, Price, Cost));
         Item."Lot Size" := Lot;
         CreateInvPostGroup(InventoryPostingGroup);
@@ -198,7 +198,7 @@ codeunit 132205 "Library - Kitting"
         noSeriesMgt: Codeunit NoSeriesManagement;
     begin
         if Number = '' then
-            Number := noSeriesMgt.GetNextNo(CreateNoSeries, WorkDate, true);
+            Number := noSeriesMgt.GetNextNo(CreateNoSeries, WorkDate(), true);
         Item.Get(ItemCreate(Number, ITEM_DESC, UOM, Price, Cost));
         Item."Lot Size" := Lot;
         CreateInvPostGroup(InvtPostingGroup);
@@ -359,7 +359,7 @@ codeunit 132205 "Library - Kitting"
     var
         CompanyInfo: Record "Company Information";
     begin
-        if CompanyInfo.Get then;
+        if CompanyInfo.Get() then;
         Evaluate(CompanyInfo."Check-Avail. Period Calc.", LookahedFormula);
         CompanyInfo."Check-Avail. Time Bucket" := CompanyInfo."Check-Avail. Time Bucket"::Day;
         if not CompanyInfo.Insert() then
@@ -372,7 +372,7 @@ codeunit 132205 "Library - Kitting"
         ProdBOMLine: Record "Production BOM Line";
         subItem: Record Item;
     begin
-        if MfgItem.IsMfgItem then
+        if MfgItem.IsMfgItem() then
             ProdBOMHeader.Get(MfgItem."Production BOM No.")
         else begin
             ProdBOMHeader."No." := CopyStr(MfgItem."No." + 'BOM', 1, MaxStrLen(ProdBOMHeader."No."));
@@ -420,7 +420,7 @@ codeunit 132205 "Library - Kitting"
         if AssemblyLine.FindSet() then
             repeat
                 TempCount += AssemblyLine.Quantity;
-            until AssemblyLine.Next = 0;
+            until AssemblyLine.Next() = 0;
         exit(TempCount);
     end;
 }

@@ -8,9 +8,9 @@ codeunit 9997 "Upgrade Tag Def - Country"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerCompanyUpgradeTags', '', false, false)]
     local procedure RegisterPerCompanyTags(var PerCompanyUpgradeTags: List of [Code[250]])
     begin
-        PerCompanyUpgradeTags.Add(Get1099DIV2018UpgradeTag);
-        PerCompanyUpgradeTags.Add(GetCFDIPurposeRelationFieldsDocUpdateTag);
-        PerCompanyUpgradeTags.Add(GetLastUpdateInvoiceEntryNoUpgradeTagUS);
+        PerCompanyUpgradeTags.Add(Get1099DIV2018UpgradeTag());
+        PerCompanyUpgradeTags.Add(GetCFDIPurposeRelationFieldsDocUpdateTag());
+        PerCompanyUpgradeTags.Add(GetLastUpdateInvoiceEntryNoUpgradeTagUS());
         PerCompanyUpgradeTags.Add(GetGenJnlLineEFTExportSequenceNoUpgradeTag());
         PerCompanyUpgradeTags.Add(GetSalesTaxDiffPositiveFieldUpgradeTag());
         PerCompanyUpgradeTags.Add(GetCFDIEnableOptionUpgradeTag());
@@ -19,7 +19,7 @@ codeunit 9997 "Upgrade Tag Def - Country"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
     local procedure RegisterPerDatabaseTags(var PerDatabaseUpgradeTags: List of [Code[250]])
     begin
-        PerDatabaseUpgradeTags.Add(GetSATPaymentCatalogsSwapTag);
+        PerDatabaseUpgradeTags.Add(GetSATPaymentCatalogsSwapTag());
     end;
 
     procedure Get1099DIV2018UpgradeTag(): Code[250]
@@ -60,6 +60,6 @@ codeunit 9997 "Upgrade Tag Def - Country"
     procedure GetCFDIEnableOptionUpgradeTag(): Code[250]
     begin
         exit('MS-407179-CFDIEnableOption-20200806');
-    end;    
+    end;
 }
 

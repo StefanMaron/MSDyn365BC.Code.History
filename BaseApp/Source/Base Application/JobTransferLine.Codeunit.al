@@ -1,4 +1,4 @@
-codeunit 1004 "Job Transfer Line"
+﻿codeunit 1004 "Job Transfer Line"
 {
 
     trigger OnRun()
@@ -232,9 +232,9 @@ codeunit 1004 "Job Transfer Line"
         JobPlanningLine.TestField("Qty. to Transfer to Journal");
 
         if not JobJournalTemplate.Get(JobJournalTemplateName) then
-            Error(Text001, JobJournalTemplate.TableCaption, JobJournalTemplateName);
+            Error(Text001, JobJournalTemplate.TableCaption(), JobJournalTemplateName);
         if not JobJournalBatch.Get(JobJournalTemplateName, JobJournalBatchName) then
-            Error(Text001, JobJournalBatch.TableCaption, JobJournalBatchName);
+            Error(Text001, JobJournalBatch.TableCaption(), JobJournalBatchName);
         if PostingDate = 0D then
             PostingDate := WorkDate();
 
@@ -324,9 +324,9 @@ codeunit 1004 "Job Transfer Line"
 
         if JobJournalTemplateName <> '' then begin
             if not JobJournalTemplate.Get(JobJournalTemplateName) then
-                Error(Text001, JobJournalTemplate.TableCaption, JobJournalTemplateName);
+                Error(Text001, JobJournalTemplate.TableCaption(), JobJournalTemplateName);
             if not JobJournalBatch.Get(JobJournalTemplateName, JobJournalBatchName) then
-                Error(Text001, JobJournalBatch.TableCaption, JobJournalBatchName);
+                Error(Text001, JobJournalBatch.TableCaption(), JobJournalBatchName);
         end;
         if PostingDate = 0D then
             PostingDate := WorkDate();
@@ -574,7 +574,7 @@ codeunit 1004 "Job Transfer Line"
         with PurchLine do begin
             Validate("Job Planning Line No.");
 
-            JobJnlLine.DontCheckStdCost;
+            JobJnlLine.DontCheckStdCost();
             JobJnlLine.Validate("Job No.", "Job No.");
             JobJnlLine.Validate("Job Task No.", "Job Task No.");
             JobTask.Get("Job No.", "Job Task No.");
@@ -758,12 +758,12 @@ codeunit 1004 "Job Transfer Line"
             exit;
         CurrencyRoundingRead := true;
         if CurrencyCode = '' then
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         else begin
             Currency.Get(CurrencyCode);
             Currency.TestField("Amount Rounding Precision");
         end;
-        LCYCurrency.InitRoundingPrecision;
+        LCYCurrency.InitRoundingPrecision();
     end;
 
     local procedure DoUpdateUnitCost(SalesLine: Record "Sales Line"): Boolean

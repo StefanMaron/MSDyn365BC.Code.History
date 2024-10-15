@@ -34,7 +34,7 @@ codeunit 144007 "UT PAG Address"
         // Verify: Verify Ship-to County Field on Page - Service Item Card.
         ServiceItem.CalcFields(County);
         ServiceItemCard."Ship-to County".AssertEquals(ServiceItem.County);
-        ServiceItemCard.Close;
+        ServiceItemCard.Close();
     end;
 
     [Test]
@@ -59,7 +59,7 @@ codeunit 144007 "UT PAG Address"
         Assert.IsTrue(VendorLedgerEntries."IRS 1099 Code".Editable, '"IRS 1099 Code" must be editable');
         Assert.IsTrue(VendorLedgerEntries."IRS 1099 Amount".Visible, '"IRS 199 Amount" must be visible');
         Assert.IsTrue(VendorLedgerEntries."IRS 1099 Amount".Editable, '"IRS 199 Amount" must be editable');
-        VendorLedgerEntries.Close;
+        VendorLedgerEntries.Close();
     end;
 
     local procedure CreateCustomer(): Code[20]
