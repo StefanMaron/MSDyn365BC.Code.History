@@ -4,7 +4,6 @@ using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.GeneralLedger.Setup;
 using System.Globalization;
 using Microsoft.Foundation.Company;
-using Microsoft.Intercompany;
 using Microsoft.Intercompany.Comment;
 using Microsoft.Intercompany.Dimension;
 using Microsoft.Intercompany.GLAccount;
@@ -262,13 +261,16 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         ICSetup: Record "IC Setup";
         BufferICInboxTransaction: Record "Buffer IC Inbox Transaction";
         FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
+        CustomDimensions: Dictionary of [Text, Text];
     begin
         if not TempICPartnerICInboxTransaction.IsEmpty() then begin
             ICSetup.FindFirst();
             // Move temporary records to buffer table so it can be used with the APIs
             TempICPartnerICInboxTransaction.FindSet();
             repeat
-                FeatureTelemetry.LogUsage('0000LKR', ICDataExchangeAPIFeatureTelemetryNameTok, StrSubstNo(SentTransactionTelemetryTxt, ICPartner.Code, TempICPartnerICInboxTransaction."IC Partner Code"));
+                CustomDimensions.Add('Transaction Details', StrSubstNo(SentTransactionTelemetryTxt, ICPartner.Code, TempICPartnerICInboxTransaction."IC Partner Code"));
+                FeatureTelemetry.LogUsage('0000LKR', ICMapping.GetFeatureTelemetryName(), ICDataExchangeAPIFeatureTelemetryNameTok, CustomDimensions);
                 if TempICPartnerICInboxTransaction."IC Partner Code" <> ICSetup."IC Partner Code" then
                     Session.LogSecurityAudit(SecurityLogDecriptionTok, SecurityOperationResult::Success, StrSubstNo(SecurityLogResultDescriptionTxt, TempICPartnerICInboxTransaction."IC Partner Code", ICSetup."IC Partner Code"), AuditCategory::UserManagement);
                 BufferICInboxTransaction.TransferFields(TempICPartnerICInboxTransaction);
@@ -402,7 +404,7 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
             exit;
 
         DescriptionText := StrSubstNo(AutoAcceptTransactionJobQueueTxt, ICInboxTransaction."Transaction No.", ICInboxTransaction."IC Partner Code", ICInboxTransaction."Document No.");
-        ScheduleCrossEnvironmentJobQueue(Codeunit::"IC Inbox Outbox Subs. Runner", JobQueueCategoryCodeAutoAcceptTok, DescriptionText);
+        ScheduleCrossEnvironmentJobQueue(Codeunit::"IC Auto Accept JR", JobQueueCategoryCodeAutoAcceptTok, DescriptionText, ICPartner.RecordId());
     end;
 
     local procedure CheckICPartnerSetup(var ICPartner: Record "IC Partner")
@@ -545,7 +547,7 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         TempICPartnerICInboxTransaction."Document No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'documentNumber');
         TempICPartnerICInboxTransaction."Posting Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'postingDate');
         TempICPartnerICInboxTransaction."Transaction Source" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'transactionSourceIndex');
-        TempICPartnerICInboxTransaction."Posting Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'documentDate');
+        TempICPartnerICInboxTransaction."Document Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'documentDate');
         TempICPartnerICInboxTransaction."Line Action" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'lineActionIndex');
         TempICPartnerICInboxTransaction."Original Document No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'originalDocumentNumber');
         TempICPartnerICInboxTransaction."Source Line No." := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'sourceLineNumber');
@@ -568,7 +570,7 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         TempICPartnerHandledICInboxTransaction."Document No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'documentNumber');
         TempICPartnerHandledICInboxTransaction."Posting Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'postingDate');
         TempICPartnerHandledICInboxTransaction."Transaction Source" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'transactionSourceIndex');
-        TempICPartnerHandledICInboxTransaction."Posting Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'documentDate');
+        TempICPartnerHandledICInboxTransaction."Document Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'documentDate');
         TempICPartnerHandledICInboxTransaction.Status := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'statusIndex');
         TempICPartnerHandledICInboxTransaction."Source Line No." := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'sourceLineNumber');
         TempICPartnerHandledICInboxTransaction."IC Account Type" := Enum::"IC Journal Account Type".FromInteger(GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'icAccountTypeOrdinal'));
@@ -657,7 +659,7 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         ICInboxTransaction."Document No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'documentNumber');
         ICInboxTransaction."Posting Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'postingDate');
         ICInboxTransaction."Transaction Source" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'transactionSourceIndex');
-        ICInboxTransaction."Posting Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'documentDate');
+        ICInboxTransaction."Document Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'documentDate');
         ICInboxTransaction."Line Action" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'lineActionIndex');
         ICInboxTransaction."Original Document No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'originalDocumentNumber');
         ICInboxTransaction."Source Line No." := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'sourceLineNumber');
@@ -958,33 +960,6 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         LineJson.WriteTo(ContentJsonText);
     end;
 
-    [EventSubscriber(ObjectType::Report, Report::"Move IC Trans. to Partner Comp", 'OnICInboxTransactionCreated', '', false, false)]
-    local procedure OnAfterICInboxTransactionMovedToBuffer(var Sender: Report "Move IC Trans. to Partner Comp"; var ICInboxTransaction: Record "IC Inbox Transaction"; PartnerCompanyName: Text)
-    var
-        ICOutgoingNotification: Record "IC Outgoing Notification";
-        ICSetup: Record "IC Setup";
-        DescriptionText: Text[250];
-        OperationID: Guid;
-    begin
-        if ICInboxTransaction.IsEmpty() then
-            exit;
-
-        OperationID := CreateGuid();
-        AssignOperationIDToBufferObjects(ICInboxTransaction, OperationID);
-
-        ICSetup.Get();
-        ICOutgoingNotification."Operation ID" := OperationID;
-        ICOutgoingNotification."Source IC Partner Code" := ICSetup."IC Partner Code";
-        ICOutgoingNotification."Target IC Partner Code" := Sender.GetCurrentPartnerCode();
-        ICOutgoingNotification.Status := ICOutgoingNotification.Status::Created;
-        ICOutgoingNotification."Notified DateTime" := CurrentDateTime();
-        ICOutgoingNotification.SetErrorMessage('');
-        ICOutgoingNotification.Insert();
-
-        DescriptionText := StrSubstNo(SendNotificationJobQueueTxt, ICOutgoingNotification."Target IC Partner Code", ICOutgoingNotification."Operation ID");
-        ScheduleCrossEnvironmentJobQueue(Codeunit::"IC New Notification JR", JobQueueCategoryCodeSendNotificationTok, DescriptionText);
-    end;
-
     procedure InsertICIncomingNotification(var ICIncomingNotification: Record "IC Incoming Notification")
     var
         DescriptionText: Text[250];
@@ -1006,14 +981,49 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
 
     local procedure ScheduleCrossEnvironmentJobQueue(CodeunitID: Integer; CategoryCode: Code[10]; DescriptionText: Text[250])
     var
+        BlankRecordId: RecordId;
+    begin
+        ScheduleCrossEnvironmentJobQueue(CodeunitID, CategoryCode, DescriptionText, BlankRecordId);
+    end;
+
+    local procedure CheckJobQueueEntryGeneration(var JobQueueEntry: Record "Job Queue Entry"; RecordIdentification: RecordId): Boolean
+    var
+        BlankRecordId: RecordId;
+        CreateJobQueueEntry: Boolean;
+    begin
+        CreateJobQueueEntry := true;
+
+        // Check if RecordIdentification is not BlankRecordId, implying it's for an ICPartner
+        if RecordIdentification <> BlankRecordId then
+            JobQueueEntry.SetRange("Record ID to Process", RecordIdentification);
+
+        // Cancel errored or waiting Job Queue Entries exceeding the limit
+        JobQueueEntry.SetRange(Status, JobQueueEntry.Status::Error);
+        if JobQueueEntry.Count() >= 2 then begin
+            JobQueueEntry.FindSet();
+            repeat
+                JobQueueEntry.Cancel();
+            until JobQueueEntry.Next() = 0;
+        end;
+        // Limit the number of JQEs per codeunit or per ICPartner
+        // If there are at least two JQEs, prevent creating a new one
+        JobQueueEntry.SetRange(Status);
+        if JobQueueEntry.Count() >= 2 then
+            CreateJobQueueEntry := false;
+
+        exit(CreateJobQueueEntry);
+    end;
+
+    local procedure ScheduleCrossEnvironmentJobQueue(CodeunitID: Integer; CategoryCode: Code[10]; DescriptionText: Text[250]; RecordIdentification: RecordId)
+    var
         JobQueueEntry: Record "Job Queue Entry";
     begin
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
         JobQueueEntry.SetRange("Object ID to Run", CodeunitID);
-        JobQueueEntry.ReadIsolation := IsolationLevel::ReadCommitted;
-
-        if JobQueueEntry.Count() = 2 then
+        if not CheckJobQueueEntryGeneration(JobQueueEntry, RecordIdentification) then
             exit;
+        JobQueueEntry.Reset();
+        JobQueueEntry.ReadIsolation := IsolationLevel::ReadCommitted;
 
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := CodeunitID;
@@ -1021,10 +1031,11 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         JobQueueEntry."Recurring Job" := false;
         JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
         JobQueueEntry."Job Queue Category Code" := CategoryCode;
-        JobQueueEntry."Rerun Delay (sec.)" := 60;
+        JobQueueEntry."Rerun Delay (sec.)" := 30;
         Clear(JobQueueEntry."Error Message");
         Clear(JobQueueEntry."Error Message Register Id");
         JobQueueEntry.Description := DescriptionText;
+        JobQueueEntry."Record ID to Process" := RecordIdentification;
         JobQueueEntry.Insert(true);
         CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
     end;
@@ -1135,9 +1146,48 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         end;
     end;
 
-    [InternalEvent(false, true)]
-    internal procedure OnPopulateTransactionDataFromICOutgoingNotification(IndividualObject: JsonObject; var Success: Boolean)
+    local procedure IsCrossEnvironmentPartner(PartnerCompanyName: Text): Boolean
+    var
+        ICPartner: Record "IC Partner";
     begin
+        ICPartner.LoadFields("Data Exchange Type");
+        ICPartner.ReadIsolation := IsolationLevel::ReadCommitted;
+        ICPartner.SetRange(Name, PartnerCompanyName);
+        if ICPartner.FindFirst() then
+            exit(ICPartner."Data Exchange Type" = Enum::"IC Data Exchange Type"::API);
+        exit(false);
+    end;
+
+    [EventSubscriber(ObjectType::Report, Report::"Move IC Trans. to Partner Comp", 'OnICInboxTransactionCreated', '', false, false)]
+    local procedure OnAfterICInboxTransactionMovedToBuffer(var Sender: Report "Move IC Trans. to Partner Comp"; var ICInboxTransaction: Record "IC Inbox Transaction"; PartnerCompanyName: Text)
+    var
+        ICOutgoingNotification: Record "IC Outgoing Notification";
+        ICSetup: Record "IC Setup";
+        DescriptionText: Text[250];
+        OperationID: Guid;
+    begin
+        if not IsCrossEnvironmentPartner(PartnerCompanyName) then
+            exit;
+
+        if ICInboxTransaction.IsEmpty() then
+            exit;
+
+        OperationID := CreateGuid();
+        AssignOperationIDToBufferObjects(ICInboxTransaction, OperationID);
+
+        ICSetup.LoadFields("IC Partner Code");
+        ICSetup.ReadIsolation := IsolationLevel::ReadCommitted;
+        ICSetup.Get();
+        ICOutgoingNotification."Operation ID" := OperationID;
+        ICOutgoingNotification."Source IC Partner Code" := ICSetup."IC Partner Code";
+        ICOutgoingNotification."Target IC Partner Code" := Sender.GetCurrentPartnerCode();
+        ICOutgoingNotification.Status := ICOutgoingNotification.Status::Created;
+        ICOutgoingNotification."Notified DateTime" := CurrentDateTime();
+        ICOutgoingNotification.SetErrorMessage('');
+        ICOutgoingNotification.Insert();
+
+        DescriptionText := StrSubstNo(SendNotificationJobQueueTxt, ICOutgoingNotification."Target IC Partner Code", ICOutgoingNotification."Operation ID");
+        ScheduleCrossEnvironmentJobQueue(Codeunit::"IC New Notification JR", JobQueueCategoryCodeSendNotificationTok, DescriptionText);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"IC Data Exchange API", 'OnPopulateTransactionDataFromICOutgoingNotification', '', false, false)]
@@ -1145,5 +1195,10 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
     begin
         PopulateTransactionDataFromICOutgoingNotification(IndividualObject);
         Success := true;
+    end;
+
+    [InternalEvent(false, true)]
+    internal procedure OnPopulateTransactionDataFromICOutgoingNotification(IndividualObject: JsonObject; var Success: Boolean)
+    begin
     end;
 }

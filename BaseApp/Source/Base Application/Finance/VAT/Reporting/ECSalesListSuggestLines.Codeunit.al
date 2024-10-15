@@ -41,6 +41,7 @@ codeunit 140 "EC Sales List Suggest Lines"
         CompanyInformation.Get();
         EUVATEntries.SetRange(VATReportingDate, VATReportHeader."Start Date", VATReportHeader."End Date");
         EUVATEntries.SetFilter(CountryCode, '<>%1', CompanyInformation."Country/Region Code");
+        OnPopulateVatEntryLinesOnAfterEUVATEntriesSetFilters(VATReportHeader, EUVATEntries);
 
         EUVATEntries.Open();
         while EUVATEntries.Read() do
@@ -177,6 +178,11 @@ codeunit 140 "EC Sales List Suggest Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAddOrUpdateECLLine(EUVATEntries: Query "EU VAT Entries"; var ECSLVATReportLine: Record "ECSL VAT Report Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPopulateVatEntryLinesOnAfterEUVATEntriesSetFilters(var VATReportHeader: Record "VAT Report Header"; var EUVATEntries: Query "EU VAT Entries")
     begin
     end;
 }

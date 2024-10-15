@@ -113,11 +113,11 @@ codeunit 6108 "E-Document Processing"
         EDocumentServiceStatus: Record "E-Document Service Status";
     begin
         EDocument.SetRange("Document Type", Enum::"E-Document Type"::"Purchase Order");
-        EDocument.SetRange(Status, Enum::"E-Document Status"::"In Progress");
+        EDocument.SetFilter(Status, '%1|%2', Enum::"E-Document Status"::"In Progress", Enum::"E-Document Status"::Error);
         if EDocument.FindSet() then
             repeat
                 EDocumentServiceStatus.SetRange("E-Document Entry No", EDocument."Entry No");
-                EDocumentServiceStatus.SetRange(Status, Enum::"E-Document Service Status"::Pending);
+                EDocumentServiceStatus.SetFilter(Status, '%1|%2', Enum::"E-Document Service Status"::Pending, Enum::"E-Document Service Status"::"Imported Document Processing Error");
                 if not EDocumentServiceStatus.IsEmpty() then
                     EDocument.Mark(true);
             until EDocument.Next() = 0;
@@ -132,11 +132,11 @@ codeunit 6108 "E-Document Processing"
         EDocumentServiceStatus: Record "E-Document Service Status";
     begin
         EDocument.SetRange("Document Type", Enum::"E-Document Type"::"Purchase Order");
-        EDocument.SetRange(Status, Enum::"E-Document Status"::"In Progress");
+        EDocument.SetFilter(Status, '%1|%2', Enum::"E-Document Status"::"In Progress", Enum::"E-Document Status"::Error);
         if EDocument.FindSet() then
             repeat
                 EDocumentServiceStatus.SetRange("E-Document Entry No", EDocument."Entry No");
-                EDocumentServiceStatus.SetRange(Status, Enum::"E-Document Service Status"::Pending);
+                EDocumentServiceStatus.SetFilter(Status, '%1|%2', Enum::"E-Document Service Status"::Pending, Enum::"E-Document Service Status"::"Imported Document Processing Error");
                 if not EDocumentServiceStatus.IsEmpty() then
                     EDocument.Mark(true);
             until EDocument.Next() = 0;

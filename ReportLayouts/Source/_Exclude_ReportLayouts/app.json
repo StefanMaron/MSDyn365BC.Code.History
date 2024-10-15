@@ -4,7 +4,7 @@
     "publisher":  "Microsoft",
     "brief":  "Report layouts made available by extensions or created by users.",
     "description":  "The report layouts page shows all the report layouts made available from extensions or those defined by users.",
-    "version":  "24.0.16410.18056",
+    "version":  "24.1.18927.19498",
     "help":  "https://go.microsoft.com",
     "privacyStatement":  "https://go.microsoft.com",
     "EULA":  "https://go.microsoft.com",
@@ -21,7 +21,7 @@
                                    "publisher":  "Microsoft"
                                }
                            ],
-    "application":  "24.0.0.0",
+    "application":  "24.1.0.0",
     "target":  "OnPrem",
     "resourceExposurePolicy":  {
                                    "allowDebugging":  false,

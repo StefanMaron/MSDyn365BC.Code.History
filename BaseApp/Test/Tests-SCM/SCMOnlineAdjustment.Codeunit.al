@@ -31,6 +31,8 @@ codeunit 137001 "SCM Online Adjustment"
         ErrorZeroQty: Label 'Transfer Qty should not be 0.';
         DummyMessage: Label 'Message?';
         ItemDeletionErr: Label 'You cannot delete %1 %2 because there is at least one %3 that includes this item.', Comment = '%1= Item.TableCaption(),%2= Item.No,%3=Planning Component.TABLECAPTION';
+        PostingNoSeriesLbl: Label 'No Seires must be from Posting No Series if exists in Item Journal Batch.';
+
 
     [Test]
     [HandlerFunctions('ConfirmHandler,MessageHandler')]
@@ -550,6 +552,100 @@ codeunit 137001 "SCM Online Adjustment"
         // [THEN] Validate unit cost.
         // [THEN] Validate item ledger entries for item.
         OnlineAdjMultipleTransfers("Average Cost Calculation Type"::"Item & Location & Variant");
+    end;
+
+    [Test]
+    procedure TakePostingNoseiesFromBatchWhileItmRevalutionJnlPost()
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        Item1: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        NoSeriesLine: array[2] of Record "No. Series Line";
+        NoSeries: array[2] of Record "No. Series";
+        NoSeriesBatch: Codeunit "No. Series - Batch";
+        DocNo: Code[20];
+    begin
+        // [SCENARIO -506688] Issue with Posting No. Series on Item Revaluation journal batch
+        Initialize();
+
+        // [GIVEN] Item is created.
+        LibraryInventory.CreateItem(Item1);
+
+        // [GIVEN] New Item is Posted Into Item Ledger Entry.
+        PostItemJournalToPostNewlyCreatedItemIntoILE(
+          Item1."No.",
+          LibraryRandom.RandDec(100, 0));
+
+        // [GIVEN] Item Journal Template with Revaluation Type is created.
+        LibraryInventory.CreateItemJournalTemplate(ItemJournalTemplate);
+        ItemJournalTemplate.Type := ItemJournalTemplate.Type::Revaluation;
+        ItemJournalTemplate.Modify(true);
+
+        // [GIVEN] Item Journal Batch is created.
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
+
+        // [GIVEN] Document No series and Posting No Series are created.
+        NoSeries[1].Get(LibraryERM.CreateNoSeriesCode());
+        NoSeriesLine[1].SetRange("Series Code", NoSeries[1].Code);
+        NoSeriesLine[1].FindFirst();
+        NoSeriesLine[1]."Starting Date" := WorkDate();
+        NoSeriesLine[1]."Starting No." := LibraryRandom.RandText(2) + '-' + Format(LibraryRandom.RandInt(4));
+        NoSeriesLine[1]."Increment-by No." := 1;
+        NoSeriesLine[1].Modify();
+
+        NoSeries[2].Get(LibraryERM.CreateNoSeriesCode());
+        NoSeriesLine[2].SetRange("Series Code", NoSeries[2].Code);
+        NoSeriesLine[2].FindFirst();
+        NoSeriesLine[2]."Starting Date" := WorkDate();
+        NoSeriesLine[2]."Starting No." := LibraryRandom.RandText(2) + '-' + Format(LibraryRandom.RandInt(4));
+        NoSeriesLine[2]."Increment-by No." := 1;
+        NoSeriesLine[2].Modify();
+
+        // [GIVEN] No Series are assigned to Item Journal Batch.
+        ItemJournalBatch."No. Series" := NoSeries[1].Code;
+        ItemJournalBatch."Posting No. Series" := NoSeries[2].Code;
+        ItemJournalBatch.Modify(true);
+
+        // [GIVEN] Revaluation Journal and Documnet No are created. 
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine,
+          ItemJournalTemplate.Name,
+          ItemJournalBatch.Name,
+          ItemJournalBatch."Template Type"::Revaluation,
+          Item1."No.",
+          0);
+
+        // [GIVEN] Get No Series Code into Variable.
+        DocNo := NoSeriesBatch.GetNextNo(ItemJournalBatch."No. Series", ItemJournalLine."Posting Date");
+
+        // [GIVEN] Calculation of inventory value for selected item.
+        LibraryCosting.CreateRevaluationJnlLines(
+          Item1,
+          ItemJournalLine,
+          DocNo,
+          "Inventory Value Calc. Per"::Item,
+          "Inventory Value Calc. Base"::" ",
+          true,
+          true,
+          false,
+          WorkDate());
+
+        // [GIVEN] Collect and post the resulted Item Journal Line.
+        ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.SetRange("Item No.", Item1."No.");
+        ItemJournalLine.FindFirst();
+
+        // [GIVEN] Revalue item cost in the item journal.
+        ItemJournalLine.Validate("Unit Cost (Revalued)", ItemJournalLine."Unit Cost (Calculated)" + LibraryRandom.RandInt(10));
+        ItemJournalLine.Modify(true);
+
+        // [GIVEN] Post revaluation Journal.
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        // [THEN] The value of Document No in Value entry and in No series.
+        VerifyTheValueOfDocumentNoFromValueEntry(Item1."No.", NoSeriesLine[2]."Starting No.");
     end;
 
     local procedure Initialize()
@@ -1183,6 +1279,32 @@ codeunit 137001 "SCM Online Adjustment"
           Round(ValueEntry."Cost per Unit" * ValueEntry."Valued Quantity", LibraryERM.GetAmountRoundingPrecision()),
           ValueEntry."Cost Amount (Actual)",
           0.01, StrSubstNo(ErrorValueEntry, ValueEntry."Entry No.", 'Cost Amount (Actual)'));
+    end;
+
+    local procedure PostItemJournalToPostNewlyCreatedItemIntoILE(ItemNo: code[20]; Quantity: Decimal)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure VerifyTheValueOfDocumentNoFromValueEntry(ItemNo: code[20]; NoSeries: Code[20])
+    var
+        ValueEntry: Record "Value Entry";
+    begin
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::Revaluation);
+        ValueEntry.FindLast();
+
+        Assert.AreEqual(NoSeries, ValueEntry."Document No.", PostingNoSeriesLbl);
     end;
 
     [ConfirmHandler]

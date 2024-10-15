@@ -3804,9 +3804,13 @@ codeunit 90 "Purch.-Post"
                  BlanketOrderPurchLine."Document Type"::"Blanket Order", PurchLine."Blanket Order No.",
                  PurchLine."Blanket Order Line No.")
             then begin
-                BlanketOrderPurchLine.TestField(Type, PurchLine.Type);
-                BlanketOrderPurchLine.TestField("No.", PurchLine."No.");
-                BlanketOrderPurchLine.TestField("Buy-from Vendor No.", PurchLine."Buy-from Vendor No.");
+                IsHandled := false;
+                OnUpdateBlanketOrderLineOnBeforeCheckBlanketOrderPurchLine(BlanketOrderPurchLine, PurchLine, IsHandled);
+                if not IsHandled then begin
+                    BlanketOrderPurchLine.TestField(Type, PurchLine.Type);
+                    BlanketOrderPurchLine.TestField("No.", PurchLine."No.");
+                    BlanketOrderPurchLine.TestField("Buy-from Vendor No.", PurchLine."Buy-from Vendor No.");
+                end;
                 OnUpdateBlanketOrderLineOnAfterCheckBlanketOrderPurchLine(BlanketOrderPurchLine, PurchLine);
 
                 ModifyLine := false;
@@ -6030,6 +6034,7 @@ codeunit 90 "Purch.-Post"
         if not (ItemJournalLine.IsPurchaseReturn() or NonInventoriableItem) then begin
             TempTrackingSpecification.SetRange("Serial No.", TempReservEntryJobCons."Serial No.");
             TempTrackingSpecification.SetRange("Lot No.", TempReservEntryJobCons."Lot No.");
+            TempTrackingSpecification.SetRange("Package No.", TempReservEntryJobCons."Package No.");
             if TempTrackingSpecification.FindFirst() then
                 TempReservEntryJobCons."Appl.-to Item Entry" := TempTrackingSpecification."Item Ledger Entry No.";
         end;
@@ -9289,7 +9294,7 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterPostUpdateInvoiceLine(var PurchaseLine: Record "Purchase Line" temporary)
     begin
     end;
@@ -11768,6 +11773,11 @@ codeunit 90 "Purch.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostItemJnlLineOnAfterSetCheckApplToItemEntry(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateBlanketOrderLineOnBeforeCheckBlanketOrderPurchLine(var BlanketOrderPurchaseLine: Record "Purchase Line"; PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -197,6 +197,7 @@ codeunit 5616 "Depreciation Calculation"
             exit(LocalDate);
 
         SetFAFilter(FALedgEntry, FANo, DeprBookCode, true);
+        OnGetFirstDeprDateOnAfterSetFAFilter(FALedgEntry);
         FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Acquisition Cost");
         if FALedgEntry.FindLast() then
             if FALedgEntry."FA Posting Date" > LocalDate then
@@ -658,6 +659,11 @@ codeunit 5616 "Depreciation Calculation"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcEntryAmountsOnAfterSetFALedgEntryFilters(var FALedgerEntry: Record "FA Ledger Entry"; I: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetFirstDeprDateOnAfterSetFAFilter(var FALedgerEntry: Record "FA Ledger Entry")
     begin
     end;
 

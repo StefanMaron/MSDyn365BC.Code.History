@@ -233,7 +233,7 @@ page 7388 "Scan Warehouse Activity Line"
                 trigger ControlAddInReady(IsSupported: Boolean)
                 begin
                     if IsSupported then
-                        CurrPage.BarCodeScanner.RequestBarcodeScannerAsync()
+                        RequestBarcodeScannerAsync()
                     else
                         Message(BarcodeScannerNotSupportedMsg);
                 end;
@@ -352,5 +352,22 @@ page 7388 "Scan Warehouse Activity Line"
     local procedure LotNoOnAfterValidate()
     begin
         Rec.UpdateExpirationDate(Rec.FieldNo("Lot No."));
+    end;
+
+    local procedure RequestBarcodeScannerAsync()
+    var
+        IntentAction, IntentCategory, DataString, DataFormat : Text;
+    begin
+        OnBeforeRequestBarcodeScannerAsync(IntentAction, IntentCategory, DataString, DataFormat);
+
+        if (IntentAction = '') and (IntentCategory = '') and (DataString = '') and (DataFormat = '') then
+            CurrPage.BarCodeScanner.RequestBarcodeScannerAsync()
+        else
+            CurrPage.BarCodeScanner.RequestBarcodeScannerAsync(IntentAction, IntentCategory, DataString, DataFormat);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRequestBarcodeScannerAsync(var IntentAction: Text; var IntentCategory: Text; var DataString: Text; var DataFormat: Text)
+    begin
     end;
 }

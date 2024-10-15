@@ -1684,7 +1684,7 @@ codeunit 7307 "Whse.-Activity-Register"
         if IsHandled then
             exit;
 
-        if WhseItemTrackingSetup."Serial No. Required" or WhseItemTrackingSetup."Lot No. Required" then begin
+        if WhseItemTrackingSetup."Serial No. Required" or WhseItemTrackingSetup."Lot No. Required" or WhseItemTrackingSetup."Package No. Required" then begin
             RegWhseActivLine.SetRange("Activity Type", WhseActivLine."Activity Type");
             RegWhseActivLine.SetRange("No.", WhseActivLine."No.");
             RegWhseActivLine.SetRange("Line No.", WhseActivLine."Line No.");

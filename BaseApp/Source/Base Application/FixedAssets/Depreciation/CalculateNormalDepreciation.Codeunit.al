@@ -559,7 +559,7 @@ codeunit 5611 "Calculate Normal Depreciation"
         DeprBasis := FADeprBook."Depreciable Basis";
         SalvageValue := FADeprBook."Salvage Value";
 
-        OnAfterBookValueRecalculateBookValue(FA, DeprBook, FALedgEntry, DeprBasis, BookValue, EndingDate, FADeprBook."Disposal Date", FADeprBook, DateFromProjection);
+        OnAfterBookValueRecalculateBookValue(FA, DeprBook, FALedgEntry, DeprBasis, BookValue, EndingDate, FADeprBook."Disposal Date", FADeprBook, DateFromProjection, SalvageValue);
 
         BookValue2 := BookValue;
         SalvageValue2 := SalvageValue;
@@ -972,7 +972,7 @@ codeunit 5611 "Calculate Normal Depreciation"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterBookValueRecalculateBookValue(FixedAsset: Record "Fixed Asset"; DeprBook: Record "Depreciation Book"; FAledgEntry2: Record "FA Ledger Entry"; var DeprBasis: Decimal; var BookValue: Decimal; var DeprEndingDate: Date; DisposalDate: Date; var FADepreciationBook: Record "FA Depreciation Book"; DateFromProjection: Date)
+    local procedure OnAfterBookValueRecalculateBookValue(FixedAsset: Record "Fixed Asset"; DeprBook: Record "Depreciation Book"; FAledgEntry2: Record "FA Ledger Entry"; var DeprBasis: Decimal; var BookValue: Decimal; var DeprEndingDate: Date; DisposalDate: Date; var FADepreciationBook: Record "FA Depreciation Book"; DateFromProjection: Date; var SalvageValue: Decimal)
     begin
     end;
 

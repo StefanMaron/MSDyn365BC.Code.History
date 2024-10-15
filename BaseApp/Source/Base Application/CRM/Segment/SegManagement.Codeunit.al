@@ -490,7 +490,13 @@ codeunit 5051 SegManagement
         Campaign: Record Campaign;
         InteractionTemplate: Record "Interaction Template";
         ContactAltAddress: Record "Contact Alt. Address";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckSegmentLine(SegmentLine, Deliver, IsHandled);
+        if IsHandled then
+            exit;
+
         SegmentLine.TestField(Date);
         SegmentLine.TestField("Contact No.");
         Contact.Get(SegmentLine."Contact No.");
@@ -683,6 +689,28 @@ codeunit 5051 SegManagement
             "Interaction Log Entry Document Type"::"Sales Inv.".AsInteger(),
             SalesInvoiceHeader."No.", 0, 0, Database::Contact, SalesInvoiceHeader."Bill-to Contact No.", SalesInvoiceHeader."Salesperson Code",
             CampaignTargetGroup."Campaign No.", SalesInvoiceHeader."Posting Description", '');
+    end;
+
+    procedure InterLogEntryCommentLineInsert(var TempInterLogEntryCommentLine: Record "Inter. Log Entry Comment Line"; InteractionLogEntryNo: Integer)
+    var
+        InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line";
+    begin
+        DeleteInteractionLogEntryComments(InteractionLogEntryNo);
+        if TempInterLogEntryCommentLine.FindSet() then
+            repeat
+                InterLogEntryCommentLine.Init();
+                InterLogEntryCommentLine := TempInterLogEntryCommentLine;
+                InterLogEntryCommentLine."Entry No." := InteractionLogEntryNo;
+                InterLogEntryCommentLine.Insert();
+            until TempInterLogEntryCommentLine.Next() = 0;
+    end;
+
+    local procedure DeleteInteractionLogEntryComments(InteractionLogEntryNo: Integer)
+    var
+        InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line";
+    begin
+        InterLogEntryCommentLine.SetRange("Entry No.", InteractionLogEntryNo);
+        InterLogEntryCommentLine.DeleteAll();
     end;
 
     local procedure GetNextLoggedSegmentEntryNo(): Integer
@@ -906,6 +934,11 @@ codeunit 5051 SegManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnLogSegmentOnBeforeInitLoggedSegment(SegmentHeader: Record "Segment Header"; Deliver: Boolean; Followup: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSegmentLine(var SegmentLine: Record "Segment Line"; Deliver: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

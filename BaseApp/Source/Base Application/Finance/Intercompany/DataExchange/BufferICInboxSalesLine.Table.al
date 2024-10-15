@@ -69,7 +69,7 @@ table 609 "Buffer IC Inbox Sales Line"
         }
         field(45; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             Editable = false;
         }
         field(73; "Drop Shipment"; Boolean)
