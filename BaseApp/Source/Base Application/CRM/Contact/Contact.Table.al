@@ -3207,6 +3207,7 @@ table 5050 Contact
         CustVendBankUpdate: Codeunit "CustVendBank-Update";
         EmployeeTemplMgt: Codeunit "Employee Templ. Mgt.";
         TemplateSelected: Boolean;
+        IsHandled: Boolean;
     begin
         CheckContactType(Type::Person);
         CheckIfPrivacyBlockedGeneric();
@@ -3219,7 +3220,10 @@ table 5050 Contact
         end;
 
         Employee.Init();
-        EmployeeTemplMgt.InitEmployeeNo(Employee, EmployeeTempl);
+        IsHandled := false;
+        OnCreateEmployeeOnBeforeInitEmployeeNo(Employee, Rec, EmployeeTempl, IsHandled);
+        if not IsHandled then
+            EmployeeTemplMgt.InitEmployeeNo(Employee, EmployeeTempl);
         Employee.Insert(true);
         EmployeeNo := Employee."No.";
 
@@ -3816,6 +3820,11 @@ table 5050 Contact
 
     [IntegrationEvent(false, false)]
     local procedure OnModifyOnBeforeInheritCommunicationDetails(var RecContact: Record Contact; var xRecContact: Record Contact; MarketingSetup: Record "Marketing Setup"; Contact: Record Contact; var ContChanged: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateEmployeeOnBeforeInitEmployeeNo(var Employee: Record Employee; var Contact: Record Contact; EmployeeTempl: Record "Employee Templ."; var IsHandled: Boolean)
     begin
     end;
 }

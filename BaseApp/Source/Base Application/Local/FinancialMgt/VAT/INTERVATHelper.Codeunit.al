@@ -84,6 +84,18 @@ codeunit 11308 "INTERVAT Helper"
         exit(DeclarantReference);
     end;
 
+    procedure GetReplacedVATDeclaration(SequenceNumber: Integer; Period: Integer; Year: Integer): Text[250]
+    var
+        CompanyInformation: Record "Company Information";
+        DeclarantReference: Text[250];
+        DeclarantReferenceTok: Label '%1-%2-%3%4', Locked = true;
+    begin
+        CompanyInformation.Get();
+        DeclarantReference := StrSubstNo(DeclarantReferenceTok, Format(SequenceNumber), RemoveNonNumericCharacters(CompanyInformation."Enterprise No."), Format(Year), Format(Period).PadLeft(2, '0'));
+
+        exit(DeclarantReference);
+    end;
+
     local procedure RemoveNonNumericCharacters(InputString: Text[250]): Text[30]
     begin
         exit(DelChr(InputString, '=', DelChr(InputString, '=', '0123456789')));

@@ -4713,7 +4713,11 @@ table 36 "Sales Header"
             exit;
         end;
         "Sell-to Contact No." := Cont."No.";
-        OnUpdateSellToCustOnAfterSetSellToContactNo(Rec, Customer, Cont);
+
+        IsHandled := false;
+        OnUpdateSellToCustOnAfterSetSellToContactNo(Rec, Customer, Cont, IsHandled);
+        if IsHandled then
+            exit;
 
         if Cont.Type = Cont.Type::Person then
             ContactBusinessRelationFound := ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."No.");
@@ -4724,6 +4728,8 @@ table 36 "Sales Header"
                 ContactBusinessRelationFound :=
                     ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."Company No.");
         end;
+
+        OnUpdateSellToCustOnAfterFindContactBusinessRelation(Rec, Cont, ContBusinessRelation, ContactBusinessRelationFound);
 
         if ContactBusinessRelationFound then begin
             CheckCustomerContactRelation(Cont, "Sell-to Customer No.", ContBusinessRelation."No.");
@@ -4862,6 +4868,9 @@ table 36 "Sales Header"
                 ContactBusinessRelationFound :=
                     ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."Company No.");
         end;
+
+        OnUpdateBillToCustOnAfterFindContactBusinessRelation(Rec, Cont, ContBusinessRelation, ContactBusinessRelationFound);
+
         if ContactBusinessRelationFound then begin
             if "Bill-to Customer No." = '' then begin
                 SkipBillToContact := true;
@@ -6438,8 +6447,15 @@ table 36 "Sales Header"
         OnBeforeIsCreditDocType(Rec, CreditDocType);
     end;
 
-    procedure HasSellToAddress(): Boolean
+    procedure HasSellToAddress() Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeHasSellToAddress(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         case true of
             "Sell-to Address" <> '':
                 exit(true);
@@ -6460,8 +6476,15 @@ table 36 "Sales Header"
         exit(false);
     end;
 
-    procedure HasShipToAddress(): Boolean
+    procedure HasShipToAddress() Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeHasShipToAddress(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         case true of
             "Ship-to Address" <> '':
                 exit(true);
@@ -6482,8 +6505,15 @@ table 36 "Sales Header"
         exit(false);
     end;
 
-    procedure HasBillToAddress(): Boolean
+    procedure HasBillToAddress() Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeHasBillToAddress(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         case true of
             "Bill-to Address" <> '':
                 exit(true);
@@ -6587,6 +6617,7 @@ table 36 "Sales Header"
             "Ship-to Post Code" := SellToCustomer."Post Code";
             "Ship-to County" := SellToCustomer.County;
             Validate("Ship-to Country/Region Code", SellToCustomer."Country/Region Code");
+            OnCopyShipToCustomerAddressFieldsFromCustOnAfterAssignAddressFromSellToCustomer(Rec, SellToCustomer);
         end;
         "Ship-to Contact" := SellToCustomer.Contact;
         if not CustomerTempl.Get("Sell-to Customer Templ. Code") then begin
@@ -6621,8 +6652,12 @@ table 36 "Sales Header"
     local procedure SetCompanyBankAccount()
     var
         BankAccount: Record "Bank Account";
+        IsHandled: Boolean;
     begin
-        Validate("Company Bank Account Code", BankAccount.GetDefaultBankAccountNoForCurrency("Currency Code"));
+        IsHandled := false;
+        OnBeforeSetCompanyBankAccount(Rec, IsHandled);
+        if not IsHandled then
+            Validate("Company Bank Account Code", BankAccount.GetDefaultBankAccountNoForCurrency("Currency Code"));
         OnAfterSetCompanyBankAccount(Rec, xRec);
     end;
 
@@ -6742,6 +6777,8 @@ table 36 "Sales Header"
         "Ship-to Post Code" := ShipToPostCode;
         "Ship-to County" := ShipToCounty;
         "Ship-to Country/Region Code" := ShipToCountryRegionCode;
+
+        OnAfterSetShipToAddress(Rec);
     end;
 
     local procedure ShouldCopyAddressFromSellToCustomer(SellToCustomer: Record Customer): Boolean
@@ -7891,7 +7928,6 @@ table 36 "Sales Header"
         CancelledDocument: Record "Cancelled Document";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCreditMemoHeader: Record "Sales Cr.Memo Header";
-        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
         IsHandled: Boolean;
     begin
         if (Rec."Applies-to Doc. Type" = Rec."Applies-to Doc. Type"::" ") and (Rec."Applies-to Doc. No." = '')
@@ -7911,10 +7947,26 @@ table 36 "Sales Header"
             exit;
         IsHandled := false;
         OnSetTrackInfoForCancellationOnBeforeInsertCancelledDocument(SalesCreditMemoHeader, IsHandled);
-        if not IsHandled then begin
+        if not IsHandled then
             CancelledDocument.InsertSalesInvToCrMemoCancelledDocument(SalesInvoiceHeader."No.", SalesCreditMemoHeader."No.");
-            CorrectPostedSalesInvoice.UpdateSalesOrderLineIfExist(SalesCreditMemoHeader."No.");
-        end;
+    end;
+
+    procedure UpdateSalesOrderLineIfExist()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCreditMemoHeader: Record "Sales Cr.Memo Header";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        SalesInvoiceHeader.SetLoadFields("No.");
+        if not SalesInvoiceHeader.Get(Rec."Applies-to Doc. No.") then
+            exit;
+        SalesCreditMemoHeader.SetLoadFields("Pre-Assigned No.", "Cust. Ledger Entry No.");
+        SalesCreditMemoHeader.SetRange("Pre-Assigned No.", Rec."No.");
+        if not SalesCreditMemoHeader.FindFirst() then
+            exit;
+        if IsNotFullyCancelled(SalesCreditMemoHeader) then
+            exit;
+        CorrectPostedSalesInvoice.UpdateSalesOrderLineIfExist(SalesCreditMemoHeader."No.");
     end;
 
     local procedure IsNotFullyCancelled(var SalesCreditMemoHeader: Record "Sales Cr.Memo Header"): Boolean
@@ -9191,7 +9243,7 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateSellToCustOnAfterSetSellToContactNo(var SalesHeader: Record "Sales Header"; var Customer: Record Customer; var Cont: Record Contact)
+    local procedure OnUpdateSellToCustOnAfterSetSellToContactNo(var SalesHeader: Record "Sales Header"; var Customer: Record Customer; var Cont: Record Contact; var IsHandled: Boolean)
     begin
     end;
 
@@ -9737,6 +9789,46 @@ table 36 "Sales Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmUpdateDeferralDate(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetCompanyBankAccount(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateSellToCustOnAfterFindContactBusinessRelation(SalesHeader: Record "Sales Header"; Contact: Record Contact; var ContactBusinessRelation: Record "Contact Business Relation"; var ContactBusinessRelationFound: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateBillToCustOnAfterFindContactBusinessRelation(SalesHeader: Record "Sales Header"; Contact: Record Contact; var ContactBusinessRelation: Record "Contact Business Relation"; var ContactBusinessRelationFound: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnCopyShipToCustomerAddressFieldsFromCustOnAfterAssignAddressFromSellToCustomer(var SalesHeader: Record "Sales Header"; SellToCustomer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeHasSellToAddress(var SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeHasShipToAddress(var SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeHasBillToAddress(var SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetShipToAddress(var SalesHeader: Record "Sales Header")
     begin
     end;
 }

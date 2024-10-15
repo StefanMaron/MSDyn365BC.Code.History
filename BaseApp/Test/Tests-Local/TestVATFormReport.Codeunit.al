@@ -179,30 +179,38 @@ codeunit 144021 "Test VAT - Form Report"
     [Scope('OnPrem')]
     procedure ReportingCorrectedVATDeclarationInVATFormReport()
     var
+        CompanyInformation: Record "Company Information";
         IncludeVATEntries: Option Open,Closed,OpenAndClosed;
         Prepayment: Option PrintPrepmt,PrintZero,LeaveEmpty;
         StartDate: Date;
         xmlFileName: Text[1024];
         Period: Option Month,Quarter;
         SeqNo: Integer;
+        Month: Integer;
+        Year: Integer;
+        ExpectedReplacedVATDeclarationTok: Label '%1-%2-%3%4', Locked = true;
     begin
         // [FEATURE] [Intervat]
         // [SCENARIO 213197] If "Is Correction" is set to TRUE in "VAT - Form" Report's Request Page, then ReplacedVATDeclaration should be added to InterVAT file
 
         Initialize();
 
-        // [GIVEN] In the Request Page of "VAT - Form" Report, "Is Correction" = TRUE, "Previous Sequence No." = 11
-        // [WHEN] Export to XML by Report 11307 VAT - Form
+        // [GIVEN] In the Request Page of "VAT - Form" Report, "Is Correction" = TRUE, "Previous Sequence No." = 11, "Year" = 2023, "Month" = 1
         StartDate := CalcDate('<1Y>', WorkDate());
         xmlFileName := LibraryReportDataset.GetFileName;
         SeqNo := LibraryRandom.RandInt(9999);
+        Month := Date2DMY(StartDate, 2);
+        Year := Date2DMY(StartDate, 3);
+
+        // [WHEN] Export to XML by Report 11307 VAT - Form
         OpenVATFormRep(
-          Period::Month, Date2DMY(StartDate, 2), Date2DMY(StartDate, 3), IncludeVATEntries::Open,
+          Period::Month, Month, Year, IncludeVATEntries::Open,
           Prepayment::LeaveEmpty, false, false, false, false, xmlFileName, true, SeqNo);
 
-        // [THEN] Resulting file contains <ReplacedVATDeclaration> tag, containing Declaration No ending with 11
+        // [THEN] Resulting file contains <ReplacedVATDeclaration> tag, which looks like *Previous Sequence No*-*EnterpiseNo*-*Year**Month* (11-1234567-202301)
         LibraryXMLRead.Initialize(xmlFileName);
-        LibraryXMLRead.VerifyNodeValue('ReplacedVATDeclaration', IntervatHelper.GetDeclarantReference(SeqNo));
+        CompanyInformation.Get();
+        LibraryXMLRead.VerifyNodeValue('ReplacedVATDeclaration', StrSubstNo(ExpectedReplacedVATDeclarationTok, Format(SeqNo), RemoveNonNumericCharacters(CompanyInformation."Enterprise No."), Format(Year), Format(Month).PadLeft(2, '0'))); // TFSID: 492248
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -421,6 +429,11 @@ codeunit 144021 "Test VAT - Form Report"
         LibraryVariableStorage.Enqueue(AddRepresentative);
         LibraryVariableStorage.Enqueue(IsCorrection);
         LibraryVariableStorage.Enqueue(SequenceNo);
+    end;
+
+    local procedure RemoveNonNumericCharacters(InputString: Text[250]): Text[30]
+    begin
+        exit(DelChr(InputString, '=', DelChr(InputString, '=', '0123456789')));
     end;
 
     [RequestPageHandler]

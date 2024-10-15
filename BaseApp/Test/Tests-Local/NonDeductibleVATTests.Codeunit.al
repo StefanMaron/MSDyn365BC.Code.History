@@ -2837,6 +2837,56 @@ codeunit 144000 "Non-Deductible VAT Tests"
         PurchaseLine.TestField("Non Deductible VAT %", GLAccount."% Non deductible VAT");
     end;
 
+    [Test]
+    procedure PostedPurchCrMemoTotalsWithNonDedVAT()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLAccount: Record "G/L Account";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PuchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        PurchCrMemoLine: Record "Purch. Cr. Memo Line";
+        DocumentTotals: Codeunit "Document Totals";
+        NonDeductibleVAT: Decimal;
+        AmountWithoutVAT: Decimal;
+        VATAmount: Decimal;
+        ActualVATAmount: Decimal;
+        NonDeductibleVATAmount: Decimal;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 486771] Totals in the posted purchase credit memo with the Non-Deductible VAT are correct
+
+        Initialize();
+        // [GIVEN] VAT Posting Setup with "VAT %" = 21
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandInt(30));
+        NonDeductibleVAT := LibraryRandom.RandInt(99);
+        AmountWithoutVAT := LibraryRandom.RandIntInRange(100, 1000);
+        VATAmount := Round(AmountWithoutVAT * (VATPostingSetup."VAT %" / 100), 0.01);
+        NonDeductibleVATAmount := Round(VATAmount * (NonDeductibleVAT / 100), 0.01);
+        // [GIVEN] G/L Account "X" with "% Nondeductible VAT" = 50
+        CreateGLAccount(GLAccount, VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase, NonDeductibleVAT);
+
+        // [GIVEN] Posted purchase Credit Memo with G/L Account "X", Amount = 1000, Original VAT Amount = 210
+        CreatePurchaseCrMemoHeader(PurchaseHeader, VATPostingSetup."VAT Bus. Posting Group");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, "Purchase Line Type"::"G/L Account", GLAccount."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", AmountWithoutVAT);
+        PurchaseLine.Modify();
+        PuchCrMemoHdr.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+        PuchCrMemoHdr.CalcFields(Amount);
+        PurchCrMemoLine.SetRange("Document No.", PuchCrMemoHdr."No.");
+        PurchCrMemoLine.FindFirst();
+
+        // [WHEN] Calculate totals for the posted purchase credit memo
+        DocumentTotals.CalculatePostedPurchCreditMemoTotals(PuchCrMemoHdr, ActualVATAmount, PurchCrMemoLine);
+
+        // [THEN] VAT Amount = 210 * 0.5 = 105
+        Assert.AreEqual(VATAmount - NonDeductibleVATAmount, ActualVATAmount, 'Tota VAT Amount is not correct');
+
+        // [THEN] Amount = 1000 + 105 = 1105
+        PuchCrMemoHdr.TestField(Amount, AmountWithoutVAT + NonDeductibleVATAmount);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -910,6 +910,24 @@ table 125 "Purch. Cr. Memo Line"
             GetDocumentType(), "Document No.", "Line No.");
     end;
 
+    procedure GetNonDeductibleVATAmount(): Decimal
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        Result: Decimal;
+    begin
+        Result := 0;
+
+        if ("VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT") and ("Non Deductible VAT %" <> 0) then begin
+            VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
+            Result := Amount * VATPostingSetup."VAT %" / 100;
+        end else
+            Result := "Amount Including VAT" - Amount;
+
+        Result := Round(Result * "Non Deductible VAT %" / 100);
+
+        exit(Result);
+    end;
+
     procedure GetDocumentType(): Integer
     var
         PurchCommentLine: Record "Purch. Comment Line";

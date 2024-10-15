@@ -496,7 +496,7 @@ report 11307 "VAT - Form"
         XMLNewChild: DotNet XmlNode;
     begin
         XMLDOMMgt.AddElement(
-          XMLCurrNode, 'ReplacedVATDeclaration', INTERVATHelper.GetDeclarantReference(PrevSequenceNo), DocNameSpace, XMLNewChild);
+          XMLCurrNode, 'ReplacedVATDeclaration', INTERVATHelper.GetReplacedVATDeclaration(PrevSequenceNo, VPeriod, VYear), DocNameSpace, XMLNewChild);
     end;
 
     local procedure AddElementVatDeclaration(var XMLCurrNode: DotNet XmlNode)

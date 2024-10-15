@@ -3,7 +3,7 @@ namespace Microsoft.Manufacturing.Routing;
 page 99000810 "Routing Version"
 {
     Caption = 'Routing Version';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     PageType = ListPlus;
     SourceTable = "Routing Version";
 

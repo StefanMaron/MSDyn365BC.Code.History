@@ -163,11 +163,27 @@ page 20 "General Ledger Entries"
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
                     Visible = DebitCreditVisible;
                 }
+                field(RunningBalance; CalcRunningGLAccBalance.GetGLAccBalance(Rec))
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Running Balance';
+                    ToolTip = 'Specifies the running balance in LCY.';
+                    AutoFormatType = 1;
+                    Visible = false;
+                }
                 field("Additional-Currency Amount"; Rec."Additional-Currency Amount")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the general ledger entry that is posted if you post in an additional reporting currency.';
+                    Visible = false;
+                }
+                field(RunningBalanceACY; CalcRunningGLAccBalance.GetGLAccBalanceACY(Rec))
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Running Balance (ACY)';
+                    ToolTip = 'Specifies the running balance in additional reporting currency.';
+                    AutoFormatType = 1;
                     Visible = false;
                 }
                 field("VAT Amount"; Rec."VAT Amount")
@@ -807,6 +823,7 @@ page 20 "General Ledger Entries"
 
     var
         GLAcc: Record "G/L Account";
+        CalcRunningGLAccBalance: Codeunit "Calc. Running GL. Acc. Balance";
         DimensionSetIDFilter: Page "Dimension Set ID Filter";
         HasIncomingDocument: Boolean;
         AmountVisible: Boolean;

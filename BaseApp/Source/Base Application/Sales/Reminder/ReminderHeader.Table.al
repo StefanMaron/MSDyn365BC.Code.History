@@ -652,7 +652,7 @@ table 295 "Reminder Header"
         IsHandled := false;
         OnBeforeGetNoSeriesCode(Rec, SalesSetup, NoSeriesCode, IsHandled);
         if IsHandled then
-            exit;
+            exit(NoSeriesCode);
 
         NoSeriesCode := SalesSetup."Reminder Nos.";
 
@@ -713,65 +713,69 @@ table 295 "Reminder Header"
         AdditionalFee: Decimal;
         IsHandled: Boolean;
     begin
-        CurrencyForReminderLevel.Init();
-        ReminderLevel.SetRange("Reminder Terms Code", "Reminder Terms Code");
-        ReminderLevel.SetRange("No.", 1, "Reminder Level");
-        OnInsertLinesOnAfterReminderLevelSetFilters(Rec, ReminderLevel);
-        if ReminderLevel.FindLast() then begin
-            CalcFields("Remaining Amount");
-            AdditionalFee := ReminderLevel.GetAdditionalFee("Remaining Amount", "Currency Code", false, "Posting Date");
-            OnInsertLinesOnAfterCalcAdditionalFee(Rec, ReminderLevel, AdditionalFee);
+        IsHandled := false;
+        OnBeforeInsertLines(Rec, IsHandled);
+        if not IsHandled then begin
+            CurrencyForReminderLevel.Init();
+            ReminderLevel.SetRange("Reminder Terms Code", "Reminder Terms Code");
+            ReminderLevel.SetRange("No.", 1, "Reminder Level");
+            OnInsertLinesOnAfterReminderLevelSetFilters(Rec, ReminderLevel);
+            if ReminderLevel.FindLast() then begin
+                CalcFields("Remaining Amount");
+                AdditionalFee := ReminderLevel.GetAdditionalFee("Remaining Amount", "Currency Code", false, "Posting Date");
+                OnInsertLinesOnAfterCalcAdditionalFee(Rec, ReminderLevel, AdditionalFee);
 
-            if AdditionalFee > 0 then begin
-                ReminderLine.Reset();
-                ReminderLine.SetRange("Reminder No.", "No.");
-                ReminderLine.SetRange("Line Type", ReminderLine."Line Type"::"Reminder Line");
-                ReminderLine."Reminder No." := "No.";
-                if ReminderLine.Find('+') then
-                    NextLineNo := ReminderLine."Line No."
-                else
-                    NextLineNo := 0;
-                ReminderLine.SetRange("Line Type");
-                ReminderLine2 := ReminderLine;
-                ReminderLine2.CopyFilters(ReminderLine);
-                ReminderLine2.SetFilter("Line Type", '<>%1', ReminderLine2."Line Type"::"Line Fee");
-                if ReminderLine2.Next() <> 0 then
-                    LineSpacing := (ReminderLine2."Line No." - ReminderLine."Line No.") div 3
-                else
-                    LineSpacing := 10000;
-                InsertBlankLine(ReminderLine."Line Type"::"Additional Fee");
+                if AdditionalFee > 0 then begin
+                    ReminderLine.Reset();
+                    ReminderLine.SetRange("Reminder No.", "No.");
+                    ReminderLine.SetRange("Line Type", ReminderLine."Line Type"::"Reminder Line");
+                    ReminderLine."Reminder No." := "No.";
+                    if ReminderLine.Find('+') then
+                        NextLineNo := ReminderLine."Line No."
+                    else
+                        NextLineNo := 0;
+                    ReminderLine.SetRange("Line Type");
+                    ReminderLine2 := ReminderLine;
+                    ReminderLine2.CopyFilters(ReminderLine);
+                    ReminderLine2.SetFilter("Line Type", '<>%1', ReminderLine2."Line Type"::"Line Fee");
+                    if ReminderLine2.Next() <> 0 then
+                        LineSpacing := (ReminderLine2."Line No." - ReminderLine."Line No.") div 3
+                    else
+                        LineSpacing := 10000;
+                    InsertBlankLine(ReminderLine."Line Type"::"Additional Fee");
 
-                NextLineNo := NextLineNo + LineSpacing;
-                ReminderLine.Init();
-                ReminderLine."Line No." := NextLineNo;
-                ReminderLine.Type := ReminderLine.Type::"G/L Account";
-                TestField("Customer Posting Group");
-                CustPostingGr.Get("Customer Posting Group");
-                ReminderLine.Validate("No.", CustPostingGr.GetAdditionalFeeAccount());
-                ReminderLine.Description :=
-                  CopyStr(
-                    TranslationHelper.GetTranslatedFieldCaption(
-                      "Language Code", DATABASE::"Currency for Reminder Level",
-                      CurrencyForReminderLevel.FieldNo("Additional Fee")), 1, 100);
+                    NextLineNo := NextLineNo + LineSpacing;
+                    ReminderLine.Init();
+                    ReminderLine."Line No." := NextLineNo;
+                    ReminderLine.Type := ReminderLine.Type::"G/L Account";
+                    TestField("Customer Posting Group");
+                    CustPostingGr.Get("Customer Posting Group");
+                    ReminderLine.Validate("No.", CustPostingGr.GetAdditionalFeeAccount());
+                    ReminderLine.Description :=
+                      CopyStr(
+                        TranslationHelper.GetTranslatedFieldCaption(
+                          "Language Code", DATABASE::"Currency for Reminder Level",
+                          CurrencyForReminderLevel.FieldNo("Additional Fee")), 1, 100);
 
-                IsHandled := false;
-                OnInsertLinesOnBeforeValidateAmount(Rec, ReminderLine, IsHandled);
-                if not IsHandled then
-                    ReminderLine.Validate(Amount, AdditionalFee);
-                ReminderLine."Line Type" := ReminderLine."Line Type"::"Additional Fee";
-                IsHandled := false;
-                OnInsertLinesOnBeforeReminderLineInsert(Rec, ReminderLine, IsHandled);
-                if not IsHandled then
-                    ReminderLine.Insert();
-                if TransferExtendedText.ReminderCheckIfAnyExtText(ReminderLine, false) then
-                    TransferExtendedText.InsertReminderExtText(ReminderLine);
+                    IsHandled := false;
+                    OnInsertLinesOnBeforeValidateAmount(Rec, ReminderLine, IsHandled);
+                    if not IsHandled then
+                        ReminderLine.Validate(Amount, AdditionalFee);
+                    ReminderLine."Line Type" := ReminderLine."Line Type"::"Additional Fee";
+                    IsHandled := false;
+                    OnInsertLinesOnBeforeReminderLineInsert(Rec, ReminderLine, IsHandled);
+                    if not IsHandled then
+                        ReminderLine.Insert();
+                    if TransferExtendedText.ReminderCheckIfAnyExtText(ReminderLine, false) then
+                        TransferExtendedText.InsertReminderExtText(ReminderLine);
+                end;
             end;
+            ReminderLine."Line No." := ReminderLine."Line No." + 10000;
+            ReminderRounding(Rec);
+            InsertBeginTexts(Rec);
+            InsertEndTexts(Rec);
+            Modify();
         end;
-        ReminderLine."Line No." := ReminderLine."Line No." + 10000;
-        ReminderRounding(Rec);
-        InsertBeginTexts(Rec);
-        InsertEndTexts(Rec);
-        Modify();
 
         OnAfterInsertLines(Rec);
     end;
@@ -1420,6 +1424,11 @@ table 295 "Reminder Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintRecords(var ReminderHeader: Record "Reminder Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertLines(var ReminderHeader: Record "Reminder Header"; var IsHandled: Boolean)
     begin
     end;
 }

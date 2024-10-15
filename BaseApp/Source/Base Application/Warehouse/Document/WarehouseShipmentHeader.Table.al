@@ -453,6 +453,7 @@ table 7320 "Warehouse Shipment Header"
         if not WhseShptLine.FindFirst() then
             exit(WhseShptLine.Status::" ");
 
+        OnGetDocumentStatusOnBeforeCheckPartllyShipped(Rec, WhseShptLine);
         WhseShptLine.SetRange(Status, WhseShptLine.Status::"Partially Shipped");
         if WhseShptLine.FindFirst() then
             exit(WhseShptLine.Status);
@@ -799,6 +800,11 @@ table 7320 "Warehouse Shipment Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnInsert(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var xWarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WhseSetup: Record "Warehouse Setup"; var NoSeriesMgt: Codeunit NoSeriesManagement; var Location: Record Location; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDocumentStatusOnBeforeCheckPartllyShipped(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseShipmentLine: Record "Warehouse Shipment Line")
     begin
     end;
 }

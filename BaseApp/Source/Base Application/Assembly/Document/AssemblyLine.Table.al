@@ -99,6 +99,10 @@ table 901 "Assembly Line"
                     Init()
                 else begin
                     GetHeader();
+
+                    if Rec."No." <> xRec."No." then
+                        Validate("Dimension Set ID", 0);
+
                     "Due Date" := AssemblyHeader."Starting Date";
                     case Type of
                         Type::Item:
@@ -1286,6 +1290,29 @@ table 901 "Assembly Line"
         OnAfterUpdateDim(Rec);
     end;
 
+    local procedure UpdateCombinedDimension(HeaderDimensionSetID: Integer)
+    var
+        AssemblySetup: Record "Assembly Setup";
+        DimMgt: Codeunit DimensionManagement;
+        DimensionSetIDArr: array[10] of Integer;
+    begin
+        AssemblySetup.Get();
+        case AssemblySetup."Copy Component Dimensions from" of
+            AssemblySetup."Copy Component Dimensions from"::"Order Header":
+                begin
+                    DimensionSetIDArr[1] := "Dimension Set ID";
+                    DimensionSetIDArr[2] := HeaderDimensionSetID;
+                end;
+            AssemblySetup."Copy Component Dimensions from"::"Item/Resource Card":
+                begin
+                    DimensionSetIDArr[2] := "Dimension Set ID";
+                    DimensionSetIDArr[1] := HeaderDimensionSetID;
+                end;
+        end;
+
+        "Dimension Set ID" := DimMgt.GetCombinedDimensionSetID(DimensionSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+    end;
+
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     var
         DimMgt: Codeunit DimensionManagement;
@@ -1915,10 +1942,8 @@ table 901 "Assembly Line"
         InitDefaultDimensionSources(DefaultDimSource);
         if DimMgt.IsDefaultDimDefinedForTable(GetTableValuePair(CurrFieldNo)) then
             CreateDim(DefaultDimSource, HeaderDimensionSetID)
-        else begin
-            "Dimension Set ID" := HeaderDimensionSetID;
-            DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
-        end;
+        else
+            UpdateCombinedDimension(HeaderDimensionSetID);
     end;
 
     local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])

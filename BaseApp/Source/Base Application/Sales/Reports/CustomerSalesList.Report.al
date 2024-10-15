@@ -185,6 +185,7 @@ report 119 "Customer - Sales List"
             SetCurrentKey("Document Type", "Customer No.", "Posting Date");
             SetRange("Customer No.", Customer."No.");
             SetFilter("Posting Date", Customer.GetFilter("Date Filter"));
+            OnCalculateAmtOfSaleLCYOnAfterSetCustLedgEntryFilters(CustLedgEntry, Customer);
             for i := 1 to 2 do begin
                 case i of
                     1:
@@ -203,6 +204,11 @@ report 119 "Customer - Sales List"
     begin
         MinAmtLCY := MinimumAmtLCY;
         HideAddress := HideAddressDetails;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateAmtOfSaleLCYOnAfterSetCustLedgEntryFilters(var CustLedgerEntry: Record "Cust. Ledger Entry"; Customer: Record Customer)
+    begin
     end;
 }
 

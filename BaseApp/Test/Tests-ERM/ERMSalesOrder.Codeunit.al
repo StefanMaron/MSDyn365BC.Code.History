@@ -68,6 +68,7 @@ codeunit 134378 "ERM Sales Order"
         AdjustedCostChangedMsg: Label 'Adjusted Cost (LCY) has changed.';
         DimensionSetIdHasChangedMsg: Label 'Dimension Set ID has changed on Sales Order';
         CustomerBlockedErr: Label 'You cannot create this type of document when Customer %1 is blocked with type %2';
+        UnitPriceMustMatchErr: Label 'Unit Price must match.';
 
     [Test]
     [Scope('OnPrem')]
@@ -5105,6 +5106,74 @@ codeunit 134378 "ERM Sales Order"
         Assert.ExpectedError(StrSubstNo(CustomerBlockedErr, Customer."No.", Customer.Blocked));
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure UnitPriceShouldBeUpdatedwhenWeChangeUOMonCorrectiveSalesCreaditMemo()
+    var
+        Item: Record Item;
+        UnitOfMeasure: array[2] of Record "Unit of Measure";
+        ItemUnitOfMeasure: array[2] of Record "Item Unit of Measure";
+        SalesHeader: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        SalesLine2: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        DocNo: Code[20];
+        UnitPrice: Decimal;
+        ExpectedUnitPrice: Decimal;
+    begin
+        // [SCENARIO 493409] Corrective Sales Credit Memo Amount is not re-calculated if we modify the UOM in the lines.
+        Initialize();
+
+        // [GIVEN] Create Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Unit Of Measure Code 1.
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure[1]);
+
+        // [GIVEN] Create Unit Of Measure Code 2.
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure[2]);
+
+        // [GIVEN] Create Item Unit Of Measure 1.
+        LibraryInventory.CreateItemUnitOfMeasure(
+            ItemUnitOfMeasure[1],
+            Item."No.",
+            UnitOfMeasure[1].Code,
+            LibraryRandom.RandInt(0));
+
+        // [GIVEN] Create Item Unit Of Measure 2.
+        LibraryInventory.CreateItemUnitOfMeasure(
+            ItemUnitOfMeasure[2],
+            Item."No.",
+            UnitOfMeasure[2].Code,
+            LibraryRandom.RandIntInRange(4, 4));
+
+        // [GIVEN] Create and Post Sales Order.
+        CreateAndPostSalesOrder(SalesHeader, Item, UnitOfMeasure[2], UnitPrice, DocNo);
+
+        // [GIVEN] Find Sales Invoice Header.
+        SalesInvoiceHeader.Get(DocNo);
+
+        // [GIVEN] Create Corrective Credit Memo.
+        CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvoiceHeader, SalesHeader2);
+
+        // [GIVEN] Find Sales Line of created Sales Credit Memo.
+        SalesLine2.SetRange("Document No.", SalesHeader2."No.");
+        SalesLine2.SetRange("No.", Item."No.");
+        SalesLine2.FindFirst();
+
+        // [GIVEN] Generate and save Expected Unit Price in a Variable.
+        ExpectedUnitPrice := ItemUnitOfMeasure[1]."Qty. per Unit of Measure" * UnitPrice / ItemUnitOfMeasure[2]."Qty. per Unit of Measure";
+
+        // [WHEN] Validate Unit Of Measure Code 1 in Sales Line.
+        SalesLine2.Validate("Unit of Measure Code", UnitOfMeasure[1].Code);
+        SalesLine2.Modify(true);
+
+        // [VERIFY] Verify Unit Price of Credit Memo Sales Line and Expected Unit Price are same.
+        Assert.AreEqual(ExpectedUnitPrice, SalesLine2."Unit Price", UnitPriceMustMatchErr);
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";
@@ -7143,6 +7212,39 @@ codeunit 134378 "ERM Sales Order"
         CustomerInvoiceDisc.FindFirst();
         CustomerInvoiceDisc.Validate("Service Charge", ServiceChargeAmt);
         CustomerInvoiceDisc.Modify(true);
+    end;
+
+    local procedure CreateAndPostSalesOrder(
+        var SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+        var UnitPrice: Decimal;
+        var DocNo: Code[20])
+    var
+        Customer: Record Customer;
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+
+        UnitPrice := LibraryRandom.RandDec(10, 2);
+
+        LibrarySales.CreateSalesHeader(
+            SalesHeader,
+            SalesHeader."Document Type"::Order,
+            Customer."No.");
+
+        LibrarySales.CreateSalesLine(
+            SalesLine,
+            SalesHeader,
+            SalesLine.Type::Item,
+            Item."No.",
+            LibraryRandom.RandInt(0));
+
+        SalesLine.Validate("Unit of Measure Code", UnitOfMeasure.Code);
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Modify(true);
+
+        DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforePostUpdateOrderLineModifyTempLine', '', false, false)]

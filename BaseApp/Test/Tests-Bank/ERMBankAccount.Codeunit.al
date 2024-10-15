@@ -449,7 +449,6 @@ codeunit 134231 "ERM Bank Account"
     end;
 
     [Test]
-    [Scope('OnPrem')]
     procedure RunningBalance()
     var
         BankAccountledgerEntry: Record "Bank Account Ledger Entry";
