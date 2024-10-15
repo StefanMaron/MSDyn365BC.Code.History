@@ -38,11 +38,11 @@ codeunit 134198 "Price Worksheet Line UT"
         AmountTypeMustBeDiscountErr: Label 'Defines must be equal to ''Discount''';
         ItemDiscGroupMustNotBePurchaseErr: Label 'Product Type must not be Item Discount Group';
         LineSourceTypeErr: Label 'cannot be set to %1 if the header''s source type is %2.', Comment = '%1 and %2 - the source type value.';
-        SourceTypeMustBeErr: Label 'Applies-to Type must be equal to ''%1''', Comment = '%1 - source type value';
-        ParentSourceNoMustBeFilledErr: Label 'Applies-to Parent No. must have a value';
-        ParentSourceNoMustBeBlankErr: Label 'Applies-to Parent No. must be equal to ''''';
-        SourceNoMustBeFilledErr: Label 'Applies-to No. must have a value';
-        SourceNoMustBeBlankErr: Label 'Applies-to No. must be equal to ''''';
+        SourceTypeMustBeErr: Label 'Assign-to Type must be equal to ''%1''', Comment = '%1 - source type value';
+        ParentSourceNoMustBeFilledErr: Label 'Assign-to Parent No. must have a value';
+        ParentSourceNoMustBeBlankErr: Label 'Assign-to Parent No. must be equal to ''''';
+        SourceNoMustBeFilledErr: Label 'Assign-to must have a value';
+        SourceNoMustBeBlankErr: Label 'Assign-to must be equal to ''''';
         SourceGroupJobErr: Label 'Source Group must be equal to ''Job''';
         IsInitialized: Boolean;
 
@@ -319,6 +319,21 @@ codeunit 134198 "Price Worksheet Line UT"
 
         // [THEN] "Price Includes VAT" is equal to the header's value
         PriceWorksheetLine.TestField("Price Includes VAT", PriceListHeader."Price Includes VAT");
+    end;
+
+    [Test]
+    procedure T009_AssetTypeAllAutoconvertedToItem()
+    var
+        PriceWorksheetLine: Record "Price Worksheet Line";
+    begin
+        // [WHEN] New price worksheet line
+        PriceWorksheetLine.Init();
+        // [THEN] Default "Asset Type" is Item
+        PriceWorksheetLine.TestField("Asset Type", "Price Asset Type"::Item);
+        // [WHEN] Change "Asset Type" to '(All)'
+        PriceWorksheetLine.Validate("Asset Type", "Price Asset Type"::" ");
+        // [THEN] "Asset Type" is Item
+        PriceWorksheetLine.Validate("Asset Type", "Price Asset Type"::Item);
     end;
 
     [Test]
@@ -931,7 +946,7 @@ codeunit 134198 "Price Worksheet Line UT"
         Initialize();
         // [GIVEN] Price Worksheet Line, where "Asset Type" is 'All', "Asset No." is <blank> 
         PriceWorksheetLine.Validate("Price Type", "Price Type"::Sale);
-        PriceWorksheetLine.Validate("Asset Type", "Price Asset Type"::" ");
+        PriceWorksheetLine."Asset Type" := "Price Asset Type"::" ";
         // [WHEN] Validate "Unit Price" as 1
         asserterror PriceWorksheetLine.Validate("Unit Price", 1);
         // [THEN] Error message: 'Asset Type must not be (All).'
@@ -947,7 +962,7 @@ codeunit 134198 "Price Worksheet Line UT"
         Initialize();
         // [GIVEN] Price Worksheet Line, where "Asset Type" is 'All', "Asset No." is <blank> 
         PriceWorksheetLine.Validate("Price Type", "Price Type"::Purchase);
-        PriceWorksheetLine.Validate("Asset Type", "Price Asset Type"::" ");
+        PriceWorksheetLine."Asset Type" := "Price Asset Type"::" ";
         // [WHEN] Validate "Direct Unit Cost" as 1
         asserterror PriceWorksheetLine.Validate("Direct Unit Cost", 1);
         // [THEN] Error message: 'Asset Type must not be (All).'
@@ -963,7 +978,7 @@ codeunit 134198 "Price Worksheet Line UT"
         Initialize();
         // [GIVEN] Price Worksheet Line, where "Asset Type" is 'All', "Asset No." is <blank> 
         PriceWorksheetLine.Validate("Price Type", "Price Type"::Sale);
-        PriceWorksheetLine.Validate("Asset Type", "Price Asset Type"::" ");
+        PriceWorksheetLine."Asset Type" := "Price Asset Type"::" ";
         // [WHEN] Validate "Line Discount %" as 1
         asserterror PriceWorksheetLine.Validate("Line Discount %", 1);
         // [THEN] Error message: 'Asset Type must not be (All).'
@@ -1331,7 +1346,7 @@ codeunit 134198 "Price Worksheet Line UT"
         PriceWorksheetLine: Record "Price Worksheet Line";
     begin
         // [FEATURE] [Price Source Type] [Extended]
-        // [SCENARIO] Verify source in the line fails on inconsistent source: Applies-to No. is filled.
+        // [SCENARIO] Verify source in the line fails on inconsistent source: Assign-to is filled.
         Initialize();
         // [GIVEN] New Price Worksheet Line, where "Source Type"::"All Locations", "Source No." is 'X'
         PriceWorksheetLine."Source Type" := "Price Source Type"::Test_All_Locations;
@@ -1340,7 +1355,7 @@ codeunit 134198 "Price Worksheet Line UT"
         // [WHEN] Verify source
         asserterror PriceWorksheetLine.Verify();
 
-        // [THEN] Error: "Applies-to No. must be equal to ''''"
+        // [THEN] Error: "Assign-to must be equal to ''''"
         Assert.ExpectedError(SourceNoMustBeBlankErr);
     end;
 
@@ -1350,7 +1365,7 @@ codeunit 134198 "Price Worksheet Line UT"
         PriceWorksheetLine: Record "Price Worksheet Line";
     begin
         // [FEATURE] [Price Source Type] [Extended]
-        // [SCENARIO] Verify source in the line fails on inconsistent source: Applies-to No. is blank.
+        // [SCENARIO] Verify source in the line fails on inconsistent source: Assign-to is blank.
         Initialize();
         // [GIVEN] New Price Worksheet Line, where "Source Type"::"Location", "Parent Source No." is 'X', "Source No." is <blank>
         PriceWorksheetLine."Source Type" := "Price Source Type"::Test_Location;
@@ -1360,7 +1375,7 @@ codeunit 134198 "Price Worksheet Line UT"
         // [WHEN] Verify source
         asserterror PriceWorksheetLine.Verify();
 
-        // [THEN] Error: "Applies-to No. must have a value"
+        // [THEN] Error: "Assign-to must have a value"
         Assert.ExpectedError(SourceNoMustBeFilledErr);
     end;
 
@@ -1370,7 +1385,7 @@ codeunit 134198 "Price Worksheet Line UT"
         PriceWorksheetLine: Record "Price Worksheet Line";
     begin
         // [FEATURE] [Price Source Type] [Extended]
-        // [SCENARIO] Verify source in the line fails on inconsistent source: Applies-to Parent No. is filled.
+        // [SCENARIO] Verify source in the line fails on inconsistent source: Assign-to Parent No. is filled.
         Initialize();
         // [GIVEN] New Price Worksheet Line, where "Source Type"::"All Locations", "Parent Source No." is 'X'
         PriceWorksheetLine."Source Type" := "Price Source Type"::Test_All_Locations;
@@ -1379,7 +1394,7 @@ codeunit 134198 "Price Worksheet Line UT"
         // [WHEN] Verify source
         asserterror PriceWorksheetLine.Verify();
 
-        // [THEN] Error: "Applies-to Parent No. must be equal to ''''"
+        // [THEN] Error: "Assign-to Parent No. must be equal to ''''"
         Assert.ExpectedError(ParentSourceNoMustBeBlankErr);
     end;
 
@@ -1389,7 +1404,7 @@ codeunit 134198 "Price Worksheet Line UT"
         PriceWorksheetLine: Record "Price Worksheet Line";
     begin
         // [FEATURE] [Price Source Type] [Extended]
-        // [SCENARIO] Verify source in the line fails on inconsistent source: Applies-to Parent No. is blank.
+        // [SCENARIO] Verify source in the line fails on inconsistent source: Assign-to Parent No. is blank.
         Initialize();
         // [GIVEN] New Price Worksheet Line, where "Source Type"::"Location", "Parent Source No." is <blank>
         PriceWorksheetLine."Source Type" := "Price Source Type"::Test_Location;
@@ -1398,7 +1413,7 @@ codeunit 134198 "Price Worksheet Line UT"
         // [WHEN] Verify source
         asserterror PriceWorksheetLine.Verify();
 
-        // [THEN] Error: "Applies-to Parent No. must have a value"
+        // [THEN] Error: "Assign-to Parent No. must have a value"
         Assert.ExpectedError(ParentSourceNoMustBeFilledErr);
     end;
 

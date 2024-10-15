@@ -462,6 +462,12 @@ table 7312 "Warehouse Entry"
         OnAfterTrackingExists(Rec, IsTrackingExists);
     end;
 
+    procedure Lock()
+    begin
+        LockTable();
+        if FindLast() then;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterClearTrackingFilter(var WarehouseEntry: Record "Warehouse Entry")
     begin

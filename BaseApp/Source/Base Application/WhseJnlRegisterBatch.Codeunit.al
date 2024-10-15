@@ -150,7 +150,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
                 ItemTrackingMgt.SplitWhseJnlLine(WhseJnlLine, TempWhseJnlLine2, TempHandlingSpecification, false);
                 if TempWhseJnlLine2.Find('-') then
                     repeat
-                        OnBeforeWhseJnlRegisterLineRun(TempWhseJnlLine2);
+                        OnBeforeWhseJnlRegisterLineRun(TempWhseJnlLine2, WhseJnlTemplate);
                         WhseJnlRegisterLine.Run(TempWhseJnlLine2);
                     until TempWhseJnlLine2.Next() = 0;
 
@@ -704,7 +704,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeWhseJnlRegisterLineRun(var TempWarehouseJournalLine: Record "Warehouse Journal Line" temporary)
+    local procedure OnBeforeWhseJnlRegisterLineRun(var TempWarehouseJournalLine: Record "Warehouse Journal Line" temporary; WarehouseJournalTemplate: Record "Warehouse Journal Template")
     begin
     end;
 
