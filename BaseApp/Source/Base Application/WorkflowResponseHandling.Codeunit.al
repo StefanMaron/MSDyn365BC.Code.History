@@ -252,7 +252,7 @@ codeunit 1521 "Workflow Response Handling"
                 DoNothingCode:
                     DoNothing;
                 CreateNotificationEntryCode:
-                    CreateNotificationEntry(Variant, ResponseWorkflowStepInstance, xVariant);
+                    CreateNotificationEntry(ResponseWorkflowStepInstance, xVariant);
                 ReleaseDocumentCode:
                     ReleaseDocument(Variant);
                 OpenDocumentCode:
@@ -497,14 +497,14 @@ codeunit 1521 "Workflow Response Handling"
     begin
     end;
 
-    local procedure CreateNotificationEntry(Variant: Variant; WorkflowStepInstance: Record "Workflow Step Instance"; ApprovalEntry: Record "Approval Entry")
+    local procedure CreateNotificationEntry(WorkflowStepInstance: Record "Workflow Step Instance"; ApprovalEntry: Record "Approval Entry")
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
         NotificationEntry: Record "Notification Entry";
     begin
         if WorkflowStepArgument.Get(WorkflowStepInstance.Argument) then
             NotificationEntry.CreateNew(WorkflowStepArgument."Notification Entry Type",
-              WorkflowStepArgument.GetNotificationUserID(ApprovalEntry), Variant, WorkflowStepArgument."Link Target Page",
+              WorkflowStepArgument.GetNotificationUserID(ApprovalEntry), ApprovalEntry, WorkflowStepArgument."Link Target Page",
               WorkflowStepArgument."Custom Link");
     end;
 
@@ -900,12 +900,12 @@ codeunit 1521 "Workflow Response Handling"
             Error(ResponseAlreadyExistErr, Description);
         end;
 
-        WorkflowResponse.Init;
+        WorkflowResponse.Init();
         WorkflowResponse."Function Name" := FunctionName;
         WorkflowResponse."Table ID" := TableID;
         WorkflowResponse.Description := Description;
         WorkflowResponse."Response Option Group" := ResponseOptionGroup;
-        WorkflowResponse.Insert;
+        WorkflowResponse.Insert();
 
         AddResponsePredecessors(WorkflowResponse."Function Name");
     end;
@@ -914,12 +914,12 @@ codeunit 1521 "Workflow Response Handling"
     var
         WFEventResponseCombination: Record "WF Event/Response Combination";
     begin
-        WFEventResponseCombination.Init;
+        WFEventResponseCombination.Init();
         WFEventResponseCombination.Type := WFEventResponseCombination.Type::Response;
         WFEventResponseCombination."Function Name" := FunctionName;
         WFEventResponseCombination."Predecessor Type" := WFEventResponseCombination."Predecessor Type"::"Event";
         WFEventResponseCombination."Predecessor Function Name" := PredecessorFunctionName;
-        if WFEventResponseCombination.Insert then;
+        if WFEventResponseCombination.Insert() then;
     end;
 
     procedure GetDescription(WorkflowStepArgument: Record "Workflow Step Argument"): Text[250]

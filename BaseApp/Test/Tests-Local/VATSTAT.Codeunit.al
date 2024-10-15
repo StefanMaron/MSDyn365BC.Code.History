@@ -26,7 +26,7 @@ codeunit 144001 VATSTAT
         ReportingType: Option Quarter,Month,"Defined period";
         DefaultFdfTxt: Label 'Default.fdf';
         DefaultXmlTxt: Label 'Default.xml';
-        arguments: Option ,Zahl101,Zahl102,Zahl103,Zahl104,Zahl105,Zahl106,Zahl107,Zahl108,Zahl109,Zahl110,Zahl111,Zahl112,Zahl113,Zahl115a,Zahl116a,Zahl117a,Zahl118a,Zahl119a,Zahl120a,Zahl123,Zahl124,Zahl125,Zahl125b,Zahl125a,Zahl126,Zahl127,Zahl128a,Zahl129a,Zahl130a,Zahl131,Zahl132,Zahl133,Zahl134,Zahl134a,Zahl135,Zahl136,Zahl136a,Zahl137a,Zahl137,Zahl138,Zahl139,DD140,Zahl140,DD141,Zahl141,DD143_27,Zahl143_27,DD143_28,Zahl143_28,DD143,Zahl143,Checkbox100X,Checkbox100Xx;
+        arguments: Option ,Zahl101,Zahl102,Zahl103,Zahl104,Zahl105,Zahl106,Zahl107,Zahl108,Zahl109,Zahl110,Zahl111,Zahl112,Zahl113,Zahl115a,Zahl116a,Zahl117a,Zahl118a,Zahl119a,Zahl120a,Zahl121a,Zahl123,Zahl124,Zahl125,Zahl125b,Zahl125a,Zahl126,Zahl127,Zahl128a,Zahl129a,Zahl130a,Zahl130aa,Zahl131,Zahl132,Zahl133,Zahl134,Zahl134a,Zahl135,Zahl136,Zahl136a,Zahl137a,Zahl137,Zahl138,Zahl139,DD140,Zahl140,DD141,Zahl141,DD143_27,Zahl143_27,DD143_28,Zahl143_28,DD143,Zahl143,Checkbox100X,Checkbox100Xx;
         PdfFileName: Text[260];
         FdfFileName: Text[260];
         XmlFileName: Text[260];
@@ -99,7 +99,7 @@ codeunit 144001 VATSTAT
           ReportingType::"Defined period", false, false, false, false, 0);
 
         // Create a domestic sales invoice.
-        DocNo := CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, 'DOMESTIC');
+        DocNo := CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, GetDomesticGroup());
 
         // Exercise.
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
@@ -134,13 +134,13 @@ codeunit 144001 VATSTAT
     begin
         // Enter an eu sales invoice and verify that the data in the generated FDF file.
         Initialize;
-        SetupVatStatementLine('1000', 'EULIEF', true, 'UVA-2016');
-        SetupVatStatementLine('1017', 'EULIEF', true, 'UVA-2016');
+        SetupVatStatementLine('1000', 'EULIEF', true, GetTemplateName());
+        SetupVatStatementLine('1017', 'EULIEF', true, GetTemplateName());
         EnqueRequestPageFields(WorkDate, WorkDate, IncludeVATEntries::"Open and Closed", PeriodSelection::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
         // Create an eu sales invoice.
-        DocNo := CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, 'EU');
+        DocNo := CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, GetEUGroup());
 
         // Exercise.
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
@@ -175,12 +175,12 @@ codeunit 144001 VATSTAT
     begin
         // Enter a foreign sales invoice and verify that the data in the generated FDF file.
         Initialize;
-        SetupVatStatementLine('1011', 'BU0', true, 'UVA-2016');
+        SetupVatStatementLine('1011', 'BU0', true, GetTemplateName());
         EnqueRequestPageFields(WorkDate, WorkDate, IncludeVATEntries::"Open and Closed", PeriodSelection::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
         // Create a foreign sales invoice.
-        DocNo := CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, 'EXPORT');
+        DocNo := CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, GetExportGroup());
 
         // Exercise.
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
@@ -219,7 +219,7 @@ codeunit 144001 VATSTAT
           ReportingType::"Defined period", false, false, false, false, 0);
 
         // Create a domestic purchase invoice.
-        DocNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, 'DOMESTIC');
+        DocNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, GetDomesticGroup());
 
         // Exercise.
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
@@ -257,7 +257,7 @@ codeunit 144001 VATSTAT
           ReportingType::"Defined period", false, false, false, false, 0);
 
         // Create an eu purchase invoice.
-        DocNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, 'EU');
+        DocNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, GetEUGroup());
 
         // Exercise.
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
@@ -297,7 +297,7 @@ codeunit 144001 VATSTAT
           ReportingType::"Defined period", false, false, false, false, 0);
 
         // Create a foreign purchase invoice.
-        CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, 'EXPORT');
+        CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, GetExportGroup());
 
         // Exercise.
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
@@ -331,7 +331,7 @@ codeunit 144001 VATSTAT
           ReportingType::"Defined period", false, false, false, false, 0);
 
         // Create a domestic sales invoice.
-        DocNo := CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo", 'DOMESTIC');
+        DocNo := CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo", GetDomesticGroup());
 
         // Exercise.
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
@@ -371,12 +371,12 @@ codeunit 144001 VATSTAT
         Initialize;
 
         // [GIVEN] Setup VAT Statement Line '1067' with 'Row Totaling' = 'UST20' (Sale Domestic VAT20)
-        SetupVatStatementLine('1067', 'UST20', true, 'UVA-2016');
+        SetupVatStatementLine('1067', 'UST20', true, GetTemplateName());
         EnqueRequestPageFields(WorkDate, WorkDate, IncludeVATEntries::"Open and Closed", PeriodSelection::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
         // [GIVEN] Posted domestic Sales Credit Memo (VAT Amount = 100)
-        DocNo := CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo", 'DOMESTIC');
+        DocNo := CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo", GetDomesticGroup());
         GetVATEntry(VATEntry, DocNo, VATEntry."Document Type"::"Credit Memo", VATEntry.Type::Sale);
 
         // [WHEN] Export VAT Statement
@@ -399,7 +399,7 @@ codeunit 144001 VATSTAT
         LibraryXPathXMLReader.VerifyNodeCountByXPath('descendant::*[@type="kz"]', 4);
 
         // Tear Down
-        SetupVatStatementLine('1067', '', false, 'UVA-2016');
+        SetupVatStatementLine('1067', '', false, GetTemplateName());
     end;
 
     [Test]
@@ -422,12 +422,12 @@ codeunit 144001 VATSTAT
           ReportingType::"Defined period", false, false, false, false, 0);
 
         // [GIVEN] Posted EU Purchase Invoice (VAT Amount = 100)
-        DocNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, 'EU');
+        DocNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, GetEUGroup());
         GetVATEntry(VATEntry, DocNo, VATEntry."Document Type"::Invoice, VATEntry.Type::Purchase);
         PurchInvoiceVATEntryAmount := VATEntry.Amount;
 
         // [GIVEN] Posted EU Purchase Credit Memo (VAT Amount = -300)
-        DocNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", 'EU');
+        DocNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", GetEUGroup());
         GetVATEntry(VATEntry, DocNo, VATEntry."Document Type"::"Credit Memo", VATEntry.Type::Purchase);
 
         // [WHEN] Export VAT Statement
@@ -462,13 +462,13 @@ codeunit 144001 VATSTAT
     begin
         // Enter an eu sales invoice and verify that the data in the generated FDF file.
         Initialize;
-        SetupVatStatementLine('1000', 'EULIEF', true, 'UVA-2016');
-        SetupVatStatementLine('1017', 'EULIEF', true, 'UVA-2016');
+        SetupVatStatementLine('1000', 'EULIEF', true, GetTemplateName());
+        SetupVatStatementLine('1017', 'EULIEF', true, GetTemplateName());
         EnqueRequestPageFields(WorkDate, WorkDate, IncludeVATEntries::"Open and Closed", PeriodSelection::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
         // Create an eu sales invoice.
-        CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo", 'EU');
+        CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo", GetEUGroup());
 
         // Exercise.
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
@@ -499,12 +499,12 @@ codeunit 144001 VATSTAT
         Initialize;
 
         // [GIVEN] Setup VAT Statement Line '1011' with 'Row Totaling' = 'BU0' (Sale Export VAT10)
-        SetupVatStatementLine('1011', 'BU0', true, 'UVA-2016');
+        SetupVatStatementLine('1011', 'BU0', true, GetTemplateName());
         EnqueRequestPageFields(WorkDate, WorkDate, IncludeVATEntries::"Open and Closed", PeriodSelection::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
         // [GIVEN] Foreign sales invoice
-        CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo", 'EXPORT');
+        CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo", GetExportGroup());
 
         // [WHEN] Export VAT Statement
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
@@ -763,7 +763,7 @@ codeunit 144001 VATSTAT
           ReportingType::"Defined period", false, false, true, true, 0);
 
         // Create an eu purchase invoice.
-        DocNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, 'EU');
+        DocNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, GetEUGroup());
 
         // Exercise.
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
@@ -879,7 +879,7 @@ codeunit 144001 VATSTAT
         Initialize;
 
         // Setup: Clear all date to be created by update
-        StatementTemplateName := 'UVA-2016';
+        StatementTemplateName := GetTemplateName();
         VATStatementLine.SetRange("Statement Template Name", StatementTemplateName);
         VATStatementLine.DeleteAll;
         VATStatementTemplate.SetRange(Name, StatementTemplateName);
@@ -910,7 +910,7 @@ codeunit 144001 VATSTAT
         // Setup: Clear all date to be created by update
         REPORT.Run(REPORT::"Update VAT Statement Template");
 
-        VATStatementLine.SetRange("Statement Template Name", 'UVA-2016');
+        VATStatementLine.SetRange("Statement Template Name", GetTemplateName());
         VATLineCount := VATStatementLine.Count;
 
         VATStatementLine.SetFilter("Row Totaling", '<>''''');
@@ -925,20 +925,6 @@ codeunit 144001 VATSTAT
 
         // Validate: Statement Lines should hold data
         Assert.AreEqual(VATLineCount, VATStatementLine.Count, 'VAT Statment Lines should be recreated');
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure UpdateVATStmtTemplateRequestPageHandler(var UpdateVATStatementTemplate: TestRequestPage "Update VAT Statement Template")
-    begin
-        UpdateVATStatementTemplate.OK.Invoke;
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure UpdateVATStmtTemplateConfirmHandler(Question: Text[1024]; var Reply: Boolean)
-    begin
-        Reply := true;
     end;
 
     [Test]
@@ -986,7 +972,7 @@ codeunit 144001 VATSTAT
 
     [Test]
     [HandlerFunctions('VATStmtATRequestPageHandler,VATStmtATMessageHandler')]
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure TestKZ020WithArt6Abs1()
     var
         SalesHeader: Record "Sales Header";
@@ -996,15 +982,15 @@ codeunit 144001 VATSTAT
         Initialize();
 
         // [GIVEN] Setup VAT Statement Line for Row Check and set Row1020 = BU0
-        SetupVatStatementLine('1000', 'BU0', false, 'UVA-2016');
-        SetupVatStatementLine('1011', '', false, 'UVA-2016');
-        SetupVatStatementLine('1020', 'BU0', false, 'UVA-2016');
+        SetupVatStatementLine('1000', 'BU0', false, GetTemplateName());
+        SetupVatStatementLine('1011', '', false, GetTemplateName());
+        SetupVatStatementLine('1020', 'BU0', false, GetTemplateName());
         SetupVatStatementLine('1019', '', false, 'VAT');
 
         // [GIVEN] Set VAT Statement AT request page parameters with "Number of Art. 6 Abs. 1" = 1 and post a sales document
         EnqueRequestPageFields(WorkDate, WorkDate, IncludeVATEntries::"Open and Closed", PeriodSelection::"Within Period",
           ReportingType::Quarter, true, false, false, false, 1);
-        CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, 'EXPORT');
+        CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, GetExportGroup());
 
         // [WHEN] Run VAT Statement AT report
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
@@ -1016,7 +1002,7 @@ codeunit 144001 VATSTAT
 
     [Test]
     [HandlerFunctions('VATStmtATRequestPageHandler')]
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure TestKZ020WithoutArt6Abs1Error()
     var
         SalesHeader: Record "Sales Header";
@@ -1026,15 +1012,15 @@ codeunit 144001 VATSTAT
         Initialize();
 
         // [GIVEN] Setup VAT Statement Line for Row Check and set Row1020 = BU0
-        SetupVatStatementLine('1000', 'BU0', false, 'UVA-2016');
-        SetupVatStatementLine('1011', '', false, 'UVA-2016');
-        SetupVatStatementLine('1020', 'BU0', false, 'UVA-2016');
+        SetupVatStatementLine('1000', 'BU0', false, GetTemplateName());
+        SetupVatStatementLine('1011', '', false, GetTemplateName());
+        SetupVatStatementLine('1020', 'BU0', false, GetTemplateName());
         SetupVatStatementLine('1019', '', false, 'VAT');
 
         // [GIVEN] Set VAT Statement AT request page parameters with "Number of Art. 6 Abs. 1" = 0 and post a sales document
         EnqueRequestPageFields(WorkDate, WorkDate, IncludeVATEntries::"Open and Closed", PeriodSelection::"Within Period",
           ReportingType::Quarter, true, false, false, false, 0);
-        CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, 'EXPORT');
+        CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, GetExportGroup());
 
         // [WHEN] Run VAT Statement AT report
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
@@ -1043,6 +1029,484 @@ codeunit 144001 VATSTAT
         // [THEN] An error is thrown: "In order to claim taxfree revenues without input tax reduction (position 020)..."
         Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(ClaimTaxfreeRevErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('UpdateVATStmtTemplateConfirmHandler,VATStmtATMessageHandler')]
+    [Scope('OnPrem')]
+    procedure UpdateVATStatementTemplate2020_VAT5Pct()
+    var
+        VATStatementLine: Record "VAT Statement Line";
+        VATStatementName: Record "VAT Statement Name";
+        VATProductPostingGroup5Pct: Code[20];
+    begin
+        // [SCENARIO 365653] Changes in AT VAT Statement Template from August 2020: new ciphers KZ009, KZ010 for VAT 5%
+        Initialize();
+        VATProductPostingGroup5Pct := CheckCreateVATSetup5Pct();
+        CreateUpdateVATStatementTemplate(VATStatementName);
+
+        VATStatementLine.SetRange("Statement Template Name", VATStatementName."Statement Template Name");
+        VATStatementLine.SetRange("Statement Name", VATStatementName.Name);
+
+        AssertVATStatementLineExists(VATStatementLine, 'BU5');
+        AssertVATStatementLineExists(VATStatementLine, 'BU0');
+        AssertVATStatementLineExists(VATStatementLine, 'UST5');
+        AssertVATStatementLineExists(VATStatementLine, 'UST0');
+        AssertVATStatementLineExists(VATStatementLine, 'BV5');
+        AssertVATStatementLineExists(VATStatementLine, 'BV0');
+        AssertVATStatementLineExists(VATStatementLine, 'VST5');
+        AssertVATStatementLineExists(VATStatementLine, 'VST0');
+        AssertVATStatementLineExists(VATStatementLine, 'BES5');
+        AssertVATStatementLineExists(VATStatementLine, 'ES5');
+        AssertVATStatementLineExists(VATStatementLine, 'ES5');
+
+        VATStatementLine.SetRange("VAT Prod. Posting Group", VATProductPostingGroup5Pct);
+        AssertVATStatementLineExists(VATStatementLine, 'EULIEF');
+        VATStatementLine.SetRange("VAT Prod. Posting Group");
+
+        AssertVATStatementRowTotalling(VATStatementLine, '0009', 'BU5');
+        AssertVATStatementRowTotalling(VATStatementLine, '1009', 'UST5');
+
+        AssertVATStatementRowTotalling(VATStatementLine, '0010', 'BES5');
+        AssertVATStatementRowTotalling(VATStatementLine, '1010', 'ES5');
+
+        AssertVATStatementRowTotalling(VATStatementLine, '1000', 'BU20|BU10|BU13|BU19|BULW10|BULW7|BU0|BU5|EULIEF');
+        AssertVATStatementRowTotalling(VATStatementLine, '0070', 'BES20|BES10|BES13|BES19|BES0|BES5');
+        AssertVATStatementRowTotalling(VATStatementLine, '1060', 'VST20|VST10|VST13|VST19|VST5');
+        AssertVATStatementRowTotalling(VATStatementLine, '1065', 'ES20|ES10|ES13|ES19|ES5');
+    end;
+
+    [Test]
+    [HandlerFunctions('UpdateVATStmtTemplateConfirmHandler,VATStmtATMessageHandler,VATStmtATRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VAT5Pct_Sales_Domestic_Invoice()
+    var
+        SalesHeader: Record "Sales Header";
+        VATStatementName: Record "VAT Statement Name";
+        VATEntry: Record "VAT Entry";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
+        VATProductPostingGroup5Pct: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Invoice]
+        // [SCENARIO 365653] AT VAT Statement for domestic sales invoice VAT 5% (new cipher KZ009 from August 2020)
+        Initialize();
+        VATProductPostingGroup5Pct := CheckCreateVATSetup5Pct();
+        CreateUpdateVATStatementTemplate(VATStatementName);
+
+        DocumentNo :=
+          CreateAndPostSalesDocumentOnVATGroups(
+            SalesHeader."Document Type"::Invoice, GetDomesticGroup(), VATProductPostingGroup5Pct);
+        GetVATEntry(VATEntry, DocumentNo, VATEntry."Document Type"::Invoice, VATEntry.Type::Sale);
+        VATEntry.TestField(Base);
+        VATEntry.TestField(Amount);
+
+        RunVATStatement(VATStatementName);
+
+        FdfFileHelper.ReadFdfFile(FdfFileName);
+        VerifyFDFLineValue(FdfFileHelper, arguments::Zahl121a, VATEntry.Base);
+        VerifyFDFLineValue(FdfFileHelper, arguments::Zahl101, -VATEntry.Base);
+        VerifyFDFLineValue(FdfFileHelper, arguments::Zahl104, 0);
+
+        LibraryXPathXMLReader.Initialize(XmlFileName, '');
+        VerifyXMLLine(LibraryXPathXMLReader, 'LIEFERUNGEN_LEISTUNGEN_EIGENVERBRAUCH/KZ000', -VATEntry.Base);
+        VerifyXMLLine(LibraryXPathXMLReader, 'LIEFERUNGEN_LEISTUNGEN_EIGENVERBRAUCH/VERSTEUERT/KZ009', -VATEntry.Base);
+    end;
+
+    [Test]
+    [HandlerFunctions('UpdateVATStmtTemplateConfirmHandler,VATStmtATMessageHandler,VATStmtATRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VAT5Pct_Sales_Domestic_CrMemo()
+    var
+        SalesHeader: Record "Sales Header";
+        VATStatementName: Record "VAT Statement Name";
+        VATEntry: Record "VAT Entry";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
+        VATProductPostingGroup5Pct: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Credit Memo]
+        // [SCENARIO 365653] AT VAT Statement for domestic sales credit memo VAT 5%
+        Initialize();
+        VATProductPostingGroup5Pct := CheckCreateVATSetup5Pct();
+        CreateUpdateVATStatementTemplate(VATStatementName);
+
+        DocumentNo :=
+          CreateAndPostSalesDocumentOnVATGroups(
+            SalesHeader."Document Type"::"Credit Memo", GetDomesticGroup(), VATProductPostingGroup5Pct);
+        GetVATEntry(VATEntry, DocumentNo, VATEntry."Document Type"::"Credit Memo", VATEntry.Type::Sale);
+        VATEntry.TestField(Base);
+        VATEntry.TestField(Amount);
+
+        RunVATStatement(VATStatementName);
+
+        FdfFileHelper.ReadFdfFile(FdfFileName);
+        VerifyFDFLineValue(FdfFileHelper, arguments::Zahl143, -VATEntry.Amount);
+        VerifyFDFLineValue(FdfFileHelper, arguments::Zahl104, 0);
+
+        LibraryXPathXMLReader.Initialize(XmlFileName, '');
+        VerifyXMLLine(LibraryXPathXMLReader, 'LIEFERUNGEN_LEISTUNGEN_EIGENVERBRAUCH/KZ000', 0);
+        VerifyXMLLine(LibraryXPathXMLReader, 'VORSTEUER/KZ090', -VATEntry.Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('UpdateVATStmtTemplateConfirmHandler,VATStmtATMessageHandler,VATStmtATRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VAT5Pct_Sales_EU_Invoice()
+    var
+        SalesHeader: Record "Sales Header";
+        VATStatementName: Record "VAT Statement Name";
+        VATEntry: Record "VAT Entry";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
+        VATProductPostingGroup5Pct: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Invoice]
+        // [SCENARIO 365653] AT VAT Statement for EU sales invoice VAT 5%
+        Initialize();
+        VATProductPostingGroup5Pct := CheckCreateVATSetup5Pct();
+        CreateUpdateVATStatementTemplate(VATStatementName);
+
+        DocumentNo :=
+          CreateAndPostSalesDocumentOnVATGroups(
+            SalesHeader."Document Type"::Invoice, GetEUGroup(), VATProductPostingGroup5Pct);
+        GetVATEntry(VATEntry, DocumentNo, VATEntry."Document Type"::Invoice, VATEntry.Type::Sale);
+        VATEntry.TestField(Base);
+        VATEntry.TestField(Amount, 0);
+
+        RunVATStatement(VATStatementName);
+
+        FdfFileHelper.ReadFdfFile(FdfFileName);
+        VerifyFDFLineValue(FdfFileHelper, arguments::Zahl108, -VATEntry.Base);
+        VerifyFDFLineValue(FdfFileHelper, arguments::Zahl101, -VATEntry.Base);
+        VerifyFDFLineValue(FdfFileHelper, arguments::Zahl104, 0);
+
+        LibraryXPathXMLReader.Initialize(XmlFileName, '');
+        VerifyXMLLine(LibraryXPathXMLReader, 'LIEFERUNGEN_LEISTUNGEN_EIGENVERBRAUCH/KZ000', -VATEntry.Base);
+        VerifyXMLLine(LibraryXPathXMLReader, 'LIEFERUNGEN_LEISTUNGEN_EIGENVERBRAUCH/STEUERFREI/KZ017', -VATEntry.Base);
+    end;
+
+    [Test]
+    [HandlerFunctions('UpdateVATStmtTemplateConfirmHandler,VATStmtATMessageHandler,VATStmtATRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VAT5Pct_Sales_EU_CrMemo()
+    var
+        SalesHeader: Record "Sales Header";
+        VATStatementName: Record "VAT Statement Name";
+        VATEntry: Record "VAT Entry";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
+        VATProductPostingGroup5Pct: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Credit Memo]
+        // [SCENARIO 365653] AT VAT Statement for EU sales credit memo VAT 5%
+        Initialize();
+        VATProductPostingGroup5Pct := CheckCreateVATSetup5Pct();
+        CreateUpdateVATStatementTemplate(VATStatementName);
+
+        DocumentNo :=
+          CreateAndPostSalesDocumentOnVATGroups(
+            SalesHeader."Document Type"::"Credit Memo", GetEUGroup(), VATProductPostingGroup5Pct);
+        GetVATEntry(VATEntry, DocumentNo, VATEntry."Document Type"::"Credit Memo", VATEntry.Type::Sale);
+        VATEntry.TestField(Base);
+        VATEntry.TestField(Amount, 0);
+
+        RunVATStatement(VATStatementName);
+
+        FdfFileHelper.ReadFdfFile(FdfFileName);
+        VerifyFDFLineValue(FdfFileHelper, arguments::Zahl104, 0);
+
+        LibraryXPathXMLReader.Initialize(XmlFileName, '');
+        VerifyXMLLine(LibraryXPathXMLReader, 'LIEFERUNGEN_LEISTUNGEN_EIGENVERBRAUCH/KZ000', 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('UpdateVATStmtTemplateConfirmHandler,VATStmtATMessageHandler,VATStmtATRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VAT5Pct_Sales_Export_Invoice()
+    var
+        SalesHeader: Record "Sales Header";
+        VATStatementName: Record "VAT Statement Name";
+        VATEntry: Record "VAT Entry";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
+        VATProductPostingGroup5Pct: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Invoice]
+        // [SCENARIO 365653] AT VAT Statement for Export sales invoice VAT 5%
+        Initialize();
+        VATProductPostingGroup5Pct := CheckCreateVATSetup5Pct();
+        CreateUpdateVATStatementTemplate(VATStatementName);
+
+        DocumentNo :=
+          CreateAndPostSalesDocumentOnVATGroups(
+            SalesHeader."Document Type"::Invoice, GetExportGroup(), VATProductPostingGroup5Pct);
+        GetVATEntry(VATEntry, DocumentNo, VATEntry."Document Type"::Invoice, VATEntry.Type::Sale);
+        VATEntry.TestField(Base);
+        VATEntry.TestField(Amount, 0);
+
+        RunVATStatement(VATStatementName);
+
+        FdfFileHelper.ReadFdfFile(FdfFileName);
+        VerifyFDFLineValue(FdfFileHelper, arguments::Zahl105, -VATEntry.Base);
+        VerifyFDFLineValue(FdfFileHelper, arguments::Zahl101, -VATEntry.Base);
+        VerifyFDFLineValue(FdfFileHelper, arguments::Zahl104, 0);
+
+        LibraryXPathXMLReader.Initialize(XmlFileName, '');
+        VerifyXMLLine(LibraryXPathXMLReader, 'LIEFERUNGEN_LEISTUNGEN_EIGENVERBRAUCH/KZ000', -VATEntry.Base);
+        VerifyXMLLine(LibraryXPathXMLReader, 'LIEFERUNGEN_LEISTUNGEN_EIGENVERBRAUCH/STEUERFREI/KZ011', -VATEntry.Base);
+    end;
+
+    [Test]
+    [HandlerFunctions('UpdateVATStmtTemplateConfirmHandler,VATStmtATMessageHandler,VATStmtATRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VAT5Pct_Sales_Export_CrMemo()
+    var
+        SalesHeader: Record "Sales Header";
+        VATStatementName: Record "VAT Statement Name";
+        VATEntry: Record "VAT Entry";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
+        VATProductPostingGroup5Pct: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Credit Memo]
+        // [SCENARIO 365653] AT VAT Statement for Export sales credit memo VAT 5%
+        Initialize();
+        VATProductPostingGroup5Pct := CheckCreateVATSetup5Pct();
+        CreateUpdateVATStatementTemplate(VATStatementName);
+
+        DocumentNo :=
+          CreateAndPostSalesDocumentOnVATGroups(
+            SalesHeader."Document Type"::"Credit Memo", GetExportGroup(), VATProductPostingGroup5Pct);
+        GetVATEntry(VATEntry, DocumentNo, VATEntry."Document Type"::"Credit Memo", VATEntry.Type::Sale);
+        VATEntry.TestField(Base);
+        VATEntry.TestField(Amount, 0);
+
+        RunVATStatement(VATStatementName);
+
+        FdfFileHelper.ReadFdfFile(FdfFileName);
+        VerifyFDFLineValue(FdfFileHelper, arguments::Zahl104, 0);
+
+        LibraryXPathXMLReader.Initialize(XmlFileName, '');
+        VerifyXMLLine(LibraryXPathXMLReader, 'LIEFERUNGEN_LEISTUNGEN_EIGENVERBRAUCH/KZ000', 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('UpdateVATStmtTemplateConfirmHandler,VATStmtATMessageHandler,VATStmtATRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VAT5Pct_Purch_Domestic_Invoice()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        VATStatementName: Record "VAT Statement Name";
+        VATEntry: Record "VAT Entry";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
+        VATProductPostingGroup5Pct: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Purchases] [Invoice]
+        // [SCENARIO 365653] AT VAT Statement for domestic purchase invoice VAT 5%
+        Initialize();
+        VATProductPostingGroup5Pct := CheckCreateVATSetup5Pct();
+        CreateUpdateVATStatementTemplate(VATStatementName);
+
+        DocumentNo :=
+          CreateAndPostPurchaseInvoiceOnVATGroups(
+            PurchaseHeader."Document Type"::Invoice, GetDomesticGroup(), VATProductPostingGroup5Pct);
+        GetVATEntry(VATEntry, DocumentNo, VATEntry."Document Type"::Invoice, VATEntry.Type::Purchase);
+        VATEntry.TestField(Base);
+        VATEntry.TestField(Amount);
+
+        RunVATStatement(VATStatementName);
+
+        FdfFileHelper.ReadFdfFile(FdfFileName);
+        VerifyFDFLineValue(FdfFileHelper, arguments::Zahl133, VATEntry.Amount);
+        VerifyFDFLineValue(FdfFileHelper, arguments::Zahl104, 0);
+
+        LibraryXPathXMLReader.Initialize(XmlFileName, '');
+        VerifyXMLLine(LibraryXPathXMLReader, 'LIEFERUNGEN_LEISTUNGEN_EIGENVERBRAUCH/KZ000', 0);
+        VerifyXMLLine(LibraryXPathXMLReader, 'VORSTEUER/KZ060', VATEntry.Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('UpdateVATStmtTemplateConfirmHandler,VATStmtATMessageHandler,VATStmtATRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VAT5Pct_Purch_Domestic_CrMemo()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        VATStatementName: Record "VAT Statement Name";
+        VATEntry: Record "VAT Entry";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
+        VATProductPostingGroup5Pct: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Purchases] [Credit Memo]
+        // [SCENARIO 365653] AT VAT Statement for domestic purchase credit memo VAT 5%
+        Initialize();
+        VATProductPostingGroup5Pct := CheckCreateVATSetup5Pct();
+        CreateUpdateVATStatementTemplate(VATStatementName);
+
+        DocumentNo :=
+          CreateAndPostPurchaseInvoiceOnVATGroups(
+            PurchaseHeader."Document Type"::"Credit Memo", GetDomesticGroup(), VATProductPostingGroup5Pct);
+        GetVATEntry(VATEntry, DocumentNo, VATEntry."Document Type"::"Credit Memo", VATEntry.Type::Purchase);
+        VATEntry.TestField(Base);
+        VATEntry.TestField(Amount);
+
+        RunVATStatement(VATStatementName);
+
+        FdfFileHelper.ReadFdfFile(FdfFileName);
+        VerifyFDFLineValue(FdfFileHelper, arguments::Zahl141, VATEntry.Amount);
+        VerifyFDFLineValue(FdfFileHelper, arguments::Zahl104, 0);
+
+        LibraryXPathXMLReader.Initialize(XmlFileName, '');
+        VerifyXMLLine(LibraryXPathXMLReader, 'LIEFERUNGEN_LEISTUNGEN_EIGENVERBRAUCH/KZ000', 0);
+        VerifyXMLLine(LibraryXPathXMLReader, 'VORSTEUER/KZ067', -VATEntry.Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('UpdateVATStmtTemplateConfirmHandler,VATStmtATMessageHandler,VATStmtATRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VAT5Pct_Purch_EU_Invoice()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        VATStatementName: Record "VAT Statement Name";
+        VATEntry: Record "VAT Entry";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
+        VATProductPostingGroup5Pct: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Purchases] [Invoice]
+        // [SCENARIO 365653] AT VAT Statement for domestic purchase invoice VAT 5% (new cipher KZ010 from August 2020)
+        Initialize();
+        VATProductPostingGroup5Pct := CheckCreateVATSetup5Pct();
+        CreateUpdateVATStatementTemplate(VATStatementName);
+
+        DocumentNo :=
+          CreateAndPostPurchaseInvoiceOnVATGroups(
+            PurchaseHeader."Document Type"::Invoice, GetEUGroup(), VATProductPostingGroup5Pct);
+        GetVATEntry(VATEntry, DocumentNo, VATEntry."Document Type"::Invoice, VATEntry.Type::Purchase);
+        VATEntry.TestField(Base);
+        VATEntry.TestField(Amount);
+
+        RunVATStatement(VATStatementName);
+
+        FdfFileHelper.ReadFdfFile(FdfFileName);
+        VerifyFDFLineValue(FdfFileHelper, arguments::Zahl130aa, VATEntry.Base);
+        VerifyFDFLineValue(FdfFileHelper, arguments::Zahl126, VATEntry.Base);
+        VerifyFDFLineValue(FdfFileHelper, arguments::Zahl135, VATEntry.Amount);
+        VerifyFDFLineValue(FdfFileHelper, arguments::Zahl104, 0);
+
+        LibraryXPathXMLReader.Initialize(XmlFileName, '');
+        VerifyXMLLine(LibraryXPathXMLReader, 'LIEFERUNGEN_LEISTUNGEN_EIGENVERBRAUCH/KZ000', 0);
+        VerifyXMLLine(LibraryXPathXMLReader, 'INNERGEMEINSCHAFTLICHE_ERWERBE/VERSTEUERT_IGE/KZ010', VATEntry.Base);
+        VerifyXMLLine(LibraryXPathXMLReader, 'INNERGEMEINSCHAFTLICHE_ERWERBE/KZ070', VATEntry.Base);
+        VerifyXMLLine(LibraryXPathXMLReader, 'VORSTEUER/KZ065', VATEntry.Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('UpdateVATStmtTemplateConfirmHandler,VATStmtATMessageHandler,VATStmtATRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VAT5Pct_Purch_EU_CrMemo()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        VATStatementName: Record "VAT Statement Name";
+        VATEntry: Record "VAT Entry";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
+        VATProductPostingGroup5Pct: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Purchases] [Credit Memo]
+        // [SCENARIO 365653] AT VAT Statement for domestic purchase credit memo VAT 5%
+        Initialize();
+        VATProductPostingGroup5Pct := CheckCreateVATSetup5Pct();
+        CreateUpdateVATStatementTemplate(VATStatementName);
+
+        DocumentNo :=
+          CreateAndPostPurchaseInvoiceOnVATGroups(
+            PurchaseHeader."Document Type"::"Credit Memo", GetEUGroup(), VATProductPostingGroup5Pct);
+        GetVATEntry(VATEntry, DocumentNo, VATEntry."Document Type"::"Credit Memo", VATEntry.Type::Purchase);
+        VATEntry.TestField(Base);
+        VATEntry.TestField(Amount);
+
+        RunVATStatement(VATStatementName);
+
+        FdfFileHelper.ReadFdfFile(FdfFileName);
+        VerifyFDFLineValue(FdfFileHelper, arguments::Zahl143, VATEntry.Amount);
+        VerifyFDFLineValue(FdfFileHelper, arguments::Zahl141, VATEntry.Amount);
+        VerifyFDFLineValue(FdfFileHelper, arguments::Zahl104, 0);
+
+        LibraryXPathXMLReader.Initialize(XmlFileName, '');
+        VerifyXMLLine(LibraryXPathXMLReader, 'LIEFERUNGEN_LEISTUNGEN_EIGENVERBRAUCH/KZ000', 0);
+        VerifyXMLLine(LibraryXPathXMLReader, 'VORSTEUER/KZ067', -VATEntry.Amount);
+        VerifyXMLLine(LibraryXPathXMLReader, 'VORSTEUER/KZ090', VATEntry.Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('UpdateVATStmtTemplateConfirmHandler,VATStmtATMessageHandler,VATStmtATRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VAT5Pct_Purch_Export_Invoice()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        VATStatementName: Record "VAT Statement Name";
+        VATEntry: Record "VAT Entry";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
+        VATProductPostingGroup5Pct: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Purchases] [Invoice]
+        // [SCENARIO 365653] AT VAT Statement for Export purchase invoice VAT 5%
+        Initialize();
+        VATProductPostingGroup5Pct := CheckCreateVATSetup5Pct();
+        CreateUpdateVATStatementTemplate(VATStatementName);
+
+        DocumentNo :=
+          CreateAndPostPurchaseInvoiceOnVATGroups(
+            PurchaseHeader."Document Type"::Invoice, GetExportGroup(), VATProductPostingGroup5Pct);
+        GetVATEntry(VATEntry, DocumentNo, VATEntry."Document Type"::Invoice, VATEntry.Type::Purchase);
+        VATEntry.TestField(Base);
+        VATEntry.TestField(Amount, 0);
+
+        RunVATStatement(VATStatementName);
+
+        FdfFileHelper.ReadFdfFile(FdfFileName);
+        VerifyFDFLineValue(FdfFileHelper, arguments::Zahl104, 0);
+
+        LibraryXPathXMLReader.Initialize(XmlFileName, '');
+        VerifyXMLLine(LibraryXPathXMLReader, 'LIEFERUNGEN_LEISTUNGEN_EIGENVERBRAUCH/KZ000', 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('UpdateVATStmtTemplateConfirmHandler,VATStmtATMessageHandler,VATStmtATRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VAT5Pct_Purch_Export_CrMemo()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        VATStatementName: Record "VAT Statement Name";
+        VATEntry: Record "VAT Entry";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
+        VATProductPostingGroup5Pct: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Purchases] [Credit Memo]
+        // [SCENARIO 365653] AT VAT Statement for Export purchase credit memo VAT 5%
+        Initialize();
+        VATProductPostingGroup5Pct := CheckCreateVATSetup5Pct();
+        CreateUpdateVATStatementTemplate(VATStatementName);
+
+        DocumentNo :=
+          CreateAndPostPurchaseInvoiceOnVATGroups(
+            PurchaseHeader."Document Type"::"Credit Memo", GetExportGroup(), VATProductPostingGroup5Pct);
+        GetVATEntry(VATEntry, DocumentNo, VATEntry."Document Type"::"Credit Memo", VATEntry.Type::Purchase);
+        VATEntry.TestField(Base);
+        VATEntry.TestField(Amount, 0);
+
+        RunVATStatement(VATStatementName);
+
+        FdfFileHelper.ReadFdfFile(FdfFileName);
+        VerifyFDFLineValue(FdfFileHelper, arguments::Zahl104, 0);
+
+        LibraryXPathXMLReader.Initialize(XmlFileName, '');
+        VerifyXMLLine(LibraryXPathXMLReader, 'LIEFERUNGEN_LEISTUNGEN_EIGENVERBRAUCH/KZ000', 0);
     end;
 
     local procedure Initialize()
@@ -1114,7 +1578,6 @@ codeunit 144001 VATSTAT
         end;
     end;
 
-    [Normal]
     local procedure EnqueRequestPageFields(StartingDate: Date; EndingDate: Date; IncludeVATEntries: Option; PeriodSelection: Option; ReportingType: Option; CheckPositions: Boolean; RoundToWholeNumbers: Boolean; SurplusUsedToPayDues: Boolean; AdditionalInvoicesSentViaMail: Boolean; NumberPar6Abs1: Integer)
     begin
         LibraryVariableStorage.Enqueue(ReportingType);
@@ -1141,6 +1604,20 @@ codeunit 144001 VATSTAT
         exit(LibrarySales.PostSalesDocument(SalesHeader, false, false));
     end;
 
+    local procedure CreateAndPostSalesDocumentOnVATGroups(DocumentType: Option; VATBusPostingGroupCode: Code[20]; VATProdPostingGroupCode: Code[20]): Code[20];
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+    begin
+        CreateItem(Item, VATProdPostingGroupCode);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer(VATBusPostingGroupCode));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
+        SalesLine.Modify(true);
+        exit(LibrarySales.PostSalesDocument(SalesHeader, false, false));
+    end;
+
     local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; BusPostingGroup: Code[20]): Code[20]
     var
         Item: Record Item;
@@ -1164,6 +1641,21 @@ codeunit 144001 VATSTAT
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Modify(true);
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+    end;
+
+    local procedure CreateAndPostPurchaseInvoiceOnVATGroups(DocumentType: Option; VATBusPostingGroupCode: Code[20]; VATProdPostingGroupCode: Code[20]): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Item: Record Item;
+    begin
+        CreateItem(Item, VATProdPostingGroupCode);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor(VATBusPostingGroupCode));
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1000, 2000, 2));
         PurchaseLine.Modify(true);
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
@@ -1225,9 +1717,76 @@ codeunit 144001 VATSTAT
         Item.Modify(true);
     end;
 
+    local procedure CreateUpdateVATStatementTemplate(var VATStatementName: Record "VAT Statement Name")
+    var
+        VATStatementTemplate: Record "VAT Statement Template";
+        UpdateVATAT: Codeunit "Update VAT-AT";
+    begin
+        LibraryERM.CreateVATStatementTemplate(VATStatementTemplate);
+        UpdateVATAT.UpdateVATStatementTemplate(VATStatementTemplate.Name, VATStatementTemplate.Description, '');
+        VATStatementName.SetRange("Statement Template Name", VATStatementTemplate.Name);
+        VATStatementName.FindFirst();
+    end;
+
+    local procedure CheckCreateVATProductPostingGroup5Pct(): Code[20]
+    var
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        VATProductPostingGroupCode: Code[20];
+    begin
+        VATProductPostingGroupCode := GetVAT5Group();
+        if not VATProductPostingGroup.GET(VATProductPostingGroupCode) then begin
+            VATProductPostingGroup.Code := VATProductPostingGroupCode;
+            VATProductPostingGroup.Description := LibraryUtility.GenerateGUID();
+            VATProductPostingGroup.Insert();
+        end;
+        exit(VATProductPostingGroup.Code);
+    end;
+
+    local procedure CheckCreateVATSetup5Pct(): Code[20]
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATPostingSetup2: Record "VAT Posting Setup";
+        VATProductPostingGroup5Pct: Code[20];
+    begin
+        VATProductPostingGroup5Pct := CheckCreateVATProductPostingGroup5Pct();
+        VATPostingSetup.SetRange("VAT Prod. Posting Group", GetVAT10Group());
+        if VATPostingSetup.FindSet() then
+            repeat
+                if not VATPostingSetup2.GET(VATPostingSetup."VAT Bus. Posting Group", VATProductPostingGroup5Pct) then
+                    CopyInsertVATSetup(VATPostingSetup, VATProductPostingGroup5Pct, 5);
+            until VATPostingSetup.Next() = 0;
+        exit(VATProductPostingGroup5Pct);
+    end;
+
+    local procedure CopyInsertVATSetup(SourceVATPostingSetup: Record "VAT Posting Setup"; VATProductPostingGroup: Code[20]; VATPct: Decimal)
+    var
+        NewVATPostingSetup: Record "VAT Posting Setup";
+    begin
+        NewVATPostingSetup := SourceVATPostingSetup;
+        NewVATPostingSetup."VAT Prod. Posting Group" := VATProductPostingGroup;
+        NewVATPostingSetup."VAT Identifier" := VATProductPostingGroup;
+        if NewVATPostingSetup."VAT %" <> 0 then
+            NewVATPostingSetup."VAT %" := VATPct;
+        NewVATPostingSetup.Description := LibraryUtility.GenerateGUID();
+        NewVATPostingSetup.Insert();
+    end;
+
     local procedure StringContains(String: Text; SubString: Text): Boolean
     begin
         exit(StrPos(String, SubString) > 0);
+    end;
+
+    local procedure RunVATStatement(VATStatementName: Record "VAT Statement Name")
+    var
+        VATStatementAT: Report "VAT Statement AT";
+    begin
+        EnqueRequestPageFields(
+          WorkDate(), WorkDate(), IncludeVATEntries::Open, PeriodSelection::"Within Period",
+          ReportingType::"Defined period", true, false, false, false, 0);
+        VATStatementName.SetRecFilter();
+        VATStatementAT.SetTableView(VATStatementName);
+        VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
+        VATStatementAT.RunModal();
     end;
 
     local procedure AssertStringContains(String: Text; SubString: Text)
@@ -1240,6 +1799,19 @@ codeunit 144001 VATSTAT
     local procedure AssertStringContainsDec(String: Text; Amount: Decimal)
     begin
         Assert.AreEqual(String, Format(Abs(Amount), 0, 1), StrSubstNo(StringContainsErr, String, Amount));
+    end;
+
+    local procedure AssertVATStatementLineExists(var VATStatementLine: Record "VAT Statement Line"; RowNo: Code[10])
+    begin
+        VATStatementLine.SetRange("Row No.", RowNo);
+        Assert.RecordIsNotEmpty(VATStatementLine);
+    end;
+
+    local procedure AssertVATStatementRowTotalling(var VATStatementLine: Record "VAT Statement Line"; RowNo: Code[10]; RowTotalling: Text[50])
+    begin
+        VATStatementLine.SetRange("Row No.", RowNo);
+        VATStatementLine.FindFirst();
+        VATStatementLine.TestField("Row Totaling", RowTotalling);
     end;
 
     local procedure VerifyFDFHeader(FDFFileHelper: Codeunit FDFFileHelper)
@@ -1350,51 +1922,6 @@ codeunit 144001 VATSTAT
         Assert.AreEqual(1, VATEntry.Count, '');
     end;
 
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure VATStmtATRequestPageHandler(var VATStatementAT: TestRequestPage "VAT Statement AT")
-    var
-        Variables: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(Variables);
-        VATStatementAT.ReportingType.SetValue(Variables);
-        LibraryVariableStorage.Dequeue(Variables);
-        VATStatementAT.StartingDate.SetValue(Variables);
-        LibraryVariableStorage.Dequeue(Variables);
-        VATStatementAT.EndingDate.SetValue(Variables);
-        LibraryVariableStorage.Dequeue(Variables);
-        VATStatementAT.IncludeVATEntries.SetValue(Variables);
-        LibraryVariableStorage.Dequeue(Variables);
-        VATStatementAT.PeriodSelection.SetValue(Variables);
-        LibraryVariableStorage.Dequeue(Variables);
-        VATStatementAT.CheckPositions.SetValue(Variables);
-        LibraryVariableStorage.Dequeue(Variables);
-        VATStatementAT.RoundToWholeNumbers.SetValue(Variables);
-        LibraryVariableStorage.Dequeue(Variables);
-        VATStatementAT.SurplusUsedToPayDues.SetValue(Variables);
-        LibraryVariableStorage.Dequeue(Variables);
-        VATStatementAT.AdditionalInvoicesSentViaMail.SetValue(Variables);
-        LibraryVariableStorage.Dequeue(Variables);
-        VATStatementAT.NumberPar6Abs1.SetValue(Variables);
-        VATStatementAT.OK.Invoke;
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure VATStmtATConfirmHandler(Question: Text[1024]; var Reply: Boolean)
-    begin
-        if Question = AdjustDatesMsg then
-            Reply := true
-        else
-            Reply := false;
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure VATStmtATMessageHandler(Msg: Text[1024])
-    begin
-    end;
-
     local procedure CreateVATEntTotVATStmtLine(RowNo: Code[10]; BusPostingGroup: Code[20]; ProdPostingGroup: Code[20])
     var
         VATStatementTemplate: Record "VAT Statement Template";
@@ -1446,6 +1973,95 @@ codeunit 144001 VATSTAT
             Validate(Print, true);
             Insert(true);
         end;
+    end;
+
+    local procedure GetDomesticGroup(): Code[20]
+    begin
+        exit('DOMESTIC');
+    end;
+
+    local procedure GetEUGroup(): Code[20]
+    begin
+        exit('EU');
+    end;
+
+    local procedure GetExportGroup(): Code[20]
+    begin
+        exit('EXPORT');
+    end;
+
+    local procedure GetVAT5Group(): Code[20]
+    begin
+        exit('VAT5');
+    end;
+
+    local procedure GetVAT10Group(): Code[20]
+    begin
+        exit('VAT10');
+    end;
+
+    local procedure GetTemplateName(): Code[10]
+    begin
+        exit('UVA-2020');
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure VATStmtATRequestPageHandler(var VATStatementAT: TestRequestPage "VAT Statement AT")
+    var
+        Variables: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(Variables);
+        VATStatementAT.ReportingType.SetValue(Variables);
+        LibraryVariableStorage.Dequeue(Variables);
+        VATStatementAT.StartingDate.SetValue(Variables);
+        LibraryVariableStorage.Dequeue(Variables);
+        VATStatementAT.EndingDate.SetValue(Variables);
+        LibraryVariableStorage.Dequeue(Variables);
+        VATStatementAT.IncludeVATEntries.SetValue(Variables);
+        LibraryVariableStorage.Dequeue(Variables);
+        VATStatementAT.PeriodSelection.SetValue(Variables);
+        LibraryVariableStorage.Dequeue(Variables);
+        VATStatementAT.CheckPositions.SetValue(Variables);
+        LibraryVariableStorage.Dequeue(Variables);
+        VATStatementAT.RoundToWholeNumbers.SetValue(Variables);
+        LibraryVariableStorage.Dequeue(Variables);
+        VATStatementAT.SurplusUsedToPayDues.SetValue(Variables);
+        LibraryVariableStorage.Dequeue(Variables);
+        VATStatementAT.AdditionalInvoicesSentViaMail.SetValue(Variables);
+        LibraryVariableStorage.Dequeue(Variables);
+        VATStatementAT.NumberPar6Abs1.SetValue(Variables);
+        VATStatementAT.OK.Invoke;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure VATStmtATConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        if Question = AdjustDatesMsg then
+            Reply := true
+        else
+            Reply := false;
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure VATStmtATMessageHandler(Msg: Text[1024])
+    begin
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure UpdateVATStmtTemplateRequestPageHandler(var UpdateVATStatementTemplate: TestRequestPage "Update VAT Statement Template")
+    begin
+        UpdateVATStatementTemplate.OK.Invoke;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure UpdateVATStmtTemplateConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 
