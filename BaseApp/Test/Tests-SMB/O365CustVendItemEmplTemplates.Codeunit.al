@@ -3021,7 +3021,6 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         VerifyItemDimensions(Database::Item, Item."No.", Database::"Item Templ.", ItemTempl.Code);
     end;
 
-
     [Test]
     [HandlerFunctions('CustomerTempModalFormHandler,ConfirmHandlerFalse')]
     procedure VerifyCustomerNotUpdateWhenApplyTemplateFalse()

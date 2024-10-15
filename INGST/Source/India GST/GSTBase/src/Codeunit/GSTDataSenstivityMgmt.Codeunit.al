@@ -92,7 +92,7 @@ codeunit 18020 "GST Data Senstivity Mgmt."
         SetTableFieldsToNormal(Database::"Sales Header");
         SetTableFieldsToNormal(Database::"Sales Invoice Line");
         SetTableFieldsToNormal(Database::"Sales Line");
-#if not CLEAN19
+#if not CLEAN21
         SetTableFieldsToNormal(Database::"Sales Price");
 #endif
         SetTableFieldsToNormal(Database::"Sales Shipment Header");

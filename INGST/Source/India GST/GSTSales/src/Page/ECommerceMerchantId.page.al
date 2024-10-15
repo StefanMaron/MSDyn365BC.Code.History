@@ -52,8 +52,7 @@ page 18141 "E-Commerce Merchant Id"
                 begin
                     EditinExcel.EditPageInExcel(
                         'e-Commerce Merchant Id',
-                        CurrPage.ObjectId(false),
-                        StrSubstNo(CustomerNumLbl, Rec."Customer No."));
+                        Page::"E-Commerce Merchant Id");
                 end;
             }
         }
@@ -64,6 +63,5 @@ page 18141 "E-Commerce Merchant Id"
     end;
 
     var
-        CustomerNumLbl: Label 'Code %1', Comment = '%1 = Customer No.';
         UnusedFieldLbl: Label 'This Page has been marked as obsolete and will be removed from version 23.0. Instead of this Page use ‘E-Comm. Merchant Id';
 }

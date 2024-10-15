@@ -1,3 +1,4 @@
+#if not CLEAN22
 codeunit 135972 "Upg User Group Perm. Set Tests"
 {
     Subtype = Test;
@@ -12,6 +13,8 @@ codeunit 135972 "Upg User Group Perm. Set Tests"
         BaseAppGuid, NullGuid : Guid;
     begin
         // [SCENARIO] The upgrade is filling the App Ids in Access Control Table
+        if not UpgradeStatus.UpgradeTriggered() then
+            exit;
 
         if UpgradeStatus.UpgradeTagPresentBeforeUpgrade(UpgradeTagDefinitions.GetUserGroupsSetAppIdUpgradeTag()) then
             exit;
@@ -31,30 +34,13 @@ codeunit 135972 "Upg User Group Perm. Set Tests"
         Assert.AreEqual(NullGuid, UserGroupPermissionSet."App ID", 'Null GUID was expected');
     end;
 
-#if not CLEAN19
-    procedure UserGroupExportReportExcelTest()
-    var
-        UserGroupPermissionSet: Record "User Group Permission Set";
-        Assert: Codeunit "Library Assert";
-        UpgradeStatus: Codeunit "Upgrade Status";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        BaseAppGuid, NullGuid : Guid;
-    begin
-        // [SCENARIO] The upgrade is adding Export Report Excel PS in EXCEL EXPORT ACTION User Group
-        if UpgradeStatus.UpgradeTagPresentBeforeUpgrade(UpgradeTagDefinitions.GetExportExcelReportUpgradeTag()) then
-            exit;
-
-        UserGroupPermissionSet.SetRange("User Group Code", 'EXCEL EXPORT ACTION');
-        Assert.RecordCount(UserGroupPermissionSet, 2);
-
-        UserGroupPermissionSet.SetRange("Role ID", 'Export Report Excel');
-        Assert.IsTrue(UserGroupPermissionSet.FindFirst(), 'Export Report Excel was not added in EXCEL EXPORT ACTION User Group');       
-    end;
-#endif
-
     [Test]
     procedure UserGroupPermissionSetRoleIDTest()
+    var
+        UpgradeStatus: Codeunit "Upgrade Status";
     begin
+        if not UpgradeStatus.UpgradeTriggered() then
+            exit;
         // [SCENARIO] The upgrade changes the Role ID field of replaced (obsolete) permission sets
 
         // The following user group permission sets are added by Demotool - on a new database, the old ones should not exist and the new ones should. 
@@ -80,3 +66,4 @@ codeunit 135972 "Upg User Group Perm. Set Tests"
         Assert.AreEqual(UsePermissionsFromExtensions, UserGroupPermissionSet.FindFirst(), StrSubstNo('%1 permission set should be assigned', NewPermissionSet));
     end;
 }
+#endif

@@ -7,7 +7,7 @@ page 9807 "User Card"
     SourceTable = User;
     Permissions = tabledata "User Property" = m;
     AboutTitle = 'About user account details';
-    AboutText = 'Here, you manage an individual user''s account information. You choose the permissions that a user has by assigning permission sets and user groups. You can view the user''s license information, but you cannot change it.';
+    AboutText = 'Here, you manage an individual user''s account information. You choose the permissions that a user has by assigning permission sets. You can view the user''s license information, but you cannot change it.';
 
     layout
     {
@@ -49,6 +49,15 @@ page 9807 "User Card"
                     Caption = 'License Type';
                     ToolTip = 'Specifies the type of license that applies to the user.';
                     Visible = not IsSaaS;
+
+                    trigger OnValidate()
+                    begin
+                        if Rec."License Type" = Rec."License Type"::"Windows Group" then
+                            Error(CannotCreateWindowsGroupErr);
+
+                        if Rec."License Type" = Rec."License Type"::"AAD Group" then
+                            Error(CannotCreateAadGroupErr);
+                    end;
                 }
                 field(State; State)
                 {
@@ -258,7 +267,7 @@ page 9807 "User Card"
                     ToolTip = 'Specifies if the user will be prompted to change the password at next login.';
                 }
             }
-
+#if not CLEAN22
             part(UserGroups; "User Groups User SubPage")
             {
                 ApplicationArea = Basic, Suite;
@@ -266,8 +275,13 @@ page 9807 "User Card"
                 SubPageLink = "User Security ID" = field("User Security ID");
                 UpdatePropagation = Both;
                 AboutTitle = 'Assigning group memberships';
-                AboutText = 'You add or remove memberships by updating the lines here. The user inherits permission sets from all the assigned user groups.';
+                AboutText = 'You add or remove memberships by updating the lines here. The user inherits permission sets from all the assigned user groups. Note: User groups will be replaced by security groups and composable permission sets in a future release.';
+                Visible = LegacyUserGroupsVisible;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by the User Security Groups part.';
+                ObsoleteTag = '22.0';
             }
+#endif
             part(Permissions; "User Subform")
             {
                 ApplicationArea = Basic, Suite;
@@ -275,7 +289,6 @@ page 9807 "User Card"
                 SubPageLink = "User Security ID" = field("User Security ID");
                 AboutTitle = 'Assigning permissions';
                 AboutText = 'You add or remove permissions by updating the lines here. If you leave the **Company** field blank on a line, the assignment applies to all companies.';
-
             }
             part(Plans; "User Plans FactBox")
             {
@@ -287,6 +300,21 @@ page 9807 "User Card"
         }
         area(factboxes)
         {
+            part("Inherited Permission Sets"; "Inherited Permission Sets Part")
+            {
+                ApplicationArea = Basic, Suite;
+                SubPageLink = "User Security ID" = field("User Security ID");
+                AboutTitle = 'Viewing security group permissions';
+                AboutText = 'You can see permissions sets coming from security group memberships here.';
+            }
+            part("User Security Groups"; "User Security Groups Part")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Security Group Memberships';
+                SubPageLink = "User Security ID" = field("User Security ID");
+                AboutTitle = 'View security group memberships';
+                AboutText = 'The user inherits permission sets from all the assigned security groups.';
+            }
             systempart(Control17; Notes)
             {
                 ApplicationArea = Notes;
@@ -357,8 +385,8 @@ page 9807 "User Card"
                         if WebServiceID <> '' then
                             RemoveWebServiceAccessKey(Rec."User Security ID");
                     end;
-                }
 
+                }
                 action(DeleteExchangeIdentifier)
                 {
                     ApplicationArea = Basic, Suite;
@@ -545,7 +573,13 @@ page 9807 "User Card"
         MyNotification: Record "My Notifications";
         EnvironmentInfo: Codeunit "Environment Information";
         UserManagement: Codeunit "User Management";
+#if not CLEAN22
+        LegacyUserGroups: Codeunit "Legacy User Groups";
+#endif
     begin
+#if not CLEAN22
+        LegacyUserGroupsVisible := LegacyUserGroups.UiElementsVisible();
+#endif
         IsSaaS := EnvironmentInfo.IsSaaS();
         if not IsSaaS then
             IsWebServiceAccesskeyAllowed := true
@@ -600,6 +634,8 @@ page 9807 "User Card"
         AllowChangeWebServiceAccessKey: Boolean;
         AllowCreateWebServiceAccessKey: Boolean;
         InitialState: Option;
+        CannotCreateWindowsGroupErr: Label 'User accounts of type ''Windows Group'' can only be created by creating a security group.';
+        CannotCreateAadGroupErr: Label 'User accounts of type ''AAD Group'' are only available in SaaS.';
         CreateFirstUserQst: Label 'You will be locked out after creating first user. Would you first like to create a SUPER user for %1?', Comment = 'USERID';
         CannotEditForOtherUsersErr: Label 'You can only change your own web service access keys.';
         CannotCreateWebServiceAccessKeyErr: Label 'You cannot create a web service access key for this user because they have delegated administration privileges.';
@@ -607,6 +643,9 @@ page 9807 "User Card"
         ReadWebServiceKeyForUserTxt: Label 'Read web service key for user %1', Locked = true;
         NewWebSeriveKeyTxt: label 'New web service key', Locked = true;
         NewWebSeriveKeyForUserTxt: Label 'New web service key was created for user %1', Locked = true;
+#if not CLEAN22
+        LegacyUserGroupsVisible: Boolean;
+#endif
 
     local procedure ValidateSid()
     var
@@ -799,7 +838,7 @@ page 9807 "User Card"
 
         OriginalFilterGroup := FilterGroup;
         FilterGroup := 2;
-        SetFilter("License Type", '<>%1&<>%2', "License Type"::"External User", "License Type"::Application);
+        SetFilter("License Type", '<>%1&<>%2&<>%3', "License Type"::"External User", "License Type"::Application, "License Type"::"AAD Group");
         FilterGroup := OriginalFilterGroup;
     end;
 
@@ -816,6 +855,8 @@ page 9807 "User Card"
                 "Windows Security ID" := UserSID;
                 ValidateSid();
                 SetUserName();
+                CurrPage."User Security Groups".Page.Refresh();
+                CurrPage."Inherited Permission Sets".Page.Refresh();
             end else
                 Error(Text001Err, WindowsUserName);
         end;

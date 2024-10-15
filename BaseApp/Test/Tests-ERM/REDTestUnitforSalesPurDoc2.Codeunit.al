@@ -696,7 +696,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [THEN] VAT Entry has Base = 1000, Amount = 250
         VATPostingSetup.Get(PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group");
         VerifyVATEntry(PurchaseLine.Amount, Round(PurchaseLine.Amount * VATPostingSetup."VAT %" / 100), DocNo);
-        
+
         // We remove any existing VAT entries, as this test modifies the VAT posting SETUP.
         VATEntry.DeleteAll();
         VATPostingSetup."VAT Calculation Type" := VATPostingSetup."VAT Calculation Type"::"Normal VAT";
@@ -732,7 +732,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [THEN] VAT Entry has Base = -1000, Amount = 0
         VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group");
         VerifyVATEntry(-SalesLine.Amount, 0, DocNo);
-        
+
         // We remove any existing VAT entries, as this test modifies the VAT posting SETUP.
         VATEntry.DeleteAll();
         VATPostingSetup."VAT Calculation Type" := VATPostingSetup."VAT Calculation Type"::"Normal VAT";
@@ -1297,10 +1297,10 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         case SalesLine.Type of
             SalesLine.Type::"G/L Account",
             SalesLine.Type::Resource:
-            begin
-                SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
-                SalesLine.Modify(true);
-            end;
+                begin
+                    SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
+                    SalesLine.Modify(true);
+                end;
         end;
     end;
 

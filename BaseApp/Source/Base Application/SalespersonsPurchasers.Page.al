@@ -21,7 +21,7 @@ page 14 "Salespersons/Purchasers"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the code of the record.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Suite, RelationshipMgmt;
                     ToolTip = 'Specifies the name of the record.';

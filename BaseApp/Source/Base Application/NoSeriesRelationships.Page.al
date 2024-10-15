@@ -18,7 +18,7 @@ page 458 "No. Series Relationships"
                     ToolTip = 'Specifies the number series code that represents the related number series.';
                     Visible = false;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;

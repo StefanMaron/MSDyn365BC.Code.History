@@ -57,40 +57,40 @@ codeunit 418 "User Management"
                   TableData "Item Budget Entry" = rm,
                   TableData "Warehouse Entry" = rm,
                   TableData "Warehouse Register" = rm,
-                  Tabledata "Workflow Step Instance Archive" = m,
-                  Tabledata "Date Compr. Register" = m,
-                  Tabledata "Requisition Line" = m,
-                  Tabledata "Overdue Approval Entry" = m,
-                  Tabledata "Job Queue Entry" = m,
-                  Tabledata "Job Queue Log Entry" = m,
-                  Tabledata "Error Message Register" = m,
-                  Tabledata "Activity Log" = m,
-                  Tabledata "Workflow Step Instance" = m,
-                  Tabledata "Notification Entry" = m,
-                  Tabledata "Sent Notification Entry" = m,
-                  Tabledata "User Setup" = m,
-                  Tabledata "VAT Registration Log" = m,
-                  Tabledata "Item Application Entry History" = m,
-                  Tabledata "CV Ledger Entry Buffer" = m,
-                  Tabledata "Detailed CV Ledg. Entry Buffer" = m,
-                  Tabledata "VAT Report Archive" = m,
-                  Tabledata "Cash Flow Forecast Entry" = m,
-                  Tabledata "Job Planning Line" = m,
-                  Tabledata "Cost Type" = m,
-                  Tabledata "Cost Allocation Source" = m,
-                  Tabledata "Cost Allocation Target" = m,
-                  Tabledata "Cost Center" = m,
-                  Tabledata "Credit Transfer Register" = m,
-                  Tabledata "Direct Debit Collection" = m,
-                  Tabledata "Isolated Certificate" = m,
-                  Tabledata "Logged Segment" = m,
-                  Tabledata "Saved Segment Criteria" = m,
-                  Tabledata "Sales Header Archive" = m,
-                  Tabledata "Purchase Header Archive" = m,
-                  Tabledata "Employee Ledger Entry" = m,
-                  Tabledata "Detailed Employee Ledger Entry" = m,
-                  Tabledata "Manufacturing User Template" = m,
-                  Tabledata "Field Monitoring Setup" = m;
+                  Tabledata "Workflow Step Instance Archive" = rm,
+                  Tabledata "Date Compr. Register" = rm,
+                  Tabledata "Requisition Line" = rm,
+                  Tabledata "Overdue Approval Entry" = rm,
+                  Tabledata "Job Queue Entry" = rm,
+                  Tabledata "Job Queue Log Entry" = rm,
+                  Tabledata "Error Message Register" = rm,
+                  Tabledata "Activity Log" = rm,
+                  Tabledata "Workflow Step Instance" = rm,
+                  Tabledata "Notification Entry" = rm,
+                  Tabledata "Sent Notification Entry" = rm,
+                  Tabledata "User Setup" = rm,
+                  Tabledata "VAT Registration Log" = rm,
+                  Tabledata "Item Application Entry History" = rm,
+                  Tabledata "CV Ledger Entry Buffer" = rm,
+                  Tabledata "Detailed CV Ledg. Entry Buffer" = rm,
+                  Tabledata "VAT Report Archive" = rm,
+                  Tabledata "Cash Flow Forecast Entry" = rm,
+                  Tabledata "Job Planning Line" = rm,
+                  Tabledata "Cost Type" = rm,
+                  Tabledata "Cost Allocation Source" = rm,
+                  Tabledata "Cost Allocation Target" = rm,
+                  Tabledata "Cost Center" = rm,
+                  Tabledata "Credit Transfer Register" = rm,
+                  Tabledata "Direct Debit Collection" = rm,
+                  Tabledata "Isolated Certificate" = rm,
+                  Tabledata "Logged Segment" = rm,
+                  Tabledata "Saved Segment Criteria" = rm,
+                  Tabledata "Sales Header Archive" = rm,
+                  Tabledata "Purchase Header Archive" = rm,
+                  Tabledata "Employee Ledger Entry" = rm,
+                  Tabledata "Detailed Employee Ledger Entry" = rm,
+                  Tabledata "Manufacturing User Template" = rm,
+                  Tabledata "Field Monitoring Setup" = rm;
 
     trigger OnRun()
     begin
@@ -107,7 +107,7 @@ codeunit 418 "User Management"
         DontShowAgainTok: Label 'Don''t show me again';
         ShowMoreLinkTok: Label 'Show more';
         CurrentUserQst: Label 'You are signed in with the %1 account. Changing the account will refresh your session. Do you want to continue?', Comment = 'USERID';
-        UnsupportedLicenseTypeOnSaasErr: Label 'Only users of type %1, %2 and %3 are supported in the online environment.', Comment = '%1= license type, %2= license type, %3= license type';
+        UnsupportedLicenseTypeOnSaasErr: Label 'Only users of type %1, %2, %3 and %4 are supported in the online environment.', Comment = '%1,%2,%3,%4 = license type';
         DisableUserMsg: Label 'To permanently disable a user, go to your Microsoft 365 admin center. Disabling the user in Business Central will only be effective until the next user synchonization with Microsoft 365.';
         WindowsSecurityIdNotEditableOnSaaSErr: Label 'Windows security identifier is not supported in online environments.';
 
@@ -197,9 +197,6 @@ codeunit 418 "User Management"
         UserTimeRegister: Record "User Time Register";
         PrinterSelection: Record "Printer Selection";
         SelectedDimension: Record "Selected Dimension";
-#if not CLEAN19
-        OutlookSynchUserSetup: Record "Outlook Synch. User Setup";
-#endif
         FAJournalSetup: Record "FA Journal Setup";
         AnalysisSelectedDimension: Record "Analysis Selected Dimension";
         WarehouseEmployee: Record "Warehouse Employee";
@@ -235,14 +232,6 @@ codeunit 418 "User Management"
                         SelectedDimension.Rename(UserName, SelectedDimension."Object Type", SelectedDimension."Object ID",
                           SelectedDimension."Analysis View Code", SelectedDimension."Dimension Code");
                     end;
-#if not CLEAN19
-                DATABASE::"Outlook Synch. User Setup":
-                    begin
-                        OutlookSynchUserSetup.ChangeCompany(Company);
-                        RecRef.SetTable(OutlookSynchUserSetup);
-                        OutlookSynchUserSetup.Rename(UserName, OutlookSynchUserSetup."Synch. Entity Code");
-                    end;
-#endif
                 DATABASE::"FA Journal Setup":
                     begin
                         FAJournalSetup.ChangeCompany(Company);
@@ -492,8 +481,8 @@ codeunit 418 "User Management"
             exit;
 
         if EnvironmentInfo.IsSaaS() then
-            if not (User."License Type" in [User."License Type"::"Full User", User."License Type"::"External User", User."License Type"::Application]) then
-                Error(UnsupportedLicenseTypeOnSaasErr, User."License Type"::"Full User", User."License Type"::"External User", User."License Type"::Application);
+            if not (User."License Type" in [User."License Type"::"Full User", User."License Type"::"External User", User."License Type"::Application, User."License Type"::"AAD Group"]) then
+                Error(UnsupportedLicenseTypeOnSaasErr, User."License Type"::"Full User", User."License Type"::"External User", User."License Type"::Application, User."License Type"::"AAD Group");
     end;
 
     [IntegrationEvent(false, false)]

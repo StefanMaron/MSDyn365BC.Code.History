@@ -358,7 +358,7 @@
   </Item>
   <Item ItemId=";Codeunit 1853180782 - NamedType 1287549821" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot rename a tenant permission set until it is used elsewhere, for example, in permission settings for a user or user group.]]></Val>
+      <Val><![CDATA[You cannot rename a tenant permission set while it is used elsewhere, for example, in permission settings for a user or security group.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -498,6 +498,96 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Time Sheets Permissions - NamedType TimeSheetAdminErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1454349401 - NamedType 4066316276" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[UG3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Group Transition Test - NamedType NoPermissionsButWithMembersUserGroupCode)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1454349401 - NamedType 2618802388" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[UG1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Group Transition Test - NamedType NoPermissionsNoMembersUserGroupCode)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1454349401 - NamedType 37995715" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[UG4]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Group Transition Test - NamedType PermissionsAnd1MemberUserGroupCode)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1454349401 - NamedType 1143873459" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[UG5]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Group Transition Test - NamedType PermissionsAnd2MembersUserGroupCode)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1454349401 - NamedType 3043664606" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[UG2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Group Transition Test - NamedType PermissionsButNoMembersUserGroupCode)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1454349401 - NamedType 4257338644" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[8d2edf83-4f9f-4346-9184-f1aa4b62d598]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Group Transition Test - NamedType TestPlanId)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1454349401 - NamedType 1867802835" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[User Group Test User 1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Group Transition Test - NamedType TestUserName1)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1454349401 - NamedType 3780892686" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[User Group Test User 2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Group Transition Test - NamedType TestUserName2)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1454349401 - NamedType 1836601731" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected Role ID.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Group Transition Test - NamedType UnexpectedRoleIDErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1454349401 - Method 1098646820 - NamedType 2425575545" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[_1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Group Transition Test - Method TestMigrateUserGroupsWithUserGroupsToConvertAndNameClash - NamedType Suffix)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

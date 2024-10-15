@@ -27,6 +27,8 @@ permissionset 191 "D365 SETUP"
                   tabledata "Accounting Period" = IMD,
                   tabledata "Action Message Entry" = D,
                   tabledata Activity = D,
+                  tabledata "Alt. Customer Posting Group" = RIMD,
+                  tabledata "Alt. Vendor Posting Group" = RIMD,
                   tabledata "Analysis Column" = D,
                   tabledata "Analysis Column Template" = D,
                   tabledata "Analysis Field Value" = D,
@@ -115,7 +117,9 @@ permissionset 191 "D365 SETUP"
                   tabledata "Contact Value" = D,
                   tabledata "Contact Web Source" = D,
                   tabledata "Contract Gain/Loss Entry" = D,
+#if not CLEAN22
                   tabledata "Coupling Field Buffer" = RIMD,
+#endif
                   tabledata "Coupling Record Buffer" = RIMD,
                   tabledata "Credit Trans Re-export History" = D,
                   tabledata "Credit Transfer Entry" = D,
@@ -137,14 +141,11 @@ permissionset 191 "D365 SETUP"
                   tabledata "Customer Posting Group" = RIMD,
                   tabledata "Customer Price Group" = RIMD,
                   tabledata "Customer Templ." = RIMD,
-#if not CLEAN19
-                  tabledata "Customer Template" = RIMD,
-#endif
                   tabledata "Customized Calendar Change" = RIMD,
                   tabledata "Customized Calendar Entry" = RIMD,
                   tabledata "Data Exch." = RIMD,
                   tabledata "Data Exchange Type" = RimD,
-				  tabledata "Data Exch. Table Filter" = RIMD,
+                  tabledata "Data Exch. Table Filter" = RIMD,
                   tabledata "Data Migration Entity" = RIMD,
                   tabledata "Data Migration Error" = RIMD,
                   tabledata "Data Migration Parameters" = RIMD,
@@ -205,7 +206,9 @@ permissionset 191 "D365 SETUP"
                   tabledata "Inter. Log Entry Comment Line" = D,
                   tabledata "Interaction Log Entry" = D,
                   tabledata "Intermediate Data Import" = RimD,
+#if not CLEAN22
                   tabledata "Intrastat Setup" = RIMD,
+#endif
                   tabledata "Inventory Adjmt. Entry (Order)" = d,
                   tabledata "Inventory Comment Line" = D,
                   tabledata "Inventory Page Data" = D,
@@ -226,9 +229,6 @@ permissionset 191 "D365 SETUP"
                   tabledata "Item Charge" = RIMD,
                   tabledata "Item Charge Assignment (Purch)" = rD,
                   tabledata "Item Charge Assignment (Sales)" = rD,
-#if not CLEAN19
-                  tabledata "Item Cross Reference" = RIMD,
-#endif
                   tabledata "Item Discount Group" = RIMD,
                   tabledata "Item Entry Relation" = RIMD,
                   tabledata "Item Ledger Entry" = Rmd,
@@ -421,8 +421,10 @@ permissionset 191 "D365 SETUP"
                   tabledata "Transaction Type" = RIMD,
                   tabledata "Transport Method" = RIMD,
                   tabledata "Untracked Planning Element" = D,
+#if not CLEAN22
                   tabledata "User Group Member" = Rimd,
                   tabledata "User Group Plan" = d,
+#endif
                   tabledata "User Security Status" = D,
                   tabledata "User Setup" = RIMD,
                   tabledata "User Task Group" = RIMD,

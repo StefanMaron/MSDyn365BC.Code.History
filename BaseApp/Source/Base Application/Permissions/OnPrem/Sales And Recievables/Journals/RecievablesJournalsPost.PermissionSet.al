@@ -6,6 +6,7 @@ permissionset 6207 "Recievables Journals - Post"
 
     Permissions = tabledata "Accounting Period" = r,
                   tabledata "Additional Fee Setup" = r,
+                  tabledata "Alt. Customer Posting Group" = r,
                   tabledata "Analysis View" = rimd,
                   tabledata "Analysis View Entry" = rim,
                   tabledata "Analysis View Filter" = r,
