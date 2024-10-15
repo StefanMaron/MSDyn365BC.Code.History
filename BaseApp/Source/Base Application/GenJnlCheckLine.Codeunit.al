@@ -526,6 +526,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
     var
         IsPayment: Boolean;
         IsHandled: Boolean;
+        IsFinChargeMemoNeg: Boolean;
     begin
         IsHandled := false;
         OnBeforeCheckDocType(GenJnlLine, IsHandled);
@@ -539,8 +540,9 @@ codeunit 11 "Gen. Jnl.-Check Line"
                 then
                     LogFieldError(GenJnlLine, GenJnlLine.FieldNo("Document Type"), EmployeeAccountDocTypeErr);
 
+                IsFinChargeMemoNeg := ("Document Type" = "Document Type"::"Finance Charge Memo") and ("Account Type" = "Account Type"::Customer) and (Amount < 0);
                 IsPayment := "Document Type" in ["Document Type"::Payment, "Document Type"::"Credit Memo"];
-                if IsPayment xor (("Account Type" = "Account Type"::Customer) xor IsVendorPaymentToCrMemo(GenJnlLine)) then
+                if IsPayment xor (("Account Type" = "Account Type"::Customer) xor IsVendorPaymentToCrMemo(GenJnlLine)) xor IsFinChargeMemoNeg then
                     ErrorIfNegativeAmt(GenJnlLine)
                 else
                     ErrorIfPositiveAmt(GenJnlLine);
