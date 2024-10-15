@@ -22,6 +22,9 @@ codeunit 1140 "OAuth 2.0 Mgt."
         LimitExceededTxt: Label 'Http daily request limit is exceeded.', Locked = true;
         EnvironmentBlocksErr: Label 'Environment blocks an outgoing HTTP request to ''%1''.', Comment = '%1 - url, e.g. https://microsoft.com';
         ConnectionErr: Label 'Connection to the remote service ''%1'' could not be established.', Comment = '%1 - url, e.g. https://microsoft.com';
+        BaseAuthorizationUrlTxt: Label '%1%2?response_type=%3&client_id=%4&scope=%5&redirect_uri=%6', Locked = true;
+        CodeChallengeUrlTxt: Label '&code_challenge=%1&code_challenge_method=%2', Locked = true;
+        AuthCodeUrlTxt: Label 'grant_type=authorization_code&client_secret=%1&client_id=%2&redirect_uri=%3&code=%4', Locked = true;
 
     [EventSubscriber(ObjectType::Page, Page::"OAuth 2.0 Setup", 'OnAfterGetCurrRecordEvent', '', false, false)]
     local procedure OnAfterGetCurrRecordPageEvent(var Rec: Record "OAuth 2.0 Setup")
@@ -61,23 +64,29 @@ codeunit 1140 "OAuth 2.0 Mgt."
     end;
 
     [NonDebuggable]
-    procedure GetAuthorizationURL(OAuth20Setup: Record "OAuth 2.0 Setup"; ClientID: Text): Text
+    procedure GetAuthorizationURL(OAuth20Setup: Record "OAuth 2.0 Setup"; ClientID: Text) AuthorizationUrl: Text
+    var
+        ServiceUrl: Text;
     begin
-        with OAuth20Setup do begin
-            TestField("Service URL");
-            TestField("Authorization URL Path");
-            TestField("Authorization Response Type");
-            TestField("Access Token URL Path");
-            TestField("Client ID");
-            TestField(Scope);
-            TestField("Redirect URL");
+        OAuth20Setup.TestField("Service URL");
+        OAuth20Setup.TestField("Authorization URL Path");
+        OAuth20Setup.TestField("Authorization Response Type");
+        OAuth20Setup.TestField("Access Token URL Path");
+        OAuth20Setup.TestField("Client ID");
+        OAuth20Setup.TestField(Scope);
+        OAuth20Setup.TestField("Redirect URL");
 
-            LogActivity(OAuth20Setup, true, RequestAuthCodeTxt, '', '', '', true);
-            exit(
-              StrSubstNo(
-                '%1%2?response_type=%3&client_id=%4&scope=%5&redirect_uri=%6',
-                "Service URL", "Authorization URL Path", "Authorization Response Type", ClientID, Scope, "Redirect URL"));
-        end;
+        LogActivity(OAuth20Setup, true, RequestAuthCodeTxt, '', '', '', true);
+        ServiceUrl := OAuth20Setup."Service URL";
+        OnBeforeGetServiceUrlForAuthorizationURL(ServiceUrl, OAuth20Setup);
+        AuthorizationUrl :=
+          StrSubstNo(
+            BaseAuthorizationUrlTxt,
+            ServiceUrl, OAuth20Setup."Authorization URL Path", OAuth20Setup."Authorization Response Type", ClientID, OAuth20Setup.Scope, OAuth20Setup."Redirect URL");
+        ExtendAuthorizationURLWithCodeChallenge(AuthorizationUrl, OAuth20Setup);
+        if OAuth20Setup."Use Nonce" then
+            AuthorizationUrl += '&nonce=' + GenerateRandomCodeVerifier();
+        exit(AuthorizationUrl);
     end;
 
     /// <summary>
@@ -127,10 +136,10 @@ codeunit 1140 "OAuth 2.0 Mgt."
             TestField("Redirect URL");
 
             if UseUrlEncodedContentType then begin
-                CreateContentRequestForAccessToken(RequestUrlContent, ClientSecret, ClientID, "Redirect URL", AuthorizationCode);
+                CreateContentRequestForAccessToken(RequestUrlContent, ClientSecret, ClientID, "Redirect URL", AuthorizationCode, OAuth20Setup.GetToken(OAuth20Setup."Code Verifier"));
                 CreateRequestJSONForAccessRefreshTokenURLEncoded(RequestJson, "Service URL", "Access Token URL Path", RequestUrlContent);
             end else begin
-                CreateContentRequestJSONForAccessToken(RequestJsonContent, ClientSecret, ClientID, "Redirect URL", AuthorizationCode);
+                CreateContentRequestJSONForAccessToken(RequestJsonContent, ClientSecret, ClientID, "Redirect URL", AuthorizationCode, OAuth20Setup.GetToken(OAuth20Setup."Code Verifier"));
                 CreateRequestJSONForAccessRefreshToken(RequestJson, "Service URL", "Access Token URL Path", RequestJsonContent);
             end;
 
@@ -428,22 +437,27 @@ codeunit 1140 "OAuth 2.0 Mgt."
     end;
 
     [NonDebuggable]
-    local procedure CreateContentRequestForAccessToken(var UrlString: Text; ClientSecret: Text; ClientID: Text; RedirectURI: Text; AuthorizationCode: Text)
+    local procedure CreateContentRequestForAccessToken(var UrlString: Text; ClientSecret: Text; ClientID: Text; RedirectURI: Text; AuthorizationCode: Text; CodeVerifier: Text)
     var
         HttpUtility: DotNet HttpUtility;
     begin
-        UrlString := StrSubstNo('grant_type=authorization_code&client_secret=%1&client_id=%2&redirect_uri=%3&code=%4',
-             HttpUtility.UrlEncode(ClientSecret), HttpUtility.UrlEncode(ClientID), HttpUtility.UrlEncode(RedirectURI), HttpUtility.UrlEncode(AuthorizationCode));
+        UrlString := StrSubstNo(AuthCodeUrlTxt,
+             HttpUtility.UrlEncode(ClientSecret), HttpUtility.UrlEncode(ClientID),
+             HttpUtility.UrlEncode(RedirectURI), HttpUtility.UrlEncode(AuthorizationCode));
+        if CodeVerifier <> '' then
+            UrlString += StrSubstNo('&code_verifier=%1', CodeVerifier);
     end;
 
     [NonDebuggable]
-    local procedure CreateContentRequestJSONForAccessToken(var JObject: JsonObject; ClientSecret: Text; ClientID: Text; RedirectURI: Text; AuthorizationCode: Text)
+    local procedure CreateContentRequestJSONForAccessToken(var JObject: JsonObject; ClientSecret: Text; ClientID: Text; RedirectURI: Text; AuthorizationCode: Text; CodeVerifier: Text)
     begin
         JObject.Add('grant_type', 'authorization_code');
         JObject.Add('client_secret', ClientSecret);
         JObject.Add('client_id', ClientID);
         JObject.Add('redirect_uri', RedirectURI);
         JObject.Add('code', AuthorizationCode);
+        if CodeVerifier <> '' then
+            JObject.Add('code_verifier', CodeVerifier);
     end;
 
     [NonDebuggable]
@@ -689,8 +703,54 @@ codeunit 1140 "OAuth 2.0 Mgt."
         ResponseJObject.WriteTo(ResponseJson);
     end;
 
+    [NonDebuggable]
+    local procedure ExtendAuthorizationURLWithCodeChallenge(var AuthorizationUrl: Text; OAuth20Setup: Record "OAuth 2.0 Setup")
+    var
+        CodeVerifier: Text;
+    begin
+        if OAuth20Setup."Code Challenge Method" = OAuth20Setup."Code Challenge Method"::" " then
+            exit;
+        CodeVerifier := GenerateRandomCodeVerifier();
+        OAuth20Setup.SetToken(OAuth20Setup."Code Verifier", CodeVerifier);
+        OAuth20Setup.Modify(true);
+        AuthorizationUrl += StrSubstNo(CodeChallengeUrlTxt, GenerateCodeChallenge(OAuth20Setup."Code Challenge Method", CodeVerifier), Format(OAuth20Setup."Code Challenge Method"));
+    end;
+
+
+    [NonDebuggable]
+    local procedure GenerateRandomCodeVerifier(): Text
+    var
+        Convert: Codeunit "Base64 Convert";
+    begin
+        exit(Encode(Convert.ToBase64(CreateGuid())));
+    end;
+
+    [NonDebuggable]
+    local procedure GenerateCodeChallenge(CodeChallengeMethod: Enum "OAuth 2.0 Code Challenge"; CodeVerifier: Text): Text
+    var
+        CryptographyManagement: Codeunit "Cryptography Management";
+    begin
+        if CodeChallengeMethod <> CodeChallengeMethod::S256 then
+            exit;
+        exit(Encode(CryptographyManagement.GenerateHashAsBase64String(CodeVerifier, Enum::"Hash Algorithm"::SHA256.AsInteger())));
+    end;
+
+    [NonDebuggable]
+    local procedure Encode(Input: Text) Encoded: Text
+    begin
+        Encoded := Input.TrimEnd('=');
+        Encoded := Encoded.Replace('+', '-');
+        Encoded := Encoded.Replace('/', '_');
+        exit(Encoded);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckEncryption(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetServiceUrlForAuthorizationURL(var ServiceUrl: Text; OAuth20Setup: Record "OAuth 2.0 Setup")
     begin
     end;
 }

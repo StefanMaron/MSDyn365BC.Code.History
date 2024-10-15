@@ -48,6 +48,7 @@ codeunit 136208 "Marketing Interaction"
         SegmentSendContactEmailFaxMissingErr: Label 'Make sure that the %1 field is specified for either contact no. %2 or the contact alternative address.', Comment = '%1 - Email or Fax No. field caption, %2 - Contact No.';
         NoOfInteractionEntriesMustMatchErr: Label 'No. of Interaction Entries must match.';
         LoggedSegemntEntriesCreateMsg: Label 'Logged Segment entry was created';
+        EvaluationErr: Label '%1 must be %2 in %3', Comment = '%1 = Evaluation, %2 = Positive, %3 = Interaction Log Entry';
 
     [Test]
     [Scope('OnPrem')]
@@ -2955,6 +2956,50 @@ codeunit 136208 "Marketing Interaction"
         VerifyAttachmentExistOnPostedInteractionLog(SegmentHeader."No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('CreateInteractionFromContactPageHandler')]
+    procedure PopulateEvaluationFieldInInteractionLogEntry()
+    var
+        Contact: Record Contact;
+        InteractionTemplate: Record "Interaction Template";
+        InteractionLogEntry: Record "Interaction Log Entry";
+        ContactCard: TestPage "Contact Card";
+        InteractionEvaluation: Enum "Interaction Evaluation";
+    begin
+        // [SCENARIO 498395] When stan creates an Interaction using Create Interaction action from Contact, Evaluation field should be populated in Interaction Log Entry.
+        Initialize();
+
+        // [GIVEN] Create a Contact.
+        LibraryMarketing.CreateCompanyContact(Contact);
+
+        // [GIVEN] Create an Interaction Template and Validate Information Flow.
+        LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
+        InteractionTemplate.Validate("Information Flow", InteractionTemplate."Information Flow"::Outbound);
+        InteractionTemplate.Modify(true);
+
+        // [GIVEN] Open Contact Card and Create Interaction.
+        ContactCard.OpenEdit();
+        ContactCard.GoToRecord(Contact);
+        LibraryVariableStorage.Enqueue(InteractionTemplate.Code);
+        LibraryVariableStorage.Enqueue(Format(InteractionEvaluation::Positive));
+        ContactCard."Create &Interaction".Invoke();
+
+        // [WHEN] Find Interaction Log Entry.
+        InteractionLogEntry.SetRange("Contact No.", Contact."No.");
+        InteractionLogEntry.FindFirst();
+
+        // [VERIFY] Interaction Log Entry has Evaluation field populated as Positive.
+        Assert.AreEqual(
+            InteractionEvaluation::Positive,
+            InteractionLogEntry.Evaluation,
+            StrSubstNo(
+                EvaluationErr,
+                InteractionLogEntry.FieldCaption(Evaluation),
+                InteractionEvaluation::Positive,
+                InteractionLogEntry.TableCaption));
+    end;
+
     local procedure Initialize()
     var
         LibrarySales: Codeunit "Library - Sales";
@@ -4226,6 +4271,17 @@ CopyStr(StorageLocation, 1, MaxStrLen(MarketingSetup."Attachment Storage Locatio
     [Scope('OnPrem')]
     procedure SendNotificationHandler(var Notification: Notification): Boolean
     begin
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CreateInteractionFromContactPageHandler(var CreateInteraction: TestPage "Create Interaction")
+    begin
+        CreateInteraction."Interaction Template Code".SetValue(LibraryVariableStorage.DequeueText());
+        CreateInteraction.NextInteraction.Invoke();
+        CreateInteraction.NextInteraction.Invoke();
+        CreateInteraction.Evaluation.SetValue(LibraryVariableStorage.DequeueText());
+        CreateInteraction.FinishInteraction.Invoke();
     end;
 }
 

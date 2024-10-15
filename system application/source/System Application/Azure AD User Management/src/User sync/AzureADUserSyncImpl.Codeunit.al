@@ -69,6 +69,7 @@ codeunit 9029 "Azure AD User Sync Impl."
         AllPlanIds := AzureADPlan.GetAllPlanIds();
         AllPlanIds.Remove(PlanIds.GetMicrosoft365PlanId());
         AllPlanIds.Remove(PlanIds.GetInternalAdminPlanId());
+        AllPlanIds.Remove(PlanIds.GetBCAdminPlanId());
         ConvertList(AllPlanIds, AssignedPlansList);
 
         AzureADGraph.GetLicensedUsersPage(AssignedPlansList, UsersPerPage, GraphUserInfoPage);
@@ -144,6 +145,7 @@ codeunit 9029 "Azure AD User Sync Impl."
                     if not IsNull(GraphUserInfo) then begin
                         AzureADPlan.GetPlanIDs(GraphUserInfo, UserPlanIds);
                         if UserPlanIds.Contains(PlanIds.GetInternalAdminPlanId()) or // internal admins are not affected by the environment security group
+                            UserPlanIds.Contains(PlanIds.GetBCAdminPlanId()) or // BC admins are not affected by the environment security group
                            ((not AzureADGraph.IsEnvironmentSecurityGroupDefined()) and UserPlanIds.Contains(PlanIds.GetMicrosoft365PlanId()))
                         then
                             GetUpdatesFromGraphUserInfo(GraphUserInfo, AzureADUserUpdate, OfficeUsersInBC);
@@ -215,7 +217,7 @@ codeunit 9029 "Azure AD User Sync Impl."
             exit(false);
 
         foreach PlanID in UserPlanIDs do
-            if not (PlanID in [PlanIDs.GetInternalAdminPlanId(), PlanIDs.GetMicrosoft365PlanId()]) then
+            if not (PlanID in [PlanIDs.GetInternalAdminPlanId(), PlanIDs.GetBCAdminPlanId(), PlanIDs.GetMicrosoft365PlanId()]) then
                 exit(false);
 
         exit(true);

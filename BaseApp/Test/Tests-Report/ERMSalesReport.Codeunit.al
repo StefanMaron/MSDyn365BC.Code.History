@@ -61,6 +61,7 @@
         TaxInvoiceTxt: Label 'Tax Invoice';
         EmptyReportDatasetTxt: Label 'There is nothing to print for the selected filters.';
         WrongDecimalErr: Label 'Wrong count of decimals', Locked = true;
+        DescriptionVATClauseLineLbl: Label 'Description_VATClauseLine';
 
     [Test]
     [HandlerFunctions('CustomerTrialBalanceRequestPageHandler')]
@@ -3132,6 +3133,70 @@
         Assert.RecordIsEmpty(InteractionLogEntry);
     end;
 
+    [Test]
+    [HandlerFunctions('StandardSalesInvoiceRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure StandardSalesInvoiceShowsSingleVATClausesForMultipleLineWithSameVATPostingSetup()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        VATClause: Record "VAT Clause";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        // [SCENARIO 477998] The VAT clause should be printed once, having the same VAT Posting Setup and zero VAT when there are two lines. 
+        // The first line has +ve quantity, and the second line has -ve quantity.
+        Initialize();
+
+        // [GIVEN] Create a VAT Clause.
+        LibraryERM.CreateVATClause(VATClause);
+
+        // [GIVEN] Create a VAT Posting Setup with a VAT rate of zero.
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
+        VATPostingSetup.Validate("VAT Clause Code", VATClause.Code);
+        VATPostingSetup.Modify(true);
+
+        // [GIVEN] Create a VAT Product Posting Setup.
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+
+        // [GIVEN] Create a Customer and update the VAT Bus. Posting Group.
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Customer.Modify(true);
+
+        // [GIVEN] Create an Item and update the VAT Prod. Posting Group.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Item.Modify(true);
+
+        // [GIVEN] Create a Sales Invoice.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+
+        // [GIVEN] Create a sales line "A" with +ve quantity.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(100));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(300));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Create a sales line "B" with -ve quantity.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", -LibraryRandom.RandInt(20));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(100));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Post a Sales Invoice.
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.SetRecFilter();
+
+        // [WHEN] Run the report "Standard Sales—Invoice" for the posted sales invoice.
+        Clear(LibraryReportDataset);
+        Report.Run(Report::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
+
+        // [VERIFY] VAT clause should be printed only once after running the report "Standard Sales—Invoice".
+        VerifyVATClauseShouldBePrintOnlyOnce(VATClause);
+    end;
+
     local procedure Initialize()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -4429,6 +4494,17 @@
     begin
         LibraryReportDataset.MoveToRow(LibraryReportDataset.FindRow('Cust_Ledger_Entry_Due_Date_', Format(DueDate)) + 1);
         LibraryReportDataset.AssertCurrentRowValueEquals('OverDueMonths', DueMonths);
+    end;
+
+    local procedure VerifyVATClauseShouldBePrintOnlyOnce(VATClause: Record "VAT Clause")
+    begin
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueExists(
+            DescriptionVATClauseLineLbl, VATClause.Description + ' ' + VATClause."Description 2");
+
+        LibraryReportDataset.GetNextRow();
+        asserterror LibraryReportDataset.AssertElementTagWithValueExists(
+            DescriptionVATClauseLineLbl, VATClause.Description + ' ' + VATClause."Description 2");
     end;
 
     [ConfirmHandler]
