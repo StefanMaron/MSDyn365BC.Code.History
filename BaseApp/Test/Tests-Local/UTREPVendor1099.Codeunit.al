@@ -1513,6 +1513,40 @@ codeunit 142055 "UT REP Vendor 1099"
         FILE.Erase(FileName);
     end;
 
+
+    [Test]
+    [HandlerFunctions('Vendor1099Nec2022ChangeCurrYearRPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure ChangeYearInNec2022Report()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        OldWorkDate: Date;
+    begin
+        // [SCENARIO 461396] Stan can change the year on the MISC 2021 report's request page to see the actual data
+
+        // [GIVEN] Purchase invoice with NEC-01 code with Date = 01.01.2021
+        Initialize();
+        SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeNec01Tok, LibraryRandom.RandIntInRange(1000, 5000));
+
+        // [GIVEN] Work date is "01.01.2022"
+        OldWorkDate := WorkDate();
+        WorkDate := CalcDate('<1Y>', WorkDate());
+
+        // [WHEN] Run Vendor 1099 Nec 2022 Report and set year = 2021
+        LibraryVariableStorage.Enqueue(Date2DMY(OldWorkDate, 3));
+        REPORT.Run(REPORT::"Vendor 1099 Nec 2022");
+
+        // [THEN] "NEC-01" value exists in the Report
+        LibraryReportDataset.LoadDataSetFile();
+        VendorLedgerEntry.CalcFields(Amount);
+        LibraryReportDataset.AssertElementWithValueExists(GetAmtNEC01Tok, -VendorLedgerEntry.Amount);
+        LibraryVariableStorage.AssertEmpty();
+
+        // Tear down
+        Workdate := OldWorkDate;
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -1780,6 +1814,15 @@ codeunit 142055 "UT REP Vendor 1099"
         Vendor1099Misc2021.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
         Vendor1099Misc2021.Year.SetValue(LibraryVariableStorage.DequeueText());
         Vendor1099Misc2021.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure Vendor1099Nec2022ChangeCurrYearRPH(var Vendor1099Nec2022: TestRequestPage "Vendor 1099 Nec 2022")
+    begin
+        Vendor1099Nec2022.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        Vendor1099Nec2022.Year.SetValue(LibraryVariableStorage.DequeueText());
+        Vendor1099Nec2022.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [RequestPageHandler]

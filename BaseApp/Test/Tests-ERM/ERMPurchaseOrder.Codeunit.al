@@ -90,6 +90,8 @@
         RemitToCodeShouldBeEditableErr: Label 'Remit-to code should be editable when vendor is selected.';
         PrePaymentPerErr: Label 'Prepayment% are not equal on Purchase Header and Purchase Line';
         UpdateLinesOrderDateAutomaticallyQst: Label 'You have changed the Order Date on the purchase order, which might affect the prices and discounts on the purchase order lines.\Do you want to update the order date for existing lines?';
+        OrderDateErr: Label 'The purchase order date (%1) should be the same as the purchase line order date (%2).', Comment = '%1 - Purchase Header Order Date; %2 - Purchase Line Order Date';
+        DescriptionErr: Label 'The purchase line description (%1) should be the same as the random generated description (%2).', Comment = '%1 - Purchase Line Description; %2 - Random Generated Description';
 
     [Test]
     [Scope('OnPrem')]
@@ -7192,6 +7194,48 @@
         PurchaseOrder."Ship-to Name".AssertEquals(CompanyInformation.Name);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerWithVerification')]
+    [Scope('OnPrem')]
+    procedure UpdatePurchaseOrderDateShouldNotDeleteLinesWithDescription()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Description: Text[100];
+    begin
+        // [SCENARIO 459881] When changing the Order Date in Purchase Orders comment lines get deleted unexpectedly
+        // [GIVEN] Initialize, Create Purchae Order
+        Initialize();
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.Validate("Order Date", Today());
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
+        Clear(PurchaseLine);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::" ", '', 0);
+        Description := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(PurchaseLine.Description), 1), 1, MAXSTRLEN(PurchaseLine.Description));
+        PurchaseLine.Validate(Description, Description);
+        PurchaseLine.Modify(true);
+        Commit();
+
+        // [WHEN] Update Order Date on Purchase Order
+        LibraryVariableStorage.Enqueue(UpdateLinesOrderDateAutomaticallyQst);
+        LibraryVariableStorage.Enqueue(true);
+        PurchaseHeader.Validate("Order Date", Today() + 1);
+        PurchaseHeader.Modify(true);
+        LibraryVariableStorage.AssertEmpty();
+        PurchaseLine.GetBySystemId(PurchaseLine.SystemId);
+
+        // [VERIFY] Verify Purchase Line with Order Date and Description Text on Purchase Order Line.
+        Assert.AreEqual(
+            PurchaseHeader."Order Date", PurchaseLine."Order Date",
+            StrSubstNo(OrderDateErr, PurchaseHeader."Order Date", PurchaseLine."Order Date"));
+
+        Assert.AreEqual(
+            PurchaseLine.Description, Description,
+            StrSubstNo(DescriptionErr, PurchaseLine.Description, Description));
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -10740,4 +10784,3 @@
         // Close handler
     end;
 }
-
