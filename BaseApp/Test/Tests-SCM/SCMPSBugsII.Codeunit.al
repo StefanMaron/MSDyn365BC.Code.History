@@ -349,7 +349,7 @@ codeunit 137036 "SCM PS Bugs - II"
     end;
 
     [Test]
-    [HandlerFunctions('RefreshPickedConfirmHandler')]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure ProdOrderRefreshedAfterConfirmationWhenComponentsArePicked()
     var
@@ -374,8 +374,6 @@ codeunit 137036 "SCM PS Bugs - II"
         // [WHEN] Refresh production order
         // [THEN] Confirmation request is shown
         // [WHEN] Accept the confirmation request
-        LibraryVariableStorage.Enqueue(ProductionOrder."No.");
-        LibraryVariableStorage.Enqueue(true);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, false, true, false);
 
         // [THEN] Quantity in the production order line is "X"
