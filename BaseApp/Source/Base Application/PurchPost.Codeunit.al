@@ -63,10 +63,12 @@
         // Header
         CheckAndUpdate(PurchHeader);
 
-        TempDeferralHeader.DeleteAll;
-        TempDeferralLine.DeleteAll;
-        TempInvoicePostBuffer.DeleteAll;
-        TempDropShptPostBuffer.DeleteAll;
+        TempInvoicePostBufferReverseCharge.Reset();
+        TempInvoicePostBufferReverseCharge.DeleteAll();
+        TempDeferralHeader.DeleteAll();
+        TempDeferralLine.DeleteAll();
+        TempInvoicePostBuffer.DeleteAll();
+        TempDropShptPostBuffer.DeleteAll();
         EverythingInvoiced := true;
 
         // Lines
@@ -214,6 +216,7 @@
         ReturnShptHeader: Record "Return Shipment Header";
         SalesShptHeader: Record "Sales Shipment Header";
         TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary;
+        TempInvoicePostBufferReverseCharge: Record "Invoice Post. Buffer" temporary;
         SourceCodeSetup: Record "Source Code Setup";
         Currency: Record Currency;
         VendLedgEntry: Record "Vendor Ledger Entry";
@@ -684,6 +687,9 @@
             if (Type >= Type::"G/L Account") and ("Qty. to Invoice" <> 0) then begin
                 AdjustPrepmtAmountLCY(PurchHeader, PurchLine);
                 FillInvoicePostBuffer(PurchHeader, PurchLine, PurchLineACY, TempInvoicePostBuffer, InvoicePostBuffer);
+                TempInvoicePostBufferReverseCharge := TempInvoicePostBuffer;
+                if not TempInvoicePostBufferReverseCharge.Insert() then
+                    TempInvoicePostBufferReverseCharge.Modify();
                 InsertPrepmtAdjInvPostingBuf(PurchHeader, PurchLine, TempInvoicePostBuffer, InvoicePostBuffer);
             end;
 
@@ -1922,7 +1928,7 @@
             exit;
 
         with PurchaseLine do begin
-            if "Line Discount %" <> 100 then
+            if ("Line Discount %" <> 100) and (("Inv. Discount Amount" - "Line Amount") <> 0) then
                 TestField(Amount);
             TestField("Job No.", '');
         end;
@@ -6967,10 +6973,16 @@
         VATPostingSetup: Record "VAT Posting Setup";
         LineCount: Integer;
         GLEntryNo: Integer;
+        VATAmount: Decimal;
+        VATAmountACY: Decimal;
+        VATAmountRemainder: Decimal;
+        VATAmountACYRemainder: Decimal;
     begin
         OnBeforePostInvoicePostBuffer(PurchHeader, TempInvoicePostBuffer, TotalPurchLine, TotalPurchLineLCY);
 
         LineCount := 0;
+        VATAmountRemainder := 0;
+        VATAmountACYRemainder := 0;
         if TempInvoicePostBuffer.Find('+') then
             repeat
                 LineCount := LineCount + 1;
@@ -6983,14 +6995,28 @@
                             VATPostingSetup.Get(
                               TempInvoicePostBuffer."VAT Bus. Posting Group", TempInvoicePostBuffer."VAT Prod. Posting Group");
                             OnPostInvoicePostingBufferOnAfterVATPostingSetupGet(VATPostingSetup);
-                            TempInvoicePostBuffer."VAT Amount" :=
-                              Round(
-                                TempInvoicePostBuffer."VAT Base Amount" *
-                                (1 - PurchHeader."VAT Base Discount %" / 100) * VATPostingSetup."VAT %" / 100);
-                            TempInvoicePostBuffer."VAT Amount (ACY)" :=
-                              Round(
-                                TempInvoicePostBuffer."VAT Base Amount (ACY)" * (1 - PurchHeader."VAT Base Discount %" / 100) *
-                                VATPostingSetup."VAT %" / 100, Currency."Amount Rounding Precision");
+
+                            VATAmount :=
+                              TempInvoicePostBuffer."VAT Base Amount" * (1 - PurchHeader."VAT Base Discount %" / 100) *
+                              VATPostingSetup."VAT %" / 100;
+
+                            VATAmountACY :=
+                              TempInvoicePostBuffer."VAT Base Amount (ACY)" * (1 - PurchHeader."VAT Base Discount %" / 100) *
+                              VATPostingSetup."VAT %" / 100;
+
+                            TempInvoicePostBufferReverseCharge := TempInvoicePostBuffer;
+                            if TempInvoicePostBufferReverseCharge.Find() then begin
+                                VATAmountRemainder += VATAmount;
+                                TempInvoicePostBuffer."VAT Amount" := Round(VATAmountRemainder);
+                                VATAmountRemainder -= TempInvoicePostBuffer."VAT Amount";
+
+                                VATAmountACYRemainder += VATAmountACY;
+                                TempInvoicePostBuffer."VAT Amount (ACY)" := Round(VATAmountACYRemainder, Currency."Amount Rounding Precision");
+                                VATAmountACYRemainder -= TempInvoicePostBuffer."VAT Amount (ACY)"
+                            end else begin
+                                TempInvoicePostBuffer."VAT Amount" := Round(VATAmount);
+                                TempInvoicePostBuffer."VAT Amount (ACY)" := Round(VATAmountACY, Currency."Amount Rounding Precision");
+                            end;
                         end;
                 end;
 
