@@ -193,6 +193,122 @@ codeunit 134167 "Copy Price Data Test"
     end;
 
     [Test]
+    procedure T005_CopySalesPriceWithInconsistentData()
+    var
+        Customer: Record Customer;
+        Currency: Record Currency;
+        Item: Record Item;
+        ItemUnitofMeasure: Record "Item Unit of Measure";
+        ItemVar: Record Item;
+        ItemVariant: Record "Item Variant";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        SalesPrice: Record "Sales Price";
+        UnitofMeasure: Record "Unit of Measure";
+    begin
+        Initialize();
+        SalesPrice.DeleteAll();
+        PriceListLine.DeleteAll();
+        PriceListHeader.DeleteAll();
+        // [GIVEN] 5 Sales Prices, where inconsistent Customer, Item, Item Variant, Unit of measure, Currency.
+        LibrarySales.CreateCustomer(Customer);
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItem(ItemVar);
+        LibraryInventory.CreateItemVariant(ItemVariant, ItemVar."No.");
+        LibraryInventory.CreateUnitOfMeasureCode(UnitofMeasure);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitofMeasure, ItemVar."No.", UnitofMeasure.Code, 3);
+        LibraryERM.CreateCurrency(Currency);
+        LibrarySales.CreateSalesPrice(
+            SalesPrice, ItemVar."No.", "Sales Price Type"::Customer, Customer."No.",
+            Today(), '', '', '', 1, LibraryRandom.RandDec(1000, 2));
+        LibrarySales.CreateSalesPrice(
+            SalesPrice, Item."No.", "Sales Price Type"::"All Customers", '',
+            Today(), '', '', '', 2, LibraryRandom.RandDec(1000, 2));
+        LibrarySales.CreateSalesPrice(
+            SalesPrice, ItemVar."No.", "Sales Price Type"::"All Customers", '',
+            Today(), '', ItemVariant.Code, '', 3, LibraryRandom.RandDec(1000, 2));
+        LibrarySales.CreateSalesPrice(
+            SalesPrice, ItemVar."No.", "Sales Price Type"::"All Customers", '',
+            Today(), '', '', UnitofMeasure.Code, 4, LibraryRandom.RandDec(1000, 2));
+        LibrarySales.CreateSalesPrice(
+            SalesPrice, ItemVar."No.", "Sales Price Type"::"All Customers", '',
+            Today(), Currency.Code, '', '', 5, LibraryRandom.RandDec(1000, 2));
+
+        // [GIVEN] Customer, Item, Variant, Unit of measure, Currency are removed
+        Customer.Delete();
+        Item.Delete();
+        ItemVariant.Delete();
+        ItemUnitofMeasure.Delete();
+        Currency.Delete();
+
+        // [WHEN] Copy SalesPrices with header generation
+        CopyFromToPriceListLine.SetGenerateHeader();
+        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
+
+        // [THEN] Price List Line is not created
+        Assert.IsFalse(PriceListLine.FindFirst(), 'line is created');
+        Assert.IsFalse(PriceListHeader.Get(PriceListLine."Price List Code"), 'header is created');
+    end;
+
+    [Test]
+    procedure T006_CopySalesLineDiscWithInconsistentData()
+    var
+        Customer: Record Customer;
+        Currency: Record Currency;
+        Item: Record Item;
+        ItemUnitofMeasure: Record "Item Unit of Measure";
+        ItemVar: Record Item;
+        ItemVariant: Record "Item Variant";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        SalesLineDiscount: Record "Sales Line Discount";
+        UnitofMeasure: Record "Unit of Measure";
+    begin
+        Initialize();
+        SalesLineDiscount.DeleteAll();
+        PriceListLine.DeleteAll();
+        PriceListHeader.DeleteAll();
+        // [GIVEN] 5 Sales Line Discounts, where inconsistent Customer, Item, Item Variant, Unit of measure, Currency.
+        LibrarySales.CreateCustomer(Customer);
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItem(ItemVar);
+        LibraryInventory.CreateItemVariant(ItemVariant, ItemVar."No.");
+        LibraryInventory.CreateUnitOfMeasureCode(UnitofMeasure);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitofMeasure, ItemVar."No.", UnitofMeasure.Code, 3);
+        LibraryERM.CreateCurrency(Currency);
+        LibraryERM.CreateLineDiscForCustomer(
+            SalesLineDiscount, "Sales Line Discount Type"::Item, ItemVar."No.", "Sales Price Type"::Customer, Customer."No.",
+            Today(), '', '', '', 1);
+        LibraryERM.CreateLineDiscForCustomer(
+            SalesLineDiscount, "Sales Line Discount Type"::Item, Item."No.", "Sales Price Type"::"All Customers", '',
+            Today(), '', '', '', 2);
+        LibraryERM.CreateLineDiscForCustomer(
+            SalesLineDiscount, "Sales Line Discount Type"::Item, ItemVar."No.", "Sales Price Type"::"All Customers", '',
+            Today(), '', ItemVariant.Code, '', 3);
+        LibraryERM.CreateLineDiscForCustomer(
+            SalesLineDiscount, "Sales Line Discount Type"::Item, ItemVar."No.", "Sales Price Type"::"All Customers", '',
+            Today(), '', '', UnitofMeasure.Code, 4);
+        LibraryERM.CreateLineDiscForCustomer(
+            SalesLineDiscount, "Sales Line Discount Type"::Item, ItemVar."No.", "Sales Price Type"::"All Customers", '',
+            Today(), Currency.Code, '', '', 5);
+
+        // [GIVEN] Customer, Item, Variant, Unit of measure, Currency are removed
+        Customer.Delete();
+        Item.Delete();
+        ItemVariant.Delete();
+        ItemUnitofMeasure.Delete();
+        Currency.Delete();
+
+        // [WHEN] Copy SalesPrices with header generation
+        CopyFromToPriceListLine.SetGenerateHeader();
+        CopyFromToPriceListLine.CopyFrom(SalesLineDiscount, PriceListLine);
+
+        // [THEN] Price List Line is not created
+        Assert.IsFalse(PriceListLine.FindFirst(), 'line is created');
+        Assert.IsFalse(PriceListHeader.Get(PriceListLine."Price List Code"), 'header is created');
+    end;
+
+    [Test]
     procedure T011_CopyPurchPriceToSeparateHeaders()
     var
         Currency: Record Currency;
@@ -304,6 +420,111 @@ codeunit 134167 "Copy Price Data Test"
         Assert.IsTrue(PriceListLine.Next() <> 0, 'not found second line');
         Assert.AreNotEqual(PriceListCode, PriceListLine."Price List Code", 'Same price list code');
         VerifyHeader(PriceListLine);
+    end;
+
+    [Test]
+    procedure T015_CopyPurchPriceWithInconsistentData()
+    var
+        Vendor: Record Vendor;
+        VendorToDelete: Record Vendor;
+        Currency: Record Currency;
+        Item: Record Item;
+        ItemUnitofMeasure: Record "Item Unit of Measure";
+        ItemVar: Record Item;
+        ItemVariant: Record "Item Variant";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PurchasePrice: Record "Purchase Price";
+        UnitofMeasure: Record "Unit of Measure";
+    begin
+        Initialize();
+        PurchasePrice.DeleteAll();
+        PriceListLine.DeleteAll();
+        PriceListHeader.DeleteAll();
+        // [GIVEN] 5 Purchase Prices, where inconsistent Vendor, Item, Item Variant, Unit of measure, Currency.
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreateVendor(VendorToDelete);
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItem(ItemVar);
+        LibraryInventory.CreateItemVariant(ItemVariant, ItemVar."No.");
+        LibraryInventory.CreateUnitOfMeasureCode(UnitofMeasure);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitofMeasure, ItemVar."No.", UnitofMeasure.Code, 3);
+        LibraryERM.CreateCurrency(Currency);
+        LibraryCosting.CreatePurchasePrice(PurchasePrice, VendorToDelete."No.", ItemVar."No.", Today(), '', '', '', 1);
+        LibraryCosting.CreatePurchasePrice(PurchasePrice, Vendor."No.", Item."No.", Today(), '', '', '', 2);
+        LibraryCosting.CreatePurchasePrice(PurchasePrice, Vendor."No.", ItemVar."No.", Today(), '', ItemVariant.Code, '', 3);
+        LibraryCosting.CreatePurchasePrice(PurchasePrice, Vendor."No.", ItemVar."No.", Today(), '', '', UnitofMeasure.Code, 4);
+        LibraryCosting.CreatePurchasePrice(PurchasePrice, Vendor."No.", ItemVar."No.", Today(), Currency.Code, '', '', 5);
+
+        // [GIVEN] Vendor, Item, Variant, Unit of measure, Currency are removed
+        VendorToDelete.Delete();
+        Item.Delete();
+        ItemVariant.Delete();
+        ItemUnitofMeasure.Delete();
+        Currency.Delete();
+
+        // [WHEN] Copy Purchase Prices with header generation
+        CopyFromToPriceListLine.SetGenerateHeader();
+        CopyFromToPriceListLine.CopyFrom(PurchasePrice, PriceListLine);
+
+        // [THEN] Price List Line is not created
+        Assert.IsFalse(PriceListLine.FindFirst(), 'line is created');
+        Assert.IsFalse(PriceListHeader.Get(PriceListLine."Price List Code"), 'header is created');
+    end;
+
+    [Test]
+    procedure T016_CopyPurchLineDiscWithInconsistentData()
+    var
+        Vendor: Record Vendor;
+        VendorToDelete: Record Vendor;
+        Currency: Record Currency;
+        Item: Record Item;
+        ItemUnitofMeasure: Record "Item Unit of Measure";
+        ItemVar: Record Item;
+        ItemVariant: Record "Item Variant";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PurchaseLineDiscount: Record "Purchase Line Discount";
+        UnitofMeasure: Record "Unit of Measure";
+    begin
+        Initialize();
+        PurchaseLineDiscount.DeleteAll();
+        PriceListLine.DeleteAll();
+        PriceListHeader.DeleteAll();
+        // [GIVEN] 5 Purchase Line Discounts, where inconsistent Vendor, Item, Item Variant, Unit of measure, Currency.
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreateVendor(VendorToDelete);
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItem(ItemVar);
+        LibraryInventory.CreateItemVariant(ItemVariant, ItemVar."No.");
+        LibraryInventory.CreateUnitOfMeasureCode(UnitofMeasure);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitofMeasure, ItemVar."No.", UnitofMeasure.Code, 3);
+        LibraryERM.CreateCurrency(Currency);
+        LibraryERM.CreateLineDiscForVendor(
+            PurchaseLineDiscount, ItemVar."No.", VendorToDelete."No.", Today(), '', '', '', 1);
+        LibraryERM.CreateLineDiscForVendor(
+            PurchaseLineDiscount, Item."No.", Vendor."No.", Today(), '', '', '', 2);
+        LibraryERM.CreateLineDiscForVendor(
+            PurchaseLineDiscount, ItemVar."No.", Vendor."No.", Today(), '', ItemVariant.Code, '', 3);
+        LibraryERM.CreateLineDiscForVendor(
+            PurchaseLineDiscount, ItemVar."No.", Vendor."No.", Today(), '', '', UnitofMeasure.Code, 4);
+        LibraryERM.CreateLineDiscForVendor(
+            PurchaseLineDiscount, ItemVar."No.", Vendor."No.", Today(), Currency.Code, '', '', 5);
+
+        // [GIVEN] Vendor, Item, Variant, Unit of measure, Currency are removed
+        VendorToDelete.Delete();
+        Item.Delete();
+        ItemVariant.Delete();
+        ItemUnitofMeasure.Delete();
+        Currency.Delete();
+
+        // [WHEN] Copy Purchase Line Discount with header generation
+        CopyFromToPriceListLine.SetGenerateHeader();
+        CopyFromToPriceListLine.CopyFrom(PurchaseLineDiscount, PriceListLine);
+
+        // [THEN] Price List Line is not created
+        Assert.IsFalse(PriceListLine.FindFirst(), 'line is created');
+        Assert.IsFalse(PriceListHeader.Get(PriceListLine."Price List Code"), 'header is created');
     end;
 
     [Test]
@@ -503,6 +724,55 @@ codeunit 134167 "Copy Price Data Test"
     end;
 
     [Test]
+    procedure T026_CopyJobItemPriceInconsistentData()
+    var
+        Currency: Record Currency;
+        Item: Record Item;
+        ItemUnitofMeasure: Record "Item Unit of Measure";
+        UnitofMeasure: Record "Unit of Measure";
+        ItemVariant: Record "Item Variant";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobItemPrice: Record "Job Item Price";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+    begin
+        Initialize();
+        JobItemPrice.DeleteAll();
+        PriceListLine.DeleteAll();
+        PriceListHeader.DeleteAll();
+        // [GIVEN] 6 JobItemPrices, where "Apply Job Price" is true, "Apply Job Discount" is true.
+        CreateJobItemPrice(JobItemPrice, true, true);
+        Job.Get(JobItemPrice."Job No.");
+        CreateJobItemPrice(JobItemPrice, true, true);
+        JobTask.Get(JobItemPrice."Job No.", JobItemPrice."Job Task No.");
+        CreateJobItemPrice(JobItemPrice, true, true);
+        Item.Get(JobItemPrice."Item No.");
+        CreateJobItemPrice(JobItemPrice, true, true);
+        ItemVariant.Get(JobItemPrice."Item No.", JobItemPrice."Variant Code");
+        CreateJobItemPrice(JobItemPrice, true, true);
+        ItemUnitofMeasure.Get(JobItemPrice."Item No.", JobItemPrice."Unit of Measure Code");
+        CreateJobItemPrice(JobItemPrice, true, true);
+        Currency.Get(JobItemPrice."Currency Code");
+
+        // [GIVEN] Job, JobTask, Item, Variant, UoM, Currency are deleted
+        Job.Delete();
+        JobTask.Delete();
+        Item.Delete();
+        ItemVariant.Delete();
+        ItemUnitofMeasure.Delete();
+        Currency.Delete();
+
+        // [WHEN] Copy JobItemPrice with header generation
+        CopyFromToPriceListLine.SetGenerateHeader();
+        CopyFromToPriceListLine.CopyFrom(JobItemPrice, PriceListLine);
+
+        // [THEN] Added zero Price List Header/Line
+        Assert.RecordIsEmpty(PriceListHeader);
+        Assert.RecordIsEmpty(PriceListLine);
+    end;
+
+    [Test]
     procedure T030_CopyJobGLAccPriceToTwoHeaders()
     var
         JobGLAccountPrice: Record "Job G/L Account Price";
@@ -637,6 +907,51 @@ codeunit 134167 "Copy Price Data Test"
         PriceListCode := PriceListLine."Price List Code";
         VerifyHeader(PriceListLine);
         Assert.IsTrue(PriceListLine.Next() = 0, 'found second line');
+    end;
+
+    [Test]
+    procedure T035_CopyJobGLAccPriceInconsistentData()
+    var
+        Currency: Record Currency;
+        GLAccount: Record "G/L Account";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobGLAccountPrice: Record "Job G/L Account Price";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+    begin
+        Initialize();
+        JobGLAccountPrice.DeleteAll();
+        PriceListLine.DeleteAll();
+        PriceListHeader.DeleteAll();
+        // [GIVEN] 4 JobItemPrices, where Discount is set
+        CreateJobGLAccPrice(JobGLAccountPrice, 1, LibraryRandom.RandDec(50, 2), 0);
+        Job.Get(JobGLAccountPrice."Job No.");
+        JobGLAccountPrice.Rename(
+            JobGLAccountPrice."Job No.", '', JobGLAccountPrice."G/L Account No.", JobGLAccountPrice."Currency Code");
+        CreateJobGLAccPrice(JobGLAccountPrice, 2, LibraryRandom.RandDec(50, 2), 0);
+        JobTask.Get(JobGLAccountPrice."Job No.", JobGLAccountPrice."Job Task No.");
+        CreateJobGLAccPrice(JobGLAccountPrice, 3, LibraryRandom.RandDec(50, 2), 0);
+        GLAccount.Get(JobGLAccountPrice."G/L Account No.");
+        CreateJobGLAccPrice(JobGLAccountPrice, 4, LibraryRandom.RandDec(50, 2), 0);
+        LibraryERM.CreateCurrency(Currency);
+        JobGLAccountPrice.Rename(
+            JobGLAccountPrice."Job No.", JobGLAccountPrice."Job Task No.",
+            JobGLAccountPrice."G/L Account No.", Currency.Code);
+
+        // [GIVEN] Job, JobTask, G/L Account, Currency are deleted
+        Job.Delete();
+        JobTask.Delete();
+        Currency.Delete();
+        GLAccount.Delete();
+
+        // [WHEN] Copy JobItemPrice with header generation
+        CopyFromToPriceListLine.SetGenerateHeader();
+        CopyFromToPriceListLine.CopyFrom(JobGLAccountPrice, PriceListLine);
+
+        // [THEN] Price List Line is not created
+        Assert.IsFalse(PriceListLine.FindFirst(), 'line is created');
+        Assert.IsFalse(PriceListHeader.Get(PriceListLine."Price List Code"), 'header is created');
     end;
 
     [Test]
@@ -806,6 +1121,53 @@ codeunit 134167 "Copy Price Data Test"
     end;
 
     [Test]
+    procedure T045_CopyJobResourcePriceInconsistentData()
+    var
+        Currency: Record Currency;
+        Resource: Record Resource;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        WorkType: Record "Work Type";
+        JobResourcePrice: Record "Job Resource Price";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+    begin
+        Initialize();
+        JobResourcePrice.DeleteAll();
+        PriceListLine.DeleteAll();
+        PriceListHeader.DeleteAll();
+        // [GIVEN] 5 JobResourcePrices, where "Apply Job Price" is true, "Apply Job Discount" is true.
+        CreateJobResourcePrice(JobResourcePrice, true, true);
+        Job.Get(JobResourcePrice."Job No.");
+        CreateJobResourcePrice(JobResourcePrice, true, true);
+        JobTask.Get(JobResourcePrice."Job No.", JobResourcePrice."Job Task No.");
+        CreateJobResourcePrice(JobResourcePrice, true, true);
+        Resource.Get(JobResourcePrice."Code");
+        CreateJobResourcePrice(JobResourcePrice, true, true);
+        WorkType.Get(JobResourcePrice."Work Type Code");
+        CreateJobResourcePrice(JobResourcePrice, true, true);
+        LibraryERM.CreateCurrency(Currency);
+        JobResourcePrice.Rename(
+            JobResourcePrice."Job No.", JobResourcePrice."Job Task No.", JobResourcePrice.Type,
+            JobResourcePrice."Code", JobResourcePrice."Work Type Code", Currency.Code);
+
+        // [GIVEN] Job, JobTask, Resource, Work type, Currency are deleted
+        Job.Delete();
+        JobTask.Delete();
+        Currency.Delete();
+        Resource.Delete();
+        WorkType.Delete();
+
+        // [WHEN] Copy JobItemPrice with header generation
+        CopyFromToPriceListLine.SetGenerateHeader();
+        CopyFromToPriceListLine.CopyFrom(JobResourcePrice, PriceListLine);
+
+        // [THEN] Added zero Price List Header/Line
+        Assert.RecordIsEmpty(PriceListHeader);
+        Assert.RecordIsEmpty(PriceListLine);
+    end;
+
+    [Test]
     procedure T050_CopyResourcePriceToPriceHeader()
     var
         ResourcePrice: Record "Resource Price";
@@ -834,6 +1196,44 @@ codeunit 134167 "Copy Price Data Test"
         PriceListCode := PriceListLine."Price List Code";
         VerifyHeader(PriceListLine);
         Assert.IsTrue(PriceListLine.Next() = 0, 'found second line');
+    end;
+
+    [Test]
+    procedure T055_CopyResourcePriceInconsistentData()
+    var
+        Currency: Record Currency;
+        Resource: Record Resource;
+        WorkType: Record "Work Type";
+        ResourcePrice: Record "Resource Price";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListCode: Code[20];
+    begin
+        Initialize();
+        ResourcePrice.DeleteAll();
+        PriceListLine.DeleteAll();
+        PriceListHeader.DeleteAll();
+        // [GIVEN] 3 ResourceCosts
+        CreateResourcePrice(ResourcePrice);
+        Resource.Get(ResourcePrice.Code);
+        CreateResourcePrice(ResourcePrice);
+        WorkType.get(ResourcePrice."Work Type Code");
+        CreateResourcePrice(ResourcePrice);
+        LibraryERM.CreateCurrency(Currency);
+        ResourcePrice.Rename(ResourcePrice.Type, ResourcePrice."Code", ResourcePrice."Work Type Code", Currency.Code);
+
+        // [GIVEN] Resource, Work type, Currency are deleted
+        Currency.Delete();
+        Resource.Delete();
+        WorkType.Delete();
+
+        // [WHEN] Copy ResourceCost with header generation
+        CopyFromToPriceListLine.SetGenerateHeader();
+        CopyFromToPriceListLine.CopyFrom(ResourcePrice, PriceListLine);
+
+        // [THEN] Added zero Price List Header/Line
+        Assert.RecordIsEmpty(PriceListHeader);
+        Assert.RecordIsEmpty(PriceListLine);
     end;
 
     [Test]
@@ -1164,6 +1564,55 @@ codeunit 134167 "Copy Price Data Test"
     end;
 
     [Test]
+    procedure T066_CopyResourceCostInconsistentData()
+    var
+        WorkType: array[2] of Record "Work Type";
+        Resource: array[2] of Record Resource;
+        ResourceGroup: array[2] of Record "Resource Group";
+        ResourceCost: Record "Resource Cost";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+    begin
+        // [SCEANRIO] Resource cost containing inconsitent data (Resource, Work Type) is not copied to price list line
+        Initialize();
+        ResourceGroup[1].DeleteAll();
+        ResourceCost.DeleteAll();
+        PriceListLine.DeleteAll();
+        PriceListHeader.DeleteAll();
+        // [GIVEN] Resource 'X', where "Resource Group No." is 'A'
+        CreateResourceGroup(Resource[1], ResourceGroup[1]);
+        Resource[1]."Unit Cost" := LibraryRandom.RandDec(200, 2);
+        Resource[1]."Direct Unit Cost" := LibraryRandom.RandDec(200, 2);
+        Resource[1].Modify();
+        CreateResourceGroup(Resource[2], ResourceGroup[2]);
+        // [GIVEN] 4 ResourceCost for Resource Group 'A', where "Work Type Code" is 'WT'
+        CreateResourceCost(ResourceCost, ResType::"Group(Resource)", ResourceGroup[1]."No.");
+        CreateResourceCost(ResourceCost, ResType::"Group(Resource)", ResourceGroup[2]."No.");
+        WorkType[1].Get(ResourceCost."Work Type Code");
+
+        CreateResourceCost(ResourceCost, ResType::Resource, Resource[1]."No.");
+        ResourceCost."Cost Type" := ResourceCost."Cost Type"::"% Extra";
+        ResourceCost.Modify();
+        CreateResourceCost(ResourceCost, ResType::Resource, Resource[2]."No.");
+        ResourceCost."Cost Type" := ResourceCost."Cost Type"::"% Extra";
+        ResourceCost.Modify();
+        WorkType[2].Get(ResourceCost."Work Type Code");
+        // [GIVEN] Resource Group, Work type are deleted
+        Resource[1].Delete();
+        ResourceGroup[1].Delete();
+        WorkType[1].Delete();
+        WorkType[2].Delete();
+
+        // [WHEN] Copy ResourceCost with header generation
+        CopyFromToPriceListLine.SetGenerateHeader();
+        CopyFromToPriceListLine.CopyFrom(ResourceCost, PriceListLine);
+
+        // [THEN] Added zero Price List Header/Line
+        Assert.RecordIsEmpty(PriceListHeader);
+        Assert.RecordIsEmpty(PriceListLine);
+    end;
+
+    [Test]
     procedure T100_FeatureUpdateIfSalesPriceListNosIsBlank()
     var
         FeatureDataUpdateStatus: Record "Feature Data Update Status";
@@ -1180,6 +1629,7 @@ codeunit 134167 "Copy Price Data Test"
         SalesReceivablesSetup.Modify();
         // [GIVEN] Sales Price record exists, Price List Line does not.
         PriceListLine.DeleteAll();
+        SalesPrice.DeleteAll();
         LibrarySales.CreateSalesPrice(
             SalesPrice, LibraryInventory.CreateItemNo(),
             "Sales Price Type"::Customer, LibrarySales.CreateCustomerNo(), Today(), '', '', '', 0, 0);
@@ -1215,6 +1665,9 @@ codeunit 134167 "Copy Price Data Test"
         PurchasesPayablesSetup.Modify();
         // [GIVEN] Purchase Price record exists, Price List Line does not.
         PriceListLine.DeleteAll();
+        PurchasePrice.DeleteAll();
+        LibraryCosting.CreatePurchasePrice(
+            PurchasePrice, LibraryPurchase.CreateVendorNo(), LibraryInventory.CreateItemNo(), Today(), '', '', '', 2);
         PurchasePrice.FindFirst();
 
         // [WHEN] Run feature data update
@@ -1234,6 +1687,8 @@ codeunit 134167 "Copy Price Data Test"
         FeatureDataUpdateStatus: Record "Feature Data Update Status";
         PriceListLine: Record "Price List Line";
         JobItemPrice: Record "Job Item Price";
+        JobGLAccountPrice: Record "Job G/L Account Price";
+        JobResourcePrice: Record "Job Resource Price";
         JobsSetup: Record "Jobs Setup";
         FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
     begin
@@ -1244,7 +1699,11 @@ codeunit 134167 "Copy Price Data Test"
         JobsSetup."Price List Nos." := '';
         JobsSetup.Modify();
         // [GIVEN] Job Item Price record exists, Price List Line does not.
+        JobGLAccountPrice.DeleteAll();
+        JobResourcePrice.DeleteAll();
+        JobItemPrice.DeleteAll();
         PriceListLine.DeleteAll();
+        CreateJobItemPrice(JobItemPrice, true, false);
         JobItemPrice.FindFirst();
 
         // [WHEN] Run feature data update
@@ -1253,7 +1712,7 @@ codeunit 134167 "Copy Price Data Test"
         FeaturePriceCalculation.UpdateData(FeatureDataUpdateStatus);
 
         // [THEN] Price List Line is created
-        PriceListLine.SetRange("Source Type", "Price Source Type"::Job);
+        PriceListLine.SetRange("Source Type", "Price Source Type"::"Job Task");
         Assert.IsTrue(PriceListLine.FindFirst(), 'not found PriceListLine');
         PriceListLine.TestField("Asset No.", JobItemPrice."Item No.");
     end;
@@ -1455,12 +1914,20 @@ codeunit 134167 "Copy Price Data Test"
 
     local procedure CreateJobItemPrice(var JobItemPrice: Record "Job Item Price"; ApplyJobPrice: Boolean; ApplyJobDisc: Boolean)
     var
-        Job: Record Job;
+        Currency: Record Currency;
         Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        Job: Record Job;
+        JobTask: Record "Job Task";
     begin
+        LibraryERM.CreateCurrency(Currency);
         LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
         LibraryInventory.CreateItem(Item);
-        LibraryJob.CreateJobItemPrice(JobItemPrice, Job."No.", '', Item."No.", '', '', Item."Base Unit of Measure");
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+        LibraryJob.CreateJobItemPrice(
+            JobItemPrice, Job."No.", JobTask."Job Task No.", Item."No.",
+            Currency.Code, ItemVariant.Code, Item."Base Unit of Measure");
         JobItemPrice."Unit Price" := LibraryRandom.RandDec(100, 2);
         JobItemPrice."Unit Cost Factor" := LibraryRandom.RandDec(10, 2);
         JobItemPrice."Line Discount %" := LibraryRandom.RandDec(50, 2);

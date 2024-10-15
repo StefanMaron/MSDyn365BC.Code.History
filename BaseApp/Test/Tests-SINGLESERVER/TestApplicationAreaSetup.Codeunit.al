@@ -61,6 +61,12 @@ codeunit 139004 "Test ApplicationArea Setup"
         Assert.IsTrue(Cache.ContainsKey('Company:' + CompanyName()), 'Cache was expected to have an entry for Company specific Application Area');
 
         // Setup
+        AllProfile.FindSet();
+        repeat 
+            AllProfile.Validate("Default Role Center", false);
+            AllProfile.Modify(true)
+        until AllProfile.Next() = 0;
+
         AllProfile.SetRange("Profile ID", 'BUSINESS MANAGER');
         AllProfile.FindFirst();
         AllProfile.Validate("Default Role Center", true);
