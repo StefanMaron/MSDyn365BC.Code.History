@@ -193,6 +193,7 @@
                         Validate("Currency Code", Vend."Currency Code");
                         "Price Calculation Method" := Vend.GetPriceCalculationMethod();
                         ValidateItemDescriptionAndQuantity(Vend);
+                        SetPurchaserCode(Vend."Purchaser Code", "Purchaser Code");
                     end else begin
                         if ValidateFields() then
                             Error(Text005, FieldCaption("Vendor No."), "Vendor No.");
@@ -501,6 +502,16 @@
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+        }
+        field(43; "Purchaser Code"; Code[20])
+        {
+            Caption = 'Purchaser Code';
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
+
+            trigger OnValidate()
+            begin
+                CreateDimFromDefaultDim();
+            end;
         }
         field(73; "Drop Shipment"; Boolean)
         {
@@ -1337,6 +1348,7 @@
                 StockkeepingUnit := Item.GetSKU("Location Code", "Variant Code");
                 if Subcontracting then
                     StockkeepingUnit."Replenishment System" := StockkeepingUnit."Replenishment System"::"Prod. Order";
+                OnValidateReplenishmentSystemOnAfterSetStockkeepingUnit(Rec, StockkeepingUnit, Subcontracting);
 
                 "Supply From" := '';
 
@@ -2322,9 +2334,10 @@
         end;
     end;
 
-    procedure ValidateFields(): Boolean
+    procedure ValidateFields() Result: Boolean
     begin
-        exit((CurrFieldNo <> 0) or (CurrentFieldNo <> 0));
+        Result := (CurrFieldNo <> 0) or (CurrentFieldNo <> 0);
+        OnAfterValidateFields(Rec, CurrFieldNo, CurrentFieldNo, Result);
     end;
 
     procedure GetProdOrderLine(ProdOrderLine: Record "Prod. Order Line")
@@ -3717,8 +3730,41 @@
         DimMgt.AddDimSource(DefaultDimSource, DimMgt.ReqLineTypeToTableID(Rec.Type), Rec."No.");
         DimMgt.AddDimSource(DefaultDimSource, Database::Vendor, Rec."Vendor No.");
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code");
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", Rec."Purchaser Code");
 
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, CurrFieldNo);
+    end;
+
+    local procedure SetPurchaserCode(PurchaserCodeToCheck: Code[20]; var PurchaserCodeToAssign: Code[20])
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetPurchaserCode(Rec, PurchaserCodeToCheck, PurchaserCodeToAssign, IsHandled);
+        if IsHandled then
+            exit;
+
+        if PurchaserCodeToCheck = '' then
+            PurchaserCodeToCheck := GetUserSetupPurchaserCode();
+        if SalespersonPurchaser.Get(PurchaserCodeToCheck) then begin
+            if SalespersonPurchaser.VerifySalesPersonPurchaserPrivacyBlocked(SalespersonPurchaser) then
+                PurchaserCodeToAssign := ''
+            else
+                PurchaserCodeToAssign := PurchaserCodeToCheck;
+        end else
+            PurchaserCodeToAssign := '';
+    end;
+
+    local procedure GetUserSetupPurchaserCode(): Code[20]
+    var
+        UserSetup: Record "User Setup";
+    begin
+        UserSetup.SetLoadFields("Salespers./Purch. Code");
+        if not UserSetup.Get(UserId) then
+            exit('');
+
+        exit(UserSetup."Salespers./Purch. Code");
     end;
 
 #if not CLEAN20
@@ -3912,6 +3958,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateFields(RequisitionLine: Record "Requisition Line"; CurrFieldNo: Integer; CurrentFieldNo: Integer; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var RequisitionLine: Record "Requisition Line"; xRequisitionLine: Record "Requisition Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
@@ -4088,6 +4139,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateReplenishmentSystemCaseElse(var RequisitionLine: Record "Requisition Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateReplenishmentSystemOnAfterSetStockkeepingUnit(var RequisitionLine: Record "Requisition Line"; var StockkeepingUnit: Record "Stockkeeping Unit"; Subcontracting: Boolean);
     begin
     end;
 
@@ -4288,6 +4344,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateVendorNoOnBeforeGetDirectCost(var RequisitionLine: Record "Requisition Line"; xRequisitionLine: Record "Requisition Line"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetPurchaserCode(var RequisitionLine: Record "Requisition Line"; PurchaserCodeToCheck: Code[20]; var PurchaserCodeToAssign: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }

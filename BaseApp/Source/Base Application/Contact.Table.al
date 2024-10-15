@@ -216,6 +216,8 @@
                 OnBeforeLookupPostCode(Rec, PostCode);
 
                 PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
+
+                OnAfterLookupPostCode(Rec, PostCode);
             end;
 
             trigger OnValidate()
@@ -1543,7 +1545,7 @@
         VendorNo := Vend."No.";
 
         if Type = Type::Company then
-            ContComp := Rec
+            ContComp.Get(Rec."No.")
         else
             ContComp.Get("Company No.");
 
@@ -1632,7 +1634,7 @@
         BankAcc.SetInsertFromContact(false);
 
         if Type = Type::Company then
-            ContComp := Rec
+            ContComp.Get(Rec."No.")
         else
             ContComp.Get("Company No.");
 
@@ -3529,6 +3531,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateEmployee(var Employee: Record Employee; var ContBusRel: Record "Contact Business Relation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLookupPostCode(var Contact: Record Contact; var PostCode: Record "Post Code")
     begin
     end;
 

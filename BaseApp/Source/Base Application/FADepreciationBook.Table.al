@@ -146,6 +146,7 @@ table 5612 "FA Depreciation Book"
             var
                 DeprBook2: Record "Depreciation Book";
                 IsHandled: Boolean;
+                ShowDeprMethodError: Boolean;
             begin
                 DeprBook2.Get("Depreciation Book Code");
                 OnBeforeValidateNoOfDeprMonths("FA No.", DeprBook2, IsHandled);
@@ -155,7 +156,9 @@ table 5612 "FA Depreciation Book"
 
                 TestField("Depreciation Starting Date");
                 ModifyDeprFields();
-                if ("No. of Depreciation Months" <> 0) and not LinearMethod() then
+                ShowDeprMethodError := ("No. of Depreciation Months" <> 0) and not LinearMethod();
+                OnValidateNoofDepreciationMonthsOnAfterCalcShowDeprMethodError(Rec, ShowDeprMethodError);
+                if ShowDeprMethodError then
                     DeprMethodError();
 
                 "No. of Depreciation Years" := Round("No. of Depreciation Months" / 12, 0.00000001);
@@ -979,7 +982,13 @@ table 5612 "FA Depreciation Book"
     procedure DrillDownOnBookValue()
     var
         FALedgEntry: Record "FA Ledger Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDrillDownOnBookValue(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Disposal Date" > 0D then
             ShowBookValueAfterDisposal()
         else begin
@@ -1081,6 +1090,11 @@ table 5612 "FA Depreciation Book"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeDrillDownOnBookValue(var FADepreciationBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateNoOfDepreYears(FANo: Code[20]; DeprecBook: Record "Depreciation Book"; var IsHandled: Boolean)
     begin
     end;
@@ -1109,6 +1123,13 @@ table 5612 "FA Depreciation Book"
     local procedure OnValidateDepreciationEndingDateOnAfterCalcShowDeprMethodError(var FADepreciationBook: Record "FA Depreciation Book"; var ShowDeprMethodError: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateNoofDepreciationMonthsOnAfterCalcShowDeprMethodError(var FADepreciationBook: Record "FA Depreciation Book"; var ShowDeprMethodError: Boolean)
+    begin
+    end;
+
+
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertFADeprBook(FADepreciationBook: Record "FA Depreciation Book"; var IsHandled: Boolean)

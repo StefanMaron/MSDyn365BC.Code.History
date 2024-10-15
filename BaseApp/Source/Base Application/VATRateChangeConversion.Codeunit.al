@@ -79,7 +79,7 @@
             UpdateService();
             UpdateTables();
 
-            OnBeforeFinishConvert(VATRateChangeSetup);
+            OnBeforeFinishConvert(VATRateChangeSetup, ProgressWindow);
 
             GenProductPostingGroup.DeleteAll();
             if TempGenProductPostingGroup.Find('-') then
@@ -476,6 +476,7 @@
                                             OnUpdateSalesOnBeforeModifySalesLine(SalesLine, IsModified);
                                             if IsModified then
                                                 SalesLine.Modify(true);
+                                            OnUpdateSalesOnAfterModifySalesLine(SalesLine, IsModified, VATRateChangeSetup, SalesHeader, SalesLineOld);
                                         end else
                                             if VATRateChangeSetup."Perform Conversion" and (SalesLine."Outstanding Quantity" <> 0) then begin
                                                 NewVATProdPotingGroup := SalesLine."VAT Prod. Posting Group";
@@ -586,31 +587,7 @@
         if not GetNextSalesLineNo(SalesLine, NewLineNo) then
             exit;
         with NewSalesLine do begin
-            Init();
-            NewSalesLine := SalesLine;
-            "Line No." := NewLineNo;
-            "Quantity Shipped" := 0;
-            "Qty. Shipped (Base)" := 0;
-            "Return Qty. Received" := 0;
-            "Return Qty. Received (Base)" := 0;
-            "Quantity Invoiced" := 0;
-            "Qty. Invoiced (Base)" := 0;
-            "Reserved Quantity" := 0;
-            "Reserved Qty. (Base)" := 0;
-            "Qty. to Ship" := 0;
-            "Qty. to Ship (Base)" := 0;
-            "Return Qty. to Receive" := 0;
-            "Return Qty. to Receive (Base)" := 0;
-            "Qty. to Invoice" := 0;
-            "Qty. to Invoice (Base)" := 0;
-            "Qty. Shipped Not Invoiced" := 0;
-            "Return Qty. Rcd. Not Invd." := 0;
-            "Shipped Not Invoiced" := 0;
-            "Return Rcd. Not Invd." := 0;
-            "Qty. Shipped Not Invd. (Base)" := 0;
-            "Ret. Qty. Rcd. Not Invd.(Base)" := 0;
-            "Shipped Not Invoiced (LCY)" := 0;
-            "Return Rcd. Not Invd. (LCY)" := 0;
+            InitNewSalesLineFromSalesLine(NewSalesLine, SalesLine, NewLineNo);
             if (GenProdPostingGroup <> '') and ConvertGenProdPostGrp(VATRateChangeSetup."Update Sales Documents") then
                 Validate("Gen. Prod. Posting Group", GenProdPostingGroup);
             if (VATProdPostingGroup <> '') and ConvertVATProdPostGrp(VATRateChangeSetup."Update Sales Documents") then
@@ -721,6 +698,36 @@
         OnAfterAddNewSalesLine(OldSalesLine, NewSalesLine);
     end;
 
+    local procedure InitNewSalesLineFromSalesLine(var NewSalesLine: Record "Sales Line"; SalesLine: Record "Sales Line"; NewLineNo: Integer)
+    begin
+        NewSalesLine.Init();
+        NewSalesLine := SalesLine;
+        NewSalesLine."Line No." := NewLineNo;
+        NewSalesLine."Quantity Shipped" := 0;
+        NewSalesLine."Qty. Shipped (Base)" := 0;
+        NewSalesLine."Return Qty. Received" := 0;
+        NewSalesLine."Return Qty. Received (Base)" := 0;
+        NewSalesLine."Quantity Invoiced" := 0;
+        NewSalesLine."Qty. Invoiced (Base)" := 0;
+        NewSalesLine."Reserved Quantity" := 0;
+        NewSalesLine."Reserved Qty. (Base)" := 0;
+        NewSalesLine."Qty. to Ship" := 0;
+        NewSalesLine."Qty. to Ship (Base)" := 0;
+        NewSalesLine."Return Qty. to Receive" := 0;
+        NewSalesLine."Return Qty. to Receive (Base)" := 0;
+        NewSalesLine."Qty. to Invoice" := 0;
+        NewSalesLine."Qty. to Invoice (Base)" := 0;
+        NewSalesLine."Qty. Shipped Not Invoiced" := 0;
+        NewSalesLine."Return Qty. Rcd. Not Invd." := 0;
+        NewSalesLine."Shipped Not Invoiced" := 0;
+        NewSalesLine."Return Rcd. Not Invd." := 0;
+        NewSalesLine."Qty. Shipped Not Invd. (Base)" := 0;
+        NewSalesLine."Ret. Qty. Rcd. Not Invd.(Base)" := 0;
+        NewSalesLine."Shipped Not Invoiced (LCY)" := 0;
+        NewSalesLine."Return Rcd. Not Invd. (LCY)" := 0;
+        OnAfterInitNewSalesLineFromSalesLine(NewSalesLine, SalesLine);
+    end;
+
     local procedure UpdateSalesBlanketOrder(SalesLine: Record "Sales Line"; OriginalLineNo: Integer)
     var
         SalesHeader: Record "Sales Header";
@@ -801,6 +808,7 @@
         RoundingPrecision: Decimal;
         IsHandled: Boolean;
         IsModified: Boolean;
+        ShouldProcessLine: Boolean;
     begin
         ProgressWindow.Update(1, PurchaseHeader.TableCaption());
 
@@ -833,12 +841,12 @@
                     if PurchaseHeader.Status = PurchaseHeader.Status::Open then begin
                         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
                         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+                        OnUpdatePurchaseOnAfterPurchaseLineSetFilters(PurchaseLine, PurchaseHeader);
                         if PurchaseLine.FindSet() then
                             repeat
-                                if LineInScope(
-                                     PurchaseLine."Gen. Prod. Posting Group", PurchaseLine."VAT Prod. Posting Group", ConvertGenProdPostingGroup,
-                                     ConvertVATProdPostingGroup)
-                                then
+                                ShouldProcessLine := LineInScope(PurchaseLine."Gen. Prod. Posting Group", PurchaseLine."VAT Prod. Posting Group", ConvertGenProdPostingGroup, ConvertVATProdPostingGroup);
+                                OnUpdatePurchaseOnAfterCalcShouldProcessLine(PurchaseLine, ShouldProcessLine);
+                                if ShouldProcessLine then
                                     if (PurchaseLine."Receipt No." = '') and
                                        (PurchaseLine."Return Shipment No." = '') and IncludePurchLine(PurchaseLine.Type, PurchaseLine."No.")
                                     then
@@ -1207,15 +1215,15 @@
            (VATRateChangeSetup."Upd. Unit Price For FA" and (Type = SalesLine.Type::"Fixed Asset"))));
     end;
 
-    procedure LineInScope(GenProdPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; ConvertGenProdPostingGroup: Boolean; ConvertVATProdPostingGroup: Boolean): Boolean
+    procedure LineInScope(GenProdPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; ConvertGenProdPostingGroup: Boolean; ConvertVATProdPostingGroup: Boolean) Result: Boolean
     begin
         if ConvertGenProdPostingGroup then
             if VATRateChangeConversion.Get(VATRateChangeConversion.Type::"Gen. Prod. Posting Group", GenProdPostingGroup) then
-                exit(true);
+                Result := true;
         if ConvertVATProdPostingGroup then
             if VATRateChangeConversion.Get(VATRateChangeConversion.Type::"VAT Prod. Posting Group", VATProdPostingGroup) then
-                exit(true);
-        exit(false);
+                Result := true;
+        OnAfterLineInScope(GenProdPostingGroup, VATProdPostingGroup, ConvertGenProdPostingGroup, ConvertVATProdPostingGroup, Result)
     end;
 
     procedure GetNextSalesLineNo(SalesLine: Record "Sales Line"; var NextLineNo: Integer): Boolean
@@ -1780,6 +1788,11 @@
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitNewSalesLineFromSalesLine(var NewSalesLine: Record "Sales Line"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnAfterUpdateTables(var VATRateChangeSetup: Record "VAT Rate Change Setup")
     begin
@@ -1787,6 +1800,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterConvert(var VATRateChangeSetup: Record "VAT Rate Change Setup")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterLineInScope(GenProdPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; ConvertGenProdPostingGroup: Boolean; ConvertVATProdPostingGroup: Boolean; var Result: Boolean)
     begin
     end;
 
@@ -1810,8 +1828,8 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeFinishConvert(var VATRateChangeSetup: Record "VAT Rate Change Setup")
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeFinishConvert(var VATRateChangeSetup: Record "VAT Rate Change Setup"; var ProgressWindow: Dialog)
     begin
     end;
 
@@ -1825,12 +1843,12 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeUpdateItem(var Item: Record Item; var VATRateChangeSetup: Record "VAT Rate Change Setup"; var IsHandled: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeUpdateResource(var Resource: Record Resource; var VATRateChangeSetup: Record "VAT Rate Change Setup"; var IsHandled: Boolean)
     begin
     end;
@@ -1885,6 +1903,11 @@
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnUpdatePurchaseOnAfterPurchaseLineSetFilters(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnUpdateRecOnBeforeRecRefModify(var RecRef: RecordRef; GenProdPostingGroupConverted: Boolean; VATProdPostingGroupConverted: Boolean)
     begin
@@ -1905,6 +1928,11 @@
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateSalesOnAfterModifySalesLine(var SalesLine: Record "Sales Line"; IsModified: Boolean; VATRateChangeSetup: Record "VAT Rate Change Setup"; SalesHeader: Record "Sales Header"; SalesLineOld: Record "Sales Line")
+    begin
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnUpdateSalesOnAfterUpdateSalesLines(VATRateChangeSetup: Record "VAT Rate Change Setup"; var SalesHeader: Record "Sales Header"; ConvertVATProdPostingGroup: Boolean; ConvertGenProdPostingGroup: Boolean)
     begin
@@ -1912,6 +1940,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdatePurchaseOnAfterResetPurchaseHeaderStatus(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnUpdatePurchaseOnAfterCalcShouldProcessLine(var PurchaseLine: Record "Purchase Line"; var ShouldProcessLine: Boolean)
     begin
     end;
 

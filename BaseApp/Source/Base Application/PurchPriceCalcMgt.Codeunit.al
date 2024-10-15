@@ -888,7 +888,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
         ResCost."Work Type Code" := SalesLine."Work Type Code";
         CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResCost);
         SalesLine.AfterFindResUnitCost(ResCost);
-        SalesLine.Validate("Unit Cost (LCY)", ResCost."Unit Cost" * SalesLine."Qty. per Unit of Measure");
+        SalesLine."Unit Cost (LCY)" := ResCost."Unit Cost" * SalesLine."Qty. per Unit of Measure";
     end;
 
     procedure FindResUnitCost(var ServiceLine: Record "Service Line")

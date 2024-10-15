@@ -203,6 +203,7 @@ codeunit 410 "Update Analysis View"
             AnalysisViewGLQry.SetFilter(GLAccNo, AnalysisView."Account Filter");
         if AnalysisView."Business Unit Filter" <> '' then
             AnalysisViewGLQry.SetFilter(BusinessUnitCode, AnalysisView."Business Unit Filter");
+        OnUpdateEntriesForGLAccountOnAfterAnalysisViewGLQrySetFilters(AnalysisViewGLQry, AnalysisView);
 
         AnalysisViewGLQry.Open();
         while AnalysisViewGLQry.Read() do begin
@@ -317,6 +318,7 @@ codeunit 410 "Update Analysis View"
             GLBudgetEntry.SetFilter("G/L Account No.", AnalysisView."Account Filter");
         if AnalysisView."Business Unit Filter" <> '' then
             GLBudgetEntry.SetFilter("Business Unit Code", AnalysisView."Business Unit Filter");
+        OnUpdateBudgetEntriesOnAfterGLBudgetEntrySetFilters(GLBudgetEntry, AnalysisView);
         if not GLBudgetEntry.FindSet(true) then
             exit;
 
@@ -664,7 +666,17 @@ codeunit 410 "Update Analysis View"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateBudgetEntriesOnAfterGLBudgetEntrySetFilters(var GLBudgetEntry: Record "G/L Budget Entry"; var AnalysisView: Record "Analysis View")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateEntriesForGLAccountDetailedOnAfterGLEntrySetFilters(var GLEntry: Record "G/L Entry"; var AnalysisView: Record "Analysis View")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateEntriesForGLAccountOnAfterAnalysisViewGLQrySetFilters(var AnalysisViewSourceQry: Query "Analysis View Source"; var AnalysisView: Record "Analysis View")
     begin
     end;
 

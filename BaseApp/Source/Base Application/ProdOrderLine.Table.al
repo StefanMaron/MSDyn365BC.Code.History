@@ -1119,8 +1119,10 @@ table 5406 "Prod. Order Line"
                 "Unit Cost" := SKU."Unit Cost";
                 if (SKU."Routing No." <> "Routing No.") and (SKU."Routing No." <> '') then
                     Validate("Routing No.", SKU."Routing No.");
-                if (SKU."Production BOM No." <> "Production BOM No.") and (SKU."Production BOM No." <> '') then
+                if (SKU."Production BOM No." <> "Production BOM No.") and (SKU."Production BOM No." <> '') then begin
                     Validate("Production BOM No.", SKU."Production BOM No.");
+                    ValidateUnitofMeasureCodeFromItem();
+                end;
             end else begin
                 "Unit Cost" := Item."Unit Cost";
                 "Routing No." := Item."Routing No.";

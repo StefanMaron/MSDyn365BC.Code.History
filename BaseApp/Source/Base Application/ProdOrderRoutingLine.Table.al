@@ -1195,6 +1195,7 @@ table 5409 "Prod. Order Routing Line"
         if ProdOrderLine.Find('-') then
             repeat
                 CalcProdOrder.CalculateProdOrderDates(ProdOrderLine, true);
+                OnCalculateRoutingForwardOnAfterCalculateProdOrderDates(Rec, ProdOrderLine);
                 AdjustComponents(ProdOrderLine);
             until ProdOrderLine.Next() = 0;
         CalcProdOrder.CalculateComponents();
@@ -1689,6 +1690,11 @@ table 5409 "Prod. Order Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateRoutingBackOnAfterCalculateProdOrderDates(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateRoutingForwardOnAfterCalculateProdOrderDates(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
 }

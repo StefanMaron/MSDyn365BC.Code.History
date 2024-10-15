@@ -16,6 +16,9 @@
       "path": "./DataArchive/test/Data Archive Tests"
     },
     {
+      "path": "./servicedeclaration/test/Service Declaration Tests"
+    },
+    {
       "path": "./system application/test/System Application Test"
     },
     {
@@ -191,6 +194,9 @@
     },
     {
       "path": "./APIV1/Test/_Exclude_APIV1_ Tests"
+    },
+    {
+      "path": "./ServiceDeclarationFR/Test/Service Declaration FR Tests"
     },
     {
       "path": "./LatePaymentPredictor/Test/Late Payment Prediction Tests"

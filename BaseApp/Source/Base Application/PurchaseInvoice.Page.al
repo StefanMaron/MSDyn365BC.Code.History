@@ -1,4 +1,4 @@
-page 51 "Purchase Invoice"
+﻿page 51 "Purchase Invoice"
 {
     Caption = 'Purchase Invoice';
     PageType = Document;
@@ -1959,7 +1959,8 @@ page 51 "Purchase Invoice"
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
 
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
-        IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
+        if not IsPurchaseLinesEditable then
+            IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
 
         WorkflowWebhookMgt.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
         PurchaseDocCheckFactboxVisible := DocumentErrorsMgt.BackgroundValidationEnabled();
@@ -2084,8 +2085,7 @@ page 51 "Purchase Invoice"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnPostDocumentBeforeNavigateAfterPosting(var PurchaseHeader: Record "Purchase Header"; var PostingCodeunitID: Integer; var Navigate: Enum "Navigate After Posting";
-                                                                                                                   DocumentIsPosted: Boolean; var IsHandled: Boolean)
+    local procedure OnPostDocumentBeforeNavigateAfterPosting(var PurchaseHeader: Record "Purchase Header"; var PostingCodeunitID: Integer; var Navigate: Enum "Navigate After Posting"; DocumentIsPosted: Boolean; var IsHandled: Boolean)
     begin
     end;
 

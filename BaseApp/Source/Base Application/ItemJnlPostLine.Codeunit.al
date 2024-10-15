@@ -794,7 +794,7 @@
             UpdateUnitCost(GlobalValueEntry);
         end;
 
-        OnAfterPostItem(ItemJnlLine);
+        OnAfterPostItem(ItemJnlLine, CalledFromAdjustment);
     end;
 
     local procedure InsertConsumpEntry(var ProdOrderComp: Record "Prod. Order Component"; ProdOrderCompLineNo: Integer; QtyBase: Decimal; ModifyProdOrderComp: Boolean)
@@ -5207,7 +5207,14 @@
     end;
 
     local procedure CheckApplication(ItemLedgEntry: Record "Item Ledger Entry"; OldItemLedgEntry: Record "Item Ledger Entry")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckApplication(ItemLedgEntry, OldItemLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if SkipApplicationCheck then begin
             SkipApplicationCheck := false;
             exit;
@@ -5836,6 +5843,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckApplication(ItemLedgerEntry: Record "Item Ledger Entry"; OldItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckExpirationDate(var ItemJournalLine: Record "Item Journal Line"; var TrackingSpecification: Record "Tracking Specification"; SignFactor: Integer; CalcExpirationDate: Date; var ExpirationDateChecked: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -6383,7 +6395,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostItem(var ItemJournalLine: Record "Item Journal Line")
+    local procedure OnAfterPostItem(var ItemJournalLine: Record "Item Journal Line"; CalledFromAdjustment: Boolean)
     begin
     end;
 
