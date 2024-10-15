@@ -155,6 +155,8 @@ codeunit 7022 "Item Journal Line - Price" implements "Line With Price"
             CurrPriceType::Purchase:
                 PriceSourceList.Add(SourceType::"All Vendors");
         end;
+
+        OnAfterAddSources(ItemJournalLine, CurrPriceType, PriceSourceList);
     end;
 
     procedure ValidatePrice(AmountType: enum "Price Amount Type")
@@ -181,6 +183,11 @@ codeunit 7022 "Item Journal Line - Price" implements "Line With Price"
     end;
 
     procedure Update(AmountType: enum "Price Amount Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAddSources(ItemJournalLine: Record "Item Journal Line"; PriceType: Enum "Price Type"; var PriceSourceList: Codeunit "Price Source List")
     begin
     end;
 

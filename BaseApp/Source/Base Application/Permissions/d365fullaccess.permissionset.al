@@ -5,7 +5,8 @@ permissionset 6948 "D365 FULL ACCESS"
     Caption = 'Dynamics 365 Full access';
 
     IncludedPermissionSets = "D365 BUS PREMIUM",
-                             "System App - Admin";
+                             "System App - Admin",
+                             SECURITY;
 
     Permissions = tabledata "All Profile" = IMD,
                   tabledata "Application Dependency" = Rimd,

@@ -4221,6 +4221,71 @@ codeunit 134378 "ERM Sales Order"
         LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
+    [Test]
+    procedure QtyToInvoiceDistributedEvenlyOnItemChargeAssignmentInPartialPosting()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemChargeSalesLine: Record "Sales Line";
+        ItemCharge: Record "Item Charge";
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+        QtyToAssign: array[3] of Decimal;
+        ItemChargeUnitPrice: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Item Charge] [Invoice]
+        // [SCENARIO 401969] When partially shipped Sales Order with Charge Assignment is invoiced, "Qty. to Assign" on item charge line is adjusted automatically.
+        Initialize();
+
+        // [GIVEN] Create Item Charge.
+        LibraryInventory.CreateItemCharge(ItemCharge);
+
+        // [GIVEN] Create Sales Order with 3 item lines.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        for i := 1 to 3 do begin
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 10);
+            SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+            SalesLine.Modify(true);
+        end;
+
+        // [GIVEN] Add item charge line with quantity = 9.
+        LibrarySales.CreateSalesLine(
+          ItemChargeSalesLine, SalesHeader, ItemChargeSalesLine.Type::"Charge (Item)", ItemCharge."No.", 9);
+        ItemChargeUnitPrice := LibraryRandom.RandDec(10, 2);
+        ItemChargeSalesLine.Validate("Unit Price", ItemChargeUnitPrice);
+        ItemChargeSalesLine.Validate("Qty. to Ship", 6);
+        ItemChargeSalesLine.Modify(true);
+
+        // [GIVEN] Create 3 Item Charge Assignment lines and set Qty to Assign with distribution by lines 4 - 4 - 1 respectively
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Type, SalesLine.Type::Item);
+        SalesLine.FindSet();
+
+        i := 0;
+        QtyToAssign[1] := 4;
+        QtyToAssign[2] := 4;
+        QtyToAssign[3] := 1;
+        repeat
+            i += 1;
+            LibrarySales.CreateItemChargeAssignment(
+              ItemChargeAssignmentSales, ItemChargeSalesLine, ItemCharge, SalesLine."Document Type",
+              SalesLine."Document No.", SalesLine."Line No.", SalesLine."No.", QtyToAssign[i], ItemChargeUnitPrice);
+            ItemChargeAssignmentSales.Insert(true);
+
+            SalesLine.Validate("Qty. to Ship", LibraryRandom.RandInt(5));
+            SalesLine.Modify(true);
+        until SalesLine.Next() = 0;
+
+        // [GIVEN] Post Sales Order as Ship
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [WHEN] Post Sales Order as Invoice
+        LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [THEN] No error occurs, which means that distribution has been made correctly.
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";

@@ -832,7 +832,7 @@ codeunit 1002 "Job Create-Invoice"
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        OnBeforeTestExchangeRate(JobPlanningLine, PostingDate, UpdateExchangeRates);
+        OnBeforeTestExchangeRate(JobPlanningLine, PostingDate, UpdateExchangeRates, CurrencyExchangeRate);
 
         if JobPlanningLine."Currency Code" <> '' then
             if (CurrencyExchangeRate.ExchangeRate(PostingDate, JobPlanningLine."Currency Code") <> JobPlanningLine."Currency Factor")
@@ -1006,7 +1006,7 @@ codeunit 1002 "Job Create-Invoice"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTestExchangeRate(var JobPlanningLine: Record "Job Planning Line"; PostingDate: Date; var UpdateExchangeRates: Boolean)
+    local procedure OnBeforeTestExchangeRate(var JobPlanningLine: Record "Job Planning Line"; PostingDate: Date; var UpdateExchangeRates: Boolean; var CurrencyExchangeRate: Record "Currency Exchange Rate")
     begin
     end;
 

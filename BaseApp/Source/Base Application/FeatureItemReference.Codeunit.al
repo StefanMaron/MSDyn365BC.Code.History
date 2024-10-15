@@ -45,13 +45,16 @@ Codeunit 5721 "Feature - Item Reference" implements "Feature Data Update"
         if ItemCrossReference.IsEmpty() then
             exit;
 
+        if not ItemReference.IsEmpty() then
+            exit;
+
         StartDateTime := CurrentDateTime;
         ItemCrossReference.FindSet();
         repeat
             ItemReference.Init();
             ItemReference.TransferFields(ItemCrossReference, true);
             ItemReference.SystemId := ItemCrossReference.SystemId;
-            ItemReference.Insert(false, true);
+            if ItemReference.Insert(false, true) then;
         until ItemCrossReference.Next() = 0;
         FeatureDataUpdateMgt.LogTask(FeatureDataUpdateStatus, ItemReference.TableCaption(), StartDateTime);
 

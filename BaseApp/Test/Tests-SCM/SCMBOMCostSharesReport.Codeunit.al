@@ -471,6 +471,52 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         BOMCostShares."Qty. per Parent".AssertEquals(-QtyPer);
     end;
 
+    [Test]
+    [HandlerFunctions('BOMStructureVerifyComponentPageHandler')]
+    procedure BOMStructureIncludesComponentsWithNegativeQtyPer()
+    var
+        ProdItem: Record Item;
+        CompItem: array[2] of Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        QtyPer: Decimal;
+    begin
+        // [FEATURE] [Production BOM] [BOM Structure]
+        // [SCENARIO 398178] BOM Structure page shows production BOM components with negative Quantity Per.
+        Initialize();
+        QtyPer := LibraryRandom.RandIntInRange(10, 20);
+
+        // [GIVEN] Two component items "P" and "N".
+        LibraryInventory.CreateItem(CompItem[1]);
+        LibraryInventory.CreateItem(CompItem[2]);
+
+        // [GIVEN] Certified production BOM with two lines.
+        // [GIVEN] 1st line: No. = "P", Quantity Per = 20.
+        // [GIVEN] 2nd line: No. = "N", Quantity Per = -20 (negative).
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, CompItem[1]."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem[1]."No.", QtyPer);
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem[2]."No.", -QtyPer);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        // [GIVEN] Create a manufacturing item "A" and assign the production BOM to it.
+        LibraryInventory.CreateItem(ProdItem);
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [WHEN] Open BOM Structure page for item "A".
+        LibraryVariableStorage.Enqueue(CompItem[2]."No.");
+        LibraryVariableStorage.Enqueue(-QtyPer);
+        RunBOMStructurePage(ProdItem);
+
+        // [THEN] Negative component "N" is present in the BOM structure.
+        // Verification is done in BOMStructureVerifyComponentPageHandler.
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure RunBOMCostSharesReport(Item: Record Item; ShowLevelAs: Option; ShowDetails: Boolean; ShowCostShareAs: Option)
     var
         Item1: Record Item;
@@ -692,6 +738,14 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         LibraryVariableStorage.Enqueue(true);
         BOMStructure."BOM Level".Invoke; // Call BOM Cost Shares distribution report for code coverage purposes.
         BOMStructure.OK.Invoke;
+    end;
+
+    [PageHandler]
+    procedure BOMStructureVerifyComponentPageHandler(var BOMStructure: TestPage "BOM Structure")
+    begin
+        BOMStructure.Expand(true);
+        BOMStructure.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        BOMStructure."Qty. per Parent".AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
     [ModalPageHandler]

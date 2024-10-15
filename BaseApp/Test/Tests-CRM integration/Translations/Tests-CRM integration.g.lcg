@@ -905,15 +905,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CRM Quotes Integr.Test - NamedType SalesLineArchiveErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 669819362 - NamedType 3624330454" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The Sales Lines corresponding to the Sales Header synced with the CRM Quote %1 were not deleted succesfully.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CRM Quotes Integr.Test - NamedType SalesLineDeleteErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 669819362 - NamedType 3981752937" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The Sales Order corresponding to the won processed CRM QUote %1 was not created]]></Val>
