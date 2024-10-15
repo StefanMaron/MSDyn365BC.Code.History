@@ -288,7 +288,7 @@ table 2840 "Native - Gen. Settings Buffer"
 
         if PaymentTerms.Get(O365SalesInitialSetup."Default Payment Terms Code") then begin
             "Default Payment Terms ID" := PaymentTerms.SystemId;
-            "Def. Pmt. Term Description" := PaymentTerms.GetDescriptionInCurrentLanguage;
+            "Def. Pmt. Term Description" := CopyStr(PaymentTerms.GetDescriptionInCurrentLanguageFullLength(), 1, MaxStrLen("Def. Pmt. Term Description"));
         end;
 
         if PaymentMethod.Get(O365SalesInitialSetup."Default Payment Method Code") then begin

@@ -137,11 +137,17 @@ page 7010 "Get Price Line"
 
     protected var
         AmountType: Enum "Price Amount Type";
+        [InDataSet]
         DiscountVisible: Boolean;
+        [InDataSet]
         HideProductControls: Boolean;
+        [InDataSet]
         ItemVariantVisible: Boolean;
+        [InDataSet]
         WorkTypeCodeVisible: Boolean;
+        [InDataSet]
         PriceVisible: Boolean;
+        [InDataSet]
         IsSalesPrice: Boolean;
 
     procedure SetDataCaptionExpr(PriceAssetList: Codeunit "Price Asset List")
@@ -154,7 +160,7 @@ page 7010 "Get Price Line"
             if TempPriceAsset.FindLast() then begin
                 TempPriceAsset.ValidateAssetNo();
                 DataCaptionExpr :=
-                    StrSubstNo(DataCaptionAssetTok,
+                StrSubstNo(DataCaptionAssetTok,
                         TempPriceAsset."Asset Type", TempPriceAsset."Asset No.", TempPriceAsset.Description);
                 HideProductControls := FirstEntryNo = TempPriceAsset."Entry No.";
             end;

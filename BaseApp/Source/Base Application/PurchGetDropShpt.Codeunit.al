@@ -7,7 +7,8 @@ codeunit 76 "Purch.-Get Drop Shpt."
     trigger OnRun()
     begin
         PurchHeader.Copy(Rec);
-        Code;
+        OnRunOnBeforeCode(Rec, PurchHeader);
+        Code();
         Rec := PurchHeader;
     end;
 
@@ -277,6 +278,11 @@ codeunit 76 "Purch.-Get Drop Shpt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeCode(var PurchaseHeaderRec: Record "Purchase Header"; var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePurchaseLineInsert(var PurchaseLine: Record "Purchase Line"; SalesLine: Record "Sales Line")
     begin
     end;
@@ -292,7 +298,7 @@ codeunit 76 "Purch.-Get Drop Shpt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCodeOnAfterSalesLineSetFilters(var SalesLine: Record "Sales Line"; PurchHeader: Record "Purchase Header")
+    local procedure OnCodeOnAfterSalesLineSetFilters(var SalesLine: Record "Sales Line"; var PurchHeader: Record "Purchase Header")
     begin
     end;
 

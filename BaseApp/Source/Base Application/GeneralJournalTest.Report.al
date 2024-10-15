@@ -1576,6 +1576,8 @@
     end;
 
     local procedure TestFixedAsset(var GenJnlLine: Record "Gen. Journal Line")
+    var
+        ShouldCheckFAPostingDate: Boolean;
     begin
         with GenJnlLine do begin
             if "Job No." <> '' then
@@ -1690,7 +1692,9 @@
                       StrSubstNo(
                         Text051,
                         FieldCaption("Posting Date"), FieldCaption("FA Posting Date")));
-            if "FA Posting Date" <> 0D then begin
+            ShouldCheckFAPostingDate := "FA Posting Date" <> 0D;
+            OnTestFixedAssetOnAfterCalcShouldCheckFAPostingDate(GenJnlLine, ShouldCheckFAPostingDate);
+            if ShouldCheckFAPostingDate then begin
                 if "FA Posting Date" <> NormalDate("FA Posting Date") then
                     AddError(
                       StrSubstNo(
@@ -2195,6 +2199,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetRecordGenJournalLineOnAfterCheckAccTypeGLAccAccNo(GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestFixedAssetOnAfterCalcShouldCheckFAPostingDate(var GenJournalLine: Record "Gen. Journal Line"; var ShouldCheckFAPostingDate: Boolean)
     begin
     end;
 
