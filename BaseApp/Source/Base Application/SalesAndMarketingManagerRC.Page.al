@@ -467,6 +467,10 @@ page 8907 "Sales & Marketing Manager RC"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Quantity Shipped Check';
                         RunObject = report "Quantity Shipped Check";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.0';
+                        Visible = false;
                     }
                 }
             }

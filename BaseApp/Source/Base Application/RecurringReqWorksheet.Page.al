@@ -1,4 +1,4 @@
-﻿page 296 "Recurring Req. Worksheet"
+page 296 "Recurring Req. Worksheet"
 {
     ApplicationArea = Planning;
     AutoSplitKey = true;
@@ -438,7 +438,7 @@
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -452,7 +452,7 @@
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }
@@ -504,7 +504,7 @@
                     trigger OnAction()
                     begin
                         CurrPage.SaveRecord;
-                        ShowReservation;
+                        ShowReservation();
                     end;
                 }
             }
@@ -551,9 +551,10 @@
         CurrentJnlBatchName: Code[10];
         Description2: Text[100];
         BuyFromVendorName: Text[100];
-        ShortcutDimCode: array[8] of Code[20];
         OpenedFromBatch: Boolean;
 
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
 
     local procedure MakePurchaseOrder()
     var

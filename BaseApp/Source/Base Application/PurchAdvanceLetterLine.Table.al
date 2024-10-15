@@ -331,7 +331,7 @@ table 31021 "Purch. Advance Letter Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()

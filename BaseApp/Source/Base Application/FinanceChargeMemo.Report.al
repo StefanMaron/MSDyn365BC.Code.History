@@ -287,7 +287,7 @@ report 118 "Finance Charge Memo"
                     }
                     column(TotalAmtInclVAT; Amount + "VAT Amount")
                     {
-                        AutoFormatExpression = GetCurrencyCode;
+                        AutoFormatExpression = GetCurrencyCode();
                         AutoFormatType = 1;
                     }
                     column(TotalInclVATText; TotalInclVATText)

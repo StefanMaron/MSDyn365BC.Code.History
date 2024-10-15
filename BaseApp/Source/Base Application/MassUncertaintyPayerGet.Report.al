@@ -1,9 +1,12 @@
 report 11761 "Mass Uncertainty Payer Get"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Get All Uncertain Payers';
+    Caption = 'Get All Uncertain Payers (Obsolete)';
     ProcessingOnly = true;
     UsageCategory = Tasks;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

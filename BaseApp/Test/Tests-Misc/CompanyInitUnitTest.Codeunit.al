@@ -23,7 +23,7 @@ codeunit 134163 "Company Init Unit Test"
         AdjExchRatesCodeTxt: Label 'EXCHRATADJ', Comment = 'Adjust Exchange Rates';
         AdjExchRatesValueTxt: Label 'Adjust Exchange Rates';
         ClsIncStmtCodeTxt: Label 'CLSINCOME', Comment = 'Close Income Statement';
-        ClsIncStmtValueTxt: Label 'Close Income Statement';
+        ClsIncStmtValueTxt: Label 'Close Income Statement (Obsole'; // NAVCZ
         ConsolidationCodeTxt: Label 'CONSOLID', Comment = 'Consolidation';
         ConsolidationValueTxt: Label 'Consolidation';
         GenJnlCodeTxt: Label 'GENJNL', Comment = 'General Journal';
@@ -540,20 +540,48 @@ codeunit 134163 "Company Init Unit Test"
     local procedure CheckReportSelections()
     var
         ReportSelections: Record "Report Selections";
+        AllObjWithCaption: Record AllObjWithCaption;
     begin
-        CheckReportSelectionEntry(ReportSelections.Usage::"S.Quote", '1', REPORT::"Sales - Quote CZ"); // NAVCZ
+        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31186) then
+            CheckReportSelectionEntry(ReportSelections.Usage::"S.Quote", '1', 31186) // CZL
+        else
+            CheckReportSelectionEntry(ReportSelections.Usage::"S.Quote", '1', REPORT::"Sales - Quote CZ"); // NAVCZ
         CheckReportSelectionEntry(ReportSelections.Usage::"S.Blanket", '1', REPORT::"Blanket Sales Order");
-        CheckReportSelectionEntry(ReportSelections.Usage::"S.Order", '1', REPORT::"Order Confirmation CZ"); // NAVCZ
+        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31187) then
+            CheckReportSelectionEntry(ReportSelections.Usage::"S.Order", '1', 31187) // CZL
+        else
+            CheckReportSelectionEntry(ReportSelections.Usage::"S.Order", '1', REPORT::"Order Confirmation CZ"); // NAVCZ
         CheckReportSelectionEntry(ReportSelections.Usage::"S.Work Order", '1', REPORT::"Work Order");
-        CheckReportSelectionEntry(ReportSelections.Usage::"S.Invoice", '1', REPORT::"Sales - Invoice CZ"); // NAVCZ
-        CheckReportSelectionEntry(ReportSelections.Usage::"S.Return", '1', REPORT::"Return Order Confirmation CZ"); // NAVCZ
-        CheckReportSelectionEntry(ReportSelections.Usage::"S.Cr.Memo", '1', REPORT::"Sales - Credit Memo CZ"); // NAVCZ
-        CheckReportSelectionEntry(ReportSelections.Usage::"S.Shipment", '1', REPORT::"Sales - Shipment CZ"); // NAVCZ
-        CheckReportSelectionEntry(ReportSelections.Usage::"S.Ret.Rcpt.", '1', REPORT::"Sales - Return Reciept CZ"); // NAVCZ
+        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31189) then
+            CheckReportSelectionEntry(ReportSelections.Usage::"S.Invoice", '1', 31189) // CZL
+        else
+            CheckReportSelectionEntry(ReportSelections.Usage::"S.Invoice", '1', REPORT::"Sales - Invoice CZ"); // NAVCZ
+        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31188) then
+            CheckReportSelectionEntry(ReportSelections.Usage::"S.Return", '1', 31188) // CZL
+        else
+            CheckReportSelectionEntry(ReportSelections.Usage::"S.Return", '1', REPORT::"Return Order Confirmation CZ"); // NAVCZ
+        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31190) then
+            CheckReportSelectionEntry(ReportSelections.Usage::"S.Cr.Memo", '1', 31190) // CZL
+        else
+            CheckReportSelectionEntry(ReportSelections.Usage::"S.Cr.Memo", '1', REPORT::"Sales - Credit Memo CZ"); // NAVCZ
+        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31191) then
+            CheckReportSelectionEntry(ReportSelections.Usage::"S.Shipment", '1', 31191) // CZL
+        else
+            CheckReportSelectionEntry(ReportSelections.Usage::"S.Shipment", '1', REPORT::"Sales - Shipment CZ"); // NAVCZ
+        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31192) then
+            CheckReportSelectionEntry(ReportSelections.Usage::"S.Ret.Rcpt.", '1', 31192) // CZL
+        else
+            CheckReportSelectionEntry(ReportSelections.Usage::"S.Ret.Rcpt.", '1', REPORT::"Sales - Return Reciept CZ"); // NAVCZ
         CheckReportSelectionEntry(ReportSelections.Usage::"S.Test", '1', REPORT::"Sales Document - Test");
-        CheckReportSelectionEntry(ReportSelections.Usage::"P.Quote", '1', REPORT::"Purchase - Quote CZ"); // NAVCZ
+        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31184) then
+            CheckReportSelectionEntry(ReportSelections.Usage::"P.Quote", '1', 31184) // CZL
+        else
+            CheckReportSelectionEntry(ReportSelections.Usage::"P.Quote", '1', REPORT::"Purchase - Quote CZ"); // NAVCZ
         CheckReportSelectionEntry(ReportSelections.Usage::"P.Blanket", '1', REPORT::"Blanket Purchase Order");
-        CheckReportSelectionEntry(ReportSelections.Usage::"P.Order", '1', REPORT::"Order CZ"); // NAVCZ
+        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31185) then
+            CheckReportSelectionEntry(ReportSelections.Usage::"P.Order", '1', 31185) // CZL
+        else
+            CheckReportSelectionEntry(ReportSelections.Usage::"P.Order", '1', REPORT::"Order CZ"); // NAVCZ
         CheckReportSelectionEntry(ReportSelections.Usage::"P.Invoice", '1', REPORT::"Purchase - Invoice");
         CheckReportSelectionEntry(ReportSelections.Usage::"P.Return", '1', REPORT::"Return Order");
         CheckReportSelectionEntry(ReportSelections.Usage::"P.Cr.Memo", '1', REPORT::"Purchase - Credit Memo");
@@ -563,8 +591,14 @@ codeunit 134163 "Company Init Unit Test"
         CheckReportSelectionEntry(ReportSelections.Usage::"B.Stmt", '1', REPORT::"Bank Account Statement");
         CheckReportSelectionEntry(ReportSelections.Usage::"B.Recon.Test", '1', REPORT::"Bank Acc. Recon. - Test");
         CheckReportSelectionEntry(ReportSelections.Usage::"B.Check", '1', REPORT::Check);
-        CheckReportSelectionEntry(ReportSelections.Usage::Reminder, '1', REPORT::"Reminder CZ"); // NAVCZ
-        CheckReportSelectionEntry(ReportSelections.Usage::"Fin.Charge", '1', REPORT::"Finance Charge Memo CZ"); // NAVCZ
+        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31182) then
+            CheckReportSelectionEntry(ReportSelections.Usage::Reminder, '1', 31182) // CZL
+        else
+            CheckReportSelectionEntry(ReportSelections.Usage::Reminder, '1', REPORT::"Reminder CZ"); // NAVCZ
+        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31183) then
+            CheckReportSelectionEntry(ReportSelections.Usage::"Fin.Charge", '1', 31183) // CZL
+        else
+            CheckReportSelectionEntry(ReportSelections.Usage::"Fin.Charge", '1', REPORT::"Finance Charge Memo CZ"); // NAVCZ
         CheckReportSelectionEntry(ReportSelections.Usage::"Rem.Test", '1', REPORT::"Reminder - Test");
         CheckReportSelectionEntry(ReportSelections.Usage::"F.C.Test", '1', REPORT::"Finance Charge Memo - Test");
         CheckReportSelectionEntry(ReportSelections.Usage::Inv1, '1', REPORT::"Transfer Order");
@@ -575,13 +609,34 @@ codeunit 134163 "Company Init Unit Test"
         CheckReportSelectionEntry(ReportSelections.Usage::M1, '1', REPORT::"Prod. Order - Job Card");
         CheckReportSelectionEntry(ReportSelections.Usage::M2, '1', REPORT::"Prod. Order - Mat. Requisition");
         CheckReportSelectionEntry(ReportSelections.Usage::M3, '1', REPORT::"Prod. Order - Shortage List");
-        CheckReportSelectionEntry(ReportSelections.Usage::"SM.Quote", '1', REPORT::"Service Quote CZ"); // NAVCZ
-        CheckReportSelectionEntry(ReportSelections.Usage::"SM.Order", '1', REPORT::"Service Order CZ"); // NAVCZ
-        CheckReportSelectionEntry(ReportSelections.Usage::"SM.Invoice", '1', REPORT::"Service - Invoice CZ"); // NAVCZ
-        CheckReportSelectionEntry(ReportSelections.Usage::"SM.Credit Memo", '1', REPORT::"Service - Credit Memo CZ"); // NAVCZ
-        CheckReportSelectionEntry(ReportSelections.Usage::"SM.Shipment", '1', REPORT::"Service - Shipment CZ"); // NAVCZ
-        CheckReportSelectionEntry(ReportSelections.Usage::"SM.Contract Quote", '1', REPORT::"Service Contract Quote CZ"); // NAVCZ
-        CheckReportSelectionEntry(ReportSelections.Usage::"SM.Contract", '1', REPORT::"Service Contract CZ"); // NAVCZ
+        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31193) then
+            CheckReportSelectionEntry(ReportSelections.Usage::"SM.Quote", '1', 31193) // CZL
+        else
+            CheckReportSelectionEntry(ReportSelections.Usage::"SM.Quote", '1', REPORT::"Service Quote CZ"); // NAVCZ
+        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31194) then
+            CheckReportSelectionEntry(ReportSelections.Usage::"SM.Order", '1', 31194) // CZL
+        else
+            CheckReportSelectionEntry(ReportSelections.Usage::"SM.Order", '1', REPORT::"Service Order CZ"); // NAVCZ
+        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31197) then
+            CheckReportSelectionEntry(ReportSelections.Usage::"SM.Invoice", '1', 31197) // CZL
+        else
+            CheckReportSelectionEntry(ReportSelections.Usage::"SM.Invoice", '1', REPORT::"Service - Invoice CZ"); // NAVCZ
+        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31198) then
+            CheckReportSelectionEntry(ReportSelections.Usage::"SM.Credit Memo", '1', 31198) // CZL
+        else
+            CheckReportSelectionEntry(ReportSelections.Usage::"SM.Credit Memo", '1', REPORT::"Service - Credit Memo CZ"); // NAVCZ
+        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31199) then
+            CheckReportSelectionEntry(ReportSelections.Usage::"SM.Shipment", '1', 31199) // CZL
+        else
+            CheckReportSelectionEntry(ReportSelections.Usage::"SM.Shipment", '1', REPORT::"Service - Shipment CZ"); // NAVCZ
+        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31195) then
+            CheckReportSelectionEntry(ReportSelections.Usage::"SM.Contract Quote", '1', 31195) // CZL
+        else
+            CheckReportSelectionEntry(ReportSelections.Usage::"SM.Contract Quote", '1', REPORT::"Service Contract Quote CZ"); // NAVCZ
+        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31196) then
+            CheckReportSelectionEntry(ReportSelections.Usage::"SM.Contract", '1', 31196) // CZL
+        else
+            CheckReportSelectionEntry(ReportSelections.Usage::"SM.Contract", '1', REPORT::"Service Contract CZ"); // NAVCZ
         CheckReportSelectionEntry(ReportSelections.Usage::"SM.Test", '1', REPORT::"Service Document - Test");
         CheckReportSelectionEntry(ReportSelections.Usage::"Asm.Order", '1', REPORT::"Assembly Order");
         CheckReportSelectionEntry(ReportSelections.Usage::"P.Asm.Order", '1', REPORT::"Posted Assembly Order");
@@ -603,7 +658,7 @@ codeunit 134163 "Company Init Unit Test"
         CheckReportSelectionEntry(ReportSelections.Usage::"P.Adv.CrM", '1', Report::"Purchase - Advance Cr. Memo CZ"); // NAVCZ
     end;
 
-    local procedure CheckReportSelectionEntry(RecUsage: Integer; Sequence: Text; ReportId: Integer)
+    local procedure CheckReportSelectionEntry(RecUsage: Enum "Report Selection Usage"; Sequence: Text; ReportId: Integer)
     var
         ReportSelections: Record "Report Selections";
     begin

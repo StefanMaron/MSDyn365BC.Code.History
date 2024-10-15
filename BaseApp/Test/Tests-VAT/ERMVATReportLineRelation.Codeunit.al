@@ -65,7 +65,7 @@ codeunit 134057 "ERM VAT Report Line Relation"
 
     [Test]
     [Scope('OnPrem')]
-    procedure VATStatementBoxNoIsVisible()
+    procedure VATStatementBoxNoIsNotAvailable()
     var
         VATStatementName: Record "VAT Statement Name";
         VATStatementLine: Record "VAT Statement Line";
@@ -81,9 +81,16 @@ codeunit 134057 "ERM VAT Report Line Relation"
 
         VATStatement.Trap;
         PAGE.Run(PAGE::"VAT Statement", VATStatementLine);
-        Assert.IsTrue(VATStatement."Box No.".Visible, 'VATStatement."Box No." should be visible');
-        Assert.IsTrue(VATStatement."Box No.".Editable, 'VATStatement."Box No." should be editable');
+        // NAVCZ
+        asserterror Assert.IsTrue(VATStatement."Box No.".Visible, 'VATStatement."Box No." should be visible');
+        asserterror Assert.IsTrue(VATStatement."Box No.".Editable, 'VATStatement."Box No." should be editable');
+        // NAVCZ
         VATStatement.Close;
+
+        // NAVCZ
+        // The Visible property of "Box No." field is set to FALSE in "Core Localization Pack for Czech" application in pageextension 11701 "VAT Statement CZL"
+        Assert.ExpectedError('The field with ID = 1058468178 is not found on the page');
+        // NAVCZ
     end;
 
     local procedure TearDown(VATReportNo: Code[20])

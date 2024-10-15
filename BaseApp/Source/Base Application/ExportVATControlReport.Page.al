@@ -8,6 +8,9 @@ page 31106 "Export VAT Control Report"
     PageType = Card;
     SaveValues = true;
     SourceTable = "VAT Control Report Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {
@@ -48,7 +51,6 @@ page 31106 "Export VAT Control Report"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Entries Selection';
-                    OptionCaption = 'Open,Closed,Open and Closed';
                     ToolTip = 'Specifies that VAT entries are included in the VAT control report.';
                 }
                 field(PrintInIntegers; PrintInIntegers)
@@ -208,7 +210,7 @@ page 31106 "Export VAT Control Report"
         Month: Integer;
         Quarter: Integer;
         Year: Integer;
-        Selection: Option Open,Closed,"Open and Closed";
+        Selection: Enum "VAT Statement Report Selection";
         FilledByEmployeeNo: Code[20];
         FastAppelReaction: Option " ",B,P;
         AppelDocumentNo: Text;

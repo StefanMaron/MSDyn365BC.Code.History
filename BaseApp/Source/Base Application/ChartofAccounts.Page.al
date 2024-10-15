@@ -489,6 +489,10 @@ page 16 "Chart of Accounts"
                     PromotedOnly = true;
                     RunObject = Report "Close Income Statement";
                     ToolTip = 'Start the transfer of the year''s result to an account in the balance sheet and close the income statement accounts.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
                 }
                 action(DocsWithoutIC)
                 {

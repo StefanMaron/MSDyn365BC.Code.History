@@ -241,7 +241,7 @@ page 516 "Sales Lines"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }
@@ -260,6 +260,8 @@ page 516 "Sales Lines"
 
     var
         SalesHeader: Record "Sales Header";
+
+    protected var
         ShortcutDimCode: array[8] of Code[20];
 }
 

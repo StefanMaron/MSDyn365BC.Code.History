@@ -1,11 +1,14 @@
 page 11730 "Cash Document"
 {
-    Caption = 'Cash Document';
+    Caption = 'Cash Document (Obsolete)';
     DelayedInsert = true;
     PageType = Document;
     PromotedActionCategories = 'New,Process,Report,Approve,Request Approval';
     RefreshOnActivate = true;
     SourceTable = "Cash Document Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

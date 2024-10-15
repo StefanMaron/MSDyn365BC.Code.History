@@ -2,8 +2,11 @@ report 31095 "Order Confirmation CZ"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './OrderConfirmationCZ.rdlc';
-    Caption = 'Order Confirmation CZ';
+    Caption = 'Order Confirmation CZ (Obsolete)';
     PreviewMode = PrintLayout;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {
@@ -516,7 +519,7 @@ report 31095 "Order Confirmation CZ"
         PaymentMethod: Record "Payment Method";
         ShipmentMethod: Record "Shipment Method";
         TempSalesLine: Record "Sales Line" temporary;
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         RegCountryRegion: Record "Registration Country/Region";
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";

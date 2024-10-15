@@ -3,8 +3,11 @@ report 11777 "General Journal"
     DefaultLayout = RDLC;
     RDLCLayout = './GeneralJournal.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'General Journal';
+    Caption = 'General Journal (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

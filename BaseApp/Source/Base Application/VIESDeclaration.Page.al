@@ -1,9 +1,12 @@
 page 31066 "VIES Declaration"
 {
-    Caption = 'VIES Declaration';
+    Caption = 'VIES Declaration (Obsolete)';
     PageType = Document;
     RefreshOnActivate = true;
     SourceTable = "VIES Declaration Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

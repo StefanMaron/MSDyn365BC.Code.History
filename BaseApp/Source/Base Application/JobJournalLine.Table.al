@@ -1,4 +1,4 @@
-﻿table 210 "Job Journal Line"
+table 210 "Job Journal Line"
 {
     Caption = 'Job Journal Line';
 
@@ -28,7 +28,7 @@
                     CreateDim(
                       DATABASE::Job, "Job No.",
                       DATABASE::"Job Task", "Job Task No.",// NAVCZ
-                      DimMgt.TypeToTableID2(Type), "No.",
+                      DimMgt.TypeToTableID2(Type.AsInteger()), "No.",
                       DATABASE::"Resource Group", "Resource Group No.",
                       DATABASE::"Fixed Asset", "FA No."); // NAVCZ
                     exit;
@@ -48,7 +48,7 @@
                 CreateDim(
                   DATABASE::Job, "Job No.",
                   DATABASE::"Job Task", "Job Task No.",// NAVCZ
-                  DimMgt.TypeToTableID2(Type), "No.",
+                  DimMgt.TypeToTableID2(Type.AsInteger()), "No.",
                   DATABASE::"Resource Group", "Resource Group No.",
                   DATABASE::"Fixed Asset", "FA No."); // NAVCZ
                 Validate("Country/Region Code", Job."Bill-to Country/Region Code");
@@ -75,11 +75,9 @@
         {
             Caption = 'Document No.';
         }
-        field(6; Type; Option)
+        field(6; Type; Enum "Job Journal Line Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Resource,Item,G/L Account';
-            OptionMembers = Resource,Item,"G/L Account";
 
             trigger OnValidate()
             begin
@@ -201,11 +199,7 @@
                     UpdateAllAmounts
                 else begin
                     InitRoundingPrecisions;
-                    "Unit Cost" := Round(
-                        CurrExchRate.ExchangeAmtLCYToFCY(
-                          "Posting Date", "Currency Code",
-                          "Unit Cost (LCY)", "Currency Factor"),
-                        UnitAmountRoundingPrecisionFCY);
+                    "Unit Cost" := ConvertAmountToFCY("Unit Cost (LCY)", UnitAmountRoundingPrecisionFCY);
                     UpdateAllAmounts;
                 end;
             end;
@@ -225,11 +219,7 @@
             trigger OnValidate()
             begin
                 InitRoundingPrecisions;
-                "Unit Price" := Round(
-                    CurrExchRate.ExchangeAmtLCYToFCY(
-                      "Posting Date", "Currency Code",
-                      "Unit Price (LCY)", "Currency Factor"),
-                    UnitAmountRoundingPrecisionFCY);
+                "Unit Price" := ConvertAmountToFCY("Unit Price (LCY)", UnitAmountRoundingPrecisionFCY);
                 UpdateAllAmounts;
             end;
         }
@@ -250,7 +240,7 @@
                 CreateDim(
                   DATABASE::"Resource Group", "Resource Group No.",
                   DATABASE::Job, "Job No.",
-                  DimMgt.TypeToTableID2(Type), "No.",
+                  DimMgt.TypeToTableID2(Type.AsInteger()), "No.",
                   // NAVCZ
                   DATABASE::"Job Task", "Job Task No.",
                   DATABASE::"Fixed Asset", "FA No.");
@@ -330,11 +320,7 @@
 
             trigger OnValidate()
             begin
-                if Chargeable <> xRec.Chargeable then
-                    if not Chargeable then
-                        Validate("Unit Price", 0)
-                    else
-                        Validate("No.");
+                ValidateChargeable();
             end;
         }
         field(30; "Posting Group"; Code[20])
@@ -440,11 +426,7 @@
                     "Variant Code" := ItemLedgEntry."Variant Code";
                     GetItem;
                     if Item."Costing Method" <> Item."Costing Method"::Standard then begin
-                        "Unit Cost" := Round(
-                            CurrExchRate.ExchangeAmtLCYToFCY(
-                              "Posting Date", "Currency Code",
-                              CalcUnitCost(ItemLedgEntry), "Currency Factor"),
-                            UnitAmountRoundingPrecisionFCY);
+                        "Unit Cost" := ConvertAmountToFCY(CalcUnitCost(ItemLedgEntry), UnitAmountRoundingPrecisionFCY);
                         UpdateAllAmounts;
                     end;
                 end;
@@ -455,12 +437,10 @@
             Caption = 'Shpt. Method Code';
             TableRelation = "Shipment Method";
         }
-        field(61; "Entry Type"; Option)
+        field(61; "Entry Type"; Enum "Job Journal Line Entry Type")
         {
             Caption = 'Entry Type';
             Editable = false;
-            OptionCaption = 'Usage,Sale';
-            OptionMembers = Usage,Sale;
         }
         field(62; "Source Code"; Code[10])
         {
@@ -588,7 +568,7 @@
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -692,11 +672,7 @@
                     ItemLedgEntry.Get("Applies-from Entry");
                     ItemLedgEntry.TestField(Positive, false);
                     if Item."Costing Method" <> Item."Costing Method"::Standard then begin
-                        "Unit Cost" := Round(
-                            CurrExchRate.ExchangeAmtLCYToFCY(
-                              "Posting Date", "Currency Code",
-                              CalcUnitCostFrom(ItemLedgEntry), "Currency Factor"),
-                            UnitAmountRoundingPrecisionFCY);
+                        "Unit Cost" := ConvertAmountToFCY(CalcUnitCostFrom(ItemLedgEntry), UnitAmountRoundingPrecisionFCY);
                         UpdateAllAmounts;
                     end;
                 end;
@@ -785,11 +761,7 @@
             trigger OnValidate()
             begin
                 InitRoundingPrecisions;
-                "Line Amount" := Round(
-                    CurrExchRate.ExchangeAmtLCYToFCY(
-                      "Posting Date", "Currency Code",
-                      "Line Amount (LCY)", "Currency Factor"),
-                    AmountRoundingPrecisionFCY);
+                "Line Amount" := ConvertAmountToFCY("Line Amount (LCY)", AmountRoundingPrecisionFCY);
                 UpdateAllAmounts;
             end;
         }
@@ -802,11 +774,7 @@
             trigger OnValidate()
             begin
                 InitRoundingPrecisions;
-                "Line Discount Amount" := Round(
-                    CurrExchRate.ExchangeAmtLCYToFCY(
-                      "Posting Date", "Currency Code",
-                      "Line Discount Amount (LCY)", "Currency Factor"),
-                    AmountRoundingPrecisionFCY);
+                "Line Discount Amount" := ConvertAmountToFCY("Line Discount Amount (LCY)", AmountRoundingPrecisionFCY);
                 UpdateAllAmounts;
             end;
         }
@@ -826,11 +794,9 @@
         {
             Caption = 'Description 2';
         }
-        field(1017; "Ledger Entry Type"; Option)
+        field(1017; "Ledger Entry Type"; Enum "Job Ledger Entry Type")
         {
             Caption = 'Ledger Entry Type';
-            OptionCaption = ' ,Resource,Item,G/L Account';
-            OptionMembers = " ",Resource,Item,"G/L Account";
         }
         field(1018; "Ledger Entry No."; Integer)
         {
@@ -1003,9 +969,9 @@
         field(5468; "Reserved Qty. (Base)"; Decimal)
         {
             AccessByPermission = TableData Item = R;
-            CalcFormula = Sum ("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Journal Template Name"),
+            CalcFormula = Sum("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Journal Template Name"),
                                                                            "Source Ref. No." = FIELD("Line No."),
-                                                                           "Source Type" = CONST(1011),
+                                                                           "Source Type" = CONST(210),
                                                                            "Source Subtype" = FIELD("Entry Type"),
                                                                            "Source Batch Name" = FIELD("Journal Batch Name"),
                                                                            "Source Prod. Order Line" = CONST(0),
@@ -1115,6 +1081,9 @@
         {
             Caption = 'Whse. Net Change Template';
             TableRelation = "Whse. Net Change Template";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             var
@@ -1616,7 +1585,7 @@
 
     procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry")
     begin
-        ReservEntry.SetSource(DATABASE::"Job Journal Line", "Entry Type", "Journal Template Name", "Line No.", "Journal Batch Name", 0);
+        ReservEntry.SetSource(DATABASE::"Job Journal Line", "Entry Type".AsInteger(), "Journal Template Name", "Line No.", "Journal Batch Name", 0);
         ReservEntry.SetItemData("No.", Description, "Location Code", "Variant Code", "Qty. per Unit of Measure");
         ReservEntry."Expected Receipt Date" := "Posting Date";
         ReservEntry."Shipment Date" := "Posting Date";
@@ -1624,7 +1593,7 @@
 
     procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
     begin
-        ReservEntry.SetSourceFilter(DATABASE::"Job Journal Line", "Entry Type", "Journal Template Name", "Line No.", false);
+        ReservEntry.SetSourceFilter(DATABASE::"Job Journal Line", "Entry Type".AsInteger(), "Journal Template Name", "Line No.", false);
         ReservEntry.SetSourceFilter("Journal Batch Name", 0);
 
         OnAfterSetReservationFilters(ReservEntry, Rec);
@@ -1646,8 +1615,8 @@
         InitRoundingPrecisions;
 
         UpdateUnitCost;
+        FindPriceAndDiscount(CurrFieldNo);
         UpdateTotalCost;
-        FindPriceAndDiscount(Rec, CurrFieldNo);
         HandleCostFactor;
         UpdateUnitPrice;
         UpdateTotalPrice;
@@ -1658,7 +1627,6 @@
 
     procedure UpdateUnitCost()
     var
-        ResCost: Record "Resource Cost";
         RetrievedCost: Decimal;
     begin
         if (Type = Type::Item) and Item.Get("No.") then begin
@@ -1678,24 +1646,12 @@
                         "Unit Cost (LCY)" := Round(SKU."Unit Cost" * "Qty. per Unit of Measure", UnitAmountRoundingPrecision)
                     else
                         "Unit Cost (LCY)" := Round(Item."Unit Cost" * "Qty. per Unit of Measure", UnitAmountRoundingPrecision);
-                    "Unit Cost" := Round(
-                        CurrExchRate.ExchangeAmtLCYToFCY(
-                          "Posting Date", "Currency Code",
-                          "Unit Cost (LCY)", "Currency Factor"),
-                        UnitAmountRoundingPrecisionFCY);
+                    "Unit Cost" := ConvertAmountToFCY("Unit Cost (LCY)", UnitAmountRoundingPrecisionFCY);
                 end else begin
                     if "Unit Cost" <> xRec."Unit Cost" then
-                        "Unit Cost (LCY)" := Round(
-                            CurrExchRate.ExchangeAmtFCYToLCY(
-                              "Posting Date", "Currency Code",
-                              "Unit Cost", "Currency Factor"),
-                            UnitAmountRoundingPrecision)
+                        "Unit Cost (LCY)" := ConvertAmountToLCY("Unit Cost", UnitAmountRoundingPrecision)
                     else
-                        "Unit Cost" := Round(
-                            CurrExchRate.ExchangeAmtLCYToFCY(
-                              "Posting Date", "Currency Code",
-                              "Unit Cost (LCY)", "Currency Factor"),
-                            UnitAmountRoundingPrecisionFCY);
+                        "Unit Cost" := ConvertAmountToFCY("Unit Cost (LCY)", UnitAmountRoundingPrecisionFCY);
                 end;
             end else begin
                 if RetrieveCostPrice then begin
@@ -1703,47 +1659,13 @@
                         RetrievedCost := SKU."Unit Cost" * "Qty. per Unit of Measure"
                     else
                         RetrievedCost := Item."Unit Cost" * "Qty. per Unit of Measure";
-                    "Unit Cost" := Round(
-                        CurrExchRate.ExchangeAmtLCYToFCY(
-                          "Posting Date", "Currency Code",
-                          RetrievedCost, "Currency Factor"),
-                        UnitAmountRoundingPrecisionFCY);
+                    "Unit Cost" := ConvertAmountToFCY(RetrievedCost, UnitAmountRoundingPrecisionFCY);
                     "Unit Cost (LCY)" := Round(RetrievedCost, UnitAmountRoundingPrecision);
                 end else
-                    "Unit Cost (LCY)" := Round(
-                        CurrExchRate.ExchangeAmtFCYToLCY(
-                          "Posting Date", "Currency Code",
-                          "Unit Cost", "Currency Factor"),
-                        UnitAmountRoundingPrecision);
+                    "Unit Cost (LCY)" := ConvertAmountToLCY("Unit Cost", UnitAmountRoundingPrecision);
             end;
         end else
-            if (Type = Type::Resource) and Res.Get("No.") then begin
-                if RetrieveCostPrice then begin
-                    ResCost.Init();
-                    ResCost.Code := "No.";
-                    ResCost."Work Type Code" := "Work Type Code";
-                    CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResCost);
-                    OnAfterResourceFindCost(Rec, ResCost);
-                    "Direct Unit Cost (LCY)" := Round(ResCost."Direct Unit Cost" * "Qty. per Unit of Measure", UnitAmountRoundingPrecision);
-                    RetrievedCost := ResCost."Unit Cost" * "Qty. per Unit of Measure";
-                    "Unit Cost" := Round(
-                        CurrExchRate.ExchangeAmtLCYToFCY(
-                          "Posting Date", "Currency Code",
-                          RetrievedCost, "Currency Factor"),
-                        UnitAmountRoundingPrecisionFCY);
-                    "Unit Cost (LCY)" := Round(RetrievedCost, UnitAmountRoundingPrecision);
-                end else
-                    "Unit Cost (LCY)" := Round(
-                        CurrExchRate.ExchangeAmtFCYToLCY(
-                          "Posting Date", "Currency Code",
-                          "Unit Cost", "Currency Factor"),
-                        UnitAmountRoundingPrecision);
-            end else
-                "Unit Cost (LCY)" := Round(
-                    CurrExchRate.ExchangeAmtFCYToLCY(
-                      "Posting Date", "Currency Code",
-                      "Unit Cost", "Currency Factor"),
-                    UnitAmountRoundingPrecision);
+            "Unit Cost (LCY)" := ConvertAmountToLCY("Unit Cost", UnitAmountRoundingPrecision);
 
         OnAfterUpdateUnitCost(Rec, UnitAmountRoundingPrecision, CurrFieldNo);
     end;
@@ -1812,14 +1734,29 @@
     procedure UpdateTotalCost()
     begin
         "Total Cost" := Round("Unit Cost" * Quantity, AmountRoundingPrecisionFCY);
-        "Total Cost (LCY)" := Round(
-            CurrExchRate.ExchangeAmtFCYToLCY(
-              "Posting Date", "Currency Code", "Total Cost", "Currency Factor"), AmountRoundingPrecision);
-
+        "Total Cost (LCY)" := ConvertAmountToLCY("Total Cost", AmountRoundingPrecision);
         OnAfterUpdateTotalCost(Rec);
     end;
 
-    local procedure FindPriceAndDiscount(var JobJnlLine: Record "Job Journal Line"; CalledByFieldNo: Integer)
+    local procedure ConvertAmountToFCY(AmountLCY: Decimal; Precision: Decimal) AmountFCY: Decimal;
+    begin
+        AmountFCY :=
+            Round(
+                CurrExchRate.ExchangeAmtLCYToFCY(
+                    "Posting Date", "Currency Code", AmountLCY, "Currency Factor"),
+                Precision);
+    end;
+
+    local procedure ConvertAmountToLCY(AmountFCY: Decimal; Precision: Decimal) AmountLCY: Decimal;
+    begin
+        AmountLCY :=
+            Round(
+                CurrExchRate.ExchangeAmtFCYToLCY(
+                    "Posting Date", "Currency Code", AmountFCY, "Currency Factor"),
+                Precision);
+    end;
+
+    local procedure FindPriceAndDiscount(CalledByFieldNo: Integer)
     var
         PriceType: Enum "Price Type";
         IsHandled: Boolean;
@@ -1832,28 +1769,40 @@
         if RetrieveCostPrice and ("No." <> '') then begin
             ApplyPrice(PriceType::Sale, CalledByFieldNo);
             ApplyPrice(PriceType::Purchase, CalledByFieldNo);
-            if Type = Type::"G/L Account" then begin
-                UpdateUnitCost;
-                UpdateTotalCost;
-            end;
+            if Type = Type::Resource then
+                "Unit Cost" := ConvertAmountToFCY("Unit Cost (LCY)", UnitAmountRoundingPrecisionFCY);
         end;
     end;
 
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
+    procedure AfterResourceFindCost(var ResourceCost: Record "Resource Cost")
+    begin
+        OnAfterResourceFindCost(Rec, ResourceCost);
+    end;
 
     procedure ApplyPrice(PriceType: enum "Price Type"; CalledByFieldNo: Integer)
     var
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-        JobJournalLinePrice: Codeunit "Job Journal Line - Price";
+        LineWithPrice: Interface "Line With Price";
         PriceCalculation: Interface "Price Calculation";
         Line: Variant;
     begin
-        JobJournalLinePrice.SetLine(PriceType, Rec);
-        PriceCalculationMgt.GetHandler(JobJournalLinePrice, PriceCalculation);
+        GetLineWithPrice(LineWithPrice);
+        LineWithPrice.SetLine(PriceType, Rec);
+        PriceCalculationMgt.GetHandler(LineWithPrice, PriceCalculation);
         PriceCalculation.ApplyPrice(CalledByFieldNo);
         if PriceType = PriceType::Sale then
             PriceCalculation.ApplyDiscount();
         PriceCalculation.GetLine(Line);
         Rec := Line;
+    end;
+
+    procedure GetLineWithPrice(var LineWithPrice: Interface "Line With Price")
+    var
+        JobJournalLinePrice: Codeunit "Job Journal Line - Price";
+    begin
+        LineWithPrice := JobJournalLinePrice;
+        OnAfterGetLineWithPrice(LineWithPrice);
     end;
 
     local procedure HandleCostFactor()
@@ -1873,21 +1822,14 @@
 
     local procedure UpdateUnitPrice()
     begin
-        "Unit Price (LCY)" := Round(
-            CurrExchRate.ExchangeAmtFCYToLCY(
-              "Posting Date", "Currency Code",
-              "Unit Price", "Currency Factor"),
-            UnitAmountRoundingPrecision);
+        "Unit Price (LCY)" := ConvertAmountToLCY("Unit Price", UnitAmountRoundingPrecision);
         OnAfterUpdateUnitPrice(Rec);
     end;
 
     local procedure UpdateTotalPrice()
     begin
         "Total Price" := Round(Quantity * "Unit Price", AmountRoundingPrecisionFCY);
-        "Total Price (LCY)" := Round(
-            CurrExchRate.ExchangeAmtFCYToLCY(
-              "Posting Date", "Currency Code", "Total Price", "Currency Factor"), AmountRoundingPrecision);
-
+        "Total Price (LCY)" := ConvertAmountToLCY("Total Price", AmountRoundingPrecision);
         OnAfterUpdateTotalPrice(Rec);
     end;
 
@@ -1971,7 +1913,7 @@
         DimensionSetIDArr: array[10] of Integer;
     begin
         CreateDim(
-          DimMgt.TypeToTableID2(Type), "No.",
+          DimMgt.TypeToTableID2(Type.AsInteger()), "No.",
           DATABASE::Job, "Job No.",
           // NAVCZ
           DATABASE::"Fixed Asset", "FA No.",
@@ -2096,7 +2038,7 @@
         ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
         exit(
-          ItemTrackingMgt.ComposeRowID(DATABASE::"Job Journal Line", "Entry Type",
+          ItemTrackingMgt.ComposeRowID(DATABASE::"Job Journal Line", "Entry Type".AsInteger(),
             "Journal Template Name", "Journal Batch Name", 0, "Line No."));
     end;
 
@@ -2161,7 +2103,12 @@
     begin
     end;
 
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetLineWithPrice(var LineWithPrice: Interface "Line With Price")
+    begin
+    end;
+
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterResourceFindCost(var JobJournalLine: Record "Job Journal Line"; var ResourceCost: Record "Resource Cost")
     begin

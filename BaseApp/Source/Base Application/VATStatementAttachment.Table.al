@@ -3,6 +3,9 @@ table 11773 "VAT Statement Attachment"
     Caption = 'VAT Statement Attachment';
     DrillDownPageID = "VAT Statement Attachment List";
     LookupPageID = "VAT Statement Attachment List";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     fields
     {

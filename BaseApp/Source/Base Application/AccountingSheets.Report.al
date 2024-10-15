@@ -3,8 +3,11 @@ report 11770 "Accounting Sheets"
     DefaultLayout = RDLC;
     RDLCLayout = './AccountingSheets.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'Accounting Sheets';
+    Caption = 'Accounting Sheets (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

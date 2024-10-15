@@ -1,6 +1,9 @@
 codeunit 11732 "Cash Document-Release + Print"
 {
     TableNo = "Cash Document Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     begin

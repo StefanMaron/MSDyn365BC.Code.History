@@ -4,8 +4,11 @@ report 11782 "Balance Sheet"
     RDLCLayout = './BalanceSheet.rdlc';
     AccessByPermission = TableData "G/L Account" = R;
     ApplicationArea = Basic, Suite;
-    Caption = 'Balance Sheet';
+    Caption = 'Balance Sheet (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

@@ -1,6 +1,9 @@
 table 11757 "Reg. No. Srv Config"
 {
     Caption = 'Reg. No. Srv Config';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     fields
     {

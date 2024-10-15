@@ -3,8 +3,11 @@ report 11786 "Customer - Bal. Reconciliation"
     DefaultLayout = RDLC;
     RDLCLayout = './CustomerBalReconciliation.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'Customer - Bal. Reconciliation';
+    Caption = 'Customer - Bal. Reconciliation (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

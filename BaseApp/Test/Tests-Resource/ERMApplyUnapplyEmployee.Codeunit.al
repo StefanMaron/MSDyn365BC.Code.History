@@ -85,7 +85,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
           GenJournalLine."Document Type"::" ", GenJournalLine."Document Type"::Payment, -LibraryRandom.RandDec(100, 2));
     end;
 
-    local procedure ApplyUnapplyAndCheckSourceCode(DocumentType: Option; DocumentType2: Option; Amount: Decimal)
+    local procedure ApplyUnapplyAndCheckSourceCode(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         SourceCode: Record "Source Code";
         GenJournalLine: Record "Gen. Journal Line";
@@ -113,7 +113,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
           GenJournalLine."Document Type"::" ", GenJournalLine."Document Type"::Payment, -LibraryRandom.RandInt(500));
     end;
 
-    local procedure ChangeDocumentNoAndUnapply(DocumentType: Option; DocumentType2: Option; Amount: Decimal)
+    local procedure ChangeDocumentNoAndUnapply(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         DetailedEmployeeLedgEntry: Record "Detailed Employee Ledger Entry";
@@ -161,7 +161,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
         UnapplyFromEmployeeLedger(GenJournalLine."Document Type"::Payment, LibraryRandom.RandDec(100, 2));
     end;
 
-    local procedure UnapplyFromEmployeeLedger(DocumentType: Option; Amount: Decimal)
+    local procedure UnapplyFromEmployeeLedger(DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         Employee: Record Employee;
@@ -207,7 +207,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
         UnapplyFromDtldEmployeeLedger(GenJournalLine."Document Type"::Payment, LibraryRandom.RandDec(100, 2));
     end;
 
-    local procedure UnapplyFromDtldEmployeeLedger(DocumentType: Option; Amount: Decimal)
+    local procedure UnapplyFromDtldEmployeeLedger(DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         Employee: Record Employee;
@@ -421,7 +421,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Apply Unapply Employee");
     end;
 
-    local procedure ApplyUnapplyEmployeeEntries(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; DocumentType2: Option; NoOfLines: Integer; Amount: Decimal; Amount2: Decimal) DocumentNo: Code[20]
+    local procedure ApplyUnapplyEmployeeEntries(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; NoOfLines: Integer; Amount: Decimal; Amount2: Decimal) DocumentNo: Code[20]
     var
         Employee: Record Employee;
     begin
@@ -440,7 +440,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
         UnapplyEmployeeLedgerEntry(DocumentType2, GenJournalLine."Document No.");
     end;
 
-    local procedure ApplyUnapplySeveralEmployeeEntries(Sign: Integer; var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; DocumentType2: Option)
+    local procedure ApplyUnapplySeveralEmployeeEntries(Sign: Integer; var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type")
     var
         NoOfLines: Integer;
         Amount: Integer;
@@ -452,7 +452,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
         ApplyUnapplyEmployeeEntries(GenJournalLine, DocumentType, DocumentType2, NoOfLines, Amount, -Amount / NoOfLines);
     end;
 
-    local procedure ApplyEmployeeLedgerEntry(DocumentType: Option; DocumentType2: Option; DocumentNo: Code[20]; DocumentNo2: Code[20])
+    local procedure ApplyEmployeeLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; DocumentNo2: Code[20])
     var
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
         EmployeeLedgerEntry2: Record "Employee Ledger Entry";
@@ -470,7 +470,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
         SetAppliesToIDAndPostEntry(EmployeeLedgerEntry2, EmployeeLedgerEntry);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; NoOfLine: Integer; EmployeeNo: Code[20]; DocumentType: Option; Amount: Decimal)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; NoOfLine: Integer; EmployeeNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         Counter: Integer;
@@ -482,7 +482,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
               GenJournalLine."Account Type"::Employee, EmployeeNo, Amount);
     end;
 
-    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; EmployeeNo: Code[20]; DocumentType: Option; Amount: Decimal; PostingDate: Date)
+    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; EmployeeNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; PostingDate: Date)
     begin
         // Apply and Unapply General Journal Lines for Payment and Invoice. Take a Random Amount greater than 100 (Standard Value).
         CreateGeneralJournalLine(GenJournalLine, 1, EmployeeNo, DocumentType, Amount);
@@ -500,7 +500,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
         SourceCodeSetup.Modify(true);
     end;
 
-    local procedure CreatePostApplyGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; DocumentType2: Option; Amount: Decimal; PostingDate: Date)
+    local procedure CreatePostApplyGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal; PostingDate: Date)
     var
         Employee: Record Employee;
         DocumentNo: Code[20];
@@ -564,7 +564,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
         end;
     end;
 
-    local procedure OpenGenJournalPage(DummyGeneralJournal: TestPage "General Journal"; DocumentNo: Code[20]; DocumentType: Option)
+    local procedure OpenGenJournalPage(DummyGeneralJournal: TestPage "General Journal"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         DummyGeneralJournal.OpenEdit;
         DummyGeneralJournal.FILTER.SetFilter("Document No.", DocumentNo);
@@ -600,7 +600,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
         end;
     end;
 
-    local procedure UnapplyEmployeeLedgerEntry(DocumentType: Option; DocumentNo: Code[20])
+    local procedure UnapplyEmployeeLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
     begin
@@ -610,7 +610,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
         LibraryERM.UnapplyEmployeeLedgerEntry(EmployeeLedgerEntry);
     end;
 
-    local procedure VerifyEntriesAfterPostingPurchaseDocument(DocumentType: Option; DocumentNo: Code[20]; DocumentNo2: Code[20]; EmployeeNo: Code[20])
+    local procedure VerifyEntriesAfterPostingPurchaseDocument(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; DocumentNo2: Code[20]; EmployeeNo: Code[20])
     var
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
     begin
@@ -622,7 +622,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
         VerifyDetailedLedgerEntry(DocumentNo2, EmployeeNo);
     end;
 
-    local procedure VerifyRemainingAmount(DocumentType: Option; DocumentNo: Code[20])
+    local procedure VerifyRemainingAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
     begin
@@ -663,7 +663,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
         until DetailedEmployeeLedgEntry.Next = 0;
     end;
 
-    local procedure VerifySourceCodeDtldCustLedger(DocumentType: Option; DocumentNo: Code[20]; SourceCode: Code[10])
+    local procedure VerifySourceCodeDtldCustLedger(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; SourceCode: Code[10])
     var
         DetailedEmployeeLedgEntry: Record "Detailed Employee Ledger Entry";
     begin

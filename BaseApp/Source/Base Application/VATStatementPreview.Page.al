@@ -116,7 +116,6 @@ page 474 "VAT Statement Preview"
                 {
                     ApplicationArea = VAT;
                     Caption = 'Include VAT entries';
-                    OptionCaption = 'Open,Closed,Open and Closed';
                     ToolTip = 'Specifies that VAT entries are included in the VAT Statement Preview window. This only works for lines of type VAT Entry Totaling. It does not work for lines of type Account Totaling.';
 
                     trigger OnValidate()
@@ -133,7 +132,6 @@ page 474 "VAT Statement Preview"
                 {
                     ApplicationArea = VAT;
                     Caption = 'Include VAT entries';
-                    OptionCaption = 'Before and Within Period,Within Period';
                     ToolTip = 'Specifies that VAT entries are included in the VAT Statement Preview window. This only works for lines of type VAT Entry Totaling. It does not work for lines of type Account Totaling.';
 
                     trigger OnValidate()
@@ -186,7 +184,7 @@ page 474 "VAT Statement Preview"
 
     trigger OnAfterGetRecord()
     begin
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     trigger OnOpenPage()
@@ -200,12 +198,12 @@ page 474 "VAT Statement Preview"
         end else
             // NAVCZ
             DateFilter := '';
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
-    var
-        Selection: Option Open,Closed,"Open and Closed";
-        PeriodSelection: Option "Before and Within Period","Within Period";
+    protected var
+        Selection: Enum "VAT Statement Report Selection";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
         UseAmtsInAddCurr: Boolean;
         DateFilter: Text[30];
         VATPeriod: Record "VAT Period";
@@ -221,34 +219,41 @@ page 474 "VAT Statement Preview"
           SettlementNoFilter, CountryCodeFillFiter); // NAVCZ
     end;
 
+    procedure GetParameters(var NewSelection: Enum "VAT Statement Report Selection"; var NewPeriodSelection: Enum "VAT Statement Report Period Selection"; var NewUseAmtsInAddCurr: Boolean)
+    begin
+        NewSelection := Selection;
+        NewPeriodSelection := PeriodSelection;
+        NewUseAmtsInAddCurr := UseAmtsInAddCurr;
+    end;
+
     local procedure OpenandClosedSelectionOnPush()
     begin
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure ClosedSelectionOnPush()
     begin
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure OpenSelectionOnPush()
     begin
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure BeforeandWithinPeriodSelOnPush()
     begin
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure WithinPeriodPeriodSelectOnPush()
     begin
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure UseAmtsInAddCurrOnPush()
     begin
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure OpenSelectionOnValidate()

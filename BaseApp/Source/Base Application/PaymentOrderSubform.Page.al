@@ -16,12 +16,12 @@ page 11717 "Payment Order Subform"
                 field(Type; Type)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the type of fa history entries';
+                    ToolTip = 'Specifies the type of partner (customer, vendor, bank account, employee).';
                 }
                 field("No."; "No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the payment order.';
+                    ToolTip = 'Specifies the number of partner (customer, vendor, bank account, employee).';
                 }
                 field("Cust./Vendor Bank Account Code"; "Cust./Vendor Bank Account Code")
                 {
@@ -36,7 +36,7 @@ page 11717 "Payment Order Subform"
                 field(Name; Name)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies name of partner (customer, vendor, bank account).';
+                    ToolTip = 'Specifies the name of partner (customer, vendor, bank account).';
                     Visible = false;
                 }
                 field("Account No."; "Account No.")

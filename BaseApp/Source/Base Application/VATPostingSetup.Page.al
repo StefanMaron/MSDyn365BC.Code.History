@@ -159,18 +159,28 @@ page 472 "VAT Posting Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies this option to include the posting group in VAT purchase declarations.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
                     Visible = false;
                 }
                 field("VIES Sales"; "VIES Sales")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies this option to include the posting group in VAT sales declarations.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
                     Visible = false;
                 }
                 field("Allow Blank VAT Date"; "Allow Blank VAT Date")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies to post entries with blank VAT dates.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Allow Non Deductible VAT"; "Allow Non Deductible VAT")
                 {
@@ -181,6 +191,9 @@ page 472 "VAT Posting Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if and how reverse charge will be checked depending on Commodity Limit Amount';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
                     Visible = false;
                 }
                 field("Non Deduct. VAT Corr. Account"; "Non Deduct. VAT Corr. Account")
@@ -194,12 +207,18 @@ page 472 "VAT Posting Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the auxiliary account which will be used for posting date and VAT date by posting the different exchange rate.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
                 }
                 field("Sales VAT Delay Account"; "Sales VAT Delay Account")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the auxiliary account which will be used for posting date and VAT date by posting the different exchange rate.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
                 }
                 field("Tax Category"; "Tax Category")
                 {
@@ -210,11 +229,19 @@ page 472 "VAT Posting Setup"
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies typ of VAT rate - base, reduced or reduced 2.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Ratio Coefficient"; "Ratio Coefficient")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies ratio coefficient';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
             }
         }

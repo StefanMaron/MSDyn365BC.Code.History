@@ -185,7 +185,7 @@ table 120 "Purch. Rcpt. Header"
         }
         field(46; Comment; Boolean)
         {
-            CalcFormula = Exist ("Purch. Comment Line" WHERE("Document Type" = CONST(Receipt),
+            CalcFormula = Exist("Purch. Comment Line" WHERE("Document Type" = CONST(Receipt),
                                                              "No." = FIELD("No."),
                                                              "Document Line No." = CONST(0)));
             Caption = 'Comment';
@@ -446,7 +446,7 @@ table 120 "Purch. Rcpt. Header"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(5050; "Campaign No."; Code[20])
@@ -494,10 +494,16 @@ table 120 "Purch. Rcpt. Header"
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11792; "Original User ID"; Code[50])
         {
@@ -544,10 +550,16 @@ table 120 "Purch. Rcpt. Header"
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
             Caption = 'EU 3-Party Intermediate Role';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(31067; "EU 3-Party Trade"; Boolean)
         {
             Caption = 'EU 3-Party Trade';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
     }
 
@@ -608,7 +620,7 @@ table 120 "Purch. Rcpt. Header"
     begin
         with PurchRcptHeader do begin
             Copy(Rec);
-            ReportSelection.PrintWithGUIYesNoVendor(
+            ReportSelection.PrintWithDialogForVend(
               ReportSelection.Usage::"P.Receipt", PurchRcptHeader, ShowRequestForm, FieldNo("Buy-from Vendor No."));
         end;
     end;

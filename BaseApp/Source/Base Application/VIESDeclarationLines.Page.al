@@ -1,9 +1,12 @@
 page 31069 "VIES Declaration Lines"
 {
-    Caption = 'VIES Declaration Lines';
+    Caption = 'VIES Declaration Lines (Obsolete)';
     Editable = false;
     PageType = List;
     SourceTable = "VIES Declaration Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

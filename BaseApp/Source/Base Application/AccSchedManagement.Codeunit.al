@@ -2541,6 +2541,7 @@ codeunit 8 AccSchedManagement
         exit(0);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure EmptyLine(var AccSchedLine: Record "Acc. Schedule Line"; ColumnLayoutName: Code[10]; CalcAddCurr: Boolean): Boolean
     var

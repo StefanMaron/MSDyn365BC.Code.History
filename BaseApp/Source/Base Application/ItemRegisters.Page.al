@@ -184,6 +184,10 @@ page 117 "Item Registers"
                 Promoted = true;
                 PromotedCategory = "Report";
                 ToolTip = 'Open the report for item register quantity.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.0';
+                visible = false;
 
                 trigger OnAction()
                 var

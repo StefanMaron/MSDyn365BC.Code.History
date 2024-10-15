@@ -40,10 +40,14 @@ codeunit 49 GlobalTriggerManagement
     local procedure GetDatabaseTableTriggerSetup(TableId: Integer; var OnDatabaseInsert: Boolean; var OnDatabaseModify: Boolean; var OnDatabaseDelete: Boolean; var OnDatabaseRename: Boolean)
     var
         IntegrationManagement: Codeunit "Integration Management";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         ChangeLogMgt: Codeunit "Change Log Management";
+        APIWebhookNotificationMgt: Codeunit "API Webhook Notification Mgt.";
     begin
         ChangeLogMgt.GetDatabaseTableTriggerSetup(TableId, OnDatabaseInsert, OnDatabaseModify, OnDatabaseDelete, OnDatabaseRename);
         IntegrationManagement.GetDatabaseTableTriggerSetup(TableId, OnDatabaseInsert, OnDatabaseModify, OnDatabaseDelete, OnDatabaseRename);
+        CRMIntegrationManagement.GetDatabaseTableTriggerSetup(TableId, OnDatabaseInsert, OnDatabaseModify, OnDatabaseDelete, OnDatabaseRename);
+        APIWebhookNotificationMgt.GetDatabaseTableTriggerSetup(TableId, OnDatabaseInsert, OnDatabaseModify, OnDatabaseDelete, OnDatabaseRename);
         OnAfterGetDatabaseTableTriggerSetup(TableId, OnDatabaseInsert, OnDatabaseModify, OnDatabaseDelete, OnDatabaseRename);
     end;
 
@@ -51,12 +55,14 @@ codeunit 49 GlobalTriggerManagement
     local procedure OnDatabaseInsert(RecRef: RecordRef)
     var
         IntegrationManagement: Codeunit "Integration Management";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         ChangeLogMgt: Codeunit "Change Log Management";
         APIWebhookNotificationMgt: Codeunit "API Webhook Notification Mgt.";
     begin
         OnBeforeOnDatabaseInsert(RecRef);
         ChangeLogMgt.LogInsertion(RecRef);
         IntegrationManagement.OnDatabaseInsert(RecRef);
+        CRMIntegrationManagement.OnDatabaseInsert(RecRef);
         APIWebhookNotificationMgt.OnDatabaseInsert(RecRef);
         OnAfterOnDatabaseInsert(RecRef);
     end;
@@ -65,12 +71,14 @@ codeunit 49 GlobalTriggerManagement
     local procedure OnDatabaseModify(RecRef: RecordRef)
     var
         IntegrationManagement: Codeunit "Integration Management";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         ChangeLogMgt: Codeunit "Change Log Management";
         APIWebhookNotificationMgt: Codeunit "API Webhook Notification Mgt.";
     begin
         OnBeforeOnDatabaseModify(RecRef);
         ChangeLogMgt.LogModification(RecRef);
         IntegrationManagement.OnDatabaseModify(RecRef);
+        CRMIntegrationManagement.OnDatabaseModify(RecRef);
         APIWebhookNotificationMgt.OnDatabaseModify(RecRef);
         OnAfterOnDatabaseModify(RecRef);
     end;
@@ -93,12 +101,14 @@ codeunit 49 GlobalTriggerManagement
     local procedure OnDatabaseRename(RecRef: RecordRef; xRecRef: RecordRef)
     var
         IntegrationManagement: Codeunit "Integration Management";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         ChangeLogMgt: Codeunit "Change Log Management";
         APIWebhookNotificationMgt: Codeunit "API Webhook Notification Mgt.";
     begin
         OnBeforeOnDatabaseRename(RecRef, xRecRef);
         ChangeLogMgt.LogRename(RecRef, xRecRef);
         IntegrationManagement.OnDatabaseRename(RecRef, xRecRef);
+        CRMIntegrationManagement.OnDatabaseRename(RecRef, xRecRef);
         APIWebhookNotificationMgt.OnDatabaseRename(RecRef, xRecRef);
         OnAfterOnDatabaseRename(RecRef, xRecRef);
     end;

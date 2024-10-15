@@ -3,9 +3,12 @@ report 31078 "Posted Inventory Document"
     DefaultLayout = RDLC;
     RDLCLayout = './PostedInventoryDocument.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'Posted Inventory Document';
+    Caption = 'Posted Inventory Document (Obsolete)';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

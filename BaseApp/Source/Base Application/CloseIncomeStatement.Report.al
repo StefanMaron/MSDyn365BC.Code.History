@@ -2,9 +2,12 @@ report 94 "Close Income Statement"
 {
     AdditionalSearchTerms = 'year closing statement,close accounting period statement,close fiscal year statement';
     ApplicationArea = Basic, Suite;
-    Caption = 'Close Income Statement';
+    Caption = 'Close Income Statement (Obsolete)';
     ProcessingOnly = true;
     UsageCategory = Tasks;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

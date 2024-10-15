@@ -189,7 +189,7 @@ table 5109 "Purchase Header Archive"
         }
         field(46; Comment; Boolean)
         {
-            CalcFormula = Exist ("Purch. Comment Line Archive" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist("Purch. Comment Line Archive" WHERE("Document Type" = FIELD("Document Type"),
                                                                      "No." = FIELD("No."),
                                                                      "Document Line No." = CONST(0),
                                                                      "Doc. No. Occurrence" = FIELD("Doc. No. Occurrence"),
@@ -233,7 +233,7 @@ table 5109 "Purchase Header Archive"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Purchase Line Archive".Amount WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum("Purchase Line Archive".Amount WHERE("Document Type" = FIELD("Document Type"),
                                                                     "Document No." = FIELD("No."),
                                                                     "Doc. No. Occurrence" = FIELD("Doc. No. Occurrence"),
                                                                     "Version No." = FIELD("Version No.")));
@@ -244,7 +244,7 @@ table 5109 "Purchase Header Archive"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Purchase Line Archive"."Amount Including VAT" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum("Purchase Line Archive"."Amount Including VAT" WHERE("Document Type" = FIELD("Document Type"),
                                                                                     "Document No." = FIELD("No."),
                                                                                     "Doc. No. Occurrence" = FIELD("Doc. No. Occurrence"),
                                                                                     "Version No." = FIELD("Version No.")));
@@ -590,7 +590,7 @@ table 5109 "Purchase Header Archive"
         }
         field(145; "No. of Archived Versions"; Integer)
         {
-            CalcFormula = Max ("Purchase Header Archive"."Version No." WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Max("Purchase Header Archive"."Version No." WHERE("Document Type" = FIELD("Document Type"),
                                                                              "No." = FIELD("No."),
                                                                              "Doc. No. Occurrence" = FIELD("Doc. No. Occurrence")));
             Caption = 'No. of Archived Versions';
@@ -615,7 +615,7 @@ table 5109 "Purchase Header Archive"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(5043; "Interaction Exist"; Boolean)
@@ -669,7 +669,7 @@ table 5109 "Purchase Header Archive"
         }
         field(5752; "Completely Received"; Boolean)
         {
-            CalcFormula = Min ("Purchase Line Archive"."Completely Received" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Min("Purchase Line Archive"."Completely Received" WHERE("Document Type" = FIELD("Document Type"),
                                                                                    "Document No." = FIELD("No."),
                                                                                    "Doc. No. Occurrence" = FIELD("Doc. No. Occurrence"),
                                                                                    "Version No." = FIELD("Version No."),
@@ -797,6 +797,9 @@ table 5109 "Purchase Header Archive"
         field(11760; "VAT Date"; Date)
         {
             Caption = 'VAT Date';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11761; "VAT Currency Factor"; Decimal)
         {
@@ -804,6 +807,9 @@ table 5109 "Purchase Header Archive"
             DecimalPlaces = 0 : 15;
             Editable = false;
             MinValue = 0;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11765; "Posting Desc. Code"; Code[10])
         {
@@ -816,10 +822,16 @@ table 5109 "Purchase Header Archive"
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11793; "Quote Validity"; Date)
         {
@@ -863,10 +875,16 @@ table 5109 "Purchase Header Archive"
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
             Caption = 'EU 3-Party Intermediate Role';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(31067; "EU 3-Party Trade"; Boolean)
         {
             Caption = 'EU 3-Party Trade';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
     }
 
@@ -892,7 +910,6 @@ table 5109 "Purchase Header Archive"
     var
         PurchaseLineArchive: Record "Purchase Line Archive";
         DeferralHeaderArchive: Record "Deferral Header Archive";
-        DeferralUtilities: Codeunit "Deferral Utilities";
     begin
         PurchaseLineArchive.SetRange("Document Type", "Document Type");
         PurchaseLineArchive.SetRange("Document No.", "No.");
@@ -906,7 +923,7 @@ table 5109 "Purchase Header Archive"
         PurchCommentLineArch.SetRange("Version No.", "Version No.");
         PurchCommentLineArch.DeleteAll();
 
-        DeferralHeaderArchive.SetRange("Deferral Doc. Type", DeferralUtilities.GetPurchDeferralDocType);
+        DeferralHeaderArchive.SetRange("Deferral Doc. Type", "Deferral Document Type"::Purchase);
         DeferralHeaderArchive.SetRange("Document Type", "Document Type");
         DeferralHeaderArchive.SetRange("Document No.", "No.");
         DeferralHeaderArchive.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");

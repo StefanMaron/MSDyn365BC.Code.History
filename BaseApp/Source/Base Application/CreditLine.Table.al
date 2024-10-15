@@ -313,7 +313,7 @@ table 31051 "Credit Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()

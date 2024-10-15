@@ -284,16 +284,25 @@ table 85 "Acc. Schedule Line"
             InitValue = Always;
             OptionCaption = 'Always,Never,When Positive,When Negative';
             OptionMembers = Always,Never,"When Positive","When Negative";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(31081; "Row Correction"; Code[10])
         {
             Caption = 'Row Correction';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(31082; "Assets/Liabilities Type"; Option)
         {
             Caption = 'Assets/Liabilities Type';
             OptionCaption = ' ,Assets,Liabilities';
             OptionMembers = " ",Assets,Liabilities;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(31083; "Source Table"; Option)
         {

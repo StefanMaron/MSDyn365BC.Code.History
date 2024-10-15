@@ -318,7 +318,7 @@ table 295 "Reminder Header"
         }
         field(30; Comment; Boolean)
         {
-            CalcFormula = Exist ("Reminder Comment Line" WHERE(Type = CONST(Reminder),
+            CalcFormula = Exist("Reminder Comment Line" WHERE(Type = CONST(Reminder),
                                                                "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -328,7 +328,7 @@ table 295 "Reminder Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Reminder Line"."Remaining Amount" WHERE("Reminder No." = FIELD("No."),
+            CalcFormula = Sum("Reminder Line"."Remaining Amount" WHERE("Reminder No." = FIELD("No."),
                                                                         "Line Type" = FILTER(<> "Not Due")));
             Caption = 'Remaining Amount';
             DecimalPlaces = 2 : 2;
@@ -339,7 +339,7 @@ table 295 "Reminder Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Reminder Line".Amount WHERE("Reminder No." = FIELD("No."),
+            CalcFormula = Sum("Reminder Line".Amount WHERE("Reminder No." = FIELD("No."),
                                                             Type = CONST("Customer Ledger Entry"),
                                                             "Line Type" = FILTER(<> "Not Due")));
             Caption = 'Interest Amount';
@@ -350,7 +350,7 @@ table 295 "Reminder Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Reminder Line".Amount WHERE("Reminder No." = FIELD("No."),
+            CalcFormula = Sum("Reminder Line".Amount WHERE("Reminder No." = FIELD("No."),
                                                             Type = CONST("G/L Account"),
                                                             "Line Type" = FILTER(<> "Not Due")));
             Caption = 'Additional Fee';
@@ -361,7 +361,7 @@ table 295 "Reminder Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Reminder Line"."VAT Amount" WHERE("Reminder No." = FIELD("No."),
+            CalcFormula = Sum("Reminder Line"."VAT Amount" WHERE("Reminder No." = FIELD("No."),
                                                                   "Line Type" = FILTER(<> "Not Due")));
             Caption = 'VAT Amount';
             Editable = false;
@@ -423,7 +423,7 @@ table 295 "Reminder Header"
         field(45; "Add. Fee per Line"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
-            CalcFormula = Sum ("Reminder Line".Amount WHERE("Reminder No." = FIELD("No."),
+            CalcFormula = Sum("Reminder Line".Amount WHERE("Reminder No." = FIELD("No."),
                                                             Type = CONST("Line Fee"),
                                                             "Line Type" = FILTER(<> "Not Due")));
             Caption = 'Add. Fee per Line';
@@ -521,10 +521,16 @@ table 295 "Reminder Header"
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
     }
 
@@ -571,7 +577,7 @@ table 295 "Reminder Header"
 
     trigger OnInsert()
     var
-        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         NoSeriesLink: Record "No. Series Link";
     begin
         SalesSetup.Get();
@@ -936,7 +942,7 @@ table 295 "Reminder Header"
         end;
     end;
 
-    local procedure InsertBlankLine(LineType: Integer)
+    local procedure InsertBlankLine(LineType: Enum "Reminder Line Type")
     begin
         NextLineNo := NextLineNo + LineSpacing;
         ReminderLine.Init();
@@ -955,7 +961,7 @@ table 295 "Reminder Header"
             Copy(Rec);
             FindFirst;
             SetRecFilter;
-            ReportSelection.Print(ReportSelection.Usage::"Rem.Test", ReminderHeader, FieldNo("Customer No."));
+            ReportSelection.PrintForCust(ReportSelection.Usage::"Rem.Test", ReminderHeader, FieldNo("Customer No."));
         end;
     end;
 

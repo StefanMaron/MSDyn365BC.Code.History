@@ -2,8 +2,11 @@ report 31093 "Return Order Confirmation CZ"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './ReturnOrderConfirmationCZ.rdlc';
-    Caption = 'Return Order Confirmation CZ';
+    Caption = 'Return Order Confirmation CZ (Obsolete)';
     PreviewMode = PrintLayout;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

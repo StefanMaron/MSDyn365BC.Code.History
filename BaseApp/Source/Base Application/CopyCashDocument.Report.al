@@ -1,7 +1,10 @@
 report 11744 "Copy Cash Document"
 {
-    Caption = 'Copy Cash Document';
+    Caption = 'Copy Cash Document (Obsolete)';
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

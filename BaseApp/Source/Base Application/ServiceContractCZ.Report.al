@@ -2,8 +2,11 @@ report 31113 "Service Contract CZ"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './ServiceContractCZ.rdlc';
-    Caption = 'Service Contract CZ';
+    Caption = 'Service Contract CZ (Obsolete)';
     PreviewMode = PrintLayout;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

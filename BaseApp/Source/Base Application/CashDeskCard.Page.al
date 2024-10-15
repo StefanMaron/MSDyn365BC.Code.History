@@ -1,11 +1,14 @@
 page 11745 "Cash Desk Card"
 {
-    Caption = 'Cash Desk Card';
+    Caption = 'Cash Desk Card (Obsolete)';
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Card;
     SourceTable = "Bank Account";
     SourceTableView = WHERE("Account Type" = CONST("Cash Desk"));
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

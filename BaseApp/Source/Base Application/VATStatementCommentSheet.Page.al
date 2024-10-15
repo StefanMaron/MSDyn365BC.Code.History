@@ -1,13 +1,16 @@
 page 11770 "VAT Statement Comment Sheet"
 {
     AutoSplitKey = true;
-    Caption = 'VAT Statement Comment Sheet';
+    Caption = 'VAT Statement Comment Sheet (Obsolete)';
     DataCaptionFields = "VAT Statement Template Name", "VAT Statement Name";
     DelayedInsert = true;
     LinksAllowed = false;
     MultipleNewLines = true;
     PageType = List;
     SourceTable = "VAT Statement Comment Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

@@ -1,5 +1,8 @@
 codeunit 11799 "Registration No. Mgt."
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     begin
@@ -11,6 +14,7 @@ codeunit 11799 "Registration No. Mgt."
         RegNoEnteredVendMsg: Label 'This %1 has already been entered for the following vendors:\ %2.', Comment = '%1=fieldcaption, %2=vendor number list';
         RegNoEnteredContMsg: Label 'This %1 has already been entered for the following contacts:\ %2.', Comment = '%1=fieldcaption, %2=contact number list';
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     procedure CheckRegistrationNo(RegNo: Text[20]; Number: Code[20]; TableID: Option): Boolean
     begin
         if RegNo = '' then
@@ -20,6 +24,7 @@ codeunit 11799 "Registration No. Mgt."
         exit(true);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     procedure CheckTaxRegistrationNo(RegNo: Text[20]; Number: Code[20]; TableID: Option): Boolean
     begin
         if RegNo = '' then

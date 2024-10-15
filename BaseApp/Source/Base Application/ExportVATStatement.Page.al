@@ -1,6 +1,6 @@
 page 11774 "Export VAT Statement"
 {
-    Caption = 'Export VAT Statement';
+    Caption = 'Export VAT Statement (Obsolete)';
     DataCaptionFields = "Statement Template Name", Name;
     DeleteAllowed = false;
     InsertAllowed = false;
@@ -8,6 +8,9 @@ page 11774 "Export VAT Statement"
     PageType = Card;
     SaveValues = true;
     SourceTable = "VAT Statement Name";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {
@@ -61,14 +64,12 @@ page 11774 "Export VAT Statement"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Entries Selection';
-                    OptionCaption = 'Open,Closed,Open and Closed';
                     ToolTip = 'Specifies that VAT entries are included in the VAT Statement Preview window.';
                 }
                 field(PeriodSelection; PeriodSelection)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Period Selection';
-                    OptionCaption = 'Before and Within Period,Within Period';
                     ToolTip = 'Specifies the filtr of VAT entries.';
                 }
                 field(PrintInIntegers; PrintInIntegers)
@@ -263,12 +264,12 @@ page 11774 "Export VAT Statement"
         MonthZeroIfQuarterErr: Label 'Month must be 0 if Quarter is filled in.';
         MonthDontEmptyIfQuarErr: Label 'Quarter must be 0 if Month is filled in.';
         MonthOrQuarterErr: Label 'Month or Quarter must be filled in.';
-        [Obsolete('The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This variable will be removed and should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This variable will be removed and should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         FileFormatErr: Label '%1 file format requires %2 to be added to Supplementary or Supplementary/Corrective VAT Statement.', Comment = '%1=Xml Format, %2=FIELDCAPTION';
         ReasonObserverReqErr: Label 'You must specify Reasons Observed On date in Supplementary or Supplementary/Corrective VAT Statement.';
         VATStatementTemplate: Record "VAT Statement Template";
         FileMgt: Codeunit "File Management";
-        [Obsolete('The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This variable will be removed and should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This variable will be removed and should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         VATStatementXML2010: XMLport "VAT Statement";
         VATStatementXML2011: XMLport "VAT Statement 2011";
         FileName: Text;
@@ -281,8 +282,8 @@ page 11774 "Export VAT Statement"
         Month: Integer;
         Quarter: Integer;
         Year: Integer;
-        Selection: Option Open,Closed,"Open and Closed";
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        Selection: Enum "VAT Statement Report Selection";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
         RoundingDirection: Option Nearest,Down,Up;
         UseAmtsInAddCurr: Boolean;
         PrintInIntegers: Boolean;

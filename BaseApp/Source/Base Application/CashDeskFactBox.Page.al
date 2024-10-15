@@ -1,8 +1,11 @@
 page 11748 "Cash Desk FactBox"
 {
-    Caption = 'Cash Desk';
+    Caption = 'Cash Desk (Obsolete)';
     PageType = CardPart;
     SourceTable = "Bank Account";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

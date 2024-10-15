@@ -95,6 +95,33 @@ page 134 "Posted Sales Credit Memo"
                         Importance = Additional;
                         ToolTip = 'Specifies the number of the contact at the customer who handles the credit memo.';
                     }
+                    field(SellToPhoneNo; SellToContact."Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the contact at the customer who handles the credit memo.';
+                    }
+                    field(SellToMobilePhoneNo; SellToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Mobile Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the contact at the customer who handles the credit memo.';
+                    }
+                    field(SellToEmail; SellToContact."E-Mail")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Email';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the contact at the customer who handles the credit memo.';
+                    }
                 }
                 field("Sell-to Contact"; "Sell-to Contact")
                 {
@@ -134,6 +161,10 @@ page 134 "Posted Sales Credit Memo"
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the VAT date. This date must be shown on the VAT statement.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Original Document VAT Date"; "Original Document VAT Date")
                 {
@@ -361,7 +392,11 @@ page 134 "Posted Sales Credit Memo"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
-                    ToolTip = 'Specifies the typ of credit memo (corrective tax document, internal correction, insolvency tax document).';
+                    ToolTip = 'Specifies the type of credit memo (corrective tax document, internal correction, insolvency tax document).';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("EU 3-Party Trade"; "EU 3-Party Trade")
                 {
@@ -403,7 +438,11 @@ page 134 "Posted Sales Credit Memo"
                 {
                     ApplicationArea = BasicEU;
                     Editable = false;
-                    ToolTip = 'Specifies when the sales haeder will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
+                    ToolTip = 'Specifies when the sales header will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("VAT Registration No."; "VAT Registration No.")
                 {
@@ -416,12 +455,20 @@ page 134 "Posted Sales Credit Memo"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the registration number of customer.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Tax Registration No."; "Tax Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the secondary VAT registration number for the customer.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Industry Code"; "Industry Code")
                 {
@@ -650,12 +697,73 @@ page 134 "Posted Sales Credit Memo"
                         Importance = Additional;
                         ToolTip = 'Specifies the number of the contact at the customer who handles the credit memo.';
                     }
+                    field(BillToContactPhoneNo; BillToContact."Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the contact at the customer who handles the credit memo.';
+                    }
+                    field(BillToContactMobilePhoneNo; BillToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Mobile Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the contact at the customer who handles the credit memo.';
+                    }
+                    field(BillToContactEmail; BillToContact."E-Mail")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Email';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the contact at the customer who handles the credit memo.';
+                    }
                     field("Bill-to Contact"; "Bill-to Contact")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Contact';
                         Editable = false;
                         ToolTip = 'Specifies the name of the person you regularly contact when you communicate with the customer to whom the credit memo was sent.';
+                    }
+                }
+                group("Shipment Method")
+                {
+                    Caption = 'Shipment Method';
+                    field("Shipment Method Code"; "Shipment Method Code")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Code';
+                        Editable = false;
+                        ToolTip = 'Specifies the shipment method for the shipment.';
+                    }
+                    field("Shipping Agent Code"; "Shipping Agent Code")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Agent';
+                        Editable = false;
+                        Importance = Additional;
+                        ToolTip = 'Specifies which shipping agent is used to transport the items on the sales document to the customer.';
+                    }
+                    field("Shipping Agent Service Code"; "Shipping Agent Service Code")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Agent Service';
+                        Editable = false;
+                        Importance = Additional;
+                        ToolTip = 'Specifies which shipping agent service is used to transport the items on the sales document to the customer.';
+                    }
+                    field("Package Tracking No."; "Package Tracking No.")
+                    {
+                        ApplicationArea = Suite;
+                        Editable = false;
+                        Importance = Additional;
+                        ToolTip = 'Specifies the shipping agent''s package number.';
                     }
                 }
             }
@@ -735,7 +843,7 @@ page 134 "Posted Sales Credit Memo"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(Approvals)
@@ -781,6 +889,21 @@ page 134 "Posted Sales Credit Memo"
             group("F&unctions")
             {
                 Caption = 'F&unctions';
+                Image = "Action";
+                action("&Track Package")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = '&Track Package';
+                    Image = ItemTracking;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    ToolTip = 'Open the shipping agent''s tracking page to track the package. ';
+
+                    trigger OnAction()
+                    begin
+                        StartTrackingSite();
+                    end;
+                }
                 action("Post or Correct Postponed VAT")
                 {
                     ApplicationArea = Basic, Suite;
@@ -896,16 +1019,37 @@ page 134 "Posted Sales Credit Memo"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category4;
-                ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                ShortCutKey = 'Shift+Ctrl+I';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                 Visible = NOT IsOfficeAddin;
 
                 trigger OnAction()
                 begin
                     Navigate;
+                end;
+            }
+            action("Update Document")
+            {
+                ApplicationArea = Suite;
+                Caption = 'Update Document';
+                Image = Edit;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                ToolTip = 'Add new information that is relevant to the document, such as information from the shipping agent. You can only edit a few fields because the document has already been posted.';
+
+                trigger OnAction()
+                var
+                    PstdSalesCrMemoUpdate: Page "Pstd. Sales Cr. Memo - Update";
+                begin
+                    PstdSalesCrMemoUpdate.LookupMode := true;
+                    PstdSalesCrMemoUpdate.SetRec(Rec);
+                    PstdSalesCrMemoUpdate.RunModal();
                 end;
             }
             action(ActivityLog)
@@ -1025,6 +1169,8 @@ page 134 "Posted Sales Credit Memo"
     trigger OnAfterGetRecord()
     begin
         DocExchStatusStyle := GetDocExchStatusStyle;
+        if SellToContact.Get("Sell-to Contact No.") then;
+        if BillToContact.Get("Bill-to Contact No.") then;
     end;
 
     trigger OnOpenPage()
@@ -1039,6 +1185,8 @@ page 134 "Posted Sales Credit Memo"
 
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        SellToContact: Record Contact;
+        BillToContact: Record Contact;
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
         HasIncomingDocument: Boolean;

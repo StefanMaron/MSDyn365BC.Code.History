@@ -1,5 +1,8 @@
 codeunit 11760 "Unc. Payer Mgt."
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     begin

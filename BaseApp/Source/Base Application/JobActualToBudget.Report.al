@@ -109,7 +109,7 @@ report 1009 "Job Actual To Budget"
                     column(Amt9; Amt[9])
                     {
                     }
-                    column(JobDiffBufferType1; SelectStr(JobDiffBuffer.Type + 1, Text000))
+                    column(JobDiffBufferType1; SelectStr(JobDiffBuffer.Type.AsInteger() + 1, Text000))
                     {
                     }
                     column(JobDiffBufferNo; JobDiffBuffer."No.")
@@ -168,7 +168,7 @@ report 1009 "Job Actual To Budget"
                 dataitem(SecondBuffer; "Integer")
                 {
                     DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 ..));
-                    column(JobDiffBuffer2Type1; SelectStr(JobDiffBuffer2.Type + 1, Text000))
+                    column(JobDiffBuffer2Type1; SelectStr(JobDiffBuffer2.Type.AsInteger() + 1, Text000))
                     {
                     }
                     column(JobDiffBuffer2No; JobDiffBuffer2."No.")

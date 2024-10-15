@@ -26,11 +26,9 @@ table 60 "Document Sending Profile"
             OptionCaption = 'No,Yes (Prompt for Settings),Yes (Use Default Settings)';
             OptionMembers = No,"Yes (Prompt for Settings)","Yes (Use Default Settings)";
         }
-        field(12; "E-Mail Attachment"; Option)
+        field(12; "E-Mail Attachment"; Enum "Document Sending Profile Attachment Type")
         {
             Caption = 'Email Attachment';
-            OptionCaption = 'PDF,Electronic Document,PDF & Electronic Document';
-            OptionMembers = PDF,"Electronic Document","PDF & Electronic Document";
         }
         field(13; "E-Mail Format"; Code[20])
         {
@@ -80,11 +78,9 @@ table 60 "Document Sending Profile"
             OptionCaption = 'Disk,Email,Print,Electronic Document';
             OptionMembers = Disk,Email,Print,"Electronic Document";
         }
-        field(51; Usage; Option)
+        field(51; Usage; Enum "Document Sending Profile Usage")
         {
             Caption = 'Usage';
-            OptionCaption = 'Sales Invoice,Sales Credit Memo,,Service Invoice,Service Credit Memo,Job Quote';
-            OptionMembers = "Sales Invoice","Sales Credit Memo",,"Service Invoice","Service Credit Memo","Job Quote";
         }
         field(52; "One Related Party Selected"; Boolean)
         {
@@ -238,7 +234,7 @@ table 60 "Document Sending Profile"
         if "One Related Party Selected" then
             exit;
 
-        if "E-Mail Attachment" > "E-Mail Attachment"::PDF then
+        if "E-Mail Attachment" <> "E-Mail Attachment"::PDF then
             Error(CannotSendMultipleSalesDocsErr);
 
         if "Electronic Document" > "Electronic Document"::No then
@@ -432,7 +428,7 @@ table 60 "Document Sending Profile"
         else
             Printer := Printer::"Yes (Use Default Settings)";
 
-        SendToPrinter(ReportUsage, RecordVariant, CustomerFieldNo);
+        SendToPrinter("Report Selection Usage".FromInteger(ReportUsage), RecordVariant, CustomerFieldNo);
     end;
 
     procedure TrySendToPrinterVendor(ReportUsage: Integer; RecordVariant: Variant; VendorNoFieldNo: Integer; ShowDialog: Boolean)
@@ -442,7 +438,7 @@ table 60 "Document Sending Profile"
         else
             Printer := Printer::"Yes (Use Default Settings)";
 
-        SendToPrinterVendor(ReportUsage, RecordVariant, VendorNoFieldNo);
+        SendToPrinterVendor("Report Selection Usage".FromInteger(ReportUsage), RecordVariant, VendorNoFieldNo);
     end;
 
     procedure TrySendToEMail(ReportUsage: Integer; RecordVariant: Variant; DocumentNoFieldNo: Integer; DocName: Text[150]; CustomerFieldNo: Integer; ShowDialog: Boolean)
@@ -490,7 +486,7 @@ table 60 "Document Sending Profile"
     procedure TrySendToDisk(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ToCust: Code[20])
     begin
         Disk := Disk::PDF;
-        SendToDisk(ReportUsage, RecordVariant, DocNo, DocName, ToCust);
+        SendToDisk("Report Selection Usage".FromInteger(ReportUsage), RecordVariant, DocNo, DocName, ToCust);
     end;
 
     local procedure SendToVAN(RecordVariant: Variant)
@@ -503,7 +499,7 @@ table 60 "Document Sending Profile"
         ReportDistributionManagement.VANDocumentReport(RecordVariant, Rec);
     end;
 
-    local procedure SendToPrinter(ReportUsage: Integer; RecordVariant: Variant; CustomerNoFieldNo: Integer)
+    local procedure SendToPrinter(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; CustomerNoFieldNo: Integer)
     var
         ReportSelections: Record "Report Selections";
         ShowRequestForm: Boolean;
@@ -512,10 +508,10 @@ table 60 "Document Sending Profile"
             exit;
 
         ShowRequestForm := Printer = Printer::"Yes (Prompt for Settings)";
-        ReportSelections.PrintWithGUIYesNo(ReportUsage, RecordVariant, ShowRequestForm, CustomerNoFieldNo);
+        ReportSelections.PrintWithDialogForCust(ReportUsage, RecordVariant, ShowRequestForm, CustomerNoFieldNo);
     end;
 
-    local procedure SendToPrinterVendor(ReportUsage: Integer; RecordVariant: Variant; VendorNoFieldNo: Integer)
+    local procedure SendToPrinterVendor(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; VendorNoFieldNo: Integer)
     var
         ReportSelections: Record "Report Selections";
         ShowRequestForm: Boolean;
@@ -524,10 +520,10 @@ table 60 "Document Sending Profile"
             exit;
 
         ShowRequestForm := Printer = Printer::"Yes (Prompt for Settings)";
-        ReportSelections.PrintWithGUIYesNoVendor(ReportUsage, RecordVariant, ShowRequestForm, VendorNoFieldNo);
+        ReportSelections.PrintWithDialogForVend(ReportUsage, RecordVariant, ShowRequestForm, VendorNoFieldNo);
     end;
 
-    local procedure SendToEMail(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ToCust: Code[20])
+    local procedure SendToEMail(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ToCust: Code[20])
     var
         ReportSelections: Record "Report Selections";
         ElectronicDocumentFormat: Record "Electronic Document Format";
@@ -549,10 +545,10 @@ table 60 "Document Sending Profile"
 
         case "E-Mail Attachment" of
             "E-Mail Attachment"::PDF:
-                ReportSelections.SendEmailToCust(ReportUsage, RecordVariant, DocNo, DocName, ShowDialog, ToCust);
+                ReportSelections.SendEmailToCust(ReportUsage.AsInteger(), RecordVariant, DocNo, DocName, ShowDialog, ToCust);
             "E-Mail Attachment"::"Electronic Document":
                 begin
-                    ReportSelections.GetEmailBody(ServerEmailBodyFilePath, ReportUsage, RecordVariant, ToCust, SendToEmailAddress);
+                    ReportSelections.GetEmailBodyForCust(ServerEmailBodyFilePath, ReportUsage, RecordVariant, ToCust, SendToEmailAddress);
                     ReportDistributionManagement.SendXmlEmailAttachment(
                       RecordVariant, "E-Mail Format", ServerEmailBodyFilePath, SendToEmailAddress);
                 end;
@@ -560,18 +556,18 @@ table 60 "Document Sending Profile"
                 begin
                     ElectronicDocumentFormat.SendElectronically(ServerFilePath, ClientFilePath, RecordVariant, "E-Mail Format");
                     ReportDistributionManagement.CreateOrAppendZipFile(DataCompression, ServerFilePath, ClientFilePath, ClientZipFileName);
-                    ReportSelections.SendToZip(ReportUsage, RecordVariant, DocNo, ToCust, DataCompression);
+                    ReportSelections.SendToZipForCust(ReportUsage, RecordVariant, DocNo, ToCust, DataCompression);
                     SaveZipArchiveToServerFile(DataCompression, ZipPath);
 
-                    ReportSelections.GetEmailBody(ServerEmailBodyFilePath, ReportUsage, RecordVariant, ToCust, SendToEmailAddress);
+                    ReportSelections.GetEmailBodyForCust(ServerEmailBodyFilePath, ReportUsage, RecordVariant, ToCust, SendToEmailAddress);
                     DocumentMailing.EmailFile(
                       ZipPath, ClientZipFileName, ServerEmailBodyFilePath, DocNo, SendToEmailAddress, DocName,
-                      not ShowDialog, ReportUsage);
+                      not ShowDialog, ReportUsage.AsInteger());
                 end;
         end;
     end;
 
-    local procedure SendToEmailVendor(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ToVendor: Code[20])
+    local procedure SendToEmailVendor(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ToVendor: Code[20])
     var
         ReportSelections: Record "Report Selections";
         ElectronicDocumentFormat: Record "Electronic Document Format";
@@ -593,10 +589,10 @@ table 60 "Document Sending Profile"
 
         case "E-Mail Attachment" of
             "E-Mail Attachment"::PDF:
-                ReportSelections.SendEmailToVendor(ReportUsage, RecordVariant, DocNo, DocName, ShowDialog, ToVendor);
+                ReportSelections.SendEmailToVendor(ReportUsage.AsInteger(), RecordVariant, DocNo, DocName, ShowDialog, ToVendor);
             "E-Mail Attachment"::"Electronic Document":
                 begin
-                    ReportSelections.GetEmailBodyVendor(ServerEmailBodyFilePath, ReportUsage, RecordVariant, ToVendor, SendToEmailAddress);
+                    ReportSelections.GetEmailBodyForVend(ServerEmailBodyFilePath, ReportUsage, RecordVariant, ToVendor, SendToEmailAddress);
                     ReportDistributionManagement.SendXmlEmailAttachmentVendor(
                       RecordVariant, "E-Mail Format", ServerEmailBodyFilePath, SendToEmailAddress);
                 end;
@@ -604,18 +600,18 @@ table 60 "Document Sending Profile"
                 begin
                     ElectronicDocumentFormat.SendElectronically(ServerFilePath, ClientFilePath, RecordVariant, "E-Mail Format");
                     ReportDistributionManagement.CreateOrAppendZipFile(DataCompression, ServerFilePath, ClientFilePath, ClientZipFileName);
-                    ReportSelections.SendToZipVendor(ReportUsage, RecordVariant, DocNo, ToVendor, DataCompression);
+                    ReportSelections.SendToZipForVend(ReportUsage, RecordVariant, DocNo, ToVendor, DataCompression);
                     SaveZipArchiveToServerFile(DataCompression, ZipPath);
 
-                    ReportSelections.GetEmailBodyVendor(ServerEmailBodyFilePath, ReportUsage, RecordVariant, ToVendor, SendToEmailAddress);
+                    ReportSelections.GetEmailBodyForVend(ServerEmailBodyFilePath, ReportUsage, RecordVariant, ToVendor, SendToEmailAddress);
                     DocumentMailing.EmailFile(
                       ZipPath, ClientZipFileName, ServerEmailBodyFilePath, DocNo, SendToEmailAddress, DocName,
-                      not ShowDialog, ReportUsage);
+                      not ShowDialog, ReportUsage.AsInteger());
                 end;
         end;
     end;
 
-    local procedure SendToDisk(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text; ToCust: Code[20])
+    local procedure SendToDisk(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text; ToCust: Code[20])
     var
         ReportSelections: Record "Report Selections";
         ElectronicDocumentFormat: Record "Electronic Document Format";
@@ -630,13 +626,13 @@ table 60 "Document Sending Profile"
         if Disk = Disk::No then
             exit;
 
-        OnBeforeSendToDisk(ReportUsage, RecordVariant, DocNo, DocName, ToCust, IsHandled);
+        OnBeforeSendToDisk(ReportUsage.AsInteger(), RecordVariant, DocNo, DocName, ToCust, IsHandled);
         if IsHandled then
             exit;
 
         case Disk of
             Disk::PDF:
-                ReportSelections.SendToDisk(ReportUsage, RecordVariant, DocNo, DocName, ToCust);
+                ReportSelections.SendToDiskForCust(ReportUsage, RecordVariant, DocNo, DocName, ToCust);
             Disk::"Electronic Document":
                 begin
                     ElectronicDocumentFormat.SendElectronically(ServerFilePath, ClientFilePath, RecordVariant, "Disk Format");
@@ -646,7 +642,7 @@ table 60 "Document Sending Profile"
                 begin
                     ElectronicDocumentFormat.SendElectronically(ServerFilePath, ClientFilePath, RecordVariant, "Disk Format");
                     ReportDistributionManagement.CreateOrAppendZipFile(DataCompression, ServerFilePath, ClientFilePath, ClientZipFileName);
-                    ReportSelections.SendToZip(ReportUsage, RecordVariant, DocNo, ToCust, DataCompression);
+                    ReportSelections.SendToZipForCust(ReportUsage, RecordVariant, DocNo, ToCust, DataCompression);
                     SaveZipArchiveToServerFile(DataCompression, ZipPath);
 
                     ReportDistributionManagement.SaveFileOnClient(ZipPath, ClientZipFileName);
@@ -654,7 +650,7 @@ table 60 "Document Sending Profile"
         end;
     end;
 
-    local procedure SendToDiskVendor(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text; ToVendor: Code[20])
+    local procedure SendToDiskVendor(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text; ToVendor: Code[20])
     var
         ReportSelections: Record "Report Selections";
         ElectronicDocumentFormat: Record "Electronic Document Format";
@@ -670,7 +666,7 @@ table 60 "Document Sending Profile"
 
         case Disk of
             Disk::PDF:
-                ReportSelections.SendToDiskVendor(ReportUsage, RecordVariant, DocNo, DocName, ToVendor);
+                ReportSelections.SendToDiskForVend(ReportUsage, RecordVariant, DocNo, DocName, ToVendor);
             Disk::"Electronic Document":
                 begin
                     ElectronicDocumentFormat.SendElectronically(ServerFilePath, ClientFilePath, RecordVariant, "Disk Format");
@@ -680,7 +676,7 @@ table 60 "Document Sending Profile"
                 begin
                     ElectronicDocumentFormat.SendElectronically(ServerFilePath, ClientFilePath, RecordVariant, "Disk Format");
                     ReportDistributionManagement.CreateOrAppendZipFile(DataCompression, ServerFilePath, ClientFilePath, ClientZipFileName);
-                    ReportSelections.SendToZipVendor(ReportUsage, RecordVariant, DocNo, ToVendor, DataCompression);
+                    ReportSelections.SendToZipForVend(ReportUsage, RecordVariant, DocNo, ToVendor, DataCompression);
                     SaveZipArchiveToServerFile(DataCompression, ZipPath);
 
                     ReportDistributionManagement.SaveFileOnClient(ZipPath, ClientZipFileName);

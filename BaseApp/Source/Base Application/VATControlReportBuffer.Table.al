@@ -1,6 +1,9 @@
 table 31103 "VAT Control Report Buffer"
 {
     Caption = 'VAT Control Report Buffer';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     fields
     {
@@ -200,7 +203,7 @@ table 31103 "VAT Control Report Buffer"
         }
         field(100; "VAT Control Rep. Section Desc."; Text[50])
         {
-            CalcFormula = Lookup ("VAT Control Report Section".Description WHERE(Code = FIELD("VAT Control Rep. Section Code")));
+            CalcFormula = Lookup("VAT Control Report Section".Description WHERE(Code = FIELD("VAT Control Rep. Section Code")));
             Caption = 'VAT Control Rep. Section Desc.';
             Editable = false;
             FieldClass = FlowField;

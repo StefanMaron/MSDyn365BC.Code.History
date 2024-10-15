@@ -1,10 +1,13 @@
 page 31073 "Whse. Net Change Template List"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Warehouse Net Change Templates';
+    Caption = 'Warehouse Net Change Templates (Obsolete)';
     PageType = List;
     SourceTable = "Whse. Net Change Template";
     UsageCategory = Lists;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

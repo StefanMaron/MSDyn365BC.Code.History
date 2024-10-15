@@ -3,8 +3,11 @@ report 11787 "Vendor - Bal. Reconciliation"
     DefaultLayout = RDLC;
     RDLCLayout = './VendorBalReconciliation.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'Vendor - Bal. Reconciliation';
+    Caption = 'Vendor - Bal. Reconciliation (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

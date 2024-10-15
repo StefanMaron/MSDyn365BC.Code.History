@@ -51,7 +51,7 @@ table 21 "Cust. Ledger Entry"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry".Amount WHERE("Ledger Entry Amount" = CONST(true),
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry".Amount WHERE("Ledger Entry Amount" = CONST(true),
                                                                          "Cust. Ledger Entry No." = FIELD("Entry No."),
                                                                          "Posting Date" = FIELD("Date Filter")));
             Caption = 'Amount';
@@ -62,7 +62,7 @@ table 21 "Cust. Ledger Entry"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry".Amount WHERE("Cust. Ledger Entry No." = FIELD("Entry No."),
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry".Amount WHERE("Cust. Ledger Entry No." = FIELD("Entry No."),
                                                                          "Posting Date" = FIELD("Date Filter")));
             Caption = 'Remaining Amount';
             Editable = false;
@@ -71,7 +71,7 @@ table 21 "Cust. Ledger Entry"
         field(15; "Original Amt. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Cust. Ledger Entry No." = FIELD("Entry No."),
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Cust. Ledger Entry No." = FIELD("Entry No."),
                                                                                  "Entry Type" = FILTER("Initial Entry"),
                                                                                  "Posting Date" = FIELD("Date Filter")));
             Caption = 'Original Amt. (LCY)';
@@ -81,7 +81,7 @@ table 21 "Cust. Ledger Entry"
         field(16; "Remaining Amt. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Cust. Ledger Entry No." = FIELD("Entry No."),
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Cust. Ledger Entry No." = FIELD("Entry No."),
                                                                                  "Posting Date" = FIELD("Date Filter")));
             Caption = 'Remaining Amt. (LCY)';
             Editable = false;
@@ -90,7 +90,7 @@ table 21 "Cust. Ledger Entry"
         field(17; "Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Ledger Entry Amount" = CONST(true),
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Ledger Entry Amount" = CONST(true),
                                                                                  "Cust. Ledger Entry No." = FIELD("Entry No."),
                                                                                  "Posting Date" = FIELD("Date Filter")));
             Caption = 'Amount (LCY)';
@@ -292,7 +292,7 @@ table 21 "Cust. Ledger Entry"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Debit Amount" WHERE("Ledger Entry Amount" = CONST(true),
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Debit Amount" WHERE("Ledger Entry Amount" = CONST(true),
                                                                                  "Cust. Ledger Entry No." = FIELD("Entry No."),
                                                                                  "Posting Date" = FIELD("Date Filter")));
             Caption = 'Debit Amount';
@@ -304,7 +304,7 @@ table 21 "Cust. Ledger Entry"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Credit Amount" WHERE("Ledger Entry Amount" = CONST(true),
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Credit Amount" WHERE("Ledger Entry Amount" = CONST(true),
                                                                                   "Cust. Ledger Entry No." = FIELD("Entry No."),
                                                                                   "Posting Date" = FIELD("Date Filter")));
             Caption = 'Credit Amount';
@@ -315,7 +315,7 @@ table 21 "Cust. Ledger Entry"
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Debit Amount (LCY)" WHERE("Ledger Entry Amount" = CONST(true),
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Debit Amount (LCY)" WHERE("Ledger Entry Amount" = CONST(true),
                                                                                        "Cust. Ledger Entry No." = FIELD("Entry No."),
                                                                                        "Posting Date" = FIELD("Date Filter")));
             Caption = 'Debit Amount (LCY)';
@@ -326,7 +326,7 @@ table 21 "Cust. Ledger Entry"
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Credit Amount (LCY)" WHERE("Ledger Entry Amount" = CONST(true),
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Credit Amount (LCY)" WHERE("Ledger Entry Amount" = CONST(true),
                                                                                         "Cust. Ledger Entry No." = FIELD("Entry No."),
                                                                                         "Posting Date" = FIELD("Date Filter")));
             Caption = 'Credit Amount (LCY)';
@@ -380,7 +380,7 @@ table 21 "Cust. Ledger Entry"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry".Amount WHERE("Cust. Ledger Entry No." = FIELD("Entry No."),
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry".Amount WHERE("Cust. Ledger Entry No." = FIELD("Entry No."),
                                                                          "Entry Type" = FILTER("Initial Entry"),
                                                                          "Posting Date" = FIELD("Date Filter")));
             Caption = 'Original Amount';
@@ -550,7 +550,7 @@ table 21 "Cust. Ledger Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(1200; "Direct Debit Mandate ID"; Code[35])
@@ -648,7 +648,7 @@ table 21 "Cust. Ledger Entry"
         }
         field(11710; "Amount on Payment Order (LCY)"; Decimal)
         {
-            CalcFormula = - Sum ("Issued Payment Order Line"."Amount (LCY)" WHERE(Type = CONST(Customer),
+            CalcFormula = - Sum("Issued Payment Order Line"."Amount (LCY)" WHERE(Type = CONST(Customer),
                                                                                  "Applies-to C/V/E Entry No." = FIELD("Entry No."),
                                                                                  Status = CONST(" ")));
             Caption = 'Amount on Payment Order (LCY)';
@@ -659,6 +659,9 @@ table 21 "Cust. Ledger Entry"
         {
             Caption = 'VAT Date';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11761; Compensation; Boolean)
         {
@@ -672,14 +675,14 @@ table 21 "Cust. Ledger Entry"
         }
         field(31001; "Remaining Amount to Link"; Decimal)
         {
-            CalcFormula = Sum ("Advance Link".Amount WHERE("CV Ledger Entry No." = FIELD("Entry No."),
+            CalcFormula = Sum("Advance Link".Amount WHERE("CV Ledger Entry No." = FIELD("Entry No."),
                                                            "Entry Type" = FILTER(<> Application)));
             Caption = 'Remaining Amount to Link';
             FieldClass = FlowField;
         }
         field(31002; "Remaining Amount to Link (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("Advance Link"."Amount (LCY)" WHERE("CV Ledger Entry No." = FIELD("Entry No."),
+            CalcFormula = Sum("Advance Link"."Amount (LCY)" WHERE("CV Ledger Entry No." = FIELD("Entry No."),
                                                                    "Entry Type" = FILTER(<> Application)));
             Caption = 'Remaining Amount to Link (LCY)';
             FieldClass = FlowField;
@@ -690,7 +693,7 @@ table 21 "Cust. Ledger Entry"
         }
         field(31050; "Amount on Credit (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("Credit Line"."Amount (LCY)" WHERE("Source Type" = CONST(Customer),
+            CalcFormula = Sum("Credit Line"."Amount (LCY)" WHERE("Source Type" = CONST(Customer),
                                                                   "Source Entry No." = FIELD("Entry No.")));
             Caption = 'Amount on Credit (LCY)';
             Editable = false;

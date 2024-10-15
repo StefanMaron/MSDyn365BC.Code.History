@@ -2,6 +2,9 @@ table 31104 "VAT Ctrl.Rep. - VAT Entry Link"
 {
     Caption = 'VAT Ctrl.Rep. - VAT Entry Link';
     Permissions = TableData "VAT Ctrl.Rep. - VAT Entry Link" = rimd;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     fields
     {

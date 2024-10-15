@@ -90,6 +90,33 @@ page 5978 "Posted Service Invoice"
                         Editable = false;
                         ToolTip = 'Specifies the name of the contact person at the customer company.';
                     }
+                    field(SellToPhoneNo; SellToContact."Phone No.")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the contact person at the customer company.';
+                    }
+                    field(SellToMobilePhoneNo; SellToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Mobile Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the contact person at the customer company.';
+                    }
+                    field(SellToEmail; SellToContact."E-Mail")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Email';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the contact person at the customer company.';
+                    }
                 }
                 field("Posting Date"; "Posting Date")
                 {
@@ -128,6 +155,10 @@ page 5978 "Posted Service Invoice"
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the VAT date. This date must be shown on the VAT statement.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Order No."; "Order No.")
                 {
@@ -242,6 +273,33 @@ page 5978 "Posted Service Invoice"
                         Caption = 'Contact';
                         Editable = false;
                         ToolTip = 'Specifies the name of the contact person at the customer''s billing address.';
+                    }
+                    field(BillToContactPhoneNo; BillToContact."Phone No.")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the contact person at the customer''s billing address.';
+                    }
+                    field(BillToContactMobilePhoneNo; BillToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Mobile Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the contact person at the customer''s billing address.';
+                    }
+                    field(BillToContactEmail; BillToContact."E-Mail")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Email';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the contact person at the customer''s billing address.';
                     }
                 }
                 field("Posting Description"; "Posting Description")
@@ -434,7 +492,11 @@ page 5978 "Posted Service Invoice"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
-                    ToolTip = 'Specifies when the sales haeder will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
+                    ToolTip = 'Specifies when the service header will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("VAT Registration No."; "VAT Registration No.")
                 {
@@ -447,12 +509,20 @@ page 5978 "Posted Service Invoice"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the registration number of customer.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Tax Registration No."; "Tax Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the secondary VAT registration number for the customer.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Industry Code"; "Industry Code")
                 {
@@ -605,7 +675,7 @@ page 5978 "Posted Service Invoice"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -624,9 +694,9 @@ page 5978 "Posted Service Invoice"
                     begin
                         TempServDocLog.Reset();
                         TempServDocLog.DeleteAll();
-                        TempServDocLog.CopyServLog(TempServDocLog."Document Type"::"Posted Invoice", "No.");
-                        TempServDocLog.CopyServLog(TempServDocLog."Document Type"::Order, "Order No.");
-                        TempServDocLog.CopyServLog(TempServDocLog."Document Type"::Invoice, "Pre-Assigned No.");
+                        TempServDocLog.CopyServLog(TempServDocLog."Document Type"::"Posted Invoice".AsInteger(), "No.");
+                        TempServDocLog.CopyServLog(TempServDocLog."Document Type"::Order.AsInteger(), "Order No.");
+                        TempServDocLog.CopyServLog(TempServDocLog."Document Type"::Invoice.AsInteger(), "Pre-Assigned No.");
 
                         TempServDocLog.Reset();
                         TempServDocLog.SetCurrentKey("Change Date", "Change Time");
@@ -676,11 +746,12 @@ page 5978 "Posted Service Invoice"
             action("&Navigate")
             {
                 ApplicationArea = Service;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category4;
-                ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                ShortCutKey = 'Shift+Ctrl+I';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
@@ -713,6 +784,8 @@ page 5978 "Posted Service Invoice"
     trigger OnAfterGetRecord()
     begin
         DocExchStatusStyle := GetDocExchStatusStyle;
+        if SellToContact.Get("Contact No.") then;
+        if BillToContact.Get("Bill-to Contact No.") then;
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -732,6 +805,8 @@ page 5978 "Posted Service Invoice"
 
     var
         ServiceInvHeader: Record "Service Invoice Header";
+        SellToContact: Record Contact;
+        BillToContact: Record Contact;
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
         DocExchStatusStyle: Text;

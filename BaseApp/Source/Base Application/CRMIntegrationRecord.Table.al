@@ -68,6 +68,11 @@ table 5331 "CRM Integration Record"
             Caption = 'Skipped';
             Editable = false;
         }
+        field(12; "Option Mapping Failure"; Boolean)
+        {
+            Caption = 'Option Mapping Failure';
+            Editable = false;
+        }
     }
 
     keys
@@ -96,7 +101,7 @@ table 5331 "CRM Integration Record"
 
     var
         IntegrationRecordNotFoundErr: Label 'The integration record for entity %1 was not found.';
-        CRMIdAlreadyMappedErr: Label 'Cannot couple %1 to this %3 record, because the %3 record is already coupled to %2.', Comment = '%1 ID of the record, %2 ID of the already mapped record, %3 = CRM product name';
+        CRMIdAlreadyMappedErr: Label 'Cannot couple %1 to this %3 record, because the %3 record is already coupled to %2.', Comment = '%1 ID of the record, %2 ID of the already mapped record, %3 = CDS service name';
         RecordIdAlreadyMappedErr: Label 'Cannot couple the %2 record to %1, because %1 is already coupled to another %2 record.', Comment = '%1 ID from the record, %2 ID of the already mapped record';
         CRMProductName: Codeunit "CRM Product Name";
 
@@ -171,6 +176,7 @@ table 5331 "CRM Integration Record"
             end;
     end;
 
+    [Obsolete('Table Integration Record is marked for removal. Reason: This functionality will be replaced by the systemID field.', '17.0')]
     procedure InsertRecord(CRMID: Guid; IntegrationRecord: Record "Integration Record")
     begin
         Reset();
@@ -290,11 +296,11 @@ table 5331 "CRM Integration Record"
         CRMIntegrationRecord: Record "CRM Integration Record";
         RecId: RecordId;
     begin
-        if FindRowFromCRMID(SourceCRMID, DestinationTableID, CRMIntegrationRecord) then
-            if CRMIntegrationRecord.FindRecordId(RecId) then begin
+        if FindRowFromCRMID(SourceCRMID, DestinationTableID, CRMIntegrationRecord) then begin
+            if CRMIntegrationRecord.FindRecordId(RecId) then
                 DestinationRecordId := RecId;
-                exit(true);
-            end;
+            exit(true);
+        end;
     end;
 
     procedure FindIDFromRecordID(SourceRecordID: RecordID; var DestinationCRMID: Guid): Boolean
@@ -350,22 +356,16 @@ table 5331 "CRM Integration Record"
     procedure CoupleRecordIdToCRMID(RecordID: RecordID; CRMID: Guid)
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
-        IntegrationRecord: Record "Integration Record";
-        IntegrationManagement: Codeunit "Integration Management";
         RecRef: RecordRef;
+        SystemIdFieldRef: FieldRef;
         IntegrationID: Guid;
     begin
-        // we shouldn't remove this code until we abandon Integration Record in CRM completely. That can happen only after we get $lastModifiedOn feature on all records.
-        if not IntegrationRecord.FindByRecordId(RecordID) then begin
-            RecRef.Get(RecordID);
-            IntegrationID := IntegrationManagement.InsertUpdateIntegrationRecord(RecRef, CurrentDateTime);
-            if IsNullGuid(IntegrationID) then
-                exit;
-            IntegrationRecord.Get(IntegrationID);
-        end;
-        if not FindRowFromIntegrationID(IntegrationRecord."Integration ID", CRMIntegrationRecord) then begin
+        RecRef.Get(RecordID);
+        SystemIdFieldRef := RecRef.Field(RecRef.SystemIdNo);
+        IntegrationID := SystemIdFieldRef.Value();
+        if not FindRowFromIntegrationID(IntegrationID, CRMIntegrationRecord) then begin
             AssertRecordIDCanBeCoupled(RecordID, CRMID);
-            CRMIntegrationRecord.InsertRecord(CRMID, IntegrationRecord."Integration ID", IntegrationRecord."Table ID");
+            CRMIntegrationRecord.InsertRecord(CRMID, IntegrationID, RecRef.Number);
         end else
             if CRMIntegrationRecord."CRM ID" <> CRMID then begin
                 AssertRecordIDCanBeCoupled(RecordID, CRMID);
@@ -422,11 +422,18 @@ table 5331 "CRM Integration Record"
         if FindIntegrationIDFromCRMID(CRMID, RecordID.TableNo, ErrIntegrationID) then
             if not UncoupleCRMIDIfRecordDeleted(RecordID.TableNo, ErrIntegrationID) then begin
                 CRMIntegrationRecord.FindRecordIDFromID(CRMID, RecordID.TableNo, ErrRecordID);
-                Error(CRMIdAlreadyMappedErr, Format(RecordID, 0, 1), ErrRecordID, CRMProductName.SHORT);
+                Error(CRMIdAlreadyMappedErr, Format(RecordID, 0, 1), ErrRecordID, CRMProductName.CDSServiceName());
             end;
     end;
 
     procedure SetLastSynchResultFailed(SourceRecRef: RecordRef; DirectionToIntTable: Boolean; JobId: Guid)
+    var
+        MarkedAsSkipped: Boolean;
+    begin
+        SetLastSynchResultFailed(SourceRecRef, DirectionToIntTable, JobId, MarkedAsSkipped);
+    end;
+
+    procedure SetLastSynchResultFailed(SourceRecRef: RecordRef; DirectionToIntTable: Boolean; JobId: Guid; var MarkedAsSkipped: Boolean)
     var
         Found: Boolean;
     begin
@@ -435,6 +442,8 @@ table 5331 "CRM Integration Record"
         else
             Found := FindByCRMID(GetCRMIdFromRecRef(SourceRecRef));
         if Found then begin
+            if MarkedAsSkipped then
+                Skipped := true;
             if DirectionToIntTable then begin
                 if (not Skipped) and ("Last Synch. CRM Result" = "Last Synch. CRM Result"::Failure) then
                     Skipped := IsSameFailureRepeatedTwice(SourceRecRef, "Last Synch. CRM Job ID", JobId);
@@ -446,8 +455,21 @@ table 5331 "CRM Integration Record"
                 "Last Synch. Job ID" := JobId;
                 "Last Synch. Result" := "Last Synch. Result"::Failure;
             end;
+            if Skipped then
+                MarkedAsSkipped := true;
             Modify(true);
         end;
+    end;
+
+    procedure IsSkipped(SourceRecordRef: RecordRef; DirectionToIntTable: Boolean): Boolean
+    var
+        Found: Boolean;
+    begin
+        if DirectionToIntTable then
+            Found := FindByRecordID(SourceRecordRef.RecordId())
+        else
+            Found := FindByCRMID(GetCRMIdFromRecRef(SourceRecordRef));
+        exit(Skipped);
     end;
 
     procedure SetLastSynchModifiedOns(SourceCRMID: Guid; DestinationTableID: Integer; CRMLastModifiedOn: DateTime; LastModifiedOn: DateTime; JobId: Guid; Direction: Option)
@@ -513,8 +535,11 @@ table 5331 "CRM Integration Record"
         if Handled then
             exit(IsModified);
 
-        if FindRowFromCRMID(CRMID, DestinationTableID, CRMIntegrationRecord) then
+        if FindRowFromCRMID(CRMID, DestinationTableID, CRMIntegrationRecord) then begin
+            if (CRMIntegrationRecord."Last Synch. Result" = CRMIntegrationRecord."Last Synch. Result"::Failure) and (CRMIntegrationRecord.Skipped = false) then
+                exit(true);
             exit(TypeHelper.CompareDateTime(CurrentModifiedOn, CRMIntegrationRecord."Last Synch. CRM Modified On") > 0);
+        end;
     end;
 
     procedure IsModifiedAfterLastSynchronizedRecord(RecordID: RecordID; CurrentModifiedOn: DateTime) IsModified: Boolean
@@ -527,8 +552,11 @@ table 5331 "CRM Integration Record"
         if Handled then
             exit(IsModified);
 
-        if FindRowFromRecordID(RecordID, CRMIntegrationRecord) then
+        if FindRowFromRecordID(RecordID, CRMIntegrationRecord) then begin
+            if (CRMIntegrationRecord."Last Synch. CRM Result" = CRMIntegrationRecord."Last Synch. CRM Result"::Failure) and (CRMIntegrationRecord.Skipped = false) then
+                exit(true);
             exit(TypeHelper.CompareDateTime(CurrentModifiedOn, CRMIntegrationRecord."Last Synch. Modified On") > 0);
+        end;
     end;
 
     local procedure UncoupleCRMIDIfRecordDeleted(TableId: Integer; IntegrationId: Guid): Boolean

@@ -35,6 +35,7 @@ page 254 "Purchase Journal"
                     CurrPage.SaveRecord();
                     GenJnlManagement.LookupName(CurrentJnlBatchName, Rec);
                     GenJnlManagement.SetLastViewedJournalBatchName(PAGE::"Purchase Journal", CurrentJnlBatchName);
+                    SetControlAppearanceFromBatch();
                     CurrPage.Update(false);
                 end;
 
@@ -226,7 +227,7 @@ page 254 "Purchase Journal"
                         then
                             Validate(Amount, DocumentAmount)
                         else
-                            Validate(Amount, DocumentAmount * -1)
+                            Validate(Amount, DocumentAmount * -1);
                     end;
                 }
                 field(Amount; Amount)
@@ -624,6 +625,7 @@ page 254 "Purchase Journal"
                     group("Account Name")
                     {
                         Caption = 'Account Name';
+                        Visible = false;
                         field(AccName; AccName)
                         {
                             ApplicationArea = Basic, Suite;
@@ -635,6 +637,7 @@ page 254 "Purchase Journal"
                     group("Bal. Account Name")
                     {
                         Caption = 'Bal. Account Name';
+                        Visible = false;
                         field(BalAccName; BalAccName)
                         {
                             ApplicationArea = Basic, Suite;
@@ -674,6 +677,21 @@ page 254 "Purchase Journal"
         }
         area(factboxes)
         {
+            part(JournalErrorsFactBox; "Journal Errors FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = BackgroundErrorCheck;
+                SubPageLink = "Journal Template Name" = FIELD("Journal Template Name"),
+                              "Journal Batch Name" = FIELD("Journal Batch Name"),
+                              "Line No." = FIELD("Line No.");
+            }
+            part(JournalLineDetails; "Journal Line Details FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                SubPageLink = "Journal Template Name" = FIELD("Journal Template Name"),
+                              "Journal Batch Name" = FIELD("Journal Batch Name"),
+                              "Line No." = FIELD("Line No.");
+            }
             part(Control1900919607; "Dimension Set Entries FactBox")
             {
                 ApplicationArea = Basic, Suite;
@@ -1069,6 +1087,43 @@ page 254 "Purchase Journal"
                         PAGE.Run(PAGE::"Purchase Journal");
                     end;
                 }
+                group(Errors)
+                {
+                    Image = ErrorLog;
+                    Visible = BackgroundErrorCheck;
+                    action(ShowLinesWithErrors)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Show Lines with Issues';
+                        Image = Error;
+                        Promoted = true;
+                        PromotedCategory = Category4;
+                        Visible = BackgroundErrorCheck;
+                        Enabled = not ShowAllLinesEnabled;
+                        ToolTip = 'View a list of journal lines that have issues before you post the journal.';
+
+                        trigger OnAction()
+                        begin
+                            SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                        end;
+                    }
+                    action(ShowAllLines)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Show All Lines';
+                        Image = ExpandAll;
+                        Promoted = true;
+                        PromotedCategory = Category4;
+                        Visible = BackgroundErrorCheck;
+                        Enabled = ShowAllLinesEnabled;
+                        ToolTip = 'View all journal lines, including lines with and without issues.';
+
+                        trigger OnAction()
+                        begin
+                            SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                        end;
+                    }
+                }
             }
         }
     }
@@ -1145,9 +1200,10 @@ page 254 "Purchase Journal"
         if IsOpenedFromBatch then begin
             CurrentJnlBatchName := "Journal Batch Name";
             GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
+            SetControlAppearanceFromBatch();
             exit;
         end;
-        GenJnlManagement.TemplateSelection(PAGE::"Purchase Journal", 2, false, Rec, JnlSelected);
+        GenJnlManagement.TemplateSelection(PAGE::"Purchase Journal", "Gen. Journal Template Type"::Purchases, false, Rec, JnlSelected);
         if not JnlSelected then
             Error('');
 
@@ -1155,6 +1211,7 @@ page 254 "Purchase Journal"
         if LastGenJnlBatch <> '' then
             CurrentJnlBatchName := LastGenJnlBatch;
         GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
+        SetControlAppearanceFromBatch();
     end;
 
     var
@@ -1162,6 +1219,7 @@ page 254 "Purchase Journal"
         GenJnlManagement: Codeunit GenJnlManagement;
         ReportPrint: Codeunit "Test Report-Print";
         ClientTypeManagement: Codeunit "Client Type Management";
+        JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         ChangeExchangeRate: Page "Change Exchange Rate";
         GLReconcile: Page Reconciliation;
         CurrentJnlBatchName: Code[10];
@@ -1172,7 +1230,6 @@ page 254 "Purchase Journal"
         NumberOfRecords: Integer;
         ShowBalance: Boolean;
         ShowTotalBalance: Boolean;
-        ShortcutDimCode: array[8] of Code[20];
         HasIncomingDocument: Boolean;
         ApplyEntriesActionEnabled: Boolean;
         [InDataSet]
@@ -1187,6 +1244,11 @@ page 254 "Purchase Journal"
         NegativeDocAmountErr: Label 'You must specify a positive amount as the document amount. If the journal line is for a document type that has a negative amount, the amount will be tracked correctly.';
         JobQueuesUsed: Boolean;
         JobQueueVisible: Boolean;
+        BackgroundErrorCheck: Boolean;
+        ShowAllLinesEnabled: Boolean;
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;
@@ -1217,6 +1279,7 @@ page 254 "Purchase Journal"
     begin
         CurrPage.SaveRecord;
         GenJnlManagement.SetName(CurrentJnlBatchName, Rec);
+        SetControlAppearanceFromBatch();
         CurrPage.Update(false);
     end;
 
@@ -1263,6 +1326,18 @@ page 254 "Purchase Journal"
         GenJournalLineCheck.SetFilter("Account Type", '<>%1', GenJournalLineCheck."Account Type"::Vendor);
         if GenJournalLineCheck.FindFirst() then
             GenJournalLineCheck.TestField("Account Type", GenJournalLineCheck."Account Type"::Vendor);
+    end;
+
+    local procedure SetControlAppearanceFromBatch()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        if not GenJournalBatch.Get(GetRangeMax("Journal Template Name"), CurrentJnlBatchName) then
+            exit;
+        BackgroundErrorCheck := GenJournalBatch."Background Error Check";
+        ShowAllLinesEnabled := true;
+        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+        JournalErrorsMgt.SetFullBatchCheck(true);
     end;
 
     local procedure SetJobQueueVisibility()

@@ -158,7 +158,7 @@ page 7338 "Posted Whse. Shipment Subform"
 
     local procedure ShowPostedSourceDoc()
     begin
-        WMSMgt.ShowPostedSourceDoc("Posted Source Document", "Posted Source No.");
+        WMSMgt.ShowPostedSourceDocument("Posted Source Document", "Posted Source No.");
     end;
 
     local procedure ShowBinContents()

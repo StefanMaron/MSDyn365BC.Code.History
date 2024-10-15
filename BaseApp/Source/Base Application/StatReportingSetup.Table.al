@@ -11,38 +11,62 @@ table 31065 "Stat. Reporting Setup"
         field(27; "Tax Office Number"; Code[20])
         {
             Caption = 'Tax Office Number';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(40; "Municipality No."; Text[30])
         {
             Caption = 'Municipality No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(41; Street; Text[50])
         {
             Caption = 'Street';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(42; "House No."; Text[30])
         {
             Caption = 'House No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(43; "Apartment No."; Text[30])
         {
             Caption = 'Apartment No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(51; "VIES Decl. Auth. Employee No."; Code[20])
         {
             Caption = 'VIES Decl. Auth. Employee No.';
             TableRelation = "Company Officials";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(52; "VIES Decl. Filled by Empl. No."; Code[20])
         {
             Caption = 'VIES Decl. Filled by Empl. No.';
             TableRelation = "Company Officials";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(54; "VIES Decl. Exp. Obj. Type"; Option)
         {
             Caption = 'VIES Decl. Exp. Obj. Type';
             OptionCaption = ',,,Report,,Codeunit';
             OptionMembers = ,,,"Report",,"Codeunit";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             begin
@@ -54,11 +78,17 @@ table 31065 "Stat. Reporting Setup"
         {
             Caption = 'VIES Declaration Nos.';
             TableRelation = "No. Series";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(56; "VIES Declaration Report No."; Integer)
         {
             Caption = 'VIES Declaration Report No.';
             TableRelation = AllObj."Object ID" WHERE("Object Type" = CONST(Report));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             begin
@@ -67,16 +97,22 @@ table 31065 "Stat. Reporting Setup"
         }
         field(57; "VIES Declaration Report Name"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
                                                                            "Object ID" = FIELD("VIES Declaration Report No.")));
             Caption = 'VIES Declaration Report Name';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(58; "VIES Decl. Exp. Obj. No."; Integer)
         {
             Caption = 'VIES Decl. Exp. Obj. No.';
             TableRelation = AllObj."Object ID" WHERE("Object Type" = FIELD("VIES Decl. Exp. Obj. Type"));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnLookup()
             var
@@ -103,11 +139,14 @@ table 31065 "Stat. Reporting Setup"
         }
         field(59; "VIES Decl. Exp. Obj. Name"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = FIELD("VIES Decl. Exp. Obj. Type"),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = FIELD("VIES Decl. Exp. Obj. Type"),
                                                                            "Object ID" = FIELD("VIES Decl. Exp. Obj. No.")));
             Caption = 'VIES Decl. Exp. Obj. Name';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(60; "Transaction Type Mandatory"; Boolean)
         {
@@ -185,14 +224,23 @@ table 31065 "Stat. Reporting Setup"
         field(11700; "Natural Person First Name"; Text[30])
         {
             Caption = 'Natural Person First Name';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11701; "Natural Person Surname"; Text[30])
         {
             Caption = 'Natural Person Surname';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11702; "Natural Person Title"; Text[30])
         {
             Caption = 'Natural Person Title';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11703; "Taxpayer Type"; Option)
         {
@@ -203,48 +251,78 @@ table 31065 "Stat. Reporting Setup"
         field(11704; "Company Trade Name Appendix"; Text[11])
         {
             Caption = 'Company Trade Name Appendix';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11705; "Natural Employee No."; Code[20])
         {
             Caption = 'Natural Employee No.';
             TableRelation = Employee;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11708; "Tax Payer Status"; Option)
         {
             Caption = 'Tax Payer Status';
             OptionCaption = 'Payer,Non-payer,Other,VAT Group';
             OptionMembers = Payer,"Non-payer",Other,"VAT Group";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11709; "Area Code"; Code[10])
         {
             Caption = 'Area Code';
             TableRelation = Area;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This unused field is discontinued and will be removed.';
+            ObsoleteTag = '17.0';
         }
         field(11710; "Main Economic Activity I Code"; Code[10])
         {
             Caption = 'Main Economic Activity I Code';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11711; "Main Economic Activity I Desc."; Text[50])
         {
             Caption = 'Main Economic Activity I Desc.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This unused field is discontinued and will be removed.';
+            ObsoleteTag = '17.0';
         }
         field(11712; "Main Economic Activity II Code"; Code[10])
         {
             Caption = 'Main Economic Activity II Code';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This unused field is discontinued and will be removed.';
+            ObsoleteTag = '17.0';
         }
         field(11713; "Main Economic Activity II Desc"; Text[50])
         {
             Caption = 'Main Economic Activity II Desc';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This unused field is discontinued and will be removed.';
+            ObsoleteTag = '17.0';
         }
         field(11714; "Company Trade Name"; Text[100])
         {
             Caption = 'Company Trade Name';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11715; "Organizational Unit Code"; Integer)
         {
             Caption = 'Organizational Unit Code';
             MaxValue = 95;
             MinValue = 1;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This unused field is discontinued and will be removed.';
+            ObsoleteTag = '17.0';
         }
         field(11716; "Customs Office No."; Code[20])
         {
@@ -264,52 +342,88 @@ table 31065 "Stat. Reporting Setup"
             Caption = 'VIES Number of Lines';
             MaxValue = 27;
             MinValue = 0;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11726; "VAT Statement Country Name"; Text[25])
         {
             Caption = 'VAT Statement Country Name';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11753; "VAT Stat. Auth.Employee No."; Code[20])
         {
             Caption = 'VAT Stat. Auth.Employee No.';
             TableRelation = "Company Officials";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11754; "VAT Stat. Filled by Empl. No."; Code[20])
         {
             Caption = 'VAT Stat. Filled by Empl. No.';
             TableRelation = "Company Officials";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11760; "Authorized Person First Name"; Text[50])
         {
             Caption = 'Authorized Person First Name';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This unused field is discontinued and will be removed.';
+            ObsoleteTag = '17.0';
         }
         field(11761; "Authorized Person Title"; Text[50])
         {
             Caption = 'Authorized Person Title';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This unused field is discontinued and will be removed.';
+            ObsoleteTag = '17.0';
         }
         field(11762; "Authorized Person Phone No."; Text[20])
         {
             Caption = 'Authorized Person Phone No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This unused field is discontinued and will be removed.';
+            ObsoleteTag = '17.0';
         }
         field(11763; "Authorized Person Surname"; Text[50])
         {
             Caption = 'Authorized Person Surname';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This unused field is discontinued and will be removed.';
+            ObsoleteTag = '17.0';
         }
         field(11764; "Filled by Person First Name"; Text[50])
         {
             Caption = 'Filled by Person First Name';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This unused field is discontinued and will be removed.';
+            ObsoleteTag = '17.0';
         }
         field(11765; "Filled by Person Title"; Text[50])
         {
             Caption = 'Filled by Person Title';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This unused field is discontinued and will be removed.';
+            ObsoleteTag = '17.0';
         }
         field(11766; "Filled by Person Phone No."; Text[20])
         {
             Caption = 'Filled by Person Phone No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This unused field is discontinued and will be removed.';
+            ObsoleteTag = '17.0';
         }
         field(11767; "Filled by Person Surname"; Text[50])
         {
             Caption = 'Filled by Person Surname';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This unused field is discontinued and will be removed.';
+            ObsoleteTag = '17.0';
         }
         field(31060; "Include other Period add.Costs"; Boolean)
         {
@@ -360,6 +474,9 @@ table 31065 "Stat. Reporting Setup"
         field(31064; "Tax Office Region Number"; Code[20])
         {
             Caption = 'Tax Office Region Number';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(31065; "Stat. Value Reporting"; Option)
         {
@@ -416,19 +533,31 @@ table 31065 "Stat. Reporting Setup"
         {
             Caption = 'VAT Control Report Nos.';
             TableRelation = "No. Series";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(31101; "Simplified Tax Document Limit"; Decimal)
         {
             Caption = 'Simplified Tax Document Limit';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(31102; "Data Box ID"; Text[20])
         {
             Caption = 'Data Box ID';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(31103; "VAT Control Report E-mail"; Text[80])
         {
             Caption = 'VAT Control Report E-mail';
             ExtendedDatatype = EMail;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             var
@@ -442,40 +571,67 @@ table 31065 "Stat. Reporting Setup"
             Caption = 'VAT Control Report Xml Format';
             OptionCaption = 'KH 02.01.03,KH 03.01.01';
             OptionMembers = "KH 02.01.03","KH 03.01.01";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(31105; "Official Code"; Text[2])
         {
             Caption = 'Official Code';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(31106; "Official Type"; Option)
         {
             Caption = 'Official Type';
             OptionCaption = ' ,Individual,Corporate';
             OptionMembers = " ",Individual,Corporate;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(31107; "Official Name"; Text[30])
         {
             Caption = 'Official Name';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(31108; "Official First Name"; Text[30])
         {
             Caption = 'Official First Name';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(31109; "Official Surname"; Text[30])
         {
             Caption = 'Official Surname';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(31110; "Official Birth Date"; Date)
         {
             Caption = 'Official Birth Date';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(31111; "Official Reg.No.of Tax Adviser"; Text[36])
         {
             Caption = 'Official Reg.No.of Tax Adviser';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(31112; "Official Registration No."; Text[20])
         {
             Caption = 'Official Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
     }
 

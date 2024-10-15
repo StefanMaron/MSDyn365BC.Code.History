@@ -10,8 +10,8 @@ codeunit 431 "IC Outbox Export"
         IsHandled := false;
         OnRunOnBeforeConfirmGetResponseOrDefault(IsHandled);
         If not IsHandled then
-        if not ConfirmManagement.GetResponseOrDefault(Text003, true) then
-            exit;
+            if not ConfirmManagement.GetResponseOrDefault(Text003, true) then
+                exit;
 
         RunOutboxTransactions(Rec);
     end;

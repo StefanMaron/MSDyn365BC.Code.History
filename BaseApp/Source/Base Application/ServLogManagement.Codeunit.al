@@ -234,7 +234,7 @@ codeunit 5906 ServLogManagement
             ServItemLog."Event No." := 5
         else
             ServItemLog."Event No." := 15;
-        ServItemLog."Document Type" := ServItemLine."Document Type" + 1;
+        ServItemLog."Document Type" := ServItemLine."Document Type".AsInteger() + 1;
         ServItemLog."Document No." := ServItemLine."Document No.";
         ServItemLog.Insert(true);
     end;
@@ -252,7 +252,7 @@ codeunit 5906 ServLogManagement
             ServItemLog."Event No." := 7
         else
             ServItemLog."Event No." := 17;
-        ServItemLog."Document Type" := ServItemLine."Document Type" + 1;
+        ServItemLog."Document Type" := ServItemLine."Document Type".AsInteger() + 1;
         ServItemLog."Document No." := ServItemLine."Document No.";
         ServItemLog.Insert(true);
     end;
@@ -458,7 +458,7 @@ codeunit 5906 ServLogManagement
             exit;
 
         ServOrderLog.Init();
-        ServOrderLog."Document Type" := DocumentType;
+        ServOrderLog."Document Type" := "Service Log Document Type".FromInteger(DocumentType);
         ServOrderLog."Document No." := DocumentNo;
         ServOrderLog."Service Item Line No." := ServItemLineNo;
         ServOrderLog."Event No." := 4;
@@ -474,7 +474,7 @@ codeunit 5906 ServLogManagement
             exit;
 
         ServOrderLog.Init();
-        ServOrderLog."Document Type" := DocumentType;
+        ServOrderLog."Document Type" := "Service Log Document Type".FromInteger(DocumentType);
         ServOrderLog."Document No." := DocumentNo;
         ServOrderLog."Service Item Line No." := ServItemLineNo;
         ServOrderLog."Event No." := 5;
@@ -490,7 +490,7 @@ codeunit 5906 ServLogManagement
             exit;
 
         ServOrderLog.Init();
-        ServOrderLog."Document Type" := DocumentType;
+        ServOrderLog."Document Type" := "Service Log Document Type".FromInteger(DocumentType);
         ServOrderLog."Document No." := DocumentNo;
         ServOrderLog."Service Item Line No." := ServItemLineNo;
         ServOrderLog."Event No." := 17;
@@ -669,7 +669,7 @@ codeunit 5906 ServLogManagement
             exit;
 
         ServOrderLog.Init();
-        ServOrderLog."Document Type" := LoanerEntry."Document Type" - 1;
+        ServOrderLog."Document Type" := LoanerEntry.GetServDocTypeFromDocType();
         ServOrderLog."Document No." := LoanerEntry."Document No.";
         ServOrderLog."Event No." := 7;
         ServOrderLog.After := LoanerEntry."Loaner No.";
@@ -684,7 +684,7 @@ codeunit 5906 ServLogManagement
             exit;
 
         ServOrderLog.Init();
-        ServOrderLog."Document Type" := LoanerEntry."Document Type" - 1;
+        ServOrderLog."Document Type" := LoanerEntry.GetServDocTypeFromDocType();
         ServOrderLog."Document No." := LoanerEntry."Document No.";
         ServOrderLog."Event No." := 8;
         ServOrderLog.After := LoanerEntry."Loaner No.";
@@ -693,19 +693,19 @@ codeunit 5906 ServLogManagement
 
     procedure ServItemLineResponseDateChange(var ServItemLine: Record "Service Item Line"; var OldServItemLine: Record "Service Item Line")
     var
-        ServOrderLog: Record "Service Document Log";
+        ServiceDocumentLog: Record "Service Document Log";
     begin
         if (ServItemLine."Document No." = '') or (ServItemLine."Line No." = 0) then
             exit;
 
-        ServOrderLog.Init();
-        ServOrderLog."Document Type" := ServItemLine."Document Type";
-        ServOrderLog."Document No." := ServItemLine."Document No.";
-        ServOrderLog."Service Item Line No." := ServItemLine."Line No.";
-        ServOrderLog.After := Format(ServItemLine."Response Date");
-        ServOrderLog.Before := Format(OldServItemLine."Response Date");
-        ServOrderLog."Event No." := 18;
-        ServOrderLog.Insert(true);
+        ServiceDocumentLog.Init();
+        ServiceDocumentLog."Document Type" := ServItemLine."Document Type";
+        ServiceDocumentLog."Document No." := ServItemLine."Document No.";
+        ServiceDocumentLog."Service Item Line No." := ServItemLine."Line No.";
+        ServiceDocumentLog.After := Format(ServItemLine."Response Date");
+        ServiceDocumentLog.Before := Format(OldServItemLine."Response Date");
+        ServiceDocumentLog."Event No." := 18;
+        ServiceDocumentLog.Insert(true);
     end;
 
     procedure ServItemLineResponseTimeChange(var ServItemLine: Record "Service Item Line"; var OldServItemLine: Record "Service Item Line")

@@ -15,11 +15,15 @@ page 9028 "Team Member Role Center"
             {
                 ApplicationArea = Suite;
             }
-            part(Control4; "My Time Sheets")
+            part(Control7; "User Tasks Activities")
             {
                 ApplicationArea = Suite;
             }
-            part(Control7; "User Tasks Activities")
+            part(ApprovalsActivities; "Approvals Activities")
+            {
+                ApplicationArea = Suite;
+            }
+            part(Control4; "My Time Sheets")
             {
                 ApplicationArea = Suite;
             }

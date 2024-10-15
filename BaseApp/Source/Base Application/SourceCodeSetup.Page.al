@@ -104,6 +104,10 @@ page 279 "Source Code Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the source code linked to entries that are posted in connection with cash desk.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Payment Reconciliation Journal"; "Payment Reconciliation Journal")
                 {
@@ -163,6 +167,10 @@ page 279 "Source Code Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the source code for sales VAT delay.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field(Credit; Credit)
                 {
@@ -212,6 +220,10 @@ page 279 "Source Code Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the source code for purchase VAT delay.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
             }
             group(Employees)

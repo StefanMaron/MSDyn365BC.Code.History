@@ -92,7 +92,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
 
         // [WHEN] A Sales Invoice Approval Workflow is created from wizard with a given due date and other default values
         WorkflowCode :=
-          ApprovalWorkflowSetupMgt.CreateSalesDocumentApprovalWorkflow(SalesHeader."Document Type"::Invoice);
+          ApprovalWorkflowSetupMgt.CreateSalesDocumentApprovalWorkflow(SalesHeader."Document Type"::Invoice.AsInteger());
 
         // [THEN] Sales Invoice Approval workflow is set according to the user's options
         VerifyApprovalDocumentWorkflow(WorkflowCode);
@@ -110,7 +110,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
 
         // [WHEN] A Purchase Invoice Approval Workflow is created from wizard with a given due date and other default values
         WorkflowCode :=
-          ApprovalWorkflowSetupMgt.CreatePurchaseDocumentApprovalWorkflow(PurchaseHeader."Document Type"::Invoice);
+          ApprovalWorkflowSetupMgt.CreatePurchaseDocumentApprovalWorkflow(PurchaseHeader."Document Type"::Invoice.AsInteger());
 
         // [THEN] Purchase Invoice Approval workflow is set according to the user's options
         VerifyApprovalDocumentWorkflow(WorkflowCode);
@@ -138,7 +138,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
 
         // [WHEN] A Sales Invoice Approval Workflow is created from wizard with a given due date and other default values
         WorkflowCode :=
-          ApprovalWorkflowSetupMgt.CreateSalesDocumentApprovalWorkflow(SalesHeader."Document Type"::Invoice);
+          ApprovalWorkflowSetupMgt.CreateSalesDocumentApprovalWorkflow(SalesHeader."Document Type"::Invoice.AsInteger());
 
         // [THEN] The old workflow is disabled
         Workflow.Get(Workflow.Code);
@@ -170,7 +170,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
 
         // [WHEN] A Purchase Invoice Approval Workflow is created from wizard with a given due date and other default values
         WorkflowCode :=
-          ApprovalWorkflowSetupMgt.CreatePurchaseDocumentApprovalWorkflow(PurchaseHeader."Document Type"::Invoice);
+          ApprovalWorkflowSetupMgt.CreatePurchaseDocumentApprovalWorkflow(PurchaseHeader."Document Type"::Invoice.AsInteger());
 
         // [THEN] The old workflow is disabled
         Workflow.Get(Workflow.Code);
@@ -198,11 +198,11 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
 
         // [GIVEN] A Sales Invoice Approval Workflow is created from wizard with a given due date and other default values
         WorkflowCode :=
-          ApprovalWorkflowSetupMgt.CreateSalesDocumentApprovalWorkflow(SalesHeader."Document Type"::Invoice);
+          ApprovalWorkflowSetupMgt.CreateSalesDocumentApprovalWorkflow(SalesHeader."Document Type"::Invoice.AsInteger());
 
         // [WHEN] The wizard is used to update the workflow with a new due date
         Evaluate(DateFormula, '<1W>');
-        WorkflowCode2 := ApprovalWorkflowSetupMgt.CreateSalesDocumentApprovalWorkflow(SalesHeader."Document Type"::Invoice);
+        WorkflowCode2 := ApprovalWorkflowSetupMgt.CreateSalesDocumentApprovalWorkflow(SalesHeader."Document Type"::Invoice.AsInteger());
 
         // [THEN] The old workflow is updated
         Assert.AreEqual(WorkflowCode, WorkflowCode2, WorkflowCreatedErr);
@@ -228,12 +228,12 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
 
         // [GIVEN] A Purchase Invoice Approval Workflow is created from wizard with a given due date and other default values
         WorkflowCode :=
-          ApprovalWorkflowSetupMgt.CreatePurchaseDocumentApprovalWorkflow(PurchaseHeader."Document Type"::Invoice);
+          ApprovalWorkflowSetupMgt.CreatePurchaseDocumentApprovalWorkflow(PurchaseHeader."Document Type"::Invoice.AsInteger());
 
         // [WHEN] The wizard is used to update the workflow with a new due date
         Evaluate(DateFormula, '<1W>');
         WorkflowCode2 :=
-          ApprovalWorkflowSetupMgt.CreatePurchaseDocumentApprovalWorkflow(PurchaseHeader."Document Type"::Invoice);
+          ApprovalWorkflowSetupMgt.CreatePurchaseDocumentApprovalWorkflow(PurchaseHeader."Document Type"::Invoice.AsInteger());
 
         // [THEN] The old workflow is updated
         Assert.AreEqual(WorkflowCode, WorkflowCode2, WorkflowCreatedErr);
@@ -263,7 +263,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
 
         // [GIVEN] A Sales Invoice Approval Workflow is created from wizard with a given due date and other default values
         WorkflowCode :=
-          ApprovalWorkflowSetupMgt.CreateSalesDocumentApprovalWorkflow(SalesHeader."Document Type"::Invoice);
+          ApprovalWorkflowSetupMgt.CreateSalesDocumentApprovalWorkflow(SalesHeader."Document Type"::Invoice.AsInteger());
         Workflow.Get(WorkflowCode);
         Workflow.Validate(Enabled, false);
         Workflow.Modify();
@@ -273,7 +273,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
 
         // [WHEN] The wizard is used to update the workflow with a new due date
         Evaluate(DateFormula, '<1W>');
-        WorkflowCode2 := ApprovalWorkflowSetupMgt.CreateSalesDocumentApprovalWorkflow(SalesHeader."Document Type"::Invoice);
+        WorkflowCode2 := ApprovalWorkflowSetupMgt.CreateSalesDocumentApprovalWorkflow(SalesHeader."Document Type"::Invoice.AsInteger());
 
         // [THEN] The workflow not created through the wizard is disabled
         Workflow.Get(Workflow.Code);
@@ -307,7 +307,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
 
         // [GIVEN] A request for a Sales invoice approval workflow to be created is made
         WorkflowCode :=
-          ApprovalWorkflowSetupMgt.CreatePurchaseDocumentApprovalWorkflow(PurchaseHeader."Document Type"::Invoice);
+          ApprovalWorkflowSetupMgt.CreatePurchaseDocumentApprovalWorkflow(PurchaseHeader."Document Type"::Invoice.AsInteger());
         Workflow.Get(WorkflowCode);
         Workflow.Validate(Enabled, false);
         Workflow.Modify();
@@ -317,7 +317,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
         Evaluate(DateFormula, '<1W>');
         // [WHEN] A request to update the Sales invoice approval workflow is made
         WorkflowCode2 :=
-          ApprovalWorkflowSetupMgt.CreatePurchaseDocumentApprovalWorkflow(PurchaseHeader."Document Type"::Invoice);
+          ApprovalWorkflowSetupMgt.CreatePurchaseDocumentApprovalWorkflow(PurchaseHeader."Document Type"::Invoice.AsInteger());
 
         // [THEN] The other workflow is disabled
         Workflow.Get(Workflow.Code);

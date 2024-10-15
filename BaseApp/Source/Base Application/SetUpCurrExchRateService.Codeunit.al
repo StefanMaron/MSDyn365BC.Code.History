@@ -29,7 +29,7 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
         ECB_EXCH_RATESTxt: Label 'ECB-EXCHANGE-RATES', Locked = true;
         CNB_EXCH_RATESTxt: Label 'CNB-EXCHANGE-RATES', Comment = 'Czech National Bank Currency Exchange Rate Code', Locked = true;
         ECB_EXCH_RATESDescTxt: Label 'European Central Bank Currency Exchange Rates Setup';
-        CNB_EXCH_RATESDescTxt: Label 'Czech National Bank Currency Exchange Rates';
+        CNB_EXCH_RATESDescTxt: Label 'Czech National Bank Currency Exchange Rates Setup';
         ECB_URLTxt: Label 'http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml', Locked = true;
         CNB_URLTxt: Label 'http://www.cnb.cz/cs/financni_trhy/devizovy_trh/kurzy_devizoveho_trhu/denni_kurz.xml', Locked = true;
         ECBServiceProviderTxt: Label 'European Central Bank';
@@ -60,6 +60,7 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
         Commit();
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure SetupCNBDataExchange(var CurrExchRateUpdateSetup: Record "Curr. Exch. Rate Update Setup"; PathToCNBService: Text)
     var
@@ -108,6 +109,7 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
         exit(ECB_URLTxt);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure GetCNB_URI(): Text
     var
@@ -185,6 +187,7 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
           DummyDataExchColumnDef."Data Type"::Decimal, 1, '', '', '1');
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     local procedure MapCNBDataExch(var DataExchLineDef: Record "Data Exch. Line Def")
     var
         DataExchMapping: Record "Data Exch. Mapping";
@@ -213,6 +216,7 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
         exit('/gesmes:Envelope/Cube/Cube/Cube');
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     local procedure GetCNBRepeaterPath(): Text[250]
     begin
         exit('/kurzy/tabulka/radek'); // NAVCZ
@@ -238,21 +242,25 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
         exit('time');
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     local procedure GetCNBCurrencyCodeXMLElement(): Text[250]
     begin
         exit('kod'); // NAVCZ
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     local procedure GetCNBExchRateXMLElement(): Text[250]
     begin
         exit('mnozstvi'); // NAVCZ
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     local procedure GetCNBStartingDateXMLElement(): Text[250]
     begin
         exit('datum'); // NAVCZ
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     local procedure GetCNBRelationalExchRateXMLElement(): Text[250]
     begin
         exit('kurz'); // NAVCZ

@@ -370,7 +370,7 @@ table 31001 "Sales Advance Letter Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()

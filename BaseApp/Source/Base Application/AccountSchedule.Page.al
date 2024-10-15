@@ -45,6 +45,9 @@ page 104 "Account Schedule"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the row number for the correction code.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -186,6 +189,10 @@ page 104 "Account Schedule"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies when the value can be calculated in the Account Schedule - always, never, when Positive, when Negative';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field(Bold; Bold)
                 {
@@ -218,6 +225,9 @@ page 104 "Account Schedule"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the asset or liabilities type for the account schedule line.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
                 }
             }
         }
@@ -401,6 +411,10 @@ page 104 "Account Schedule"
                     Caption = 'File Mapping';
                     Image = ExportToExcel;
                     ToolTip = 'File Mapping allows to set up export to Excel. You can see three dots next to the field with Amount.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
 
                     trigger OnAction()
                     var
@@ -468,6 +482,10 @@ page 104 "Account Schedule"
                 Image = PrintReport;
                 RunObject = Report "Balance Sheet";
                 ToolTip = 'Open the report for balance sheet.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.0';
+                Visible = false;
             }
             action("Income Statement")
             {
@@ -476,6 +494,10 @@ page 104 "Account Schedule"
                 Image = PrintReport;
                 RunObject = Report "Income Statement";
                 ToolTip = 'Allows the print of account schedule.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.0';
+                Visible = false;
             }
         }
     }

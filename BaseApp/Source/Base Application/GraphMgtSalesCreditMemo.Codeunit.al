@@ -59,6 +59,7 @@ codeunit 5507 "Graph Mgt - Sales Credit Memo"
               "Bill-to City", "Bill-to County", "Bill-to Country/Region Code", "Bill-to Post Code", JSON);
     end;
 
+    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
     procedure UpdateIntegrationRecordIds(OnlyRecordsWithoutID: Boolean)
     var
         DummySalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";

@@ -2,6 +2,9 @@ xmlport 11762 "VAT Statement 2011"
 {
     Caption = 'VAT Statement 2011';
     Encoding = UTF8;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     schema
     {

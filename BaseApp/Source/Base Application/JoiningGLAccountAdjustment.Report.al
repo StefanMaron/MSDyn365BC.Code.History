@@ -3,8 +3,11 @@ report 11774 "Joining G/L Account Adjustment"
     DefaultLayout = RDLC;
     RDLCLayout = './JoiningGLAccountAdjustment.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'Joining G/L Account Adjustment';
+    Caption = 'Joining G/L Account Adjustment (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

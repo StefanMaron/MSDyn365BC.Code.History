@@ -2,6 +2,9 @@ table 11780 "VAT Period"
 {
     Caption = 'VAT Period';
     LookupPageID = "VAT Periods";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     fields
     {

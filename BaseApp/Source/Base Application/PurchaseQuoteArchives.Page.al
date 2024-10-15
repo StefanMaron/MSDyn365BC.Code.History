@@ -260,7 +260,7 @@ page 9346 "Purchase Quote Archives"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Co&mments")

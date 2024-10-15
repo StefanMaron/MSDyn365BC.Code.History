@@ -135,7 +135,7 @@ table 5050 Contact
         }
         field(38; Comment; Boolean)
         {
-            CalcFormula = Exist ("Rlshp. Mgt. Comment Line" WHERE("Table Name" = CONST(Contact),
+            CalcFormula = Exist("Rlshp. Mgt. Comment Line" WHERE("Table Name" = CONST(Contact),
                                                                   "No." = FIELD("No."),
                                                                   "Sub No." = CONST(0)));
             Caption = 'Comment';
@@ -268,11 +268,9 @@ table 5050 Contact
                 Validate("Privacy Blocked", true);
             end;
         }
-        field(5050; Type; Option)
+        field(5050; Type; Enum "Contact Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Company,Person';
-            OptionMembers = Company,Person;
 
             trigger OnValidate()
             begin
@@ -300,7 +298,7 @@ table 5050 Contact
                 if "Company No." = xRec."Company No." then
                     exit;
 
-                TestField(Type, Type::Person);
+                CheckContactType(Type::Person);
 
                 SegLine.SetRange("Contact No.", "No.");
                 if not SegLine.IsEmpty then
@@ -401,7 +399,7 @@ table 5050 Contact
         }
         field(5066; "Next Task Date"; Date)
         {
-            CalcFormula = Min ("To-do".Date WHERE("Contact Company No." = FIELD("Company No."),
+            CalcFormula = Min("To-do".Date WHERE("Contact Company No." = FIELD("Company No."),
                                                   "Contact No." = FIELD(FILTER("Lookup Contact No.")),
                                                   Closed = CONST(false),
                                                   "System To-do Type" = CONST("Contact Attendee")));
@@ -411,7 +409,7 @@ table 5050 Contact
         }
         field(5067; "Last Date Attempted"; Date)
         {
-            CalcFormula = Max ("Interaction Log Entry".Date WHERE("Contact Company No." = FIELD("Company No."),
+            CalcFormula = Max("Interaction Log Entry".Date WHERE("Contact Company No." = FIELD("Company No."),
                                                                   "Contact No." = FIELD(FILTER("Lookup Contact No.")),
                                                                   "Initiated By" = CONST(Us),
                                                                   Postponed = CONST(false)));
@@ -421,7 +419,7 @@ table 5050 Contact
         }
         field(5068; "Date of Last Interaction"; Date)
         {
-            CalcFormula = Max ("Interaction Log Entry".Date WHERE("Contact Company No." = FIELD("Company No."),
+            CalcFormula = Max("Interaction Log Entry".Date WHERE("Contact Company No." = FIELD("Company No."),
                                                                   "Contact No." = FIELD(FILTER("Lookup Contact No.")),
                                                                   "Attempt Failed" = CONST(false),
                                                                   Postponed = CONST(false)));
@@ -431,28 +429,28 @@ table 5050 Contact
         }
         field(5069; "No. of Job Responsibilities"; Integer)
         {
-            CalcFormula = Count ("Contact Job Responsibility" WHERE("Contact No." = FIELD("No.")));
+            CalcFormula = Count("Contact Job Responsibility" WHERE("Contact No." = FIELD("No.")));
             Caption = 'No. of Job Responsibilities';
             Editable = false;
             FieldClass = FlowField;
         }
         field(5070; "No. of Industry Groups"; Integer)
         {
-            CalcFormula = Count ("Contact Industry Group" WHERE("Contact No." = FIELD("Company No.")));
+            CalcFormula = Count("Contact Industry Group" WHERE("Contact No." = FIELD("Company No.")));
             Caption = 'No. of Industry Groups';
             Editable = false;
             FieldClass = FlowField;
         }
         field(5071; "No. of Business Relations"; Integer)
         {
-            CalcFormula = Count ("Contact Business Relation" WHERE("Contact No." = FIELD("Company No.")));
+            CalcFormula = Count("Contact Business Relation" WHERE("Contact No." = FIELD("Company No.")));
             Caption = 'No. of Business Relations';
             Editable = false;
             FieldClass = FlowField;
         }
         field(5072; "No. of Mailing Groups"; Integer)
         {
-            CalcFormula = Count ("Contact Mailing Group" WHERE("Contact No." = FIELD("No.")));
+            CalcFormula = Count("Contact Mailing Group" WHERE("Contact No." = FIELD("No.")));
             Caption = 'No. of Mailing Groups';
             Editable = false;
             FieldClass = FlowField;
@@ -463,7 +461,7 @@ table 5050 Contact
         }
         field(5074; "No. of Interactions"; Integer)
         {
-            CalcFormula = Count ("Interaction Log Entry" WHERE("Contact Company No." = FIELD(FILTER("Company No.")),
+            CalcFormula = Count("Interaction Log Entry" WHERE("Contact Company No." = FIELD(FILTER("Company No.")),
                                                                Canceled = CONST(false),
                                                                "Contact No." = FIELD(FILTER("Lookup Contact No.")),
                                                                Date = FIELD("Date Filter"),
@@ -475,7 +473,7 @@ table 5050 Contact
         field(5076; "Cost (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Interaction Log Entry"."Cost (LCY)" WHERE("Contact Company No." = FIELD("Company No."),
+            CalcFormula = Sum("Interaction Log Entry"."Cost (LCY)" WHERE("Contact Company No." = FIELD("Company No."),
                                                                           Canceled = CONST(false),
                                                                           "Contact No." = FIELD(FILTER("Lookup Contact No.")),
                                                                           Date = FIELD("Date Filter"),
@@ -486,7 +484,7 @@ table 5050 Contact
         }
         field(5077; "Duration (Min.)"; Decimal)
         {
-            CalcFormula = Sum ("Interaction Log Entry"."Duration (Min.)" WHERE("Contact Company No." = FIELD("Company No."),
+            CalcFormula = Sum("Interaction Log Entry"."Duration (Min.)" WHERE("Contact Company No." = FIELD("Company No."),
                                                                                Canceled = CONST(false),
                                                                                "Contact No." = FIELD(FILTER("Lookup Contact No.")),
                                                                                Date = FIELD("Date Filter"),
@@ -498,7 +496,7 @@ table 5050 Contact
         }
         field(5078; "No. of Opportunities"; Integer)
         {
-            CalcFormula = Count ("Opportunity Entry" WHERE(Active = CONST(true),
+            CalcFormula = Count("Opportunity Entry" WHERE(Active = CONST(true),
                                                            "Contact Company No." = FIELD("Company No."),
                                                            "Estimated Close Date" = FIELD("Date Filter"),
                                                            "Contact No." = FIELD(FILTER("Lookup Contact No.")),
@@ -510,7 +508,7 @@ table 5050 Contact
         field(5079; "Estimated Value (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Opportunity Entry"."Estimated Value (LCY)" WHERE(Active = CONST(true),
+            CalcFormula = Sum("Opportunity Entry"."Estimated Value (LCY)" WHERE(Active = CONST(true),
                                                                                  "Contact Company No." = FIELD("Company No."),
                                                                                  "Estimated Close Date" = FIELD("Date Filter"),
                                                                                  "Contact No." = FIELD(FILTER("Lookup Contact No.")),
@@ -522,7 +520,7 @@ table 5050 Contact
         field(5080; "Calcd. Current Value (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Opportunity Entry"."Calcd. Current Value (LCY)" WHERE(Active = CONST(true),
+            CalcFormula = Sum("Opportunity Entry"."Calcd. Current Value (LCY)" WHERE(Active = CONST(true),
                                                                                       "Contact Company No." = FIELD("Company No."),
                                                                                       "Estimated Close Date" = FIELD("Date Filter"),
                                                                                       "Contact No." = FIELD(FILTER("Lookup Contact No.")),
@@ -533,7 +531,7 @@ table 5050 Contact
         }
         field(5082; "Opportunity Entry Exists"; Boolean)
         {
-            CalcFormula = Exist ("Opportunity Entry" WHERE(Active = CONST(true),
+            CalcFormula = Exist("Opportunity Entry" WHERE(Active = CONST(true),
                                                            "Contact Company No." = FIELD("Company No."),
                                                            "Contact No." = FIELD(FILTER("Lookup Contact No.")),
                                                            "Sales Cycle Code" = FIELD("Sales Cycle Filter"),
@@ -554,7 +552,7 @@ table 5050 Contact
         }
         field(5083; "Task Entry Exists"; Boolean)
         {
-            CalcFormula = Exist ("To-do" WHERE("Contact Company No." = FIELD("Company No."),
+            CalcFormula = Exist("To-do" WHERE("Contact Company No." = FIELD("Company No."),
                                                "Contact No." = FIELD(FILTER("Lookup Contact No.")),
                                                "Team Code" = FIELD("Team Filter"),
                                                "Salesperson Code" = FIELD("Salesperson Filter"),
@@ -665,11 +663,9 @@ table 5050 Contact
             FieldClass = FlowFilter;
             TableRelation = "Close Opportunity Code";
         }
-        field(5100; "Correspondence Type"; Option)
+        field(5100; "Correspondence Type"; Enum "Correspondence Type")
         {
             Caption = 'Correspondence Type';
-            OptionCaption = ' ,Hard Copy,Email,Fax';
-            OptionMembers = " ","Hard Copy",Email,Fax;
         }
         field(5101; "Salutation Code"; Code[10])
         {
@@ -710,6 +706,9 @@ table 5050 Contact
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             begin
@@ -720,6 +719,9 @@ table 5050 Contact
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             var
@@ -784,6 +786,9 @@ table 5050 Contact
         {
         }
         key(Key12; "Phone No.")
+        {
+        }
+        key(Key13; SystemModifiedAt)
         {
         }
     }
@@ -1028,13 +1033,12 @@ table 5050 Contact
         Text021: Label 'You have to set up formal and informal salutation formulas in %1  language for the %2 contact.';
         Text022: Label 'The creation of the customer has been aborted.';
         Text033: Label 'Before you can use Online Map, you must fill in the Online Map Setup window.\See Setting Up Online Map in Help.';
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         RegCountry: Record "Registration Country/Region";
         UseVendTemplateQst: Label 'Do you want to create contact as a vendor using a vendor template?';
         CreationAbortedErr: Label 'The Creation of the Vendor has been aborted.';
         SelectContactErr: Label 'You must select an existing contact.';
         AlreadyExistErr: Label '%1 %2 already has a %3 with %4 %5.', Comment = '%1=Contact table caption;%2=Contact number;%3=Contact Business Relation table caption;%4=Contact Business Relation Link to Table value;%5=Contact Business Relation number';
-        HideValidationDialog: Boolean;
         PrivacyBlockedPostErr: Label 'You cannot post this type of document because contact %1 is blocked due to privacy.', Comment = '%1=contact no.';
         PrivacyBlockedCreateErr: Label 'You cannot create this type of document because contact %1 is blocked due to privacy.', Comment = '%1=contact no.';
         PrivacyBlockedGenericErr: Label 'You cannot use contact %1 %2 because they are marked as blocked due to privacy.', Comment = '%1=contact no.;%2=contact name';
@@ -1043,6 +1047,9 @@ table 5050 Contact
         MultipleCustomerTemplatesConfirmQst: Label 'Quotes with customer templates different from %1 were assigned to customer %2. Do you want to review the quotes now?', Comment = '%1=Customer Template Code,%2=Customer No.';
         DifferentCustomerTemplateMsg: Label 'Sales quote %1 with original customer template %2 was assigned to the customer created from template %3.', Comment = '%1=Document No.,%2=Original Customer Template Code,%3=Customer Template Code';
         NoOriginalCustomerTemplateMsg: Label 'Sales quote %1 without an original customer template was assigned to the customer created from template %2.', Comment = '%1=Document No.,%2=Customer Template Code';
+
+    protected var
+        HideValidationDialog: Boolean;
 
     procedure DoModify(ContactBeforeModify: Record Contact)
     var
@@ -1624,7 +1631,7 @@ table 5050 Contact
         TempSegmentLine: Record "Segment Line" temporary;
     begin
         CheckIfPrivacyBlockedGeneric;
-        TempSegmentLine.CreateInteractionFromContact(Rec);
+        TempSegmentLine.CreateSegLineInteractionFromContact(Rec);
     end;
 
     procedure GetDefaultPhoneNo(): Text[30]
@@ -1647,6 +1654,7 @@ table 5050 Contact
         Cust: Record Customer;
         Vend: Record Vendor;
         BankAcc: Record "Bank Account";
+        Employee: Record Employee;
         FormSelected: Boolean;
         IsHandled: Boolean;
     begin
@@ -1690,6 +1698,11 @@ table 5050 Contact
                     begin
                         BankAcc.Get(ContBusRel."No.");
                         PAGE.Run(PAGE::"Bank Account Card", BankAcc);
+                    end;
+                ContBusRel."Link to Table"::Employee:
+                    begin
+                        Employee.Get(ContBusRel."No.");
+                        Page.Run(Page::"Employee Card", Employee);
                     end;
                 else
                     OnShowCustVendBankCaseElse(ContBusRel);
@@ -1838,6 +1851,16 @@ table 5050 Contact
         OnBeforeCheckCompanyNo(Rec, IsHandled);
         if not IsHandled then
             TestField("Company No.");
+    end;
+
+    procedure CheckContactType(ContactType: Enum "Contact Type")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckContactType(Rec, ContactType, IsHandled);
+        if not IsHandled then
+            TestField(Type, ContactType);
     end;
 
     procedure FindCustomerTemplate(): Code[10]
@@ -2073,7 +2096,7 @@ table 5050 Contact
         end;
     end;
 
-    procedure GetSalutation(SalutationType: Option Formal,Informal; LanguageCode: Code[10]) Salutation: Text[260]
+    procedure GetSalutation(SalutationType: Enum "Salutation Formula Salutation Type"; LanguageCode: Code[10]) Salutation: Text[260]
     var
         SalutationFormula: Record "Salutation Formula";
         NamePart: array[5] of Text[100];
@@ -2185,7 +2208,7 @@ table 5050 Contact
             "Country/Region Code" := NewCompanyContact."Country/Region Code";
         if RMSetup."Inherit Language Code" then
             "Language Code" := NewCompanyContact."Language Code";
-        if RMSetup."Inherit Address Details" and StaleAddress then begin
+        if RMSetup."Inherit Address Details" and StaleAddress() then begin
             Address := NewCompanyContact.Address;
             "Address 2" := NewCompanyContact."Address 2";
             "Post Code" := NewCompanyContact."Post Code";
@@ -2209,7 +2232,7 @@ table 5050 Contact
         OnAfterInheritCompanyToPersonData(Rec, xRec, NewCompanyContact);
     end;
 
-    local procedure StaleAddress() Stale: Boolean
+    protected procedure StaleAddress() Stale: Boolean
     var
         OldCompanyContact: Record Contact;
         DummyContact: Record Contact;
@@ -2324,7 +2347,7 @@ table 5050 Contact
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of Vendor templates will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of Vendor templates will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     procedure ChooseVendorTemplate(): Code[10]
     var
         VendTemplate: Record "Vendor Template";
@@ -2453,14 +2476,14 @@ table 5050 Contact
         end;
     end;
 
-    procedure CheckForExistingRelationships(LinkToTable: Option " ",Customer,Vendor,"Bank Account")
+    procedure CheckForExistingRelationships(LinkToTable: Enum "Contact Business Relation Link To Table")
     var
         Contact: Record Contact;
         ContBusRel: Record "Contact Business Relation";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckForExistingRelationships(Rec, LinkToTable, IsHandled);
+        OnBeforeCheckForExistingRelationships(Rec, LinkToTable.AsInteger(), IsHandled);
         if IsHandled then
             exit;
 
@@ -2603,66 +2626,6 @@ table 5050 Contact
                     Error(Salesperson.GetPrivacyBlockedGenericText(Salesperson, true))
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterGetSalutation(var SalutationType: Option Formal,Informal; var LanguageCode: Code[10]; var NamePart: array[5] of Text[100]; var Contact: Record Contact; var SalutationFormula: Record "Salutation Formula")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterInheritCompanyToPersonData(var Contact: Record Contact; xContact: Record Contact; NewCompanyContact: Record Contact)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateQuotesForContact(Contact: Record Contact; Customer: Record Customer)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterVendorInsert(var Vendor: Record Vendor; var Contact: Record Contact)
-    begin
-    end;
-
-    [IntegrationEvent(TRUE, false)]
-    local procedure OnBeforeVendorInsert(var Vend: Record Vendor; var Contact: Record Contact)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeChooseCustomerTemplate(var Contact: Record Contact; var CustTemplateCode: Code[10]; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(TRUE, false)]
-    local procedure OnBeforeCustomerInsert(var Cust: Record Customer; CustomerTemplate: Code[10]; var Contact: Record Contact)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindCustomerTemplate(var Contact: Record Contact; var CustTemplateCode: Code[10]; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeIsUpdateNeeded(Contact: Record Contact; xContact: Record Contact; var UpdateNeeded: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnCreateCustomerOnBeforeCustomerModify(var Customer: Record Customer; Contact: Record Contact)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnCreateCustomerOnTransferFieldsFromTemplate(var Customer: Record Customer; CustomerTemplate: Record "Customer Template")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnCreateVendorOnTransferFieldsFromTemplate(var Vendor: Record Vendor; VendorTemplate: Record "Vendor Template")
-    begin
-    end;
-
     local procedure SetDefaultSalesperson()
     var
         UserSetup: Record "User Setup";
@@ -2698,12 +2661,13 @@ table 5050 Contact
             ApplicableCountryCode := VATRegistrationNoFormat."Country/Region Code";
 
         if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then begin
-            VATRegistrationLogMgt.ValidateVATRegNoWithVIES(ResultRecordRef, Rec, "No.",
-              VATRegistrationLog."Account Type"::Contact, ApplicableCountryCode);
+            VATRegistrationLogMgt.ValidateVATRegNoWithVIES(
+                ResultRecordRef, Rec, "No.", VATRegistrationLog."Account Type"::Contact.AsInteger(), ApplicableCountryCode);
             ResultRecordRef.SetTable(Rec);
         end;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     local procedure RegistrationNoValidation()
     var
         RegistrationLog: Record "Registration Log";
@@ -2729,6 +2693,7 @@ table 5050 Contact
         VATRegistrationValidation;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     procedure VerifyAndUpdateFromARES()
     begin
         // NAVCZ
@@ -2885,13 +2850,113 @@ table 5050 Contact
             "Search E-Mail" := "E-Mail";
     end;
 
+    [Scope('OnPrem')]
+    procedure CreateEmployee()
+    var
+        Employee: Record Employee;
+        ContBusRel: Record "Contact Business Relation";
+        CustVendBankUpdate: Codeunit "CustVendBank-Update";
+        EmployeeTemplMgt: Codeunit "Employee Templ. Mgt.";
+    begin
+        CheckContactType(Type::Person);
+        CheckIfPrivacyBlockedGeneric();
+
+        Employee.Init();
+        Employee.Insert(true);
+
+        ContBusRel.CreateRelation("No.", Employee."No.", ContBusRel."Link to Table"::Employee);
+        CustVendBankUpdate.UpdateEmployee(Rec, ContBusRel);
+        Commit();
+        Employee.Get(Employee."No.");
+        EmployeeTemplMgt.ApplyContactEmployeeTemplate(Employee);
+
+        if not HideValidationDialog then
+            Message(RelatedRecordIsCreatedMsg, Employee.TableCaption);
+
+        OnAfterCreateEmployee(Employee, ContBusRel);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateEmployeeLink()
+    var
+        ContBusRel: Record "Contact Business Relation";
+        MarketingSetup: Record "Marketing Setup";
+    begin
+        CheckContactType(Type::Person);
+        CheckIfPrivacyBlockedGeneric();
+
+        MarketingSetup.Get();
+        MarketingSetup.TestField("Bus. Rel. Code for Employees");
+        CreateLink(Page::"Employee Link", MarketingSetup."Bus. Rel. Code for Employees", ContBusRel."Link to Table"::Employee);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetSalutation(var SalutationType: Enum "Salutation Formula Salutation Type"; var LanguageCode: Code[10]; var NamePart: array[5] of Text[100]; var Contact: Record Contact; var SalutationFormula: Record "Salutation Formula")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInheritCompanyToPersonData(var Contact: Record Contact; xContact: Record Contact; NewCompanyContact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateQuotesForContact(Contact: Record Contact; Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterVendorInsert(var Vendor: Record Vendor; var Contact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnBeforeVendorInsert(var Vend: Record Vendor; var Contact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeChooseCustomerTemplate(var Contact: Record Contact; var CustTemplateCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateLink(var Contact: Record Contact; var TempContBusRel: Record "Contact Business Relation"; var CreateForm: Integer; var BusRelCode: Code[10]; var Table: Enum "Contact Business Relation Link To Table")
     begin
     end;
 
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnBeforeCustomerInsert(var Cust: Record Customer; CustomerTemplate: Code[10]; var Contact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindCustomerTemplate(var Contact: Record Contact; var CustTemplateCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInheritCompanyToPersonData(var Contact: Record Contact; xContact: Record Contact; var NewCompanyContact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsUpdateNeeded(Contact: Record Contact; xContact: Record Contact; var UpdateNeeded: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateCustomerOnBeforeCustomerModify(var Customer: Record Customer; Contact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateCustomerOnTransferFieldsFromTemplate(var Customer: Record Customer; CustomerTemplate: Record "Customer Template")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateVendorOnTransferFieldsFromTemplate(var Vendor: Record Vendor; VendorTemplate: Record "Vendor Template")
     begin
     end;
 
@@ -3010,6 +3075,10 @@ table 5050 Contact
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckContactType(var Contact: Record Contact; ContactType: enum "Contact Type"; var IsHandled: Boolean)
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateCustomer(var Contact: Record Contact; var CustNo: Code[20]; var IsHandled: Boolean)
@@ -3027,7 +3096,7 @@ table 5050 Contact
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetSalutation(var Contact: Record Contact; var SalutationType: Option Formal,Informal; var LanguageCode: Code[10]; var IsHandled: Boolean; var Salutation: Text[260])
+    local procedure OnBeforeGetSalutation(var Contact: Record Contact; var SalutationType: Enum "Salutation Formula Salutation Type"; var LanguageCode: Code[10]; var IsHandled: Boolean; var Salutation: Text[260])
     begin
     end;
 
@@ -3121,6 +3190,10 @@ table 5050 Contact
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateEmployee(var Employee: Record Employee; var ContBusRel: Record "Contact Business Relation")
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnTypeChangeOnAfterCheckInteractionLog(var Contact: Record Contact; xContact: Record Contact)

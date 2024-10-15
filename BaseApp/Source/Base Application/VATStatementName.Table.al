@@ -27,24 +27,33 @@ table 257 "VAT Statement Name"
         }
         field(11760; Comments; Integer)
         {
-            CalcFormula = Count ("VAT Statement Comment Line" WHERE("VAT Statement Template Name" = FIELD("Statement Template Name"),
+            CalcFormula = Count("VAT Statement Comment Line" WHERE("VAT Statement Template Name" = FIELD("Statement Template Name"),
                                                                     "VAT Statement Name" = FIELD(Name)));
             Caption = 'Comments';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11761; Attachments; Integer)
         {
-            CalcFormula = Count ("VAT Statement Attachment" WHERE("VAT Statement Template Name" = FIELD("Statement Template Name"),
+            CalcFormula = Count("VAT Statement Attachment" WHERE("VAT Statement Template Name" = FIELD("Statement Template Name"),
                                                                   "VAT Statement Name" = FIELD(Name)));
             Caption = 'Attachments';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11762; "Date Row Filter"; Date)
         {
             Caption = 'Date Row Filter';
             FieldClass = FlowFilter;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
     }
 

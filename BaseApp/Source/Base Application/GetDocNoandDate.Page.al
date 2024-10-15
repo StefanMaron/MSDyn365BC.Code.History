@@ -2,6 +2,9 @@ page 31107 "Get Doc.No and Date"
 {
     Caption = 'Close Line with Document No.';
     PageType = StandardDialog;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

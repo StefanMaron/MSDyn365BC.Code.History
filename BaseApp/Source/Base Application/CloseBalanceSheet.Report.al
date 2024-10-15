@@ -1,10 +1,13 @@
 report 11784 "Close Balance Sheet"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Close Balance Sheet';
+    Caption = 'Close Balance Sheet (Obsolete)';
     Permissions = TableData "G/L Entry" = m;
     ProcessingOnly = true;
     UsageCategory = Tasks;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

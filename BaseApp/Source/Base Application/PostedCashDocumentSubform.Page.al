@@ -230,7 +230,7 @@ page 11736 "Posted Cash Document Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }

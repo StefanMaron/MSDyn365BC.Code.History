@@ -1298,7 +1298,7 @@ codeunit 134986 "ERM Financial Reports II"
         SalesReceivablesSetup.Modify();
 
         // [GIVEN] Issued Reminder
-        CreateIssuedReminderWithInterestAmount(IssuedReminderHeader, 1); // VAT Calculation type is not matter
+        CreateIssuedReminderWithInterestAmount(IssuedReminderHeader, "Tax Calculation Type"::"Normal VAT"); // VAT Calculation type is not matter
         Commit();
 
         // [WHEN] Run report Reminder
@@ -2010,7 +2010,7 @@ codeunit 134986 "ERM Financial Reports II"
         exit(Currency.Code);
     end;
 
-    local procedure CreateAndPostSalesDocument(VATCalculationType: Option): Code[20]
+    local procedure CreateAndPostSalesDocument(VATCalculationType: Enum "Tax Calculation Type"): Code[20]
     var
         SalesLine: Record "Sales Line";
         SalesHeader: Record "Sales Header";
@@ -2103,7 +2103,7 @@ codeunit 134986 "ERM Financial Reports II"
             CustomerNo, CalcDate('<1D>', CalcDate(ReminderLevel."Grace Period", WorkDate))));
     end;
 
-    local procedure CreateReminderWithInterestAmount(var ReminderHeader: Record "Reminder Header"; VATCalculationType: Option)
+    local procedure CreateReminderWithInterestAmount(var ReminderHeader: Record "Reminder Header"; VATCalculationType: Enum "Tax Calculation Type")
     var
         SalesInvHeader: Record "Sales Invoice Header";
         ReminderNo: Code[20];
@@ -2134,7 +2134,7 @@ codeunit 134986 "ERM Financial Reports II"
         end;
     end;
 
-    local procedure CreateIssuedReminderWithInterestAmount(var IssuedReminderHeader: Record "Issued Reminder Header"; VATCalculationType: Option)
+    local procedure CreateIssuedReminderWithInterestAmount(var IssuedReminderHeader: Record "Issued Reminder Header"; VATCalculationType: Enum "Tax Calculation Type")
     var
         ReminderHeader: Record "Reminder Header";
         IssuedReminderNo: Code[20];
@@ -2226,7 +2226,7 @@ codeunit 134986 "ERM Financial Reports II"
           GenJournalLine."Bal. Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo, LibraryRandom.RandInt(1000));
     end;
 
-    local procedure CreateGeneralJournalWithThreeLines(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNoA: Code[20]; AccountNoB: Code[20]; GLAccountNo: Code[20]; AmountSign: Integer)
+    local procedure CreateGeneralJournalWithThreeLines(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNoA: Code[20]; AccountNoB: Code[20]; GLAccountNo: Code[20]; AmountSign: Integer)
     var
         LineAmount: Decimal;
     begin
@@ -2294,7 +2294,7 @@ codeunit 134986 "ERM Financial Reports II"
         exit(IssuedFinChargeMemoLine.Amount);
     end;
 
-    local procedure FindIssuedReminderLine(var IssuedReminderLine: Record "Issued Reminder Line"; ReminderNo: Code[20]; ReminderType: Option)
+    local procedure FindIssuedReminderLine(var IssuedReminderLine: Record "Issued Reminder Line"; ReminderNo: Code[20]; ReminderType: Enum "Reminder Line Type")
     begin
         IssuedReminderLine.SetRange("Reminder No.", ReminderNo);
         IssuedReminderLine.SetRange(Type, ReminderType);
@@ -2320,7 +2320,7 @@ codeunit 134986 "ERM Financial Reports II"
         ReminderLevel.FindFirst;
     end;
 
-    local procedure SumAmountOnIssuedReminderFeeLineWithVAT(ReminderNo: Code[20]; ReminderType: Option; VAT: Decimal; var TotalAmount: Decimal; var TotalVATAmount: Decimal)
+    local procedure SumAmountOnIssuedReminderFeeLineWithVAT(ReminderNo: Code[20]; ReminderType: Enum "Reminder Source Type"; VAT: Decimal; var TotalAmount: Decimal; var TotalVATAmount: Decimal)
     var
         IssuedReminderLine: Record "Issued Reminder Line";
     begin
@@ -2452,7 +2452,7 @@ codeunit 134986 "ERM Financial Reports II"
         IssuedReminderHeader.Insert();
     end;
 
-    local procedure MockIssuedReminderLine(var IssuedReminderLine: Record "Issued Reminder Line"; IssuedReminderHeader: Record "Issued Reminder Header"; IssuedReminderLineType: Option; RemainingAmount: Decimal; LineAmount: Decimal)
+    local procedure MockIssuedReminderLine(var IssuedReminderLine: Record "Issued Reminder Line"; IssuedReminderHeader: Record "Issued Reminder Header"; IssuedReminderLineType: Enum "Reminder Line Type"; RemainingAmount: Decimal; LineAmount: Decimal)
     begin
         IssuedReminderLine.Init();
         IssuedReminderLine."Reminder No." := IssuedReminderHeader."No.";
@@ -2911,7 +2911,7 @@ codeunit 134986 "ERM Financial Reports II"
         until IssuedFinChargeMemoLine.Next = 0;
     end;
 
-    local procedure VerifyInteractionLogEntry(DocumentType: Option; DocumentNo: Code[20])
+    local procedure VerifyInteractionLogEntry(DocumentType: Enum "Interaction Log Entry Document Type"; DocumentNo: Code[20])
     var
         InteractionLogEntry: Record "Interaction Log Entry";
     begin
@@ -3024,7 +3024,7 @@ codeunit 134986 "ERM Financial Reports II"
         LibraryReportDataset.AssertCurrentRowValueEquals('RemAmt_IssuedReminderLine', IssuedReminderLine."Remaining Amount");
     end;
 
-    local procedure VerifyInterestAmountOnReminderTestReport(VATCalculationType: Option)
+    local procedure VerifyInterestAmountOnReminderTestReport(VATCalculationType: Enum "Tax Calculation Type")
     var
         ReminderHeader: Record "Reminder Header";
     begin
@@ -3044,7 +3044,7 @@ codeunit 134986 "ERM Financial Reports II"
         VerifyInterestOnReminderReport(ReminderHeader."Interest Amount", true); // NAVCZ
     end;
 
-    local procedure VerifyInterestAmountOnReminderReport(VATCalculationType: Option)
+    local procedure VerifyInterestAmountOnReminderReport(VATCalculationType: Enum "Tax Calculation Type")
     var
         IssuedReminderHeader: Record "Issued Reminder Header";
     begin

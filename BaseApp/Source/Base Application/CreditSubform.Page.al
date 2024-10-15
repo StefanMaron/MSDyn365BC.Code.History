@@ -200,7 +200,7 @@ page 31051 "Credit Subform"
     procedure ShowDim()
     begin
         CurrPage.Activate(true);
-        ShowDimensions;
+        ShowDimensions();
     end;
 }
 

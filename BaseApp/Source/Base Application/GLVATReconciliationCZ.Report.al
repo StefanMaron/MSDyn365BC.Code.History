@@ -3,8 +3,11 @@ report 11789 "G/L VAT Reconciliation CZ"
     DefaultLayout = RDLC;
     RDLCLayout = './GLVATReconciliationCZ.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'G/L VAT Reconciliation';
+    Caption = 'G/L VAT Reconciliation (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

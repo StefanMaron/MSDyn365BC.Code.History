@@ -61,6 +61,12 @@ page 51 "Purchase Invoice"
 
                         CurrPage.Update;
                     end;
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    begin
+                        if LookupBuyfromVendorName() then
+                            CurrPage.Update();
+                    end;
                 }
                 group("Buy-from")
                 {
@@ -130,6 +136,33 @@ page 51 "Purchase Invoice"
                         Importance = Additional;
                         ToolTip = 'Specifies the number of your contact at the vendor.';
                     }
+                    field(BuyFromContactPhoneNo; BuyFromContact."Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the vendor contact person.';
+                    }
+                    field(BuyFromContactMobilePhoneNo; BuyFromContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Mobile Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the vendor contact person.';
+                    }
+                    field(BuyFromContactEmail; BuyFromContact."E-Mail")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Email';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the vendor contact person.';
+                    }
                 }
                 field("Buy-from Contact"; "Buy-from Contact")
                 {
@@ -174,11 +207,19 @@ page 51 "Purchase Invoice"
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the VAT date. This date must be shown on the VAT statement.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Original Document VAT Date"; "Original Document VAT Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT date of the original document.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Due Date"; "Due Date")
                 {
@@ -323,11 +364,19 @@ page 51 "Purchase Invoice"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date of the last check of uncertainty.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
                 }
                 field("VAT Uncertainty Payer"; "VAT Uncertainty Payer")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the vendor is uncertainty payer.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
                 }
                 field("Payment Terms Code"; "Payment Terms Code")
                 {
@@ -654,6 +703,33 @@ page 51 "Purchase Invoice"
                             Importance = Additional;
                             ToolTip = 'Specifies the number of the contact who sends the invoice.';
                         }
+                        field(PayToContactPhoneNo; PayToContact."Phone No.")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Phone No.';
+                            Editable = false;
+                            Importance = Additional;
+                            ExtendedDatatype = PhoneNo;
+                            ToolTip = 'Specifies the telephone number of the vendor contact person.';
+                        }
+                        field(PayToContactMobilePhoneNo; PayToContact."Mobile Phone No.")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Mobile Phone No.';
+                            Editable = false;
+                            Importance = Additional;
+                            ExtendedDatatype = PhoneNo;
+                            ToolTip = 'Specifies the mobile telephone number of the vendor contact person.';
+                        }
+                        field(PayToContactEmail; PayToContact."E-Mail")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Email';
+                            Editable = false;
+                            Importance = Additional;
+                            ExtendedDatatype = Email;
+                            ToolTip = 'Specifies the email address of the vendor contact person.';
+                        }
                         field("Pay-to Contact"; "Pay-to Contact")
                         {
                             ApplicationArea = Basic, Suite;
@@ -725,11 +801,19 @@ page 51 "Purchase Invoice"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the document is part of a three-party trade.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies when the sales haeder will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
+                    ToolTip = 'Specifies when the purchase header will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Intrastat Exclude"; "Intrastat Exclude")
                 {
@@ -745,11 +829,19 @@ page 51 "Purchase Invoice"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the registration number of vendor.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Tax Registration No."; "Tax Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the secondary VAT registration number for the vendor.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Industry Code"; "Industry Code")
                 {
@@ -785,6 +877,10 @@ page 51 "Purchase Invoice"
                     Caption = 'VAT Currency Code';
                     Editable = false;
                     ToolTip = 'Specifies vat currency code of purchase invoice';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
 
                     trigger OnAssistEdit()
                     begin
@@ -863,11 +959,19 @@ page 51 "Purchase Invoice"
                     Caption = 'Public Bank Account';
                     Editable = false;
                     ToolTip = 'Specifies if the vendor''s bank account is public.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
                 }
                 field("Third Party Bank Account"; "Third Party Bank Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the account is third party bank account.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
                 }
             }
         }
@@ -1439,7 +1543,7 @@ page 51 "Purchase Invoice"
                     var
                         WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Purchase Header", "Document Type", "No.");
+                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
                     end;
                 }
             }
@@ -1521,7 +1625,7 @@ page 51 "Purchase Invoice"
                     Image = Flow;
                     Promoted = true;
                     PromotedCategory = Category8;
-                    ToolTip = 'Create a new Flow from a list of relevant Flow templates.';
+                    ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
                     Visible = IsSaaS;
 
                     trigger OnAction()
@@ -1542,7 +1646,7 @@ page 51 "Purchase Invoice"
                     Promoted = true;
                     PromotedCategory = Category8;
                     RunObject = Page "Flow Selector";
-                    ToolTip = 'View and configure Flows that you created.';
+                    ToolTip = 'View and configure Power Automate flows that you created.';
                 }
             }
             group("P&osting")
@@ -1563,7 +1667,7 @@ page 51 "Purchase Invoice"
                     trigger OnAction()
                     begin
                         VerifyTotal;
-                        PostDocument(CODEUNIT::"Purch.-Post (Yes/No)", NavigateAfterPost::"Posted Document");
+                        PostDocument(CODEUNIT::"Purch.-Post (Yes/No)", "Navigate After Posting"::"Posted Document");
                     end;
                 }
                 action(Preview)
@@ -1610,7 +1714,7 @@ page 51 "Purchase Invoice"
                     trigger OnAction()
                     begin
                         VerifyTotal;
-                        PostDocument(CODEUNIT::"Purch.-Post + Print", NavigateAfterPost::"Do Nothing");
+                        PostDocument(CODEUNIT::"Purch.-Post + Print", "Navigate After Posting"::"Do Nothing");
                     end;
                 }
                 action(PostAndNew)
@@ -1626,7 +1730,7 @@ page 51 "Purchase Invoice"
 
                     trigger OnAction()
                     begin
-                        PostDocument(CODEUNIT::"Purch.-Post (Yes/No)", NavigateAfterPost::"New Document");
+                        PostDocument(CODEUNIT::"Purch.-Post (Yes/No)", "Navigate After Posting"::"New Document");
                     end;
                 }
                 action(PostBatch)
@@ -1673,6 +1777,8 @@ page 51 "Purchase Invoice"
     trigger OnAfterGetRecord()
     begin
         CalculateCurrentShippingAndPayToOption;
+        if BuyFromContact.Get("Buy-from Contact No.") then;
+        if PayToContact.Get("Pay-to Contact No.") then;
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1731,6 +1837,8 @@ page 51 "Purchase Invoice"
     end;
 
     var
+        BuyFromContact: Record Contact;
+        PayToContact: Record Contact;
         MoveNegPurchLines: Report "Move Negative Purchase Lines";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         ReportPrint: Codeunit "Test Report-Print";
@@ -1741,7 +1849,6 @@ page 51 "Purchase Invoice"
         OfficeMgt: Codeunit "Office Management";
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
-        NavigateAfterPost: Option "Posted Document","New Document","Do Nothing";
         [InDataSet]
         StatusStyleTxt: Text;
         HasIncomingDocument: Boolean;
@@ -1782,7 +1889,12 @@ page 51 "Purchase Invoice"
     begin
     end;
 
-    local procedure PostDocument(PostingCodeunitID: Integer; Navigate: Option)
+    procedure CallPostDocument(PostingCodeunitID: Integer; Navigate: Enum "Navigate After Posting")
+    begin
+        PostDocument(PostingCodeunitID, Navigate);
+    end;
+
+    local procedure PostDocument(PostingCodeunitID: Integer; Navigate: Enum "Navigate After Posting")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -1806,7 +1918,7 @@ page 51 "Purchase Invoice"
             exit;
 
         case Navigate of
-            NavigateAfterPost::"Posted Document":
+            "Navigate After Posting"::"Posted Document":
                 begin
                     if IsOfficeAddin then begin
                         PurchInvHeader.SetRange("Pre-Assigned No.", "No.");
@@ -1817,7 +1929,7 @@ page 51 "Purchase Invoice"
                         if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode) then
                             ShowPostedConfirmationMessage;
                 end;
-            NavigateAfterPost::"New Document":
+            "Navigate After Posting"::"New Document":
                 if DocumentIsPosted then begin
                     Clear(PurchaseHeader);
                     PurchaseHeader.Init();

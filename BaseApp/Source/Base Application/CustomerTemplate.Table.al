@@ -120,11 +120,9 @@ table 5105 "Customer Template"
             Caption = 'VAT Bus. Posting Group';
             TableRelation = "VAT Business Posting Group";
         }
-        field(5050; "Contact Type"; Option)
+        field(5050; "Contact Type"; Enum "Contact Type")
         {
             Caption = 'Contact Type';
-            OptionCaption = 'Company,Person';
-            OptionMembers = Company,Person;
         }
         field(7001; "Allow Line Disc."; Boolean)
         {

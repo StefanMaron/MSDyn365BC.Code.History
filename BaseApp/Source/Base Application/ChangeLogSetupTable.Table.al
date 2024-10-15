@@ -72,6 +72,10 @@ table 403 "Change Log Setup (Table)"
                         DelChangeLogFields(2);
             end;
         }
+        field(6; "Monitor Sensitive Field"; Boolean)
+        {
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys

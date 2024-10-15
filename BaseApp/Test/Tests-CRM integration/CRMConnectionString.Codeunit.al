@@ -177,8 +177,8 @@ codeunit 139178 "CRM Connection String"
         // [WHEN] Open CRM Connection Setup Page
         LibraryApplicationArea.DisableApplicationAreaSetup();
         CRMConnectionSetupPage.OpenEdit();
-        // [THEN] "Authentication Type" is editable
-        Assert.IsTrue(CRMConnectionSetupPage."Authentication Type".Editable, 'Authentication Type is not editable.')
+        // [THEN] "Authentication Type" is not editable
+        Assert.IsFalse(CRMConnectionSetupPage."Authentication Type".Editable, 'Authentication Type is editable.')
     end;
 
     [Test]
@@ -442,8 +442,8 @@ codeunit 139178 "CRM Connection String"
         // [WHEN] Open CRM Connection Setup Page
         CRMConnectionSetupPage.OpenEdit();
         // [THEN] "Authentication Type" and "Connection String" are not editable
-        Assert.IsTrue(CRMConnectionSetupPage."Connection String".Editable, 'Connection String is not editable.');
-        Assert.IsTrue(CRMConnectionSetupPage."Authentication Type".Editable, 'Authentication Type is not editable.');
+        Assert.IsFalse(CRMConnectionSetupPage."Connection String".Editable, 'Connection String is editable.');
+        Assert.IsFalse(CRMConnectionSetupPage."Authentication Type".Editable, 'Authentication Type is editable.');
     end;
 
     [Test]
@@ -467,14 +467,14 @@ codeunit 139178 "CRM Connection String"
         CRMConnectionSetup."Authentication Type" := CRMConnectionSetup."Authentication Type"::Office365;
         CRMConnectionSetupPage."Authentication Type".Value(Format(CRMConnectionSetup."Authentication Type"));
         // [THEN] "Connection String" is not editable
-        Assert.IsTrue(
-          CRMConnectionSetupPage."Connection String".Editable, 'Connection String is not editable for O365.');
+        Assert.IsFalse(
+          CRMConnectionSetupPage."Connection String".Editable, 'Connection String is editable for O365.');
         // [WHEN] "Auth Type" is 'AD'
         CRMConnectionSetup."Authentication Type" := CRMConnectionSetup."Authentication Type"::AD;
         CRMConnectionSetupPage."Authentication Type".Value(Format(CRMConnectionSetup."Authentication Type"));
         // [THEN] "Connection String" is not editable
-        Assert.IsTrue(
-          CRMConnectionSetupPage."Connection String".Editable, 'Connection String is not editable for AD.')
+        Assert.IsFalse(
+          CRMConnectionSetupPage."Connection String".Editable, 'Connection String is editable for AD.')
     end;
 
     [Test]
@@ -497,15 +497,15 @@ codeunit 139178 "CRM Connection String"
         // [WHEN] "Auth Type" is 'OAuth'
         CRMConnectionSetup."Authentication Type" := CRMConnectionSetup."Authentication Type"::OAuth;
         CRMConnectionSetupPage."Authentication Type".Value(Format(CRMConnectionSetup."Authentication Type"));
-        // [THEN] "Connection String" is editable
-        Assert.IsTrue(
-          CRMConnectionSetupPage."Connection String".Editable, 'Connection String is not editable for OAuth.');
+        // [THEN] "Connection String" is not editable
+        Assert.IsFalse(
+          CRMConnectionSetupPage."Connection String".Editable, 'Connection String is editable for OAuth.');
         // [WHEN] "Auth Type" is 'IFD'
         CRMConnectionSetup."Authentication Type" := CRMConnectionSetup."Authentication Type"::IFD;
         CRMConnectionSetupPage."Authentication Type".Value(Format(CRMConnectionSetup."Authentication Type"));
-        // [THEN] "Connection String" is editable
-        Assert.IsTrue(
-          CRMConnectionSetupPage."Connection String".Editable, 'Connection String is not editable for IFD.');
+        // [THEN] "Connection String" is not editable
+        Assert.IsFalse(
+          CRMConnectionSetupPage."Connection String".Editable, 'Connection String is editable for IFD.');
     end;
 
     [Test]

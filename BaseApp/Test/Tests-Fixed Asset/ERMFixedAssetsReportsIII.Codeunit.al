@@ -728,7 +728,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         exit(GLAccount."Net Change");
     end;
 
-    local procedure CreateAndPostFAJournalLine(FANo: Code[20]; FAPostingType: Option; MaintenanceCode: Code[10]; Amount: Decimal)
+    local procedure CreateAndPostFAJournalLine(FANo: Code[20]; FAPostingType: Enum "Gen. Journal Line FA Posting Type"; MaintenanceCode: Code[10]; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -786,7 +786,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         FADepreciationBook.Modify(true);
     end;
 
-    local procedure CreateFAGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalTemplateBatch: Code[10]; FANo: Code[20]; FAPostingType: Option; Amount: Decimal)
+    local procedure CreateFAGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalTemplateBatch: Code[10]; FANo: Code[20]; FAPostingType: Enum "Gen. Journal Line FA Posting Type"; Amount: Decimal)
     var
         GLAccount: Record "G/L Account";
     begin

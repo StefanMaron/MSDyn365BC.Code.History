@@ -410,11 +410,17 @@ table 242 "Source Code Setup"
         {
             Caption = 'Purchase VAT Delay';
             TableRelation = "Source Code";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11761; "Sales VAT Delay"; Code[10])
         {
             Caption = 'Sales VAT Delay';
             TableRelation = "Source Code";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11762; "VAT Coefficient"; Code[10])
         {
@@ -478,6 +484,9 @@ table 242 "Source Code Setup"
         {
             Caption = 'Cash Desk';
             TableRelation = "Source Code";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(31041; "Maintenance Adjustment"; Code[10])
         {

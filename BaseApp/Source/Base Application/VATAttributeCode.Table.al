@@ -3,6 +3,9 @@ table 11779 "VAT Attribute Code"
     Caption = 'VAT Attribute Code';
     DrillDownPageID = "VAT Attribute Codes";
     LookupPageID = "VAT Attribute Codes";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     fields
     {

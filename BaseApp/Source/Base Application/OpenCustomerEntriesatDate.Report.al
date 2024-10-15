@@ -3,8 +3,11 @@ report 11778 "Open Customer Entries at Date"
     DefaultLayout = RDLC;
     RDLCLayout = './OpenCustomerEntriesatDate.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'Open Customer Entries to Date';
+    Caption = 'Open Customer Entries to Date (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

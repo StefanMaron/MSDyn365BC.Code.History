@@ -212,6 +212,10 @@ page 21 "Customer Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the registration number of customer.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnDrillDown()
                     var
@@ -228,6 +232,10 @@ page 21 "Customer Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the secondary VAT registration number for the customer.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
                 }
                 field("Industry Code"; "Industry Code")
                 {
@@ -341,6 +349,13 @@ page 21 "Customer Card"
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the customer''s telephone number.';
+                    }
+                    field(MobilePhoneNo; "Mobile Phone No.")
+                    {
+                        Caption = 'Mobile Phone No.';
+                        ApplicationArea = Basic, Suite;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the customer''s mobile telephone number.';
                     }
                     field("E-Mail"; "E-Mail")
                     {
@@ -460,8 +475,7 @@ page 21 "Customer Card"
                     }
                     field("Price Calculation Method"; "Price Calculation Method")
                     {
-                        // Visibility should be turned on by an extension for Price Calculation
-                        Visible = false;
+                        Visible = ExtendedPriceEnabled;
                         ApplicationArea = Basic, Suite;
                         Importance = Promoted;
                         ToolTip = 'Specifies the default price calculation method.';
@@ -886,7 +900,10 @@ page 21 "Customer Card"
                 ApplicationArea = All;
                 SubPageLink = "Source Type" = CONST(Customer),
                               "Source No." = FIELD("No.");
-                Visible = SocialListeningVisible;
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
+                ObsoleteTag = '17.0';
             }
             part(Control27; "Social Listening Setup FactBox")
             {
@@ -894,7 +911,10 @@ page 21 "Customer Card"
                 SubPageLink = "Source Type" = CONST(Customer),
                               "Source No." = FIELD("No.");
                 UpdatePropagation = Both;
-                Visible = SocialListeningSetupVisible;
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
+                ObsoleteTag = '17.0';
             }
             part(SalesHistSelltoFactBox; "Sales Hist. Sell-to FactBox")
             {
@@ -1052,6 +1072,20 @@ page 21 "Customer Card"
                     RunPageView = SORTING("Cross-Reference Type", "Cross-Reference Type No.");
                     ToolTip = 'Set up the customer''s own identification of items that you sell to the customer. Cross-references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
                 }
+                action("Item References")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Item References';
+                    Visible = ItemReferenceVisible;
+                    Image = Change;
+                    Promoted = true;
+                    PromotedCategory = Category9;
+                    RunObject = Page "Item References";
+                    RunPageLink = "Reference Type" = CONST(Customer),
+                                  "Reference Type No." = FIELD("No.");
+                    RunPageView = SORTING("Reference Type", "Reference Type No.");
+                    ToolTip = 'Set up the customer''s own identification of items that you sell to the customer. Item references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
+                }
                 action("Co&mments")
                 {
                     ApplicationArea = Comments;
@@ -1120,7 +1154,7 @@ page 21 "Customer Card"
             group(ActionGroupCRM)
             {
                 Caption = 'Common Data Service';
-                Enabled = Blocked = Blocked::" ";
+                Enabled = (BlockedFilterApplied and (Blocked = Blocked::" ")) or not BlockedFilterApplied;
                 Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
                 action(CRMGotoAccount)
                 {
@@ -1311,7 +1345,7 @@ page 21 "Customer Card"
                     var
                         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
                     begin
-                        ItemTrackingDocMgt.ShowItemTrackingForMasterData(1, "No.", '', '', '', '', '');
+                        ItemTrackingDocMgt.ShowItemTrackingForEntity(1, "No.", '', '', '');
                     end;
                 }
                 separator(Action140)
@@ -1365,12 +1399,48 @@ page 21 "Customer Card"
                     RunPageLink = Code = FIELD("Invoice Disc. Code");
                     ToolTip = 'Set up different discounts that are applied to invoices for the customer. An invoice discount is automatically granted to the customer when the total on a sales invoice exceeds a certain amount.';
                 }
+                action(PriceLists)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Price Lists (Prices)';
+                    Image = Price;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up different prices for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceUXManagement: Codeunit "Price UX Management";
+                        AmountType: Enum "Price Amount Type";
+                    begin
+                        PriceUXManagement.ShowPriceLists(Rec, AmountType::Price);
+                    end;
+                }
+                action(PriceListsDiscounts)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Price Lists (Discounts)';
+                    Image = LineDiscount;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up different discounts for products that you sell to the customer. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceUXManagement: Codeunit "Price UX Management";
+                        AmountType: Enum "Price Amount Type";
+                    begin
+                        PriceUXManagement.ShowPriceLists(Rec, AmountType::Discount);
+                    end;
+                }
                 action(Prices)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Prices';
                     Image = Price;
+                    Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View or set up different prices for items that you sell to the customer. An item price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnAction()
                     var
@@ -1387,7 +1457,11 @@ page 21 "Customer Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Line Discounts';
                     Image = LineDiscount;
+                    Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View or set up different discounts for items that you sell to the customer. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnAction()
                     var
@@ -1404,7 +1478,11 @@ page 21 "Customer Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Special Prices & Discounts Overview';
                     Image = PriceWorksheet;
+                    Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View all the special prices and line discounts that you grant for this customer when certain criteria are met, such as quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnAction()
                     var
@@ -1963,7 +2041,7 @@ page 21 "Customer Card"
                         Image = Flow;
                         Promoted = true;
                         PromotedCategory = Category6;
-                        ToolTip = 'Create a new Flow from a list of relevant Flow templates.';
+                        ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
                         Visible = IsSaaS;
 
                         trigger OnAction()
@@ -1984,7 +2062,7 @@ page 21 "Customer Card"
                         Promoted = true;
                         PromotedCategory = Category6;
                         RunObject = Page "Flow Selector";
-                        ToolTip = 'View and configure Flows that you created.';
+                        ToolTip = 'View and configure Power Automate flows that you created.';
                     }
                 }
             }
@@ -2192,7 +2270,7 @@ page 21 "Customer Card"
                     RecRef.Open(DATABASE::Customer);
                     CustomLayoutReporting.SetOutputFileBaseName(StatementFileNameTxt);
                     CustomLayoutReporting.SetTableFilterForReportID(Report::"Standard Statement", "No.");
-                    CustomLayoutReporting.ProcessReportForData(ReportSelections.Usage::"C.Statement", RecRef, Customer.FieldName("No."),
+                    CustomLayoutReporting.ProcessReportData(ReportSelections.Usage::"C.Statement", RecRef, Customer.FieldName("No."),
                       DATABASE::Customer, Customer.FieldName("No."), true);
                 end;
             }
@@ -2220,6 +2298,10 @@ page 21 "Customer Card"
                 Promoted = true;
                 PromotedCategory = "Report";
                 ToolTip = 'Open the report for customer''s balance reconciliation.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.0';
+                Visible = false;
 
                 trigger OnAction()
                 begin
@@ -2231,6 +2313,7 @@ page 21 "Customer Card"
 
     trigger OnAfterGetCurrRecord()
     var
+        WorkflowStepInstance: Record "Workflow Step Instance";
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
         WorkflowManagement: Codeunit "Workflow Management";
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
@@ -2241,7 +2324,10 @@ page 21 "Customer Card"
         CreateCustomerFromTemplate;
         ActivateFields;
         StyleTxt := SetStyle;
-        ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
+        WorkflowStepInstance.SetRange("Record ID", RecordId);
+        ShowWorkflowStatus := not WorkflowStepInstance.IsEmpty();
+        if ShowWorkflowStatus then
+            CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
         if CRMIntegrationEnabled or CDSIntegrationEnabled then begin
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
             if "No." <> xRec."No." then
@@ -2266,8 +2352,7 @@ page 21 "Customer Card"
             Args.Add(CustomerCardCalculation.GetCustomerNoLabel(), "No.");
             CurrPage.EnqueueBackgroundTask(BackgroundTaskId, Codeunit::"Customer Card Calculations", Args);
 
-            SendTraceTag('0000D4Q', CustomerCardServiceCategoryTxt, VERBOSITY::Normal,
-              StrSubstNo(PageBckGrndTaskStartedTxt, "No."), DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000D4Q', StrSubstNo(PageBckGrndTaskStartedTxt, "No."), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CustomerCardServiceCategoryTxt);
         end;
 
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
@@ -2278,7 +2363,6 @@ page 21 "Customer Card"
         EnabledApprovalWorkflowsExist := WorkflowManagement.EnabledWorkflowExist(DATABASE::Customer, EventFilter);
 
         WorkflowWebhookManagement.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
-
     end;
 
     trigger OnInit()
@@ -2309,13 +2393,21 @@ page 21 "Customer Card"
 
     trigger OnOpenPage()
     var
+        IntegrationTableMapping: Record "Integration Table Mapping";
         EnvironmentInfo: Codeunit "Environment Information";
+        ItemReferenceMgt: Codeunit "Item Reference Management";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
-        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
-        CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled;
+        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
+        CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
+        if CRMIntegrationEnabled or CDSIntegrationEnabled then
+            if IntegrationTableMapping.Get('CUSTOMER') then
+                BlockedFilterApplied := IntegrationTableMapping.GetTableFilter().Contains('Field39=1(0)');
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
 
-        SetNoFieldVisible;
-        IsSaaS := EnvironmentInfo.IsSaaS;
+        SetNoFieldVisible();
+        IsSaaS := EnvironmentInfo.IsSaaS();
+        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     trigger OnPageBackgroundTaskCompleted(TaskId: Integer; Results: Dictionary of [Text, Text])
@@ -2339,8 +2431,7 @@ page 21 "Customer Card"
             AttentionToPaidDay := DaysPastDueDate > 0;
             TotalMoneyOwed := "Balance (LCY)" + ExpectedMoneyOwed;
 
-            SendTraceTag('0000D4R', CustomerCardServiceCategoryTxt, VERBOSITY::Normal,
-              PageBckGrndTaskCompletedTxt, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000D4R', PageBckGrndTaskCompletedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CustomerCardServiceCategoryTxt);
         end;
     end;
 
@@ -2365,6 +2456,8 @@ page 21 "Customer Card"
         ShowCharts: Boolean;
         CRMIntegrationEnabled: Boolean;
         CDSIntegrationEnabled: Boolean;
+        BlockedFilterApplied: Boolean;
+        ExtendedPriceEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
         OpenApprovalEntriesExistCurrUser: Boolean;
         OpenApprovalEntriesExist: Boolean;
@@ -2412,6 +2505,8 @@ page 21 "Customer Card"
         CanCancelApprovalForFlow: Boolean;
         IsSaaS: Boolean;
         IsCountyVisible: Boolean;
+        [InDataSet]
+        ItemReferenceVisible: Boolean;
         StatementFileNameTxt: Label 'Statement', Comment = 'Shortened form of ''Customer Statement''';
         LoadOnDemand: Boolean;
         BackgroundTaskId: Integer;
@@ -2482,6 +2577,7 @@ page 21 "Customer Card"
         ActivateFields;
     end;
 
+    [Obsolete('Microsoft Social Engagement has been discontinued.', '17.0')]
     local procedure SetSocialListeningFactboxVisibility()
     var
         SocialListeningMgt: Codeunit "Social Listening Management";
@@ -2506,36 +2602,38 @@ page 21 "Customer Card"
 
     local procedure CreateCustomerFromTemplate()
     var
-        MiniCustomerTemplate: Record "Mini Customer Template";
         Customer: Record Customer;
-        VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
-        ConfigTemplateHeader: Record "Config. Template Header";
-        EUVATRegistrationNoCheck: Page "EU VAT Registration No Check";
-        CustomerRecRef: RecordRef;
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
     begin
         OnBeforeCreateCustomerFromTemplate(NewMode, Customer);
 
-        if NewMode then begin
-            if MiniCustomerTemplate.NewCustomerFromTemplate(Customer) then begin
-                if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then
-                    if Customer."Validate EU Vat Reg. No." then begin
-                        EUVATRegistrationNoCheck.SetRecordRef(Customer);
-                        Commit();
-                        EUVATRegistrationNoCheck.RunModal;
-                        EUVATRegistrationNoCheck.GetRecordRef(CustomerRecRef);
-                        CustomerRecRef.SetTable(Customer);
-                    end;
+        if not NewMode then
+            exit;
+        NewMode := false;
 
-                Copy(Customer);
-                CurrPage.Update;
-            end else begin
-                ConfigTemplateHeader.SetRange("Table ID", DATABASE::Customer);
-                ConfigTemplateHeader.SetRange(Enabled, true);
-                if not ConfigTemplateHeader.IsEmpty then
-                    CurrPage.Close;
+        if CustomerTemplMgt.InsertCustomerFromTemplate(Customer) then begin
+            VerifyVatRegNo(Customer);
+            Copy(Customer);
+            CurrPage.Update;
+        end else
+            if CustomerTemplMgt.TemplatesAreNotEmpty() then
+                CurrPage.Close;
+    end;
+
+    local procedure VerifyVatRegNo(var Customer: Record Customer)
+    var
+        VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
+        EUVATRegistrationNoCheck: Page "EU VAT Registration No Check";
+        CustomerRecRef: RecordRef;
+    begin
+        if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then
+            if Customer."Validate EU Vat Reg. No." then begin
+                EUVATRegistrationNoCheck.SetRecordRef(Customer);
+                Commit();
+                EUVATRegistrationNoCheck.RunModal;
+                EUVATRegistrationNoCheck.GetRecordRef(CustomerRecRef);
+                CustomerRecRef.SetTable(Customer);
             end;
-            NewMode := false;
-        end;
     end;
 
     [IntegrationEvent(false, false)]

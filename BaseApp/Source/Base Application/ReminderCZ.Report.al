@@ -2,8 +2,11 @@ report 31086 "Reminder CZ"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './ReminderCZ.rdlc';
-    Caption = 'Reminder CZ';
+    Caption = 'Reminder CZ (Obsolete)';
     PreviewMode = PrintLayout;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

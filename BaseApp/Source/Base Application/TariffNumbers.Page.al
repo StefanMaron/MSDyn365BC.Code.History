@@ -37,21 +37,37 @@ page 310 "Tariff Numbers"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the statement code for VAT control report and reverse charge.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Statement Limit Code"; "Statement Limit Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the statement limit code for VAT control report and reverse charge.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("VAT Stat. Unit of Measure Code"; "VAT Stat. Unit of Measure Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the unit of measure code for reverse charge reporting.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Allow Empty Unit of Meas.Code"; "Allow Empty Unit of Meas.Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the possibillity to allow or not allow empty unit of meas. code for VAT reverse charge.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Full Name"; "Full Name")
                 {

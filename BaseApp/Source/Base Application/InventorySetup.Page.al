@@ -1,4 +1,4 @@
-page 461 "Inventory Setup"
+﻿page 461 "Inventory Setup"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Inventory Setup';
@@ -257,15 +257,28 @@ page 461 "Inventory Setup"
             group("Phys. Inventory")
             {
                 Caption = 'Phys. Inventory';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.0';
+                Visible = false;
+
                 field("Def.Template for Phys.Pos.Adj"; "Def.Template for Phys.Pos.Adj")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for template for phy.pos.adj.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Def.Template for Phys.Neg.Adj"; "Def.Template for Phys.Neg.Adj")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for template for phys.neg.adj.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
             }
         }

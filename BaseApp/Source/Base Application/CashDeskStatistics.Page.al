@@ -1,9 +1,12 @@
 page 11747 "Cash Desk Statistics"
 {
-    Caption = 'Cash Desk Statistics';
+    Caption = 'Cash Desk Statistics (Obsolete)';
     Editable = false;
     PageType = Card;
     SourceTable = "Bank Account";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

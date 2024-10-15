@@ -2,12 +2,14 @@ page 371 "Bank Account List"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Bank Accounts';
+    CardPageID = "Bank Account Card";
     DataCaptionFields = "Account Type", "No.";
     Editable = false;
     PageType = List;
     PromotedActionCategories = 'New,Process,Report,Bank Statement Service,Bank Account,Navigate';
     SourceTable = "Bank Account";
     UsageCategory = Lists;
+
 
     layout
     {
@@ -20,6 +22,10 @@ page 371 "Bank Account List"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies type of accounte';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("No."; "No.")
                 {
@@ -558,8 +564,11 @@ page 371 "Bank Account List"
     end;
 
     trigger OnOpenPage()
+    var
+        MonitorSensitiveField: Codeunit "Monitor Sensitive Field";
     begin
         ShowBankLinkingActions := StatementProvidersExist;
+        MonitorSensitiveField.ShowPromoteMonitorSensitiveFieldNotification();
     end;
 
     var

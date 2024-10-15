@@ -1,6 +1,6 @@
 page 11758 "Registration Log"
 {
-    Caption = 'Registration Log';
+    Caption = 'Registration Log (Obsolete)';
     DataCaptionFields = "Account Type", "Account No.";
     DeleteAllowed = false;
     InsertAllowed = false;
@@ -9,6 +9,10 @@ page 11758 "Registration Log"
     SourceTable = "Registration Log";
     SourceTableView = SORTING("Entry No.")
                       ORDER(Descending);
+    UsageCategory = None;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {
@@ -31,20 +35,20 @@ page 11758 "Registration Log"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
-                    ToolTip = 'Specifies type of account.';
+                    ToolTip = 'Specifies typ of account';
                     Visible = false;
                 }
                 field("Account No."; "Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
-                    ToolTip = 'Specifies No of account.';
+                    ToolTip = 'Specifies No of account';
                     Visible = false;
                 }
                 field(Status; Status)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the status of the verification action.';
+                    ToolTip = 'Specifies the status of issued payment order lines';
                 }
                 field("Verified Date"; "Verified Date")
                 {

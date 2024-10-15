@@ -92,11 +92,19 @@ page 425 "Vendor Bank Account Card"
                     Caption = 'Public Bank Account';
                     Editable = false;
                     ToolTip = 'Specifies if the vendor''s bank account is public.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
                 }
                 field("Third Party Bank Account"; "Third Party Bank Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the account is third party bank account.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
                 }
             }
             group(Communication)
@@ -105,6 +113,7 @@ page 425 "Vendor Bank Account Card"
                 field("Fax No."; "Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
+                    Importance = Additional;
                     ToolTip = 'Specifies the fax number of the bank where the vendor has the bank account.';
                 }
                 field("E-Mail"; "E-Mail")

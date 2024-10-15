@@ -1,7 +1,10 @@
 report 31080 "Account Schedule Export File"
 {
-    Caption = 'Account Schedule Export File';
+    Caption = 'Account Schedule Export File (Obsolete)';
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

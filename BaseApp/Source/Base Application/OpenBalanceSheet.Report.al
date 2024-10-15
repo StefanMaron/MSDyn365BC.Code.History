@@ -1,11 +1,14 @@
 report 11785 "Open Balance Sheet"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Open Balance Sheet';
+    Caption = 'Open Balance Sheet (Obsolete)';
     Permissions = TableData "G/L Entry" = m;
     ProcessingOnly = true;
     UsageCategory = Tasks;
-
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
+    
     dataset
     {
         dataitem("G/L Account"; "G/L Account")

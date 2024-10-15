@@ -1,13 +1,16 @@
 page 11771 "VAT Statement Attachment Sheet"
 {
     AutoSplitKey = true;
-    Caption = 'VAT Statement Attachment Sheet';
+    Caption = 'VAT Statement Attachment Sheet (Obsolete)';
     DataCaptionFields = "VAT Statement Template Name", "VAT Statement Name";
     DelayedInsert = true;
     LinksAllowed = false;
     MultipleNewLines = true;
     PageType = List;
     SourceTable = "VAT Statement Attachment";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

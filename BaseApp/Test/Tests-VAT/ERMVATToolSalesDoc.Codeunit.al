@@ -1215,7 +1215,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.DeleteGroups;
     end;
 
-    local procedure VATToolMakeSalesOrder(FieldOption: Option; DocumentType: Option; Partial: Boolean; MultipleLines: Boolean)
+    local procedure VATToolMakeSalesOrder(FieldOption: Option; DocumentType: Enum "Sales Document Type"; Partial: Boolean; MultipleLines: Boolean)
     var
         SalesHeader: Record "Sales Header";
         SalesOrderHeader: Record "Sales Header";
@@ -1257,7 +1257,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.DeleteGroups;
     end;
 
-    local procedure VATToolMakeSalesOrderMake(FieldOption: Option; DocumentType: Option; MultipleLines: Boolean)
+    local procedure VATToolMakeSalesOrderMake(FieldOption: Option; DocumentType: Enum "Sales Document Type"; MultipleLines: Boolean)
     var
         SalesHeader: Record "Sales Header";
         SalesOrderHeader: Record "Sales Header";
@@ -1375,7 +1375,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.DeleteGroups;
     end;
 
-    local procedure VATToolSalesLine(FieldOption: Option; IgnoreStatus: Boolean; DocumentType: Option; Release: Boolean; Ship: Boolean; MultipleLines: Boolean)
+    local procedure VATToolSalesLine(FieldOption: Option; IgnoreStatus: Boolean; DocumentType: Enum "Sales Document Type"; Release: Boolean; Ship: Boolean; MultipleLines: Boolean)
     var
         SalesHeader: Record "Sales Header";
         TempRecRef: RecordRef;
@@ -1416,7 +1416,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.DeleteGroups;
     end;
 
-    local procedure VATToolSalesLineAmount(DocumentType: Option; PartialShip: Boolean)
+    local procedure VATToolSalesLineAmount(DocumentType: Enum "Sales Document Type"; PartialShip: Boolean)
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1451,7 +1451,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.DeleteGroups;
     end;
 
-    local procedure VATToolSalesLinePartShip(FieldOption: Option; DocumentType: Option; AutoInsertDefault: Boolean; MultipleLines: Boolean)
+    local procedure VATToolSalesLinePartShip(FieldOption: Option; DocumentType: Enum "Sales Document Type"; AutoInsertDefault: Boolean; MultipleLines: Boolean)
     var
         SalesHeader: Record "Sales Header";
         TempRecRef: RecordRef;
@@ -1882,7 +1882,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateSalesInvoiceWithPricesIncludingVAT(var SalesLine: Record "Sales Line"; Type: Option; No: Code[20])
+    local procedure CreateSalesInvoiceWithPricesIncludingVAT(var SalesLine: Record "Sales Line"; Type: Enum "Sales Line Type"; No: Code[20])
     var
         SalesHeader: Record "Sales Header";
         VATProdPostingGroup: Code[20];
@@ -1958,7 +1958,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
             LibraryERM.GetUnitAmountRoundingPrecision));
     end;
 
-    local procedure ExpectLogEntries(DocumentType: Option; Release: Boolean; IgnoreStatus: Boolean): Boolean
+    local procedure ExpectLogEntries(DocumentType: Enum "Sales Document Type"; Release: Boolean; IgnoreStatus: Boolean): Boolean
     var
         Update: Boolean;
     begin
@@ -1975,7 +1975,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         exit(Update);
     end;
 
-    local procedure ExpectUpdate(DocumentType: Option; Ship: Boolean; Release: Boolean; IgnoreStatus: Boolean): Boolean
+    local procedure ExpectUpdate(DocumentType: Enum "Sales Document Type"; Ship: Boolean; Release: Boolean; IgnoreStatus: Boolean): Boolean
     var
         Update: Boolean;
     begin
@@ -2096,7 +2096,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.CreateSalesLine(SalesLine, SalesHeader, '', Item."No.", Qty);
 
         // Assign Serial Nos
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
 
         // Partially Ship Order
         ERMVATToolHelper.UpdateQtyToShip(SalesHeader);

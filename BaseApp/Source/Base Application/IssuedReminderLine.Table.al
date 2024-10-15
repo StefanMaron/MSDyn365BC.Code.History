@@ -18,11 +18,9 @@ table 298 "Issued Reminder Line"
             Caption = 'Attached to Line No.';
             TableRelation = "Issued Reminder Line"."Line No." WHERE("Reminder No." = FIELD("Reminder No."));
         }
-        field(4; Type; Option)
+        field(4; Type; Enum "Reminder Source Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,G/L Account,Customer Ledger Entry,Line Fee';
-            OptionMembers = " ","G/L Account","Customer Ledger Entry","Line Fee";
         }
         field(5; "Entry No."; Integer)
         {
@@ -139,11 +137,9 @@ table 298 "Issued Reminder Line"
             Caption = 'VAT Identifier';
             Editable = false;
         }
-        field(25; "Line Type"; Option)
+        field(25; "Line Type"; Enum "Reminder Line Type")
         {
             Caption = 'Line Type';
-            OptionCaption = 'Reminder Line,Not Due,Beginning Text,Ending Text,Rounding,On Hold,Additional Fee,Line Fee';
-            OptionMembers = "Reminder Line","Not Due","Beginning Text","Ending Text",Rounding,"On Hold","Additional Fee","Line Fee";
         }
         field(26; "VAT Clause Code"; Code[20])
         {

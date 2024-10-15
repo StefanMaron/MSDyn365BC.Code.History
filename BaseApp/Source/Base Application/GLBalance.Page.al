@@ -149,6 +149,9 @@ page 414 "G/L Balance"
                     BlankZero = true;
                     ToolTip = 'Specifies the VAT date on which the net charge was made for the general ledger entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
                 }
             }
         }

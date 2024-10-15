@@ -467,7 +467,7 @@ table 6650 "Return Shipment Header"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(5050; "Campaign No."; Code[20])
@@ -510,10 +510,16 @@ table 6650 "Return Shipment Header"
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11792; "Original User ID"; Code[50])
         {
@@ -560,6 +566,9 @@ table 6650 "Return Shipment Header"
         field(31067; "EU 3-Party Trade"; Boolean)
         {
             Caption = 'EU 3-Party Trade';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
     }
 
@@ -621,7 +630,7 @@ table 6650 "Return Shipment Header"
     begin
         with ReturnShptHeader do begin
             Copy(Rec);
-            ReportSelection.PrintWithGUIYesNoVendor(
+            ReportSelection.PrintWithDialogForVend(
               ReportSelection.Usage::"P.Ret.Shpt.", ReturnShptHeader, ShowRequestForm, FieldNo("Buy-from Vendor No."));
         end;
     end;

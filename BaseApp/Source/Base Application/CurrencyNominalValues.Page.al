@@ -1,11 +1,14 @@
 page 11743 "Currency Nominal Values"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Currency Nominal Values';
+    Caption = 'Currency Nominal Values (Obsolete)';
     DelayedInsert = true;
     PageType = Worksheet;
     SourceTable = "Currency Nominal Value";
     UsageCategory = Administration;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

@@ -1908,7 +1908,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         LibraryERM.CreateExchangeRate(Currency.Code, WorkDate, 2, 1);
     end;
 
-    local procedure CreateSalesDocument(DocumentType: Option; InvoiceCurrencyIsLCY: Boolean): Code[20]
+    local procedure CreateSalesDocument(DocumentType: Enum "Sales Document Type"; InvoiceCurrencyIsLCY: Boolean): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -1988,7 +1988,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         ServiceCrMemoHeader.FindFirst;
     end;
 
-    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; Type: Option; var Customer: Record Customer; InvoiceCurrencyIsLCY: Boolean)
+    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; var Customer: Record Customer; InvoiceCurrencyIsLCY: Boolean)
     var
         GLAccount: Record "G/L Account";
         ServiceLine: Record "Service Line";
@@ -2001,7 +2001,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
 
         Customer.Get(CreateCustomer);
 
-        LibraryService.CreateServiceHeader(ServiceHeader, Type, Customer."No.");
+        LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, Customer."No.");
         ServiceHeader.Validate("Your Reference", '123457890');
         if ServiceHeader."Due Date" = 0D then
             ServiceHeader.Validate("Due Date", ServiceHeader."Posting Date");

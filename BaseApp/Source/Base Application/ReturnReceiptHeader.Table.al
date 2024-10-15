@@ -491,7 +491,7 @@ table 6660 "Return Receipt Header"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(5050; "Campaign No."; Code[20])
@@ -598,10 +598,16 @@ table 6660 "Return Receipt Header"
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11792; "Original User ID"; Code[50])
         {
@@ -696,13 +702,51 @@ table 6660 "Return Receipt Header"
         UserSetupMgt: Codeunit "User Setup Management";
         Text001: Label 'Posted Document Dimensions';
 
+    procedure GetCustomerVATRegistrationNumber(): Text
+    begin
+        exit("VAT Registration No.");
+    end;
+
+    procedure GetCustomerVATRegistrationNumberLbl(): Text
+    begin
+        if "VAT Registration No." = '' then
+            exit('');
+        exit(FieldCaption("VAT Registration No."));
+    end;
+
+    procedure GetCustomerGlobalLocationNumber(): Text
+    var
+        Customer: Record Customer;
+    begin
+        if Customer.Get("Sell-to Customer No.") then
+            exit(Customer.GLN);
+        exit('');
+    end;
+
+    procedure GetCustomerGlobalLocationNumberLbl(): Text
+    var
+        Customer: Record Customer;
+    begin
+        if Customer.Get("Sell-to Customer No.") then
+            exit(Customer.FieldCaption(GLN));
+        exit('');
+    end;
+
+    procedure GetLegalStatement(): Text
+    var
+        SalesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesSetup.Get();
+        exit(SalesSetup.GetLegalStatement());
+    end;
+
     procedure PrintRecords(ShowRequestForm: Boolean)
     var
         ReportSelection: Record "Report Selections";
     begin
         with ReturnRcptHeader do begin
             Copy(Rec);
-            ReportSelection.PrintWithGUIYesNo(
+            ReportSelection.PrintWithDialogForCust(
               ReportSelection.Usage::"S.Ret.Rcpt.", ReturnRcptHeader, ShowRequestForm, FieldNo("Bill-to Customer No."));
         end;
     end;
@@ -715,7 +759,7 @@ table 6660 "Return Receipt Header"
         ReportDistributionMgt: Codeunit "Report Distribution Management";
     begin
         DocumentSendingProfile.TrySendToEMail(
-          DummyReportSelections.Usage::"S.Ret.Rcpt.", Rec, FieldNo("No."),
+          DummyReportSelections.Usage::"S.Ret.Rcpt.".AsInteger(), Rec, FieldNo("No."),
           ReportDistributionMgt.GetFullDocumentTypeText(Rec), FieldNo("Bill-to Customer No."), ShowDialog);
     end;
 
@@ -740,6 +784,15 @@ table 6660 "Return Receipt Header"
             SetRange("Responsibility Center", UserSetupMgt.GetSalesFilter);
             FilterGroup(0);
         end;
+    end;
+
+    procedure StartTrackingSite()
+    var
+        ShippingAgent: Record "Shipping Agent";
+    begin
+        TestField("Shipping Agent Code");
+        ShippingAgent.Get("Shipping Agent Code");
+        HyperLink(ShippingAgent.GetTrackingInternetAddr("Package Tracking No."));
     end;
 
     [IntegrationEvent(false, false)]

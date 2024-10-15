@@ -142,8 +142,8 @@
                     exit;
 
                 CreateDim(
-                  DimMgt.TypeToTableID1("Account Type"), "Account No.",
-                  DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
+                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
+                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
                   DATABASE::"Job Task", "Job Task No.",// NAVCZ
                   DATABASE::Job, "Job No.",
                   DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
@@ -369,8 +369,8 @@
                     UpdateLineBalance;
                     UpdateSource;
                     CreateDim(
-                      DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
-                      DimMgt.TypeToTableID1("Account Type"), "Account No.",
+                      DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
+                      DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
                       DATABASE::"Job Task", "Job Task No.",// NAVCZ
                       DATABASE::Job, "Job No.",
                       DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
@@ -413,8 +413,8 @@
                 UpdateLineBalance;
                 UpdateSource;
                 CreateDim(
-                  DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
-                  DimMgt.TypeToTableID1("Account Type"), "Account No.",
+                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
+                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
                   DATABASE::"Job Task", "Job Task No.",// NAVCZ
                   DATABASE::Job, "Job No.",
                   DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
@@ -669,8 +669,8 @@
 
                 CreateDim(
                   DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                  DimMgt.TypeToTableID1("Account Type"), "Account No.",
-                  DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
+                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
+                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
                   DATABASE::"Job Task", "Job Task No.",// NAVCZ
                   DATABASE::Job, "Job No.",
                   DATABASE::Campaign, "Campaign No.");
@@ -708,7 +708,7 @@
             trigger OnLookup()
             var
                 PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
-                AccType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner",Employee;
+                AccType: Enum "Gen. Journal Account Type";
                 AccNo: Code[20];
             begin
                 xRec.Amount := Amount;
@@ -871,8 +871,8 @@
                     CreateDim(
                       DATABASE::"Job Task", "Job Task No.",// NAVCZ
                       DATABASE::Job, "Job No.",
-                      DimMgt.TypeToTableID1("Account Type"), "Account No.",
-                      DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
+                      DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
+                      DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
                       DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
                       DATABASE::Campaign, "Campaign No.");
                     exit;
@@ -889,8 +889,8 @@
                 CreateDim(
                   DATABASE::"Job Task", "Job Task No.",// NAVCZ
                   DATABASE::Job, "Job No.",
-                  DimMgt.TypeToTableID1("Account Type"), "Account No.",
-                  DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
+                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
+                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
                   DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
                   DATABASE::Campaign, "Campaign No.");
             end;
@@ -1085,12 +1085,10 @@
             Caption = 'Reason Code';
             TableRelation = "Reason Code";
         }
-        field(53; "Recurring Method"; Option)
+        field(53; "Recurring Method"; Enum "Gen. Journal Recurring Method")
         {
             BlankZero = true;
             Caption = 'Recurring Method';
-            OptionCaption = ' ,F  Fixed,V  Variable,B  Balance,RF Reversing Fixed,RV Reversing Variable,RB Reversing Balance';
-            OptionMembers = " ","F  Fixed","V  Variable","B  Balance","RF Reversing Fixed","RV Reversing Variable","RB Reversing Balance";
 
             trigger OnValidate()
             begin
@@ -1112,18 +1110,16 @@
         field(56; "Allocated Amt. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Gen. Jnl. Allocation".Amount WHERE("Journal Template Name" = FIELD("Journal Template Name"),
+            CalcFormula = Sum("Gen. Jnl. Allocation".Amount WHERE("Journal Template Name" = FIELD("Journal Template Name"),
                                                                    "Journal Batch Name" = FIELD("Journal Batch Name"),
                                                                    "Journal Line No." = FIELD("Line No.")));
             Caption = 'Allocated Amt. (LCY)';
             Editable = false;
             FieldClass = FlowField;
         }
-        field(57; "Gen. Posting Type"; Option)
+        field(57; "Gen. Posting Type"; Enum "General Posting Type")
         {
             Caption = 'Gen. Posting Type';
-            OptionCaption = ' ,Purchase,Sale,Settlement';
-            OptionMembers = " ",Purchase,Sale,Settlement;
 
             trigger OnValidate()
             var
@@ -1136,7 +1132,7 @@
                 if ("Gen. Posting Type" = "Gen. Posting Type"::Settlement) and (CurrFieldNo <> 0) then
                     Error(Text006, "Gen. Posting Type");
                 CheckVATInAlloc;
-                if "Gen. Posting Type" > 0 then
+                if "Gen. Posting Type" <> "Gen. Posting Type"::" " then
                     Validate("VAT Prod. Posting Group");
                 if "Gen. Posting Type" <> "Gen. Posting Type"::Purchase then
                     Validate("Use Tax", false)
@@ -1258,11 +1254,9 @@
                 Validate("Original Document Partner Type", "Original Document Partner Type"::" "); // NAVCZ
             end;
         }
-        field(64; "Bal. Gen. Posting Type"; Option)
+        field(64; "Bal. Gen. Posting Type"; Enum "General Posting Type")
         {
             Caption = 'Bal. Gen. Posting Type';
-            OptionCaption = ' ,Purchase,Sale,Settlement';
-            OptionMembers = " ",Purchase,Sale,Settlement;
 
             trigger OnValidate()
             var
@@ -1275,7 +1269,7 @@
                     TestField("Bal. Gen. Posting Type", "Bal. Gen. Posting Type"::" ");
                 if ("Bal. Gen. Posting Type" = "Gen. Posting Type"::Settlement) and (CurrFieldNo <> 0) then
                     Error(Text006, "Bal. Gen. Posting Type");
-                if "Bal. Gen. Posting Type" > 0 then
+                if "Bal. Gen. Posting Type" <> "Bal. Gen. Posting Type"::" " then
                     Validate("Bal. VAT Prod. Posting Group");
 
                 if ("Account Type" <> "Account Type"::"Fixed Asset") and
@@ -1805,7 +1799,7 @@
                 IsHandled := false;
                 OnValidateVATProdPostingGroupOnBeforeVATCalculationCheck(Rec, VATPostingSetup, IsHandled);
                 if not IsHandled then
-                    if "Gen. Posting Type" <> 0 then begin
+                    if "Gen. Posting Type" <> "Gen. Posting Type"::" " then begin
                         GetVATPostingSetup("VAT Bus. Posting Group", "VAT Prod. Posting Group");
                         "VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
                         case "VAT Calculation Type" of
@@ -1857,7 +1851,7 @@
 
                 "Bal. VAT %" := 0;
                 "Bal. VAT Calculation Type" := "Bal. VAT Calculation Type"::"Normal VAT";
-                if "Bal. Gen. Posting Type" <> 0 then begin
+                if "Bal. Gen. Posting Type" <> "Bal. Gen. Posting Type"::" " then begin
                     GetVATPostingSetup("Bal. VAT Bus. Posting Group", "Bal. VAT Prod. Posting Group");
                     "Bal. VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
                     case "Bal. VAT Calculation Type" of
@@ -2263,7 +2257,7 @@
         }
         field(291; "Has Payment Export Error"; Boolean)
         {
-            CalcFormula = Exist ("Payment Jnl. Export Error Text" WHERE("Journal Template Name" = FIELD("Journal Template Name"),
+            CalcFormula = Exist("Payment Jnl. Export Error Text" WHERE("Journal Template Name" = FIELD("Journal Template Name"),
                                                                         "Journal Batch Name" = FIELD("Journal Batch Name"),
                                                                         "Journal Line No." = FIELD("Line No.")));
             Caption = 'Has Payment Export Error';
@@ -2278,7 +2272,7 @@
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -2659,8 +2653,9 @@
                 if "Deferral Code" <> '' then
                     TestField("Account Type", "Account Type"::"G/L Account");
 
-                DeferralUtilities.DeferralCodeOnValidate("Deferral Code", DeferralDocType::"G/L", "Journal Template Name", "Journal Batch Name",
-                  0, '', "Line No.", GetDeferralAmount(), "Posting Date", Description, "Currency Code");
+                DeferralUtilities.DeferralCodeOnValidate(
+                    "Deferral Code", DeferralDocType::"G/L".AsInteger(), "Journal Template Name", "Journal Batch Name",
+                    0, '', "Line No.", GetDeferralAmount(), "Posting Date", Description, "Currency Code");
             end;
         }
         field(1701; "Deferral Line No."; Integer)
@@ -2676,8 +2671,8 @@
             begin
                 CreateDim(
                   DATABASE::Campaign, "Campaign No.",
-                  DimMgt.TypeToTableID1("Account Type"), "Account No.",
-                  DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
+                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
+                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
                   DATABASE::Job, "Job No.",
                   DATABASE::"Job Task", "Job Task No.",// NAVCZ
                   DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code");
@@ -2865,6 +2860,23 @@
         {
             Caption = 'Check Transmitted';
         }
+        field(5703; "Reverse Date Calculation"; DateFormula)
+        {
+            Caption = 'Reverse Date Calculation';
+
+            trigger OnValidate()
+            var
+                GenJournalTemplate: Record "Gen. Journal Template";
+            begin
+                if Format("Reverse Date Calculation") = '' then
+                    exit;
+
+                GenJournalTemplate.Get("Journal Template Name");
+                GenJournalTemplate.TestField(Recurring);
+                if not ("Recurring Method" in ["Recurring Method"::"RF Reversing Fixed", "Recurring Method"::"RV Reversing Variable", "Recurring Method"::"RB Reversing Balance"]) then
+                    FieldError("Recurring Method");
+            end;
+        }
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -2875,7 +2887,7 @@
         field(8001; "Account Id"; Guid)
         {
             Caption = 'Account Id';
-            TableRelation = "G/L Account".Id;
+            TableRelation = "G/L Account".SystemId;
 
             trigger OnValidate()
             begin
@@ -2885,7 +2897,7 @@
         field(8002; "Customer Id"; Guid)
         {
             Caption = 'Customer Id';
-            TableRelation = Customer.Id;
+            TableRelation = Customer.SystemId;
 
             trigger OnValidate()
             begin
@@ -2895,7 +2907,8 @@
         field(8003; "Applies-to Invoice Id"; Guid)
         {
             Caption = 'Applies-to Invoice Id';
-            TableRelation = "Sales Invoice Header".Id;
+            TableRelation = "Sales Invoice Entity Aggregate".Id;
+            ValidateTableRelation = false;
 
             trigger OnValidate()
             begin
@@ -2913,7 +2926,7 @@
         field(8006; "Journal Batch Id"; Guid)
         {
             Caption = 'Journal Batch Id';
-            TableRelation = "Gen. Journal Batch".Id;
+            TableRelation = "Gen. Journal Batch".SystemId;
 
             trigger OnValidate()
             begin
@@ -2923,7 +2936,7 @@
         field(8007; "Payment Method Id"; Guid)
         {
             Caption = 'Payment Method Id';
-            TableRelation = "Payment Method".Id;
+            TableRelation = "Payment Method".SystemId;
 
             trigger OnValidate()
             begin
@@ -3061,6 +3074,9 @@
         field(11760; "VAT Date"; Date)
         {
             Caption = 'VAT Date';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             begin
@@ -3086,6 +3102,9 @@
         {
             Caption = 'VAT Delay';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11765; "VAT % (Non Deductible)"; Decimal)
         {
@@ -3179,10 +3198,17 @@
             DecimalPlaces = 0 : 15;
             Editable = false;
             MinValue = 0;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11769; "Currency Code VAT"; Code[10])
         {
             Caption = 'Currency Code VAT';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
+
         }
         field(11770; "Primary VAT Entry No."; Integer)
         {
@@ -3216,10 +3242,16 @@
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(31000; "Prepayment Type"; Option)
         {
@@ -3286,6 +3318,9 @@
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
             Caption = 'EU 3-Party Intermediate Role';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             begin
@@ -3304,12 +3339,18 @@
         field(31100; "Original Document VAT Date"; Date)
         {
             Caption = 'Original Document VAT Date';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(31101; "Original Document Partner Type"; Option)
         {
             Caption = 'Original Document Partner Type';
             OptionCaption = ' ,Customer,Vendor';
             OptionMembers = " ",Customer,Vendor;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             begin
@@ -3335,6 +3376,9 @@
             TableRelation = IF ("Original Document Partner Type" = CONST(Customer)) Customer
             ELSE
             IF ("Original Document Partner Type" = CONST(Vendor)) Vendor;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             var
@@ -3447,9 +3491,8 @@
                 PrepmtLinksMgt.UnLinkWholePurchLetter("Advance Letter Link Code");
         // NAVCZ
         DeferralUtilities.DeferralCodeOnDelete(
-          DeferralDocType::"G/L",
-          "Journal Template Name",
-          "Journal Batch Name", 0, '', "Line No.");
+            DeferralDocType::"G/L".AsInteger(),
+            "Journal Template Name", "Journal Batch Name", 0, '', "Line No.");
 
         Validate("Incoming Document Entry No.", 0);
     end;
@@ -3514,8 +3557,6 @@
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLine: Record "Gen. Journal Line";
-        Currency: Record Currency;
-        CurrExchRate: Record "Currency Exchange Rate";
         PaymentTerms: Record "Payment Terms";
         CustLedgEntry: Record "Cust. Ledger Entry";
         VendLedgEntry: Record "Vendor Ledger Entry";
@@ -3543,14 +3584,13 @@
         DeferralUtilities: Codeunit "Deferral Utilities";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         Window: Dialog;
-        DeferralDocType: Option Purchase,Sales,"G/L";
+        DeferralDocType: Enum "Deferral Document Type";
         CurrencyCode: Code[10];
         Text014: Label 'The %1 %2 has a %3 %4.\\Do you still want to use %1 %2 in this journal line?', Comment = '%1=Caption of Table Customer, %2=Customer No, %3=Caption of field Bill-to Customer No, %4=Value of Bill-to customer no.';
         TemplateFound: Boolean;
         Text015: Label 'You are not allowed to apply and post an entry to an entry with an earlier posting date.\\Instead, post %1 %2 and then apply it to %3 %4.';
         CurrencyDate: Date;
         Text016: Label '%1 must be G/L Account or Bank Account.';
-        HideValidationDialog: Boolean;
         Text018: Label '%1 can only be set when %2 is set.';
         Text019: Label '%1 cannot be changed when %2 is set.';
         GLSetupRead: Boolean;
@@ -3572,6 +3612,12 @@
         SalespersonPurchPrivacyBlockErr: Label 'Privacy Blocked must not be true for Salesperson / Purchaser %1.', Comment = '%1 = salesperson / purchaser code.';
         BlockedErr: Label 'The Blocked field must not be %1 for %2 %3.', Comment = '%1=Blocked field value,%2=Account Type,%3=Account No.';
         BlockedEmplErr: Label 'You cannot export file because employee %1 is blocked due to privacy.', Comment = '%1 = Employee no. ';
+        InvoiceForGivenIDDoesNotExistErr: Label 'Invoice for given Applies-to Invoice Id does not exist.';
+
+    protected var
+        Currency: Record Currency;
+        CurrExchRate: Record "Currency Exchange Rate";
+        HideValidationDialog: Boolean;
 
     procedure EmptyLine() Result: Boolean
     var
@@ -3839,7 +3885,7 @@
         CustLedgEntry2: Record "Cust. Ledger Entry";
         VendLedgEntry: Record "Vendor Ledger Entry";
         VendLedgEntry2: Record "Vendor Ledger Entry";
-        AccType: Option;
+        AccType: Enum "Gen. Journal Account Type";
         AccNo: Code[20];
     begin
         GetAccTypeAndNo(GenJnlLine2, AccType, AccNo);
@@ -3886,7 +3932,7 @@
 
     local procedure CheckVATInAlloc()
     begin
-        if "Gen. Posting Type" <> 0 then begin
+        if "Gen. Posting Type" <> "Gen. Posting Type"::" " then begin
             GenJnlAlloc.Reset();
             GenJnlAlloc.SetRange("Journal Template Name", "Journal Template Name");
             GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
@@ -3898,7 +3944,7 @@
         end;
     end;
 
-    local procedure SetCurrencyCode(AccType2: Option "G/L Account",Customer,Vendor,"Bank Account"; AccNo2: Code[20]): Boolean
+    local procedure SetCurrencyCode(AccType2: Enum "Gen. Journal Account Type"; AccNo2: Code[20]): Boolean
     var
         BankAcc: Record "Bank Account";
     begin
@@ -3919,7 +3965,7 @@
             "Currency Factor" := CurrencyFactor;
     end;
 
-    local procedure GetCurrency()
+    protected procedure GetCurrency()
     begin
         if "Additional-Currency Posting" =
            "Additional-Currency Posting"::"Additional-Currency Amount Only"
@@ -3956,12 +4002,12 @@
         case true of
             SourceExists1 and not SourceExists2:
                 begin
-                    "Source Type" := "Account Type".AsInteger();
+                    "Source Type" := "Account Type";
                     "Source No." := "Account No.";
                 end;
             SourceExists2 and not SourceExists1:
                 begin
-                    "Source Type" := "Bal. Account Type".AsInteger();
+                    "Source Type" := "Bal. Account Type";
                     "Source No." := "Bal. Account No.";
                 end;
             else begin
@@ -3985,7 +4031,7 @@
         CheckDirectPosting(GLAcc);
     end;
 
-    local procedure CheckICPartner(ICPartnerCode: Code[20]; AccountType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner"; AccountNo: Code[20])
+    local procedure CheckICPartner(ICPartnerCode: Code[20]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         ICPartner: Record "IC Partner";
     begin
@@ -4355,6 +4401,26 @@
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
     end;
 
+    procedure SwitchLinesWithErrorsFilter(var ShowAllLinesEnabled: Boolean)
+    var
+        TempErrorMessage: Record "Error Message" temporary;
+        JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
+    begin
+        if ShowAllLinesEnabled then begin
+            MarkedOnly(false);
+            ShowAllLinesEnabled := false;
+        end else begin
+            JournalErrorsMgt.GetErrorMessages(TempErrorMessage);
+            if TempErrorMessage.FindSet() then
+                repeat
+                    if Rec.Get(TempErrorMessage."Record ID") then
+                        Rec.Mark(true)
+                until TempErrorMessage.Next() = 0;
+            MarkedOnly(true);
+            ShowAllLinesEnabled := true;
+        end;
+    end;
+
     procedure GetFAVATSetup()
     var
         LocalGLAcc: Record "G/L Account";
@@ -4384,7 +4450,7 @@
                 ("FA Posting Type" = "FA Posting Type"::Maintenance)) and
                ("Posting Group" <> '')
             then
-                if FAPostingGr.Get("Posting Group") then begin
+                if FAPostingGr.GetPostingGroup("Posting Group", "Depreciation Book Code") then begin
                     case "FA Posting Type" of
                         "FA Posting Type"::"Acquisition Cost":
                             LocalGLAcc.Get(FAPostingGr.GetAcquisitionCostAccount);
@@ -5096,6 +5162,7 @@
         AppliedEmplLedgEntry.Copy(EmplLedgEntry);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     procedure SetUseForCalculation(NewUseForCalculation: Boolean)
     begin
         // NAVCZ
@@ -5129,7 +5196,7 @@
         Validate("Currency Code");
     end;
 
-    local procedure SetAppliesToFields(DocType: Option; DocNo: Code[20]; ExtDocNo: Code[35])
+    local procedure SetAppliesToFields(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; ExtDocNo: Code[35])
     begin
         UpdateDocumentTypeAndAppliesTo(DocType, DocNo);
 
@@ -5189,6 +5256,19 @@
     begin
         if "Applied Automatically" then
             exit('Favorable')
+    end;
+
+    procedure GetDocumentBalance(var GenJournalLine: Record "Gen. Journal Line"): Decimal
+    var
+        DocGenJournalLine: Record "Gen. Journal Line";
+    begin
+        DocGenJournalLine.CopyFilters(GenJournalLine);
+        DocGenJournalLine.SetRange("Document No.", GenJournalLine."Document No.");
+        DocGenJournalLine.SetRange("Posting Date", GenJournalLine."Posting Date");
+        if GenJnlTemplate.Get(GenJournalLine."Journal Template Name") and GenJnlTemplate."Force Doc. Balance" then
+            DocGenJournalLine.SetRange("Document Type", GenJournalLine."Document Type");
+        DocGenJournalLine.CalcSums("Balance (LCY)");
+        exit(DocGenJournalLine."Balance (LCY)");
     end;
 
     procedure GetOverdueDateInteractions(var OverdueWarningText: Text): Text
@@ -5337,7 +5417,7 @@
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
         VendLedgEntry: Record "Vendor Ledger Entry";
-        AccType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner",Employee;
+        AccType: Enum "Gen. Journal Account Type";
         AccNo: Code[20];
     begin
         GetAccTypeAndNo(Rec, AccType, AccNo);
@@ -5364,7 +5444,7 @@
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
         VendLedgEntry: Record "Vendor Ledger Entry";
-        AccType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
+        AccType: Enum "Gen. Journal Account Type";
         AccNo: Code[20];
     begin
         GetAccTypeAndNo(Rec, AccType, AccNo);
@@ -5432,7 +5512,7 @@
     [Scope('OnPrem')]
     procedure SetJournalLineFieldsFromApplication()
     var
-        AccType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner",Employee;
+        AccType: Enum "Gen. Journal Account Type";
         AccNo: Code[20];
     begin
         "Exported to Payment File" := false;
@@ -5480,7 +5560,7 @@
         OnAfterSetJournalLineFieldsFromApplication(Rec, AccType, AccNo, xRec);
     end;
 
-    local procedure GetAccTypeAndNo(GenJnlLine2: Record "Gen. Journal Line"; var AccType: Option; var AccNo: Code[20])
+    local procedure GetAccTypeAndNo(GenJnlLine2: Record "Gen. Journal Line"; var AccType: Enum "Gen. Journal Account Type"; var AccNo: Code[20])
     begin
         if GenJnlLine2."Bal. Account Type" in
            [GenJnlLine2."Bal. Account Type"::Customer, GenJnlLine2."Bal. Account Type"::Vendor, GenJnlLine2."Bal. Account Type"::Employee]
@@ -5597,8 +5677,8 @@
         UpdateLineBalance;
         UpdateSource;
         CreateDim(
-          DimMgt.TypeToTableID1("Account Type"), "Account No.",
-          DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
+          DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
+          DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
           DATABASE::Job, "Job No.",
           DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
           DATABASE::"Job Task", "Job Task No.",// NAVCZ
@@ -5634,7 +5714,7 @@
         exit(GenJnlBatch."Bal. Account No." <> '');
     end;
 
-    local procedure AddCustVendIC(AccountType: Option; AccountNo: Code[20]): Boolean
+    local procedure AddCustVendIC(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]): Boolean
     begin
         SetRange("Account Type", AccountType);
         SetRange("Account No.", AccountNo);
@@ -5793,7 +5873,7 @@
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     procedure GetVATDeduction(): Decimal
     var
         NonDeductibleVATSetup: Record "Non Deductible VAT Setup";
@@ -5813,7 +5893,7 @@
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     procedure GetVATPostingSetupWithNonDedVAT(var VATPostingSetup2: Record "VAT Posting Setup"): Boolean
     var
         VATPostingSetup3: Record "VAT Posting Setup";
@@ -5842,7 +5922,7 @@
         exit("Bal. Gen. Posting Type" = "Bal. Gen. Posting Type"::Purchase);
     end;
 
-    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     local procedure IsAllowNonDeductibleVAT(VATPostingSetup2: Record "VAT Posting Setup"): Boolean
     begin
         // NAVCZ
@@ -5851,6 +5931,7 @@
           VATPostingSetup2."Allow Non Deductible VAT");
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure AdjustDebitCredit(Invert: Boolean)
     var
@@ -5979,7 +6060,7 @@
         "Shortcut Dimension 2 Code" := TempJobJnlLine."Shortcut Dimension 2 Code";
     end;
 
-    procedure CopyDocumentFields(DocType: Option; DocNo: Code[20]; ExtDocNo: Text[35]; SourceCode: Code[10]; NoSeriesCode: Code[20])
+    procedure CopyDocumentFields(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; ExtDocNo: Text[35]; SourceCode: Code[10]; NoSeriesCode: Code[20])
     begin
         "Document Type" := DocType;
         "Document No." := DocNo;
@@ -6520,7 +6601,7 @@
         end;
     end;
 
-    procedure CheckModifyCurrencyCode(AccountType: Option; CustVendLedgEntryCurrencyCode: Code[10])
+    procedure CheckModifyCurrencyCode(AccountType: Enum "Gen. Journal Account Type"; CustVendLedgEntryCurrencyCode: Code[10])
     begin
         if Amount = 0 then
             UpdateCurrencyCode(CustVendLedgEntryCurrencyCode)
@@ -6604,13 +6685,14 @@
 
         exit(
           DeferralUtilities.OpenLineScheduleEdit(
-            "Deferral Code", GetDeferralDocType, "Journal Template Name", "Journal Batch Name", 0, '', "Line No.",
+            "Deferral Code", "Deferral Document Type"::"G/L".AsInteger(), "Journal Template Name", "Journal Batch Name", 0, '', "Line No.",
             GetDeferralAmount(), PostingDate, Description, CurrencyCode));
     end;
 
+    [Obsolete('Replace by enum "Deferral Document Type" value.', '17.0')]
     procedure GetDeferralDocType(): Integer
     begin
-        exit(DeferralDocType::"G/L");
+        exit(DeferralDocType::"G/L".AsInteger());
     end;
 
     procedure IsForPurchase(): Boolean
@@ -7166,7 +7248,7 @@
         FAGenJournalLine.TestField("Posting Group");
 
         // Inserting additional fields in Fixed Asset line required for acquisition
-        if FAPostingGr.Get(FAGenJournalLine."Posting Group") then begin
+        if FAPostingGr.GetPostingGroup(FAGenJournalLine."Posting Group", FAGenJournalLine."Depreciation Book Code") then begin
             LocalGLAcc.Get(FAPostingGr."Acquisition Cost Account");
             LocalGLAcc.CheckGLAcc;
             FAGenJournalLine.Validate("Gen. Posting Type", LocalGLAcc."Gen. Posting Type");
@@ -7338,12 +7420,12 @@
         end;
     end;
 
-    local procedure CheckIfPostingDateIsEarlier(GenJournalLine: Record "Gen. Journal Line"; ApplyPostingDate: Date; ApplyDocType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund; ApplyDocNo: Code[20])
+    local procedure CheckIfPostingDateIsEarlier(GenJournalLine: Record "Gen. Journal Line"; ApplyPostingDate: Date; ApplyDocType: Enum "Gen. Journal Document Type"; ApplyDocNo: Code[20])
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckIfPostingDateIsEarlier(GenJournalLine, ApplyPostingDate, ApplyDocType, ApplyDocNo, IsHandled);
+        OnBeforeCheckIfPostingDateIsEarlier(GenJournalLine, ApplyPostingDate, ApplyDocType.AsInteger(), ApplyDocNo, IsHandled);
         if IsHandled then
             exit;
 
@@ -7694,7 +7776,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetJournalLineFieldsFromApplication(var GenJournalLine: Record "Gen. Journal Line"; AccType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner",Employee; AccNo: Code[20]; xGenJournalLine: Record "Gen. Journal Line")
+    local procedure OnAfterSetJournalLineFieldsFromApplication(var GenJournalLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; xGenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -8005,13 +8087,13 @@
         "Last Modified DateTime" := DotNet_DateTimeOffset.ConvertToUtcDateTime(CurrentDateTime);
     end;
 
-    local procedure UpdateDocumentTypeAndAppliesTo(DocType: Integer; DocNo: Code[20])
+    local procedure UpdateDocumentTypeAndAppliesTo(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     begin
         "Applies-to Doc. Type" := DocType;
         "Applies-to Doc. No." := DocNo;
         "Applies-to ID" := '';
 
-        OnAfterUpdateDocumentTypeAndAppliesToFields(Rec, DocType, DocNo);
+        OnAfterUpdateDocumentTypeAndAppliesToFields(Rec, DocType.AsInteger(), DocNo);
 
         if "Document Type" <> "Document Type"::" " then
             exit;
@@ -8045,7 +8127,7 @@
         if not GLAccount.Get("Account No.") then
             exit;
 
-        "Account Id" := GLAccount.Id;
+        "Account Id" := GLAccount.SystemId;
     end;
 
     local procedure UpdateAccountNo()
@@ -8055,8 +8137,7 @@
         if IsNullGuid("Account Id") then
             exit;
 
-        GLAccount.SetRange(Id, "Account Id");
-        if not GLAccount.FindFirst then
+        if not GLAccount.GetBySystemId("Account Id") then
             exit;
 
         "Account No." := GLAccount."No.";
@@ -8108,7 +8189,7 @@
         if not Customer.Get("Account No.") then
             exit;
 
-        "Customer Id" := Customer.Id;
+        "Customer Id" := Customer.SystemId;
     end;
 
     local procedure UpdateCustomerNo()
@@ -8118,8 +8199,7 @@
         if IsNullGuid("Customer Id") then
             exit;
 
-        Customer.SetRange(Id, "Customer Id");
-        if not Customer.FindFirst then
+        if not Customer.GetBySystemId("Customer Id") then
             exit;
 
         "Account No." := Customer."No.";
@@ -8128,6 +8208,7 @@
     procedure UpdateAppliesToInvoiceID()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
     begin
         if "Applies-to Doc. Type" <> "Applies-to Doc. Type"::Invoice then
             exit;
@@ -8140,19 +8221,19 @@
         if not SalesInvoiceHeader.Get("Applies-to Doc. No.") then
             exit;
 
-        "Applies-to Invoice Id" := SalesInvoiceHeader.Id;
+        "Applies-to Invoice Id" := SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader);
     end;
 
     local procedure UpdateAppliesToInvoiceNo()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
     begin
         if IsNullGuid("Applies-to Invoice Id") then
             exit;
 
-        SalesInvoiceHeader.SetRange(Id, "Applies-to Invoice Id");
-        if not SalesInvoiceHeader.FindFirst then
-            exit;
+        if not SalesInvoiceAggregator.GetSalesInvoiceHeaderFromId(Format("Applies-to Invoice Id"), SalesInvoiceHeader) then
+            Error(InvoiceForGivenIDDoesNotExistErr);
 
         "Applies-to Doc. No." := SalesInvoiceHeader."No.";
     end;
@@ -8175,11 +8256,13 @@
         GraphIntContact: Codeunit "Graph Int. - Contact";
         GraphID: Text[250];
     begin
+        if not GraphIntContact.IsUpdateContactIdEnabled() then
+            exit;
+
         if IsNullGuid("Customer Id") then
             Clear("Contact Graph Id");
 
-        Customer.SetRange(Id, "Customer Id");
-        if not Customer.FindFirst then
+        if not Customer.GetBySystemId("Customer Id") then
             Clear("Contact Graph Id");
 
         if not GraphIntContact.FindGraphContactIdFromCustomer(GraphID, Customer, Contact) then
@@ -8195,15 +8278,14 @@
         if not GenJournalBatch.Get("Journal Template Name", "Journal Batch Name") then
             exit;
 
-        "Journal Batch Id" := GenJournalBatch.Id;
+        "Journal Batch Id" := GenJournalBatch.SystemId;
     end;
 
     local procedure UpdateJournalBatchName()
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        GenJournalBatch.SetRange(Id, "Journal Batch Id");
-        if not GenJournalBatch.FindFirst then
+        if not GenJournalBatch.GetBySystemId("Journal Batch Id") then
             exit;
 
         "Journal Batch Name" := GenJournalBatch.Name;
@@ -8221,7 +8303,7 @@
         if not PaymentMethod.Get("Payment Method Code") then
             exit;
 
-        "Payment Method Id" := PaymentMethod.Id;
+        "Payment Method Id" := PaymentMethod.SystemId;
     end;
 
     local procedure UpdatePaymentMethodCode()
@@ -8231,8 +8313,7 @@
         if IsNullGuid("Payment Method Id") then
             exit;
 
-        PaymentMethod.SetRange(Id, "Payment Method Id");
-        if not PaymentMethod.FindFirst then
+        if not PaymentMethod.GetBySystemId("Payment Method Id") then
             exit;
 
         "Payment Method Code" := PaymentMethod.Code;
@@ -8252,7 +8333,6 @@
     begin
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure ShowDeferralSchedule()
     begin
         if "Account Type" = "Account Type"::"Fixed Asset" then

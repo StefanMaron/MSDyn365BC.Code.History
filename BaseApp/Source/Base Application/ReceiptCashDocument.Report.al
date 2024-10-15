@@ -2,7 +2,10 @@ report 11730 "Receipt Cash Document"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './ReceiptCashDocument.rdlc';
-    Caption = 'Receipt Cash Document';
+    Caption = 'Receipt Cash Document (Obsolete)';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

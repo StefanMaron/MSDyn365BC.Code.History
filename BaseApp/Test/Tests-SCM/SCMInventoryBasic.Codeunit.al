@@ -42,7 +42,7 @@ codeunit 137280 "SCM Inventory Basic"
         GlobalPurchasedQuantity: Decimal;
         GlobalQtyToAssign: Decimal;
         GlobalApplToItemEntry: Integer;
-        GlobalLineOption: Option;
+        GlobalLineOption: Enum "Item Statistics Line Option";
         GlobalItemTracking: Option ,AssignSerialNo,AssignLotNo,SelectEntries,SetValue;
         GlobalItemChargeAssignment: Option AssignmentOnly,GetShipmentLine;
         VariantErr: Label 'Variant  cannot be fully applied.';
@@ -176,21 +176,21 @@ codeunit 137280 "SCM Inventory Basic"
           PurchaseLine, PurchaseLine."Document Type"::Order, CreateVendor, PurchaseLine.Type::Item, Item."No.", Quantity);
         GlobalPurchasedQuantity := PurchaseLine.Quantity; // Assign global variable.
         GlobalItemTracking := TrackingOption;
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         DocumentNo := PostPurchaseOrder(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.", false);
 
         // Post Sales Order.
         CreateSalesDocument(
           SalesLine, SalesLine."Document Type"::Order, CreateCustomer, SalesLine.Type::Item, Item."No.", GlobalPurchasedQuantity);
         GlobalItemTracking := GlobalItemTracking::SelectEntries;
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
 
         // Post Sales Credit Memo.
         CreateSalesDocument(
           SalesLine2, SalesLine2."Document Type"::"Credit Memo", CreateCustomer, SalesLine2.Type::Item, Item."No.", GlobalPurchasedQuantity);
         GlobalItemTracking := GlobalItemTracking::SetValue;
-        SalesLine2.OpenItemTrackingLines;
+        SalesLine2.OpenItemTrackingLines();
         PostSalesOrder(SalesLine2."Document Type", SalesLine2."Document No.", true);
 
         // Post the initial Purchase Order as Invoice.
@@ -202,7 +202,7 @@ codeunit 137280 "SCM Inventory Basic"
           PurchaseLine.Quantity);
         GlobalApplToItemEntry := FindItemLedgerEntry(DocumentNo); // Assign to global variable.
         GlobalItemTracking := GlobalItemTracking::SelectEntries;
-        asserterror PurchaseLine2.OpenItemTrackingLines;
+        asserterror PurchaseLine2.OpenItemTrackingLines();
 
         // Verify.
         Assert.ExpectedError(RemainingQtyErr);
@@ -239,7 +239,7 @@ codeunit 137280 "SCM Inventory Basic"
         PurchaseLine2.Validate("Direct Unit Cost", GlobalAmount);
         PurchaseLine2.Modify(true);
         GlobalLineOption := ItemStatisticsBuffer."Line Option"::"Purch. Item Charge Spec.";  // Using global variable to assing Line Option in Item Statistics Page.
-        PurchaseLine2.ShowItemChargeAssgnt;
+        PurchaseLine2.ShowItemChargeAssgnt();
 
         // Exercise: Post Order as Receive and Invoice.
         PostPurchaseOrder(PurchaseLine2."Document Type", PurchaseLine2."Document No.", true);
@@ -277,7 +277,7 @@ codeunit 137280 "SCM Inventory Basic"
         UpdateSalesLineUnitPrice(SalesLine2, GlobalAmount);
         GlobalLineOption := ItemStatisticsBuffer."Line Option"::"Sales Item Charge Spec.";  // Using global variable to assing Line Option in Item Statistics Page.
         GlobalItemChargeAssignment := GlobalItemChargeAssignment::GetShipmentLine;
-        SalesLine2.ShowItemChargeAssgnt;
+        SalesLine2.ShowItemChargeAssgnt();
 
         // Exercise: Post Order as Ship and Invoice.
         PostSalesOrder(SalesLine2."Document Type", SalesLine2."Document No.", true);
@@ -326,7 +326,7 @@ codeunit 137280 "SCM Inventory Basic"
         LibrarySales.ReopenSalesDocument(SalesHeader);
         DeleteSalesLine(SalesLine."Document No.");
         GlobalItemChargeAssignment := GlobalItemChargeAssignment::GetShipmentLine;
-        SalesLine.ShowItemChargeAssgnt;
+        SalesLine.ShowItemChargeAssgnt();
 
         // Exercise.
         DocumentNo := PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
@@ -724,7 +724,7 @@ codeunit 137280 "SCM Inventory Basic"
         ItemNo := CreateAndPostItemJnlLineWithtemTracking;
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Return Order", CreateCustomer, SalesLine.Type::Item, ItemNo, 1);  // Taken 1 for Quantity.
         UpdateSalesLineUnitPrice(SalesLine, LibraryRandom.RandDec(10, 2));  // Using Random value for Unit Price.
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
 
         // Exercise: Run Adjust Cost Item Entries.
@@ -768,7 +768,7 @@ codeunit 137280 "SCM Inventory Basic"
         Initialize;
         ItemNo := CreateAndPostItemJnlLineWithtemTracking;
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order, CreateCustomer, SalesLine.Type::Item, ItemNo, 1);  // Taken 1 for Quantity.
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
 
         // Exercise.
         asserterror PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
@@ -1506,34 +1506,7 @@ codeunit 137280 "SCM Inventory Basic"
 
         // [WHEN] Open Item Charge Assigment
         // [THEN] Item Charge Assigment Page is opened with Qty to Assign = 0
-        SalesLine.ShowItemChargeAssgnt;
-    end;
-
-    [Test]
-    [HandlerFunctions('ProductionJournalPageTypeResourceHandler')]
-    [Scope('OnPrem')]
-    procedure ProductionJournalPageTypeResource()
-    var
-        ProductionOrder: Record "Production Order";
-        ReleasedProductionOrder: TestPage "Released Production Order";
-    begin
-        // [FEATURE] [Production Journal] [UT]
-        // [SCENARIO 377373] Production Journal Page should prohibit type = "Resource"
-        Initialize;
-
-        // [WHEN] Production Journal Page
-        LibraryManufacturing.CreateProductionOrder(
-          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, CreateItem, LibraryRandom.RandInt(100));
-
-        ReleasedProductionOrder.OpenEdit;
-        ReleasedProductionOrder.GotoRecord(ProductionOrder);
-        ReleasedProductionOrder.ProdOrderLines.ProductionJournal.Invoke;
-
-        // [WHEN] Set Type on Production Journal Page to "Resource"
-        // Set in ProductionJournalPageTypeResourceHandler
-
-        // [THEN] Error is thrown: "Validation error for Field: Type"
-        // Verify in ProductionJournalPageTypeResourceHandler
+        SalesLine.ShowItemChargeAssgnt();
     end;
 
     [Test]
@@ -1592,7 +1565,8 @@ codeunit 137280 "SCM Inventory Basic"
         NonstockItemCard.Close;
 
         // [THEN] Item Substitution record is created
-        Assert.IsTrue(FindItemSubstitution(ItemSubstitution.Type::"Nonstock Item", NonstockItem."Entry No.",
+        Assert.IsTrue(
+            FindItemSubstitution(ItemSubstitution.Type::"Nonstock Item", NonstockItem."Entry No.",
             ItemSubstitution."Substitute Type"::Item, Item."No."), 'Item Substitution not found.');
     end;
 
@@ -2103,7 +2077,7 @@ codeunit 137280 "SCM Inventory Basic"
         Clear(GlobalItemTracking);
     end;
 
-    local procedure CreateAndModifyItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; EntryType: Option; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreateAndModifyItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Quantity: Decimal)
     begin
         LibraryInventory.CreateItemJournalLine(ItemJournalLine, JournalTemplateName, JournalBatchName, EntryType, ItemNo, Quantity);
         ModifyItemJnlLine(ItemJournalLine, '', LibraryRandom.RandInt(10));  // Taking Random value for Unit Amount.
@@ -2249,7 +2223,7 @@ codeunit 137280 "SCM Inventory Basic"
           DefaultDimension, Customer."No.", DimensionValue."Dimension Code", DimensionValue.Code);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; BuyFromVendorNo: Code[20]; Type: Option; No: Code[20]; Quantity: Decimal)
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; BuyFromVendorNo: Code[20]; Type: Enum "Purchase Line Type"; No: Code[20]; Quantity: Decimal)
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -2259,7 +2233,7 @@ codeunit 137280 "SCM Inventory Basic"
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocumentWithAmount(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; BuyFromVendorNo: Code[20]; Type: Option; No: Code[20]; Quantity: Decimal)
+    local procedure CreatePurchaseDocumentWithAmount(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; BuyFromVendorNo: Code[20]; Type: Enum "Purchase Line Type"; No: Code[20]; Quantity: Decimal)
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -2272,7 +2246,7 @@ codeunit 137280 "SCM Inventory Basic"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; SellToCustomerNo: Code[20]; Type: Option; No: Code[20]; Quantity: Decimal)
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; SellToCustomerNo: Code[20]; Type: Enum "Sales Line Type"; No: Code[20]; Quantity: Decimal)
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -2303,7 +2277,7 @@ codeunit 137280 "SCM Inventory Basic"
 
         GlobalItemChargeAssignment := GlobalItemChargeAssignment::AssignmentOnly;
         GlobalQtyToAssign := 0.5;  // Taken Qty. to Assign as 0.5 to assign equal value on both Item Lines.
-        SalesLine2.ShowItemChargeAssgnt;
+        SalesLine2.ShowItemChargeAssgnt();
         SalesLine.Validate("Qty. to Ship", 0);  // Set Quantity to Ship 0 for Item Line.
         SalesLine.Modify(true);
         exit(ItemChargeNo);
@@ -2326,13 +2300,13 @@ codeunit 137280 "SCM Inventory Basic"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));  // Using Random value for Quantity.
 
         GlobalItemChargeAssignment := GlobalItemChargeAssignment::AssignmentOnly;
-        SalesLine2.ShowItemChargeAssgnt;
+        SalesLine2.ShowItemChargeAssgnt();
         SalesLine.Validate("Qty. to Ship", 0);
         SalesLine.Modify(true);
         exit(ItemChargeNo);
     end;
 
-    local procedure CreatePurchaseDocumentAndAssignItemCharge(var PurchaseLine: Record "Purchase Line"; var PurchaseLine2: Record "Purchase Line"; DocumentType: Option)
+    local procedure CreatePurchaseDocumentAndAssignItemCharge(var PurchaseLine: Record "Purchase Line"; var PurchaseLine2: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type")
     var
         ItemCharge: Record "Item Charge";
         PurchaseHeader: Record "Purchase Header";
@@ -2349,7 +2323,7 @@ codeunit 137280 "SCM Inventory Basic"
           PurchaseLine2, PurchaseHeader, PurchaseLine2.Type::"Charge (Item)", ItemCharge."No.", LibraryRandom.RandInt(10));
         PurchaseLine2.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 1));
         PurchaseLine2.Modify(true);
-        PurchaseLine2.ShowItemChargeAssgnt;
+        PurchaseLine2.ShowItemChargeAssgnt();
     end;
 
     local procedure CreatePurchaseOrderAndAssignNegativeQtyItemCharge(var PurchaseLine2: Record "Purchase Line"): Code[20]
@@ -2369,7 +2343,7 @@ codeunit 137280 "SCM Inventory Basic"
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));  // Using Random value for Quantity.
 
         GlobalItemChargeAssignment := GlobalItemChargeAssignment::AssignmentOnly;
-        PurchaseLine2.ShowItemChargeAssgnt;
+        PurchaseLine2.ShowItemChargeAssgnt();
         PurchaseLine2.Modify();
         PurchaseLine.Validate("Qty. to Receive", 0);  // Set Quantity to Receive 0 for Item Line.
         PurchaseLine.Modify(true);
@@ -2409,7 +2383,7 @@ codeunit 137280 "SCM Inventory Basic"
         exit(LibraryUtility.GenerateRandomCode(RefUnitOfMeasure.FieldNo(Code), DATABASE::"Unit of Measure"));
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20]; Quantity: Decimal)
     var
         Vendor: Record Vendor;
     begin
@@ -2418,7 +2392,7 @@ codeunit 137280 "SCM Inventory Basic"
         PostPurchaseOrder(PurchaseLine."Document Type", PurchaseLine."Document No.", true);
     end;
 
-    local procedure CreateItemChargeAndAssignToReturnShipment(var PurchaseLine2: Record "Purchase Line"; PurchaseLine: Record "Purchase Line"; DocumentType: Option)
+    local procedure CreateItemChargeAndAssignToReturnShipment(var PurchaseLine2: Record "Purchase Line"; PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type")
     var
         ItemCharge: Record "Item Charge";
         ReturnShipmentLine: Record "Return Shipment Line";
@@ -2517,7 +2491,7 @@ codeunit 137280 "SCM Inventory Basic"
         TransferRoutes.MatrixForm.Field1.AssertEquals(MatrixCellValue);
     end;
 
-    local procedure PostPurchaseOrder(DocumentType: Option; No: Code[20]; Invoice: Boolean): Code[20]
+    local procedure PostPurchaseOrder(DocumentType: Enum "Purchase Document Type"; No: Code[20]; Invoice: Boolean): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -2525,7 +2499,7 @@ codeunit 137280 "SCM Inventory Basic"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, Invoice));
     end;
 
-    local procedure PostSalesOrder(DocumentType: Option; No: Code[20]; Invoice: Boolean): Code[20]
+    local procedure PostSalesOrder(DocumentType: Enum "Purchase Document Type"; No: Code[20]; Invoice: Boolean): Code[20]
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -2650,7 +2624,7 @@ codeunit 137280 "SCM Inventory Basic"
         Assert.AreNearlyEqual(TotalCost / TotalQuantity, Item."Unit Cost", LibraryERM.GetAmountRoundingPrecision, UnitCostErr);
     end;
 
-    local procedure VerifyAdjustmentCostAmount(ValueEntry: Record "Value Entry"; ItemNo: Code[20]; EntryType: Option; Adjustment: Boolean; CostAmountActual: Decimal)
+    local procedure VerifyAdjustmentCostAmount(ValueEntry: Record "Value Entry"; ItemNo: Code[20]; EntryType: Enum "Item Ledger Document Type"; Adjustment: Boolean; CostAmountActual: Decimal)
     begin
         ValueEntry.SetRange("Item No.", ItemNo);
         ValueEntry.SetRange("Item Ledger Entry Type", EntryType);
@@ -2905,16 +2879,6 @@ codeunit 137280 "SCM Inventory Basic"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ProductionJournalPageTypeResourceHandler(var ProductionJournal: TestPage "Production Journal")
-    var
-        ItemJournalLine: Record "Item Journal Line";
-    begin
-        asserterror ProductionJournal.Type.SetValue(ItemJournalLine.Type::Resource);
-        Assert.ExpectedError(TypeValidationErr);
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
     procedure SelectItemTemplateHandler(var ConfigTemplates: TestPage "Config Templates")
     begin
         ConfigTemplates.GotoKey(LibraryVariableStorage.DequeueText);
@@ -2946,7 +2910,7 @@ codeunit 137280 "SCM Inventory Basic"
     end;
 
     [Scope('OnPrem')]
-    procedure FindItemSubstitution(Type: Option; No: Code[20]; SubstituteType: Option; SubstituteNo: Code[20]): Boolean
+    procedure FindItemSubstitution(Type: Enum "Item Substitution Type"; No: Code[20]; SubstituteType: Enum "Item Substitute Type"; SubstituteNo: Code[20]): Boolean
     var
         ItemSubstitution: Record "Item Substitution";
     begin

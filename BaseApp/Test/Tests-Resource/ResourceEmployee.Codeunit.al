@@ -17,6 +17,7 @@ codeunit 136400 "Resource Employee"
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryTemplates: Codeunit "Library - Templates";
         IsInitialized: Boolean;
         IncrementMessageErr: Label 'Employee No must be incremented as per the setup.';
         EditableErr: Label '%1 should not be editable.';
@@ -274,12 +275,15 @@ codeunit 136400 "Resource Employee"
         EmployeeCard: TestPage "Employee Card";
     begin
         // Test Employee No. is incremented by AssistEdit automatically as per the setup.
+        LibraryTemplates.DisableTemplatesFeature();
 
         // 1. Setup: Find Next Employee No.
         HumanResourcesSetup.Get();
 
         // 2. Exercise: Genrate New Employee No. by click on AssistEdit Button with No. Series Code.
         LibraryLowerPermissions.SetO365HREdit;
+
+        commit();
         EmployeeCard.OpenNew;
         EmployeeCard."No.".AssistEdit; // Get No. Series Code in EmployeeNoSeriesCode.
 
@@ -297,6 +301,7 @@ codeunit 136400 "Resource Employee"
         No: Code[20];
     begin
         // Test Employee No. renaming works on a new Employee.
+        LibraryTemplates.DisableTemplatesFeature();
 
         // 1. Setup: Create an Employee and generate No. by jumping on any field
         LibraryLowerPermissions.SetO365HREdit;
@@ -563,6 +568,7 @@ codeunit 136400 "Resource Employee"
         Employee2: Record Employee;
         ResourceNo: Code[20];
     begin
+        Initialize();
         // [SCENARIO] The user tries to link 2 employees to the same resource
         // [GIVEN] a resource
         ResourceNo := CreateResourceNoOfTypePerson;
@@ -726,6 +732,7 @@ codeunit 136400 "Resource Employee"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Resource Employee");
 
+        LibraryTemplates.DisableTemplatesFeature();
         LibraryHumanResource.SetupEmployeeNumberSeries;
 
         IsInitialized := true;
@@ -757,7 +764,10 @@ codeunit 136400 "Resource Employee"
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure NoSeriesListModalHandler(var NoSeriesList: TestPage "No. Series List")
+    var
+        visible: Boolean;
     begin
+        visible := NoSeriesList.Code.Visible();
         EmployeeNoSeriesCode := NoSeriesList.Code.Value;
         NoSeriesList.OK.Invoke;
     end;

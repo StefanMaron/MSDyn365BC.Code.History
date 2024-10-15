@@ -135,7 +135,7 @@ page 5883 "Posted Phys. Invt. Order"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }
@@ -162,11 +162,12 @@ page 5883 "Posted Phys. Invt. Order"
             action("&Navigate")
             {
                 ApplicationArea = Warehouse;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
-                ToolTip = 'Run Navigate.';
+                ShortCutKey = 'Shift+Ctrl+I';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
@@ -196,6 +197,10 @@ page 5883 "Posted Phys. Invt. Order"
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 ToolTip = 'Open the report for physical inventory counting document';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.0';
+                Visible = false;
 
                 trigger OnAction()
                 var

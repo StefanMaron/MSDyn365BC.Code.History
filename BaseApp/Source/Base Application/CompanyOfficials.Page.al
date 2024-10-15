@@ -1,12 +1,15 @@
 page 11792 "Company Officials"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Company Officials';
+    Caption = 'Company Officials (Obsolete)';
     CardPageID = "Company Officials Card";
     Editable = false;
     PageType = List;
     SourceTable = "Company Officials";
     UsageCategory = Tasks;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

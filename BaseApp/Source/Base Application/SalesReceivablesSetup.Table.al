@@ -542,6 +542,9 @@ table 311 "Sales & Receivables Setup"
             Caption = 'Default VAT Date';
             OptionCaption = 'Posting Date,Document Date,Blank';
             OptionMembers = "Posting Date","Document Date",Blank;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11767; "Allow Alter Posting Groups"; Boolean)
         {

@@ -1,10 +1,13 @@
 page 11740 "Cash Desk Users"
 {
-    Caption = 'Cash Desk Users';
+    Caption = 'Cash Desk Users (Obsolete)';
     DataCaptionFields = "Cash Desk No.";
     DelayedInsert = true;
     PageType = List;
     SourceTable = "Cash Desk User";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

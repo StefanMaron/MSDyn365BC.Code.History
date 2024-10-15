@@ -1,5 +1,8 @@
 codeunit 11759 "Unc. Payer WS Connector"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     begin

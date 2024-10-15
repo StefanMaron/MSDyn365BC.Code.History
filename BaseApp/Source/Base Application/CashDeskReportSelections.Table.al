@@ -1,6 +1,9 @@
 table 11759 "Cash Desk Report Selections"
 {
     Caption = 'Cash Desk Report Selections';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     fields
     {
@@ -27,7 +30,7 @@ table 11759 "Cash Desk Report Selections"
         }
         field(4; "Report Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
                                                                            "Object ID" = FIELD("Report ID")));
             Caption = 'Report Caption';
             Editable = false;

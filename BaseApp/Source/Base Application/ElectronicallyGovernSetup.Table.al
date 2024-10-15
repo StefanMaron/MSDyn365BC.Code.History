@@ -2,7 +2,9 @@ table 11761 "Electronically Govern. Setup"
 {
     Caption = 'Electronically Govern. Setup';
     ReplicateData = false;
-    Permissions = TableData 1261 = rimd;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     fields
     {
@@ -80,7 +82,7 @@ table 11761 "Electronically Govern. Setup"
         DeletePassword;
     end;
 
-    [Obsolete('The functionality of Communication using Proxy server will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of Communication using Proxy server will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     procedure SavePassword(PasswordText: Text)
     var
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
@@ -93,7 +95,7 @@ table 11761 "Electronically Govern. Setup"
         IsolatedStorageManagement.Set(PasswordKey, PasswordText, DATASCOPE::Company)
     end;
 
-    [Obsolete('The functionality of Communication using Proxy server will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of Communication using Proxy server will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     procedure GetPassword(): Text
     var
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
@@ -105,7 +107,7 @@ table 11761 "Electronically Govern. Setup"
         exit('');
     end;
 
-    [Obsolete('The functionality of Communication using Proxy server will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of Communication using Proxy server will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     local procedure DeletePassword()
     var
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
@@ -114,7 +116,7 @@ table 11761 "Electronically Govern. Setup"
             IsolatedStorageManagement.Delete("Proxy Password Key", DATASCOPE::Company)
     end;
 
-    [Obsolete('The functionality of Communication using Proxy server will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of Communication using Proxy server will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     procedure HasPassword(): Boolean
     var
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";

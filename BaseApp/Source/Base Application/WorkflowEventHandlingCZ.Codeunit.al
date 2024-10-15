@@ -12,9 +12,9 @@ codeunit 31110 "Workflow Event Handling CZ"
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
         WorkflowManagement: Codeunit "Workflow Management";
         WorkflowSetup: Codeunit "Workflow Setup";
-        CashDocSendForApprovalEventDescTxt: Label 'Approval of a cash document is requested.';
-        CashDocApprReqCancelledEventDescTxt: Label 'An approval request for a cash document is canceled.';
-        CashDocReleasedEventDescTxt: Label 'A cash document is released.';
+        CashDocSendForApprovalEventDescTxt: Label 'Approval of a cash document is requested. (Obsolete)';
+        CashDocApprReqCancelledEventDescTxt: Label 'An approval request for a cash document is canceled. (Obsolete)';
+        CashDocReleasedEventDescTxt: Label 'A cash document is released. (Obsolete)';
         CreditDocSendForApprovalEventDescTxt: Label 'Approval of a credit is requested.';
         CreditDocApprReqCancelledEventDescTxt: Label 'An approval request for a credit is canceled.';
         CreditDocReleasedEventDescTxt: Label 'A credit is released.';
@@ -203,18 +203,21 @@ codeunit 31110 "Workflow Event Handling CZ"
         exit(UpperCase('RunWorkflowOnAfterIssuePaymentOrder'));
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure RunWorkflowOnSendCashDocForApprovalCode(): Code[128]
     begin
         exit(UpperCase('RunWorkflowOnSendCashDocForApproval'));
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure RunWorkflowOnCancelCashDocApprovalRequestCode(): Code[128]
     begin
         exit(UpperCase('RunWorkflowOnCancelCashDocApprovalRequest'));
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure RunWorkflowOnAfterReleaseCashDocCode(): Code[128]
     begin
@@ -296,6 +299,7 @@ codeunit 31110 "Workflow Event Handling CZ"
         WorkflowManagement.HandleEvent(RunWorkflowOnAfterIssuePaymentOrderCode, PaymentOrderHeader);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     [EventSubscriber(ObjectType::Codeunit, 1535, 'OnSendCashDocForApproval', '', false, false)]
     [Scope('OnPrem')]
     procedure RunWorkflowOnSendCashDocForApproval(var CashDocHdr: Record "Cash Document Header")
@@ -303,6 +307,7 @@ codeunit 31110 "Workflow Event Handling CZ"
         WorkflowManagement.HandleEvent(RunWorkflowOnSendCashDocForApprovalCode, CashDocHdr);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     [EventSubscriber(ObjectType::Codeunit, 1535, 'OnCancelCashDocApprovalRequest', '', false, false)]
     [Scope('OnPrem')]
     procedure RunWorkflowOnCancelCashDocApprovalRequest(var CashDocHdr: Record "Cash Document Header")
@@ -310,6 +315,7 @@ codeunit 31110 "Workflow Event Handling CZ"
         WorkflowManagement.HandleEvent(RunWorkflowOnCancelCashDocApprovalRequestCode, CashDocHdr);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     [EventSubscriber(ObjectType::Codeunit, 11731, 'OnAfterReleaseCashDoc', '', false, false)]
     [Scope('OnPrem')]
     procedure RunWorkflowOnAfterReleaseCashDoc(var CashDocHdr: Record "Cash Document Header")

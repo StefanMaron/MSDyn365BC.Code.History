@@ -3,8 +3,11 @@ report 11764 "Documentation for VAT"
     DefaultLayout = RDLC;
     RDLCLayout = './DocumentationforVAT.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'Documentation for VAT';
+    Caption = 'Documentation for VAT (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {
@@ -117,7 +120,6 @@ report 11764 "Documentation for VAT"
             }
             column(Selection; Selection)
             {
-                OptionCaption = 'Open,Closed,Open and Closed';
             }
             column(DocumentNoCaption; "VAT Entry".FieldCaption("Document No."))
             {
@@ -538,7 +540,6 @@ report 11764 "Documentation for VAT"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Include VAT Entries';
-                        OptionCaption = 'Open,Closed,Open and Closed';
                         ToolTip = 'Specifies the filtr of VAT entries (open, closed, open and closed).';
                     }
                     field(PrintVATEntries; PrintVATEntries)
@@ -602,7 +603,7 @@ report 11764 "Documentation for VAT"
         VATPeriod: Record "VAT Period";
         StartDateReq: Date;
         EndDateReq: Date;
-        Selection: Option Open,Closed,"Open and Closed";
+        Selection: Enum "VAT Statement Report Selection";
         PrintVATEntries: Boolean;
         VATType: Integer;
         VATBaseTotal: array[2] of Decimal;
@@ -623,7 +624,7 @@ report 11764 "Documentation for VAT"
         Heading: Text;
         UseAmtsInAddCurr: Boolean;
         HeaderText: Text[30];
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         CountryCodeFillFiter: Code[10];
         PrintCountrySubTotal: Integer;
         CountrySubTotalAmt: array[4] of Decimal;
@@ -673,7 +674,7 @@ report 11764 "Documentation for VAT"
         exit(1);
     end;
 
-    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     local procedure CalcVATAmountNonDeductible(VATEntry: Record "VAT Entry"): Decimal
     begin
         exit(GetCoefficient(VATEntry) * Abs(VATEntry."VAT Amount (Non Deductible)"));

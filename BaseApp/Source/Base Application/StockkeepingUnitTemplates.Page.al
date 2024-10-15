@@ -1,10 +1,13 @@
 page 31072 "Stockkeeping Unit Templates"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Stockkeeping Unit Templates';
+    Caption = 'Stockkeeping Unit Templates (Obsolete)';
     PageType = List;
     SourceTable = "Stockkeeping Unit Template";
     UsageCategory = Lists;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

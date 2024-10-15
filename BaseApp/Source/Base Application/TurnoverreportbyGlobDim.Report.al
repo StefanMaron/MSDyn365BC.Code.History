@@ -3,9 +3,12 @@ report 11772 "Turnover report by Glob. Dim."
     DefaultLayout = RDLC;
     RDLCLayout = './TurnoverreportbyGlobDim.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'Turnover report by Glob. Dim.';
+    Caption = 'Turnover report by Glob. Dim. (Obsolete)';
     TransactionType = Update;
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

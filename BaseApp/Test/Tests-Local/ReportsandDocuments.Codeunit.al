@@ -407,7 +407,7 @@ codeunit 145006 "Reports and Documents"
     begin
         GenJnlTemplate.Reset();
         GenJnlTemplate.Get(LibraryERM.SelectGenJnlTemplate);
-        GenJnlTemplate.Validate("Posting Report ID", REPORT::"General Ledger Document");
+        GenJnlTemplate."Posting Report ID" := REPORT::"General Ledger Document";
         GenJnlTemplate.Modify();
     end;
 

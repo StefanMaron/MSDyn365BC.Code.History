@@ -291,7 +291,7 @@ table 31000 "Sales Advance Letter Header"
         }
         field(46; Comment; Boolean)
         {
-            CalcFormula = Exist ("Sales Comment Line" WHERE("Document Type" = CONST("Advance Letter"),
+            CalcFormula = Exist("Sales Comment Line" WHERE("Document Type" = CONST("Advance Letter"),
                                                             "No." = FIELD("No."),
                                                             "Document Line No." = CONST(0)));
             Caption = 'Comment';
@@ -316,7 +316,7 @@ table 31000 "Sales Advance Letter Header"
         }
         field(61; "Amount Including VAT"; Decimal)
         {
-            CalcFormula = Sum ("Sales Advance Letter Line"."Amount Including VAT" WHERE("Letter No." = FIELD("No.")));
+            CalcFormula = Sum("Sales Advance Letter Line"."Amount Including VAT" WHERE("Letter No." = FIELD("No.")));
             Caption = 'Amount Including VAT';
             Editable = false;
             FieldClass = FlowField;
@@ -477,7 +477,7 @@ table 31000 "Sales Advance Letter Header"
         }
         field(120; Status; Option)
         {
-            CalcFormula = Min ("Sales Advance Letter Line".Status WHERE("Letter No." = FIELD("No."),
+            CalcFormula = Min("Sales Advance Letter Line".Status WHERE("Letter No." = FIELD("No."),
                                                                         "Amount Including VAT" = FILTER(<> 0)));
             Caption = 'Status';
             Editable = false;
@@ -727,21 +727,21 @@ table 31000 "Sales Advance Letter Header"
         }
         field(31013; "Amount To Link"; Decimal)
         {
-            CalcFormula = Sum ("Sales Advance Letter Line"."Amount To Link" WHERE("Letter No." = FIELD("No.")));
+            CalcFormula = Sum("Sales Advance Letter Line"."Amount To Link" WHERE("Letter No." = FIELD("No.")));
             Caption = 'Amount To Link';
             Editable = false;
             FieldClass = FlowField;
         }
         field(31014; "Amount To Invoice"; Decimal)
         {
-            CalcFormula = Sum ("Sales Advance Letter Line"."Amount To Invoice" WHERE("Letter No." = FIELD("No.")));
+            CalcFormula = Sum("Sales Advance Letter Line"."Amount To Invoice" WHERE("Letter No." = FIELD("No.")));
             Caption = 'Amount To Invoice';
             Editable = false;
             FieldClass = FlowField;
         }
         field(31015; "Amount To Deduct"; Decimal)
         {
-            CalcFormula = Sum ("Sales Advance Letter Line"."Amount To Deduct" WHERE("Letter No." = FIELD("No.")));
+            CalcFormula = Sum("Sales Advance Letter Line"."Amount To Deduct" WHERE("Letter No." = FIELD("No.")));
             Caption = 'Amount To Deduct';
             Editable = false;
             FieldClass = FlowField;
@@ -751,7 +751,7 @@ table 31000 "Sales Advance Letter Header"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Advance Letter Line Relation".Amount WHERE(Type = CONST(Sale),
+            CalcFormula = Sum("Advance Letter Line Relation".Amount WHERE(Type = CONST(Sale),
                                                                            "Letter No." = FIELD("No."),
                                                                            "Document No." = FIELD("Doc. No. Filter")));
             Caption = 'Document Linked Amount';
@@ -769,7 +769,7 @@ table 31000 "Sales Advance Letter Header"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Advance Letter Line Relation"."Invoiced Amount" WHERE(Type = CONST(Sale),
+            CalcFormula = Sum("Advance Letter Line Relation"."Invoiced Amount" WHERE(Type = CONST(Sale),
                                                                                       "Letter No." = FIELD("No."),
                                                                                       "Document No." = FIELD("Doc. No. Filter")));
             Caption = 'Document Linked Inv. Amount';
@@ -781,7 +781,7 @@ table 31000 "Sales Advance Letter Header"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Advance Letter Line Relation"."Deducted Amount" WHERE(Type = CONST(Sale),
+            CalcFormula = Sum("Advance Letter Line Relation"."Deducted Amount" WHERE(Type = CONST(Sale),
                                                                                       "Letter No." = FIELD("No."),
                                                                                       "Document No." = FIELD("Doc. No. Filter")));
             Caption = 'Document Linked Ded. Amount';
@@ -790,21 +790,21 @@ table 31000 "Sales Advance Letter Header"
         }
         field(31020; "Amount Linked"; Decimal)
         {
-            CalcFormula = Sum ("Sales Advance Letter Line"."Amount Linked" WHERE("Letter No." = FIELD("No.")));
+            CalcFormula = Sum("Sales Advance Letter Line"."Amount Linked" WHERE("Letter No." = FIELD("No.")));
             Caption = 'Amount Linked';
             Editable = false;
             FieldClass = FlowField;
         }
         field(31021; "Amount Invoiced"; Decimal)
         {
-            CalcFormula = Sum ("Sales Advance Letter Line"."Amount Invoiced" WHERE("Letter No." = FIELD("No.")));
+            CalcFormula = Sum("Sales Advance Letter Line"."Amount Invoiced" WHERE("Letter No." = FIELD("No.")));
             Caption = 'Amount Invoiced';
             Editable = false;
             FieldClass = FlowField;
         }
         field(31022; "Amount Deducted"; Decimal)
         {
-            CalcFormula = Sum ("Sales Advance Letter Line"."Amount Deducted" WHERE("Letter No." = FIELD("No.")));
+            CalcFormula = Sum("Sales Advance Letter Line"."Amount Deducted" WHERE("Letter No." = FIELD("No.")));
             Caption = 'Amount Deducted';
             Editable = false;
             FieldClass = FlowField;
@@ -984,9 +984,9 @@ table 31000 "Sales Advance Letter Header"
         CompanyInfo: Record "Company Information";
         SalesAdvanceLetterLinegre: Record "Sales Advance Letter Line";
         PostCode: Record "Post Code";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         RegistrationCountry: Record "Registration Country/Region";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         DimMgt: Codeunit DimensionManagement;
@@ -1428,7 +1428,7 @@ table 31000 "Sales Advance Letter Header"
     begin
         with SalesAdvanceLetterHeader do begin
             Copy(Rec);
-            ReportSelections.PrintWithGUIYesNo(
+            ReportSelections.PrintWithDialogForCust(
               ReportSelections.Usage::"S.Adv.Let", SalesAdvanceLetterHeader, ShowDialog, FieldNo("Bill-to Customer No."));
         end;
     end;
@@ -1531,7 +1531,7 @@ table 31000 "Sales Advance Letter Header"
             until AdvanceLetterLineRelation.Next = 0;
     end;
 
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     local procedure UpdatePerformCountryCurrFactor()
     begin
         if "Perform. Country/Region Code" <> '' then begin

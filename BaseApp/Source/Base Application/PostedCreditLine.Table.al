@@ -154,7 +154,7 @@ table 31058 "Posted Credit Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }

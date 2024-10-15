@@ -1,6 +1,9 @@
 table 31060 "VIES Transaction Buffer"
 {
     Caption = 'VIES Transaction Buffer';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     fields
     {

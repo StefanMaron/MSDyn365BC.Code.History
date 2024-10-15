@@ -1,9 +1,12 @@
 page 11779 "VAT Attribute Codes"
 {
-    Caption = 'VAT Attribute Codes';
+    Caption = 'VAT Attribute Codes (Obsolete)';
     DelayedInsert = true;
     PageType = List;
     SourceTable = "VAT Attribute Code";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

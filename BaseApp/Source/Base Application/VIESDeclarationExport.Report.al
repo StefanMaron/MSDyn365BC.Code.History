@@ -1,7 +1,10 @@
 report 31066 "VIES Declaration Export"
 {
-    Caption = 'VIES Declaration Export';
+    Caption = 'VIES Declaration Export (Obsolete)';
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

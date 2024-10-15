@@ -20,7 +20,6 @@ codeunit 1259 "Certificate Management"
         CertExtFilterTxt: Label '.pfx.p12.p7b.cer.crt.der', Locked = true;
         CryptographyManagement: Codeunit "Cryptography Management";
         UploadedCertFileName: Text;
-        [NonDebuggable]
         CertPassword: Text;
 
     [Scope('OnPrem')]

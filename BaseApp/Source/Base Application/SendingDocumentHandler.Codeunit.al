@@ -171,7 +171,7 @@ codeunit 11771 "Sending Document Handler"
             if not "Prepayment Invoice" then
                 exit;
 
-            ReportSelections.PrintWithGUIYesNoVendor(
+            ReportSelections.PrintWithDialogForVend(
               ReportSelections.Usage::"P.Adv.Inv", PurchInvHeader, ShowRequestPage, FieldNo("Buy-from Vendor No."))
         end;
 

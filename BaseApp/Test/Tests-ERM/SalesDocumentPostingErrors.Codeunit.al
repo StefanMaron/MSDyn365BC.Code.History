@@ -17,10 +17,16 @@ codeunit 132501 "Sales Document Posting Errors"
         LibraryTimeSheet: Codeunit "Library - Time Sheet";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
         VATDateNotAllowedErr: Label 'VAT Date is not within your range of allowed posting dates.';
         NothingToPostErr: Label 'There is nothing to post.';
         DefaultDimErr: Label 'Select a Dimension Value Code for the Dimension Code %1 for Customer %2.';
+
+        // Expected error messages (from code unit 80).
+        SalesReturnRcptHeaderConflictErr: Label 'Cannot post the sales return because its ID, %1, is already assigned to a record. Update the number series and try again.', Comment = '%1 = Return Receipt No.';
+        SalesShptHeaderConflictErr: Label 'Cannot post the sales shipment because its ID, %1, is already assigned to a record. Update the number series and try again.', Comment = '%1 = Shipping No.';
+        SalesInvHeaderConflictErr: Label 'Cannot post the sales invoice because its ID, %1, is already assigned to a record. Update the number series and try again.', Comment = '%1 = Posting No.';
 
     [Test]
     [Scope('OnPrem')]
@@ -121,119 +127,6 @@ codeunit 132501 "Sales Document Posting Errors"
         LibraryErrorMessage.DrillDownOnDescription;
         // [THEN] opens "Sales Invoice" page.
         SalesInvoicePage."Posting Date".AssertEquals(WorkDate);
-
-        // TearDown
-        UserSetup.Delete();
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure T1001_VATDateIsInNotAllowedPeriodInGLSetup()
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        SalesHeader: Record "Sales Header";
-        TempErrorMessage: Record "Error Message" temporary;
-        GeneralLedgerSetupPage: TestPage "General Ledger Setup";
-        SalesInvoicePage: TestPage "Sales Invoice";
-    begin
-        // [FEATURE] [Country:CZ] [VAT Date]
-        // [SCENARIO] Posting of document, where "VAT Date" is out of the allowed period, set in G/L Setup
-        Initialize;
-        // [GIVEN] "Allow VAT Posting To" is 31.12.2018 in "General Ledger Setup"
-        GeneralLedgerSetup.Get();
-        GeneralLedgerSetup."Allow VAT Posting To" := WorkDate - 1;
-        GeneralLedgerSetup."Use VAT Date" := true;
-        GeneralLedgerSetup.Modify();
-        // [GIVEN] Invoice '1001', where "VAT Date" is 01.01.2019
-        LibrarySales.CreateSalesInvoice(SalesHeader);
-        SalesHeader.TestField("VAT Date", WorkDate);
-
-        // [WHEN] Post Invoice '1001'
-        LibraryErrorMessage.TrapErrorMessages;
-        SalesHeader.SendToPosting(CODEUNIT::"Sales-Post");
-
-        // [THEN] "Error Message" page is open, where is one error:
-        // [THEN] "VAT Date is not within your range of allowed posting dates."
-        LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
-        Assert.RecordCount(TempErrorMessage, 1);
-        TempErrorMessage.FindFirst;
-        TempErrorMessage.TestField(Description, VATDateNotAllowedErr);
-        // [THEN] "Context" is 'Sales Header: Invoice, 1001', "Field Name" is 'VAT Date',
-        TempErrorMessage.TestField("Context Record ID", SalesHeader.RecordId);
-        TempErrorMessage.TestField("Context Table Number", DATABASE::"Sales Header");
-        TempErrorMessage.TestField("Context Field Number", SalesHeader.FieldNo("VAT Date"));
-        // [THEN] "Source" is 'G/L Setup', "Field Name" is 'Allow VAT Posting From'
-        GeneralLedgerSetup.Get();
-        TempErrorMessage.TestField("Record ID", GeneralLedgerSetup.RecordId);
-        TempErrorMessage.TestField("Table Number", DATABASE::"General Ledger Setup");
-        TempErrorMessage.TestField("Field Number", GeneralLedgerSetup.FieldNo("Allow VAT Posting From"));
-        // [WHEN] DrillDown on "Source"
-        GeneralLedgerSetupPage.Trap;
-        LibraryErrorMessage.DrillDownOnSource;
-        // [THEN] opens "General Ledger Setup" page.
-        GeneralLedgerSetupPage."Allow VAT Posting To".AssertEquals(WorkDate - 1);
-        GeneralLedgerSetupPage.Close;
-
-        // [WHEN] DrillDown on "Description"
-        SalesInvoicePage.Trap;
-        LibraryErrorMessage.DrillDownOnDescription;
-        // [THEN] opens "Sales Invoice" page.
-        SalesInvoicePage."VAT Date".AssertEquals(WorkDate);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure T1002_VATDateIsInNotAllowedPeriodInUserSetup()
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        SalesHeader: Record "Sales Header";
-        TempErrorMessage: Record "Error Message" temporary;
-        UserSetup: Record "User Setup";
-        UserSetupPage: TestPage "User Setup";
-        SalesInvoicePage: TestPage "Sales Invoice";
-    begin
-        // [FEATURE] [Country:CZ] [VAT Date]
-        // [SCENARIO] Posting of document, where "VAT Date" is out of the allowed period, set in User Setup.
-        Initialize;
-        // [GIVEN] "Allow VAT Posting To" is 31.12.2018 in "User Setup"
-        GeneralLedgerSetup.Get();
-        GeneralLedgerSetup."Use VAT Date" := true;
-        GeneralLedgerSetup.Modify();
-        LibraryTimeSheet.CreateUserSetup(UserSetup, true);
-        UserSetup."Allow VAT Posting To" := WorkDate - 1;
-        UserSetup.Modify();
-        // [GIVEN] Invoice '1001', where "VAT Date" is 01.01.2019
-        LibrarySales.CreateSalesInvoice(SalesHeader);
-        SalesHeader.TestField("VAT Date", WorkDate);
-
-        // [WHEN] Post Invoice '1001'
-        LibraryErrorMessage.TrapErrorMessages;
-        SalesHeader.SendToPosting(CODEUNIT::"Sales-Post");
-
-        // [THEN] "Error Message" page is open, where is one error:
-        // [THEN] "VAT Date is not within your range of allowed posting dates."
-        LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
-        Assert.RecordCount(TempErrorMessage, 1);
-        TempErrorMessage.FindFirst;
-        TempErrorMessage.TestField(Description, VATDateNotAllowedErr);
-        // [THEN] "Context" is 'Sales Header: Invoice, 1001', "Field Name" is 'VAT Date',
-        TempErrorMessage.TestField("Context Record ID", SalesHeader.RecordId);
-        TempErrorMessage.TestField("Context Field Number", SalesHeader.FieldNo("VAT Date"));
-        // [THEN]  "Source" is 'User Setup',  "Field Name" is 'Allow VAT Posting From'
-        TempErrorMessage.TestField("Record ID", UserSetup.RecordId);
-        TempErrorMessage.TestField("Field Number", UserSetup.FieldNo("Allow VAT Posting From"));
-        // [WHEN] DrillDown on "Source"
-        UserSetupPage.Trap;
-        LibraryErrorMessage.DrillDownOnSource;
-        // [THEN] opens "User Setup" page.
-        UserSetupPage."Allow VAT Posting To".AssertEquals(WorkDate - 1);
-        UserSetupPage.Close;
-
-        // [WHEN] DrillDown on "Description"
-        SalesInvoicePage.Trap;
-        LibraryErrorMessage.DrillDownOnDescription;
-        // [THEN] opens "Sales Invoice" page.
-        SalesInvoicePage."VAT Date".AssertEquals(WorkDate);
 
         // TearDown
         UserSetup.Delete();
@@ -385,6 +278,189 @@ codeunit 132501 "Sales Document Posting Errors"
         Assert.ExpectedMessage(PostingDateNotAllowedErr, ErrorMessage.Description);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostingReturnReceiptNoConflictErrorHandling()
+    var
+        ErrorMessage: Record "Error Message";
+        SalesHeader: Record "Sales Header";
+        ReturnRcptHeader: Record "Return Receipt Header";
+        SalesSetup: Record "Sales & Receivables Setup";
+        NoSeriesLine: Record "No. Series Line";
+        LastNoUsed: Text;
+        OriginalNoSeriesLine: Record "No. Series Line";
+    begin
+        // [SCENARIO] Should properly handle posting sales credit memo when the reserved Return Receipt No. is already existing.
+        // This can occur when a user manually changes the Last No. Used of the No Series Line such that the next number
+        // to use has already been used.
+        Initialize();
+        LibraryERM.SetAllowPostingFromTo(0D, WorkDate);
+        LibraryErrorMessage.TrapErrorMessages();
+
+        // [GIVEN] Sales credit memo where we create a Return Receipt Header record and the next Return Recipt No. already exists.
+        LibrarySales.CreateSalesCreditMemo(SalesHeader);
+
+        // Use No. Series from sales setup.
+        SalesSetup.Get();
+        SalesHeader."Return Receipt No. Series" := SalesSetup."Posted Return Receipt Nos.";
+        LibraryUtility.GetNoSeriesLine(SalesHeader."Return Receipt No. Series", NoSeriesLine);
+
+        // Store original values for tear down.
+        OriginalNoSeriesLine.TransferFields(NoSeriesLine, false);
+
+        ReturnRcptHeader.SetCurrentKey("No.");
+        ReturnRcptHeader.FindFirst();
+        LastNoUsed := LibraryUtility.DecStr(ReturnRcptHeader."No.");
+
+        // Sanity check.
+        Assert.AreEqual(ReturnRcptHeader."No.", IncStr(LastNoUsed), 'DecStr gave incorrect result.');
+
+        NoSeriesLine."Starting No." := LastNoUsed;
+        NoSeriesLine."Last No. Used" := LastNoUsed;
+        NoSeriesLine."Ending No." := IncStr(IncStr(LastNoUsed));
+        NoSeriesLine."Warning No." := NoSeriesLine."Ending No.";
+        NoSeriesLine.Modify();
+
+        // [WHEN] Posting sales credit memo.
+        SalesHeader.SendToPosting(CODEUNIT::"Sales-Post");
+
+        // [THEN] An error is thrown.
+        ErrorMessage.SetRange("Context Record ID", SalesHeader.RecordId);
+        Assert.RecordCount(ErrorMessage, 1);
+        ErrorMessage.FindFirst();
+        ErrorMessage.TestField(Description, StrSubstNo(SalesReturnRcptHeaderConflictErr, IncStr(LastNoUsed)));
+
+        // [THEN] The Sales Header field Return Receipt No. is blank.
+        SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
+        Assert.AreEqual('', SalesHeader."Return Receipt No.", 'Return Receipt No. was not blank.');
+
+        // TearDown: Reset No Series. Line.
+        NoSeriesLine.TransferFields(OriginalNoSeriesLine, false);
+        NoSeriesLine.Modify();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostingShippingNoConflictErrorHandling()
+    var
+        ErrorMessage: Record "Error Message";
+        SalesHeader: Record "Sales Header";
+        SalesShptHeader: Record "Sales Shipment Header";
+        SalesSetup: Record "Sales & Receivables Setup";
+        NoSeriesLine: Record "No. Series Line";
+        LastNoUsed: Text;
+        OriginalNoSeriesLine: Record "No. Series Line";
+    begin
+        // [SCENARIO] Should properly handle posting sales invoice when the reserved Shipping No. is already existing.
+        // This can occur when a user manually changes the Last No. Used of the No Series Line such that the next number
+        // to use has already been used.
+        Initialize();
+        LibraryERM.SetAllowPostingFromTo(0D, WorkDate);
+        LibraryErrorMessage.TrapErrorMessages();
+
+        // [GIVEN] Sales invoice where we create a Sales Shipment Header record and the next Shipping No. already exists.
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+
+        // Use No. Series from sales setup.
+        SalesSetup.Get();
+        SalesHeader."Shipping No. Series" := SalesSetup."Posted Shipment Nos.";
+        LibraryUtility.GetNoSeriesLine(SalesHeader."Shipping No. Series", NoSeriesLine);
+
+        // Store original values for tear down.
+        OriginalNoSeriesLine.TransferFields(NoSeriesLine, false);
+
+        SalesShptHeader.SetCurrentKey("No.");
+        SalesShptHeader.FindFirst();
+        LastNoUsed := LibraryUtility.DecStr(SalesShptHeader."No.");
+
+        // Sanity check.
+        Assert.AreEqual(SalesShptHeader."No.", IncStr(LastNoUsed), 'DecStr gave incorrect result.');
+
+        NoSeriesLine."Starting No." := LastNoUsed;
+        NoSeriesLine."Last No. Used" := LastNoUsed;
+        NoSeriesLine."Ending No." := IncStr(IncStr(LastNoUsed));
+        NoSeriesLine."Warning No." := NoSeriesLine."Ending No.";
+        NoSeriesLine.Modify();
+
+        // [WHEN] Posting sales invoice.
+        SalesHeader.SendToPosting(CODEUNIT::"Sales-Post");
+
+        // [THEN] An error is thrown.
+        ErrorMessage.SetRange("Context Record ID", SalesHeader.RecordId);
+        Assert.RecordCount(ErrorMessage, 1);
+        ErrorMessage.FindFirst();
+        ErrorMessage.TestField(Description, StrSubstNo(SalesShptHeaderConflictErr, IncStr(LastNoUsed)));
+
+        // [THEN] The Sales Header field Return Shipping No. is blank.
+        SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
+        Assert.AreEqual('', SalesHeader."Shipping No.", 'Shipping No. was not blank.');
+
+        // TearDown: Reset No Series. Line.
+        NoSeriesLine.TransferFields(OriginalNoSeriesLine, false);
+        NoSeriesLine.Modify();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostingPostingNoConflictErrorHandling()
+    var
+        ErrorMessage: Record "Error Message";
+        SalesHeader: Record "Sales Header";
+        SalesInvHeader: Record "Sales Invoice Header";
+        SalesSetup: Record "Sales & Receivables Setup";
+        NoSeriesLine: Record "No. Series Line";
+        LastNoUsed: Text;
+        OriginalNoSeriesLine: Record "No. Series Line";
+    begin
+        // [SCENARIO] Should properly handle posting sales invoice when the reserved Posting No. is already existing.
+        // This can occur when a user manually changes the Last No. Used of the No Series Line such that the next number
+        // to use has already been used.
+        Initialize();
+        LibraryERM.SetAllowPostingFromTo(0D, WorkDate);
+        LibraryErrorMessage.TrapErrorMessages();
+
+        // [GIVEN] Sales invoice where we create a Sales Invoice Header record and the next Posting No. already exists.
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+
+        // Use No. Series from sales setup.
+        SalesSetup.Get();
+        SalesHeader."Posting No. Series" := SalesSetup."Posted Invoice Nos.";
+        LibraryUtility.GetNoSeriesLine(SalesHeader."Posting No. Series", NoSeriesLine);
+
+        // Store original values for tear down.
+        OriginalNoSeriesLine.TransferFields(NoSeriesLine, false);
+
+        SalesInvHeader.SetCurrentKey("No.");
+        SalesInvHeader.FindFirst();
+        LastNoUsed := LibraryUtility.DecStr(SalesInvHeader."No.");
+
+        // Sanity check.
+        Assert.AreEqual(SalesInvHeader."No.", IncStr(LastNoUsed), 'DecStr gave incorrect result.');
+
+        NoSeriesLine."Starting No." := LastNoUsed;
+        NoSeriesLine."Last No. Used" := LastNoUsed;
+        NoSeriesLine."Ending No." := IncStr(IncStr(LastNoUsed));
+        NoSeriesLine."Warning No." := NoSeriesLine."Ending No.";
+        NoSeriesLine.Modify();
+
+        // [WHEN] Posting sales invoice.
+        SalesHeader.SendToPosting(CODEUNIT::"Sales-Post");
+
+        // [THEN] An error is thrown.
+        ErrorMessage.SetRange("Context Record ID", SalesHeader.RecordId);
+        Assert.RecordCount(ErrorMessage, 1);
+        ErrorMessage.FindFirst();
+        ErrorMessage.TestField(Description, StrSubstNo(SalesInvHeaderConflictErr, IncStr(LastNoUsed)));
+
+        // [THEN] The Sales Header field Return Posting No. is blank.
+        SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
+        Assert.AreEqual('', SalesHeader."Posting No.", 'Posting No. was not blank.');
+
+        // TearDown: Reset No Series. Line.
+        NoSeriesLine.TransferFields(OriginalNoSeriesLine, false);
+        NoSeriesLine.Modify();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Sales Document Posting Errors");
@@ -416,6 +492,23 @@ codeunit 132501 "Sales Document Posting Errors"
         SalesHeader.Invoice := true;
         SalesHeader.Modify();
         Commit();
+    end;
+
+    local procedure GetNoSeriesLine(noSeries: Code[20]; var noSeriesLine: Record "No. Series Line")
+    var
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+    begin
+        NoSeriesMgt.SetNoSeriesLineFilter(noSeriesLine, noSeries, WorkDate());
+        noSeriesLine.FindFirst();
+    end;
+
+    local procedure SetNoSeriesLineLastNoUsed(noSeries: Code[20]; no: Code[20])
+    var
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        GetNoSeriesLine(noSeries, NoSeriesLine);
+        NoSeriesLine."Last No. Used" := no;
+        NoSeriesLine.Modify();
     end;
 
     [ConfirmHandler]

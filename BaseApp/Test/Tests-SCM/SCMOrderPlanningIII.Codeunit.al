@@ -514,7 +514,7 @@ codeunit 137088 "SCM Order Planning - III"
         ReserveSalesOrderPlanning(Item.Reserve::Always, false);
     end;
 
-    local procedure ReserveSalesOrderPlanning(ReserveOnItem: Option; ReserveOnRequistition: Boolean)
+    local procedure ReserveSalesOrderPlanning(ReserveOnItem: Enum "Reserve Method"; ReserveOnRequistition: Boolean)
     var
         TempSalesReceivablesSetup: Record "Sales & Receivables Setup" temporary;
         RequisitionLine: Record "Requisition Line";
@@ -568,7 +568,7 @@ codeunit 137088 "SCM Order Planning - III"
         ReserveSalesOrderPlanMakeOrder(ChildItem.Reserve::Never);
     end;
 
-    local procedure ReserveSalesOrderPlanMakeOrder(ReserveOnItem: Option)
+    local procedure ReserveSalesOrderPlanMakeOrder(ReserveOnItem: Enum "Reserve Method")
     var
         TempSalesReceivablesSetup: Record "Sales & Receivables Setup" temporary;
         ChildItem: Record Item;
@@ -670,7 +670,7 @@ codeunit 137088 "SCM Order Planning - III"
           RequisitionLine."Replenishment System"::Transfer, ReqWkshTemplate.Type::"Req.");
     end;
 
-    local procedure ReserveProdOrderPlanCopyToReq(Reserve: Option; ReorderingPolicy: Option; ReplenishmentSystem: Option; ReqWkshTemplateType: Option)
+    local procedure ReserveProdOrderPlanCopyToReq(Reserve: Enum "Reserve Method"; ReorderingPolicy: Enum "Reordering Policy"; ReplenishmentSystem: Enum "Replenishment System"; ReqWkshTemplateType: Option)
     var
         Item: Record Item;
         ProdItem: Record Item;
@@ -797,7 +797,7 @@ codeunit 137088 "SCM Order Planning - III"
           RequisitionLine."Replenishment System"::Transfer, ReqWkshTemplate.Type::"Req.");
     end;
 
-    local procedure ReserveSalesOrderPlanCopyToReq(Reserve: Option; ReorderingPolicy: Option; ReplenishmentSystem: Option; ReqWkshTemplateType: Option)
+    local procedure ReserveSalesOrderPlanCopyToReq(Reserve: Enum "Reserve Method"; ReorderingPolicy: Enum "Reordering Policy"; ReplenishmentSystem: Enum "Replenishment System"; ReqWkshTemplateType: Option)
     var
         Item: Record Item;
         RequisitionLine: Record "Requisition Line";
@@ -878,7 +878,7 @@ codeunit 137088 "SCM Order Planning - III"
         Assert.IsTrue(RequisitionLine.FindFirst, StrSubstNo(LineExistErr, WkshTemplateName, ItemNo));
     end;
 
-    local procedure ModifyRequisitionLine(var RequisitionLine: Record "Requisition Line"; Reserve: Option; ReplenishmentSystem: Option)
+    local procedure ModifyRequisitionLine(var RequisitionLine: Record "Requisition Line"; Reserve: Enum "Reserve Method"; ReplenishmentSystem: Enum "Replenishment System")
     var
         Item: Record Item;
     begin
@@ -912,7 +912,7 @@ codeunit 137088 "SCM Order Planning - III"
         ChangeReplenishmentAndCheckComponent(Item."Replenishment System"::Purchase);
     end;
 
-    local procedure ChangeReplenishmentAndCheckComponent(ReplenishmentSystem: Option)
+    local procedure ChangeReplenishmentAndCheckComponent(ReplenishmentSystem: Enum "Replenishment System")
     var
         TempSalesReceivablesSetup: Record "Sales & Receivables Setup" temporary;
         Item: Record Item;
@@ -1016,7 +1016,7 @@ codeunit 137088 "SCM Order Planning - III"
         MakeOrderWithItemVariant(Item."Replenishment System"::"Prod. Order");
     end;
 
-    local procedure MakeOrderWithItemVariant(ReplenishmentSystem: Option)
+    local procedure MakeOrderWithItemVariant(ReplenishmentSystem: Enum "Replenishment System")
     var
         TempSalesReceivablesSetup: Record "Sales & Receivables Setup" temporary;
         Item: Record Item;
@@ -1873,7 +1873,9 @@ codeunit 137088 "SCM Order Planning - III"
         PurchasesPayablesSetup.Modify(true);
     end;
 
-    local procedure ChangeReplenishmentSystem(var RequisitionLine: Record "Requisition Line"; OldReplenishmentSystem: Option; NewReplenishmentSystem: Option; DemandOrderNo: Code[20]; VendorNo: Code[20])
+    local procedure ChangeReplenishmentSystem(var RequisitionLine: Record "Requisition Line"; OldReplenishmentSystem: Enum "Replenishment System"; NewReplenishmentSystem: Enum "Replenishment System";
+                                                                                                                          DemandOrderNo: Code[20];
+                                                                                                                          VendorNo: Code[20])
     begin
         RequisitionLine.SetRange("Demand Order No.", DemandOrderNo);
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
@@ -1884,7 +1886,7 @@ codeunit 137088 "SCM Order Planning - III"
         RequisitionLine.Modify(true);
     end;
 
-    local procedure CreateManufacturingSetup(var Item: Record Item; var ChildItem: Record Item; ChildWithBOM: Boolean; OrderTrackingPolicy: Option)
+    local procedure CreateManufacturingSetup(var Item: Record Item; var ChildItem: Record Item; ChildWithBOM: Boolean; OrderTrackingPolicy: Enum "Order Tracking Policy")
     var
         ChildItem2: Record Item;
     begin
@@ -1919,7 +1921,8 @@ codeunit 137088 "SCM Order Planning - III"
         CreateItem(Item, Item."Replenishment System"::"Prod. Order", RoutingHeader."No.", ProductionBOMHeader."No.");
     end;
 
-    local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Option; RoutingHeaderNo: Code[20]; ProductionBOMNo: Code[20])
+    local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; RoutingHeaderNo: Code[20];
+                                                                               ProductionBOMNo: Code[20])
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
@@ -1946,7 +1949,7 @@ codeunit 137088 "SCM Order Planning - III"
         Item.Modify(true);
     end;
 
-    local procedure UpdateItem(var Item: Record Item; Reserve: Option; OrderTrackingPolicy: Option)
+    local procedure UpdateItem(var Item: Record Item; Reserve: Enum "Reserve Method"; OrderTrackingPolicy: Enum "Order Tracking Policy")
     begin
         Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
         Item.Validate(Reserve, Reserve);
@@ -1954,7 +1957,7 @@ codeunit 137088 "SCM Order Planning - III"
         Item.Modify(true);
     end;
 
-    local procedure UpdateItemEx(var Item: Record Item; Reserve: Option; ReorderingPolicy: Option)
+    local procedure UpdateItemEx(var Item: Record Item; Reserve: Enum "Reserve Method"; ReorderingPolicy: Enum "Reordering Policy")
     var
         Qty: Integer;
     begin
@@ -2039,7 +2042,9 @@ codeunit 137088 "SCM Order Planning - III"
             ManufacturingUserTemplate.Delete(true);
     end;
 
-    local procedure CreateAndRefreshProdOrder(var ProductionOrder: Record "Production Order"; Status: Option; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
+    local procedure CreateAndRefreshProdOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; ItemNo: Code[20];
+                                                                                                          LocationCode: Code[10];
+                                                                                                          Quantity: Decimal)
     begin
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, ProductionOrder."Source Type"::Item, ItemNo, Quantity);
         ProductionOrder.Validate("Location Code", LocationCode);
@@ -2501,7 +2506,10 @@ codeunit 137088 "SCM Order Planning - III"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure MakeSupplyOrdersPageHandler(var MakeSupplyOrders: Page "Make Supply Orders"; var Response: Action)
+    procedure MakeSupplyOrdersPageHandler(var MakeSupplyOrders: Page "Make Supply Orders";
+
+    var
+        Response: Action)
     begin
         Response := ACTION::LookupOK;
     end;

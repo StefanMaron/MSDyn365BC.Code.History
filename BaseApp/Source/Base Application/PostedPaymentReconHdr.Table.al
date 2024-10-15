@@ -19,7 +19,7 @@ table 1295 "Posted Payment Recon. Hdr"
         }
         field(3; "Statement Ending Balance"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Statement Ending Balance';
         }

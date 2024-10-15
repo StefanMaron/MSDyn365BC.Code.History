@@ -1,11 +1,14 @@
 page 11760 "Uncertainty Payer Entries"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Uncertainty Payer Entries';
+    Caption = 'Uncertainty Payer Entries (Obsolete)';
     Editable = false;
     PageType = List;
     SourceTable = "Uncertainty Payer Entry";
-    UsageCategory = History;
+    UsageCategory = Lists;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

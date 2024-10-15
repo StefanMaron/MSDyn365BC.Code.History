@@ -3,8 +3,11 @@ report 11740 "Cash Inventory"
     DefaultLayout = RDLC;
     RDLCLayout = './CashInventory.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'Cash Inventory';
+    Caption = 'Cash Inventory (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

@@ -150,7 +150,7 @@ codeunit 1636 "Office Contact Handler"
                         Company := ContactCompany;
                         Type := Contact.Type;
                         "Business Relation Description" := ContactBusinessRelation."Business Relation Description";
-                        if ContactBusinessRelation."Link to Table" = TempOfficeAddinContext.CommandType then begin
+                        if ContactBusinessRelation."Link to Table".AsInteger() = TempOfficeAddinContext.CommandType then begin
                             "Contact No." := Contact."No.";
                             "Associated Table" := TempOfficeAddinContext.CommandType;
                         end;

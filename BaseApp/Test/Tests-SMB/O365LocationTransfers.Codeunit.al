@@ -910,7 +910,7 @@ codeunit 137281 "O365 Location Transfers"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Location Transfers");
     end;
 
-    local procedure CreateItemJournalLineDirectTransfer(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; Qty: Decimal; LocationCode: Code[10]; NewLocationCode: Code[10]; DocumentType: Option)
+    local procedure CreateItemJournalLineDirectTransfer(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; Qty: Decimal; LocationCode: Code[10]; NewLocationCode: Code[10]; DocumentType: Enum "Item Ledger Document Type")
     var
         ItemJournalBatch: Record "Item Journal Batch";
     begin

@@ -4,6 +4,9 @@ table 31066 "VIES Declaration Header"
     DataCaptionFields = "No.";
     DrillDownPageID = "VIES Declarations";
     LookupPageID = "VIES Declarations";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     fields
     {
@@ -204,6 +207,7 @@ table 31066 "VIES Declaration Header"
             Caption = 'Declaration Period';
             OptionCaption = 'Quarter,Month';
             OptionMembers = Quarter,Month;
+            InitValue = Month;
 
             trigger OnValidate()
             begin
@@ -264,14 +268,14 @@ table 31066 "VIES Declaration Header"
         }
         field(25; "Number of Pages"; Integer)
         {
-            CalcFormula = Max ("VIES Declaration Line"."Report Page Number" WHERE("VIES Declaration No." = FIELD("No.")));
+            CalcFormula = Max("VIES Declaration Line"."Report Page Number" WHERE("VIES Declaration No." = FIELD("No.")));
             Caption = 'Number of Pages';
             Editable = false;
             FieldClass = FlowField;
         }
         field(26; "Number of Lines"; Integer)
         {
-            CalcFormula = Count ("VIES Declaration Line" WHERE("VIES Declaration No." = FIELD("No.")));
+            CalcFormula = Count("VIES Declaration Line" WHERE("VIES Declaration No." = FIELD("No.")));
             Caption = 'Number of Lines';
             Editable = false;
             FieldClass = FlowField;
@@ -308,7 +312,7 @@ table 31066 "VIES Declaration Header"
         }
         field(30; "Purchase Amount (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("VIES Declaration Line"."Amount (LCY)" WHERE("VIES Declaration No." = FIELD("No."),
+            CalcFormula = Sum("VIES Declaration Line"."Amount (LCY)" WHERE("VIES Declaration No." = FIELD("No."),
                                                                             "Trade Type" = CONST(Purchase)));
             Caption = 'Purchase Amount (LCY)';
             Editable = false;
@@ -316,7 +320,7 @@ table 31066 "VIES Declaration Header"
         }
         field(31; "Sales Amount (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("VIES Declaration Line"."Amount (LCY)" WHERE("VIES Declaration No." = FIELD("No."),
+            CalcFormula = Sum("VIES Declaration Line"."Amount (LCY)" WHERE("VIES Declaration No." = FIELD("No."),
                                                                             "Trade Type" = CONST(Sale)));
             Caption = 'Sales Amount (LCY)';
             Editable = false;
@@ -324,14 +328,14 @@ table 31066 "VIES Declaration Header"
         }
         field(32; "Amount (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("VIES Declaration Line"."Amount (LCY)" WHERE("VIES Declaration No." = FIELD("No.")));
+            CalcFormula = Sum("VIES Declaration Line"."Amount (LCY)" WHERE("VIES Declaration No." = FIELD("No.")));
             Caption = 'Amount (LCY)';
             Editable = false;
             FieldClass = FlowField;
         }
         field(33; "Number of Supplies"; Decimal)
         {
-            CalcFormula = Sum ("VIES Declaration Line"."Number of Supplies" WHERE("VIES Declaration No." = FIELD("No.")));
+            CalcFormula = Sum("VIES Declaration Line"."Number of Supplies" WHERE("VIES Declaration No." = FIELD("No.")));
             Caption = 'Number of Supplies';
             Editable = false;
             FieldClass = FlowField;

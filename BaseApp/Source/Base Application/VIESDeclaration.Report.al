@@ -2,7 +2,10 @@ report 31060 "VIES Declaration"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './VIESDeclaration.rdlc';
-    Caption = 'VIES Declaration';
+    Caption = 'VIES Declaration (Obsolete)';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

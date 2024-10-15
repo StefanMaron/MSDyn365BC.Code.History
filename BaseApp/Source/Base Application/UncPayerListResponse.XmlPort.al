@@ -8,6 +8,9 @@ xmlport 11765 "Unc. Payer List - Response"
     Permissions = TableData "Uncertainty Payer Entry" = rimd;
     UseDefaultNamespace = true;
     UseRequestPage = false;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     schema
     {

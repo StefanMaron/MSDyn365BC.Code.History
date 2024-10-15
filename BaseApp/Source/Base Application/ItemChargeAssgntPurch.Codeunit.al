@@ -1,4 +1,4 @@
-codeunit 5805 "Item Charge Assgnt. (Purch.)"
+﻿codeunit 5805 "Item Charge Assgnt. (Purch.)"
 {
     Permissions = TableData "Purchase Header" = r,
                   TableData "Purchase Line" = r,
@@ -20,25 +20,28 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         ItemChargesNotAssignedErr: Label 'No item charges were assigned.';
         UOMMgt: Codeunit "Unit of Measure Management";
 
-    procedure InsertItemChargeAssgnt(ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; ApplToDocType: Option; ApplToDocNo2: Code[20]; ApplToDocLineNo2: Integer; ItemNo2: Code[20]; Description2: Text[100]; var NextLineNo: Integer; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
+    procedure InsertItemChargeAssignment(ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; ApplToDocType: Option; ApplToDocNo2: Code[20]; ApplToDocLineNo2: Integer; ItemNo2: Code[20]; Description2: Text[100]; var NextLineNo: Integer; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
     begin
-        // NAVCZ
-        InsertItemChargeAssgntWithAssignValues(
+        InsertItemChargeAssignmentWithValues(
           ItemChargeAssgntPurch, ApplToDocType, ApplToDocNo2, ApplToDocLineNo2, ItemNo2, Description2, 0, 0, NextLineNo,
           IncludeIntrastat, IncludeIntrastatAmount);
-        // NAVCZ
     end;
 
-    procedure InsertItemChargeAssgntWithAssignValues(FromItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; ApplToDocType: Option; FromApplToDocNo: Code[20]; FromApplToDocLineNo: Integer; FromItemNo: Code[20]; FromDescription: Text[100]; QtyToAssign: Decimal; AmountToAssign: Decimal; var NextLineNo: Integer; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
+    procedure InsertItemChargeAssignmentWithValues(FromItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; ApplToDocType: Option; FromApplToDocNo: Code[20]; FromApplToDocLineNo: Integer; FromItemNo: Code[20]; FromDescription: Text[100]; QtyToAssign: Decimal; AmountToAssign: Decimal; var NextLineNo: Integer; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
     var
         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
     begin
-        InsertItemChargeAssgntWithAssignValuesTo(
+        InsertItemChargeAssignmentWithValuesTo(
           FromItemChargeAssgntPurch, ApplToDocType, FromApplToDocNo, FromApplToDocLineNo, FromItemNo, FromDescription,
-          QtyToAssign, AmountToAssign, NextLineNo, ItemChargeAssgntPurch, IncludeIntrastat, IncludeIntrastatAmount);
+          QtyToAssign, AmountToAssign, NextLineNo, ItemChargeAssgntPurch,
+          IncludeIntrastat, IncludeIntrastatAmount);
     end;
 
-    procedure InsertItemChargeAssgntWithAssignValuesTo(FromItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; ApplToDocType: Option; FromApplToDocNo: Code[20]; FromApplToDocLineNo: Integer; FromItemNo: Code[20]; FromDescription: Text[100]; QtyToAssign: Decimal; AmountToAssign: Decimal; var NextLineNo: Integer; var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
+    procedure InsertItemChargeAssignmentWithValuesTo(
+        FromItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; ApplToDocType: Enum "Purchase Applies-to Document Type";
+        FromApplToDocNo: Code[20]; FromApplToDocLineNo: Integer; FromItemNo: Code[20]; FromDescription: Text[100];
+        QtyToAssign: Decimal; AmountToAssign: Decimal; var NextLineNo: Integer; var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
+        IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
     var
         ItemCharge: Record "Item Charge";
     begin
@@ -59,7 +62,6 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
             ItemChargeAssgntPurch."Amount to Assign" := AmountToAssign;
             ItemChargeAssgntPurch.Validate("Qty. to Assign", QtyToAssign);
         end;
-        // NAVCZ
         if IncludeIntrastat or IncludeIntrastatAmount then begin
             ItemCharge.Get(ItemChargeAssgntPurch."Item Charge No.");
             if IncludeIntrastatAmount then
@@ -68,9 +70,34 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
             if IncludeIntrastat then
                 ItemChargeAssgntPurch."Incl. in Intrastat Stat. Value" := ItemCharge."Incl. in Intrastat Stat. Value";
         end;
-        // NAVCZ
         OnBeforeInsertItemChargeAssgntWithAssignValues(ItemChargeAssgntPurch, FromItemChargeAssgntPurch);
         ItemChargeAssgntPurch.Insert();
+    end;
+
+    [Obsolete('Replaced by InsertItemChargeAssignment()', '17.0')]
+    procedure InsertItemChargeAssgnt(ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; ApplToDocType: Option; ApplToDocNo2: Code[20]; ApplToDocLineNo2: Integer; ItemNo2: Code[20]; Description2: Text[100]; var NextLineNo: Integer; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
+    begin
+        InsertItemChargeAssignment(
+          ItemChargeAssgntPurch, "Purchase Applies-to Document Type".FromInteger(ApplToDocType), ApplToDocNo2, ApplToDocLineNo2, ItemNo2, Description2, NextLineNo,
+          IncludeIntrastat, IncludeIntrastatAmount);
+    end;
+
+    [Obsolete('Replaced by InsertItemChargeAssignmentWithValues()', '17.0')]
+    procedure InsertItemChargeAssgntWithAssignValues(FromItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; ApplToDocType: Option; FromApplToDocNo: Code[20]; FromApplToDocLineNo: Integer; FromItemNo: Code[20]; FromDescription: Text[100]; QtyToAssign: Decimal; AmountToAssign: Decimal; var NextLineNo: Integer; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
+    begin
+        InsertItemChargeAssignmentWithValues(
+            FromItemChargeAssgntPurch, "Purchase Applies-to Document Type".FromInteger(ApplToDocType), FromApplToDocNo, FromApplToDocLineNo,
+            FromItemNo, FromDescription, QtyToAssign, AmountToAssign, NextLineNo,
+            IncludeIntrastat, IncludeIntrastatAmount);
+    end;
+
+    [Obsolete('Replaced by InsertItemChargeAssignmentWithValuesTo()', '17.0')]
+    procedure InsertItemChargeAssgntWithAssignValuesTo(FromItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; ApplToDocType: Option; FromApplToDocNo: Code[20]; FromApplToDocLineNo: Integer; FromItemNo: Code[20]; FromDescription: Text[100]; QtyToAssign: Decimal; AmountToAssign: Decimal; var NextLineNo: Integer; var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
+    begin
+        InsertItemChargeAssignmentWithValuesTo(
+            FromItemChargeAssgntPurch, "Purchase Applies-to Document Type".FromInteger(ApplToDocType), FromApplToDocNo, FromApplToDocLineNo, FromItemNo, FromDescription,
+            QtyToAssign, AmountToAssign, NextLineNo, ItemChargeAssgntPurch,
+            IncludeIntrastat, IncludeIntrastatAmount);
     end;
 
     procedure Summarize(var TempToItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)" temporary; var ToItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
@@ -91,7 +118,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                     end;
                     ToItemChargeAssignmentPurch."Qty. to Assign" += "Qty. to Assign";
                     ToItemChargeAssignmentPurch."Amount to Assign" += "Amount to Assign";
-                until Next = 0;
+                until Next() = 0;
             if ToItemChargeAssignmentPurch."Line No." <> 0 then
                 ToItemChargeAssignmentPurch.Insert();
         end;
@@ -130,18 +157,14 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                        FromPurchLine."Allow Item Charge Assignment"
                     then begin
                         ItemChargeAssgntPurch.SetRange("Applies-to Doc. Line No.", FromPurchLine."Line No.");
-                        if not ItemChargeAssgntPurch.FindFirst then
-                            InsertItemChargeAssgnt(
-                              LastItemChargeAssgntPurch, FromPurchLine."Document Type",
-                              FromPurchLine."Document No.", FromPurchLine."Line No.",
-                              FromPurchLine."No.", FromPurchLine.Description, NextLineNo,
-                              ShipmentMethod."Incl. Item Charges (Stat.Val.)",
-                              // NAVCZ
-                              ShipmentMethod."Include Item Charges (Amount)"
-                              // NAVCZ
-                              );
+                        if not ItemChargeAssgntPurch.FindFirst() then
+                            InsertItemChargeAssignment(
+                                LastItemChargeAssgntPurch, FromPurchLine."Document Type",
+                                FromPurchLine."Document No.", FromPurchLine."Line No.",
+                                FromPurchLine."No.", FromPurchLine.Description, NextLineNo,
+                                ShipmentMethod."Incl. Item Charges (Stat.Val.)", ShipmentMethod."Include Item Charges (Amount)");
                     end;
-                until FromPurchLine.Next = 0;
+                until FromPurchLine.Next() = 0;
             end;
         end;
 
@@ -169,16 +192,13 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         repeat
             ItemChargeAssgntPurch2.SetRange("Applies-to Doc. No.", FromPurchRcptLine."Document No.");
             ItemChargeAssgntPurch2.SetRange("Applies-to Doc. Line No.", FromPurchRcptLine."Line No.");
-            if not ItemChargeAssgntPurch2.FindFirst then
-                InsertItemChargeAssgnt(ItemChargeAssgntPurch, ItemChargeAssgntPurch2."Applies-to Doc. Type"::Receipt,
-                  FromPurchRcptLine."Document No.", FromPurchRcptLine."Line No.",
-                  FromPurchRcptLine."No.", FromPurchRcptLine.Description, NextLine,
-                  ShipmentMethod."Incl. Item Charges (Stat.Val.)",
-                  // NAVCZ
-                  ShipmentMethod."Include Item Charges (Amount)"
-                  // NAVCZ
-                  );
-        until FromPurchRcptLine.Next = 0;
+            if not ItemChargeAssgntPurch2.FindFirst() then
+                InsertItemChargeAssignment(
+                    ItemChargeAssgntPurch, ItemChargeAssgntPurch2."Applies-to Doc. Type"::Receipt,
+                    FromPurchRcptLine."Document No.", FromPurchRcptLine."Line No.",
+                    FromPurchRcptLine."No.", FromPurchRcptLine.Description, NextLine,
+                    ShipmentMethod."Incl. Item Charges (Stat.Val.)", ShipmentMethod."Include Item Charges (Amount)");
+        until FromPurchRcptLine.Next() = 0;
     end;
 
     procedure CreateTransferRcptChargeAssgnt(var FromTransRcptLine: Record "Transfer Receipt Line"; ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)")
@@ -201,16 +221,13 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         repeat
             ItemChargeAssgntPurch2.SetRange("Applies-to Doc. No.", FromTransRcptLine."Document No.");
             ItemChargeAssgntPurch2.SetRange("Applies-to Doc. Line No.", FromTransRcptLine."Line No.");
-            if not ItemChargeAssgntPurch2.FindFirst then
-                InsertItemChargeAssgnt(ItemChargeAssgntPurch, ItemChargeAssgntPurch2."Applies-to Doc. Type"::"Transfer Receipt",
-                  FromTransRcptLine."Document No.", FromTransRcptLine."Line No.",
-                  FromTransRcptLine."Item No.", FromTransRcptLine.Description, NextLine,
-                  ShipmentMethod."Incl. Item Charges (Stat.Val.)",
-                  // NAVCZ
-                  ShipmentMethod."Include Item Charges (Amount)"
-                  // NAVCZ
-                  );
-        until FromTransRcptLine.Next = 0;
+            if not ItemChargeAssgntPurch2.FindFirst() then
+                InsertItemChargeAssignment(
+                    ItemChargeAssgntPurch, ItemChargeAssgntPurch2."Applies-to Doc. Type"::"Transfer Receipt",
+                    FromTransRcptLine."Document No.", FromTransRcptLine."Line No.",
+                    FromTransRcptLine."Item No.", FromTransRcptLine.Description, NextLine,
+                    ShipmentMethod."Incl. Item Charges (Stat.Val.)", ShipmentMethod."Include Item Charges (Amount)");
+        until FromTransRcptLine.Next() = 0;
     end;
 
     procedure CreateShptChargeAssgnt(var FromReturnShptLine: Record "Return Shipment Line"; ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)")
@@ -238,16 +255,13 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         repeat
             ItemChargeAssgntPurch2.SetRange("Applies-to Doc. No.", FromReturnShptLine."Document No.");
             ItemChargeAssgntPurch2.SetRange("Applies-to Doc. Line No.", FromReturnShptLine."Line No.");
-            if not ItemChargeAssgntPurch2.FindFirst then
-                InsertItemChargeAssgnt(ItemChargeAssgntPurch, ItemChargeAssgntPurch2."Applies-to Doc. Type"::"Return Shipment",
-                  FromReturnShptLine."Document No.", FromReturnShptLine."Line No.",
-                  FromReturnShptLine."No.", FromReturnShptLine.Description, NextLine,
-                  ShipmentMethod."Incl. Item Charges (Stat.Val.)",
-                  // NAVCZ
-                  ShipmentMethod."Include Item Charges (Amount)"
-                  // NAVCZ
-                  );
-        until FromReturnShptLine.Next = 0;
+            if not ItemChargeAssgntPurch2.FindFirst() then
+                InsertItemChargeAssignment(
+                    ItemChargeAssgntPurch, ItemChargeAssgntPurch2."Applies-to Doc. Type"::"Return Shipment",
+                    FromReturnShptLine."Document No.", FromReturnShptLine."Line No.",
+                    FromReturnShptLine."No.", FromReturnShptLine.Description, NextLine,
+                    ShipmentMethod."Incl. Item Charges (Stat.Val.)", ShipmentMethod."Include Item Charges (Amount)");
+        until FromReturnShptLine.Next() = 0;
     end;
 
     procedure CreateSalesShptChargeAssgnt(var FromSalesShptLine: Record "Sales Shipment Line"; ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)")
@@ -275,16 +289,13 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         repeat
             ItemChargeAssgntPurch2.SetRange("Applies-to Doc. No.", FromSalesShptLine."Document No.");
             ItemChargeAssgntPurch2.SetRange("Applies-to Doc. Line No.", FromSalesShptLine."Line No.");
-            if not ItemChargeAssgntPurch2.FindFirst then
-                InsertItemChargeAssgnt(ItemChargeAssgntPurch, ItemChargeAssgntPurch2."Applies-to Doc. Type"::"Sales Shipment",
-                  FromSalesShptLine."Document No.", FromSalesShptLine."Line No.",
-                  FromSalesShptLine."No.", FromSalesShptLine.Description, NextLine,
-                  ShipmentMethod."Incl. Item Charges (Stat.Val.)",
-                  // NAVCZ
-                  ShipmentMethod."Include Item Charges (Amount)"
-                  // NAVCZ
-                  );
-        until FromSalesShptLine.Next = 0;
+            if not ItemChargeAssgntPurch2.FindFirst() then
+                InsertItemChargeAssignment(
+                    ItemChargeAssgntPurch, ItemChargeAssgntPurch2."Applies-to Doc. Type"::"Sales Shipment",
+                    FromSalesShptLine."Document No.", FromSalesShptLine."Line No.",
+                    FromSalesShptLine."No.", FromSalesShptLine.Description, NextLine,
+                    ShipmentMethod."Incl. Item Charges (Stat.Val.)", ShipmentMethod."Include Item Charges (Amount)");
+        until FromSalesShptLine.Next() = 0;
     end;
 
     procedure CreateReturnRcptChargeAssgnt(var FromReturnRcptLine: Record "Return Receipt Line"; ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)")
@@ -312,16 +323,13 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         repeat
             ItemChargeAssgntPurch2.SetRange("Applies-to Doc. No.", FromReturnRcptLine."Document No.");
             ItemChargeAssgntPurch2.SetRange("Applies-to Doc. Line No.", FromReturnRcptLine."Line No.");
-            if not ItemChargeAssgntPurch2.FindFirst then
-                InsertItemChargeAssgnt(ItemChargeAssgntPurch, ItemChargeAssgntPurch2."Applies-to Doc. Type"::"Return Receipt",
-                  FromReturnRcptLine."Document No.", FromReturnRcptLine."Line No.",
-                  FromReturnRcptLine."No.", FromReturnRcptLine.Description, NextLine,
-                  ShipmentMethod."Incl. Item Charges (Stat.Val.)",
-                  // NAVCZ
-                  ShipmentMethod."Include Item Charges (Amount)"
-                  // NAVCZ
-                  );
-        until FromReturnRcptLine.Next = 0;
+            if not ItemChargeAssgntPurch2.FindFirst() then
+                InsertItemChargeAssignment(
+                    ItemChargeAssgntPurch, ItemChargeAssgntPurch2."Applies-to Doc. Type"::"Return Receipt",
+                    FromReturnRcptLine."Document No.", FromReturnRcptLine."Line No.",
+                    FromReturnRcptLine."No.", FromReturnRcptLine.Description, NextLine,
+                    ShipmentMethod."Incl. Item Charges (Stat.Val.)", ShipmentMethod."Include Item Charges (Amount)");
+        until FromReturnRcptLine.Next() = 0;
     end;
 
     procedure SuggestAssgnt(PurchLine: Record "Purchase Line"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal)
@@ -399,7 +407,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         ItemChargeAssgntPurch.SetRange("Document Type", PurchLine."Document Type");
         ItemChargeAssgntPurch.SetRange("Document No.", PurchLine."Document No.");
         ItemChargeAssgntPurch.SetRange("Document Line No.", PurchLine."Line No.");
-        if ItemChargeAssgntPurch.FindFirst then
+        if ItemChargeAssgntPurch.FindFirst() then
             case SelectionTxt of
                 AssignEquallyMenuText:
                     AssignEqually(ItemChargeAssgntPurch, Currency, TotalQtyToAssign, TotalAmtToAssign);
@@ -484,7 +492,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                 TempItemChargeAssgntPurch := ItemChargeAssgntPurch;
                 TempItemChargeAssgntPurch.Insert();
             end;
-        until ItemChargeAssgntPurch.Next = 0;
+        until ItemChargeAssgntPurch.Next() = 0;
 
         if TempItemChargeAssgntPurch.FindSet(true) then begin
             RemainingNumOfLines := TempItemChargeAssgntPurch.Count();
@@ -506,7 +514,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                 OnAssignEquallyOnBeforeItemChargeAssignmentPurchModify(ItemChargeAssgntPurch);
                 ItemChargeAssgntPurch.Modify();
                 OnAssignEquallyOnAfterItemChargeAssignmentPurchModify(ItemChargeAssgntPurch);
-            until TempItemChargeAssgntPurch.Next = 0;
+            until TempItemChargeAssgntPurch.Next() = 0;
         end;
         TempItemChargeAssgntPurch.DeleteAll();
     end;
@@ -561,7 +569,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                             ReturnShptLine.Get(
                               ItemChargeAssgntPurch."Applies-to Doc. No.",
                               ItemChargeAssgntPurch."Applies-to Doc. Line No.");
-                            CurrencyCode := ReturnShptLine.GetCurrencyCode;
+                            CurrencyCode := ReturnShptLine.GetCurrencyCode();
                             if CurrencyCode = PurchHeader."Currency Code" then
                                 TempItemChargeAssgntPurch."Applies-to Doc. Line Amount" :=
                                   Abs(ReturnShptLine."Item Charge Base Amount")
@@ -576,7 +584,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                             SalesShptLine.Get(
                               ItemChargeAssgntPurch."Applies-to Doc. No.",
                               ItemChargeAssgntPurch."Applies-to Doc. Line No.");
-                            CurrencyCode := SalesShptLine.GetCurrencyCode;
+                            CurrencyCode := SalesShptLine.GetCurrencyCode();
                             if CurrencyCode = PurchHeader."Currency Code" then
                                 TempItemChargeAssgntPurch."Applies-to Doc. Line Amount" :=
                                   Abs(SalesShptLine."Item Charge Base Amount")
@@ -591,7 +599,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                             ReturnRcptLine.Get(
                               ItemChargeAssgntPurch."Applies-to Doc. No.",
                               ItemChargeAssgntPurch."Applies-to Doc. Line No.");
-                            CurrencyCode := ReturnRcptLine.GetCurrencyCode;
+                            CurrencyCode := ReturnRcptLine.GetCurrencyCode();
                             if CurrencyCode = PurchHeader."Currency Code" then
                                 TempItemChargeAssgntPurch."Applies-to Doc. Line Amount" :=
                                   Abs(ReturnRcptLine."Item Charge Base Amount")
@@ -628,7 +636,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                 end;
                 TotalAppliesToDocLineAmount += TempItemChargeAssgntPurch."Applies-to Doc. Line Amount";
             end;
-        until ItemChargeAssgntPurch.Next = 0;
+        until ItemChargeAssgntPurch.Next() = 0;
 
         if TempItemChargeAssgntPurch.FindSet(true) then
             repeat
@@ -654,7 +662,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                     ItemChargeAssgntPurch.Modify();
                     OnAssignByAmountOnAfterItemChargeAssignmentPurchModify(ItemChargeAssgntPurch);
                 end;
-            until TempItemChargeAssgntPurch.Next = 0;
+            until TempItemChargeAssgntPurch.Next() = 0;
         TempItemChargeAssgntPurch.DeleteAll();
     end;
 
@@ -674,7 +682,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                 GetItemValues(TempItemChargeAssgntPurch, LineAray);
                 TotalGrossWeight := TotalGrossWeight + (LineAray[2] * LineAray[1]);
             end;
-        until ItemChargeAssgntPurch.Next = 0;
+        until ItemChargeAssgntPurch.Next() = 0;
 
         if TempItemChargeAssgntPurch.FindSet(true) then
             repeat
@@ -685,7 +693,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                 else
                     TempItemChargeAssgntPurch."Qty. to Assign" := 0;
                 AssignPurchItemCharge(ItemChargeAssgntPurch, TempItemChargeAssgntPurch, Currency, QtyRemainder, AmountRemainder);
-            until TempItemChargeAssgntPurch.Next = 0;
+            until TempItemChargeAssgntPurch.Next() = 0;
         TempItemChargeAssgntPurch.DeleteAll();
     end;
 
@@ -705,7 +713,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                 GetItemValues(TempItemChargeAssgntPurch, LineAray);
                 TotalUnitVolume := TotalUnitVolume + (LineAray[3] * LineAray[1]);
             end;
-        until ItemChargeAssgntPurch.Next = 0;
+        until ItemChargeAssgntPurch.Next() = 0;
 
         if TempItemChargeAssgntPurch.FindSet(true) then
             repeat
@@ -716,7 +724,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                 else
                     TempItemChargeAssgntPurch."Qty. to Assign" := 0;
                 AssignPurchItemCharge(ItemChargeAssgntPurch, TempItemChargeAssgntPurch, Currency, QtyRemainder, AmountRemainder);
-            until TempItemChargeAssgntPurch.Next = 0;
+            until TempItemChargeAssgntPurch.Next() = 0;
         TempItemChargeAssgntPurch.DeleteAll();
     end;
 
@@ -843,7 +851,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                         TempItemChargeAssgntPurch := ItemChargeAssignmentPurch;
                         TempItemChargeAssgntPurch.Insert();
                     end;
-                until ItemChargeAssignmentPurch.Next = 0;
+                until ItemChargeAssignmentPurch.Next() = 0;
 
                 if TempItemChargeAssgntPurch.FindSet then begin
                     repeat
@@ -861,7 +869,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                             TotalAmountToAssign -= ItemChargeAssignmentPurch."Amount to Assign";
                             ItemChargeAssignmentPurch.Modify();
                         end;
-                    until TempItemChargeAssgntPurch.Next = 0;
+                    until TempItemChargeAssgntPurch.Next() = 0;
                 end;
             end;
 
@@ -871,7 +879,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         FromItemChargeAssignmentPurch := ItemChargeAssignmentPurch;
     end;
 
-    local procedure GetItemChargeAssgntLineAmounts(DocumentType: Option; DocumentNo: Code[20]; DocumentLineNo: Integer; var ItemChargeAssgntLineQty: Decimal; var ItemChargeAssgntLineAmt: Decimal)
+    local procedure GetItemChargeAssgntLineAmounts(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; DocumentLineNo: Integer; var ItemChargeAssgntLineQty: Decimal; var ItemChargeAssgntLineAmt: Decimal)
     var
         PurchLine: Record "Purchase Line";
         PurchHeader: Record "Purchase Header";

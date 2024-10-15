@@ -1,7 +1,7 @@
 page 11732 "Cash Document List"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Cash Documents';
+    Caption = 'Cash Documents (Obsolete)';
     CardPageID = "Cash Document";
     DataCaptionFields = "Cash Desk No.";
     Editable = false;
@@ -9,6 +9,9 @@ page 11732 "Cash Document List"
     PromotedActionCategories = 'New,Process,Report,Approve,Request Approval';
     SourceTable = "Cash Document Header";
     UsageCategory = Tasks;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

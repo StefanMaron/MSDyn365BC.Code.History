@@ -2,6 +2,9 @@ table 31072 "Stockkeeping Unit Template"
 {
     Caption = 'Stockkeeping Unit Template';
     LookupPageID = "Stockkeeping Unit Templates";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     fields
     {

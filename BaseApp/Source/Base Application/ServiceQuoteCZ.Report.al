@@ -2,8 +2,11 @@ report 31110 "Service Quote CZ"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './ServiceQuoteCZ.rdlc';
-    Caption = 'Service Quote CZ';
+    Caption = 'Service Quote CZ (Obsolete)';
     PreviewMode = PrintLayout;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

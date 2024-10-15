@@ -1,7 +1,7 @@
 page 11757 "Registration Config"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Reg. No. Validation Service Setup';
+    Caption = 'Reg. No. Validation Service Setup (Obsolete)';
     DataCaptionExpression = '';
     DeleteAllowed = false;
     InsertAllowed = false;
@@ -11,6 +11,9 @@ page 11757 "Registration Config"
     ShowFilter = false;
     SourceTable = "Reg. No. Srv Config";
     UsageCategory = Administration;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

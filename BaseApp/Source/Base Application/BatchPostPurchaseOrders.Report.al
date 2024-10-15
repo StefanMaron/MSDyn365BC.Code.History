@@ -13,7 +13,6 @@ report 496 "Batch Post Purchase Orders"
 
             trigger OnPreDataItem()
             var
-                BatchPostParameterTypes: Codeunit "Batch Post Parameter Types";
                 PurchaseBatchPostMgt: Codeunit "Purchase Batch Post Mgt.";
             begin
                 OnBeforePurchaseBatchPostMgt("Purchase Header", ReceiveReq, InvReq);
@@ -21,10 +20,10 @@ report 496 "Batch Post Purchase Orders"
                 if ReplaceVATDate and (VATDateReq = 0D) then
                     Error(EnterVATDateErr);
 
-                PurchaseBatchPostMgt.AddParameter(BatchPostParameterTypes.ReplaceVATDate, ReplaceVATDate);
-                PurchaseBatchPostMgt.AddParameter(BatchPostParameterTypes.VATDate, VATDateReq);
+                PurchaseBatchPostMgt.SetParameter("Batch Posting Parameter Type"::"Replace VAT Date", ReplaceVATDate);
+                PurchaseBatchPostMgt.SetParameter("Batch Posting Parameter Type"::"VAT Date", VATDateReq);
 
-                PurchaseBatchPostMgt.AddParameter(BatchPostParameterTypes.Print, PrintDoc);
+                PurchaseBatchPostMgt.SetParameter("Batch Posting Parameter Type"::Print, PrintDoc);
                 PurchaseBatchPostMgt.RunBatch(
                   "Purchase Header", ReplacePostingDate, PostingDateReq, ReplaceDocumentDate, CalcInvDisc, ReceiveReq, InvReq);
 

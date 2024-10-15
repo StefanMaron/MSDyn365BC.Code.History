@@ -1,10 +1,13 @@
 page 31095 Commodities
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Commodities';
+    Caption = 'Commodities (Obsolete)';
     PageType = List;
     SourceTable = Commodity;
     UsageCategory = Administration;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

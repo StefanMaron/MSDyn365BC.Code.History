@@ -5,6 +5,9 @@ page 11731 "Cash Document Subform"
     DelayedInsert = true;
     PageType = ListPart;
     SourceTable = "Cash Document Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {
@@ -374,7 +377,7 @@ page 11731 "Cash Document Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }

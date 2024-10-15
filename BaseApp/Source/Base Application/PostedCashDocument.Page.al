@@ -1,9 +1,12 @@
 page 11735 "Posted Cash Document"
 {
-    Caption = 'Posted Cash Document';
+    Caption = 'Posted Cash Document (Obsolete)';
     Editable = false;
     PageType = Document;
     SourceTable = "Posted Cash Document Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {
@@ -227,7 +230,7 @@ page 11735 "Posted Cash Document"
 
                 trigger OnAction()
                 begin
-                    ShowDimensions;
+                    ShowDimensions();
                 end;
             }
             action("EET Entry")
@@ -270,7 +273,7 @@ page 11735 "Posted Cash Document"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;

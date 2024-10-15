@@ -553,18 +553,21 @@ table 1237 "Transformation Rule"
         exit(DeleteNOTPROVIDEDTxt);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure GetCZDateFormatCode(): Code[20]
     begin
         exit(CZDATEFORMATTxt); // NAVCZ
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure GetCZDateTimeFormatCode(): Code[20]
     begin
-        exit(USDATETIMEFORMATTxt); // NAVCZ
+        exit(CZDATETIMEFORMATTxt); // NAVCZ
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure GetCzechDecimalFormatCode(): Code[20]
     begin

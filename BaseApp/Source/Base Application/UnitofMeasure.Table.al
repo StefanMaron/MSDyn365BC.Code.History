@@ -62,6 +62,9 @@ table 204 "Unit of Measure"
         key(Key2; Description)
         {
         }
+        key(Key3; SystemModifiedAt)
+        {
+        }
     }
 
     fieldgroups

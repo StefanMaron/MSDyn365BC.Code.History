@@ -131,11 +131,9 @@ table 7023 "Sales Price Worksheet"
             Caption = 'VAT Bus. Posting Gr. (Price)';
             TableRelation = "VAT Business Posting Group";
         }
-        field(13; "Sales Type"; Option)
+        field(13; "Sales Type"; Enum "Sales Price Type")
         {
             Caption = 'Sales Type';
-            OptionCaption = 'Customer,Customer Price Group,All Customers,Campaign';
-            OptionMembers = Customer,"Customer Price Group","All Customers",Campaign;
 
             trigger OnValidate()
             begin
@@ -168,7 +166,7 @@ table 7023 "Sales Price Worksheet"
         }
         field(20; "Item Description"; Text[100])
         {
-            CalcFormula = Lookup (Item.Description WHERE("No." = FIELD("Item No.")));
+            CalcFormula = Lookup(Item.Description WHERE("No." = FIELD("Item No.")));
             Caption = 'Item Description';
             FieldClass = FlowField;
         }
@@ -240,9 +238,11 @@ table 7023 "Sales Price Worksheet"
         Cust: Record Customer;
         Text001: Label '%1 must be blank.';
         Campaign: Record Campaign;
-        Item: Record Item;
         PriceAlreadyExists: Boolean;
         Text002: Label '%1 and %2 can only be altered from the Campaign Card when %3 = %4.';
+
+    protected var
+        Item: Record Item;
 
     procedure CalcCurrentPrice(var PriceAlreadyExists: Boolean)
     var

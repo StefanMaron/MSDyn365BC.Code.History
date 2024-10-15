@@ -1066,7 +1066,7 @@ codeunit 137831 "SCM - Warehouse UT"
             Init;
             "No." := WarehouseShipmentHeader."No.";
             "Source Type" := DATABASE::"Sales Line";
-            "Source Subtype" := SalesLine."Document Type";
+            "Source Subtype" := SalesLine."Document Type".AsInteger();
             "Source No." := SalesLine."Document No.";
             "Qty. per Unit of Measure" := SalesLine."Qty. per Unit of Measure";
             Quantity := SalesLine."Outstanding Quantity";
@@ -1572,7 +1572,7 @@ codeunit 137831 "SCM - Warehouse UT"
         ReservationEntry."Entry No." := ReservationEntry2."Entry No." + 1;
         ReservationEntry.Positive := false;
         ReservationEntry."Source Type" := DATABASE::"Sales Line";
-        ReservationEntry."Source Subtype" := SalesLine."Document Type";
+        ReservationEntry."Source Subtype" := SalesLine."Document Type".AsInteger();
         ReservationEntry."Source ID" := SalesLine."Document No.";
         ReservationEntry."Source Ref. No." := SalesLine."Line No.";
         ReservationEntry."Item No." := SalesLine."No.";
@@ -1636,7 +1636,7 @@ codeunit 137831 "SCM - Warehouse UT"
         WarehouseRequest.Type := WarehouseRequest.Type::Outbound;
         WarehouseRequest."Location Code" := LocationCode;
         WarehouseRequest."Source Type" := DATABASE::"Sales Line";
-        WarehouseRequest."Source Subtype" := SalesLine."Document Type";
+        WarehouseRequest."Source Subtype" := SalesLine."Document Type".AsInteger();
         WarehouseRequest."Source No." := SalesLine."Document No.";
         WarehouseRequest."Source Document" := WarehouseRequest."Source Document"::"Sales Order";
         WarehouseRequest.Insert();
@@ -1690,7 +1690,7 @@ codeunit 137831 "SCM - Warehouse UT"
         ReduceOrDeleteQtyOnReservationEntry(SalesLine, QtyToReserve, LotCode);
 
         CreateReservationEntry(SalesLine, LotCode, QtyToReserve,
-          DATABASE::"Purchase Line", PurchaseLine."Document Type"::Order, '', 0);
+          DATABASE::"Purchase Line", PurchaseLine."Document Type"::Order.AsInteger(), '', 0);
     end;
 
     local procedure CreateSalesReservationAgainstILE(SalesNo: Code[20]; QtyToReserve: Decimal; LotCode: Code[10])
@@ -1761,7 +1761,7 @@ codeunit 137831 "SCM - Warehouse UT"
             ItemTrackingMgt.InitItemTrkgForTempWkshLine(
               WhseWkshLine."Whse. Document Type"::Shipment, "No.", "Line No.",
               "Source Type", "Source Subtype", "Source No.", "Source Line No.", 0);
-            CreatePick.SetValues('', 1, 0, 1, 0, 0, false, false, false, false);
+            CreatePick.SetValues('', 1, "Whse. Activity Sorting Method"::None, 1, 0, 0, false, false, false, false);
             CreatePick.SetWhseShipment(WarehouseShipmentLine, 1, '', '', '');
             CreatePick.SetTempWhseItemTrkgLine("No.", DATABASE::"Warehouse Shipment Line", '', 0, "Line No.", "Location Code");
             CreatePick.CreateTempLine("Location Code", "Item No.", '', '', '', "Bin Code", 1, Quantity, "Qty. (Base)");
@@ -1890,7 +1890,7 @@ codeunit 137831 "SCM - Warehouse UT"
         end;
     end;
 
-    local procedure MockItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Option; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; Qty: Decimal)
+    local procedure MockItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; Qty: Decimal)
     begin
         with ItemJournalLine do begin
             Init;

@@ -3,6 +3,9 @@ table 31100 "VAT Control Report Header"
     Caption = 'VAT Control Report Header';
     DrillDownPageID = "VAT Control Report List";
     LookupPageID = "VAT Control Report List";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     fields
     {

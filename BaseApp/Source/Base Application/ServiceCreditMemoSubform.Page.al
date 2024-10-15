@@ -23,7 +23,7 @@ page 5936 "Service Credit Memo Subform"
 
                     trigger OnValidate()
                     begin
-                        NoOnAfterValidate;
+                        NoOnAfterValidate();
                     end;
                 }
                 field("No."; "No.")
@@ -34,7 +34,7 @@ page 5936 "Service Credit Memo Subform"
                     trigger OnValidate()
                     begin
                         ShowShortcutDimCode(ShortcutDimCode);
-                        NoOnAfterValidate;
+                        NoOnAfterValidate();
                     end;
                 }
                 field("Variant Code"; "Variant Code")
@@ -86,7 +86,7 @@ page 5936 "Service Credit Memo Subform"
 
                     trigger OnValidate()
                     begin
-                        ReserveOnAfterValidate;
+                        ReserveOnAfterValidate();
                     end;
                 }
                 field(Quantity; Quantity)
@@ -97,7 +97,7 @@ page 5936 "Service Credit Memo Subform"
 
                     trigger OnValidate()
                     begin
-                        QuantityOnAfterValidate;
+                        QuantityOnAfterValidate();
                     end;
                 }
                 field("Reserved Quantity"; "Reserved Quantity")
@@ -122,7 +122,7 @@ page 5936 "Service Credit Memo Subform"
 
                     trigger OnValidate()
                     begin
-                        UnitofMeasureCodeOnAfterValida;
+                        UnitofMeasureCodeOnAfterValidate();
                     end;
                 }
                 field("Unit of Measure"; "Unit of Measure")
@@ -224,6 +224,9 @@ page 5936 "Service Credit Memo Subform"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a code for the item''s tariff number.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
                     Visible = false;
                 }
                 field("Reason Code"; "Reason Code")
@@ -450,7 +453,7 @@ page 5936 "Service Credit Memo Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(ItemTrackingLines)
@@ -463,7 +466,7 @@ page 5936 "Service Credit Memo Subform"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }
@@ -501,6 +504,8 @@ page 5936 "Service Credit Memo Subform"
     var
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+
+    protected var
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
@@ -532,32 +537,32 @@ page 5936 "Service Credit Memo Subform"
         CurrPage.Update(SetSaveRecord);
     end;
 
-    local procedure NoOnAfterValidate()
+    protected procedure NoOnAfterValidate()
     begin
         InsertExtendedText(false);
     end;
 
-    local procedure ReserveOnAfterValidate()
+    protected procedure ReserveOnAfterValidate()
     begin
         if (Reserve = Reserve::Always) and ("Outstanding Qty. (Base)" <> 0) then begin
             CurrPage.SaveRecord;
-            AutoReserve;
+            AutoReserve();
         end;
     end;
 
-    local procedure QuantityOnAfterValidate()
+    protected procedure QuantityOnAfterValidate()
     begin
         if Reserve = Reserve::Always then begin
             CurrPage.SaveRecord;
-            AutoReserve;
+            AutoReserve();
         end;
     end;
 
-    local procedure UnitofMeasureCodeOnAfterValida()
+    protected procedure UnitofMeasureCodeOnAfterValidate()
     begin
         if Reserve = Reserve::Always then begin
             CurrPage.SaveRecord;
-            AutoReserve;
+            AutoReserve();
         end;
     end;
 

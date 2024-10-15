@@ -74,7 +74,7 @@ codeunit 225 "Gen. Jnl.-Apply"
         AccNo: Code[20];
         CurrencyCode2: Code[10];
         EntrySelected: Boolean;
-        AccType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner",Employee;
+        AccType: Enum "Gen. Journal Account Type";
 
     local procedure SelectCustLedgEntry(var GenJnlLine: Record "Gen. Journal Line") Selected: Boolean
     var
@@ -231,7 +231,7 @@ codeunit 225 "Gen. Jnl.-Apply"
         end;
     end;
 
-    procedure CheckAgainstApplnCurrency(ApplnCurrencyCode: Code[10]; CompareCurrencyCode: Code[10]; AccType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset"; Message: Boolean): Boolean
+    procedure CheckAgainstApplnCurrency(ApplnCurrencyCode: Code[10]; CompareCurrencyCode: Code[10]; AccType: Enum "Gen. Journal Account Type"; Message: Boolean): Boolean
     var
         Currency: Record Currency;
         Currency2: Record Currency;
@@ -363,7 +363,7 @@ codeunit 225 "Gen. Jnl.-Apply"
                         "Currency Code" := CustLedgEntry."Currency Code"
                     end else
                         CheckAgainstApplnCurrency("Currency Code", CustLedgEntry."Currency Code", AccType::Customer, true);
-                "Applies-to Doc. Type" := 0;
+                "Applies-to Doc. Type" := "Applies-to Doc. Type"::" ";
                 "Applies-to Doc. No." := '';
             end else
                 "Applies-to ID" := '';
@@ -428,7 +428,7 @@ codeunit 225 "Gen. Jnl.-Apply"
                         "Currency Code" := VendLedgEntry."Currency Code"
                     end else
                         CheckAgainstApplnCurrency("Currency Code", VendLedgEntry."Currency Code", AccType::Vendor, true);
-                "Applies-to Doc. Type" := 0;
+                "Applies-to Doc. Type" := "Applies-to Doc. Type"::" ";
                 "Applies-to Doc. No." := '';
             end else
                 "Applies-to ID" := '';
@@ -472,7 +472,7 @@ codeunit 225 "Gen. Jnl.-Apply"
                         Amount := -Amount;
                     Validate(Amount);
                 end;
-                "Applies-to Doc. Type" := 0;
+                "Applies-to Doc. Type" := "Applies-to Doc. Type"::" ";
                 "Applies-to Doc. No." := '';
             end else
                 "Applies-to ID" := '';

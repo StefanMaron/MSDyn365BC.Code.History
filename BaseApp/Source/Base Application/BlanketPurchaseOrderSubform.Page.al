@@ -23,8 +23,8 @@
 
                     trigger OnValidate()
                     begin
-                        NoOnAfterValidate;
-                        DeltaUpdateTotals;
+                        NoOnAfterValidate();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("No."; "No.")
@@ -35,8 +35,8 @@
                     trigger OnValidate()
                     begin
                         ShowShortcutDimCode(ShortcutDimCode);
-                        NoOnAfterValidate;
-                        DeltaUpdateTotals;
+                        NoOnAfterValidate();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Cross-Reference No."; "Cross-Reference No.")
@@ -44,18 +44,42 @@
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
                     Visible = false;
+                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '17.0';
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        CrossReferenceNoLookUp;
+                        CrossReferenceNoLookUp();
                         InsertExtendedText(false);
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 
                     trigger OnValidate()
                     begin
-                        CrossReferenceNoOnAfterValidat;
-                        DeltaUpdateTotals;
+                        InsertExtendedText(false);
+                        DeltaUpdateTotals();
+                    end;
+                }
+                field("Item Reference No."; "Item Reference No.")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the referenced item number.';
+                    Visible = ItemReferenceVisible;
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        ItemReferenceMgt: Codeunit "Item Reference Management";
+                    begin
+                        ItemReferenceMgt.PurchaseReferenceNoLookup(Rec);
+                        InsertExtendedText(false);
+                        OnItemReferenceNoOnLookup(Rec);
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        InsertExtendedText(false);
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Variant Code"; "Variant Code")
@@ -66,7 +90,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
@@ -77,7 +101,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field(Description; Description)
@@ -87,7 +111,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Location Code"; "Location Code")
@@ -103,7 +127,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Unit of Measure Code"; "Unit of Measure Code")
@@ -113,7 +137,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Unit of Measure"; "Unit of Measure")
@@ -130,7 +154,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Indirect Cost %"; "Indirect Cost %")
@@ -166,7 +190,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Tax Group Code"; "Tax Group Code")
@@ -177,7 +201,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Use Tax"; "Use Tax")
@@ -194,7 +218,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Line Amount"; "Line Amount")
@@ -205,7 +229,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Line Discount Amount"; "Line Discount Amount")
@@ -216,7 +240,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Allow Invoice Disc."; "Allow Invoice Disc.")
@@ -227,19 +251,25 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Tariff No."; "Tariff No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for the item''s tariff number.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
                     Visible = false;
                 }
                 field("Statistic Indication"; "Statistic Indication")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the statistic indication code.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
                     Visible = false;
                 }
                 field("Net Weight"; "Net Weight")
@@ -399,7 +429,7 @@
 
                         trigger OnValidate()
                         begin
-                            DeltaUpdateTotals;
+                            DeltaUpdateTotals();
                         end;
                     }
                     field("Invoice Discount Amount"; InvoiceDiscountAmount)
@@ -415,7 +445,7 @@
                         trigger OnValidate()
                         begin
                             DocumentTotals.PurchaseDocTotalsNotUpToDate();
-                            ValidateInvoiceDiscountAmount;
+                            ValidateInvoiceDiscountAmount();
                         end;
                     }
                     field("Invoice Disc. Pct."; InvoiceDiscountPct)
@@ -431,7 +461,7 @@
                             DocumentTotals.PurchaseDocTotalsNotUpToDate;
                             AmountWithDiscountAllowed := DocumentTotals.CalcTotalPurchAmountOnlyDiscountAllowed(Rec);
                             InvoiceDiscountAmount := Round(AmountWithDiscountAllowed * InvoiceDiscountPct / 100, Currency."Amount Rounding Precision");
-                            ValidateInvoiceDiscountAmount;
+                            ValidateInvoiceDiscountAmount();
                         end;
                     }
                 }
@@ -493,7 +523,7 @@
 
                     trigger OnAction()
                     begin
-                        ExplodeBOM;
+                        ExplodeBOM();
                     end;
                 }
                 action("Insert &Ext. Texts")
@@ -594,7 +624,7 @@
 
                         trigger OnAction()
                         begin
-                            ShowOrders;
+                            ShowOrders();
                         end;
                     }
                     action(Invoices)
@@ -606,7 +636,7 @@
 
                         trigger OnAction()
                         begin
-                            ShowInvoices;
+                            ShowInvoices();
                         end;
                     }
                     action("Return Orders")
@@ -619,7 +649,7 @@
 
                         trigger OnAction()
                         begin
-                            ShowReturnOrders;
+                            ShowReturnOrders();
                         end;
                     }
                     action("Credit Memos")
@@ -631,7 +661,7 @@
 
                         trigger OnAction()
                         begin
-                            ShowCreditMemos;
+                            ShowCreditMemos();
                         end;
                     }
                 }
@@ -648,7 +678,7 @@
 
                         trigger OnAction()
                         begin
-                            ShowPostedReceipts;
+                            ShowPostedReceipts();
                         end;
                     }
                     action(Action1904522204)
@@ -660,7 +690,7 @@
 
                         trigger OnAction()
                         begin
-                            ShowPostedInvoices;
+                            ShowPostedInvoices();
                         end;
                     }
                     action("Return Receipts")
@@ -672,7 +702,7 @@
 
                         trigger OnAction()
                         begin
-                            ShowPostedReturnReceipts;
+                            ShowPostedReturnReceipts();
                         end;
                     }
                     action(Action1902056104)
@@ -684,7 +714,7 @@
 
                         trigger OnAction()
                         begin
-                            ShowPostedCreditMemos;
+                            ShowPostedCreditMemos();
                         end;
                     }
                 }
@@ -699,7 +729,7 @@
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Co&mments")
@@ -711,7 +741,7 @@
 
                     trigger OnAction()
                     begin
-                        ShowLineComments;
+                        ShowLineComments();
                     end;
                 }
                 action(DocumentLineTracking)
@@ -723,7 +753,7 @@
 
                     trigger OnAction()
                     begin
-                        ShowDocumentLineTracking;
+                        ShowDocumentLineTracking();
                     end;
                 }
                 action(DocAttach)
@@ -740,7 +770,7 @@
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -749,9 +779,9 @@
 
     trigger OnAfterGetCurrRecord()
     begin
-        GetTotalsPurchaseHeader;
-        CalculateTotals;
-        UpdateEditableOnRow;
+        GetTotalsPurchaseHeader();
+        CalculateTotals();
+        UpdateEditableOnRow();
     end;
 
     trigger OnAfterGetRecord()
@@ -774,7 +804,7 @@
     trigger OnInit()
     begin
         PurchasesPayablesSetup.Get();
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
     end;
 
     trigger OnModifyRecord(): Boolean
@@ -784,13 +814,14 @@
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        InitType;
+        InitType();
         Clear(ShortcutDimCode);
     end;
 
     trigger OnOpenPage()
     begin
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
+        SetItemReferenceVisibility();
     end;
 
     var
@@ -804,11 +835,13 @@
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         DocumentTotals: Codeunit "Document Totals";
-        ShortcutDimCode: array[8] of Code[20];
         VATAmount: Decimal;
         InvoiceDiscountAmount: Decimal;
         InvoiceDiscountPct: Decimal;
         AmountWithDiscountAllowed: Decimal;
+        UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
+
+    protected var
         InvDiscAmountEditable: Boolean;
         DimVisible1: Boolean;
         DimVisible2: Boolean;
@@ -820,7 +853,11 @@
         DimVisible8: Boolean;
         IsBlankNumber: Boolean;
         IsCommentLine: Boolean;
-        UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
+        [InDataSet]
+        ItemReferenceVisible: Boolean;
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
 
     procedure ApproveCalcInvDisc()
     begin
@@ -886,6 +923,11 @@
         DocumentTotals.RefreshPurchaseLine(Rec);
     end;
 
+    procedure CallDeltaUpdateTotals()
+    begin
+        DeltaUpdateTotals();
+    end;
+
     local procedure DeltaUpdateTotals()
     begin
         DocumentTotals.PurchaseDeltaUpdateTotals(Rec, xRec, TotalPurchaseLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
@@ -902,12 +944,12 @@
             exit;
 
         if "Line Amount" <> xRec."Line Amount" then
-            SendLineInvoiceDiscountResetNotification;
+            SendLineInvoiceDiscountResetNotification();
     end;
 
-    local procedure UpdateEditableOnRow()
+    procedure UpdateEditableOnRow()
     begin
-        IsCommentLine := not HasTypeToFillMandatoryFields();
+        IsCommentLine := not HasTypeToFillMandatoryFields;
         IsBlankNumber := IsCommentLine;
 
         InvDiscAmountEditable := CurrPage.Editable and not PurchasesPayablesSetup."Calc. Inv. Discount";
@@ -1007,16 +1049,11 @@
         PAGE.RunModal(PAGE::"Posted Purchase Cr. Memo Lines", PurchCrMemoLine);
     end;
 
-    local procedure NoOnAfterValidate()
+    procedure NoOnAfterValidate()
     begin
         InsertExtendedText(false);
 
         OnAfterNoOnAfterValidate(Rec, xRec);
-    end;
-
-    local procedure CrossReferenceNoOnAfterValidat()
-    begin
-        InsertExtendedText(false);
     end;
 
     procedure ShowDocumentLineTracking()
@@ -1047,6 +1084,13 @@
         Clear(DimMgt);
     end;
 
+    local procedure SetItemReferenceVisibility()
+    var
+        ItemReferenceMgt: Codeunit "Item Reference Management";
+    begin
+        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
+    end;
+
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterNoOnAfterValidate(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line")
     begin
@@ -1074,6 +1118,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCrossReferenceNoOnLookup(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemReferenceNoOnLookup(var PurchaseLine: Record "Purchase Line")
     begin
     end;
 }

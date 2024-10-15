@@ -102,6 +102,7 @@ table 1650 "Curr. Exch. Rate Update Setup"
         ExchRateServiceDisabledTxt: Label 'The user disabled a currency exchange rate service.', Locked = true;
         TelemetryCategoryTok: Label 'AL Exchange Rate Service', Locked = true;
         JobQueueEntryDescriptionTxt: Label '%1 - recurring update of exchange rates', Comment = '%1 - the code of the exchange rate setup';
+        UnableToSetupCurrExchangeRateServiceTxt: Label 'An error has occured when trying to setup Currency Exchange Service. Error %1, Callstack %2', Comment = '%1 - Error Message, %2 - Callstack', Locked = true;
 
     procedure GetWebServiceURL(var ServiceURL: Text) WebServiceURL: Text
     var
@@ -233,8 +234,11 @@ table 1650 "Curr. Exch. Rate Update Setup"
     procedure SetupService()
     begin
         OnBeforeSetupCurrencyExchRateService(Rec);
-        if IsEmpty then
-            CODEUNIT.Run(CODEUNIT::"Set Up Curr Exch Rate Service");
+        if IsEmpty then begin
+            Commit();
+            if not CODEUNIT.Run(CODEUNIT::"Set Up Curr Exch Rate Service") then
+                Session.LogMessage('0000COD', StrSubstNo(UnableToSetupCurrExchangeRateServiceTxt, GetLastErrorText(), GetLastErrorCallStack()), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+        end;
     end;
 
     local procedure GetDescription(): Text
@@ -257,17 +261,17 @@ table 1650 "Curr. Exch. Rate Update Setup"
 
     local procedure LogTelemetryWhenServiceEnabled()
     begin
-        SendTraceTag('00008AE', TelemetryCategoryTok, VERBOSITY::Normal, ExchRateServiceEnabledTxt, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00008AE', ExchRateServiceEnabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
     end;
 
     local procedure LogTelemetryWhenServiceDisabled()
     begin
-        SendTraceTag('00008AG', TelemetryCategoryTok, VERBOSITY::Normal, ExchRateServiceDisabledTxt, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00008AG', ExchRateServiceDisabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
     end;
 
     local procedure LogTelemetryWhenServiceCreated()
     begin
-        SendTraceTag('00008AI', TelemetryCategoryTok, VERBOSITY::Normal, ExchRateServiceCreatedTxt, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00008AI', ExchRateServiceCreatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
     end;
 }
 

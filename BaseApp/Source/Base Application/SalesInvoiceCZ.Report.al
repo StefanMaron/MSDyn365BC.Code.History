@@ -2,8 +2,11 @@ report 31096 "Sales - Invoice CZ"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './SalesInvoiceCZ.rdlc';
-    Caption = 'Sales - Invoice CZ';
+    Caption = 'Sales - Invoice CZ (Obsolete)';
     PreviewMode = PrintLayout;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {
@@ -423,7 +426,7 @@ report 31096 "Sales - Invoice CZ"
                     }
                     column(VATAmtLineVATBase; TempVATAmountLine."VAT Base")
                     {
-                        AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode;
+                        AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
                     column(VATAmtLineVATAmt; TempVATAmountLine."VAT Amount")
@@ -433,7 +436,7 @@ report 31096 "Sales - Invoice CZ"
                     }
                     column(VATAmtLineVATBaseLCY; TempVATAmountLine."VAT Base (LCY)")
                     {
-                        AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode;
+                        AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
                     column(VATAmtLineVATAmtLCY; TempVATAmountLine."VAT Amount (LCY)")
@@ -671,7 +674,7 @@ report 31096 "Sales - Invoice CZ"
         CurrExchRate: Record "Currency Exchange Rate";
         VATClause: Record "VAT Clause";
         SalesInvHeader: Record "Sales Invoice Header";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         RegCountryRegion: Record "Registration Country/Region";
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";

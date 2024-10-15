@@ -67,7 +67,7 @@ page 31054 "Credit Proposal"
 
                     trigger OnValidate()
                     begin
-                        SourceNoOnAfterValidate;
+                        SourceNoOnAfterValidate();
                     end;
                 }
                 field(SourceName; SourceName)

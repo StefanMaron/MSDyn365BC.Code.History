@@ -335,7 +335,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         VoidCheckLedgerEntry(GenJournalLine."Account Type"::"Bank Account", CreateBankAccount);
     end;
 
-    local procedure VoidCheckLedgerEntry(AccountType: Option; AccountNo: Code[20])
+    local procedure VoidCheckLedgerEntry(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -859,7 +859,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure ApplyGenJournalLineForBankPaymentType(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]) DocumentNo: Code[20]
+    local procedure ApplyGenJournalLineForBankPaymentType(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]) DocumentNo: Code[20]
     begin
         CreateAndPostGenJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::" ", AccountType, AccountNo,
@@ -873,7 +873,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         exit(DocumentNo);
     end;
 
-    local procedure ReversAndCompressBankReconcltn(AccountType: Option; AccountNo: Code[20]): Code[20]
+    local procedure ReversAndCompressBankReconcltn(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
@@ -889,7 +889,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         exit(GenJournalLine."Document No.");
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; BankPaymentType: Option; CurrencyCode: Code[10]; BalAccountNo: Code[20]; LineAmount: Decimal; AppliesToDocNo: Code[20])
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BankPaymentType: Enum "Bank Payment Type"; CurrencyCode: Code[10]; BalAccountNo: Code[20]; LineAmount: Decimal; AppliesToDocNo: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -907,14 +907,14 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         end;
     end;
 
-    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; BankPaymentType: Option; CurrencyCode: Code[10]; BalAccountNo: Code[20]; Amount: Decimal; AppliesToDocNo: Code[20])
+    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BankPaymentType: Enum "Bank Payment Type"; CurrencyCode: Code[10]; BalAccountNo: Code[20]; Amount: Decimal; AppliesToDocNo: Code[20])
     begin
         CreateGenJournalLine(
           GenJournalLine, DocumentType, AccountType, AccountNo, BankPaymentType, CurrencyCode, BalAccountNo, Amount, AppliesToDocNo);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateAndPostVendorGenJournalLine(DocumentType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateAndPostVendorGenJournalLine(DocumentType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -1015,7 +1015,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         BankAccReconciliationLine.LinesExist(BankAccReconciliation);
     end;
 
-    local procedure FindBankAccountLedgerEntry(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; BankAccountNo: Code[20]; PostingDate: Date; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindBankAccountLedgerEntry(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; BankAccountNo: Code[20]; PostingDate: Date; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         with BankAccountLedgerEntry do begin
             SetRange("Bank Account No.", BankAccountNo);

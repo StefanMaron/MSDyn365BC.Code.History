@@ -139,7 +139,7 @@ codeunit 131900 "Library - Marketing"
         Contact.Modify(true);
     end;
 
-    local procedure CreateContact(var Contact: Record Contact; Type: Option)
+    local procedure CreateContact(var Contact: Record Contact; Type: Enum "Contact Type")
     var
         MarketingSetup: Record "Marketing Setup";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
@@ -289,7 +289,7 @@ codeunit 131900 "Library - Marketing"
         InteractionGroup.Insert(true);
     end;
 
-    procedure CreateInteractionLogEntry(var InteractionLogEntry: Record "Interaction Log Entry"; DocumentType: Option; DocumentNo: Code[20])
+    procedure CreateInteractionLogEntry(var InteractionLogEntry: Record "Interaction Log Entry"; DocumentType: Enum "Interaction Log Entry Document Type"; DocumentNo: Code[20])
     var
         NextInteractLogEntryNo: Integer;
     begin
@@ -398,7 +398,7 @@ codeunit 131900 "Library - Marketing"
         end;
     end;
 
-    procedure CreateRlshpMgtCommentLine(var RlshpMgtCommentLine: Record "Rlshp. Mgt. Comment Line"; TableName: Option; No: Code[20]; SubNo: Integer)
+    procedure CreateRlshpMgtCommentLine(var RlshpMgtCommentLine: Record "Rlshp. Mgt. Comment Line"; TableName: Enum "Rlshp. Mgt. Comment Line Table Name"; No: Code[20]; SubNo: Integer)
     var
         RecRef: RecordRef;
     begin
@@ -431,7 +431,7 @@ codeunit 131900 "Library - Marketing"
         Salutation.Insert(true);
     end;
 
-    procedure CreateSalutationFormula(var SalutationFormula: Record "Salutation Formula"; SalutationCode: Code[10]; LanguageCode: Code[10]; SalutationType: Option)
+    procedure CreateSalutationFormula(var SalutationFormula: Record "Salutation Formula"; SalutationCode: Code[10]; LanguageCode: Code[10]; SalutationType: Enum "Salutation Formula Salutation Type")
     begin
         SalutationFormula.Init();
         SalutationFormula.Validate("Salutation Code", SalutationCode);

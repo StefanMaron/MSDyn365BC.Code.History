@@ -2,6 +2,9 @@ xmlport 11761 "VAT Statement"
 {
     Caption = 'VAT Statement';
     Encoding = UTF8;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Unsupported functionality';
+    ObsoleteTag = '17.0';
 
     schema
     {

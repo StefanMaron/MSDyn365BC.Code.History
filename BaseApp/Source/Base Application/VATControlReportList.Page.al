@@ -1,12 +1,15 @@
 page 31100 "VAT Control Report List"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'VAT Control Reports';
+    Caption = 'VAT Control Reports (Obsolete)';
     CardPageID = "VAT Control Report Card";
     Editable = false;
     PageType = List;
     SourceTable = "VAT Control Report Header";
     UsageCategory = Tasks;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

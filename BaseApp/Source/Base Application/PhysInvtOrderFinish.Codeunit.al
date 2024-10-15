@@ -1,4 +1,4 @@
-﻿codeunit 5880 "Phys. Invt. Order-Finish"
+codeunit 5880 "Phys. Invt. Order-Finish"
 {
     TableNo = "Phys. Invt. Order Header";
 
@@ -369,6 +369,7 @@
             end;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     local procedure GetWhseNetChangeTemplateName(PhysInvtOrderLine: Record "Phys. Invt. Order Line"): Code[10]
     var
         InventorySetup: Record "Inventory Setup";

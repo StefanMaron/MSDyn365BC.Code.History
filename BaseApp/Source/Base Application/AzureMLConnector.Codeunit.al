@@ -52,7 +52,8 @@ codeunit 2001 "Azure ML Connector"
     [Scope('OnPrem')]
     procedure SendToAzureMLInternal(TrackUsage: Boolean): Boolean
     var
-        AzureAIUsage: Record "Azure AI Usage";
+        AzureAIUsage: Codeunit "Azure AI Usage";
+        AzureAIService: Enum "Azure AI Service";
     begin
         AzureMLRequest.SetUsingStandardCredentials(TrackUsage);
 
@@ -62,7 +63,7 @@ codeunit 2001 "Azure ML Connector"
         if TrackUsage then begin
             // Convert to seconds
             ProcessingTime := ProcessingTime / 1000;
-            AzureAIUsage.IncrementTotalProcessingTime(AzureAIUsage.Service::"Machine Learning",
+            AzureAIUsage.IncrementTotalProcessingTime(AzureAIService::"Machine Learning",
               ProcessingTime);
         end;
         exit(true);

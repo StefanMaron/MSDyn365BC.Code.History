@@ -1586,7 +1586,7 @@ codeunit 134097 "ERM Check Posting Groups"
         Commit();
     end;
 
-    local procedure CreateGenJnlLineWithAccountVATPostingSetup(var GenJournalLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup"; GenJournalLineType: Option)
+    local procedure CreateGenJnlLineWithAccountVATPostingSetup(var GenJournalLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup"; GenJournalLineType: Enum "Gen. Journal Document Type")
     var
         BankAccount: Record "Bank Account";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -1606,7 +1606,7 @@ codeunit 134097 "ERM Check Posting Groups"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateGenJnlLineWithBalAccountVATPostingSetup(var GenJournalLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup"; GenJournalLineType: Option)
+    local procedure CreateGenJnlLineWithBalAccountVATPostingSetup(var GenJournalLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup"; GenJournalLineType: Enum "Gen. Journal Document Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalTemplate: Record "Gen. Journal Template";

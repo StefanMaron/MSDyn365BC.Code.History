@@ -101,7 +101,7 @@ page 31017 "Linked Prepayments"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite, Prepayments;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;

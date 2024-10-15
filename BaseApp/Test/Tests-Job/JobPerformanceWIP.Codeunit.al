@@ -916,7 +916,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,ConfirmHandler,JobWipEntriesHandler')]
+    [HandlerFunctions('MessageHandler,ConfirmHandler,JobWipEntriesHandler,JobPostWIPtoGLRequestPageHandler')]
     [Scope('OnPrem')]
     procedure WIPGLEntryAfterJobPostWIPToGL()
     var
@@ -1009,7 +1009,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler,JobWipEntriesHandler')]
+    [HandlerFunctions('ConfirmHandler,MessageHandler,JobWipEntriesHandler,JobPostWIPtoGLRequestPageHandler')]
     [Scope('OnPrem')]
     procedure ReverseEntryPostedPerJLE()
     var
@@ -1038,7 +1038,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,ConfirmHandler,JobWipEntriesHandler')]
+    [HandlerFunctions('MessageHandler,ConfirmHandler,JobWipEntriesHandler,JobPostWIPtoGLRequestPageHandler')]
     [Scope('OnPrem')]
     procedure CalculateAndPostWIPTwiceWithPerJobLedgerEntry()
     var
@@ -1062,7 +1062,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,ConfirmHandler,JobTransferToSalesInvoiceRequestPageHandler,JobWipEntriesHandler')]
+    [HandlerFunctions('MessageHandler,ConfirmHandler,JobTransferToSalesInvoiceRequestPageHandler,JobWipEntriesHandler,JobPostWIPtoGLRequestPageHandler')]
     [Scope('OnPrem')]
     procedure CalculateAndPostWIPTwiceWithPerJobLedgerEntryForSalesInvoice()
     var
@@ -1093,7 +1093,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,ConfirmHandler,JobWipEntriesHandler')]
+    [HandlerFunctions('MessageHandler,ConfirmHandler,JobWipEntriesHandler,JobPostWIPtoGLRequestPageHandler')]
     [Scope('OnPrem')]
     procedure CalcWIPWithPerJobLedgerEntryPostingMethod()
     var
@@ -1133,7 +1133,6 @@ codeunit 136304 "Job Performance WIP"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         DocumentNo: Code[20];
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         // Verify posted job sales invoice can be copied to sales credit memo by using the functionality
 
@@ -1149,7 +1148,7 @@ codeunit 136304 "Job Performance WIP"
         // Exercise: Copy the posted invoice in the credit memo, by using the functionality - Copy Document
         // Verify: Verify no error pops up, copy document for Credit Memo successfully
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", SalesHeader."Sell-to Customer No.");
-        LibrarySales.CopySalesDocument(SalesHeader, DocumentType::"Posted Invoice", DocumentNo, true, false); // Set TRUE for Include Header and FALSE for Recalculate Lines.
+        LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Invoice", DocumentNo, true, false); // Set TRUE for Include Header and FALSE for Recalculate Lines.
 
         // Exercise: Post credit memo
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true); // Post as Receive and Invoice.
@@ -1159,7 +1158,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler,JobWipEntriesHandler')]
+    [HandlerFunctions('ConfirmHandler,MessageHandler,JobWipEntriesHandler,JobPostWIPtoGLRequestPageHandler')]
     [Scope('OnPrem')]
     procedure CalculateWIPForJobWithEmptyEndingDate()
     var
@@ -1550,7 +1549,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,ConfirmHandler,JobWipEntriesHandler')]
+    [HandlerFunctions('MessageHandler,ConfirmHandler,JobWipEntriesHandler,JobPostWIPtoGLRequestPageHandler')]
     [Scope('OnPrem')]
     procedure JobCalcWIPExecutedWhenJobWithWIPMethodIsCompleted()
     var
@@ -1826,7 +1825,7 @@ codeunit 136304 "Job Performance WIP"
         ContractJobTask(JobTask, ContractAmount, LibraryJob.ResourceType, JobPlanningLine);
     end;
 
-    local procedure PlanJobTask(JobTask: Record "Job Task"; ScheduleAmount: Decimal; ContractAmount: Decimal; Type: Option)
+    local procedure PlanJobTask(JobTask: Record "Job Task"; ScheduleAmount: Decimal; ContractAmount: Decimal; Type: Enum "Job Planning Line Type")
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
@@ -1834,37 +1833,37 @@ codeunit 136304 "Job Performance WIP"
         ContractJobTask(JobTask, ContractAmount, Type, JobPlanningLine)
     end;
 
-    local procedure ScheduleJobTask(JobTask: Record "Job Task"; ScheduleAmount: Decimal; Type: Option; var JobPlanningLine: Record "Job Planning Line")
+    local procedure ScheduleJobTask(JobTask: Record "Job Task"; ScheduleAmount: Decimal; ConsumableType: Enum "Job Planning Line Type"; var JobPlanningLine: Record "Job Planning Line")
     begin
         // schedule
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule, Type, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule, ConsumableType, JobTask, JobPlanningLine);
         JobPlanningLine."Total Cost (LCY)" := ScheduleAmount;
         JobPlanningLine."Line Amount (LCY)" := 1.1 * ScheduleAmount;
         JobPlanningLine.Modify();
     end;
 
-    local procedure ContractJobTask(JobTask: Record "Job Task"; ContractAmount: Decimal; Type: Option; var JobPlanningLine: Record "Job Planning Line")
+    local procedure ContractJobTask(JobTask: Record "Job Task"; ContractAmount: Decimal; ConsumableType: Enum "Job Planning Line Type"; var JobPlanningLine: Record "Job Planning Line")
     begin
         // contract
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, Type, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, ConsumableType, JobTask, JobPlanningLine);
         JobPlanningLine."Total Cost (LCY)" := 0.8 * ContractAmount;
         JobPlanningLine."Line Amount (LCY)" := ContractAmount;
         JobPlanningLine.Modify();
     end;
 
-    local procedure PlanJobTaskWithPrice(JobTask: Record "Job Task"; ScheduleCostAmount: Decimal; SchedulePriceAmount: Decimal; ContractCostAmount: Decimal; ContractPriceAmount: Decimal; Type: Option)
+    local procedure PlanJobTaskWithPrice(JobTask: Record "Job Task"; ScheduleCostAmount: Decimal; SchedulePriceAmount: Decimal; ContractCostAmount: Decimal; ContractPriceAmount: Decimal; ConsumableType: Enum "Job Planning Line Type")
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
         CreateJobPlanningLineWithPrice(
-          JobPlanningLine, LibraryJob.PlanningLineTypeSchedule, Type, JobTask, ScheduleCostAmount, SchedulePriceAmount, ScheduleCostAmount);
+          JobPlanningLine, LibraryJob.PlanningLineTypeSchedule, ConsumableType, JobTask, ScheduleCostAmount, SchedulePriceAmount, ScheduleCostAmount);
         CreateJobPlanningLineWithPrice(
-          JobPlanningLine, LibraryJob.PlanningLineTypeContract, Type, JobTask, ContractCostAmount, ContractPriceAmount, ContractPriceAmount)
+          JobPlanningLine, LibraryJob.PlanningLineTypeContract, ConsumableType, JobTask, ContractCostAmount, ContractPriceAmount, ContractPriceAmount)
     end;
 
-    local procedure CreateJobPlanningLineWithPrice(var JobPlanningLine: Record "Job Planning Line"; LineType: Option; Type: Option; JobTask: Record "Job Task"; TotalCost: Decimal; TotalPrice: Decimal; LineAmount: Decimal)
+    local procedure CreateJobPlanningLineWithPrice(var JobPlanningLine: Record "Job Planning Line"; LineType: Option; ConsumableType: Enum "Job Planning Line Type"; JobTask: Record "Job Task"; TotalCost: Decimal; TotalPrice: Decimal; LineAmount: Decimal)
     begin
-        LibraryJob.CreateJobPlanningLine(LineType, Type, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LineType, ConsumableType, JobTask, JobPlanningLine);
         JobPlanningLine."Total Cost (LCY)" := TotalCost;
         JobPlanningLine."Total Price (LCY)" := TotalPrice;
         JobPlanningLine."Line Amount (LCY)" := LineAmount;
@@ -2434,7 +2433,7 @@ codeunit 136304 "Job Performance WIP"
         JobTask.FindSet;
     end;
 
-    local procedure FindSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; JobNo: Code[20]; Type: Option)
+    local procedure FindSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; JobNo: Code[20]; Type: Enum "Sales Line Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -2442,7 +2441,7 @@ codeunit 136304 "Job Performance WIP"
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; Type: Option; JobNo: Code[20])
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; Type: Enum "Sales Line Type"; JobNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange(Type, Type);
@@ -2684,7 +2683,7 @@ codeunit 136304 "Job Performance WIP"
         JobWIPGLEntry.TestField("WIP Entry Amount", -JobTask."Usage (Total Cost)");
     end;
 
-    local procedure VerifyPostedSalesCreditMemo(DocumentNo: Code[20]; LineType: Option; Qty: Decimal)
+    local procedure VerifyPostedSalesCreditMemo(DocumentNo: Code[20]; LineType: Enum "Sales Line Type"; Qty: Decimal)
     var
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
@@ -2723,6 +2722,13 @@ codeunit 136304 "Job Performance WIP"
     procedure JobTransferToSalesInvoiceRequestPageHandler(var JobTransferToSalesInvoice: TestRequestPage "Job Transfer to Sales Invoice")
     begin
         JobTransferToSalesInvoice.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure JobPostWIPtoGLRequestPageHandler(var JobPostWIPtoGL: TestRequestPage "Job Post WIP to G/L")
+    begin
+        JobPostWIPtoGL.OK.Invoke;
     end;
 
     [MessageHandler]

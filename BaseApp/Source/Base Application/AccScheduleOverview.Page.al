@@ -563,10 +563,16 @@ page 490 "Acc. Schedule Overview"
                     GLBudgetFilter2: Text;
                     BusUnitFilter: Text;
                     CostBudgetFilter2: Text;
-                    AccSchedname: Record "Acc. Schedule Name";
+                    IsHandled: Boolean;
+                    AccScheduleName: Record "Acc. Schedule Name";
                     BalSheet: Report "Balance Sheet";
                     IncomeStat: Report "Income Statement";
                 begin
+                    IsHandled := false;
+                    OnBeforePrint(Rec, CurrentColumnName, IsHandled);
+                    if IsHandled then
+                        exit;
+
                     AccSched.SetAccSchedName(CurrentSchedName);
                     AccSched.SetColumnLayoutName(CurrentColumnName);
                     DateFilter2 := GetFilter("Date Filter");
@@ -574,24 +580,24 @@ page 490 "Acc. Schedule Overview"
                     CostBudgetFilter2 := GetFilter("Cost Budget Filter");
                     BusUnitFilter := GetFilter("Business Unit Filter");
                     // NAVCZ
-                    AccSchedname.Get(CurrentSchedName);
-                    case AccSchedname."Acc. Schedule Type" of
-                        AccSchedname."Acc. Schedule Type"::"Balance Sheet":
+                    AccScheduleName.Get(CurrentSchedName);
+                    case AccScheduleName."Acc. Schedule Type" of
+                        AccScheduleName."Acc. Schedule Type"::"Balance Sheet":
                             begin
                                 BalSheet.SetAccSchedName(CurrentSchedName);
                                 BalSheet.SetColumnLayoutName(CurrentColumnName);
                                 BalSheet.SetFilters(
                                   DateFilter2, GLBudgetFilter2, CostBudgetFilter2, BusUnitFilter, Dim1Filter, Dim2Filter, Dim3Filter, Dim4Filter);
-                                BalSheet.SetTableView(AccSchedname);
+                                BalSheet.SetTableView(AccScheduleName);
                                 BalSheet.Run;
                             end;
-                        AccSchedname."Acc. Schedule Type"::"Income Statement":
+                        AccScheduleName."Acc. Schedule Type"::"Income Statement":
                             begin
                                 IncomeStat.SetAccSchedName(CurrentSchedName);
                                 IncomeStat.SetColumnLayoutName(CurrentColumnName);
                                 IncomeStat.SetFilters(
                                   DateFilter2, GLBudgetFilter2, CostBudgetFilter2, BusUnitFilter, Dim1Filter, Dim2Filter, Dim3Filter, Dim4Filter);
-                                IncomeStat.SetTableView(AccSchedname);
+                                IncomeStat.SetTableView(AccScheduleName);
                                 IncomeStat.Run;
                             end
                         else begin
@@ -718,6 +724,7 @@ page 490 "Acc. Schedule Overview"
                 {
                     Caption = 'Export to Excel';
                     Image = ExportToExcel;
+
                     action("Create New Document")
                     {
                         ApplicationArea = Basic, Suite;
@@ -738,7 +745,7 @@ page 490 "Acc. Schedule Overview"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Update Copy Of Existing Document';
                         Image = ExportToExcel;
-                        ToolTip = 'Refresh the data in the copy of the existing Excel workbook, and download it to your device. You must specify the workbook that you want to update.';
+                        ToolTip = 'Refresh the data in the copy of existing Excel workbook and download it to your device. You must specify the workbook that you want to update.';
 
                         trigger OnAction()
                         var
@@ -1172,6 +1179,11 @@ page 490 "Acc. Schedule Overview"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterUpdateDimFilterControls()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrint(var AccScheduleLine: Record "Acc. Schedule Line"; ColumnLayoutName: Code[10]; var IsHandled: Boolean)
     begin
     end;
 }

@@ -103,6 +103,10 @@ Page 1 "Company Information"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the branche of primary business activity.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field(Picture; Picture)
                 {
@@ -177,6 +181,10 @@ Page 1 "Company Information"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the default bank account code for payment.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Bank Name"; "Bank Name")
                 {
@@ -199,6 +207,10 @@ Page 1 "Company Information"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the branch name of bank.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
@@ -246,6 +258,10 @@ Page 1 "Company Information"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the bank account will be check.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field(BankAccountPostingGroup; BankAcctPostingGroup)
                 {
@@ -407,51 +423,91 @@ Page 1 "Company Information"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of tax registration.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Registration Date"; "Registration Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the registration date of company.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Equity Capital"; "Equity Capital")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value of equity capital.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Paid Equity Capital"; "Paid Equity Capital")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value of paid equity capital.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Company Type"; "Company Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the company type.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("General Manager No."; "General Manager No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of general manager.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Accounting Manager No."; "Accounting Manager No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of accounting manager.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Finance Manager No."; "Finance Manager No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of finance manager.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Tax Authority No."; "Tax Authority No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of tax authority.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Court Authority No."; "Court Authority No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the court authority.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
             }
             group("User Experience")
@@ -620,6 +676,19 @@ Page 1 "Company Information"
                     Image = MailSetup;
                     RunObject = Page "SMTP Mail Setup";
                     ToolTip = 'Set up the integration and security of the mail server at your site that handles email.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced with the ''Email Account Setup'' action';
+                    ObsoleteTag = '17.0';
+                    Visible = not IsEmailFeatureEnabled;
+                }
+                action("Email Account Setup")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Email Account Setup';
+                    Image = MailSetup;
+                    RunObject = page "Email Accounts";
+                    ToolTip = 'Set up email accounts used in the product.';
+                    Visible = IsEmailFeatureEnabled;
                 }
             }
             group("O&ther")
@@ -632,6 +701,10 @@ Page 1 "Company Information"
                     Image = UserCertificate;
                     RunObject = Page "Company Officials";
                     ToolTip = 'Contains the list of officials whitch represent the company.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 action("Document Footers")
                 {
@@ -640,6 +713,10 @@ Page 1 "Company Information"
                     Image = CreateDocuments;
                     RunObject = Page "Document Footers";
                     ToolTip = 'Allows the setup of document footers for printout.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 action("Re&gistration Country")
                 {
@@ -717,7 +794,7 @@ Page 1 "Company Information"
                 Caption = 'Codes';
                 action("Source Codes")
                 {
-                    ApplicationArea = Suite;
+                    ApplicationArea = Advanced;
                     Caption = 'Source Codes';
                     Image = CodesList;
                     RunObject = Page "Source Codes";
@@ -725,7 +802,7 @@ Page 1 "Company Information"
                 }
                 action("Reason Codes")
                 {
-                    ApplicationArea = Suite;
+                    ApplicationArea = Advanced;
                     Caption = 'Reason Codes';
                     Image = CodesList;
                     RunObject = Page "Reason Codes";
@@ -763,7 +840,10 @@ Page 1 "Company Information"
     trigger OnOpenPage()
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
+        EmailFeature: Codeunit "Email Feature";
+        MonitorSensitiveField: Codeunit "Monitor Sensitive Field";
     begin
+        IsEmailFeatureEnabled := EmailFeature.IsEnabled();
         Reset;
         if not Get then begin
             Init;
@@ -773,6 +853,7 @@ Page 1 "Company Information"
         CountyVisible := FormatAddress.UseCounty("Country/Region Code");
 
         ApplicationAreaMgmtFacade.GetExperienceTierCurrentCompany(Experience);
+        MonitorSensitiveField.ShowPromoteMonitorSensitiveFieldNotification();
     end;
 
     var
@@ -790,6 +871,7 @@ Page 1 "Company Information"
         CountyVisible: Boolean;
         SystemIndicatorChanged: Boolean;
         CompanyBadgeRefreshPageTxt: Label 'The Company Badge settings have changed. Refresh the browser (Ctrl+F5) to update the badge.';
+        IsEmailFeatureEnabled: Boolean;
 
     local procedure UpdateSystemIndicator()
     var

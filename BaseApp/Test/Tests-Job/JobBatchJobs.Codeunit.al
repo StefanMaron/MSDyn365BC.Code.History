@@ -1156,6 +1156,35 @@ codeunit 136310 "Job Batch Jobs"
           FindSalesHeader(JobPlanningLineWithoutCurrency."Job No.", SalesHeader."Document Type"::Invoice), JobPlanningLineWithoutCurrency);
     end;
 
+    [Test]
+    [HandlerFunctions('JobCreateSalesInvoiceHandler,MessageHandler,JobInvoiceGetDocNoPageHandler')]
+    [Scope('OnPrem')]
+    procedure JobCardSalesInvoicesCreditMemos()
+    var
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        JobCard: TestPage "Job Card";
+        InvoiceNo: Code[20];
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 310619] Sales Invoices/Credit Memos action is available from Job Card page
+        Initialize;
+
+        // [GIVEN] Creage Job "J" and invoice "I" from job task 
+        CreateJobAndJobTask(JobTask);
+        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeContract, LibraryJob.ItemType, CreateItem, JobTask);
+        RunJobCreateSalesInvoice(JobTask);
+        InvoiceNo := FindSalesHeader(JobTask."Job No.", "Sales Document Type"::Invoice);
+
+        // [WHEN] Action "Sales Invoices/Credit Memos" is being run from Job Card
+        JobCard.OpenEdit;
+        JobCard.FILTER.SetFilter("No.", JobTask."Job No.");
+        JobCard.SalesInvoicesCreditMemos.Invoke();
+
+        // [THEN] Job Invoices page contains created invoice "I"
+        Assert.AreEqual(InvoiceNo, LibraryVariableStorage.DequeueText(), 'Invalid document number');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1257,7 +1286,7 @@ codeunit 136310 "Job Batch Jobs"
         SalesInvoice."Currency Code".AssistEdit;
     end;
 
-    local procedure CreateAndPostJobJournalLine(var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task"; LineType: Option; ConsumableType: Option; No: Code[20]; Qty: Decimal; UnitCost: Decimal; PostingDate: Date)
+    local procedure CreateAndPostJobJournalLine(var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task"; LineType: Option; ConsumableType: Enum "Job Planning Line Type"; No: Code[20]; Qty: Decimal; UnitCost: Decimal; PostingDate: Date)
     begin
         LibraryJob.CreateJobJournalLineForType(LineType, ConsumableType, JobTask, JobJournalLine);
         with JobJournalLine do begin
@@ -1292,7 +1321,7 @@ codeunit 136310 "Job Batch Jobs"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure CreatePurchaseDocumentWithJob(var PurchaseLine: Record "Purchase Line"; JobTask: Record "Job Task"; DocumentType: Option; No: Code[20])
+    local procedure CreatePurchaseDocumentWithJob(var PurchaseLine: Record "Purchase Line"; JobTask: Record "Job Task"; DocumentType: Enum "Purchase Document Type"; No: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -1388,7 +1417,7 @@ codeunit 136310 "Job Batch Jobs"
         JobJournalLine.Modify(true);
     end;
 
-    local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; LineType: Option; Type: Option; No: Code[20]; JobTask: Record "Job Task")
+    local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; LineType: Option; Type: Enum "Job Planning Line Type"; No: Code[20]; JobTask: Record "Job Task")
     begin
         // Use Random values for Quantity and Unit Cost because values are not important.
         LibraryJob.CreateJobPlanningLine(LineType, Type, JobTask, JobPlanningLine);
@@ -1506,7 +1535,7 @@ codeunit 136310 "Job Batch Jobs"
 
     local procedure CreateAndUpdateJobJournalLine(var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task"; FractionValue: Decimal)
     begin
-        CreateJobJournalLine(JobJournalLine, JobTask, LibraryJob.CreateConsumable(1));  // Use 1 for Item.
+        CreateJobJournalLine(JobJournalLine, JobTask, LibraryJob.CreateConsumable("Job Planning Line Type"::Item));
         JobJournalLine.Validate("Line Amount", JobJournalLine."Line Amount" - FractionValue);  // Update Line Amount for generating Line Discount Amount.
         JobJournalLine.Modify(true);
     end;
@@ -1606,7 +1635,7 @@ codeunit 136310 "Job Batch Jobs"
         exit(JobPlanningLine."Line No.");
     end;
 
-    local procedure FindSalesHeader(JobNo: Code[20]; DocumentType: Option): Code[20]
+    local procedure FindSalesHeader(JobNo: Code[20]; DocumentType: Enum "Sales Document Type"): Code[20]
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1616,7 +1645,7 @@ codeunit 136310 "Job Batch Jobs"
         exit(SalesHeader."No.");
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20]; No: Code[20]): Boolean
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; No: Code[20]): Boolean
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
@@ -1624,7 +1653,7 @@ codeunit 136310 "Job Batch Jobs"
         exit(SalesLine.FindFirst);
     end;
 
-    local procedure FindItemLedgerEntry(ItemNo: Code[20]; EntryType: Option): Decimal
+    local procedure FindItemLedgerEntry(ItemNo: Code[20]; EntryType: Enum "Item Ledger Entry Type"): Decimal
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
         TotalCost: Decimal;
@@ -1665,7 +1694,7 @@ codeunit 136310 "Job Batch Jobs"
         exit(Job."Total WIP Sales Amount");
     end;
 
-    local procedure GetSalesHeader(var SalesHeader: Record "Sales Header"; JobNo: Code[20]; DocumentType: Option)
+    local procedure GetSalesHeader(var SalesHeader: Record "Sales Header"; JobNo: Code[20]; DocumentType: Enum "Sales Document Type")
     begin
         SalesHeader.SetRange("Document Type", DocumentType);
         SalesHeader.SetRange("Bill-to Customer No.", FindBillToCustomerNo(JobNo));
@@ -2214,6 +2243,13 @@ codeunit 136310 "Job Batch Jobs"
     procedure JobInvoicePageHandler(var JobInvoices: TestPage "Job Invoices")
     begin
         JobInvoices.OpenSalesInvoiceCreditMemo.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure JobInvoiceGetDocNoPageHandler(var JobInvoices: TestPage "Job Invoices")
+    begin
+        LibraryVariableStorage.Enqueue(JobInvoices."Document No.".Value);
     end;
 
     [ModalPageHandler]

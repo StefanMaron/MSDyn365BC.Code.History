@@ -1,9 +1,12 @@
 page 11733 "Cash Document Lines"
 {
-    Caption = 'Cash Document Lines';
+    Caption = 'Cash Document Lines (Obsolete)';
     Editable = false;
     PageType = List;
     SourceTable = "Cash Document Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

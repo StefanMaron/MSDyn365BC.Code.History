@@ -2,7 +2,10 @@ report 11743 "Cash Desk Hand Over"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './CashDeskHandOver.rdlc';
-    Caption = 'Cash Desk Hand Over';
+    Caption = 'Cash Desk Hand Over (Obsolete)';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

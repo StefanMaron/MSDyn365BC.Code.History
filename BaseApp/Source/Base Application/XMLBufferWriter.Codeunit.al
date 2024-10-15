@@ -383,6 +383,7 @@ codeunit 1235 "XML Buffer Writer"
         XmlReader.Read
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure IsValidSourcePath(Path: Text): Boolean
     begin
@@ -390,6 +391,7 @@ codeunit 1235 "XML Buffer Writer"
         exit(ValidateSourcePath(Path));
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure IsValidSourceXMLText(XmlText: Text): Boolean
     begin
@@ -397,6 +399,7 @@ codeunit 1235 "XML Buffer Writer"
         exit(ValidateSourceXMLText(XmlText));
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure IsValidSourceStreamOrServerFile(StreamOrServerFile: Variant): Boolean
     begin
@@ -404,6 +407,7 @@ codeunit 1235 "XML Buffer Writer"
         exit(ValidateSourceStreamOrServerFile(StreamOrServerFile));
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     [TryFunction]
     local procedure ValidateSourcePath(Path: Text)
     begin
@@ -413,6 +417,7 @@ codeunit 1235 "XML Buffer Writer"
         ReadXmlReader;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     [TryFunction]
     local procedure ValidateSourceXMLText(XmlText: Text)
     begin
@@ -422,6 +427,7 @@ codeunit 1235 "XML Buffer Writer"
         ReadXmlReader;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     [TryFunction]
     local procedure ValidateSourceStreamOrServerFile(StreamOrServerFile: Variant)
     begin

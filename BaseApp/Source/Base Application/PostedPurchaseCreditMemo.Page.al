@@ -94,6 +94,33 @@ page 140 "Posted Purchase Credit Memo"
                         Importance = Additional;
                         ToolTip = 'Specifies the number of the contact who you sent the purchase credit memo to.';
                     }
+                    field(BuyFromContactPhoneNo; BuyFromContact."Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the vendor contact person.';
+                    }
+                    field(BuyFromContactMobilePhoneNo; BuyFromContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Mobile Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the vendor contact person.';
+                    }
+                    field(BuyFromContactEmail; BuyFromContact."E-Mail")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Email';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the vendor contact person.';
+                    }
                 }
                 field("Buy-from Contact"; "Buy-from Contact")
                 {
@@ -127,11 +154,19 @@ page 140 "Posted Purchase Credit Memo"
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the VAT date. This date must be shown on the VAT statement.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Original Document VAT Date"; "Original Document VAT Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT date of the original document.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Pre-Assigned No."; "Pre-Assigned No.")
                 {
@@ -239,6 +274,10 @@ page 140 "Posted Purchase Credit Memo"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies whether the document is part of a three-party trade.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Transaction Type"; "Transaction Type")
                 {
@@ -274,7 +313,11 @@ page 140 "Posted Purchase Credit Memo"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
-                    ToolTip = 'Specifies when the sales haeder will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
+                    ToolTip = 'Specifies when the purchase header will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("VAT Registration No."; "VAT Registration No.")
                 {
@@ -287,12 +330,20 @@ page 140 "Posted Purchase Credit Memo"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the registration number of vendor.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Tax Registration No."; "Tax Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the secondary VAT registration number for the vendor.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Industry Code"; "Industry Code")
                 {
@@ -322,6 +373,10 @@ page 140 "Posted Purchase Credit Memo"
                     Caption = 'VAT Currency Code';
                     Editable = false;
                     ToolTip = 'Specifies vat currency code of posted purchase invoice';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
 
                     trigger OnAssistEdit()
                     begin
@@ -579,6 +634,33 @@ page 140 "Posted Purchase Credit Memo"
                         Importance = Additional;
                         ToolTip = 'Specifies the number of the contact at the vendor who handles the credit memo.';
                     }
+                    field(PayToContactPhoneNo; PayToContact."Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the vendor contact person.';
+                    }
+                    field(PayToContactMobilePhoneNo; PayToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Mobile Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the vendor contact person.';
+                    }
+                    field(PayToContactEmail; PayToContact."E-Mail")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Email';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = Email;
+                        ToolTip = 'Specifies the email address of the vendor contact person..';
+                    }
                     field("Pay-to Contact"; "Pay-to Contact")
                     {
                         ApplicationArea = Basic, Suite;
@@ -664,7 +746,7 @@ page 140 "Posted Purchase Credit Memo"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(Approvals)
@@ -756,11 +838,12 @@ page 140 "Posted Purchase Credit Memo"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category7;
-                ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                ShortCutKey = 'Shift+Ctrl+I';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                 Visible = NOT IsOfficeAddin;
 
                 trigger OnAction()
@@ -869,6 +952,12 @@ page 140 "Posted Purchase Credit Memo"
         CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
     end;
 
+    trigger OnAfterGetRecord()
+    begin
+        if BuyFromContact.Get("Buy-from Contact No.") then;
+        if PayToContact.Get("Pay-to Contact No.") then;
+    end;
+
     trigger OnOpenPage()
     var
         OfficeMgt: Codeunit "Office Management";
@@ -881,6 +970,8 @@ page 140 "Posted Purchase Credit Memo"
 
     var
         PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
+        BuyFromContact: Record Contact;
+        PayToContact: Record Contact;
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
         HasIncomingDocument: Boolean;

@@ -390,7 +390,7 @@ codeunit 132200 "Library - Costing"
         CalcInvtValue.RunModal;
     end;
 
-    procedure CreateSalesPrice(var SalesPrice: Record "Sales Price"; SalesType: Option; SalesCode: Code[20]; ItemNo: Code[20]; StartingDate: Date; CurrencyCode: Code[10]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; MinimumQuantity: Decimal)
+    procedure CreateSalesPrice(var SalesPrice: Record "Sales Price"; SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; ItemNo: Code[20]; StartingDate: Date; CurrencyCode: Code[10]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; MinimumQuantity: Decimal)
     begin
         SalesPrice.Init();
         SalesPrice.Validate("Sales Type", SalesType);
@@ -533,41 +533,41 @@ codeunit 132200 "Library - Costing"
         SuggestCapacityStandardCost.Run;
     end;
 
-    procedure SuggestSalesPriceWorksheet(Item: Record Item; SalesCode: Code[20]; SalesType: Option; PriceLowerLimit: Decimal; UnitPriceFactor: Decimal)
+    procedure SuggestSalesPriceWorksheet(Item: Record Item; SalesCode: Code[20]; SalesType: Enum "Sales Price Type"; PriceLowerLimit: Decimal; UnitPriceFactor: Decimal)
     var
         SalesPrice: Record "Sales Price";
         SuggestSalesPriceOnWksh: Report "Suggest Sales Price on Wksh.";
     begin
         Clear(SuggestSalesPriceOnWksh);
         SuggestSalesPriceOnWksh.InitializeRequest2(
-          SalesType, SalesCode, WorkDate, WorkDate, '', Item."Base Unit of Measure", false, PriceLowerLimit, UnitPriceFactor, '');
+          SalesType.AsInteger(), SalesCode, WorkDate, WorkDate, '', Item."Base Unit of Measure", false, PriceLowerLimit, UnitPriceFactor, '');
         SuggestSalesPriceOnWksh.UseRequestPage(false);
         SalesPrice.SetRange("Item No.", Item."No.");
         SuggestSalesPriceOnWksh.SetTableView(SalesPrice);
         SuggestSalesPriceOnWksh.RunModal;
     end;
 
-    procedure SuggestItemPriceWorksheet(Item: Record Item; SalesCode: Code[20]; SalesType: Option; PriceLowerLimit: Decimal; UnitPriceFactor: Decimal)
+    procedure SuggestItemPriceWorksheet(Item: Record Item; SalesCode: Code[20]; SalesType: Enum "Sales Price Type"; PriceLowerLimit: Decimal; UnitPriceFactor: Decimal)
     var
         SuggestItemPriceOnWksh: Report "Suggest Item Price on Wksh.";
     begin
         Clear(SuggestItemPriceOnWksh);
         SuggestItemPriceOnWksh.InitializeRequest2(
-          SalesType, SalesCode, WorkDate, WorkDate, '', Item."Base Unit of Measure", PriceLowerLimit, UnitPriceFactor, '', true);
+          SalesType.AsInteger(), SalesCode, WorkDate, WorkDate, '', Item."Base Unit of Measure", PriceLowerLimit, UnitPriceFactor, '', true);
         SuggestItemPriceOnWksh.UseRequestPage(false);
         Item.SetRange("No.", Item."No.");
         SuggestItemPriceOnWksh.SetTableView(Item);
         SuggestItemPriceOnWksh.RunModal;
     end;
 
-    procedure SuggestItemPriceWorksheet2(Item: Record Item; SalesCode: Code[20]; SalesType: Option; PriceLowerLimit: Decimal; UnitPriceFactor: Decimal; CurrencyCode: Code[10])
+    procedure SuggestItemPriceWorksheet2(Item: Record Item; SalesCode: Code[20]; SalesType: Enum "Sales Price Type"; PriceLowerLimit: Decimal; UnitPriceFactor: Decimal; CurrencyCode: Code[10])
     var
         TmpItem: Record Item;
         SuggestItemPriceOnWksh: Report "Suggest Item Price on Wksh.";
     begin
         Clear(SuggestItemPriceOnWksh);
         SuggestItemPriceOnWksh.InitializeRequest2(
-          SalesType, SalesCode, WorkDate, WorkDate, CurrencyCode, Item."Base Unit of Measure", PriceLowerLimit, UnitPriceFactor, '', true);
+          SalesType.AsInteger(), SalesCode, WorkDate, WorkDate, CurrencyCode, Item."Base Unit of Measure", PriceLowerLimit, UnitPriceFactor, '', true);
         if Item.HasFilter then
             TmpItem.CopyFilters(Item)
         else begin
@@ -709,7 +709,7 @@ codeunit 132200 "Library - Costing"
             DATABASE::"Purchase Line":
                 begin
                     PurchaseLine := AppliesTo;
-                    DocumentType := PurchaseLine."Document Type";
+                    DocumentType := PurchaseLine."Document Type".AsInteger();
                     DocumentNo := PurchaseLine."Document No.";
                     LineNo := PurchaseLine."Line No.";
                     ItemNo := PurchaseLine."No.";
@@ -717,7 +717,7 @@ codeunit 132200 "Library - Costing"
             DATABASE::"Purch. Rcpt. Line":
                 begin
                     PurchRcptLine := AppliesTo;
-                    DocumentType := ItemChargeAssignmentPurch."Applies-to Doc. Type"::Receipt;
+                    DocumentType := ItemChargeAssignmentPurch."Applies-to Doc. Type"::Receipt.AsInteger();
                     DocumentNo := PurchRcptLine."Document No.";
                     LineNo := PurchRcptLine."Line No.";
                     ItemNo := PurchRcptLine."No.";
@@ -725,7 +725,7 @@ codeunit 132200 "Library - Costing"
             DATABASE::"Sales Line":
                 begin
                     SalesLine := AppliesTo;
-                    DocumentType := SalesLine."Document Type";
+                    DocumentType := SalesLine."Document Type".AsInteger();
                     DocumentNo := SalesLine."Document No.";
                     LineNo := SalesLine."Line No.";
                     ItemNo := SalesLine."No.";
@@ -733,7 +733,7 @@ codeunit 132200 "Library - Costing"
             DATABASE::"Sales Shipment Line":
                 begin
                     SalesShptLine := AppliesTo;
-                    DocumentType := ItemChargeAssignmentSales."Applies-to Doc. Type"::Shipment;
+                    DocumentType := ItemChargeAssignmentSales."Applies-to Doc. Type"::Shipment.AsInteger();
                     DocumentNo := SalesShptLine."Document No.";
                     LineNo := SalesShptLine."Line No.";
                     ItemNo := SalesShptLine."No.";

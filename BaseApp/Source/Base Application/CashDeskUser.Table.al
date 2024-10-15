@@ -2,6 +2,9 @@ table 11740 "Cash Desk User"
 {
     Caption = 'Cash Desk User';
     LookupPageID = "Cash Desk Users";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     fields
     {
@@ -65,7 +68,6 @@ table 11740 "Cash Desk User"
     {
     }
 
-    [Scope('OnPrem')]
     procedure GetUserName(UserName: Code[50]): Text[80]
     var
         User: Record User;

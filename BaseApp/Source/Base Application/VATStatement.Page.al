@@ -89,26 +89,46 @@ page 317 "VAT Statement"
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the general ledger amount type for the VAT statement line.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the code for the Gen. Bus. Posting Group that applies to the entry.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the code for the Gen. Prod. Posting Group that applies to the entry.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("EU-3 Party Trade"; "EU-3 Party Trade")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies whether the document is part of a three-party trade.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
                     ApplicationArea = VAT;
-                    ToolTip = 'Specifies when the sales haeder will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
+                    ToolTip = 'Specifies when the VAT entry will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Prepayment Type"; "Prepayment Type")
                 {
@@ -124,6 +144,10 @@ page 317 "VAT Statement"
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies if you need to use a filter date other than the date on the VAT statement.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Row Totaling"; "Row Totaling")
                 {
@@ -143,7 +167,11 @@ page 317 "VAT Statement"
                 field(Show; Show)
                 {
                     ApplicationArea = VAT;
-                    ToolTip = 'Specifies if acc. schedule line will be show';
+                    ToolTip = 'Specifies whether amount on the VAT statement line remains as calculated or is reset to zero according to the selected option and the sign of the calculated amount.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Print with"; "Print with")
                 {
@@ -159,16 +187,28 @@ page 317 "VAT Statement"
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies xml code for export.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("VAT Control Rep. Section Code"; "VAT Control Rep. Section Code")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the section code for the VAT control report.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Ignore Simpl. Tax Doc. Limit"; "Ignore Simpl. Tax Doc. Limit")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies whether the system will or will not check the Simpl. Tax document limit for VAT statement depending on whether the field is checked.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
             }
         }
@@ -206,6 +246,10 @@ page 317 "VAT Statement"
                     RunPageLink = "Statement Template Name" = FIELD("Statement Template Name"),
                                   Name = FIELD("Statement Name");
                     ToolTip = 'Preview the VAT statement report.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
             }
         }
@@ -240,6 +284,10 @@ page 317 "VAT Statement"
                     PromotedCategory = Process;
                     RunObject = Report "Calc. and Post VAT Settlement";
                     ToolTip = 'Close open VAT entries and transfers purchase and sales VAT amounts to the VAT settlement account.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 action(Export)
                 {
@@ -254,6 +302,10 @@ page 317 "VAT Statement"
                     RunPageLink = "Statement Template Name" = FIELD("Statement Template Name"),
                                   Name = FIELD("Statement Name");
                     ToolTip = 'Allows the VAT statement report export to xml.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
             }
         }

@@ -1,6 +1,9 @@
 table 31101 "VAT Control Report Line"
 {
     Caption = 'VAT Control Report Line';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     fields
     {

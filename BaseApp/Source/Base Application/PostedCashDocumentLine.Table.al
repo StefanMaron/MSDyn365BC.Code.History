@@ -1,6 +1,9 @@
 table 11736 "Posted Cash Document Line"
 {
     Caption = 'Posted Cash Document Line';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     fields
     {
@@ -313,7 +316,7 @@ table 11736 "Posted Cash Document Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(602; "VAT % (Non Deductible)"; Decimal)

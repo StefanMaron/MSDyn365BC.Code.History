@@ -327,7 +327,7 @@ table 31020 "Purch. Advance Letter Header"
         }
         field(46; Comment; Boolean)
         {
-            CalcFormula = Exist ("Purch. Comment Line" WHERE("Document Type" = CONST("Advance Letter"),
+            CalcFormula = Exist("Purch. Comment Line" WHERE("Document Type" = CONST("Advance Letter"),
                                                              "No." = FIELD("No."),
                                                              "Document Line No." = CONST(0)));
             Caption = 'Comment';
@@ -352,7 +352,7 @@ table 31020 "Purch. Advance Letter Header"
         }
         field(61; "Amount Including VAT"; Decimal)
         {
-            CalcFormula = Sum ("Purch. Advance Letter Line"."Amount Including VAT" WHERE("Letter No." = FIELD("No.")));
+            CalcFormula = Sum("Purch. Advance Letter Line"."Amount Including VAT" WHERE("Letter No." = FIELD("No.")));
             Caption = 'Amount Including VAT';
             Editable = false;
             FieldClass = FlowField;
@@ -469,7 +469,7 @@ table 31020 "Purch. Advance Letter Header"
         }
         field(120; Status; Option)
         {
-            CalcFormula = Min ("Purch. Advance Letter Line".Status WHERE("Letter No." = FIELD("No."),
+            CalcFormula = Min("Purch. Advance Letter Line".Status WHERE("Letter No." = FIELD("No."),
                                                                          "Amount Including VAT" = FILTER(<> 0)));
             Caption = 'Status';
             Editable = false;
@@ -641,7 +641,7 @@ table 31020 "Purch. Advance Letter Header"
         }
         field(11710; "Amount on Payment Order (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("Issued Payment Order Line"."Amount (LCY)" WHERE("Letter Type" = CONST(Purchase),
+            CalcFormula = Sum("Issued Payment Order Line"."Amount (LCY)" WHERE("Letter Type" = CONST(Purchase),
                                                                                 "Letter No." = FIELD("No."),
                                                                                 Status = CONST(" ")));
             Caption = 'Amount on Payment Order (LCY)';
@@ -715,21 +715,21 @@ table 31020 "Purch. Advance Letter Header"
         }
         field(31013; "Amount To Link"; Decimal)
         {
-            CalcFormula = Sum ("Purch. Advance Letter Line"."Amount To Link" WHERE("Letter No." = FIELD("No.")));
+            CalcFormula = Sum("Purch. Advance Letter Line"."Amount To Link" WHERE("Letter No." = FIELD("No.")));
             Caption = 'Amount To Link';
             Editable = false;
             FieldClass = FlowField;
         }
         field(31014; "Amount To Invoice"; Decimal)
         {
-            CalcFormula = Sum ("Purch. Advance Letter Line"."Amount To Invoice" WHERE("Letter No." = FIELD("No.")));
+            CalcFormula = Sum("Purch. Advance Letter Line"."Amount To Invoice" WHERE("Letter No." = FIELD("No.")));
             Caption = 'Amount To Invoice';
             Editable = false;
             FieldClass = FlowField;
         }
         field(31015; "Amount To Deduct"; Decimal)
         {
-            CalcFormula = Sum ("Purch. Advance Letter Line"."Amount To Deduct" WHERE("Letter No." = FIELD("No.")));
+            CalcFormula = Sum("Purch. Advance Letter Line"."Amount To Deduct" WHERE("Letter No." = FIELD("No.")));
             Caption = 'Amount To Deduct';
             Editable = false;
             FieldClass = FlowField;
@@ -739,7 +739,7 @@ table 31020 "Purch. Advance Letter Header"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Advance Letter Line Relation".Amount WHERE(Type = CONST(Purchase),
+            CalcFormula = Sum("Advance Letter Line Relation".Amount WHERE(Type = CONST(Purchase),
                                                                            "Letter No." = FIELD("No."),
                                                                            "Document No." = FIELD("Doc. No. Filter")));
             Caption = 'Document Linked Amount';
@@ -757,7 +757,7 @@ table 31020 "Purch. Advance Letter Header"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Advance Letter Line Relation"."Invoiced Amount" WHERE(Type = CONST(Purchase),
+            CalcFormula = Sum("Advance Letter Line Relation"."Invoiced Amount" WHERE(Type = CONST(Purchase),
                                                                                       "Letter No." = FIELD("No."),
                                                                                       "Document No." = FIELD("Doc. No. Filter")));
             Caption = 'Document Linked Inv. Amount';
@@ -769,7 +769,7 @@ table 31020 "Purch. Advance Letter Header"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Advance Letter Line Relation"."Deducted Amount" WHERE(Type = CONST(Purchase),
+            CalcFormula = Sum("Advance Letter Line Relation"."Deducted Amount" WHERE(Type = CONST(Purchase),
                                                                                       "Letter No." = FIELD("No."),
                                                                                       "Document No." = FIELD("Doc. No. Filter")));
             Caption = 'Document Linked Ded. Amount';
@@ -778,21 +778,21 @@ table 31020 "Purch. Advance Letter Header"
         }
         field(31020; "Amount Linked"; Decimal)
         {
-            CalcFormula = Sum ("Purch. Advance Letter Line"."Amount Linked" WHERE("Letter No." = FIELD("No.")));
+            CalcFormula = Sum("Purch. Advance Letter Line"."Amount Linked" WHERE("Letter No." = FIELD("No.")));
             Caption = 'Amount Linked';
             Editable = false;
             FieldClass = FlowField;
         }
         field(31021; "Amount Invoiced"; Decimal)
         {
-            CalcFormula = Sum ("Purch. Advance Letter Line"."Amount Invoiced" WHERE("Letter No." = FIELD("No.")));
+            CalcFormula = Sum("Purch. Advance Letter Line"."Amount Invoiced" WHERE("Letter No." = FIELD("No.")));
             Caption = 'Amount Invoiced';
             Editable = false;
             FieldClass = FlowField;
         }
         field(31022; "Amount Deducted"; Decimal)
         {
-            CalcFormula = Sum ("Purch. Advance Letter Line"."Amount Deducted" WHERE("Letter No." = FIELD("No.")));
+            CalcFormula = Sum("Purch. Advance Letter Line"."Amount Deducted" WHERE("Letter No." = FIELD("No.")));
             Caption = 'Amount Deducted';
             Editable = false;
             FieldClass = FlowField;
@@ -989,9 +989,9 @@ table 31020 "Purch. Advance Letter Header"
         PaymentTerms: Record "Payment Terms";
         PurchAdvanceLetterLinegre: Record "Purch. Advance Letter Line";
         PostCode: Record "Post Code";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         RegistrationCountry: Record "Registration Country/Region";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";
         CompanyInfo: Record "Company Information";
         RespCenter: Record "Responsibility Center";
@@ -1467,7 +1467,7 @@ table 31020 "Purch. Advance Letter Header"
     begin
         with PurchAdvanceLetterHeader do begin
             Copy(Rec);
-            ReportSelections.PrintWithGUIYesNo(
+            ReportSelections.PrintWithDialogForVend(
               ReportSelections.Usage::"P.Adv.Let", PurchAdvanceLetterHeader, ShowRequestForm, FieldNo("Pay-to Vendor No."));
         end;
     end;
@@ -1592,7 +1592,7 @@ table 31020 "Purch. Advance Letter Header"
             until PurchAdvanceLetterLinegre.Next = 0;
     end;
 
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     local procedure UpdatePerformCountryCurrFactor()
     begin
         if "Perform. Country/Region Code" <> '' then begin

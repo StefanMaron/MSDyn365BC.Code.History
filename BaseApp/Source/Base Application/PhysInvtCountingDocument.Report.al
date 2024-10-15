@@ -3,8 +3,11 @@ report 31074 "Phys. Invt. Counting Document"
     DefaultLayout = RDLC;
     RDLCLayout = './PhysInvtCountingDocument.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'Phys. Invt. Counting Document';
+    Caption = 'Phys. Invt. Counting Document (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

@@ -2,7 +2,6 @@ table 31131 "Certificate CZ"
 {
     Caption = 'Certificate';
     DataCaptionFields = "Certificate Code", Description;
-    Permissions = TableData "Service Password" = rimd;
     ObsoleteState = Removed;
     ObsoleteReason = 'Replaced by tab 1262 "Isolated Certificate"';
     ObsoleteTag = '15.2';

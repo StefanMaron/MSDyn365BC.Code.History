@@ -182,7 +182,7 @@ table 7134 "Item Budget Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }

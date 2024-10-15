@@ -39,11 +39,19 @@ page 119 "User Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the earliest VAT date on which the user is allowed to post to the company.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Allow VAT Posting To"; "Allow VAT Posting To")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last VAT date on which the user is allowed to post to the company.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Register Time"; "Register Time")
                 {
@@ -85,6 +93,10 @@ page 119 "User Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies cash resp. ctr. Filter';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Check Payment Orders"; "Check Payment Orders")
                 {

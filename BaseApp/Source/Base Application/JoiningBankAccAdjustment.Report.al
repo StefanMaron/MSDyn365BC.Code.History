@@ -3,8 +3,11 @@ report 11773 "Joining Bank. Acc. Adjustment"
     DefaultLayout = RDLC;
     RDLCLayout = './JoiningBankAccAdjustment.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'Joining Bank. Acc. Adjustment';
+    Caption = 'Joining Bank. Acc. Adjustment (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

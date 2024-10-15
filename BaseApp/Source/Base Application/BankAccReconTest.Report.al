@@ -342,7 +342,7 @@ report 1408 "Bank Acc. Recon. - Test"
                         if not DimensionManagement.CheckDimIDComb("Dimension Set ID") then
                             AddError(DimensionManagement.GetDimCombErr);
 
-                        TableID[1] := DimensionManagement.TypeToTableID1("Account Type");
+                        TableID[1] := DimensionManagement.TypeToTableID1("Account Type".AsInteger());
                         No[1] := "Account No.";
                         if not DimensionManagement.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
                             AddError(DimensionManagement.GetDimValuePostingErr);

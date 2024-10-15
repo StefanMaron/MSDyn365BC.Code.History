@@ -95,7 +95,7 @@ report 409 "Purchase Reservation Avail."
             dataitem("Reservation Entry"; "Reservation Entry")
             {
                 DataItemLink = "Source ID" = FIELD("Document No."), "Source Ref. No." = FIELD("Line No.");
-                DataItemTableView = SORTING("Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line", "Reservation Status", "Shipment Date", "Expected Receipt Date") WHERE("Reservation Status" = CONST(Reservation), "Source Type" = CONST(39), "Source Batch Name"=CONST(''), "Source Prod. Order Line" = CONST(0));
+                DataItemTableView = SORTING("Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line", "Reservation Status", "Shipment Date", "Expected Receipt Date") WHERE("Reservation Status" = CONST(Reservation), "Source Type" = CONST(39), "Source Batch Name" = CONST(''), "Source Prod. Order Line" = CONST(0));
                 column(ReservText; ReservText)
                 {
                 }
@@ -136,12 +136,12 @@ report 409 "Purchase Reservation Avail."
 
             trigger OnAfterGetRecord()
             begin
-                if ("Document No." <> DocumentNoOld) or ("Document Type" <> DocumentTypeOld) then
+                if ("Document No." <> DocumentNoOld) or ("Document Type".AsInteger() <> DocumentTypeOld) then
                     ClearDocumentStatus := true
                 else
                     ClearDocumentStatus := false;
                 DocumentNoOld := "Document No.";
-                DocumentTypeOld := "Document Type";
+                DocumentTypeOld := "Document Type".AsInteger();
                 LineReceiptDate := 0D;
                 LineQuantityOnHand := 0;
                 if "Outstanding Qty. (Base)" = 0 then
@@ -325,7 +325,7 @@ report 409 "Purchase Reservation Avail."
         EntryQuantityOnHand: Decimal;
         ShowReservationEntries2: Boolean;
         DocumentNoOld: Code[20];
-        DocumentTypeOld: Integer;
+        DocumentTypeOld: Option;
         PurchReservAvailCapLbl: Label 'Purchase Reservation Availability';
         CurrReportPAGENOCapLbl: Label 'Page';
         PurchLineExpctdRecptDtCapLbl: Label 'Expected Receipt Date';

@@ -752,7 +752,7 @@ codeunit 134762 "Test Purchase Preview"
         end
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; ItemCost: Decimal; Quantity: Decimal)
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; ItemCost: Decimal; Quantity: Decimal)
     var
         Vendor: Record Vendor;
         Item: Record Item;
@@ -775,7 +775,7 @@ codeunit 134762 "Test Purchase Preview"
         Commit();
     end;
 
-    local procedure CreatePurchaseDocumentWithItem(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure CreatePurchaseDocumentWithItem(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
     begin

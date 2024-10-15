@@ -1,4 +1,4 @@
-﻿page 6630 "Sales Return Order"
+page 6630 "Sales Return Order"
 {
     Caption = 'Sales Return Order';
     PageType = Document;
@@ -56,6 +56,12 @@
                             SalesCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
 
                         CurrPage.Update;
+                    end;
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    begin
+                        if LookupSellToCustomerName() then
+                            CurrPage.Update();
                     end;
                 }
                 group("Sell-to")
@@ -126,6 +132,33 @@
                                     SetRange("Sell-to Contact No.");
                         end;
                     }
+                    field(SellToPhoneNo; SellToContact."Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the contact person that the sales document will be sent to.';
+                    }
+                    field(SellToMobilePhoneNo; SellToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Mobile Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the contact person that the sales document will be sent to.';
+                    }
+                    field(SellToEmail; SellToContact."E-Mail")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Email';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the contact person that the sales document will be sent to.';
+                    }
                 }
                 field("Sell-to Contact"; "Sell-to Contact")
                 {
@@ -144,7 +177,7 @@
                 {
                     ApplicationArea = SalesReturnOrder;
                     BlankZero = true;
-                    ToolTip = 'Specifies the typ of credit memo (corrective tax document, internal correction, insolvency tax document).';
+                    ToolTip = 'Specifies the type of credit memo (corrective tax document, internal correction, insolvency tax document).';
                 }
                 field("Postponed VAT"; "Postponed VAT")
                 {
@@ -175,11 +208,19 @@
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the VAT date. This date must be shown on the VAT statement.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Original Document VAT Date"; "Original Document VAT Date")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the VAT date of the original document.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Order Date"; "Order Date")
                 {
@@ -609,6 +650,33 @@
                         Caption = 'Contact';
                         ToolTip = 'Specifies the name of the contact person at the billing address.';
                     }
+                    field(BillToContactPhoneNo; BillToContact."Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the person you should contact at the customer you are sending the invoice to.';
+                    }
+                    field(BillToContactMobilePhoneNo; BillToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Mobile Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the person you should contact at the customer you are sending the invoice to.';
+                    }
+                    field(BillToContactEmail; BillToContact."E-Mail")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Email';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the person you should contact at the customer you are sending the invoice to.';
+                    }
                 }
                 field("Your Reference"; "Your Reference")
                 {
@@ -647,7 +715,11 @@
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
                     ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies when the sales haeder will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
+                    ToolTip = 'Specifies when the sales header will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Intrastat Exclude"; "Intrastat Exclude")
                 {
@@ -663,11 +735,19 @@
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the registration number of customer.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Tax Registration No."; "Tax Registration No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the secondary VAT registration number for the customer.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Industry Code"; "Industry Code")
                 {
@@ -913,7 +993,7 @@
                     var
                         WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Sales Header", "Document Type", "No.");
+                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Sales Header", "Document Type".AsInteger(), "No.");
                     end;
                 }
                 action("Co&mments")
@@ -1271,7 +1351,9 @@
 
                     trigger OnAction()
                     begin
-                        GetPstdDocLinesToRevere;
+                        GetPstdDocLinesToReverse();
+                        CurrPage.SalesLines.Page.SalesDocTotalsNotUpToDate();
+                        CurrPage.SalesLines.Page.Update(false);
                     end;
                 }
                 action("Archive Document")
@@ -1499,6 +1581,8 @@
     trigger OnAfterGetRecord()
     begin
         SetControlAppearance;
+        if SellToContact.Get("Sell-to Contact No.") then;
+        if BillToContact.Get("Bill-to Contact No.") then;
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1549,6 +1633,8 @@
     end;
 
     var
+        SellToContact: Record Contact;
+        BillToContact: Record Contact;
         MoveNegSalesLines: Report "Move Negative Sales Lines";
         CreateRetRelDocs: Report "Create Ret.-Related Documents";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
@@ -1582,6 +1668,11 @@
         IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
         IsSellToCountyVisible := FormatAddress.UseCounty("Sell-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+    end;
+
+    procedure CallPostDocument(PostingCodeunitID: Integer)
+    begin
+        PostDocument(PostingCodeunitID);
     end;
 
     local procedure PostDocument(PostingCodeunitID: Integer)

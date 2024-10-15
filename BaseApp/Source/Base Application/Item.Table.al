@@ -69,7 +69,7 @@ table 27 Item
         }
         field(6; "Assembly BOM"; Boolean)
         {
-            CalcFormula = Exist ("BOM Component" WHERE("Parent Item No." = FIELD("No.")));
+            CalcFormula = Exist("BOM Component" WHERE("Parent Item No." = FIELD("No.")));
             Caption = 'Assembly BOM';
             Editable = false;
             FieldClass = FlowField;
@@ -122,11 +122,9 @@ table 27 Item
         {
             Caption = 'Price Unit Conversion';
         }
-        field(10; Type; Option)
+        field(10; Type; Enum "Item Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Inventory,Service,Non-Inventory';
-            OptionMembers = Inventory,Service,"Non-Inventory";
 
             trigger OnValidate()
             begin
@@ -225,11 +223,9 @@ table 27 Item
                 Validate("Price/Profit Calculation");
             end;
         }
-        field(21; "Costing Method"; Option)
+        field(21; "Costing Method"; Enum "Costing Method")
         {
             Caption = 'Costing Method';
-            OptionCaption = 'FIFO,LIFO,Specific,Average,Standard';
-            OptionMembers = FIFO,LIFO,Specific,"Average",Standard;
 
             trigger OnValidate()
             begin
@@ -264,6 +260,9 @@ table 27 Item
 
             trigger OnValidate()
             begin
+                if IsNonInventoriableType() then
+                    exit;
+
                 if "Costing Method" = "Costing Method"::Standard then
                     Validate("Standard Cost", "Unit Cost")
                 else
@@ -492,7 +491,7 @@ table 27 Item
         }
         field(53; Comment; Boolean)
         {
-            CalcFormula = Exist ("Comment Line" WHERE("Table Name" = CONST(Item),
+            CalcFormula = Exist("Comment Line" WHERE("Table Name" = CONST(Item),
                                                       "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -510,7 +509,7 @@ table 27 Item
         }
         field(55; "Cost is Posted to G/L"; Boolean)
         {
-            CalcFormula = - Exist ("Post Value Entry to G/L" WHERE("Item No." = FIELD("No.")));
+            CalcFormula = - Exist("Post Value Entry to G/L" WHERE("Item No." = FIELD("No.")));
             Caption = 'Cost is Posted to G/L';
             Editable = false;
             FieldClass = FlowField;
@@ -566,7 +565,7 @@ table 27 Item
         }
         field(68; Inventory; Decimal)
         {
-            CalcFormula = Sum ("Item Ledger Entry".Quantity WHERE("Item No." = FIELD("No."),
+            CalcFormula = Sum("Item Ledger Entry".Quantity WHERE("Item No." = FIELD("No."),
                                                                   "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                   "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                   "Location Code" = FIELD("Location Filter"),
@@ -582,7 +581,7 @@ table 27 Item
         }
         field(69; "Net Invoiced Qty."; Decimal)
         {
-            CalcFormula = Sum ("Item Ledger Entry"."Invoiced Quantity" WHERE("Item No." = FIELD("No."),
+            CalcFormula = Sum("Item Ledger Entry"."Invoiced Quantity" WHERE("Item No." = FIELD("No."),
                                                                              "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                              "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                              "Location Code" = FIELD("Location Filter"),
@@ -597,7 +596,7 @@ table 27 Item
         }
         field(70; "Net Change"; Decimal)
         {
-            CalcFormula = Sum ("Item Ledger Entry".Quantity WHERE("Item No." = FIELD("No."),
+            CalcFormula = Sum("Item Ledger Entry".Quantity WHERE("Item No." = FIELD("No."),
                                                                   "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                   "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                   "Location Code" = FIELD("Location Filter"),
@@ -614,7 +613,7 @@ table 27 Item
         }
         field(71; "Purchases (Qty.)"; Decimal)
         {
-            CalcFormula = Sum ("Item Ledger Entry"."Invoiced Quantity" WHERE("Entry Type" = CONST(Purchase),
+            CalcFormula = Sum("Item Ledger Entry"."Invoiced Quantity" WHERE("Entry Type" = CONST(Purchase),
                                                                              "Item No." = FIELD("No."),
                                                                              "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                              "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
@@ -631,7 +630,7 @@ table 27 Item
         }
         field(72; "Sales (Qty.)"; Decimal)
         {
-            CalcFormula = - Sum ("Value Entry"."Invoiced Quantity" WHERE("Item Ledger Entry Type" = CONST(Sale),
+            CalcFormula = - Sum("Value Entry"."Invoiced Quantity" WHERE("Item Ledger Entry Type" = CONST(Sale),
                                                                         "Item No." = FIELD("No."),
                                                                         "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                         "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
@@ -646,7 +645,7 @@ table 27 Item
         }
         field(73; "Positive Adjmt. (Qty.)"; Decimal)
         {
-            CalcFormula = Sum ("Item Ledger Entry"."Invoiced Quantity" WHERE("Entry Type" = CONST("Positive Adjmt."),
+            CalcFormula = Sum("Item Ledger Entry"."Invoiced Quantity" WHERE("Entry Type" = CONST("Positive Adjmt."),
                                                                              "Item No." = FIELD("No."),
                                                                              "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                              "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
@@ -663,7 +662,7 @@ table 27 Item
         }
         field(74; "Negative Adjmt. (Qty.)"; Decimal)
         {
-            CalcFormula = - Sum ("Item Ledger Entry"."Invoiced Quantity" WHERE("Entry Type" = CONST("Negative Adjmt."),
+            CalcFormula = - Sum("Item Ledger Entry"."Invoiced Quantity" WHERE("Entry Type" = CONST("Negative Adjmt."),
                                                                               "Item No." = FIELD("No."),
                                                                               "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                               "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
@@ -681,7 +680,7 @@ table 27 Item
         field(77; "Purchases (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Value Entry"."Purchase Amount (Actual)" WHERE("Item Ledger Entry Type" = CONST(Purchase),
+            CalcFormula = Sum("Value Entry"."Purchase Amount (Actual)" WHERE("Item Ledger Entry Type" = CONST(Purchase),
                                                                               "Item No." = FIELD("No."),
                                                                               "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                               "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
@@ -696,7 +695,7 @@ table 27 Item
         field(78; "Sales (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Value Entry"."Sales Amount (Actual)" WHERE("Item Ledger Entry Type" = CONST(Sale),
+            CalcFormula = Sum("Value Entry"."Sales Amount (Actual)" WHERE("Item Ledger Entry Type" = CONST(Sale),
                                                                            "Item No." = FIELD("No."),
                                                                            "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                            "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
@@ -711,7 +710,7 @@ table 27 Item
         field(79; "Positive Adjmt. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Value Entry"."Cost Amount (Actual)" WHERE("Item Ledger Entry Type" = CONST("Positive Adjmt."),
+            CalcFormula = Sum("Value Entry"."Cost Amount (Actual)" WHERE("Item Ledger Entry Type" = CONST("Positive Adjmt."),
                                                                           "Item No." = FIELD("No."),
                                                                           "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                           "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
@@ -726,7 +725,7 @@ table 27 Item
         field(80; "Negative Adjmt. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Value Entry"."Cost Amount (Actual)" WHERE("Item Ledger Entry Type" = CONST("Negative Adjmt."),
+            CalcFormula = Sum("Value Entry"."Cost Amount (Actual)" WHERE("Item Ledger Entry Type" = CONST("Negative Adjmt."),
                                                                           "Item No." = FIELD("No."),
                                                                           "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                           "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
@@ -741,7 +740,7 @@ table 27 Item
         field(83; "COGS (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = - Sum ("Value Entry"."Cost Amount (Actual)" WHERE("Item Ledger Entry Type" = CONST(Sale),
+            CalcFormula = - Sum("Value Entry"."Cost Amount (Actual)" WHERE("Item Ledger Entry Type" = CONST(Sale),
                                                                            "Item No." = FIELD("No."),
                                                                            "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                            "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
@@ -756,7 +755,7 @@ table 27 Item
         field(84; "Qty. on Purch. Order"; Decimal)
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
-            CalcFormula = Sum ("Purchase Line"."Outstanding Qty. (Base)" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Sum("Purchase Line"."Outstanding Qty. (Base)" WHERE("Document Type" = CONST(Order),
                                                                                Type = CONST(Item),
                                                                                "No." = FIELD("No."),
                                                                                "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -774,7 +773,7 @@ table 27 Item
         field(85; "Qty. on Sales Order"; Decimal)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
-            CalcFormula = Sum ("Sales Line"."Outstanding Qty. (Base)" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Sum("Sales Line"."Outstanding Qty. (Base)" WHERE("Document Type" = CONST(Order),
                                                                             Type = CONST(Item),
                                                                             "No." = FIELD("No."),
                                                                             "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -855,7 +854,7 @@ table 27 Item
         }
         field(93; "Transferred (Qty.)"; Decimal)
         {
-            CalcFormula = Sum ("Item Ledger Entry"."Invoiced Quantity" WHERE("Entry Type" = CONST(Transfer),
+            CalcFormula = Sum("Item Ledger Entry"."Invoiced Quantity" WHERE("Entry Type" = CONST(Transfer),
                                                                              "Item No." = FIELD("No."),
                                                                              "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                              "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
@@ -873,7 +872,7 @@ table 27 Item
         field(94; "Transferred (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Value Entry"."Sales Amount (Actual)" WHERE("Item Ledger Entry Type" = CONST(Transfer),
+            CalcFormula = Sum("Value Entry"."Sales Amount (Actual)" WHERE("Item Ledger Entry Type" = CONST(Transfer),
                                                                            "Item No." = FIELD("No."),
                                                                            "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                            "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
@@ -935,7 +934,7 @@ table 27 Item
         field(101; "Reserved Qty. on Inventory"; Decimal)
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
-            CalcFormula = Sum ("Reservation Entry"."Quantity (Base)" WHERE("Item No." = FIELD("No."),
+            CalcFormula = Sum("Reservation Entry"."Quantity (Base)" WHERE("Item No." = FIELD("No."),
                                                                            "Source Type" = CONST(32),
                                                                            "Source Subtype" = CONST("0"),
                                                                            "Reservation Status" = CONST(Reservation),
@@ -951,7 +950,7 @@ table 27 Item
         field(102; "Reserved Qty. on Purch. Orders"; Decimal)
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
-            CalcFormula = Sum ("Reservation Entry"."Quantity (Base)" WHERE("Item No." = FIELD("No."),
+            CalcFormula = Sum("Reservation Entry"."Quantity (Base)" WHERE("Item No." = FIELD("No."),
                                                                            "Source Type" = CONST(39),
                                                                            "Source Subtype" = CONST("1"),
                                                                            "Reservation Status" = CONST(Reservation),
@@ -966,7 +965,7 @@ table 27 Item
         field(103; "Reserved Qty. on Sales Orders"; Decimal)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
-            CalcFormula = - Sum ("Reservation Entry"."Quantity (Base)" WHERE("Item No." = FIELD("No."),
+            CalcFormula = - Sum("Reservation Entry"."Quantity (Base)" WHERE("Item No." = FIELD("No."),
                                                                             "Source Type" = CONST(37),
                                                                             "Source Subtype" = CONST("1"),
                                                                             "Reservation Status" = CONST(Reservation),
@@ -1003,7 +1002,7 @@ table 27 Item
         field(107; "Res. Qty. on Outbound Transfer"; Decimal)
         {
             AccessByPermission = TableData "Transfer Header" = R;
-            CalcFormula = - Sum ("Reservation Entry"."Quantity (Base)" WHERE("Item No." = FIELD("No."),
+            CalcFormula = - Sum("Reservation Entry"."Quantity (Base)" WHERE("Item No." = FIELD("No."),
                                                                             "Source Type" = CONST(5741),
                                                                             "Source Subtype" = CONST("0"),
                                                                             "Reservation Status" = CONST(Reservation),
@@ -1018,7 +1017,7 @@ table 27 Item
         field(108; "Res. Qty. on Inbound Transfer"; Decimal)
         {
             AccessByPermission = TableData "Transfer Header" = R;
-            CalcFormula = Sum ("Reservation Entry"."Quantity (Base)" WHERE("Item No." = FIELD("No."),
+            CalcFormula = Sum("Reservation Entry"."Quantity (Base)" WHERE("Item No." = FIELD("No."),
                                                                            "Source Type" = CONST(5741),
                                                                            "Source Subtype" = CONST("1"),
                                                                            "Reservation Status" = CONST(Reservation),
@@ -1033,7 +1032,7 @@ table 27 Item
         field(109; "Res. Qty. on Sales Returns"; Decimal)
         {
             AccessByPermission = TableData "Return Receipt Header" = R;
-            CalcFormula = Sum ("Reservation Entry"."Quantity (Base)" WHERE("Item No." = FIELD("No."),
+            CalcFormula = Sum("Reservation Entry"."Quantity (Base)" WHERE("Item No." = FIELD("No."),
                                                                            "Source Type" = CONST(37),
                                                                            "Source Subtype" = CONST("5"),
                                                                            "Reservation Status" = CONST(Reservation),
@@ -1048,7 +1047,7 @@ table 27 Item
         field(110; "Res. Qty. on Purch. Returns"; Decimal)
         {
             AccessByPermission = TableData "Return Shipment Header" = R;
-            CalcFormula = - Sum ("Reservation Entry"."Quantity (Base)" WHERE("Item No." = FIELD("No."),
+            CalcFormula = - Sum("Reservation Entry"."Quantity (Base)" WHERE("Item No." = FIELD("No."),
                                                                             "Source Type" = CONST(39),
                                                                             "Source Subtype" = CONST("5"),
                                                                             "Reservation Status" = CONST(Reservation),
@@ -1074,7 +1073,7 @@ table 27 Item
         }
         field(200; "Cost of Open Production Orders"; Decimal)
         {
-            CalcFormula = Sum ("Prod. Order Line"."Cost Amount" WHERE(Status = FILTER(Planned | "Firm Planned" | Released),
+            CalcFormula = Sum("Prod. Order Line"."Cost Amount" WHERE(Status = FILTER(Planned | "Firm Planned" | Released),
                                                                       "Item No." = FIELD("No.")));
             Caption = 'Cost of Open Production Orders';
             FieldClass = FlowField;
@@ -1084,12 +1083,10 @@ table 27 Item
             Caption = 'Application Wksh. User ID';
             DataClassification = EndUserIdentifiableInformation;
         }
-        field(910; "Assembly Policy"; Option)
+        field(910; "Assembly Policy"; Enum "Assembly Policy")
         {
             AccessByPermission = TableData "BOM Component" = R;
             Caption = 'Assembly Policy';
-            OptionCaption = 'Assemble-to-Stock,Assemble-to-Order';
-            OptionMembers = "Assemble-to-Stock","Assemble-to-Order";
 
             trigger OnValidate()
             begin
@@ -1102,7 +1099,7 @@ table 27 Item
         field(929; "Res. Qty. on Assembly Order"; Decimal)
         {
             AccessByPermission = TableData "BOM Component" = R;
-            CalcFormula = Sum ("Reservation Entry"."Quantity (Base)" WHERE("Item No." = FIELD("No."),
+            CalcFormula = Sum("Reservation Entry"."Quantity (Base)" WHERE("Item No." = FIELD("No."),
                                                                            "Source Type" = CONST(900),
                                                                            "Source Subtype" = CONST("1"),
                                                                            "Reservation Status" = CONST(Reservation),
@@ -1117,7 +1114,7 @@ table 27 Item
         field(930; "Res. Qty. on  Asm. Comp."; Decimal)
         {
             AccessByPermission = TableData "BOM Component" = R;
-            CalcFormula = - Sum ("Reservation Entry"."Quantity (Base)" WHERE("Item No." = FIELD("No."),
+            CalcFormula = - Sum("Reservation Entry"."Quantity (Base)" WHERE("Item No." = FIELD("No."),
                                                                             "Source Type" = CONST(901),
                                                                             "Source Subtype" = CONST("1"),
                                                                             "Reservation Status" = CONST(Reservation),
@@ -1131,7 +1128,7 @@ table 27 Item
         }
         field(977; "Qty. on Assembly Order"; Decimal)
         {
-            CalcFormula = Sum ("Assembly Header"."Remaining Quantity (Base)" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Sum("Assembly Header"."Remaining Quantity (Base)" WHERE("Document Type" = CONST(Order),
                                                                                    "Item No." = FIELD("No."),
                                                                                    "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                    "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
@@ -1146,7 +1143,7 @@ table 27 Item
         }
         field(978; "Qty. on Asm. Component"; Decimal)
         {
-            CalcFormula = Sum ("Assembly Line"."Remaining Quantity (Base)" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Sum("Assembly Line"."Remaining Quantity (Base)" WHERE("Document Type" = CONST(Order),
                                                                                  Type = CONST(Item),
                                                                                  "No." = FIELD("No."),
                                                                                  "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -1162,7 +1159,7 @@ table 27 Item
         }
         field(1001; "Qty. on Job Order"; Decimal)
         {
-            CalcFormula = Sum ("Job Planning Line"."Remaining Qty. (Base)" WHERE(Status = CONST(Order),
+            CalcFormula = Sum("Job Planning Line"."Remaining Qty. (Base)" WHERE(Status = CONST(Order),
                                                                                  Type = CONST(Item),
                                                                                  "No." = FIELD("No."),
                                                                                  "Location Code" = FIELD("Location Filter"),
@@ -1177,7 +1174,7 @@ table 27 Item
         field(1002; "Res. Qty. on Job Order"; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            CalcFormula = - Sum ("Reservation Entry"."Quantity (Base)" WHERE("Item No." = FIELD("No."),
+            CalcFormula = - Sum("Reservation Entry"."Quantity (Base)" WHERE("Item No." = FIELD("No."),
                                                                             "Source Type" = CONST(1003),
                                                                             "Source Subtype" = CONST("2"),
                                                                             "Reservation Status" = CONST(Reservation),
@@ -1296,12 +1293,10 @@ table 27 Item
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Safety Lead Time';
         }
-        field(5417; "Flushing Method"; Option)
+        field(5417; "Flushing Method"; Enum "Flushing Method")
         {
             AccessByPermission = TableData "Production Order" = R;
             Caption = 'Flushing Method';
-            OptionCaption = 'Manual,Forward,Backward,Pick + Forward,Pick + Backward';
-            OptionMembers = Manual,Forward,Backward,"Pick + Forward","Pick + Backward";
         }
         field(5419; "Replenishment System"; Enum "Replenishment System")
         {
@@ -1336,7 +1331,7 @@ table 27 Item
         }
         field(5420; "Scheduled Receipt (Qty.)"; Decimal)
         {
-            CalcFormula = Sum ("Prod. Order Line"."Remaining Qty. (Base)" WHERE(Status = FILTER("Firm Planned" | Released),
+            CalcFormula = Sum("Prod. Order Line"."Remaining Qty. (Base)" WHERE(Status = FILTER("Firm Planned" | Released),
                                                                                 "Item No." = FIELD("No."),
                                                                                 "Variant Code" = FIELD("Variant Filter"),
                                                                                 "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -1351,7 +1346,7 @@ table 27 Item
         }
         field(5421; "Scheduled Need (Qty.)"; Decimal)
         {
-            CalcFormula = Sum ("Prod. Order Component"."Remaining Qty. (Base)" WHERE(Status = FILTER(Planned .. Released),
+            CalcFormula = Sum("Prod. Order Component"."Remaining Qty. (Base)" WHERE(Status = FILTER(Planned .. Released),
                                                                                      "Item No." = FIELD("No."),
                                                                                      "Variant Code" = FIELD("Variant Filter"),
                                                                                      "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -1418,7 +1413,7 @@ table 27 Item
         field(5429; "Reserved Qty. on Prod. Order"; Decimal)
         {
             AccessByPermission = TableData "Production Order" = R;
-            CalcFormula = Sum ("Reservation Entry"."Quantity (Base)" WHERE("Item No." = FIELD("No."),
+            CalcFormula = Sum("Reservation Entry"."Quantity (Base)" WHERE("Item No." = FIELD("No."),
                                                                            "Source Type" = CONST(5406),
                                                                            "Source Subtype" = FILTER("1" .. "3"),
                                                                            "Reservation Status" = CONST(Reservation),
@@ -1433,7 +1428,7 @@ table 27 Item
         field(5430; "Res. Qty. on Prod. Order Comp."; Decimal)
         {
             AccessByPermission = TableData "Production Order" = R;
-            CalcFormula = - Sum ("Reservation Entry"."Quantity (Base)" WHERE("Item No." = FIELD("No."),
+            CalcFormula = - Sum("Reservation Entry"."Quantity (Base)" WHERE("Item No." = FIELD("No."),
                                                                             "Source Type" = CONST(5407),
                                                                             "Source Subtype" = FILTER("1" .. "3"),
                                                                             "Reservation Status" = CONST(Reservation),
@@ -1448,7 +1443,7 @@ table 27 Item
         field(5431; "Res. Qty. on Req. Line"; Decimal)
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
-            CalcFormula = Sum ("Reservation Entry"."Quantity (Base)" WHERE("Item No." = FIELD("No."),
+            CalcFormula = Sum("Reservation Entry"."Quantity (Base)" WHERE("Item No." = FIELD("No."),
                                                                            "Source Type" = CONST(246),
                                                                            "Source Subtype" = FILTER("0"),
                                                                            "Reservation Status" = CONST(Reservation),
@@ -1460,12 +1455,10 @@ table 27 Item
             Editable = false;
             FieldClass = FlowField;
         }
-        field(5440; "Reordering Policy"; Option)
+        field(5440; "Reordering Policy"; Enum "Reordering Policy")
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Reordering Policy';
-            OptionCaption = ' ,Fixed Reorder Qty.,Maximum Qty.,Order,Lot-for-Lot';
-            OptionMembers = " ","Fixed Reorder Qty.","Maximum Qty.","Order","Lot-for-Lot";
 
             trigger OnValidate()
             begin
@@ -1483,12 +1476,10 @@ table 27 Item
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Include Inventory';
         }
-        field(5442; "Manufacturing Policy"; Option)
+        field(5442; "Manufacturing Policy"; Enum "Manufacturing Policy")
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Manufacturing Policy';
-            OptionCaption = 'Make-to-Stock,Make-to-Order';
-            OptionMembers = "Make-to-Stock","Make-to-Order";
         }
         field(5443; "Rescheduling Period"; DateFormula)
         {
@@ -1536,7 +1527,7 @@ table 27 Item
         }
         field(5449; "Planning Transfer Ship. (Qty)."; Decimal)
         {
-            CalcFormula = Sum ("Requisition Line"."Quantity (Base)" WHERE("Worksheet Template Name" = FILTER(<> ''),
+            CalcFormula = Sum("Requisition Line"."Quantity (Base)" WHERE("Worksheet Template Name" = FILTER(<> ''),
                                                                           "Journal Batch Name" = FILTER(<> ''),
                                                                           "Replenishment System" = CONST(Transfer),
                                                                           Type = CONST(Item),
@@ -1550,7 +1541,7 @@ table 27 Item
         }
         field(5450; "Planning Worksheet (Qty.)"; Decimal)
         {
-            CalcFormula = Sum ("Requisition Line"."Quantity (Base)" WHERE("Planning Line Origin" = CONST(Planning),
+            CalcFormula = Sum("Requisition Line"."Quantity (Base)" WHERE("Planning Line Origin" = CONST(Planning),
                                                                           Type = CONST(Item),
                                                                           "No." = FIELD("No."),
                                                                           "Location Code" = FIELD("Location Filter"),
@@ -1564,7 +1555,7 @@ table 27 Item
         }
         field(5700; "Stockkeeping Unit Exists"; Boolean)
         {
-            CalcFormula = Exist ("Stockkeeping Unit" WHERE("Item No." = FIELD("No.")));
+            CalcFormula = Exist("Stockkeeping Unit" WHERE("Item No." = FIELD("No.")));
             Caption = 'Stockkeeping Unit Exists';
             Editable = false;
             FieldClass = FlowField;
@@ -1603,7 +1594,7 @@ table 27 Item
         }
         field(5706; "Substitutes Exist"; Boolean)
         {
-            CalcFormula = Exist ("Item Substitution" WHERE(Type = CONST(Item),
+            CalcFormula = Exist("Item Substitution" WHERE(Type = CONST(Item),
                                                            "No." = FIELD("No.")));
             Caption = 'Substitutes Exist';
             Editable = false;
@@ -1611,7 +1602,7 @@ table 27 Item
         }
         field(5707; "Qty. in Transit"; Decimal)
         {
-            CalcFormula = Sum ("Transfer Line"."Qty. in Transit (Base)" WHERE("Derived From Line No." = CONST(0),
+            CalcFormula = Sum("Transfer Line"."Qty. in Transit (Base)" WHERE("Derived From Line No." = CONST(0),
                                                                               "Item No." = FIELD("No."),
                                                                               "Transfer-to Code" = FIELD("Location Filter"),
                                                                               "Variant Code" = FIELD("Variant Filter"),
@@ -1626,7 +1617,7 @@ table 27 Item
         }
         field(5708; "Trans. Ord. Receipt (Qty.)"; Decimal)
         {
-            CalcFormula = Sum ("Transfer Line"."Outstanding Qty. (Base)" WHERE("Derived From Line No." = CONST(0),
+            CalcFormula = Sum("Transfer Line"."Outstanding Qty. (Base)" WHERE("Derived From Line No." = CONST(0),
                                                                                "Item No." = FIELD("No."),
                                                                                "Transfer-to Code" = FIELD("Location Filter"),
                                                                                "Variant Code" = FIELD("Variant Filter"),
@@ -1641,7 +1632,7 @@ table 27 Item
         }
         field(5709; "Trans. Ord. Shipment (Qty.)"; Decimal)
         {
-            CalcFormula = Sum ("Transfer Line"."Outstanding Qty. (Base)" WHERE("Derived From Line No." = CONST(0),
+            CalcFormula = Sum("Transfer Line"."Outstanding Qty. (Base)" WHERE("Derived From Line No." = CONST(0),
                                                                                "Item No." = FIELD("No."),
                                                                                "Transfer-from Code" = FIELD("Location Filter"),
                                                                                "Variant Code" = FIELD("Variant Filter"),
@@ -1661,7 +1652,7 @@ table 27 Item
         }
         field(5776; "Qty. Assigned to ship"; Decimal)
         {
-            CalcFormula = Sum ("Warehouse Shipment Line"."Qty. Outstanding (Base)" WHERE("Item No." = FIELD("No."),
+            CalcFormula = Sum("Warehouse Shipment Line"."Qty. Outstanding (Base)" WHERE("Item No." = FIELD("No."),
                                                                                          "Location Code" = FIELD("Location Filter"),
                                                                                          "Variant Code" = FIELD("Variant Filter"),
                                                                                          "Due Date" = FIELD("Date Filter")));
@@ -1672,7 +1663,7 @@ table 27 Item
         }
         field(5777; "Qty. Picked"; Decimal)
         {
-            CalcFormula = Sum ("Warehouse Shipment Line"."Qty. Picked (Base)" WHERE("Item No." = FIELD("No."),
+            CalcFormula = Sum("Warehouse Shipment Line"."Qty. Picked (Base)" WHERE("Item No." = FIELD("No."),
                                                                                     "Location Code" = FIELD("Location Filter"),
                                                                                     "Variant Code" = FIELD("Variant Filter"),
                                                                                     "Due Date" = FIELD("Date Filter")));
@@ -1691,7 +1682,7 @@ table 27 Item
                 ResSkill: Record "Resource Skill";
             begin
                 if xRec."Service Item Group" <> "Service Item Group" then begin
-                    if not ResSkillMgt.ChangeRelationWithGroup(
+                    if not ResSkillMgt.ChangeResSkillRelationWithGroup(
                          ResSkill.Type::Item,
                          "No.",
                          ResSkill.Type::"Service Item Group",
@@ -1700,7 +1691,7 @@ table 27 Item
                     then
                         "Service Item Group" := xRec."Service Item Group";
                 end else
-                    ResSkillMgt.RevalidateRelation(
+                    ResSkillMgt.RevalidateResSkillRelation(
                       ResSkill.Type::Item,
                       "No.",
                       ResSkill.Type::"Service Item Group",
@@ -1709,7 +1700,7 @@ table 27 Item
         }
         field(5901; "Qty. on Service Order"; Decimal)
         {
-            CalcFormula = Sum ("Service Line"."Outstanding Qty. (Base)" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Sum("Service Line"."Outstanding Qty. (Base)" WHERE("Document Type" = CONST(Order),
                                                                               Type = CONST(Item),
                                                                               "No." = FIELD("No."),
                                                                               "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -1726,7 +1717,7 @@ table 27 Item
         field(5902; "Res. Qty. on Service Orders"; Decimal)
         {
             AccessByPermission = TableData "Service Header" = R;
-            CalcFormula = - Sum ("Reservation Entry"."Quantity (Base)" WHERE("Item No." = FIELD("No."),
+            CalcFormula = - Sum("Reservation Entry"."Quantity (Base)" WHERE("Item No." = FIELD("No."),
                                                                             "Source Type" = CONST(5902),
                                                                             "Source Subtype" = CONST("1"),
                                                                             "Reservation Status" = CONST(Reservation),
@@ -1780,7 +1771,7 @@ table 27 Item
                 TestNoOpenDocumentsWithTrackingExist;
 
                 if "Expiration Calculation" <> EmptyDateFormula then
-                    if not ItemTrackingCodeUsesExpirationDate then
+                    if not ItemTrackingCodeUseExpirationDates() then
                         Error(ItemTrackingCodeIgnoresExpirationDateErr, "No.");
             end;
         }
@@ -1802,7 +1793,7 @@ table 27 Item
             trigger OnValidate()
             begin
                 if Format("Expiration Calculation") <> '' then
-                    if not ItemTrackingCodeUsesExpirationDate then
+                    if not ItemTrackingCodeUseExpirationDates() then
                         Error(ItemTrackingCodeIgnoresExpirationDateErr, "No.");
             end;
         }
@@ -1819,7 +1810,7 @@ table 27 Item
         field(6650; "Qty. on Purch. Return"; Decimal)
         {
             AccessByPermission = TableData "Return Receipt Header" = R;
-            CalcFormula = Sum ("Purchase Line"."Outstanding Qty. (Base)" WHERE("Document Type" = CONST("Return Order"),
+            CalcFormula = Sum("Purchase Line"."Outstanding Qty. (Base)" WHERE("Document Type" = CONST("Return Order"),
                                                                                Type = CONST(Item),
                                                                                "No." = FIELD("No."),
                                                                                "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -1837,7 +1828,7 @@ table 27 Item
         field(6660; "Qty. on Sales Return"; Decimal)
         {
             AccessByPermission = TableData "Return Shipment Header" = R;
-            CalcFormula = Sum ("Sales Line"."Outstanding Qty. (Base)" WHERE("Document Type" = CONST("Return Order"),
+            CalcFormula = Sum("Sales Line"."Outstanding Qty. (Base)" WHERE("Document Type" = CONST("Return Order"),
                                                                             Type = CONST(Item),
                                                                             "No." = FIELD("No."),
                                                                             "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -1854,7 +1845,7 @@ table 27 Item
         }
         field(7171; "No. of Substitutes"; Integer)
         {
-            CalcFormula = Count ("Item Substitution" WHERE(Type = CONST(Item),
+            CalcFormula = Count("Item Substitution" WHERE(Type = CONST(Item),
                                                            "No." = FIELD("No.")));
             Caption = 'No. of Substitutes';
             Editable = false;
@@ -1931,7 +1922,7 @@ table 27 Item
         }
         field(7383; "Last Phys. Invt. Date"; Date)
         {
-            CalcFormula = Max ("Phys. Inventory Ledger Entry"."Posting Date" WHERE("Item No." = FIELD("No."),
+            CalcFormula = Max("Phys. Inventory Ledger Entry"."Posting Date" WHERE("Item No." = FIELD("No."),
                                                                                    "Phys Invt Counting Period Type" = FILTER(" " | Item)));
             Caption = 'Last Phys. Invt. Date';
             Editable = false;
@@ -1955,7 +1946,7 @@ table 27 Item
         }
         field(7700; "Identifier Code"; Code[20])
         {
-            CalcFormula = Lookup ("Item Identifier".Code WHERE("Item No." = FIELD("No.")));
+            CalcFormula = Lookup("Item Identifier".Code WHERE("Item No." = FIELD("No.")));
             Caption = 'Identifier Code';
             Editable = false;
             FieldClass = FlowField;
@@ -1970,7 +1961,7 @@ table 27 Item
         field(8001; "Unit of Measure Id"; Guid)
         {
             Caption = 'Unit of Measure Id';
-            TableRelation = "Unit of Measure".Id;
+            TableRelation = "Unit of Measure".SystemId;
 
             trigger OnValidate()
             begin
@@ -1980,7 +1971,7 @@ table 27 Item
         field(8002; "Tax Group Id"; Guid)
         {
             Caption = 'Tax Group Id';
-            TableRelation = "Tax Group".Id;
+            TableRelation = "Tax Group".SystemId;
 
             trigger OnValidate()
             begin
@@ -2001,7 +1992,7 @@ table 27 Item
         {
             Caption = 'Item Category Id';
             DataClassification = SystemMetadata;
-            TableRelation = "Item Category".Id;
+            TableRelation = "Item Category".SystemId;
 
             trigger OnValidate()
             begin
@@ -2050,6 +2041,9 @@ table 27 Item
         {
             Caption = 'Statistic Indication';
             TableRelation = "Statistic Indication".Code WHERE("Tariff No." = FIELD("Tariff No."));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(31061; "Specific Movement"; Code[10])
         {
@@ -2165,7 +2159,7 @@ table 27 Item
         }
         field(99000761; "Planning Issues (Qty.)"; Decimal)
         {
-            CalcFormula = Sum ("Planning Component"."Expected Quantity (Base)" WHERE("Item No." = FIELD("No."),
+            CalcFormula = Sum("Planning Component"."Expected Quantity (Base)" WHERE("Item No." = FIELD("No."),
                                                                                      "Due Date" = FIELD("Date Filter"),
                                                                                      "Location Code" = FIELD("Location Filter"),
                                                                                      "Variant Code" = FIELD("Variant Filter"),
@@ -2180,7 +2174,7 @@ table 27 Item
         }
         field(99000762; "Planning Receipt (Qty.)"; Decimal)
         {
-            CalcFormula = Sum ("Requisition Line"."Quantity (Base)" WHERE(Type = CONST(Item),
+            CalcFormula = Sum("Requisition Line"."Quantity (Base)" WHERE(Type = CONST(Item),
                                                                           "No." = FIELD("No."),
                                                                           "Due Date" = FIELD("Date Filter"),
                                                                           "Location Code" = FIELD("Location Filter"),
@@ -2195,7 +2189,7 @@ table 27 Item
         }
         field(99000765; "Planned Order Receipt (Qty.)"; Decimal)
         {
-            CalcFormula = Sum ("Prod. Order Line"."Remaining Qty. (Base)" WHERE(Status = CONST(Planned),
+            CalcFormula = Sum("Prod. Order Line"."Remaining Qty. (Base)" WHERE(Status = CONST(Planned),
                                                                                 "Item No." = FIELD("No."),
                                                                                 "Variant Code" = FIELD("Variant Filter"),
                                                                                 "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -2210,7 +2204,7 @@ table 27 Item
         }
         field(99000766; "FP Order Receipt (Qty.)"; Decimal)
         {
-            CalcFormula = Sum ("Prod. Order Line"."Remaining Qty. (Base)" WHERE(Status = CONST("Firm Planned"),
+            CalcFormula = Sum("Prod. Order Line"."Remaining Qty. (Base)" WHERE(Status = CONST("Firm Planned"),
                                                                                 "Item No." = FIELD("No."),
                                                                                 "Variant Code" = FIELD("Variant Filter"),
                                                                                 "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -2225,7 +2219,7 @@ table 27 Item
         }
         field(99000767; "Rel. Order Receipt (Qty.)"; Decimal)
         {
-            CalcFormula = Sum ("Prod. Order Line"."Remaining Qty. (Base)" WHERE(Status = CONST(Released),
+            CalcFormula = Sum("Prod. Order Line"."Remaining Qty. (Base)" WHERE(Status = CONST(Released),
                                                                                 "Item No." = FIELD("No."),
                                                                                 "Variant Code" = FIELD("Variant Filter"),
                                                                                 "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -2240,7 +2234,7 @@ table 27 Item
         }
         field(99000768; "Planning Release (Qty.)"; Decimal)
         {
-            CalcFormula = Sum ("Requisition Line"."Quantity (Base)" WHERE(Type = CONST(Item),
+            CalcFormula = Sum("Requisition Line"."Quantity (Base)" WHERE(Type = CONST(Item),
                                                                           "No." = FIELD("No."),
                                                                           "Starting Date" = FIELD("Date Filter"),
                                                                           "Location Code" = FIELD("Location Filter"),
@@ -2255,7 +2249,7 @@ table 27 Item
         }
         field(99000769; "Planned Order Release (Qty.)"; Decimal)
         {
-            CalcFormula = Sum ("Prod. Order Line"."Remaining Qty. (Base)" WHERE(Status = CONST(Planned),
+            CalcFormula = Sum("Prod. Order Line"."Remaining Qty. (Base)" WHERE(Status = CONST(Planned),
                                                                                 "Item No." = FIELD("No."),
                                                                                 "Variant Code" = FIELD("Variant Filter"),
                                                                                 "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -2270,7 +2264,7 @@ table 27 Item
         }
         field(99000770; "Purch. Req. Receipt (Qty.)"; Decimal)
         {
-            CalcFormula = Sum ("Requisition Line"."Quantity (Base)" WHERE(Type = CONST(Item),
+            CalcFormula = Sum("Requisition Line"."Quantity (Base)" WHERE(Type = CONST(Item),
                                                                           "No." = FIELD("No."),
                                                                           "Variant Code" = FIELD("Variant Filter"),
                                                                           "Location Code" = FIELD("Location Filter"),
@@ -2286,7 +2280,7 @@ table 27 Item
         }
         field(99000771; "Purch. Req. Release (Qty.)"; Decimal)
         {
-            CalcFormula = Sum ("Requisition Line"."Quantity (Base)" WHERE(Type = CONST(Item),
+            CalcFormula = Sum("Requisition Line"."Quantity (Base)" WHERE(Type = CONST(Item),
                                                                           "No." = FIELD("No."),
                                                                           "Location Code" = FIELD("Location Filter"),
                                                                           "Variant Code" = FIELD("Variant Filter"),
@@ -2313,10 +2307,10 @@ table 27 Item
                     TestField(Type, Type::Inventory);
                 if xRec."Order Tracking Policy" = "Order Tracking Policy" then
                     exit;
-                if "Order Tracking Policy" > xRec."Order Tracking Policy" then begin
+                if "Order Tracking Policy".AsInteger() > xRec."Order Tracking Policy".AsInteger() then begin
                     Message(Text99000000 +
                       Text99000001,
-                      SelectStr("Order Tracking Policy", Text99000002));
+                      SelectStr("Order Tracking Policy".AsInteger(), Text99000002));
                 end else begin
                     ActionMessageEntry.SetCurrentKey("Reservation Entry");
                     ReservEntry.SetCurrentKey("Item No.", "Variant Code", "Location Code", "Reservation Status");
@@ -2345,7 +2339,7 @@ table 27 Item
         }
         field(99000774; "Prod. Forecast Quantity (Base)"; Decimal)
         {
-            CalcFormula = Sum ("Production Forecast Entry"."Forecast Quantity (Base)" WHERE("Item No." = FIELD("No."),
+            CalcFormula = Sum("Production Forecast Entry"."Forecast Quantity (Base)" WHERE("Item No." = FIELD("No."),
                                                                                             "Production Forecast Name" = FIELD("Production Forecast Name"),
                                                                                             "Forecast Date" = FIELD("Date Filter"),
                                                                                             "Location Code" = FIELD("Location Filter"),
@@ -2367,7 +2361,7 @@ table 27 Item
         }
         field(99000777; "Qty. on Prod. Order"; Decimal)
         {
-            CalcFormula = Sum ("Prod. Order Line"."Remaining Qty. (Base)" WHERE(Status = FILTER(Planned .. Released),
+            CalcFormula = Sum("Prod. Order Line"."Remaining Qty. (Base)" WHERE(Status = FILTER(Planned .. Released),
                                                                                 "Item No." = FIELD("No."),
                                                                                 "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                 "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
@@ -2382,7 +2376,7 @@ table 27 Item
         }
         field(99000778; "Qty. on Component Lines"; Decimal)
         {
-            CalcFormula = Sum ("Prod. Order Component"."Remaining Qty. (Base)" WHERE(Status = FILTER(Planned .. Released),
+            CalcFormula = Sum("Prod. Order Component"."Remaining Qty. (Base)" WHERE(Status = FILTER(Planned .. Released),
                                                                                      "Item No." = FIELD("No."),
                                                                                      "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                      "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
@@ -2454,6 +2448,9 @@ table 27 Item
         {
         }
         key(Key16; Type)
+        {
+        }
+        key(Key17; SystemModifiedAt)
         {
         }
     }
@@ -2634,7 +2631,6 @@ table 27 Item
     local procedure DeleteRelatedData()
     var
         BinContent: Record "Bin Content";
-        ItemCrossReference: Record "Item Cross Reference";
         SocialListeningSearchTopic: Record "Social Listening Search Topic";
         MyItem: Record "My Item";
         ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
@@ -2715,9 +2711,6 @@ table 27 Item
         BinContent.SetCurrentKey("Item No.");
         BinContent.SetRange("Item No.", "No.");
         BinContent.DeleteAll();
-
-        ItemCrossReference.SetRange("Item No.", "No.");
-        ItemCrossReference.DeleteAll();
 
         MyItem.SetRange("Item No.", "No.");
         MyItem.DeleteAll();
@@ -3337,6 +3330,22 @@ table 27 Item
         exit(CopyStr(ItemNo, 1, MaxStrLen("No.")));
     end;
 
+    local procedure AsPriceAsset(var PriceAsset: Record "Price Asset")
+    begin
+        PriceAsset.Init();
+        PriceAsset."Asset Type" := PriceAsset."Asset Type"::Item;
+        PriceAsset."Asset No." := "No.";
+    end;
+
+    procedure ShowPriceListLines(PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type")
+    var
+        PriceAsset: Record "Price Asset";
+        PriceUXManagement: Codeunit "Price UX Management";
+    begin
+        AsPriceAsset(PriceAsset);
+        PriceUXManagement.ShowPriceListLines(PriceAsset, PriceType, AmountType);
+    end;
+
     procedure TryGetItemNo(var ReturnValue: Text[50]; ItemText: Text; DefaultCreate: Boolean): Boolean
     begin
         InvtSetup.Get();
@@ -3366,7 +3375,8 @@ table 27 Item
         if ItemText = '' then
             exit(DefaultCreate);
 
-        FoundRecordCount := FindRecordMgt.FindRecordByDescriptionAndView(ReturnValue, SalesLine.Type::Item, ItemText, View);
+        FoundRecordCount :=
+            FindRecordMgt.FindRecordByDescriptionAndView(ReturnValue, SalesLine.Type::Item.AsInteger(), ItemText, View);
 
         if FoundRecordCount = 1 then
             exit(true);
@@ -3521,7 +3531,7 @@ table 27 Item
         if not UnitOfMeasure.Get("Base Unit of Measure") then
             exit;
 
-        "Unit of Measure Id" := UnitOfMeasure.Id;
+        "Unit of Measure Id" := UnitOfMeasure.SystemId;
     end;
 
     procedure UpdateItemCategoryId()
@@ -3543,7 +3553,7 @@ table 27 Item
         if not ItemCategory.Get("Item Category Code") then
             exit;
 
-        "Item Category Id" := ItemCategory.Id;
+        "Item Category Id" := ItemCategory.SystemId;
     end;
 
     procedure UpdateTaxGroupId()
@@ -3558,17 +3568,15 @@ table 27 Item
         if not TaxGroup.Get("Tax Group Code") then
             exit;
 
-        "Tax Group Id" := TaxGroup.Id;
+        "Tax Group Id" := TaxGroup.SystemId;
     end;
 
     local procedure UpdateUnitOfMeasureCode()
     var
         UnitOfMeasure: Record "Unit of Measure";
     begin
-        if not IsNullGuid("Unit of Measure Id") then begin
-            UnitOfMeasure.SetRange(Id, "Unit of Measure Id");
-            UnitOfMeasure.FindFirst;
-        end;
+        if not IsNullGuid("Unit of Measure Id") then
+            UnitOfMeasure.GetBySystemId("Unit of Measure Id");
 
         "Base Unit of Measure" := UnitOfMeasure.Code;
     end;
@@ -3577,10 +3585,8 @@ table 27 Item
     var
         TaxGroup: Record "Tax Group";
     begin
-        if not IsNullGuid("Tax Group Id") then begin
-            TaxGroup.SetRange(Id, "Tax Group Id");
-            TaxGroup.FindFirst;
-        end;
+        if not IsNullGuid("Tax Group Id") then
+            TaxGroup.GetBySystemId("Tax Group Id");
 
         Validate("Tax Group Code", TaxGroup.Code);
     end;
@@ -3589,10 +3595,8 @@ table 27 Item
     var
         ItemCategory: Record "Item Category";
     begin
-        if IsNullGuid("Item Category Id") then begin
-            ItemCategory.SetRange(Id, "Item Category Id");
-            ItemCategory.FindFirst;
-        end;
+        if IsNullGuid("Item Category Id") then
+            ItemCategory.GetBySystemId("Item Category Id");
 
         "Item Category Code" := ItemCategory.Code;
     end;
@@ -3716,14 +3720,20 @@ table 27 Item
         exit(not ItemLedgEntry.IsEmpty);
     end;
 
-    [Scope('OnPrem')]
-    procedure ItemTrackingCodeUsesExpirationDate(): Boolean
+    procedure ItemTrackingCodeUseExpirationDates(): Boolean
     begin
         if "Item Tracking Code" = '' then
             exit(false);
 
         ItemTrackingCode.Get("Item Tracking Code");
         exit(ItemTrackingCode."Use Expiration Dates");
+    end;
+
+    [Obsolete('Replaced by ItemTrackingCodeUseExpirationDates()', '17.0')]
+    [Scope('OnPrem')]
+    procedure ItemTrackingCodeUsesExpirationDate(): Boolean
+    begin
+        exit(ItemTrackingCodeUseExpirationDates());
     end;
 }
 

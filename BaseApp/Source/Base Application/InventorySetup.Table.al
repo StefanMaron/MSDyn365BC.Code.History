@@ -147,11 +147,9 @@ table 313 "Inventory Setup"
                     end;
             end;
         }
-        field(5801; "Default Costing Method"; Option)
+        field(5801; "Default Costing Method"; Enum "Costing Method")
         {
             Caption = 'Default Costing Method';
-            OptionCaption = 'FIFO,LIFO,Specific,Average,Standard';
-            OptionMembers = FIFO,LIFO,Specific,"Average",Standard;
         }
         field(5804; "Average Cost Calc. Type"; Option)
         {
@@ -269,11 +267,17 @@ table 313 "Inventory Setup"
         {
             Caption = 'Def.Template for Phys.Pos.Adj';
             TableRelation = "Whse. Net Change Template";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(31074; "Def.Template for Phys.Neg.Adj"; Code[10])
         {
             Caption = 'Def.Template for Phys.Neg.Adj';
             TableRelation = "Whse. Net Change Template";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(31075; "Skip Update SKU on Posting"; Boolean)
         {

@@ -263,14 +263,17 @@ page 22 "Customer List"
             {
                 ApplicationArea = All;
                 SubPageLink = "No." = FIELD("No.");
-                Visible = CRMIsCoupledToRecord;
+                Visible = CRMIsCoupledToRecord and CRMIntegrationEnabled;
             }
             part(Control35; "Social Listening FactBox")
             {
                 ApplicationArea = All;
                 SubPageLink = "Source Type" = CONST(Customer),
                               "Source No." = FIELD("No.");
-                Visible = SocialListeningVisible;
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
+                ObsoleteTag = '17.0';
             }
             part(Control33; "Social Listening Setup FactBox")
             {
@@ -278,7 +281,10 @@ page 22 "Customer List"
                 SubPageLink = "Source Type" = CONST(Customer),
                               "Source No." = FIELD("No.");
                 UpdatePropagation = Both;
-                Visible = SocialListeningSetupVisible;
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
+                ObsoleteTag = '17.0';
             }
             part(SalesHistSelltoFactBox; "Sales Hist. Sell-to FactBox")
             {
@@ -454,11 +460,27 @@ page 22 "Customer List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cross Re&ferences';
                     Image = Change;
+                    Promoted = true;
+                    PromotedCategory = Category7;
                     RunObject = Page "Cross References";
                     RunPageLink = "Cross-Reference Type" = CONST(Customer),
                                   "Cross-Reference Type No." = FIELD("No.");
                     RunPageView = SORTING("Cross-Reference Type", "Cross-Reference Type No.");
                     ToolTip = 'Set up the customer''s own identification of items that you sell to the customer. Cross-references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
+                }
+                action("Item References")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Item Refe&rences';
+                    Visible = ItemReferenceVisible;
+                    Image = Change;
+                    Promoted = true;
+                    PromotedCategory = Category7;
+                    RunObject = Page "Item References";
+                    RunPageLink = "Reference Type" = CONST(Customer),
+                                  "Reference Type No." = FIELD("No.");
+                    RunPageView = SORTING("Reference Type", "Reference Type No.");
+                    ToolTip = 'Set up the customer''s own identification of items that you sell to the customer. Item references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
                 }
                 separator(Action1220001)
                 {
@@ -556,364 +578,368 @@ page 22 "Customer List"
 
                         trigger OnAction()
                         var
+                            Customer: Record Customer;
                             CRMCouplingManagement: Codeunit "CRM Coupling Management";
+                            RecRef: RecordRef;
                         begin
-                            CRMCouplingManagement.RemoveCoupling(RecordId);
+                            CurrPage.SetSelectionFilter(Customer);
+                            RecRef.GetTable(Customer);
+                            CRMCouplingManagement.RemoveCoupling(RecRef);
                         end;
                     }
                 }
-            }
-            group(History)
-            {
-                Caption = 'History';
-                Image = History;
-                action(CustomerLedgerEntries)
+                group(History)
                 {
-                    ApplicationArea = Advanced;
-                    Caption = 'Ledger E&ntries';
-                    Image = CustomerLedger;
-                    Promoted = true;
-                    PromotedCategory = Category7;
-                    PromotedIsBig = true;
-                    RunObject = Page "Customer Ledger Entries";
-                    RunPageLink = "Customer No." = FIELD("No.");
-                    RunPageView = SORTING("Customer No.")
+                    Caption = 'History';
+                    Image = History;
+                    action(CustomerLedgerEntries)
+                    {
+                        ApplicationArea = Advanced;
+                        Caption = 'Ledger E&ntries';
+                        Image = CustomerLedger;
+                        Promoted = true;
+                        PromotedCategory = Category7;
+                        PromotedIsBig = true;
+                        RunObject = Page "Customer Ledger Entries";
+                        RunPageLink = "Customer No." = FIELD("No.");
+                        RunPageView = SORTING("Customer No.")
                                   ORDER(Descending);
-                    ShortCutKey = 'Ctrl+F7';
-                    ToolTip = 'View the history of transactions that have been posted for the selected record.';
-                }
-                action(Statistics)
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Statistics';
-                    Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category7;
-                    PromotedIsBig = true;
-                    RunObject = Page "Customer Statistics";
-                    RunPageLink = "No." = FIELD("No."),
+                        ShortCutKey = 'Ctrl+F7';
+                        ToolTip = 'View the history of transactions that have been posted for the selected record.';
+                    }
+                    action(Statistics)
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Statistics';
+                        Image = Statistics;
+                        Promoted = true;
+                        PromotedCategory = Category7;
+                        PromotedIsBig = true;
+                        RunObject = Page "Customer Statistics";
+                        RunPageLink = "No." = FIELD("No."),
                                   "Date Filter" = FIELD("Date Filter"),
                                   "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
                                   "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter");
-                    ShortCutKey = 'F7';
-                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
-                }
-                action("S&ales")
-                {
-                    ApplicationArea = Advanced;
-                    Caption = 'S&ales';
-                    Image = Sales;
-                    RunObject = Page "Customer Sales";
-                    RunPageLink = "No." = FIELD("No."),
+                        ShortCutKey = 'F7';
+                        ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    }
+                    action("S&ales")
+                    {
+                        ApplicationArea = Advanced;
+                        Caption = 'S&ales';
+                        Image = Sales;
+                        RunObject = Page "Customer Sales";
+                        RunPageLink = "No." = FIELD("No."),
                                   "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
                                   "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter");
-                    ToolTip = 'Shows a summary of customer ledger entries. You select the time interval in the View by field. The Period column on the left contains a series of dates that are determined by the time interval you have selected.';
-                }
-                action("Entry Statistics")
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Entry Statistics';
-                    Image = EntryStatistics;
-                    RunObject = Page "Customer Entry Statistics";
-                    RunPageLink = "No." = FIELD("No."),
+                        ToolTip = 'Shows a summary of customer ledger entries. You select the time interval in the View by field. The Period column on the left contains a series of dates that are determined by the time interval you have selected.';
+                    }
+                    action("Entry Statistics")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Entry Statistics';
+                        Image = EntryStatistics;
+                        RunObject = Page "Customer Entry Statistics";
+                        RunPageLink = "No." = FIELD("No."),
                                   "Date Filter" = FIELD("Date Filter"),
                                   "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
                                   "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter");
-                    ToolTip = 'View entry statistics for the record.';
-                }
-                action("Statistics by C&urrencies")
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Statistics by C&urrencies';
-                    Image = Currencies;
-                    RunObject = Page "Cust. Stats. by Curr. Lines";
-                    RunPageLink = "Customer Filter" = FIELD("No."),
+                        ToolTip = 'View entry statistics for the record.';
+                    }
+                    action("Statistics by C&urrencies")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Statistics by C&urrencies';
+                        Image = Currencies;
+                        RunObject = Page "Cust. Stats. by Curr. Lines";
+                        RunPageLink = "Customer Filter" = FIELD("No."),
                                   "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
                                   "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter"),
                                   "Date Filter" = FIELD("Date Filter");
-                    ToolTip = 'View statistics for customers that use multiple currencies.';
-                }
-                action("Item &Tracking Entries")
-                {
-                    ApplicationArea = ItemTracking;
-                    Caption = 'Item &Tracking Entries';
-                    Image = ItemTrackingLedger;
-                    ToolTip = 'View serial or lot numbers that are assigned to items.';
+                        ToolTip = 'View statistics for customers that use multiple currencies.';
+                    }
+                    action("Item &Tracking Entries")
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Item &Tracking Entries';
+                        Image = ItemTrackingLedger;
+                        ToolTip = 'View serial or lot numbers that are assigned to items.';
 
-                    trigger OnAction()
-                    var
-                        ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
-                    begin
-                        ItemTrackingDocMgt.ShowItemTrackingForMasterData(1, "No.", '', '', '', '', '');
-                    end;
+                        trigger OnAction()
+                        var
+                            ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
+                        begin
+                            ItemTrackingDocMgt.ShowItemTrackingForEntity(1, "No.", '', '', '');
+                        end;
+                    }
                 }
-            }
-            group(Action24)
-            {
-                Caption = 'S&ales';
-                Image = Sales;
-                action(Sales_InvoiceDiscounts)
+                group(Action24)
                 {
-                    ApplicationArea = Advanced;
-                    Caption = 'Invoice &Discounts';
-                    Image = CalculateInvoiceDiscount;
-                    RunObject = Page "Cust. Invoice Discounts";
-                    RunPageLink = Code = FIELD("Invoice Disc. Code");
-                    ToolTip = 'Set up different discounts that are applied to invoices for the customer. An invoice discount is automatically granted to the customer when the total on a sales invoice exceeds a certain amount.';
-                }
-                action(Sales_Prices)
-                {
-                    ApplicationArea = Advanced;
-                    Caption = 'Prices';
-                    Image = Price;
-                    ToolTip = 'View or set up different prices for items that you sell to the customer. An item price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                    Caption = 'S&ales';
+                    Image = Sales;
+                    action(Sales_InvoiceDiscounts)
+                    {
+                        ApplicationArea = Advanced;
+                        Caption = 'Invoice &Discounts';
+                        Image = CalculateInvoiceDiscount;
+                        RunObject = Page "Cust. Invoice Discounts";
+                        RunPageLink = Code = FIELD("Invoice Disc. Code");
+                        ToolTip = 'Set up different discounts that are applied to invoices for the customer. An invoice discount is automatically granted to the customer when the total on a sales invoice exceeds a certain amount.';
+                    }
+                    action(Sales_Prices)
+                    {
+                        ApplicationArea = Advanced;
+                        Caption = 'Prices';
+                        Image = Price;
+                        ToolTip = 'View or set up different prices for items that you sell to the customer. An item price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
 
-                    trigger OnAction()
-                    begin
-                        ShowPrices();
-                    end;
-                }
-                action(Sales_LineDiscounts)
-                {
-                    ApplicationArea = Advanced;
-                    Caption = 'Line Discounts';
-                    Image = LineDiscount;
-                    ToolTip = 'View or set up different discounts for items that you sell to the customer. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                        trigger OnAction()
+                        begin
+                            ShowPrices();
+                        end;
+                    }
+                    action(Sales_LineDiscounts)
+                    {
+                        ApplicationArea = Advanced;
+                        Caption = 'Line Discounts';
+                        Image = LineDiscount;
+                        ToolTip = 'View or set up different discounts for items that you sell to the customer. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
 
-                    trigger OnAction()
-                    begin
-                        ShowLineDiscounts();
-                    end;
-                }
-                action("Prepa&yment Percentages")
-                {
-                    ApplicationArea = Prepayments;
-                    Caption = 'Prepa&yment Percentages';
-                    Image = PrepaymentPercentages;
-                    RunObject = Page "Sales Prepayment Percentages";
-                    RunPageLink = "Sales Type" = CONST(Customer),
+                        trigger OnAction()
+                        begin
+                            ShowLineDiscounts();
+                        end;
+                    }
+                    action("Prepa&yment Percentages")
+                    {
+                        ApplicationArea = Prepayments;
+                        Caption = 'Prepa&yment Percentages';
+                        Image = PrepaymentPercentages;
+                        RunObject = Page "Sales Prepayment Percentages";
+                        RunPageLink = "Sales Type" = CONST(Customer),
                                   "Sales Code" = FIELD("No.");
-                    RunPageView = SORTING("Sales Type", "Sales Code");
-                    ToolTip = 'View or edit the percentages of the price that can be paid as a prepayment. ';
-                }
-                action("Recurring Sales Lines")
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Recurring Sales Lines';
-                    Image = CodesList;
-                    RunObject = Page "Standard Customer Sales Codes";
-                    RunPageLink = "Customer No." = FIELD("No.");
-                    ToolTip = 'Set up recurring sales lines for the customer, such as a monthly replenishment order, that can quickly be inserted on a sales document for the customer.';
-                }
-            }
-            group(Documents)
-            {
-                Caption = 'Documents';
-                Image = Documents;
-                action(Quotes)
-                {
-                    ApplicationArea = Advanced;
-                    Caption = 'Quotes';
-                    Image = Quote;
-                    Promoted = true;
-                    PromotedCategory = Category8;
-                    RunObject = Page "Sales Quotes";
-                    RunPageLink = "Sell-to Customer No." = FIELD("No.");
-                    RunPageView = SORTING("Sell-to Customer No.");
-                    ToolTip = 'View a list of ongoing sales quotes.';
-                }
-                action(Orders)
-                {
-                    ApplicationArea = Advanced;
-                    Caption = 'Orders';
-                    Image = Document;
-                    Promoted = true;
-                    PromotedCategory = Category8;
-                    RunObject = Page "Sales Order List";
-                    RunPageLink = "Sell-to Customer No." = FIELD("No.");
-                    RunPageView = SORTING("Sell-to Customer No.");
-                    ToolTip = 'View a list of ongoing sales orders for the customer.';
-                }
-                action("Return Orders")
-                {
-                    ApplicationArea = SalesReturnOrder;
-                    Caption = 'Return Orders';
-                    Image = ReturnOrder;
-                    RunObject = Page "Sales Return Order List";
-                    RunPageLink = "Sell-to Customer No." = FIELD("No.");
-                    RunPageView = SORTING("Sell-to Customer No.");
-                    ToolTip = 'Open the list of ongoing return orders.';
-                }
-                action(OnlineMap)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Online Map';
-                    Image = Map;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
-                    Scope = Repeater;
-                    ToolTip = 'View the address on an online map.';
-                    Visible = false;
-
-                    trigger OnAction()
-                    begin
-                        DisplayMap;
-                    end;
-                }
-                action(ApprovalEntries)
-                {
-                    AccessByPermission = TableData "Approval Entry" = R;
-                    ApplicationArea = Suite;
-                    Caption = 'Approvals';
-                    Image = Approvals;
-                    Promoted = true;
-                    PromotedCategory = Category7;
-                    PromotedOnly = true;
-                    ToolTip = 'View a list of the records that are waiting to be approved. For example, you can see who requested the record to be approved, when it was sent, and when it is due to be approved.';
-
-                    trigger OnAction()
-                    begin
-                        ApprovalsMgmt.OpenApprovalEntriesPage(RecordId);
-                    end;
-                }
-                action(UpdateStatisticsInCRM)
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Update Account Statistics';
-                    Enabled = CRMIsCoupledToRecord;
-                    Image = UpdateXML;
-                    ToolTip = 'Send customer statistics data to CDS to update the Account Statistics FactBox.';
-                    Visible = CRMIntegrationEnabled;
-
-                    trigger OnAction()
-                    var
-                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
-                    begin
-                        CRMIntegrationManagement.CreateOrUpdateCRMAccountStatistics(Rec);
-                    end;
-                }
-                group(Create)
-                {
-                    Caption = 'Create';
-                    Image = NewCustomer;
-                    action(CreateInCRM)
+                        RunPageView = SORTING("Sales Type", "Sales Code");
+                        ToolTip = 'View or edit the percentages of the price that can be paid as a prepayment. ';
+                    }
+                    action("Recurring Sales Lines")
                     {
                         ApplicationArea = Suite;
-                        Caption = 'Create Account in CDS';
-                        Image = NewCustomer;
-                        ToolTip = 'Generate the account in the coupled CDS account.';
-                        Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
-
-                        trigger OnAction()
-                        var
-                            Customer: Record Customer;
-                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
-                        begin
-                            CurrPage.SetSelectionFilter(Customer);
-                            CRMIntegrationManagement.CreateNewRecordsInCRM(Customer);
-                        end;
-                    }
-                    action(CreateFromCRM)
-                    {
-                        ApplicationArea = Suite;
-                        Caption = 'Create Customer in Business Central';
-                        Image = NewCustomer;
-                        ToolTip = 'Generate the customer in the coupled CDS account.';
-                        Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
-
-                        trigger OnAction()
-                        var
-                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
-                        begin
-                            CRMIntegrationManagement.CreateNewCustomerFromCRM;
-                        end;
+                        Caption = 'Recurring Sales Lines';
+                        Image = CodesList;
+                        RunObject = Page "Standard Customer Sales Codes";
+                        RunPageLink = "Customer No." = FIELD("No.");
+                        ToolTip = 'Set up recurring sales lines for the customer, such as a monthly replenishment order, that can quickly be inserted on a sales document for the customer.';
                     }
                 }
-                action(ShowLog)
+                group(Documents)
                 {
-                    ApplicationArea = Suite;
-                    Caption = 'Synchronization Log';
-                    Image = Log;
-                    ToolTip = 'View integration synchronization jobs for the customer table.';
-                    Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
-
-                    trigger OnAction()
-                    var
-                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
-                    begin
-                        CRMIntegrationManagement.ShowLog(RecordId);
-                    end;
-                }
-                group("Issued Documents")
-                {
-                    Caption = 'Issued Documents';
+                    Caption = 'Documents';
                     Image = Documents;
-                    action("Issued &Reminders")
+                    action(Quotes)
+                    {
+                        ApplicationArea = Advanced;
+                        Caption = 'Quotes';
+                        Image = Quote;
+                        Promoted = true;
+                        PromotedCategory = Category8;
+                        RunObject = Page "Sales Quotes";
+                        RunPageLink = "Sell-to Customer No." = FIELD("No.");
+                        RunPageView = SORTING("Sell-to Customer No.");
+                        ToolTip = 'View a list of ongoing sales quotes.';
+                    }
+                    action(Orders)
+                    {
+                        ApplicationArea = Advanced;
+                        Caption = 'Orders';
+                        Image = Document;
+                        Promoted = true;
+                        PromotedCategory = Category8;
+                        RunObject = Page "Sales Order List";
+                        RunPageLink = "Sell-to Customer No." = FIELD("No.");
+                        RunPageView = SORTING("Sell-to Customer No.");
+                        ToolTip = 'View a list of ongoing sales orders for the customer.';
+                    }
+                    action("Return Orders")
+                    {
+                        ApplicationArea = SalesReturnOrder;
+                        Caption = 'Return Orders';
+                        Image = ReturnOrder;
+                        RunObject = Page "Sales Return Order List";
+                        RunPageLink = "Sell-to Customer No." = FIELD("No.");
+                        RunPageView = SORTING("Sell-to Customer No.");
+                        ToolTip = 'Open the list of ongoing return orders.';
+                    }
+                    action(OnlineMap)
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Online Map';
+                        Image = Map;
+                        Promoted = true;
+                        PromotedCategory = Category5;
+                        PromotedIsBig = true;
+                        Scope = Repeater;
+                        ToolTip = 'View the address on an online map.';
+                        Visible = false;
+
+                        trigger OnAction()
+                        begin
+                            DisplayMap;
+                        end;
+                    }
+                    action(ApprovalEntries)
+                    {
+                        AccessByPermission = TableData "Approval Entry" = R;
+                        ApplicationArea = Suite;
+                        Caption = 'Approvals';
+                        Image = Approvals;
+                        Promoted = true;
+                        PromotedCategory = Category7;
+                        PromotedOnly = true;
+                        ToolTip = 'View a list of the records that are waiting to be approved. For example, you can see who requested the record to be approved, when it was sent, and when it is due to be approved.';
+
+                        trigger OnAction()
+                        begin
+                            ApprovalsMgmt.OpenApprovalEntriesPage(RecordId);
+                        end;
+                    }
+                    action(UpdateStatisticsInCRM)
                     {
                         ApplicationArea = Suite;
-                        Caption = 'Issued &Reminders';
-                        Image = OrderReminder;
-                        RunObject = Page "Issued Reminder List";
-                        RunPageLink = "Customer No." = FIELD("No.");
-                        RunPageView = SORTING("Customer No.", "Posting Date");
-                        ToolTip = 'View the reminders that you have sent to the customer.';
+                        Caption = 'Update Account Statistics';
+                        Enabled = CRMIsCoupledToRecord;
+                        Image = UpdateXML;
+                        ToolTip = 'Send customer statistics data to Common Data Service to update the Account Statistics FactBox.';
+                        Visible = CRMIntegrationEnabled;
+
+                        trigger OnAction()
+                        var
+                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                        begin
+                            CRMIntegrationManagement.CreateOrUpdateCRMAccountStatistics(Rec);
+                        end;
                     }
-                    action("Issued &Finance Charge Memos")
+                    group(Create)
+                    {
+                        Caption = 'Create';
+                        Image = NewCustomer;
+                        action(CreateInCRM)
+                        {
+                            ApplicationArea = Suite;
+                            Caption = 'Create Account in Common Data Service';
+                            Image = NewCustomer;
+                            ToolTip = 'Generate the account in the coupled Common Data Service account.';
+                            Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
+
+                            trigger OnAction()
+                            var
+                                Customer: Record Customer;
+                                CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                            begin
+                                CurrPage.SetSelectionFilter(Customer);
+                                CRMIntegrationManagement.CreateNewRecordsInCRM(Customer);
+                            end;
+                        }
+                        action(CreateFromCRM)
+                        {
+                            ApplicationArea = Suite;
+                            Caption = 'Create Customer in Business Central';
+                            Image = NewCustomer;
+                            ToolTip = 'Generate the customer in the coupled Common Data Service account.';
+                            Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
+
+                            trigger OnAction()
+                            var
+                                CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                            begin
+                                CRMIntegrationManagement.CreateNewCustomerFromCRM;
+                            end;
+                        }
+                    }
+                    action(ShowLog)
                     {
                         ApplicationArea = Suite;
-                        Caption = 'Issued &Finance Charge Memos';
-                        Image = FinChargeMemo;
-                        RunObject = Page "Issued Fin. Charge Memo List";
-                        RunPageLink = "Customer No." = FIELD("No.");
-                        RunPageView = SORTING("Customer No.", "Posting Date");
-                        ToolTip = 'View the finance charge memos that you have sent to the customer.';
+                        Caption = 'Synchronization Log';
+                        Image = Log;
+                        ToolTip = 'View integration synchronization jobs for the customer table.';
+                        Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
+
+                        trigger OnAction()
+                        var
+                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                        begin
+                            CRMIntegrationManagement.ShowLog(RecordId);
+                        end;
+                    }
+                    group("Issued Documents")
+                    {
+                        Caption = 'Issued Documents';
+                        Image = Documents;
+                        action("Issued &Reminders")
+                        {
+                            ApplicationArea = Suite;
+                            Caption = 'Issued &Reminders';
+                            Image = OrderReminder;
+                            RunObject = Page "Issued Reminder List";
+                            RunPageLink = "Customer No." = FIELD("No.");
+                            RunPageView = SORTING("Customer No.", "Posting Date");
+                            ToolTip = 'View the reminders that you have sent to the customer.';
+                        }
+                        action("Issued &Finance Charge Memos")
+                        {
+                            ApplicationArea = Suite;
+                            Caption = 'Issued &Finance Charge Memos';
+                            Image = FinChargeMemo;
+                            RunObject = Page "Issued Fin. Charge Memo List";
+                            RunPageLink = "Customer No." = FIELD("No.");
+                            RunPageView = SORTING("Customer No.", "Posting Date");
+                            ToolTip = 'View the finance charge memos that you have sent to the customer.';
+                        }
+                    }
+                    action("Blanket Orders")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Blanket Orders';
+                        Image = BlanketOrder;
+                        RunObject = Page "Blanket Sales Orders";
+                        RunPageLink = "Sell-to Customer No." = FIELD("No.");
+                        RunPageView = SORTING("Document Type", "Sell-to Customer No.");
+                        ToolTip = 'Open the list of ongoing blanket orders.';
                     }
                 }
-                action("Blanket Orders")
+                group(Service)
                 {
-                    ApplicationArea = Suite;
-                    Caption = 'Blanket Orders';
-                    Image = BlanketOrder;
-                    RunObject = Page "Blanket Sales Orders";
-                    RunPageLink = "Sell-to Customer No." = FIELD("No.");
-                    RunPageView = SORTING("Document Type", "Sell-to Customer No.");
-                    ToolTip = 'Open the list of ongoing blanket orders.';
-                }
-            }
-            group(Service)
-            {
-                Caption = 'Service';
-                Image = ServiceItem;
-                action("Service Orders")
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Service Orders';
-                    Image = Document;
-                    RunObject = Page "Service Orders";
-                    RunPageLink = "Customer No." = FIELD("No.");
-                    RunPageView = SORTING("Document Type", "Customer No.");
-                    ToolTip = 'Open the list of ongoing service orders.';
-                }
-                action("Ser&vice Contracts")
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Ser&vice Contracts';
-                    Image = ServiceAgreement;
-                    RunObject = Page "Customer Service Contracts";
-                    RunPageLink = "Customer No." = FIELD("No.");
-                    RunPageView = SORTING("Customer No.", "Ship-to Code");
-                    ToolTip = 'Open the list of ongoing service contracts.';
-                }
-                action("Service &Items")
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Service &Items';
+                    Caption = 'Service';
                     Image = ServiceItem;
-                    RunObject = Page "Service Items";
-                    RunPageLink = "Customer No." = FIELD("No.");
-                    RunPageView = SORTING("Customer No.", "Ship-to Code", "Item No.", "Serial No.");
-                    ToolTip = 'View or edit the service items that are registered for the customer.';
+                    action("Service Orders")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Service Orders';
+                        Image = Document;
+                        RunObject = Page "Service Orders";
+                        RunPageLink = "Customer No." = FIELD("No.");
+                        RunPageView = SORTING("Document Type", "Customer No.");
+                        ToolTip = 'Open the list of ongoing service orders.';
+                    }
+                    action("Ser&vice Contracts")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Ser&vice Contracts';
+                        Image = ServiceAgreement;
+                        RunObject = Page "Customer Service Contracts";
+                        RunPageLink = "Customer No." = FIELD("No.");
+                        RunPageView = SORTING("Customer No.", "Ship-to Code");
+                        ToolTip = 'Open the list of ongoing service contracts.';
+                    }
+                    action("Service &Items")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Service &Items';
+                        Image = ServiceItem;
+                        RunObject = Page "Service Items";
+                        RunPageLink = "Customer No." = FIELD("No.");
+                        RunPageView = SORTING("Customer No.", "Ship-to Code", "Item No.", "Serial No.");
+                        ToolTip = 'View or edit the service items that are registered for the customer.';
+                    }
                 }
             }
         }
@@ -1091,13 +1117,50 @@ page 22 "Customer List"
                     Scope = Repeater;
                     ToolTip = 'Set up different discounts applied to invoices for the selected customer. An invoice discount is automatically granted to the customer when the total on a sales invoice exceeds a certain amount.';
                 }
+                action(PriceLists)
+                {
+                    ApplicationArea = Advanced;
+                    Caption = 'Price Lists (Prices)';
+                    Image = Price;
+                    Scope = Repeater;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up different prices for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceUXManagement: Codeunit "Price UX Management";
+                        AmountType: Enum "Price Amount Type";
+                    begin
+                        PriceUXManagement.ShowPriceLists(Rec, AmountType::Price);
+                    end;
+                }
+                action(PriceListsDiscounts)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Price Lists (Discounts)';
+                    Image = LineDiscount;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up different discounts for products that you sell to the customer. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceUXManagement: Codeunit "Price UX Management";
+                        AmountType: Enum "Price Amount Type";
+                    begin
+                        PriceUXManagement.ShowPriceLists(Rec, AmountType::Discount);
+                    end;
+                }
                 action(Prices_Prices)
                 {
                     ApplicationArea = Advanced;
                     Caption = 'Prices';
                     Image = Price;
                     Scope = Repeater;
+                    Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View or set up different prices for items that you sell to the selected customer. An item price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnAction()
                     begin
@@ -1110,7 +1173,11 @@ page 22 "Customer List"
                     Caption = 'Line Discounts';
                     Image = LineDiscount;
                     Scope = Repeater;
+                    Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View or set up different discounts for items that you sell to the customer. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnAction()
                     begin
@@ -1474,6 +1541,10 @@ page 22 "Customer List"
                 PromotedCategory = "Report";
                 RunObject = Report "Customer - Bal. Reconciliation";
                 ToolTip = 'Open the report for customer''s balance reconciliation.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.0';
+                Visible = false;
             }
         }
     }
@@ -1515,16 +1586,21 @@ page 22 "Customer List"
     var
         SocialListeningSetup: Record "Social Listening Setup";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        ItemReferenceMgt: Codeunit "Item Reference Management";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
-        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
-        CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled;
+        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
+        CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
         with SocialListeningSetup do
             SocialListeningSetupVisible := Get and "Show on Customers" and "Accept License Agreement" and ("Solution ID" <> '');
         SetRange("Date Filter", 0D, WorkDate());
+        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     var
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        ExtendedPriceEnabled: Boolean;
         SocialListeningSetupVisible: Boolean;
         SocialListeningVisible: Boolean;
         CRMIntegrationEnabled: Boolean;
@@ -1534,6 +1610,8 @@ page 22 "Customer List"
         CanCancelApprovalForRecord: Boolean;
         EnabledApprovalWorkflowsExist: Boolean;
         PowerBIVisible: Boolean;
+        [InDataSet]
+        ItemReferenceVisible: Boolean;
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
         EventFilter: Text;
@@ -1564,6 +1642,7 @@ page 22 "Customer List"
         EnabledApprovalWorkflowsExist := WorkflowManagement.EnabledWorkflowExist(DATABASE::Customer, EventFilter);
     end;
 
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     local procedure ShowLineDiscounts()
     var
         SalesLineDiscount: Record "Sales Line Discount";
@@ -1574,6 +1653,7 @@ page 22 "Customer List"
         Page.Run(Page::"Sales Line Discounts", SalesLineDiscount);
     end;
 
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     local procedure ShowPrices()
     var
         SalesPrice: Record "Sales Price";

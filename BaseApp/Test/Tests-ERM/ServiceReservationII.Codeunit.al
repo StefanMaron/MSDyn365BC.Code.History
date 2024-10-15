@@ -45,12 +45,12 @@ codeunit 136143 "Service Reservation II"
         ServiceLine.Validate("Needed by Date", LibraryRandom.RandDate(5));  // Update Needed by Date later than WORKDATE. Use Random to calculate Date.
         UpdateServiceLineQuantity(ServiceLine, ServiceLine.Quantity / 2);  // Update Quantity by half.
         QuantityOnServiceLine := ServiceLine.Quantity;  // Assign in global variable.
-        ServiceLine.ShowReservation;
+        ServiceLine.ShowReservation();
 
         // 2. Exercise: Update Quantity on Service Line and Reserve again.
         UpdateServiceLineQuantity(ServiceLine, ServiceLine.Quantity + LibraryRandom.RandInt(10));  // Take Random to update the Quantity.
         QuantityOnServiceLine := ServiceLine.Quantity;  // Assign in global variable.
-        ServiceLine.ShowReservation;
+        ServiceLine.ShowReservation();
 
         // 3. Verify: Verify Service Line for updated Reserved Quantity.
         VerifyServiceLine(ServiceLine, QuantityOnServiceLine);
@@ -70,7 +70,7 @@ codeunit 136143 "Service Reservation II"
         SetupReservationFromServOrderScenario(ServiceLine);
 
         // 2. Exercise: Reserve the Item from Service Line.
-        ServiceLine.ShowReservation;
+        ServiceLine.ShowReservation();
 
         // 3. Verify: Verify Reservation Line. Verification done in 'ReservationPageHandler' and Verify Service Line for Reserved Quantity.
         VerifyServiceLine(ServiceLine, QuantityOnServiceLine);
@@ -88,13 +88,13 @@ codeunit 136143 "Service Reservation II"
         // 1. Setup: Create Item, create and post Item Journal Line for Inventory and create Service Order. Reserve the Item from Service Line
         Initialize;
         SetupReservationFromServOrderScenario(ServiceLine);
-        ServiceLine.ShowReservation;
+        ServiceLine.ShowReservation();
         ReserveFromCurrentLine := false;  // Assign in global variable.
         LibraryVariableStorage.Enqueue(ServiceLine."No.");
         LibraryVariableStorage.Enqueue(QuantityOnServiceLine);
 
         // 2. Exercise: Cancel the reservation from Service Line.
-        ServiceLine.ShowReservation;
+        ServiceLine.ShowReservation();
 
         // 3. Verify: Verify Reservation Line. Verification done in 'ReserveFromCurrentLineHandler' and Verify Service Line for Reserved Quantity.
         VerifyServiceLine(ServiceLine, 0);  // After cancelled the Reservation, Reserved Quantity must be zero.
@@ -116,7 +116,7 @@ codeunit 136143 "Service Reservation II"
         CreateDocumentWithServiceItem(
           ServiceLine, SalesLine."Sell-to Customer No.", SalesLine."No.", SalesLine."Location Code", SalesLine."Variant Code",
           SalesLine.Quantity - 1, ServiceLine."Document Type"::Order);
-        ServiceLine.ShowReservation;
+        ServiceLine.ShowReservation();
 
         // 2. Exercise: Change Item No. on Sales Line.
         asserterror SalesLine.Validate("No.", LibraryInventory.CreateItemNo);
@@ -147,7 +147,7 @@ codeunit 136143 "Service Reservation II"
         CreateDocumentWithServiceItem(
           ServiceLine, SalesLine."Sell-to Customer No.", SalesLine."No.", SalesLine."Location Code", SalesLine."Variant Code",
           SalesLine.Quantity - 1, ServiceLine."Document Type"::Order);
-        ServiceLine.ShowReservation;
+        ServiceLine.ShowReservation();
 
         // 2. Exercise: Change Variant Code on Sales Line.
         asserterror SalesLine.Validate("Variant Code", LibraryInventory.CreateItemVariant(ItemVariant, SalesLine."No."));
@@ -177,7 +177,7 @@ codeunit 136143 "Service Reservation II"
         CreateDocumentWithServiceItem(
           ServiceLine, SalesLine."Sell-to Customer No.", SalesLine."No.", SalesLine."Location Code", SalesLine."Variant Code",
           SalesLine.Quantity - 1, ServiceLine."Document Type"::Order);
-        ServiceLine.ShowReservation;
+        ServiceLine.ShowReservation();
 
         // 2. Exercise: Change Location Code on Sales Line.
         asserterror SalesLine.Validate("Location Code", LibraryWarehouse.CreateLocation(Location));
@@ -207,7 +207,7 @@ codeunit 136143 "Service Reservation II"
         CreateDocumentWithServiceItem(
           ServiceLine, SalesLine."Sell-to Customer No.", SalesLine."No.", SalesLine."Location Code", SalesLine."Variant Code",
           SalesLine.Quantity - 1, ServiceLine."Document Type"::Order);
-        ServiceLine.ShowReservation;
+        ServiceLine.ShowReservation();
 
         // 2. Exercise: Change Item No. on Service Line.
         asserterror ServiceLine.Validate("No.", LibraryInventory.CreateItemNo);
@@ -237,7 +237,7 @@ codeunit 136143 "Service Reservation II"
         CreateDocumentWithServiceItem(
           ServiceLine, SalesLine."Sell-to Customer No.", SalesLine."No.", SalesLine."Location Code", SalesLine."Variant Code",
           SalesLine.Quantity - 1, ServiceLine."Document Type"::Order);
-        ServiceLine.ShowReservation;
+        ServiceLine.ShowReservation();
 
         // 2. Exercise: Change Variant Code on Service Line.
         asserterror ServiceLine.Validate("Variant Code", LibraryInventory.CreateItemVariant(ItemVariant, SalesLine."No."));
@@ -268,7 +268,7 @@ codeunit 136143 "Service Reservation II"
         CreateDocumentWithServiceItem(
           ServiceLine, SalesLine."Sell-to Customer No.", SalesLine."No.", SalesLine."Location Code", SalesLine."Variant Code",
           SalesLine.Quantity - 1, ServiceLine."Document Type"::Order);
-        ServiceLine.ShowReservation;
+        ServiceLine.ShowReservation();
 
         // 2. Exercise: Change Location Code on Service Line.
         asserterror ServiceLine.Validate("Location Code", LibraryWarehouse.CreateLocation(Location));
@@ -298,7 +298,7 @@ codeunit 136143 "Service Reservation II"
         CreateDocumentWithServiceItem(
           ServiceLine, SalesLine."Sell-to Customer No.", SalesLine."No.", SalesLine."Location Code", SalesLine."Variant Code",
           SalesLine.Quantity - 1, ServiceLine."Document Type"::Order);
-        ServiceLine.ShowReservation;
+        ServiceLine.ShowReservation();
 
         // 2. Exercise: Change Needed by Date on Service Line with Random years.
         asserterror ServiceLine.Validate("Needed by Date", LibraryRandom.RandDateFrom(SalesLine."Shipment Date", -10));
@@ -324,7 +324,7 @@ codeunit 136143 "Service Reservation II"
         CreateDocumentWithServiceItem(
           ServiceLine, SalesLine."Sell-to Customer No.", SalesLine."No.", SalesLine."Location Code", SalesLine."Variant Code",
           SalesLine.Quantity - 1, ServiceLine."Document Type"::Order);
-        ServiceLine.ShowReservation;
+        ServiceLine.ShowReservation();
 
         // 2. Exercise: Change Reserve option on Service Line.
         asserterror ServiceLine.Validate(Reserve, ServiceLine.Reserve::Never);
@@ -360,7 +360,7 @@ codeunit 136143 "Service Reservation II"
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
         CreateDocumentWithServiceItem(
           ServiceLine, Customer."No.", ProductionOrder."Source No.", '', '', ProductionOrder.Quantity, ServiceLine."Document Type"::Order);
-        ServiceLine.ShowReservation;
+        ServiceLine.ShowReservation();
         UpdateProdOrderLine(ProductionOrder.Status, ProductionOrder."No.", ServiceLine."Needed by Date");
 
         // 2. Exercise.
@@ -387,7 +387,7 @@ codeunit 136143 "Service Reservation II"
         ServiceLine.Modify(true);
 
         // 2. Exercise: Reserve Quantity on Service Line.
-        ServiceLine.ShowReservation;
+        ServiceLine.ShowReservation();
 
         // 3. Verify: Verify Reservation Entry.
         VerifyReservationEntry(ServiceLine, -ServiceLine.Quantity);
@@ -445,7 +445,7 @@ codeunit 136143 "Service Reservation II"
         ServiceLine.Validate("Needed by Date", PurchaseLine."Expected Receipt Date");
         ServiceLine.Modify(true);
         QuantityOnServiceLine := ServiceLine.Quantity;
-        ServiceLine.ShowReservation;
+        ServiceLine.ShowReservation();
 
         // [WHEN] Change "Planning Delivery Date" of Service Order to 01.01
         ServiceLine.Find;
@@ -502,7 +502,7 @@ codeunit 136143 "Service Reservation II"
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 1, '', WorkDate);
         LibraryVariableStorage.Enqueue(ItemTrackingOption::SelectEntries);
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // [GIVEN] A new service item with serial no. "S1" is automatically created.
@@ -524,7 +524,7 @@ codeunit 136143 "Service Reservation II"
         ServiceLine.SetRange("No.", Item."No.");
         ServiceLine.FindFirst;
         ReservationEntry.SetSourceFilter(
-          DATABASE::"Service Line", ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.", true);
+          DATABASE::"Service Line", ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.", ServiceLine."Line No.", true);
         ReservationEntry.FindFirst;
         ReservationEntry.TestField("Serial No.", LastSerialNo);
 
@@ -576,7 +576,7 @@ codeunit 136143 "Service Reservation II"
         ReserveFromCurrentLine := true;  // Assign in global variable.
     end;
 
-    local procedure CreateDocumentWithServiceItem(var ServiceLine: Record "Service Line"; CustomerNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; Quantity: Decimal; DocumentType: Option)
+    local procedure CreateDocumentWithServiceItem(var ServiceLine: Record "Service Line"; CustomerNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; Quantity: Decimal; DocumentType: Enum "Service Document Type")
     begin
         CreateServiceDocument(ServiceLine, CustomerNo, ItemNo, DocumentType);
         ServiceLine.Validate("Variant Code", VariantCode);
@@ -586,7 +586,7 @@ codeunit 136143 "Service Reservation II"
         ServiceLine.Modify(true);
     end;
 
-    local procedure CreateItemWithReserveOption(Reserve: Option): Code[20]
+    local procedure CreateItemWithReserveOption(Reserve: Enum "Reserve Method"): Code[20]
     var
         Item: Record Item;
     begin
@@ -643,7 +643,7 @@ codeunit 136143 "Service Reservation II"
           CreateItemWithReserveOption(Item.Reserve::Optional));
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; LocationCode: Code[10]; No: Code[20])
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; LocationCode: Code[10]; No: Code[20])
     var
         ItemVariant: Record "Item Variant";
     begin
@@ -656,7 +656,7 @@ codeunit 136143 "Service Reservation II"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; CustomerNo: Code[20]; ItemNo: Code[20]; DocumentType: Option)
+    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; CustomerNo: Code[20]; ItemNo: Code[20]; DocumentType: Enum "Service Document Type")
     var
         ServiceHeader: Record "Service Header";
         ServiceItem: Record "Service Item";
@@ -681,7 +681,7 @@ codeunit 136143 "Service Reservation II"
         CODEUNIT.Run(CODEUNIT::"Service-Get Shipment", ServiceLine);
     end;
 
-    local procedure CreateServiceOrder(var ServiceLine: Record "Service Line"; ItemNo: Code[20]; Quantity: Decimal; DocumentType: Option)
+    local procedure CreateServiceOrder(var ServiceLine: Record "Service Line"; ItemNo: Code[20]; Quantity: Decimal; DocumentType: Enum "Service Document Type")
     var
         Customer: Record Customer;
     begin
@@ -698,7 +698,7 @@ codeunit 136143 "Service Reservation II"
         LibraryService.PostServiceOrder(ServiceHeader, true, Consume, Invoice);
     end;
 
-    local procedure UpdateProdOrderLine(Status: Option; ProdOrderNo: Code[20]; DueDate: Date)
+    local procedure UpdateProdOrderLine(Status: Enum "Production Order Status"; ProdOrderNo: Code[20]; DueDate: Date)
     var
         ProdOrderLine: Record "Prod. Order Line";
     begin

@@ -122,8 +122,8 @@ codeunit 137410 "Extended Text Documents"
 
         // [GIVEN] Items "I1" and "I2" with Extended Texts "ET1" and "ET2" respectively.
         ExtText := LibraryUtility.GenerateRandomText(30);
-        LibraryPatterns.MAKEItemWithExtendedText(NotShippedItem, ExtText, 0, 0);
-        LibraryPatterns.MAKEItemWithExtendedText(ShippedItem, LibraryUtility.GenerateRandomText(30), 0, 0);
+        LibraryPatterns.MAKEItemWithExtendedText(NotShippedItem, ExtText, "Costing Method"::FIFO, 0);
+        LibraryPatterns.MAKEItemWithExtendedText(ShippedItem, LibraryUtility.GenerateRandomText(30), "Costing Method"::FIFO, 0);
 
         // [GIVEN] Blanket Sales Order for Items "I1" and "I2", in which "Qty. to Ship" for "I1" = 0.
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", LibrarySales.CreateCustomerNo);
@@ -211,8 +211,8 @@ codeunit 137410 "Extended Text Documents"
 
         // [GIVEN] Items "I1" and "I2" with Extended Texts "ET1" and "ET2" respectively.
         ExtText := LibraryUtility.GenerateRandomText(30);
-        LibraryPatterns.MAKEItemWithExtendedText(NotShippedItem, ExtText, 0, 0);
-        LibraryPatterns.MAKEItemWithExtendedText(ShippedItem, LibraryUtility.GenerateRandomText(30), 0, 0);
+        LibraryPatterns.MAKEItemWithExtendedText(NotShippedItem, ExtText, "Costing Method"::FIFO, 0);
+        LibraryPatterns.MAKEItemWithExtendedText(ShippedItem, LibraryUtility.GenerateRandomText(30), "Costing Method"::FIFO, 0);
 
         // [GIVEN] Blanket Purchase Order for Items "I1" and "I2", in which "Qty. to Receive" for "I1" = 0.
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::"Blanket Order", LibraryPurchase.CreateVendorNo);

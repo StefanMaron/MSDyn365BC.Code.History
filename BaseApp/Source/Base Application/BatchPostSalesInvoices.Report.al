@@ -13,16 +13,15 @@ report 297 "Batch Post Sales Invoices"
 
             trigger OnPreDataItem()
             var
-                BatchPostParameterTypes: Codeunit "Batch Post Parameter Types";
                 SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt.";
             begin
                 if ReplaceVATDate and (VATDateReq = 0D) then
                     Error(EnterVATDateErr);
 
-                SalesBatchPostMgt.AddParameter(BatchPostParameterTypes.ReplaceVATDate, ReplaceVATDate);
-                SalesBatchPostMgt.AddParameter(BatchPostParameterTypes.VATDate, VATDateReq);
+                SalesBatchPostMgt.SetParameter("Batch Posting Parameter Type"::"Replace VAT Date", ReplaceVATDate);
+                SalesBatchPostMgt.SetParameter("Batch Posting Parameter Type"::"VAT Date", VATDateReq);
 
-                SalesBatchPostMgt.AddParameter(BatchPostParameterTypes.Print, PrintDoc);
+                SalesBatchPostMgt.SetParameter("Batch Posting Parameter Type"::Print, PrintDoc);
                 SalesBatchPostMgt.RunBatch("Sales Header", ReplacePostingDate, PostingDateReq, ReplaceDocumentDate, CalcInvDisc, false, true);
 
                 CurrReport.Break();

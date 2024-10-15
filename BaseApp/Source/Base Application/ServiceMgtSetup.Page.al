@@ -367,10 +367,19 @@ page 5919 "Service Mgt. Setup"
             group(VAT)
             {
                 Caption = 'VAT';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.0';
+                Visible = false;
+
                 field("Default VAT Date"; "Default VAT Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the default VAT date type for sales and receivables setup (posting date, document date, blank).';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Credit Memo Confirmation"; "Credit Memo Confirmation")
                 {

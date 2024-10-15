@@ -5,6 +5,9 @@ page 5723 "Cross References"
     Editable = true;
     PageType = List;
     SourceTable = "Item Cross Reference";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Item Reference feature.';
+    ObsoleteTag = '17.0';
 
     layout
     {

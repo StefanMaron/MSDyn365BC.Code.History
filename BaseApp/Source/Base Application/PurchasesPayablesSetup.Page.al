@@ -60,8 +60,7 @@ page 460 "Purchases & Payables Setup"
                 }
                 field("Price Calculation Method"; "Price Calculation Method")
                 {
-                    // Visibility should be turned on by an extension for Price Calculation
-                    Visible = false;
+                    Visible = ExtendedPriceEnabled;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the price calculation method that will be default for purchase transactions.';
                 }
@@ -311,6 +310,7 @@ page 460 "Purchases & Payables Setup"
                 }
                 field("Price List Nos."; "Price List Nos.")
                 {
+                    Visible = ExtendedPriceEnabled;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to purchase price lists.';
                 }
@@ -347,15 +347,28 @@ page 460 "Purchases & Payables Setup"
             group(VAT)
             {
                 Caption = 'VAT';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.0';
+                Visible = false;
+
                 field("Default VAT Date"; "Default VAT Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the default VAT date type for purchase document (posting date, document date, VAT date or blank).';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Default Orig. Doc. VAT Date"; "Default Orig. Doc. VAT Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the default original document VAT date type for purchase document (posting date, document date, VAT date or blank).';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
             }
             group(Archiving)
@@ -446,12 +459,18 @@ page 460 "Purchases & Payables Setup"
     }
 
     trigger OnOpenPage()
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Rec.Reset;
+        if not Rec.Get then begin
+            Rec.Init;
+            Rec.Insert;
         end;
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
     end;
+
+    var
+        ExtendedPriceEnabled: Boolean;
 }
 

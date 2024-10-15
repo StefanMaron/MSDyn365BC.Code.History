@@ -1,11 +1,14 @@
 page 11780 "VAT Periods"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'VAT Periods';
+    Caption = 'VAT Periods (Obsolete)';
     PageType = List;
     RefreshOnActivate = true;
     SourceTable = "VAT Period";
     UsageCategory = Administration;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

@@ -4,9 +4,12 @@
     RDLCLayout = './CalcandPostVATSettlement.rdlc';
     AdditionalSearchTerms = 'settle vat value added tax,report vat value added tax';
     ApplicationArea = Basic, Suite;
-    Caption = 'Calculate and Post VAT Settlement';
+    Caption = 'Calculate and Post VAT Settlement (Obsolete)';
     Permissions = TableData "VAT Entry" = imd;
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {
@@ -398,8 +401,8 @@
                             end;
                             SetVatPostingSetupToGenJnlLine(GenJnlLine, "VAT Posting Setup");
                             GenJnlLine."Posting Date" := PostingDate;
-                            GenJnlLine."VAT Date" := PostingDate; // NAVCZ
-                            GenJnlLine."Document Type" := 0;
+                            GenJnlLine.Validate("VAT Date", PostingDate); // NAVCZ
+                            GenJnlLine."Document Type" := GenJnlLine."Document Type"::" ";
                             GenJnlLine."Document No." := DocNo;
                             GenJnlLine."Source Code" := SourceCodeSetup."VAT Settlement";
                             GenJnlLine."VAT Posting" := GenJnlLine."VAT Posting"::"Manual VAT Entry";
@@ -463,18 +466,18 @@
                                     if FindFirstEntry then begin
                                         if not VATEntry.Find('-') then
                                             repeat
-                                                VATType := VATType + 1;
+                                                VATType := IncrementGenPostingType(VATType);
                                                 VATEntry.SetRange(Type, VATType);
                                             until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
                                         FindFirstEntry := false;
                                     end else begin
                                         if VATEntry.Next = 0 then
                                             repeat
-                                                VATType := VATType + 1;
+                                                VATType := IncrementGenPostingType(VATType);
                                                 VATEntry.SetRange(Type, VATType);
                                             until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
                                     end;
-                                    if VATType < VATEntry.Type::Settlement then
+                                    if IsNotSettlement(VATType) then
                                         VATEntry.Find('+');
                                 end;
                             "VAT Posting Setup"."VAT Calculation Type"::"Sales Tax":
@@ -483,7 +486,7 @@
                                     if FindFirstEntry then begin
                                         if not VATEntry.Find('-') then
                                             repeat
-                                                VATType := VATType + 1;
+                                                VATType := IncrementGenPostingType(VATType);
                                                 VATEntry.SetRange(Type, VATType);
                                             until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
                                         FindFirstEntry := false;
@@ -492,11 +495,11 @@
                                         VATEntry.SetRange("Use Tax");
                                         if VATEntry.Next = 0 then
                                             repeat
-                                                VATType := VATType + 1;
+                                                VATType := IncrementGenPostingType(VATType);
                                                 VATEntry.SetRange(Type, VATType);
                                             until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
                                     end;
-                                    if VATType < VATEntry.Type::Settlement then begin
+                                    if IsNotSettlement(VATType) then begin
                                         VATEntry.SetRange("Tax Jurisdiction Code", VATEntry."Tax Jurisdiction Code");
                                         VATEntry.SetRange("Use Tax", VATEntry."Use Tax");
                                         VATEntry.Find('+');
@@ -504,7 +507,7 @@
                                 end;
                         end;
 
-                        if VATType = VATEntry.Type::Settlement then
+                        if not IsNotSettlement(VATType) then
                             CurrReport.Break();
                     end;
 
@@ -534,8 +537,8 @@
 
                     GenJnlLine.Validate("Account No.", GLAccSettle."No.");
                     GenJnlLine."Posting Date" := PostingDate;
-                    GenJnlLine."VAT Date" := PostingDate; // NAVCZ
-                    GenJnlLine."Document Type" := 0;
+                    GenJnlLine.Validate("VAT Date", PostingDate); // NAVCZ
+                    GenJnlLine."Document Type" := GenJnlLine."Document Type"::" ";
                     GenJnlLine."Document No." := DocNo;
                     GenJnlLine.Description := Text004;
                     GenJnlLine.Amount := VATAmount;
@@ -627,8 +630,8 @@
                         trigger OnValidate()
                         begin
                             if GLAccSettle."No." <> '' then begin
-                                GLAccSettle.Find;
-                                GLAccSettle.CheckGLAcc;
+                                GLAccSettle.Find();
+                                GLAccSettle.CheckGLAcc();
                             end;
                         end;
                     }
@@ -684,7 +687,7 @@
         end;
         // NAVCZ
 
-        OnAfterPostReport;
+        OnAfterPostReport();
     end;
 
     trigger OnPreReport()
@@ -703,7 +706,7 @@
         // NAVCZ
         if GLAccSettle."No." = '' then
             Error(Text002);
-        GLAccSettle.Find;
+        GLAccSettle.Find();
 
         if PostSettlement and not Initialized then
             if not ConfirmManagement.GetResponseOrDefault(Text003, true) then
@@ -750,7 +753,7 @@
         NextVATEntryNo: Integer;
         PostingDate: Date;
         DocNo: Code[20];
-        VATType: Integer;
+        VATType: Enum "General Posting Type";
         VATAmount: Decimal;
         VATAmountAddCurr: Decimal;
         PostSettlement: Boolean;
@@ -770,7 +773,7 @@
         UserIDCaptionLbl: Label 'User ID';
         TotalCaptionLbl: Label 'Total';
         SettlementCaptionLbl: Label 'Settlement';
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         CountryCodeFillFiter: Code[10];
         PrintCountrySubTotal: Integer;
         CountrySubTotalAmt: array[4] of Decimal;
@@ -848,7 +851,7 @@
         GenJnlLine2."Account Type" := GenJnlLine2."Account Type"::"G/L Account";
         GenJnlLine2.Description := GenJnlLine.Description;
         GenJnlLine2."Posting Date" := PostingDate;
-        GenJnlLine2."Document Type" := 0;
+        GenJnlLine2."Document Type" := GenJnlLine2."Document Type"::" ";
         GenJnlLine2."Document No." := DocNo;
         GenJnlLine2."Source Code" := SourceCodeSetup."VAT Settlement";
         GenJnlLine2."VAT Posting" := GenJnlLine2."VAT Posting"::"Manual VAT Entry";
@@ -856,7 +859,7 @@
         GenJnlLine2.Amount := VATEntry.Amount;
         GenJnlLine2."Source Currency Code" := GLSetup."Additional Reporting Currency";
         GenJnlLine2."Source Currency Amount" := VATEntry."Additional-Currency Amount";
-        GenJnlLine2."VAT Date" := PostingDate; // NAVCZ
+        GenJnlLine2.Validate("VAT Date", PostingDate); // NAVCZ
     end;
 
     local procedure CalculateNormalVAT()
@@ -957,6 +960,28 @@
         GenJnlLine."VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
     end;
 
+    local procedure IncrementGenPostingType(var OldGenPostingType: Enum "General Posting Type") NewGenPostingType: Enum "General Posting Type"
+    begin
+        case OldGenPostingType of
+            OldGenPostingType::" ":
+                exit(NewGenPostingType::Purchase);
+            OldGenPostingType::Purchase:
+                exit(NewGenPostingType::Sale);
+            OldGenPostingType::Sale:
+                exit(NewGenPostingType::Settlement);
+        end;
+
+        OnAfterIncrementGenPostingType(OldGenPostingType, NewGenPostingType);
+    end;
+
+    local procedure IsNotSettlement(GenPostingType: Enum "General Posting Type"): Boolean
+    begin
+        exit(
+            (GenPostingType = GenPostingType::" ") or
+            (GenPostingType = GenPostingType::Purchase) or
+            (GenPostingType = GenPostingType::Sale));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterPreReport()
     begin
@@ -972,14 +997,13 @@
     begin
     end;
 
-    [Obsolete('Unused for CZ localization', '17.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostGenJnlLineReverseChargeVAT(var GenJnlLine: Record "Gen. Journal Line"; var VATEntry: Record "VAT Entry"; var VATAmount: Decimal; var VATAmountAddCurr: Decimal)
+    local procedure OnBeforePreReport(var VATPostingSetup: Record "VAT Posting Setup")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePreReport(var VATPostingSetup: Record "VAT Posting Setup")
+    local procedure OnAfterIncrementGenPostingType(OldGenPostingType: Enum "General Posting Type"; var NewGenPostingType: Enum "General Posting Type")
     begin
     end;
 }

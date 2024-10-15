@@ -1,10 +1,13 @@
 page 31062 "Statistic Indications"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Statistic Indications';
+    Caption = 'Statistic Indications (Obsolete)';
     PageType = List;
     SourceTable = "Statistic Indication";
     UsageCategory = Administration;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {
@@ -32,12 +35,18 @@ page 31062 "Statistic Indications"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies full name of tariff number.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This field should not be used and will be removed.';
+                    ObsoleteTag = '17.0';
                     Visible = false;
                 }
                 field("Full Name ENG"; "Full Name ENG")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies full name of tariff number.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This field should not be used and will be removed.';
+                    ObsoleteTag = '17.0';
                     Visible = false;
                 }
             }

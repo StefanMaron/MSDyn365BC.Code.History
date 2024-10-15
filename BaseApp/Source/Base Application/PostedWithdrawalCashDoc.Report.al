@@ -2,7 +2,10 @@ report 11733 "Posted Withdrawal Cash Doc."
 {
     DefaultLayout = RDLC;
     RDLCLayout = './PostedWithdrawalCashDoc.rdlc';
-    Caption = 'Posted Withdrawal Cash Doc.';
+    Caption = 'Posted Withdrawal Cash Doc. (Obsolete)';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

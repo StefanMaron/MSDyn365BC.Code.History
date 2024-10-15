@@ -1,4 +1,4 @@
-report 1200 "Create Direct Debit Collection"
+﻿report 1200 "Create Direct Debit Collection"
 {
     Caption = 'Create Direct Debit Collection';
     ProcessingOnly = true;
@@ -43,7 +43,7 @@ report 1200 "Create Direct Debit Collection"
 
             trigger OnPreDataItem()
             begin
-                DirectDebitCollection.CreateNew(BankAccount.GetDirectDebitMessageNo, BankAccount."No.", PartnerType);
+                DirectDebitCollection.CreateRecord(BankAccount.GetDirectDebitMessageNo, BankAccount."No.", PartnerType);
                 SetRange("Partner Type", PartnerType);
             end;
         }
@@ -81,7 +81,6 @@ report 1200 "Create Direct Debit Collection"
                     BlankZero = true;
                     Caption = 'Partner Type';
                     NotBlank = true;
-                    OptionCaption = ',Company,Person';
                     ToolTip = 'Specifies if the direct-debit collection is made for customers of type Company or Person.';
                 }
                 field(OnlyCustomerValidMandate; OnlyCustomersWithMandate)
@@ -159,7 +158,7 @@ report 1200 "Create Direct Debit Collection"
         NoOfEntries: Integer;
         NoEntriesCreatedErr: Label 'No entries have been created.', Comment = '%1=Field;%2=Table;%3=Field;Table';
         EntriesCreatedMsg: Label '%1 entries have been created.', Comment = '%1 = an integer number, e.g. 7.';
-        PartnerType: Option ,Company,Person;
+        PartnerType: Enum "Partner Type";
         DirectDebitMsgNosErr: Label 'The bank account %1 is not set up for direct debit collections. It needs a number series for direct debit files. You specify the number series on the card for the bank account.', Comment = '%1=Code, the No. of Bank Account';
 
     local procedure EntryFullyCollected(EntryNo: Integer): Boolean

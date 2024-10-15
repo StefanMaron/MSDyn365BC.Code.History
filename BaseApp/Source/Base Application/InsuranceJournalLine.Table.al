@@ -62,11 +62,9 @@ table 5635 "Insurance Journal Line"
         {
             Caption = 'Posting Date';
         }
-        field(9; "Document Type"; Option)
+        field(9; "Document Type"; Enum "FA Journal Line Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,,Invoice,Credit Memo';
-            OptionMembers = " ",,Invoice,"Credit Memo";
         }
         field(10; "Document Date"; Date)
         {
@@ -140,7 +138,7 @@ table 5635 "Insurance Journal Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()

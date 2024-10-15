@@ -2,6 +2,9 @@ table 31097 "Document Footer"
 {
     Caption = 'Document Footer';
     DrillDownPageID = "Document Footers";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     fields
     {

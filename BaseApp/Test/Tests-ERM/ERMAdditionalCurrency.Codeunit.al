@@ -1114,7 +1114,7 @@ codeunit 134043 "ERM Additional Currency"
           GenJournalLine."Document Type"::"Credit Memo");
     end;
 
-    local procedure ApplyCustomerLedgerEntries(CustomerNo: Code[20]; DocumentType: Option)
+    local procedure ApplyCustomerLedgerEntries(CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
     begin
@@ -1143,7 +1143,7 @@ codeunit 134043 "ERM Additional Currency"
         UpdateAccountsInCurrency(CurrencyCode);
     end;
 
-    local procedure CreateGeneralLine(var GenJournalLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; CurrencyCode: Code[10]; DocumentType: Option; Amount: Decimal)
+    local procedure CreateGeneralLine(var GenJournalLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; CurrencyCode: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1155,7 +1155,7 @@ codeunit 134043 "ERM Additional Currency"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateJournalLineForInvoice(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateJournalLineForInvoice(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1165,7 +1165,7 @@ codeunit 134043 "ERM Additional Currency"
           AccountType, AccountNo, Amount);
     end;
 
-    local procedure CreateAndPostGeneralLine(var GenJournalLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; Amount: Decimal; AppliesToDocNo: Code[20]; CurrencyCode: Code[10]; DocumentType: Option)
+    local procedure CreateAndPostGeneralLine(var GenJournalLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; Amount: Decimal; AppliesToDocNo: Code[20]; CurrencyCode: Code[10]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         CreateGeneralLine(GenJournalLine, CustomerNo, CurrencyCode, DocumentType, Amount);
         GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
@@ -1186,7 +1186,7 @@ codeunit 134043 "ERM Additional Currency"
         SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure CreateAndPostGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateAndPostGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GLAccount: Record "G/L Account";
@@ -1205,7 +1205,7 @@ codeunit 134043 "ERM Additional Currency"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreatePostGenJnlLineWithBalVATSetup(AccountType: Option; CustomerNo: Code[20]; Amount: Decimal; PostingDate: Date; VATPostingSetup: Record "VAT Posting Setup"; BalGenPostingType: Option): Decimal
+    local procedure CreatePostGenJnlLineWithBalVATSetup(AccountType: Enum "Gen. Journal Account Type"; CustomerNo: Code[20]; Amount: Decimal; PostingDate: Date; VATPostingSetup: Record "VAT Posting Setup"; BalGenPostingType: Enum "General Posting Type"): Decimal
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -1310,7 +1310,7 @@ codeunit 134043 "ERM Additional Currency"
         exit(Item."No.");
     end;
 
-    local procedure CreateAndApplyPaymentToInvoice(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; GenPostingType: Option; AccountNo: Code[20]; AppliestoDocNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal)
+    local procedure CreateAndApplyPaymentToInvoice(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; GenPostingType: Enum "General Posting Type"; AccountNo: Code[20]; AppliestoDocNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1439,7 +1439,7 @@ codeunit 134043 "ERM Additional Currency"
         end;
     end;
 
-    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange("Document No.", DocumentNo);
@@ -1460,7 +1460,7 @@ codeunit 134043 "ERM Additional Currency"
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
     end;
 
-    local procedure FilterGLEntry(var GLEntry: Record "G/L Entry"; DocumentType: Option; DocumentNo: Code[20]; BalAccountNo: Code[20])
+    local procedure FilterGLEntry(var GLEntry: Record "G/L Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; BalAccountNo: Code[20])
     begin
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
@@ -1491,7 +1491,7 @@ codeunit 134043 "ERM Additional Currency"
         CurrencyExchangeRate.Modify(true);
     end;
 
-    local procedure ModifyGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; BalGenPostingType: Option; CurrencyCode: Code[10])
+    local procedure ModifyGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; BalGenPostingType: Enum "General Posting Type"; CurrencyCode: Code[10])
     var
         GLAccount: Record "G/L Account";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -1632,7 +1632,7 @@ codeunit 134043 "ERM Additional Currency"
         BankAccountLedgerEntry.FindFirst;
     end;
 
-    local procedure VerifyCustLedgerEntry(DocumentType: Option; DocumentNo: Code[20]; PmtDiscountDate: Date; Amount: Decimal)
+    local procedure VerifyCustLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; PmtDiscountDate: Date; Amount: Decimal)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -1649,7 +1649,7 @@ codeunit 134043 "ERM Additional Currency"
         Assert.IsTrue(StrPos(GLEntry.Description, Format(VATAmount)) > 0, GLEntry.FieldCaption(Description));
     end;
 
-    local procedure RemainingAmountLCYInCustomer(DocumentType: Option; CustomerNo: Code[20]; DocumentNo: Code[20]; RemainingAmountLCY: Decimal)
+    local procedure RemainingAmountLCYInCustomer(DocumentType: Enum "Gen. Journal Document Type"; CustomerNo: Code[20]; DocumentNo: Code[20]; RemainingAmountLCY: Decimal)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -1661,7 +1661,7 @@ codeunit 134043 "ERM Additional Currency"
           StrSubstNo(AmountErr, CustLedgerEntry.FieldCaption("Remaining Amt. (LCY)"), RemainingAmountLCY, CustLedgerEntry.TableCaption));
     end;
 
-    local procedure RemainingAmountLCYInVendor(DocumentType: Option; VendorNo: Code[20]; DocumentNo: Code[20]; RemainingAmountLCY: Decimal)
+    local procedure RemainingAmountLCYInVendor(DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20]; DocumentNo: Code[20]; RemainingAmountLCY: Decimal)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -1685,7 +1685,7 @@ codeunit 134043 "ERM Additional Currency"
         DetailedVendorLedgEntry.FindFirst;
     end;
 
-    local procedure VerifyDetailedCustLedgerEntry(DocumentType: Option; DocumentNo: Code[20]; Amount: Decimal; AmountLCY: Decimal)
+    local procedure VerifyDetailedCustLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; Amount: Decimal; AmountLCY: Decimal)
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin

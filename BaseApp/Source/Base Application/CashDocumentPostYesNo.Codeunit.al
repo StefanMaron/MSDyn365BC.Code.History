@@ -2,6 +2,9 @@ codeunit 11733 "Cash Document-Post (Yes/No)"
 {
     EventSubscriberInstance = Manual;
     TableNo = "Cash Document Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     begin

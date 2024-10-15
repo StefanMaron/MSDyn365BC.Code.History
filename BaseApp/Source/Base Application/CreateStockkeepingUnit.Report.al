@@ -2,9 +2,12 @@ report 5706 "Create Stockkeeping Unit"
 {
     AdditionalSearchTerms = 'create sku';
     ApplicationArea = Warehouse;
-    Caption = 'Create Stockkeeping Unit';
+    Caption = 'Create Stockkeeping Unit (Obsolete)';
     ProcessingOnly = true;
     UsageCategory = Administration;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

@@ -3,6 +3,9 @@ codeunit 11735 "Cash Document-Post"
     Permissions = TableData "Posted Cash Document Header" = i,
                   TableData "Posted Cash Document Line" = im;
     TableNo = "Cash Document Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     var

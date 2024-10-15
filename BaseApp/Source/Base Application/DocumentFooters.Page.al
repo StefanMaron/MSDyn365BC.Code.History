@@ -1,8 +1,11 @@
 page 31097 "Document Footers"
 {
-    Caption = 'Document Footers';
+    Caption = 'Document Footers (Obsolete)';
     PageType = List;
     SourceTable = "Document Footer";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

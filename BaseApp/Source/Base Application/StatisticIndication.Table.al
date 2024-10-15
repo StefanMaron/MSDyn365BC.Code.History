@@ -2,6 +2,9 @@ table 31062 "Statistic Indication"
 {
     Caption = 'Statistic Indication';
     LookupPageID = "Statistic Indications";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     fields
     {
@@ -23,10 +26,16 @@ table 31062 "Statistic Indication"
         field(10; "Full Name"; Text[250])
         {
             Caption = 'Full Name';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This field should not be used and will be removed.';
+            ObsoleteTag = '17.0';
         }
         field(20; "Full Name ENG"; Text[250])
         {
             Caption = 'Full Name ENG';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This field should not be used and will be removed.';
+            ObsoleteTag = '17.0';
         }
     }
 

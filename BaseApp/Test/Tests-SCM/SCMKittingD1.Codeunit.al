@@ -188,7 +188,7 @@ codeunit 137090 "SCM Kitting - D1"
     end;
 
     [Normal]
-    local procedure DiffCostingMethodsComp(CostingMethod: Option; CostAdjNeeded: Boolean; IndirectCost: Decimal; Overhead: Decimal)
+    local procedure DiffCostingMethodsComp(CostingMethod: Enum "Costing Method"; CostAdjNeeded: Boolean; IndirectCost: Decimal; Overhead: Decimal)
     var
         Item: Record Item;
         CalculateStandardCost: Codeunit "Calculate Standard Cost";
@@ -243,7 +243,7 @@ codeunit 137090 "SCM Kitting - D1"
     end;
 
     [Normal]
-    local procedure DiffCostingMethodsParent(CostingMethod: Option; CostAdjNeeded: Boolean; IndirectCost: Decimal; Overhead: Decimal)
+    local procedure DiffCostingMethodsParent(CostingMethod: Enum "Costing Method"; CostAdjNeeded: Boolean; IndirectCost: Decimal; Overhead: Decimal)
     var
         Item: Record Item;
         CalculateStandardCost: Codeunit "Calculate Standard Cost";
@@ -684,7 +684,7 @@ codeunit 137090 "SCM Kitting - D1"
     end;
 
     [Normal]
-    local procedure ReplMethod(ReplenishmentMethod: Option; CalcLevel: Integer; TreeDepth: Integer)
+    local procedure ReplMethod(ReplenishmentMethod: Enum "Replenishment System"; CalcLevel: Integer; TreeDepth: Integer)
     var
         Item: Record Item;
         Item1: Record Item;
@@ -1118,7 +1118,7 @@ codeunit 137090 "SCM Kitting - D1"
     end;
 
     [Scope('OnPrem')]
-    procedure SetItemReplenishmentMethod(ItemNo: Code[20]; ReplenishmentMethod: Option)
+    procedure SetItemReplenishmentMethod(ItemNo: Code[20]; ReplenishmentMethod: Enum "Replenishment System")
     var
         Item: Record Item;
     begin

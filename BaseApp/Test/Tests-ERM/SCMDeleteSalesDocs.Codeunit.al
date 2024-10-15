@@ -26,6 +26,7 @@ codeunit 137208 "SCM Delete Sales Docs"
     var
         CompanyInformation: Record "Company Information";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        ReportSelections: Record "Report Selections";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Delete Sales Docs");
         LibraryVariableStorage.Clear();
@@ -39,6 +40,16 @@ codeunit 137208 "SCM Delete Sales Docs"
         CompanyInformation.Get();
         CompanyInformation."Bank Account No." := 'A';
         CompanyInformation.Modify();
+
+        ReportSelections.SetRange(Usage, ReportSelections.Usage::"S.Shipment");
+        ReportSelections.ModifyAll("Report ID", Report::"Sales - Shipment CZ");
+        ReportSelections.SetRange(Usage, ReportSelections.Usage::"S.Invoice");
+        ReportSelections.ModifyAll("Report ID", Report::"Sales - Invoice CZ");
+        ReportSelections.SetRange(Usage, ReportSelections.Usage::"S.Cr.Memo");
+        ReportSelections.ModifyAll("Report ID", Report::"Sales - Credit Memo CZ");
+        ReportSelections.SetRange(Usage, ReportSelections.Usage::"S.Ret.Rcpt.");
+        ReportSelections.ModifyAll("Report ID", Report::"Sales - Return Reciept CZ");
+
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Delete Sales Docs");
@@ -158,7 +169,7 @@ codeunit 137208 "SCM Delete Sales Docs"
     end;
 
 
-    local procedure DeletePostedDoc(DocumentType: Option)
+    local procedure DeletePostedDoc(DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
         FileManagement: Codeunit "File Management";
@@ -178,7 +189,7 @@ codeunit 137208 "SCM Delete Sales Docs"
         LibraryVariableStorage.AssertEmpty();
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
         Customer: Record Customer;
@@ -252,7 +263,8 @@ codeunit 137208 "SCM Delete Sales Docs"
         Assert.AreEqual(1, NoPrinted, 'No. printed was not incremented for ' + SalesHeader."No.");
     end;
 
-    local procedure VerifyLinesAreDeleted(SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure VerifyLinesAreDeleted(SalesHeader: Record "Sales Header";
+                                                           DocumentType: Enum "Sales Document Type")
     var
         SalesShipmentLine: Record "Sales Shipment Line";
         SalesInvoiceLine: Record "Sales Invoice Line";

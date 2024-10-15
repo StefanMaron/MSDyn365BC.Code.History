@@ -5,6 +5,9 @@ codeunit 31100 VATControlReportManagement
                   TableData "VAT Control Report Header" = rimd,
                   TableData "VAT Control Report Line" = rimd,
                   TableData "VAT Control Report Section" = r;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     begin
@@ -27,7 +30,7 @@ codeunit 31100 VATControlReportManagement
         GlobalLineNo: Integer;
         InternalDocCheckMsg: Label 'There is nothing internal document to exclusion in VAT Control Report No. %1.', Comment = '%1=VAT Control Report No.';
         AmountTxt: Label 'Amount';
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         PerformCountryRegionCode: Code[10];
 
     [Scope('OnPrem')]
@@ -760,7 +763,7 @@ codeunit 31100 VATControlReportManagement
     end;
 
     [Scope('OnPrem')]
-    procedure CreateBufferForExport(VATCtrlRptHdr: Record "VAT Control Report Header"; var TempVATCtrlRptBuf: Record "VAT Control Report Buffer" temporary; ShowMessage: Boolean; EntriesSelection: Option Open,Closed,"Open and Closed")
+    procedure CreateBufferForExport(VATCtrlRptHdr: Record "VAT Control Report Header"; var TempVATCtrlRptBuf: Record "VAT Control Report Buffer" temporary; ShowMessage: Boolean; EntriesSelection: Enum "VAT Statement Report Selection")
     var
         VATCtrlRptLn: Record "VAT Control Report Line";
         VATCtrlRptSection: Record "VAT Control Report Section";
@@ -1300,7 +1303,7 @@ codeunit 31100 VATControlReportManagement
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     procedure ExchangeAmount(var VATEntry: Record "VAT Entry")
     var
         PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";
@@ -1356,7 +1359,7 @@ codeunit 31100 VATControlReportManagement
         end;
     end;
 
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     local procedure PerfCurrExchangeAmount(SrcAmount: Decimal; SrcDate: Date; SrcCurrencyCode: Code[10]): Decimal
     var
         RegistrationCountryRegion: Record "Registration Country/Region";

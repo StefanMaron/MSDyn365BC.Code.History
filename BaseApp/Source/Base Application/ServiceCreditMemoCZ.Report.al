@@ -2,8 +2,11 @@ report 31089 "Service - Credit Memo CZ"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './ServiceCreditMemoCZ.rdlc';
-    Caption = 'Service - Credit Memo CZ';
+    Caption = 'Service - Credit Memo CZ (Obsolete)';
     PreviewMode = PrintLayout;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {
@@ -389,7 +392,7 @@ report 31089 "Service - Credit Memo CZ"
                     }
                     column(VATAmtLineVATBase; TempVATAmountLine."VAT Base")
                     {
-                        AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode;
+                        AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
                     column(VATAmtLineVATAmt; TempVATAmountLine."VAT Amount")
@@ -399,7 +402,7 @@ report 31089 "Service - Credit Memo CZ"
                     }
                     column(VATAmtLineVATBaseLCY; TempVATAmountLine."VAT Base (LCY)")
                     {
-                        AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode;
+                        AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
                     column(VATAmtLineVATAmtLCY; TempVATAmountLine."VAT Amount (LCY)")
@@ -553,7 +556,7 @@ report 31089 "Service - Credit Memo CZ"
         ReasonCode: Record "Reason Code";
         CurrExchRate: Record "Currency Exchange Rate";
         VATClause: Record "VAT Clause";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         RegistrationCountryRegion: Record "Registration Country/Region";
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";

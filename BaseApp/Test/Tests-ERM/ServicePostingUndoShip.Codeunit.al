@@ -529,7 +529,7 @@ codeunit 136117 "Service Posting - Undo Ship"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
         SetHandler := false;
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // Exercise: Undo the shipment.

@@ -1,9 +1,12 @@
 page 11741 "Cash Desk Events"
 {
-    Caption = 'Cash Desk Events';
+    Caption = 'Cash Desk Events (Obsolete)';
     Editable = false;
     PageType = List;
     SourceTable = "Cash Desk Event";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

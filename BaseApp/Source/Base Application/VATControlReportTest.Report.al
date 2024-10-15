@@ -2,7 +2,10 @@ report 31101 "VAT Control Report - Test"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './VATControlReportTest.rdlc';
-    Caption = 'VAT Control Report - Test';
+    Caption = 'VAT Control Report - Test (Obsolete)';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {
@@ -396,7 +399,6 @@ report 31101 "VAT Control Report - Test"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Entries Selection';
-                        OptionCaption = 'Open,Closed,Open and Closed';
                         ToolTip = 'Specifies if opened, closed or opened and closed VAT control report lines have to be printed.';
                     }
                     field(OnlyErrorLines; OnlyErrorLines)
@@ -438,7 +440,7 @@ report 31101 "VAT Control Report - Test"
         OnlyErrorLines: Boolean;
         [InDataSet]
         LinesDetailEnable: Boolean;
-        Selection: Option Open,Closed,"Open and Closed";
+        Selection: Enum "VAT Statement Report Selection";
 
     local procedure AddError(Text: Text)
     begin

@@ -90,17 +90,20 @@ codeunit 145007 "Applying G/L Entries"
         GLEntry.TestField(Closed, true);
     end;
 
+    /*
     [Test]
     [HandlerFunctions('ModalApplyGeneralLedgerEntriesHandler,YesConfirmHandler')]
-    [Scope('OnPrem')]
     procedure ApplyingGLEntriesFromCashDesk()
     var
-        BankAcc: Record "Bank Account";
-        CashDocHdr: Record "Cash Document Header";
-        CashDocLn: Record "Cash Document Line";
+        CashDeskCZP: Record "Cash Desk CZP";
+        CashDeskUserCZP: Record "Cash Desk User CZP";
+        CashDocumentHeaderCZP: Record "Cash Document Header CZP";
+        CashDocumentLineCZP: Record "Cash Document Line CZP";
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLn: Record "Gen. Journal Line";
         GLEntry: Record "G/L Entry";
+        LibraryCashDeskCZP: Codeunit "Library - Cash Desk CZP";
+        LibraryCashDocumentCZP: Codeunit "Library - Cash Document CZP";
         DocumentNo: array[2] of Code[20];
         GLAccountNo: array[2] of Code[20];
         Amount: Decimal;
@@ -108,11 +111,13 @@ codeunit 145007 "Applying G/L Entries"
         // 1. Setup
         Initialize;
 
-        CreateCashDesk(BankAcc);
+        LibraryCashDeskCZP.CreateCashDeskCZP(CashDeskCZP);
+        LibraryCashDeskCZP.SetupCashDeskCZP(CashDeskCZP, false);
+        LibraryCashDeskCZP.CreateCashDeskUserCZP(CashDeskUserCZP, CashDeskCZP."No.", true, true, true);
 
         GLAccountNo[1] := LibraryERM.CreateGLAccountNo;
         GLAccountNo[2] := LibraryERM.CreateGLAccountNo;
-        Amount := LibraryRandom.RandDec(Round(BankAcc."Cash Withdrawal Limit", 1, '<'), 2);
+        Amount := LibraryRandom.RandDec(Round(CashDeskCZP."Cash Withdrawal Limit", 1, '<'), 2);
 
         SelectGenJournalBatch(GenJnlBatch);
 
@@ -127,17 +132,16 @@ codeunit 145007 "Applying G/L Entries"
         LibraryERM.PostGeneralJnlLine(GenJnlLn);
 
         // 2. Exercise
-        LibraryCashDesk.CreateCashDocumentHeader(CashDocHdr, CashDocHdr."Cash Document Type"::Withdrawal, BankAcc."No.");
-        LibraryCashDesk.CreateCashDocumentLine(
-          CashDocLn, CashDocHdr, CashDocLn."Account Type"::"G/L Account", GLAccountNo[2], Amount);
+        LibraryCashDocumentCZP.CreateCashDocumentHeaderCZP(CashDocumentHeaderCZP, CashDocumentHeaderCZP."Document Type"::Withdrawal, CashDeskCZP."No.");
+        LibraryCashDocumentCZP.CreateCashDocumentLineCZP(CashDocumentLineCZP, CashDocumentHeaderCZP, CashDocumentLineCZP."Account Type"::"G/L Account", GLAccountNo[2], Amount);
 
-        DocumentNo[2] := CashDocHdr."No.";
+        DocumentNo[2] := CashDocumentHeaderCZP."No.";
 
         LibraryVariableStorage.Enqueue(DocumentNo[1]);
         LibraryVariableStorage.Enqueue(DocumentNo[2]);
-        CashDocLn.ApplyEntries;
+        CashDocumentLineCZP.ApplyEntries;
 
-        LibraryCashDesk.PostCashDocument(CashDocHdr);
+        LibraryCashDocumentCZP.PostCashDocumentCZP(CashDocumentHeaderCZP);
 
         // 3. Verify
         GLEntry.SetRange("Document No.", DocumentNo[1]);
@@ -150,6 +154,7 @@ codeunit 145007 "Applying G/L Entries"
         GLEntry.FindFirst;
         GLEntry.TestField(Closed, true);
     end;
+    */
 
     [Test]
     [HandlerFunctions('ModalApplyGeneralLedgerEntriesHandler,ModalPostApplicationHandler,MessageHandler')]
@@ -296,6 +301,7 @@ codeunit 145007 "Applying G/L Entries"
         BankAccPostingGroup.Modify(true);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     local procedure CreateCashDesk(var BankAcc: Record "Bank Account")
     var
         BankAccPostingGroup: Record "Bank Account Posting Group";
@@ -308,6 +314,7 @@ codeunit 145007 "Applying G/L Entries"
         CreateCashDeskUser(CashDeskUser, BankAcc."No.");
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     local procedure CreateCashDeskBase(var BankAcc: Record "Bank Account"; BankAccPostingGroupCode: Code[20]; RoundingMethodCode: Code[10])
     begin
         LibraryCashDesk.CreateCashDesk(BankAcc);
@@ -324,11 +331,13 @@ codeunit 145007 "Applying G/L Entries"
         BankAcc.Modify(true);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     local procedure CreateCashDeskUser(var CashDeskUser: Record "Cash Desk User"; CashDeskNo: Code[20])
     begin
         LibraryCashDesk.CreateCashDeskUser(CashDeskUser, CashDeskNo, true, true, true);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     local procedure CreateRoundingMethod(var RoundingMethod: Record "Rounding Method")
     begin
         LibraryCashDesk.CreateRoundingMethod(RoundingMethod);

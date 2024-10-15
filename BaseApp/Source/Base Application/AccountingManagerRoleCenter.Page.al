@@ -19,6 +19,10 @@ page 9001 "Accounting Manager Role Center"
                 {
                     ApplicationArea = Basic, Suite;
                 }
+                part("User Tasks Activities"; "User Tasks Activities")
+                {
+                    ApplicationArea = Suite;
+                }
                 part(Control1907692008; "My Customers")
                 {
                     ApplicationArea = Basic, Suite;
@@ -213,6 +217,10 @@ page 9001 "Accounting Manager Role Center"
                 Image = "Report";
                 RunObject = Report "VAT Statement";
                 ToolTip = 'View a statement of posted VAT and calculate the duty liable to the customs authorities for the selected period.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.0';
+                Visible = false;
             }
             action("G/L - VAT Reconciliation")
             {
@@ -963,6 +971,10 @@ page 9001 "Accounting Manager Role Center"
                 Image = SettleOpenTransactions;
                 RunObject = Report "Calc. and Post VAT Settlement";
                 ToolTip = 'Close open VAT entries and transfers purchase and sales VAT amounts to the VAT settlement account. For every VAT posting group, the batch job finds all the VAT entries in the VAT Entry table that are included in the filters in the definition window.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.0';
+                Visible = false;
             }
             separator(Action80)
             {
@@ -1025,10 +1037,11 @@ page 9001 "Accounting Manager Role Center"
             action("Navi&gate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Navi&gate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 RunObject = Page Navigate;
-                ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                ShortCutKey = 'Shift+Ctrl+I';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
             }
         }
     }

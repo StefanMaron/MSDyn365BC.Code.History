@@ -39,7 +39,7 @@ page 5964 "Service Quote"
 
                     trigger OnValidate()
                     begin
-                        CustomerNoOnAfterValidate;
+                        CustomerNoOnAfterValidate();
                     end;
                 }
                 field("Contact No."; "Contact No.")
@@ -553,8 +553,8 @@ page 5964 "Service Quote"
                 field(IsIntrastatTransaction; IsIntrastatTransaction)
                 {
                     ApplicationArea = Basic, Suite;
+                    Caption = 'Intrastat Transaction';
                     Editable = false;
-                    ShowCaption = false;
                     ToolTip = 'Specifies if the entry an Intrastat transaction is.';
                 }
                 field("EU 3-Party Trade"; "EU 3-Party Trade")
@@ -590,7 +590,11 @@ page 5964 "Service Quote"
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies when the sales haeder will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
+                    ToolTip = 'Specifies when the service header will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Intrastat Exclude"; "Intrastat Exclude")
                 {

@@ -2,8 +2,11 @@ report 31094 "Sales - Quote CZ"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './SalesQuoteCZ.rdlc';
-    Caption = 'Sales - Quote CZ';
+    Caption = 'Sales - Quote CZ (Obsolete)';
     PreviewMode = PrintLayout;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

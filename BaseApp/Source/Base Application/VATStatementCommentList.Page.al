@@ -1,11 +1,14 @@
 page 11772 "VAT Statement Comment List"
 {
-    Caption = 'VAT Statement Comment List';
+    Caption = 'VAT Statement Comment List (Obsolete)';
     DataCaptionFields = "VAT Statement Template Name", "VAT Statement Name";
     Editable = false;
     LinksAllowed = false;
     PageType = List;
     SourceTable = "VAT Statement Comment Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

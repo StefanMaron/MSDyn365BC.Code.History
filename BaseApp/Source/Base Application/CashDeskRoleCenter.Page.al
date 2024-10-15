@@ -1,7 +1,10 @@
 page 11750 "Cash Desk Role Center"
 {
-    Caption = 'Cash Desk', Comment = 'Use same translation as ''Profile Description'' ';
+    Caption = 'Cash Desk (Obsolete)', Comment = 'Use same translation as ''Profile Description'' ';
     PageType = RoleCenter;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

@@ -2,8 +2,11 @@ report 31111 "Service Order CZ"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './ServiceOrderCZ.rdlc';
-    Caption = 'Service Order CZ';
+    Caption = 'Service Order CZ (Obsolete)';
     PreviewMode = PrintLayout;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

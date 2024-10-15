@@ -644,15 +644,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Customer Payments E2E Test - NamedType AppliesToDocNoNameTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4041412851 - NamedType 3963655173" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[contactId]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Customer Payments E2E Test - NamedType GraphContactIdFieldTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 4041412851 - NamedType 2695440829" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[customerId]]></Val>
@@ -894,15 +885,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Graph Mail Tests - NamedType SecretNameTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4250293414 - NamedType 1505349915" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The webhook notification details are not saved on %1.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[The webhook notification details are not saved on the archiving record.]D;]A;(LookupHint=Codeunit Graph Subscription Tests - NamedType WebhookNotificationDetailsErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 331515704 - NamedType 866661614" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1400,15 +1382,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sales Credit Memo E2E Test - NamedType CreditMemoServiceNameTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1001109701 - NamedType 3963655173" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[contactId]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sales Credit Memo E2E Test - NamedType GraphContactIdFieldTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1001109701 - NamedType 2695440829" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[customerId]]></Val>
@@ -1488,15 +1461,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sales Invoice E2E Test - NamedType InvoiceServiceNameTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3586036607 - NamedType 3963655173" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[contactId]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sales Invoice E2E Test - NamedType GraphContactIdFieldTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3586036607 - NamedType 2695440829" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1625,15 +1589,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sales Order E2E Test - NamedType OrderServiceNameTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1756939094 - NamedType 3963655173" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[contactId]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sales Order E2E Test - NamedType GraphContactIdFieldTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1756939094 - NamedType 2695440829" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[customerId]]></Val>
@@ -1704,15 +1659,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sales Quote E2E Test - NamedType QuoteServiceNameTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 778648450 - NamedType 3963655173" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[contactId]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sales Quote E2E Test - NamedType GraphContactIdFieldTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 778648450 - NamedType 2695440829" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1794,15 +1740,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ShipmentMethod Entity E2E Test - NamedType DescriptionTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1390857447 - NamedType 2190992549" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 address exists.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[Home address exists.]D;]A;(LookupHint=Codeunit Sync Contact Related Tables - NamedType AddressExistsErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 931927151 - NamedType 866661614" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

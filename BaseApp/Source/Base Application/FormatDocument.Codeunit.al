@@ -220,6 +220,20 @@ codeunit 368 "Format Document"
           FormattedLineAmount);
     end;
 
+    procedure SetPurchaseLine(var PurchaseLine: Record "Purchase Line"; var FormattedQuantity: Text; var FormattedDirectUnitCost: Text; var FormattedVATPercentage: Text; var FormattedLineAmount: Text)
+    begin
+        SetSalesPurchaseLine(not PurchaseLine.HasTypeToFillMandatoryFields(),
+          PurchaseLine.Quantity,
+          PurchaseLine."Direct Unit Cost",
+          PurchaseLine."VAT %",
+          PurchaseLine."Line Amount",
+          PurchaseLine."Currency Code",
+          FormattedQuantity,
+          FormattedDirectUnitCost,
+          FormattedVATPercentage,
+          FormattedLineAmount);
+    end;
+
     procedure SetPurchaseLine(var PurchaseLine: Record "Purchase Line"; var FormattedQuantity: Text; var FormattedDirectUnitCost: Text)
     var
         TempVatPct: Text;
@@ -262,6 +276,7 @@ codeunit 368 "Format Document"
     begin
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     procedure GetDocumentFooterText(LanguageCode: Code[10]): Text[250]
     var
         DocumentFooter: Record "Document Footer";
@@ -273,6 +288,7 @@ codeunit 368 "Format Document"
         exit('');
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     procedure SetPaymentSymbols(var PaymentSymbol: array[2] of Text; var PaymentSymbolLabel: array[2] of Text; VariableSymbol: Code[10]; VariableSymbolCaption: Text[80]; ConstantSymbol: Code[10]; ConstantSymbolCaption: Text[80]; SpecificSymbol: Code[10]; SpecificSymbolCaption: Text[80])
     var
         TempPaymentSymbol: array[3] of Text;

@@ -697,6 +697,7 @@ codeunit 1400 DocumentNoVisibility
         exit(CreditsSetup."Credit Nos.");
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure StatReportingDocumentNoIsVisible(DocType: Option "VIES Declaration","Reverse Charge","VAT Control Report"; DocNo: Code[20]): Boolean
     var
@@ -727,6 +728,7 @@ codeunit 1400 DocumentNoVisibility
         exit(ForceShowNoSeriesForDocNo(DocNoSeries));
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     local procedure DetermineStatReportingSeriesNo(DocType: Option "VIES Declaration","Reverse Charge","VAT Control Report"): Code[20]
     var
         StatReportingSetup: Record "Stat. Reporting Setup";

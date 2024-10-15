@@ -52,6 +52,10 @@ page 315 "VAT Entries"
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the VAT date. This date must be shown on the VAT statement.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Original Document VAT Date"; "Original Document VAT Date")
                 {
@@ -243,7 +247,11 @@ page 315 "VAT Entries"
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
                     ApplicationArea = VAT;
-                    ToolTip = 'Specifies when the sales haeder will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
+                    ToolTip = 'Specifies when the VAT entry will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field(Closed; Closed)
                 {
@@ -297,17 +305,28 @@ page 315 "VAT Entries"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document number which the VAT entries were closed.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
                     Visible = false;
                 }
                 field("VAT Control Report No."; "VAT Control Report No.")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies vat control report no.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("VAT Control Report Line No."; "VAT Control Report Line No.")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the number of line in the VAT control report.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
             }
         }
@@ -317,6 +336,7 @@ page 315 "VAT Entries"
             {
                 ApplicationArea = Basic, Suite;
                 ShowFilter = false;
+                SubPageLink = "Posting Date" = field("Posting Date"), "Document No." = field("Document No.");
             }
             systempart(Control1900383207; Links)
             {
@@ -338,11 +358,12 @@ page 315 "VAT Entries"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
-                ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                ShortCutKey = 'Shift+Ctrl+I';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
@@ -410,7 +431,6 @@ page 315 "VAT Entries"
         IncomingDocument: Record "Incoming Document";
     begin
         HasIncomingDocument := IncomingDocument.PostedDocExists("Document No.", "Posting Date");
-        CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
     end;
 
     trigger OnModifyRecord(): Boolean

@@ -288,7 +288,7 @@ table 302 "Finance Charge Memo Header"
         }
         field(30; Comment; Boolean)
         {
-            CalcFormula = Exist ("Fin. Charge Comment Line" WHERE(Type = CONST("Finance Charge Memo"),
+            CalcFormula = Exist("Fin. Charge Comment Line" WHERE(Type = CONST("Finance Charge Memo"),
                                                                   "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -298,7 +298,7 @@ table 302 "Finance Charge Memo Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Finance Charge Memo Line"."Remaining Amount" WHERE("Finance Charge Memo No." = FIELD("No.")));
+            CalcFormula = Sum("Finance Charge Memo Line"."Remaining Amount" WHERE("Finance Charge Memo No." = FIELD("No.")));
             Caption = 'Remaining Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -307,7 +307,7 @@ table 302 "Finance Charge Memo Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Finance Charge Memo Line".Amount WHERE("Finance Charge Memo No." = FIELD("No."),
+            CalcFormula = Sum("Finance Charge Memo Line".Amount WHERE("Finance Charge Memo No." = FIELD("No."),
                                                                        Type = CONST("Customer Ledger Entry")));
             Caption = 'Interest Amount';
             Editable = false;
@@ -317,7 +317,7 @@ table 302 "Finance Charge Memo Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Finance Charge Memo Line".Amount WHERE("Finance Charge Memo No." = FIELD("No."),
+            CalcFormula = Sum("Finance Charge Memo Line".Amount WHERE("Finance Charge Memo No." = FIELD("No."),
                                                                        Type = CONST("G/L Account")));
             Caption = 'Additional Fee';
             Editable = false;
@@ -327,7 +327,7 @@ table 302 "Finance Charge Memo Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Finance Charge Memo Line"."VAT Amount" WHERE("Finance Charge Memo No." = FIELD("No.")));
+            CalcFormula = Sum("Finance Charge Memo Line"."VAT Amount" WHERE("Finance Charge Memo No." = FIELD("No.")));
             Caption = 'VAT Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -484,10 +484,16 @@ table 302 "Finance Charge Memo Header"
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
     }
 
@@ -538,7 +544,7 @@ table 302 "Finance Charge Memo Header"
 
     trigger OnInsert()
     var
-        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         NoSeriesLink: Record "No. Series Link";
     begin
         SalesSetup.Get();
@@ -887,7 +893,7 @@ table 302 "Finance Charge Memo Header"
     begin
         with FinChrgMemoHeader do begin
             Copy(Rec);
-            ReportSelection.Print(ReportSelection.Usage::"F.C.Test", FinChrgMemoHeader, FieldNo("Customer No."));
+            ReportSelection.PrintForCust(ReportSelection.Usage::"F.C.Test", FinChrgMemoHeader, FieldNo("Customer No."));
         end;
     end;
 
@@ -1049,7 +1055,7 @@ table 302 "Finance Charge Memo Header"
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of posting description will be removed and this function should not be used. (Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of posting description will be removed and this function should not be used. (Removed in release 01.2021)', '15.3')]
     procedure GetPostingDescription(PostingDescCode: Code[10]; var PostingDescription: Text[100])
     var
         PostingDesc: Record "Posting Description";

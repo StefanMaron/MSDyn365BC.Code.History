@@ -2,8 +2,11 @@ report 31075 "Quantity Shipped Check"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './QuantityShippedCheck.rdlc';
-    Caption = 'Quantity Shipped Check';
+    Caption = 'Quantity Shipped Check (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

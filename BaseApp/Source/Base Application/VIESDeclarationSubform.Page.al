@@ -6,6 +6,9 @@ page 31067 "VIES Declaration Subform"
     MultipleNewLines = true;
     PageType = ListPart;
     SourceTable = "VIES Declaration Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

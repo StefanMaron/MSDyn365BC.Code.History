@@ -4,6 +4,9 @@ table 31095 Commodity
     DataCaptionFields = "Code";
     DrillDownPageID = Commodities;
     LookupPageID = Commodities;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     fields
     {

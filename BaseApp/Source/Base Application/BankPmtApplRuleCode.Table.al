@@ -39,5 +39,27 @@ table 11702 "Bank Pmt. Appl. Rule Code"
         BankPmtApplRule.SetRange("Bank Pmt. Appl. Rule Code", Code);
         BankPmtApplRule.DeleteAll();
     end;
+
+    var
+        DefaultCodeTxt: Label 'DEFAULT';
+        DefaultCodeDescriptionTxt: Label 'Default Rules';
+
+    procedure InsertDefaultMatchingRuleCode()
+    var
+        BankPmtApplRuleCode: Record "Bank Pmt. Appl. Rule Code";
+    begin
+        if BankPmtApplRuleCode.Get(DefaultCodeTxt) then
+            exit;
+
+        BankPmtApplRuleCode.Init();
+        BankPmtApplRuleCode.Validate(Code, GetDefaultCode());
+        BankPmtApplRuleCode.Validate(Description, DefaultCodeDescriptionTxt);
+        BankPmtApplRuleCode.Insert(true);
+    end;
+
+    procedure GetDefaultCode(): Code[10]
+    begin
+        exit(DefaultCodeTxt);
+    end;
 }
 

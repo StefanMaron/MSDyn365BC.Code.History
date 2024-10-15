@@ -1,12 +1,15 @@
 page 11761 "Electronically Govern. Setup"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Electronic Communication Setup';
+    Caption = 'Electronic Communication Setup (Obsolete)';
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Card;
     SourceTable = "Electronically Govern. Setup";
-    UsageCategory = Tasks;
+    UsageCategory = Administration;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {
@@ -132,14 +135,14 @@ page 11761 "Electronically Govern. Setup"
     end;
 
     var
-        [Obsolete('The functionality of Communication using Proxy server will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021','15.3')]
+        [Obsolete('The functionality of Communication using Proxy server will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021', '15.3')]
         ProxyPassword: Text[50];
-        [Obsolete('The functionality of Communication using Proxy server will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021','15.3')]
+        [Obsolete('The functionality of Communication using Proxy server will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021', '15.3')]
         CheckedEncryption: Boolean;
-        [Obsolete('The functionality of Communication using Proxy server will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021','15.3')]
+        [Obsolete('The functionality of Communication using Proxy server will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021', '15.3')]
         EncryptionIsNotActivatedQst: Label 'Data encryption is not activated. It is recommended that you encrypt data. \Do you want to open the Data Encryption Management window?';
 
-    [Obsolete('The functionality of Communication using Proxy server will be removed and this function should not be used. (Obsolete::Removed in release 01.2021','15.3')]
+    [Obsolete('The functionality of Communication using Proxy server will be removed and this function should not be used. (Obsolete::Removed in release 01.2021', '15.3')]
     local procedure UpdateEncryptedField(InputGUID: Guid; var Text: Text[50])
     begin
         if IsNullGuid(InputGUID) then
@@ -148,7 +151,7 @@ page 11761 "Electronically Govern. Setup"
             Text := '*************';
     end;
 
-    [Obsolete('The functionality of Communication using Proxy server will be removed and this function should not be used. (Obsolete::Removed in release 01.2021','15.3')]
+    [Obsolete('The functionality of Communication using Proxy server will be removed and this function should not be used. (Obsolete::Removed in release 01.2021', '15.3')]
     local procedure CheckEncryption()
     begin
         if not CheckedEncryption and not EncryptionEnabled then begin

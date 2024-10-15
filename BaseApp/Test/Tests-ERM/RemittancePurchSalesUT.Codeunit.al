@@ -273,7 +273,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         exit(Vendor."No.");
     end;
 
-    local procedure CreateVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50]; VendorNo: Code[20]; PrintVendLedgerDetails: Boolean; AmountToApply: Decimal; DocumentType: Option)
+    local procedure CreateVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50]; VendorNo: Code[20]; PrintVendLedgerDetails: Boolean; AmountToApply: Decimal; DocumentType: Enum "Gen. Journal Document Type")
     begin
         CreateVendorLedgerEntryWithGLEntry(VendorLedgerEntry, AppliesToID, VendorNo, AmountToApply, DocumentType);
         VendorLedgerEntry."Remaining Pmt. Disc. Possible" := LibraryRandom.RandDec(10, 2); // Using Random value less than Amount.
@@ -300,7 +300,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         exit(DetailedVendorLedgEntry."Entry No.");
     end;
 
-    local procedure CreateVendorLedgerEntryWithGLEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50]; VendorNo: Code[20]; AmountToApply: Decimal; DocumentType: Option)
+    local procedure CreateVendorLedgerEntryWithGLEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50]; VendorNo: Code[20]; AmountToApply: Decimal; DocumentType: Enum "Gen. Journal Document Type")
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -319,7 +319,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         VendorLedgerEntry.Insert();
     end;
 
-    local procedure CreateVendorLedgerEntryWithCurrency(var VendorLedgerEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50]; VendorNo: Code[20]; AmountToApply: Decimal; DocumentType: Option; CurrencyCode: Code[10])
+    local procedure CreateVendorLedgerEntryWithCurrency(var VendorLedgerEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50]; VendorNo: Code[20]; AmountToApply: Decimal; DocumentType: Enum "Gen. Journal Document Type"; CurrencyCode: Code[10])
     begin
         CreateVendorLedgerEntryWithGLEntry(VendorLedgerEntry, AppliesToID, VendorNo, AmountToApply, DocumentType);
         VendorLedgerEntry."Currency Code" := CurrencyCode;

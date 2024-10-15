@@ -96,9 +96,10 @@ page 9038 "Production Planner Activities"
                     action(Navigate)
                     {
                         ApplicationArea = Manufacturing;
-                        Caption = 'Navigate';
+                        Caption = 'Find entries...';
                         RunObject = Page Navigate;
-                        ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                        ShortCutKey = 'Shift+Ctrl+I';
+                        ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                     }
                 }
             }
@@ -187,12 +188,20 @@ page 9038 "Production Planner Activities"
             cuegroup("My User Tasks")
             {
                 Caption = 'My User Tasks';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced with User Tasks Activities part';
+                ObsoleteTag = '17.0';
                 field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Pending User Tasks';
                     Image = Checklist;
                     ToolTip = 'Specifies the number of pending tasks that are assigned to you or to a group that you are a member of.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced with User Tasks Activities part';
+                    ObsoleteTag = '17.0';
 
                     trigger OnDrillDown()
                     var
@@ -229,8 +238,6 @@ page 9038 "Production Planner Activities"
     }
 
     trigger OnOpenPage()
-    var
-        RoleCenterNotificationMgt: Codeunit "Role Center Notification Mgt.";
     begin
         Reset;
         if not Get then begin
@@ -239,8 +246,6 @@ page 9038 "Production Planner Activities"
         end;
 
         SetRange("User ID Filter", UserId);
-
-        RoleCenterNotificationMgt.ShowChangeToPremiumExpNotification;
 
         ShowIntelligentCloud := not EnvironmentInfo.IsSaaS;
     end;

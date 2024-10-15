@@ -1,13 +1,16 @@
 page 11746 "Cash Desk Setup"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Cash Desks Setup';
+    Caption = 'Cash Desks Setup (Obsolete)';
     CardPageID = "Cash Desk Setup Card";
     Editable = false;
     PageType = List;
     SourceTable = "Bank Account";
     SourceTableView = WHERE("Account Type" = CONST("Cash Desk"));
     UsageCategory = Administration;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

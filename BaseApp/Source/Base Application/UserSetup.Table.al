@@ -228,7 +228,7 @@ table 91 "User Setup"
         }
         field(31; "License Type"; Option)
         {
-            CalcFormula = Lookup (User."License Type" WHERE("User Name" = FIELD("User ID")));
+            CalcFormula = Lookup(User."License Type" WHERE("User Name" = FIELD("User ID")));
             Caption = 'License Type';
             FieldClass = FlowField;
             OptionCaption = 'Full User,Limited User,Device Only User,Windows Group,External User';
@@ -273,6 +273,9 @@ table 91 "User Setup"
         {
             Caption = 'Cash Resp. Ctr. Filter';
             TableRelation = "Responsibility Center";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11760; "Check Document Date(work date)"; Boolean)
         {
@@ -309,10 +312,16 @@ table 91 "User Setup"
         field(11768; "Allow VAT Posting From"; Date)
         {
             Caption = 'Allow VAT Posting From';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11769; "Allow VAT Posting To"; Date)
         {
             Caption = 'Allow VAT Posting To';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11790; "Allow Complete Job"; Boolean)
         {
@@ -356,10 +365,16 @@ table 91 "User Setup"
         {
             BlankZero = true;
             Caption = 'Cash Desk Amt. Approval Limit';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(31113; "Unlimited Cash Desk Approval"; Boolean)
         {
             Caption = 'Unlimited Cash Desk Approval';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
         }
     }
 

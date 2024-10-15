@@ -2,8 +2,11 @@ report 31076 "Quantity Received Check"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './QuantityReceivedCheck.rdlc';
-    Caption = 'Quantity Received Check';
+    Caption = 'Quantity Received Check (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

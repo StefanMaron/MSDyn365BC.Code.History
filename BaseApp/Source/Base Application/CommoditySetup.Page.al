@@ -1,9 +1,12 @@
 page 31096 "Commodity Setup"
 {
-    Caption = 'Commodity Setup';
+    Caption = 'Commodity Setup (Obsolete)';
     DataCaptionFields = "Commodity Code";
     PageType = List;
     SourceTable = "Commodity Setup";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

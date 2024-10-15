@@ -225,6 +225,9 @@ table 288 "Vendor Bank Account"
         field(11792; "Third Party Bank Account"; Boolean)
         {
             Caption = 'Third Party Bank Account';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
     }
 
@@ -283,6 +286,7 @@ table 288 "Vendor Bank Account"
             exit("Bank Account No.");
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure IsForeignBankAccount(): Boolean
     var
@@ -293,6 +297,7 @@ table 288 "Vendor Bank Account"
         exit(("Country/Region Code" <> '') and ("Country/Region Code" <> CompInfo."Country/Region Code"));
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure IsStandardFormatBankAccount(): Boolean
     begin

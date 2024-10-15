@@ -32,6 +32,7 @@ codeunit 2 "Company-Initialize"
     trigger OnRun()
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
+        BankPmtApplRuleCode: Record "Bank Pmt. Appl. Rule Code";
         TransformationRule: Record "Transformation Rule";
         AddOnIntegrMgt: Codeunit AddOnIntegrManagement;
         WorkflowSetup: Codeunit "Workflow Setup";
@@ -57,7 +58,8 @@ codeunit 2 "Company-Initialize"
         InitCreditRepSelection;
         InitCashDeskRepSelection;
         RegistrationLogMgt.InitServiceSetup;
-        BankPmtApplRule."Bank Pmt. Appl. Rule Code" := InitBankPmtApplRuleCode();
+        BankPmtApplRuleCode.InsertDefaultMatchingRuleCode();
+        BankPmtApplRule."Bank Pmt. Appl. Rule Code" := BankPmtApplRuleCode.GetDefaultCode();
         // NAVCZ
         BankPmtApplRule.InsertDefaultMatchingRules;
         InsertClientAddIns;
@@ -204,18 +206,16 @@ codeunit 2 "Company-Initialize"
         Text11706: Label 'Credit';
         PEPPOLBIS3_ElectronicFormatTxt: Label 'PEPPOL BIS3', Locked = true;
         PEPPOLBIS3_ElectronicFormatDescriptionTxt: Label 'PEPPOL BIS3 Format (Pan-European Public Procurement Online)';
-        [Obsolete('The functionality of Non-deductible VAT will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of Non-deductible VAT will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         VATNDTxt: Label 'VATND';
         VATPDTxt: Label 'VATPD';
-        [Obsolete('The functionality of Non-deductible VAT will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of Non-deductible VAT will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         NonDeductibleVATTxt: Label 'Non deductible VAT';
         PurchaseVATDelayTxt: Label 'Purchase VAT delay';
         OPBALANCETxt: Label 'OPBALANCE';
         OpenBalanceSheetTxt: Label 'Open Balance Sheet';
         CLBALANCETxt: Label 'CLBALANCE';
         CloseBalanceSheetTxt: Label 'Close Balance Sheet';
-        BankPmtApplRuleCodeTxt: Label 'DEFAULT'; // NAVCZ
-        BankPmtApplRuleCodeDescriptionTxt: Label 'Default Rules'; // NAVCZ
 
     procedure InitSetupTables()
     var
@@ -594,27 +594,27 @@ codeunit 2 "Company-Initialize"
     begin
         ElectronicDocumentFormat.InsertElectronicFormat(
           PEPPOLBIS3_ElectronicFormatTxt, PEPPOLBIS3_ElectronicFormatDescriptionTxt,
-          CODEUNIT::"Exp. Sales Inv. PEPPOL BIS3.0", 0, ElectronicDocumentFormat.Usage::"Sales Invoice");
+          CODEUNIT::"Exp. Sales Inv. PEPPOL BIS3.0", 0, ElectronicDocumentFormat.Usage::"Sales Invoice".AsInteger());
 
         ElectronicDocumentFormat.InsertElectronicFormat(
           PEPPOLBIS3_ElectronicFormatTxt, PEPPOLBIS3_ElectronicFormatDescriptionTxt,
-          CODEUNIT::"Exp. Sales CrM. PEPPOL BIS3.0", 0, ElectronicDocumentFormat.Usage::"Sales Credit Memo");
+          CODEUNIT::"Exp. Sales CrM. PEPPOL BIS3.0", 0, ElectronicDocumentFormat.Usage::"Sales Credit Memo".AsInteger());
 
         ElectronicDocumentFormat.InsertElectronicFormat(
           PEPPOLBIS3_ElectronicFormatTxt, PEPPOLBIS3_ElectronicFormatDescriptionTxt,
-          CODEUNIT::"PEPPOL Validation", 0, ElectronicDocumentFormat.Usage::"Sales Validation");
+          CODEUNIT::"PEPPOL Validation", 0, ElectronicDocumentFormat.Usage::"Sales Validation".AsInteger());
 
         ElectronicDocumentFormat.InsertElectronicFormat(
           PEPPOLBIS3_ElectronicFormatTxt, PEPPOLBIS3_ElectronicFormatDescriptionTxt,
-          CODEUNIT::"Exp. Serv.Inv. PEPPOL BIS3.0", 0, ElectronicDocumentFormat.Usage::"Service Invoice");
+          CODEUNIT::"Exp. Serv.Inv. PEPPOL BIS3.0", 0, ElectronicDocumentFormat.Usage::"Service Invoice".AsInteger());
 
         ElectronicDocumentFormat.InsertElectronicFormat(
           PEPPOLBIS3_ElectronicFormatTxt, PEPPOLBIS3_ElectronicFormatDescriptionTxt,
-          CODEUNIT::"Exp. Serv.CrM. PEPPOL BIS3.0", 0, ElectronicDocumentFormat.Usage::"Service Credit Memo");
+          CODEUNIT::"Exp. Serv.CrM. PEPPOL BIS3.0", 0, ElectronicDocumentFormat.Usage::"Service Credit Memo".AsInteger());
 
         ElectronicDocumentFormat.InsertElectronicFormat(
           PEPPOLBIS3_ElectronicFormatTxt, PEPPOLBIS3_ElectronicFormatDescriptionTxt,
-          CODEUNIT::"PEPPOL Service Validation", 0, ElectronicDocumentFormat.Usage::"Service Validation");
+          CODEUNIT::"PEPPOL Service Validation", 0, ElectronicDocumentFormat.Usage::"Service Validation".AsInteger());
     end;
 
     local procedure InsertSourceCode(var SourceCodeDefCode: Code[10]; "Code": Code[10]; Description: Text[50])
@@ -657,10 +657,6 @@ codeunit 2 "Company-Initialize"
         ClientAddIn: Record "Add-in";
     begin
         InsertClientAddIn(
-          'Microsoft.Dynamics.Nav.Client.DynamicsOnlineConnect', '31bf3856ad364e35', '',
-          ClientAddIn.Category::"DotNet Control Add-in",
-          'Microsoft Dynamics Online Connect control add-in', '');
-        InsertClientAddIn(
           'Microsoft.Dynamics.Nav.Client.BusinessChart', '31bf3856ad364e35', '',
           ClientAddIn.Category::"JavaScript Control Add-in",
           'Microsoft Dynamics BusinessChart control add-in',
@@ -701,7 +697,7 @@ codeunit 2 "Company-Initialize"
         InsertClientAddIn(
           'Microsoft.Dynamics.Nav.Client.FlowIntegration', '31bf3856ad364e35', '',
           ClientAddIn.Category::"JavaScript Control Add-in",
-          'Microsoft Flow Integration control add-in',
+          'Microsoft Power Automate Integration control add-in',
           ApplicationPath + 'Add-ins\FlowIntegration\Microsoft.Dynamics.Nav.Client.FlowIntegration.zip');
         InsertClientAddIn(
           'Microsoft.Dynamics.Nav.Client.RoleCenterSelector', '31bf3856ad364e35', '',
@@ -824,22 +820,6 @@ codeunit 2 "Company-Initialize"
         ReportSelections.Sequence := Sequence;
         ReportSelections."Report ID" := ReportID;
         ReportSelections.Insert();
-    end;
-
-    local procedure InitBankPmtApplRuleCode(): Code[10]
-    var
-        BankPmtApplRuleCode: Record "Bank Pmt. Appl. Rule Code";
-    begin
-        // NAVCZ
-        with BankPmtApplRuleCode do begin
-            if not Get(CopyStr(BankPmtApplRuleCodeTxt, 1, MaxStrLen(Code))) then begin
-                Init();
-                Code := CopyStr(BankPmtApplRuleCodeTxt, 1, MaxStrLen(Code));
-                Description := CopyStr(BankPmtApplRuleCodeDescriptionTxt, 1, MaxStrLen(Description));
-                Insert();
-            end;
-            exit(Code);
-        end;
     end;
 
     local procedure InitApplicationAreasForSaaS()

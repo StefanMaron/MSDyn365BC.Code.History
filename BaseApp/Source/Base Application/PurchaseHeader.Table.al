@@ -1,4 +1,4 @@
-﻿table 38 "Purchase Header"
+table 38 "Purchase Header"
 {
     Caption = 'Purchase Header';
     DataCaptionFields = "No.", "Buy-from Vendor Name";
@@ -277,7 +277,7 @@
             var
                 Vendor: Record Vendor;
             begin
-                if ShouldLookForVendorByName("Pay-to Vendor No.") then
+                if ShouldSearchForVendorByName("Pay-to Vendor No.") then
                     Validate("Pay-to Vendor No.", Vendor.GetVendorNo("Pay-to Name"));
             end;
         }
@@ -474,7 +474,7 @@
                     UpdateCurrencyFactor();
                     UpdatePerformCountryCurrFactor; // NAVCZ
                     if "Currency Factor" <> xRec."Currency Factor" then
-                        SkipJobCurrFactorUpdate := not ConfirmUpdateCurrencyFactor();
+                        SkipJobCurrFactorUpdate := not ConfirmCurrencyFactorUpdate();
                 end;
 
                 if "Posting Date" <> xRec."Posting Date" then
@@ -677,7 +677,7 @@
                             UpdatePerformCountryCurrFactor();
                             // NAVCZ
                             if "Currency Factor" <> xRec."Currency Factor" then
-                                ConfirmUpdateCurrencyFactor();
+                                ConfirmCurrencyFactorUpdate();
                         end;
 
                 if ("No." <> '') and ("Currency Code" <> xRec."Currency Code") then
@@ -832,7 +832,7 @@
         }
         field(46; Comment; Boolean)
         {
-            CalcFormula = Exist ("Purch. Comment Line" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist("Purch. Comment Line" WHERE("Document Type" = FIELD("Document Type"),
                                                              "No." = FIELD("No."),
                                                              "Document Line No." = CONST(0)));
             Caption = 'Comment';
@@ -879,7 +879,7 @@
                     VendLedgEntry.SetRange("Document Type");
                     VendLedgEntry.SetRange("Document No.");
                 end else
-                    if "Applies-to Doc. Type" <> 0 then begin
+                    if "Applies-to Doc. Type" <> "Applies-to Doc. Type"::" " then begin
                         VendLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                         if VendLedgEntry.FindFirst then;
                         VendLedgEntry.SetRange("Document Type");
@@ -954,7 +954,7 @@
         }
         field(56; "Recalculate Invoice Disc."; Boolean)
         {
-            CalcFormula = Exist ("Purchase Line" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist("Purchase Line" WHERE("Document Type" = FIELD("Document Type"),
                                                        "Document No." = FIELD("No."),
                                                        "Recalculate Invoice Disc." = CONST(true)));
             Caption = 'Recalculate Invoice Disc.';
@@ -977,7 +977,7 @@
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Purchase Line".Amount WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum("Purchase Line".Amount WHERE("Document Type" = FIELD("Document Type"),
                                                             "Document No." = FIELD("No.")));
             Caption = 'Amount';
             Editable = false;
@@ -987,7 +987,7 @@
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Purchase Line"."Amount Including VAT" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum("Purchase Line"."Amount Including VAT" WHERE("Document Type" = FIELD("Document Type"),
                                                                             "Document No." = FIELD("No.")));
             Caption = 'Amount Including VAT';
             Editable = false;
@@ -1170,27 +1170,15 @@
             ValidateTableRelation = false;
 
             trigger OnLookup()
-            var
-                Vendor: Record Vendor;
-                StandardCodesMgt: Codeunit "Standard Codes Mgt.";
             begin
-                if "Buy-from Vendor No." <> '' then
-                    Vendor.Get("Buy-from Vendor No.");
-
-                if Vendor.LookupVendor(Vendor) then begin
-                    xRec := Rec;
-                    "Buy-from Vendor Name" := Vendor.Name;
-                    Validate("Buy-from Vendor No.", Vendor."No.");
-                    if "No." <> '' then
-                        StandardCodesMgt.CheckCreatePurchRecurringLines(Rec);
-                end;
+                LookupBuyfromVendorName();
             end;
 
             trigger OnValidate()
             var
                 Vendor: Record Vendor;
             begin
-                if ShouldLookForVendorByName("Buy-from Vendor No.") then
+                if ShouldSearchForVendorByName("Buy-from Vendor No.") then
                     Validate("Buy-from Vendor No.", Vendor.GetVendorNo("Buy-from Vendor Name"));
             end;
         }
@@ -1968,14 +1956,14 @@
         }
         field(300; "A. Rcd. Not Inv. Ex. VAT (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("Purchase Line"."A. Rcd. Not Inv. Ex. VAT (LCY)" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum("Purchase Line"."A. Rcd. Not Inv. Ex. VAT (LCY)" WHERE("Document Type" = FIELD("Document Type"),
                                                                                       "Document No." = FIELD("No.")));
             Caption = 'Amount Received Not Invoiced (LCY)';
             FieldClass = FlowField;
         }
         field(301; "Amt. Rcd. Not Invoiced (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("Purchase Line"."Amt. Rcd. Not Invoiced (LCY)" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum("Purchase Line"."Amt. Rcd. Not Invoiced (LCY)" WHERE("Document Type" = FIELD("Document Type"),
                                                                                     "Document No." = FIELD("No.")));
             Caption = 'Amount Received Not Invoiced (LCY) Incl. VAT';
             FieldClass = FlowField;
@@ -1999,7 +1987,7 @@
         field(1305; "Invoice Discount Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Purchase Line"."Inv. Discount Amount" WHERE("Document No." = FIELD("No."),
+            CalcFormula = Sum("Purchase Line"."Inv. Discount Amount" WHERE("Document No." = FIELD("No."),
                                                                             "Document Type" = FIELD("Document Type")));
             Caption = 'Invoice Discount Amount';
             Editable = false;
@@ -2007,7 +1995,7 @@
         }
         field(5043; "No. of Archived Versions"; Integer)
         {
-            CalcFormula = Max ("Purchase Header Archive"."Version No." WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Max("Purchase Header Archive"."Version No." WHERE("Document Type" = FIELD("Document Type"),
                                                                              "No." = FIELD("No."),
                                                                              "Doc. No. Occurrence" = FIELD("Doc. No. Occurrence")));
             Caption = 'No. of Archived Versions';
@@ -2192,7 +2180,7 @@
         }
         field(5751; "Partially Invoiced"; Boolean)
         {
-            CalcFormula = Exist ("Purchase Line" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist("Purchase Line" WHERE("Document Type" = FIELD("Document Type"),
                                                        "Document No." = FIELD("No."),
                                                        Type = FILTER(<> " "),
                                                        "Location Code" = FIELD("Location Filter"),
@@ -2203,7 +2191,7 @@
         }
         field(5752; "Completely Received"; Boolean)
         {
-            CalcFormula = Min ("Purchase Line"."Completely Received" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Min("Purchase Line"."Completely Received" WHERE("Document Type" = FIELD("Document Type"),
                                                                            "Document No." = FIELD("No."),
                                                                            Type = FILTER(<> " "),
                                                                            "Location Code" = FIELD("Location Filter")));
@@ -2367,7 +2355,7 @@
         }
         field(9001; "Pending Approvals"; Integer)
         {
-            CalcFormula = Count ("Approval Entry" WHERE("Table ID" = CONST(38),
+            CalcFormula = Count("Approval Entry" WHERE("Table ID" = CONST(38),
                                                         "Document Type" = FIELD("Document Type"),
                                                         "Document No." = FIELD("No."),
                                                         Status = FILTER(Open | Created)));
@@ -2490,6 +2478,9 @@
         {
             Caption = 'Cash Desk Code';
             TableRelation = "Bank Account" WHERE("Account Type" = CONST("Cash Desk"));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnLookup()
             var
@@ -2520,6 +2511,9 @@
             Caption = 'Cash Document Status';
             OptionCaption = ' ,Create,Release,Post,Release and Print,Post and Print';
             OptionMembers = " ",Create,Release,Post,"Release and Print","Post and Print";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             begin
@@ -2530,6 +2524,9 @@
         field(11760; "VAT Date"; Date)
         {
             Caption = 'VAT Date';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             begin
@@ -2549,6 +2546,9 @@
             Caption = 'VAT Currency Factor';
             DecimalPlaces = 0 : 15;
             MinValue = 0;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             begin
@@ -2571,15 +2571,18 @@
         }
         field(11771; "Last Uncertainty Check Date"; Date)
         {
-            CalcFormula = Max ("Uncertainty Payer Entry"."Check Date" WHERE("VAT Registration No." = FIELD("VAT Registration No."),
+            CalcFormula = Max("Uncertainty Payer Entry"."Check Date" WHERE("VAT Registration No." = FIELD("VAT Registration No."),
                                                                             "Entry Type" = CONST(Payer)));
             Caption = 'Last Uncertainty Check Date';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11772; "VAT Uncertainty Payer"; Option)
         {
-            CalcFormula = Lookup ("Uncertainty Payer Entry"."Uncertainty Payer" WHERE("VAT Registration No." = FIELD("VAT Registration No."),
+            CalcFormula = Lookup("Uncertainty Payer Entry"."Uncertainty Payer" WHERE("VAT Registration No." = FIELD("VAT Registration No."),
                                                                                       "Entry Type" = CONST(Payer),
                                                                                       "Check Date" = FIELD("Last Uncertainty Check Date")));
             Caption = 'VAT Uncertainty Payer';
@@ -2587,22 +2590,34 @@
             FieldClass = FlowField;
             OptionCaption = ' ,NO,YES,NOTFOUND';
             OptionMembers = " ",NO,YES,NOTFOUND;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11773; "Third Party Bank Account"; Boolean)
         {
-            CalcFormula = Lookup ("Vendor Bank Account"."Third Party Bank Account" WHERE("Vendor No." = FIELD("Pay-to Vendor No."),
+            CalcFormula = Lookup("Vendor Bank Account"."Third Party Bank Account" WHERE("Vendor No." = FIELD("Pay-to Vendor No."),
                                                                                          Code = FIELD("Bank Account Code")));
             Caption = 'Third Party Bank Account';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11792; "Original User ID"; Code[50])
         {
@@ -2669,7 +2684,7 @@
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Advance Letter Line Relation".Amount WHERE(Type = CONST(Purchase),
+            CalcFormula = Sum("Advance Letter Line Relation".Amount WHERE(Type = CONST(Purchase),
                                                                            "Document No." = FIELD("No.")));
             Caption = 'Adv.Letter Linked Amount';
             Editable = false;
@@ -2680,7 +2695,7 @@
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Advance Letter Line Relation"."Amount To Deduct" WHERE(Type = CONST(Purchase),
+            CalcFormula = Sum("Advance Letter Line Relation"."Amount To Deduct" WHERE(Type = CONST(Purchase),
                                                                                        "Document Type" = FIELD("Document Type"),
                                                                                        "Document No." = FIELD("No.")));
             Caption = 'Adv.Letter Link.Amt. to Deduct';
@@ -2689,7 +2704,7 @@
         }
         field(31006; "Has Letter Line Relation"; Boolean)
         {
-            CalcFormula = Exist ("Advance Letter Line Relation" WHERE(Type = CONST(Purchase),
+            CalcFormula = Exist("Advance Letter Line Relation" WHERE(Type = CONST(Purchase),
                                                                       "Document Type" = FIELD("Document Type"),
                                                                       "Document No." = FIELD("No.")));
             Caption = 'Has Letter Line Relation';
@@ -2699,7 +2714,7 @@
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Advance Letter Line Relation"."Invoiced Amount" WHERE(Type = CONST(Purchase),
+            CalcFormula = Sum("Advance Letter Line Relation"."Invoiced Amount" WHERE(Type = CONST(Purchase),
                                                                                       "Document Type" = FIELD("Document Type"),
                                                                                       "Document No." = FIELD("No.")));
             Caption = 'Adv.Letter Linked Inv. Amount';
@@ -2710,7 +2725,7 @@
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Advance Letter Line Relation"."Deducted Amount" WHERE(Type = CONST(Purchase),
+            CalcFormula = Sum("Advance Letter Line Relation"."Deducted Amount" WHERE(Type = CONST(Purchase),
                                                                                       "Document Type" = FIELD("Document Type"),
                                                                                       "Document No." = FIELD("No.")));
             Caption = 'Adv.Letter Linked Ded. Amount';
@@ -2793,6 +2808,9 @@
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
             Caption = 'EU 3-Party Intermediate Role';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             begin
@@ -2803,6 +2821,9 @@
         field(31067; "EU 3-Party Trade"; Boolean)
         {
             Caption = 'EU 3-Party Trade';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             begin
@@ -2813,6 +2834,9 @@
         field(31100; "Original Document VAT Date"; Date)
         {
             Caption = 'Original Document VAT Date';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
     }
 
@@ -2985,9 +3009,9 @@
         Location: Record Location;
         WhseRequest: Record "Warehouse Request";
         InvtSetup: Record "Inventory Setup";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         RegistrationCountry: Record "Registration Country/Region";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         NoSeriesMgt: Codeunit NoSeriesManagement;
@@ -2998,7 +3022,6 @@
         PostingSetupMgt: Codeunit PostingSetupManagement;
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         CurrencyDate: Date;
-        HideValidationDialog: Boolean;
         Confirmed: Boolean;
         Text034: Label 'You cannot change the %1 when the %2 has been filled in.';
         Text037: Label 'Contact %1 %2 is not related to vendor %3.';
@@ -3043,6 +3066,9 @@
         FullPurchaseTypesTxt: Label 'Purchase Quote,Purchase Order,Purchase Invoice,Purchase Credit Memo,Purchase Blanket Order,Purchase Return Order';
         RecreatePurchaseLinesCancelErr: Label 'You must delete the existing purchase lines before you can change %1.', Comment = '%1 - Field Name, Sample:You must delete the existing purchase lines before you can change Currency Code.';
 
+    protected var
+        HideValidationDialog: Boolean;
+
     procedure InitInsert()
     var
         IsHandled: Boolean;
@@ -3066,7 +3092,7 @@
 
     procedure InitRecord()
     var
-        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         NoSeriesLink: Record "No. Series Link";
         ArchiveManagement: Codeunit ArchiveManagement;
         IsHandled: Boolean;
@@ -3210,7 +3236,8 @@
         UpdateInboundWhseHandlingTime();
 
         "Responsibility Center" := UserSetupMgt.GetRespCenter(1, "Responsibility Center");
-        "Doc. No. Occurrence" := ArchiveManagement.GetNextOccurrenceNo(DATABASE::"Purchase Header", "Document Type", "No.");
+        "Doc. No. Occurrence" :=
+            ArchiveManagement.GetNextOccurrenceNo(DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
 
         OnAfterInitRecord(Rec);
     end;
@@ -3241,6 +3268,7 @@
         OnAfterInitNoSeries(Rec, xRec);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     local procedure InitVATDate(DefaultVATDate: Option)
     begin
         // NAVCZ
@@ -3254,6 +3282,7 @@
         end;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     local procedure InitOriginalDocumentVATDate(DefaultOrigDocVATDate: Option)
     begin
         // NAVCZ
@@ -3408,7 +3437,7 @@
         OnAfterGetPurchSetup(Rec, PurchSetup, CurrFieldNo);
     end;
 
-    local procedure GetVend(VendNo: Code[20])
+    procedure GetVend(VendNo: Code[20])
     begin
         if VendNo <> Vend."No." then
             Vend.Get(VendNo);
@@ -3508,7 +3537,7 @@
                 until PurchLine.Next() = 0;
 
                 StorePurchCommentLineToTemp(TempPurchCommentLine);
-                PurchCommentLine.DeleteComments("Document Type", "No.");
+                PurchCommentLine.DeleteComments("Document Type".AsInteger(), "No.");
 
                 TransferItemChargeAssgntPurchToTemp(ItemChargeAssgntPurch, TempItemChargeAssgntPurch);
 
@@ -3815,7 +3844,7 @@
         OnAfterUpdateCurrencyFactor(Rec, GetHideValidationDialog);
     end;
 
-    local procedure ConfirmUpdateCurrencyFactor(): Boolean
+    procedure ConfirmCurrencyFactorUpdate(): Boolean
     begin
         OnBeforeConfirmUpdateCurrencyFactor(Rec, HideValidationDialog);
         if GetHideValidationDialog or not GuiAllowed then
@@ -4136,7 +4165,8 @@
             exit;
 
         if PurchLine.FindSet() then begin
-            ReservMgt.DeleteDocumentReservation(DATABASE::"Purchase Line", "Document Type", "No.", GetHideValidationDialog);
+            ReservMgt.DeleteDocumentReservation(
+                DATABASE::"Purchase Line", "Document Type".AsInteger(), "No.", GetHideValidationDialog);
             repeat
                 PurchLine.SuspendStatusCheck(true);
                 PurchLine.Delete(true);
@@ -4537,8 +4567,13 @@
         end
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Typo in the function name, use GetPstdDocLinesToReverse instead', '15.1')]
     procedure GetPstdDocLinesToRevere()
+    begin
+        GetPstdDocLinesToReverse();
+    end;
+
+    procedure GetPstdDocLinesToReverse()
     var
         PurchPostedDocLines: Page "Posted Purchase Document Lines";
     begin
@@ -4874,7 +4909,7 @@
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of posting description will be removed and this function should not be used. (Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of posting description will be removed and this function should not be used. (Removed in release 01.2021)', '15.3')]
     procedure GetPostingDescription(PurchHeader: Record "Purchase Header"): Text[100]
     var
         PostingDesc: Record "Posting Description";
@@ -4902,7 +4937,7 @@
         exit(false);
     end;
 
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     local procedure UpdatePerformCountryCurrFactor()
     begin
         // NAVCZ
@@ -5165,7 +5200,7 @@
 
     procedure SetStatus(NewStatus: Option)
     begin
-        Status := NewStatus;
+        Status := "Purchase Document Status".FromInteger(NewStatus);
         Modify;
     end;
 
@@ -5179,9 +5214,8 @@
     procedure DeferralHeadersExist(): Boolean
     var
         DeferralHeader: Record "Deferral Header";
-        DeferralUtilities: Codeunit "Deferral Utilities";
     begin
-        DeferralHeader.SetRange("Deferral Doc. Type", DeferralUtilities.GetPurchDeferralDocType);
+        DeferralHeader.SetRange("Deferral Doc. Type", "Deferral Document Type"::Purchase);
         DeferralHeader.SetRange("Gen. Jnl. Template Name", '');
         DeferralHeader.SetRange("Gen. Jnl. Batch Name", '');
         DeferralHeader.SetRange("Document Type", "Document Type");
@@ -5399,7 +5433,7 @@
         exit((not HasPayToAddress) and PayToVendor.HasAddress);
     end;
 
-    local procedure ShouldLookForVendorByName(VendorNo: Code[20]): Boolean
+    procedure ShouldSearchForVendorByName(VendorNo: Code[20]): Boolean
     var
         Vendor: Record Vendor;
     begin
@@ -5474,6 +5508,7 @@
         exit(true)
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     local procedure CheckCurrencyExchangeRate(CurrencyDate: Date)
     var
         CurrExchRate: Record "Currency Exchange Rate";
@@ -5576,7 +5611,7 @@
         GetReportSelectionsUsageFromDocumentType(ReportSelections.Usage, DocTxt);
 
         DocumentSendingProfile.SendVendorRecords(
-          ReportSelections.Usage, Rec, DocTxt, "Buy-from Vendor No.", "No.",
+          ReportSelections.Usage.AsInteger(), Rec, DocTxt, "Buy-from Vendor No.", "No.",
           FieldNo("Buy-from Vendor No."), FieldNo("No."));
     end;
 
@@ -5588,7 +5623,7 @@
         CheckMixedDropShipment;
 
         DocumentSendingProfile.TrySendToPrinterVendor(
-          DummyReportSelections.Usage::"P.Order", Rec, FieldNo("Buy-from Vendor No."), ShowRequestForm);
+          DummyReportSelections.Usage::"P.Order".AsInteger(), Rec, FieldNo("Buy-from Vendor No."), ShowRequestForm);
     end;
 
     procedure SendProfile(var DocumentSendingProfile: Record "Document Sending Profile")
@@ -5599,7 +5634,7 @@
         CheckMixedDropShipment;
 
         DocumentSendingProfile.SendVendor(
-          DummyReportSelections.Usage::"P.Order", Rec, "No.", "Buy-from Vendor No.",
+          DummyReportSelections.Usage::"P.Order".AsInteger(), Rec, "No.", "Buy-from Vendor No.",
           ReportDistributionMgt.GetFullDocumentTypeText(Rec), FieldNo("Buy-from Vendor No."), FieldNo("No."));
     end;
 
@@ -5950,15 +5985,15 @@
           DocAlreadyExistNotification, RecordId, GetShowExternalDocAlreadyExistNotificationId);
     end;
 
-    local procedure GetGenJnlDocumentType(): Integer
+    local procedure GetGenJnlDocumentType(): Enum "Gen. Journal Document Type"
     var
         RefGenJournalLine: Record "Gen. Journal Line";
     begin
         case "Document Type" of
             "Document Type"::"Blanket Order",
-          "Document Type"::Quote,
-          "Document Type"::Invoice,
-          "Document Type"::Order:
+            "Document Type"::Quote,
+            "Document Type"::Invoice,
+            "Document Type"::Order:
                 exit(RefGenJournalLine."Document Type"::Invoice);
             else
                 exit(RefGenJournalLine."Document Type"::"Credit Memo");
@@ -6057,10 +6092,11 @@
                 end;
     end;
 
-    local procedure GetReportSelectionsUsageFromDocumentType(var ReportSelectionsUsage: Option; var DocTxt: Text[150])
+    local procedure GetReportSelectionsUsageFromDocumentType(var ReportSelectionsUsage: Enum "Report Selection Usage"; var DocTxt: Text[150])
     var
         ReportSelections: Record "Report Selections";
         ReportDistributionMgt: Codeunit "Report Distribution Management";
+        ReportUsage: Option;
     begin
         DocTxt := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
 
@@ -6071,7 +6107,9 @@
                 ReportSelectionsUsage := ReportSelections.Usage::"P.Quote";
         end;
 
-        OnAfterGetReportSelectionsUsageFromDocumentType(Rec, ReportSelectionsUsage, DocTxt);
+        ReportUsage := ReportSelectionsUsage.AsInteger();
+        OnAfterGetReportSelectionsUsageFromDocumentType(Rec, ReportUsage, DocTxt);
+        ReportSelectionsUsage := "Report Selection Usage".FromInteger(ReportUsage);
     end;
 
     local procedure RevertCurrencyCodeAndPostingDate()
@@ -6164,6 +6202,7 @@
         StatusCheckSuspended := Suspend;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     procedure IsUncertaintyPayerCheckPossible(): Boolean
     var
         UncPayerMgt: Codeunit "Unc. Payer Mgt.";
@@ -6179,6 +6218,7 @@
         exit(CheckPossible);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     procedure GetUncertaintyPayerStatus(): Integer
     var
         UncertaintyPayerEntry: Record "Uncertainty Payer Entry";
@@ -6215,24 +6255,24 @@
         if IsHandled then
             exit;
 
-        FullDocTypeTxt := SelectStr("Document Type" + 1, FullPurchaseTypesTxt);
+        FullDocTypeTxt := SelectStr("Document Type".AsInteger() + 1, FullPurchaseTypesTxt);
     end;
 
     procedure ShipOrReceiveInventoriableTypeItems(): Boolean
-    var
-        PurchaseLine: Record "Purchase Line";
     begin
         // NAVCZ
-        PurchaseLine.SetRange("Document Type", "Document Type");
-        PurchaseLine.SetRange("Document No.", "No.");
-        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
-        if PurchaseLine.FindSet() then
+        PurchLine.Reset();
+        PurchLine.SetRange("Document Type", "Document Type");
+        PurchLine.SetRange("Document No.", "No.");
+        PurchLine.SetRange(Type, PurchLine.Type::Item);
+        if PurchLine.FindSet() then
             repeat
-                if ((PurchaseLine."Qty. to Receive" <> 0) or (PurchaseLine."Return Qty. to Ship" <> 0)) and PurchaseLine.IsInventoriableItem() then
+                if ((PurchLine."Qty. to Receive" <> 0) or (PurchLine."Return Qty. to Ship" <> 0)) and PurchLine.IsInventoriableItem() then
                     exit(true);
-            until PurchaseLine.Next() = 0;
+            until PurchLine.Next() = 0;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsUncertaintyPayerCheckPossible(var PurchaseHeader: Record "Purchase Header"; var CheckPossible: Boolean)
     begin
@@ -6273,6 +6313,23 @@
         Vend.CheckBlockedVendOnDocs(Vend, false);
     end;
 
+    procedure LookupBuyfromVendorName(): Boolean
+    var
+        Vendor: Record Vendor;
+        StandardCodesMgt: Codeunit "Standard Codes Mgt.";
+    begin
+        if "Buy-from Vendor No." <> '' then
+            Vendor.Get("Buy-from Vendor No.");
+
+        if Vendor.LookupVendor(Vendor) then begin
+            "Buy-from Vendor Name" := Vendor.Name;
+            Validate("Buy-from Vendor No.", Vendor."No.");
+            if "No." <> '' then
+                StandardCodesMgt.CheckCreatePurchRecurringLines(Rec);
+            exit(true);
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetFullDocTypeTxt(var PurchaseHeader: Record "Purchase Header"; var FullDocTypeTxt: Text; var IsHandled: Boolean)
     begin
@@ -6284,7 +6341,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterCopyAddressInfoFromOrderAddress(OrderAddress: Record "Order Address")
+    local procedure OnAfterCopyAddressInfoFromOrderAddress(var OrderAddress: Record "Order Address")
     begin
     end;
 
@@ -6838,7 +6895,7 @@
     local procedure OnBeforeValidateReturnShipmentNoSeries(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBlockedVendOnDocs(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; Vend: Record Vendor; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin

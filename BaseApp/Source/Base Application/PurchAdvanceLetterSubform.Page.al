@@ -317,7 +317,7 @@ page 31021 "Purch. Advance Letter Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Co&mments")
@@ -329,7 +329,7 @@ page 31021 "Purch. Advance Letter Subform"
 
                     trigger OnAction()
                     begin
-                        ShowLineComments;
+                        ShowLineComments();
                     end;
                 }
             }

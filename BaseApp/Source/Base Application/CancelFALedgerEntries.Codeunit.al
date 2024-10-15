@@ -68,7 +68,7 @@ codeunit 5624 "Cancel FA Ledger Entries"
             exit;
 
         with FALedgEntry do
-            if ("FA Posting Type" > "FA Posting Type"::"Salvage Value") or
+            if ("FA Posting Type".AsInteger() > "FA Posting Type"::"Salvage Value".AsInteger()) or
                ("FA Posting Category" <> "FA Posting Category"::" ")
             then begin
                 "FA Posting Type" := "FA Posting Type"::"Proceeds on Disposal";

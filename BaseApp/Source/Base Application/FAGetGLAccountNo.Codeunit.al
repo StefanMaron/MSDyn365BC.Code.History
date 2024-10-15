@@ -1,4 +1,4 @@
-codeunit 5602 "FA Get G/L Account No."
+﻿codeunit 5602 "FA Get G/L Account No."
 {
 
     trigger OnRun()
@@ -16,7 +16,7 @@ codeunit 5602 "FA Get G/L Account No."
     begin
         FASetup.Get();
         with FALedgEntry do begin
-            FAPostingGr.Get("FA Posting Group");
+            FAPostingGr.GetPostingGroup("FA Posting Group", "Depreciation Book Code");
             GLAccNo := '';
             if "FA Posting Category" = "FA Posting Category"::" " then
                 case "FA Posting Type" of
@@ -124,7 +124,8 @@ codeunit 5602 "FA Get G/L Account No."
             exit(FAExtPostingGr."Maintenance Expense Account");
         end;
         // NAVCZ
-        FAPostingGr.Get(MaintenanceLedgEntry."FA Posting Group");
+        FAPostingGr.GetPostingGroup(
+            MaintenanceLedgEntry."FA Posting Group", MaintenanceLedgEntry."Depreciation Book Code");
         exit(FAPostingGr.GetMaintenanceExpenseAccount);
     end;
 

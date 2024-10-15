@@ -2,8 +2,11 @@ report 31098 "Sales - Shipment CZ"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './SalesShipmentCZ.rdlc';
-    Caption = 'Sales - Shipment CZ';
+    Caption = 'Sales - Shipment CZ (Obsolete)';
     PreviewMode = PrintLayout;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {
@@ -451,7 +454,7 @@ report 31098 "Sales - Shipment CZ"
         ShipmentMethod: Record "Shipment Method";
         DocFooter: Record "Document Footer";
         TrackingSpecBuf: Record "Tracking Specification" temporary;
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         RegCountryRegion: Record "Registration Country/Region";
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";

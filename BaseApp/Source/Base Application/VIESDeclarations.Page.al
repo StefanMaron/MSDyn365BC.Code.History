@@ -1,12 +1,15 @@
 page 31068 "VIES Declarations"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'VIES Declarations';
+    Caption = 'VIES Declarations (Obsolete)';
     CardPageID = "VIES Declaration";
     Editable = false;
     PageType = List;
     SourceTable = "VIES Declaration Header";
     UsageCategory = Tasks;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

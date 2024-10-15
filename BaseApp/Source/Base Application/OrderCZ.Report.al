@@ -2,8 +2,11 @@ report 31092 "Order CZ"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './OrderCZ.rdlc';
-    Caption = 'Order CZ';
+    Caption = 'Order CZ (Obsolete)';
     PreviewMode = PrintLayout;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

@@ -34,7 +34,7 @@ table 255 "VAT Statement Template"
         }
         field(16; "Page Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Page),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Page),
                                                                            "Object ID" = FIELD("Page ID")));
             Caption = 'Page Caption';
             Editable = false;
@@ -42,7 +42,7 @@ table 255 "VAT Statement Template"
         }
         field(17; "VAT Statement Report Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
                                                                            "Object ID" = FIELD("VAT Statement Report ID")));
             Caption = 'VAT Statement Report Caption';
             Editable = false;
@@ -62,6 +62,9 @@ table 255 "VAT Statement Template"
         {
             Caption = 'Allow Comments/Attachments';
             InitValue = true; // NAVCZ
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             begin

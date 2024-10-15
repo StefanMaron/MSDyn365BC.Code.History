@@ -156,7 +156,7 @@ table 5747 "Transfer Receipt Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(5704; "Item Category Code"; Code[20])

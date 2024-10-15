@@ -1,4 +1,4 @@
-codeunit 5807 "Item Charge Assgnt. (Sales)"
+﻿codeunit 5807 "Item Charge Assgnt. (Sales)"
 {
     Permissions = TableData "Sales Header" = r,
                   TableData "Sales Line" = r,
@@ -20,23 +20,22 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
         ItemChargesNotAssignedErr: Label 'No item charges were assigned.';
         UOMMgt: Codeunit "Unit of Measure Management";
 
-    procedure InsertItemChargeAssgnt(ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; ApplToDocType: Option; ApplToDocNo2: Code[20]; ApplToDocLineNo2: Integer; ItemNo2: Code[20]; Description2: Text[100]; var NextLineNo: Integer; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
+    procedure InsertItemChargeAssignment(ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; ApplToDocType: Enum "Sales Applies-to Document Type"; ApplToDocNo: Code[20]; ApplToDocLineNo: Integer; ItemNo: Code[20]; Description: Text[100]; var NextLineNo: Integer; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
     begin
-        InsertItemChargeAssgntWithAssignValues(
-          ItemChargeAssgntSales, ApplToDocType, ApplToDocNo2, ApplToDocLineNo2, ItemNo2, Description2, 0, 0, NextLineNo,
-          IncludeIntrastat, IncludeIntrastatAmount);  // NAVCZ
+        InsertItemChargeAssignmentWithValues(
+            ItemChargeAssgntSales, ApplToDocType, ApplToDocNo, ApplToDocLineNo, ItemNo, Description, 0, 0, NextLineNo, IncludeIntrastat, IncludeIntrastatAmount);
     end;
 
-    procedure InsertItemChargeAssgntWithAssignValues(FromItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; ApplToDocType: Option; FromApplToDocNo: Code[20]; FromApplToDocLineNo: Integer; FromItemNo: Code[20]; FromDescription: Text[100]; QtyToAssign: Decimal; AmountToAssign: Decimal; var NextLineNo: Integer; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
+    procedure InsertItemChargeAssignmentWithValues(FromItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; ApplToDocType: Enum "Sales Applies-to Document Type"; FromApplToDocNo: Code[20]; FromApplToDocLineNo: Integer; FromItemNo: Code[20]; FromDescription: Text[100]; QtyToAssign: Decimal; AmountToAssign: Decimal; var NextLineNo: Integer; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
     var
         ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)";
     begin
-        InsertItemChargeAssgntWithAssignValuesTo(
+        InsertItemChargeAssignmentWithValuesTo(
           FromItemChargeAssgntSales, ApplToDocType, FromApplToDocNo, FromApplToDocLineNo, FromItemNo, FromDescription,
           QtyToAssign, AmountToAssign, NextLineNo, ItemChargeAssgntSales, IncludeIntrastat, IncludeIntrastatAmount);
     end;
 
-    procedure InsertItemChargeAssgntWithAssignValuesTo(FromItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; ApplToDocType: Option; FromApplToDocNo: Code[20]; FromApplToDocLineNo: Integer; FromItemNo: Code[20]; FromDescription: Text[100]; QtyToAssign: Decimal; AmountToAssign: Decimal; var NextLineNo: Integer; var ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
+    procedure InsertItemChargeAssignmentWithValuesTo(FromItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; ApplToDocType: Enum "Sales Applies-to Document Type"; FromApplToDocNo: Code[20]; FromApplToDocLineNo: Integer; FromItemNo: Code[20]; FromDescription: Text[100]; QtyToAssign: Decimal; AmountToAssign: Decimal; var NextLineNo: Integer; var ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
     var
         ItemCharge: Record "Item Charge";
     begin
@@ -70,6 +69,31 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
         ItemChargeAssgntSales.Insert();
     end;
 
+    [Obsolete('Replaced by InsertItemChargeAssignment()', '17.0')]
+    procedure InsertItemChargeAssgnt(ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; ApplToDocType: Option; ApplToDocNo2: Code[20]; ApplToDocLineNo2: Integer; ItemNo2: Code[20]; Description2: Text[100]; var NextLineNo: Integer; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
+    begin
+        InsertItemChargeAssignment(
+            ItemChargeAssgntSales, "Sales Applies-to Document Type".FromInteger(ApplToDocType), ApplToDocNo2, ApplToDocLineNo2, ItemNo2, Description2, NextLineNo,
+            IncludeIntrastat, IncludeIntrastatAmount);
+    end;
+
+    [Obsolete('Replaced by InsertItemChargeAssignmentWithValues()', '17.0')]
+    procedure InsertItemChargeAssgntWithAssignValues(FromItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; ApplToDocType: Option; FromApplToDocNo: Code[20]; FromApplToDocLineNo: Integer; FromItemNo: Code[20]; FromDescription: Text[100]; QtyToAssign: Decimal; AmountToAssign: Decimal; var NextLineNo: Integer; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
+    begin
+        InsertItemChargeAssignmentWithValues(
+            FromItemChargeAssgntSales, "Sales Applies-to Document Type".FromInteger(ApplToDocType), FromApplToDocNo, FromApplToDocLineNo, FromItemNo, FromDescription,
+            QtyToAssign, AmountToAssign, NextLineNo, IncludeIntrastat, IncludeIntrastatAmount);
+    end;
+
+    [Obsolete('Replaced by InsertItemChargeAssignmentWithValuesTo()', '17.0')]
+    procedure InsertItemChargeAssgntWithAssignValuesTo(FromItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; ApplToDocType: Option; FromApplToDocNo: Code[20]; FromApplToDocLineNo: Integer; FromItemNo: Code[20]; FromDescription: Text[100]; QtyToAssign: Decimal; AmountToAssign: Decimal; var NextLineNo: Integer; var ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
+    begin
+        InsertItemChargeAssignmentWithValuesTo(
+            FromItemChargeAssgntSales, "Sales Applies-to Document Type".FromInteger(ApplToDocType), FromApplToDocNo, FromApplToDocLineNo,
+            FromItemNo, FromDescription, QtyToAssign, AmountToAssign, NextLineNo, ItemChargeAssgntSales,
+            IncludeIntrastat, IncludeIntrastatAmount);
+    end;
+
     procedure Summarize(var TempToItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)" temporary; var ToItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)")
     begin
         with TempToItemChargeAssignmentSales do begin
@@ -88,7 +112,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
                     end;
                     ToItemChargeAssignmentSales."Qty. to Assign" += "Qty. to Assign";
                     ToItemChargeAssignmentSales."Amount to Assign" += "Amount to Assign";
-                until Next = 0;
+                until Next() = 0;
             if ToItemChargeAssignmentSales."Line No." <> 0 then
                 ToItemChargeAssignmentSales.Insert();
         end;
@@ -126,14 +150,14 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
                        FromSalesLine."Allow Item Charge Assignment"
                     then begin
                         ItemChargeAssgntSales.SetRange("Applies-to Doc. Line No.", FromSalesLine."Line No.");
-                        if not ItemChargeAssgntSales.FindFirst then
-                            InsertItemChargeAssgnt(
+                        if not ItemChargeAssgntSales.FindFirst() then
+                            InsertItemChargeAssignment(
                               LastItemChargeAssgntSales, FromSalesLine."Document Type",
                               FromSalesLine."Document No.", FromSalesLine."Line No.",
                               FromSalesLine."No.", FromSalesLine.Description, NextLineNo,
                               ShipmentMethod."Incl. Item Charges (Stat.Val.)", ShipmentMethod."Include Item Charges (Amount)"); // NAVCZ
                     end;
-                until FromSalesLine.Next = 0;
+                until FromSalesLine.Next() = 0;
             end;
         end;
 
@@ -161,12 +185,13 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
             FromSalesShptLine.TestField("Job No.", '');
             ItemChargeAssgntSales2.SetRange("Applies-to Doc. No.", FromSalesShptLine."Document No.");
             ItemChargeAssgntSales2.SetRange("Applies-to Doc. Line No.", FromSalesShptLine."Line No.");
-            if not ItemChargeAssgntSales2.FindFirst then
-                InsertItemChargeAssgnt(ItemChargeAssgntSales, ItemChargeAssgntSales2."Applies-to Doc. Type"::Shipment,
-                  FromSalesShptLine."Document No.", FromSalesShptLine."Line No.",
-                  FromSalesShptLine."No.", FromSalesShptLine.Description, Nextline,
-                  ShipmentMethod."Incl. Item Charges (Stat.Val.)", ShipmentMethod."Include Item Charges (Amount)"); // NAVCZ
-        until FromSalesShptLine.Next = 0;
+            if not ItemChargeAssgntSales2.FindFirst() then
+                InsertItemChargeAssignment(
+                    ItemChargeAssgntSales, ItemChargeAssgntSales2."Applies-to Doc. Type"::Shipment,
+                    FromSalesShptLine."Document No.", FromSalesShptLine."Line No.",
+                    FromSalesShptLine."No.", FromSalesShptLine.Description, Nextline,
+                    ShipmentMethod."Incl. Item Charges (Stat.Val.)", ShipmentMethod."Include Item Charges (Amount)"); // NAVCZ
+        until FromSalesShptLine.Next() = 0;
     end;
 
     procedure CreateRcptChargeAssgnt(var FromReturnRcptLine: Record "Return Receipt Line"; ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)")
@@ -190,12 +215,13 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
             FromReturnRcptLine.TestField("Job No.", '');
             ItemChargeAssgntSales2.SetRange("Applies-to Doc. No.", FromReturnRcptLine."Document No.");
             ItemChargeAssgntSales2.SetRange("Applies-to Doc. Line No.", FromReturnRcptLine."Line No.");
-            if not ItemChargeAssgntSales2.FindFirst then
-                InsertItemChargeAssgnt(ItemChargeAssgntSales, ItemChargeAssgntSales2."Applies-to Doc. Type"::"Return Receipt",
-                  FromReturnRcptLine."Document No.", FromReturnRcptLine."Line No.",
-                  FromReturnRcptLine."No.", FromReturnRcptLine.Description, Nextline,
-                  ShipmentMethod."Incl. Item Charges (Stat.Val.)", ShipmentMethod."Include Item Charges (Amount)"); // NAVCZ
-        until FromReturnRcptLine.Next = 0;
+            if not ItemChargeAssgntSales2.FindFirst() then
+                InsertItemChargeAssignment(
+                    ItemChargeAssgntSales, ItemChargeAssgntSales2."Applies-to Doc. Type"::"Return Receipt",
+                    FromReturnRcptLine."Document No.", FromReturnRcptLine."Line No.",
+                    FromReturnRcptLine."No.", FromReturnRcptLine.Description, Nextline,
+                    ShipmentMethod."Incl. Item Charges (Stat.Val.)", ShipmentMethod."Include Item Charges (Amount)"); // NAVCZ
+        until FromReturnRcptLine.Next() = 0;
     end;
 
     procedure SuggestAssignment(SalesLine: Record "Sales Line"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal)
@@ -269,7 +295,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
         ItemChargeAssgntSales.SetRange("Document Type", SalesLine."Document Type");
         ItemChargeAssgntSales.SetRange("Document No.", SalesLine."Document No.");
         ItemChargeAssgntSales.SetRange("Document Line No.", SalesLine."Line No.");
-        if ItemChargeAssgntSales.FindFirst then
+        if ItemChargeAssgntSales.FindFirst() then
             case SelectionTxt of
                 AssignEquallyMenuText:
                     AssignEqually(ItemChargeAssgntSales, Currency, TotalQtyToAssign, TotalAmtToAssign);
@@ -319,7 +345,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
                 TempItemChargeAssgntSales := ItemChargeAssignmentSales;
                 TempItemChargeAssgntSales.Insert();
             end;
-        until ItemChargeAssignmentSales.Next = 0;
+        until ItemChargeAssignmentSales.Next() = 0;
 
         if TempItemChargeAssgntSales.FindSet(true) then begin
             RemainingNumOfLines := TempItemChargeAssgntSales.Count();
@@ -340,7 +366,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
                 RemainingNumOfLines := RemainingNumOfLines - 1;
                 OnAssignEquallyOnBeforeItemChargeAssignmentSalesModify(ItemChargeAssignmentSales);
                 ItemChargeAssignmentSales.Modify();
-            until TempItemChargeAssgntSales.Next = 0;
+            until TempItemChargeAssgntSales.Next() = 0;
         end;
         TempItemChargeAssgntSales.DeleteAll();
     end;
@@ -380,7 +406,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
                             ReturnRcptLine.Get(
                               ItemChargeAssignmentSales."Applies-to Doc. No.",
                               ItemChargeAssignmentSales."Applies-to Doc. Line No.");
-                            CurrencyCode := ReturnRcptLine.GetCurrencyCode;
+                            CurrencyCode := ReturnRcptLine.GetCurrencyCode();
                             if CurrencyCode = SalesHeader."Currency Code" then
                                 TempItemChargeAssgntSales."Applies-to Doc. Line Amount" :=
                                   Abs(ReturnRcptLine."Item Charge Base Amount")
@@ -395,7 +421,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
                             SalesShptLine.Get(
                               ItemChargeAssignmentSales."Applies-to Doc. No.",
                               ItemChargeAssignmentSales."Applies-to Doc. Line No.");
-                            CurrencyCode := SalesShptLine.GetCurrencyCode;
+                            CurrencyCode := SalesShptLine.GetCurrencyCode();
                             if CurrencyCode = SalesHeader."Currency Code" then
                                 TempItemChargeAssgntSales."Applies-to Doc. Line Amount" :=
                                   Abs(SalesShptLine."Item Charge Base Amount")
@@ -415,7 +441,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
                 end;
                 TotalAppliesToDocLineAmount += TempItemChargeAssgntSales."Applies-to Doc. Line Amount";
             end;
-        until ItemChargeAssignmentSales.Next = 0;
+        until ItemChargeAssignmentSales.Next() = 0;
 
         if TempItemChargeAssgntSales.FindSet(true) then
             repeat
@@ -439,7 +465,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
                     OnAssignByAmountOnBeforeItemChargeAssignmentSalesModify(ItemChargeAssignmentSales);
                     ItemChargeAssignmentSales.Modify();
                 end;
-            until TempItemChargeAssgntSales.Next = 0;
+            until TempItemChargeAssgntSales.Next() = 0;
 
         TempItemChargeAssgntSales.DeleteAll();
     end;
@@ -460,7 +486,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
                 GetItemValues(TempItemChargeAssgntSales, LineArray);
                 TotalGrossWeight := TotalGrossWeight + (LineArray[2] * LineArray[1]);
             end;
-        until ItemChargeAssignmentSales.Next = 0;
+        until ItemChargeAssignmentSales.Next() = 0;
 
         if TempItemChargeAssgntSales.FindSet(true) then
             repeat
@@ -471,7 +497,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
                 else
                     TempItemChargeAssgntSales."Qty. to Assign" := 0;
                 AssignSalesItemCharge(ItemChargeAssignmentSales, TempItemChargeAssgntSales, Currency, QtyRemaining, AmountRemaining);
-            until TempItemChargeAssgntSales.Next = 0;
+            until TempItemChargeAssgntSales.Next() = 0;
         TempItemChargeAssgntSales.DeleteAll();
     end;
 
@@ -491,7 +517,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
                 GetItemValues(TempItemChargeAssgntSales, LineArray);
                 TotalUnitVolume := TotalUnitVolume + (LineArray[3] * LineArray[1]);
             end;
-        until ItemChargeAssignmentSales.Next = 0;
+        until ItemChargeAssignmentSales.Next() = 0;
 
         if TempItemChargeAssgntSales.FindSet(true) then
             repeat
@@ -502,7 +528,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
                 else
                     TempItemChargeAssgntSales."Qty. to Assign" := 0;
                 AssignSalesItemCharge(ItemChargeAssignmentSales, TempItemChargeAssgntSales, Currency, QtyRemaining, AmountRemaining);
-            until TempItemChargeAssgntSales.Next = 0;
+            until TempItemChargeAssgntSales.Next() = 0;
         TempItemChargeAssgntSales.DeleteAll();
     end;
 
@@ -634,7 +660,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
         FromItemChargeAssignmentSales := ItemChargeAssignmentSales;
     end;
 
-    local procedure GetItemChargeAssgntLineAmounts(DocumentType: Option; DocumentNo: Code[20]; DocumentLineNo: Integer; var ItemChargeAssgntLineQty: Decimal; var ItemChargeAssgntLineAmt: Decimal)
+    local procedure GetItemChargeAssgntLineAmounts(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; DocumentLineNo: Integer; var ItemChargeAssgntLineQty: Decimal; var ItemChargeAssgntLineAmt: Decimal)
     var
         SalesLine: Record "Sales Line";
         SalesHeader: Record "Sales Header";

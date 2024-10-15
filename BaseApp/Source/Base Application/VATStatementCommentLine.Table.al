@@ -3,6 +3,9 @@ table 11772 "VAT Statement Comment Line"
     Caption = 'VAT Statement Comment Line';
     DrillDownPageID = "VAT Statement Comment List";
     LookupPageID = "VAT Statement Comment List";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     fields
     {

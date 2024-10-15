@@ -282,6 +282,10 @@ codeunit 700 "Page Management"
     begin
         RecRef.SetTable(GenJournalLine);
         GenJournalTemplate.Get(GenJournalLine."Journal Template Name");
+
+        if GenJournalTemplate."Page ID" <> 0 then
+            exit(GenJournalTemplate."Page ID");
+
         if GenJournalTemplate.Recurring then
             exit(PAGE::"Recurring General Journal");
         case GenJournalTemplate.Type of

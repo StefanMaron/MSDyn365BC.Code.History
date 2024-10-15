@@ -4,8 +4,11 @@ report 11783 "Income Statement"
     RDLCLayout = './IncomeStatement.rdlc';
     AccessByPermission = TableData "G/L Account" = R;
     ApplicationArea = Basic, Suite;
-    Caption = 'Income Statement';
+    Caption = 'Income Statement (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

@@ -503,7 +503,7 @@
                     UpdateCurrencyFactor;
                     UpdatePerformCountryCurrFactor; // NAVCZ
                     if "Currency Factor" <> xRec."Currency Factor" then
-                        ConfirmUpdateCurrencyFactor;
+                        ConfirmCurrencyFactorUpdate();
                 end;
             end;
         }
@@ -673,7 +673,7 @@
                             UpdateVATCurrencyFactor;  // NAVCZ
                             UpdatePerformCountryCurrFactor; // NAVCZ
                             if "Currency Factor" <> xRec."Currency Factor" then
-                                ConfirmUpdateCurrencyFactor;
+                                ConfirmCurrencyFactorUpdate();
                         end;
             end;
         }
@@ -834,7 +834,7 @@
         }
         field(46; Comment; Boolean)
         {
-            CalcFormula = Exist ("Service Comment Line" WHERE("Table Name" = CONST("Service Header"),
+            CalcFormula = Exist("Service Comment Line" WHERE("Table Name" = CONST("Service Header"),
                                                               "Table Subtype" = FIELD("Document Type"),
                                                               "No." = FIELD("No."),
                                                               Type = CONST(General)));
@@ -863,7 +863,7 @@
                 ApplyCustEntries: Page "Apply Customer Entries";
             begin
                 TestField("Bal. Account No.", '');
-                CustLedgEntry.SetApplyToFilters("Bill-to Customer No.", "Applies-to Doc. Type", "Applies-to Doc. No.", 0);
+                CustLedgEntry.SetApplyToFilters("Bill-to Customer No.", "Applies-to Doc. Type".AsInteger(), "Applies-to Doc. No.", 0);
 
                 ApplyCustEntries.SetService(Rec, CustLedgEntry, ServHeader.FieldNo("Applies-to Doc. No."));
                 ApplyCustEntries.SetTableView(CustLedgEntry);
@@ -1754,16 +1754,16 @@
                 WhseValidateSourceHeader: Codeunit "Whse. Validate Source Header";
             begin
                 TestField("Release Status", "Release Status"::Open);
-                if InventoryPickConflict("Document Type", "No.", "Shipping Advice") then
+                if WhsePickConflict("Document Type", "No.", "Shipping Advice") then
                     Error(Text064, FieldCaption("Shipping Advice"), Format("Shipping Advice"), TableCaption);
-                if WhseShpmntConflict("Document Type", "No.", "Shipping Advice") then
+                if WhseShipmentConflict("Document Type", "No.", "Shipping Advice") then
                     Error(Text065, FieldCaption("Shipping Advice"), Format("Shipping Advice"), TableCaption);
                 WhseValidateSourceHeader.ServiceHeaderVerifyChange(Rec, xRec);
             end;
         }
         field(5752; "Completely Shipped"; Boolean)
         {
-            CalcFormula = Min ("Service Line"."Completely Shipped" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Min("Service Line"."Completely Shipped" WHERE("Document Type" = FIELD("Document Type"),
                                                                          "Document No." = FIELD("No."),
                                                                          Type = FILTER(<> " "),
                                                                          "Location Code" = FIELD("Location Filter")));
@@ -1853,7 +1853,7 @@
         }
         field(5911; "Allocated Hours"; Decimal)
         {
-            CalcFormula = Sum ("Service Order Allocation"."Allocated Hours" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum("Service Order Allocation"."Allocated Hours" WHERE("Document Type" = FIELD("Document Type"),
                                                                                   "Document No." = FIELD("No."),
                                                                                   "Allocation Date" = FIELD("Date Filter"),
                                                                                   "Resource No." = FIELD("Resource Filter"),
@@ -1892,7 +1892,7 @@
         }
         field(5921; "No. of Unallocated Items"; Integer)
         {
-            CalcFormula = Count ("Service Item Line" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Count("Service Item Line" WHERE("Document Type" = FIELD("Document Type"),
                                                            "Document No." = FIELD("No."),
                                                            "No. of Active/Finished Allocs" = CONST(0)));
             Caption = 'No. of Unallocated Items';
@@ -2127,14 +2127,14 @@
         }
         field(5933; "Contract Serv. Hours Exist"; Boolean)
         {
-            CalcFormula = Exist ("Service Hour" WHERE("Service Contract No." = FIELD("Contract No.")));
+            CalcFormula = Exist("Service Hour" WHERE("Service Contract No." = FIELD("Contract No.")));
             Caption = 'Contract Serv. Hours Exist';
             Editable = false;
             FieldClass = FlowField;
         }
         field(5934; "Reallocation Needed"; Boolean)
         {
-            CalcFormula = Exist ("Service Order Allocation" WHERE(Status = CONST("Reallocation Needed"),
+            CalcFormula = Exist("Service Order Allocation" WHERE(Status = CONST("Reallocation Needed"),
                                                                   "Resource No." = FIELD("Resource Filter"),
                                                                   "Document Type" = FIELD("Document Type"),
                                                                   "Document No." = FIELD("No."),
@@ -2173,7 +2173,7 @@
         }
         field(5939; "No. of Allocations"; Integer)
         {
-            CalcFormula = Count ("Service Order Allocation" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Count("Service Order Allocation" WHERE("Document Type" = FIELD("Document Type"),
                                                                   "Document No." = FIELD("No."),
                                                                   "Resource No." = FIELD("Resource Filter"),
                                                                   "Resource Group No." = FIELD("Resource Group Filter"),
@@ -2501,6 +2501,9 @@
         {
             Caption = 'Cash Desk Code';
             TableRelation = "Bank Account" WHERE("Account Type" = CONST("Cash Desk"));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnLookup()
             var
@@ -2535,6 +2538,9 @@
             Caption = 'Cash Document Status';
             OptionCaption = ' ,Create,Release,Post,Release and Print,Post and Print';
             OptionMembers = " ",Create,Release,Post,"Release and Print","Post and Print";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             begin
@@ -2547,6 +2553,9 @@
         field(11760; "VAT Date"; Date)
         {
             Caption = 'VAT Date';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             begin
@@ -2565,6 +2574,9 @@
             Caption = 'VAT Currency Factor';
             DecimalPlaces = 0 : 15;
             MinValue = 0;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             begin
@@ -2614,6 +2626,9 @@
             Caption = 'Credit Memo Type';
             OptionCaption = ',Corrective Tax Document,Internal Correction,Insolvency Tax Document';
             OptionMembers = ,"Corrective Tax Document","Internal Correction","Insolvency Tax Document";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             begin
@@ -2634,10 +2649,16 @@
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11792; "Original User ID"; Code[50])
         {
@@ -2726,6 +2747,9 @@
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
             Caption = 'EU 3-Party Intermediate Role';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             begin
@@ -2802,9 +2826,9 @@
         ServLine.Reset();
         ServLine.LockTable();
 
-        ReservMgt.DeleteDocumentReservation(DATABASE::"Service Line", "Document Type", "No.", HideValidationDialog);
+        ReservMgt.DeleteDocumentReservation(DATABASE::"Service Line", "Document Type".AsInteger(), "No.", HideValidationDialog);
 
-        WhseRequest.DeleteRequest(DATABASE::"Service Line", "Document Type", "No.");
+        WhseRequest.DeleteRequest(DATABASE::"Service Line", "Document Type".AsInteger(), "No.");
 
         ServLine.SetRange("Document Type", "Document Type");
         ServLine.SetRange("Document No.", "No.");
@@ -2848,7 +2872,7 @@
             repeat
                 if ServItemLine."Loaner No." <> '' then begin
                     Loaner.Get(ServItemLine."Loaner No.");
-                    LoanerEntry.SetRange("Document Type", "Document Type" + 1);
+                    LoanerEntry.SetRange("Document Type", LoanerEntry.GetDocTypeFromServDocType("Document Type"));
                     LoanerEntry.SetRange("Document No.", "No.");
                     LoanerEntry.SetRange("Loaner No.", ServItemLine."Loaner No.");
                     LoanerEntry.SetRange(Lent, true);
@@ -2974,7 +2998,7 @@
         TempReservEntry: Record "Reservation Entry" temporary;
         CompanyInfo: Record "Company Information";
         Salesperson: Record "Salesperson/Purchaser";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";
         ServOrderMgt: Codeunit ServOrderManagement;
         DimMgt: Codeunit DimensionManagement;
@@ -3025,7 +3049,7 @@
         Text064: Label 'You cannot change %1 to %2 because an open inventory pick on the %3.';
         Text065: Label 'You cannot change %1  to %2 because an open warehouse shipment exists for the %3.';
         Text066: Label 'You cannot change the dimension because there are service entries connected to this line.';
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         RegistrationCountry: Record "Registration Country/Region";
         PostedDocsToPrintCreatedMsg: Label 'One or more related posted documents have been generated during deletion to fill gaps in the posting number series. You can view or print the documents from the respective document archive.';
         DocumentNotPostedClosePageQst: Label 'The document has been saved but is not yet posted.\\Are you sure you want to exit?';
@@ -3121,8 +3145,10 @@
 
         if NewParentDimSetID = OldParentDimSetID then
             exit;
-        if not (HideValidationDialog or ConfirmManagement.GetResponseOrDefault(Text061, true)) then
-            exit;
+
+        if not HideValidationDialog and GuiAllowed then
+            if not ConfirmManagement.GetResponseOrDefault(Text061, true) then
+                exit;
 
         ServLine.Reset();
         ServLine.SetRange("Document Type", "Document Type");
@@ -3262,7 +3288,7 @@
                         until ServDocReg.Next() = 0;
                 end;
                 StoreServiceCommentLineToTemp(TempServiceCommentLine);
-                ServiceCommentLine.DeleteComments(ServiceCommentLine."Table Name"::"Service Header", "Document Type", "No.");
+                ServiceCommentLine.DeleteComments(ServiceCommentLine."Table Name"::"Service Header".AsInteger(), "Document Type".AsInteger(), "No.");
                 IsHandled := false;
                 OnRecreateServLinesOnBeforeServLineDeleteAll(Rec, ServLine, CurrFieldNo, IsHandled);
                 if not IsHandled then
@@ -3314,7 +3340,7 @@
             until TempServiceCommentLine.Next() = 0;
     end;
 
-    local procedure ConfirmUpdateCurrencyFactor()
+    local procedure ConfirmCurrencyFactorUpdate()
     var
         ConfirmManagement: Codeunit "Confirm Management";
     begin
@@ -3902,7 +3928,7 @@
 
     procedure InitRecord()
     var
-        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         NoSeriesLink: Record "No. Series Link";
         PostingNoSeries: Boolean;
         ShippingNoSeries: Boolean;
@@ -4131,7 +4157,7 @@
     begin
         ReservEntry.Reset();
         ReservEntry.SetSourceFilter(
-          DATABASE::"Service Line", OldServLine."Document Type", OldServLine."Document No.", OldServLine."Line No.", false);
+          DATABASE::"Service Line", OldServLine."Document Type".AsInteger(), OldServLine."Document No.", OldServLine."Line No.", false);
         if ReservEntry.FindSet then
             repeat
                 TempReservEntry := ReservEntry;
@@ -4144,7 +4170,7 @@
     begin
         TempReservEntry.Reset();
         TempReservEntry.SetSourceFilter(
-          DATABASE::"Service Line", OldServLine."Document Type", OldServLine."Document No.", OldServLine."Line No.", false);
+          DATABASE::"Service Line", OldServLine."Document Type".AsInteger(), OldServLine."Document No.", OldServLine."Line No.", false);
         if TempReservEntry.FindSet then
             repeat
                 ReservEntry := TempReservEntry;
@@ -4329,6 +4355,11 @@
     end;
 
     procedure InventoryPickConflict(DocType: Option Quote,"Order",Invoice,"Credit Memo"; DocNo: Code[20]; ShippingAdvice: Option Partial,Complete): Boolean
+    begin
+        exit(WhsePickConflict("Service Document Type".FromInteger(DocType), DocNo, "Sales Header Shipping Advice".FromInteger(ShippingAdvice)));
+    end;
+
+    procedure WhsePickConflict(DocType: Enum "Service Document Type"; DocNo: Code[20]; ShippingAdvice: Enum "Sales Header Shipping Advice"): Boolean
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
         ServiceLine: Record "Service Line";
@@ -4355,6 +4386,11 @@
     end;
 
     procedure WhseShpmntConflict(DocType: Option Quote,"Order",Invoice,"Credit Memo"; DocNo: Code[20]; ShippingAdvice: Option Partial,Complete): Boolean
+    begin
+        exit(WhseShipmentConflict("Service Document Type".FromInteger(DocType), DocNo, "Sales Header Shipping Advice".FromInteger(ShippingAdvice)));
+    end;
+
+    procedure WhseShipmentConflict(DocType: Enum "Service Document Type"; DocNo: Code[20]; ShippingAdvice: Enum "Sales Header Shipping Advice"): Boolean
     var
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
@@ -4398,7 +4434,7 @@
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of posting description will be removed and this function should not be used. (Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of posting description will be removed and this function should not be used. (Removed in release 01.2021)', '15.3')]
     procedure GetPostingDescription(PostingDescCode: Code[10]; var PostingDescription: Text[100])
     var
         PostingDesc: Record "Posting Description";
@@ -4413,7 +4449,7 @@
         end;
     end;
 
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     local procedure UpdatePerformCountryCurrFactor()
     begin
         // NAVCZ
@@ -4737,6 +4773,7 @@
         exit(CountryRegion.IsIntrastat("VAT Country/Region Code", false));
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     local procedure CheckCurrencyExchangeRate(CurrencyDate: Date)
     var
         CurrExchRate: Record "Currency Exchange Rate";
@@ -4812,6 +4849,11 @@
         Modify;
     end;
 
+    procedure GetHideValidationDialog(): Boolean
+    begin
+        exit(HideValidationDialog);
+    end;
+
     procedure GetFullDocTypeTxt() FullDocTypeTxt: Text
     var
         IsHandled: Boolean;
@@ -4821,7 +4863,7 @@
         if IsHandled then
             exit;
 
-        FullDocTypeTxt := SelectStr("Document Type" + 1, FullServiceTypesTxt);
+        FullDocTypeTxt := SelectStr("Document Type".AsInteger() + 1, FullServiceTypesTxt);
     end;
 
     local procedure ConfirmRecalculatePrice() Result: Boolean

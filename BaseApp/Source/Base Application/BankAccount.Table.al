@@ -1,4 +1,4 @@
-﻿table 270 "Bank Account"
+table 270 "Bank Account"
 {
     Caption = 'Bank Account';
     DataCaptionFields = "No.", Name;
@@ -211,7 +211,7 @@
         }
         field(38; Comment; Boolean)
         {
-            CalcFormula = Exist ("Comment Line" WHERE("Table Name" = CONST("Bank Account"),
+            CalcFormula = Exist("Comment Line" WHERE("Table Name" = CONST("Bank Account"),
                                                       "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -263,7 +263,7 @@
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Bank Account Ledger Entry".Amount WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Bank Account Ledger Entry".Amount WHERE("Bank Account No." = FIELD("No."),
                                                                         "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                         "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter")));
             Caption = 'Balance';
@@ -273,7 +273,7 @@
         field(59; "Balance (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Bank Account Ledger Entry"."Amount (LCY)" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Bank Account Ledger Entry"."Amount (LCY)" WHERE("Bank Account No." = FIELD("No."),
                                                                                 "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                 "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter")));
             Caption = 'Balance (LCY)';
@@ -284,7 +284,7 @@
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Bank Account Ledger Entry".Amount WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Bank Account Ledger Entry".Amount WHERE("Bank Account No." = FIELD("No."),
                                                                         "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                         "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                         "Posting Date" = FIELD("Date Filter")));
@@ -295,7 +295,7 @@
         field(61; "Net Change (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Bank Account Ledger Entry"."Amount (LCY)" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Bank Account Ledger Entry"."Amount (LCY)" WHERE("Bank Account No." = FIELD("No."),
                                                                                 "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                 "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                 "Posting Date" = FIELD("Date Filter")));
@@ -307,7 +307,7 @@
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Check Ledger Entry".Amount WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Check Ledger Entry".Amount WHERE("Bank Account No." = FIELD("No."),
                                                                  "Entry Status" = FILTER(Posted),
                                                                  "Statement Status" = FILTER(<> Closed)));
             Caption = 'Total on Checks';
@@ -370,7 +370,7 @@
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Bank Account Ledger Entry".Amount WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Bank Account Ledger Entry".Amount WHERE("Bank Account No." = FIELD("No."),
                                                                         "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                         "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                         "Posting Date" = FIELD(UPPERLIMIT("Date Filter"))));
@@ -381,7 +381,7 @@
         field(96; "Balance at Date (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Bank Account Ledger Entry"."Amount (LCY)" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Bank Account Ledger Entry"."Amount (LCY)" WHERE("Bank Account No." = FIELD("No."),
                                                                                 "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                 "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                 "Posting Date" = FIELD(UPPERLIMIT("Date Filter"))));
@@ -394,7 +394,7 @@
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Bank Account Ledger Entry"."Debit Amount" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Bank Account Ledger Entry"."Debit Amount" WHERE("Bank Account No." = FIELD("No."),
                                                                                 "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                 "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                 "Posting Date" = FIELD("Date Filter")));
@@ -407,7 +407,7 @@
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Bank Account Ledger Entry"."Credit Amount" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Bank Account Ledger Entry"."Credit Amount" WHERE("Bank Account No." = FIELD("No."),
                                                                                  "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                  "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                  "Posting Date" = FIELD("Date Filter")));
@@ -419,7 +419,7 @@
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Bank Account Ledger Entry"."Debit Amount (LCY)" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Bank Account Ledger Entry"."Debit Amount (LCY)" WHERE("Bank Account No." = FIELD("No."),
                                                                                       "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                       "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                       "Posting Date" = FIELD("Date Filter")));
@@ -431,7 +431,7 @@
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Bank Account Ledger Entry"."Credit Amount (LCY)" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Bank Account Ledger Entry"."Credit Amount (LCY)" WHERE("Bank Account No." = FIELD("No."),
                                                                                        "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                        "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                        "Posting Date" = FIELD("Date Filter")));
@@ -473,7 +473,7 @@
         }
         field(109; "Check Report Name"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Name" WHERE("Object Type" = CONST(Report),
+            CalcFormula = Lookup(AllObjWithCaption."Object Name" WHERE("Object Type" = CONST(Report),
                                                                         "Object ID" = FIELD("Check Report ID")));
             Caption = 'Check Report Name';
             Editable = false;
@@ -612,6 +612,21 @@
             Caption = 'Positive Pay Export Code';
             TableRelation = "Bank Export/Import Setup".Code WHERE(Direction = CONST("Export-Positive Pay"));
         }
+        field(5061; "Mobile Phone No."; Text[30])
+        {
+            Caption = 'Mobile Phone No.';
+            ExtendedDatatype = PhoneNo;
+
+            trigger OnValidate()
+            var
+                Char: DotNet Char;
+                i: Integer;
+            begin
+                for i := 1 to StrLen("Mobile Phone No.") do
+                    if Char.IsLetter("Mobile Phone No."[i]) then
+                        FieldError("Mobile Phone No.", PhoneNoCannotContainLettersErr);
+            end;
+        }
         field(11700; "Default Constant Symbol"; Code[10])
         {
             Caption = 'Default Constant Symbol';
@@ -747,27 +762,42 @@
             Caption = 'Max. Balance Checking';
             OptionCaption = 'No Checking,Warning,Blocking';
             OptionMembers = "No Checking",Warning,Blocking;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11731; "Min. Balance Checking"; Option)
         {
             Caption = 'Min. Balance Checking';
             OptionCaption = 'No Checking,Warning,Blocking';
             OptionMembers = "No Checking",Warning,Blocking;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11732; "Allow VAT Difference"; Boolean)
         {
             Caption = 'Allow VAT Difference';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11733; "Payed To/By Checking"; Option)
         {
             Caption = 'Payed To/By Checking';
             OptionCaption = 'No Checking,Warning,Blocking';
             OptionMembers = "No Checking",Warning,Blocking;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11734; "Reason Code"; Code[10])
         {
             Caption = 'Reason Code';
             TableRelation = "Reason Code";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11735; "User ID"; Code[50])
         {
@@ -777,29 +807,47 @@
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11736; "Amounts Including VAT"; Boolean)
         {
             Caption = 'Amounts Including VAT';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11737; "Confirm Inserting of Document"; Boolean)
         {
             Caption = 'Confirm Inserting of Document';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11738; "Debit Rounding Account"; Code[20])
         {
             Caption = 'Debit Rounding Account';
             TableRelation = "G/L Account"."No." WHERE("Account Type" = CONST(Posting));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11739; "Credit Rounding Account"; Code[20])
         {
             Caption = 'Credit Rounding Account';
             TableRelation = "G/L Account"."No." WHERE("Account Type" = CONST(Posting));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11740; "Rounding Method Code"; Code[10])
         {
             Caption = 'Rounding Method Code';
             TableRelation = "Rounding Method";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11741; "Responsibility ID (Release)"; Code[50])
         {
@@ -809,6 +857,9 @@
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             var
@@ -825,6 +876,9 @@
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             var
@@ -837,6 +891,9 @@
         {
             Caption = 'Responsibility Center';
             TableRelation = "Responsibility Center";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11760; "Amount Rounding Precision"; Decimal)
         {
@@ -844,42 +901,77 @@
             DecimalPlaces = 2 : 5;
             InitValue = 1;
             MinValue = 0;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11761; "CashReg Document Copies"; Integer)
         {
             Caption = 'CashReg Document Copies';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11762; "Direct Posting"; Boolean)
         {
             Caption = 'Direct Posting';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11763; "Account Type"; Option)
         {
             Caption = 'Account Type';
             OptionCaption = 'Bank Account,Cash Desk';
             OptionMembers = "Bank Account","Cash Desk";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
+            trigger OnValidate()
+            var
+                ChangeAccountTypeErr: Label 'You cannot change %1.', Comment = '%1 = Account Type FieldCaption';
+            begin
+                if CurrFieldNo = FieldNo("Account Type") then
+                    if "Account Type" <> xRec."Account Type" then
+                        Error(ChangeAccountTypeErr, FieldCaption("Account Type"));
+            end;
         }
         field(11764; "Max. Balance"; Decimal)
         {
             Caption = 'Max. Balance';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11765; "Cash Document Receipt Nos."; Code[20])
         {
             Caption = 'Cash Document Receipt Nos.';
             TableRelation = "No. Series";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11766; "Cash Document Withdrawal Nos."; Code[20])
         {
             Caption = 'Cash Document Withdrawal Nos.';
             TableRelation = "No. Series";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11767; "Cash Receipt Limit"; Decimal)
         {
             Caption = 'Cash Receipt Limit';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11768; "Cash Withdrawal Limit"; Decimal)
         {
             Caption = 'Cash Withdrawal Limit';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11769; "Exclude from Exch. Rate Adj."; Boolean)
         {
@@ -898,6 +990,9 @@
         {
             Caption = 'Cashier No.';
             TableRelation = Employee;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11779; "Run Apply Automatically"; Boolean)
         {
@@ -945,7 +1040,7 @@
         }
         field(31120; "EET Cash Register"; Boolean)
         {
-            CalcFormula = Exist ("EET Cash Register" WHERE("Register Type" = CONST("Cash Desk"),
+            CalcFormula = Exist("EET Cash Register" WHERE("Register Type" = CONST("Cash Desk"),
                                                            "Register No." = FIELD("No.")));
             Caption = 'EET Cash Register';
             Editable = false;
@@ -1080,6 +1175,7 @@
         BankAccNotLinkedErr: Label 'This bank account is not linked to an online bank account.';
         AutoLogonNotPossibleErr: Label 'Automatic logon is not possible for this bank account.';
         CancelTxt: Label 'Cancel';
+        PhoneNoCannotContainLettersErr: Label 'must not contain letters';
         OnlineFeedStatementStatus: Option "Not Linked",Linked,"Linked and Auto. Bank Statement Enabled";
         UnincrementableStringErr: Label 'The value in the %1 field must have a number so that we can assign the next number in the series.', Comment = '%1 = caption of field (Last Payment Statement No.)';
         CannotDeleteBalancingBankAccountErr: Label 'You cannot delete bank account that is used as balancing account in the Payment Registration Setup.', Locked = true;
@@ -1289,6 +1385,7 @@
         exit(GetNoSeriesCode());
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     procedure TestNoSeries()
     begin
         // NAVCZ
@@ -1313,6 +1410,7 @@
         end;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure Lookup()
     var
@@ -1338,6 +1436,7 @@
         end;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure CardPageRun()
     var
@@ -1364,6 +1463,7 @@
         end;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure CalcBalance(): Decimal
     begin
@@ -1371,6 +1471,7 @@
         exit(CalcOpenedReceipts + CalcOpenedWithdrawals + CalcPostedReceipts + CalcPostedWithdrawals);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure CalcOpenedWithdrawals(): Decimal
     var
@@ -1380,6 +1481,7 @@
         exit(CalcOpenedNetChanges(CashDocHeader."Cash Document Type"::Withdrawal));
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure CalcOpenedReceipts(): Decimal
     var
@@ -1389,6 +1491,7 @@
         exit(CalcOpenedNetChanges(CashDocHeader."Cash Document Type"::Receipt));
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     local procedure CalcOpenedNetChanges(CashDocumentType: Option): Decimal
     var
         CashDocHeader: Record "Cash Document Header";
@@ -1406,6 +1509,7 @@
         exit(CashDocHeader."Released Amount");
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure CalcPostedWithdrawals(): Decimal
     var
@@ -1415,6 +1519,7 @@
         exit(CalcPostedNetChanges(CashDocHeader."Cash Document Type"::Withdrawal));
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure CalcPostedReceipts(): Decimal
     var
@@ -1424,6 +1529,7 @@
         exit(CalcPostedNetChanges(CashDocHeader."Cash Document Type"::Receipt));
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     local procedure CalcPostedNetChanges(CashDocumentType: Option): Decimal
     var
         PostedCashDocLine: Record "Posted Cash Document Line";
@@ -1796,6 +1902,7 @@
           ("Address 2" <> xRec."Address 2") or
           (City <> xRec.City) or
           ("Phone No." <> xRec."Phone No.") or
+          ("Mobile Phone No." <> xRec."Mobile Phone No.") or
           ("Telex No." <> xRec."Telex No.") or
           ("Territory Code" <> xRec."Territory Code") or
           ("Currency Code" <> xRec."Currency Code") or

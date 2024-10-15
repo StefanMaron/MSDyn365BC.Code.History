@@ -148,7 +148,7 @@ page 31058 "Posted Credit Subform"
     [Scope('OnPrem')]
     procedure ShowDim()
     begin
-        ShowDimensions;
+        ShowDimensions();
     end;
 }
 

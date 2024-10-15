@@ -1,5 +1,8 @@
 codeunit 11730 CashDeskManagement
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     begin
@@ -430,6 +433,7 @@ codeunit 11730 CashDeskManagement
         end;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure CheckCashDocumentStatus(CashDeskCode: Code[20]; CashDocumentStatus: Option " ",Create,Release,Post,"Release and Print","Post and Print")
     var

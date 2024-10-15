@@ -39,7 +39,7 @@ page 6050 "Service Contract"
 
                     trigger OnValidate()
                     begin
-                        CustomerNoOnAfterValidate;
+                        CustomerNoOnAfterValidate();
                     end;
                 }
                 field("Contact No."; "Contact No.")
@@ -115,7 +115,16 @@ page 6050 "Service Contract"
                 field("Phone No."; "Phone No.")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies the customer phone number.';
+                    ToolTip = 'Specifies the customer telephone number.';
+                }
+                field(SellToMobilePhoneNo; SellToContact."Mobile Phone No.")
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Mobile Phone No.';
+                    Importance = Additional;
+                    Editable = false;
+                    ExtendedDatatype = PhoneNo;
+                    ToolTip = 'Specifies the customer''s mobile telephone number.';
                 }
                 field("E-Mail"; "E-Mail")
                 {
@@ -260,6 +269,33 @@ page 6050 "Service Contract"
                         ApplicationArea = Service;
                         Caption = 'Contact';
                         ToolTip = 'Specifies the name of the contact person at the customer''s billing address.';
+                    }
+                    field(BillToContactPhoneNo; BillToContact."Phone No.")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the person at the customer''s billing address.';
+                    }
+                    field(BillToContactMobilePhoneNo; BillToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Mobile Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the person at the customer''s billing address.';
+                    }
+                    field(BillToContactEmail; BillToContact."E-Mail")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Email';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the person at the customer''s billing address.';
                     }
                 }
                 field("Your Reference"; "Your Reference")
@@ -1181,6 +1217,8 @@ page 6050 "Service Contract"
     trigger OnAfterGetRecord()
     begin
         UpdateShiptoCode;
+        if SellToContact.Get("Contact No.") then;
+        if BillToContact.Get("Bill-to Contact No.") then;
     end;
 
     trigger OnInit()
@@ -1223,6 +1261,8 @@ page 6050 "Service Contract"
         ServContractLine: Record "Service Contract Line";
         ServContractLine1: Record "Service Contract Line";
         FiledServContract: Record "Filed Service Contract Header";
+        SellToContact: Record Contact;
+        BillToContact: Record Contact;
         ChangeCustomerinContract: Report "Change Customer in Contract";
         CopyServDoc: Report "Copy Service Document";
         ServContractMgt: Codeunit ServContractManagement;

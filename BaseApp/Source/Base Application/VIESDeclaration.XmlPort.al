@@ -1,7 +1,10 @@
 xmlport 31060 "VIES Declaration"
 {
-    Caption = 'VIES Declaration';
+    Caption = 'VIES Declaration (Obsolete)';
     Encoding = UTF8;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     schema
     {

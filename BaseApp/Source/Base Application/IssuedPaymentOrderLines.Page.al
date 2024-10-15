@@ -31,7 +31,7 @@ page 11723 "Issued Payment Order Lines"
                 field(Name; Name)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies name of partner (customer, vendor, bank account).';
+                    ToolTip = 'Specifies the name of partner (customer, vendor, bank account).';
                     Visible = false;
                 }
                 field(Amount; Amount)
@@ -68,13 +68,13 @@ page 11723 "Issued Payment Order Lines"
                 field(Type; Type)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the type of issude bank statement';
+                    ToolTip = 'Specifies the type of partner (customer, vendor, bank account, employee).';
                     Visible = false;
                 }
                 field("No."; "No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the payment order.';
+                    ToolTip = 'Specifies the number of partner (customer, vendor, bank account, employee).';
                     Visible = false;
                 }
                 field("Cust./Vendor Bank Account Code"; "Cust./Vendor Bank Account Code")

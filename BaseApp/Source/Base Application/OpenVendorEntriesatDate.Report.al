@@ -3,8 +3,11 @@ report 11779 "Open Vendor Entries at Date"
     DefaultLayout = RDLC;
     RDLCLayout = './OpenVendorEntriesatDate.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'Open Vendor Entries to Date';
+    Caption = 'Open Vendor Entries to Date (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

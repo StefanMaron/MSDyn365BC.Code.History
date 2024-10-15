@@ -2,6 +2,9 @@ table 11731 "Cash Document Line"
 {
     Caption = 'Cash Document Line';
     DrillDownPageID = "Cash Document Lines";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     fields
     {
@@ -906,7 +909,7 @@ table 11731 "Cash Document Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()

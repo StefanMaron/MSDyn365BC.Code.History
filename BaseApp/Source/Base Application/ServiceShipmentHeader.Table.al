@@ -190,7 +190,7 @@ table 5990 "Service Shipment Header"
         }
         field(46; Comment; Boolean)
         {
-            CalcFormula = Exist ("Service Comment Line" WHERE("Table Name" = CONST("Service Shipment Header"),
+            CalcFormula = Exist("Service Comment Line" WHERE("Table Name" = CONST("Service Shipment Header"),
                                                               "No." = FIELD("No."),
                                                               Type = CONST(General)));
             Caption = 'Comment';
@@ -425,7 +425,7 @@ table 5990 "Service Shipment Header"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(5052; "Contact No."; Code[20])
@@ -470,7 +470,7 @@ table 5990 "Service Shipment Header"
         }
         field(5911; "Allocated Hours"; Decimal)
         {
-            CalcFormula = Sum ("Service Order Allocation"."Allocated Hours" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Sum("Service Order Allocation"."Allocated Hours" WHERE("Document Type" = CONST(Order),
                                                                                   "Document No." = FIELD("Order No."),
                                                                                   "Resource No." = FIELD("Resource Filter"),
                                                                                   "Resource Group No." = FIELD("Resource Group Filter"),
@@ -508,7 +508,7 @@ table 5990 "Service Shipment Header"
         }
         field(5921; "No. of Unallocated Items"; Integer)
         {
-            CalcFormula = Count ("Service Item Line" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Count("Service Item Line" WHERE("Document Type" = CONST(Order),
                                                            "Document No." = FIELD("No."),
                                                            "No. of Active/Finished Allocs" = CONST(0)));
             Caption = 'No. of Unallocated Items';
@@ -566,14 +566,14 @@ table 5990 "Service Shipment Header"
         }
         field(5933; "Contract Serv. Hours Exist"; Boolean)
         {
-            CalcFormula = Exist ("Service Hour" WHERE("Service Contract No." = FIELD("Contract No.")));
+            CalcFormula = Exist("Service Hour" WHERE("Service Contract No." = FIELD("Contract No.")));
             Caption = 'Contract Serv. Hours Exist';
             Editable = false;
             FieldClass = FlowField;
         }
         field(5934; "Reallocation Needed"; Boolean)
         {
-            CalcFormula = Exist ("Service Order Allocation" WHERE(Status = CONST("Reallocation Needed"),
+            CalcFormula = Exist("Service Order Allocation" WHERE(Status = CONST("Reallocation Needed"),
                                                                   "Resource No." = FIELD("Resource Filter"),
                                                                   "Document Type" = CONST(Order),
                                                                   "Document No." = FIELD("No."),
@@ -603,7 +603,7 @@ table 5990 "Service Shipment Header"
         }
         field(5939; "No. of Allocations"; Integer)
         {
-            CalcFormula = Count ("Service Order Allocation" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Count("Service Order Allocation" WHERE("Document Type" = CONST(Order),
                                                                   "Document No." = FIELD("No."),
                                                                   "Resource No." = FIELD("Resource Filter"),
                                                                   "Resource Group No." = FIELD("Resource Group Filter"),
@@ -703,10 +703,16 @@ table 5990 "Service Shipment Header"
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
@@ -746,6 +752,9 @@ table 5990 "Service Shipment Header"
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
             Caption = 'EU 3-Party Intermediate Role';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
     }
 
@@ -806,7 +815,7 @@ table 5990 "Service Shipment Header"
     begin
         with ServShptHeader do begin
             Copy(Rec);
-            ReportSelection.PrintWithGUIYesNo(
+            ReportSelection.PrintWithDialogForCust(
               ReportSelection.Usage::"SM.Shipment", ServShptHeader, ShowRequestForm, FieldNo("Bill-to Customer No."));
         end;
     end;

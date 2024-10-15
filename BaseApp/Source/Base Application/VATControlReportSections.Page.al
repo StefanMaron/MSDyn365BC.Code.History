@@ -1,10 +1,13 @@
 page 31102 "VAT Control Report Sections"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'VAT Control Report Sections';
+    Caption = 'VAT Control Report Sections (Obsolete)';
     PageType = List;
     SourceTable = "VAT Control Report Section";
     UsageCategory = Tasks;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

@@ -3,8 +3,11 @@ report 11780 "All Payments on Hold"
     DefaultLayout = RDLC;
     RDLCLayout = './AllPaymentsonHold.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'All Payments on Hold';
+    Caption = 'All Payments on Hold (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

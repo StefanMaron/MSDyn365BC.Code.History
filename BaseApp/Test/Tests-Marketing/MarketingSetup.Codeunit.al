@@ -14,6 +14,7 @@ codeunit 136205 "Marketing Setup"
         LibrarySales: Codeunit "Library - Sales";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryTemplates: Codeunit "Library - Templates";
         IsInitialized: Boolean;
         SalespersonCode: Code[20];
         UnknownError: Label 'Unexpected Error.';
@@ -32,6 +33,7 @@ codeunit 136205 "Marketing Setup"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Marketing Setup");
 
+        LibraryTemplates.DisableTemplatesFeature();
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
@@ -697,7 +699,7 @@ codeunit 136205 "Marketing Setup"
         CreateSalutationFormula(SalutationFormula."Salutation Type"::Informal, SelectLanguage);
     end;
 
-    local procedure CreateSalutationFormula(SalutationType: Option; LanguageCode: Code[10])
+    local procedure CreateSalutationFormula(SalutationType: Enum "Salutation Formula Salutation Type"; LanguageCode: Code[10])
     var
         Salutation: Record Salutation;
         SalutationFormula: Record "Salutation Formula";
@@ -933,7 +935,7 @@ codeunit 136205 "Marketing Setup"
         SalutationFormula.Validate("Name 5", SalutationFormula."Name 5"::"First Name");
     end;
 
-    local procedure VerifyContact(LinkToTable: Option; No: Code[20])
+    local procedure VerifyContact(LinkToTable: Enum "Contact Business Relation Link To Table"; No: Code[20])
     var
         ContactBusinessRelation: Record "Contact Business Relation";
         Contact: Record Contact;

@@ -149,6 +149,42 @@ report 1303 "Standard Sales - Draft Invoice"
             column(CustomerAddress8; CustAddr[8])
             {
             }
+            column(SellToContactPhoneNoLbl; SellToContactPhoneNoLbl)
+            {
+            }
+            column(SellToContactMobilePhoneNoLbl; SellToContactMobilePhoneNoLbl)
+            {
+            }
+            column(SellToContactEmailLbl; SellToContactEmailLbl)
+            {
+            }
+            column(BillToContactPhoneNoLbl; BillToContactPhoneNoLbl)
+            {
+            }
+            column(BillToContactMobilePhoneNoLbl; BillToContactMobilePhoneNoLbl)
+            {
+            }
+            column(BillToContactEmailLbl; BillToContactEmailLbl)
+            {
+            }
+            column(SellToContactPhoneNo; SellToContact."Phone No.")
+            {
+            }
+            column(SellToContactMobilePhoneNo; SellToContact."Mobile Phone No.")
+            {
+            }
+            column(SellToContactEmail; SellToContact."E-Mail")
+            {
+            }
+            column(BillToContactPhoneNo; BillToContact."Phone No.")
+            {
+            }
+            column(BillToContactMobilePhoneNo; BillToContact."Mobile Phone No.")
+            {
+            }
+            column(BillToContactEmail; BillToContact."E-Mail")
+            {
+            }
             column(CustomerPostalBarCode; FormatAddr.PostalBarCode(1))
             {
             }
@@ -428,6 +464,12 @@ report 1303 "Standard Sales - Draft Invoice"
                 {
                 }
                 column(CrossReferenceNo_Line_Lbl; FieldCaption("Cross-Reference No."))
+                {
+                }
+                column(ItemReferenceNo_Line; "Item Reference No.")
+                {
+                }
+                column(ItemReferenceNo_Line_Lbl; FieldCaption("Item Reference No."))
                 {
                 }
                 column(ShipmentDate_Line; Format("Shipment Date"))
@@ -902,6 +944,8 @@ report 1303 "Standard Sales - Draft Invoice"
                 PaymentServiceSetup.CreateReportingArgs(PaymentReportingArgument, Header);
 
                 FormatDocumentFields(Header);
+                if SellToContact.Get("Sell-to Contact No.") then;
+                if BillToContact.Get("Bill-to Contact No.") then;
 
                 if not IsReportInPreviewMode and ArchiveDocument then
                     ArchiveManagement.StoreSalesDocument(Header, false);
@@ -1006,6 +1050,12 @@ report 1303 "Standard Sales - Draft Invoice"
         VATClausesLbl: Label 'VAT Clause';
         VATIdentifierLbl: Label 'VAT Identifier';
         VATPercentageLbl: Label 'VAT %';
+        SellToContactPhoneNoLbl: Label 'Sell-to Contact Phone No.';
+        SellToContactMobilePhoneNoLbl: Label 'Sell-to Contact Mobile Phone No.';
+        SellToContactEmailLbl: Label 'Sell-to Contact E-Mail';
+        BillToContactPhoneNoLbl: Label 'Bill-to Contact Phone No.';
+        BillToContactMobilePhoneNoLbl: Label 'Bill-to Contact Mobile Phone No.';
+        BillToContactEmailLbl: Label 'Bill-to Contact E-Mail';
         GLSetup: Record "General Ledger Setup";
         ShipmentMethod: Record "Shipment Method";
         PaymentTerms: Record "Payment Terms";
@@ -1017,6 +1067,8 @@ report 1303 "Standard Sales - Draft Invoice"
         Cust: Record Customer;
         RespCenter: Record "Responsibility Center";
         VATClause: Record "VAT Clause";
+        SellToContact: Record Contact;
+        BillToContact: Record Contact;
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";

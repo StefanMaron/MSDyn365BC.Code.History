@@ -10,26 +10,33 @@ table 84 "Acc. Schedule Name"
         {
             Caption = 'Name';
             NotBlank = true;
+            DataClassification = CustomerContent;
         }
         field(2; Description; Text[80])
         {
             Caption = 'Description';
+            DataClassification = CustomerContent;
         }
         field(3; "Default Column Layout"; Code[10])
         {
             Caption = 'Default Column Layout';
             TableRelation = "Column Layout Name";
+            DataClassification = CustomerContent;
         }
         field(4; "Analysis View Name"; Code[10])
         {
             Caption = 'Analysis View Name';
             TableRelation = "Analysis View";
+            DataClassification = CustomerContent;
         }
         field(31080; "Acc. Schedule Type"; Option)
         {
             Caption = 'Acc. Schedule Type';
             OptionCaption = ' ,Balance Sheet,Income Statement';
             OptionMembers = " ","Balance Sheet","Income Statement";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
     }
 

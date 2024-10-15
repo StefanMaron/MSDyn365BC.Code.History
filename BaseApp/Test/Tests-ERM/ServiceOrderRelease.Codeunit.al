@@ -394,7 +394,7 @@ codeunit 136140 "Service Order Release"
         LibraryWarehouse.CreateWhseShipmentFromServiceOrder(ServiceHeader);
         WarehouseShipmentHeaderNo :=
           LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
-            DATABASE::"Service Line", ServiceHeader."Document Type", ServiceHeader."No.");
+            DATABASE::"Service Line", ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.");
 
         // EXECUTE: Delete and re-create Warehouse shipment on this order
         WarehouseShipmentHeader.Get(WarehouseShipmentHeaderNo);
@@ -406,7 +406,7 @@ codeunit 136140 "Service Order Release"
         // VERIFY: new Warehouse shipments have been created
         WarehouseShipmentHeaderNo :=
           LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
-            DATABASE::"Service Line", ServiceHeader."Document Type", ServiceHeader."No.");
+            DATABASE::"Service Line", ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.");
         Assert.IsTrue(
           WarehouseShipmentHeader.Get(WarehouseShipmentHeaderNo), 'Displayed warehouse shipment can be located');
         GetAllServiceLinesOfTypeItem(ServiceLine, ServiceHeader);
@@ -3438,7 +3438,7 @@ codeunit 136140 "Service Order Release"
         ShippingAgentServiceCode := ShippingAgentServices.Code;
     end;
 
-    local procedure CreateServiceDocumentWithServiceLine(var ServiceHeader: Record "Service Header"; ServiceDocumentType: Option; ItemNo: Code[20]; ItemQuantity: Integer; LocationCode: Code[10])
+    local procedure CreateServiceDocumentWithServiceLine(var ServiceHeader: Record "Service Header"; ServiceDocumentType: Enum "Service Document Type"; ItemNo: Code[20]; ItemQuantity: Integer; LocationCode: Code[10])
     var
         Customer: Record Customer;
     begin
@@ -3504,7 +3504,7 @@ codeunit 136140 "Service Order Release"
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         WarehouseShipmentHeaderNo :=
           LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
-            DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No.");
+            DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
         WarehouseShipmentHeader.Get(WarehouseShipmentHeaderNo);
     end;
 
@@ -3554,7 +3554,7 @@ codeunit 136140 "Service Order Release"
         exit(WarehouseActivityLine."No.");
     end;
 
-    local procedure FindWarehouseReceiptNo(SourceDocument: Option; SourceNo: Code[20]): Code[20]
+    local procedure FindWarehouseReceiptNo(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]): Code[20]
     var
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
     begin
@@ -3666,7 +3666,7 @@ codeunit 136140 "Service Order Release"
         ItemJournalBatch.Modify(true);
     end;
 
-    local procedure PostWarehouseReceipt(SourceDocument: Option; SourceNo: Code[20])
+    local procedure PostWarehouseReceipt(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     var
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
     begin
@@ -3791,7 +3791,7 @@ codeunit 136140 "Service Order Release"
         end;
     end;
 
-    local procedure TestPostServiceDocumentWithItem(ServiceDocumentType: Option; LocationType: Integer; LineQuantityDelta: Integer; IsBlankBincode: Boolean)
+    local procedure TestPostServiceDocumentWithItem(ServiceDocumentType: Enum "Service Document Type"; LocationType: Integer; LineQuantityDelta: Integer; IsBlankBincode: Boolean)
     var
         Bin: Record Bin;
         Item: Record Item;
@@ -3884,7 +3884,7 @@ codeunit 136140 "Service Order Release"
         TestPostServiceDocumentWithNonItemLines(LocationCode, ServiceHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure TestPostServiceDocumentWithNonItemLines(LocationCode: Code[10]; ServiceDocumentType: Option)
+    local procedure TestPostServiceDocumentWithNonItemLines(LocationCode: Code[10]; ServiceDocumentType: Enum "Service Document Type")
     var
         ServiceHeader: Record "Service Header";
         ServiceItem: Record "Service Item";
@@ -4029,7 +4029,7 @@ codeunit 136140 "Service Order Release"
         until (ServiceLine.Next = 0);
     end;
 
-    local procedure VerifyServiceHeaderReleaseStatus(ServiceHeader: Record "Service Header"; ReleaseStatus: Option; ServiceHeaderStatus: Option)
+    local procedure VerifyServiceHeaderReleaseStatus(ServiceHeader: Record "Service Header"; ReleaseStatus: Option; ServiceHeaderStatus: Enum "Service Document Status")
     begin
         Assert.AreEqual(ReleaseStatus, ServiceHeader."Release Status", 'Verify Release Status');
         Assert.AreEqual(ServiceHeaderStatus, ServiceHeader.Status, 'Verify Status of Service Header');

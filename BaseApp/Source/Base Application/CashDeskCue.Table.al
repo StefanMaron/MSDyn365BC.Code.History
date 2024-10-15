@@ -1,6 +1,9 @@
 table 11749 "Cash Desk Cue"
 {
     Caption = 'Cash Desk Cue';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     fields
     {
@@ -10,7 +13,7 @@ table 11749 "Cash Desk Cue"
         }
         field(10; "Open Documents"; Integer)
         {
-            CalcFormula = Count ("Cash Document Header" WHERE("Cash Desk No." = FIELD("Cash Desk Filter"),
+            CalcFormula = Count("Cash Document Header" WHERE("Cash Desk No." = FIELD("Cash Desk Filter"),
                                                               Status = CONST(Open)));
             Caption = 'Open Documents';
             Editable = false;
@@ -18,7 +21,7 @@ table 11749 "Cash Desk Cue"
         }
         field(11; "Released Documents"; Integer)
         {
-            CalcFormula = Count ("Cash Document Header" WHERE("Cash Desk No." = FIELD("Cash Desk Filter"),
+            CalcFormula = Count("Cash Document Header" WHERE("Cash Desk No." = FIELD("Cash Desk Filter"),
                                                               Status = CONST(Released)));
             Caption = 'Released Documents';
             Editable = false;
@@ -26,7 +29,7 @@ table 11749 "Cash Desk Cue"
         }
         field(15; "Posted Documents"; Integer)
         {
-            CalcFormula = Count ("Posted Cash Document Header" WHERE("Cash Desk No." = FIELD("Cash Desk Filter"),
+            CalcFormula = Count("Posted Cash Document Header" WHERE("Cash Desk No." = FIELD("Cash Desk Filter"),
                                                                      "Posting Date" = FIELD("Date Filter")));
             Caption = 'Posted Documents';
             Editable = false;

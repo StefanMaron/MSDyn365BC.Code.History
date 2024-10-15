@@ -111,25 +111,27 @@ codeunit 136150 "Service Pages"
         // [FEATURE] [FCY] [Order]
         // [SCENARIO 308004] Confirmation message to recreate service lines must appear when Stan clears "Currency Code" field on Service Order.
         Initialize;
-  
+
         ExchangeRate := LibraryRandom.RandIntInRange(10, 20);
         CurrencyCode :=
           LibraryERM.CreateCurrencyWithExchangeRate(LibraryRandom.RandDate(-10), ExchangeRate, ExchangeRate);
         LibraryService.CreateServiceDocumentWithItemServiceLine(ServiceHeader, ServiceHeader."Document Type"::Order);
-  
+
         ServiceOrder.OpenEdit;
         ServiceOrder.Filter.SetFilter("No.", ServiceHeader."No.");
-  
+
         SetCurrencyCodeOnOrderAndVerify(ServiceOrder, CurrencyCode);
         LibraryVariableStorage.AssertEmpty;
-  
+
         SetCurrencyCodeOnOrderAndVerify(ServiceOrder, '');
         LibraryVariableStorage.AssertEmpty;
-  
+
         ServiceOrder.Close;
     end;
 
     local procedure Initialize()
+    var
+        ReportSelections: Record "Report Selections";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Pages");
 
@@ -137,16 +139,22 @@ codeunit 136150 "Service Pages"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Pages");
 
-        Commit();
-        IsInitialized := true;
-
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryService.SetupServiceMgtNoSeries;
 
+        ReportSelections.SetRange(Usage, ReportSelections.Usage::"SM.Shipment");
+        ReportSelections.ModifyAll("Report ID", Report::"Service - Shipment CZ");
+        ReportSelections.SetRange(Usage, ReportSelections.Usage::"SM.Invoice");
+        ReportSelections.ModifyAll("Report ID", Report::"Service - Invoice CZ");
+        ReportSelections.SetRange(Usage, ReportSelections.Usage::"SM.Credit Memo");
+        ReportSelections.ModifyAll("Report ID", Report::"Service - Credit Memo CZ");
+
+        IsInitialized := true;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Pages");
     end;
 
-    local procedure SetCurrencyCodeOnOrderAndVerify(ServiceOrder: TestPage "Service Order";CurrencyCode: Code[10])
+    local procedure SetCurrencyCodeOnOrderAndVerify(ServiceOrder: TestPage "Service Order"; CurrencyCode: Code[10])
     var
         ServiceHeader: Record "Service Header";
     begin

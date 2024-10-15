@@ -134,6 +134,10 @@ page 8901 "Finance Manager Role Center"
                             ApplicationArea = Basic, Suite;
                             Caption = 'VAT Statement';
                             RunObject = report "VAT Statement";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                            ObsoleteTag = '17.0';
+                            Visible = false;
                         }
                         action("VAT- VIES Declaration Tax Auth")
                         {
@@ -299,7 +303,9 @@ page 8901 "Finance Manager Role Center"
                     action("Navigate")
                     {
                         ApplicationArea = Basic, Suite, FixedAssets, CostAccounting;
-                        Caption = 'Navigate';
+                        Caption = 'Find entries...';
+                        ShortCutKey = 'Shift+Ctrl+I';
+                        ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                         RunObject = page "Navigate";
                     }
                     action("General Ledger Entries")
@@ -380,18 +386,29 @@ page 8901 "Finance Manager Role Center"
                             ApplicationArea = Basic, Suite;
                             Caption = 'Accounting Sheets';
                             RunObject = report "Accounting Sheets";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                            ObsoleteTag = '17.0';
+                            Visible = false;
                         }
                         action("General Journal")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'General Journal';
                             RunObject = report "General Journal";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                            ObsoleteTag = '17.0';
+                            Visible = false;
                         }
                         action("General Ledger Document")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'General Ledger Document';
                             RunObject = report "General Ledger Document";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                            ObsoleteTag = '17.0';
                         }
                     }
                     group("Group9")
@@ -494,12 +511,20 @@ page 8901 "Finance Manager Role Center"
                             ApplicationArea = Basic, Suite;
                             Caption = 'General Ledger';
                             RunObject = report "General Ledger";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                            ObsoleteTag = '17.0';
+                            Visible = false;
                         }
                         action("Turnover report by Glob. Dim.")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Turnover report by Glob. Dim.';
                             RunObject = report "Turnover report by Glob. Dim.";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                            ObsoleteTag = '17.0';
+                            Visible = false;
                         }
                     }
                     group("Group10")
@@ -546,6 +571,10 @@ page 8901 "Finance Manager Role Center"
                             ApplicationArea = Basic, Suite;
                             Caption = 'Reconcile Bank Account Entry';
                             RunObject = report "Reconcile Bank Account Entry";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                            ObsoleteTag = '17.0';
+                            Visible = false;
                         }
                         action("Open G/L Entries To Date")
                         {
@@ -564,12 +593,20 @@ page 8901 "Finance Manager Role Center"
                             ApplicationArea = Basic, Suite;
                             Caption = 'Joining Bank. Acc. Adjustment';
                             RunObject = report "Joining Bank. Acc. Adjustment";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                            ObsoleteTag = '17.0';
+                            Visible = false;
                         }
                         action("Joining G/L Account Adjustment")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Joining G/L Account Adjustment';
                             RunObject = report "Joining G/L Account Adjustment";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                            ObsoleteTag = '17.0';
+                            Visible = false;
                         }
                         action("G/L Deferral Summary")
                         {
@@ -935,18 +972,30 @@ page 8901 "Finance Manager Role Center"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cash Desks';
                     RunObject = page "Cash Desk List";
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 action("Cash Documents")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cash Documents';
                     RunObject = page "Cash Document List";
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 action("Posted Cash Documents")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posted Cash Documents';
                     RunObject = page "Posted Cash Document List";
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 action("EET Entries")
                 {
@@ -962,18 +1011,30 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Cash Desk Book';
                         RunObject = report "Cash Desk Book";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                        ObsoleteTag = '17.0';
+                        Visible = false;
                     }
                     action("Cash Desk Account Book")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Cash Desk Account Book';
                         RunObject = report "Cash Desk Account Book";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                        ObsoleteTag = '17.0';
+                        Visible = false;
                     }
                     action("Cash Inventory")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Cash Inventory';
                         RunObject = report "Cash Inventory";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                        ObsoleteTag = '17.0';
+                        Visible = false;
                     }
                 }
                 group("Group64")
@@ -984,18 +1045,30 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Cash Desks Setup';
                         RunObject = page "Cash Desk Setup";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                        ObsoleteTag = '17.0';
+                        Visible = false;
                     }
                     action("Cash Desk Events Setup")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Cash Desk Events Setup';
                         RunObject = page "Cash Desk Events Setup";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                        ObsoleteTag = '17.0';
+                        Visible = false;
                     }
                     action("Currency Nominal Values")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Currency Nominal Values';
                         RunObject = page "Currency Nominal Values";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                        ObsoleteTag = '17.0';
+                        Visible = false;
                     }
                 }
             }
@@ -1746,6 +1819,10 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'All Payments on Hold';
                         RunObject = report "All Payments on Hold";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.0';
+                        Visible = false;
                     }
                     action("Open Vendor Entries at Date")
                     {

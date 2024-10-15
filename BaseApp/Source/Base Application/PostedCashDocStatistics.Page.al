@@ -1,10 +1,13 @@
 page 11739 "Posted Cash Doc. Statistics"
 {
-    Caption = 'Posted Cash Doc. Statistics';
+    Caption = 'Posted Cash Doc. Statistics (Obsolete)';
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = ListPlus;
     SourceTable = "Posted Cash Document Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

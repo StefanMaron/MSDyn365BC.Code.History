@@ -1,10 +1,13 @@
 page 11734 "Cash Document Statistics"
 {
-    Caption = 'Cash Document Statistics';
+    Caption = 'Cash Document Statistics (Obsolete)';
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = ListPlus;
     SourceTable = "Cash Document Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

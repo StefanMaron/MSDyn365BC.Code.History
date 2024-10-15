@@ -211,7 +211,7 @@ table 271 "Bank Account Ledger Entry"
         }
         field(70; "Check Ledger Entries"; Integer)
         {
-            CalcFormula = Count ("Check Ledger Entry" WHERE("Bank Account Ledger Entry No." = FIELD("Entry No.")));
+            CalcFormula = Count("Check Ledger Entry" WHERE("Bank Account Ledger Entry No." = FIELD("Entry No.")));
             Caption = 'Check Ledger Entries';
             FieldClass = FlowField;
         }
@@ -223,7 +223,7 @@ table 271 "Bank Account Ledger Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(11730; "Cash Document Type"; Option)
@@ -231,6 +231,9 @@ table 271 "Bank Account Ledger Entry"
             Caption = 'Cash Document Type';
             OptionCaption = ' ,Receipt,Withdrawal';
             OptionMembers = " ",Receipt,Withdrawal;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
         }
     }
 

@@ -1,8 +1,11 @@
 page 11793 "Company Officials Card"
 {
-    Caption = 'Company Officials Card';
+    Caption = 'Company Officials Card (Obsolete)';
     PageType = Card;
     SourceTable = "Company Officials";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

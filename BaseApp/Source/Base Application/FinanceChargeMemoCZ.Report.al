@@ -2,8 +2,11 @@ report 31087 "Finance Charge Memo CZ"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './FinanceChargeMemoCZ.rdlc';
-    Caption = 'Finance Charge Memo CZ';
+    Caption = 'Finance Charge Memo CZ (Obsolete)';
     PreviewMode = PrintLayout;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {
@@ -330,7 +333,7 @@ report 31087 "Finance Charge Memo CZ"
                     }
                     column(VATAmtLineVATBase; TempVATAmountLine."VAT Base")
                     {
-                        AutoFormatExpression = "Issued Fin. Charge Memo Line".GetCurrencyCode;
+                        AutoFormatExpression = "Issued Fin. Charge Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
                     column(VATAmtLineVATAmt; TempVATAmountLine."VAT Amount")
@@ -340,7 +343,7 @@ report 31087 "Finance Charge Memo CZ"
                     }
                     column(VATAmtLineVATBaseLCY; TempVATAmountLine."VAT Base (LCY)")
                     {
-                        AutoFormatExpression = "Issued Fin. Charge Memo Line".GetCurrencyCode;
+                        AutoFormatExpression = "Issued Fin. Charge Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
                     column(VATAmtLineVATAmtLCY; TempVATAmountLine."VAT Amount (LCY)")

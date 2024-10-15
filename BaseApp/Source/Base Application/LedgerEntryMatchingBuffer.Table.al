@@ -158,7 +158,6 @@ table 1248 "Ledger Entry Matching Buffer"
         "Posting Date" := VendorLedgerEntry."Posting Date";
         "Document No." := VendorLedgerEntry."Document No.";
         "External Document No." := VendorLedgerEntry."External Document No.";
-        "Payment Reference" := VendorLedgerEntry."Payment Reference";
 
         if UseLCYAmounts then
             "Remaining Amount" := VendorLedgerEntry."Remaining Amt. (LCY)"

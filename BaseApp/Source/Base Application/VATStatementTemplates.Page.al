@@ -36,6 +36,10 @@ page 318 "VAT Statement Templates"
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the possibillity to allow or not allow comments or attachments insert.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
             }
         }
@@ -78,7 +82,11 @@ page 318 "VAT Statement Templates"
                     Image = List;
                     RunObject = Page "VAT Attribute Codes";
                     RunPageLink = "VAT Statement Template Name" = FIELD(Name);
-                    ToolTip = 'Specifies vat statement templates';
+                    ToolTip = 'Specifies a set of VAT attributes to use in this VAT Statement Template.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
             }
         }

@@ -55,8 +55,8 @@ codeunit 135532 "Dimension Lines E2E Test"
         LibraryDimension.CreateDimension(Dimension);
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
         LineJSON := CreateDimensionJSON(CustomerPaymentsGUID, Dimension.Code, DimensionValue.Code);
-        LineJSON := LibraryGraphMgt.AddPropertytoJSON(LineJSON, DimensionIdNameTxt, Dimension.Id);
-        LineJSON := LibraryGraphMgt.AddPropertytoJSON(LineJSON, DimensionValueIdNameTxt, DimensionValue.Id);
+        LineJSON := LibraryGraphMgt.AddPropertytoJSON(LineJSON, DimensionIdNameTxt, Dimension.SystemId);
+        LineJSON := LibraryGraphMgt.AddPropertytoJSON(LineJSON, DimensionValueIdNameTxt, DimensionValue.SystemId);
         Commit();
 
         // [WHEN] we POST the JSON to the web service
@@ -285,7 +285,7 @@ codeunit 135532 "Dimension Lines E2E Test"
         GLAccount.Get(AccountNo);
 
         // [GIVEN] a Target URL without filters
-        TargetURL := CreateDimensionLinesURLWithFilter(GLAccount.Id);
+        TargetURL := CreateDimensionLinesURLWithFilter(GLAccount.SystemId);
 
         // [WHEN] we GET from the web service
         // [THEN] the request fails
@@ -340,7 +340,7 @@ codeunit 135532 "Dimension Lines E2E Test"
         // [GIVEN] 2 dimension json texts
         LibraryDimension.CreateDimension(Dimension);
         DimensionCode := Dimension.Code;
-        DimensionGUID := Dimension.Id;
+        DimensionGUID := Dimension.SystemId;
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
         DimensionValueCode[1] := DimensionValue.Code;
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
@@ -404,7 +404,7 @@ codeunit 135532 "Dimension Lines E2E Test"
         // [GIVEN] 2 dimensions with dimension values
         LibraryDimension.CreateDimension(Dimension);
         DimensionCode[1] := Dimension.Code;
-        DimensionGUID := Dimension.Id;
+        DimensionGUID := Dimension.SystemId;
         LibraryDimension.CreateDimension(Dimension);
         DimensionCode[2] := Dimension.Code;
         LibraryDimension.CreateDimensionValue(DimensionValue, DimensionCode[1]);
@@ -471,7 +471,7 @@ codeunit 135532 "Dimension Lines E2E Test"
         LibraryGraphMgt.PostToWebService(TargetURL, LineJSON, ResponseText);
 
         // [WHEN] we DELETE the dimension line from the web service, with the corresponding keys
-        TargetURL := CreateDimensionLinesURLWithKeys(CustomerPaymentsGUID, Dimension.Id);
+        TargetURL := CreateDimensionLinesURLWithKeys(CustomerPaymentsGUID, Dimension.SystemId);
         LibraryGraphMgt.DeleteFromWebService(TargetURL, '', ResponseText);
 
         // [THEN] the dimension line shouldn't exist in the table

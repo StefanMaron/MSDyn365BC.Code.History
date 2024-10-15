@@ -1,8 +1,11 @@
 xmlport 31100 "VAT Control Report"
 {
-    Caption = 'VAT Control Report';
+    Caption = 'VAT Control Report (Obsolete)';
     Direction = Export;
     Encoding = UTF8;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     schema
     {

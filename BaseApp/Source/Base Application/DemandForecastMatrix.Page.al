@@ -664,9 +664,6 @@ page 9245 "Demand Forecast Matrix"
         MatrixRecords: array[32] of Record Date;
         QtyType: Option "Net Change","Balance at Date";
         ForecastType: Option "Sales Item",Component,Both;
-        MATRIX_NoOfMatrixColumns: Integer;
-        MATRIX_CellData: array[32] of Decimal;
-        MATRIX_CaptionSet: array[32] of Text[80];
         ProductionForecastName: Code[10];
         LocationFilter: Text;
         DateFilter: Text;
@@ -738,6 +735,11 @@ page 9245 "Demand Forecast Matrix"
         Field31Visible: Boolean;
         [InDataSet]
         Field32Visible: Boolean;
+
+    protected var
+        MATRIX_NoOfMatrixColumns: Integer;
+        MATRIX_CellData: array[32] of Decimal;
+        MATRIX_CaptionSet: array[32] of Text[80];
 
     local procedure SetDateFilter(ColumnID: Integer)
     begin

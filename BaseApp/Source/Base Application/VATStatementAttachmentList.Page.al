@@ -1,11 +1,14 @@
 page 11773 "VAT Statement Attachment List"
 {
-    Caption = 'VAT Statement Attachment List';
+    Caption = 'VAT Statement Attachment List (Obsolete)';
     DataCaptionFields = "VAT Statement Template Name", "VAT Statement Name";
     Editable = false;
     LinksAllowed = false;
     PageType = List;
     SourceTable = "VAT Statement Attachment";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

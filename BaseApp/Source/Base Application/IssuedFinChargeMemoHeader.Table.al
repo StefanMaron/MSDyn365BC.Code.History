@@ -139,7 +139,7 @@ table 304 "Issued Fin. Charge Memo Header"
         }
         field(30; Comment; Boolean)
         {
-            CalcFormula = Exist ("Fin. Charge Comment Line" WHERE(Type = CONST("Issued Finance Charge Memo"),
+            CalcFormula = Exist("Fin. Charge Comment Line" WHERE(Type = CONST("Issued Finance Charge Memo"),
                                                                   "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -149,7 +149,7 @@ table 304 "Issued Fin. Charge Memo Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Issued Fin. Charge Memo Line"."Remaining Amount" WHERE("Finance Charge Memo No." = FIELD("No.")));
+            CalcFormula = Sum("Issued Fin. Charge Memo Line"."Remaining Amount" WHERE("Finance Charge Memo No." = FIELD("No.")));
             Caption = 'Remaining Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -158,7 +158,7 @@ table 304 "Issued Fin. Charge Memo Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Issued Fin. Charge Memo Line".Amount WHERE("Finance Charge Memo No." = FIELD("No."),
+            CalcFormula = Sum("Issued Fin. Charge Memo Line".Amount WHERE("Finance Charge Memo No." = FIELD("No."),
                                                                            Type = CONST("Customer Ledger Entry")));
             Caption = 'Interest Amount';
             Editable = false;
@@ -168,7 +168,7 @@ table 304 "Issued Fin. Charge Memo Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Issued Fin. Charge Memo Line".Amount WHERE("Finance Charge Memo No." = FIELD("No."),
+            CalcFormula = Sum("Issued Fin. Charge Memo Line".Amount WHERE("Finance Charge Memo No." = FIELD("No."),
                                                                            Type = CONST("G/L Account")));
             Caption = 'Additional Fee';
             Editable = false;
@@ -178,7 +178,7 @@ table 304 "Issued Fin. Charge Memo Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Issued Fin. Charge Memo Line"."VAT Amount" WHERE("Finance Charge Memo No." = FIELD("No.")));
+            CalcFormula = Sum("Issued Fin. Charge Memo Line"."VAT Amount" WHERE("Finance Charge Memo No." = FIELD("No.")));
             Caption = 'VAT Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -261,7 +261,7 @@ table 304 "Issued Fin. Charge Memo Header"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(11700; "Bank No."; Code[20])
@@ -318,10 +318,16 @@ table 304 "Issued Fin. Charge Memo Header"
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
     }
 
@@ -374,11 +380,11 @@ table 304 "Issued Fin. Charge Memo Header"
 
         if SendAsEmail then
             DocumentSendingProfile.TrySendToEMail(
-              DummyReportSelections.Usage::"Fin.Charge", Rec, FieldNo("No."), ReportDistributionMgt.GetFullDocumentTypeText(Rec),
-              FieldNo("Customer No."), not HideDialog)
+              DummyReportSelections.Usage::"Fin.Charge".AsInteger(), Rec, FieldNo("No."),
+              ReportDistributionMgt.GetFullDocumentTypeText(Rec), FieldNo("Customer No."), not HideDialog)
         else
             DocumentSendingProfile.TrySendToPrinter(
-              DummyReportSelections.Usage::"Fin.Charge", Rec, FieldNo("Customer No."), ShowRequestForm)
+              DummyReportSelections.Usage::"Fin.Charge".AsInteger(), Rec, FieldNo("Customer No."), ShowRequestForm)
     end;
 
     procedure Navigate()

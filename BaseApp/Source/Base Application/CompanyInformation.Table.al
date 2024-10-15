@@ -115,8 +115,9 @@ table 79 "Company Information"
                 if "Country/Region Code" = '' then
                     exit;
                 if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then begin
-                    VATRegistrationLogMgt.ValidateVATRegNoWithVIES(ResultRecordRef, Rec, "Primary Key",
-                      VATRegistrationLog."Account Type"::"Company Information", "Country/Region Code");
+                    VATRegistrationLogMgt.ValidateVATRegNoWithVIES(
+                        ResultRecordRef, Rec, "Primary Key",
+                        VATRegistrationLog."Account Type"::"Company Information".AsInteger(), "Country/Region Code");
                     ResultRecordRef.SetTable(Rec);
                 end;
             end;
@@ -470,6 +471,9 @@ table 79 "Company Information"
         field(7603; "Sync with O365 Bus. profile"; Boolean)
         {
             Caption = 'Sync with O365 Bus. profile';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The field will be removed. The API that this field was used for was discontinued.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             var
@@ -495,22 +499,34 @@ table 79 "Company Information"
         field(11700; "Bank Account Format Check"; Boolean)
         {
             Caption = 'Bank Account Format Check';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11730; "Court Authority No."; Code[20])
         {
             Caption = 'Court Authority No.';
             TableRelation = Vendor;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11731; "Tax Authority No."; Code[20])
         {
             Caption = 'Tax Authority No.';
             TableRelation = Vendor;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11760; "Default Bank Account Code"; Code[20])
         {
             Caption = 'Default Bank Account Code';
             TableRelation = "Bank Account" WHERE("Currency Code" = CONST(''),
                                                   "Account Type" = CONST("Bank Account"));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             begin
@@ -527,20 +543,32 @@ table 79 "Company Information"
         field(11761; "Branch Name"; Text[50])
         {
             Caption = 'Branch Name';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11790; "Primary Business Activity"; Text[100])
         {
             Caption = 'Primary Business Activity';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11792; "Company Type"; Option)
         {
             Caption = 'Company Type';
             OptionCaption = ' ,Individual,Corporate';
             OptionMembers = " ",Individual,Corporate;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11793; "Industry Code"; Code[20])
         {
@@ -559,29 +587,47 @@ table 79 "Company Information"
         field(11794; "Equity Capital"; Decimal)
         {
             Caption = 'Equity Capital';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11795; "Registration Date"; Date)
         {
             Caption = 'Registration Date';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11796; "Paid Equity Capital"; Decimal)
         {
             Caption = 'Paid Equity Capital';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11797; "General Manager No."; Code[20])
         {
             Caption = 'General Manager No.';
             TableRelation = "Company Officials";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11798; "Accounting Manager No."; Code[20])
         {
             Caption = 'Accounting Manager No.';
             TableRelation = "Company Officials";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11799; "Finance Manager No."; Code[20])
         {
             Caption = 'Finance Manager No.';
             TableRelation = "Company Officials";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
     }
 
@@ -884,12 +930,7 @@ table 79 "Company Information"
 
         CountryRegionCode := UpperCase(MediaResourcesMgt.ReadTextFromMediaResource('ApplicationCountry'));
 
-        SendTraceTag(
-          '00007HP',
-          AlTelemetryCategoryTxt,
-          VERBOSITY::Normal,
-          StrSubstNo(EmptyCountryRegionErr, CountryRegionCode),
-          DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00007HP', StrSubstNo(EmptyCountryRegionErr, CountryRegionCode), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', AlTelemetryCategoryTxt);
 
         exit(CountryRegionCode);
     end;

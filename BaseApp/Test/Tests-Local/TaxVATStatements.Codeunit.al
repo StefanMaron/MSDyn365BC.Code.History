@@ -37,7 +37,7 @@ codeunit 144201 "Tax VAT Statements"
     [HandlerFunctions('ReportCalcAndPostVATSettlementHandler,RequestPageVATStatementHandler,YesConfirmHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    [Obsolete('The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This function will be removed and should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This function will be removed and should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     procedure PrintingVATStatementDPHDP2()
     var
         VATStatementTemplate: Record "VAT Statement Template";
@@ -72,6 +72,7 @@ codeunit 144201 "Tax VAT Statements"
     begin
         // 1. Setup
         Initialize;
+        RevertToVATStatementLineDeprEnumValues(VATStatementLine);
 
         FindVATStatementTemplate(VATStatementTemplate, XMLFormat);
 
@@ -136,7 +137,7 @@ codeunit 144201 "Tax VAT Statements"
     [HandlerFunctions('ReportCalcAndPostVATSettlementHandler,PageExportVATStatementHandler,YesConfirmHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    [Obsolete('The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This function will be removed and should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This function will be removed and should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     procedure ExportingVATStatementDPHDP2()
     var
         VATStatementTemplate: Record "VAT Statement Template";
@@ -193,12 +194,14 @@ codeunit 144201 "Tax VAT Statements"
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLn: Record "Gen. Journal Line";
         VATStatementName: Record "VAT Statement Name";
+        VATStatementLine: Record "VAT Statement Line";
         StartingDate: Date;
         DocumentNo: Code[20];
         GLAccountNo: Code[20];
     begin
         // 1. Setup
         Initialize;
+        RevertToVATStatementLineDeprEnumValues(VATStatementLine);
 
         StartingDate := LibraryTax.GetVATPeriodStartingDate;
         DocumentNo := GetSettlementNo(StartingDate);
@@ -405,6 +408,23 @@ codeunit 144201 "Tax VAT Statements"
     procedure YesConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    /// <summary> 
+    /// Revert to VAT Statement Line Type::Formula.
+    /// </summary>
+    /// <remarks>
+    /// If the demodata are already adjusted to the new Enum "VAT Statement Line Type" value(11700; "Formula CZL"), 
+    /// revert back to the obsoleted value required by this test codeunit.
+    /// </remarks>
+    local procedure RevertToVATStatementLineDeprEnumValues(var VATStatementLine: Record "VAT Statement Line");
+    begin
+        VATStatementLine.Reset();
+        VATStatementLine.SetRange(Type, 11700);
+        if VATStatementLine.IsEmpty then
+            exit;
+        VATStatementLine.ModifyAll(Type, VATStatementLine.Type::Formula, false);
+        VATStatementLine.Reset();
     end;
 }
 

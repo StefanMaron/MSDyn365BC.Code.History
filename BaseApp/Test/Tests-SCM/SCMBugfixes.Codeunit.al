@@ -39,14 +39,13 @@ codeunit 137045 "SCM Bugfixes"
     var
         SalesHeader: Record "Sales Header";
         TempSalesReceivablesSetup: Record "Sales & Receivables Setup" temporary;
-        FromDocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         // Setup : Update Sales Setup.
         Initialize;
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup, SalesReceivablesSetup."Credit Warnings"::"No Warning", false);
 
         // Exercise And Verify.
-        CreateSalesDocument(FromDocumentType::"Posted Shipment", SalesHeader."Document Type"::Invoice, false);  // Set False for Ship Only Posting.
+        CreateSalesDocument("Sales Document Type From"::"Posted Shipment", SalesHeader."Document Type"::Invoice, false);  // Set False for Ship Only Posting.
 
         // Tear Down : Restore Sales Setup.
         RestoreSalesReceivablesSetup(SalesReceivablesSetup);
@@ -58,20 +57,19 @@ codeunit 137045 "SCM Bugfixes"
     var
         SalesHeader: Record "Sales Header";
         TempSalesReceivablesSetup: Record "Sales & Receivables Setup" temporary;
-        FromDocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         // Setup : Update Sales Setup.
         Initialize;
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup, SalesReceivablesSetup."Credit Warnings"::"No Warning", false);
 
         // Exercise And Verify.
-        CreateSalesDocument(FromDocumentType::"Posted Invoice", SalesHeader."Document Type"::"Credit Memo", true);  // Set True for Posting with Invoice Option.
+        CreateSalesDocument("Sales Document Type From"::"Posted Invoice", SalesHeader."Document Type"::"Credit Memo", true);  // Set True for Posting with Invoice Option.
 
         // Tear Down : Restore Sales Setup.
         RestoreSalesReceivablesSetup(SalesReceivablesSetup);
     end;
 
-    local procedure CreateSalesDocument(FromDocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo"; DocumentType: Option; Invoice: Boolean)
+    local procedure CreateSalesDocument(FromDocumentType: Enum "Sales Document Type From"; DocumentType: Enum "Sales Document Type"; Invoice: Boolean)
     var
         Item: Record Item;
         SalesHeader: Record "Sales Header";
@@ -234,7 +232,7 @@ codeunit 137045 "SCM Bugfixes"
         // [GIVEN] Assign lot no. on the planning line.
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
         FindRequsitionLine(ReqLine, Item."No.");
-        ReqLine.OpenItemTrackingLines;
+        ReqLine.OpenItemTrackingLines();
 
         // [WHEN] Increase quantity on the planning line up to 50.
         TrackedQty := ReqLine.Quantity;
@@ -312,7 +310,7 @@ codeunit 137045 "SCM Bugfixes"
         // [GIVEN] Assign lot no. on the planning line.
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
         FindRequsitionLine(ReqLine, Item."No.");
-        ReqLine.OpenItemTrackingLines;
+        ReqLine.OpenItemTrackingLines();
 
         // [WHEN] Decrease quantity on the planning line to 1.
         asserterror ReqLine.Validate(Quantity, LibraryRandom.RandIntInRange(0, ReqLine.Quantity - 1));
@@ -727,7 +725,7 @@ codeunit 137045 "SCM Bugfixes"
         UpdateProductionBOMNoOnItem(ParentItem, ProductionBOMHeader."No.");
     end;
 
-    local procedure CreateItem(var Item: Record Item; ReorderingPolicy: Option; ReplenishmentSystem: Option; IncludeInventory: Boolean)
+    local procedure CreateItem(var Item: Record Item; ReorderingPolicy: Enum "Reordering Policy"; ReplenishmentSystem: Enum "Replenishment System"; IncludeInventory: Boolean)
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Reordering Policy", ReorderingPolicy);
@@ -736,7 +734,7 @@ codeunit 137045 "SCM Bugfixes"
         Item.Modify(true);
     end;
 
-    local procedure CreateAndPostItemJrnl(EntryType: Option; ItemNo: Code[20]; LocationCode: array[3] of Code[10]; Quantity: Decimal; NoOfLines: Integer)
+    local procedure CreateAndPostItemJrnl(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; LocationCode: array[3] of Code[10]; Quantity: Decimal; NoOfLines: Integer)
     var
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
@@ -787,7 +785,7 @@ codeunit 137045 "SCM Bugfixes"
           Item, ReqWkshTemplate.Name, ReqWkshName.Name, DateRec."Period Start", NormalDate(DateRec."Period End"));
     end;
 
-    local procedure CreateCriticalItem(var Item: Record Item; ReplenishmentSystem: Option)
+    local procedure CreateCriticalItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System")
     begin
         LibraryInventory.CreateItem(Item);
 
@@ -810,7 +808,7 @@ codeunit 137045 "SCM Bugfixes"
         end;
     end;
 
-    local procedure CreateProdBOMStructureOfCriticalItems(var Item: array[3] of Record Item; LowerCompStartingDate: Date; LowerCompReplenishmentSystem: Option)
+    local procedure CreateProdBOMStructureOfCriticalItems(var Item: array[3] of Record Item; LowerCompStartingDate: Date; LowerCompReplenishmentSystem: Enum "Replenishment System")
     var
         I: Integer;
     begin
@@ -925,7 +923,7 @@ codeunit 137045 "SCM Bugfixes"
             end;
     end;
 
-    local procedure CreatItemJournalLine(var ItemJournalBatch: Record "Item Journal Batch"; EntryType: Option; LocationCode: Code[10]; NewLocationCode: Code[10])
+    local procedure CreatItemJournalLine(var ItemJournalBatch: Record "Item Journal Batch"; EntryType: Enum "Item Ledger Document Type"; LocationCode: Code[10]; NewLocationCode: Code[10])
     var
         Item: Record Item;
         ItemJournalLine: Record "Item Journal Line";
@@ -951,7 +949,7 @@ codeunit 137045 "SCM Bugfixes"
         end;
     end;
 
-    local procedure FindRequisitionLine(var RequisitionLine: Record "Requisition Line"; RequisitionWkshName: Record "Requisition Wksh. Name"; ActionMessage: Option)
+    local procedure FindRequisitionLine(var RequisitionLine: Record "Requisition Line"; RequisitionWkshName: Record "Requisition Wksh. Name"; ActionMessage: Enum "Action Message Type")
     begin
         with RequisitionLine do begin
             SetRange("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
@@ -975,7 +973,7 @@ codeunit 137045 "SCM Bugfixes"
         TransferRoute.Modify(true);
     end;
 
-    local procedure UpdateStockKeepingUnit(ReplenishmentSystem: Option; LocationCode: Code[10]; ItemNo: Code[20]; VendorNo: Code[20]; TransferfromCode: Code[10])
+    local procedure UpdateStockKeepingUnit(ReplenishmentSystem: Enum "Replenishment System"; LocationCode: Code[10]; ItemNo: Code[20]; VendorNo: Code[20]; TransferfromCode: Code[10])
     var
         StockkeepingUnit: Record "Stockkeeping Unit";
     begin
@@ -1007,7 +1005,7 @@ codeunit 137045 "SCM Bugfixes"
           PurchHeader, PurchLine, PurchHeader."Document Type"::Order, '', ItemNo, Quantity, '', WorkDate);
     end;
 
-    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; DocumentType: Option)
+    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1080,7 +1078,7 @@ codeunit 137045 "SCM Bugfixes"
         until RequisitionLine.Next = 0;
     end;
 
-    local procedure CopySalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; FromDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo"; DocumentNo: Code[20])
+    local procedure CopySalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; FromDocType: Enum "Sales Document Type From"; DocumentNo: Code[20])
     begin
         SalesHeader.Init();
         SalesHeader.Validate("Document Type", DocumentType);
@@ -1089,7 +1087,7 @@ codeunit 137045 "SCM Bugfixes"
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Line Type"; DocumentNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
@@ -1097,7 +1095,7 @@ codeunit 137045 "SCM Bugfixes"
         SalesLine.FindFirst;
     end;
 
-    local procedure VerifySalesLine(SalesLine: Record "Sales Line"; DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo"; DocumentNo: Code[20])
+    local procedure VerifySalesLine(SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type From"; DocumentNo: Code[20])
     var
         SalesShipmentLine: Record "Sales Shipment Line";
         SalesInvoiceLine: Record "Sales Invoice Line";

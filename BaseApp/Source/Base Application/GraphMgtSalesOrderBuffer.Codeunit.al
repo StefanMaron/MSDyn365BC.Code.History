@@ -6,11 +6,11 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
     end;
 
     var
-        DocumentIDNotSpecifiedErr: Label 'You must specify a document id to get the lines.', Locked = true;
-        DocumentDoesNotExistErr: Label 'No document with the specified ID exists.', Locked = true;
-        MultipleDocumentsFoundForIdErr: Label 'Multiple documents have been found for the specified criteria.', Locked = true;
-        CannotInsertALineThatAlreadyExistsErr: Label 'You cannot insert a line because a line already exists.', Locked = true;
-        CannotModifyALineThatDoesntExistErr: Label 'You cannot modify a line that does not exist.', Locked = true;
+        DocumentIDNotSpecifiedErr: Label 'You must specify a document id to get the lines.';
+        DocumentDoesNotExistErr: Label 'No document with the specified ID exists.';
+        MultipleDocumentsFoundForIdErr: Label 'Multiple documents have been found for the specified criteria.';
+        CannotInsertALineThatAlreadyExistsErr: Label 'You cannot insert a line because a line already exists.';
+        CannotModifyALineThatDoesntExistErr: Label 'You cannot modify a line that does not exist.';
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
 
     [EventSubscriber(ObjectType::Table, 36, 'OnAfterInsertEvent', '', false, false)]
@@ -386,6 +386,7 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
         SalesInvoiceLineAggregate.TransferFields(SalesLine, true);
         SalesInvoiceLineAggregate.Id :=
           SalesInvoiceAggregator.GetIdFromDocumentIdAndSequence(SalesOrderEntityBuffer.Id, SalesLine."Line No.");
+        SalesInvoiceLineAggregate.SystemId := SalesLine.SystemId;
         SalesInvoiceLineAggregate."Document Id" := SalesOrderEntityBuffer.Id;
         SalesInvoiceAggregator.SetTaxGroupIdAndCode(
           SalesInvoiceLineAggregate,
@@ -475,11 +476,13 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
             if DocumentIDFilter = '' then
                 Error(DocumentIDNotSpecifiedErr);
             SalesOrderEntityBuffer.SetFilter(Id, DocumentIDFilter);
-        end else
+            if not SalesOrderEntityBuffer.FindFirst() then
+                Error(DocumentDoesNotExistErr);
+        end else begin
             SalesOrderEntityBuffer.SetRange(Id, SalesInvoiceLineAggregate."Document Id");
-
-        if not SalesOrderEntityBuffer.FindFirst then
-            Error(DocumentDoesNotExistErr);
+            if not SalesOrderEntityBuffer.FindFirst() then
+                Error(DocumentDoesNotExistErr);
+        end;
 
         SearchSalesOrderEntityBuffer.Copy(SalesOrderEntityBuffer);
         if SearchSalesOrderEntityBuffer.Next <> 0 then

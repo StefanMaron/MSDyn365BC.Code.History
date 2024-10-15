@@ -1,4 +1,4 @@
-﻿codeunit 22 "Item Jnl.-Post Line"
+codeunit 22 "Item Jnl.-Post Line"
 {
     Permissions = TableData Item = imd,
                   TableData "Item Ledger Entry" = imd,
@@ -125,6 +125,7 @@
         IlegalApptErr: Label 'Ilegal application.\\ %1 %2 in %3 %7 %4 must not be less then %1 %5 in %3 %7 %6.';
         SkipApplicationCheck: Boolean;
         CalledFromApplicationWorksheet: Boolean;
+        SkipSerialNoQtyValidation: Boolean;
 
     procedure RunWithCheck(var ItemJnlLine2: Record "Item Journal Line"): Boolean
     var
@@ -782,7 +783,7 @@
                 CalcCapLedgerEntriesSetupRunTime(ItemJnlLine, PrevSetupTime, PrevRunTime);
 
                 if PostedSetupTime <> 0 then begin
-                    ProdOrderCapNeed.SetRange("Time Type", ProdOrderCapNeed."Time Type"::Setup);
+                    ProdOrderCapNeed.SetRange("Time Type", ProdOrderCapNeed."Time Type"::"Setup Time");
                     PostedSetupTime += PrevSetupTime;
                     if ProdOrderCapNeed.FindSet() then
                         repeat
@@ -794,7 +795,7 @@
                 end;
 
                 if PostedRunTime <> 0 then begin
-                    ProdOrderCapNeed.SetRange("Time Type", ProdOrderCapNeed."Time Type"::Run);
+                    ProdOrderCapNeed.SetRange("Time Type", ProdOrderCapNeed."Time Type"::"Run Time");
                     PostedRunTime += PrevRunTime;
                     if ProdOrderCapNeed.FindSet() then
                         repeat
@@ -935,7 +936,7 @@
         end;
     end;
 
-    local procedure InsertCapValueEntry(var CapLedgEntry: Record "Capacity Ledger Entry"; ValueEntryType: Option; ValuedQty: Decimal; InvdQty: Decimal; AdjdCost: Decimal)
+    local procedure InsertCapValueEntry(var CapLedgEntry: Record "Capacity Ledger Entry"; ValueEntryType: Enum "Cost Entry Type"; ValuedQty: Decimal; InvdQty: Decimal; AdjdCost: Decimal)
     var
         ValueEntry: Record "Value Entry";
         lreWorkCenter: Record "Work Center";
@@ -1004,7 +1005,7 @@
                     "Document Type"::"Sales Shipment", "Document Type"::"Sales Return Receipt",
                     "Document Type"::"Service Shipment"]
                 then
-                    ValueEntry."Document Type" := "Document Type" + 1;
+                    ValueEntry."Document Type" := "Item Ledger Document Type".FromInteger("Document Type".AsInteger() + 1);
             end;
             ValueEntry."Document Line No." := "Document Line No.";
             ValueEntry."Document Date" := "Document Date";
@@ -1531,7 +1532,7 @@
 
         ItemTrackingCode.Code := Item."Item Tracking Code";
         ItemTrackingMgt.GetItemTrackingSetup(
-            ItemTrackingCode, ItemJnlLine."Entry Type", ItemJnlLine.Signed(ItemJnlLine."Quantity (Base)") > 0, ItemTrackingSetup);
+            ItemTrackingCode, ItemJnlLine."Entry Type".AsInteger(), ItemJnlLine.Signed(ItemJnlLine."Quantity (Base)") > 0, ItemTrackingSetup);
 
         TotalAppliedQty := 0;
         CostApplication := false;
@@ -2094,6 +2095,7 @@
             ItemLedgEntry."Derived from Blanket Order" := "Derived from Blanket Order";
 
             ItemLedgEntry."Cross-Reference No." := "Cross-Reference No.";
+            ItemLedgEntry."Item Reference No." := "Item Reference No.";
             ItemLedgEntry."Originally Ordered No." := "Originally Ordered No.";
             ItemLedgEntry."Originally Ordered Var. Code" := "Originally Ordered Var. Code";
             ItemLedgEntry."Out-of-Stock Substitution" := "Out-of-Stock Substitution";
@@ -2659,7 +2661,7 @@
                                        "Document Type"::"Sales Shipment", "Document Type"::"Sales Return Receipt",
                                        "Document Type"::"Service Shipment"]
                 then
-                    ValueEntry."Document Type" := "Document Type" + 1;
+                    ValueEntry."Document Type" := "Item Ledger Document Type".FromInteger("Document Type".AsInteger() + 1);
             end;
             ValueEntry."Document Line No." := "Document Line No.";
 
@@ -3795,7 +3797,7 @@
 
         ItemTrackingCode.Code := Item."Item Tracking Code";
         ItemTrackingMgt.GetItemTrackingSetup(
-            ItemTrackingCode, ItemJnlLine."Entry Type", ItemJnlLine.Signed(ItemJnlLine."Quantity (Base)") > 0, ItemTrackingSetup);
+            ItemTrackingCode, ItemJnlLine."Entry Type".AsInteger(), ItemJnlLine.Signed(ItemJnlLine."Quantity (Base)") > 0, ItemTrackingSetup);
 
         if Item."Costing Method" = Item."Costing Method"::Specific then begin
             Item.TestField("Item Tracking Code");
@@ -4556,6 +4558,9 @@
         if IsHandled then
             exit;
 
+        if SkipSerialNoQtyValidation then
+            exit;
+
         with ItemJnlLine do
             if "Entry Type" = "Entry Type"::Transfer then begin
                 if ItemTrackingMgt.FindInInventory("Item No.", "Variant Code", "New Serial No.") then
@@ -4631,13 +4636,13 @@
         OnAfterUpdateAdjmtProp(ValueEntry, OriginalPostingDate);
     end;
 
-    local procedure SetAdjmtProperties(ItemNo: Code[20]; ItemLedgEntryType: Option; Adjustment: Boolean; OrderType: Option; OrderNo: Code[20]; OrderLineNo: Integer; OriginalPostingDate: Date; ValuationDate: Date)
+    local procedure SetAdjmtProperties(ItemNo: Code[20]; ItemLedgEntryType: Enum "Item Ledger Entry Type"; Adjustment: Boolean; OrderType: Enum "Inventory Order Type"; OrderNo: Code[20]; OrderLineNo: Integer; OriginalPostingDate: Date; ValuationDate: Date)
     begin
         SetItemAdjmtProperties(ItemNo, ItemLedgEntryType, Adjustment, OriginalPostingDate, ValuationDate);
         SetOrderAdjmtProperties(ItemLedgEntryType, OrderType, OrderNo, OrderLineNo, OriginalPostingDate, ValuationDate);
     end;
 
-    local procedure SetItemAdjmtProperties(ItemNo: Code[20]; ItemLedgEntryType: Option; Adjustment: Boolean; OriginalPostingDate: Date; ValuationDate: Date)
+    local procedure SetItemAdjmtProperties(ItemNo: Code[20]; ItemLedgEntryType: Enum "Item Ledger Entry Type"; Adjustment: Boolean; OriginalPostingDate: Date; ValuationDate: Date)
     var
         Item: Record Item;
         ValueEntry: Record "Value Entry";
@@ -4670,7 +4675,7 @@
             end;
     end;
 
-    local procedure SetOrderAdjmtProperties(ItemLedgEntryType: Option; OrderType: Option; OrderNo: Code[20]; OrderLineNo: Integer; OriginalPostingDate: Date; ValuationDate: Date)
+    local procedure SetOrderAdjmtProperties(ItemLedgEntryType: Enum "Item Ledger Entry Type"; OrderType: Enum "Inventory Order Type"; OrderNo: Code[20]; OrderLineNo: Integer; OriginalPostingDate: Date; ValuationDate: Date)
     var
         ValueEntry: Record "Value Entry";
         InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
@@ -4680,7 +4685,8 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSetOrderAdjmtProperties(ItemLedgEntryType, OrderType, OrderNo, OrderLineNo, OriginalPostingDate, ValuationDate, IsHandled);
+        OnBeforeSetOrderAdjmtProperties(
+            ItemLedgEntryType.AsInteger(), OrderType.AsInteger(), OrderNo, OrderLineNo, OriginalPostingDate, ValuationDate, IsHandled);
         if IsHandled then
             exit;
 
@@ -5417,7 +5423,7 @@
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of Item consumption for FA maintenance will be removed and this function should not be used. (Obsolete::Removed in release 01.2021','15.3')]
+    [Obsolete('The functionality of Item consumption for FA maintenance will be removed and this function should not be used. (Obsolete::Removed in release 01.2021', '15.3')]
     procedure PostToFA(DocNo: Code[20]; PostingDate: Date; FACode: Code[20]; MaintenanceCode: Code[10]; AmountFA: Decimal; ItemLedgEntryNo: Integer; ShortcutDimension1Code: Code[20]; ShortcutDimension2Code: Code[20])
     var
         FixedAssed: Record "Fixed Asset";
@@ -5652,7 +5658,7 @@
     begin
     end;
 
-    [Obsolete('Replaced by event OnBeforeCheckItemTrackingInformation','16.0')]
+    [Obsolete('Replaced by event OnBeforeCheckItemTrackingInformation', '16.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckItemTrackingInfo(var ItemJnlLine2: Record "Item Journal Line"; var TrackingSpecification: Record "Tracking Specification"; var SNInfoRequired: Boolean; var LotInfoRequired: Boolean; var SignFactor: Decimal; var ItemTrackingCode: Record "Item Tracking Code")
     begin
@@ -5673,7 +5679,7 @@
     begin
     end;
 
-    [Obsolete('Replaced by event OnAfterCheckItemTrackingInformation','16.0')]
+    [Obsolete('Replaced by event OnAfterCheckItemTrackingInformation', '16.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckItemTrackingInfo(var ItemJnlLine2: Record "Item Journal Line"; var TrackingSpecification: Record "Tracking Specification"; SNInfoRequired: Boolean; LotInfoRequired: Boolean)
     begin
@@ -6567,6 +6573,11 @@
             PostedExpCostValueEntry.SetRange("Expected Cost", true);
             exit(not PostedExpCostValueEntry.IsEmpty);
         end;
+    end;
+
+    procedure SetSkipSerialNoQtyValidation(NewSkipSerialNoQtyValidation: Boolean)
+    begin
+        SkipSerialNoQtyValidation := NewSkipSerialNoQtyValidation;
     end;
 }
 

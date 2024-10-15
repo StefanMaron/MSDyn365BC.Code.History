@@ -199,7 +199,7 @@ table 5107 "Sales Header Archive"
         }
         field(46; Comment; Boolean)
         {
-            CalcFormula = Exist ("Sales Comment Line Archive" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist("Sales Comment Line Archive" WHERE("Document Type" = FIELD("Document Type"),
                                                                     "No." = FIELD("No."),
                                                                     "Document Line No." = CONST(0),
                                                                     "Doc. No. Occurrence" = FIELD("Doc. No. Occurrence"),
@@ -243,7 +243,7 @@ table 5107 "Sales Header Archive"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Sales Line Archive".Amount WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum("Sales Line Archive".Amount WHERE("Document Type" = FIELD("Document Type"),
                                                                  "Document No." = FIELD("No."),
                                                                  "Doc. No. Occurrence" = FIELD("Doc. No. Occurrence"),
                                                                  "Version No." = FIELD("Version No.")));
@@ -255,7 +255,7 @@ table 5107 "Sales Header Archive"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Sales Line Archive"."Amount Including VAT" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum("Sales Line Archive"."Amount Including VAT" WHERE("Document Type" = FIELD("Document Type"),
                                                                                  "Document No." = FIELD("No."),
                                                                                  "Doc. No. Occurrence" = FIELD("Doc. No. Occurrence"),
                                                                                  "Version No." = FIELD("Version No.")));
@@ -601,7 +601,7 @@ table 5107 "Sales Header Archive"
         }
         field(145; "No. of Archived Versions"; Integer)
         {
-            CalcFormula = Max ("Sales Header Archive"."Version No." WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Max("Sales Header Archive"."Version No." WHERE("Document Type" = FIELD("Document Type"),
                                                                           "No." = FIELD("No."),
                                                                           "Doc. No. Occurrence" = FIELD("Doc. No. Occurrence")));
             Caption = 'No. of Archived Versions';
@@ -659,7 +659,7 @@ table 5107 "Sales Header Archive"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(827; "Credit Card No."; Code[20])
@@ -742,7 +742,7 @@ table 5107 "Sales Header Archive"
         }
         field(5752; "Completely Shipped"; Boolean)
         {
-            CalcFormula = Min ("Sales Line Archive"."Completely Shipped" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Min("Sales Line Archive"."Completely Shipped" WHERE("Document Type" = FIELD("Document Type"),
                                                                                "Document No." = FIELD("No."),
                                                                                "Version No." = FIELD("Version No."),
                                                                                "Shipment Date" = FIELD("Date Filter"),
@@ -785,7 +785,7 @@ table 5107 "Sales Header Archive"
         }
         field(5795; "Late Order Shipping"; Boolean)
         {
-            CalcFormula = Exist ("Sales Line Archive" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist("Sales Line Archive" WHERE("Document Type" = FIELD("Document Type"),
                                                             "Sell-to Customer No." = FIELD("Sell-to Customer No."),
                                                             "Document No." = FIELD("No."),
                                                             "Doc. No. Occurrence" = FIELD("Doc. No. Occurrence"),
@@ -889,6 +889,9 @@ table 5107 "Sales Header Archive"
         field(11760; "VAT Date"; Date)
         {
             Caption = 'VAT Date';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11761; "VAT Currency Factor"; Decimal)
         {
@@ -896,6 +899,9 @@ table 5107 "Sales Header Archive"
             DecimalPlaces = 0 : 15;
             Editable = false;
             MinValue = 0;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11762; "Tax Corrective Document"; Boolean)
         {
@@ -915,10 +921,16 @@ table 5107 "Sales Header Archive"
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11793; "Quote Validity"; Date)
         {
@@ -962,6 +974,9 @@ table 5107 "Sales Header Archive"
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
             Caption = 'EU 3-Party Intermediate Role';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
     }
 
@@ -988,7 +1003,6 @@ table 5107 "Sales Header Archive"
         SalesLineArchive: Record "Sales Line Archive";
         DeferralHeaderArchive: Record "Deferral Header Archive";
         CatalogItemMgt: Codeunit "Catalog Item Management";
-        DeferralUtilities: Codeunit "Deferral Utilities";
     begin
         SalesLineArchive.SetRange("Document Type", "Document Type");
         SalesLineArchive.SetRange("Document No.", "No.");
@@ -1008,7 +1022,7 @@ table 5107 "Sales Header Archive"
         SalesCommentLineArch.SetRange("Version No.", "Version No.");
         SalesCommentLineArch.DeleteAll();
 
-        DeferralHeaderArchive.SetRange("Deferral Doc. Type", DeferralUtilities.GetSalesDeferralDocType);
+        DeferralHeaderArchive.SetRange("Deferral Doc. Type", "Deferral Document Type"::Sales);
         DeferralHeaderArchive.SetRange("Document Type", "Document Type");
         DeferralHeaderArchive.SetRange("Document No.", "No.");
         DeferralHeaderArchive.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");

@@ -1,6 +1,6 @@
 page 31081 "Acc. Schedule File Mapping"
 {
-    Caption = 'Acc. Schedule File Mapping';
+    Caption = 'Acc. Schedule File Mapping (Obsolete)';
     DataCaptionExpression = CurrentSchedName + ' -' + CurrentColumnName;
     DeleteAllowed = false;
     InsertAllowed = false;
@@ -8,6 +8,9 @@ page 31081 "Acc. Schedule File Mapping"
     SaveValues = true;
     SourceTable = "Acc. Schedule Line";
     SourceTableView = SORTING("Schedule Name", "Line No.");
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

@@ -489,7 +489,7 @@ report 5174 "Archived Blanket Purch. Order"
 
                             AllowInvDisctxt := Format("Purchase Line Archive"."Allow Invoice Disc.");
 
-                            PurchaseLineArchiveType := "Purchase Line Archive".Type;
+                            PurchaseLineArchiveType := "Purchase Line Archive".Type.AsInteger();
 
                             TotalSubTotal += "Purchase Line Archive"."Line Amount";
                             TotalInvoiceDiscountAmount -= "Purchase Line Archive"."Inv. Discount Amount";

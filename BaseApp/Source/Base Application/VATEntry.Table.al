@@ -37,12 +37,10 @@ table 254 "VAT Entry"
             Caption = 'Document Type';
             Editable = false;
         }
-        field(7; Type; Option)
+        field(7; Type; Enum "General Posting Type")
         {
             Caption = 'Type';
             Editable = false;
-            OptionCaption = ' ,Purchase,Sale,Settlement';
-            OptionMembers = " ",Purchase,Sale,Settlement;
 
             trigger OnValidate()
             begin
@@ -274,7 +272,7 @@ table 254 "VAT Entry"
         field(43; "Additional-Currency Amount"; Decimal)
         {
             AccessByPermission = TableData Currency = R;
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Additional-Currency Amount';
             Editable = false;
@@ -282,21 +280,21 @@ table 254 "VAT Entry"
         field(44; "Additional-Currency Base"; Decimal)
         {
             AccessByPermission = TableData Currency = R;
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Additional-Currency Base';
             Editable = false;
         }
         field(45; "Add.-Currency Unrealized Amt."; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Add.-Currency Unrealized Amt.';
             Editable = false;
         }
         field(46; "Add.-Currency Unrealized Base"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Add.-Currency Unrealized Base';
             Editable = false;
@@ -311,14 +309,14 @@ table 254 "VAT Entry"
         }
         field(49; "Add.-Curr. Rem. Unreal. Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Add.-Curr. Rem. Unreal. Amount';
             Editable = false;
         }
         field(50; "Add.-Curr. Rem. Unreal. Base"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Add.-Curr. Rem. Unreal. Base';
             Editable = false;
@@ -332,7 +330,7 @@ table 254 "VAT Entry"
         field(52; "Add.-Curr. VAT Difference"; Decimal)
         {
             AccessByPermission = TableData Currency = R;
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Add.-Curr. VAT Difference';
             Editable = false;
@@ -415,6 +413,9 @@ table 254 "VAT Entry"
         {
             Caption = 'VAT Date';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11763; "Postponed VAT"; Boolean)
         {
@@ -428,6 +429,9 @@ table 254 "VAT Entry"
         {
             Caption = 'VAT Delay';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11765; "VAT % (Non Deductible)"; Decimal)
         {
@@ -459,6 +463,9 @@ table 254 "VAT Entry"
         {
             Caption = 'VAT Settlement No.';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11770; "Primary Entry No."; Integer)
         {
@@ -500,7 +507,7 @@ table 254 "VAT Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(11776; "VAT Identifier"; Code[20])
@@ -520,6 +527,9 @@ table 254 "VAT Entry"
         {
             Caption = 'Registration No.';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(31000; "Prepayment Type"; Option)
         {
@@ -580,6 +590,9 @@ table 254 "VAT Entry"
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
             Caption = 'EU 3-Party Intermediate Role';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             begin
@@ -589,22 +602,31 @@ table 254 "VAT Entry"
         }
         field(31099; "VAT Control Report No."; Code[20])
         {
-            CalcFormula = Lookup ("VAT Ctrl.Rep. - VAT Entry Link"."Control Report No." WHERE("VAT Entry No." = FIELD("Entry No.")));
+            CalcFormula = Lookup("VAT Ctrl.Rep. - VAT Entry Link"."Control Report No." WHERE("VAT Entry No." = FIELD("Entry No.")));
             Caption = 'VAT Control Report No.';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(31100; "VAT Control Report Line No."; Integer)
         {
-            CalcFormula = Lookup ("VAT Ctrl.Rep. - VAT Entry Link"."Line No." WHERE("VAT Entry No." = FIELD("Entry No.")));
+            CalcFormula = Lookup("VAT Ctrl.Rep. - VAT Entry Link"."Line No." WHERE("VAT Entry No." = FIELD("Entry No.")));
             Caption = 'VAT Control Report Line No.';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(31101; "Original Document VAT Date"; Date)
         {
             Caption = 'Original Document VAT Date';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
     }
 
@@ -718,7 +740,7 @@ table 254 "VAT Entry"
     var
         UnrealizedVATType: Option " ",Percentage,First,Last,"First (Fully Paid)","Last (Fully Paid)";
     begin
-        if (Type <> 0) and
+        if (Type <> Type::" ") and
            (Amount = 0) and
            (Base = 0)
         then begin
@@ -895,7 +917,7 @@ table 254 "VAT Entry"
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of Dimension for VAT Entry will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of Dimension for VAT Entry will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     procedure ShowDimensions()
     var
         DimMgt: Codeunit DimensionManagement;

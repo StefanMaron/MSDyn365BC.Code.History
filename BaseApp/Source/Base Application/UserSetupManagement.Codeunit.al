@@ -159,10 +159,10 @@ codeunit 5700 "User Setup Management"
                 UserRespCenter := GetPurchasesFilter(UserCode);
             DocType::Service:
                 UserRespCenter := GetServiceFilter(UserCode);
-                // NAVCZ
+            // NAVCZ
             DocType::Cash:
                 UserRespCenter := GetCashFilter(UserCode);
-                // NAVCZ
+        // NAVCZ
         end;
         if (UserRespCenter <> '') and
            (AccRespCenter <> UserRespCenter)
@@ -193,6 +193,7 @@ codeunit 5700 "User Setup Management"
         exit(UserLocation);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure GetCashFilter(): Code[10]
     begin
@@ -200,6 +201,7 @@ codeunit 5700 "User Setup Management"
         exit(GetCashFilter(UserId));
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure GetCashFilter(UserCode: Code[50]): Code[10]
     begin

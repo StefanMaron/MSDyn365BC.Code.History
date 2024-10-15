@@ -1,13 +1,16 @@
 page 11737 "Posted Cash Document List"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Posted Cash Documents';
+    Caption = 'Posted Cash Documents (Obsolete)';
     CardPageID = "Posted Cash Document";
     DataCaptionFields = "Cash Desk No.";
     Editable = false;
     PageType = List;
     SourceTable = "Posted Cash Document Header";
     UsageCategory = History;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {
@@ -98,7 +101,7 @@ page 11737 "Posted Cash Document List"
 
                 trigger OnAction()
                 begin
-                    ShowDimensions;
+                    ShowDimensions();
                 end;
             }
         }
@@ -129,7 +132,7 @@ page 11737 "Posted Cash Document List"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;

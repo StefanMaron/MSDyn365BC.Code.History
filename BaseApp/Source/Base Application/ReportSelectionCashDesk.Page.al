@@ -1,12 +1,12 @@
 page 11759 "Report Selection - Cash Desk"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Report Selection - Cash Desk';
+    Caption = 'Report Selection - Cash Desk (Obsolete)';
     DelayedInsert = true;
     PageType = Worksheet;
     SaveValues = true;
     SourceTable = "Cash Desk Report Selections";
-    UsageCategory = Tasks;
+    UsageCategory = Administration;
 
     layout
     {

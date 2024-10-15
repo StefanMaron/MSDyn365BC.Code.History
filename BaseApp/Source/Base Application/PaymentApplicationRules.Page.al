@@ -65,6 +65,12 @@ page 1252 "Payment Application Rules"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies bank transaction type for payment application rules ';
                 }
+                field("Review Required"; "Review Required")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Review Required';
+                    ToolTip = 'Specifies if bank statement lines matched with this rule will be shown as recommended for review.';
+                }
             }
         }
     }

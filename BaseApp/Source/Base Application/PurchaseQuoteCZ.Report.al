@@ -2,8 +2,11 @@ report 31091 "Purchase - Quote CZ"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './PurchaseQuoteCZ.rdlc';
-    Caption = 'Purchase - Quote CZ';
+    Caption = 'Purchase - Quote CZ (Obsolete)';
     PreviewMode = PrintLayout;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

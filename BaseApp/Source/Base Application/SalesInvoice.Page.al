@@ -1,4 +1,4 @@
-﻿page 43 "Sales Invoice"
+page 43 "Sales Invoice"
 {
     Caption = 'Sales Invoice';
     PageType = Document;
@@ -60,6 +60,12 @@
                             SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec);
 
                         CurrPage.Update();
+                    end;
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    begin
+                        if LookupSellToCustomerName() then
+                            CurrPage.Update();
                     end;
                 }
                 group("Sell-to")
@@ -128,7 +134,7 @@
                         ApplicationArea = Basic, Suite;
                         Caption = 'Contact No.';
                         Importance = Additional;
-                        ToolTip = 'Specifies the number of the contact that the sales document will be sent to.';
+                        ToolTip = 'Specifies the number of the contact person that the sales document will be sent to.';
 
                         trigger OnValidate()
                         begin
@@ -137,6 +143,33 @@
                                     if "Sell-to Contact No." <> xRec."Sell-to Contact No." then
                                         SetRange("Sell-to Contact No.");
                         end;
+                    }
+                    field(SellToPhoneNo; SellToContact."Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the contact person that the sales document will be sent to.';
+                    }
+                    field(SellToMobilePhoneNo; SellToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Mobile Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the contact person that the sales document will be sent to.';
+                    }
+                    field(SellToEmail; SellToContact."E-Mail")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Email';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the contact person that the sales document will be sent to.';
                     }
                 }
                 field("Sell-to Contact"; "Sell-to Contact")
@@ -188,6 +221,10 @@
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the VAT date. This date must be shown on the VAT statement.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Due Date"; "Due Date")
                 {
@@ -772,7 +809,34 @@
                             Caption = 'Contact';
                             Editable = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
                             Enabled = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
-                            ToolTip = 'Specifies the name of the person you should contact at the customer who you are sending the invoice to.';
+                            ToolTip = 'Specifies the name of the person you should contact at the customer you are sending the invoice to.';
+                        }
+                        field(BillToContactPhoneNo; BillToContact."Phone No.")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Phone No.';
+                            Editable = false;
+                            Importance = Additional;
+                            ExtendedDatatype = PhoneNo;
+                            ToolTip = 'Specifies the telephone number of the person you should contact at the customer you are sending the invoice to.';
+                        }
+                        field(BillToContactMobilePhoneNo; BillToContact."Mobile Phone No.")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Mobile Phone No.';
+                            Editable = false;
+                            Importance = Additional;
+                            ExtendedDatatype = PhoneNo;
+                            ToolTip = 'Specifies the mobile telephone number of the person you should contact at the customer you are sending the invoice to.';
+                        }
+                        field(BillToContactEmail; BillToContact."E-Mail")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Email';
+                            Editable = false;
+                            Importance = Additional;
+                            ExtendedDatatype = EMail;
+                            ToolTip = 'Specifies the email address of the person you should contact at the customer you are sending the invoice to.';
                         }
                     }
                 }
@@ -834,7 +898,11 @@
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies when the sales haeder will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
+                    ToolTip = 'Specifies when the sales header will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Intrastat Exclude"; "Intrastat Exclude")
                 {
@@ -850,11 +918,19 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the registration number of customer.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Tax Registration No."; "Tax Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the secondary VAT registration number for the customer.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Industry Code"; "Industry Code")
                 {
@@ -1126,7 +1202,7 @@
                     var
                         WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Sales Header", "Document Type", "No.");
+                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Sales Header", "Document Type".AsInteger(), "No.");
                     end;
                 }
                 action(Function_CustomerCard)
@@ -1580,7 +1656,7 @@
                         Image = Flow;
                         Promoted = true;
                         PromotedCategory = Category9;
-                        ToolTip = 'Create a new Flow from a list of relevant Flow templates.';
+                        ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
                         Visible = IsSaaS;
 
                         trigger OnAction()
@@ -1601,7 +1677,7 @@
                         Promoted = true;
                         PromotedCategory = Category9;
                         RunObject = Page "Flow Selector";
-                        ToolTip = 'View and configure Flows that you created.';
+                        ToolTip = 'View and configure Power Automate flows that you created.';
                     }
                 }
             }
@@ -1622,7 +1698,7 @@
 
                     trigger OnAction()
                     begin
-                        PostDocument(CODEUNIT::"Sales-Post (Yes/No)", NavigateAfterPost::"Posted Document");
+                        PostDocument(CODEUNIT::"Sales-Post (Yes/No)", "Navigate After Posting"::"Posted Document");
                     end;
                 }
                 action(PostAndNew)
@@ -1638,7 +1714,7 @@
 
                     trigger OnAction()
                     begin
-                        PostDocument(CODEUNIT::"Sales-Post (Yes/No)", NavigateAfterPost::"New Document");
+                        PostDocument(CODEUNIT::"Sales-Post (Yes/No)", "Navigate After Posting"::"New Document");
                     end;
                 }
                 action(PostAndSend)
@@ -1653,7 +1729,7 @@
 
                     trigger OnAction()
                     begin
-                        PostDocument(CODEUNIT::"Sales-Post and Send", NavigateAfterPost::"Do Nothing");
+                        PostDocument(CODEUNIT::"Sales-Post and Send", "Navigate After Posting"::"Do Nothing");
                     end;
                 }
                 action(Preview)
@@ -1766,7 +1842,9 @@
     trigger OnAfterGetRecord()
     begin
         WorkDescription := GetWorkDescription;
-        UpdateShipToBillToGroupVisibility
+        UpdateShipToBillToGroupVisibility();
+        if SellToContact.Get("Sell-to Contact No.") then;
+        if BillToContact.Get("Bill-to Contact No.") then;
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1837,6 +1915,8 @@
     end;
 
     var
+        SellToContact: Record Contact;
+        BillToContact: Record Contact;
         MoveNegSalesLines: Report "Move Negative Sales Lines";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         ReportPrint: Codeunit "Test Report-Print";
@@ -1848,7 +1928,6 @@
         CustomerMgt: Codeunit "Customer Mgt.";
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
-        NavigateAfterPost: Option "Posted Document","New Document","Do Nothing";
         WorkDescription: Text;
         [InDataSet]
         StatusStyleTxt: Text;
@@ -1886,7 +1965,12 @@
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
     end;
 
-    local procedure PostDocument(PostingCodeunitID: Integer; Navigate: Option)
+    procedure CallPostDocument(PostingCodeunitID: Integer; Navigate: Enum "Navigate After Posting")
+    begin
+        PostDocument(PostingCodeunitID, Navigate);
+    end;
+
+    local procedure PostDocument(PostingCodeunitID: Integer; Navigate: Enum "Navigate After Posting")
     var
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -1919,10 +2003,10 @@
                 PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvoiceHeader);
         end else
             case Navigate of
-                NavigateAfterPost::"Posted Document":
+                "Navigate After Posting"::"Posted Document":
                     if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode) then
                         ShowPostedConfirmationMessage(PreAssignedNo);
-                NavigateAfterPost::"New Document":
+                "Navigate After Posting"::"New Document":
                     if DocumentIsPosted then begin
                         SalesHeader.Init();
                         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Invoice);

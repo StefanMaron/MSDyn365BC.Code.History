@@ -11,7 +11,7 @@ codeunit 131306 "Library - Journals"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryERM: Codeunit "Library - ERM";
 
-    procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; Amount: Decimal)
+    procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         NoSeries: Record "No. Series";
@@ -45,7 +45,7 @@ codeunit 131306 "Library - Journals"
         GenJournalLine.Modify(true);
     end;
 
-    procedure CreateGenJournalLine2(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; Amount: Decimal)
+    procedure CreateGenJournalLine2(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         LastGenJnlLine: Record "Gen. Journal Line";
@@ -86,7 +86,7 @@ codeunit 131306 "Library - Journals"
         GenJournalLine.Modify(true);
     end;
 
-    procedure CreateGenJournalLineWithBatch(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; LineAmount: Decimal)
+    procedure CreateGenJournalLineWithBatch(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; LineAmount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GLAccount: Record "G/L Account";
@@ -113,12 +113,12 @@ codeunit 131306 "Library - Journals"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
 
-    procedure CreateGenJournalBatchWithType(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Option)
+    procedure CreateGenJournalBatchWithType(var GenJournalBatch: Record "Gen. Journal Batch"; TemplateType: Enum "Gen. Journal Template Type")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-        GenJournalTemplate.Validate(Type, Type);
+        GenJournalTemplate.Validate(Type, TemplateType);
         GenJournalTemplate.Modify(true);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
@@ -143,7 +143,7 @@ codeunit 131306 "Library - Journals"
         GenJournalBatch.Modify(true);
     end;
 
-    procedure SelectGenJournalTemplate(Type: Option; PageID: Integer): Code[10]
+    procedure SelectGenJournalTemplate(Type: Enum "Gen. Journal Template Type"; PageID: Integer): Code[10]
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin

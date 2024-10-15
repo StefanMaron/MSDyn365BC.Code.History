@@ -4,6 +4,9 @@ page 1805 "Email Setup Wizard"
     PageType = NavigatePage;
     SourceTable = "SMTP Mail Setup";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced with the "Email Account Wizard" from "System Application".';
+    ObsoleteTag = '17.0';
 
     layout
     {
@@ -272,7 +275,7 @@ page 1805 "Email Setup Wizard"
         AssistedSetup: Codeunit "Assisted Setup";
         Info: ModuleInfo;
     begin
-        if CloseAction = ACTION::OK then 
+        if CloseAction = ACTION::OK then
             if AssistedSetup.ExistsAndIsNotComplete(PAGE::"Email Setup Wizard") then
                 if not Confirm(NAVNotSetUpQst, false) then
                     Error('');

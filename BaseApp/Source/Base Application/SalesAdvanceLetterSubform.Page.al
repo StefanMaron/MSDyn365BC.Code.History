@@ -306,7 +306,7 @@ page 31001 "Sales Advance Letter Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Co&mments")
@@ -318,7 +318,7 @@ page 31001 "Sales Advance Letter Subform"
 
                     trigger OnAction()
                     begin
-                        ShowLineComments;
+                        ShowLineComments();
                     end;
                 }
             }

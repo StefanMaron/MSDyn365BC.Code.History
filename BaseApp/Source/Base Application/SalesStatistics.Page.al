@@ -343,15 +343,12 @@ page 160 "Sales Statistics"
         TempTotVATAmountLinePrep: Record "VAT Amount Line" temporary;
         TempTotVATAmountLineTot: Record "VAT Amount Line" temporary;
         VATAmountLines: Page "VAT Amount Lines";
-        TotalSalesLine: Record "Sales Line";
-        TotalSalesLineLCY: Record "Sales Line";
         Cust: Record Customer;
         TempVATAmountLine: Record "VAT Amount Line" temporary;
         SalesSetup: Record "Sales & Receivables Setup";
         SalesPost: Codeunit "Sales-Post";
         TotalAmount1: Decimal;
         TotalAmount2: Decimal;
-        VATAmount: Decimal;
         VATAmountText: Text[30];
         ProfitLCY: Decimal;
         ProfitPct: Decimal;
@@ -362,6 +359,11 @@ page 160 "Sales Statistics"
         PrevNo: Code[20];
         AllowInvDisc: Boolean;
         AllowVATDifference: Boolean;
+
+    protected var
+        TotalSalesLine: Record "Sales Line";
+        TotalSalesLineLCY: Record "Sales Line";
+        VATAmount: Decimal;
 
     local procedure UpdateHeaderInfo()
     var

@@ -25,8 +25,8 @@
 
     procedure CreateEntitiesAndFields()
     begin
-        InsertRequestPageEntities;
-        InsertRequestPageFields;
+        InsertRequestPageEntities();
+        InsertRequestPageFields();
     end;
 
     procedure AssignEntitiesToWorkflowEvents()
@@ -104,39 +104,40 @@
 
     local procedure InsertRequestPageFields()
     begin
-        InsertIncomingDocumentReqPageFields;
+        InsertIncomingDocumentReqPageFields();
 
-        InsertPurchaseHeaderReqPageFields;
-        InsertPurchaseLineReqPageFields;
+        InsertPurchaseHeaderReqPageFields();
+        InsertPurchaseLineReqPageFields();
 
-        InsertSalesHeaderReqPageFields;
-        InsertSalesLineReqPageFields;
+        InsertSalesHeaderReqPageFields();
+        InsertSalesLineReqPageFields();
 
-        InsertCustomerReqPageFields;
-        InsertVendorReqPageFields;
+        InsertCustomerReqPageFields();
+        InsertVendorReqPageFields();
 
-        InsertItemReqPageFields;
-        InsertGeneralJournalBatchReqPageFields;
-        InsertGeneralJournalLineReqPageFields;
+        InsertItemReqPageFields();
+        InsertGeneralJournalBatchReqPageFields();
+        InsertGeneralJournalLineReqPageFields();
 
-        InsertApprovalEntryReqPageFields;
+        InsertApprovalEntryReqPageFields();
 
         // NAVCZ
-        InsertPaymentOrderHeaderReqPageFields;
-        InsertPaymentOrderLineReqPageFields;
+        InsertPaymentOrderHeaderReqPageFields();
+        InsertPaymentOrderLineReqPageFields();
 
-        InsertCashDocHeaderReqPageFields;
-        InsertCashDocLineReqPageFields;
+        InsertCashDocHeaderReqPageFields();
+        InsertCashDocLineReqPageFields();
 
-        InsertCreditHeaderReqPageFields;
-        InsertCreditLineReqPageFields;
+        InsertCreditHeaderReqPageFields();
+        InsertCreditLineReqPageFields();
 
-        InsertSalesAdvanceLetterHeaderReqPageFields;
-        InsertSalesAdvanceLetterLineReqPageFields;
+        InsertSalesAdvanceLetterHeaderReqPageFields();
+        InsertSalesAdvanceLetterLineReqPageFields();
 
-        InsertPurchaseAdvanceLetterHeaderReqPageFields;
-        InsertPurchaseAdvanceLetterLineReqPageFields;
+        InsertPurchaseAdvanceLetterHeaderReqPageFields();
+        InsertPurchaseAdvanceLetterLineReqPageFields();
         // NAVCZ
+        InsertApprovalEntryReqPageFields();
 
         OnAfterInsertRequestPageFields();
     end;
@@ -145,96 +146,96 @@
     var
         IncomingDocument: Record "Incoming Document";
     begin
-        InsertReqPageField(DATABASE::"Incoming Document", IncomingDocument.FieldNo("Created By User ID"));
-        InsertReqPageField(DATABASE::"Incoming Document", IncomingDocument.FieldNo(Posted));
-        InsertReqPageField(DATABASE::"Incoming Document", IncomingDocument.FieldNo(Status));
+        InsertDynReqPageField(DATABASE::"Incoming Document", IncomingDocument.FieldNo("Created By User ID"));
+        InsertDynReqPageField(DATABASE::"Incoming Document", IncomingDocument.FieldNo(Posted));
+        InsertDynReqPageField(DATABASE::"Incoming Document", IncomingDocument.FieldNo(Status));
     end;
 
     local procedure InsertPurchaseHeaderReqPageFields()
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        InsertReqPageField(DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."));
-        InsertReqPageField(DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Payment Terms Code"));
-        InsertReqPageField(DATABASE::"Purchase Header", PurchaseHeader.FieldNo(Amount));
-        InsertReqPageField(DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Currency Code"));
+        InsertDynReqPageField(DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."));
+        InsertDynReqPageField(DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Payment Terms Code"));
+        InsertDynReqPageField(DATABASE::"Purchase Header", PurchaseHeader.FieldNo(Amount));
+        InsertDynReqPageField(DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Currency Code"));
     end;
 
     local procedure InsertPurchaseLineReqPageFields()
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        InsertReqPageField(DATABASE::"Purchase Line", PurchaseLine.FieldNo(Type));
-        InsertReqPageField(DATABASE::"Purchase Line", PurchaseLine.FieldNo("No."));
-        InsertReqPageField(DATABASE::"Purchase Line", PurchaseLine.FieldNo(Quantity));
-        InsertReqPageField(DATABASE::"Purchase Line", PurchaseLine.FieldNo("Direct Unit Cost"));
+        InsertDynReqPageField(DATABASE::"Purchase Line", PurchaseLine.FieldNo(Type));
+        InsertDynReqPageField(DATABASE::"Purchase Line", PurchaseLine.FieldNo("No."));
+        InsertDynReqPageField(DATABASE::"Purchase Line", PurchaseLine.FieldNo(Quantity));
+        InsertDynReqPageField(DATABASE::"Purchase Line", PurchaseLine.FieldNo("Direct Unit Cost"));
     end;
 
     local procedure InsertSalesHeaderReqPageFields()
     var
         SalesHeader: Record "Sales Header";
     begin
-        InsertReqPageField(DATABASE::"Sales Header", SalesHeader.FieldNo("Sell-to Customer No."));
-        InsertReqPageField(DATABASE::"Sales Header", SalesHeader.FieldNo("Payment Terms Code"));
-        InsertReqPageField(DATABASE::"Sales Header", SalesHeader.FieldNo(Amount));
-        InsertReqPageField(DATABASE::"Sales Header", SalesHeader.FieldNo("Currency Code"));
+        InsertDynReqPageField(DATABASE::"Sales Header", SalesHeader.FieldNo("Sell-to Customer No."));
+        InsertDynReqPageField(DATABASE::"Sales Header", SalesHeader.FieldNo("Payment Terms Code"));
+        InsertDynReqPageField(DATABASE::"Sales Header", SalesHeader.FieldNo(Amount));
+        InsertDynReqPageField(DATABASE::"Sales Header", SalesHeader.FieldNo("Currency Code"));
     end;
 
     local procedure InsertSalesLineReqPageFields()
     var
         SalesLine: Record "Sales Line";
     begin
-        InsertReqPageField(DATABASE::"Sales Line", SalesLine.FieldNo(Type));
-        InsertReqPageField(DATABASE::"Sales Line", SalesLine.FieldNo("No."));
-        InsertReqPageField(DATABASE::"Sales Line", SalesLine.FieldNo(Quantity));
-        InsertReqPageField(DATABASE::"Sales Line", SalesLine.FieldNo("Unit Cost"));
+        InsertDynReqPageField(DATABASE::"Sales Line", SalesLine.FieldNo(Type));
+        InsertDynReqPageField(DATABASE::"Sales Line", SalesLine.FieldNo("No."));
+        InsertDynReqPageField(DATABASE::"Sales Line", SalesLine.FieldNo(Quantity));
+        InsertDynReqPageField(DATABASE::"Sales Line", SalesLine.FieldNo("Unit Cost"));
     end;
 
     local procedure InsertCustomerReqPageFields()
     var
         Customer: Record Customer;
     begin
-        InsertReqPageField(DATABASE::Customer, Customer.FieldNo("No."));
-        InsertReqPageField(DATABASE::Customer, Customer.FieldNo(Blocked));
-        InsertReqPageField(DATABASE::Customer, Customer.FieldNo("Credit Limit (LCY)"));
-        InsertReqPageField(DATABASE::Customer, Customer.FieldNo("Payment Method Code"));
-        InsertReqPageField(DATABASE::Customer, Customer.FieldNo("Gen. Bus. Posting Group"));
-        InsertReqPageField(DATABASE::Customer, Customer.FieldNo("Customer Posting Group"));
+        InsertDynReqPageField(DATABASE::Customer, Customer.FieldNo("No."));
+        InsertDynReqPageField(DATABASE::Customer, Customer.FieldNo(Blocked));
+        InsertDynReqPageField(DATABASE::Customer, Customer.FieldNo("Credit Limit (LCY)"));
+        InsertDynReqPageField(DATABASE::Customer, Customer.FieldNo("Payment Method Code"));
+        InsertDynReqPageField(DATABASE::Customer, Customer.FieldNo("Gen. Bus. Posting Group"));
+        InsertDynReqPageField(DATABASE::Customer, Customer.FieldNo("Customer Posting Group"));
     end;
 
     local procedure InsertItemReqPageFields()
     var
         Item: Record Item;
     begin
-        InsertReqPageField(DATABASE::Item, Item.FieldNo("No."));
-        InsertReqPageField(DATABASE::Item, Item.FieldNo("Item Category Code"));
-        InsertReqPageField(DATABASE::Item, Item.FieldNo("Unit Price"));
+        InsertDynReqPageField(DATABASE::Item, Item.FieldNo("No."));
+        InsertDynReqPageField(DATABASE::Item, Item.FieldNo("Item Category Code"));
+        InsertDynReqPageField(DATABASE::Item, Item.FieldNo("Unit Price"));
     end;
 
     local procedure InsertGeneralJournalBatchReqPageFields()
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        InsertReqPageField(DATABASE::"Gen. Journal Batch", GenJournalBatch.FieldNo(Name));
-        InsertReqPageField(DATABASE::"Gen. Journal Batch", GenJournalBatch.FieldNo("Template Type"));
-        InsertReqPageField(DATABASE::"Gen. Journal Batch", GenJournalBatch.FieldNo(Recurring));
+        InsertDynReqPageField(DATABASE::"Gen. Journal Batch", GenJournalBatch.FieldNo(Name));
+        InsertDynReqPageField(DATABASE::"Gen. Journal Batch", GenJournalBatch.FieldNo("Template Type"));
+        InsertDynReqPageField(DATABASE::"Gen. Journal Batch", GenJournalBatch.FieldNo(Recurring));
     end;
 
     local procedure InsertGeneralJournalLineReqPageFields()
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        InsertReqPageField(DATABASE::"Gen. Journal Line", GenJournalLine.FieldNo("Document Type"));
-        InsertReqPageField(DATABASE::"Gen. Journal Line", GenJournalLine.FieldNo("Account Type"));
-        InsertReqPageField(DATABASE::"Gen. Journal Line", GenJournalLine.FieldNo("Account No."));
-        InsertReqPageField(DATABASE::"Gen. Journal Line", GenJournalLine.FieldNo(Amount));
+        InsertDynReqPageField(DATABASE::"Gen. Journal Line", GenJournalLine.FieldNo("Document Type"));
+        InsertDynReqPageField(DATABASE::"Gen. Journal Line", GenJournalLine.FieldNo("Account Type"));
+        InsertDynReqPageField(DATABASE::"Gen. Journal Line", GenJournalLine.FieldNo("Account No."));
+        InsertDynReqPageField(DATABASE::"Gen. Journal Line", GenJournalLine.FieldNo(Amount));
     end;
 
     local procedure InsertApprovalEntryReqPageFields()
     var
         ApprovalEntry: Record "Approval Entry";
     begin
-        InsertReqPageField(DATABASE::"Approval Entry", ApprovalEntry.FieldNo("Pending Approvals"));
+        InsertDynReqPageField(DATABASE::"Approval Entry", ApprovalEntry.FieldNo("Pending Approvals"));
     end;
 
     local procedure InsertPaymentOrderHeaderReqPageFields()
@@ -242,10 +243,10 @@
         PmtOrdHdr: Record "Payment Order Header";
     begin
         // NAVCZ
-        InsertReqPageField(DATABASE::"Payment Order Header", PmtOrdHdr.FieldNo("Bank Account No."));
-        InsertReqPageField(DATABASE::"Payment Order Header", PmtOrdHdr.FieldNo("Account No."));
-        InsertReqPageField(DATABASE::"Payment Order Header", PmtOrdHdr.FieldNo(Amount));
-        InsertReqPageField(DATABASE::"Payment Order Header", PmtOrdHdr.FieldNo("Currency Code"));
+        InsertDynReqPageField(DATABASE::"Payment Order Header", PmtOrdHdr.FieldNo("Bank Account No."));
+        InsertDynReqPageField(DATABASE::"Payment Order Header", PmtOrdHdr.FieldNo("Account No."));
+        InsertDynReqPageField(DATABASE::"Payment Order Header", PmtOrdHdr.FieldNo(Amount));
+        InsertDynReqPageField(DATABASE::"Payment Order Header", PmtOrdHdr.FieldNo("Currency Code"));
     end;
 
     local procedure InsertPaymentOrderLineReqPageFields()
@@ -253,9 +254,9 @@
         PmtOrdLn: Record "Payment Order Line";
     begin
         // NAVCZ
-        InsertReqPageField(DATABASE::"Payment Order Line", PmtOrdLn.FieldNo(Type));
-        InsertReqPageField(DATABASE::"Payment Order Line", PmtOrdLn.FieldNo("No."));
-        InsertReqPageField(DATABASE::"Payment Order Line", PmtOrdLn.FieldNo("Amount to Pay"));
+        InsertDynReqPageField(DATABASE::"Payment Order Line", PmtOrdLn.FieldNo(Type));
+        InsertDynReqPageField(DATABASE::"Payment Order Line", PmtOrdLn.FieldNo("No."));
+        InsertDynReqPageField(DATABASE::"Payment Order Line", PmtOrdLn.FieldNo("Amount to Pay"));
     end;
 
     local procedure InsertCashDocHeaderReqPageFields()
@@ -263,10 +264,10 @@
         CashDocHdr: Record "Cash Document Header";
     begin
         // NAVCZ
-        InsertReqPageField(DATABASE::"Cash Document Header", CashDocHdr.FieldNo("Cash Desk No."));
-        InsertReqPageField(DATABASE::"Cash Document Header", CashDocHdr.FieldNo("Cash Document Type"));
-        InsertReqPageField(DATABASE::"Cash Document Header", CashDocHdr.FieldNo(Amount));
-        InsertReqPageField(DATABASE::"Cash Document Header", CashDocHdr.FieldNo("Currency Code"));
+        InsertDynReqPageField(DATABASE::"Cash Document Header", CashDocHdr.FieldNo("Cash Desk No."));
+        InsertDynReqPageField(DATABASE::"Cash Document Header", CashDocHdr.FieldNo("Cash Document Type"));
+        InsertDynReqPageField(DATABASE::"Cash Document Header", CashDocHdr.FieldNo(Amount));
+        InsertDynReqPageField(DATABASE::"Cash Document Header", CashDocHdr.FieldNo("Currency Code"));
     end;
 
     local procedure InsertCashDocLineReqPageFields()
@@ -274,9 +275,9 @@
         CashDocLn: Record "Cash Document Line";
     begin
         // NAVCZ
-        InsertReqPageField(DATABASE::"Cash Document Line", CashDocLn.FieldNo("Account Type"));
-        InsertReqPageField(DATABASE::"Cash Document Line", CashDocLn.FieldNo("Account No."));
-        InsertReqPageField(DATABASE::"Cash Document Line", CashDocLn.FieldNo(Amount));
+        InsertDynReqPageField(DATABASE::"Cash Document Line", CashDocLn.FieldNo("Account Type"));
+        InsertDynReqPageField(DATABASE::"Cash Document Line", CashDocLn.FieldNo("Account No."));
+        InsertDynReqPageField(DATABASE::"Cash Document Line", CashDocLn.FieldNo(Amount));
     end;
 
     local procedure InsertCreditHeaderReqPageFields()
@@ -284,8 +285,8 @@
         CreditHdr: Record "Credit Header";
     begin
         // NAVCZ
-        InsertReqPageField(DATABASE::"Credit Header", CreditHdr.FieldNo(Type));
-        InsertReqPageField(DATABASE::"Credit Header", CreditHdr.FieldNo("Company No."));
+        InsertDynReqPageField(DATABASE::"Credit Header", CreditHdr.FieldNo(Type));
+        InsertDynReqPageField(DATABASE::"Credit Header", CreditHdr.FieldNo("Company No."));
     end;
 
     local procedure InsertCreditLineReqPageFields()
@@ -293,12 +294,12 @@
         CreditLn: Record "Credit Line";
     begin
         // NAVCZ
-        InsertReqPageField(DATABASE::"Credit Line", CreditLn.FieldNo("Source Type"));
-        InsertReqPageField(DATABASE::"Credit Line", CreditLn.FieldNo("Source No."));
-        InsertReqPageField(DATABASE::"Credit Line", CreditLn.FieldNo("Document Type"));
-        InsertReqPageField(DATABASE::"Credit Line", CreditLn.FieldNo("Document No."));
-        InsertReqPageField(DATABASE::"Credit Line", CreditLn.FieldNo("Currency Code"));
-        InsertReqPageField(DATABASE::"Credit Line", CreditLn.FieldNo(Amount));
+        InsertDynReqPageField(DATABASE::"Credit Line", CreditLn.FieldNo("Source Type"));
+        InsertDynReqPageField(DATABASE::"Credit Line", CreditLn.FieldNo("Source No."));
+        InsertDynReqPageField(DATABASE::"Credit Line", CreditLn.FieldNo("Document Type"));
+        InsertDynReqPageField(DATABASE::"Credit Line", CreditLn.FieldNo("Document No."));
+        InsertDynReqPageField(DATABASE::"Credit Line", CreditLn.FieldNo("Currency Code"));
+        InsertDynReqPageField(DATABASE::"Credit Line", CreditLn.FieldNo(Amount));
     end;
 
     local procedure InsertSalesAdvanceLetterHeaderReqPageFields()
@@ -306,12 +307,12 @@
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
     begin
         // NAVCZ
-        InsertReqPageField(DATABASE::"Sales Advance Letter Header", SalesAdvanceLetterHeader.FieldNo("Bill-to Customer No."));
-        InsertReqPageField(DATABASE::"Sales Advance Letter Header", SalesAdvanceLetterHeader.FieldNo("Payment Method Code"));
-        InsertReqPageField(DATABASE::"Sales Advance Letter Header", SalesAdvanceLetterHeader.FieldNo("Customer Posting Group"));
-        InsertReqPageField(DATABASE::"Sales Advance Letter Header", SalesAdvanceLetterHeader.FieldNo("Currency Code"));
-        InsertReqPageField(DATABASE::"Sales Advance Letter Header", SalesAdvanceLetterHeader.FieldNo("Salesperson Code"));
-        InsertReqPageField(DATABASE::"Sales Advance Letter Header", SalesAdvanceLetterHeader.FieldNo("Amount Including VAT"));
+        InsertDynReqPageField(DATABASE::"Sales Advance Letter Header", SalesAdvanceLetterHeader.FieldNo("Bill-to Customer No."));
+        InsertDynReqPageField(DATABASE::"Sales Advance Letter Header", SalesAdvanceLetterHeader.FieldNo("Payment Method Code"));
+        InsertDynReqPageField(DATABASE::"Sales Advance Letter Header", SalesAdvanceLetterHeader.FieldNo("Customer Posting Group"));
+        InsertDynReqPageField(DATABASE::"Sales Advance Letter Header", SalesAdvanceLetterHeader.FieldNo("Currency Code"));
+        InsertDynReqPageField(DATABASE::"Sales Advance Letter Header", SalesAdvanceLetterHeader.FieldNo("Salesperson Code"));
+        InsertDynReqPageField(DATABASE::"Sales Advance Letter Header", SalesAdvanceLetterHeader.FieldNo("Amount Including VAT"));
     end;
 
     local procedure InsertSalesAdvanceLetterLineReqPageFields()
@@ -319,9 +320,9 @@
         SalesAdvanceLetterLine: Record "Sales Advance Letter Line";
     begin
         // NAVCZ
-        InsertReqPageField(DATABASE::"Sales Advance Letter Line", SalesAdvanceLetterLine.FieldNo("No."));
-        InsertReqPageField(DATABASE::"Sales Advance Letter Line", SalesAdvanceLetterLine.FieldNo("Amount Including VAT"));
-        InsertReqPageField(DATABASE::"Sales Advance Letter Line", SalesAdvanceLetterLine.FieldNo("Currency Code"));
+        InsertDynReqPageField(DATABASE::"Sales Advance Letter Line", SalesAdvanceLetterLine.FieldNo("No."));
+        InsertDynReqPageField(DATABASE::"Sales Advance Letter Line", SalesAdvanceLetterLine.FieldNo("Amount Including VAT"));
+        InsertDynReqPageField(DATABASE::"Sales Advance Letter Line", SalesAdvanceLetterLine.FieldNo("Currency Code"));
     end;
 
     local procedure InsertPurchaseAdvanceLetterHeaderReqPageFields()
@@ -329,12 +330,12 @@
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
     begin
         // NAVCZ
-        InsertReqPageField(DATABASE::"Purch. Advance Letter Header", PurchAdvanceLetterHeader.FieldNo("Pay-to Vendor No."));
-        InsertReqPageField(DATABASE::"Purch. Advance Letter Header", PurchAdvanceLetterHeader.FieldNo("Payment Method Code"));
-        InsertReqPageField(DATABASE::"Purch. Advance Letter Header", PurchAdvanceLetterHeader.FieldNo("Vendor Posting Group"));
-        InsertReqPageField(DATABASE::"Purch. Advance Letter Header", PurchAdvanceLetterHeader.FieldNo("Currency Code"));
-        InsertReqPageField(DATABASE::"Purch. Advance Letter Header", PurchAdvanceLetterHeader.FieldNo("Purchaser Code"));
-        InsertReqPageField(DATABASE::"Purch. Advance Letter Header", PurchAdvanceLetterHeader.FieldNo("Amount Including VAT"));
+        InsertDynReqPageField(DATABASE::"Purch. Advance Letter Header", PurchAdvanceLetterHeader.FieldNo("Pay-to Vendor No."));
+        InsertDynReqPageField(DATABASE::"Purch. Advance Letter Header", PurchAdvanceLetterHeader.FieldNo("Payment Method Code"));
+        InsertDynReqPageField(DATABASE::"Purch. Advance Letter Header", PurchAdvanceLetterHeader.FieldNo("Vendor Posting Group"));
+        InsertDynReqPageField(DATABASE::"Purch. Advance Letter Header", PurchAdvanceLetterHeader.FieldNo("Currency Code"));
+        InsertDynReqPageField(DATABASE::"Purch. Advance Letter Header", PurchAdvanceLetterHeader.FieldNo("Purchaser Code"));
+        InsertDynReqPageField(DATABASE::"Purch. Advance Letter Header", PurchAdvanceLetterHeader.FieldNo("Amount Including VAT"));
     end;
 
     local procedure InsertPurchaseAdvanceLetterLineReqPageFields()
@@ -342,12 +343,12 @@
         PurchAdvanceLetterLine: Record "Purch. Advance Letter Line";
     begin
         // NAVCZ
-        InsertReqPageField(DATABASE::"Purch. Advance Letter Line", PurchAdvanceLetterLine.FieldNo("No."));
-        InsertReqPageField(DATABASE::"Purch. Advance Letter Line", PurchAdvanceLetterLine.FieldNo("Amount Including VAT"));
-        InsertReqPageField(DATABASE::"Purch. Advance Letter Line", PurchAdvanceLetterLine.FieldNo("Currency Code"));
+        InsertDynReqPageField(DATABASE::"Purch. Advance Letter Line", PurchAdvanceLetterLine.FieldNo("No."));
+        InsertDynReqPageField(DATABASE::"Purch. Advance Letter Line", PurchAdvanceLetterLine.FieldNo("Amount Including VAT"));
+        InsertDynReqPageField(DATABASE::"Purch. Advance Letter Line", PurchAdvanceLetterLine.FieldNo("Currency Code"));
     end;
 
-    local procedure InsertReqPageField(TableId: Integer; FieldId: Integer)
+    procedure InsertDynReqPageField(TableId: Integer; FieldId: Integer)
     var
         DynamicRequestPageField: Record "Dynamic Request Page Field";
     begin
@@ -379,7 +380,7 @@
     var
         Vendor: Record Vendor;
     begin
-        InsertReqPageField(DATABASE::Vendor, Vendor.FieldNo("No."));
+        InsertDynReqPageField(DATABASE::Vendor, Vendor.FieldNo("No."));
     end;
 
     [IntegrationEvent(false, false)]

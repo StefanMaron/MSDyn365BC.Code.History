@@ -54,6 +54,9 @@ page 392 "Phys. Inventory Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the template for item''s whse. net change.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
                     Visible = false;
                 }
                 field("Entry Type"; "Entry Type")
@@ -352,7 +355,7 @@ page 392 "Phys. Inventory Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -565,6 +568,10 @@ page 392 "Phys. Inventory Journal"
                     Caption = 'C&reate New Empty Line';
                     Image = ExpandDepositLine;
                     ToolTip = 'This batch job creates new empty line with the same item number.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
 
                     trigger OnAction()
                     var
@@ -725,6 +732,10 @@ page 392 "Phys. Inventory Journal"
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         CurrentJnlBatchName: Code[10];
         ItemDescription: Text[100];
+        NewLineQst: Label 'Create new empty line from actual line?';
+        NewLineNoErr: Label 'New Line No. can not be calculated!';
+
+    protected var
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
@@ -734,8 +745,6 @@ page 392 "Phys. Inventory Journal"
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
-        NewLineQst: Label 'Create new empty line from actual line?';
-        NewLineNoErr: Label 'New Line No. can not be calculated!';
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin

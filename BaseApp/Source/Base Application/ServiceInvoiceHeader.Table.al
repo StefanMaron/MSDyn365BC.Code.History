@@ -191,7 +191,7 @@ table 5992 "Service Invoice Header"
         }
         field(46; Comment; Boolean)
         {
-            CalcFormula = Exist ("Service Comment Line" WHERE("Table Name" = CONST("Service Invoice Header"),
+            CalcFormula = Exist("Service Comment Line" WHERE("Table Name" = CONST("Service Invoice Header"),
                                                               "No." = FIELD("No."),
                                                               Type = CONST(General)));
             Caption = 'Comment';
@@ -230,7 +230,7 @@ table 5992 "Service Invoice Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Service Invoice Line".Amount WHERE("Document No." = FIELD("No.")));
+            CalcFormula = Sum("Service Invoice Line".Amount WHERE("Document No." = FIELD("No.")));
             Caption = 'Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -239,7 +239,7 @@ table 5992 "Service Invoice Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Service Invoice Line"."Amount Including VAT" WHERE("Document No." = FIELD("No.")));
+            CalcFormula = Sum("Service Invoice Line"."Amount Including VAT" WHERE("Document No." = FIELD("No.")));
             Caption = 'Amount Including VAT';
             Editable = false;
             FieldClass = FlowField;
@@ -482,7 +482,7 @@ table 5992 "Service Invoice Header"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(710; "Document Exchange Identifier"; Text[50])
@@ -542,7 +542,7 @@ table 5992 "Service Invoice Header"
         }
         field(5911; "Allocated Hours"; Decimal)
         {
-            CalcFormula = Sum ("Service Order Allocation"."Allocated Hours" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Sum("Service Order Allocation"."Allocated Hours" WHERE("Document Type" = CONST(Order),
                                                                                   "Document No." = FIELD("No."),
                                                                                   "Resource No." = FIELD("Resource Filter"),
                                                                                   Status = FILTER(Active | Finished),
@@ -580,7 +580,7 @@ table 5992 "Service Invoice Header"
         }
         field(5921; "No. of Unallocated Items"; Integer)
         {
-            CalcFormula = Count ("Service Item Line" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Count("Service Item Line" WHERE("Document Type" = CONST(Order),
                                                            "Document No." = FIELD("No."),
                                                            "No. of Active/Finished Allocs" = CONST(0)));
             Caption = 'No. of Unallocated Items';
@@ -639,14 +639,14 @@ table 5992 "Service Invoice Header"
         }
         field(5933; "Contract Serv. Hours Exist"; Boolean)
         {
-            CalcFormula = Exist ("Service Hour" WHERE("Service Contract No." = FIELD("Contract No.")));
+            CalcFormula = Exist("Service Hour" WHERE("Service Contract No." = FIELD("Contract No.")));
             Caption = 'Contract Serv. Hours Exist';
             Editable = false;
             FieldClass = FlowField;
         }
         field(5934; "Reallocation Needed"; Boolean)
         {
-            CalcFormula = Exist ("Service Order Allocation" WHERE(Status = CONST("Reallocation Needed"),
+            CalcFormula = Exist("Service Order Allocation" WHERE(Status = CONST("Reallocation Needed"),
                                                                   "Resource No." = FIELD("Resource Filter"),
                                                                   "Document Type" = CONST(Order),
                                                                   "Document No." = FIELD("No."),
@@ -676,7 +676,7 @@ table 5992 "Service Invoice Header"
         }
         field(5939; "No. of Allocations"; Integer)
         {
-            CalcFormula = Count ("Service Order Allocation" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Count("Service Order Allocation" WHERE("Document Type" = CONST(Order),
                                                                   "Document No." = FIELD("No."),
                                                                   "Resource No." = FIELD("Resource Filter"),
                                                                   "Resource Group No." = FIELD("Resource Group Filter"),
@@ -835,6 +835,9 @@ table 5992 "Service Invoice Header"
         {
             Caption = 'Cash Desk Code';
             TableRelation = "Bank Account" WHERE("Account Type" = CONST("Cash Desk"));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnLookup()
             var
@@ -851,10 +854,16 @@ table 5992 "Service Invoice Header"
             Caption = 'Cash Document Status';
             OptionCaption = ' ,Create,Release,Post,Release and Print,Post and Print';
             OptionMembers = " ",Create,Release,Post,"Release and Print","Post and Print";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11760; "VAT Date"; Date)
         {
             Caption = 'VAT Date';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11761; "VAT Currency Factor"; Decimal)
         {
@@ -862,6 +871,9 @@ table 5992 "Service Invoice Header"
             DecimalPlaces = 0 : 15;
             Editable = false;
             MinValue = 0;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11762; "Tax Corrective Document"; Boolean)
         {
@@ -873,10 +885,16 @@ table 5992 "Service Invoice Header"
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11792; "Original User ID"; Code[50])
         {
@@ -926,6 +944,9 @@ table 5992 "Service Invoice Header"
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
             Caption = 'EU 3-Party Intermediate Role';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
     }
 
@@ -994,7 +1015,7 @@ table 5992 "Service Invoice Header"
     begin
         DocumentTypeTxt := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
         DocumentSendingProfile.SendCustomerRecords(
-          DummyReportSelections.Usage::"SM.Invoice", Rec, DocumentTypeTxt, "Bill-to Customer No.", "No.",
+          DummyReportSelections.Usage::"SM.Invoice".AsInteger(), Rec, DocumentTypeTxt, "Bill-to Customer No.", "No.",
           FieldNo("Bill-to Customer No."), FieldNo("No."));
     end;
 
@@ -1006,7 +1027,7 @@ table 5992 "Service Invoice Header"
     begin
         DocumentTypeTxt := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
         DocumentSendingProfile.Send(
-          DummyReportSelections.Usage::"SM.Invoice", Rec, "No.", "Bill-to Customer No.",
+          DummyReportSelections.Usage::"SM.Invoice".AsInteger(), Rec, "No.", "Bill-to Customer No.",
           DocumentTypeTxt, FieldNo("Bill-to Customer No."), FieldNo("No."));
     end;
 
@@ -1022,7 +1043,7 @@ table 5992 "Service Invoice Header"
             exit;
 
         DocumentSendingProfile.TrySendToPrinter(
-          DummyReportSelections.Usage::"SM.Invoice", Rec, FieldNo("Bill-to Customer No."), ShowRequestPage);
+          DummyReportSelections.Usage::"SM.Invoice".AsInteger(), Rec, FieldNo("Bill-to Customer No."), ShowRequestPage);
     end;
 
     procedure LookupAdjmtValueEntries()

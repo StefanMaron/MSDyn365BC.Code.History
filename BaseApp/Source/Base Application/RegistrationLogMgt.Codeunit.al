@@ -1,5 +1,8 @@
 codeunit 11798 "Registration Log Mgt."
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     begin
@@ -10,7 +13,7 @@ codeunit 11798 "Registration Log Mgt."
         ValidRegNoQst: Label 'The  registration number is valid. Do you want to update information on the card?';
         InvalidRegNoMsg: Label 'We didn''t find a match for this number. Verify that you entered the correct number.';
         NotVerifiedRegNoMsg: Label 'We couldn''t verify the registration number. Try again later.';
-        DescriptionLbl: Label 'Reg. No. Validation Service Setup';
+        DescriptionLbl: Label 'Reg. No. Validation Service Setup (Obsolete)';
 
     procedure LogCustomer(Cust: Record Customer)
     var

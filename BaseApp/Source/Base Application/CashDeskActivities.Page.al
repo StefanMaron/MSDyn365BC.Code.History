@@ -1,8 +1,11 @@
 page 11749 "Cash Desk Activities"
 {
-    Caption = 'Cash Desk Activities';
+    Caption = 'Cash Desk Activities (Obsolete)';
     PageType = CardPart;
     SourceTable = "Cash Desk Cue";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

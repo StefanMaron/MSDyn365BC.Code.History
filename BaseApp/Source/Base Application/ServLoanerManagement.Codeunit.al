@@ -32,7 +32,7 @@ codeunit 5901 ServLoanerManagement
             LoanerEntry.Init();
             LoanerEntry."Entry No." := LoanerEntry.GetNextEntryNo;
             LoanerEntry."Loaner No." := ServItemLine."Loaner No.";
-            LoanerEntry."Document Type" := ServItemLine."Document Type" + 1;
+            LoanerEntry."Document Type" := LoanerEntry.GetDocTypeFromServDocType(ServItemLine."Document Type");
             LoanerEntry."Document No." := ServItemLine."Document No.";
             LoanerEntry."Service Item Line No." := ServItemLine."Line No.";
             LoanerEntry."Service Item No." := ServItemLine."Service Item No.";
@@ -63,7 +63,7 @@ codeunit 5901 ServLoanerManagement
                 exit;
             LoanerEntry.Reset();
             LoanerEntry.SetCurrentKey("Document Type", "Document No.", "Loaner No.", Lent);
-            LoanerEntry.SetRange("Document Type", ServItemLine."Document Type" + 1);
+            LoanerEntry.SetRange("Document Type", LoanerEntry.GetDocTypeFromServDocType(ServItemLine."Document Type"));
             LoanerEntry.SetRange("Document No.", ServItemLine."Document No.");
             LoanerEntry.SetRange("Loaner No.", ServItemLine."Loaner No.");
             LoanerEntry.SetRange(Lent, true);
@@ -158,36 +158,35 @@ codeunit 5901 ServLoanerManagement
         ServShptHeader: Record "Service Shipment Header";
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-        with Loaner do
-            if Lent then begin
-                Clear(LoanerEntry);
-                LoanerEntry.SetCurrentKey("Document Type", "Document No.", "Loaner No.", Lent);
-                LoanerEntry.SetRange("Document Type", "Document Type");
-                LoanerEntry.SetRange("Document No.", "Document No.");
-                LoanerEntry.SetRange("Loaner No.", "No.");
-                LoanerEntry.SetRange(Lent, true);
+        if Loaner.Lent then begin
+            Clear(LoanerEntry);
+            LoanerEntry.SetCurrentKey("Document Type", "Document No.", "Loaner No.", Lent);
+            LoanerEntry.SetRange("Document Type", Loaner."Document Type");
+            LoanerEntry.SetRange("Document No.", Loaner."Document No.");
+            LoanerEntry.SetRange("Loaner No.", Loaner."No.");
+            LoanerEntry.SetRange(Lent, true);
 
-                if LoanerEntry.FindFirst then
-                    if ServItemLine.Get(LoanerEntry."Document Type" - 1, LoanerEntry."Document No.", LoanerEntry."Service Item Line No.") then
-                        ReceiveLoaner(ServItemLine)
-                    else begin
-                        ServShptHeader.Reset();
-                        ServShptHeader.SetCurrentKey("Order No.");
-                        ServShptHeader.SetRange("Order No.", LoanerEntry."Document No.");
-                        if ServShptHeader.FindLast then begin
-                            ServShptItemLine.Get(ServShptHeader."No.", LoanerEntry."Service Item Line No.");
-                            ReceiveLoanerShipment(ServShptItemLine);
-                        end else
-                            if ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text006, LoanerEntry."Document No."), true) then begin
-                                // receive loaner anyway
-                                LoanerEntry."Date Received" := WorkDate;
-                                LoanerEntry."Time Received" := Time;
-                                LoanerEntry.Lent := false;
-                                LoanerEntry.Modify();
-                            end;
-                    end;
-            end else
-                Error(Text001, "No.");
+            if LoanerEntry.FindFirst() then
+                if ServItemLine.Get(LoanerEntry.GetServDocTypeFromDocType(), LoanerEntry."Document No.", LoanerEntry."Service Item Line No.") then
+                    ReceiveLoaner(ServItemLine)
+                else begin
+                    ServShptHeader.Reset();
+                    ServShptHeader.SetCurrentKey("Order No.");
+                    ServShptHeader.SetRange("Order No.", LoanerEntry."Document No.");
+                    if ServShptHeader.FindLast then begin
+                        ServShptItemLine.Get(ServShptHeader."No.", LoanerEntry."Service Item Line No.");
+                        ReceiveLoanerShipment(ServShptItemLine);
+                    end else
+                        if ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text006, LoanerEntry."Document No."), true) then begin
+                            // receive loaner anyway
+                            LoanerEntry."Date Received" := WorkDate;
+                            LoanerEntry."Time Received" := Time;
+                            LoanerEntry.Lent := false;
+                            LoanerEntry.Modify();
+                        end;
+                end;
+        end else
+            Error(Text001, Loaner."No.");
     end;
 
     [IntegrationEvent(false, false)]

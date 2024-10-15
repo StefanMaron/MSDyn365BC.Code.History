@@ -1,7 +1,7 @@
 page 11744 "Cash Desk List"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Cash Desks';
+    Caption = 'Cash Desks (Obsolete)';
     CardPageID = "Cash Desk Card";
     DataCaptionFields = "No.";
     Editable = false;
@@ -9,6 +9,9 @@ page 11744 "Cash Desk List"
     SourceTable = "Bank Account";
     SourceTableView = WHERE("Account Type" = CONST("Cash Desk"));
     UsageCategory = Lists;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

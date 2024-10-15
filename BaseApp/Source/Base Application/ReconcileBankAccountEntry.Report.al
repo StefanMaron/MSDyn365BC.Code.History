@@ -3,8 +3,11 @@ report 11711 "Reconcile Bank Account Entry"
     DefaultLayout = RDLC;
     RDLCLayout = './ReconcileBankAccountEntry.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'Reconcile Bank Account Entry';
+    Caption = 'Reconcile Bank Account Entry (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

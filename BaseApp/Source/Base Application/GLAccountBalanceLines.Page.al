@@ -86,6 +86,9 @@ page 416 "G/L Account Balance Lines"
                     Editable = false;
                     ToolTip = 'Specifies the net change in the account balance during the time period in the Date Filter field.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnDrillDown()
                     begin

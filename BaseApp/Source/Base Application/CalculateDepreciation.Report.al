@@ -51,8 +51,8 @@ report 5692 "Calculate Depreciation"
                 else
                     Window.Update(2, "No.");
 
-                Custom1Amount := Round(Custom1Amount, GeneralLedgerSetup."Amount Rounding Precision");
-                DeprAmount := Round(DeprAmount, GeneralLedgerSetup."Amount Rounding Precision");
+                Custom1Amount := round(Custom1Amount, GeneralLedgerSetup."Amount Rounding Precision");
+                DeprAmount := round(DeprAmount, GeneralLedgerSetup."Amount Rounding Precision");
 
                 OnAfterCalculateDepreciation(
                     "No.", TempGenJnlLine, TempFAJnlLine, DeprAmount, NumberOfDays, DeprBookCode, DeprUntilDate, EntryAmounts, DaysInPeriod);

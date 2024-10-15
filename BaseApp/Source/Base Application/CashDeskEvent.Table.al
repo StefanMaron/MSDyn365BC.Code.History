@@ -2,6 +2,9 @@ table 11741 "Cash Desk Event"
 {
     Caption = 'Cash Desk Event';
     LookupPageID = "Cash Desk Events";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     fields
     {

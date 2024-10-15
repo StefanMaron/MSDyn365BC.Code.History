@@ -436,6 +436,7 @@ page 29 "Vendor Ledger Entries"
             {
                 ApplicationArea = Basic, Suite;
                 ShowFilter = false;
+                SubPageLink = "Posting Date" = field("Posting Date"), "Document No." = field("Document No.");
             }
             systempart(Control1900383207; Links)
             {
@@ -484,7 +485,7 @@ page 29 "Vendor Ledger Entries"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(SetDimensionFilter)
@@ -674,12 +675,13 @@ page 29 "Vendor Ledger Entries"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category5;
                 Scope = Repeater;
-                ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                ShortCutKey = 'Shift+Ctrl+I';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
@@ -753,7 +755,6 @@ page 29 "Vendor Ledger Entries"
         IncomingDocument: Record "Incoming Document";
     begin
         HasIncomingDocument := IncomingDocument.PostedDocExists("Document No.", "Posting Date");
-        CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
         HasDocumentAttachment := HasPostedDocAttachment;
     end;
 

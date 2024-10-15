@@ -1,10 +1,13 @@
 page 31080 "Excel Template"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Excel Templates';
+    Caption = 'Excel Templates (Obsolete)';
     PageType = List;
     SourceTable = "Excel Template";
     UsageCategory = Administration;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

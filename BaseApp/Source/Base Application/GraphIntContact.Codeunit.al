@@ -1,5 +1,8 @@
 codeunit 5461 "Graph Int. - Contact"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This functionality will be removed. The API that it was integrating to was discontinued.';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     begin
@@ -46,9 +49,9 @@ codeunit 5461 "Graph Int. - Contact"
                     DestinationRecordRef.SetTable(Contact);
                     SourceRecordRef.SetTable(GraphContact);
                     VerifyGraphContactRequiredData(GraphContact);
-                    ContactType := Contact.Type;
+                    ContactType := Contact.Type.AsInteger();
                     GraphCollectionMgtContact.GetBusinessType(GraphContact.GetBusinessTypeString, ContactType);
-                    Contact.Type := ContactType;
+                    Contact.Type := "Contact Type".FromInteger(ContactType);
                     SetGraphFieldsOnContact(GraphContact, Contact);
                     DestinationRecordRef.GetTable(Contact);
                 end;
@@ -162,7 +165,7 @@ codeunit 5461 "Graph Int. - Contact"
             exit(false);
 
         Contact.SetHideValidationDialog(true);
-        Contact.CreateCustomer(MarketingSetup.GetCustomerTemplate(Contact.Type));
+        Contact.CreateCustomer(MarketingSetup.GetCustomerTemplate(Contact.Type.AsInteger()));
 
         // This line triggers sync back to graph via Background session
         // We need to update IsCustomer flag back to Graph
@@ -219,11 +222,14 @@ codeunit 5461 "Graph Int. - Contact"
 
     procedure FindGraphContactIdFromCustomer(var GraphContactId: Text[250]; var Customer: Record Customer; var Contact: Record Contact): Boolean
     var
-        GraphIntegrationRecord: Record "Graph Integration Record";
         ContactBusinessRelation: Record "Contact Business Relation";
         MarketingSetup: Record "Marketing Setup";
         ContactNo: Code[20];
     begin
+        Clear(GraphContactId);
+        if not IsUpdateContactIdEnabled() then
+            exit(false);
+
         // Use primary contact if specified
         if Customer."Primary Contact No." <> '' then
             ContactNo := Customer."Primary Contact No."
@@ -240,10 +246,15 @@ codeunit 5461 "Graph Int. - Contact"
             ContactNo := ContactBusinessRelation."Contact No.";
         end;
 
-        if not Contact.Get(ContactNo) then
-            exit(false);
+        exit(Contact.Get(ContactNo));
+    end;
 
-        exit(GraphIntegrationRecord.FindIDFromRecordID(Contact.RecordId, GraphContactId));
+    procedure IsUpdateContactIdEnabled(): Boolean
+    var
+        DisableUpdateContact: Boolean;
+    begin
+        OnGetUpdateContactEnabled(DisableUpdateContact);
+        exit(not DisableUpdateContact);
     end;
 
     procedure FindGraphContactIdFromCustomerNo(var GraphContactID: Text[250]; CustomerNo: Code[20]): Boolean
@@ -326,7 +337,7 @@ codeunit 5461 "Graph Int. - Contact"
         GraphContact.SetEmailAddressesString(EmailAddressesString);
 
         // Extensions
-        BusinessTypeString := GraphCollectionMgtContact.AddBusinessType(Contact.Type);
+        BusinessTypeString := GraphCollectionMgtContact.AddBusinessType(Contact.Type.AsInteger());
         GraphContact.SetBusinessTypeString(BusinessTypeString);
 
         // If the property exists OR IsCustomer = TRUE then set the property, else leave empty.
@@ -383,7 +394,7 @@ codeunit 5461 "Graph Int. - Contact"
                 if GraphCollectionMgtContact.GetIsCustomer(GraphContact.GetIsCustomerString) and
                    not CheckIsCustomer(Contact)
                 then
-                    Contact.CreateCustomer(MarketingSetup.GetCustomerTemplate(Contact.Type));
+                    Contact.CreateCustomer(MarketingSetup.GetCustomerTemplate(Contact.Type.AsInteger()));
 
             if Contact.Type = Contact.Type::Company then begin
                 // IsVendor
@@ -676,6 +687,11 @@ codeunit 5461 "Graph Int. - Contact"
                 GraphIntegrationRecord.Modify();
             end;
         until GraphIntegrationRecord.Next = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetUpdateContactEnabled(var DisableUpdateContact: Boolean)
+    begin
     end;
 
     [TryFunction]

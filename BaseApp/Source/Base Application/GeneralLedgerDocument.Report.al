@@ -3,9 +3,12 @@ report 11763 "General Ledger Document"
     DefaultLayout = RDLC;
     RDLCLayout = './GeneralLedgerDocument.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'General Ledger Document';
+    Caption = 'General Ledger Document (Obsolete)';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

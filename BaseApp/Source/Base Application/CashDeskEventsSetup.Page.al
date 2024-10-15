@@ -1,10 +1,13 @@
 page 11742 "Cash Desk Events Setup"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Cash Desk Events Setup';
+    Caption = 'Cash Desk Events Setup (Obsolete)';
     PageType = List;
     SourceTable = "Cash Desk Event";
     UsageCategory = Administration;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

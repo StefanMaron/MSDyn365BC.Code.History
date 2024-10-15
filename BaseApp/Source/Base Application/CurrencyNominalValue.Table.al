@@ -2,6 +2,9 @@ table 11743 "Currency Nominal Value"
 {
     Caption = 'Currency Nominal Value';
     LookupPageID = "Currency Nominal Values";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     fields
     {

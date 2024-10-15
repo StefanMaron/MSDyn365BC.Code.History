@@ -58,7 +58,7 @@ page 5966 "Service Quote Lines"
 
                     trigger OnValidate()
                     begin
-                        NoOnAfterValidate;
+                        NoOnAfterValidate();
                     end;
                 }
                 field("No."; "No.")
@@ -68,7 +68,7 @@ page 5966 "Service Quote Lines"
 
                     trigger OnValidate()
                     begin
-                        NoOnAfterValidate;
+                        NoOnAfterValidate();
                     end;
                 }
                 field("Variant Code"; "Variant Code")
@@ -124,7 +124,7 @@ page 5966 "Service Quote Lines"
 
                     trigger OnValidate()
                     begin
-                        QuantityOnAfterValidate;
+                        QuantityOnAfterValidate();
                     end;
                 }
                 field("Fault Reason Code"; "Fault Reason Code")
@@ -395,12 +395,18 @@ page 5966 "Service Quote Lines"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for the item''s tariff number.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
                     Visible = false;
                 }
                 field("Statistic Indication"; "Statistic Indication")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the statistic indication code.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
                     Visible = false;
                 }
             }
@@ -447,7 +453,7 @@ page 5966 "Service Quote Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -527,7 +533,7 @@ page 5966 "Service Quote Lines"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
                 action("Select Item &Substitution")
@@ -733,9 +739,11 @@ page 5966 "Service Quote Lines"
         ServMgtSetup: Record "Service Mgt. Setup";
         ServHeader: Record "Service Header";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
-        ShortcutDimCode: array[8] of Code[20];
         ServItemLineNo: Integer;
         SelectionFilter: Option "All Service Lines","Lines per Selected Service Item","Lines Not Item Related";
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
         [InDataSet]
         FaultAreaCodeVisible: Boolean;
         [InDataSet]
@@ -794,16 +802,16 @@ page 5966 "Service Quote Lines"
             CurrPage.Update;
     end;
 
-    local procedure NoOnAfterValidate()
+    protected procedure NoOnAfterValidate()
     begin
         InsertExtendedText(false);
     end;
 
-    local procedure QuantityOnAfterValidate()
+    protected procedure QuantityOnAfterValidate()
     begin
         if Reserve = Reserve::Always then begin
             CurrPage.SaveRecord;
-            AutoReserve;
+            AutoReserve();
         end;
     end;
 

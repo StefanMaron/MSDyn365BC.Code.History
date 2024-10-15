@@ -441,6 +441,9 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Default VAT Date';
             OptionCaption = 'Posting Date,Document Date,Blank';
             OptionMembers = "Posting Date","Document Date",Blank;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
         field(11767; "Allow Alter Posting Groups"; Boolean)
         {
@@ -470,6 +473,9 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Default Orig. Doc. VAT Date';
             OptionCaption = 'Blank,Posting Date,VAT Date,Document Date';
             OptionMembers = Blank,"Posting Date","VAT Date","Document Date";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.0';
         }
     }
 

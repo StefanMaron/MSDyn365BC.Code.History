@@ -1,6 +1,9 @@
 codeunit 11797 "Reg. Lookup Ext. Data Hndl"
 {
     TableNo = "Registration Log";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     begin

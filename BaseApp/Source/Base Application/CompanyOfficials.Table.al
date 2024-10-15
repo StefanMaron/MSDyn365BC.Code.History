@@ -4,6 +4,9 @@ table 11792 "Company Officials"
     DataCaptionFields = "No.", "First Name", "Middle Name", "Last Name";
     DrillDownPageID = "Company Officials";
     LookupPageID = "Company Officials";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     fields
     {

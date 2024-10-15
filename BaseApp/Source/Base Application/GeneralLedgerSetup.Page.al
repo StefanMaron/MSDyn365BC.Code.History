@@ -170,11 +170,18 @@ page 118 "General Ledger Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to cash desk.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Company Officials Nos."; "Company Officials Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to company officials.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
                 }
                 field("Acc. Schedule Results Nos."; "Acc. Schedule Results Nos.")
                 {
@@ -203,6 +210,10 @@ page 118 "General Ledger Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the system does or does not check the dimension setup by closing operation depending on whether the field is checked.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Show Amounts"; "Show Amounts")
                 {
@@ -435,20 +446,37 @@ page 118 "General Ledger Setup"
             group(VAT)
             {
                 Caption = 'VAT';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.0';
+                Visible = false;
+
                 field("Use VAT Date"; "Use VAT Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies to use the VAT date for general ledger setup. When this option is selected, the VAT date is used instead of the posting date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Allow VAT Posting From"; "Allow VAT Posting From")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the earliest VAT date on which posting to the company is allowed.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Allow VAT Posting To"; "Allow VAT Posting To")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last VAT date on which posting to the company is allowed.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("<Max. VAT Difference Allowed2>"; "Max. VAT Difference Allowed")
                 {
@@ -541,6 +569,10 @@ page 118 "General Ledger Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the maximum daily limit for the partner''s cash payments in the local currency.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
             }
         }

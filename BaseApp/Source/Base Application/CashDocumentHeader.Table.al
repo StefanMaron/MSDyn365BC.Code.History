@@ -4,6 +4,9 @@ table 11730 "Cash Document Header"
     DataCaptionFields = "Cash Desk No.", "Cash Document Type", "No.", "Pay-to/Receive-from Name";
     DrillDownPageID = "Cash Document List";
     LookupPageID = "Cash Document List";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     fields
     {
@@ -70,14 +73,14 @@ table 11730 "Cash Document Header"
         }
         field(7; Amount; Decimal)
         {
-            CalcFormula = Sum ("Cash Document Line".Amount WHERE("Cash Desk No." = FIELD("Cash Desk No."),
+            CalcFormula = Sum("Cash Document Line".Amount WHERE("Cash Desk No." = FIELD("Cash Desk No."),
                                                                  "Cash Document No." = FIELD("No.")));
             Caption = 'Amount';
             FieldClass = FlowField;
         }
         field(8; "Amount (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("Cash Document Line"."Amount (LCY)" WHERE("Cash Desk No." = FIELD("Cash Desk No."),
+            CalcFormula = Sum("Cash Document Line"."Amount (LCY)" WHERE("Cash Desk No." = FIELD("Cash Desk No."),
                                                                          "Cash Document No." = FIELD("No.")));
             Caption = 'Amount (LCY)';
             FieldClass = FlowField;
@@ -228,7 +231,7 @@ table 11730 "Cash Document Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Cash Document Line"."VAT Base Amount" WHERE("Cash Desk No." = FIELD("Cash Desk No."),
+            CalcFormula = Sum("Cash Document Line"."VAT Base Amount" WHERE("Cash Desk No." = FIELD("Cash Desk No."),
                                                                             "Cash Document No." = FIELD("No.")));
             Caption = 'VAT Base Amount';
             Editable = false;
@@ -238,7 +241,7 @@ table 11730 "Cash Document Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Cash Document Line"."Amount Including VAT" WHERE("Cash Desk No." = FIELD("Cash Desk No."),
+            CalcFormula = Sum("Cash Document Line"."Amount Including VAT" WHERE("Cash Desk No." = FIELD("Cash Desk No."),
                                                                                  "Cash Document No." = FIELD("No.")));
             Caption = 'Amount Including VAT';
             Editable = false;
@@ -246,7 +249,7 @@ table 11730 "Cash Document Header"
         }
         field(55; "VAT Base Amount (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("Cash Document Line"."VAT Base Amount (LCY)" WHERE("Cash Desk No." = FIELD("Cash Desk No."),
+            CalcFormula = Sum("Cash Document Line"."VAT Base Amount (LCY)" WHERE("Cash Desk No." = FIELD("Cash Desk No."),
                                                                                   "Cash Document No." = FIELD("No.")));
             Caption = 'VAT Base Amount (LCY)';
             Editable = false;
@@ -254,7 +257,7 @@ table 11730 "Cash Document Header"
         }
         field(56; "Amount Including VAT (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("Cash Document Line"."Amount Including VAT (LCY)" WHERE("Cash Desk No." = FIELD("Cash Desk No."),
+            CalcFormula = Sum("Cash Document Line"."Amount Including VAT (LCY)" WHERE("Cash Desk No." = FIELD("Cash Desk No."),
                                                                                        "Cash Document No." = FIELD("No.")));
             Caption = 'Amount Including VAT (LCY)';
             Editable = false;
@@ -516,7 +519,7 @@ table 11730 "Cash Document Header"
         }
         field(31120; "EET Cash Register"; Boolean)
         {
-            CalcFormula = Exist ("EET Cash Register" WHERE("Register Type" = CONST("Cash Desk"),
+            CalcFormula = Exist("EET Cash Register" WHERE("Register Type" = CONST("Cash Desk"),
                                                            "Register No." = FIELD("Cash Desk No.")));
             Caption = 'EET Cash Register';
             Editable = false;
@@ -524,7 +527,7 @@ table 11730 "Cash Document Header"
         }
         field(31125; "EET Transaction"; Boolean)
         {
-            CalcFormula = Exist ("Cash Document Line" WHERE("Cash Desk No." = FIELD("Cash Desk No."),
+            CalcFormula = Exist("Cash Document Line" WHERE("Cash Desk No." = FIELD("Cash Desk No."),
                                                             "Cash Document No." = FIELD("No."),
                                                             "EET Transaction" = CONST(true)));
             Caption = 'EET Transaction';

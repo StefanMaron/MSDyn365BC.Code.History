@@ -19,6 +19,7 @@ codeunit 136121 "Service Reservation"
         LibraryService: Codeunit "Library - Service";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryJobQueue: Codeunit "Library - Job Queue";
@@ -79,7 +80,7 @@ codeunit 136121 "Service Reservation"
 
         // 2. Exercise: Try to Reserve from Service Line.
         Commit();  // Commit is required to save values to match error message.
-        asserterror ServiceLine.ShowReservation;
+        asserterror ServiceLine.ShowReservation();
 
         // 3. Verify: Check that the application generates an error on trying to Reserve if the Service Line has value as 'Never' in
         // the field Reserve.
@@ -355,7 +356,7 @@ codeunit 136121 "Service Reservation"
         // Exercise: Input a Quantity in Service Line that is less than Quantity in Purchase Order and run Reserve.
         ServiceLine.Validate(Quantity, Quantity - 1);
         ServiceLine.Modify(true);
-        ServiceLine.ShowReservation;
+        ServiceLine.ShowReservation();
 
         // Verify: Check that the Reserved Quantity field in Service Line is updated with the correct Quantity and Reservation Entry is
         // created.
@@ -447,7 +448,7 @@ codeunit 136121 "Service Reservation"
         // Exercise: Input a Quantity in Service Line that is greater than Quantity in Purchase Order and run Reserve.
         ServiceLine.Validate(Quantity, Quantity + 1);
         ServiceLine.Modify(true);
-        ServiceLine.ShowReservation;
+        ServiceLine.ShowReservation();
 
         // Verify: Check that the Reserved Quantity field in Service Line is updated with the correct Quantity and Reservation Entry is
         // created.
@@ -551,7 +552,7 @@ codeunit 136121 "Service Reservation"
 
         // Verify: Check that the Ledger Entries are created correctly.
         VerifyValueEntry(ServiceLine);
-        VerifyServiceLedgerEntry(ServiceLine, ServiceLedgerEntry."Document Type"::Shipment, ServiceShipmentNo, ServiceLine.Quantity);
+        VerifyServiceLedgerEntry(ServiceLine, "Service Ledger Entry Document Type"::Shipment, ServiceShipmentNo, ServiceLine.Quantity);
         VerifyItemLedgerEntry(ServiceLine);
     end;
 
@@ -1852,7 +1853,7 @@ codeunit 136121 "Service Reservation"
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure CreateItemWithItemTracking(Reserve: Option): Code[20]
+    local procedure CreateItemWithItemTracking(Reserve: Enum "Reserve Method"): Code[20]
     var
         Item: Record Item;
     begin
@@ -1935,7 +1936,7 @@ codeunit 136121 "Service Reservation"
         exit(ItemLedgerEntry."Lot No.");
     end;
 
-    local procedure FindReservationEntry(var ReservationEntry: Record "Reservation Entry"; ItemTracking: Option)
+    local procedure FindReservationEntry(var ReservationEntry: Record "Reservation Entry"; ItemTracking: Enum "Item Tracking Entry Type")
     begin
         ReservationEntry.SetRange("Item No.", ItemNo);
         ReservationEntry.SetRange("Item Tracking", ItemTracking);
@@ -1960,7 +1961,7 @@ codeunit 136121 "Service Reservation"
         exit(Location.Code);
     end;
 
-    local procedure FindServiceLine(var ServiceLine: Record "Service Line"; DocumentType: Option; DocumentNo: Code[20]; BilltoCustomerNo: Code[20])
+    local procedure FindServiceLine(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; DocumentNo: Code[20]; BilltoCustomerNo: Code[20])
     begin
         ServiceLine.SetRange("Document Type", DocumentType);
         ServiceLine.SetFilter("Document No.", DocumentNo);
@@ -2100,7 +2101,7 @@ codeunit 136121 "Service Reservation"
         exit(ProductionOrder."Location Code");
     end;
 
-    local procedure CreateItemWithSerialAndLotNo(Reserve: Option; LotNos: Code[20]): Code[20]
+    local procedure CreateItemWithSerialAndLotNo(Reserve: Enum "Reserve Method"; LotNos: Code[20]): Code[20]
     var
         Item: Record Item;
     begin
@@ -2116,18 +2117,17 @@ codeunit 136121 "Service Reservation"
     local procedure CreateReleaseFirmPlannedOrder(ItemNo: Code[20]; Quantity: Decimal) LocationCode: Code[10]
     var
         ProductionOrder: Record "Production Order";
-        ProdOrderStatusManagement: Codeunit "Prod. Order Status Management";
     begin
         LocationCode := CreateFirmPlannedOrder(ItemNo, Quantity);
         FindProductionOrder(ProductionOrder, ProductionOrder.Status::"Firm Planned", ItemNo);
-        ProdOrderStatusManagement.ChangeStatusOnProdOrder(ProductionOrder, ProductionOrder.Status::Released, WorkDate, false);
+        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Released, WorkDate, false);
 
         FindProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ItemNo);
         PostProductionJournal(ProductionOrder);
-        ProdOrderStatusManagement.ChangeStatusOnProdOrder(ProductionOrder, ProductionOrder.Status::Finished, WorkDate, false);
+        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate, false);
     end;
 
-    local procedure CreateItemWithReserve(var Item: Record Item; Reserve: Option)
+    local procedure CreateItemWithReserve(var Item: Record Item; Reserve: Enum "Reserve Method")
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Unit Price", LibraryRandom.RandInt(100));
@@ -2149,7 +2149,7 @@ codeunit 136121 "Service Reservation"
         Commit();
     end;
 
-    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; LocationCode: Code[10]; ItemNo: Code[20]; DocumentType: Option)
+    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; LocationCode: Code[10]; ItemNo: Code[20]; DocumentType: Enum "Service Document Type")
     var
         Customer: Record Customer;
         ServiceHeader: Record "Service Header";
@@ -2182,7 +2182,7 @@ codeunit 136121 "Service Reservation"
         ServiceLines.Quantity.SetValue(QuantityOnServiceLine);
     end;
 
-    local procedure CreateDocumentWithServiceItem(var ServiceLine: Record "Service Line"; LocationCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal; DocumentType: Option)
+    local procedure CreateDocumentWithServiceItem(var ServiceLine: Record "Service Line"; LocationCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal; DocumentType: Enum "Service Document Type")
     var
         ServiceHeader: Record "Service Header";
         ServiceItem: Record "Service Item";
@@ -2347,7 +2347,7 @@ codeunit 136121 "Service Reservation"
         exit(ServiceHeader."No.");
     end;
 
-    local procedure FindProductionOrder(var ProductionOrder: Record "Production Order"; Status: Option; ItemNo: Code[20])
+    local procedure FindProductionOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; ItemNo: Code[20])
     begin
         ProductionOrder.SetRange(Status, Status);
         ProductionOrder.SetRange("Source Type", ProductionOrder."Source Type"::Item);
@@ -2413,7 +2413,7 @@ codeunit 136121 "Service Reservation"
         ValueEntry.TestField("Location Code", ServiceLine."Location Code");
     end;
 
-    local procedure VerifyServiceLedgerEntry(ServiceLine: Record "Service Line"; DocumentType: Option; DocumentNo: Code[20]; Quantity: Decimal)
+    local procedure VerifyServiceLedgerEntry(ServiceLine: Record "Service Line"; DocumentType: Enum "Service Ledger Entry Document Type"; DocumentNo: Code[20]; Quantity: Decimal)
     var
         ServiceLedgerEntry: Record "Service Ledger Entry";
     begin
@@ -2480,7 +2480,7 @@ codeunit 136121 "Service Reservation"
         Assert.AreEqual(Quantity, ItemLedgerEntry.Count, StrSubstNo(NoOfEntriesError, ItemLedgerEntry.TableCaption));
     end;
 
-    local procedure VerifyValueEntryCount(ServiceLine: Record "Service Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure VerifyValueEntryCount(ServiceLine: Record "Service Line"; DocumentType: Enum "Item Ledger Document Type"; DocumentNo: Code[20])
     var
         ValueEntry: Record "Value Entry";
     begin
@@ -2592,7 +2592,7 @@ codeunit 136121 "Service Reservation"
     [Scope('OnPrem')]
     procedure ReservationModalFormHandler(var Reservation: Page Reservation; var Reply: Action)
     begin
-        Reservation.AutoReserve;
+        Reservation.AutoReserve();
     end;
 
     [ModalPageHandler]

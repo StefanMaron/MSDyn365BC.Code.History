@@ -2,8 +2,11 @@ report 31099 "Sales - Return Reciept CZ"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './SalesReturnRecieptCZ.rdlc';
-    Caption = 'Sales - Return Reciept CZ';
+    Caption = 'Sales - Return Reciept CZ (Obsolete)';
     PreviewMode = PrintLayout;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

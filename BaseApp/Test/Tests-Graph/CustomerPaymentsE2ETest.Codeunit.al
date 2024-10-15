@@ -21,7 +21,6 @@ codeunit 135515 "Customer Payments E2E Test"
         AppliesToInvoiceIdTxt: Label 'appliesToInvoiceId';
         AppliesToDocNoNameTxt: Label 'appliesToInvoiceNumber';
         LibraryGraphDocumentTools: Codeunit "Library - Graph Document Tools";
-        GraphContactIdFieldTxt: Label 'contactId';
         CustomerIdFieldTxt: Label 'customerId';
         CustomerNoNameTxt: Label 'customerNumber';
         GraphMgtJournal: Codeunit "Graph Mgt - Journal";
@@ -37,6 +36,7 @@ codeunit 135515 "Customer Payments E2E Test"
         GenJournalBatch: Record "Gen. Journal Batch";
         GraphMgtJournal: Codeunit "Graph Mgt - Journal";
         LibraryERM: Codeunit "Library - ERM";
+        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
         JournalName: Code[10];
         Amount: Decimal;
         LineNo: Integer;
@@ -87,9 +87,9 @@ codeunit 135515 "Customer Payments E2E Test"
         SalesInvoiceHeader.Get(AppliesToDocNo);
 
         Assert.AreEqual(
-          SalesInvoiceHeader.Id,
+          SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader),
           GenJournalLine."Applies-to Invoice Id",
-          'Journal Line ' + Format(SalesInvoiceHeader.Id) + ' should match the invoice no.');
+          'Journal Line ' + Format(SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader)) + ' should match the invoice no.');
 
         Assert.AreEqual(
           GenJournalBatch."Bal. Account No.",
@@ -139,6 +139,7 @@ codeunit 135515 "Customer Payments E2E Test"
     var
         GenJournalLine: Record "Gen. Journal Line";
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
         JournalName: Code[10];
         CustomerNo: Code[20];
         AppliesToDocNo: Code[20];
@@ -161,7 +162,7 @@ codeunit 135515 "Customer Payments E2E Test"
         LineJSON := LibraryGraphMgt.AddPropertytoJSON('', CustomerNoNameTxt, CustomerNo);
         SalesInvoiceHeader.Get(AppliesToDocNo);
         LineJSON :=
-          LibraryGraphMgt.AddPropertytoJSON(LineJSON, AppliesToInvoiceIdTxt, LibraryGraphMgt.StripBrackets(Format(SalesInvoiceHeader.Id)));
+          LibraryGraphMgt.AddPropertytoJSON(LineJSON, AppliesToInvoiceIdTxt, LibraryGraphMgt.StripBrackets(Format(SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader))));
         Commit();
 
         // [WHEN] we POST the JSON to the web service
@@ -177,8 +178,8 @@ codeunit 135515 "Customer Payments E2E Test"
         GenJournalLine.FindFirst;
 
         Assert.AreEqual(
-          SalesInvoiceHeader.Id, GenJournalLine."Applies-to Invoice Id",
-          'Applies-to Invoice Id of the journal line should be ' + Format(SalesInvoiceHeader.Id) + ' but is ' +
+          SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader), GenJournalLine."Applies-to Invoice Id",
+          'Applies-to Invoice Id of the journal line should be ' + Format(SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader)) + ' but is ' +
           Format(GenJournalLine."Applies-to Invoice Id"));
 
         Assert.AreEqual(
@@ -209,7 +210,7 @@ codeunit 135515 "Customer Payments E2E Test"
         // [GIVEN] a JSON text with a customer payment with the Applies-to invoice id from a customer.
         CustomerNo := LibraryGraphJournalLines.CreateCustomer;
         Customer.Get(CustomerNo);
-        RandomId := Customer.Id;
+        RandomId := Customer.SystemId;
         LineJSON := LibraryGraphMgt.AddPropertytoJSON('', AppliesToInvoiceIdTxt, LibraryGraphMgt.StripBrackets(Format(RandomId)));
         Commit();
 
@@ -431,187 +432,6 @@ codeunit 135515 "Customer Payments E2E Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestGetCustomerPaymentWithGraphContactId()
-    var
-        GraphIntegrationRecord: Record "Graph Integration Record";
-        GenJournalLine: Record "Gen. Journal Line";
-        JournalName: Code[10];
-        LineNo: Integer;
-        CustomerNo: Code[10];
-        CustomerPaymentGUID: Guid;
-        TargetURL: Text;
-        ResponseText: Text;
-    begin
-        // [SCENARIO] Create a line with graph contact Id and use a GET method with an ID specified to retrieve it
-        Initialize();
-        LibraryGraphJournalLines.Initialize();
-
-        // [GIVEN] a journal
-        JournalName := LibraryGraphJournalLines.CreateCustomerPaymentsJournal;
-
-        // [GIVEN] a line in the Cash Receipts Journal Table with graph contact Id
-        LineNo := CreateCustomerPaymentWithGraphContactId(JournalName, CustomerNo, GraphIntegrationRecord);
-        GenJournalLine.Reset();
-        GenJournalLine.SetRange("Line No.", LineNo);
-        GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
-        GenJournalLine.FindFirst;
-        CustomerPaymentGUID := GenJournalLine.SystemId;
-        Commit();
-
-        // [WHEN] we GET the line from the web service
-        TargetURL :=
-          LibraryGraphMgt.CreateTargetURLWithSubpage(
-            GetJournalID(JournalName), PAGE::"Customer Paym. Journal Entity", ServiceNameTxt, GetCustomerPaymentURL(CustomerPaymentGUID));
-        LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
-
-        // [THEN] the graph contact id should exist in the response
-        LibraryGraphMgt.VerifyIDFieldInJsonWithoutIntegrationRecord(ResponseText, 'id');
-        VerifyContactId(ResponseText, GraphIntegrationRecord."Graph ID");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestPostCustomerPaymentWithGraphContactId()
-    var
-        Contact: Record Contact;
-        Customer: Record Customer;
-        GraphIntegrationRecord: Record "Graph Integration Record";
-        JournalName: Code[10];
-        LineNoTxt: Text;
-        LineNo: Integer;
-        CustomerPaymentWithComplexJSON: Text;
-        TargetURL: Text;
-        ResponseText: Text;
-    begin
-        // [SCENARIO] Post a customer payment with graph contact Id
-        Initialize();
-        LibraryGraphJournalLines.Initialize();
-
-        // [GIVEN] a journal
-        JournalName := LibraryGraphJournalLines.CreateCustomerPaymentsJournal;
-
-        // [GIVEN] a customer payments JSON with graph contact id
-        LibraryGraphDocumentTools.CreateContactWithGraphId(Contact, GraphIntegrationRecord);
-        LibraryGraphDocumentTools.CreateCustomerFromContact(Customer, Contact);
-        CustomerPaymentWithComplexJSON := CreateCustomerPaymentJSONWithContactId(GraphIntegrationRecord);
-        Commit();
-
-        // [WHEN] we POST the line to the web service
-        TargetURL :=
-          LibraryGraphMgt.CreateTargetURLWithSubpage(
-            GetJournalID(JournalName), PAGE::"Customer Paym. Journal Entity", ServiceNameTxt, ServiceSubpageNameTxt);
-        LibraryGraphMgt.PostToWebService(TargetURL, CustomerPaymentWithComplexJSON, ResponseText);
-
-        // [THEN] the customer payment should have a customer found based on contact ID
-        VerifyValidPostRequest(ResponseText, LineNoTxt);
-        Evaluate(LineNo, LineNoTxt);
-        VerifyContactId(ResponseText, GraphIntegrationRecord."Graph ID");
-        VerifyCustomerFields(Customer, ResponseText);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestModifyingContactIdUpdatesSellToCustomer()
-    var
-        SecondCustomer: Record Customer;
-        SecondContact: Record Contact;
-        GenJournalLine: Record "Gen. Journal Line";
-        GraphIntegrationRecord: Record "Graph Integration Record";
-        JournalName: Code[10];
-        LineNoTxt: Text;
-        LineNo: Integer;
-        CustomerNo: Code[20];
-        CustomerPaymentGUID: Guid;
-        CustomerPaymentWithComplexJSON: Text;
-        TargetURL: Text;
-        ResponseText: Text;
-    begin
-        // [SCENARIO] Patch a customer payment with a contact with graph id
-        Initialize();
-        LibraryGraphJournalLines.Initialize();
-
-        // [GIVEN] a journal
-        JournalName := LibraryGraphJournalLines.CreateCustomerPaymentsJournal;
-
-        // [GIVEN] a customer payment with contact id
-        LineNo := CreateCustomerPaymentWithGraphContactId(JournalName, CustomerNo, GraphIntegrationRecord);
-        GenJournalLine.Reset();
-        GenJournalLine.SetRange("Line No.", LineNo);
-        GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
-        GenJournalLine.FindFirst;
-        CustomerPaymentGUID := GenJournalLine.SystemId;
-
-        // [GIVEN] a customer payments JSON with graph contact id
-        LibraryGraphDocumentTools.CreateContactWithGraphId(SecondContact, GraphIntegrationRecord);
-        LibraryGraphDocumentTools.CreateCustomerFromContact(SecondCustomer, SecondContact);
-
-        CustomerPaymentWithComplexJSON := CreateCustomerPaymentJSONWithContactId(GraphIntegrationRecord);
-        Commit();
-
-        // [WHEN] we PATCH the line to the web service
-        TargetURL :=
-          LibraryGraphMgt.CreateTargetURLWithSubpage(
-            GetJournalID(JournalName), PAGE::"Customer Paym. Journal Entity", ServiceNameTxt, GetCustomerPaymentURL(CustomerPaymentGUID));
-        LibraryGraphMgt.PatchToWebService(TargetURL, CustomerPaymentWithComplexJSON, ResponseText);
-
-        // [THEN] the customer payment should have a new customer
-        VerifyValidPostRequest(ResponseText, LineNoTxt);
-        Evaluate(LineNo, LineNoTxt);
-        VerifyContactId(ResponseText, GraphIntegrationRecord."Graph ID");
-        VerifyCustomerFields(SecondCustomer, ResponseText);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestBlankingContactIdRemovesSellToCustomer()
-    var
-        SecondCustomer: Record Customer;
-        GenJournalLine: Record "Gen. Journal Line";
-        GraphIntegrationRecord: Record "Graph Integration Record";
-        DummyGraphIntegrationRecord: Record "Graph Integration Record";
-        JournalName: Code[10];
-        LineNoTxt: Text;
-        LineNo: Integer;
-        CustomerNo: Code[20];
-        CustomerPaymentGUID: Guid;
-        CustomerPaymentWithComplexJSON: Text;
-        TargetURL: Text;
-        ResponseText: Text;
-    begin
-        // [SCENARIO] Patch a customer payment with a contact with graph id to blank the contact
-        Initialize();
-        LibraryGraphJournalLines.Initialize();
-
-        // [GIVEN] a journal
-        JournalName := LibraryGraphJournalLines.CreateCustomerPaymentsJournal;
-
-        // [GIVEN] a customer payment with contact id
-        LineNo := CreateCustomerPaymentWithGraphContactId(JournalName, CustomerNo, GraphIntegrationRecord);
-        GenJournalLine.Reset();
-        GenJournalLine.SetRange("Line No.", LineNo);
-        GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
-        GenJournalLine.FindFirst;
-        CustomerPaymentGUID := GenJournalLine.SystemId;
-
-        // [GIVEN] a customer payments JSON with blank graph contact id
-        CustomerPaymentWithComplexJSON := CreateCustomerPaymentJSONWithContactId(DummyGraphIntegrationRecord);
-        Commit();
-
-        // [WHEN] we PATCH the line to the web service
-        TargetURL :=
-          LibraryGraphMgt.CreateTargetURLWithSubpage(
-            GetJournalID(JournalName), PAGE::"Customer Paym. Journal Entity", ServiceNameTxt, GetCustomerPaymentURL(CustomerPaymentGUID));
-        LibraryGraphMgt.PatchToWebService(TargetURL, CustomerPaymentWithComplexJSON, ResponseText);
-
-        // [THEN] the customer payment should have a new customer
-        VerifyValidPostRequest(ResponseText, LineNoTxt);
-        Evaluate(LineNo, LineNoTxt);
-        VerifyContactId(ResponseText, '');
-        VerifyCustomerFields(SecondCustomer, ResponseText);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestCustomerAutofillWhenGivingInvoiceNumber()
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -727,7 +547,7 @@ codeunit 135515 "Customer Payments E2E Test"
         // [GIVEN] a customer
         CustomerNo := LibraryGraphJournalLines.CreateCustomer;
         Customer.Get(CustomerNo);
-        CustomerGUID := Customer.Id;
+        CustomerGUID := Customer.SystemId;
 
         // [GIVEN] JSON texts for a customer payment with and without CustomerNo and CustomerId
         LineNo[1] := LibraryGraphJournalLines.GetNextCustomerPaymentNo(JournalName);
@@ -800,7 +620,7 @@ codeunit 135515 "Customer Payments E2E Test"
         // [GIVEN] a customer
         CustomerNo := LibraryGraphJournalLines.CreateCustomer;
         Customer.Get(CustomerNo);
-        CustomerGUID := Customer.Id;
+        CustomerGUID := Customer.SystemId;
         Customer.Delete();
 
         // [GIVEN] JSON texts for a customer payment with and without CustomerNo and CustomerId
@@ -824,6 +644,7 @@ codeunit 135515 "Customer Payments E2E Test"
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         GenJournalLine: Record "Gen. Journal Line";
+        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
         JournalName: Code[10];
         LineNo: array[3] of Integer;
         CustomerNo: Code[20];
@@ -847,7 +668,7 @@ codeunit 135515 "Customer Payments E2E Test"
         // [GIVEN] a posted sales invoice
         AppliesToDocNo := LibraryGraphJournalLines.CreatePostedSalesInvoice(CustomerNo);
         SalesInvoiceHeader.Get(AppliesToDocNo);
-        AppliesToDocGUID := SalesInvoiceHeader.Id;
+        AppliesToDocGUID := SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader);
 
         // [GIVEN] JSON texts for a customer payment with and without CustomerNo and CustomerId
         LineNo[1] := LibraryGraphJournalLines.GetNextCustomerPaymentNo(JournalName);
@@ -908,6 +729,7 @@ codeunit 135515 "Customer Payments E2E Test"
     procedure TestAppliesToInvoiceNoAndIdSyncErrors()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
         JournalName: Code[10];
         CustomerNo: Code[20];
         AppliesToDocNo: Code[20];
@@ -930,7 +752,7 @@ codeunit 135515 "Customer Payments E2E Test"
         // [GIVEN] a posted sales invoice
         AppliesToDocNo := LibraryGraphJournalLines.CreatePostedSalesInvoice(CustomerNo);
         SalesInvoiceHeader.Get(AppliesToDocNo);
-        AppliesToDocGUID := SalesInvoiceHeader.Id;
+        AppliesToDocGUID := SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader);
         SalesInvoiceHeader.Delete();
 
         // [GIVEN] JSON texts for a customer payment with and without CustomerNo and CustomerId
@@ -956,46 +778,6 @@ codeunit 135515 "Customer Payments E2E Test"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Customer Payments E2E Test");
     end;
 
-    local procedure CreateCustomerPaymentWithGraphContactId(JournalName: Code[10]; var CustomerNo: Code[20]; var GraphIntegrationRecord: Record "Graph Integration Record"): Integer
-    var
-        Contact: Record Contact;
-        Customer: Record Customer;
-        GenJournalLine: Record "Gen. Journal Line";
-        LineNo: Integer;
-        BlankGUID: Guid;
-    begin
-        LibraryGraphDocumentTools.CreateContactWithGraphId(Contact, GraphIntegrationRecord);
-        if CustomerNo = '' then begin
-            LibraryGraphDocumentTools.CreateCustomerFromContact(Customer, Contact);
-            CustomerNo := Customer."No.";
-        end;
-
-        LineNo := LibraryGraphJournalLines.CreateCustomerPayment(JournalName, '', BlankGUID, '', BlankGUID, 0, '');
-        GenJournalLine.Reset();
-        GenJournalLine.SetRange("Line No.", LineNo);
-        GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
-        GenJournalLine.FindFirst;
-        GenJournalLine.Validate("Contact Graph Id", GraphIntegrationRecord."Graph ID");
-        GenJournalLine.Modify();
-
-        exit(LineNo);
-    end;
-
-    local procedure CreateCustomerPaymentJSONWithContactId(GraphIntegrationRecord: Record "Graph Integration Record"): Text
-    var
-        JSONManagement: Codeunit "JSON Management";
-        JObject: DotNet JObject;
-        InvoiceJSON: Text;
-    begin
-        JSONManagement.InitializeEmptyObject;
-        JSONManagement.GetJSONObject(JObject);
-
-        JSONManagement.AddJPropertyToJObject(JObject, GraphContactIdFieldTxt, GraphIntegrationRecord."Graph ID");
-        InvoiceJSON := JSONManagement.WriteObjectToString;
-
-        exit(InvoiceJSON);
-    end;
-
     local procedure VerifyLineNoInJson(JSONTxt: Text; ExpectedLineNo: Text)
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -1011,14 +793,6 @@ codeunit 135515 "Customer Payments E2E Test"
         GenJournalLine.FindFirst;
     end;
 
-    local procedure VerifyContactId(ResponseText: Text; ExpectedContactId: Text)
-    var
-        contactId: Text;
-    begin
-        LibraryGraphMgt.GetObjectIDFromJSON(ResponseText, GraphContactIdFieldTxt, contactId);
-        Assert.AreEqual(ExpectedContactId, contactId, 'Wrong contact id was returned');
-    end;
-
     local procedure VerifyCustomerFields(ExpectedCustomer: Record Customer; ResponseText: Text)
     var
         IntegrationManagement: Codeunit "Integration Management";
@@ -1029,7 +803,7 @@ codeunit 135515 "Customer Payments E2E Test"
         LibraryGraphMgt.GetObjectIDFromJSON(ResponseText, CustomerNoNameTxt, customerNumberValue);
 
         Assert.AreEqual(
-          IntegrationManagement.GetIdWithoutBrackets(ExpectedCustomer.Id), UpperCase(customerIdValue), 'Wrong setting for Customer Id');
+          IntegrationManagement.GetIdWithoutBrackets(ExpectedCustomer.SystemId), UpperCase(customerIdValue), 'Wrong setting for Customer Id');
         Assert.AreEqual(ExpectedCustomer."No.", customerNumberValue, 'Wrong setting for Customer Number');
     end;
 
@@ -1047,7 +821,7 @@ codeunit 135515 "Customer Payments E2E Test"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         GenJournalBatch.Get(GraphMgtJournal.GetDefaultCustomerPaymentsTemplateName, JournalName);
-        exit(GenJournalBatch.Id);
+        exit(GenJournalBatch.SystemId);
     end;
 
     local procedure GetCustomerPaymentURL(CustomerPaymentId: Text): Text

@@ -3,6 +3,9 @@ table 31073 "Whse. Net Change Template"
     Caption = 'Whse. Net Change Template';
     DataCaptionFields = Name;
     LookupPageID = "Whse. Net Change Template List";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     fields
     {

@@ -1,7 +1,10 @@
 report 31100 "Get VAT Entries"
 {
-    Caption = 'Get VAT Entries';
+    Caption = 'Get VAT Entries (Obsolete)';
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

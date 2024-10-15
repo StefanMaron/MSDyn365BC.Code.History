@@ -154,7 +154,13 @@ codeunit 1004 "Job Transfer Line"
         OnAfterFromJnlToPlanningLine(JobPlanningLine, JobJnlLine);
     end;
 
+    [Obsolete('EntryType parameter converted to Enum', '17.0')]
     procedure FromPlanningSalesLineToJnlLine(JobPlanningLine: Record "Job Planning Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var JobJnlLine: Record "Job Journal Line"; EntryType: Option Usage,Sale)
+    begin
+        FromPlanningSalesLineToJnlLine(JobPlanningLine, SalesHeader, SalesLine, JobJnlLine, "Job Journal Line Entry Type".FromInteger(EntryType));
+    end;
+
+    procedure FromPlanningSalesLineToJnlLine(JobPlanningLine: Record "Job Planning Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var JobJnlLine: Record "Job Journal Line"; EntryType: Enum "Job Journal Line Entry Type")
     var
         SourceCodeSetup: Record "Source Code Setup";
         JobTask: Record "Job Task";
@@ -710,7 +716,7 @@ codeunit 1004 "Job Transfer Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFromPlanningSalesLineToJnlLine(var JobJnlLine: Record "Job Journal Line"; JobPlanningLine: Record "Job Planning Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; EntryType: Option Usage,Sale)
+    local procedure OnAfterFromPlanningSalesLineToJnlLine(var JobJnlLine: Record "Job Journal Line"; JobPlanningLine: Record "Job Planning Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; EntryType: Enum "Job Journal Line Entry Type")
     begin
     end;
 
@@ -740,7 +746,7 @@ codeunit 1004 "Job Transfer Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFromPlanningSalesLineToJnlLine(var JobPlanningLine: Record "Job Planning Line"; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var JobJnlLine: Record "Job Journal Line"; var EntryType: Option Usage,Sale)
+    local procedure OnBeforeFromPlanningSalesLineToJnlLine(var JobPlanningLine: Record "Job Planning Line"; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var JobJnlLine: Record "Job Journal Line"; var EntryType: Enum "Job Journal Line Entry Type")
     begin
     end;
 

@@ -1,4 +1,4 @@
-﻿codeunit 408 DimensionManagement
+codeunit 408 DimensionManagement
 {
     Permissions = TableData "Gen. Journal Template" = imd,
                   TableData "Gen. Journal Batch" = imd;
@@ -1231,7 +1231,7 @@
         OnAfterDefaultDimObjectNoWithoutGlobalDimsList(TempAllObjWithCaption);
     end;
 
-    local procedure DefaultDimInsertTempObject(var TempAllObjWithCaption: Record AllObjWithCaption temporary; TableID: Integer)
+    procedure DefaultDimInsertTempObject(var TempAllObjWithCaption: Record AllObjWithCaption temporary; TableID: Integer)
     begin
         if IsObsolete(TableID) then
             exit;
@@ -2034,7 +2034,7 @@
         HighPriorityNo: array[10] of Code[20];
     begin
         TableID[1] := DATABASE::Job;
-        TableID[2] := TypeToTableID3(PurchaseLine.Type);
+        TableID[2] := TypeToTableID3(PurchaseLine.Type.AsInteger());
         No[1] := PurchaseLine."Job No.";
         No[2] := PurchaseLine."No.";
 
@@ -2055,7 +2055,7 @@
         HighPriorityNo: array[10] of Code[20];
     begin
         TableID[1] := DATABASE::Job;
-        TableID[2] := TypeToTableID3(SalesLine.Type);
+        TableID[2] := TypeToTableID3(SalesLine.Type.AsInteger());
         No[1] := SalesLine."Job No.";
         No[2] := SalesLine."No.";
 
@@ -2076,7 +2076,7 @@
         HighPriorityNo: array[10] of Code[20];
     begin
         TableID[1] := DATABASE::Job;
-        TableID[2] := TypeToTableID2(JobJournalLine.Type);
+        TableID[2] := TypeToTableID2(JobJournalLine.Type.AsInteger());
         TableID[3] := DATABASE::"Resource Group";
         No[1] := JobJournalLine."Job No.";
         No[2] := JobJournalLine."No.";

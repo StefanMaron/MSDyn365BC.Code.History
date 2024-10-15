@@ -1,4 +1,4 @@
-page 345 Reconciliation
+﻿page 345 Reconciliation
 {
     Caption = 'Reconciliation';
     DataCaptionExpression = Heading;
@@ -109,7 +109,7 @@ page 345 Reconciliation
         if FindSet then;
     end;
 
-    local procedure SaveNetChange(AccType: Integer; AccNo: Code[20]; NetChange: Decimal; VATAmount: Decimal)
+    local procedure SaveNetChange(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; NetChange: Decimal; VATAmount: Decimal)
     var
         GLAcc: Record "G/L Account";
         Cust: Record Customer;

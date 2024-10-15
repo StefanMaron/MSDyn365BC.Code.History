@@ -1,6 +1,9 @@
 table 11765 "Excel Template"
 {
     Caption = 'Excel Template';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     fields
     {

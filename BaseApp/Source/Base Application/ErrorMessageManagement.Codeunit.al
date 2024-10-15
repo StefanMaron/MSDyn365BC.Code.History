@@ -8,6 +8,11 @@ codeunit 28 "Error Message Management"
     var
         JoinedErr: Label '%1 %2.', Locked = true;
         JobQueueErrMsgProcessingTxt: Label 'Job Queue Error Message Processing.', Locked = true;
+        NullJSONTxt: Label 'null', Locked = true;
+        TestFieldEmptyValueErr: Label '%1 must not be empty.', Comment = '%1 - field caption';
+        TestFieldValueErr: Label '%1 must be equal to %2.', Comment = '%1 - field caption, %2 - field value';
+        FieldErrorErr: Label '%1 %2', Comment = '%1 - field name, %2 - error message';
+        FieldMustNotBeErr: Label '%1 must not be %2', Comment = '%1 - field name, %2 - field value';
         MessageType: Option Error,Warning,Information;
 
     procedure Activate(var ErrorMessageHandler: Codeunit "Error Message Handler"): Boolean
@@ -30,7 +35,7 @@ codeunit 28 "Error Message Management"
     begin
         if GetErrorsInContext(ContextVariant, TempErrorMessage) then begin
             if not GuiAllowed then
-                SendTraceTag('000097V', JobQueueErrMsgProcessingTxt, Verbosity::Normal, TempErrorMessage.Description, DataClassification::CustomerContent);
+                Session.LogMessage('000097V', TempErrorMessage.Description, Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', JobQueueErrMsgProcessingTxt);
             StopTransaction;
         end;
     end;
@@ -229,6 +234,241 @@ codeunit 28 "Error Message Management"
         OnLogSimpleError(ErrorMessage, IsLogged);
         if not IsLogged then
             Error(ErrorMessage);
+    end;
+
+    procedure LogTestField(SourceVariant: Variant; SourceFieldNo: Integer) IsLogged: Boolean
+    var
+        RecRef: RecordRef;
+        FldRef: FieldRef;
+        ErrorMessage: Text;
+    begin
+        RecRef.GetTable(SourceVariant);
+        FldRef := RecRef.Field(SourceFieldNo);
+
+        if not IsActive() then begin
+            FldRef.TestField();
+            exit;
+        end;
+
+        if FldRefHasValue(FldRef) then
+            exit;
+
+        ErrorMessage := StrSubstNo(TestFieldEmptyValueErr, FldRef.Caption);
+
+        OnLogError(MessageType::Error, SourceFieldNo, ErrorMessage, SourceVariant, SourceFieldNo, '', IsLogged);
+        if not IsLogged then
+            FldRef.TestField();
+    end;
+
+    procedure LogTestField(SourceVariant: Variant; SourceFieldNo: Integer; ExpectedValue: Variant) IsLogged: Boolean
+    var
+        RecRef: RecordRef;
+        FldRef: FieldRef;
+        ErrorMessage: Text;
+        FieldValue: Variant;
+        IntValue: Integer;
+    begin
+        RecRef.GetTable(SourceVariant);
+        FldRef := RecRef.Field(SourceFieldNo);
+
+        if not IsActive() then begin
+            FldRef.TestField(ExpectedValue);
+            exit;
+        end;
+
+        FieldValue := FldRef.Value();
+        if CompareValues(ExpectedValue, FieldValue) then
+            exit;
+
+        if FldRef.Type() = FieldType::Option then begin
+            IntValue := ExpectedValue;
+            ExpectedValue := SelectStr(IntValue + 1, FldRef.OptionCaption());
+        end;
+        if Format(ExpectedValue) = '' then
+            ExpectedValue := '''''';
+        ErrorMessage := StrSubstNo(TestFieldValueErr, FldRef.Caption, Format(ExpectedValue));
+        OnLogError(MessageType::Error, SourceFieldNo, ErrorMessage, SourceVariant, SourceFieldNo, '', IsLogged);
+        if not IsLogged then
+            FldRef.TestField(ExpectedValue);
+    end;
+
+    procedure LogFieldError(SourceVariant: Variant; SourceFieldNo: Integer; ErrorMessage: Text) IsLogged: Boolean
+    var
+        RecRef: RecordRef;
+        FldRef: FieldRef;
+        ErrorMessageText: Text;
+    begin
+        RecRef.GetTable(SourceVariant);
+        FldRef := RecRef.Field(SourceFieldNo);
+
+        if not IsActive() then
+            FldRef.FieldError(ErrorMessage);
+
+        if ErrorMessage <> '' then
+            ErrorMessageText := StrSubstNo(FieldErrorErr, FldRef.Caption, ErrorMessage)
+        else
+            ErrorMessageText := StrSubstNo(FieldMustNotBeErr, FldRef.Caption, FldRef.Value());
+
+        OnLogError(MessageType::Error, SourceFieldNo, ErrorMessageText, SourceVariant, SourceFieldNo, '', IsLogged);
+        if not IsLogged then
+            FldRef.FieldError(ErrorMessage);
+    end;
+
+    local procedure CompareValues(xValue: Variant; Value: Variant): Boolean
+    begin
+        if Value.IsInteger or Value.IsBigInteger or Value.IsDecimal or Value.IsDuration then
+            exit(CompareNumbers(xValue, Value));
+
+        if Value.IsDate then
+            exit(CompareDates(xValue, Value));
+
+        if Value.IsTime then
+            exit(CompareTimes(xValue, Value));
+
+        if Value.IsDateTime then
+            exit(CompareDateTimes(xValue, Value));
+
+        exit(CompareText(Format(xValue, 0, 2), Format(Value, 0, 2)));
+    end;
+
+    local procedure CompareNumbers(xValue: Decimal; Value: Decimal): Boolean
+    begin
+        exit(xValue = Value);
+    end;
+
+    local procedure CompareDates(xValue: Date; Value: Date): Boolean
+    begin
+        exit(CompareDateTimes(CreateDateTime(xValue, 0T), CreateDateTime(Value, 0T)));
+    end;
+
+    local procedure CompareTimes(xValue: Time; Value: Time): Boolean
+    var
+        ReferenceDate: Date;
+    begin
+        ReferenceDate := Today;
+        exit(CompareDateTimes(CreateDateTime(ReferenceDate, xValue), CreateDateTime(ReferenceDate, Value)));
+    end;
+
+    local procedure CompareDateTimes(xValue: DateTime; Value: DateTime): Boolean
+    begin
+        exit(xValue = Value);
+    end;
+
+    local procedure CompareText(xValue: Text; Value: Text): Boolean
+    begin
+        exit(xValue = Value);
+    end;
+
+    local procedure FldRefHasValue(FldRef: FieldRef): Boolean
+    var
+        HasValue: Boolean;
+        Int: Integer;
+        Dec: Decimal;
+        D: Date;
+        T: Time;
+    begin
+        case FldRef.Type of
+            FieldType::Boolean:
+                HasValue := FldRef.Value;
+            FieldType::Option:
+                HasValue := true;
+            FieldType::Integer:
+                begin
+                    Int := FldRef.Value;
+                    HasValue := Int <> 0;
+                end;
+            FieldType::Decimal:
+                begin
+                    Dec := FldRef.Value;
+                    HasValue := Dec <> 0;
+                end;
+            FieldType::Date:
+                begin
+                    D := FldRef.Value;
+                    HasValue := D <> 0D;
+                end;
+            FieldType::Time:
+                begin
+                    T := FldRef.Value;
+                    HasValue := T <> 0T;
+                end;
+            FieldType::BLOB:
+                HasValue := false;
+            else
+                HasValue := Format(FldRef.Value) <> '';
+        end;
+
+        exit(HasValue);
+    end;
+
+    procedure GetErrorsFromResultValues(Values: List of [Text]; var TempErrorMessage: Record "Error Message" temporary)
+    var
+        ErrorText: Text;
+    begin
+        foreach ErrorText in Values do
+            ParseErrorText(ErrorText, TempErrorMessage);
+    end;
+
+    procedure ParseErrorText(JSON: Text; var TempErrorMessage: Record "Error Message" temporary)
+    var
+        RecordIDText: Text;
+        FieldNumberText: Text;
+        TableNumberText: Text;
+        Description: Text;
+        ContextRecordIDText: Text;
+        ContextFieldNumberText: Text;
+        ContextTableNumberText: Text;
+        DuplicateText: Text;
+        NextID: Integer;
+        JObject: JsonObject;
+    begin
+        if NullJSONTxt <> JSON then begin
+            JObject.ReadFrom(JSON);
+            RecordIDText := GetJsonKeyValue(JObject, 'RecordId');
+            FieldNumberText := GetJsonKeyValue(JObject, 'FieldNumber');
+            TableNumberText := GetJsonKeyValue(JObject, 'TableNumber');
+            Description := GetJsonKeyValue(JObject, 'Description');
+            ContextRecordIDText := GetJsonKeyValue(JObject, 'ContextRecordId');
+            ContextFieldNumberText := GetJsonKeyValue(JObject, 'ContextFieldNumber');
+            ContextTableNumberText := GetJsonKeyValue(JObject, 'ContextTableNumber');
+            DuplicateText := GetJsonKeyValue(JObject, 'Duplicate');
+
+            NextID := TempErrorMessage.FindLastID() + 1;
+            TempErrorMessage.Init();
+            TempErrorMessage.ID := NextID;
+            Evaluate(TempErrorMessage."Record ID", RecordIDText);
+            Evaluate(TempErrorMessage."Field Number", FieldNumberText);
+            Evaluate(TempErrorMessage."Table Number", TableNumberText);
+            Evaluate(TempErrorMessage."Context Record ID", ContextRecordIDText);
+            Evaluate(TempErrorMessage."Context Field Number", ContextFieldNumberText);
+            Evaluate(TempErrorMessage."Context Table Number", ContextTableNumberText);
+            Evaluate(TempErrorMessage.Duplicate, DuplicateText);
+            TempErrorMessage.Description := CopyStr(Description, 1, MaxStrLen(TempErrorMessage.Description));
+            TempErrorMessage.Insert();
+        end;
+    end;
+
+    local procedure GetJsonKeyValue(var JObject: JsonObject; KeyName: Text): Text
+    var
+        JToken: JsonToken;
+    begin
+        if JObject.Get(KeyName, JToken) then
+            exit(JToken.AsValue().AsText());
+    end;
+
+    procedure ErrorMessage2JSON(ErrorMessage: Record "Error Message") JSON: Text
+    var
+        JObject: JsonObject;
+    begin
+        JObject.Add('RecordId', format(ErrorMessage."Record ID"));
+        JObject.Add('FieldNumber', ErrorMessage."Field Number");
+        JObject.Add('TableNumber', ErrorMessage."Table Number");
+        JObject.Add('Description', ErrorMessage.Description);
+        JObject.Add('ContextRecordId', format(ErrorMessage."Context Record ID"));
+        JObject.Add('ContextFieldNumber', ErrorMessage."Context Field Number");
+        JObject.Add('ContextTableNumber', ErrorMessage."Context Table Number");
+        JObject.Add('Duplicate', ErrorMessage.Duplicate);
+        JObject.WriteTo(JSON);
     end;
 
     [IntegrationEvent(false, false)]

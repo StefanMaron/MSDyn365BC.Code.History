@@ -260,12 +260,6 @@ page 8905 "Purchasing Manager Role Center"
                         Caption = 'Item Substitutions';
                         RunObject = report "Item Substitutions";
                     }
-                    // action("Order")
-                    // {
-                    //     ApplicationArea = Suite;
-                    //     Caption = 'Order';
-                    //     RunObject = codeunit 8815;
-                    // }
                     action("Purchasing Deferral Summary")
                     {
                         ApplicationArea = Suite;
@@ -283,6 +277,10 @@ page 8905 "Purchasing Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Quantity Received Check';
                         RunObject = report "Quantity Received Check";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.0';
+                        Visible = false;
                     }
                 }
             }

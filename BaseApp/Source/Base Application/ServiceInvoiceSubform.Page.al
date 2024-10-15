@@ -23,7 +23,7 @@ page 5934 "Service Invoice Subform"
 
                     trigger OnValidate()
                     begin
-                        NoOnAfterValidate;
+                        NoOnAfterValidate();
                     end;
                 }
                 field("No."; "No.")
@@ -34,7 +34,7 @@ page 5934 "Service Invoice Subform"
                     trigger OnValidate()
                     begin
                         ShowShortcutDimCode(ShortcutDimCode);
-                        NoOnAfterValidate;
+                        NoOnAfterValidate();
                     end;
                 }
                 field("Variant Code"; "Variant Code")
@@ -85,7 +85,7 @@ page 5934 "Service Invoice Subform"
 
                     trigger OnValidate()
                     begin
-                        QuantityOnAfterValidate;
+                        QuantityOnAfterValidate();
                     end;
                 }
                 field("Unit of Measure Code"; "Unit of Measure Code")
@@ -95,7 +95,7 @@ page 5934 "Service Invoice Subform"
 
                     trigger OnValidate()
                     begin
-                        UnitofMeasureCodeOnAfterValida;
+                        UnitofMeasureCodeOnAfterValidate();
                     end;
                 }
                 field("Unit of Measure"; "Unit of Measure")
@@ -210,6 +210,9 @@ page 5934 "Service Invoice Subform"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a code for the item''s tariff number.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
                     Visible = false;
                 }
                 field("Reason Code"; "Reason Code")
@@ -362,6 +365,24 @@ page 5934 "Service Invoice Subform"
                     Ellipsis = true;
                     Image = LineDiscount;
                     ToolTip = 'Insert the best possible discount in the Line Discount field according to any special discounts that you have set up.';
+                    Visible = not ExtendedPriceEnabled;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+
+                    trigger OnAction()
+                    begin
+                        PickDiscount();
+                    end;
+                }
+                action(GetLineDiscount)
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Get Li&ne Discount';
+                    Ellipsis = true;
+                    Image = LineDiscount;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'Insert the best possible discount in the Line Discount field according to any special discounts that you have set up.';
 
                     trigger OnAction()
                     begin
@@ -476,7 +497,7 @@ page 5934 "Service Invoice Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Item &Tracking Lines")
@@ -489,7 +510,7 @@ page 5934 "Service Invoice Subform"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }
@@ -520,7 +541,10 @@ page 5934 "Service Invoice Subform"
     end;
 
     trigger OnOpenPage()
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
         SetDimensionsVisibility;
     end;
 
@@ -528,8 +552,11 @@ page 5934 "Service Invoice Subform"
         ServHeader: Record "Service Header";
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
-        ShortcutDimCode: array[8] of Code[20];
         Text000: Label 'This service invoice was created from the service contract. If you want to get shipment lines, you must create another service invoice.';
+        ExtendedPriceEnabled: Boolean;
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;
@@ -568,24 +595,24 @@ page 5934 "Service Invoice Subform"
         CurrPage.Update(SetSaveRecord);
     end;
 
-    local procedure NoOnAfterValidate()
+    protected procedure NoOnAfterValidate()
     begin
         InsertExtendedText(false);
     end;
 
-    local procedure QuantityOnAfterValidate()
+    protected procedure QuantityOnAfterValidate()
     begin
         if Reserve = Reserve::Always then begin
             CurrPage.SaveRecord;
-            AutoReserve;
+            AutoReserve();
         end;
     end;
 
-    local procedure UnitofMeasureCodeOnAfterValida()
+    protected procedure UnitofMeasureCodeOnAfterValidate()
     begin
         if Reserve = Reserve::Always then begin
             CurrPage.SaveRecord;
-            AutoReserve;
+            AutoReserve();
         end;
     end;
 

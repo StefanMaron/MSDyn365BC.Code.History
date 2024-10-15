@@ -1,6 +1,9 @@
 codeunit 31060 "Release VIES Declaration"
 {
     TableNo = "VIES Declaration Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     var

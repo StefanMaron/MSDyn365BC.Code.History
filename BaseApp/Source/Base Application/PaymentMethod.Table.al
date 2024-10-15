@@ -128,6 +128,9 @@ table 289 "Payment Method"
         {
             Caption = 'Cash Desk Code';
             TableRelation = "Bank Account" WHERE("Account Type" = CONST("Cash Desk"));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnLookup()
             var
@@ -160,6 +163,9 @@ table 289 "Payment Method"
             NotBlank = true;
             OptionCaption = ' ,Create,Release,Post,Release and Print,Post and Print';
             OptionMembers = " ",Create,Release,Post,"Release and Print","Post and Print";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             begin
@@ -232,6 +238,7 @@ table 289 "Payment Method"
         end;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     local procedure CheckCashDocumentStatus()
     var
         CashDeskManagement: Codeunit CashDeskManagement;

@@ -1,5 +1,9 @@
 table 5456 "Graph Business Profile"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This functionality will be removed. The API that it was integrating to was discontinued.';
+    ObsoleteTag = '17.0';
+
     Caption = 'Graph Business Profile';
     ExternalName = 'BusinessProfile';
     TableType = MicrosoftGraph;

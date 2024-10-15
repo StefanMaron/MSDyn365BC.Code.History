@@ -35,6 +35,7 @@ page 253 "Sales Journal"
                     CurrPage.SaveRecord;
                     GenJnlManagement.LookupName(CurrentJnlBatchName, Rec);
                     GenJnlManagement.SetLastViewedJournalBatchName(PAGE::"Sales Journal", CurrentJnlBatchName);
+                    SetControlAppearanceFromBatch();
                     CurrPage.Update(false);
                 end;
 
@@ -117,7 +118,7 @@ page 253 "Sales Journal"
                     begin
                         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
                         EnableApplyEntriesAction;
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
                 field("Account No."; "Account No.")
@@ -129,7 +130,7 @@ page 253 "Sales Journal"
                     begin
                         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
                         ShowShortcutDimCode(ShortcutDimCode);
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
                 field("<Customer Name>"; AccName)
@@ -229,7 +230,7 @@ page 253 "Sales Journal"
                         then
                             Validate(Amount, DocumentAmount * -1)
                         else
-                            Validate(Amount, DocumentAmount)
+                            Validate(Amount, DocumentAmount);
                     end;
                 }
                 field(Amount; Amount)
@@ -634,6 +635,7 @@ page 253 "Sales Journal"
                     group("Account Name")
                     {
                         Caption = 'Account Name';
+                        Visible = false;
                         field(AccName; AccName)
                         {
                             ApplicationArea = Basic, Suite;
@@ -645,6 +647,7 @@ page 253 "Sales Journal"
                     group("Bal. Account Name")
                     {
                         Caption = 'Bal. Account Name';
+                        Visible = false;
                         field(BalAccName; BalAccName)
                         {
                             ApplicationArea = Basic, Suite;
@@ -684,6 +687,23 @@ page 253 "Sales Journal"
         }
         area(factboxes)
         {
+            part(JournalErrorsFactBox; "Journal Errors FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = BackgroundErrorCheck;
+                SubPageLink = "Journal Template Name" = FIELD("Journal Template Name"),
+                              "Journal Batch Name" = FIELD("Journal Batch Name"),
+                              "Line No." = FIELD("Line No.");
+            }
+
+            part(JournalLineDetails; "Journal Line Details FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+
+                SubPageLink = "Journal Template Name" = FIELD("Journal Template Name"),
+                              "Journal Batch Name" = FIELD("Journal Batch Name"),
+                              "Line No." = FIELD("Line No.");
+            }
             part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
             {
                 ApplicationArea = Basic, Suite;
@@ -729,7 +749,7 @@ page 253 "Sales Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -1028,6 +1048,43 @@ page 253 "Sales Journal"
                         PAGE.Run(PAGE::"Sales Journal");
                     end;
                 }
+                group(Errors)
+                {
+                    Image = ErrorLog;
+                    Visible = BackgroundErrorCheck;
+                    action(ShowLinesWithErrors)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Show Lines with Issues';
+                        Image = Error;
+                        Promoted = true;
+                        PromotedCategory = Category4;
+                        Visible = BackgroundErrorCheck;
+                        Enabled = not ShowAllLinesEnabled;
+                        ToolTip = 'View a list of journal lines that have issues before you post the journal.';
+
+                        trigger OnAction()
+                        begin
+                            SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                        end;
+                    }
+                    action(ShowAllLines)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Show All Lines';
+                        Image = ExpandAll;
+                        Promoted = true;
+                        PromotedCategory = Category4;
+                        Visible = BackgroundErrorCheck;
+                        Enabled = ShowAllLinesEnabled;
+                        ToolTip = 'View all journal lines, including lines with and without issues.';
+
+                        trigger OnAction()
+                        begin
+                            SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                        end;
+                    }
+                }
             }
         }
     }
@@ -1103,9 +1160,10 @@ page 253 "Sales Journal"
         if IsOpenedFromBatch then begin
             CurrentJnlBatchName := "Journal Batch Name";
             GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
+            SetControlAppearanceFromBatch();
             exit;
         end;
-        GenJnlManagement.TemplateSelection(PAGE::"Sales Journal", 1, false, Rec, JnlSelected);
+        GenJnlManagement.TemplateSelection(PAGE::"Sales Journal", "Gen. Journal Template Type"::Sales, false, Rec, JnlSelected);
         if not JnlSelected then
             Error('');
 
@@ -1113,6 +1171,7 @@ page 253 "Sales Journal"
         if LastGenJnlBatch <> '' then
             CurrentJnlBatchName := LastGenJnlBatch;
         GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
+        SetControlAppearanceFromBatch();
     end;
 
     var
@@ -1120,6 +1179,7 @@ page 253 "Sales Journal"
         GenJnlManagement: Codeunit GenJnlManagement;
         ReportPrint: Codeunit "Test Report-Print";
         ClientTypeManagement: Codeunit "Client Type Management";
+        JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         ChangeExchangeRate: Page "Change Exchange Rate";
         GLReconcile: Page Reconciliation;
         CurrentJnlBatchName: Code[10];
@@ -1130,7 +1190,6 @@ page 253 "Sales Journal"
         NumberOfRecords: Integer;
         ShowBalance: Boolean;
         ShowTotalBalance: Boolean;
-        ShortcutDimCode: array[8] of Code[20];
         ApplyEntriesActionEnabled: Boolean;
         [InDataSet]
         BalanceVisible: Boolean;
@@ -1138,6 +1197,8 @@ page 253 "Sales Journal"
         TotalBalanceVisible: Boolean;
         AmountVisible: Boolean;
         DebitCreditVisible: Boolean;
+        BackgroundErrorCheck: Boolean;
+        ShowAllLinesEnabled: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
         IsSimplePage: Boolean;
         DocumentAmount: Decimal;
@@ -1145,6 +1206,9 @@ page 253 "Sales Journal"
         NegativeDocAmountErr: Label 'You must specify a positive amount as the document amount. If the journal line is for a document type that has a negative amount, the amount will be tracked correctly.';
         JobQueuesUsed: Boolean;
         JobQueueVisible: Boolean;
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;
@@ -1175,7 +1239,20 @@ page 253 "Sales Journal"
     begin
         CurrPage.SaveRecord;
         GenJnlManagement.SetName(CurrentJnlBatchName, Rec);
+        SetControlAppearanceFromBatch();
         CurrPage.Update(false);
+    end;
+
+    local procedure SetControlAppearanceFromBatch()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        if not GenJournalBatch.Get(GetRangeMax("Journal Template Name"), CurrentJnlBatchName) then
+            exit;
+        BackgroundErrorCheck := GenJournalBatch."Background Error Check";
+        ShowAllLinesEnabled := true;
+        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+        JournalErrorsMgt.SetFullBatchCheck(true);
     end;
 
     local procedure SetControlVisibility()

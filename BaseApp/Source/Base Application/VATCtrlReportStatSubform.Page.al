@@ -5,6 +5,9 @@ page 31105 "VAT Ctrl.Report Stat. Subform"
     PageType = ListPart;
     SourceTable = "VAT Control Report Buffer";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {

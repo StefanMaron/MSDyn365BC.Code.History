@@ -5,7 +5,7 @@ page 103 "Account Schedule Names"
     PageType = List;
     PromotedActionCategories = 'New,Process,Report,Print/Send';
     SourceTable = "Acc. Schedule Name";
-    UsageCategory = ReportsAndAnalysis;
+    UsageCategory = Lists;
 
     layout
     {
@@ -38,6 +38,10 @@ page 103 "Account Schedule Names"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of account schedule (Balance Sheet or Income Statement)';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
             }
         }

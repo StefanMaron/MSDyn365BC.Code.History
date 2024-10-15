@@ -54,6 +54,9 @@ page 393 "Item Reclass. Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the template for item''s whse. net change.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
                     Visible = false;
                 }
                 field("Document No."; "Document No.")
@@ -861,6 +864,8 @@ page 393 "Item Reclass. Journal"
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         CurrentJnlBatchName: Code[10];
         ItemDescription: Text[100];
+
+    protected var
         ShortcutDimCode: array[8] of Code[20];
         NewShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;

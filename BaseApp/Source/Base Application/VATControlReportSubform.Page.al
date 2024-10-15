@@ -10,6 +10,9 @@ page 31103 "VAT Control Report Subform"
     MultipleNewLines = true;
     PageType = ListPart;
     SourceTable = "VAT Control Report Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     layout
     {
@@ -162,7 +165,7 @@ page 31103 "VAT Control Report Subform"
                 action("&Navigate")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = '&Navigate';
+                    Caption = 'Find entries...';
                     Image = Navigate;
                     ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
 

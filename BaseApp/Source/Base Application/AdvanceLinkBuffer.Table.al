@@ -167,22 +167,22 @@ table 31018 "Advance Link Buffer"
                     "Source Type"::Customer:
                         begin
                             if CustLedgEntry.Get("Entry No.") then
-                                CustLedgEntry.ShowDimensions;
+                                CustLedgEntry.ShowDimensions();
                         end;
                     "Source Type"::Vendor:
                         begin
                             if VendLedgEntry.Get("Entry No.") then
-                                VendLedgEntry.ShowDimensions;
+                                VendLedgEntry.ShowDimensions();
                         end;
                 end
             else
                 case Type of
                     Type::Customer:
                         if CustLedgEntry.Get("Entry No.") then
-                            CustLedgEntry.ShowDimensions;
+                            CustLedgEntry.ShowDimensions();
                     Type::Vendor:
                         if VendLedgEntry.Get("Entry No.") then
-                            VendLedgEntry.ShowDimensions;
+                            VendLedgEntry.ShowDimensions();
                 end
         else
             if Type = Type::"G/L Account" then
@@ -190,12 +190,12 @@ table 31018 "Advance Link Buffer"
                     "Source Type"::Customer:
                         begin
                             SalesAdvanceLetterLine.Get("Document No.", "Entry No.");
-                            SalesAdvanceLetterLine.ShowDimensions;
+                            SalesAdvanceLetterLine.ShowDimensions();
                         end;
                     "Source Type"::Vendor:
                         begin
                             PurchAdvanceLetterLine.Get("Document No.", "Entry No.");
-                            PurchAdvanceLetterLine.ShowDimensions;
+                            PurchAdvanceLetterLine.ShowDimensions();
                         end;
                 end
             else
@@ -203,12 +203,12 @@ table 31018 "Advance Link Buffer"
                     Type::Customer:
                         begin
                             SalesAdvanceLetterLine.Get("Document No.", "Entry No.");
-                            SalesAdvanceLetterLine.ShowDimensions;
+                            SalesAdvanceLetterLine.ShowDimensions();
                         end;
                     Type::Vendor:
                         begin
                             PurchAdvanceLetterLine.Get("Document No.", "Entry No.");
-                            PurchAdvanceLetterLine.ShowDimensions;
+                            PurchAdvanceLetterLine.ShowDimensions();
                         end;
                 end;
     end;

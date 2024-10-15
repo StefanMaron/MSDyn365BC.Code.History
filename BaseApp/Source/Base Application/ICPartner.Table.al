@@ -20,12 +20,10 @@ table 413 "IC Partner"
             Caption = 'Currency Code';
             TableRelation = Currency.Code;
         }
-        field(4; "Inbox Type"; Option)
+        field(4; "Inbox Type"; Enum "IC Partner Inbox Type")
         {
             Caption = 'Inbox Type';
             InitValue = Database;
-            OptionCaption = 'File Location,Database,Email,No IC Transfer';
-            OptionMembers = "File Location",Database,Email,"No IC Transfer";
 
             trigger OnValidate()
             var

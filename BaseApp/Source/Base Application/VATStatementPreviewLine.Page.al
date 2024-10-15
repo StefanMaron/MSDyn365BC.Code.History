@@ -1,4 +1,4 @@
-﻿page 475 "VAT Statement Preview Line"
+page 475 "VAT Statement Preview Line"
 {
     Caption = 'Lines';
     Editable = false;
@@ -37,6 +37,10 @@
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the general ledger amount type for the VAT statement line.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                 {
@@ -57,21 +61,37 @@
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the code for the Gen. Bus. Posting Group that applies to the entry.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the code for the Gen. Prod. Posting Group that applies to the entry.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("EU-3 Party Trade"; "EU-3 Party Trade")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies whether the document is part of a three-party trade.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
                     ApplicationArea = VAT;
-                    ToolTip = 'Specifies when the sales haeder will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
+                    ToolTip = 'Specifies when the VAT entry will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field("Prepayment Type"; "Prepayment Type")
                 {
@@ -94,6 +114,10 @@
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies if you need to use a filter date other than the date on the VAT statement.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Unsupported functionality';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 field(ColumnValue; ColumnValue)
                 {
@@ -221,15 +245,17 @@
 
     var
         Text000: Label 'Drilldown is not possible when %1 is %2.';
+
+    protected var
         GLEntry: Record "G/L Entry";
         VATEntry: Record "VAT Entry";
         VATStatement: Report "VAT Statement";
         ColumnValue: Decimal;
-        Selection: Option Open,Closed,"Open and Closed";
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        Selection: Enum "VAT Statement Report Selection";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
         UseAmtsInAddCurr: Boolean;
         SettlementNoFilter: Text[50];
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         CountryCodeFillFilter: Code[10];
 
     local procedure CalcColumnValue(VATStatementLine: Record "VAT Statement Line"; var ColumnValue: Decimal; Level: Integer)
@@ -258,7 +284,7 @@
         // NAVCZ
     end;
 
-    procedure UpdateForm(var VATStmtName: Record "VAT Statement Name"; NewSelection: Option Open,Closed,"Open and Closed"; NewPeriodSelection: Option "Before and Within Period","Within Period"; NewUseAmtsInAddCurr: Boolean; SettlementNoFilter2: Text[50]; CountryCodeFillFilter2: Code[10])
+    procedure UpdateForm(var VATStmtName: Record "VAT Statement Name"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewUseAmtsInAddCurr: Boolean; SettlementNoFilter2: Text[50]; CountryCodeFillFilter2: Code[10])
     begin
         SetRange("Statement Template Name", VATStmtName."Statement Template Name");
         SetRange("Statement Name", VATStmtName.Name);
@@ -271,6 +297,7 @@
           SettlementNoFilter2, CountryCodeFillFilter2); // NAVCZ
         SettlementNoFilter := SettlementNoFilter2;
         CountryCodeFillFilter := CountryCodeFillFilter2;
+        OnUpdateFormOnBeforePageUpdate(VATStmtName, Rec, Selection, PeriodSelection, false, UseAmtsInAddCurr, SettlementNoFilter2, CountryCodeFillFilter2);
         CurrPage.Update;
 
         OnAfterUpdateForm();
@@ -288,6 +315,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnColumnValueDrillDownOnBeforeRunGeneralLedgerEntries(var VATEntry: Record "VAT Entry"; var GLEntry: Record "G/L Entry"; var VATStatementLine: Record "VAT Statement Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateFormOnBeforePageUpdate(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean; SettlementNoFilter2: Text[50]; CountryCodeFillFilter2: Code[10])
     begin
     end;
 

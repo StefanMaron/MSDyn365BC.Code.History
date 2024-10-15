@@ -18,6 +18,18 @@ page 9022 "Business Manager Role Center"
                 AccessByPermission = TableData "Activities Cue" = I;
                 ApplicationArea = Basic, Suite;
             }
+            part("User Tasks Activities"; "User Tasks Activities")
+            {
+                ApplicationArea = Suite;
+            }
+            part(ApprovalsActivities; "Approvals Activities")
+            {
+                ApplicationArea = Suite;
+            }
+            part(Control46; "Team Member Activities No Msgs")
+            {
+                ApplicationArea = Suite;
+            }
             part(Control55; "Help And Chart Wrapper")
             {
                 ApplicationArea = Basic, Suite;
@@ -25,7 +37,11 @@ page 9022 "Business Manager Role Center"
             }
             part(Control56; "Product Video Topics")
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced with Assisted Setup.';
+                Visible = false;
                 ApplicationArea = All;
+                ObsoleteTag = '17.0';
             }
             part("Favorite Accounts"; "My Accounts")
             {
@@ -37,24 +53,33 @@ page 9022 "Business Manager Role Center"
                 AccessByPermission = TableData "G/L Entry" = R;
                 ApplicationArea = Basic, Suite;
             }
-            part(Control46; "Team Member Activities No Msgs")
-            {
-                ApplicationArea = Suite;
-            }
             part(Control98; "Power BI Report Spinner Part")
             {
                 AccessByPermission = TableData "Power BI User Configuration" = I;
                 ApplicationArea = Basic, Suite;
+            }
+            part("My Job Queue"; "My Job Queue")
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = false;
             }
             part(Control96; "Report Inbox Part")
             {
                 AccessByPermission = TableData "Report Inbox" = IMD;
                 ApplicationArea = Suite;
             }
+            systempart(MyNotes; MyNotes)
+            {
+                ApplicationArea = Basic, Suite;
+            }
             part(" "; "O365 Link to Financials")
             {
                 ApplicationArea = Invoicing;
                 Caption = ' ';
+                Visible = false;
+                ObsoleteReason = 'Microsoft Invoicing is not supported on Business Central';
+                ObsoleteState = Pending;
+                ObsoleteTag = '17.0';
             }
         }
     }
@@ -577,6 +602,13 @@ page 9022 "Business Manager Role Center"
                     PromotedCategory = Process;
                     RunObject = Page Dimensions;
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
+                }
+                action(PostedGeneralJournals)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Posted General Journals';
+                    RunObject = Page "Posted General Journal";
+                    ToolTip = 'Open the list of posted general journal lines.';
                 }
             }
             group("Cash Management")
@@ -1112,6 +1144,10 @@ page 9022 "Business Manager Role Center"
                     Caption = 'Cash Desks';
                     RunObject = Page "Cash Desk List";
                     ToolTip = 'Specifies cash desks';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 action("Cash Documents")
                 {
@@ -1119,6 +1155,10 @@ page 9022 "Business Manager Role Center"
                     Caption = 'Cash Documents';
                     RunObject = Page "Cash Document List";
                     ToolTip = 'Specifies cash ddocuments';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 action("Posted Cash Documents")
                 {
@@ -1126,6 +1166,10 @@ page 9022 "Business Manager Role Center"
                     Caption = 'Posted Cash Documents';
                     RunObject = Page "Posted Cash Document List";
                     ToolTip = 'Specifies posted cash documents';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                    ObsoleteTag = '17.0';
+                    Visible = false;
                 }
                 action("<Page Posted Purchase Receipts>")
                 {
@@ -1191,4 +1235,3 @@ page 9022 "Business Manager Role Center"
         }
     }
 }
-

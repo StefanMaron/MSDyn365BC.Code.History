@@ -178,7 +178,7 @@ page 527 "Posted Sales Credit Memo Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Item &Tracking Lines")

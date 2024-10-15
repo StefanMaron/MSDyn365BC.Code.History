@@ -1,10 +1,13 @@
-﻿report 12 "VAT Statement"
+report 12 "VAT Statement"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './VATStatement.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'VAT Statement';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {
@@ -204,7 +207,6 @@
                         ApplicationArea = Basic, Suite;
                         Caption = 'Include VAT Entries';
                         Importance = Additional;
-                        OptionCaption = 'Open,Closed,Open and Closed';
                         ToolTip = 'Specifies if you want to include open VAT entries in the report.';
                     }
                     field(PeriodSelection; PeriodSelection)
@@ -212,7 +214,6 @@
                         ApplicationArea = Basic, Suite;
                         Caption = 'Include VAT Entries';
                         Importance = Additional;
-                        OptionCaption = 'Before and Within Period,Within Period';
                         ToolTip = 'Specifies if you want to include VAT entries from before the specified time period in the report.';
                     }
                     field(RoundToWholeNumbers; PrintInIntegers)
@@ -320,12 +321,12 @@
         GLAcc: Record "G/L Account";
         VATEntry: Record "VAT Entry";
         GLSetup: Record "General Ledger Setup";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";
         VATEntry2: Record "VAT Entry";
         VATStmtLine: Record "VAT Statement Line";
-        Selection: Option Open,Closed,"Open and Closed";
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        Selection: Enum "VAT Statement Report Selection";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
         PrintInIntegers: Boolean;
         VATStmtLineFilter: Text;
         Heading: Text[50];
@@ -358,7 +359,7 @@
         EndDate2: Date;
         StartDate2: Date;
         EndDateReq2: Date;
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         PerfCountryCodeFilter: Code[10];
         SettlementNoFilter: Text[50];
         Amount2: Decimal;
@@ -651,7 +652,7 @@
         TotalAmount := TotalAmount + Amount;
     end;
 
-    procedure InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Option Open,Closed,"Open and Closed"; NewPeriodSelection: Option "Before and Within Period","Within Period"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean; SettlementNoFilter2: Text[50]; PerfCountryCodeFilter2: Code[10])
+    procedure InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean; SettlementNoFilter2: Text[50]; PerfCountryCodeFilter2: Code[10])
     begin
         "VAT Statement Name".Copy(NewVATStmtName);
         "VAT Statement Line".Copy(NewVATStatementLine);
@@ -849,7 +850,7 @@
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     procedure ExchangeAmount(AmountAdd: Decimal): Decimal
     begin
         // NAVCZ

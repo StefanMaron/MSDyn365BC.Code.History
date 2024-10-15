@@ -3,8 +3,11 @@ report 11742 "Cash Desk Book"
     DefaultLayout = RDLC;
     RDLCLayout = './CashDeskBook.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'Cash Desk Book';
+    Caption = 'Cash Desk Book (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.0';
 
     dataset
     {

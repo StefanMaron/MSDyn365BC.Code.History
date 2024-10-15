@@ -16,13 +16,13 @@ page 11707 "Bank Statement Subform"
                 field(Type; Type)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies type od partner (customer, vendor, bank account).';
+                    ToolTip = 'Specifies the type of partner (customer, vendor, bank account).';
                     Visible = false;
                 }
                 field("No."; "No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the bank statement.';
+                    ToolTip = 'Specifies the number of partner (customer, vendor, bank account).';
                     Visible = false;
                 }
                 field("Cust./Vendor Bank Account Code"; "Cust./Vendor Bank Account Code")
@@ -39,7 +39,7 @@ page 11707 "Bank Statement Subform"
                 field(Name; Name)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies name of partner (customer, vendor, bank account).';
+                    ToolTip = 'Specifies the name of partner (customer, vendor, bank account).';
                     Visible = false;
                 }
                 field("Account No."; "Account No.")
