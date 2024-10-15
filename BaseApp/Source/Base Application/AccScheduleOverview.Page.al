@@ -795,17 +795,21 @@
     end;
 
     trigger OnOpenPage()
+    var
+        CurrSchedNameChanged: Boolean;
     begin
         UseAmtsInAddCurr := false;
         GLSetup.Get();
         UseAmtsInAddCurrVisible := GLSetup."Additional Reporting Currency" <> '';
-        if NewCurrentSchedName <> '' then
+        if NewCurrentSchedName <> '' then begin
+            CurrSchedNameChanged := CurrentSchedName <> NewCurrentSchedName;
             CurrentSchedName := NewCurrentSchedName;
+        end;
         if CurrentSchedName = '' then
             CurrentSchedName := Text000;
         if NewCurrentColumnName <> '' then
             CurrentColumnName := NewCurrentColumnName;
-        if CurrentColumnName = '' then
+        if (CurrentColumnName = '') or (CurrSchedNameChanged and (NewCurrentColumnName = '')) then
             CurrentColumnName := Text000;
         if NewPeriodTypeSet then
             PeriodType := ModifiedPeriodType;

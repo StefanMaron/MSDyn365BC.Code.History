@@ -2490,9 +2490,6 @@
         IsHandled: Boolean;
     begin
         with ValueEntry do begin
-            if CalledFromAdjustment and not PostToGL then
-                exit;
-
             // NAVCZ
             GetInvtSetup;
             if InvtSetup."Posting Desc. Code" <> '' then begin
@@ -2504,6 +2501,12 @@
             IsHandled := false;
             OnBeforePostInventoryToGL(ValueEntry, IsHandled);
             if IsHandled then
+                exit;
+
+            if not Inventoriable or
+               not CalledFromAdjustment and Item."Inventory Value Zero" or
+               CalledFromAdjustment and not PostToGL
+            then
                 exit;
 
             InventoryPostingToGL.SetRunOnlyCheck(true, not PostToGL, false);
@@ -3078,8 +3081,7 @@
 
             OnBeforeInsertValueEntry(ValueEntry, ItemJnlLine, ItemLedgEntry, ValueEntryNo, InventoryPostingToGL, CalledFromAdjustment);
 
-            if ValueEntry.Inventoriable and not Item."Inventory Value Zero" then
-                PostInventoryToGL(ValueEntry);
+            PostInventoryToGL(ValueEntry);
 
             // NAVCZ
             // Maintenance adjustment;
@@ -4570,8 +4572,7 @@
         OnBeforeInsertCorrValueEntry(
           NewValueEntry, OldValueEntry, ItemJnlLine, Sign, CalledFromAdjustment, ItemLedgEntry, ValueEntryNo, InventoryPostingToGL);
 
-        if NewValueEntry.Inventoriable and not Item."Inventory Value Zero" then
-            PostInventoryToGL(NewValueEntry);
+        PostInventoryToGL(NewValueEntry);
 
         NewValueEntry.Insert();
 
