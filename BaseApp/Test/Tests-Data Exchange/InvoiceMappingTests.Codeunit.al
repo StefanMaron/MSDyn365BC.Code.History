@@ -730,6 +730,46 @@ codeunit 139158 "Invoice Mapping Tests"
         Assert.ExpectedErrorCode(DialogCodeErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyIncomingDocumentsOnPostedPurchaseInvoice()
+    var
+        IncomingDocument: Record "Incoming Document";
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvoiceHeader: Record "Purch. Inv. Header";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
+        VendorNo: Code[10];
+        IncomingDocDesc: Text[250];
+    begin
+        // [SCENARIO 294747] When the Incoming Document is selected from the Purchase Order, the Incoming Document is not visible in Factbox from the Posted Purchase Invoice
+        Initialize();
+
+        // [GIVEN] Create Incoming document and Purchase Invoice
+        LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+
+        // [GIVEN] Mapping Incoming document with Purchase document
+        PurchaseHeader.Validate("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        PurchaseHeader.Modify(true);
+
+        // [THEN] Save Vendor No and Incoming Document detail
+        VendorNo := PurchaseHeader."Buy-from Vendor No.";
+        IncomingDocDesc := IncomingDocument.URL;
+
+        // [THEN] Post the Purchsase Invoice
+        Codeunit.Run(Codeunit::"Purch.-Post", PurchaseHeader);
+
+        // [THEN] Find Posted Purchase Invocie
+        PurchInvoiceHeader.SetFilter("Buy-from Vendor No.", VendorNo);
+        PurchInvoiceHeader.FindFirst();
+
+        // [VERIFY] Open the posted purchase invoice and verify Incoming Document will appear on factbox.
+        PostedPurchaseInvoice.OpenEdit;
+        PostedPurchaseInvoice.GotoRecord(PurchInvoiceHeader);
+        PostedPurchaseInvoice.IncomingDocAttachFactBox.Name.AssertEquals(IncomingDocDesc);
+    end;
+
     local procedure Initialize()
     var
         IntermediateDataImport: Record "Intermediate Data Import";
