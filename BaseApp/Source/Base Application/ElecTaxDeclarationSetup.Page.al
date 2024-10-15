@@ -151,6 +151,35 @@ page 11410 "Elec. Tax Declaration Setup"
                     ToolTip = 'Specifies the service certificate code.';
                 }
             }
+            group(Endpoints)
+            {
+                Caption = 'Endpoints';
+                field("Tax Decl. Schema Version"; "Tax Decl. Schema Version")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the schema version for the electronic tax declaration.';
+                }
+                field("Tax Decl. BD Data Endpoint"; "Tax Decl. BD Data Endpoint")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the BD data endpoint for the electronic tax declaration.';
+                }
+                field("Tax Decl. BD Tuples Endpoint"; "Tax Decl. BD Tuples Endpoint")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the BD tuples endpoint for the electronic tax declaration.';
+                }
+                field("Tax Decl. Schema Endpoint"; "Tax Decl. Schema Endpoint")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the schema endpoint for the electronic tax declaration.';
+                }
+                field("ICP Decl. Schema Endpoint"; "ICP Decl. Schema Endpoint")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the schema endpoint for the ICP declaration.';
+                }
+            }
         }
     }
 

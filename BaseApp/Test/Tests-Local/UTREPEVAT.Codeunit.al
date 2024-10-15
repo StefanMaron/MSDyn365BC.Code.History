@@ -1313,6 +1313,30 @@ codeunit 144049 "UT REP EVAT"
         // Tear down
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ElecTaxDeclEndpointsTakenFromTheSetup()
+    var
+        ElecTaxDeclSetup: Record "Elec. Tax Declaration Setup";
+        ElecTaxDeclMgt: Codeunit "Elec. Tax Declaration Mgt.";
+    begin
+        // [SCENARIO 454920] The endpoints for the electronic tax declaration taken from the Elec. Tax Declaration Setup
+
+        Initialize();
+        ElecTaxDeclSetup.DeleteAll();
+        ElecTaxDeclSetup."Tax Decl. Schema Version" := LibraryUtility.GenerateGUID();
+        ElecTaxDeclSetup."Tax Decl. BD Data Endpoint" := LibraryUtility.GenerateGUID();
+        ElecTaxDeclSetup."Tax Decl. BD Tuples Endpoint" := LibraryUtility.GenerateGUID();
+        ElecTaxDeclSetup."Tax Decl. Schema Endpoint" := LibraryUtility.GenerateGUID();
+        ElecTaxDeclSetup."ICP Decl. Schema Endpoint" := LibraryUtility.GenerateGUID();
+        ElecTaxDeclSetup.insert();
+        Assert.AreEqual(ElecTaxDeclSetup."Tax Decl. Schema Version", ElecTaxDeclMgt.GetSchemaVersion(), '');
+        Assert.AreEqual(ElecTaxDeclSetup."Tax Decl. BD Data Endpoint", ElecTaxDeclMgt.GetBDDataEndpoint(), '');
+        Assert.AreEqual(ElecTaxDeclSetup."Tax Decl. BD Tuples Endpoint", ElecTaxDeclMgt.GetBDTuplesEndpoint(), '');
+        Assert.AreEqual(ElecTaxDeclSetup."Tax Decl. Schema Endpoint", ElecTaxDeclMgt.GetVATDeclarationSchemaEndpoint(), '');
+        Assert.AreEqual(ElecTaxDeclSetup."ICP Decl. Schema Endpoint", ElecTaxDeclMgt.GetICPDeclarationSchemaEndpoint(), '');
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"UT REP EVAT");

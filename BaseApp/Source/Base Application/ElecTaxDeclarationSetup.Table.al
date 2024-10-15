@@ -147,6 +147,26 @@ table 11408 "Elec. Tax Declaration Setup"
             TableRelation = "Isolated Certificate";
             Caption = 'Service Certificate Code';
         }
+        field(350; "Tax Decl. Schema Version"; Text[10])
+        {
+            Caption = 'Tax Decl. Schema Version';
+        }
+        field(351; "Tax Decl. BD Data Endpoint"; Text[250])
+        {
+            Caption = 'Tax Decl. BD Data Endpoint';
+        }
+        field(352; "Tax Decl. BD Tuples Endpoint"; Text[250])
+        {
+            Caption = 'Tax Decl. BD Tuples Endpoint';
+        }
+        field(353; "Tax Decl. Schema Endpoint"; Text[250])
+        {
+            Caption = 'Tax Decl. Schema Endpoint';
+        }
+        field(354; "ICP Decl. Schema Endpoint"; Text[250])
+        {
+            Caption = 'ICP Decl. Schema Endpoint';
+        }
     }
 
     keys
