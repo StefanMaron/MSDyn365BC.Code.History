@@ -130,7 +130,11 @@ table 38 "Purchase Header"
                 "VAT Registration No." := Vend."VAT Registration No.";
                 Validate("Lead Time Calculation", Vend."Lead Time Calculation");
                 "Shipment Method Code" := Vend."Shipment Method Code";
-                "Responsibility Center" := UserSetupMgt.GetRespCenter(1, Vend."Responsibility Center");
+
+                IsHandled := false;
+                OnValidateBuyFromVendorNoOnBeforeAssignResponsibilityCenter(Rec, xRec, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    "Responsibility Center" := UserSetupMgt.GetRespCenter(1, Vend."Responsibility Center");
                 ValidateEmptySellToCustomerAndLocation();
                 OnAfterCopyBuyFromVendorFieldsFromVendor(Rec, Vend, xRec);
 
@@ -878,7 +882,7 @@ table 38 "Purchase Header"
                                         PurchLine."Line Amount" := PurchLine.Amount + PurchLine."Inv. Discount Amount";
                                 UpdatePrepmtAmounts(PurchLine);
                             end;
-                            OnValidatePricesIncludingVATOnBeforePurchLineModify(PurchHeader, PurchLine, Currency, RecalculatePrice);
+                            OnValidatePricesIncludingVATOnBeforePurchLineModify(Rec, PurchLine, Currency, RecalculatePrice);
                             PurchLine.Modify();
                         until PurchLine.Next() = 0;
                     end;
@@ -3071,7 +3075,10 @@ table 38 "Purchase Header"
 
         UpdateInboundWhseHandlingTime();
 
-        "Responsibility Center" := UserSetupMgt.GetRespCenter(1, "Responsibility Center");
+        IsHandled := false;
+        OnInitRecordOnBeforeAssignResponsibilityCenter(Rec, IsHandled);
+        if not IsHandled then
+            "Responsibility Center" := UserSetupMgt.GetRespCenter(1, "Responsibility Center");
         GetNextArchiveDocOccurrenceNo();
 
         OnAfterInitRecord(Rec);
@@ -3401,7 +3408,7 @@ table 38 "Purchase Header"
         Contact.FilterGroup(0);
     end;
 
-    internal procedure PerformManualRelease(var PurchaseHeader: Record "Purchase Header")
+    procedure PerformManualRelease(var PurchaseHeader: Record "Purchase Header")
     var
         BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
         NoOfSelected: Integer;
@@ -3418,7 +3425,7 @@ table 38 "Purchase Header"
         PurchaseHeader.FilterGroup(PrevFilterGroup);
     end;
 
-    internal procedure PerformManualRelease()
+    procedure PerformManualRelease()
     var
         ReleasePurchDoc: Codeunit "Release Purchase Document";
     begin
@@ -3428,7 +3435,7 @@ table 38 "Purchase Header"
         end;
     end;
 
-    internal procedure PerformManualReopen(var PurchaseHeader: Record "Purchase Header")
+    procedure PerformManualReopen(var PurchaseHeader: Record "Purchase Header")
     var
         BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
         NoOfSelected: Integer;
@@ -5079,9 +5086,12 @@ table 38 "Purchase Header"
 
     procedure PrepareOpeningDocumentStatistics()
     var
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        PurchaseHeader: Record "Purchase Header";
+        [SecurityFiltering(SecurityFilter::Ignored)]
         PurchaseLine: Record "Purchase Line";
     begin
-        if not WritePermission() or not PurchaseLine.WritePermission() then
+        if not PurchaseHeader.WritePermission() or not PurchaseLine.WritePermission() then
             Error(StatisticsInsuffucientPermissionsErr);
 
         CalcInvDiscForHeader();
@@ -8157,6 +8167,16 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeHasMixedDropShipment(var PurchaseHeader: Record "Purchase Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBuyFromVendorNoOnBeforeAssignResponsibilityCenter(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitRecordOnBeforeAssignResponsibilityCenter(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 }

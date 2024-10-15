@@ -748,6 +748,8 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         ICInboxPurchaseLine."Line Discount %" := GetValueFromJsonTokenOrDecimalZero(IndividualToken, 'lineDiscount');
         ICInboxPurchaseLine."Line Discount Amount" := GetValueFromJsonTokenOrDecimalZero(IndividualToken, 'lineDiscountAmount');
         ICInboxPurchaseLine."Amount Including VAT" := GetValueFromJsonTokenOrDecimalZero(IndividualToken, 'amountIncludingVat');
+        ICInboxPurchaseLine.Amount := GetValueFromJsonTokenOrDecimalZero(IndividualToken, 'amount');
+        ICInboxPurchaseLine."Inv. Discount Amount" := GetValueFromJsonTokenOrDecimalZero(IndividualToken, 'invoiceDiscountAmount');
         ICInboxPurchaseLine."Job No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'jobNumber');
         ICInboxPurchaseLine."Indirect Cost %" := GetValueFromJsonTokenOrDecimalZero(IndividualToken, 'indirectCost');
         ICInboxPurchaseLine."Receipt No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'receiptNumber');
@@ -823,6 +825,8 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         ICInboxSalesLine."Line Discount %" := GetValueFromJsonTokenOrDecimalZero(IndividualToken, 'lineDiscount');
         ICInboxSalesLine."Line Discount Amount" := GetValueFromJsonTokenOrDecimalZero(IndividualToken, 'lineDiscountAmount');
         ICInboxSalesLine."Amount Including VAT" := GetValueFromJsonTokenOrDecimalZero(IndividualToken, 'amountIncludingVat');
+        ICInboxSalesLine.Amount := GetValueFromJsonTokenOrDecimalZero(IndividualToken, 'amount');
+        ICInboxSalesLine."Inv. Discount Amount" := GetValueFromJsonTokenOrDecimalZero(IndividualToken, 'invoiceDiscountAmount');
         ICInboxSalesLine."Job No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'jobNumber');
         ICInboxSalesLine."Drop Shipment" := GetValueFromJsonTokenOrFalse(IndividualToken, 'dropShipment');
         ICInboxSalesLine."Currency Code" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'currencyCode');

@@ -1078,6 +1078,7 @@ codeunit 31143 "Sales Adv. Letter-Post CZZ"
         TempAdvancePostingBufferCZZ: Record "Advance Posting Buffer CZZ" temporary;
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CustLedgerEntry2: Record "Cust. Ledger Entry";
+        UseGLAccountDimensionsCZZ: Codeunit "Use G/L Account Dimensions CZZ";
         RemainingAmount, RemainingAmountLCY : Decimal;
         EntryNo, GLEntryNo : Integer;
         IsHandled: Boolean;
@@ -1125,7 +1126,9 @@ codeunit 31143 "Sales Adv. Letter-Post CZZ"
 #if not CLEAN24
                 RaiseOnBeforePostClosePayment(GenJournalLine, SalesAdvLetterHeaderCZZ);
 #endif
+                BindSubscription(UseGLAccountDimensionsCZZ);
                 GLEntryNo := RunGenJnlPostLine(GenJournalLine, GenJnlPostLine, false, false, false);
+                UnbindSubscription(UseGLAccountDimensionsCZZ);
                 OnPostAdvanceLetterEntryClosingOnAfterPost(
                     SalesAdvLetterHeaderCZZ, SalesAdvLetterEntryCZZ, CustLedgerEntry,
                     AdvancePostingParametersCZZ, GLEntryNo, GenJnlPostLine, GenJournalLine);

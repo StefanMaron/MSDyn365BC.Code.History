@@ -31,6 +31,7 @@ codeunit 134117 "Price Lists UI"
         AllLinesVerifiedMsg: Label 'All price list lines which were modified by you were verified.';
         AmountTypeNotAlowedErr: Label '%1 is not allowed for %2.', Comment = '%1 - Amount type, %2 - source type';
         TestFieldErr: Label '%1 must have a value', Comment = '%1 = Field Caption';
+        CodeErr: Label '%1 must be %2 in %3.', Comment = '%1 = Code, %2 = Next No. from No. Series, %3 = Sales/Purchase Price List';
 
     [Test]
     procedure T000_SalesPriceListsPageIsNotEditable()
@@ -4291,6 +4292,78 @@ codeunit 134117 "Price Lists UI"
 
         // [VERIFY] Check different Default View in Sales Price List. 
         VerifyAmountType(PriceListHeader);
+    end;
+
+    [Test]
+    procedure NextNoSeriesIsAssignedInCodeFieldOfSalesPriceListWhenCleanEnteredChar()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesPriceList: TestPage "Sales Price List";
+        NextNo: Code[20];
+    begin
+        // [SCENARIO 533390] Next No. Series is assigned in Code field of Sales Price List when Stan types something in it and removes it and then press tab.
+        Initialize(true);
+
+        // [GIVEN] Validate Price List Nos. in Sales & Receivables Setup.
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Price List Nos.", LibraryERM.CreateNoSeriesCode());
+        SalesReceivablesSetup.Modify(true);
+
+        // [GIVEN] Generate and save Next No. from No. Series in a Variable.
+        NextNo := LibraryUtility.GetNextNoFromNoSeries(SalesReceivablesSetup."Price List Nos.", WorkDate());
+
+        // [GIVEN] Open New Sales Price List.
+        SalesPriceList.OpenNew();
+
+        // [WHEN] Set blank in Code field.
+        SalesPriceList.Code.SetValue('');
+        SalesPriceList.Next();
+
+        // [THEN] Next No. from No. Series and value in Code field of Sales Price List are same.
+        Assert.AreEqual(
+            NextNo,
+            Format(SalesPriceList.Code),
+            StrSubstNo(
+                CodeErr,
+                SalesPriceList.Code.Caption(),
+                NextNo,
+                SalesPriceList.Caption()));
+    end;
+
+    [Test]
+    procedure NextNoSeriesIsAssignedInCodeFieldOfPurchPriceListWhenCleanEnteredChar()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        PurchasePriceList: TestPage "Purchase Price List";
+        NextNo: Code[20];
+    begin
+        // [SCENARIO 533390] Next No. Series is assigned in Code field of Purchase Price List when Stan types something in it and removes it and then press tab.
+        Initialize(true);
+
+        // [GIVEN] Validate Price List Nos. in Purchases & Payables Setup.
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Price List Nos.", LibraryERM.CreateNoSeriesCode());
+        PurchasesPayablesSetup.Modify(true);
+
+        // [GIVEN] Generate and save Next No. from No. Series in a Variable.
+        NextNo := LibraryUtility.GetNextNoFromNoSeries(PurchasesPayablesSetup."Price List Nos.", WorkDate());
+
+        // [GIVEN] Open New Purchase Price List.
+        PurchasePriceList.OpenNew();
+
+        // [WHEN] Set blank in Code field.
+        PurchasePriceList.Code.SetValue('');
+        PurchasePriceList.Next();
+
+        // [THEN] Next No. from No. Series and value in Code field of Purchase Price List are same.
+        Assert.AreEqual(
+            NextNo,
+            Format(PurchasePriceList.Code),
+            StrSubstNo(
+                CodeErr,
+                PurchasePriceList.Code.Caption(),
+                NextNo,
+                PurchasePriceList.Caption()));
     end;
 
     local procedure Initialize(Enable: Boolean)

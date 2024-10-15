@@ -59,6 +59,7 @@ codeunit 137161 "SCM Warehouse Orders"
         WrongNoOfRecordsErr: Label 'The list must contain %1 records', Comment = '%1 = Record count';
         InsufficientQtyItemTrkgErr: Label 'Item tracking defined for source line %1 of %2 %3 amounts to more than the quantity you have entered.';
         DialogCodeErr: Label 'Dialog';
+        QtyToHandleErr: Label '%1 must be %2 in %3', Comment = '%1 = Qty. to Handle, %2 = Quantity * Qty. per Unit of Measure, %3 = Whse. Worksheet Line';
 
     [Test]
     [HandlerFunctions('PartialReservationPageHandler,HandlePickSelectionPage')]
@@ -2301,6 +2302,75 @@ codeunit 137161 "SCM Warehouse Orders"
         // [THEN] A pick worksheet line shows "Qty. Avail. to Pick" = 15.
         FindWhseWorksheetLine(WhseWorksheetLine, WhseWorksheetName, Location.Code);
         Assert.AreEqual(Qty * 3 / 4, WhseWorksheetLine.AvailableQtyToPick(), '');
+    end;
+
+    [Test]
+    procedure QtyToHandleAsPerUOMIsPopulatedInPickWorkSheetLine()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Item: Record Item;
+        UnitOfMeasure: array[2] of Record "Unit of Measure";
+        ItemUnitOfMeasure: array[2] of Record "Item Unit of Measure";
+        SalesHeader: Record "Sales Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WhseWorksheetName: Record "Whse. Worksheet Name";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 535725] When Purchase Order and Sales Order is received, put-away and shipped in different Unit of Measure Codes then Qty. to handle field in Pick Worksheet shows quanity based on Unit of Measure.
+        Initialize();
+
+        // [GIVEN] Create a Location.
+        LibraryWarehouse.CreateFullWMSLocation(Location, 2);
+
+        // [GIVEN] Create a Warehouse Employee.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create two Unit of Measure Codes.
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure[1]);
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure[2]);
+
+        // [GIVEN] Create two Item Unit of Measures.
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure[1], Item."No.", UnitOfMeasure[1].Code, LibraryRandom.RandInt(0));
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure[2], Item."No.", UnitOfMeasure[2].Code, LibraryRandom.RandIntInRange(20, 20));
+
+        // [GIVEN] Validate Base Unit of Measure, Sales Unit of Measure and Purch. Unit of Measure in Item.
+        Item.Validate("Base Unit of Measure", ItemUnitOfMeasure[1].Code);
+        Item.Validate("Sales Unit of Measure", ItemUnitOfMeasure[2].Code);
+        Item.Validate("Purch. Unit of Measure", ItemUnitOfMeasure[1].Code);
+        Item.Modify(true);
+
+        // [GIVEN] Generate and save Quantity in a Variable.
+        Quantity := LibraryRandom.RandIntInRange(16, 16);
+
+        // [GIVEN] Create and Register Put-Away from Warehouse Receipt using Purchase Order.
+        CreateAndRegisterPutAwayFromWarehouseReceiptUsingPurchaseOrder(Item."No.", Quantity, Location.Code);
+
+        // [GIVEN] Create and Release Sales Order.
+        CreateAndReleaseSalesOrder(SalesHeader, LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandIntInRange(25, 25), Location.Code);
+
+        // [GIVEN] Create and Release Warehouse Shipment.
+        CreateAndReleaseWarehouseShipment(WarehouseShipmentHeader, SalesHeader);
+
+        // [GIVEN] Get Warehouse Document on Whse. Worksheet Line.
+        GetWarehouseDocumentOnWarehouseWorksheetLine(WhseWorksheetName, Location.Code, WarehouseShipmentHeader."No.", '');
+
+        // [WHEN] Find Whse. Worksheet Line.
+        FindWhseWorksheetLine(WhseWorksheetLine, WhseWorksheetName, Location.Code);
+
+        // [THEN] Qty. to Handle in Whse. WorksheetLine must be equal to Quantity / Qty. per Unit of Measure of Item Unit of Measure 2.
+        Assert.AreEqual(
+            Quantity / ItemUnitOfMeasure[2]."Qty. per Unit of Measure",
+            WhseWorksheetLine."Qty. to Handle",
+            StrSubstNo(
+                QtyToHandleErr,
+                WhseWorksheetLine.FieldCaption("Qty. to Handle"),
+                Quantity / ItemUnitOfMeasure[2]."Qty. per Unit of Measure",
+                WhseWorksheetLine.TableCaption()));
     end;
 
     local procedure Initialize()

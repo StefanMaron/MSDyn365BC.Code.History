@@ -697,7 +697,7 @@ codeunit 31142 "Purch. Adv. Letter-Post CZZ"
                     ExchRateAmount := PurchAdvLetterEntryCZZ3."Amount (LCY)" + GenJournalLine."Amount (LCY)";
                     ExchRateVATAmount := PurchAdvLetterEntryCZZ3."VAT Amount (LCY)" + GenJournalLine."VAT Amount (LCY)";
                     if (ExchRateAmount <> 0) or (ExchRateVATAmount <> 0) then
-                        PostExchangeRate(PurchAdvLetterHeaderCZZ, PurchAdvLetterEntryCZZ, VATPostingSetup, ExchRateAmount, ExchRateVATAmount,
+                        PostExchangeRate(PurchAdvLetterHeaderCZZ, PurchAdvLetterEntryCZZ, VATPostingSetup, -ExchRateAmount, -ExchRateVATAmount,
                                 PurchAdvLetterEntryCZZ."Related Entry", true, GenJnlPostLine, AdvancePostingParametersCZZ2);
 
                     ReverseUnrealizedExchangeRate(
@@ -1093,6 +1093,7 @@ codeunit 31142 "Purch. Adv. Letter-Post CZZ"
         TempAdvancePostingBufferCZZ: Record "Advance Posting Buffer CZZ" temporary;
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
+        UseGLAccountDimensionsCZZ: Codeunit "Use G/L Account Dimensions CZZ";
         RemainingAmount, RemainingAmountLCY : Decimal;
         EntryNo, GLEntryNo : Integer;
         IsHandled: Boolean;
@@ -1140,7 +1141,9 @@ codeunit 31142 "Purch. Adv. Letter-Post CZZ"
 #if not CLEAN24
                 RaiseOnBeforePostClosePayment(GenJournalLine, PurchAdvLetterHeaderCZZ);
 #endif
+                BindSubscription(UseGLAccountDimensionsCZZ);
                 GLEntryNo := RunGenJnlPostLine(GenJournalLine, GenJnlPostLine, false, false, false);
+                UnbindSubscription(UseGLAccountDimensionsCZZ);
                 OnPostAdvanceLetterEntryClosingOnAfterPost(
                     PurchAdvLetterHeaderCZZ, PurchAdvLetterEntryCZZ, VendorLedgerEntry,
                     AdvancePostingParametersCZZ, GLEntryNo, GenJnlPostLine, GenJournalLine);

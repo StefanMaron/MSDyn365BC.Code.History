@@ -587,34 +587,6 @@ codeunit 139018 "Job Queue Entry Tests"
     end;
 
     [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure JobQueueEntryUserIsChangedOnScheduleTask()
-    var
-        JobQueueEntry: Record "Job Queue Entry";
-        LibraryJobQueue: Codeunit "Library - Job Queue";
-        CustomUserId: Text[20];
-    begin
-        // [FEATURE] [User]
-        // [SCENARIO 294844] User ID is changed on running ScheduleTask for JobQueueEntry
-
-        // [GIVEN] User ID "U" not equal to the ID of User running the application
-        CustomUserId := CopyStr(LibraryUtility.GenerateRandomXMLText(20), 1, 20);
-
-        // [GIVEN] Job Queue Entry with User ID = "U"
-        MockJobQueueEntryWithUserID(JobQueueEntry, CustomUserId);
-
-        // [WHEN] Running SheduleTask on this Job Queue Entry
-        BindSubscription(LibraryJobQueue);
-        JobQueueEntry.ScheduleTask();
-
-        // [THEN] Job Queue Entry User ID is changed
-        JobQueueEntry.Find();
-        JobQueueEntry.TestField("User ID", UserId);
-    end;
-
-
-    [Test]
     [HandlerFunctions('ConfirmationHandlerYes,NeutralMessageHandler')]
     [Scope('OnPrem')]
     procedure RunOnceInForeground()
@@ -713,6 +685,132 @@ codeunit 139018 "Job Queue Entry Tests"
         UnbindSubscription(AzureADUserTestLibrary);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmationHandlerYes,NeutralMessageHandler')]
+    procedure RunJQWithinStartAndEndTime()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        JobQueueLogEntry: Record "Job Queue Log Entry";
+        JobQueueEntryCard: TestPage "Job Queue Entry Card";
+    begin
+        // [SCENARIO] The job queue entry runs only if it is within the start and end time
+
+        // [GIVEN] An existing job queue entry
+        Initialize();
+        CreateJobQueueEntry(JobQueueEntry, JobQueueEntry.Status::Ready);
+        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
+        JobQueueEntry."Object ID to Run" := Codeunit::"Notification Entry Dispatcher";
+
+        JobQueueEntry."Starting Time" := DT2Time(CurrentDateTime + 1000);
+        JobQueueEntry."Ending Time" := DT2Time(CurrentDateTime + 1000 * 2);
+        JobQueueEntry.Modify(true);
+
+        // [WHEN] The job queue entry is run
+        JobQueueEntryCard.OpenView();
+        JobQueueEntryCard.GoToRecord(JobQueueEntry);
+        JobQueueEntryCard.RunInForeground.Invoke();
+        JobQueueEntryCard.Close();
+
+        // [THEN] The job queue entry is not run
+        Assert.AreEqual(0, JobQueueLogEntry.Count(), 'Job queue entry should not have been run');
+
+        JobQueueEntry.Get(JobQueueEntry.ID);
+        JobQueueEntry."Starting Time" := DT2Time(CurrentDateTime - 1000 * 60);
+        JobQueueEntry.Modify(true);
+
+        // [WHEN] The job queue entry is run
+        JobQueueEntryCard.OpenView();
+        JobQueueEntryCard.GoToRecord(JobQueueEntry);
+        JobQueueEntryCard.RunInForeground.Invoke();
+        JobQueueEntryCard.Close();
+
+        // [THEN] The job queue entry is not run
+        Assert.AreEqual(1, JobQueueLogEntry.Count(), 'Job queue entry should have been run');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmationHandlerYes,NeutralMessageHandler')]
+    procedure RunJQWithinStartTimeAndEndOfDay()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        JobQueueLogEntry: Record "Job Queue Log Entry";
+        JobQueueEntryCard: TestPage "Job Queue Entry Card";
+    begin
+        // [SCENARIO] The job queue entry runs only if it is within the start and end time
+
+        // [GIVEN] An existing job queue entry
+        Initialize();
+        CreateJobQueueEntry(JobQueueEntry, JobQueueEntry.Status::Ready);
+        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
+        JobQueueEntry."Object ID to Run" := Codeunit::"Notification Entry Dispatcher";
+        JobQueueEntry."Starting Time" := DT2Time(CurrentDateTime + 1000);
+        JobQueueEntry.Modify(true);
+
+        // [WHEN] The job queue entry is run
+        JobQueueEntryCard.OpenView();
+        JobQueueEntryCard.GoToRecord(JobQueueEntry);
+        JobQueueEntryCard.RunInForeground.Invoke();
+        JobQueueEntryCard.Close();
+
+        // [THEN] The job queue entry is not run
+        Assert.AreEqual(0, JobQueueLogEntry.Count(), 'Job queue entry should not have been run');
+
+        JobQueueEntry.Get(JobQueueEntry.ID);
+        JobQueueEntry."Starting Time" := DT2Time(CurrentDateTime - 1000);
+        JobQueueEntry.Modify(true);
+
+        // [WHEN] The job queue entry is run
+        JobQueueEntryCard.OpenView();
+        JobQueueEntryCard.GoToRecord(JobQueueEntry);
+        JobQueueEntryCard.RunInForeground.Invoke();
+        JobQueueEntryCard.Close();
+
+        // [THEN] The job queue entry is not run
+        Assert.AreEqual(1, JobQueueLogEntry.Count(), 'Job queue entry should have been run');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmationHandlerYes,NeutralMessageHandler')]
+    procedure RunJQWithinStartOfDayAndEndTime()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        JobQueueLogEntry: Record "Job Queue Log Entry";
+        JobQueueEntryCard: TestPage "Job Queue Entry Card";
+    begin
+        // [SCENARIO] The job queue entry runs only if it is within the start and end time
+
+        // [GIVEN] An existing job queue entry
+        Initialize();
+
+        CreateJobQueueEntry(JobQueueEntry, JobQueueEntry.Status::Ready);
+        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
+        JobQueueEntry."Object ID to Run" := Codeunit::"Notification Entry Dispatcher";
+        JobQueueEntry."Ending Time" := DT2Time(CurrentDateTime - 1000);
+        JobQueueEntry.Modify(true);
+
+        // [WHEN] The job queue entry is run
+        JobQueueEntryCard.OpenView();
+        JobQueueEntryCard.GoToRecord(JobQueueEntry);
+        JobQueueEntryCard.RunInForeground.Invoke();
+        JobQueueEntryCard.Close();
+
+        // [THEN] The job queue entry is not run
+        Assert.AreEqual(0, JobQueueLogEntry.Count(), 'Job queue entry should not have been run');
+
+        JobQueueEntry.Get(JobQueueEntry.ID);
+        JobQueueEntry."Ending Time" := DT2Time(CurrentDateTime + 1000);
+        JobQueueEntry.Modify(true);
+
+        // [WHEN] The job queue entry is run
+        JobQueueEntryCard.OpenView();
+        JobQueueEntryCard.GoToRecord(JobQueueEntry);
+        JobQueueEntryCard.RunInForeground.Invoke();
+        JobQueueEntryCard.Close();
+
+        // [THEN] The job queue entry is not run
+        Assert.AreEqual(1, JobQueueLogEntry.Count(), 'Job queue entry should have been run');
+    end;
+
     local procedure TestDelegatedJQ()
     var
         JobQueueEntry: Record "Job Queue Entry";
@@ -761,6 +859,19 @@ codeunit 139018 "Job Queue Entry Tests"
         ApprovalEntry.FindFirst();
         Assert.AreEqual(JobQueueEntry.RecordId(), ApprovalEntry."Record ID to Approve", 'Approval Entry created for wrong JQ');
         Assert.AreEqual(UserSetup."Approver ID", ApprovalEntry."Approver ID", 'Wrong Approver ID assigned to Approval Entry');
+    end;
+
+    local procedure Initialize()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        JobQueueLogEntry: Record "Job Queue Log Entry";
+        RestrictedRecord: Record "Restricted Record";
+        LibraryWorkflow: Codeunit "Library - Workflow";
+    begin
+        RestrictedRecord.DeleteAll();
+        LibraryWorkflow.DisableAllWorkflows();
+        JobQueueEntry.DeleteAll();
+        JobQueueLogEntry.DeleteAll();
     end;
 
     local procedure CreateJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; InitialStatus: Option)
@@ -814,7 +925,6 @@ codeunit 139018 "Job Queue Entry Tests"
     begin
         Answer := true;
     end;
-
 
     [SendNotificationHandler]
     [Scope('OnPrem')]

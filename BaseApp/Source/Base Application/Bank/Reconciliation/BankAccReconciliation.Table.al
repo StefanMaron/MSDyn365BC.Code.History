@@ -389,7 +389,6 @@ table 273 "Bank Acc. Reconciliation"
     end;
 
     var
-        BankAcc: Record "Bank Account";
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
         PostedBankAccStmt: Record "Bank Account Statement";
         PostedPaymentReconHdr: Record "Posted Payment Recon. Hdr";
@@ -406,6 +405,9 @@ table 273 "Bank Acc. Reconciliation"
         NoTransactionsImportedMsg: Label 'No bank transactions were imported. For example, because the transactions were imported in other bank account reconciliations, or because they are already applied to bank account ledger entries. You can view the applied transactions on the Bank Account Statement List page and on the Posted Payment Reconciliations page.';
         BankReconciliationFeatureNameTelemetryTxt: Label 'Bank reconciliation', Locked = true;
         PaymentRecJournalFeatureNameTelemetryTxt: Label 'Payment Reconciliation', Locked = true;
+
+    protected var
+        BankAcc: Record "Bank Account";
 
     internal procedure GetPaymentRecJournalTelemetryFeatureName(): Text
     begin

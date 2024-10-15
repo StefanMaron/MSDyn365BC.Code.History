@@ -618,8 +618,11 @@ table 6661 "Return Receipt Line"
         else
             NextLineNo := 10000;
 
-        if SalesHeader."No." <> TempSalesLine."Document No." then
-            SalesHeader.Get(TempSalesLine."Document Type", TempSalesLine."Document No.");
+        IsHandled := false;
+        OnInsertInvLineFromRetRcptLineOnBeforeSalesHeaderGet(SalesHeader, Rec, TempSalesLine, IsHandled);
+        if not IsHandled then
+            if SalesHeader."No." <> TempSalesLine."Document No." then
+                SalesHeader.Get(TempSalesLine."Document Type", TempSalesLine."Document No.");
 
         OnInsertInvLineFromRetRcptLineOnAfterSalesHeaderGet(Rec, SalesHeader, SalesLine);
 
@@ -976,6 +979,11 @@ table 6661 "Return Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var ReturnReceiptLine: Record "Return Receipt Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInvLineFromRetRcptLineOnBeforeSalesHeaderGet(var SalesHeader: Record "Sales Header"; ReturnReceiptLine: Record "Return Receipt Line"; var TempSalesLine: Record "Sales Line" temporary; var IsHandled: boolean)
     begin
     end;
 }

@@ -94,6 +94,12 @@ page 643 "Handled IC Outbox Purch. Lines"
                     ToolTip = 'Specifies the date that the vendor has promised to deliver the order.';
                     Visible = false;
                 }
+                field("Inv. Discount Amount"; Rec."Inv. Discount Amount")
+                {
+                    ApplicationArea = Intercompany;
+                    ToolTip = 'Specifies the total calculated invoice discount amount for the line.';
+                    Visible = false;
+                }
             }
         }
     }

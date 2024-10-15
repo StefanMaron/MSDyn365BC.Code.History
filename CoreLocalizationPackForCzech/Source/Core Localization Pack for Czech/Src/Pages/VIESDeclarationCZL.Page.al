@@ -6,6 +6,7 @@ namespace Microsoft.Finance.VAT.Reporting;
 
 using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.Company;
+using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Utilities;
 
 page 31138 "VIES Declaration CZL"
@@ -147,6 +148,13 @@ page 31138 "VIES Declaration CZL"
                     DrillDown = false;
                     ToolTip = 'Specifies total amounts of all reported trades for selected period.';
                 }
+                field("Additional-Currency Amount"; Rec."Additional-Currency Amount")
+                {
+                    ApplicationArea = Basic, Suite;
+                    DrillDown = false;
+                    ToolTip = 'Specifies total additional currency amounts of all reported trades for selected period.';
+                    Visible = UseAmtsInAddCurrVisible;
+                }
                 field("Number of Supplies"; Rec."Number of Supplies")
                 {
                     ApplicationArea = Basic, Suite;
@@ -170,6 +178,12 @@ page 31138 "VIES Declaration CZL"
                     begin
                         SetControlsEditable();
                     end;
+                }
+                field("Export Amt.inAdd.-CurrencyAmt."; Rec."Export Amt.inAdd.-CurrencyAmt.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if you want export amounts to be shown in the additional reporting currency.';
+                    Visible = UseAmtsInAddCurrVisible;
                 }
             }
             part(Lines; "VIES Declaration Subform CZL")
@@ -449,6 +463,7 @@ page 31138 "VIES Declaration CZL"
     trigger OnOpenPage()
     begin
         SetNoFieldVisible();
+        SetUseAmtsInAddCurrVisible();
     end;
 
     var
@@ -462,6 +477,7 @@ page 31138 "VIES Declaration CZL"
         CompanyTradeNameAppendixEditable: Boolean;
         IndividualEmployeeNoEditable: Boolean;
         NoFieldVisible: Boolean;
+        UseAmtsInAddCurrVisible: Boolean;
 
     local procedure SetControlsEditable()
     var
@@ -493,6 +509,14 @@ page 31138 "VIES Declaration CZL"
             NoFieldVisible := false
         else
             NoFieldVisible := DocumentNoVisibility.ForceShowNoSeriesForDocNo(DetermineVIESDeclarationCZLSeriesNo());
+    end;
+
+    local procedure SetUseAmtsInAddCurrVisible()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        UseAmtsInAddCurrVisible := GeneralLedgerSetup."Additional Reporting Currency" <> '';
     end;
 
     local procedure DetermineVIESDeclarationCZLSeriesNo(): Code[20]

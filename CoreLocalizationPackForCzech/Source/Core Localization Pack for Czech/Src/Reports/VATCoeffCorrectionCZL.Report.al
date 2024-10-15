@@ -349,6 +349,7 @@ report 11749 "VAT Coeff. Correction CZL"
         ModifyVATEntry."Entry No." := EntryNo + 1;
         if FirstVATEntryNo = 0 then
             FirstVATEntryNo := ModifyVATEntry."Entry No.";
+        ModifyVATEntry."Source Code" := SourceCodeSetup."VAT Coeff. Correction CZL";
         ModifyVATEntry."Original VAT Entry No. CZL" := TempVATEntry."Entry No.";
         ModifyVATEntry."Original VAT Amount CZL" := 0;
         ModifyVATEntry."Original VAT Base CZL" := 0;
