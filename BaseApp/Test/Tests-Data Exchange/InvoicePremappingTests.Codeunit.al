@@ -1449,6 +1449,27 @@ codeunit 139157 "Invoice Premapping Tests"
           GetIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Applies-to Doc. Type"), 1), '');
     end;
 
+    [Test]
+    procedure QueryOCRVendorsABNField()
+    var
+        Vendor: Record Vendor;
+        OCRVendors: Query "OCR Vendors";
+    begin
+        // [FEATURE] [UT] [Vendor] [ABN]
+        // [SCENARIO 372895] Vendor.ABN field value can be read using query 134 "OCR Vendors"
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.ABN := LibraryUtility.GenerateGUID();
+        Vendor."VAT Registration No." := LibraryUtility.GenerateGUID();
+        Vendor.Modify();
+
+        OCRVendors.SetRange(No, Vendor."No.");
+        OCRVendors.Open();
+        OCRVendors.Read();
+
+        Assert.AreEqual(Vendor."VAT Registration No.", OCRVendors.VAT_Registration_No, 'VAT Registration No.');
+        Assert.AreEqual(Vendor.ABN, OCRVendors.ABN, 'ABN');
+    end;
+
     local procedure SetupDataExchTable(var DataExch: Record "Data Exch.")
     var
         IncomingDocument: Record "Incoming Document";

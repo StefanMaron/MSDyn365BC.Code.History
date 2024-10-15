@@ -731,7 +731,7 @@
             PurchOrderHeader.Validate("Buy-from Vendor No.", RequisitionLine."Vendor No.");
     end;
 
-    local procedure UpdateShipToOrLocationCode(var RequisitionLine: Record "Requisition Line"; PurchaseHeader: Record "Purchase Header")
+    local procedure UpdateShipToOrLocationCode(var RequisitionLine: Record "Requisition Line"; var PurchaseHeader: Record "Purchase Header")
     var
         IsHandled: Boolean;
     begin

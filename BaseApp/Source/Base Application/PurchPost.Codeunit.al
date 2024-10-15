@@ -306,6 +306,7 @@
         InvPickExistsErr: Label 'One or more related inventory picks must be registered before you can post the shipment.';
         InvPutAwayExistsErr: Label 'One or more related inventory put-aways must be registered before you can post the receipt.';
         SuppressCommit: Boolean;
+        OrderArchived: Boolean;
         CheckPurchHeaderMsg: Label 'Check purchase document fields.';
         HideProgressWindow: Boolean;
         OverReceiptApprovalErr: Label 'There are lines with over-receipt required for approval.';
@@ -831,7 +832,7 @@
         PurchaseLineBackup: Record "Purchase Line";
         IsHandled: Boolean;
     begin
-        if not (PurchHeader.Invoice and (PurchLine."Qty. to Invoice" <> 0)) then
+        if not (PurchHeader.Invoice and (PurchLine."Qty. to Invoice" <> 0) and (PurchLine.Amount <> 0)) then
             exit;
 
         IsHandled := false;
@@ -1882,7 +1883,8 @@
             exit;
 
         with PurchaseLine do begin
-            TestField(Amount);
+            if "Line Discount %" <> 100 then
+                TestField(Amount);
             TestField("Job No.", '');
         end;
     end;
@@ -2133,9 +2135,9 @@
 
             if Invoice and ("Posting No." = '') then begin
                 if ("No. Series" <> '') or
-                   ("Document Type" in ["Document Type"::Order, "Document Type"::"Return Order", "Document Type"::"Credit Memo"])
+                   ("Document Type" in ["Document Type"::Order, "Document Type"::"Return Order"])
                 then begin
-                    if "Document Type" in ["Document Type"::"Return Order", "Document Type"::"Credit Memo"] then
+                    if "Document Type" in ["Document Type"::"Return Order"] then
                         ResetPostingNoSeriesFromSetup("Posting No. Series", PurchSetup."Posted Credit Memo Nos.")
                     else
                         ResetPostingNoSeriesFromSetup("Posting No. Series", PurchSetup."Posted Invoice Nos.");
@@ -2309,7 +2311,8 @@
                 end;
                 UpdateAfterPosting(PurchHeader);
                 UpdateWhseDocuments;
-                ArchiveManagement.AutoArchivePurchDocument(PurchHeader);
+                if not OrderArchived then
+                    ArchiveManagement.AutoArchivePurchDocument(PurchHeader);
                 ApprovalsMgmt.DeleteApprovalEntries(RecordId);
                 if not PreviewMode then
                     DeleteAfterPosting(PurchHeader);
@@ -3625,6 +3628,7 @@
         with TempPurchLine do begin
             ResetTempLines(TempPurchLine);
             SetRange(Type, Type::"Charge (Item)");
+            SetFilter("Line Discount %", '<>100');
             if IsEmpty then
                 exit;
 
@@ -5150,6 +5154,7 @@
         if not PurchLine.IsEmpty and not PreviewMode then begin
             RoundDeferralsForArchive(PurchHeader, PurchLine);
             ArchiveManagement.ArchPurchDocumentNoConfirm(PurchHeader);
+            OrderArchived := true;
         end;
     end;
 
@@ -7913,6 +7918,7 @@
         TempSKU.DeleteAll();
         TempDeferralHeader.DeleteAll();
         TempDeferralLine.DeleteAll();
+        OrderArchived := false;
     end;
 
     procedure SetSuppressCommit(NewSuppressCommit: Boolean)

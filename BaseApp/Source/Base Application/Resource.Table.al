@@ -735,7 +735,7 @@ table 156 Resource
     begin
         SalesLine.RenameNo(SalesLine.Type::Resource, xRec."No.", "No.");
         DimMgt.RenameDefaultDim(DATABASE::Resource, xRec."No.", "No.");
-
+        CommentLine.RenameCommentLine(CommentLine."Table Name"::Resource, xRec."No.", "No.");
         "Last Date Modified" := Today;
 
         PostCodeCheck.MoveAllAddressID(
