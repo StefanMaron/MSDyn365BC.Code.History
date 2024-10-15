@@ -1,4 +1,4 @@
-codeunit 134387 "ERM Sales Documents III"
+﻿codeunit 134387 "ERM Sales Documents III"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -65,7 +65,7 @@ codeunit 134387 "ERM Sales Documents III"
         WrongReportInvokedErr: Label 'Wrong report invoked.';
         ConfirmSendPostedShipmentQst: Label 'You can take the same actions for the related Sales - Shipment document.\\Do you want to do that now?';
         LinesNotUpdatedMsg: Label 'You have changed Language Code on the sales header, but it has not been changed on the existing sales lines.';
-        LinesNotUpdatedDateMsg: Label 'You have changed the %1 on the sales order, which might affect the prices and discounts on the sales order lines. You should review the lines and manually update prices and discounts if needed.';
+        LinesNotUpdatedDateMsg: Label 'You have changed the %1 on the sales header, which might affect the prices and discounts on the sales lines. You should review the lines and manually update prices and discounts if needed.';
         UpdateManuallyMsg: Label 'You must update the existing sales lines manually.';
         AffectExchangeRateMsg: Label 'The change may affect the exchange rate that is used for price calculation on the sales lines.';
         SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.';

@@ -1,4 +1,4 @@
-codeunit 99000773 "Calculate Prod. Order"
+﻿codeunit 99000773 "Calculate Prod. Order"
 {
     Permissions = TableData Item = r,
                   TableData "Prod. Order Line" = rimd,
@@ -224,6 +224,7 @@ codeunit 99000773 "Calculate Prod. Order"
     var
         Item2: Record Item;
         ComponentSKU: Record "Stockkeeping Unit";
+        IsHandled: Boolean;
     begin
         ProdOrderComp.Reset();
         ProdOrderComp.SetCurrentKey(Status, "Prod. Order No.", "Prod. Order Line No.", "Item No.");
@@ -270,13 +271,16 @@ codeunit 99000773 "Calculate Prod. Order"
             ProdOrderComp.Validate("Scrap %", ProdBOMLine[Level]."Scrap %");
             ProdOrderComp.Validate("Calculation Formula", ProdBOMLine[Level]."Calculation Formula");
 
-            OnTransferBOMProcessItemOnBeforeGetPlanningParameters(ProdOrderComp, ProdBOMLine[Level]);
+            OnTransferBOMProcessItemOnBeforeGetPlanningParameters(ProdOrderComp, ProdBOMLine[Level], SKU);
             GetPlanningParameters.AtSKU(
               ComponentSKU, ProdOrderComp."Item No.", ProdOrderComp."Variant Code", ProdOrderComp."Location Code");
-
             OnTransferBOMProcessItemOnAfterGetPlanningParameters(ProdOrderLine, ComponentSKU);
 
-            ProdOrderComp."Flushing Method" := ComponentSKU."Flushing Method";
+            IsHandled := false;
+            OnTransferBOMProcessItemOnBeforeSetFlushingMethod(ProdOrderLine, ComponentSKU, ProdOrderComp, ProdBOMLine[Level], IsHandled);
+            if not IsHandled then
+                ProdOrderComp."Flushing Method" := ComponentSKU."Flushing Method";
+
             if (SKU."Manufacturing Policy" = SKU."Manufacturing Policy"::"Make-to-Order") and
                (ComponentSKU."Manufacturing Policy" = ComponentSKU."Manufacturing Policy"::"Make-to-Order") and
                (ComponentSKU."Replenishment System" = ComponentSKU."Replenishment System"::"Prod. Order")
@@ -1043,7 +1047,7 @@ codeunit 99000773 "Calculate Prod. Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTransferBOMProcessItemOnBeforeGetPlanningParameters(var ProdOrderComponent: Record "Prod. Order Component"; ProductionBOMLine: Record "Production BOM Line")
+    local procedure OnTransferBOMProcessItemOnBeforeGetPlanningParameters(var ProdOrderComponent: Record "Prod. Order Component"; ProductionBOMLine: Record "Production BOM Line"; StockkeepingUnit: Record "Stockkeeping Unit")
     begin
     end;
 
@@ -1085,6 +1089,11 @@ codeunit 99000773 "Calculate Prod. Order"
 
     [IntegrationEvent(false, false)]
     procedure OnRecalculateOnBeforeCalculateRouting(var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferBOMProcessItemOnBeforeSetFlushingMethod(var ProdOrderLine: Record "Prod. Order Line"; var ComponentSKU: Record "Stockkeeping Unit"; var ProdOrderComp: Record "Prod. Order Component"; ProdBOMLine: Record "Production BOM Line"; var IsHandled: Boolean)
     begin
     end;
 }

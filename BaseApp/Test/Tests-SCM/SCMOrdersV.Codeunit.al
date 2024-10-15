@@ -1,4 +1,4 @@
-codeunit 137158 "SCM Orders V"
+﻿codeunit 137158 "SCM Orders V"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -48,7 +48,7 @@ codeunit 137158 "SCM Orders V"
         QuantityToAssembleErr: Label 'Quantity to Assemble cannot be higher than the Remaining Quantity, which is %1.', Comment = '%1 = Quantity Value';
         AvailabilityWarningsConfirmMsg: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
         ExternalDocumentMustNotEmptyErr: Label 'External Document No. must have a value in Sales Header: Document Type=Order, No.=%1. It cannot be zero or empty.', Comment = '%1 = Order No.';
-        OrderDateOnSalesHeaderMsg: Label 'You have changed the Order Date on the sales order, which might affect the prices and discounts on the sales order lines. You should review the lines and manually update prices and discounts if needed.';
+        OrderDateOnSalesHeaderMsg: Label 'You have changed the Order Date on the sales header, which might affect the prices and discounts on the sales lines. You should review the lines and manually update prices and discounts if needed.';
         NoGLEntryWithinFilterErr: Label 'There is no G/L Entry within the filter';
         DropShipmentMustBeEqualToNoErr: Label 'Drop Shipment must be equal to ''No''  in Purchase Line: Document Type=Order, Document No.=%1', Comment = '%1 = Document No.';
         SpecialOrderMustBeEqualToNoErr: Label 'Special Order must be equal to ''No''  in Purchase Line: Document Type=Order, Document No.=%1', Comment = '%1 = Document No.';

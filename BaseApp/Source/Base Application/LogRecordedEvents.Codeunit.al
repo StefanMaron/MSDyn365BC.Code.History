@@ -32,7 +32,7 @@ codeunit 9804 "Log Recorded Events"
         TempRecordedEventBufferVar.Copy(TempRecordedEventBuffer, true);
     end;
 
-    trigger EventReceiver::OnEventCheckEvent(sender: Variant; e: DotNet EventCheckEventArgs)
+trigger EventReceiver::OnEventCheckEvent(sender: Variant; e: DotNet EventCheckEventArgs)
     var
         IsEventLogged: Boolean;
     begin
@@ -50,30 +50,26 @@ codeunit 9804 "Log Recorded Events"
             exit;
         end;
 
+        TempRecordedEventBuffer."Object Type" := e.ObjectType;
+        TempRecordedEventBuffer."Object ID" := e.ObjectId;
+        TempRecordedEventBuffer."Event Name" := e.EventName;
+        TempRecordedEventBuffer."Element Name" := e.ElementName;        
+        TempRecordedEventBuffer."Event Type" := e.EventType;
+        TempRecordedEventBuffer."Calling Object Type" := e.CallingObjectType;
+        TempRecordedEventBuffer."Calling Object ID" := e.CallingObjectId;
+        TempRecordedEventBuffer."Calling Method" := e.CallingMethodName;
+
         IsEventLogged := TempRecordedEventBuffer.Get(
-            e.ObjectType,
-            e.ObjectId,
-            e.EventName,
-            e.ElementName,
-            e.EventType,
-            e.CallingObjectType,
-            e.CallingObjectId,
-            e.CallingMethodName,
-            CallOrder);
+            TempRecordedEventBuffer."Object Type", TempRecordedEventBuffer."Object ID",
+            TempRecordedEventBuffer."Event Name", TempRecordedEventBuffer."Element Name", TempRecordedEventBuffer."Event Type",
+            TempRecordedEventBuffer."Calling Object Type", TempRecordedEventBuffer."Calling Object ID",
+            TempRecordedEventBuffer."Calling Method", CallOrder);
 
         if not IsEventLogged then begin
             CallOrder := CallOrder + 1;
             TempRecordedEventBuffer.Init();
             TempRecordedEventBuffer."Session ID" := e.SessionId;
-            TempRecordedEventBuffer."Object Type" := e.ObjectType;
-            TempRecordedEventBuffer."Object ID" := e.ObjectId;
-            TempRecordedEventBuffer."Event Name" := e.EventName;
-            TempRecordedEventBuffer."Event Type" := e.EventType;
-            TempRecordedEventBuffer."Element Name" := e.ElementName;
             TempRecordedEventBuffer."Call Order" := CallOrder;
-            TempRecordedEventBuffer."Calling Object Type" := e.CallingObjectType;
-            TempRecordedEventBuffer."Calling Object ID" := e.CallingObjectId;
-            TempRecordedEventBuffer."Calling Method" := e.CallingMethodName;
             TempRecordedEventBuffer."Hit Count" := 0;
             TempRecordedEventBuffer.Insert();
         end;
