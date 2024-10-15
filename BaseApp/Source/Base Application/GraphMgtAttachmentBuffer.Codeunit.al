@@ -955,6 +955,8 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
                             exit(AttachmentEntityBufferDocType::"Sales Quote");
                         if SalesHeader."Document Type" = SalesHeader."Document Type"::Invoice then
                             exit(AttachmentEntityBufferDocType::"Sales Invoice");
+                        if SalesHeader."Document Type" = SalesHeader."Document Type"::"Credit Memo" then
+                            exit(AttachmentEntityBufferDocType::"Sales Credit Memo");
                     end;
                 end else
                     exit(AttachmentEntityBufferDocType::"Sales Invoice");
@@ -1607,6 +1609,8 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
                             TempAttachmentEntityBuffer."Document Type" := TempAttachmentEntityBuffer."Document Type"::"Sales Quote";
                         if SalesHeader."Document Type" = SalesHeader."Document Type"::Invoice then
                             TempAttachmentEntityBuffer."Document Type" := TempAttachmentEntityBuffer."Document Type"::"Sales Invoice";
+                        if SalesHeader."Document Type" = SalesHeader."Document Type"::"Credit Memo" then
+                            TempAttachmentEntityBuffer."Document Type" := TempAttachmentEntityBuffer."Document Type"::"Sales Credit Memo";
                     end;
                 end else
                     TempAttachmentEntityBuffer."Document Type" := TempAttachmentEntityBuffer."Document Type"::"Sales Invoice";

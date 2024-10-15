@@ -1,6 +1,7 @@
 codeunit 1297 "Http Web Request Mgt."
 {
     var
+        [NonDebuggable]
         HttpWebRequest: DotNet HttpWebRequest;
         TraceLogEnabled: Boolean;
         InvalidUrlErr: Label 'The URL is not valid.';
@@ -362,6 +363,7 @@ codeunit 1297 "Http Web Request Mgt."
         RequestStr.Dispose;
     end;
 
+    [NonDebuggable]
     procedure AddBasicAuthentication(BasicUserId: Text; BasicUserPassword: Text)
     var
         Credential: DotNet NetworkCredential;

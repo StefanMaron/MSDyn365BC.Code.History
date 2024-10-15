@@ -1,4 +1,4 @@
-codeunit 99000845 "Reservation Management"
+﻿codeunit 99000845 "Reservation Management"
 {
     Permissions = TableData "Item Ledger Entry" = rm,
                   TableData "Reservation Entry" = rimd,
@@ -559,7 +559,7 @@ codeunit 99000845 "Reservation Management"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeAutoReserveOneLine(IsHandled, AvailabilityDate);
+        OnBeforeAutoReserveOneLine(IsHandled, AvailabilityDate, CalcReservEntry);
         if IsHandled then
             exit;
 
@@ -2886,7 +2886,7 @@ codeunit 99000845 "Reservation Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAutoReserveOneLine(var IsHandled: Boolean; var AvailabilityDate: Date)
+    local procedure OnBeforeAutoReserveOneLine(var IsHandled: Boolean; var AvailabilityDate: Date; var CalcReservEntry: Record "Reservation Entry")
     begin
     end;
 

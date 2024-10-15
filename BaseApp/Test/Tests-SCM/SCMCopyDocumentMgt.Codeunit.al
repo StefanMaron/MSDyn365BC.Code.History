@@ -224,7 +224,6 @@ codeunit 137212 "SCM Copy Document Mgt."
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerNo')]
     [Scope('OnPrem')]
     procedure CopyDimensionsPurchaseDocumentRecalculateLines()
     begin
@@ -232,7 +231,6 @@ codeunit 137212 "SCM Copy Document Mgt."
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmAllHandler')]
     [Scope('OnPrem')]
     procedure CopyDimensionsPurchaseDocumentNoRecalculateLines()
     begin
